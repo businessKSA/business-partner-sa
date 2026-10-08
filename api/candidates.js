@@ -1050,6 +1050,75 @@ function tooManyAttempts(res) {
 // صفاً مفعّلاً (resolvePlan)، أو المالك. وغيابها = الحجب: كل مسارٍ يقرأ
 // `sub === true` صراحةً، فحقلٌ ناقص أو خلل في نوشن أو رمزٌ منتهٍ يعني الحجب لا الفتح.
 //
+// ── انتهاء الاشتراك (قرار المالك 2026-10-08) ─────────────────────────────────
+// `activateSubscription` (api/employer.js) يكتب مدّة الاشتراك في عمود «تاريخ التفعيل»
+// (بدايةٌ ونهاية)، لكنّ القراءة لم تكن تنظر إليها: صفٌّ «مفعّل» كان `sub=true` إلى الأبد،
+// فمن توقّف عن الدفع بقيت بيانات المرشحين مفتوحةً له. الآن تُقرأ النهاية، بأربع حالات
+// لا تختلط (وهي ما تقيسه tests/employer-subscription-expiry.test.mjs):
+//
+//   غياب النهاية       مفتوح   صفوفٌ فُعّلت يدوياً في نوشن بلا تواريخ (قبل الدفع
+//                              الإلكتروني) ولا يُقطع عنها أحد. هذا قرارٌ لا سهو.
+//   نهاية مستقبلية     مفتوح   (ومعها يومُ النهاية نفسه كاملاً، بحساب UTC كما في
+//                              `cur.end >= today` عند التجديد في activateSubscription).
+//   نهاية ماضية        مغلق    `sub=false` + `subState:"expired"`. تبقى اللوحة
+//                              (`unlocked`) ورمز الوصول، فيرى إعلاناته ومتقدّميه كاملين
+//                              ويُحجب عنه بنك السير كالحساب المجاني.
+//   تاريخ فاسد         مغلق    نصٌّ ليس تاريخاً صالحاً (أو 2026-02-31): `sub=false` +
+//                              `subState:"invalid"` + سطر خطأ في السجلّ بمعرّف الصف.
+//                              **فشلٌ مغلق موثّق**: لا نخمّن أن صاحب الصف أراد الفتح؛
+//                              وإصلاحه سطرٌ في نوشن. غيابُ النهاية ليس فساداً (الأولى).
+//
+// فترة السماح: `GRACE_DAYS` (أيامٌ صحيحة ≥ 0، الافتراضي 0 = بلا سماح). تُضاف إلى النهاية
+// قبل الحكم بالانتهاء. قيمةٌ غير عددية أو سالبة تُقرأ 0 (الأضيق)، وسقفها 365.
+//
+// لا يمسّ هذا: المالك/الفريق (OWNER_EMAILS وOWNER_EMAIL)، ولا رمز OWNER_DEMO_CODE ولا
+// EMPLOYER_CODES البيئية (يرجعان قبل نوشن)، ولا الصف غير «مفعّل» (يُحجب أصلاً).
+const SUB_DATE_PROP = "تاريخ التفعيل";
+const DAY_MS = 86400000;
+export const graceDays = () => {
+  const raw = String(process.env.GRACE_DAYS == null ? "" : process.env.GRACE_DAYS).trim();
+  return /^\d{1,4}$/.test(raw) ? Math.min(Number(raw), 365) : 0;
+};
+// لحظة انتهاء الاشتراك (حصرية) بالمللي ثانية، أو NaN إن لم تكن تاريخاً صالحاً.
+// «YYYY-MM-DD» = ينتهي بنهاية ذلك اليوم UTC · وقتٌ كامل ISO = ينتهي في تلك اللحظة.
+function subEndInstant(s) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const t = Date.parse(s + "T00:00:00Z");
+    // Date.parse يُدحرج 2026-02-31 إلى مارس؛ الدائرة العكسية تكشفه.
+    return Number.isFinite(t) && new Date(t).toISOString().slice(0, 10) === s ? t + DAY_MS : NaN;
+  }
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(s)) return Date.parse(s);
+  return NaN;
+}
+// حالة نافذة الاشتراك من خصائص الصف: nodate | future | grace | expired | corrupt.
+export function subscriptionWindow(props, now = Date.now(), grace = graceDays()) {
+  const prop = props && props[SUB_DATE_PROP];
+  const d = prop && prop.date;                       // نوعٌ آخر في العمود = لا تاريخ
+  if (d == null) return { state: "nodate", end: "" };
+  if (typeof d !== "object") return { state: "corrupt", end: "" };
+  if (d.end == null || d.end === "") return { state: "nodate", end: "" };
+  if (typeof d.end !== "string") return { state: "corrupt", end: "" };
+  const endAt = subEndInstant(d.end.trim());
+  if (!Number.isFinite(endAt)) return { state: "corrupt", end: "" };
+  const end = d.end.trim().slice(0, 10);
+  if (now < endAt) return { state: "future", end };
+  if (now < endAt + grace * DAY_MS) return { state: "grace", end };
+  return { state: "expired", end };
+}
+// القرار النهائي لصفٍّ «مفعّل»: { sub, subState: "ok"|"expired"|"invalid", subEnd }.
+// الفريق لا يُحكم عليه بالتاريخ أصلاً.
+export function subscriptionGate(row, email, now = Date.now()) {
+  const mail = String(email || "").trim().toLowerCase();
+  if (mail && (isOwnerEmail(mail) || mail === OWNER_EMAIL)) return { sub: true, subState: "ok", subEnd: "" };
+  const w = subscriptionWindow((row && row.properties) || {}, now);
+  if (w.state === "corrupt") {
+    console.error("employer sub end-date invalid — closed:", row && row.id);
+    return { sub: false, subState: "invalid", subEnd: "" };
+  }
+  if (w.state === "expired") return { sub: false, subState: "expired", subEnd: w.end };
+  return { sub: true, subState: "ok", subEnd: w.end };
+}
+
 // Resolve a subscription code → { unlocked, sub, plan }. Checks the owner override,
 // then the static EMPLOYER_CODES env (legacy), then the Employers Notion DB
 // for an ACTIVE row by access code.
@@ -1087,7 +1156,10 @@ export async function resolvePlan(code, req) {
         // The platform owner's account (matched by registered email) also owns
         // the site's own vacancies — see the SITE_ROLES append in list-postings.
         const email = (row.properties && row.properties["البريد"] && row.properties["البريد"].email) || "";
-        return { unlocked: true, sub: true, plan: (p && p.name) || "", owner: email.toLowerCase() === OWNER_EMAIL };
+        // مفعّلٌ لكن انتهت مدّته: تبقى اللوحة (unlocked) ويُحجب بنك السير (sub=false).
+        const g = subscriptionGate(row, email);
+        return { unlocked: true, sub: g.sub, plan: (p && p.name) || "", owner: email.toLowerCase() === OWNER_EMAIL,
+          ...(g.subState !== "ok" ? { subState: g.subState } : {}), ...(g.subEnd ? { subEnd: g.subEnd } : {}) };
       }
       // نوشن أجابت ولا صفّ: هذا وحده «تخمينٌ فاشل». تعذّر السؤال (أدناه) لا يُحسب.
       if (req) await noteCodeMiss(req);
@@ -1203,13 +1275,18 @@ async function employerRowFor(req) {
     // فلا يظهر في لوحة أحد ولا يصل إشعارٌ لأحد — حدث فعلاً بالرمز BP-HOUSE.
     // يُقال لصاحبه بدل أن يُعامَل كأنه بلا اشتراك.
     if (!code) return { email, reason: "nocode", company: txt(p["اسم الشركة"]) };
+    // الاشتراك المنتهي لا يُغلق الدخول: `reason` تبقى "ok" واللوحة تُفتح (إعلاناته
+    // ومتقدّموها)، و`sub` وحدها تسقط فيُحجب بنك السير (انظر subscriptionGate).
+    const g = subscriptionGate(row, email);
     return {
       email, reason: "ok",
       account: {
-        unlocked: true, sub: true, account: true, code,
+        unlocked: true, sub: g.sub, account: true, code,
         plan: txt(p["الباقة"]),
         company: txt(p["اسم الشركة"]),
         owner: email === OWNER_EMAIL,
+        ...(g.subState !== "ok" ? { subState: g.subState } : {}),
+        ...(g.subEnd ? { subEnd: g.subEnd } : {}),
       },
     };
   } catch (e) {
@@ -1751,19 +1828,23 @@ export default async function handler(req, res) {
   // `sub`: اشتراكٌ فعّال يفتح بيانات قاعدة المواهب. يبدأ مغلقاً ولا يُفتح إلا بقيمةٍ
   // صريحة `true` من مصدرٍ موثوق (انظر الشرح فوق resolvePlan).
   let sub = false;
+  // `subState`/`subEnd`: لماذا sub=false لصاحب صفٍّ مفعّل — expired (انتهت مدّته) أو
+  // invalid (تاريخ فاسد). تُعاد في validate=1 وحدها ليفرّق المتصفّح «انتهى» عن «مجاني».
+  let subState = "", subEnd = "";
   // انظر التعليق على code:"self" في handlePostings — الرمز يُحلّ في الخادم من
   // البريد المُثبت ولا يُعاد إلى المتصفّح في أي ردّ.
   let account = null, empState = null;
   if (code === "self") {
     empState = await employerRowFor(req);
     account = empState.reason === "ok" ? empState.account : null;
-    if (account) { unlocked = true; sub = account.sub === true; plan = account.plan; code = account.code; owner = !!account.owner; }
+    if (account) { unlocked = true; sub = account.sub === true; plan = account.plan; code = account.code; owner = !!account.owner; subState = account.subState || ""; subEnd = account.subEnd || ""; }
     else code = "";
   } else if (code && !code.startsWith("org:")) {
     const pl = await resolvePlan(code, req);
     if (pl.limited) return tooManyAttempts(res);
     ({ unlocked, plan, owner = false } = pl);
     sub = pl.sub === true;
+    subState = pl.subState || ""; subEnd = pl.subEnd || "";
   }
   let portal = null;
   if (!unlocked) {
@@ -1794,6 +1875,7 @@ export default async function handler(req, res) {
     // تظهر فيها — وهذا هو الصمت الذي يبدو «لوحةً فارغة» بلا سبب، فيُقال.
     return res.end(JSON.stringify({
       ok: true, unlocked, sub, plan,
+      ...(subState ? { subState } : {}), ...(subEnd ? { subEnd } : {}),
       ...(account ? { account: true, company: account.company } : {}),
       ...(portal ? { portal: true, code: portal.code, days: portal.days } : {}),
       ...(empState && empState.reason !== "ok" && empState.reason !== "no_session"

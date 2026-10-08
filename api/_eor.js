@@ -25,7 +25,10 @@ import { fileURLToPath } from "node:url";
 import { randomInt } from "node:crypto";
 import { EMAIL_LIVE, WHATSAPP_LIVE, outbox, DEV } from "./_mode.js";
 import { OCCUPATIONS, occupationById, searchOccupations } from "./_occupations.js";
-import { packageRateConfigFromPricing, computePackageRate, packageClientView, computeCasualRate, casualUnitView, normalizeInsuranceFields, normalizeBillingUnit, normalizeEngagementType, parseUnitQuantity, parseCasualHours } from "./_eor-cost.js";
+import { packageRateConfigFromPricing, computePackageRate, packageClientView, computeCasualRate, casualUnitView, normalizeInsuranceFields, insuranceUiFromConfig, DEFAULT_INSURER, normalizeBillingUnit, normalizeEngagementType, parseUnitQuantity, parseCasualHours } from "./_eor-cost.js";
+import { isBillingAction, handleEorBilling } from "./_eor-billing.js";
+// المسار (api/requests.js) يحسب ctx.auth للإجراءات المحجوزة ويستورد هذين من هنا مع handleEor.
+export { isBillingAction, authFromSession } from "./_eor-billing.js";
 // قوائم اختيار التأمين المسموحة (معرّفات فقط، لا أرقام) — تستوردها صفحة /eor من هنا لا من الحاسبة.
 export { INSURANCE_CLASSES, INSURANCE_AGE_BANDS, INSURANCE_GENDERS, BILLING_UNITS, UNIT_QUANTITY_MAX, ENGAGEMENT_TYPES, CASUAL_HOURS } from "./_eor-cost.js";
 
@@ -45,10 +48,57 @@ export const EOR_LIMITS = Object.freeze({
   maxNationalities: 10,    // لكل بند
   maxSalary: 100000,       // راتب شهري متوقع (ريال)
   minMonths: 1,
-  maxMonths: 60,
+  maxMonths: 120,          // سقف وحدة «شهر» في المدة (= 10 سنوات)
   maxStartDays: 730,       // أبعد تاريخ بدء من اليوم
   company: 120, contact: 80, city: 60, email: 160, notes: 2000, source: 60,
 });
+
+// ═════════════ مدة الطلب: ساعة | يوم | شهر | سنة (أمر المالك 2026-10-08) ═════════════
+// على مستوى الطلب لا البند. durationUnit قائمة بيضاء (المجهول ⇒ month)، وdurationValue عدد صحيح موجب بسقف الوحدة.
+// التوافق العكسي: الطلب القديم بـdurationMonths وحده يُترجَم إلى month/القيمة نفسها.
+// العمالة المرنة تقبل hour|day|month؛ التعاقد يقبل month|year. وحدة غير مقبولة تُسقَط إلى month بلا خطأ:
+//   تعاقد hour/day ⇒ durationMonths القديم إن وُجد وصحّ، وإلا ceil(الساعات ÷ 720) أو ceil(الأيام ÷ 30) (مدة تقويمية)؛ مرنة year ⇒ سنوات × 12.
+//   الناتج المُسقَط يُحصر في سقف الأشهر ولا يُرفض.
+export const DURATION_UNITS = Object.freeze(["hour", "day", "month", "year"]);
+export const DURATION_MAX = Object.freeze({ hour: 10000, day: 3650, month: 120, year: 10 });
+const DURATION_ALLOWED = Object.freeze({ contract: ["month", "year"], casual: ["hour", "day", "month"] });
+const durInt = (raw) => {
+  if (raw === undefined || raw === null || raw === "") return { absent: true };
+  const n = typeof raw === "string" && /^\d{1,6}$/.test(raw.trim()) ? Number(raw.trim()) : raw;
+  return Number.isInteger(n) && n >= 1 ? { value: n } : { invalid: true };
+};
+const durClamp = (m) => Math.min(Math.max(m, EOR_LIMITS.minMonths), DURATION_MAX.month);
+// → { ok:true, unit, value, months (عدد الأشهر للشهر/السنة وإلا null), downgraded } | { ok:false }
+export function normalizeDuration(src, engagementType) {
+  const b = src && typeof src === "object" ? src : {};
+  const eng = normalizeEngagementType(engagementType);
+  const u = typeof b.durationUnit === "string" ? b.durationUnit.trim().toLowerCase() : "";
+  let unit = DURATION_UNITS.includes(u) ? u : "month";
+  const v = durInt(b.durationValue), legacy = durInt(b.durationMonths);
+  if (v.invalid || legacy.invalid) return { ok: false };
+  let value;
+  if (!v.absent) value = v.value;
+  else if (!legacy.absent) { unit = "month"; value = legacy.value; }
+  else return { ok: false };
+  if (value > DURATION_MAX[unit]) return { ok: false };
+  let downgraded = false;
+  if (!DURATION_ALLOWED[eng].includes(unit)) {
+    downgraded = true;
+    if (unit === "year") value = durClamp(value * 12);
+    else if (!legacy.absent && legacy.value <= DURATION_MAX.month) value = legacy.value;
+    else value = durClamp(Math.ceil(value / (unit === "hour" ? 720 : 30)));
+    unit = "month";
+  }
+  return { ok: true, unit, value, months: unit === "month" ? value : unit === "year" ? value * 12 : null, downgraded };
+}
+const AR_DUR = { hour: ["ساعة واحدة", "ساعتان", "ساعات", "ساعة"], day: ["يوم واحد", "يومان", "أيام", "يوماً"], month: ["شهر واحد", "شهران", "أشهر", "شهراً"], year: ["سنة واحدة", "سنتان", "سنوات", "سنة"] };
+// «12 شهراً» · «سنتان» · «5 أيام» — عربي للفريق؛ غير العربية بالإنجليزية.
+export function durationText(unit, value, lang = "ar") {
+  if (!DURATION_UNITS.includes(unit) || !Number.isInteger(value) || value < 1) return "";
+  if (lang !== "ar") return `${value} ${unit}${value > 1 ? "s" : ""}`;
+  const f = AR_DUR[unit];
+  return value === 1 ? f[0] : value === 2 ? f[1] : value <= 10 ? `${value} ${f[2]}` : `${value} ${f[3]}`;
+}
 
 export const WORKER_TYPES = Object.freeze({ saudi: "سعوديون", foreign: "أجانب", both: "الاثنان" });
 export const RECRUITMENT_VALUES = Object.freeze({ yes: "يلزم", no: "لا يلزم", unsure: "غير محدد" });
@@ -238,8 +288,9 @@ export function validateEorRequest(body, opts = {}) {
     if (!isoDate(s) || s < addDays(today, -1) || s > addDays(today, EOR_LIMITS.maxStartDays)) return fail("start_date_invalid", "startDate");
     startDate = s;
   }
-  const dm = typeof b.durationMonths === "string" && /^\d+$/.test(b.durationMonths.trim()) ? Number(b.durationMonths.trim()) : b.durationMonths;
-  if (!Number.isInteger(dm) || dm < EOR_LIMITS.minMonths || dm > EOR_LIMITS.maxMonths) return fail("duration_invalid", "durationMonths");
+  const dur = normalizeDuration(b, engagementType);
+  if (!dur.ok) return fail("duration_invalid", "durationValue");
+  const dm = dur.months;
 
   if (b.notes != null && typeof b.notes !== "string") return fail("notes_invalid", "notes");
   if (typeof b.notes === "string" && b.notes.length > EOR_LIMITS.notes) return fail("notes_too_long", "notes");
@@ -250,7 +301,7 @@ export function validateEorRequest(body, opts = {}) {
 
   return {
     ok: true,
-    value: { company, contactName, email, phone, city, sector, engagementType, workerType, recruitment, items, totalCount: total, startDate, durationMonths: dm, notes, lang, source },
+    value: { company, contactName, email, phone, city, sector, engagementType, workerType, recruitment, items, totalCount: total, startDate, durationMonths: dm, durationUnit: dur.unit, durationValue: dur.value, notes, lang, source },
   };
 }
 
@@ -363,8 +414,13 @@ export function estimatePackageQuote(items, pricing, opts = {}) {
   if (!cfg) return PENDING;
   const today = riyadhToday(opts.now);
   if ((cfg.validFrom && cfg.validFrom > today) || (cfg.validUntil && cfg.validUntil < today)) return PENDING;
-  const months = Number.isInteger(opts.durationMonths) && opts.durationMonths > 0 ? opts.durationMonths : null;
-  if (normalizeEngagementType(opts.engagementType) === "casual") return estimateCasualQuote(list, cfg, today, months, opts);
+  const engagement = normalizeEngagementType(opts.engagementType);
+  // المدة: (durationUnit, durationValue) إن مُرِّرا، وإلا durationMonths القديم كما كان (بلا سقف جديد).
+  const hasUnitValue = opts.durationValue !== undefined && opts.durationValue !== null;
+  const dur = hasUnitValue ? normalizeDuration({ durationUnit: opts.durationUnit, durationValue: opts.durationValue }, engagement) : null;
+  const months = dur && dur.ok ? dur.months : (Number.isInteger(opts.durationMonths) && opts.durationMonths > 0 ? opts.durationMonths : null);
+  const durationOut = dur && dur.ok ? { unit: dur.unit, value: dur.value } : null;
+  if (engagement === "casual") return estimateCasualQuote(list, cfg, today, months, opts, durationOut);
 
   let priced = 0, totalC = 0;
   const lines = [];
@@ -376,7 +432,7 @@ export function estimatePackageQuote(items, pricing, opts = {}) {
     if (!cfg.appliesTo.includes(wt)) { lines.push({ ...line, status: "not_applicable" }); continue; }
     if (!isNum(it.salary) || it.salary <= 0) { lines.push({ ...line, status: "needs_salary" }); continue; }
     // اختيار التأمين (اختياري لكل بند): يُمرَّر فقط حين يحمل البند حقوله، والحاسبة تُسقط المجهول إلى «الأساسي».
-    const insurance = "insuranceClass" in it ? { insuranceClass: it.insuranceClass, ageBand: it.ageBand, gender: it.gender, maternity: it.maternity, chronic: it.chronic } : undefined;
+    const insurance = "insuranceClass" in it ? { insuranceClass: it.insuranceClass, ageBand: it.ageBand, gender: it.gender, maternity: it.maternity, chronic: it.chronic, insurer: it.insurer } : undefined;
     const view = packageClientView(computePackageRate({ mode: "lump", package: it.salary, insurance, config: { ...cfg, today } }), cfg);
     if (view.status !== "ok") return PENDING;      // حاسبة ناقصة أو مغلقة: لا رقم لأي بند
     const monthlyC = cents(view.monthlyPrice) * it.count;
@@ -384,8 +440,9 @@ export function estimatePackageQuote(items, pricing, opts = {}) {
     lines.push({ ...line, status: "priced", salary: it.salary, monthlyPerEmployee: view.monthlyPrice, otHour: view.otHour, monthlyTotal: sar(monthlyC), ...(view.insurance ? { insurance: view.insurance } : {}) });
   }
   // أعلام واجهة فقط (منطقية): هل يُعرض اختيار التأمين وإضافتاه؟ لا أرقام.
-  const insuranceUi = { selectable: !!(cfg.insurance && cfg.insurance.clientSelectable), addons: !!(cfg.insurance && cfg.insurance.clientSelectable && cfg.insurance.addonsVisible) };
-  if (!priced) return { status: "none", currency: cfg.currency, lines, insuranceUi, notice: "estimate_not_an_offer" };
+  // + قائمة الشركات (معرّف واسمان) وأوصاف الفئات للواجهة: لا أرقام ولا معاملات.
+  const insuranceUi = insuranceUiFromConfig(cfg);
+  if (!priced) return { status: "none", currency: cfg.currency, lines, insuranceUi, ...(durationOut ? { duration: durationOut } : {}), notice: "estimate_not_an_offer" };
   return {
     status: priced === list.length ? "ok" : "partial",
     currency: cfg.currency,
@@ -393,6 +450,9 @@ export function estimatePackageQuote(items, pricing, opts = {}) {
     insuranceUi,
     monthlyTotal: sar(totalC),
     durationMonths: months,
+    ...(durationOut ? { duration: durationOut } : {}),
+    // مدة بالسنة: إجمالي تقديري = السعر الشهري × 12 × السنوات (سعر البيع الذي يراه العميل نفسه، بلا ربح أو معاملات).
+    ...(durationOut && durationOut.unit === "year" ? { termTotal: sar(totalC * 12 * durationOut.value) } : {}),
     notice: "estimate_not_an_offer",
   };
 }
@@ -401,7 +461,7 @@ export function estimatePackageQuote(items, pricing, opts = {}) {
 // الراتب المرجعي الذي يدخله العميل هو أساس الحساب؛ المعاملات وأجر العامل والربح داخلية. يخرج للعميل: سعر الوحدة وإجمالي الكمية
 // (= سعر الوحدة × الكمية لكل موظف × عدد الموظفين) فقط، وساعات اليوم التي اختارها هو. لا تأمين ولا ساعة إضافي ولا سعر شهري EOR.
 // أي إعداد ناقص/مغلق (package_rate.client_price_visible أو casual.client_visible) ⇒ { status:"pending_pricing" } وحدها.
-function estimateCasualQuote(list, cfg, today, months, opts) {
+function estimateCasualQuote(list, cfg, today, months, opts, durationOut) {
   const PENDING = { status: "pending_pricing" };
   const k = cfg.casual;
   if (!k) return PENDING;
@@ -424,8 +484,8 @@ function estimateCasualQuote(list, cfg, today, months, opts) {
     priced++;
     lines.push({ ...line, status: "priced", salary: it.salary, unit: { status: "ok", billingUnit: uv.unit, unitPrice: uv.unitPrice, quantity, ...(uv.hoursPerDay ? { hoursPerDay: uv.hoursPerDay } : {}), total: totalU === null ? null : sar(totalU) } });
   }
-  const insuranceUi = { selectable: false, addons: false };
-  if (!priced) return { status: "none", engagementType: "casual", currency: cfg.currency, lines, insuranceUi, notice: "estimate_not_an_offer" };
+  const insuranceUi = insuranceUiFromConfig(null);          // لا تأمين في المرنة: الأعلام مغلقة والقوائم فارغة
+  if (!priced) return { status: "none", engagementType: "casual", currency: cfg.currency, lines, insuranceUi, ...(durationOut ? { duration: durationOut } : {}), notice: "estimate_not_an_offer" };
   return {
     status: priced === list.length ? "ok" : "partial",
     engagementType: "casual",
@@ -434,6 +494,7 @@ function estimateCasualQuote(list, cfg, today, months, opts) {
     insuranceUi,
     ...(complete ? { unitTotal: sar(unitC) } : {}),
     durationMonths: months,
+    ...(durationOut ? { duration: durationOut } : {}),
     notice: "estimate_not_an_offer",
   };
 }
@@ -572,8 +633,9 @@ export function buildScopeOfWork(request, lang = "ar") {
   const company = [...T.company];
   if (r.recruitment === "yes") company.push(T.recruitYes);
   else if (r.recruitment === "unsure") company.push(T.recruitUnsure);
+  const durTxt = r.durationUnit && r.durationValue ? durationText(r.durationUnit, r.durationValue, L) : "";
   const term = [
-    `${r.durationMonths ? r.durationMonths + " " + T.lbl.months : T.lbl.tbd}`,
+    `${durTxt || (r.durationMonths ? r.durationMonths + " " + T.lbl.months : T.lbl.tbd)}`,
     `${T.lbl.start}: ${r.startDate || T.lbl.tbd}`,
   ];
   const sections = [
@@ -590,23 +652,25 @@ export function buildScopeOfWork(request, lang = "ar") {
 
 /* ═════════════ نصوص منظّمة للحفظ والتنبيه ═════════════ */
 // بنود المهن بصيغة العرض للفريق (عربي دائماً — هذا سجلٌّ داخلي).
-export function itemsText(items) {
+export function itemsText(items, insurerNames) {
   return (items || []).map((it, i) => {
     const o = occupationById(it.occupationId);
     const name = o ? `${o.nameAr} | ${o.nameEn}` : String(it.occupationId);
     const nats = (it.nationalities || []).map((c) => nationalityName(c, "ar")).join("، ") || "غير محدّدة";
-    return `${i + 1}) ${name} — العدد: ${it.count} — الجنسيات: ${nats}${isNum(it.salary) ? ` — الراتب المتوقع: ${it.salary} ريال` : ""}${insuranceText(it)}${unitText(it)}`;
+    return `${i + 1}) ${name} — العدد: ${it.count} — الجنسيات: ${nats}${isNum(it.salary) ? ` — الراتب المتوقع: ${it.salary} ريال` : ""}${insuranceText(it, insurerNames)}${unitText(it)}`;
   }).join("\n");
 }
 
 // اختيار التأمين كما كتبه العميل (للفريق، عربي): يظهر فقط إن خالف الافتراضي. لا قسط ولا معامل.
 const INS_CLASS_AR = { basic: "الأساسي", C: "الفئة C", B: "الفئة B", A: "الفئة A", quote: "فئة عليا بعرض سعر الشركة" };
 const GENDER_AR = { male: "ذكر", female: "أنثى" };
-function insuranceText(it) {
+function insuranceText(it, insurerNames) {
   if (!it || typeof it !== "object" || !("insuranceClass" in it)) return "";
   const n = normalizeInsuranceFields(it);
   const parts = [];
   if (n.insuranceClass !== "basic") parts.push(`التأمين: ${INS_CLASS_AR[n.insuranceClass]}`);
+  // الشركة المفضّلة تفضيلٌ يخصّ الفريق (لا يغيّر السعر إلا بمعامل المالك): تُكتب إن لم تكن «أي شركة».
+  if (n.insurer !== DEFAULT_INSURER) parts.push(`الشركة المفضّلة: ${(insurerNames && insurerNames[n.insurer]) || n.insurer}`);
   if (GENDER_AR[n.gender]) parts.push(`الجنس: ${GENDER_AR[n.gender]}`);
   if (n.ageBand) parts.push(`الفئة العمرية: ${n.ageBand}`);
   if (n.maternity) parts.push("أمومة");
@@ -654,7 +718,7 @@ const chunks = (s, n = 1900) => { const out = []; const str = String(s || ""); f
 const rt = (s) => chunks(s).map((c) => ({ type: "text", text: { content: c } }));
 const rtProp = (s) => ({ rich_text: s ? rt(s) : [] });
 
-function buildProps(ref, v, quoteText) {
+function buildProps(ref, v, quoteText, insurerNames) {
   const props = {
     "رقم مرجعي": { title: [{ type: "text", text: { content: ref } }] },
     "الحالة": { select: { name: "جديد" } },
@@ -667,12 +731,13 @@ function buildProps(ref, v, quoteText) {
     "نوع العاملين": { select: { name: WORKER_TYPES[v.workerType] } },
     "الاستقدام": { select: { name: RECRUITMENT_VALUES[v.recruitment] } },
     "عدد الموظفين الكلي": { number: v.totalCount },
-    "بنود المهن": rtProp(itemsText(v.items)),
-    "المدة (أشهر)": { number: v.durationMonths },
+    "بنود المهن": rtProp(itemsText(v.items, insurerNames)),
+    "المدة": rtProp(durationText(v.durationUnit, v.durationValue, "ar")),
     "اللغة": { select: { name: v.lang } },
     "المصدر": rtProp(v.source),
     "تقدير عرض السعر": rtProp(quoteText),
   };
+  if (Number.isInteger(v.durationMonths)) props["المدة (أشهر)"] = { number: v.durationMonths };
   if (v.startDate) props["تاريخ البدء"] = { date: { start: v.startDate } };
   if (v.sector && SECTOR_BY_ID.has(v.sector)) props["المجال"] = { select: { name: SECTOR_BY_ID.get(v.sector).ar } };
   if (v.notes) props["ملاحظات"] = rtProp(v.notes);
@@ -728,11 +793,11 @@ async function defaultNotify(payload) {
 }
 
 const row = (k, v) => `<tr><td style="padding:4px 10px;color:#666;vertical-align:top">${esc(k)}</td><td style="padding:4px 10px"><b>${esc(v || "—")}</b></td></tr>`;
-function teamEmailHtml(ref, v, quoteText, notionUrl) {
+function teamEmailHtml(ref, v, quoteText, notionUrl, insurerNames) {
   return `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right">
 <h2 style="color:#0B1B5A">👥 طلب EOR جديد ${esc(ref)}</h2>
-<table>${row("المنشأة", v.company)}${row("جهة التواصل", v.contactName)}${row("البريد", v.email)}${row("الجوال", v.phone)}${row("المدينة", v.city)}${row("مجال النشاط", v.sector ? sectorName(v.sector, "ar") : "")}${row("نوع التعاقد", ENGAGEMENT_AR[v.engagementType] || ENGAGEMENT_AR.contract)}${row("نوع العاملين", WORKER_TYPES[v.workerType])}${row("الاستقدام", RECRUITMENT_VALUES[v.recruitment])}${row("عدد الموظفين", String(v.totalCount))}${row("تاريخ البدء", v.startDate)}${row("المدة (أشهر)", String(v.durationMonths))}${row("اللغة", v.lang)}${row("تقدير السعر", quoteText)}</table>
-<h3 style="color:#0B1B5A">بنود المهن</h3><pre style="font-family:inherit;white-space:pre-wrap">${esc(itemsText(v.items))}</pre>
+<table>${row("المنشأة", v.company)}${row("جهة التواصل", v.contactName)}${row("البريد", v.email)}${row("الجوال", v.phone)}${row("المدينة", v.city)}${row("مجال النشاط", v.sector ? sectorName(v.sector, "ar") : "")}${row("نوع التعاقد", ENGAGEMENT_AR[v.engagementType] || ENGAGEMENT_AR.contract)}${row("نوع العاملين", WORKER_TYPES[v.workerType])}${row("الاستقدام", RECRUITMENT_VALUES[v.recruitment])}${row("عدد الموظفين", String(v.totalCount))}${row("تاريخ البدء", v.startDate)}${row("المدة", durationText(v.durationUnit, v.durationValue, "ar") || (v.durationMonths ? v.durationMonths + " شهراً" : ""))}${row("اللغة", v.lang)}${row("تقدير السعر", quoteText)}</table>
+<h3 style="color:#0B1B5A">بنود المهن</h3><pre style="font-family:inherit;white-space:pre-wrap">${esc(itemsText(v.items, insurerNames))}</pre>
 ${v.notes ? `<h3 style="color:#0B1B5A">ملاحظات</h3><p style="white-space:pre-wrap">${esc(v.notes)}</p>` : ""}
 ${notionUrl ? `<p><a href="${esc(notionUrl)}">فتح الطلب في Notion</a></p>` : ""}</div>`;
 }
@@ -754,6 +819,18 @@ function rateLimited(ip, nowMs) {
 }
 export const _resetEorRateLimit = () => HITS.clear();
 
+// أسماء الشركات العربية للفريق من الإعداد (id → nameAr)، وتصحيح اختيار الشركة بقائمة الإعداد: المجهول ⇒ any (فشل مغلق).
+function insurerNamesOf(cfg) {
+  const m = {};
+  const ins = cfg && cfg.insurance && cfg.insurance.insurers;
+  if (ins) for (const [id, x] of Object.entries(ins)) if (x.nameAr) m[id] = x.nameAr;
+  return m;
+}
+function resolveInsurers(items, cfg) {
+  const ins = (cfg && cfg.insurance && cfg.insurance.insurers) || {};
+  return (items || []).map((it) => (it && typeof it === "object" && "insurer" in it && !ins[it.insurer] ? { ...it, insurer: DEFAULT_INSURER } : it));
+}
+
 /* ═════════════ المعالج ═════════════ */
 // handleEor(body, ctx) → { ok:true, ref } | { ok:false, status, error, field? }
 //   body: الحمولة (انظر validateEorRequest) أو { action:"search", q } لبحث المهن.
@@ -762,6 +839,11 @@ export const _resetEorRateLimit = () => HITS.clear();
 //     teamEmail, ownerEmail, fetch, notionToken, dbId, dev, now, pricing, refGen
 export async function handleEor(body, ctx = {}) {
   const nowMs = ctx.now != null ? ctx.now : Date.now();
+
+  // الفوترة الشهرية (تنسيب → ورقة دوام → اعتماد العميل → فاتورة): مصادقة إلزامية يمرّرها المسار في ctx.auth، ويفشل مغلقاً بدونها.
+  if (body && typeof body === "object" && isBillingAction(body.action)) {
+    return handleEorBilling(body, { ...ctx, pricing: ctx.pricing !== undefined ? ctx.pricing : loadPricing(), now: nowMs });
+  }
 
   // بحث المهن بالتصنيف الموحّد (مع المرادفات) — نتائجه {id,nameAr,nameEn} فقط.
   if (body && typeof body === "object" && body.action === "search") {
@@ -777,9 +859,12 @@ export async function handleEor(body, ctx = {}) {
     const engagement = normalizeEngagementType(body.engagementType);
     const n = normalizePriceItems(body.items, engagement);
     if (!n.ok) return n;
+    // المدة هنا متساهلة (تقدير فوري): الفاسد يُهمَل ولا يُرفض الطلب. الوحدة/القيمة الجديدتان، وإلا durationMonths القديم.
+    const explicitDur = body.durationValue !== undefined && body.durationValue !== null && body.durationValue !== "";
+    const dur = explicitDur ? normalizeDuration(body, engagement) : { ok: false };      // الطلب القديم (durationMonths وحده) يبقى على مساره كما كان
     const dm = typeof body.durationMonths === "string" && /^\d+$/.test(body.durationMonths.trim()) ? Number(body.durationMonths.trim()) : body.durationMonths;
     const pricingNow = ctx.pricing !== undefined ? ctx.pricing : loadPricing();
-    return { ok: true, quote: estimatePackageQuote(n.items, pricingNow, { workerType: wt, durationMonths: Number.isInteger(dm) ? dm : null, now: nowMs, engagementType: engagement }) };
+    return { ok: true, quote: estimatePackageQuote(n.items, pricingNow, { workerType: wt, durationMonths: dur.ok ? dur.months : (Number.isInteger(dm) ? dm : null), durationUnit: dur.ok ? dur.unit : undefined, durationValue: dur.ok ? dur.value : undefined, now: nowMs, engagementType: engagement }) };
   }
 
   // الفخّ: حقلٌ مخفيّ لا يملؤه إنسان. نردّ نجاحاً كاذباً ولا نكتب شيئاً.
@@ -795,19 +880,23 @@ export async function handleEor(body, ctx = {}) {
   const ref = typeof ctx.refGen === "function" ? ctx.refGen() : "EOR-" + String(randomInt(100000, 1000000));
   const pricing = ctx.pricing !== undefined ? ctx.pricing : loadPricing();
   const quote = estimateQuote(v.items, pricing, { workerType: v.workerType, recruitment: v.recruitment, durationMonths: v.durationMonths, now: nowMs });
-  const pkg = estimatePackageQuote(v.items, pricing, { workerType: v.workerType, durationMonths: v.durationMonths, now: nowMs, engagementType: v.engagementType });
+  // شركة التأمين المفضّلة تُفحص بقائمة الإعداد (المجهولة ⇒ any) قبل أي حفظ؛ والأسماء العربية للفريق من الإعداد نفسه.
+  const pcfg = packageRateConfigFromPricing(pricing);
+  const insurerNames = insurerNamesOf(pcfg);
+  v.items = resolveInsurers(v.items, pcfg);
+  const pkg = estimatePackageQuote(v.items, pricing, { workerType: v.workerType, durationMonths: v.durationMonths, durationUnit: v.durationUnit, durationValue: v.durationValue, now: nowMs, engagementType: v.engagementType });
   const quoteText = quoteSummaryText(quote) + packageSummaryText(pkg);
 
   // — Notion —
   const dev = ctx.dev != null ? ctx.dev : DEV;
   const token = ctx.notionToken !== undefined ? ctx.notionToken : envFrom(NOTION_TOKEN_ENV);
   const dbId = ctx.dbId || process.env.NOTION_EOR_DB || EOR_DB_DEFAULT;
-  const props = buildProps(ref, v, quoteText);
+  const props = buildProps(ref, v, quoteText, insurerNames);
   const children = [{ object: "block", type: "code", code: { language: "json", rich_text: rt(JSON.stringify({ ref, ...v, quote }, null, 1)) } }];
   let stored = false, notionUrl = "";
   const doFetch = ctx.fetch || fetch;
   if (dev && !ctx.fetch) {
-    await outbox({ kind: "crm", to: `notion:${dbId}`, subject: `EOR ${ref}`, body: itemsText(v.items), props });
+    await outbox({ kind: "crm", to: `notion:${dbId}`, subject: `EOR ${ref}`, body: itemsText(v.items, insurerNames), props });
     stored = true;
   } else if (token) {
     try {
@@ -825,7 +914,7 @@ export async function handleEor(body, ctx = {}) {
   const ownerEmail = ctx.ownerEmail || (process.env.BP_OWNER_EMAIL || "business@businesspartner.sa").toLowerCase();
   const tpl = v.lang === "ar" ? CLIENT_MAIL.ar : CLIENT_MAIL.en;
   const subject = `👥 طلب EOR جديد ${ref} — ${v.company} · ${v.totalCount} موظف`;
-  const html = teamEmailHtml(ref, v, quoteText, notionUrl);
+  const html = teamEmailHtml(ref, v, quoteText, notionUrl, insurerNames);
   const transcript = `👥 طلب EOR جديد (${ref}): عميل (${v.company}) طلب خدمة EOR بعدد ${v.totalCount} موظف — المهن: ${v.items.map((it) => { const o = occupationById(it.occupationId); return `${o ? o.nameAr : it.occupationId} ×${it.count}`; }).join("، ")} — ${v.city} — ${v.contactName} ${v.phone}`;
   const settled = await Promise.allSettled([
     sendEmail(teamEmail, subject, html),
@@ -834,7 +923,7 @@ export async function handleEor(body, ctx = {}) {
     notify({
       source: "eor-request", ref, name: v.contactName, company: v.company, phone: v.phone, email: v.email, city: v.city,
       total: v.totalCount, transcript, url: notionUrl || `${SITE}/ops`,
-      eor: { engagementType: v.engagementType, workerType: v.workerType, recruitment: v.recruitment, durationMonths: v.durationMonths, startDate: v.startDate, items: v.items, quote: quoteText },
+      eor: { engagementType: v.engagementType, workerType: v.workerType, recruitment: v.recruitment, durationMonths: v.durationMonths, durationUnit: v.durationUnit, durationValue: v.durationValue, startDate: v.startDate, items: v.items, quote: quoteText },
     }),
   ]);
   const val = (s) => (s.status === "fulfilled" && s.value ? s.value : { ok: false });

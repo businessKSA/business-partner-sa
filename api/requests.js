@@ -27,7 +27,7 @@ import {
 import { LEADS_DB as BD_LEADS_DB, matchQuery as bdMatchQuery, mapCompany as bdMapCompany, explainMatch as bdExplainMatch } from "./_bdmatch.js";
 import { handleAgencies } from "./_agencies.js";
 import { handleJobhunt } from "./_jobhunt.js";
-import { handleEor } from "./_eor.js";
+import { handleEor, isBillingAction, authFromSession } from "./_eor.js";
 import { stageChannels, announce, waSend } from "./_stage.js";
 import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
@@ -908,7 +908,15 @@ async function handleEorRoute(req, res) {
   const ip = String((req.headers && (req.headers["x-forwarded-for"] || req.headers["x-real-ip"])) || "").split(",")[0].trim().slice(0, 64);
   let r;
   try {
-    r = await handleEor(body, { ip, sendEmail, notify: ownerWaNotify, teamEmail: TEAM_EMAIL, ownerEmail: OWNER_EMAIL });
+    // الفوترة الشهرية وحدها تحتاج هوية: المالك (opsGate) أو العميل بجلسة مُثبتة.
+    // أي إجراء عام لا يُمرَّر له auth، فيبقى كما كان بلا مصادقة.
+    let auth;
+    if (isBillingAction(body.action)) {
+      auth = (await opsGate(req, { key: body.key || (req.headers && req.headers["x-ops-key"]) }))
+        ? { role: "ops" }
+        : authFromSession(await getSession(req).catch(() => null));
+    }
+    r = await handleEor(body, { ip, sendEmail, notify: ownerWaNotify, teamEmail: TEAM_EMAIL, ownerEmail: OWNER_EMAIL, ...(auth ? { auth } : {}) });
   } catch (e) {
     console.error("eor route exception", String((e && e.message) || e).slice(0, 120));
     return send(502, { ok: false, error: "unavailable" });

@@ -130,8 +130,8 @@ test("قيم غير معروفة ⇒ الأساسي لا خطأ ولا سعرا�
   const s = lump(2000, { insuranceClass: "B", ageBand: "30-39", gender: "female", maternity: "true", chronic: 1 });
   assert.equal(s.insurance.maternity, false); assert.equal(s.insurance.chronic, false);
   assert.deepEqual(C.normalizeInsuranceFields({ insuranceClass: "x", ageBand: "y", gender: "z", maternity: "1", chronic: {} }),
-    { insuranceClass: "basic", ageBand: "", gender: "unspecified", maternity: false, chronic: false });
-  assert.deepEqual(C.normalizeInsuranceFields(null), { insuranceClass: "basic", ageBand: "", gender: "unspecified", maternity: false, chronic: false });
+    { insuranceClass: "basic", ageBand: "", gender: "unspecified", maternity: false, chronic: false, insurer: "any" });
+  assert.deepEqual(C.normalizeInsuranceFields(null), { insuranceClass: "basic", ageBand: "", gender: "unspecified", maternity: false, chronic: false, insurer: "any" });
 });
 
 test("إعداد ناقص أو فاسد أو مغلق ⇒ الأساسي (لا رقم مخمَّن)", () => {
@@ -161,7 +161,7 @@ test("إعداد ناقص أو فاسد أو مغلق ⇒ الأساسي (لا �
 test("الفئة العليا (VIP/بعرض سعر): بلا رقم، والسعر يبقى على الأساسي، والحالة quote_only", () => {
   const r = lump(2000, { insuranceClass: "quote", ageBand: "60+", gender: "male" });
   assert.equal(r.billable, lump(2000).billable);
-  assert.deepEqual(r.insurance, { class: "quote", status: "quote_only", deltaMonthly: 0, maternity: false, chronic: false });
+  assert.deepEqual(r.insurance, { class: "quote", status: "quote_only", insurer: "any", deltaMonthly: 0, maternity: false, chronic: false });
   const off = lump(2000, { insuranceClass: "quote" }, cfgWith((c) => { c.classes.quote = {}; }));
   assert.equal(off.insurance.status, "basic");
 });
@@ -228,7 +228,7 @@ test("الفرق الشهري عن الأساسي = فرق سعرين مقرَّ
   assert.equal(r.insurance.deltaMonthly % 10, 0);
   const v = C.packageClientView(r, CFG);
   assert.deepEqual(Object.keys(v), ["status", "currency", "monthlyPrice", "otHour", "insurance"]);
-  assert.deepEqual(Object.keys(v.insurance), ["class", "status", "deltaMonthly", "maternity", "chronic"]);
+  assert.deepEqual(Object.keys(v.insurance), ["class", "status", "insurer", "deltaMonthly", "maternity", "chronic"]);
   assert.equal(v.monthlyPrice, 5490);
   assert.equal(v.otHour, 15);                                 // ساعة الإضافي من الحزمة وحدها
   // تفصيل ops وحده
@@ -285,11 +285,12 @@ test("estimatePackageQuote وaction=price: سعر الفئة المختارة ×
   assert.equal(q.status, "ok");
   assert.equal(q.lines[0].monthlyPerEmployee, 5490);
   assert.equal(q.lines[0].monthlyTotal, 16470);
-  assert.deepEqual(q.lines[0].insurance, { class: "B", status: "applied", deltaMonthly: 670, maternity: true, chronic: false });
+  assert.deepEqual(q.lines[0].insurance, { class: "B", status: "applied", insurer: "any", deltaMonthly: 670, maternity: true, chronic: false });
   assert.equal(q.lines[1].monthlyPerEmployee, 4820);
   assert.equal(q.lines[1].insurance.status, "basic");
   assert.equal(q.monthlyTotal, 16470 + 4820);
-  assert.deepEqual(q.insuranceUi, { selectable: true, addons: true });
+  assert.equal(q.insuranceUi.selectable, true);
+  assert.equal(q.insuranceUi.addons, true);
   const api = await E.handleEor({ action: "price", workerType: "foreign", durationMonths: 12, items: [{ count: 3, nationalities: ["IN"], salary: "2,000", insuranceClass: "B", ageBand: "30-39", gender: "female", maternity: true }] }, { now: NOW, ip: "", pricing: PRICING });
   assert.equal(api.quote.lines[0].monthlyPerEmployee, 5490);
   assert.equal(api.quote.lines[0].insurance.deltaMonthly, 670);
@@ -297,7 +298,9 @@ test("estimatePackageQuote وaction=price: سعر الفئة المختارة ×
   // مغلق: أعلام الواجهة تُخفي الاختيار والأسعار على الأساسي
   const shut = clone(PRICING); shut.package_rate.insurance_catalog.client_selectable = false;
   const q2 = E.estimatePackageQuote(items, shut, { workerType: "foreign", now: NOW });
-  assert.deepEqual(q2.insuranceUi, { selectable: false, addons: false });
+  assert.equal(q2.insuranceUi.selectable, false);
+  assert.equal(q2.insuranceUi.addons, false);
+  assert.deepEqual(q2.insuranceUi.insurers, []);       // مغلق ⇒ لا قائمة شركات ولا أوصاف
   assert.equal(q2.lines[0].monthlyPerEmployee, 4820);
   // بلا حقول تأمين في البند (الشكل القديم) ⇒ لا مفتاح insurance في السطر
   const old = E.estimatePackageQuote([IT(1, ["IN"], 2000)], PRICING, { workerType: "foreign", now: NOW });

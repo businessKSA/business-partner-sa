@@ -152,6 +152,27 @@ const T = {
   lockScore:{ ar: "سبب الدرجة يُفتح بالاشتراك", en: "The reasoning unlocks with a subscription", fr: "La justification s\u2019ouvre avec un abonnement", zh: "评分依据订阅后解锁" },
   lockSub: { ar: "اشترك", en: "Subscribe", fr: "S\u2019abonner", zh: "订阅" },
 
+  // ---------------------------- اشتراكٌ انتهت مدّته (غير «حسابك مجاني») --
+  // «مجاني» = لم يشترك قط. «منتهٍ» = اشترك ثم انتهت مدّته (تاريخ النهاية في نوشن): الحجب
+  // نفسه، لكن الجملة مختلفة والزرّ «جدّد» لا «اشترك». يقرؤها الخادم (subState) ولا
+  // يستنتجها المتصفّح. {d} = تاريخ الانتهاء YYYY-MM-DD.
+  expH:    { ar: "انتهى اشتراكك", en: "Your subscription has ended", fr: "Votre abonnement a expiré", zh: "您的订阅已到期" },
+  expP:    { ar: "انتهت مدّة اشتراكك في {d}. تبقى إعلاناتك ومتقدّموها ظاهرين لك كاملين، أما أسماء المرشحين وسيرهم وبيانات تواصلهم في قاعدة المواهب فعادت مخفية حتى تجدّد.",
+             en: "Your subscription ended on {d}. Your vacancies and their applicants stay fully visible to you; candidate names, CVs and contact details in the talent pool are hidden again until you renew.",
+             fr: "Votre abonnement a expiré le {d}. Vos offres et leurs candidats restent entièrement visibles ; les noms, CV et coordonnées de la base de talents sont de nouveau masqués jusqu\u2019au renouvellement.",
+             zh: "您的订阅已于 {d} 到期。您的职位及其申请人仍完整可见；人才库中的候选人姓名、简历和联系方式已再次隐藏，续订后恢复。" },
+  expGo:   { ar: "جدّد اشتراكك", en: "Renew your subscription", fr: "Renouveler l\u2019abonnement", zh: "续订订阅" },
+  expProf: { ar: "الاسم والسيرة وبيانات التواصل مخفية حتى تجدّد اشتراكك.", en: "Name, CV and contact details are hidden until you renew.", fr: "Nom, CV et coordonnées sont masqués jusqu\u2019au renouvellement.", zh: "续订前，姓名、简历和联系方式均已隐藏。" },
+  expTag:  { ar: "الاشتراك: منتهٍ", en: "Subscription: ended", fr: "Abonnement : expiré", zh: "订阅：已到期" },
+  // تاريخ نهاية الاشتراك في سجلّنا غير مقروء: فشلٌ مغلق (البيانات مخفية) مع جملةٍ صادقة
+  // — العطل في سجلّنا لا في دفعه، وإصلاحه عندنا.
+  invH:    { ar: "تعذّر التحقق من مدّة اشتراكك", en: "We couldn\u2019t verify your subscription period", fr: "Impossible de vérifier la durée de votre abonnement", zh: "无法核验您的订阅期限" },
+  invP:    { ar: "تاريخ نهاية اشتراكك في سجلّنا غير مقروء، فأبقينا بيانات المرشحين مخفية احتياطاً. إعلاناتك ومتقدّموها ظاهرون لك كاملين. راسلنا على business@businesspartner.sa وسنصلحه.",
+             en: "The end date of your subscription in our records is unreadable, so candidate data stays hidden as a precaution. Your vacancies and their applicants remain fully visible. Write to business@businesspartner.sa and we\u2019ll fix it.",
+             fr: "La date de fin de votre abonnement est illisible dans nos registres ; les données des candidats restent masquées par précaution. Vos offres et leurs candidats restent visibles. Écrivez à business@businesspartner.sa.",
+             zh: "我们记录中的订阅结束日期无法读取，因此候选人数据暂作隐藏。您的职位及其申请人仍完整可见。请联系 business@businesspartner.sa，我们会修复。" },
+  invGo:   { ar: "تواصل معنا", en: "Contact us", fr: "Nous contacter", zh: "联系我们" },
+
   // ------------------------------------------------------------- الأخطاء --
   eEmail:  { ar: "اكتب بريداً صحيحاً.", en: "Enter a valid email address.", fr: "Saisissez un e-mail valide.", zh: "请输入有效的邮箱地址。" },
   eSend:   { ar: "تعذّر إرسال الرمز الآن. حاول بعد قليل أو ادخل بكلمة المرور.",
@@ -1407,7 +1428,7 @@ function j(r){return r.json().catch(function(){return{}})}
 // من صفّ نوشن، والمتصفّح لا يراه ولا يخزّنه. mode 'code' = الدخول بكلمة
 // المرور، والرمز الذي يعيده /api/employer يبقى في الذاكرة وحدها: لا
 // localStorage ولا sessionStorage ولا شاشة تعرضه. إغلاق التبويب يمحوه.
-var AUTH=null, CO='', PLAN='', SUB=false;
+var AUTH=null, CO='', PLAN='', SUB=false, SUBST='', SUBEND='';
 function authCode(){return AUTH&&AUTH.mode==='code'?AUTH.code:'self'}
 function get(qs){return fetch('/api/candidates?'+qs+'&code='+encodeURIComponent(authCode()),
  {credentials:'same-origin'}).then(j)}
@@ -1449,11 +1470,22 @@ function subMsg(d){var r=d&&d.emp,st=(d&&d.empStatus)||'—';
 // بابَ بيانات شخصية لمن لا يفتحه له القديم اليوم.
 // الاشتراك يقرؤه المتصفّح من الخادم (sub) ولا يستنتجه: sub=true صراحةً أو لا اشتراك.
 // والمجاني لا يُخفى عنه البابان — يراهما بأسماء مموّهة (الحجب في الخادم أصلاً).
+// ثلاث صيغٍ لحجبٍ واحد، يحسمها الخادم (subState) لا المتصفّح: مجاني لم يشترك قط ·
+// منتهٍ (expired) انتهت مدّته · فاسد (invalid) تاريخه غير مقروء. البيانات محجوبة في الثلاث.
+function lockTx(){
+ if(SUBST==='expired')return{h:TX.expH,p:TX.expP.replace('{d}',SUBEND||'—'),go:TX.expGo,prof:TX.expProf,href:JOIN};
+ if(SUBST==='invalid')return{h:TX.invH,p:TX.invP,go:TX.invGo,prof:TX.invP,href:'mailto:business@businesspartner.sa'};
+ return{h:TX.lockH,p:TX.lockP,go:TX.lockGo,prof:TX.lockProf,href:JOIN}}
+function planLine(){return SUBST==='expired'?TX.expTag:(PLAN?TX.plan+': '+PLAN:'')}
 function applySub(d){SUB=!!(d&&d.sub===true);
+ SUBST=(!SUB&&d&&(d.subState==='expired'||d.subState==='invalid'))?d.subState:'';
+ SUBEND=(d&&d.subEnd)||'';
+ $('empPlan').textContent=planLine();
+ var L=lockTx();
  ['lockHome','lockPool','lockMatch'].forEach(function(id){var el=$(id);if(!el)return;
   if(SUB){el.innerHTML='';show(el,false);return}
-  el.innerHTML='<h4>'+esc(TX.lockH)+'</h4><p>'+esc(TX.lockP)+'</p>'+
-   '<a class="sv1-btn primary" href="'+esc(JOIN)+'">'+esc(TX.lockGo)+'</a>';
+  el.innerHTML='<h4>'+esc(L.h)+'</h4><p>'+esc(L.p)+'</p>'+
+   '<a class="sv1-btn primary" href="'+esc(L.href)+'">'+esc(L.go)+'</a>';
   show(el,true)})}
 // اسمٌ مموّه: النصّ ثابتٌ لا يحمل شيئاً من المرشّح (الخادم لا يعيد اسماً أصلاً).
 function lockedNm(){return '<span class="sv1-lock" role="img" aria-label="'+esc(TX.lockName)+'" title="'+
@@ -1557,7 +1589,6 @@ function enter(){
    err(subMsg(d));return}
   CO=d.company||CO;PLAN=d.plan||PLAN;
   $('empCo').textContent=CO||'Business Partner';
-  $('empPlan').textContent=PLAN?TX.plan+': '+PLAN:'';
   applySub(d);warnBar(d);
   show($('empLogin'),false);show($('empApp'),true);
   route()
@@ -2154,8 +2185,9 @@ function drawCandDet(c,d){
  // الدرجة: لا تُعرض إلا ومعها مبرّرها المكتوب. رقمٌ عارٍ بلا سببٍ يُبنى عليه قرار توظيف
  // هو أسوأ ما تعرضه هذه الشاشة — فيُقال إنه بلا مبرّر بدل أن يُعرض كأنه مدعوم.
  if(lk){
-  tiles.push(tile(TX.lockH,'<p class="sv1-cvnote" style="margin:0 0 10px">'+esc(TX.lockProf)+'</p>'+
-   '<a class="sv1-btn primary sm" href="'+esc(JOIN)+'">'+esc(TX.lockGo)+'</a>','w2'));
+  var LK=lockTx();
+  tiles.push(tile(LK.h,'<p class="sv1-cvnote" style="margin:0 0 10px">'+esc(LK.prof)+'</p>'+
+   '<a class="sv1-btn primary sm" href="'+esc(LK.href)+'">'+esc(LK.go)+'</a>','w2'));
   box.innerHTML='<div class="sv1-pf-grid">'+tiles.join('')+'</div>';return}
  if(d.score!=null){
   tiles.push(tile(TX.pfScore,'<span class="big">'+esc(String(d.score))+' <small>/ 100</small></span>'+
@@ -2596,7 +2628,7 @@ function setTxt(id,v){var e=$(id);if(e)e.textContent=v}
 function loadAcct(){
  if(acctLoaded)return;
  acctLoaded=true;
- setTxt('acctCo',CO||'—');setTxt('setCo',CO||'—');setTxt('setPlan',PLAN||'—');
+ setTxt('acctCo',CO||'—');setTxt('setCo',CO||'—');setTxt('setPlan',SUBST==='expired'?TX.expTag+(PLAN?' ('+PLAN+')':''):(PLAN||'—'));
  if(AUTH&&AUTH.mode==='code'){
   // الدخول بكلمة المرور لا يفتح جلسة، و/api/employer يصادق بالجلسة وحدها —
   // فالحقل يُعرض للقراءة مع السطر الذي يقول كيف يُغيَّر، لا زرٌّ لا يعمل.
@@ -2648,7 +2680,6 @@ get('validate=1').then(function(d){
  if(d&&d.unlocked){AUTH={mode:'session'};
   CO=d.company||'';PLAN=d.plan||'';
   $('empCo').textContent=CO||'Business Partner';
-  $('empPlan').textContent=PLAN?TX.plan+': '+PLAN:'';
   applySub(d);warnBar(d);
   show($('empLogin'),false);show($('empApp'),true);route()}
  // جلسةٌ قائمة واشتراكٌ لم يُفعّل: يُقال السبب على شاشة الدخول بدل أن

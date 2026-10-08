@@ -16,7 +16,7 @@
 // السكربت العميل دالةٌ عاديّة (eorClient) تُسلسَل بـtoString، فلا يُضاعَف فيها الـbackslash كما في قوالب النصوص.
 
 import { OCCUPATIONS } from "../../api/_occupations.js";
-import { NATIONALITIES, EOR_LIMITS, SECTORS, INSURANCE_CLASSES, INSURANCE_AGE_BANDS, INSURANCE_GENDERS, BILLING_UNITS, UNIT_QUANTITY_MAX, CASUAL_HOURS } from "../../api/_eor.js";
+import { NATIONALITIES, EOR_LIMITS, SECTORS, INSURANCE_CLASSES, INSURANCE_AGE_BANDS, INSURANCE_GENDERS, BILLING_UNITS, UNIT_QUANTITY_MAX, CASUAL_HOURS, DURATION_MAX } from "../../api/_eor.js";
 
 // ar, en, fr, zh
 const D = {
@@ -164,7 +164,6 @@ const D = {
   add: ["أضف مهنة", "Add an occupation", "Ajouter un métier", "添加职业"],
   total: ["إجمالي الموظفين", "Total employees", "Total des employés", "员工总数"],
   start: ["تاريخ البدء المتوقع (اختياري)", "Expected start date (optional)", "Date de début prévue (facultatif)", "预计开始日期（可选）"],
-  months: ["مدة التعاقد (أشهر)", "Contract duration (months)", "Durée du contrat (mois)", "合同期限（月）"],
   notes: ["ملاحظات (اختياري)", "Notes (optional)", "Remarques (facultatif)", "备注（可选）"],
   submit: ["أرسل الطلب", "Send request", "Envoyer la demande", "提交申请"],
   sending: ["نرسل طلبك…", "Sending…", "Envoi…", "正在提交…"],
@@ -182,7 +181,6 @@ const D = {
   eTotal: ["إجمالي الموظفين لا يتجاوز ٥٠٠.", "Total employees cannot exceed 500.", "Le total ne peut pas dépasser 500.", "员工总数不能超过 500。"],
   eSalary: ["الراتب المتوقع رقم صحيح أو اتركه فارغاً.", "Expected salary must be a valid number, or leave it empty.", "Le salaire prévu doit être un nombre valide, ou laissez vide.", "预期月薪须为有效数字，或留空。"],
   eStart: ["تاريخ البدء غير صالح.", "The start date is not valid.", "La date de début n'est pas valide.", "开始日期无效。"],
-  eMonths: ["مدة التعاقد من ١ إلى ٦٠ شهراً.", "Duration must be 1 to 60 months.", "La durée doit être de 1 à 60 mois.", "期限需为 1 至 60 个月。"],
   eNet: ["تعذّر إرسال الطلب. حاول مرة أخرى بعد قليل أو تواصل معنا.", "We could not send the request. Try again shortly or contact us.", "Envoi impossible. Réessayez bientôt ou contactez-nous.", "无法提交申请。请稍后重试或联系我们。"],
   eRate: ["محاولات كثيرة. انتظر قليلاً ثم أعد المحاولة.", "Too many attempts. Wait a little and try again.", "Trop de tentatives. Patientez puis réessayez.", "尝试次数过多，请稍后再试。"],
   doneT: ["استلمنا طلبك", "We received your request", "Nous avons reçu votre demande", "我们已收到您的申请"],
@@ -190,7 +188,89 @@ const D = {
   doneP: ["سيراجع فريقنا الطلب ونعود إليك. لم يُحدَّد سعر بعد؛ يصلك عرض السعر بعد المراجعة.", "Our team will review the request and get back to you. No price has been set yet; you will receive a quote after the review.", "Notre équipe examinera la demande et reviendra vers vous. Aucun prix n'est encore fixé ; vous recevrez une offre après l'examen.", "我们的团队会审核申请并与您联系。目前尚未确定价格；审核后您将收到报价。"],
   another: ["طلب جديد", "New request", "Nouvelle demande", "新申请"],
   itemCount: ["بنود", "rows", "lignes", "项"],
+
+  // ───── مدة التعاقد: وحدة + قيمة (الحساب كله على الخادم) ─────
+  durUnitL: ["وحدة المدة", "Term unit", "Unité de durée", "期限单位"],
+  durValL: ["قيمة المدة", "Term value", "Valeur de la durée", "期限数值"],
+  dHour: ["ساعة", "Hour", "Heure", "小时"],
+  dDay: ["يوم", "Day", "Jour", "天"],
+  dMonth: ["شهر", "Month", "Mois", "月"],
+  dYear: ["سنة", "Year", "An", "年"],
+  eDur: ["قيمة المدة عدد صحيح موجب ضمن الحد المسموح للوحدة المختارة.", "The term value must be a positive whole number within the limit for the chosen unit.", "La valeur de la durée doit être un entier positif dans la limite de l'unité choisie.", "期限数值须为所选单位限额内的正整数。"],
+  pDurTotal: ["الإجمالي التقديري للمدة", "Estimated total for the term", "Total estimé pour la durée", "期限内预计总额"],
+  pDurNote: ["تقدير أولي غير ملزم يعتمد على المدة التي اخترتها. السعر النهائي في عرض السعر.", "Preliminary, non-binding estimate based on the term you chose. The final price is in the quote.", "Estimation préliminaire non contraignante, fondée sur la durée choisie. Le prix final figure dans l'offre.", "初步估算，不具约束力，依据您选择的期限。最终价格以报价为准。"],
+
+  // ───── شركة التأمين (تفضيل يُرسَل مع الطلب، بلا أسعار ولا فروق بين الشركات) ─────
+  insurerL: ["شركة التأمين", "Insurance company", "Compagnie d'assurance", "保险公司"],
+  insAny: ["أي شركة معتمدة، نختار لك الأنسب", "Any approved company; we choose the best fit for you", "Toute compagnie agréée ; nous choisissons la plus adaptée", "任一认可公司，由我们为您选择最合适的"],
+  insurerNote: ["الشركة المختارة تفضيلٌ يُؤكَّد في عرض السعر ولا يُعدّ التزاماً قبل توقيع الاتفاقية.", "The company you pick is a preference, confirmed in the quote; it is not a commitment before an agreement is signed.", "La compagnie choisie est une préférence, confirmée dans l'offre ; ce n'est pas un engagement avant la signature d'un accord.", "所选公司仅为偏好，以报价确认为准；在签署协议前不构成承诺。"],
+  insClassesH: ["فئات التأمين الطبي", "Medical insurance classes", "Classes d'assurance médicale", "医疗保险等级"],
+
+  // ───── دورة حياة الموظف معنا ─────
+  lifeH: ["دورة حياة الموظف معنا", "The employee lifecycle with us", "Le cycle de vie de l'employé avec nous", "员工在我们这里的全周期"],
+  lifeP: ["من الطلب إلى التسوية النهائية في ثماني خطوات. تفاصيل كل خطوة تختلف بحسب نوع الحالة.", "From request to final settlement in eight steps. The details of each step depend on the type of case.", "De la demande au solde de tout compte en huit étapes. Le détail de chaque étape dépend du type de cas.", "从申请到最终结算共八步。每一步的细节视具体情况而定。"],
+  l1: ["الطلب والسعر الفوري", "Request and instant price", "Demande et prix immédiat", "申请与即时报价"],
+  l1p: ["تحدّد المهن والأعداد والجنسيات، وإن أدخلت الراتب ظهر لك السعر الشهري التقديري في الحال.", "You set the occupations, numbers and nationalities, and if you enter the salary you see the estimated monthly price right away.", "Vous indiquez métiers, effectifs et nationalités ; si vous saisissez le salaire, le prix mensuel estimé s'affiche aussitôt.", "您填写职业、人数和国籍；如填写薪资，即可立即看到估算的月度价格。"],
+  l2: ["عرض مرشحين مطابقين", "Matching candidates presented", "Présentation de candidats correspondants", "展示匹配的候选人"],
+  l2p: ["نعرض عليك مرشحين مطابقين لما طلبت بحسب ما يتوافر، دون وعدٍ بعدد أو بمدة.", "We present candidates matching your request as available, with no promise of a number or a timeline.", "Nous vous présentons des candidats correspondant à votre demande selon les disponibilités, sans promesse de nombre ni de délai.", "我们按实际可得情况向您展示符合要求的候选人，不承诺数量或时限。"],
+  l3: ["اختيار وتأكيد", "Selection and confirmation", "Choix et confirmation", "选择与确认"],
+  l3p: ["تختار من تراه مناسباً وتؤكد، ثم نُعدّ عرض السعر ونطاق العمل لتوافق عليهما.", "You choose who fits and confirm, then we prepare the quote and scope of work for your approval.", "Vous choisissez et confirmez, puis nous préparons l'offre et le périmètre pour votre accord.", "您选择合适人选并确认，随后我们准备报价和工作范围供您确认。"],
+  l4: ["التعاقد والتأشيرة", "Contracting and visa", "Contrat et visa", "签约与签证"],
+  l4p: ["نتعاقد مع العامل، ونتابع إجراءات القدوم من الخارج أو نقل الخدمات، حسب نوع الحالة.", "We contract the worker and follow the procedures for arrival from abroad or transfer of services, depending on the type of case.", "Nous engageons le travailleur et suivons les démarches d'arrivée de l'étranger ou de transfert de services, selon le type de cas.", "我们与员工签约，并视具体情况跟进境外入境或转移服务的相关流程。"],
+  l5: ["الوصول والتسكين والمباشرة", "Arrival, housing and start", "Arrivée, logement et prise de poste", "抵达、住宿与上岗"],
+  l5p: ["نرتّب وصول العامل وتسكينه ومباشرته العمل لديك، حسب نوع الحالة وما يُتفق عليه.", "We arrange the worker's arrival, housing and start at your site, depending on the type of case and what is agreed.", "Nous organisons l'arrivée, le logement et la prise de poste chez vous, selon le type de cas et ce qui est convenu.", "我们安排员工抵达、住宿并到您处上岗，视具体情况及双方约定而定。"],
+  l6: ["الدوام", "Day-to-day work", "Travail au quotidien", "日常工作"],
+  l6p: ["يعمل لديك بتوجيهك اليومي، وتعتمد أنت الحضور الذي تُبنى عليه الرواتب.", "The worker works for you under your day-to-day direction, and you approve the attendance on which payroll is based.", "Le travailleur travaille chez vous sous votre direction quotidienne, et vous validez les présences sur lesquelles la paie est fondée.", "员工在您处工作并接受您的日常安排，您确认作为薪资依据的考勤。"],
+  l7: ["فاتورة شهرية واحدة", "One monthly invoice", "Une facture mensuelle unique", "每月一张发票"],
+  l7p: ["تصلك فاتورة شهرية واحدة بدل متابعة الرواتب والتأمين والمستحقات كلٍّ على حدة.", "You receive one monthly invoice instead of following payroll, insurance and entitlements separately.", "Vous recevez une seule facture mensuelle au lieu de suivre séparément paie, assurance et indemnités.", "您每月收到一张发票，无需分别跟进薪资、保险和应付款项。"],
+  l8: ["الإنهاء والتسوية", "Termination and settlement", "Fin de contrat et solde de tout compte", "终止与结算"],
+  l8p: ["عند انتهاء التعاقد ننظّم الإنهاء والتسوية النهائية للمستحقات وفق الاتفاقية والأنظمة.", "When the engagement ends we manage termination and the final settlement of entitlements under the agreement and regulations.", "À la fin de l'engagement, nous gérons la fin de contrat et le solde de tout compte selon l'accord et la réglementation.", "合同结束时，我们依据协议与法规办理终止及最终结算。"],
+
+  // ───── لماذا Business Partner (حقائق موجودة في الخدمة فقط) ─────
+  whyH: ["لماذا Business Partner", "Why Business Partner", "Pourquoi Business Partner", "为什么选择 Business Partner"],
+  y1: ["حاسبة سعر فورية", "Instant price calculator", "Calculateur de prix immédiat", "即时价格计算器"],
+  y1p: ["أدخل راتب الموظف فيظهر لك السعر الشهري التقديري في الحال، قبل أن تتواصل معنا.", "Enter the employee's salary and see the estimated monthly price right away, before you contact us.", "Saisissez le salaire et voyez aussitôt le prix mensuel estimé, avant de nous contacter.", "填写员工薪资，即可在联系我们之前立即看到估算的月度价格。"],
+  y2: ["فاتورة شهرية واحدة", "One monthly invoice", "Une facture mensuelle unique", "每月一张发票"],
+  y2p: ["بدل متابعة الرواتب والتأمين والمستحقات كلٍّ على حدة، تصلك فاتورة واحدة كل شهر.", "Instead of following payroll, insurance and entitlements separately, you get one invoice each month.", "Au lieu de suivre séparément paie, assurance et indemnités, vous recevez une facture par mois.", "无需分别跟进薪资、保险和应付款项，每月只收到一张发票。"],
+  y3: ["عمالة مرنة بالساعة", "Flexible staffing by the hour", "Personnel flexible à l'heure", "按小时的灵活用工"],
+  y3p: ["للعمل المؤقت بحسب الطلب، تختار التسعير بالساعة أو اليوم أو الشهر وتدخل الكمية لترى الإجمالي.", "For temporary on-demand work, choose hourly, daily or monthly pricing and enter a quantity to see the total.", "Pour le travail temporaire à la demande, choisissez une tarification à l'heure, à la journée ou au mois et saisissez une quantité pour voir le total.", "对于按需临时用工，可选择按小时、天或月计价，并输入数量查看总额。"],
+  y4: ["تأمين طبي بفئات", "Medical insurance in classes", "Assurance médicale par classes", "分等级的医疗保险"],
+  y4p: ["تختار فئة التأمين وشركته في الحاسبة، وتُثبَّت التفاصيل في وثيقة شركة التأمين.", "You choose the insurance class and company in the calculator, and the details are fixed in the insurer's policy.", "Vous choisissez classe et compagnie dans le calculateur ; le détail est fixé dans la police de l'assureur.", "您在计算器中选择保险等级和公司，细节以保险公司保单为准。"],
+
+  // ───── أسئلة شائعة إضافية ─────
+  // (صياغات قانونية حذرة — يراجَع قانونياً قبل أي توسّع؛ لا ادعاء ترخيص ولا وعد بنتيجة)
+  q6: ["ما هو EOR؟", "What is EOR?", "Qu'est-ce que l'EOR ?", "什么是 EOR？"],
+  a6: ["EOR اختصار «صاحب العمل الرسمي»: نتعاقد نحن رسمياً مع العامل ونتولى إدارته الوظيفية، بينما يعمل لديك ويتبع توجيهك اليومي.", "EOR stands for «employer of record»: we contract the worker officially and handle their employment administration, while the worker works for you under your day-to-day direction.", "EOR signifie « employeur officiel » : nous engageons officiellement le travailleur et gérons son administration, tandis qu'il travaille chez vous sous votre direction quotidienne.", "EOR 即「名义雇主」：由我们正式与员工签约并负责其用工管理，员工则在您处工作并接受您的日常安排。"],
+  q7: ["من صاحب العمل نظاماً؟", "Who is the employer in law?", "Qui est l'employeur au sens juridique ?", "法律上谁是雇主？"],
+  a7: ["نحن الجهة المتعاقدة مع العامل بموجب اتفاقية بيننا وبينك، وأنت توجّه عمله اليومي. توزيع المسؤوليات بين الطرفين يُحدَّد صراحةً في الاتفاقية قبل التوقيع.", "We are the contracting party with the worker under an agreement between us and you, and you direct the day-to-day work. How responsibilities are split between the parties is set out expressly in the agreement before signing.", "Nous sommes la partie contractante avec le travailleur dans le cadre d'un accord entre vous et nous, et vous dirigez son travail quotidien. La répartition des responsabilités entre les parties est précisée dans l'accord avant la signature.", "我们依据与您之间的协议作为员工的合同主体，您负责安排其日常工作。双方责任如何划分，将在签约前于协议中明确列出。"],
+  q8: ["ماذا يشمل السعر؟", "What does the price include?", "Que comprend le prix ?", "价格包含什么？"],
+  a8: ["السعر تقدير أولي لما نتولاه بصفتنا صاحب العمل. البنود المشمولة وغير المشمولة تُفصَّل في عرض السعر ونطاق العمل، ولا يُعتمد إلا ما تتفق عليه معنا.", "The price is a preliminary estimate of what we handle as the employer. The items included and not included are detailed in the quote and scope of work, and only what you agree with us applies.", "Le prix est une estimation préliminaire de ce que nous prenons en charge en tant qu'employeur. Les éléments inclus et exclus sont détaillés dans l'offre et le périmètre ; seul ce dont vous convenez avec nous s'applique.", "价格是对我们作为雇主所承担事项的初步估算。包含与不包含的项目会在报价和工作范围中详列，只有经您与我们确认的内容才有效。"],
+  q9: ["ماذا عن نهاية الخدمة والإنهاء؟", "What about end of service and termination?", "Qu'en est-il de l'indemnité de fin de service et de la fin de contrat ?", "服务终止与解除如何处理？"],
+  a9: ["ننظّم الإنهاء والتسوية النهائية للمستحقات وفق الاتفاقية والأنظمة المعمول بها. تفاصيل الإشعار والمستحقات تُحدَّد في الاتفاقية وعقد العامل.", "We manage termination and the final settlement of entitlements under the agreement and the regulations in force. Notice and entitlement details are set in the agreement and the worker's contract.", "Nous gérons la fin de contrat et le solde de tout compte selon l'accord et la réglementation en vigueur. Les détails du préavis et des indemnités figurent dans l'accord et le contrat du travailleur.", "我们依据协议及现行法规办理终止和最终结算。通知期与应付款项的细节在协议及员工合同中确定。"],
+  q10: ["ماذا عن الملكية الفكرية وسرية العمل؟", "What about intellectual property and confidentiality?", "Qu'en est-il de la propriété intellectuelle et de la confidentialité ?", "知识产权与工作保密如何处理？"],
+  a10: ["تُنظَّم الملكية الفكرية وسرية المعلومات بنصوص صريحة في الاتفاقية بيننا وبينك وفي عقد العامل، وتراجعها قبل التوقيع.", "Intellectual property and confidentiality are covered by express terms in the agreement between us and you and in the worker's contract, which you review before signing.", "La propriété intellectuelle et la confidentialité sont régies par des clauses expresses de l'accord entre vous et nous et du contrat du travailleur, que vous examinez avant la signature.", "知识产权和信息保密由我们与您之间的协议及员工合同中的明确条款规范，您可在签署前审阅。"],
+  q11: ["ماذا عن المزايا والتأمين؟", "What about benefits and insurance?", "Qu'en est-il des avantages et de l'assurance ?", "福利与保险如何安排？"],
+  a11: ["التأمين الطبي بفئات تختارها في الحاسبة، ويظهر أثرها على السعر عند إدخال الراتب. تفاصيل التغطية تثبَّت في وثيقة شركة التأمين، وبقية المزايا والإجازات كما تنص عليه الاتفاقية والأنظمة.", "Medical insurance comes in classes you choose in the calculator, and their effect on the price shows once you enter the salary. Coverage details are fixed in the insurer's policy, and other benefits and leave follow the agreement and regulations.", "L'assurance médicale se décline en classes que vous choisissez dans le calculateur ; leur effet sur le prix apparaît une fois le salaire saisi. Le détail des garanties est fixé dans la police de l'assureur, et les autres avantages et congés suivent l'accord et la réglementation.", "医疗保险分等级，您在计算器中选择，填写薪资后会体现在价格中。保障细节以保险公司保单为准，其他福利和休假依据协议及法规。"],
+  q12: ["هل يمكن استبدال الموظف؟", "Can the employee be replaced?", "Le salarié peut-il être remplacé ?", "员工可以更换吗？"],
+  a12: ["يُحدَّد في العقد.", "This is set in the contract.", "Cela est précisé dans le contrat.", "以合同约定为准。"],
+  q13: ["ما الفرق بين التعاقد والعمالة المرنة؟", "What is the difference between contract and flexible staffing?", "Quelle différence entre contrat et personnel flexible ?", "合同制与灵活用工有何区别？"],
+  a13: ["التعاقد هو عقد بكفالة شهري أو سنوي للعاملين على المدى الأطول. العمالة المرنة عمل مؤقت بحسب الطلب، يُسعَّر بالساعة أو اليوم أو الشهر بدل العقد السنوي.", "Contract is a sponsored monthly or annual engagement for longer-term workers. Flexible staffing is temporary on-demand work priced per hour, day or month instead of an annual contract.", "Le contrat est un engagement parrainé, mensuel ou annuel, pour les travailleurs à plus long terme. Le personnel flexible est un travail temporaire à la demande, tarifé à l'heure, à la journée ou au mois au lieu d'un contrat annuel.", "合同制是按月或按年、带担保的用工，适合较长期员工；灵活用工是按需临时用工，按小时、天或月计价，而非年度合同。"],
+  q14: ["كيف تُحسب الفاتورة؟", "How is the invoice calculated?", "Comment la facture est-elle calculée ?", "发票如何计算？"],
+  a14: ["تصلك فاتورة شهرية واحدة مبنية على ما اتُّفق عليه في عرض السعر المقبول وعلى الحضور الذي تعتمده.", "You receive one monthly invoice based on what was agreed in the accepted quote and the attendance you approve.", "Vous recevez une facture mensuelle unique, fondée sur ce qui a été convenu dans l'offre acceptée et sur les présences que vous validez.", "您每月收到一张发票，依据已接受的报价中的约定以及您确认的考勤。"],
 };
+
+// شركات التأمين: معرّفات تطابق ما يقبله الخادم (`insurer`) وأسماء معتمدة بالأربع لغات — لا أسعار ولا فروق بين الشركات.
+// ar, en, fr, zh
+const INSURERS = [
+  ["bupa", ["بوبا العربية", "Bupa Arabia", "Bupa Arabia", "Bupa Arabia"]],
+  ["tawuniya", ["التعاونية", "Tawuniya", "Tawuniya", "Tawuniya"]],
+  ["medgulf", ["ميدغلف", "MedGulf", "MedGulf", "MedGulf"]],
+  ["malath", ["ملاذ للتأمين", "Malath", "Malath", "Malath"]],
+  ["walaa", ["ولاء للتأمين", "Walaa", "Walaa", "Walaa"]],
+  ["rajhi_takaful", ["الراجحي تكافل", "Al Rajhi Takaful", "Al Rajhi Takaful", "Al Rajhi Takaful"]],
+  ["arabian_shield", ["الدرع العربي", "Arabian Shield", "Arabian Shield", "Arabian Shield"]],
+  ["allianz_sf", ["أليانز السعودي الفرنسي", "Allianz Saudi Fransi", "Allianz Saudi Fransi", "Allianz Saudi Fransi"]],
+];
 
 export function buildSimpleEor(sv1, ctx) {
   const { lang, esc } = ctx;
@@ -203,11 +283,12 @@ export function buildSimpleEor(sv1, ctx) {
   const OCC = OCCUPATIONS.map((o) => [o.id, o.nameAr, o.nameEn]);
   const NATS = NATIONALITIES.map((n) => [n.code, n.ar, n.en]);
   const TXKEYS = ["occPh", "occNone", "natAny", "remove", "itemN", "total", "itemCount", "sending", "submit",
-    "eCompany", "eContact", "eEmail", "ePhone", "eCity", "eWorker", "eRecruit", "eItems", "eOcc", "eCount", "eTotal", "eSalary", "eStart", "eMonths", "eNet", "eRate",
+    "eCompany", "eContact", "eEmail", "ePhone", "eCity", "eWorker", "eRecruit", "eItems", "eOcc", "eCount", "eTotal", "eSalary", "eStart", "eDur", "eNet", "eRate",
     "doneT", "doneRef", "doneP", "another", "nats", "occ", "count", "salary",
     "pMonthly", "pOt", "pTotal", "pReview", "pNote", "cur",
     "engH", "etContract", "etCasual", "etHint", "salaryRef", "hpdH", "hrs", "unitH", "uMonthly", "uDaily", "uHourly", "qtyMonthly", "qtyDaily", "qtyHourly", "pUMonthly", "pUDaily", "pUHourly", "pUTotal", "pUSum", "eQty",
-    "insH", "gender", "age", "insClass", "mat", "chr", "pDelta", "perMonth", "pQuoteOnly", "pNeedAge", "pNoMat", "insEst"];
+    "insH", "gender", "age", "insClass", "mat", "chr", "pDelta", "perMonth", "pQuoteOnly", "pNeedAge", "pNoMat", "insEst",
+    "durUnitL", "durValL", "dHour", "dDay", "dMonth", "dYear", "pDurTotal", "pDurNote", "insurerL", "insAny"];
   const TX = {};
   for (const k of TXKEYS) TX[k] = t(k);
   // اختيار التأمين: معرّفات وعناوين فقط (لا رقم ولا سعر) — الحساب كله على الخادم.
@@ -218,6 +299,7 @@ export function buildSimpleEor(sv1, ctx) {
     ages: INSURANCE_AGE_BANDS.map((k) => [k, k.replace("-", "–") + " " + t("yrs")]),
     genders: INSURANCE_GENDERS.map((k) => [k, t(GENDER_KEY[k])]),
     ageNone: t("ageNone"),
+    insurers: [["any", t("insAny")]].concat(INSURERS.map(([id, nm]) => [id, nm[idx]])),
   };
   // وحدات التسعير: معرّفات وعناوين وسقوف الكمية فقط (لا أرقام أسعار) — الحساب كله على الخادم.
   const UNIT_KEY = { monthly: ["uMonthly", "qtyMonthly", "pUMonthly"], daily: ["uDaily", "qtyDaily", "pUDaily"], hourly: ["uHourly", "qtyHourly", "pUHourly"] };
@@ -225,6 +307,13 @@ export function buildSimpleEor(sv1, ctx) {
   const CFG = {
     lang: l, tx: TX, occ: OCC, nats: NATS, ins: INS, units: UNITS,
     lim: { maxItems: EOR_LIMITS.maxItems, maxTotal: EOR_LIMITS.maxTotalCount, maxItemCount: EOR_LIMITS.maxItemCount, maxMonths: EOR_LIMITS.maxMonths, maxSalary: EOR_LIMITS.maxSalary, maxNats: EOR_LIMITS.maxNationalities, hMin: CASUAL_HOURS.min, hMax: CASUAL_HOURS.max, hDef: CASUAL_HOURS.default },
+  };
+
+  // وحدات مدة التعاقد وسقوفها من DURATION_MAX في الخادم (فحص مدخلات فقط؛ الخادم يعيد التحقق ويحسب). التعاقد: شهر/سنة. العمالة المرنة: ساعة/يوم/شهر.
+  // تُحمَل في سمة data-dur على قائمة الوحدة لا في كتلة CFG: مفاتيح الكتلة مثبّتة في اختبار canaries (tests/eor-package-rate.test.mjs).
+  const DUR = {
+    contract: [["month", t("dMonth"), DURATION_MAX.month], ["year", t("dYear"), DURATION_MAX.year]],
+    casual: [["hour", t("dHour"), DURATION_MAX.hour], ["day", t("dDay"), DURATION_MAX.day], ["month", t("dMonth"), DURATION_MAX.month]],
   };
 
   const CSS = `<style id="sv1-eor-css">
@@ -235,27 +324,27 @@ export function buildSimpleEor(sv1, ctx) {
 .sv1-eor-acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .sv1-eor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:1000px;margin:0 auto}
 .sv1-eor-grid>*{min-width:0}
-.sv1-eor-card{background:#fff;border:1px solid var(--l);border-radius:13px;padding:20px;box-shadow:var(--sh)}
+.sv1-eor-card{background:Canvas;border:1px solid var(--l);border-radius:13px;padding:20px;box-shadow:var(--sh)}
 .sv1-eor-card h3{font-size:15px;font-weight:500;margin:0 0 8px}
 .sv1-eor-card p{margin:0;color:var(--mut);font-size:13px;line-height:1.85}
 .sv1-eor-who{max-width:760px;margin:0 auto;display:grid;gap:10px;padding:0;list-style:none}
 .sv1-eor-who li{background:var(--soft);border:1px solid var(--line2);border-radius:11px;padding:13px 16px;font-size:13.5px}
 .sv1-eor-steps{max-width:760px;margin:0 auto;display:grid;gap:10px;padding:0;list-style:none;counter-reset:s}
-.sv1-eor-steps li{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid var(--l);border-radius:11px;padding:13px 16px;font-size:13.5px}
-.sv1-eor-steps li::before{counter-increment:s;content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:var(--ac);color:#fff;display:grid;place-items:center;font-family:var(--fm);font-size:13px}
+.sv1-eor-steps li{display:flex;gap:14px;align-items:flex-start;background:Canvas;border:1px solid var(--l);border-radius:11px;padding:13px 16px;font-size:13.5px}
+.sv1-eor-steps li::before{counter-increment:s;content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:var(--ac);color:Canvas;display:grid;place-items:center;font-family:var(--fm);font-size:13px}
 .sv1-eor-faq{max-width:760px;margin:0 auto;display:grid;gap:9px}
-.sv1-eor-faq details{background:#fff;border:1px solid var(--l);border-radius:11px;padding:0 16px}
+.sv1-eor-faq details{background:Canvas;border:1px solid var(--l);border-radius:11px;padding:0 16px}
 .sv1-eor-faq summary{cursor:pointer;padding:14px 0;font-weight:500;font-size:14px;color:var(--ink)}
 .sv1-eor-faq p{margin:0 0 14px;color:var(--mut);font-size:13px;line-height:1.9}
-.sv1-eor-form{max-width:860px;margin:0 auto;background:#fff;border:1px solid var(--l);border-radius:15px;padding:26px;box-shadow:var(--sh2)}
+.sv1-eor-form{max-width:860px;margin:0 auto;background:Canvas;border:1px solid var(--l);border-radius:15px;padding:26px;box-shadow:var(--sh2)}
 .sv1-eor-form fieldset{border:0;padding:0;margin:0 0 22px;min-width:0}
 .sv1-eor-form legend{font-size:14px;font-weight:500;color:var(--ink);padding:0;margin-bottom:12px}
 .sv1-eor-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .sv1-eor-cols>*{min-width:0}
 .sv1-eor-form label{display:block;font-size:11.5px;color:var(--mut);margin-bottom:5px}
-.sv1-eor-in{width:100%;border:1px solid var(--l);border-radius:10px;padding:11px 13px;font:inherit;font-size:13.5px;outline:none;background:#fff;color:var(--t)}
+.sv1-eor-in{width:100%;border:1px solid var(--l);border-radius:10px;padding:11px 13px;font:inherit;font-size:13.5px;outline:none;background:Canvas;color:var(--t)}
 .sv1-eor-in:focus{border-color:var(--ac)}
-.sv1-eor-in[aria-invalid=true]{border-color:#b42318}
+.sv1-eor-in[aria-invalid=true]{border-color:var(--warn)}
 textarea.sv1-eor-in{min-height:84px;resize:vertical}
 .sv1-eor-radios{display:flex;gap:8px;flex-wrap:wrap}
 .sv1-eor-radios label{display:inline-flex;align-items:center;gap:7px;margin:0;border:1px solid var(--l);border-radius:999px;padding:8px 15px;font-size:13px;color:var(--t);cursor:pointer}
@@ -267,17 +356,17 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
 .sv1-eor-igrid>*{min-width:0}
 .sv1-eor-igrid .full{grid-column:1/-1}
 .sv1-eor-cb{position:relative}
-.sv1-eor-list{position:absolute;inset-inline:0;top:100%;z-index:5;margin:3px 0 0;padding:4px;list-style:none;background:#fff;border:1px solid var(--acLine);border-radius:10px;box-shadow:var(--sh2);max-height:240px;overflow:auto}
+.sv1-eor-list{position:absolute;inset-inline:0;top:100%;z-index:5;margin:3px 0 0;padding:4px;list-style:none;background:Canvas;border:1px solid var(--acLine);border-radius:10px;box-shadow:var(--sh2);max-height:240px;overflow:auto}
 .sv1-eor-list li{padding:8px 10px;border-radius:7px;font-size:13px;cursor:pointer}
 .sv1-eor-list li.on,.sv1-eor-list li:hover{background:var(--acSoft)}
 .sv1-eor-list li small{display:block;color:var(--faint);font-size:11px}
 .sv1-eor-list li.none{cursor:default;color:var(--mut)}
-.sv1-eor-nat summary{cursor:pointer;border:1px solid var(--l);border-radius:10px;padding:11px 13px;font-size:13.5px;background:#fff;list-style:none;color:var(--t)}
+.sv1-eor-nat summary{cursor:pointer;border:1px solid var(--l);border-radius:10px;padding:11px 13px;font-size:13.5px;background:Canvas;list-style:none;color:var(--t)}
 .sv1-eor-nat summary::-webkit-details-marker{display:none}
 .sv1-eor-nat[open] summary{border-color:var(--ac)}
-.sv1-eor-nat .box{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px 10px;max-height:220px;overflow:auto;border:1px solid var(--l);border-radius:10px;margin-top:5px;padding:8px;background:#fff}
+.sv1-eor-nat .box{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px 10px;max-height:220px;overflow:auto;border:1px solid var(--l);border-radius:10px;margin-top:5px;padding:8px;background:Canvas}
 .sv1-eor-nat .box label{display:flex;align-items:center;gap:7px;margin:0;padding:5px 3px;font-size:12.5px;color:var(--t);cursor:pointer}
-.sv1-eor-rm{border:0;background:none;color:#b42318;cursor:pointer;font:inherit;font-size:12px;padding:2px 6px}
+.sv1-eor-rm{border:0;background:none;color:var(--warn);cursor:pointer;font:inherit;font-size:12px;padding:2px 6px}
 .sv1-eor-price{margin-top:10px;border:1px solid var(--acLine);background:var(--acSoft);border-radius:10px;padding:10px 13px;font-size:12.5px;color:var(--ink);line-height:1.8}
 .sv1-eor-price b{font-family:var(--fm);font-weight:500;font-size:15px;color:var(--ac)}
 .sv1-eor-price.hold{border-color:var(--l);background:var(--soft);color:var(--mut)}
@@ -304,21 +393,39 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
 .sv1-eor-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:6px;font-size:12.5px;color:var(--mut)}
 .sv1-eor-bar b{font-family:var(--fm);font-weight:500;color:var(--ink)}
 .sv1-eor-msg{font-size:12.5px;line-height:1.8;margin-top:10px;min-height:1em}
-.sv1-eor-msg.err{color:#b42318}
+.sv1-eor-msg.err{color:var(--warn)}
 .sv1-eor-note{font-size:11.5px;color:var(--faint);line-height:1.85;margin:12px 0 0}
-.sv1-eor-done{max-width:560px;margin:0 auto;text-align:center;border:1px solid var(--l);border-radius:15px;background:#fff;padding:34px 26px;box-shadow:var(--sh2)}
+.sv1-eor-done{max-width:560px;margin:0 auto;text-align:center;border:1px solid var(--l);border-radius:15px;background:Canvas;padding:34px 26px;box-shadow:var(--sh2)}
 .sv1-eor-done .ic{width:52px;height:52px;border-radius:50%;background:var(--okSoft);color:var(--ok);display:grid;place-items:center;font-size:24px;margin:0 auto 14px}
 .sv1-eor-done h3{font-size:21px;font-weight:400;margin:0 0 8px}
 .sv1-eor-done .ref{font-family:var(--fm);font-size:20px;color:var(--ac);margin:12px 0 8px;direction:ltr;unicode-bidi:isolate}
 .sv1-eor-done p{font-size:13px;color:var(--mut);line-height:1.9;margin:0 0 16px}
-@media(max-width:860px){.sv1-eor-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.sv1-eor-grid,.sv1-eor-cols,.sv1-eor-igrid,.sv1-eor-insg,.sv1-eor-unitg{grid-template-columns:1fr}.sv1-eor-form{padding:18px}}
+.sv1-eor-life{max-width:760px;margin:0 auto;display:grid;gap:10px;padding:0;list-style:none;counter-reset:lf}
+.sv1-eor-life li{display:flex;gap:14px;align-items:flex-start;background:Canvas;border:1px solid var(--l);border-radius:11px;padding:14px 16px}
+.sv1-eor-life li::before{counter-increment:lf;content:counter(lf);flex:none;width:28px;height:28px;border-radius:50%;background:var(--ac);color:Canvas;display:grid;place-items:center;font-family:var(--fm);font-size:13px}
+.sv1-eor-life li>div{min-width:0}
+.sv1-eor-life b{display:block;font-weight:500;font-size:14px;color:var(--ink);margin-bottom:3px}
+.sv1-eor-life span{display:block;color:var(--mut);font-size:13px;line-height:1.85}
+.sv1-eor-whyg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:1000px;margin:0 auto}
+.sv1-eor-whyg>*{min-width:0}
+.sv1-eor-why{background:Canvas;border:1px solid var(--l);border-radius:13px;padding:20px;box-shadow:var(--sh)}
+.sv1-eor-why h3{font-size:15px;font-weight:500;margin:0 0 8px;color:var(--ink)}
+.sv1-eor-why p{margin:0;color:var(--mut);font-size:13px;line-height:1.85}
+.sv1-eor-dur{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sv1-eor-dur>*{min-width:0}
+.sv1-eor-insinfo li b{font-weight:500;color:var(--ink)}
+@media(max-width:860px){.sv1-eor-grid,.sv1-eor-whyg{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.sv1-eor-grid,.sv1-eor-whyg,.sv1-eor-dur,.sv1-eor-cols,.sv1-eor-igrid,.sv1-eor-insg,.sv1-eor-unitg{grid-template-columns:1fr}.sv1-eor-form{padding:18px}}
 </style>`;
 
   const card = (a, b) => `<div class="sv1-eor-card"><h3>${esc(t(a))}</h3><p>${esc(t(b))}</p></div>`;
   const li = (k) => `<li>${esc(t(k))}</li>`;
   const radio = (name, val, key, id) => `<label><input type="radio" name="${name}" value="${val}" id="${id}"> ${esc(t(key))}</label>`;
-  const faq = [1, 2, 3, 4, 5].map((n) => `<details><summary>${esc(t("q" + n))}</summary><p>${esc(t("a" + n))}</p></details>`).join("");
+  const lifeLi = (n) => `<li><div><b>${esc(t("l" + n))}</b><span>${esc(t("l" + n + "p"))}</span></div></li>`;
+  const life = [1, 2, 3, 4, 5, 6, 7, 8].map(lifeLi).join("");
+  const why = (n) => `<div class="sv1-eor-why"><h3>${esc(t("y" + n))}</h3><p>${esc(t("y" + n + "p"))}</p></div>`;
+  // ترتيب الأسئلة: التعريف ثم صاحب العمل ثم السعر ثم الدورة ثم التفاصيل (٦–١٤ أضيفت لاحقاً فرقمها أعلى من ترتيبها).
+  const faq = [6, 7, 1, 8, 3, 13, 11, 9, 10, 12, 14, 4, 2, 5].map((n) => `<details><summary>${esc(t("q" + n))}</summary><p>${esc(t("a" + n))}</p></details>`).join("");
 
   const body = `${sv1.header("/eor", { cta: false })}
 <main>
@@ -346,6 +453,16 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
   <section class="sv1-sec" id="eor-how"><div class="wrap">
     <div class="sv1-title"><h2>${esc(t("howH"))}</h2></div>
     <ol class="sv1-eor-steps">${li("s1")}${li("s2")}${li("s3")}${li("s4")}${li("s5")}</ol>
+  </div></section>
+
+  <section class="sv1-sec" id="eor-life" style="background:var(--soft)"><div class="wrap">
+    <div class="sv1-title"><h2>${esc(t("lifeH"))}</h2><p>${esc(t("lifeP"))}</p></div>
+    <ol class="sv1-eor-life">${life}</ol>
+  </div></section>
+
+  <section class="sv1-sec"><div class="wrap">
+    <div class="sv1-title"><h2>${esc(t("whyH"))}</h2></div>
+    <div class="sv1-eor-whyg">${why(1)}${why(2)}${why(3)}${why(4)}</div>
   </div></section>
 
   <section class="sv1-sec" style="background:var(--soft)"><div class="wrap">
@@ -387,14 +504,15 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
         <div class="sv1-eor-bar"><span>${esc(t("total"))}: <b id="eorTotal">0</b> / ${EOR_LIMITS.maxTotalCount}</span><span><b id="eorItemsN">0</b> / ${EOR_LIMITS.maxItems} ${esc(t("itemCount"))}</span></div>
         <div class="sv1-eor-sum sv1-hide" id="eorPriceSum" role="status" aria-live="polite"></div>
         <details class="sv1-eor-insinfo" id="eorInsInfo"><summary>${esc(t("infoH"))}</summary>
-          <ul><li>${esc(t("infoBasic"))}</li><li>${esc(t("infoC"))}</li><li>${esc(t("infoB"))}</li><li>${esc(t("infoA"))}</li><li>${esc(t("infoQ"))}</li></ul>
+          <ul id="eorInsClasses"><li data-cls="basic">${esc(t("infoBasic"))}</li><li data-cls="C">${esc(t("infoC"))}</li><li data-cls="B">${esc(t("infoB"))}</li><li data-cls="A">${esc(t("infoA"))}</li><li data-cls="quote">${esc(t("infoQ"))}</li></ul>
+          <p>${esc(t("insurerNote"))}</p>
           <p>${esc(t("infoNote"))}</p>
         </details>
       </fieldset>
       <fieldset><legend>${esc(t("g3"))}</legend>
         <div class="sv1-eor-cols">
           <div><label for="eorStart">${esc(t("start"))}</label><input class="sv1-eor-in" id="eorStart" type="date" dir="ltr"></div>
-          <div><label for="eorMonths">${esc(t("months"))}</label><input class="sv1-eor-in" id="eorMonths" type="number" min="${EOR_LIMITS.minMonths}" max="${EOR_LIMITS.maxMonths}" step="1" inputmode="numeric" dir="ltr"></div>
+          <div class="sv1-eor-dur"><div><label for="eorDurUnit">${esc(t("durUnitL"))}</label><select class="sv1-eor-in" id="eorDurUnit" data-dur="${esc(JSON.stringify(DUR))}"></select></div><div><label for="eorDurValue">${esc(t("durValL"))}</label><input class="sv1-eor-in" id="eorDurValue" type="number" min="1" step="1" inputmode="numeric" dir="ltr"></div></div>
         </div>
         <div style="margin-top:12px"><label for="eorNotes">${esc(t("notes"))}</label><textarea class="sv1-eor-in" id="eorNotes" maxlength="${EOR_LIMITS.notes}"></textarea></div>
       </fieldset>
@@ -483,7 +601,7 @@ ${sv1.footer()}`;
     }
     function insOf(it) {
       var on = UIF.selectable;
-      return { gender: on ? it.gIn.value : "unspecified", ageBand: on ? it.aIn.value : "", insuranceClass: on ? it.cIn.value : "basic",
+      return { gender: on ? it.gIn.value : "unspecified", ageBand: on ? it.aIn.value : "", insuranceClass: on ? it.cIn.value : "basic", insurer: on ? it.rIn.value : "any",
         maternity: on && UIF.addons && it.mCb.checked && !it.mW.classList.contains("sv1-hide"), chronic: on && UIF.addons && it.chCb.checked && !it.chW.classList.contains("sv1-hide") };
     }
     // الكمية المكتوبة: فارغة ⇒ null، عدد صحيح موجب ضمن سقف الوحدة ⇒ ok. (فحص مدخلات فقط؛ الخادم يعيد التحقق ويحسب.)
@@ -497,10 +615,47 @@ ${sv1.footer()}`;
       var u = UNIT_BY[it.uIn.value]; it.qLb.textContent = u.qty; it.qIn.max = String(u.max);
       it.uW.classList.toggle("sv1-hide", !isCasual()); it.hW.classList.toggle("sv1-hide", !(isCasual() && it.uIn.value === "daily"));
     }
+    // مدة التعاقد: وحدة + قيمة. التعاقد: شهر/سنة؛ العمالة المرنة: ساعة/يوم/شهر. فحص مدخلات فقط، والإجمالي يعيده الخادم.
+    var DUR = JSON.parse($("eorDurUnit").getAttribute("data-dur"));
+    function durList() { return isCasual() ? DUR.casual : DUR.contract; }
+    function durCap(unit) { var l = durList(); for (var i = 0; i < l.length; i++) if (l[i][0] === unit) return l[i][2]; return 0; }
+    function syncDur() {
+      var sel = $("eorDurUnit"), prev = sel.value; sel.textContent = "";
+      durList().forEach(function (d) { var o = el("option", "", d[1]); o.value = d[0]; sel.appendChild(o); });
+      if (prev && durCap(prev)) sel.value = prev;
+      $("eorDurValue").max = String(durCap(sel.value));
+    }
+    function durOf() {
+      var unit = $("eorDurUnit").value, s = digits($("eorDurValue").value).trim();
+      if (s === "") return { ok: true, unit: unit, value: null };
+      var n = /^\d+$/.test(s) ? parseInt(s, 10) : 0;
+      return n >= 1 && n <= durCap(unit) ? { ok: true, unit: unit, value: n } : { ok: false, unit: unit, value: null };
+    }
+    // توافق مع الحقل القديم durationMonths: يُرسَل للشهر والسنة فقط (تحويل وحدة لا حساب سعر).
+    function durMonths(d) { return d.value == null ? null : d.unit === "month" ? d.value : d.unit === "year" ? d.value * 12 : null; }
+    // أوصاف فئات التأمين من الخادم (insuranceUi.classes) إن وُجدت؛ وإلا تبقى النصوص المدمجة. textContent فقط.
+    function pickTx(v) { if (v == null) return ""; if (typeof v === "string") return v; if (typeof v === "object") return String(v[LANG] || v.en || v.ar || ""); return ""; }
+    function applyClassInfo(list) {
+      var ul = $("eorInsClasses"); if (!ul || !Array.isArray(list)) return;
+      var names = {}; INS.classes.forEach(function (c) { names[c[0]] = c[1]; });
+      list.forEach(function (c) {
+        if (!c || typeof c.id !== "string") return;
+        // الخادم يعيد descAr/descEn فقط: العربية والإنجليزية منه، وfr/zh تبقى نصوصها المدمجة (لا إنجليزية في صفحة فرنسية).
+        var id = /^vip$/i.test(c.id) ? "quote" : c.id, d = pickTx(c.description != null ? c.description : c.desc);
+        if (!d) d = LANG === "ar" ? pickTx(c.descAr) : LANG === "en" ? pickTx(c.descEn) : "";
+        if (!d) return;
+        for (var i = 0; i < ul.children.length; i++) {
+          var li = ul.children[i];
+          if (li.getAttribute("data-cls") !== id) continue;
+          li.textContent = ""; li.appendChild(el("b", "", pickTx(c.name) || names[id] || id)); li.appendChild(document.createTextNode(": " + d));
+        }
+      });
+    }
     // نوع التعاقد: التعاقد (EOR) كما هو؛ العمالة المرنة تُظهر الوحدة والكمية وساعات اليوم وتُخفي التأمين والاستقدام.
     function applyEngagement() {
       var c = isCasual();
       $("eorRCW").classList.toggle("sv1-hide", c); $("eorInsInfo").classList.toggle("sv1-hide", c);
+      syncDur();
       items.forEach(function (it) { syncUnit(it); syncIns(it); it.salLb.textContent = c ? TX.salaryRef : TX.salary; });
       clearPrices(); priceSoon();
     }
@@ -519,36 +674,38 @@ ${sv1.footer()}`;
         if (sal !== null && sal > 0) anySalary = true;
         var io = insOf(it), uq = qtyOf(it);
         rows.push(casual ? { count: n, nationalities: it.nats.slice(), salary: sal, billingUnit: it.uIn.value, quantity: uq.ok ? uq.value : null, hoursPerDay: it.uIn.value === "daily" ? parseInt(it.hIn.value, 10) : null }
-          : { count: n, nationalities: it.nats.slice(), salary: sal, gender: io.gender, ageBand: io.ageBand, insuranceClass: io.insuranceClass, maternity: io.maternity, chronic: io.chronic }); owners.push(it);
+          : { count: n, nationalities: it.nats.slice(), salary: sal, gender: io.gender, ageBand: io.ageBand, insuranceClass: io.insuranceClass, insurer: io.insurer, maternity: io.maternity, chronic: io.chronic }); owners.push(it);
       });
       if (!wt || !rows.length || !anySalary) { clearPrices(); return; }
-      var ms = parseInt(digits($("eorMonths").value), 10);
+      var dr = durOf(), dm = durMonths(dr);
       var my = ++priceSeq;
       fetch(API, { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: "price", engagementType: casual ? "casual" : "contract", workerType: wt.value, durationMonths: ms > 0 ? ms : null, items: rows }) })
+        body: JSON.stringify({ action: "price", engagementType: casual ? "casual" : "contract", workerType: wt.value, durationMonths: dm, durationUnit: dr.value ? dr.unit : null, durationValue: dr.value, items: rows }) })
         .then(function (r) { return r.json(); }).then(function (o) {
           if (my !== priceSeq || casual !== isCasual()) return;
           var q = o && o.ok && o.quote;
           if (!q || (q.status !== "ok" && q.status !== "partial" && q.status !== "none")) { clearPrices(); return; }
-          if (q.insuranceUi) { UIF.selectable = q.insuranceUi.selectable === true; UIF.addons = q.insuranceUi.addons === true; items.forEach(syncIns); }
+          if (q.insuranceUi) { UIF.selectable = q.insuranceUi.selectable === true; UIF.addons = q.insuranceUi.addons === true; items.forEach(syncIns); applyClassInfo(q.insuranceUi.classes); }
           items.forEach(function (it) { showPrice(it, null); });
           q.lines.forEach(function (ln, j) { if (owners[j]) showPrice(owners[j], ln); });
           var sum = $("eorPriceSum"); sum.textContent = "";
-          if (q.monthlyTotal != null) {
-            sum.appendChild(document.createTextNode(TX.pTotal + ": ")); sum.appendChild(el("b", "", fmtNum(q.monthlyTotal)));
-            sum.appendChild(document.createTextNode(" " + TX.cur));
-            sum.appendChild(el("small", "", TX.pNote)); sum.classList.remove("sv1-hide");
-          } else if (q.unitTotal != null) {
-            sum.appendChild(document.createTextNode(TX.pUSum + ": ")); sum.appendChild(el("b", "", fmtNum(q.unitTotal)));
-            sum.appendChild(document.createTextNode(" " + TX.cur));
-            sum.appendChild(el("small", "", TX.pNote)); sum.classList.remove("sv1-hide");
-          } else sum.classList.add("sv1-hide");
+          // الإجمالي الشهري/الكمّي كما أعاده الخادم، ثم الإجمالي التقديري للمدة إن أعاده (لا ضرب ولا جمع هنا).
+          var dt = q.termTotal != null ? q.termTotal : (q.durationTotal != null ? q.durationTotal : (q.duration && q.duration.total != null ? q.duration.total : null));
+          var hasDt = dt != null && dt !== "" && isFinite(Number(dt));
+          var main = q.monthlyTotal != null ? [TX.pTotal, q.monthlyTotal] : q.unitTotal != null ? [TX.pUSum, q.unitTotal] : null;
+          if (!main && !hasDt) { sum.classList.add("sv1-hide"); return; }
+          if (main) { sum.appendChild(document.createTextNode(main[0] + ": ")); sum.appendChild(el("b", "", fmtNum(main[1]))); sum.appendChild(document.createTextNode(" " + TX.cur)); }
+          if (hasDt) { if (main) sum.appendChild(el("br", "")); sum.appendChild(document.createTextNode(TX.pDurTotal + ": ")); sum.appendChild(el("b", "", fmtNum(dt))); sum.appendChild(document.createTextNode(" " + TX.cur)); }
+          sum.appendChild(el("small", "", hasDt ? TX.pDurNote : TX.pNote)); sum.classList.remove("sv1-hide");
         }).catch(function () {});
     }
     function priceSoon() { clearTimeout(priceTimer); priceTimer = setTimeout(runPrice, 350); }
     Array.prototype.forEach.call(document.querySelectorAll('input[name="eorWT"]'), function (r) { r.addEventListener("change", priceSoon); });
     Array.prototype.forEach.call(document.querySelectorAll('input[name="eorET"]'), function (r) { r.addEventListener("change", applyEngagement); });
     $("eorET1").checked = true;
+    syncDur();
+    $("eorDurUnit").addEventListener("change", function () { $("eorDurValue").max = String(durCap($("eorDurUnit").value)); priceSoon(); });
+    $("eorDurValue").addEventListener("input", priceSoon);
 
     function digits(s) {
       return String(s || "").replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 0x0660); })
@@ -707,6 +864,7 @@ ${sv1.footer()}`;
       it.gIn = sel(TX.gender, INS.genders, "unspecified");
       it.aIn = sel(TX.age, [["", INS.ageNone]].concat(INS.ages), "");
       it.cIn = sel(TX.insClass, INS.classes, "basic");
+      it.rIn = sel(TX.insurerL, INS.insurers, "any");
       function chk(label) {
         var lb = el("label", ""); var cb = el("input", ""); cb.type = "checkbox";
         cb.addEventListener("change", function () { priceSoon(); });
@@ -743,7 +901,7 @@ ${sv1.footer()}`;
       return null;
     }
     function clearMarks() {
-      ["eorCompany", "eorContact", "eorEmail", "eorPhone", "eorCity", "eorStart", "eorMonths"].forEach(function (id) { $(id).removeAttribute("aria-invalid"); });
+      ["eorCompany", "eorContact", "eorEmail", "eorPhone", "eorCity", "eorStart", "eorDurValue"].forEach(function (id) { $(id).removeAttribute("aria-invalid"); });
       items.forEach(function (it) { it.occIn.removeAttribute("aria-invalid"); it.countIn.removeAttribute("aria-invalid"); it.salIn.removeAttribute("aria-invalid"); it.qIn.removeAttribute("aria-invalid"); });
     }
     function checked(name) { var r = document.querySelector('input[name="' + name + '"]:checked'); return r ? r.value : ""; }
@@ -776,16 +934,15 @@ ${sv1.footer()}`;
         var io = insOf(it), uq = qtyOf(it);
         if (casual && !uq.ok) return bad("eQty", it.qIn);
         out.push(casual ? { occupationId: it.occId, count: n, nationalities: it.nats.slice(), salary: sal, billingUnit: it.uIn.value, quantity: uq.value, hoursPerDay: it.uIn.value === "daily" ? parseInt(it.hIn.value, 10) : null }
-          : { occupationId: it.occId, count: n, nationalities: it.nats.slice(), salary: sal, gender: io.gender, ageBand: io.ageBand, insuranceClass: io.insuranceClass, maternity: io.maternity, chronic: io.chronic });
+          : { occupationId: it.occId, count: n, nationalities: it.nats.slice(), salary: sal, gender: io.gender, ageBand: io.ageBand, insuranceClass: io.insuranceClass, insurer: io.insurer, maternity: io.maternity, chronic: io.chronic });
       }
       var start = $("eorStart").value.trim();
       if (start && !/^\d{4}-\d{2}-\d{2}$/.test(start)) return bad("eStart", $("eorStart"));
-      var ms = digits($("eorMonths").value).trim();
-      var mo = /^\d+$/.test(ms) ? parseInt(ms, 10) : 0;
-      if (mo < 1 || mo > LIM.maxMonths) return bad("eMonths", $("eorMonths"));
+      var dr = durOf();
+      if (!dr.ok || dr.value == null) return bad("eDur", $("eorDurValue"));
       return {
         company: v("eorCompany"), contactName: v("eorContact"), email: email, phone: phone, city: v("eorCity"), sector: $("eorSector").value,
-        engagementType: casual ? "casual" : "contract", workerType: wt, recruitment: rc, items: out, startDate: start, durationMonths: mo,
+        engagementType: casual ? "casual" : "contract", workerType: wt, recruitment: rc, items: out, startDate: start, durationUnit: dr.unit, durationValue: dr.value, durationMonths: durMonths(dr),
         notes: $("eorNotes").value.trim(), lang: LANG, source: "site:/eor", website: $("eorWebsite").value
       };
     }

@@ -193,7 +193,7 @@ test("العمالة المرنة: سعر الوحدة وإجمالي الكمي
   assert.deepEqual(q.lines[1].unit, { status: "ok", billingUnit: "daily", unitPrice: 625, hoursPerDay: 10, quantity: 22, total: 625 * 22 * 2 });
   assert.deepEqual(q.lines[2].unit, { status: "ok", billingUnit: "monthly", unitPrice: 3000, quantity: 6, total: 18000 });
   assert.equal(q.unitTotal, 30000 + 27500 + 18000);
-  assert.deepEqual(q.insuranceUi, { selectable: false, addons: false });
+  assert.deepEqual(q.insuranceUi, { selectable: false, addons: false, defaultInsurer: "any", insurers: [], classes: [] });
   for (const l of q.lines) { assert.equal("monthlyPerEmployee" in l, false); assert.equal("otHour" in l, false); assert.equal("insurance" in l, false); }
   assert.equal("monthlyTotal" in q, false);
   // كمية غائبة ⇒ سعر الوحدة بلا إجمالي، ولا unitTotal
@@ -378,7 +378,7 @@ test("المواصفة: قسم «العمالة المرنة» بالأمثلة 
   const spec = fs.readFileSync(path.join(ROOT, "docs/hr-pricing-calculator-spec.md"), "utf8");
   const sec = spec.slice(spec.indexOf("## العمالة المرنة"));
   assert.ok(sec.length > 1500, "قسم العمالة المرنة");
-  for (const w of ["مفاهيمية", "hourly_worker_multiplier", "sale_multiplier", "مرحلة لاحقة", "قرارات مفتوحة", "مراجعة قانونية"]) assert.ok(sec.includes(w), w);
+  for (const w of ["مفاهيمية", "hourly_worker_multiplier", "sale_multiplier", "الفوترة الشهرية", "قرارات مفتوحة", "مراجعة قانونية"]) assert.ok(sec.includes(w), w);
   const files = fs.readdirSync(path.join(ROOT, "api")).filter((f) => f.endsWith(".js") && !f.startsWith("_"));
   assert.ok(files.length <= 12, `${files.length} دالة`);
 });

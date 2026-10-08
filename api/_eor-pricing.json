@@ -27,6 +27,18 @@
     "hours_per_day": null,
     "client_cost_visibility": null
   },
+  "billing": {
+    "_status": "pending_owner_decision",
+    "_readme": "الفوترة الشهرية (api/_eor-billing.js). vat_rate: نسبة ضريبة الفاتورة الشهرية، الافتراضي 0.15 إن تُرك فارغاً؛ ثم يُقرأ vat_rate العام أعلاه. prices_include_vat=false: الأسعار قبل الضريبة وتُضاف فوقها. proration: full_month (شهر كامل، الافتراضي) أو calendar_days (أيام النشاط ÷ أيام الشهر للتعاقد وحده). due_days: أيام الاستحقاق بعد الإصدار (null = بلا تاريخ استحقاق حتى يحدّده المالك). timesheet_max_hours: سقف ساعات ورقة الدوام (≤ 744). سعر الوحدة في كل تنسيب لقطة مثبَّتة وقت التنسيب فلا تتغيّر بتغيير هذا الملف.",
+    "vat_rate": 0.15,
+    "_vat_rate": "_owner_decision: 0.15 افتراضي؛ لا نعرف أهي نسبة الأسعار قبل الضريبة أم شاملها (الافتراضي «قبل الضريبة» وتُضاف). يؤكّدها المالك.",
+    "prices_include_vat": false,
+    "proration": "full_month",
+    "_proration": "_owner_decision: full_month = التعاقد يُفوتَر بالشهر كاملاً مهما كان تاريخ بدئه/انتهائه داخل الشهر. calendar_days = بنسبة أيام النشاط من أيام الشهر.",
+    "due_days": null,
+    "_due_days": "_owner_decision: أيام الاستحقاق بعد الإصدار. فارغ = لا تاريخ استحقاق.",
+    "timesheet_max_hours": 744
+  },
   "package_rate": {
     "_source": "Owner Google Sheet 'Salary vs Rate Hospitality' (ورقة Lump sum وCost plus) — صيغ حرفية قُرئت يوم 2026-10-08. التفاصيل والتناقضات: docs/hr-pricing-calculator-spec.md. المبالغ بالريال السعودي.",
     "currency": "SAR",
@@ -100,12 +112,26 @@
       "client_addons_visible": true,
       "_client_addons_visible": "_owner_decision: هل تُعرض للعميل خياراتا الأمومة والمزمن؟ false يُسقطهما من السعر ومن الواجهة.",
       "default_class": "basic",
+      "_class_descriptions_review": "يراجَع قانونياً: أوصاف مستوى الشبكة والتغطية أدناه (description_ar / description_en) نصوص عامة بلا أرقام ولا وعود، تُعرض للعميل في الواجهة. لا يُكتب نصٌّ يتجاوزها قبل مراجعة نص تغطية كل فئة وشبكتها من الشركة نفسها.",
+      "default_insurer": "any",
+      "_insurers": "أسماء شركات مرخّصة معروفة؛ تُراجع مع قائمة مجلس الضمان الصحي المعتمدة قبل النشر. price_factor معامل يُضرب في قسط الفئة المختارة (C/B/A) ليعكس فرق شركة عن أخرى: 1.0 للجميع الآن لأنه لا مصدر موثوق بفوارق بينها (مدونة واحدة ذكرت نطاقات سنوية Bupa 4500–18000 وTawuniya 3800–16500 وMedGulf 2500–9500 وهي غير موثّقة فلا تُطبَّق؛ انظر المواصفة). حين تصل عروض الشركات يضع المالك العوامل هنا بلا تعديل كود. معاملات الأسعار داخلية: لا تصل العميل أبداً، يرى اسم شركته المفضّلة فقط. any = أي شركة معتمدة (نختار الأنسب) وهو الافتراضي.",
+      "insurers": [
+        { "id": "any", "name_ar": "أي شركة معتمدة (نختار الأنسب)", "name_en": "Any approved insurer (we choose the best fit)", "price_factor": 1.0 },
+        { "id": "bupa", "name_ar": "بوبا العربية", "name_en": "Bupa Arabia", "price_factor": 1.0 },
+        { "id": "tawuniya", "name_ar": "التعاونية", "name_en": "Tawuniya", "price_factor": 1.0 },
+        { "id": "medgulf", "name_ar": "ميدغلف", "name_en": "MedGulf", "price_factor": 1.0 },
+        { "id": "malath", "name_ar": "ملاذ للتأمين", "name_en": "Malath", "price_factor": 1.0 },
+        { "id": "walaa", "name_ar": "ولاء للتأمين", "name_en": "Walaa", "price_factor": 1.0 },
+        { "id": "rajhi_takaful", "name_ar": "الراجحي تكافل", "name_en": "Al Rajhi Takaful", "price_factor": 1.0 },
+        { "id": "arabian_shield", "name_ar": "الدرع العربي", "name_en": "Arabian Shield", "price_factor": 1.0 },
+        { "id": "allianz_sf", "name_ar": "أليانز السعودي الفرنسي", "name_en": "Allianz Saudi Fransi", "price_factor": 1.0 }
+      ],
       "classes": {
-        "basic": { "_note": "الأساسي المعتمد في إكسل المالك: القيمة هي lump.insurance_yearly (600 ريال سنوياً) كما هي بلا معامل عمر ولا جنس ولا ضريبة ولا خصم مجموعات — فالافتراضي يطابق صيغة الإكسل بالضبط." },
-        "C": { "base_yearly_18_29": 2000, "maternity_yearly": 1400 },
-        "B": { "base_yearly_18_29": 4200, "maternity_yearly": 2200 },
-        "A": { "base_yearly_18_29": 9000, "maternity_yearly": 3500 },
-        "quote": { "quote_only": true, "_note": "الفئة العليا/VIP: لا جدول لها. تُعرض «بعرض سعر من الشركة» بلا رقم، والسعر الشهري يبقى على الأساسي." }
+        "basic": { "description_ar": "شبكة أساسية للحالات الشائعة", "description_en": "A basic network for common cases", "_note": "الأساسي المعتمد في إكسل المالك: القيمة هي lump.insurance_yearly (600 ريال سنوياً) كما هي بلا معامل عمر ولا جنس ولا ضريبة ولا خصم مجموعات — فالافتراضي يطابق صيغة الإكسل بالضبط." },
+        "C": { "description_ar": "شبكة اقتصادية بنطاق تغطية محدود", "description_en": "An economy network with a limited coverage scope", "base_yearly_18_29": 2000, "maternity_yearly": 1400 },
+        "B": { "description_ar": "شبكة أوسع ومستشفيات أفضل", "description_en": "A wider network and better hospitals", "base_yearly_18_29": 4200, "maternity_yearly": 2200 },
+        "A": { "description_ar": "شبكة واسعة تضم مستشفيات مختارة بمستوى تغطية أعلى", "description_en": "A wide network including selected hospitals at a higher coverage level", "base_yearly_18_29": 9000, "maternity_yearly": 3500 },
+        "quote": { "description_ar": "أعلى مستوى للشبكة والتغطية (VIP)، بعرض سعر من الشركة", "description_en": "The top network and coverage tier (VIP), priced by an insurer quote", "quote_only": true, "_note": "الفئة العليا/VIP: لا جدول لها. تُعرض «بعرض سعر من الشركة» بلا رقم، والسعر الشهري يبقى على الأساسي." }
       },
       "age_bands": { "0-17": 0.9, "18-29": 1.0, "30-39": 1.1, "40-49": 1.4, "50-59": 1.8, "60+": 2.5 },
       "gender_factor": { "male": 1.0, "female": 1.0, "unspecified": 1.0 },

@@ -100,10 +100,11 @@ test("الراتب والمدة وتاريخ البدء", () => {
   assert.equal(v(good({ items: [{ occupationId: "hosp.waiter", count: 1, salary: "" }] })).value.items[0].salary, null);
   assert.equal(v(good({ items: [{ occupationId: "hosp.waiter", count: 1, salary: "2,500.5" }] })).value.items[0].salary, 2500.5);
   bad(good({ durationMonths: 0 }), "duration_invalid");
-  bad(good({ durationMonths: 61 }), "duration_invalid");
+  bad(good({ durationMonths: 121 }), "duration_invalid");     // سقف وحدة الشهر 120 (كان 60 قبل وحدات المدة)
   bad(good({ durationMonths: 1.5 }), "duration_invalid");
   bad(good({ durationMonths: undefined }), "duration_invalid");
   assert.equal(v(good({ durationMonths: 60 })).ok, true);
+  assert.equal(v(good({ durationMonths: 120 })).ok, true);
   bad(good({ startDate: "2026-02-30" }), "start_date_invalid");
   bad(good({ startDate: "2020-01-01" }), "start_date_invalid");
   bad(good({ startDate: "2031-01-01" }), "start_date_invalid");
@@ -368,7 +369,7 @@ for (const lang of Object.keys(PAGES)) {
     assert.ok(new RegExp(`<html[^>]*lang="${lang}"`).test(h), "lang");
     assert.equal(/<script[^>]*main\.js/.test(h), false, "بلا main.js");
     assert.ok(h.includes('class="sv1"') || h.includes('<div class="sv1">'), "قشرة SV1");
-    for (const id of ["eorForm", "eorCompany", "eorContact", "eorEmail", "eorPhone", "eorCity", "eorItems", "eorAdd", "eorStart", "eorMonths", "eorNotes", "eorGo", "eorWebsite", "eorTotal"]) assert.ok(h.includes(`id="${id}"`), id);
+    for (const id of ["eorForm", "eorCompany", "eorContact", "eorEmail", "eorPhone", "eorCity", "eorItems", "eorAdd", "eorStart", "eorDurUnit", "eorDurValue", "eorNotes", "eorGo", "eorWebsite", "eorTotal"]) assert.ok(h.includes(`id="${id}"`), id);
     for (const val of ["saudi", "foreign", "both", "yes", "no", "unsure"]) assert.ok(h.includes(`value="${val}"`), "راديو " + val);
     assert.ok(h.includes('name="website"') && h.includes('tabindex="-1"'), "honeypot");
     assert.ok(h.includes("/api/requests?__route=eor"), "نقطة الإرسال");
@@ -388,12 +389,12 @@ for (const lang of Object.keys(PAGES)) {
     assert.equal(/\d\s*(﷼|ر\.س|SAR)/.test(main), false, "لا سعر");
   });
 
-  test(`/eor (${lang}): العنوان والوصف ومحتوى الأقسام (٦ بطاقات، ٥ خطوات، ٥ أسئلة)`, () => {
+  test(`/eor (${lang}): العنوان والوصف ومحتوى الأقسام (٦ بطاقات، ٥ خطوات، ١٤ سؤالاً)`, () => {
     const h = page(lang);
     assert.match(h, /<title>[^<]*Business Partner[^<]*<\/title>/);
     assert.equal((h.match(/class="sv1-eor-card"/g) || []).length, 6);
     assert.equal((h.match(/<ol class="sv1-eor-steps">(?:<li>[^<]+<\/li>){5}<\/ol>/g) || []).length, 1);
-    assert.equal((h.match(/<details><summary>/g) || []).length, 5);
+    assert.equal((h.match(/<details><summary>/g) || []).length, 14); // ٥ أصلية + ٩ أضافها إثراء الصفحة (tests/eor-page-lifecycle.test.mjs)
     assert.equal(/\{\{|\[object|undefined/.test(h.slice(h.indexOf("<main>"), h.indexOf("</main>"))), false, "لا بقايا قوالب");
   });
 }
@@ -420,7 +421,7 @@ test("/eor: قائمة المهن المدمجة = id + عربي + إنجليز�
     assert.ok(c.occ.every((o) => Array.isArray(o) && o.length === 3 && typeof o[0] === "string" && typeof o[1] === "string" && typeof o[2] === "string"));
     assert.deepEqual(c.occ.map((o) => o[0]).sort(), OCCUPATIONS.map((o) => o.id).sort());
     assert.equal(c.nats.length, E.NATIONALITIES.length);
-    assert.deepEqual(c.lim, { maxItems: 20, maxTotal: 500, maxItemCount: 500, maxMonths: 60, maxSalary: 100000, maxNats: 10, hMin: 4, hMax: 12, hDef: 8 });
+    assert.deepEqual(c.lim, { maxItems: 20, maxTotal: 500, maxItemCount: 500, maxMonths: E.EOR_LIMITS.maxMonths, maxSalary: 100000, maxNats: 10, hMin: 4, hMax: 12, hDef: 8 });
   }
 });
 

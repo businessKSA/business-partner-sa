@@ -383,6 +383,15 @@ export const INSURANCE_AGE_BANDS = Object.freeze(["0-17", "18-29", "30-39", "40-
 export const INSURANCE_GENDERS = Object.freeze(["unspecified", "male", "female"]);
 const MEDICAL_CLASSES = Object.freeze(["C", "B", "A"]);
 
+// شركة التأمين المفضّلة: معرّف بحروف صغيرة وشرطة سفلية فقط؛ المجهول/الفاسد ⇒ "any" (أي شركة معتمدة، نختار الأنسب).
+// القائمة البيضاء الفعلية هي insurance_catalog.insurers في الإعداد (تُفحص في insurancePremium وفي طبقة الـAPI)؛ هنا حارس شكلٍ فقط.
+export const DEFAULT_INSURER = "any";
+const INSURER_ID_RE = /^[a-z][a-z0-9_]{1,30}$/;
+export function normalizeInsurerId(v) {
+  const s = typeof v === "string" ? v.trim().toLowerCase() : "";
+  return INSURER_ID_RE.test(s) ? s : DEFAULT_INSURER;
+}
+
 // يحوّل اختيار العميل (من أي مصدر غير موثوق) إلى قيم مسموحة فقط. المجهول يعود للافتراضي الآمن؛ والمنطقي صارم (true وحدها).
 export function normalizeInsuranceFields(raw) {
   const r = isObj(raw) ? raw : {};
@@ -395,6 +404,7 @@ export function normalizeInsuranceFields(raw) {
     gender,
     maternity: r.maternity === true,
     chronic: r.chronic === true,
+    insurer: normalizeInsurerId(r.insurer),
   };
 }
 
@@ -408,7 +418,22 @@ function insuranceConfigFrom(cat) {
   const mat = isObj(cat.maternity) ? cat.maternity : {};
   const classes = {};
   for (const k of MEDICAL_CLASSES) { const x = isObj(cls[k]) ? cls[k] : {}; classes[k] = { baseYearly: pos(x.base_yearly_18_29), maternityYearly: pn(x.maternity_yearly) }; }
+  // شركات التأمين: معرّف + اسمان + معامل سعر (price_factor، افتراضي 1.0 للجميع). معامل فاسد ⇒ null ⇒ الحساب يعود للأساسي إن اختير صاحبه.
+  const insurers = {};
+  if (Array.isArray(cat.insurers)) {
+    for (const x of cat.insurers) {
+      if (!isObj(x) || typeof x.id !== "string" || !INSURER_ID_RE.test(x.id) || insurers[x.id]) continue;
+      const f = x.price_factor === undefined ? 1 : (typeof x.price_factor === "number" && Number.isFinite(x.price_factor) && x.price_factor > 0 && x.price_factor <= 100 ? x.price_factor : null);
+      insurers[x.id] = { nameAr: typeof x.name_ar === "string" ? x.name_ar : "", nameEn: typeof x.name_en === "string" ? x.name_en : "", priceFactor: f };
+    }
+  }
+  const classDescriptions = {};
+  for (const k of ["basic", ...MEDICAL_CLASSES, "quote"]) {
+    const x = isObj(cls[k]) ? cls[k] : {};
+    if (typeof x.description_ar === "string" || typeof x.description_en === "string") classDescriptions[k] = { ar: typeof x.description_ar === "string" ? x.description_ar : "", en: typeof x.description_en === "string" ? x.description_en : "" };
+  }
   return {
+    insurers, classDescriptions,
     clientSelectable: cat.client_selectable === true,
     addonsVisible: cat.client_addons_visible === true,
     groupDiscountFactor: unit(cat.group_discount_factor),
@@ -432,7 +457,7 @@ const ppmBig = (x) => BigInt(Math.round(x * RATE_SCALE));
 //   applied يحمل: monthlyHalalas, monthly (ريال)، maternity/chronic (المُطبَّق فعلاً)، detail (داخلي: القسط السنوي والمعاملات…).
 export function insurancePremium(choice, icfg) {
   const ch = normalizeInsuranceFields(choice);
-  const BASIC = { status: "basic", class: "basic", maternity: false, chronic: false };
+  const BASIC = { status: "basic", class: "basic", insurer: DEFAULT_INSURER, maternity: false, chronic: false };
   if (!isObj(icfg) || icfg.clientSelectable !== true || ch.insuranceClass === "basic") return BASIC;
   if (ch.insuranceClass === "quote") return icfg.quoteAvailable ? { status: "quote_only", class: "quote", maternity: false, chronic: false } : BASIC;
   const k = icfg.classes && icfg.classes[ch.insuranceClass];
@@ -445,6 +470,11 @@ export function insurancePremium(choice, icfg) {
   const wantChr = icfg.addonsVisible === true && ch.chronic;
   if (wantMat && icfg.classes[ch.insuranceClass].maternityYearly === null) return BASIC;
   if (wantChr && icfg.chronicLoading === null) return BASIC;
+  // معامل شركة التأمين: المجهول أو "any" بلا مدخل ⇒ 1؛ مدخل بمعامل فاسد ⇒ الأساسي (فشل مغلق، لا سعر مشوَّه).
+  const entry = isObj(icfg.insurers) ? icfg.insurers[ch.insurer] : undefined;
+  const insurer = entry ? ch.insurer : DEFAULT_INSURER;
+  if (entry && entry.priceFactor === null) return BASIC;
+  const insFactor = entry ? entry.priceFactor : 1;
 
   const S = BigInt(RATE_SCALE);
   const adj = BigInt(sarToHalalas(k.baseYearly)) * ppmBig(age) * ppmBig(gen) * ppmBig(grp);          // هللات × S³
@@ -452,14 +482,15 @@ export function insurancePremium(choice, icfg) {
   if (wantChr) total += adj * ppmBig(icfg.chronicLoading);
   if (wantMat) total += BigInt(sarToHalalas(k.maternityYearly)) * S ** 4n;
   total *= S + (icfg.vatIncluded ? ppmBig(icfg.vatRate) : 0n);                                        // × S⁵
-  const monthlyH = Number(divHalfUpBig(total, 12n * S ** 5n));
+  total *= ppmBig(insFactor);                                                                         // × S⁶ (معامل الشركة)
+  const monthlyH = Number(divHalfUpBig(total, 12n * S ** 6n));
   return {
-    status: "applied", class: ch.insuranceClass, maternity: wantMat, chronic: wantChr,
+    status: "applied", class: ch.insuranceClass, insurer, maternity: wantMat, chronic: wantChr,
     monthlyHalalas: monthlyH, monthly: monthlyH / 100,
     detail: {
       baseYearly: k.baseYearly, ageBand: ch.ageBand, ageFactor: age, gender: ch.gender, genderFactor: gen, groupDiscountFactor: grp,
       maternityYearly: wantMat ? icfg.classes[ch.insuranceClass].maternityYearly : 0, chronicLoading: wantChr ? icfg.chronicLoading : 0,
-      vatIncluded: icfg.vatIncluded, vatRate: icfg.vatIncluded ? icfg.vatRate : 0, yearly: Number(divHalfUpBig(total, S ** 5n)) / 100,
+      vatIncluded: icfg.vatIncluded, vatRate: icfg.vatIncluded ? icfg.vatRate : 0, insurerPriceFactor: insFactor, yearly: Number(divHalfUpBig(total, S ** 6n)) / 100,
     },
   };
 }
@@ -592,7 +623,7 @@ export function computePackageRate(input) {
     if (ins) {
       // ما يخرج للعميل منه: الفئة والحالة والفرق الشهري عن الأساسي (فرق سعرين مقرَّبين) وما طُبِّق من الإضافات — لا أرقام الأقساط.
       const delta = ins.status === "applied" ? billable - build(basicInsurance).billable : 0;
-      out.insurance = { class: ins.class, status: ins.status, deltaMonthly: r2(delta), maternity: ins.maternity === true, chronic: ins.chronic === true };
+      out.insurance = { class: ins.class, status: ins.status, insurer: ins.status === "applied" ? ins.insurer : DEFAULT_INSURER, deltaMonthly: r2(delta), maternity: ins.maternity === true, chronic: ins.chronic === true };
       out.internal.insurance = ins.status === "applied"
         ? { ...ins.detail, class: ins.class, monthly: ins.monthly, basicMonthly: r2(basicInsurance), basicBillable: build(basicInsurance).billable }
         : { class: ins.class, status: ins.status };
@@ -641,12 +672,26 @@ export function packageClientView(result, config) {
     view.insurance = {
       class: INSURANCE_CLASSES.includes(i.class) ? i.class : "basic",
       status: ["basic", "quote_only", "needs_age", "applied"].includes(i.status) ? i.status : "basic",
+      insurer: typeof i.insurer === "string" ? normalizeInsurerId(i.insurer) : DEFAULT_INSURER,   // اختيار العميل نفسه (معرّف فقط، لا معامل سعر)
       deltaMonthly: Number.isFinite(i.deltaMonthly) ? i.deltaMonthly : 0,
       maternity: i.maternity === true,
       chronic: i.chronic === true,
     };
   }
   return view;
+}
+
+// ما تعرضه الواجهة من كتالوج التأمين: أعلام + قائمة الشركات (معرّف واسمان) + وصف مستوى كل فئة. لا أرقام ولا معاملات ولا أقساط أبداً.
+// الأوصاف نصوص شبكة وتغطية عامة بلا أرقام ولا وعود، وتحتاج مراجعة قانونية قبل النشر (انظر _review في الملف).
+export function insuranceUiFromConfig(cfg) {
+  const ic = isObj(cfg) && isObj(cfg.insurance) ? cfg.insurance : null;
+  const selectable = !!(ic && ic.clientSelectable);
+  const out = { selectable, addons: !!(ic && ic.clientSelectable && ic.addonsVisible), defaultInsurer: DEFAULT_INSURER, insurers: [], classes: [] };
+  if (!selectable) return out;
+  const clip = (x) => String(x || "").slice(0, 120);
+  out.insurers = Object.entries(ic.insurers || {}).map(([id, x]) => ({ id, nameAr: clip(x.nameAr), nameEn: clip(x.nameEn) }));
+  out.classes = ["basic", ...MEDICAL_CLASSES, "quote"].filter((k) => (ic.classDescriptions || {})[k]).map((k) => ({ id: k, descAr: clip(ic.classDescriptions[k].ar), descEn: clip(ic.classDescriptions[k].en) }));
+  return out;
 }
 
 // السعر الشهري كهللات صحيحة لتغذية monthlyInvoiceLines (placements[].saleMonthlyHalalas) بالسعر المقرَّب نفسه.

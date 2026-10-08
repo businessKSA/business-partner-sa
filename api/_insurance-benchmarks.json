@@ -1,0 +1,363 @@
+{
+  "_status": "research_proposal_not_applied",
+  "_status_ar": "مقترح بحثي من وكيل insurance-pricing. لا يقرؤه أي كود ولا يدخل أي حساب. لا يُنقل منه رقم إلى api/_eor-pricing.json إلا باعتماد صريح من المالك.",
+  "schema_version": 1,
+  "generated_at": "2026-10-08",
+  "currency": "SAR",
+  "period": "annual_per_person",
+  "confidence_scale": {
+    "high": "عرض أو جدول رسمي منشور من شركة التأمين نفسها أو من مجلس الضمان الصحي",
+    "medium": "رقم منسوب لشركة محدّدة في مقارنة وسيط مرخّص بتاريخ ومنهج معلنين",
+    "low": "مدونة أو موقع محتوى أو حاسبة بلا استناد لعرض شركة؛ يصلح مؤشراً لا سعراً",
+    "unverified": "رقم متضارب أو بلا فئة أو بلا تاريخ"
+  },
+  "sources": [
+    {
+      "id": "S1",
+      "name": "pricesworld.net — أسعار التأمين الطبي للمقيمين",
+      "url": "https://www.pricesworld.net/?p=60554",
+      "type": "content_site",
+      "published": "2025-07-29",
+      "retrieved": "2026-10-08",
+      "confidence": "low",
+      "note": "الوحيد الذي وجدته يسعّر شركة بشركة وفئة عمرية بفئة عمرية، لكنه بلا فئة (A/B/C) وبلا جنس ولا أمومة وبلا مصدر معلن، وبعض النطاقات متداخلة أو بقيم متعددة. يبدو منتجاً أساسياً للمقيمين (الحدّ النظامي الأدنى) وهذا استنتاجي من حجم الأرقام وليس معلناً. العنوان يقول 2026 والتاريخ المعروض 2025-07."
+    },
+    {
+      "id": "S2",
+      "name": "حاسبة ehsabi — تكلفة التأمين الصحي (السعودية)",
+      "url": "https://ehsabi.com/c/cchi-health-insurance-cost-ksa/",
+      "type": "calculator",
+      "published": "2026-04-28",
+      "last_updated": "2026-07-13",
+      "retrieved": "2026-10-08",
+      "confidence": "low",
+      "note": "تقديرات سوق لا عروض شركات (تقول هي نفسها: ليست جدول مجلس الضمان). تذكر أن الفرق بين الشركات للملف نفسه حتى ~30% وخصم المجموعات أحياناً ~نصف سعر الفرد (بلا مصدر)."
+    },
+    {
+      "id": "S3",
+      "name": "قيود — تأمين طبي للأفراد في السعودية 2026",
+      "url": "https://www.qoyod.com/blog/companies-management/%D8%AA%D8%A3%D9%85%D9%8A%D9%86-%D8%B7%D8%A8%D9%8A-%D9%84%D9%84%D8%A3%D9%81%D8%B1%D8%A7%D8%AF-%D9%81%D9%8A-%D8%A7%D9%84%D8%B3%D8%B9%D9%88%D8%AF%D9%8A%D8%A9/",
+      "type": "content_site",
+      "published": "2025-09-17",
+      "last_updated": "2026-09-10",
+      "retrieved": "2026-10-08",
+      "confidence": "low",
+      "note": "نطاقات بحسب الفئة والشريحة بلا شركة ولا جنس ولا أمومة، وجداوله تتناقض فيما بينها (جدول يسمّي الفئة C «VIP»). تذكر أنها إرشادية وقبل ضريبة 15% في أحد الجدولين."
+    },
+    {
+      "id": "S4",
+      "name": "Concord Arabia — Medical Insurance Price in Saudi Arabia 2026",
+      "url": "https://www.concordarabia.com/en/medical-insurance-price-in-saudi-arabia/",
+      "type": "broker_content",
+      "published": "2026-04-15",
+      "retrieved": "2026-10-08",
+      "confidence": "low",
+      "note": "نطاقات بحسب الدرجة (Basic/Silver/Gold-VIP) بلا شركة ولا عمر ولا جنس. تقول إن الأسعار ترتفع بحدّة فوق الخمسين بلا رقم."
+    },
+    {
+      "id": "S5",
+      "name": "TrueScho — Health Insurance Residents Saudi Arabia 2026",
+      "url": "https://truescho.com/en/blog/health-insurance-residents-saudi-arabia-2026",
+      "type": "content_site",
+      "published": "2026-04-25",
+      "retrieved": "2026-10-08",
+      "confidence": "low",
+      "note": "نطاقات الفئات C/B/A/VIP للبالغ مع مثال وحيد: وثيقة ميدغلف فئة A اشتراها مقيم بـ 5400. تنبّه إلى أن A/B/C فئات تسويقية للشركات وليست فئات نظامية رسمية. تنسب أرقامها إلى «إيداعات مجلس الضمان وعروض أبريل 2026» دون رابط."
+    },
+    {
+      "id": "S6",
+      "name": "التأمين بالعربي — فئات تأمين بوبا 2026",
+      "url": "https://insurancear.org/%D9%81%D8%A6%D8%A7%D8%AA-%D8%AA%D8%A3%D9%85%D9%8A%D9%86-%D8%A8%D9%88%D8%A8%D8%A7/",
+      "type": "content_site",
+      "published": "2026-06-23",
+      "retrieved": "2026-10-08",
+      "confidence": "unverified",
+      "note": "الوحيد الذي يسمّي فئات بوبا (E/D/C/B/A/VIP) بنطاقات، لكن جدول المقارنة وقسم الفئات والأسئلة الشائعة يتناقضون في الصفحة نفسها (مثلاً A: 13,000–16,000 مقابل 5,000–15,000؛ B: 9,000–13,000 مقابل 7,000–20,000). بلا عمر ولا جنس ولا أمومة (حدود أمومة فقط)."
+    },
+    {
+      "id": "S7",
+      "name": "دار التأمين (arbdar) — أسعار تأمين بوبا",
+      "url": "https://arbdar.com/bupa-insurance-prices/",
+      "type": "content_site",
+      "published": null,
+      "retrieved": "2026-10-08",
+      "confidence": "unverified",
+      "note": "بلا تاريخ. أمثلة: مقيم عمر 25 أساسي 1,000، مقيمة عمر 40 شاملة 3,000، فرد عمر 25 أساسي محدود 2,000، فرد عمر 40 شامل 6,000، بوبا الفئة B 10,000–15,000؛ وتقول إن الفرق بين الجنسين «قد يكون طفيفاً» بلا رقم."
+    },
+    {
+      "id": "S8",
+      "name": "Subger — سعر بوبا العربية (مجمّع اشتراكات)",
+      "url": "https://subger.com/el/service/bupa-arabia",
+      "type": "aggregator",
+      "published": "2026-03-16",
+      "retrieved": "2026-10-08",
+      "confidence": "unverified",
+      "note": "نتيجة بحث: Health Basic = 1,800 و Health Premium = 4,800 سنوياً «للسعودية»، من طرف ثالث غير بوبا، لم أفتح الصفحة نفسها."
+    },
+    {
+      "id": "S9",
+      "name": "Remote.com — Saudi health insurance benefits guide",
+      "url": "https://remote.com/benefits-guide/saudihealthinsurance",
+      "type": "employer_of_record_guide",
+      "published": null,
+      "retrieved": "2026-10-08",
+      "confidence": "low",
+      "note": "نتيجة بحث: متوسط ~1,600 دولار للعضو سنوياً (~6,000 ريال بسعر 3.75) تقريبي ويتغير بالعمر والحالة الاجتماعية. لم أفتح الصفحة نفسها."
+    },
+    {
+      "id": "S10",
+      "name": "Bayzat — Bupa Arabia plans",
+      "url": "https://www.bayzat.com/health-insurance/insurance-companies/bupa-arabia/plans",
+      "type": "broker",
+      "published": null,
+      "retrieved": "2026-10-08",
+      "confidence": "unverified",
+      "note": "مفتوحة: لا تعرض أي قسط، فقط حدود تغطية وتحمّل (مثال Classic 3.1: تحمّل 20% بسقف 75/100 ريال، ولادة حتى 15,000). لا تُستخدم كسعر."
+    },
+    {
+      "id": "S11",
+      "name": "Tameeni — Compare & Buy Health Insurance (SME)",
+      "url": "https://www.tameeni.com/en/health-sme",
+      "type": "licensed_comparison_platform",
+      "published": null,
+      "retrieved": "2026-10-08",
+      "confidence": "unverified",
+      "note": "مفتوحة: لا أسعار على الصفحة. الأسعار تظهر داخل المنصة بعد اختيار الفئة لكل مؤمَّن عليه (بحاجة إدخال بيانات؛ الوكيل ممنوع من ذلك). مصدر مرشّح لعرض يدوي يطلبه المالك."
+    },
+    {
+      "id": "S12",
+      "name": "Tawuniya — Family plan leaflet",
+      "url": "https://online.tawuniya.com.sa/RetailMedical/policytermsdocs/Family-Planleaflet-ENG.pdf",
+      "type": "insurer_official",
+      "published": null,
+      "retrieved": "2026-10-08",
+      "confidence": "unverified",
+      "note": "رسمي لكن لم يُفتح (خطأ 503 عند الجلب). نتيجة البحث تقول إنه حدود تغطية 30,000–250,000 للفرد وأمومة 5,000–15,000 وبلا أقساط."
+    }
+  ],
+  "insurers": {
+    "bupa": {
+      "name_ar": "بوبا العربية",
+      "name_en": "Bupa Arabia",
+      "official_prices_published": false,
+      "overall_annual_range": { "min": 4500, "max": 18000, "source": "S5", "as_of": "2026-04", "confidence": "unverified", "note": "نطاق إجمالي بلا عمر أو فئة ولا مصدر لدى الموقع." },
+      "classes": {
+        "basic_unclassified": {
+          "label_ar": "منتج أساسي للمقيمين بلا فئة معلنة",
+          "source": "S1", "as_of": "2025-07-29", "confidence": "low",
+          "age_bands": {
+            "21-30": { "min": 441, "max": 475 },
+            "31-35": { "sar": 524 },
+            "36-40": { "sar": 573 },
+            "41-45": { "sar": 639 },
+            "46-50": { "sar": 783 },
+            "51-55": { "sar": 935 },
+            "56-60": { "sar": 1165 }
+          }
+        },
+        "C": { "age_bands": null, "observed_ranges": [ { "min": 6000, "max": 9000, "label": "«C (Silver)» عند بوبا", "source": "S6", "confidence": "unverified" }, { "min": 4000, "max": 12000, "label": "نطاق C في قسم الفئات", "source": "S6", "confidence": "unverified" } ], "maternity_add_on": null },
+        "B": { "age_bands": null, "observed_ranges": [ { "min": 9000, "max": 13000, "label": "«B (Gold)» جدول المقارنة", "source": "S6", "confidence": "unverified" }, { "min": 7000, "max": 20000, "label": "قسم الفئات والأسئلة الشائعة", "source": "S6", "confidence": "unverified" }, { "min": 10000, "max": 15000, "label": "الفئة B", "source": "S7", "confidence": "unverified" } ], "maternity_add_on": null, "maternity_benefit_limit": { "max_sar": 10000, "kind": "حد تغطية لا قسط", "source": "S6" } },
+        "A": { "age_bands": null, "observed_ranges": [ { "min": 13000, "max": 16000, "label": "«A (Platinum)» جدول المقارنة", "source": "S6", "confidence": "unverified" }, { "min": 5000, "max": 15000, "label": "قسم الفئات", "source": "S6", "confidence": "unverified" } ], "maternity_add_on": null },
+        "VIP": { "age_bands": null, "observed_ranges": [ { "min": 20000, "max": 40000, "label": "«VIP (Diamond)» جدول المقارنة", "source": "S6", "confidence": "unverified" } ], "maternity_add_on": null, "maternity_benefit_limit": { "max_sar": 20000, "kind": "حد تغطية لا قسط", "source": "S6" } },
+        "E": { "age_bands": null, "observed_ranges": [ { "min": 2878, "max": 3500, "label": "أرخص فئات بوبا (E، حد 100,000، لا أسنان ولا ولادة)", "source": "S6", "confidence": "unverified" } ] }
+      },
+      "gender": { "male": null, "female": null, "note": "لا فرق معلناً بالأرقام في أي مصدر." }
+    },
+    "tawuniya": {
+      "name_ar": "التعاونية",
+      "name_en": "Tawuniya",
+      "official_prices_published": false,
+      "overall_annual_range": { "min": 3800, "max": 16500, "source": "S5", "as_of": "2026-04", "confidence": "unverified", "note": "نطاق إجمالي بلا عمر أو فئة." },
+      "classes": {
+        "basic_unclassified": {
+          "label_ar": "منتج أساسي للمقيمين بلا فئة معلنة",
+          "source": "S1", "as_of": "2025-07-29", "confidence": "low",
+          "age_bands": {
+            "18-35": { "min": 309, "max": 661, "note": "المصدر كتب «309 – 564 – 661» (ثلاث قيم، ربما ثلاث وثائق)" },
+            "36-40": { "sar": 796 },
+            "41-45": { "sar": 980 },
+            "46-50": { "sar": 1324 },
+            "51-55": { "sar": 1724 },
+            "56-60": { "sar": 2338 },
+            "61-65": { "sar": 2959 }
+          }
+        },
+        "C": { "age_bands": null, "maternity_add_on": null },
+        "B": { "age_bands": null, "maternity_add_on": null },
+        "A": { "age_bands": null, "maternity_add_on": null },
+        "VIP": { "age_bands": null, "maternity_add_on": null }
+      },
+      "other": [ { "label": "Tawuniya Emergency Silver للعمالة المنزلية، يبدأ من 332 سنوياً (حد 100,000)", "sar": 332, "source": "https://truescho.com/en/blog/health-insurance-domestic-workers-gulf-2026 (ملخص بحث، لم تُفتح الصفحة)", "confidence": "unverified" } ],
+      "gender": { "male": null, "female": null, "note": "غير متوفر." }
+    },
+    "medgulf": {
+      "name_ar": "ميدغلف",
+      "name_en": "MedGulf",
+      "official_prices_published": false,
+      "overall_annual_range": { "min": 2500, "max": 9500, "source": "S5", "as_of": "2026-04", "confidence": "unverified", "note": "نطاق إجمالي بلا عمر أو فئة." },
+      "classes": {
+        "basic_unclassified": {
+          "label_ar": "منتج أساسي للمقيمين بلا فئة معلنة",
+          "source": "S1", "as_of": "2025-07-29", "confidence": "low",
+          "age_bands": {
+            "0-17": { "sar": 570, "source_override": "نتيجة بحث عربية (مصدر غير مفتوح)", "confidence_override": "unverified" },
+            "18-45": { "sar": 400 },
+            "46-50": { "sar": 900 },
+            "51-55": { "sar": 1300 },
+            "56-60": { "sar": 3250 },
+            "61-65": { "sar": 4500 },
+            "66-70": { "sar": 14190, "note": "المصدر الآخر يقول «فوق 65»؛ تقسيم الشريحة متضارب" }
+          }
+        },
+        "C": { "age_bands": null, "maternity_add_on": null },
+        "B": { "age_bands": null, "maternity_add_on": null },
+        "A": { "age_bands": null, "observed_single_policy": { "sar": 5400, "label": "وثيقة اشتراها مقيم واحد", "source": "S5", "confidence": "unverified" }, "maternity_add_on": null },
+        "VIP": { "age_bands": null, "maternity_add_on": null }
+      },
+      "gender": { "male": null, "female": null, "note": "غير متوفر." }
+    },
+    "malath": {
+      "name_ar": "ملاذ للتأمين",
+      "name_en": "Malath",
+      "official_prices_published": false,
+      "classes": {
+        "basic_unclassified": {
+          "label_ar": "منتج أساسي للمقيمين بلا فئة معلنة",
+          "source": "S1", "as_of": "2025-07-29", "confidence": "low",
+          "age_bands": {
+            "18-45": { "sar": 325 },
+            "46-55": { "sar": 700 },
+            "56-60": { "sar": 3250 }
+          }
+        },
+        "C": { "age_bands": null }, "B": { "age_bands": null }, "A": { "age_bands": null }, "VIP": { "age_bands": null }
+      },
+      "gender": { "male": null, "female": null, "note": "غير متوفر." }
+    },
+    "walaa": {
+      "name_ar": "ولاء للتأمين",
+      "name_en": "Walaa",
+      "official_prices_published": false,
+      "classes": {
+        "basic_unclassified": {
+          "label_ar": "منتج أساسي للمقيمين بلا فئة معلنة",
+          "source": "S1", "as_of": "2025-07-29", "confidence": "low",
+          "age_bands": {
+            "18-45": { "sar": 252 },
+            "46-50": { "sar": 420 },
+            "51-55": { "sar": 578 },
+            "56-60": { "sar": 1628 }
+          }
+        },
+        "C": { "age_bands": null }, "B": { "age_bands": null }, "A": { "age_bands": null }, "VIP": { "age_bands": null }
+      },
+      "gender": { "male": null, "female": null, "note": "غير متوفر." }
+    },
+    "rajhi_takaful": {
+      "name_ar": "الراجحي تكافل",
+      "name_en": "Al Rajhi Takaful",
+      "official_prices_published": false,
+      "classes": {
+        "basic_unclassified": {
+          "label_ar": "منتج أساسي للمقيمين بلا فئة معلنة",
+          "source": "S1", "as_of": "2025-07-29", "confidence": "low",
+          "age_bands": {
+            "18-45": { "sar": 235 },
+            "46-50": { "sar": 426, "note": "مصدر آخر (نتيجة بحث) 295" },
+            "51-55": { "sar": 700, "note": "مصدر آخر 2,000 — متضارب" },
+            "56-60": { "sar": 1100, "note": "مصدر آخر 3,000 — متضارب" }
+          }
+        },
+        "C": { "age_bands": null }, "B": { "age_bands": null }, "A": { "age_bands": null }, "VIP": { "age_bands": null }
+      },
+      "gender": { "male": null, "female": null, "note": "غير متوفر." }
+    },
+    "arabian_shield": {
+      "name_ar": "الدرع العربي",
+      "name_en": "Arabian Shield",
+      "official_prices_published": false,
+      "classes": { "basic_unclassified": null, "C": null, "B": null, "A": null, "VIP": null },
+      "gender": { "male": null, "female": null },
+      "note": "لم أجد أي رقم منشور."
+    },
+    "allianz_sf": {
+      "name_ar": "أليانز السعودي الفرنسي",
+      "name_en": "Allianz Saudi Fransi",
+      "official_prices_published": false,
+      "classes": { "basic_unclassified": null, "C": null, "B": null, "A": null, "VIP": null },
+      "gender": { "male": null, "female": null },
+      "note": "لم أجد أي رقم منشور."
+    },
+    "other_insurers_in_S1": {
+      "_note": "شركات غير مطلوبة وردت في S1 بالفئة غير المحدّدة نفسها (S1، 2025-07-29، ثقة low). تُحفظ للمقارنة فقط، ولم تُضف لقائمة الشركات في الإعداد.",
+      "ittihad_tijari": { "name_ar": "الاتحاد التجاري", "18-35": 220, "36-45": 290, "46-50": 443, "51-55": 806, "56-60": 1150, "61-65": 1620 },
+      "gulf_union": { "name_ar": "اتحاد الخليج", "18-30": 308, "31-35": 318, "36-40": 422, "41-45": 554, "46-50": 681, "51-55": 1038, "56-60": 1575, "61-65": 2100 },
+      "arabia_insurance": { "name_ar": "العربية", "18-35": 238, "36-45": 285, "46-50": 474, "51-55": 711, "56-60": 1042, "61-65": 2364, "65-70": 5673 },
+      "al_farae_al_arabi": { "name_ar": "الفرع العربي", "18-45": 215, "46-50": 440, "51-55": 600, "56-60": 900, "61-65": 2750 },
+      "asig": { "name_ar": "اسيج", "18-45": 221, "46-50": 485, "51-55": 1065, "56-60": 1515, "61-65": 3478, "note": "المصدر يذكر 41-45 = 482 منفصلاً" },
+      "burouj": { "name_ar": "بروج", "18-45": 205, "51-55": 365, "56-60": 520, "61-65": 900, "66-70": 2000 },
+      "solidarity": { "name_ar": "سوليدرتي", "31-45": 225, "46-50": 380, "51-55": 494 },
+      "salama": { "name_ar": "سلامة", "18-40": 230, "41-45": 265, "46-50": 550, "51-55": 695, "56-60": 1500 },
+      "saqr": { "name_ar": "الصقر", "18-40": 251, "41-45": 298, "46-50": 255, "51-55": 690, "56-60": 1525, "61-65": 1650, "66-70": 4250, "note": "46-50 = 255 أقل من 41-45 = 298 فالرقم مشكوك" },
+      "wafa": { "name_ar": "وفا", "18-45": 261, "46-50": 410, "51-55": 700, "56-60": 1540, "61-65": 16730, "note": "61-65 = 16,730 شاذ" }
+    }
+  },
+  "market_summary": {
+    "_note": "قراءتي للمصادر لا حساب رسمي. أرقام المصادر قبل الضريبة في الغالب لكن غير معلن في أغلبها. ليست لشركة بعينها. الفئات هنا تسويقية وتختلف تعريفاتها بين الشركات.",
+    "basic_unclassified_resident": {
+      "source": "S1", "as_of": "2025-07-29", "confidence": "low", "insurers_counted": 16,
+      "age_18_45_young_band": { "mean": 283, "median": 245, "min": 205, "max": 485, "note": "الحدّ الأعلى 485 = منتصف نطاق التعاونية 309–661. للست الكبار (التعاونية وبوبا وميدغلف وملاذ وولاء وراجحي): متوسط 359 ووسيط 363." },
+      "age_46_50": { "n": 14, "mean": 569, "median": 458, "min": 255, "max": 1324, "ratio_to_young_median": 2.0 },
+      "age_51_55": { "n": 15, "mean": 827, "median": 700, "min": 365, "max": 1724, "ratio_to_young_median": 2.98 },
+      "age_56_60": { "n": 15, "mean": 1600, "median": 1515, "min": 520, "max": 3250, "ratio_to_young_median": 5.23 }
+    },
+    "by_class_individual_adult_18_45": {
+      "C": { "observed_min": 500, "observed_max": 3500, "typical_range": [900, 2800], "reference_points": [ { "sar": 2000, "source": "S2" }, { "min": 1200, "max": 2200, "label": "سعودي 25–45", "source": "S3" }, { "min": 900, "max": 2200, "label": "مقيم 25–40", "source": "S3" }, { "min": 500, "max": 1200, "source": "S5" }, { "min": 1800, "max": 3500, "label": "Basic/Bronze", "source": "S4" } ], "confidence": "low", "note": "مصدران (S3 وS5) يضعان C حول 500–2,200 وS2 وS4 حول 1,800–3,500؛ تباين نحو 4 أضعاف." },
+      "B": { "observed_min": 1500, "observed_max": 10000, "typical_range": [2500, 5500], "reference_points": [ { "sar": 4200, "source": "S2" }, { "min": 3000, "max": 5500, "label": "سعودي 36–55", "source": "S3" }, { "min": 2500, "max": 4800, "label": "مقيم 41–60", "source": "S3" }, { "min": 1500, "max": 4000, "source": "S5" }, { "min": 4000, "max": 7500, "label": "Silver", "source": "S4" } ], "confidence": "low", "note": "بوبا فئة B وحدها 7,000–20,000 في S6 وS7، أي أعلى بكثير من نطاق السوق العام؛ تعريف «B» غير موحّد." },
+      "A": { "observed_min": 3000, "observed_max": 16000, "typical_range": [4000, 9000], "reference_points": [ { "sar": 9000, "source": "S2" }, { "min": 4500, "max": 7000, "label": "سعودي 25–45", "source": "S3" }, { "min": 4000, "max": 8000, "source": "S5" }, { "sar": 5400, "label": "ميدغلف وثيقة واحدة", "source": "S5" }, { "min": 13000, "max": 16000, "label": "بوبا", "source": "S6" } ], "confidence": "low" },
+      "VIP": { "observed_min": 8500, "observed_max": 40000, "typical_range": null, "reference_points": [ { "min": 8500, "max": 18000, "label": "Gold/VIP 18000+", "source": "S4" }, { "min": 15000, "label": "VIP 15000+", "source": "S5" }, { "min": 20000, "max": 40000, "label": "بوبا", "source": "S6" } ], "confidence": "low", "note": "لا نطاق نموذجي؛ تبقى «بعرض سعر من الشركة»." }
+    },
+    "age": {
+      "factors_in_sources": { "source": "S2", "values": { "0-17": 0.9, "18-29": 1.0, "30-39": 1.1, "40-49": 1.4, "50-59": 1.8, "60+": 2.5 }, "confidence": "low", "note": "معاملات الحاسبة نفسها المعتمدة حالياً في الإعداد؛ ليست مستقلة عنه." },
+      "observed_in_basic_resident_S1": { "46-50_vs_young": 2.0, "51-55_vs_young": 2.98, "56-60_vs_young": 5.23, "confidence": "low", "note": "منتج أساسي فقط، وأعلى كثيراً من معاملات S2 بعد الخمسين. لا بيانات للفئات C/B/A." }
+    },
+    "gender": { "male": null, "female": null, "note": "لا مصدر بفرق جنس رقمي. S7 يقول «طفيف» بلا رقم." },
+    "maternity": {
+      "add_on_yearly": { "C": 1400, "B": 2200, "A": 3500, "source": "S2", "confidence": "low", "note": "من الحاسبة نفسها (للنساء 18–45 المتزوجات) ولا مصدر مستقل. المصادر الأخرى تذكر حدود تغطية ولادة لا أقساط: 5,000–15,000 (S12) و10,000 (B) و20,000 (VIP) عند بوبا (S6) و15,000 للولادة الطبيعية (S10)." }
+    },
+    "chronic_loading": { "value": 0.25, "range": [0.2, 0.3], "source": "S2", "confidence": "low", "note": "نتيجة بحث أخرى تذكر +20–60% للسكري وضغط الدم والقلب وBMI فوق 35 (مصدر غير مفتوح)." },
+    "group_discount": { "value": null, "note": "S2: أحياناً ~نصف سعر الفرد بلا مصدر. لا رقم يُعتمد؛ يلزم عرض شركة." },
+    "vat": { "rate": 0.15, "note": "S3 يذكر أن أحد جدوليه قبل الضريبة؛ بقية المصادر لا تحدد." },
+    "insurer_spread": { "value": 0.3, "source": "S2", "confidence": "low", "note": "الفرق بين الشركات للملف نفسه نحو 30% كحدّ أقصى — يعني أن عوامل الشركة يجب ألا تُضبط إلا بعروض." }
+  },
+  "diff_vs_current_eor_pricing": {
+    "_note": "مقارنة للقراءة فقط مع package_rate.insurance_catalog في api/_eor-pricing.json (لم أعدّله). المقارنة ضعيفة لأن المصادر كلها ثقة low.",
+    "items": [
+      { "key": "classes.C.base_yearly_18_29", "current": 2000, "market_typical": [900, 2800], "verdict": "ضمن النطاق" },
+      { "key": "classes.B.base_yearly_18_29", "current": 4200, "market_typical": [2500, 5500], "verdict": "ضمن النطاق" },
+      { "key": "classes.A.base_yearly_18_29", "current": 9000, "market_typical": [4000, 9000], "verdict": "عند الحدّ الأعلى للنطاق النموذجي وأقل من بوبا A (13–16 ألف)" },
+      { "key": "lump.insurance_yearly (الأساسي)", "current": 600, "market_basic_18_45_median": 245, "market_basic_18_45_named6_median": 363, "verdict": "أعلى من كل ما رُصد لعمر 18–45 (أعلى رقم 661 للتعاونية)؛ يتسع للضريبة والهامش" },
+      { "key": "age_bands.40-49", "current": 1.4, "market_basic_46_50": 2.0, "verdict": "أقل من الأساسي في السوق؛ لا بيانات لـC/B/A" },
+      { "key": "age_bands.50-59", "current": 1.8, "market_basic_51_55": 2.98, "market_basic_56_60": 5.23, "verdict": "أقل بكثير من الأساسي في السوق" },
+      { "key": "age_bands.60+", "current": 2.5, "verdict": "لا بيانات كافية (61-65 فقط، مع شذوذات)" },
+      { "key": "maternity_yearly", "current": { "C": 1400, "B": 2200, "A": 3500 }, "verdict": "لا مصدر مستقل" },
+      { "key": "gender_factor", "current": 1.0, "verdict": "لا مصدر لتغييره" },
+      { "key": "chronic_loading", "current": 0.25, "verdict": "ضمن نطاق 20–30%" },
+      { "key": "insurers[*].price_factor", "current": 1.0, "verdict": "لا أساس لأي عامل مختلف" }
+    ],
+    "proposed_changes_for_owner_approval": []
+  },
+  "gaps": [
+    "لا جدول أسعار رسمي منشور من أي شركة (بوبا، التعاونية، ميدغلف، ملاذ، ولاء، الراجحي تكافل، الدرع العربي، أليانز السعودي الفرنسي): الأسعار تظهر فقط بعد إدخال بيانات في نموذج عرض سعر، وهذا ممنوع على الوكيل.",
+    "لا سعر مفصّل بحسب الفئة (C/B/A/VIP) × العمر لأي شركة بعينها، سوى نطاقات بوبا المتضاربة.",
+    "لا جنس: لا رقم يفرّق بين الذكر والأنثى في أي مصدر.",
+    "لا أمومة منشورة كقسط لأي شركة؛ الرقم الوحيد (1400/2200/3500) من حاسبة S2، والباقي حدود تغطية.",
+    "الدرع العربي وأليانز السعودي الفرنسي: لا شيء.",
+    "مجلس الضمان الصحي (chi.gov.sa): لا يسعّر ولا ينشر جدول أقساط؛ لم يظهر منه رقم.",
+    "tameeni وcover.sa: صفحاتهما العامة بلا أسعار؛ الأسعار داخل المنصة بعد إدخال بيانات.",
+    "مواقع almaal وsaudi.wiki وprojectsegy وmmlakti وkhaleejcalculators رفضت الجلب (403/429) فلم تُقرأ أسعارها؛ وردت أرقامها عبر ملخصات البحث فقط وتُعامل unverified.",
+    "خصم المجموعات (للشركات): لا رقم.",
+    "تأمين الأسرة وأقساط الأطفال: خارج النطاق ولا بيانات."
+  ],
+  "confidence_notes": "كل الأرقام هنا ثقة low أو أدنى. لا عرض ولا جدول من شركة تأمين. أصلح ما وُجد: جدول S1 (أسعار الأساسي للمقيمين بالشركة والعمر) لكنه بلا فئة ولا مصدر ولا تاريخ مؤكد، وحاسبة S2 وهي تقدير. لا ينبغي نقل أي رقم منها إلى ملف التسعير. المطلوب عروض رسمية مكتوبة (انظر docs/insurance-pricing-research.md)."
+}
