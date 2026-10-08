@@ -1,5 +1,5 @@
 {
-  "_readme": "ملف تسعير خدمة EOR — يملؤه المالك وحده. كل القيم null الآن عمداً (CLAUDE.md §4: لا أسعار مخترعة). ما دامت أي قيمة لازمة فارغة، تُرجع estimateQuote الحالة pending_pricing ولا يظهر رقم لأي عميل. المبالغ بالعملة المكتوبة في currency، بلا ضريبة (تُحسب الضريبة من vat_rate). vat_rate كسر عشري (مثلاً 0.15 لـ15%) وليس نسبة مئوية. valid_from وvalid_until تواريخ بصيغة YYYY-MM-DD أو null. «saudi» للعامل السعودي و«foreign» للعامل الأجنبي. لا تغيّر أسماء المفاتيح — api/_eor.js يقرؤها بأسمائها.",
+  "_readme": "ملف تسعير خدمة EOR — يملؤه المالك وحده. كل القيم null الآن عمداً (CLAUDE.md §4: لا أسعار مخترعة). ما دامت أي قيمة لازمة فارغة، تُرجع estimateQuote الحالة pending_pricing ولا يظهر رقم لأي عميل. المبالغ بالعملة المكتوبة في currency، بلا ضريبة (تُحسب الضريبة من vat_rate). vat_rate كسر عشري (مثلاً 0.15 لـ15%) وليس نسبة مئوية. valid_from وvalid_until تواريخ بصيغة YYYY-MM-DD أو null. «saudi» للعامل السعودي و«foreign» للعامل الأجنبي. لا تغيّر أسماء المفاتيح — api/_eor.js يقرؤها بأسمائها. كتلة cost (أُضيفت 2026-10-08 لحاسبة api/_eor-cost.js): margin_rate هامش الربح كسر عشري (0.10 = 10%) يُطبَّق على التكلفة الشهرية؛ end_of_service_accrual وleave_accrual قاعدة المخصّص الشهري لنهاية الخدمة وللإجازات، يُملأ حقلٌ واحد منهما فقط: percent_of_salary كسر عشري من الراتب، أو fixed_monthly مبلغ ثابت شهري بالعملة (الثابت يغلب النسبة إن مُلئا معاً)؛ agreed_month_days عدد أيام الشهر المتفق عليها لتناسب الفاتورة مع الحضور؛ hours_per_day ساعات اليوم إن سُجّل الحضور بالساعات؛ client_cost_visibility إما total (السعر الإجمالي فقط) أو breakdown (تفصيل بمجموعتين دون الهامش أو الراتب الخام أو رسوم المورّد) وفارغاً يُعامَل total. كلها null حتى يملأها المالك؛ ما دام أي لازم منها فارغاً ترجع الحاسبة pending_pricing بلا رقم.",
   "currency": null,
   "vat_rate": null,
   "valid_from": null,
@@ -12,5 +12,19 @@
     "saudi": null,
     "foreign": null
   },
-  "notes": null
+  "notes": null,
+  "cost": {
+    "margin_rate": null,
+    "end_of_service_accrual": {
+      "percent_of_salary": null,
+      "fixed_monthly": null
+    },
+    "leave_accrual": {
+      "percent_of_salary": null,
+      "fixed_monthly": null
+    },
+    "agreed_month_days": null,
+    "hours_per_day": null,
+    "client_cost_visibility": null
+  }
 }
