@@ -3,20 +3,22 @@
 // صفحة شرحٍ ونموذج طلب على SV1.shell() بأربع لغات (ar/en/fr/zh). يملكها وكيل `eor`.
 //
 // ما خلف النموذج: POST /api/requests?__route=eor ← handleEor في api/_eor.js (يربطه owner-ops).
-// بحث المهن: محلّي على قائمة مدمجة صغيرة (id + عربي + إنجليزي) تُولَّد وقت البناء من
-// api/_occupations.js، وإن قلّت النتائج سُئل الخادم GET ?__route=eor&action=search&q= (يعرف
-// المرادفات: CDP، chef de partie…). لا شيء من api/_occupation-map.json يدخل هذه الصفحة أبداً:
+// القوائم: الكتالوج المضغوط بلغة الصفحة من api/_eor-catalogs.json (pageCatalog في api/_eor-form.js): ٢٥٠ دولة (شرائح chips)،
+// ١٧٠ مدينة (مجمّعة بالمنطقة)، ١١٨ قطاعاً، ٩ مستويات وظيفية، ١٠٠٦ مهن — أسماء ومعرّفات فقط. الإكمال التلقائي محلّي؛ وإن قلّت نتائج المهنة سُئل
+// الخادم GET ?__route=eor&action=search&q= (يعرف المرادفات: CDP، chef de partie…). لا شيء من api/_occupation-map.json يدخل هذه الصفحة أبداً:
 // مفاتيحها مسمّياتٌ حقيقية من سير مرشّحين، و`site/` يُنشر علناً.
+// الفهرس يحمل أسماء المدن والقطاعات والمهن بالعربية والإنجليزية فقط، فتعرض صفحتا fr/zh الإنجليزية لها (الدول بالأربع لغات، والمستويات مترجمة هنا).
 //
 // بلا main.js (قشرة SV1 وحدها) ولا localStorage. الأسعار: لا رقم في الصفحة نفسها ولا في كتلة الإعداد. حين يُدخل العميل راتب
-// الموظف يسأل السكربت الخادم (POST ?__route=eor {action:"price"}) فيعود السعر الشهري وساعة الإضافي فقط؛ التكلفة والهامش
+// الموظف يسأل السكربت الخادم (POST ?__route=eor {action:"price"}) فيعود السعر الشهري وساعة الإضافي (وتفصيل السعر إن فتحه المالك)؛ التكلفة والهامش
 // وإعداد التسعير يُحسبون على الخادم وحده ولا يصلون هذه الصفحة بأي شكل. هذا الملف لا يستورد الحاسبة ولا ملف التسعير.
+// حدّا الراتب الأدنى وقيمة السكن/الإعاشة/المواصلات يصلان من الخادم (action:"form_config") لا من هنا. المستشار الذكي: action:"assist" ⇒ اقتراحٌ تنقّيه الصفحة
+// بالقوائم البيضاء وتعرضه للتأكيد ولا ترسله وحدها.
 // لا زرّ واتساب داخل المحتوى (الزرّ العائم فقط). الاسم الظاهر «Business Partner».
 //
 // السكربت العميل دالةٌ عاديّة (eorClient) تُسلسَل بـtoString، فلا يُضاعَف فيها الـbackslash كما في قوالب النصوص.
 
-import { OCCUPATIONS } from "../../api/_occupations.js";
-import { NATIONALITIES, EOR_LIMITS, SECTORS, INSURANCE_CLASSES, INSURANCE_AGE_BANDS, INSURANCE_GENDERS, BILLING_UNITS, UNIT_QUANTITY_MAX, CASUAL_HOURS, DURATION_MAX } from "../../api/_eor.js";
+import { EOR_LIMITS, INSURANCE_CLASSES, INSURANCE_AGE_BANDS, INSURANCE_GENDERS, BILLING_UNITS, UNIT_QUANTITY_MAX, CASUAL_HOURS, DURATION_MAX, pageCatalog, DURATION_PRESETS } from "../../api/_eor.js";
 
 // ar, en, fr, zh
 const D = {
@@ -100,7 +102,7 @@ const D = {
   occNone: ["لا نتائج. جرّب كلمة أخرى.", "No results. Try another word.", "Aucun résultat. Essayez un autre mot.", "无结果，请换个词。"],
   count: ["العدد", "Number", "Nombre", "人数"],
   nats: ["الجنسيات", "Nationalities", "Nationalités", "国籍"],
-  natAny: ["غير محدّدة", "Not specified", "Non précisées", "未指定"],
+  natAny: ["أي جنسية", "Any nationality", "Toute nationalité", "不限国籍"],
   salary: ["الراتب الشهري المتوقع (اختياري، يظهر لك السعر فوراً)", "Expected monthly salary, SAR (optional; shows your price instantly)", "Salaire mensuel prévu, SAR (facultatif ; affiche le prix aussitôt)", "预期月薪，沙特里亚尔（可选；立即显示价格）"],
   pMonthly: ["السعر الشهري للموظف", "Monthly price per employee", "Prix mensuel par employé", "每位员工月度价格"],
   pOt: ["ساعة الإضافي", "Overtime hour", "Heure supplémentaire", "加班每小时"],
@@ -130,7 +132,7 @@ const D = {
   cur: ["ريال", "SAR", "SAR", "SAR"],
   insH: ["التأمين الطبي (اختياري، يظهر أثره على السعر عند إدخال الراتب)", "Medical insurance (optional; its effect on the price shows once you enter the salary)", "Assurance médicale (facultatif ; son effet sur le prix apparaît une fois le salaire saisi)", "医疗保险（可选；填写薪资后会体现在价格中）"],
   gender: ["الجنس", "Gender", "Genre", "性别"],
-  gU: ["غير محدد", "Not specified", "Non précisé", "未指定"],
+  gU: ["لا يهم", "Any", "Indifférent", "不限"],
   gM: ["ذكر", "Male", "Homme", "男"],
   gF: ["أنثى", "Female", "Femme", "女"],
   age: ["الفئة العمرية", "Age band", "Tranche d'âge", "年龄段"],
@@ -257,6 +259,62 @@ const D = {
   a13: ["التعاقد هو عقد بكفالة شهري أو سنوي للعاملين على المدى الأطول. العمالة المرنة عمل مؤقت بحسب الطلب، يُسعَّر بالساعة أو اليوم أو الشهر بدل العقد السنوي.", "Contract is a sponsored monthly or annual engagement for longer-term workers. Flexible staffing is temporary on-demand work priced per hour, day or month instead of an annual contract.", "Le contrat est un engagement parrainé, mensuel ou annuel, pour les travailleurs à plus long terme. Le personnel flexible est un travail temporaire à la demande, tarifé à l'heure, à la journée ou au mois au lieu d'un contrat annuel.", "合同制是按月或按年、带担保的用工，适合较长期员工；灵活用工是按需临时用工，按小时、天或月计价，而非年度合同。"],
   q14: ["كيف تُحسب الفاتورة؟", "How is the invoice calculated?", "Comment la facture est-elle calculée ?", "发票如何计算？"],
   a14: ["تصلك فاتورة شهرية واحدة مبنية على ما اتُّفق عليه في عرض السعر المقبول وعلى الحضور الذي تعتمده.", "You receive one monthly invoice based on what was agreed in the accepted quote and the attendance you approve.", "Vous recevez une facture mensuelle unique, fondée sur ce qui a été convenu dans l'offre acceptée et sur les présences que vous validez.", "您每月收到一张发票，依据已接受的报价中的约定以及您确认的考勤。"],
+  // ───── نموذج الطلب الكامل (الشريحة أ): المستشار الذكي، الإكمال التلقائي، الجنس، المستوى، السكن/الإعاشة/المواصلات، الحدّ الأدنى، التفصيل، قيم المدة ─────
+  asH: ["المستشار الذكي", "Smart advisor", "Conseiller intelligent", "智能顾问"],
+  asP: ["اكتب طلبك بكلامك، وسيقترح عليك المستشار الذكي كيف تُعبَّأ الحقول لتراجعها وتؤكدها. لا يُرسَل شيء قبل أن ترسل الطلب بنفسك.", "Describe your request in your own words and the smart advisor will suggest how to fill in the fields, for you to review and confirm. Nothing is sent until you send the request yourself.", "Décrivez votre besoin avec vos mots : le conseiller intelligent propose de remplir les champs, que vous relisez et confirmez. Rien n'est envoyé tant que vous n'envoyez pas vous-même la demande.", "用您自己的话描述需求，智能顾问会建议如何填写各字段，供您核对并确认。在您亲自提交申请之前，不会发送任何内容。"],
+  asPh: ["مثال: أبغى 3 طباخين هنود وفلبينيين في جدة بعد شهر لمدة 6 أشهر", "Example: I need 3 Indian and Filipino cooks in Jeddah starting in a month for 6 months", "Exemple : il me faut 3 cuisiniers indiens et philippins à Djeddah dans un mois pour 6 mois", "例如：我需要3名印度和菲律宾厨师，一个月后在吉达，为期6个月"],
+  asBtn: ["اقترح التعبئة", "Suggest how to fill", "Proposer le remplissage", "建议填写"],
+  asBusy: ["نقرأ وصفك…", "Reading your description…", "Lecture de votre description…", "正在阅读您的描述…"],
+  asUnavail: ["المستشار الذكي غير متاح الآن. عبّئ النموذج يدوياً وسنراجع طلبك.", "The smart advisor is unavailable right now. Fill in the form manually and we will review your request.", "Le conseiller intelligent est indisponible pour le moment. Remplissez le formulaire manuellement, nous examinerons votre demande.", "智能顾问暂时不可用。请手动填写表单，我们会审核您的申请。"],
+  asShort: ["اكتب وصفاً أطول قليلاً.", "Write a slightly longer description.", "Écrivez une description un peu plus longue.", "请写得稍微详细一些。"],
+  asNone: ["لم نفهم من وصفك ما يكفي لاقتراح تعبئة. اذكر المهنة والعدد، أو عبّئ النموذج يدوياً.", "We could not understand enough to suggest anything. Name the occupation and the number, or fill in the form manually.", "Nous n'avons pas assez compris pour proposer quoi que ce soit. Indiquez le métier et le nombre, ou remplissez le formulaire manuellement.", "我们没能从描述中理解足够的信息。请说明职业和人数，或手动填写表单。"],
+  asConfirmH: ["اقتراح المستشار الذكي — راجعه ثم أكّد", "Smart advisor suggestion — review, then confirm", "Proposition du conseiller intelligent — relisez puis confirmez", "智能顾问的建议 — 请核对后确认"],
+  asApply: ["طبّق الاقتراح", "Apply the suggestion", "Appliquer la proposition", "应用建议"],
+  asDismiss: ["تجاهل", "Dismiss", "Ignorer", "忽略"],
+  asApplied: ["طُبّق الاقتراح. راجع الحقول قبل الإرسال.", "Suggestion applied. Review the fields before sending.", "Proposition appliquée. Relisez les champs avant l'envoi.", "已应用建议。请在提交前核对各字段。"],
+  asUnres: ["لم نتعرّف على", "Could not match", "Non reconnu", "未能识别"],
+  asNote: ["الاقتراح آلي؛ تأكّد منه قبل الإرسال.", "The suggestion is automated; check it before sending.", "La proposition est automatique ; vérifiez-la avant l'envoi.", "该建议由系统自动生成，提交前请核对。"],
+  natPh: ["اكتب اسم الدولة…", "Type a country…", "Tapez un pays…", "输入国家名称…"],
+  natHelp: ["بلا اختيار = أي جنسية. يمكنك اختيار عدة جنسيات.", "No selection = any nationality. You can pick several.", "Aucune sélection = toute nationalité. Vous pouvez en choisir plusieurs.", "不选 = 不限国籍，可选择多个。"],
+  natPopular: ["الأكثر طلباً", "Most requested", "Les plus demandées", "最常选择"],
+  natNone: ["لا نتائج. جرّب كتابة أخرى.", "No results. Try another spelling.", "Aucun résultat. Essayez une autre écriture.", "无结果，请换个写法。"],
+  natMax: ["الحد الأقصى {n} جنسيات للبند.", "Up to {n} nationalities per row.", "Jusqu'à {n} nationalités par ligne.", "每项最多 {n} 个国籍。"],
+  chipRm: ["إزالة", "Remove", "Retirer", "移除"],
+  cityPh: ["اكتب اسم المدينة…", "Type a city…", "Tapez une ville…", "输入城市名称…"],
+  secPh: ["اكتب للبحث في القطاعات…", "Type to search sectors…", "Tapez pour chercher un secteur…", "输入以搜索行业…"],
+  eSector: ["اختر القطاع من القائمة أو امسح الحقل.", "Pick the sector from the list or clear the field.", "Choisissez le secteur dans la liste ou videz le champ.", "请从列表选择行业，或清空该字段。"],
+  senH: ["المستوى الوظيفي", "Job level", "Niveau du poste", "职位级别"],
+  senNone: ["غير محدد", "Not specified", "Non précisé", "未指定"],
+  provH: ["السكن والإعاشة والمواصلات", "Housing, meals and transport", "Logement, repas et transport", "住宿、餐饮与交通"],
+  provP: ["لكل بند: على عاتقك أو نوفّره نحن. ما نوفّره يُضاف إلى السعر الشهري للموظف ويظهر سطراً مستقلاً.", "For each: you provide it, or we do. What we provide is added to the employee's monthly price and shown as its own line.", "Pour chacun : à votre charge ou fourni par nous. Ce que nous fournissons s'ajoute au prix mensuel de l'employé et apparaît sur une ligne distincte.", "每一项：由您提供，或由我们提供。由我们提供的部分会计入员工月度价格，并单列一行显示。"],
+  pvHousing: ["السكن", "Housing", "Logement", "住宿"],
+  pvMeals: ["الإعاشة", "Meals", "Repas", "餐饮"],
+  pvTransport: ["المواصلات", "Transport", "Transport", "交通"],
+  pvClient: ["على العميل", "Client provides", "À votre charge", "由客户提供"],
+  pvUs: ["علينا", "We provide", "Fourni par nous", "由我们提供"],
+  bdH: ["تفصيل السعر الشهري للموظف", "Monthly price breakdown per employee", "Détail du prix mensuel par employé", "每位员工月度价格明细"],
+  bdSalary: ["الراتب", "Salary", "Salaire", "薪资"],
+  bdIns: ["التأمين الطبي", "Medical insurance", "Assurance médicale", "医疗保险"],
+  bdService: ["رسوم الخدمة", "Service fee", "Frais de service", "服务费"],
+  bdTotal: ["الإجمالي الشهري للموظف", "Monthly total per employee", "Total mensuel par employé", "每位员工月度合计"],
+  bdNote: ["تقدير أولي. تدخل في رسوم الخدمة حالياً بنود أخرى (كالمستحقات والرسوم الحكومية) إلى أن تُفصَّل في عرض السعر.", "Preliminary estimate. Other items (such as entitlements and government fees) are currently included in the service fee until itemised in the quote.", "Estimation préliminaire. D'autres éléments (indemnités, frais gouvernementaux) sont pour l'instant inclus dans les frais de service jusqu'à leur détail dans l'offre.", "初步估算。其他项目（如应付款项和政府费用）目前包含在服务费中，待报价中另行列明。"],
+  salMinSaudi: ["الحد الأدنى لراتب السعودي {n} ريال أساسي.", "The minimum basic salary for a Saudi is {n} SAR.", "Le salaire de base minimum pour un Saoudien est de {n} SAR.", "沙特籍员工基本工资最低为 {n} 沙特里亚尔。"],
+  salMinMixed: ["البند يشمل سعوديين، فالحد الأدنى للراتب {n} ريال أساسي.", "This row includes Saudis, so the minimum basic salary is {n} SAR.", "Cette ligne inclut des Saoudiens : le salaire de base minimum est de {n} SAR.", "该项包含沙特籍员工，基本工资最低为 {n} 沙特里亚尔。"],
+  salMinForeign: ["الحد الأدنى لراتب غير السعودي {n} ريال.", "The minimum salary for a non-Saudi is {n} SAR.", "Le salaire minimum pour un non-Saoudien est de {n} SAR.", "非沙特籍员工最低薪资为 {n} 沙特里亚尔。"],
+  salFixed: ["عدّلنا الراتب إلى الحد الأدنى.", "We raised the salary to the minimum.", "Nous avons relevé le salaire au minimum.", "已将薪资调整为最低值。"],
+  eSalMin: ["الراتب أقل من الحد الأدنى المسموح لهذه الجنسية.", "The salary is below the minimum allowed for this nationality.", "Le salaire est inférieur au minimum autorisé pour cette nationalité.", "薪资低于该国籍允许的最低值。"],
+  durH: ["مدة التعاقد", "Contract term", "Durée du contrat", "合同期限"],
+  pHour: ["ساعة", "1 hour", "1 heure", "1 小时"],
+  pDay: ["يوم", "1 day", "1 jour", "1 天"],
+  pM1: ["شهر", "1 month", "1 mois", "1 个月"],
+  pM3: ["3 أشهر", "3 months", "3 mois", "3 个月"],
+  pM6: ["6 أشهر", "6 months", "6 mois", "6 个月"],
+  pM9: ["9 أشهر", "9 months", "9 mois", "9 个月"],
+  pY1: ["سنة", "1 year", "1 an", "1 年"],
+  pY2: ["سنتان", "2 years", "2 ans", "2 年"],
+  pCustom: ["مدة أخرى", "Other term", "Autre durée", "其他期限"],
+  eDurNone: ["اختر مدة التعاقد أو أدخل مدة أخرى.", "Pick the contract term or enter another term.", "Choisissez la durée du contrat ou saisissez-en une autre.", "请选择合同期限，或输入其他期限。"],
+
 };
 
 // شركات التأمين: معرّفات تطابق ما يقبله الخادم (`insurer`) وأسماء معتمدة بالأربع لغات — لا أسعار ولا فروق بين الشركات.
@@ -272,6 +330,115 @@ const INSURERS = [
   ["allianz_sf", ["أليانز السعودي الفرنسي", "Allianz Saudi Fransi", "Allianz Saudi Fransi", "Allianz Saudi Fransi"]],
 ];
 
+// ───── المنطق الصِّرف للواجهة (بلا DOM) ─────
+// يُسلسَل بـtoString في سكربت منفصل (window.EORCORE) ويُختبر في Node مباشرةً (tests/eor-request-form.test.mjs). لا فحص مدخلات يحلّ محل الخادم:
+// الخادم يعيد التحقق من كل شيء بالقوائم البيضاء؛ هنا تسهيلٌ للمستخدم فقط (إكمال تلقائي، تصحيح الراتب، تنقية اقتراح المستشار الذكي).
+// ملاحظة للمحرّر: لا تكتب تسلسلات \u في هذه الدالة (تُحوَّل إلى محارف حرفية عند الكتابة عبر بعض الأدوات)؛ ابنِ المحارف بـString.fromCharCode.
+export function eorCore() {
+  var MARKS = new RegExp("[" + String.fromCharCode(0x64B) + "-" + String.fromCharCode(0x65F) + String.fromCharCode(0x670) + String.fromCharCode(0x640) + "]", "g");
+  function norm(s) {
+    return String(s == null ? "" : s).toLowerCase().replace(MARKS, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي")
+      .replace(/[^\p{L}\p{N} ]/gu, " ").replace(/\s+/g, " ").trim().replace(/(^| )ال(?=\S{2})/g, "$1");     // «الهند» = «هند»: أداة التعريف لا تمنع المطابقة
+  }
+  // صف الكتالوج المضغوط ← مدخل بحث. n = الاسم المعروض مُطبَّعاً، k = الاسم + أسماء اللغات الأخرى مُطبَّعة.
+  function entry(id, label, alt, prio, group, mask) {
+    var a = alt || "";
+    return { id: id, l: label, a: a.split("|")[0] || "", n: norm(label), k: norm(label + " " + a.replace(/\|/g, " ")), p: prio || 0, g: group == null ? null : group, m: mask || 0 };
+  }
+  // الأقرب أولاً: الاسم يطابق تماماً، ثم يبدأ به، ثم تبدأ به كلمة، ثم الباقي؛ وبعدها الأولوية (الشائع أولاً) ثم الأقصر.
+  function rank(ents, q, limit) {
+    var toks = norm(q).split(" ").filter(Boolean);
+    if (!toks.length) return [];
+    var q1 = toks.join(" "), out = [], i, j;
+    for (i = 0; i < ents.length; i++) {
+      var e = ents[i], ok = true;
+      for (j = 0; j < toks.length; j++) if (e.k.indexOf(toks[j]) < 0) { ok = false; break; }
+      if (!ok) continue;
+      out.push({ e: e, s: e.n === q1 ? 0 : e.n.indexOf(q1) === 0 ? 1 : (" " + e.n).indexOf(" " + toks[0]) >= 0 ? 2 : 3 });
+    }
+    out.sort(function (a, b) { return a.s - b.s || a.e.p - b.e.p || a.e.l.length - b.e.l.length; });
+    return out.slice(0, limit).map(function (x) { return x.e; });
+  }
+  // مدخلات مجمَّعة بحقل g: عنوان لكل مجموعة (بترتيب أول ظهور) ثم مدخلاتها. titleOf(g) → نص العنوان.
+  function groupRows(list, titleOf) {
+    var order = [], by = {}, rows = [];
+    list.forEach(function (e) { if (!by[e.g]) { by[e.g] = []; order.push(e.g); } by[e.g].push(e); });
+    order.forEach(function (g) { rows.push({ h: titleOf(g) }); by[g].forEach(function (e) { rows.push({ e: e }); }); });
+    return rows;
+  }
+  // نوع العامل لبندٍ كما يحسبه الخادم: سعودي فقط ⇒ saudi، سعودي مع غيره ⇒ mixed، غير سعودي ⇒ foreign؛ بلا جنسية: «سعوديون» ⇒ saudi وغير ذلك ⇒ foreign (الحد الأدنى).
+  function workerKind(nats, wt) {
+    var sa = nats.indexOf("SA") >= 0, other = false, i;
+    for (i = 0; i < nats.length; i++) if (nats[i] !== "SA") other = true;
+    if (nats.length) return sa && other ? "mixed" : sa ? "saudi" : "foreign";
+    return wt === "saudi" ? "saudi" : "foreign";
+  }
+  // الحد الأدنى للراتب: lim = { saudi, foreign } (أرقام أو null). → { kind, min } (min = null ⇒ لا حدّ).
+  function salaryMin(nats, wt, lim) {
+    var s = lim && typeof lim.saudi === "number" ? lim.saudi : null, f = lim && typeof lim.foreign === "number" ? lim.foreign : null, k = workerKind(nats, wt), min;
+    if (k === "saudi") min = s;
+    else if (k === "mixed") min = s === null && f === null ? null : Math.max(s || 0, f || 0);
+    else min = f;
+    return { kind: k, min: min };
+  }
+  function fixSalary(v, min) {
+    if (min == null || !(v > 0) || v >= min) return { value: v, fixed: false };
+    return { value: min, fixed: true };
+  }
+  // نوع العاملين من جنسيات كل البنود: كلها سعودية ⇒ saudi، لا سعودية ⇒ foreign، خليط ⇒ both، بلا جنسيات ⇒ "".
+  function deriveWT(natLists) {
+    var all = [];
+    natLists.forEach(function (l) { l.forEach(function (c) { all.push(c); }); });
+    if (!all.length) return "";
+    var sa = all.indexOf("SA") >= 0, other = all.some(function (c) { return c !== "SA"; });
+    return sa && other ? "both" : sa ? "saudi" : "foreign";
+  }
+  function presetId(unit, value, presets) {
+    for (var i = 0; i < presets.length; i++) if (presets[i].unit === unit && presets[i].value === value) return presets[i].id;
+    return "";
+  }
+  function fmt(tpl, n) { return String(tpl).replace("{n}", String(n)); }
+  var STR = function (v, max) { return typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, max) : ""; };
+  // يُنقّي اقتراح المستشار الذكي بالقوائم البيضاء قبل أي تعبئة (حتى لو أخطأ الخادم). L: { occ, nat, city, sec, sen: خرائط id→1، caps: {unit:max}، maxItems، maxCount، maxNats، maxSalary }.
+  function sanitizeSuggestion(sg, L) {
+    var out = { items: [], cityId: "", sectorId: "", startDate: "", duration: null, engagementType: "", workerType: "", provisions: {}, unresolved: [], note: "" };
+    if (!sg || typeof sg !== "object") return out;
+    (Array.isArray(sg.items) ? sg.items : []).slice(0, L.maxItems).forEach(function (it) {
+      if (!it || typeof it !== "object" || typeof it.occupationId !== "string" || !L.occ[it.occupationId]) return;
+      var nats = [];
+      (Array.isArray(it.nationalities) ? it.nationalities : []).forEach(function (c) {
+        c = String(c).toUpperCase();
+        if (L.nat[c] && nats.indexOf(c) < 0 && nats.length < L.maxNats) nats.push(c);
+      });
+      var cnt = typeof it.count === "number" && it.count % 1 === 0 && it.count >= 1 && it.count <= L.maxCount ? it.count : null;
+      var sal = typeof it.salary === "number" && isFinite(it.salary) && it.salary > 0 && it.salary <= L.maxSalary ? it.salary : null;
+      out.items.push({
+        occupationId: it.occupationId, count: cnt, nationalities: nats,
+        gender: it.gender === "male" || it.gender === "female" ? it.gender : "unspecified",
+        seniority: typeof it.seniority === "string" && L.sen[it.seniority] ? it.seniority : "", salary: sal
+      });
+    });
+    if (typeof sg.cityId === "string" && L.city[sg.cityId]) out.cityId = sg.cityId;
+    if (typeof sg.sectorId === "string" && L.sec[sg.sectorId]) out.sectorId = sg.sectorId;
+    if (typeof sg.startDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(sg.startDate)) out.startDate = sg.startDate;
+    var d = sg.duration;
+    if (d && typeof d === "object" && typeof d.unit === "string" && L.caps[d.unit] && typeof d.value === "number" && d.value % 1 === 0 && d.value >= 1 && d.value <= L.caps[d.unit]) out.duration = { unit: d.unit, value: d.value };
+    if (sg.engagementType === "casual" || sg.engagementType === "contract") out.engagementType = sg.engagementType;
+    if (sg.workerType === "saudi" || sg.workerType === "foreign" || sg.workerType === "both") out.workerType = sg.workerType;
+    ["housing", "meals", "transport"].forEach(function (k) { var v = sg.provisions && sg.provisions[k]; if (v === "us" || v === "client") out.provisions[k] = v; });
+    (Array.isArray(sg.unresolved) ? sg.unresolved : []).slice(0, 6).forEach(function (u) { if (u && typeof u === "object") { var t = STR(u.text, 60); if (t) out.unresolved.push(t); } });
+    out.note = STR(sg.note, 240);
+    return out;
+  }
+  return { norm: norm, entry: entry, rank: rank, groupRows: groupRows, workerKind: workerKind, salaryMin: salaryMin, fixSalary: fixSalary, deriveWT: deriveWT, presetId: presetId, fmt: fmt, sanitizeSuggestion: sanitizeSuggestion };
+}
+
+// مستويات الوظيفة بالفرنسية والصينية (الفهرس يحمل العربية والإنجليزية فقط). المعرّفات مطابقة للفهرس (اختبار يقارنها).
+const SEN_NAMES = {
+  fr: { "c-level": "Direction générale (C-level)", director: "Directeur général", manager: "Manager", "team-lead": "Chef de service / d'équipe", executive: "Spécialiste / exécutant", senior: "Senior (expérimenté)", mid: "Confirmé", entry: "Débutant (junior)", labor: "Main-d'œuvre" },
+  zh: { "c-level": "最高管理层（C-level）", director: "总监 / 总经理", manager: "经理", "team-lead": "部门主管 / 团队负责人", executive: "专员 / 执行岗", senior: "高级（资深）", mid: "中级", entry: "初级（入门）", labor: "普通劳务" },
+};
+
 export function buildSimpleEor(sv1, ctx) {
   const { lang, esc } = ctx;
   const LI = { ar: 0, en: 1, fr: 2, zh: 3 };
@@ -279,33 +446,38 @@ export function buildSimpleEor(sv1, ctx) {
   const idx = LI[l] != null ? LI[l] : 1;
   const t = (k) => { const e = D[k]; return e ? e[idx] : k; };
 
-  // قوائم مدمجة صغيرة — id + اسمان فقط (لا مرادفات ولا قطاعات ولا الخريطة الخاصة).
-  const OCC = OCCUPATIONS.map((o) => [o.id, o.nameAr, o.nameEn]);
-  const NATS = NATIONALITIES.map((n) => [n.code, n.ar, n.en]);
+  // الكتالوج المضغوط بلغة الصفحة (api/_eor-catalogs.json عبر pageCatalog): دول ومدن وقطاعات ومستويات ومهن — أسماء ومعرّفات فقط، لا مرادفات خاصة ولا خريطة المسمّيات.
+  const PC = pageCatalog(l);
+  const CAT = { nats: PC.nats, cities: PC.cities, regions: PC.regions, sectors: PC.sectors, occ: PC.occ, sen: PC.seniority.map(([id, name]) => [id, (SEN_NAMES[l] && SEN_NAMES[l][id]) || name]) };
   const TXKEYS = ["occPh", "occNone", "natAny", "remove", "itemN", "total", "itemCount", "sending", "submit",
     "eCompany", "eContact", "eEmail", "ePhone", "eCity", "eWorker", "eRecruit", "eItems", "eOcc", "eCount", "eTotal", "eSalary", "eStart", "eDur", "eNet", "eRate",
     "doneT", "doneRef", "doneP", "another", "nats", "occ", "count", "salary",
     "pMonthly", "pOt", "pTotal", "pReview", "pNote", "cur",
     "engH", "etContract", "etCasual", "etHint", "salaryRef", "hpdH", "hrs", "unitH", "uMonthly", "uDaily", "uHourly", "qtyMonthly", "qtyDaily", "qtyHourly", "pUMonthly", "pUDaily", "pUHourly", "pUTotal", "pUSum", "eQty",
     "insH", "gender", "age", "insClass", "mat", "chr", "pDelta", "perMonth", "pQuoteOnly", "pNeedAge", "pNoMat", "insEst",
-    "durUnitL", "durValL", "dHour", "dDay", "dMonth", "dYear", "pDurTotal", "pDurNote", "insurerL", "insAny"];
+    "durUnitL", "durValL", "dHour", "dDay", "dMonth", "dYear", "pDurTotal", "pDurNote", "insurerL", "insAny",
+    "asH", "asBusy", "asUnavail", "asShort", "asNone", "asConfirmH", "asApply", "asDismiss", "asApplied", "asUnres", "asNote",
+    "natPh", "natHelp", "natPopular", "natNone", "natMax", "chipRm", "cityPh", "secPh", "eSector", "senH", "senNone", "gU", "gM", "gF",
+    "pvHousing", "pvMeals", "pvTransport", "pvClient", "pvUs", "bdH", "bdSalary", "bdIns", "bdService", "bdTotal", "bdNote",
+    "salMinSaudi", "salMinMixed", "salMinForeign", "salFixed", "eSalMin", "pHour", "pDay", "pM1", "pM3", "pM6", "pM9", "pY1", "pY2", "pCustom", "eDurNone", "durH", "provH", "sectorH", "city", "start"];
   const TX = {};
   for (const k of TXKEYS) TX[k] = t(k);
-  // اختيار التأمين: معرّفات وعناوين فقط (لا رقم ولا سعر) — الحساب كله على الخادم.
+  // اختيار التأمين: معرّفات وعناوين فقط (لا رقم ولا سعر) — الحساب كله على الخادم. الجنس حقل البند الموحَّد (خارج كتلة التأمين).
   const CLASS_KEY = { basic: "icBasic", C: "icC", B: "icB", A: "icA", quote: "icQ" };
-  const GENDER_KEY = { unspecified: "gU", male: "gM", female: "gF" };
   const INS = {
     classes: INSURANCE_CLASSES.map((k) => [k, t(CLASS_KEY[k])]),
     ages: INSURANCE_AGE_BANDS.map((k) => [k, k.replace("-", "–") + " " + t("yrs")]),
-    genders: INSURANCE_GENDERS.map((k) => [k, t(GENDER_KEY[k])]),
     ageNone: t("ageNone"),
     insurers: [["any", t("insAny")]].concat(INSURERS.map(([id, nm]) => [id, nm[idx]])),
   };
   // وحدات التسعير: معرّفات وعناوين وسقوف الكمية فقط (لا أرقام أسعار) — الحساب كله على الخادم.
   const UNIT_KEY = { monthly: ["uMonthly", "qtyMonthly", "pUMonthly"], daily: ["uDaily", "qtyDaily", "pUDaily"], hourly: ["uHourly", "qtyHourly", "pUHourly"] };
   const UNITS = BILLING_UNITS.map((k) => ({ id: k, name: t(UNIT_KEY[k][0]), qty: t(UNIT_KEY[k][1]), price: t(UNIT_KEY[k][2]), max: UNIT_QUANTITY_MAX[k] }));
+  // قيم مدة التعاقد المسبقة (ساعة · يوم · شهر · 3 · 6 · 9 أشهر · سنة · سنتان) تُحوَّل في الصفحة إلى durationUnit/durationValue؛ التعاقد يقبل الشهر والسنة فقط.
+  const PRE_KEY = { hour: "pHour", day: "pDay", m1: "pM1", m3: "pM3", m6: "pM6", m9: "pM9", y1: "pY1", y2: "pY2" };
+  const PRE = DURATION_PRESETS.map((p) => ({ id: p.id, unit: p.unit, value: p.value, name: t(PRE_KEY[p.id]), contract: p.unit === "month" || p.unit === "year" }));
   const CFG = {
-    lang: l, tx: TX, occ: OCC, nats: NATS, ins: INS, units: UNITS,
+    lang: l, tx: TX, cat: CAT, ins: INS, units: UNITS, pre: PRE,
     lim: { maxItems: EOR_LIMITS.maxItems, maxTotal: EOR_LIMITS.maxTotalCount, maxItemCount: EOR_LIMITS.maxItemCount, maxMonths: EOR_LIMITS.maxMonths, maxSalary: EOR_LIMITS.maxSalary, maxNats: EOR_LIMITS.maxNationalities, hMin: CASUAL_HOURS.min, hMax: CASUAL_HOURS.max, hDef: CASUAL_HOURS.default },
   };
 
@@ -315,6 +487,9 @@ export function buildSimpleEor(sv1, ctx) {
     contract: [["month", t("dMonth"), DURATION_MAX.month], ["year", t("dYear"), DURATION_MAX.year]],
     casual: [["hour", t("dHour"), DURATION_MAX.hour], ["day", t("dDay"), DURATION_MAX.day], ["month", t("dMonth"), DURATION_MAX.month]],
   };
+
+  const PROV = ["housing", "meals", "transport"];
+  const PV_KEY = { housing: "pvHousing", meals: "pvMeals", transport: "pvTransport" };
 
   const CSS = `<style id="sv1-eor-css">
 .sv1-eor-hero{padding:56px 0 40px;text-align:center}
@@ -414,6 +589,34 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
 .sv1-eor-dur{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .sv1-eor-dur>*{min-width:0}
 .sv1-eor-insinfo li b{font-weight:500;color:var(--ink)}
+.sv1-eor-list li.grp{cursor:default;pointer-events:none;font-size:11px;color:var(--faint);padding:7px 10px 2px}
+.sv1-eor-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;border:1px solid var(--l);border-radius:10px;padding:7px 9px;background:Canvas;cursor:text}
+.sv1-eor-chips:focus-within{border-color:var(--ac)}
+.sv1-eor-chip{display:inline-flex;align-items:center;gap:4px;background:var(--acSoft);border:1px solid var(--acLine);color:var(--ink);border-radius:999px;padding-block:3px;padding-inline:11px 5px;font-size:12.5px}
+.sv1-eor-chipx{border:0;background:none;cursor:pointer;color:var(--mut);font:inherit;font-size:16px;line-height:1;padding:0 4px}
+.sv1-eor-chipx:hover{color:var(--warn)}
+.sv1-eor-chipin{flex:1 1 150px;min-width:120px;border:0;outline:0;background:transparent;font:inherit;font-size:13.5px;color:var(--t);padding:5px 2px}
+.sv1-eor-assist{border:1px solid var(--acLine);background:var(--acSoft);border-radius:13px;padding:16px 18px;margin-bottom:22px}
+.sv1-eor-assist h3{font-size:14px;font-weight:500;margin:0 0 4px;color:var(--ink)}
+.sv1-eor-assist p{margin:0 0 10px;color:var(--mut);font-size:12.5px;line-height:1.85}
+.sv1-eor-assist textarea{min-height:64px}
+.sv1-eor-asrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.sv1-eor-asout{margin-top:12px;border:1px solid var(--l);background:Canvas;border-radius:11px;padding:12px 14px;font-size:13px;color:var(--ink);line-height:1.9}
+.sv1-eor-asout ul{margin:6px 0 10px;padding-inline-start:18px}
+.sv1-eor-asout small{display:block;color:var(--mut);font-size:11.5px;margin-top:6px}
+.sv1-eor-prov{display:grid;gap:10px;margin-top:6px}
+.sv1-eor-provrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sv1-eor-provrow>b{font-weight:500;min-width:92px;font-size:13px;color:var(--ink)}
+.sv1-eor-hint{margin-top:5px;font-size:11.5px;color:var(--mut);line-height:1.8;min-height:1em}
+.sv1-eor-hint.fix{color:var(--warn)}
+.sv1-eor-bd{margin-top:8px;border-top:1px dashed var(--acLine);padding-top:8px}
+.sv1-eor-bd h4{font-size:12px;font-weight:500;margin:0 0 6px;color:var(--ink)}
+.sv1-eor-bdrow{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;padding:2px 0}
+.sv1-eor-bdrow span{min-width:0;color:var(--t)}
+.sv1-eor-bdrow b{font-size:13px;white-space:nowrap}
+.sv1-eor-bdrow.tot{border-top:1px solid var(--acLine);margin-top:4px;padding-top:6px}
+.sv1-eor-bdnote{margin-top:6px;font-size:11px;color:var(--mut);line-height:1.8}
+.sv1-eor-durcustom{margin-top:10px}
 @media(max-width:860px){.sv1-eor-grid,.sv1-eor-whyg{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.sv1-eor-grid,.sv1-eor-whyg,.sv1-eor-dur,.sv1-eor-cols,.sv1-eor-igrid,.sv1-eor-insg,.sv1-eor-unitg{grid-template-columns:1fr}.sv1-eor-form{padding:18px}}
 </style>`;
@@ -482,14 +685,21 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
     <div class="sv1-title"><h2>${esc(t("formH"))}</h2><p>${esc(t("formP"))}</p></div>
     <form class="sv1-eor-form" id="eorForm" novalidate autocomplete="off">
       <div class="sv1-eor-hp" aria-hidden="true"><label>Website<input type="text" name="website" id="eorWebsite" tabindex="-1" autocomplete="off"></label></div>
+      <div class="sv1-eor-assist" id="eorAssist">
+        <h3>${esc(t("asH"))}</h3>
+        <p>${esc(t("asP"))}</p>
+        <textarea class="sv1-eor-in" id="eorAsText" maxlength="600" placeholder="${esc(t("asPh"))}" aria-label="${esc(t("asH"))}"></textarea>
+        <div class="sv1-eor-asrow"><button type="button" class="sv1-btn sm" id="eorAsGo">${esc(t("asBtn"))}</button><span class="sv1-eor-hint" id="eorAsMsg" role="status" aria-live="polite"></span></div>
+        <div class="sv1-eor-asout sv1-hide" id="eorAsOut"></div>
+      </div>
       <fieldset><legend>${esc(t("g1"))}</legend>
         <div class="sv1-eor-cols">
           <div><label for="eorCompany">${esc(t("company"))}</label><input class="sv1-eor-in" id="eorCompany" maxlength="${EOR_LIMITS.company}" autocomplete="organization"></div>
           <div><label for="eorContact">${esc(t("contact"))}</label><input class="sv1-eor-in" id="eorContact" maxlength="${EOR_LIMITS.contact}" autocomplete="name"></div>
           <div><label for="eorEmail">${esc(t("email"))}</label><input class="sv1-eor-in" id="eorEmail" type="email" maxlength="${EOR_LIMITS.email}" autocomplete="email" dir="ltr"></div>
           <div><label for="eorPhone">${esc(t("phone"))}</label><input class="sv1-eor-in" id="eorPhone" inputmode="tel" maxlength="24" autocomplete="tel" dir="ltr"></div>
-          <div><label for="eorCity">${esc(t("city"))}</label><input class="sv1-eor-in" id="eorCity" maxlength="${EOR_LIMITS.city}" autocomplete="address-level2"></div>
-          <div><label for="eorSector">${esc(t("sectorH"))}</label><select class="sv1-eor-in" id="eorSector"><option value="">${esc(t("sectorNone"))}</option>${SECTORS.map((x) => `<option value="${esc(x.id)}">${esc(x[l] || x.en)}</option>`).join("")}</select></div>
+          <div class="sv1-eor-cb" id="eorCityW"><label for="eorCity">${esc(t("city"))}</label><input class="sv1-eor-in" id="eorCity" maxlength="${EOR_LIMITS.city}" role="combobox" aria-autocomplete="list" aria-expanded="false" placeholder="${esc(t("cityPh"))}"></div>
+          <div class="sv1-eor-cb" id="eorSectorW"><label for="eorSector">${esc(t("sectorH"))}</label><input class="sv1-eor-in" id="eorSector" maxlength="80" role="combobox" aria-autocomplete="list" aria-expanded="false" placeholder="${esc(t("secPh"))}"></div>
         </div>
       </fieldset>
       <fieldset><legend>${esc(t("g2"))}</legend>
@@ -502,6 +712,9 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
         <div id="eorItems"></div>
         <button type="button" class="sv1-btn sm" id="eorAdd">+ ${esc(t("add"))}</button>
         <div class="sv1-eor-bar"><span>${esc(t("total"))}: <b id="eorTotal">0</b> / ${EOR_LIMITS.maxTotalCount}</span><span><b id="eorItemsN">0</b> / ${EOR_LIMITS.maxItems} ${esc(t("itemCount"))}</span></div>
+        <div style="margin-top:18px" id="eorProvW"><label>${esc(t("provH"))}</label><p class="sv1-eor-insnote" style="margin:0 0 6px">${esc(t("provP"))}</p>
+          <div class="sv1-eor-prov">${PROV.map((k) => `<div class="sv1-eor-provrow" role="radiogroup" aria-label="${esc(t(PV_KEY[k]))}"><b>${esc(t(PV_KEY[k]))}</b><div class="sv1-eor-radios"><label><input type="radio" name="eorPV_${k}" value="client" id="eorPV_${k}_client" checked> ${esc(t("pvClient"))}</label><label><input type="radio" name="eorPV_${k}" value="us" id="eorPV_${k}_us"> <span id="eorPVL_${k}">${esc(t("pvUs"))}</span></label></div></div>`).join("")}</div>
+        </div>
         <div class="sv1-eor-sum sv1-hide" id="eorPriceSum" role="status" aria-live="polite"></div>
         <details class="sv1-eor-insinfo" id="eorInsInfo"><summary>${esc(t("infoH"))}</summary>
           <ul id="eorInsClasses"><li data-cls="basic">${esc(t("infoBasic"))}</li><li data-cls="C">${esc(t("infoC"))}</li><li data-cls="B">${esc(t("infoB"))}</li><li data-cls="A">${esc(t("infoA"))}</li><li data-cls="quote">${esc(t("infoQ"))}</li></ul>
@@ -512,8 +725,9 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
       <fieldset><legend>${esc(t("g3"))}</legend>
         <div class="sv1-eor-cols">
           <div><label for="eorStart">${esc(t("start"))}</label><input class="sv1-eor-in" id="eorStart" type="date" dir="ltr"></div>
-          <div class="sv1-eor-dur"><div><label for="eorDurUnit">${esc(t("durUnitL"))}</label><select class="sv1-eor-in" id="eorDurUnit" data-dur="${esc(JSON.stringify(DUR))}"></select></div><div><label for="eorDurValue">${esc(t("durValL"))}</label><input class="sv1-eor-in" id="eorDurValue" type="number" min="1" step="1" inputmode="numeric" dir="ltr"></div></div>
+          <div role="radiogroup" aria-labelledby="eorDPH"><label id="eorDPH">${esc(t("durH"))}</label><div class="sv1-eor-radios" id="eorDurPresets"></div></div>
         </div>
+        <div class="sv1-eor-durcustom sv1-hide" id="eorDurCustom"><div class="sv1-eor-dur"><div><label for="eorDurUnit">${esc(t("durUnitL"))}</label><select class="sv1-eor-in" id="eorDurUnit" data-dur="${esc(JSON.stringify(DUR))}"></select></div><div><label for="eorDurValue">${esc(t("durValL"))}</label><input class="sv1-eor-in" id="eorDurValue" type="number" min="1" step="1" inputmode="numeric" dir="ltr"></div></div></div>
         <div style="margin-top:12px"><label for="eorNotes">${esc(t("notes"))}</label><textarea class="sv1-eor-in" id="eorNotes" maxlength="${EOR_LIMITS.notes}"></textarea></div>
       </fieldset>
       <button type="submit" class="sv1-btn primary" id="eorGo" style="width:100%">${esc(t("submit"))}</button>
@@ -526,45 +740,165 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
 ${sv1.footer()}`;
 
   function eorClient(C) {
-    var TX = C.tx, OCC = C.occ, NATS = C.nats, LIM = C.lim, INS = C.ins, UNITS = C.units, LANG = C.lang, AR = LANG === "ar";
+    var CORE = window.EORCORE, norm = CORE.norm;
+    var TX = C.tx, CAT = C.cat, LIM = C.lim, INS = C.ins, UNITS = C.units, PRE = C.pre, LANG = C.lang, AR = LANG === "ar";
     var UNIT_BY = {}; UNITS.forEach(function (u) { UNIT_BY[u.id] = u; });
     var API = "/api/requests?__route=eor";
     var $ = function (id) { return document.getElementById(id); };
     var el = function (tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
-    var occName = function (o) { return AR ? o[1] : o[2]; };
-    var natName = function (n) { return AR ? n[1] : n[2]; };
-    function norm(s) {
-      return String(s || "").toLowerCase().replace(/[ً-ٟـ]/g, "").replace(/[أإآ]/g, "ا")
-        .replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/\s+/g, " ").trim();
+    function digits(s) {
+      return String(s || "").replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 0x0660); })
+        .replace(/[۰-۹]/g, function (d) { return String(d.charCodeAt(0) - 0x06F0); });
     }
-    var OCC_BY = {}, IDX = [];
-    OCC.forEach(function (o) { OCC_BY[o[0]] = o; IDX.push({ o: o, k: norm(o[1] + " " + o[2]) }); });
-    var NAT_BY = {}; NATS.forEach(function (n) { NAT_BY[n[0]] = n; });
+    function fmtNum(n) { return Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 }); }
+    function post(body) {
+      return fetch(API, { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify(body) })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (o) { return { s: r.status, o: o || {} }; }); });
+    }
+    function pickId(ids) { for (var i = 0; i < ids.length; i++) if ($(ids[i]).checked) return $(ids[i]).value; return ""; }
+    function isCasual() { return !!$("eorET2").checked; }
+    function wtVal() { return pickId(["eorWT1", "eorWT2", "eorWT3"]); }
 
-    function localSearch(q) {
-      var toks = norm(q).split(" ").filter(Boolean);
-      if (!toks.length) return [];
-      var out = [];
-      IDX.forEach(function (e) {
-        for (var i = 0; i < toks.length; i++) if (e.k.indexOf(toks[i]) < 0) return;
-        // الأقرب أولاً: الاسم المعروض يطابق البحث تماماً، ثم يبدأ به، ثم تبدأ به إحدى كلماته.
-        var nm = norm(occName(e.o)), q1 = toks.join(" ");
-        out.push({ o: e.o, s: nm === q1 ? 0 : nm.indexOf(q1) === 0 ? 1 : (" " + nm).indexOf(" " + toks[0]) >= 0 ? 2 : 3 });
+    // ───── الفهارس بلغة الصفحة (من الكتالوج المضغوط): إكمال تلقائي محلي ─────
+    var NAT_E = CAT.nats.map(function (r) { return CORE.entry(r[0], r[1], r[2], r[3]); });
+    var CITY_E = CAT.cities.map(function (r) { return CORE.entry(r[0], r[1], r[2], r[4] ? 0 : 1, r[3]); });
+    var SEC_E = CAT.sectors.map(function (r) { return CORE.entry(r[0], r[1], r[2], 0); });
+    var OCC_E = CAT.occ.map(function (r) { return CORE.entry(r[0], r[1], r[2], 0, null, r[3]); });
+    var SEN = CAT.sen, SEN_BY = {}; SEN.forEach(function (s) { SEN_BY[s[0]] = s[1]; });
+    var NAT_BY = {}, CITY_BY = {}, SEC_BY = {}, OCC_BY = {};
+    NAT_E.forEach(function (e) { NAT_BY[e.id] = e; }); CITY_E.forEach(function (e) { CITY_BY[e.id] = e; });
+    SEC_E.forEach(function (e) { SEC_BY[e.id] = e; }); OCC_E.forEach(function (e) { OCC_BY[e.id] = e; });
+    var CLS_NAME = {}; INS.classes.forEach(function (c) { CLS_NAME[c[0]] = c[1]; });
+    var INSR_NAME = {}; INS.insurers.forEach(function (c) { INSR_NAME[c[0]] = c[1]; });
+    var natName = function (code) { return NAT_BY[code] ? NAT_BY[code].l : code; };
+
+    // قائمة اقتراحات عامة (إكمال تلقائي): حقل واحد يُكتب فيه فتظهر الاقتراحات؛ سهمان وEnter (أو نقر) يختاران؛ Escape يغلق.
+    //   cfg: { input, host, source(q) → [{h}|{e}], onPick(e), emptyText, alt, enterFirst, minChars, onBlur }
+    function combo(cfg) {
+      var list = el("ul", "sv1-eor-list sv1-hide"); list.setAttribute("role", "listbox");
+      cfg.host.appendChild(list);
+      var opts = [], active = -1;
+      function open() { list.classList.remove("sv1-hide"); cfg.input.setAttribute("aria-expanded", "true"); }
+      function close() { list.classList.add("sv1-hide"); cfg.input.setAttribute("aria-expanded", "false"); active = -1; }
+      function mark() { opts.forEach(function (o, i) { o.li.classList.toggle("on", i === active); }); }
+      function pick(e) { close(); cfg.onPick(e); }
+      function draw(rows, q) {
+        list.textContent = ""; opts = []; active = -1;
+        if (!rows.length) {
+          if (!cfg.emptyText || norm(q).length < (cfg.minChars || 1)) { close(); return; }
+          list.appendChild(el("li", "none", cfg.emptyText)); open(); return;
+        }
+        rows.forEach(function (row) {
+          if (row.h != null) { var h = el("li", "grp", row.h); h.setAttribute("role", "presentation"); list.appendChild(h); return; }
+          var li = el("li", "", row.e.l); li.setAttribute("role", "option");
+          if (cfg.alt && row.e.a && row.e.a !== row.e.l) li.appendChild(el("small", "", row.e.a));
+          li.addEventListener("mousedown", function (ev) { ev.preventDefault(); pick(row.e); });
+          list.appendChild(li); opts.push({ e: row.e, li: li });
+        });
+        open();
+      }
+      function show() { var q = cfg.input.value; draw(cfg.source(q), q); }
+      cfg.input.addEventListener("input", show);
+      cfg.input.addEventListener("focus", function () { if (cfg.onFocus) show(); });
+      cfg.input.addEventListener("keydown", function (e) {
+        if (list.classList.contains("sv1-hide")) return;
+        if (e.key === "ArrowDown") { e.preventDefault(); active = Math.min(opts.length - 1, active + 1); mark(); }
+        else if (e.key === "ArrowUp") { e.preventDefault(); active = Math.max(0, active - 1); mark(); }
+        else if (e.key === "Enter") {
+          var o = active >= 0 ? opts[active] : (cfg.enterFirst && norm(cfg.input.value) ? opts[0] : null);
+          if (opts.length) e.preventDefault();      // قائمة مفتوحة: Enter لا يرسل النموذج
+          if (o) pick(o.e);
+        } else if (e.key === "Escape") close();
       });
-      out.sort(function (a, b) { return a.s - b.s || occName(a.o).length - occName(b.o).length; });
-      return out.slice(0, 8).map(function (x) { return x.o; });
+      cfg.input.addEventListener("blur", function () { if (cfg.onBlur) cfg.onBlur(); setTimeout(close, 120); });
+      return { draw: draw, close: close, show: show };
     }
+    // نصٌّ يطابق اسماً واحداً تماماً (بعد التطبيع) يُعتمد، وإلا null.
+    function uniqueExact(ents, text) {
+      var q = norm(text), hit = null, n = 0;
+      if (!q) return null;
+      ents.forEach(function (e) { if (e.n === q) { hit = e; n++; } });
+      return n === 1 ? hit : null;
+    }
+
+    // ───── المدينة (تُجمَّع بالمنطقة، ويبقى النص الحر مقبولاً) والقطاع (اختياري) ─────
+    var cityId = "", sectorId = "";
+    function regionTitle(g) { return CAT.regions[g] ? CAT.regions[g][1] : ""; }
+    combo({
+      input: $("eorCity"), host: $("eorCityW"), onFocus: true, alt: false, enterFirst: true,
+      source: function (q) {
+        var ents = norm(q) ? CORE.rank(CITY_E, q, 14) : CITY_E.filter(function (e) { return e.p === 0; });
+        return CORE.groupRows(ents, regionTitle);
+      },
+      onPick: function (e) { cityId = e.id; $("eorCity").value = e.l; $("eorCity").removeAttribute("aria-invalid"); },
+      onBlur: function () { if (!cityId) { var h = uniqueExact(CITY_E, $("eorCity").value); if (h) { cityId = h.id; $("eorCity").value = h.l; } } }
+    });
+    $("eorCity").addEventListener("input", function () { cityId = ""; });
+    combo({
+      input: $("eorSector"), host: $("eorSectorW"), alt: true, emptyText: TX.occNone, enterFirst: true,
+      source: function (q) { return CORE.rank(SEC_E, q, 10).map(function (e) { return { e: e }; }); },
+      onPick: function (e) { sectorId = e.id; $("eorSector").value = e.l; $("eorSector").removeAttribute("aria-invalid"); },
+      onBlur: function () { if (!sectorId) { var h = uniqueExact(SEC_E, $("eorSector").value); if (h) { sectorId = h.id; $("eorSector").value = h.l; } } }
+    });
+    $("eorSector").addEventListener("input", function () { sectorId = ""; });
 
     var items = [];
     var host = $("eorItems");
+    var uid = 0, autoWT = true, MINCFG = null, PROVAMT = null;
 
-    // السعر الشهري الفوري: السؤال للخادم وحده (يحسب التكلفة والهامش هناك ويعيد السعر وساعة الإضافي فقط).
+    // ───── الحدّ الأدنى للراتب (يصل من الخادم: form_config) ─────
+    function minInfo(it) {
+      if (isCasual() || !MINCFG) return null;
+      var m = CORE.salaryMin(it.nats, wtVal(), MINCFG);
+      return m.min == null ? null : m;
+    }
+    function minTextOf(kind, min) { return CORE.fmt(TX[kind === "saudi" ? "salMinSaudi" : kind === "mixed" ? "salMinMixed" : "salMinForeign"], fmtNum(min)); }
+    // يعرض الحدّ تحت الراتب، ويرفع الراتب المكتوب إليه إن نقص عنه (مع رسالة)؛ يُستدعى عند تغيّر الراتب (change) أو الجنسيات أو نوع العاملين.
+    function refreshMin(it) {
+      var m = minInfo(it);
+      it.salNote.className = "sv1-eor-hint"; it.salNote.textContent = m ? minTextOf(m.kind, m.min) : "";
+      if (!m || it.salIn.value === "") return;
+      var f = CORE.fixSalary(Number(digits(it.salIn.value)), m.min);
+      if (f.fixed) {
+        it.salIn.value = String(f.value); it.salIn.removeAttribute("aria-invalid");
+        it.salNote.className = "sv1-eor-hint fix"; it.salNote.textContent = minTextOf(m.kind, m.min) + " " + TX.salFixed;
+        priceSoon();
+      }
+    }
+    function setWT(v) { var ids = { saudi: "eorWT1", foreign: "eorWT2", both: "eorWT3" }; if (ids[v]) $(ids[v]).checked = true; }
+    // نوع العاملين يُستنتج من الجنسيات ما لم يخترْه العميل بنفسه.
+    function syncWT() {
+      if (!autoWT) return;
+      var d = CORE.deriveWT(items.map(function (it) { return it.nats; }));
+      if (d) setWT(d);
+    }
+    function onNatsChanged() { syncWT(); items.forEach(refreshMin); priceSoon(); }
+
+    // ───── السعر الشهري الفوري: السؤال للخادم وحده ─────
     var priceTimer = null, priceSeq = 0;
-    function fmtNum(n) { return Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 }); }
+    function row2(box, label, amount, cls) {
+      var r = el("div", "sv1-eor-bdrow" + (cls ? " " + cls : ""));
+      r.appendChild(el("span", "", label)); r.appendChild(el("b", "", amount)); box.appendChild(r);
+    }
+    function bdLabel(ln) {
+      var k = ln.key;
+      if (k === "salary") return TX.bdSalary;
+      if (k === "service") return TX.bdService;
+      if (k === "insurance") {
+        var s = TX.bdIns + " — " + String(CLS_NAME[ln["class"]] || ln["class"]).replace(/\s*[(（].*$/, "");
+        if (ln.insurer && ln.insurer !== "any" && INSR_NAME[ln.insurer]) s += " · " + INSR_NAME[ln.insurer];
+        return s;
+      }
+      return TX[k === "housing" ? "pvHousing" : k === "meals" ? "pvMeals" : "pvTransport"] || k;
+    }
     function showPrice(it, line) {
       var box = it.priceEl; box.textContent = ""; box.className = "sv1-eor-price sv1-hide";
       if (!line || line.status === "needs_salary") return;
       box.classList.remove("sv1-hide");
+      if (line.status === "below_min") {
+        var wk = CORE.workerKind(it.nats, wtVal());
+        box.className = "sv1-eor-price hold"; box.textContent = minTextOf(wk, line.minSalary); return;
+      }
       if (line.status !== "priced") { box.className = "sv1-eor-price hold"; box.textContent = TX.pReview; return; }
       var cur = " " + TX.cur;
       if (line.monthlyPerEmployee === undefined) {
@@ -573,35 +907,46 @@ ${sv1.footer()}`;
         if (!cu || !UNIT_BY[cu.billingUnit] || cu.status !== "ok") { box.className = "sv1-eor-price hold"; box.textContent = TX.pReview; return; }
         box.appendChild(document.createTextNode(UNIT_BY[cu.billingUnit].price + ": ")); box.appendChild(el("b", "", fmtNum(cu.unitPrice))); box.appendChild(document.createTextNode(cur));
         if (cu.hoursPerDay) box.appendChild(document.createTextNode(" · " + cu.hoursPerDay + " " + TX.hrs));
+        (cu.provisions || []).forEach(function (p) { box.appendChild(el("br", "")); box.appendChild(document.createTextNode(TX[p.key === "housing" ? "pvHousing" : p.key === "meals" ? "pvMeals" : "pvTransport"] + ": +")); box.appendChild(el("b", "", fmtNum(p.amount))); box.appendChild(document.createTextNode(cur)); });
         if (cu.total != null) { box.appendChild(el("br", "")); box.appendChild(document.createTextNode(TX.pUTotal + ": ")); box.appendChild(el("b", "", fmtNum(cu.total))); box.appendChild(document.createTextNode(cur)); }
         return;
       }
-      box.appendChild(document.createTextNode(TX.pMonthly + ": "));
-      box.appendChild(el("b", "", fmtNum(line.monthlyPerEmployee))); box.appendChild(document.createTextNode(cur + " · " + TX.pOt + ": "));
-      box.appendChild(el("b", "", fmtNum(line.otHour))); box.appendChild(document.createTextNode(cur));
+      var bd = line.breakdown && Array.isArray(line.breakdown.lines) ? line.breakdown : null;
+      if (bd) {
+        // تفصيل السعر (قرار المالك: واضح للعميل). كل رقم من الخادم؛ هنا عرض فقط.
+        var w = el("div", "sv1-eor-bd"); w.appendChild(el("h4", "", TX.bdH));
+        bd.lines.forEach(function (ln) { row2(w, bdLabel(ln), fmtNum(ln.amount) + cur); });
+        row2(w, TX.bdTotal, fmtNum(line.monthlyPerEmployee) + cur, "tot");
+        row2(w, TX.pOt, fmtNum(line.otHour) + cur);
+        w.appendChild(el("div", "sv1-eor-bdnote", TX.bdNote));
+        box.appendChild(w);
+      } else {
+        box.appendChild(document.createTextNode(TX.pMonthly + ": "));
+        box.appendChild(el("b", "", fmtNum(line.monthlyPerEmployee))); box.appendChild(document.createTextNode(cur + " · " + TX.pOt + ": "));
+        box.appendChild(el("b", "", fmtNum(line.otHour))); box.appendChild(document.createTextNode(cur));
+      }
       var ins = line.insurance;
       if (!ins) return;
       function note(text, strong) { box.appendChild(el("br", "")); if (strong) { box.appendChild(document.createTextNode(TX.pDelta + ": ")); box.appendChild(el("b", "", strong)); box.appendChild(document.createTextNode(" " + TX.perMonth)); } else box.appendChild(document.createTextNode(text)); }
       if (ins.status === "applied") {
         if (ins.deltaMonthly) note("", (ins.deltaMonthly > 0 ? "+" : "") + fmtNum(ins.deltaMonthly));
-        if (it.mCb.checked && it.gIn.value === "female" && !ins.maternity) note(TX.pNoMat);
+        if (it.mCb.checked && it.gender() === "female" && !ins.maternity) note(TX.pNoMat);
         note(TX.insEst);
       } else if (ins.status === "quote_only") { note(TX.pQuoteOnly); note(TX.insEst); }
       else if (ins.status === "needs_age") note(TX.pNeedAge);
     }
     // أعلام الواجهة من الخادم (منطقية فقط): هل يُعرض اختيار التأمين وإضافتاه؟ تُستعمل لإخفاء الحقول لا لحساب شيء.
     var UIF = { selectable: true, addons: true };
-    function isCasual() { var r = document.querySelector('input[name="eorET"]:checked'); return !!r && r.value === "casual"; }
     function syncIns(it) {
       var medical = it.cIn.value === "C" || it.cIn.value === "B" || it.cIn.value === "A";
       it.insW.classList.toggle("sv1-hide", !UIF.selectable || isCasual());
-      it.mW.classList.toggle("sv1-hide", !(UIF.addons && medical && it.gIn.value === "female"));
+      it.mW.classList.toggle("sv1-hide", !(UIF.addons && medical && it.gender() === "female"));
       it.chW.classList.toggle("sv1-hide", !(UIF.addons && medical));
       it.xW.classList.toggle("sv1-hide", it.mW.classList.contains("sv1-hide") && it.chW.classList.contains("sv1-hide"));
     }
     function insOf(it) {
       var on = UIF.selectable;
-      return { gender: on ? it.gIn.value : "unspecified", ageBand: on ? it.aIn.value : "", insuranceClass: on ? it.cIn.value : "basic", insurer: on ? it.rIn.value : "any",
+      return { gender: it.gender(), ageBand: on ? it.aIn.value : "", insuranceClass: on ? it.cIn.value : "basic", insurer: on ? it.rIn.value : "any",
         maternity: on && UIF.addons && it.mCb.checked && !it.mW.classList.contains("sv1-hide"), chronic: on && UIF.addons && it.chCb.checked && !it.chW.classList.contains("sv1-hide") };
     }
     // الكمية المكتوبة: فارغة ⇒ null، عدد صحيح موجب ضمن سقف الوحدة ⇒ ok. (فحص مدخلات فقط؛ الخادم يعيد التحقق ويحسب.)
@@ -615,7 +960,8 @@ ${sv1.footer()}`;
       var u = UNIT_BY[it.uIn.value]; it.qLb.textContent = u.qty; it.qIn.max = String(u.max);
       it.uW.classList.toggle("sv1-hide", !isCasual()); it.hW.classList.toggle("sv1-hide", !(isCasual() && it.uIn.value === "daily"));
     }
-    // مدة التعاقد: وحدة + قيمة. التعاقد: شهر/سنة؛ العمالة المرنة: ساعة/يوم/شهر. فحص مدخلات فقط، والإجمالي يعيده الخادم.
+
+    // ───── مدة التعاقد: قيم مسبقة بالأسماء (ساعة · يوم · شهر · 3 · 6 · 9 أشهر · سنة · سنتان) + مدة أخرى حرة ─────
     var DUR = JSON.parse($("eorDurUnit").getAttribute("data-dur"));
     function durList() { return isCasual() ? DUR.casual : DUR.contract; }
     function durCap(unit) { var l = durList(); for (var i = 0; i < l.length; i++) if (l[i][0] === unit) return l[i][2]; return 0; }
@@ -633,6 +979,34 @@ ${sv1.footer()}`;
     }
     // توافق مع الحقل القديم durationMonths: يُرسَل للشهر والسنة فقط (تحويل وحدة لا حساب سعر).
     function durMonths(d) { return d.value == null ? null : d.unit === "month" ? d.value : d.unit === "year" ? d.value * 12 : null; }
+    var presetIn = {};
+    function curPreset() { for (var k in presetIn) if (presetIn[k].checked) return k; return ""; }
+    function presetBy(id) { for (var i = 0; i < PRE.length; i++) if (PRE[i].id === id) return PRE[i]; return null; }
+    function showCustom(on) { $("eorDurCustom").classList.toggle("sv1-hide", !on); }
+    function choosePreset(id) {
+      var p = presetBy(id); if (!p) return;
+      syncDur(); $("eorDurUnit").value = p.unit; $("eorDurValue").value = String(p.value); $("eorDurValue").max = String(durCap(p.unit));
+      $("eorDurValue").removeAttribute("aria-invalid"); showCustom(false); priceSoon();
+    }
+    function buildPresets() {
+      var casual = isCasual(), prev = curPreset(), box = $("eorDurPresets");
+      box.textContent = ""; presetIn = {};
+      function pill(id, name, onChange) {
+        var lb = el("label", ""), rb = el("input", ""); rb.type = "radio"; rb.name = "eorDP"; rb.value = id;
+        rb.addEventListener("change", onChange); lb.appendChild(rb); lb.appendChild(document.createTextNode(" " + name)); box.appendChild(lb); presetIn[id] = rb;
+      }
+      PRE.forEach(function (p) { if (casual || p.contract) pill(p.id, p.name, function () { choosePreset(p.id); }); });
+      pill("custom", TX.pCustom, function () { showCustom(true); priceSoon(); });
+      if (prev && presetIn[prev]) presetIn[prev].checked = true;
+      else { showCustom(false); }
+    }
+    function setDuration(unit, value) {
+      var id = CORE.presetId(unit, value, PRE);
+      if (id && presetIn[id]) { presetIn[id].checked = true; choosePreset(id); return; }
+      syncDur();
+      if (!durCap(unit)) return;
+      presetIn.custom.checked = true; $("eorDurUnit").value = unit; $("eorDurValue").value = String(value); showCustom(true); priceSoon();
+    }
     // أوصاف فئات التأمين من الخادم (insuranceUi.classes) إن وُجدت؛ وإلا تبقى النصوص المدمجة. textContent فقط.
     function pickTx(v) { if (v == null) return ""; if (typeof v === "string") return v; if (typeof v === "object") return String(v[LANG] || v.en || v.ar || ""); return ""; }
     function applyClassInfo(list) {
@@ -655,16 +1029,25 @@ ${sv1.footer()}`;
     function applyEngagement() {
       var c = isCasual();
       $("eorRCW").classList.toggle("sv1-hide", c); $("eorInsInfo").classList.toggle("sv1-hide", c);
+      var unitBefore = $("eorDurUnit").value;
       syncDur();
-      items.forEach(function (it) { syncUnit(it); syncIns(it); it.salLb.textContent = c ? TX.salaryRef : TX.salary; });
+      // وحدة المدة (ساعة/يوم) لا تصلح للتعاقد: تُمسح بدل أن تُحوَّل بصمت إلى شهر.
+      if (!c && (unitBefore === "hour" || unitBefore === "day")) $("eorDurValue").value = "";
+      buildPresets();
+      items.forEach(function (it) { syncUnit(it); syncIns(it); it.salLb.textContent = c ? TX.salaryRef : TX.salary; refreshMin(it); });
       clearPrices(); priceSoon();
     }
     function clearPrices() {
       items.forEach(function (it) { showPrice(it, null); });
       var sum = $("eorPriceSum"); sum.classList.add("sv1-hide"); sum.textContent = "";
     }
+    function provOf() {
+      var out = {};
+      ["housing", "meals", "transport"].forEach(function (k) { out[k] = $("eorPV_" + k + "_us").checked ? "us" : "client"; });
+      return out;
+    }
     function runPrice() {
-      var wt = document.querySelector('input[name="eorWT"]:checked');
+      var wt = wtVal();
       var rows = [], owners = [], anySalary = false, casual = isCasual();
       items.forEach(function (it) {
         var n = parseInt(digits(it.countIn.value), 10);
@@ -673,15 +1056,15 @@ ${sv1.footer()}`;
         if (ss !== "") { sal = Number(ss); if (!isFinite(sal) || sal < 0 || sal > LIM.maxSalary) sal = null; }
         if (sal !== null && sal > 0) anySalary = true;
         var io = insOf(it), uq = qtyOf(it);
-        rows.push(casual ? { count: n, nationalities: it.nats.slice(), salary: sal, billingUnit: it.uIn.value, quantity: uq.ok ? uq.value : null, hoursPerDay: it.uIn.value === "daily" ? parseInt(it.hIn.value, 10) : null }
+        rows.push(casual ? { count: n, nationalities: it.nats.slice(), salary: sal, gender: it.gender(), billingUnit: it.uIn.value, quantity: uq.ok ? uq.value : null, hoursPerDay: it.uIn.value === "daily" ? parseInt(it.hIn.value, 10) : null }
           : { count: n, nationalities: it.nats.slice(), salary: sal, gender: io.gender, ageBand: io.ageBand, insuranceClass: io.insuranceClass, insurer: io.insurer, maternity: io.maternity, chronic: io.chronic }); owners.push(it);
       });
       if (!wt || !rows.length || !anySalary) { clearPrices(); return; }
       var dr = durOf(), dm = durMonths(dr);
       var my = ++priceSeq;
-      fetch(API, { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: "price", engagementType: casual ? "casual" : "contract", workerType: wt.value, durationMonths: dm, durationUnit: dr.value ? dr.unit : null, durationValue: dr.value, items: rows }) })
-        .then(function (r) { return r.json(); }).then(function (o) {
+      post({ action: "price", engagementType: casual ? "casual" : "contract", workerType: wt, durationMonths: dm, durationUnit: dr.value ? dr.unit : null, durationValue: dr.value, provisions: provOf(), items: rows })
+        .then(function (x) {
+          var o = x.o;
           if (my !== priceSeq || casual !== isCasual()) return;
           var q = o && o.ok && o.quote;
           if (!q || (q.status !== "ok" && q.status !== "partial" && q.status !== "none")) { clearPrices(); return; }
@@ -700,17 +1083,27 @@ ${sv1.footer()}`;
         }).catch(function () {});
     }
     function priceSoon() { clearTimeout(priceTimer); priceTimer = setTimeout(runPrice, 350); }
-    Array.prototype.forEach.call(document.querySelectorAll('input[name="eorWT"]'), function (r) { r.addEventListener("change", priceSoon); });
-    Array.prototype.forEach.call(document.querySelectorAll('input[name="eorET"]'), function (r) { r.addEventListener("change", applyEngagement); });
+    ["eorWT1", "eorWT2", "eorWT3"].forEach(function (id) { $(id).addEventListener("change", function () { autoWT = false; items.forEach(refreshMin); priceSoon(); }); });
+    ["eorET1", "eorET2"].forEach(function (id) { $(id).addEventListener("change", applyEngagement); });
+    ["housing", "meals", "transport"].forEach(function (k) { ["client", "us"].forEach(function (v) { $("eorPV_" + k + "_" + v).addEventListener("change", priceSoon); }); });
     $("eorET1").checked = true;
-    syncDur();
-    $("eorDurUnit").addEventListener("change", function () { $("eorDurValue").max = String(durCap($("eorDurUnit").value)); priceSoon(); });
-    $("eorDurValue").addEventListener("input", priceSoon);
+    syncDur(); buildPresets();
+    $("eorDurUnit").addEventListener("change", function () { if (presetIn.custom) presetIn.custom.checked = true; $("eorDurValue").max = String(durCap($("eorDurUnit").value)); priceSoon(); });
+    $("eorDurValue").addEventListener("input", function () { if (presetIn.custom) presetIn.custom.checked = true; priceSoon(); });
 
-    function digits(s) {
-      return String(s || "").replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 0x0660); })
-        .replace(/[۰-۹]/g, function (d) { return String(d.charCodeAt(0) - 0x06F0); });
-    }
+    // إعدادات النموذج من الخادم: حدّا الراتب الأدنى وقيمة السكن/الإعاشة/المواصلات الشهرية بجانب «علينا». فشلها صامت (الخادم يطبّق الحدّ على أي حال).
+    post({ action: "form_config" }).then(function (x) {
+      var c = x.o && x.o.ok && x.o.config; if (!c) return;
+      if (c.salaryMin) { MINCFG = { saudi: c.salaryMin.saudi, foreign: c.salaryMin.foreign }; items.forEach(refreshMin); }
+      if (c.provisions) {
+        PROVAMT = c.provisions;
+        ["housing", "meals", "transport"].forEach(function (k) {
+          var a = PROVAMT[k], sp = $("eorPVL_" + k);
+          if (sp && typeof a === "number" && isFinite(a)) sp.textContent = TX.pvUs + " (+" + fmtNum(a) + " " + TX.perMonth + ")";
+        });
+      }
+    }).catch(function () {});
+
     function totalCount() {
       var t = 0;
       items.forEach(function (it) { var n = parseInt(digits(it.countIn.value), 10); if (n > 0) t += n; });
@@ -724,8 +1117,8 @@ ${sv1.footer()}`;
     }
 
     function addItem() {
-      if (items.length >= LIM.maxItems) return;
-      var it = { occId: "", nats: [] };
+      if (items.length >= LIM.maxItems) return null;
+      var it = { occId: "", occMask: 0, nats: [], senAllowed: [] };
       var card = el("div", "sv1-eor-item");
       var head = el("div", "sv1-eor-ihead");
       it.title = el("span", "", "");
@@ -733,69 +1126,54 @@ ${sv1.footer()}`;
       head.appendChild(it.title); head.appendChild(rm);
       var grid = el("div", "sv1-eor-igrid");
 
-      // المهنة: حقل بحث + قائمة اقتراحات
+      // المهنة: حقل واحد يُكتب فيه فتظهر الاقتراحات من فهرس ١٠٠٦ مهنة (الخادم يُكمل بالمرادفات إن قلّت النتائج)
       var occW = el("div", "sv1-eor-cb");
-      var occL = el("label", "", TX.occ);
+      occW.appendChild(el("label", "", TX.occ));
       var occIn = el("input", "sv1-eor-in"); occIn.type = "text"; occIn.setAttribute("role", "combobox");
       occIn.setAttribute("aria-autocomplete", "list"); occIn.setAttribute("aria-expanded", "false"); occIn.autocomplete = "off";
       occIn.placeholder = TX.occPh; occIn.maxLength = 80;
-      var list = el("ul", "sv1-eor-list sv1-hide"); list.setAttribute("role", "listbox");
-      occW.appendChild(occL); occW.appendChild(occIn); occW.appendChild(list);
-      var active = -1, shown = [], timer = null, seq = 0;
-
-      function close() { list.classList.add("sv1-hide"); occIn.setAttribute("aria-expanded", "false"); active = -1; }
-      function choose(o) { it.occId = o[0]; occIn.value = occName(o); occIn.removeAttribute("aria-invalid"); close(); }
-      function draw(res, q) {
-        shown = res; list.textContent = ""; active = -1;
-        if (!res.length) {
-          if (norm(q).length < 2) { close(); return; }
-          var none = el("li", "none", TX.occNone); list.appendChild(none);
-        }
-        res.forEach(function (o, i) {
-          var row = el("li", "", occName(o)); row.setAttribute("role", "option");
-          var alt = AR ? o[2] : o[1];
-          if (alt && alt !== occName(o)) row.appendChild(el("small", "", alt));
-          row.addEventListener("mousedown", function (ev) { ev.preventDefault(); choose(o); });
-          list.appendChild(row);
+      occW.appendChild(occIn);
+      var timer = null, seq = 0;
+      var occCombo = combo({
+        input: occIn, host: occW, alt: true, emptyText: TX.occNone, minChars: 2, enterFirst: true,
+        source: function (q) { return CORE.rank(OCC_E, q, 8).map(function (e) { return { e: e }; }); },
+        onPick: function (e) { chooseOcc(e); }
+      });
+      function rebuildSen() {
+        var prev = it.senIn.value, mask = it.occMask || 0;
+        it.senIn.textContent = ""; it.senAllowed = [];
+        var o0 = el("option", "", TX.senNone); o0.value = ""; it.senIn.appendChild(o0);
+        SEN.forEach(function (s, i) {
+          if (mask && !(mask & (1 << i))) return;
+          var o = el("option", "", s[1]); o.value = s[0]; it.senIn.appendChild(o); it.senAllowed.push(s[0]);
         });
-        list.classList.remove("sv1-hide"); occIn.setAttribute("aria-expanded", "true");
+        it.senIn.value = it.senAllowed.indexOf(prev) >= 0 ? prev : "";
       }
-      function mark() { Array.prototype.forEach.call(list.children, function (c, i) { c.classList.toggle("on", i === active); }); }
+      function chooseOcc(e) { it.occId = e.id; it.occMask = e.m || 0; occIn.value = e.l; occIn.removeAttribute("aria-invalid"); rebuildSen(); }
       occIn.addEventListener("input", function () {
-        it.occId = "";
-        var q = occIn.value, res = localSearch(q);
-        draw(res, q);
-        // قلّت النتائج المحلية: اسأل الخادم (يعرف المرادفات). فشله صامت.
+        it.occId = ""; it.occMask = 0;
+        var q = occIn.value, res = CORE.rank(OCC_E, q, 8);
+        // قلّت النتائج المحلية: اسأل الخادم (يعرف المرادفات: CDP، chef de partie…). فشله صامت.
         if (res.length < 3 && norm(q).length >= 2) {
           clearTimeout(timer);
           var my = ++seq;
           timer = setTimeout(function () {
             fetch(API + "&action=search&q=" + encodeURIComponent(q), { credentials: "same-origin", cache: "no-store" })
               .then(function (r) { return r.json(); }).then(function (o) {
-                if (my !== seq || !o || !o.ok || !o.results || occIn.value !== q) return;
-                var seen = {}; var merged = res.slice();
-                merged.forEach(function (m) { seen[m[0]] = 1; });
-                o.results.forEach(function (r) { var m = OCC_BY[r.id]; if (m && !seen[m[0]]) { seen[m[0]] = 1; merged.push(m); } });
-                if (merged.length > res.length) draw(merged.slice(0, 8), q);
+                if (my !== seq || !o || !o.ok || occIn.value !== q) return;
+                var seen = {}, merged = res.slice();
+                merged.forEach(function (m) { seen[m.id] = 1; });
+                (o.results || []).forEach(function (r) {
+                  var ids = (o.mapped && o.mapped[r.id]) || [];
+                  ids.forEach(function (cid) { var m = OCC_BY[cid]; if (m && !seen[m.id]) { seen[m.id] = 1; merged.push(m); } });
+                });
+                if (merged.length > res.length) occCombo.draw(merged.slice(0, 8).map(function (e) { return { e: e }; }), q);
               }).catch(function () {});
           }, 250);
         }
       });
-      occIn.addEventListener("keydown", function (e) {
-        if (list.classList.contains("sv1-hide")) return;
-        if (e.key === "ArrowDown") { e.preventDefault(); active = Math.min(shown.length - 1, active + 1); mark(); }
-        else if (e.key === "ArrowUp") { e.preventDefault(); active = Math.max(0, active - 1); mark(); }
-        else if (e.key === "Enter") { if (active >= 0 && shown[active]) { e.preventDefault(); choose(shown[active]); } }
-        else if (e.key === "Escape") { close(); }
-      });
       occIn.addEventListener("blur", function () {
-        // نصٌّ يطابق اسماً واحداً تماماً يُعتمد، وإلا يبقى البند بلا مهنة حتى تُختار.
-        if (!it.occId) {
-          var q = norm(occIn.value), hit = null, n = 0;
-          OCC.forEach(function (o) { if (norm(o[1]) === q || norm(o[2]) === q) { hit = o; n++; } });
-          if (n === 1) choose(hit);
-        }
-        setTimeout(close, 120);
+        if (!it.occId) { var h = uniqueExact(OCC_E, occIn.value); if (h) chooseOcc(h); }
       });
       it.occIn = occIn;
 
@@ -804,30 +1182,66 @@ ${sv1.footer()}`;
       countIn.step = "1"; countIn.inputMode = "numeric"; countIn.dir = "ltr";
       countIn.addEventListener("input", function () { refresh(); priceSoon(); }); countW.appendChild(countIn); it.countIn = countIn;
 
-      // الجنسيات: اختيار متعدد
-      var natW = el("div", "full"); natW.appendChild(el("label", "", TX.nats));
-      var det = el("details", "sv1-eor-nat"); var sum = el("summary", "", TX.natAny);
-      var box = el("div", "box");
-      NATS.forEach(function (n) {
-        var lb = el("label", ""); var cb = el("input", ""); cb.type = "checkbox"; cb.value = n[0];
-        cb.addEventListener("change", function () {
-          if (cb.checked) {
-            if (it.nats.length >= LIM.maxNats) { cb.checked = false; return; }
-            it.nats.push(n[0]);
-          } else it.nats = it.nats.filter(function (c) { return c !== n[0]; });
-          var names = it.nats.map(function (c) { return natName(NAT_BY[c]); });
-          sum.textContent = names.length ? names.slice(0, 3).join(AR ? "، " : ", ") + (names.length > 3 ? " +" + (names.length - 3) : "") : TX.natAny;
-          priceSoon();
-        });
-        lb.appendChild(cb); lb.appendChild(document.createTextNode(natName(n))); box.appendChild(lb);
+      // المستوى الوظيفي (حقل منفصل عن المهنة) والجنس (ذكر | أنثى | لا يهم)
+      var subW = el("div", "full sv1-eor-cols");
+      var senW = el("div", ""); senW.appendChild(el("label", "", TX.senH));
+      it.senIn = el("select", "sv1-eor-in"); senW.appendChild(it.senIn); rebuildSen();
+      var genW = el("div", ""); genW.appendChild(el("label", "", TX.gender));
+      var genBox = el("div", "sv1-eor-radios"); var gname = "eorG" + (++uid), gInputs = {};
+      [["unspecified", TX.gU], ["male", TX.gM], ["female", TX.gF]].forEach(function (g) {
+        var lb = el("label", ""), rb = el("input", ""); rb.type = "radio"; rb.name = gname; rb.value = g[0]; if (g[0] === "unspecified") rb.checked = true;
+        rb.addEventListener("change", function () { syncIns(it); priceSoon(); });
+        lb.appendChild(rb); lb.appendChild(document.createTextNode(" " + g[1])); genBox.appendChild(lb); gInputs[g[0]] = rb;
       });
-      det.appendChild(sum); det.appendChild(box); natW.appendChild(det);
+      genW.appendChild(genBox);
+      it.gender = function () { return gInputs.male.checked ? "male" : gInputs.female.checked ? "female" : "unspecified"; };
+      it.setGender = function (v) { (gInputs[v] || gInputs.unspecified).checked = true; syncIns(it); };
+      subW.appendChild(senW); subW.appendChild(genW);
+
+      // الجنسيات: شرائح (chips) — حقل واحد يُكتب فيه فتظهر الاقتراحات من كل دول العالم (السعودية ضمنها)، Enter أو نقر يضيف شريحة، × يحذفها
+      var natW = el("div", "full sv1-eor-cb"); natW.appendChild(el("label", "", TX.nats));
+      var chips = el("div", "sv1-eor-chips"), chipSet = el("span", ""), natIn = el("input", "sv1-eor-chipin");
+      natIn.type = "text"; natIn.placeholder = TX.natPh; natIn.autocomplete = "off"; natIn.setAttribute("role", "combobox"); natIn.setAttribute("aria-autocomplete", "list"); natIn.setAttribute("aria-expanded", "false"); natIn.maxLength = 40;
+      chips.appendChild(chipSet); chips.appendChild(natIn); natW.appendChild(chips);
+      var natHint = el("div", "sv1-eor-hint", TX.natHelp); natW.appendChild(natHint);
+      function redrawChips() {
+        chipSet.textContent = "";
+        it.nats.forEach(function (code) {
+          var chip = el("span", "sv1-eor-chip", natName(code));
+          var x = el("button", "sv1-eor-chipx", "×"); x.type = "button"; x.setAttribute("aria-label", TX.chipRm + " " + natName(code));
+          x.addEventListener("click", function () { it.nats = it.nats.filter(function (c) { return c !== code; }); redrawChips(); onNatsChanged(); });
+          chip.appendChild(x); chipSet.appendChild(chip);
+        });
+        natHint.className = "sv1-eor-hint"; natHint.textContent = TX.natHelp;
+      }
+      it.redrawChips = redrawChips;
+      combo({
+        input: natIn, host: natW, onFocus: true, emptyText: TX.natNone, enterFirst: true,
+        source: function (q) {
+          var free = NAT_E.filter(function (e) { return it.nats.indexOf(e.id) < 0; });
+          if (!norm(q)) return [{ h: TX.natPopular }].concat(free.slice(0, 10).map(function (e) { return { e: e }; }));
+          return CORE.rank(free, q, 8).map(function (e) { return { e: e }; });
+        },
+        onPick: function (e) {
+          natIn.value = "";
+          if (it.nats.length >= LIM.maxNats) { natHint.className = "sv1-eor-hint fix"; natHint.textContent = CORE.fmt(TX.natMax, LIM.maxNats); return; }
+          if (it.nats.indexOf(e.id) < 0) it.nats.push(e.id);
+          redrawChips(); onNatsChanged();
+        }
+      });
+      natIn.addEventListener("keydown", function (e) {
+        if (e.key === "Backspace" && natIn.value === "" && it.nats.length) { it.nats.pop(); redrawChips(); onNatsChanged(); }
+      });
+      chips.addEventListener("click", function () { try { natIn.focus(); } catch (er) {} });
+      it.natIn = natIn;
 
       var salW = el("div", "full"); it.salLb = el("label", "", isCasual() ? TX.salaryRef : TX.salary); salW.appendChild(it.salLb);
       var salIn = el("input", "sv1-eor-in"); salIn.type = "number"; salIn.min = "0"; salIn.max = String(LIM.maxSalary); salIn.step = "any"; salIn.inputMode = "decimal"; salIn.dir = "ltr";
       salIn.addEventListener("input", priceSoon);
+      salIn.addEventListener("change", function () { refreshMin(it); priceSoon(); });
+      it.salNote = el("div", "sv1-eor-hint"); it.salNote.setAttribute("role", "status"); it.salNote.setAttribute("aria-live", "polite");
       var priceEl = el("div", "sv1-eor-price sv1-hide"); priceEl.setAttribute("role", "status"); priceEl.setAttribute("aria-live", "polite");
-      salW.appendChild(salIn); salW.appendChild(priceEl); it.salIn = salIn; it.priceEl = priceEl;
+      salW.appendChild(salIn); salW.appendChild(it.salNote); salW.appendChild(priceEl); it.salIn = salIn; it.priceEl = priceEl;
 
       // العمالة المرنة: وحدة التسعير (ساعة/يوم/شهر) وكميتها لكل موظف وساعات اليوم للوحدة اليومية. العرض والإجمالي من الخادم.
       var unW = el("div", "full sv1-eor-unit");
@@ -851,7 +1265,7 @@ ${sv1.footer()}`;
       hIn.addEventListener("change", priceSoon);
       syncUnit(it);
 
-      // التأمين الطبي: الجنس والفئة العمرية وفئة التأمين (+ إضافتا الأمومة والمزمن عند الاقتضاء). الحساب على الخادم.
+      // التأمين الطبي: الفئة العمرية وفئة التأمين وشركته (+ إضافتا الأمومة والمزمن عند الاقتضاء). الجنس من حقل البند أعلاه. الحساب على الخادم.
       var insW = el("div", "full sv1-eor-ins"); insW.appendChild(el("label", "", TX.insH));
       var insG = el("div", "sv1-eor-insg");
       function sel(label, pairs, dflt) {
@@ -861,7 +1275,6 @@ ${sv1.footer()}`;
         s.value = dflt; s.addEventListener("change", function () { syncIns(it); priceSoon(); });
         w.appendChild(s); insG.appendChild(w); return s;
       }
-      it.gIn = sel(TX.gender, INS.genders, "unspecified");
       it.aIn = sel(TX.age, [["", INS.ageNone]].concat(INS.ages), "");
       it.cIn = sel(TX.insClass, INS.classes, "basic");
       it.rIn = sel(TX.insurerL, INS.insurers, "any");
@@ -875,14 +1288,14 @@ ${sv1.footer()}`;
       it.xW = el("div", "sv1-eor-insx sv1-hide"); it.xW.appendChild(m.lb); it.xW.appendChild(ch.lb);
       insW.appendChild(insG); insW.appendChild(it.xW); it.insW = insW;
 
-      grid.appendChild(occW); grid.appendChild(countW); grid.appendChild(natW); grid.appendChild(salW); grid.appendChild(unW); grid.appendChild(insW);
+      grid.appendChild(occW); grid.appendChild(countW); grid.appendChild(subW); grid.appendChild(natW); grid.appendChild(salW); grid.appendChild(unW); grid.appendChild(insW);
       card.appendChild(head); card.appendChild(grid); host.appendChild(card);
       it.card = card;
       rm.addEventListener("click", function () {
         items = items.filter(function (x) { return x !== it; });
-        host.removeChild(card); refresh(); priceSoon();
+        host.removeChild(card); refresh(); onNatsChanged();
       });
-      items.push(it); syncIns(it); refresh();
+      items.push(it); syncIns(it); refresh(); refreshMin(it);
       return it;
     }
     $("eorAdd").addEventListener("click", function () { var it = addItem(); if (it) it.occIn.focus(); });
@@ -890,9 +1303,99 @@ ${sv1.footer()}`;
 
     // التاريخ: لا قبل اليوم
     try {
-      var d = new Date(); var p = function (n) { return (n < 10 ? "0" : "") + n; };
-      $("eorStart").min = d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+      var d0 = new Date(); var p0 = function (n) { return (n < 10 ? "0" : "") + n; };
+      $("eorStart").min = d0.getFullYear() + "-" + p0(d0.getMonth() + 1) + "-" + p0(d0.getDate());
     } catch (e) {}
+
+    // ───── المستشار الذكي: وصفٌ حر ⇒ اقتراح تعبئة تراجعه وتؤكده (لا إرسال تلقائي) ─────
+    var asBusy = false, asMsg = $("eorAsMsg"), asOut = $("eorAsOut");
+    function say(text, err) { asMsg.className = "sv1-eor-hint" + (err ? " fix" : ""); asMsg.textContent = text || ""; }
+    function itemBlank(it) { return !it.occId && !it.countIn.value && !it.nats.length && !it.salIn.value; }
+    function fillItem(it, d) {
+      var e = OCC_BY[d.occupationId];
+      if (e) { it.occId = e.id; it.occMask = e.m || 0; it.occIn.value = e.l; it.occIn.removeAttribute("aria-invalid"); }
+      // إعادة بناء المستويات حسب المهنة ثم اختيار المقترح إن كان مسموحاً لها
+      var evt = it.senIn; evt.textContent = ""; it.senAllowed = [];
+      var o0 = el("option", "", TX.senNone); o0.value = ""; evt.appendChild(o0);
+      SEN.forEach(function (s, i) { if (it.occMask && !(it.occMask & (1 << i))) return; var o = el("option", "", s[1]); o.value = s[0]; evt.appendChild(o); it.senAllowed.push(s[0]); });
+      evt.value = d.seniority && it.senAllowed.indexOf(d.seniority) >= 0 ? d.seniority : "";
+      if (d.count) it.countIn.value = String(d.count);
+      it.nats = d.nationalities.slice(); it.redrawChips();
+      it.setGender(d.gender);
+      if (d.salary) it.salIn.value = String(d.salary);
+    }
+    var CAPS = {};
+    [DUR.casual, DUR.contract].forEach(function (lst) { lst.forEach(function (x) { CAPS[x[0]] = x[2]; }); });
+    var LOOK = { occ: OCC_BY, nat: NAT_BY, city: CITY_BY, sec: SEC_BY, sen: SEN_BY, caps: CAPS, maxItems: LIM.maxItems, maxCount: LIM.maxItemCount, maxNats: LIM.maxNats, maxSalary: LIM.maxSalary };
+    function applySuggestion(sg) {
+      var dur = sg.duration, wantCasual = sg.engagementType === "casual" || (dur && (dur.unit === "hour" || dur.unit === "day"));
+      if (wantCasual && !isCasual()) { $("eorET2").checked = true; applyEngagement(); }
+      else if (sg.engagementType === "contract" && isCasual()) { $("eorET1").checked = true; applyEngagement(); }
+      if (sg.cityId && CITY_BY[sg.cityId]) { cityId = sg.cityId; $("eorCity").value = CITY_BY[sg.cityId].l; }
+      if (sg.sectorId && SEC_BY[sg.sectorId]) { sectorId = sg.sectorId; $("eorSector").value = SEC_BY[sg.sectorId].l; }
+      var min = $("eorStart").min;
+      if (sg.startDate && (!min || sg.startDate >= min)) $("eorStart").value = sg.startDate;
+      if (dur) setDuration(dur.unit, dur.value);
+      ["housing", "meals", "transport"].forEach(function (k) { if (sg.provisions[k]) $("eorPV_" + k + "_" + sg.provisions[k]).checked = true; });
+      sg.items.forEach(function (d, i) {
+        var it = i === 0 && items.length === 1 && itemBlank(items[0]) ? items[0] : addItem();
+        if (it) fillItem(it, d);
+      });
+      if (sg.workerType && autoWT) setWT(sg.workerType);
+      syncWT(); refresh(); items.forEach(function (it) { syncIns(it); refreshMin(it); }); priceSoon();
+    }
+    function sugLines(sg) {
+      var lines = [];
+      sg.items.forEach(function (d) {
+        var e = OCC_BY[d.occupationId], parts = [(d.count ? d.count + " × " : "") + (e ? e.l : d.occupationId)];
+        if (d.nationalities.length) parts.push(d.nationalities.map(natName).join(AR ? "، " : ", "));
+        if (d.gender === "male") parts.push(TX.gM); else if (d.gender === "female") parts.push(TX.gF);
+        if (d.seniority) parts.push(SEN_BY[d.seniority]);
+        if (d.salary) parts.push(fmtNum(d.salary) + " " + TX.cur);
+        lines.push(parts.join(" — "));
+      });
+      if (sg.cityId && CITY_BY[sg.cityId]) lines.push(TX.city + ": " + CITY_BY[sg.cityId].l);
+      if (sg.sectorId && SEC_BY[sg.sectorId]) lines.push(TX.sectorH.replace(/\s*[(（].*$/, "") + ": " + SEC_BY[sg.sectorId].l);
+      if (sg.startDate) lines.push(TX.start.replace(/\s*[(（].*$/, "") + ": " + sg.startDate);
+      if (sg.duration) {
+        var pid = CORE.presetId(sg.duration.unit, sg.duration.value, PRE), pr = pid ? presetBy(pid) : null;
+        lines.push(TX.durH + ": " + (pr ? pr.name : sg.duration.value + " " + (sg.duration.unit === "hour" ? TX.dHour : sg.duration.unit === "day" ? TX.dDay : sg.duration.unit === "month" ? TX.dMonth : TX.dYear)));
+      }
+      var pv = [];
+      ["housing", "meals", "transport"].forEach(function (k) { if (sg.provisions[k] === "us") pv.push(TX[k === "housing" ? "pvHousing" : k === "meals" ? "pvMeals" : "pvTransport"]); });
+      if (pv.length) lines.push(TX.provH + ": " + TX.pvUs + " (" + pv.join(AR ? "، " : ", ") + ")");
+      return lines;
+    }
+    function showSuggestion(sg) {
+      var lines = sugLines(sg);
+      asOut.textContent = "";
+      if (!lines.length) { asOut.classList.add("sv1-hide"); say(TX.asNone, true); return; }
+      say("");
+      asOut.appendChild(el("b", "", TX.asConfirmH));
+      var ul = el("ul", ""); lines.forEach(function (ln) { ul.appendChild(el("li", "", ln)); }); asOut.appendChild(ul);
+      if (sg.unresolved.length) asOut.appendChild(el("small", "", TX.asUnres + ": " + sg.unresolved.join(AR ? "، " : ", ")));
+      var row = el("div", "sv1-eor-asrow");
+      var ok = el("button", "sv1-btn sm primary", TX.asApply); ok.type = "button";
+      var no = el("button", "sv1-btn sm", TX.asDismiss); no.type = "button";
+      ok.addEventListener("click", function () { applySuggestion(sg); asOut.classList.add("sv1-hide"); asOut.textContent = ""; say(TX.asApplied); });
+      no.addEventListener("click", function () { asOut.classList.add("sv1-hide"); asOut.textContent = ""; say(""); });
+      row.appendChild(ok); row.appendChild(no); asOut.appendChild(row);
+      asOut.appendChild(el("small", "", TX.asNote));
+      asOut.classList.remove("sv1-hide");
+    }
+    $("eorAsGo").addEventListener("click", function () {
+      var text = $("eorAsText").value.trim();
+      if (text.length < 4) { say(TX.asShort, true); return; }
+      if (asBusy) return;
+      asBusy = true; $("eorAsGo").disabled = true; asOut.classList.add("sv1-hide"); say(TX.asBusy);
+      post({ action: "assist", text: text, lang: LANG }).then(function (x) {
+        asBusy = false; $("eorAsGo").disabled = false;
+        if (x.o && x.o.ok && x.o.suggestion) {
+          var s = x.o.suggestion; s.unresolved = x.o.unresolved;
+          showSuggestion(CORE.sanitizeSuggestion(s, LOOK));
+        } else say(x.s === 429 ? TX.eRate : TX.asUnavail, true);
+      }).catch(function () { asBusy = false; $("eorAsGo").disabled = false; say(TX.asUnavail, true); });
+    });
 
     var msg = $("eorMsg");
     function bad(key, node) {
@@ -901,10 +1404,9 @@ ${sv1.footer()}`;
       return null;
     }
     function clearMarks() {
-      ["eorCompany", "eorContact", "eorEmail", "eorPhone", "eorCity", "eorStart", "eorDurValue"].forEach(function (id) { $(id).removeAttribute("aria-invalid"); });
+      ["eorCompany", "eorContact", "eorEmail", "eorPhone", "eorCity", "eorSector", "eorStart", "eorDurValue"].forEach(function (id) { $(id).removeAttribute("aria-invalid"); });
       items.forEach(function (it) { it.occIn.removeAttribute("aria-invalid"); it.countIn.removeAttribute("aria-invalid"); it.salIn.removeAttribute("aria-invalid"); it.qIn.removeAttribute("aria-invalid"); });
     }
-    function checked(name) { var r = document.querySelector('input[name="' + name + '"]:checked'); return r ? r.value : ""; }
     function collect() {
       clearMarks();
       var v = function (id) { return $(id).value.trim(); };
@@ -916,9 +1418,12 @@ ${sv1.footer()}`;
       if (phone.indexOf("00") === 0) phone = "+" + phone.slice(2);
       if (!/^\+?\d{8,15}$/.test(phone)) return bad("ePhone", $("eorPhone"));
       if (!v("eorCity")) return bad("eCity", $("eorCity"));
-      var wt = checked("eorWT"); if (!wt) return bad("eWorker", $("eorWT1"));
+      if (!cityId) { var hc = uniqueExact(CITY_E, v("eorCity")); if (hc) cityId = hc.id; }
+      if (v("eorSector") && !sectorId) { var hs = uniqueExact(SEC_E, v("eorSector")); if (hs) sectorId = hs.id; else return bad("eSector", $("eorSector")); }
+      if (!v("eorSector")) sectorId = "";
+      var wt = wtVal(); if (!wt) return bad("eWorker", $("eorWT1"));
       var casual = isCasual();
-      var rc = casual ? "no" : checked("eorRC"); if (!rc) return bad("eRecruit", $("eorRC1"));
+      var rc = casual ? "no" : pickId(["eorRC1", "eorRC2", "eorRC3"]); if (!rc) return bad("eRecruit", $("eorRC1"));
       if (!items.length) return bad("eItems", $("eorAdd"));
       var out = [], total = 0;
       for (var i = 0; i < items.length; i++) {
@@ -931,20 +1436,28 @@ ${sv1.footer()}`;
         if (total > LIM.maxTotal) return bad("eTotal", it.countIn);
         var sal = null, ss = digits(it.salIn.value).trim();
         if (ss !== "") { sal = Number(ss); if (!isFinite(sal) || sal < 0 || sal > LIM.maxSalary) return bad("eSalary", it.salIn); }
+        var mi = minInfo(it);
+        if (mi && sal !== null && sal > 0 && sal < mi.min) { refreshMin(it); return bad("eSalMin", it.salIn); }
         var io = insOf(it), uq = qtyOf(it);
         if (casual && !uq.ok) return bad("eQty", it.qIn);
-        out.push(casual ? { occupationId: it.occId, count: n, nationalities: it.nats.slice(), salary: sal, billingUnit: it.uIn.value, quantity: uq.value, hoursPerDay: it.uIn.value === "daily" ? parseInt(it.hIn.value, 10) : null }
-          : { occupationId: it.occId, count: n, nationalities: it.nats.slice(), salary: sal, gender: io.gender, ageBand: io.ageBand, insuranceClass: io.insuranceClass, insurer: io.insurer, maternity: io.maternity, chronic: io.chronic });
+        var base = { occupationId: it.occId, count: n, nationalities: it.nats.slice(), salary: sal, gender: it.gender() };
+        if (it.senIn.value) base.seniority = it.senIn.value;
+        out.push(casual ? Object.assign(base, { billingUnit: it.uIn.value, quantity: uq.value, hoursPerDay: it.uIn.value === "daily" ? parseInt(it.hIn.value, 10) : null })
+          : Object.assign(base, { ageBand: io.ageBand, insuranceClass: io.insuranceClass, insurer: io.insurer, maternity: io.maternity, chronic: io.chronic }));
       }
       var start = $("eorStart").value.trim();
       if (start && !/^\d{4}-\d{2}-\d{2}$/.test(start)) return bad("eStart", $("eorStart"));
       var dr = durOf();
-      if (!dr.ok || dr.value == null) return bad("eDur", $("eorDurValue"));
-      return {
-        company: v("eorCompany"), contactName: v("eorContact"), email: email, phone: phone, city: v("eorCity"), sector: $("eorSector").value,
+      if (!dr.ok) return bad("eDur", $("eorDurValue"));
+      if (dr.value == null) return bad(curPreset() === "custom" ? "eDur" : "eDurNone", curPreset() === "custom" ? $("eorDurValue") : (presetIn.m1 || presetIn.custom));
+      var pl = {
+        company: v("eorCompany"), contactName: v("eorContact"), email: email, phone: phone, city: v("eorCity"),
         engagementType: casual ? "casual" : "contract", workerType: wt, recruitment: rc, items: out, startDate: start, durationUnit: dr.unit, durationValue: dr.value, durationMonths: durMonths(dr),
-        notes: $("eorNotes").value.trim(), lang: LANG, source: "site:/eor", website: $("eorWebsite").value
+        provisions: provOf(), notes: $("eorNotes").value.trim(), lang: LANG, source: "site:/eor", website: $("eorWebsite").value
       };
+      if (cityId) pl.cityId = cityId;
+      if (sectorId) pl.sectorId = sectorId;
+      return pl;
     }
 
     function done(ref) {
@@ -972,14 +1485,14 @@ ${sv1.footer()}`;
           btn.disabled = false;
           if (x.o.ok && x.o.ref) { done(String(x.o.ref)); return; }
           msg.className = "sv1-eor-msg err";
-          msg.textContent = x.s === 429 ? TX.eRate : TX.eNet;
+          msg.textContent = x.s === 429 ? TX.eRate : x.o.error === "salary_below_min" ? TX.eSalMin : TX.eNet;
         })
         .catch(function () { btn.disabled = false; msg.className = "sv1-eor-msg err"; msg.textContent = TX.eNet; });
     });
   }
 
   const safe = (s) => s.replace(/</g, "\\u003c");
-  const script = `<script>(${eorClient.toString()})(${safe(JSON.stringify(CFG))});</script>`;
+  const script = `<script>window.EORCORE=(${eorCore.toString()})();</script><script>(${eorClient.toString()})(${safe(JSON.stringify(CFG))});</script>`;
 
   return sv1.shell({ title: `${t("title")} — Business Partner`, desc: t("desc"), path: "/eor", body: CSS + body, script });
 }

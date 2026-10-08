@@ -11,6 +11,7 @@ process.env.LOCAL_DB_DIR = fs.mkdtempSync(path.join(os.tmpdir(), "eor-casual-"))
 
 const { default: test } = await import("node:test");
 const { default: assert } = await import("node:assert/strict");
+const { stripCat, cfgFromHtml } = await import("./eor-test-util.mjs");
 const C = await import("../api/_eor-cost.js");
 const E = await import("../api/_eor.js");
 
@@ -342,10 +343,11 @@ test("/eor بالأربع لغات: نوع التعاقد (تعاقد/عمالة
   for (const l of ["ar", "en", "fr", "zh"]) {
     const head = (title) => `<!doctype html><html lang="${l}"><head><meta charset="utf-8"><title>${esc(title)}</title></head>`;
     const sv1 = simpleV1({ lang: () => l, esc, site: {}, head, pathInLang: (p, x) => (x === "en" ? p : "/" + x + p), assetV: (x) => x, knowledge: null });
-    const h = buildSimpleEor(sv1, { lang: () => l, esc });
+    const h0 = buildSimpleEor(sv1, { lang: () => l, esc });
+    const cfg = cfgFromHtml(h0);
+    const h = stripCat(h0);                       // الكتالوج العام خارج فحوص «لا تسعير ولا معامل في الصفحة» (انظر tests/eor-test-util.mjs)
     const s0 = h.indexOf("<script>(function eorClient");
     const client = h.slice(s0, h.indexOf("</script>", s0));
-    const cfg = JSON.parse(h.slice(s0).match(/\)\((\{"lang":.*\})\);<\/script>/s)[1]);
     assert.deepEqual(cfg.units.map((u) => u.id), ["monthly", "daily", "hourly"], l);
     assert.deepEqual(cfg.units.map((u) => u.max), [36, 3650, 10000], l);
     assert.deepEqual([cfg.lim.hMin, cfg.lim.hMax, cfg.lim.hDef], [4, 12, 8], l);

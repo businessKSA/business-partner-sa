@@ -11,6 +11,7 @@ process.env.LOCAL_DB_DIR = fs.mkdtempSync(path.join(os.tmpdir(), "eor-ins-"));
 
 const { default: test } = await import("node:test");
 const { default: assert } = await import("node:assert/strict");
+const { stripCat, cfgFromHtml } = await import("./eor-test-util.mjs");
 const C = await import("../api/_eor-cost.js");
 const E = await import("../api/_eor.js");
 
@@ -330,6 +331,9 @@ CANARY.package_rate.insurance_catalog.classes = { basic: {}, C: { base_yearly_18
 CANARY.package_rate.insurance_catalog.age_bands = { "0-17": 0.91234, "18-29": 1.00123, "30-39": 1.12345, "40-49": 1.43219, "50-59": 1.81234, "60+": 2.51234 };
 CANARY.package_rate.insurance_catalog.gender_factor = { male: 1.00777, female: 1.00888, unspecified: 1.00999 };
 CANARY.package_rate.lump.insurance_yearly = 611.2233;
+// تفصيل السعر للعميل (قرار المالك 2026-10-08) يعرض القسط الشهري للتأمين سطراً مستقلاً عمداً؛ هذه الحالة هي «التفصيل مغلق»: لا قسط ولا فرق داخلي بأي شكل.
+// حالة التفصيل المفتوح (القسط الشهري وحده ظاهر، وبقية القيم الخام محجوبة) في tests/eor-request-form.test.mjs.
+CANARY.package_rate.client_breakdown_visible = false;
 const CANARY_CFG = C.packageRateConfigFromPricing(CANARY);
 const ASK = { insuranceClass: "B", ageBand: "30-39", gender: "female", maternity: true, chronic: true };
 
@@ -406,14 +410,17 @@ test("/eor بالأربع لغات: اختيار الفئة والجنس وال�
   for (const l of ["ar", "en", "fr", "zh"]) {
     const head = (title) => `<!doctype html><html lang="${l}"><head><meta charset="utf-8"><title>${esc(title)}</title></head>`;
     const sv1 = simpleV1({ lang: () => l, esc, site: {}, head, pathInLang: (p, x) => (x === "en" ? p : "/" + x + p), assetV: (x) => x, knowledge: null });
-    const h = buildSimpleEor(sv1, { lang: () => l, esc });
+    const h0 = buildSimpleEor(sv1, { lang: () => l, esc });
+    const cfg = cfgFromHtml(h0);
+    const h = stripCat(h0);                       // الكتالوج العام خارج فحوص «لا تسعير ولا معامل في الصفحة» (انظر tests/eor-test-util.mjs)
     const s0 = h.indexOf("<script>(function eorClient");
     const client = h.slice(s0, h.indexOf("</script>", s0));
-    const cfg = JSON.parse(h.slice(s0).match(/\)\((\{"lang":.*\})\);<\/script>/s)[1]);
     assert.deepEqual(cfg.ins.classes.map((c) => c[0]), ["basic", "C", "B", "A", "quote"], l);
     assert.deepEqual(cfg.ins.ages.map((c) => c[0]), ["0-17", "18-29", "30-39", "40-49", "50-59", "60+"], l);
-    assert.deepEqual(cfg.ins.genders.map((c) => c[0]), ["unspecified", "male", "female"], l);
-    for (const [, label] of [...cfg.ins.classes, ...cfg.ins.ages, ...cfg.ins.genders]) assert.ok(label && label.length >= 1, l);
+    // الجنس صار حقل البند الموحَّد (ذكر | أنثى | لا يهم) خارج كتلة التأمين: تسمياته في tx لا في ins.
+    assert.equal("genders" in cfg.ins, false, l);
+    for (const k of ["gU", "gM", "gF"]) assert.ok(cfg.tx[k] && cfg.tx[k].length >= 1, `${l}.${k}`);
+    for (const [, label] of [...cfg.ins.classes, ...cfg.ins.ages]) assert.ok(label && label.length >= 1, l);
     for (const k of ["insH", "gender", "age", "insClass", "mat", "chr", "pDelta", "perMonth", "pQuoteOnly", "pNeedAge", "pNoMat", "insEst"]) assert.ok(cfg.tx[k] && cfg.tx[k].length >= 2, `${l}.${k}`);
     assert.ok(h.includes('id="eorInsInfo"'), l);
     assert.ok(h.includes(cfg.tx.insEst), l);
@@ -421,7 +428,7 @@ test("/eor بالأربع لغات: اختيار الفئة والجنس وال�
     // العميل: الواجهة لا تحسب شيئاً، تُرسل الاختيار للخادم وتعرض الفرق الذي يعيده
     assert.ok(client.includes("insuranceClass") && client.includes("deltaMonthly") && client.includes('action: "price"'), l);
     assert.equal(/localStorage|sessionStorage/.test(client), false);
-    assert.equal(/margin_|overhead|profit|markup|package_rate|saleMonthly|marginRate|insurance_catalog|base_yearly|group_discount|vat_on|age_bands|gender_factor|chronic_loading|maternity_yearly/i.test(h), false, l);
+    assert.equal(/margin_|overhead|profit|markup|package_rate|saleMonthly|marginRate|insurance_catalog|base_yearly|group_discount|vat_on|age_bands|gender_factor|chronic_loading|maternity_yearly/i.test(stripCat(h)), false, l);
     assert.equal(/\*\s*1\.\d|1\.15|0\.25/.test(client), false, "لا معامل حسابي في سكربت العميل");
     // الأنماط الجديدة بمتغيرات SV1 فقط
     const css = h.slice(h.indexOf('id="sv1-eor-css"'), h.indexOf("</style>", h.indexOf('id="sv1-eor-css"')));

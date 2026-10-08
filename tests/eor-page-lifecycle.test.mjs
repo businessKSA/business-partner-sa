@@ -83,8 +83,8 @@ for (const lang of Object.keys(PAGES)) {
     const h = page(lang);
     const main = h.slice(h.indexOf("<main>"), h.indexOf("</main>"));
     const c = cfgOf(h);
-    // نص الصفحة الظاهر + إعداد الواجهة بلا قائمة المهن (مسمّياتها مثل «مراقب تكاليف» ليست تسعيراً)
-    const { occ, nats, ...cfgRest } = c;
+    // نص الصفحة الظاهر + إعداد الواجهة بلا الكتالوج العام (مسمّيات مثل «مراقب تكاليف» و«Non-profit» ليست تسعيراً)
+    const { cat, ...cfgRest } = c;
     const hay = text(main) + " " + JSON.stringify(cfgRest);
     assert.equal(/\d\s*(﷼|ر\.س|ريال|SAR|riyal)/i.test(text(main)), false, "لا رقم + عملة في الصفحة");
     assert.equal(/معامل|مضاعف|هامش|تكلفة|ربح|multiplier|coefficient|markup|margin|our costs?\b|cost price|\bprofit\b|marge|coût|bénéfice|系数|倍数|利润|成本|毛利/i.test(hay), false, "لا معاملات ولا تكلفة");

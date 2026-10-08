@@ -508,6 +508,10 @@ export function packageRateConfigFromPricing(pricing) {
   return {
     currency: typeof root.currency === "string" && root.currency.trim() ? root.currency.trim() : null,
     clientPriceVisible: root.client_price_visible === true,
+    // تفصيل السعر للعميل (قرار المالك): صارم — true وحدها تفتحه، والغائب/الفاسد مغلق.
+    clientBreakdownVisible: root.client_breakdown_visible === true,
+    limits: salaryLimitsFrom(root.salary_limits),
+    extras: extrasConfigFrom(root.extras),
     appliesTo: Array.isArray(root.applies_to_worker_types) ? root.applies_to_worker_types.filter((x) => typeof x === "string") : [],
     validFrom: isObj(pricing) && typeof pricing.valid_from === "string" ? pricing.valid_from : null,
     validUntil: isObj(pricing) && typeof pricing.valid_until === "string" ? pricing.valid_until : null,
@@ -538,6 +542,106 @@ export function packageRateConfigFromPricing(pricing) {
       overtime: ot(C.overtime),
     },
   };
+}
+
+/* ═════════════ حدّ الراتب الأدنى + السكن والإعاشة والمواصلات + تفصيل السعر للعميل (قرار المالك 2026-10-08) ═════════════
+   كل رقم من package_rate.salary_limits / package_rate.extras (لا ثابت هنا). الفشل مغلق: قيمة فاسدة ⇒ null ⇒ لا حدّ / لا بند.
+   المبالغ الشهرية بالهللة. تفصيل السعر (packageBreakdown) قائمة بيضاء: بنود العميل المعلنة وسطر «رسوم الخدمة» = الإجمالي − ما قبله؛
+   بلا معاملات ولا تكلفة خام ولا تسمية «ربح/هامش/تكلفة». */
+function salaryLimitsFrom(x) {
+  const l = isObj(x) ? x : {};
+  const lim = (v) => (typeof v === "number" && Number.isFinite(v) && v > 0 && v <= MAX_PACKAGE ? v : null);
+  return { saudiMin: lim(l.saudi_min_salary), foreignMin: lim(l.foreign_min_salary) };
+}
+function extrasConfigFrom(x) {
+  const e = isObj(x) ? x : {};
+  const amt = (v) => (typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 100000 ? sarToHalalas(v) : null);
+  const meals = isObj(e.meals) ? e.meals : {};
+  return {
+    housingHalalas: amt(e.housing_monthly), mealsHalalas: amt(e.meals_monthly), transportHalalas: amt(e.transport_monthly),
+    mealsMaxSalary: typeof meals.max_salary === "number" && Number.isFinite(meals.max_salary) && meals.max_salary >= 0 ? meals.max_salary : null,
+  };
+}
+
+// الحدّ الأدنى للراتب لنوع عامل البند. mixed ⇒ الأعلى (حقل راتب واحد للبند يجب أن يحقّق الحدّين)؛ غير ذلك (foreign/unknown) ⇒ حدّ الأجنبي
+// (الأدنى؛ لا نعرف أنه سعودي). → رقم أو null (لا حدّ مُهيَّأ).
+export function salaryMinFor(workerType, limits) {
+  const l = isObj(limits) ? limits : {};
+  const s = typeof l.saudiMin === "number" ? l.saudiMin : null, f = typeof l.foreignMin === "number" ? l.foreignMin : null;
+  if (workerType === "saudi") return s;
+  if (workerType === "mixed") return s === null && f === null ? null : Math.max(s === null ? 0 : s, f === null ? 0 : f);
+  return f;
+}
+
+export const PROVISION_KEYS = Object.freeze(["housing", "meals", "transport"]);
+export const PROVISION_CHOICES = Object.freeze(["client", "us"]);
+// اختيار العميل لكل بند: "us" وحدها تعني «علينا»؛ المجهول/الغائب/غير النص ⇒ "client" (على العميل، بلا إضافة).
+export function normalizeProvisions(raw) {
+  const r = isObj(raw) ? raw : {};
+  const out = {};
+  for (const k of PROVISION_KEYS) out[k] = typeof r[k] === "string" && r[k].trim().toLowerCase() === "us" ? "us" : "client";
+  return out;
+}
+
+// خطة السكن/الإعاشة/المواصلات لبندٍ براتب salary: { status:"ok", items:[{key, halalas}], totalHalalas, mealsSkipped } | { status:"unavailable" }
+// unavailable = اختار العميل «علينا» لبندٍ لا قيمة صالحة له في الإعداد ⇒ لا رقم (المستدعي يعيد pending_pricing). لا اختيار ⇒ ok بلا بنود.
+export function provisionPlan(choice, salary, cfg) {
+  const ch = normalizeProvisions(choice);
+  const ex = isObj(cfg) && isObj(cfg.extras) ? cfg.extras : {};
+  const amountOf = { housing: ex.housingHalalas, meals: ex.mealsHalalas, transport: ex.transportHalalas };
+  const items = [];
+  let mealsSkipped = false;
+  for (const k of PROVISION_KEYS) {
+    if (ch[k] !== "us") continue;
+    const h = amountOf[k];
+    if (!Number.isSafeInteger(h) || h < 0) return { status: "unavailable" };
+    if (k === "meals" && typeof ex.mealsMaxSalary === "number" && typeof salary === "number" && salary > ex.mealsMaxSalary) { mealsSkipped = true; continue; }
+    items.push({ key: k, halalas: h });
+  }
+  return { status: "ok", items, totalHalalas: items.reduce((s, x) => s + x.halalas, 0), mealsSkipped };
+}
+
+// ما تعرضه الواجهة قبل الاختيار («علينا +500 ريال/شهر»): القيم الشهرية بالريال أو null. مغلق إن أُغلق سعر العميل.
+export function provisionDisplayAmounts(cfg) {
+  const ex = isObj(cfg) && isObj(cfg.extras) ? cfg.extras : {};
+  if (!isObj(cfg) || cfg.clientPriceVisible !== true) return { housing: null, meals: null, transport: null };
+  const v = (h) => (Number.isSafeInteger(h) ? h / 100 : null);
+  return { housing: v(ex.housingHalalas), meals: v(ex.mealsHalalas), transport: v(ex.transportHalalas) };
+}
+
+// توزيع القيمة الشهرية على وحدة العمالة المرنة: يوم = ÷ أيام الشهر المرجعي، ساعة = ÷ (أيام الشهر × ساعات اليوم المرجعية). نصف لأعلى لأقرب هللة.
+export function casualProvisionHalalas(monthlyHalalas, unit, casualCfg) {
+  const k = isObj(casualCfg) ? casualCfg : {};
+  if (unit === "monthly") return monthlyHalalas;
+  const days = k.refMonthDays, hrs = k.refHoursPerDay;
+  if (!Number.isInteger(days) || days < 1) return null;
+  if (unit === "daily") return mulDivHalfUp(monthlyHalalas, 1, days);
+  if (!Number.isInteger(hrs) || hrs < 1) return null;
+  return mulDivHalfUp(monthlyHalalas, 1, days * hrs);
+}
+
+// بنود التفصيل المؤجلة (تُضاف في مهمة لاحقة من بيانات الأنظمة): مفاتيح فقط بلا أرقام. تدخل الآن ضمن «رسوم الخدمة».
+export const DEFERRED_BREAKDOWN = Object.freeze(["end_of_service", "tickets", "leave", "social_insurance", "government_fees"]);
+
+// تفصيل السعر الشهري للموظف الواحد للعميل (قائمة بيضاء حقلاً حقلاً). result: ناتج computePackageRate (lump، ok). plan: provisionPlan (ok).
+// الأسطر: salary · insurance (فئة وشركة كما طُبِّقتا فعلاً) · housing/meals/transport حين «علينا» فقط · service (= الإجمالي − ما قبله).
+// مجموع الأسطر = السعر الشهري الذي يراه العميل بالتمام (الهللة). مغلق (clientBreakdownVisible≠true) ⇒ null.
+export function packageBreakdown(result, plan, cfg) {
+  if (!isObj(cfg) || cfg.clientBreakdownVisible !== true || cfg.clientPriceVisible !== true) return null;
+  if (!isObj(result) || result.status !== "ok" || result.mode !== "lump" || !isObj(result.internal) || !isObj(result.internal.lines)) return null;
+  if (!isObj(plan) || plan.status !== "ok" || !Number.isFinite(result.billable)) return null;
+  const salaryH = sarToHalalas(result.package), insH = sarToHalalas(result.internal.lines.insurance);
+  const billableH = sarToHalalas(result.billable);
+  const serviceH = Math.max(0, billableH - salaryH - insH);
+  const ins = isObj(result.insurance) ? result.insurance : null;
+  const applied = !!ins && ins.status === "applied";
+  const lines = [
+    { key: "salary", amount: salaryH / 100 },
+    { key: "insurance", amount: insH / 100, class: applied && INSURANCE_CLASSES.includes(ins.class) ? ins.class : "basic", insurer: applied ? normalizeInsurerId(ins.insurer) : DEFAULT_INSURER },
+    ...plan.items.map((x) => ({ key: x.key, amount: x.halalas / 100 })),
+    { key: "service", amount: serviceH / 100 },
+  ];
+  return { lines, deferred: [...DEFERRED_BREAKDOWN] };
 }
 
 const OT_FIELDS = ["monthDays", "hoursPerDay", "multiplier", "extraFactor"];

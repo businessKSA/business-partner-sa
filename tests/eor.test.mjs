@@ -413,14 +413,29 @@ const cfgOf = (h) => {
   return JSON.parse(m[1]);
 };
 
-test("/eor: قائمة المهن المدمجة = id + عربي + إنجليزي فقط (٢٩٧ مهنة)، والجنسيات من القائمة المدمجة", () => {
+const CATALOG = JSON.parse(fs.readFileSync(path.join(ROOT, "api/_eor-catalogs.json"), "utf8"));
+
+test("/eor: الكتالوج المضغوط في الصفحة = معرّفات الفهرس وأسماؤه فقط (١٠٠٦ مهنة، ٢٥٠ دولة، ١٧٠ مدينة، ١١٨ قطاعاً، ٩ مستويات) بلغة الصفحة", () => {
   for (const lang of Object.keys(PAGES)) {
     const c = cfgOf(page(lang));
     assert.equal(c.lang, lang);
-    assert.equal(c.occ.length, 297);
-    assert.ok(c.occ.every((o) => Array.isArray(o) && o.length === 3 && typeof o[0] === "string" && typeof o[1] === "string" && typeof o[2] === "string"));
-    assert.deepEqual(c.occ.map((o) => o[0]).sort(), OCCUPATIONS.map((o) => o.id).sort());
-    assert.equal(c.nats.length, E.NATIONALITIES.length);
+    const cat = c.cat;
+    assert.deepEqual(Object.keys(cat).sort(), ["cities", "nats", "occ", "regions", "sectors", "sen"]);
+    assert.equal(cat.occ.length, 1006);
+    assert.ok(cat.occ.every((o) => Array.isArray(o) && o.length === 4 && typeof o[0] === "string" && typeof o[1] === "string" && typeof o[2] === "string" && Number.isInteger(o[3])));
+    assert.deepEqual(cat.occ.map((o) => o[0]).sort(), CATALOG.occupations.map((o) => o.id).sort());
+    assert.equal(cat.nats.length, 250);
+    assert.deepEqual(cat.nats.map((n) => n[0]), CATALOG.countries.map((n) => n.code));
+    assert.ok(cat.nats.some((n) => n[0] === "SA"), "السعودية ضمن الخيارات");
+    assert.equal(cat.cities.length, 170);
+    assert.equal(cat.regions.length, 13);
+    assert.equal(cat.sectors.length, 118);
+    assert.deepEqual(cat.sen.map((s) => s[0]), CATALOG.seniority.slice().sort((a, b) => a.order - b.order).map((s) => s.id));
+    // أسماء الدول بلغة الصفحة من الفهرس (ar/en/fr/zh)
+    const sa = cat.nats.find((n) => n[0] === "SA");
+    assert.equal(sa[1], CATALOG.countries.find((x) => x.code === "SA")[lang]);
+    // مدخلات الدول: [الرمز، الاسم، أسماء اللغات الأخرى، الأولوية]
+    assert.ok(cat.nats.every((n) => n.length === 4 && Number.isInteger(n[3])));
     assert.deepEqual(c.lim, { maxItems: 20, maxTotal: 500, maxItemCount: 500, maxMonths: E.EOR_LIMITS.maxMonths, maxSalary: 100000, maxNats: 10, hMin: 4, hMax: 12, hDef: 8 });
   }
 });
@@ -428,8 +443,11 @@ test("/eor: قائمة المهن المدمجة = id + عربي + إنجليز�
 test("الصفحة العامة لا تحوي أي شيء من الخريطة الخاصة (_occupation-map.json)", () => {
   const map = JSON.parse(fs.readFileSync(path.join(ROOT, "api/_occupation-map.json"), "utf8"));
   // أسماء المجالات (SECTORS) عامّة ومعروضة في القائمة عمداً؛ بعضها مفتاحٌ شائع في الخريطة («human resources») فلا يُعدّ تسرّباً.
+  // وأسماء فهرس النموذج (api/_eor-catalogs.json: دول ومدن وقطاعات ومستويات ومهن) عامّة كذلك: معروضة في الصفحة عمداً.
+  const catNames = [CATALOG.countries.map((x) => [x.code, x.ar, x.en, x.fr, x.zh].join(" ")), CATALOG.cities.map((x) => [x.id, x.ar, x.en].join(" ")), CATALOG.regions.map((x) => [x.ar, x.en].join(" ")),
+    CATALOG.sectors.map((x) => [x.id, x.ar, x.en].join(" ")), CATALOG.seniority.map((x) => [x.id, x.ar, x.en].join(" ")), CATALOG.occupations.map((o) => [o.id, o.ar, o.en].join(" "))].flat().join(" ").toLowerCase();
   const publicNames = OCCUPATIONS.map((o) => (o.id + " " + o.nameAr + " " + o.nameEn).toLowerCase()).join(" ")
-    + " " + E.SECTORS.map((x) => [x.ar, x.en, x.fr, x.zh].join(" ")).join(" ").toLowerCase();
+    + " " + E.SECTORS.map((x) => [x.ar, x.en, x.fr, x.zh].join(" ")).join(" ").toLowerCase() + " " + catNames;
   const secrets = Object.keys(map.map).filter((k) => k.length >= 10 && !publicNames.includes(k)).slice(0, 2000);
   assert.ok(secrets.length > 500, "عيّنة كافية من المسمّيات الخاصة");
   for (const lang of Object.keys(PAGES)) {
@@ -524,18 +542,14 @@ test("عمود «المجال» غائب في Notion: يُسقَط وحده وي
 });
 
 for (const lang of Object.keys(PAGES)) {
-  test(`/eor (${lang}): قائمة «مجال النشاط» ٢٦ مجالاً + «غير محدد»، بتسميات اللغة، والإرسال يحمل sector`, () => {
+  test(`/eor (${lang}): «القطاع» حقل إكمال تلقائي (١١٨ قطاعاً) بدل القائمة الثابتة، والإرسال يحمل sectorId`, () => {
     const h = page(lang);
-    const m = h.match(/<select class="sv1-eor-in" id="eorSector">(.*?)<\/select>/s);
-    assert.ok(m, "select موجود");
-    const opts = [...m[1].matchAll(/<option value="([^"]*)">([^<]*)<\/option>/g)].map((x) => [x[1], x[2]]);
-    assert.equal(opts.length, 27);
-    assert.equal(opts[0][0], "");
-    assert.deepEqual(opts.slice(1).map((o) => o[0]), E.SECTORS.map((x) => x.id));
-    const decode = (s) => s.replace(/&#39;/g, "'").replace(/&amp;/g, "&");
-    assert.deepEqual(opts.slice(1).map((o) => decode(o[1])), E.SECTORS.map((x) => x[lang]));
+    assert.equal(/<select class="sv1-eor-in" id="eorSector">/.test(h), false, "لا select ثابتة");
+    assert.ok(/<input class="sv1-eor-in" id="eorSector"[^>]*role="combobox"/.test(h), "حقل إكمال تلقائي");
     const label = h.match(/<label for="eorSector">([^<]*)<\/label>/);
     assert.ok(label && label[1].trim(), "تسمية");
-    assert.ok(/sector: \$\("eorSector"\)\.value/.test(h), "الحمولة تحمل sector");
+    const c = cfgOf(h);
+    assert.deepEqual(c.cat.sectors.map((x) => x[0]), CATALOG.sectors.map((x) => x.id));
+    assert.ok(/if \(sectorId\) pl\.sectorId = sectorId/.test(h), "الحمولة تحمل sectorId");
   });
 }

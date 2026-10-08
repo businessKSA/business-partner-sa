@@ -11,6 +11,7 @@ process.env.LOCAL_DB_DIR = fs.mkdtempSync(path.join(os.tmpdir(), "eor-pkg-"));
 
 const { default: test } = await import("node:test");
 const { default: assert } = await import("node:assert/strict");
+const { stripCat, cfgFromHtml } = await import("./eor-test-util.mjs");
 const C = await import("../api/_eor-cost.js");
 const E = await import("../api/_eor.js");
 
@@ -226,12 +227,12 @@ test("estimatePackageQuote: أجنبي براتب ⇒ سعر شهري للموظ
 });
 
 test("estimatePackageQuote: بلا راتب/سعودي/مختلط/غير محسوم لا رقم مخمَّن، والبنود المختلطة partial", () => {
-  const q = E.estimatePackageQuote([IT(1, ["IN"], 2000), IT(2, ["IN"], null), IT(1, ["SA"], 3000), IT(1, ["SA", "IN"], 3000), IT(1, [], 2500)], PRICING, { workerType: "both", now: NOW });
+  const q = E.estimatePackageQuote([IT(1, ["IN"], 2000), IT(2, ["IN"], null), IT(1, ["SA"], 5000), IT(1, ["SA", "IN"], 5000), IT(1, [], 2500)], PRICING, { workerType: "both", now: NOW });
   assert.equal(q.status, "partial");
   assert.deepEqual(q.lines.map((l) => l.status), ["priced", "needs_salary", "not_applicable", "needs_review", "needs_review"]);
   assert.equal(q.monthlyTotal, 4820);
   for (const l of q.lines.slice(1)) assert.equal("monthlyPerEmployee" in l, false);
-  const saudi = E.estimatePackageQuote([IT(1, [], 3000)], PRICING, { workerType: "saudi", now: NOW });
+  const saudi = E.estimatePackageQuote([IT(1, [], 5000)], PRICING, { workerType: "saudi", now: NOW });
   assert.equal(saudi.status, "none");
   assert.equal(saudi.lines[0].status, "not_applicable");
   assert.equal("monthlyTotal" in saudi, false);
@@ -422,12 +423,14 @@ test("canaries: الصفحات الأربع المولَّدة لـ/eor (HTML و
   for (const rel of ["site/eor.html", "site/ar/eor.html", "site/fr/eor.html", "site/zh/eor.html"]) {
     const f = path.join(ROOT, rel);
     if (!fs.existsSync(f)) continue;       // الصفحات تُولَّد بـnpm run build
-    const h = fs.readFileSync(f, "utf8");
+    const h0 = fs.readFileSync(f, "utf8");
+    const cfg = h0.match(/<script>\(function eorClient[\s\S]*?\)\((\{[\s\S]*?\})\);<\/script>/);
+    assert.ok(cfg, rel + " كتلة الإعداد");
+    // مفاتيح الكتلة: الكتالوج العام (cat) والقيم المسبقة للمدة (pre) صارا فيها؛ لا مفتاح تسعير.
+    assert.deepEqual(Object.keys(JSON.parse(cfg[1])).sort(), ["cat", "ins", "lang", "lim", "pre", "tx", "units"], rel + " مفاتيح كتلة الإعداد ثابتة");
+    const h = stripCat(h0);                       // الكتالوج العام (أسماء مهن وقطاعات) خارج فحوص التسعير
     assertClean(rel, h, sec);
     for (const n of realNums) assert.equal(h.includes(n), false, `${rel}: ${n}`);
-    const cfg = h.match(/<script>\(function eorClient[\s\S]*?\)\((\{[\s\S]*?\})\);<\/script>/);
-    assert.ok(cfg, rel + " كتلة الإعداد");
-    assert.deepEqual(Object.keys(JSON.parse(cfg[1])).sort(), ["ins", "lang", "lim", "nats", "occ", "tx", "units"], rel + " مفاتيح كتلة الإعداد ثابتة");
     assert.equal(/package_rate|pricing\.json|_eor-pricing/.test(h), false, rel);
   }
 });
@@ -446,7 +449,7 @@ test("/eor: السكربت يسأل الخادم action=price ويعرض الس�
   for (const l of ["ar", "en", "fr", "zh"]) {
     const head = (title) => `<!doctype html><html lang="${l}"><head><meta charset="utf-8"><title>${esc(title)}</title></head>`;
     const sv1 = simpleV1({ lang: () => l, esc, site: {}, head, pathInLang: (p, x) => (x === "en" ? p : "/" + x + p), assetV: (x) => x, knowledge: null });
-    const h = buildSimpleEor(sv1, { lang: () => l, esc });
+    const h = stripCat(buildSimpleEor(sv1, { lang: () => l, esc }));      // الكتالوج العام خارج فحوص «لا تسعير في الصفحة»
     const s0 = h.indexOf("<script>(function eorClient");
     const client = h.slice(s0, h.indexOf("</script>", s0));
     assert.ok(client.includes('action: "price"') && client.includes("monthlyPerEmployee") && client.includes("otHour"), l);
