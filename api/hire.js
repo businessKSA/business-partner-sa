@@ -237,6 +237,10 @@ async function authorize(req, b, task) {
   if (acct && acct.code) {
     return {
       ok: true, kind: "employer", owner: !!acct.owner, code: acct.code,
+      // اشتراكٌ فعّال يفتح بيانات قاعدة المواهب (انظر `sub` فوق resolvePlan في
+      // api/candidates.js). غيابها أو أي قيمة غير `true` = الحجب: الحساب المجاني
+      // يعمل على متقدّمي إعلاناته فقط.
+      sub: acct.sub === true,
       subject: employerSubject(acct.code),
       company: acct.company || "", plan: acct.plan || "",
     };
@@ -508,6 +512,10 @@ async function handleScore(req, res, b, auth) {
     // 404 لا 403، وبالكلمة نفسها التي يعطيها ?applicant=1: «ليس لك» تُخبر
     // السائل أن الصفّ موجود، فتصير النقطة أداةَ تحقّقٍ من وجود مرشّحٍ بمعرّفه.
     const ofMine = !ownJobs || (!!row.stamp && ownJobs.has(row.stamp.key));
+    // بلا اشتراك: متقدّمو إعلاناتك وحدهم. مرشّح القاعدة لا يُنادى له نموذج: المبرّر
+    // الذي يكتبه من السيرة يعيد للحساب المجاني ما حُجب عنه (اسماً أو جهة عمل).
+    // ما يُعرض له من نسبة مطابقة مرشّحي القاعدة هو المخزَّن فقط، من القائمة.
+    if (!ofMine && !auth.sub) return { id, ok: false, error: "subscription_required" };
     if (!ofMine && !poolScoringOn()) {
       console.warn("score refused: candidate is not on caller's posting");
       return { id, ok: false, error: "not_found" };
@@ -622,6 +630,15 @@ export default async function handler(req, res) {
       ok: false, error: "locked",
       message: "هذه الأداة لأصحاب العمل المشتركين — ادخل بحسابك أو فعّل اشتراكك.",
     }));
+  }
+
+  // summary · interview · outreach تعمل على بيانات مرشّحٍ من قاعدة المواهب، وهي
+  // بابٌ لمن اشترك. صاحب العمل بلا اشتراك يقدّر على jobdesc وعلى تقييم متقدّمي
+  // إعلاناته (score) ومطابقة القائمة (match)، لا على كتابة رسالةٍ لمرشّحٍ لا يملك
+  // تواصله ولا ملخّصٍ لسيرةٍ لا يراها.
+  if (auth.kind === "employer" && !auth.sub && ["summary", "interview", "outreach"].includes(task)) {
+    res.statusCode = 403;
+    return res.end(JSON.stringify({ ok: false, error: "subscription_required", message: "هذه الأداة تعمل على بيانات المرشحين وتُفتح بالاشتراك." }));
   }
 
   const q = await quota(auth);

@@ -16,7 +16,7 @@
 
 import { WORKSHOP_JDS } from "../lib/workshop-jds.js";
 import { DB_ON, getSession, sb, sha256 } from "./_db.js";
-import { bdTrial, openFor } from "./_trial.js";
+import { bdTrial, isOwnerEmail, openFor } from "./_trial.js";
 // فحص جودة نصّ السيرة (skeleton / garbled / empty): ملكُ recruitment-candidate، يُستورد
 // ولا يُنسخ — فلا يختلف حكمان على «هذه سيرة مقروءة» بين الاستيعاب والعرض.
 import { cvTextQuality } from "./candidate.js";
@@ -873,7 +873,18 @@ const maskName = (n) => {
 // Shared row → API-shape mapper for both the list/browse scan and the
 // single-candidate detail lookup, so the two never drift out of sync on
 // what fields exist or how locked/unlocked masking works.
-function mapCandidate(pg, unlocked, opts) {
+//
+// ثلاث طبقات، والفرق بينها مقصود (قرار المالك 2026-10-08: التسجيل مجاني والبيانات
+// بالاشتراك):
+//   unlocked=true   اشتراكٌ فعّال (أو المالك): كل شيء.
+//   opts.free       حساب صاحب عملٍ بلا اشتراك: ما يراه الزائر العام نفسه تماماً
+//                   **دون** الأحرف الأولى من الاسم ودون وسم الشريك — والاسم فارغ
+//                   والواجهة تموّه. الجنسية الكاملة تُضاف لأنها مما يُباع للحساب
+//                   المجاني. لا بريد ولا جوال ولا رابط سيرة ولا نصّها بحال.
+//   غير ذلك         زائرٌ عام: الأحرف الأولى كما كان.
+// وحقول المقابلة والمرحلة (رابط المقابلة ومكانها…) للمشترك وحده: كانت تخرج للزائر
+// العام في ?id= لأن كتلتها قبل شرط unlocked، وهي ليست من «ما يراه الزائر».
+export function mapCandidate(pg, unlocked, opts) {
   opts = opts || {};
   const p = pg.properties || {};
   // "Candidate Name" is often an auto-transliterated guess (esp. for
@@ -912,7 +923,7 @@ function mapCandidate(pg, unlocked, opts) {
     // تاريخ التسجيل في القاعدة: للترتيب «الأحدث أولاً» المعروض، وللقائمة كذلك.
     registered: pg.created_time || "",
   };
-  if (opts.full) {
+  if (opts.full && unlocked) {
     rec.interviewDate = p["Interview Date"] && p["Interview Date"].date ? p["Interview Date"].date.start : "";
     rec.hiredDate = p["Hired Date"] && p["Hired Date"].date ? p["Hired Date"].date.start : "";
     rec.pipelineStage = txt(p["Pipeline Stage"]);
@@ -949,6 +960,12 @@ function mapCandidate(pg, unlocked, opts) {
     // صفّ — يُجلب مع ملفّ الواحد. وبقي في القائمة القديمة (بلا limit) كما كان،
     // فصفحاتٌ لا نملكها تقرؤه منها.
     if (opts.full || opts.cvInList) rec.cvText = txt(p["ATS CV Text"]);
+  } else if (opts.free) {
+    rec.name = "";
+    rec.locked = true;
+    rec.nationality = normNationality(txt(p["Nationality"]));
+    // «من أين جاء المرشّح» وسمٌ داخلي: لا يخرج لصاحب عمل مشترك فكيف بالمجاني.
+    delete rec.viaPartner;
   } else {
     rec.name = maskName(primary);
   }
@@ -1025,7 +1042,15 @@ function tooManyAttempts(res) {
   return res.end(JSON.stringify({ ok: false, error: "too_many_attempts" }));
 }
 
-// Resolve a subscription code → { unlocked, plan }. Checks the owner override,
+// ── «الدخول» غير «البيانات» (قرار المالك 2026-10-08) ──────────────────────────
+// `unlocked` = تُفتح اللوحة: إعلاناتي ومتقدّموها. و`sub` = اشتراكٌ فعّال يفتح
+// **بيانات قاعدة المواهب** (الاسم والبريد والجوال والسيرة). كانا شيئاً واحداً:
+// جلسة أي عميلٍ كانت تفتح اللوحة (BP_OPEN_ACCESS) فتفتح معها بيانات كل المرشحين.
+// الآن `sub` لا تُمنح إلا من ثلاثة: صفٌّ «مفعّل» حُلّ من الجلسة، أو رمزٌ يطابق
+// صفاً مفعّلاً (resolvePlan)، أو المالك. وغيابها = الحجب: كل مسارٍ يقرأ
+// `sub === true` صراحةً، فحقلٌ ناقص أو خلل في نوشن أو رمزٌ منتهٍ يعني الحجب لا الفتح.
+//
+// Resolve a subscription code → { unlocked, sub, plan }. Checks the owner override,
 // then the static EMPLOYER_CODES env (legacy), then the Employers Notion DB
 // for an ACTIVE row by access code.
 //
@@ -1040,8 +1065,8 @@ export async function resolvePlan(code, req) {
   // Access codes are treated case-insensitively — "Demo123"/"DEMO123"/"demo123"
   // all resolve the same way, matching how the front-end already normalizes
   // its own client-only demo trigger codes.
-  if (OWNER_CODE && code.toLowerCase() === OWNER_CODE.toLowerCase()) return { unlocked: true, plan: "مؤسسية", owner: true };
-  if (CODES.some((c) => c.toLowerCase() === code.toLowerCase())) return { unlocked: true, plan: "" };
+  if (OWNER_CODE && code.toLowerCase() === OWNER_CODE.toLowerCase()) return { unlocked: true, sub: true, plan: "مؤسسية", owner: true };
+  if (CODES.some((c) => c.toLowerCase() === code.toLowerCase())) return { unlocked: true, sub: true, plan: "" };
   try {
     const r = await fetch(`https://api.notion.com/v1/databases/${EMP_DB}/query`, {
       method: "POST",
@@ -1062,7 +1087,7 @@ export async function resolvePlan(code, req) {
         // The platform owner's account (matched by registered email) also owns
         // the site's own vacancies — see the SITE_ROLES append in list-postings.
         const email = (row.properties && row.properties["البريد"] && row.properties["البريد"].email) || "";
-        return { unlocked: true, plan: (p && p.name) || "", owner: email.toLowerCase() === OWNER_EMAIL };
+        return { unlocked: true, sub: true, plan: (p && p.name) || "", owner: email.toLowerCase() === OWNER_EMAIL };
       }
       // نوشن أجابت ولا صفّ: هذا وحده «تخمينٌ فاشل». تعذّر السؤال (أدناه) لا يُحسب.
       if (req) await noteCodeMiss(req);
@@ -1086,10 +1111,14 @@ export async function portalUnlock(req) {
     const sess = await getSession(req);
     const org = sess && sess.organization;
     if (!org || !org.id) return null;
-    if (openFor(sess)) return { unlocked: true, plan: "مفتوح لحسابك", code: "org:" + org.id, days: null, portal: true, open: true };
+    // `sub` هنا للمالك/الفريق وحدهم (OWNER_EMAILS): جلسة عميلٍ مفتوحة أو في التجربة
+    // تفتح اللوحة ولا تفتح بيانات المرشحين. الفتح العام (OPEN_ACCESS) سياسةٌ
+    // لبوابات العميل لا لبنك السير.
+    const staff = isOwnerEmail(sess && sess.user && sess.user.email);
+    if (openFor(sess)) return { unlocked: true, sub: staff, plan: "مفتوح لحسابك", code: "org:" + org.id, days: null, portal: true, open: true };
     const t = bdTrial(org, false);
     if (t.state !== "trial") return null;
-    return { unlocked: true, plan: "تجربة مجانية", code: "org:" + org.id, days: t.days, portal: true };
+    return { unlocked: true, sub: staff, plan: "تجربة مجانية", code: "org:" + org.id, days: t.days, portal: true };
   } catch { return null; }
 }
 
@@ -1177,7 +1206,7 @@ async function employerRowFor(req) {
     return {
       email, reason: "ok",
       account: {
-        unlocked: true, account: true, code,
+        unlocked: true, sub: true, account: true, code,
         plan: txt(p["الباقة"]),
         company: txt(p["اسم الشركة"]),
         owner: email === OWNER_EMAIL,
@@ -1719,26 +1748,33 @@ export default async function handler(req, res) {
   // الوحيد الذي يرى ما وراء إعلاناته — كما في handlePostings تماماً. كان
   // مفقوداً هنا، فلم يكن لمسار GET وسيلةٌ للتمييز أصلاً.
   let unlocked = false, plan = "", owner = false;
+  // `sub`: اشتراكٌ فعّال يفتح بيانات قاعدة المواهب. يبدأ مغلقاً ولا يُفتح إلا بقيمةٍ
+  // صريحة `true` من مصدرٍ موثوق (انظر الشرح فوق resolvePlan).
+  let sub = false;
   // انظر التعليق على code:"self" في handlePostings — الرمز يُحلّ في الخادم من
   // البريد المُثبت ولا يُعاد إلى المتصفّح في أي ردّ.
   let account = null, empState = null;
   if (code === "self") {
     empState = await employerRowFor(req);
     account = empState.reason === "ok" ? empState.account : null;
-    if (account) { unlocked = true; plan = account.plan; code = account.code; owner = !!account.owner; }
+    if (account) { unlocked = true; sub = account.sub === true; plan = account.plan; code = account.code; owner = !!account.owner; }
     else code = "";
   } else if (code && !code.startsWith("org:")) {
     const pl = await resolvePlan(code, req);
     if (pl.limited) return tooManyAttempts(res);
     ({ unlocked, plan, owner = false } = pl);
+    sub = pl.sub === true;
   }
   let portal = null;
   if (!unlocked) {
     portal = await portalUnlock(req);
     // جلسة عميلٍ مفتوحة ليست ملكيةً للمنصّة: تفتح اللوحة برمز org:<id> ولا
     // تملك إعلاناً واحداً، فلا ترى متقدّمي أحد. owner يبقى false عمداً.
-    if (portal) { unlocked = true; plan = portal.plan; code = portal.code; }
+    if (portal) { unlocked = true; sub = portal.sub === true; plan = portal.plan; code = portal.code; }
   }
+  // الطبقة التي يُخدَم بها هذا الطالب في كل مسارٍ يعرض مرشّحي القاعدة:
+  //   full   اشتراك · free  داخلٌ بلا اشتراك (أسماء مُقنَّعة) · public  زائرٌ عام.
+  const tier = sub ? "full" : (unlocked ? "free" : "public");
 
   // Lightweight code check (?validate=1&code=…) for the login page and the
   // dashboard's saved-code revalidation — one Employers-DB lookup instead of
@@ -1757,7 +1793,7 @@ export default async function handler(req, res) {
     // عندها تُفتح البوابة فعلاً، لكن الإعلانات المنشورة برمز الاشتراك لا
     // تظهر فيها — وهذا هو الصمت الذي يبدو «لوحةً فارغة» بلا سبب، فيُقال.
     return res.end(JSON.stringify({
-      ok: true, unlocked, plan,
+      ok: true, unlocked, sub, plan,
       ...(account ? { account: true, company: account.company } : {}),
       ...(portal ? { portal: true, code: portal.code, days: portal.days } : {}),
       ...(empState && empState.reason !== "ok" && empState.reason !== "no_session"
@@ -1978,9 +2014,9 @@ export default async function handler(req, res) {
       return res.end(JSON.stringify({ ok: false, error: "not_found" }));
     }
     // نصّ السيرة من حقل «ATS CV Text» (mapCandidate يضعه): لا صفّ مقروءٌ بلا نصّه.
-    const cand = mapCandidate(pdata, unlocked, { full: true });
+    const cand = mapCandidate(pdata, sub, { full: true, free: tier === "free" });
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, unlocked, plan, candidate: cand }));
+    return res.end(JSON.stringify({ ok: true, unlocked: sub, ...(tier === "free" ? { free: true } : {}), plan, candidate: cand }));
   }
 
   // ── قائمة المرشحين: قاعدة المواهب ──────────────────────────────────────────
@@ -2006,8 +2042,8 @@ export default async function handler(req, res) {
   const pagedN = Number(url.searchParams.get("limit"));
   // الزائر العام (لم يُفتح له) **مصفَّحٌ دائماً**: لا مسحَ كاملاً لقاعدة المرشحين من طلبٍ
   // مجهول. الافتراضي ٣٠ والأقصى ٥٠ (لصاحب العمل المفتوح له: الأقصى ١٠٠ كما كان).
-  const paged = !unlocked || (Number.isFinite(pagedN) && pagedN > 0);
-  const pageCap = unlocked ? 100 : 50;
+  const paged = !sub || (Number.isFinite(pagedN) && pagedN > 0);
+  const pageCap = sub ? 100 : 50;
   const pageSize = paged
     ? Math.max(1, Math.min(pageCap, Number.isFinite(pagedN) && pagedN > 0 ? Math.round(pagedN) : 30))
     : 100;
@@ -2082,10 +2118,10 @@ export default async function handler(req, res) {
   let qMatch = null;
   if (paged && qText) {
     const rawQ = (url.searchParams.get("q") || "").trim();
-    if (!unlocked && looksLikeContact(rawQ)) impossible = true;
+    if (!sub && looksLikeContact(rawQ)) impossible = true;
     else {
-      andFilters.push(orOf(queryConds(qExp, rawQ, unlocked)));
-      if (!unlocked) {
+      andFilters.push(orOf(queryConds(qExp, rawQ, sub)));
+      if (!sub) {
         qMatch = (p) => termsMatch(scrubContact(txt(p["Original Position"]) + " | " + txt(p["Skills"])), qExp.terms);
       }
     }
@@ -2118,7 +2154,7 @@ export default async function handler(req, res) {
 
   try {
     if (impossible) {
-      return res.end(JSON.stringify({ ok: true, unlocked, plan, total: 0, ...(paged ? { totalApprox: false } : {}), candidates: [], nextCursor: null, done: true, ...(paged ? { poolTotal: null } : {}) }));
+      return res.end(JSON.stringify({ ok: true, unlocked: sub, ...(tier === "free" ? { free: true } : {}), plan, total: 0, ...(paged ? { totalApprox: false } : {}), candidates: [], nextCursor: null, done: true, ...(paged ? { poolTotal: null } : {}) }));
     }
 
     if (paged) {
@@ -2128,18 +2164,29 @@ export default async function handler(req, res) {
       // مطابقة `q` على ما يراه الزائر العام).
       const keep = (pg) => isReadable(pg.properties) && (!qMatch || qMatch(pg.properties));
       const mapOne = (pg) => {
-        const rec = mapCandidate(pg, unlocked);
+        const p0 = pg.properties || {};
+        const st0 = jobCrit ? applicantStamp(p0) : null;
+        // من تقدّم على الإعلان المختار (?forJob= يُتحقَّق أنه إعلانك) هو متقدّمُك: يظهر
+        // لك باسمه وإن لم تشترك — هو الذي يعيده ?applicants=1 لك أصلاً. الحجب يخص
+        // مرشّحي القاعدة. ولا يُوسَّع إلى «أي متقدّم على أي إعلان» هنا: القائمة
+        // العامة لا تجلب ملكية الإعلانات.
+        const asApplicant = tier === "free" && !!(st0 && st0.key === jobKey0);
+        const open = sub || asApplicant;
+        const rec = mapCandidate(pg, open, { free: tier === "free" && !asApplicant });
         if (jobCrit) {
-          const p = pg.properties || {};
+          const p = p0;
           rec.checks = checkRow(jobCrit, {
             field: rec.field, city: rec.city, experience: expYears(p), role: rec.role, nationalityType: rec.nationalityType,
           }).checks;
-          const st = applicantStamp(p);
-          rec.applied = !!(st && st.key === jobKey0);
+          rec.applied = !!(st0 && st0.key === jobKey0);
           const o = ownedScore(p, ownJobsM);
           if (o.score != null && o.job === jobKey0 && o.scoreFrom === "field" && o.reason) {
             const cf = confidenceOf({ cvLen: txt(p["ATS CV Text"]).trim().length, ...rec });
-            rec.match = { score: o.score, reason: o.reason, at: o.scoredAt, for: o.scoredFor, confidence: cf.level, confidenceWhy: cf.why };
+            // الحساب المجاني يرى النسبة وثقتها، لا السبب: المبرّر نصٌّ كتبه النموذج من
+            // السيرة كاملةً وقد يقتبس منها ما يعرّف صاحبها.
+            rec.match = open
+              ? { score: o.score, reason: o.reason, at: o.scoredAt, for: o.scoredFor, confidence: cf.level, confidenceWhy: cf.why }
+              : { score: o.score, confidence: cf.level, locked: true };
           }
         }
         return rec;
@@ -2177,7 +2224,7 @@ export default async function handler(req, res) {
       else if (!startCursor && !next) { total = rows.length; totalApprox = false; }
       res.statusCode = 200;
       return res.end(JSON.stringify({
-        ok: true, unlocked, plan, ...(total !== undefined ? { total, totalApprox } : {}), candidates: rows,
+        ok: true, unlocked: sub, ...(tier === "free" ? { free: true } : {}), plan, ...(total !== undefined ? { total, totalApprox } : {}), candidates: rows,
         nextCursor: next, done: !next,
         poolTotal, ...(poolTotal != null ? { poolTotalAt, poolTotalStale } : {}),
         ...(jobCrit ? { criteria: {
@@ -2213,7 +2260,7 @@ export default async function handler(req, res) {
       cursor = data.next_cursor;
       if (Date.now() > deadline) { truncated = true; break; }
     }
-    let rows = results.filter((pg) => isReadable(pg.properties)).map((pg) => mapCandidate(pg, unlocked, { cvInList: true }));
+    let rows = results.filter((pg) => isReadable(pg.properties)).map((pg) => mapCandidate(pg, sub, { cvInList: true, free: tier === "free" }));
 
     // Free-text search across role/skills/field — no clean single Notion
     // filter for an OR-across-properties "contains" on a select, so in the
@@ -2226,7 +2273,7 @@ export default async function handler(req, res) {
     // entire filtered pool — the count it displays keeps climbing to the real
     // total instead of silently freezing on whatever fit in one time budget.
     return res.end(JSON.stringify({
-      ok: true, unlocked, plan, total: rows.length, candidates: rows,
+      ok: true, unlocked: sub, ...(tier === "free" ? { free: true } : {}), plan, total: rows.length, candidates: rows,
       nextCursor: cursor || null, done: !cursor && !truncated,
     }));
   } catch (e) {

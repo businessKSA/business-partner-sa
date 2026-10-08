@@ -327,6 +327,7 @@ import { buildSimpleTrips } from "./simple-v1-trips.mjs";
 import { buildSimpleHiring } from "./simple-v1-hiring.mjs";
 import { buildSimpleEor } from "./simple-v1-eor.mjs";
 import { buildSimpleVendor } from "./simple-v1-vendor.mjs";
+import { buildSimpleHr } from "./simple-v1-hr.mjs";
 import { buildSimpleEmployer } from "./simple-v1-employer.mjs";
 import { careersBody } from "./simple-v1-careers.mjs";
 import { buildSimpleBook } from "./simple-v1-book.mjs";
@@ -12001,6 +12002,7 @@ function writeFullSite(pre) {
     write(`${pre}hiring.html`, buildSimpleHiring(SV1, { lang: () => LANG, esc }));
     write(`${pre}eor.html`, buildSimpleEor(SV1, { lang: () => LANG, esc }));
     write(`${pre}vendor.html`, buildSimpleVendor(SV1, { lang: () => LANG, esc }));
+    write(`${pre}hr-portal.html`, buildSimpleHr(SV1, { lang: () => LANG, esc }));
     // بوابة صاحب العمل على القشرة الجديدة: صفحة واحدة تحلّ محلّ لوحة
     // /hr/employer القديمة. تبقى القديمة مبنيّة حتى تُغلق عمداً.
     write(`${pre}employer.html`, buildSimpleEmployer(SV1, { lang: () => LANG, esc }));

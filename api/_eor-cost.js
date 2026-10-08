@@ -336,3 +336,206 @@ export function monthlyInvoiceLines(placements, timesheets, config) {
   const vat = applyRate(subtotal, vatRate);
   return { status: "ok", period, currency, lines, excluded, subtotalHalalas: subtotal, vatRate: ppm(vatRate) / RATE_SCALE, vatHalalas: vat, totalHalalas: subtotal + vat, rounding: ROUNDING_MODE };
 }
+
+/* ═════════════════════════════════════════════════════════════════════════
+   حاسبة سعر الحزمة الشهري للموظف (صيغ إكسل المالك «Salary vs Rate Hospitality»)
+   ═════════════════════════════════════════════════════════════════════════
+   المرجع: docs/hr-pricing-calculator-spec.md. الأرقام كلها من كتلة package_rate في api/_eor-pricing.json
+   (لا ثابت مالي في هذا الكود؛ الصفر والواحد والاثنا عشر شهراً ثوابتُ حساب لا أسعار).
+
+   الفرق عن computeCostSheet أعلاه: تلك تبني سعر موظفٍ مُسكَّن فعلياً بالهللة من مكوّناته المعلومة؛ وهذه تسعّر «حزمة
+   راتب» P قبل التعاقد بصيغة المالك وبالريال، وتُقرِّب السعر لأقرب step (MROUND، النصف للأعلى) كما يفعل الإكسل.
+
+   وضعان:
+     lump      هامش 10% من السعر. التكلفة:
+                 P + (إقامة+رخصة+أجير)/12 + تأمين/12 + (P/30×21)/12 + خروج وعودة/12 + (تأشيرة وانضمام)/12
+                   + (P×0.5)/12 + P×2% + 900                 (+ تذكرة العودة/12 إن حدّدها المالك)
+               السعر = MROUND(التكلفة ÷ (1 − 0.10), 10) ، ساعة الإضافي = P/(30×8) × 1.5 × 1.2.
+     costplus  ⚠ pending_decision — التعريف غير محسوم. المبسّط: (1.02·P + 542) ÷ 0.8. للمالك داخلياً وبتنبيه صريح؛
+               لا يصل عميلاً ما لم يضع المالك client_visible=true.
+
+   الخصوصية: computePackageRate يُخرج بنيةً داخلية (internal: تكلفة، هامش، ربح) لا تصل العميل أبداً؛
+   packageClientView وحدها (قائمة بيضاء) تُخرج للعميل السعر الشهري وساعة الإضافي فقط.
+   الحساب بأعداد عشرية عادية (الإكسل نفسه كذلك)؛ التقريب الوحيد المعتمد هو MROUND للسعر، وكل الباقي يُعرض مقرَّباً لهللتين
+   في الواجهة الداخلية فقط. */
+
+export const PACKAGE_MODES = Object.freeze(["lump", "costplus"]);
+const MAX_PACKAGE = 1_000_000;
+const pn = (v) => (typeof v === "number" && Number.isFinite(v) && v >= 0 ? v : null);
+const r2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;
+
+// MROUND كما في إكسل: أقرب مضاعف للـstep، والنصف للأعلى. الإبسلون يمتصّ ضجيج الفاصلة العائمة (…4.9999999 لا يهبط).
+export function mround(x, step) {
+  if (!(step > 0)) throw new RangeError("mround: step must be positive");
+  return Math.floor(x / step + 0.5 + 1e-9) * step;
+}
+
+// يحوّل كتلة package_rate من api/_eor-pricing.json إلى إعداد مُطبَّع. القيمة الناقصة/غير الصالحة = null ⇒ تظهر في missing.
+export function packageRateConfigFromPricing(pricing) {
+  const root = isObj(pricing) && isObj(pricing.package_rate) ? pricing.package_rate : null;
+  if (!root) return null;
+  const ot = (o) => { const x = isObj(o) ? o : {}; return { monthDays: pn(x.month_days), hoursPerDay: pn(x.hours_per_day), multiplier: pn(x.multiplier), extraFactor: pn(x.extra_factor) }; };
+  const L = isObj(root.lump) ? root.lump : {};
+  const fees = isObj(L.annual_government_fees) ? L.annual_government_fees : {};
+  const leave = isObj(L.annual_leave) ? L.annual_leave : {};
+  const join = isObj(L.joining) ? L.joining : {};
+  const C = isObj(root.costplus) ? root.costplus : {};
+  return {
+    currency: typeof root.currency === "string" && root.currency.trim() ? root.currency.trim() : null,
+    clientPriceVisible: root.client_price_visible === true,
+    appliesTo: Array.isArray(root.applies_to_worker_types) ? root.applies_to_worker_types.filter((x) => typeof x === "string") : [],
+    validFrom: isObj(pricing) && typeof pricing.valid_from === "string" ? pricing.valid_from : null,
+    validUntil: isObj(pricing) && typeof pricing.valid_until === "string" ? pricing.valid_until : null,
+    lump: {
+      marginOnPrice: pn(L.margin_on_price),
+      step: pn(L.mround_step),
+      residenceYearly: pn(fees.residence), workPermitYearly: pn(fees.work_permit), ajeerYearly: pn(fees.ajeer),
+      insuranceYearly: pn(L.insurance_yearly),
+      exitReentryYearly: pn(L.exit_reentry_yearly),
+      socialInsuranceRate: pn(L.social_insurance_rate),
+      endOfServiceMonthsPerYear: pn(L.end_of_service_months_per_year),
+      overheadMonthly: pn(L.overhead_monthly),
+      leaveIncluded: typeof leave.included_in_cost === "boolean" ? leave.included_in_cost : null,
+      leaveDays: pn(leave.days), leaveMonthDays: pn(leave.month_days),
+      joiningIncluded: typeof join.included_in_cost === "boolean" ? join.included_in_cost : null,
+      joiningYearly: pn(join.visa_and_joining_yearly),
+      returnTicketYearly: pn(L.return_ticket_yearly),
+      overtime: ot(L.overtime),
+    },
+    costplus: {
+      clientVisible: C.client_visible === true,
+      marginOnPrice: pn(C.margin_on_price),
+      step: pn(C.mround_step),
+      pExtraRate: pn(C.p_extra_rate),
+      fixedMonthly: pn(C.fixed_monthly),
+      overtime: ot(C.overtime),
+    },
+  };
+}
+
+const OT_FIELDS = ["monthDays", "hoursPerDay", "multiplier", "extraFactor"];
+const otHourOf = (P, o) => (P / (o.monthDays * o.hoursPerDay)) * o.multiplier * o.extraFactor;
+const marginOk = (m) => typeof m === "number" && m >= 0 && m < 1;      // 1 − m يقسم السعر؛ m=1 قسمة على صفر
+
+// computePackageRate({ mode, package, config }) →
+//   { status:"ok", mode, package, currency, billable, otHour, pendingDecision, warnings:[…],
+//     internal:{ cost, rate, markup, profit, margin, lines:{…}, separate:{…} } }
+//   | { status:"pending_pricing", missing:[…] } | { status:"invalid_input", errors:[{field,error}] }
+// config: الناتج من packageRateConfigFromPricing. ⚠ internal داخلي: لا يُمرَّر إلى العميل — packageClientView وحدها.
+export function computePackageRate(input) {
+  const inp = isObj(input) ? input : {};
+  const errors = [];
+  const mode = inp.mode;
+  if (!PACKAGE_MODES.includes(mode)) errors.push({ field: "mode", error: "unknown_mode" });
+  const P = inp.package;
+  if (typeof P !== "number" || !Number.isFinite(P) || P <= 0 || P > MAX_PACKAGE) errors.push({ field: "package", error: "out_of_range" });
+  if (errors.length) return { status: "invalid_input", errors };
+
+  const cfg = isObj(inp.config) ? inp.config : null;
+  if (!cfg) return { status: "pending_pricing", missing: ["config.package_rate"] };
+  if (typeof cfg.validFrom === "string" || typeof cfg.validUntil === "string") {
+    const today = typeof cfg.today === "string" ? cfg.today : null;
+    if (today && ((typeof cfg.validFrom === "string" && cfg.validFrom > today) || (typeof cfg.validUntil === "string" && cfg.validUntil < today))) return { status: "pending_pricing", missing: ["config.valid_window"] };
+  }
+  const missing = [];
+  const need = (obj, key, label) => { if (!(typeof obj[key] === "number" && Number.isFinite(obj[key]))) missing.push(label); };
+  const currency = typeof cfg.currency === "string" && cfg.currency.trim() ? cfg.currency.trim() : (missing.push("package_rate.currency"), null);
+
+  if (mode === "lump") {
+    const c = isObj(cfg.lump) ? cfg.lump : {};
+    for (const [k, label] of [["marginOnPrice", "margin_on_price"], ["step", "mround_step"], ["residenceYearly", "annual_government_fees.residence"], ["workPermitYearly", "annual_government_fees.work_permit"],
+      ["ajeerYearly", "annual_government_fees.ajeer"], ["insuranceYearly", "insurance_yearly"], ["exitReentryYearly", "exit_reentry_yearly"], ["socialInsuranceRate", "social_insurance_rate"],
+      ["endOfServiceMonthsPerYear", "end_of_service_months_per_year"], ["overheadMonthly", "overhead_monthly"], ["returnTicketYearly", "return_ticket_yearly"]]) need(c, k, "lump." + label);
+    if (typeof c.leaveIncluded !== "boolean") missing.push("lump.annual_leave.included_in_cost");
+    if (typeof c.joiningIncluded !== "boolean") missing.push("lump.joining.included_in_cost");
+    if (c.leaveIncluded !== false) { need(c, "leaveDays", "lump.annual_leave.days"); need(c, "leaveMonthDays", "lump.annual_leave.month_days"); }
+    if (c.joiningIncluded !== false) need(c, "joiningYearly", "lump.joining.visa_and_joining_yearly");
+    const o = isObj(c.overtime) ? c.overtime : {};
+    for (const k of OT_FIELDS) need(o, k, "lump.overtime." + k);
+    if (missing.length) return { status: "pending_pricing", missing };
+    if (!marginOk(c.marginOnPrice)) return { status: "invalid_input", errors: [{ field: "config.lump.margin_on_price", error: "rate_out_of_range" }] };
+    if (!(c.step > 0) || !(o.monthDays > 0) || !(o.hoursPerDay > 0) || (c.leaveIncluded !== false && !(c.leaveMonthDays > 0))) return { status: "invalid_input", errors: [{ field: "config.lump", error: "must_be_positive" }] };
+
+    const leaveMonthly = c.leaveIncluded === false ? 0 : ((P / c.leaveMonthDays) * c.leaveDays) / 12;
+    const joiningMonthly = c.joiningIncluded === false ? 0 : c.joiningYearly / 12;
+    const lines = {
+      package: P,
+      government: (c.residenceYearly + c.workPermitYearly + c.ajeerYearly) / 12,
+      insurance: c.insuranceYearly / 12,
+      annualLeave: leaveMonthly,
+      exitReentry: c.exitReentryYearly / 12,
+      joining: joiningMonthly,
+      returnTicket: c.returnTicketYearly / 12,
+      endOfService: (P * c.endOfServiceMonthsPerYear) / 12,
+      socialInsurance: P * c.socialInsuranceRate,
+      overhead: c.overheadMonthly,
+    };
+    const cost = Object.values(lines).reduce((s, x) => s + x, 0);
+    const rate = cost / (1 - c.marginOnPrice);
+    const billable = mround(rate, c.step);
+    const separate = {};
+    if (c.leaveIncluded === false) separate.annualLeaveMonthlyEquivalent = r2(((P / c.leaveMonthDays) * c.leaveDays) / 12);
+    if (c.joiningIncluded === false) separate.joiningMonthlyEquivalent = r2(c.joiningYearly / 12);
+    return {
+      status: "ok", mode, package: P, currency,
+      billable, otHour: r2(otHourOf(P, o)),
+      pendingDecision: false,
+      warnings: [],
+      internal: {
+        cost: r2(cost), rate: r2(rate), markup: r2(billable - P), profit: r2(billable - cost), margin: (billable - cost) / billable,
+        lines: Object.fromEntries(Object.entries(lines).map(([k, v]) => [k, r2(v)])), separate,
+      },
+    };
+  }
+
+  // costplus — pending_decision
+  const c = isObj(cfg.costplus) ? cfg.costplus : {};
+  for (const [k, label] of [["marginOnPrice", "margin_on_price"], ["step", "mround_step"], ["pExtraRate", "p_extra_rate"], ["fixedMonthly", "fixed_monthly"]]) need(c, k, "costplus." + label);
+  const o = isObj(c.overtime) ? c.overtime : {};
+  for (const k of OT_FIELDS) need(o, k, "costplus.overtime." + k);
+  if (missing.length) return { status: "pending_pricing", missing };
+  if (!marginOk(c.marginOnPrice)) return { status: "invalid_input", errors: [{ field: "config.costplus.margin_on_price", error: "rate_out_of_range" }] };
+  if (!(c.step > 0) || !(o.monthDays > 0) || !(o.hoursPerDay > 0)) return { status: "invalid_input", errors: [{ field: "config.costplus", error: "must_be_positive" }] };
+  const cost = P * (1 + c.pExtraRate) + c.fixedMonthly;
+  const rate = cost / (1 - c.marginOnPrice);
+  const billable = mround(rate, c.step);
+  return {
+    status: "ok", mode, package: P, currency,
+    billable, otHour: r2(otHourOf(P, o)),
+    pendingDecision: true,
+    warnings: ["costplus_definition_pending_owner_decision", "simplified_costplus_cost_definition"],
+    internal: {
+      cost: r2(cost), rate: r2(rate), markup: r2(billable - P), profit: r2(billable - cost), margin: (billable - cost) / billable,
+      lines: { package: P, extra: r2(P * c.pExtraRate), fixed: r2(c.fixedMonthly) }, separate: {},
+    },
+  };
+}
+
+// ما يراه العميل: السعر الشهري وساعة الإضافي فقط — قائمة بيضاء تُبنى حقلاً حقلاً (لا نسخ كائن ولا حذف حقول).
+// costplus لا يظهر إلا إن وضع المالك costplus.client_visible=true؛ وclient_price_visible=false يُخفي كل شيء.
+// أي حالة غير ok ⇒ { status:"pending_pricing" } وحدها (بلا missing ولا أسماء حقول داخلية).
+export function packageClientView(result, config) {
+  const PENDING = { status: "pending_pricing" };
+  if (!isObj(result) || result.status !== "ok") return PENDING;
+  const cfg = isObj(config) ? config : {};
+  if (cfg.clientPriceVisible !== true) return PENDING;
+  if (result.mode === "costplus" && !(isObj(cfg.costplus) && cfg.costplus.clientVisible === true)) return PENDING;
+  if (result.mode !== "lump" && result.mode !== "costplus") return PENDING;
+  return { status: "ok", currency: result.currency, monthlyPrice: result.billable, otHour: result.otHour };
+}
+
+// السعر الشهري كهللات صحيحة لتغذية monthlyInvoiceLines (placements[].saleMonthlyHalalas) بالسعر المقرَّب نفسه.
+export function packageSaleMonthlyHalalas(result) {
+  return isObj(result) && result.status === "ok" && Number.isFinite(result.billable) ? sarToHalalas(result.billable) : null;
+}
+
+// نقطة الدخول الوحيدة المعتمدة لمن يطلب حساباً بدور: ops/system (المالك والفريق) يأخذان النتيجة الكاملة بما فيها internal
+// ووضعا lump وcostplus معاً؛ أي دور آخر (client/vendor/candidate) أو دور غائب/مجهول يأخذ packageClientView وحدها — يفشل مُغلقاً.
+// وضع costplus لا يصل غير ops/system مهما كان إعداد client_visible إلا بفتحه عمداً من المالك (انظر packageClientView).
+// computePackageRate نفسها نقيّة وداخلية: طبقات الـAPI التي تخدم العميل لا تستدعيها إلا عبر estimatePackageQuote أو هذه الدالة.
+export function packageRateForRole(input, role) {
+  const res = computePackageRate(input);
+  if (role === "ops" || role === "system") return res;
+  const cfg = isObj(input) && isObj(input.config) ? input.config : {};
+  return packageClientView(res, cfg);
+}

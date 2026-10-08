@@ -25,6 +25,7 @@ import { fileURLToPath } from "node:url";
 import { randomInt } from "node:crypto";
 import { EMAIL_LIVE, WHATSAPP_LIVE, outbox, DEV } from "./_mode.js";
 import { OCCUPATIONS, occupationById, searchOccupations } from "./_occupations.js";
+import { packageRateConfigFromPricing, computePackageRate, packageClientView } from "./_eor-cost.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
@@ -327,6 +328,79 @@ export function estimateQuote(items, pricing, opts = {}) {
   };
 }
 
+// ═════════════ سعر الحزمة الشهري الفوري (حاسبة المالك — api/_eor-cost.js) ═════════════
+// estimatePackageQuote(items, pricing, opts{ workerType, durationMonths, now })
+//   يُسعِّر كل بندٍ عُرف راتبه بصيغة الإكسل (وضع lump)، للعامل الأجنبي وحده (package_rate.applies_to_worker_types).
+//   ما يخرج من هنا آمنٌ للعميل: السعر الشهري للموظف وساعة الإضافي ومجموع البند فقط — لا تكلفة ولا هامش ولا ربح.
+//   كتلة package_rate غائبة/مُغلقة (client_price_visible=false)/خارج الصلاحية ⇒ { status:"pending_pricing" } وحدها.
+//   مدة العقد (durationMonths) معلومةٌ فقط: لا تدخل الحساب (التوزيع على 12/24/36 شهراً غير محسوم عند المالك).
+// الحالات: ok (كل البنود مسعَّرة) | partial (بعضها) | none (لا بند قابل للتسعير: راتب غائب أو عامل سعودي أو مختلط) — ويبقى سطر لكل بند بحالته.
+export function estimatePackageQuote(items, pricing, opts = {}) {
+  const PENDING = { status: "pending_pricing" };
+  const list = Array.isArray(items) ? items : [];
+  if (!list.length || !pricing || typeof pricing !== "object") return PENDING;
+  const cfg = packageRateConfigFromPricing(pricing);
+  if (!cfg) return PENDING;
+  const today = riyadhToday(opts.now);
+  if ((cfg.validFrom && cfg.validFrom > today) || (cfg.validUntil && cfg.validUntil < today)) return PENDING;
+  const months = Number.isInteger(opts.durationMonths) && opts.durationMonths > 0 ? opts.durationMonths : null;
+
+  let priced = 0, totalC = 0;
+  const lines = [];
+  for (let i = 0; i < list.length; i++) {
+    const it = list[i];
+    const wt = itemWorkerType(it, opts.workerType);
+    const line = { index: i, count: it.count, workerType: wt };
+    if (wt === "mixed" || wt === "unknown") { lines.push({ ...line, status: "needs_review" }); continue; }
+    if (!cfg.appliesTo.includes(wt)) { lines.push({ ...line, status: "not_applicable" }); continue; }
+    if (!isNum(it.salary) || it.salary <= 0) { lines.push({ ...line, status: "needs_salary" }); continue; }
+    const view = packageClientView(computePackageRate({ mode: "lump", package: it.salary, config: { ...cfg, today } }), cfg);
+    if (view.status !== "ok") return PENDING;      // حاسبة ناقصة أو مغلقة: لا رقم لأي بند
+    const monthlyC = cents(view.monthlyPrice) * it.count;
+    totalC += monthlyC; priced++;
+    lines.push({ ...line, status: "priced", salary: it.salary, monthlyPerEmployee: view.monthlyPrice, otHour: view.otHour, monthlyTotal: sar(monthlyC) });
+  }
+  if (!priced) return { status: "none", currency: cfg.currency, lines, notice: "estimate_not_an_offer" };
+  return {
+    status: priced === list.length ? "ok" : "partial",
+    currency: cfg.currency,
+    lines,
+    monthlyTotal: sar(totalC),
+    durationMonths: months,
+    notice: "estimate_not_an_offer",
+  };
+}
+
+// يُنظّف بنود طلب السعر (count وnationalities وsalary فقط) — لا مهنة ولا أي بيان تواصل. { ok, items } | { ok:false, ... }
+function normalizePriceItems(rawItems) {
+  if (!Array.isArray(rawItems) || !rawItems.length) return fail("items_required", "items");
+  if (rawItems.length > EOR_LIMITS.maxItems) return fail("too_many_items", "items");
+  const items = [];
+  for (let i = 0; i < rawItems.length; i++) {
+    const it = rawItems[i];
+    if (!it || typeof it !== "object" || Array.isArray(it)) return fail("item_invalid", "items", { index: i });
+    const count = typeof it.count === "string" && /^\d+$/.test(it.count.trim()) ? Number(it.count.trim()) : it.count;
+    if (!Number.isInteger(count) || count < 1 || count > EOR_LIMITS.maxItemCount) return fail("item_count_invalid", "items", { index: i });
+    const nats = [];
+    if (it.nationalities != null) {
+      if (!Array.isArray(it.nationalities) || it.nationalities.length > EOR_LIMITS.maxNationalities) return fail("nationality_invalid", "items", { index: i });
+      for (const c of it.nationalities) {
+        const code = String(c || "").toUpperCase();
+        if (!NAT_BY_CODE.has(code)) return fail("nationality_unknown", "items", { index: i });
+        if (!nats.includes(code)) nats.push(code);
+      }
+    }
+    let salary = null;
+    if (it.salary != null && it.salary !== "") {
+      const s = typeof it.salary === "string" ? Number(it.salary.replace(/,/g, "").trim()) : it.salary;
+      if (typeof s !== "number" || !Number.isFinite(s) || s < 0 || s > EOR_LIMITS.maxSalary) return fail("salary_invalid", "items", { index: i });
+      salary = Math.round(s * 100) / 100;
+    }
+    items.push({ count, nationalities: nats, salary });
+  }
+  return { ok: true, items };
+}
+
 /* ═════════════ نطاق العمل (قالب ثابت بلا ادعاءات نظامية) ═════════════ */
 const SOW = {
   ar: {
@@ -461,6 +535,12 @@ function quoteSummaryText(q) {
     (t ? ` — إجمالي ${t.months} شهر: ${t.total}` : "");
 }
 
+// سطر للفريق عن سعر الحزمة الفوري الذي رآه العميل (ok/partial فقط؛ وإلا لا شيء يُضاف).
+function packageSummaryText(p) {
+  if (!p || (p.status !== "ok" && p.status !== "partial")) return "";
+  return ` | سعر الحزمة (إكسل المالك، تقدير للعميل): شهري ${p.monthlyTotal} ${p.currency}${p.status === "partial" ? " (بنود جزئية)" : ""} قبل مراجعة الفريق`;
+}
+
 /* ═════════════ Notion ═════════════ */
 const MISSING_PROP_RE = /is not a property that exists|could not find property|invalid property identifier|is expected to be/i;
 const chunks = (s, n = 1900) => { const out = []; const str = String(s || ""); for (let i = 0; i < str.length; i += n) out.push(str.slice(i, i + n)); return out; };
@@ -582,6 +662,17 @@ export async function handleEor(body, ctx = {}) {
     return { ok: true, results: searchOccupations(q, { limit: 8 }).map((o) => ({ id: o.id, nameAr: o.nameAr, nameEn: o.nameEn })) };
   }
 
+  // السعر الشهري الفوري للموظف حين يُعرف راتبه: حسابٌ صِرف بلا كتابة ولا بريد، ويُرجع للعميل السعر وساعة الإضافي فقط.
+  if (body && typeof body === "object" && body.action === "price") {
+    const wt = String(body.workerType || "");
+    if (!Object.prototype.hasOwnProperty.call(WORKER_TYPES, wt)) return fail("worker_type_invalid", "workerType");
+    const n = normalizePriceItems(body.items);
+    if (!n.ok) return n;
+    const dm = typeof body.durationMonths === "string" && /^\d+$/.test(body.durationMonths.trim()) ? Number(body.durationMonths.trim()) : body.durationMonths;
+    const pricingNow = ctx.pricing !== undefined ? ctx.pricing : loadPricing();
+    return { ok: true, quote: estimatePackageQuote(n.items, pricingNow, { workerType: wt, durationMonths: Number.isInteger(dm) ? dm : null, now: nowMs }) };
+  }
+
   // الفخّ: حقلٌ مخفيّ لا يملؤه إنسان. نردّ نجاحاً كاذباً ولا نكتب شيئاً.
   if (body && typeof body === "object" && String(body.website || "").trim()) {
     return { ok: true, ref: "EOR-" + String(randomInt(100000, 1000000)) };
@@ -595,7 +686,8 @@ export async function handleEor(body, ctx = {}) {
   const ref = typeof ctx.refGen === "function" ? ctx.refGen() : "EOR-" + String(randomInt(100000, 1000000));
   const pricing = ctx.pricing !== undefined ? ctx.pricing : loadPricing();
   const quote = estimateQuote(v.items, pricing, { workerType: v.workerType, recruitment: v.recruitment, durationMonths: v.durationMonths, now: nowMs });
-  const quoteText = quoteSummaryText(quote);
+  const pkg = estimatePackageQuote(v.items, pricing, { workerType: v.workerType, durationMonths: v.durationMonths, now: nowMs });
+  const quoteText = quoteSummaryText(quote) + packageSummaryText(pkg);
 
   // — Notion —
   const dev = ctx.dev != null ? ctx.dev : DEV;

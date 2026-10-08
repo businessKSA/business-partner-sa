@@ -8,7 +8,9 @@
 // المرادفات: CDP، chef de partie…). لا شيء من api/_occupation-map.json يدخل هذه الصفحة أبداً:
 // مفاتيحها مسمّياتٌ حقيقية من سير مرشّحين، و`site/` يُنشر علناً.
 //
-// بلا main.js (قشرة SV1 وحدها) ولا localStorage. الأسعار: لا سعر في الصفحة — «يُحدَّد بعد مراجعة طلبك».
+// بلا main.js (قشرة SV1 وحدها) ولا localStorage. الأسعار: لا رقم في الصفحة نفسها ولا في كتلة الإعداد. حين يُدخل العميل راتب
+// الموظف يسأل السكربت الخادم (POST ?__route=eor {action:"price"}) فيعود السعر الشهري وساعة الإضافي فقط؛ التكلفة والهامش
+// وإعداد التسعير يُحسبون على الخادم وحده ولا يصلون هذه الصفحة بأي شكل. هذا الملف لا يستورد الحاسبة ولا ملف التسعير.
 // لا زرّ واتساب داخل المحتوى (الزرّ العائم فقط). الاسم الظاهر «Business Partner».
 //
 // السكربت العميل دالةٌ عاديّة (eorClient) تُسلسَل بـtoString، فلا يُضاعَف فيها الـbackslash كما في قوالب النصوص.
@@ -66,13 +68,13 @@ const D = {
   q2: ["هل أستطيع تحديد المهن والجنسيات؟", "Can I specify the occupations and nationalities?", "Puis-je préciser les métiers et les nationalités ?", "我可以指定职业和国籍吗？"],
   a2: ["نعم. تحدّد في النموذج المهن والأعداد والجنسيات المطلوبة، ويتواصل معك فريقنا لتأكيد ما يمكن تنفيذه.", "Yes. You list the occupations, numbers and nationalities in the form, and our team contacts you to confirm what can be done.", "Oui. Vous indiquez métiers, effectifs et nationalités dans le formulaire, et notre équipe vous contacte pour confirmer ce qui est faisable.", "可以。您在表单中填写职业、人数和国籍，我们的团队会联系您确认可行的安排。"],
   q3: ["كم السعر؟", "What does it cost?", "Quel est le prix ?", "费用是多少？"],
-  a3: ["يُحدَّد السعر بعد مراجعة طلبك بحسب المهن والأعداد والمدة. لا نعرض سعراً قبل ذلك.", "The price is set after we review your request, depending on occupations, numbers and duration. We do not show a price before that.", "Le prix est fixé après examen de votre demande, selon métiers, effectifs et durée. Nous n'affichons pas de prix avant.", "价格在审核您的申请后，根据职业、人数和期限确定。在此之前我们不显示价格。"],
+  a3: ["إن أدخلت الراتب الشهري المتوقع للموظف في النموذج ظهر لك فوراً سعره الشهري وساعة الإضافي كتقدير أولي. السعر النهائي يُحدَّد في عرض السعر بعد مراجعة طلبك بحسب المهن والأعداد.", "If you enter the employee's expected monthly salary in the form, you instantly see their monthly price and overtime hour as a preliminary estimate. The final price is set in the quote after we review your request, depending on occupations and numbers.", "Si vous saisissez le salaire mensuel prévu dans le formulaire, vous voyez aussitôt le prix mensuel et l'heure supplémentaire à titre d'estimation. Le prix final est fixé dans l'offre après examen de votre demande, selon métiers et effectifs.", "如果您在表单中填写员工的预期月薪，会立即看到其月度价格和加班每小时价格作为初步估算。最终价格在审核您的申请后，根据职业和人数在报价中确定。"],
   q4: ["هل تشمل الخدمة الاستقدام؟", "Does the service include recruitment?", "Le service inclut-il le recrutement ?", "服务包含招聘吗？"],
   a4: ["عند الحاجة وبحسب الحالة. تحدّد في النموذج إن كان الاستقدام لازماً، ونناقش التفاصيل معك دون وعدٍ بنتيجة أو بمدة.", "Where needed and case by case. You tell us in the form whether recruitment is needed and we discuss the details with you, with no promise of an outcome or timeline.", "Au besoin et selon le cas. Vous indiquez dans le formulaire si le recrutement est nécessaire ; nous en discutons sans promesse de résultat ni de délai.", "视情况而定。您在表单中说明是否需要招聘，我们与您讨论细节，不承诺结果或时限。"],
   q5: ["ماذا يحدث بعد إرسال الطلب؟", "What happens after I send the request?", "Que se passe-t-il après l'envoi ?", "提交后会怎样？"],
   a5: ["تحصل على رقم مرجعي، ويراجع فريقنا الطلب ويعود إليك. لا يُلزمك الطلب بشيء قبل توقيع الاتفاقية.", "You get a reference number, and our team reviews the request and gets back to you. The request commits you to nothing before an agreement is signed.", "Vous recevez un numéro de référence, notre équipe examine la demande et revient vers vous. La demande ne vous engage à rien avant la signature d'un accord.", "您会收到参考编号，我们的团队审核后与您联系。在签署协议之前，该申请不对您构成任何约束。"],
   formH: ["اطلب عرضاً لموظفيك", "Request a quote for your staff", "Demandez une offre pour votre personnel", "为您的员工申请报价"],
-  formP: ["عبّئ الطلب وسنعود إليك. لا نعرض سعراً فورياً: يُحدَّد بعد المراجعة.", "Fill in the request and we will get back to you. There is no instant price: it is set after review.", "Remplissez la demande et nous reviendrons vers vous. Pas de prix immédiat : il est fixé après examen.", "填写申请，我们会与您联系。不提供即时报价：价格在审核后确定。"],
+  formP: ["عبّئ الطلب وسنعود إليك. إن عرفت راتب الموظف أدخله ليظهر لك السعر الشهري التقديري فوراً، والسعر النهائي في عرض السعر بعد المراجعة.", "Fill in the request and we will get back to you. If you know the employee's salary, enter it to see the estimated monthly price instantly; the final price is in the quote after review.", "Remplissez la demande et nous reviendrons vers vous. Si vous connaissez le salaire, saisissez-le pour voir aussitôt le prix mensuel estimé ; le prix final figure dans l'offre après examen.", "填写申请，我们会与您联系。如果知道员工薪资，请填写，即可立即看到估算的月度价格；最终价格在审核后的报价中确定。"],
   g1: ["بيانات المنشأة", "Your organization", "Votre organisation", "机构信息"],
   g2: ["العاملون المطلوبون", "Workers needed", "Travailleurs demandés", "所需员工"],
   g3: ["المدة والملاحظات", "Term and notes", "Durée et remarques", "期限与备注"],
@@ -99,7 +101,16 @@ const D = {
   count: ["العدد", "Number", "Nombre", "人数"],
   nats: ["الجنسيات", "Nationalities", "Nationalités", "国籍"],
   natAny: ["غير محدّدة", "Not specified", "Non précisées", "未指定"],
-  salary: ["الراتب الشهري المتوقع (اختياري)", "Expected monthly salary, SAR (optional)", "Salaire mensuel prévu, SAR (facultatif)", "预期月薪，沙特里亚尔（可选）"],
+  salary: ["الراتب الشهري المتوقع (اختياري، يظهر لك السعر فوراً)", "Expected monthly salary, SAR (optional; shows your price instantly)", "Salaire mensuel prévu, SAR (facultatif ; affiche le prix aussitôt)", "预期月薪，沙特里亚尔（可选；立即显示价格）"],
+  pMonthly: ["السعر الشهري للموظف", "Monthly price per employee", "Prix mensuel par employé", "每位员工月度价格"],
+  pOt: ["ساعة الإضافي", "Overtime hour", "Heure supplémentaire", "加班每小时"],
+  pTotal: ["إجمالي شهري تقديري", "Estimated monthly total", "Total mensuel estimé", "预计月度总额"],
+  pReview: ["السعر يُحدَّد بعد مراجعة طلبك.", "The price is set after we review your request.", "Le prix est fixé après examen de votre demande.", "价格在审核您的申请后确定。"],
+  pNote: ["تقدير أولي غير ملزم. السعر النهائي في عرض السعر، ومدة العقد معلومة فقط ولا تدخل الحساب.", "Preliminary, non-binding estimate. The final price is in the quote, and the contract term is informational only and is not part of the calculation.", "Estimation préliminaire non contraignante. Le prix final figure dans l'offre ; la durée du contrat est indicative et n'entre pas dans le calcul.", "初步估算，不具约束力。最终价格以报价为准；合同期限仅供参考，不计入计算。"],
+  cur: ["ريال", "SAR", "SAR", "SAR"],
+  hrH: ["بعد أن عرفت الخدمة", "Once you know the service", "Une fois le service compris", "了解服务之后"],
+  hrP: ["ادخل بوابة Business Partner HR: أصحاب العمل والمرشحون والمكاتب والموظفون كلٌّ يدخل من بابه.", "Enter the Business Partner HR portal: employers, candidates, offices and employees each enter through their own door.", "Accédez au portail Business Partner HR : employeurs, candidats, bureaux et employés entrent chacun par leur porte.", "进入 Business Partner HR 门户：雇主、候选人、机构和员工各走各的入口。"],
+  hrBtn: ["ادخل بوابة Business Partner HR", "Enter the Business Partner HR portal", "Accéder au portail Business Partner HR", "进入 Business Partner HR 门户"],
   remove: ["حذف", "Remove", "Supprimer", "删除"],
   add: ["أضف مهنة", "Add an occupation", "Ajouter un métier", "添加职业"],
   total: ["إجمالي الموظفين", "Total employees", "Total des employés", "员工总数"],
@@ -144,7 +155,8 @@ export function buildSimpleEor(sv1, ctx) {
   const NATS = NATIONALITIES.map((n) => [n.code, n.ar, n.en]);
   const TXKEYS = ["occPh", "occNone", "natAny", "remove", "itemN", "total", "itemCount", "sending", "submit",
     "eCompany", "eContact", "eEmail", "ePhone", "eCity", "eWorker", "eRecruit", "eItems", "eOcc", "eCount", "eTotal", "eSalary", "eStart", "eMonths", "eNet", "eRate",
-    "doneT", "doneRef", "doneP", "another", "nats", "occ", "count", "salary"];
+    "doneT", "doneRef", "doneP", "another", "nats", "occ", "count", "salary",
+    "pMonthly", "pOt", "pTotal", "pReview", "pNote", "cur"];
   const TX = {};
   for (const k of TXKEYS) TX[k] = t(k);
   const CFG = {
@@ -203,6 +215,14 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
 .sv1-eor-nat .box{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px 10px;max-height:220px;overflow:auto;border:1px solid var(--l);border-radius:10px;margin-top:5px;padding:8px;background:#fff}
 .sv1-eor-nat .box label{display:flex;align-items:center;gap:7px;margin:0;padding:5px 3px;font-size:12.5px;color:var(--t);cursor:pointer}
 .sv1-eor-rm{border:0;background:none;color:#b42318;cursor:pointer;font:inherit;font-size:12px;padding:2px 6px}
+.sv1-eor-price{margin-top:10px;border:1px solid var(--acLine);background:var(--acSoft);border-radius:10px;padding:10px 13px;font-size:12.5px;color:var(--ink);line-height:1.8}
+.sv1-eor-price b{font-family:var(--fm);font-weight:500;font-size:15px;color:var(--ac)}
+.sv1-eor-price.hold{border-color:var(--l);background:var(--soft);color:var(--mut)}
+.sv1-eor-sum{margin-top:12px;border:1px solid var(--acLine);background:var(--acSoft);border-radius:11px;padding:12px 15px;font-size:13px;color:var(--ink)}
+.sv1-eor-sum b{font-family:var(--fm);font-weight:500;font-size:17px;color:var(--ac)}
+.sv1-eor-sum small{display:block;margin-top:4px;color:var(--mut);font-size:11.5px;line-height:1.8}
+.sv1-eor-hr{max-width:760px;margin:0 auto;text-align:center}
+.sv1-eor-hr p{margin:0 0 16px;color:var(--mut);font-size:13.5px;line-height:1.9}
 .sv1-eor-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:6px;font-size:12.5px;color:var(--mut)}
 .sv1-eor-bar b{font-family:var(--fm);font-weight:500;color:var(--ink)}
 .sv1-eor-msg{font-size:12.5px;line-height:1.8;margin-top:10px;min-height:1em}
@@ -255,6 +275,14 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
     <div class="sv1-eor-faq">${faq}</div>
   </div></section>
 
+  <section class="sv1-sec"><div class="wrap">
+    <div class="sv1-eor-hr">
+      <div class="sv1-title"><h2>${esc(t("hrH"))}</h2></div>
+      <p>${esc(t("hrP"))}</p>
+      <a class="sv1-btn primary" id="eorHrGate" href="${sv1.href("/hr-portal")}" data-track="EOR: بوابة HR">${esc(t("hrBtn"))}</a>
+    </div>
+  </div></section>
+
   <section class="sv1-sec" id="eor-form"><div class="wrap">
     <div class="sv1-title"><h2>${esc(t("formH"))}</h2><p>${esc(t("formP"))}</p></div>
     <form class="sv1-eor-form" id="eorForm" novalidate autocomplete="off">
@@ -278,6 +306,7 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
         <div id="eorItems"></div>
         <button type="button" class="sv1-btn sm" id="eorAdd">+ ${esc(t("add"))}</button>
         <div class="sv1-eor-bar"><span>${esc(t("total"))}: <b id="eorTotal">0</b> / ${EOR_LIMITS.maxTotalCount}</span><span><b id="eorItemsN">0</b> / ${EOR_LIMITS.maxItems} ${esc(t("itemCount"))}</span></div>
+        <div class="sv1-eor-sum sv1-hide" id="eorPriceSum" role="status" aria-live="polite"></div>
       </fieldset>
       <fieldset><legend>${esc(t("g3"))}</legend>
         <div class="sv1-eor-cols">
@@ -326,6 +355,55 @@ ${sv1.footer()}`;
 
     var items = [];
     var host = $("eorItems");
+
+    // السعر الشهري الفوري: السؤال للخادم وحده (يحسب التكلفة والهامش هناك ويعيد السعر وساعة الإضافي فقط).
+    var priceTimer = null, priceSeq = 0;
+    function fmtNum(n) { return Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 }); }
+    function showPrice(it, line) {
+      var box = it.priceEl; box.textContent = ""; box.className = "sv1-eor-price sv1-hide";
+      if (!line || line.status === "needs_salary") return;
+      box.classList.remove("sv1-hide");
+      if (line.status !== "priced") { box.className = "sv1-eor-price hold"; box.textContent = TX.pReview; return; }
+      var cur = " " + TX.cur;
+      box.appendChild(document.createTextNode(TX.pMonthly + ": "));
+      box.appendChild(el("b", "", fmtNum(line.monthlyPerEmployee))); box.appendChild(document.createTextNode(cur + " · " + TX.pOt + ": "));
+      box.appendChild(el("b", "", fmtNum(line.otHour))); box.appendChild(document.createTextNode(cur));
+    }
+    function clearPrices() {
+      items.forEach(function (it) { showPrice(it, null); });
+      var sum = $("eorPriceSum"); sum.classList.add("sv1-hide"); sum.textContent = "";
+    }
+    function runPrice() {
+      var wt = document.querySelector('input[name="eorWT"]:checked');
+      var rows = [], owners = [], anySalary = false;
+      items.forEach(function (it) {
+        var n = parseInt(digits(it.countIn.value), 10);
+        if (!(n >= 1 && n <= LIM.maxItemCount)) return;
+        var ss = digits(it.salIn.value).trim(), sal = null;
+        if (ss !== "") { sal = Number(ss); if (!isFinite(sal) || sal < 0 || sal > LIM.maxSalary) sal = null; }
+        if (sal !== null && sal > 0) anySalary = true;
+        rows.push({ count: n, nationalities: it.nats.slice(), salary: sal }); owners.push(it);
+      });
+      if (!wt || !rows.length || !anySalary) { clearPrices(); return; }
+      var ms = parseInt(digits($("eorMonths").value), 10);
+      var my = ++priceSeq;
+      fetch(API, { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "price", workerType: wt.value, durationMonths: ms > 0 ? ms : null, items: rows }) })
+        .then(function (r) { return r.json(); }).then(function (o) {
+          if (my !== priceSeq) return;
+          var q = o && o.ok && o.quote;
+          if (!q || (q.status !== "ok" && q.status !== "partial" && q.status !== "none")) { clearPrices(); return; }
+          items.forEach(function (it) { showPrice(it, null); });
+          q.lines.forEach(function (ln, j) { if (owners[j]) showPrice(owners[j], ln); });
+          var sum = $("eorPriceSum"); sum.textContent = "";
+          if (q.monthlyTotal != null) {
+            sum.appendChild(document.createTextNode(TX.pTotal + ": ")); sum.appendChild(el("b", "", fmtNum(q.monthlyTotal)));
+            sum.appendChild(document.createTextNode(" " + TX.cur)); sum.appendChild(el("small", "", TX.pNote)); sum.classList.remove("sv1-hide");
+          } else sum.classList.add("sv1-hide");
+        }).catch(function () {});
+    }
+    function priceSoon() { clearTimeout(priceTimer); priceTimer = setTimeout(runPrice, 350); }
+    Array.prototype.forEach.call(document.querySelectorAll('input[name="eorWT"]'), function (r) { r.addEventListener("change", priceSoon); });
 
     function digits(s) {
       return String(s || "").replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 0x0660); })
@@ -422,7 +500,7 @@ ${sv1.footer()}`;
       var countW = el("div", ""); countW.appendChild(el("label", "", TX.count));
       var countIn = el("input", "sv1-eor-in"); countIn.type = "number"; countIn.min = "1"; countIn.max = String(LIM.maxItemCount);
       countIn.step = "1"; countIn.inputMode = "numeric"; countIn.dir = "ltr";
-      countIn.addEventListener("input", refresh); countW.appendChild(countIn); it.countIn = countIn;
+      countIn.addEventListener("input", function () { refresh(); priceSoon(); }); countW.appendChild(countIn); it.countIn = countIn;
 
       // الجنسيات: اختيار متعدد
       var natW = el("div", "full"); natW.appendChild(el("label", "", TX.nats));
@@ -437,6 +515,7 @@ ${sv1.footer()}`;
           } else it.nats = it.nats.filter(function (c) { return c !== n[0]; });
           var names = it.nats.map(function (c) { return natName(NAT_BY[c]); });
           sum.textContent = names.length ? names.slice(0, 3).join(AR ? "، " : ", ") + (names.length > 3 ? " +" + (names.length - 3) : "") : TX.natAny;
+          priceSoon();
         });
         lb.appendChild(cb); lb.appendChild(document.createTextNode(natName(n))); box.appendChild(lb);
       });
@@ -444,14 +523,16 @@ ${sv1.footer()}`;
 
       var salW = el("div", "full"); salW.appendChild(el("label", "", TX.salary));
       var salIn = el("input", "sv1-eor-in"); salIn.type = "number"; salIn.min = "0"; salIn.max = String(LIM.maxSalary); salIn.step = "any"; salIn.inputMode = "decimal"; salIn.dir = "ltr";
-      salW.appendChild(salIn); it.salIn = salIn;
+      salIn.addEventListener("input", priceSoon);
+      var priceEl = el("div", "sv1-eor-price sv1-hide"); priceEl.setAttribute("role", "status"); priceEl.setAttribute("aria-live", "polite");
+      salW.appendChild(salIn); salW.appendChild(priceEl); it.salIn = salIn; it.priceEl = priceEl;
 
       grid.appendChild(occW); grid.appendChild(countW); grid.appendChild(natW); grid.appendChild(salW);
       card.appendChild(head); card.appendChild(grid); host.appendChild(card);
       it.card = card;
       rm.addEventListener("click", function () {
         items = items.filter(function (x) { return x !== it; });
-        host.removeChild(card); refresh();
+        host.removeChild(card); refresh(); priceSoon();
       });
       items.push(it); refresh();
       return it;

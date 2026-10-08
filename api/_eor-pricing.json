@@ -1,5 +1,5 @@
 {
-  "_readme": "ملف تسعير خدمة EOR — يملؤه المالك وحده. كل القيم null الآن عمداً (CLAUDE.md §4: لا أسعار مخترعة). ما دامت أي قيمة لازمة فارغة، تُرجع estimateQuote الحالة pending_pricing ولا يظهر رقم لأي عميل. المبالغ بالعملة المكتوبة في currency، بلا ضريبة (تُحسب الضريبة من vat_rate). vat_rate كسر عشري (مثلاً 0.15 لـ15%) وليس نسبة مئوية. valid_from وvalid_until تواريخ بصيغة YYYY-MM-DD أو null. «saudi» للعامل السعودي و«foreign» للعامل الأجنبي. لا تغيّر أسماء المفاتيح — api/_eor.js يقرؤها بأسمائها. كتلة cost (أُضيفت 2026-10-08 لحاسبة api/_eor-cost.js): margin_rate هامش الربح كسر عشري (0.10 = 10%) يُطبَّق على التكلفة الشهرية؛ end_of_service_accrual وleave_accrual قاعدة المخصّص الشهري لنهاية الخدمة وللإجازات، يُملأ حقلٌ واحد منهما فقط: percent_of_salary كسر عشري من الراتب، أو fixed_monthly مبلغ ثابت شهري بالعملة (الثابت يغلب النسبة إن مُلئا معاً)؛ agreed_month_days عدد أيام الشهر المتفق عليها لتناسب الفاتورة مع الحضور؛ hours_per_day ساعات اليوم إن سُجّل الحضور بالساعات؛ client_cost_visibility إما total (السعر الإجمالي فقط) أو breakdown (تفصيل بمجموعتين دون الهامش أو الراتب الخام أو رسوم المورّد) وفارغاً يُعامَل total. كلها null حتى يملأها المالك؛ ما دام أي لازم منها فارغاً ترجع الحاسبة pending_pricing بلا رقم.",
+  "_readme": "ملف تسعير خدمة EOR — يملؤه المالك وحده. كل القيم null الآن عمداً (CLAUDE.md §4: لا أسعار مخترعة). ما دامت أي قيمة لازمة فارغة، تُرجع estimateQuote الحالة pending_pricing ولا يظهر رقم لأي عميل. المبالغ بالعملة المكتوبة في currency، بلا ضريبة (تُحسب الضريبة من vat_rate). vat_rate كسر عشري (مثلاً 0.15 لـ15%) وليس نسبة مئوية. valid_from وvalid_until تواريخ بصيغة YYYY-MM-DD أو null. «saudi» للعامل السعودي و«foreign» للعامل الأجنبي. لا تغيّر أسماء المفاتيح — api/_eor.js يقرؤها بأسمائها. كتلة cost (أُضيفت 2026-10-08 لحاسبة api/_eor-cost.js): margin_rate هامش الربح كسر عشري (0.10 = 10%) يُطبَّق على التكلفة الشهرية؛ end_of_service_accrual وleave_accrual قاعدة المخصّص الشهري لنهاية الخدمة وللإجازات، يُملأ حقلٌ واحد منهما فقط: percent_of_salary كسر عشري من الراتب، أو fixed_monthly مبلغ ثابت شهري بالعملة (الثابت يغلب النسبة إن مُلئا معاً)؛ agreed_month_days عدد أيام الشهر المتفق عليها لتناسب الفاتورة مع الحضور؛ hours_per_day ساعات اليوم إن سُجّل الحضور بالساعات؛ client_cost_visibility إما total (السعر الإجمالي فقط) أو breakdown (تفصيل بمجموعتين دون الهامش أو الراتب الخام أو رسوم المورّد) وفارغاً يُعامَل total. كلها null حتى يملأها المالك؛ ما دام أي لازم منها فارغاً ترجع الحاسبة pending_pricing بلا رقم. كتلة package_rate (أُضيفت 2026-10-08 لحاسبة السعر الشهري للموظف في api/_eor-cost.js): أرقام المالك من إكسله «Salary vs Rate Hospitality» لا أرقام مخترعة، مصدرها وصيغها الحرفية في docs/hr-pricing-calculator-spec.md. عكس بقية الملف هي مملوءة، ولا يُنظر إلى فراغها كحالة pending_pricing إلا إن حُذف منها مفتاح لازم. البنود التي تحمل مفتاح _owner_decision داخلها قيمٌ افتراضية مطابقة لصيغة العمود الرئيسي في الإكسل وتنتظر قرار المالك (انظر التناقضات ٣ و٥ و٦ في المواصفة).",
   "currency": null,
   "vat_rate": null,
   "valid_from": null,
@@ -26,5 +26,63 @@
     "agreed_month_days": null,
     "hours_per_day": null,
     "client_cost_visibility": null
+  },
+  "package_rate": {
+    "_source": "Owner Google Sheet 'Salary vs Rate Hospitality' (ورقة Lump sum وCost plus) — صيغ حرفية قُرئت يوم 2026-10-08. التفاصيل والتناقضات: docs/hr-pricing-calculator-spec.md. المبالغ بالريال السعودي.",
+    "currency": "SAR",
+    "client_price_visible": true,
+    "_client_price_visible": "مفتاح إغلاق: false يُخفي السعر الشهري الفوري عن العميل كلياً (تبقى الحاسبة للمالك والفريق). العميل لا يرى سوى السعر الشهري وساعة الإضافي؛ التكلفة والهامش داخليان.",
+    "applies_to_worker_types": [
+      "foreign"
+    ],
+    "_applies_to_worker_types": "_owner_decision: الصيغة تحمل رسوم إقامة ورخصة عمل وأجير وتأشيرة، فهي صيغة العامل الأجنبي. العامل السعودي لا يُسعَّر منها (يعود «يُحدَّد بعد المراجعة») حتى يزوّد المالك صيغته.",
+    "lump": {
+      "margin_on_price": 0.1,
+      "mround_step": 10,
+      "annual_government_fees": {
+        "residence": 9700,
+        "work_permit": 650,
+        "ajeer": 240
+      },
+      "insurance_yearly": 600,
+      "exit_reentry_yearly": 200,
+      "social_insurance_rate": 0.02,
+      "end_of_service_months_per_year": 0.5,
+      "overhead_monthly": 900,
+      "annual_leave": {
+        "included_in_cost": true,
+        "days": 21,
+        "month_days": 30,
+        "_owner_decision": "ملاحظة في الإكسل: «الإجازة السنوية يدفعها العميل» بينما الصيغة تضمّنها في التكلفة. الافتراضي = كما في صيغة العمود الرئيسي (داخل التكلفة). false يُخرجها من السعر الشهري لتُفوتَر منفصلة (تظهر في internal.separate)."
+      },
+      "joining": {
+        "included_in_cost": true,
+        "visa_and_joining_yearly": 3000,
+        "_owner_decision": "العمود الرئيسي يضع 3000 والجدول الجانبي 3600؛ وملاحظة «مصاريف الانضمام يدفعها العميل». الافتراضي 3000 داخل التكلفة. false يُخرجها لتُفوتَر منفصلة."
+      },
+      "return_ticket_yearly": 0,
+      "_return_ticket_yearly": "_owner_decision: الجدول الجانبي يضع تذكرة عودة 1500 سنوياً (1500/12) والعمود الرئيسي لا يضعها. الافتراضي 0 (كالعمود الرئيسي).",
+      "overtime": {
+        "month_days": 30,
+        "hours_per_day": 8,
+        "multiplier": 1.5,
+        "extra_factor": 1.2
+      }
+    },
+    "costplus": {
+      "_status": "pending_decision",
+      "_owner_decision": "تعريف التكلفة غير محسوم عند المالك (تناقضان ١ و٢ في المواصفة: الجدول مزاح صفاً، وثلاثة تعريفات للتكلفة). هذا التعريف المبسّط = عمود الجدول (P·1.02 + 542 = P + 12 + 2%·P + 530) مقسوماً على 0.8، للمالك داخلياً فقط، ولا يُعرض لعميل ما دام client_visible=false.",
+      "client_visible": false,
+      "margin_on_price": 0.2,
+      "mround_step": 10,
+      "p_extra_rate": 0.02,
+      "fixed_monthly": 542,
+      "overtime": {
+        "month_days": 30,
+        "hours_per_day": 8,
+        "multiplier": 1.5,
+        "extra_factor": 1.2
+      }
+    }
   }
 }

@@ -101,6 +101,21 @@ const T = {
              fr: "Vous êtes connecté avec un compte Business Partner, sans abonnement employeur actif (statut : \u00ab {s} \u00bb). Ce que vous publiez ici n\u2019apparaîtra pas avec les postes de votre abonnement.",
              zh: "您使用的是 Business Partner 账户，而非已激活的雇主订阅（状态：“{s}”）。在订阅激活前，此处发布的内容不会与订阅下的职位一并显示。" },
 
+  // ------------------------------------------- الحساب المجاني: البيانات بالاشتراك --
+  // التسجيل مجاني، وبيانات المرشحين (الاسم والسيرة والتواصل) لا تُفتح إلا باشتراك فعّال.
+  // الحجب يجري في الخادم؛ هذه النصوص تشرح ما يراه صاحب الحساب ولماذا. لا سعر هنا:
+  // الأسعار في صفحة الاشتراك نفسها، ولا يُكتب رقمٌ لا يقرؤه هذا الملف من الكتالوج.
+  lockH:   { ar: "حسابك مجاني", en: "Your account is free", fr: "Votre compte est gratuit", zh: "您的账户是免费账户" },
+  lockP:   { ar: "ترى هنا أعداد المرشحين ونسبة المطابقة والمهنة والخبرة والجنسية. أسماؤهم وسيرهم وبيانات تواصلهم تُفتح بالاشتراك. أما المتقدمون على إعلاناتك فيبقون ظاهرين لك كاملين.",
+             en: "Here you see candidate counts, match scores, profession, experience and nationality. Names, CVs and contact details unlock with a subscription. People who applied to your own vacancies stay fully visible.",
+             fr: "Vous voyez ici le nombre de candidats, le taux de correspondance, le métier, l\u2019expérience et la nationalité. Les noms, CV et coordonnées s\u2019ouvrent avec un abonnement. Les candidats à vos propres offres restent visibles.",
+             zh: "这里可查看候选人数量、匹配度、职业、经验与国籍。姓名、简历和联系方式需订阅后解锁。申请您自己职位的人始终完整可见。" },
+  lockGo:  { ar: "اشترك لفتح البيانات", en: "Subscribe to unlock the data", fr: "Abonnez-vous pour ouvrir les données", zh: "订阅以解锁数据" },
+  lockName:{ ar: "الاسم مخفي — يُفتح بالاشتراك", en: "Name hidden — unlocks with a subscription", fr: "Nom masqué — s\u2019ouvre avec un abonnement", zh: "姓名已隐藏——订阅后解锁" },
+  lockProf:{ ar: "الاسم والسيرة وبيانات التواصل مخفية حتى تشترك.", en: "Name, CV and contact details are hidden until you subscribe.", fr: "Nom, CV et coordonnées sont masqués jusqu\u2019à l\u2019abonnement.", zh: "订阅前，姓名、简历和联系方式均已隐藏。" },
+  lockScore:{ ar: "سبب الدرجة يُفتح بالاشتراك", en: "The reasoning unlocks with a subscription", fr: "La justification s\u2019ouvre avec un abonnement", zh: "评分依据订阅后解锁" },
+  lockSub: { ar: "اشترك", en: "Subscribe", fr: "S\u2019abonner", zh: "订阅" },
+
   // ------------------------------------------------------------- الأخطاء --
   eEmail:  { ar: "اكتب بريداً صحيحاً.", en: "Enter a valid email address.", fr: "Saisissez un e-mail valide.", zh: "请输入有效的邮箱地址。" },
   eSend:   { ar: "تعذّر إرسال الرمز الآن. حاول بعد قليل أو ادخل بكلمة المرور.",
@@ -723,6 +738,10 @@ export function buildSimpleEmployer(SV1, ctx) {
 .sv1-empty{background:var(--acSoft);border:1px solid var(--acLine);border-radius:14px;
  padding:22px 20px;margin:16px 0 0;text-align:center}
 .sv1-empty h4{margin:0 0 6px;font-size:16px;font-weight:600;color:var(--ink)}
+/* الحساب المجاني: التمويه يغطّي الاسم وحده، والأنماط كلّها من رموز SV1 القائمة. */
+.sv1-lock{filter:blur(5px);user-select:none;pointer-events:none;color:var(--ink)}
+.sv1-lockbar{margin:0 0 16px;padding:16px 18px;text-align:start}
+.sv1-lockbar p{margin:0 0 12px;max-width:none}
 .sv1-empty p{margin:0 auto 14px;font-size:12.5px;color:var(--s);line-height:1.8;max-width:520px}
 
 /* ── جدول الوظائف ────────────────────────────────────────────────────────
@@ -1069,12 +1088,11 @@ a.nm:hover,a.nm:focus-visible{color:var(--ac);text-decoration:underline;text-und
           <button type="button" data-go="jobs" id="tabJobs">${ICON.jobs}<span>${esc(t("sideJobs"))}</span></button>
           <button type="button" data-go="apps" id="tabApps">${ICON.apps}<span>${esc(t("sideApps"))}</span></button>
         </nav>
-        <!-- المجموعة الثانية: المطابقة الذكية وقاعدة المواهب. مخفيّةٌ حتى
-             يثبت أن الجلسة جلسةُ اشتراكٍ مفعّل لصاحب عمل — لا جلسةَ عميلٍ
-             فُتحت له البوابة بالتجربة المجانية. الشاشتان بابان إلى بنك
-             السير كلّه، والقديمة تفتحه برمز اشتراكٍ حقيقي وحده، فلا تُفتح
-             هنا لمن لا يفتحه له القديم. (انظر SUB في السكربت.) -->
-        <nav class="grp sv1-hidden" id="grpTalent" aria-label="${esc(t("sidePool"))}">
+        <!-- المجموعة الثانية: المطابقة الذكية وقاعدة المواهب. تظهر لكل داخل
+             (قرار المالك 2026-10-08: التسجيل مجاني)، لكن **الخادم** هو من يحجب
+             الأسماء والتواصل والسير عن غير المشترك — فالشاشتان تُرسمان له
+             بأسماء مموّهة وزرّ اشتراك. (انظر SUB في السكربت.) -->
+        <nav class="grp" id="grpTalent" aria-label="${esc(t("sidePool"))}">
           <button type="button" data-go="match" id="tabMatch">${ICON.match}<span>${esc(t("sideMatch"))}</span></button>
           <button type="button" data-go="pool" id="tabPool">${ICON.pool}<span>${esc(t("sidePool"))}</span></button>
         </nav>
@@ -1094,6 +1112,7 @@ a.nm:hover,a.nm:focus-visible{color:var(--ac);text-decoration:underline;text-und
       <p class="sv1-emp-sub">${esc(t("homeSub"))}</p>
       <div class="sv1-kpi" id="homeKpi"></div>
       <p class="sv1-emp-hint sv1-hidden" id="homeNote" style="margin-top:10px"></p>
+      <div class="sv1-empty sv1-lockbar sv1-hidden" id="lockHome" role="note"></div>
       <div class="sv1-empty sv1-hidden" id="homeEmpty">
         <h4>${esc(t("emptyH"))}</h4>
         <p>${esc(t("emptyP"))}</p>
@@ -1151,6 +1170,7 @@ a.nm:hover,a.nm:focus-visible{color:var(--ac);text-decoration:underline;text-und
     <div id="scMatch" class="sv1-hidden">
       <h3 class="sv1-emp-h">${esc(t("matchH"))}</h3>
       <p class="sv1-emp-sub">${esc(t("matchSub"))}</p>
+      <div class="sv1-empty sv1-lockbar sv1-hidden" id="lockMatch" role="note"></div>
       <div class="sv1-ff">
         <div style="flex:2 1 240px"><label for="mtJob">${esc(t("matchJobL"))}</label><select id="mtJob"></select></div>
         <div><label for="mtMinExp">${esc(t("mtMinExp"))}</label>
@@ -1188,6 +1208,7 @@ a.nm:hover,a.nm:focus-visible{color:var(--ac);text-decoration:underline;text-und
     <div id="scPool" class="sv1-hidden">
       <h3 class="sv1-emp-h">${esc(t("poolH"))}</h3>
       <p class="sv1-emp-sub">${esc(t("poolSub"))}</p>
+      <div class="sv1-empty sv1-lockbar sv1-hidden" id="lockPool" role="note"></div>
       <div class="sv1-ff">
         <div style="flex:2 1 220px"><label for="tpQ">${esc(t("poolQ"))}</label>
           <input id="tpQ" type="search" autocomplete="off" spellcheck="false" maxlength="80"></div>
@@ -1255,7 +1276,7 @@ ${SV1.footer()}`;
   for (const k of Object.keys(T)) TX[k] = t(k);
 
   const script = `<script>(function(){"use strict";
-var TX=${JSON.stringify(TX)},HOME=${JSON.stringify(u("/employer"))},JOB=${JSON.stringify(u("/job") + "?id=")};
+var TX=${JSON.stringify(TX)},HOME=${JSON.stringify(u("/employer"))},JOIN=${JSON.stringify(u("/employer-join"))},JOB=${JSON.stringify(u("/job") + "?id=")};
 var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -1307,7 +1328,17 @@ function subMsg(d){var r=d&&d.emp,st=(d&&d.empStatus)||'—';
 // (‏account)، وإمّا دخولٌ برمز وصولٍ صالح عبر كلمة المرور (لا account ولا
 // portal). وجلسة العميل (portal) تبقى على شاشاتها الخمس كما كانت. لا نوسّع
 // بابَ بيانات شخصية لمن لا يفتحه له القديم اليوم.
-function applySub(d){SUB=!!(d&&d.unlocked&&!d.portal);show($('grpTalent'),SUB)}
+// الاشتراك يقرؤه المتصفّح من الخادم (sub) ولا يستنتجه: sub=true صراحةً أو لا اشتراك.
+// والمجاني لا يُخفى عنه البابان — يراهما بأسماء مموّهة (الحجب في الخادم أصلاً).
+function applySub(d){SUB=!!(d&&d.sub===true);
+ ['lockHome','lockPool','lockMatch'].forEach(function(id){var el=$(id);if(!el)return;
+  if(SUB){el.innerHTML='';show(el,false);return}
+  el.innerHTML='<h4>'+esc(TX.lockH)+'</h4><p>'+esc(TX.lockP)+'</p>'+
+   '<a class="sv1-btn primary" href="'+esc(JOIN)+'">'+esc(TX.lockGo)+'</a>';
+  show(el,true)})}
+// اسمٌ مموّه: النصّ ثابتٌ لا يحمل شيئاً من المرشّح (الخادم لا يعيد اسماً أصلاً).
+function lockedNm(){return '<span class="sv1-lock" role="img" aria-label="'+esc(TX.lockName)+'" title="'+
+ esc(TX.lockName)+'">●●●●● ●●●●●</span>'}
 function warnBar(d){var r=(d&&d.portal)?(d.emp||''):'';
  var m=r==='pending'?TX.portalW.replace('{s}',(d&&d.empStatus)||'—')
    :r==='nocode'?TX.noCodeE:r==='error'?TX.empErr:'';
@@ -1434,9 +1465,7 @@ function route(){
  var known=false;SC.forEach(function(s){if(s[0]===sc)known=true});
  if(!known)sc='home';
  lastScreen=sc;
- // البابان المؤدّيان إلى بنك السير لا يُفتحان إلا باشتراك صاحب عملٍ مفعّل،
- // ولا بكتابة ‎#/pool‎ في شريط العنوان: الشرط هنا لا في الزرّ وحده.
- if((sc==='match'||sc==='pool')&&!SUB)sc='home';
+ // البابان مفتوحان للمجاني أيضاً، لكن بلا بيانات تعريفية: الخادم هو الذي يحجب.
  hideScreens();SC.forEach(function(s){if(s[0]===sc)show($(s[1]),true)});
  navOn(sc);
  if(sc==='home')loadHome();
@@ -1936,10 +1965,15 @@ function drawCandDet(c,d){
  // القيمة من الملفّ التفصيلي أولاً، ثم ممّا في القائمة (للمتقدّم).
  function pk(k){var v=d[k];if(v==null||v==='')v=c[k];return v==null?'':v}
  var name=pk('name'),role=pk('role'),orig=String(d.originalPosition||'').trim();
+ // الحساب المجاني: الخادم لا يعيد اسماً ولا تواصلاً ولا سيرةً ولا توطيناً (locked) —
+ // فلا تُرسم مربّعاتُها فارغةً كأنها «لم تُفحص»، بل يحلّ محلّها الإشعار وزرّ الاشتراك.
+ var lk=!!d.locked||!!c.locked;
  var hd=$('candHead');
- if(hd)hd.innerHTML='<h3 class="sv1-emp-h">'+esc(name||'—')+'</h3>'+
+ var rq=$('cReqBox');if(rq&&lk)rq.classList.add('sv1-hidden');
+ if(hd)hd.innerHTML='<h3 class="sv1-emp-h">'+(lk?lockedNm():esc(name||'—'))+'</h3>'+
   '<p class="sv1-emp-sub">'+esc([role,pk('field'),c._job].filter(Boolean).join(' · '))+'</p>';
- if(chips){
+ if(chips&&lk)chips.innerHTML='';
+ else if(chips){
   chips.innerHTML=
    (d.score==null?chip('off',TX.mScoreL+': '+TX.mScoreNo)
     :chip(d.score>=75?'ok':(d.score>=50?'warn':'bad'),TX.mScoreL+': '+d.score+'/100'))+
@@ -1959,12 +1993,16 @@ function drawCandDet(c,d){
   tile(TX.pfLoc,kv([[TX.fCityL,pk('city')],[TX.fCountry,pk('country')]])),
   tile(TX.pfNat,kv([[TX.dNatT,pk('nationalityType')],[TX.fNat,pk('nationality')],
    [TX.dRes,pk('residenceStatus')],[TX.dAvail,pk('availability')]])),
-  tile(TX.pfSaud,stChip(d.saudization,SAUD_CLS,TX.saudL)+' '+stChip(d.compliance,COMP_CLS,TX.compL)+
+  lk?'':tile(TX.pfSaud,stChip(d.saudization,SAUD_CLS,TX.saudL)+' '+stChip(d.compliance,COMP_CLS,TX.compL)+
    (d.saudizationDetails?'<p class="why" dir="auto">'+esc(d.saudizationDetails)+'</p>':'')+
    ((d.saudization||d.compliance)?'<p class="sv1-cvnote">'+esc(TX.saudNote)+'</p>':''),'w2')
  ];
  // الدرجة: لا تُعرض إلا ومعها مبرّرها المكتوب. رقمٌ عارٍ بلا سببٍ يُبنى عليه قرار توظيف
  // هو أسوأ ما تعرضه هذه الشاشة — فيُقال إنه بلا مبرّر بدل أن يُعرض كأنه مدعوم.
+ if(lk){
+  tiles.push(tile(TX.lockH,'<p class="sv1-cvnote" style="margin:0 0 10px">'+esc(TX.lockProf)+'</p>'+
+   '<a class="sv1-btn primary sm" href="'+esc(JOIN)+'">'+esc(TX.lockGo)+'</a>','w2'));
+  box.innerHTML='<div class="sv1-pf-grid">'+tiles.join('')+'</div>';return}
  if(d.score!=null){
   tiles.push(tile(TX.pfScore,'<span class="big">'+esc(String(d.score))+' <small>/ 100</small></span>'+
    (d.scoreReason?'<p class="why" dir="auto">'+esc(d.scoreReason)+'</p>':'<p class="sv1-cvnote">'+esc(TX.scoreBare)+'</p>')+
@@ -1999,7 +2037,7 @@ function openCand(id,kind){
  var opts=STAGES.map(function(s){
   return '<option value="'+s[0]+'"'+(s[0]===c.stage?' selected':'')+'>'+esc(s[1])+'</option>'}).join('');
  $('candBody').innerHTML=
-  '<div id="candHead"><h3 class="sv1-emp-h">'+esc(c.name||'—')+'</h3>'+
+  '<div id="candHead"><h3 class="sv1-emp-h">'+(c.locked?lockedNm():esc(c.name||'—'))+'</h3>'+
    '<p class="sv1-emp-sub">'+esc(c._job||'')+'</p></div>'+
   '<div class="sv1-aibar" id="candChips"></div>'+
   // ما تحت هذا يُجلب عند فتح هذا المرشّح وحده ولا يأتي مع القائمة: نصّ سيرةٍ لكل
@@ -2009,7 +2047,7 @@ function openCand(id,kind){
    (kind==='a'?'<label for="cStage">'+esc(TX.stage)+'</label>'+
     '<select id="cStage">'+opts+'</select>'+
     '<p class="sv1-emp-msg" id="cStageMsg"></p>':'')+
-   '<div style="'+(kind==='a'?'margin-top:26px;padding-top:20px;border-top:1px solid var(--l)':'')+'">'+
+   '<div id="cReqBox" style="'+(kind==='a'?'margin-top:26px;padding-top:20px;border-top:1px solid var(--l)':'')+'">'+
     '<h4 style="margin:0 0 5px;font-size:16px;font-weight:600">'+esc(TX.reqH)+'</h4>'+
     '<p class="sv1-emp-sub">'+esc(TX.reqP)+'</p>'+
     '<label for="cPref">'+esc(TX.reqPref)+'</label>'+
@@ -2102,15 +2140,20 @@ var ERRT={ai_failed:'mtErrAi',no_reason:'mtErrWhy',no_score:'mtErrWhy',unparsed:
  forbidden_reason:'mtErrWhy',not_found:'mtErrNot'};
 
 // الدرجة تُرسم إذا كانت رقماً **ومعها سببٌ مكتوب** — وإلا فلا درجة.
-function okScore(r){return typeof r.score==='number'&&isFinite(r.score)&&!!String(r.reason||'').trim()}
+// الحساب المجاني يرى نسبة المطابقة المخزَّنة بلا سببها (lockedScore): السبب نصٌّ كتبه
+// المستشار من السيرة كاملةً، فيُفتح بالاشتراك. هذا الاستثناء الوحيد لقاعدة «لا درجة بلا سبب».
+function okScore(r){return typeof r.score==='number'&&isFinite(r.score)&&(r.lockedScore||!!String(r.reason||'').trim())}
 function isScored(r){return (r.st==='saved'||r.st==='scored')&&okScore(r)}
-function isTodo(r){return r.st==='new'&&(r.c.applied||r.c._a||MT.poolOK!==false)}
+// بلا اشتراك: متقدّمو الإعلان وحدهم يُقيَّمون (الخادم يرفض غيرهم).
+function isTodo(r){return r.st==='new'&&(r.c.applied||r.c._a||(SUB&&MT.poolOK!==false))}
 
 function mkItem(c){
  var r={c:c,id:c.id,st:'new',score:null,reason:'',conf:'',why:'',checks:c.checks||[],err:'',failed:[]};
  var m=c.match;
  if(m&&typeof m.score==='number'&&String(m.reason||'').trim()){
   r.st='saved';r.score=m.score;r.reason=m.reason;r.conf=m.confidence||'';r.why=m.confidenceWhy||''}
+ else if(m&&m.locked&&typeof m.score==='number'){
+  r.st='saved';r.score=m.score;r.lockedScore=true;r.conf=m.confidence||''}
  return r}
 function addItem(c){if(MT.byId[c.id])return null;var r=mkItem(c);MT.items.push(r);MT.byId[c.id]=r;return r}
 
@@ -2138,12 +2181,13 @@ function mtCard(r){
   return '<span class="sv1-pill '+(CKC[k.status]||'off')+'" title="'+esc(TX[CKT[k.status]]||'')+'">'+
    (CKM[k.status]||'؟')+' '+esc(lab)+'</span>'}).join('');
  return '<li><div class="sv1-mt-top">'+
-   '<i class="sv1-kb-av" aria-hidden="true">'+esc(initials(c.name))+'</i>'+
-   '<div class="sv1-mt-nm"><a class="nm" dir="auto" href="'+link+'">'+esc(c.name||'—')+'</a>'+
+   '<i class="sv1-kb-av" aria-hidden="true">'+esc(c.locked?'•':initials(c.name))+'</i>'+
+   '<div class="sv1-mt-nm"><a class="nm" dir="auto" href="'+link+'">'+(c.locked?lockedNm():esc(c.name||'—'))+'</a>'+
     (meta?'<small>'+esc(meta)+'</small>':'')+
     (c.applied||c._a?'<span class="sv1-pill ok" style="margin-top:4px">'+esc(TX.mtApplied)+'</span>':'')+'</div>'+
    box+'</div>'+
-  (isScored(r)?'<p class="sv1-ai-r" dir="auto">'+esc(r.reason)+'</p>':'')+
+  (isScored(r)?(r.lockedScore?'<p class="sv1-ai-r">'+esc(TX.lockScore)+' — <a href="'+esc(JOIN)+'">'+esc(TX.lockSub)+'</a></p>'
+    :'<p class="sv1-ai-r" dir="auto">'+esc(r.reason)+'</p>'):'')+
   (cks?'<div class="sv1-ck">'+cks+'</div>':'')+
   '</li>'}
 
@@ -2322,8 +2366,8 @@ function poolCard(c){
    return '<dt>'+esc(p[0])+'</dt><dd>'+esc(p[1])+'</dd>'}).join('');
  var meta=[c.role,c.city,expTxt(c.experience)].filter(Boolean).join(' · ');
  return '<div><div class="hd">'+
-   '<i class="sv1-kb-av" aria-hidden="true">'+esc(initials(c.name))+'</i>'+
-   '<div style="min-width:0"><a class="nm" href="#/p/'+encodeURIComponent(c.id)+'">'+esc(c.name||'—')+'</a>'+
+   '<i class="sv1-kb-av" aria-hidden="true">'+esc(c.locked?'•':initials(c.name))+'</i>'+
+   '<div style="min-width:0"><a class="nm" href="#/p/'+encodeURIComponent(c.id)+'">'+(c.locked?lockedNm():esc(c.name||'—'))+'</a>'+
     (meta?'<small>'+esc(meta)+'</small>':'')+'</div></div>'+
   (c.field?'<p style="margin:0;font-size:11.5px;color:var(--mut)">'+esc(c.field)+'</p>':'')+
   (sk.length?'<div class="sv1-tags">'+sk.map(function(x){

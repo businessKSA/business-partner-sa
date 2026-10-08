@@ -540,3 +540,5 @@ Simple V1. وكيل المنتج لا يلمسها.
 ## وكيل `eor` — 2026-10-01 (أمر المالك المباشر)
 
 **خدمة الموظفين على بند التعاقد (Employer of Record):** `/eor` صفحة الشرح ونموذج الطلب (عدد الموظفين، الجنسيات، المهن من التصنيف الموحّد)، سجلّ «BP EOR Requests» في Notion، تنبيه فرح على واتساب، عرض سعر ونطاق عمل ومحادثة. الملفات: `api/_eor.js` · `api/_eor-pricing.json` (يملؤه المالك — لا أسعار مخترعة) · `site/scripts/simple-v1-eor.mjs`. المسار عبر `api/requests.js?__route=eor` (owner-ops). تعريف الوكيل: `.claude/agents/eor.md`.
+
+**بوابة Business Partner HR (2026-10-08):** `/hr-portal` — «من أنت؟» ست بطاقات (صاحب عمل، مرشح، موظف بدعوة، مكتب، مستقل، منصة)، `noindex` وغير مربوطة في nav/footer/sitemap، ويدخلها المستخدم من زر في `/eor` فقط (`/hr` القديمة هي صفحة التوظيف وتبقى كما هي). الملفات: `site/scripts/simple-v1-hr.mjs` · `api/_eor-cost.js` (حاسبة سعر الحزمة lump/costplus، العميل يرى السعر الشهري وساعة الإضافي فقط) · كتلة `package_rate` في `api/_eor-pricing.json` (أرقام إكسل المالك؛ بنود غير محسومة موثّقة في `docs/hr-pricing-calculator-spec.md`).

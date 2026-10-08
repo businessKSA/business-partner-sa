@@ -402,6 +402,10 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-empty{background:var(--acSoft);border:1px solid var(--acLine);border-radius:14px;
  padding:22px 20px;margin:16px 0 0;text-align:center}
 .sv1-empty h4{margin:0 0 6px;font-size:16px;font-weight:600;color:var(--ink)}
+/* الحساب المجاني: التمويه يغطّي الاسم وحده، والأنماط كلّها من رموز SV1 القائمة. */
+.sv1-lock{filter:blur(5px);user-select:none;pointer-events:none;color:var(--ink)}
+.sv1-lockbar{margin:0 0 16px;padding:16px 18px;text-align:start}
+.sv1-lockbar p{margin:0 0 12px;max-width:none}
 .sv1-empty p{margin:0 auto 14px;font-size:12.5px;color:var(--s);line-height:1.8;max-width:520px}
 
 /* ── جدول الوظائف ────────────────────────────────────────────────────────
@@ -798,12 +802,11 @@ var h0=hint();if(h0)S.paint(true,h0);
           <button type="button" data-go="jobs" id="tabJobs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.8" y="7.2" width="18.4" height="13" rx="2.2"/><path d="M8.6 7.2V5.4a1.8 1.8 0 0 1 1.8-1.8h3.2a1.8 1.8 0 0 1 1.8 1.8v1.8"/><path d="M2.8 12.4h18.4"/></svg><span>الوظائف</span></button>
           <button type="button" data-go="apps" id="tabApps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8.2" r="3.2"/><path d="M3.4 20c0-3.1 2.5-5.4 5.6-5.4s5.6 2.3 5.6 5.4"/><path d="M16.4 5.4a3.2 3.2 0 0 1 0 6"/><path d="M17.8 14.9c1.8.7 3 2.4 3 4.4"/></svg><span>المتقدمون</span></button>
         </nav>
-        <!-- المجموعة الثانية: المطابقة الذكية وقاعدة المواهب. مخفيّةٌ حتى
-             يثبت أن الجلسة جلسةُ اشتراكٍ مفعّل لصاحب عمل — لا جلسةَ عميلٍ
-             فُتحت له البوابة بالتجربة المجانية. الشاشتان بابان إلى بنك
-             السير كلّه، والقديمة تفتحه برمز اشتراكٍ حقيقي وحده، فلا تُفتح
-             هنا لمن لا يفتحه له القديم. (انظر SUB في السكربت.) -->
-        <nav class="grp sv1-hidden" id="grpTalent" aria-label="قاعدة المواهب">
+        <!-- المجموعة الثانية: المطابقة الذكية وقاعدة المواهب. تظهر لكل داخل
+             (قرار المالك 2026-10-08: التسجيل مجاني)، لكن **الخادم** هو من يحجب
+             الأسماء والتواصل والسير عن غير المشترك — فالشاشتان تُرسمان له
+             بأسماء مموّهة وزرّ اشتراك. (انظر SUB في السكربت.) -->
+        <nav class="grp" id="grpTalent" aria-label="قاعدة المواهب">
           <button type="button" data-go="match" id="tabMatch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.6" cy="10.6" r="6.4"/><path d="M15.4 15.4 20.6 20.6"/><path d="M8.2 10.6h4.8"/><path d="M10.6 8.2v4.8"/></svg><span>المطابقة</span></button>
           <button type="button" data-go="pool" id="tabPool"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8.4" cy="7.6" r="3"/><path d="M3 19.2c0-3 2.4-5.2 5.4-5.2s5.4 2.2 5.4 5.2"/><path d="M16.2 4.6h5"/><path d="M16.2 9h5"/><path d="M16.2 13.4h5"/></svg><span>قاعدة المواهب</span></button>
         </nav>
@@ -823,6 +826,7 @@ var h0=hint();if(h0)S.paint(true,h0);
       <p class="sv1-emp-sub">كل رقم هنا محسوبٌ من إعلاناتك ومتقدّميك الآن — لا تقديرات.</p>
       <div class="sv1-kpi" id="homeKpi"></div>
       <p class="sv1-emp-hint sv1-hidden" id="homeNote" style="margin-top:10px"></p>
+      <div class="sv1-empty sv1-lockbar sv1-hidden" id="lockHome" role="note"></div>
       <div class="sv1-empty sv1-hidden" id="homeEmpty">
         <h4>لوحتك جاهزة، وينقصها إعلان</h4>
         <p>انشر أول إعلان وستمتلئ هذه الأرقام وحدها: كل من يتقدّم يصلك هنا، وتنقله بين المراحل من لوحة المسار.</p>
@@ -880,6 +884,7 @@ var h0=hint();if(h0)S.paint(true,h0);
     <div id="scMatch" class="sv1-hidden">
       <h3 class="sv1-emp-h">المطابقة الذكية</h3>
       <p class="sv1-emp-sub">اختر إعلاناً من إعلاناتك. نعرض المرشّحين المقروءين المطابقين لمعاييره الحتمية (المجال والمدينة والخبرة والتوطين)، وما قُيِّم سابقاً يظهر مرتّباً بالدرجة فوراً. والتقييم الجديد يكتب له المستشار الذكي درجةً من ١٠٠ وسببها.</p>
+      <div class="sv1-empty sv1-lockbar sv1-hidden" id="lockMatch" role="note"></div>
       <div class="sv1-ff">
         <div style="flex:2 1 240px"><label for="mtJob">الإعلان</label><select id="mtJob"></select></div>
         <div><label for="mtMinExp">حدّ أدنى للخبرة (سنوات)</label>
@@ -917,6 +922,7 @@ var h0=hint();if(h0)S.paint(true,h0);
     <div id="scPool" class="sv1-hidden">
       <h3 class="sv1-emp-h">قاعدة المواهب</h3>
       <p class="sv1-emp-sub">بنك السير المقروءة في المنصّة، مرتّبٌ بالأحدث، يُجلب صفحةً صفحة. السيرة التي لم يُقرأ نصّها لا تظهر هنا إطلاقاً.</p>
+      <div class="sv1-empty sv1-lockbar sv1-hidden" id="lockPool" role="note"></div>
       <div class="sv1-ff">
         <div style="flex:2 1 220px"><label for="tpQ">ابحث بالمسمّى أو المهارة</label>
           <input id="tpQ" type="search" autocomplete="off" spellcheck="false" maxlength="80"></div>
@@ -1067,7 +1073,7 @@ document.addEventListener("click",function(e){
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>(function(){"use strict";
-var TX={"title":"بوابة صاحب العمل","desc":"انشر وظيفة، واستقبل المتقدمين، وتابعهم من الفرز إلى العرض الوظيفي — في صفحة واحدة.","loginH":"ادخل بوابتك","loginP":"اكتب بريد شركتك ويصلك رمز لمرة واحدة. لا كلمة مرور تُنسى، ولا رمز دائم تحمله معك.","emailL":"البريد الإلكتروني","sendOtp":"أرسل الرمز","sending":"جارٍ الإرسال…","otpSent":"أرسلنا رمزاً من ٦ أرقام إلى","otpL":"الرمز","otpGo":"ادخل","otpBack":"← بريد آخر","pwOpen":"الدخول بكلمة المرور بدلاً من ذلك","otpOpen":"← الدخول برمز البريد","pwH":"الدخول بكلمة المرور","pwL":"كلمة المرور","pwGo":"دخول","forgot":"نسيت كلمة المرور","rsH":"استعادة كلمة المرور","rsSend":"أرسل رمز الاستعادة","rsCodeL":"رمز الاستعادة","rsNewL":"كلمة المرور الجديدة (٨ أحرف فأكثر)","rsGo":"عيّن كلمة المرور","noSub":"هذا البريد ليس عليه اشتراك مفعّل. التفعيل يدوي بعد تأكيد الدفع — تواصل معنا وسنفعّله.","register":"لا اشتراك لديك بعد؟ سجّل شركتك","pendSub":"بريدك مسجّل، واشتراكك لم يُفعّل بعد — حالته الآن: «{s}». التفعيل يدوي بعد تأكيد الدفع: راسلنا على business@businesspartner.sa ومعك اسم شركتك وسنفعّله.","empErr":"تعذّر التحقق من اشتراكك الآن — العطل عندنا لا عند حسابك. أعد المحاولة بعد دقيقة، وإن تكرّر راسلنا على business@businesspartner.sa.","noCodeE":"اشتراكك مفعّل لكن صفّه بلا رمز وصول، ولا تُفتح اللوحة بدونه. راسلنا على business@businesspartner.sa وسنصلحه اليوم.","portalW":"أنت داخل بحساب Business Partner، لا باشتراك صاحب عمل مفعّل (حالة اشتراكك: «{s}»). ما تنشره هنا الآن لن يظهر مع إعلانات اشتراكك حتى يُفعّل.","eEmail":"اكتب بريداً صحيحاً.","eSend":"تعذّر إرسال الرمز الآن. حاول بعد قليل أو ادخل بكلمة المرور.","eOtp":"الرمز غير صحيح أو انتهت صلاحيته.","eNoSess":"تعذّر إنشاء الجلسة. ادخل بكلمة المرور هذه المرة.","ePw":"البريد أو كلمة المرور غير صحيحة.","eWeak":"كلمة المرور قصيرة — ٨ أحرف فأكثر.","eNet":"تعذّر الاتصال. حدّث الصفحة وحاول مرة أخرى.","eSave":"تعذّر الحفظ. حاول مرة أخرى.","navJobs":"وظائفي","navNew":"نشر إعلان","navApps":"من تقدّم","sideHome":"الرئيسية","sideJobs":"الوظائف","sideApps":"المتقدمون","sideSet":"الإعدادات","sideFold":"اطوِ الشريط","sideMenu":"القائمة","acct":"الحساب","logout":"تسجيل الخروج","acctPw":"تغيير كلمة المرور","acctPh":"رقم الجوال","acctSave":"حفظ الرقم","acctOk":"تم الحفظ.","acctPhNo":"تغيير الرقم متاحٌ عند الدخول برمز البريد. ادخل به لتعديله.","acctPwNo":"تغيير كلمة المرور يتم عبر «نسيت كلمة المرور» في شاشة الدخول: يصلك رمز على بريدك ثم تعيّن كلمة جديدة.","plan":"الباقة","homeH":"الرئيسية","homeSub":"كل رقم هنا محسوبٌ من إعلاناتك ومتقدّميك الآن — لا تقديرات.","kActive":"وظائف نشطة","kAll":"إجمالي المتقدمين","kAllN":"على الإعلانات الظاهرة في لوحتك","kNew":"جدد خلال ٧ أيام","kNewN":"بتاريخ تسجيل المتقدّم","kJobsN":"من أصل {n}","pipeH":"المسار","pipeSub":"عدد من في كل مرحلة — اضغط المرحلة لفتح لوحة المسار.","emptyH":"لوحتك جاهزة، وينقصها إعلان","emptyP":"انشر أول إعلان وستمتلئ هذه الأرقام وحدها: كل من يتقدّم يصلك هنا، وتنقله بين المراحل من لوحة المسار.","emptyGo":"انشر أول إعلان","numWait":"جارٍ العدّ…","numFail":"تعذّر عدّ المتقدّمين الآن.","searchPh":"ابحث في وظائفك ومتقدّميك","searchNo":"لا نتيجة في المحمَّل","searchJ":"وظائف","searchC":"مرشّحون","searchMr":"و{n} غيرها","thTitle":"العنوان","thCity":"المدينة","thField":"المجال","thType":"الدوام","thApps":"المتقدمون","thStat":"الحالة","thDate":"تاريخ النشر","thActs":"إجراءات","setH":"الإعدادات","setSub":"حساب شركتك في البوابة.","setCo":"الشركة","langL":"اللغة","jobsH":"وظائفي","loading":"جارٍ التحميل…","jobsNone":"لا إعلانات بعد. انشر أول إعلان وسيظهر على صفحة الوظائف خلال دقائق.","stActive":"نشطة","stClosed":"مغلقة","edit":"تعديل","closeJob":"إغلاق","closeAsk":"إغلاق هذا الإعلان؟ سيختفي من صفحة الوظائف ولن يصلك متقدّمون جدد.","viewJob":"الإعلان العام","newH":"نشر إعلان","editH":"تعديل الإعلان","fTitle":"المسمّى الوظيفي","fCity":"المدينة","fField":"المجال","fFieldN":"— اختر —","fType":"نوع الدوام","fMode":"نمط العمل","fAny":"— غير محدّد —","fDesc":"الوصف والمتطلبات","aiWrite":"✦ اكتب الوصف من المسمّى","aiWork":"جارٍ الكتابة…","aiNeed":"اكتب المسمّى الوظيفي أولاً.","aiFail":"تعذّرت الكتابة الآن — اكتب الوصف بنفسك.","publish":"انشر الإعلان","saveJob":"احفظ التعديل","saving":"جارٍ الحفظ…","published":"نُشر الإعلان.","eFields":"المسمّى والوصف مطلوبان.","cancel":"إلغاء","appsH":"من تقدّم","appsNone":"لا متقدّمين بعد على إعلاناتك.","appsAll":"كل الإعلانات","appsN":"متقدّم","appsCut":"القائمة طويلة وقُطع جزء منها — حدّث الصفحة لرؤية البقية.","open":"افتح الملف","moveTo":"انقل إلى…","moving":"جارٍ النقل…","moveOk":"نُقل إلى","moveFail":"تعذّر النقل — أعدنا البطاقة إلى عمودها. حاول مرة أخرى.","boardHint":"اسحب البطاقة إلى عمود آخر، أو استعمل «انقل إلى…» داخلها.","colEmpty":"لا أحد في هذه المرحلة","more":"أظهر المزيد","matchS":"مطابقة","profBack":"← عودة إلى المتقدّمين","stage":"المرحلة","sNew":"جديد","sReview":"فرز","sShort":"قائمة مختصرة","sInt":"مقابلة","sOffer":"عرض","sHired":"تم التوظيف","sRej":"مرفوض","sFuture":"مؤجل","fRole":"الدور","fCityL":"المدينة","fExp":"الخبرة","fYears":"سنة","fSkills":"المهارات","fPhone":"الجوال","fEmail":"البريد","fCv":"السيرة الذاتية","cvOpen":"افتح الملف","cvLoad":"جارٍ جلب السيرة…","cvErr":"تعذّر جلب سيرة هذا المرشّح الآن. حدّث الصفحة وحاول مرة أخرى.","cvNone":"السيرة لم تُقرأ بعد — لم يُستخرج نصّها من الملف، فلا شيء يُعرض هنا.","cvOrig":"السيرة الأصلية (كما رفعها)","cvAtsDoc":"النسخة المهيّأة كمستند","cvNoFile":"لا ملف أصلي محفوظ لهذا المرشّح.","cvAccess":"الملف محفوظ في Drive الشركة وغير مشترك — قد يطلب Google صلاحية الوصول. راسلنا ونرسله لك.","mScoreL":"درجة المطابقة","mScoreNo":"لم تُقيَّم بعد","scoreFor":"قُيّمت على","saudL":"التوطين","compL":"الامتثال لنظام التوظيف","notChk":"لم يُفحص","scoreBare":"لا مبرّر مكتوب لهذه الدرجة في سجلّ المرشّح.","saudNote":"الحالتان معروضتان كما هما في سجلّ المرشّح ولا تُحسَبان هنا. للحالة الرسمية راجع منصّة قوى.","reqH":"اطلب مقابلة","reqP":"نتولّى نحن جدولة الموعد مع المرشّح ونعود إليك به — أو مع مكتب الاستقدام الذي رشّحه إن كان الترشيح عبر مكتب.","reqPref":"توقيت يناسبك (اختياري)","reqMode":"طريقة المقابلة","mIn":"حضوري","mOn":"أونلاين","mPh":"هاتف","reqGo":"أرسل الطلب","reqOk":"وصل طلبك — نرجع إليك بالموعد.","reqWork":"جارٍ الإرسال…","sideMatch":"المطابقة","sidePool":"قاعدة المواهب","matchH":"المطابقة الذكية","matchSub":"اختر إعلاناً من إعلاناتك. نعرض المرشّحين المقروءين المطابقين لمعاييره الحتمية (المجال والمدينة والخبرة والتوطين)، وما قُيِّم سابقاً يظهر مرتّباً بالدرجة فوراً. والتقييم الجديد يكتب له المستشار الذكي درجةً من ١٠٠ وسببها.","matchJobL":"الإعلان","matchRun":"ابحث عن المناسبين","matchWork":"جارٍ البحث…","matchNoJ":"لا إعلان لديك بعد. انشر إعلاناً أولاً، ثم عد إلى هنا — المطابقة تقارن بإعلانٍ قائم لا بفراغ.","matchRead":"اضغط «ابحث عن المناسبين». لا شيء يُجلب ولا يُقيَّم قبل ضغطك.","matchNone":"لا مرشّح مقروء يطابق هذه المعايير. خفّف شرطاً (المدينة مثلاً) وأعد البحث.","matchErr":"تعذّر جلب المرشّحين. حاول مرة أخرى.","mtCritH":"المعايير الحتمية","mtCityHard":"المدينة شرط (لا تفضيل)","mtMinExp":"حدّ أدنى للخبرة (سنوات)","mtNat":"شرط التوطين النظامي","mtNatAny":"— بلا شرط —","mtNatSa":"سعودي فقط","mtNatNon":"غير سعودي","mtCritNote":"تُطبَّق في الشيفرة قبل أي نداء ذكاء اصطناعي: من لا يمرّ منها لا يُقيَّم ولا تُحرَق عليه كلفة. والجنسية بوّابةٌ نظامية فقط — لا تصل المستشار الذكي ولا تدخل الدرجة.","critField":"المجال","critCity":"المدينة","critExp":"الخبرة ≥ {n} سنة","critDesc":"من وصف الإعلان","critOwner":"من إدخالك","critHard":"شرط","critSoft":"تفضيل","critNone":"لم يُستخرج من الإعلان معيارٌ حتمي (لا مجال ولا مدينة ولا حدّ خبرة) — يُعرض كل مقروء.","mtScoredH":"الأعلى درجةً — مُقيَّمون","mtOpenH":"يطابقون المعايير — لم يُقيَّموا بعد","mtNoScored":"لا مُقيَّمين بعد على هذا الإعلان. ابدأ التقييم من الأسفل.","mtShown":"المعروض: {n} مرشّحاً مقروءاً","mtMoreC":"حمّل المزيد من المطابقين","mtScoreGo":"قيّم المعروضين (٥ في كل دفعة)","mtResume":"استئناف التقييم","mtStop":"إيقاف","mtProg":"جرت معالجة {a} من {b}","mtStats":"قُيِّم الآن {s} · محفوظ سابقاً {c} · استُبعد بالمعايير {k} · تعذّر {f}","mtDone":"اكتمل تقييم المعروضين.","mtStopped":"أُوقف التقييم — يمكنك الاستئناف.","mtNothing":"لا أحد للتقييم في المعروض.","mtApplied":"تقدّم على هذا الإعلان","mtPoolOff":"تقييم من لم يتقدّم على إعلانك غير مفعّل على هذا الخادم (قرار المالك). يُعرض هؤلاء بمعاييرهم الحتمية بلا درجة، ويُقيَّم من تقدّم وحده.","mtAiNote":"يُرسَل إلى المستشار الذكي: وصف الإعلان وحقول المرشّح المهنية ونصّ سيرته المقروء (وقد يحوي ما كتبه صاحبه فيها). لا يُرسَل الاسم ولا الجوّال ولا البريد ولا الجنسية ولا الإقامة كحقول. ولا يبدأ شيءٌ إلا بضغطك.","mtScoreOut":"/ ١٠٠","confH":"ثقة مرتفعة","confM":"ثقة متوسطة","confL":"ثقة منخفضة","ckMet":"مستوفى","ckMiss":"ناقص","ckUnk":"غير معروف","ckField":"المجال","ckCity":"المدينة","ckExp":"الخبرة","ckNat":"التوطين","ckTitle":"المسمّى (تلميح)","mtNoScore":"لم يُقيَّم بعد","mtErrAi":"تعذّر التقييم الآن — أعد المحاولة","mtErrWhy":"لم يُرجِع المستشار الذكي سبباً مقبولاً فلا تُعرض درجة","mtErrNot":"غير متاح للتقييم","mtErrLim":"بلغتَ الحدّ اليومي للتقييم — توقّف.","mtErrOff":"المستشار الذكي غير مُعدّ على هذا الخادم.","poolH":"قاعدة المواهب","poolSub":"بنك السير المقروءة في المنصّة، مرتّبٌ بالأحدث، يُجلب صفحةً صفحة. السيرة التي لم يُقرأ نصّها لا تظهر هنا إطلاقاً.","poolQ":"ابحث بالمسمّى أو المهارة","poolCity":"المدينة","poolNat":"الجنسية","poolAny":"— الكل —","poolSa":"سعودي","poolNon":"غير سعودي","poolGo":"ابحث","poolN":"المعروض: {n}","moreL":"تفاصيل","poolSo":"المعروض حتى الآن: {n}","poolOf":"المعروض {n} من أصل حتى {t} سيرةً مقروءة","poolCnt":"جارٍ عدّ إجمالي السير المقروءة…","poolCntN":"الإجمالي حدٌّ أعلى: يُحسب يومياً من حالة القراءة ونصّ ATS، ولا يخصم ما لا يجتاز فحص جودة النصّ (نحو ٧٪).","poolEdu":"المؤهل","poolExp":"أدنى خبرة (سنوات)","poolSort":"الترتيب","poolSNew":"الأحدث أولاً","poolSExp":"الأكثر خبرة أولاً","poolMore":"تابع البحث في القاعدة","poolEnd":"انتهت النتائج المطابقة.","poolNone":"لا نتيجة مطابقة. وسّع البحث أو أزل فلتراً.","poolErr":"تعذّر تحميل قاعدة السير. حاول مرة أخرى.","poolCv":"السيرة الذاتية","dEdu":"المؤهل","dLang":"اللغات","dAvail":"التوفّر","dRegion":"الخبرة الإقليمية","dRes":"حالة الإقامة","dNatT":"نوع الجنسية","profBackPool":"← عودة إلى قاعدة المواهب","profBackMatch":"← عودة إلى المطابقة","pfSummary":"الملخّص","pfEdu":"التعليم","pfExp":"الخبرة","pfSkills":"المهارات","pfLangs":"اللغات","pfLoc":"الموقع","pfNat":"الجنسية والإقامة","pfSaud":"التوطين والامتثال","pfScore":"الدرجة وسببها","pfContact":"التواصل","pfFile":"السيرة الأصلية","pfFull":"نصّ السيرة الكامل","pfDl":"تحميل السيرة الأصلية","pfScoreHow":"تُقيَّم من شاشة «المطابقة» على إعلانٍ بعينه — الدرجة لا تُفهم بلا وظيفتها.","fCountry":"الدولة","fNat":"الجنسية (كما وردت)","fRegDate":"تاريخ التسجيل","fOrig":"المسمّى كما ورد","fApplied":"تقدّم على","fCountries":"دول الخبرة","moreSk":"+{n} أخرى"},HOME="/ar/employer",JOB="/ar/job?id=";
+var TX={"title":"بوابة صاحب العمل","desc":"انشر وظيفة، واستقبل المتقدمين، وتابعهم من الفرز إلى العرض الوظيفي — في صفحة واحدة.","loginH":"ادخل بوابتك","loginP":"اكتب بريد شركتك ويصلك رمز لمرة واحدة. لا كلمة مرور تُنسى، ولا رمز دائم تحمله معك.","emailL":"البريد الإلكتروني","sendOtp":"أرسل الرمز","sending":"جارٍ الإرسال…","otpSent":"أرسلنا رمزاً من ٦ أرقام إلى","otpL":"الرمز","otpGo":"ادخل","otpBack":"← بريد آخر","pwOpen":"الدخول بكلمة المرور بدلاً من ذلك","otpOpen":"← الدخول برمز البريد","pwH":"الدخول بكلمة المرور","pwL":"كلمة المرور","pwGo":"دخول","forgot":"نسيت كلمة المرور","rsH":"استعادة كلمة المرور","rsSend":"أرسل رمز الاستعادة","rsCodeL":"رمز الاستعادة","rsNewL":"كلمة المرور الجديدة (٨ أحرف فأكثر)","rsGo":"عيّن كلمة المرور","noSub":"هذا البريد ليس عليه اشتراك مفعّل. التفعيل يدوي بعد تأكيد الدفع — تواصل معنا وسنفعّله.","register":"لا اشتراك لديك بعد؟ سجّل شركتك","pendSub":"بريدك مسجّل، واشتراكك لم يُفعّل بعد — حالته الآن: «{s}». التفعيل يدوي بعد تأكيد الدفع: راسلنا على business@businesspartner.sa ومعك اسم شركتك وسنفعّله.","empErr":"تعذّر التحقق من اشتراكك الآن — العطل عندنا لا عند حسابك. أعد المحاولة بعد دقيقة، وإن تكرّر راسلنا على business@businesspartner.sa.","noCodeE":"اشتراكك مفعّل لكن صفّه بلا رمز وصول، ولا تُفتح اللوحة بدونه. راسلنا على business@businesspartner.sa وسنصلحه اليوم.","portalW":"أنت داخل بحساب Business Partner، لا باشتراك صاحب عمل مفعّل (حالة اشتراكك: «{s}»). ما تنشره هنا الآن لن يظهر مع إعلانات اشتراكك حتى يُفعّل.","lockH":"حسابك مجاني","lockP":"ترى هنا أعداد المرشحين ونسبة المطابقة والمهنة والخبرة والجنسية. أسماؤهم وسيرهم وبيانات تواصلهم تُفتح بالاشتراك. أما المتقدمون على إعلاناتك فيبقون ظاهرين لك كاملين.","lockGo":"اشترك لفتح البيانات","lockName":"الاسم مخفي — يُفتح بالاشتراك","lockProf":"الاسم والسيرة وبيانات التواصل مخفية حتى تشترك.","lockScore":"سبب الدرجة يُفتح بالاشتراك","lockSub":"اشترك","eEmail":"اكتب بريداً صحيحاً.","eSend":"تعذّر إرسال الرمز الآن. حاول بعد قليل أو ادخل بكلمة المرور.","eOtp":"الرمز غير صحيح أو انتهت صلاحيته.","eNoSess":"تعذّر إنشاء الجلسة. ادخل بكلمة المرور هذه المرة.","ePw":"البريد أو كلمة المرور غير صحيحة.","eWeak":"كلمة المرور قصيرة — ٨ أحرف فأكثر.","eNet":"تعذّر الاتصال. حدّث الصفحة وحاول مرة أخرى.","eSave":"تعذّر الحفظ. حاول مرة أخرى.","navJobs":"وظائفي","navNew":"نشر إعلان","navApps":"من تقدّم","sideHome":"الرئيسية","sideJobs":"الوظائف","sideApps":"المتقدمون","sideSet":"الإعدادات","sideFold":"اطوِ الشريط","sideMenu":"القائمة","acct":"الحساب","logout":"تسجيل الخروج","acctPw":"تغيير كلمة المرور","acctPh":"رقم الجوال","acctSave":"حفظ الرقم","acctOk":"تم الحفظ.","acctPhNo":"تغيير الرقم متاحٌ عند الدخول برمز البريد. ادخل به لتعديله.","acctPwNo":"تغيير كلمة المرور يتم عبر «نسيت كلمة المرور» في شاشة الدخول: يصلك رمز على بريدك ثم تعيّن كلمة جديدة.","plan":"الباقة","homeH":"الرئيسية","homeSub":"كل رقم هنا محسوبٌ من إعلاناتك ومتقدّميك الآن — لا تقديرات.","kActive":"وظائف نشطة","kAll":"إجمالي المتقدمين","kAllN":"على الإعلانات الظاهرة في لوحتك","kNew":"جدد خلال ٧ أيام","kNewN":"بتاريخ تسجيل المتقدّم","kJobsN":"من أصل {n}","pipeH":"المسار","pipeSub":"عدد من في كل مرحلة — اضغط المرحلة لفتح لوحة المسار.","emptyH":"لوحتك جاهزة، وينقصها إعلان","emptyP":"انشر أول إعلان وستمتلئ هذه الأرقام وحدها: كل من يتقدّم يصلك هنا، وتنقله بين المراحل من لوحة المسار.","emptyGo":"انشر أول إعلان","numWait":"جارٍ العدّ…","numFail":"تعذّر عدّ المتقدّمين الآن.","searchPh":"ابحث في وظائفك ومتقدّميك","searchNo":"لا نتيجة في المحمَّل","searchJ":"وظائف","searchC":"مرشّحون","searchMr":"و{n} غيرها","thTitle":"العنوان","thCity":"المدينة","thField":"المجال","thType":"الدوام","thApps":"المتقدمون","thStat":"الحالة","thDate":"تاريخ النشر","thActs":"إجراءات","setH":"الإعدادات","setSub":"حساب شركتك في البوابة.","setCo":"الشركة","langL":"اللغة","jobsH":"وظائفي","loading":"جارٍ التحميل…","jobsNone":"لا إعلانات بعد. انشر أول إعلان وسيظهر على صفحة الوظائف خلال دقائق.","stActive":"نشطة","stClosed":"مغلقة","edit":"تعديل","closeJob":"إغلاق","closeAsk":"إغلاق هذا الإعلان؟ سيختفي من صفحة الوظائف ولن يصلك متقدّمون جدد.","viewJob":"الإعلان العام","newH":"نشر إعلان","editH":"تعديل الإعلان","fTitle":"المسمّى الوظيفي","fCity":"المدينة","fField":"المجال","fFieldN":"— اختر —","fType":"نوع الدوام","fMode":"نمط العمل","fAny":"— غير محدّد —","fDesc":"الوصف والمتطلبات","aiWrite":"✦ اكتب الوصف من المسمّى","aiWork":"جارٍ الكتابة…","aiNeed":"اكتب المسمّى الوظيفي أولاً.","aiFail":"تعذّرت الكتابة الآن — اكتب الوصف بنفسك.","publish":"انشر الإعلان","saveJob":"احفظ التعديل","saving":"جارٍ الحفظ…","published":"نُشر الإعلان.","eFields":"المسمّى والوصف مطلوبان.","cancel":"إلغاء","appsH":"من تقدّم","appsNone":"لا متقدّمين بعد على إعلاناتك.","appsAll":"كل الإعلانات","appsN":"متقدّم","appsCut":"القائمة طويلة وقُطع جزء منها — حدّث الصفحة لرؤية البقية.","open":"افتح الملف","moveTo":"انقل إلى…","moving":"جارٍ النقل…","moveOk":"نُقل إلى","moveFail":"تعذّر النقل — أعدنا البطاقة إلى عمودها. حاول مرة أخرى.","boardHint":"اسحب البطاقة إلى عمود آخر، أو استعمل «انقل إلى…» داخلها.","colEmpty":"لا أحد في هذه المرحلة","more":"أظهر المزيد","matchS":"مطابقة","profBack":"← عودة إلى المتقدّمين","stage":"المرحلة","sNew":"جديد","sReview":"فرز","sShort":"قائمة مختصرة","sInt":"مقابلة","sOffer":"عرض","sHired":"تم التوظيف","sRej":"مرفوض","sFuture":"مؤجل","fRole":"الدور","fCityL":"المدينة","fExp":"الخبرة","fYears":"سنة","fSkills":"المهارات","fPhone":"الجوال","fEmail":"البريد","fCv":"السيرة الذاتية","cvOpen":"افتح الملف","cvLoad":"جارٍ جلب السيرة…","cvErr":"تعذّر جلب سيرة هذا المرشّح الآن. حدّث الصفحة وحاول مرة أخرى.","cvNone":"السيرة لم تُقرأ بعد — لم يُستخرج نصّها من الملف، فلا شيء يُعرض هنا.","cvOrig":"السيرة الأصلية (كما رفعها)","cvAtsDoc":"النسخة المهيّأة كمستند","cvNoFile":"لا ملف أصلي محفوظ لهذا المرشّح.","cvAccess":"الملف محفوظ في Drive الشركة وغير مشترك — قد يطلب Google صلاحية الوصول. راسلنا ونرسله لك.","mScoreL":"درجة المطابقة","mScoreNo":"لم تُقيَّم بعد","scoreFor":"قُيّمت على","saudL":"التوطين","compL":"الامتثال لنظام التوظيف","notChk":"لم يُفحص","scoreBare":"لا مبرّر مكتوب لهذه الدرجة في سجلّ المرشّح.","saudNote":"الحالتان معروضتان كما هما في سجلّ المرشّح ولا تُحسَبان هنا. للحالة الرسمية راجع منصّة قوى.","reqH":"اطلب مقابلة","reqP":"نتولّى نحن جدولة الموعد مع المرشّح ونعود إليك به — أو مع مكتب الاستقدام الذي رشّحه إن كان الترشيح عبر مكتب.","reqPref":"توقيت يناسبك (اختياري)","reqMode":"طريقة المقابلة","mIn":"حضوري","mOn":"أونلاين","mPh":"هاتف","reqGo":"أرسل الطلب","reqOk":"وصل طلبك — نرجع إليك بالموعد.","reqWork":"جارٍ الإرسال…","sideMatch":"المطابقة","sidePool":"قاعدة المواهب","matchH":"المطابقة الذكية","matchSub":"اختر إعلاناً من إعلاناتك. نعرض المرشّحين المقروءين المطابقين لمعاييره الحتمية (المجال والمدينة والخبرة والتوطين)، وما قُيِّم سابقاً يظهر مرتّباً بالدرجة فوراً. والتقييم الجديد يكتب له المستشار الذكي درجةً من ١٠٠ وسببها.","matchJobL":"الإعلان","matchRun":"ابحث عن المناسبين","matchWork":"جارٍ البحث…","matchNoJ":"لا إعلان لديك بعد. انشر إعلاناً أولاً، ثم عد إلى هنا — المطابقة تقارن بإعلانٍ قائم لا بفراغ.","matchRead":"اضغط «ابحث عن المناسبين». لا شيء يُجلب ولا يُقيَّم قبل ضغطك.","matchNone":"لا مرشّح مقروء يطابق هذه المعايير. خفّف شرطاً (المدينة مثلاً) وأعد البحث.","matchErr":"تعذّر جلب المرشّحين. حاول مرة أخرى.","mtCritH":"المعايير الحتمية","mtCityHard":"المدينة شرط (لا تفضيل)","mtMinExp":"حدّ أدنى للخبرة (سنوات)","mtNat":"شرط التوطين النظامي","mtNatAny":"— بلا شرط —","mtNatSa":"سعودي فقط","mtNatNon":"غير سعودي","mtCritNote":"تُطبَّق في الشيفرة قبل أي نداء ذكاء اصطناعي: من لا يمرّ منها لا يُقيَّم ولا تُحرَق عليه كلفة. والجنسية بوّابةٌ نظامية فقط — لا تصل المستشار الذكي ولا تدخل الدرجة.","critField":"المجال","critCity":"المدينة","critExp":"الخبرة ≥ {n} سنة","critDesc":"من وصف الإعلان","critOwner":"من إدخالك","critHard":"شرط","critSoft":"تفضيل","critNone":"لم يُستخرج من الإعلان معيارٌ حتمي (لا مجال ولا مدينة ولا حدّ خبرة) — يُعرض كل مقروء.","mtScoredH":"الأعلى درجةً — مُقيَّمون","mtOpenH":"يطابقون المعايير — لم يُقيَّموا بعد","mtNoScored":"لا مُقيَّمين بعد على هذا الإعلان. ابدأ التقييم من الأسفل.","mtShown":"المعروض: {n} مرشّحاً مقروءاً","mtMoreC":"حمّل المزيد من المطابقين","mtScoreGo":"قيّم المعروضين (٥ في كل دفعة)","mtResume":"استئناف التقييم","mtStop":"إيقاف","mtProg":"جرت معالجة {a} من {b}","mtStats":"قُيِّم الآن {s} · محفوظ سابقاً {c} · استُبعد بالمعايير {k} · تعذّر {f}","mtDone":"اكتمل تقييم المعروضين.","mtStopped":"أُوقف التقييم — يمكنك الاستئناف.","mtNothing":"لا أحد للتقييم في المعروض.","mtApplied":"تقدّم على هذا الإعلان","mtPoolOff":"تقييم من لم يتقدّم على إعلانك غير مفعّل على هذا الخادم (قرار المالك). يُعرض هؤلاء بمعاييرهم الحتمية بلا درجة، ويُقيَّم من تقدّم وحده.","mtAiNote":"يُرسَل إلى المستشار الذكي: وصف الإعلان وحقول المرشّح المهنية ونصّ سيرته المقروء (وقد يحوي ما كتبه صاحبه فيها). لا يُرسَل الاسم ولا الجوّال ولا البريد ولا الجنسية ولا الإقامة كحقول. ولا يبدأ شيءٌ إلا بضغطك.","mtScoreOut":"/ ١٠٠","confH":"ثقة مرتفعة","confM":"ثقة متوسطة","confL":"ثقة منخفضة","ckMet":"مستوفى","ckMiss":"ناقص","ckUnk":"غير معروف","ckField":"المجال","ckCity":"المدينة","ckExp":"الخبرة","ckNat":"التوطين","ckTitle":"المسمّى (تلميح)","mtNoScore":"لم يُقيَّم بعد","mtErrAi":"تعذّر التقييم الآن — أعد المحاولة","mtErrWhy":"لم يُرجِع المستشار الذكي سبباً مقبولاً فلا تُعرض درجة","mtErrNot":"غير متاح للتقييم","mtErrLim":"بلغتَ الحدّ اليومي للتقييم — توقّف.","mtErrOff":"المستشار الذكي غير مُعدّ على هذا الخادم.","poolH":"قاعدة المواهب","poolSub":"بنك السير المقروءة في المنصّة، مرتّبٌ بالأحدث، يُجلب صفحةً صفحة. السيرة التي لم يُقرأ نصّها لا تظهر هنا إطلاقاً.","poolQ":"ابحث بالمسمّى أو المهارة","poolCity":"المدينة","poolNat":"الجنسية","poolAny":"— الكل —","poolSa":"سعودي","poolNon":"غير سعودي","poolGo":"ابحث","poolN":"المعروض: {n}","moreL":"تفاصيل","poolSo":"المعروض حتى الآن: {n}","poolOf":"المعروض {n} من أصل حتى {t} سيرةً مقروءة","poolCnt":"جارٍ عدّ إجمالي السير المقروءة…","poolCntN":"الإجمالي حدٌّ أعلى: يُحسب يومياً من حالة القراءة ونصّ ATS، ولا يخصم ما لا يجتاز فحص جودة النصّ (نحو ٧٪).","poolEdu":"المؤهل","poolExp":"أدنى خبرة (سنوات)","poolSort":"الترتيب","poolSNew":"الأحدث أولاً","poolSExp":"الأكثر خبرة أولاً","poolMore":"تابع البحث في القاعدة","poolEnd":"انتهت النتائج المطابقة.","poolNone":"لا نتيجة مطابقة. وسّع البحث أو أزل فلتراً.","poolErr":"تعذّر تحميل قاعدة السير. حاول مرة أخرى.","poolCv":"السيرة الذاتية","dEdu":"المؤهل","dLang":"اللغات","dAvail":"التوفّر","dRegion":"الخبرة الإقليمية","dRes":"حالة الإقامة","dNatT":"نوع الجنسية","profBackPool":"← عودة إلى قاعدة المواهب","profBackMatch":"← عودة إلى المطابقة","pfSummary":"الملخّص","pfEdu":"التعليم","pfExp":"الخبرة","pfSkills":"المهارات","pfLangs":"اللغات","pfLoc":"الموقع","pfNat":"الجنسية والإقامة","pfSaud":"التوطين والامتثال","pfScore":"الدرجة وسببها","pfContact":"التواصل","pfFile":"السيرة الأصلية","pfFull":"نصّ السيرة الكامل","pfDl":"تحميل السيرة الأصلية","pfScoreHow":"تُقيَّم من شاشة «المطابقة» على إعلانٍ بعينه — الدرجة لا تُفهم بلا وظيفتها.","fCountry":"الدولة","fNat":"الجنسية (كما وردت)","fRegDate":"تاريخ التسجيل","fOrig":"المسمّى كما ورد","fApplied":"تقدّم على","fCountries":"دول الخبرة","moreSk":"+{n} أخرى"},HOME="/ar/employer",JOIN="/ar/employer-join",JOB="/ar/job?id=";
 var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -1119,7 +1125,17 @@ function subMsg(d){var r=d&&d.emp,st=(d&&d.empStatus)||'—';
 // (‏account)، وإمّا دخولٌ برمز وصولٍ صالح عبر كلمة المرور (لا account ولا
 // portal). وجلسة العميل (portal) تبقى على شاشاتها الخمس كما كانت. لا نوسّع
 // بابَ بيانات شخصية لمن لا يفتحه له القديم اليوم.
-function applySub(d){SUB=!!(d&&d.unlocked&&!d.portal);show($('grpTalent'),SUB)}
+// الاشتراك يقرؤه المتصفّح من الخادم (sub) ولا يستنتجه: sub=true صراحةً أو لا اشتراك.
+// والمجاني لا يُخفى عنه البابان — يراهما بأسماء مموّهة (الحجب في الخادم أصلاً).
+function applySub(d){SUB=!!(d&&d.sub===true);
+ ['lockHome','lockPool','lockMatch'].forEach(function(id){var el=$(id);if(!el)return;
+  if(SUB){el.innerHTML='';show(el,false);return}
+  el.innerHTML='<h4>'+esc(TX.lockH)+'</h4><p>'+esc(TX.lockP)+'</p>'+
+   '<a class="sv1-btn primary" href="'+esc(JOIN)+'">'+esc(TX.lockGo)+'</a>';
+  show(el,true)})}
+// اسمٌ مموّه: النصّ ثابتٌ لا يحمل شيئاً من المرشّح (الخادم لا يعيد اسماً أصلاً).
+function lockedNm(){return '<span class="sv1-lock" role="img" aria-label="'+esc(TX.lockName)+'" title="'+
+ esc(TX.lockName)+'">●●●●● ●●●●●</span>'}
 function warnBar(d){var r=(d&&d.portal)?(d.emp||''):'';
  var m=r==='pending'?TX.portalW.replace('{s}',(d&&d.empStatus)||'—')
    :r==='nocode'?TX.noCodeE:r==='error'?TX.empErr:'';
@@ -1246,9 +1262,7 @@ function route(){
  var known=false;SC.forEach(function(s){if(s[0]===sc)known=true});
  if(!known)sc='home';
  lastScreen=sc;
- // البابان المؤدّيان إلى بنك السير لا يُفتحان إلا باشتراك صاحب عملٍ مفعّل،
- // ولا بكتابة ‎#/pool‎ في شريط العنوان: الشرط هنا لا في الزرّ وحده.
- if((sc==='match'||sc==='pool')&&!SUB)sc='home';
+ // البابان مفتوحان للمجاني أيضاً، لكن بلا بيانات تعريفية: الخادم هو الذي يحجب.
  hideScreens();SC.forEach(function(s){if(s[0]===sc)show($(s[1]),true)});
  navOn(sc);
  if(sc==='home')loadHome();
@@ -1748,10 +1762,15 @@ function drawCandDet(c,d){
  // القيمة من الملفّ التفصيلي أولاً، ثم ممّا في القائمة (للمتقدّم).
  function pk(k){var v=d[k];if(v==null||v==='')v=c[k];return v==null?'':v}
  var name=pk('name'),role=pk('role'),orig=String(d.originalPosition||'').trim();
+ // الحساب المجاني: الخادم لا يعيد اسماً ولا تواصلاً ولا سيرةً ولا توطيناً (locked) —
+ // فلا تُرسم مربّعاتُها فارغةً كأنها «لم تُفحص»، بل يحلّ محلّها الإشعار وزرّ الاشتراك.
+ var lk=!!d.locked||!!c.locked;
  var hd=$('candHead');
- if(hd)hd.innerHTML='<h3 class="sv1-emp-h">'+esc(name||'—')+'</h3>'+
+ var rq=$('cReqBox');if(rq&&lk)rq.classList.add('sv1-hidden');
+ if(hd)hd.innerHTML='<h3 class="sv1-emp-h">'+(lk?lockedNm():esc(name||'—'))+'</h3>'+
   '<p class="sv1-emp-sub">'+esc([role,pk('field'),c._job].filter(Boolean).join(' · '))+'</p>';
- if(chips){
+ if(chips&&lk)chips.innerHTML='';
+ else if(chips){
   chips.innerHTML=
    (d.score==null?chip('off',TX.mScoreL+': '+TX.mScoreNo)
     :chip(d.score>=75?'ok':(d.score>=50?'warn':'bad'),TX.mScoreL+': '+d.score+'/100'))+
@@ -1771,12 +1790,16 @@ function drawCandDet(c,d){
   tile(TX.pfLoc,kv([[TX.fCityL,pk('city')],[TX.fCountry,pk('country')]])),
   tile(TX.pfNat,kv([[TX.dNatT,pk('nationalityType')],[TX.fNat,pk('nationality')],
    [TX.dRes,pk('residenceStatus')],[TX.dAvail,pk('availability')]])),
-  tile(TX.pfSaud,stChip(d.saudization,SAUD_CLS,TX.saudL)+' '+stChip(d.compliance,COMP_CLS,TX.compL)+
+  lk?'':tile(TX.pfSaud,stChip(d.saudization,SAUD_CLS,TX.saudL)+' '+stChip(d.compliance,COMP_CLS,TX.compL)+
    (d.saudizationDetails?'<p class="why" dir="auto">'+esc(d.saudizationDetails)+'</p>':'')+
    ((d.saudization||d.compliance)?'<p class="sv1-cvnote">'+esc(TX.saudNote)+'</p>':''),'w2')
  ];
  // الدرجة: لا تُعرض إلا ومعها مبرّرها المكتوب. رقمٌ عارٍ بلا سببٍ يُبنى عليه قرار توظيف
  // هو أسوأ ما تعرضه هذه الشاشة — فيُقال إنه بلا مبرّر بدل أن يُعرض كأنه مدعوم.
+ if(lk){
+  tiles.push(tile(TX.lockH,'<p class="sv1-cvnote" style="margin:0 0 10px">'+esc(TX.lockProf)+'</p>'+
+   '<a class="sv1-btn primary sm" href="'+esc(JOIN)+'">'+esc(TX.lockGo)+'</a>','w2'));
+  box.innerHTML='<div class="sv1-pf-grid">'+tiles.join('')+'</div>';return}
  if(d.score!=null){
   tiles.push(tile(TX.pfScore,'<span class="big">'+esc(String(d.score))+' <small>/ 100</small></span>'+
    (d.scoreReason?'<p class="why" dir="auto">'+esc(d.scoreReason)+'</p>':'<p class="sv1-cvnote">'+esc(TX.scoreBare)+'</p>')+
@@ -1811,7 +1834,7 @@ function openCand(id,kind){
  var opts=STAGES.map(function(s){
   return '<option value="'+s[0]+'"'+(s[0]===c.stage?' selected':'')+'>'+esc(s[1])+'</option>'}).join('');
  $('candBody').innerHTML=
-  '<div id="candHead"><h3 class="sv1-emp-h">'+esc(c.name||'—')+'</h3>'+
+  '<div id="candHead"><h3 class="sv1-emp-h">'+(c.locked?lockedNm():esc(c.name||'—'))+'</h3>'+
    '<p class="sv1-emp-sub">'+esc(c._job||'')+'</p></div>'+
   '<div class="sv1-aibar" id="candChips"></div>'+
   // ما تحت هذا يُجلب عند فتح هذا المرشّح وحده ولا يأتي مع القائمة: نصّ سيرةٍ لكل
@@ -1821,7 +1844,7 @@ function openCand(id,kind){
    (kind==='a'?'<label for="cStage">'+esc(TX.stage)+'</label>'+
     '<select id="cStage">'+opts+'</select>'+
     '<p class="sv1-emp-msg" id="cStageMsg"></p>':'')+
-   '<div style="'+(kind==='a'?'margin-top:26px;padding-top:20px;border-top:1px solid var(--l)':'')+'">'+
+   '<div id="cReqBox" style="'+(kind==='a'?'margin-top:26px;padding-top:20px;border-top:1px solid var(--l)':'')+'">'+
     '<h4 style="margin:0 0 5px;font-size:16px;font-weight:600">'+esc(TX.reqH)+'</h4>'+
     '<p class="sv1-emp-sub">'+esc(TX.reqP)+'</p>'+
     '<label for="cPref">'+esc(TX.reqPref)+'</label>'+
@@ -1914,15 +1937,20 @@ var ERRT={ai_failed:'mtErrAi',no_reason:'mtErrWhy',no_score:'mtErrWhy',unparsed:
  forbidden_reason:'mtErrWhy',not_found:'mtErrNot'};
 
 // الدرجة تُرسم إذا كانت رقماً **ومعها سببٌ مكتوب** — وإلا فلا درجة.
-function okScore(r){return typeof r.score==='number'&&isFinite(r.score)&&!!String(r.reason||'').trim()}
+// الحساب المجاني يرى نسبة المطابقة المخزَّنة بلا سببها (lockedScore): السبب نصٌّ كتبه
+// المستشار من السيرة كاملةً، فيُفتح بالاشتراك. هذا الاستثناء الوحيد لقاعدة «لا درجة بلا سبب».
+function okScore(r){return typeof r.score==='number'&&isFinite(r.score)&&(r.lockedScore||!!String(r.reason||'').trim())}
 function isScored(r){return (r.st==='saved'||r.st==='scored')&&okScore(r)}
-function isTodo(r){return r.st==='new'&&(r.c.applied||r.c._a||MT.poolOK!==false)}
+// بلا اشتراك: متقدّمو الإعلان وحدهم يُقيَّمون (الخادم يرفض غيرهم).
+function isTodo(r){return r.st==='new'&&(r.c.applied||r.c._a||(SUB&&MT.poolOK!==false))}
 
 function mkItem(c){
  var r={c:c,id:c.id,st:'new',score:null,reason:'',conf:'',why:'',checks:c.checks||[],err:'',failed:[]};
  var m=c.match;
  if(m&&typeof m.score==='number'&&String(m.reason||'').trim()){
   r.st='saved';r.score=m.score;r.reason=m.reason;r.conf=m.confidence||'';r.why=m.confidenceWhy||''}
+ else if(m&&m.locked&&typeof m.score==='number'){
+  r.st='saved';r.score=m.score;r.lockedScore=true;r.conf=m.confidence||''}
  return r}
 function addItem(c){if(MT.byId[c.id])return null;var r=mkItem(c);MT.items.push(r);MT.byId[c.id]=r;return r}
 
@@ -1950,12 +1978,13 @@ function mtCard(r){
   return '<span class="sv1-pill '+(CKC[k.status]||'off')+'" title="'+esc(TX[CKT[k.status]]||'')+'">'+
    (CKM[k.status]||'؟')+' '+esc(lab)+'</span>'}).join('');
  return '<li><div class="sv1-mt-top">'+
-   '<i class="sv1-kb-av" aria-hidden="true">'+esc(initials(c.name))+'</i>'+
-   '<div class="sv1-mt-nm"><a class="nm" dir="auto" href="'+link+'">'+esc(c.name||'—')+'</a>'+
+   '<i class="sv1-kb-av" aria-hidden="true">'+esc(c.locked?'•':initials(c.name))+'</i>'+
+   '<div class="sv1-mt-nm"><a class="nm" dir="auto" href="'+link+'">'+(c.locked?lockedNm():esc(c.name||'—'))+'</a>'+
     (meta?'<small>'+esc(meta)+'</small>':'')+
     (c.applied||c._a?'<span class="sv1-pill ok" style="margin-top:4px">'+esc(TX.mtApplied)+'</span>':'')+'</div>'+
    box+'</div>'+
-  (isScored(r)?'<p class="sv1-ai-r" dir="auto">'+esc(r.reason)+'</p>':'')+
+  (isScored(r)?(r.lockedScore?'<p class="sv1-ai-r">'+esc(TX.lockScore)+' — <a href="'+esc(JOIN)+'">'+esc(TX.lockSub)+'</a></p>'
+    :'<p class="sv1-ai-r" dir="auto">'+esc(r.reason)+'</p>'):'')+
   (cks?'<div class="sv1-ck">'+cks+'</div>':'')+
   '</li>'}
 
@@ -2134,8 +2163,8 @@ function poolCard(c){
    return '<dt>'+esc(p[0])+'</dt><dd>'+esc(p[1])+'</dd>'}).join('');
  var meta=[c.role,c.city,expTxt(c.experience)].filter(Boolean).join(' · ');
  return '<div><div class="hd">'+
-   '<i class="sv1-kb-av" aria-hidden="true">'+esc(initials(c.name))+'</i>'+
-   '<div style="min-width:0"><a class="nm" href="#/p/'+encodeURIComponent(c.id)+'">'+esc(c.name||'—')+'</a>'+
+   '<i class="sv1-kb-av" aria-hidden="true">'+esc(c.locked?'•':initials(c.name))+'</i>'+
+   '<div style="min-width:0"><a class="nm" href="#/p/'+encodeURIComponent(c.id)+'">'+(c.locked?lockedNm():esc(c.name||'—'))+'</a>'+
     (meta?'<small>'+esc(meta)+'</small>':'')+'</div></div>'+
   (c.field?'<p style="margin:0;font-size:11.5px;color:var(--mut)">'+esc(c.field)+'</p>':'')+
   (sk.length?'<div class="sv1-tags">'+sk.map(function(x){
