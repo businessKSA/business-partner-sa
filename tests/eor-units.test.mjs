@@ -96,7 +96,8 @@ test("min_hourly_halalas: حدّ أدنى لسعر بيع الساعة (يرفع
 test("ملف الإعداد: معاملات المالك معلَّمة _owner_decision، وحدود الساعات تطابق الواجهة (4–12 افتراضي 8)، وEOR (lump) لم يتغيّر", () => {
   const K = PRICING.package_rate.casual;
   assert.deepEqual([K.reference_month_days, K.reference_hours_per_day, K.hourly_worker_multiplier, K.monthly_worker_multiplier, K.sale_multiplier], [30, 8, 5, 1.0, 2.0]);
-  assert.match(K._hourly_worker_multiplier, /_owner_decision: المالك ذكر 5 و10 و20 كأمثلة، يؤكّد/);
+  assert.match(K._hourly_worker_multiplier, /اعتمده المالك ×5/);
+  assert.match(K._sale_multiplier, /اعتمده المالك ×2/);
   for (const k of ["_owner_decision", "_sale_multiplier", "_monthly_worker_multiplier", "_rounding", "_applies_to_worker_types", "_client_visible"]) assert.ok(String(K[k]).length > 20, k);
   assert.deepEqual(K.hours_per_day, { default: CASUAL_HOURS().default, min: CASUAL_HOURS().min, max: CASUAL_HOURS().max });
   assert.equal(PRICING.package_rate.hourly, undefined, "لا كتلة hourly: المعامل المشتقّ سُحب بتصحيح المالك");
