@@ -12,6 +12,7 @@
 // القيم المعتمدة:
 //   vendor:office       مكتب استقدام / وكالة توظيف سجّلت في بوابة المورّدين
 //   vendor:freelancer   مستقلّ (مُجنِّد فرد) سجّل في البوابة نفسها
+//   vendor:corporate    مورّد مؤسسي (شركة قوى عاملة كبرى) — يعتمده المالك قبل أن يرى شيئاً (docs/hr-supplier-model.md)
 //   platform:<name>     منصة توظيف خارجية (اسمها بحروف صغيرة وأرقام وشرطات)
 //   site                تقديم المرشّح بنفسه عبر الموقع
 //   linkedin · indeed   قنوات خارجية رسمية
@@ -23,12 +24,15 @@ export const OFFICE_ID_PROP = "معرّف المكتب";    // عمود نصّي
 // كل ما هو داخل ولا يجوز أن يظهر في ناتج لعميل/صاحب عمل/مرشّح: أسماء الأعمدة، ونمط قيمة الوسم نفسها.
 export const INTERNAL_SOURCE_PROPS = Object.freeze([SOURCE_PROP, OFFICE_ID_PROP]);
 
-export const FIXED_SOURCES = Object.freeze(["vendor:office", "vendor:freelancer", "site", "linkedin", "indeed", "email"]);
+// نوع الجهة في سجلّ المكاتب («نوع الجهة») الذي يعني «مورّد مؤسسي». القيمة تُكتب في Notion كما هي.
+export const CORPORATE_KIND = "مورّد مؤسسي";
+
+export const FIXED_SOURCES = Object.freeze(["vendor:office", "vendor:freelancer", "vendor:corporate", "site", "linkedin", "indeed", "email"]);
 export const PLATFORM_PREFIX = "platform:";
 const PLATFORM_RE = /^platform:[\p{L}\p{N}][\p{L}\p{N}-]{0,39}$/u;
 
 // نمط يلتقط أي وسم مصدر داخل نصٍّ حرّ (يستعمله الحارس على مخرجات الواجهات).
-export const SOURCE_TAG_RE = /\b(?:vendor:(?:office|freelancer)|platform:[\p{L}\p{N}-]+)/u;
+export const SOURCE_TAG_RE = /\b(?:vendor:(?:office|freelancer|corporate)|platform:[\p{L}\p{N}-]+)/u;
 
 // اسم منصة → الجزء بعد `platform:`؛ "" إن لم يبقَ شيء صالح.
 export function platformSlug(name) {
@@ -56,10 +60,11 @@ export function normalizeSource(input) {
 }
 
 // نوع الجهة في سجلّ المكاتب («نوع الجهة») → وسم مصدر مرشّحيها.
-// مستقل → vendor:freelancer · منصة → platform:<اسمها> · غير ذلك (مكتب استقدام / وكالة توظيف / الاثنان / غير محدد) → vendor:office.
+// مستقل → vendor:freelancer · مورّد مؤسسي → vendor:corporate · منصة → platform:<اسمها> · غير ذلك (مكتب استقدام / وكالة توظيف / الاثنان / غير محدد) → vendor:office.
 export function sourceForVendor(agency) {
   const kind = String((agency && agency.kind) || "").trim();
   if (kind === "مستقل") return "vendor:freelancer";
+  if (kind === CORPORATE_KIND) return "vendor:corporate";
   if (kind === "منصة") return platformSource(agency && agency.name) || "vendor:office";
   return "vendor:office";
 }

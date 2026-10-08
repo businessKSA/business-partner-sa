@@ -43,6 +43,42 @@
 // والقديمة كانت تكتبهما في localStorage — فلا يراهما الفريق وتضيع بتغيير
 // الجهاز. ميزةٌ بهذا الشكل عطلٌ يُنقل، لا ميزةٌ تُنقل.
 
+import { readFileSync } from "node:fs";
+
+// ── الاشتراك بالدفع الإلكتروني ────────────────────────────────────────────────
+// الأسعار تُقرأ من site/data/site.json (employerPlans) وقت البناء وتُكتب في الصفحة
+// أرقاماً جاهزة؛ المتصفّح لا يضرب ولا يخصم. القاعدة نفسها قاعدة getPlanOffer في
+// api/employer.js (الخادم هو المرجع عند الدفع): الشهري بالهللات، والسنوي = الشهري
+// × ١٢ × (١ − الخصم) بتقريبٍ واحد. ويطابقهما اختبارٌ
+// (tests/employer-subscription-pay.test.mjs) لئلا يفترقا بصمت. enterprise عرض سعر
+// فلا يدخل هذا الجدول، ولا يُباع من السلة.
+const EMP_SKU = {
+  basic: { monthly: "BP-EMP-BASIC-M", yearly: "BP-EMP-BASIC-Y" },
+  pro: { monthly: "BP-EMP-PRO-M", yearly: "BP-EMP-PRO-Y" },
+};
+function loadEmployerPlans() {
+  const cfg = JSON.parse(readFileSync(new URL("../data/site.json", import.meta.url), "utf8")).employerPlans;
+  if (!cfg || !Array.isArray(cfg.tiers)) throw new Error("simple-v1-employer: site.json has no employerPlans.tiers");
+  const disc = Number(cfg.yearlyDiscount || 0);
+  const out = [];
+  for (const key of Object.keys(EMP_SKU)) {
+    const tier = cfg.tiers.find((x) => x && x.key === key);
+    const price = Number(tier && tier.price);
+    if (!(price > 0)) throw new Error("simple-v1-employer: no price for plan " + key);
+    const monthly = Math.round(price * 100);
+    const yearly = Math.round(monthly * 12 * (1 - disc));
+    out.push({
+      key, nameAr: tier.name, nameEn: tier.nameEn || tier.name, unlock: tier.unlock || 0, jobs: tier.jobs || 0,
+      aiMatch: !!tier.aiMatch, popular: !!tier.popular,
+      offers: {
+        monthly: { sku: EMP_SKU[key].monthly, amount: monthly / 100 },
+        yearly: { sku: EMP_SKU[key].yearly, amount: yearly / 100 },
+      },
+    });
+  }
+  return { plans: out, savePct: Math.round(disc * 100) };
+}
+
 const T = {
   title:   { ar: "بوابة صاحب العمل", en: "Employer portal", fr: "Espace employeur", zh: "雇主门户" },
   desc:    { ar: "انشر وظيفة، واستقبل المتقدمين، وتابعهم من الفرز إلى العرض الوظيفي — في صفحة واحدة.",
@@ -212,6 +248,41 @@ const T = {
   thActs:  { ar: "إجراءات", en: "Actions", fr: "Actions", zh: "操作" },
 
   // ------------------------------------------------------------ الإعدادات --
+  // ------------------------------------------------- الاشتراك بالدفع الإلكتروني --
+  plH:     { ar: "اشترك في منصة التوظيف", en: "Subscribe to the recruitment platform", fr: "Abonnez-vous à la plateforme de recrutement", zh: "订阅招聘平台" },
+  plSub:   { ar: "اختر الباقة ثم ادفع إلكترونياً بالبطاقة أو تمارا. يُفعَّل حسابك تلقائياً فور تأكيد الدفع وتفتح بيانات المرشحين.",
+             en: "Pick a plan and pay online by card or Tamara. Your account activates automatically once payment is confirmed, and candidate data opens.",
+             fr: "Choisissez un forfait et payez en ligne par carte ou Tamara. Votre compte s\u2019active automatiquement dès la confirmation du paiement.",
+             zh: "选择套餐并通过银行卡或 Tamara 在线支付。付款确认后账户自动激活，候选人数据随即开放。" },
+  plMonthly:{ ar: "شهري", en: "Monthly", fr: "Mensuel", zh: "按月" },
+  plYearly: { ar: "سنوي", en: "Yearly", fr: "Annuel", zh: "按年" },
+  plSave:  { ar: "وفّر {p}٪", en: "Save {p}%", fr: "Économisez {p} %", zh: "省 {p}%" },
+  plCur:   { ar: "ر.س", en: "SAR", fr: "SAR", zh: "SAR" },
+  plPerM:  { ar: "/ شهرياً", en: "/ month", fr: "/ mois", zh: "/ 月" },
+  plPerY:  { ar: "/ سنوياً", en: "/ year", fr: "/ an", zh: "/ 年" },
+  plPopular:{ ar: "الأكثر طلباً", en: "Most popular", fr: "Le plus demandé", zh: "最受欢迎" },
+  plPick:  { ar: "اشترك", en: "Subscribe", fr: "S\u2019abonner", zh: "订阅" },
+  plVat:   { ar: "الأسعار قبل ضريبة القيمة المضافة (١٥٪)، وتُضاف عند الدفع. الاشتراك السنوي فقط يقبل التقسيط عبر تمارا.",
+             en: "Prices exclude 15% VAT, which is added at checkout. Only the yearly plan can be split with Tamara.",
+             fr: "Prix hors TVA (15 %), ajoutée au paiement. Seul l\u2019abonnement annuel peut être fractionné avec Tamara.",
+             zh: "价格不含 15% 增值税，结账时加收。仅年度订阅支持 Tamara 分期。" },
+  plEnt:   { ar: "تحتاج باقة مؤسسية؟ أسعارها بعرض مخصّص — راسلنا على business@businesspartner.sa.",
+             en: "Need an enterprise plan? It is quoted individually — write to business@businesspartner.sa.",
+             fr: "Besoin d\u2019un forfait entreprise ? Il est chiffré sur mesure — écrivez à business@businesspartner.sa.",
+             zh: "需要企业版？按需报价——请联系 business@businesspartner.sa。" },
+  plCartE: { ar: "تعذّر تجهيز السلة في هذا المتصفح. فعّل التخزين المحلي أو جرّب متصفحاً آخر.",
+             en: "Couldn\u2019t prepare the cart in this browser. Enable local storage or try another browser.",
+             fr: "Impossible de préparer le panier dans ce navigateur. Activez le stockage local ou essayez-en un autre.",
+             zh: "无法在此浏览器中准备购物车。请启用本地存储或换用其他浏览器。" },
+  plRenew: { ar: "جدّد أو غيّر الباقة", en: "Renew or change plan", fr: "Renouveler ou changer de forfait", zh: "续订或更换套餐" },
+  plBasic: { ar: "أساسية", en: "Basic", fr: "Essentiel", zh: "基础版" },
+  plPro:   { ar: "احترافية", en: "Professional", fr: "Professionnel", zh: "专业版" },
+  fUnlock: { ar: "فتح بيانات تواصل حتى {n} مرشّح شهرياً", en: "Unlock contact details for up to {n} candidates a month",
+             fr: "Coordonnées de jusqu\u2019à {n} candidats par mois", zh: "每月最多解锁 {n} 位候选人的联系方式" },
+  fJobs:   { ar: "حتى {n} إعلان وظيفة نشط", en: "Up to {n} active vacancy postings", fr: "Jusqu\u2019à {n} offre(s) active(s)", zh: "最多 {n} 个在线职位" },
+  fSearch: { ar: "بحث وفلترة كاملة للمرشّحين", en: "Full candidate search & filters", fr: "Recherche et filtres complets", zh: "完整的候选人搜索与筛选" },
+  fAi:     { ar: "مطابقة المرشّحين بالذكاء الاصطناعي", en: "AI candidate matching", fr: "Mise en correspondance par IA", zh: "AI 候选人匹配" },
+
   setH:    { ar: "الإعدادات", en: "Settings", fr: "Paramètres", zh: "设置" },
   setSub:  { ar: "حساب شركتك في البوابة.", en: "Your company's account in the portal.", fr: "Le compte de votre entreprise.", zh: "您公司在门户中的账户。" },
   setCo:   { ar: "الشركة", en: "Company", fr: "Entreprise", zh: "公司" },
@@ -576,6 +647,22 @@ export function buildSimpleEmployer(SV1, ctx) {
   const pre = lang === "en" ? "" : "/" + lang;
   const u = (p) => pre + p;
 
+  // جدول الباقات القابلة للدفع بلغة الصفحة: الأسماء والمزايا مبنيةٌ من أرقام البيانات
+  // (لا نصوص مترجمة يدوياً لكل باقة)، والأسعار جاهزة. لا حقل داخلي ولا رمز.
+  const EMP = loadEmployerPlans();
+  const fill = (k, n) => t(k).replace("{n}", String(n));
+  const PLAN_ROWS = EMP.plans.map((p) => ({
+    key: p.key, popular: p.popular, offers: p.offers,
+    name: t(p.key === "pro" ? "plPro" : "plBasic"),
+    nameAr: "اشتراك منصة التوظيف — " + p.nameAr, nameEn: "Recruitment platform — " + p.nameEn,
+    features: [
+      p.unlock ? fill("fUnlock", p.unlock) : "",
+      p.jobs ? fill("fJobs", p.jobs) : "",
+      t("fSearch"),
+      p.aiMatch ? t("fAi") : "",
+    ].filter(Boolean),
+  }));
+
   const fieldOpts = [`<option value="">${esc(t("fFieldN"))}</option>`]
     .concat(FIELDS.map((f) => `<option value="${esc(f)}">${esc(f)}</option>`)).join("");
   const pickOpts = (list) => [`<option value="">${esc(t("fAny"))}</option>`]
@@ -740,6 +827,22 @@ export function buildSimpleEmployer(SV1, ctx) {
 .sv1-empty h4{margin:0 0 6px;font-size:16px;font-weight:600;color:var(--ink)}
 /* الحساب المجاني: التمويه يغطّي الاسم وحده، والأنماط كلّها من رموز SV1 القائمة. */
 .sv1-lock{filter:blur(5px);user-select:none;pointer-events:none;color:var(--ink)}
+/* باقات الاشتراك: رموز SV1 وحدها، بخصائص منطقية فتنقلب مع اتجاه اللغة. */
+.sv1-pl-tog{display:inline-flex;gap:4px;border:1px solid var(--l);border-radius:999px;padding:3px;margin:0 0 16px}
+.sv1-pl-tog button{border:0;background:transparent;border-radius:999px;padding:7px 16px;font:inherit;
+ font-size:12.5px;color:var(--mut);cursor:pointer}
+.sv1-pl-tog button[aria-pressed="true"]{background:var(--ac);color:var(--g)}
+.sv1-pl-tog i{font-style:normal;font-size:10.5px;margin-inline-start:6px;color:var(--acLine)}
+.sv1-pl-tog button[aria-pressed="false"] i{color:var(--ac)}
+.sv1-pl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;max-width:720px}
+.sv1-pl{border:1px solid var(--l);border-radius:14px;padding:18px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:10px}
+.sv1-pl.pop{border-color:var(--ac)}
+.sv1-pl h4{margin:0;font-size:16px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sv1-pl h4 em{font-style:normal;font-size:10.5px;background:var(--acSoft);color:var(--ac);border-radius:999px;padding:2px 9px;font-weight:500}
+.sv1-pl-pr b{font-family:var(--fm);font-size:28px;font-weight:400;color:var(--ink)}
+.sv1-pl-pr span{font-size:12px;color:var(--mut)}
+.sv1-pl ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px;font-size:12.5px;color:var(--s);flex:1}
+.sv1-pl li::before{content:"✓";margin-inline-end:8px;color:var(--ac)}
 .sv1-lockbar{margin:0 0 16px;padding:16px 18px;text-align:start}
 .sv1-lockbar p{margin:0 0 12px;max-width:none}
 .sv1-empty p{margin:0 auto 14px;font-size:12.5px;color:var(--s);line-height:1.8;max-width:520px}
@@ -1240,6 +1343,20 @@ a.nm:hover,a.nm:focus-visible{color:var(--ac);text-decoration:underline;text-und
       <div id="candBody"></div>
     </div>
 
+    <!-- الاشتراك بالدفع الإلكتروني: الباقتان القابلتان للدفع، ثم السلة فالدفع -->
+    <div id="scPlans" class="sv1-hidden">
+      <h3 class="sv1-emp-h">${esc(t("plH"))}</h3>
+      <p class="sv1-emp-sub">${esc(t("plSub"))}</p>
+      <div class="sv1-pl-tog" role="group" aria-label="${esc(t("plH"))}">
+        <button type="button" id="plM" aria-pressed="true">${esc(t("plMonthly"))}</button>
+        <button type="button" id="plY" aria-pressed="false">${esc(t("plYearly"))}${EMP.savePct ? `<i>${esc(t("plSave").replace("{p}", String(EMP.savePct)))}</i>` : ""}</button>
+      </div>
+      <div class="sv1-pl-grid" id="plansBox"></div>
+      <p class="sv1-emp-msg err sv1-hidden" id="plMsg" role="alert"></p>
+      <p class="sv1-emp-hint" style="margin-top:14px">${esc(t("plVat"))}</p>
+      <p class="sv1-emp-hint">${esc(t("plEnt"))}</p>
+    </div>
+
     <!-- الإعدادات -->
     <div id="scSettings" class="sv1-hidden">
       <h3 class="sv1-emp-h">${esc(t("setH"))}</h3>
@@ -1248,6 +1365,7 @@ a.nm:hover,a.nm:focus-visible{color:var(--ac);text-decoration:underline;text-und
         <dt>${esc(t("setCo"))}</dt><dd id="setCo">—</dd>
         <dt>${esc(t("emailL"))}</dt><dd id="setEmail" dir="ltr">—</dd>
         <dt>${esc(t("plan"))}</dt><dd id="setPlan">—</dd>
+        <dt></dt><dd><a class="sv1-btn sm" href="#/plans">${esc(t("plRenew"))}</a></dd>
         <dt>${esc(t("langL"))}</dt><dd class="sv1-emp-langs">${langItems}</dd>
       </dl>
       <div class="sv1-emp-f" style="max-width:480px">
@@ -1276,7 +1394,8 @@ ${SV1.footer()}`;
   for (const k of Object.keys(T)) TX[k] = t(k);
 
   const script = `<script>(function(){"use strict";
-var TX=${JSON.stringify(TX)},HOME=${JSON.stringify(u("/employer"))},JOIN=${JSON.stringify(u("/employer-join"))},JOB=${JSON.stringify(u("/job") + "?id=")};
+var TX=${JSON.stringify(TX)},HOME=${JSON.stringify(u("/employer"))},JOIN='#/plans',CHECKOUT=${JSON.stringify(u("/checkout"))},JOB=${JSON.stringify(u("/job") + "?id=")};
+var PLANS=${JSON.stringify(PLAN_ROWS)};
 var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -1444,12 +1563,46 @@ function enter(){
   route()
  }).catch(function(){AUTH=null;err(TX.eNet)})}
 
+
+// ── الاشتراك بالدفع الإلكتروني ─────────────────────────────────────────────
+// الأسعار أرقامٌ جاهزة من البناء (PLANS) — لا ضرب ولا خصم هنا. الزرّ يضع بنداً
+// واحداً في السلة بعقد bp_cart نفسه (المعرّف = SKU)، ويُبدَّل أي بند اشتراكٍ سابق:
+// اشتراكٌ واحد في كل طلب. المبلغ الذي في البند تلميحٌ للعرض فقط؛ الخادم يعيد
+// تسعيره من الـSKU عند الدفع (/api/pay?action=emp-offer) ولا يثق بما في المتصفّح.
+var plBill='monthly';
+function plMoney(n){return Number(n).toLocaleString('en-US',{maximumFractionDigits:2})}
+function plErr(m){var e=$('plMsg');if(!e)return;e.textContent=m||'';show(e,!!m)}
+function drawPlans(){
+ var box=$('plansBox');if(!box)return;
+ $('plM').setAttribute('aria-pressed',plBill==='monthly'?'true':'false');
+ $('plY').setAttribute('aria-pressed',plBill==='yearly'?'true':'false');
+ plErr('');
+ box.innerHTML=PLANS.map(function(p){var o=p.offers[plBill];
+  return '<div class="sv1-pl'+(p.popular?' pop':'')+'"><h4>'+esc(p.name)+(p.popular?'<em>'+esc(TX.plPopular)+'</em>':'')+'</h4>'+
+   '<div class="sv1-pl-pr"><b>'+plMoney(o.amount)+'</b> <span>'+esc(TX.plCur)+' '+esc(plBill==='yearly'?TX.plPerY:TX.plPerM)+'</span></div>'+
+   '<ul>'+p.features.map(function(f){return '<li>'+esc(f)+'</li>'}).join('')+'</ul>'+
+   '<button type="button" class="sv1-btn primary" data-plan="'+esc(p.key)+'">'+esc(TX.plPick)+'</button></div>'}).join('');
+ Array.prototype.forEach.call(box.querySelectorAll('button[data-plan]'),function(b){
+  b.onclick=function(){subscribe(b.getAttribute('data-plan'))}})}
+function subscribe(key){
+ var p=null;PLANS.forEach(function(x){if(x.key===key)p=x});if(!p)return;
+ var o=p.offers[plBill],c;
+ try{c=JSON.parse(localStorage.getItem('bp_cart'))||[];if(!Array.isArray(c))c=[]}catch(e){c=[]}
+ c=c.filter(function(x){return !/^BP-EMP-/i.test(String(x&&x.id||''))});
+ c.push({id:o.sku,nameEn:p.nameEn,nameAr:p.nameAr,amount:o.amount,price:'',kind:'subscription',qty:1,
+  surchargeAmount:null,surchargeFreeCount:null,pricePublic:1,billingPeriod:plBill,renewsAt:null,commissionPercent:0});
+ try{localStorage.setItem('bp_cart',JSON.stringify(c))}catch(e){plErr(TX.plCartE);return}
+ try{document.dispatchEvent(new CustomEvent('bp:cart',{bubbles:true}))}catch(e){}
+ location.href=CHECKOUT}
+$('plM').onclick=function(){plBill='monthly';drawPlans()};
+$('plY').onclick=function(){plBill='yearly';drawPlans()};
+
 // ── التنقّل: لا إعادة تحميل، ولا جلبٌ لشاشة غير مفتوحة ────────────────────
 // جدولٌ واحد: المفتاح ← الشاشة ← بند الشريط الجانبي الذي يضيء معها. كانت
 // ثلاثة أسطر متوازية لكل شاشة، فإضافة شاشةٍ رابعة تعني ثلاثة مواضع يُنسى
 // أحدها — وقد نُسي: ملف المرشّح كان يطفئ الأزرار بقائمة مكتوبة بيدها.
 var loaded={jobs:false,apps:false,pool:false};
-var SC=[['home','scHome','tabHome'],['jobs','scJobs','tabJobs'],['new','scNew','tabNew'],
+var SC=[['plans','scPlans',''],['home','scHome','tabHome'],['jobs','scJobs','tabJobs'],['new','scNew','tabNew'],
  ['apps','scApps','tabApps'],['match','scMatch','tabMatch'],['pool','scPool','tabPool'],
  ['settings','scSettings','tabSet']];
 function navOn(k){SC.forEach(function(s){var b=$(s[2]);if(!b)return;
@@ -1477,6 +1630,7 @@ function route(){
  // عودةٌ إلى اللوحة بعد تغيير المرحلة من ملف المرشّح: تُرسم من النموذج
  // المحلي، بلا نداءٍ جديد — وإلا بقيت البطاقة في عمودها القديم.
  if(sc==='apps'){if(!loaded.apps)loadApps();else if(flat.length)drawApps()}
+ if(sc==='plans')drawPlans();
  if(sc==='settings')loadAcct();
  if(sc==='new'&&editId===null&&!$('jTitle').value)resetJobForm()}
 window.addEventListener('hashchange',function(){if(AUTH)route()});

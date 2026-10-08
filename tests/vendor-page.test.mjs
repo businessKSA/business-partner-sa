@@ -31,7 +31,7 @@ for (const [name, h] of PAGES) {
     assert.ok(h.includes('class="sv1"'), "قشرة SV1");
     assert.equal(/<script[^>]*main\.js/.test(h), false);
     assert.ok(/name="robots" content="noindex/.test(h), "noindex");
-    for (const id of ["vAuthForm", "vName", "vKind", "vEmail", "vPass", "vTabDemand", "vTabCands", "vDemand", "vCandForm", "cName", "cNat", "cRole", "cExp", "cSal", "cCv", "vCands", "vOut"]) assert.ok(h.includes(`id="${id}"`), id);
+    for (const id of ["vAuthForm", "vName", "vKind", "vEmail", "vPass", "vTabDemand", "vTabCands", "vDemand", "vCandForm", "cName", "cNat", "cRole", "cExp", "cSal", "cCv", "vCands", "vOut", "vTabs", "vTabOffers", "vPaneOffers", "vOffers", "vPend", "vPendGo", "vAuthNote"]) assert.ok(h.includes(`id="${id}"`), id);
     assert.ok(h.includes('accept="application/pdf,.pdf"'));
     assert.ok(h.includes('"/api/agencies"') || h.includes("/api/agencies"), "نقطة النداء");
     // الجلسة في sessionStorage فقط، والنصوص القادمة من الخادم بـtextContent.
@@ -49,9 +49,46 @@ for (const [name, h] of PAGES) {
     assert.doesNotThrow(() => new Function(`return (${m[1]})`));
     const cfg = JSON.parse(m[2]);
     assert.ok(cfg.occ.length > 100 && cfg.nats.length > 20);
-    assert.deepEqual(Object.keys(cfg).sort(), ["lang", "maxCv", "nats", "occ", "stages", "tx"]);
+    assert.deepEqual(Object.keys(cfg).sort(), ["lang", "maxCv", "nats", "occ", "ostatus", "stages", "tx"]);
+    // الأنواع الأربعة في التسجيل، والمؤسسي بقيمته المعتمدة في الخادم.
+    assert.ok(h.includes('<option value="مورّد مؤسسي">'), "نوع مؤسسي");
+    for (const v of ["مكتب استقدام", "مستقل", "منصة"]) assert.ok(h.includes(`<option value="${v}">`), v);
+    // ما يخصّ الإدارة لا يصل الصفحة: لا اسم متغير بيئة ولا عمود في قاعدة العروض.
+    for (const w of ["VENDOR_OFFERS_DB", "BP Vendor Offers", "العدد المرسّى", "ملاحظة المالك", "المكتب المحدَّد", "من يتقاضى رسم المكتب"]) assert.equal(h.includes(w), false, w);
   });
 }
+
+// الهوية: متغيرات SV1 وأصنافه فقط. لا لون حرفي في ما تضيفه الصفحة (أنماطها، سكربتها، سمات style في جسمها).
+const HEX = /#[0-9a-fA-F]{3,8}\b/;
+const FUNC = /\b(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color-mix)\s*\(/i;
+const NAMED = /(?:^|[;{\s"'])(?:color|background(?:-color)?|border(?:-[a-z]+)?-color|fill|stroke|outline-color)\s*:\s*(?:white|black|red|blue|green|gray|grey|orange|yellow|purple|pink|navy|silver|teal|maroon|lime|aqua)\b/i;
+for (const [name, h] of PAGES) {
+  test(`/vendor (${name}): لا لون حرفي — متغيرات SV1 وأصنافه وحدها`, () => {
+    const a = h.indexOf('<style id="sv1-vnd-css">');
+    assert.ok(a >= 0);
+    const css = h.slice(a, h.indexOf("</style>", a));
+    const main = h.indexOf("<main>");
+    const body = h.slice(main, h.indexOf("</main>", main));
+    const script = h.slice(h.indexOf("function vendorClient"), h.indexOf("</script>", h.indexOf("function vendorClient")));
+    for (const [label, src] of [["css", css], ["body", body], ["script", script]]) {
+      assert.equal(HEX.test(src), false, `${label}: لون سداسي ${(src.match(HEX) || [])[0]}`);
+      assert.equal(FUNC.test(src), false, `${label}: دالة لون`);
+      assert.equal(NAMED.test(src), false, `${label}: لون مسمّى`);
+    }
+    // كل لون في أنماط الصفحة يأتي من var(--…) أو الكلمات المحايدة.
+    for (const m of css.matchAll(/(?:^|[;{])\s*(color|background(?:-color)?|border(?:-[a-z]+)?(?:-color)?|box-shadow|fill|stroke|outline)\s*:\s*([^;}]+)/g)) {
+      const v = m[2].replace(/var\([^)]*\)/g, "").replace(/\b(?:transparent|inherit|currentColor|none|solid|dashed|dotted|\d+(?:\.\d+)?(?:px|em|rem|%)?|auto)\b/g, "").trim();
+      assert.equal(v, "", `${m[1]} فيه قيمة غير متغيّر: ${m[2]}`);
+    }
+    for (const cls of ["sv1-err", "sv1-btn", "sv1-hide", "sv1-tag"]) assert.ok(h.includes(cls), `صنف SV1 ${cls}`);
+  });
+}
+
+test("المصدر نفسه (simple-v1-vendor.mjs) بلا لون حرفي", () => {
+  const src = fs.readFileSync(path.join(ROOT, "site/scripts/simple-v1-vendor.mjs"), "utf8");
+  assert.equal(HEX.test(src), false, (src.match(HEX) || [])[0]);
+  assert.equal(FUNC.test(src), false);
+});
 
 test("كل نصّ بأربع لغات غير فارغ، والعربية بحروف عربية والصينية بحروف صينية", () => {
   const latinOk = new Set(["fEmail"]);   // «E-mail» لاتينية في أكثر من لغة

@@ -517,7 +517,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
 })();</script><script>
 (function(){
 var LANG="ar",HOME="/ar/";
-var TX={"empty":"سلتك فارغة.","browse":"استعرض الخدمات","needFill":"أكمل الاسم والجوال والبريد قبل الدفع.","payDown":"تعذّر فتح نموذج الدفع الآن. جرّب تمارا، أو أعد المحاولة بعد قليل، أو راسلنا على واتساب.","loading":"نجهّز نموذج الدفع…","quoted":"يُسعّر عند المراجعة","signIn":"سجّل دخولك لعرض السعر وإتمام الدفع","signInBtn":"دخول إلى حسابي","noAmount":"هذه البنود تُسعّر عند المراجعة — سنرسل لك عرض السعر ثم رابط الدفع.","card":"بطاقة","payBtn":"إتمام الدفع","payWait":"نتحقّق من دفعتك…","paidOk":"تم استلام الدفعة — طلبك مسجّل وفاتورتك الضريبية تصلك على بريدك خلال دقائق.","paidInv":"رقم الفاتورة:","paidFail":"لم تكتمل الدفعة ولم يُخصم شيء — أعد المحاولة بالبطاقة أو جرّب تمارا.","paidHold":"دفعتك تمّت لكن تعذّر تأكيدها آلياً الآن، وقد وصل التنبيه لفريقنا. لا تدفع مرة أخرى — فاتورتك تصلك قريباً.","bnplFail":"لم تكتمل عملية التقسيط — تقدر تحاول مرة أخرى أو تدفع بالبطاقة.","toMy":"افتح طلباتي","mockTag":"بوابة محلية — لا بطاقة ولا خصم"};
+var TX={"empty":"سلتك فارغة.","browse":"استعرض الخدمات","needFill":"أكمل الاسم والجوال والبريد قبل الدفع.","payDown":"تعذّر فتح نموذج الدفع الآن. جرّب تمارا، أو أعد المحاولة بعد قليل، أو راسلنا على واتساب.","loading":"نجهّز نموذج الدفع…","quoted":"يُسعّر عند المراجعة","signIn":"سجّل دخولك لعرض السعر وإتمام الدفع","signInBtn":"دخول إلى حسابي","noAmount":"هذه البنود تُسعّر عند المراجعة — سنرسل لك عرض السعر ثم رابط الدفع.","card":"بطاقة","payBtn":"إتمام الدفع","payWait":"نتحقّق من دفعتك…","paidOk":"تم استلام الدفعة — طلبك مسجّل وفاتورتك الضريبية تصلك على بريدك خلال دقائق.","paidInv":"رقم الفاتورة:","paidFail":"لم تكتمل الدفعة ولم يُخصم شيء — أعد المحاولة بالبطاقة أو جرّب تمارا.","paidHold":"دفعتك تمّت لكن تعذّر تأكيدها آلياً الآن، وقد وصل التنبيه لفريقنا. لا تدفع مرة أخرى — فاتورتك تصلك قريباً.","bnplFail":"لم تكتمل عملية التقسيط — تقدر تحاول مرة أخرى أو تدفع بالبطاقة.","toMy":"افتح طلباتي","mockTag":"بوابة محلية — لا بطاقة ولا خصم","needCo":"اكتب اسم المنشأة — الاشتراك يُفتح باسمها.","empFail":"تعذّر تجهيز اشتراكك الآن ولم يُخصم شيء — أعد المحاولة بعد قليل أو راسلنا.","empDone":"تم الدفع وفُعِّل اشتراكك في منصة التوظيف. ادخل بوابة صاحب العمل بالبريد الذي دفعت به.","empHold":"دفعتك تمّت وجارٍ تفعيل اشتراكك — وصل التنبيه لفريقنا وسيُفعَّل خلال ساعات العمل. لا تدفع مرة أخرى.","toEmployer":"افتح بوابة صاحب العمل","tamaraYr":"تمارا متاحة للاشتراك السنوي فقط.","empSignIn":"سجّل دخولك بالبريد الذي سيُفتح به الاشتراك ثم أكمل الدفع.","empMail":"بريد الدفع يجب أن يطابق بريد حسابك المسجَّل دخوله — الاشتراك يُفتح لحسابك.","onePlan":"اشتراك واحد في كل طلب — أبقِ باقة واحدة في السلة.","toCart":"العودة إلى السلة"};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
 var $=function(id){return document.getElementById(id)};
 function money(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ﷼'}
@@ -529,12 +529,28 @@ function lineOf(i){return (Number(i.amount)||0)*(Number(i.qty)||1)}
 function nameOf(i){var ar=i.nameAr||'',en=i.nameEn||'';return (LANG==='ar'?ar:en)||ar||en||i.name||i.title||i.id||''}
 var PRICES_ON=document.documentElement.getAttribute('data-prices')==='on';
 function shown(i){return !!(i&&Number(i.amount)&&(PRICES_ON||i.pricePublic))}
-var cart=readCart(),net=0;
+// بنود اشتراك منصة التوظيف (BP-EMP-*): السعر من الخادم لا مما في السلة. ما كتبته
+// الصفحة التي أضافت البند تلميحٌ فقط؛ المخصوم هو ما يقوله /api/pay?action=emp-offer.
+// سلةٌ بلا هذه البنود تعمل كما كانت، بلا نداءٍ واحد إضافي.
+var EMPANY=/^BP-EMP-/i,cart=readCart();
+var empLines=cart.filter(function(i){return EMPANY.test(String(i&&i.id||''))});
+var hasEmp=empLines.length>0,empSku=hasEmp?String(empLines[0].id).toUpperCase():'',empBnplOk=true;
+function priceEmp(cb){
+ if(!hasEmp){cb();return}
+ var left=empLines.length;
+ empLines.forEach(function(i){
+  fetch('/api/pay?action=emp-offer&sku='+encodeURIComponent(i.id)).then(function(r){return r.json()}).then(function(o){
+   if(o&&o.ok){i.amount=o.amountSar;i.qty=1;i.pricePublic=true;i.nameAr=o.name.ar;i.nameEn=o.name.en;if(!o.bnpl)empBnplOk=false}
+   else{i.amount=0;empBnplOk=false}
+  }).catch(function(){i.amount=0;empBnplOk=false}).then(function(){
+   if(--left===0){try{localStorage.setItem(CART,JSON.stringify(cart))}catch(e){}cb()}})})}
+function run(){
+var net=0;
 var unpriced=cart.filter(function(i){return !Number(i.amount)}).length;   // بنودٌ تُسعّر عند المراجعة
 var hidden=cart.filter(function(i){return Number(i.amount)&&!shown(i)}).length; // مسعّرة لكنها محجوبة عن غير المسجّل
 cart.forEach(function(i){net+=lineOf(i)});
 var vat=Math.round(net*VAT*100)/100,total=Math.round((net+vat)*100)/100;
-var payable=cart.length&&!unpriced&&!hidden&&total>0;
+var payable=cart.length&&!unpriced&&!hidden&&total>0&&empLines.length<=1;
 
 (function draw(){
  var box=$('coItems');box.innerHTML='';
@@ -564,8 +580,8 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
 // اللقطة والبيانات الوصفية بنفس شكل الموقع القديم حرفياً — المرجع يبقى ثابتاً
 // بين تركيب النموذج والعودة من التحقق البنكي، وإلا صارت الدفعة بلا طلب.
 function snapshot(){
- var prev='';try{prev=(JSON.parse(sessionStorage.getItem(SNAP)||'{}')||{}).ref||''}catch(e){}
- var o={ref:prev||'BP-'+Date.now().toString().slice(-6),
+ var prev='',pe='',pk='';try{var ps=JSON.parse(sessionStorage.getItem(SNAP)||'{}')||{};prev=ps.ref||'';pe=ps.empRef||'';pk=ps.empKey||''}catch(e){}
+ var o={ref:prev||'BP-'+Date.now().toString().slice(-6),empRef:pe,empKey:pk,
    name:$('coName').value.trim(),email:$('coEmail').value.trim().toLowerCase(),phone:$('coPhone').value.trim(),
    items:cart.map(function(i){return {id:i.id||'',qty:i.qty||1}}),company:$('coCo').value.trim(),
    surchargeFee:0,discountCode:'',taxProfile:{kind:'personal'}};
@@ -577,6 +593,24 @@ function meta(){
  return {ref:String(s.ref||''),email:String(s.email||'').slice(0,120),name:String(s.name||'').slice(0,60),
    phone:String(s.phone||'').slice(0,30),co:String(s.company||'').slice(0,80),items:items,disc:'',tax:'personal'}}
 function ready(){return $('coName').value.trim()&&$('coPhone').value.trim()&&$('coEmail').value.trim().indexOf('@')>0}
+// الاشتراك يُفتح باسم منشأة: الحقل الاختياري يصير مطلوباً هنا فقط.
+function readyEmp(){return !hasEmp||!!$('coCo').value.trim()}
+// يفتح صفّ الاشتراك «بانتظار الدفع» ويُلبس مرجعه الطلبَ كلَّه قبل أن يتحرّك المال؛
+// فخطّاف مُيسّر وعودة تمارا يسميان الصفّ نفسه. مرةً لكل (بريد · منشأة · باقة).
+var empWhy='';
+function empMsg(){return empWhy==='not_signed_in'?TX.empSignIn:empWhy==='email_mismatch'?TX.empMail:TX.empFail}
+function prepareEmp(){
+ empWhy='';
+ if(!hasEmp)return Promise.resolve(true);
+ var s=snapshot(),key=s.email+'|'+s.company+'|'+empSku;
+ if(s.empRef&&s.empKey===key)return Promise.resolve(true);
+ return fetch('/api/pay',{method:'POST',headers:{'content-type':'application/json'},
+  body:JSON.stringify({action:'emp-prepare',sku:empSku,email:s.email,company:s.company})})
+  .then(function(r){return r.json()}).then(function(o){
+   if(!(o&&o.ok&&o.reference)){empWhy=(o&&o.error)||'';return false}
+   try{var cur=JSON.parse(sessionStorage.getItem(SNAP)||'{}')||{};cur.ref=o.reference;cur.empRef=o.reference;cur.empKey=key;
+    sessionStorage.setItem(SNAP,JSON.stringify(cur))}catch(e){return false}
+   return true}).catch(function(){return false})}
 
 // ---- اختيار الطريقة
 var panes={card:$('coPaneCard'),tamara:$('coPaneTamara')};
@@ -588,10 +622,10 @@ var PAYCFG=null; // إعداد /api/pay بعد وصوله — يحتاجه زر 
 // يستعمله الموقع القديم حرفياً: تفعيل + CRM + فاتورة من مسار واحد. وبلا هذا
 // الجزء كان العميل يعود من البوابة إلى السلة نفسها بلا كلمة — والمال قد خرج.
 var RESULT=$('coResult');
-function showResult(kind,txt,extra){RESULT.className='sv1-co-result '+kind;RESULT.textContent='';
+function showResult(kind,txt,extra,link){RESULT.className='sv1-co-result '+kind;RESULT.textContent='';
  var p=document.createElement('p');p.textContent=txt;RESULT.appendChild(p);
  if(extra){var s=document.createElement('p');s.className='sv1-co-fine';s.style.margin='0 0 8px';s.textContent=extra;RESULT.appendChild(s)}
- if(kind==='ok'){var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=HOME+'my';a.textContent=TX.toMy;RESULT.appendChild(a)}
+ if(kind==='ok'||link){var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=link?link.href:HOME+'my';a.textContent=link?link.label:TX.toMy;RESULT.appendChild(a)}
  try{RESULT.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}}
 (function settleReturn(){
  var u=new URL(location.href),q=u.searchParams;
@@ -614,7 +648,10 @@ function showResult(kind,txt,extra){RESULT.className='sv1-co-result '+kind;RESUL
  fetch('/api/pay',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})
   .then(function(r){return r.json()}).then(function(v){
    if(v&&v.ok){var inv=v.invoice;
-    showResult('ok',TX.paidOk,inv&&inv.invoiced&&inv.number?TX.paidInv+' '+inv.number:'');
+    var hadEmp=!!(stash&&(stash.items||[]).some(function(i){return EMPANY.test(String(i&&i.id||''))}));
+    if(hadEmp&&v.employer&&v.employer.activated)showResult('ok',TX.empDone,inv&&inv.invoiced&&inv.number?TX.paidInv+' '+inv.number:'',{href:HOME+'employer',label:TX.toEmployer});
+    else if(hadEmp)showResult('warn',TX.empHold,v.invoice&&v.invoice.number?TX.paidInv+' '+v.invoice.number:'');
+    else showResult('ok',TX.paidOk,inv&&inv.invoiced&&inv.number?TX.paidInv+' '+inv.number:'');
     $('coWays').classList.add('sv1-hide');for(var k in panes)panes[k].classList.add('sv1-hide');
     try{localStorage.removeItem(CART)}catch(e){}try{sessionStorage.removeItem(SNAP)}catch(e){}
     try{dispatchEvent(new Event('bp:cart'))}catch(e){}return}
@@ -634,17 +671,24 @@ Array.prototype.forEach.call(document.querySelectorAll('.sv1-co-way'),function(b
   for(var k in panes)panes[k].classList.toggle('sv1-hide',k!==b.getAttribute('data-way'))}});
 
 // ---- تمارا
+// الاشتراك الشهري لا يُقسَّط (تمارا للسنوي وحده) — الخادم يرفضه أيضاً.
+if(hasEmp&&!empBnplOk){var tw=$('coWayTamara');if(tw)tw.disabled=true;var tn=$('coTamaraNote');if(tn)tn.textContent=TX.tamaraYr}
 $('coTamaraGo').onclick=function(){
  var n=$('coTamaraNote');
  if(!payable){n.textContent=unpriced?TX.noAmount:TX.signIn;return}
  if(!ready()){n.textContent=TX.needFill;return}
- if(PAYCFG&&PAYCFG.mock&&PAYCFG.formUrl){location.href=mockUrl('tamara');return}
+ if(!readyEmp()){n.textContent=TX.needCo;return}
+ if(hasEmp&&!empBnplOk){n.textContent=TX.tamaraYr;return}
+ if(PAYCFG&&PAYCFG.mock&&PAYCFG.formUrl){
+  var sm=this;sm.disabled=true;prepareEmp().then(function(ok){if(ok){location.href=mockUrl('tamara');return}sm.disabled=false;n.textContent=empMsg()});return}
  var self=this;self.disabled=true;n.textContent=TX.loading;
- fetch('/api/pay',{method:'POST',headers:{'content-type':'application/json'},
-  body:JSON.stringify({action:'bnpl-checkout',provider:'tamara',lang:LANG,order:snapshot()})})
- .then(function(r){return r.json()}).then(function(o){
-  if(o&&o.ok&&o.url){location.href=o.url;return}
-  self.disabled=false;n.textContent=(o&&o.message)||TX.payDown})
+ prepareEmp().then(function(ok){
+  if(!ok){self.disabled=false;n.textContent=empMsg();return}
+  return fetch('/api/pay',{method:'POST',headers:{'content-type':'application/json'},
+   body:JSON.stringify({action:'bnpl-checkout',provider:'tamara',lang:LANG,order:snapshot()})})
+  .then(function(r){return r.json()}).then(function(o){
+   if(o&&o.ok&&o.url){location.href=o.url;return}
+   self.disabled=false;n.textContent=(o&&o.message)||TX.payDown})})
  .catch(function(){self.disabled=false;n.textContent=TX.payDown})};
 
 // ---- البطاقة والمحافظ (مُيسّر) — نفس نداء التركيب في الموقع القديم
@@ -658,6 +702,7 @@ function payBlocked(msg,href,label){
  if(href){var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=href;a.textContent=label;a.style.marginTop='10px';mount.appendChild(a)}
  var tg=$('coTamaraGo');if(tg)tg.disabled=true}
 if(!cart.length){mount.innerHTML='';}
+else if(empLines.length>1){payBlocked(TX.onePlan,HOME+'cart',TX.toCart);}
 else if(unpriced){payBlocked(TX.noAmount,HOME+'my',TX.signInBtn);}
 else if(hidden){payBlocked(TX.signIn,HOME+'my',TX.signInBtn);}
 else if(!(total>0)){payBlocked(TX.noAmount,HOME+'catalog',TX.browse);}
@@ -669,7 +714,8 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
   var tg=document.createElement('span');tg.className='sv1-co-mock';tg.textContent=TX.mockTag;mount.appendChild(tg);
   var bt=document.createElement('button');bt.type='button';bt.className='sv1-btn primary';bt.style.width='100%';bt.id='coMockPay';bt.textContent=TX.payBtn;
   var nt=document.createElement('p');nt.className='sv1-co-fine';
-  bt.onclick=function(){if(!ready()){nt.textContent=TX.needFill;return}location.href=mockUrl('card')};
+  bt.onclick=function(){if(!ready()){nt.textContent=TX.needFill;return}if(!readyEmp()){nt.textContent=TX.needCo;return}
+   bt.disabled=true;prepareEmp().then(function(ok){if(ok){location.href=mockUrl('card');return}bt.disabled=false;nt.textContent=empMsg()})};
   mount.appendChild(bt);mount.appendChild(nt);return}
  if(!cfg||!cfg.enabled||!cfg.publishableKey||!cfg.scriptUrl){payFailed();return}
  if(cfg.cssUrl){var l=document.createElement('link');l.rel='stylesheet';l.href=cfg.cssUrl;document.head.appendChild(l)}
@@ -723,7 +769,12 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
    var opt={element:'#epay-form',amount:Math.round(total*100),currency:cfg.currency||'SAR',
     description:'Business Partner order',publishable_api_key:cfg.publishableKey,
     callback_url:location.origin+location.pathname,metadata:m,
-    on_initiating:async function(){return {metadata:meta()}},
+    on_initiating:async function(){
+     // اشتراك منصة التوظيف: لا يتحرّك المال قبل أن يُفتح الصفّ المعلّق ويُلبس مرجعه الطلب.
+     if(hasEmp){
+      if(!ready()||!readyEmp()){showResult('warn',ready()?TX.needCo:TX.needFill);return false}
+      if(!(await prepareEmp())){showResult('warn',empMsg());return false}}
+     return {metadata:meta()}},
     methods:methods,apple_pay:applePay||undefined,
     samsung_pay:samsungPay?{service_id:samsungPay.service_id,order_number:m.ref,country:samsungPay.country||'SA',
       label:samsungPay.label||'Business Partner',environment:samsungPay.environment||'PRODUCTION'}:undefined};
@@ -742,4 +793,6 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
    if(sp0)probe('https://img.mpay.samsung.com/gsmpi/sdk/samsungpay_web_sdk.js',function(){return !!window.SamsungPay},askSamsung,function(ok){spOk=ok;oneDone()});
    if(gp0)probe('https://pay.google.com/gp/p/js/pay.js',function(){return !!(window.google&&window.google.payments&&window.google.payments.api)},askGoogle,function(ok){gpOk=ok;oneDone()})}};
  document.head.appendChild(s)}).catch(payFailed);
+}
+priceEmp(run);
 })();</script></body></html>

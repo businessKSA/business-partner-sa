@@ -34,6 +34,7 @@ import { contactForRef } from "./_stage.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { sb, DB_ON } from "./_db.js";
 import { markRequestPaidByRef } from "./_simple.js";
+import { parseEmpSku, empOffer, empPrepare, empSessionEmail, empActivate, empBasketProblem, empBnplAllowed } from "./_emp-pay.js";
 
 // Simple V1: a cart line "sv1:BP-R-XXXXXX" is an approved, signed quotation.
 // Its amount is the quote's net as stored on the request row — never the
@@ -203,11 +204,30 @@ function skuAmount(rawId, priceMap) {
   const hit = priceMap[catalogKey(id)];
   return hit && hit.amount > 0 ? hit.amount : null;
 }
+// An employer-plan line (BP-EMP-*) is priced by api/employer.js getPlanOffer —
+// the only place that price exists — and activated through its
+// activateSubscription, not through /api/requests: that endpoint would file it
+// as a plain service. The sealed paid-order call therefore carries the plan in
+// its display names (CRM row, owner and buyer emails) but not in `ids`, which
+// is what drives gated activations over there.
+const alertedEmp = (globalThis.__bpEmpAlerted ||= new Set());
+async function alertEmployerFailure(order, p, why) {
+  const key = String(p.id || "") + "|" + why;
+  if (alertedEmp.has(key)) return;
+  alertedEmp.add(key);
+  await sendMail(OWNER_EMAIL, `⚠️ دفعة اشتراك صاحب عمل لم يُفعَّل حسابها — ${String(order.ref || p.id || "")}`,
+    `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right;max-width:560px">
+      <h2 style="color:#b91c1c">دفعة اشتراك وصلت ولم يُفعَّل الحساب</h2>
+      <p>المبلغ وصل فعلاً، لكن تفعيل اشتراك صاحب العمل لم يكتمل. فعّله يدوياً من قاعدة «أصحاب العمل — الاشتراكات» بعد مطابقة المبلغ.</p>
+      <table>
+        <tr><td style="padding:4px 10px;color:#666">رقم الدفعة</td><td style="padding:4px 10px"><b style="direction:ltr;display:inline-block">${esc(String(p.id || ""))}</b></td></tr>
+        <tr><td style="padding:4px 10px;color:#666">المبلغ</td><td style="padding:4px 10px"><b>${Math.round(Number(p.amount || 0)) / 100} ﷼</b></td></tr>
+        <tr><td style="padding:4px 10px;color:#666">مرجع الاشتراك</td><td style="padding:4px 10px"><b style="direction:ltr;display:inline-block">${esc(String(order.ref || "—"))}</b></td></tr>
+        <tr><td style="padding:4px 10px;color:#666">العميل</td><td style="padding:4px 10px">${esc(String(order.email || "—"))} · ${esc(String(order.company || "—"))}</td></tr>
+        <tr><td style="padding:4px 10px;color:#666">السبب</td><td style="padding:4px 10px"><b>${esc(why)}</b></td></tr>
+      </table></div>`).catch(() => {});
+}
 async function settlePaidOrder(order, p) {
-  if (!OTP_SECRET) {
-    console.error("pay: settle skipped — OTP_SECRET is not set, so the sealed paid-order call cannot be made");
-    return { ok: false, skipped: "no_otp_secret" };
-  }
   const ids = (Array.isArray(order.items) ? order.items : []).slice(0, 40)
     .map((it) => ({ id: String((it && it.id) || "").slice(0, 80), qty: Math.max(1, Math.min(99, Number(it && it.qty) || 1)) }))
     .filter((x) => x.id);
@@ -218,9 +238,19 @@ async function settlePaidOrder(order, p) {
   }
   let priceMap = {};
   try { priceMap = await catalogPrices(); } catch { priceMap = {}; }
-  let net = 0, unknown = false;
+  let net = 0, unknown = !!empBasketProblem(ids);
   const names = [], lines = [];
+  let emp = null;
   for (const x of ids) {
+    if (parseEmpSku(x.id)) {
+      const o = await empOffer(x.id);
+      if (!o.ok) { unknown = true; names.push(x.id + " ×" + x.qty); continue; }
+      emp = o.offer;
+      net += o.offer.amountSar * x.qty;
+      lines.push({ id: x.id, line: o.offer.amountSar * x.qty });
+      names.push(o.name.ar + " ×" + x.qty);
+      continue;
+    }
     const sv1 = await sv1Line(x.id);
     const a = sv1 ? sv1.amount : skuAmount(x.id, priceMap);
     if (a == null) { unknown = true; names.push(x.id + " ×" + x.qty); continue; }
@@ -239,7 +269,27 @@ async function settlePaidOrder(order, p) {
   const cut = discountCut(Math.min(discBase, net), disc);
   net -= cut;
   // Two riyals of tolerance for the rounding the cart and the form each do.
-  const verified = !unknown && net > 0 && Math.abs(Math.round(net * 1.15 * 100) - Number(p.amount || 0)) <= 200;
+  const expectedHalalas = Math.round(net * 1.15 * 100);
+  const verified = !unknown && net > 0 && Math.abs(expectedHalalas - Number(p.amount || 0)) <= 200;
+
+  // A subscription is switched on only when the charge matches the server's
+  // price for the whole basket to within one riyal — tighter than the CRM's
+  // two, because this is the step that opens a paid account.
+  let employer = null;
+  if (emp || ids.some((x) => parseEmpSku(x.id))) {
+    if (!emp || !verified || Math.abs(expectedHalalas - Number(p.amount || 0)) > 100) {
+      employer = { ok: false, activated: false, error: emp ? "amount_mismatch" : "plan_not_payable" };
+    } else {
+      employer = await empActivate({ reference: order.ref, paymentRef: String(p.id || ""), sku: emp.sku });
+    }
+    if (!employer.activated) await alertEmployerFailure(order, p, employer.error || "not_activated");
+  }
+
+  if (!OTP_SECRET) {
+    console.error("pay: settle skipped — OTP_SECRET is not set, so the sealed paid-order call cannot be made");
+    return { ok: false, skipped: "no_otp_secret", ...(employer ? { employer } : {}) };
+  }
+  const sealedIds = ids.filter((x) => !parseEmpSku(x.id));
   const payload = {
     v: 1, at: Date.now(), payId: String(p.id || ""), verified,
     ref: String(order.ref || "").slice(0, 40) || ("BP-" + String(p.id || "").replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase()),
@@ -249,7 +299,7 @@ async function settlePaidOrder(order, p) {
     company: String(order.company || (order.taxProfile && order.taxProfile.nameAr) || "").slice(0, 200),
     total: Math.round(Number(p.amount || 0)) / 100,
     ...(disc ? { disc: disc.code } : {}),
-    ids, items: names,
+    ids: sealedIds, items: names,
   };
   try {
     const r = await fetch(SELF_BASE + "/api/requests", {
@@ -258,12 +308,12 @@ async function settlePaidOrder(order, p) {
       body: JSON.stringify({ action: "paid-order", t: seal(payload) }),
     });
     const j = await r.json().catch(() => ({}));
-    if (!r.ok || !j.ok) return { ok: false, error: j.error || ("http_" + r.status), verified };
+    if (!r.ok || !j.ok) return { ok: false, error: j.error || ("http_" + r.status), verified, ...(employer ? { employer } : {}) };
     if (verified) await sv1Settle(ids, p, String(p.id || "").startsWith("tamara_") ? "tamara" : "moyasar");
-    return { ok: true, already: !!j.already, verified, activated: j.activated || null };
+    return { ok: true, already: !!j.already, verified, activated: j.activated || null, ...(employer ? { employer } : {}) };
   } catch (e) {
     console.error("pay: settle call failed", String(e.message || e).slice(0, 160));
-    return { ok: false, error: "settle_unreachable", verified };
+    return { ok: false, error: "settle_unreachable", verified, ...(employer ? { employer } : {}) };
   }
 }
 // A verified wallet top-up is handed to /api/requests {action:"wallet-paid"}
@@ -402,6 +452,15 @@ async function invoicePaidOrder(order, paidHalalas, payId = "") {
     const prices = await catalogPrices();
     const rows = (Array.isArray(order.items) ? order.items : []).slice(0, 40);
     for (const it of rows) {
+      // The subscription line is priced by the same server offer that charged
+      // it, so the invoice total still matches the payment to the halala.
+      if (parseEmpSku(it.id)) {
+        const o = await empOffer(it.id);
+        if (!o.ok) continue;
+        net += o.offer.amountSar;
+        items.push({ code: o.offer.sku, name: o.name.ar, quantity: 1, unitPrice: o.offer.amountSar });
+        continue;
+      }
       const hit = prices[catalogKey(it.id)];
       if (!hit || !(hit.amount > 0)) continue;
       const qty = Math.max(1, Math.min(99, Number(it.qty) || 1));
@@ -767,6 +826,13 @@ export default async function handler(req, res) {
     res.statusCode = 200;
     const gq = req.query || Object.fromEntries(new URL(req.url, "http://x").searchParams);
     if (gq.action === "mock-form") return mockGatewayPage(req, res, gq);
+    // The server's price for an employer-plan SKU, for the pages that draw it.
+    // The cart's own `amount` is only a hint; this is the number that is charged.
+    if (gq.action === "emp-offer") {
+      const o = await empOffer(gq.sku);
+      if (!o.ok) { res.statusCode = o.error === "not_employer_sku" ? 400 : 404; return res.end(JSON.stringify({ ok: false, error: o.error })); }
+      return res.end(JSON.stringify({ ok: true, ...o.offer, name: o.name, bnpl: o.offer.billing === "yearly" }));
+    }
     const guard = payGuard();
     if (!guard.ok) {
       res.statusCode = 503;
@@ -835,6 +901,21 @@ export default async function handler(req, res) {
   }
 
   const b = await readBody(req);
+
+  // ---- employer plan: open the pending subscription before the money moves --
+  // Its reference becomes the order reference, so the payment metadata, the
+  // Moyasar webhook and the Tamara return all name the same row. The price in
+  // the answer is the server's; the page overwrites its cart line with it.
+  if (b.action === "emp-prepare") {
+    const r = await empPrepare({ sku: b.sku, sessionEmail: await empSessionEmail(req), email: b.email, company: b.company });
+    if (!r.ok) {
+      res.statusCode = r.error === "not_signed_in" ? 401 : r.error === "email_mismatch" ? 403
+        : r.error === "employer_unavailable" ? 503 : (r.error === "pending_failed" ? 502 : 400);
+      return res.end(JSON.stringify({ ok: false, error: r.error }));
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, reference: r.reference, ...r.offer, name: r.name }));
+  }
 
   /* ---- recover payments the site never recorded ---------------------------
    * While MOYASAR_SECRET_KEY was wrong, three things failed together for every
@@ -1072,7 +1153,7 @@ export default async function handler(req, res) {
           }
         }
         res.statusCode = 200;
-        return res.end(JSON.stringify({ ok: true, handled: true, cart: true, settled: !!(cartSettle && cartSettle.ok), already: !!(cartSettle && cartSettle.already), ...(cartInvoice ? { invoice: cartInvoice } : {}) }));
+        return res.end(JSON.stringify({ ok: true, handled: true, cart: true, settled: !!(cartSettle && cartSettle.ok), already: !!(cartSettle && cartSettle.already), ...(cartSettle && cartSettle.employer ? { employer: { activated: !!cartSettle.employer.activated } } : {}), ...(cartInvoice ? { invoice: cartInvoice } : {}) }));
       }
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, ignored: true, reason: "no_settle_metadata" }));
@@ -1108,9 +1189,23 @@ export default async function handler(req, res) {
     if (!rawItems.length || !isEmail(String(order.email || ""))) {
       res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_order" }));
     }
+    // An employer plan is one plan, quantity one, and instalments only for the
+    // yearly one (the monthly amount is too small to split). Whether Tamara
+    // approves the amount is Tamara's decision, made when the session opens.
+    const empProblem = empBasketProblem(rawItems);
+    if (empProblem) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: empProblem })); }
+    if (!empBnplAllowed(rawItems)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bnpl_yearly_only" })); }
     let priceMap = {}; try { priceMap = await catalogPrices(); } catch {}
     let net = 0, unknown = false; const items = []; const lines = [];
     for (const x of rawItems) {
+      if (parseEmpSku(x.id)) {
+        const o = await empOffer(x.id);
+        if (!o.ok) { unknown = true; continue; }
+        net += o.offer.amountSar * x.qty;
+        lines.push({ id: x.id, line: o.offer.amountSar * x.qty });
+        items.push({ id: o.offer.sku, name: o.name.ar, qty: x.qty, unit: o.offer.amountSar });
+        continue;
+      }
       const sv1 = await sv1Line(x.id);
       const a = sv1 ? sv1.amount : skuAmount(x.id, priceMap);
       if (a == null) { unknown = true; continue; }
@@ -1195,6 +1290,7 @@ export default async function handler(req, res) {
       ok: true, provider, amount: p.amount, captured: !!v.captured,
       ...(invoicing ? { invoice: invoicing } : {}),
       ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null } } : {}),
+      ...(settle && settle.employer ? { employer: { activated: !!settle.employer.activated } } : {}),
     }));
   }
 
@@ -1359,6 +1455,7 @@ export default async function handler(req, res) {
       ...(invoicing ? { invoice: invoicing } : {}),
       ...(announced ? { announced } : {}),
       ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null } } : {}),
+      ...(settle && settle.employer ? { employer: { activated: !!settle.employer.activated } } : {}),
     }));
   } catch (e) {
     console.error("pay handler error", e);

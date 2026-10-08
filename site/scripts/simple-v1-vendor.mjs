@@ -7,9 +7,14 @@
 // الجلسة: البريد ورمز وصول المكتب في sessionStorage (يُمحى بإغلاق التبويب)، وكل نداء بيانات POST يحمل الاثنين.
 // الدخول عبر Google ورمز البريد ورمز الوصول الدائم **ليست في هذه الشريحة** (موجودة في الخادم، ينقصها واجهة).
 //
-// لوحة بتبويبين:
+// لوحة بتبويبين (وثالثٍ للمؤسسي):
 //   «الطلبات المفتوحة» ← POST type:"vendor-demand": بنود EOR مجهولة العميل. لا راتب ولا سعر ولا منشأة ولا تواصل.
+//                         للمكتب والمستقل زرّ «رشّح لهذه المهنة»؛ وللمورّد المؤسسي زرّ «قدّم عرضاً» على كل بند.
 //   «مرشحوك»          ← POST type:"vendor-candidates" / "vendor-add-candidate": مرشّحو هذا المورّد وحده، ونموذج إضافة بسيرة PDF اختيارية.
+//   «عروضي»           ← (مؤسسي فقط) POST type:"vendor-my-offers" / "vendor-offer-submit" / "vendor-offer-withdraw": عروضه هو وحده.
+//
+// الشريحة ٢ — المورّد المؤسسي (شركة قوى عاملة كبرى): لا يُفعَّل بالتسجيل؛ يعتمده المالك. حتى يُعتمد تعرض الصفحة «بانتظار الاعتماد»
+// بلا أي طلب (POST type:"vendor-me" يقول للصفحة: النوع وهل الحساب فعّال). الألوان كلها من متغيرات SV1 وأصنافه، لا لون حرفي.
 //
 // ما لا يظهر هنا أبداً: وسم مصدر المرشّح وربطه بالمكتب (عمودان داخليان في ATS) — داخليان يُكتبان في Notion ولا يُرجعهما الخادم.
 // كل نصٍّ قادم من الخادم يدخل الصفحة بـtextContent لا innerHTML.
@@ -23,7 +28,7 @@ import { NATIONALITIES } from "../../api/_eor.js";
 const D = {
   title: ["بوابة المورّدين", "Vendor portal", "Espace fournisseurs", "供应商门户"],
   tag: ["للمورّدين", "For vendors", "Pour les fournisseurs", "供应商专区"],
-  sub: ["مكاتب الاستقدام والمستقلّون والمنصات", "Recruitment offices, freelancers and platforms", "Bureaux de recrutement, indépendants et plateformes", "招聘机构、自由职业者与平台"],
+  sub: ["مكاتب الاستقدام والمستقلّون والمنصات والمورّدون المؤسسيون", "Recruitment offices, freelancers, platforms and corporate vendors", "Bureaux de recrutement, indépendants, plateformes et fournisseurs corporatifs", "招聘机构、自由职业者、平台与企业供应商"],
   lead: [
     "اطّلع على طلبات التوظيف المفتوحة وارفع مرشّحيك. الطلبات لا تكشف هوية العميل، ولا يرى أحدٌ غيرك مرشّحيك.",
     "See the open hiring requests and submit your candidates. Requests never reveal the client, and nobody but you sees your candidates.",
@@ -31,10 +36,10 @@ const D = {
     "查看开放的招聘需求并提交您的候选人。需求不会透露客户身份，除您之外无人能看到您的候选人。",
   ],
   desc: [
-    "بوابة لمكاتب الاستقدام والمستقلّين والمنصات: طلبات التوظيف المفتوحة دون هوية العميل، ورفع مرشّحيك بسيرة PDF.",
-    "A portal for recruitment offices, freelancers and platforms: open hiring requests without client identity, and your own candidate submissions with a PDF CV.",
-    "Un espace pour bureaux de recrutement, indépendants et plateformes : demandes ouvertes sans identité du client et dépôt de vos candidats avec CV PDF.",
-    "面向招聘机构、自由职业者和平台的门户：查看不含客户身份的开放需求，并提交附 PDF 简历的候选人。",
+    "بوابة لمكاتب الاستقدام والمستقلّين والمنصات والمورّدين المؤسسيين: طلبات التوظيف المفتوحة دون هوية العميل، ورفع المرشّحين أو تقديم عروض الأسعار.",
+    "A portal for recruitment offices, freelancers, platforms and corporate vendors: open hiring requests without client identity, candidate submissions with a PDF CV, or price offers.",
+    "Un espace pour bureaux de recrutement, indépendants, plateformes et fournisseurs corporatifs : demandes ouvertes sans identité du client, dépôt de candidats avec CV PDF ou offres de prix.",
+    "面向招聘机构、自由职业者、平台和企业供应商的门户：查看不含客户身份的开放需求，提交附 PDF 简历的候选人或价格报价。",
   ],
   // الدخول
   tabSignup: ["حساب جديد", "New account", "Nouveau compte", "注册账户"],
@@ -45,6 +50,13 @@ const D = {
   kOffice: ["مكتب استقدام", "Recruitment office", "Bureau de recrutement", "招聘机构"],
   kFree: ["مستقل", "Freelancer", "Indépendant", "自由职业者"],
   kPlat: ["منصة", "Platform", "Plateforme", "平台"],
+  kCorp: ["مورّد مؤسسي (شركة قوى عاملة)", "Corporate vendor (workforce company)", "Fournisseur corporatif (entreprise de main-d'œuvre)", "企业供应商（劳务公司）"],
+  authNoteCorp: [
+    "المورّد المؤسسي يعتمده فريقنا قبل أن يرى أي طلب، ونراسلك بالبريد فور الاعتماد.",
+    "A corporate vendor is approved by our team before it sees any request. We e-mail you as soon as it is approved.",
+    "Un fournisseur corporatif est validé par notre équipe avant de voir la moindre demande. Nous vous écrivons dès la validation.",
+    "企业供应商需先经我们团队审核，通过后才能查看需求。审核通过后我们会发送邮件通知您。",
+  ],
   fCountry: ["الدولة (اختياري)", "Country (optional)", "Pays (facultatif)", "国家（可选）"],
   fEmail: ["البريد الإلكتروني", "E-mail", "E-mail", "电子邮箱"],
   fPass: ["كلمة المرور (٨ أحرف على الأقل)", "Password (at least 8 characters)", "Mot de passe (8 caractères minimum)", "密码（至少 8 位）"],
@@ -79,6 +91,51 @@ const D = {
   months: ["أشهر", "months", "mois", "个月"],
   ksa: ["السعودية", "Saudi Arabia", "Arabie saoudite", "沙特阿拉伯"],
   propose: ["رشّح لهذه المهنة", "Propose a candidate", "Proposer un candidat", "为该职业推荐候选人"],
+  // المورّد المؤسسي: بانتظار الاعتماد
+  pendTitle: ["حسابك بانتظار الاعتماد", "Your account is awaiting approval", "Votre compte est en attente de validation", "您的账户正在等待审核"],
+  pendText: [
+    "سجّلت كمورّد مؤسسي وفريقنا يراجع طلبك. لن تظهر لك أي طلبات قبل الاعتماد، وسنراسلك بالبريد فور اعتماده.",
+    "You registered as a corporate vendor and our team is reviewing it. No requests are shown before approval, and we will e-mail you as soon as it is approved.",
+    "Vous êtes inscrit comme fournisseur corporatif et notre équipe examine votre demande. Aucune demande n'est visible avant la validation ; nous vous écrirons dès qu'elle aura lieu.",
+    "您已注册为企业供应商，我们的团队正在审核。审核通过前不会显示任何需求，通过后我们会发送邮件通知您。",
+  ],
+  pendCheck: ["تحقّق من الحالة", "Check status", "Vérifier le statut", "查看状态"],
+  // المورّد المؤسسي: العروض
+  tOffers: ["عروضي", "My offers", "Mes offres", "我的报价"],
+  oP: ["عروضك على الطلبات المفتوحة. لا يراها أحدٌ غيرك.", "Your offers on the open requests. Nobody else sees them.", "Vos offres sur les demandes ouvertes. Personne d'autre ne les voit.", "您对开放需求的报价，仅您自己可见。"],
+  oNone: ["لم تقدّم عروضاً بعد. ابدأ من «الطلبات المفتوحة».", "You have not made any offers yet. Start from “Open requests”.", "Vous n'avez pas encore fait d'offre. Commencez par « Demandes ouvertes ».", "您还没有提交报价，请从“开放需求”开始。"],
+  oErr: ["تعذّر تحميل عروضك.", "We could not load your offers.", "Impossible de charger vos offres.", "无法加载您的报价。"],
+  oBtn: ["قدّم عرضاً", "Make an offer", "Faire une offre", "提交报价"],
+  oBtnEdit: ["عدّل عرضك", "Edit your offer", "Modifier votre offre", "修改报价"],
+  oMine: ["عرضك الحالي", "Your current offer", "Votre offre actuelle", "您当前的报价"],
+  oPrice: ["السعر الشهري للعامل الواحد (ريال)", "Monthly price per worker (SAR)", "Prix mensuel par travailleur (SAR)", "每名工人月价（沙特里亚尔）"],
+  oAvail: ["العدد المتاح", "Number available", "Effectif disponible", "可供人数"],
+  oPrep: ["زمن التجهيز (بالأيام)", "Lead time (days)", "Délai de préparation (jours)", "准备时间（天）"],
+  oNote: ["ملاحظة قصيرة (اختياري، حتى ٣٠٠ حرف)", "Short note (optional, up to 300 characters)", "Courte note (facultatif, jusqu'à 300 caractères)", "简短备注（可选，最多 300 字）"],
+  oSend: ["أرسل العرض", "Send offer", "Envoyer l'offre", "发送报价"],
+  oCancel: ["إلغاء", "Cancel", "Annuler", "取消"],
+  oDone: ["وصل عرضك.", "Your offer was sent.", "Votre offre a été envoyée.", "报价已提交。"],
+  oUpdated: ["حُدِّث عرضك واستبدل السابق.", "Your offer was updated and replaced the previous one.", "Votre offre a été mise à jour et remplace la précédente.", "报价已更新，并取代了之前的报价。"],
+  oWithdraw: ["اسحب العرض", "Withdraw offer", "Retirer l'offre", "撤回报价"],
+  oWithdrawn: ["سُحب العرض.", "The offer was withdrawn.", "L'offre a été retirée.", "报价已撤回。"],
+  ePrice: ["السعر رقم أكبر من صفر وحتى ١٠٠٬٠٠٠ ريال، بخانتين عشريتين على الأكثر.", "The price must be a number above 0 and up to 100,000 SAR, with at most 2 decimals.", "Le prix doit être supérieur à 0 et au plus 100 000 SAR, avec 2 décimales maximum.", "价格需大于 0 且不超过 100,000 里亚尔，最多两位小数。"],
+  eAvail: ["العدد المتاح رقم صحيح من ١ إلى ٥٠٠٠.", "The number available must be a whole number from 1 to 5000.", "L'effectif disponible doit être un entier de 1 à 5000.", "可供人数需为 1 至 5000 的整数。"],
+  ePrep: ["زمن التجهيز عدد أيام صحيح من ٠ إلى ٣٦٥.", "The lead time must be a whole number of days from 0 to 365.", "Le délai doit être un nombre entier de jours de 0 à 365.", "准备时间需为 0 至 365 的整数天。"],
+  eNote: ["الملاحظة أطول من ٣٠٠ حرف.", "The note is longer than 300 characters.", "La note dépasse 300 caractères.", "备注超过 300 字。"],
+  eItemGone: ["هذا البند لم يعد مفتوحاً.", "This item is no longer open.", "Ce poste n'est plus ouvert.", "该条目已不再开放。"],
+  eLocked: ["لا يمكن تغيير هذا العرض؛ فريقنا تعامل معه.", "This offer can no longer be changed; our team has acted on it.", "Cette offre ne peut plus être modifiée ; notre équipe l'a traitée.", "该报价已无法修改，我们的团队已处理。"],
+  eOffCfg: ["العروض غير مفعّلة بعد. حاول لاحقاً.", "Offers are not enabled yet. Try again later.", "Les offres ne sont pas encore activées. Réessayez plus tard.", "报价功能尚未启用，请稍后再试。"],
+  lPrice: ["السعر الشهري", "Monthly price", "Prix mensuel", "月价"],
+  lAvail: ["المتاح", "Available", "Disponible", "可供"],
+  lPrep: ["التجهيز", "Lead time", "Préparation", "准备"],
+  lNeed: ["المطلوب", "Requested", "Demandé", "需求量"],
+  lNote: ["ملاحظتك", "Your note", "Votre note", "您的备注"],
+  days: ["يوماً", "days", "jours", "天"],
+  sar: ["ريال", "SAR", "SAR", "里亚尔"],
+  osSubmitted: ["مقدَّم", "Submitted", "Soumise", "已提交"],
+  osWithdrawn: ["مسحوب", "Withdrawn", "Retirée", "已撤回"],
+  osAwarded: ["مرسّى", "Awarded", "Attribuée", "已中标"],
+  osRejected: ["مرفوض", "Rejected", "Refusée", "已拒绝"],
   // المرشحون
   cH: ["أضف مرشّحاً", "Add a candidate", "Ajouter un candidat", "添加候选人"],
   cName: ["اسم المرشّح", "Candidate name", "Nom du candidat", "候选人姓名"],
@@ -128,32 +185,37 @@ export function buildSimpleVendor(sv1, ctx) {
   const TXKEYS = ["wait", "eName", "eEmail", "ePass", "eCreds", "eExists", "eSusp", "eNotActive", "eNet", "eSession", "hello",
     "dLoad", "dNone", "dErr", "lCount", "lNats", "natAny", "lWhere", "lSector", "lStart", "lDur", "months", "ksa", "propose",
     "cDone", "cDup", "cCvWarn", "eCName", "eCRole", "eExp", "eSal", "eCvType", "eCvSize", "lNone", "lErr", "lYears", "lStage",
-    "btnSignup", "btnLogin", "cAdd"];
+    "btnSignup", "btnLogin", "cAdd", "authNote", "authNoteCorp", "pendCheck", "oNone", "oErr", "oBtn", "oBtnEdit", "oMine", "oPrice", "oAvail", "oPrep",
+    "oNote", "oSend", "oCancel", "oDone", "oUpdated", "oWithdraw", "oWithdrawn", "ePrice", "eAvail", "ePrep", "eNote", "eItemGone", "eLocked", "eOffCfg",
+    "lPrice", "lAvail", "lPrep", "lNeed", "lNote", "days", "sar"];
   const TX = {};
   for (const k of TXKEYS) TX[k] = t(k);
   const STAGES = {};
   for (const k of STAGE_KEYS) STAGES[D[k][0]] = t(k);
-  const CFG = { lang: l, tx: TX, occ: OCC, nats: NATS, stages: STAGES, maxCv: 3 * 1024 * 1024 };
+  // حالات العرض كما يعيدها الخادم (رموز إنجليزية) ← عرض بأربع لغات.
+  const OSTATUS = { submitted: t("osSubmitted"), withdrawn: t("osWithdrawn"), awarded: t("osAwarded"), rejected: t("osRejected") };
+  const CFG = { lang: l, tx: TX, occ: OCC, nats: NATS, stages: STAGES, ostatus: OSTATUS, maxCv: 3 * 1024 * 1024 };
 
   const CSS = `<style id="sv1-vnd-css">
 .sv1-vnd-hero{padding:48px 0 28px;text-align:center}
 .sv1-vnd-hero h1{font-size:clamp(26px,4vw,40px);margin:14px 0 8px}
 .sv1-vnd-hero .sub{font-size:clamp(16px,2vw,20px);color:var(--ac);font-weight:400;margin:0 0 12px}
 .sv1-vnd-hero .lead{max-width:680px;margin:0 auto;color:var(--mut);line-height:1.95}
-.sv1-vnd-box{max-width:860px;margin:0 auto;background:#fff;border:1px solid var(--l);border-radius:15px;padding:24px;box-shadow:var(--sh2)}
+.sv1-vnd-box{max-width:860px;margin:0 auto;background:transparent;border:1px solid var(--l);border-radius:15px;padding:24px;box-shadow:var(--sh2)}
 .sv1-vnd-auth{max-width:520px}
 .sv1-vnd-tabs{display:flex;gap:6px;border-bottom:1px solid var(--l);margin:0 0 18px;flex-wrap:wrap}
 .sv1-vnd-tabs button{border:0;background:none;font:inherit;font-size:14px;padding:10px 14px;cursor:pointer;color:var(--mut);border-bottom:2px solid transparent;margin-bottom:-1px}
 .sv1-vnd-tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--ac)}
 .sv1-vnd-form label{display:block;font-size:11.5px;color:var(--mut);margin:0 0 5px}
-.sv1-vnd-in{width:100%;border:1px solid var(--l);border-radius:10px;padding:11px 13px;font:inherit;font-size:13.5px;outline:none;background:#fff;color:var(--t)}
+.sv1-vnd-in{width:100%;border:1px solid var(--l);border-radius:10px;padding:11px 13px;font:inherit;font-size:13.5px;outline:none;background:transparent;color:var(--t)}
 .sv1-vnd-in:focus{border-color:var(--ac)}
-.sv1-vnd-in[aria-invalid=true]{border-color:#b42318}
+.sv1-vnd-in[aria-invalid=true]{border-color:var(--warn)}
+textarea.sv1-vnd-in{min-height:76px;resize:vertical;line-height:1.7}
 .sv1-vnd-f{margin-bottom:13px}
 .sv1-vnd-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.sv1-vnd-cols>*{min-width:0}
+.sv1-vnd-cols>*,.sv1-vnd-cols3>*{min-width:0}
+.sv1-vnd-cols3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 .sv1-vnd-msg{font-size:12.5px;line-height:1.8;margin-top:10px;min-height:1em}
-.sv1-vnd-msg.err{color:#b42318}
 .sv1-vnd-msg.ok{color:var(--ok)}
 .sv1-vnd-note{font-size:11.5px;color:var(--faint);line-height:1.85;margin:12px 0 0}
 .sv1-vnd-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
@@ -168,11 +230,22 @@ export function buildSimpleVendor(sv1, ctx) {
 .sv1-vnd-dl div{min-width:0}
 .sv1-vnd-dl dt{font-size:11px;color:var(--faint);margin:0 0 2px}
 .sv1-vnd-dl dd{margin:0;font-size:13px;color:var(--t);overflow-wrap:anywhere}
-.sv1-vnd-row{display:grid;grid-template-columns:2fr 1.5fr 1fr 70px 1fr;gap:10px;align-items:center;padding:11px 14px;border:1px solid var(--l);border-radius:11px;background:#fff;font-size:13px}
+.sv1-vnd-row{display:grid;grid-template-columns:2fr 1.5fr 1fr 70px 1fr;gap:10px;align-items:center;padding:11px 14px;border:1px solid var(--l);border-radius:11px;background:transparent;font-size:13px}
 .sv1-vnd-row>*{min-width:0;overflow-wrap:anywhere}
 .sv1-vnd-row .st{display:inline-block;border-radius:999px;background:var(--acSoft);color:var(--ac);padding:3px 10px;font-size:11.5px;justify-self:start}
 .sv1-vnd-hr{border:0;border-top:1px solid var(--l);margin:26px 0}
-@media(max-width:700px){.sv1-vnd-cols{grid-template-columns:1fr}.sv1-vnd-row{grid-template-columns:1fr 1fr}.sv1-vnd-box{padding:18px}}
+.sv1-vnd-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.sv1-vnd-mine{display:inline-flex;gap:8px;flex-wrap:wrap;align-items:center;border-radius:9px;background:var(--acSoft);color:var(--ac);padding:5px 11px;font-size:12px;margin:0 0 11px}
+.sv1-vnd-mine b{font-weight:500}
+.sv1-vnd-ofrm{border:1px solid var(--acLine);border-radius:11px;padding:14px;margin:0 0 11px}
+.sv1-vnd-ofrm .sv1-vnd-cols{margin-bottom:12px}
+.sv1-vnd-pend{border:1px dashed var(--acLine);border-radius:12px;background:var(--soft);padding:22px;text-align:center}
+.sv1-vnd-pend h2{font-size:18px;font-weight:500;margin:0 0 8px}
+.sv1-vnd-pend p{margin:0 0 14px;color:var(--mut);font-size:13px;line-height:1.9}
+.sv1-vnd-ost{display:inline-block;border-radius:999px;background:var(--acSoft);color:var(--ac);padding:3px 10px;font-size:11.5px}
+.sv1-vnd-ost.awarded{background:var(--okSoft);color:var(--ok)}
+.sv1-vnd-ost.withdrawn,.sv1-vnd-ost.rejected{background:var(--soft);color:var(--faint)}
+@media(max-width:700px){.sv1-vnd-cols,.sv1-vnd-cols3{grid-template-columns:1fr}.sv1-vnd-row{grid-template-columns:1fr 1fr}.sv1-vnd-box{padding:18px}}
 </style>`;
 
   const body = `${sv1.header("/vendor", { cta: false })}
@@ -194,7 +267,7 @@ export function buildSimpleVendor(sv1, ctx) {
         <div id="vSignupOnly">
           <div class="sv1-vnd-f"><label for="vName">${esc(t("fName"))}</label><input class="sv1-vnd-in" id="vName" maxlength="200" autocomplete="organization"></div>
           <div class="sv1-vnd-cols sv1-vnd-f">
-            <div><label for="vKind">${esc(t("fKind"))}</label><select class="sv1-vnd-in" id="vKind"><option value="مكتب استقدام">${esc(t("kOffice"))}</option><option value="مستقل">${esc(t("kFree"))}</option><option value="منصة">${esc(t("kPlat"))}</option></select></div>
+            <div><label for="vKind">${esc(t("fKind"))}</label><select class="sv1-vnd-in" id="vKind"><option value="مكتب استقدام">${esc(t("kOffice"))}</option><option value="مستقل">${esc(t("kFree"))}</option><option value="منصة">${esc(t("kPlat"))}</option><option value="مورّد مؤسسي">${esc(t("kCorp"))}</option></select></div>
             <div><label for="vCountry">${esc(t("fCountry"))}</label><input class="sv1-vnd-in" id="vCountry" maxlength="80" autocomplete="country-name"></div>
           </div>
         </div>
@@ -202,15 +275,23 @@ export function buildSimpleVendor(sv1, ctx) {
         <div class="sv1-vnd-f"><label for="vPass">${esc(t("fPass"))}</label><input class="sv1-vnd-in" id="vPass" type="password" maxlength="200" autocomplete="current-password" dir="ltr"></div>
         <button type="submit" class="sv1-btn primary" id="vAuthGo" style="width:100%">${esc(t("btnSignup"))}</button>
         <div class="sv1-vnd-msg" id="vAuthMsg" role="status" aria-live="polite"></div>
-        <p class="sv1-vnd-note">${esc(t("authNote"))}</p>
+        <p class="sv1-vnd-note" id="vAuthNote">${esc(t("authNote"))}</p>
       </form>
     </div>
 
     <div class="sv1-vnd-box sv1-hide" id="vDash">
       <div class="sv1-vnd-bar"><span>${esc(t("hello"))} <b id="vWho"></b></span><button type="button" class="sv1-btn sm" id="vOut">${esc(t("logout"))}</button></div>
-      <div class="sv1-vnd-tabs" role="tablist">
+      <div class="sv1-vnd-tabs" role="tablist" id="vTabs">
         <button type="button" role="tab" id="vTabDemand" aria-selected="true">${esc(t("tDemand"))}</button>
         <button type="button" role="tab" id="vTabCands" aria-selected="false">${esc(t("tCands"))}</button>
+        <button type="button" role="tab" id="vTabOffers" aria-selected="false" class="sv1-hide">${esc(t("tOffers"))}</button>
+      </div>
+
+      <div class="sv1-vnd-pend sv1-hide" id="vPend">
+        <h2 id="vPendHead">${esc(t("pendTitle"))}</h2>
+        <p id="vPendText">${esc(t("pendText"))}</p>
+        <button type="button" class="sv1-btn sm" id="vPendGo">${esc(t("pendCheck"))}</button>
+        <div class="sv1-vnd-msg" id="vPendMsg" role="status" aria-live="polite"></div>
       </div>
 
       <div class="sv1-vnd-pane" id="vPaneDemand">
@@ -242,14 +323,20 @@ export function buildSimpleVendor(sv1, ctx) {
         <div class="sv1-vnd-msg" id="lMsg" role="status" aria-live="polite"></div>
         <ul class="sv1-vnd-list" id="vCands"></ul>
       </div>
+
+      <div class="sv1-vnd-pane sv1-hide" id="vPaneOffers">
+        <p>${esc(t("oP"))}</p>
+        <div class="sv1-vnd-msg" id="vOffersMsg" role="status" aria-live="polite"></div>
+        <ul class="sv1-vnd-list" id="vOffers"></ul>
+      </div>
     </div>
   </div></section>
 </main>
 ${sv1.footer()}`;
 
   function vendorClient(C) {
-    var TX = C.tx, OCC = C.occ, NATS = C.nats, STAGES = C.stages, LANG = C.lang, AR = LANG === "ar";
-    var API = "/api/agencies", KEY = "bp_vendor";
+    var TX = C.tx, OCC = C.occ, NATS = C.nats, STAGES = C.stages, OST = C.ostatus, LANG = C.lang, AR = LANG === "ar";
+    var API = "/api/agencies", KEY = "bp_vendor", CORP = "مورّد مؤسسي";
     var $ = function (id) { return document.getElementById(id); };
     var el = function (tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
     var occName = function (o) { return AR ? o[1] : o[2]; };
@@ -286,11 +373,18 @@ ${sv1.footer()}`;
       if (e === "invalid_fields") return TX.eEmail;
       return TX.eNet;
     }
-    function say(id, cls, text) { var m = $(id); m.className = "sv1-vnd-msg" + (cls ? " " + cls : ""); m.textContent = text || ""; }
+    // الخطأ يأخذ صنف SV1 الجاهز (sv1-err) فلا لون في هذه الصفحة.
+    function say(id, cls, text) { var m = $(id); m.className = "sv1-vnd-msg" + (cls === "err" ? " err sv1-err" : cls ? " " + cls : ""); m.textContent = text || ""; }
     function show(node, on) { node.classList[on ? "remove" : "add"]("sv1-hide"); }
+    function ascii(s) {
+      return String(s).replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 1632); })
+        .replace(/[۰-۹]/g, function (d) { return String(d.charCodeAt(0) - 1776); }).replace(/٫/g, ".").replace(/[\s,،٬]/g, "");
+    }
+    function money(n) { return Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 }); }
 
     /* ───── الدخول والتسجيل ───── */
     var mode = "signup";
+    function syncNote() { $("vAuthNote").textContent = (mode === "signup" && $("vKind").value === CORP) ? TX.authNoteCorp : TX.authNote; }
     function setMode(m) {
       mode = m;
       $("vTabSignup").setAttribute("aria-selected", m === "signup" ? "true" : "false");
@@ -298,10 +392,12 @@ ${sv1.footer()}`;
       show($("vSignupOnly"), m === "signup");
       $("vAuthGo").textContent = m === "signup" ? TX.btnSignup : TX.btnLogin;
       $("vPass").setAttribute("autocomplete", m === "signup" ? "new-password" : "current-password");
+      syncNote();
       say("vAuthMsg", "", "");
     }
     $("vTabSignup").addEventListener("click", function () { setMode("signup"); });
     $("vTabLogin").addEventListener("click", function () { setMode("login"); });
+    $("vKind").addEventListener("change", syncNote);
 
     $("vAuthForm").addEventListener("submit", function (ev) {
       ev.preventDefault();
@@ -326,27 +422,55 @@ ${sv1.footer()}`;
     });
 
     /* ───── اللوحة ───── */
-    var loaded = { demand: false, cands: false };
+    var loaded = { demand: false, cands: false, offers: false };
+    var kind = "", demandItems = null, offersByItem = {}, openForm = "", formSeq = 0, flash = null;
     function tab(which) {
-      var d = which === "demand";
+      var d = which === "demand", c = which === "cands", o = which === "offers";
       $("vTabDemand").setAttribute("aria-selected", d ? "true" : "false");
-      $("vTabCands").setAttribute("aria-selected", d ? "false" : "true");
-      show($("vPaneDemand"), d); show($("vPaneCands"), !d);
+      $("vTabCands").setAttribute("aria-selected", c ? "true" : "false");
+      $("vTabOffers").setAttribute("aria-selected", o ? "true" : "false");
+      show($("vPaneDemand"), d); show($("vPaneCands"), c); show($("vPaneOffers"), o);
       if (d && !loaded.demand) loadDemand();
-      if (!d && !loaded.cands) loadCands();
+      if (c && !loaded.cands) loadCands();
+      if (o && !loaded.offers) loadOffers();
     }
     $("vTabDemand").addEventListener("click", function () { tab("demand"); });
     $("vTabCands").addEventListener("click", function () { tab("cands"); });
+    $("vTabOffers").addEventListener("click", function () { tab("offers"); });
+
+    // حساب مؤسسي بانتظار المالك (أو تعذّر السؤال): لوحة واحدة بلا طلبات ولا تبويبات.
+    function showPending(on, err) {
+      show($("vPend"), on);
+      show($("vPendHead"), on && !err); show($("vPendText"), on && !err);
+      say("vPendMsg", err ? "err" : "", err || "");
+    }
+    function checkMe() {
+      show($("vTabs"), false); show($("vPaneDemand"), false); show($("vPaneCands"), false); show($("vPaneOffers"), false);
+      showPending(false);
+      authed("vendor-me", {}).then(function (x) {
+        if (!sess) return;
+        if (!x.o.ok) { showPending(true, TX.eNet); return; }
+        kind = x.o.kind;
+        if (!x.o.active) { showPending(true, ""); return; }
+        show($("vTabs"), true);
+        show($("vTabOffers"), kind === "corporate");
+        if (kind === "corporate") loadOffers();
+        tab("demand");
+      }).catch(function () { if (sess) showPending(true, TX.eNet); });
+    }
+    $("vPendGo").addEventListener("click", checkMe);
 
     function enter() {
       $("vWho").textContent = sess.name || sess.email;
       show($("vAuth"), false); show($("vDash"), true);
-      loaded.demand = false; loaded.cands = false;
-      tab("demand");
+      loaded.demand = false; loaded.cands = false; loaded.offers = false;
+      kind = ""; demandItems = null; offersByItem = {}; openForm = ""; flash = null;
+      checkMe();
     }
     function signOut(msg) {
-      sess = null; dropSess(); loaded.demand = false; loaded.cands = false;
-      $("vDemand").textContent = ""; $("vCands").textContent = "";
+      sess = null; dropSess(); loaded.demand = false; loaded.cands = false; loaded.offers = false;
+      kind = ""; demandItems = null; offersByItem = {}; openForm = "";
+      $("vDemand").textContent = ""; $("vCands").textContent = ""; $("vOffers").textContent = "";
       show($("vDash"), false); show($("vAuth"), true);
       setMode("login"); say("vAuthMsg", msg ? "err" : "", msg || "");
     }
@@ -356,10 +480,72 @@ ${sv1.footer()}`;
     function dd(label, value) {
       var d = el("div"); d.appendChild(el("dt", "", label)); d.appendChild(el("dd", "", value)); return d;
     }
-    function drawDemand(items) {
-      var ul = $("vDemand"); ul.textContent = "";
+    function mineLine(o) {
+      var d = el("div", "sv1-vnd-mine");
+      d.appendChild(el("span", "", TX.oMine + ":"));
+      d.appendChild(el("b", "", money(o.price) + " " + TX.sar));
+      d.appendChild(el("span", "", TX.lAvail + " " + o.available + " · " + TX.lPrep + " " + o.prepDays + " " + TX.days));
+      d.appendChild(el("span", "sv1-vnd-ost " + o.status, OST[o.status] || ""));
+      return d;
+    }
+    function offerField(label, input) {
+      var w = el("div"), l = el("label", "", label);
+      input.id = "ofld" + (++formSeq); l.htmlFor = input.id;
+      w.appendChild(l); w.appendChild(input); return w;
+    }
+    function offerForm(it, mine) {
+      var f = el("form", "sv1-vnd-ofrm sv1-vnd-form"); f.noValidate = true; f.setAttribute("autocomplete", "off");
+      var price = el("input", "sv1-vnd-in"); price.maxLength = 9; price.setAttribute("inputmode", "decimal"); price.dir = "ltr";
+      var avail = el("input", "sv1-vnd-in"); avail.type = "number"; avail.min = "1"; avail.max = "5000"; avail.step = "1"; avail.setAttribute("inputmode", "numeric"); avail.dir = "ltr";
+      var prep = el("input", "sv1-vnd-in"); prep.type = "number"; prep.min = "0"; prep.max = "365"; prep.step = "1"; prep.setAttribute("inputmode", "numeric"); prep.dir = "ltr";
+      var note = el("textarea", "sv1-vnd-in"); note.maxLength = 300; note.rows = 3;
+      if (mine && mine.status === "submitted") { price.value = String(mine.price); avail.value = String(mine.available); prep.value = String(mine.prepDays); note.value = mine.note || ""; }
+      var cols = el("div", "sv1-vnd-cols3");
+      cols.appendChild(offerField(TX.oPrice, price)); cols.appendChild(offerField(TX.oAvail, avail)); cols.appendChild(offerField(TX.oPrep, prep));
+      f.appendChild(cols);
+      var nw = offerField(TX.oNote, note); nw.className = "sv1-vnd-f"; f.appendChild(nw);
+      var acts = el("div", "sv1-vnd-acts");
+      var go = el("button", "sv1-btn primary sm", TX.oSend); go.type = "submit";
+      var cancel = el("button", "sv1-btn sm", TX.oCancel); cancel.type = "button";
+      acts.appendChild(go); acts.appendChild(cancel); f.appendChild(acts);
+      var msg = el("div", "sv1-vnd-msg"); msg.setAttribute("role", "status"); msg.setAttribute("aria-live", "polite"); f.appendChild(msg);
+      function oops(input, key) { input.setAttribute("aria-invalid", "true"); msg.className = "sv1-vnd-msg err sv1-err"; msg.textContent = TX[key]; input.focus(); }
+      cancel.addEventListener("click", function () { openForm = ""; drawDemand(); });
+      f.addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        [price, avail, prep, note].forEach(function (i) { i.removeAttribute("aria-invalid"); });
+        var p = ascii(price.value), a = ascii(avail.value), d = ascii(prep.value), n = note.value.replace(/\s+/g, " ").trim();
+        if (!/^\d{1,6}(\.\d{1,2})?$/.test(p) || !(+p > 0) || +p > 100000) return oops(price, "ePrice");
+        if (!/^\d{1,5}$/.test(a) || +a < 1 || +a > 5000) return oops(avail, "eAvail");
+        if (!/^\d{1,3}$/.test(d) || +d > 365) return oops(prep, "ePrep");
+        if (n.length > 300) return oops(note, "eNote");
+        go.disabled = true; msg.className = "sv1-vnd-msg"; msg.textContent = TX.wait;
+        authed("vendor-offer-submit", { itemId: it.itemId, price: p, available: a, prepDays: d, note: n }).then(function (x) {
+          go.disabled = false;
+          if (!sess) return;
+          if (x.o.ok && x.o.offer) {
+            offersByItem[it.itemId] = x.o.offer; loaded.offers = false; openForm = "";
+            flash = { cls: "ok", text: x.o.replaced ? TX.oUpdated : TX.oDone };
+            drawDemand(); loadOffers();
+            return;
+          }
+          var e = x.o.error;
+          if (e === "invalid_price") return oops(price, "ePrice");
+          if (e === "invalid_available") return oops(avail, "eAvail");
+          if (e === "invalid_prep_days") return oops(prep, "ePrep");
+          if (e === "invalid_note") return oops(note, "eNote");
+          msg.className = "sv1-vnd-msg err sv1-err";
+          msg.textContent = e === "item_not_found" || e === "invalid_item" ? TX.eItemGone : (e === "already_awarded" || e === "offer_locked") ? TX.eLocked : e === "not_configured" ? TX.eOffCfg : TX.eNet;
+        }).catch(function () { go.disabled = false; msg.className = "sv1-vnd-msg err sv1-err"; msg.textContent = TX.eNet; });
+      });
+      return f;
+    }
+    function drawDemand() {
+      var items = demandItems || [], ul = $("vDemand"); ul.textContent = "";
       if (!items.length) { say("vDemandMsg", "", TX.dNone); return; }
-      say("vDemandMsg", "", "");
+      // رسالة «وصل عرضك» تبقى عبر إعادة الرسم (تحميل العروض يعيد رسم البطاقات).
+      say("vDemandMsg", flash ? flash.cls : "", flash ? flash.text : "");
+      var corp = kind === "corporate";
       items.forEach(function (it) {
         var li = el("li", "sv1-vnd-card");
         var h = el("h3", "", AR ? it.nameAr : it.nameEn); h.appendChild(el("small", "", it.ref));
@@ -372,19 +558,77 @@ ${sv1.footer()}`;
         if (it.startDate) dl.appendChild(dd(TX.lStart, it.startDate));
         if (it.durationMonths) dl.appendChild(dd(TX.lDur, it.durationMonths + " " + TX.months));
         li.appendChild(dl);
-        var b = el("button", "sv1-btn sm", TX.propose); b.type = "button";
-        b.addEventListener("click", function () { tab("cands"); $("cRole").value = AR ? it.nameAr : it.nameEn; $("cName").focus(); });
-        li.appendChild(b);
+        if (corp) {
+          var mine = offersByItem[it.itemId];
+          if (mine) li.appendChild(mineLine(mine));
+          if (openForm === it.itemId) li.appendChild(offerForm(it, mine));
+          else if (!mine || mine.status === "submitted") {
+            var ob = el("button", "sv1-btn sm", mine ? TX.oBtnEdit : TX.oBtn); ob.type = "button";
+            ob.addEventListener("click", function () { openForm = it.itemId; flash = null; drawDemand(); });
+            li.appendChild(ob);
+          }
+        } else {
+          var b = el("button", "sv1-btn sm", TX.propose); b.type = "button";
+          b.addEventListener("click", function () { tab("cands"); $("cRole").value = AR ? it.nameAr : it.nameEn; $("cName").focus(); });
+          li.appendChild(b);
+        }
         ul.appendChild(li);
       });
     }
     function loadDemand() {
-      loaded.demand = true; say("vDemandMsg", "", TX.dLoad);
+      loaded.demand = true; flash = null; say("vDemandMsg", "", TX.dLoad);
       authed("vendor-demand", {}).then(function (x) {
         if (!sess) return;
         if (!x.o.ok) { loaded.demand = false; say("vDemandMsg", "err", TX.dErr); return; }
-        drawDemand(x.o.items || []);
+        demandItems = x.o.items || [];
+        drawDemand();
       }).catch(function () { loaded.demand = false; say("vDemandMsg", "err", TX.dErr); });
+    }
+
+    /* عروضي (مؤسسي فقط) */
+    function drawOffers(rows) {
+      var ul = $("vOffers"); ul.textContent = "";
+      if (!rows.length) { say("vOffersMsg", "", TX.oNone); return; }
+      say("vOffersMsg", "", "");
+      rows.forEach(function (o) {
+        var li = el("li", "sv1-vnd-card");
+        var h = el("h3", "", AR ? o.nameAr : o.nameEn); h.appendChild(el("small", "", o.itemId));
+        li.appendChild(h);
+        var dl = el("dl", "sv1-vnd-dl");
+        dl.appendChild(dd(TX.lPrice, money(o.price) + " " + TX.sar));
+        dl.appendChild(dd(TX.lAvail, String(o.available)));
+        dl.appendChild(dd(TX.lPrep, o.prepDays + " " + TX.days));
+        if (o.count != null) dl.appendChild(dd(TX.lNeed, String(o.count)));
+        if (o.note) dl.appendChild(dd(TX.lNote, o.note));
+        var sd = el("div"); sd.appendChild(el("dt", "", TX.lStage)); var sdd = el("dd"); sdd.appendChild(el("span", "sv1-vnd-ost " + o.status, OST[o.status] || "")); sd.appendChild(sdd); dl.appendChild(sd);
+        li.appendChild(dl);
+        if (o.status === "submitted") {
+          var wb = el("button", "sv1-btn sm", TX.oWithdraw); wb.type = "button";
+          wb.addEventListener("click", function () {
+            wb.disabled = true;
+            authed("vendor-offer-withdraw", { offerId: o.id }).then(function (x) {
+              if (!sess) return;
+              if (x.o.ok) { delete offersByItem[o.itemId]; loaded.offers = false; return loadOffers().then(function () { say("vOffersMsg", "ok", TX.oWithdrawn); }); }
+              wb.disabled = false;
+              say("vOffersMsg", "err", x.o.error === "offer_locked" ? TX.eLocked : TX.eNet);
+            }).catch(function () { wb.disabled = false; say("vOffersMsg", "err", TX.eNet); });
+          });
+          li.appendChild(wb);
+        }
+        ul.appendChild(li);
+      });
+    }
+    function loadOffers() {
+      loaded.offers = true; say("vOffersMsg", "", TX.dLoad);
+      return authed("vendor-my-offers", {}).then(function (x) {
+        if (!sess) return;
+        if (!x.o.ok) { loaded.offers = false; say("vOffersMsg", "err", x.o.error === "not_configured" ? TX.eOffCfg : TX.oErr); return; }
+        var rows = x.o.offers || [];
+        offersByItem = {};
+        rows.forEach(function (o) { if ((o.status === "submitted" || o.status === "awarded") && !offersByItem[o.itemId]) offersByItem[o.itemId] = o; });
+        drawOffers(rows);
+        if (demandItems && !openForm) drawDemand();
+      }).catch(function () { loaded.offers = false; say("vOffersMsg", "err", TX.oErr); });
     }
 
     /* المرشحون */

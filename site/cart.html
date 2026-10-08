@@ -483,6 +483,19 @@ function nameOf(i){var ar=i.nameAr||'',en=i.nameEn||'';return (LANG==='ar'?ar:en
 var PRICES_ON=document.documentElement.getAttribute('data-prices')==='on';
 function shown(i){return !!(i&&Number(i.amount)&&(PRICES_ON||i.pricePublic))}
 
+var EMPRE=/^BP-EMP-/i;
+// سعر بند الاشتراك يقوله الخادم (/api/pay?action=emp-offer) لا الصفحة التي أضافته؛
+// تُصحَّح السلة مرة واحدة عند الفتح، وصفحة الدفع تعيد التصحيح قبل أن تأخذ مبلغاً.
+(function syncEmp(){
+ readCart().forEach(function(it,idx){
+  if(!EMPRE.test(String(it.id||'')))return;
+  fetch('/api/pay?action=emp-offer&sku='+encodeURIComponent(it.id)).then(function(r){return r.json()}).then(function(o){
+   var c=readCart(),cur=c[idx];if(!cur||cur.id!==it.id)return;
+   var next=(o&&o.ok)?{amount:o.amountSar,qty:1,pricePublic:true,nameAr:o.name.ar,nameEn:o.name.en}:{amount:0,qty:1};
+   var same=Number(cur.amount)===next.amount&&(Number(cur.qty)||1)===1;
+   if(same)return;
+   Object.keys(next).forEach(function(k){cur[k]=next[k]});writeCart(c)}).catch(function(){})})})();
+
 function draw(){
  var cart=readCart(),box=$('cartItems');box.innerHTML='';
  if(!cart.length){
@@ -507,13 +520,16 @@ function draw(){
   r.appendChild(nm);
 
   var q=document.createElement('div');q.className='sv1-qty';
+  var isEmp=EMPRE.test(String(i.id||''));
   var dec=document.createElement('button');dec.type='button';dec.textContent='−';
   dec.setAttribute('aria-label','-');if((Number(i.qty)||1)<=1)dec.disabled=true;
   var val=document.createElement('span');val.textContent=String(Number(i.qty)||1);
   var inc=document.createElement('button');inc.type='button';inc.textContent='+';inc.setAttribute('aria-label','+');
   dec.onclick=function(){var c=readCart();c[idx].qty=Math.max(1,(Number(c[idx].qty)||1)-1);writeCart(c);draw()};
   inc.onclick=function(){var c=readCart();c[idx].qty=(Number(c[idx].qty)||1)+1;writeCart(c);draw()};
-  q.appendChild(dec);q.appendChild(val);q.appendChild(inc);r.appendChild(q);
+  // اشتراك منصة التوظيف واحدٌ لا يُضاعَف: لا أزرار كمية له.
+  if(!isEmp){q.appendChild(dec);q.appendChild(val);q.appendChild(inc)}
+  r.appendChild(q);
 
   var amt=document.createElement('div');amt.className='amt';
   if(!Number(i.amount)){amt.className='amt soft';amt.textContent=TX.quoted}
