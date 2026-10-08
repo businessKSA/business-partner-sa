@@ -16,7 +16,7 @@
 // السكربت العميل دالةٌ عاديّة (eorClient) تُسلسَل بـtoString، فلا يُضاعَف فيها الـbackslash كما في قوالب النصوص.
 
 import { OCCUPATIONS } from "../../api/_occupations.js";
-import { NATIONALITIES, EOR_LIMITS, SECTORS } from "../../api/_eor.js";
+import { NATIONALITIES, EOR_LIMITS, SECTORS, INSURANCE_CLASSES, INSURANCE_AGE_BANDS, INSURANCE_GENDERS } from "../../api/_eor.js";
 
 // ar, en, fr, zh
 const D = {
@@ -108,6 +108,35 @@ const D = {
   pReview: ["السعر يُحدَّد بعد مراجعة طلبك.", "The price is set after we review your request.", "Le prix est fixé après examen de votre demande.", "价格在审核您的申请后确定。"],
   pNote: ["تقدير أولي غير ملزم. السعر النهائي في عرض السعر، ومدة العقد معلومة فقط ولا تدخل الحساب.", "Preliminary, non-binding estimate. The final price is in the quote, and the contract term is informational only and is not part of the calculation.", "Estimation préliminaire non contraignante. Le prix final figure dans l'offre ; la durée du contrat est indicative et n'entre pas dans le calcul.", "初步估算，不具约束力。最终价格以报价为准；合同期限仅供参考，不计入计算。"],
   cur: ["ريال", "SAR", "SAR", "SAR"],
+  insH: ["التأمين الطبي (اختياري، يظهر أثره على السعر عند إدخال الراتب)", "Medical insurance (optional; its effect on the price shows once you enter the salary)", "Assurance médicale (facultatif ; son effet sur le prix apparaît une fois le salaire saisi)", "医疗保险（可选；填写薪资后会体现在价格中）"],
+  gender: ["الجنس", "Gender", "Genre", "性别"],
+  gU: ["غير محدد", "Not specified", "Non précisé", "未指定"],
+  gM: ["ذكر", "Male", "Homme", "男"],
+  gF: ["أنثى", "Female", "Femme", "女"],
+  age: ["الفئة العمرية", "Age band", "Tranche d'âge", "年龄段"],
+  ageNone: ["غير محددة", "Not specified", "Non précisée", "未指定"],
+  yrs: ["سنة", "yrs", "ans", "岁"],
+  insClass: ["فئة التأمين", "Insurance class", "Classe d'assurance", "保险等级"],
+  icBasic: ["الأساسي (الافتراضي)", "Basic (default)", "De base (par défaut)", "基础（默认）"],
+  icC: ["الفئة C", "Class C", "Classe C", "C 级"],
+  icB: ["الفئة B", "Class B", "Classe B", "B 级"],
+  icA: ["الفئة A", "Class A", "Classe A", "A 级"],
+  icQ: ["فئة أعلى (VIP) — بعرض سعر الشركة", "Higher tier (VIP) — by insurer quote", "Niveau supérieur (VIP) — sur devis de l'assureur", "更高等级（VIP）— 以保险公司报价为准"],
+  mat: ["إضافة الأمومة (للمتزوجات)", "Maternity add-on (married women)", "Option maternité (femmes mariées)", "生育附加险（已婚女性）"],
+  chr: ["تغطية الأمراض المزمنة", "Chronic conditions cover", "Couverture des maladies chroniques", "慢性病保障"],
+  pDelta: ["الفرق عن الأساسي", "Difference from Basic", "Écart avec le niveau de base", "与基础等级的差额"],
+  perMonth: ["ريال/شهر", "SAR/month", "SAR/mois", "SAR/月"],
+  pQuoteOnly: ["الفئة العليا تُسعَّر بعرض من شركة التأمين؛ السعر أعلاه يشمل التأمين الأساسي.", "The higher tier is priced by an insurer quote; the price above includes Basic insurance.", "Le niveau supérieur est chiffré sur devis de l'assureur ; le prix ci-dessus inclut l'assurance de base.", "更高等级以保险公司报价定价；上方价格包含基础保险。"],
+  pNeedAge: ["اختر الفئة العمرية ليُحسب سعر الفئة المختارة؛ السعر أعلاه يشمل التأمين الأساسي.", "Pick the age band to price the selected class; the price above includes Basic insurance.", "Choisissez la tranche d'âge pour chiffrer la classe choisie ; le prix ci-dessus inclut l'assurance de base.", "请选择年龄段以计算所选等级；上方价格包含基础保险。"],
+  pNoMat: ["لم تُطبَّق إضافة الأمومة لهذه الفئة العمرية.", "The maternity add-on was not applied for this age band.", "L'option maternité n'a pas été appliquée pour cette tranche d'âge.", "该年龄段未适用生育附加险。"],
+  insEst: ["السعر تقديري ويُثبَّت بعرض الشركة.", "The price is an estimate and is confirmed by the insurer's quote.", "Le prix est une estimation, confirmée par le devis de l'assureur.", "价格为估算，以保险公司报价确认为准。"],
+  infoH: ["ما فئات التأمين الطبي؟", "What are the medical insurance classes?", "Quelles sont les classes d'assurance médicale ?", "医疗保险有哪些等级？"],
+  infoBasic: ["الأساسي: التغطية الأساسية المعتمدة في تسعيرنا للعمالة، وهي الخيار الافتراضي.", "Basic: the basic cover used in our worker pricing; it is the default choice.", "De base : la couverture de base retenue dans notre tarification, choix par défaut.", "基础：我们用工定价中采用的基础保障，为默认选项。"],
+  infoC: ["الفئة C: الأدنى بين الفئات الثلاث تغطيةً وسعراً.", "Class C: the lowest of the three classes in cover and price.", "Classe C : la plus basse des trois classes en couverture et en prix.", "C 级：三个等级中保障和价格最低。"],
+  infoB: ["الفئة B: وسط بين C وA في التغطية والسعر.", "Class B: between C and A in cover and price.", "Classe B : entre C et A en couverture et en prix.", "B 级：保障和价格介于 C 与 A 之间。"],
+  infoA: ["الفئة A: الأوسع تغطيةً والأعلى سعراً بين الثلاث.", "Class A: the widest cover and highest price of the three.", "Classe A : la couverture la plus large et le prix le plus élevé des trois.", "A 级：三个等级中保障最广、价格最高。"],
+  infoQ: ["الفئة العليا (VIP): حدودها وشبكتها بعرض شركة التأمين، ولا سعر لها هنا.", "Higher tier (VIP): its limits and network come with the insurer's quote; no price is shown here.", "Niveau supérieur (VIP) : limites et réseau selon le devis de l'assureur ; aucun prix affiché ici.", "更高等级（VIP）：限额与网络以保险公司报价为准，此处不显示价格。"],
+  infoNote: ["يتغيّر السعر بالعمر والجنس. تفاصيل التغطية وحدودها وشبكة المستشفيات تثبَّت في وثيقة شركة التأمين. السعر تقديري ويُثبَّت بعرض الشركة.", "The price varies with age and gender. Coverage details, limits and the hospital network are fixed in the insurer's policy. The price is an estimate and is confirmed by the insurer's quote.", "Le prix varie selon l'âge et le genre. Le détail des garanties, les plafonds et le réseau hospitalier sont fixés dans la police de l'assureur. Le prix est une estimation, confirmée par le devis de l'assureur.", "价格随年龄和性别而变化。保障细节、限额和医院网络以保险公司保单为准。价格为估算，以保险公司报价确认为准。"],
   hrH: ["بعد أن عرفت الخدمة", "Once you know the service", "Une fois le service compris", "了解服务之后"],
   hrP: ["ادخل بوابة Business Partner HR: أصحاب العمل والمرشحون والمكاتب والموظفون كلٌّ يدخل من بابه.", "Enter the Business Partner HR portal: employers, candidates, offices and employees each enter through their own door.", "Accédez au portail Business Partner HR : employeurs, candidats, bureaux et employés entrent chacun par leur porte.", "进入 Business Partner HR 门户：雇主、候选人、机构和员工各走各的入口。"],
   hrBtn: ["ادخل بوابة Business Partner HR", "Enter the Business Partner HR portal", "Accéder au portail Business Partner HR", "进入 Business Partner HR 门户"],
@@ -156,11 +185,21 @@ export function buildSimpleEor(sv1, ctx) {
   const TXKEYS = ["occPh", "occNone", "natAny", "remove", "itemN", "total", "itemCount", "sending", "submit",
     "eCompany", "eContact", "eEmail", "ePhone", "eCity", "eWorker", "eRecruit", "eItems", "eOcc", "eCount", "eTotal", "eSalary", "eStart", "eMonths", "eNet", "eRate",
     "doneT", "doneRef", "doneP", "another", "nats", "occ", "count", "salary",
-    "pMonthly", "pOt", "pTotal", "pReview", "pNote", "cur"];
+    "pMonthly", "pOt", "pTotal", "pReview", "pNote", "cur",
+    "insH", "gender", "age", "insClass", "mat", "chr", "pDelta", "perMonth", "pQuoteOnly", "pNeedAge", "pNoMat", "insEst"];
   const TX = {};
   for (const k of TXKEYS) TX[k] = t(k);
+  // اختيار التأمين: معرّفات وعناوين فقط (لا رقم ولا سعر) — الحساب كله على الخادم.
+  const CLASS_KEY = { basic: "icBasic", C: "icC", B: "icB", A: "icA", quote: "icQ" };
+  const GENDER_KEY = { unspecified: "gU", male: "gM", female: "gF" };
+  const INS = {
+    classes: INSURANCE_CLASSES.map((k) => [k, t(CLASS_KEY[k])]),
+    ages: INSURANCE_AGE_BANDS.map((k) => [k, k.replace("-", "–") + " " + t("yrs")]),
+    genders: INSURANCE_GENDERS.map((k) => [k, t(GENDER_KEY[k])]),
+    ageNone: t("ageNone"),
+  };
   const CFG = {
-    lang: l, tx: TX, occ: OCC, nats: NATS,
+    lang: l, tx: TX, occ: OCC, nats: NATS, ins: INS,
     lim: { maxItems: EOR_LIMITS.maxItems, maxTotal: EOR_LIMITS.maxTotalCount, maxItemCount: EOR_LIMITS.maxItemCount, maxMonths: EOR_LIMITS.maxMonths, maxSalary: EOR_LIMITS.maxSalary, maxNats: EOR_LIMITS.maxNationalities },
   };
 
@@ -218,6 +257,18 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
 .sv1-eor-price{margin-top:10px;border:1px solid var(--acLine);background:var(--acSoft);border-radius:10px;padding:10px 13px;font-size:12.5px;color:var(--ink);line-height:1.8}
 .sv1-eor-price b{font-family:var(--fm);font-weight:500;font-size:15px;color:var(--ac)}
 .sv1-eor-price.hold{border-color:var(--l);background:var(--soft);color:var(--mut)}
+.sv1-eor-ins{border-top:1px dashed var(--l);padding-top:10px}
+.sv1-eor-ins>label{font-size:11.5px;color:var(--mut)}
+.sv1-eor-insg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sv1-eor-insg>*{min-width:0}
+.sv1-eor-insx{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px}
+.sv1-eor-insx label{display:inline-flex;align-items:center;gap:7px;margin:0;font-size:12.5px;color:var(--t);cursor:pointer}
+.sv1-eor-insx input{accent-color:var(--ac)}
+.sv1-eor-insnote{margin-top:6px;font-size:11.5px;color:var(--mut);line-height:1.8}
+.sv1-eor-insinfo{margin-top:12px;border:1px solid var(--l);border-radius:11px;background:var(--soft);padding:0 15px}
+.sv1-eor-insinfo summary{cursor:pointer;padding:11px 0;font-size:13px;font-weight:500;color:var(--ink)}
+.sv1-eor-insinfo ul{margin:0 0 8px;padding-inline-start:18px;color:var(--t);font-size:12.5px;line-height:1.9}
+.sv1-eor-insinfo p{margin:0 0 12px;color:var(--mut);font-size:11.5px;line-height:1.85}
 .sv1-eor-sum{margin-top:12px;border:1px solid var(--acLine);background:var(--acSoft);border-radius:11px;padding:12px 15px;font-size:13px;color:var(--ink)}
 .sv1-eor-sum b{font-family:var(--fm);font-weight:500;font-size:17px;color:var(--ac)}
 .sv1-eor-sum small{display:block;margin-top:4px;color:var(--mut);font-size:11.5px;line-height:1.8}
@@ -234,7 +285,7 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
 .sv1-eor-done .ref{font-family:var(--fm);font-size:20px;color:var(--ac);margin:12px 0 8px;direction:ltr;unicode-bidi:isolate}
 .sv1-eor-done p{font-size:13px;color:var(--mut);line-height:1.9;margin:0 0 16px}
 @media(max-width:860px){.sv1-eor-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.sv1-eor-grid,.sv1-eor-cols,.sv1-eor-igrid{grid-template-columns:1fr}.sv1-eor-form{padding:18px}}
+@media(max-width:600px){.sv1-eor-grid,.sv1-eor-cols,.sv1-eor-igrid,.sv1-eor-insg{grid-template-columns:1fr}.sv1-eor-form{padding:18px}}
 </style>`;
 
   const card = (a, b) => `<div class="sv1-eor-card"><h3>${esc(t(a))}</h3><p>${esc(t(b))}</p></div>`;
@@ -307,6 +358,10 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
         <button type="button" class="sv1-btn sm" id="eorAdd">+ ${esc(t("add"))}</button>
         <div class="sv1-eor-bar"><span>${esc(t("total"))}: <b id="eorTotal">0</b> / ${EOR_LIMITS.maxTotalCount}</span><span><b id="eorItemsN">0</b> / ${EOR_LIMITS.maxItems} ${esc(t("itemCount"))}</span></div>
         <div class="sv1-eor-sum sv1-hide" id="eorPriceSum" role="status" aria-live="polite"></div>
+        <details class="sv1-eor-insinfo" id="eorInsInfo"><summary>${esc(t("infoH"))}</summary>
+          <ul><li>${esc(t("infoBasic"))}</li><li>${esc(t("infoC"))}</li><li>${esc(t("infoB"))}</li><li>${esc(t("infoA"))}</li><li>${esc(t("infoQ"))}</li></ul>
+          <p>${esc(t("infoNote"))}</p>
+        </details>
       </fieldset>
       <fieldset><legend>${esc(t("g3"))}</legend>
         <div class="sv1-eor-cols">
@@ -325,7 +380,7 @@ textarea.sv1-eor-in{min-height:84px;resize:vertical}
 ${sv1.footer()}`;
 
   function eorClient(C) {
-    var TX = C.tx, OCC = C.occ, NATS = C.nats, LIM = C.lim, LANG = C.lang, AR = LANG === "ar";
+    var TX = C.tx, OCC = C.occ, NATS = C.nats, LIM = C.lim, INS = C.ins, LANG = C.lang, AR = LANG === "ar";
     var API = "/api/requests?__route=eor";
     var $ = function (id) { return document.getElementById(id); };
     var el = function (tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
@@ -368,6 +423,29 @@ ${sv1.footer()}`;
       box.appendChild(document.createTextNode(TX.pMonthly + ": "));
       box.appendChild(el("b", "", fmtNum(line.monthlyPerEmployee))); box.appendChild(document.createTextNode(cur + " · " + TX.pOt + ": "));
       box.appendChild(el("b", "", fmtNum(line.otHour))); box.appendChild(document.createTextNode(cur));
+      var ins = line.insurance;
+      if (!ins) return;
+      function note(text, strong) { box.appendChild(el("br", "")); if (strong) { box.appendChild(document.createTextNode(TX.pDelta + ": ")); box.appendChild(el("b", "", strong)); box.appendChild(document.createTextNode(" " + TX.perMonth)); } else box.appendChild(document.createTextNode(text)); }
+      if (ins.status === "applied") {
+        if (ins.deltaMonthly) note("", (ins.deltaMonthly > 0 ? "+" : "") + fmtNum(ins.deltaMonthly));
+        if (it.mCb.checked && it.gIn.value === "female" && !ins.maternity) note(TX.pNoMat);
+        note(TX.insEst);
+      } else if (ins.status === "quote_only") { note(TX.pQuoteOnly); note(TX.insEst); }
+      else if (ins.status === "needs_age") note(TX.pNeedAge);
+    }
+    // أعلام الواجهة من الخادم (منطقية فقط): هل يُعرض اختيار التأمين وإضافتاه؟ تُستعمل لإخفاء الحقول لا لحساب شيء.
+    var UIF = { selectable: true, addons: true };
+    function syncIns(it) {
+      var medical = it.cIn.value === "C" || it.cIn.value === "B" || it.cIn.value === "A";
+      it.insW.classList.toggle("sv1-hide", !UIF.selectable);
+      it.mW.classList.toggle("sv1-hide", !(UIF.addons && medical && it.gIn.value === "female"));
+      it.chW.classList.toggle("sv1-hide", !(UIF.addons && medical));
+      it.xW.classList.toggle("sv1-hide", it.mW.classList.contains("sv1-hide") && it.chW.classList.contains("sv1-hide"));
+    }
+    function insOf(it) {
+      var on = UIF.selectable;
+      return { gender: on ? it.gIn.value : "unspecified", ageBand: on ? it.aIn.value : "", insuranceClass: on ? it.cIn.value : "basic",
+        maternity: on && UIF.addons && it.mCb.checked && !it.mW.classList.contains("sv1-hide"), chronic: on && UIF.addons && it.chCb.checked && !it.chW.classList.contains("sv1-hide") };
     }
     function clearPrices() {
       items.forEach(function (it) { showPrice(it, null); });
@@ -382,7 +460,8 @@ ${sv1.footer()}`;
         var ss = digits(it.salIn.value).trim(), sal = null;
         if (ss !== "") { sal = Number(ss); if (!isFinite(sal) || sal < 0 || sal > LIM.maxSalary) sal = null; }
         if (sal !== null && sal > 0) anySalary = true;
-        rows.push({ count: n, nationalities: it.nats.slice(), salary: sal }); owners.push(it);
+        var io = insOf(it);
+        rows.push({ count: n, nationalities: it.nats.slice(), salary: sal, gender: io.gender, ageBand: io.ageBand, insuranceClass: io.insuranceClass, maternity: io.maternity, chronic: io.chronic }); owners.push(it);
       });
       if (!wt || !rows.length || !anySalary) { clearPrices(); return; }
       var ms = parseInt(digits($("eorMonths").value), 10);
@@ -393,6 +472,7 @@ ${sv1.footer()}`;
           if (my !== priceSeq) return;
           var q = o && o.ok && o.quote;
           if (!q || (q.status !== "ok" && q.status !== "partial" && q.status !== "none")) { clearPrices(); return; }
+          if (q.insuranceUi) { UIF.selectable = q.insuranceUi.selectable === true; UIF.addons = q.insuranceUi.addons === true; items.forEach(syncIns); }
           items.forEach(function (it) { showPrice(it, null); });
           q.lines.forEach(function (ln, j) { if (owners[j]) showPrice(owners[j], ln); });
           var sum = $("eorPriceSum"); sum.textContent = "";
@@ -527,14 +607,37 @@ ${sv1.footer()}`;
       var priceEl = el("div", "sv1-eor-price sv1-hide"); priceEl.setAttribute("role", "status"); priceEl.setAttribute("aria-live", "polite");
       salW.appendChild(salIn); salW.appendChild(priceEl); it.salIn = salIn; it.priceEl = priceEl;
 
-      grid.appendChild(occW); grid.appendChild(countW); grid.appendChild(natW); grid.appendChild(salW);
+      // التأمين الطبي: الجنس والفئة العمرية وفئة التأمين (+ إضافتا الأمومة والمزمن عند الاقتضاء). الحساب على الخادم.
+      var insW = el("div", "full sv1-eor-ins"); insW.appendChild(el("label", "", TX.insH));
+      var insG = el("div", "sv1-eor-insg");
+      function sel(label, pairs, dflt) {
+        var w = el("div", ""); w.appendChild(el("label", "", label));
+        var s = el("select", "sv1-eor-in");
+        pairs.forEach(function (pr) { var o = el("option", "", pr[1]); o.value = pr[0]; s.appendChild(o); });
+        s.value = dflt; s.addEventListener("change", function () { syncIns(it); priceSoon(); });
+        w.appendChild(s); insG.appendChild(w); return s;
+      }
+      it.gIn = sel(TX.gender, INS.genders, "unspecified");
+      it.aIn = sel(TX.age, [["", INS.ageNone]].concat(INS.ages), "");
+      it.cIn = sel(TX.insClass, INS.classes, "basic");
+      function chk(label) {
+        var lb = el("label", ""); var cb = el("input", ""); cb.type = "checkbox";
+        cb.addEventListener("change", function () { priceSoon(); });
+        lb.appendChild(cb); lb.appendChild(document.createTextNode(label)); lb.classList.add("sv1-hide"); return { lb: lb, cb: cb };
+      }
+      var m = chk(TX.mat), ch = chk(TX.chr);
+      it.mW = m.lb; it.mCb = m.cb; it.chW = ch.lb; it.chCb = ch.cb;
+      it.xW = el("div", "sv1-eor-insx sv1-hide"); it.xW.appendChild(m.lb); it.xW.appendChild(ch.lb);
+      insW.appendChild(insG); insW.appendChild(it.xW); it.insW = insW;
+
+      grid.appendChild(occW); grid.appendChild(countW); grid.appendChild(natW); grid.appendChild(salW); grid.appendChild(insW);
       card.appendChild(head); card.appendChild(grid); host.appendChild(card);
       it.card = card;
       rm.addEventListener("click", function () {
         items = items.filter(function (x) { return x !== it; });
         host.removeChild(card); refresh(); priceSoon();
       });
-      items.push(it); refresh();
+      items.push(it); syncIns(it); refresh();
       return it;
     }
     $("eorAdd").addEventListener("click", function () { var it = addItem(); if (it) it.occIn.focus(); });
@@ -582,7 +685,8 @@ ${sv1.footer()}`;
         if (total > LIM.maxTotal) return bad("eTotal", it.countIn);
         var sal = null, ss = digits(it.salIn.value).trim();
         if (ss !== "") { sal = Number(ss); if (!isFinite(sal) || sal < 0 || sal > LIM.maxSalary) return bad("eSalary", it.salIn); }
-        out.push({ occupationId: it.occId, count: n, nationalities: it.nats.slice(), salary: sal });
+        var io = insOf(it);
+        out.push({ occupationId: it.occId, count: n, nationalities: it.nats.slice(), salary: sal, gender: io.gender, ageBand: io.ageBand, insuranceClass: io.insuranceClass, maternity: io.maternity, chronic: io.chronic });
       }
       var start = $("eorStart").value.trim();
       if (start && !/^\d{4}-\d{2}-\d{2}$/.test(start)) return bad("eStart", $("eorStart"));

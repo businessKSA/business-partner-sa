@@ -354,8 +354,9 @@ export function monthlyInvoiceLines(placements, timesheets, config) {
      costplus  ⚠ pending_decision — التعريف غير محسوم. المبسّط: (1.02·P + 542) ÷ 0.8. للمالك داخلياً وبتنبيه صريح؛
                لا يصل عميلاً ما لم يضع المالك client_visible=true.
 
-   الخصوصية: computePackageRate يُخرج بنيةً داخلية (internal: تكلفة، هامش، ربح) لا تصل العميل أبداً؛
-   packageClientView وحدها (قائمة بيضاء) تُخرج للعميل السعر الشهري وساعة الإضافي فقط.
+   الخصوصية: computePackageRate يُخرج بنيةً داخلية (internal: تكلفة، هامش، ربح، وتفصيل التأمين) لا تصل العميل أبداً؛
+   packageClientView وحدها (قائمة بيضاء) تُخرج للعميل السعر الشهري وساعة الإضافي، ولمن اختار تأميناً: الفئة والفرق الشهري عن الأساسي فقط.
+   التأمين (lump فقط): input.insurance = { insuranceClass, ageBand, gender, maternity, chronic } اختياري، انظر insurancePremium أعلاه.
    الحساب بأعداد عشرية عادية (الإكسل نفسه كذلك)؛ التقريب الوحيد المعتمد هو MROUND للسعر، وكل الباقي يُعرض مقرَّباً لهللتين
    في الواجهة الداخلية فقط. */
 
@@ -368,6 +369,99 @@ const r2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;
 export function mround(x, step) {
   if (!(step > 0)) throw new RangeError("mround: step must be positive");
   return Math.floor(x / step + 0.5 + 1e-9) * step;
+}
+
+/* ═════════════ كتالوج التأمين الطبي (يختاره العميل: فئة × عمر × جنس) ═════════════
+   يستبدل بند التأمين (insurance_yearly/12) في صيغة lump حين يختار العميل فئة طبية. المصدر: package_rate.insurance_catalog في
+   api/_eor-pricing.json — «تقدير سوق يُستبدل بعروض شركات التأمين» (أسعار أفراد قبل خصم المجموعات، لا عرض شركة).
+   القسط الشهري = ((سنوي الفئة × معامل العمر × معامل الجنس × خصم المجموعات) [+ علاوة المزمن × ذلك] [+ أمومة ثابتة للأنثى المؤهّلة])
+                   × (1 + ضريبة إن فُعِّلت) ÷ 12، مقرَّباً لأقرب هللة (نصف لأعلى) بحساب BigInt صحيح.
+   «الأساسي» = lump.insurance_yearly كما هو (صيغة الإكسل) بلا أي معامل. فشل مغلق: أي قيمة مجهولة أو إعداد ناقص ⇒ الأساسي لا خطأ
+   ولا سعراً صفرياً. القيم الخام (القسط السنوي، المعاملات، الخصم، الضريبة) داخلية: لا تصل العميل إلا السعر الشهري والفرق عن الأساسي. */
+export const INSURANCE_CLASSES = Object.freeze(["basic", "C", "B", "A", "quote"]);
+export const INSURANCE_AGE_BANDS = Object.freeze(["0-17", "18-29", "30-39", "40-49", "50-59", "60+"]);
+export const INSURANCE_GENDERS = Object.freeze(["unspecified", "male", "female"]);
+const MEDICAL_CLASSES = Object.freeze(["C", "B", "A"]);
+
+// يحوّل اختيار العميل (من أي مصدر غير موثوق) إلى قيم مسموحة فقط. المجهول يعود للافتراضي الآمن؛ والمنطقي صارم (true وحدها).
+export function normalizeInsuranceFields(raw) {
+  const r = isObj(raw) ? raw : {};
+  const str = (v) => (typeof v === "string" ? v.trim() : "");
+  const cls = INSURANCE_CLASSES.find((c) => c.toLowerCase() === str(r.insuranceClass).toLowerCase()) || "basic";
+  const gender = INSURANCE_GENDERS.find((g) => g === str(r.gender).toLowerCase()) || "unspecified";
+  return {
+    insuranceClass: cls,
+    ageBand: INSURANCE_AGE_BANDS.find((a) => a === str(r.ageBand)) || "",
+    gender,
+    maternity: r.maternity === true,
+    chronic: r.chronic === true,
+  };
+}
+
+function insuranceConfigFrom(cat) {
+  if (!isObj(cat)) return null;
+  const pos = (v) => (typeof v === "number" && Number.isFinite(v) && v > 0 ? v : null);
+  const unit = (v) => (typeof v === "number" && Number.isFinite(v) && v > 0 && v <= 1 ? v : null);
+  const ages = isObj(cat.age_bands) ? cat.age_bands : {};
+  const gf = isObj(cat.gender_factor) ? cat.gender_factor : {};
+  const cls = isObj(cat.classes) ? cat.classes : {};
+  const mat = isObj(cat.maternity) ? cat.maternity : {};
+  const classes = {};
+  for (const k of MEDICAL_CLASSES) { const x = isObj(cls[k]) ? cls[k] : {}; classes[k] = { baseYearly: pos(x.base_yearly_18_29), maternityYearly: pn(x.maternity_yearly) }; }
+  return {
+    clientSelectable: cat.client_selectable === true,
+    addonsVisible: cat.client_addons_visible === true,
+    groupDiscountFactor: unit(cat.group_discount_factor),
+    vatIncluded: typeof cat.vat_on_insurance_included === "boolean" ? cat.vat_on_insurance_included : null,
+    vatRate: pn(cat.vat_rate),
+    ageFactor: Object.fromEntries(INSURANCE_AGE_BANDS.map((k) => [k, pos(ages[k])])),
+    genderFactor: Object.fromEntries(INSURANCE_GENDERS.map((k) => [k, pos(gf[k])])),
+    classes,
+    maternityBands: Array.isArray(mat.eligible_age_bands) ? mat.eligible_age_bands.filter((x) => INSURANCE_AGE_BANDS.includes(x)) : [],
+    chronicLoading: pn(cat.chronic_loading),
+    quoteAvailable: isObj(cls.quote) && cls.quote.quote_only === true,
+  };
+}
+
+// قسمة BigInt بتقريب النصف لأعلى (للأعداد غير السالبة).
+const divHalfUpBig = (num, den) => (2n * num + den) / (2n * den);
+const ppmBig = (x) => BigInt(Math.round(x * RATE_SCALE));
+
+// insurancePremium(choice, icfg) → { status, class, … }
+//   status: "basic" (الأساسي: لا شيء يتغيّر) | "quote_only" (فئة عليا بلا رقم) | "needs_age" (فئة طبية بلا فئة عمرية) | "applied"
+//   applied يحمل: monthlyHalalas, monthly (ريال)، maternity/chronic (المُطبَّق فعلاً)، detail (داخلي: القسط السنوي والمعاملات…).
+export function insurancePremium(choice, icfg) {
+  const ch = normalizeInsuranceFields(choice);
+  const BASIC = { status: "basic", class: "basic", maternity: false, chronic: false };
+  if (!isObj(icfg) || icfg.clientSelectable !== true || ch.insuranceClass === "basic") return BASIC;
+  if (ch.insuranceClass === "quote") return icfg.quoteAvailable ? { status: "quote_only", class: "quote", maternity: false, chronic: false } : BASIC;
+  const k = icfg.classes && icfg.classes[ch.insuranceClass];
+  if (!k || !(k.baseYearly > 0)) return BASIC;
+  if (!ch.ageBand) return { status: "needs_age", class: ch.insuranceClass, maternity: false, chronic: false };
+  const age = icfg.ageFactor && icfg.ageFactor[ch.ageBand], gen = icfg.genderFactor && icfg.genderFactor[ch.gender], grp = icfg.groupDiscountFactor;
+  if (!(age > 0) || !(gen > 0) || !(grp > 0)) return BASIC;
+  if (typeof icfg.vatIncluded !== "boolean" || (icfg.vatIncluded && icfg.vatRate === null)) return BASIC;
+  const wantMat = icfg.addonsVisible === true && ch.maternity && ch.gender === "female" && Array.isArray(icfg.maternityBands) && icfg.maternityBands.includes(ch.ageBand);
+  const wantChr = icfg.addonsVisible === true && ch.chronic;
+  if (wantMat && icfg.classes[ch.insuranceClass].maternityYearly === null) return BASIC;
+  if (wantChr && icfg.chronicLoading === null) return BASIC;
+
+  const S = BigInt(RATE_SCALE);
+  const adj = BigInt(sarToHalalas(k.baseYearly)) * ppmBig(age) * ppmBig(gen) * ppmBig(grp);          // هللات × S³
+  let total = adj * S;                                                                                // × S⁴
+  if (wantChr) total += adj * ppmBig(icfg.chronicLoading);
+  if (wantMat) total += BigInt(sarToHalalas(k.maternityYearly)) * S ** 4n;
+  total *= S + (icfg.vatIncluded ? ppmBig(icfg.vatRate) : 0n);                                        // × S⁵
+  const monthlyH = Number(divHalfUpBig(total, 12n * S ** 5n));
+  return {
+    status: "applied", class: ch.insuranceClass, maternity: wantMat, chronic: wantChr,
+    monthlyHalalas: monthlyH, monthly: monthlyH / 100,
+    detail: {
+      baseYearly: k.baseYearly, ageBand: ch.ageBand, ageFactor: age, gender: ch.gender, genderFactor: gen, groupDiscountFactor: grp,
+      maternityYearly: wantMat ? icfg.classes[ch.insuranceClass].maternityYearly : 0, chronicLoading: wantChr ? icfg.chronicLoading : 0,
+      vatIncluded: icfg.vatIncluded, vatRate: icfg.vatIncluded ? icfg.vatRate : 0, yearly: Number(divHalfUpBig(total, S ** 5n)) / 100,
+    },
+  };
 }
 
 // يحوّل كتلة package_rate من api/_eor-pricing.json إلى إعداد مُطبَّع. القيمة الناقصة/غير الصالحة = null ⇒ تظهر في missing.
@@ -402,6 +496,7 @@ export function packageRateConfigFromPricing(pricing) {
       returnTicketYearly: pn(L.return_ticket_yearly),
       overtime: ot(L.overtime),
     },
+    insurance: insuranceConfigFrom(root.insurance_catalog),
     costplus: {
       clientVisible: C.client_visible === true,
       marginOnPrice: pn(C.margin_on_price),
@@ -458,25 +553,32 @@ export function computePackageRate(input) {
 
     const leaveMonthly = c.leaveIncluded === false ? 0 : ((P / c.leaveMonthDays) * c.leaveDays) / 12;
     const joiningMonthly = c.joiningIncluded === false ? 0 : c.joiningYearly / 12;
-    const lines = {
-      package: P,
-      government: (c.residenceYearly + c.workPermitYearly + c.ajeerYearly) / 12,
-      insurance: c.insuranceYearly / 12,
-      annualLeave: leaveMonthly,
-      exitReentry: c.exitReentryYearly / 12,
-      joining: joiningMonthly,
-      returnTicket: c.returnTicketYearly / 12,
-      endOfService: (P * c.endOfServiceMonthsPerYear) / 12,
-      socialInsurance: P * c.socialInsuranceRate,
-      overhead: c.overheadMonthly,
+    // التأمين: الأساسي = insurance_yearly/12 كما في الإكسل؛ فئة طبية مختارة (insurancePremium) تستبدله بقسطها الشهري.
+    const basicInsurance = c.insuranceYearly / 12;
+    const build = (insuranceMonthly) => {
+      const lines = {
+        package: P,
+        government: (c.residenceYearly + c.workPermitYearly + c.ajeerYearly) / 12,
+        insurance: insuranceMonthly,
+        annualLeave: leaveMonthly,
+        exitReentry: c.exitReentryYearly / 12,
+        joining: joiningMonthly,
+        returnTicket: c.returnTicketYearly / 12,
+        endOfService: (P * c.endOfServiceMonthsPerYear) / 12,
+        socialInsurance: P * c.socialInsuranceRate,
+        overhead: c.overheadMonthly,
+      };
+      const cost = Object.values(lines).reduce((s, x) => s + x, 0);
+      const rate = cost / (1 - c.marginOnPrice);
+      return { lines, cost, rate, billable: mround(rate, c.step) };
     };
-    const cost = Object.values(lines).reduce((s, x) => s + x, 0);
-    const rate = cost / (1 - c.marginOnPrice);
-    const billable = mround(rate, c.step);
+    const ins = inp.insurance === undefined || inp.insurance === null ? null : insurancePremium(inp.insurance, cfg.insurance);
+    const sel = build(ins && ins.status === "applied" ? ins.monthly : basicInsurance);
+    const { lines, cost, rate, billable } = sel;
     const separate = {};
     if (c.leaveIncluded === false) separate.annualLeaveMonthlyEquivalent = r2(((P / c.leaveMonthDays) * c.leaveDays) / 12);
     if (c.joiningIncluded === false) separate.joiningMonthlyEquivalent = r2(c.joiningYearly / 12);
-    return {
+    const out = {
       status: "ok", mode, package: P, currency,
       billable, otHour: r2(otHourOf(P, o)),
       pendingDecision: false,
@@ -486,6 +588,15 @@ export function computePackageRate(input) {
         lines: Object.fromEntries(Object.entries(lines).map(([k, v]) => [k, r2(v)])), separate,
       },
     };
+    if (ins) {
+      // ما يخرج للعميل منه: الفئة والحالة والفرق الشهري عن الأساسي (فرق سعرين مقرَّبين) وما طُبِّق من الإضافات — لا أرقام الأقساط.
+      const delta = ins.status === "applied" ? billable - build(basicInsurance).billable : 0;
+      out.insurance = { class: ins.class, status: ins.status, deltaMonthly: r2(delta), maternity: ins.maternity === true, chronic: ins.chronic === true };
+      out.internal.insurance = ins.status === "applied"
+        ? { ...ins.detail, class: ins.class, monthly: ins.monthly, basicMonthly: r2(basicInsurance), basicBillable: build(basicInsurance).billable }
+        : { class: ins.class, status: ins.status };
+    }
+    return out;
   }
 
   // costplus — pending_decision
@@ -521,7 +632,19 @@ export function packageClientView(result, config) {
   if (cfg.clientPriceVisible !== true) return PENDING;
   if (result.mode === "costplus" && !(isObj(cfg.costplus) && cfg.costplus.clientVisible === true)) return PENDING;
   if (result.mode !== "lump" && result.mode !== "costplus") return PENDING;
-  return { status: "ok", currency: result.currency, monthlyPrice: result.billable, otHour: result.otHour };
+  const view = { status: "ok", currency: result.currency, monthlyPrice: result.billable, otHour: result.otHour };
+  // اختيار التأمين (إن طُلب): الفئة والحالة والفرق الشهري عن الأساسي وما طُبِّق من إضافات — حقلاً حقلاً، لا أقساط ولا معاملات.
+  if (result.mode === "lump" && isObj(result.insurance)) {
+    const i = result.insurance;
+    view.insurance = {
+      class: INSURANCE_CLASSES.includes(i.class) ? i.class : "basic",
+      status: ["basic", "quote_only", "needs_age", "applied"].includes(i.status) ? i.status : "basic",
+      deltaMonthly: Number.isFinite(i.deltaMonthly) ? i.deltaMonthly : 0,
+      maternity: i.maternity === true,
+      chronic: i.chronic === true,
+    };
+  }
+  return view;
 }
 
 // السعر الشهري كهللات صحيحة لتغذية monthlyInvoiceLines (placements[].saleMonthlyHalalas) بالسعر المقرَّب نفسه.

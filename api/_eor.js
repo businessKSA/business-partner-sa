@@ -25,7 +25,9 @@ import { fileURLToPath } from "node:url";
 import { randomInt } from "node:crypto";
 import { EMAIL_LIVE, WHATSAPP_LIVE, outbox, DEV } from "./_mode.js";
 import { OCCUPATIONS, occupationById, searchOccupations } from "./_occupations.js";
-import { packageRateConfigFromPricing, computePackageRate, packageClientView } from "./_eor-cost.js";
+import { packageRateConfigFromPricing, computePackageRate, packageClientView, normalizeInsuranceFields } from "./_eor-cost.js";
+// قوائم اختيار التأمين المسموحة (معرّفات فقط، لا أرقام) — تستوردها صفحة /eor من هنا لا من الحاسبة.
+export { INSURANCE_CLASSES, INSURANCE_AGE_BANDS, INSURANCE_GENDERS } from "./_eor-cost.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
@@ -209,7 +211,7 @@ export function validateEorRequest(body, opts = {}) {
       if (typeof s !== "number" || !Number.isFinite(s) || s < 0 || s > EOR_LIMITS.maxSalary) return fail("salary_invalid", "items", { index: i });
       salary = Math.round(s * 100) / 100;
     }
-    items.push({ occupationId, count, nationalities: nats, salary });
+    items.push({ occupationId, count, nationalities: nats, salary, ...normalizeInsuranceFields(it) });
   }
 
   let startDate = "";
@@ -354,17 +356,22 @@ export function estimatePackageQuote(items, pricing, opts = {}) {
     if (wt === "mixed" || wt === "unknown") { lines.push({ ...line, status: "needs_review" }); continue; }
     if (!cfg.appliesTo.includes(wt)) { lines.push({ ...line, status: "not_applicable" }); continue; }
     if (!isNum(it.salary) || it.salary <= 0) { lines.push({ ...line, status: "needs_salary" }); continue; }
-    const view = packageClientView(computePackageRate({ mode: "lump", package: it.salary, config: { ...cfg, today } }), cfg);
+    // اختيار التأمين (اختياري لكل بند): يُمرَّر فقط حين يحمل البند حقوله، والحاسبة تُسقط المجهول إلى «الأساسي».
+    const insurance = "insuranceClass" in it ? { insuranceClass: it.insuranceClass, ageBand: it.ageBand, gender: it.gender, maternity: it.maternity, chronic: it.chronic } : undefined;
+    const view = packageClientView(computePackageRate({ mode: "lump", package: it.salary, insurance, config: { ...cfg, today } }), cfg);
     if (view.status !== "ok") return PENDING;      // حاسبة ناقصة أو مغلقة: لا رقم لأي بند
     const monthlyC = cents(view.monthlyPrice) * it.count;
     totalC += monthlyC; priced++;
-    lines.push({ ...line, status: "priced", salary: it.salary, monthlyPerEmployee: view.monthlyPrice, otHour: view.otHour, monthlyTotal: sar(monthlyC) });
+    lines.push({ ...line, status: "priced", salary: it.salary, monthlyPerEmployee: view.monthlyPrice, otHour: view.otHour, monthlyTotal: sar(monthlyC), ...(view.insurance ? { insurance: view.insurance } : {}) });
   }
-  if (!priced) return { status: "none", currency: cfg.currency, lines, notice: "estimate_not_an_offer" };
+  // أعلام واجهة فقط (منطقية): هل يُعرض اختيار التأمين وإضافتاه؟ لا أرقام.
+  const insuranceUi = { selectable: !!(cfg.insurance && cfg.insurance.clientSelectable), addons: !!(cfg.insurance && cfg.insurance.clientSelectable && cfg.insurance.addonsVisible) };
+  if (!priced) return { status: "none", currency: cfg.currency, lines, insuranceUi, notice: "estimate_not_an_offer" };
   return {
     status: priced === list.length ? "ok" : "partial",
     currency: cfg.currency,
     lines,
+    insuranceUi,
     monthlyTotal: sar(totalC),
     durationMonths: months,
     notice: "estimate_not_an_offer",
@@ -396,7 +403,7 @@ function normalizePriceItems(rawItems) {
       if (typeof s !== "number" || !Number.isFinite(s) || s < 0 || s > EOR_LIMITS.maxSalary) return fail("salary_invalid", "items", { index: i });
       salary = Math.round(s * 100) / 100;
     }
-    items.push({ count, nationalities: nats, salary });
+    items.push({ count, nationalities: nats, salary, ...normalizeInsuranceFields(it) });
   }
   return { ok: true, items };
 }
@@ -522,8 +529,23 @@ export function itemsText(items) {
     const o = occupationById(it.occupationId);
     const name = o ? `${o.nameAr} | ${o.nameEn}` : String(it.occupationId);
     const nats = (it.nationalities || []).map((c) => nationalityName(c, "ar")).join("، ") || "غير محدّدة";
-    return `${i + 1}) ${name} — العدد: ${it.count} — الجنسيات: ${nats}${isNum(it.salary) ? ` — الراتب المتوقع: ${it.salary} ريال` : ""}`;
+    return `${i + 1}) ${name} — العدد: ${it.count} — الجنسيات: ${nats}${isNum(it.salary) ? ` — الراتب المتوقع: ${it.salary} ريال` : ""}${insuranceText(it)}`;
   }).join("\n");
+}
+
+// اختيار التأمين كما كتبه العميل (للفريق، عربي): يظهر فقط إن خالف الافتراضي. لا قسط ولا معامل.
+const INS_CLASS_AR = { basic: "الأساسي", C: "الفئة C", B: "الفئة B", A: "الفئة A", quote: "فئة عليا بعرض سعر الشركة" };
+const GENDER_AR = { male: "ذكر", female: "أنثى" };
+function insuranceText(it) {
+  if (!it || typeof it !== "object" || !("insuranceClass" in it)) return "";
+  const n = normalizeInsuranceFields(it);
+  const parts = [];
+  if (n.insuranceClass !== "basic") parts.push(`التأمين: ${INS_CLASS_AR[n.insuranceClass]}`);
+  if (GENDER_AR[n.gender]) parts.push(`الجنس: ${GENDER_AR[n.gender]}`);
+  if (n.ageBand) parts.push(`الفئة العمرية: ${n.ageBand}`);
+  if (n.maternity) parts.push("أمومة");
+  if (n.chronic) parts.push("مزمن");
+  return parts.length ? ` — ${parts.join(" — ")}` : "";
 }
 
 function quoteSummaryText(q) {
