@@ -123,7 +123,7 @@
 | `daftra` | الدفترة: `_daftra.js` — الفاتورة الضريبية عند الدفع والإشعار الدائن |
 | `suppliers-partners` | الشركاء والموردون: التسجيل والتأهيل ولوحتاهما وأوامر العمل والضمان (Escrow) |
 | `bp-ai-platform` | منصة Business Partner AI: CRM وTasks والبريد في Notion، الموجّه الرئيسي، المتابعات، Chat OS |
-| `feasibility-manager` | **دراسات الجدوى** (داخلي) — يوزّع على سبعة: `feasibility-market` · `-regulatory` · `-costing` · `-forecast` · `-setup-ops` · `-strategy-exit` · `-reviewer`؛ نطاقه `docs/feasibility/` فقط |
+| `feasibility-manager` | **دراسات الجدوى** (داخلي) — يوزّع على تسعة: `feasibility-market` · `-regulatory` · `-costing` · `-forecast` · `-setup-ops` · `-strategy-exit` · `-reviewer`؛ نطاقه `docs/feasibility/` فقط |
 
 - **قاعدة الإسناد التي تحسم التداخل:** الصفحة التي يدخلها عميل تتبع
   `client-portal`، والتي يدخلها المالك تتبع `owner-ops` — مهما كان محتواها.

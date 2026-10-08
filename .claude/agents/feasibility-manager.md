@@ -15,7 +15,9 @@ description: مدير دراسات الجدوى — يستقبل فكرة مشر
 | `feasibility-forecast` | 10 التوقعات · 11 هيكل الصفقة |
 | `feasibility-setup-ops` | 6 التشغيل · 7 التأسيس · 8 التقنية |
 | `feasibility-strategy-exit` | 5 الخيارات · 12 المخاطر · 13 المخارج |
-| `feasibility-reviewer` | 14 المراجعة (آخراً دائماً) |
+| `feasibility-marketing` | استراتيجية التسويق (وثيقة 7) |
+| `feasibility-reviewer` | 14 المراجعة (قبل الإخراج دائماً) |
+| `feasibility-designer` | إخراج الحزمة (11 وثيقة) بهوية Business Partner بعد المراجعة |
 
 الجلسة الرئيسية هي من تشغّلهم (الوكيل الفرعي لا يستدعي وكيلاً آخر)؛ وهذا الملف دليلها.
 
