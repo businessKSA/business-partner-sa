@@ -92,6 +92,7 @@
 | `recruitment-employer` | `/portal/join` · `/portal/candidates` · `/portal/dashboard` | ❌ (بوابة التوظيف — يدخلها صاحب العمل) |
 | `recruitment-candidate` | `/careers` (النموذج) · `/candidate-profile` · `/job-search-service` | 🟡 |
 | `recruitment-agencies` | `/recruitment-agencies` · `/agency-portal` | 🟡 |
+| `recruitment-agencies` | `/vendor` | 🟢 SV1 جديدة |
 | `recruitment-jobs` | `/jobs/*` (٣٨) · `/job` · `/hiring` · `/careers` (العرض) | 🟡 / ✅ |
 
 ## 7) `automation-agents` — المستشارون الأذكياء كمنتج

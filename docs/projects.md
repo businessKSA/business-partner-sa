@@ -418,7 +418,7 @@ Simple V1 لا تحمّله — فالرئيسية و`/catalog` و`/cart` و`/my
 | `recruitment` | **مدير — لا يملك ملفاً ولا يكتب كوداً.** يوزّع على الأربعة أدناه ويتحقق |
 | ├ `recruitment-employer` | `api/employer.js` · `api/candidates.js` · `api/hire.js` · `site/scripts/hr-app.mjs` · `site/scripts/hr-i18n.mjs` · `site/scripts/*employer*` |
 | ├ `recruitment-candidate` | `api/candidate.js` · `api/_jobhunt.js` · `api/_occupations.js` · `api/_occupation-map.json` |
-| ├ `recruitment-agencies` | `api/_agencies.js` |
+| ├ `recruitment-agencies` | `api/_agencies.js` · `api/_sources.js` · `site/scripts/simple-v1-vendor.mjs` (بوابة المورّدين `/vendor`: `vendor-demand` يعرض بنود `listVendorDemand()` بلا هوية عميل، و`vendor-candidates`/`vendor-add-candidate` لمرشحي المورّد وحده بمعرّف المكتب؛ وسم المصدر داخلي لا يُعرض) |
 | └ `recruitment-jobs` | `site/scripts/simple-v1-hiring.mjs` **وحده** — `/jobs/*` و`/job` و`/careers` تُولَّد في `generate.mjs` المملوك لـ`platform-engineer`، فيُنسَّق معه ولا يُكتب فيه |
 | `catalog-content` | `site/assets/data/catalog.json` · `site/data/*.json` · `api/_catalog.js` · `api/_knowledge.js` · `api/knowledge.json` · `site/scripts/simple-v1-guide-structure.mjs` · `site/scripts/simple-v1-gov-cost.mjs` · `site/scripts/simple-v1-knowledge.mjs` · `site/scripts/sv1-guide-sell.mjs` |
 | `automation-agents` | `n8n/**` · `ops/n8n/**` · `api/chat.js` · `site/scripts/service-advisor.mjs` · `site/scripts/baher-support.mjs` · `site/scripts/assets/chat.page.html` |
