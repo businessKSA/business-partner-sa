@@ -12384,7 +12384,12 @@ const catalogJson = {
 // vercel.json تحوّلها إلى /catalog بدل 404. لا يُلمس بقية الملف.
 {
   const vj = path.resolve(ROOT, "..", "vercel.json");
-  if (fs.existsSync(vj) && syncVercelRedirects(vj)) console.log("vercel.json: أُعيدت كتابة تحويلات 302 للمخفي.");
+  try {
+    if (fs.existsSync(vj) && syncVercelRedirects(vj)) console.log("vercel.json: أُعيدت كتابة تحويلات 302 للمخفي.");
+  } catch (e) {
+    // مزامنة التحويلات لا تُسقط البناء: الإخفاء نفسه (الصفحات والكتالوج) لا يعتمد عليها.
+    console.warn("تحذير: تعذّرت مزامنة تحويلات 302 في vercel.json —", e.message);
+  }
   if (hasHidden()) console.log("المخفي (hidden.json) مُطبَّق: الخدمات والصفحات المذكورة لا تُبنى ولا تُدرَج.");
 }
 

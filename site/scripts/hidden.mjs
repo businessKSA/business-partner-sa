@@ -156,6 +156,10 @@ const MANAGED = /"statusCode"\s*:\s*302/;
 // يعيد كتابة أسطر الـ302 المُدارة داخل مصفوفة redirects في vercel.json بلا
 // لمس بقية الملف حرفاً. يُرجع true إن تغيّر الملف.
 export function syncVercelRedirects(file, opts) {
+  // على Vercel يُقرأ vercel.json قبل أمر البناء، فتعديله أثناء البناء بلا أثر؛ وقد
+  // أسقط هذا الفحص نشرة 2026-10-10 لأن النسخة هناك لا تطابق الصيغة المحلية.
+  // المزامنة خطوةٌ محلية يُلتزَم ناتجها، وفحص تطابقها في tests/hidden.test.mjs.
+  if (process.env.VERCEL) return false;
   const text = fs.readFileSync(file, "utf8");
   const lines = text.split("\n");
   const start = lines.findIndex((l) => /^\s*"redirects"\s*:\s*\[\s*$/.test(l));
