@@ -1,7 +1,28 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr" data-prices="off">
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8"><script id="bp-n8n-guard">(function(){
+var isTestHost=function isTestHost(h) {
+  h = String(h == null ? "" : h).toLowerCase();
+  return h === "localhost" || h === "127.0.0.1" || h === "::1" || h === "[::1]" || /\.vercel\.app$/.test(h);
+};
+var T=false;try{T=isTestHost(location.hostname)}catch(e){}
+window.BP_TEST_MODE=T;
+if(!T)return;
+var NOTE={"ar":"وضع اختبار — لم يُرسَل","en":"Test mode — not sent","fr":"Mode test — non envoyé","zh":"测试模式 — 未发送"};
+function lang(){var l=(document.documentElement.getAttribute('lang')||'ar').toLowerCase().slice(0,2);return NOTE[l]?l:'en'}
+window.bpTestNote=function(what){var m=NOTE[lang()];try{console.info('[BP test mode] not sent to n8n'+(what?' ('+what+')':'')+' — '+location.hostname)}catch(e){}return m};
+function n8n(u){try{var s=(u&&u.url)||u;return /(^|\.)n8n\.cloud$/i.test(new URL(String(s),location.href).hostname)}catch(e){return false}}
+function block(u,how){try{console.info('[BP test mode] blocked '+how+' to n8n: '+String(u&&u.url||u))}catch(e){}}
+var F=window.fetch;
+if(F)window.fetch=function(u){if(n8n(u)){block(u,'fetch');var er=new Error('BP test mode: request to n8n blocked');er.bpTestMode=true;return Promise.reject(er)}return F.apply(this,arguments)};
+var XO=window.XMLHttpRequest&&XMLHttpRequest.prototype.open,XS=window.XMLHttpRequest&&XMLHttpRequest.prototype.send;
+if(XO&&XS){
+XMLHttpRequest.prototype.open=function(m,u){this.__bpN8n=n8n(u);if(this.__bpN8n)block(u,'xhr');return XO.apply(this,arguments)};
+XMLHttpRequest.prototype.send=function(){if(this.__bpN8n){var x=this;setTimeout(function(){try{x.dispatchEvent(new Event('error'))}catch(e){}},0);return}return XS.apply(this,arguments)}}
+var SB=navigator.sendBeacon;
+if(SB)navigator.sendBeacon=function(u){if(n8n(u)){block(u,'beacon');return false}return SB.apply(navigator,arguments)};
+})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Service portal — Shared Services | Business Partner</title>
 <meta name="description" content="Sign in to your Shared Services executive team portal.">
@@ -784,7 +805,7 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
     </div>
     <div class="sv1-foot-col">
       <h4>Payments</h4>
-      <p class="sv1-foot-note">mada · Visa · Mastercard · Apple Pay · Tamara — through a licensed gateway; card details never touch our servers.</p>
+      <p class="sv1-foot-note">mada · Visa · Mastercard, or instalments with Tamara. Mobile wallets (such as Apple Pay) appear at checkout only when your device supports them. Payment runs through a licensed gateway; card details never touch our servers.</p>
     </div>
   </div>
 
@@ -854,6 +875,8 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
       var box=document.getElementById('unl-result');
       if(!code){note(box,"Enter your access code.",'err');return;}
       if(code.toLowerCase()==='demo123'){ setClient({code:'demo123',name:"Demo preview",demo:true}); note(box,"Welcome — opening the preview…",'ok'); openService(); return; }
+      // وضع الاختبار (localhost / معاينة vercel.app): لا يخرج شيء إلى n8n.
+      if(window.BP_TEST_MODE){note(box,window.bpTestNote('ss-login'),'err');return;}
       note(box,"Checking your code…",'ok');
       fetch(N8N+'/ss-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code})})
         .then(function(r){return r.json();})
@@ -1013,6 +1036,7 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
       if(v===null)return; v=v.trim(); if(!v)return;
       var isUrl=/^(https?:\/\/)?[\w\u0600-\u06ff.-]+\.[a-z\u0600-\u06ff]{2,}([\/?#][^\s]*)?$/i.test(v)&&v.indexOf(' ')===-1;
       var body={code:c.code}; if(isUrl)body.website=v; else body.about=v;
+      if(window.BP_TEST_MODE){alert(window.bpTestNote('ss-knowledge'));return;}
       kb.disabled=true; kb.textContent='🧠 '+"Reading & learning…";
       fetch(N8N+'/ss-knowledge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
         .then(function(r){return r.json();})
@@ -1050,6 +1074,8 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
         mine.sent=true;var tick=mineEl.querySelector('.tick');if(tick)tick.classList.add('ok');
         href.push(bm);saveChat(agent.slug,href);
       }
+      // وضع الاختبار (localhost / معاينة vercel.app): لا يخرج شيء إلى n8n، ولا يُحفظ في سجلّ المحادثة.
+      if(window.BP_TEST_MODE){clearTimeout(timer);teamline(false);log.replaceChild(bubble({text:window.bpTestNote('ss-chat'),cls:'bot',ts:Date.now()}),th);log.scrollTop=log.scrollHeight;busy=false;return;}
       fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:ctrl.signal})
         .then(function(r){return r.text();}).then(function(raw){clearTimeout(timer);var rep='';try{var d=JSON.parse(raw);rep=d.reply||d.output||d.text||d.message||'';}catch(e){rep=raw;}finish(rep||BUSY);})
         .catch(function(er){clearTimeout(timer);finish((er&&er.name==='AbortError')?BUSY:ERRT);})

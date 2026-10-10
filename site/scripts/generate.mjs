@@ -321,6 +321,8 @@ import { simpleV1, SIMPLE_V1 } from "./simple-v1.mjs";
 import { buildSimpleMy } from "./simple-v1-my.mjs";
 import { buildSimpleCatalog } from "./simple-v1-catalog.mjs";
 import { buildSimpleServiceDetail } from "./simple-v1-service-detail.mjs";
+import { buildSimpleServiceCategory } from "./simple-v1-service-category.mjs";
+import { injectN8nGuard } from "./n8n-guard.mjs";
 import { buildSimpleCheckout } from "./simple-v1-checkout.mjs";
 import { buildSimpleCart } from "./simple-v1-cart.mjs";
 import { buildSimpleTrips } from "./simple-v1-trips.mjs";
@@ -2228,42 +2230,47 @@ const SHOW_SERVICE_PRICES = SHOW_PRICES;
 // other price on the site stays hidden.
 const SHOW_PACKAGE_PRICES = true;
 
+// ‏قاعدتان تتشاركهما صفحة الخدمة وبطاقتها في صفحة التصنيف، فلا تخالف البطاقةُ
+// صفحتَها: مسعّرة = سعرٌ في الكتالوج وليست عقاراً ولا سياحة؛ وخدمات المساحات
+// (العقار بلا استشارة) وجهتها نموذج مساحة العمل لا السلة.
+const svcPriced = (s) => !!(s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism");
+const svcSpecial = (s) => (s.category === "Real Estate" && !s.ctaConsultation ? "workspace" : s.category === "Tourism" ? "tourism" : "");
+
+// صفحة التصنيف على الموقع الجديد (ملاحظة الأسعار أعلاه: SHOW_PRICES=false تعني
+// أن الرقم يراه المسجَّل وحده — يتكفّل به صنف price-amt في صفحة التصنيف).
+// المولّد يجهّز المعطيات وحدها، و`simple-v1-service-category.mjs` يبني الصفحة
+// داخل SV1.shell(). `services` هنا مُصفّاة بـ hidden.json قبل أي استعمال.
 function buildServiceCategory(cat) {
   const list = services.filter((s) => s.category === cat.key);
-  const cards = list
-    .map((s) => {
-      const d = sDesc(s);
-      return `<a class="card svc-card" href="${u("/services/" + s.slug)}">
-        <span class="tag">${L(catEn(cat.key), cat.ar)}</span>
-        <h3>${esc(sName(s))}</h3>
-        <p class="desc">${esc(d.slice(0, 120))}${d.length > 120 ? "…" : ""}</p>
-        <div class="foot"><span class="price-soft"${SHOW_SERVICE_PRICES && s.price && s.price.amount != null ? ` data-bp-price="${esc(String(s.code || "").toUpperCase())}"` : ""}>${SHOW_SERVICE_PRICES && s.price && s.price.amount != null ? esc(localizeLabel(s.price.label || s.price.amount + " ﷼")) : L("Custom quote", "سعر حسب حالتك")}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
-      </a>`;
-    })
-    .join("");
-  const other = categories
-    .filter((c) => c.key !== cat.key)
-    .map((c) => `<a class="cc-chip" href="${catUrl(c.key)}">${CAT_ICON[c.key] || "📁"} ${L(catEn(c.key), c.ar)}</a>`)
-    .join("");
-  const body = `
-  <section class="hero hero--sm"><div class="container hero-inner">
-    <a class="back-link" href="${u("/services")}">${I.arrow} ${L("All categories", "كل التصنيفات")}</a>
-    <span class="eyebrow">${CAT_ICON[cat.key] || "📁"} ${L("Services", "الخدمات")}</span>
-    <h1>${L(catEn(cat.key), cat.ar)}</h1>
-    <p class="lead">${L(list.length + " " + enCount(list.length, "service", "services") + " in " + catEn(cat.key) + " — talk to us for a quote tailored to your case; government fees are always separate.", list.length + " " + arCount(list.length, "خدمة", "خدمتان", "خدمات") + " في " + cat.ar + " — تواصل معنا لعرض سعر حسب حالتك، والرسوم الحكومية منفصلة دائماً.")}</p>
-  </div></section>
-  <section class="section"><div class="container">
-    <div class="grid grid-3">${cards}</div>
-    <div class="cat-other"><h2>${L("Other categories", "تصنيفات أخرى")}</h2><div class="cc-prof-chips">${other}</div></div>
-    <div class="cta-band" style="margin-top:28px"><h2>${L("Not sure which service you need?", "محتار أي خدمة تناسبك؟")}</h2><p>${L("Contact us and we will point you to the right service for your case.", "تواصل معنا ونوصلك للخدمة المناسبة لحالتك مباشرة.")}</p>${waBtn2("Contact us", "تواصل معنا", "btn-white", true)}</div>
-  </div></section>`;
-  return page({
-    title: `${Lraw(catEn(cat.key), cat.ar)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`,
-    desc: Lraw(`${list.length} ${catEn(cat.key)} services with clear fees.`, `${list.length} ${arCount(list.length, "خدمة", "خدمتان", "خدمات")} في ${cat.ar} بأتعاب واضحة.`),
-    active: "/services",
-    path: "/services/category/" + catSlugUrl(cat.key),
-    body,
+  const items = list.map((s) => {
+    const priced = svcPriced(s);
+    const ov = site.overrides[s.slug];
+    return {
+      code: s.code, slug: s.slug, href: u("/services/" + s.slug),
+      name: sName(s),
+      nameEn: (svcI18n[s.code] && svcI18n[s.code].en) || (ov && ov.nameEn) || s.name, nameAr: sNameArOf(s),
+      gov: s.govPlatform && !/بدون جهة/.test(s.govPlatform) ? govLabel(s.govPlatform) : "",
+      priced, amount: priced ? s.price.amount : null,
+      priceLabel: priced ? localizeLabel(s.price.label || s.price.amount + " ﷼") : "",
+      requiresProposal: !!s.requiresProposal,
+      special: svcSpecial(s), cartId: "svc-" + s.slug, workspaceHref: u("/workspace-request"),
+    };
   });
+  const others = categories
+    .filter((c) => c.key !== cat.key)
+    .map((c) => ({ label: catLabel(c.key), href: catUrl(c.key), count: services.filter((s) => s.category === c.key).length }))
+    .filter((c) => c.count > 0);
+  const label = catLabel(cat.key);
+  const count = list.length;
+  const view = {
+    key: cat.key, label, slug: catSlugUrl(cat.key), items, others,
+    seoDesc: Lraw(
+      `${count} ${catEn(cat.key)} ${count === 1 ? "service" : "services"} — add priced services to your cart or request a quotation.`,
+      `${count} ${arCount(count, "خدمة", "خدمتان", "خدمات")} في ${cat.ar} — أضف المسعّر منها إلى السلة أو اطلب عرض سعر.`
+    ),
+    liveV: LIVE_V,
+  };
+  return buildSimpleServiceCategory(SV1, { lang: () => LANG, esc }, view);
 }
 
 // صفحة تفاصيل الخدمة على الموقع الجديد: المولّد يجهّز المعطيات وحدها
@@ -2281,7 +2288,7 @@ const SVC_GOVFEE_Q = [/الرسوم الحكومية ضمن الأتعاب/, /Ar
 function buildServiceDetail(s) {
   const ov = site.overrides[s.slug];
   const docs = documentsOf(s, ov);
-  const priced = !!(s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism");
+  const priced = svcPriced(s);
 
   const curatedFeats = LANG === "ar" ? !!(ov && ov.features) : !!(ov && ov.featuresEn);
   const feats = curatedFeats
@@ -2312,7 +2319,7 @@ function buildServiceDetail(s) {
     feats, faq,
     priced, amount: priced ? s.price.amount : null, priceLabel: priceLabelTx, priceNote: notePart || "",
     govFeesSeparate: !!s.govFeesSeparate, requiresProposal: !!s.requiresProposal,
-    special: s.category === "Real Estate" && !s.ctaConsultation ? "workspace" : s.category === "Tourism" ? "tourism" : "",
+    special: svcSpecial(s),
     hrefs: {
       workspace: u("/workspace-request"), tourism: u("/tourism"),
       consult: `${u("/consultation")}?about=${encodeURIComponent(sName(s))}`,
@@ -6970,7 +6977,7 @@ function buildWorkerHousing() {
     <div class="cta-band"><h2>${L("Ready to house your workers the compliant way?", "جاهز تسكّن عمالتك بشكل نظامي؟")}</h2><p>${L("Our team replies quickly and sets your next step.", "فريقنا يرد عليك سريعاً ويحدد لك الخطوة التالية.")}</p>${waBtn2("Book a consultation", "احجز استشارة", "btn-white", true)}</div>
   </div></section>`;
 
-  const script = `<script>(function(){var f=document.getElementById("wh-form");if(!f)return;f.addEventListener("submit",function(e){e.preventDefault();var g=function(id){var el=document.getElementById(id);return el?el.value.trim():""};var company=g("wh-company"),phone=g("wh-phone"),city=g("wh-city"),count=g("wh-count");var res=document.getElementById("wh-result");var show=function(t,ok){res.hidden=false;res.textContent=t;res.style.color=ok?"#137a3e":"#b3261e"};if(!company||!phone||!city||!count){show("${Lraw("Please fill company, mobile, city and worker count.", "يرجى تعبئة اسم المنشأة والجوال والمدينة وعدد العمالة.")}",false);return}var fd=new FormData();fd.append("company",company);fd.append("whatsapp",phone);fd.append("city",city);fd.append("workers_count",count);fd.append("request_type",g("wh-type"));fd.append("email",g("wh-email"));fd.append("notes",g("wh-notes"));fd.append("source","website-worker-housing");fd.append("service","worker-housing");var btn=document.getElementById("wh-submit");btn.disabled=true;fetch("https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web",{method:"POST",body:fd}).then(function(r){if(!r.ok)throw 0;show("${Lraw("Request received! We reply with options and a quote within one working day.", "استلمنا طلبك! نرجع لك بخيارات السكن وعرض السعر خلال يوم عمل.")}",true);f.reset()}).catch(function(){show("${Lraw("Sending failed — try again or contact us on WhatsApp.", "تعذّر الإرسال. جرّب مرة أخرى أو تواصل معنا واتساب.")}",false)}).finally(function(){btn.disabled=false})})})();</script>`;
+  const script = `<script>(function(){var f=document.getElementById("wh-form");if(!f)return;f.addEventListener("submit",function(e){e.preventDefault();var g=function(id){var el=document.getElementById(id);return el?el.value.trim():""};var company=g("wh-company"),phone=g("wh-phone"),city=g("wh-city"),count=g("wh-count");var res=document.getElementById("wh-result");var show=function(t,ok){res.hidden=false;res.textContent=t;res.style.color=ok?"#137a3e":"#b3261e"};if(!company||!phone||!city||!count){show("${Lraw("Please fill company, mobile, city and worker count.", "يرجى تعبئة اسم المنشأة والجوال والمدينة وعدد العمالة.")}",false);return}if(window.BP_TEST_MODE){show(window.bpTestNote("worker-housing form"),false);return}var fd=new FormData();fd.append("company",company);fd.append("whatsapp",phone);fd.append("city",city);fd.append("workers_count",count);fd.append("request_type",g("wh-type"));fd.append("email",g("wh-email"));fd.append("notes",g("wh-notes"));fd.append("source","website-worker-housing");fd.append("service","worker-housing");var btn=document.getElementById("wh-submit");btn.disabled=true;fetch("https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web",{method:"POST",body:fd}).then(function(r){if(!r.ok)throw 0;show("${Lraw("Request received! We reply with options and a quote within one working day.", "استلمنا طلبك! نرجع لك بخيارات السكن وعرض السعر خلال يوم عمل.")}",true);f.reset()}).catch(function(){show("${Lraw("Sending failed — try again or contact us on WhatsApp.", "تعذّر الإرسال. جرّب مرة أخرى أو تواصل معنا واتساب.")}",false)}).finally(function(){btn.disabled=false})})})();</script>`;
 
   return page({
     title: Lraw("Worker Housing — licensed housing, licensing & operations | Business Partner", "تسكين العمالة — سكن مرخّص وترخيص وتشغيل | بيزنس بارتنر"),
@@ -9062,7 +9069,10 @@ function buildDashboard() {
       input.value = '';
       pushMsg(card, msg, 'me');
       var thinking = pushMsg(card, '…', 'bot');
-      var btn = card.querySelector('.send'); btn.disabled = true;
+      var btn = card.querySelector('.send');
+      // وضع الاختبار (localhost / معاينة vercel.app): لا يخرج شيء إلى n8n.
+      if (window.BP_TEST_MODE) { thinking.textContent = window.bpTestNote('agent chat'); return; }
+      btn.disabled = true;
       var ctrl = new AbortController();
       var timer = setTimeout(function(){ ctrl.abort(); }, 60000);
       fetch(N8N_BASE + '/' + a.path, {
@@ -9932,7 +9942,10 @@ function buildPortal(pre = "/") {
       if(isTrial){ trialInc(agentAtSend.slug); updateTrialBadge(agentAtSend.slug); }
       inp.value=''; push(m,'me');
       histRef.push({text:m,cls:'me'}); saveChat(agentAtSend.slug,histRef);
-      var think=push('…','bot'); var btn=$('send'); btn.disabled=true;
+      var think=push('…','bot'); var btn=$('send');
+      // وضع الاختبار (localhost / معاينة vercel.app): لا يخرج شيء إلى n8n.
+      if(window.BP_TEST_MODE){ think.textContent=window.bpTestNote('agent chat'); return; }
+      btn.disabled=true;
       var ctrl=new AbortController(); var timer=setTimeout(function(){ctrl.abort();},60000);
       fetch(N8N_BASE+'/'+agentAtSend.path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client_name:'',channel:'portal',message:m,history:hist}),signal:ctrl.signal})
         .then(function(r){return r.text();})
@@ -11261,6 +11274,8 @@ function buildSharedServicesPortal() {
       var box=document.getElementById('unl-result');
       if(!code){note(box,${JSON.stringify(Lraw("Enter your access code.", "أدخل رمز الوصول."))},'err');return;}
       if(code.toLowerCase()==='demo123'){ setClient({code:'demo123',name:${JSON.stringify(Lraw("Demo preview", "معاينة تجريبية"))},demo:true}); note(box,${JSON.stringify(Lraw("Welcome — opening the preview…", "أهلاً بك — نفتح المعاينة…"))},'ok'); openService(); return; }
+      // وضع الاختبار (localhost / معاينة vercel.app): لا يخرج شيء إلى n8n.
+      if(window.BP_TEST_MODE){note(box,window.bpTestNote('ss-login'),'err');return;}
       note(box,${JSON.stringify(Lraw("Checking your code…", "نتحقق من رمزك…"))},'ok');
       fetch(N8N+'/ss-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code})})
         .then(function(r){return r.json();})
@@ -11420,6 +11435,7 @@ function buildSharedServicesPortal() {
       if(v===null)return; v=v.trim(); if(!v)return;
       var isUrl=/^(https?:\\/\\/)?[\\w\\u0600-\\u06ff.-]+\\.[a-z\\u0600-\\u06ff]{2,}([\\/?#][^\\s]*)?$/i.test(v)&&v.indexOf(' ')===-1;
       var body={code:c.code}; if(isUrl)body.website=v; else body.about=v;
+      if(window.BP_TEST_MODE){alert(window.bpTestNote('ss-knowledge'));return;}
       kb.disabled=true; kb.textContent='🧠 '+${JSON.stringify(Lraw("Reading & learning…", "نقرأ ونتعلّم…"))};
       fetch(N8N+'/ss-knowledge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
         .then(function(r){return r.json();})
@@ -11457,6 +11473,8 @@ function buildSharedServicesPortal() {
         mine.sent=true;var tick=mineEl.querySelector('.tick');if(tick)tick.classList.add('ok');
         href.push(bm);saveChat(agent.slug,href);
       }
+      // وضع الاختبار (localhost / معاينة vercel.app): لا يخرج شيء إلى n8n، ولا يُحفظ في سجلّ المحادثة.
+      if(window.BP_TEST_MODE){clearTimeout(timer);teamline(false);log.replaceChild(bubble({text:window.bpTestNote('ss-chat'),cls:'bot',ts:Date.now()}),th);log.scrollTop=log.scrollHeight;busy=false;return;}
       fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:ctrl.signal})
         .then(function(r){return r.text();}).then(function(raw){clearTimeout(timer);var rep='';try{var d=JSON.parse(raw);rep=d.reply||d.output||d.text||d.message||'';}catch(e){rep=raw;}finish(rep||BUSY);})
         .catch(function(er){clearTimeout(timer);finish((er&&er.name==='AbortError')?BUSY:ERRT);})
@@ -11858,6 +11876,10 @@ function write(rel, html) {
     // for the internal quote request payload only (never rendered).
     html = html.replace(/ data-price(?:-monthly|-yearly)?="[^"]*"/g, ' data-price=""');
   }
+  // حارس n8n: صفحة ترسل من المتصفح إلى ويبهوك n8n الإنتاجي لا تفعل ذلك من
+  // localhost ولا من معاينة vercel.app (site/scripts/n8n-guard.mjs). الإنتاج
+  // على businesspartner.sa بلا أي تغيير.
+  if (rel.endsWith(".html")) html = injectN8nGuard(html);
   fs.writeFileSync(full, html);
 }
 
