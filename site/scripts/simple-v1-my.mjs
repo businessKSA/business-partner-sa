@@ -3,6 +3,17 @@
 // sees what needs attention, their requests, and the one action each request
 // is waiting on (approve quote → sign contract → pay → done).
 
+import fs from "node:fs";
+
+// The seller printed on the invoice page comes from the one place the company's
+// legal identity lives (site/data/site.json → legal), never typed here.
+function sellerFromSite() {
+  try {
+    const L = JSON.parse(fs.readFileSync(new URL("../data/site.json", import.meta.url), "utf8")).legal || {};
+    return { name: L.name || "", nameEn: L.nameEn || "", vat: String(L.vat || ""), city: L.city || "", cityEn: L.cityEn || "" };
+  } catch { return { name: "", nameEn: "", vat: "", city: "", cityEn: "" }; }
+}
+
 const P = {
   title: { ar: "حسابي — Business Partner", en: "My account — Business Partner", fr: "Mon compte — Business Partner", zh: "我的账户 — Business Partner" },
   navHome: { ar: "الرئيسية", en: "Home", fr: "Accueil", zh: "首页" },
@@ -68,8 +79,27 @@ const P = {
   confirmScope: { ar: "اعتمد النطاق وتابع", en: "Confirm scope & continue", fr: "Confirmer et continuer", zh: "确认范围并继续" },
   scopePricing: { ar: "تم اعتماد النطاق ✓ — الفريق يجهّز عرض السعر ويصلك هنا وعلى بريدك.", en: "Scope confirmed ✓ — our team is preparing your quotation; it will appear here and in your inbox.", fr: "Périmètre confirmé ✓ — l'équipe prépare votre devis.", zh: "范围已确认 ✓ — 团队正在准备报价。" },
   docs: { ar: "المستندات المطلوبة", en: "Documents required", fr: "Documents requis", zh: "所需文件" },
-  docsNote: { ar: "جهّز هذه المستندات — نطلبها لإتمام طلبك.", en: "Prepare these documents — we need them to complete your request.", fr: "Préparez ces documents — ils sont nécessaires pour traiter votre demande.", zh: "请准备这些文件 — 我们需要它们来完成您的申请。" },
-  docsNone: { ar: "لا مستندات مطلوبة حتى الآن.", en: "No documents requested yet.", fr: "Aucun document demandé pour l'instant.", zh: "暂无所需文件。" },
+  docsNote: { ar: "نطلب هذه المستندات لإتمام طلبك — ارفع كل مستند من زره هنا، ويصل الفريق مباشرة.", en: "We need these documents to complete your request — upload each one with its button and our team receives it right away.", fr: "Ces documents sont nécessaires pour traiter votre demande — téléversez chacun avec son bouton, l'équipe le reçoit aussitôt.", zh: "我们需要这些文件来完成您的申请 — 用对应按钮上传，团队会立即收到。" },
+  docsNone: { ar: "لا مستندات مطلوبة حتى الآن. تقدر مع ذلك ترفع أي مستند يخص الطلب.", en: "No documents requested yet. You can still upload any document that belongs to this request.", fr: "Aucun document demandé pour l'instant. Vous pouvez tout de même téléverser un document lié à cette demande.", zh: "暂无所需文件。您仍可上传与此申请相关的任何文件。" },
+  docUp: { ar: "ارفع", en: "Upload", fr: "Téléverser", zh: "上传" },
+  docUpMore: { ar: "ارفع ملفاً آخر", en: "Upload another", fr: "Téléverser un autre", zh: "再上传一个" },
+  docUpAny: { ar: "ارفع مستنداً آخر", en: "Upload another document", fr: "Téléverser un autre document", zh: "上传其他文件" },
+  docRecv: { ar: "استُلم ✓", en: "Received ✓", fr: "Reçu ✓", zh: "已收到 ✓" },
+  docWaived: { ar: "معفى", en: "Not needed", fr: "Non requis", zh: "无需提供" },
+  docAsked: { ar: "مطلوب", en: "Requested", fr: "Demandé", zh: "待提供" },
+  docSent: { ar: "وصل مستندك للفريق ✓", en: "Your document reached the team ✓", fr: "Votre document est arrivé à l'équipe ✓", zh: "您的文件已送达团队 ✓" },
+  fOpen: { ar: "فتح", en: "Open", fr: "Ouvrir", zh: "打开" },
+  eMany: { ar: "وصلت إلى الحدّ الأقصى لعدد الملفات في هذا الطلب.", en: "You reached the maximum number of files for this request.", fr: "Nombre maximal de fichiers atteint pour cette demande.", zh: "此申请的文件数量已达上限。" },
+  eClosed: { ar: "الطلب مغلق ولا يقبل مستندات.", en: "This request is closed and takes no more documents.", fr: "Cette demande est close.", zh: "此申请已关闭，无法再上传文件。" },
+  delivTitle: { ar: "مخرجات الطلب", en: "Deliverables", fr: "Livrables", zh: "交付成果" },
+  delivNone: { ar: "ستظهر هنا الملفات التي نسلّمها لك، وننبّهك بالبريد فور تسليمها.", en: "The files we hand over will appear here, and we e-mail you as soon as they are delivered.", fr: "Les fichiers que nous vous remettons apparaîtront ici ; nous vous prévenons par e-mail dès la livraison.", zh: "我们交付的文件会显示在这里，交付后会立即发邮件通知您。" },
+  delivNoneDone: { ar: "اكتمل الطلب ولا توجد ملفات مسلَّمة داخله.", en: "The request is complete and has no delivered files.", fr: "La demande est terminée et ne comporte aucun fichier livré.", zh: "申请已完成，没有交付文件。" },
+  delivDl: { ar: "تنزيل", en: "Download", fr: "Télécharger", zh: "下载" },
+  delivErr: { ar: "تعذّر فتح الملف — حاول مرة أخرى.", en: "The file could not be opened — try again.", fr: "Impossible d'ouvrir le fichier — réessayez.", zh: "无法打开文件 — 请重试。" },
+  invSeller: { ar: "البائع", en: "Seller", fr: "Vendeur", zh: "卖方" },
+  invVat: { ar: "الرقم الضريبي للبائع", en: "Seller VAT number", fr: "N° de TVA du vendeur", zh: "卖方税号" },
+  invBuyer: { ar: "العميل", en: "Bill to", fr: "Client", zh: "买方" },
+  invOfficial: { ar: "الفاتورة الرسمية (PDF)", en: "Official invoice (PDF)", fr: "Facture officielle (PDF)", zh: "正式发票 (PDF)" },
   addItem: { ar: "إضافة بند", en: "Add item", fr: "Ajouter", zh: "添加条目" },
   remove: { ar: "حذف", en: "Remove", fr: "Supprimer", zh: "删除" },
   scopeLocked: { ar: "النطاق مقفل بعد إصدار عرض السعر.", en: "Scope is locked once a quotation is issued.", fr: "Le périmètre est verrouillé après l'émission du devis.", zh: "报价发出后范围已锁定。" },
@@ -221,7 +251,7 @@ const STATUS = {
   PAID: { ar: "مدفوع — جاهز للتنفيذ", en: "Paid — ready for execution", fr: "Payé — prêt pour exécution", zh: "已付款 — 准备执行" }, IN_PROGRESS: { ar: "قيد التنفيذ", en: "In progress", fr: "En cours", zh: "执行中" },
   WAITING_INTERNAL: { ar: "قيد التنفيذ", en: "In progress", fr: "En cours", zh: "执行中" }, COMPLETED: { ar: "مكتمل", en: "Completed", fr: "Terminé", zh: "已完成" }, CANCELLED: { ar: "ملغي", en: "Cancelled", fr: "Annulé", zh: "已取消" },
 };
-const EVENTS = { ar: {"request.created": "أنشأ الطلب", "request.created.manual": "أُنشئ الطلب يدوياً", "scope.proposed": "اقترح النطاق", "scope.edited": "عدّل النطاق", "scope.confirmed": "اعتمد النطاق", "quote.pending": "بانتظار عرض السعر", "message.customer": "رسالة من العميل", "message.bp": "رد الفريق", "attachment.added": "أضاف مرفقاً", "quote.drafted": "مسودة عرض سعر", "quote.sent": "أرسل عرض السعر", "quote.approved": "اعتمد العرض", "quote.rejected": "طلب تعديل العرض", "contract.sent": "أرسل العقد", "contract.signed": "وقّع العقد", "payment.paid": "تم الدفع", "payment.failed": "فشل الدفع", "payment.cancelled": "أُلغي الدفع", "payment.pending": "دفع معلّق", "invoice.issued": "صدرت الفاتورة", "appointment.booked": "حجز موعداً", "appointment.rescheduled": "أعاد جدولة الموعد", "appointment.cancelled": "ألغى الموعد", "appointment.set": "ثبّت الموعد", "task.created": "أنشأ مهمة", "task.human_required": "مهمة تحتاج تدخلاً بشرياً", "task.done": "أنجز المهمة", "task.in_progress": "بدأ المهمة", "task.waiting": "مهمة بانتظار", "task.todo": "أعاد فتح المهمة", "execution.started": "بدأ التنفيذ", "request.cancelled": "ألغى الطلب", "request.updated": "حدّث الطلب"}, en: {"request.created": "created the request", "request.created.manual": "request created manually", "scope.proposed": "proposed the scope", "scope.edited": "edited the scope", "scope.confirmed": "confirmed the scope", "quote.pending": "awaiting the quotation", "message.customer": "customer message", "message.bp": "team reply", "attachment.added": "added an attachment", "quote.drafted": "quote drafted", "quote.sent": "sent the quotation", "quote.approved": "approved the quotation", "quote.rejected": "requested changes", "contract.sent": "sent the contract", "contract.signed": "signed the contract", "payment.paid": "payment received", "payment.failed": "payment failed", "payment.cancelled": "payment cancelled", "payment.pending": "payment pending", "invoice.issued": "invoice issued", "appointment.booked": "booked an appointment", "appointment.rescheduled": "rescheduled the appointment", "appointment.cancelled": "cancelled the appointment", "appointment.set": "set the appointment", "task.created": "created a task", "task.human_required": "task needs a human", "task.done": "completed the task", "task.in_progress": "started the task", "task.waiting": "task waiting", "task.todo": "reopened the task", "execution.started": "execution started", "request.cancelled": "cancelled the request", "request.updated": "updated the request"} };
+const EVENTS = { ar: {"request.created": "أنشأ الطلب", "request.created.manual": "أُنشئ الطلب يدوياً", "scope.proposed": "اقترح النطاق", "scope.edited": "عدّل النطاق", "scope.confirmed": "اعتمد النطاق", "quote.pending": "بانتظار عرض السعر", "message.customer": "رسالة من العميل", "message.bp": "رد الفريق", "attachment.added": "أضاف مرفقاً", "quote.drafted": "مسودة عرض سعر", "quote.sent": "أرسل عرض السعر", "quote.approved": "اعتمد العرض", "quote.rejected": "طلب تعديل العرض", "contract.sent": "أرسل العقد", "contract.signed": "وقّع العقد", "payment.paid": "تم الدفع", "payment.failed": "فشل الدفع", "payment.cancelled": "أُلغي الدفع", "payment.pending": "دفع معلّق", "invoice.issued": "صدرت الفاتورة", "appointment.booked": "حجز موعداً", "appointment.rescheduled": "أعاد جدولة الموعد", "appointment.cancelled": "ألغى الموعد", "appointment.set": "ثبّت الموعد", "task.created": "أنشأ مهمة", "task.human_required": "مهمة تحتاج تدخلاً بشرياً", "task.done": "أنجز المهمة", "task.in_progress": "بدأ المهمة", "task.waiting": "مهمة بانتظار", "task.todo": "أعاد فتح المهمة", "execution.started": "بدأ التنفيذ", "request.cancelled": "ألغى الطلب", "request.updated": "حدّث الطلب", "document.received": "استلمنا المستند", "deliverable.added": "سلّم مخرجاً من الطلب", "deliverable.removed": "سحب مخرجاً", "status.completed": "اكتمل الطلب", "status.in_progress": "بدأ التنفيذ", "status.waiting_internal": "قيد التنفيذ", "status.reviewing": "قيد المراجعة", "status.waiting_client": "بانتظار ردّك", "status.cancelled": "أُلغي الطلب", "quote.auto": "أصدر عرض السعر آلياً", "documents.requested": "حدّد المستندات المطلوبة", "payment.receipt": "استلم إيصال التحويل", "message.whatsapp": "رسالة واتساب", "contract.reissued": "أعاد إصدار العقد", "request.reopened": "أعاد فتح الطلب", "cancel.requested": "طلب الإلغاء", "followup.reminded": "ذكّرك بالخطوة التالية"}, en: {"request.created": "created the request", "request.created.manual": "request created manually", "scope.proposed": "proposed the scope", "scope.edited": "edited the scope", "scope.confirmed": "confirmed the scope", "quote.pending": "awaiting the quotation", "message.customer": "customer message", "message.bp": "team reply", "attachment.added": "added an attachment", "quote.drafted": "quote drafted", "quote.sent": "sent the quotation", "quote.approved": "approved the quotation", "quote.rejected": "requested changes", "contract.sent": "sent the contract", "contract.signed": "signed the contract", "payment.paid": "payment received", "payment.failed": "payment failed", "payment.cancelled": "payment cancelled", "payment.pending": "payment pending", "invoice.issued": "invoice issued", "appointment.booked": "booked an appointment", "appointment.rescheduled": "rescheduled the appointment", "appointment.cancelled": "cancelled the appointment", "appointment.set": "set the appointment", "task.created": "created a task", "task.human_required": "task needs a human", "task.done": "completed the task", "task.in_progress": "started the task", "task.waiting": "task waiting", "task.todo": "reopened the task", "execution.started": "execution started", "request.cancelled": "cancelled the request", "request.updated": "updated the request", "document.received": "document received", "deliverable.added": "delivered a file", "deliverable.removed": "withdrew a delivered file", "status.completed": "request completed", "status.in_progress": "execution started", "status.waiting_internal": "in progress", "status.reviewing": "under review", "status.waiting_client": "waiting for your reply", "status.cancelled": "request cancelled", "quote.auto": "issued the quotation automatically", "documents.requested": "listed the required documents", "payment.receipt": "received the transfer receipt", "message.whatsapp": "WhatsApp message", "contract.reissued": "re-issued the contract", "request.reopened": "reopened the request", "cancel.requested": "cancellation requested", "followup.reminded": "reminded you of the next step"} };
 const DOC_CATS = [
   ["cr",       { ar: "سجل تجاري", en: "Commercial registration", fr: "Registre de commerce", zh: "商业登记" }],
   ["vat",      { ar: "شهادة ضريبية", en: "VAT certificate", fr: "Certificat de TVA", zh: "增值税证书" }],
@@ -350,7 +380,7 @@ ${sv1.header("/my", { cta: false })}
 ${sv1.footer()}`;
   const script = `<script>
 (function(){
-var LANG=${JSON.stringify(l)},EV=${JSON.stringify(EVENTS[l === "ar" ? "ar" : "en"])},TX=${JSON.stringify(tx)},ST=${JSON.stringify(st)},TY=${JSON.stringify(ty)},HOME=${JSON.stringify(home)},CHECKOUT=${JSON.stringify(sv1.href("/checkout"))};
+var LANG=${JSON.stringify(l)},EV=${JSON.stringify(EVENTS[l === "ar" ? "ar" : "en"])},TX=${JSON.stringify(tx)},ST=${JSON.stringify(st)},TY=${JSON.stringify(ty)},HOME=${JSON.stringify(home)},CHECKOUT=${JSON.stringify(sv1.href("/checkout"))},SELLER=${JSON.stringify(sellerFromSite())};
 var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null};
 var $=function(s,r){return (r||document).querySelector(s)};
 function h(tag,attrs,kids){var e=document.createElement(tag);if(attrs)for(var k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.indexOf('on')===0)e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k])}(kids||[]).forEach(function(c){if(c==null)return;e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
@@ -487,14 +517,17 @@ function upErr(e){e=String(e||'');
  if(e==='network')return TX.eNet;
  if(e==='no_org')return TX.eNoOrg;
  if(e==='bad_type')return TX.eType;
- if(e==='too_large')return TX.eBig;
+ if(e==='too_large'||e==='http_413')return TX.eBig;
+ if(e==='empty')return TX.eEmpty;
+ if(e==='too_many_files')return TX.eMany;
+ if(e==='request_closed')return TX.eClosed;
  if(e==='invalid_fields')return TX.eName;
  if(e&&window.console)console.warn('upload:',e);
  return TX.eUp}
 // رفعٌ بنسبة مئوية حقيقية: XHR لأن fetch لا يُبلّغ عن تقدّم الرفع. وكل نهاية
 // لها فرع — نجاح، أو خطأ من الخادم برسالته، أو انقطاع شبكة — ولا فرع صامت.
-function sendDoc(payload,onp){return new Promise(function(res){
- var x=new XMLHttpRequest();x.open('POST','/api/requests',true);x.withCredentials=true;
+function sendDoc(payload,onp,url){return new Promise(function(res){
+ var x=new XMLHttpRequest();x.open('POST',url||'/api/requests',true);x.withCredentials=true;
  x.setRequestHeader('content-type','application/json');
  if(x.upload&&onp)x.upload.onprogress=function(e){if(e.lengthComputable)onp(e.loaded/e.total)};
  x.onload=function(){var o=null;try{o=JSON.parse(x.responseText||'null')}catch(e){}
@@ -624,6 +657,82 @@ function viewDocuments(m){
 function verLbl(n){return (LANG==='ar'||LANG==='zh')?(TX.dVer+' '+n):(TX.dVer+n)}
 function catName(c){for(var i=0;i<DOC_CATS.length;i++)if(DOC_CATS[i][0]===c)return DOC_CATS[i][1];
  return DOC_CATS[DOC_CATS.length-1][1]}
+// ---------- files inside a request
+// A link to one file is made at the moment of the click, by the server, after it
+// has checked the request is this customer's — nothing long-lived is stored in
+// the page. The window is opened first (inside the click, so the browser lets
+// it) and pointed at the link when it arrives.
+function openFile(a,btn){
+ if(a.url&&!a.file){window.open(a.url,'_blank','noopener');return}
+ var w=null;try{w=window.open('','_blank')}catch(e){}
+ var old=btn?btn.textContent:'';if(btn)btn.disabled=true;
+ function done(){if(btn){btn.disabled=false;btn.textContent=old}}
+ function fail(){if(w){try{w.close()}catch(e){}}done();if(btn){btn.textContent=TX.delivErr;setTimeout(function(){btn.textContent=old},3500)}}
+ api('attachment-link',{ref:state.req.ref,id:a.id}).then(function(o){
+  if(o&&o.ok&&o.url){done();if(w){try{w.opener=null}catch(e){}w.location.href=o.url}else location.href=o.url}else fail()}).catch(fail)}
+// «المستندات المطلوبة»: each line is a real upload. The file goes to the request
+// (not to the vault), the server flips the line to «received», and the team is
+// told. Same guard as the vault, in the browser first: type and size are
+// refused before a megabyte leaves the device.
+function docsCard(r,again){
+ var open=r.status!=='CANCELLED';
+ var dc=h('div',{class:'card',id:'sv1Docs'});dc.appendChild(h('h3',{},[TX.docs]));
+ dc.appendChild(h('p',{class:'note'},[(r.documents&&r.documents.length)?TX.docsNote:TX.docsNone]));
+ var msg=h('div',{class:'err',style:'margin-top:8px'}),okm=h('div',{class:'ok',style:'margin-top:8px'});
+ if(state.docFlash){okm.textContent=state.docFlash;state.docFlash=null}
+ var file=h('input',{type:'file',accept:'application/pdf,image/jpeg,image/png,image/webp',style:'display:none'});
+ var target=null;
+ function pick(t){if(!open)return;target=t;msg.textContent='';okm.textContent='';file.value='';file.click()}
+ file.addEventListener('change',function(){
+  var f=file.files&&file.files[0];file.value='';if(!f||!target)return;
+  var e=fileErr(f);if(e){msg.textContent=e;return}
+  var t=target,old=t.btn.textContent;t.btn.disabled=true;t.btn.textContent=TX.dUploading+' 0%';
+  function reset(){t.btn.disabled=false;t.btn.textContent=old}
+  toB64(f).then(function(b64){
+   return sendDoc({action:'attachment-add',ref:r.ref,name:f.name,mime:mimeOf(f),base64:b64,
+     doc_index:t.index>=0?t.index:'',doc_title:t.title||''},
+    function(p){t.btn.textContent=TX.dUploading+' '+Math.max(1,Math.min(99,Math.round(p*100)))+'%'},'/api/simple')
+  }).then(function(o){
+   if(o&&o.ok){r.attachments=o.attachments||r.attachments;if(o.documents)r.documents=o.documents;state.docFlash=TX.docSent;again();return}
+   if(o&&(o.error==='no_session'||o.error==='unauthorized')){location.reload();return}
+   reset();msg.textContent=upErr(o&&o.error);
+  }).catch(function(){reset();msg.textContent=TX.eRead})});
+ dc.appendChild(file);
+ if(r.documents&&r.documents.length){
+  var ul=h('ul',{class:'items'});
+  r.documents.forEach(function(d,i){
+   var got=(r.attachments||[]).filter(function(a){return a.kind==='document'&&a.doc===d.title});
+   var st=d.status==='received'?h('span',{class:'pill ok'},[TX.docRecv]):d.status==='waived'?h('span',{class:'pill mut'},[TX.docWaived]):h('span',{class:'pill warn'},[TX.docAsked]);
+   var info=h('div',{},[h('b',{},[d.title]),d.note?h('small',{},[d.note]):null]);
+   got.forEach(function(a){
+    var ob=h('button',{class:'btn ghost sm',style:'margin-top:4px;margin-inline-end:6px',onclick:function(){openFile(a,ob)}},['📎 '+a.name+' · '+kb(a.size)]);
+    if(a.id&&a.file)info.appendChild(h('div',{},[ob]));else info.appendChild(h('small',{},['📎 '+a.name]))});
+   var li=h('li',{},[h('span',{class:'ic'},[d.status==='received'?'✓':'📄']),info,st]);
+   if(open&&d.status!=='waived'){var b=h('button',{class:'btn'+(got.length?' ghost':'')+' sm',onclick:function(){pick({index:i,title:d.title,btn:b})}},[got.length?TX.docUpMore:TX.docUp]);li.appendChild(b)}
+   ul.appendChild(li)});
+  dc.appendChild(ul)}
+ // anything else that belongs to the request, not tied to a line above
+ var loose=(r.attachments||[]).filter(function(a){return a.kind!=='deliverable'&&!(a.kind==='document'&&a.doc)&&(a.file||a.url)});
+ if(loose.length){var lu=h('ul',{class:'items',style:'margin-top:10px'});loose.forEach(function(a){
+   var ob=h('button',{class:'btn ghost sm',onclick:function(){openFile(a,ob)}},[TX.fOpen]);
+   lu.appendChild(h('li',{},[h('span',{class:'ic'},['📎']),h('div',{},[h('b',{},[a.name]),h('small',{},[(a.note?a.note+' · ':'')+when(a.at)])]),ob]))});dc.appendChild(lu)}
+ if(open){var any=h('button',{class:'btn ghost sm',style:'margin-top:10px',onclick:function(){pick({index:-1,title:'',btn:any})}},['＋ '+TX.docUpAny]);dc.appendChild(any)}
+ dc.appendChild(msg);dc.appendChild(okm);
+ return dc}
+// «مخرجات الطلب»: the finished work the team handed over. It is drawn from the
+// moment payment is in, so the customer sees where the work will arrive before
+// it does — and a completed request is never an empty page.
+function delivCard(r){
+ var files=(r.attachments||[]).filter(function(a){return a.kind==='deliverable'});
+ var stage=['PAID','IN_PROGRESS','WAITING_INTERNAL','COMPLETED'].indexOf(r.status)>=0;
+ if(!files.length&&!stage)return null;
+ var c=h('div',{class:'card',id:'sv1Deliv'});c.appendChild(h('h3',{},[TX.delivTitle]));
+ if(!files.length){c.appendChild(h('p',{class:'note'},[r.status==='COMPLETED'?TX.delivNoneDone:TX.delivNone]));return c}
+ var ul=h('ul',{class:'items'});
+ files.forEach(function(a){
+  var b=h('button',{class:'btn sm',onclick:function(){openFile(a,b)}},[TX.delivDl]);
+  ul.appendChild(h('li',{},[h('span',{class:'ic'},['📦']),h('div',{},[h('b',{},[a.title||a.name]),h('small',{},[(a.note?a.note+' · ':'')+a.name+' · '+kb(a.size)+' · '+when(a.at)])]),b]))});
+ c.appendChild(ul);return c}
 // ---------- request detail
 function viewRequest(m){m.appendChild(h('a',{class:'btn ghost sm',onclick:function(){go('requests')}},['← '+TX.back]));var hd=h('h1',{style:'margin-top:10px'},['…']);m.appendChild(hd);var box=h('div');m.appendChild(box);
 api('request-get',{ref:state.ref}).then(function(o){if(!o||!o.ok){box.appendChild(h('p',{class:'err'},[TX.error]));return}state.req=o.request;state.testMode=!!o.testMode;drawRequest(hd,box)})}
@@ -638,9 +747,7 @@ left.appendChild(h('div',{class:'card'},[h('h3',{},[TX.conversation]),msgs,h('di
 var editable=['NEW','REVIEWING','WAITING_CLIENT'].indexOf(r.status)>=0;var sc=h('div',{class:'card'});sc.appendChild(h('h3',{},[TX.scope]));if(r.summary)sc.appendChild(h('p',{class:'note'},[r.summary]));
 var ul=h('ul',{class:'items'});function drawItems(){ul.innerHTML='';(r.scope||[]).forEach(function(it,i){var li=h('li',{},[h('span',{class:'ic'},['✓']),h('div',{},[h('b',editable?{contenteditable:'true',oninput:function(){it.title=this.textContent.trim()}}:{},[it.title]),it.why?h('small',{},[it.why]):null]),editable?h('button',{class:'rm',onclick:function(){r.scope.splice(i,1);drawItems()}},[TX.remove]):null]);ul.appendChild(li)})}drawItems();sc.appendChild(ul);
 // documents the advisor asked for — every service has its own list
-var dc=h('div',{class:'card'});dc.appendChild(h('h3',{},[TX.docs]));
-dc.appendChild(h('p',{class:'note'},[(r.documents&&r.documents.length)?TX.docsNote:TX.docsNone]));
-if(r.documents&&r.documents.length){var dul=h('ul',{class:'items'});(r.documents||[]).forEach(function(d){dul.appendChild(h('li',{},[h('span',{class:'ic'},['\ud83d\udcc4']),h('div',{},[h('b',{},[d.title]),d.note?h('small',{},[d.note]):null])]))});dc.appendChild(dul)}
+var dc=docsCard(r,function(){drawRequest(hd,box)});
 if(editable){var ai=h('input',{class:'inp',placeholder:TX.addItem}),msgS=h('span',{class:'ok'});
 // Confirming the scope is what moves the request on to the quotation; the
 // plain save stays for intermediate edits.
@@ -683,7 +790,8 @@ if(state.testMode){
 pc.appendChild(h('h3',{style:'margin-top:12px'},[TX.testPay]));var tp=h('div',{style:'display:flex;gap:6px;flex-wrap:wrap'});[['success','card',TX.paySuccess,''],['success','tamara',TX.payTamara,''],['failed','card',TX.payFailed,'danger'],['cancelled','card',TX.payCancelled,'ghost'],['pending','card',TX.payPending,'ghost']].forEach(function(x){tp.appendChild(h('button',{class:'btn sm '+x[3],onclick:function(){api('pay-test',{ref:r.ref,outcome:x[0],provider:x[1]}).then(function(o){if(o&&o.ok){r.status=o.status;r.payment=o.payment;if(o.invoice)r.invoice=o.invoice;refreshMe();drawRequest(hd,box)}})}},[x[2]]))});pc.appendChild(tp)}
 right.appendChild(pc)}
 if(r.payment&&r.payment.status==='PAID')right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.payment]),h('p',{class:'ok'},['✓ '+TX.paid+' · '+money(r.payment.amount)+' · '+(r.payment.provider||'')+' · '+when(r.payment.at)])]));
-if(r.invoice)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.invoice+' '+r.invoice.number]),h('p',{},[money(r.invoice.total)+' · '+when(r.invoice.issued_at)]),h('button',{class:'btn ghost sm',onclick:function(){openInvoice(r)}},[TX.download])]));
+if(r.invoice)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.invoice+' '+r.invoice.number]),h('p',{},[money(r.invoice.total)+' · '+when(r.invoice.issued_at)]),h('button',{class:'btn ghost sm',onclick:function(){openInvoice(r)}},[r.invoice.pdf_url?TX.invOfficial:TX.download])]));
+var dvc=delivCard(r);if(dvc)right.appendChild(dvc);
 // appointment
 if(r.type==='CONSULTATION'){var ac=h('div',{class:'card'});ac.appendChild(h('h3',{},[TX.navAppts]));var a=r.appointment;if(a&&a.status!=='CANCELLED')ac.appendChild(h('p',{class:'ok'},['📅 '+a.date+' · '+a.time+' · '+(a.topic||'')+(a.gcal?' ':'') ,a.gcal?h('a',{href:a.gcal,target:'_blank',class:'btn ghost sm'},['Google Calendar']):null]));
 var d=h('input',{class:'inp',type:'date',min:new Date().toISOString().slice(0,10)}),tm=h('input',{class:'inp',type:'time',value:'10:00',step:'1800'}),tp2=h('input',{class:'inp',placeholder:TX.topic,value:(a&&a.topic)||r.title}),ae=h('div',{class:'err'});
@@ -691,7 +799,13 @@ ac.appendChild(h('div',{class:'form'},[h('label',{},[TX.date]),d,h('label',{},[T
 // timeline
 right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.timeline]),h('ul',{class:'tl'},(r.events||[]).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(e.actor?e.actor+': ':'')+(EV[e.event]||e.event)+(e.details&&e.details.number?' '+e.details.number:'')])])}))]));
 if(['CANCELLED','COMPLETED'].indexOf(r.status)<0){var early=['NEW','REVIEWING','WAITING_CLIENT','QUOTE_SENT','PRICING'].indexOf(r.status)>=0;var cnote=h('input',{class:'inp',placeholder:TX.cancelWhy,style:'margin-top:10px'});var cmsg=h('div',{class:'note'},[early?TX.cancelEarly:TX.cancelLate]);var cbtn=h('button',{class:'btn danger sm',onclick:function(){if(!confirm((early?TX.cancelReq:TX.cancelAsk)+'?'))return;var b2=this;b2.disabled=true;api('request-cancel',{ref:r.ref,note:cnote.value.trim()}).then(function(o){b2.disabled=false;if(!o||!o.ok){cmsg.className='err';cmsg.textContent=(o&&o.message)||TX.error;return}if(o.cancelled){r.status='CANCELLED';refreshMe();drawRequest(hd,box);return}cmsg.className='ok';cmsg.textContent=TX.cancelSent;cbtn.disabled=true})}},[early?TX.cancelReq:TX.cancelAsk]);right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),cmsg,cnote,h('div',{class:'msgform',style:'margin-top:8px'},[cbtn])]))}if(r.cancel)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),h('p',{class:'note'},[TX.cancelDone+' · '+when(r.cancel.at)+(r.cancel.note?' · '+r.cancel.note:'')])]))}
-function openInvoice(r){var inv=r.invoice;var w=window.open('','_blank');if(!w)return;var rows=(inv.items||[]).map(function(i){return '<tr><td>'+esc(i.title)+'</td><td>'+i.qty+'</td><td>'+money(lineOf(i))+'</td></tr>'}).join('');w.document.write('<!doctype html><html dir="'+(LANG==='ar'?'rtl':'ltr')+'"><head><meta charset="utf-8"><title>'+inv.number+'</title><style>body{font-family:"IBM Plex Sans Arabic",system-ui;padding:32px;color:#1F2430}h1{color:#0B1B5A}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #e4e8f1;text-align:start}.t{font-weight:700}.tm{background:#b45309;color:#fff;padding:6px 10px;display:inline-block;border-radius:6px}</style></head><body>'+(inv.mode==='test'?'<span class="tm">TEST MODE</span>':'')+'<h1>Business Partner — '+TX.invoice+' '+inv.number+'</h1><p>'+TX.ref+': '+r.ref+' · '+when(inv.issued_at)+'</p><p>'+esc((inv.bill_to&&(inv.bill_to.company||inv.bill_to.name))||'')+'</p><table><thead><tr><th>'+TX.scope+'</th><th>'+TX.qty+'</th><th>'+TX.price+'</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr><td colspan="2">'+TX.net+'</td><td>'+money(inv.net)+'</td></tr><tr><td colspan="2">'+TX.vat+'</td><td>'+money(inv.vat)+'</td></tr><tr class="t"><td colspan="2">'+TX.total+'</td><td>'+money(inv.total)+'</td></tr></tfoot></table><p><b>'+TX.paid+'</b></p></body></html>');w.document.close()}
+// The official invoice is the PDF the accounting system issued and the request
+// kept (invoice.pdf_url): that is what opens when it exists. Only when it does
+// not does the page below stand in — it carries the seller's tax number, taken
+// from the site's legal data, so it is never a bare list of lines.
+function openInvoice(r){var inv=r.invoice;
+ if(inv.pdf_url&&/^https?:[/][/]/i.test(String(inv.pdf_url))){window.open(inv.pdf_url,'_blank','noopener');return}
+ var w=window.open('','_blank');if(!w)return;var sellerName=LANG==='ar'?(SELLER.name||SELLER.nameEn):(SELLER.nameEn||SELLER.name);var sellerBlock='<p><b>'+TX.invSeller+':</b> '+esc(sellerName)+(SELLER.vat?'<br><b>'+TX.invVat+':</b> '+esc(SELLER.vat):'')+'</p>';var rows=(inv.items||[]).map(function(i){return '<tr><td>'+esc(i.title)+'</td><td>'+i.qty+'</td><td>'+money(lineOf(i))+'</td></tr>'}).join('');w.document.write('<!doctype html><html dir="'+(LANG==='ar'?'rtl':'ltr')+'"><head><meta charset="utf-8"><title>'+inv.number+'</title><style>body{font-family:"IBM Plex Sans Arabic",system-ui;padding:32px;color:#1F2430}h1{color:#0B1B5A}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #e4e8f1;text-align:start}.t{font-weight:700}.tm{background:#b45309;color:#fff;padding:6px 10px;display:inline-block;border-radius:6px}</style></head><body>'+(inv.mode==='test'?'<span class="tm">TEST MODE</span>':'')+'<h1>Business Partner — '+TX.invoice+' '+inv.number+'</h1><p>'+TX.ref+': '+r.ref+' · '+when(inv.issued_at)+'</p>'+sellerBlock+'<p><b>'+TX.invBuyer+':</b> '+esc((inv.bill_to&&(inv.bill_to.company||inv.bill_to.name))||'')+'</p><table><thead><tr><th>'+TX.scope+'</th><th>'+TX.qty+'</th><th>'+TX.price+'</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr><td colspan="2">'+TX.net+'</td><td>'+money(inv.net)+'</td></tr><tr><td colspan="2">'+TX.vat+'</td><td>'+money(inv.vat)+'</td></tr><tr class="t"><td colspan="2">'+TX.total+'</td><td>'+money(inv.total)+'</td></tr></tfoot></table><p><b>'+TX.paid+'</b></p></body></html>');w.document.close()}
 function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
 function refreshMe(){api('me').then(function(o){if(o&&o.ok){state.me=o;var side=$('#mySide');if(side){/* re-render nav badges */}}})}
 // Coming back from a payment gateway (local or hosted): the outcome rides on
