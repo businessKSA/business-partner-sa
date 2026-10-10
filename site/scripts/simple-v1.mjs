@@ -224,10 +224,14 @@ const D = {
   footHours: { ar: "أوقات العمل", en: "Hours", fr: "Horaires", zh: "营业时间" },
   footIdentity: { ar: "بيانات المنشأة", en: "Company details", fr: "Informations légales", zh: "公司信息" },
   footPay: { ar: "الدفع", en: "Payments", fr: "Paiements", zh: "支付方式" },
-  footPayLine: { ar: "مدى · فيزا · ماستركارد · Apple Pay · تمارا — والدفع عبر بوابة مرخّصة، لا تمرّ بيانات بطاقتك من خوادمنا.",
-                 en: "mada · Visa · Mastercard · Apple Pay · Tamara — through a licensed gateway; card details never touch our servers.",
-                 fr: "mada · Visa · Mastercard · Apple Pay · Tamara — via une passerelle agréée ; vos données de carte ne passent pas par nos serveurs.",
-                 zh: "mada · Visa · Mastercard · Apple Pay · Tamara — 通过持牌支付网关，卡片信息不经过我们的服务器。" },
+  // ‏لا يُذكر هنا إلا ما يظهر فعلاً في /checkout لكل زائر: البطاقات (مدى · فيزا ·
+  // ماستركارد) وتمارا. محافظ الجوال (Apple Pay · Samsung Pay · Google Pay) لا
+  // تظهر إلا إن فعّلها مفتاح البوابة **وكان الجهاز يدعمها** (انظر الشرط في
+  // simple-v1-checkout.mjs)، فتُذكر مشروطةً لا وعداً.
+  footPayLine: { ar: "مدى · فيزا · ماستركارد، أو التقسيط عبر تمارا. وتظهر محافظ الجوال (مثل Apple Pay) في صفحة الدفع إن كانت متاحة على جهازك. الدفع عبر بوابة مرخّصة، ولا تمرّ بيانات بطاقتك من خوادمنا.",
+                 en: "mada · Visa · Mastercard, or instalments with Tamara. Mobile wallets (such as Apple Pay) appear at checkout only when your device supports them. Payment runs through a licensed gateway; card details never touch our servers.",
+                 fr: "mada · Visa · Mastercard, ou paiement en plusieurs fois avec Tamara. Les portefeuilles mobiles (comme Apple Pay) n'apparaissent au paiement que si votre appareil les prend en charge. Le paiement passe par une passerelle agréée ; vos données de carte ne transitent pas par nos serveurs.",
+                 zh: "mada · Visa · Mastercard，或通过 Tamara 分期。Apple Pay 等手机钱包仅在您的设备支持时才会在结账页出现。支付通过持牌支付网关完成，卡片信息不经过我们的服务器。" },
   footInvoice: { ar: "فاتورة ضريبية متوافقة مع هيئة الزكاة والضريبة والجمارك لكل عملية مدفوعة.",
                  en: "A ZATCA-compliant tax invoice for every paid order.",
                  fr: "Une facture fiscale conforme ZATCA pour chaque commande payée.",

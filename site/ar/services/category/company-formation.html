@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" data-prices="off">
+<html data-sv1-test="وضع الاختبار — لا مدفوعات حقيقية ولا رسائل للعملاء" lang="ar" dir="rtl" data-prices="off">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>تأسيس الشركات — بيزنس بارتنر</title>
-<meta name="description" content="29 خدمة في تأسيس الشركات بأتعاب واضحة.">
-<meta property="og:title" content="تأسيس الشركات — بيزنس بارتنر">
-<meta property="og:description" content="29 خدمة في تأسيس الشركات بأتعاب واضحة.">
+<title>تأسيس الشركات — Business Partner</title>
+<meta name="description" content="29 خدمة في تأسيس الشركات — أضف المسعّر منها إلى السلة أو اطلب عرض سعر.">
+<meta property="og:title" content="تأسيس الشركات — Business Partner">
+<meta property="og:description" content="29 خدمة في تأسيس الشركات — أضف المسعّر منها إلى السلة أو اطلب عرض سعر.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="ar_SA">
@@ -33,8 +33,12 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
 <script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
 <style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
-<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
-<style id="sv1-chrome-css">
+<style id="sv1-css">
+/* اتجاه «مختبر» بألوان الهوية (قرار المالك 2026-09-05): بنية «مختبر» —
+   أرضية بيضاء، شبكة ١px، حروفٌ أحادية للأرقام وحدها، عناوين خفيفة الوزن —
+   لكن اللون كحلي العلامة #0B1B5A لا الأسود ولا البنفسجي. الأسطح الداكنة
+   (شريط الحالة، الفوتر، جانب لوحة العمليات) كحليٌّ عميق #081345.
+   الرماديات مائلةٌ إلى الكحلي لا محايدة، فتقرأ كأنها من العلامة. */
 .sv1{--n:#0B1B5A;--ac:#0B1B5A;--ac2:#16307F;--acSoft:#EEF2FB;--acLine:#C3CDE6;
  --n2:#081345;--g:#F5F7FB;--l:#E5E9F0;--line:#E5E9F0;--line2:#EBEFF7;
  --t:#232A3D;--ink:#0B1B5A;--s:#5A6478;--mut:#5A6478;--faint:#8D97AE;--soft:#F5F7FB;
@@ -85,10 +89,141 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-lang .menu a.on{background:var(--g);font-weight:700}
 .sv1-burger{display:none;border:1px solid var(--l);background:#fff;border-radius:10px;width:40px;height:40px;align-items:center;justify-content:center;cursor:pointer;font-size:18px}
 .sv1 h1,.sv1 h2,.sv1 h3{color:var(--ink);margin-top:0;letter-spacing:-.025em;text-wrap:balance}
-.sv1 h1{font-weight:200}
-.sv1 h2{font-weight:300}
+.sv1 h1{font-weight:200}.sv1 h2{font-weight:300}
+.sv1-hero{background:#fff;padding:78px 0;position:relative;overflow:hidden;border-bottom:1px solid var(--l)}
+.sv1-hero::before{content:"";position:absolute;inset:0;pointer-events:none;
+ background-image:linear-gradient(var(--line2) 1px,transparent 1px),linear-gradient(90deg,var(--line2) 1px,transparent 1px);
+ background-size:56px 56px;
+ -webkit-mask-image:radial-gradient(120% 90% at 78% 0%,#000 0%,transparent 72%);
+ mask-image:radial-gradient(120% 90% at 78% 0%,#000 0%,transparent 72%)}
+.sv1-hero::after{content:"";position:absolute;inset-inline-end:-6%;top:-46%;width:760px;height:760px;pointer-events:none;
+ background:radial-gradient(circle,rgba(11,27,90,.13) 0%,rgba(11,27,90,.04) 38%,transparent 66%)}
+.sv1-hero .wrap{position:relative;z-index:1}
+.sv1-hero .grid{display:grid;grid-template-columns:1fr 1fr;gap:42px;align-items:center}
+.sv1-tag{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--l);color:var(--mut);padding:6px 13px;border-radius:999px;font-size:11.5px;font-weight:400;box-shadow:var(--sh)}
+.sv1-tag::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ok);flex:none}
+.sv1-hero h1{font-size:clamp(36px,5.2vw,64px);line-height:1.13;margin:18px 0 18px;letter-spacing:-.035em;font-weight:200}
+.sv1-hero h1 b,.sv1-hero h1 strong{font-weight:500}
+.sv1-lead{font-size:16.5px;font-weight:300;line-height:1.95;color:var(--mut);margin:0;max-width:46ch}
+.sv1-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.sv1-trust{display:flex;gap:8px 18px;flex-wrap:wrap;margin:18px 0 0;padding:0;list-style:none;font-size:12.5px;color:#667085}
+.sv1-trust li::before{content:"✓";color:var(--ok);font-weight:700;margin-inline-end:6px}
+.sv1-three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sv1-three .sv1-panel{padding:20px}
+.sv1-three h4{font-size:15px;margin:0 0 6px}
+.sv1-three p{margin:0;font-size:13px;line-height:1.7}
+.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-doors>:last-child:nth-child(odd){grid-column:1/-1}
+a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
+.sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+.sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
+.sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
+.sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
+.sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
+.sv1-door h3{font-size:18px;margin:13px 0 5px}
+.sv1-door p{font-size:12.5px;color:var(--s);margin:0 0 10px;line-height:1.65}
+.sv1-door span{font-size:12px;color:var(--ac);font-weight:500}
+.sv1-sec{padding:64px 0}
+.sv1-gray{background:var(--g)}
+.sv1-title{text-align:center;max-width:720px;margin:0 auto 30px}
+.sv1-title h2{font-size:clamp(25px,3.4vw,38px);margin-bottom:10px;font-weight:200}
+.sv1-title p{color:var(--mut);margin:0;font-weight:300;line-height:1.9}
+.sv1-app{border:1px solid var(--l);border-radius:15px;overflow:hidden;box-shadow:var(--sh2);background:#fff}
+.sv1-appbar{min-height:56px;border-bottom:1px solid var(--l);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sv1-appbar b{color:var(--ink)}
+.sv1-steps{display:flex;gap:5px;flex-wrap:wrap}
+.sv1-steps span{font-size:10.5px;padding:5px 9px;background:#f1f2f5;border-radius:999px;color:var(--mut);font-weight:500;white-space:nowrap}
+.sv1-steps .active{background:var(--ac);color:#fff}
+.sv1-appgrid{display:grid;grid-template-columns:1.05fr .95fr;min-height:540px}
+.sv1-chat{display:flex;flex-direction:column;border-inline-end:1px solid var(--l)}
+.sv1-chathead{padding:16px;border-bottom:1px solid var(--l)}
+.sv1-chathead h3{font-size:18px;margin:0 0 1px}
+.sv1-chathead p{font-size:11.5px;color:#777;margin:0}
+.sv1-msgs{padding:16px;background:#fbfcfe;flex:1;overflow:auto;max-height:420px}
+.sv1-msg{max-width:85%;padding:10px 13px;border-radius:13px;font-size:13px;margin-bottom:9px;white-space:pre-wrap;line-height:1.75}
+.sv1-msg.a{background:#fff;border:1px solid var(--l)}
+.sv1-msg.u{background:var(--ac);color:#fff;margin-inline-start:auto}
+.sv1-msg.s{background:#fff3e6;color:#8a4b00;font-size:12px;text-align:center;max-width:100%}
+.sv1-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sv1-chips button{border:1px solid var(--l);background:#fff;border-radius:999px;padding:7px 12px;font-size:11.5px;cursor:pointer;font-family:inherit;color:var(--mut)}
+.sv1-chips button:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-compose{border-top:1px solid var(--l);padding:10px;display:flex;gap:6px}
+.sv1-composehint{margin:0;padding:0 12px 11px;font-size:11.5px;color:var(--faint);line-height:1.6}
+.sv1-compose textarea{height:46px;resize:none;flex:1;border:1px solid var(--l);border-radius:11px;padding:10px;font:inherit;font-size:13px;outline:none}
+.sv1-compose textarea:focus{border-color:var(--ac)}
+.sv1-compose .send{width:46px;border:0;border-radius:9px;background:var(--ac);color:#fff;font-size:17px;cursor:pointer}
+.sv1-mic{width:46px;flex:none;border:1px solid var(--l);border-radius:9px;background:#fff;color:var(--ink);cursor:pointer;display:grid;place-items:center;font-family:inherit;transition:.15s}
+.sv1-mic:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-mic[disabled]{opacity:.5;cursor:default}
+.sv1-mic.rec{background:#b42318;border-color:#b42318;color:#fff;animation:sv1mic 1.4s ease-in-out infinite}
+@keyframes sv1mic{50%{box-shadow:0 0 0 6px rgba(180,35,24,.16)}}
+.sv1-mic.busy{opacity:.6;cursor:default}
+.sv1-voice{display:none;align-items:center;gap:9px;padding:7px 11px;margin:0 10px 8px;border:1px solid var(--l);border-radius:9px;background:var(--soft);font-size:11.5px;color:var(--mut)}
+.sv1-voice.on{display:flex}
+.sv1-voice.err{border-color:#f0c8c4;background:#fdf3f2;color:#b42318}
+.sv1-voice .dot{width:7px;height:7px;border-radius:50%;background:#b42318;flex:none;animation:sv1mic 1.4s ease-in-out infinite}
+.sv1-voice .t{font-family:var(--fm);margin-inline-start:auto;font-size:11px;color:var(--faint)}
+.sv1-scope{padding:19px;display:flex;flex-direction:column}
+.sv1-scope h3{font-size:19px;margin:9px 0 2px}
+.sv1-scope>p{font-size:11.5px;color:#777;margin:0 0 12px}
+.sv1-item{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--l);border-radius:11px;padding:10px;margin-bottom:7px}
+.sv1-item b{font-size:12.5px;display:block;color:#32394a;outline:none;font-weight:600}
+.sv1-item b:focus{background:#fffbe6;border-radius:4px}
+.sv1-item small{font-size:10.5px;color:#888;display:block;margin-top:2px}
+.sv1-item .del{border:0;width:27px;height:27px;border-radius:7px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:14px}
+.sv1-addrow{display:flex;gap:6px;margin-top:2px}
+.sv1-addrow input{flex:1;border:1px solid var(--l);border-radius:9px;padding:9px;font:inherit;font-size:12.5px;outline:none}
+.sv1-docs{margin-top:16px;padding-top:14px;border-top:1px dashed #cfd6e6}
+.sv1-docs h4{margin:0 0 2px;color:var(--ink);font-size:15px}
+.sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#777}
+.sv1-doc{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.sv1-doc span{font-size:12.5px;color:#32394a;display:flex;gap:7px;align-items:center}
+.sv1-doc span::before{content:"📄";font-size:13px}
+.sv1-doc .del{border:0;width:24px;height:24px;border-radius:6px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:13px}
+.sv1-docs .empty{font-size:11.5px;color:#9aa0b0;padding:6px 2px;margin-bottom:6px}
+.sv1-summary{background:var(--acSoft);border:1px solid var(--acLine);border-radius:10px;padding:11px 13px;margin:14px 0;font-size:12px}
+.sv1-summary div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sv1-summary strong{font-size:16px;color:var(--ac)}
+.sv1-login{border-top:1px solid var(--l);padding:16px 19px;background:#fff}
+.sv1-login h4{margin:0 0 4px;color:var(--ink);font-size:15px}
+.sv1-login p{margin:0 0 10px;color:#777;font-size:12px}
+.sv1-login .g{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sv1-login input{border:1px solid var(--l);border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;width:100%;outline:none}
+.sv1-login .full{grid-column:1/-1}
+.sv1-err{color:#b42318;font-size:12px;margin-top:6px}
+.sv1-ok{color:var(--ok);font-weight:700;font-size:13px;margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sv1-flow{display:grid;grid-template-columns:repeat(6,1fr);gap:9px}
+.sv1-flow div{background:#fff;border:1px solid var(--l);border-radius:11px;padding:16px;text-align:center}
+.sv1-flow i{font-style:normal;font-family:var(--fm);width:34px;height:34px;background:var(--acSoft);color:var(--ac);border-radius:9px;display:grid;place-items:center;margin:0 auto 9px;font-weight:500;font-size:12px}
+.sv1-flow b{display:block;font-size:12.5px;color:var(--ink);font-weight:500}
+.sv1-flow small{font-size:10px;color:#888}
+.sv1-tabs{text-align:center;margin-bottom:15px;display:flex;gap:8px;justify-content:center}
+.sv1-tab{border:1px solid var(--l);background:#fff;border-radius:9px;padding:9px 17px;font-weight:500;color:var(--mut);cursor:pointer;font-family:inherit;font-size:13px}
+.sv1-tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-cart{display:inline-flex;align-items:center;gap:6px}
 .sv1-cart b{background:var(--ac);color:#fff;border-radius:99px;min-width:18px;height:18px;display:inline-grid;place-items:center;font-size:11px;font-weight:600;padding:0 5px}
+.sv1-portal{border:1px solid var(--l);border-radius:15px;overflow:hidden;box-shadow:var(--sh2);background:#fff}
+.sv1-pgrid{display:grid;grid-template-columns:205px 1fr;min-height:430px}
+.sv1-side{background:var(--n2);color:#dce3fa;padding:17px}
+.sv1-side strong{color:#fff;display:block;font-size:14px}
+.sv1-side small{display:block;font-size:9px;opacity:.6;letter-spacing:.12em;margin-bottom:10px}
+.sv1-mi{padding:8px 10px;border-radius:8px;font-size:11.5px;margin:3px 0}
+.sv1-mi.on{background:#fff;color:var(--ink);font-weight:500}
+.sv1-pmain{padding:22px;background:#fbfcfe}
+.sv1-pmain h3{font-size:21px;margin:0 0 2px}
+.sv1-muted{color:#777;font-size:11.5px}
+.sv1-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:15px 0}
+.sv1-stat,.sv1-panel{background:#fff;border:1px solid var(--l);border-radius:11px;padding:14px}
+.sv1-stat span{font-size:9.5px;color:#777;display:block}
+.sv1-stat b{font-size:21px;color:var(--ink);font-family:var(--fm);font-weight:500}
+.sv1-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-panel h4{color:var(--ink);margin:0 0 8px;font-size:13px;font-weight:500}
+.sv1-prow{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #eee;font-size:11px}
+.sv1-prow:last-child{border-bottom:0}
+.sv1-status{font-size:9.5px;border-radius:999px;padding:3px 9px;background:var(--acSoft);color:var(--ac);white-space:nowrap}
+.sv1-status.done{background:var(--okSoft);color:var(--ok)}
+.sv1-pnote{text-align:center;color:#8b90a0;font-size:11px;margin-top:12px}
 .sv1-foot{margin-top:auto;padding:38px 0 22px;background:var(--n2);color:#ccd4ed;font-size:12px}
 .sv1-foot b{color:#fff}
 .sv1-foot a{color:#fff;text-decoration:underline;text-underline-offset:2px}
@@ -106,6 +241,8 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-foot-row bdi{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:#fff}
 .sv1-foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
 .sv1-foot-end{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
+/* روابط الصفحات التي لا تظهر في الترويسة: فاصلٌ خفيف ثم ثلاثة أعمدة صغيرة.
+   حجمها أصغر من باقي الفوتر عمداً — هي مسلكٌ لمن يبحث، لا دعوةٌ للضغط. */
 .sv1-foot-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 34px;
  margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1)}
 .sv1-foot-navcol{display:flex;flex-direction:column;gap:7px;min-width:0}
@@ -116,46 +253,69 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-foot-navcol a:hover{color:#fff}
 @media(max-width:900px){.sv1-foot-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}
-.sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
+ .sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
 .sv1-wa-fab{position:fixed;inset-inline-start:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
-@media(max-width:900px){.sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
-.sv1-nav.open{display:flex}
-.sv1-burger{display:flex}
-.sv1-hdr .right .sv1-btn:not(.primary):not(#sv1OutBtn):not(#sv1SiteBtn){display:none}
-.sv1-hdr .right #sv1SiteBtn{display:none}}
-/* الفرق الوحيد عن صفحات SV1: هناك «.sv1» غلافُ الصفحة كلها، وهنا غلافُ
-   الترويسة وحدها. «display:contents» يلغي صندوقه فيبقى «sticky» مسنداً إلى
-   الصفحة، وتبقى المتغيّرات و«.sv1 .wrap» نافذةً في الداخل. */
-.sv1.sv1-chrome{display:contents}
-@media print{.sv1-bar,.sv1-hdr,.sv1-wa-fab{display:none!important}}
-/* وضع التضمين (?embed=1) كان يخفي .site-header و.wa-fab؛ لم يعودا موجودين. */
-html.bp-embed .sv1-bar,html.bp-embed .sv1-hdr,html.bp-embed .sv1-wa-fab{display:none!important}
-</style>
-<style id="bp-public-brand-v5-css">
-body.bp-public-brand-v5{--bp-navy:#0B1B5A;--bp-blue:#3159d8;--bp-cyan:#43d6f4;--bp-mint:#16b875;--bp-ink:#111b36;--bp-muted:#6b7690;--bp-line:#e4e9f2;--bp-soft:#f7f9fd;background:#fff;color:var(--bp-ink)}
-body.bp-public-brand-v5 .site-header{background:rgba(255,255,255,.96)!important;border-bottom:1px solid #e8ecf3!important;backdrop-filter:blur(16px)}
-body.bp-public-brand-v5 .site-header .logo img{max-height:32px!important;width:auto!important}
-body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .svc-hero,body.bp-public-brand-v5 .cat-hero,body.bp-public-brand-v5 .page-hero{background:radial-gradient(circle at 84% 4%,rgba(49,89,216,.10),transparent 24%),radial-gradient(circle at 12% 2%,rgba(67,214,244,.08),transparent 20%),#fff!important;border-bottom:1px solid #edf0f5!important}
-body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .page-hero{padding-top:64px!important;padding-bottom:52px!important}
-body.bp-public-brand-v5 main>.hero h1,body.bp-public-brand-v5 .svc-hero h1,body.bp-public-brand-v5 .cat-hero h1,body.bp-public-brand-v5 .page-hero h1{color:var(--bp-navy)!important;letter-spacing:-.045em!important;line-height:1.06!important}
-body.bp-public-brand-v5 main>.hero .lead,body.bp-public-brand-v5 main>.hero p,body.bp-public-brand-v5 .svc-hero p,body.bp-public-brand-v5 .cat-hero p,body.bp-public-brand-v5 .page-hero p{color:var(--bp-muted)!important;line-height:1.8!important}
-body.bp-public-brand-v5 .eyebrow{display:inline-flex!important;padding:6px 9px!important;border:1px solid #dfe6f3!important;border-radius:999px!important;background:#f8faff!important;color:#3156ad!important;font-size:.68rem!important;font-weight:850!important}
-body.bp-public-brand-v5 .btn-primary,body.bp-public-brand-v5 .btn.btn-primary{background:linear-gradient(135deg,var(--bp-navy),var(--bp-blue))!important;border-color:transparent!important;box-shadow:0 11px 28px rgba(36,75,184,.16)!important}
-body.bp-public-brand-v5 .btn,body.bp-public-brand-v5 button,body.bp-public-brand-v5 .order-box,body.bp-public-brand-v5 .card,body.bp-public-brand-v5 .service-card,body.bp-public-brand-v5 .pkg-card,body.bp-public-brand-v5 .panel{border-radius:16px}
-body.bp-public-brand-v5 .card,body.bp-public-brand-v5 .service-card,body.bp-public-brand-v5 .pkg-card,body.bp-public-brand-v5 .panel,body.bp-public-brand-v5 .order-box{border-color:var(--bp-line)!important;box-shadow:0 8px 28px rgba(10,29,80,.045)!important}
-body.bp-public-brand-v5 .card:hover,body.bp-public-brand-v5 .service-card:hover,body.bp-public-brand-v5 .pkg-card:hover{box-shadow:0 14px 36px rgba(10,29,80,.08)!important}
-body.bp-public-brand-v5 .svc-main,body.bp-public-brand-v5 .svc-layout{gap:24px!important}
-body.bp-public-brand-v5 .svc-body,body.bp-public-brand-v5 .svc-content{line-height:1.85!important;color:#3c4964!important}
-body.bp-public-brand-v5 .svc-body h2,body.bp-public-brand-v5 .svc-body h3,body.bp-public-brand-v5 .svc-content h2,body.bp-public-brand-v5 .svc-content h3{color:var(--bp-navy)!important}
-body.bp-public-brand-v5 .svc-aside .order-box{position:sticky;top:92px;background:linear-gradient(180deg,#fff,#f8faff)!important}
-body.bp-public-brand-v5 .site-footer{background:#07143b!important;color:rgba(255,255,255,.7)!important}
-body.bp-public-brand-v5 .site-footer a{color:rgba(255,255,255,.72)!important}
-body.bp-public-brand-v5 .wa-fab{display:none!important}
-@media(max-width:760px){body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .page-hero{padding-top:42px!important;padding-bottom:34px!important}body.bp-public-brand-v5 .svc-aside .order-box{position:static}}
-</style>
+@media(max-width:900px){
+ .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
+ .sv1-nav.open{display:flex}
+ .sv1-burger{display:flex}
+ .sv1-hdr .right .sv1-btn:not(.primary):not(#sv1OutBtn):not(#sv1SiteBtn){display:none}
+ .sv1-hdr .right #sv1SiteBtn{display:none}
+ .sv1-hero .grid,.sv1-appgrid,.sv1-pgrid,.sv1-cols{grid-template-columns:1fr}
+ .sv1-chat{border-inline-end:0;border-bottom:1px solid var(--l)}
+ .sv1-flow{grid-template-columns:repeat(3,1fr)}
+ .sv1-three{grid-template-columns:1fr}
+ .sv1-side{display:none}
+ .sv1-stats{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
+ .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+</style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
-<body class="bp-public-brand-v5"><div class="sv1 sv1-chrome"><div class="sv1-bar"><div class="wrap">
+<body class="sv1-page"><div class="sv1"><style id="sv1-cp-css">
+.sv1-cp-hero{padding:34px 0 28px}
+.sv1-cp-hero .sv1-tag{margin-top:14px}
+.sv1-cp-hero h1{font-size:clamp(28px,4.2vw,46px);line-height:1.2;margin:16px 0 14px;max-width:22ch;font-weight:200}
+.sv1-cp-hero .sv1-lead{max-width:62ch}
+.sv1-crumb{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;color:var(--mut)}
+.sv1-crumb a:hover{color:var(--ac)}
+.sv1-crumb i{font-style:normal;color:var(--faint)}
+.sv1 .sv1-cp-body{padding:30px 22px 64px}
+.sv1-cp-q{width:100%;max-width:460px;border:1px solid var(--l);border-radius:12px;padding:13px 15px;font:inherit;font-size:15px;outline:none;background:#fff;margin-bottom:18px}
+.sv1-cp-q:focus{border-color:var(--n)}
+.sv1-cp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.sv1-cp-card{border:1px solid var(--l);border-radius:14px;background:#fff;padding:18px;display:flex;flex-direction:column;gap:9px;transition:border-color .15s,box-shadow .15s}
+.sv1-cp-card:hover{border-color:var(--acLine);box-shadow:var(--sh2)}
+.sv1-cp-card[hidden]{display:none}
+.sv1-cp-name{font-size:15.5px;font-weight:500;color:var(--ink);line-height:1.55}
+.sv1-cp-name:hover{color:var(--ac)}
+.sv1-cp-gov{font-size:11.5px;color:var(--mut)}
+.sv1-cp-price{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-top:auto;padding-top:4px}
+.sv1-cp-lbl{font-size:11px;color:var(--mut)}
+.sv1-cp-amt{font-family:var(--fm);font-size:19px;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.sv1-cp-amt[data-bp-pending]{visibility:hidden;animation:sv1cpshow .01s linear 2.2s forwards}
+@keyframes sv1cpshow{to{visibility:visible}}
+.sv1-cp-guest{font-size:12px;color:var(--mut)}
+.sv1-cp-need{font-size:13.5px;font-weight:500;color:var(--ink)}
+.sv1-cp-acts{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.sv1-cp-more{margin-inline-start:auto;font-size:12px;color:var(--ac);white-space:nowrap}
+.sv1-cp-more:hover{text-decoration:underline}
+.sv1-cp-none{color:var(--mut);font-size:14px;margin:18px 2px}
+.sv1-cp-others{margin-top:40px}
+.sv1-cp-others h2{font-size:18px;margin:0 0 12px;font-weight:300}
+.sv1-cp-chips{display:flex;flex-wrap:wrap;gap:8px}
+.sv1-cp-chip{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--l);border-radius:999px;background:#fff;padding:7px 13px;font-size:13px;color:var(--ink)}
+.sv1-cp-chip span{font-family:var(--fm);font-size:11px;color:var(--ac);background:var(--acSoft);border-radius:999px;padding:1px 8px}
+.sv1-cp-chip:hover{border-color:var(--acLine);background:var(--acSoft)}
+.sv1-cp-ask{margin-top:30px;text-align:center}
+.sv1-cp-ask h4{margin:0 0 10px;color:var(--ink);font-size:15px}
+.sv1-cp-toast{position:fixed;inset-inline:0;top:84px;margin-inline:auto;width:max-content;max-width:calc(100vw - 28px);z-index:2147483100;background:var(--ink);color:#fff;border-radius:12px;padding:11px 16px;font-size:13px;font-weight:600;box-shadow:0 10px 28px rgba(11,27,90,.3);display:flex;gap:14px;align-items:center}
+.sv1-cp-toast a{color:#fff;text-decoration:underline;white-space:nowrap}
+.sv1-cp-toast.err{background:#8a1c1c}
+@media(max-width:600px){.sv1-cp-hero{padding:24px 0 20px}.sv1-cp-grid{grid-template-columns:1fr}}
+</style>
+<div class="sv1-bar"><div class="wrap">
   <div class="sv1-bar-l">
     <span><span class="sv1-pulse"></span><b>جميع الأنظمة تعمل</b></span>
     <span class="hide-s">الرياض · المملكة العربية السعودية</span>
@@ -178,6 +338,7 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
     <a class="sv1-btn sm sv1-cart sv1-hide" id="sv1CartBtn" href="/ar/cart" aria-label="السلة">
       <span>السلة</span><b id="sv1CartN">0</b></a>
     <a class="sv1-btn" id="sv1LoginBtn" href="/ar/my">دخول</a>
+    <a class="sv1-btn sm sv1-hide" id="sv1SiteBtn" href="/ar/">العودة إلى الموقع</a>
     <button type="button" class="sv1-btn sm sv1-hide" id="sv1OutBtn">تسجيل الخروج</button>
     <a class="sv1-btn primary" href="/ar/#advisor">ابدأ طلبك</a>
   </div>
@@ -206,192 +367,233 @@ var S=window.SV1S={
   if(sb)sb.classList.toggle('sv1-hide',!(on&&(p.indexOf('/my')>=0||p.indexOf('/ops')>=0)));
  }};
 var h0=hint();if(h0)S.paint(true,h0);
-})();</script><script>(function(){"use strict";
-var $=function(id){return document.getElementById(id)};
-var b=$('sv1Burger'),n=$('sv1Nav');
-if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
-var cb=$('sv1CartBtn'),cn=$('sv1CartN');
-function sync(){var c=[];try{c=JSON.parse(localStorage.getItem('bp_cart'))||[]}catch(e){}
- var k=c.reduce(function(a,i){return a+(Number(i&&i.qty)||1)},0);
- if(cn)cn.textContent=String(k);
- if(cb)cb.classList.toggle('sv1-hide',!k)}
-sync();
-addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);
-document.addEventListener('bp:cart',sync);
-/* main.js يكتب bp_cart ثم يحدّث #cart-badge وحده، ولا يطلق حدثاً. فبعد كل
-   ضغطة على زر شراء في الصفحة القديمة نعيد القراءة — وإلا جمد العدّاد. */
-document.addEventListener('click',function(e){
- if(e.target&&e.target.closest&&e.target.closest('.add-cart,[data-cart],.cart-remove,.cart-qty'))setTimeout(sync,0)},true);
-var ob=$('sv1OutBtn');
-if(ob)ob.onclick=function(){ob.disabled=true;
- fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'})
- .catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.reload()})};
-/* حالة الدخول: الرسم الفوري من التلميح جرى بعد «</header>» مباشرة
-   (SV1_SESSION_JS)، وهذا هو التصحيح من الخادم — والمنطق نفسه حرفاً بحرف في
-   صفحات SV1، من simple-v1.mjs لا من نسخةٍ ثانية تفترق عنها بعد شهر. */
-fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
-.then(function(r){return r.json().catch(function(){return{}})}).then(function(o){
- var S=window.SV1S,u=o&&o.session&&o.session.user;
- if(u){window.SV1_SESSION=o.session;if(S){S.save(u);S.paint(true,{name:u.full_name||'',email:u.email||''})}}
- else if(S){S.clear();S.paint(false,null)}
-}).catch(function(){});
-})();</script></div><main>
-  <section class="hero hero--sm"><div class="container hero-inner">
-    <a class="back-link" href="/ar/services"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> كل التصنيفات</a>
-    <span class="eyebrow">🏢 الخدمات</span>
+})();</script>
+<main>
+  <section class="sv1-hero sv1-cp-hero"><div class="wrap">
+    <nav class="sv1-crumb" aria-label="breadcrumb">
+      <a href="/ar/">الرئيسية</a><i>/</i><a href="/ar/catalog">الخدمات</a><i>/</i><span>تأسيس الشركات</span>
+    </nav>
+    <span class="sv1-tag">29 خدمة</span>
     <h1>تأسيس الشركات</h1>
-    <p class="lead">29 خدمة في تأسيس الشركات — تواصل معنا لعرض سعر حسب حالتك، والرسوم الحكومية منفصلة دائماً.</p>
+    <p class="sv1-lead">أضف الخدمة المسعّرة إلى السلة وادفع إلكترونياً، أو اطلب عرض سعر لحالتك. الرسوم الحكومية، إن وُجدت، تُسدَّد للجهة بتكلفتها الفعلية.</p>
   </div></section>
-  <section class="section"><div class="container">
-    <div class="grid grid-3"><a class="card svc-card" href="/ar/services/bp-chamber-01">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>عضوية الغرفة التجارية</h3>
-        <p class="desc">نتولّى في بيزنس بارتنر تنفيذ خدمة «عضوية الغرفة التجارية» نيابةً عنك ضمن تأسيس الشركات — من تجهيز المستندات والرفع على ا…</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-pl-0066">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>استشارة ما قبل التأسيس</h3>
-        <p class="desc">نتولّى في بيزنس بارتنر تنفيذ خدمة «استشارة ما قبل التأسيس» نيابةً عنك ضمن تأسيس الشركات — من تجهيز المستندات والرفع على …</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-01">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>تأسيس شركة سعودية</h3>
-        <p class="desc">تأسيس كامل لشركة سعودية (ذات مسؤولية محدودة) من البداية حتى الإصدار — نجهّز المتطلبات النظامية ونتابع السجل التجاري والت…</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-02">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>إصدار سجل تجاري جديد</h3>
-        <p class="desc">إصدار سجل تجاري جديد للمنشأة مع تجهيز المتطلبات ومتابعة الإصدار.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-03">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>إصدار عقد تأسيس وتوثيقه (لشركة جديدة)</h3>
-        <p class="desc">صياغة عقد التأسيس وتوثيقه لشركة جديدة حتى الاعتماد.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-04">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>إصدار سجل تجاري</h3>
-        <p class="desc">إصدار السجل التجاري للمنشأة مع متابعة الإجراء حتى الإصدار.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-05">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>حجز اسم شركة</h3>
-        <p class="desc">حجز اسم الشركة عبر المركز السعودي للأعمال ومتابعة الاعتماد.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-06">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>فتح حساب شركة على منصة أبشر أعمال</h3>
-        <p class="desc">فتح وتفعيل حساب الشركة على منصة أبشر أعمال وربطه بالخدمات المطلوبة.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-07">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>فتح فرع لشركة قائمة (محلية أو أجنبية)</h3>
-        <p class="desc">فتح فرع لشركة قائمة (محلية أو أجنبية) مع تجهيز المتطلبات ومتابعة الإصدار.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-08">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>تصفية شركة (شطب السجل وإنهاء الكيان)</h3>
-        <p class="desc">تصفية الشركة وشطب السجل وإنهاء الكيان مع متابعة الإجراءات النظامية حتى الإتمام.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-09">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>إصدار شهادة شطب سجل تجاري</h3>
-        <p class="desc">استخراج شهادة شطب السجل التجاري بعد إتمام الإجراءات.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-10">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>تعديل عقد تأسيس / قرارات شركاء</h3>
-        <p class="desc">تعديل عقد التأسيس أو قرارات الشركاء وتوثيقها حتى الاعتماد.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-11">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>تعديل سجل تجاري</h3>
-        <p class="desc">تعديل بيانات السجل التجاري ومتابعة الاعتماد.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-12">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>حجز اسم تجاري</h3>
-        <p class="desc">حجز الاسم التجاري ومتابعة الاعتماد عبر المركز السعودي للأعمال.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-13">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>شطب سجل تجاري (إلغاء السجل)</h3>
-        <p class="desc">شطب السجل التجاري (إلغاء السجل) ومتابعة الإجراءات حتى الإتمام.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-14">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>تحويل الشكل القانوني للمنشأة</h3>
-        <p class="desc">تحويل الشكل القانوني للمنشأة (مؤسسة ↔ شركة) مع تجهيز المتطلبات ومتابعتها.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-15">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>صياغة عقد التأسيس ودعم التوثيق</h3>
-        <p class="desc">صياغة عقد التأسيس ودعم توثيقه حتى الاعتماد.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-16">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>خدمات تأسيس مصانع وإصدار تراخيص صناعية</h3>
-        <p class="desc">خدمة إلكترونية من وزارة الصناعة والثروة المعدنية لمزاولة الأنشطة الصناعية قانونياً. نوعان: ترخيص مبدئي (لمراحل التخطيط و…</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-17">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>طلب إفادة تجارية (خطاب من وزارة التجارة)</h3>
-        <p class="desc">استخراج إفادة تجارية (خطاب من وزارة التجارة) حسب الغرض المطلوب.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-18">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>تحويل مؤسسة إلى شركة (أو العكس)</h3>
-        <p class="desc">تحويل المؤسسة إلى شركة (أو العكس) مع تجهيز المتطلبات ومتابعة الإصدار.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-19">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>تجديد سجل تجاري</h3>
-        <p class="desc">تجديد السجل التجاري ومتابعة الإجراء حتى الإتمام.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-20">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>استخراج مستخرج سجل تجاري تفصيلي</h3>
-        <p class="desc">استخراج مستخرج تفصيلي للسجل التجاري حسب الغرض المطلوب.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/cf-gen">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>تأسيس الشركات — خدمة حسب الطلب</h3>
-        <p class="desc">نتولّى في بيزنس بارتنر تنفيذ خدمة «تأسيس الشركات — خدمة حسب الطلب» نيابةً عنك ضمن تأسيس الشركات — من تجهيز المستندات وال…</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-21">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>الإبلاغ عن المستفيد الحقيقي</h3>
-        <p class="desc">نظام المستفيد الحقيقي يُلزم المنشآت بالإفصاح عمّن يملك أو يسيطر عليها فعلياً، وعدم الإبلاغ يعرّضها لغرامات نظامية. نحدّد…</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-22">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>التأكيد السنوي لبيانات السجل التجاري</h3>
-        <p class="desc">السجل التجاري يحتاج تأكيداً سنوياً لبياناته، وإهماله يعطّل الخدمات المرتبطة به. نراجع بياناتك ونؤكّدها في موعدها ونسلّمك…</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-23">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>نقل ملكية السجل التجاري</h3>
-        <p class="desc">نقل ملكية السجل التجاري من مالك إلى آخر، بما يشمل مراجعة الالتزامات القائمة قبل النقل حتى لا تنتقل إلى المشتري على غفلة.</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-24">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>نشر قرارات الجمعية العامة</h3>
-        <p class="desc">قرارات الجمعية العامة تحتاج نشراً حتى تصير نافذة تجاه الغير. نصوغ القرار بما يوافق نظام الشركات ونتحقق من النصاب، ثم ننش…</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-25">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>اندماج شركتين أو استحواذ</h3>
-        <p class="desc">اندماج شركتين أو استحواذ إحداهما على الأخرى: مراجعة الكيانين والتزاماتهما، وصياغة قرارات الشركاء والعقود، وتنفيذ الإجراء…</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/ar/services/bp-sbc-31">
-        <span class="tag">تأسيس الشركات</span>
-        <h3>تأسيس / قيد مؤسسة فردية جديدة</h3>
-        <p class="desc">تأسيس مؤسسة فردية جديدة وقيدها في السجل التجاري عبر المركز السعودي للأعمال: نجهّز المتطلبات ونقدّم الطلب ونتابعه حتى الإ…</p>
-        <div class="foot"><span class="price-soft">سعر حسب حالتك</span><span class="card-link">التفاصيل <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a></div>
-    <div class="cat-other"><h2>تصنيفات أخرى</h2><div class="cc-prof-chips"><a class="cc-chip" href="/ar/services/category/foreign-investment">🌍 الاستثمار الأجنبي</a><a class="cc-chip" href="/ar/services/category/premium-residency">🪪 الإقامة المميزة</a><a class="cc-chip" href="/ar/services/category/government-relations">🏛️ العلاقات الحكومية</a><a class="cc-chip" href="/ar/services/category/hr-services">👥 الموارد البشرية</a><a class="cc-chip" href="/ar/services/category/recruitment">🧑‍💼 التوظيف والاستقدام</a><a class="cc-chip" href="/ar/services/category/business-support">📊 دعم الأعمال</a><a class="cc-chip" href="/ar/services/category/real-estate">🏗️ المكاتب ومساحات العمل</a><a class="cc-chip" href="/ar/services/category/ai-automation">🤖 الأتمتة والذكاء الاصطناعي</a></div></div>
-    <div class="cta-band" style="margin-top:28px"><h2>محتار أي خدمة تناسبك؟</h2><p>تواصل معنا ونوصلك للخدمة المناسبة لحالتك مباشرة.</p><a class="btn btn-white btn-lg" href="/ar/consultation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>تواصل معنا</span></a></div>
-  </div></section></main><div class="sv1 sv1-chrome"><footer class="sv1-foot"><div class="wrap">
+  <div class="wrap sv1-cp-body">
+    <input id="cpQ" class="sv1-cp-q" type="search" placeholder="ابحث في هذا التصنيف" aria-label="ابحث في هذا التصنيف">
+    <div class="sv1-cp-grid" id="cpGrid"><article class="sv1-cp-card" data-q="عضوية الغرفة التجارية bp-chamber-01 الغرفة التجارية">
+      <a class="sv1-cp-name" href="/ar/services/bp-chamber-01">عضوية الغرفة التجارية</a>
+      <div class="sv1-cp-gov">الغرفة التجارية</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-CHAMBER-01" data-bp-pending>300 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-chamber-01" data-name-en="Chamber of Commerce membership" data-name-ar="عضوية الغرفة التجارية" data-amount="300" data-price="" data-kind="service" data-bp-code="BP-CHAMBER-01">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-CHAMBER-01" data-name="عضوية الغرفة التجارية" data-gov="الغرفة التجارية">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-chamber-01">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="استشارة ما قبل التأسيس bp-pl-0066 ">
+      <a class="sv1-cp-name" href="/ar/services/bp-pl-0066">استشارة ما قبل التأسيس</a>
+      
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-PL-0066" data-bp-pending>500 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-pl-0066" data-name-en="Pre-incorporation consultation" data-name-ar="استشارة ما قبل التأسيس" data-amount="500" data-price="" data-kind="service" data-bp-code="BP-PL-0066">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-PL-0066" data-name="استشارة ما قبل التأسيس" data-gov="">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-pl-0066">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="تأسيس شركة سعودية bp-sbc-01 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-01">تأسيس شركة سعودية</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-01" data-bp-pending>7,500 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-01" data-name-en="Saudi Company Formation" data-name-ar="تأسيس شركة سعودية" data-amount="7500" data-price="" data-kind="service" data-bp-code="BP-SBC-01">أضف إلى السلة</button><a class="sv1-cp-more" href="/ar/services/bp-sbc-01">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="إصدار سجل تجاري جديد bp-sbc-02 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-02">إصدار سجل تجاري جديد</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-02" data-bp-pending>250 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-02" data-name-en="New Commercial Registration Issuance" data-name-ar="إصدار سجل تجاري جديد" data-amount="250" data-price="" data-kind="service" data-bp-code="BP-SBC-02">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-02" data-name="إصدار سجل تجاري جديد" data-gov="المركز السعودي للأعمال">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-02">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="إصدار عقد تأسيس وتوثيقه (لشركة جديدة) bp-sbc-03 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-03">إصدار عقد تأسيس وتوثيقه (لشركة جديدة)</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-03" data-bp-pending>3,000 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-03" data-name-en="AoA Issuance &amp; Notarization (new company)" data-name-ar="إصدار عقد تأسيس وتوثيقه (لشركة جديدة)" data-amount="3000" data-price="" data-kind="service" data-bp-code="BP-SBC-03">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-03" data-name="إصدار عقد تأسيس وتوثيقه (لشركة جديدة)" data-gov="المركز السعودي للأعمال">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-03">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="إصدار سجل تجاري bp-sbc-04 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-04">إصدار سجل تجاري</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-04" data-bp-pending>450 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-04" data-name-en="Commercial Registration Issuance" data-name-ar="إصدار سجل تجاري" data-amount="450" data-price="" data-kind="service" data-bp-code="BP-SBC-04">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-04" data-name="إصدار سجل تجاري" data-gov="المركز السعودي للأعمال">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-04">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="حجز اسم شركة bp-sbc-05 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-05">حجز اسم شركة</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-05" data-bp-pending>250 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-05" data-name-en="Company Name Reservation" data-name-ar="حجز اسم شركة" data-amount="250" data-price="" data-kind="service" data-bp-code="BP-SBC-05">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-05" data-name="حجز اسم شركة" data-gov="المركز السعودي للأعمال">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-05">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="فتح حساب شركة على منصة أبشر أعمال bp-sbc-06 أبشر أعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-06">فتح حساب شركة على منصة أبشر أعمال</a>
+      <div class="sv1-cp-gov">أبشر أعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-06" data-bp-pending>200 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-06" data-name-en="Company Account on Absher Business" data-name-ar="فتح حساب شركة على منصة أبشر أعمال" data-amount="200" data-price="" data-kind="service" data-bp-code="BP-SBC-06">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-06" data-name="فتح حساب شركة على منصة أبشر أعمال" data-gov="أبشر أعمال">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-06">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="فتح فرع لشركة قائمة (محلية أو أجنبية) bp-sbc-07 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-07">فتح فرع لشركة قائمة (محلية أو أجنبية)</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-07" data-bp-pending>15,000 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-07" data-name-en="Opening a Branch for an Existing Company" data-name-ar="فتح فرع لشركة قائمة (محلية أو أجنبية)" data-amount="15000" data-price="" data-kind="service" data-bp-code="BP-SBC-07">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-07" data-name="فتح فرع لشركة قائمة (محلية أو أجنبية)" data-gov="المركز السعودي للأعمال">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-07">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="تصفية شركة (شطب السجل وإنهاء الكيان) bp-sbc-08 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-08">تصفية شركة (شطب السجل وإنهاء الكيان)</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-08" data-bp-pending>4,000 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-08" data-name-en="Company Liquidation (CR cancellation &amp; closure)" data-name-ar="تصفية شركة (شطب السجل وإنهاء الكيان)" data-amount="4000" data-price="" data-kind="service" data-bp-code="BP-SBC-08">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-08" data-name="تصفية شركة (شطب السجل وإنهاء الكيان)" data-gov="المركز السعودي للأعمال">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-08">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="إصدار شهادة شطب سجل تجاري bp-sbc-09 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-09">إصدار شهادة شطب سجل تجاري</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-09" data-bp-pending>100 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-09" data-name-en="CR Cancellation Certificate Issuance" data-name-ar="إصدار شهادة شطب سجل تجاري" data-amount="100" data-price="" data-kind="service" data-bp-code="BP-SBC-09">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-09" data-name="إصدار شهادة شطب سجل تجاري" data-gov="المركز السعودي للأعمال">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-09">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="تعديل عقد تأسيس / قرارات شركاء bp-sbc-10 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-10">تعديل عقد تأسيس / قرارات شركاء</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-10" data-bp-pending>1,000 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-10" data-name-en="Amending AoA / Partners' Resolutions" data-name-ar="تعديل عقد تأسيس / قرارات شركاء" data-amount="1000" data-price="" data-kind="service" data-bp-code="BP-SBC-10">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-10" data-name="تعديل عقد تأسيس / قرارات شركاء" data-gov="المركز السعودي للأعمال">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-10">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="تعديل سجل تجاري bp-sbc-11 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-11">تعديل سجل تجاري</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-11" data-bp-pending>100 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-11" data-name-en="Commercial Registration Amendment" data-name-ar="تعديل سجل تجاري" data-amount="100" data-price="" data-kind="service" data-bp-code="BP-SBC-11">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-11" data-name="تعديل سجل تجاري" data-gov="المركز السعودي للأعمال">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-11">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="حجز اسم تجاري bp-sbc-12 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-12">حجز اسم تجاري</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-12" data-bp-pending>180 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-12" data-name-en="Trade Name Reservation" data-name-ar="حجز اسم تجاري" data-amount="180" data-price="" data-kind="service" data-bp-code="BP-SBC-12">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-12" data-name="حجز اسم تجاري" data-gov="المركز السعودي للأعمال">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-12">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="شطب سجل تجاري (إلغاء السجل) bp-sbc-13 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-13">شطب سجل تجاري (إلغاء السجل)</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-13" data-bp-pending>100 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-13" data-name-en="Commercial Registration Cancellation" data-name-ar="شطب سجل تجاري (إلغاء السجل)" data-amount="100" data-price="" data-kind="service" data-bp-code="BP-SBC-13">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-13" data-name="شطب سجل تجاري (إلغاء السجل)" data-gov="المركز السعودي للأعمال">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-13">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="تحويل الشكل القانوني للمنشأة bp-sbc-14 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-14">تحويل الشكل القانوني للمنشأة</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-14" data-bp-pending>1,800 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-14" data-name-en="Legal Form Transformation" data-name-ar="تحويل الشكل القانوني للمنشأة" data-amount="1800" data-price="" data-kind="service" data-bp-code="BP-SBC-14">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-14" data-name="تحويل الشكل القانوني للمنشأة" data-gov="المركز السعودي للأعمال">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-14">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="صياغة عقد التأسيس ودعم التوثيق bp-sbc-15 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-15">صياغة عقد التأسيس ودعم التوثيق</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-15" data-bp-pending>2,000 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-15" data-name-en="AoA Drafting &amp; Notarization Support" data-name-ar="صياغة عقد التأسيس ودعم التوثيق" data-amount="2000" data-price="" data-kind="service" data-bp-code="BP-SBC-15">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-15" data-name="صياغة عقد التأسيس ودعم التوثيق" data-gov="المركز السعودي للأعمال">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-15">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="خدمات تأسيس مصانع وإصدار تراخيص صناعية bp-sbc-16 متعدد الجهات">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-16">خدمات تأسيس مصانع وإصدار تراخيص صناعية</a>
+      <div class="sv1-cp-gov">متعدد الجهات</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-16" data-bp-pending>10,000 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-16" data-name-en="Factory setup &amp; industrial licensing services" data-name-ar="خدمات تأسيس مصانع وإصدار تراخيص صناعية" data-amount="10000" data-price="" data-kind="service" data-bp-code="BP-SBC-16">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-16" data-name="خدمات تأسيس مصانع وإصدار تراخيص صناعية" data-gov="متعدد الجهات">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-16">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="طلب إفادة تجارية (خطاب من وزارة التجارة) bp-sbc-17 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-17">طلب إفادة تجارية (خطاب من وزارة التجارة)</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-17" data-bp-pending>100 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-17" data-name-en="Commercial Statement Request" data-name-ar="طلب إفادة تجارية (خطاب من وزارة التجارة)" data-amount="100" data-price="" data-kind="service" data-bp-code="BP-SBC-17">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-17" data-name="طلب إفادة تجارية (خطاب من وزارة التجارة)" data-gov="المركز السعودي للأعمال">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-17">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="تحويل مؤسسة إلى شركة (أو العكس) bp-sbc-18 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-18">تحويل مؤسسة إلى شركة (أو العكس)</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-18" data-bp-pending>2,000 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-18" data-name-en="Converting an Establishment into a Company" data-name-ar="تحويل مؤسسة إلى شركة (أو العكس)" data-amount="2000" data-price="" data-kind="service" data-bp-code="BP-SBC-18">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-18" data-name="تحويل مؤسسة إلى شركة (أو العكس)" data-gov="المركز السعودي للأعمال">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-18">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="تجديد سجل تجاري bp-sbc-19 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-19">تجديد سجل تجاري</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-19" data-bp-pending>180 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-19" data-name-en="Commercial Registration Renewal" data-name-ar="تجديد سجل تجاري" data-amount="180" data-price="" data-kind="service" data-bp-code="BP-SBC-19">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-19" data-name="تجديد سجل تجاري" data-gov="المركز السعودي للأعمال">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-19">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="استخراج مستخرج سجل تجاري تفصيلي bp-sbc-20 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-20">استخراج مستخرج سجل تجاري تفصيلي</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-20" data-bp-pending>150 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-20" data-name-en="Detailed CR Extract Issuance" data-name-ar="استخراج مستخرج سجل تجاري تفصيلي" data-amount="150" data-price="" data-kind="service" data-bp-code="BP-SBC-20">أضف إلى السلة</button><a class="sv1-btn sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-20" data-name="استخراج مستخرج سجل تجاري تفصيلي" data-gov="المركز السعودي للأعمال">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/bp-sbc-20">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="تأسيس الشركات — خدمة حسب الطلب cf-gen ">
+      <a class="sv1-cp-name" href="/ar/services/cf-gen">تأسيس الشركات — خدمة حسب الطلب</a>
+      
+      <div class="sv1-cp-price"><span class="sv1-cp-need">تحتاج عرض سعر</span></div>
+      <div class="sv1-cp-acts"><a class="sv1-btn primary sm sv1-cp-quote" href="/ar/#advisor" data-track="طلب عرض سعر" data-code="CF-GEN" data-name="تأسيس الشركات — خدمة حسب الطلب" data-gov="">اطلب عرض سعر</a><a class="sv1-cp-more" href="/ar/services/cf-gen">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="الإبلاغ عن المستفيد الحقيقي bp-sbc-21 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-21">الإبلاغ عن المستفيد الحقيقي</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-21" data-bp-pending>500 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-21" data-name-en="Beneficial owner disclosure" data-name-ar="الإبلاغ عن المستفيد الحقيقي" data-amount="500" data-price="" data-kind="service" data-bp-code="BP-SBC-21">أضف إلى السلة</button><a class="sv1-cp-more" href="/ar/services/bp-sbc-21">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="التأكيد السنوي لبيانات السجل التجاري bp-sbc-22 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-22">التأكيد السنوي لبيانات السجل التجاري</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-22" data-bp-pending>200 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-22" data-name-en="Annual commercial-register confirmation" data-name-ar="التأكيد السنوي لبيانات السجل التجاري" data-amount="200" data-price="" data-kind="service" data-bp-code="BP-SBC-22">أضف إلى السلة</button><a class="sv1-cp-more" href="/ar/services/bp-sbc-22">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="نقل ملكية السجل التجاري bp-sbc-23 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-23">نقل ملكية السجل التجاري</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-23" data-bp-pending>1,500 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-23" data-name-en="Transferring ownership of a commercial register" data-name-ar="نقل ملكية السجل التجاري" data-amount="1500" data-price="" data-kind="service" data-bp-code="BP-SBC-23">أضف إلى السلة</button><a class="sv1-cp-more" href="/ar/services/bp-sbc-23">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="نشر قرارات الجمعية العامة bp-sbc-24 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-24">نشر قرارات الجمعية العامة</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-24" data-bp-pending>800 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-24" data-name-en="Publishing general-assembly resolutions" data-name-ar="نشر قرارات الجمعية العامة" data-amount="800" data-price="" data-kind="service" data-bp-code="BP-SBC-24">أضف إلى السلة</button><a class="sv1-cp-more" href="/ar/services/bp-sbc-24">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="اندماج شركتين أو استحواذ bp-sbc-25 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-25">اندماج شركتين أو استحواذ</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-25" data-bp-pending>12,000 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-25" data-name-en="Merger or acquisition" data-name-ar="اندماج شركتين أو استحواذ" data-amount="12000" data-price="" data-kind="service" data-bp-code="BP-SBC-25">أضف إلى السلة</button><a class="sv1-cp-more" href="/ar/services/bp-sbc-25">التفاصيل ←</a></div>
+    </article><article class="sv1-cp-card" data-q="تأسيس / قيد مؤسسة فردية جديدة bp-sbc-31 المركز السعودي للأعمال">
+      <a class="sv1-cp-name" href="/ar/services/bp-sbc-31">تأسيس / قيد مؤسسة فردية جديدة</a>
+      <div class="sv1-cp-gov">المركز السعودي للأعمال</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">أتعاب الخدمة</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-31" data-bp-pending>1,000 ﷼</span>
+        <span class="sv1-cp-guest" data-guest-note>سجّل الدخول لعرض الأتعاب</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-31" data-name-en="New Sole Proprietorship Formation &amp; Registration" data-name-ar="تأسيس / قيد مؤسسة فردية جديدة" data-amount="1000" data-price="" data-kind="service" data-bp-code="BP-SBC-31">أضف إلى السلة</button><a class="sv1-cp-more" href="/ar/services/bp-sbc-31">التفاصيل ←</a></div>
+    </article></div>
+    <p class="sv1-cp-none sv1-hide" id="cpNone">لا نتيجة بهذه الكلمة. جرّب كلمة أعمّ.</p>
+    <section class="sv1-cp-others">
+      <h2>تصنيفات أخرى</h2>
+      <div class="sv1-cp-chips"><a class="sv1-cp-chip" href="/ar/services/category/foreign-investment">الاستثمار الأجنبي<span>14</span></a><a class="sv1-cp-chip" href="/ar/services/category/premium-residency">الإقامة المميزة<span>11</span></a><a class="sv1-cp-chip" href="/ar/services/category/government-relations">العلاقات الحكومية<span>69</span></a><a class="sv1-cp-chip" href="/ar/services/category/hr-services">الموارد البشرية<span>12</span></a><a class="sv1-cp-chip" href="/ar/services/category/recruitment">التوظيف والاستقدام<span>8</span></a><a class="sv1-cp-chip" href="/ar/services/category/business-support">دعم الأعمال<span>39</span></a><a class="sv1-cp-chip" href="/ar/services/category/real-estate">المكاتب ومساحات العمل<span>7</span></a><a class="sv1-cp-chip" href="/ar/services/category/ai-automation">الأتمتة والذكاء الاصطناعي<span>6</span></a><a class="sv1-cp-chip" href="/ar/catalog">كل الخدمات والباقات</a></div>
+    </section>
+    <div class="sv1-panel sv1-cp-ask">
+      <h4>محتار أي خدمة تناسبك؟</h4>
+      <a class="sv1-btn primary sm" href="/ar/#advisor">اشرح احتياجك في المحادثة</a>
+    </div>
+  </div>
+</main>
+<div class="sv1-cp-toast sv1-hide" id="cpToast" role="status" aria-live="polite"><span id="cpToastTx"></span><a id="cpToastCart" href="/ar/cart">عرض السلة ←</a></div>
+<footer class="sv1-foot"><div class="wrap">
   <div class="sv1-foot-grid">
     <div class="sv1-foot-col">
       <b class="sv1-foot-brand">Business Partner</b>
@@ -411,7 +613,7 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
     </div>
     <div class="sv1-foot-col">
       <h4>الدفع</h4>
-      <p class="sv1-foot-note">مدى · فيزا · ماستركارد · Apple Pay · تمارا — والدفع عبر بوابة مرخّصة، لا تمرّ بيانات بطاقتك من خوادمنا.</p>
+      <p class="sv1-foot-note">مدى · فيزا · ماستركارد، أو التقسيط عبر تمارا. وتظهر محافظ الجوال (مثل Apple Pay) في صفحة الدفع إن كانت متاحة على جهازك. الدفع عبر بوابة مرخّصة، ولا تمرّ بيانات بطاقتك من خوادمنا.</p>
     </div>
   </div>
 
@@ -446,7 +648,77 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
   </div>
   <div class="sv1-foot-end">© 2026 Business Partner · جميع الحقوق محفوظة</div>
 </div></footer>
-<a class="sv1-wa-fab" href="https://wa.me/966530540231" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></div><script src="/assets/js/main.js?v=45d370d801"></script><script src="/assets/js/live-prices.js?v=3b0920ab7a" defer></script><style>
+<a class="sv1-wa-fab" href="https://wa.me/966530540231" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
+fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
+var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};
+/* الرسم الفوري جرى بعد «</header>» مباشرة (SV1_SESSION_JS)؛ هنا التصحيح. */
+fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
+.then(function(r){return r.json().catch(function(){return{}})}).then(function(o){
+ var S=window.SV1S,u=o&&o.session&&o.session.user;
+ if(u){window.SV1_SESSION=o.session;if(S){S.save(u);S.paint(true,{name:u.full_name||'',email:u.email||''})}}
+ else if(S){S.clear();S.paint(false,null)}
+}).catch(function(){});
+})();</script><script>(function(){"use strict";
+if(navigator.webdriver)return;
+var vid="";try{vid=localStorage.getItem("bp_vid")||"";if(!vid){vid=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("bp_vid",vid)}}catch(e){}
+function send(p){p.action="hit";p.visitor=vid;try{var b=JSON.stringify(p);
+if(navigator.sendBeacon)navigator.sendBeacon("/api/requests",new Blob([b],{type:"application/json"}));
+else fetch("/api/requests",{method:"POST",headers:{"content-type":"application/json"},body:b,keepalive:true}).catch(function(){})}catch(e){}}
+var rh="";try{if(document.referrer){var u=new URL(document.referrer);if(u.host!==location.host)rh=u.host}}catch(e){}
+send({kind:"view",path:location.pathname,ref:rh,lang:document.documentElement.lang||"",device:window.innerWidth<768?"mobile":"desktop"});
+// أزرار الموقع الجديد بأسمائها العربية كما تظهر في اللوحة، ومعها محدّدات
+// الموقع القديم حتى تُحسب الصفحتان بالمسمّى نفسه.
+document.addEventListener("click",function(e){
+ var t=e.target.closest&&e.target.closest("[data-track],.add-cart,#cartGo,#cart-checkout,#coPay,#co-submit,a[href*='wa.me'],a[href*='whatsapp'],.sv1-door,#sv1CartBtn,#sv1LoginBtn");
+ if(!t)return;
+ var n=t.getAttribute("data-track")||
+  (t.id==="cartGo"||t.id==="cart-checkout"?"إتمام الطلب":
+   t.id==="coPay"||t.id==="co-submit"?"إرسال الطلب":
+   t.id==="sv1CartBtn"?"فتح السلة":
+   t.id==="sv1LoginBtn"?"تسجيل الدخول":
+   t.classList&&t.classList.contains("sv1-door")?("باب: "+(t.getAttribute("data-door")||"")):
+   t.classList&&t.classList.contains("add-cart")?"أضف للسلة":"واتساب");
+ send({kind:"click",path:location.pathname,name:n})},true);
+var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
+ send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
+})();</script><script src="/assets/js/live-prices.js?v=3b0920ab7a" defer></script><script>
+(function(){
+var C={"door":"formation","tx":{"added":"أُضيف ✓","addCart":"أضف إلى السلة","toast":"أُضيفت الخدمة إلى السلة","fail":"تعذّر حفظ السلة في هذا المتصفح. اطلب عرض سعر بدلاً من ذلك."}};
+var $=function(id){return document.getElementById(id)};
+// ---- السلة: عقد bp_cart نفسه (انظر simple-v1-service-detail.mjs: cartItem/cartAdd). amount يُقرأ
+// من الزرّ وقت الضغط فيحمل الرقم الحيّ إن بدّله live-prices.js (data-bp-code).
+function cartItem(b){var a=b.getAttribute('data-amount');
+ return {id:b.getAttribute('data-id'),nameEn:b.getAttribute('data-name-en')||'',nameAr:b.getAttribute('data-name-ar')||'',amount:a?Number(a):null,price:'',kind:'service',qty:1,
+  surchargeAmount:null,surchargeFreeCount:null,pricePublic:0,billingPeriod:'',renewsAt:null,commissionPercent:0}}
+function cartAdd(b){var c;
+ try{c=JSON.parse(localStorage.getItem('bp_cart'))||[];if(!Array.isArray(c))c=[]}catch(e){c=[]}
+ var it=cartItem(b),ex=c.filter(function(x){return x.id===it.id})[0];
+ if(ex)ex.qty=(ex.qty||1)+1;else c.push(it);
+ try{localStorage.setItem('bp_cart',JSON.stringify(c))}catch(e){return false}
+ try{document.dispatchEvent(new CustomEvent('bp:cart',{bubbles:true}))}catch(e){}
+ return true}
+var tt=0;
+function toast(msg,err,link){var bx=$('cpToast');$('cpToastTx').textContent=msg;$('cpToastCart').style.display=link?'':'none';
+ bx.classList.toggle('err',!!err);bx.classList.remove('sv1-hide');clearTimeout(tt);tt=setTimeout(function(){bx.classList.add('sv1-hide')},4200)}
+var grid=$('cpGrid');
+grid.addEventListener('click',function(e){
+ var add=e.target.closest&&e.target.closest('.sv1-cp-add');
+ if(add){
+  if(!cartAdd(add)){toast(C.tx.fail,true,false);return}
+  add.textContent=C.tx.added;setTimeout(function(){add.textContent=C.tx.addCart},1600);
+  toast(C.tx.toast,false,true);return}
+ // ---- طلب عرض سعر: تسليمٌ إلى محادثة الرئيسية (يُقرأ المفتاح ويُحذف هناك في خطوة واحدة).
+ var q=e.target.closest&&e.target.closest('.sv1-cp-quote');
+ if(q){var nm=q.getAttribute('data-name')||'',cd=q.getAttribute('data-code')||'';
+  try{sessionStorage.setItem('bp_sva_request',JSON.stringify({items:[{code:cd,title:nm,why:q.getAttribute('data-gov')||''}],door:C.door,text:nm,name:nm,code:cd,at:Date.now()}))}catch(x){}}
+});
+// ---- بحث داخل التصنيف: يُخفي البطاقات ولا يحذفها (تبقى في الصفحة للفهرسة).
+var qi=$('cpQ');
+if(qi)qi.addEventListener('input',function(){
+ var f=(qi.value||'').trim().toLowerCase(),cards=grid.querySelectorAll('.sv1-cp-card'),shown=0;
+ Array.prototype.forEach.call(cards,function(c){var hit=!f||(c.getAttribute('data-q')||'').indexOf(f)>=0;c.hidden=!hit;if(hit)shown++});
+ $('cpNone').classList.toggle('sv1-hide',shown>0)});
+})();</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}
 [dir=rtl] .bps-fab{padding:7px 7px 7px 16px}
 .bps-fab img{width:38px;height:38px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}
