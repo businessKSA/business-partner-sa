@@ -31,6 +31,8 @@
 // label · environment) لا قيمةً في `methods` — الزر يُرسم من `merchant_id`.
 // نطلب `CRYPTOGRAM_3DS` وحده (توثيق مُيسّر): `PAN_ONLY` يعني رقم بطاقة خام بلا 3DS.
 
+import { recurringMap } from "./simple-v1-cart.mjs";
+
 const T = {
   title:   { ar: "إتمام الدفع", en: "Checkout", fr: "Paiement", zh: "结账" },
   desc:    { ar: "ادفع إلكترونياً بالبطاقة (مدى · فيزا · ماستركارد) أو قسّطها عبر تمارا — وتصلك فاتورتك الضريبية فور تأكيد الدفع.",
@@ -123,6 +125,49 @@ const T = {
              fr: "Tamara n'est disponible que pour l'abonnement annuel.", zh: "Tamara 仅适用于年度订阅。" },
   secure:  { ar: "اتصال مشفّر", en: "Encrypted", fr: "Chiffré", zh: "加密" },
   zatca:   { ar: "فاتورة ضريبية معتمدة", en: "ZATCA tax invoice", fr: "Facture ZATCA", zh: "ZATCA 税务发票" },
+
+  // ---- الدفعة الواحدة والاشتراك: يُعرضان منفصلين (كما في السلة) وبوسم الدورة.
+  onceHd:  { ar: "دفعة واحدة", en: "One-time", fr: "Paiement unique", zh: "一次性付款" },
+  recHd:   { ar: "اشتراكات", en: "Subscriptions", fr: "Abonnements", zh: "订阅" },
+  billM:   { ar: "شهرياً", en: "Monthly", fr: "Mensuel", zh: "每月" },
+  billY:   { ar: "سنوياً", en: "Yearly", fr: "Annuel", zh: "每年" },
+  onceLine:{ ar: "دفعة واحدة", en: "One-time items", fr: "Paiement unique", zh: "一次性项目" },
+  recLine: { ar: "اشتراكات (قسط الفترة الأولى)", en: "Subscriptions (first period)", fr: "Abonnements (première période)", zh: "订阅（首期）" },
+  recNote: { ar: "مبلغ الاشتراك المعروض هو قسط فترة واحدة (شهر أو سنة)، وهو ما يُدفع الآن.",
+             en: "A subscription's amount is one period's instalment (a month or a year) — that is what is paid now.",
+             fr: "Le montant d'un abonnement correspond à une période (mois ou année) — c'est ce qui est payé maintenant.",
+             zh: "订阅金额为一个周期（一个月或一年）的费用，即现在支付的金额。" },
+  tamaraSub:{ ar: "تمارا غير متاحة للاشتراكات الشهرية — ادفع بالبطاقة.", en: "Tamara is not available for monthly subscriptions — pay by card.",
+             fr: "Tamara n'est pas disponible pour les abonnements mensuels — payez par carte.", zh: "Tamara 不适用于月度订阅——请用银行卡支付。" },
+
+  // ---- رسالة ما بعد الدفع: ما حدث فعلاً، ورقم يُحتفظ به، والخطوة التالية.
+  lblOrder:{ ar: "رقم الطلب", en: "Order no.", fr: "N° de commande", zh: "订单号" },
+  lblPay:  { ar: "مرجع الدفعة", en: "Payment ref.", fr: "Réf. du paiement", zh: "付款编号" },
+  lblAmt:  { ar: "المبلغ المدفوع (شامل الضريبة)", en: "Amount paid (incl. VAT)", fr: "Montant payé (TTC)", zh: "已付金额（含税）" },
+  lblInv:  { ar: "رقم الفاتورة", en: "Invoice no.", fr: "N° de facture", zh: "发票号" },
+  okDone:  { ar: "تم استلام دفعتك وتأكيد طلبك.", en: "Payment received and your order is confirmed.",
+             fr: "Paiement reçu et commande confirmée.", zh: "已收到付款，订单已确认。" },
+  nextInv: { ar: "الخطوة التالية: تصلك على بريدك رسالة تأكيد الطلب وفاتورتك الضريبية، ثم يبدأ الفريق التنفيذ.",
+             en: "Next: an order confirmation and your tax invoice reach your e-mail, then the team starts work.",
+             fr: "Ensuite : la confirmation et votre facture fiscale arrivent par e-mail, puis l'équipe commence le travail.",
+             zh: "下一步：订单确认和税务发票将发送到您的邮箱，随后团队开始执行。" },
+  nextNoInv:{ ar: "الخطوة التالية: تصلك على بريدك رسالة تأكيد الطلب. وفاتورتك الضريبية يجهّزها الفريق وتصلك على البريد نفسه.",
+             en: "Next: an order confirmation reaches your e-mail. The team is preparing your tax invoice and sends it to the same address.",
+             fr: "Ensuite : la confirmation arrive par e-mail. L'équipe prépare votre facture fiscale et vous l'enverra à la même adresse.",
+             zh: "下一步：订单确认将发送到您的邮箱。团队正在准备税务发票，并发送到同一邮箱。" },
+  reviewT: { ar: "استلمنا دفعتك وسنؤكد التفعيل خلال ساعات العمل.",
+             en: "We received your payment and will confirm activation during working hours.",
+             fr: "Nous avons reçu votre paiement et confirmerons l'activation pendant les heures de bureau.",
+             zh: "我们已收到您的付款，将在工作时间内确认开通。" },
+  reviewN: { ar: "لم نستطع مطابقة المبلغ آلياً مع الأسعار المعتمدة، فيراجعه الفريق قبل التفعيل. يصلك تأكيد على بريدك، ولا حاجة لإعادة الدفع.",
+             en: "We could not match the amount to the published prices automatically, so the team reviews it before activation. A confirmation reaches your e-mail — do not pay again.",
+             fr: "Nous n'avons pas pu rapprocher le montant des tarifs automatiquement ; l'équipe le vérifie avant l'activation. Une confirmation arrive par e-mail — ne payez pas une seconde fois.",
+             zh: "我们无法自动将金额与公布价格核对，团队将在开通前复核。确认邮件将发送到您的邮箱——请勿重复付款。" },
+  myNote:  { ar: "ملاحظة: لوحة «طلباتي» تعرض طلبات عروض الأسعار والحجوزات، وقد لا يظهر فيها طلب الشراء المباشر فور الدفع. احتفظ برقم الطلب أعلاه — تأكيده والفاتورة يصلانك على بريدك.",
+             en: "Note: “My orders” lists quotation requests and bookings; a direct purchase may not appear there right after payment. Keep the order number above — its confirmation and invoice reach your e-mail.",
+             fr: "Remarque : « Mes commandes » liste les demandes de devis et réservations ; un achat direct peut ne pas y figurer tout de suite. Gardez le numéro ci-dessus — confirmation et facture arrivent par e-mail.",
+             zh: "提示：“我的订单”显示报价请求和预约，直接购买的订单付款后可能不会立即出现在其中。请保存上方订单号——确认和发票将发送到您的邮箱。" },
+  signInGo:{ ar: "سجّل الدخول", en: "Sign in", fr: "Se connecter", zh: "登录" },
 };
 
 export function buildSimpleCheckout(SV1, ctx) {
@@ -184,10 +229,13 @@ export function buildSimpleCheckout(SV1, ctx) {
           <h4>${esc(t("summary"))}</h4>
           <div id="coItems"></div>
           <div class="sv1-co-tot">
+            <div class="sv1-hide" id="coOnceRow"><span>${esc(t("onceLine"))}</span><b class="price-amt" id="coOnce">—</b></div>
+            <div class="sv1-hide" id="coRecRow"><span>${esc(t("recLine"))}</span><b class="price-amt" id="coRec">—</b></div>
             <div><span>${esc(t("net"))}</span><b class="price-amt" id="coNet">—</b></div>
             <div><span>${esc(t("vat"))}</span><b class="price-amt" id="coVat">—</b></div>
             <div class="big"><span>${esc(t("total"))}</span><b class="price-amt" id="coTotal">—</b></div>
           </div>
+          <p class="sv1-co-fine sv1-hide" id="coRecNote"></p>
           <div class="sv1-co-trust">
             <div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16815A" stroke-width="2" stroke-linecap="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>${esc(t("secure"))}</div>
             <div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16815A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${esc(t("zatca"))}</div>
@@ -229,6 +277,13 @@ ${SV1.footer()}`;
 .sv1-co-trust div{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mut)}
 .sv1-co-result{border:1px solid var(--l);border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;line-height:1.8;background:var(--soft)}
 .sv1-co-result p{margin:0 0 8px}
+.sv1-co-rows{margin:0 0 10px;padding:10px 12px;background:#fff;border:1px solid var(--l);border-radius:10px;display:grid;gap:6px}
+.sv1-co-rows div{display:flex;justify-content:space-between;gap:12px;font-size:12.5px}
+.sv1-co-rows dt{color:var(--mut);margin:0}
+.sv1-co-rows dd{margin:0;font-family:var(--fm);color:var(--ink);direction:ltr;text-align:end;overflow-wrap:anywhere;min-width:0}
+.sv1-co-grp{margin:10px 0 0;font-size:11px;font-weight:600;color:var(--mut)}
+.sv1-co-grp:first-child{margin-top:0}
+.sv1-co-bill{display:inline-block;margin-inline-start:6px;padding:1px 8px;border-radius:999px;font-size:10.5px;font-weight:600;background:var(--acSoft);color:var(--n)}
 .sv1-co-result.ok{border-color:#bfe3d2;background:#f0f9f5}
 .sv1-co-result.warn{border-color:#f0d9b8;background:#fdf7ef}
 .sv1-co-mock{display:inline-block;background:#b45309;color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;margin-bottom:10px}
@@ -239,8 +294,12 @@ ${SV1.footer()}`;
   const script = `<script>
 (function(){
 var LANG=${JSON.stringify(lang)},HOME=${JSON.stringify(home)};
-var TX=${JSON.stringify({ empty: t("empty"), browse: t("browse"), needFill: t("needFill"), payDown: t("payDown"), loading: t("loading"), quoted: t("quoted"), signIn: t("signIn"), signInBtn: t("signInBtn"), noAmount: t("noAmount"), card: t("card"), payBtn: t("payBtn"), payWait: t("payWait"), paidOk: t("paidOk"), paidInv: t("paidInv"), paidFail: t("paidFail"), paidHold: t("paidHold"), bnplFail: t("bnplFail"), toMy: t("toMy"), mockTag: t("mockTag"), needCo: t("needCo"), empFail: t("empFail"), empDone: t("empDone"), empHold: t("empHold"), toEmployer: t("toEmployer"), tamaraYr: t("tamaraYr"), empSignIn: t("empSignIn"), empMail: t("empMail"), onePlan: t("onePlan"), toCart: t("toCart") })};
+var TX=${JSON.stringify({ empty: t("empty"), browse: t("browse"), needFill: t("needFill"), payDown: t("payDown"), loading: t("loading"), quoted: t("quoted"), signIn: t("signIn"), signInBtn: t("signInBtn"), noAmount: t("noAmount"), card: t("card"), payBtn: t("payBtn"), payWait: t("payWait"), paidOk: t("paidOk"), paidInv: t("paidInv"), paidFail: t("paidFail"), paidHold: t("paidHold"), bnplFail: t("bnplFail"), toMy: t("toMy"), mockTag: t("mockTag"), needCo: t("needCo"), empFail: t("empFail"), empDone: t("empDone"), empHold: t("empHold"), toEmployer: t("toEmployer"), tamaraYr: t("tamaraYr"), empSignIn: t("empSignIn"), empMail: t("empMail"), onePlan: t("onePlan"), toCart: t("toCart"),
+  onceHd: t("onceHd"), recHd: t("recHd"), billM: t("billM"), billY: t("billY"), recNote: t("recNote"), tamaraSub: t("tamaraSub"),
+  lblOrder: t("lblOrder"), lblPay: t("lblPay"), lblAmt: t("lblAmt"), lblInv: t("lblInv"), okDone: t("okDone"),
+  nextInv: t("nextInv"), nextNoInv: t("nextNoInv"), reviewT: t("reviewT"), reviewN: t("reviewN"), myNote: t("myNote"), signInGo: t("signInGo") })};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
+var REC=${JSON.stringify(recurringMap())};
 var $=function(id){return document.getElementById(id)};
 function money(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ﷼'}
 function readCart(){try{return JSON.parse(localStorage.getItem(CART))||[]}catch(e){return []}}
@@ -251,6 +310,21 @@ function lineOf(i){return (Number(i.amount)||0)*(Number(i.qty)||1)}
 function nameOf(i){var ar=i.nameAr||'',en=i.nameEn||'';return (LANG==='ar'?ar:en)||ar||en||i.name||i.title||i.id||''}
 var PRICES_ON=document.documentElement.getAttribute('data-prices')==='on';
 function shown(i){return !!(i&&Number(i.amount)&&(PRICES_ON||i.pricePublic))}
+// دورة الدفع — نفس قاعدة السلة حرفاً بحرف: ما كتبته الصفحة، ثم لاحقة المعرّف، ثم الكتالوج.
+function billOf(i){
+ var b=String((i&&i.billingPeriod)||'').toLowerCase();
+ if(b==='monthly'||b==='yearly')return b;
+ var id=String((i&&i.id)||'').toLowerCase();
+ if(/-yearly$/.test(id))return 'yearly';
+ if(/-monthly$/.test(id))return 'monthly';
+ return REC[id.replace(/^(svc|pkg)-/,'')]||''}
+function billLabel(b){return b==='yearly'?TX.billY:TX.billM}
+// سؤال الجلسة مرة واحدة: يملأ بيانات العميل، ويحسم هل تُعرض الأسعار (انظر whenSession).
+var ME=null;
+function getMe(){
+ if(!ME)ME=fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
+  .then(function(r){return r.json()}).then(function(o){return (o&&o.session&&o.session.user)||null}).catch(function(){return null});
+ return ME}
 // بنود اشتراك منصة التوظيف (BP-EMP-*): السعر من الخادم لا مما في السلة. ما كتبته
 // الصفحة التي أضافت البند تلميحٌ فقط؛ المخصوم هو ما يقوله /api/pay?action=emp-offer.
 // سلةٌ بلا هذه البنود تعمل كما كانت، بلا نداءٍ واحد إضافي.
@@ -280,24 +354,35 @@ var payable=cart.length&&!unpriced&&!hidden&&total>0&&empLines.length<=1;
   var e=document.createElement('p');e.className='sv1-muted';e.textContent=TX.empty;box.appendChild(e);
   var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=HOME+'catalog';a.textContent=TX.browse;a.style.marginTop='10px';box.appendChild(a);
   return}
- cart.forEach(function(i){
+ // دفعة واحدة أولاً ثم الاشتراكات (بوسم الدورة)؛ ولا عنوان للمجموعتين إلا إن اجتمعتا.
+ var once=[],rec=[],onceNet=0,recNet=0;
+ cart.forEach(function(i){var bl=billOf(i);if(bl){rec.push([i,bl]);recNet+=lineOf(i)}else{once.push([i,'']);onceNet+=lineOf(i)}});
+ function rowEl(i,bl){
   var r=document.createElement('div');r.className='sv1-co-row';
   var l=document.createElement('div');var b=document.createElement('b');b.style.fontWeight='500';b.textContent=nameOf(i);
+  if(bl){var pill=document.createElement('span');pill.className='sv1-co-bill';pill.textContent=billLabel(bl);b.appendChild(pill)}
   l.appendChild(b);
   if((Number(i.qty)||1)>1){var s=document.createElement('small');s.textContent='×'+(i.qty||1);l.appendChild(s)}
   var v=document.createElement('b');
   if(shown(i)){v.textContent=money(lineOf(i))}else{v.style.fontWeight='400';v.style.color='var(--mut)';v.style.fontSize='11.5px';v.textContent=Number(i.amount)?TX.signIn:TX.quoted}
-  r.appendChild(l);r.appendChild(v);box.appendChild(r)});
+  r.appendChild(l);r.appendChild(v);return r}
+ [[once,TX.onceHd],[rec,TX.recHd]].forEach(function(g){
+  if(!g[0].length)return;
+  if(once.length&&rec.length){var hd=document.createElement('div');hd.className='sv1-co-grp';hd.textContent=g[1];box.appendChild(hd)}
+  g[0].forEach(function(x){box.appendChild(rowEl(x[0],x[1]))})});
+ if(payable&&rec.length){
+  if(once.length){$('coOnceRow').classList.remove('sv1-hide');$('coOnce').textContent=money(onceNet)}
+  $('coRecRow').classList.remove('sv1-hide');$('coRec').textContent=money(recNet)}
+ if(rec.length){var rn=$('coRecNote');rn.textContent=TX.recNote;rn.classList.remove('sv1-hide')}
  if(payable){$('coNet').textContent=money(net);$('coVat').textContent=money(vat);$('coTotal').textContent=money(total)}
  else{var q=unpriced?TX.quoted:TX.signIn;$('coNet').textContent=q;$('coVat').textContent='—';$('coTotal').textContent=q;
   $('coTotal').style.fontSize='14px';$('coTotal').style.fontWeight='600'}
 })();
 
 // تعبئة من الجلسة: من دخل حسابه لا يعيد كتابة بريده عند الدفع.
-fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
- .then(function(r){return r.json()}).then(function(o){var u=o&&o.session&&o.session.user;if(!u)return;
+getMe().then(function(u){if(!u)return;
   if(!$('coEmail').value)$('coEmail').value=u.email||'';
-  if(!$('coName').value)$('coName').value=u.full_name||'';}).catch(function(){});
+  if(!$('coName').value)$('coName').value=u.full_name||'';});
 
 // اللقطة والبيانات الوصفية بنفس شكل الموقع القديم حرفياً — المرجع يبقى ثابتاً
 // بين تركيب النموذج والعودة من التحقق البنكي، وإلا صارت الدفعة بلا طلب.
@@ -344,9 +429,17 @@ var PAYCFG=null; // إعداد /api/pay بعد وصوله — يحتاجه زر 
 // يستعمله الموقع القديم حرفياً: تفعيل + CRM + فاتورة من مسار واحد. وبلا هذا
 // الجزء كان العميل يعود من البوابة إلى السلة نفسها بلا كلمة — والمال قد خرج.
 var RESULT=$('coResult');
-function showResult(kind,txt,extra,link){RESULT.className='sv1-co-result '+kind;RESULT.textContent='';
+// det (اختياري) = {rows:[[تسمية،قيمة]…], next:'الخطوة التالية', note:'ملاحظة'} — ما يحتفظ به العميل
+// بعد الدفع: رقم الطلب ومرجع الدفعة والمبلغ ورقم الفاتورة، وما سيحدث بعد ذلك.
+function showResult(kind,txt,extra,link,det){RESULT.className='sv1-co-result '+kind;RESULT.textContent='';
  var p=document.createElement('p');p.textContent=txt;RESULT.appendChild(p);
+ if(det&&det.rows&&det.rows.length){var dl=document.createElement('dl');dl.className='sv1-co-rows';
+  det.rows.forEach(function(r){var d=document.createElement('div');var dt=document.createElement('dt');dt.textContent=r[0];
+   var dd=document.createElement('dd');dd.textContent=r[1];d.appendChild(dt);d.appendChild(dd);dl.appendChild(d)});
+  RESULT.appendChild(dl)}
+ if(det&&det.next){var nx=document.createElement('p');nx.textContent=det.next;RESULT.appendChild(nx)}
  if(extra){var s=document.createElement('p');s.className='sv1-co-fine';s.style.margin='0 0 8px';s.textContent=extra;RESULT.appendChild(s)}
+ if(det&&det.note){var nt=document.createElement('p');nt.className='sv1-co-fine';nt.style.margin='0 0 10px';nt.textContent=det.note;RESULT.appendChild(nt)}
  if(kind==='ok'||link){var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=link?link.href:HOME+'my';a.textContent=link?link.label:TX.toMy;RESULT.appendChild(a)}
  try{RESULT.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}}
 (function settleReturn(){
@@ -369,11 +462,24 @@ function showResult(kind,txt,extra,link){RESULT.className='sv1-co-result '+kind;
  showResult('wait',TX.payWait);
  fetch('/api/pay',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})
   .then(function(r){return r.json()}).then(function(v){
-   if(v&&v.ok){var inv=v.invoice;
+   if(v&&v.ok){var inv=v.invoice,st2=v.settle;
     var hadEmp=!!(stash&&(stash.items||[]).some(function(i){return EMPANY.test(String(i&&i.id||''))}));
-    if(hadEmp&&v.employer&&v.employer.activated)showResult('ok',TX.empDone,inv&&inv.invoiced&&inv.number?TX.paidInv+' '+inv.number:'',{href:HOME+'employer',label:TX.toEmployer});
-    else if(hadEmp)showResult('warn',TX.empHold,v.invoice&&v.invoice.number?TX.paidInv+' '+v.invoice.number:'');
-    else showResult('ok',TX.paidOk,inv&&inv.invoiced&&inv.number?TX.paidInv+' '+inv.number:'');
+    // ما يحتفظ به العميل: كلُّ رقمٍ هنا يقوله الخادم أو اللقطة، ولا يُكتب رقمٌ لم يصل.
+    var rows=[],oref=(st2&&st2.ref)||(stash&&stash.ref)||'',payRef=pid||bid||'',paidSar=Number(v.amount)>0?Number(v.amount)/100:total;
+    if(oref)rows.push([TX.lblOrder,oref]);
+    if(payRef)rows.push([TX.lblPay,payRef]);
+    if(paidSar>0)rows.push([TX.lblAmt,money(paidSar)]);
+    var hasInv=!!(inv&&inv.invoiced&&inv.number);
+    if(hasInv)rows.push([TX.lblInv,String(inv.number)]);
+    var det={rows:rows};
+    if(hadEmp&&v.employer&&v.employer.activated)showResult('ok',TX.empDone,'',{href:HOME+'employer',label:TX.toEmployer},det);
+    else if(hadEmp)showResult('warn',TX.empHold,'',null,det);
+    // دفعٌ نجح لكن تسجيله لم يكتمل (الخادم نبّه الفريق): لا نقول «تمّ» ولا نطلب إعادة الدفع.
+    else if(!(st2&&st2.ok))showResult('warn',TX.paidHold,'',null,det);
+    // دفعٌ سُجّل ولم يُطابَق مبلغه آلياً (باقة سنوية، بند خارج الكتالوج…): مراجعة بشرية، ونقولها.
+    else if(!st2.verified)showResult('warn',TX.reviewT,TX.reviewN,{href:HOME+'my',label:TX.toMy},{rows:rows,note:TX.myNote});
+    // «already_settled»: القناة الأخرى (خطّاف مُيسّر) سبقت وأصدرت الفاتورة، فهي في طريقها لا قيد التجهيز.
+    else showResult('ok',TX.okDone,'',null,{rows:rows,next:(hasInv||(inv&&inv.reason==='already_settled'))?TX.nextInv:TX.nextNoInv,note:TX.myNote});
     $('coWays').classList.add('sv1-hide');for(var k in panes)panes[k].classList.add('sv1-hide');
     try{localStorage.removeItem(CART)}catch(e){}try{sessionStorage.removeItem(SNAP)}catch(e){}
     try{dispatchEvent(new Event('bp:cart'))}catch(e){}return}
@@ -395,8 +501,13 @@ Array.prototype.forEach.call(document.querySelectorAll('.sv1-co-way'),function(b
 // ---- تمارا
 // الاشتراك الشهري لا يُقسَّط (تمارا للسنوي وحده) — الخادم يرفضه أيضاً.
 if(hasEmp&&!empBnplOk){var tw=$('coWayTamara');if(tw)tw.disabled=true;var tn=$('coTamaraNote');if(tn)tn.textContent=TX.tamaraYr}
+// باقةٌ شهرية: الخادم لا يفتح لها جلسة تمارا (لم تكن مسعّرة هناك أصلاً)، فلا يُعرض الزر
+// ثم يفشل عند اللمس — يُقال السبب ويُوجَّه العميل إلى البطاقة.
+var monthlyPkg=cart.some(function(i){return /^(bp-)?pkg-.+-monthly$/i.test(String(i&&i.id||''))});
+if(monthlyPkg){var tw2=$('coWayTamara');if(tw2)tw2.disabled=true;var tn2=$('coTamaraNote');if(tn2)tn2.textContent=TX.tamaraSub}
 $('coTamaraGo').onclick=function(){
  var n=$('coTamaraNote');
+ if(monthlyPkg){n.textContent=TX.tamaraSub;return}
  if(!payable){n.textContent=unpriced?TX.noAmount:TX.signIn;return}
  if(!ready()){n.textContent=TX.needFill;return}
  if(!readyEmp()){n.textContent=TX.needCo;return}
@@ -426,7 +537,8 @@ function payBlocked(msg,href,label){
 if(!cart.length){mount.innerHTML='';}
 else if(empLines.length>1){payBlocked(TX.onePlan,HOME+'cart',TX.toCart);}
 else if(unpriced){payBlocked(TX.noAmount,HOME+'my',TX.signInBtn);}
-else if(hidden){payBlocked(TX.signIn,HOME+'my',TX.signInBtn);}
+// الدخول يرجع إلى هذه الصفحة (next) لا إلى لوحة العميل، فتبقى السلة أمامه.
+else if(hidden){payBlocked(TX.signIn,HOME+'my?next='+encodeURIComponent(HOME+'checkout'),TX.signInBtn);}
 else if(!(total>0)){payBlocked(TX.noAmount,HOME+'catalog',TX.browse);}
 else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
  PAYCFG=cfg||null;
@@ -516,7 +628,15 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
    if(gp0)probe('https://pay.google.com/gp/p/js/pay.js',function(){return !!(window.google&&window.google.payments&&window.google.payments.api)},askGoogle,function(ok){gpOk=ok;oneDone()})}};
  document.head.appendChild(s)}).catch(payFailed);
 }
-priceEmp(run);
+// جلسةٌ صالحة بلا مفتاح bp_session في المتصفح (أول زيارة بعد الدخول) كانت تُعامَل كضيف
+// فتظهر «سجّل دخولك لعرض السعر وإتمام الدفع» لعميلٍ داخلٍ فعلاً. إن كان في السلة بندٌ
+// مسعّر محجوب يُسأل الخادم قبل الرسم (بحدّ ٢٫٥ ثانية)؛ للضيف الفعلي لا يتغيّر شيء.
+function whenSession(cb){
+ if(PRICES_ON||!cart.some(function(i){return Number(i&&i.amount)&&!i.pricePublic})){cb();return}
+ var fin=false;function go(){if(!fin){fin=true;cb()}}
+ setTimeout(go,2500);
+ getMe().then(function(u){if(u){PRICES_ON=true;document.documentElement.setAttribute('data-prices','on')}go()})}
+priceEmp(function(){whenSession(run)});
 })();</script>`;
 
   return SV1.shell({

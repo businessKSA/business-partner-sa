@@ -302,6 +302,13 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-co-trust div{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mut)}
 .sv1-co-result{border:1px solid var(--l);border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;line-height:1.8;background:var(--soft)}
 .sv1-co-result p{margin:0 0 8px}
+.sv1-co-rows{margin:0 0 10px;padding:10px 12px;background:#fff;border:1px solid var(--l);border-radius:10px;display:grid;gap:6px}
+.sv1-co-rows div{display:flex;justify-content:space-between;gap:12px;font-size:12.5px}
+.sv1-co-rows dt{color:var(--mut);margin:0}
+.sv1-co-rows dd{margin:0;font-family:var(--fm);color:var(--ink);direction:ltr;text-align:end;overflow-wrap:anywhere;min-width:0}
+.sv1-co-grp{margin:10px 0 0;font-size:11px;font-weight:600;color:var(--mut)}
+.sv1-co-grp:first-child{margin-top:0}
+.sv1-co-bill{display:inline-block;margin-inline-start:6px;padding:1px 8px;border-radius:999px;font-size:10.5px;font-weight:600;background:var(--acSoft);color:var(--n)}
 .sv1-co-result.ok{border-color:#bfe3d2;background:#f0f9f5}
 .sv1-co-result.warn{border-color:#f0d9b8;background:#fdf7ef}
 .sv1-co-mock{display:inline-block;background:#b45309;color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;margin-bottom:10px}
@@ -412,10 +419,13 @@ var h0=hint();if(h0)S.paint(true,h0);
           <h4>Order summary</h4>
           <div id="coItems"></div>
           <div class="sv1-co-tot">
+            <div class="sv1-hide" id="coOnceRow"><span>One-time items</span><b class="price-amt" id="coOnce">—</b></div>
+            <div class="sv1-hide" id="coRecRow"><span>Subscriptions (first period)</span><b class="price-amt" id="coRec">—</b></div>
             <div><span>Subtotal</span><b class="price-amt" id="coNet">—</b></div>
             <div><span>VAT 15%</span><b class="price-amt" id="coVat">—</b></div>
             <div class="big"><span>Total</span><b class="price-amt" id="coTotal">—</b></div>
           </div>
+          <p class="sv1-co-fine sv1-hide" id="coRecNote"></p>
           <div class="sv1-co-trust">
             <div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16815A" stroke-width="2" stroke-linecap="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Encrypted</div>
             <div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16815A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>ZATCA tax invoice</div>
@@ -517,8 +527,9 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
 })();</script><script>
 (function(){
 var LANG="en",HOME="/";
-var TX={"empty":"Your cart is empty.","browse":"Browse services","needFill":"Fill in name, mobile and e-mail first.","payDown":"The payment form could not load. Try Tamara, retry in a moment, or message us on WhatsApp.","loading":"Preparing the payment form…","quoted":"Quoted on review","signIn":"Sign in to see the price and pay.","signInBtn":"Sign in","noAmount":"These items are quoted on review — we send the quotation, then the payment link.","card":"Card","payBtn":"Complete payment","payWait":"Confirming your payment…","paidOk":"Payment received — your order is recorded and your tax invoice reaches your e-mail within minutes.","paidInv":"Invoice no.:","paidFail":"The payment did not go through and nothing was charged — retry by card or try Tamara.","paidHold":"Your payment went through but could not be confirmed automatically; our team has been alerted. Do not pay again — your invoice follows shortly.","bnplFail":"The instalment payment was not completed — retry, or pay by card.","toMy":"Open my orders","mockTag":"Local gateway — no card, no charge","needCo":"Enter the company name — the subscription is opened in its name.","empFail":"We could not prepare your subscription and nothing was charged — retry shortly or contact us.","empDone":"Payment received and your recruitment-platform subscription is active. Sign in to the employer portal with the e-mail you paid with.","empHold":"Your payment went through and the subscription is being activated — our team has been alerted. Do not pay again.","toEmployer":"Open the employer portal","tamaraYr":"Tamara is available for the yearly plan only.","empSignIn":"Sign in with the e-mail the subscription will be opened for, then pay.","empMail":"The e-mail must match the account you are signed in with — the subscription opens for that account.","onePlan":"One subscription per order — keep a single plan in the cart.","toCart":"Back to the cart"};
+var TX={"empty":"Your cart is empty.","browse":"Browse services","needFill":"Fill in name, mobile and e-mail first.","payDown":"The payment form could not load. Try Tamara, retry in a moment, or message us on WhatsApp.","loading":"Preparing the payment form…","quoted":"Quoted on review","signIn":"Sign in to see the price and pay.","signInBtn":"Sign in","noAmount":"These items are quoted on review — we send the quotation, then the payment link.","card":"Card","payBtn":"Complete payment","payWait":"Confirming your payment…","paidOk":"Payment received — your order is recorded and your tax invoice reaches your e-mail within minutes.","paidInv":"Invoice no.:","paidFail":"The payment did not go through and nothing was charged — retry by card or try Tamara.","paidHold":"Your payment went through but could not be confirmed automatically; our team has been alerted. Do not pay again — your invoice follows shortly.","bnplFail":"The instalment payment was not completed — retry, or pay by card.","toMy":"Open my orders","mockTag":"Local gateway — no card, no charge","needCo":"Enter the company name — the subscription is opened in its name.","empFail":"We could not prepare your subscription and nothing was charged — retry shortly or contact us.","empDone":"Payment received and your recruitment-platform subscription is active. Sign in to the employer portal with the e-mail you paid with.","empHold":"Your payment went through and the subscription is being activated — our team has been alerted. Do not pay again.","toEmployer":"Open the employer portal","tamaraYr":"Tamara is available for the yearly plan only.","empSignIn":"Sign in with the e-mail the subscription will be opened for, then pay.","empMail":"The e-mail must match the account you are signed in with — the subscription opens for that account.","onePlan":"One subscription per order — keep a single plan in the cart.","toCart":"Back to the cart","onceHd":"One-time","recHd":"Subscriptions","billM":"Monthly","billY":"Yearly","recNote":"A subscription's amount is one period's instalment (a month or a year) — that is what is paid now.","tamaraSub":"Tamara is not available for monthly subscriptions — pay by card.","lblOrder":"Order no.","lblPay":"Payment ref.","lblAmt":"Amount paid (incl. VAT)","lblInv":"Invoice no.","okDone":"Payment received and your order is confirmed.","nextInv":"Next: an order confirmation and your tax invoice reach your e-mail, then the team starts work.","nextNoInv":"Next: an order confirmation reaches your e-mail. The team is preparing your tax invoice and sends it to the same address.","reviewT":"We received your payment and will confirm activation during working hours.","reviewN":"We could not match the amount to the published prices automatically, so the team reviews it before activation. A confirmation reaches your e-mail — do not pay again.","myNote":"Note: “My orders” lists quotation requests and bookings; a direct purchase may not appear there right after payment. Keep the order number above — its confirmation and invoice reach your e-mail.","signInGo":"Sign in"};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
+var REC={"bp-hr-03":"monthly","bp-ai-02":"monthly","bp-sub-01":"monthly","bp-vendor-02":"monthly","bp-ai-03":"monthly","bp-ai-smart-employee":"monthly","bp-ai-04":"monthly","bp-ajeer-10":"monthly","starter-4":"monthly","bp-pkg-svc-starter":"monthly","silver":"monthly","bp-pkg-launch":"monthly","gold":"monthly","bp-pkg-growth":"monthly","platinum":"monthly","bp-pkg-scale":"monthly","basic-legal":"monthly","bp-pkg-legal-basic":"monthly","advanced":"monthly","bp-pkg-legal-adv":"monthly","comprehensive":"monthly","bp-pkg-legal-comp":"monthly","strategic":"monthly","bp-pkg-legal-strat":"monthly"};
 var $=function(id){return document.getElementById(id)};
 function money(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ﷼'}
 function readCart(){try{return JSON.parse(localStorage.getItem(CART))||[]}catch(e){return []}}
@@ -529,6 +540,21 @@ function lineOf(i){return (Number(i.amount)||0)*(Number(i.qty)||1)}
 function nameOf(i){var ar=i.nameAr||'',en=i.nameEn||'';return (LANG==='ar'?ar:en)||ar||en||i.name||i.title||i.id||''}
 var PRICES_ON=document.documentElement.getAttribute('data-prices')==='on';
 function shown(i){return !!(i&&Number(i.amount)&&(PRICES_ON||i.pricePublic))}
+// دورة الدفع — نفس قاعدة السلة حرفاً بحرف: ما كتبته الصفحة، ثم لاحقة المعرّف، ثم الكتالوج.
+function billOf(i){
+ var b=String((i&&i.billingPeriod)||'').toLowerCase();
+ if(b==='monthly'||b==='yearly')return b;
+ var id=String((i&&i.id)||'').toLowerCase();
+ if(/-yearly$/.test(id))return 'yearly';
+ if(/-monthly$/.test(id))return 'monthly';
+ return REC[id.replace(/^(svc|pkg)-/,'')]||''}
+function billLabel(b){return b==='yearly'?TX.billY:TX.billM}
+// سؤال الجلسة مرة واحدة: يملأ بيانات العميل، ويحسم هل تُعرض الأسعار (انظر whenSession).
+var ME=null;
+function getMe(){
+ if(!ME)ME=fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
+  .then(function(r){return r.json()}).then(function(o){return (o&&o.session&&o.session.user)||null}).catch(function(){return null});
+ return ME}
 // بنود اشتراك منصة التوظيف (BP-EMP-*): السعر من الخادم لا مما في السلة. ما كتبته
 // الصفحة التي أضافت البند تلميحٌ فقط؛ المخصوم هو ما يقوله /api/pay?action=emp-offer.
 // سلةٌ بلا هذه البنود تعمل كما كانت، بلا نداءٍ واحد إضافي.
@@ -558,24 +584,35 @@ var payable=cart.length&&!unpriced&&!hidden&&total>0&&empLines.length<=1;
   var e=document.createElement('p');e.className='sv1-muted';e.textContent=TX.empty;box.appendChild(e);
   var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=HOME+'catalog';a.textContent=TX.browse;a.style.marginTop='10px';box.appendChild(a);
   return}
- cart.forEach(function(i){
+ // دفعة واحدة أولاً ثم الاشتراكات (بوسم الدورة)؛ ولا عنوان للمجموعتين إلا إن اجتمعتا.
+ var once=[],rec=[],onceNet=0,recNet=0;
+ cart.forEach(function(i){var bl=billOf(i);if(bl){rec.push([i,bl]);recNet+=lineOf(i)}else{once.push([i,'']);onceNet+=lineOf(i)}});
+ function rowEl(i,bl){
   var r=document.createElement('div');r.className='sv1-co-row';
   var l=document.createElement('div');var b=document.createElement('b');b.style.fontWeight='500';b.textContent=nameOf(i);
+  if(bl){var pill=document.createElement('span');pill.className='sv1-co-bill';pill.textContent=billLabel(bl);b.appendChild(pill)}
   l.appendChild(b);
   if((Number(i.qty)||1)>1){var s=document.createElement('small');s.textContent='×'+(i.qty||1);l.appendChild(s)}
   var v=document.createElement('b');
   if(shown(i)){v.textContent=money(lineOf(i))}else{v.style.fontWeight='400';v.style.color='var(--mut)';v.style.fontSize='11.5px';v.textContent=Number(i.amount)?TX.signIn:TX.quoted}
-  r.appendChild(l);r.appendChild(v);box.appendChild(r)});
+  r.appendChild(l);r.appendChild(v);return r}
+ [[once,TX.onceHd],[rec,TX.recHd]].forEach(function(g){
+  if(!g[0].length)return;
+  if(once.length&&rec.length){var hd=document.createElement('div');hd.className='sv1-co-grp';hd.textContent=g[1];box.appendChild(hd)}
+  g[0].forEach(function(x){box.appendChild(rowEl(x[0],x[1]))})});
+ if(payable&&rec.length){
+  if(once.length){$('coOnceRow').classList.remove('sv1-hide');$('coOnce').textContent=money(onceNet)}
+  $('coRecRow').classList.remove('sv1-hide');$('coRec').textContent=money(recNet)}
+ if(rec.length){var rn=$('coRecNote');rn.textContent=TX.recNote;rn.classList.remove('sv1-hide')}
  if(payable){$('coNet').textContent=money(net);$('coVat').textContent=money(vat);$('coTotal').textContent=money(total)}
  else{var q=unpriced?TX.quoted:TX.signIn;$('coNet').textContent=q;$('coVat').textContent='—';$('coTotal').textContent=q;
   $('coTotal').style.fontSize='14px';$('coTotal').style.fontWeight='600'}
 })();
 
 // تعبئة من الجلسة: من دخل حسابه لا يعيد كتابة بريده عند الدفع.
-fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
- .then(function(r){return r.json()}).then(function(o){var u=o&&o.session&&o.session.user;if(!u)return;
+getMe().then(function(u){if(!u)return;
   if(!$('coEmail').value)$('coEmail').value=u.email||'';
-  if(!$('coName').value)$('coName').value=u.full_name||'';}).catch(function(){});
+  if(!$('coName').value)$('coName').value=u.full_name||'';});
 
 // اللقطة والبيانات الوصفية بنفس شكل الموقع القديم حرفياً — المرجع يبقى ثابتاً
 // بين تركيب النموذج والعودة من التحقق البنكي، وإلا صارت الدفعة بلا طلب.
@@ -622,9 +659,17 @@ var PAYCFG=null; // إعداد /api/pay بعد وصوله — يحتاجه زر 
 // يستعمله الموقع القديم حرفياً: تفعيل + CRM + فاتورة من مسار واحد. وبلا هذا
 // الجزء كان العميل يعود من البوابة إلى السلة نفسها بلا كلمة — والمال قد خرج.
 var RESULT=$('coResult');
-function showResult(kind,txt,extra,link){RESULT.className='sv1-co-result '+kind;RESULT.textContent='';
+// det (اختياري) = {rows:[[تسمية،قيمة]…], next:'الخطوة التالية', note:'ملاحظة'} — ما يحتفظ به العميل
+// بعد الدفع: رقم الطلب ومرجع الدفعة والمبلغ ورقم الفاتورة، وما سيحدث بعد ذلك.
+function showResult(kind,txt,extra,link,det){RESULT.className='sv1-co-result '+kind;RESULT.textContent='';
  var p=document.createElement('p');p.textContent=txt;RESULT.appendChild(p);
+ if(det&&det.rows&&det.rows.length){var dl=document.createElement('dl');dl.className='sv1-co-rows';
+  det.rows.forEach(function(r){var d=document.createElement('div');var dt=document.createElement('dt');dt.textContent=r[0];
+   var dd=document.createElement('dd');dd.textContent=r[1];d.appendChild(dt);d.appendChild(dd);dl.appendChild(d)});
+  RESULT.appendChild(dl)}
+ if(det&&det.next){var nx=document.createElement('p');nx.textContent=det.next;RESULT.appendChild(nx)}
  if(extra){var s=document.createElement('p');s.className='sv1-co-fine';s.style.margin='0 0 8px';s.textContent=extra;RESULT.appendChild(s)}
+ if(det&&det.note){var nt=document.createElement('p');nt.className='sv1-co-fine';nt.style.margin='0 0 10px';nt.textContent=det.note;RESULT.appendChild(nt)}
  if(kind==='ok'||link){var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=link?link.href:HOME+'my';a.textContent=link?link.label:TX.toMy;RESULT.appendChild(a)}
  try{RESULT.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}}
 (function settleReturn(){
@@ -647,11 +692,24 @@ function showResult(kind,txt,extra,link){RESULT.className='sv1-co-result '+kind;
  showResult('wait',TX.payWait);
  fetch('/api/pay',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})
   .then(function(r){return r.json()}).then(function(v){
-   if(v&&v.ok){var inv=v.invoice;
+   if(v&&v.ok){var inv=v.invoice,st2=v.settle;
     var hadEmp=!!(stash&&(stash.items||[]).some(function(i){return EMPANY.test(String(i&&i.id||''))}));
-    if(hadEmp&&v.employer&&v.employer.activated)showResult('ok',TX.empDone,inv&&inv.invoiced&&inv.number?TX.paidInv+' '+inv.number:'',{href:HOME+'employer',label:TX.toEmployer});
-    else if(hadEmp)showResult('warn',TX.empHold,v.invoice&&v.invoice.number?TX.paidInv+' '+v.invoice.number:'');
-    else showResult('ok',TX.paidOk,inv&&inv.invoiced&&inv.number?TX.paidInv+' '+inv.number:'');
+    // ما يحتفظ به العميل: كلُّ رقمٍ هنا يقوله الخادم أو اللقطة، ولا يُكتب رقمٌ لم يصل.
+    var rows=[],oref=(st2&&st2.ref)||(stash&&stash.ref)||'',payRef=pid||bid||'',paidSar=Number(v.amount)>0?Number(v.amount)/100:total;
+    if(oref)rows.push([TX.lblOrder,oref]);
+    if(payRef)rows.push([TX.lblPay,payRef]);
+    if(paidSar>0)rows.push([TX.lblAmt,money(paidSar)]);
+    var hasInv=!!(inv&&inv.invoiced&&inv.number);
+    if(hasInv)rows.push([TX.lblInv,String(inv.number)]);
+    var det={rows:rows};
+    if(hadEmp&&v.employer&&v.employer.activated)showResult('ok',TX.empDone,'',{href:HOME+'employer',label:TX.toEmployer},det);
+    else if(hadEmp)showResult('warn',TX.empHold,'',null,det);
+    // دفعٌ نجح لكن تسجيله لم يكتمل (الخادم نبّه الفريق): لا نقول «تمّ» ولا نطلب إعادة الدفع.
+    else if(!(st2&&st2.ok))showResult('warn',TX.paidHold,'',null,det);
+    // دفعٌ سُجّل ولم يُطابَق مبلغه آلياً (باقة سنوية، بند خارج الكتالوج…): مراجعة بشرية، ونقولها.
+    else if(!st2.verified)showResult('warn',TX.reviewT,TX.reviewN,{href:HOME+'my',label:TX.toMy},{rows:rows,note:TX.myNote});
+    // «already_settled»: القناة الأخرى (خطّاف مُيسّر) سبقت وأصدرت الفاتورة، فهي في طريقها لا قيد التجهيز.
+    else showResult('ok',TX.okDone,'',null,{rows:rows,next:(hasInv||(inv&&inv.reason==='already_settled'))?TX.nextInv:TX.nextNoInv,note:TX.myNote});
     $('coWays').classList.add('sv1-hide');for(var k in panes)panes[k].classList.add('sv1-hide');
     try{localStorage.removeItem(CART)}catch(e){}try{sessionStorage.removeItem(SNAP)}catch(e){}
     try{dispatchEvent(new Event('bp:cart'))}catch(e){}return}
@@ -673,8 +731,13 @@ Array.prototype.forEach.call(document.querySelectorAll('.sv1-co-way'),function(b
 // ---- تمارا
 // الاشتراك الشهري لا يُقسَّط (تمارا للسنوي وحده) — الخادم يرفضه أيضاً.
 if(hasEmp&&!empBnplOk){var tw=$('coWayTamara');if(tw)tw.disabled=true;var tn=$('coTamaraNote');if(tn)tn.textContent=TX.tamaraYr}
+// باقةٌ شهرية: الخادم لا يفتح لها جلسة تمارا (لم تكن مسعّرة هناك أصلاً)، فلا يُعرض الزر
+// ثم يفشل عند اللمس — يُقال السبب ويُوجَّه العميل إلى البطاقة.
+var monthlyPkg=cart.some(function(i){return /^(bp-)?pkg-.+-monthly$/i.test(String(i&&i.id||''))});
+if(monthlyPkg){var tw2=$('coWayTamara');if(tw2)tw2.disabled=true;var tn2=$('coTamaraNote');if(tn2)tn2.textContent=TX.tamaraSub}
 $('coTamaraGo').onclick=function(){
  var n=$('coTamaraNote');
+ if(monthlyPkg){n.textContent=TX.tamaraSub;return}
  if(!payable){n.textContent=unpriced?TX.noAmount:TX.signIn;return}
  if(!ready()){n.textContent=TX.needFill;return}
  if(!readyEmp()){n.textContent=TX.needCo;return}
@@ -704,7 +767,8 @@ function payBlocked(msg,href,label){
 if(!cart.length){mount.innerHTML='';}
 else if(empLines.length>1){payBlocked(TX.onePlan,HOME+'cart',TX.toCart);}
 else if(unpriced){payBlocked(TX.noAmount,HOME+'my',TX.signInBtn);}
-else if(hidden){payBlocked(TX.signIn,HOME+'my',TX.signInBtn);}
+// الدخول يرجع إلى هذه الصفحة (next) لا إلى لوحة العميل، فتبقى السلة أمامه.
+else if(hidden){payBlocked(TX.signIn,HOME+'my?next='+encodeURIComponent(HOME+'checkout'),TX.signInBtn);}
 else if(!(total>0)){payBlocked(TX.noAmount,HOME+'catalog',TX.browse);}
 else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
  PAYCFG=cfg||null;
@@ -794,5 +858,13 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
    if(gp0)probe('https://pay.google.com/gp/p/js/pay.js',function(){return !!(window.google&&window.google.payments&&window.google.payments.api)},askGoogle,function(ok){gpOk=ok;oneDone()})}};
  document.head.appendChild(s)}).catch(payFailed);
 }
-priceEmp(run);
+// جلسةٌ صالحة بلا مفتاح bp_session في المتصفح (أول زيارة بعد الدخول) كانت تُعامَل كضيف
+// فتظهر «سجّل دخولك لعرض السعر وإتمام الدفع» لعميلٍ داخلٍ فعلاً. إن كان في السلة بندٌ
+// مسعّر محجوب يُسأل الخادم قبل الرسم (بحدّ ٢٫٥ ثانية)؛ للضيف الفعلي لا يتغيّر شيء.
+function whenSession(cb){
+ if(PRICES_ON||!cart.some(function(i){return Number(i&&i.amount)&&!i.pricePublic})){cb();return}
+ var fin=false;function go(){if(!fin){fin=true;cb()}}
+ setTimeout(go,2500);
+ getMe().then(function(u){if(u){PRICES_ON=true;document.documentElement.setAttribute('data-prices','on')}go()})}
+priceEmp(function(){whenSession(run)});
 })();</script></body></html>

@@ -205,9 +205,39 @@ test("an ordinary cart is untouched: no offer lookup, the normal success message
   const snap = { ref: "BP-100200", items: [{ id: "svc-bp-absher-01", qty: 2 }] };
   const r = await boot(scriptOf(checkoutPage), {
     cart, snap, url: "https://x.test/ar/checkout?id=mock_card_a1b2c3d4e5f6&payment=paid",
-    api: api({ verify: () => ({ ok: true, invoice: { invoiced: true, number: "INV-8" } }) }),
+    api: api({ verify: () => ({ ok: true, amount: 69000, invoice: { invoiced: true, number: "INV-8" }, settle: { ok: true, verified: true, ref: "BP-100200" } }) }),
   });
-  assert.equal(r.document.getElementById("coResult").children[0].textContent, TXT("paidOk"));
+  const res = r.document.getElementById("coResult");
+  assert.equal(res.children[0].textContent, TXT("okDone"));
+  // the numbers the buyer keeps: order, amount, invoice — each from the server's answer
+  const rows = res.children.find((c) => c.className === "sv1-co-rows").children.map((d) => [d.children[0].textContent, d.children[1].textContent]);
+  assert.deepEqual(rows.map((x) => x[0]), [TXT("lblOrder"), TXT("lblPay"), TXT("lblAmt"), TXT("lblInv")]);
+  assert.equal(rows[0][1], "BP-100200"); assert.equal(rows[1][1], "mock_card_a1b2c3d4e5f6"); assert.match(rows[2][1], /690\.00/); assert.equal(rows[3][1], "INV-8");
+});
+
+test("after payment: a payment the server could not match is said to be under review, not 'done'", async () => {
+  const cart = [{ id: "pkg-starter-4-yearly", nameAr: "باقة", amount: 21000, price: "", qty: 1, pricePublic: true }];
+  const snap = { ref: "BP-300400", items: [{ id: "pkg-starter-4-yearly", qty: 1 }] };
+  const r = await boot(scriptOf(checkoutPage), {
+    cart, snap, url: "https://x.test/ar/checkout?id=mock_card_a1b2c3d4e5f6&payment=paid",
+    api: api({ verify: () => ({ ok: true, amount: 2415000, invoice: { invoiced: false, reason: "amount_mismatch" }, settle: { ok: true, verified: false, ref: "BP-300400" } }) }),
+  });
+  const res = r.document.getElementById("coResult");
+  assert.equal(res.className, "sv1-co-result warn");
+  assert.equal(res.children[0].textContent, TXT("reviewT"));
+  assert.ok(!res.children.some((c) => c.textContent === TXT("okDone")));
+});
+
+test("after payment: money taken but registration incomplete says so and never claims it is done", async () => {
+  const cart = [{ id: "svc-bp-absher-01", nameAr: "أبشر", amount: 300, price: "", qty: 1, pricePublic: true }];
+  const snap = { ref: "BP-500600", items: [{ id: "svc-bp-absher-01", qty: 1 }] };
+  const r = await boot(scriptOf(checkoutPage), {
+    cart, snap, url: "https://x.test/ar/checkout?id=mock_card_a1b2c3d4e5f6&payment=paid",
+    api: api({ verify: () => ({ ok: true, amount: 34500, settle: { ok: false, verified: false } }) }),
+  });
+  const res = r.document.getElementById("coResult");
+  assert.equal(res.className, "sv1-co-result warn");
+  assert.equal(res.children[0].textContent, TXT("paidHold"));
 });
 
 test("cart: the subscription line has no quantity buttons and is corrected to the server's price", async () => {
