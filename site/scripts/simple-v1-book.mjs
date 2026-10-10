@@ -54,6 +54,9 @@ const D = {
   tz:     { ar: "بتوقيت الرياض", en: "Riyadh time", fr: "Heure de Riyad", zh: "利雅得时间" },
   mins:   { ar: "دقيقة", en: "minutes", fr: "minutes", zh: "分钟" },
   another:{ ar: "احجز موعداً آخر", en: "Book another", fr: "Réserver un autre", zh: "再预约一次" },
+  refLbl: { ar: "رقم الحجز", en: "Booking no.", fr: "N° de réservation", zh: "预约编号" },
+  refKeep:{ ar: "احتفظ بهذا الرقم — اذكره إن راسلتنا بخصوص الموعد.", en: "Keep this number — quote it if you write to us about the appointment.",
+            fr: "Gardez ce numéro — indiquez-le si vous nous écrivez au sujet du rendez-vous.", zh: "请保存此编号——就该预约联系我们时请提供。" },
   // تعبئة موضوع الاستشارة مسبقاً من ?topic= — يرسلها زرّ /hiring.
   tpRecGen:{ ar: "توظيف بالجملة / منصب قيادي — خدمة التوظيف والاستقدام",
              en: "Bulk hiring / leadership role — Recruitment service",
@@ -142,10 +145,11 @@ textarea.sv1-bk-in{min-height:74px;resize:vertical}
 
     <div id="bkDone" class="sv1-bk-done sv1-hide"></div>
   </div></section>
-</main>`;
+</main>
+${sv1.footer()}`;
 
   const T = {};
-  for (const k of ["loading","noSlots","need","busy","taken","failed","doneT","doneOn","meet","addCal","mailed","confirm","tz","mins","another","pickTime","tpRecGen"]) T[k] = t(k);
+  for (const k of ["loading","noSlots","need","busy","taken","failed","doneT","doneOn","meet","addCal","mailed","confirm","tz","mins","another","pickTime","tpRecGen","refLbl","refKeep"]) T[k] = t(k);
 
   const script = `<script>
 (function(){
@@ -237,6 +241,12 @@ function done(o){
  var wt=document.createElement('span');wt.className='sv1-mono';wt.textContent=pick.time;
  var wz=document.createElement('span');wz.textContent=' ('+TX.tz+')';
  w.appendChild(wd);w.appendChild(wt);w.appendChild(wz);box.appendChild(w);
+ // رقم الحجز يقوله الخادم (BC-…) — هو ما يُذكر عند أي مراسلة عن الموعد.
+ if(o.ref){var rf=document.createElement('p');rf.style.cssText='margin:0 0 10px;color:var(--ink)';
+  rf.appendChild(document.createTextNode(TX.refLbl+': '));
+  var rb=document.createElement('b');rb.className='sv1-mono';rb.style.direction='ltr';rb.style.display='inline-block';rb.textContent=String(o.ref);
+  rf.appendChild(rb);box.appendChild(rf);
+  var rk=document.createElement('p');rk.style.cssText='margin:0 0 10px;font-size:12px';rk.textContent=TX.refKeep;box.appendChild(rk)}
  var t1=document.createElement('p');t1.textContent=o.emailSent?TX.mailed:TX.confirm;box.appendChild(t1);
  var acts=document.createElement('div');acts.className='acts';
  if(o.meet){var m=document.createElement('a');m.className='sv1-btn primary sm';m.href=o.meet;m.target='_blank';m.rel='noopener';m.textContent=TX.meet;acts.appendChild(m)}
@@ -246,9 +256,14 @@ function done(o){
  box.appendChild(acts);
  try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){}}
 
-// ?topic=rec-gen يملأ «موضوع الاستشارة» مرةً واحدة، فقط إن كان الحقل فارغاً.
-try{var tp=new URLSearchParams(location.search).get('topic'),ti=$('bkTopic');
- if(tp==='rec-gen'&&ti&&!ti.value.trim())ti.value=TX.tpRecGen}catch(e){}
+// «موضوع الاستشارة» يُملأ مرةً واحدة، فقط إن كان الحقل فارغاً:
+//   ?about=<اسم الخدمة>  — يرسله زرّ «احجز استشارة» في صفحة الخدمة (وبعض البطاقات مع ?topic=)
+//   ?topic=rec-gen       — يرسله زرّ /hiring
+// الاسم نصٌّ يضعه الزائر في الرابط: يدخل الحقل قيمةً (لا HTML) ويُقصّ طوله.
+try{var qs=new URLSearchParams(location.search),ti=$('bkTopic'),ab=(qs.get('about')||'').replace(/\\s+/g,' ').trim().slice(0,120);
+ if(ti&&!ti.value.trim()){
+  if(ab)ti.value=ab;
+  else if(qs.get('topic')==='rec-gen')ti.value=TX.tpRecGen}}catch(e){}
 
 load();
 })();</script>`;

@@ -203,7 +203,7 @@ function skuAmount(rawId, priceMap) {
   // One specialist, one slug. "employee-all" is the whole-team entitlement and
   // is priced as the shared-services team, never as a 500 riyal specialist.
   if (id.indexOf("employee-") === 0) return /^employee-[a-z0-9]{1,30}$/.test(id) && id !== "employee-all" ? 500 : null;
-  const hit = priceMap[catalogKey(id)];
+  const hit = priceRow(priceMap, id);
   return hit && hit.amount > 0 ? hit.amount : null;
 }
 // An employer-plan line (BP-EMP-*) is priced by api/employer.js getPlanOffer —
@@ -258,7 +258,7 @@ async function settlePaidOrder(order, p) {
     if (a == null) { unknown = true; names.push(x.id + " ×" + x.qty); continue; }
     net += a * x.qty;
     lines.push({ id: x.id, line: a * x.qty });
-    const cat = priceMap[catalogKey(String(x.id).toLowerCase())];
+    const cat = priceRow(priceMap, x.id);
     names.push((sv1 ? sv1.name : cat ? cat.name : x.id) + " ×" + x.qty);
   }
   net += Number(order.surchargeFee) || 0;
@@ -310,12 +310,12 @@ async function settlePaidOrder(order, p) {
       body: JSON.stringify({ action: "paid-order", t: seal(payload) }),
     });
     const j = await r.json().catch(() => ({}));
-    if (!r.ok || !j.ok) return { ok: false, error: j.error || ("http_" + r.status), verified, ...(employer ? { employer } : {}) };
+    if (!r.ok || !j.ok) return { ok: false, error: j.error || ("http_" + r.status), verified, ref: payload.ref, ...(employer ? { employer } : {}) };
     if (verified) await sv1Settle(ids, p, String(p.id || "").startsWith("tamara_") ? "tamara" : "moyasar");
-    return { ok: true, already: !!j.already, verified, activated: j.activated || null, ...(employer ? { employer } : {}) };
+    return { ok: true, already: !!j.already, verified, ref: payload.ref, activated: j.activated || null, ...(employer ? { employer } : {}) };
   } catch (e) {
     console.error("pay: settle call failed", String(e.message || e).slice(0, 160));
-    return { ok: false, error: "settle_unreachable", verified, ...(employer ? { employer } : {}) };
+    return { ok: false, error: "settle_unreachable", verified, ref: payload.ref, ...(employer ? { employer } : {}) };
   }
 }
 // A verified wallet top-up is handed to /api/requests {action:"wallet-paid"}
@@ -351,10 +351,45 @@ async function settleWalletTopup(p) {
 const RAW_CATALOG_URL = process.env.CATALOG_URL ||
   "https://raw.githubusercontent.com/businessKSA/business-partner-sa/claude/bpic-marketing-site-jvrnga/site/assets/data/catalog.json";
 let _catCache = null, _catAt = 0;
+// A package's cart id is built by the page, not by the catalogue:
+//   - "pkg-<key>"           a package sold once (formation, legal tiers);
+//   - "pkg-<key>-monthly"   a monthly package (the toggle on /packages adds the
+//                           suffix), priced at the catalogue's amount;
+//   - "pkg-<key>-yearly"    the page's own annual figure (monthly x 12 less the
+//                           site's yearly discount). That number exists nowhere
+//                           in the catalogue, so the suffix is NOT stripped: the
+//                           line stays unknown and the payment goes to the
+//                           owner's review rather than passing on a monthly
+//                           price somebody paid for a year.
+// "svc-" and "pkg-" prefixes are dropped; the monthly suffix only on packages.
+const PKG_MONTHLY_RE = /^(?:bp-)?pkg-.+-monthly$/;
+const isMonthlyPkgId = (id) => PKG_MONTHLY_RE.test(String(id || "").toLowerCase());
 const catalogKey = (id) => {
-  const k = String(id || "").toLowerCase();
+  let k = String(id || "").toLowerCase();
+  if (PKG_MONTHLY_RE.test(k)) k = k.slice(0, -"-monthly".length);
   return k.startsWith("svc-") || k.startsWith("pkg-") ? k.slice(4) : k;
 };
+// The package codes the pages print (BP-PKG-*) and the codes the live-price
+// panel files them under (PKG-*): site/assets/js/live-prices.js PKG_ALIAS.
+// catalogPrices() indexes a package by its BP code and by its key; an id
+// written with the panel's code resolves through this table when its bare form
+// is not itself a key (PKG-S is the starter package, whose key is "starter-4").
+const PKG_ALIAS = {
+  "BP-PKG-LAUNCH": "PKG-SILVER", "BP-PKG-GROWTH": "PKG-GOLD", "BP-PKG-SCALE": "PKG-PLATINUM",
+  "BP-PKG-ENTERPRISE": "PKG-DIAMOND", "BP-PKG-FORM-FOREIGN": "PKG-FOREIGN-FORMATION",
+  "BP-PKG-FORM-SAUDI": "PKG-SAUDI-GULF-FORMATION", "BP-PKG-LEGAL-STRAT": "PKG-STRATEGIC",
+  "BP-PKG-LEGAL-COMP": "PKG-COMPREHENSIVE", "BP-PKG-LEGAL-ADV": "PKG-ADVANCED",
+  "BP-PKG-LEGAL-BASIC": "PKG-BASIC-LEGAL", "BP-PKG-SVC-STARTER": "PKG-S",
+};
+const PKG_BY_ALIAS = Object.fromEntries(Object.entries(PKG_ALIAS).map(([code, a]) => [a.toLowerCase(), code.toLowerCase()]));
+// The catalogue row for a cart id, or undefined. The one lookup every pricing
+// site shares, so the settle, the invoice and the Tamara session cannot
+// disagree about which lines they can price.
+function priceRow(priceMap, rawId) {
+  const id = String(rawId || "").toLowerCase();
+  const bare = PKG_MONTHLY_RE.test(id) ? id.slice(0, -"-monthly".length) : id;
+  return priceMap[catalogKey(id)] || (PKG_BY_ALIAS[bare] ? priceMap[PKG_BY_ALIAS[bare]] : undefined);
+}
 async function catalogPrices() {
   if (_catCache && Date.now() - _catAt < 10 * 60 * 1000) return _catCache;
   const r = await fetch(RAW_CATALOG_URL);
@@ -463,7 +498,7 @@ async function invoicePaidOrder(order, paidHalalas, payId = "") {
         items.push({ code: o.offer.sku, name: o.name.ar, quantity: 1, unitPrice: o.offer.amountSar });
         continue;
       }
-      const hit = prices[catalogKey(it.id)];
+      const hit = priceRow(prices, it.id);
       if (!hit || !(hit.amount > 0)) continue;
       const qty = Math.max(1, Math.min(99, Number(it.qty) || 1));
       net += hit.amount * qty;
@@ -1208,10 +1243,14 @@ export default async function handler(req, res) {
         items.push({ id: o.offer.sku, name: o.name.ar, qty: x.qty, unit: o.offer.amountSar });
         continue;
       }
+      // Instalments were never offered on a monthly package line (it did not
+      // price here at all, so the session was refused). Pricing it for the
+      // card must not quietly open Tamara to it: that is the owner's call.
+      if (isMonthlyPkgId(x.id)) { unknown = true; continue; }
       const sv1 = await sv1Line(x.id);
       const a = sv1 ? sv1.amount : skuAmount(x.id, priceMap);
       if (a == null) { unknown = true; continue; }
-      const cat = priceMap[catalogKey(String(x.id).toLowerCase())];
+      const cat = priceRow(priceMap, x.id);
       net += a * x.qty;
       lines.push({ id: x.id, line: a * x.qty });
       items.push({ id: x.id, name: sv1 ? sv1.name : cat ? cat.name : x.id, qty: x.qty, unit: a });
@@ -1291,7 +1330,7 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({
       ok: true, provider, amount: p.amount, captured: !!v.captured,
       ...(invoicing ? { invoice: invoicing } : {}),
-      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null } } : {}),
+      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null, ref: settle.ref || "" } } : {}),
       ...(settle && settle.employer ? { employer: { activated: !!settle.employer.activated } } : {}),
     }));
   }
@@ -1456,7 +1495,7 @@ export default async function handler(req, res) {
       ...(b.context === "compliance" ? { activated: activation.activated } : {}),
       ...(invoicing ? { invoice: invoicing } : {}),
       ...(announced ? { announced } : {}),
-      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null } } : {}),
+      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null, ref: settle.ref || "" } } : {}),
       ...(settle && settle.employer ? { employer: { activated: !!settle.employer.activated } } : {}),
     }));
   } catch (e) {
