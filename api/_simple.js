@@ -24,7 +24,7 @@ import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { DEV, EMAIL_LIVE, MODES, outbox, outboxList } from "./_mode.js";
 import { isOwnerEmail } from "./_trial.js";
 import { waSend, waNumber } from "./_stage.js";
-import { storagePut, storageSign } from "./_db.js";
+import { storagePut, storageSign, storageDelete } from "./_db.js";
 import { readDocumentRaw, parseJson, DOC_MIME_OK, MAX_DOC_BYTES } from "./_docread.js";
 
 export const SIMPLE_TEST_MODE = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview" || DEV;
@@ -144,7 +144,82 @@ function ownedBy(row, sess) {
 function clientView(row, events, tasks) {
   const { internal_notes, assigned_to, ai_summary, ...pub } = row;
   if (pub.contract && pub.contract.html) pub.contract = { ...pub.contract, html: undefined, html_signed: undefined, has_html: true };
-  return { ...pub, events: (events || []).filter((e) => e.actor_kind !== "internal"), tasks: (tasks || []).filter((t) => t.assignee === "client") };
+  // Machine bookkeeping («notify.paid», «followup.task») is for the panel: the
+  // customer's timeline used to print those keys raw.
+  const visible = (e) => e.actor_kind !== "internal" && !/^(notify\.|followup\.task)/.test(String(e.event || ""));
+  return { ...pub, attachments: clientAttachments(row), events: (events || []).filter(visible), tasks: (tasks || []).filter((t) => t.assignee === "client") };
+}
+
+// ------------------------------------------------------------- the files --
+// One list, three kinds of entry, all in `requests.attachments` (no new column):
+//   kind "document"    — a file the customer uploaded, usually against one of
+//                        the documents we asked for (`doc` = that title)
+//   kind "deliverable" — finished work the team hands over (by "team")
+//   anything else      — older rows: a receipt, or a bare {name,url,note}
+// Bytes live in storage under `path`; the row never holds a long-lived link.
+// A link is signed on demand, after the request's ownership is checked.
+//
+// Same rules as the document vault (api/requests.js `ops-doc-upload`): the type
+// is refused rather than guessed, the size is measured on the text BEFORE any
+// Buffer exists, and the file must really look like what it says it is.
+const UPLOAD_MIME = /^(application\/pdf|image\/(jpeg|png|webp)|application\/vnd\.openxmlformats-officedocument\.(spreadsheetml\.sheet|wordprocessingml\.document)|application\/vnd\.ms-excel)$/;
+const UPLOAD_MAX_BYTES = 8 * 1024 * 1024;
+const UPLOAD_EXT = {
+  pdf: "application/pdf", jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  xls: "application/vnd.ms-excel",
+};
+const UPLOAD_CAP = 60;          // files per request, all kinds together
+const CUSTOMER_UPLOAD_CAP = 30;
+function uploadMime(rawMime, fileName) {
+  const m = String(rawMime || "").trim().toLowerCase();
+  if (m === "image/jpg" || m === "image/pjpeg") return "image/jpeg";
+  if (m && m !== "application/octet-stream" && m !== "binary/octet-stream") return m;
+  return UPLOAD_EXT[String(fileName || "").split(".").pop().toLowerCase()] || m;
+}
+function sniffOk(mime, buf) {
+  const b = buf;
+  if (mime === "application/pdf") return b.subarray(0, 1024).includes("%PDF");
+  if (mime === "image/jpeg") return b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF;
+  if (mime === "image/png") return b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4E && b[3] === 0x47;
+  if (mime === "image/webp") return b.subarray(0, 4).toString("latin1") === "RIFF" && b.subarray(8, 12).toString("latin1") === "WEBP";
+  if (mime === "application/vnd.ms-excel") return b[0] === 0xD0 && b[1] === 0xCF && b[2] === 0x11 && b[3] === 0xE0;
+  // docx / xlsx are zip containers
+  return b[0] === 0x50 && b[1] === 0x4B;
+}
+// Validates and stores one uploaded file. Never throws; returns the record that
+// goes into `attachments`, or {ok:false,status,error}.
+async function storeUpload(row, b, { kind, by, note, doc }) {
+  const base64 = typeof b.base64 === "string" ? b.base64.replace(/^data:[^;]+;base64,/, "") : "";
+  if (!base64) return { ok: false, status: 400, error: "no_file" };
+  const display = str(b.file_name || b.fileName || b.name, 160).replace(/[\r\n]+/g, " ") || "file";
+  const mime = uploadMime(b.mime, display);
+  if (!UPLOAD_MIME.test(mime)) return { ok: false, status: 400, error: "bad_type" };
+  // measured on the text first: 8 MB of bytes is ~10.7 M characters of base64
+  if (base64.length > Math.ceil(UPLOAD_MAX_BYTES * 4 / 3) + 8) return { ok: false, status: 413, error: "too_large", max: UPLOAD_MAX_BYTES };
+  const bytes = Buffer.byteLength(base64, "base64");
+  if (bytes > UPLOAD_MAX_BYTES) return { ok: false, status: 413, error: "too_large", max: UPLOAD_MAX_BYTES };
+  if (!bytes) return { ok: false, status: 400, error: "empty" };
+  const buf = Buffer.from(base64, "base64");
+  if (!sniffOk(mime, buf)) return { ok: false, status: 400, error: "bad_type" };
+  const id = crypto.randomBytes(6).toString("hex");
+  const ext = (display.split(".").pop() || "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 5);
+  const path = `requests/${row.ref}/${Date.now()}-${id}${ext ? "." + ext : ""}`;
+  try { await storagePut(path, buf, mime); }
+  catch (e) { console.error("simple upload store", String(e.message || e).slice(0, 160)); return { ok: false, status: 502, error: "storage_failed" }; }
+  return { ok: true, rec: { id, name: display, path, size: bytes, mime, kind, note: str(note, 300), doc: str(doc, 200) || undefined, at: nowIso(), by } };
+}
+// What the customer's browser may see of an attachment: no storage path, no
+// internal files, and a link only for the old rows that carried one.
+function clientAttachments(row) {
+  return (Array.isArray(row.attachments) ? row.attachments : [])
+    .filter((a) => a && a.visibility !== "internal")
+    .map((a) => ({
+      id: a.id || undefined, name: a.name, title: a.title || undefined, note: a.note || "", at: a.at, by: a.by, kind: a.kind || "", doc: a.doc || "",
+      size: a.size || 0, mime: a.mime || "", file: !!a.path,
+      url: !a.path && /^https?:\/\//i.test(String(a.url || "")) ? a.url : undefined,
+    }));
 }
 
 function normScope(items) {
@@ -221,6 +296,7 @@ function normDocuments(list) {
       note: str(it.note, 400),
       status: DOC_STATES.includes(it.status) ? it.status : "requested",
       at: str(it.at, 40) || nowIso(),
+      ...(it.received_at ? { received_at: str(it.received_at, 40) } : {}),
     };
   }).filter((d) => d.title);
 }
@@ -368,7 +444,21 @@ async function clientAction(action, b, qs, req, res, sess) {
     const patch = { conversation };
     if (role === "user" && row.status === "WAITING_CLIENT") patch.status = "REVIEWING";
     const upd = await patchRequest(row.id, patch);
-    if (role === "user") await logEvent(row.id, "customer", who, "message.customer", { preview: content.slice(0, 140) });
+    if (role === "user") {
+      await logEvent(row.id, "customer", who, "message.customer", { preview: content.slice(0, 140) });
+      // The customer wrote inside the request and nobody on the team was told:
+      // the only sign was a badge on a panel no one had open. Now the team
+      // gets the mail + WhatsApp and one open «reply» task per request.
+      await alertOps({ ...row, ...upd }, "message-in", {
+        subject: `رسالة جديدة من العميل — ${row.ref}`,
+        line: `${row.client_name || who} كتب في الطلب «${row.title}»: ${content.slice(0, 220)}`,
+        task: {
+          source: "reply.customer", urgency: "high",
+          title: `ردّ على رسالة العميل — ${row.ref}`,
+          details: content.slice(0, 400),
+        },
+      });
+    }
     return json(res, 200, { ok: true, conversation: upd.conversation, status: upd.status });
   }
 
@@ -424,13 +514,56 @@ async function clientAction(action, b, qs, req, res, sess) {
     return json(res, 200, { ok: true, stage: "PRICING", status: upd.status, scope, unpriced });
   }
 
+  // A document the customer sends inside the request. With `base64` it is a real
+  // upload (the file is stored, and if `doc_title` / `doc_index` names one of
+  // the documents we asked for, that line flips to «received»). Without it, the
+  // old {name,url,note} shape still works — but only for an http(s) link: the
+  // panel renders `url` as a link, and «javascript:» must never get there.
   if (action === "attachment-add") {
-    const att = { name: str(b.name, 160), url: str(b.url, 600), note: str(b.note, 300), at: nowIso(), by: "customer" };
-    if (!att.name) return json(res, 400, { ok: false, error: "missing_name" });
-    const attachments = [...(row.attachments || []), att].slice(-40);
-    await patchRequest(row.id, { attachments });
-    await logEvent(row.id, "customer", who, "attachment.added", { name: att.name });
-    return json(res, 200, { ok: true, attachments });
+    if (row.status === "CANCELLED") return json(res, 409, { ok: false, error: "request_closed" });
+    const all = Array.isArray(row.attachments) ? row.attachments : [];
+    if (typeof b.base64 !== "string" || !b.base64) {
+      const link = str(b.url, 600);
+      const att = { name: str(b.name, 160), url: /^https?:\/\//i.test(link) ? link : "", note: str(b.note, 300), at: nowIso(), by: "customer" };
+      if (!att.name) return json(res, 400, { ok: false, error: "missing_name" });
+      const attachments = [...all, att].slice(-UPLOAD_CAP);
+      await patchRequest(row.id, { attachments });
+      await logEvent(row.id, "customer", who, "attachment.added", { name: att.name });
+      return json(res, 200, { ok: true, attachments: clientAttachments({ attachments }) });
+    }
+    if (all.length >= UPLOAD_CAP || all.filter((a) => a && a.by === "customer" && a.kind === "document").length >= CUSTOMER_UPLOAD_CAP) {
+      return json(res, 409, { ok: false, error: "too_many_files" });
+    }
+    const docs = normDocuments(row.documents);
+    let at = -1;
+    if (b.doc_index != null && b.doc_index !== "" && Number.isInteger(Number(b.doc_index)) && docs[Number(b.doc_index)]) at = Number(b.doc_index);
+    if (at < 0 && b.doc_title) at = docs.findIndex((d) => d.title === str(b.doc_title, 200));
+    const stored = await storeUpload(row, b, { kind: "document", by: "customer", note: b.note, doc: at >= 0 ? docs[at].title : "" });
+    if (!stored.ok) return json(res, stored.status, { ok: false, error: stored.error, max: stored.max });
+    const attachments = [...all, stored.rec].slice(-UPLOAD_CAP);
+    const patch = { attachments };
+    if (at >= 0 && docs[at].status !== "received") { docs[at] = { ...docs[at], status: "received", received_at: nowIso() }; patch.documents = docs; }
+    const upd = await patchRequest(row.id, patch);
+    await logEvent(row.id, "customer", who, "attachment.added", { name: stored.rec.name, doc: stored.rec.doc || undefined });
+    if (patch.documents) await logEvent(row.id, "customer", who, "document.received", { title: docs[at].title });
+    await alertOps({ ...row, ...upd }, "doc-in", {
+      subject: `مستند جديد من العميل — ${row.ref}`,
+      line: `${row.client_name || who} رفع ${stored.rec.doc ? "المستند المطلوب «" + stored.rec.doc + "»" : "ملفاً"} (${stored.rec.name}) على الطلب «${row.title}».`,
+      windowMin: 2,
+    });
+    return json(res, 200, { ok: true, attachments: clientAttachments({ attachments }), documents: upd.documents || docs, received: at >= 0 ? docs[at].title : null });
+  }
+
+  // A short-lived link to one file on this request — the customer's own upload
+  // or work the team delivered. The request was already matched to the signed-in
+  // customer above; the id must belong to THAT request's list.
+  if (action === "attachment-link") {
+    const att = (row.attachments || []).find((a) => a && a.id && a.id === str(b.id || qs.id, 40) && a.visibility !== "internal");
+    if (!att || !att.path) return json(res, 404, { ok: false, error: "not_found" });
+    let url = "";
+    try { url = (await storageSign(att.path, 300)) || ""; } catch (e) { console.error("simple link", String(e.message || e).slice(0, 120)); }
+    if (!url) return json(res, 502, { ok: false, error: "link_failed" });
+    return json(res, 200, { ok: true, url, name: att.name, mime: att.mime || "" });
   }
 
   // إيصال التحويل البنكي: العميل يرفعه هنا، فيقرأه المستشار ويقارن مبلغه
@@ -1169,7 +1302,18 @@ async function opsAction(action, b, qs, req, res, opsUser) {
 
   if (action === "ops-request") {
     const [events, tasks] = await Promise.all([eventsFor(row.id, 200), tasksFor(row.id)]);
-    return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, request: { ...row, contract: row.contract ? { ...row.contract, html: undefined, has_html: !!row.contract.html } : null, events, tasks } });
+    // Files stored by path get a fresh one-hour link each time the panel loads
+    // the request, so the panel's existing «المستندات» list (name + url) shows
+    // the customer's uploads and the team's deliverables with no new field.
+    const attachments = await Promise.all((Array.isArray(row.attachments) ? row.attachments : []).map(async (a) => {
+      if (!a || !a.path) return a;
+      let url = "";
+      try { url = (await storageSign(a.path, 3600)) || ""; } catch {}
+      // the panel prints `note` beside the name, so say what the file IS there
+      const label = [a.kind === "deliverable" ? "تسليم للعميل" : a.doc ? "مستند مطلوب: " + a.doc : "", a.title, a.note].filter(Boolean).join(" · ");
+      return { ...a, note: label, url: url || undefined, path: undefined };
+    }));
+    return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, request: { ...row, attachments, contract: row.contract ? { ...row.contract, html: undefined, has_html: !!row.contract.html } : null, events, tasks } });
   }
 
   if (action === "ops-request-update") {
@@ -1185,9 +1329,27 @@ async function opsAction(action, b, qs, req, res, opsUser) {
     if (b.scope) { if (row.quote && row.quote.status !== "REJECTED") return json(res, 409, { ok: false, error: "scope_locked" }); patch.scope = normScope(b.scope); }
     for (const k of ["client_name", "client_phone", "company_name"]) if (b[k] != null) patch[k] = str(b[k], 200);
     if (b.client_email != null && isEmail(String(b.client_email).toLowerCase())) patch.client_email = String(b.client_email).toLowerCase();
+    // The list of documents we ask the customer for: the panel can add a line,
+    // waive one, or mark one received by hand. A line that flips to
+    // received/waived is stamped so the customer's page can say since when.
+    if (Array.isArray(b.documents)) {
+      const before = new Map(normDocuments(row.documents).map((d) => [d.title, d]));
+      patch.documents = normDocuments(b.documents).map((d) => {
+        const was = before.get(d.title);
+        return d.status !== "requested" && !d.received_at && (!was || was.status === "requested") ? { ...d, received_at: nowIso() } : d;
+      });
+    }
     if (!Object.keys(patch).length) return json(res, 400, { ok: false, error: "nothing_to_update" });
     const upd = await patchRequest(row.id, patch);
     await logEvent(row.id, "human", actor, patch.status ? `status.${patch.status.toLowerCase()}` : "request.updated", { fields: Object.keys(patch) });
+    // A change of stage on the team's side used to be silent: the customer saw
+    // the badge change if and when they opened the page. Now they are told, by
+    // the same channels as every other step — unless the panel says `notify:false`
+    // (a correction that is not news to the customer).
+    if (patch.status && patch.status !== row.status && b.notify !== false) {
+      const n = statusNotice({ ...row, ...upd }, row.status, patch.status, str(b.client_note, 500));
+      if (n) await announce({ ...row, ...upd }, n.step, { ...n, to: "client" });
+    }
     return json(res, 200, { ok: true, request: summary(upd) });
   }
 
@@ -1198,7 +1360,10 @@ async function opsAction(action, b, qs, req, res, opsUser) {
     const upd = await patchRequest(row.id, { conversation, status: row.status === "REVIEWING" || row.status === "NEW" ? "WAITING_CLIENT" : row.status });
     await logEvent(row.id, "human", actor, "message.bp", { preview: content.slice(0, 140) });
     if (row.organization_id) await notify({ organization_id: row.organization_id, event: "simple_message", title: `رد جديد على طلبك ${row.ref}`, body: content.slice(0, 200), idempotency_key: `simple_msg_${row.ref}_${Date.now()}` });
-    if (row.client_email) await sendEmail(row.client_email, `رد على طلبك ${row.ref}`, `<p>${esc(content)}</p><p><a href="${SELF_BASE}/${row.lang === "en" ? "" : (row.lang || "ar") + "/"}my?ref=${row.ref}">فتح الطلب</a></p>`);
+    if (row.client_email) await sendEmail(row.client_email, `رد على طلبك ${row.ref}`, `<p>${esc(content)}</p><p><a href="${myUrl(row)}">فتح الطلب</a></p>`);
+    // The team answered: the «reply to the customer» task opened by their
+    // message is done. Best-effort — a task that stays open is only noise.
+    try { await sb(`tasks?request_id=eq.${row.id}&source=eq.reply.customer&status=in.(open,in_progress,blocked)`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: nowIso() } }); } catch {}
     return json(res, 200, { ok: true, conversation: upd.conversation, status: upd.status });
   }
 
@@ -1305,16 +1470,84 @@ async function opsAction(action, b, qs, req, res, opsUser) {
 
   if (action === "ops-ready") {
     if (row.status !== "PAID") return json(res, 409, { ok: false, error: "not_paid" });
-    await patchRequest(row.id, { status: "IN_PROGRESS" });
+    const upd = await patchRequest(row.id, { status: "IN_PROGRESS" });
     await logEvent(row.id, "human", actor, "execution.started", {});
+    // «بدء التنفيذ» is the moment the customer has been waiting for since the
+    // payment; it used to land in the timeline and nowhere else.
+    if (b.notify !== false) {
+      const n = statusNotice({ ...row, ...upd }, row.status, "IN_PROGRESS", str(b.client_note, 500));
+      if (n) await announce({ ...row, ...upd }, n.step, { ...n, to: "client" });
+    }
     return json(res, 200, { ok: true, status: "IN_PROGRESS" });
   }
 
   if (action === "ops-appointment") {
+    const prev = row.appointment || null;
     const appointment = { ...(row.appointment || {}), date: str(b.date, 10) || row.appointment?.date, time: str(b.time, 5) || row.appointment?.time, topic: str(b.topic, 200) || row.appointment?.topic || row.title, status: b.cancel ? "CANCELLED" : "BOOKED", by: actor, updated_at: nowIso() };
-    await patchRequest(row.id, { appointment });
+    const upd = await patchRequest(row.id, { appointment });
     await logEvent(row.id, "human", actor, b.cancel ? "appointment.cancelled" : "appointment.set", { date: appointment.date, time: appointment.time });
+    // Moving or cancelling a customer's appointment without telling them is how
+    // somebody turns up to a call nobody is on. Told only when something the
+    // customer would notice changed.
+    const moved = !prev || prev.status === "CANCELLED" || prev.date !== appointment.date || prev.time !== appointment.time;
+    const live = { ...row, ...upd };
+    if (b.notify !== false) {
+      if (b.cancel && prev && prev.status !== "CANCELLED") {
+        await announce(live, "appt-cancelled", {
+          subject: `أُلغي موعدك — ${row.ref}`,
+          clientLine: `ألغينا موعد ${prev.date} الساعة ${prev.time} (بتوقيت الرياض) الخاص بطلبك «${row.title}». إن احتجت موعداً بديلاً اكتب لنا من داخل الطلب.`,
+          cta: "افتح الطلب", to: "client",
+        });
+      } else if (!b.cancel && appointment.date && appointment.time && moved) {
+        await announce(live, "appt-set", {
+          subject: `${prev && prev.status !== "CANCELLED" ? "تعديل موعدك" : "تم تثبيت موعدك"} — ${row.ref}`,
+          clientLine: `${prev && prev.status !== "CANCELLED" ? "عدّلنا موعدك إلى" : "ثبّتنا موعدك يوم"} ${appointment.date} الساعة ${appointment.time} (بتوقيت الرياض) — ${appointment.topic}. إن لم يناسبك غيّره من داخل الطلب.`,
+          cta: "افتح الطلب", to: "client",
+        });
+      }
+    }
     return json(res, 200, { ok: true, appointment });
+  }
+
+  // Finished work handed to the customer: a file, a title, an optional note. It
+  // lands in «مخرجات الطلب» inside the request in /my and the customer is told
+  // by mail. `complete:true` also closes the request in the same step (one
+  // message, not two). A delivery on a quoted request needs the payment first;
+  // `force:true` is the panel's explicit «deliver anyway».
+  if (action === "ops-deliverable-add") {
+    if (row.status === "CANCELLED") return json(res, 409, { ok: false, error: "request_closed" });
+    const title = str(b.title, 200);
+    if (!title) return json(res, 400, { ok: false, error: "missing_title" });
+    if (row.quote && !(row.payment && row.payment.status === "PAID") && b.force !== true) return json(res, 409, { ok: false, error: "not_paid", message: "الطلب غير مدفوع بعد — لا يُسلَّم العمل قبل الدفع إلا بتأكيد صريح." });
+    const all = Array.isArray(row.attachments) ? row.attachments : [];
+    if (all.length >= UPLOAD_CAP) return json(res, 409, { ok: false, error: "too_many_files" });
+    const stored = await storeUpload(row, b, { kind: "deliverable", by: "team", note: b.note });
+    if (!stored.ok) return json(res, stored.status, { ok: false, error: stored.error, max: stored.max });
+    const rec = { ...stored.rec, title, by_name: actor };
+    const patch = { attachments: [...all, rec] };
+    const closing = b.complete === true && ["PAID", "IN_PROGRESS", "WAITING_INTERNAL"].includes(row.status);
+    if (closing) patch.status = "COMPLETED";
+    const upd = await patchRequest(row.id, patch);
+    await logEvent(row.id, "human", actor, "deliverable.added", { title, name: rec.name });
+    if (closing) await logEvent(row.id, "human", actor, "status.completed", { fields: ["status"] });
+    if (b.notify !== false) {
+      await announce({ ...row, ...upd }, "deliverable", {
+        subject: `سلّمنا لك: ${title} — ${row.ref}`,
+        clientLine: `${closing ? "اكتمل طلبك «" + row.title + "» وسلّمنا لك" : "سلّمنا لك"} «${title}»${rec.note ? " — " + rec.note : ""}. تجده في قسم «مخرجات الطلب» داخل طلبك، وتنزّله من هناك.`,
+        cta: "افتح مخرجات الطلب", to: "client",
+      });
+    }
+    return json(res, 200, { ok: true, status: upd.status, deliverable: { ...rec, path: undefined } });
+  }
+
+  if (action === "ops-deliverable-delete") {
+    const id = str(b.id, 40);
+    const att = (row.attachments || []).find((a) => a && a.id === id && a.kind === "deliverable");
+    if (!att) return json(res, 404, { ok: false, error: "not_found" });
+    await patchRequest(row.id, { attachments: row.attachments.filter((a) => a !== att && !(a && a.id === id)) });
+    if (att.path) { try { await storageDelete(att.path); } catch {} }
+    await logEvent(row.id, "human", actor, "deliverable.removed", { title: att.title || att.name });
+    return json(res, 200, { ok: true });
   }
 
   return json(res, 400, { ok: false, error: "unknown_action" });
@@ -1389,41 +1622,84 @@ function integrationStatus() {
 // إشعارٌ يُظنّ أنه وصل وهو لم يصل أسوأ من إشعار لم يُرسل.
 const OWNER_WA = String(process.env.CRM_OWNER_WHATSAPP || process.env.OWNER_WHATSAPP || "966530540231").replace(/\D/g, "");
 
-async function announce(row, step, { subject, clientLine, opsLine, cta }) {
-  const url = `${SELF_BASE}/${row.lang === "en" ? "" : (row.lang || "ar") + "/"}my?ref=${row.ref}`;
+// The request's own page in /my — the one link every message to the customer
+// carries.
+const myUrl = (row) => `${SELF_BASE}/${row.lang === "en" ? "" : (row.lang || "ar") + "/"}my?ref=${row.ref}`;
+
+// What the customer is told when the TEAM moves their request. Only the stages
+// that are the team's to move; the steps owned by the quotation / contract /
+// payment flows announce themselves where they happen. The customer's own
+// words for a stage (see ST in simple-v1-my.mjs) are kept: WAITING_INTERNAL
+// reads «قيد التنفيذ» to them, so moving between the two is not news.
+function statusNotice(row, from, to, note) {
+  const same = (s) => (s === "WAITING_INTERNAL" ? "IN_PROGRESS" : s);
+  if (same(from) === same(to)) return null;
+  const tail = note ? ` ${note}` : "";
+  const files = (Array.isArray(row.attachments) ? row.attachments : []).some((a) => a && a.kind === "deliverable");
+  const t = {
+    REVIEWING: { subject: `طلبك قيد المراجعة — ${row.ref}`, line: "بدأ فريقنا مراجعة طلبك. نعود إليك بالخطوة التالية من داخل الطلب." },
+    WAITING_CLIENT: { subject: `طلبك بانتظار ردّك — ${row.ref}`, line: "نحتاج منك ردّاً أو معلومة لنكمل طلبك. افتح الطلب واكتب لنا." },
+    IN_PROGRESS: { subject: `بدأ تنفيذ طلبك — ${row.ref}`, line: "بدأ فريقنا تنفيذ طلبك الآن. نبلغك بأي تحديث، وتجد كل جديد داخل طلبك." },
+    WAITING_INTERNAL: { subject: `بدأ تنفيذ طلبك — ${row.ref}`, line: "بدأ فريقنا تنفيذ طلبك الآن. نبلغك بأي تحديث، وتجد كل جديد داخل طلبك." },
+    COMPLETED: { subject: `اكتمل طلبك — ${row.ref}`, line: `اكتمل طلبك «${row.title}».${files ? " ملفات التسليم في قسم «مخرجات الطلب» داخل طلبك." : ""} شكراً لثقتك.` },
+    CANCELLED: { subject: `أُلغي الطلب ${row.ref}`, line: "أُلغي طلبك. إن كان لديك استفسار راسلنا من داخل الحساب وسنساعدك." },
+  }[to];
+  if (!t) return null;
+  return { step: "status-" + to.toLowerCase().replace(/_/g, "-"), subject: t.subject, clientLine: t.line + tail, cta: to === "WAITING_CLIENT" ? "افتح الطلب وردّ" : "افتح الطلب" };
+}
+
+// A notice to the TEAM about something the customer did. At most one per
+// request per window (a customer typing five lines in a minute is one alert,
+// not five), recorded as an internal event so the customer's timeline never
+// shows it. `task` opens one — and only one — pending human task.
+async function alertOps(row, step, { subject, line, windowMin = 10, task }) {
+  try {
+    if (task) { try { await sweepTask(row, { source: task.source, title: () => task.title, details: () => task.details || "", human: true, urgency: task.urgency || "high" }, "النظام"); } catch (e) { console.error("alertOps task", String(e.message || e).slice(0, 100)); } }
+    const since = new Date(Date.now() - windowMin * 6e4).toISOString();
+    const recent = await sb(`request_events?request_id=eq.${row.id}&event=eq.notify.${step}&created_at=gte.${since}&select=id&limit=1`);
+    if (recent && recent[0]) return false;
+    await announce(row, step, { subject, clientLine: line, opsLine: line, to: "ops" });
+    return true;
+  } catch (e) { console.error("alertOps", step, String(e.message || e).slice(0, 100)); return false; }
+}
+
+async function announce(row, step, { subject, clientLine, opsLine, cta, to = "both" }) {
+  const toClient = to !== "ops", toOps = to !== "client";
+  const url = myUrl(row);
   // «لم يُرسل» و«أُرسل إلى صندوق المعاينة» و«رفضته البوابة» ثلاثة أشياء
   // مختلفة. تسجيلها كلها `false` يجعل اللوحة تقول «فشل» حيث لا فشل، ويخفي
   // الفشل الحقيقي بين مثله.
   const mark = (r) => (r && r.ok ? true : (r && (r.skipped || r.error)) || false);
   const out = { email: "—", wa: "—", ops_email: false, ops_wa: false };
-  try {
+  if (toClient) try {
     if (row.client_email) {
       out.email = mark(await sendEmail(row.client_email, subject,
         `<p>${esc(clientLine)}</p><p><a href="${url}">${esc(cta || "فتح الطلب")} ${esc(row.ref)}</a></p>`));
     } else out.email = "no_email";
   } catch (e) { out.email = String(e.message || "failed").slice(0, 60); }
-  try {
+  if (toClient) try {
     if (row.client_phone) out.wa = mark(await waSend(row.client_phone, `${clientLine}\n${url}`));
     else out.wa = "no_phone";
   } catch (e) { out.wa = String(e.message || "failed").slice(0, 60); }
   const who = [row.client_name, row.company_name, row.client_email, row.client_phone].filter(Boolean).join(" · ");
-  try {
+  if (toOps) try {
     const r = await sendEmail(OWNER_EMAIL, `[${row.ref}] ${subject}`,
       `<p>${esc(opsLine || clientLine)}</p><p>${esc(who)}</p><p><a href="${SELF_BASE}/ops?ref=${row.ref}">افتح الطلب في اللوحة</a></p>`);
     out.ops_email = mark(r);
   } catch {}
-  try {
+  if (toOps) try {
     if (OWNER_WA) {
       const r = await waSend(OWNER_WA, `${row.ref} — ${opsLine || clientLine}\n${SELF_BASE}/ops?ref=${row.ref}`);
       out.ops_wa = mark(r);
     }
   } catch {}
-  try {
+  if (toClient) try {
     if (row.organization_id) {
       await notify({ organization_id: row.organization_id, event: `simple_${step}`, title: subject, body: clientLine.slice(0, 200), idempotency_key: `simple_${step}_${row.ref}_${Math.floor(Date.now() / 6e4)}` });
     }
   } catch {}
-  await logEvent(row.id, "system", "الإشعارات", `notify.${step}`, out);
+  // a notice to the team is bookkeeping, not part of the customer's story
+  await logEvent(row.id, toClient ? "system" : "internal", "الإشعارات", `notify.${step}`, out);
   return out;
 }
 
