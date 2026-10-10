@@ -8806,6 +8806,15 @@ var BP_EMP_BILLING = "monthly";
   }
   var refHost = "";
   try { if (document.referrer) { var u = new URL(document.referrer); if (u.host !== location.host) refHost = u.host; } } catch (e) {}
+  // وسوم UTM تسبق المُحيل: واتساب وتيك توك لا يرسلان Referer، فزياراتهما تظهر
+  // «مباشرة» في اللوحة. الشكل utm:<source>/<medium>/<campaign>/<content>، والقصّ
+  // إلى 120 حرفاً لأن عمود ref في api/requests.js يقصّه إلى 120.
+  try {
+    var q = new URLSearchParams(location.search);
+    if (q.get("utm_source")) {
+      refHost = ("utm:" + [q.get("utm_source"), q.get("utm_medium"), q.get("utm_campaign"), q.get("utm_content")].map(function (v) { return v || ""; }).join("/")).slice(0, 120);
+    }
+  } catch (e) {}
   send({ kind: "view", path: location.pathname, ref: refHost, lang: document.documentElement.lang || "", device: window.innerWidth < 768 ? "mobile" : "desktop" });
   document.addEventListener("click", function (e) {
     var t = e.target.closest && e.target.closest(".add-cart,#cart-checkout,#co-submit,#disc-apply,a[href*='wa.me'],a[href*='whatsapp'],[data-track]");
