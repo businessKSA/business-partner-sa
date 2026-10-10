@@ -9,13 +9,18 @@
 // classic homepage moved to /classic-home and still builds. SIMPLE_V1=0 puts
 // the classic page back at "/" without touching any code.
 //
-// Layout follows the approved concept file business_partner_simple_v1_refined
-// .html (2026-09-03): hero text beside three service doors, a three-step
-// "you don't need to know the service name" band, one app panel with the
-// conversation on one side and the editable scope always visible on the other,
-// a six-step journey strip, and a preview of the two dashboards. The visible
-// brand is "Business Partner" in every language, drawn with the official logo
-// asset — the concept's temporary letter-mark is placeholder branding.
+// VISITOR PATH (owner order 2026-10-10: "a clear path for the customer the
+// moment they enter the site"). Above the fold: one sentence on what we offer,
+// the question "what do you need today?", a search box, and four path cards —
+// set up a company (/catalog?door=formation), a government service
+// (/catalog?door=government), "I don't know" (the smart advisor, consulting
+// context) and "I have an account" (/my; a signed-in visitor sees an
+// "your requests" strip instead). Below the fold: how it works in four steps,
+// three honest trust lines, six popular services, the advisor panel (the
+// conversation on one side, the editable scope on the other) and four short
+// questions. The path itself lives in simple-v1-home-path.mjs; this file keeps
+// the dictionary, the advisor panel and the shared shell. The visible brand is
+// "Business Partner" in every language, drawn with the official logo asset.
 // No price appears here: the catalogue stays in the backend and the figure
 // reaches the customer in the quotation for the scope they approved.
 //
@@ -44,13 +49,13 @@ const BIZDEV_DOOR = (() => {
 // والوصف بالأربع لغات من مصدر صفحة /eor نفسها (EOR_PAGE_TEXT) فلا يتباعد النصّان.
 // بابٌ برابط إلى /eor لا زرّ مستشار: لا نوع طلب له في الرئيسية ولا يمسّ المعرفة.
 import { EOR_PAGE_TEXT } from "./simple-v1-eor.mjs";
+import { buildHomePath } from "./simple-v1-home-path.mjs";
 export const SIMPLE_LANGS = ["ar", "en", "fr", "zh"];
 
 const D = {
   // The visible company name is "Business Partner" in every language — the
   // Arabic renderings («شريك الأعمال» / «شريك أعمالك») are not used as the brand.
   brand: { ar: "Business Partner", en: "Business Partner", fr: "Business Partner", zh: "Business Partner" },
-  heroTag: { ar: "Business Partner", en: "Business Partner", fr: "Business Partner", zh: "Business Partner" },
   navServices: { ar: "الخدمات", en: "Services", fr: "Services", zh: "服务" },
   navHow: { ar: "كيف نبدأ", en: "How it works", fr: "Comment ça marche", zh: "如何开始" },
   navTrips: { ar: "الرحلات", en: "Trips", fr: "Voyages", zh: "行程" },
@@ -61,24 +66,8 @@ const D = {
   logout:  { ar: "تسجيل الخروج", en: "Sign out", fr: "Déconnexion", zh: "退出登录" },
   login: { ar: "دخول", en: "Sign in", fr: "Connexion", zh: "登录" },
   navStart: { ar: "ابدأ طلبك", en: "Start your request", fr: "Démarrer une demande", zh: "开始申请" },
-  heroTitle: { ar: "قل لنا وش تحتاج،<br>ونبدأ معك من هنا.", en: "Tell us what you need,<br>and we start here with you.", fr: "Dites-nous ce qu'il vous faut,<br>et nous commençons ici.", zh: "告诉我们您的需求，<br>我们从这里开始。" },
-  heroText: { ar: "اختر نوع الخدمة أو ابدأ المحادثة مباشرة. نفهم طلبك، ونجهّز لك الخطوات المناسبة، وبعدها تكمل كل شيء من حسابك.", en: "Pick a service or just start the conversation. We understand the request, prepare the right steps, and you finish everything from your account.", fr: "Choisissez un service ou lancez simplement la conversation. Nous comprenons votre demande, préparons les bonnes étapes, et vous finalisez tout depuis votre compte.", zh: "选择服务类型，或直接开始对话。我们理解您的需求、准备相应步骤，随后您在账户中完成全部流程。" },
-  heroChat: { ar: "ابدأ محادثة", en: "Start a conversation", fr: "Démarrer la conversation", zh: "开始对话" },
-  heroWa: { ar: "أكمل على واتساب", en: "Continue on WhatsApp", fr: "Continuer sur WhatsApp", zh: "在 WhatsApp 继续" },
 
-  trust1: { ar: "الاستشارات", en: "Consulting", fr: "Conseil", zh: "咨询" },
-  trust2: { ar: "الخدمات الحكومية", en: "Government services", fr: "Services gouvernementaux", zh: "政府服务" },
-  trust3: { ar: "تأسيس الشركات", en: "Company formation", fr: "Création d'entreprise", zh: "公司注册" },
-  trust4: { ar: "تطوير الأعمال", en: "Business development", fr: "Développement commercial", zh: "业务拓展" },
 
-  noNameTitle: { ar: "ما تحتاج تعرف اسم الخدمة", en: "You don't need to know the name of the service", fr: "Vous n'avez pas besoin de connaître le nom du service", zh: "您无需知道服务的名称" },
-  noNameSub: { ar: "اختر القسم المناسب أو اشرح طلبك مباشرة. نرتّب الطلب في الخلفية، وأنت تشوف فقط ما يخص احتياجك.", en: "Pick a section or just describe what you need. We organise the request in the background; you only see what relates to your need.", fr: "Choisissez une rubrique ou décrivez simplement votre besoin. Nous organisons la demande en arrière-plan ; vous ne voyez que ce qui vous concerne.", zh: "选择相应板块，或直接描述您的需求。我们在后台整理申请，您只看到与您相关的内容。" },
-  nn1: { ar: "1. اشرح احتياجك", en: "1. Describe what you need", fr: "1. Décrivez votre besoin", zh: "1. 说明您的需求" },
-  nn1s: { ar: "اكتب بالطريقة العادية، بلا نماذج طويلة.", en: "Write it normally — no long forms.", fr: "Écrivez normalement, sans formulaire interminable.", zh: "用平常的话写下来，无需冗长表单。" },
-  nn2: { ar: "2. راجع طلبك", en: "2. Review your request", fr: "2. Revoyez votre demande", zh: "2. 检查您的申请" },
-  nn2s: { ar: "نطاق الخدمات يظهر واضحاً وقابلاً للتعديل.", en: "The scope of work appears clearly, and you can edit it.", fr: "Le périmètre s'affiche clairement et reste modifiable.", zh: "服务范围清晰列出，且可自行修改。" },
-  nn3: { ar: "3. كمّل من حسابك", en: "3. Finish from your account", fr: "3. Terminez depuis votre compte", zh: "3. 在账户中完成" },
-  nn3s: { ar: "عرض سعر، عقد، دفع، فاتورة، ومتابعة.", en: "Quotation, contract, payment, invoice and follow-up.", fr: "Devis, contrat, paiement, facture et suivi.", zh: "报价、合同、付款、发票与跟进。" },
 
   ctxConsulting: { ar: "الاستشارات", en: "Consulting", fr: "Conseil", zh: "咨询" },
   ctxGovernment: { ar: "الخدمات الحكومية", en: "Government services", fr: "Services gouvernementaux", zh: "政府服务" },
@@ -88,14 +77,58 @@ const D = {
   doorGovernment: { ar: "معاملة، مشكلة في منصة، أو إدارة منصاتك الحكومية.", en: "A transaction, a problem on a platform, or running your government platforms.", fr: "Une démarche, un problème sur une plateforme, ou la gestion de vos plateformes.", zh: "办理事务、平台问题，或代管您的政府平台。" },
   doorFormation: { ar: "فرع لشركة أجنبية أو شركة عبر مسار ريادة الأعمال.", en: "A branch of a foreign company, or a company via the entrepreneurship route.", fr: "Une succursale étrangère ou une société via le parcours entrepreneur.", zh: "外国公司分支机构，或通过创业路径设立公司。" },
   doorBizdev: { ar: "عملاء أو موردون أو شريك جديد؟ نحدّد معك مسار النمو المناسب.", en: "New customers, suppliers or a partner? We map the right growth route with you.", fr: "De nouveaux clients, fournisseurs ou un partenaire ? Nous définissons la bonne voie avec vous.", zh: "寻找客户、供应商或合作伙伴？我们与您确定合适的拓展路径。" },
-  ctaConsulting: { ar: "ابدأ الاستشارة ←", en: "Start the consultation →", fr: "Démarrer le conseil →", zh: "开始咨询 →" },
-  ctaGovernment: { ar: "ابدأ الطلب ←", en: "Start the request →", fr: "Démarrer la demande →", zh: "开始申请 →" },
-  ctaFormation: { ar: "ابدأ التأسيس ←", en: "Start the formation →", fr: "Démarrer la création →", zh: "开始注册 →" },
-  ctaEor: { ar: "اعرف أكثر ←", en: "Learn more →", fr: "En savoir plus →", zh: "了解更多 →" },
-  ctaBizdev: { ar: "ابدأ مع المستشار ←", en: "Start with the advisor →", fr: "Démarrer avec le conseiller →", zh: "与顾问开始 →" },
-  // مسلك الشراء الذاتي (سؤال المالك 2026-09-24: «ليش ما العميل يقدر يشتري
-  // مباشرة بدون الشات؟»): رابطٌ ثانوي هادئ تحت الأبواب لا باباً خامساً.
-  browseDirect: { ar: "تصفّح الخدمات واشترِ مباشرة ←", en: "Browse the services and buy directly →", fr: "Parcourir les services et acheter directement →", zh: "浏览服务并直接购买 →" },
+  // ملاحظة: مسلك الشراء الذاتي (سؤال المالك 2026-09-24) صار مسار الزائر نفسه: البحث والبطاقتان إلى /catalog.
+  // ---- مسار الزائر في الرئيسية (أمر المالك 2026-10-10) — simple-v1-home-path.mjs.
+  // لا سعر ولا رقم حكومي هنا: ما يُقال عن الأسعار والرسوم هو نصّ صفحات الخدمات نفسه.
+  hpTitle: { ar: "نؤسس شركتك وننجز خدماتك الحكومية، من الطلب حتى التسليم", en: "We set up your company and handle your government services, from request to delivery", fr: "Nous créons votre société et gérons vos services gouvernementaux, de la demande à la livraison", zh: "我们为您设立公司、办理政府服务，从申请到交付" },
+  hpSub: { ar: "اطلب أو اشترِ، ادفع إلكترونياً، وتابع كل شيء من حسابك.", en: "Order or buy, pay online, and follow everything from your account.", fr: "Commandez ou achetez, payez en ligne et suivez tout depuis votre compte.", zh: "下单或直接购买，在线支付，并在账户中跟进一切。" },
+  hpMeta: { ar: "تأسيس الشركات والخدمات الحكومية والاستشارات في مكان واحد: اطلب أو اشترِ، ادفع إلكترونياً، وتابع من حسابك.", en: "Company formation, government services and consulting in one place: order or buy, pay online and follow it from your account.", fr: "Création d'entreprise, services gouvernementaux et conseil au même endroit : commandez ou achetez, payez en ligne et suivez depuis votre compte.", zh: "公司注册、政府服务与咨询一站办理：下单或直接购买，在线支付，并在账户中跟进。" },
+  hpQ: { ar: "ما الذي تحتاجه اليوم؟", en: "What do you need today?", fr: "De quoi avez-vous besoin aujourd'hui ?", zh: "您今天需要什么？" },
+  hpSearchLbl: { ar: "ابحث عن خدمتك", en: "Find your service", fr: "Trouvez votre service", zh: "查找您的服务" },
+  // الأسماء في صفحات fr وzh إنجليزية (كما في /catalog)، فمثالها إنجليزي ليطابق ما يُكتب.
+  hpSearchPh: { ar: "مثال: تجديد سجل تجاري", en: "e.g. Commercial registration renewal", fr: "ex. Commercial registration renewal", zh: "例如：Commercial registration renewal" },
+  hpSearchGo: { ar: "ابحث", en: "Search", fr: "Rechercher", zh: "搜索" },
+  hpNone: { ar: "لا نتيجة مطابقة. جرّب كلمة أعمّ أو اختر أحد المسارات أدناه.", en: "No match. Try a broader word or pick one of the paths below.", fr: "Aucun résultat. Essayez un mot plus large ou choisissez un parcours ci-dessous.", zh: "没有匹配项。请尝试更宽泛的词，或选择下方的路径。" },
+  hpSugAll: { ar: "عرض كل النتائج في الخدمات", en: "See all results in Services", fr: "Voir tous les résultats", zh: "查看全部结果" },
+  hpCardFormation: { ar: "أؤسس شركة أو مؤسسة", en: "Set up a company", fr: "Créer une société", zh: "设立公司" },
+  hpCardFormationSub: { ar: "السجل التجاري وعقد التأسيس والمنصات الحكومية", en: "Commercial registration, articles of association, government platforms", fr: "Registre de commerce, statuts, plateformes gouvernementales", zh: "商业登记、公司章程与政府平台注册" },
+  hpCardGov: { ar: "أحتاج خدمة حكومية", en: "I need a government service", fr: "J'ai besoin d'un service gouvernemental", zh: "我需要政府服务" },
+  hpCardGovSub: { ar: "قوى ومقيم وأجير والزكاة والضريبة وغيرها", en: "Qiwa, Muqeem, Ajeer, ZATCA and more", fr: "Qiwa, Muqeem, Ajeer, ZATCA et plus", zh: "Qiwa、Muqeem、Ajeer、ZATCA 等" },
+  hpCardUnsure: { ar: "لا أعرف ما أحتاجه", en: "I'm not sure what I need", fr: "Je ne sais pas ce qu'il me faut", zh: "我不确定需要什么" },
+  hpCardUnsureSub: { ar: "اشرح لمستشارنا الذكي ونحدّد لك الخدمة", en: "Tell our smart advisor and we'll find the right service", fr: "Expliquez-le à notre conseiller intelligent, il vous orientera", zh: "告诉我们的智能顾问，为您确定合适的服务" },
+  hpCardAccount: { ar: "لديّ حساب أو طلب قائم", en: "I have an account or an open request", fr: "J'ai un compte ou une demande en cours", zh: "我已有账户或进行中的申请" },
+  hpCardAccountSub: { ar: "تابع طلباتك وعروضك وفواتيرك", en: "Follow your requests, quotations and invoices", fr: "Suivez vos demandes, devis et factures", zh: "跟进您的申请、报价与发票" },
+  hpOrders: { ar: "طلباتك", en: "Your requests", fr: "Vos demandes", zh: "您的申请" },
+  hpOrdersSub: { ar: "تابع حالة طلباتك، واعتمد عروض الأسعار، وحمّل فواتيرك.", en: "Follow your requests, approve quotations and download your invoices.", fr: "Suivez vos demandes, approuvez vos devis et téléchargez vos factures.", zh: "跟进申请状态、确认报价并下载发票。" },
+  hpOrdersBtn: { ar: "افتح طلباتي", en: "Open my requests", fr: "Ouvrir mes demandes", zh: "打开我的申请" },
+  hpEorLead: { ar: "تبحث عن موظفين؟", en: "Looking for staff?", fr: "Besoin de personnel ?", zh: "需要员工？" },
+  hpHow: { ar: "كيف يعمل", en: "How it works", fr: "Comment ça marche", zh: "如何运作" },
+  hpS1: { ar: "اختر", en: "Choose", fr: "Choisissez", zh: "选择" },
+  hpS1s: { ar: "ابحث عن خدمتك أو اشرح احتياجك للمستشار.", en: "Find your service or describe your need to the advisor.", fr: "Trouvez votre service ou décrivez votre besoin au conseiller.", zh: "查找服务，或向顾问说明需求。" },
+  hpS2: { ar: "قدّم طلبك أو اشترِ", en: "Request or buy", fr: "Demandez ou achetez", zh: "申请或购买" },
+  hpS2s: { ar: "اشترِ الجاهز بالسلة، أو اطلب عرض سعر لما يحتاج نطاقاً.", en: "Buy ready services with the cart, or ask for a quotation when scope is needed.", fr: "Achetez les services prêts au panier, ou demandez un devis si un périmètre est nécessaire.", zh: "现成服务直接加入购物车购买；需确定范围的可申请报价。" },
+  hpS3: { ar: "ادفع إلكترونياً", en: "Pay online", fr: "Payez en ligne", zh: "在线支付" },
+  hpS3s: { ar: "بطاقة (مدى · فيزا · ماستركارد) أو تقسيط تمارا.", en: "Card (mada · Visa · Mastercard) or Tamara instalments.", fr: "Carte (mada · Visa · Mastercard) ou paiement en plusieurs fois avec Tamara.", zh: "银行卡（mada · Visa · Mastercard）或 Tamara 分期。" },
+  hpS4: { ar: "تابع واستلم عملك", en: "Follow and receive your work", fr: "Suivez et recevez votre travail", zh: "跟进并接收成果" },
+  hpS4s: { ar: "داخل لوحتك: الحالة والمستندات والفاتورة.", en: "Inside your account: status, documents and invoice.", fr: "Dans votre compte : statut, documents et facture.", zh: "在您的账户中：状态、文件与发票。" },
+  hpT1: { ar: "الأسعار قبل الضريبة وتُعرض للمسجّلين", en: "Prices are before VAT and shown to registered users", fr: "Les prix sont hors TVA et affichés aux utilisateurs inscrits", zh: "价格不含增值税，仅向注册用户显示" },
+  hpT2: { ar: "دفع إلكتروني فقط", en: "Online payment only", fr: "Paiement en ligne uniquement", zh: "仅支持在线支付" },
+  hpT3: { ar: "تتبّع وتسليم داخل لوحتك", en: "Tracking and delivery inside your account", fr: "Suivi et livraison dans votre compte", zh: "在您的账户中跟进与交付" },
+  hpPopular: { ar: "خدمات شائعة", en: "Popular services", fr: "Services courants", zh: "常用服务" },
+  hpAdd: { ar: "أضف للسلة", en: "Add to cart", fr: "Ajouter au panier", zh: "加入购物车" },
+  hpAdded: { ar: "أُضيف ✓", en: "Added ✓", fr: "Ajouté ✓", zh: "已加入 ✓" },
+  hpViewCart: { ar: "أُضيف — عرض السلة ←", en: "Added — view cart →", fr: "Ajouté — voir le panier →", zh: "已加入 — 查看购物车 →" },
+  hpDetails: { ar: "التفاصيل", en: "Details", fr: "Détails", zh: "详情" },
+  hpAll: { ar: "تصفّح كل الخدمات", en: "Browse all services", fr: "Parcourir tous les services", zh: "浏览全部服务" },
+  hpFaq: { ar: "أسئلة سريعة", en: "Quick questions", fr: "Questions rapides", zh: "常见问题" },
+  hpFq1: { ar: "هل يجب أن أعرف اسم الخدمة؟", en: "Do I need to know the name of the service?", fr: "Dois-je connaître le nom du service ?", zh: "我需要知道服务名称吗？" },
+  hpFa1: { ar: "لا. اشرح احتياجك للمستشار الذكي فيقترح لك نطاق الخدمات، وتراجعه وتعدّله قبل عرض السعر.", en: "No. Describe your need to the smart advisor; it proposes the scope of services and you review and edit it before the quotation.", fr: "Non. Décrivez votre besoin au conseiller intelligent : il propose le périmètre, que vous revoyez et modifiez avant le devis.", zh: "不需要。向智能顾问说明需求，它会提出服务范围，您在报价前可自行检查和修改。" },
+  hpFq2: { ar: "كم تكلفة الخدمة؟", en: "How much does a service cost?", fr: "Combien coûte un service ?", zh: "服务费用是多少？" },
+  hpFa2: { ar: "تظهر الأسعار للمسجّلين بعد الدخول، وهي قبل ضريبة القيمة المضافة. الرسوم الحكومية، إن وُجدت، منفصلة عن الأتعاب وتُعلن قبل البدء.", en: "Prices appear after you sign in and are before VAT. Government fees, where they apply, are separate from our fees and announced before work starts.", fr: "Les prix s'affichent après connexion et sont hors TVA. Les frais gouvernementaux, le cas échéant, sont distincts de nos honoraires et annoncés avant le début.", zh: "登录后显示价格，且不含增值税。政府规费（如有）与服务费分开，并在开始前告知。" },
+  hpFq3: { ar: "كيف أدفع؟", en: "How do I pay?", fr: "Comment payer ?", zh: "如何付款？" },
+  hpFa3: { ar: "إلكترونياً فقط: بطاقة (مدى · فيزا · ماستركارد) أو التقسيط عبر تمارا، وتصلك فاتورة ضريبية عن كل عملية مدفوعة.", en: "Online only: card (mada · Visa · Mastercard) or instalments with Tamara, and you receive a tax invoice for every paid order.", fr: "En ligne uniquement : carte (mada · Visa · Mastercard) ou paiement en plusieurs fois avec Tamara, avec une facture fiscale pour chaque commande payée.", zh: "仅限在线支付：银行卡（mada · Visa · Mastercard）或 Tamara 分期，每笔已付订单均开具税务发票。" },
+  hpFq4: { ar: "أين أتابع طلبي؟", en: "Where do I follow my request?", fr: "Où suivre ma demande ?", zh: "在哪里跟进我的申请？" },
+  hpFa4: { ar: "في حسابك: اضغط «حسابي» وسجّل دخولك برمز يصلك على بريدك.", en: "In your account: press “My account” and sign in with a code sent to your email.", fr: "Dans votre compte : cliquez sur « Mon compte » et connectez-vous avec un code envoyé par e-mail.", zh: "在您的账户中：点击“我的账户”，使用发送到邮箱的验证码登录。" },
 
   advisorTitle: { ar: "كل شيء يبدأ من المحادثة", en: "Everything starts with the conversation", fr: "Tout commence par la conversation", zh: "一切从对话开始" },
   advisorSub: { ar: "اشرح احتياجك بطريقتك، ونرتّب لك الطلب والخدمات المناسبة. راجع البنود بنفسك — احذف أو أضف أو عدّل — قبل عرض السعر.", en: "Explain your need in your own words and we organise the request and the right services. Review the items yourself — remove, add or edit — before the quotation.", fr: "Expliquez votre besoin avec vos mots ; nous organisons la demande et les services adaptés. Revoyez les éléments — supprimez, ajoutez, modifiez — avant le devis.", zh: "用您自己的话说明需求，我们整理申请与相应服务。在报价之前，您可自行删除、添加或修改条目。" },
@@ -129,8 +162,6 @@ const D = {
   sar: { ar: "ريال", en: "SAR", fr: "SAR", zh: "SAR" },
   createBtn: { ar: "إنشاء عرض السعر", en: "Create the quotation", fr: "Créer le devis", zh: "生成报价" },
 
-  journeyTitle: { ar: "رحلة واحدة لكل الخدمات", en: "One journey for every service", fr: "Un seul parcours pour tous les services", zh: "所有服务，同一条流程" },
-  journeySub: { ar: "ما يحتاج العميل يتعلم نظام جديد لكل خدمة.", en: "No customer has to learn a new system for each service.", fr: "Aucun client n'a à apprendre un nouveau système par service.", zh: "客户无需为每项服务学习新系统。" },
   j1: { ar: "محادثة", en: "Conversation", fr: "Conversation", zh: "对话" },
   j1s: { ar: "نفهم المطلوب", en: "We understand the need", fr: "Nous comprenons le besoin", zh: "了解需求" },
   j2: { ar: "نطاق الخدمات", en: "Scope of Work", fr: "Périmètre des services", zh: "服务范围" },
@@ -144,39 +175,6 @@ const D = {
   j6: { ar: "الفاتورة", en: "Invoice", fr: "Facture", zh: "发票" },
   j6s: { ar: "داخل الحساب", en: "Inside the account", fr: "Dans le compte", zh: "在账户中" },
 
-  portalTitle: { ar: "حسابك: كل شيء في مكان واحد", en: "Your account: everything in one place", fr: "Votre compte : tout au même endroit", zh: "您的账户：一处掌握全部" },
-  portalSub: { ar: "طلباتك وعروض أسعارك وعقودك ومواعيدك ومدفوعاتك وفواتيرك — تتابعها بنفسك في أي وقت.", en: "Your requests, quotations, contracts, appointments, payments and invoices — all followed by you, any time.", fr: "Vos demandes, devis, contrats, rendez-vous, paiements et factures — suivis par vous, à tout moment.", zh: "您的申请、报价、合同、预约、付款与发票 — 随时自行跟进。" },
-  tabClient: { ar: "لوحة العميل", en: "Client portal", fr: "Espace client", zh: "客户面板" },
-  tabAdmin: { ar: "لوحة الإدارة", en: "Operations dashboard", fr: "Tableau de bord", zh: "运营面板" },
-  previewNote: { ar: "صورة توضيحية للواجهة — البيانات الحقيقية تظهر بعد تسجيل الدخول.", en: "Illustrative preview — real data appears after you sign in.", fr: "Aperçu illustratif — les données réelles apparaissent après connexion.", zh: "示意界面 — 登录后显示真实数据。" },
-  openPortalBtn: { ar: "افتح حسابي", en: "Open my account", fr: "Ouvrir mon compte", zh: "打开我的账户" },
-  openOpsBtn: { ar: "افتح لوحة الإدارة", en: "Open the dashboard", fr: "Ouvrir le tableau de bord", zh: "打开运营面板" },
-  pClientHome: { ar: "الرئيسية", en: "Home", fr: "Accueil", zh: "首页" },
-  pClientNew: { ar: "ابدأ طلب", en: "New request", fr: "Nouvelle demande", zh: "新申请" },
-  pClientReqs: { ar: "طلباتي", en: "My requests", fr: "Mes demandes", zh: "我的申请" },
-  pClientQuotes: { ar: "عروض الأسعار", en: "Quotations", fr: "Devis", zh: "报价" },
-  pClientContracts: { ar: "العقود", en: "Contracts", fr: "Contrats", zh: "合同" },
-  pClientAppts: { ar: "المواعيد", en: "Appointments", fr: "Rendez-vous", zh: "预约" },
-  pClientPay: { ar: "السلة والدفع", en: "Cart & payment", fr: "Panier et paiement", zh: "购物车与付款" },
-  pClientInv: { ar: "الفواتير", en: "Invoices", fr: "Factures", zh: "发票" },
-  pClientChats: { ar: "المحادثات", en: "Conversations", fr: "Conversations", zh: "对话" },
-  pAdminReqs: { ar: "الطلبات", en: "Requests", fr: "Demandes", zh: "申请" },
-  pAdminPayments: { ar: "المدفوعات", en: "Payments", fr: "Paiements", zh: "付款" },
-  pAdminWa: { ar: "واتساب", en: "WhatsApp", fr: "WhatsApp", zh: "WhatsApp" },
-  pAdminCatalog: { ar: "الخدمات والأسعار", en: "Services & prices", fr: "Services et prix", zh: "服务与价格" },
-  pAdminTasks: { ar: "المهام", en: "Tasks", fr: "Tâches", zh: "任务" },
-  kActive: { ar: "طلبات نشطة", en: "Active requests", fr: "Demandes actives", zh: "进行中的申请" },
-  kQuote: { ar: "عرض سعر", en: "Quotation", fr: "Devis", zh: "报价" },
-  kSign: { ar: "عقد للتوقيع", en: "Contract to sign", fr: "Contrat à signer", zh: "待签合同" },
-  kAppt: { ar: "موعد قادم", en: "Upcoming appointment", fr: "Prochain rendez-vous", zh: "即将预约" },
-  kNew: { ar: "جديدة", en: "New", fr: "Nouvelles", zh: "新增" },
-  kNeedQuote: { ar: "تحتاج عرضاً", en: "Need a quote", fr: "Devis à faire", zh: "待报价" },
-  kWaitSign: { ar: "بانتظار التوقيع", en: "Awaiting signature", fr: "En attente de signature", zh: "待签署" },
-  kPaid: { ar: "مدفوعة", en: "Paid", fr: "Payées", zh: "已付款" },
-  todayReqs: { ar: "طلبات اليوم", en: "Today's requests", fr: "Demandes du jour", zh: "今日申请" },
-  onlyAction: { ar: "فقط ما يحتاج منك إجراءً.", en: "Only what needs an action from you.", fr: "Uniquement ce qui demande une action.", zh: "只显示需要您处理的事项。" },
-  goodMorning: { ar: "أهلاً بك 👋", en: "Welcome 👋", fr: "Bienvenue 👋", zh: "欢迎 👋" },
-  topToday: { ar: "هذه أهم الأشياء في حسابك اليوم.", en: "The things that matter in your account today.", fr: "L'essentiel de votre compte aujourd'hui.", zh: "今天您账户中的要点。" },
 
   loginTitle: { ar: "آخر خطوة: بريدك الإلكتروني", en: "Last step: your email", fr: "Dernière étape : votre e-mail", zh: "最后一步：您的邮箱" },
   loginText: { ar: "نرسل لك رمز دخول لنحفظ الطلب في حسابك وتتابعه من مكان واحد.", en: "We'll send a sign-in code so the request is saved to your account.", fr: "Nous envoyons un code de connexion pour enregistrer la demande dans votre compte.", zh: "我们将发送登录验证码，将申请保存到您的账户。" },
@@ -817,23 +815,16 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
   // ------------------------------------------------------------ homepage --
   function buildHome(path = "/") {
     const l = lang();
-    const doors = [
-      ["consulting", "💬", t("ctxConsulting"), t("doorConsulting"), t("ctaConsulting")],
-      ["government", "🏛️", t("ctxGovernment"), t("doorGovernment"), t("ctaGovernment")],
-      ["formation", "🏢", t("ctxFormation"), t("doorFormation"), t("ctaFormation")],
-      ...(BIZDEV_DOOR ? [["bizdev", "📈", t("ctxBizdev"), t("doorBizdev"), t("ctaBizdev")]] : []),
-    ].map(([k, ic, h3, p, cta]) => `<button type="button" class="sv1-door${k === "consulting" ? " on" : ""}" id="door-${k}" data-door="${k}"><div class="ico">${ic}</div><h3>${h3}</h3><p>${p}</p><span>${cta}</span></button>`).join("");
-    // EOR: بابٌ برابط (لا data-door) — يفتح /eor بالبادئة اللغوية ولا يغيّر سياق المستشار.
+    // سياق المحادثة (لا أبواب): ثلاث رقاقات داخل لوحة المستشار تختار نوع الطلب.
+    // مسار الزائر نفسه (البطاقات الأربع والبحث) في simple-v1-home-path.mjs.
+    const ctxPills = [
+      ["consulting", t("ctxConsulting")],
+      ["government", t("ctxGovernment")],
+      ["formation", t("ctxFormation")],
+      ...(BIZDEV_DOOR ? [["bizdev", t("ctxBizdev")]] : []),
+    ].map(([k, label]) => `<button type="button" class="${k === "consulting" ? "on" : ""}" data-door="${k}" data-track="سياق المستشار: ${k}">${label}</button>`).join("");
     const eorTx = EOR_PAGE_TEXT[l] || EOR_PAGE_TEXT.en;
-    const eorDoor = `<a class="sv1-door" id="door-eor" href="${href("/eor")}" data-track="باب: eor"><div class="ico">👥</div><h3>${eorTx.title}</h3><p>${eorTx.desc}</p><span>${t("ctaEor")}</span></a>`;
-
-    const flow = [1, 2, 3, 4, 5, 6].map((n) => `<div><i>${n}</i><b>${t("j" + n)}</b><small>${t("j" + n + "s")}</small></div>`).join("");
-
-    const clientMenu = ["pClientHome", "pClientNew", "pClientReqs", "pClientQuotes", "pClientContracts", "pClientAppts", "pClientPay", "pClientInv", "pClientChats"]
-      .map((k, i) => `<div class="sv1-mi${i === 0 ? " on" : ""}">${t(k)}</div>`).join("");
-    // Sample figures, exactly as the approved concept shows them; the caption
-    // under the panel says so, and real numbers appear after signing in.
-    const S = { cActive: "2", cQuote: "1", cSign: "1", cAppt: "1" };
+    const hp = buildHomePath({ t, esc, href, lang, eorTitle: eorTx.title });
 
     const TX = {
       thinking: t("thinking"), chatError: t("chatError"), scopeIn: t("scopeIn"), needScope: t("needScope"),
@@ -852,22 +843,11 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
     const body = `
 ${header(path)}
 <main>
-  <section class="sv1-hero"><div class="wrap grid">
-    <div>
-      <span class="sv1-tag">${t("heroTag")}</span>
-      <h1>${t("heroTitle")}</h1>
-      <p class="sv1-lead">${t("heroText")}</p>
-      <div class="sv1-actions">
-        <a class="sv1-btn primary" href="#advisor">${t("heroChat")}</a>
-        <a class="sv1-btn wa" href="${WA_HUMAN}" target="_blank" rel="noopener">${t("heroWa")}</a>
-      </div>
-      <ul class="sv1-trust"><li>${t("trust1")}</li><li>${t("trust2")}</li><li>${t("trust3")}</li>${BIZDEV_DOOR ? `<li>${t("trust4")}</li>` : ""}</ul>
-    </div>
-    <div class="sv1-doorwrap">
-      <div class="sv1-doors" id="doors">${doors}${eorDoor}</div>
-      <a class="sv1-browse" href="${href("/catalog")}" data-track="تصفّح الخدمات واشترِ مباشرة">${t("browseDirect")}</a>
-    </div>
-  </div></section>
+  ${hp.hero}
+
+  ${hp.how}
+
+  ${hp.pop}
 
   <section class="sv1-sec" id="advisor"><div class="wrap">
     <div class="sv1-title"><h2>${t("advisorTitle")}</h2><p>${t("advisorSub")}</p></div>
@@ -877,7 +857,7 @@ ${header(path)}
       </div>
       <div class="sv1-appgrid">
         <div class="sv1-chat">
-          <div class="sv1-chathead"><h3 id="sv1ChatTitle">${t("ctxConsulting")}</h3><p id="sv1ChatSub">${t("doorConsulting")}</p></div>
+          <div class="sv1-chathead"><h3 id="sv1ChatTitle">${t("ctxConsulting")}</h3><p id="sv1ChatSub">${t("doorConsulting")}</p><div class="sv1-chatctx" role="group" aria-label="${esc(t("typeLbl"))}">${ctxPills}</div></div>
           <div class="sv1-msgs" id="sv1Msgs" aria-live="polite"></div>
           <div class="sv1-voice" id="sv1Voice" role="status" aria-live="polite"></div>
           <form class="sv1-compose" id="sv1Form">
@@ -926,49 +906,7 @@ ${header(path)}
     </div>
   </div></section>
 
-  <section class="sv1-sec" id="simple"><div class="wrap">
-    <div class="sv1-title"><h2>${t("noNameTitle")}</h2><p>${t("noNameSub")}</p></div>
-    <div class="sv1-three">
-      <div class="sv1-panel"><h4>${t("nn1")}</h4><p class="sv1-muted">${t("nn1s")}</p></div>
-      <div class="sv1-panel"><h4>${t("nn2")}</h4><p class="sv1-muted">${t("nn2s")}</p></div>
-      <div class="sv1-panel"><h4>${t("nn3")}</h4><p class="sv1-muted">${t("nn3s")}</p></div>
-    </div>
-  </div></section>
-
-  <section class="sv1-sec sv1-gray" id="how"><div class="wrap">
-    <div class="sv1-title"><h2>${t("journeyTitle")}</h2><p>${t("journeySub")}</p></div>
-    <div class="sv1-flow">${flow}</div>
-  </div></section>
-
-  <section class="sv1-sec" id="portal"><div class="wrap">
-    <div class="sv1-title"><h2>${t("portalTitle")}</h2><p>${t("portalSub")}</p></div>
-    <div class="sv1-portal">
-      <div class="sv1-pgrid" id="sv1PC">
-        <aside class="sv1-side"><strong>${t("brand")}</strong><small>BUSINESS PARTNER</small>${clientMenu}</aside>
-        <main class="sv1-pmain">
-          <h3>${t("goodMorning")}</h3><div class="sv1-muted">${t("topToday")}</div>
-          <div class="sv1-stats">
-            <div class="sv1-stat"><span>${t("kActive")}</span><b>${S.cActive}</b></div>
-            <div class="sv1-stat"><span>${t("kQuote")}</span><b>${S.cQuote}</b></div>
-            <div class="sv1-stat"><span>${t("kSign")}</span><b>${S.cSign}</b></div>
-            <div class="sv1-stat"><span>${t("kAppt")}</span><b>${S.cAppt}</b></div>
-          </div>
-          <div class="sv1-cols">
-            <div class="sv1-panel"><h4>${t("pClientReqs")}</h4>
-              <div class="sv1-prow"><span>${t("ctxGovernment")}</span><span class="sv1-status">${t("stepReq")}</span></div>
-              <div class="sv1-prow"><span>${t("ctxConsulting")}</span><span class="sv1-status">${t("stepQuote")}</span></div>
-              <div class="sv1-prow"><span>${t("ctxFormation")}</span><span class="sv1-status done">${t("stepPay")}</span></div>
-            </div>
-            <div class="sv1-panel"><h4>${t("pClientAppts")}</h4>
-              <p class="sv1-muted">${t("kAppt")}</p>
-              <a class="sv1-btn primary sm" href="${href("/my")}">${t("openPortalBtn")}</a>
-            </div>
-          </div>
-        </main>
-      </div>
-    </div>
-    <p class="sv1-pnote">${t("previewNote")}</p>
-  </div></section>
+  ${hp.faq}
 </main>
 ${footer()}`;
 
@@ -998,7 +936,7 @@ function drawItems(){var box=$('sv1Items');box.innerHTML='';state.items.forEach(
 function drawDocs(){var box=$('sv1Docs');box.innerHTML='';if(!state.docs.length){var e=document.createElement('div');e.className='empty';e.textContent=TX.docsEmpty;box.appendChild(e);return}
 state.docs.forEach(function(d,i){var row=document.createElement('div');row.className='sv1-doc';var t=document.createElement('span');t.textContent=d.title;var del=document.createElement('button');del.className='del';del.type='button';del.textContent='\u00d7';del.onclick=function(){state.docs.splice(i,1);drawDocs();save()};row.appendChild(t);row.appendChild(del);box.appendChild(row)})}
 function setCtx(k,quiet){state.ctx=k;state.history=[];state.ready=false;state.summary='';state.title='';state.items=(TX.seed[k]||[]).map(function(x){return {code:'',title:x,why:''}});state.docs=[];
-Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===k)});
+Array.prototype.forEach.call(document.querySelectorAll('.sv1-chatctx [data-door]'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===k)});
 $('sv1ChatTitle').textContent=TX.titles[k];$('sv1ChatSub').textContent=TX.doorSub[k];$('sv1Type').textContent=TX.types[k];$('sv1Price').textContent=TX.stateReady;
 msgs.innerHTML='';add(TX.welcome[k],'a');chips();drawItems();drawDocs();save();
 if(!quiet){var a=document.getElementById('advisor');if(a)a.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(function(){input.focus()},420)}}
@@ -1114,7 +1052,7 @@ state.items=(hxItems&&hxItems.length)
  ?hxItems.map(function(x){return {code:x.code||'',title:x.title,why:x.why||''}})
  :[{code:hx.code||'',title:hx.name,why:hx.platform||''}];
 if(state.items.length===1)state.items=state.items.concat((TX.seed[state.ctx]||[]).slice(0,2).map(function(x){return {code:'',title:x,why:''}}));
-Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
+Array.prototype.forEach.call(document.querySelectorAll('.sv1-chatctx [data-door]'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
 $('sv1ChatTitle').textContent=TX.titles[state.ctx];$('sv1ChatSub').textContent=TX.doorSub[state.ctx];$('sv1Type').textContent=TX.types[state.ctx];$('sv1Price').textContent=TX.stateReady;
 var opener=hx.text||hx.name||state.items.map(function(x){return x.title}).join('، ');
 msgs.innerHTML='';add(opener,'u');state.history.push({role:'user',content:opener});drawItems();drawDocs();save();ask();
@@ -1122,14 +1060,14 @@ handoff=true;setTimeout(function(){var a=document.getElementById('advisor');if(a
 // boot
 if(handoff){/* already rendered from the service-page handoff */}
 else if(state.history.length){$('sv1ChatTitle').textContent=TX.titles[state.ctx];$('sv1ChatSub').textContent=TX.doorSub[state.ctx];$('sv1Type').textContent=TX.types[state.ctx];$('sv1Price').textContent=TX.stateReady;
-Array.prototype.forEach.call(document.querySelectorAll('.sv1-door'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
+Array.prototype.forEach.call(document.querySelectorAll('.sv1-chatctx [data-door]'),function(d){d.classList.toggle('on',d.getAttribute('data-door')===state.ctx)});
 msgs.innerHTML='';state.history.forEach(function(m){var p=m.role==='assistant'?parseScope(m.content):{text:m.content};var t=m.role==='assistant'?parseOpts(p.text).text:p.text;if(t)add(t,m.role==='assistant'?'a':'u')});drawItems();drawDocs()}
 else setCtx(state.ctx,true);
 })();</script>`;
     return shell({
       title: (BIZDEV_DOOR ? { ar: "Business Partner — استشارات، خدمات حكومية، تأسيس شركات، تطوير أعمال", en: "Business Partner — Consulting, government services, company formation, business development", fr: "Business Partner — Conseil, services gouvernementaux, création d'entreprise, développement commercial", zh: "Business Partner — 咨询、政府服务、公司注册、业务拓展" } : { ar: "Business Partner — استشارات، خدمات حكومية، تأسيس شركات", en: "Business Partner — Consulting, government services, company formation", fr: "Business Partner — Conseil, services gouvernementaux, création d'entreprise", zh: "Business Partner — 咨询、政府服务、公司注册" })[l],
-      desc: t("heroText"),
-      path, body, script,
+      desc: t("hpMeta"),
+      path, body: hp.css + body, script: script + hp.script,
     });
   }
 

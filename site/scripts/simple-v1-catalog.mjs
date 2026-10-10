@@ -17,6 +17,12 @@
 // هو شرط القديم نفسه (`generate.mjs`): للبند سعرٌ، وليس عقاراً ولا سياحة. ما
 // سواه يحتاج عرضاً مخصّصاً فيبقى «ابدأ طلبك».
 //
+// معاملا الرابط (من مسار الزائر في الرئيسية، simple-v1-home-path.mjs):
+//   ?door=formation|government|consulting → يُصفّي بمجال الباب (خريطة DOOR أدناه)
+//                                          ويفتح كل المجموعات، وفوقه شريط «عرض كل الخدمات».
+//   ?q=<كلمات>                            → يملأ مربع البحث ويرسم النتيجة.
+// البحث كلمات متعددة بـ«و» وبتطبيع خفيف للعربية (همزات، تاء مربوطة، تشكيل).
+//
 // الأسعار لا تظهر للزائر: سياسة المالك أن الكتالوج وأسعاره في الخلفية. سعر
 // الباقة يحمل صنف `price-amt` الذي تخفيه قاعدة `html[data-prices="off"]`
 // العامة، فيراه العميل المسجَّل ولا يراه الزائر — قاعدة واحدة لا استثناء لها.
@@ -67,6 +73,8 @@ const T = {
   journey:{ ar: "من هنا تبدأ الرحلة نفسها لكل خدمة", en: "Every service starts the same journey",
             fr: "Chaque service suit le même parcours", zh: "每项服务都走同一流程" },
   ask:    { ar: "ما لقيت اللي تبيه؟", en: "Not finding it?", fr: "Vous ne trouvez pas ?", zh: "没找到？" },
+  filterLbl: { ar: "تصفية بحسب:", en: "Filtered by:", fr: "Filtré par :", zh: "筛选：" },
+  showAll: { ar: "عرض كل الخدمات", en: "Show all services", fr: "Voir tous les services", zh: "显示全部服务" },
   askCta: { ar: "اشرح احتياجك في المحادثة", en: "Describe your need in the chat", fr: "Décrivez votre besoin", zh: "在对话中描述您的需求" },
 };
 
@@ -169,6 +177,7 @@ export function buildSimpleCatalog(SV1, ctx) {
     </div>
 
     <div id="paneSvc">
+      <div class="sv1-cat-filter sv1-hide" id="catFilter"><span>${esc(t("filterLbl"))} <b id="catFilterName"></b></span><a href="${(ar || lang !== "en" ? "/" + lang : "") + "/catalog"}" id="catFilterAll">${esc(t("showAll"))}</a></div>
       <div class="sv1-cat-tools">
         <input id="svcQ" class="sv1-cat-q" type="search" placeholder="${esc(t("search"))}" aria-label="${esc(t("search"))}">
         <button type="button" class="sv1-btn sm ghost" id="svcToggleAll">${esc(t("openAll"))}</button>
@@ -204,6 +213,10 @@ ${SV1.footer()}`;
 .sv1-cat-journey ol{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;counter-reset:j}
 .sv1-cat-journey li{counter-increment:j;font-size:11.5px;color:var(--ink);background:#fff;border:1px solid var(--l);border-radius:999px;padding:5px 11px;font-weight:600}
 .sv1-cat-journey li::before{content:counter(j) " · ";color:var(--mut);font-weight:700}
+.sv1-cat-filter{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--acSoft);border:1px solid var(--acLine);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:13.5px;color:var(--s)}
+.sv1-cat-filter b{color:var(--ink)}
+.sv1-cat-filter a{color:var(--ac);font-weight:600;text-decoration:underline}
+.sv1-cat-filter.sv1-hide{display:none}
 .sv1-cat-tools{display:flex;gap:8px;align-items:center;margin-bottom:16px}
 .sv1-cat-q{flex:1;border:1px solid var(--l);border-radius:12px;padding:13px 15px;font:inherit;font-size:15px;outline:none;background:#fff}
 .sv1-cat-q:focus{border-color:var(--n)}
@@ -260,6 +273,7 @@ body.sv1-tray-on .sv1-wa-fab,body.sv1-tray-on .bps-fab{bottom:78px}
 (function(){
 var GROUPS=${JSON.stringify(groups)},PKGS=${JSON.stringify(packages)},LANG=${JSON.stringify(lang)};
 var TX=${JSON.stringify({ none: t("none"), picked: t("picked"), svcWord: t("svcWord"), openAll: t("openAll"), closeAll: t("closeAll"), pkgAsk: t("pkgAsk"), monthly: t("monthly"), details: t("details"), addCart: t("addCart"), addPicked: t("addPicked"), added: t("added"), addedToast: t("addedToast"), addedN: t("addedN"), cartFail: t("cartFail"), custom: t("custom") })};
+var DOORS=${JSON.stringify({ formation: SV1.t("ctxFormation"), government: SV1.t("ctxGovernment"), consulting: SV1.t("ctxConsulting") })};
 var HOME=${JSON.stringify(lang === "en" ? "/" : "/" + lang + "/")};
 var $=function(id){return document.getElementById(id)};
 var list=$('svcList'),q=$('svcQ'),tray=$('svcTray'),cnt=$('trayCount');
@@ -334,17 +348,25 @@ function go(){
  var door=Object.keys(tally).sort(function(a,b){return tally[b]-tally[a]})[0]||'consulting';
  handoff(picked.map(function(p){return {code:p.code,title:p.title,why:p.why}}),door,picked.map(function(p){return p.title}).join('، '));
 }
+// تطبيع خفيف للعربية: حروف صغيرة، وبلا تشكيل، وهمزات وتاء مربوطة وألف مقصورة موحّدة.
+function norm(x){return String(x||'').toLowerCase().replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي')}
+var QS=new URLSearchParams(location.search),DOORF=QS.get('door');
+if(!DOORS[DOORF])DOORF='';
 function draw(){
- var f=(q.value||'').trim().toLowerCase();
+ var tk=norm(q.value).trim().split(/\\s+/).filter(Boolean),f=tk.length>0;
  list.innerHTML='';
  var any=false;
  GROUPS.forEach(function(g){
-  var hits=g.items.filter(function(s){return !f||(s.name+' '+s.code+' '+s.cat+' '+s.gov).toLowerCase().indexOf(f)>=0});
+  var hits=g.items.filter(function(s){
+   if(DOORF&&s.door!==DOORF)return false;
+   if(!f)return true;
+   var h=norm(s.name+' '+s.code+' '+s.cat+' '+s.gov);
+   return tk.every(function(x){return h.indexOf(x)>=0})});
   if(!hits.length)return;
   any=true;
   var box=el('div','sv1-grp');
-  // البحث يفتح ما طابق: نتيجةٌ مخبّأة خلف عنوان مطويّ ليست نتيجة.
-  if(f)box.classList.add('open');
+  // البحث يفتح ما طابق: نتيجةٌ مخبّأة خلف عنوان مطويّ ليست نتيجة. وكذلك التصفية بالباب.
+  if(f||DOORF)box.classList.add('open');
   var head=el('button');head.type='button';
   var left=el('span');left.appendChild(el('b',null,g.cat));
   var meta=el('span','meta');
@@ -413,6 +435,8 @@ function drawPkgs(){
 }
 $('tabSvc').onclick=function(){this.classList.add('on');$('tabPkg').classList.remove('on');$('paneSvc').classList.remove('sv1-hide');$('panePkg').classList.add('sv1-hide')};
 $('tabPkg').onclick=function(){this.classList.add('on');$('tabSvc').classList.remove('on');$('panePkg').classList.remove('sv1-hide');$('paneSvc').classList.add('sv1-hide')};
+if(QS.get('q'))q.value=QS.get('q');
+if(DOORF){$('catFilterName').textContent=DOORS[DOORF];$('catFilter').classList.remove('sv1-hide')}
 draw();drawPkgs();drawTray();
 if(/[?&]tab=packages/.test(location.search))$('tabPkg').click();
 })();</script>`;
