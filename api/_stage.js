@@ -322,7 +322,7 @@ export async function announce(ev) {
   }
   report.to = { email: email || "", phone: phone ? waNumber(phone) : "" };
 
-  const url = ev.url || `${SITE}/ar/my`;
+  const url = ev.url || `${SITE}/ar/account`;
   const total = ev.total != null ? money(ev.total) : "";
   const title = meta.title;
   const line = ev.extra && ev.stage === "work_update" ? "" : meta.line;
