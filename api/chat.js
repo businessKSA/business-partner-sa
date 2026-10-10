@@ -31,6 +31,7 @@ import { priceSheetText } from "./_catalog.js";
 import { pickKnowledge, KNOWLEDGE_INDEX } from "./_knowledge.js";
 import { transcribeAudio, voiceProviders } from "./_docread.js";
 import { AZURE_KEYS, azureChat, azureConfigured, azureHealth } from "./_azure.js";
+import { WHATSAPP_LIVE } from "./_mode.js";
 
 // The same two doors /api/requests accepts for every panel action: the owner
 // key (env-only) or a Nafath-approved ticket. mode:"admin" rides on them.
@@ -204,6 +205,8 @@ const callAzure = (messages, system) => azureChat({ system, messages, maxTokens:
 // نفس وكيل «باهر» (خدمة العملاء) المتصل بفريق المتخصصين. لا يحمل ذاكرة الجلسة
 // عبر الويبهوك، لذا نمرر آخر أدوار المحادثة داخل نص السؤال نفسه.
 async function callN8nBaher(messages) {
+  // محلياً/معاينة لا نُرسل أسئلة الزوار إلى n8n الإنتاجي (WHATSAPP_MODE != live).
+  if (!WHATSAPP_LIVE) throw new Error("n8n fallback disabled outside live mode");
   const transcript = messages
     .map((m) => (m.role === "user" ? "الزائر: " : "باهر: ") + m.content)
     .join("\n")
