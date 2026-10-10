@@ -200,7 +200,9 @@ const FIXED_SKUS = {
 function skuAmount(rawId, priceMap) {
   const id = String(rawId || "").toLowerCase();
   if (FIXED_SKUS[id] != null) return FIXED_SKUS[id];
-  if (id.indexOf("employee-") === 0) return 500;
+  // One specialist, one slug. "employee-all" is the whole-team entitlement and
+  // is priced as the shared-services team, never as a 500 riyal specialist.
+  if (id.indexOf("employee-") === 0) return /^employee-[a-z0-9]{1,30}$/.test(id) && id !== "employee-all" ? 500 : null;
   const hit = priceMap[catalogKey(id)];
   return hit && hit.amount > 0 ? hit.amount : null;
 }

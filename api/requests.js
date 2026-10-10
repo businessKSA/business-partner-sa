@@ -4924,23 +4924,34 @@ export default async function handler(req, res) {
     const total = Number(d.total) || 0;
     const payId = String(d.payId || "").slice(0, 64);
     const verified = !!d.verified;
+    // The service page (Simple V1) puts these subscriptions in the cart as
+    // svc-<catalog code>, while the activation below reads the ids the older
+    // pages used (agent-*). Without this map a verified payment was filed as a
+    // plain service: the client paid and received no code and no portal.
+    // The amount was already verified against the catalog by api/pay.js.
+    const SVC_PAGE_ALIAS = { "svc-bp-ai-03": "agent-compliance-agent", "svc-bp-ai-04": "agent-shared-services-team" };
+    const SEAT_ID = "svc-bp-ai-smart-employee";
     const ids = (Array.isArray(d.ids) ? d.ids : []).slice(0, 40)
       .map((x) => ({ id: String((x && x.id) || "").slice(0, 80), qty: Math.max(1, Math.min(99, Number(x && x.qty) || 1)) }))
-      .filter((x) => x.id);
+      .filter((x) => x.id)
+      .map((x) => ({ id: SVC_PAGE_ALIAS[x.id.toLowerCase()] || x.id, qty: x.qty }));
     // Entitlements come from the paid item ids themselves, not from flags a
     // page could claim — the same ids the amount was verified against.
     const lower = (s) => String(s || "").toLowerCase();
-    const agents = ids.filter((x) => lower(x.id).indexOf("employee-") === 0).map((x) => x.id.slice("employee-".length).toLowerCase()).filter((s) => /^[a-z0-9]{1,30}$/.test(s));
+    // "employee-all" is not a specialist: it would write the ALL entitlement
+    // (the shared-services team, 1500/month) on a 500 riyal line.
+    const agents = ids.filter((x) => lower(x.id).indexOf("employee-") === 0).map((x) => x.id.slice("employee-".length).toLowerCase()).filter((s) => /^[a-z0-9]{1,30}$/.test(s) && s !== "all");
+    const boughtSeats = ids.reduce((n, x) => n + (lower(x.id) === SEAT_ID ? x.qty : 0), 0);
     const boughtShared = ids.some((x) => lower(x.id).indexOf("agent-shared-services") === 0);
     if (boughtShared) agents.push("all");
     const boughtCompliance = ids.some((x) => lower(x.id).indexOf("agent-compliance") === 0);
     const empItem = ids.map((x) => lower(x.id)).find((id) => id.indexOf("employer-plan-") === 0) || "";
     const employerPlan = empItem ? empItem.replace("employer-plan-", "").replace(/-monthly$|-yearly$/, "") : "";
     const boughtData = ids.some((x) => lower(x.id) === "companies-data-access");
-    const gatedCount = (boughtCompliance ? 1 : 0) + (employerPlan ? 1 : 0) + (boughtShared ? 1 : 0) + (boughtData ? 1 : 0) + agents.filter((a) => a !== "all").length;
+    const gatedCount = (boughtCompliance ? 1 : 0) + (employerPlan ? 1 : 0) + (boughtShared ? 1 : 0) + (boughtData ? 1 : 0) + (boughtSeats ? 1 : 0) + agents.filter((a) => a !== "all").length;
     const plainItems = ids.filter((x) => {
       const id = lower(x.id);
-      return !(id.indexOf("employee-") === 0 || id.indexOf("agent-") === 0 || id.indexOf("employer-plan-") === 0 || id === "companies-data-access");
+      return !(id.indexOf("employee-") === 0 || id.indexOf("agent-") === 0 || id.indexOf("employer-plan-") === 0 || id === "companies-data-access" || id === SEAT_ID);
     });
     const itemsText = (Array.isArray(d.items) && d.items.length ? d.items.map(String) : ids.map((x) => x.id + " ×" + x.qty)).join("، ").slice(0, 900);
 
@@ -5000,6 +5011,16 @@ export default async function handler(req, res) {
           activated.agents = !!(await sendEmail(email, `تم تفعيل موظفيك الأذكياء — رمز الدخول ${ref}`, aHtml)).ok;
         } catch { activated.agents = false; }
       }
+      if (boughtSeats && isEmail(email)) {
+        // The service page sells "a specialist smart employee" without naming
+        // one, so there is no slug to write on the CRM row. The portal opens
+        // for the buyer's own account (open-access policy); the buyer picks
+        // the specialist there.
+        try {
+          const sHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل اشتراكك في الموظف الذكي المتخصص 🎉</h2><p>عدد الموظفين المشمولين: <b>${boughtSeats}</b>. افتح بوابة الموظفين الأذكياء وسجّل الدخول بحسابك بالبريد نفسه (${esc(email)}) ثم اختر موظفك المتخصص.</p><p><a href="${MKT_SITE_BASE}/ar/connect" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح بوابة الموظفين الأذكياء</a></p><p style="color:#475569">رقم المرجع: <b style="direction:ltr;display:inline-block">${esc(ref)}</b></p></div>`;
+          activated.seat = !!(await sendEmail(email, `تم تفعيل اشتراك الموظف الذكي المتخصص — ${ref}`, sHtml)).ok;
+        } catch { activated.seat = false; }
+      }
       if (plainItems.length && isEmail(email)) {
         try { activated.service = !!(await approveService({ service: itemsText, company: company !== name ? company : "", email, phone, ref, note: "تم تأكيد دفعتك الإلكترونية وبدأ التنفيذ مباشرة." })); } catch { activated.service = false; }
       }
@@ -5009,7 +5030,7 @@ export default async function handler(req, res) {
     // could not be matched to the catalogue, in which case the old approval
     // links are attached and nothing gated activates until one is clicked.
     const doneList = Object.keys(activated).filter((k) => activated[k]);
-    const okHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">💳 طلب مدفوع إلكترونياً ${esc(ref)} — مفعّل تلقائياً</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", itemsText) + row("الإجمالي المدفوع", total ? total + " ﷼" : "") + row("رقم عملية ميسر", payId)}</table><p>✅ الدفع تحقّقنا منه من ميسر مباشرة، والحالة في CRM «مؤكد - قيد التنفيذ».</p>${doneList.length ? `<p>تفعيلات آلية تمت: <b>${doneList.join("، ")}</b> — وصلت العميل أكواد الوصول على بريده.</p>` : ""}<p style="color:#666;font-size:13px">لا يلزمك أي إجراء.</p></div>`;
+    const okHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">💳 طلب مدفوع إلكترونياً ${esc(ref)} — مفعّل تلقائياً</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", itemsText) + row("الإجمالي المدفوع", total ? total + " ﷼" : "") + row("رقم عملية ميسر", payId)}</table><p>✅ الدفع تحقّقنا منه من ميسر مباشرة، والحالة في CRM «مؤكد - قيد التنفيذ».</p>${doneList.length ? `<p>تفعيلات آلية تمت: <b>${doneList.join("، ")}</b> — وصلت العميل أكواد الوصول على بريده.</p>` : ""}${boughtSeats ? `<p>الموظف الذكي المتخصص (${boughtSeats}): لم يُحدَّد موظف بعينه في الطلب — يختاره العميل من البوابة.</p>` : ""}<p style="color:#666;font-size:13px">لا يلزمك أي إجراء.</p></div>`;
     const reviewLinks = [
       boughtCompliance && isEmail(email) ? `<p><a href="${MKT_SITE_BASE}/api/requests?action=approve-compliance&t=${encodeURIComponent(ssSeal({ company, email, phone, ref }))}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">✅ تفعيل وكيل الامتثال</a></p>` : "",
       employerPlan && isEmail(email) ? `<p><a href="${MKT_SITE_BASE}/api/requests?action=approve-employer&t=${encodeURIComponent(ssSeal({ company, email, phone, ref, plan: employerPlan }))}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">✅ تفعيل منصة التوظيف</a></p>` : "",
