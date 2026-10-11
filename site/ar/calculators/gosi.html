@@ -29,7 +29,7 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@200;300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/css/styles.css?v=456b4af262">
+<link rel="stylesheet" href="/assets/css/styles.css?v=7fedcef540">
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
 <script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
 <style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
@@ -395,10 +395,62 @@ var h0=hint();if(h0)S.paint(true,h0);
           <div class="cc-tile tile-gold"><span>الإجمالي الشهري</span><strong id="gs-tot">—</strong></div>
         </div>
       </div>
+      
+      <div class="cc-capture" id="gs-cap-box" hidden>
+        <div class="cc-capture-head">
+          <strong>تبغى النتيجة مكتوبة؟</strong>
+          <span>نرسل لك التفصيل كاملاً مع مراجعة مجانية لحالتك.</span>
+        </div>
+        <div class="cc-capture-row">
+          <input id="gs-cap-name" type="text" autocomplete="name" placeholder="الاسم">
+          <input id="gs-cap-email" type="email" autocomplete="email" placeholder="البريد الإلكتروني">
+          <input id="gs-cap-phone" type="tel" autocomplete="tel" placeholder="الجوال (اختياري)">
+          <button class="btn btn-primary" id="gs-cap-send">أرسلها لي</button>
+        </div>
+        <p class="cc-capture-note" id="gs-cap-msg" hidden></p>
+      </div>
     </div>
     <div class="cc-disclaimer">⚖️ تقديرات مبنية على لوائح التأمينات لأغراض إرشادية. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.</div>
   </div></section>
   <script>window.BP_LC_LANG="ar";</script>
+  <script>(function(){
+    var isAr=window.BP_LC_LANG==="ar";
+    var $=function(i){return document.getElementById(i);};
+    var box=$("gs-cap-box"),res=$("gs-result");
+    if(!box||!res)return;
+    // Reveal the offer only once the visitor actually has a result.
+    var mode="hidden";
+    if(mode==="content"){
+      new MutationObserver(function(){
+        // Any rendered answer counts, including "no localization decision found" —
+        // that page already tells the visitor to contact us to confirm, which makes it
+        // the highest-intent moment on the tool, not a dead end.
+        if(res.children.length)box.hidden=false;
+      }).observe(res,{childList:true,subtree:true});
+    } else {
+      new MutationObserver(function(){if(!res.hidden)box.hidden=false;})
+        .observe(res,{attributes:true,attributeFilter:["hidden"]});
+    }
+    var msg=$("gs-cap-msg");
+    var show=function(t,ok){msg.hidden=false;msg.textContent=t;msg.style.color=ok?"#137a3e":"#b3261e";};
+    $("gs-cap-send").addEventListener("click",function(){
+      var v=function(i){var e=$(i);return e?e.value.trim():"";};
+      var name=v("gs-cap-name"),email=v("gs-cap-email"),phone=v("gs-cap-phone");
+      if(!email||email.indexOf("@")<1){show(isAr?"اكتب بريداً صحيحاً.":"Enter a valid email.",false);return;}
+      var fd=new FormData();
+      fd.append("name",name||(isAr?"زائر الحاسبة":"Calculator visitor"));
+      fd.append("email",email);
+      fd.append("whatsapp",phone);
+      fd.append("service","gosi");
+      fd.append("source","website-calculator-"+"gosi");
+      fd.append("notes",(isAr?"نتيجة الحاسبة: ":"Calculator result: ")+(res.innerText||"").replace(/s+/g," ").slice(0,600));
+      var b=$("gs-cap-send");b.disabled=true;
+      fetch("https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web",{method:"POST",body:fd})
+        .then(function(r){if(!r.ok)throw 0;show(isAr?"تم — تصلك النتيجة والمراجعة خلال يوم عمل.":"Done — you'll get the breakdown and review within one working day.",true);})
+        .catch(function(){show(isAr?"تعذّر الإرسال. جرّب مرة أخرى أو راسلنا واتساب.":"Sending failed — try again or message us on WhatsApp.",false);})
+        .finally(function(){b.disabled=false;});
+    });
+  })();</script>
   <script>
   (function(){
     var isAr=window.BP_LC_LANG==="ar";

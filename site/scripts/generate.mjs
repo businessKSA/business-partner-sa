@@ -268,6 +268,7 @@ const I = {
   linkedin: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>',
   instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" fill="currentColor" stroke="none"/></svg>',
   facebook: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7.5h2.5l.5-3h-3V8.6c0-.87.24-1.46 1.5-1.46H16.6V4.5c-.28-.04-1.23-.12-2.34-.12-2.31 0-3.9 1.41-3.9 4v2.12H7.9v3h2.46V21h3.14z"/></svg>',
+  tiktok: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 1 1-1.87-2.49v-3.1a5.67 5.67 0 1 0 4.96 5.62V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3a4.3 4.3 0 0 1-3.24-1.48z"/></svg>',
 };
 
 /* ---------- multilingual build-time engine ----------
@@ -715,6 +716,7 @@ function footer() {
     ${site.social ? `<div class="footer-social" aria-label="${Lraw("Social media", "حساباتنا في التواصل الاجتماعي")}">
       ${site.social.linkedin ? `<a href="${site.social.linkedin}" target="_blank" rel="noopener" aria-label="LinkedIn">${I.linkedin}</a>` : ""}
       ${site.social.instagram ? `<a href="${site.social.instagram}" target="_blank" rel="noopener" aria-label="Instagram">${I.instagram}</a>` : ""}
+      ${site.social.tiktok ? `<a href="${site.social.tiktok}" target="_blank" rel="noopener" aria-label="TikTok">${I.tiktok}</a>` : ""}
       ${site.social.facebook ? `<a href="${site.social.facebook}" target="_blank" rel="noopener" aria-label="Facebook">${I.facebook}</a>` : ""}
     </div>` : ""}</div>
   </div>
@@ -812,6 +814,29 @@ function advisorWidget() {
       </form>
     </div>
   </section>`;
+}
+
+// Service pages are where every marketing link lands. They were still rendering
+// in the old site chrome while the homepage had moved to the Simple V1 design,
+// so a visitor arriving from a campaign met a different site than the one on /ar
+// — different header, different navigation, different design language.
+//
+// This renders them through the same shell, header and footer as the homepage.
+// The page body keeps its own markup and classes; only the chrome changes. The
+// shell wraps everything in .sv1, whose base rule strips colour and underline
+// from every link, so the content area restores its own link styling rather than
+// inheriting a reset meant for the landing page.
+const SV1_CONTENT_CSS = `<style>.sv1 main a{color:var(--brand,#0B1B5A);text-decoration:revert}.sv1 main a.btn,.sv1 main a.btn-white,.sv1 main a.btn-wa,.sv1 main a[class*="btn"]{text-decoration:none}.sv1 main{display:block;width:100%}</style>`;
+
+function servicePage({ title, desc, path, body, script = "", noindex = false }) {
+  return SV1.shell({
+    title,
+    desc,
+    path,
+    noindex,
+    script,
+    body: SV1.header(path) + SV1_CONTENT_CSS + `<main>${body}</main>` + SV1.footer(),
+  });
 }
 
 function page({ title, desc, active, path, body, script = "", noindex = false, extraHead = "", bodyClass = "" }) {
@@ -2199,7 +2224,7 @@ function buildServicesIndex() {
     apply();
   })();
   </script>`;
-  return page({ title: Lraw("All services — Business Partner", "كل الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services — a custom quote for your case.", services.length + " خدمة حكومية وتجارية — عرض سعر حسب حالتك."), active: "/services", body });
+  return servicePage({ title: Lraw("All services — Business Partner", "كل الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services — a custom quote for your case.", services.length + " خدمة حكومية وتجارية — عرض سعر حسب حالتك."), path: "/services", body });
 }
 
 // One page per category listing only that category's services.
@@ -2243,10 +2268,9 @@ function buildServiceCategory(cat) {
     <div class="cat-other"><h2>${L("Other categories", "تصنيفات أخرى")}</h2><div class="cc-prof-chips">${other}</div></div>
     <div class="cta-band" style="margin-top:28px"><h2>${L("Not sure which service you need?", "محتار أي خدمة تناسبك؟")}</h2><p>${L("Contact us and we will point you to the right service for your case.", "تواصل معنا ونوصلك للخدمة المناسبة لحالتك مباشرة.")}</p>${waBtn2("Contact us", "تواصل معنا", "btn-white", true)}</div>
   </div></section>`;
-  return page({
+  return servicePage({
     title: `${Lraw(catEn(cat.key), cat.ar)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`,
     desc: Lraw(`${list.length} ${catEn(cat.key)} services with clear fees.`, `${list.length} ${arCount(list.length, "خدمة", "خدمتان", "خدمات")} في ${cat.ar} بأتعاب واضحة.`),
-    active: "/services",
     path: "/services/category/" + catSlugUrl(cat.key),
     body,
   });
@@ -2322,7 +2346,7 @@ function buildServiceDetail(s) {
     </aside>
   </div></div>`;
   const desc = sDesc(s).slice(0, 155);
-  return page({ title: `${sName(s)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`, desc, active: "/services", path: `/services/${s.slug}`, body });
+  return servicePage({ title: `${sName(s)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`, desc, path: `/services/${s.slug}`, body });
 }
 
 /* ---------- Business Development as a Service (/business-development) ----------
@@ -3604,6 +3628,7 @@ function buildProfessionChecker() {
       <div class="field"><label for="cc-prof-q">${L("Profession or sector", "المهنة أو القطاع")}</label><input type="text" id="cc-prof-q" placeholder="${Lraw("e.g. accountant, secretary, engineer, dentist…", "مثال: محاسب، سكرتير، مهندس، طبيب أسنان…")}"></div>
       <div class="cc-prof-chips" id="cc-prof-chips"></div>
       <div id="cc-prof-results"></div>
+      ${calcLeadCapture('pc', 'profession-checker', 'cc-prof-results', 'content').markup}
     </div>
     <div class="cc-disclaimer">⚖️ ${L("Estimates are for illustration only. Contact us for a verified calculation.", "الأرقام تقديرية للتوضيح فقط. تواصل معنا لحساب دقيق ومعتمد.")}</div>
   </div></section>
@@ -3632,7 +3657,8 @@ function buildProfessionChecker() {
     $("cc-prof-q").addEventListener("input",function(){renderProf(this.value);});
     renderProf("");
   })();
-  </script>`;
+  </script>
+  ${calcLeadCapture('pc', 'profession-checker', 'cc-prof-results', 'content').script}`;
   return sv1Page({
     title: Lraw("Profession checker — Business Partner", "فاحص المهن — بيزنس بارتنر"),
     desc: Lraw("Check which professions are Saudized or restricted for your activity.", "تحقق من المهن المُوطّنة أو المقيّدة على نشاطك."),
@@ -4182,6 +4208,79 @@ function buildTeamAgent(agent) {
   });
 }
 
+// Lead capture shown *under* a calculator result.
+//
+// The six calculators are the highest-intent traffic on the site — somebody working out
+// an end-of-service settlement has a live HR problem right now — and until this existed
+// every one of those visitors left anonymous. The pipeline reflected that: 52
+// opportunities, none attributed to a calculator.
+//
+// It never gates the result. Gating a free calculator behind an email would damage the
+// one channel that is already converting; the offer only appears once the visitor has
+// what they came for. The rendered result is posted along with the contact details so
+// whoever follows up can see the actual numbers.
+// revealOn: "hidden" watches the result box being un-hidden (five of the six
+// calculators). "content" watches it gaining children — the profession checker renders
+// matches straight into an always-visible div, so there is no hidden flag to observe.
+function calcLeadCapture(prefix, service, resultId, revealOn = "hidden") {
+  const id = (k) => `${prefix}-cap-${k}`;
+  const markup = `
+      <div class="cc-capture" id="${id("box")}" hidden>
+        <div class="cc-capture-head">
+          <strong>${L("Want this in writing?", "تبغى النتيجة مكتوبة؟")}</strong>
+          <span>${L("We email you the full breakdown plus a free review of your case.", "نرسل لك التفصيل كاملاً مع مراجعة مجانية لحالتك.")}</span>
+        </div>
+        <div class="cc-capture-row">
+          <input id="${id("name")}" type="text" autocomplete="name" placeholder="${L("Name", "الاسم")}">
+          <input id="${id("email")}" type="email" autocomplete="email" placeholder="${L("Email", "البريد الإلكتروني")}">
+          <input id="${id("phone")}" type="tel" autocomplete="tel" placeholder="${L("Mobile (optional)", "الجوال (اختياري)")}">
+          <button class="btn btn-primary" id="${id("send")}">${L("Send it to me", "أرسلها لي")}</button>
+        </div>
+        <p class="cc-capture-note" id="${id("msg")}" hidden></p>
+      </div>`;
+
+  const script = `<script>(function(){
+    var isAr=window.BP_LC_LANG==="ar";
+    var $=function(i){return document.getElementById(i);};
+    var box=$(${JSON.stringify(id("box"))}),res=$(${JSON.stringify(resultId)});
+    if(!box||!res)return;
+    // Reveal the offer only once the visitor actually has a result.
+    var mode=${JSON.stringify(revealOn)};
+    if(mode==="content"){
+      new MutationObserver(function(){
+        // Any rendered answer counts, including "no localization decision found" —
+        // that page already tells the visitor to contact us to confirm, which makes it
+        // the highest-intent moment on the tool, not a dead end.
+        if(res.children.length)box.hidden=false;
+      }).observe(res,{childList:true,subtree:true});
+    } else {
+      new MutationObserver(function(){if(!res.hidden)box.hidden=false;})
+        .observe(res,{attributes:true,attributeFilter:["hidden"]});
+    }
+    var msg=$(${JSON.stringify(id("msg"))});
+    var show=function(t,ok){msg.hidden=false;msg.textContent=t;msg.style.color=ok?"#137a3e":"#b3261e";};
+    $(${JSON.stringify(id("send"))}).addEventListener("click",function(){
+      var v=function(i){var e=$(i);return e?e.value.trim():"";};
+      var name=v(${JSON.stringify(id("name"))}),email=v(${JSON.stringify(id("email"))}),phone=v(${JSON.stringify(id("phone"))});
+      if(!email||email.indexOf("@")<1){show(isAr?"اكتب بريداً صحيحاً.":"Enter a valid email.",false);return;}
+      var fd=new FormData();
+      fd.append("name",name||(isAr?"زائر الحاسبة":"Calculator visitor"));
+      fd.append("email",email);
+      fd.append("whatsapp",phone);
+      fd.append("service",${JSON.stringify(service)});
+      fd.append("source","website-calculator-"+${JSON.stringify(service)});
+      fd.append("notes",(isAr?"نتيجة الحاسبة: ":"Calculator result: ")+(res.innerText||"").replace(/\s+/g," ").slice(0,600));
+      var b=$(${JSON.stringify(id("send"))});b.disabled=true;
+      fetch("https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web",{method:"POST",body:fd})
+        .then(function(r){if(!r.ok)throw 0;show(isAr?"تم — تصلك النتيجة والمراجعة خلال يوم عمل.":"Done — you'll get the breakdown and review within one working day.",true);})
+        .catch(function(){show(isAr?"تعذّر الإرسال. جرّب مرة أخرى أو راسلنا واتساب.":"Sending failed — try again or message us on WhatsApp.",false);})
+        .finally(function(){b.disabled=false;});
+    });
+  })();</script>`;
+
+  return { markup, script };
+}
+
 function buildEndOfServiceCalculator() {
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
@@ -4207,10 +4306,12 @@ function buildEndOfServiceCalculator() {
         </div>
         <div class="cc-advice ok" id="lc-eos-note"></div>
       </div>
+      ${calcLeadCapture('lc-eos', 'end-of-service', 'lc-eos-result').markup}
     </div>
     <div class="cc-disclaimer">⚖️ ${L("Estimates based on the Saudi Labor Law for general guidance. Individual cases may vary by contract terms. Contact us for a verified HR/payroll review.", "تقديرات مبنية على نظام العمل السعودي لأغراض إرشادية. قد تختلف الحالات حسب بنود العقد. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.")}</div>
   </div></section>
   <script>window.BP_LC_LANG=${JSON.stringify(LANG)};</script>
+  ${calcLeadCapture('lc-eos', 'end-of-service', 'lc-eos-result').script}
   <script>
   (function(){
     var isAr=window.BP_LC_LANG==="ar";
@@ -4263,10 +4364,12 @@ function buildAnnualLeaveCalculator() {
           <div class="cc-tile tile-gold"><span>${L("Value of unused days", "قيمة الأيام غير المستخدمة")}</span><strong id="lv-value">—</strong></div>
         </div>
       </div>
+      ${calcLeadCapture('lv', 'annual-leave', 'lv-result').markup}
     </div>
     <div class="cc-disclaimer">⚖️ ${L("Estimates based on the Saudi Labor Law for general guidance. Contact us for a verified HR/payroll review.", "تقديرات مبنية على نظام العمل السعودي لأغراض إرشادية. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.")}</div>
   </div></section>
   <script>window.BP_LC_LANG=${JSON.stringify(LANG)};</script>
+  ${calcLeadCapture('lv', 'annual-leave', 'lv-result').script}
   <script>
   (function(){
     var isAr=window.BP_LC_LANG==="ar";
@@ -4312,10 +4415,12 @@ function buildOvertimeCalculator() {
           <div class="cc-tile tile-gold"><span>${L("Total overtime pay", "إجمالي الأجر الإضافي")}</span><strong id="ot-total">—</strong></div>
         </div>
       </div>
+      ${calcLeadCapture('ot', 'overtime', 'ot-result').markup}
     </div>
     <div class="cc-disclaimer">⚖️ ${L("Estimates based on the Saudi Labor Law for general guidance. Contact us for a verified HR/payroll review.", "تقديرات مبنية على نظام العمل السعودي لأغراض إرشادية. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.")}</div>
   </div></section>
   <script>window.BP_LC_LANG=${JSON.stringify(LANG)};</script>
+  ${calcLeadCapture('ot', 'overtime', 'ot-result').script}
   <script>
   (function(){
     var isAr=window.BP_LC_LANG==="ar";
@@ -4368,10 +4473,12 @@ function buildGosiCalculator() {
           <div class="cc-tile tile-gold"><span>${L("Total monthly", "الإجمالي الشهري")}</span><strong id="gs-tot">—</strong></div>
         </div>
       </div>
+      ${calcLeadCapture('gs', 'gosi', 'gs-result').markup}
     </div>
     <div class="cc-disclaimer">⚖️ ${L("Estimates based on GOSI regulations for general guidance. Contact us for a verified HR/payroll review.", "تقديرات مبنية على لوائح التأمينات لأغراض إرشادية. تواصل معنا لمراجعة معتمدة للرواتب والموارد البشرية.")}</div>
   </div></section>
   <script>window.BP_LC_LANG=${JSON.stringify(LANG)};</script>
+  ${calcLeadCapture('gs', 'gosi', 'gs-result').script}
   <script>
   (function(){
     var isAr=window.BP_LC_LANG==="ar";
@@ -7100,6 +7207,7 @@ function buildContact() {
           <div class="social-row">
             ${site.social.linkedin ? `<a href="${site.social.linkedin}" target="_blank" rel="noopener" aria-label="LinkedIn">${I.linkedin}</a>` : ""}
             ${site.social.instagram ? `<a href="${site.social.instagram}" target="_blank" rel="noopener" aria-label="Instagram">${I.instagram}</a>` : ""}
+            ${site.social.tiktok ? `<a href="${site.social.tiktok}" target="_blank" rel="noopener" aria-label="TikTok">${I.tiktok}</a>` : ""}
             ${site.social.facebook ? `<a href="${site.social.facebook}" target="_blank" rel="noopener" aria-label="Facebook">${I.facebook}</a>` : ""}
           </div>
         </div>` : ""}
