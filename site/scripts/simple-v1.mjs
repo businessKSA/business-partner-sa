@@ -264,6 +264,14 @@ const D = {
               en: "Could not transcribe. Type your message or try again.",
               fr: "Transcription impossible. Écrivez ou réessayez.",
               zh: "转写失败。请输入文字或重试。" },
+  micFormat:{ ar: "صيغة التسجيل في متصفحك غير مدعومة. اكتب رسالتك أو جرّب متصفحاً آخر.",
+              en: "Your browser's recording format is not supported. Type your message or try another browser.",
+              fr: "Le format d'enregistrement de votre navigateur n'est pas pris en charge. Écrivez ou essayez un autre navigateur.",
+              zh: "您浏览器的录音格式不受支持。请输入文字或换用其他浏览器。" },
+  micTemp:  { ar: "خدمة التفريغ مشغولة لحظياً. أعد المحاولة بعد قليل أو اكتب رسالتك.",
+              en: "Transcription is busy for a moment. Try again shortly or type your message.",
+              fr: "La transcription est momentanément occupée. Réessayez dans un instant ou écrivez.",
+              zh: "转写服务暂时繁忙。请稍后重试或直接输入文字。" },
   micLong:  { ar: "التسجيل طويل. سجّل مقطعاً أقصر.", en: "The recording is too long. Record a shorter clip.",
               fr: "Enregistrement trop long. Enregistrez plus court.", zh: "录音过长，请录短一些。" },
   barStatus: { ar: "جميع الأنظمة تعمل", en: "All systems operational",
@@ -833,7 +841,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
     const TX = {
       thinking: t("thinking"), chatError: t("chatError"), scopeIn: t("scopeIn"), needScope: t("needScope"),
       micStart: t("micStart"), micStop: t("micStop"), micRec: t("micRec"), micWork: t("micWork"),
-      micDenied: t("micDenied"), micNone: t("micNone"), micQuiet: t("micQuiet"), micFail: t("micFail"), micLong: t("micLong"), micOff: t("micOff"),
+      micDenied: t("micDenied"), micNone: t("micNone"), micQuiet: t("micQuiet"), micFail: t("micFail"), micLong: t("micLong"), micOff: t("micOff"), micFormat: t("micFormat"), micTemp: t("micTemp"),
       loginErr: t("loginErr"), codeErr: t("codeErr"), creating: t("creating"), created: t("created"), openPortal: t("openPortal"),
       stateReady: t("stateReady"), docsEmpty: t("docsEmpty"),
       titles: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation"), ...(BIZDEV_DOOR ? { bizdev: t("ctxBizdev") } : {}) },
@@ -975,31 +983,40 @@ function submit(){var v=input.value.trim();if(!v||state.busy)return;var c=msgs.q
   if(tick){clearInterval(tick);tick=null}stopTracks();rec=null}
  function send2(blob,type){
   if(blob.size<1200){reset();say('err',TX.micQuiet);return}
-  if(blob.size>12*1024*1024){reset();say('err',TX.micLong);return}
+  if(blob.size>3.2*1024*1024){reset();say('err',TX.micLong);return}   // Vercel يرفض جسم الطلب فوق ٤٫٥ م.ب (وbase64 يزيده الثلث)
   mic.classList.remove('rec');mic.classList.add('busy');mic.disabled=true;say('',TX.micWork);
   var fr=new FileReader();
   fr.onerror=function(){reset();say('err',TX.micFail)};
   fr.onload=function(){
    var b64=String(fr.result||'').split(',')[1]||'';
+   if(!b64){reset();say('err',TX.micQuiet);return}
+   var status=0;
    fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},
      body:JSON.stringify({mode:'voice',mime:type||'audio/webm',lang:LANG,audio:b64})})
-    .then(function(r){return r.json()}).then(function(o){
+    .then(function(r){status=r.status;return r.text()}).then(function(raw){
      reset();
-     if(!o||!o.ok){var e2=o&&o.error;say('err',e2==='no_speech'?TX.micQuiet:e2==='too_large'?TX.micLong:e2==='not_configured'?TX.micOff:TX.micFail);if(o&&o.detail&&window.console)console.warn('voice:',e2,o.detail);return}
+     var o=null;try{o=JSON.parse(raw)}catch(e){}
+     // ردٌّ ليس JSON = الاستضافة ردّت قبل الدالة: ٤١٣ جسم كبير، ٥٠٤ مهلة، ٥٠٢/٥٠٣ عطل مؤقت.
+     if(!o){say('err',status===413?TX.micLong:status>=500||status===429?TX.micTemp:TX.micFail);if(window.console)console.warn('voice: http',status);return}
+     if(!o.ok){var e2=o.error,rs=o.reason;
+      // السبب يحدد الرسالة: لا كلام / كبير / غير مُفعَّل (مفتاح أو نشر عند المالك) / صيغة / مشغول مؤقتاً.
+      say('err',e2==='no_speech'||e2==='no_audio'?TX.micQuiet:e2==='too_large'?TX.micLong:e2==='not_configured'||rs==='deployment'||rs==='auth'?TX.micOff:e2==='bad_type'||rs==='format'?TX.micFormat:rs==='busy'||rs==='timeout'||rs==='unavailable'?TX.micTemp:TX.micFail);
+      if(o.detail&&window.console)console.warn('voice:',e2,rs,o.detail);return}
      hide();
      // لغة الكلام تُمرَّر مع الرسالة فيردّ المستشار بها ولو كانت الصفحة بلغةٍ أخرى.
      if(o.lang)state.voiceLang=o.lang;
-     input.value=(input.value?input.value.replace(/\s*$/,' '):'')+o.text;
+     input.value=(input.value?input.value.replace(/\\s*$/,' '):'')+o.text;
      input.focus();
      try{input.setSelectionRange(input.value.length,input.value.length)}catch(e){}
      input.style.height='auto';input.style.height=Math.min(120,input.scrollHeight)+'px'})
-    .catch(function(){reset();say('err',TX.micFail)})};
+    .catch(function(){reset();say('err',TX.micTemp)})};
   fr.readAsDataURL(blob)}
  function start(){
   if(!CAN){say('err',TX.micNone);return}
   navigator.mediaDevices.getUserMedia({audio:true}).then(function(st){
    stream=st;var type=pickType();chunks=[];
-   try{rec=type?new MediaRecorder(st,{mimeType:type}):new MediaRecorder(st)}catch(e){rec=new MediaRecorder(st)}
+   try{rec=type?new MediaRecorder(st,{mimeType:type,audioBitsPerSecond:32000}):new MediaRecorder(st,{audioBitsPerSecond:32000})}   // كلامٌ لا موسيقى: يُبقي ثلاث دقائق دون حدّ الطلب
+   catch(e){try{rec=new MediaRecorder(st)}catch(e2){stopTracks();say('err',TX.micNone);return}}
    var used=rec.mimeType||type||'audio/webm';
    rec.ondataavailable=function(e){if(e.data&&e.data.size)chunks.push(e.data)};
    rec.onstop=function(){send2(new Blob(chunks,{type:used}),used)};

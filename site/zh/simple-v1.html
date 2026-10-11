@@ -617,7 +617,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>
 (function(){
-var LANG="zh",TX={"thinking":"正在处理…","chatError":"暂时无法回复，请重试或通过 WhatsApp 联系我们。","scopeIn":"在范围内","needScope":"请至少添加一个条目后再创建申请。","micStart":"用语音代替打字","micStop":"停止录音","micRec":"正在聆听…","micWork":"正在转写…","micDenied":"麦克风被阻止。请在浏览器中允许，或改为输入文字。","micNone":"您的浏览器不支持录音 — 请输入文字。","micQuiet":"未检测到语音。请靠近后重试。","micFail":"转写失败。请输入文字或重试。","micLong":"录音过长，请录短一些。","micOff":"服务器尚未启用语音转写。请输入文字。","loginErr":"无法发送验证码，请检查邮箱或稍后重试。","codeErr":"验证码错误。","creating":"正在创建申请…","created":"申请已创建。编号：","openPortal":"打开我的账户","stateReady":"待审核","docsEmpty":"顾问了解您的需求后将在此列出。","titles":{"consulting":"咨询","government":"政府服务","formation":"公司注册"},"welcome":{"consulting":"欢迎 👋 请说明您想咨询的事项。","government":"欢迎 👋 请说明需要办理的事务或平台上的问题。","formation":"欢迎 👋 请介绍您想设立的公司。"},"chips":{"consulting":["许可相关咨询","公司内部问题","涉及哪些主管机关","临时用工与 Ajeer 许可","公司全面检查"],"government":["Qiwa 平台问题","Ajeer 许可","升级或投诉","违规或欠款","变更职业","服务转移","签证","Nitaqat 与本地化","代管平台"],"formation":["外国公司分支","创业许可","投资注册","设立要求"]},"seed":{"consulting":["了解事项与现状","确定涉及的机关与要求","明确步骤与建议"],"government":["检查问题或事务","确定所需政府服务","执行或跟进约定的服务"],"formation":["确定设立路径","设立手续、商业登记与公司章程","核心政府平台注册","任命公司经理","协助开立银行账户"]},"types":{"consulting":"咨询","government":"政府服务","formation":"公司注册"},"doorSub":{"consulting":"关于贵公司的问题、挑战或决策。","government":"办理事务、平台问题，或代管您的政府平台。","formation":"外国公司分支机构，或通过创业路径设立公司。"}},PORTAL="/zh/my";
+var LANG="zh",TX={"thinking":"正在处理…","chatError":"暂时无法回复，请重试或通过 WhatsApp 联系我们。","scopeIn":"在范围内","needScope":"请至少添加一个条目后再创建申请。","micStart":"用语音代替打字","micStop":"停止录音","micRec":"正在聆听…","micWork":"正在转写…","micDenied":"麦克风被阻止。请在浏览器中允许，或改为输入文字。","micNone":"您的浏览器不支持录音 — 请输入文字。","micQuiet":"未检测到语音。请靠近后重试。","micFail":"转写失败。请输入文字或重试。","micLong":"录音过长，请录短一些。","micOff":"服务器尚未启用语音转写。请输入文字。","micFormat":"您浏览器的录音格式不受支持。请输入文字或换用其他浏览器。","micTemp":"转写服务暂时繁忙。请稍后重试或直接输入文字。","loginErr":"无法发送验证码，请检查邮箱或稍后重试。","codeErr":"验证码错误。","creating":"正在创建申请…","created":"申请已创建。编号：","openPortal":"打开我的账户","stateReady":"待审核","docsEmpty":"顾问了解您的需求后将在此列出。","titles":{"consulting":"咨询","government":"政府服务","formation":"公司注册"},"welcome":{"consulting":"欢迎 👋 请说明您想咨询的事项。","government":"欢迎 👋 请说明需要办理的事务或平台上的问题。","formation":"欢迎 👋 请介绍您想设立的公司。"},"chips":{"consulting":["许可相关咨询","公司内部问题","涉及哪些主管机关","临时用工与 Ajeer 许可","公司全面检查"],"government":["Qiwa 平台问题","Ajeer 许可","升级或投诉","违规或欠款","变更职业","服务转移","签证","Nitaqat 与本地化","代管平台"],"formation":["外国公司分支","创业许可","投资注册","设立要求"]},"seed":{"consulting":["了解事项与现状","确定涉及的机关与要求","明确步骤与建议"],"government":["检查问题或事务","确定所需政府服务","执行或跟进约定的服务"],"formation":["确定设立路径","设立手续、商业登记与公司章程","核心政府平台注册","任命公司经理","协助开立银行账户"]},"types":{"consulting":"咨询","government":"政府服务","formation":"公司注册"},"doorSub":{"consulting":"关于贵公司的问题、挑战或决策。","government":"办理事务、平台问题，或代管您的政府平台。","formation":"外国公司分支机构，或通过创业路径设立公司。"}},PORTAL="/zh/my";
 var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION'};
 var $=function(id){return document.getElementById(id)};
 var msgs=$('sv1Msgs'),form=$('sv1Form'),input=$('sv1In'),send=$('sv1Send');
@@ -676,31 +676,40 @@ function submit(){var v=input.value.trim();if(!v||state.busy)return;var c=msgs.q
   if(tick){clearInterval(tick);tick=null}stopTracks();rec=null}
  function send2(blob,type){
   if(blob.size<1200){reset();say('err',TX.micQuiet);return}
-  if(blob.size>12*1024*1024){reset();say('err',TX.micLong);return}
+  if(blob.size>3.2*1024*1024){reset();say('err',TX.micLong);return}   // Vercel يرفض جسم الطلب فوق ٤٫٥ م.ب (وbase64 يزيده الثلث)
   mic.classList.remove('rec');mic.classList.add('busy');mic.disabled=true;say('',TX.micWork);
   var fr=new FileReader();
   fr.onerror=function(){reset();say('err',TX.micFail)};
   fr.onload=function(){
    var b64=String(fr.result||'').split(',')[1]||'';
+   if(!b64){reset();say('err',TX.micQuiet);return}
+   var status=0;
    fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},
      body:JSON.stringify({mode:'voice',mime:type||'audio/webm',lang:LANG,audio:b64})})
-    .then(function(r){return r.json()}).then(function(o){
+    .then(function(r){status=r.status;return r.text()}).then(function(raw){
      reset();
-     if(!o||!o.ok){var e2=o&&o.error;say('err',e2==='no_speech'?TX.micQuiet:e2==='too_large'?TX.micLong:e2==='not_configured'?TX.micOff:TX.micFail);if(o&&o.detail&&window.console)console.warn('voice:',e2,o.detail);return}
+     var o=null;try{o=JSON.parse(raw)}catch(e){}
+     // ردٌّ ليس JSON = الاستضافة ردّت قبل الدالة: ٤١٣ جسم كبير، ٥٠٤ مهلة، ٥٠٢/٥٠٣ عطل مؤقت.
+     if(!o){say('err',status===413?TX.micLong:status>=500||status===429?TX.micTemp:TX.micFail);if(window.console)console.warn('voice: http',status);return}
+     if(!o.ok){var e2=o.error,rs=o.reason;
+      // السبب يحدد الرسالة: لا كلام / كبير / غير مُفعَّل (مفتاح أو نشر عند المالك) / صيغة / مشغول مؤقتاً.
+      say('err',e2==='no_speech'||e2==='no_audio'?TX.micQuiet:e2==='too_large'?TX.micLong:e2==='not_configured'||rs==='deployment'||rs==='auth'?TX.micOff:e2==='bad_type'||rs==='format'?TX.micFormat:rs==='busy'||rs==='timeout'||rs==='unavailable'?TX.micTemp:TX.micFail);
+      if(o.detail&&window.console)console.warn('voice:',e2,rs,o.detail);return}
      hide();
      // لغة الكلام تُمرَّر مع الرسالة فيردّ المستشار بها ولو كانت الصفحة بلغةٍ أخرى.
      if(o.lang)state.voiceLang=o.lang;
-     input.value=(input.value?input.value.replace(/s*$/,' '):'')+o.text;
+     input.value=(input.value?input.value.replace(/\s*$/,' '):'')+o.text;
      input.focus();
      try{input.setSelectionRange(input.value.length,input.value.length)}catch(e){}
      input.style.height='auto';input.style.height=Math.min(120,input.scrollHeight)+'px'})
-    .catch(function(){reset();say('err',TX.micFail)})};
+    .catch(function(){reset();say('err',TX.micTemp)})};
   fr.readAsDataURL(blob)}
  function start(){
   if(!CAN){say('err',TX.micNone);return}
   navigator.mediaDevices.getUserMedia({audio:true}).then(function(st){
    stream=st;var type=pickType();chunks=[];
-   try{rec=type?new MediaRecorder(st,{mimeType:type}):new MediaRecorder(st)}catch(e){rec=new MediaRecorder(st)}
+   try{rec=type?new MediaRecorder(st,{mimeType:type,audioBitsPerSecond:32000}):new MediaRecorder(st,{audioBitsPerSecond:32000})}   // كلامٌ لا موسيقى: يُبقي ثلاث دقائق دون حدّ الطلب
+   catch(e){try{rec=new MediaRecorder(st)}catch(e2){stopTracks();say('err',TX.micNone);return}}
    var used=rec.mimeType||type||'audio/webm';
    rec.ondataavailable=function(e){if(e.data&&e.data.size)chunks.push(e.data)};
    rec.onstop=function(){send2(new Blob(chunks,{type:used}),used)};
