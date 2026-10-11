@@ -473,7 +473,7 @@ e1.addEventListener('keydown',function(ev){if(ev.key==='Enter')sendLink()});
 e2.addEventListener('keydown',function(ev){if(ev.key==='Enter')b2.click()});
 var e3=h('input',{type:'password',placeholder:TX.password,autocomplete:'current-password'});
 var b3=h('button',{class:'btn',onclick:function(){errEl.textContent='';b3.disabled=true;otp({action:'password-login',email:e1.value.trim().toLowerCase(),password:e3.value}).then(function(o){b3.disabled=false;if(!o||!o.ok){errEl.textContent=(o&&o.message)||TX.loginErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){b3.disabled=false;errEl.textContent=TX.loginErr})}},[TX.loginPw]);
-var sp=h('div',{hidden:''},[e3,b3]);
+onEnter(e3,b3);var sp=h('div',{hidden:''},[e3,b3]);
 var toPw=h('a',{class:'lnk',onclick:function(){s2.hidden=true;s1.hidden=false;sp.hidden=false;toPw.hidden=true;toCode.hidden=false;e3.focus()}},[TX.usePw]);
 var toCode=h('a',{class:'lnk',hidden:'',onclick:function(){sp.hidden=true;toPw.hidden=false;toCode.hidden=true}},[TX.useCode]);
 box.appendChild(h('h1',{},[TX.loginTitle]));box.appendChild(h('p',{},[TX.loginText]));if(note)box.appendChild(h('p',{class:'err'},[note]));box.appendChild(gslot);box.appendChild(orl);box.appendChild(s1);box.appendChild(s2);box.appendChild(sp);box.appendChild(h('div',{class:'alt'},[toPw,toCode]));box.appendChild(errEl);app.appendChild(box);

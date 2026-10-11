@@ -25,7 +25,7 @@ function build(lang) {
   return out;
 }
 const PAGES = Object.fromEntries(LANGS.map((l) => [l, build(l)]));
-const inner = (s) => s.replace(/^<script>/, "").replace(/<\/script>$/, "");
+const inner = (s) => s.replace(/<\/script>\s*<script>/g, "\n").replace(/^<script>/, "").replace(/<\/script>$/, "");
 
 test("السكربت يُحلَّل نحوياً بالأربع لغات (القالب النصّي يلتهم الشرطة المائلة)", () => {
   for (const l of LANGS) assert.doesNotThrow(() => new vm.Script(inner(PAGES[l].script)), `lang ${l}`);
@@ -92,7 +92,9 @@ test("الرموز الخام لا تصل العميل: مزوّد الدفع و
 test("Enter يعمل في خانات الدخول ورسالة الطلب (على الجوال كان زرّ «Go» لا يفعل شيئاً)", () => {
   const s = inner(PAGES.ar.script);
   assert.match(s, /function onEnter\(inp,btn\)\{inp\.addEventListener\('keydown'/);
-  for (const call of ["onEnter(e1,b1)", "onEnter(e2,b2)", "onEnter(e3,b3)", "onEnter(inp,sb)"]) assert.ok(s.includes(call), call);
+  for (const call of ["onEnter(e3,b3)", "onEnter(inp,sb)"]) assert.ok(s.includes(call), call);
+  // خانتا البريد والرمز في باب الدخول الجديد تعالجان Enter مباشرةً
+  assert.ok(s.includes("e1.addEventListener('keydown'") && s.includes("e2.addEventListener('keydown'"));
 });
 
 test("الألوان والعرض: قواعد CSS التي أصلحت زرّاً بلا نصّ مقروء واسماً أبيض على أبيض وفيضاً أفقياً على الجوال", () => {
