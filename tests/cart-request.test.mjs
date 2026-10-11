@@ -198,7 +198,8 @@ test("المستندات المطلوبة تُنشأ requested من قائمة �
 });
 
 test("بند بلا قائمة مستندات: لا مستندات", async () => {
-  const r = await pay([{ id: "svc-bp-chamber-01", qty: 1 }], sar("BP-CHAMBER-01"));
+  // bp-chamber-01 صار له قائمة مستندات (2026-10-11)؛ bp-hr-01 ما زال بلا قائمة.
+  const r = await pay([{ id: "svc-bp-hr-01", qty: 1 }], sar("BP-HR-01"));
   const row = (await rowsOf(r.payId))[0];
   assert.deepEqual(row.documents, []);
   assert.equal(r.request.documents, 0);

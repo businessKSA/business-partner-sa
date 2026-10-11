@@ -3,7 +3,7 @@
   "name": "Business Partner",
   "tagline": "Partnering for your success",
   "taglineAr": "شريك تشغيل يساعدك على إنجاز متطلبات أعمالك بوضوح وسرعة",
-  "shortBio": "بيزنس بارتنر يقدّم حلولاً عملية للشركات في السعودية في مجالات الامتثال، المنصات الحكومية، الموارد البشرية، التراخيص، والخدمات التشغيلية.",
+  "shortBio": "Business Partner يقدّم حلولاً عملية للشركات في السعودية في مجالات الامتثال، المنصات الحكومية، الموارد البشرية، التراخيص، والخدمات التشغيلية.",
   "shortBioEn": "Business Partner delivers practical solutions for companies in Saudi Arabia across compliance, government platforms, HR, licensing, and operational services."
  },
  "whatsapp": "https://wa.me/966507034157",
@@ -96,7 +96,7 @@
   "heroCta": "ابدأ الآن",
   "heroCtaSecondary": "استعرض الخدمات",
   "why": {
-   "title": "لماذا بيزنس بارتنر",
+   "title": "لماذا Business Partner",
    "items": [
     {
      "icon": "robot",
@@ -208,7 +208,7 @@
  },
  "about": {
   "title": "من نحن",
-  "lead": "بيزنس بارتنر شريك تشغيل للشركات في السعودية. نتولّى عنك التعامل مع المنصات والجهات الحكومية، ونُنجز متطلبات أعمالك بوضوح وسرعة ومنهجية.",
+  "lead": "Business Partner شريك تشغيل للشركات في السعودية. نتولّى عنك التعامل مع المنصات والجهات الحكومية، ونُنجز متطلبات أعمالك بوضوح وسرعة ومنهجية.",
   "promise": "شريك تشغيل يسهّل رحلة الأعمال ويختصر الوقت عبر حلول عملية ومنهجية.",
   "sections": [
    {
@@ -264,7 +264,7 @@
  "packages": {
   "title": "الباقات",
   "subtitle": "ثلاث باقات تغطّي رحلتك — من أول فكرة حتى التوسّع. اختر الأقرب لك، والمستشار الذكي يضبطها على حالتك.",
-  "note": "الأسعار أعلاه من الكتالوج الرسمي وتشمل أتعاب بيزنس بارتنر فقط ما لم يُذكر غير ذلك — الرسوم الحكومية (إن وجدت) منفصلة وتُعلن قبل البدء. لأي مزيج مخصص من الخدمات، استخدم حاسبة التكلفة.",
+  "note": "الأسعار أعلاه من الكتالوج الرسمي وتشمل أتعاب Business Partner فقط ما لم يُذكر غير ذلك — الرسوم الحكومية (إن وجدت) منفصلة وتُعلن قبل البدء. لأي مزيج مخصص من الخدمات، استخدم حاسبة التكلفة.",
   "tiers": [
    {
     "key": "starter-4",
@@ -866,7 +866,7 @@
  },
  "aiAgents": {
   "title": "منظومة المستشارون الأذكياء — فريقك الذكي يعمل 24/7",
-  "lead": "وكلاء ذكاء اصطناعي يديرون تشغيل أعمالك على مدار الساعة: يراقبون، ينفّذون، ويتابعون منصاتك الحكومية وفرق عملك — ودورك يقتصر على الموافقة والدفع. هذه هي الطبقة القادمة من بيزنس بارتنر.",
+  "lead": "وكلاء ذكاء اصطناعي يديرون تشغيل أعمالك على مدار الساعة: يراقبون، ينفّذون، ويتابعون منصاتك الحكومية وفرق عملك — ودورك يقتصر على الموافقة والدفع. هذه هي الطبقة القادمة من Business Partner.",
   "cta": "احجز عرضاً توضيحياً",
   "how": {
    "eyebrow": "كيف تعمل",
@@ -906,7 +906,7 @@
   },
   "packagesTitle": "ثلاثة وكلاء… بحسب احتياجك",
   "packagesSubtitle": "ابدأ بمستشار واحد أو اربطها جميعاً في منظومة واحدة. اشتراك شهري بأتعاب واضحة.",
-  "pricingNote": "الأسعار شهرية بأتعاب بيزنس بارتنر، ولا تشمل ضريبة القيمة المضافة. يمكن تخصيص المنظومة حسب حجم منشأتك — تواصل معنا لأي استفسار.",
+  "pricingNote": "الأسعار شهرية بأتعاب Business Partner، ولا تشمل ضريبة القيمة المضافة. يمكن تخصيص المنظومة حسب حجم منشأتك — تواصل معنا لأي استفسار.",
   "agents": [
    {
     "key": "compliance",
@@ -980,7 +980,7 @@
      "متاح للمنشآت وللأفراد",
      "قابل للتوسّع مع نمو أعمالك",
      "أولوية في التنفيذ والدعم",
-     "تكامل مع خدمات بيزنس بارتنر كاملة"
+     "تكامل مع خدمات Business Partner كاملة"
     ],
     "nameEn": "Shared services team",
     "taglineEn": "The compliance team + the work team fully merged",
@@ -1124,7 +1124,7 @@
     "نجلب لك أفضل 5 عروض للمقارنة والاختيار",
     "تنظيم ومتابعة حتى تنفيذ الفعالية"
    ],
-   "note": "أتعاب بيزنس بارتنر 2,500 ﷼، ونجلب لك أفضل 5 عروض من المزوّدين لتختار الأنسب.",
+   "note": "أتعاب Business Partner 2,500 ﷼، ونجلب لك أفضل 5 عروض من المزوّدين لتختار الأنسب.",
    "eyebrowEn": "Type one · corporate events",
    "titleEn": "Events and activities for your staff",
    "textEn": "We design events and activities for your company's staff, on-site or off-site, and search for the best offers from service providers.",
@@ -1227,7 +1227,7 @@
   "knowledge": {
    "eyebrow": "قاعدة المعرفة",
    "title": "أدلة معرفية سريعة",
-   "subtitle": "مقتطفات عملية من قاعدة معرفة بيزنس بارتنر. للنسخة الكاملة والمخصّصة لحالتك، اسأل المستشار الذكي.",
+   "subtitle": "مقتطفات عملية من قاعدة معرفة Business Partner. للنسخة الكاملة والمخصّصة لحالتك، اسأل المستشار الذكي.",
    "articles": [
     {
      "title": "الشركة الأجنبية أم الخليجية؟",
@@ -1279,7 +1279,7 @@
   "entities": {
    "eyebrow": "دليل الجهات الحكومية",
    "title": "تعرّف على الجهات… وكيف تخدمك",
-   "subtitle": "نبذة عن أهم الجهات الحكومية التي يتعامل معها المستثمر، ودور بيزنس بارتنر في التعامل معها نيابةً عنك.",
+   "subtitle": "نبذة عن أهم الجهات الحكومية التي يتعامل معها المستثمر، ودور Business Partner في التعامل معها نيابةً عنك.",
    "items": [
     {
      "name": "المركز السعودي للأعمال",
@@ -1469,7 +1469,7 @@
  },
  "careers": {
   "title": "الوظائف والتوظيف",
-  "lead": "سواء كنت صاحب عمل يبحث عن كفاءات، أو باحثاً عن فرصتك القادمة — بيزنس بارتنر يربط الطرفين.",
+  "lead": "سواء كنت صاحب عمل يبحث عن كفاءات، أو باحثاً عن فرصتك القادمة — Business Partner يربط الطرفين.",
   "employer": {
    "eyebrow": "لأصحاب الأعمال",
    "title": "وظّف الكفاءات المناسبة، بسرعة",
@@ -1527,7 +1527,7 @@
     "text": "نراجع طلبك ونتواصل معك عبر واتساب لبدء تنفيذ الخدمة."
    }
   ],
-  "vatNote": "الأسعار المعروضة أتعاب بيزنس بارتنر. تُضاف ضريبة القيمة المضافة (15%)، والرسوم الحكومية (إن وجدت) منفصلة وتُعلن قبل البدء.",
+  "vatNote": "الأسعار المعروضة أتعاب Business Partner. تُضاف ضريبة القيمة المضافة (15%)، والرسوم الحكومية (إن وجدت) منفصلة وتُعلن قبل البدء.",
   "cartTitleEn": "Your cart",
   "cartEmptyEn": "Your cart is empty. Browse services and packages and add what suits you.",
   "checkoutTitleEn": "Checkout",
@@ -1546,7 +1546,7 @@
  },
  "account": {
   "title": "منصّة العملاء والشركاء",
-  "lead": "سجّل دخولك لمتابعة طلباتك، رفع مستنداتك، وتتبّع حالة خدماتك مع بيزنس بارتنر.",
+  "lead": "سجّل دخولك لمتابعة طلباتك، رفع مستنداتك، وتتبّع حالة خدماتك مع Business Partner.",
   "loginTitle": "تسجيل الدخول",
   "registerTitle": "حساب جديد",
   "demoNote": "هذه نسخة تجريبية للواجهة — يُحفظ الحساب مؤقتاً في متصفحك فقط. الربط بنظام الشركاء (Notion CRM + تحقق آمن) قيد الإطلاق.",
@@ -1559,15 +1559,55 @@
    "name": "موظفون على بند التعاقد (EOR)",
    "nameEn": "Staff on our contract (EOR)",
    "description": "موظفوك يعملون عندك ونحن صاحب العمل الرسمي: التعاقد والرواتب والتأمينات والإجازات والمستحقات، مع الاستقدام عند الحاجة.",
-   "descriptionEn": "Your staff work for you and we are their official employer: contracts, payroll, insurance, leave and entitlements, with recruitment where needed."
+   "descriptionEn": "Your staff work for you and we are their official employer: contracts, payroll, insurance, leave and entitlements, with recruitment where needed.",
+   "documents": [
+    "الوصف الوظيفي لكل وظيفة",
+    "عرض الراتب والمزايا لكل موظف",
+    "جواز سفر المرشّح وشهاداته",
+    "السجل التجاري للمنشأة العميلة (للتعاقد)",
+    "تاريخ المباشرة المتوقع ومدة التعاقد"
+   ],
+   "documentsEn": [
+    "Job description for each role",
+    "Salary and benefits offer for each employee",
+    "Candidate's passport and qualifications",
+    "Client company's Commercial Registration (for the agreement)",
+    "Expected start date and contract term"
+   ]
   },
   "bp-rec-04": {
    "name": "الاستقطاب التنفيذي",
-   "description": "استقطاب القيادات والكفاءات التنفيذية للمناصب العليا في منشأتك — بحث وترشيح دقيق للكفاءة المناسبة، بأتعاب تُحتسب حسب قيمة التعاقد."
+   "description": "استقطاب القيادات والكفاءات التنفيذية للمناصب العليا في منشأتك — بحث وترشيح دقيق للكفاءة المناسبة، بأتعاب تُحتسب حسب قيمة التعاقد.",
+   "descriptionEn": "Executive search for leadership and senior roles in your organisation: precise sourcing and shortlisting of the right candidate, with fees calculated on the contract value.",
+   "documents": [
+    "الوصف الوظيفي للمنصب ومتطلباته",
+    "الهيكل التنظيمي وموقع المنصب فيه",
+    "نطاق الراتب والمزايا المستهدف",
+    "السجل التجاري للمنشأة"
+   ],
+   "documentsEn": [
+    "Job description and requirements for the position",
+    "Organisation chart and where the role sits",
+    "Target salary and benefits range",
+    "Company's Commercial Registration"
+   ]
   },
   "bp-rec-06": {
    "name": "التوظيف الجماعي",
-   "description": "توظيف أعداد كبيرة من الكوادر دفعةً واحدة لمشاريعك ومنشآتك — استقطاب وترشيح جماعي منظّم، بأتعاب لكل مرشّح."
+   "description": "توظيف أعداد كبيرة من الكوادر دفعةً واحدة لمشاريعك ومنشآتك — استقطاب وترشيح جماعي منظّم، بأتعاب لكل مرشّح.",
+   "descriptionEn": "Hiring large numbers of staff at once for your projects and facilities: organised group sourcing and shortlisting, with a fee per candidate.",
+   "documents": [
+    "الأوصاف الوظيفية والأعداد لكل وظيفة",
+    "جدول المشروع وتواريخ المباشرة",
+    "نطاق الرواتب والمزايا والسكن إن وجد",
+    "السجل التجاري ورقم المنشأة في قوى"
+   ],
+   "documentsEn": [
+    "Job descriptions and headcount per role",
+    "Project schedule and start dates",
+    "Salary, benefits and accommodation details if provided",
+    "Commercial Registration and the establishment number on Qiwa"
+   ]
   },
   "bp-rec-05": {
    "name": "التوظيف المحلي",
@@ -1593,6 +1633,19 @@
      "q": "هل تساعد في التوطين؟",
      "a": "نعم، نساعدك على استقطاب السعوديين وتحسين نسب التوطين (نطاقات)."
     }
+   ],
+   "descriptionEn": "Sourcing and hiring Saudi talent for your business: we search, shortlist and place the right candidate for your activity, supporting Saudisation and Nitaqat compliance. Fees are set in a tailored quotation by role and case.",
+   "documents": [
+    "الوصف الوظيفي وعدد الوظائف المطلوبة",
+    "نطاق الراتب والمزايا",
+    "السجل التجاري ورقم المنشأة في قوى",
+    "موقع العمل وساعاته"
+   ],
+   "documentsEn": [
+    "Job description and number of vacancies",
+    "Salary and benefits range",
+    "Commercial Registration and the establishment number on Qiwa",
+    "Work location and hours"
    ]
   },
   "bp-tour-01": {
@@ -1600,7 +1653,7 @@
    "description": "نصمّم لموظفيك فعاليات وأنشطة داخل مقر الشركة أو خارجه — نبحث لك عن عروض من الشركات المزوّدة للخدمة ونجلب لك أفضل 5 عروض لتختار الأنسب. أتعابنا 2,500 ﷼ فقط.",
    "priceLabel": "2,500 ﷼",
    "priceAmount": 2500,
-   "priceNote": "أتعاب بيزنس بارتنر، ونجلب لك أفضل 5 عروض من المزوّدين.",
+   "priceNote": "أتعاب Business Partner، ونجلب لك أفضل 5 عروض من المزوّدين.",
    "audience": "منشآت",
    "features": [
     "فعاليات وأنشطة لموظفيك داخل المقر أو خارجه",
@@ -1619,12 +1672,12 @@
     },
     {
      "q": "كم الأتعاب؟",
-     "a": "أتعاب بيزنس بارتنر لهذه الخدمة 2,500 ﷼."
+     "a": "أتعاب Business Partner لهذه الخدمة 2,500 ﷼."
     }
    ]
   },
   "bp-fi-03": {
-   "description": "تأسيس كيان قانوني مستقل خاضع للأنظمة السعودية، يمثّل امتداداً لنشاط شركة أجنبية قائمة، ويمارس نشاطه مباشرةً في السوق السعودي. نتولّى في بيزنس بارتنر كامل المسار — من ترخيص MISA إلى السجل التجاري والتسجيلات اللاحقة — بخبرة في أنظمة التأسيس وتفاصيلها الدقيقة. تتاح الملكية الكاملة 100% لحاملي الإقامة المميزة أو الشركات القائمة خارج المملكة بالمستندات المصدّقة.",
+   "description": "تأسيس كيان قانوني مستقل خاضع للأنظمة السعودية، يمثّل امتداداً لنشاط شركة أجنبية قائمة، ويمارس نشاطه مباشرةً في السوق السعودي. نتولّى في Business Partner كامل المسار — من ترخيص MISA إلى السجل التجاري والتسجيلات اللاحقة — بخبرة في أنظمة التأسيس وتفاصيلها الدقيقة. تتاح الملكية الكاملة 100% لحاملي الإقامة المميزة أو الشركات القائمة خارج المملكة بالمستندات المصدّقة.",
    "duration": "تختلف حسب الترخيص والنشاط",
    "audience": "أفراد ومنشآت",
    "documents": [
@@ -1661,10 +1714,19 @@
      "a": "عند حمل إقامة مميزة، أو وجود شركة قائمة خارج المملكة بالمستندات المصدّقة المطلوبة."
     }
    ],
-   "durationEn": "Varies by license and activity"
+   "durationEn": "Varies by license and activity",
+   "descriptionEn": "An independent legal entity governed by Saudi regulations, extending the activity of an existing foreign company and operating directly in the Saudi market. Business Partner handles the whole path, from the MISA licence to the Commercial Registration and the registrations that follow, with experience in the formation rules and their fine details. Full 100% ownership is available to Premium Residency holders or to companies established outside the Kingdom with attested documents.",
+   "documentsEn": [
+    "Parent company's Commercial Registration, attested by the Ministry of Foreign Affairs and the Saudi embassy",
+    "Parent company's articles of association and bylaws, attested by the Ministry of Foreign Affairs and the Saudi embassy",
+    "Parent company's audited financial statements (latest financial year)",
+    "Board resolution approving the opening of a branch/company in Saudi Arabia",
+    "Attested power of attorney for the company's representative in Saudi Arabia",
+    "Letter appointing the general manager of the branch in Saudi Arabia"
+   ]
   },
   "bp-pr-01": {
-   "description": "مبادرة لجذب الكفاءات والمستثمرين ضمن رؤية 2030. توفّر إقامة دائمة (برسوم مقطوعة) أو سنوية متجددة، إضافةً لمنتجات فئوية (كفاءة استثنائية، موهبة، مستثمر أعمال، رائد أعمال، مالك عقار). تمنح حق تملّك العقار ووسائل النقل، والعمل والاستثمار، واستقدام الأسرة والعمالة — بلا كفيل. نتولّى في بيزنس بارتنر اختيار المنتج الأنسب لحالتك وإدارة الطلب حتى الإصدار.",
+   "description": "مبادرة لجذب الكفاءات والمستثمرين ضمن رؤية 2030. توفّر إقامة دائمة (برسوم مقطوعة) أو سنوية متجددة، إضافةً لمنتجات فئوية (كفاءة استثنائية، موهبة، مستثمر أعمال، رائد أعمال، مالك عقار). تمنح حق تملّك العقار ووسائل النقل، والعمل والاستثمار، واستقدام الأسرة والعمالة — بلا كفيل. نتولّى في Business Partner اختيار المنتج الأنسب لحالتك وإدارة الطلب حتى الإصدار.",
    "duration": "الموافقة عادةً خلال 30–90 يوماً",
    "audience": "أفراد",
    "documents": [
@@ -1701,7 +1763,15 @@
      "a": "نعم، تشمل الزوج/الزوجة والأبناء."
     }
    ],
-   "durationEn": "Approval usually within 30–90 days"
+   "durationEn": "Approval usually within 30–90 days",
+   "descriptionEn": "An initiative to attract talent and investors under Vision 2030. It offers permanent residency (for a one-time fee) or renewable annual residency, plus category products (exceptional competence, talent, business investor, entrepreneur, property owner). It grants the right to own property and vehicles, to work and invest, and to bring family and domestic workers, with no sponsor. Business Partner selects the product that fits your case and manages the application through to issuance.",
+   "documentsEn": [
+    "Passport copy (valid for 180 days or more)",
+    "Criminal record clearance certificate",
+    "Up-to-date medical reports",
+    "Proof of financial solvency (bank statement / income certificate)",
+    "Valid residency permit (if any)"
+   ]
   },
   "bp-saip-01": {
    "description": "خدمة متكاملة لتسجيل ونقل وتوثيق العلامات التجارية لدى الهيئة السعودية للملكية الفكرية (SAIP) — للأفراد والشركات داخل السعودية والخليج والعالم، دون الحاجة للحضور الشخصي أو ممارسة نشاط داخل المملكة. تشمل التسجيل، والتجديد لضمان استمرار الحماية، ونقل الملكية.",
@@ -1711,7 +1781,7 @@
     "وصف تفصيلي للعلامة + تصنيف المنتجات/الخدمات (فئة نيس)",
     "نسخة من الوثائق الرسمية (سجل تجاري أو هوية)",
     "عقد رسمي لنقل الملكية (عند طلب النقل)",
-    "طلب التجديد قبل انتهاء الحماية + سداد الرسوم",
+    "طلب التجديد قبل انتهاء الحماية (عند التجديد)",
     "وكالة مصدّقة من السفارة السعودية (للشركات خارج المملكة)"
    ],
    "features": [
@@ -1739,10 +1809,18 @@
      "a": "نعم، عبر وكالة مصدّقة من السفارة السعودية."
     }
    ],
-   "durationEn": "60–90 working days (initial acceptance in ~7 days)"
+   "durationEn": "60–90 working days (initial acceptance in ~7 days)",
+   "descriptionEn": "A complete service for registering, transferring and documenting trademarks with the Saudi Authority for Intellectual Property (SAIP), for individuals and companies in Saudi Arabia, the Gulf and worldwide, with no need to attend in person or operate inside the Kingdom. It covers registration, renewal to keep protection in force, and transfer of ownership.",
+   "documentsEn": [
+    "Detailed description of the mark and the classification of goods/services (Nice class)",
+    "Copy of official documents (Commercial Registration or ID)",
+    "Formal assignment agreement (for transfer of ownership)",
+    "Renewal request before protection expires (for renewals)",
+    "Power of attorney attested by the Saudi embassy (for companies outside the Kingdom)"
+   ]
   },
   "bp-sbc-16": {
-   "description": "خدمة إلكترونية من وزارة الصناعة والثروة المعدنية لمزاولة الأنشطة الصناعية قانونياً. نوعان: ترخيص مبدئي (لمراحل التخطيط والتأسيس) وترخيص نهائي (للمصانع الجاهزة للتشغيل الكامل والإنتاج). نتولّى في بيزنس بارتنر تصنيف النشاط، وتجهيز المستندات، والرفع على منصة «صناعي»، والمتابعة حتى الإصدار.",
+   "description": "خدمة إلكترونية من وزارة الصناعة والثروة المعدنية لمزاولة الأنشطة الصناعية قانونياً. نوعان: ترخيص مبدئي (لمراحل التخطيط والتأسيس) وترخيص نهائي (للمصانع الجاهزة للتشغيل الكامل والإنتاج). نتولّى في Business Partner تصنيف النشاط، وتجهيز المستندات، والرفع على منصة «صناعي»، والمتابعة حتى الإصدار.",
    "duration": "5–10 أيام عمل (وقد تصل 20–30 يوماً للحالات المعقّدة)",
    "audience": "منشآت",
    "documents": [
@@ -1772,10 +1850,17 @@
      "a": "نعم، يغطّي كل أنواع الأنشطة الصناعية."
     }
    ],
-   "durationEn": "5–10 working days (up to 20–30 days for complex cases)"
+   "durationEn": "5–10 working days (up to 20–30 days for complex cases)",
+   "descriptionEn": "An electronic service from the Ministry of Industry and Mineral Resources for operating industrial activities legally. Two types: an initial licence (for the planning and setup stages) and a final licence (for factories ready for full operation and production). Business Partner classifies the activity, prepares the documents, files on the Senaei platform and follows up until issuance.",
+   "documentsEn": [
+    "Official documents (Commercial Registration or ID)",
+    "Project feasibility study",
+    "Engineering drawings of the factory",
+    "Accurate details of the industrial activity"
+   ]
   },
   "bp-pl-0057": {
-   "description": "أداة أساسية لتحليل وتقييم المشاريع والتأكد من جدواها وقابليتها للتنفيذ — تغطّي الجوانب المالية والتسويقية والتقنية والقانونية. تساعد على اتخاذ قرارات مستنيرة، وتحديد الفرص، وتقييم المخاطر، وموازنة التكاليف والعوائد. يعدّها فريق بيزنس بارتنر المتخصص بتقرير شامل وتوصيات دقيقة.",
+   "description": "أداة أساسية لتحليل وتقييم المشاريع والتأكد من جدواها وقابليتها للتنفيذ — تغطّي الجوانب المالية والتسويقية والتقنية والقانونية. تساعد على اتخاذ قرارات مستنيرة، وتحديد الفرص، وتقييم المخاطر، وموازنة التكاليف والعوائد. يعدّها فريق Business Partner المتخصص بتقرير شامل وتوصيات دقيقة.",
    "duration": "4–8 أسابيع حسب حجم المشروع",
    "audience": "أفراد ومنشآت",
    "documents": [
@@ -1806,7 +1891,15 @@
      "a": "نعم في معظم الحالات، وهي شرط للترخيص الصناعي وتمويل الصندوق الصناعي."
     }
    ],
-   "durationEn": "4–8 weeks depending on project size"
+   "durationEn": "4–8 weeks depending on project size",
+   "descriptionEn": "A core tool for analysing and assessing projects and confirming their viability and feasibility, covering the financial, marketing, technical and legal aspects. It supports informed decisions, identifies opportunities, assesses risks and weighs costs against returns. Prepared by Business Partner's specialist team as a comprehensive report with precise recommendations.",
+   "documentsEn": [
+    "A clear description of the project idea",
+    "Preliminary financial data",
+    "Definition of the target market",
+    "Objectives and vision",
+    "Any additional information on request"
+   ]
   },
   "bp-gr-01": {
    "name": "تصنيف المقاولين (شهادة تصنيف)",
@@ -9115,6 +9208,396 @@
      "a": "We review, prepare, file and follow the request through to a decision. The decision itself rests with the authority."
     }
    ]
+  },
+  "bp-chamber-01": {
+   "description": "اشتراك منشأتك في الغرفة التجارية بعد صدور السجل: نجهز الطلب ونتابعه حتى تفعيل العضوية.",
+   "descriptionEn": "Chamber of Commerce membership after your CR is issued: we prepare the request and follow it until the membership is active.",
+   "documents": [
+    "نسخة من السجل التجاري",
+    "العنوان الوطني للمنشأة",
+    "هوية المالك أو المفوّض بالتوقيع",
+    "بيانات التواصل الرسمية للمنشأة (جوال وبريد إلكتروني)"
+   ],
+   "documentsEn": [
+    "Copy of the Commercial Registration",
+    "National Address of the establishment",
+    "ID of the owner or authorised signatory",
+    "Official contact details of the establishment (mobile and email)"
+   ]
+  },
+  "bp-pl-0066": {
+   "description": "جلسة قبل التأسيس تحدد الكيان المناسب لنشاطك، والخطوات، وما تحتاجه قبل أن تبدأ.",
+   "descriptionEn": "A pre-formation session that settles the right entity for your activity, the steps, and what you need before you start.",
+   "documents": [
+    "وصف مختصر للنشاط المطلوب",
+    "عدد الشركاء وجنسياتهم وصفتهم (أفراد أو شركات)",
+    "هوية أو جواز سفر كل شريك",
+    "رأس المال المبدئي والمدينة المقترحة للنشاط"
+   ],
+   "documentsEn": [
+    "A brief description of the intended activity",
+    "Number of partners, their nationalities and type (individuals or companies)",
+    "ID or passport of each partner",
+    "Initial capital and proposed city of operation"
+   ]
+  },
+  "bp-balady-02": {
+   "description": "عقد النظافة الإلكتروني المطلوب لبعض الأنشطة في بلدي: نصدره ونربطه بطلب الرخصة.",
+   "descriptionEn": "The e-cleaning contract required for some activities on Balady: we issue it and link it to the licence request.",
+   "documents": [
+    "رقم السجل التجاري ورقم الرخصة البلدية أو طلبها",
+    "رقم العقار أو الموقع في منصة بلدي",
+    "هوية المالك أو المفوّض وحسابه في بلدي",
+    "مساحة المحل ونوع النشاط"
+   ],
+   "documentsEn": [
+    "Commercial Registration number and the municipal licence (or licence request) number",
+    "Property or site number on the Balady platform",
+    "ID of the owner or authorised person and their Balady account",
+    "Premises area and type of activity"
+   ]
+  },
+  "bp-ai-01": {
+   "description": "منظومة أعمال بالذكاء الاصطناعي لمنشأتك: المستشار الذكي، والمتابعات، والتقارير، مربوطة بأنظمتك.",
+   "descriptionEn": "An AI business system for your company: smart advisor, follow-ups and reporting, connected to your systems.",
+   "documents": [
+    "وصف العمليات والأقسام المطلوب ربطها",
+    "قائمة الأنظمة والحسابات الحالية (CRM، بريد، محاسبة، منصات حكومية) وصلاحيات الوصول إليها",
+    "نماذج من المستندات والتقارير التي تتعامل معها",
+    "مسؤول من منشأتك للتنسيق والاعتماد"
+   ],
+   "documentsEn": [
+    "Description of the processes and departments to be connected",
+    "List of current systems and accounts (CRM, email, accounting, government platforms) with access permissions",
+    "Samples of the documents and reports you work with",
+    "A named contact at your company for coordination and approvals"
+   ]
+  },
+  "bp-ai-02": {
+   "description": "إعداد مستشار ذكي لمنشأتك يرد على عملائك ويرتب الطلبات على موقعك وواتساب.",
+   "descriptionEn": "Setting up a smart advisor for your business that answers customers and organises requests on your site and WhatsApp.",
+   "documents": [
+    "رقم واتساب للأعمال وبيانات الدخول إلى موقعك",
+    "قائمة خدماتك وأسعارها كما تريد أن يعرضها المستشار الذكي",
+    "الأسئلة الشائعة ونماذج الردود المعتمدة",
+    "صلاحيات الوصول إلى CRM أو البريد أو التقويم إن وجدت"
+   ],
+   "documentsEn": [
+    "WhatsApp Business number and access to your website",
+    "Your list of services and prices as the smart advisor should present them",
+    "Frequently asked questions and approved reply templates",
+    "Access to CRM, email or calendar where applicable"
+   ]
+  },
+  "bp-ai-03": {
+   "description": "مستشار ذكي يراقب منصاتك الحكومية على مدار الساعة — قوى ومقيم والتأمينات الاجتماعية ومدد ونطاقات — ويرصد المهل والمخالفات والالتزامات فور ظهورها، ويجهّز المستندات ويرفع الطلب، ويصلك تنبيه واضح بالتكلفة والمهلة قبل كل خطوة. دورك: الاعتماد والسداد.",
+   "descriptionEn": "A smart advisor that monitors your government platforms around the clock (Qiwa, Muqeem, GOSI, Mudad and Nitaqat), spots deadlines, violations and obligations as they appear, prepares the documents and files the request, and sends you a clear alert with the cost and deadline before every step. Your role: approve and pay.",
+   "documents": [
+    "السجل التجاري والرقم الموحّد للمنشأة",
+    "صلاحية مستخدم مفوّض على قوى ومقيم والتأمينات الاجتماعية ومدد",
+    "قائمة الموظفين وتواريخ انتهاء الإقامات والعقود",
+    "قناة التنبيه المفضّلة (واتساب أو بريد) والمسؤول عن الاعتماد"
+   ],
+   "documentsEn": [
+    "Commercial Registration and unified establishment number",
+    "Delegated-user access on Qiwa, Muqeem, GOSI and Mudad",
+    "Employee list with residency and contract expiry dates",
+    "Preferred alert channel (WhatsApp or email) and the person who approves"
+   ]
+  },
+  "bp-ai-smart-employee": {
+   "description": "موظف ذكي متخصص يعمل على مدار الساعة ضمن سياسات منشأتك وتحت إشرافك. تختار تخصصه: تسويق أو إداري أو مبيعات أو تقني أو مشتريات — فيتولّى المهام التشغيلية اليومية في مجاله ويرفع لك ما يحتاج قرارك.",
+   "descriptionEn": "A specialist smart employee working around the clock within your company's policies and under your supervision. You choose its specialty (marketing, administration, sales, technical or procurement); it handles the day-to-day operational tasks in that field and escalates what needs your decision.",
+   "documents": [
+    "التخصص المطلوب (تسويق، إداري، مبيعات، تقني، مشتريات) ووصف المهام اليومية",
+    "صلاحيات الوصول إلى الأدوات التي سيعمل فيها (بريد، CRM، حسابات التواصل، نظام المشتريات)",
+    "سياسات المنشأة وحدود الصلاحيات ونماذج الردود المعتمدة",
+    "المشرف المسؤول عن المراجعة والاعتماد"
+   ],
+   "documentsEn": [
+    "The required specialty (marketing, admin, sales, technical, procurement) and a description of the daily tasks",
+    "Access to the tools it will work in (email, CRM, social accounts, procurement system)",
+    "Company policies, authority limits and approved reply templates",
+    "The supervisor responsible for review and approval"
+   ]
+  },
+  "bp-ai-04": {
+   "description": "يدمج مستشار الامتثال والالتزام مع فريق الموظفين الأذكياء في منظومة واحدة، بلوحة موحّدة لكل منصاتك وفرقك، وأولوية في التنفيذ والدعم، وتكامل مع خدمات Business Partner كاملة. متاح للمنشآت وللأفراد وقابل للتوسّع مع نمو أعمالك.",
+   "descriptionEn": "Combines the compliance advisor with the team of smart employees in one system, with a unified dashboard for all your platforms and teams, priority execution and support, and full integration with Business Partner's services. Available to companies and individuals, and it scales as your business grows.",
+   "documents": [
+    "السجل التجاري وبيانات المنشأة (أو هوية الفرد)",
+    "صلاحيات وصول على المنصات الحكومية والأنظمة الداخلية المطلوب ربطها",
+    "الأقسام والتخصصات المطلوبة في الفريق وأولوياتها",
+    "المسؤول عن الاعتماد وقنوات التنبيه"
+   ],
+   "documentsEn": [
+    "Commercial Registration and company details (or the individual's ID)",
+    "Access to the government platforms and internal systems to be connected",
+    "The departments and specialties required in the team and their priorities",
+    "The approver and the alert channels"
+   ]
+  },
+  "ai-gen": {
+   "description": "أتمتة بالذكاء الاصطناعي بحسب طلبك: نحدد العملية ونبني الحل ونشغّله معك.",
+   "descriptionEn": "AI automation on request: we define the process, build the solution and run it with you.",
+   "documents": [
+    "وصف العملية المطلوب أتمتتها وخطواتها الحالية",
+    "الأدوات والأنظمة المستخدمة فيها حالياً",
+    "نماذج من المدخلات والمخرجات",
+    "السجل التجاري أو هوية طالب الخدمة"
+   ],
+   "documentsEn": [
+    "Description of the process to automate and its current steps",
+    "The tools and systems currently used in it",
+    "Samples of inputs and outputs",
+    "Commercial Registration or the requester's ID"
+   ]
+  },
+  "cf-gen": {
+   "description": "خدمة تأسيس بحسب طلبك إذا لم تجد حالتك في القائمة: اكتب لنا نشاطك ونحدد المسار.",
+   "descriptionEn": "Formation service on request if your case is not listed: tell us your activity and we set the path.",
+   "documents": [
+    "وصف النشاط المطلوب والمدينة",
+    "هوية أو جواز سفر الشركاء وصفتهم (أفراد أو شركات)",
+    "رأس المال المقترح وشكل الكيان إن كان محدداً",
+    "أي تراخيص أو موافقات سابقة إن وجدت"
+   ],
+   "documentsEn": [
+    "Description of the intended activity and city",
+    "ID or passport of the partners and their type (individuals or companies)",
+    "Proposed capital and entity form if already decided",
+    "Any previous licences or approvals, if any"
+   ]
+  },
+  "gov-gen": {
+   "description": "معاملة حكومية بحسب طلبك: اكتب اسم المعاملة ونطابقها مع الجهة ونتابعها.",
+   "descriptionEn": "A government transaction on request: name it, we match it to the authority and follow it.",
+   "documents": [
+    "اسم المعاملة والجهة المختصة إن كانت معروفة",
+    "السجل التجاري أو الهوية حسب الحالة",
+    "المستندات أو الإشعارات المتعلقة بالمعاملة (خطابات، مخالفات للمراجعة، طلبات سابقة)",
+    "صلاحية وصول أو تفويض على المنصة عند الحاجة"
+   ],
+   "documentsEn": [
+    "Name of the transaction and the competent authority, if known",
+    "Commercial Registration or ID as applicable",
+    "Documents or notices related to the transaction (letters, violations for review, previous requests)",
+    "Platform access or delegation where needed"
+   ]
+  },
+  "gr-gen": {
+   "description": "مندوب علاقات حكومية لمنشأتك يتابع معاملاتك لدى الجهات بشكل دوري.",
+   "descriptionEn": "A government-relations representative who follows your transactions with the authorities on a regular basis.",
+   "documents": [
+    "السجل التجاري وبيانات المنشأة",
+    "قائمة المنصات والجهات المطلوب متابعتها",
+    "تفويض للمندوب على المنصات والجهات",
+    "جدول المتابعة الدورية المطلوب"
+   ],
+   "documentsEn": [
+    "Commercial Registration and company details",
+    "List of platforms and authorities to be followed",
+    "Delegation for the representative on the platforms and with the authorities",
+    "Required follow-up schedule"
+   ]
+  },
+  "hr-gen": {
+   "description": "خدمة موارد بشرية بحسب طلبك: عقود، أو رواتب، أو إجراءات موظفين.",
+   "descriptionEn": "HR service on request: contracts, payroll or employee procedures.",
+   "documents": [
+    "وصف الخدمة المطلوبة (عقود، رواتب، إجراء موظف)",
+    "السجل التجاري ورقم المنشأة في قوى",
+    "بيانات الموظفين المعنيين (هوية أو إقامة، عقد، راتب)",
+    "صلاحية وصول على قوى أو مدد أو التأمينات الاجتماعية عند الحاجة"
+   ],
+   "documentsEn": [
+    "Description of the required service (contracts, payroll, an employee procedure)",
+    "Commercial Registration and the establishment number on Qiwa",
+    "Details of the employees concerned (ID or iqama, contract, salary)",
+    "Access to Qiwa, Mudad or GOSI where needed"
+   ]
+  },
+  "pr-gen": {
+   "description": "خدمة إقامة مميزة بحسب حالتك إذا لم يناسبك مسار من المسارات المدرجة.",
+   "descriptionEn": "Premium Residency service tailored to your case if none of the listed routes fits.",
+   "documents": [
+    "جواز السفر وبيانات الإقامة الحالية",
+    "وصف حالتك وما يميّزها عن المسارات المدرجة",
+    "ما يثبت الأهلية (مؤهلات، استثمارات، عقارات، دخل) حسب المسار",
+    "شهادة السوابق الجنائية والتقرير الطبي عند التقديم"
+   ],
+   "documentsEn": [
+    "Passport and current residency details",
+    "Description of your case and how it differs from the listed routes",
+    "Evidence of eligibility (qualifications, investments, property, income) by route",
+    "Criminal record certificate and medical report at the time of filing"
+   ]
+  },
+  "re-gen": {
+   "description": "خدمة عقارية بحسب طلبك: مكتب، أو مستودع، أو سكن لموظفيك.",
+   "descriptionEn": "Real-estate service on request: an office, a warehouse or staff housing.",
+   "documents": [
+    "نوع العقار المطلوب (مكتب، مستودع، سكن موظفين) والمدينة",
+    "المساحة والميزانية والمدة المطلوبة",
+    "السجل التجاري للمنشأة",
+    "تاريخ الاستلام المطلوب وأي متطلبات خاصة"
+   ],
+   "documentsEn": [
+    "Type of property required (office, warehouse, staff housing) and city",
+    "Area, budget and term required",
+    "Company's Commercial Registration",
+    "Required handover date and any special requirements"
+   ]
+  },
+  "rec-gen": {
+   "description": "توظيف أو استقدام بحسب طلبك: نحدد المسار والمتطلبات ونبدأ.",
+   "descriptionEn": "Recruitment or manpower on request: we set the route and requirements and start.",
+   "documents": [
+    "الأوصاف الوظيفية والأعداد والجنسيات المطلوبة",
+    "السجل التجاري ورقم المنشأة في قوى",
+    "نطاق الرواتب والمزايا",
+    "حالة التأشيرات أو رصيدها إن كان الطلب استقداماً"
+   ],
+   "documentsEn": [
+    "Job descriptions, headcount and required nationalities",
+    "Commercial Registration and the establishment number on Qiwa",
+    "Salary and benefits range",
+    "Visa status or balance if the request is overseas manpower"
+   ]
+  },
+  "sbc-gen": {
+   "description": "خدمة مشتركة بحسب طلبك من فريقنا التنفيذي: حكومي، أو امتثال، أو مالي، أو قانوني.",
+   "descriptionEn": "A shared service on request from our executive team: government, compliance, finance or legal.",
+   "documents": [
+    "وصف المهمة المطلوبة ومجالها (حكومي، امتثال، مالي، قانوني)",
+    "السجل التجاري وبيانات المنشأة",
+    "المستندات المتعلقة بالمهمة",
+    "صلاحيات الوصول اللازمة على المنصات أو الأنظمة"
+   ],
+   "documentsEn": [
+    "Description of the required task and its area (government, compliance, finance, legal)",
+    "Commercial Registration and company details",
+    "Documents related to the task",
+    "Required access to platforms or systems"
+   ]
+  },
+  "sup-gen": {
+   "description": "دعم أو استشارة بحسب طلبك: اكتب حالتك ونرد بالخطوات.",
+   "descriptionEn": "Support or advisory on request: describe your case and we reply with the steps.",
+   "documents": [
+    "وصف الحالة أو السؤال",
+    "المستندات أو المراسلات المتعلقة بها",
+    "السجل التجاري أو الهوية حسب الحالة"
+   ],
+   "documentsEn": [
+    "Description of the case or question",
+    "Related documents or correspondence",
+    "Commercial Registration or ID as applicable"
+   ]
+  },
+  "tr-gen": {
+   "description": "خدمة سياحية بحسب طلبك لشركتك أو ضيوفك.",
+   "descriptionEn": "Tourism service on request for your company or your guests.",
+   "documents": [
+    "عدد الضيوف أو الموظفين وجنسياتهم",
+    "التواريخ والمدن والبرنامج المطلوب",
+    "جوازات سفر المسافرين (عند الحاجة لتأشيرات أو حجوزات)",
+    "السجل التجاري للشركة الطالبة"
+   ],
+   "documentsEn": [
+    "Number of guests or staff and their nationalities",
+    "Dates, cities and the required programme",
+    "Travellers' passports (where visas or bookings are needed)",
+    "Requesting company's Commercial Registration"
+   ]
+  },
+  "cv-10": {
+   "description": "ترشيح وتصفية سير ذاتية مطابقة للوصف الوظيفي المعتمد من العميل. الحد الأدنى عشر سير ذاتية.",
+   "descriptionEn": "Shortlisting and screening of CVs matching the client's approved job description. Minimum of ten CVs.",
+   "documents": [
+    "الوصف الوظيفي المعتمد ومتطلبات الوظيفة",
+    "نطاق الراتب وموقع العمل",
+    "الجنسيات والخبرات المفضّلة",
+    "السجل التجاري للمنشأة"
+   ],
+   "documentsEn": [
+    "Approved job description and role requirements",
+    "Salary range and work location",
+    "Preferred nationalities and experience",
+    "Company's Commercial Registration"
+   ]
+  },
+  "ma-brk": {
+   "description": "تمثيل العميل في صفقة اندماج أو استحواذ: إعداد الملف، الوصول للأطراف، التفاوض، ومتابعة الإغلاق.",
+   "descriptionEn": "Representing the client in a merger or acquisition: preparing the file, reaching the parties, negotiating and following the deal through to closing.",
+   "documents": [
+    "السجل التجاري وعقد التأسيس للشركة",
+    "القوائم المالية لآخر ثلاث سنوات",
+    "ملخص النشاط والعملاء والأصول الرئيسية",
+    "تصوّر الصفقة المطلوبة (بيع، شراء، اندماج) والحصة والتقييم المبدئي",
+    "اتفاقية سرية موقّعة"
+   ],
+   "documentsEn": [
+    "Company's Commercial Registration and articles of association",
+    "Financial statements for the last three years",
+    "Summary of the business, customers and key assets",
+    "Outline of the intended deal (sale, purchase, merger), stake and indicative valuation",
+    "Signed non-disclosure agreement"
+   ]
+  },
+  "fi-100": {
+   "description": "إنهاء إجراءات التأسيس كاملة: حجز الاسم التجاري، إصدار رخصة الاستثمار من وزارة الاستثمار، السجل التجاري لدى وزارة التجارة، عقد التأسيس وتوثيقه، العنوان الوطني لدى البريد السعودي، الغرفة التجارية، فتح ملف المنشأة لدى وزارة الموارد البشرية والتنمية الاجتماعية والتسجيل في المؤسسة العامة للتأمينات الاجتماعية وهيئة الزكاة والضريبة والجمارك، وتفعيل منصات قوى ومقيم ومدد، وإصدار تأشيرة وإقامة المدير العام.",
+   "descriptionEn": "Completing the full formation process: trade name reservation, the investment licence from the Ministry of Investment, the Commercial Registration with the Ministry of Commerce, the articles of association and their notarisation, the National Address with Saudi Post, Chamber of Commerce membership, opening the establishment file with the Ministry of Human Resources and Social Development, registration with the General Organization for Social Insurance and the Zakat, Tax and Customs Authority, activation of Qiwa, Muqeem and Mudad, and the visa and residency permit of the general manager.",
+   "documents": [
+    "السجل التجاري للشركة الأم (أو جواز سفر المستثمر الفرد) مصدّقاً من السفارة السعودية",
+    "عقد التأسيس والنظام الأساسي للشركة الأم مصدّقاً",
+    "القوائم المالية المدققة لآخر سنة مالية",
+    "قرار الشركاء بالتأسيس في المملكة وتعيين المدير العام",
+    "جواز سفر المدير العام",
+    "توكيل مصدّق لممثل الشركة"
+   ],
+   "documentsEn": [
+    "Parent company's Commercial Registration (or the individual investor's passport), attested by the Saudi embassy",
+    "Parent company's attested articles of association and bylaws",
+    "Audited financial statements for the latest financial year",
+    "Shareholders' resolution to incorporate in the Kingdom and appoint the general manager",
+    "General manager's passport",
+    "Attested power of attorney for the company's representative"
+   ]
+  },
+  "qw-est": {
+   "description": "فتح وتفعيل ملف المنشأة لدى وزارة الموارد البشرية والتنمية الاجتماعية، وربطه بمنصة قوى، وضبط بيانات المنشأة والنطاق ومتطلبات التوطين.",
+   "descriptionEn": "Opening and activating your establishment file with the Ministry of Human Resources and Social Development, linking it to the Qiwa platform, and setting up the establishment data, Nitaqat band and Saudisation requirements.",
+   "documents": [
+    "السجل التجاري والرقم الموحّد للمنشأة",
+    "هوية المالك أو المفوّض وحسابه في أبشر أو النفاذ الوطني",
+    "العنوان الوطني للمنشأة",
+    "بيانات التواصل الرسمية وتفويض المدير على قوى"
+   ],
+   "documentsEn": [
+    "Commercial Registration and unified establishment number",
+    "ID of the owner or authorised person and their Absher / National Single Sign-On account",
+    "National Address of the establishment",
+    "Official contact details and the manager's delegation on Qiwa"
+   ]
+  },
+  "bp-ref-01": {
+   "description": "نتولّى في Business Partner دراسة أهلية منشأتك لمبادرة استرداد الرسوم الحكومية، وتجهيز الطلب وتقديمه ومتابعته لدى الجهة حتى صدور القرار — بأتعاب واضحة ومتابعة كاملة. القرار والمبلغ المسترد يعودان إلى الجهة المختصة.",
+   "descriptionEn": "Business Partner studies your establishment's eligibility for the government fee refund initiative, prepares the request, files it and follows it with the authority until a decision is issued, with clear fees and full follow-up. The decision and any refunded amount rest with the competent authority.",
+   "documents": [
+    "السجل التجاري والرقم الموحّد للمنشأة",
+    "إيصالات أو سندات سداد الرسوم المطلوب استردادها",
+    "بيان من المنصة (قوى أو مقيم أو غيرها) يوضح الرسوم المسددة",
+    "الحساب البنكي (آيبان) للمنشأة لاستلام المبلغ عند الموافقة",
+    "تفويض على المنصة المختصة عند الحاجة"
+   ],
+   "documentsEn": [
+    "Commercial Registration and unified establishment number",
+    "Receipts or payment vouchers for the fees to be refunded",
+    "A statement from the platform (Qiwa, Muqeem or other) showing the fees paid",
+    "Company IBAN to receive the amount if approved",
+    "Delegation on the relevant platform where needed"
+   ]
   }
  },
  "social": {
@@ -9298,7 +9781,7 @@
   "titleEn": "Terms & Conditions",
   "updated": "16 يوليو 2026",
   "updatedEn": "July 16, 2026",
-  "intro": "تحكم هذه الشروط والأحكام اشتراكك في باقات ومنصة بيزنس بارتنر. بمجرد توقيعك على نموذج الاشتراك أو إتمام عملية الشراء عبر الموقع، فإنك توافق على الالتزام بها بالكامل.",
+  "intro": "تحكم هذه الشروط والأحكام اشتراكك في باقات ومنصة Business Partner. بمجرد توقيعك على نموذج الاشتراك أو إتمام عملية الشراء عبر الموقع، فإنك توافق على الالتزام بها بالكامل.",
   "introEn": "These Terms & Conditions govern your subscription to Business Partner's packages and platform. By signing the subscription form or completing a purchase through the site, you agree to be fully bound by them.",
   "sections": [
    {
@@ -9306,20 +9789,20 @@
     "titleEn": "First: Definitions",
     "items": [
      [
-      "\"بيزنس بارتنر\" - مزوّد الخدمة",
-      "منصة بيزنس بارتنر لتقديم الخدمات التشغيلية والاستشارية لمنشآت الأعمال في المملكة العربية السعودية.",
+      "\"Business Partner\" - مزوّد الخدمة",
+      "منصة Business Partner لتقديم الخدمات التشغيلية والاستشارية لمنشآت الأعمال في المملكة العربية السعودية.",
       "\"Business Partner\" — the service provider",
       "The Business Partner platform providing operational and advisory services to business establishments in Saudi Arabia."
      ],
      [
-      "\"باقات بيزنس بارتنر\"",
+      "\"باقات Business Partner\"",
       "خدمة إدارة الخدمات الإلكترونية للجهات الحكومية للمنشآت، حيث تكون الخدمة خاصة بالخدمات الإلكترونية فقط وليست لمراجعة الجهات الحكومية حضورياً.",
       "\"Business Partner Packages\"",
       "The service of managing establishments' electronic government-platform services — the service covers electronic services only, not in-person visits to government entities."
      ],
      [
       "\"المشترك\"",
-      "هو المستفيد من خدمات باقات بيزنس بارتنر.",
+      "هو المستفيد من خدمات باقات Business Partner.",
       "\"Subscriber\"",
       "The beneficiary of Business Partner's package services."
      ],
@@ -9358,19 +9841,19 @@
    {
     "title": "ثانياً: فئة الاشتراك",
     "titleEn": "Second: Subscription Category",
-    "body": "يجب على المشترك تحديد فئة الاشتراك التي يرغب بها، وهي إما: باقة الانطلاق، أو باقة النمو، أو باقة التوسّع، أو باقة الشراكة المؤسسية، حسب ما هو موضّح في صفحة الباقات على موقع بيزنس بارتنر.",
+    "body": "يجب على المشترك تحديد فئة الاشتراك التي يرغب بها، وهي إما: باقة الانطلاق، أو باقة النمو، أو باقة التوسّع، أو باقة الشراكة المؤسسية، حسب ما هو موضّح في صفحة الباقات على موقع Business Partner.",
     "bodyEn": "The subscriber must choose their subscription tier: Launch, Growth, Scale, or Enterprise Partnership, as detailed on the Business Partner packages page."
    },
    {
     "title": "ثالثاً: مدة الاشتراك",
     "titleEn": "Third: Subscription Term",
-    "body": "الاشتراك ساري المفعول لمدة سنة ميلادية كاملة من تاريخ توقيع نموذج الاشتراك، ويتجدد تلقائياً ما لم يُخطر المشترك بيزنس بارتنر برغبته في عدم التجديد قبل شهر من تاريخ نهاية الاشتراك، وذلك من خلال نموذج عدم الرغبة في التجديد المتاح على الموقع، أو ما لم يُنهَ الاشتراك بموجب البند التاسع.",
+    "body": "الاشتراك ساري المفعول لمدة سنة ميلادية كاملة من تاريخ توقيع نموذج الاشتراك، ويتجدد تلقائياً ما لم يُخطر المشترك Business Partner برغبته في عدم التجديد قبل شهر من تاريخ نهاية الاشتراك، وذلك من خلال نموذج عدم الرغبة في التجديد المتاح على الموقع، أو ما لم يُنهَ الاشتراك بموجب البند التاسع.",
     "bodyEn": "The subscription is valid for one full Gregorian year from the date the subscription form is signed, and renews automatically unless the subscriber notifies Business Partner of their wish not to renew at least one month before the subscription end date, via the non-renewal form available on the site, or unless the subscription is terminated under Section Nine."
    },
    {
     "title": "رابعاً: وقت توفير الخدمة",
     "titleEn": "Fourth: Service Availability",
-    "body": "تبذل بيزنس بارتنر قصارى جهدها لتوفير الخدمة على مدار الأربع والعشرين ساعة وخلال العطل الرسمية، مع عدم تحمّلها المسؤولية في حال عدم توفر الخدمة لأي سبب من الأسباب.",
+    "body": "تبذل Business Partner قصارى جهدها لتوفير الخدمة على مدار الأربع والعشرين ساعة وخلال العطل الرسمية، مع عدم تحمّلها المسؤولية في حال عدم توفر الخدمة لأي سبب من الأسباب.",
     "bodyEn": "Business Partner makes its best effort to provide the service around the clock, including official holidays, and bears no liability if the service is unavailable for any reason."
    },
    {
@@ -9378,27 +9861,27 @@
     "titleEn": "Fifth: Subscriber Obligations",
     "list": [
      [
-      "يتعهد المشترك بعدم تعطيل الخدمة والتعاون مع بيزنس بارتنر في تقديم الخدمة لمنشأته بأسرع وقت، وفي حال عدم التعاون يحق لمزوّد الخدمة إنهاء الاشتراك.",
+      "يتعهد المشترك بعدم تعطيل الخدمة والتعاون مع Business Partner في تقديم الخدمة لمنشأته بأسرع وقت، وفي حال عدم التعاون يحق لمزوّد الخدمة إنهاء الاشتراك.",
       "The subscriber undertakes not to obstruct the service and to cooperate with Business Partner so the service reaches their establishment as quickly as possible; failing to cooperate entitles the provider to terminate the subscription."
      ],
      [
-      "يتعهد المشترك بعدم الإساءة لموظفي بيزنس بارتنر أو لكيان الشركة، وسلوك الطرق النظامية الصحيحة في حال وجود أي شكاوى تجاه الخدمة، ويتعهد عند الإخلال بذلك بدفع التعويض اللازم عن أي ضرر أو خسائر بحسب ما تقرره الأنظمة النافذة في المملكة، كما يتحمّل كافة الغرامات الصادرة بحقه من الجهات المختصة.",
+      "يتعهد المشترك بعدم الإساءة لموظفي Business Partner أو لكيان الشركة، وسلوك الطرق النظامية الصحيحة في حال وجود أي شكاوى تجاه الخدمة، ويتعهد عند الإخلال بذلك بدفع التعويض اللازم عن أي ضرر أو خسائر بحسب ما تقرره الأنظمة النافذة في المملكة، كما يتحمّل كافة الغرامات الصادرة بحقه من الجهات المختصة.",
       "The subscriber undertakes not to abuse Business Partner's staff or the company itself, and to follow proper channels for any complaints; breaching this obligates the subscriber to pay compensation for any resulting damage or loss per applicable Saudi regulations, and to bear any fines issued against them by the relevant authorities."
      ],
      [
-      "يتحمّل المشترك كافة المسؤوليات الناتجة عن الطلبات الصادرة من الموظف أو المفوَّض بالتعامل مع بيزنس بارتنر والذي فوّضه في نموذج الاشتراك.",
+      "يتحمّل المشترك كافة المسؤوليات الناتجة عن الطلبات الصادرة من الموظف أو المفوَّض بالتعامل مع Business Partner والذي فوّضه في نموذج الاشتراك.",
       "The subscriber bears full responsibility for requests made by the employee or representative authorized to deal with Business Partner as named in the subscription form."
      ],
      [
-      "لا يحق للمشترك مطالبة بيزنس بارتنر بتقديم خدمة لمنشأة غير المنشأة الموقَّع عليها نموذج الاشتراك.",
+      "لا يحق للمشترك مطالبة Business Partner بتقديم خدمة لمنشأة غير المنشأة الموقَّع عليها نموذج الاشتراك.",
       "The subscriber may not request the service be provided to any establishment other than the one named in the signed subscription form."
      ],
      [
-      "لا يحق للمشترك مطالبة بيزنس بارتنر بأي تعويض نظير تأخّر الخدمة بسبب أعطال تقنية أو أسباب أخرى خارجة عن إرادتها.",
+      "لا يحق للمشترك مطالبة Business Partner بأي تعويض نظير تأخّر الخدمة بسبب أعطال تقنية أو أسباب أخرى خارجة عن إرادتها.",
       "The subscriber may not claim compensation for service delays caused by technical faults or other causes beyond Business Partner's control."
      ],
      [
-      "يتعهد المشترك بتزويد بيزنس بارتنر بكافة أسماء المستخدمين وكلمات المرور لجميع حسابات المنشأة في الجهات الحكومية، وبإعلام الشركة فور تغييرها.",
+      "يتعهد المشترك بتزويد Business Partner بكافة أسماء المستخدمين وكلمات المرور لجميع حسابات المنشأة في الجهات الحكومية، وبإعلام الشركة فور تغييرها.",
       "The subscriber undertakes to provide Business Partner with all usernames and passwords for the establishment's government-entity accounts, and to notify the company immediately if they change."
      ]
     ]
@@ -9426,45 +9909,45 @@
     "titleEn": "Ninth: General Provisions",
     "list": [
      [
-      "لا تتحمّل بيزنس بارتنر مسؤولية المشاكل الناتجة عن عدم صحة أو تحديث المعلومات المقدَّمة من المشترك أو من الجهات المختصة عبر نظام المنشأة.",
+      "لا تتحمّل Business Partner مسؤولية المشاكل الناتجة عن عدم صحة أو تحديث المعلومات المقدَّمة من المشترك أو من الجهات المختصة عبر نظام المنشأة.",
       "Business Partner bears no responsibility for problems arising from inaccurate or outdated information provided by the subscriber or by the relevant authorities via the establishment's system."
      ],
      [
-      "لا تتحمّل بيزنس بارتنر المخالفات التي تقع على المنشأة لأي سبب من الأسباب، ولا يحق للمشترك مطالبتها بذلك.",
+      "لا تتحمّل Business Partner المخالفات التي تقع على المنشأة لأي سبب من الأسباب، ولا يحق للمشترك مطالبتها بذلك.",
       "Business Partner bears no responsibility for violations issued against the establishment for any reason, and the subscriber may not hold it liable for them."
      ],
      [
-      "لا تتحمّل بيزنس بارتنر أي مسؤولية تجاه أي خسائر تقع على المشترك (مباشرة أو غير مباشرة) ناتجة عن تنفيذ هذا الاشتراك.",
+      "لا تتحمّل Business Partner أي مسؤولية تجاه أي خسائر تقع على المشترك (مباشرة أو غير مباشرة) ناتجة عن تنفيذ هذا الاشتراك.",
       "Business Partner bears no liability for any losses (direct or indirect) incurred by the subscriber arising from performance of this subscription."
      ],
      [
-      "تحتفظ بيزنس بارتنر بحقها في تقييد استخدام الخدمة بوضع حدّ أقصى للخدمات المقدَّمة.",
+      "تحتفظ Business Partner بحقها في تقييد استخدام الخدمة بوضع حدّ أقصى للخدمات المقدَّمة.",
       "Business Partner reserves the right to limit the use of the service by capping the services provided."
      ],
      [
-      "يوافق المشترك على إخلاء مسؤولية بيزنس بارتنر عن أخطاء مقدّمي خدمات الاتصالات أو مواقع الجهات الحكومية، مثل تعطّل الاتصال بالموقع الإلكتروني.",
+      "يوافق المشترك على إخلاء مسؤولية Business Partner عن أخطاء مقدّمي خدمات الاتصالات أو مواقع الجهات الحكومية، مثل تعطّل الاتصال بالموقع الإلكتروني.",
       "The subscriber agrees to release Business Partner from liability for errors by telecom providers or government-entity websites, such as connectivity failures."
      ],
      [
-      "يوافق المشترك على أن لبيزنس بارتنر الحق في إتلاف أو عدم إبراز أصول المستندات، ويُعتبر ما تقدّمه بيزنس بارتنر من صور لها حجّة إثبات لدى الجهات المختصة والقضاء طالما أنها تحمل شعار وختم بيزنس بارتنر.",
+      "يوافق المشترك على أن لـ Business Partner الحق في إتلاف أو عدم إبراز أصول المستندات، ويُعتبر ما تقدّمه Business Partner من صور لها حجّة إثبات لدى الجهات المختصة والقضاء طالما أنها تحمل شعار وختم Business Partner.",
       "The subscriber agrees that Business Partner has the right to dispose of or not produce original documents, and that copies provided by Business Partner bearing its logo and seal are considered valid evidence before the relevant authorities and courts."
      ],
      [
-      "يحق لبيزنس بارتنر إنهاء الاشتراك في حال رغبتها بعدم الاستمرار دون أي قيود، أو في حال استخدام المشترك للنظام في غير الغرض المخصَّص له، أو إخلاله بأحد أحكام وشروط استخدام الخدمة، أو في حال طلب الجهات المختصة إيقاف الخدمة عن المشترك. وفي هذه الحالة فقط تُعاد المبالغ المدفوعة عن المدة المتبقية من الاشتراك دون المطالبة بأي تعويض آخر، كما ينتهي الاشتراك في حال الظروف القاهرة.",
+      "يحق لـ Business Partner إنهاء الاشتراك في حال رغبتها بعدم الاستمرار دون أي قيود، أو في حال استخدام المشترك للنظام في غير الغرض المخصَّص له، أو إخلاله بأحد أحكام وشروط استخدام الخدمة، أو في حال طلب الجهات المختصة إيقاف الخدمة عن المشترك. وفي هذه الحالة فقط تُعاد المبالغ المدفوعة عن المدة المتبقية من الاشتراك دون المطالبة بأي تعويض آخر، كما ينتهي الاشتراك في حال الظروف القاهرة.",
       "Business Partner may terminate the subscription at will without restriction, or if the subscriber uses the system for purposes other than intended, breaches any of the service's terms, or if the relevant authorities request the service be stopped for the subscriber. Only in this case are amounts paid for the remaining subscription period refunded, without any further claim for compensation; the subscription also ends in the event of force majeure."
      ],
      [
-      "لا يحق للمشترك مطالبة بيزنس بارتنر بمراجعات حضورية للجهات الحكومية أو شبه الحكومية، حيث إن الخدمة مقتصرة على إدارة الخدمات الإلكترونية، ويتولّى المشترك توفير من يقوم بالمراجعات الحضورية عند الحاجة.",
+      "لا يحق للمشترك مطالبة Business Partner بمراجعات حضورية للجهات الحكومية أو شبه الحكومية، حيث إن الخدمة مقتصرة على إدارة الخدمات الإلكترونية، ويتولّى المشترك توفير من يقوم بالمراجعات الحضورية عند الحاجة.",
       "The subscriber may not request in-person visits to government or quasi-government entities, as the service is limited to managing electronic services; the subscriber is responsible for arranging any needed in-person visits."
      ]
     ]
    },
    {
-    "title": "عاشراً: الشروط والأحكام الخاصة بباقات بيزنس بارتنر",
+    "title": "عاشراً: الشروط والأحكام الخاصة بباقات Business Partner",
     "titleEn": "Tenth: Terms Specific to Business Partner Packages",
     "list": [
      [
-      "تنطبق على خدمة الاشتراك في باقات بيزنس بارتنر جميع الشروط والأحكام السابقة من البند الأول إلى البند التاسع.",
+      "تنطبق على خدمة الاشتراك في باقات Business Partner جميع الشروط والأحكام السابقة من البند الأول إلى البند التاسع.",
       "All preceding terms from Section One through Section Nine apply to the Business Partner packages subscription service."
      ],
      [
@@ -9472,7 +9955,7 @@
       "The provider may change the package subscription pricing upon renewal or when new services are added; the subscriber (or their representative) continuing the subscription after being notified of the change is considered acceptance of the new price and an undertaking to pay the resulting amounts and fees."
      ],
      [
-      "تنحصر إدارة خدمات وزارة الموارد البشرية في الخدمة الإلكترونية المتوفرة في حساب المنشأة فقط وفق النظام المعمول به، ولا يحق للمشترك مطالبة بيزنس بارتنر بإجراء أي معاملة غير نظامية.",
+      "تنحصر إدارة خدمات وزارة الموارد البشرية في الخدمة الإلكترونية المتوفرة في حساب المنشأة فقط وفق النظام المعمول به، ولا يحق للمشترك مطالبة Business Partner بإجراء أي معاملة غير نظامية.",
       "Management of Ministry of Human Resources services is limited to the electronic service available in the establishment's account per applicable regulations; the subscriber may not request Business Partner to carry out any non-regulatory transaction."
      ],
      [
@@ -9480,7 +9963,7 @@
       "Management of Ministry of Commerce services is limited to the following electronic services only: CR renewal, CR cancellation, CR amendment, and trade name reservation."
      ],
      [
-      "تنحصر إدارة خدمات التأمينات الاجتماعية (GOSI) في الخدمة الإلكترونية المتوفرة في حساب المنشأة فقط وفق النظام المعمول به، ولا يحق للمشترك مطالبة بيزنس بارتنر بإجراء أي معاملة غير متوفرة في حساب المنشأة.",
+      "تنحصر إدارة خدمات التأمينات الاجتماعية (GOSI) في الخدمة الإلكترونية المتوفرة في حساب المنشأة فقط وفق النظام المعمول به، ولا يحق للمشترك مطالبة Business Partner بإجراء أي معاملة غير متوفرة في حساب المنشأة.",
       "Management of GOSI services is limited to the electronic service available in the establishment's account per applicable regulations; the subscriber may not request any transaction not available in that account."
      ],
      [
@@ -9488,7 +9971,7 @@
       "Management of Zakat, Tax and Customs Authority services is limited to the following electronic services only: filing Zakat returns, filing tax returns, establishment registration, and de-registration."
      ],
      [
-      "تنحصر إدارة خدمات وزارة الداخلية في الخدمة الإلكترونية المتوفرة في حساب أبشر أعمال أو خدمة مقيم فقط، ولا يحق للمشترك مطالبة بيزنس بارتنر بإجراء أي معاملة غير متوفرة في تلك الحسابات.",
+      "تنحصر إدارة خدمات وزارة الداخلية في الخدمة الإلكترونية المتوفرة في حساب أبشر أعمال أو خدمة مقيم فقط، ولا يحق للمشترك مطالبة Business Partner بإجراء أي معاملة غير متوفرة في تلك الحسابات.",
       "Management of Ministry of Interior services is limited to the electronic service available via the Absher Business account or Muqeem service only; the subscriber may not request any transaction not available in those accounts."
      ],
      [
@@ -9520,7 +10003,7 @@
       "Where included in the package, the website-design service is limited to building a basic informational site with a limited number of pages. A professional site or online store, if desired, is a separate contract outside this subscription."
      ],
      [
-      "تنحصر خدمة التسويق عبر مواقع التواصل الاجتماعي، حيث تشملها الباقة، في إنشاء حسابات للمنشأة وربطها بموقعها الإلكتروني، وفي حال رغبة المشترك بالتسويق المدفوع عبر تلك المنصات، فتكون رسوم الإعلانات على حساب المشترك ولا يحق له مطالبة بيزنس بارتنر بها.",
+      "تنحصر خدمة التسويق عبر مواقع التواصل الاجتماعي، حيث تشملها الباقة، في إنشاء حسابات للمنشأة وربطها بموقعها الإلكتروني، وفي حال رغبة المشترك بالتسويق المدفوع عبر تلك المنصات، فتكون رسوم الإعلانات على حساب المشترك ولا يحق له مطالبة Business Partner بها.",
       "Where included in the package, social-media marketing is limited to creating establishment accounts and linking them to its website; paid advertising fees on those platforms, if desired, are the subscriber's responsibility."
      ],
      [
@@ -9528,13 +10011,13 @@
       "Where included in the package, employee qualification & training is limited to a set number of employees per the package; increasing that number, if desired, incurs an additional fee on a separate invoice."
      ],
      [
-      "تنحصر خدمة إعداد اللوائح الداخلية للمنشأة في الجانب المتعلق بوزارة الموارد البشرية، ويُعدّ عقد العمل لكل موظف مرة واحدة فقط خلال العام، ولا يحق للمشترك مطالبة بيزنس بارتنر بإعداد العقود أكثر من مرة كل عام ما لم يُتفَق على غير ذلك.",
+      "تنحصر خدمة إعداد اللوائح الداخلية للمنشأة في الجانب المتعلق بوزارة الموارد البشرية، ويُعدّ عقد العمل لكل موظف مرة واحدة فقط خلال العام، ولا يحق للمشترك مطالبة Business Partner بإعداد العقود أكثر من مرة كل عام ما لم يُتفَق على غير ذلك.",
       "The internal-regulations preparation service is limited to the Ministry of Human Resources aspect; each employee's contract is prepared once per year, and the subscriber may not request contracts be redrafted more than once a year unless otherwise agreed."
      ]
     ]
    }
   ],
-  "note": "هذه الشروط مُهيّأة لتوقيع نموذج الاشتراك الورقي/الإلكتروني بين بيزنس بارتنر والمشترك. باستخدامك للموقع وإتمام أي طلب شراء، فإنك تقرّ بموافقتك عليها.",
+  "note": "هذه الشروط مُهيّأة لتوقيع نموذج الاشتراك الورقي/الإلكتروني بين Business Partner والمشترك. باستخدامك للموقع وإتمام أي طلب شراء، فإنك تقرّ بموافقتك عليها.",
   "noteEn": "These terms are formatted for the paper/electronic subscription form signed between Business Partner and the subscriber. By using the site and completing any purchase, you acknowledge your agreement to them."
  }
 }

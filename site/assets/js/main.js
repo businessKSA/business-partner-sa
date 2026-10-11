@@ -1324,7 +1324,7 @@ var BP = window.BP = window.BP || {};
 
     function render(v, j) {
       titleEl.textContent = v.title;
-      document.title = v.title + (BP.lang === "ar" ? " — بيزنس بارتنر" : " — Business Partner");
+      document.title = v.title + " — Business Partner";
       document.getElementById("jp-company").textContent = [v.company, v.city].filter(function (x) { return x && x !== "—"; }).join(" · ");
       document.getElementById("jp-city").textContent = v.city || "—";
       document.getElementById("jp-field").textContent = v.field || "—";
@@ -2613,7 +2613,7 @@ var BP = window.BP = window.BP || {};
         if (!rows.length) { box.innerHTML = '<p class="dash-empty">' + T("No matching service.", "لا توجد خدمة مطابقة.") + "</p>"; return; }
         box.innerHTML =
           '<p class="dash-empty" style="text-align:start;margin-bottom:10px">' +
-            T("Your commission rate: ", "نسبة عمولة بيزنس بارتنر عليك: ") + "<b>" + pct + "%</b> · " +
+            T("Your commission rate: ", "نسبة عمولة Business Partner عليك: ") + "<b>" + pct + "%</b> · " +
             T("prices exclude VAT", "الأسعار قبل ضريبة القيمة المضافة") + "</p>" +
           '<div class="tbl-scroll"><table class="mini-table"><thead><tr>' +
             "<th>" + T("Code", "الكود") + "</th><th>" + T("Service", "الخدمة") + "</th>" +
@@ -2785,7 +2785,7 @@ var BP = window.BP = window.BP || {};
             var held = d.held || [];
             esBox.innerHTML = held.length ? held.map(function (e) {
               var st = e.status === "refund_requested"
-                ? [T("Client asked for a refund — your consent or BP's decision settles it", "طلب العميل الاسترجاع — يُحسم بموافقتك أو بقرار بيزنس بارتنر"), "#b45309"]
+                ? [T("Client asked for a refund — your consent or BP's decision settles it", "طلب العميل الاسترجاع — يُحسم بموافقتك أو بقرار Business Partner"), "#b45309"]
                 : e.status === "delivered"
                 ? [T("You declared delivery — awaiting the client's approval", "أعلنتَ التسليم — بانتظار اعتماد العميل للاستلام"), "#7c3aed"]
                 : [T("Held — declare delivery when the work is done", "محجوز — أعلن التسليم عند إتمام العمل"), "#2563eb"];

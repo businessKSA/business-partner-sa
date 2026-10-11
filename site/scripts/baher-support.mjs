@@ -20,7 +20,7 @@ const SKIP = [/\/portal\//, /\/admin(\.|\/)/, /\/monitor(\.|\/)/, /\/ops(\.|\/)/
 
 function widget(ar) {
   const greet = ar
-    ? "حياك الله 👋 أنا باهر، مساعد الدعم في بيزنس بارتنر. كيف نقدر ندعمك؟"
+    ? "حياك الله 👋 أنا باهر، مساعد الدعم في Business Partner. كيف نقدر ندعمك؟"
     : "Hi 👋 I'm Baher, Business Partner's support assistant. How can we help?";
   const T = (a, e) => (ar ? a : e);
   return `<style>
@@ -59,7 +59,7 @@ html.bp-embed .bps-fab,html.bp-embed .bps-panel{display:none!important}
 <section class="bps-panel" id="bpsPanel" role="dialog" aria-label="${T("دعم باهر", "Baher support")}">
   <div class="bps-hd"><img src="${IMG}" alt=""><div><b>${T("باهر", "Baher")}</b><small><em></em>${T("الدعم — متصل الآن", "Support — online now")}</small></div><button class="bps-x" id="bpsClose" aria-label="${T("إغلاق", "Close")}">✕</button></div>
   <div class="bps-intake" id="bpsIntake">
-    <h4>${T("أهلاً بك في دعم بيزنس بارتنر 👋 عرّفنا بنفسك حتى نخدمك ونتابع طلبك.", "Welcome to Business Partner support 👋 Tell us about yourself so we can help and follow up.")}</h4>
+    <h4>${T("أهلاً بك في دعم Business Partner 👋 عرّفنا بنفسك حتى نخدمك ونتابع طلبك.", "Welcome to Business Partner support 👋 Tell us about yourself so we can help and follow up.")}</h4>
     <input class="bps-in" id="bpsName" type="text" placeholder="${T("الاسم الكامل *", "Full name *")}" autocomplete="name">
     <input class="bps-in" id="bpsPhone" type="tel" placeholder="${T("الجوال 05XXXXXXXX *", "Mobile 05XXXXXXXX *")}" autocomplete="tel">
     <button class="bps-go" id="bpsStart">${T("ابدأ الدعم ›", "Start support ›")}</button>
