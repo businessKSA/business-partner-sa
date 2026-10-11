@@ -22,7 +22,8 @@ import { fileURLToPath } from "node:url";
 import { sb, DB_ON, DB_MISSING, getSession, audit, notify } from "./_db.js";
 import { contractHtml, quoteHtml } from "./_docusign.js";
 import { loadCatalog } from "./_catalog.js";
-import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate } from "./_daftra.js";
+import { daftraConfigured } from "./_daftra.js";
+import { issuePaidInvoice, reportInvoiceBlocked, invoiceIsComplete, invoiceRetryDue, publicInvoice } from "./_invoicing.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { DEV, EMAIL_LIVE, MODES, outbox, outboxList, PAY_MOCK, TAMARA_MOCK } from "./_mode.js";
 import { isOwnerEmail } from "./_trial.js";
@@ -146,6 +147,9 @@ function ownedBy(row, sess) {
 // The public view of a request — no internal notes, no assignment.
 function clientView(row, events, tasks) {
   const { internal_notes, assigned_to, ai_summary, ...pub } = row;
+  // The invoice record carries the issuing state and the draft it was built from;
+  // the customer sees it only once Daftra has numbered it, and without those.
+  pub.invoice = publicInvoice(pub.invoice);
   if (pub.contract && pub.contract.html) pub.contract = { ...pub.contract, html: undefined, html_signed: undefined, has_html: true };
   // Machine bookkeeping («notify.paid», «followup.task») is for the panel: the
   // customer's timeline used to print those keys raw.
@@ -890,7 +894,7 @@ const summary = (r) => ({
   quote: r.quote ? { number: r.quote.number, total: r.quote.total, status: r.quote.status, valid_until: r.quote.valid_until } : null,
   contract: r.contract ? { number: r.contract.number, status: r.contract.status } : null,
   payment: r.payment ? { status: r.payment.status, amount: r.payment.amount, provider: r.payment.provider } : null,
-  invoice: r.invoice ? { number: r.invoice.number, total: r.invoice.total } : null,
+  invoice: publicInvoice(r.invoice) ? { number: r.invoice.number, total: r.invoice.total } : null,
   appointment: r.appointment ? { date: r.appointment.date, time: r.appointment.time, status: r.appointment.status, topic: r.appointment.topic } : null,
   last_message: (r.conversation || []).slice(-1)[0] || null,
   client_name: r.client_name, client_email: r.client_email, client_phone: r.client_phone, company_name: r.company_name,
@@ -911,70 +915,93 @@ function defaultTitle(type, lang) {
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 // Shared by the test payment and by the real gateway settle (api/pay.js
-// calls markRequestPaid after Moyasar/Tamara confirm a `sv1:<ref>` line).
+// calls markRequestPaidByRef after Moyasar/Tamara confirm a `sv1:<ref>` line).
+//
 // The tax invoice belongs in the books, not only in our own row. A paid request
 // issues it in Daftra under the client's record, with the payment recorded
-// against it, and keeps the number + PDF on the request so the customer can
-// open it from /my. Locally and in test mode nothing is sent: the internal
-// TEST-INV- number stands in, and the reason is recorded so a missing invoice
-// is never a mystery.
-async function daftraInvoiceForRequest(row, payment) {
-  if (!daftraConfigured()) return { ok: false, reason: "daftra_not_configured" };
-  if (payment.test) return { ok: false, reason: "test_mode" };
+// against it, e-mails it to the client, and keeps the record on the request so
+// «الفواتير» in /my shows it. All of that lives in api/_invoicing.js — the same
+// engine the cart uses — so the claim, the retry and the alert are one thing.
+//
+// Locally and in test mode nothing reaches Daftra: the internal TEST-INV- number
+// stands in, and the reason is recorded so a missing invoice is never a mystery.
+// In production a request is never given a made-up number: either Daftra
+// numbered it, or the customer sees nothing yet and the owner is told.
+function invoiceDraftForRequest(row, payment) {
   const items = (row.quote?.items || []).map((l) => ({
     name: str(l.title, 140) || "خدمة", quantity: Math.max(1, Math.min(999, num(l.qty) || 1)), unitPrice: round2(num(l.price)),
   })).filter((i) => i.unitPrice >= 0);
-  if (!items.length) return { ok: false, reason: "no_priced_items" };
-  const who = {
+  const buyer = {
     name: str(row.company_name || row.client_name, 160),
     email: str(row.client_email, 160), phone: str(row.client_phone, 40),
   };
-  if (!who.name || !isEmail(who.email)) return { ok: false, reason: "missing_buyer" };
-  try {
-    const { client } = await daftraFindOrCreateClient(who);
-    if (!client || !client.id) return { ok: false, reason: "client_failed" };
-    const notes = [`مرجع الطلب: ${row.ref}`, `عرض السعر: ${row.quote?.number || ""}`, "مدفوعة إلكترونياً عبر الموقع"].filter(Boolean).join("\n");
-    const inv = await daftraCreateInvoice({ clientId: client.id, items, notes, ref: row.ref });
-    let recorded = false;
-    try {
-      await daftraRecordPayment({ invoiceId: inv.id, amount: inv.total, transactionId: payment.ref || "", method: payment.provider === "tamara" ? "Tamara" : "Moyasar" });
-      recorded = true;
-    } catch (e) { console.error("simple: daftra payment record failed", String(e.message || e).slice(0, 160)); }
-    let pdf = null;
-    try { pdf = await daftraDocPdf("invoice", inv.id); } catch { pdf = null; }
-    return { ok: true, id: inv.id, number: inv.number, net: inv.net, vat: inv.vat, total: inv.total,
-      vat_rate: Number(daftraVatRate()) || 15, recorded, pdf_url: (pdf && pdf.url) || "" };
-  } catch (e) {
-    console.error("simple: daftra invoice failed", String(e.message || e).slice(0, 200));
-    return { ok: false, reason: String(e.message || "daftra_failed").slice(0, 120) };
-  }
+  const notes = [`مرجع الطلب: ${row.ref}`, `عرض السعر: ${row.quote?.number || ""}`, "مدفوعة إلكترونياً عبر الموقع"].filter(Boolean).join("\n");
+  return { ref: row.ref, payId: payment.ref || "", method: payment.provider === "tamara" ? "Tamara" : "Moyasar", buyer, items, notes };
+}
+
+// What the invoice engine needs to know about a request row.
+function invoiceHooks(row) {
+  return {
+    // «invoice.issued» has a customer-facing label; everything else is bookkeeping
+    // for the panel and is hidden from the customer's timeline (actor_kind internal).
+    event: async (name, details) => {
+      await logEvent(row.id, name === "invoice.issued" ? "system" : "internal", "الفواتير", name, details);
+      // The invoice reached the customer: the human task that said it had not is done.
+      if (name === "invoice.emailed") {
+        try { await sb(`tasks?request_id=eq.${row.id}&source=eq.invoice-failed&status=in.(open,in_progress,blocked)`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: nowIso() } }); } catch { /* the task stays open; harmless */ }
+      }
+    },
+    failed: (rec, why) => sweepTask(row, {
+      source: "invoice-failed", human: true, urgency: "high",
+      title: (r) => `الفاتورة لم تكتمل — ${r.ref}`,
+      details: () => `الدفع مؤكد لكن الفاتورة لم تصدر أو لم تصل العميل (${why}${rec && rec.last_error ? ": " + rec.last_error : ""}). تُعاد المحاولة تلقائياً؛ وإن بقيت عالقة أصدرها من الدفترة وأرسلها للعميل، أو أعد المحاولة من اللوحة (ops-invoice-retry).`,
+    }, "الفواتير"),
+  };
+}
+const invoiceTarget = (row) => ({ rowId: row.id, ref: row.ref, myUrl: myUrl(row), hooks: invoiceHooks(row) });
+
+async function issueRequestInvoice(row, payment) {
+  const draft = invoiceDraftForRequest(row, payment);
+  const target = invoiceTarget(row);
+  const key = payment.ref || row.ref;
+  if (!draft.items.length) return reportInvoiceBlocked({ key, draft, target, reason: "no_priced_items", detail: "عرض السعر بلا بنود", total: payment.amount });
+  if (!draft.buyer.name || !isEmail(draft.buyer.email)) return reportInvoiceBlocked({ key, draft, target, reason: "missing_buyer", detail: "اسم العميل أو بريده ناقص على الطلب", total: payment.amount });
+  return issuePaidInvoice({ key, draft, target });
 }
 
 export async function markPaid(row, { provider, payId, amount, test, actor }) {
   const suffix = row.ref.replace(/^BP-R-/, "");
   const payment = { status: "PAID", provider, ref: payId, amount: round2(num(amount)), currency: "SAR", at: nowIso(), test: !!test };
-  let invoice = row.invoice || {
-    number: (test ? "TEST-INV-" : "INV-") + suffix, issued_at: nowIso(), mode: test ? "test" : "pending-daftra",
+  const testInvoice = (why) => ({
+    number: "TEST-INV-" + suffix, issued_at: nowIso(), mode: "test",
     net: row.quote?.net || 0, vat: row.quote?.vat || 0, total: row.quote?.total || 0, currency: "SAR", vat_rate: 15,
     items: row.quote?.items || [], bill_to: { name: row.client_name, company: row.company_name, email: row.client_email },
-  };
-  if (!row.invoice) {
-    const d = await daftraInvoiceForRequest(row, payment);
-    invoice = d.ok
-      ? { ...invoice, number: d.number, daftra_id: d.id, mode: "daftra", net: d.net, vat: d.vat, total: d.total,
-          vat_rate: d.vat_rate, pdf_url: d.pdf_url, payment_recorded: d.recorded }
-      : { ...invoice, daftra: { issued: false, reason: d.reason } };
+    daftra: { issued: false, reason: why },
+  });
+  let invoice = row.invoice, testIssued = false;
+  if (invoiceIsComplete(invoice)) { /* already invoiced: never twice */ }
+  else if (test) { invoice = testInvoice("test_mode"); testIssued = true; }
+  else {
+    const r = await issueRequestInvoice(row, payment);
+    if (r.reason === "daftra_skipped_nonlive" || (r.reason === "daftra_not_configured" && SIMPLE_TEST_MODE)) { invoice = testInvoice(r.reason); testIssued = true; }
+    // (A real payment with no Daftra key is not special-cased: the engine records the
+    // failure, tells the owner once, and completes it when the key is set.)
+    else if (r.record) invoice = r.record;
   }
-  const upd = await patchRequest(row.id, { payment, invoice, status: "PAID" });
+  const upd = await patchRequest(row.id, { payment, status: "PAID", ...(invoice ? { invoice } : {}) });
   await logEvent(row.id, "system", test ? "TEST MODE" : provider, "payment.paid", { provider, payId, amount: payment.amount });
-  await logEvent(row.id, "system", test ? "TEST MODE" : "invoicing", "invoice.issued", { number: invoice.number, total: invoice.total });
+  if (testIssued) await logEvent(row.id, "system", "TEST MODE", "invoice.issued", { number: invoice.number, total: invoice.total });
+  const invNo = invoice && invoice.number ? invoice.number : "";
+  const sent = !!(invoice && invoice.delivery && invoice.delivery.sent_at);
   if (row.organization_id) {
-    await notify({ organization_id: row.organization_id, event: "simple_paid", title: `تم استلام الدفع — ${row.ref}`, body: `الفاتورة ${invoice.number}`, idempotency_key: `simple_paid_${row.ref}` });
+    await notify({ organization_id: row.organization_id, event: "simple_paid", title: `تم استلام الدفع — ${row.ref}`, body: invNo ? `الفاتورة ${invNo}` : "الفاتورة قيد الإصدار", idempotency_key: `simple_paid_${row.ref}` });
   }
   await announce(upd, "paid", {
-    subject: `تم استلام الدفع — فاتورتك ${invoice.number}`,
-    clientLine: `استلمنا ${payment.amount} ر.س. فاتورتك الضريبية ${invoice.number} جاهزة في حسابك، وبدأنا التنفيذ.`,
-    opsLine: `دفع مستلم ${payment.amount} ر.س عبر ${provider} (${payId}). الفاتورة ${invoice.number}${invoice.daftra && invoice.daftra.issued === false ? " — لم تصدر من الدفترة: " + (invoice.daftra.reason || "") : ""}.`,
+    subject: invNo ? `تم استلام الدفع — فاتورتك ${invNo}` : "تم استلام الدفع",
+    clientLine: invNo
+      ? `استلمنا ${payment.amount} ر.س. فاتورتك الضريبية ${invNo} ${sent ? "أُرسلت إلى بريدك وتجدها أيضاً" : "جاهزة"} في «الفواتير» داخل حسابك، وبدأنا التنفيذ.`
+      : `استلمنا ${payment.amount} ر.س وبدأنا التنفيذ. فاتورتك الضريبية قيد الإصدار وتصلك على بريدك.`,
+    opsLine: `دفع مستلم ${payment.amount} ر.س عبر ${provider} (${payId}). ${invNo ? `الفاتورة ${invNo}` : "الفاتورة لم تصدر بعد"}${invoice && invoice.daftra && invoice.daftra.issued === false ? " — لم تصدر من الدفترة: " + (invoice.daftra.reason || "") : ""}${invoice && invoice.status && invoice.status !== "issued" && invoice.last_error ? " — " + invoice.last_error : ""}.`,
     cta: "افتح فاتورتك",
   });
   return upd;
@@ -1359,6 +1386,49 @@ async function supportAction(action, b, qs, req, res, sess) {
   return json(res, 400, { ok: false, error: "unknown_action" });
 }
 
+// ---------------------------------------------- the cart's invoice, on its row --
+// The request a paid cart opened is where its tax invoice lives (`invoice`), so
+// «الفواتير» in /my lists it like any other. This finds that row from the payment
+// — the same derivation createCartRequest uses — and hands the invoice engine
+// what it needs. Null when there is no row (database off, or the request failed
+// to open and the owner was already told): the engine then works in memory only.
+export async function invoiceTargetFor(payId, orderRef) {
+  if (!DB_ON) return null;
+  const want = String(payId || orderRef || "");
+  if (!want) return null;
+  try {
+    for (let salt = 0; salt < 3; salt++) {
+      const hit = await getByRef(cartRequestRef(want, salt));
+      if (!hit) return null;
+      const p = hit.payment || {};
+      if (p.source === "cart" && (p.pay_ref || p.order_ref) === want) return { ...invoiceTarget(hit), invoice: hit.invoice || null };
+    }
+  } catch { /* no row to attach to */ }
+  return null;
+}
+
+// Re-run every invoice that was left unfinished (Daftra was down, the mail was
+// refused, the function died mid-way) once its back-off has passed. `ref` + `force`
+// is the owner's «أعد المحاولة»: one request, now, whatever the back-off says.
+export async function retryPendingInvoices({ limit = 200, force = false, ref = "" } = {}) {
+  const rows = await sb(`requests?${ref ? `ref=eq.${q(ref)}` : "invoice=not.is.null"}&select=*&order=updated_at.desc&limit=${limit}`);
+  const out = { scanned: rows.length, retried: 0, issued: 0, failed: 0, skipped: [], details: [] };
+  for (const row of rows) {
+    const rec = row.invoice;
+    const forced = force && !!ref;
+    // A paid request that never got a record at all (the owner forcing a retry).
+    const orphan = forced && !rec && row.quote && row.payment && row.payment.status === "PAID" && !row.payment.test;
+    if (!orphan && !invoiceRetryDue(rec, Date.now(), forced)) continue;
+    const draft = (rec && rec.draft) || (row.quote ? invoiceDraftForRequest(row, row.payment || {}) : null);
+    if (!draft) { out.skipped.push({ ref: row.ref, reason: "no_draft" }); continue; }
+    out.retried++;
+    const r = await issuePaidInvoice({ key: draft.payId || row.ref, draft, target: invoiceTarget(row), force: forced });
+    if (r.invoiced) out.issued++; else if (r.reason !== "already_settled") out.failed++;
+    out.details.push({ ref: row.ref, invoiced: !!r.invoiced, emailed: !!r.clientEmailed, reason: r.reason || null });
+  }
+  return out;
+}
+
 // ------------------------------------------------------- the follow-up sweep --
 // A request that nobody touches dies quietly: the quotation goes out and the
 // answer never comes, the contract sits unsigned, the paid job waits for
@@ -1676,7 +1746,23 @@ async function opsAction(action, b, qs, req, res, opsUser) {
   // produce a second task or a second e-mail.
   if (action === "ops-sweep") {
     const out = await runSweep({ actor, limit: 400, dry: b.dry === true });
-    return json(res, 200, { ok: true, ...out });
+    // Paid but not yet invoiced (or invoiced but not delivered): try again now
+    // that the back-off has passed. A scheduler hitting this endpoint is what
+    // makes the retry automatic.
+    let invoices = null;
+    if (b.dry !== true) { try { invoices = await retryPendingInvoices({ limit: 200 }); } catch (e) { invoices = { error: String(e && e.message || e).slice(0, 80) }; } }
+    return json(res, 200, { ok: true, ...out, ...(invoices ? { invoices } : {}) });
+  }
+
+  // The owner's «أعد محاولة الفاتورة» for one request: now, whatever the back-off
+  // says. Safe to press twice — an invoice that already went out is reported, not
+  // issued again.
+  if (action === "ops-invoice-retry") {
+    const ref = str(b.ref || qs.ref, 40);
+    if (!ref) return json(res, 400, { ok: false, error: "bad_ref" });
+    const out = await retryPendingInvoices({ ref, force: true, limit: 1 });
+    const row = await getByRef(ref);
+    return json(res, 200, { ok: true, ...out, invoice: row ? row.invoice || null : null });
   }
 
   // ------------------------------------------------ WhatsApp agent control --
