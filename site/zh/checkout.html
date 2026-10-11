@@ -531,7 +531,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
 })();</script><script>
 (function(){
 var LANG="zh",HOME="/zh/";
-var TX={"empty":"购物车为空。","browse":"浏览服务","needFill":"请先填写姓名、手机号和邮箱。","payDown":"支付表单加载失败。请尝试 Tamara 或稍后重试。","loading":"正在准备支付表单…","quoted":"审核后报价","signIn":"登录后查看价格并付款。","signInBtn":"登录","noAmount":"这些项目将在审核后报价 — 我们会先发送报价，再发送付款链接。","card":"银行卡","payBtn":"完成支付","payWait":"正在确认您的付款…","paidOk":"已收到付款——订单已记录，税务发票将在几分钟内发送到您的邮箱。","paidInv":"发票号：","paidFail":"付款未完成，未扣款——请用银行卡重试或尝试 Tamara。","paidHold":"您的付款已完成但暂时无法自动确认，团队已收到提醒。请勿重复付款——发票稍后送达。","bnplFail":"分期付款未完成——请重试或用银行卡支付。","toMy":"查看我的订单","mockTag":"本地网关——不扣款","needCo":"请填写公司名称——订阅将以其名义开通。","empFail":"暂时无法准备您的订阅，未扣款——请稍后重试或联系我们。","empDone":"已收到付款，您的招聘平台订阅已开通。请用付款时的邮箱登录雇主门户。","empHold":"付款已完成，订阅正在开通——团队已收到提醒。请勿重复付款。","toEmployer":"打开雇主门户","tamaraYr":"Tamara 仅适用于年度订阅。","empSignIn":"请先用将开通订阅的邮箱登录，再付款。","empMail":"邮箱必须与当前登录账户一致。","onePlan":"每个订单仅限一个订阅。","toCart":"返回购物车","onceHd":"一次性付款","recHd":"订阅","billM":"每月","billY":"每年","recNote":"订阅金额为一个周期（一个月或一年）的费用，即现在支付的金额。","tamaraSub":"Tamara 不适用于月度订阅——请用银行卡支付。","lblOrder":"订单号","lblPay":"付款编号","lblAmt":"已付金额（含税）","lblInv":"发票号","okDone":"已收到付款，订单已确认。","nextInv":"下一步：订单确认和税务发票将发送到您的邮箱，随后团队开始执行。","nextNoInv":"下一步：订单确认将发送到您的邮箱。团队正在准备税务发票，并发送到同一邮箱。","reviewT":"我们已收到您的付款，将在工作时间内确认开通。","reviewN":"我们无法自动将金额与公布价格核对，团队将在开通前复核。确认邮件将发送到您的邮箱——请勿重复付款。","signInGo":"登录","lblReq":"您的申请编号","openReq":"打开您的申请","nextReqDocs":"下一步：打开您的申请并上传所需文件，团队即可开始执行；您可在那里跟进每个阶段。","nextReq":"下一步：在您的面板中跟进申请进度；执行开始时我们会通知您。","invSent":"税务发票将发送到您的邮箱。","invSoon":"团队正在准备税务发票，并发送到同一邮箱。"};
+var TX={"empty":"购物车为空。","browse":"浏览服务","needFill":"请先填写姓名、手机号和邮箱。","payDown":"支付表单加载失败。请尝试 Tamara 或稍后重试。","loading":"正在准备支付表单…","quoted":"审核后报价","signIn":"登录后查看价格并付款。","signInBtn":"登录","noAmount":"购物车中部分项目需审核后报价，无法在此付款。请从购物车移除这些项目后支付其余部分，或在服务页面申请报价。","card":"银行卡","payBtn":"完成支付","payWait":"正在确认您的付款…","paidOk":"已收到付款——订单已记录，税务发票将在几分钟内发送到您的邮箱。","paidInv":"发票号：","paidFail":"付款未完成，未扣款——请用银行卡重试或尝试 Tamara。","paidHold":"您的付款已完成但暂时无法自动确认，团队已收到提醒。请勿重复付款——发票稍后送达。","bnplFail":"分期付款未完成——请重试或用银行卡支付。","toMy":"查看我的订单","mockTag":"本地网关——不扣款","needCo":"请填写公司名称——订阅将以其名义开通。","empFail":"暂时无法准备您的订阅，未扣款——请稍后重试或联系我们。","empDone":"已收到付款，您的招聘平台订阅已开通。请用付款时的邮箱登录雇主门户。","empHold":"付款已完成，订阅正在开通——团队已收到提醒。请勿重复付款。","toEmployer":"打开雇主门户","tamaraYr":"Tamara 仅适用于年度订阅。","empSignIn":"请先用将开通订阅的邮箱登录，再付款。","empMail":"邮箱必须与当前登录账户一致。","onePlan":"每个订单仅限一个订阅。","toCart":"返回购物车","onceHd":"一次性付款","recHd":"订阅","billM":"每月","billY":"每年","recNote":"订阅金额为一个周期（一个月或一年）的费用，即现在支付的金额。","tamaraSub":"Tamara 不适用于月度订阅——请用银行卡支付。","lblOrder":"订单号","lblPay":"付款编号","lblAmt":"已付金额（含税）","lblInv":"发票号","okDone":"已收到付款，订单已确认。","nextInv":"下一步：订单确认和税务发票将发送到您的邮箱，随后团队开始执行。","nextNoInv":"下一步：订单确认将发送到您的邮箱。团队正在准备税务发票，并发送到同一邮箱。","reviewT":"我们已收到您的付款，将在工作时间内确认开通。","reviewN":"我们无法自动将金额与公布价格核对，团队将在开通前复核。确认邮件将发送到您的邮箱——请勿重复付款。","signInGo":"登录","lblReq":"您的申请编号","openReq":"打开您的申请","nextReqDocs":"下一步：打开您的申请并上传所需文件，团队即可开始执行；您可在那里跟进每个阶段。","nextReq":"下一步：在您的面板中跟进申请进度；执行开始时我们会通知您。","invSent":"税务发票将发送到您的邮箱。","invSoon":"团队正在准备税务发票，并发送到同一邮箱。"};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
 var REC={"bp-hr-03":"monthly","bp-ai-02":"monthly","bp-sub-01":"monthly","bp-vendor-02":"monthly","bp-ai-03":"monthly","bp-ai-smart-employee":"monthly","bp-ai-04":"monthly","bp-ajeer-10":"monthly","starter-4":"monthly","bp-pkg-svc-starter":"monthly","silver":"monthly","bp-pkg-launch":"monthly","gold":"monthly","bp-pkg-growth":"monthly","platinum":"monthly","bp-pkg-scale":"monthly","basic-legal":"monthly","bp-pkg-legal-basic":"monthly","advanced":"monthly","bp-pkg-legal-adv":"monthly","comprehensive":"monthly","bp-pkg-legal-comp":"monthly","strategic":"monthly","bp-pkg-legal-strat":"monthly"};
 var $=function(id){return document.getElementById(id)};
@@ -613,6 +613,12 @@ var payable=cart.length&&!unpriced&&!hidden&&total>0&&empLines.length<=1;
   $('coTotal').style.fontSize='14px';$('coTotal').style.fontWeight='600'}
 })();
 
+// عودةٌ من بوابةٍ فشلت أو أُلغيت: ما كتبه العميل قبل أن يضغط «ادفع» محفوظٌ في اللقطة
+// (sessionStorage)، فيُعاد إلى الحقول بدل أن يجد جواله فارغاً ويكتب من جديد.
+(function restoreTyped(){var s=null;try{s=JSON.parse(sessionStorage.getItem(SNAP)||'null')}catch(e){}
+ if(!s)return;
+ [['coName','name'],['coPhone','phone'],['coEmail','email'],['coCo','company']].forEach(function(p){
+  var el=$(p[0]);if(el&&!el.value&&s[p[1]])el.value=String(s[p[1]])})})();
 // تعبئة من الجلسة: من دخل حسابه لا يعيد كتابة بريده عند الدفع.
 getMe().then(function(u){if(!u)return;
   if(!$('coEmail').value)$('coEmail').value=u.email||'';
@@ -633,7 +639,7 @@ function meta(){
  try{items=(s.items||[]).map(function(i){return i.id+'~'+(i.qty||1)}).join(',');if(items.length>400)items=''}catch(e){items=''}
  return {ref:String(s.ref||''),email:String(s.email||'').slice(0,120),name:String(s.name||'').slice(0,60),
    phone:String(s.phone||'').slice(0,30),co:String(s.company||'').slice(0,80),items:items,disc:'',tax:'personal'}}
-function ready(){return $('coName').value.trim()&&$('coPhone').value.trim()&&$('coEmail').value.trim().indexOf('@')>0}
+function ready(){return !!($('coName').value.trim()&&$('coPhone').value.trim()&&/^[^@s]+@[^@s]+.[^@s]+$/.test($('coEmail').value.trim()))}
 // الاشتراك يُفتح باسم منشأة: الحقل الاختياري يصير مطلوباً هنا فقط.
 function readyEmp(){return !hasEmp||!!$('coCo').value.trim()}
 // يفتح صفّ الاشتراك «بانتظار الدفع» ويُلبس مرجعه الطلبَ كلَّه قبل أن يتحرّك المال؛
@@ -777,7 +783,7 @@ function payBlocked(msg,href,label){
  var tg=$('coTamaraGo');if(tg)tg.disabled=true}
 if(!cart.length){mount.innerHTML='';}
 else if(empLines.length>1){payBlocked(TX.onePlan,HOME+'cart',TX.toCart);}
-else if(unpriced){payBlocked(TX.noAmount,HOME+'my',TX.signInBtn);}
+else if(unpriced){payBlocked(TX.noAmount,HOME+'cart',TX.toCart);}
 // الدخول يرجع إلى هذه الصفحة (next) لا إلى لوحة العميل، فتبقى السلة أمامه.
 else if(hidden){payBlocked(TX.signIn,HOME+'my?next='+encodeURIComponent(HOME+'checkout'),TX.signInBtn);}
 else if(!(total>0)){payBlocked(TX.noAmount,HOME+'catalog',TX.browse);}
@@ -842,7 +848,7 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
    mount.innerHTML='<div id="epay-form"></div>';
    var m=meta();
    var opt={element:'#epay-form',amount:Math.round(total*100),currency:cfg.currency||'SAR',
-    description:'Business Partner order',publishable_api_key:cfg.publishableKey,
+    description:'Business Partner order '+m.ref,publishable_api_key:cfg.publishableKey,
     callback_url:location.origin+location.pathname,metadata:m,
     on_initiating:async function(){
      // اشتراك منصة التوظيف: لا يتحرّك المال قبل أن يُفتح الصفّ المعلّق ويُلبس مرجعه الطلب.

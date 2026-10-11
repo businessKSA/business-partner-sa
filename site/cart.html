@@ -482,7 +482,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>(function(){
 var CART="bp_cart",VAT=0.15,LANG="en",HOME="/";
-var TX={"empty":"Your cart is empty.","browse":"Browse services","quoted":"Quoted on review","hidden":"Price shown after you sign in","remove":"Remove","needQuote":"Some items are quoted on review — the team confirms the final amount before payment.","signIn":"Sign in to see prices and complete your order","signInGo":"Sign in","onceHd":"One-time","recHd":"Subscriptions","billM":"Monthly","billY":"Yearly","recNote":"A subscription's amount is one period's instalment (a month or a year) — that is what is paid now.","kinds":{"service":"Service","package":"Package","subscription":"Subscription","agent":"AI advisor","employee":"AI employee","misa":"Investor track","trip":"Trip"}};
+var TX={"empty":"Your cart is empty.","browse":"Browse services","quoted":"Quoted on review","hidden":"Price shown after you sign in","remove":"Remove","needQuote":"Some items are quoted on review and cannot be paid from the cart — remove them to pay for the rest, or request a quotation from the service page.","signIn":"Sign in to see prices and complete your order","signInGo":"Sign in","onceHd":"One-time","recHd":"Subscriptions","billM":"Monthly","billY":"Yearly","recNote":"A subscription's amount is one period's instalment (a month or a year) — that is what is paid now.","kinds":{"service":"Service","package":"Package","subscription":"Subscription","agent":"AI advisor","employee":"AI employee","misa":"Investor track","trip":"Trip"}};
 var REC={"bp-hr-03":"monthly","bp-ai-02":"monthly","bp-sub-01":"monthly","bp-vendor-02":"monthly","bp-ai-03":"monthly","bp-ai-smart-employee":"monthly","bp-ai-04":"monthly","bp-ajeer-10":"monthly","starter-4":"monthly","bp-pkg-svc-starter":"monthly","silver":"monthly","bp-pkg-launch":"monthly","gold":"monthly","bp-pkg-growth":"monthly","platinum":"monthly","bp-pkg-scale":"monthly","basic-legal":"monthly","bp-pkg-legal-basic":"monthly","advanced":"monthly","bp-pkg-legal-adv":"monthly","comprehensive":"monthly","bp-pkg-legal-comp":"monthly","strategic":"monthly","bp-pkg-legal-strat":"monthly"};
 var $=function(id){return document.getElementById(id)};
 function money(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ﷼'}
@@ -602,9 +602,11 @@ function draw(){
  $('cartOnce').textContent=money(onceNet);$('cartRec').textContent=money(recNet);
  $('cartRecNote').textContent=recN?TX.recNote:'';
 
- // الزر يبقى مفتوحاً حتى مع بندٍ غير مسعّر: الدفع هو حيث يُسجَّل الطلب ويراجعه
- // الفريق. لكن السبب يُقال هنا بدل أن يكتشفه العميل في الصفحة التالية.
- $('cartGo').removeAttribute('aria-disabled');$('cartGo').style.opacity='';$('cartGo').style.pointerEvents='';
+ // بندٌ غير مسعّر لا يُدفع (صفحة الدفع ترفضه ولا تسجّل منه طلباً): الزر مغلق والسبب هنا،
+ // بدل أن يصل العميل إلى صفحةٍ لا يستطيع إكمالها.
+ var go=$('cartGo');
+ if(unpriced){go.setAttribute('aria-disabled','true');go.style.opacity='.45';go.style.pointerEvents='none'}
+ else{go.removeAttribute('aria-disabled');go.style.opacity='';go.style.pointerEvents=''}
  var hint=$('cartHint');hint.textContent='';
  if(unpriced)hint.textContent=TX.needQuote;
  else if(hiddenN){

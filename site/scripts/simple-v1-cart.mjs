@@ -42,10 +42,10 @@ const T = {
              en: "Prices exclude VAT. Government fees are excluded and paid to the authorities at actual cost.",
              fr: "Prix hors TVA. Les frais gouvernementaux sont exclus et payés aux autorités au coût réel.",
              zh: "价格不含增值税。政府费用不包含在内，按实际成本支付给相关部门。" },
-  needQuote:{ ar: "بعض البنود تُسعّر عند المراجعة — يؤكد الفريق المبلغ النهائي قبل الدفع.",
-             en: "Some items are quoted on review — the team confirms the final amount before payment.",
-             fr: "Certains articles sont sur devis — l'équipe confirme le montant final avant paiement.",
-             zh: "部分项目需审核后报价——团队将在付款前确认最终金额。" },
+  needQuote:{ ar: "بعض البنود تُسعّر عند المراجعة ولا تُدفع من السلة — احذفها لتدفع الباقي، أو اطلب لها عرض سعر من صفحة الخدمة.",
+             en: "Some items are quoted on review and cannot be paid from the cart — remove them to pay for the rest, or request a quotation from the service page.",
+             fr: "Certains articles sont sur devis et ne se paient pas depuis le panier — retirez-les pour payer le reste, ou demandez un devis depuis la page du service.",
+             zh: "部分项目需审核后报价，无法从购物车付款——请移除后支付其余部分，或在服务页面申请报价。" },
   signIn:  { ar: "سجّل الدخول لرؤية الأسعار وإكمال الطلب", en: "Sign in to see prices and complete your order",
              fr: "Connectez-vous pour voir les prix et finaliser", zh: "登录以查看价格并完成订单" },
   signInGo:{ ar: "سجّل الدخول", en: "Sign in", fr: "Se connecter", zh: "登录" },
@@ -97,7 +97,8 @@ export function buildSimpleCart(SV1, ctx) {
   let vatNote = "";
   try {
     const site = JSON.parse(fs.readFileSync(path.resolve("site/data/site.json"), "utf8"));
-    vatNote = (site.commerce && (lang === "ar" ? site.commerce.vatNote : site.commerce.vatNoteEn)) || "";
+    // نصّ الضريبة المخزَّن عربي وإنجليزي فقط؛ الفرنسية والصينية تأخذ نصّ الصفحة المترجم (note) لا الإنجليزي.
+    vatNote = (site.commerce && (lang === "ar" ? site.commerce.vatNote : lang === "en" ? site.commerce.vatNoteEn : "")) || "";
   } catch {}
 
   const CSS = `<style>
@@ -296,9 +297,11 @@ function draw(){
  $('cartOnce').textContent=money(onceNet);$('cartRec').textContent=money(recNet);
  $('cartRecNote').textContent=recN?TX.recNote:'';
 
- // الزر يبقى مفتوحاً حتى مع بندٍ غير مسعّر: الدفع هو حيث يُسجَّل الطلب ويراجعه
- // الفريق. لكن السبب يُقال هنا بدل أن يكتشفه العميل في الصفحة التالية.
- $('cartGo').removeAttribute('aria-disabled');$('cartGo').style.opacity='';$('cartGo').style.pointerEvents='';
+ // بندٌ غير مسعّر لا يُدفع (صفحة الدفع ترفضه ولا تسجّل منه طلباً): الزر مغلق والسبب هنا،
+ // بدل أن يصل العميل إلى صفحةٍ لا يستطيع إكمالها.
+ var go=$('cartGo');
+ if(unpriced){go.setAttribute('aria-disabled','true');go.style.opacity='.45';go.style.pointerEvents='none'}
+ else{go.removeAttribute('aria-disabled');go.style.opacity='';go.style.pointerEvents=''}
  var hint=$('cartHint');hint.textContent='';
  if(unpriced)hint.textContent=TX.needQuote;
  else if(hiddenN){
