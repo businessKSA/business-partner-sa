@@ -15,6 +15,12 @@
 
 export const TRANSLATIONS = {
   fr: {
+    /* دفع إلكتروني فقط — لا تحويل بنكي في /checkout الجديدة (2026-10-01) */
+    "Then pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara.": "Payez ensuite en ligne par carte (mada · Visa · Mastercard), Apple Pay ou Tamara.",
+    "Your subscription activates the moment the online payment is confirmed.": "Votre abonnement s'active dès la confirmation du paiement en ligne.",
+    "Prices are per person — set the number of travellers in your cart. Checkout requires a free account, then pay online by card, Apple Pay or Tamara; your booking then appears in your account under \"My orders\".": "Les prix s'entendent par personne — indiquez le nombre de voyageurs dans votre panier. La commande nécessite un compte gratuit, puis un paiement en ligne par carte, Apple Pay ou Tamara ; votre réservation apparaît ensuite dans votre compte sous « Mes commandes ».",
+    "Selecting a plan adds it to your cart. Complete your company profile in your account, then pay online by card, Apple Pay or Tamara for instant activation.": "Choisir une formule l'ajoute à votre panier. Complétez le profil de votre société dans votre compte, puis payez en ligne par carte, Apple Pay ou Tamara pour une activation immédiate.",
+    "Pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara — it activates instantly.": "Payez en ligne par carte (mada · Visa · Mastercard), Apple Pay ou Tamara — l'activation est immédiate.",
     /* homepage «Start now» box + quick-buy strip */
     "Pick your service, leave your mobile — we reply and prepare your documents.": "Choisissez votre service, laissez votre numéro — nous vous répondons et préparons vos documents.",
     "Which service do you need?": "De quel service avez-vous besoin ?",
@@ -3241,8 +3247,23 @@ export const TRANSLATIONS = {
     "The server didn't accept the details — please check your name and e-mail and try again.": "Le serveur n'a pas accepté les informations — vérifiez votre nom et votre e-mail, puis réessayez.",
     "We couldn't send your request right now. Please try again in a moment, or e-mail us at {email}.": "Nous n'avons pas pu envoyer votre demande pour le moment. Réessayez dans un instant ou écrivez-nous à {email}.",
     "We'll receive your request and get back to you by e-mail or phone.": "Nous recevrons votre demande et vous répondrons par e-mail ou par téléphone.",
+    // BP-SBC-31 — new sole proprietorship formation & registration (catalog-content).
+    "New Sole Proprietorship Formation & Registration": "Création et immatriculation d'une nouvelle entreprise individuelle",
+    "Forming a new sole proprietorship and registering it in the commercial register through the Saudi Business Center: we prepare the requirements, file the request and follow it through to issuance.": "Création d'une nouvelle entreprise individuelle et son inscription au registre de commerce via le Saudi Business Center : nous préparons les exigences, déposons la demande et la suivons jusqu'à la délivrance.",
+    "Entrepreneurs and individuals starting a business as a sole proprietorship": "Entrepreneurs et particuliers qui démarrent une activité sous forme d'entreprise individuelle",
+    "Owner's identity document": "Pièce d'identité du propriétaire",
+    "Proposed trade name (if any)": "Nom commercial envisagé (le cas échéant)",
+    "Preparing the requirements for forming and registering the proprietorship": "Préparation des exigences de création et d'immatriculation de l'entreprise individuelle",
+    "Filing the request and following it through the Saudi Business Center": "Dépôt de la demande et suivi via le Saudi Business Center",
+    "Handing over the register once issued": "Remise du registre une fois délivré",
   },
   es: {
+    /* دفع إلكتروني فقط — لا تحويل بنكي في /checkout الجديدة (2026-10-01) */
+    "Then pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara.": "Después pague en línea con tarjeta (mada · Visa · Mastercard), Apple Pay o Tamara.",
+    "Your subscription activates the moment the online payment is confirmed.": "Su suscripción se activa en cuanto se confirma el pago en línea.",
+    "Prices are per person — set the number of travellers in your cart. Checkout requires a free account, then pay online by card, Apple Pay or Tamara; your booking then appears in your account under \"My orders\".": "Los precios son por persona: indique el número de viajeros en su carrito. Para finalizar la compra hace falta una cuenta gratuita; después pague en línea con tarjeta, Apple Pay o Tamara, y su reserva aparecerá en su cuenta en «Mis pedidos».",
+    "Selecting a plan adds it to your cart. Complete your company profile in your account, then pay online by card, Apple Pay or Tamara for instant activation.": "Al elegir un plan se añade al carrito. Complete el perfil de su empresa en su cuenta y pague en línea con tarjeta, Apple Pay o Tamara para una activación inmediata.",
+    "Pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara — it activates instantly.": "Pague en línea con tarjeta (mada · Visa · Mastercard), Apple Pay o Tamara: se activa al instante.",
     /* homepage «Start now» box + quick-buy strip */
     "Pick your service, leave your mobile — we reply and prepare your documents.": "Elige tu servicio y deja tu móvil: te respondemos y preparamos tus documentos.",
     "Which service do you need?": "¿Qué servicio necesitas?",
@@ -5040,6 +5061,12 @@ export const TRANSLATIONS = {
     "We'll receive your request and get back to you by e-mail or phone.": "Recibiremos su solicitud y le responderemos por correo electrónico o por teléfono.",
   },
   zh: {
+    /* دفع إلكتروني فقط — لا تحويل بنكي في /checkout الجديدة (2026-10-01) */
+    "Then pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara.": "随后使用银行卡（mada · Visa · Mastercard）、Apple Pay 或 Tamara 在线支付。",
+    "Your subscription activates the moment the online payment is confirmed.": "在线支付一经确认，您的订阅即刻生效。",
+    "Prices are per person — set the number of travellers in your cart. Checkout requires a free account, then pay online by card, Apple Pay or Tamara; your booking then appears in your account under \"My orders\".": "价格为每人计，请在购物车中设置出行人数。结算需要一个免费账户，之后可使用银行卡、Apple Pay 或 Tamara 在线支付；预订随后会出现在您账户的「我的订单」中。",
+    "Selecting a plan adds it to your cart. Complete your company profile in your account, then pay online by card, Apple Pay or Tamara for instant activation.": "选择方案即加入购物车。请在账户中完善公司资料，随后使用银行卡、Apple Pay 或 Tamara 在线支付，即可立即开通。",
+    "Pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara — it activates instantly.": "使用银行卡（mada · Visa · Mastercard）、Apple Pay 或 Tamara 在线支付，立即生效。",
     /* homepage «Start now» box + quick-buy strip */
     "Pick your service, leave your mobile — we reply and prepare your documents.": "选择所需服务并留下手机号——我们会回复您并开始准备文件。",
     "Which service do you need?": "您需要哪项服务？",
@@ -7443,8 +7470,24 @@ export const TRANSLATIONS = {
     "The server didn't accept the details — please check your name and e-mail and try again.": "服务器未接受所填信息——请检查姓名和邮箱后重试。",
     "We couldn't send your request right now. Please try again in a moment, or e-mail us at {email}.": "暂时无法发送您的需求。请稍后重试，或发送邮件至 {email}。",
     "We'll receive your request and get back to you by e-mail or phone.": "我们会收到您的需求，并通过邮箱或电话与您联系。",
+    // BP-SBC-31 — new sole proprietorship formation & registration (catalog-content).
+    "New Sole Proprietorship Formation & Registration": "新设个人独资企业：设立与注册",
+    "Forming a new sole proprietorship and registering it in the commercial register through the Saudi Business Center: we prepare the requirements, file the request and follow it through to issuance.": "设立新的个人独资企业，并通过沙特商业中心在商业登记簿中完成登记：我们准备所需材料、提交申请并跟进至签发。",
+    "Entrepreneurs and individuals starting a business as a sole proprietorship": "有意以个人独资企业形式开展业务的创业者和个人",
+    "Owner's identity document": "企业主身份证件",
+    "Activity details & National Address": "经营活动详情及国家地址",
+    "Proposed trade name (if any)": "拟用商号（如有）",
+    "Preparing the requirements for forming and registering the proprietorship": "准备设立和登记个人独资企业所需的材料",
+    "Filing the request and following it through the Saudi Business Center": "通过沙特商业中心提交申请并跟进",
+    "Handing over the register once issued": "登记簿签发后交付",
   },
   ru: {
+    /* دفع إلكتروني فقط — لا تحويل بنكي في /checkout الجديدة (2026-10-01) */
+    "Then pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara.": "Затем оплатите онлайн картой (mada · Visa · Mastercard), через Apple Pay или Tamara.",
+    "Your subscription activates the moment the online payment is confirmed.": "Подписка активируется сразу после подтверждения онлайн-оплаты.",
+    "Prices are per person — set the number of travellers in your cart. Checkout requires a free account, then pay online by card, Apple Pay or Tamara; your booking then appears in your account under \"My orders\".": "Цены указаны за одного человека — задайте число путешественников в корзине. Для оформления нужна бесплатная учётная запись, затем оплатите онлайн картой, через Apple Pay или Tamara; бронь появится в вашем аккаунте в разделе «Мои заказы».",
+    "Selecting a plan adds it to your cart. Complete your company profile in your account, then pay online by card, Apple Pay or Tamara for instant activation.": "Выбор тарифа добавляет его в корзину. Заполните профиль компании в аккаунте, затем оплатите онлайн картой, через Apple Pay или Tamara — доступ откроется сразу.",
+    "Pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara — it activates instantly.": "Оплатите онлайн картой (mada · Visa · Mastercard), через Apple Pay или Tamara — активация мгновенная.",
     "Home": "Главная",
     "Our services": "Наши услуги",
     "All services (92)": "Все услуги (92)",
@@ -7592,6 +7635,12 @@ export const TRANSLATIONS = {
     "We'll receive your request and get back to you by e-mail or phone.": "Мы получим ваш запрос и свяжемся с вами по электронной почте или телефону.",
   },
   hi: {
+    /* دفع إلكتروني فقط — لا تحويل بنكي في /checkout الجديدة (2026-10-01) */
+    "Then pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara.": "फिर कार्ड (mada · Visa · Mastercard), Apple Pay या Tamara से ऑनलाइन भुगतान करें।",
+    "Your subscription activates the moment the online payment is confirmed.": "ऑनलाइन भुगतान की पुष्टि होते ही आपकी सदस्यता सक्रिय हो जाती है।",
+    "Prices are per person — set the number of travellers in your cart. Checkout requires a free account, then pay online by card, Apple Pay or Tamara; your booking then appears in your account under \"My orders\".": "कीमतें प्रति व्यक्ति हैं — अपनी कार्ट में यात्रियों की संख्या तय करें। चेकआउट के लिए एक मुफ़्त खाता चाहिए, फिर कार्ड, Apple Pay या Tamara से ऑनलाइन भुगतान करें; आपकी बुकिंग इसके बाद आपके खाते में «मेरे ऑर्डर» के अंतर्गत दिखेगी।",
+    "Selecting a plan adds it to your cart. Complete your company profile in your account, then pay online by card, Apple Pay or Tamara for instant activation.": "प्लान चुनने पर वह आपकी कार्ट में जुड़ जाता है। अपने खाते में कंपनी की प्रोफ़ाइल पूरी करें, फिर तुरंत सक्रियण के लिए कार्ड, Apple Pay या Tamara से ऑनलाइन भुगतान करें।",
+    "Pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara — it activates instantly.": "कार्ड (mada · Visa · Mastercard), Apple Pay या Tamara से ऑनलाइन भुगतान करें — तुरंत सक्रिय हो जाता है।",
     "Home": "होम",
     "Our services": "हमारी सेवाएं",
     "All services (92)": "सभी सेवाएं (92)",
@@ -7739,6 +7788,12 @@ export const TRANSLATIONS = {
     "We'll receive your request and get back to you by e-mail or phone.": "हमें आपका अनुरोध मिलेगा और हम ईमेल या फ़ोन से आपसे संपर्क करेंगे।",
   },
   ko: {
+    /* دفع إلكتروني فقط — لا تحويل بنكي في /checkout الجديدة (2026-10-01) */
+    "Then pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara.": "그다음 카드(mada · Visa · Mastercard), Apple Pay 또는 Tamara로 온라인 결제하세요.",
+    "Your subscription activates the moment the online payment is confirmed.": "온라인 결제가 확인되는 즉시 구독이 활성화됩니다.",
+    "Prices are per person — set the number of travellers in your cart. Checkout requires a free account, then pay online by card, Apple Pay or Tamara; your booking then appears in your account under \"My orders\".": "가격은 1인 기준입니다. 장바구니에서 여행 인원을 설정하세요. 결제하려면 무료 계정이 필요하며, 카드, Apple Pay 또는 Tamara로 온라인 결제하면 예약이 계정의 «내 주문»에 표시됩니다.",
+    "Selecting a plan adds it to your cart. Complete your company profile in your account, then pay online by card, Apple Pay or Tamara for instant activation.": "플랜을 선택하면 장바구니에 담깁니다. 계정에서 회사 프로필을 완성한 뒤 카드, Apple Pay 또는 Tamara로 온라인 결제하면 즉시 활성화됩니다.",
+    "Pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara — it activates instantly.": "카드(mada · Visa · Mastercard), Apple Pay 또는 Tamara로 온라인 결제하세요 — 즉시 활성화됩니다.",
     "Home": "홈",
     "Our services": "서비스 소개",
     "All services (92)": "전체 서비스 (92)",
@@ -7886,6 +7941,12 @@ export const TRANSLATIONS = {
     "We'll receive your request and get back to you by e-mail or phone.": "요청을 접수한 뒤 이메일 또는 전화로 연락드리겠습니다.",
   },
   ja: {
+    /* دفع إلكتروني فقط — لا تحويل بنكي في /checkout الجديدة (2026-10-01) */
+    "Then pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara.": "続いて、カード（mada · Visa · Mastercard）、Apple Pay、または Tamara でオンライン決済してください。",
+    "Your subscription activates the moment the online payment is confirmed.": "オンライン決済が確認され次第、サブスクリプションが有効になります。",
+    "Prices are per person — set the number of travellers in your cart. Checkout requires a free account, then pay online by card, Apple Pay or Tamara; your booking then appears in your account under \"My orders\".": "料金は1人あたりです。カートで旅行者数を設定してください。ご注文には無料アカウントが必要で、カード、Apple Pay、または Tamara でオンライン決済すると、予約はアカウントの「注文履歴」に表示されます。",
+    "Selecting a plan adds it to your cart. Complete your company profile in your account, then pay online by card, Apple Pay or Tamara for instant activation.": "プランを選ぶとカートに追加されます。アカウントで会社プロフィールを完成させ、カード、Apple Pay、または Tamara でオンライン決済すると、すぐに有効になります。",
+    "Pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara — it activates instantly.": "カード（mada · Visa · Mastercard）、Apple Pay、または Tamara でオンライン決済 — すぐに有効になります。",
     "Home": "ホーム",
     "Our services": "サービス一覧",
     "All services (92)": "全サービス (92)",

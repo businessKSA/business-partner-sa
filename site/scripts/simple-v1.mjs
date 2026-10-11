@@ -1,7 +1,8 @@
 // Business Partner — Simple V1 (2026-09).
 //
-// The simplified customer-facing layer: one homepage that sells three things
-// (consulting, government services, company formation) through ONE chat, a
+// The simplified customer-facing layer: one homepage that sells four things
+// (consulting, government services, company formation, business development
+// — the fourth door, 2026-09-24) through ONE chat, a
 // client portal (/my) and an operations dashboard (/ops). Built by
 // generate.mjs alongside the classic site; nothing here removes a classic
 // route. This homepage IS "/" as of the owner's approval on 2026-09-04; the
@@ -27,6 +28,23 @@
 // one step — SIMPLE_V1=0 in the environment, or revert this line — and the
 // classic homepage comes back untouched at "/".
 export const SIMPLE_V1 = process.env.SIMPLE_V1 !== "0";
+
+// مفتاح الباب الرابع «تطوير الأعمال» — site/data/features.json (bizdevDoor).
+// false (الافتراضي): الرئيسية ثلاثة أبواب كما كانت حرفاً — لا باب ولا رقاقة ولا
+// ترحيب ولا نوع طلب ولا شبكة 2×2. true: أربعة أبواب. السبب في features.json.
+// يُقرأ هنا لا في generate.mjs: القيمة لا تخصّ غير هذه الصفحة، فلا يُلمس المولّد.
+import { readFileSync } from "node:fs";
+import { pageVisible } from "./hidden.mjs";
+// الباب لا يظهر أبداً والصفحة مخفية (site/data/hidden.json) حتى لو فُتح المفتاح.
+const BIZDEV_DOOR = (() => {
+  try { return pageVisible("business-development") && JSON.parse(readFileSync(new URL("../data/features.json", import.meta.url), "utf8")).bizdevDoor === true; }
+  catch { return false; }
+})();
+// بطاقة «موظفون على بند التعاقد (EOR)» في الرئيسية (أمر المالك 2026-10-01): العنوان
+// والوصف بالأربع لغات من مصدر صفحة /eor نفسها (EOR_PAGE_TEXT) فلا يتباعد النصّان.
+// بابٌ برابط إلى /eor لا زرّ مستشار: لا نوع طلب له في الرئيسية ولا يمسّ المعرفة.
+import { EOR_PAGE_TEXT } from "./simple-v1-eor.mjs";
+import { buildHomeExtras } from "./simple-v1-home-path.mjs";
 export const SIMPLE_LANGS = ["ar", "en", "fr", "zh"];
 
 const D = {
@@ -52,6 +70,7 @@ const D = {
   trust1: { ar: "الاستشارات", en: "Consulting", fr: "Conseil", zh: "咨询" },
   trust2: { ar: "الخدمات الحكومية", en: "Government services", fr: "Services gouvernementaux", zh: "政府服务" },
   trust3: { ar: "تأسيس الشركات", en: "Company formation", fr: "Création d'entreprise", zh: "公司注册" },
+  trust4: { ar: "تطوير الأعمال", en: "Business development", fr: "Développement commercial", zh: "业务拓展" },
 
   noNameTitle: { ar: "ما تحتاج تعرف اسم الخدمة", en: "You don't need to know the name of the service", fr: "Vous n'avez pas besoin de connaître le nom du service", zh: "您无需知道服务的名称" },
   noNameSub: { ar: "اختر القسم المناسب أو اشرح طلبك مباشرة. نرتّب الطلب في الخلفية، وأنت تشوف فقط ما يخص احتياجك.", en: "Pick a section or just describe what you need. We organise the request in the background; you only see what relates to your need.", fr: "Choisissez une rubrique ou décrivez simplement votre besoin. Nous organisons la demande en arrière-plan ; vous ne voyez que ce qui vous concerne.", zh: "选择相应板块，或直接描述您的需求。我们在后台整理申请，您只看到与您相关的内容。" },
@@ -65,12 +84,19 @@ const D = {
   ctxConsulting: { ar: "الاستشارات", en: "Consulting", fr: "Conseil", zh: "咨询" },
   ctxGovernment: { ar: "الخدمات الحكومية", en: "Government services", fr: "Services gouvernementaux", zh: "政府服务" },
   ctxFormation: { ar: "تأسيس الشركات", en: "Company formation", fr: "Création d'entreprise", zh: "公司注册" },
+  ctxBizdev: { ar: "تطوير الأعمال", en: "Business development", fr: "Développement commercial", zh: "业务拓展" },
   doorConsulting: { ar: "سؤال، تحدٍّ، قرار أو موضوع يخص شركتك.", en: "A question, a challenge, a decision or any matter about your company.", fr: "Une question, un défi, une décision ou tout sujet concernant votre société.", zh: "关于贵公司的问题、挑战或决策。" },
   doorGovernment: { ar: "معاملة، مشكلة في منصة، أو إدارة منصاتك الحكومية.", en: "A transaction, a problem on a platform, or running your government platforms.", fr: "Une démarche, un problème sur une plateforme, ou la gestion de vos plateformes.", zh: "办理事务、平台问题，或代管您的政府平台。" },
   doorFormation: { ar: "فرع لشركة أجنبية أو شركة عبر مسار ريادة الأعمال.", en: "A branch of a foreign company, or a company via the entrepreneurship route.", fr: "Une succursale étrangère ou une société via le parcours entrepreneur.", zh: "外国公司分支机构，或通过创业路径设立公司。" },
+  doorBizdev: { ar: "عملاء أو موردون أو شريك جديد؟ نحدّد معك مسار النمو المناسب.", en: "New customers, suppliers or a partner? We map the right growth route with you.", fr: "De nouveaux clients, fournisseurs ou un partenaire ? Nous définissons la bonne voie avec vous.", zh: "寻找客户、供应商或合作伙伴？我们与您确定合适的拓展路径。" },
   ctaConsulting: { ar: "ابدأ الاستشارة ←", en: "Start the consultation →", fr: "Démarrer le conseil →", zh: "开始咨询 →" },
   ctaGovernment: { ar: "ابدأ الطلب ←", en: "Start the request →", fr: "Démarrer la demande →", zh: "开始申请 →" },
   ctaFormation: { ar: "ابدأ التأسيس ←", en: "Start the formation →", fr: "Démarrer la création →", zh: "开始注册 →" },
+  ctaEor: { ar: "اعرف أكثر ←", en: "Learn more →", fr: "En savoir plus →", zh: "了解更多 →" },
+  ctaBizdev: { ar: "ابدأ مع المستشار ←", en: "Start with the advisor →", fr: "Démarrer avec le conseiller →", zh: "与顾问开始 →" },
+  // مسلك الشراء الذاتي (سؤال المالك 2026-09-24: «ليش ما العميل يقدر يشتري
+  // مباشرة بدون الشات؟»): رابطٌ ثانوي هادئ تحت الأبواب لا باباً خامساً.
+  browseDirect: { ar: "تصفّح الخدمات واشترِ مباشرة ←", en: "Browse the services and buy directly →", fr: "Parcourir les services et acheter directement →", zh: "浏览服务并直接购买 →" },
 
   advisorTitle: { ar: "كل شيء يبدأ من المحادثة", en: "Everything starts with the conversation", fr: "Tout commence par la conversation", zh: "一切从对话开始" },
   advisorSub: { ar: "اشرح احتياجك بطريقتك، ونرتّب لك الطلب والخدمات المناسبة. راجع البنود بنفسك — احذف أو أضف أو عدّل — قبل عرض السعر.", en: "Explain your need in your own words and we organise the request and the right services. Review the items yourself — remove, add or edit — before the quotation.", fr: "Expliquez votre besoin avec vos mots ; nous organisons la demande et les services adaptés. Revoyez les éléments — supprimez, ajoutez, modifiez — avant le devis.", zh: "用您自己的话说明需求，我们整理申请与相应服务。在报价之前，您可自行删除、添加或修改条目。" },
@@ -85,6 +111,7 @@ const D = {
   chatError: { ar: "تعذّر الرد الآن. جرّب مرة أخرى أو تواصل معنا عبر واتساب.", en: "We couldn't reply right now. Try again or reach us on WhatsApp.", fr: "Impossible de répondre pour le moment. Réessayez ou contactez-nous sur WhatsApp.", zh: "暂时无法回复，请重试或通过 WhatsApp 联系我们。" },
   welcomeConsulting: { ar: "حياك الله 👋 اشرح لي الموضوع اللي تحتاج تستشير فيه.", en: "Welcome 👋 Tell me the matter you'd like advice on.", fr: "Bienvenue 👋 Expliquez-moi le sujet sur lequel vous souhaitez un conseil.", zh: "欢迎 👋 请说明您想咨询的事项。" },
   welcomeGovernment: { ar: "حياك الله 👋 اشرح لي المعاملة أو المشكلة في المنصة.", en: "Welcome 👋 Tell me the transaction or the problem on the platform.", fr: "Bienvenue 👋 Décrivez la démarche ou le problème sur la plateforme.", zh: "欢迎 👋 请说明需要办理的事务或平台上的问题。" },
+  welcomeBizdev: { ar: "حياك الله 👋 أنا مستشار تطوير الأعمال. قل لي عن نشاطك، وهل تبحث عن عملاء أو موردين أو شريك.", en: "Welcome 👋 I'm the business development advisor. Tell me about your business, and whether you're looking for customers, suppliers or a partner.", fr: "Bienvenue 👋 Je suis le conseiller en développement commercial. Parlez-moi de votre activité et dites-moi si vous cherchez des clients, des fournisseurs ou un partenaire.", zh: "欢迎 👋 我是业务拓展顾问。请介绍您的业务，以及您是在寻找客户、供应商还是合作伙伴。" },
   welcomeFormation: { ar: "حياك الله 👋 قل لي عن الشركة اللي تبغى تؤسسها.", en: "Welcome 👋 Tell me about the company you want to set up.", fr: "Bienvenue 👋 Parlez-moi de la société que vous voulez créer.", zh: "欢迎 👋 请介绍您想设立的公司。" },
 
   scopeTag: { ar: "ملخص طلبك", en: "Your request", fr: "Votre demande", zh: "您的申请" },
@@ -188,6 +215,7 @@ const D = {
   navPartners: { ar: "الشركاء", en: "Partners", fr: "Partenaires", zh: "合作伙伴" },
   navBizDev: { ar: "تطوير الأعمال", en: "Business development", fr: "Développement commercial", zh: "业务拓展" },
   footLegalName: { ar: "الاسم في السجل التجاري", en: "Registered name", fr: "Raison sociale", zh: "注册名称" },
+  footFollow: { ar: "تابعنا", en: "Follow us", fr: "Suivez-nous", zh: "关注我们" },
   footCr: { ar: "السجل التجاري", en: "Commercial registration", fr: "Registre de commerce", zh: "商业登记号" },
   footUnified: { ar: "الرقم الموحد", en: "Unified number", fr: "Numéro unifié", zh: "统一编号" },
   footVat: { ar: "الرقم الضريبي", en: "VAT number", fr: "Numéro de TVA", zh: "增值税号" },
@@ -198,10 +226,14 @@ const D = {
   footHours: { ar: "أوقات العمل", en: "Hours", fr: "Horaires", zh: "营业时间" },
   footIdentity: { ar: "بيانات المنشأة", en: "Company details", fr: "Informations légales", zh: "公司信息" },
   footPay: { ar: "الدفع", en: "Payments", fr: "Paiements", zh: "支付方式" },
-  footPayLine: { ar: "مدى · فيزا · ماستركارد · Apple Pay · تمارا — والدفع عبر بوابة مرخّصة، لا تمرّ بيانات بطاقتك من خوادمنا.",
-                 en: "mada · Visa · Mastercard · Apple Pay · Tamara — through a licensed gateway; card details never touch our servers.",
-                 fr: "mada · Visa · Mastercard · Apple Pay · Tamara — via une passerelle agréée ; vos données de carte ne passent pas par nos serveurs.",
-                 zh: "mada · Visa · Mastercard · Apple Pay · Tamara — 通过持牌支付网关，卡片信息不经过我们的服务器。" },
+  // ‏لا يُذكر هنا إلا ما يظهر فعلاً في /checkout لكل زائر: البطاقات (مدى · فيزا ·
+  // ماستركارد) وتمارا. محافظ الجوال (Apple Pay · Samsung Pay · Google Pay) لا
+  // تظهر إلا إن فعّلها مفتاح البوابة **وكان الجهاز يدعمها** (انظر الشرط في
+  // simple-v1-checkout.mjs)، فتُذكر مشروطةً لا وعداً.
+  footPayLine: { ar: "مدى · فيزا · ماستركارد، أو التقسيط عبر تمارا. وتظهر محافظ الجوال (مثل Apple Pay) في صفحة الدفع إن كانت متاحة على جهازك. الدفع عبر بوابة مرخّصة، ولا تمرّ بيانات بطاقتك من خوادمنا.",
+                 en: "mada · Visa · Mastercard, or instalments with Tamara. Mobile wallets (such as Apple Pay) appear at checkout only when your device supports them. Payment runs through a licensed gateway; card details never touch our servers.",
+                 fr: "mada · Visa · Mastercard, ou paiement en plusieurs fois avec Tamara. Les portefeuilles mobiles (comme Apple Pay) n'apparaissent au paiement que si votre appareil les prend en charge. Le paiement passe par une passerelle agréée ; vos données de carte ne transitent pas par nos serveurs.",
+                 zh: "mada · Visa · Mastercard，或通过 Tamara 分期。Apple Pay 等手机钱包仅在您的设备支持时才会在结账页出现。支付通过持牌支付网关完成，卡片信息不经过我们的服务器。" },
   footInvoice: { ar: "فاتورة ضريبية متوافقة مع هيئة الزكاة والضريبة والجمارك لكل عملية مدفوعة.",
                  en: "A ZATCA-compliant tax invoice for every paid order.",
                  fr: "Une facture fiscale conforme ZATCA pour chaque commande payée.",
@@ -250,11 +282,13 @@ const D = {
   chipsConsulting: { ar: ["استشارة عن ترخيص", "مشكلة في الشركة", "تحديد الجهات ذات العلاقة", "عمالة مؤقتة وتصاريح أجير", "فحص شامل للشركة"], en: ["A licensing question", "A problem in the company", "Which authorities are involved", "Temporary labour & Ajeer permits", "A full company review"], fr: ["Une question de licence", "Un problème dans la société", "Quelles autorités sont concernées", "Main-d'œuvre temporaire et permis Ajeer", "Un examen complet"], zh: ["许可相关咨询", "公司内部问题", "涉及哪些主管机关", "临时用工与 Ajeer 许可", "公司全面检查"] },
   chipsGovernment: { ar: ["مشكلة في قوى", "تصاريح أجير", "تصعيد أو شكوى لدى الوزارة", "مخالفة أو مديونية", "تغيير مهنة", "نقل خدمات", "تأشيرات", "النطاقات والتوطين", "إدارة المنصات"], en: ["A problem on Qiwa", "Ajeer permits", "An escalation or complaint", "A violation or a debt", "Change a profession", "Transfer of services", "Visas", "Nitaqat & Saudisation", "Manage my platforms"], fr: ["Un problème sur Qiwa", "Permis Ajeer", "Une escalade ou une plainte", "Une infraction ou une dette", "Changer une profession", "Transfert de services", "Visas", "Nitaqat et saoudisation", "Gérer mes plateformes"], zh: ["Qiwa 平台问题", "Ajeer 许可", "升级或投诉", "违规或欠款", "变更职业", "服务转移", "签证", "Nitaqat 与本地化", "代管平台"] },
   chipsFormation: { ar: ["فرع شركة أجنبية", "شركة ريادة أعمال", "التسجيل الاستثماري", "متطلبات التأسيس"], en: ["Branch of a foreign company", "Entrepreneurship licence", "Investment registration", "Formation requirements"], fr: ["Succursale étrangère", "Licence entrepreneur", "Enregistrement d'investissement", "Conditions de création"], zh: ["外国公司分支", "创业许可", "投资注册", "设立要求"] },
+  chipsBizdev: { ar: ["أبحث عن عملاء", "أبحث عن موردين", "أبحث عن شريك أو موزع", "لا أعرف من أين أبدأ"], en: ["I'm looking for customers", "I'm looking for suppliers", "I'm looking for a partner or distributor", "I don't know where to start"], fr: ["Je cherche des clients", "Je cherche des fournisseurs", "Je cherche un partenaire ou distributeur", "Je ne sais pas par où commencer"], zh: ["寻找客户", "寻找供应商", "寻找合作伙伴或经销商", "不知从何开始"] },
 
   // The scope the customer sees the moment they pick a door — the assistant
   // refines it during the conversation; it is never a price list.
   seedConsulting: { ar: ["فهم الموضوع والحالة الحالية", "تحديد الجهات والمتطلبات ذات العلاقة", "تحديد الخطوات والتوصيات المطلوبة"], en: ["Understand the matter and the current position", "Identify the authorities and requirements involved", "Define the steps and recommendations"], fr: ["Comprendre le sujet et la situation actuelle", "Identifier les autorités et exigences concernées", "Définir les étapes et recommandations"], zh: ["了解事项与现状", "确定涉及的机关与要求", "明确步骤与建议"] },
   seedGovernment: { ar: ["فحص المشكلة أو المعاملة", "تحديد الخدمات الحكومية المطلوبة", "تنفيذ أو متابعة الخدمات المتفق عليها"], en: ["Examine the problem or the transaction", "Identify the government services required", "Execute or follow up the agreed services"], fr: ["Examiner le problème ou la démarche", "Identifier les services gouvernementaux requis", "Exécuter ou suivre les services convenus"], zh: ["检查问题或事务", "确定所需政府服务", "执行或跟进约定的服务"] },
+  seedBizdev: { ar: ["فهم نشاطك وسوقك وهدفك", "تحديد المسار: عملاء أو موردون أو شريك", "بناء قائمة الحسابات المستهدفة وتأهيلها", "التواصل وحجز الاجتماعات ومتابعة الفرص"], en: ["Understand your business, market and goal", "Define the route: customers, suppliers or a partner", "Build and qualify the target accounts list", "Outreach, booking meetings and following up opportunities"], fr: ["Comprendre votre activité, votre marché et votre objectif", "Définir la voie : clients, fournisseurs ou partenaire", "Constituer et qualifier la liste de comptes cibles", "Prospection, prise de rendez-vous et suivi des opportunités"], zh: ["了解您的业务、市场与目标", "确定路径：客户、供应商或合作伙伴", "建立并筛选目标客户名单", "触达、预约会议并跟进商机"] },
   seedFormation: { ar: ["تحديد مسار التأسيس", "إجراءات التأسيس والسجل وعقد التأسيس", "الاشتراك في المنصات الحكومية الأساسية", "تعيين المدير على الشركة", "دعم فتح الحساب البنكي"], en: ["Define the formation route", "Formation, commercial register and articles of association", "Registration on the core government platforms", "Appointing the company manager", "Support with opening the bank account"], fr: ["Définir la voie de création", "Création, registre de commerce et statuts", "Inscription aux plateformes gouvernementales essentielles", "Nomination du gérant", "Accompagnement à l'ouverture du compte bancaire"], zh: ["确定设立路径", "设立手续、商业登记与公司章程", "核心政府平台注册", "任命公司经理", "协助开立银行账户"] },
 };
 
@@ -262,6 +296,13 @@ const D = {
 // لأي صفحة. رُفعت من داخل `simpleV1()` إلى مستوى الوحدة ليستوردها
 // `simplified-global-header.mjs` ويضعها على الصفحات القديمة بدل أن
 // تُنسخ نسخةً ثانية تفترق عنها. النص نفسه لم يتغيّر حرفاً.
+const SV1_SOCIAL_ICONS = {
+  linkedin: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>',
+  instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" fill="currentColor" stroke="none"/></svg>',
+  tiktok: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 1 1-1.87-2.49v-3.1a5.67 5.67 0 1 0 4.96 5.62V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3a4.3 4.3 0 0 1-3.24-1.48z"/></svg>',
+  facebook: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-7.5h2.5l.5-3h-3V8.6c0-.87.24-1.46 1.5-1.46H16.6V4.5c-.28-.04-1.23-.12-2.34-.12-2.31 0-3.9 1.41-3.9 4v2.12H7.9v3h2.46V21h3.14z"/></svg>',
+};
+
 export const SV1_CSS = `<style id="sv1-css">
 /* اتجاه «مختبر» بألوان الهوية (قرار المالك 2026-09-05): بنية «مختبر» —
    أرضية بيضاء، شبكة ١px، حروفٌ أحادية للأرقام وحدها، عناوين خفيفة الوزن —
@@ -341,7 +382,11 @@ export const SV1_CSS = `<style id="sv1-css">
 .sv1-three .sv1-panel{padding:20px}
 .sv1-three h4{font-size:15px;margin:0 0 6px}
 .sv1-three p{margin:0;font-size:13px;line-height:1.7}
-.sv1-doors{display:grid;gap:10px}
+.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-doors>:last-child:nth-child(odd){grid-column:1/-1}
+a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
+.sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+.sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
 .sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
 .sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
 .sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
@@ -463,6 +508,10 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-foot-row.id span:first-child{min-width:0;font-size:10.5px;letter-spacing:.02em}
 .sv1-foot-row.id b,.sv1-foot-row.id bdi{font-size:13px}
 .sv1-foot-row .v{color:#ccd4ed;font-size:11.5px}
+.sv1-foot-social{display:flex;gap:8px;align-items:center;padding:8px 0 0;flex-wrap:wrap}
+.sv1-foot-social a{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.08);color:#ccd4ed;transition:background .15s,color .15s}
+.sv1-foot-social a:hover{background:#c8973b;color:#0b1b5a}
+.sv1-foot-social svg{width:16px;height:16px;display:block}
 .sv1-foot-row bdi{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:#fff}
 .sv1-foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
 .sv1-foot-end{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
@@ -494,7 +543,8 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-side{display:none}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
-@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+@media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
+ .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
 </style>`;
 
 // ------------------------------------------------- حالة الدخول في الترويسة --
@@ -689,6 +739,18 @@ export function simpleV1(ctx) {
       <div class="sv1-foot-row"><span>${t("footEmail")}</span><a href="mailto:${esc(contact.email || "")}"><bdi dir="ltr">${esc(contact.email || "")}</bdi></a></div>
       ${contact.address ? `<div class="sv1-foot-row"><span>${t("footAddress")}</span><span class="v">${esc(lang() === "ar" ? contact.address : contact.addressEn || contact.address)}</span></div>` : ""}
       ${contact.hours ? `<div class="sv1-foot-row"><span>${t("footHours")}</span><span class="v">${esc(lang() === "ar" ? contact.hours : contact.hoursEn || contact.hours)}</span></div>` : ""}
+      ${(() => {
+        // The accounts exist and the site never linked them: before this, only
+        // /contact carried a social icon, so 1,490 pages pointed nowhere. Each
+        // link is rendered only when site.json actually holds a URL for it.
+        const soc = site.social || {};
+        const order = [["linkedin", "LinkedIn"], ["instagram", "Instagram"], ["tiktok", "TikTok"], ["facebook", "Facebook"]];
+        const links = order
+          .filter(([k]) => soc[k])
+          .map(([k, label]) => `<a href="${esc(soc[k])}" target="_blank" rel="noopener" aria-label="${label}">${SV1_SOCIAL_ICONS[k]}</a>`)
+          .join("");
+        return links ? `<div class="sv1-foot-row"><span>${t("footFollow")}</span></div><div class="sv1-foot-social">${links}</div>` : "";
+      })()}
     </div>
     <div class="sv1-foot-col">
       <h4>${t("footPay")}</h4>
@@ -708,7 +770,7 @@ export function simpleV1(ctx) {
       <a href="${href("/catalog")}">${t("footClassic")}</a>
       <a href="${href("/packages")}">${t("navPackages")}</a>
       <a href="${href("/ai-agents")}">${t("navAdvisors")}</a>
-      <a href="${href("/business-development")}">${t("navBizDev")}</a>
+      ${pageVisible("business-development") ? `<a href="${href("/business-development")}">${t("navBizDev")}</a>` : ""}
     </div>
     <div class="sv1-foot-navcol">
       <h5>${t("footKnow")}</h5>
@@ -750,6 +812,10 @@ function send(p){p.action="hit";p.visitor=vid;try{var b=JSON.stringify(p);
 if(navigator.sendBeacon)navigator.sendBeacon("/api/requests",new Blob([b],{type:"application/json"}));
 else fetch("/api/requests",{method:"POST",headers:{"content-type":"application/json"},body:b,keepalive:true}).catch(function(){})}catch(e){}}
 var rh="";try{if(document.referrer){var u=new URL(document.referrer);if(u.host!==location.host)rh=u.host}}catch(e){}
+// وسوم UTM تسبق المُحيل: واتساب وتيك توك لا يرسلان Referer، فزياراتهما تظهر
+// «مباشرة» في اللوحة. الشكل utm:<source>/<medium>/<campaign>/<content>، والقصّ
+// إلى 120 حرفاً لأن عمود ref في api/requests.js يقصّه إلى 120.
+try{var q=new URLSearchParams(location.search);if(q.get("utm_source")){rh=("utm:"+[q.get("utm_source"),q.get("utm_medium"),q.get("utm_campaign"),q.get("utm_content")].map(function(v){return v||""}).join("/")).slice(0,120)}}catch(e){}
 send({kind:"view",path:location.pathname,ref:rh,lang:document.documentElement.lang||"",device:window.innerWidth<768?"mobile":"desktop"});
 // أزرار الموقع الجديد بأسمائها العربية كما تظهر في اللوحة، ومعها محدّدات
 // الموقع القديم حتى تُحسب الصفحتان بالمسمّى نفسه.
@@ -784,7 +850,14 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
       ["consulting", "💬", t("ctxConsulting"), t("doorConsulting"), t("ctaConsulting")],
       ["government", "🏛️", t("ctxGovernment"), t("doorGovernment"), t("ctaGovernment")],
       ["formation", "🏢", t("ctxFormation"), t("doorFormation"), t("ctaFormation")],
+      ...(BIZDEV_DOOR ? [["bizdev", "📈", t("ctxBizdev"), t("doorBizdev"), t("ctaBizdev")]] : []),
     ].map(([k, ic, h3, p, cta]) => `<button type="button" class="sv1-door${k === "consulting" ? " on" : ""}" id="door-${k}" data-door="${k}"><div class="ico">${ic}</div><h3>${h3}</h3><p>${p}</p><span>${cta}</span></button>`).join("");
+    // EOR: بابٌ برابط (لا data-door) — يفتح /eor بالبادئة اللغوية ولا يغيّر سياق المستشار.
+    const eorTx = EOR_PAGE_TEXT[l] || EOR_PAGE_TEXT.en;
+    // إضافات تحت المحادثة فقط (أمر المالك 2026-10-11): أقسام مستقلة بمفاتيح في
+    // site/data/features.json (homeExtras). لا شيء منها فوق المحادثة ولا بين الأبواب.
+    const ex = buildHomeExtras({ esc, href, lang });
+    const eorDoor = `<a class="sv1-door" id="door-eor" href="${href("/eor")}" data-track="باب: eor"><div class="ico">👥</div><h3>${eorTx.title}</h3><p>${eorTx.desc}</p><span>${t("ctaEor")}</span></a>`;
 
     const flow = [1, 2, 3, 4, 5, 6].map((n) => `<div><i>${n}</i><b>${t("j" + n)}</b><small>${t("j" + n + "s")}</small></div>`).join("");
 
@@ -800,12 +873,12 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
       micDenied: t("micDenied"), micNone: t("micNone"), micQuiet: t("micQuiet"), micFail: t("micFail"), micLong: t("micLong"), micOff: t("micOff"),
       loginErr: t("loginErr"), codeErr: t("codeErr"), creating: t("creating"), created: t("created"), openPortal: t("openPortal"),
       stateReady: t("stateReady"), docsEmpty: t("docsEmpty"),
-      titles: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation") },
-      welcome: { consulting: t("welcomeConsulting"), government: t("welcomeGovernment"), formation: t("welcomeFormation") },
-      chips: { consulting: arr("chipsConsulting"), government: arr("chipsGovernment"), formation: arr("chipsFormation") },
-      seed: { consulting: arr("seedConsulting"), government: arr("seedGovernment"), formation: arr("seedFormation") },
-      types: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation") },
-      doorSub: { consulting: t("doorConsulting"), government: t("doorGovernment"), formation: t("doorFormation") },
+      titles: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation"), ...(BIZDEV_DOOR ? { bizdev: t("ctxBizdev") } : {}) },
+      welcome: { consulting: t("welcomeConsulting"), government: t("welcomeGovernment"), formation: t("welcomeFormation"), ...(BIZDEV_DOOR ? { bizdev: t("welcomeBizdev") } : {}) },
+      chips: { consulting: arr("chipsConsulting"), government: arr("chipsGovernment"), formation: arr("chipsFormation"), ...(BIZDEV_DOOR ? { bizdev: arr("chipsBizdev") } : {}) },
+      seed: { consulting: arr("seedConsulting"), government: arr("seedGovernment"), formation: arr("seedFormation"), ...(BIZDEV_DOOR ? { bizdev: arr("seedBizdev") } : {}) },
+      types: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation"), ...(BIZDEV_DOOR ? { bizdev: t("ctxBizdev") } : {}) },
+      doorSub: { consulting: t("doorConsulting"), government: t("doorGovernment"), formation: t("doorFormation"), ...(BIZDEV_DOOR ? { bizdev: t("doorBizdev") } : {}) },
     };
 
     const body = `
@@ -820,9 +893,12 @@ ${header(path)}
         <a class="sv1-btn primary" href="#advisor">${t("heroChat")}</a>
         <a class="sv1-btn wa" href="${WA_HUMAN}" target="_blank" rel="noopener">${t("heroWa")}</a>
       </div>
-      <ul class="sv1-trust"><li>${t("trust1")}</li><li>${t("trust2")}</li><li>${t("trust3")}</li></ul>
+      <ul class="sv1-trust"><li>${t("trust1")}</li><li>${t("trust2")}</li><li>${t("trust3")}</li>${BIZDEV_DOOR ? `<li>${t("trust4")}</li>` : ""}</ul>
     </div>
-    <div class="sv1-doors" id="doors">${doors}</div>
+    <div class="sv1-doorwrap">
+      <div class="sv1-doors" id="doors">${doors}${eorDoor}</div>
+      <a class="sv1-browse" href="${href("/catalog")}" data-track="تصفّح الخدمات واشترِ مباشرة">${t("browseDirect")}</a>
+    </div>
   </div></section>
 
   <section class="sv1-sec" id="advisor"><div class="wrap">
@@ -882,6 +958,7 @@ ${header(path)}
     </div>
   </div></section>
 
+  ${ex.search}${ex.how}${ex.popular}
   <section class="sv1-sec" id="simple"><div class="wrap">
     <div class="sv1-title"><h2>${t("noNameTitle")}</h2><p>${t("noNameSub")}</p></div>
     <div class="sv1-three">
@@ -925,13 +1002,14 @@ ${header(path)}
     </div>
     <p class="sv1-pnote">${t("previewNote")}</p>
   </div></section>
+  ${ex.faq}
 </main>
 ${footer()}`;
 
     const script = `<script>
 (function(){
 var LANG=${JSON.stringify(l)},TX=${JSON.stringify(TX)},PORTAL=${JSON.stringify(href("/my"))};
-var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION'};
+var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION'${BIZDEV_DOOR ? ",bizdev:'BUSINESS_DEVELOPMENT'" : ""}};
 var $=function(id){return document.getElementById(id)};
 var msgs=$('sv1Msgs'),form=$('sv1Form'),input=$('sv1In'),send=$('sv1Send');
 var state={ctx:'consulting',history:[],items:[],docs:[],summary:'',title:'',ready:false,busy:false};
@@ -1083,9 +1161,9 @@ msgs.innerHTML='';state.history.forEach(function(m){var p=m.role==='assistant'?p
 else setCtx(state.ctx,true);
 })();</script>`;
     return shell({
-      title: { ar: "Business Partner — استشارات، خدمات حكومية، تأسيس شركات", en: "Business Partner — Consulting, government services, company formation", fr: "Business Partner — Conseil, services gouvernementaux, création d'entreprise", zh: "Business Partner — 咨询、政府服务、公司注册" }[l],
+      title: (BIZDEV_DOOR ? { ar: "Business Partner — استشارات، خدمات حكومية، تأسيس شركات، تطوير أعمال", en: "Business Partner — Consulting, government services, company formation, business development", fr: "Business Partner — Conseil, services gouvernementaux, création d'entreprise, développement commercial", zh: "Business Partner — 咨询、政府服务、公司注册、业务拓展" } : { ar: "Business Partner — استشارات، خدمات حكومية، تأسيس شركات", en: "Business Partner — Consulting, government services, company formation", fr: "Business Partner — Conseil, services gouvernementaux, création d'entreprise", zh: "Business Partner — 咨询、政府服务、公司注册" })[l],
       desc: t("heroText"),
-      path, body, script,
+      path, body: ex.css + body, script: script + ex.script,
     });
   }
 

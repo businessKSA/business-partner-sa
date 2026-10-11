@@ -27,6 +27,7 @@
 // Underscore-prefixed: a shared module, not a 13th serverless function.
 
 import { sb, DB_ON, notify } from "./_db.js";
+import { EMAIL_LIVE, WHATSAPP_LIVE, MODES, outbox } from "./_mode.js";
 
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 
@@ -176,7 +177,16 @@ async function orgIdForEmail(email) {
 // Channels
 // ---------------------------------------------------------------------------
 async function sendEmail(to, subject, html) {
-  if (!RESEND_API_KEY || !isEmail(to)) return { ok: false, error: RESEND_API_KEY ? "bad_email" : "email_not_configured" };
+  if (!isEmail(to)) return { ok: false, error: "bad_email" };
+  // Same gate as api/requests.js and api/_simple.js: unless EMAIL_MODE is live
+  // (production default; preview on localhost and Vercel previews) the message
+  // is recorded in the outbox and no provider is called — a stage change walked
+  // on a developer's machine must not mail a real client.
+  if (!EMAIL_LIVE) {
+    await outbox({ kind: "email", to, subject, body: html });
+    return { ok: false, skipped: "email_mode_" + MODES().email };
+  }
+  if (!RESEND_API_KEY) return { ok: false, error: "email_not_configured" };
   try {
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -205,8 +215,14 @@ export function waNumber(raw) {
 // silently wasn't is worse than a visible gap.
 export async function waSend(phone, text) {
   const to = waNumber(phone);
-  if (!WA_TOKEN || !WA_PHONE_ID) return { ok: false, error: "wa_not_configured" };
   if (!to) return { ok: false, error: "no_phone" };
+  // The client's WhatsApp leg: unless WHATSAPP_MODE is live (production default;
+  // mock on localhost and previews) it goes to the outbox, never to Meta.
+  if (!WHATSAPP_LIVE) {
+    await outbox({ kind: "whatsapp", to, subject: "client", body: String(text).slice(0, 2000) });
+    return { ok: false, skipped: "whatsapp_mode_" + MODES().whatsapp };
+  }
+  if (!WA_TOKEN || !WA_PHONE_ID) return { ok: false, error: "wa_not_configured" };
   const post = (payload) => fetch(`${WA_GRAPH}/${WA_PHONE_ID}/messages`, {
     method: "POST",
     headers: { Authorization: `Bearer ${WA_TOKEN}`, "content-type": "application/json" },
@@ -237,6 +253,14 @@ export async function waSend(phone, text) {
 // The owner's phone, through the webhook the site already uses. Read-only from
 // our side: we POST the same shape requests.js posts, and change nothing.
 async function ownerPing(payload) {
+  // Same pattern as ownerWaNotify() in api/requests.js: this webhook is the
+  // production n8n pipe that rings the owner's phone, so it used to fire on
+  // every stage change walked from `npm run dev`. Unless WHATSAPP_MODE is live
+  // the payload is recorded in the outbox and nothing leaves the machine.
+  if (!WHATSAPP_LIVE) {
+    await outbox({ kind: "whatsapp", to: OWNER_WA_WEBHOOK, subject: `${payload.source || "notify"} ${payload.ref || ""}`.trim(), body: String(payload.transcript || "").slice(0, 2000), payload });
+    return { ok: false, skipped: "whatsapp_mode_" + MODES().whatsapp };
+  }
   try {
     const r = await fetch(OWNER_WA_WEBHOOK, {
       method: "POST", headers: { "content-type": "application/json" },
@@ -298,7 +322,7 @@ export async function announce(ev) {
   }
   report.to = { email: email || "", phone: phone ? waNumber(phone) : "" };
 
-  const url = ev.url || `${SITE}/ar/account`;
+  const url = ev.url || `${SITE}/ar/my`;
   const total = ev.total != null ? money(ev.total) : "";
   const title = meta.title;
   const line = ev.extra && ev.stage === "work_update" ? "" : meta.line;
@@ -359,7 +383,7 @@ export async function announce(ev) {
       emailHtml({ title, line, cta: meta.cta, url, ref: clientRef, service: ev.service, total, extra: ev.extra, note: meta.note }),
     );
     report.email = !!sent.ok;
-    if (!sent.ok) report.emailError = sent.error;
+    if (!sent.ok) report.emailError = sent.error || sent.skipped;
   }
 
   // 3) WhatsApp — the client
@@ -374,7 +398,7 @@ export async function announce(ev) {
     ].filter(Boolean).join("\n");
     const w = await waSend(phone, text);
     report.wa = !!w.ok;
-    if (!w.ok) report.waError = w.error;
+    if (!w.ok) report.waError = w.error || w.skipped;
   }
 
   // 4) the owner

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh" dir="ltr" data-prices="off">
+<html data-sv1-test="测试模式 — 无真实付款，不向客户发送消息" lang="zh" dir="ltr" data-prices="off">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>外商投资 — Business Partner</title>
-<meta name="description" content="14 Foreign Investment services with clear fees.">
+<meta name="description" content="14 Foreign Investment services — add priced services to your cart or request a quotation.">
 <meta property="og:title" content="外商投资 — Business Partner">
-<meta property="og:description" content="14 Foreign Investment services with clear fees.">
+<meta property="og:description" content="14 Foreign Investment services — add priced services to your cart or request a quotation.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="zh_CN">
@@ -33,8 +33,12 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
 <script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
 <style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
-<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
-<style id="sv1-chrome-css">
+<style id="sv1-css">
+/* اتجاه «مختبر» بألوان الهوية (قرار المالك 2026-09-05): بنية «مختبر» —
+   أرضية بيضاء، شبكة ١px، حروفٌ أحادية للأرقام وحدها، عناوين خفيفة الوزن —
+   لكن اللون كحلي العلامة #0B1B5A لا الأسود ولا البنفسجي. الأسطح الداكنة
+   (شريط الحالة، الفوتر، جانب لوحة العمليات) كحليٌّ عميق #081345.
+   الرماديات مائلةٌ إلى الكحلي لا محايدة، فتقرأ كأنها من العلامة. */
 .sv1{--n:#0B1B5A;--ac:#0B1B5A;--ac2:#16307F;--acSoft:#EEF2FB;--acLine:#C3CDE6;
  --n2:#081345;--g:#F5F7FB;--l:#E5E9F0;--line:#E5E9F0;--line2:#EBEFF7;
  --t:#232A3D;--ink:#0B1B5A;--s:#5A6478;--mut:#5A6478;--faint:#8D97AE;--soft:#F5F7FB;
@@ -85,10 +89,141 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-lang .menu a.on{background:var(--g);font-weight:700}
 .sv1-burger{display:none;border:1px solid var(--l);background:#fff;border-radius:10px;width:40px;height:40px;align-items:center;justify-content:center;cursor:pointer;font-size:18px}
 .sv1 h1,.sv1 h2,.sv1 h3{color:var(--ink);margin-top:0;letter-spacing:-.025em;text-wrap:balance}
-.sv1 h1{font-weight:200}
-.sv1 h2{font-weight:300}
+.sv1 h1{font-weight:200}.sv1 h2{font-weight:300}
+.sv1-hero{background:#fff;padding:78px 0;position:relative;overflow:hidden;border-bottom:1px solid var(--l)}
+.sv1-hero::before{content:"";position:absolute;inset:0;pointer-events:none;
+ background-image:linear-gradient(var(--line2) 1px,transparent 1px),linear-gradient(90deg,var(--line2) 1px,transparent 1px);
+ background-size:56px 56px;
+ -webkit-mask-image:radial-gradient(120% 90% at 78% 0%,#000 0%,transparent 72%);
+ mask-image:radial-gradient(120% 90% at 78% 0%,#000 0%,transparent 72%)}
+.sv1-hero::after{content:"";position:absolute;inset-inline-end:-6%;top:-46%;width:760px;height:760px;pointer-events:none;
+ background:radial-gradient(circle,rgba(11,27,90,.13) 0%,rgba(11,27,90,.04) 38%,transparent 66%)}
+.sv1-hero .wrap{position:relative;z-index:1}
+.sv1-hero .grid{display:grid;grid-template-columns:1fr 1fr;gap:42px;align-items:center}
+.sv1-tag{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--l);color:var(--mut);padding:6px 13px;border-radius:999px;font-size:11.5px;font-weight:400;box-shadow:var(--sh)}
+.sv1-tag::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ok);flex:none}
+.sv1-hero h1{font-size:clamp(36px,5.2vw,64px);line-height:1.13;margin:18px 0 18px;letter-spacing:-.035em;font-weight:200}
+.sv1-hero h1 b,.sv1-hero h1 strong{font-weight:500}
+.sv1-lead{font-size:16.5px;font-weight:300;line-height:1.95;color:var(--mut);margin:0;max-width:46ch}
+.sv1-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.sv1-trust{display:flex;gap:8px 18px;flex-wrap:wrap;margin:18px 0 0;padding:0;list-style:none;font-size:12.5px;color:#667085}
+.sv1-trust li::before{content:"✓";color:var(--ok);font-weight:700;margin-inline-end:6px}
+.sv1-three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sv1-three .sv1-panel{padding:20px}
+.sv1-three h4{font-size:15px;margin:0 0 6px}
+.sv1-three p{margin:0;font-size:13px;line-height:1.7}
+.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-doors>:last-child:nth-child(odd){grid-column:1/-1}
+a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
+.sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+.sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
+.sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
+.sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
+.sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
+.sv1-door h3{font-size:18px;margin:13px 0 5px}
+.sv1-door p{font-size:12.5px;color:var(--s);margin:0 0 10px;line-height:1.65}
+.sv1-door span{font-size:12px;color:var(--ac);font-weight:500}
+.sv1-sec{padding:64px 0}
+.sv1-gray{background:var(--g)}
+.sv1-title{text-align:center;max-width:720px;margin:0 auto 30px}
+.sv1-title h2{font-size:clamp(25px,3.4vw,38px);margin-bottom:10px;font-weight:200}
+.sv1-title p{color:var(--mut);margin:0;font-weight:300;line-height:1.9}
+.sv1-app{border:1px solid var(--l);border-radius:15px;overflow:hidden;box-shadow:var(--sh2);background:#fff}
+.sv1-appbar{min-height:56px;border-bottom:1px solid var(--l);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sv1-appbar b{color:var(--ink)}
+.sv1-steps{display:flex;gap:5px;flex-wrap:wrap}
+.sv1-steps span{font-size:10.5px;padding:5px 9px;background:#f1f2f5;border-radius:999px;color:var(--mut);font-weight:500;white-space:nowrap}
+.sv1-steps .active{background:var(--ac);color:#fff}
+.sv1-appgrid{display:grid;grid-template-columns:1.05fr .95fr;min-height:540px}
+.sv1-chat{display:flex;flex-direction:column;border-inline-end:1px solid var(--l)}
+.sv1-chathead{padding:16px;border-bottom:1px solid var(--l)}
+.sv1-chathead h3{font-size:18px;margin:0 0 1px}
+.sv1-chathead p{font-size:11.5px;color:#777;margin:0}
+.sv1-msgs{padding:16px;background:#fbfcfe;flex:1;overflow:auto;max-height:420px}
+.sv1-msg{max-width:85%;padding:10px 13px;border-radius:13px;font-size:13px;margin-bottom:9px;white-space:pre-wrap;line-height:1.75}
+.sv1-msg.a{background:#fff;border:1px solid var(--l)}
+.sv1-msg.u{background:var(--ac);color:#fff;margin-inline-start:auto}
+.sv1-msg.s{background:#fff3e6;color:#8a4b00;font-size:12px;text-align:center;max-width:100%}
+.sv1-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sv1-chips button{border:1px solid var(--l);background:#fff;border-radius:999px;padding:7px 12px;font-size:11.5px;cursor:pointer;font-family:inherit;color:var(--mut)}
+.sv1-chips button:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-compose{border-top:1px solid var(--l);padding:10px;display:flex;gap:6px}
+.sv1-composehint{margin:0;padding:0 12px 11px;font-size:11.5px;color:var(--faint);line-height:1.6}
+.sv1-compose textarea{height:46px;resize:none;flex:1;border:1px solid var(--l);border-radius:11px;padding:10px;font:inherit;font-size:13px;outline:none}
+.sv1-compose textarea:focus{border-color:var(--ac)}
+.sv1-compose .send{width:46px;border:0;border-radius:9px;background:var(--ac);color:#fff;font-size:17px;cursor:pointer}
+.sv1-mic{width:46px;flex:none;border:1px solid var(--l);border-radius:9px;background:#fff;color:var(--ink);cursor:pointer;display:grid;place-items:center;font-family:inherit;transition:.15s}
+.sv1-mic:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-mic[disabled]{opacity:.5;cursor:default}
+.sv1-mic.rec{background:#b42318;border-color:#b42318;color:#fff;animation:sv1mic 1.4s ease-in-out infinite}
+@keyframes sv1mic{50%{box-shadow:0 0 0 6px rgba(180,35,24,.16)}}
+.sv1-mic.busy{opacity:.6;cursor:default}
+.sv1-voice{display:none;align-items:center;gap:9px;padding:7px 11px;margin:0 10px 8px;border:1px solid var(--l);border-radius:9px;background:var(--soft);font-size:11.5px;color:var(--mut)}
+.sv1-voice.on{display:flex}
+.sv1-voice.err{border-color:#f0c8c4;background:#fdf3f2;color:#b42318}
+.sv1-voice .dot{width:7px;height:7px;border-radius:50%;background:#b42318;flex:none;animation:sv1mic 1.4s ease-in-out infinite}
+.sv1-voice .t{font-family:var(--fm);margin-inline-start:auto;font-size:11px;color:var(--faint)}
+.sv1-scope{padding:19px;display:flex;flex-direction:column}
+.sv1-scope h3{font-size:19px;margin:9px 0 2px}
+.sv1-scope>p{font-size:11.5px;color:#777;margin:0 0 12px}
+.sv1-item{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--l);border-radius:11px;padding:10px;margin-bottom:7px}
+.sv1-item b{font-size:12.5px;display:block;color:#32394a;outline:none;font-weight:600}
+.sv1-item b:focus{background:#fffbe6;border-radius:4px}
+.sv1-item small{font-size:10.5px;color:#888;display:block;margin-top:2px}
+.sv1-item .del{border:0;width:27px;height:27px;border-radius:7px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:14px}
+.sv1-addrow{display:flex;gap:6px;margin-top:2px}
+.sv1-addrow input{flex:1;border:1px solid var(--l);border-radius:9px;padding:9px;font:inherit;font-size:12.5px;outline:none}
+.sv1-docs{margin-top:16px;padding-top:14px;border-top:1px dashed #cfd6e6}
+.sv1-docs h4{margin:0 0 2px;color:var(--ink);font-size:15px}
+.sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#777}
+.sv1-doc{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.sv1-doc span{font-size:12.5px;color:#32394a;display:flex;gap:7px;align-items:center}
+.sv1-doc span::before{content:"📄";font-size:13px}
+.sv1-doc .del{border:0;width:24px;height:24px;border-radius:6px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:13px}
+.sv1-docs .empty{font-size:11.5px;color:#9aa0b0;padding:6px 2px;margin-bottom:6px}
+.sv1-summary{background:var(--acSoft);border:1px solid var(--acLine);border-radius:10px;padding:11px 13px;margin:14px 0;font-size:12px}
+.sv1-summary div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sv1-summary strong{font-size:16px;color:var(--ac)}
+.sv1-login{border-top:1px solid var(--l);padding:16px 19px;background:#fff}
+.sv1-login h4{margin:0 0 4px;color:var(--ink);font-size:15px}
+.sv1-login p{margin:0 0 10px;color:#777;font-size:12px}
+.sv1-login .g{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sv1-login input{border:1px solid var(--l);border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;width:100%;outline:none}
+.sv1-login .full{grid-column:1/-1}
+.sv1-err{color:#b42318;font-size:12px;margin-top:6px}
+.sv1-ok{color:var(--ok);font-weight:700;font-size:13px;margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sv1-flow{display:grid;grid-template-columns:repeat(6,1fr);gap:9px}
+.sv1-flow div{background:#fff;border:1px solid var(--l);border-radius:11px;padding:16px;text-align:center}
+.sv1-flow i{font-style:normal;font-family:var(--fm);width:34px;height:34px;background:var(--acSoft);color:var(--ac);border-radius:9px;display:grid;place-items:center;margin:0 auto 9px;font-weight:500;font-size:12px}
+.sv1-flow b{display:block;font-size:12.5px;color:var(--ink);font-weight:500}
+.sv1-flow small{font-size:10px;color:#888}
+.sv1-tabs{text-align:center;margin-bottom:15px;display:flex;gap:8px;justify-content:center}
+.sv1-tab{border:1px solid var(--l);background:#fff;border-radius:9px;padding:9px 17px;font-weight:500;color:var(--mut);cursor:pointer;font-family:inherit;font-size:13px}
+.sv1-tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-cart{display:inline-flex;align-items:center;gap:6px}
 .sv1-cart b{background:var(--ac);color:#fff;border-radius:99px;min-width:18px;height:18px;display:inline-grid;place-items:center;font-size:11px;font-weight:600;padding:0 5px}
+.sv1-portal{border:1px solid var(--l);border-radius:15px;overflow:hidden;box-shadow:var(--sh2);background:#fff}
+.sv1-pgrid{display:grid;grid-template-columns:205px 1fr;min-height:430px}
+.sv1-side{background:var(--n2);color:#dce3fa;padding:17px}
+.sv1-side strong{color:#fff;display:block;font-size:14px}
+.sv1-side small{display:block;font-size:9px;opacity:.6;letter-spacing:.12em;margin-bottom:10px}
+.sv1-mi{padding:8px 10px;border-radius:8px;font-size:11.5px;margin:3px 0}
+.sv1-mi.on{background:#fff;color:var(--ink);font-weight:500}
+.sv1-pmain{padding:22px;background:#fbfcfe}
+.sv1-pmain h3{font-size:21px;margin:0 0 2px}
+.sv1-muted{color:#777;font-size:11.5px}
+.sv1-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:15px 0}
+.sv1-stat,.sv1-panel{background:#fff;border:1px solid var(--l);border-radius:11px;padding:14px}
+.sv1-stat span{font-size:9.5px;color:#777;display:block}
+.sv1-stat b{font-size:21px;color:var(--ink);font-family:var(--fm);font-weight:500}
+.sv1-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-panel h4{color:var(--ink);margin:0 0 8px;font-size:13px;font-weight:500}
+.sv1-prow{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #eee;font-size:11px}
+.sv1-prow:last-child{border-bottom:0}
+.sv1-status{font-size:9.5px;border-radius:999px;padding:3px 9px;background:var(--acSoft);color:var(--ac);white-space:nowrap}
+.sv1-status.done{background:var(--okSoft);color:var(--ok)}
+.sv1-pnote{text-align:center;color:#8b90a0;font-size:11px;margin-top:12px}
 .sv1-foot{margin-top:auto;padding:38px 0 22px;background:var(--n2);color:#ccd4ed;font-size:12px}
 .sv1-foot b{color:#fff}
 .sv1-foot a{color:#fff;text-decoration:underline;text-underline-offset:2px}
@@ -106,6 +241,8 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-foot-row bdi{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:#fff}
 .sv1-foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
 .sv1-foot-end{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
+/* روابط الصفحات التي لا تظهر في الترويسة: فاصلٌ خفيف ثم ثلاثة أعمدة صغيرة.
+   حجمها أصغر من باقي الفوتر عمداً — هي مسلكٌ لمن يبحث، لا دعوةٌ للضغط. */
 .sv1-foot-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 34px;
  margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1)}
 .sv1-foot-navcol{display:flex;flex-direction:column;gap:7px;min-width:0}
@@ -116,46 +253,69 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-foot-navcol a:hover{color:#fff}
 @media(max-width:900px){.sv1-foot-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}
-.sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
+ .sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
 .sv1-wa-fab{position:fixed;inset-inline-start:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
-@media(max-width:900px){.sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
-.sv1-nav.open{display:flex}
-.sv1-burger{display:flex}
-.sv1-hdr .right .sv1-btn:not(.primary):not(#sv1OutBtn):not(#sv1SiteBtn){display:none}
-.sv1-hdr .right #sv1SiteBtn{display:none}}
-/* الفرق الوحيد عن صفحات SV1: هناك «.sv1» غلافُ الصفحة كلها، وهنا غلافُ
-   الترويسة وحدها. «display:contents» يلغي صندوقه فيبقى «sticky» مسنداً إلى
-   الصفحة، وتبقى المتغيّرات و«.sv1 .wrap» نافذةً في الداخل. */
-.sv1.sv1-chrome{display:contents}
-@media print{.sv1-bar,.sv1-hdr,.sv1-wa-fab{display:none!important}}
-/* وضع التضمين (?embed=1) كان يخفي .site-header و.wa-fab؛ لم يعودا موجودين. */
-html.bp-embed .sv1-bar,html.bp-embed .sv1-hdr,html.bp-embed .sv1-wa-fab{display:none!important}
-</style>
-<style id="bp-public-brand-v5-css">
-body.bp-public-brand-v5{--bp-navy:#0B1B5A;--bp-blue:#3159d8;--bp-cyan:#43d6f4;--bp-mint:#16b875;--bp-ink:#111b36;--bp-muted:#6b7690;--bp-line:#e4e9f2;--bp-soft:#f7f9fd;background:#fff;color:var(--bp-ink)}
-body.bp-public-brand-v5 .site-header{background:rgba(255,255,255,.96)!important;border-bottom:1px solid #e8ecf3!important;backdrop-filter:blur(16px)}
-body.bp-public-brand-v5 .site-header .logo img{max-height:32px!important;width:auto!important}
-body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .svc-hero,body.bp-public-brand-v5 .cat-hero,body.bp-public-brand-v5 .page-hero{background:radial-gradient(circle at 84% 4%,rgba(49,89,216,.10),transparent 24%),radial-gradient(circle at 12% 2%,rgba(67,214,244,.08),transparent 20%),#fff!important;border-bottom:1px solid #edf0f5!important}
-body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .page-hero{padding-top:64px!important;padding-bottom:52px!important}
-body.bp-public-brand-v5 main>.hero h1,body.bp-public-brand-v5 .svc-hero h1,body.bp-public-brand-v5 .cat-hero h1,body.bp-public-brand-v5 .page-hero h1{color:var(--bp-navy)!important;letter-spacing:-.045em!important;line-height:1.06!important}
-body.bp-public-brand-v5 main>.hero .lead,body.bp-public-brand-v5 main>.hero p,body.bp-public-brand-v5 .svc-hero p,body.bp-public-brand-v5 .cat-hero p,body.bp-public-brand-v5 .page-hero p{color:var(--bp-muted)!important;line-height:1.8!important}
-body.bp-public-brand-v5 .eyebrow{display:inline-flex!important;padding:6px 9px!important;border:1px solid #dfe6f3!important;border-radius:999px!important;background:#f8faff!important;color:#3156ad!important;font-size:.68rem!important;font-weight:850!important}
-body.bp-public-brand-v5 .btn-primary,body.bp-public-brand-v5 .btn.btn-primary{background:linear-gradient(135deg,var(--bp-navy),var(--bp-blue))!important;border-color:transparent!important;box-shadow:0 11px 28px rgba(36,75,184,.16)!important}
-body.bp-public-brand-v5 .btn,body.bp-public-brand-v5 button,body.bp-public-brand-v5 .order-box,body.bp-public-brand-v5 .card,body.bp-public-brand-v5 .service-card,body.bp-public-brand-v5 .pkg-card,body.bp-public-brand-v5 .panel{border-radius:16px}
-body.bp-public-brand-v5 .card,body.bp-public-brand-v5 .service-card,body.bp-public-brand-v5 .pkg-card,body.bp-public-brand-v5 .panel,body.bp-public-brand-v5 .order-box{border-color:var(--bp-line)!important;box-shadow:0 8px 28px rgba(10,29,80,.045)!important}
-body.bp-public-brand-v5 .card:hover,body.bp-public-brand-v5 .service-card:hover,body.bp-public-brand-v5 .pkg-card:hover{box-shadow:0 14px 36px rgba(10,29,80,.08)!important}
-body.bp-public-brand-v5 .svc-main,body.bp-public-brand-v5 .svc-layout{gap:24px!important}
-body.bp-public-brand-v5 .svc-body,body.bp-public-brand-v5 .svc-content{line-height:1.85!important;color:#3c4964!important}
-body.bp-public-brand-v5 .svc-body h2,body.bp-public-brand-v5 .svc-body h3,body.bp-public-brand-v5 .svc-content h2,body.bp-public-brand-v5 .svc-content h3{color:var(--bp-navy)!important}
-body.bp-public-brand-v5 .svc-aside .order-box{position:sticky;top:92px;background:linear-gradient(180deg,#fff,#f8faff)!important}
-body.bp-public-brand-v5 .site-footer{background:#07143b!important;color:rgba(255,255,255,.7)!important}
-body.bp-public-brand-v5 .site-footer a{color:rgba(255,255,255,.72)!important}
-body.bp-public-brand-v5 .wa-fab{display:none!important}
-@media(max-width:760px){body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .page-hero{padding-top:42px!important;padding-bottom:34px!important}body.bp-public-brand-v5 .svc-aside .order-box{position:static}}
-</style>
+@media(max-width:900px){
+ .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
+ .sv1-nav.open{display:flex}
+ .sv1-burger{display:flex}
+ .sv1-hdr .right .sv1-btn:not(.primary):not(#sv1OutBtn):not(#sv1SiteBtn){display:none}
+ .sv1-hdr .right #sv1SiteBtn{display:none}
+ .sv1-hero .grid,.sv1-appgrid,.sv1-pgrid,.sv1-cols{grid-template-columns:1fr}
+ .sv1-chat{border-inline-end:0;border-bottom:1px solid var(--l)}
+ .sv1-flow{grid-template-columns:repeat(3,1fr)}
+ .sv1-three{grid-template-columns:1fr}
+ .sv1-side{display:none}
+ .sv1-stats{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
+ .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+</style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
-<body class="bp-public-brand-v5"><div class="sv1 sv1-chrome"><div class="sv1-bar"><div class="wrap">
+<body class="sv1-page"><div class="sv1"><style id="sv1-cp-css">
+.sv1-cp-hero{padding:34px 0 28px}
+.sv1-cp-hero .sv1-tag{margin-top:14px}
+.sv1-cp-hero h1{font-size:clamp(28px,4.2vw,46px);line-height:1.2;margin:16px 0 14px;max-width:22ch;font-weight:200}
+.sv1-cp-hero .sv1-lead{max-width:62ch}
+.sv1-crumb{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;color:var(--mut)}
+.sv1-crumb a:hover{color:var(--ac)}
+.sv1-crumb i{font-style:normal;color:var(--faint)}
+.sv1 .sv1-cp-body{padding:30px 22px 64px}
+.sv1-cp-q{width:100%;max-width:460px;border:1px solid var(--l);border-radius:12px;padding:13px 15px;font:inherit;font-size:15px;outline:none;background:#fff;margin-bottom:18px}
+.sv1-cp-q:focus{border-color:var(--n)}
+.sv1-cp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.sv1-cp-card{border:1px solid var(--l);border-radius:14px;background:#fff;padding:18px;display:flex;flex-direction:column;gap:9px;transition:border-color .15s,box-shadow .15s}
+.sv1-cp-card:hover{border-color:var(--acLine);box-shadow:var(--sh2)}
+.sv1-cp-card[hidden]{display:none}
+.sv1-cp-name{font-size:15.5px;font-weight:500;color:var(--ink);line-height:1.55}
+.sv1-cp-name:hover{color:var(--ac)}
+.sv1-cp-gov{font-size:11.5px;color:var(--mut)}
+.sv1-cp-price{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-top:auto;padding-top:4px}
+.sv1-cp-lbl{font-size:11px;color:var(--mut)}
+.sv1-cp-amt{font-family:var(--fm);font-size:19px;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.sv1-cp-amt[data-bp-pending]{visibility:hidden;animation:sv1cpshow .01s linear 2.2s forwards}
+@keyframes sv1cpshow{to{visibility:visible}}
+.sv1-cp-guest{font-size:12px;color:var(--mut)}
+.sv1-cp-need{font-size:13.5px;font-weight:500;color:var(--ink)}
+.sv1-cp-acts{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.sv1-cp-more{margin-inline-start:auto;font-size:12px;color:var(--ac);white-space:nowrap}
+.sv1-cp-more:hover{text-decoration:underline}
+.sv1-cp-none{color:var(--mut);font-size:14px;margin:18px 2px}
+.sv1-cp-others{margin-top:40px}
+.sv1-cp-others h2{font-size:18px;margin:0 0 12px;font-weight:300}
+.sv1-cp-chips{display:flex;flex-wrap:wrap;gap:8px}
+.sv1-cp-chip{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--l);border-radius:999px;background:#fff;padding:7px 13px;font-size:13px;color:var(--ink)}
+.sv1-cp-chip span{font-family:var(--fm);font-size:11px;color:var(--ac);background:var(--acSoft);border-radius:999px;padding:1px 8px}
+.sv1-cp-chip:hover{border-color:var(--acLine);background:var(--acSoft)}
+.sv1-cp-ask{margin-top:30px;text-align:center}
+.sv1-cp-ask h4{margin:0 0 10px;color:var(--ink);font-size:15px}
+.sv1-cp-toast{position:fixed;inset-inline:0;top:84px;margin-inline:auto;width:max-content;max-width:calc(100vw - 28px);z-index:2147483100;background:var(--ink);color:#fff;border-radius:12px;padding:11px 16px;font-size:13px;font-weight:600;box-shadow:0 10px 28px rgba(11,27,90,.3);display:flex;gap:14px;align-items:center}
+.sv1-cp-toast a{color:#fff;text-decoration:underline;white-space:nowrap}
+.sv1-cp-toast.err{background:#8a1c1c}
+@media(max-width:600px){.sv1-cp-hero{padding:24px 0 20px}.sv1-cp-grid{grid-template-columns:1fr}}
+</style>
+<div class="sv1-bar"><div class="wrap">
   <div class="sv1-bar-l">
     <span><span class="sv1-pulse"></span><b>所有系统运行正常</b></span>
     <span class="hide-s">利雅得 · 沙特阿拉伯王国</span>
@@ -178,6 +338,7 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
     <a class="sv1-btn sm sv1-cart sv1-hide" id="sv1CartBtn" href="/zh/cart" aria-label="购物车">
       <span>购物车</span><b id="sv1CartN">0</b></a>
     <a class="sv1-btn" id="sv1LoginBtn" href="/zh/my">登录</a>
+    <a class="sv1-btn sm sv1-hide" id="sv1SiteBtn" href="/zh/">返回网站</a>
     <button type="button" class="sv1-btn sm sv1-hide" id="sv1OutBtn">退出登录</button>
     <a class="sv1-btn primary" href="/zh/#advisor">开始申请</a>
   </div>
@@ -206,117 +367,130 @@ var S=window.SV1S={
   if(sb)sb.classList.toggle('sv1-hide',!(on&&(p.indexOf('/my')>=0||p.indexOf('/ops')>=0)));
  }};
 var h0=hint();if(h0)S.paint(true,h0);
-})();</script><script>(function(){"use strict";
-var $=function(id){return document.getElementById(id)};
-var b=$('sv1Burger'),n=$('sv1Nav');
-if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
-var cb=$('sv1CartBtn'),cn=$('sv1CartN');
-function sync(){var c=[];try{c=JSON.parse(localStorage.getItem('bp_cart'))||[]}catch(e){}
- var k=c.reduce(function(a,i){return a+(Number(i&&i.qty)||1)},0);
- if(cn)cn.textContent=String(k);
- if(cb)cb.classList.toggle('sv1-hide',!k)}
-sync();
-addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);
-document.addEventListener('bp:cart',sync);
-/* main.js يكتب bp_cart ثم يحدّث #cart-badge وحده، ولا يطلق حدثاً. فبعد كل
-   ضغطة على زر شراء في الصفحة القديمة نعيد القراءة — وإلا جمد العدّاد. */
-document.addEventListener('click',function(e){
- if(e.target&&e.target.closest&&e.target.closest('.add-cart,[data-cart],.cart-remove,.cart-qty'))setTimeout(sync,0)},true);
-var ob=$('sv1OutBtn');
-if(ob)ob.onclick=function(){ob.disabled=true;
- fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'})
- .catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.reload()})};
-/* حالة الدخول: الرسم الفوري من التلميح جرى بعد «</header>» مباشرة
-   (SV1_SESSION_JS)، وهذا هو التصحيح من الخادم — والمنطق نفسه حرفاً بحرف في
-   صفحات SV1، من simple-v1.mjs لا من نسخةٍ ثانية تفترق عنها بعد شهر. */
-fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
-.then(function(r){return r.json().catch(function(){return{}})}).then(function(o){
- var S=window.SV1S,u=o&&o.session&&o.session.user;
- if(u){window.SV1_SESSION=o.session;if(S){S.save(u);S.paint(true,{name:u.full_name||'',email:u.email||''})}}
- else if(S){S.clear();S.paint(false,null)}
-}).catch(function(){});
-})();</script></div><main>
-  <section class="hero hero--sm"><div class="container hero-inner">
-    <a class="back-link" href="/zh/services"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> 全部类别</a>
-    <span class="eyebrow">🌍 服务</span>
+})();</script>
+<main>
+  <section class="sv1-hero sv1-cp-hero"><div class="wrap">
+    <nav class="sv1-crumb" aria-label="breadcrumb">
+      <a href="/zh/">首页</a><i>/</i><a href="/zh/catalog">服务</a><i>/</i><span>外商投资</span>
+    </nav>
+    <span class="sv1-tag">14 项服务</span>
     <h1>外商投资</h1>
-    <p class="lead">14 services in Foreign Investment — talk to us for a quote tailored to your case; government fees are always separate.</p>
+    <p class="sv1-lead">定价明确的服务可直接加入购物车并在线支付，也可为您的情况申请报价。政府规费（如有）按实际费用向相关机构缴纳。</p>
   </div></section>
-  <section class="section"><div class="container">
-    <div class="grid grid-3"><a class="card svc-card" href="/zh/services/bp-fi-01">
-        <span class="tag">外商投资</span>
-        <h3>Foreign Investor Company Formation</h3>
-        <p class="desc">Formation of a 100% foreign-owned company — from the MISA investment license through the Commercial Registration, Chambe…</p>
-        <div class="foot"><span class="price-soft">专属报价</span><span class="card-link">详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/zh/services/bp-fi-02">
-        <span class="tag">外商投资</span>
-        <h3>Foreign Investment License Issuance</h3>
-        <p class="desc">Issuance of the foreign investment license through MISA — we prepare the application and documents and follow the approv…</p>
-        <div class="foot"><span class="price-soft">专属报价</span><span class="card-link">详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/zh/services/bp-fi-03">
-        <span class="tag">外商投资</span>
-        <h3>100%-owned foreign company formation (foreign branch)</h3>
-        <p class="desc">Business Partner 代您在外商投资范围内办理「100%-owned foreign company formation (foreign branch)」——从准备文件、向主管机构提交，直至最终出证，费用清晰，全程跟进。</p>
-        <div class="foot"><span class="price-soft">专属报价</span><span class="card-link">详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/zh/services/bp-fi-04">
-        <span class="tag">外商投资</span>
-        <h3>Joint-Venture Company Formation</h3>
-        <p class="desc">Formation of a joint-venture company with a foreign partner — we structure the partnership, prepare the regulatory requi…</p>
-        <div class="foot"><span class="price-soft">专属报价</span><span class="card-link">详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/zh/services/bp-fi-05">
-        <span class="tag">外商投资</span>
-        <h3>Entrepreneur-License Company Formation</h3>
-        <p class="desc">Company formation under a MISA Entrepreneur license — we prepare the support letter and requirements and follow the appl…</p>
-        <div class="foot"><span class="price-soft">专属报价</span><span class="card-link">详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/zh/services/bp-fi-06">
-        <span class="tag">外商投资</span>
-        <h3>Foreign Company Branch Registration</h3>
-        <p class="desc">Registration of a branch for an existing foreign company in Saudi Arabia — we prepare the regulatory requirements and fo…</p>
-        <div class="foot"><span class="price-soft">专属报价</span><span class="card-link">详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/zh/services/bp-fi-07">
-        <span class="tag">外商投资</span>
-        <h3>Foreign Investor Entry</h3>
-        <p class="desc">Initial service to support foreign investor entry into the market, including path selection, core requirements, and earl…</p>
-        <div class="foot"><span class="price-soft">专属报价</span><span class="card-link">详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/zh/services/fi-100">
-        <span class="tag">外商投资</span>
-        <h3>Foreign Investment Setup — 100% Foreign Owned Company</h3>
-        <p class="desc">Business Partner 代您在外商投资范围内办理「Foreign Investment Setup — 100% Foreign Owned Company」——从准备文件、向主管机构提交，直至最终出证，费用清晰，全程跟进。</p>
-        <div class="foot"><span class="price-soft">专属报价</span><span class="card-link">详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/zh/services/bp-fi-08">
-        <span class="tag">外商投资</span>
-        <h3>Regional Headquarters (RHQ) — qualification &amp; filing</h3>
-        <p class="desc">The Regional Headquarters programme grants global companies that make Riyadh their regional base long-term incentives an…</p>
-        <div class="foot"><span class="price-soft">专属报价</span><span class="card-link">详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/zh/services/bp-fi-09">
-        <span class="tag">外商投资</span>
-        <h3>Representative office for a foreign company</h3>
-        <p class="desc">A representative office gives a foreign company a lawful presence in the Kingdom for non-commercial purposes — market st…</p>
-        <div class="foot"><span class="price-soft">专属报价</span><span class="card-link">详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/zh/services/bp-fi-10">
-        <span class="tag">外商投资</span>
-        <h3>Investment licence renewal</h3>
-        <p class="desc">A late investment-licence renewal freezes the establishment's accounts and suspends its services on the government platf…</p>
-        <div class="foot"><span class="price-soft">专属报价</span><span class="card-link">详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/zh/services/bp-fi-11">
-        <span class="tag">外商投资</span>
-        <h3>Amending an investment licence</h3>
-        <p class="desc">Amending an investment licence when adding an activity, changing ownership or converting the entity — prepared, filed an…</p>
-        <div class="foot"><span class="price-soft">专属报价</span><span class="card-link">详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/zh/services/bp-fi-12">
-        <span class="tag">外商投资</span>
-        <h3>Cancelling an investment licence and closing the entity</h3>
-        <p class="desc">Ending an investment properly: cancelling the licence, liquidating the entity and closing its files with the authorities…</p>
-        <div class="foot"><span class="price-soft">专属报价</span><span class="card-link">详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/zh/services/bp-fi-13">
-        <span class="tag">外商投资</span>
-        <h3>Market-entry advisory: which investment licence fits</h3>
-        <p class="desc">Investment licences come in many types — services, commercial, industrial, real estate, agricultural, professional, mini…</p>
-        <div class="foot"><span class="price-soft">专属报价</span><span class="card-link">详情 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a></div>
-    <div class="cat-other"><h2>其他类别</h2><div class="cc-prof-chips"><a class="cc-chip" href="/zh/services/category/company-formation">🏢 公司注册</a><a class="cc-chip" href="/zh/services/category/premium-residency">🪪 高端居留</a><a class="cc-chip" href="/zh/services/category/government-relations">🏛️ 政府事务关系</a><a class="cc-chip" href="/zh/services/category/hr-services">👥 人力资源服务</a><a class="cc-chip" href="/zh/services/category/recruitment">🧑‍💼 招聘与人才引进</a><a class="cc-chip" href="/zh/services/category/business-support">📊 业务支持</a><a class="cc-chip" href="/zh/services/category/real-estate">🏗️ 房地产</a><a class="cc-chip" href="/zh/services/category/ai-automation">🤖 AI &amp; Automation</a></div></div>
-    <div class="cta-band" style="margin-top:28px"><h2>不确定需要哪项服务？</h2><p>联系我们，我们会为您的情况指引最合适的服务。</p><a class="btn btn-white btn-lg" href="/zh/consultation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>联系我们</span></a></div>
-  </div></section></main><div class="sv1 sv1-chrome"><footer class="sv1-foot"><div class="wrap">
+  <div class="wrap sv1-cp-body">
+    <input id="cpQ" class="sv1-cp-q" type="search" placeholder="在此分类中搜索" aria-label="在此分类中搜索">
+    <div class="sv1-cp-grid" id="cpGrid"><article class="sv1-cp-card" data-q="foreign investor company formation bp-fi-01 投资部（misa）">
+      <a class="sv1-cp-name" href="/zh/services/bp-fi-01">Foreign Investor Company Formation</a>
+      <div class="sv1-cp-gov">投资部（MISA）</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">服务费</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-FI-01" data-bp-pending>22,500 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>登录后查看服务费</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-fi-01" data-name-en="Foreign Investor Company Formation" data-name-ar="تأسيس شركة لمستثمر أجنبي" data-amount="22500" data-price="" data-kind="service" data-bp-code="BP-FI-01">加入购物车</button><a class="sv1-btn sm sv1-cp-quote" href="/zh/#advisor" data-track="طلب عرض سعر" data-code="BP-FI-01" data-name="Foreign Investor Company Formation" data-gov="投资部（MISA）">申请报价</a><a class="sv1-cp-more" href="/zh/services/bp-fi-01">详情 →</a></div>
+    </article><article class="sv1-cp-card" data-q="foreign investment license issuance bp-fi-02 投资部（misa）">
+      <a class="sv1-cp-name" href="/zh/services/bp-fi-02">Foreign Investment License Issuance</a>
+      <div class="sv1-cp-gov">投资部（MISA）</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">服务费</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-FI-02" data-bp-pending>10,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>登录后查看服务费</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-fi-02" data-name-en="Foreign Investment License Issuance" data-name-ar="استخراج ترخيص استثمار أجنبي (مستثمر أجنبي)" data-amount="10000" data-price="" data-kind="service" data-bp-code="BP-FI-02">加入购物车</button><a class="sv1-btn sm sv1-cp-quote" href="/zh/#advisor" data-track="طلب عرض سعر" data-code="BP-FI-02" data-name="Foreign Investment License Issuance" data-gov="投资部（MISA）">申请报价</a><a class="sv1-cp-more" href="/zh/services/bp-fi-02">详情 →</a></div>
+    </article><article class="sv1-cp-card" data-q="100%-owned foreign company formation (foreign branch) bp-fi-03 投资部（misa）">
+      <a class="sv1-cp-name" href="/zh/services/bp-fi-03">100%-owned foreign company formation (foreign branch)</a>
+      <div class="sv1-cp-gov">投资部（MISA）</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">服务费</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-FI-03" data-bp-pending>30,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>登录后查看服务费</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-fi-03" data-name-en="100%-owned foreign company formation (foreign branch)" data-name-ar="تأسيس شركة أجنبية 100% ملكية (فرع أجنبي)" data-amount="30000" data-price="" data-kind="service" data-bp-code="BP-FI-03">加入购物车</button><a class="sv1-btn sm sv1-cp-quote" href="/zh/#advisor" data-track="طلب عرض سعر" data-code="BP-FI-03" data-name="100%-owned foreign company formation (foreign branch)" data-gov="投资部（MISA）">申请报价</a><a class="sv1-cp-more" href="/zh/services/bp-fi-03">详情 →</a></div>
+    </article><article class="sv1-cp-card" data-q="joint-venture company formation bp-fi-04 投资部（misa）">
+      <a class="sv1-cp-name" href="/zh/services/bp-fi-04">Joint-Venture Company Formation</a>
+      <div class="sv1-cp-gov">投资部（MISA）</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">服务费</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-FI-04" data-bp-pending>20,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>登录后查看服务费</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-fi-04" data-name-en="Joint-Venture Company Formation" data-name-ar="تأسيس شركة بشراكة أجنبية (مشتركة)" data-amount="20000" data-price="" data-kind="service" data-bp-code="BP-FI-04">加入购物车</button><a class="sv1-btn sm sv1-cp-quote" href="/zh/#advisor" data-track="طلب عرض سعر" data-code="BP-FI-04" data-name="Joint-Venture Company Formation" data-gov="投资部（MISA）">申请报价</a><a class="sv1-cp-more" href="/zh/services/bp-fi-04">详情 →</a></div>
+    </article><article class="sv1-cp-card" data-q="entrepreneur-license company formation bp-fi-05 投资部（misa）">
+      <a class="sv1-cp-name" href="/zh/services/bp-fi-05">Entrepreneur-License Company Formation</a>
+      <div class="sv1-cp-gov">投资部（MISA）</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">服务费</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-FI-05" data-bp-pending>30,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>登录后查看服务费</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-fi-05" data-name-en="Entrepreneur-License Company Formation" data-name-ar="تأسيس شركة برخصة ريادة الأعمال (رائد أعمال)" data-amount="30000" data-price="" data-kind="service" data-bp-code="BP-FI-05">加入购物车</button><a class="sv1-btn sm sv1-cp-quote" href="/zh/#advisor" data-track="طلب عرض سعر" data-code="BP-FI-05" data-name="Entrepreneur-License Company Formation" data-gov="投资部（MISA）">申请报价</a><a class="sv1-cp-more" href="/zh/services/bp-fi-05">详情 →</a></div>
+    </article><article class="sv1-cp-card" data-q="foreign company branch registration bp-fi-06 投资部（misa）">
+      <a class="sv1-cp-name" href="/zh/services/bp-fi-06">Foreign Company Branch Registration</a>
+      <div class="sv1-cp-gov">投资部（MISA）</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">服务费</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-FI-06" data-bp-pending>12,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>登录后查看服务费</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-fi-06" data-name-en="Foreign Company Branch Registration" data-name-ar="تسجيل فرع لشركة أجنبية" data-amount="12000" data-price="" data-kind="service" data-bp-code="BP-FI-06">加入购物车</button><a class="sv1-btn sm sv1-cp-quote" href="/zh/#advisor" data-track="طلب عرض سعر" data-code="BP-FI-06" data-name="Foreign Company Branch Registration" data-gov="投资部（MISA）">申请报价</a><a class="sv1-cp-more" href="/zh/services/bp-fi-06">详情 →</a></div>
+    </article><article class="sv1-cp-card" data-q="foreign investor entry bp-fi-07 投资部（misa）">
+      <a class="sv1-cp-name" href="/zh/services/bp-fi-07">Foreign Investor Entry</a>
+      <div class="sv1-cp-gov">投资部（MISA）</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">服务费</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-FI-07" data-bp-pending>5,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>登录后查看服务费</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-fi-07" data-name-en="Foreign Investor Entry" data-name-ar="دخول مستثمر أجنبي" data-amount="5000" data-price="" data-kind="service" data-bp-code="BP-FI-07">加入购物车</button><a class="sv1-btn sm sv1-cp-quote" href="/zh/#advisor" data-track="طلب عرض سعر" data-code="BP-FI-07" data-name="Foreign Investor Entry" data-gov="投资部（MISA）">申请报价</a><a class="sv1-cp-more" href="/zh/services/bp-fi-07">详情 →</a></div>
+    </article><article class="sv1-cp-card" data-q="foreign investment setup — 100% foreign owned company fi-100 ">
+      <a class="sv1-cp-name" href="/zh/services/fi-100">Foreign Investment Setup — 100% Foreign Owned Company</a>
+      
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">服务费</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="FI-100" data-bp-pending>30,000 SAR / entity</span>
+        <span class="sv1-cp-guest" data-guest-note>登录后查看服务费</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-fi-100" data-name-en="Foreign Investment Setup — 100% Foreign Owned Company" data-name-ar="تأسيس كيان استثمار أجنبي — شركة مملوكة ⁦100%⁩ لمستثمر أجنبي" data-amount="30000" data-price="" data-kind="service" data-bp-code="FI-100">加入购物车</button><a class="sv1-cp-more" href="/zh/services/fi-100">详情 →</a></div>
+    </article><article class="sv1-cp-card" data-q="regional headquarters (rhq) — qualification &amp; filing bp-fi-08 投资部（misa）">
+      <a class="sv1-cp-name" href="/zh/services/bp-fi-08">Regional Headquarters (RHQ) — qualification &amp; filing</a>
+      <div class="sv1-cp-gov">投资部（MISA）</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">服务费</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-FI-08" data-bp-pending>35,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>登录后查看服务费</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-fi-08" data-name-en="Regional Headquarters (RHQ) — qualification &amp; filing" data-name-ar="المقر الإقليمي RHQ — التأهيل والتقديم" data-amount="35000" data-price="" data-kind="service" data-bp-code="BP-FI-08">加入购物车</button><a class="sv1-cp-more" href="/zh/services/bp-fi-08">详情 →</a></div>
+    </article><article class="sv1-cp-card" data-q="representative office for a foreign company bp-fi-09 投资部（misa）">
+      <a class="sv1-cp-name" href="/zh/services/bp-fi-09">Representative office for a foreign company</a>
+      <div class="sv1-cp-gov">投资部（MISA）</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">服务费</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-FI-09" data-bp-pending>15,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>登录后查看服务费</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-fi-09" data-name-en="Representative office for a foreign company" data-name-ar="مكتب تمثيل لشركة أجنبية" data-amount="15000" data-price="" data-kind="service" data-bp-code="BP-FI-09">加入购物车</button><a class="sv1-cp-more" href="/zh/services/bp-fi-09">详情 →</a></div>
+    </article><article class="sv1-cp-card" data-q="investment licence renewal bp-fi-10 投资部（misa）">
+      <a class="sv1-cp-name" href="/zh/services/bp-fi-10">Investment licence renewal</a>
+      <div class="sv1-cp-gov">投资部（MISA）</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">服务费</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-FI-10" data-bp-pending>3,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>登录后查看服务费</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-fi-10" data-name-en="Investment licence renewal" data-name-ar="تجديد ترخيص الاستثمار" data-amount="3000" data-price="" data-kind="service" data-bp-code="BP-FI-10">加入购物车</button><a class="sv1-cp-more" href="/zh/services/bp-fi-10">详情 →</a></div>
+    </article><article class="sv1-cp-card" data-q="amending an investment licence bp-fi-11 投资部（misa）">
+      <a class="sv1-cp-name" href="/zh/services/bp-fi-11">Amending an investment licence</a>
+      <div class="sv1-cp-gov">投资部（MISA）</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">服务费</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-FI-11" data-bp-pending>4,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>登录后查看服务费</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-fi-11" data-name-en="Amending an investment licence" data-name-ar="تعديل ترخيص الاستثمار (نشاط أو ملكية أو كيان)" data-amount="4000" data-price="" data-kind="service" data-bp-code="BP-FI-11">加入购物车</button><a class="sv1-cp-more" href="/zh/services/bp-fi-11">详情 →</a></div>
+    </article><article class="sv1-cp-card" data-q="cancelling an investment licence and closing the entity bp-fi-12 投资部（misa）">
+      <a class="sv1-cp-name" href="/zh/services/bp-fi-12">Cancelling an investment licence and closing the entity</a>
+      <div class="sv1-cp-gov">投资部（MISA）</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">服务费</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-FI-12" data-bp-pending>5,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>登录后查看服务费</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-fi-12" data-name-en="Cancelling an investment licence and closing the entity" data-name-ar="إلغاء ترخيص الاستثمار وإنهاء الكيان" data-amount="5000" data-price="" data-kind="service" data-bp-code="BP-FI-12">加入购物车</button><a class="sv1-cp-more" href="/zh/services/bp-fi-12">详情 →</a></div>
+    </article><article class="sv1-cp-card" data-q="market-entry advisory: which investment licence fits bp-fi-13 投资部（misa）">
+      <a class="sv1-cp-name" href="/zh/services/bp-fi-13">Market-entry advisory: which investment licence fits</a>
+      <div class="sv1-cp-gov">投资部（MISA）</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">服务费</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-FI-13" data-bp-pending>2,500 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>登录后查看服务费</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-fi-13" data-name-en="Market-entry advisory: which investment licence fits" data-name-ar="استشارة دخول السوق: أي ترخيص استثمار يناسبك" data-amount="2500" data-price="" data-kind="service" data-bp-code="BP-FI-13">加入购物车</button><a class="sv1-cp-more" href="/zh/services/bp-fi-13">详情 →</a></div>
+    </article></div>
+    <p class="sv1-cp-none sv1-hide" id="cpNone">没有匹配项。请尝试更宽泛的词。</p>
+    <section class="sv1-cp-others">
+      <h2>其他分类</h2>
+      <div class="sv1-cp-chips"><a class="sv1-cp-chip" href="/zh/services/category/company-formation">公司注册<span>29</span></a><a class="sv1-cp-chip" href="/zh/services/category/premium-residency">高端居留<span>11</span></a><a class="sv1-cp-chip" href="/zh/services/category/government-relations">政府事务关系<span>69</span></a><a class="sv1-cp-chip" href="/zh/services/category/hr-services">人力资源服务<span>12</span></a><a class="sv1-cp-chip" href="/zh/services/category/recruitment">招聘与人才引进<span>8</span></a><a class="sv1-cp-chip" href="/zh/services/category/business-support">业务支持<span>39</span></a><a class="sv1-cp-chip" href="/zh/services/category/real-estate">房地产<span>7</span></a><a class="sv1-cp-chip" href="/zh/services/category/ai-automation">AI &amp; Automation<span>6</span></a><a class="sv1-cp-chip" href="/zh/catalog">全部服务与套餐</a></div>
+    </section>
+    <div class="sv1-panel sv1-cp-ask">
+      <h4>不确定哪项服务适合您？</h4>
+      <a class="sv1-btn primary sm" href="/zh/#advisor">在对话中描述您的需求</a>
+    </div>
+  </div>
+</main>
+<div class="sv1-cp-toast sv1-hide" id="cpToast" role="status" aria-live="polite"><span id="cpToastTx"></span><a id="cpToastCart" href="/zh/cart">查看购物车 →</a></div>
+<footer class="sv1-foot"><div class="wrap">
   <div class="sv1-foot-grid">
     <div class="sv1-foot-col">
       <b class="sv1-foot-brand">Business Partner</b>
@@ -325,18 +499,18 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
     </div>
     <div class="sv1-foot-col">
       <h4>公司信息</h4>
-      <div class="sv1-foot-row id"><span>注册名称</span><b>Business Partner Solutions Company</b></div><div class="sv1-foot-row id"><span>统一编号</span><bdi dir="ltr">7038825860</bdi></div><div class="sv1-foot-row id"><span>增值税号</span><bdi dir="ltr">312079341500003</bdi></div><div class="sv1-foot-row id"><span>国家简短地址</span><bdi dir="ltr">RHSC2978</bdi></div>
+      <div class="sv1-foot-row id"><span>注册名称</span><b>Business Partner Solutions Company</b></div><div class="sv1-foot-row id"><span>统一编号</span><bdi dir="ltr">7038825860</bdi></div><div class="sv1-foot-row id"><span>增值税号</span><bdi dir="ltr">312079341500003</bdi></div><div class="sv1-foot-row id"><span>国家简短地址</span><bdi dir="ltr">RDAA9214</bdi></div>
     </div>
     <div class="sv1-foot-col">
       <h4>联系我们</h4>
       <div class="sv1-foot-row"><span>电话</span><a href="tel:+966530540231"><bdi dir="ltr">0530540231</bdi></a></div>
       <div class="sv1-foot-row"><span>邮箱</span><a href="mailto:business@businesspartner.sa"><bdi dir="ltr">business@businesspartner.sa</bdi></a></div>
-      <div class="sv1-foot-row"><span>国家地址</span><span class="v">Building 2978 · Turki Ibn Abdullah Aal Saud St. · Al Sulaimaniyah Dist. · Riyadh 12234 · Additional no. 8630</span></div>
+      <div class="sv1-foot-row"><span>国家地址</span><span class="v">Building 9214 · King Khaled Branch Rd. · Al Asemah Dist. · Ad Diriyah 13714 · Additional no. 5076</span></div>
       <div class="sv1-foot-row"><span>营业时间</span><span class="v">Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span></div>
     </div>
     <div class="sv1-foot-col">
       <h4>支付方式</h4>
-      <p class="sv1-foot-note">mada · Visa · Mastercard · Apple Pay · Tamara — 通过持牌支付网关，卡片信息不经过我们的服务器。</p>
+      <p class="sv1-foot-note">mada · Visa · Mastercard，或通过 Tamara 分期。Apple Pay 等手机钱包仅在您的设备支持时才会在结账页出现。支付通过持牌支付网关完成，卡片信息不经过我们的服务器。</p>
     </div>
   </div>
 
@@ -352,7 +526,7 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
       <a href="/zh/catalog">全部服务</a>
       <a href="/zh/packages">套餐</a>
       <a href="/zh/ai-agents">智能顾问</a>
-      <a href="/zh/business-development">业务拓展</a>
+      
     </div>
     <div class="sv1-foot-navcol">
       <h5>知识库</h5>
@@ -371,7 +545,81 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
   </div>
   <div class="sv1-foot-end">© 2026 Business Partner · 版权所有</div>
 </div></footer>
-<a class="sv1-wa-fab" href="https://wa.me/966530540231" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></div><script src="/assets/js/main.js?v=45d370d801"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script><style>
+<a class="sv1-wa-fab" href="https://wa.me/966530540231" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
+fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
+var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};
+/* الرسم الفوري جرى بعد «</header>» مباشرة (SV1_SESSION_JS)؛ هنا التصحيح. */
+fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
+.then(function(r){return r.json().catch(function(){return{}})}).then(function(o){
+ var S=window.SV1S,u=o&&o.session&&o.session.user;
+ if(u){window.SV1_SESSION=o.session;if(S){S.save(u);S.paint(true,{name:u.full_name||'',email:u.email||''})}}
+ else if(S){S.clear();S.paint(false,null)}
+}).catch(function(){});
+})();</script><script>(function(){"use strict";
+if(navigator.webdriver)return;
+var vid="";try{vid=localStorage.getItem("bp_vid")||"";if(!vid){vid=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("bp_vid",vid)}}catch(e){}
+function send(p){p.action="hit";p.visitor=vid;try{var b=JSON.stringify(p);
+if(navigator.sendBeacon)navigator.sendBeacon("/api/requests",new Blob([b],{type:"application/json"}));
+else fetch("/api/requests",{method:"POST",headers:{"content-type":"application/json"},body:b,keepalive:true}).catch(function(){})}catch(e){}}
+var rh="";try{if(document.referrer){var u=new URL(document.referrer);if(u.host!==location.host)rh=u.host}}catch(e){}
+// وسوم UTM تسبق المُحيل: واتساب وتيك توك لا يرسلان Referer، فزياراتهما تظهر
+// «مباشرة» في اللوحة. الشكل utm:<source>/<medium>/<campaign>/<content>، والقصّ
+// إلى 120 حرفاً لأن عمود ref في api/requests.js يقصّه إلى 120.
+try{var q=new URLSearchParams(location.search);if(q.get("utm_source")){rh=("utm:"+[q.get("utm_source"),q.get("utm_medium"),q.get("utm_campaign"),q.get("utm_content")].map(function(v){return v||""}).join("/")).slice(0,120)}}catch(e){}
+send({kind:"view",path:location.pathname,ref:rh,lang:document.documentElement.lang||"",device:window.innerWidth<768?"mobile":"desktop"});
+// أزرار الموقع الجديد بأسمائها العربية كما تظهر في اللوحة، ومعها محدّدات
+// الموقع القديم حتى تُحسب الصفحتان بالمسمّى نفسه.
+document.addEventListener("click",function(e){
+ var t=e.target.closest&&e.target.closest("[data-track],.add-cart,#cartGo,#cart-checkout,#coPay,#co-submit,a[href*='wa.me'],a[href*='whatsapp'],.sv1-door,#sv1CartBtn,#sv1LoginBtn");
+ if(!t)return;
+ var n=t.getAttribute("data-track")||
+  (t.id==="cartGo"||t.id==="cart-checkout"?"إتمام الطلب":
+   t.id==="coPay"||t.id==="co-submit"?"إرسال الطلب":
+   t.id==="sv1CartBtn"?"فتح السلة":
+   t.id==="sv1LoginBtn"?"تسجيل الدخول":
+   t.classList&&t.classList.contains("sv1-door")?("باب: "+(t.getAttribute("data-door")||"")):
+   t.classList&&t.classList.contains("add-cart")?"أضف للسلة":"واتساب");
+ send({kind:"click",path:location.pathname,name:n})},true);
+var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
+ send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
+})();</script><script src="/assets/js/live-prices.js?v=3b0920ab7a" defer></script><script>
+(function(){
+var C={"door":"formation","tx":{"added":"已加入 ✓","addCart":"加入购物车","toast":"已加入购物车","fail":"此浏览器无法保存购物车。请改为申请报价。"}};
+var $=function(id){return document.getElementById(id)};
+// ---- السلة: عقد bp_cart نفسه (انظر simple-v1-service-detail.mjs: cartItem/cartAdd). amount يُقرأ
+// من الزرّ وقت الضغط فيحمل الرقم الحيّ إن بدّله live-prices.js (data-bp-code).
+function cartItem(b){var a=b.getAttribute('data-amount');
+ return {id:b.getAttribute('data-id'),nameEn:b.getAttribute('data-name-en')||'',nameAr:b.getAttribute('data-name-ar')||'',amount:a?Number(a):null,price:'',kind:'service',qty:1,
+  surchargeAmount:null,surchargeFreeCount:null,pricePublic:0,billingPeriod:'',renewsAt:null,commissionPercent:0}}
+function cartAdd(b){var c;
+ try{c=JSON.parse(localStorage.getItem('bp_cart'))||[];if(!Array.isArray(c))c=[]}catch(e){c=[]}
+ var it=cartItem(b),ex=c.filter(function(x){return x.id===it.id})[0];
+ if(ex)ex.qty=(ex.qty||1)+1;else c.push(it);
+ try{localStorage.setItem('bp_cart',JSON.stringify(c))}catch(e){return false}
+ try{document.dispatchEvent(new CustomEvent('bp:cart',{bubbles:true}))}catch(e){}
+ return true}
+var tt=0;
+function toast(msg,err,link){var bx=$('cpToast');$('cpToastTx').textContent=msg;$('cpToastCart').style.display=link?'':'none';
+ bx.classList.toggle('err',!!err);bx.classList.remove('sv1-hide');clearTimeout(tt);tt=setTimeout(function(){bx.classList.add('sv1-hide')},4200)}
+var grid=$('cpGrid');
+grid.addEventListener('click',function(e){
+ var add=e.target.closest&&e.target.closest('.sv1-cp-add');
+ if(add){
+  if(!cartAdd(add)){toast(C.tx.fail,true,false);return}
+  add.textContent=C.tx.added;setTimeout(function(){add.textContent=C.tx.addCart},1600);
+  toast(C.tx.toast,false,true);return}
+ // ---- طلب عرض سعر: تسليمٌ إلى محادثة الرئيسية (يُقرأ المفتاح ويُحذف هناك في خطوة واحدة).
+ var q=e.target.closest&&e.target.closest('.sv1-cp-quote');
+ if(q){var nm=q.getAttribute('data-name')||'',cd=q.getAttribute('data-code')||'';
+  try{sessionStorage.setItem('bp_sva_request',JSON.stringify({items:[{code:cd,title:nm,why:q.getAttribute('data-gov')||''}],door:C.door,text:nm,name:nm,code:cd,at:Date.now()}))}catch(x){}}
+});
+// ---- بحث داخل التصنيف: يُخفي البطاقات ولا يحذفها (تبقى في الصفحة للفهرسة).
+var qi=$('cpQ');
+if(qi)qi.addEventListener('input',function(){
+ var f=(qi.value||'').trim().toLowerCase(),cards=grid.querySelectorAll('.sv1-cp-card'),shown=0;
+ Array.prototype.forEach.call(cards,function(c){var hit=!f||(c.getAttribute('data-q')||'').indexOf(f)>=0;c.hidden=!hit;if(hit)shown++});
+ $('cpNone').classList.toggle('sv1-hide',shown>0)});
+})();</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}
 [dir=rtl] .bps-fab{padding:7px 7px 7px 16px}
 .bps-fab img{width:38px;height:38px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}

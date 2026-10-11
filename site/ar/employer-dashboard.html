@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>نظام التوظيف الذكي — بيزنس بارتنر</title>
+<title>نظام التوظيف الذكي — Business Partner</title>
 <meta name="description" content="نظام التوظيف الذكي: مطابقة بالذكاء الاصطناعي، تقييمات، أسئلة مقابلة، قائمة مختصرة ومسار توظيف.">
-<meta property="og:title" content="نظام التوظيف الذكي — بيزنس بارتنر">
+<meta property="og:title" content="نظام التوظيف الذكي — Business Partner">
 <meta property="og:description" content="نظام التوظيف الذكي: مطابقة بالذكاء الاصطناعي، تقييمات، أسئلة مقابلة، قائمة مختصرة ومسار توظيف.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
@@ -112,7 +112,11 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-three .sv1-panel{padding:20px}
 .sv1-three h4{font-size:15px;margin:0 0 6px}
 .sv1-three p{margin:0;font-size:13px;line-height:1.7}
-.sv1-doors{display:grid;gap:10px}
+.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-doors>:last-child:nth-child(odd){grid-column:1/-1}
+a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
+.sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+.sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
 .sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
 .sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
 .sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
@@ -265,7 +269,8 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-side{display:none}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
-@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+@media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
+ .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
 </style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
 <body class="sv1-page"><div class="sv1"><style id="sv1-legacy-css">
@@ -382,7 +387,7 @@ var h0=hint();if(h0)S.paint(true,h0);
         <p class="emp-note" style="margin:0 0 18px">وظائفك المنشورة، والمرشّحون المطابقون بالذكاء، ومسار التوظيف — كلها في مكان واحد.</p>
         <a class="btn btn-primary" style="width:100%" href="/ar/employer-login">تسجيل الدخول</a>
         <a class="btn btn-ghost" style="width:100%;margin-top:10px" href="/ar/employer-join">جديد؟ اشترك الآن</a>
-        <p class="emp-note" style="margin:14px 0 0">عميل بيزنس بارتنر؟ سجّل دخولك في لوحة العميل وتنفتح اللوحة من نفسها — مجاناً طوال أول 30 يوماً. <a href="/ar/account">افتح لوحة العميل</a></p>
+        <p class="emp-note" style="margin:14px 0 0">عميل Business Partner؟ سجّل دخولك في لوحة العميل وتنفتح اللوحة من نفسها — مجاناً طوال أول 30 يوماً. <a href="/ar/account">افتح لوحة العميل</a></p>
         <p class="emp-note" style="margin:14px 0 0"><button type="button" class="linkbtn" id="empd-demo">جرّب نسخة تجريبية</button></p>
         <p id="empd-gate-msg" class="emp-note" style="min-height:18px;margin:6px 0 0"></p>
       </div>
@@ -474,18 +479,18 @@ var h0=hint();if(h0)S.paint(true,h0);
     </div>
     <div class="sv1-foot-col">
       <h4>بيانات المنشأة</h4>
-      <div class="sv1-foot-row id"><span>الاسم في السجل التجاري</span><b>شركة بزنس بارتنر سلوشنز</b></div><div class="sv1-foot-row id"><span>الرقم الموحد</span><bdi dir="ltr">7038825860</bdi></div><div class="sv1-foot-row id"><span>الرقم الضريبي</span><bdi dir="ltr">312079341500003</bdi></div><div class="sv1-foot-row id"><span>العنوان الوطني المختصر</span><bdi dir="ltr">RHSC2978</bdi></div>
+      <div class="sv1-foot-row id"><span>الاسم في السجل التجاري</span><b>شركة بزنس بارتنر سلوشنز</b></div><div class="sv1-foot-row id"><span>الرقم الموحد</span><bdi dir="ltr">7038825860</bdi></div><div class="sv1-foot-row id"><span>الرقم الضريبي</span><bdi dir="ltr">312079341500003</bdi></div><div class="sv1-foot-row id"><span>العنوان الوطني المختصر</span><bdi dir="ltr">RDAA9214</bdi></div>
     </div>
     <div class="sv1-foot-col">
       <h4>تواصل</h4>
       <div class="sv1-foot-row"><span>الهاتف</span><a href="tel:+966530540231"><bdi dir="ltr">0530540231</bdi></a></div>
       <div class="sv1-foot-row"><span>البريد</span><a href="mailto:business@businesspartner.sa"><bdi dir="ltr">business@businesspartner.sa</bdi></a></div>
-      <div class="sv1-foot-row"><span>العنوان الوطني</span><span class="v">مبنى 2978 · شارع تركي بن عبدالله آل سعود · حي السليمانية · الرياض 12234 · الرقم الفرعي 8630</span></div>
+      <div class="sv1-foot-row"><span>العنوان الوطني</span><span class="v">مبنى 9214 · طريق الملك خالد الفرعي · حي العاصمة · الدرعية 13714 · الرقم الفرعي 5076</span></div>
       <div class="sv1-foot-row"><span>أوقات العمل</span><span class="v">الأحد – الخميس · 9 صباحاً – 6 مساءً · والمستشار الذكي على مدار الساعة</span></div>
     </div>
     <div class="sv1-foot-col">
       <h4>الدفع</h4>
-      <p class="sv1-foot-note">مدى · فيزا · ماستركارد · Apple Pay · تمارا — والدفع عبر بوابة مرخّصة، لا تمرّ بيانات بطاقتك من خوادمنا.</p>
+      <p class="sv1-foot-note">مدى · فيزا · ماستركارد، أو التقسيط عبر تمارا. وتظهر محافظ الجوال (مثل Apple Pay) في صفحة الدفع إن كانت متاحة على جهازك. الدفع عبر بوابة مرخّصة، ولا تمرّ بيانات بطاقتك من خوادمنا.</p>
     </div>
   </div>
 
@@ -501,7 +506,7 @@ var h0=hint();if(h0)S.paint(true,h0);
       <a href="/ar/catalog">كل الخدمات</a>
       <a href="/ar/packages">الباقات</a>
       <a href="/ar/ai-agents">المستشارون الأذكياء</a>
-      <a href="/ar/business-development">تطوير الأعمال</a>
+      
     </div>
     <div class="sv1-foot-navcol">
       <h5>المعرفة</h5>
@@ -530,7 +535,7 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
  if(u){window.SV1_SESSION=o.session;if(S){S.save(u);S.paint(true,{name:u.full_name||'',email:u.email||''})}}
  else if(S){S.clear();S.paint(false,null)}
 }).catch(function(){});
-})();</script><script src="/assets/js/main.js?v=45d370d801"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script><style>
+})();</script><script src="/assets/js/main.js?v=ed369abdab"></script><script src="/assets/js/live-prices.js?v=3b0920ab7a" defer></script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}
 [dir=rtl] .bps-fab{padding:7px 7px 7px 16px}
 .bps-fab img{width:38px;height:38px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}
@@ -566,7 +571,7 @@ html.bp-embed .bps-fab,html.bp-embed .bps-panel{display:none!important}
 <section class="bps-panel" id="bpsPanel" role="dialog" aria-label="دعم باهر">
   <div class="bps-hd"><img src="/assets/img/baher.jpg" alt=""><div><b>باهر</b><small><em></em>الدعم — متصل الآن</small></div><button class="bps-x" id="bpsClose" aria-label="إغلاق">✕</button></div>
   <div class="bps-intake" id="bpsIntake">
-    <h4>أهلاً بك في دعم بيزنس بارتنر 👋 عرّفنا بنفسك حتى نخدمك ونتابع طلبك.</h4>
+    <h4>أهلاً بك في دعم Business Partner 👋 عرّفنا بنفسك حتى نخدمك ونتابع طلبك.</h4>
     <input class="bps-in" id="bpsName" type="text" placeholder="الاسم الكامل *" autocomplete="name">
     <input class="bps-in" id="bpsPhone" type="tel" placeholder="الجوال 05XXXXXXXX *" autocomplete="tel">
     <button class="bps-go" id="bpsStart">ابدأ الدعم ›</button>
@@ -574,7 +579,7 @@ html.bp-embed .bps-fab,html.bp-embed .bps-panel{display:none!important}
     <p class="bps-note">🔒 بياناتك تُستخدم فقط لخدمتك ومتابعة طلبك.</p>
   </div>
   <div class="bps-chat" id="bpsChat">
-    <div class="bps-msgs" id="bpsMsgs"><div class="bps-msg bps-bot">حياك الله 👋 أنا باهر، مساعد الدعم في بيزنس بارتنر. كيف نقدر ندعمك؟</div></div>
+    <div class="bps-msgs" id="bpsMsgs"><div class="bps-msg bps-bot">حياك الله 👋 أنا باهر، مساعد الدعم في Business Partner. كيف نقدر ندعمك؟</div></div>
     <a class="bps-wa" href="https://wa.me/966530540231" target="_blank" rel="noopener">أو تواصل مع فريق الدعم على واتساب</a>
     <form class="bps-form" id="bpsForm"><input id="bpsInput" type="text" autocomplete="off" placeholder="اكتب رسالتك…"><button type="submit" aria-label="إرسال">➤</button></form>
   </div>

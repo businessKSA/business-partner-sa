@@ -112,7 +112,11 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-three .sv1-panel{padding:20px}
 .sv1-three h4{font-size:15px;margin:0 0 6px}
 .sv1-three p{margin:0;font-size:13px;line-height:1.7}
-.sv1-doors{display:grid;gap:10px}
+.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-doors>:last-child:nth-child(odd){grid-column:1/-1}
+a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
+.sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+.sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
 .sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
 .sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
 .sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
@@ -265,7 +269,8 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-side{display:none}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
-@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+@media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
+ .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
 </style><meta name="robots" content="noindex, nofollow"><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
 <body class="sv1-page"><div class="sv1"><style id="sv1-emp-css">
@@ -397,6 +402,26 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-empty{background:var(--acSoft);border:1px solid var(--acLine);border-radius:14px;
  padding:22px 20px;margin:16px 0 0;text-align:center}
 .sv1-empty h4{margin:0 0 6px;font-size:16px;font-weight:600;color:var(--ink)}
+/* الحساب المجاني: التمويه يغطّي الاسم وحده، والأنماط كلّها من رموز SV1 القائمة. */
+.sv1-lock{filter:blur(5px);user-select:none;pointer-events:none;color:var(--ink)}
+/* باقات الاشتراك: رموز SV1 وحدها، بخصائص منطقية فتنقلب مع اتجاه اللغة. */
+.sv1-pl-tog{display:inline-flex;gap:4px;border:1px solid var(--l);border-radius:999px;padding:3px;margin:0 0 16px}
+.sv1-pl-tog button{border:0;background:transparent;border-radius:999px;padding:7px 16px;font:inherit;
+ font-size:12.5px;color:var(--mut);cursor:pointer}
+.sv1-pl-tog button[aria-pressed="true"]{background:var(--ac);color:var(--g)}
+.sv1-pl-tog i{font-style:normal;font-size:10.5px;margin-inline-start:6px;color:var(--acLine)}
+.sv1-pl-tog button[aria-pressed="false"] i{color:var(--ac)}
+.sv1-pl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;max-width:720px}
+.sv1-pl{border:1px solid var(--l);border-radius:14px;padding:18px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:10px}
+.sv1-pl.pop{border-color:var(--ac)}
+.sv1-pl h4{margin:0;font-size:16px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sv1-pl h4 em{font-style:normal;font-size:10.5px;background:var(--acSoft);color:var(--ac);border-radius:999px;padding:2px 9px;font-weight:500}
+.sv1-pl-pr b{font-family:var(--fm);font-size:28px;font-weight:400;color:var(--ink)}
+.sv1-pl-pr span{font-size:12px;color:var(--mut)}
+.sv1-pl ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px;font-size:12.5px;color:var(--s);flex:1}
+.sv1-pl li::before{content:"✓";margin-inline-end:8px;color:var(--ac)}
+.sv1-lockbar{margin:0 0 16px;padding:16px 18px;text-align:start}
+.sv1-lockbar p{margin:0 0 12px;max-width:none}
 .sv1-empty p{margin:0 auto 14px;font-size:12.5px;color:var(--s);line-height:1.8;max-width:520px}
 
 /* ── جدول الوظائف ────────────────────────────────────────────────────────
@@ -593,6 +618,45 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-pool details summary{cursor:pointer;font-size:11.5px;color:var(--mut);list-style:none}
 .sv1-pool details summary::-webkit-details-marker{display:none}
 .sv1-pool details .sv1-emp-kv{margin:9px 0 0;font-size:11.5px}
+
+/* ── ملف المرشّح: لوحة مربّعات ──────────────────────────────────────────────
+   شبكةٌ تتمدّد بعرض الشاشة (auto-fill) وتصير عموداً واحداً على الجوال، وكل ما فيها
+   بخصائص منطقية فتنقلب مع الاتجاه وحدها. المربّع «w2» يمتدّ عمودين حيث يتّسع. */
+.sv1-pf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));grid-auto-flow:row dense;gap:12px;margin:14px 0 18px}
+.sv1-pf-t{background:#fff;border:1px solid var(--l);border-radius:13px;padding:13px 15px;box-shadow:var(--sh);min-width:0}
+.sv1-pf-t.w2{grid-column:span 2}
+.sv1-pf-t h5{margin:0 0 9px;font-size:11.5px;font-weight:600;color:var(--mut);letter-spacing:.02em}
+.sv1-pf-t .big{display:block;font-family:var(--fm);font-size:26px;font-weight:400;color:var(--ink);line-height:1.3;margin:0 0 6px}
+.sv1-pf-t .big small{font-size:12px;color:var(--faint)}
+.sv1-pf-t .val{display:block;font-size:15px;font-weight:600;color:var(--ink);line-height:1.6;overflow-wrap:anywhere}
+.sv1-pf-t .nil{color:var(--faint);font-weight:400}
+.sv1-pf-t dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:5px 12px;margin:0;font-size:12.5px}
+.sv1-pf-t dt{color:var(--mut)}
+.sv1-pf-t dd{margin:0;color:var(--ink);overflow-wrap:anywhere}
+.sv1-pf-t p.why{margin:8px 0 0;font-size:12.5px;line-height:1.85;color:var(--s)}
+.sv1-pf-t .sv1-tags span{font-size:11.5px}
+@media(max-width:640px){.sv1-pf-t.w2{grid-column:auto}}
+.sv1-pf-full{margin:0 0 22px}
+.sv1-pf-full summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--ac);padding:6px 0}
+.sv1-pf-full .sv1-cv{margin-top:8px}
+a.nm{display:block;font-size:13.5px;font-weight:600;color:var(--ink);text-decoration:none;line-height:1.5;
+ overflow:hidden;text-overflow:ellipsis}
+a.nm:hover,a.nm:focus-visible{color:var(--ac);text-decoration:underline;text-underline-offset:3px;outline:none}
+.sv1-mt-nm a.nm{font-size:14px;white-space:normal}
+.sv1-pool .hd a.nm{white-space:nowrap}
+
+/* ── المطابقة: معايير مستوفاة/ناقصة، ومستوى الثقة، وتقدّم التقييم ──────────────── */
+.sv1-ck{display:flex;flex-wrap:wrap;gap:5px;margin:9px 0 0}
+.sv1-ck .sv1-pill{font-weight:500;white-space:normal}
+.sv1-mt-sc i.conf{font-weight:600;margin-top:4px;white-space:normal}
+.conf.high{color:#12693a}.conf.medium{color:#8a5a06}.conf.low{color:#b42318}
+.sv1-mt-sc{min-width:84px}
+.sv1-mt-sc i{white-space:normal;max-width:120px;margin-inline:auto}
+.sv1-prog{height:7px;border-radius:999px;background:#eef1f7;overflow:hidden;margin:6px 0 0}
+.sv1-prog i{display:block;height:100%;background:var(--ac);transition:width .25s ease}
+@media (prefers-reduced-motion:reduce){.sv1-prog i{transition:none}}
+.sv1-ff label.chk{display:flex;align-items:center;gap:8px;margin:0;padding-block:9px;font-size:12.5px;color:var(--ink);font-weight:500}
+.sv1-ff label.chk input{width:auto}
 </style><div class="sv1-bar"><div class="wrap">
   <div class="sv1-bar-l">
     <span><span class="sv1-pulse"></span><b>All systems operational</b></span>
@@ -754,12 +818,11 @@ var h0=hint();if(h0)S.paint(true,h0);
           <button type="button" data-go="jobs" id="tabJobs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.8" y="7.2" width="18.4" height="13" rx="2.2"/><path d="M8.6 7.2V5.4a1.8 1.8 0 0 1 1.8-1.8h3.2a1.8 1.8 0 0 1 1.8 1.8v1.8"/><path d="M2.8 12.4h18.4"/></svg><span>Vacancies</span></button>
           <button type="button" data-go="apps" id="tabApps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8.2" r="3.2"/><path d="M3.4 20c0-3.1 2.5-5.4 5.6-5.4s5.6 2.3 5.6 5.4"/><path d="M16.4 5.4a3.2 3.2 0 0 1 0 6"/><path d="M17.8 14.9c1.8.7 3 2.4 3 4.4"/></svg><span>Applicants</span></button>
         </nav>
-        <!-- المجموعة الثانية: المطابقة الذكية وقاعدة المواهب. مخفيّةٌ حتى
-             يثبت أن الجلسة جلسةُ اشتراكٍ مفعّل لصاحب عمل — لا جلسةَ عميلٍ
-             فُتحت له البوابة بالتجربة المجانية. الشاشتان بابان إلى بنك
-             السير كلّه، والقديمة تفتحه برمز اشتراكٍ حقيقي وحده، فلا تُفتح
-             هنا لمن لا يفتحه له القديم. (انظر SUB في السكربت.) -->
-        <nav class="grp sv1-hidden" id="grpTalent" aria-label="Talent pool">
+        <!-- المجموعة الثانية: المطابقة الذكية وقاعدة المواهب. تظهر لكل داخل
+             (قرار المالك 2026-10-08: التسجيل مجاني)، لكن **الخادم** هو من يحجب
+             الأسماء والتواصل والسير عن غير المشترك — فالشاشتان تُرسمان له
+             بأسماء مموّهة وزرّ اشتراك. (انظر SUB في السكربت.) -->
+        <nav class="grp" id="grpTalent" aria-label="Talent pool">
           <button type="button" data-go="match" id="tabMatch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.6" cy="10.6" r="6.4"/><path d="M15.4 15.4 20.6 20.6"/><path d="M8.2 10.6h4.8"/><path d="M10.6 8.2v4.8"/></svg><span>Matching</span></button>
           <button type="button" data-go="pool" id="tabPool"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8.4" cy="7.6" r="3"/><path d="M3 19.2c0-3 2.4-5.2 5.4-5.2s5.4 2.2 5.4 5.2"/><path d="M16.2 4.6h5"/><path d="M16.2 9h5"/><path d="M16.2 13.4h5"/></svg><span>Talent pool</span></button>
         </nav>
@@ -779,6 +842,7 @@ var h0=hint();if(h0)S.paint(true,h0);
       <p class="sv1-emp-sub">Every figure here is counted from your vacancies and applicants right now — no estimates.</p>
       <div class="sv1-kpi" id="homeKpi"></div>
       <p class="sv1-emp-hint sv1-hidden" id="homeNote" style="margin-top:10px"></p>
+      <div class="sv1-empty sv1-lockbar sv1-hidden" id="lockHome" role="note"></div>
       <div class="sv1-empty sv1-hidden" id="homeEmpty">
         <h4>Your dashboard is ready — it just needs a vacancy</h4>
         <p>Post your first vacancy and these figures fill themselves: every applicant lands here, and you move them between stages on the board.</p>
@@ -835,42 +899,67 @@ var h0=hint();if(h0)S.paint(true,h0);
     <!-- المطابقة الذكية -->
     <div id="scMatch" class="sv1-hidden">
       <h3 class="sv1-emp-h">Smart matching</h3>
-      <p class="sv1-emp-sub">Pick one of your vacancies and we compare each candidate in its field against it, field by field — every score here says what it was computed from.</p>
+      <p class="sv1-emp-sub">Pick one of your vacancies. We list the readable candidates that meet its fixed criteria (field, city, experience, Saudization); anything already scored shows at once, ranked. New scoring has the smart advisor write a score out of 100 and its reason.</p>
+      <div class="sv1-empty sv1-lockbar sv1-hidden" id="lockMatch" role="note"></div>
       <div class="sv1-ff">
-        <div><label for="mtJob">Vacancy</label><select id="mtJob"></select></div>
-        <div class="go"><button type="button" class="sv1-btn primary" id="mtRun">Analyse candidates</button></div>
+        <div style="flex:2 1 240px"><label for="mtJob">Vacancy</label><select id="mtJob"></select></div>
+        <div><label for="mtMinExp">Minimum experience (years)</label>
+          <input id="mtMinExp" type="number" min="0" max="40" inputmode="numeric" autocomplete="off"></div>
+        <div><label for="mtNat">Statutory Saudization requirement</label><select id="mtNat">
+          <option value="">— none —</option>
+          <option value="سعودي">Saudi only</option>
+          <option value="غير سعودي">Non-Saudi</option>
+        </select></div>
+        <div style="flex:1 1 210px"><label class="chk"><input type="checkbox" id="mtCityHard" checked> City is a requirement (not a preference)</label></div>
+        <div class="go"><button type="button" class="sv1-btn primary" id="mtRun">Find the fitting candidates</button></div>
       </div>
-      <details style="margin:0 0 16px">
-        <summary class="sv1-emp-link" style="text-decoration:none">How the score is computed</summary>
-        <p class="sv1-emp-hint" style="margin:9px 0 0">Four fields are compared, each with the fixed weight below. A field missing from your vacancy or from the candidate's profile is not compared and not scored — its weight leaves the division instead of being filled with a guess.</p>
-        <div class="sv1-bars" id="mtWeights"></div>
-      </details>
-      <p class="sv1-emp-sub" id="mtStatus">Press “Analyse candidates” and we fetch the candidates in this vacancy's field and compare them to it. Nothing is fetched before you press.</p>
-      <div class="sv1-aibar sv1-hidden" id="mtAiBar">
-        <button type="button" class="sv1-btn sm" id="mtAi">✦ Rank with AI</button>
-        <span class="sv1-emp-msg" id="mtAiMsg" style="margin:0"></span>
+      <p class="sv1-emp-hint sv1-hidden" id="mtCrit"></p>
+      <p class="sv1-emp-sub" id="mtStatus">Press “Find the fitting candidates”. Nothing is fetched or scored before you press.</p>
+      <div id="mtBar" class="sv1-hidden">
+        <div class="sv1-aibar">
+          <button type="button" class="sv1-btn primary sm" id="mtScoreGo">Score those shown (5 per batch)</button>
+          <button type="button" class="sv1-btn sm sv1-hidden" id="mtStop">Stop</button>
+          <span class="sv1-emp-msg" id="mtProgTxt" style="margin:0" role="status" aria-live="polite"></span>
+        </div>
+        <div class="sv1-prog sv1-hidden" id="mtProgWrap"><i id="mtProgBar" style="width:0%"></i></div>
+        <p class="sv1-emp-msg" id="mtStats" style="margin:6px 0 0"></p>
+        <p class="sv1-emp-msg" id="mtMsg" role="status" aria-live="polite" style="margin:4px 0 0"></p>
+        <p class="sv1-emp-msg err sv1-hidden" id="mtPoolOff">Scoring people who did not apply to your vacancy is not enabled on this server (an owner decision). They are listed with their fixed criteria and no score; only those who applied are scored.</p>
+        <p class="sv1-emp-hint" style="margin-top:8px">Sent to the smart advisor: the vacancy text, the candidate's professional fields and the readable CV text (which may contain what the candidate wrote in it). Name, phone, email, nationality and residence are not sent as fields. Nothing starts until you press.</p>
       </div>
-      <p class="sv1-emp-hint sv1-hidden" id="mtAiNote">Only role, field, city, experience, education and skills are sent to the AI model — no name, phone, email or CV. One call per press, never automatic.</p>
-      <ul class="sv1-mt" id="mtList"></ul>
+      <h4 class="sv1-emp-h2 sv1-hidden" id="mtScoredH"></h4>
+      <ul class="sv1-mt" id="mtScored"></ul>
+      <h4 class="sv1-emp-h2 sv1-hidden" id="mtOpenH"></h4>
+      <ul class="sv1-mt" id="mtOpen"></ul>
+      <p style="margin:14px 0 0"><button type="button" class="sv1-btn sm sv1-hidden" id="mtMore">Load more matching candidates</button></p>
     </div>
 
     <!-- قاعدة المواهب -->
     <div id="scPool" class="sv1-hidden">
       <h3 class="sv1-emp-h">Talent pool</h3>
-      <p class="sv1-emp-sub">The platform's CV bank. Search it by field, city and nationality — it loads a page at a time rather than scanning the whole bank at your expense.</p>
+      <p class="sv1-emp-sub">The platform's bank of readable CVs, newest first, loaded a page at a time. A CV whose text was not read never appears here.</p>
+      <div class="sv1-empty sv1-lockbar sv1-hidden" id="lockPool" role="note"></div>
       <div class="sv1-ff">
         <div style="flex:2 1 220px"><label for="tpQ">Search by role or skill</label>
           <input id="tpQ" type="search" autocomplete="off" spellcheck="false" maxlength="80"></div>
-        <div><label for="tpField">Field</label><select id="tpField"><option value="">— choose —</option><option value="هندسة">هندسة</option><option value="تقنية معلومات">تقنية معلومات</option><option value="مبيعات وتسويق">مبيعات وتسويق</option><option value="محاسبة ومالية">محاسبة ومالية</option><option value="إداري وسكرتارية">إداري وسكرتارية</option><option value="موارد بشرية">موارد بشرية</option><option value="ضيافة وسياحة">ضيافة وسياحة</option><option value="مقاولات وإنشاءات">مقاولات وإنشاءات</option><option value="عقارات">عقارات</option><option value="صحة وطب">صحة وطب</option><option value="تعليم">تعليم</option><option value="لوجستيات ونقل">لوجستيات ونقل</option><option value="قانون">قانون</option><option value="تصنيع وصناعة">تصنيع وصناعة</option><option value="طاقة ونفط وغاز">طاقة ونفط وغاز</option><option value="إعلام وإبداع">إعلام وإبداع</option><option value="حكومي وقطاع عام">حكومي وقطاع عام</option><option value="زراعة وبيئة">زراعة وبيئة</option><option value="تجزئة وتجارة إلكترونية">تجزئة وتجارة إلكترونية</option><option value="أمن وسلامة">أمن وسلامة</option><option value="حرف مهنية وصيانة">حرف مهنية وصيانة</option><option value="علوم وأبحاث">علوم وأبحاث</option><option value="طيران وبحري">طيران وبحري</option><option value="تجميل وعناية">تجميل وعناية</option><option value="خدمات منزلية">خدمات منزلية</option><option value="أخرى">أخرى</option></select></div>
+        <div><label for="tpField">Field</label><select id="tpField"><option value="">— all —</option><option value="هندسة">هندسة</option><option value="تقنية معلومات">تقنية معلومات</option><option value="مبيعات وتسويق">مبيعات وتسويق</option><option value="محاسبة ومالية">محاسبة ومالية</option><option value="إداري وسكرتارية">إداري وسكرتارية</option><option value="موارد بشرية">موارد بشرية</option><option value="ضيافة ومطاعم">ضيافة ومطاعم</option><option value="ضيافة وسياحة">ضيافة وسياحة</option><option value="مقاولات وإنشاءات">مقاولات وإنشاءات</option><option value="صحة وطب">صحة وطب</option><option value="تعليم">تعليم</option><option value="لوجستيات ونقل">لوجستيات ونقل</option><option value="حكومي وقطاع عام">حكومي وقطاع عام</option><option value="زراعة وبيئة">زراعة وبيئة</option><option value="حرف مهنية وصيانة">حرف مهنية وصيانة</option><option value="قانون">قانون</option><option value="تجميل وعناية">تجميل وعناية</option><option value="أخرى">أخرى</option></select></div>
         <div><label for="tpCity">City</label><input id="tpCity" maxlength="60" autocomplete="off"></div>
         <div><label for="tpNat">Nationality</label><select id="tpNat">
           <option value="">— all —</option>
           <option value="سعودي">Saudi</option>
           <option value="غير سعودي">Non-Saudi</option>
         </select></div>
+        <div><label for="tpEdu">Education</label><select id="tpEdu"><option value="">— all —</option><option value="ثانوي">Secondary</option><option value="دبلوم">Diploma</option><option value="بكالوريوس">Bachelor's</option><option value="ماجستير">Master's</option><option value="دكتوراه">Doctorate</option></select></div>
+        <div><label for="tpExp">Min. experience (yrs)</label>
+          <input id="tpExp" type="number" min="0" max="40" inputmode="numeric" autocomplete="off"></div>
+        <div><label for="tpSort">Sort</label><select id="tpSort">
+          <option value="">Newest first</option>
+          <option value="exp">Most experience first</option>
+        </select></div>
         <div class="go"><button type="button" class="sv1-btn primary" id="tpGo">Search</button></div>
       </div>
       <p class="sv1-emp-sub" id="tpStatus">Loading…</p>
+      <p class="sv1-emp-hint sv1-hidden" id="tpNote">The total is an upper bound: counted daily from read status and ATS text, it does not subtract texts failing the quality check (about 7%).</p>
       <div class="sv1-pool" id="tpGrid"></div>
       <p style="margin:16px 0 0"><button type="button" class="sv1-btn sm sv1-hidden" id="tpMore">Continue through the pool</button></p>
     </div>
@@ -881,6 +970,20 @@ var h0=hint();if(h0)S.paint(true,h0);
       <div id="candBody"></div>
     </div>
 
+    <!-- الاشتراك بالدفع الإلكتروني: الباقتان القابلتان للدفع، ثم السلة فالدفع -->
+    <div id="scPlans" class="sv1-hidden">
+      <h3 class="sv1-emp-h">Subscribe to the recruitment platform</h3>
+      <p class="sv1-emp-sub">Pick a plan and pay online by card or Tamara. Your account activates automatically once payment is confirmed, and candidate data opens.</p>
+      <div class="sv1-pl-tog" role="group" aria-label="Subscribe to the recruitment platform">
+        <button type="button" id="plM" aria-pressed="true">Monthly</button>
+        <button type="button" id="plY" aria-pressed="false">Yearly<i>Save 30%</i></button>
+      </div>
+      <div class="sv1-pl-grid" id="plansBox"></div>
+      <p class="sv1-emp-msg err sv1-hidden" id="plMsg" role="alert"></p>
+      <p class="sv1-emp-hint" style="margin-top:14px">Prices exclude 15% VAT, which is added at checkout. Only the yearly plan can be split with Tamara.</p>
+      <p class="sv1-emp-hint">Need an enterprise plan? It is quoted individually — write to business@businesspartner.sa.</p>
+    </div>
+
     <!-- الإعدادات -->
     <div id="scSettings" class="sv1-hidden">
       <h3 class="sv1-emp-h">Settings</h3>
@@ -889,6 +992,7 @@ var h0=hint();if(h0)S.paint(true,h0);
         <dt>Company</dt><dd id="setCo">—</dd>
         <dt>Email address</dt><dd id="setEmail" dir="ltr">—</dd>
         <dt>Plan</dt><dd id="setPlan">—</dd>
+        <dt></dt><dd><a class="sv1-btn sm" href="#/plans">Renew or change plan</a></dd>
         <dt>Language</dt><dd class="sv1-emp-langs"><a href="/ar/employer" hreflang="ar">العربية</a><a href="/employer" hreflang="en" class="on">English</a><a href="/fr/employer" hreflang="fr">Français</a><a href="/zh/employer" hreflang="zh">中文</a></dd>
       </dl>
       <div class="sv1-emp-f" style="max-width:480px">
@@ -920,18 +1024,18 @@ var h0=hint();if(h0)S.paint(true,h0);
     </div>
     <div class="sv1-foot-col">
       <h4>Company details</h4>
-      <div class="sv1-foot-row id"><span>Registered name</span><b>Business Partner Solutions Company</b></div><div class="sv1-foot-row id"><span>Unified number</span><bdi dir="ltr">7038825860</bdi></div><div class="sv1-foot-row id"><span>VAT number</span><bdi dir="ltr">312079341500003</bdi></div><div class="sv1-foot-row id"><span>Short national address</span><bdi dir="ltr">RHSC2978</bdi></div>
+      <div class="sv1-foot-row id"><span>Registered name</span><b>Business Partner Solutions Company</b></div><div class="sv1-foot-row id"><span>Unified number</span><bdi dir="ltr">7038825860</bdi></div><div class="sv1-foot-row id"><span>VAT number</span><bdi dir="ltr">312079341500003</bdi></div><div class="sv1-foot-row id"><span>Short national address</span><bdi dir="ltr">RDAA9214</bdi></div>
     </div>
     <div class="sv1-foot-col">
       <h4>Contact</h4>
       <div class="sv1-foot-row"><span>Phone</span><a href="tel:+966530540231"><bdi dir="ltr">0530540231</bdi></a></div>
       <div class="sv1-foot-row"><span>E-mail</span><a href="mailto:business@businesspartner.sa"><bdi dir="ltr">business@businesspartner.sa</bdi></a></div>
-      <div class="sv1-foot-row"><span>National address</span><span class="v">Building 2978 · Turki Ibn Abdullah Aal Saud St. · Al Sulaimaniyah Dist. · Riyadh 12234 · Additional no. 8630</span></div>
+      <div class="sv1-foot-row"><span>National address</span><span class="v">Building 9214 · King Khaled Branch Rd. · Al Asemah Dist. · Ad Diriyah 13714 · Additional no. 5076</span></div>
       <div class="sv1-foot-row"><span>Hours</span><span class="v">Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span></div>
     </div>
     <div class="sv1-foot-col">
       <h4>Payments</h4>
-      <p class="sv1-foot-note">mada · Visa · Mastercard · Apple Pay · Tamara — through a licensed gateway; card details never touch our servers.</p>
+      <p class="sv1-foot-note">mada · Visa · Mastercard, or instalments with Tamara. Mobile wallets (such as Apple Pay) appear at checkout only when your device supports them. Payment runs through a licensed gateway; card details never touch our servers.</p>
     </div>
   </div>
 
@@ -947,7 +1051,7 @@ var h0=hint();if(h0)S.paint(true,h0);
       <a href="/catalog">All services</a>
       <a href="/packages">Packages</a>
       <a href="/ai-agents">Smart advisors</a>
-      <a href="/business-development">Business development</a>
+      
     </div>
     <div class="sv1-foot-navcol">
       <h5>Knowledge</h5>
@@ -983,6 +1087,10 @@ function send(p){p.action="hit";p.visitor=vid;try{var b=JSON.stringify(p);
 if(navigator.sendBeacon)navigator.sendBeacon("/api/requests",new Blob([b],{type:"application/json"}));
 else fetch("/api/requests",{method:"POST",headers:{"content-type":"application/json"},body:b,keepalive:true}).catch(function(){})}catch(e){}}
 var rh="";try{if(document.referrer){var u=new URL(document.referrer);if(u.host!==location.host)rh=u.host}}catch(e){}
+// وسوم UTM تسبق المُحيل: واتساب وتيك توك لا يرسلان Referer، فزياراتهما تظهر
+// «مباشرة» في اللوحة. الشكل utm:<source>/<medium>/<campaign>/<content>، والقصّ
+// إلى 120 حرفاً لأن عمود ref في api/requests.js يقصّه إلى 120.
+try{var q=new URLSearchParams(location.search);if(q.get("utm_source")){rh=("utm:"+[q.get("utm_source"),q.get("utm_medium"),q.get("utm_campaign"),q.get("utm_content")].map(function(v){return v||""}).join("/")).slice(0,120)}}catch(e){}
 send({kind:"view",path:location.pathname,ref:rh,lang:document.documentElement.lang||"",device:window.innerWidth<768?"mobile":"desktop"});
 // أزرار الموقع الجديد بأسمائها العربية كما تظهر في اللوحة، ومعها محدّدات
 // الموقع القديم حتى تُحسب الصفحتان بالمسمّى نفسه.
@@ -1000,7 +1108,8 @@ document.addEventListener("click",function(e){
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>(function(){"use strict";
-var TX={"title":"Employer portal","desc":"Post a vacancy, receive applicants, and track them from screening to offer — in one page.","loginH":"Sign in to your portal","loginP":"Enter your company email and we send a one-time code. No password to forget, no permanent code to carry.","emailL":"Email address","sendOtp":"Send the code","sending":"Sending…","otpSent":"We sent a 6-digit code to","otpL":"Code","otpGo":"Sign in","otpBack":"← Different email","pwOpen":"Sign in with a password instead","otpOpen":"← Sign in with an email code","pwH":"Password sign-in","pwL":"Password","pwGo":"Sign in","forgot":"Forgot your password","rsH":"Reset your password","rsSend":"Send the reset code","rsCodeL":"Reset code","rsNewL":"New password (8+ characters)","rsGo":"Set the password","noSub":"This email has no active subscription. Activation is manual after payment — contact us and we'll enable it.","register":"No subscription yet? Register your company","pendSub":"Your email is registered but the subscription is not active yet — its status now: “{s}”. Activation is manual after payment: write to business@businesspartner.sa with your company name and we’ll enable it.","empErr":"We couldn’t check your subscription right now — the fault is ours, not your account’s. Try again in a minute; if it persists write to business@businesspartner.sa.","noCodeE":"Your subscription is active but its row carries no access code, and the dashboard cannot open without one. Write to business@businesspartner.sa and we’ll fix it today.","portalW":"You are signed in with a Business Partner account, not an active employer subscription (its status: “{s}”). What you post here now will not appear alongside your subscription’s vacancies until it is activated.","eEmail":"Enter a valid email address.","eSend":"Couldn't send the code right now. Try again shortly, or sign in with a password.","eOtp":"That code is wrong or has expired.","eNoSess":"Couldn't start a session. Please sign in with a password this time.","ePw":"Wrong email or password.","eWeak":"Password too short — 8 characters or more.","eNet":"Connection failed. Refresh and try again.","eSave":"Couldn't save. Try again.","navJobs":"My vacancies","navNew":"Post a vacancy","navApps":"Applicants","sideHome":"Overview","sideJobs":"Vacancies","sideApps":"Applicants","sideSet":"Settings","sideFold":"Collapse the sidebar","sideMenu":"Menu","acct":"Account","logout":"Sign out","acctPw":"Change password","acctPh":"Mobile number","acctSave":"Save number","acctOk":"Saved.","acctPhNo":"Changing the number requires signing in with the email code. Sign in that way to edit it.","acctPwNo":"Change your password via \"Forgot your password\" on the sign-in screen: a code reaches your inbox, then you set a new one.","plan":"Plan","homeH":"Overview","homeSub":"Every figure here is counted from your vacancies and applicants right now — no estimates.","kActive":"Active vacancies","kAll":"Total applicants","kAllN":"across the vacancies shown in your board","kNew":"New in the last 7 days","kNewN":"by the applicant's registration date","kJobsN":"of {n} in total","pipeH":"Pipeline","pipeSub":"How many sit at each stage — tap a stage to open the board.","emptyH":"Your dashboard is ready — it just needs a vacancy","emptyP":"Post your first vacancy and these figures fill themselves: every applicant lands here, and you move them between stages on the board.","emptyGo":"Post your first vacancy","numWait":"Counting…","numFail":"Couldn't count the applicants right now.","searchPh":"Search your vacancies and applicants","searchNo":"Nothing in what's loaded","searchJ":"Vacancies","searchC":"Candidates","searchMr":"and {n} more","thTitle":"Title","thCity":"City","thField":"Field","thType":"Type","thApps":"Applicants","thStat":"Status","thDate":"Posted","thActs":"Actions","setH":"Settings","setSub":"Your company's account in the portal.","setCo":"Company","langL":"Language","jobsH":"My vacancies","loading":"Loading…","jobsNone":"No vacancies yet. Post your first one and it appears on the jobs page within minutes.","stActive":"Active","stClosed":"Closed","edit":"Edit","closeJob":"Close","closeAsk":"Close this vacancy? It leaves the jobs page and no new applicants reach you.","viewJob":"Public advert","newH":"Post a vacancy","editH":"Edit the vacancy","fTitle":"Job title","fCity":"City","fField":"Field","fFieldN":"— choose —","fType":"Employment type","fMode":"Workplace","fAny":"— not specified —","fDesc":"Description and requirements","aiWrite":"✦ Write the description from the title","aiWork":"Writing…","aiNeed":"Enter the job title first.","aiFail":"Couldn't write it now — please write the description yourself.","publish":"Publish","saveJob":"Save changes","saving":"Saving…","published":"Published.","eFields":"Title and description are required.","cancel":"Cancel","appsH":"Applicants","appsNone":"No applicants on your vacancies yet.","appsAll":"All vacancies","appsN":"applicants","appsCut":"The list is long and part of it was cut — refresh to see the rest.","open":"Open profile","moveTo":"Move to…","moving":"Moving…","moveOk":"Moved to","moveFail":"The move failed — we put the card back in its column. Try again.","boardHint":"Drag a card to another column, or use “Move to…” inside it.","colEmpty":"Nobody at this stage","more":"Show more","matchS":"Match","profBack":"← Back to applicants","stage":"Stage","sNew":"New","sReview":"Screening","sShort":"Shortlist","sInt":"Interview","sOffer":"Offer","sHired":"Hired","sRej":"Rejected","sFuture":"On hold","fRole":"Role","fCityL":"City","fExp":"Experience","fYears":"years","fSkills":"Skills","fPhone":"Mobile","fEmail":"Email","fCv":"CV","cvOpen":"Open file","cvH":"CV on the site","cvLoad":"Fetching the CV…","cvErr":"Couldn't fetch this candidate's CV right now. Refresh and try again.","cvNone":"The CV has not been read yet — no text was extracted from the file, so there is nothing to show here.","cvOrig":"Original CV (as uploaded)","cvAtsDoc":"Formatted version as a document","cvNoFile":"No original file is stored for this candidate.","cvAccess":"The file lives in the company Drive and is not shared — Google may ask you for access. Write to us and we'll send it.","mScoreL":"Match score","mScoreNo":"Not scored yet","scoreWhy":"Why this score","scoreFor":"Scored against","saudL":"Saudization","compL":"Employment-rules compliance","notChk":"Not checked","saudDet":"Saudization details","scoreBare":"No written justification for this score is recorded on the candidate's file.","saudNote":"Both states are shown exactly as recorded on the candidate's file; nothing is computed here. For the official position, check Qiwa.","reqH":"Request an interview","reqP":"We arrange the appointment with the candidate and come back to you with it — or with the recruitment office that nominated them.","reqPref":"A time that suits you (optional)","reqMode":"Interview format","mIn":"In person","mOn":"Online","mPh":"Phone","reqGo":"Send the request","reqOk":"Your request is in — we'll come back with the appointment.","reqWork":"Sending…","sideMatch":"Matching","sidePool":"Talent pool","matchH":"Smart matching","matchSub":"Pick one of your vacancies and we compare each candidate in its field against it, field by field — every score here says what it was computed from.","matchJobL":"Vacancy","matchRun":"Analyse candidates","matchWork":"Analysing…","matchNoJ":"You have no vacancy yet. Post one first, then come back — matching compares against a real vacancy, not a blank.","matchRead":"Press “Analyse candidates” and we fetch the candidates in this vacancy's field and compare them to it. Nothing is fetched before you press.","matchDone":"{n} candidates analysed","matchFld":"within the field “{f}”","matchCap":"and the pool is larger — narrow it by the vacancy's field for a sharper result.","matchNone":"No candidate in this field yet.","matchErr":"Couldn't fetch the candidates. Try again.","wH":"How the score is computed","wP":"Four fields are compared, each with the fixed weight below. A field missing from your vacancy or from the candidate's profile is not compared and not scored — its weight leaves the division instead of being filled with a guess.","cField":"Field","cRole":"Job title","cSkills":"Skills","cCity":"City","cSame":"same","cDiff":"different","cOf":"{a} of {b}","cNoJob":"your vacancy has no such field","cNoCand":"the candidate's profile has no such field","cSkipped":"not compared","scoreL":"Score","scoreNo":"no shared field to compare","detailsL":"How this was computed","aiH":"✦ Rank with AI","aiWorkR":"Ranking…","aiNote":"Only role, field, city, experience, education and skills are sent to the AI model — no name, phone, email or CV. One call per press, never automatic.","aiRanked":"AI ranked {a} of the {b} analysed","aiScoreL":"AI rank","aiFailR":"AI ranking failed right now — the computed score above is unchanged.","aiOffR":"AI ranking is not configured on this server.","poolH":"Talent pool","poolSub":"The platform's CV bank. Search it by field, city and nationality — it loads a page at a time rather than scanning the whole bank at your expense.","poolQ":"Search by role or skill","poolCity":"City","poolNat":"Nationality","poolAny":"— all —","poolSa":"Saudi","poolNon":"Non-Saudi","poolGo":"Search","poolN":"{n} candidates","moreL":"Details","poolSo":"{n} candidates so far","poolMore":"Continue through the pool","poolEnd":"That is the end of the matching results.","poolNone":"No matching result. Widen the search or drop a filter.","poolErr":"Couldn't load the CV bank. Try again.","poolCv":"CV","dEdu":"Education","dLang":"Languages","dAvail":"Availability","dRegion":"Regional experience","dRes":"Residence status","dNatT":"Nationality type"},HOME="/employer",JOB="/job?id=";
+var TX={"title":"Employer portal","desc":"Post a vacancy, receive applicants, and track them from screening to offer — in one page.","loginH":"Sign in to your portal","loginP":"Enter your company email and we send a one-time code. No password to forget, no permanent code to carry.","emailL":"Email address","sendOtp":"Send the code","sending":"Sending…","otpSent":"We sent a 6-digit code to","otpL":"Code","otpGo":"Sign in","otpBack":"← Different email","pwOpen":"Sign in with a password instead","otpOpen":"← Sign in with an email code","pwH":"Password sign-in","pwL":"Password","pwGo":"Sign in","forgot":"Forgot your password","rsH":"Reset your password","rsSend":"Send the reset code","rsCodeL":"Reset code","rsNewL":"New password (8+ characters)","rsGo":"Set the password","noSub":"This email has no active subscription. Activation is manual after payment — contact us and we'll enable it.","register":"No subscription yet? Register your company","pendSub":"Your email is registered but the subscription is not active yet — its status now: “{s}”. Activation is manual after payment: write to business@businesspartner.sa with your company name and we’ll enable it.","empErr":"We couldn’t check your subscription right now — the fault is ours, not your account’s. Try again in a minute; if it persists write to business@businesspartner.sa.","noCodeE":"Your subscription is active but its row carries no access code, and the dashboard cannot open without one. Write to business@businesspartner.sa and we’ll fix it today.","portalW":"You are signed in with a Business Partner account, not an active employer subscription (its status: “{s}”). What you post here now will not appear alongside your subscription’s vacancies until it is activated.","lockH":"Your account is free","lockP":"Here you see candidate counts, match scores, profession, experience and nationality. Names, CVs and contact details unlock with a subscription. People who applied to your own vacancies stay fully visible.","lockGo":"Subscribe to unlock the data","lockName":"Name hidden — unlocks with a subscription","lockProf":"Name, CV and contact details are hidden until you subscribe.","lockScore":"The reasoning unlocks with a subscription","lockSub":"Subscribe","expH":"Your subscription has ended","expP":"Your subscription ended on {d}. Your vacancies and their applicants stay fully visible to you; candidate names, CVs and contact details in the talent pool are hidden again until you renew.","expGo":"Renew your subscription","expProf":"Name, CV and contact details are hidden until you renew.","expTag":"Subscription: ended","invH":"We couldn’t verify your subscription period","invP":"The end date of your subscription in our records is unreadable, so candidate data stays hidden as a precaution. Your vacancies and their applicants remain fully visible. Write to business@businesspartner.sa and we’ll fix it.","invGo":"Contact us","eEmail":"Enter a valid email address.","eSend":"Couldn't send the code right now. Try again shortly, or sign in with a password.","eOtp":"That code is wrong or has expired.","eNoSess":"Couldn't start a session. Please sign in with a password this time.","ePw":"Wrong email or password.","eWeak":"Password too short — 8 characters or more.","eNet":"Connection failed. Refresh and try again.","eSave":"Couldn't save. Try again.","navJobs":"My vacancies","navNew":"Post a vacancy","navApps":"Applicants","sideHome":"Overview","sideJobs":"Vacancies","sideApps":"Applicants","sideSet":"Settings","sideFold":"Collapse the sidebar","sideMenu":"Menu","acct":"Account","logout":"Sign out","acctPw":"Change password","acctPh":"Mobile number","acctSave":"Save number","acctOk":"Saved.","acctPhNo":"Changing the number requires signing in with the email code. Sign in that way to edit it.","acctPwNo":"Change your password via \"Forgot your password\" on the sign-in screen: a code reaches your inbox, then you set a new one.","plan":"Plan","homeH":"Overview","homeSub":"Every figure here is counted from your vacancies and applicants right now — no estimates.","kActive":"Active vacancies","kAll":"Total applicants","kAllN":"across the vacancies shown in your board","kNew":"New in the last 7 days","kNewN":"by the applicant's registration date","kJobsN":"of {n} in total","pipeH":"Pipeline","pipeSub":"How many sit at each stage — tap a stage to open the board.","emptyH":"Your dashboard is ready — it just needs a vacancy","emptyP":"Post your first vacancy and these figures fill themselves: every applicant lands here, and you move them between stages on the board.","emptyGo":"Post your first vacancy","numWait":"Counting…","numFail":"Couldn't count the applicants right now.","searchPh":"Search your vacancies and applicants","searchNo":"Nothing in what's loaded","searchJ":"Vacancies","searchC":"Candidates","searchMr":"and {n} more","thTitle":"Title","thCity":"City","thField":"Field","thType":"Type","thApps":"Applicants","thStat":"Status","thDate":"Posted","thActs":"Actions","plH":"Subscribe to the recruitment platform","plSub":"Pick a plan and pay online by card or Tamara. Your account activates automatically once payment is confirmed, and candidate data opens.","plMonthly":"Monthly","plYearly":"Yearly","plSave":"Save {p}%","plCur":"SAR","plPerM":"/ month","plPerY":"/ year","plPopular":"Most popular","plPick":"Subscribe","plVat":"Prices exclude 15% VAT, which is added at checkout. Only the yearly plan can be split with Tamara.","plEnt":"Need an enterprise plan? It is quoted individually — write to business@businesspartner.sa.","plCartE":"Couldn’t prepare the cart in this browser. Enable local storage or try another browser.","plRenew":"Renew or change plan","plBasic":"Basic","plPro":"Professional","fUnlock":"Unlock contact details for up to {n} candidates a month","fJobs":"Up to {n} active vacancy postings","fSearch":"Full candidate search & filters","fAi":"AI candidate matching","setH":"Settings","setSub":"Your company's account in the portal.","setCo":"Company","langL":"Language","jobsH":"My vacancies","loading":"Loading…","jobsNone":"No vacancies yet. Post your first one and it appears on the jobs page within minutes.","stActive":"Active","stClosed":"Closed","edit":"Edit","closeJob":"Close","closeAsk":"Close this vacancy? It leaves the jobs page and no new applicants reach you.","viewJob":"Public advert","newH":"Post a vacancy","editH":"Edit the vacancy","fTitle":"Job title","fCity":"City","fField":"Field","fFieldN":"— choose —","fType":"Employment type","fMode":"Workplace","fAny":"— not specified —","fDesc":"Description and requirements","aiWrite":"✦ Write the description from the title","aiWork":"Writing…","aiNeed":"Enter the job title first.","aiFail":"Couldn't write it now — please write the description yourself.","publish":"Publish","saveJob":"Save changes","saving":"Saving…","published":"Published.","eFields":"Title and description are required.","cancel":"Cancel","appsH":"Applicants","appsNone":"No applicants on your vacancies yet.","appsAll":"All vacancies","appsN":"applicants","appsCut":"The list is long and part of it was cut — refresh to see the rest.","open":"Open profile","moveTo":"Move to…","moving":"Moving…","moveOk":"Moved to","moveFail":"The move failed — we put the card back in its column. Try again.","boardHint":"Drag a card to another column, or use “Move to…” inside it.","colEmpty":"Nobody at this stage","more":"Show more","matchS":"Match","profBack":"← Back to applicants","stage":"Stage","sNew":"New","sReview":"Screening","sShort":"Shortlist","sInt":"Interview","sOffer":"Offer","sHired":"Hired","sRej":"Rejected","sFuture":"On hold","fRole":"Role","fCityL":"City","fExp":"Experience","fYears":"years","fSkills":"Skills","fPhone":"Mobile","fEmail":"Email","fCv":"CV","cvOpen":"Open file","cvLoad":"Fetching the CV…","cvErr":"Couldn't fetch this candidate's CV right now. Refresh and try again.","cvNone":"The CV has not been read yet — no text was extracted from the file, so there is nothing to show here.","cvOrig":"Original CV (as uploaded)","cvAtsDoc":"Formatted version as a document","cvNoFile":"No original file is stored for this candidate.","cvAccess":"The file lives in the company Drive and is not shared — Google may ask you for access. Write to us and we'll send it.","mScoreL":"Match score","mScoreNo":"Not scored yet","scoreFor":"Scored against","saudL":"Saudization","compL":"Employment-rules compliance","notChk":"Not checked","scoreBare":"No written justification for this score is recorded on the candidate's file.","saudNote":"Both states are shown exactly as recorded on the candidate's file; nothing is computed here. For the official position, check Qiwa.","reqH":"Request an interview","reqP":"We arrange the appointment with the candidate and come back to you with it — or with the recruitment office that nominated them.","reqPref":"A time that suits you (optional)","reqMode":"Interview format","mIn":"In person","mOn":"Online","mPh":"Phone","reqGo":"Send the request","reqOk":"Your request is in — we'll come back with the appointment.","reqWork":"Sending…","sideMatch":"Matching","sidePool":"Talent pool","matchH":"Smart matching","matchSub":"Pick one of your vacancies. We list the readable candidates that meet its fixed criteria (field, city, experience, Saudization); anything already scored shows at once, ranked. New scoring has the smart advisor write a score out of 100 and its reason.","matchJobL":"Vacancy","matchRun":"Find the fitting candidates","matchWork":"Searching…","matchNoJ":"You have no vacancy yet. Post one first, then come back — matching compares against a real vacancy, not a blank.","matchRead":"Press “Find the fitting candidates”. Nothing is fetched or scored before you press.","matchNone":"No readable candidate meets these criteria. Relax one (the city, say) and search again.","matchErr":"Couldn't fetch the candidates. Try again.","mtCritH":"Fixed criteria","mtCityHard":"City is a requirement (not a preference)","mtMinExp":"Minimum experience (years)","mtNat":"Statutory Saudization requirement","mtNatAny":"— none —","mtNatSa":"Saudi only","mtNatNon":"Non-Saudi","mtCritNote":"Applied in code before any AI call: whoever fails is not scored and costs nothing. Nationality is a statutory gate only — it never reaches the smart advisor and never enters the score.","critField":"Field","critCity":"City","critExp":"Experience ≥ {n} yrs","critDesc":"from the vacancy text","critOwner":"your input","critHard":"required","critSoft":"preferred","critNone":"No fixed criterion could be taken from the vacancy (no field, city or experience floor) — every readable candidate is listed.","mtScoredH":"Highest scores — already scored","mtOpenH":"Meet the criteria — not scored yet","mtNoScored":"Nobody is scored on this vacancy yet. Start scoring below.","mtShown":"{n} readable candidates shown","mtMoreC":"Load more matching candidates","mtScoreGo":"Score those shown (5 per batch)","mtResume":"Resume scoring","mtStop":"Stop","mtProg":"{a} of {b} processed","mtStats":"scored now {s} · stored earlier {c} · filtered out {k} · failed {f}","mtDone":"Everyone shown has been processed.","mtStopped":"Scoring stopped — you can resume.","mtNothing":"Nobody left to score among those shown.","mtApplied":"Applied to this vacancy","mtPoolOff":"Scoring people who did not apply to your vacancy is not enabled on this server (an owner decision). They are listed with their fixed criteria and no score; only those who applied are scored.","mtAiNote":"Sent to the smart advisor: the vacancy text, the candidate's professional fields and the readable CV text (which may contain what the candidate wrote in it). Name, phone, email, nationality and residence are not sent as fields. Nothing starts until you press.","mtScoreOut":"/ 100","confH":"High confidence","confM":"Medium confidence","confL":"Low confidence","ckMet":"met","ckMiss":"not met","ckUnk":"unknown","ckField":"Field","ckCity":"City","ckExp":"Experience","ckNat":"Saudization","ckTitle":"Title (hint)","mtNoScore":"Not scored yet","mtErrAi":"Couldn't score right now — try again","mtErrWhy":"The smart advisor returned no acceptable reason, so no score is shown","mtErrNot":"Not available for scoring","mtErrLim":"You reached the daily scoring limit — stopped.","mtErrOff":"The smart advisor is not configured on this server.","poolH":"Talent pool","poolSub":"The platform's bank of readable CVs, newest first, loaded a page at a time. A CV whose text was not read never appears here.","poolQ":"Search by role or skill","poolCity":"City","poolNat":"Nationality","poolAny":"— all —","poolSa":"Saudi","poolNon":"Non-Saudi","poolGo":"Search","poolN":"{n} shown","moreL":"Details","poolSo":"{n} shown so far","poolOf":"{n} shown of up to {t} readable CVs","poolCnt":"Counting the readable CVs…","poolCntN":"The total is an upper bound: counted daily from read status and ATS text, it does not subtract texts failing the quality check (about 7%).","poolEdu":"Education","poolExp":"Min. experience (yrs)","poolSort":"Sort","poolSNew":"Newest first","poolSExp":"Most experience first","poolMore":"Continue through the pool","poolEnd":"That is the end of the matching results.","poolNone":"No matching result. Widen the search or drop a filter.","poolErr":"Couldn't load the CV bank. Try again.","poolCv":"CV","dEdu":"Education","dLang":"Languages","dAvail":"Availability","dRegion":"Regional experience","dRes":"Residence status","dNatT":"Nationality type","profBackPool":"← Back to the talent pool","profBackMatch":"← Back to matching","pfSummary":"Summary","pfEdu":"Education","pfExp":"Experience","pfSkills":"Skills","pfLangs":"Languages","pfLoc":"Location","pfNat":"Nationality and residence","pfSaud":"Saudization and compliance","pfScore":"Score and reasoning","pfContact":"Contact","pfFile":"Original CV","pfFull":"Full CV text","pfDl":"Download the original CV","pfScoreHow":"Scored from the “Matching” screen against a specific vacancy — a score means nothing without its job.","fCountry":"Country","fNat":"Nationality (as written)","fRegDate":"Registered","fOrig":"Title as written","fApplied":"Applied to","fCountries":"Countries worked in","moreSk":"+{n} more"},HOME="/employer",JOIN='#/plans',CHECKOUT="/checkout",JOB="/job?id=";
+var PLANS=[{"key":"basic","popular":false,"offers":{"monthly":{"sku":"BP-EMP-BASIC-M","amount":500},"yearly":{"sku":"BP-EMP-BASIC-Y","amount":4200}},"name":"Basic","nameAr":"اشتراك منصة التوظيف — أساسية","nameEn":"Recruitment platform — Basic","features":["Unlock contact details for up to 10 candidates a month","Up to 1 active vacancy postings","Full candidate search & filters"]},{"key":"pro","popular":true,"offers":{"monthly":{"sku":"BP-EMP-PRO-M","amount":1000},"yearly":{"sku":"BP-EMP-PRO-Y","amount":8400}},"name":"Professional","nameAr":"اشتراك منصة التوظيف — احترافية","nameEn":"Recruitment platform — Professional","features":["Unlock contact details for up to 30 candidates a month","Up to 5 active vacancy postings","Full candidate search & filters","AI candidate matching"]}];
 var $=function(i){return document.getElementById(i)};
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
@@ -1012,7 +1121,7 @@ function j(r){return r.json().catch(function(){return{}})}
 // من صفّ نوشن، والمتصفّح لا يراه ولا يخزّنه. mode 'code' = الدخول بكلمة
 // المرور، والرمز الذي يعيده /api/employer يبقى في الذاكرة وحدها: لا
 // localStorage ولا sessionStorage ولا شاشة تعرضه. إغلاق التبويب يمحوه.
-var AUTH=null, CO='', PLAN='', SUB=false;
+var AUTH=null, CO='', PLAN='', SUB=false, SUBST='', SUBEND='';
 function authCode(){return AUTH&&AUTH.mode==='code'?AUTH.code:'self'}
 function get(qs){return fetch('/api/candidates?'+qs+'&code='+encodeURIComponent(authCode()),
  {credentials:'same-origin'}).then(j)}
@@ -1052,7 +1161,28 @@ function subMsg(d){var r=d&&d.emp,st=(d&&d.empStatus)||'—';
 // (‏account)، وإمّا دخولٌ برمز وصولٍ صالح عبر كلمة المرور (لا account ولا
 // portal). وجلسة العميل (portal) تبقى على شاشاتها الخمس كما كانت. لا نوسّع
 // بابَ بيانات شخصية لمن لا يفتحه له القديم اليوم.
-function applySub(d){SUB=!!(d&&d.unlocked&&!d.portal);show($('grpTalent'),SUB)}
+// الاشتراك يقرؤه المتصفّح من الخادم (sub) ولا يستنتجه: sub=true صراحةً أو لا اشتراك.
+// والمجاني لا يُخفى عنه البابان — يراهما بأسماء مموّهة (الحجب في الخادم أصلاً).
+// ثلاث صيغٍ لحجبٍ واحد، يحسمها الخادم (subState) لا المتصفّح: مجاني لم يشترك قط ·
+// منتهٍ (expired) انتهت مدّته · فاسد (invalid) تاريخه غير مقروء. البيانات محجوبة في الثلاث.
+function lockTx(){
+ if(SUBST==='expired')return{h:TX.expH,p:TX.expP.replace('{d}',SUBEND||'—'),go:TX.expGo,prof:TX.expProf,href:JOIN};
+ if(SUBST==='invalid')return{h:TX.invH,p:TX.invP,go:TX.invGo,prof:TX.invP,href:'mailto:business@businesspartner.sa'};
+ return{h:TX.lockH,p:TX.lockP,go:TX.lockGo,prof:TX.lockProf,href:JOIN}}
+function planLine(){return SUBST==='expired'?TX.expTag:(PLAN?TX.plan+': '+PLAN:'')}
+function applySub(d){SUB=!!(d&&d.sub===true);
+ SUBST=(!SUB&&d&&(d.subState==='expired'||d.subState==='invalid'))?d.subState:'';
+ SUBEND=(d&&d.subEnd)||'';
+ $('empPlan').textContent=planLine();
+ var L=lockTx();
+ ['lockHome','lockPool','lockMatch'].forEach(function(id){var el=$(id);if(!el)return;
+  if(SUB){el.innerHTML='';show(el,false);return}
+  el.innerHTML='<h4>'+esc(L.h)+'</h4><p>'+esc(L.p)+'</p>'+
+   '<a class="sv1-btn primary" href="'+esc(L.href)+'">'+esc(L.go)+'</a>';
+  show(el,true)})}
+// اسمٌ مموّه: النصّ ثابتٌ لا يحمل شيئاً من المرشّح (الخادم لا يعيد اسماً أصلاً).
+function lockedNm(){return '<span class="sv1-lock" role="img" aria-label="'+esc(TX.lockName)+'" title="'+
+ esc(TX.lockName)+'">●●●●● ●●●●●</span>'}
 function warnBar(d){var r=(d&&d.portal)?(d.emp||''):'';
  var m=r==='pending'?TX.portalW.replace('{s}',(d&&d.empStatus)||'—')
    :r==='nocode'?TX.noCodeE:r==='error'?TX.empErr:'';
@@ -1152,18 +1282,51 @@ function enter(){
    err(subMsg(d));return}
   CO=d.company||CO;PLAN=d.plan||PLAN;
   $('empCo').textContent=CO||'Business Partner';
-  $('empPlan').textContent=PLAN?TX.plan+': '+PLAN:'';
   applySub(d);warnBar(d);
   show($('empLogin'),false);show($('empApp'),true);
   route()
  }).catch(function(){AUTH=null;err(TX.eNet)})}
+
+
+// ── الاشتراك بالدفع الإلكتروني ─────────────────────────────────────────────
+// الأسعار أرقامٌ جاهزة من البناء (PLANS) — لا ضرب ولا خصم هنا. الزرّ يضع بنداً
+// واحداً في السلة بعقد bp_cart نفسه (المعرّف = SKU)، ويُبدَّل أي بند اشتراكٍ سابق:
+// اشتراكٌ واحد في كل طلب. المبلغ الذي في البند تلميحٌ للعرض فقط؛ الخادم يعيد
+// تسعيره من الـSKU عند الدفع (/api/pay?action=emp-offer) ولا يثق بما في المتصفّح.
+var plBill='monthly';
+function plMoney(n){return Number(n).toLocaleString('en-US',{maximumFractionDigits:2})}
+function plErr(m){var e=$('plMsg');if(!e)return;e.textContent=m||'';show(e,!!m)}
+function drawPlans(){
+ var box=$('plansBox');if(!box)return;
+ $('plM').setAttribute('aria-pressed',plBill==='monthly'?'true':'false');
+ $('plY').setAttribute('aria-pressed',plBill==='yearly'?'true':'false');
+ plErr('');
+ box.innerHTML=PLANS.map(function(p){var o=p.offers[plBill];
+  return '<div class="sv1-pl'+(p.popular?' pop':'')+'"><h4>'+esc(p.name)+(p.popular?'<em>'+esc(TX.plPopular)+'</em>':'')+'</h4>'+
+   '<div class="sv1-pl-pr"><b>'+plMoney(o.amount)+'</b> <span>'+esc(TX.plCur)+' '+esc(plBill==='yearly'?TX.plPerY:TX.plPerM)+'</span></div>'+
+   '<ul>'+p.features.map(function(f){return '<li>'+esc(f)+'</li>'}).join('')+'</ul>'+
+   '<button type="button" class="sv1-btn primary" data-plan="'+esc(p.key)+'">'+esc(TX.plPick)+'</button></div>'}).join('');
+ Array.prototype.forEach.call(box.querySelectorAll('button[data-plan]'),function(b){
+  b.onclick=function(){subscribe(b.getAttribute('data-plan'))}})}
+function subscribe(key){
+ var p=null;PLANS.forEach(function(x){if(x.key===key)p=x});if(!p)return;
+ var o=p.offers[plBill],c;
+ try{c=JSON.parse(localStorage.getItem('bp_cart'))||[];if(!Array.isArray(c))c=[]}catch(e){c=[]}
+ c=c.filter(function(x){return !/^BP-EMP-/i.test(String(x&&x.id||''))});
+ c.push({id:o.sku,nameEn:p.nameEn,nameAr:p.nameAr,amount:o.amount,price:'',kind:'subscription',qty:1,
+  surchargeAmount:null,surchargeFreeCount:null,pricePublic:1,billingPeriod:plBill,renewsAt:null,commissionPercent:0});
+ try{localStorage.setItem('bp_cart',JSON.stringify(c))}catch(e){plErr(TX.plCartE);return}
+ try{document.dispatchEvent(new CustomEvent('bp:cart',{bubbles:true}))}catch(e){}
+ location.href=CHECKOUT}
+$('plM').onclick=function(){plBill='monthly';drawPlans()};
+$('plY').onclick=function(){plBill='yearly';drawPlans()};
 
 // ── التنقّل: لا إعادة تحميل، ولا جلبٌ لشاشة غير مفتوحة ────────────────────
 // جدولٌ واحد: المفتاح ← الشاشة ← بند الشريط الجانبي الذي يضيء معها. كانت
 // ثلاثة أسطر متوازية لكل شاشة، فإضافة شاشةٍ رابعة تعني ثلاثة مواضع يُنسى
 // أحدها — وقد نُسي: ملف المرشّح كان يطفئ الأزرار بقائمة مكتوبة بيدها.
 var loaded={jobs:false,apps:false,pool:false};
-var SC=[['home','scHome','tabHome'],['jobs','scJobs','tabJobs'],['new','scNew','tabNew'],
+var SC=[['plans','scPlans',''],['home','scHome','tabHome'],['jobs','scJobs','tabJobs'],['new','scNew','tabNew'],
  ['apps','scApps','tabApps'],['match','scMatch','tabMatch'],['pool','scPool','tabPool'],
  ['settings','scSettings','tabSet']];
 function navOn(k){SC.forEach(function(s){var b=$(s[2]);if(!b)return;
@@ -1174,12 +1337,12 @@ function route(){
  var h=(location.hash||'').replace(/^#\/?/,'');
  var sc=h.split('/')[0]||'home';
  closeDrawer();hideRes();
- if(sc==='c'){openCand(h.split('/').slice(1).join('/'));return}
+ if(sc==='c'){openCand(h.split('/').slice(1).join('/'),'a');return}
+ if(sc==='p'){openCand(h.split('/').slice(1).join('/'),'p');return}
  var known=false;SC.forEach(function(s){if(s[0]===sc)known=true});
  if(!known)sc='home';
- // البابان المؤدّيان إلى بنك السير لا يُفتحان إلا باشتراك صاحب عملٍ مفعّل،
- // ولا بكتابة ‎#/pool‎ في شريط العنوان: الشرط هنا لا في الزرّ وحده.
- if((sc==='match'||sc==='pool')&&!SUB)sc='home';
+ lastScreen=sc;
+ // البابان مفتوحان للمجاني أيضاً، لكن بلا بيانات تعريفية: الخادم هو الذي يحجب.
  hideScreens();SC.forEach(function(s){if(s[0]===sc)show($(s[1]),true)});
  navOn(sc);
  if(sc==='home')loadHome();
@@ -1191,6 +1354,7 @@ function route(){
  // عودةٌ إلى اللوحة بعد تغيير المرحلة من ملف المرشّح: تُرسم من النموذج
  // المحلي، بلا نداءٍ جديد — وإلا بقيت البطاقة في عمودها القديم.
  if(sc==='apps'){if(!loaded.apps)loadApps();else if(flat.length)drawApps()}
+ if(sc==='plans')drawPlans();
  if(sc==='settings')loadAcct();
  if(sc==='new'&&editId===null&&!$('jTitle').value)resetJobForm()}
 window.addEventListener('hashchange',function(){if(AUTH)route()});
@@ -1622,12 +1786,15 @@ function stChip(val,map,label){
  if(!v)return chip('off',label+': '+TX.notChk);
  return chip(map[v]||'',label+': '+v)}
 
-var detSeq=0;
+var detSeq=0,candKind='a',candBack='#/apps',lastScreen='pool',poolById={};
 function loadCandDet(c){
  var box=$('candDet'),chips=$('candChips'),my=++detSeq;
  if(!box)return;
  if(c._det){drawCandDet(c,c._det);return}
- get('applicant=1&id='+encodeURIComponent(c.id)).then(function(d){
+ // المتقدّم: ?applicant=1 (يحمل الدرجة ومبرّرها ولا يُفتح إلا لمن تقدّم على إعلانك).
+ // مرشّح القاعدة: ?id= (الملفّ المنظَّم نفسه بلا درجة — درجة المرشّح تخصّ إعلاناً بعينه).
+ var qs=c._pool?'id=':'applicant=1&id=';
+ get(qs+encodeURIComponent(c.id)).then(function(d){
   // فُتح مرشّحٌ آخر أثناء الجلب: لا تكتب رداً قديماً في شاشةٍ جديدة.
   if(my!==detSeq)return;
   if(d&&d.ok&&d.candidate){c._det=d.candidate;drawCandDet(c,d.candidate);return}
@@ -1644,69 +1811,122 @@ function detFail(c){
    '" target="_blank" rel="noopener">'+esc(TX.cvOrig)+'</a></div>'+
    '<p class="sv1-cvnote">'+esc(TX.cvAccess)+'</p>':'')}
 
+// ── لوحة المربّعات ────────────────────────────────────────────────────────────
+// كل مربّعٍ حقلٌ منظَّم من قاعدة المرشحين (لا استخراجٌ من نصّ السيرة). وما لا قيمة له
+// يُرسم «—»: لا فراغ، ولا صفرٌ، ولا نسبةٌ مختلقة. ونصّ السيرة الكامل مطويٌّ في الأسفل.
+function nil(){return '<span class="nil">—</span>'}
+function dv(v){var s=String(v==null?'':v).trim();return s?esc(s):nil()}
+function listOf(s){var out=[],seen={};
+ String(s||'').split(SPLIT).forEach(function(x){var v=String(x||'').trim(),k=v.toLowerCase();
+  if(v&&!seen[k]){seen[k]=1;out.push(v)}});return out}
+function chipsHtml(list,max){
+ if(!list.length)return nil();
+ var shown=list.slice(0,max||40),more=list.length-shown.length;
+ return '<div class="sv1-tags">'+shown.map(function(x){return '<span>'+esc(x)+'</span>'}).join('')+
+  (more>0?'<span>'+esc(TX.moreSk.replace('{n}',more))+'</span>':'')+'</div>'}
+function kv(rows){return '<dl>'+rows.map(function(r){
+ return '<dt>'+esc(r[0])+'</dt><dd>'+dv(r[1])+'</dd>'}).join('')+'</dl>'}
+function tile(title,inner,cls){
+ return '<section class="sv1-pf-t'+(cls?' '+cls:'')+'"><h5>'+esc(title)+'</h5>'+inner+'</section>'}
+// سنوات الخبرة: القيمة المخزَّنة صفراً تعني «مجهول» (لا خبرةً حقيقية) — تُعرض «—».
+function expTxt(v){var n=Number(v);return v!==''&&v!=null&&isFinite(n)&&n>0?n+' '+TX.fYears:''}
+// تنزيل الملف الأصلي: رابط Drive «…/file/d/ID/view» يُحوَّل إلى رابط تنزيل. والملفّ قد لا
+// يكون مشتركاً — فالتحذير الصادق يبقى تحت الزرّ (cvAccess).
+function dlUrl(u){var m=/drive\.google\.com\/file\/d\/([^\/?#]+)/.exec(u||'');
+ return m?'https://drive.google.com/uc?export=download&id='+m[1]:u}
+function contactLink(kind,v){
+ var s=String(v||'').trim();if(!s)return '';
+ return '<a href="'+(kind==='tel'?'tel:':'mailto:')+esc(s)+'" dir="ltr">'+esc(s)+'</a>'}
+
 function drawCandDet(c,d){
  var box=$('candDet'),chips=$('candChips');
- if(chips){
+ // القيمة من الملفّ التفصيلي أولاً، ثم ممّا في القائمة (للمتقدّم).
+ function pk(k){var v=d[k];if(v==null||v==='')v=c[k];return v==null?'':v}
+ var name=pk('name'),role=pk('role'),orig=String(d.originalPosition||'').trim();
+ // الحساب المجاني: الخادم لا يعيد اسماً ولا تواصلاً ولا سيرةً ولا توطيناً (locked) —
+ // فلا تُرسم مربّعاتُها فارغةً كأنها «لم تُفحص»، بل يحلّ محلّها الإشعار وزرّ الاشتراك.
+ var lk=!!d.locked||!!c.locked;
+ var hd=$('candHead');
+ var rq=$('cReqBox');if(rq&&lk)rq.classList.add('sv1-hidden');
+ if(hd)hd.innerHTML='<h3 class="sv1-emp-h">'+(lk?lockedNm():esc(name||'—'))+'</h3>'+
+  '<p class="sv1-emp-sub">'+esc([role,pk('field'),c._job].filter(Boolean).join(' · '))+'</p>';
+ if(chips&&lk)chips.innerHTML='';
+ else if(chips){
   chips.innerHTML=
    (d.score==null?chip('off',TX.mScoreL+': '+TX.mScoreNo)
     :chip(d.score>=75?'ok':(d.score>=50?'warn':'bad'),TX.mScoreL+': '+d.score+'/100'))+
    stChip(d.saudization,SAUD_CLS,TX.saudL)+
    stChip(d.compliance,COMP_CLS,TX.compL)}
  if(!box)return;
- var kv=[[TX.scoreWhy,d.scoreReason],[TX.scoreFor,d.scoredFor],
-  [TX.saudDet,d.saudizationDetails]]
-  .filter(function(p){return p[1]}).map(function(p){
-   return '<dt>'+esc(p[0])+'</dt><dd>'+esc(p[1])+'</dd>'}).join('');
- // رابط الملف الأصلي، ورابط النسخة المهيّأة مستنداً. الاثنان في Drive الشركة
- // وغير مشتركين، فتحتهما جملةٌ تقول ذلك — الزرّ لا يَعِد بما لا يفتح.
- var acts=(d.cvLink?'<a class="sv1-btn sm" href="'+esc(d.cvLink)+
-   '" target="_blank" rel="noopener">'+esc(TX.cvOrig)+'</a>':'')+
-  (d.atsDocUrl?'<a class="sv1-btn sm" href="'+esc(d.atsDocUrl)+
-   '" target="_blank" rel="noopener">'+esc(TX.cvAtsDoc)+'</a>':'');
- box.innerHTML=
-  (kv?'<dl class="sv1-emp-kv">'+kv+'</dl>':'')+
-  // درجةٌ بلا مبرّر: يُقال ذلك تحتها. رقمٌ عارٍ بلا مصدرٍ يُبنى عليه قرار
-  // توظيف هو أسوأ ما تعرضه هذه الشاشة.
-  (d.score!=null&&!d.scoreReason
-   ?'<p class="sv1-cvnote" style="margin:0 0 10px">'+esc(TX.scoreBare)+'</p>':'')+
-  // وتنبيه «معروضان كما هما» لا يُكتب إلا وثمّة حالةٌ معروضة فعلاً: كتابته
-  // فوق رقاقتين تقولان «لم يُفحص» ضجيجٌ يشرح ما لا وجود له.
-  ((d.saudization||d.compliance)
-   ?'<p class="sv1-cvnote" style="margin:0 0 14px">'+esc(TX.saudNote)+'</p>':'')+
-  '<h4 style="margin:0 0 8px;font-size:16px;font-weight:600">'+esc(TX.cvH)+'</h4>'+
+ var exp=expTxt(pk('experience'));
+ var countries=(d.countries||[]).filter(Boolean);
+ var tiles=[
+  tile(TX.pfSummary,kv([[TX.fRole,role],[TX.fOrig,orig&&orig!==role?orig:''],[TX.thField,pk('field')],
+   [TX.fRegDate,String(pk('registered')||'').slice(0,10)],[TX.fApplied,c._job]])),
+  tile(TX.pfEdu,'<span class="val">'+dv(pk('education'))+'</span>'),
+  tile(TX.pfExp,'<span class="big">'+(exp?esc(String(pk('experience')))+' <small>'+esc(TX.fYears)+'</small>':nil())+'</span>'+
+   kv([[TX.dRegion,pk('region')],[TX.fCountries,countries.join(' · ')]])),
+  tile(TX.pfSkills,chipsHtml(listOf(pk('skills')),40),'w2'),
+  tile(TX.pfLangs,chipsHtml(listOf(pk('languages')),12)),
+  tile(TX.pfLoc,kv([[TX.fCityL,pk('city')],[TX.fCountry,pk('country')]])),
+  tile(TX.pfNat,kv([[TX.dNatT,pk('nationalityType')],[TX.fNat,pk('nationality')],
+   [TX.dRes,pk('residenceStatus')],[TX.dAvail,pk('availability')]])),
+  lk?'':tile(TX.pfSaud,stChip(d.saudization,SAUD_CLS,TX.saudL)+' '+stChip(d.compliance,COMP_CLS,TX.compL)+
+   (d.saudizationDetails?'<p class="why" dir="auto">'+esc(d.saudizationDetails)+'</p>':'')+
+   ((d.saudization||d.compliance)?'<p class="sv1-cvnote">'+esc(TX.saudNote)+'</p>':''),'w2')
+ ];
+ // الدرجة: لا تُعرض إلا ومعها مبرّرها المكتوب. رقمٌ عارٍ بلا سببٍ يُبنى عليه قرار توظيف
+ // هو أسوأ ما تعرضه هذه الشاشة — فيُقال إنه بلا مبرّر بدل أن يُعرض كأنه مدعوم.
+ if(lk){
+  var LK=lockTx();
+  tiles.push(tile(LK.h,'<p class="sv1-cvnote" style="margin:0 0 10px">'+esc(LK.prof)+'</p>'+
+   '<a class="sv1-btn primary sm" href="'+esc(LK.href)+'">'+esc(LK.go)+'</a>','w2'));
+  box.innerHTML='<div class="sv1-pf-grid">'+tiles.join('')+'</div>';return}
+ if(d.score!=null){
+  tiles.push(tile(TX.pfScore,'<span class="big">'+esc(String(d.score))+' <small>/ 100</small></span>'+
+   (d.scoreReason?'<p class="why" dir="auto">'+esc(d.scoreReason)+'</p>':'<p class="sv1-cvnote">'+esc(TX.scoreBare)+'</p>')+
+   (d.scoredFor?'<p class="sv1-cvnote">'+esc(TX.scoreFor+': '+d.scoredFor)+'</p>':''),'w2'))}
+ else tiles.push(tile(TX.pfScore,'<span class="val">'+esc(TX.mScoreNo)+'</span><p class="sv1-cvnote">'+esc(TX.pfScoreHow)+'</p>','w2'));
+ var ph=contactLink('tel',pk('phone')),em=contactLink('mail',pk('email'));
+ if(ph||em)tiles.push(tile(TX.pfContact,'<dl>'+(ph?'<dt>'+esc(TX.fPhone)+'</dt><dd>'+ph+'</dd>':'')+
+  (em?'<dt>'+esc(TX.fEmail)+'</dt><dd>'+em+'</dd>':'')+'</dl>'));
+ // الملف الأصلي كما رفعه المرشّح؛ ومعه النسخة المهيّأة مستنداً إن وُجدت.
+ var orgUrl=d.cvLink||'',atsUrl=d.atsDocUrl||'';
+ var acts=(orgUrl?'<a class="sv1-btn sm primary" href="'+esc(dlUrl(orgUrl))+'" target="_blank" rel="noopener">'+esc(TX.pfDl)+'</a>':'')+
+  (atsUrl?'<a class="sv1-btn sm" href="'+esc(atsUrl)+'" target="_blank" rel="noopener">'+esc(TX.cvAtsDoc)+'</a>':'');
+ tiles.push(tile(TX.pfFile,acts?'<div class="sv1-cvacts" style="margin:0">'+acts+'</div><p class="sv1-cvnote">'+esc(TX.cvAccess)+'</p>'
+  :'<p class="sv1-cvnote" style="margin:0">'+esc(TX.cvNoFile)+'</p>','w2'));
+ box.innerHTML='<div class="sv1-pf-grid">'+tiles.join('')+'</div>'+
+  '<details class="sv1-pf-full"><summary>'+esc(TX.pfFull)+'</summary>'+
   (d.cvText?'<div class="sv1-cv">'+cvHtml(d.cvText)+'</div>'
-   :'<p class="sv1-emp-sub">'+esc(TX.cvNone)+'</p>')+
-  (acts?'<div class="sv1-cvacts">'+acts+'</div>'+
-    '<p class="sv1-cvnote">'+esc(TX.cvAccess)+'</p>'
-   :'<p class="sv1-cvnote">'+esc(TX.cvNoFile)+'</p>')+
-  '<div style="height:8px"></div>'}
+   :'<p class="sv1-emp-sub">'+esc(TX.cvNone)+'</p>')+'</details>'}
 
-function openCand(id){
- id=decodeURIComponent(id||'');
- if(!loaded.apps){loadApps().then(function(){openCand(encodeURIComponent(id))});return}
- var c=findCand(id);
- if(!c){location.hash='#/apps';return}
+function openCand(id,kind){
+ id=decodeURIComponent(id||'');kind=kind||'a';
+ var c;
+ if(kind==='p'){c=poolById[id]||{id:id};c._pool=true}
+ else{
+  if(!loaded.apps){loadApps().then(function(){openCand(encodeURIComponent(id),'a')});return}
+  c=findCand(id);if(!c){location.hash='#/apps';return}}
+ candKind=kind;
+ var fromMatch=lastScreen==='match';
+ candBack=kind==='p'?(fromMatch?'#/match':'#/pool'):'#/apps';
+ $('candBack').textContent=kind==='p'?(fromMatch?TX.profBackMatch:TX.profBackPool):TX.profBack;
  hideScreens();show($('scCand'),true);navOn('');
- var kv=[[TX.fRole,c.role],[TX.fCityL,c.city],
-  [TX.fExp,c.experience?c.experience+' '+TX.fYears:''],[TX.fSkills,c.skills],
-  [TX.fPhone,c.phone],[TX.fEmail,c.email]]
-  .filter(function(p){return p[1]}).map(function(p){
-   return '<dt>'+esc(p[0])+'</dt><dd>'+esc(p[1])+'</dd>'}).join('');
  var opts=STAGES.map(function(s){
   return '<option value="'+s[0]+'"'+(s[0]===c.stage?' selected':'')+'>'+esc(s[1])+'</option>'}).join('');
  $('candBody').innerHTML=
-  '<h3 class="sv1-emp-h">'+esc(c.name||'—')+'</h3>'+
-  '<p class="sv1-emp-sub">'+esc(c._job||'')+'</p>'+
+  '<div id="candHead"><h3 class="sv1-emp-h">'+(c.locked?lockedNm():esc(c.name||'—'))+'</h3>'+
+   '<p class="sv1-emp-sub">'+esc(c._job||'')+'</p></div>'+
   '<div class="sv1-aibar" id="candChips"></div>'+
-  '<dl class="sv1-emp-kv">'+kv+'</dl>'+
-  // ما تحت هذا يُجلب عند فتح هذا المرشّح وحده (‏?applicant=1) ولا يأتي مع
-  // قائمة المتقدّمين: نصّ سيرةٍ لكل بطاقةٍ في اللوحة يفجّر حمولة الردّ.
+  // ما تحت هذا يُجلب عند فتح هذا المرشّح وحده ولا يأتي مع القائمة: نصّ سيرةٍ لكل
+  // بطاقةٍ في القائمة يفجّر حمولة الردّ.
   '<div id="candDet"><p class="sv1-emp-sub">'+esc(TX.cvLoad)+'</p></div>'+
   '<div class="sv1-emp-f" style="max-width:520px">'+
-   '<label for="cStage">'+esc(TX.stage)+'</label>'+
-   '<select id="cStage">'+opts+'</select>'+
-   '<p class="sv1-emp-msg" id="cStageMsg"></p>'+
-   '<div style="margin-top:26px;padding-top:20px;border-top:1px solid var(--l)">'+
+   (kind==='a'?'<label for="cStage">'+esc(TX.stage)+'</label>'+
+    '<select id="cStage">'+opts+'</select>'+
+    '<p class="sv1-emp-msg" id="cStageMsg"></p>':'')+
+   '<div id="cReqBox" style="'+(kind==='a'?'margin-top:26px;padding-top:20px;border-top:1px solid var(--l)':'')+'">'+
     '<h4 style="margin:0 0 5px;font-size:16px;font-weight:600">'+esc(TX.reqH)+'</h4>'+
     '<p class="sv1-emp-sub">'+esc(TX.reqP)+'</p>'+
     '<label for="cPref">'+esc(TX.reqPref)+'</label>'+
@@ -1721,7 +1941,7 @@ function openCand(id){
  window.scrollTo(0,0);
  loadCandDet(c);
 
- $('cStage').onchange=function(){
+ if(kind==='a')$('cStage').onchange=function(){
   var sel=$('cStage'),m=$('cStageMsg'),v=sel.value;sel.disabled=true;
   m.className='sv1-emp-msg';m.textContent=TX.saving;
   post('/api/candidates',{action:'update-stage',id:c.id,stage:v}).then(function(d){
@@ -1742,212 +1962,291 @@ function openCand(id){
   }).catch(function(){b.disabled=false;b.textContent=TX.reqGo;
    m.className='sv1-emp-msg err';m.textContent=TX.eSave})}}
 
-$('candBack').onclick=function(){location.hash='#/apps'};
+$('candBack').onclick=function(){location.hash=candBack};
 
-// ── المطابقة الذكية ───────────────────────────────────────────────────────
-// ⚠️ الأوزان ثابتةٌ هنا ولا تُحفظ في جهاز أحد. القديمة (hr-app.js) تكتبها في
-// localStorage تحت bp_hr_match_weights، فيرى زميلان في الشركة نفسها درجتين
-// مختلفتين للمرشّح نفسه على الإعلان نفسه، وتضيع الأوزان بتغيير المتصفّح أو
-// الجهاز. ودرجةٌ تتغيّر بتغيّر المتصفّح ليست رقماً يُبنى عليه قرار توظيف —
-// وهذه بوابةٌ لا تكتب شيئاً في جهاز من يفتحها أصلاً.
-//
-// وأربعة مكوّنات لا تسعة. القديمة تزن تسعة، وخمسةٌ منها بلا بياناتٍ على
-// الطرفين في الواقع: الراتب المتوقع ومدة الإشعار وتصريح العمل لا تُعاد في
-// قائمة المرشحين أصلاً، والإعلان في قاعدة الإعلانات بلا سنوات خبرةٍ ولا
-// لغاتٍ ولا مهاراتٍ مطلوبة. فتأخذ كلٌّ منها درجةً ثابتة (55 «غير معروف»)
-// وتدخل في المعدّل — أي أن أكثر من نصف «الدرجة الموزونة» فيها رقمٌ غير
-// محسوب. هنا يُقارَن ما في السجلّين فعلاً، والحقل الذي لا قيمة له في أحدهما
-// يخرج وزنه من القسمة ويُقال باسمه بدل أن يُملأ بافتراض.
-var WD=[['field',TX.cField,30],['role',TX.cRole,30],['skills',TX.cSkills,25],['city',TX.cCity,15]];
+
 var SPLIT=/[،,؛;\/|]/;
-// تسويةٌ عربية خفيفة: التشكيل والتطويل، وأشكال الألف، والتاء المربوطة،
-// والألف المقصورة. بدونها «الریاض» و«الرياض» مدينتان، و«محاسبه» و«محاسبة»
-// مهارتان.
-function nz(s){return String(s==null?'':s).toLowerCase()
- .replace(/[\u064B-\u0652\u0640]/g,'')
- .replace(/[\u0622\u0623\u0625]/g,'\u0627')
- .replace(/\u0629/g,'\u0647').replace(/\u0649/g,'\u064A')
- .replace(/\s+/g,' ').trim()}
-function toks(s){return nz(s).split(/[^0-9a-z\u0600-\u06FF]+/)
- .filter(function(w){return w.length>2})}
+// ── المطابقة الذكية ───────────────────────────────────────────────────────
+// ⚠️ لا رقم هنا إلا من مصدرين: درجةٌ كتبها المستشار الذكي ومعها سببها المكتوب (وتُحفظ
+// في سجلّ المرشّح فتظهر ثانيةً بلا كلفة)، أو معيارٌ حتميٌّ محسوبٌ في الشيفرة يُقال
+// «مستوفى/ناقص/غير معروف». لا نسبةٌ مركّبة من أوزانٍ مفترضة، ولا «٠ من ١٠٠» من لا شيء —
+// وهذا يُفحَص هنا أيضاً (okScore): الدرجة بلا سببٍ مكتوب لا تُرسم.
+//
+// الترتيب: ١) المخزَّن مرتّباً بالدرجة (مجّاني) ٢) المطابقون للمعايير ولم يُقيَّموا ٣) تقييمٌ
+// بدفعاتٍ من خمسة بضغطك، بعدّادٍ صادق وإيقافٍ واستئناف. والمعايير الحتمية يطبّقها الخادم
+// في استعلام القاعدة وقبل أي نداء ذكاء اصطناعي — فمن لا يمرّ منها لا تُحرَق عليه كلفة.
+var MT={job:null,items:[],byId:{},crit:null,openCur:null,openDone:true,running:false,stop:false,
+ poolOK:null,proc:0,total:0,seq:0,stat:{s:0,k:0,f:0},msg:''};
+function jk(s){return String(s||'').toLowerCase().replace(/-/g,'')}
+function mtJobSel(){return mtJobs[+$('mtJob').value]||null}
+function mtQs(extra){
+ var q='forJob='+encodeURIComponent(MT.job.id)+'&limit=40';
+ if($('mtCityHard').checked)q+='&cityHard=1';
+ var mx=$('mtMinExp').value.trim();if(mx!=='')q+='&minExp='+encodeURIComponent(mx);
+ var nat=$('mtNat').value;if(nat)q+='&nat='+encodeURIComponent(nat);
+ return q+(extra||'')}
+function mtBody(ids){
+ var b={task:'score',postingId:MT.job.id,candidateIds:ids,cityHard:$('mtCityHard').checked};
+ var mx=$('mtMinExp').value.trim();if(mx!=='')b.minExp=mx;
+ var nat=$('mtNat').value;if(nat)b.nat=nat;
+ return b}
 
-function cmpOne(job,c){
- var r={},no=function(side){return {no:side?TX.cNoJob:TX.cNoCand}};
- // المجال: الطرفان يختاران من القائمة نفسها (FIELD_OPTIONS)، فالمقارنة حرفية.
- if(!job.field)r.field=no(1);else if(!c.field)r.field=no(0);
- else{var fs=nz(job.field)===nz(c.field);
-  r.field={s:fs?100:0,note:(fs?TX.cSame:TX.cDiff)+' — '+(c.field||'')}}
- // المسمّى: كم كلمةً من مسمّى إعلانك ترد في مسمّى المرشّح.
- var jt=toks(job.title),cr=nz(c.role);
- if(!jt.length)r.role=no(1);else if(!cr)r.role=no(0);
- else{var h=0;jt.forEach(function(w){if(cr.indexOf(w)>=0)h++});
-  r.role={s:Math.round(h/jt.length*100),
-   note:TX.cOf.replace('{a}',h).replace('{b}',jt.length)+' — '+(c.role||'')}}
- // المهارات: كم مهارةً يذكرها المرشّح ترد في نصّ إعلانك (العنوان والوصف).
- // الإعلان لا يحمل قائمة مهاراتٍ مطلوبة في قاعدته، فالنصّ هو ما نملك —
- // ولا تُخترع للوظيفة مهاراتٌ من جدولٍ بالمسمّى كما تفعل القديمة.
- var jd=nz((job.title||'')+' '+(job.description||''));
- var sk=[],seen={};String(c.skills||'').split(SPLIT).forEach(function(x){
-  var raw=String(x||'').trim(),v=nz(x);
-  if(v.length>1&&!seen[v]){seen[v]=1;sk.push([raw,v])}});
- if(!jd)r.skills=no(1);else if(!sk.length)r.skills=no(0);
- else{var hs=[];sk.forEach(function(x){if(jd.indexOf(x[1])>=0)hs.push(x[0])});
-  r.skills={s:Math.round(hs.length/sk.length*100),
-   note:TX.cOf.replace('{a}',hs.length).replace('{b}',sk.length)+
-    (hs.length?' — '+hs.slice(0,5).join(' · '):'')}}
- // المدينة
- if(!job.city)r.city=no(1);else if(!c.city)r.city=no(0);
- else{var cs=nz(job.city)===nz(c.city);
-  r.city={s:cs?100:0,note:(cs?TX.cSame:TX.cDiff)+' — '+(c.city||'')}}
- var t=0,w=0;
- WD.forEach(function(d){var x=r[d[0]];if(x&&x.s!=null){t+=x.s*d[2];w+=d[2]}});
- return {comp:r,score:w?Math.round(t/w):null}}
-
-function drawWeights(){var el=$('mtWeights');if(!el||el.innerHTML)return;
- el.innerHTML=WD.map(function(d){
-  return '<div class="sv1-bar"><span>'+esc(d[1])+'</span>'+
-   '<span class="tr"><i class="fl" style="width:'+d[2]+'%"></i></span>'+
-   '<span class="nb">'+d[2]+'%</span></div>'}).join('')}
-
-var mtJobs=[],mtJob=null,mtRes=null;
+var mtJobs=[];
 function fillMtJobs(){
  var sel=$('mtJob');if(!sel||jobsState!=='ok')return;
- // الإعلانات النشطة في قاعدتنا وحدها: المغلقة لا يُطابَق عليها، وإعلانات
- // صفحة الوظائف الثابتة ليست صفوفاً تُقارن ولا وصف لها هنا.
+ // الإعلانات النشطة في قاعدتنا وحدها: المغلقة لا يُطابَق عليها، وإعلانات صفحة الوظائف
+ // الثابتة ليست صفوفاً تُقارن ولا وصف لها هنا.
+ var keep=sel.value;
  mtJobs=[];postings.forEach(function(p){if(p.status!=='مغلقة'&&!p.site)mtJobs.push(p)});
  sel.innerHTML=mtJobs.map(function(p,i){
   return '<option value="'+i+'">'+esc((p.title||'—')+(p.city?' — '+p.city:''))+'</option>'}).join('');
+ if(keep&&mtJobs[+keep])sel.value=keep;
  var none=!mtJobs.length;sel.disabled=none;$('mtRun').disabled=none;
- if(none&&!mtRes)$('mtStatus').textContent=TX.matchNoJ}
+ if(none&&!MT.job)$('mtStatus').textContent=TX.matchNoJ}
 
-function openMatch(){drawWeights();if(!loaded.jobs)loadJobs();else fillMtJobs()}
+function openMatch(){
+ if(!loaded.jobs)loadJobs();else fillMtJobs();
+ // هل يُقيَّم مرشّح القاعدة (من لم يتقدّم) على هذا الخادم؟ قرار مالك، مغلقٌ افتراضاً.
+ if(MT.poolOK===null)fetch('/api/hire',{credentials:'same-origin'}).then(j).then(function(d){
+  MT.poolOK=!!(d&&d.poolScoring);drawMtBar()}).catch(function(){})}
 
-// سقفٌ مكتوب: أربع صفحاتٍ أو أربعمئة مرشّح، أيّهما أوّل. الترجيح يجري في
-// المتصفّح، وبلا سقفٍ يُجمّد جوّالاً على قاعدةٍ من آلاف الصفوف. وما لم يُبلَغ
-// فيه آخر القاعدة يُقال صراحةً تحت النتائج.
-var MCAP=400,MSTEP=4;
-$('mtRun').onclick=function(){
- var p=mtJobs[+$('mtJob').value];if(!p)return;
- var b=$('mtRun');b.disabled=true;b.textContent=TX.matchWork;
- $('mtStatus').textContent=TX.matchWork;$('mtList').innerHTML='';
- show($('mtAiBar'),false);show($('mtAiNote'),false);$('mtAiMsg').textContent='';
- mtRes=null;mtJob=p;
- var pool=[],steps=0,f=p.field||'';
- function fail(){b.disabled=false;b.textContent=TX.matchRun;
-  $('mtStatus').textContent=TX.matchErr}
- function step(cur){
-  get('field='+encodeURIComponent(f)+(cur?'&cursor='+encodeURIComponent(cur):''))
-  .then(function(d){
-   if(!d||!d.ok){fail();return}
-   (d.candidates||[]).forEach(function(c){pool.push(c)});
-   steps++;
-   if(pool.length<MCAP&&!d.done&&d.nextCursor&&steps<MSTEP){step(d.nextCursor);return}
-   finish(p,pool.slice(0,MCAP),!!d.done&&pool.length<=MCAP,f)
-  }).catch(fail)}
- step(null)};
+var CK={field:'ckField',city:'ckCity',experience:'ckExp',nat:'ckNat',title:'ckTitle'};
+var CKM={met:'✓',missing:'✗',unknown:'؟'};
+var CKC={met:'ok',missing:'bad',unknown:'off'};
+var CKT={met:'ckMet',missing:'ckMiss',unknown:'ckUnk'};
+var CONF={high:'confH',medium:'confM',low:'confL'};
+var ERRT={ai_failed:'mtErrAi',no_reason:'mtErrWhy',no_score:'mtErrWhy',unparsed:'mtErrWhy',
+ forbidden_reason:'mtErrWhy',not_found:'mtErrNot'};
 
-function finish(p,pool,done,f){
- var b=$('mtRun');b.disabled=false;b.textContent=TX.matchRun;
- mtRes=pool.map(function(c){var r=cmpOne(p,c);r.c=c;return r});
- mtRes.sort(function(x,y){
-  return (y.score==null?-1:y.score)-(x.score==null?-1:x.score)});
- var msg=TX.matchDone.replace('{n}',pool.length);
- if(f)msg+=' '+TX.matchFld.replace('{f}',f);
- if(!done)msg+=' — '+TX.matchCap;
- $('mtStatus').textContent=pool.length?msg:TX.matchNone;
- show($('mtAiBar'),!!pool.length);show($('mtAiNote'),!!pool.length);
- drawMt()}
+// الدرجة تُرسم إذا كانت رقماً **ومعها سببٌ مكتوب** — وإلا فلا درجة.
+// الحساب المجاني يرى نسبة المطابقة المخزَّنة بلا سببها (lockedScore): السبب نصٌّ كتبه
+// المستشار من السيرة كاملةً، فيُفتح بالاشتراك. هذا الاستثناء الوحيد لقاعدة «لا درجة بلا سبب».
+function okScore(r){return typeof r.score==='number'&&isFinite(r.score)&&(r.lockedScore||!!String(r.reason||'').trim())}
+function isScored(r){return (r.st==='saved'||r.st==='scored')&&okScore(r)}
+// بلا اشتراك: متقدّمو الإعلان وحدهم يُقيَّمون (الخادم يرفض غيرهم).
+function isTodo(r){return r.st==='new'&&(r.c.applied||r.c._a||(SUB&&MT.poolOK!==false))}
+
+function mkItem(c){
+ var r={c:c,id:c.id,st:'new',score:null,reason:'',conf:'',why:'',checks:c.checks||[],err:'',failed:[]};
+ var m=c.match;
+ if(m&&typeof m.score==='number'&&String(m.reason||'').trim()){
+  r.st='saved';r.score=m.score;r.reason=m.reason;r.conf=m.confidence||'';r.why=m.confidenceWhy||''}
+ else if(m&&m.locked&&typeof m.score==='number'){
+  r.st='saved';r.score=m.score;r.lockedScore=true;r.conf=m.confidence||''}
+ return r}
+function addItem(c){if(MT.byId[c.id])return null;var r=mkItem(c);MT.items.push(r);MT.byId[c.id]=r;return r}
+
+function critLine(){
+ var k=MT.crit;if(!k)return '';
+ var parts=[];
+ if(k.field)parts.push(TX.critField+': '+k.field);
+ if(k.city)parts.push(TX.critCity+': '+k.city+' ('+(k.cityHard?TX.critHard:TX.critSoft)+')');
+ if(k.minExp)parts.push(TX.critExp.replace('{n}',k.minExp)+' ('+(k.minExpFrom==='owner'?TX.critOwner:TX.critDesc)+')');
+ if(k.nat)parts.push(TX.mtNat+': '+(k.nat==='سعودي'?TX.mtNatSa:TX.mtNatNon));
+ return (parts.length?TX.mtCritH+' — '+parts.join(' · '):TX.critNone)+'. '+TX.mtCritNote}
+
+function mtCard(r){
+ var c=r.c,link=(byId[c.id]?'#/c/':'#/p/')+encodeURIComponent(c.id);
+ var meta=[c.role,c.field,c.city,expTxt(c.experience)].filter(Boolean).join(' · ');
+ var box;
+ if(isScored(r)){
+  box='<div class="sv1-mt-sc"><b>'+esc(String(r.score))+'</b><em>'+esc(TX.mtScoreOut)+'</em>'+
+   (r.conf&&CONF[r.conf]?'<i class="conf '+esc(r.conf)+'" title="'+esc(r.why||'')+'">'+esc(TX[CONF[r.conf]])+'</i>':'')+'</div>'}
+ else{
+  var lab=r.st==='fail'?(TX[ERRT[r.err]]||TX.mtErrAi):(r.st==='skip'?TX.critHard+': '+r.failed.map(function(k){return TX[CK[k]]||k}).join('، '):TX.mtNoScore);
+  box='<div class="sv1-mt-sc"><em>—</em><i>'+esc(lab)+'</i></div>'}
+ var cks=(r.checks||[]).map(function(k){
+  var lab=(TX[CK[k.key]]||k.key)+(k.detail&&k.key!=='title'?' · '+k.detail:'');
+  return '<span class="sv1-pill '+(CKC[k.status]||'off')+'" title="'+esc(TX[CKT[k.status]]||'')+'">'+
+   (CKM[k.status]||'؟')+' '+esc(lab)+'</span>'}).join('');
+ return '<li><div class="sv1-mt-top">'+
+   '<i class="sv1-kb-av" aria-hidden="true">'+esc(c.locked?'•':initials(c.name))+'</i>'+
+   '<div class="sv1-mt-nm"><a class="nm" dir="auto" href="'+link+'">'+(c.locked?lockedNm():esc(c.name||'—'))+'</a>'+
+    (meta?'<small>'+esc(meta)+'</small>':'')+
+    (c.applied||c._a?'<span class="sv1-pill ok" style="margin-top:4px">'+esc(TX.mtApplied)+'</span>':'')+'</div>'+
+   box+'</div>'+
+  (isScored(r)?(r.lockedScore?'<p class="sv1-ai-r">'+esc(TX.lockScore)+' — <a href="'+esc(JOIN)+'">'+esc(TX.lockSub)+'</a></p>'
+    :'<p class="sv1-ai-r" dir="auto">'+esc(r.reason)+'</p>'):'')+
+  (cks?'<div class="sv1-ck">'+cks+'</div>':'')+
+  '</li>'}
+
+function drawMtBar(){
+ var scorable=0,todo=0,saved=0;
+ MT.items.forEach(function(r){if(r.st==='saved')saved++;if(r.st==='new'){scorable++;if(isTodo(r))todo++}});
+ var has=MT.items.length>0;
+ show($('mtBar'),has);
+ show($('mtPoolOff'),has&&MT.poolOK===false&&scorable>0&&scorable>todo);
+ var go=$('mtScoreGo'),stop=$('mtStop');
+ go.textContent=MT.proc>0&&todo>0?TX.mtResume:TX.mtScoreGo;
+ go.disabled=MT.running||!todo;show(stop,MT.running);
+ $('mtProgTxt').textContent=MT.total?TX.mtProg.replace('{a}',MT.proc).replace('{b}',MT.total):'';
+ $('mtProgBar').style.width=MT.total?Math.min(100,Math.round(MT.proc/MT.total*100))+'%':'0%';
+ show($('mtProgWrap'),!!MT.total);
+ $('mtStats').textContent=MT.total||saved?TX.mtStats.replace('{s}',MT.stat.s).replace('{c}',saved)
+  .replace('{k}',MT.stat.k).replace('{f}',MT.stat.f):'';
+ $('mtMsg').textContent=MT.msg||''}
 
 function drawMt(){
- if(!mtRes){$('mtList').innerHTML='';return}
- $('mtList').innerHTML=mtRes.map(function(r){
-  var c=r.c;
-  var meta=[c.role,c.field,c.city,c.experience?c.experience+' '+TX.fYears:'']
-   .filter(Boolean).join(' · ');
-  var bars=WD.map(function(d){var x=r.comp[d[0]];if(!x)return '';
-   if(x.no)return '<div class="sv1-bar"><span>'+esc(d[1])+'</span>'+
-    '<span class="no">'+esc(TX.cSkipped+' — '+x.no)+'</span></div>';
-   return '<div class="sv1-bar"><span>'+esc(d[1])+'</span>'+
-    '<span class="tr"><i class="fl" style="width:'+x.s+'%"></i></span>'+
-    '<span class="nb">'+x.s+'%</span>'+
-    (x.note?'<span class="nt">'+esc(x.note)+'</span>':'')+'</div>'}).join('');
-  return '<li><div class="sv1-mt-top">'+
-    '<i class="sv1-kb-av" aria-hidden="true">'+esc(initials(c.name))+'</i>'+
-    '<div class="sv1-mt-nm"><b>'+esc(c.name||'—')+'</b>'+
-     (meta?'<small>'+esc(meta)+'</small>':'')+'</div>'+
-    '<div class="sv1-mt-sc">'+
-     (r.score==null?'<em>—</em>':'<b>'+r.score+'%</b>')+
-     '<i>'+esc(r.score==null?TX.scoreNo:TX.scoreL)+'</i></div>'+
-   '</div>'+
-   (r.ai?'<p class="sv1-ai-r"><b>'+esc(TX.aiScoreL+' '+r.ai.score+'%')+'</b>'+
-     (r.ai.reason?' — '+esc(r.ai.reason):'')+'</p>':'')+
-   '<details><summary>'+esc(TX.detailsL)+'</summary>'+
-    '<div class="sv1-bars">'+bars+'</div></details>'+
-   (c.cv?'<p style="margin:10px 0 0"><a class="sv1-emp-link" href="'+esc(c.cv)+
-     '" target="_blank" rel="noopener">'+esc(TX.fCv+' — '+TX.cvOpen)+'</a></p>':'')+
-  '</li>'}).join('')}
+ var sc=MT.items.filter(isScored).sort(function(a,b){return b.score-a.score});
+ var op=MT.items.filter(function(r){return !isScored(r)});
+ $('mtScoredH').textContent=TX.mtScoredH+' ('+sc.length+')';
+ $('mtScored').innerHTML=sc.length?sc.map(mtCard).join('')
+  :'<li><p class="sv1-emp-hint" style="margin:0">'+esc(TX.mtNoScored)+'</p></li>';
+ $('mtOpenH').textContent=TX.mtOpenH+' ('+op.length+')';
+ $('mtOpen').innerHTML=op.map(mtCard).join('');
+ show($('mtScoredH'),MT.items.length>0);show($('mtOpenH'),op.length>0);
+ show($('mtMore'),!MT.openDone&&!!MT.openCur);
+ $('mtCrit').textContent=critLine();show($('mtCrit'),!!MT.crit);
+ drawMtBar()}
 
-// الترتيب بالذكاء الاصطناعي: بالضغط وحده ولا يُطلب تلقائياً — النداء مدفوع.
-// ولا يُرسَل اسمٌ ولا جوّال ولا بريد ولا رابط سيرة: المرسَل هو الحقول
-// المهنية وحدها، كما يضغطها api/hire.js نفسه (cCompact).
-$('mtAi').onclick=function(){
- if(!mtRes||!mtRes.length||!mtJob)return;
- var b=$('mtAi'),m=$('mtAiMsg');b.disabled=true;b.textContent=TX.aiWorkR;
- m.className='sv1-emp-msg';m.textContent='';
- var send=mtRes.slice(0,120).map(function(r){var c=r.c;
-  return {id:c.id,role:c.role,field:c.field,city:c.city,experience:c.experience,
-   education:c.education,nationalityType:c.nationalityType,skills:c.skills}});
- fetch('/api/hire',{method:'POST',headers:{'content-type':'application/json'},
-  body:JSON.stringify({task:'match',
-   role:(mtJob.title||'')+'\n'+(mtJob.description||''),candidates:send})})
- .then(function(r){return r.status===503?{off:true}:j(r)}).then(function(d){
-  b.disabled=false;b.textContent=TX.aiH;
-  if(d&&d.off){m.className='sv1-emp-msg err';m.textContent=TX.aiOffR;return}
-  if(!d||!d.ok||!d.ranked||!d.ranked.length){
-   m.className='sv1-emp-msg err';m.textContent=TX.aiFailR;return}
-  var by={};d.ranked.forEach(function(x){if(x&&x.id)by[String(x.id)]={
-   score:Math.max(0,Math.min(100,Math.round(Number(x.score)||0))),
-   reason:String(x.reason||'').slice(0,240)}});
-  var n=0;mtRes.forEach(function(r){var a=by[String(r.c.id)];r.ai=a||null;if(a)n++});
-  mtRes.sort(function(x,y){
-   var ax=x.ai?x.ai.score:-1,ay=y.ai?y.ai.score:-1;
-   if(ax!==ay)return ay-ax;
-   return (y.score==null?-1:y.score)-(x.score==null?-1:x.score)});
-  m.className='sv1-emp-msg ok';
-  m.textContent=TX.aiRanked.replace('{a}',n).replace('{b}',send.length);
+$('mtRun').onclick=function(){
+ var p=mtJobSel();if(!p)return;
+ MT.seq++;var my=MT.seq;
+ MT.job=p;MT.items=[];MT.byId={};MT.crit=null;MT.openCur=null;MT.openDone=true;
+ MT.running=false;MT.stop=true;MT.proc=0;MT.total=0;MT.stat={s:0,k:0,f:0};MT.msg='';
+ var b=$('mtRun');b.disabled=true;b.textContent=TX.matchWork;
+ $('mtStatus').textContent=TX.matchWork;
+ $('mtScored').innerHTML='';$('mtOpen').innerHTML='';show($('mtBar'),false);
+ show($('mtScoredH'),false);show($('mtOpenH'),false);show($('mtMore'),false);show($('mtCrit'),false);
+ function fail(){if(my!==MT.seq)return;b.disabled=false;b.textContent=TX.matchRun;
+  $('mtStatus').textContent=TX.matchErr}
+ function ready(next){
+  // متقدّمو الإعلان أولاً: يُقيَّمون دائماً (تقدّموا بأنفسهم) ولو لم تطابق حقولُهم المعايير.
+  if(appsState==='ok')next();else loadApps().then(next).catch(next)}
+ function loadScored(cur,pages){
+  get(mtQs('&scored=1')+(cur?'&cursor='+encodeURIComponent(cur):'')).then(function(d){
+   if(my!==MT.seq)return;
+   if(!d||!d.ok){fail();return}
+   if(d.criteria)MT.crit=d.criteria;
+   (d.candidates||[]).forEach(addItem);
+   if(d.nextCursor&&pages<4){loadScored(d.nextCursor,pages+1);return}
+   loadOpen()
+  }).catch(fail)}
+ function loadOpen(){
+  get(mtQs()).then(function(d){
+   if(my!==MT.seq)return;
+   if(!d||!d.ok){fail();return}
+   if(d.criteria)MT.crit=d.criteria;
+   (d.candidates||[]).forEach(addItem);
+   MT.openCur=d.nextCursor||null;MT.openDone=!d.nextCursor;
+   addApplicants()
+  }).catch(fail)}
+ // مَن تقدّم على هذا الإعلان: يُضاف إن لم يأتِ في القائمة، وتُجلب درجته المحفوظة (peek —
+ // بلا نموذج ولا كلفة) ليظهر سببها وثقتها.
+ function addApplicants(){
+  var k=jk(p.id),peek=[];
+  flat.forEach(function(a){
+   if(jk(a._jobId)!==k)return;
+   var r=MT.byId[a.id];
+   if(!r){r=addItem({id:a.id,name:a.name,role:a.role,city:a.city,experience:a.experience,
+    skills:a.skills,nationalityType:a.nationalityType,_a:true})}
+   r.c.applied=true;
+   if(r.st==='new'&&a.score!=null&&a.scoreJob===k)peek.push(r)});
+  function more(){
+   if(my!==MT.seq)return;
+   var batch=peek.splice(0,5);
+   if(!batch.length){finish();return}
+   post('/api/hire',(function(){var q=mtBody(batch.map(function(r){return r.id}));q.peek=true;return q})())
+   .then(function(d){
+    if(my!==MT.seq)return;
+    ((d&&d.results)||[]).forEach(function(x){
+     var r=MT.byId[x.id];if(!r||!x.ok||typeof x.score!=='number')return;
+     if(String(x.reason||'').trim()){r.st='saved';r.score=x.score;r.reason=x.reason;
+      r.conf=x.confidence||'';r.why=x.confidenceWhy||''}});
+    more()
+   }).catch(more)}
+  more()}
+ function finish(){
+  if(my!==MT.seq)return;
+  b.disabled=false;b.textContent=TX.matchRun;
+  $('mtStatus').textContent=MT.items.length?TX.mtShown.replace('{n}',MT.items.length):TX.matchNone;
+  drawMt()}
+ ready(function(){loadScored(null,0)})};
+
+$('mtMore').onclick=function(){
+ if(!MT.openCur||!MT.job)return;
+ var my=MT.seq,b=$('mtMore');b.disabled=true;
+ get(mtQs('&cursor='+encodeURIComponent(MT.openCur))).then(function(d){
+  if(my!==MT.seq)return;b.disabled=false;
+  if(!d||!d.ok){MT.msg=TX.matchErr;drawMt();return}
+  (d.candidates||[]).forEach(addItem);
+  MT.openCur=d.nextCursor||null;MT.openDone=!d.nextCursor;
+  $('mtStatus').textContent=TX.mtShown.replace('{n}',MT.items.length);
   drawMt()
- }).catch(function(){b.disabled=false;b.textContent=TX.aiH;
-  m.className='sv1-emp-msg err';m.textContent=TX.aiFailR})};
+ }).catch(function(){if(my===MT.seq){b.disabled=false;MT.msg=TX.matchErr;drawMt()}})};
+
+// التقييم بدفعات ≤٥ (سقف الخادم): كل دفعةٌ نداءٌ واحد، وبينها يُرسم التقدّم الفعلي. الإيقاف
+// يُنهي الدفعة الجارية ثم يقف، والاستئناف يكمل مما بقي. ولا يبدأ شيءٌ إلا بضغطك.
+$('mtScoreGo').onclick=function(){
+ if(MT.running||!MT.job)return;
+ var my=MT.seq,todo=MT.items.filter(isTodo);
+ if(!todo.length){MT.msg=TX.mtNothing;drawMtBar();return}
+ MT.running=true;MT.stop=false;MT.msg='';MT.total=MT.proc+todo.length;drawMtBar();
+ function end(msg){MT.running=false;MT.msg=msg||'';drawMt()}
+ function loop(){
+  if(my!==MT.seq)return;
+  if(MT.stop){end(TX.mtStopped);return}
+  var batch=MT.items.filter(isTodo).slice(0,5);
+  if(!batch.length){end(TX.mtDone);return}
+  post('/api/hire',mtBody(batch.map(function(r){return r.id}))).then(function(d){
+   if(my!==MT.seq)return;
+   if(!d||!d.ok){
+    // 429/403/503/5xx: كلّها تقف عندها الحلقة والعناصر تبقى «لم يُقيَّم» فيُستأنف لاحقاً.
+    end(d&&d.error==='rate_limited'?(d.message||TX.mtErrLim):(d&&d.error==='ai_not_configured'?TX.mtErrOff:TX.eNet));return}
+   var by={};((d.results)||[]).forEach(function(x){by[x.id]=x});
+   batch.forEach(function(r){
+    var x=by[r.id];
+    if(!x||!x.ok){r.st='fail';r.err=(x&&x.error)||'ai_failed';MT.stat.f++;return}
+    if(x.skipped){r.st='skip';r.failed=x.filtered||[];if(x.checks)r.checks=x.checks;MT.stat.k++;return}
+    if(typeof x.score==='number'&&String(x.reason||'').trim()){
+     r.st='scored';r.score=x.score;r.reason=x.reason;r.conf=x.confidence||'';r.why=x.confidenceWhy||'';
+     if(x.checks)r.checks=x.checks;MT.stat.s++;return}
+    // نجاحٌ بلا درجةٍ ومبرّر: لا تُعرض درجة.
+    r.st='fail';r.err='no_reason';MT.stat.f++});
+   MT.proc+=batch.length;drawMt();
+   window.setTimeout(loop,0)
+  }).catch(function(){if(my===MT.seq)end(TX.eNet)})}
+ loop()};
+$('mtStop').onclick=function(){MT.stop=true;$('mtStop').disabled=true;
+ window.setTimeout(function(){$('mtStop').disabled=false},1500)};
 
 // ── قاعدة المواهب ─────────────────────────────────────────────────────────
-// بنك السير، صفحةً صفحة. القديمة تلاحق المؤشّر وحدها حتى آخر البنك، فكل بحثٍ
-// فيها مسحٌ متتابع على نوشن لقاعدةٍ من آلاف الصفوف. هنا صفحةٌ واحدة لكل طلب،
-// والتالية بزرٍّ يُضغط — والعدد المكتوب هو عدد ما وصل فعلاً لا تقديرٌ للبنك.
+// بنك السير المقروءة، صفحةً صفحة: **صفحةٌ واحدة من نوشن لكل طلب** (limit=40) والتالية بزرٍّ
+// يُضغط. القديمة كانت تلاحق المؤشّر حتى آخر البنك، فكل بحثٍ فيها مسحٌ متتابع لقاعدةٍ من
+// آلاف الصفوف. والعدد المكتوب هو ما وصل فعلاً؛ والإجمالي رقمٌ مخزَّن يُحسب يومياً (حدٌّ
+// أعلى) ويُعرض بلا فلتر فقط — ومع أي فلتر لا إجماليَّ معروفاً فلا يُكتب.
 //
-// ولا جوّال ولا بريد على البطاقة: بطاقة القديمة لا تعرضهما، وهذه لا تزيد
-// عليها حقلاً. السيرة رابطٌ يُفتح، وهي ما يُتصرَّف به فعلاً.
-var tpCur=null,tpN=0,tpSeq=0,tpDeb=0;
+// ولا جوّال ولا بريد على البطاقة: بطاقة القديمة لا تعرضهما، وهذه لا تزيد عليها حقلاً —
+// وهما في لوحة المرشّح عند فتحه. واسم المرشّح يفتح تلك اللوحة.
+var tpCur=null,tpN=0,tpSeq=0,tpDeb=0,tpTotal=null,tpEnd=false,tpCounting=false,tpCountSeq=0;
+function poolFiltered(){
+ return !!($('tpQ').value.trim()||$('tpField').value||$('tpCity').value.trim()||$('tpNat').value||
+  $('tpEdu').value||$('tpExp').value.trim())}
 function poolQs(cur){
- var qs='field='+encodeURIComponent($('tpField').value||'');
+ var qs='limit=40&field='+encodeURIComponent($('tpField').value||'');
  var q=$('tpQ').value.trim(),ci=$('tpCity').value.trim(),na=$('tpNat').value;
+ var ed=$('tpEdu').value,ex=$('tpExp').value.trim(),so=$('tpSort').value;
  if(q)qs+='&q='+encodeURIComponent(q);
  if(ci)qs+='&city='+encodeURIComponent(ci);
  if(na)qs+='&nat='+encodeURIComponent(na);
+ if(ed)qs+='&edu='+encodeURIComponent(ed);
+ if(ex!=='')qs+='&minExp='+encodeURIComponent(ex);
+ if(so)qs+='&sort='+encodeURIComponent(so);
  if(cur)qs+='&cursor='+encodeURIComponent(cur);
  return qs}
 
 function poolCard(c){
- var sk=[];String(c.skills||'').split(SPLIT).forEach(function(x){
-  var v=String(x||'').trim();if(v&&sk.length<4&&sk.indexOf(v)<0)sk.push(v)});
+ poolById[c.id]=c;
+ var sk=listOf(c.skills).slice(0,4);
  var kv=[[TX.dEdu,c.education],[TX.dLang,c.languages],[TX.dAvail,c.availability],
   [TX.dRegion,[c.region].concat(c.countries||[]).filter(Boolean).join(' · ')],
   [TX.dRes,c.residenceStatus],[TX.dNatT,c.nationalityType]]
   .filter(function(p){return p[1]}).map(function(p){
    return '<dt>'+esc(p[0])+'</dt><dd>'+esc(p[1])+'</dd>'}).join('');
- var meta=[c.role,c.city,c.experience?c.experience+' '+TX.fYears:''].filter(Boolean).join(' · ');
+ var meta=[c.role,c.city,expTxt(c.experience)].filter(Boolean).join(' · ');
  return '<div><div class="hd">'+
-   '<i class="sv1-kb-av" aria-hidden="true">'+esc(initials(c.name))+'</i>'+
-   '<div style="min-width:0"><b>'+esc(c.name||'—')+'</b>'+
+   '<i class="sv1-kb-av" aria-hidden="true">'+esc(c.locked?'•':initials(c.name))+'</i>'+
+   '<div style="min-width:0"><a class="nm" href="#/p/'+encodeURIComponent(c.id)+'">'+(c.locked?lockedNm():esc(c.name||'—'))+'</a>'+
     (meta?'<small>'+esc(meta)+'</small>':'')+'</div></div>'+
   (c.field?'<p style="margin:0;font-size:11.5px;color:var(--mut)">'+esc(c.field)+'</p>':'')+
   (sk.length?'<div class="sv1-tags">'+sk.map(function(x){
@@ -1958,8 +2257,35 @@ function poolCard(c){
     esc(TX.poolCv)+'</a></div>':'')+
  '</div>'}
 
+function poolStatus(){
+ var s;
+ if(!tpN)s=TX.poolNone;
+ else{
+  var withTotal=tpTotal!=null&&tpTotal>=tpN&&!poolFiltered();
+  s=withTotal?TX.poolOf.replace('{n}',tpN).replace('{t}',tpTotal)
+   :TX[tpEnd?'poolN':'poolSo'].replace('{n}',tpN);
+  if(tpEnd)s+=' — '+TX.poolEnd;
+  if(tpCounting&&!poolFiltered())s+=' · '+TX.poolCnt}
+ $('tpStatus').textContent=s;
+ show($('tpNote'),tpTotal!=null&&!poolFiltered())}
+
+// العدّ الكامل (إن لم يكن مخزَّناً صالحاً): ?count=1 العام نفسه بسلسلة مؤشّرات، فلا مسح
+// في طلبٍ واحد. يُنتج رقماً واحداً فقط حين يكتمل — وما قبل ذلك لا يُعرض إجماليٌّ مخمَّن.
+function countPool(){
+ if(tpCounting)return;tpCounting=true;var my=++tpCountSeq;
+ function step(cursor,sofar){
+  fetch('/api/candidates?count=1'+(cursor?'&cursor='+encodeURIComponent(cursor)+'&sofar='+sofar:''),
+   {credentials:'same-origin'}).then(j).then(function(d){
+   if(my!==tpCountSeq)return;
+   if(!d||!d.ok){tpCounting=false;poolStatus();return}
+   if(d.done||!d.nextCursor){tpCounting=false;tpTotal=(d.sofar!=null?d.sofar:d.total);poolStatus();return}
+   step(d.nextCursor,d.sofar)
+  }).catch(function(){if(my===tpCountSeq){tpCounting=false;poolStatus()}})}
+ step(null,0)}
+
 function loadPool(fresh){
- if(fresh){tpCur=null;tpN=0;$('tpGrid').innerHTML='';loaded.pool=true}
+ if(fresh){tpCur=null;tpN=0;tpEnd=false;tpTotal=null;tpCountSeq++;tpCounting=false;
+  $('tpGrid').innerHTML='';loaded.pool=true}
  var my=++tpSeq;
  $('tpStatus').textContent=TX.loading;show($('tpMore'),false);
  get(poolQs(tpCur)).then(function(d){
@@ -1968,11 +2294,12 @@ function loadPool(fresh){
   var rows=d.candidates||[];tpN+=rows.length;
   if(rows.length)$('tpGrid').insertAdjacentHTML('beforeend',rows.map(poolCard).join(''));
   tpCur=d.nextCursor||null;
-  var end=!!d.done||!tpCur;
-  $('tpStatus').textContent=tpN
-   ?(TX[end?'poolN':'poolSo'].replace('{n}',tpN)+(end?' — '+TX.poolEnd:''))
-   :TX.poolNone;
-  show($('tpMore'),!end)
+  tpEnd=!!d.done||!tpCur;
+  if(fresh&&d.poolTotal!=null)tpTotal=d.poolTotal;
+  poolStatus();
+  show($('tpMore'),!tpEnd);
+  // لا إجمالي مخزَّناً صالحاً وبلا فلتر: ابدأ العدّ (مرةً يومياً لكل المنصّة، يُخزَّن بعدها).
+  if(fresh&&!poolFiltered()&&(d.poolTotal==null||d.poolTotalStale))countPool()
  }).catch(function(){if(my!==tpSeq)return;
   $('tpStatus').textContent=TX.poolErr;show($('tpMore'),!!tpCur)})}
 
@@ -1982,9 +2309,9 @@ $('tpQ').oninput=function(){window.clearTimeout(tpDeb);
  tpDeb=window.setTimeout(function(){loadPool(true)},600)};
 $('tpQ').onkeydown=function(e){if(e.key==='Enter'||e.keyCode===13){
  e.preventDefault();window.clearTimeout(tpDeb);loadPool(true)}};
-$('tpField').onchange=function(){loadPool(true)};
-$('tpNat').onchange=function(){loadPool(true)};
-$('tpCity').onchange=function(){loadPool(true)};
+['tpField','tpNat','tpEdu','tpSort'].forEach(function(id){$(id).onchange=function(){loadPool(true)}});
+['tpCity','tpExp'].forEach(function(id){$(id).onchange=function(){loadPool(true)}});
+
 
 // ── الحساب: قائمةٌ في الشريط العلوي، وشاشةٌ في «الإعدادات» ─────────────────
 // نداءٌ واحد يخدم الاثنتين ولا يُطلب إلا عند أول فتح لأيّهما — شاشةٌ مغلقة لا
@@ -1994,7 +2321,7 @@ function setTxt(id,v){var e=$(id);if(e)e.textContent=v}
 function loadAcct(){
  if(acctLoaded)return;
  acctLoaded=true;
- setTxt('acctCo',CO||'—');setTxt('setCo',CO||'—');setTxt('setPlan',PLAN||'—');
+ setTxt('acctCo',CO||'—');setTxt('setCo',CO||'—');setTxt('setPlan',SUBST==='expired'?TX.expTag+(PLAN?' ('+PLAN+')':''):(PLAN||'—'));
  if(AUTH&&AUTH.mode==='code'){
   // الدخول بكلمة المرور لا يفتح جلسة، و/api/employer يصادق بالجلسة وحدها —
   // فالحقل يُعرض للقراءة مع السطر الذي يقول كيف يُغيَّر، لا زرٌّ لا يعمل.
@@ -2046,7 +2373,6 @@ get('validate=1').then(function(d){
  if(d&&d.unlocked){AUTH={mode:'session'};
   CO=d.company||'';PLAN=d.plan||'';
   $('empCo').textContent=CO||'Business Partner';
-  $('empPlan').textContent=PLAN?TX.plan+': '+PLAN:'';
   applySub(d);warnBar(d);
   show($('empLogin'),false);show($('empApp'),true);route()}
  // جلسةٌ قائمة واشتراكٌ لم يُفعّل: يُقال السبب على شاشة الدخول بدل أن

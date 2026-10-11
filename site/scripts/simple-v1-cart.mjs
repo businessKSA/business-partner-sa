@@ -48,7 +48,45 @@ const T = {
              zh: "部分项目需审核后报价——团队将在付款前确认最终金额。" },
   signIn:  { ar: "سجّل الدخول لرؤية الأسعار وإكمال الطلب", en: "Sign in to see prices and complete your order",
              fr: "Connectez-vous pour voir les prix et finaliser", zh: "登录以查看价格并完成订单" },
+  signInGo:{ ar: "سجّل الدخول", en: "Sign in", fr: "Se connecter", zh: "登录" },
+  // الدفعة الواحدة والاشتراك لا يُعرضان كأنهما شيء واحد: الاشتراك يتكرر، والعميل
+  // يجب أن يرى ذلك قبل الدفع لا بعده.
+  onceHd:  { ar: "دفعة واحدة", en: "One-time", fr: "Paiement unique", zh: "一次性付款" },
+  recHd:   { ar: "اشتراكات", en: "Subscriptions", fr: "Abonnements", zh: "订阅" },
+  billM:   { ar: "شهرياً", en: "Monthly", fr: "Mensuel", zh: "每月" },
+  billY:   { ar: "سنوياً", en: "Yearly", fr: "Annuel", zh: "每年" },
+  onceLine:{ ar: "دفعة واحدة", en: "One-time items", fr: "Paiement unique", zh: "一次性项目" },
+  recLine: { ar: "اشتراكات (قسط الفترة الأولى)", en: "Subscriptions (first period)", fr: "Abonnements (première période)", zh: "订阅（首期）" },
+  recNote: { ar: "مبلغ الاشتراك المعروض هو قسط فترة واحدة (شهر أو سنة)، وهو ما يُدفع الآن.",
+             en: "A subscription's amount is one period's instalment (a month or a year) — that is what is paid now.",
+             fr: "Le montant d'un abonnement correspond à une période (mois ou année) — c'est ce qui est payé maintenant.",
+             zh: "订阅金额为一个周期（一个月或一年）的费用，即现在支付的金额。" },
+  // نوع البند: كان يُطبع كما هو في السلة («service» · «package») فيظهر إنجليزياً في صفحة عربية.
+  k_service:     { ar: "خدمة", en: "Service", fr: "Service", zh: "服务" },
+  k_package:     { ar: "باقة", en: "Package", fr: "Forfait", zh: "套餐" },
+  k_subscription:{ ar: "اشتراك", en: "Subscription", fr: "Abonnement", zh: "订阅" },
+  k_agent:       { ar: "مستشار ذكي", en: "AI advisor", fr: "Conseiller IA", zh: "AI 顾问" },
+  k_employee:    { ar: "موظف ذكي", en: "AI employee", fr: "Employé IA", zh: "AI 员工" },
+  k_misa:        { ar: "مسار مستثمر", en: "Investor track", fr: "Parcours investisseur", zh: "投资者通道" },
+  k_trip:        { ar: "رحلة", en: "Trip", fr: "Voyage", zh: "行程" },
 };
+
+// أي بند يتكرر؟ السلة لا تحمل ذلك دائماً: صفحات الخدمات الجديدة تكتب billingPeriod فارغاً
+// حتى للخدمة الشهرية، فيُعرف من الكتالوج وقت البناء (pricingModel / billingPeriod) ومن
+// لاحقة المعرّف (pkg-…-monthly · …-yearly). الخريطة تلميح عرضٍ فقط — المبلغ المخصوم
+// يقوله الخادم، وهذا لا يغيّر حساباً.
+export function recurringMap() {
+  const m = {};
+  try {
+    const c = JSON.parse(fs.readFileSync(path.resolve("site/assets/data/catalog.json"), "utf8"));
+    for (const s of c.services || []) if (s.code && /^monthly$/i.test(String(s.pricingModel || ""))) m[String(s.code).toLowerCase()] = "monthly";
+    for (const p of c.packages || []) {
+      if (p.billingPeriod !== "monthly") continue;
+      for (const k of [p.key, p.code]) if (k) m[String(k).toLowerCase()] = "monthly";
+    }
+  } catch {}
+  return m;
+}
 
 export function buildSimpleCart(SV1, ctx) {
   const lang = ctx.lang();
@@ -77,6 +115,10 @@ export function buildSimpleCart(SV1, ctx) {
 .sv1-qty span{min-width:30px;text-align:center;font-family:var(--fm);font-size:13px}
 .sv1-cart-row .amt{font-family:var(--fm);font-size:13.5px;color:var(--ink);white-space:nowrap;text-align:end}
 .sv1-cart-row .amt.soft{font-family:inherit;font-size:12px;color:var(--mut)}
+.sv1-grp-hd{margin:18px 0 2px;font-size:12px;font-weight:600;color:var(--mut)}
+.sv1-grp-hd:first-child{margin-top:0}
+.sv1-bill{display:inline-block;margin-inline-start:6px;padding:1px 8px;border-radius:999px;font-size:10.5px;font-weight:600;
+ background:var(--acSoft);color:var(--n);vertical-align:middle}
 .sv1-del{border:0;background:none;color:var(--faint);cursor:pointer;font-size:15px;line-height:1;padding:6px}
 .sv1-del:hover{color:#b91c1c}
 .sv1-sum-line{display:flex;justify-content:space-between;gap:12px;padding:7px 0;font-size:13px;color:var(--mut)}
@@ -109,12 +151,15 @@ export function buildSimpleCart(SV1, ctx) {
 
       <aside class="sv1-panel" id="cartSum">
         <h4>${esc(t("summary"))}</h4>
+        <div class="sv1-sum-line sv1-hide" id="cartOnceRow"><span>${esc(t("onceLine"))}</span><span class="v" id="cartOnce">—</span></div>
+        <div class="sv1-sum-line sv1-hide" id="cartRecRow"><span>${esc(t("recLine"))}</span><span class="v" id="cartRec">—</span></div>
         <div class="sv1-sum-line"><span>${esc(t("subtotal"))}</span><span class="v" id="cartNet">—</span></div>
         <div class="sv1-sum-line"><span>${esc(t("vat"))}</span><span class="v" id="cartVat">—</span></div>
         <div class="sv1-sum-total"><span>${esc(t("total"))}</span><span class="v" id="cartTotal">—</span></div>
         <a class="sv1-btn primary" id="cartGo" href="${home}checkout"
            style="width:100%;margin-top:16px;justify-content:center">${esc(t("checkout"))}</a>
         <p class="sv1-muted" id="cartHint" style="font-size:11.5px;margin:10px 0 0;line-height:1.7"></p>
+        <p class="sv1-muted" id="cartRecNote" style="font-size:11.5px;margin:8px 0 0;line-height:1.7"></p>
         <p class="sv1-muted" style="font-size:11px;margin:10px 0 0;line-height:1.7">${esc(vatNote || t("note"))}</p>
       </aside>
     </div>
@@ -124,12 +169,15 @@ export function buildSimpleCart(SV1, ctx) {
 
   const TX = {
     empty: t("empty"), browse: t("browse"), quoted: t("quoted"), hidden: t("hidden"),
-    remove: t("remove"), needQuote: t("needQuote"), signIn: t("signIn"),
+    remove: t("remove"), needQuote: t("needQuote"), signIn: t("signIn"), signInGo: t("signInGo"),
+    onceHd: t("onceHd"), recHd: t("recHd"), billM: t("billM"), billY: t("billY"), recNote: t("recNote"),
+    kinds: Object.fromEntries(["service", "package", "subscription", "agent", "employee", "misa", "trip"].map((k) => [k, t("k_" + k)])),
   };
 
   const script = `<script>(function(){
 var CART="bp_cart",VAT=0.15,LANG=${JSON.stringify(lang)},HOME=${JSON.stringify(home)};
 var TX=${JSON.stringify(TX)};
+var REC=${JSON.stringify(recurringMap())};
 var $=function(id){return document.getElementById(id)};
 function money(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ﷼'}
 function readCart(){try{return JSON.parse(localStorage.getItem(CART))||[]}catch(e){return []}}
@@ -140,6 +188,42 @@ function lineOf(i){return (Number(i.amount)||0)*(Number(i.qty)||1)}
 function nameOf(i){var ar=i.nameAr||'',en=i.nameEn||'';return (LANG==='ar'?ar:en)||ar||en||i.name||i.title||i.id||''}
 var PRICES_ON=document.documentElement.getAttribute('data-prices')==='on';
 function shown(i){return !!(i&&Number(i.amount)&&(PRICES_ON||i.pricePublic))}
+// دورة الدفع: ما كتبته الصفحة (billingPeriod) أولاً، ثم لاحقة المعرّف، ثم الكتالوج.
+function billOf(i){
+ var b=String((i&&i.billingPeriod)||'').toLowerCase();
+ if(b==='monthly'||b==='yearly')return b;
+ var id=String((i&&i.id)||'').toLowerCase();
+ if(/-yearly$/.test(id))return 'yearly';
+ if(/-monthly$/.test(id))return 'monthly';
+ return REC[id.replace(/^(svc|pkg)-/,'')]||''}
+function billLabel(b){return b==='yearly'?TX.billY:TX.billM}
+function kindOf(i){var k=String((i&&i.kind)||'service');return TX.kinds[k]||TX.kinds.service}
+
+// جلسةٌ صالحة بلا مفتاح bp_session في المتصفح (أول زيارة بعد الدخول من /my مثلاً) كانت
+// تُعامَل كضيف: «السعر يظهر بعد تسجيل الدخول» لعميلٍ داخلٍ فعلاً. يُسأل الخادم مرة، وفقط
+// إن كان في السلة بندٌ مسعّر محجوب — وللضيف الفعلي لا يتغيّر شيء.
+function needsSession(){return !PRICES_ON&&readCart().some(function(i){return Number(i.amount)&&!i.pricePublic})}
+function checkSession(done){
+ if(!needsSession()){done();return}
+ var fin=false;function end(){if(!fin){fin=true;done()}}
+ setTimeout(end,2500);
+ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
+  .then(function(r){return r.json()}).then(function(o){
+   if(o&&o.session&&o.session.user){PRICES_ON=true;document.documentElement.setAttribute('data-prices','on')}
+   end()}).catch(end)}
+
+var EMPRE=/^BP-EMP-/i;
+// سعر بند الاشتراك يقوله الخادم (/api/pay?action=emp-offer) لا الصفحة التي أضافته؛
+// تُصحَّح السلة مرة واحدة عند الفتح، وصفحة الدفع تعيد التصحيح قبل أن تأخذ مبلغاً.
+(function syncEmp(){
+ readCart().forEach(function(it,idx){
+  if(!EMPRE.test(String(it.id||'')))return;
+  fetch('/api/pay?action=emp-offer&sku='+encodeURIComponent(it.id)).then(function(r){return r.json()}).then(function(o){
+   var c=readCart(),cur=c[idx];if(!cur||cur.id!==it.id)return;
+   var next=(o&&o.ok)?{amount:o.amountSar,qty:1,pricePublic:true,nameAr:o.name.ar,nameEn:o.name.en}:{amount:0,qty:1};
+   var same=Number(cur.amount)===next.amount&&(Number(cur.qty)||1)===1;
+   if(same)return;
+   Object.keys(next).forEach(function(k){cur[k]=next[k]});writeCart(c)}).catch(function(){})})})();
 
 function draw(){
  var cart=readCart(),box=$('cartItems');box.innerHTML='';
@@ -150,28 +234,44 @@ function draw(){
   $('cartNet').textContent='—';$('cartVat').textContent='—';$('cartTotal').textContent='—';
   $('cartGo').setAttribute('aria-disabled','true');$('cartGo').style.opacity='.45';
   $('cartGo').style.pointerEvents='none';$('cartHint').textContent='';
+  $('cartOnceRow').classList.add('sv1-hide');$('cartRecRow').classList.add('sv1-hide');$('cartRecNote').textContent='';
   return}
 
- var net=0,unpriced=0,hiddenN=0;
+ var net=0,unpriced=0,hiddenN=0,onceNet=0,recNet=0,onceN=0,recN=0;
+ // دفعة واحدة أولاً ثم الاشتراكات، ولا عنوان للمجموعتين إلا إن اجتمعتا.
+ var once=[],rec=[];
  cart.forEach(function(i,idx){
   net+=lineOf(i);
   if(!Number(i.amount))unpriced++;else if(!shown(i))hiddenN++;
+  var bl=billOf(i);
+  if(bl){recNet+=lineOf(i);recN++;rec.push([i,idx,bl])}else{onceNet+=lineOf(i);onceN++;once.push([i,idx,''])}});
+ [[once,TX.onceHd],[rec,TX.recHd]].forEach(function(g){
+  if(!g[0].length)return;
+  if(once.length&&rec.length){var hd=document.createElement('div');hd.className='sv1-grp-hd';hd.textContent=g[1];box.appendChild(hd)}
+  g[0].forEach(function(x){box.appendChild(rowEl(x[0],x[1],x[2]))})});
 
+ function rowEl(i,idx,bl){
   var r=document.createElement('div');r.className='sv1-cart-row';
 
   var nm=document.createElement('div');nm.className='nm';
   var b=document.createElement('b');b.textContent=nameOf(i);nm.appendChild(b);
-  if(i.kind){var s=document.createElement('small');s.textContent=i.kind;nm.appendChild(s)}
+  // نوع البند بالعربية (كان يُطبع «service» · «package» كما في السلة) ووسم الدورة للاشتراك.
+  var s=document.createElement('small');s.textContent=kindOf(i);
+  if(bl){var pill=document.createElement('span');pill.className='sv1-bill';pill.textContent=billLabel(bl);s.appendChild(pill)}
+  nm.appendChild(s);
   r.appendChild(nm);
 
   var q=document.createElement('div');q.className='sv1-qty';
+  var isEmp=EMPRE.test(String(i.id||''));
   var dec=document.createElement('button');dec.type='button';dec.textContent='−';
   dec.setAttribute('aria-label','-');if((Number(i.qty)||1)<=1)dec.disabled=true;
   var val=document.createElement('span');val.textContent=String(Number(i.qty)||1);
   var inc=document.createElement('button');inc.type='button';inc.textContent='+';inc.setAttribute('aria-label','+');
   dec.onclick=function(){var c=readCart();c[idx].qty=Math.max(1,(Number(c[idx].qty)||1)-1);writeCart(c);draw()};
   inc.onclick=function(){var c=readCart();c[idx].qty=(Number(c[idx].qty)||1)+1;writeCart(c);draw()};
-  q.appendChild(dec);q.appendChild(val);q.appendChild(inc);r.appendChild(q);
+  // اشتراك منصة التوظيف واحدٌ لا يُضاعَف: لا أزرار كمية له.
+  if(!isEmp){q.appendChild(dec);q.appendChild(val);q.appendChild(inc)}
+  r.appendChild(q);
 
   var amt=document.createElement('div');amt.className='amt';
   if(!Number(i.amount)){amt.className='amt soft';amt.textContent=TX.quoted}
@@ -183,21 +283,30 @@ function draw(){
   del.textContent='✕';del.title=TX.remove;del.setAttribute('aria-label',TX.remove);
   del.onclick=function(){var c=readCart();c.splice(idx,1);writeCart(c);draw()};
   r.appendChild(del);
-
-  box.appendChild(r)});
+  return r}
 
  var vat=Math.round(net*VAT*100)/100,total=Math.round((net+vat)*100)/100;
  var showTotals=!unpriced&&!hiddenN;
  $('cartNet').textContent=showTotals?money(net):'—';
  $('cartVat').textContent=showTotals?money(vat):'—';
  $('cartTotal').textContent=showTotals?money(total):'—';
+ // تفصيل المجموع يظهر حين يوجد اشتراك فقط؛ والمجموع الكلي لا يتغيّر (نفس حساب صفحة الدفع).
+ $('cartOnceRow').classList.toggle('sv1-hide',!(showTotals&&recN&&onceN));
+ $('cartRecRow').classList.toggle('sv1-hide',!(showTotals&&recN));
+ $('cartOnce').textContent=money(onceNet);$('cartRec').textContent=money(recNet);
+ $('cartRecNote').textContent=recN?TX.recNote:'';
 
  // الزر يبقى مفتوحاً حتى مع بندٍ غير مسعّر: الدفع هو حيث يُسجَّل الطلب ويراجعه
  // الفريق. لكن السبب يُقال هنا بدل أن يكتشفه العميل في الصفحة التالية.
  $('cartGo').removeAttribute('aria-disabled');$('cartGo').style.opacity='';$('cartGo').style.pointerEvents='';
- $('cartHint').textContent=unpriced?TX.needQuote:(hiddenN?TX.signIn:'');
+ var hint=$('cartHint');hint.textContent='';
+ if(unpriced)hint.textContent=TX.needQuote;
+ else if(hiddenN){
+  // رابط الدخول يعيد العميل إلى السلة لا إلى لوحته (next) — مثل مسار «طلب عرض السعر».
+  hint.appendChild(document.createTextNode(TX.signIn+' · '));
+  var a2=document.createElement('a');a2.href=HOME+'my?next='+encodeURIComponent(HOME+'cart');a2.textContent=TX.signInGo;hint.appendChild(a2)}
 }
-draw();
+checkSession(function(){draw()});
 document.addEventListener('bp:cart',draw);
 window.addEventListener('storage',function(e){if(e.key===CART)draw()});
 })();</script>`;

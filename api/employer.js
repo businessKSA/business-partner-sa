@@ -13,8 +13,18 @@
 // GET  /api/employer                              -> { status, configured }
 // POST /api/employer                               -> { ok, ref } | { ok:false, error }   (register/signup)
 // POST /api/employer { action:"login", email, password } -> { ok, code, plan, status } | { ok:false, error }
+//
+// الدفع الإلكتروني للاشتراك (قرار المالك): ثلاث دوال مُصدَّرة يستعملها مسار السلة/الدفع
+// (cart-checkout) من الخادم إلى الخادم — لا فعلَ HTTP لها هنا عمداً:
+//   getPlanOffer(plan, billing)          السعر الوحيد من site.json (بالهللات)
+//   createPendingSubscription({...})     صفٌّ «بانتظار الدفع» + مرجع اشتراك (ليس رمز الوصول)
+//   activateSubscription({...})          التفعيل بعد دفعٍ تحقّق منه المنادي لدى مُيسّر/تمارا
+// التفعيل بلا دفعٍ مُتحقَّق منه ما زال يدوياً في نوشن بأمر المالك (التعليق الأمني فوق planAr).
 
 import { randomBytes, scryptSync, timingSafeEqual, createHmac, randomInt } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 import { getSession } from "./_db.js";
 
 const envFrom = (names) => {
@@ -66,17 +76,20 @@ async function readBody(req) {
 // A short human reference like BP-EMP-3F9K. Mixes in the current time (and a
 // random component) so repeat/duplicate registrations never collide on the
 // same code — each submission gets its own row and its own access code.
+const REF_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+function rand12() {
+  const bytes = randomBytes(12);
+  let out = "";
+  for (let i = 0; i < 12; i++) out += REF_ALPHABET[bytes[i] % REF_ALPHABET.length];
+  return out;
+}
 function makeRef(_seed) {
   // SECURITY: the access code is the sole bearer token that unlocks all
   // candidate PII once the row is activated, so it must be unguessable. The
   // old 4-char hash (~9.5e5 space, derived deterministically from the form
   // fields) was brute-forceable and predictable — replaced with 12 chars of
   // CSPRNG entropy from a 31-symbol alphabet (~2.5e17 combinations).
-  const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  const bytes = randomBytes(12);
-  let out = "";
-  for (let i = 0; i < 12; i++) out += abc[bytes[i] % abc.length];
-  return "BP-EMP-" + out;
+  return "BP-EMP-" + rand12();
 }
 
 // Salted scrypt hash, stored as "salt:hash" (both hex) in the "بيانات الدخول"
@@ -149,6 +162,266 @@ function txtProp(p, type) {
   if (type === "title") return (p.title || []).map((t) => t.plain_text).join("");
   return (p.rich_text || []).map((t) => t.plain_text).join("");
 }
+
+// ════════════════════════════════════════════════════════════════════════════
+// الاشتراك بالدفع الإلكتروني (مُيسّر + تمارا عبر السلة/الدفع)
+// ════════════════════════════════════════════════════════════════════════════
+// العقد مع مسار الدفع (cart-checkout). كل ما هنا من الخادم إلى الخادم؛ **لا فعلَ
+// HTTP يستدعي activateSubscription** — المنادي هو من يتحقّق من الدفع لدى المزوّد
+// (حالة paid ومبلغه) ثم يمرّر paymentRef. ما يصل هنا من المتصفّح لا يُصدَّق أبداً.
+//
+// • المرجع (reference) ليس رمز الوصول. رمز الوصول هو الرمز الحامل الذي يفتح بيانات
+//   المرشحين، فلا يخرج من هذا الملف إلى سلةٍ ولا بياناتٍ وصفية لدفعةٍ ولا ردّ.
+//   المرجع «BP-EMPSUB-» + اثنا عشر رمزاً عشوائياً، يُحفظ في عمود «ملاحظات» (لا عمود
+//   جديد في نوشن: تغيير مخطّط قاعدة حيّة قرار مالك) بسطرٍ لكل نيّة اشتراك:
+//       اشتراك إلكتروني | <المرجع> | <الباقة> | <الفوترة>
+//   وكل دفعةٍ مُفعِّلة بسطر:
+//       دفعة | <paymentRef> | <المرجع> | <التاريخ>
+//   هذا السجل هو ما يجعل التفعيل idempotent: نفس paymentRef لا يمدّد مرّتين، ويعيد
+//   {ok:true, activated:true, code:"already_processed"} — «activated» هنا حالة الحساب
+//   (مفعّلٌ بهذه الدفعة) لا «فعلُ هذا النداء»، فرجوع المتصفّح بعد الخطّاف ليس فشلاً.
+//   وحقل code في كل ردّ **سببٌ نصّي** (amount_mismatch…)، لا رمز وصول أبداً.
+// • الصف الموقوف («موقوف») لا يُفعَّل ولا يُجدَّد آلياً أبداً: إيقافه قرار مالك.
+// • الدفع لا يُنزل صفّاً مفعّلاً إلى «بانتظار الدفع» أبداً (تجديد/ترقية صاحب
+//   اشتراكٍ قائم): الصف المفعّل يبقى كما هو حتى تصل دفعةٌ مُتحقَّق منها.
+// • فشل نوشن = {ok:false}، لا استثناء ولا نجاحٌ كاذب.
+const PAYABLE_PLANS = ["basic", "pro"];          // enterprise عرض سعر، لا دفع
+const BILLINGS = ["monthly", "yearly"];
+const SUB_SKU = {
+  basic: { monthly: "BP-EMP-BASIC-M", yearly: "BP-EMP-BASIC-Y" },
+  pro: { monthly: "BP-EMP-PRO-M", yearly: "BP-EMP-PRO-Y" },
+};
+const BILLING_AR = { monthly: "شهري", yearly: "سنوي" };
+const STATUS_ACTIVE = "مفعّل", STATUS_PENDING = "بانتظار الدفع", STATUS_SUSPENDED = "موقوف";
+const SUBREF_RE = /^BP-EMPSUB-[A-HJ-NP-Z2-9]{12}$/;
+const PAYREF_RE = /^[A-Za-z0-9][A-Za-z0-9_.:-]{5,99}$/;
+const L_INTENT = "اشتراك إلكتروني", L_PAY = "دفعة";
+const KEEP_PAYS = 14, KEEP_INTENTS = 5, NOTES_MAX = 1800;
+
+// الأسعار من site.json وحده (employerPlans) — لا رقم مكتوباً هنا. تعذّر القراءة
+// = لا عرض = لا تفعيل (يُغلق ولا يُفتح).
+const EMP_PLANS = (() => {
+  try {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const d = JSON.parse(readFileSync(join(here, "..", "site", "data", "site.json"), "utf8"));
+    return (d && d.employerPlans) || null;
+  } catch { return null; }
+})();
+
+// يعيد null لما لا يُباع بالدفع الإلكتروني (enterprise، باقة مجهولة، فوترة مجهولة،
+// أو بياناتٌ ناقصة). السنوي = الشهري × ١٢ × (١ − الخصم)، بالهللات وتقريبٌ واحد.
+export function getPlanOffer(plan, billing) {
+  if (!PAYABLE_PLANS.includes(plan) || !BILLINGS.includes(billing) || !EMP_PLANS) return null;
+  const tier = (EMP_PLANS.tiers || []).find((t) => t && t.key === plan);
+  const price = Number(tier && tier.price);
+  if (!Number.isFinite(price) || price <= 0) return null;
+  if ((EMP_PLANS.currency || "SAR") !== "SAR") return null;
+  const discount = Number(EMP_PLANS.yearlyDiscount || 0);
+  if (!Number.isFinite(discount) || discount < 0 || discount >= 1) return null;
+  const monthly = Math.round(price * 100);
+  const amountHalalas = billing === "yearly" ? Math.round(monthly * 12 * (1 - discount)) : monthly;
+  return { amountHalalas, currency: "SAR", plan, billing, sku: SUB_SKU[plan][billing] };
+}
+
+// SKU ← → (باقة، فوترة): لمنادي الدفع الذي يصله من السلة SKU فقط.
+export function parseEmployerSku(sku) {
+  for (const plan of PAYABLE_PLANS) for (const billing of BILLINGS) {
+    if (SUB_SKU[plan][billing] === sku) return { plan, billing };
+  }
+  return null;
+}
+
+function parseNotes(text) {
+  const free = [], intents = [], pays = [];
+  for (const raw of String(text || "").split("\n")) {
+    const line = raw.trim();
+    if (!line) continue;
+    const f = line.split("|").map((x) => x.trim());
+    if (f[0] === L_INTENT && f.length === 4 && SUBREF_RE.test(f[1]) && PAYABLE_PLANS.includes(f[2]) && BILLINGS.includes(f[3])) {
+      intents.push({ ref: f[1], plan: f[2], billing: f[3] });
+    } else if (f[0] === L_PAY && f.length === 4 && PAYREF_RE.test(f[1]) && SUBREF_RE.test(f[2])) {
+      pays.push({ paymentRef: f[1], ref: f[2], date: f[3] });
+    } else free.push(line);
+  }
+  return { free, intents, pays };
+}
+// الدفعات أولاً ثم النيّات ثم النص الحرّ: إن اضطُرّ القصّ عند ١٨٠٠ حرف سقط الحرّ
+// قبل أي سطرٍ يحمل idempotency.
+function serializeNotes({ free, intents, pays }) {
+  const lines = [
+    ...pays.slice(-KEEP_PAYS).map((p) => `${L_PAY} | ${p.paymentRef} | ${p.ref} | ${p.date}`),
+    ...intents.slice(-KEEP_INTENTS).map((i) => `${L_INTENT} | ${i.ref} | ${i.plan} | ${i.billing}`),
+  ];
+  const head = lines.join("\n");
+  const room = NOTES_MAX - head.length - 1;
+  const rest = room > 0 ? free.join("\n").slice(0, room) : "";
+  return rest ? head + "\n" + rest : head;
+}
+
+const notionJson = async (path, payload, method = "POST") => {
+  const r = await fetch("https://api.notion.com/v1/" + path, {
+    method,
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return r;
+};
+const subReady = () => !!(NOTION_TOKEN && DB_ID);
+const rowsByNotes = async (needle) => {
+  const q = await notion(`databases/${DB_ID}/query`, {
+    page_size: 10, filter: { property: "ملاحظات", rich_text: { contains: needle } }, sorts: EMAIL_SORT,
+  });
+  if (!q.ok) return null;
+  return (await q.json()).results || [];
+};
+const rowNotes = (pg) => txtProp(pg.properties && pg.properties["ملاحظات"]);
+const rowStatus = (pg) => txtProp(pg.properties && pg.properties["الحالة"], "select");
+
+export async function createPendingSubscription({ email, company, plan, billing } = {}) {
+  if (plan === "enterprise") return { ok: false, code: "enterprise_quote_only" };
+  if (!PAYABLE_PLANS.includes(plan)) return { ok: false, code: "invalid_plan" };
+  if (!BILLINGS.includes(billing)) return { ok: false, code: "invalid_billing" };
+  const mail = clip(email, 160).toLowerCase();
+  if (!isEmail(mail)) return { ok: false, code: "invalid_email" };
+  if (!getPlanOffer(plan, billing)) return { ok: false, code: "price_unavailable" };
+  if (!subReady()) return { ok: false, code: "not_configured" };
+  try {
+    const rows = await rowsByEmail(mail, 10);
+    if (!rows) return { ok: false, code: "notion_error" };
+    if (rows.some((pg) => rowStatus(pg) === STATUS_SUSPENDED)) return { ok: false, code: "suspended" };
+    const row = rows.find((pg) => rowStatus(pg) === STATUS_ACTIVE) || rows[0] || null;
+    const intent = { plan, billing };
+
+    if (!row) {
+      const ref = "BP-EMPSUB-" + rand12();
+      const co = clip(company, 200) || mail;
+      const r = await notionJson("pages", {
+        parent: { database_id: DB_ID },
+        properties: {
+          "اسم الشركة": { title: [{ text: { content: co } }] },
+          "البريد": { email: mail },
+          "الحالة": { select: { name: STATUS_PENDING } },
+          "رمز الوصول": { rich_text: rt(makeRef()) },
+          "الباقة": { select: { name: PLAN_AR[plan] } },
+          "الفوترة": { select: { name: BILLING_AR[billing] } },
+          "ملاحظات": { rich_text: rt(serializeNotes({ free: [], pays: [], intents: [{ ref, ...intent }] })) },
+        },
+      });
+      if (!r.ok) { console.error("sub create", r.status, (await r.text()).slice(0, 200)); return { ok: false, code: "notion_error" }; }
+      return { ok: true, reference: ref, renewal: false };
+    }
+
+    const notes = parseNotes(rowNotes(row));
+    const renewal = rowStatus(row) === STATUS_ACTIVE;
+    const paid = new Set(notes.pays.map((p) => p.ref));
+    const same = notes.intents.find((i) => i.plan === plan && i.billing === billing && !paid.has(i.ref));
+    if (same) return { ok: true, reference: same.ref, renewal };
+
+    const ref = "BP-EMPSUB-" + rand12();
+    notes.intents.push({ ref, ...intent });
+    const props = { "ملاحظات": { rich_text: rt(serializeNotes(notes)) } };
+    // الصف غير المدفوع يعرض ما ينوي شراءه؛ الصف المفعّل لا يُمسّ بابه قبل الدفع.
+    if (!renewal) {
+      props["الباقة"] = { select: { name: PLAN_AR[plan] } };
+      props["الفوترة"] = { select: { name: BILLING_AR[billing] } };
+    }
+    const u = await notionJson(`pages/${row.id}`, { properties: props }, "PATCH");
+    if (!u.ok) { console.error("sub intent patch", u.status, (await u.text()).slice(0, 200)); return { ok: false, code: "notion_error" }; }
+    return { ok: true, reference: ref, renewal };
+  } catch (e) {
+    console.error("createPendingSubscription", String(e).slice(0, 200));
+    return { ok: false, code: "notion_error" };
+  }
+}
+
+const isoDay = (d) => d.toISOString().slice(0, 10);
+function addMonths(day, n) {
+  const d = new Date(day + "T00:00:00Z");
+  const dom = d.getUTCDate();
+  d.setUTCDate(1);
+  d.setUTCMonth(d.getUTCMonth() + n);
+  const last = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
+  d.setUTCDate(Math.min(dom, last));
+  return isoDay(d);
+}
+const escHtml = (s) => String(s || "").replace(/[<>&"]/g, "");
+
+export async function activateSubscription({ reference, paymentRef, amountHalalas, billing, now = Date.now() } = {}) {
+  const no = (code) => ({ ok: false, activated: false, code });
+  // لا تفعيلَ بلا دفعٍ صالح — أول فحصٍ وقبل أي اتصال.
+  if (typeof paymentRef !== "string" || !paymentRef.trim()) return no("payment_ref_required");
+  paymentRef = paymentRef.trim();
+  if (!PAYREF_RE.test(paymentRef)) return no("invalid_payment_ref");
+  if (typeof reference !== "string" || !SUBREF_RE.test(reference)) return no("invalid_reference");
+  if (!BILLINGS.includes(billing)) return no("invalid_billing");
+  if (!subReady()) return no("not_configured");
+  try {
+    // ١) هل عولجت هذه الدفعة؟ (بحثٌ في القاعدة كلها لا في صفّ المرجع وحده)
+    const seen = await rowsByNotes(paymentRef);
+    if (!seen) return no("notion_error");
+    for (const pg of seen) {
+      const hit = parseNotes(rowNotes(pg)).pays.find((p) => p.paymentRef === paymentRef);
+      if (hit) return hit.ref === reference ? { ok: true, activated: true, code: "already_processed" } : no("payment_ref_reused");
+    }
+    // ٢) صفّ المرجع ونيّته
+    const found = await rowsByNotes(reference);
+    if (!found) return no("notion_error");
+    let row = null, notes = null, intent = null;
+    for (const pg of found) {
+      const n = parseNotes(rowNotes(pg));
+      const i = n.intents.find((x) => x.ref === reference);
+      if (i) { row = pg; notes = n; intent = i; break; }
+      if (n.pays.some((p) => p.ref === reference)) return no("reference_already_paid");
+    }
+    if (!row) return no("unknown_reference");
+    // ٣) الباقة من النيّة المحفوظة لا من المنادي؛ enterprise لا يُدفع أبداً
+    if (intent.plan === "enterprise") return no("enterprise_quote_only");
+    if (intent.billing !== billing) return no("billing_mismatch");
+    const offer = getPlanOffer(intent.plan, intent.billing);
+    if (!offer) return no("price_unavailable");
+    if (!Number.isInteger(amountHalalas) || amountHalalas !== offer.amountHalalas) return no("amount_mismatch");
+    const status = rowStatus(row);
+    if (status === STATUS_SUSPENDED) return no("suspended");
+
+    // ٤) المدّة: تجديد نفس الباقة يمتدّ من نهاية المدّة الجارية، وما عداه من اليوم
+    const today = isoDay(new Date(now));
+    const p = row.properties || {};
+    const cur = (p["تاريخ التفعيل"] && p["تاريخ التفعيل"].date) || {};
+    const samePlan = txtProp(p["الباقة"], "select") === PLAN_AR[intent.plan];
+    const running = status === STATUS_ACTIVE && samePlan && cur.end && cur.end >= today;
+    const start = running && cur.start ? cur.start : today;
+    const end = addMonths(running ? cur.end : today, intent.billing === "yearly" ? 12 : 1);
+
+    notes.intents = notes.intents.filter((x) => x.ref !== reference);
+    notes.pays.push({ paymentRef, ref: reference, date: today });
+    const props = {
+      "الحالة": { select: { name: STATUS_ACTIVE } },
+      "الباقة": { select: { name: PLAN_AR[intent.plan] } },
+      "الفوترة": { select: { name: BILLING_AR[intent.billing] } },
+      "تاريخ التفعيل": { date: { start, end } },
+      "ملاحظات": { rich_text: rt(serializeNotes(notes)) },
+    };
+    // صفٌّ مفعّل بلا رمز وصول لوحةٌ تُفتح على لا شيء (حدث بـBP-HOUSE).
+    if (!txtProp(p["رمز الوصول"])) props["رمز الوصول"] = { rich_text: rt(makeRef()) };
+    const u = await notionJson(`pages/${row.id}`, { properties: props }, "PATCH");
+    if (!u.ok) { console.error("sub activate patch", u.status, (await u.text()).slice(0, 200)); return no("notion_error"); }
+
+    // إشعارٌ best-effort بلا رمز وصول: يدخل ببريده كما يدخل كل مشترك.
+    const co = escHtml(txtProp(p["اسم الشركة"], "title")), mail = (p["البريد"] && p["البريد"].email) || "";
+    await Promise.allSettled([
+      sendMail(mail, "تم تفعيل اشتراكك — Business Partner", `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:520px;margin:auto">
+        <h2 style="color:#0B1B5A">اشتراكك مفعّل</h2>
+        <p>تم تفعيل باقة <strong>${PLAN_AR[intent.plan]}</strong> (${BILLING_AR[intent.billing]}) حتى ${end}.</p>
+        <p>ادخل <a href="https://www.businesspartner.sa/ar/employer">بوابة صاحب العمل</a> ببريدك هذا — يصلك رمزٌ لمرة واحدة.</p></div>`),
+      sendMail(NOTIFY, `تفعيل اشتراك مدفوع: ${co}`, `<p>${co} — ${PLAN_AR[intent.plan]} (${BILLING_AR[intent.billing]}) حتى ${end}. المرجع ${reference}.</p>`),
+    ]);
+    return { ok: true, activated: true };
+  } catch (e) {
+    console.error("activateSubscription", String(e).slice(0, 200));
+    return no("notion_error");
+  }
+}
+
 
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -396,7 +669,9 @@ export default async function handler(req, res) {
   const password = String(b.password || "").slice(0, 200);
   const planKey = ["basic", "pro", "enterprise"].includes(b.plan) ? b.plan : "";
   const billing = b.billing === "yearly" ? "سنوي" : "شهري";
-  const notes = clip(b.notes, 600);
+  // سطرٌ واحد: «ملاحظات» تحمل أيضاً سجلّ الدفع الإلكتروني (سطراً لكل دفعة)، فلا
+  // يُسمح لتسجيلٍ عام بأن يكتب أسطراً يحاكي بها ذلك السجل.
+  const notes = clip(b.notes, 600).replace(/[\r\n|]+/g, " ");
 
   // SECURITY: registration is fully unauthenticated, so no email value may
   // grant an instantly-active subscription — matching a well-known owner email

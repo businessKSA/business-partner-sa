@@ -112,7 +112,11 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-three .sv1-panel{padding:20px}
 .sv1-three h4{font-size:15px;margin:0 0 6px}
 .sv1-three p{margin:0;font-size:13px;line-height:1.7}
-.sv1-doors{display:grid;gap:10px}
+.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-doors>:last-child:nth-child(odd){grid-column:1/-1}
+a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
+.sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+.sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
 .sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
 .sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
 .sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
@@ -265,7 +269,8 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-side{display:none}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
-@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+@media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
+ .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
 </style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
 <body class="sv1-page"><div class="sv1"><style id="sv1-hire-css">
@@ -308,6 +313,8 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-hsec2{display:flex;flex-wrap:wrap;gap:11px;align-items:center;justify-content:center;margin:20px auto 0;padding-top:18px;border-top:1px solid var(--line2);max-width:560px;font-size:13px;color:var(--mut)}
 .sv1-hmore{display:block;text-align:center;margin:26px auto 0;font-size:12.5px;color:var(--ac);background:0;border:0;font-family:inherit;cursor:pointer;text-decoration:none}
 .sv1-hnote{margin:14px auto 0;max-width:600px;font-size:12px;color:var(--ac);background:var(--acSoft);border:1px solid var(--acLine);border-radius:10px;padding:9px 13px;line-height:1.7;text-align:center}
+.sv1-habbr{margin:9px auto 0;max-width:620px;padding-inline:6px;font-size:12px;color:var(--mut);line-height:1.7;text-align:start;unicode-bidi:plaintext}
+.sv1-habbr b{color:var(--ac);font-weight:600;unicode-bidi:isolate}
 .sv1-hhint{margin:12px auto 0;max-width:620px;font-size:11.5px;color:var(--faint);line-height:1.7;text-align:center}
 
 .sv1-hb-out{margin:34px auto 0;max-width:1000px}
@@ -481,12 +488,13 @@ var h0=hint();if(h0)S.paint(true,h0);
           <div class="sv1-voice" id="hireVoice" style="margin:0 0 9px"></div>
           <textarea id="hireQ" rows="3" placeholder="Describe who you need. e.g. An Arabic-cuisine chef in Riyadh" aria-label="Describe who you need. e.g. An Arabic-cuisine chef in Riyadh"></textarea>
           <div class="sv1-hb-acts">
-            <a class="rb off" id="hireUp" href="/careers#seeker-form" aria-label="Upload a job description — coming soon" title="Upload a job description — coming soon" aria-disabled="true">📎</a>
+            <a class="rb off" id="hireUp" href="#" aria-label="Upload a job description — coming soon" title="Upload a job description — coming soon" aria-disabled="true">📎</a>
             <button type="button" class="rb off" id="hireMic" disabled aria-label="Voice input — coming soon" title="Voice input — coming soon">🎙</button>
             <button type="submit" class="rb go" id="hireGo" aria-label="Search" title="Search">↑</button>
           </div>
         </div>
       </form>
+      <p class="sv1-habbr sv1-hide" id="hireAbbr" aria-live="polite"></p>
 
       <div class="sv1-hchips">
         <label class="sv1-hchip" id="hireCityChip">
@@ -515,7 +523,7 @@ var h0=hint();if(h0)S.paint(true,h0);
 
       <div class="sv1-hsec2">
         <span id="hireSecQ">Hiring in bulk, or a leadership role?</span>
-        <a class="sv1-btn sm" id="hireSecB" href="/services/rec-gen">Recruitment service →</a>
+        <a class="sv1-btn sm" id="hireSecB" href="/consultation?topic=rec-gen">Book a recruitment consultation →</a>
       </div>
 
       <p class="sv1-hhint" id="hireHint">Names, contact details and CVs appear inside the hiring dashboard for subscribed employers.</p>
@@ -529,6 +537,7 @@ var h0=hint();if(h0)S.paint(true,h0);
       </div>
       <p class="sv1-muted sv1-hide" id="hireStatus"></p>
       <div class="sv1-hire-grid" id="hireResults"></div>
+      <button type="button" class="sv1-btn sv1-jmore sv1-hide" id="hireMoreC">Show more</button>
     </div>
 
     <div class="sv1-tabs">
@@ -605,6 +614,10 @@ function send(p){p.action="hit";p.visitor=vid;try{var b=JSON.stringify(p);
 if(navigator.sendBeacon)navigator.sendBeacon("/api/requests",new Blob([b],{type:"application/json"}));
 else fetch("/api/requests",{method:"POST",headers:{"content-type":"application/json"},body:b,keepalive:true}).catch(function(){})}catch(e){}}
 var rh="";try{if(document.referrer){var u=new URL(document.referrer);if(u.host!==location.host)rh=u.host}}catch(e){}
+// وسوم UTM تسبق المُحيل: واتساب وتيك توك لا يرسلان Referer، فزياراتهما تظهر
+// «مباشرة» في اللوحة. الشكل utm:<source>/<medium>/<campaign>/<content>، والقصّ
+// إلى 120 حرفاً لأن عمود ref في api/requests.js يقصّه إلى 120.
+try{var q=new URLSearchParams(location.search);if(q.get("utm_source")){rh=("utm:"+[q.get("utm_source"),q.get("utm_medium"),q.get("utm_campaign"),q.get("utm_content")].map(function(v){return v||""}).join("/")).slice(0,120)}}catch(e){}
 send({kind:"view",path:location.pathname,ref:rh,lang:document.documentElement.lang||"",device:window.innerWidth<768?"mobile":"desktop"});
 // أزرار الموقع الجديد بأسمائها العربية كما تظهر في اللوحة، ومعها محدّدات
 // الموقع القديم حتى تُحسب الصفحتان بالمسمّى نفسه.
@@ -624,15 +637,16 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
 })();</script><script>(function(){
 var $=function(i){return document.getElementById(i)};
 var LANG="en";
-var TX={"phEmp":"Describe who you need. e.g. An Arabic-cuisine chef in Riyadh","phSeek":"Describe what you're looking for. e.g. Accountant, 3 years, in Jeddah","secQEmp":"Hiring in bulk, or a leadership role?","secBEmp":"Recruitment service →","secQSeek":"Didn't find your job today?","secBSeek":"We search on your behalf →","maskNote":"Names, contact details and CVs appear inside the hiring dashboard for subscribed employers.","seekNoteTop":"Applying to any vacancy here is free — you are never asked to pay at any step.","upEmp":"Upload a job description — coming soon","upSeek":"Send your CV","statW":"candidates in our pool","expSoon":"Adverts don't carry years of experience","xAny":"Any experience","ctaEmp":"Open the hiring dashboard →","ctaSeek":"Send your CV →","needNarrow":"Pick a field or a city first — the talent pool is large, and searching all of it is slow.","needText":"Write what you're looking for first.","searching":"Searching…","failed":"Search failed. Try again shortly.","noneC":"No candidate matches that yet. Widen the field or the city.","noneJ":"No open vacancy matches that yet — send your CV and we'll nominate you the moment one fits.","foundC":"{n} candidates in our pool","foundJ":"{n} open vacancies","more":"There are more results than shown — narrow by field or city to see them all.","aiWork":"Reading the profiles and ranking…","aiFail":"AI matching isn't available right now — the list above is ranked by keyword overlap.","aiDone":"Ranked by AI matching","empty":"No vacancies open right now — send your CV and we'll nominate you the moment one fits.","emptyF":"No vacancy matches these filters. Widen the city or the field.","jobsFail":"Couldn't load vacancies right now. Refresh in a moment.","loading":"Loading…","view":"View job","apply":"Apply","expY":"Experience","yrs":"yrs","lblCity":"Location","lblField":"Field","lblType":"Employment type","lblMode":"Work mode","cAny":"All cities","fAny":"All fields","tAny":"All types","mAny":"All modes","resPl":{"zero":"No vacancies","one":"1 vacancy","other":"{n} vacancies"},"clearAll":"Clear all","filterBtn":"Filters","showRes":"Show results","moreBtn":"Show more","qLbl":"Search","noRes":"No vacancy matches these filters.","noResFix":"Removing this one filter brings back {j}:","noResAll":"Lifting one filter isn't enough — clear all to see every open vacancy.","micStart":"Speak instead of typing","micStop":"Stop recording","micRec":"Listening… tap to stop","micWork":"Writing down what you said…","micQuiet":"We didn't hear clear speech. Try again.","micLong":"Recording too long. Shorten it and retry.","micFail":"Couldn't transcribe. Type your request instead.","micDenied":"Microphone permission was denied."};
+var TX={"phEmp":"Describe who you need. e.g. An Arabic-cuisine chef in Riyadh","phSeek":"Describe what you're looking for. e.g. Accountant, 3 years, in Jeddah","secQEmp":"Hiring in bulk, or a leadership role?","secBEmp":"Book a recruitment consultation →","secQSeek":"Didn't find your job today?","secBSeek":"We search on your behalf →","maskNote":"Names, contact details and CVs appear inside the hiring dashboard for subscribed employers.","seekNoteTop":"Applying to any vacancy here is free — you are never asked to pay at any step.","upEmp":"Upload a job description — coming soon","upSeek":"Send your CV","statW":"candidates in our pool","expSoon":"Adverts don't carry years of experience","xAny":"Any experience","xN":"{n}+ years","ctaEmp":"Open the hiring dashboard →","ctaSeek":"Send your CV →","needText":"Write what you're looking for first.","searching":"Searching…","failed":"Search failed. Try again shortly.","noneC":"No candidate matches that yet. Widen the field or the city.","noneJ":"No open vacancy matches that yet — send your CV and we'll nominate you the moment one fits.","shownN":"Showing {n}","ofT":"of about {t}","foundJ":"{n} open vacancies","relaxF":"Nothing found in “{w}” — these are the results for “{q}” across all fields.","relaxC":"Nothing found in “{w}” — these are the results for “{q}” across all cities.","relaxX":"Nothing found with these limits (“{w}”) — these are the results for “{q}” without them.","alsoFor":"Also searching for:","more":"There are more results than shown — narrow by field or city to see them all.","aiWork":"Reading the profiles and ranking…","aiFail":"AI matching isn't available right now — the list above is ranked by keyword overlap.","aiDone":"Ranked by AI matching","empty":"No vacancies open right now — send your CV and we'll nominate you the moment one fits.","emptyF":"No vacancy matches these filters. Widen the city or the field.","jobsFail":"Couldn't load vacancies right now. Refresh in a moment.","loading":"Loading…","view":"View job","apply":"Apply","expY":"Experience","yrs":"yrs","lblCity":"Location","lblField":"Field","lblType":"Employment type","lblMode":"Work mode","cAny":"All cities","fAny":"All fields","tAny":"All types","mAny":"All modes","resPl":{"zero":"No vacancies","one":"1 vacancy","other":"{n} vacancies"},"clearAll":"Clear all","filterBtn":"Filters","showRes":"Show results","moreBtn":"Show more","qLbl":"Search","noRes":"No vacancy matches these filters.","noResFix":"Removing this one filter brings back {j}:","noResAll":"Lifting one filter isn't enough — clear all to see every open vacancy.","micStart":"Speak instead of typing","micStop":"Stop recording","micRec":"Listening… tap to stop","micWork":"Writing down what you said…","micQuiet":"We didn't hear clear speech. Try again.","micLong":"Recording too long. Shorten it and retry.","micFail":"Couldn't transcribe. Type your request instead.","micDenied":"Microphone permission was denied."};
 var KW={"هندسة":["مهندس","هندس","engineer","engineering"],"تقنية معلومات":["مبرمج","مطور","برمج","تقنية","حاسب","شبكات","بيانات","developer","programmer","software","devops","data","frontend","backend"],"مبيعات وتسويق":["مبيعات","بائع","تسويق","ماركتنج","sales","marketing"],"محاسبة ومالية":["محاسب","محاسبة","مالية","accountant","accounting","finance"],"إداري وسكرتارية":["سكرتير","إداري","اداري","admin","secretary","receptionist"],"موارد بشرية":["موارد بشرية","recruiter","human resources"],"ضيافة وسياحة":["طاه","طباخ","شيف","مطعم","فندق","ضيافة","نادل","باريستا","سياحة","chef","cook","hotel","restaurant","barista","waiter","hospitality"],"مقاولات وإنشاءات":["مقاول","إنشاء","انشاء","بناء","construction","civil"],"عقارات":["عقار","real estate","property"],"صحة وطب":["طبيب","ممرض","صيدل","مختبر","أشعة","doctor","nurse","pharmac","medical","health"],"تعليم":["معلم","مدرس","تعليم","teacher","tutor","education"],"لوجستيات ونقل":["سائق","نقل","شحن","لوجست","مستودع","توصيل","driver","logistics","warehouse","delivery"],"قانون":["محام","قانون","lawyer","legal","attorney"],"تصنيع وصناعة":["مصنع","إنتاج","تصنيع","صناع","factory","production","manufactur"],"طاقة ونفط وغاز":["نفط","غاز","بترول","طاقة","oil","gas","energy","petro"],"إعلام وإبداع":["مصمم","تصميم","جرافيك","مونتاج","تصوير","محتوى","إعلام","designer","graphic","video","content","media"],"حكومي وقطاع عام":["حكومي","قطاع عام","government","public sector"],"زراعة وبيئة":["زراع","مزرعة","بيئة","agricult","farm","environment"],"تجزئة وتجارة إلكترونية":["كاشير","تجزئة","متجر","cashier","retail","ecommerce","e-commerce"],"أمن وسلامة":["حارس","أمن ","سلامة","security","guard","safety"],"حرف مهنية وصيانة":["كهربائي","سباك","نجار","حداد","فني","صيانة","ميكانيك","لحام","electrician","plumber","carpenter","technician","maintenance","mechanic","welder"],"علوم وأبحاث":["باحث","أبحاث","research","scientist"],"طيران وبحري":["طيران","طيار","مضيف","بحري","ميناء","aviation","pilot","cabin crew","maritime"],"تجميل وعناية":["حلاق","كوافير","تجميل","مساج","salon","beauty","barber","spa"],"خدمات منزلية":["عاملة منزلية","خادمة","منزلية","مربية","housemaid","nanny","domestic"]};
+var ABBR=[["CDP","Chef de Partie","شيف قسم",0],["DCDP","Demi Chef de Partie","مساعد شيف قسم",0],["F&B","Food & Beverage","الأغذية والمشروبات",0],["HR","Human Resources","الموارد البشرية",0],["GM","General Manager","مدير عام",1],["AGM","Assistant General Manager","نائب المدير العام",0],["FOM","Front Office Manager","مدير مكتب الاستقبال",0],["FO","Front Office","مكتب الاستقبال",1],["HK","Housekeeping","التدبير المنزلي",1],["QA","Quality Assurance","ضمان الجودة",0],["QC","Quality Control","مراقبة الجودة",0],["HSE","Health, Safety & Environment","الصحة والسلامة والبيئة",0],["PRO","Public Relations Officer","مندوب علاقات حكومية",1],["IT","Information Technology","تقنية المعلومات",1],["CFO","Chief Financial Officer","المدير المالي",0],["CEO","Chief Executive Officer","الرئيس التنفيذي",0],["COO","Chief Operating Officer","رئيس العمليات",0]];
 var CITIES=[["الرياض","Riyadh"],["جدة","Jeddah"],["مكة","Makkah"],["المدينة","Madinah"],["الدمام","Dammam"],["الخبر","Khobar"],["الظهران","Dhahran"],["الجبيل","Jubail"],["الأحساء","Al Ahsa"],["القطيف","Qatif"],["الطائف","Taif"],["بريدة","Buraidah"],["حائل","Hail"],["تبوك","Tabuk"],["أبها","Abha"],["خميس مشيط","Khamis Mushait"],["جازان","Jazan"],["نجران","Najran"],["ينبع","Yanbu"],["نيوم","NEOM"]];
 var TY=[[["دوام كامل","full time","full-time","fulltime"],["دوام كامل","Full-time","Temps plein","全职"]],[["دوام جزئي","part time","part-time","parttime"],["دوام جزئي","Part-time","Temps partiel","兼职"]],[["عقد مؤقت","عقد","contract","temporary","temp"],["عقد مؤقت","Contract","Contrat","合同制"]],[["تدريب","تدريب تعاوني","internship","intern","trainee"],["تدريب","Internship","Stage","实习"]],[["عمل حر","freelance","freelancer"],["عمل حر","Freelance","Freelance","自由职业"]],[["موسمي","seasonal"],["موسمي","Seasonal","Saisonnier","季节性"]],[["عن بعد","remote","work from home"],["عن بُعد","Remote","À distance","远程"]],[["حضوري","في الموقع","on site","on-site","onsite"],["حضوري","On-site","Sur site","现场"]],[["هجين","مختلط","hybrid"],["هجين","Hybrid","Hybride","混合"]],[["مرن","flexible","flex"],["مرن","Flexible","Flexible","弹性"]]];
 var FCOL=1;
 var JOB="/job?id=";
 var EMP="/employer";
 var SEEKCV="/careers#seeker-form";
-var SVC_EMP="/services/rec-gen";
+var SVC_EMP="/consultation?topic=rec-gen";
 var SVC_SEEK="/job-search-service";
 var MAXSHOW=24;
 
@@ -702,7 +716,8 @@ function setRole(r){
  secB.textContent=seek?TX.secBSeek:TX.secBEmp;
  secB.href=seek?SVC_SEEK:SVC_EMP;
  hint.textContent=seek?TX.seekNoteTop:TX.maskNote;
- out.innerHTML='';show(bar,false);show(st,false);show(note,false);lastRows=[]}
+ out.innerHTML='';show(bar,false);show(st,false);show(note,false);lastRows=[];
+ candSeq++;cs=null;show(moreC,false)}
 
 up.addEventListener('click',function(e){if(up.classList.contains('off'))e.preventDefault()});
 $('hireRoleEmp').onclick=function(){setRole('emp')};
@@ -727,16 +742,36 @@ fetch('/api/candidates?count=1').then(function(r){return r.json()}).then(functio
  show(el,true)}).catch(function(){});
 
 // ---- بطاقات
+// دفاعٌ ثانٍ في المتصفّح: الخادم يُسقط بيانات التواصل من الردّ، لكن حقلاً حرّاً
+// (مسمّى · مهارات · تعليم) قد يحمل بريداً أو رقماً كتبه المرشّح بنفسه. أي نصٍّ
+// يشبههما يُحذف كلّه من البطاقة — لا يُقصّ منه الجزء الظاهر فيبقى نصفه.
+// الجوّال: تسعة أرقام فأكثر بفاصلٍ واحدٍ على الأكثر بين رقمٍ ورقم، فلا يُحسب
+// «2015 - 2019» رقماً (بين الرقمين فاصلٌ مزدوج) ولا «ISO 9001:2015».
+var RE_MAIL=/[^\s@]+@[^\s@]+\.[^\s@]+/;
+var RE_TEL=/(?:\+?[0-9\u0660-\u0669][\s().\-]?){9,}/;
+function looksContact(v){var x=String(v);return RE_MAIL.test(x)||RE_TEL.test(x)}
+function safeTxt(v){var x=clean(v);return(!x||looksContact(x))?'':x}
+function safeSkills(c){
+ var raw=c.skills,list=Array.isArray(raw)?raw:String(raw==null?'':raw).split(/[,\u060C;\u061B|\n]+/);
+ var role=norm(safeTxt(c.role)),seen={},out2=[];
+ list.forEach(function(it){
+  var x=safeTxt(it);if(!x)return;
+  var k=norm(x);if(k===role||seen[k])return;
+  seen[k]=1;out2.push(x)});
+ return out2.slice(0,8).join(' \u00B7 ').slice(0,120)}
+
 function candCard(c){
- var meta=[c.field,c.city].filter(Boolean).join(' · ');
+ var role=safeTxt(c.role),field=safeTxt(c.field),city=safeTxt(c.city);
+ var meta=[field,city].filter(Boolean).join(' \u00B7 ');
  var yr=years(c.experience);
- var line=[yr!=null?TX.expY+' '+yr+' '+TX.yrs:'',c.education||''].filter(Boolean).join(' · ');
+ var line=[yr!=null?TX.expY+' '+yr+' '+TX.yrs:'',safeTxt(c.education)].filter(Boolean).join(' \u00B7 ');
+ var sk=safeSkills(c);
  return '<article class="sv1-hire-job"><div class="tp">'+
   (meta?'<span class="mt">'+esc(meta)+'</span>':'')+
   (c._score!=null?'<span class="sc">'+esc(String(c._score))+'%</span>':'')+'</div>'+
-  '<h4>'+esc(c.role||c.field||'—')+'</h4>'+
+  '<h4>'+esc(role||field||'\u2014')+'</h4>'+
   (line?'<p>'+esc(line)+'</p>':'')+
-  (c.skills?'<p>'+esc(String(c.skills).slice(0,120))+'</p>':'')+
+  (sk?'<p>'+esc(sk)+'</p>':'')+
   (c._why?'<p class="why">'+esc(c._why)+'</p>':'')+
   '</article>'}
 
@@ -1011,38 +1046,158 @@ function searchJobs(text,f,c){
   say(rows.length>MAXSHOW?TX.more:'')
  }).catch(function(){st.textContent=TX.failed;show(st,true)})}
 
-function searchCands(text,f,c,x){
- st.textContent=TX.searching;show(st,true);out.innerHTML='';show(bar,false);
- var p='/api/candidates?'+(f?'field='+encodeURIComponent(f):'')+(c?(f?'&':'')+'city='+encodeURIComponent(c):'');
- fetch(p).then(function(r){return r.json()}).then(function(d){
+// ---- بحث المرشّحين: النص يُرسَل إلى الخادم (q=) فيبحث في القاعدة كلها لا في
+// صفحةٍ جُلبت بالفلتر. «اعرض المزيد» يتبع nextCursor، ولا سقف محلياً صامتاً.
+// الفلتر المستنتَج من كلام الزائر (مجال/مدينة/خبرة) اقتراحٌ لا شرط: إن أفرغ
+// القائمة أعدنا الطلب بدونه وقلنا ذلك صراحةً.
+var CAND_PAGE=30,CAND_FILL=4;
+var cs=null,candSeq=0;
+var moreC=$('hireMoreC');
+
+function candUrl(k,cursor){
+ var p=['limit='+CAND_PAGE];
+ if(k.f)p.push('field='+encodeURIComponent(k.f));
+ if(k.c)p.push('city='+encodeURIComponent(k.c));
+ if(k.text)p.push('q='+encodeURIComponent(k.text.slice(0,120)));
+ if(k.x)p.push('minExp='+encodeURIComponent(k.x));
+ if(cursor)p.push('cursor='+encodeURIComponent(cursor));
+ return '/api/candidates?'+p.join('&')}
+
+// صفحةٌ واحدة، ثم صفحاتٌ إضافية فقط إن أفرغها فلتر الخبرة المحلّي ولم تنتهِ
+// القائمة — حتى لا يرى الزائر «لا شيء» وفي الصفحة التالية ما يطابق.
+function candPull(k,left){
+ return fetch(candUrl(k,k.cursor)).then(function(r){return r.json()}).then(function(d){
   if(!d||!d.ok)throw new Error('bad');
-  var rows=d.candidates||[];
-  if(x){var n=parseInt(x,10);rows=rows.filter(function(r2){var y=years(r2.experience);return y!=null&&y>=n})}
-  if(text)rows=rows.map(function(r2){return {r:r2,s:score(text,(r2.role||'')+' '+(r2.field||'')+' '+(r2.skills||''))}})
-   .sort(function(a,b){return b.s-a.s}).map(function(z){return z.r});
-  show(st,false);
-  if(!rows.length){st.textContent=TX.noneC;show(st,true);return}
-  lastRows=rows;lastQuery=text;
+  var fresh=[];
+  (d.candidates||[]).forEach(function(r2){
+   var id=r2.id!=null?String(r2.id):null;
+   if(id!=null){if(k.seen[id])return;k.seen[id]=1}
+   if(k.x){var n=parseInt(k.x,10),y=years(r2.experience);if(y==null||y<n)return}
+   fresh.push(r2)});
+  var next=d.nextCursor||null;
+  if(next&&next===k.cursor)next=null;
+  k.cursor=next;
+  k.done=!next||d.done===true;
+  if(typeof d.total==='number'&&isFinite(d.total))k.total=d.total;
+  k.rows=k.rows.concat(fresh);
+  k.fresh=(k.fresh||[]).concat(fresh);
+  if(!fresh.length&&!k.done&&left>0)return candPull(k,left-1);
+  return k})}
+
+function newCand(text,f,c,x){return {text:text,f:f,c:c,x:x,cursor:null,done:false,total:null,rows:[],fresh:[],seen:{}}}
+
+// «المعروض N» دائماً؛ «من أصل نحو T» فقط إن عاد الخادم بإجماليٍّ أكبر مما
+// عُرض فعلاً. إجماليٌّ لا يزيد على المعروض لا يُكتب — لا رقم مخمَّن.
+function candCount(){
+ if(!cs)return;
+ var t2=nfmt(TX.shownN,num(cs.rows.length));
+ if(!cs.done&&cs.total!=null&&cs.total>cs.rows.length)t2+=' \u00B7 '+TX.ofT.replace('{t}',num(cs.total));
+ cnt.textContent=t2}
+
+function candPaint(append){
+ var html=(cs.fresh||[]).map(candCard).join('');
+ cs.fresh=[];
+ if(append)out.insertAdjacentHTML('beforeend',html);else out.innerHTML=html;
+ lastRows=cs.rows;
+ candCount();
+ show(moreC,!cs.done);moreC.disabled=false}
+
+function relaxNote(text,inf){
+ var w=[];
+ if(inf.f)w.push(optLabel(fSel,inf.f));
+ if(inf.c)w.push(optLabel(cSel,inf.c));
+ if(inf.x)w.push(TX.xN.replace('{n}',inf.x));
+ // فلترٌ واحد بعينه يُسمّى مجالاً أو مدينة؛ وأكثر من واحد أو الخبرة «قيود».
+ var key=(inf.f&&!inf.c&&!inf.x)?'relaxF':(inf.c&&!inf.f&&!inf.x)?'relaxC':'relaxX';
+ return TX[key].replace('{w}',w.join(' \u00B7 ')).replace('{q}',text)}
+function optLabel(sel,v){
+ for(var i=0;i<sel.options.length;i++)if(sel.options[i].value===v)return sel.options[i].text;
+ return v}
+
+// inf: ما استُنتج من النص وطُبّق مؤقتاً {f,c,x} — ما اختاره الزائر بنفسه لا يدخل
+// فيه ولا يُرفع أبداً.
+function searchCands(text,f,c,x,inf){
+ var my=++candSeq;
+ st.textContent=TX.searching;show(st,true);out.innerHTML='';show(bar,false);show(moreC,false);
+ var k=newCand(text,f,c,x);
+ candPull(k,CAND_FILL).then(function(){
+  if(my!==candSeq)return;
+  if(!k.rows.length&&text&&(inf.f||inf.c||inf.x)){
+   var k2=newCand(text,inf.f?'':f,inf.c?'':c,inf.x?'':x);
+   return candPull(k2,CAND_FILL).then(function(){
+    if(my!==candSeq)return;
+    if(k2.rows.length){
+     // الفلتر المستنتَج لم يُطبَّق على ما يُعرض: تُفرَّغ رقاقته لئلا تبدو شرطاً.
+     if(inf.f){fSel.value='';markChip(fSel)}
+     if(inf.c){cSel.value='';markChip(cSel)}
+     if(inf.x){xSel.value='';markChip(xSel)}
+     say(relaxNote(text,inf))}
+    return k2})}
+  return k}).then(function(r2){
+  if(!r2||my!==candSeq)return;
+  cs=r2;show(st,false);
+  if(!cs.rows.length){st.textContent=TX.noneC;show(st,true);return}
+  lastQuery=text;
   show(bar,true);show(aiBtn,true);aiBtn.disabled=false;
-  cnt.textContent=nfmt(TX.foundC,rows.length);
-  out.innerHTML=rows.slice(0,MAXSHOW).map(candCard).join('');
-  say((rows.length>MAXSHOW||d.done===false)?TX.more:'')
- }).catch(function(){st.textContent=TX.failed;show(st,true)})}
+  candPaint(false)
+ }).catch(function(){if(my!==candSeq)return;st.textContent=TX.failed;show(st,true)})}
+
+moreC.addEventListener('click',function(){
+ if(!cs||cs.done||busy||moreC.disabled)return;
+ var my=candSeq,mine=cs;
+ moreC.disabled=true;
+ candPull(mine,CAND_FILL).then(function(){
+  if(my!==candSeq||cs!==mine)return;
+  candPaint(true)
+ }).catch(function(){if(my!==candSeq)return;moreC.disabled=false;say(TX.failed)})});
+
+// ---- المختصرات: سطرٌ للعرض فقط تحت الصندوق، والبحث يُرسَل بنصّ الزائر وحده.
+var abbrEl=$('hireAbbr');
+function abbrHits(text){
+ var seen={},hits=[];
+ String(text||'').split(/[^A-Za-z0-9&]+/).forEach(function(tok){
+  if(!tok||hits.length>=3)return;
+  var up2=tok.toUpperCase();
+  for(var i=0;i<ABBR.length;i++){var a=ABBR[i];
+   if(a[0]!==up2||seen[up2])continue;
+   if(a[3]&&tok!==up2)continue;
+   seen[up2]=1;hits.push(a)}});
+ return hits}
+function paintAbbr(){
+ var hs=abbrHits(q.value);
+ if(!hs.length){abbrEl.textContent='';show(abbrEl,false);return}
+ var parts=hs.map(function(a){return LANG==='ar'?a[1]+' \u00B7 '+a[2]:a[1]});
+ abbrEl.textContent='';
+ abbrEl.appendChild(document.createTextNode(TX.alsoFor+' '));
+ var b=document.createElement('b');b.textContent=parts.join(' \u00B7 ');
+ abbrEl.appendChild(b);show(abbrEl,true)}
+q.addEventListener('input',paintAbbr);
+
+// رقاقةٌ استنتجناها من الكلام تُمسح قبل البحث التالي ما لم يلمسها الزائر؛ وإلا
+// بقي «ضيافة وسياحة» من البحث السابق شرطاً خفياً على بحثٍ عن شيءٍ آخر.
+var auto={f:false,c:false,x:false};
+fSel.addEventListener('change',function(){auto.f=false});
+cSel.addEventListener('change',function(){auto.c=false});
+xSel.addEventListener('change',function(){auto.x=false});
 
 $('hireForm').addEventListener('submit',function(e){
  e.preventDefault();
  if(busy)return;
  var text=q.value.trim();
- var d=derive(text);
- // الرقاقة التي اختارها الزائر بنفسه أقوى من استنتاجنا من كلامه.
- if(!fSel.value&&d.field){fSel.value=d.field;markChip(fSel)}
- if(!cSel.value&&d.city){cSel.value=d.city;markChip(cSel)}
- if(role==='emp'&&!xSel.value&&d.exp){xSel.value=d.exp;markChip(xSel)}
+ // ما استنتجناه في بحثٍ سابق يُرفع أولاً؛ ثم يُستنتج من النص الحالي.
+ if(auto.f){fSel.value='';markChip(fSel);auto.f=false}
+ if(auto.c){cSel.value='';markChip(cSel);auto.c=false}
+ if(auto.x){xSel.value='';markChip(xSel);auto.x=false}
+ var d=derive(text),inf={f:'',c:'',x:''};
+ // الرقاقة التي اختارها الزائر بنفسه أقوى من استنتاجنا من كلامه، ولا تُرفع.
+ if(!fSel.value&&d.field){fSel.value=d.field;markChip(fSel);auto.f=true;inf.f=d.field}
+ if(!cSel.value&&d.city){cSel.value=d.city;markChip(cSel);auto.c=true;inf.c=d.city}
+ if(role==='emp'&&!xSel.value&&d.exp){xSel.value=d.exp;markChip(xSel);auto.x=true;inf.x=d.exp}
  var f=fSel.value,c=cSel.value,x=(role==='emp'?xSel.value:'');
+ // النص وحده يكفي للبحث؛ بلا نصٍّ نحتاج مجالاً أو مدينة على الأقل.
  if(!text&&!f&&!c){say(TX.needText);q.focus();return}
- if(role==='emp'&&!f&&!c){say(TX.needNarrow);fSel.focus();return}
  say('');
- if(role==='emp')searchCands(text,f,c,x);else searchJobs(text,f,c)});
+ if(role==='emp')searchCands(text,f,c,x,inf);else searchJobs(text,f,c)});
 
 // ---- المطابقة الذكية: نداءٌ مدفوع، فلا يُطلق إلا بضغطة من الزائر.
 aiBtn.onclick=function(){
@@ -1061,9 +1216,9 @@ aiBtn.onclick=function(){
    c._score=Math.max(0,Math.min(100,Math.round(Number(m.score)||0)));
    c._why=String(m.reason||'').slice(0,220);rows.push(c)});
   if(!rows.length)throw new Error('nomatch');
-  cnt.textContent=TX.aiDone+' · '+nfmt(TX.foundC,rows.length);
+  cnt.textContent=TX.aiDone+' · '+nfmt(TX.shownN,num(rows.length));
   out.innerHTML=rows.map(candCard).join('');
-  show(aiBtn,false);say('')
+  show(aiBtn,false);show(moreC,false);say('')
  }).catch(function(){aiBtn.textContent=prev;say(TX.aiFail)})
  .then(function(){busy=false;aiBtn.disabled=false})};
 

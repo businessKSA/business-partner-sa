@@ -14,7 +14,7 @@
 
 ---
 
-## المشاريع السبعة والثلاثون
+## المشاريع الثمانية والثلاثون
 
 | # | المشروع | المدير | يملك | الحالة |
 |---|---|---|---|---|
@@ -73,6 +73,8 @@
 | حارس الصفحات (١٤٨٤ صفحة) | `site/scripts/verify-pages.mjs` |
 | بوابة النشر | `vercel.json` → `ignoreCommand` |
 | طبقة التصميم الموحّد | `site/scripts/simple-v1-service-pages.mjs` |
+| قالب صفحة الخدمة وقالب التصنيف (Simple V1) | `site/scripts/simple-v1-service-detail.mjs` · `site/scripts/simple-v1-service-category.mjs` — يجهّز `generate.mjs` المعطيات (`buildServiceDetail` · `buildServiceCategory`)، وتبني القوالب الصفحة داخل `SV1.shell()` |
+| حارس n8n في المتصفح | `site/scripts/n8n-guard.mjs` (يُحقن في `write()` بـ`generate.mjs`) — لا شيء يخرج من `localhost` ولا من معاينة `vercel.app` إلى ويبهوكات n8n الإنتاجية؛ الإنتاج بلا تغيير. اختباره `tests/n8n-guard.test.mjs` |
 | قواعد الجلسات | `CLAUDE.md` · `AGENTS.md` |
 | Azure | `api/_azure.js` · `_azblob.js` · `_msgraph.js` · `_azpg.js` |
 
@@ -170,7 +172,9 @@
 
 | المجموعة | عدد | التصميم |
 |---|---|---|
-| `/services/<sku>` + التصنيفات | ~٢٠٠ | ✅ **جديد** |
+| `/services/<sku>` | ١٩٥ × ٤ لغات | ✅ **جديد** — `simple-v1-service-detail.mjs` داخل `SV1.shell()`، بلا `main.js` ولا طبقة القديم (كان في هذا الجدول «٢٠٩ قديمة» — خطأ قديم صُحّح 2026-10-10) |
+| `/services/category/<slug>` | ٩ × ٤ لغات = ٣٦ | ✅ **جديد (2026-10-10)** — `simple-v1-service-category.mjs`: قائمة خدمات التصنيف بسعرها الصحيح وزرّ السلة، و«تحتاج عرض سعر» لغير المسعّر بلا اختلاق، والخدمات المخفية (`site/data/hidden.json`) لا تظهر. كان ترويسة SV1 مُلصقة على جسم قديم وتقول «سعر حسب حالتك» لمسعّر. اختباره `tests/service-category.test.mjs` |
+| `/services` (الفهرس) | ٤ | 🟡 قديم بقشرة SV1 — `buildServicesIndex()` |
 | `/catalog` · `/packages` | — | ✅ جديد |
 | صفحات المنتجات | ~١٥ | مختلط |
 | `/knowledge-center` — مركز المعرفة | ٤ | ✅ **جديد** — الباب الوحيد إلى المعرفة: رابطٌ واحد في تذييل SV1 (2026-09-24) |
@@ -412,16 +416,27 @@ Simple V1 لا تحمّله — فالرئيسية و`/catalog` و`/cart` و`/my
 
 | الوكيل | يملك هذه الملفات وحده |
 |---|---|
-| `platform-engineer` | `package.json` · `vercel.json` · `CLAUDE.md` · `AGENTS.md` · `docs/projects.md` · `site/scripts/verify-*.mjs` · `site/scripts/generate.mjs` · `site/scripts/simple-v1-service-pages.mjs` · `site/scripts/bump-b10x-cache.mjs` · `api/_azure.js` · `api/_azblob.js` · `api/_msgraph.js` · `api/_azpg.js` · `ops/azure/**` · `tests/azure-*.test.mjs` |
-| `client-portal` | `site/scripts/simple-v1-my.mjs` · `simple-v1-checkout.mjs` · `client-portal-v6.mjs` · `sv1-quote-auth-flow.mjs` · `portal-trust-layer.mjs` · `api/_simple.js` · `api/pay.js` · `api/otp.js` |
+| `platform-engineer` | `package.json` · `vercel.json` · `CLAUDE.md` · `AGENTS.md` · `docs/projects.md` · `site/scripts/verify-*.mjs` · `site/scripts/generate.mjs` · `site/scripts/simple-v1-service-pages.mjs` · `site/scripts/simple-v1-service-detail.mjs` · `site/scripts/simple-v1-service-category.mjs` · `site/scripts/n8n-guard.mjs` · `tests/n8n-guard.test.mjs` · `tests/service-category.test.mjs` · `site/scripts/bump-b10x-cache.mjs` · `api/_azure.js` · `api/_azblob.js` · `api/_msgraph.js` · `api/_azpg.js` · `ops/azure/**` · `tests/azure-*.test.mjs` |
+| `client-portal` | `site/scripts/simple-v1-my.mjs` · `simple-v1-checkout.mjs` · `client-portal-v6.mjs` · `sv1-quote-auth-flow.mjs` · `portal-trust-layer.mjs` · `api/_simple.js` · `api/pay.js` · `api/otp.js` · `api/book.js` · `api/_stage.js` *(إسناد **مقترح** 2026-10-10 — بانتظار قرار المالك، انظر الملاحظة أدناه)* |
 | `owner-ops` | `site/scripts/simple-v1-ops.mjs` · `admin-command-center-v8.mjs` · `site/scripts/assets/admin.page.html` · `assets/monitor.page.html` · `api/requests.js` |
 | `recruitment` | **مدير — لا يملك ملفاً ولا يكتب كوداً.** يوزّع على الأربعة أدناه ويتحقق |
 | ├ `recruitment-employer` | `api/employer.js` · `api/candidates.js` · `api/hire.js` · `site/scripts/hr-app.mjs` · `site/scripts/hr-i18n.mjs` · `site/scripts/*employer*` |
-| ├ `recruitment-candidate` | `api/candidate.js` · `api/_jobhunt.js` |
-| ├ `recruitment-agencies` | `api/_agencies.js` |
+| ├ `recruitment-candidate` | `api/candidate.js` · `api/_jobhunt.js` · `api/_occupations.js` · `api/_occupation-map.json` |
+| ├ `recruitment-agencies` | `api/_agencies.js` · `api/_sources.js` · `site/scripts/simple-v1-vendor.mjs` (بوابة المورّدين `/vendor`: `vendor-demand` يعرض بنود `listVendorDemand()` بلا هوية عميل، و`vendor-candidates`/`vendor-add-candidate` لمرشحي المورّد وحده بمعرّف المكتب؛ وسم المصدر داخلي لا يُعرض؛ والمورّد المؤسسي `vendor:corporate` يقدّم عروض أسعار على الطلبات المجهولة عبر `api/_vendor-offers.js` وقاعدة «BP Vendor Offers»، ونموذجه في `docs/hr-supplier-model.md`) |
 | └ `recruitment-jobs` | `site/scripts/simple-v1-hiring.mjs` **وحده** — `/jobs/*` و`/job` و`/careers` تُولَّد في `generate.mjs` المملوك لـ`platform-engineer`، فيُنسَّق معه ولا يُكتب فيه |
 | `catalog-content` | `site/assets/data/catalog.json` · `site/data/*.json` · `api/_catalog.js` · `api/_knowledge.js` · `api/knowledge.json` · `site/scripts/simple-v1-guide-structure.mjs` · `site/scripts/simple-v1-gov-cost.mjs` · `site/scripts/simple-v1-knowledge.mjs` · `site/scripts/sv1-guide-sell.mjs` |
 | `automation-agents` | `n8n/**` · `ops/n8n/**` · `api/chat.js` · `site/scripts/service-advisor.mjs` · `site/scripts/baher-support.mjs` · `site/scripts/assets/chat.page.html` |
+
+**إسنادان مقترحان (2026-10-10) — بانتظار قرار المالك.** أظهر تدقيق رحلة العميل
+(`docs/service-journey-*-2026-10-10.md`) ملفَّي خادمٍ بلا مالك في أي صف:
+
+| الملف | المقترح | السبب |
+|---|---|---|
+| `api/book.js` (حجز الاستشارة وتقويمها) | `client-portal` | يخدم `/consultation` و«مواعيدي» في `/my`؛ حجزٌ يصدر من العميل ويظهر له. كان بلا مالك فبقي يرسل إلى n8n الإنتاجي من أي بيئة (عُولج في كوميتٍ لاحق بـ`WHATSAPP_MODE`) |
+| `api/_stage.js` (إعلان مراحل الطلب للعميل: بوابة · بريد · واتساب · المالك) | `client-portal` | الغاية «أين وصل طلبي» للعميل. مستورداتها: `_simple.js` و`pay.js` (`client-portal`) و`requests.js` (`owner-ops`) و`_suppliers.js` (`suppliers-partners`) — فالمالك الوحيد يمنع جلستين على ملفٍ واحد، ويبقى الباقون **يقرؤون ولا يكتبون** ويطلبون التغيير عبره. البديل `owner-ops`، لكن اثنين من أربعة مستوردين وغاية الملف يرجّحان العميل |
+
+حتى يُحسم: لا تعديل في الملفين إلا بإذن صريح، وتعريفات `.claude/agents/` لم
+تُغيَّر (التغيير يتبع القرار).
 
 ### ملفات مشتركة — لا يملكها أحد وحده
 
@@ -534,3 +549,19 @@ Simple V1. وكيل المنتج لا يلمسها.
 الحساب البنكي، بيانات الشركات، منصة الصفقات — كلها صفحة تصف خدمةً وزرٌّ
 يقفز إلى **نموذج بلا حقول أو بلا وجهة**. العميل يقرأ ولا يستطيع أن يطلب إلا
 عبر واتساب. هذا هو سبب إحساس المالك بأن «الخدمات غير فعّالة».
+
+---
+
+## وكيل `eor` — 2026-10-01 (أمر المالك المباشر)
+
+**خدمة الموظفين على بند التعاقد (Employer of Record):** `/eor` صفحة الشرح ونموذج الطلب (عدد الموظفين، الجنسيات، المهن من التصنيف الموحّد)، سجلّ «BP EOR Requests» في Notion، تنبيه فرح على واتساب، عرض سعر ونطاق عمل ومحادثة. الملفات: `api/_eor.js` · `api/_eor-pricing.json` (يملؤه المالك — لا أسعار مخترعة) · `site/scripts/simple-v1-eor.mjs`. المسار عبر `api/requests.js?__route=eor` (owner-ops). تعريف الوكيل: `.claude/agents/eor.md`.
+
+**وكيل `insurance-pricing` (2026-10-08):** يجمع أسعار التأمين الطبي من مصادر عامة (بوبا، التعاونية، ميدغلف، ملاذ، ولاء، الراجحي تكافل، الدرع العربي، أليانز) بحسب الفئة والعمر والجنس، ويكتب **مقترحاً** في `api/_insurance-benchmarks.json` و`docs/insurance-pricing-research.md` بمصدر وتاريخ وثقة لكل رقم. لا يعدّل `api/_eor-pricing.json` (ملك `eor`)، ولا يتواصل مع الشركات. تعريفه: `.claude/agents/insurance-pricing.md`.
+
+**بوابة Business Partner HR (2026-10-08):** `/hr-portal` — «من أنت؟» ست بطاقات (صاحب عمل، مرشح، موظف بدعوة، مكتب، مستقل، منصة)، `noindex` وغير مربوطة في nav/footer/sitemap، ويدخلها المستخدم من زر في `/eor` فقط (`/hr` القديمة هي صفحة التوظيف وتبقى كما هي). الملفات: `site/scripts/simple-v1-hr.mjs` · `api/_eor-cost.js` (حاسبة سعر الحزمة lump/costplus، العميل يرى السعر الشهري وساعة الإضافي فقط) · كتلة `package_rate` في `api/_eor-pricing.json` (أرقام إكسل المالك؛ بنود غير محسومة موثّقة في `docs/hr-pricing-calculator-spec.md`).
+
+---
+
+## وكيل `ai-workspace` — 2026-10-11 (أمر المالك المباشر)
+
+**منصة مساحات Business Partner AI:** `https://ai.businesspartner.sa` — مساحة خاصة لكل شركة (Open WebUI على خادم Azure `bp-ai-server`، خارج هذا المستودع). **المسؤول: نايف** في n8n، يرفع لمحمد (IT). فريقه: لجين (التهيئة والتجارب) · حمد (الاستقرار) · ديم (الدعم). السيناريوهات: `PxBoz6f2i6276hJ8` (المسار `ai-workspace-intake`) و`ZoTA8MKp2QqUPMmY` (فحص `/health` كل ١٥ دقيقة). طلبات المساحات تُسجَّل في Unified Revenue Intake فتصير صفقة لبدر. إنشاء المساحة نفسها بشري على الخادم. الحدّ: `bp-ai-platform` لـNotion الداخلي، و`automation-agents` لبنية n8n. تعريفه: `.claude/agents/ai-workspace.md`.

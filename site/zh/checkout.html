@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>结账 — Business Partner</title>
-<meta name="description" content="在线支付：银行卡（mada · Visa · Mastercard）、Apple Pay 或 Tamara——确认后立即收到税务发票。">
+<meta name="description" content="在线支付：银行卡（mada · Visa · Mastercard）或 Tamara 分期——确认后立即收到税务发票。">
 <meta property="og:title" content="结账 — Business Partner">
-<meta property="og:description" content="在线支付：银行卡（mada · Visa · Mastercard）、Apple Pay 或 Tamara——确认后立即收到税务发票。">
+<meta property="og:description" content="在线支付：银行卡（mada · Visa · Mastercard）或 Tamara 分期——确认后立即收到税务发票。">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="zh_CN">
@@ -112,7 +112,11 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-three .sv1-panel{padding:20px}
 .sv1-three h4{font-size:15px;margin:0 0 6px}
 .sv1-three p{margin:0;font-size:13px;line-height:1.7}
-.sv1-doors{display:grid;gap:10px}
+.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-doors>:last-child:nth-child(odd){grid-column:1/-1}
+a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
+.sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+.sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
 .sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
 .sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
 .sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
@@ -265,7 +269,8 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-side{display:none}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
-@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+@media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
+ .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
 </style><meta name="robots" content="noindex, nofollow"><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
 <body class="sv1-page"><div class="sv1"><style id="sv1-co-css">
@@ -297,6 +302,13 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-co-trust div{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mut)}
 .sv1-co-result{border:1px solid var(--l);border-radius:12px;padding:14px;margin-bottom:14px;font-size:13px;line-height:1.8;background:var(--soft)}
 .sv1-co-result p{margin:0 0 8px}
+.sv1-co-rows{margin:0 0 10px;padding:10px 12px;background:#fff;border:1px solid var(--l);border-radius:10px;display:grid;gap:6px}
+.sv1-co-rows div{display:flex;justify-content:space-between;gap:12px;font-size:12.5px}
+.sv1-co-rows dt{color:var(--mut);margin:0}
+.sv1-co-rows dd{margin:0;font-family:var(--fm);color:var(--ink);direction:ltr;text-align:end;overflow-wrap:anywhere;min-width:0}
+.sv1-co-grp{margin:10px 0 0;font-size:11px;font-weight:600;color:var(--mut)}
+.sv1-co-grp:first-child{margin-top:0}
+.sv1-co-bill{display:inline-block;margin-inline-start:6px;padding:1px 8px;border-radius:999px;font-size:10.5px;font-weight:600;background:var(--acSoft);color:var(--n)}
 .sv1-co-result.ok{border-color:#bfe3d2;background:#f0f9f5}
 .sv1-co-result.warn{border-color:#f0d9b8;background:#fdf7ef}
 .sv1-co-mock{display:inline-block;background:#b45309;color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;margin-bottom:10px}
@@ -360,7 +372,7 @@ var h0=hint();if(h0)S.paint(true,h0);
     <div class="sv1-title" style="margin-bottom:26px;">
       <span class="sv1-tag">结账</span>
       <h2>结账</h2>
-      <p>在线支付：银行卡（mada · Visa · Mastercard）、Apple Pay 或 Tamara——确认后立即收到税务发票。</p>
+      <p>在线支付：银行卡（mada · Visa · Mastercard）或 Tamara 分期——确认后立即收到税务发票。</p>
     </div>
 
     <div class="sv1-co-grid">
@@ -382,7 +394,7 @@ var h0=hint();if(h0)S.paint(true,h0);
           <div class="sv1-co-ways" id="coWays">
             <button type="button" class="sv1-co-way on" data-way="card">
               <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/></svg></span>
-              <span class="tx"><b id="coWayCardLabel">银行卡 · Apple Pay</b><small>mada · Visa · Mastercard</small></span>
+              <span class="tx"><b id="coWayCardLabel">银行卡</b><small>mada · Visa · Mastercard</small></span>
             </button>
             <button type="button" class="sv1-co-way" data-way="tamara" id="coWayTamara">
               <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 12h18"/><path d="M7 7h10"/><path d="M7 17h10"/></svg></span>
@@ -407,10 +419,13 @@ var h0=hint();if(h0)S.paint(true,h0);
           <h4>订单摘要</h4>
           <div id="coItems"></div>
           <div class="sv1-co-tot">
+            <div class="sv1-hide" id="coOnceRow"><span>一次性项目</span><b class="price-amt" id="coOnce">—</b></div>
+            <div class="sv1-hide" id="coRecRow"><span>订阅（首期）</span><b class="price-amt" id="coRec">—</b></div>
             <div><span>小计</span><b class="price-amt" id="coNet">—</b></div>
             <div><span>增值税 15%</span><b class="price-amt" id="coVat">—</b></div>
             <div class="big"><span>合计</span><b class="price-amt" id="coTotal">—</b></div>
           </div>
+          <p class="sv1-co-fine sv1-hide" id="coRecNote"></p>
           <div class="sv1-co-trust">
             <div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16815A" stroke-width="2" stroke-linecap="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>加密</div>
             <div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16815A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>ZATCA 税务发票</div>
@@ -430,18 +445,18 @@ var h0=hint();if(h0)S.paint(true,h0);
     </div>
     <div class="sv1-foot-col">
       <h4>公司信息</h4>
-      <div class="sv1-foot-row id"><span>注册名称</span><b>Business Partner Solutions Company</b></div><div class="sv1-foot-row id"><span>统一编号</span><bdi dir="ltr">7038825860</bdi></div><div class="sv1-foot-row id"><span>增值税号</span><bdi dir="ltr">312079341500003</bdi></div><div class="sv1-foot-row id"><span>国家简短地址</span><bdi dir="ltr">RHSC2978</bdi></div>
+      <div class="sv1-foot-row id"><span>注册名称</span><b>Business Partner Solutions Company</b></div><div class="sv1-foot-row id"><span>统一编号</span><bdi dir="ltr">7038825860</bdi></div><div class="sv1-foot-row id"><span>增值税号</span><bdi dir="ltr">312079341500003</bdi></div><div class="sv1-foot-row id"><span>国家简短地址</span><bdi dir="ltr">RDAA9214</bdi></div>
     </div>
     <div class="sv1-foot-col">
       <h4>联系我们</h4>
       <div class="sv1-foot-row"><span>电话</span><a href="tel:+966530540231"><bdi dir="ltr">0530540231</bdi></a></div>
       <div class="sv1-foot-row"><span>邮箱</span><a href="mailto:business@businesspartner.sa"><bdi dir="ltr">business@businesspartner.sa</bdi></a></div>
-      <div class="sv1-foot-row"><span>国家地址</span><span class="v">Building 2978 · Turki Ibn Abdullah Aal Saud St. · Al Sulaimaniyah Dist. · Riyadh 12234 · Additional no. 8630</span></div>
+      <div class="sv1-foot-row"><span>国家地址</span><span class="v">Building 9214 · King Khaled Branch Rd. · Al Asemah Dist. · Ad Diriyah 13714 · Additional no. 5076</span></div>
       <div class="sv1-foot-row"><span>营业时间</span><span class="v">Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span></div>
     </div>
     <div class="sv1-foot-col">
       <h4>支付方式</h4>
-      <p class="sv1-foot-note">mada · Visa · Mastercard · Apple Pay · Tamara — 通过持牌支付网关，卡片信息不经过我们的服务器。</p>
+      <p class="sv1-foot-note">mada · Visa · Mastercard，或通过 Tamara 分期。Apple Pay 等手机钱包仅在您的设备支持时才会在结账页出现。支付通过持牌支付网关完成，卡片信息不经过我们的服务器。</p>
     </div>
   </div>
 
@@ -457,7 +472,7 @@ var h0=hint();if(h0)S.paint(true,h0);
       <a href="/zh/catalog">全部服务</a>
       <a href="/zh/packages">套餐</a>
       <a href="/zh/ai-agents">智能顾问</a>
-      <a href="/zh/business-development">业务拓展</a>
+      
     </div>
     <div class="sv1-foot-navcol">
       <h5>知识库</h5>
@@ -493,6 +508,10 @@ function send(p){p.action="hit";p.visitor=vid;try{var b=JSON.stringify(p);
 if(navigator.sendBeacon)navigator.sendBeacon("/api/requests",new Blob([b],{type:"application/json"}));
 else fetch("/api/requests",{method:"POST",headers:{"content-type":"application/json"},body:b,keepalive:true}).catch(function(){})}catch(e){}}
 var rh="";try{if(document.referrer){var u=new URL(document.referrer);if(u.host!==location.host)rh=u.host}}catch(e){}
+// وسوم UTM تسبق المُحيل: واتساب وتيك توك لا يرسلان Referer، فزياراتهما تظهر
+// «مباشرة» في اللوحة. الشكل utm:<source>/<medium>/<campaign>/<content>، والقصّ
+// إلى 120 حرفاً لأن عمود ref في api/requests.js يقصّه إلى 120.
+try{var q=new URLSearchParams(location.search);if(q.get("utm_source")){rh=("utm:"+[q.get("utm_source"),q.get("utm_medium"),q.get("utm_campaign"),q.get("utm_content")].map(function(v){return v||""}).join("/")).slice(0,120)}}catch(e){}
 send({kind:"view",path:location.pathname,ref:rh,lang:document.documentElement.lang||"",device:window.innerWidth<768?"mobile":"desktop"});
 // أزرار الموقع الجديد بأسمائها العربية كما تظهر في اللوحة، ومعها محدّدات
 // الموقع القديم حتى تُحسب الصفحتان بالمسمّى نفسه.
@@ -512,8 +531,9 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
 })();</script><script>
 (function(){
 var LANG="zh",HOME="/zh/";
-var TX={"empty":"购物车为空。","browse":"浏览服务","needFill":"请先填写姓名、手机号和邮箱。","payDown":"支付表单加载失败。请尝试 Tamara 或稍后重试。","loading":"正在准备支付表单…","quoted":"审核后报价","signIn":"登录后查看价格并付款。","signInBtn":"登录","noAmount":"这些项目将在审核后报价 — 我们会先发送报价，再发送付款链接。","cardSP":"银行卡 · Apple Pay · Samsung Pay","payBtn":"完成支付","payWait":"正在确认您的付款…","paidOk":"已收到付款——订单已记录，税务发票将在几分钟内发送到您的邮箱。","paidInv":"发票号：","paidFail":"付款未完成，未扣款——请用银行卡重试或尝试 Tamara。","paidHold":"您的付款已完成但暂时无法自动确认，团队已收到提醒。请勿重复付款——发票稍后送达。","bnplFail":"分期付款未完成——请重试或用银行卡支付。","toMy":"查看我的订单","mockTag":"本地网关——不扣款"};
+var TX={"empty":"购物车为空。","browse":"浏览服务","needFill":"请先填写姓名、手机号和邮箱。","payDown":"支付表单加载失败。请尝试 Tamara 或稍后重试。","loading":"正在准备支付表单…","quoted":"审核后报价","signIn":"登录后查看价格并付款。","signInBtn":"登录","noAmount":"这些项目将在审核后报价 — 我们会先发送报价，再发送付款链接。","card":"银行卡","payBtn":"完成支付","payWait":"正在确认您的付款…","paidOk":"已收到付款——订单已记录，税务发票将在几分钟内发送到您的邮箱。","paidInv":"发票号：","paidFail":"付款未完成，未扣款——请用银行卡重试或尝试 Tamara。","paidHold":"您的付款已完成但暂时无法自动确认，团队已收到提醒。请勿重复付款——发票稍后送达。","bnplFail":"分期付款未完成——请重试或用银行卡支付。","toMy":"查看我的订单","mockTag":"本地网关——不扣款","needCo":"请填写公司名称——订阅将以其名义开通。","empFail":"暂时无法准备您的订阅，未扣款——请稍后重试或联系我们。","empDone":"已收到付款，您的招聘平台订阅已开通。请用付款时的邮箱登录雇主门户。","empHold":"付款已完成，订阅正在开通——团队已收到提醒。请勿重复付款。","toEmployer":"打开雇主门户","tamaraYr":"Tamara 仅适用于年度订阅。","empSignIn":"请先用将开通订阅的邮箱登录，再付款。","empMail":"邮箱必须与当前登录账户一致。","onePlan":"每个订单仅限一个订阅。","toCart":"返回购物车","onceHd":"一次性付款","recHd":"订阅","billM":"每月","billY":"每年","recNote":"订阅金额为一个周期（一个月或一年）的费用，即现在支付的金额。","tamaraSub":"Tamara 不适用于月度订阅——请用银行卡支付。","lblOrder":"订单号","lblPay":"付款编号","lblAmt":"已付金额（含税）","lblInv":"发票号","okDone":"已收到付款，订单已确认。","nextInv":"下一步：订单确认和税务发票将发送到您的邮箱，随后团队开始执行。","nextNoInv":"下一步：订单确认将发送到您的邮箱。团队正在准备税务发票，并发送到同一邮箱。","reviewT":"我们已收到您的付款，将在工作时间内确认开通。","reviewN":"我们无法自动将金额与公布价格核对，团队将在开通前复核。确认邮件将发送到您的邮箱——请勿重复付款。","signInGo":"登录","lblReq":"您的申请编号","openReq":"打开您的申请","nextReqDocs":"下一步：打开您的申请并上传所需文件，团队即可开始执行；您可在那里跟进每个阶段。","nextReq":"下一步：在您的面板中跟进申请进度；执行开始时我们会通知您。","invSent":"税务发票将发送到您的邮箱。","invSoon":"团队正在准备税务发票，并发送到同一邮箱。"};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
+var REC={"bp-hr-03":"monthly","bp-ai-02":"monthly","bp-sub-01":"monthly","bp-vendor-02":"monthly","bp-ai-03":"monthly","bp-ai-smart-employee":"monthly","bp-ai-04":"monthly","bp-ajeer-10":"monthly","starter-4":"monthly","bp-pkg-svc-starter":"monthly","silver":"monthly","bp-pkg-launch":"monthly","gold":"monthly","bp-pkg-growth":"monthly","platinum":"monthly","bp-pkg-scale":"monthly","basic-legal":"monthly","bp-pkg-legal-basic":"monthly","advanced":"monthly","bp-pkg-legal-adv":"monthly","comprehensive":"monthly","bp-pkg-legal-comp":"monthly","strategic":"monthly","bp-pkg-legal-strat":"monthly"};
 var $=function(id){return document.getElementById(id)};
 function money(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ﷼'}
 function readCart(){try{return JSON.parse(localStorage.getItem(CART))||[]}catch(e){return []}}
@@ -524,12 +544,43 @@ function lineOf(i){return (Number(i.amount)||0)*(Number(i.qty)||1)}
 function nameOf(i){var ar=i.nameAr||'',en=i.nameEn||'';return (LANG==='ar'?ar:en)||ar||en||i.name||i.title||i.id||''}
 var PRICES_ON=document.documentElement.getAttribute('data-prices')==='on';
 function shown(i){return !!(i&&Number(i.amount)&&(PRICES_ON||i.pricePublic))}
-var cart=readCart(),net=0;
+// دورة الدفع — نفس قاعدة السلة حرفاً بحرف: ما كتبته الصفحة، ثم لاحقة المعرّف، ثم الكتالوج.
+function billOf(i){
+ var b=String((i&&i.billingPeriod)||'').toLowerCase();
+ if(b==='monthly'||b==='yearly')return b;
+ var id=String((i&&i.id)||'').toLowerCase();
+ if(/-yearly$/.test(id))return 'yearly';
+ if(/-monthly$/.test(id))return 'monthly';
+ return REC[id.replace(/^(svc|pkg)-/,'')]||''}
+function billLabel(b){return b==='yearly'?TX.billY:TX.billM}
+// سؤال الجلسة مرة واحدة: يملأ بيانات العميل، ويحسم هل تُعرض الأسعار (انظر whenSession).
+var ME=null;
+function getMe(){
+ if(!ME)ME=fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
+  .then(function(r){return r.json()}).then(function(o){return (o&&o.session&&o.session.user)||null}).catch(function(){return null});
+ return ME}
+// بنود اشتراك منصة التوظيف (BP-EMP-*): السعر من الخادم لا مما في السلة. ما كتبته
+// الصفحة التي أضافت البند تلميحٌ فقط؛ المخصوم هو ما يقوله /api/pay?action=emp-offer.
+// سلةٌ بلا هذه البنود تعمل كما كانت، بلا نداءٍ واحد إضافي.
+var EMPANY=/^BP-EMP-/i,cart=readCart();
+var empLines=cart.filter(function(i){return EMPANY.test(String(i&&i.id||''))});
+var hasEmp=empLines.length>0,empSku=hasEmp?String(empLines[0].id).toUpperCase():'',empBnplOk=true;
+function priceEmp(cb){
+ if(!hasEmp){cb();return}
+ var left=empLines.length;
+ empLines.forEach(function(i){
+  fetch('/api/pay?action=emp-offer&sku='+encodeURIComponent(i.id)).then(function(r){return r.json()}).then(function(o){
+   if(o&&o.ok){i.amount=o.amountSar;i.qty=1;i.pricePublic=true;i.nameAr=o.name.ar;i.nameEn=o.name.en;if(!o.bnpl)empBnplOk=false}
+   else{i.amount=0;empBnplOk=false}
+  }).catch(function(){i.amount=0;empBnplOk=false}).then(function(){
+   if(--left===0){try{localStorage.setItem(CART,JSON.stringify(cart))}catch(e){}cb()}})})}
+function run(){
+var net=0;
 var unpriced=cart.filter(function(i){return !Number(i.amount)}).length;   // بنودٌ تُسعّر عند المراجعة
 var hidden=cart.filter(function(i){return Number(i.amount)&&!shown(i)}).length; // مسعّرة لكنها محجوبة عن غير المسجّل
 cart.forEach(function(i){net+=lineOf(i)});
 var vat=Math.round(net*VAT*100)/100,total=Math.round((net+vat)*100)/100;
-var payable=cart.length&&!unpriced&&!hidden&&total>0;
+var payable=cart.length&&!unpriced&&!hidden&&total>0&&empLines.length<=1;
 
 (function draw(){
  var box=$('coItems');box.innerHTML='';
@@ -537,30 +588,41 @@ var payable=cart.length&&!unpriced&&!hidden&&total>0;
   var e=document.createElement('p');e.className='sv1-muted';e.textContent=TX.empty;box.appendChild(e);
   var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=HOME+'catalog';a.textContent=TX.browse;a.style.marginTop='10px';box.appendChild(a);
   return}
- cart.forEach(function(i){
+ // دفعة واحدة أولاً ثم الاشتراكات (بوسم الدورة)؛ ولا عنوان للمجموعتين إلا إن اجتمعتا.
+ var once=[],rec=[],onceNet=0,recNet=0;
+ cart.forEach(function(i){var bl=billOf(i);if(bl){rec.push([i,bl]);recNet+=lineOf(i)}else{once.push([i,'']);onceNet+=lineOf(i)}});
+ function rowEl(i,bl){
   var r=document.createElement('div');r.className='sv1-co-row';
   var l=document.createElement('div');var b=document.createElement('b');b.style.fontWeight='500';b.textContent=nameOf(i);
+  if(bl){var pill=document.createElement('span');pill.className='sv1-co-bill';pill.textContent=billLabel(bl);b.appendChild(pill)}
   l.appendChild(b);
   if((Number(i.qty)||1)>1){var s=document.createElement('small');s.textContent='×'+(i.qty||1);l.appendChild(s)}
   var v=document.createElement('b');
   if(shown(i)){v.textContent=money(lineOf(i))}else{v.style.fontWeight='400';v.style.color='var(--mut)';v.style.fontSize='11.5px';v.textContent=Number(i.amount)?TX.signIn:TX.quoted}
-  r.appendChild(l);r.appendChild(v);box.appendChild(r)});
+  r.appendChild(l);r.appendChild(v);return r}
+ [[once,TX.onceHd],[rec,TX.recHd]].forEach(function(g){
+  if(!g[0].length)return;
+  if(once.length&&rec.length){var hd=document.createElement('div');hd.className='sv1-co-grp';hd.textContent=g[1];box.appendChild(hd)}
+  g[0].forEach(function(x){box.appendChild(rowEl(x[0],x[1]))})});
+ if(payable&&rec.length){
+  if(once.length){$('coOnceRow').classList.remove('sv1-hide');$('coOnce').textContent=money(onceNet)}
+  $('coRecRow').classList.remove('sv1-hide');$('coRec').textContent=money(recNet)}
+ if(rec.length){var rn=$('coRecNote');rn.textContent=TX.recNote;rn.classList.remove('sv1-hide')}
  if(payable){$('coNet').textContent=money(net);$('coVat').textContent=money(vat);$('coTotal').textContent=money(total)}
  else{var q=unpriced?TX.quoted:TX.signIn;$('coNet').textContent=q;$('coVat').textContent='—';$('coTotal').textContent=q;
   $('coTotal').style.fontSize='14px';$('coTotal').style.fontWeight='600'}
 })();
 
 // تعبئة من الجلسة: من دخل حسابه لا يعيد كتابة بريده عند الدفع.
-fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
- .then(function(r){return r.json()}).then(function(o){var u=o&&o.session&&o.session.user;if(!u)return;
+getMe().then(function(u){if(!u)return;
   if(!$('coEmail').value)$('coEmail').value=u.email||'';
-  if(!$('coName').value)$('coName').value=u.full_name||'';}).catch(function(){});
+  if(!$('coName').value)$('coName').value=u.full_name||'';});
 
 // اللقطة والبيانات الوصفية بنفس شكل الموقع القديم حرفياً — المرجع يبقى ثابتاً
 // بين تركيب النموذج والعودة من التحقق البنكي، وإلا صارت الدفعة بلا طلب.
 function snapshot(){
- var prev='';try{prev=(JSON.parse(sessionStorage.getItem(SNAP)||'{}')||{}).ref||''}catch(e){}
- var o={ref:prev||'BP-'+Date.now().toString().slice(-6),
+ var prev='',pe='',pk='';try{var ps=JSON.parse(sessionStorage.getItem(SNAP)||'{}')||{};prev=ps.ref||'';pe=ps.empRef||'';pk=ps.empKey||''}catch(e){}
+ var o={ref:prev||'BP-'+Date.now().toString().slice(-6),empRef:pe,empKey:pk,
    name:$('coName').value.trim(),email:$('coEmail').value.trim().toLowerCase(),phone:$('coPhone').value.trim(),
    items:cart.map(function(i){return {id:i.id||'',qty:i.qty||1}}),company:$('coCo').value.trim(),
    surchargeFee:0,discountCode:'',taxProfile:{kind:'personal'}};
@@ -572,6 +634,24 @@ function meta(){
  return {ref:String(s.ref||''),email:String(s.email||'').slice(0,120),name:String(s.name||'').slice(0,60),
    phone:String(s.phone||'').slice(0,30),co:String(s.company||'').slice(0,80),items:items,disc:'',tax:'personal'}}
 function ready(){return $('coName').value.trim()&&$('coPhone').value.trim()&&$('coEmail').value.trim().indexOf('@')>0}
+// الاشتراك يُفتح باسم منشأة: الحقل الاختياري يصير مطلوباً هنا فقط.
+function readyEmp(){return !hasEmp||!!$('coCo').value.trim()}
+// يفتح صفّ الاشتراك «بانتظار الدفع» ويُلبس مرجعه الطلبَ كلَّه قبل أن يتحرّك المال؛
+// فخطّاف مُيسّر وعودة تمارا يسميان الصفّ نفسه. مرةً لكل (بريد · منشأة · باقة).
+var empWhy='';
+function empMsg(){return empWhy==='not_signed_in'?TX.empSignIn:empWhy==='email_mismatch'?TX.empMail:TX.empFail}
+function prepareEmp(){
+ empWhy='';
+ if(!hasEmp)return Promise.resolve(true);
+ var s=snapshot(),key=s.email+'|'+s.company+'|'+empSku;
+ if(s.empRef&&s.empKey===key)return Promise.resolve(true);
+ return fetch('/api/pay',{method:'POST',headers:{'content-type':'application/json'},
+  body:JSON.stringify({action:'emp-prepare',sku:empSku,email:s.email,company:s.company})})
+  .then(function(r){return r.json()}).then(function(o){
+   if(!(o&&o.ok&&o.reference)){empWhy=(o&&o.error)||'';return false}
+   try{var cur=JSON.parse(sessionStorage.getItem(SNAP)||'{}')||{};cur.ref=o.reference;cur.empRef=o.reference;cur.empKey=key;
+    sessionStorage.setItem(SNAP,JSON.stringify(cur))}catch(e){return false}
+   return true}).catch(function(){return false})}
 
 // ---- اختيار الطريقة
 var panes={card:$('coPaneCard'),tamara:$('coPaneTamara')};
@@ -583,10 +663,18 @@ var PAYCFG=null; // إعداد /api/pay بعد وصوله — يحتاجه زر 
 // يستعمله الموقع القديم حرفياً: تفعيل + CRM + فاتورة من مسار واحد. وبلا هذا
 // الجزء كان العميل يعود من البوابة إلى السلة نفسها بلا كلمة — والمال قد خرج.
 var RESULT=$('coResult');
-function showResult(kind,txt,extra){RESULT.className='sv1-co-result '+kind;RESULT.textContent='';
+// det (اختياري) = {rows:[[تسمية،قيمة]…], next:'الخطوة التالية', note:'ملاحظة'} — ما يحتفظ به العميل
+// بعد الدفع: رقم الطلب ومرجع الدفعة والمبلغ ورقم الفاتورة، وما سيحدث بعد ذلك.
+function showResult(kind,txt,extra,link,det){RESULT.className='sv1-co-result '+kind;RESULT.textContent='';
  var p=document.createElement('p');p.textContent=txt;RESULT.appendChild(p);
+ if(det&&det.rows&&det.rows.length){var dl=document.createElement('dl');dl.className='sv1-co-rows';
+  det.rows.forEach(function(r){var d=document.createElement('div');var dt=document.createElement('dt');dt.textContent=r[0];
+   var dd=document.createElement('dd');dd.textContent=r[1];d.appendChild(dt);d.appendChild(dd);dl.appendChild(d)});
+  RESULT.appendChild(dl)}
+ if(det&&det.next){var nx=document.createElement('p');nx.textContent=det.next;RESULT.appendChild(nx)}
  if(extra){var s=document.createElement('p');s.className='sv1-co-fine';s.style.margin='0 0 8px';s.textContent=extra;RESULT.appendChild(s)}
- if(kind==='ok'){var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=HOME+'my';a.textContent=TX.toMy;RESULT.appendChild(a)}
+ if(det&&det.note){var nt=document.createElement('p');nt.className='sv1-co-fine';nt.style.margin='0 0 10px';nt.textContent=det.note;RESULT.appendChild(nt)}
+ if(kind==='ok'||link){var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=link?link.href:HOME+'my';a.textContent=link?link.label:TX.toMy;RESULT.appendChild(a)}
  try{RESULT.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}}
 (function settleReturn(){
  var u=new URL(location.href),q=u.searchParams;
@@ -608,8 +696,31 @@ function showResult(kind,txt,extra){RESULT.className='sv1-co-result '+kind;RESUL
  showResult('wait',TX.payWait);
  fetch('/api/pay',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})
   .then(function(r){return r.json()}).then(function(v){
-   if(v&&v.ok){var inv=v.invoice;
-    showResult('ok',TX.paidOk,inv&&inv.invoiced&&inv.number?TX.paidInv+' '+inv.number:'');
+   if(v&&v.ok){var inv=v.invoice,st2=v.settle;
+    var hadEmp=!!(stash&&(stash.items||[]).some(function(i){return EMPANY.test(String(i&&i.id||''))}));
+    // ما يحتفظ به العميل: كلُّ رقمٍ هنا يقوله الخادم أو اللقطة، ولا يُكتب رقمٌ لم يصل.
+    var rows=[],oref=(st2&&st2.ref)||(stash&&stash.ref)||'',payRef=pid||bid||'',paidSar=Number(v.amount)>0?Number(v.amount)/100:total;
+    if(oref)rows.push([TX.lblOrder,oref]);
+    if(payRef)rows.push([TX.lblPay,payRef]);
+    if(paidSar>0)rows.push([TX.lblAmt,money(paidSar)]);
+    var hasInv=!!(inv&&inv.invoiced&&inv.number);
+    if(hasInv)rows.push([TX.lblInv,String(inv.number)]);
+    // الطلب الذي فتحه الخادم لهذه الدفعة في «طلباتي»: رقمه وزرّ يفتحه، من رد الخادم لا من التخمين.
+    var rq=st2&&st2.request,rqRef=(rq&&rq.ok&&rq.ref)?String(rq.ref):'',rqLink=rqRef?{href:HOME+'my?ref='+encodeURIComponent(rqRef),label:TX.openReq}:null;
+    if(rqRef)rows.unshift([TX.lblReq,rqRef]);
+    var invSettled=hasInv||(inv&&inv.reason==='already_settled');
+    var det={rows:rows};
+    if(hadEmp&&v.employer&&v.employer.activated)showResult('ok',TX.empDone,'',{href:HOME+'employer',label:TX.toEmployer},det);
+    else if(hadEmp)showResult('warn',TX.empHold,'',null,det);
+    // دفعٌ نجح لكن تسجيله لم يكتمل (الخادم نبّه الفريق): لا نقول «تمّ» ولا نطلب إعادة الدفع.
+    else if(!(st2&&st2.ok))showResult('warn',TX.paidHold,'',null,det);
+    // دفعٌ سُجّل ولم يُطابَق مبلغه آلياً (باقة سنوية، بند خارج الكتالوج…): مراجعة بشرية، ونقولها.
+    // دفعٌ سُجّل ولم يُفتح طلبه في اللوحة (الخادم نبّه الفريق): الرسالة الصادقة نفسها، ولا نعد بما لم يحدث.
+    // (طلب بلا بنود جديدة — دفعُ عرضٍ قائم — يُسوّى في طلبه نفسه فلا يُنتظر منه رقم.)
+    else if(!rqRef&&!(rq&&rq.skipped))showResult('warn',TX.paidHold,'',null,det);
+    else if(!st2.verified)showResult('warn',TX.reviewT,TX.reviewN,rqLink||{href:HOME+'my',label:TX.toMy},det);
+    // «already_settled»: القناة الأخرى (خطّاف مُيسّر) سبقت وأصدرت الفاتورة، فهي في طريقها لا قيد التجهيز.
+    else showResult('ok',TX.okDone,'',rqLink,{rows:rows,next:rqRef?((rq.documents?TX.nextReqDocs:TX.nextReq)+' '+(invSettled?TX.invSent:TX.invSoon)):(invSettled?TX.nextInv:TX.nextNoInv)});
     $('coWays').classList.add('sv1-hide');for(var k in panes)panes[k].classList.add('sv1-hide');
     try{localStorage.removeItem(CART)}catch(e){}try{sessionStorage.removeItem(SNAP)}catch(e){}
     try{dispatchEvent(new Event('bp:cart'))}catch(e){}return}
@@ -629,17 +740,29 @@ Array.prototype.forEach.call(document.querySelectorAll('.sv1-co-way'),function(b
   for(var k in panes)panes[k].classList.toggle('sv1-hide',k!==b.getAttribute('data-way'))}});
 
 // ---- تمارا
+// الاشتراك الشهري لا يُقسَّط (تمارا للسنوي وحده) — الخادم يرفضه أيضاً.
+if(hasEmp&&!empBnplOk){var tw=$('coWayTamara');if(tw)tw.disabled=true;var tn=$('coTamaraNote');if(tn)tn.textContent=TX.tamaraYr}
+// باقةٌ شهرية: الخادم لا يفتح لها جلسة تمارا (لم تكن مسعّرة هناك أصلاً)، فلا يُعرض الزر
+// ثم يفشل عند اللمس — يُقال السبب ويُوجَّه العميل إلى البطاقة.
+var monthlyPkg=cart.some(function(i){return /^(bp-)?pkg-.+-monthly$/i.test(String(i&&i.id||''))});
+if(monthlyPkg){var tw2=$('coWayTamara');if(tw2)tw2.disabled=true;var tn2=$('coTamaraNote');if(tn2)tn2.textContent=TX.tamaraSub}
 $('coTamaraGo').onclick=function(){
  var n=$('coTamaraNote');
+ if(monthlyPkg){n.textContent=TX.tamaraSub;return}
  if(!payable){n.textContent=unpriced?TX.noAmount:TX.signIn;return}
  if(!ready()){n.textContent=TX.needFill;return}
- if(PAYCFG&&PAYCFG.mock&&PAYCFG.formUrl){location.href=mockUrl('tamara');return}
+ if(!readyEmp()){n.textContent=TX.needCo;return}
+ if(hasEmp&&!empBnplOk){n.textContent=TX.tamaraYr;return}
+ if(PAYCFG&&PAYCFG.mock&&PAYCFG.formUrl){
+  var sm=this;sm.disabled=true;prepareEmp().then(function(ok){if(ok){location.href=mockUrl('tamara');return}sm.disabled=false;n.textContent=empMsg()});return}
  var self=this;self.disabled=true;n.textContent=TX.loading;
- fetch('/api/pay',{method:'POST',headers:{'content-type':'application/json'},
-  body:JSON.stringify({action:'bnpl-checkout',provider:'tamara',lang:LANG,order:snapshot()})})
- .then(function(r){return r.json()}).then(function(o){
-  if(o&&o.ok&&o.url){location.href=o.url;return}
-  self.disabled=false;n.textContent=(o&&o.message)||TX.payDown})
+ prepareEmp().then(function(ok){
+  if(!ok){self.disabled=false;n.textContent=empMsg();return}
+  return fetch('/api/pay',{method:'POST',headers:{'content-type':'application/json'},
+   body:JSON.stringify({action:'bnpl-checkout',provider:'tamara',lang:LANG,order:snapshot()})})
+  .then(function(r){return r.json()}).then(function(o){
+   if(o&&o.ok&&o.url){location.href=o.url;return}
+   self.disabled=false;n.textContent=(o&&o.message)||TX.payDown})})
  .catch(function(){self.disabled=false;n.textContent=TX.payDown})};
 
 // ---- البطاقة والمحافظ (مُيسّر) — نفس نداء التركيب في الموقع القديم
@@ -653,8 +776,10 @@ function payBlocked(msg,href,label){
  if(href){var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=href;a.textContent=label;a.style.marginTop='10px';mount.appendChild(a)}
  var tg=$('coTamaraGo');if(tg)tg.disabled=true}
 if(!cart.length){mount.innerHTML='';}
+else if(empLines.length>1){payBlocked(TX.onePlan,HOME+'cart',TX.toCart);}
 else if(unpriced){payBlocked(TX.noAmount,HOME+'my',TX.signInBtn);}
-else if(hidden){payBlocked(TX.signIn,HOME+'my',TX.signInBtn);}
+// الدخول يرجع إلى هذه الصفحة (next) لا إلى لوحة العميل، فتبقى السلة أمامه.
+else if(hidden){payBlocked(TX.signIn,HOME+'my?next='+encodeURIComponent(HOME+'checkout'),TX.signInBtn);}
 else if(!(total>0)){payBlocked(TX.noAmount,HOME+'catalog',TX.browse);}
 else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
  PAYCFG=cfg||null;
@@ -664,7 +789,8 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
   var tg=document.createElement('span');tg.className='sv1-co-mock';tg.textContent=TX.mockTag;mount.appendChild(tg);
   var bt=document.createElement('button');bt.type='button';bt.className='sv1-btn primary';bt.style.width='100%';bt.id='coMockPay';bt.textContent=TX.payBtn;
   var nt=document.createElement('p');nt.className='sv1-co-fine';
-  bt.onclick=function(){if(!ready()){nt.textContent=TX.needFill;return}location.href=mockUrl('card')};
+  bt.onclick=function(){if(!ready()){nt.textContent=TX.needFill;return}if(!readyEmp()){nt.textContent=TX.needCo;return}
+   bt.disabled=true;prepareEmp().then(function(ok){if(ok){location.href=mockUrl('card');return}bt.disabled=false;nt.textContent=empMsg()})};
   mount.appendChild(bt);mount.appendChild(nt);return}
  if(!cfg||!cfg.enabled||!cfg.publishableKey||!cfg.scriptUrl){payFailed();return}
  if(cfg.cssUrl){var l=document.createElement('link');l.rel='stylesheet';l.href=cfg.cssUrl;document.head.appendChild(l)}
@@ -673,28 +799,83 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
  s.onload=function(){
   if(!(window.Moyasar&&typeof window.Moyasar.init==='function')){payFailed();return}
   var wanted=(cfg.methods||['creditcard']).slice();
+  // Apple Pay: جاهزيته معروفة بنداءٍ متزامن من المتصفح نفسه.
   var canAP=false;try{canAP=!!(window.ApplePaySession&&window.ApplePaySession.canMakePayments&&window.ApplePaySession.canMakePayments())}catch(e){}
-  if(!canAP)wanted=wanted.filter(function(m){return m!=='applepay'});
+  var ap=cfg.applePay&&canAP?cfg.applePay:null;
+  if(!ap)wanted=wanted.filter(function(m){return m!=='applepay'});
   // Samsung Pay: قيمة «samsungpay» في methods مع كائن samsung_pay (service_id
   // من حساب سامسونج للمطوّرين، والمرجع رقمَ طلب). الخادم لا يعيدها إلا مكتملة.
-  var sp=cfg.samsungPay&&cfg.samsungPay.service_id?cfg.samsungPay:null;
-  if(!sp)wanted=wanted.filter(function(m){return m!=='samsungpay'});
-  else{var lb=$('coWayCardLabel');if(lb)lb.textContent=TX.cardSP}
-  if(!wanted.length)wanted=['creditcard'];
-  function boot(methods,applePay,samsungPay){
+  var sp0=cfg.samsungPay&&cfg.samsungPay.service_id?cfg.samsungPay:null;
+  // Google Pay: كائن google_pay (merchant_id من لوحة Google Pay & Wallet).
+  var gp0=cfg.googlePay&&cfg.googlePay.merchant_id?cfg.googlePay:null;
+  // سؤال المحفظة نفسها «هل جهازي جاهز؟» — نفس السؤال الذي يطرحه النموذج قبل أن
+  // يرسم زرّه، لكن هنا قبل أن نسمّي المحفظة في العنوان أو نمرّرها. أي فشل
+  // (SDK محجوب، مهلة، رفض) = غير جاهزة، فلا يظهر شيء ولا يُوعَد بشيء.
+  function probe(src,have,ask,done){
+   var fin=false;function end(ok){if(!fin){fin=true;done(!!ok)}}
+   setTimeout(function(){end(false)},3000);
+   function run(){try{ask(end)}catch(e){end(false)}}
+   if(have()){run();return}
+   var sc=document.createElement('script');sc.src=src;sc.onload=run;sc.onerror=function(){end(false)};document.head.appendChild(sc)}
+  function askSamsung(end){
+   var c=new window.SamsungPay.PaymentClient({environment:sp0.environment||'PRODUCTION'});
+   c.isReadyToPay({version:'2',serviceId:sp0.service_id,protocol:'PROTOCOL_3DS',allowedBrands:['visa','mastercard','mada']})
+    .then(function(r){end(r&&r.result)},function(){end(false)})}
+  function askGoogle(end){
+   var c=new window.google.payments.api.PaymentsClient({environment:gp0.environment||'PRODUCTION'});
+   c.isReadyToPay({apiVersion:2,apiVersionMinor:0,allowedPaymentMethods:[{type:'CARD',parameters:{allowedAuthMethods:['CRYPTOGRAM_3DS'],allowedCardNetworks:['VISA','MASTERCARD']}}]})
+    .then(function(r){end(r&&r.result)},function(){end(false)})}
+  var pending=(sp0?1:0)+(gp0?1:0),spOk=false,gpOk=false,started=false;
+  function oneDone(){if(--pending<=0&&!started){started=true;go()}}
+  function go(){
+   var sp=sp0&&spOk?sp0:null,gp=gp0&&gpOk?gp0:null;
+   wanted=wanted.filter(function(m){return m!=='samsungpay'&&m!=='googlepay'});
+   if(sp)wanted.push('samsungpay');
+   if(gp)wanted.push('googlepay');
+   if(!wanted.length)wanted=['creditcard'];
+   // عنوان الطريقة يسمّي ما سيظهر فعلاً على هذا الجهاز، لا ما هو مكتوب في الإعداد.
+   var names=[];if(ap)names.push('Apple Pay');if(gp)names.push('Google Pay');if(sp)names.push('Samsung Pay');
+   var lb=$('coWayCardLabel');if(lb)lb.textContent=TX.card+(names.length?' · '+names.join(' · '):'');
+   try{boot(wanted,ap,sp,gp)}
+   catch(e){try{boot(['creditcard'],null,null,null)}catch(e2){payFailed()}}}
+  function boot(methods,applePay,samsungPay,googlePay){
    mount.innerHTML='<div id="epay-form"></div>';
    var m=meta();
-   window.Moyasar.init({element:'#epay-form',amount:Math.round(total*100),currency:cfg.currency||'SAR',
+   var opt={element:'#epay-form',amount:Math.round(total*100),currency:cfg.currency||'SAR',
     description:'Business Partner order',publishable_api_key:cfg.publishableKey,
     callback_url:location.origin+location.pathname,metadata:m,
-    on_initiating:async function(){return {metadata:meta()}},
+    on_initiating:async function(){
+     // اشتراك منصة التوظيف: لا يتحرّك المال قبل أن يُفتح الصفّ المعلّق ويُلبس مرجعه الطلب.
+     if(hasEmp){
+      if(!ready()||!readyEmp()){showResult('warn',ready()?TX.needCo:TX.needFill);return false}
+      if(!(await prepareEmp())){showResult('warn',empMsg());return false}}
+     return {metadata:meta()}},
     methods:methods,apple_pay:applePay||undefined,
     samsung_pay:samsungPay?{service_id:samsungPay.service_id,order_number:m.ref,country:samsungPay.country||'SA',
-      label:samsungPay.label||'Business Partner',environment:samsungPay.environment||'PRODUCTION'}:undefined});
+      label:samsungPay.label||'Business Partner',environment:samsungPay.environment||'PRODUCTION'}:undefined};
+   if(googlePay){
+    opt.google_pay={merchant_id:googlePay.merchant_id,country:googlePay.country||'SA',
+     label:googlePay.label||'Business Partner',environment:googlePay.environment||'PRODUCTION',auth_methods:['CRYPTOGRAM_3DS']};
+    // زرّ Google Pay يُسمّي الشبكات بأسماء Google (VISA · MASTERCARD)؛ القيمة
+    // الافتراضية للنموذج تضيف UNIONPAY وليست من أسمائها فتُسقط الزرّ.
+    opt.supported_networks=['mada','visa','mastercard']}
+   window.Moyasar.init(opt);
    // نداءٌ لم يرمِ خطأً ليس نموذجاً على الشاشة: الصندوق الفارغ هو ما يترك
    // المشتري بلا وسيلة دفع ولا رسالة.
    setTimeout(function(){if(mount.querySelector('#epay-form')&&!mount.querySelector('#epay-form').children.length)payFailed()},2500)}
-  try{boot(wanted,canAP?cfg.applePay:null,sp)}
-  catch(e){try{boot(['creditcard'],null,null)}catch(e2){payFailed()}}};
+  if(!pending){started=true;go()}
+  else{
+   if(sp0)probe('https://img.mpay.samsung.com/gsmpi/sdk/samsungpay_web_sdk.js',function(){return !!window.SamsungPay},askSamsung,function(ok){spOk=ok;oneDone()});
+   if(gp0)probe('https://pay.google.com/gp/p/js/pay.js',function(){return !!(window.google&&window.google.payments&&window.google.payments.api)},askGoogle,function(ok){gpOk=ok;oneDone()})}};
  document.head.appendChild(s)}).catch(payFailed);
+}
+// جلسةٌ صالحة بلا مفتاح bp_session في المتصفح (أول زيارة بعد الدخول) كانت تُعامَل كضيف
+// فتظهر «سجّل دخولك لعرض السعر وإتمام الدفع» لعميلٍ داخلٍ فعلاً. إن كان في السلة بندٌ
+// مسعّر محجوب يُسأل الخادم قبل الرسم (بحدّ ٢٫٥ ثانية)؛ للضيف الفعلي لا يتغيّر شيء.
+function whenSession(cb){
+ if(PRICES_ON||!cart.some(function(i){return Number(i&&i.amount)&&!i.pricePublic})){cb();return}
+ var fin=false;function go(){if(!fin){fin=true;cb()}}
+ setTimeout(go,2500);
+ getMe().then(function(u){if(u){PRICES_ON=true;document.documentElement.setAttribute('data-prices','on')}go()})}
+priceEmp(function(){whenSession(run)});
 })();</script></body></html>

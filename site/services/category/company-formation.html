@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" data-prices="off">
+<html data-sv1-test="TEST MODE — no real payments, no customer messages" lang="en" dir="ltr" data-prices="off">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Company Formation — Business Partner</title>
-<meta name="description" content="28 Company Formation services with clear fees.">
+<meta name="description" content="29 Company Formation services — add priced services to your cart or request a quotation.">
 <meta property="og:title" content="Company Formation — Business Partner">
-<meta property="og:description" content="28 Company Formation services with clear fees.">
+<meta property="og:description" content="29 Company Formation services — add priced services to your cart or request a quotation.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="en_US">
@@ -33,8 +33,12 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
 <script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
 <style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
-<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
-<style id="sv1-chrome-css">
+<style id="sv1-css">
+/* اتجاه «مختبر» بألوان الهوية (قرار المالك 2026-09-05): بنية «مختبر» —
+   أرضية بيضاء، شبكة ١px، حروفٌ أحادية للأرقام وحدها، عناوين خفيفة الوزن —
+   لكن اللون كحلي العلامة #0B1B5A لا الأسود ولا البنفسجي. الأسطح الداكنة
+   (شريط الحالة، الفوتر، جانب لوحة العمليات) كحليٌّ عميق #081345.
+   الرماديات مائلةٌ إلى الكحلي لا محايدة، فتقرأ كأنها من العلامة. */
 .sv1{--n:#0B1B5A;--ac:#0B1B5A;--ac2:#16307F;--acSoft:#EEF2FB;--acLine:#C3CDE6;
  --n2:#081345;--g:#F5F7FB;--l:#E5E9F0;--line:#E5E9F0;--line2:#EBEFF7;
  --t:#232A3D;--ink:#0B1B5A;--s:#5A6478;--mut:#5A6478;--faint:#8D97AE;--soft:#F5F7FB;
@@ -85,10 +89,141 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-lang .menu a.on{background:var(--g);font-weight:700}
 .sv1-burger{display:none;border:1px solid var(--l);background:#fff;border-radius:10px;width:40px;height:40px;align-items:center;justify-content:center;cursor:pointer;font-size:18px}
 .sv1 h1,.sv1 h2,.sv1 h3{color:var(--ink);margin-top:0;letter-spacing:-.025em;text-wrap:balance}
-.sv1 h1{font-weight:200}
-.sv1 h2{font-weight:300}
+.sv1 h1{font-weight:200}.sv1 h2{font-weight:300}
+.sv1-hero{background:#fff;padding:78px 0;position:relative;overflow:hidden;border-bottom:1px solid var(--l)}
+.sv1-hero::before{content:"";position:absolute;inset:0;pointer-events:none;
+ background-image:linear-gradient(var(--line2) 1px,transparent 1px),linear-gradient(90deg,var(--line2) 1px,transparent 1px);
+ background-size:56px 56px;
+ -webkit-mask-image:radial-gradient(120% 90% at 78% 0%,#000 0%,transparent 72%);
+ mask-image:radial-gradient(120% 90% at 78% 0%,#000 0%,transparent 72%)}
+.sv1-hero::after{content:"";position:absolute;inset-inline-end:-6%;top:-46%;width:760px;height:760px;pointer-events:none;
+ background:radial-gradient(circle,rgba(11,27,90,.13) 0%,rgba(11,27,90,.04) 38%,transparent 66%)}
+.sv1-hero .wrap{position:relative;z-index:1}
+.sv1-hero .grid{display:grid;grid-template-columns:1fr 1fr;gap:42px;align-items:center}
+.sv1-tag{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--l);color:var(--mut);padding:6px 13px;border-radius:999px;font-size:11.5px;font-weight:400;box-shadow:var(--sh)}
+.sv1-tag::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ok);flex:none}
+.sv1-hero h1{font-size:clamp(36px,5.2vw,64px);line-height:1.13;margin:18px 0 18px;letter-spacing:-.035em;font-weight:200}
+.sv1-hero h1 b,.sv1-hero h1 strong{font-weight:500}
+.sv1-lead{font-size:16.5px;font-weight:300;line-height:1.95;color:var(--mut);margin:0;max-width:46ch}
+.sv1-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.sv1-trust{display:flex;gap:8px 18px;flex-wrap:wrap;margin:18px 0 0;padding:0;list-style:none;font-size:12.5px;color:#667085}
+.sv1-trust li::before{content:"✓";color:var(--ok);font-weight:700;margin-inline-end:6px}
+.sv1-three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sv1-three .sv1-panel{padding:20px}
+.sv1-three h4{font-size:15px;margin:0 0 6px}
+.sv1-three p{margin:0;font-size:13px;line-height:1.7}
+.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-doors>:last-child:nth-child(odd){grid-column:1/-1}
+a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
+.sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+.sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
+.sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
+.sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
+.sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
+.sv1-door h3{font-size:18px;margin:13px 0 5px}
+.sv1-door p{font-size:12.5px;color:var(--s);margin:0 0 10px;line-height:1.65}
+.sv1-door span{font-size:12px;color:var(--ac);font-weight:500}
+.sv1-sec{padding:64px 0}
+.sv1-gray{background:var(--g)}
+.sv1-title{text-align:center;max-width:720px;margin:0 auto 30px}
+.sv1-title h2{font-size:clamp(25px,3.4vw,38px);margin-bottom:10px;font-weight:200}
+.sv1-title p{color:var(--mut);margin:0;font-weight:300;line-height:1.9}
+.sv1-app{border:1px solid var(--l);border-radius:15px;overflow:hidden;box-shadow:var(--sh2);background:#fff}
+.sv1-appbar{min-height:56px;border-bottom:1px solid var(--l);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sv1-appbar b{color:var(--ink)}
+.sv1-steps{display:flex;gap:5px;flex-wrap:wrap}
+.sv1-steps span{font-size:10.5px;padding:5px 9px;background:#f1f2f5;border-radius:999px;color:var(--mut);font-weight:500;white-space:nowrap}
+.sv1-steps .active{background:var(--ac);color:#fff}
+.sv1-appgrid{display:grid;grid-template-columns:1.05fr .95fr;min-height:540px}
+.sv1-chat{display:flex;flex-direction:column;border-inline-end:1px solid var(--l)}
+.sv1-chathead{padding:16px;border-bottom:1px solid var(--l)}
+.sv1-chathead h3{font-size:18px;margin:0 0 1px}
+.sv1-chathead p{font-size:11.5px;color:#777;margin:0}
+.sv1-msgs{padding:16px;background:#fbfcfe;flex:1;overflow:auto;max-height:420px}
+.sv1-msg{max-width:85%;padding:10px 13px;border-radius:13px;font-size:13px;margin-bottom:9px;white-space:pre-wrap;line-height:1.75}
+.sv1-msg.a{background:#fff;border:1px solid var(--l)}
+.sv1-msg.u{background:var(--ac);color:#fff;margin-inline-start:auto}
+.sv1-msg.s{background:#fff3e6;color:#8a4b00;font-size:12px;text-align:center;max-width:100%}
+.sv1-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sv1-chips button{border:1px solid var(--l);background:#fff;border-radius:999px;padding:7px 12px;font-size:11.5px;cursor:pointer;font-family:inherit;color:var(--mut)}
+.sv1-chips button:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-compose{border-top:1px solid var(--l);padding:10px;display:flex;gap:6px}
+.sv1-composehint{margin:0;padding:0 12px 11px;font-size:11.5px;color:var(--faint);line-height:1.6}
+.sv1-compose textarea{height:46px;resize:none;flex:1;border:1px solid var(--l);border-radius:11px;padding:10px;font:inherit;font-size:13px;outline:none}
+.sv1-compose textarea:focus{border-color:var(--ac)}
+.sv1-compose .send{width:46px;border:0;border-radius:9px;background:var(--ac);color:#fff;font-size:17px;cursor:pointer}
+.sv1-mic{width:46px;flex:none;border:1px solid var(--l);border-radius:9px;background:#fff;color:var(--ink);cursor:pointer;display:grid;place-items:center;font-family:inherit;transition:.15s}
+.sv1-mic:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-mic[disabled]{opacity:.5;cursor:default}
+.sv1-mic.rec{background:#b42318;border-color:#b42318;color:#fff;animation:sv1mic 1.4s ease-in-out infinite}
+@keyframes sv1mic{50%{box-shadow:0 0 0 6px rgba(180,35,24,.16)}}
+.sv1-mic.busy{opacity:.6;cursor:default}
+.sv1-voice{display:none;align-items:center;gap:9px;padding:7px 11px;margin:0 10px 8px;border:1px solid var(--l);border-radius:9px;background:var(--soft);font-size:11.5px;color:var(--mut)}
+.sv1-voice.on{display:flex}
+.sv1-voice.err{border-color:#f0c8c4;background:#fdf3f2;color:#b42318}
+.sv1-voice .dot{width:7px;height:7px;border-radius:50%;background:#b42318;flex:none;animation:sv1mic 1.4s ease-in-out infinite}
+.sv1-voice .t{font-family:var(--fm);margin-inline-start:auto;font-size:11px;color:var(--faint)}
+.sv1-scope{padding:19px;display:flex;flex-direction:column}
+.sv1-scope h3{font-size:19px;margin:9px 0 2px}
+.sv1-scope>p{font-size:11.5px;color:#777;margin:0 0 12px}
+.sv1-item{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--l);border-radius:11px;padding:10px;margin-bottom:7px}
+.sv1-item b{font-size:12.5px;display:block;color:#32394a;outline:none;font-weight:600}
+.sv1-item b:focus{background:#fffbe6;border-radius:4px}
+.sv1-item small{font-size:10.5px;color:#888;display:block;margin-top:2px}
+.sv1-item .del{border:0;width:27px;height:27px;border-radius:7px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:14px}
+.sv1-addrow{display:flex;gap:6px;margin-top:2px}
+.sv1-addrow input{flex:1;border:1px solid var(--l);border-radius:9px;padding:9px;font:inherit;font-size:12.5px;outline:none}
+.sv1-docs{margin-top:16px;padding-top:14px;border-top:1px dashed #cfd6e6}
+.sv1-docs h4{margin:0 0 2px;color:var(--ink);font-size:15px}
+.sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#777}
+.sv1-doc{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.sv1-doc span{font-size:12.5px;color:#32394a;display:flex;gap:7px;align-items:center}
+.sv1-doc span::before{content:"📄";font-size:13px}
+.sv1-doc .del{border:0;width:24px;height:24px;border-radius:6px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:13px}
+.sv1-docs .empty{font-size:11.5px;color:#9aa0b0;padding:6px 2px;margin-bottom:6px}
+.sv1-summary{background:var(--acSoft);border:1px solid var(--acLine);border-radius:10px;padding:11px 13px;margin:14px 0;font-size:12px}
+.sv1-summary div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sv1-summary strong{font-size:16px;color:var(--ac)}
+.sv1-login{border-top:1px solid var(--l);padding:16px 19px;background:#fff}
+.sv1-login h4{margin:0 0 4px;color:var(--ink);font-size:15px}
+.sv1-login p{margin:0 0 10px;color:#777;font-size:12px}
+.sv1-login .g{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sv1-login input{border:1px solid var(--l);border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;width:100%;outline:none}
+.sv1-login .full{grid-column:1/-1}
+.sv1-err{color:#b42318;font-size:12px;margin-top:6px}
+.sv1-ok{color:var(--ok);font-weight:700;font-size:13px;margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sv1-flow{display:grid;grid-template-columns:repeat(6,1fr);gap:9px}
+.sv1-flow div{background:#fff;border:1px solid var(--l);border-radius:11px;padding:16px;text-align:center}
+.sv1-flow i{font-style:normal;font-family:var(--fm);width:34px;height:34px;background:var(--acSoft);color:var(--ac);border-radius:9px;display:grid;place-items:center;margin:0 auto 9px;font-weight:500;font-size:12px}
+.sv1-flow b{display:block;font-size:12.5px;color:var(--ink);font-weight:500}
+.sv1-flow small{font-size:10px;color:#888}
+.sv1-tabs{text-align:center;margin-bottom:15px;display:flex;gap:8px;justify-content:center}
+.sv1-tab{border:1px solid var(--l);background:#fff;border-radius:9px;padding:9px 17px;font-weight:500;color:var(--mut);cursor:pointer;font-family:inherit;font-size:13px}
+.sv1-tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-cart{display:inline-flex;align-items:center;gap:6px}
 .sv1-cart b{background:var(--ac);color:#fff;border-radius:99px;min-width:18px;height:18px;display:inline-grid;place-items:center;font-size:11px;font-weight:600;padding:0 5px}
+.sv1-portal{border:1px solid var(--l);border-radius:15px;overflow:hidden;box-shadow:var(--sh2);background:#fff}
+.sv1-pgrid{display:grid;grid-template-columns:205px 1fr;min-height:430px}
+.sv1-side{background:var(--n2);color:#dce3fa;padding:17px}
+.sv1-side strong{color:#fff;display:block;font-size:14px}
+.sv1-side small{display:block;font-size:9px;opacity:.6;letter-spacing:.12em;margin-bottom:10px}
+.sv1-mi{padding:8px 10px;border-radius:8px;font-size:11.5px;margin:3px 0}
+.sv1-mi.on{background:#fff;color:var(--ink);font-weight:500}
+.sv1-pmain{padding:22px;background:#fbfcfe}
+.sv1-pmain h3{font-size:21px;margin:0 0 2px}
+.sv1-muted{color:#777;font-size:11.5px}
+.sv1-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:15px 0}
+.sv1-stat,.sv1-panel{background:#fff;border:1px solid var(--l);border-radius:11px;padding:14px}
+.sv1-stat span{font-size:9.5px;color:#777;display:block}
+.sv1-stat b{font-size:21px;color:var(--ink);font-family:var(--fm);font-weight:500}
+.sv1-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-panel h4{color:var(--ink);margin:0 0 8px;font-size:13px;font-weight:500}
+.sv1-prow{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #eee;font-size:11px}
+.sv1-prow:last-child{border-bottom:0}
+.sv1-status{font-size:9.5px;border-radius:999px;padding:3px 9px;background:var(--acSoft);color:var(--ac);white-space:nowrap}
+.sv1-status.done{background:var(--okSoft);color:var(--ok)}
+.sv1-pnote{text-align:center;color:#8b90a0;font-size:11px;margin-top:12px}
 .sv1-foot{margin-top:auto;padding:38px 0 22px;background:var(--n2);color:#ccd4ed;font-size:12px}
 .sv1-foot b{color:#fff}
 .sv1-foot a{color:#fff;text-decoration:underline;text-underline-offset:2px}
@@ -106,6 +241,8 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-foot-row bdi{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:#fff}
 .sv1-foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
 .sv1-foot-end{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
+/* روابط الصفحات التي لا تظهر في الترويسة: فاصلٌ خفيف ثم ثلاثة أعمدة صغيرة.
+   حجمها أصغر من باقي الفوتر عمداً — هي مسلكٌ لمن يبحث، لا دعوةٌ للضغط. */
 .sv1-foot-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 34px;
  margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1)}
 .sv1-foot-navcol{display:flex;flex-direction:column;gap:7px;min-width:0}
@@ -116,46 +253,69 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-foot-navcol a:hover{color:#fff}
 @media(max-width:900px){.sv1-foot-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}
-.sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
+ .sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
 .sv1-wa-fab{position:fixed;inset-inline-start:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
-@media(max-width:900px){.sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
-.sv1-nav.open{display:flex}
-.sv1-burger{display:flex}
-.sv1-hdr .right .sv1-btn:not(.primary):not(#sv1OutBtn):not(#sv1SiteBtn){display:none}
-.sv1-hdr .right #sv1SiteBtn{display:none}}
-/* الفرق الوحيد عن صفحات SV1: هناك «.sv1» غلافُ الصفحة كلها، وهنا غلافُ
-   الترويسة وحدها. «display:contents» يلغي صندوقه فيبقى «sticky» مسنداً إلى
-   الصفحة، وتبقى المتغيّرات و«.sv1 .wrap» نافذةً في الداخل. */
-.sv1.sv1-chrome{display:contents}
-@media print{.sv1-bar,.sv1-hdr,.sv1-wa-fab{display:none!important}}
-/* وضع التضمين (?embed=1) كان يخفي .site-header و.wa-fab؛ لم يعودا موجودين. */
-html.bp-embed .sv1-bar,html.bp-embed .sv1-hdr,html.bp-embed .sv1-wa-fab{display:none!important}
-</style>
-<style id="bp-public-brand-v5-css">
-body.bp-public-brand-v5{--bp-navy:#0B1B5A;--bp-blue:#3159d8;--bp-cyan:#43d6f4;--bp-mint:#16b875;--bp-ink:#111b36;--bp-muted:#6b7690;--bp-line:#e4e9f2;--bp-soft:#f7f9fd;background:#fff;color:var(--bp-ink)}
-body.bp-public-brand-v5 .site-header{background:rgba(255,255,255,.96)!important;border-bottom:1px solid #e8ecf3!important;backdrop-filter:blur(16px)}
-body.bp-public-brand-v5 .site-header .logo img{max-height:32px!important;width:auto!important}
-body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .svc-hero,body.bp-public-brand-v5 .cat-hero,body.bp-public-brand-v5 .page-hero{background:radial-gradient(circle at 84% 4%,rgba(49,89,216,.10),transparent 24%),radial-gradient(circle at 12% 2%,rgba(67,214,244,.08),transparent 20%),#fff!important;border-bottom:1px solid #edf0f5!important}
-body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .page-hero{padding-top:64px!important;padding-bottom:52px!important}
-body.bp-public-brand-v5 main>.hero h1,body.bp-public-brand-v5 .svc-hero h1,body.bp-public-brand-v5 .cat-hero h1,body.bp-public-brand-v5 .page-hero h1{color:var(--bp-navy)!important;letter-spacing:-.045em!important;line-height:1.06!important}
-body.bp-public-brand-v5 main>.hero .lead,body.bp-public-brand-v5 main>.hero p,body.bp-public-brand-v5 .svc-hero p,body.bp-public-brand-v5 .cat-hero p,body.bp-public-brand-v5 .page-hero p{color:var(--bp-muted)!important;line-height:1.8!important}
-body.bp-public-brand-v5 .eyebrow{display:inline-flex!important;padding:6px 9px!important;border:1px solid #dfe6f3!important;border-radius:999px!important;background:#f8faff!important;color:#3156ad!important;font-size:.68rem!important;font-weight:850!important}
-body.bp-public-brand-v5 .btn-primary,body.bp-public-brand-v5 .btn.btn-primary{background:linear-gradient(135deg,var(--bp-navy),var(--bp-blue))!important;border-color:transparent!important;box-shadow:0 11px 28px rgba(36,75,184,.16)!important}
-body.bp-public-brand-v5 .btn,body.bp-public-brand-v5 button,body.bp-public-brand-v5 .order-box,body.bp-public-brand-v5 .card,body.bp-public-brand-v5 .service-card,body.bp-public-brand-v5 .pkg-card,body.bp-public-brand-v5 .panel{border-radius:16px}
-body.bp-public-brand-v5 .card,body.bp-public-brand-v5 .service-card,body.bp-public-brand-v5 .pkg-card,body.bp-public-brand-v5 .panel,body.bp-public-brand-v5 .order-box{border-color:var(--bp-line)!important;box-shadow:0 8px 28px rgba(10,29,80,.045)!important}
-body.bp-public-brand-v5 .card:hover,body.bp-public-brand-v5 .service-card:hover,body.bp-public-brand-v5 .pkg-card:hover{box-shadow:0 14px 36px rgba(10,29,80,.08)!important}
-body.bp-public-brand-v5 .svc-main,body.bp-public-brand-v5 .svc-layout{gap:24px!important}
-body.bp-public-brand-v5 .svc-body,body.bp-public-brand-v5 .svc-content{line-height:1.85!important;color:#3c4964!important}
-body.bp-public-brand-v5 .svc-body h2,body.bp-public-brand-v5 .svc-body h3,body.bp-public-brand-v5 .svc-content h2,body.bp-public-brand-v5 .svc-content h3{color:var(--bp-navy)!important}
-body.bp-public-brand-v5 .svc-aside .order-box{position:sticky;top:92px;background:linear-gradient(180deg,#fff,#f8faff)!important}
-body.bp-public-brand-v5 .site-footer{background:#07143b!important;color:rgba(255,255,255,.7)!important}
-body.bp-public-brand-v5 .site-footer a{color:rgba(255,255,255,.72)!important}
-body.bp-public-brand-v5 .wa-fab{display:none!important}
-@media(max-width:760px){body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .page-hero{padding-top:42px!important;padding-bottom:34px!important}body.bp-public-brand-v5 .svc-aside .order-box{position:static}}
-</style>
+@media(max-width:900px){
+ .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
+ .sv1-nav.open{display:flex}
+ .sv1-burger{display:flex}
+ .sv1-hdr .right .sv1-btn:not(.primary):not(#sv1OutBtn):not(#sv1SiteBtn){display:none}
+ .sv1-hdr .right #sv1SiteBtn{display:none}
+ .sv1-hero .grid,.sv1-appgrid,.sv1-pgrid,.sv1-cols{grid-template-columns:1fr}
+ .sv1-chat{border-inline-end:0;border-bottom:1px solid var(--l)}
+ .sv1-flow{grid-template-columns:repeat(3,1fr)}
+ .sv1-three{grid-template-columns:1fr}
+ .sv1-side{display:none}
+ .sv1-stats{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
+ .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+</style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
-<body class="bp-public-brand-v5"><div class="sv1 sv1-chrome"><div class="sv1-bar"><div class="wrap">
+<body class="sv1-page"><div class="sv1"><style id="sv1-cp-css">
+.sv1-cp-hero{padding:34px 0 28px}
+.sv1-cp-hero .sv1-tag{margin-top:14px}
+.sv1-cp-hero h1{font-size:clamp(28px,4.2vw,46px);line-height:1.2;margin:16px 0 14px;max-width:22ch;font-weight:200}
+.sv1-cp-hero .sv1-lead{max-width:62ch}
+.sv1-crumb{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;color:var(--mut)}
+.sv1-crumb a:hover{color:var(--ac)}
+.sv1-crumb i{font-style:normal;color:var(--faint)}
+.sv1 .sv1-cp-body{padding:30px 22px 64px}
+.sv1-cp-q{width:100%;max-width:460px;border:1px solid var(--l);border-radius:12px;padding:13px 15px;font:inherit;font-size:15px;outline:none;background:#fff;margin-bottom:18px}
+.sv1-cp-q:focus{border-color:var(--n)}
+.sv1-cp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.sv1-cp-card{border:1px solid var(--l);border-radius:14px;background:#fff;padding:18px;display:flex;flex-direction:column;gap:9px;transition:border-color .15s,box-shadow .15s}
+.sv1-cp-card:hover{border-color:var(--acLine);box-shadow:var(--sh2)}
+.sv1-cp-card[hidden]{display:none}
+.sv1-cp-name{font-size:15.5px;font-weight:500;color:var(--ink);line-height:1.55}
+.sv1-cp-name:hover{color:var(--ac)}
+.sv1-cp-gov{font-size:11.5px;color:var(--mut)}
+.sv1-cp-price{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-top:auto;padding-top:4px}
+.sv1-cp-lbl{font-size:11px;color:var(--mut)}
+.sv1-cp-amt{font-family:var(--fm);font-size:19px;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
+.sv1-cp-amt[data-bp-pending]{visibility:hidden;animation:sv1cpshow .01s linear 2.2s forwards}
+@keyframes sv1cpshow{to{visibility:visible}}
+.sv1-cp-guest{font-size:12px;color:var(--mut)}
+.sv1-cp-need{font-size:13.5px;font-weight:500;color:var(--ink)}
+.sv1-cp-acts{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.sv1-cp-more{margin-inline-start:auto;font-size:12px;color:var(--ac);white-space:nowrap}
+.sv1-cp-more:hover{text-decoration:underline}
+.sv1-cp-none{color:var(--mut);font-size:14px;margin:18px 2px}
+.sv1-cp-others{margin-top:40px}
+.sv1-cp-others h2{font-size:18px;margin:0 0 12px;font-weight:300}
+.sv1-cp-chips{display:flex;flex-wrap:wrap;gap:8px}
+.sv1-cp-chip{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--l);border-radius:999px;background:#fff;padding:7px 13px;font-size:13px;color:var(--ink)}
+.sv1-cp-chip span{font-family:var(--fm);font-size:11px;color:var(--ac);background:var(--acSoft);border-radius:999px;padding:1px 8px}
+.sv1-cp-chip:hover{border-color:var(--acLine);background:var(--acSoft)}
+.sv1-cp-ask{margin-top:30px;text-align:center}
+.sv1-cp-ask h4{margin:0 0 10px;color:var(--ink);font-size:15px}
+.sv1-cp-toast{position:fixed;inset-inline:0;top:84px;margin-inline:auto;width:max-content;max-width:calc(100vw - 28px);z-index:2147483100;background:var(--ink);color:#fff;border-radius:12px;padding:11px 16px;font-size:13px;font-weight:600;box-shadow:0 10px 28px rgba(11,27,90,.3);display:flex;gap:14px;align-items:center}
+.sv1-cp-toast a{color:#fff;text-decoration:underline;white-space:nowrap}
+.sv1-cp-toast.err{background:#8a1c1c}
+@media(max-width:600px){.sv1-cp-hero{padding:24px 0 20px}.sv1-cp-grid{grid-template-columns:1fr}}
+</style>
+<div class="sv1-bar"><div class="wrap">
   <div class="sv1-bar-l">
     <span><span class="sv1-pulse"></span><b>All systems operational</b></span>
     <span class="hide-s">Riyadh · Kingdom of Saudi Arabia</span>
@@ -178,6 +338,7 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
     <a class="sv1-btn sm sv1-cart sv1-hide" id="sv1CartBtn" href="/cart" aria-label="Cart">
       <span>Cart</span><b id="sv1CartN">0</b></a>
     <a class="sv1-btn" id="sv1LoginBtn" href="/my">Sign in</a>
+    <a class="sv1-btn sm sv1-hide" id="sv1SiteBtn" href="/">Back to the site</a>
     <button type="button" class="sv1-btn sm sv1-hide" id="sv1OutBtn">Sign out</button>
     <a class="sv1-btn primary" href="/#advisor">Start your request</a>
   </div>
@@ -206,187 +367,233 @@ var S=window.SV1S={
   if(sb)sb.classList.toggle('sv1-hide',!(on&&(p.indexOf('/my')>=0||p.indexOf('/ops')>=0)));
  }};
 var h0=hint();if(h0)S.paint(true,h0);
-})();</script><script>(function(){"use strict";
-var $=function(id){return document.getElementById(id)};
-var b=$('sv1Burger'),n=$('sv1Nav');
-if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
-var cb=$('sv1CartBtn'),cn=$('sv1CartN');
-function sync(){var c=[];try{c=JSON.parse(localStorage.getItem('bp_cart'))||[]}catch(e){}
- var k=c.reduce(function(a,i){return a+(Number(i&&i.qty)||1)},0);
- if(cn)cn.textContent=String(k);
- if(cb)cb.classList.toggle('sv1-hide',!k)}
-sync();
-addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);
-document.addEventListener('bp:cart',sync);
-/* main.js يكتب bp_cart ثم يحدّث #cart-badge وحده، ولا يطلق حدثاً. فبعد كل
-   ضغطة على زر شراء في الصفحة القديمة نعيد القراءة — وإلا جمد العدّاد. */
-document.addEventListener('click',function(e){
- if(e.target&&e.target.closest&&e.target.closest('.add-cart,[data-cart],.cart-remove,.cart-qty'))setTimeout(sync,0)},true);
-var ob=$('sv1OutBtn');
-if(ob)ob.onclick=function(){ob.disabled=true;
- fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'})
- .catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.reload()})};
-/* حالة الدخول: الرسم الفوري من التلميح جرى بعد «</header>» مباشرة
-   (SV1_SESSION_JS)، وهذا هو التصحيح من الخادم — والمنطق نفسه حرفاً بحرف في
-   صفحات SV1، من simple-v1.mjs لا من نسخةٍ ثانية تفترق عنها بعد شهر. */
-fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
-.then(function(r){return r.json().catch(function(){return{}})}).then(function(o){
- var S=window.SV1S,u=o&&o.session&&o.session.user;
- if(u){window.SV1_SESSION=o.session;if(S){S.save(u);S.paint(true,{name:u.full_name||'',email:u.email||''})}}
- else if(S){S.clear();S.paint(false,null)}
-}).catch(function(){});
-})();</script></div><main>
-  <section class="hero hero--sm"><div class="container hero-inner">
-    <a class="back-link" href="/services"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg> All categories</a>
-    <span class="eyebrow">🏢 Services</span>
+})();</script>
+<main>
+  <section class="sv1-hero sv1-cp-hero"><div class="wrap">
+    <nav class="sv1-crumb" aria-label="breadcrumb">
+      <a href="/">Home</a><i>/</i><a href="/catalog">Services</a><i>/</i><span>Company Formation</span>
+    </nav>
+    <span class="sv1-tag">29 services</span>
     <h1>Company Formation</h1>
-    <p class="lead">28 services in Company Formation — talk to us for a quote tailored to your case; government fees are always separate.</p>
+    <p class="sv1-lead">Add a priced service to your cart and pay online, or request a quotation for your case. Government fees, where they apply, are paid to the authority at actual cost.</p>
   </div></section>
-  <section class="section"><div class="container">
-    <div class="grid grid-3"><a class="card svc-card" href="/services/bp-chamber-01">
-        <span class="tag">Company Formation</span>
-        <h3>Chamber of Commerce membership</h3>
-        <p class="desc">Business Partner handles “Chamber of Commerce membership” on your behalf within Company Formation — from preparing the d…</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-pl-0066">
-        <span class="tag">Company Formation</span>
-        <h3>Pre-incorporation consultation</h3>
-        <p class="desc">Business Partner handles “Pre-incorporation consultation” on your behalf within Company Formation — from preparing the d…</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-01">
-        <span class="tag">Company Formation</span>
-        <h3>Saudi Company Formation</h3>
-        <p class="desc">End-to-end formation of a Saudi-owned company (LLC) — we prepare the regulatory requirements and follow the commercial r…</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-02">
-        <span class="tag">Company Formation</span>
-        <h3>New Commercial Registration Issuance</h3>
-        <p class="desc">New Commercial Registration issuance with requirements preparation and issuance follow-up.</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-03">
-        <span class="tag">Company Formation</span>
-        <h3>AoA Issuance &amp; Notarization (new company)</h3>
-        <p class="desc">Articles of Association issuance and notarization for a new company through to attestation.</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-04">
-        <span class="tag">Company Formation</span>
-        <h3>Commercial Registration Issuance</h3>
-        <p class="desc">Commercial Registration issuance with follow-up until the CR is issued.</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-05">
-        <span class="tag">Company Formation</span>
-        <h3>Company Name Reservation</h3>
-        <p class="desc">Company name reservation via the Saudi Business Center with approval follow-up.</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-06">
-        <span class="tag">Company Formation</span>
-        <h3>Company Account on Absher Business</h3>
-        <p class="desc">Opening and activating the company's Absher Business account and linking it to required services.</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-07">
-        <span class="tag">Company Formation</span>
-        <h3>Opening a Branch for an Existing Company</h3>
-        <p class="desc">Opening a branch for an existing company (local or foreign) with requirements preparation and issuance follow-up.</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-08">
-        <span class="tag">Company Formation</span>
-        <h3>Company Liquidation (CR cancellation &amp; closure)</h3>
-        <p class="desc">Company liquidation, CR cancellation and entity closure with follow-up of the statutory procedures until completion.</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-09">
-        <span class="tag">Company Formation</span>
-        <h3>CR Cancellation Certificate Issuance</h3>
-        <p class="desc">Issuance of the CR cancellation certificate after completing the procedures.</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-10">
-        <span class="tag">Company Formation</span>
-        <h3>Amending AoA / Partners' Resolutions</h3>
-        <p class="desc">Amending the Articles of Association or partners' resolutions and notarizing them through to attestation.</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-11">
-        <span class="tag">Company Formation</span>
-        <h3>Commercial Registration Amendment</h3>
-        <p class="desc">Commercial Registration amendment with approval follow-up.</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-12">
-        <span class="tag">Company Formation</span>
-        <h3>Trade Name Reservation</h3>
-        <p class="desc">Trade name reservation with approval follow-up via the Saudi Business Center.</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-13">
-        <span class="tag">Company Formation</span>
-        <h3>Commercial Registration Cancellation</h3>
-        <p class="desc">Commercial Registration cancellation with follow-up until completion.</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-14">
-        <span class="tag">Company Formation</span>
-        <h3>Legal Form Transformation</h3>
-        <p class="desc">Transforming the legal form of the entity (sole ↔ company) with requirements preparation and follow-up.</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-15">
-        <span class="tag">Company Formation</span>
-        <h3>AoA Drafting &amp; Notarization Support</h3>
-        <p class="desc">Articles of Association drafting and notarization support through to attestation.</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-16">
-        <span class="tag">Company Formation</span>
-        <h3>Factory setup &amp; industrial licensing services</h3>
-        <p class="desc">Business Partner handles “Factory setup &amp; industrial licensing services” on your behalf within Company Formation — from …</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-17">
-        <span class="tag">Company Formation</span>
-        <h3>Commercial Statement Request</h3>
-        <p class="desc">Commercial statement (Ministry of Commerce letter) issuance for the required purpose.</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-18">
-        <span class="tag">Company Formation</span>
-        <h3>Converting an Establishment into a Company</h3>
-        <p class="desc">Converting an establishment into a company (or vice versa) with requirements preparation and issuance follow-up.</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-19">
-        <span class="tag">Company Formation</span>
-        <h3>Commercial Registration Renewal</h3>
-        <p class="desc">Commercial Registration renewal with follow-up until completion.</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-20">
-        <span class="tag">Company Formation</span>
-        <h3>Detailed CR Extract Issuance</h3>
-        <p class="desc">Issuance of a detailed Commercial Registration extract for the required purpose.</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/cf-gen">
-        <span class="tag">Company Formation</span>
-        <h3>Company Formation — Bespoke Service</h3>
-        <p class="desc">Business Partner handles “Company Formation — Bespoke Service” on your behalf within Company Formation — from preparing …</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-21">
-        <span class="tag">Company Formation</span>
-        <h3>Beneficial owner disclosure</h3>
-        <p class="desc">The beneficial-owner regime requires establishments to disclose who really owns or controls them; failing to report expo…</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-22">
-        <span class="tag">Company Formation</span>
-        <h3>Annual commercial-register confirmation</h3>
-        <p class="desc">A commercial register needs its data confirmed annually; neglecting it disrupts the services linked to it. We review you…</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-23">
-        <span class="tag">Company Formation</span>
-        <h3>Transferring ownership of a commercial register</h3>
-        <p class="desc">Transferring a commercial register from one owner to another, including a review of standing obligations before the tran…</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-24">
-        <span class="tag">Company Formation</span>
-        <h3>Publishing general-assembly resolutions</h3>
-        <p class="desc">General-assembly resolutions must be published to take effect against third parties. We draft the resolution in line wit…</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a><a class="card svc-card" href="/services/bp-sbc-25">
-        <span class="tag">Company Formation</span>
-        <h3>Merger or acquisition</h3>
-        <p class="desc">A merger of two companies or one acquiring another: reviewing both entities and their obligations, drafting partner reso…</p>
-        <div class="foot"><span class="price-soft">Custom quote</span><span class="card-link">Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></span></div>
-      </a></div>
-    <div class="cat-other"><h2>Other categories</h2><div class="cc-prof-chips"><a class="cc-chip" href="/services/category/foreign-investment">🌍 Foreign Investment</a><a class="cc-chip" href="/services/category/premium-residency">🪪 Premium Residency</a><a class="cc-chip" href="/services/category/government-relations">🏛️ Government Relations</a><a class="cc-chip" href="/services/category/hr-services">👥 HR Services</a><a class="cc-chip" href="/services/category/recruitment">🧑‍💼 Recruitment &amp; Hiring</a><a class="cc-chip" href="/services/category/business-support">📊 Business Support</a><a class="cc-chip" href="/services/category/real-estate">🏗️ Real Estate</a><a class="cc-chip" href="/services/category/ai-automation">🤖 AI &amp; Automation</a></div></div>
-    <div class="cta-band" style="margin-top:28px"><h2>Not sure which service you need?</h2><p>Contact us and we will point you to the right service for your case.</p><a class="btn btn-white btn-lg" href="/consultation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span>Contact us</span></a></div>
-  </div></section></main><div class="sv1 sv1-chrome"><footer class="sv1-foot"><div class="wrap">
+  <div class="wrap sv1-cp-body">
+    <input id="cpQ" class="sv1-cp-q" type="search" placeholder="Search this category" aria-label="Search this category">
+    <div class="sv1-cp-grid" id="cpGrid"><article class="sv1-cp-card" data-q="chamber of commerce membership bp-chamber-01 chamber of commerce">
+      <a class="sv1-cp-name" href="/services/bp-chamber-01">Chamber of Commerce membership</a>
+      <div class="sv1-cp-gov">Chamber of Commerce</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-CHAMBER-01" data-bp-pending>300 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-chamber-01" data-name-en="Chamber of Commerce membership" data-name-ar="عضوية الغرفة التجارية" data-amount="300" data-price="" data-kind="service" data-bp-code="BP-CHAMBER-01">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-CHAMBER-01" data-name="Chamber of Commerce membership" data-gov="Chamber of Commerce">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-chamber-01">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="pre-incorporation consultation bp-pl-0066 ">
+      <a class="sv1-cp-name" href="/services/bp-pl-0066">Pre-incorporation consultation</a>
+      
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-PL-0066" data-bp-pending>500 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-pl-0066" data-name-en="Pre-incorporation consultation" data-name-ar="استشارة ما قبل التأسيس" data-amount="500" data-price="" data-kind="service" data-bp-code="BP-PL-0066">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-PL-0066" data-name="Pre-incorporation consultation" data-gov="">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-pl-0066">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="saudi company formation bp-sbc-01 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-01">Saudi Company Formation</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-01" data-bp-pending>7,500 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-01" data-name-en="Saudi Company Formation" data-name-ar="تأسيس شركة سعودية" data-amount="7500" data-price="" data-kind="service" data-bp-code="BP-SBC-01">Add to cart</button><a class="sv1-cp-more" href="/services/bp-sbc-01">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="new commercial registration issuance bp-sbc-02 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-02">New Commercial Registration Issuance</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-02" data-bp-pending>250 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-02" data-name-en="New Commercial Registration Issuance" data-name-ar="إصدار سجل تجاري جديد" data-amount="250" data-price="" data-kind="service" data-bp-code="BP-SBC-02">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-02" data-name="New Commercial Registration Issuance" data-gov="Saudi Business Center">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-02">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="aoa issuance &amp; notarization (new company) bp-sbc-03 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-03">AoA Issuance &amp; Notarization (new company)</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-03" data-bp-pending>3,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-03" data-name-en="AoA Issuance &amp; Notarization (new company)" data-name-ar="إصدار عقد تأسيس وتوثيقه (لشركة جديدة)" data-amount="3000" data-price="" data-kind="service" data-bp-code="BP-SBC-03">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-03" data-name="AoA Issuance &amp; Notarization (new company)" data-gov="Saudi Business Center">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-03">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="commercial registration issuance bp-sbc-04 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-04">Commercial Registration Issuance</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-04" data-bp-pending>450 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-04" data-name-en="Commercial Registration Issuance" data-name-ar="إصدار سجل تجاري" data-amount="450" data-price="" data-kind="service" data-bp-code="BP-SBC-04">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-04" data-name="Commercial Registration Issuance" data-gov="Saudi Business Center">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-04">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="company name reservation bp-sbc-05 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-05">Company Name Reservation</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-05" data-bp-pending>250 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-05" data-name-en="Company Name Reservation" data-name-ar="حجز اسم شركة" data-amount="250" data-price="" data-kind="service" data-bp-code="BP-SBC-05">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-05" data-name="Company Name Reservation" data-gov="Saudi Business Center">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-05">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="company account on absher business bp-sbc-06 absher business">
+      <a class="sv1-cp-name" href="/services/bp-sbc-06">Company Account on Absher Business</a>
+      <div class="sv1-cp-gov">Absher Business</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-06" data-bp-pending>200 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-06" data-name-en="Company Account on Absher Business" data-name-ar="فتح حساب شركة على منصة أبشر أعمال" data-amount="200" data-price="" data-kind="service" data-bp-code="BP-SBC-06">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-06" data-name="Company Account on Absher Business" data-gov="Absher Business">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-06">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="opening a branch for an existing company bp-sbc-07 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-07">Opening a Branch for an Existing Company</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-07" data-bp-pending>15,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-07" data-name-en="Opening a Branch for an Existing Company" data-name-ar="فتح فرع لشركة قائمة (محلية أو أجنبية)" data-amount="15000" data-price="" data-kind="service" data-bp-code="BP-SBC-07">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-07" data-name="Opening a Branch for an Existing Company" data-gov="Saudi Business Center">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-07">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="company liquidation (cr cancellation &amp; closure) bp-sbc-08 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-08">Company Liquidation (CR cancellation &amp; closure)</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-08" data-bp-pending>4,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-08" data-name-en="Company Liquidation (CR cancellation &amp; closure)" data-name-ar="تصفية شركة (شطب السجل وإنهاء الكيان)" data-amount="4000" data-price="" data-kind="service" data-bp-code="BP-SBC-08">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-08" data-name="Company Liquidation (CR cancellation &amp; closure)" data-gov="Saudi Business Center">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-08">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="cr cancellation certificate issuance bp-sbc-09 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-09">CR Cancellation Certificate Issuance</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-09" data-bp-pending>100 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-09" data-name-en="CR Cancellation Certificate Issuance" data-name-ar="إصدار شهادة شطب سجل تجاري" data-amount="100" data-price="" data-kind="service" data-bp-code="BP-SBC-09">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-09" data-name="CR Cancellation Certificate Issuance" data-gov="Saudi Business Center">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-09">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="amending aoa / partners' resolutions bp-sbc-10 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-10">Amending AoA / Partners' Resolutions</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-10" data-bp-pending>1,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-10" data-name-en="Amending AoA / Partners' Resolutions" data-name-ar="تعديل عقد تأسيس / قرارات شركاء" data-amount="1000" data-price="" data-kind="service" data-bp-code="BP-SBC-10">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-10" data-name="Amending AoA / Partners' Resolutions" data-gov="Saudi Business Center">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-10">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="commercial registration amendment bp-sbc-11 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-11">Commercial Registration Amendment</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-11" data-bp-pending>100 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-11" data-name-en="Commercial Registration Amendment" data-name-ar="تعديل سجل تجاري" data-amount="100" data-price="" data-kind="service" data-bp-code="BP-SBC-11">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-11" data-name="Commercial Registration Amendment" data-gov="Saudi Business Center">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-11">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="trade name reservation bp-sbc-12 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-12">Trade Name Reservation</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-12" data-bp-pending>180 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-12" data-name-en="Trade Name Reservation" data-name-ar="حجز اسم تجاري" data-amount="180" data-price="" data-kind="service" data-bp-code="BP-SBC-12">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-12" data-name="Trade Name Reservation" data-gov="Saudi Business Center">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-12">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="commercial registration cancellation bp-sbc-13 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-13">Commercial Registration Cancellation</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-13" data-bp-pending>100 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-13" data-name-en="Commercial Registration Cancellation" data-name-ar="شطب سجل تجاري (إلغاء السجل)" data-amount="100" data-price="" data-kind="service" data-bp-code="BP-SBC-13">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-13" data-name="Commercial Registration Cancellation" data-gov="Saudi Business Center">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-13">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="legal form transformation bp-sbc-14 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-14">Legal Form Transformation</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-14" data-bp-pending>1,800 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-14" data-name-en="Legal Form Transformation" data-name-ar="تحويل الشكل القانوني للمنشأة" data-amount="1800" data-price="" data-kind="service" data-bp-code="BP-SBC-14">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-14" data-name="Legal Form Transformation" data-gov="Saudi Business Center">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-14">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="aoa drafting &amp; notarization support bp-sbc-15 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-15">AoA Drafting &amp; Notarization Support</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-15" data-bp-pending>2,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-15" data-name-en="AoA Drafting &amp; Notarization Support" data-name-ar="صياغة عقد التأسيس ودعم التوثيق" data-amount="2000" data-price="" data-kind="service" data-bp-code="BP-SBC-15">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-15" data-name="AoA Drafting &amp; Notarization Support" data-gov="Saudi Business Center">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-15">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="factory setup &amp; industrial licensing services bp-sbc-16 multiple authorities">
+      <a class="sv1-cp-name" href="/services/bp-sbc-16">Factory setup &amp; industrial licensing services</a>
+      <div class="sv1-cp-gov">Multiple authorities</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-16" data-bp-pending>10,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-16" data-name-en="Factory setup &amp; industrial licensing services" data-name-ar="خدمات تأسيس مصانع وإصدار تراخيص صناعية" data-amount="10000" data-price="" data-kind="service" data-bp-code="BP-SBC-16">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-16" data-name="Factory setup &amp; industrial licensing services" data-gov="Multiple authorities">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-16">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="commercial statement request bp-sbc-17 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-17">Commercial Statement Request</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-17" data-bp-pending>100 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-17" data-name-en="Commercial Statement Request" data-name-ar="طلب إفادة تجارية (خطاب من وزارة التجارة)" data-amount="100" data-price="" data-kind="service" data-bp-code="BP-SBC-17">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-17" data-name="Commercial Statement Request" data-gov="Saudi Business Center">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-17">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="converting an establishment into a company bp-sbc-18 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-18">Converting an Establishment into a Company</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-18" data-bp-pending>2,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-18" data-name-en="Converting an Establishment into a Company" data-name-ar="تحويل مؤسسة إلى شركة (أو العكس)" data-amount="2000" data-price="" data-kind="service" data-bp-code="BP-SBC-18">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-18" data-name="Converting an Establishment into a Company" data-gov="Saudi Business Center">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-18">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="commercial registration renewal bp-sbc-19 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-19">Commercial Registration Renewal</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-19" data-bp-pending>180 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-19" data-name-en="Commercial Registration Renewal" data-name-ar="تجديد سجل تجاري" data-amount="180" data-price="" data-kind="service" data-bp-code="BP-SBC-19">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-19" data-name="Commercial Registration Renewal" data-gov="Saudi Business Center">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-19">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="detailed cr extract issuance bp-sbc-20 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-20">Detailed CR Extract Issuance</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-20" data-bp-pending>150 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-20" data-name-en="Detailed CR Extract Issuance" data-name-ar="استخراج مستخرج سجل تجاري تفصيلي" data-amount="150" data-price="" data-kind="service" data-bp-code="BP-SBC-20">Add to cart</button><a class="sv1-btn sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="BP-SBC-20" data-name="Detailed CR Extract Issuance" data-gov="Saudi Business Center">Request a quotation</a><a class="sv1-cp-more" href="/services/bp-sbc-20">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="company formation — bespoke service cf-gen ">
+      <a class="sv1-cp-name" href="/services/cf-gen">Company Formation — Bespoke Service</a>
+      
+      <div class="sv1-cp-price"><span class="sv1-cp-need">Needs a quotation</span></div>
+      <div class="sv1-cp-acts"><a class="sv1-btn primary sm sv1-cp-quote" href="/#advisor" data-track="طلب عرض سعر" data-code="CF-GEN" data-name="Company Formation — Bespoke Service" data-gov="">Request a quotation</a><a class="sv1-cp-more" href="/services/cf-gen">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="beneficial owner disclosure bp-sbc-21 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-21">Beneficial owner disclosure</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-21" data-bp-pending>500 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-21" data-name-en="Beneficial owner disclosure" data-name-ar="الإبلاغ عن المستفيد الحقيقي" data-amount="500" data-price="" data-kind="service" data-bp-code="BP-SBC-21">Add to cart</button><a class="sv1-cp-more" href="/services/bp-sbc-21">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="annual commercial-register confirmation bp-sbc-22 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-22">Annual commercial-register confirmation</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-22" data-bp-pending>200 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-22" data-name-en="Annual commercial-register confirmation" data-name-ar="التأكيد السنوي لبيانات السجل التجاري" data-amount="200" data-price="" data-kind="service" data-bp-code="BP-SBC-22">Add to cart</button><a class="sv1-cp-more" href="/services/bp-sbc-22">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="transferring ownership of a commercial register bp-sbc-23 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-23">Transferring ownership of a commercial register</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-23" data-bp-pending>1,500 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-23" data-name-en="Transferring ownership of a commercial register" data-name-ar="نقل ملكية السجل التجاري" data-amount="1500" data-price="" data-kind="service" data-bp-code="BP-SBC-23">Add to cart</button><a class="sv1-cp-more" href="/services/bp-sbc-23">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="publishing general-assembly resolutions bp-sbc-24 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-24">Publishing general-assembly resolutions</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-24" data-bp-pending>800 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-24" data-name-en="Publishing general-assembly resolutions" data-name-ar="نشر قرارات الجمعية العامة" data-amount="800" data-price="" data-kind="service" data-bp-code="BP-SBC-24">Add to cart</button><a class="sv1-cp-more" href="/services/bp-sbc-24">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="merger or acquisition bp-sbc-25 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-25">Merger or acquisition</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-25" data-bp-pending>12,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-25" data-name-en="Merger or acquisition" data-name-ar="اندماج شركتين أو استحواذ" data-amount="12000" data-price="" data-kind="service" data-bp-code="BP-SBC-25">Add to cart</button><a class="sv1-cp-more" href="/services/bp-sbc-25">Details →</a></div>
+    </article><article class="sv1-cp-card" data-q="new sole proprietorship formation &amp; registration bp-sbc-31 saudi business center">
+      <a class="sv1-cp-name" href="/services/bp-sbc-31">New Sole Proprietorship Formation &amp; Registration</a>
+      <div class="sv1-cp-gov">Saudi Business Center</div>
+      <div class="sv1-cp-price"><span class="sv1-cp-lbl">Service fee</span>
+        <span class="sv1-cp-amt price-amt" data-bp-price="BP-SBC-31" data-bp-pending>1,000 SAR</span>
+        <span class="sv1-cp-guest" data-guest-note>Sign in to see the fee</span></div>
+      <div class="sv1-cp-acts"><button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="svc-bp-sbc-31" data-name-en="New Sole Proprietorship Formation &amp; Registration" data-name-ar="تأسيس / قيد مؤسسة فردية جديدة" data-amount="1000" data-price="" data-kind="service" data-bp-code="BP-SBC-31">Add to cart</button><a class="sv1-cp-more" href="/services/bp-sbc-31">Details →</a></div>
+    </article></div>
+    <p class="sv1-cp-none sv1-hide" id="cpNone">Nothing matched. Try a broader word.</p>
+    <section class="sv1-cp-others">
+      <h2>Other categories</h2>
+      <div class="sv1-cp-chips"><a class="sv1-cp-chip" href="/services/category/foreign-investment">Foreign Investment<span>14</span></a><a class="sv1-cp-chip" href="/services/category/premium-residency">Premium Residency<span>11</span></a><a class="sv1-cp-chip" href="/services/category/government-relations">Government Relations<span>69</span></a><a class="sv1-cp-chip" href="/services/category/hr-services">HR Services<span>12</span></a><a class="sv1-cp-chip" href="/services/category/recruitment">Recruitment &amp; Hiring<span>8</span></a><a class="sv1-cp-chip" href="/services/category/business-support">Business Support<span>39</span></a><a class="sv1-cp-chip" href="/services/category/real-estate">Real Estate<span>7</span></a><a class="sv1-cp-chip" href="/services/category/ai-automation">AI &amp; Automation<span>6</span></a><a class="sv1-cp-chip" href="/catalog">All services &amp; packages</a></div>
+    </section>
+    <div class="sv1-panel sv1-cp-ask">
+      <h4>Not sure which service fits?</h4>
+      <a class="sv1-btn primary sm" href="/#advisor">Describe your need in the chat</a>
+    </div>
+  </div>
+</main>
+<div class="sv1-cp-toast sv1-hide" id="cpToast" role="status" aria-live="polite"><span id="cpToastTx"></span><a id="cpToastCart" href="/cart">View cart →</a></div>
+<footer class="sv1-foot"><div class="wrap">
   <div class="sv1-foot-grid">
     <div class="sv1-foot-col">
       <b class="sv1-foot-brand">Business Partner</b>
@@ -395,18 +602,18 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
     </div>
     <div class="sv1-foot-col">
       <h4>Company details</h4>
-      <div class="sv1-foot-row id"><span>Registered name</span><b>Business Partner Solutions Company</b></div><div class="sv1-foot-row id"><span>Unified number</span><bdi dir="ltr">7038825860</bdi></div><div class="sv1-foot-row id"><span>VAT number</span><bdi dir="ltr">312079341500003</bdi></div><div class="sv1-foot-row id"><span>Short national address</span><bdi dir="ltr">RHSC2978</bdi></div>
+      <div class="sv1-foot-row id"><span>Registered name</span><b>Business Partner Solutions Company</b></div><div class="sv1-foot-row id"><span>Unified number</span><bdi dir="ltr">7038825860</bdi></div><div class="sv1-foot-row id"><span>VAT number</span><bdi dir="ltr">312079341500003</bdi></div><div class="sv1-foot-row id"><span>Short national address</span><bdi dir="ltr">RDAA9214</bdi></div>
     </div>
     <div class="sv1-foot-col">
       <h4>Contact</h4>
       <div class="sv1-foot-row"><span>Phone</span><a href="tel:+966530540231"><bdi dir="ltr">0530540231</bdi></a></div>
       <div class="sv1-foot-row"><span>E-mail</span><a href="mailto:business@businesspartner.sa"><bdi dir="ltr">business@businesspartner.sa</bdi></a></div>
-      <div class="sv1-foot-row"><span>National address</span><span class="v">Building 2978 · Turki Ibn Abdullah Aal Saud St. · Al Sulaimaniyah Dist. · Riyadh 12234 · Additional no. 8630</span></div>
+      <div class="sv1-foot-row"><span>National address</span><span class="v">Building 9214 · King Khaled Branch Rd. · Al Asemah Dist. · Ad Diriyah 13714 · Additional no. 5076</span></div>
       <div class="sv1-foot-row"><span>Hours</span><span class="v">Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span></div>
     </div>
     <div class="sv1-foot-col">
       <h4>Payments</h4>
-      <p class="sv1-foot-note">mada · Visa · Mastercard · Apple Pay · Tamara — through a licensed gateway; card details never touch our servers.</p>
+      <p class="sv1-foot-note">mada · Visa · Mastercard, or instalments with Tamara. Mobile wallets (such as Apple Pay) appear at checkout only when your device supports them. Payment runs through a licensed gateway; card details never touch our servers.</p>
     </div>
   </div>
 
@@ -422,7 +629,7 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
       <a href="/catalog">All services</a>
       <a href="/packages">Packages</a>
       <a href="/ai-agents">Smart advisors</a>
-      <a href="/business-development">Business development</a>
+      
     </div>
     <div class="sv1-foot-navcol">
       <h5>Knowledge</h5>
@@ -441,7 +648,81 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
   </div>
   <div class="sv1-foot-end">© 2026 Business Partner · All rights reserved</div>
 </div></footer>
-<a class="sv1-wa-fab" href="https://wa.me/966530540231" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></div><script src="/assets/js/main.js?v=45d370d801"></script><script src="/assets/js/live-prices.js?v=1c560bd78d" defer></script><style>
+<a class="sv1-wa-fab" href="https://wa.me/966530540231" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
+fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
+var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};
+/* الرسم الفوري جرى بعد «</header>» مباشرة (SV1_SESSION_JS)؛ هنا التصحيح. */
+fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
+.then(function(r){return r.json().catch(function(){return{}})}).then(function(o){
+ var S=window.SV1S,u=o&&o.session&&o.session.user;
+ if(u){window.SV1_SESSION=o.session;if(S){S.save(u);S.paint(true,{name:u.full_name||'',email:u.email||''})}}
+ else if(S){S.clear();S.paint(false,null)}
+}).catch(function(){});
+})();</script><script>(function(){"use strict";
+if(navigator.webdriver)return;
+var vid="";try{vid=localStorage.getItem("bp_vid")||"";if(!vid){vid=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("bp_vid",vid)}}catch(e){}
+function send(p){p.action="hit";p.visitor=vid;try{var b=JSON.stringify(p);
+if(navigator.sendBeacon)navigator.sendBeacon("/api/requests",new Blob([b],{type:"application/json"}));
+else fetch("/api/requests",{method:"POST",headers:{"content-type":"application/json"},body:b,keepalive:true}).catch(function(){})}catch(e){}}
+var rh="";try{if(document.referrer){var u=new URL(document.referrer);if(u.host!==location.host)rh=u.host}}catch(e){}
+// وسوم UTM تسبق المُحيل: واتساب وتيك توك لا يرسلان Referer، فزياراتهما تظهر
+// «مباشرة» في اللوحة. الشكل utm:<source>/<medium>/<campaign>/<content>، والقصّ
+// إلى 120 حرفاً لأن عمود ref في api/requests.js يقصّه إلى 120.
+try{var q=new URLSearchParams(location.search);if(q.get("utm_source")){rh=("utm:"+[q.get("utm_source"),q.get("utm_medium"),q.get("utm_campaign"),q.get("utm_content")].map(function(v){return v||""}).join("/")).slice(0,120)}}catch(e){}
+send({kind:"view",path:location.pathname,ref:rh,lang:document.documentElement.lang||"",device:window.innerWidth<768?"mobile":"desktop"});
+// أزرار الموقع الجديد بأسمائها العربية كما تظهر في اللوحة، ومعها محدّدات
+// الموقع القديم حتى تُحسب الصفحتان بالمسمّى نفسه.
+document.addEventListener("click",function(e){
+ var t=e.target.closest&&e.target.closest("[data-track],.add-cart,#cartGo,#cart-checkout,#coPay,#co-submit,a[href*='wa.me'],a[href*='whatsapp'],.sv1-door,#sv1CartBtn,#sv1LoginBtn");
+ if(!t)return;
+ var n=t.getAttribute("data-track")||
+  (t.id==="cartGo"||t.id==="cart-checkout"?"إتمام الطلب":
+   t.id==="coPay"||t.id==="co-submit"?"إرسال الطلب":
+   t.id==="sv1CartBtn"?"فتح السلة":
+   t.id==="sv1LoginBtn"?"تسجيل الدخول":
+   t.classList&&t.classList.contains("sv1-door")?("باب: "+(t.getAttribute("data-door")||"")):
+   t.classList&&t.classList.contains("add-cart")?"أضف للسلة":"واتساب");
+ send({kind:"click",path:location.pathname,name:n})},true);
+var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
+ send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
+})();</script><script src="/assets/js/live-prices.js?v=3b0920ab7a" defer></script><script>
+(function(){
+var C={"door":"formation","tx":{"added":"Added ✓","addCart":"Add to cart","toast":"Added to your cart","fail":"Your browser could not save the cart. Request a quotation instead."}};
+var $=function(id){return document.getElementById(id)};
+// ---- السلة: عقد bp_cart نفسه (انظر simple-v1-service-detail.mjs: cartItem/cartAdd). amount يُقرأ
+// من الزرّ وقت الضغط فيحمل الرقم الحيّ إن بدّله live-prices.js (data-bp-code).
+function cartItem(b){var a=b.getAttribute('data-amount');
+ return {id:b.getAttribute('data-id'),nameEn:b.getAttribute('data-name-en')||'',nameAr:b.getAttribute('data-name-ar')||'',amount:a?Number(a):null,price:'',kind:'service',qty:1,
+  surchargeAmount:null,surchargeFreeCount:null,pricePublic:0,billingPeriod:'',renewsAt:null,commissionPercent:0}}
+function cartAdd(b){var c;
+ try{c=JSON.parse(localStorage.getItem('bp_cart'))||[];if(!Array.isArray(c))c=[]}catch(e){c=[]}
+ var it=cartItem(b),ex=c.filter(function(x){return x.id===it.id})[0];
+ if(ex)ex.qty=(ex.qty||1)+1;else c.push(it);
+ try{localStorage.setItem('bp_cart',JSON.stringify(c))}catch(e){return false}
+ try{document.dispatchEvent(new CustomEvent('bp:cart',{bubbles:true}))}catch(e){}
+ return true}
+var tt=0;
+function toast(msg,err,link){var bx=$('cpToast');$('cpToastTx').textContent=msg;$('cpToastCart').style.display=link?'':'none';
+ bx.classList.toggle('err',!!err);bx.classList.remove('sv1-hide');clearTimeout(tt);tt=setTimeout(function(){bx.classList.add('sv1-hide')},4200)}
+var grid=$('cpGrid');
+grid.addEventListener('click',function(e){
+ var add=e.target.closest&&e.target.closest('.sv1-cp-add');
+ if(add){
+  if(!cartAdd(add)){toast(C.tx.fail,true,false);return}
+  add.textContent=C.tx.added;setTimeout(function(){add.textContent=C.tx.addCart},1600);
+  toast(C.tx.toast,false,true);return}
+ // ---- طلب عرض سعر: تسليمٌ إلى محادثة الرئيسية (يُقرأ المفتاح ويُحذف هناك في خطوة واحدة).
+ var q=e.target.closest&&e.target.closest('.sv1-cp-quote');
+ if(q){var nm=q.getAttribute('data-name')||'',cd=q.getAttribute('data-code')||'';
+  try{sessionStorage.setItem('bp_sva_request',JSON.stringify({items:[{code:cd,title:nm,why:q.getAttribute('data-gov')||''}],door:C.door,text:nm,name:nm,code:cd,at:Date.now()}))}catch(x){}}
+});
+// ---- بحث داخل التصنيف: يُخفي البطاقات ولا يحذفها (تبقى في الصفحة للفهرسة).
+var qi=$('cpQ');
+if(qi)qi.addEventListener('input',function(){
+ var f=(qi.value||'').trim().toLowerCase(),cards=grid.querySelectorAll('.sv1-cp-card'),shown=0;
+ Array.prototype.forEach.call(cards,function(c){var hit=!f||(c.getAttribute('data-q')||'').indexOf(f)>=0;c.hidden=!hit;if(hit)shown++});
+ $('cpNone').classList.toggle('sv1-hide',shown>0)});
+})();</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}
 [dir=rtl] .bps-fab{padding:7px 7px 7px 16px}
 .bps-fab img{width:38px;height:38px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}

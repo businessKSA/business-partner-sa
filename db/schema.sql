@@ -769,7 +769,7 @@ create table if not exists requests (
   ref text not null unique,                       -- BP-R-XXXXXX
   organization_id uuid references organizations(id),
   user_id uuid references users(id),
-  type text not null check (type in ('CONSULTATION','GOVERNMENT_SERVICE','COMPANY_FORMATION')),
+  type text not null check (type in ('CONSULTATION','GOVERNMENT_SERVICE','COMPANY_FORMATION','BUSINESS_DEVELOPMENT')),
   source text not null default 'WEBSITE' check (source in ('WEBSITE','WHATSAPP','EMAIL','PHONE','AI_ASSISTANT','MANUAL','REFERRAL')),
   status text not null default 'NEW' check (status in ('NEW','REVIEWING','WAITING_CLIENT','QUOTE_SENT','QUOTE_APPROVED','CONTRACT_SENT','SIGNED','PAYMENT_PENDING','PAID','IN_PROGRESS','WAITING_INTERNAL','COMPLETED','CANCELLED')),
   lang text not null default 'ar',
@@ -907,3 +907,16 @@ create or replace view analytics_top_refs as
    group by coalesce(nullif(ref, ''), 'مباشر')
    order by count(*) desc
    limit 15;
+
+-- ---------------------------------------------------------------------------
+-- 2026-10-01: «الباب الرابع — تطوير الأعمال». الخادم (api/_simple.js
+-- REQUEST_TYPES) صار يقبل النوع BUSINESS_DEVELOPMENT، لكن القيد المضمَّن في
+-- `create table requests` كان يحصر النوع في ثلاثة، فيرفض Postgres أي
+-- request-create بالنوع الجديد. القاعدة المحلية (JSON) لا تطبّق القيود فلم
+-- يظهر العطل في الاختبار المحلي. اسم القيد المولَّد للعمود المضمَّن هو
+-- <table>_<column>_check = requests_type_check (جُرّب على Postgres 16).
+-- idempotent: drop if exists ثم add؛ والصفوف القائمة كلها من الأنواع
+-- الثلاثة الأولى فيمرّ فحصها. لا يُرخي القيد: أي نوع آخر ما زال مرفوضاً.
+alter table requests drop constraint if exists requests_type_check;
+alter table requests add constraint requests_type_check
+  check (type in ('CONSULTATION','GOVERNMENT_SERVICE','COMPANY_FORMATION','BUSINESS_DEVELOPMENT'));

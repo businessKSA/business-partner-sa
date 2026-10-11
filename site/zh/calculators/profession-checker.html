@@ -112,7 +112,11 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-three .sv1-panel{padding:20px}
 .sv1-three h4{font-size:15px;margin:0 0 6px}
 .sv1-three p{margin:0;font-size:13px;line-height:1.7}
-.sv1-doors{display:grid;gap:10px}
+.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-doors>:last-child:nth-child(odd){grid-column:1/-1}
+a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
+.sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+.sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
 .sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
 .sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
 .sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
@@ -265,7 +269,8 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-side{display:none}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
-@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+@media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
+ .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
 </style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
 <body class="sv1-page"><div class="sv1"><style id="sv1-legacy-css">
@@ -418,18 +423,18 @@ var h0=hint();if(h0)S.paint(true,h0);
     </div>
     <div class="sv1-foot-col">
       <h4>公司信息</h4>
-      <div class="sv1-foot-row id"><span>注册名称</span><b>Business Partner Solutions Company</b></div><div class="sv1-foot-row id"><span>统一编号</span><bdi dir="ltr">7038825860</bdi></div><div class="sv1-foot-row id"><span>增值税号</span><bdi dir="ltr">312079341500003</bdi></div><div class="sv1-foot-row id"><span>国家简短地址</span><bdi dir="ltr">RHSC2978</bdi></div>
+      <div class="sv1-foot-row id"><span>注册名称</span><b>Business Partner Solutions Company</b></div><div class="sv1-foot-row id"><span>统一编号</span><bdi dir="ltr">7038825860</bdi></div><div class="sv1-foot-row id"><span>增值税号</span><bdi dir="ltr">312079341500003</bdi></div><div class="sv1-foot-row id"><span>国家简短地址</span><bdi dir="ltr">RDAA9214</bdi></div>
     </div>
     <div class="sv1-foot-col">
       <h4>联系我们</h4>
       <div class="sv1-foot-row"><span>电话</span><a href="tel:+966530540231"><bdi dir="ltr">0530540231</bdi></a></div>
       <div class="sv1-foot-row"><span>邮箱</span><a href="mailto:business@businesspartner.sa"><bdi dir="ltr">business@businesspartner.sa</bdi></a></div>
-      <div class="sv1-foot-row"><span>国家地址</span><span class="v">Building 2978 · Turki Ibn Abdullah Aal Saud St. · Al Sulaimaniyah Dist. · Riyadh 12234 · Additional no. 8630</span></div>
+      <div class="sv1-foot-row"><span>国家地址</span><span class="v">Building 9214 · King Khaled Branch Rd. · Al Asemah Dist. · Ad Diriyah 13714 · Additional no. 5076</span></div>
       <div class="sv1-foot-row"><span>营业时间</span><span class="v">Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span></div>
     </div>
     <div class="sv1-foot-col">
       <h4>支付方式</h4>
-      <p class="sv1-foot-note">mada · Visa · Mastercard · Apple Pay · Tamara — 通过持牌支付网关，卡片信息不经过我们的服务器。</p>
+      <p class="sv1-foot-note">mada · Visa · Mastercard，或通过 Tamara 分期。Apple Pay 等手机钱包仅在您的设备支持时才会在结账页出现。支付通过持牌支付网关完成，卡片信息不经过我们的服务器。</p>
     </div>
   </div>
 
@@ -445,7 +450,7 @@ var h0=hint();if(h0)S.paint(true,h0);
       <a href="/zh/catalog">全部服务</a>
       <a href="/zh/packages">套餐</a>
       <a href="/zh/ai-agents">智能顾问</a>
-      <a href="/zh/business-development">业务拓展</a>
+      
     </div>
     <div class="sv1-foot-navcol">
       <h5>知识库</h5>
@@ -481,6 +486,10 @@ function send(p){p.action="hit";p.visitor=vid;try{var b=JSON.stringify(p);
 if(navigator.sendBeacon)navigator.sendBeacon("/api/requests",new Blob([b],{type:"application/json"}));
 else fetch("/api/requests",{method:"POST",headers:{"content-type":"application/json"},body:b,keepalive:true}).catch(function(){})}catch(e){}}
 var rh="";try{if(document.referrer){var u=new URL(document.referrer);if(u.host!==location.host)rh=u.host}}catch(e){}
+// وسوم UTM تسبق المُحيل: واتساب وتيك توك لا يرسلان Referer، فزياراتهما تظهر
+// «مباشرة» في اللوحة. الشكل utm:<source>/<medium>/<campaign>/<content>، والقصّ
+// إلى 120 حرفاً لأن عمود ref في api/requests.js يقصّه إلى 120.
+try{var q=new URLSearchParams(location.search);if(q.get("utm_source")){rh=("utm:"+[q.get("utm_source"),q.get("utm_medium"),q.get("utm_campaign"),q.get("utm_content")].map(function(v){return v||""}).join("/")).slice(0,120)}}catch(e){}
 send({kind:"view",path:location.pathname,ref:rh,lang:document.documentElement.lang||"",device:window.innerWidth<768?"mobile":"desktop"});
 // أزرار الموقع الجديد بأسمائها العربية كما تظهر في اللوحة، ومعها محدّدات
 // الموقع القديم حتى تُحسب الصفحتان بالمسمّى نفسه.

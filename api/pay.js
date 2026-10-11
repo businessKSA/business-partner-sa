@@ -34,6 +34,7 @@ import { contactForRef } from "./_stage.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { sb, DB_ON } from "./_db.js";
 import { markRequestPaidByRef } from "./_simple.js";
+import { parseEmpSku, empOffer, empPrepare, empSessionEmail, empActivate, empBasketProblem, empBnplAllowed } from "./_emp-pay.js";
 
 // Simple V1: a cart line "sv1:BP-R-XXXXXX" is an approved, signed quotation.
 // Its amount is the quote's net as stored on the request row — never the
@@ -81,16 +82,27 @@ const WEBHOOK_SECRET = (process.env.MOYASAR_WEBHOOK_SECRET || "").trim();
 // So this is a switch the owner flips once the other side is actually done,
 // not a code change. Values are the form's own
 // (docs.moyasar.com/guides/references/form-configuration#payment-methods-optional):
-//   MOYASAR_METHODS=creditcard,applepay,samsungpay,stcpay
-const ALLOWED_METHODS = new Set(["creditcard", "applepay", "samsungpay", "stcpay"]);
+//   MOYASAR_METHODS=creditcard,applepay,samsungpay,googlepay,stcpay
+//
+// Google Pay: the 2.2.10 form takes it as a `google_pay` object
+// ({ merchant_id, country, label, environment }) and draws its button from
+// `merchant_id` alone — `googlepay` is not in the library's own `methods` list
+// (creditcard · applepay · stcpay · samsungpay), though Moyasar's guide lists
+// it there and it is harmless. The merchant ID is Google's, from the Google Pay
+// & Wallet Console, and production needs Google to approve the site first
+// (developers.google.com/pay/api/web/guides/test-and-deploy/request-prod-access).
+const ALLOWED_METHODS = new Set(["creditcard", "applepay", "samsungpay", "googlepay", "stcpay"]);
 const METHODS = (process.env.MOYASAR_METHODS || "creditcard")
   .split(",").map((m) => m.trim().toLowerCase()).filter((m) => ALLOWED_METHODS.has(m));
 // Samsung Pay is only offered once its Service ID exists: the form requires
 // `samsung_pay.service_id`, and listing the method without it draws a button
 // that cannot open a sheet.
 const SAMSUNG_PAY_SERVICE_ID = (process.env.MOYASAR_SAMSUNG_SERVICE_ID || "").trim();
+// Google Pay is only offered once its merchant ID exists, for the same reason.
+const GOOGLE_PAY_MERCHANT_ID = (process.env.MOYASAR_GOOGLE_MERCHANT_ID || "").trim();
 const PAY_METHODS = (METHODS.length ? METHODS : ["creditcard"])
-  .filter((m) => m !== "samsungpay" || SAMSUNG_PAY_SERVICE_ID);
+  .filter((m) => m !== "samsungpay" || SAMSUNG_PAY_SERVICE_ID)
+  .filter((m) => m !== "googlepay" || GOOGLE_PAY_MERCHANT_ID);
 // The name the buyer sees in the Apple Pay / Samsung Pay sheet — theirs is the
 // last screen before the money moves, so it says who is being paid.
 const APPLE_PAY_LABEL = process.env.MOYASAR_APPLE_PAY_LABEL || "Business Partner";
@@ -99,6 +111,10 @@ const SAMSUNG_PAY_LABEL = process.env.MOYASAR_SAMSUNG_PAY_LABEL || APPLE_PAY_LAB
 // Moyasar: "We recommend always setting this option to PRODUCTION"; STAGE is
 // only for a Samsung staging wallet APK and Service ID.
 const SAMSUNG_PAY_ENV = /^stage$/i.test(process.env.MOYASAR_SAMSUNG_ENV || "") ? "STAGE" : "PRODUCTION";
+// Google's own names: TEST draws a test button that never moves money;
+// PRODUCTION needs the site approved in the Google Pay & Wallet Console.
+const GOOGLE_PAY_LABEL = process.env.MOYASAR_GOOGLE_PAY_LABEL || APPLE_PAY_LABEL;
+const GOOGLE_PAY_ENV = /^test$/i.test(process.env.MOYASAR_GOOGLE_ENV || "") ? "TEST" : "PRODUCTION";
 // The form library is served from this site's own /assets — the pinned CDN
 // copy (mpf 1.15) mounted an empty box with no exception on live checkouts,
 // and the current 2.x build ships on npm under the MIT licence, so the exact
@@ -173,7 +189,7 @@ function seal(o) {
 // outside catalog.json. Activation is amount-gated: what cannot be re-priced
 // here falls back to owner review instead of activating on a client's word.
 const FIXED_SKUS = {
-  "agent-compliance-agent": 250,
+  "agent-compliance-agent": 1000,
   "agent-shared-services-team": 1500,
   "companies-data-access": 375,
   "lead-generation": 375,
@@ -184,15 +200,36 @@ const FIXED_SKUS = {
 function skuAmount(rawId, priceMap) {
   const id = String(rawId || "").toLowerCase();
   if (FIXED_SKUS[id] != null) return FIXED_SKUS[id];
-  if (id.indexOf("employee-") === 0) return 500;
-  const hit = priceMap[catalogKey(id)];
+  // One specialist, one slug. "employee-all" is the whole-team entitlement and
+  // is priced as the shared-services team, never as a 500 riyal specialist.
+  if (id.indexOf("employee-") === 0) return /^employee-[a-z0-9]{1,30}$/.test(id) && id !== "employee-all" ? 500 : null;
+  const hit = priceRow(priceMap, id);
   return hit && hit.amount > 0 ? hit.amount : null;
 }
+// An employer-plan line (BP-EMP-*) is priced by api/employer.js getPlanOffer —
+// the only place that price exists — and activated through its
+// activateSubscription, not through /api/requests: that endpoint would file it
+// as a plain service. The sealed paid-order call therefore carries the plan in
+// its display names (CRM row, owner and buyer emails) but not in `ids`, which
+// is what drives gated activations over there.
+const alertedEmp = (globalThis.__bpEmpAlerted ||= new Set());
+async function alertEmployerFailure(order, p, why) {
+  const key = String(p.id || "") + "|" + why;
+  if (alertedEmp.has(key)) return;
+  alertedEmp.add(key);
+  await sendMail(OWNER_EMAIL, `⚠️ دفعة اشتراك صاحب عمل لم يُفعَّل حسابها — ${String(order.ref || p.id || "")}`,
+    `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right;max-width:560px">
+      <h2 style="color:#b91c1c">دفعة اشتراك وصلت ولم يُفعَّل الحساب</h2>
+      <p>المبلغ وصل فعلاً، لكن تفعيل اشتراك صاحب العمل لم يكتمل. فعّله يدوياً من قاعدة «أصحاب العمل — الاشتراكات» بعد مطابقة المبلغ.</p>
+      <table>
+        <tr><td style="padding:4px 10px;color:#666">رقم الدفعة</td><td style="padding:4px 10px"><b style="direction:ltr;display:inline-block">${esc(String(p.id || ""))}</b></td></tr>
+        <tr><td style="padding:4px 10px;color:#666">المبلغ</td><td style="padding:4px 10px"><b>${Math.round(Number(p.amount || 0)) / 100} ﷼</b></td></tr>
+        <tr><td style="padding:4px 10px;color:#666">مرجع الاشتراك</td><td style="padding:4px 10px"><b style="direction:ltr;display:inline-block">${esc(String(order.ref || "—"))}</b></td></tr>
+        <tr><td style="padding:4px 10px;color:#666">العميل</td><td style="padding:4px 10px">${esc(String(order.email || "—"))} · ${esc(String(order.company || "—"))}</td></tr>
+        <tr><td style="padding:4px 10px;color:#666">السبب</td><td style="padding:4px 10px"><b>${esc(why)}</b></td></tr>
+      </table></div>`).catch(() => {});
+}
 async function settlePaidOrder(order, p) {
-  if (!OTP_SECRET) {
-    console.error("pay: settle skipped — OTP_SECRET is not set, so the sealed paid-order call cannot be made");
-    return { ok: false, skipped: "no_otp_secret" };
-  }
   const ids = (Array.isArray(order.items) ? order.items : []).slice(0, 40)
     .map((it) => ({ id: String((it && it.id) || "").slice(0, 80), qty: Math.max(1, Math.min(99, Number(it && it.qty) || 1)) }))
     .filter((x) => x.id);
@@ -203,16 +240,31 @@ async function settlePaidOrder(order, p) {
   }
   let priceMap = {};
   try { priceMap = await catalogPrices(); } catch { priceMap = {}; }
-  let net = 0, unknown = false;
+  let net = 0, unknown = !!empBasketProblem(ids);
   const names = [], lines = [];
+  // What the buyer's request will list (api/_simple.js createCartRequest): one
+  // entry per basket line with the amount the server priced it at.
+  const detail = [];
+  let emp = null;
   for (const x of ids) {
+    if (parseEmpSku(x.id)) {
+      const o = await empOffer(x.id);
+      if (!o.ok) { unknown = true; names.push(x.id + " ×" + x.qty); detail.push({ id: x.id, name: x.id, qty: x.qty, amount: null }); continue; }
+      emp = o.offer;
+      net += o.offer.amountSar * x.qty;
+      lines.push({ id: x.id, line: o.offer.amountSar * x.qty });
+      names.push(o.name.ar + " ×" + x.qty);
+      detail.push({ id: x.id, name: o.name.ar, qty: x.qty, amount: o.offer.amountSar * x.qty, cycle: o.offer.billing });
+      continue;
+    }
     const sv1 = await sv1Line(x.id);
     const a = sv1 ? sv1.amount : skuAmount(x.id, priceMap);
-    if (a == null) { unknown = true; names.push(x.id + " ×" + x.qty); continue; }
+    if (a == null) { unknown = true; names.push(x.id + " ×" + x.qty); detail.push({ id: x.id, name: x.id, qty: x.qty, amount: null }); continue; }
     net += a * x.qty;
     lines.push({ id: x.id, line: a * x.qty });
-    const cat = priceMap[catalogKey(String(x.id).toLowerCase())];
+    const cat = priceRow(priceMap, x.id);
     names.push((sv1 ? sv1.name : cat ? cat.name : x.id) + " ×" + x.qty);
+    detail.push({ id: x.id, name: sv1 ? sv1.name : cat ? cat.name : x.id, qty: x.qty, amount: a * x.qty });
   }
   net += Number(order.surchargeFee) || 0;
   const disc = await catalogDiscount(order.discountCode);
@@ -224,7 +276,27 @@ async function settlePaidOrder(order, p) {
   const cut = discountCut(Math.min(discBase, net), disc);
   net -= cut;
   // Two riyals of tolerance for the rounding the cart and the form each do.
-  const verified = !unknown && net > 0 && Math.abs(Math.round(net * 1.15 * 100) - Number(p.amount || 0)) <= 200;
+  const expectedHalalas = Math.round(net * 1.15 * 100);
+  const verified = !unknown && net > 0 && Math.abs(expectedHalalas - Number(p.amount || 0)) <= 200;
+
+  // A subscription is switched on only when the charge matches the server's
+  // price for the whole basket to within one riyal — tighter than the CRM's
+  // two, because this is the step that opens a paid account.
+  let employer = null;
+  if (emp || ids.some((x) => parseEmpSku(x.id))) {
+    if (!emp || !verified || Math.abs(expectedHalalas - Number(p.amount || 0)) > 100) {
+      employer = { ok: false, activated: false, error: emp ? "amount_mismatch" : "plan_not_payable" };
+    } else {
+      employer = await empActivate({ reference: order.ref, paymentRef: String(p.id || ""), sku: emp.sku });
+    }
+    if (!employer.activated) await alertEmployerFailure(order, p, employer.error || "not_activated");
+  }
+
+  if (!OTP_SECRET) {
+    console.error("pay: settle skipped — OTP_SECRET is not set, so the sealed paid-order call cannot be made");
+    return { ok: false, skipped: "no_otp_secret", ...(employer ? { employer } : {}) };
+  }
+  const sealedIds = ids.filter((x) => !parseEmpSku(x.id));
   const payload = {
     v: 1, at: Date.now(), payId: String(p.id || ""), verified,
     ref: String(order.ref || "").slice(0, 40) || ("BP-" + String(p.id || "").replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase()),
@@ -234,7 +306,9 @@ async function settlePaidOrder(order, p) {
     company: String(order.company || (order.taxProfile && order.taxProfile.nameAr) || "").slice(0, 200),
     total: Math.round(Number(p.amount || 0)) / 100,
     ...(disc ? { disc: disc.code } : {}),
-    ids, items: names,
+    ids: sealedIds, items: names,
+    // For the request api/requests.js opens in /my and /ops from this payment.
+    lines: detail, net: Math.round(net * 100) / 100,
   };
   try {
     const r = await fetch(SELF_BASE + "/api/requests", {
@@ -243,12 +317,12 @@ async function settlePaidOrder(order, p) {
       body: JSON.stringify({ action: "paid-order", t: seal(payload) }),
     });
     const j = await r.json().catch(() => ({}));
-    if (!r.ok || !j.ok) return { ok: false, error: j.error || ("http_" + r.status), verified };
+    if (!r.ok || !j.ok) return { ok: false, error: j.error || ("http_" + r.status), verified, ref: payload.ref, ...(employer ? { employer } : {}) };
     if (verified) await sv1Settle(ids, p, String(p.id || "").startsWith("tamara_") ? "tamara" : "moyasar");
-    return { ok: true, already: !!j.already, verified, activated: j.activated || null };
+    return { ok: true, already: !!j.already, verified, ref: payload.ref, activated: j.activated || null, request: j.request || null, ...(employer ? { employer } : {}) };
   } catch (e) {
     console.error("pay: settle call failed", String(e.message || e).slice(0, 160));
-    return { ok: false, error: "settle_unreachable", verified };
+    return { ok: false, error: "settle_unreachable", verified, ref: payload.ref, ...(employer ? { employer } : {}) };
   }
 }
 // A verified wallet top-up is handed to /api/requests {action:"wallet-paid"}
@@ -284,10 +358,45 @@ async function settleWalletTopup(p) {
 const RAW_CATALOG_URL = process.env.CATALOG_URL ||
   "https://raw.githubusercontent.com/businessKSA/business-partner-sa/claude/bpic-marketing-site-jvrnga/site/assets/data/catalog.json";
 let _catCache = null, _catAt = 0;
+// A package's cart id is built by the page, not by the catalogue:
+//   - "pkg-<key>"           a package sold once (formation, legal tiers);
+//   - "pkg-<key>-monthly"   a monthly package (the toggle on /packages adds the
+//                           suffix), priced at the catalogue's amount;
+//   - "pkg-<key>-yearly"    the page's own annual figure (monthly x 12 less the
+//                           site's yearly discount). That number exists nowhere
+//                           in the catalogue, so the suffix is NOT stripped: the
+//                           line stays unknown and the payment goes to the
+//                           owner's review rather than passing on a monthly
+//                           price somebody paid for a year.
+// "svc-" and "pkg-" prefixes are dropped; the monthly suffix only on packages.
+const PKG_MONTHLY_RE = /^(?:bp-)?pkg-.+-monthly$/;
+const isMonthlyPkgId = (id) => PKG_MONTHLY_RE.test(String(id || "").toLowerCase());
 const catalogKey = (id) => {
-  const k = String(id || "").toLowerCase();
+  let k = String(id || "").toLowerCase();
+  if (PKG_MONTHLY_RE.test(k)) k = k.slice(0, -"-monthly".length);
   return k.startsWith("svc-") || k.startsWith("pkg-") ? k.slice(4) : k;
 };
+// The package codes the pages print (BP-PKG-*) and the codes the live-price
+// panel files them under (PKG-*): site/assets/js/live-prices.js PKG_ALIAS.
+// catalogPrices() indexes a package by its BP code and by its key; an id
+// written with the panel's code resolves through this table when its bare form
+// is not itself a key (PKG-S is the starter package, whose key is "starter-4").
+const PKG_ALIAS = {
+  "BP-PKG-LAUNCH": "PKG-SILVER", "BP-PKG-GROWTH": "PKG-GOLD", "BP-PKG-SCALE": "PKG-PLATINUM",
+  "BP-PKG-ENTERPRISE": "PKG-DIAMOND", "BP-PKG-FORM-FOREIGN": "PKG-FOREIGN-FORMATION",
+  "BP-PKG-FORM-SAUDI": "PKG-SAUDI-GULF-FORMATION", "BP-PKG-LEGAL-STRAT": "PKG-STRATEGIC",
+  "BP-PKG-LEGAL-COMP": "PKG-COMPREHENSIVE", "BP-PKG-LEGAL-ADV": "PKG-ADVANCED",
+  "BP-PKG-LEGAL-BASIC": "PKG-BASIC-LEGAL", "BP-PKG-SVC-STARTER": "PKG-S",
+};
+const PKG_BY_ALIAS = Object.fromEntries(Object.entries(PKG_ALIAS).map(([code, a]) => [a.toLowerCase(), code.toLowerCase()]));
+// The catalogue row for a cart id, or undefined. The one lookup every pricing
+// site shares, so the settle, the invoice and the Tamara session cannot
+// disagree about which lines they can price.
+function priceRow(priceMap, rawId) {
+  const id = String(rawId || "").toLowerCase();
+  const bare = PKG_MONTHLY_RE.test(id) ? id.slice(0, -"-monthly".length) : id;
+  return priceMap[catalogKey(id)] || (PKG_BY_ALIAS[bare] ? priceMap[PKG_BY_ALIAS[bare]] : undefined);
+}
 async function catalogPrices() {
   if (_catCache && Date.now() - _catAt < 10 * 60 * 1000) return _catCache;
   const r = await fetch(RAW_CATALOG_URL);
@@ -387,7 +496,16 @@ async function invoicePaidOrder(order, paidHalalas, payId = "") {
     const prices = await catalogPrices();
     const rows = (Array.isArray(order.items) ? order.items : []).slice(0, 40);
     for (const it of rows) {
-      const hit = prices[catalogKey(it.id)];
+      // The subscription line is priced by the same server offer that charged
+      // it, so the invoice total still matches the payment to the halala.
+      if (parseEmpSku(it.id)) {
+        const o = await empOffer(it.id);
+        if (!o.ok) continue;
+        net += o.offer.amountSar;
+        items.push({ code: o.offer.sku, name: o.name.ar, quantity: 1, unitPrice: o.offer.amountSar });
+        continue;
+      }
+      const hit = priceRow(prices, it.id);
       if (!hit || !(hit.amount > 0)) continue;
       const qty = Math.max(1, Math.min(99, Number(it.qty) || 1));
       net += hit.amount * qty;
@@ -752,6 +870,13 @@ export default async function handler(req, res) {
     res.statusCode = 200;
     const gq = req.query || Object.fromEntries(new URL(req.url, "http://x").searchParams);
     if (gq.action === "mock-form") return mockGatewayPage(req, res, gq);
+    // The server's price for an employer-plan SKU, for the pages that draw it.
+    // The cart's own `amount` is only a hint; this is the number that is charged.
+    if (gq.action === "emp-offer") {
+      const o = await empOffer(gq.sku);
+      if (!o.ok) { res.statusCode = o.error === "not_employer_sku" ? 400 : 404; return res.end(JSON.stringify({ ok: false, error: o.error })); }
+      return res.end(JSON.stringify({ ok: true, ...o.offer, name: o.name, bnpl: o.offer.billing === "yearly" }));
+    }
     const guard = payGuard();
     if (!guard.ok) {
       res.statusCode = 503;
@@ -765,7 +890,7 @@ export default async function handler(req, res) {
       return res.end(JSON.stringify({
         enabled: true, provider: "local-mock", mock: true, canVerify: true, modeMatch: true,
         publishableKey: null, formUrl: "/api/pay?action=mock-form",
-        currency: "SAR", methods: ["creditcard"], applePay: null, samsungPay: null,
+        currency: "SAR", methods: ["creditcard"], applePay: null, samsungPay: null, googlePay: null,
         bnpl: { tamara: tamaraConfigured() }, modes: MODES(),
       }));
     }
@@ -795,6 +920,11 @@ export default async function handler(req, res) {
       samsungPay: PAY_METHODS.includes("samsungpay")
         ? { service_id: SAMSUNG_PAY_SERVICE_ID, country: "SA", label: SAMSUNG_PAY_LABEL, environment: SAMSUNG_PAY_ENV }
         : null,
+      // Google's merchant ID is public by design (it is printed in the sheet
+      // Google Pay draws), so it travels to the browser like the Samsung ID.
+      googlePay: PAY_METHODS.includes("googlepay")
+        ? { merchant_id: GOOGLE_PAY_MERCHANT_ID, country: "SA", label: GOOGLE_PAY_LABEL, environment: GOOGLE_PAY_ENV }
+        : null,
       // Installments (BNPL): Tamara flips on the day its key lands in Vercel —
       // until then the checkout shows its button as «قريباً».
       bnpl: { tamara: tamaraConfigured() },
@@ -815,6 +945,21 @@ export default async function handler(req, res) {
   }
 
   const b = await readBody(req);
+
+  // ---- employer plan: open the pending subscription before the money moves --
+  // Its reference becomes the order reference, so the payment metadata, the
+  // Moyasar webhook and the Tamara return all name the same row. The price in
+  // the answer is the server's; the page overwrites its cart line with it.
+  if (b.action === "emp-prepare") {
+    const r = await empPrepare({ sku: b.sku, sessionEmail: await empSessionEmail(req), email: b.email, company: b.company });
+    if (!r.ok) {
+      res.statusCode = r.error === "not_signed_in" ? 401 : r.error === "email_mismatch" ? 403
+        : r.error === "employer_unavailable" ? 503 : (r.error === "pending_failed" ? 502 : 400);
+      return res.end(JSON.stringify({ ok: false, error: r.error }));
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, reference: r.reference, ...r.offer, name: r.name }));
+  }
 
   /* ---- recover payments the site never recorded ---------------------------
    * While MOYASAR_SECRET_KEY was wrong, three things failed together for every
@@ -1052,7 +1197,7 @@ export default async function handler(req, res) {
           }
         }
         res.statusCode = 200;
-        return res.end(JSON.stringify({ ok: true, handled: true, cart: true, settled: !!(cartSettle && cartSettle.ok), already: !!(cartSettle && cartSettle.already), ...(cartInvoice ? { invoice: cartInvoice } : {}) }));
+        return res.end(JSON.stringify({ ok: true, handled: true, cart: true, settled: !!(cartSettle && cartSettle.ok), already: !!(cartSettle && cartSettle.already), ...(cartSettle && cartSettle.employer ? { employer: { activated: !!cartSettle.employer.activated } } : {}), ...(cartInvoice ? { invoice: cartInvoice } : {}) }));
       }
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, ignored: true, reason: "no_settle_metadata" }));
@@ -1088,13 +1233,31 @@ export default async function handler(req, res) {
     if (!rawItems.length || !isEmail(String(order.email || ""))) {
       res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_order" }));
     }
+    // An employer plan is one plan, quantity one, and instalments only for the
+    // yearly one (the monthly amount is too small to split). Whether Tamara
+    // approves the amount is Tamara's decision, made when the session opens.
+    const empProblem = empBasketProblem(rawItems);
+    if (empProblem) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: empProblem })); }
+    if (!empBnplAllowed(rawItems)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bnpl_yearly_only" })); }
     let priceMap = {}; try { priceMap = await catalogPrices(); } catch {}
     let net = 0, unknown = false; const items = []; const lines = [];
     for (const x of rawItems) {
+      if (parseEmpSku(x.id)) {
+        const o = await empOffer(x.id);
+        if (!o.ok) { unknown = true; continue; }
+        net += o.offer.amountSar * x.qty;
+        lines.push({ id: x.id, line: o.offer.amountSar * x.qty });
+        items.push({ id: o.offer.sku, name: o.name.ar, qty: x.qty, unit: o.offer.amountSar });
+        continue;
+      }
+      // Instalments were never offered on a monthly package line (it did not
+      // price here at all, so the session was refused). Pricing it for the
+      // card must not quietly open Tamara to it: that is the owner's call.
+      if (isMonthlyPkgId(x.id)) { unknown = true; continue; }
       const sv1 = await sv1Line(x.id);
       const a = sv1 ? sv1.amount : skuAmount(x.id, priceMap);
       if (a == null) { unknown = true; continue; }
-      const cat = priceMap[catalogKey(String(x.id).toLowerCase())];
+      const cat = priceRow(priceMap, x.id);
       net += a * x.qty;
       lines.push({ id: x.id, line: a * x.qty });
       items.push({ id: x.id, name: sv1 ? sv1.name : cat ? cat.name : x.id, qty: x.qty, unit: a });
@@ -1174,7 +1337,8 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({
       ok: true, provider, amount: p.amount, captured: !!v.captured,
       ...(invoicing ? { invoice: invoicing } : {}),
-      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null } } : {}),
+      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null, ref: settle.ref || "", request: settle.request || null } } : {}),
+      ...(settle && settle.employer ? { employer: { activated: !!settle.employer.activated } } : {}),
     }));
   }
 
@@ -1338,7 +1502,8 @@ export default async function handler(req, res) {
       ...(b.context === "compliance" ? { activated: activation.activated } : {}),
       ...(invoicing ? { invoice: invoicing } : {}),
       ...(announced ? { announced } : {}),
-      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null } } : {}),
+      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null, ref: settle.ref || "", request: settle.request || null } } : {}),
+      ...(settle && settle.employer ? { employer: { activated: !!settle.employer.activated } } : {}),
     }));
   } catch (e) {
     console.error("pay handler error", e);

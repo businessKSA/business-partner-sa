@@ -22,9 +22,15 @@ const PK_PADDED = PK_RAW !== PK, SK_PADDED = SK_RAW !== SK;
 const WEBHOOK_SECRET = (process.env.MOYASAR_WEBHOOK_SECRET || "").trim();
 // Read the same way api/pay.js reads it, so the panel reports the list the
 // payment form actually gets rather than a second opinion about it.
-const ALLOWED_METHODS = new Set(["creditcard", "applepay", "stcpay"]);
+const ALLOWED_METHODS = new Set(["creditcard", "applepay", "samsungpay", "googlepay", "stcpay"]);
+// A wallet listed without its identifier is never offered by api/pay.js (the
+// button would fail when tapped), so this panel must not claim it either.
+const SAMSUNG_ID_SET = !!(process.env.MOYASAR_SAMSUNG_SERVICE_ID || "").trim();
+const GOOGLE_ID_SET = !!(process.env.MOYASAR_GOOGLE_MERCHANT_ID || "").trim();
 const RAW_METHODS = (process.env.MOYASAR_METHODS || "creditcard")
-  .split(",").map((m) => m.trim().toLowerCase()).filter((m) => ALLOWED_METHODS.has(m));
+  .split(",").map((m) => m.trim().toLowerCase()).filter((m) => ALLOWED_METHODS.has(m))
+  .filter((m) => m !== "samsungpay" || SAMSUNG_ID_SET)
+  .filter((m) => m !== "googlepay" || GOOGLE_ID_SET);
 const PAY_METHODS = RAW_METHODS.length ? RAW_METHODS : ["creditcard"];
 const API = "https://api.moyasar.com/v1";
 // The payment form's own script. Fetched from the server rather than trusted,
@@ -54,6 +60,12 @@ export function moyasarVars() {
     // from a laptop running Chrome — it is answered here.
     methods: PAY_METHODS,
     applePayOn: PAY_METHODS.includes("applepay"),
+    samsungPayOn: PAY_METHODS.includes("samsungpay"),
+    googlePayOn: PAY_METHODS.includes("googlepay"),
+    // Presence only: lets the panel say why a wallet named in
+    // MOYASAR_METHODS is still not offered.
+    samsungPayIdSet: SAMSUNG_ID_SET,
+    googlePayIdSet: GOOGLE_ID_SET,
     stcPayOn: PAY_METHODS.includes("stcpay"),
     missing: [
       PK ? null : "MOYASAR_PUBLISHABLE_KEY",

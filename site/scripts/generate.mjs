@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { visibleServices, visibleCatalogRows, pruneLinks, isHiddenHref, pageVisible, syncVercelRedirects, hasHidden } from "./hidden.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -46,7 +47,16 @@ copyAsset("Facebook Cover Photo.png", "cover.png");
 }
 
 const site = read("data/site.json");
-const services = read("data/services.json");
+// باقاتٌ مخفية (hidden.json → services بكود الباقة): تسقط من /packages والكتالوج
+// والعدّادات، وتسقط المجموعة كلها إن فرغت.
+if (site.packages && Array.isArray(site.packages.groups)) {
+  for (const g of site.packages.groups) g.tiers = visibleCatalogRows(g.tiers || []);
+  site.packages.groups = site.packages.groups.filter((g) => g.tiers.length);
+}
+// يُظهر المقطع فقط إن كانت الصفحة المسمّاة غير مخفية (site/data/hidden.json).
+const ifPage = (name, html) => (pageVisible(name) ? html : "");
+// الخدمات المخفية (site/data/hidden.json) تسقط هنا قبل أي استعمال — راجع hidden.mjs.
+const services = visibleServices(read("data/services.json"));
 const categories = read("data/categories.json");
 const svcI18n = read("data/service-i18n.json");
 // Saudi entrepreneurship-ecosystem directory (incubators, accelerators, VCs,
@@ -63,13 +73,13 @@ const JOBS = [
     field: "موارد بشرية",
     tag: { en: "Riyadh · HR", ar: "الرياض · موارد بشرية" },
     title: { en: "HR Operations & Government Relations Specialist", ar: "أخصائي عمليات موارد بشرية وعلاقات حكومية" },
-    summary: { en: "Run Qiwa, GOSI, Mudad, Muqeem and day-to-day HR operations for Business Partner clients.", ar: "إدارة قوى، التأمينات، مدد، مقيم، وعمليات الموارد البشرية اليومية لعملاء بيزنس بارتنر." },
+    summary: { en: "Run Qiwa, GOSI, Mudad, Muqeem and day-to-day HR operations for Business Partner clients.", ar: "إدارة قوى، التأمينات، مدد، مقيم، وعمليات الموارد البشرية اليومية لعملاء Business Partner." },
     meta: { en: "Full-time · Saudi market experience · Arabic/English", ar: "دوام كامل · خبرة سوق سعودي · عربي/إنجليزي" },
     location: { en: "Riyadh, Saudi Arabia", ar: "الرياض، السعودية" },
     type: { en: "Full-time", ar: "دوام كامل" },
     responsibilities: {
       en: ["Manage HR government platforms including Qiwa, GOSI, Mudad and Muqeem.", "Prepare employee files, contracts, onboarding checklists and HR operations trackers.", "Support clients with Saudization, WPS notes, employee data updates and practical HR compliance.", "Coordinate with candidates, employers and Business Partner internal teams through the ATS."],
-      ar: ["إدارة منصات قوى، التأمينات، مدد، ومقيم.", "تجهيز ملفات الموظفين والعقود وقوائم الأونبوردينج.", "دعم العملاء في التوطين، ملاحظات حماية الأجور، وتحديث بيانات الموظفين.", "تنسيق الطلبات بين المرشحين وأصحاب العمل وفريق بيزنس بارتنر داخل الـ ATS."],
+      ar: ["إدارة منصات قوى، التأمينات، مدد، ومقيم.", "تجهيز ملفات الموظفين والعقود وقوائم الأونبوردينج.", "دعم العملاء في التوطين، ملاحظات حماية الأجور، وتحديث بيانات الموظفين.", "تنسيق الطلبات بين المرشحين وأصحاب العمل وفريق Business Partner داخل الـ ATS."],
     },
     requirements: {
       en: ["Hands-on Saudi HR operations or government relations experience.", "Arabic fluency and working English.", "Comfort with digital platforms, spreadsheets, candidate tracking and client follow-up."],
@@ -268,6 +278,7 @@ const I = {
   linkedin: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>',
   instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" fill="currentColor" stroke="none"/></svg>',
   facebook: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7.5h2.5l.5-3h-3V8.6c0-.87.24-1.46 1.5-1.46H16.6V4.5c-.28-.04-1.23-.12-2.34-.12-2.31 0-3.9 1.41-3.9 4v2.12H7.9v3h2.46V21h3.14z"/></svg>',
+  tiktok: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 1 1-1.87-2.49v-3.1a5.67 5.67 0 1 0 4.96 5.62V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3a4.3 4.3 0 0 1-3.24-1.48z"/></svg>',
 };
 
 /* ---------- multilingual build-time engine ----------
@@ -310,10 +321,16 @@ import { TRANSLATIONS } from "./i18n.mjs";
 import { simpleV1, SIMPLE_V1 } from "./simple-v1.mjs";
 import { buildSimpleMy } from "./simple-v1-my.mjs";
 import { buildSimpleCatalog } from "./simple-v1-catalog.mjs";
+import { buildSimpleServiceDetail } from "./simple-v1-service-detail.mjs";
+import { buildSimpleServiceCategory } from "./simple-v1-service-category.mjs";
+import { injectN8nGuard } from "./n8n-guard.mjs";
 import { buildSimpleCheckout } from "./simple-v1-checkout.mjs";
 import { buildSimpleCart } from "./simple-v1-cart.mjs";
 import { buildSimpleTrips } from "./simple-v1-trips.mjs";
 import { buildSimpleHiring } from "./simple-v1-hiring.mjs";
+import { buildSimpleEor } from "./simple-v1-eor.mjs";
+import { buildSimpleVendor } from "./simple-v1-vendor.mjs";
+import { buildSimpleHr } from "./simple-v1-hr.mjs";
 import { buildSimpleEmployer } from "./simple-v1-employer.mjs";
 import { careersBody } from "./simple-v1-careers.mjs";
 import { buildSimpleBook } from "./simple-v1-book.mjs";
@@ -418,7 +435,7 @@ function portalFooter() {
       <li><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></li>
     </ul></div>
   </div>
-  <div class="footer-bottom"><span>${L("© " + new Date().getFullYear() + " Business Partner · All rights reserved", "© " + new Date().getFullYear() + " بيزنس بارتنر · جميع الحقوق محفوظة")}</span></div>
+  <div class="footer-bottom"><span>${L("© " + new Date().getFullYear() + " Business Partner · All rights reserved", "© " + new Date().getFullYear() + " Business Partner · جميع الحقوق محفوظة")}</span></div>
 </div></footer>`;
 }
 function portalPage({ title, desc, path, active, body }) {
@@ -442,7 +459,7 @@ function sDesc(s) {
   const ov = site.overrides[s.slug];
   if (LANG === "ar") {
     if (ov && ov.description) return ov.description;
-    return `نتولّى في بيزنس بارتنر تنفيذ خدمة «${sName(s)}» نيابةً عنك ضمن ${catAr(s.category)} — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.`;
+    return `نتولّى في Business Partner تنفيذ خدمة «${sName(s)}» نيابةً عنك ضمن ${catAr(s.category)} — من تجهيز المستندات والرفع على الجهة المختصة حتى الإصدار، بأتعاب واضحة ومتابعة كاملة.`;
   }
   if (ov && ov.descriptionEn) return Lraw(ov.descriptionEn, ov.descriptionEn);
   return Lraw("Business Partner handles “{name}” on your behalf within {category} — from preparing the documents and filing with the relevant authority through to issuance, with clear fees and full follow-up.", "")
@@ -595,7 +612,7 @@ ${EMBED_SNIPPET}
 // Header menu lives in data/nav.json so the owner can edit it from /admin
 // (same data-driven pattern as services/opportunities). Shape: groups[] of
 // { href, en, ar } with optional items[]/sub[] and megaCategories/megaPackages.
-const navData = read("data/nav.json");
+const navData = pruneLinks(read("data/nav.json"));
 const NAV_GROUPS = Array.isArray(navData.groups) ? navData.groups : [];
 
 // Only en/ar + FULLY_READY_LANGS are shown in the language switcher. The
@@ -678,7 +695,7 @@ function header(active, path) {
 
 // Footer content lives in data/footer.json so the owner can edit it from
 // /admin. The contact column + social icons stay driven by site.json.
-const footerData = read("data/footer.json");
+const footerData = pruneLinks(read("data/footer.json"));
 function footer() {
   const c = site.contact;
   const F = footerData;
@@ -715,11 +732,12 @@ function footer() {
     ${site.social ? `<div class="footer-social" aria-label="${Lraw("Social media", "حساباتنا في التواصل الاجتماعي")}">
       ${site.social.linkedin ? `<a href="${site.social.linkedin}" target="_blank" rel="noopener" aria-label="LinkedIn">${I.linkedin}</a>` : ""}
       ${site.social.instagram ? `<a href="${site.social.instagram}" target="_blank" rel="noopener" aria-label="Instagram">${I.instagram}</a>` : ""}
+      ${site.social.tiktok ? `<a href="${site.social.tiktok}" target="_blank" rel="noopener" aria-label="TikTok">${I.tiktok}</a>` : ""}
       ${site.social.facebook ? `<a href="${site.social.facebook}" target="_blank" rel="noopener" aria-label="Facebook">${I.facebook}</a>` : ""}
     </div>` : ""}</div>
   </div>
   <div class="footer-bottom">
-    <span>${L("© " + new Date().getFullYear() + " Business Partner · All rights reserved", "© " + new Date().getFullYear() + " بيزنس بارتنر · جميع الحقوق محفوظة")}</span>
+    <span>${L("© " + new Date().getFullYear() + " Business Partner · All rights reserved", "© " + new Date().getFullYear() + " Business Partner · جميع الحقوق محفوظة")}</span>
     <span>${L(c.hoursEn || c.hours, c.hours)}</span>
   </div>
 </div></footer>`;
@@ -738,7 +756,7 @@ function khaledSvg() {
 function advisorWidget() {
   return `<div class="advisor-teaser" id="advisor-teaser" hidden>
     <button class="advisor-teaser-close" id="advisor-teaser-close" aria-label="${Lraw("Close", "إغلاق")}">✕</button>
-    <p>${L("Hi 👋 I'm Baher, Business Partner's support assistant. How can we help you today?", "حياك الله 👋 أنا باهر، مساعد الدعم في بيزنس بارتنر. كيف نقدر ندعمك اليوم؟")}</p>
+    <p>${L("Hi 👋 I'm Baher, Business Partner's support assistant. How can we help you today?", "حياك الله 👋 أنا باهر، مساعد الدعم في Business Partner. كيف نقدر ندعمك اليوم؟")}</p>
   </div>
   <button class="advisor-fab" id="advisor-fab" aria-label="${Lraw("Open support chat with Baher", "افتح محادثة الدعم مع باهر")}">
     <span class="advisor-fab-avatar">${khaledSvg("fab")}<span class="advisor-dot" aria-hidden="true"></span></span>
@@ -753,7 +771,7 @@ function advisorWidget() {
 
     <!-- Step 1: contact intake (required first) -->
     <div class="advisor-view" id="advisor-intake">
-      <div class="adv-intake-hd">${L("Welcome to Business Partner support 👋 Tell us about yourself so we can help you and follow up on your request.", "أهلاً بك في دعم بيزنس بارتنر 👋 عرّفنا بنفسك حتى نخدمك ونتابع طلبك.")}</div>
+      <div class="adv-intake-hd">${L("Welcome to Business Partner support 👋 Tell us about yourself so we can help you and follow up on your request.", "أهلاً بك في دعم Business Partner 👋 عرّفنا بنفسك حتى نخدمك ونتابع طلبك.")}</div>
       <input class="adv-in" id="adv-in-name" type="text" placeholder="${Lraw("Full name *", "الاسم الكامل *")}" autocomplete="name">
       <input class="adv-in" id="adv-in-phone" type="tel" placeholder="${Lraw("Mobile 05XXXXXXXX *", "الجوال 05XXXXXXXX *")}" autocomplete="tel">
       <input class="adv-in" id="adv-in-email" type="email" placeholder="${Lraw("Email *", "البريد الإلكتروني *")}" autocomplete="email">
@@ -798,7 +816,7 @@ function advisorWidget() {
     <!-- Chat with Baher (available after intake) -->
     <div class="advisor-view advisor-chat-view" id="advisor-chat" hidden>
       <div class="advisor-msgs" id="advisor-msgs">
-        <div class="advisor-msg bot">${L("Hi 👋 I'm Baher, Business Partner's support assistant. Tell me how we can help — a question, an issue with a transaction, or following up on a request — and I'll assist you right away or connect you with the team.", "حياك الله 👋 أنا باهر، مساعد الدعم في بيزنس بارتنر. قل لي كيف نقدر ندعمك — استفسار، مشكلة في معاملة، أو متابعة طلب — وأساعدك فوراً أو أوصلك بالفريق.")}</div>
+        <div class="advisor-msg bot">${L("Hi 👋 I'm Baher, Business Partner's support assistant. Tell me how we can help — a question, an issue with a transaction, or following up on a request — and I'll assist you right away or connect you with the team.", "حياك الله 👋 أنا باهر، مساعد الدعم في Business Partner. قل لي كيف نقدر ندعمك — استفسار، مشكلة في معاملة، أو متابعة طلب — وأساعدك فوراً أو أوصلك بالفريق.")}</div>
       </div>
       <div class="advisor-chips" id="advisor-chips">
         <button type="button" class="advisor-chip" data-q="${Lraw("I have a question about a service", "عندي استفسار عن خدمة")}">💬 ${L("A question about a service", "استفسار عن خدمة")}</button>
@@ -1068,7 +1086,7 @@ function faqOf(s, ov) {
     faq.push({
       q: "كم تبلغ أتعاب هذه الخدمة؟",
       a:
-        (SHOW_SERVICE_PRICES && s.price.amount != null ? `أتعاب بيزنس بارتنر لهذه الخدمة ${s.price.label}. ` : "تُسعّر هذه الخدمة بعرض مخصّص حسب حالتك. ") +
+        (SHOW_SERVICE_PRICES && s.price.amount != null ? `أتعاب Business Partner لهذه الخدمة ${s.price.label}. ` : "تُسعّر هذه الخدمة بعرض مخصّص حسب حالتك. ") +
         (s.govFeesSeparate ? "الرسوم الحكومية منفصلة عن الأتعاب وتُعلن قبل البدء." : "وتُضاف ضريبة القيمة المضافة."),
     });
     faq.push({ q: "لمن هذه الخدمة؟", a: `هذه الخدمة متاحة لـ${audienceOf(s, ov)}.` });
@@ -1773,7 +1791,7 @@ function buildHome() {
     ["AI", L("Compliance Advisor", "مستشار الامتثال"), L("Tracks obligations, violations, deadlines and remediation paths.", "يراقب الالتزامات والمخالفات والمواعيد ومسارات المعالجة."), u("/compliance-agent")],
     ["AI", L("Document Advisor", "مستشار المستندات"), L("Reads your files, extracts data and checks requirements inside your account.", "يقرأ الملفات ويستخرج البيانات ويتحقق من المتطلبات داخل حسابك."), u("/ai-document-agent")],
     ["AI", L("Business Development Advisor", "مستشار تطوير الأعمال"), L("Supports customers, suppliers, partners and pipeline growth.", "يساعد في العملاء والموردين والشركاء وبناء Pipeline للنمو."), u("/business-development")],
-  ].map(([tag, title, text, href]) => `<a class="bph-ai-card" href="${href}"><small>${tag}</small><strong>${title}</strong><span>${text}</span></a>`).join("");
+  ].filter(([, , , href]) => !isHiddenHref(href)).map(([tag, title, text, href]) => `<a class="bph-ai-card" href="${href}"><small>${tag}</small><strong>${title}</strong><span>${text}</span></a>`).join("");
 
   const areas = [
     ["01", L("Company setup & investment", "تأسيس الشركات والاستثمار"), L("Local and foreign setup, licensing, registration and post-formation.", "تأسيس محلي وأجنبي، التراخيص، التسجيل وما بعد التأسيس."), catUrl("Company Formation")],
@@ -1784,7 +1802,7 @@ function buildHome() {
     ["06", L("Housing & relocation", "السكن والانتقال"), L("Worker housing, executive housing, relocation and support services.", "سكن العمالة، السكن التنفيذي، Relocation والخدمات المساندة."), u("/worker-housing")],
     ["07", L("Legal & contracts", "القانونية والعقود"), L("Contracts, agreements and legal reviews tied to operations.", "عقود واتفاقيات ومراجعات قانونية مرتبطة بتشغيل الشركة."), u("/packages") + "#pkg-legal"],
     ["08", L("Business development", "تطوير الأعمال"), L("Customers, suppliers, partners, pipeline and growth in the Saudi market.", "عملاء، موردون، شركاء، Pipeline وفرص نمو في السوق السعودي."), u("/business-development")],
-  ].map(([n, title, text, href]) => `<a class="bph-capcard" href="${href}"><i>${n}</i><strong>${title}</strong><span>${text}</span></a>`).join("");
+  ].filter(([, , , href]) => !isHiddenHref(href)).map(([n, title, text, href]) => `<a class="bph-capcard" href="${href}"><i>${n}</i><strong>${title}</strong><span>${text}</span></a>`).join("");
 
   const svc = `<section class="bph-services" id="bp-services"><div class="bph-wrap">
     <div class="bph-head">
@@ -1858,10 +1876,10 @@ function buildHome() {
   const body = `<div class="bph">${hero}${risk}${how}${pay}${svc}${start}${chat}${packages}${b10x}${proof}</div>`;
 
   return page({
-    title: Lraw("Business Partner — Saudi business setup & operations", "بيزنس بارتنر — تأسيس وتشغيل الأعمال في السعودية"),
+    title: Lraw("Business Partner — Saudi business setup & operations", "Business Partner — تأسيس وتشغيل الأعمال في السعودية"),
     desc: Lraw(
       "Business Partner sets up, operates and grows your company in Saudi Arabia: formation, government services, HR, compliance, offices, housing and business development — AI powered, human executed.",
-      "بيزنس بارتنر تؤسس شركتك وتشغّلها وتساعدك على النمو في السعودية: التأسيس، الخدمات الحكومية، الموارد البشرية، الامتثال، المكاتب والسكن وتطوير الأعمال.",
+      "Business Partner تؤسس شركتك وتشغّلها وتساعدك على النمو في السعودية: التأسيس، الخدمات الحكومية، الموارد البشرية، الامتثال، المكاتب والسكن وتطوير الأعمال.",
     ),
     active: "/", body, bodyClass: "bph-page", extraHead: homeCss, script: homeScript(),
   });
@@ -1889,7 +1907,7 @@ function buildAbout() {
   <section class="section"><div class="container">
     <div class="cta-band"><h2>${L("Ready to start your journey?", "جاهز نبدأ رحلتك؟")}</h2><p>${L("Our team replies quickly and sets your next step.", "فريقنا يرد عليك سريعاً ويحدد لك الخطوة التالية.")}</p>${waBtn2("Start now", "ابدأ الآن", "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: Lraw("About — Business Partner", "من نحن — بيزنس بارتنر"), desc: Lraw(a.leadEn || a.lead, a.lead), active: "/about", body });
+  return page({ title: Lraw("About — Business Partner", "من نحن — Business Partner"), desc: Lraw(a.leadEn || a.lead, a.lead), active: "/about", body });
 }
 
 /* ---------- Saudi entrepreneurship ecosystem directory (/directory) ---------- */
@@ -2096,7 +2114,7 @@ function buildDirectory() {
   </script>`;
 
   return sv1Page({
-    title: Lraw("Saudi Startup Ecosystem Directory — Business Partner", "دليل منظومة ريادة الأعمال في السعودية — بيزنس بارتنر"),
+    title: Lraw("Saudi Startup Ecosystem Directory — Business Partner", "دليل منظومة ريادة الأعمال في السعودية — Business Partner"),
     desc: Lraw(
       "Directory of Saudi incubators, accelerators, venture-capital funds, angel networks and coworking spaces, with their programs and how to apply.",
       "دليل الحاضنات والمسرّعات والصناديق الاستثمارية وشبكات الملائكة ومساحات العمل المشتركة في السعودية، مع برامجها وطريقة التقديم."
@@ -2165,7 +2183,7 @@ function buildServicesIndex() {
     </div>
     ${groups}
     <p class="svc-empty" id="svcEmpty" hidden>${L("No service matches that — try another word, or ask the advisor and we will point you to the right one.", "لا خدمة تطابق بحثك — جرّب كلمة أخرى، أو اسأل المستشار ونوجّهك للخدمة الصحيحة.")}</p>
-    <div class="cta-band" style="margin-top:36px;background:linear-gradient(135deg,#0B1B5A,#16277a)"><h2>${L("Business Development as a Service ⚡", "تطوير الأعمال كخدمة ⚡")}</h2><p>${L("We build your customer, supplier and partner base and run the pipeline from targeting to contract, collection and commission — with a client dashboard and clear packages.", "نبني لك قاعدة العملاء والموردين والشركاء وندير الـPipeline من الاستهداف حتى العقد والتحصيل والعمولة — مع لوحة عميل وباقات واضحة.")}</p><a class="btn btn-white" href="${u("/business-development")}">${L("Explore BD as a Service", "استعرض تطوير الأعمال كخدمة")}</a></div>
+    ${ifPage("business-development", `<div class="cta-band" style="margin-top:36px;background:linear-gradient(135deg,#0B1B5A,#16277a)"><h2>${L("Business Development as a Service ⚡", "تطوير الأعمال كخدمة ⚡")}</h2><p>${L("We build your customer, supplier and partner base and run the pipeline from targeting to contract, collection and commission — with a client dashboard and clear packages.", "نبني لك قاعدة العملاء والموردين والشركاء وندير الـPipeline من الاستهداف حتى العقد والتحصيل والعمولة — مع لوحة عميل وباقات واضحة.")}</p><a class="btn btn-white" href="${u("/business-development")}">${L("Explore BD as a Service", "استعرض تطوير الأعمال كخدمة")}</a></div>`)}
     <div class="cta-band" style="margin-top:20px"><h2>${L("Looking for fixed-price bundles?", "تبحث عن باقات بأسعار واضحة؟")}</h2><p>${L("Our packages bundle related services at a clear starting price.", "باقاتنا تجمع الخدمات المترابطة بسعر ابتدائي واضح.")}</p><a class="btn btn-white" href="${u("/packages")}">${L("View packages", "استعرض الباقات")}</a></div>
   </div></section>
   <style>
@@ -2199,7 +2217,7 @@ function buildServicesIndex() {
     apply();
   })();
   </script>`;
-  return page({ title: Lraw("All services — Business Partner", "كل الخدمات — بيزنس بارتنر"), desc: Lraw(services.length + " government and business services — a custom quote for your case.", services.length + " خدمة حكومية وتجارية — عرض سعر حسب حالتك."), active: "/services", body });
+  return page({ title: Lraw("All services — Business Partner", "كل الخدمات — Business Partner"), desc: Lraw(services.length + " government and business services — a custom quote for your case.", services.length + " خدمة حكومية وتجارية — عرض سعر حسب حالتك."), active: "/services", body });
 }
 
 // One page per category listing only that category's services.
@@ -2214,115 +2232,104 @@ const SHOW_SERVICE_PRICES = SHOW_PRICES;
 // other price on the site stays hidden.
 const SHOW_PACKAGE_PRICES = true;
 
+// ‏قاعدتان تتشاركهما صفحة الخدمة وبطاقتها في صفحة التصنيف، فلا تخالف البطاقةُ
+// صفحتَها: مسعّرة = سعرٌ في الكتالوج وليست عقاراً ولا سياحة؛ وخدمات المساحات
+// (العقار بلا استشارة) وجهتها نموذج مساحة العمل لا السلة.
+const svcPriced = (s) => !!(s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism");
+const svcSpecial = (s) => (s.category === "Real Estate" && !s.ctaConsultation ? "workspace" : s.category === "Tourism" ? "tourism" : "");
+
+// صفحة التصنيف على الموقع الجديد (ملاحظة الأسعار أعلاه: SHOW_PRICES=false تعني
+// أن الرقم يراه المسجَّل وحده — يتكفّل به صنف price-amt في صفحة التصنيف).
+// المولّد يجهّز المعطيات وحدها، و`simple-v1-service-category.mjs` يبني الصفحة
+// داخل SV1.shell(). `services` هنا مُصفّاة بـ hidden.json قبل أي استعمال.
 function buildServiceCategory(cat) {
   const list = services.filter((s) => s.category === cat.key);
-  const cards = list
-    .map((s) => {
-      const d = sDesc(s);
-      return `<a class="card svc-card" href="${u("/services/" + s.slug)}">
-        <span class="tag">${L(catEn(cat.key), cat.ar)}</span>
-        <h3>${esc(sName(s))}</h3>
-        <p class="desc">${esc(d.slice(0, 120))}${d.length > 120 ? "…" : ""}</p>
-        <div class="foot"><span class="price-soft"${SHOW_SERVICE_PRICES && s.price && s.price.amount != null ? ` data-bp-price="${esc(String(s.code || "").toUpperCase())}"` : ""}>${SHOW_SERVICE_PRICES && s.price && s.price.amount != null ? esc(localizeLabel(s.price.label || s.price.amount + " ﷼")) : L("Custom quote", "سعر حسب حالتك")}</span><span class="card-link">${L("Details", "التفاصيل")} ${I.arrow}</span></div>
-      </a>`;
-    })
-    .join("");
-  const other = categories
-    .filter((c) => c.key !== cat.key)
-    .map((c) => `<a class="cc-chip" href="${catUrl(c.key)}">${CAT_ICON[c.key] || "📁"} ${L(catEn(c.key), c.ar)}</a>`)
-    .join("");
-  const body = `
-  <section class="hero hero--sm"><div class="container hero-inner">
-    <a class="back-link" href="${u("/services")}">${I.arrow} ${L("All categories", "كل التصنيفات")}</a>
-    <span class="eyebrow">${CAT_ICON[cat.key] || "📁"} ${L("Services", "الخدمات")}</span>
-    <h1>${L(catEn(cat.key), cat.ar)}</h1>
-    <p class="lead">${L(list.length + " " + enCount(list.length, "service", "services") + " in " + catEn(cat.key) + " — talk to us for a quote tailored to your case; government fees are always separate.", list.length + " " + arCount(list.length, "خدمة", "خدمتان", "خدمات") + " في " + cat.ar + " — تواصل معنا لعرض سعر حسب حالتك، والرسوم الحكومية منفصلة دائماً.")}</p>
-  </div></section>
-  <section class="section"><div class="container">
-    <div class="grid grid-3">${cards}</div>
-    <div class="cat-other"><h2>${L("Other categories", "تصنيفات أخرى")}</h2><div class="cc-prof-chips">${other}</div></div>
-    <div class="cta-band" style="margin-top:28px"><h2>${L("Not sure which service you need?", "محتار أي خدمة تناسبك؟")}</h2><p>${L("Contact us and we will point you to the right service for your case.", "تواصل معنا ونوصلك للخدمة المناسبة لحالتك مباشرة.")}</p>${waBtn2("Contact us", "تواصل معنا", "btn-white", true)}</div>
-  </div></section>`;
-  return page({
-    title: `${Lraw(catEn(cat.key), cat.ar)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`,
-    desc: Lraw(`${list.length} ${catEn(cat.key)} services with clear fees.`, `${list.length} ${arCount(list.length, "خدمة", "خدمتان", "خدمات")} في ${cat.ar} بأتعاب واضحة.`),
-    active: "/services",
-    path: "/services/category/" + catSlugUrl(cat.key),
-    body,
+  const items = list.map((s) => {
+    const priced = svcPriced(s);
+    const ov = site.overrides[s.slug];
+    return {
+      code: s.code, slug: s.slug, href: u("/services/" + s.slug),
+      name: sName(s),
+      nameEn: (svcI18n[s.code] && svcI18n[s.code].en) || (ov && ov.nameEn) || s.name, nameAr: sNameArOf(s),
+      gov: s.govPlatform && !/بدون جهة/.test(s.govPlatform) ? govLabel(s.govPlatform) : "",
+      priced, amount: priced ? s.price.amount : null,
+      priceLabel: priced ? localizeLabel(s.price.label || s.price.amount + " ﷼") : "",
+      requiresProposal: !!s.requiresProposal,
+      special: svcSpecial(s), cartId: "svc-" + s.slug, workspaceHref: u("/workspace-request"),
+    };
   });
+  const others = categories
+    .filter((c) => c.key !== cat.key)
+    .map((c) => ({ label: catLabel(c.key), href: catUrl(c.key), count: services.filter((s) => s.category === c.key).length }))
+    .filter((c) => c.count > 0);
+  const label = catLabel(cat.key);
+  const count = list.length;
+  const view = {
+    key: cat.key, label, slug: catSlugUrl(cat.key), items, others,
+    seoDesc: Lraw(
+      `${count} ${catEn(cat.key)} ${count === 1 ? "service" : "services"} — add priced services to your cart or request a quotation.`,
+      `${count} ${arCount(count, "خدمة", "خدمتان", "خدمات")} في ${cat.ar} — أضف المسعّر منها إلى السلة أو اطلب عرض سعر.`
+    ),
+    liveV: LIVE_V,
+  };
+  return buildSimpleServiceCategory(SV1, { lang: () => LANG, esc }, view);
 }
 
+// صفحة تفاصيل الخدمة على الموقع الجديد: المولّد يجهّز المعطيات وحدها
+// (نصوص اللغة الحالية، المستندات، السعر)، و`simple-v1-service-detail.mjs`
+// يبني الصفحة داخل SV1.shell(). لا HTML هنا ولا main.js ولا طبقة القديم.
+//
+// ما يُحذف من العرض عمداً (ولا يُمسّ في بياناته):
+//  • المميزات العامة الثلاث والأسئلة الشائعة العامة (تُولَّد لكل خدمة بلا
+//    تخصيص): «الأتعاب واضحة» تكرّر ملاحظة السعر، و«ابدأ بالتواصل — يبدأ الطلب
+//    فوراً» يناقض «تتطلب عرضاً». تبقى المميزات والأسئلة المخصّصة للخدمة في
+//    site.json (overrides) فقط.
+//  • سؤال «هل الرسوم الحكومية ضمن الأتعاب؟» وجوابه «نعم… منفصلة»: السؤال يُجاب
+//    بنعم ثم يُثبت العكس. الحقيقة نفسها في ملاحظة السعر.
+const SVC_GOVFEE_Q = [/الرسوم الحكومية ضمن الأتعاب/, /Are government fees included/i];
 function buildServiceDetail(s) {
   const ov = site.overrides[s.slug];
   const docs = documentsOf(s, ov);
-  const feats = featuresOf(s, ov);
-  const faq = faqOf(s, ov);
-  const genericDocsNote = !(ov && (ov.documents || ov.documentsEn))
-    ? `<div class="callout" style="margin-top:16px"><span class="ico">💡</span><p>${L("The smart agent confirms the exact document list for your case as soon as you reach out.", "يحدد المستشار الذكي قائمة المستندات الدقيقة لحالتك فور تواصلك.")}</p></div>`
-    : "";
-  const docsHtml = docs.map((d) => `<li>${I.doc}<span>${esc(d)}</span></li>`).join("");
-  const featsHtml = feats.map((f) => `<li>${I.check}<span>${esc(f)}</span></li>`).join("");
-  const faqHtml = faq
-    .map(
-      (f) => `<div class="faq-item"><button class="faq-q" aria-expanded="false">${esc(f.q)} ${I.chevron}</button>
-    <div class="faq-a"><p>${esc(f.a)}</p></div></div>`
-    )
-    .join("");
+  const priced = svcPriced(s);
 
-  const facts = [];
-  facts.push(`<li><span class="k">${L("Category", "الفئة")}</span><span class="v">${L(catEn(s.category), catAr(s.category))}</span></li>`);
-  if (ov && ov.duration) facts.push(`<li><span class="k">${L("Duration", "المدة")}</span><span class="v">${L(ov.durationEn || ov.duration, ov.duration)}</span></li>`);
-  facts.push(`<li><span class="k">${L("Available to", "متاح لـ")}</span><span class="v">${esc(audienceOf(s, ov))}</span></li>`);
-  if (s.govPlatform) facts.push(`<li><span class="k">${L("Authority", "الجهة")}</span><span class="v">${esc(govLabel(s.govPlatform))}</span></li>`);
-  facts.push(`<li><span class="k">${L("Code", "الكود")}</span><span class="v">${esc(s.code)}</span></li>`);
+  const curatedFeats = LANG === "ar" ? !!(ov && ov.features) : !!(ov && ov.featuresEn);
+  const feats = curatedFeats
+    ? featuresOf(s, ov)
+    : LANG === "ar"
+    ? (DELIV_AR[s.code] || (s.deliverables || []).filter((x) => /[؀-ۿ]/.test(x))).slice(0, 4)
+    : [];
 
-  const priceNote = (s.price && (LANG === "ar" ? s.price.note : s.price.noteEn))
-    ? (LANG === "ar" ? s.price.note : s.price.noteEn)
-    : L(
-        s.govFeesSeparate ? "Fees exclude government fees and VAT." : "Fees exclude VAT.",
-        s.govFeesSeparate ? "الأتعاب لا تشمل الرسوم الحكومية وضريبة القيمة المضافة." : "الأتعاب لا تشمل ضريبة القيمة المضافة."
-      );
-  const arrow = LANG === "ar" ? "←" : "→";
+  // الأسئلة المخصّصة فقط. الفرنسية والصينية تأخذ نصّ الأسئلة الإنجليزية مترجَماً
+  // من القاموس، ويسقط السؤال الذي لم يُترجَم (لا إنجليزية في صفحة فرنسية).
+  const faqSrc = (LANG === "ar" ? ov && ov.faq : ov && ov.faqEn) || [];
+  const faq = faqSrc
+    .filter((f) => !SVC_GOVFEE_Q.some((r) => r.test(f.q)))
+    .map((f) => (LANG === "ar" || LANG === "en" ? f : { q: T(f.q), a: T(f.a), same: T(f.q) === f.q || T(f.a) === f.a }))
+    .filter((f) => !f.same);
 
-  const body = `
-  <section class="svc-hero"><div class="container">
-    <div class="breadcrumb"><a href="${u("/")}">${L("Home", "الرئيسية")}</a> ${arrow} <a href="${u("/services")}">${L("Services", "الخدمات")}</a> ${arrow} <a href="${catUrl(s.category)}">${L(catEn(s.category), catAr(s.category))}</a></div>
-    <h1>${esc(sName(s))}</h1>
-    <div class="svc-meta">${serviceQuickFacts(s, ov)}</div>
-  </div></section>
-  <div class="container"><div class="svc-layout">
-    <div class="svc-main">
-      <section><h2>${L("Service description", "وصف الخدمة")}</h2><p class="lead-p">${esc(sDesc(s))}</p></section>
-      <section><h2>${L("Required documents", "المستندات المطلوبة")}</h2><ul class="doc-list">${docsHtml}</ul>${genericDocsNote}</section>
-      <section><h2>${L("Service features with Business Partner", "مميزات الخدمة مع بيزنس بارتنر")}</h2><ul class="feat-list">${featsHtml}</ul></section>
-      <section><h2>${L("Frequently asked questions", "الأسئلة الشائعة")}</h2>${faqHtml}</section>
-      <section><div class="callout"><span class="ico">⚡</span><p><strong>${L("Business Partner advantage:", "ميزة بيزنس بارتنر:")}</strong> ${L("The smart agent pulls this service's requirements instantly, prepares your document list automatically, and starts your request around the clock.", "المستشار الذكي يسحب متطلبات هذه الخدمة فوراً، يجهّز قائمة مستنداتك تلقائياً، ويبدأ طلبك على مدار الساعة.")}</p></div></section>
-    </div>
-    <aside class="svc-aside">
-      <div class="order-box">
-        ${s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism"
-          ? `<div class="price-tailored price-amt" data-bp-price="${esc(String(s.code || "").toUpperCase())}">${esc(localizeLabel(s.price.label || s.price.amount + " ﷼"))}</div>
-        ${SHOW_SERVICE_PRICES ? `<div class="price-note">${esc(priceNote)}</div>` : `<div class="price-note price-amt">${esc(priceNote)}</div><div class="price-note" ${'data-guest-note=""'}>${L("Sign in to see the service fee, requirements and timeline for your case.", "سجّل الدخول لعرض أتعاب الخدمة والمتطلبات والمدة لحالتك.")}</div>`}
-        ${cartBtns({ id: "svc-" + s.slug, code: s.code, nameEn: s.nameEn || s.name, nameAr: s.name, amount: s.price.amount, priceLabel: s.price.label || s.price.amount + " ﷼", kind: "service" })}
-        <a class="btn btn-ghost" href="${portalQuoteUrl(s.code)}" style="width:100%">${I.doc || ""}<span>${L("Get an official quotation", "احصل على عرض سعر رسمي")}</span></a>
-        <p class="mini">${L("Quotation, contract and tax invoice — issued instantly in your client portal.", "عرض سعر وعقد وفاتورة ضريبية — تصدر فوراً في بوابة العميل.")}</p>
-        <a class="btn btn-ghost" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Or book a free consultation", "أو احجز استشارة مجانية")}</span></a>`
-          : `<div class="price-tailored">${L("Pricing tailored to your case", "السعر حسب حالتك")}</div>
-        <div class="price-note">${L("Tell us what you need and we'll prepare a custom quote — the first consultation is free.", "أخبرنا بما تحتاجه ونجهّز لك عرضاً مخصّصاً — الاستشارة الأولى مجانية.")}</div>
-        ${s.category === "Real Estate" && !s.ctaConsultation
-          ? `<a class="btn btn-primary" href="${u("/workspace-request")}" style="width:100%">${I.calendar}<span>${L("Request a workspace", "اطلب مساحة عمل")}</span></a>`
-          : s.category === "Tourism"
-          ? `<a class="btn btn-primary" href="${u("/tourism")}" style="width:100%">${I.calendar}<span>${L("Explore tourism services", "استعرض خدمات السياحة")}</span></a>`
-          : `<a class="btn btn-primary" href="${portalQuoteUrl(s.code)}" style="width:100%"><span>${L("Request an official quotation", "اطلب عرض سعر رسمي")}</span></a>
-        <p class="mini">${L("Priced case by case — your request reaches us and the quotation follows in your client portal.", "تُسعَّر حسب حالتك — يصلنا طلبك ويصلك العرض في بوابة العميل.")}</p>
-        <a class="btn btn-ghost" href="${u("/consultation")}?about=${encodeURIComponent(sName(s))}" style="width:100%">${I.calendar}<span>${L("Or book a free consultation", "أو احجز استشارة مجانية")}</span></a>`}`}
-        <p class="mini">${L("First consultation is free", "الاستشارة الأولى مجانية")}</p>
-        <ul class="order-facts">${facts.join("")}</ul>
-      </div>
-    </aside>
-  </div></div>`;
-  const desc = sDesc(s).slice(0, 155);
-  return page({ title: `${sName(s)} — ${Lraw("Business Partner", "بيزنس بارتنر")}`, desc, active: "/services", path: `/services/${s.slug}`, body });
+  const priceLabelTx = priced ? localizeLabel(s.price.label || s.price.amount + " ﷼") : "";
+  const notePart = s.price && (LANG === "ar" ? s.price.note : s.price.noteEn);
+  const seoDesc = sDesc(s).slice(0, 155);
+  const view = {
+    code: s.code, slug: s.slug, name: sName(s),
+    nameEn: (svcI18n[s.code] && svcI18n[s.code].en) || (ov && ov.nameEn) || s.name, nameAr: sNameArOf(s),
+    cartId: "svc-" + s.slug, desc: sDesc(s),
+    category: s.category, catLabel: catLabel(s.category), catHref: catUrl(s.category),
+    gov: s.govPlatform && !/بدون جهة/.test(s.govPlatform) ? govLabel(s.govPlatform) : "",
+    duration: ov && ov.duration ? Lraw(ov.durationEn || ov.duration, ov.duration) : "",
+    docs, docsGeneric: !(ov && (ov.documents || ov.documentsEn)),
+    feats, faq,
+    priced, amount: priced ? s.price.amount : null, priceLabel: priceLabelTx, priceNote: notePart || "",
+    govFeesSeparate: !!s.govFeesSeparate, requiresProposal: !!s.requiresProposal,
+    special: svcSpecial(s),
+    hrefs: {
+      workspace: u("/workspace-request"), tourism: u("/tourism"),
+      consult: `${u("/consultation")}?about=${encodeURIComponent(sName(s))}`,
+    },
+    title: `${sName(s)} — Business Partner`,
+    seoDesc, liveV: LIVE_V,
+  };
+  return buildSimpleServiceDetail(SV1, { lang: () => LANG, esc }, view);
 }
 
 /* ---------- Business Development as a Service (/business-development) ----------
@@ -2553,8 +2560,8 @@ function buildBdaas() {
   </div></section>`;
 
   return page({
-    title: Lraw("Business Development as a Service — customers, suppliers and revenue | Business Partner", "تطوير الأعمال كخدمة — العملاء والموردون والإيرادات | بيزنس بارتنر"),
-    desc: Lraw("Business Development as a Service by Business Partner: free for 30 days with any account. We build your customer, supplier and partner base and run opportunities through to revenue and collection.", "تطوير الأعمال كخدمة من بيزنس بارتنر: مجانًا 30 يومًا مع أي حساب. نبني قواعد العملاء والموردين والشركاء وندير الفرص حتى الإيراد والتحصيل."),
+    title: Lraw("Business Development as a Service — customers, suppliers and revenue | Business Partner", "تطوير الأعمال كخدمة — العملاء والموردون والإيرادات | Business Partner"),
+    desc: Lraw("Business Development as a Service by Business Partner: free for 30 days with any account. We build your customer, supplier and partner base and run opportunities through to revenue and collection.", "تطوير الأعمال كخدمة من Business Partner: مجانًا 30 يومًا مع أي حساب. نبني قواعد العملاء والموردين والشركاء وندير الفرص حتى الإيراد والتحصيل."),
     active: "/business-development",
     path: "/business-development",
     body,
@@ -2775,6 +2782,7 @@ function buildAiAgents() {
       feats: [L("Always-on sales pipeline", "بايبلاين مبيعات دائم"), L("Supplier sourcing & vendor registration", "توريد موردين وتسجيل لدى العملاء"), L("Monthly plans by stage", "خطط شهرية حسب مرحلتك")],
       price: (rev.amount != null ? `${from(rev.label)}${guest}` : ""),
       acts: `<a class="btn btn-primary" href="${u("/business-development")}">${L("Explore the plans", "استعرض الخطط")}</a>`,
+      hide: !pageVisible("business-development"),
     },
     {
       tag: "OPS", name: L("Shared Services Team", "فريق الخدمات المشتركة"),
@@ -2783,7 +2791,7 @@ function buildAiAgents() {
       price: (shared.amount != null ? `<div class="price-amt">${esc(localizeLabel(shared.label))}</div>${guest}` : ""),
       acts: `${cartBtns({ id: "agent-Shared-services-team", code: "BP-AI-04", nameEn: "Shared services team", nameAr: "فريق الخدمات المشتركة", amount: shared.amount, priceLabel: shared.label, kind: "agent" })}<a class="adv-more" href="${u("/shared-services")}">${L("Details", "التفاصيل")}</a>`,
     },
-  ].map((c) => `<div class="adv-card"><small>${c.tag}</small><h3>${c.name}</h3><p class="tg">${c.tg}</p><ul>${c.feats.map((f) => `<li>${f}</li>`).join("")}</ul>${c.price}<div class="adv-acts">${c.acts}</div></div>`).join("");
+  ].filter((c) => !c.hide).map((c) => `<div class="adv-card"><small>${c.tag}</small><h3>${c.name}</h3><p class="tg">${c.tg}</p><ul>${c.feats.map((f) => `<li>${f}</li>`).join("")}</ul>${c.price}<div class="adv-acts">${c.acts}</div></div>`).join("");
 
   const body = `<div class="adv">
   <section class="adv-hero"><div class="wrap">
@@ -2809,7 +2817,7 @@ function buildAiAgents() {
   </div>`;
 
   return page({
-    title: Lraw("Smart Advisors — Business Partner", "المستشارون الأذكياء — بيزنس بارتنر"),
+    title: Lraw("Smart Advisors — Business Partner", "المستشارون الأذكياء — Business Partner"),
     desc: Lraw(
       "Compliance, documents, growth and specialist smart employees — one design, one subscription mechanism, all inside your client portal.",
       "الامتثال والمستندات والنمو وموظفون أذكياء متخصصون — تصميم واحد وآلية اشتراك واحدة، وكلها داخل لوحة العميل.",
@@ -2826,7 +2834,7 @@ function buildSmartEmployeePage() {
   return advisorPage({
     active: "/smart-employee",
     path: "/smart-employee",
-    pageTitle: Lraw("Specialist Smart Employee — Business Partner", "الموظف الذكي المتخصص — بيزنس بارتنر"),
+    pageTitle: Lraw("Specialist Smart Employee — Business Partner", "الموظف الذكي المتخصص — Business Partner"),
     pageDesc: Lraw(
       "A specialist smart employee that works 24 hours inside your policies: marketing, admin, sales, tech or procurement — without the cost of hiring.",
       "موظف ذكي متخصص يعمل 24 ساعة ضمن سياساتك: تسويق، إداري، مبيعات، تقني أو مشتريات — بدون تكلفة توظيف.",
@@ -2941,7 +2949,7 @@ function buildTaskForce() {
       <div class="form-success" hidden id="tf-result"></div>
     </form>
   </div></section>`;
-  return page({ title: Lraw("Task Force — Business Partner", "تاسك فورس — بيزنس بارتنر"), desc: Lraw("A dedicated executive service for hard, multi-party tasks and special projects.", "خدمة تنفيذية متخصصة لإدارة المهمات الصعبة والمشاريع متعددة الجهات."), active: "/task-force", path: "/task-force", body });
+  return page({ title: Lraw("Task Force — Business Partner", "تاسك فورس — Business Partner"), desc: Lraw("A dedicated executive service for hard, multi-party tasks and special projects.", "خدمة تنفيذية متخصصة لإدارة المهمات الصعبة والمشاريع متعددة الجهات."), active: "/task-force", path: "/task-force", body });
 }
 
 /* ---------- Deals & matchmaking (/deals) ---------- */
@@ -3114,7 +3122,7 @@ function buildDeals() {
           <div class="field"><label for="deal-phone">${L("Mobile", "الجوال")}</label><input type="tel" id="deal-phone" inputmode="tel" placeholder="05XXXXXXXX"></div>
         </div>
         <div class="field"><label for="deal-email">${L("Email", "البريد الإلكتروني")}</label><input type="email" id="deal-email" placeholder="name@email.com"></div>
-        <label class="deal-consent"><input type="checkbox" id="deal-consent" checked><span>${L("I agree to have my file reviewed by the Business Partner team before publishing, and to receive email about any match or introduction request.", "أوافق على مراجعة ملفي من فريق بيزنس بارتنر قبل نشره، وعلى تلقّي بريد بأي مطابقة أو طلب تعارف.")}</span></label>
+        <label class="deal-consent"><input type="checkbox" id="deal-consent" checked><span>${L("I agree to have my file reviewed by the Business Partner team before publishing, and to receive email about any match or introduction request.", "أوافق على مراجعة ملفي من فريق Business Partner قبل نشره، وعلى تلقّي بريد بأي مطابقة أو طلب تعارف.")}</span></label>
         <div id="deal-wiz-message" class="deal-wiz-message" hidden></div>
       </div>
       <div class="deal-step" data-step="4">
@@ -3135,7 +3143,7 @@ function buildDeals() {
       <button class="btn btn-primary" id="deal-step-next" type="button">${L("Next", "التالي")}</button>
     </div>
   </aside>`;
-  return page({ title: Lraw("Deals & Smart Matchmaking — Business Partner", "الصفقات والمطابقة الذكية — بيزنس بارتنر"), desc: Lraw("Offer a deal, look for a partner, or pitch an idea — we automatically match you with the closest opportunities by sector and city, and never reveal your data until both sides agree.", "اعرض صفقتك، ابحث عن شريك، أو اطرح فكرتك — نطابقك تلقائيًا مع أقرب الفرص حسب القطاع والمدينة، ولا نكشف بياناتك إلا بعد موافقة الطرفين."), active: "/deals", path: "/deals", body });
+  return page({ title: Lraw("Deals & Smart Matchmaking — Business Partner", "الصفقات والمطابقة الذكية — Business Partner"), desc: Lraw("Offer a deal, look for a partner, or pitch an idea — we automatically match you with the closest opportunities by sector and city, and never reveal your data until both sides agree.", "اعرض صفقتك، ابحث عن شريك، أو اطرح فكرتك — نطابقك تلقائيًا مع أقرب الفرص حسب القطاع والمدينة، ولا نكشف بياناتك إلا بعد موافقة الطرفين."), active: "/deals", path: "/deals", body });
 }
 
 /* ---------- Investment opportunities / major Saudi projects (/opportunities) ---------- */
@@ -3171,7 +3179,7 @@ function buildOpportunities() {
     <p class="text-soft center mt-24" style="font-size:13px">${L("A curated sample of publicly sourced opportunities, updated periodically. Values are indicative. Not an offer or investment advice. Looking for a business partnership or deal for your SME? Visit the ", "نماذج مختارة من فرص عامة موثّقة المصادر، تُحدَّث دورياً. القيم تقديرية. هذا ليس عرضاً أو نصيحة استثمارية. تبحث عن شراكة أو صفقة لمنشأتك الصغيرة/المتوسطة؟ زُر ")}<a href="${u("/deals")}">${L("Deals page", "صفحة الصفقات")}</a>.</p>
   </div></section>
   <script>(function(){var g=document.getElementById('mo-grid');if(!g)return;var chips=document.querySelectorAll('.mo-chip');var cnt=document.getElementById('mo-count');function apply(f){var n=0;g.querySelectorAll('.mo-card').forEach(function(c){var show=f==='all'||c.getAttribute('data-sector')===f;c.style.display=show?'':'none';if(show)n++;});if(cnt)cnt.textContent=n;}chips.forEach(function(ch){ch.addEventListener('click',function(){chips.forEach(function(x){x.classList.remove('active');});ch.classList.add('active');apply(ch.getAttribute('data-mo'));});});apply('all');})();</script>`;
-  return sv1Page({ title: Lraw("Investment Opportunities in Saudi Arabia — Business Partner", "الفرص الاستثمارية في المملكة — بيزنس بارتنر"), desc: Lraw("Major Saudi giga-projects and government tenders we track — enter as a vendor, subcontractor, operator or co-investor. Each links to its public source.", "أبرز المشاريع العملاقة والمنافسات الحكومية في السعودية التي نرصدها — ادخل كمورد أو مقاول باطن أو مشغّل أو شريك استثمار. كل فرصة مرتبطة بمصدرها."), active: "/opportunities", path: "/opportunities", body });
+  return sv1Page({ title: Lraw("Investment Opportunities in Saudi Arabia — Business Partner", "الفرص الاستثمارية في المملكة — Business Partner"), desc: Lraw("Major Saudi giga-projects and government tenders we track — enter as a vendor, subcontractor, operator or co-investor. Each links to its public source.", "أبرز المشاريع العملاقة والمنافسات الحكومية في السعودية التي نرصدها — ادخل كمورد أو مقاول باطن أو مشغّل أو شريك استثمار. كل فرصة مرتبطة بمصدرها."), active: "/opportunities", path: "/opportunities", body });
 }
 
 function buildPackages() {
@@ -3255,8 +3263,8 @@ function buildPackages() {
     <div class="section-head"><span class="eyebrow">${L("How to subscribe", "كيف تشترك؟")}</span><h2>${L("Four steps from registering to activation", "أربع خطوات من التسجيل إلى التفعيل")}</h2></div>
     <div class="steps-grid">${[
       [L("Register / log in", "سجّل أو سجّل دخولك"), L("Create your account on the site.", "أنشئ حسابك في الموقع.")],
-      [L("Add the package to your cart", "أضف الباقة للسلة"), L("Then pay online (mada / Visa) or by bank transfer.", "ثم ادفع إلكترونياً (مدى / فيزا) أو بتحويل بنكي.")],
-      [L("Payment is confirmed", "يتأكد الدفع"), L("Online payment activates your subscription instantly; a bank transfer activates it as soon as the receipt is verified.", "الدفع الإلكتروني يفعّل اشتراكك فوراً؛ والتحويل البنكي يفعّله فور التحقق من الإيصال.")],
+      [L("Add the package to your cart", "أضف الباقة للسلة"), L("Then pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara.", "ثم ادفع إلكترونياً بالبطاقة (مدى · فيزا · ماستركارد) أو Apple Pay أو تمارا.")],
+      [L("Payment is confirmed", "يتأكد الدفع"), L("Your subscription activates the moment the online payment is confirmed.", "يتفعّل اشتراكك فور تأكيد الدفع الإلكتروني.")],
       [L("We start managing your account", "نبدأ إدارة حسابك"), L("Your dedicated team starts work on the platforms covered by your package.", "فريقك المخصّص يبدأ العمل على المنصات المشمولة بباقتك.")],
     ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
     <div class="hero-actions" style="margin-top:1.4rem">
@@ -3284,7 +3292,7 @@ function buildPackages() {
     if(hashGroup)activate(hashGroup);
   })();
   </script>`;
-  return page({ title: Lraw("Packages — Business Partner", "الباقات — بيزنس بارتنر"), desc: Lraw(p.subtitleEn || p.subtitle, p.subtitle), active: "/packages", body });
+  return page({ title: Lraw("Packages — Business Partner", "الباقات — Business Partner"), desc: Lraw(p.subtitleEn || p.subtitle, p.subtitle), active: "/packages", body });
 }
 
 // Category display metadata (icon + English label) keyed by catalog category.
@@ -3363,7 +3371,7 @@ function buildCalculator() {
     </div>
   </div></section>
   <script>window.BP_CALC = ${JSON.stringify(groups)};window.BP_CALC_LANG = ${JSON.stringify(LANG)};</script>`;
-  return page({ title: Lraw("Build your service request — Business Partner", "كوّن طلب خدماتك — بيزنس بارتنر"), desc: Lraw("Pick Business Partner services from the official catalog and request an official quote or book a consultation — each service is priced to your case.", "اختر خدمات بيزنس بارتنر من الكتالوج الرسمي واطلب عرضاً رسمياً أو احجز استشارة — كل خدمة تُسعّر حسب حالتك."), active: "/calculator", body });
+  return page({ title: Lraw("Build your service request — Business Partner", "كوّن طلب خدماتك — Business Partner"), desc: Lraw("Pick Business Partner services from the official catalog and request an official quote or book a consultation — each service is priced to your case.", "اختر خدمات Business Partner من الكتالوج الرسمي واطلب عرضاً رسمياً أو احجز استشارة — كل خدمة تُسعّر حسب حالتك."), active: "/calculator", body });
 }
 
 // Qiwa-style tools directory: one clean grid of cards, each linking straight
@@ -3392,7 +3400,7 @@ function buildToolsHub() {
   <section class="section"><div class="container">
     <div class="grid grid-3 cat-grid">${cards}</div>
   </div></section>`;
-  return sv1Page({ title: Lraw("Tools & calculators — Business Partner", "الأدوات والحاسبات — بيزنس بارتنر"), desc: Lraw("Free labor, payroll, Saudization and compliance calculators.", "حاسبات مجانية للعمل والرواتب والتوطين والامتثال."), active: "/tools-and-calculators", path: "/tools-and-calculators", body });
+  return sv1Page({ title: Lraw("Tools & calculators — Business Partner", "الأدوات والحاسبات — Business Partner"), desc: Lraw("Free labor, payroll, Saudization and compliance calculators.", "حاسبات مجانية للعمل والرواتب والتوطين والامتثال."), active: "/tools-and-calculators", path: "/tools-and-calculators", body });
 }
 
 function buildNitaqatCalculator() {
@@ -3581,7 +3589,7 @@ function buildNitaqatCalculator() {
   })();
   </script>`;
   return sv1Page({
-    title: Lraw("Nitaqat calculator — Business Partner", "حاسبة النطاقات — بيزنس بارتنر"),
+    title: Lraw("Nitaqat calculator — Business Partner", "حاسبة النطاقات — Business Partner"),
     desc: Lraw("Estimate your Saudization (Nitaqat) band in seconds.", "احسب نطاق السعودة المتوقع خلال ثوانٍ."),
     active: "/tools-and-calculators",
     path: "/calculators/nitaqat",
@@ -3634,7 +3642,7 @@ function buildProfessionChecker() {
   })();
   </script>`;
   return sv1Page({
-    title: Lraw("Profession checker — Business Partner", "فاحص المهن — بيزنس بارتنر"),
+    title: Lraw("Profession checker — Business Partner", "فاحص المهن — Business Partner"),
     desc: Lraw("Check which professions are Saudized or restricted for your activity.", "تحقق من المهن المُوطّنة أو المقيّدة على نشاطك."),
     active: "/tools-and-calculators",
     path: "/calculators/profession-checker",
@@ -3647,7 +3655,7 @@ function buildProfessionChecker() {
 function buildComplianceAgent() {
   return advisorPage({
     active: "/compliance-agent",
-    pageTitle: Lraw("Compliance Advisor — Business Partner", "مستشار الامتثال — بيزنس بارتنر"),
+    pageTitle: Lraw("Compliance Advisor — Business Partner", "مستشار الامتثال — Business Partner"),
     pageDesc: Lraw(
       "Your government platforms under constant watch: Qiwa, Muqeem, GOSI, Mudad and Nitaqat — deadlines, violations and obligations detected and handled, your role is approval only.",
       "منصاتك الحكومية تحت المراقبة الدائمة: قوى، مقيم، التأمينات، مدد ونطاقات — رصد المهل والمخالفات والالتزامات ومعالجتها، ودورك الموافقة فقط.",
@@ -3708,7 +3716,7 @@ function buildComplianceAgent() {
 function buildDocAgent() {
   return advisorPage({
     active: "/ai-document-agent",
-    pageTitle: Lraw("Document Advisor — Business Partner", "مستشار المستندات — بيزنس بارتنر"),
+    pageTitle: Lraw("Document Advisor — Business Partner", "مستشار المستندات — Business Partner"),
     pageDesc: Lraw(
       "Upload the documents that hold your data and the forms that need filling — the Document Advisor reads, extracts, fills Word, Excel and PDF in place, and hands you the final package.",
       "ارفع المستندات التي تحمل بياناتك والنماذج المطلوب تعبئتها — مستشار المستندات يقرأ ويستخرج ويعبّئ Word وExcel وPDF في مكانها ويسلّمك الحزمة النهائية.",
@@ -3836,7 +3844,7 @@ function buildLeadGen() {
   </style>`;
 
   return page({
-    title: Lraw("Managed Lead Generation — Business Partner", "توليد العملاء المُدار — بيزنس بارتنر"),
+    title: Lraw("Managed Lead Generation — Business Partner", "توليد العملاء المُدار — Business Partner"),
     desc: Lraw("A done-for-you B2B sales engine: we find the right Saudi companies, reach decision-makers on your behalf, and deliver qualified leads and booked meetings.", "محرّك مبيعات جاهز: نجيب لك الشركات السعودية المناسبة، نوصل صنّاع القرار نيابةً عنك، ونسلّمك عملاء مؤهّلين ومواعيد محجوزة."),
     active: "/lead-generation",
     path: "/lead-generation",
@@ -3969,7 +3977,7 @@ function buildDataPortal() {
   </script>`;
 
   return page({
-    title: Lraw("B2B Leads Database — Business Partner", "قاعدة عملاء الأعمال — بيزنس بارتنر"),
+    title: Lraw("B2B Leads Database — Business Partner", "قاعدة عملاء الأعمال — Business Partner"),
     desc: Lraw("Subscribe for direct access to an updated database of Saudi companies — sector, city, phone, website and email — for B2B outreach, or let us run the outreach for you.", "اشترك للوصول المباشر لقاعدة محدّثة لشركات سعودية — القطاع والمدينة والهاتف والموقع والإيميل — للتواصل التجاري، أو نشغّل الحملة عنك."),
     active: "/data",
     path: "/data",
@@ -4174,7 +4182,7 @@ function buildTeamAgent(agent) {
   </style>`;
 
   return page({
-    title: Lraw(`${agent.nameEn} — ${agent.roleEn} — Business Partner`, `${agent.nameAr} — ${agent.roleAr} — بيزنس بارتنر`),
+    title: Lraw(`${agent.nameEn} — ${agent.roleEn} — Business Partner`, `${agent.nameAr} — ${agent.roleAr} — Business Partner`),
     desc: Lraw(agent.taglineEn, agent.taglineAr),
     active: "/ai-agents",
     path: `/team/${agent.slug}`,
@@ -4232,7 +4240,7 @@ function buildEndOfServiceCalculator() {
   })();
   </script>`;
   return sv1Page({
-    title: Lraw("End-of-service gratuity calculator — Business Partner", "حاسبة مكافأة نهاية الخدمة — بيزنس بارتنر"),
+    title: Lraw("End-of-service gratuity calculator — Business Partner", "حاسبة مكافأة نهاية الخدمة — Business Partner"),
     desc: Lraw("Calculate the end-of-service gratuity per the Saudi Labor Law.", "احسب مكافأة نهاية الخدمة وفق نظام العمل السعودي."),
     active: "/tools-and-calculators",
     path: "/calculators/end-of-service",
@@ -4282,7 +4290,7 @@ function buildAnnualLeaveCalculator() {
   })();
   </script>`;
   return sv1Page({
-    title: Lraw("Annual leave calculator — Business Partner", "حاسبة الإجازة السنوية — بيزنس بارتنر"),
+    title: Lraw("Annual leave calculator — Business Partner", "حاسبة الإجازة السنوية — Business Partner"),
     desc: Lraw("Leave entitlement and the cash value of unused days.", "استحقاق الإجازة والقيمة النقدية للأيام غير المستخدمة."),
     active: "/tools-and-calculators",
     path: "/calculators/annual-leave",
@@ -4331,7 +4339,7 @@ function buildOvertimeCalculator() {
   })();
   </script>`;
   return sv1Page({
-    title: Lraw("Overtime pay calculator — Business Partner", "حاسبة أجر العمل الإضافي — بيزنس بارتنر"),
+    title: Lraw("Overtime pay calculator — Business Partner", "حاسبة أجر العمل الإضافي — Business Partner"),
     desc: Lraw("Overtime pay at the 1.5x rate per the Labor Law.", "أجر العمل الإضافي بمعدل 1.5× وفق نظام العمل."),
     active: "/tools-and-calculators",
     path: "/calculators/overtime",
@@ -4389,7 +4397,7 @@ function buildGosiCalculator() {
   })();
   </script>`;
   return sv1Page({
-    title: Lraw("GOSI contributions calculator — Business Partner", "حاسبة اشتراك التأمينات — بيزنس بارتنر"),
+    title: Lraw("GOSI contributions calculator — Business Partner", "حاسبة اشتراك التأمينات — Business Partner"),
     desc: Lraw("Monthly social-insurance contributions, Saudi & non-Saudi.", "الاشتراكات الشهرية للتأمينات، للسعودي وغير السعودي."),
     active: "/tools-and-calculators",
     path: "/calculators/gosi",
@@ -4477,7 +4485,7 @@ function buildTourism() {
   <section class="section"><div class="container">
     <div class="cta-band"><h2>${L("Ready for us to arrange it?", "جاهز نرتّب لك؟")}</h2><p>${L("Tell us about your event and we'll tailor it to you.", "أخبرنا عن فعاليتك ونصمّمها على مقاسك.")}</p>${waBtn2("Contact us", "تواصل معنا", "btn-white", true)}</div>
   </div></section>`;
-  return page({ title: Lraw("Tourism & events — Business Partner", "السياحة والفعاليات — بيزنس بارتنر"), desc: Lraw((t.leadEn || t.lead).slice(0, 155), t.lead.slice(0, 155)), active: "/tourism", body });
+  return page({ title: Lraw("Tourism & events — Business Partner", "السياحة والفعاليات — Business Partner"), desc: Lraw((t.leadEn || t.lead).slice(0, 155), t.lead.slice(0, 155)), active: "/tourism", body });
 }
 
 // Sub-brand landing page: "Mahfol Makfol by Business Partner" — the premium
@@ -5114,7 +5122,7 @@ function buildMahfolTrips() {
 
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Where to go", "إلى أين")}</span><h2>${L("Destinations across the Kingdom", "وجهات في كل المملكة")}</h2><p>${L("From the Edge of the World to AlUla, the Red Sea islands and the green south.", "من حافة العالم إلى العلا وجزر البحر الأحمر والجنوب الأخضر.")}</p></div>
-    <p class="tr-buy-note">${L("Prices are per person — set the number of travellers in your cart. Checkout requires a free account, then pay online or by bank transfer; your booking then appears in your account under \"My orders\".", "الأسعار للشخص الواحد — حدّد عدد المسافرين في السلة. إتمام الحجز يتطلب حساباً مجانياً، ثم الدفع أونلاين أو بتحويل بنكي، ويظهر حجزك في حسابك ضمن «طلباتي».")}</p>
+    <p class="tr-buy-note">${L("Prices are per person — set the number of travellers in your cart. Checkout requires a free account, then pay online by card, Apple Pay or Tamara; your booking then appears in your account under \"My orders\".", "الأسعار للشخص الواحد — حدّد عدد المسافرين في السلة. إتمام الحجز يتطلب حساباً مجانياً، ثم الدفع إلكترونياً بالبطاقة أو Apple Pay أو تمارا، ويظهر حجزك في حسابك ضمن «طلباتي».")}</p>
     <div class="grid grid-3">${destCards}</div>
   </div></section>
 
@@ -5369,7 +5377,7 @@ function buildSaudi() {
     <div class="grid grid-3">${articles}</div>
     <div class="cta-band" style="margin-top:40px"><h2>${L("Want a detailed guide for your case?", "تبي دليلاً مفصّلاً لحالتك؟")}</h2><p>${L("Our team prepares your service steps and requirements quickly.", "فريقنا يجهّز لك خطوات خدمتك ومتطلباتها سريعاً.")}</p>${waBtn2("Contact us", "تواصل معنا", "btn-white", true)}</div>
   </div></section>`;
-  return sv1Page({ title: Lraw("Saudi Arabia — investment data & guides | Business Partner", "السعودية — بيانات وأدلة الاستثمار | بيزنس بارتنر"), desc: Lraw((s.leadEn || s.lead).slice(0, 155), s.lead.slice(0, 155)), active: "/saudi-arabia", body });
+  return sv1Page({ title: Lraw("Saudi Arabia — investment data & guides | Business Partner", "السعودية — بيانات وأدلة الاستثمار | Business Partner"), desc: Lraw((s.leadEn || s.lead).slice(0, 155), s.lead.slice(0, 155)), active: "/saudi-arabia", body });
 }
 
 function buildNews() {
@@ -5442,7 +5450,7 @@ function buildNews() {
       </div>
     </div>
   </div></section>`;
-  return sv1Page({ title: Lraw("Insights & news — Business Partner", "الرؤى والأخبار — بيزنس بارتنر"), desc: Lraw("Practical guides, platform updates, success stories and announcements from Business Partner.", "أدلة عملية وتحديثات المنصات وقصص نجاح وإعلانات من بيزنس بارتنر."), active: "/news", body });
+  return sv1Page({ title: Lraw("Insights & news — Business Partner", "الرؤى والأخبار — Business Partner"), desc: Lraw("Practical guides, platform updates, success stories and announcements from Business Partner.", "أدلة عملية وتحديثات المنصات وقصص نجاح وإعلانات من Business Partner."), active: "/news", body });
 }
 
 // Browsable, branded news magazine — content is the same live Notion feed as
@@ -5453,7 +5461,7 @@ function buildMagazine() {
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
     <span class="eyebrow">${L("Magazine", "المجلة")}</span>
-    <h1>${L("Business Partner Magazine", "مجلة بيزنس بارتنر")}</h1>
+    <h1>${L("Business Partner Magazine", "مجلة Business Partner")}</h1>
     <p class="lead">${L("Every government decision and compliance update that matters for your business — browse free, or register once to download the branded PDF issue.", "كل قرار حكومي وتحديث امتثال يهم أعمالك — تصفّح مجاناً، أو سجّل مرة واحدة لتحميل العدد بصيغة PDF بهوية الشركة.")}</p>
   </div></section>
 
@@ -5471,7 +5479,7 @@ function buildMagazine() {
       <div class="form-success" id="mag-success" hidden></div>
     </form>
   </div></section>`;
-  return sv1Page({ js: true, title: Lraw("Magazine — Business Partner", "المجلة — بيزنس بارتنر"), desc: Lraw("Government decisions and compliance updates for your business — browse the magazine or download the branded PDF issue.", "قرارات حكومية وتحديثات امتثال تهم أعمالك — تصفّح المجلة أو حمّل العدد بصيغة PDF."), active: "/magazine", path: "/magazine", body });
+  return sv1Page({ js: true, title: Lraw("Magazine — Business Partner", "المجلة — Business Partner"), desc: Lraw("Government decisions and compliance updates for your business — browse the magazine or download the branded PDF issue.", "قرارات حكومية وتحديثات امتثال تهم أعمالك — تصفّح المجلة أو حمّل العدد بصيغة PDF."), active: "/magazine", path: "/magazine", body });
 }
 
 // Print-ready issue: same live news feed, styled for print with the site's
@@ -5484,14 +5492,14 @@ function buildMagazinePrint() {
   const body = `
   <section class="container mag-print"><div class="mag-print-cover">
     <img src="/assets/img/logo.png" alt="Business Partner" width="220" height="42">
-    <h1>${L("Business Partner Magazine", "مجلة بيزنس بارتنر")}</h1>
+    <h1>${L("Business Partner Magazine", "مجلة Business Partner")}</h1>
     <p>${L("Issue", "العدد")} — ${esc(issue)}</p>
   </div>
   <div class="grid grid-2" data-live-news="30" data-auto-print="1"></div>
-  <p class="mag-print-footer">${L("Business Partner · businesspartner.sa — sources: automated compilation of public news; verify with the official source before acting.", "بيزنس بارتنر · businesspartner.sa — المصادر: تجميع آلي من الأخبار العامة — يُرجى التحقق من المصدر الرسمي قبل أي إجراء.")}</p>
+  <p class="mag-print-footer">${L("Business Partner · businesspartner.sa — sources: automated compilation of public news; verify with the official source before acting.", "Business Partner · businesspartner.sa — المصادر: تجميع آلي من الأخبار العامة — يُرجى التحقق من المصدر الرسمي قبل أي إجراء.")}</p>
   </section>
   <p class="text-soft center mt-32 no-print">${L("Preparing your printable issue — your browser's print dialog will open automatically. Choose “Save as PDF” as the destination.", "جارٍ تجهيز عددك القابل للطباعة — سيفتح مربع الطباعة في متصفحك تلقائياً. اختر “حفظ كـ PDF” كوجهة الطباعة.")}</p>`;
-  return page({ title: Lraw("Magazine — printable issue | Business Partner", "المجلة — نسخة للطباعة | بيزنس بارتنر"), desc: Lraw("Printable Business Partner magazine issue.", "نسخة قابلة للطباعة من مجلة بيزنس بارتنر."), path: "/magazine/print", body });
+  return page({ title: Lraw("Magazine — printable issue | Business Partner", "المجلة — نسخة للطباعة | Business Partner"), desc: Lraw("Printable Business Partner magazine issue.", "نسخة قابلة للطباعة من مجلة Business Partner."), path: "/magazine/print", body });
 }
 
 // Pilot: "HR by Business Partner" — a sub-brand landing page that pulls
@@ -5546,7 +5554,7 @@ function buildEmployers() {
   <section class="section"><div class="container">
     <div class="grid grid-3">${value}</div>
   </div></section>`;
-  return sv1LegacyApp({ title: Lraw("Recruitment for employers — Business Partner", "التوظيف لأصحاب الأعمال — بيزنس بارتنر"), desc: Lraw("Browse pre-screened, Saudization-checked candidates and subscribe to hire.", "تصفّح مرشّحين مُصنّفين ومفحوصين للتوطين واشترك للتوظيف."), active: "/employers", path: "/employers", body });
+  return sv1LegacyApp({ title: Lraw("Recruitment for employers — Business Partner", "التوظيف لأصحاب الأعمال — Business Partner"), desc: Lraw("Browse pre-screened, Saudization-checked candidates and subscribe to hire.", "تصفّح مرشّحين مُصنّفين ومفحوصين للتوطين واشترك للتوظيف."), active: "/employers", path: "/employers", body });
 }
 
 function employerYearly(monthly, discount) {
@@ -5629,9 +5637,9 @@ function buildEmployerJoin() {
   <section class="section"><div class="container">
     <div class="section-head" style="margin-bottom:22px"><h2>${L("Choose your plan", "اختر باقتك")}</h2></div>
     ${employerPlanCards({ selectable: true })}
-    <p class="emp-note" style="text-align:center;margin-top:22px">${L("Selecting a plan adds it to your cart. Complete your company profile in your account, then pay online for instant activation — or by bank transfer and we activate right after verifying it.", "اختيار الباقة يضيفها إلى سلتك. أكمل ملف شركتك في حسابك، ثم ادفع إلكترونياً فيتفعّل وصولك فوراً — أو بالتحويل البنكي ونفعّله فور التحقق منه.")}</p>
+    <p class="emp-note" style="text-align:center;margin-top:22px">${L("Selecting a plan adds it to your cart. Complete your company profile in your account, then pay online by card, Apple Pay or Tamara for instant activation.", "اختيار الباقة يضيفها إلى سلتك. أكمل ملف شركتك في حسابك، ثم ادفع إلكترونياً بالبطاقة أو Apple Pay أو تمارا فيتفعّل وصولك فوراً.")}</p>
   </div></section>`;
-  return sv1LegacyApp({ title: Lraw("Subscribe — employer recruitment platform", "اشترك — منصة توظيف أصحاب العمل"), desc: Lraw("Subscribe to Business Partner's recruitment platform and access the candidate pool.", "اشترك في منصة توظيف بيزنس بارتنر واحصل على الوصول لقاعدة المرشّحين."), active: "/employers", path: "/employer-join", body });
+  return sv1LegacyApp({ title: Lraw("Subscribe — employer recruitment platform", "اشترك — منصة توظيف أصحاب العمل"), desc: Lraw("Subscribe to Business Partner's recruitment platform and access the candidate pool.", "اشترك في منصة توظيف Business Partner واحصل على الوصول لقاعدة المرشّحين."), active: "/employers", path: "/employer-join", body });
 }
 
 function buildEmployerLogin() {
@@ -5668,7 +5676,7 @@ function buildEmployerLogin() {
       <p class="emp-note" id="el-code-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
       <p class="emp-note" style="text-align:center;margin-top:2px"><a href="#" id="el-code-mail">📧 ${L("Don't have your code? Email it to me", "ما عندك الرمز؟ أرسله إلى بريدي")}</a></p>
     </form>
-    <a class="btn btn-ghost" style="width:100%;margin-top:14px" href="${u("/account")}?redirect=employer">🔐 ${L("Sign in with an email code — Business Partner account", "الدخول برمز الإيميل — عبر حساب بيزنس بارتنر")}</a>
+    <a class="btn btn-ghost" style="width:100%;margin-top:14px" href="${u("/account")}?redirect=employer">🔐 ${L("Sign in with an email code — Business Partner account", "الدخول برمز الإيميل — عبر حساب Business Partner")}</a>
     <p class="emp-note" style="text-align:center;margin-top:18px">${L("Don't have an account?", "ما عندك حساب؟")} <a href="${u("/employer-join")}">${L("Subscribe from our plans", "اشترك من باقاتنا")}</a></p>
     </div>
     <div id="el-otp-step" hidden>
@@ -5685,7 +5693,7 @@ function buildEmployerLogin() {
       </div>
     </div>
   </div></section>`;
-  return sv1LegacyApp({ title: Lraw("Employer log in — Business Partner", "تسجيل دخول أصحاب العمل — بيزنس بارتنر"), desc: Lraw("Log in to your Business Partner employer dashboard.", "سجّل الدخول للوحة التوظيف الخاصة بك في بيزنس بارتنر."), active: "/employers", path: "/employer-login", body });
+  return sv1LegacyApp({ title: Lraw("Employer log in — Business Partner", "تسجيل دخول أصحاب العمل — Business Partner"), desc: Lraw("Log in to your Business Partner employer dashboard.", "سجّل الدخول للوحة التوظيف الخاصة بك في Business Partner."), active: "/employers", path: "/employer-login", body });
 }
 
 // Overseas recruitment offices and agencies register here; the owner reviews
@@ -5771,7 +5779,7 @@ function buildJobSearchService() {
     </div>
     <p class="emp-note" style="text-align:center;margin-top:14px">${L("Already signed up? We email you every time we find something — no login needed.", "سجّلت من قبل؟ يصلك بريد كلما وجدنا لك وظيفة — بدون تسجيل دخول.")}</p>
   </div></section>`;
-  return sv1LegacyApp({ title: Lraw("We search for the job on your behalf — Business Partner", "نبحث لك عن الوظيفة بالنيابة عنك — بيزنس بارتنر"), desc: Lraw("Business Partner searches for jobs on your behalf: 100 SAR a month, or one month's salary over three instalments paid only once you're hired.", "بيزنس بارتنر يبحث لك عن وظيفة بالنيابة عنك: ١٠٠ ريال شهرياً، أو راتب شهر على ثلاث دفعات تُدفع فقط بعد توظيفك."), active: "/careers", path: "/job-search-service", body });
+  return sv1LegacyApp({ title: Lraw("We search for the job on your behalf — Business Partner", "نبحث لك عن الوظيفة بالنيابة عنك — Business Partner"), desc: Lraw("Business Partner searches for jobs on your behalf: 100 SAR a month, or one month's salary over three instalments paid only once you're hired.", "Business Partner يبحث لك عن وظيفة بالنيابة عنك: ١٠٠ ريال شهرياً، أو راتب شهر على ثلاث دفعات تُدفع فقط بعد توظيفك."), active: "/careers", path: "/job-search-service", body });
 }
 
 function buildRecruitmentAgencies() {
@@ -5791,7 +5799,7 @@ function buildRecruitmentAgencies() {
   <section class="hero"><div class="container hero-inner" style="max-width:860px">
     <span class="eyebrow">${L("Recruitment partners", "شركاء التوظيف")}</span>
     <h1>${L("Recruitment offices & agencies — register as a provider", "مكاتب الاستقدام ووكالات التوظيف — سجّل كمزوّد خدمة")}</h1>
-    <p class="lead">${L("Join Business Partner's provider network: create your account in a minute, receive real hiring demand from Saudi employers, and submit your candidates through your own panel.", "انضم لشبكة مزوّدي التوظيف لدى بيزنس بارتنر: أنشئ حسابك خلال دقيقة، واستقبل طلبات توظيف فعلية من أصحاب عمل سعوديين، وارفع مرشحيك من لوحتك الخاصة.")}</p>
+    <p class="lead">${L("Join Business Partner's provider network: create your account in a minute, receive real hiring demand from Saudi employers, and submit your candidates through your own panel.", "انضم لشبكة مزوّدي التوظيف لدى Business Partner: أنشئ حسابك خلال دقيقة، واستقبل طلبات توظيف فعلية من أصحاب عمل سعوديين، وارفع مرشحيك من لوحتك الخاصة.")}</p>
     <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#agency-form">${L("Create a provider account", "أنشئ حساب مزوّد")}</a><a class="btn btn-ghost btn-lg" href="${u("/agency-portal")}">${L("Sign in to your panel", "دخول لوحتك")}</a></div>
   </div></section>
 
@@ -5823,7 +5831,7 @@ function buildRecruitmentAgencies() {
     </div>
     <p class="emp-note" style="text-align:center;margin-top:14px">${L("We never publish your licence documents or contacts — they are used for accreditation only.", "لا ننشر مستندات ترخيصك أو بيانات تواصلك — تُستخدم للاعتماد فقط.")}</p>
   </div></section>`;
-  return sv1LegacyApp({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Recruitment offices & agencies — Business Partner", "مكاتب الاستقدام ووكالات التوظيف — بيزنس بارتنر"), desc: Lraw("Register your recruitment office or agency with Business Partner: create an account, receive Saudi hiring demand and submit candidates from your own panel.", "سجّل مكتب الاستقدام أو وكالة التوظيف لديك مع بيزنس بارتنر: أنشئ حسابك، واستقبل طلبات التوظيف السعودية، وارفع مرشحيك من لوحتك."), active: "/hr", path: "/recruitment-agencies", body });
+  return sv1LegacyApp({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Recruitment offices & agencies — Business Partner", "مكاتب الاستقدام ووكالات التوظيف — Business Partner"), desc: Lraw("Register your recruitment office or agency with Business Partner: create an account, receive Saudi hiring demand and submit candidates from your own panel.", "سجّل مكتب الاستقدام أو وكالة التوظيف لديك مع Business Partner: أنشئ حسابك، واستقبل طلبات التوظيف السعودية، وارفع مرشحيك من لوحتك."), active: "/hr", path: "/recruitment-agencies", body });
 }
 
 // The provider panel. Sign-up and sign-in live on the same screen (password or
@@ -6116,7 +6124,7 @@ function buildAgencyPortal() {
       </form>
     </div>
   </div></div>`;
-  return sv1LegacyApp({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Provider panel — Business Partner", "لوحة مزوّدي التوظيف — بيزنس بارتنر"), desc: Lraw("Recruitment offices and agencies sign in to see hiring demand and submit candidates.", "تسجيل دخول مكاتب الاستقدام ووكالات التوظيف لمتابعة طلبات التوظيف ورفع المرشحين."), active: "/hr", path: "/agency-portal", body });
+  return sv1LegacyApp({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Provider panel — Business Partner", "لوحة مزوّدي التوظيف — Business Partner"), desc: Lraw("Recruitment offices and agencies sign in to see hiring demand and submit candidates.", "تسجيل دخول مكاتب الاستقدام ووكالات التوظيف لمتابعة طلبات التوظيف ورفع المرشحين."), active: "/hr", path: "/agency-portal", body });
 }
 
 // A dedicated, full page for one candidate (instead of the old in-modal
@@ -6132,7 +6140,7 @@ function buildCandidateProfile() {
     </div>
   </div></section>
   <script>window.BP_EMP_LANG=${JSON.stringify(LANG)};</script>`;
-  return sv1LegacyApp({ title: Lraw("Candidate profile — Business Partner", "الملف الشخصي للمرشّح — بيزنس بارتنر"), desc: Lraw("Full candidate profile — experience, education, skills and CV.", "الملف الشخصي الكامل للمرشّح — الخبرة والتعليم والمهارات والسيرة الذاتية."), active: "/employers", path: "/candidate-profile", body });
+  return sv1LegacyApp({ title: Lraw("Candidate profile — Business Partner", "الملف الشخصي للمرشّح — Business Partner"), desc: Lraw("Full candidate profile — experience, education, skills and CV.", "الملف الشخصي الكامل للمرشّح — الخبرة والتعليم والمهارات والسيرة الذاتية."), active: "/employers", path: "/candidate-profile", body });
 }
 
 function buildNewsletter() {
@@ -6161,7 +6169,7 @@ function buildNewsletter() {
     <div class="grid grid-4">${perks}</div>
     <div class="center mt-32"><a class="btn btn-ghost" href="${u("/news")}">${L("Browse past insights", "تصفّح الأعداد السابقة")}</a></div>
   </div></section>`;
-  return sv1Page({ js: true, title: Lraw("Newsletter — Business Partner", "النشرة الإخبارية — بيزنس بارتنر"), desc: Lraw("Subscribe to Business Partner's weekly newsletter on Saudi business and regulations.", "اشترك في النشرة الأسبوعية من بيزنس بارتنر عن الأعمال والأنظمة في السعودية."), active: "/newsletter", path: "/newsletter", body });
+  return sv1Page({ js: true, title: Lraw("Newsletter — Business Partner", "النشرة الإخبارية — Business Partner"), desc: Lraw("Subscribe to Business Partner's weekly newsletter on Saudi business and regulations.", "اشترك في النشرة الأسبوعية من Business Partner عن الأعمال والأنظمة في السعودية."), active: "/newsletter", path: "/newsletter", body });
 }
 
 // Canonical Field taxonomy — shared by the employer job-posting form, the
@@ -6204,7 +6212,7 @@ function buildEmployerDashboard() {
         <p class="emp-note" style="margin:0 0 18px">${L("Your posted jobs, AI-matched candidates and hiring pipeline — all in one place.", "وظائفك المنشورة، والمرشّحون المطابقون بالذكاء، ومسار التوظيف — كلها في مكان واحد.")}</p>
         <a class="btn btn-primary" style="width:100%" href="${u("/employer-login")}">${L("Log in", "تسجيل الدخول")}</a>
         <a class="btn btn-ghost" style="width:100%;margin-top:10px" href="${u("/employer-join")}">${L("New here? Subscribe", "جديد؟ اشترك الآن")}</a>
-        <p class="emp-note" style="margin:14px 0 0">${L("A Business Partner client? Log in to your client portal and the dashboard opens by itself — free for your first 30 days.", "عميل بيزنس بارتنر؟ سجّل دخولك في لوحة العميل وتنفتح اللوحة من نفسها — مجاناً طوال أول 30 يوماً.")} <a href="${u("/account")}">${L("Open the client portal", "افتح لوحة العميل")}</a></p>
+        <p class="emp-note" style="margin:14px 0 0">${L("A Business Partner client? Log in to your client portal and the dashboard opens by itself — free for your first 30 days.", "عميل Business Partner؟ سجّل دخولك في لوحة العميل وتنفتح اللوحة من نفسها — مجاناً طوال أول 30 يوماً.")} <a href="${u("/account")}">${L("Open the client portal", "افتح لوحة العميل")}</a></p>
         <p class="emp-note" style="margin:14px 0 0"><button type="button" class="linkbtn" id="empd-demo">${L("Try a demo", "جرّب نسخة تجريبية")}</button></p>
         <p id="empd-gate-msg" class="emp-note" style="min-height:18px;margin:6px 0 0"></p>
       </div>
@@ -6288,7 +6296,7 @@ function buildEmployerDashboard() {
     <div class="empd-modal-body" id="empd-modal-body"></div>
   </div></div>
   <script>window.BP_EMPD_LANG=${JSON.stringify(LANG)};</script>`;
-  return sv1LegacyApp({ title: Lraw("AI Hiring OS — Business Partner", "نظام التوظيف الذكي — بيزنس بارتنر"), desc: Lraw("AI Hiring Operating System: match candidates with AI, assessments, interview questions, shortlist and pipeline.", "نظام التوظيف الذكي: مطابقة بالذكاء الاصطناعي، تقييمات، أسئلة مقابلة، قائمة مختصرة ومسار توظيف."), active: "/employers", path: "/employer-dashboard", body });
+  return sv1LegacyApp({ title: Lraw("AI Hiring OS — Business Partner", "نظام التوظيف الذكي — Business Partner"), desc: Lraw("AI Hiring Operating System: match candidates with AI, assessments, interview questions, shortlist and pipeline.", "نظام التوظيف الذكي: مطابقة بالذكاء الاصطناعي، تقييمات، أسئلة مقابلة، قائمة مختصرة ومسار توظيف."), active: "/employers", path: "/employer-dashboard", body });
 }
 
 // ============ Standalone HR Portal (hr.businesspartner.sa) ============
@@ -6475,11 +6483,11 @@ function jobCardsHtml() {
       </article>`;
   const wc = WORKSHOP_CAMPAIGN;
   return `<section class="section section--gray" id="open-jobs"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Careers / Jobs", "الوظائف")}</span><h2>${L("Open roles at Business Partner", "الوظائف المفتوحة عبر بيزنس بارتنر")}</h2><p>${L("Every application is logged in the Business Partner ATS, screened, and routed to the right hiring stage.", "كل تقديم يُسجَّل في ATS بيزنس بارتنر، يُفرز، ويُوجَّه إلى مرحلة التوظيف المناسبة.")}</p></div>
+    <div class="section-head"><span class="eyebrow">${L("Careers / Jobs", "الوظائف")}</span><h2>${L("Open roles at Business Partner", "الوظائف المفتوحة عبر Business Partner")}</h2><p>${L("Every application is logged in the Business Partner ATS, screened, and routed to the right hiring stage.", "كل تقديم يُسجَّل في ATS Business Partner، يُفرز، ويُوجَّه إلى مرحلة التوظيف المناسبة.")}</p></div>
     <div class="grid grid-3 ats-jobs">${poolCard}</div>
   </div></section>
   <section class="section section--gray" id="client-jobs"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Employer clients", "عملاء بيزنس بارتنر")}</span><h2>${L("Jobs from our employer clients", "وظائف من عملائنا أصحاب العمل")}</h2><p>${L("Companies hiring through the Business Partner platform. Apply directly — your application goes straight to their pipeline.", "شركات توظّف عبر منصة بيزنس بارتنر. قدّم مباشرة — طلبك يذهب مباشرة إلى مسار توظيفهم.")}</p></div>
+    <div class="section-head"><span class="eyebrow">${L("Employer clients", "عملاء Business Partner")}</span><h2>${L("Jobs from our employer clients", "وظائف من عملائنا أصحاب العمل")}</h2><p>${L("Companies hiring through the Business Partner platform. Apply directly — your application goes straight to their pipeline.", "شركات توظّف عبر منصة Business Partner. قدّم مباشرة — طلبك يذهب مباشرة إلى مسار توظيفهم.")}</p></div>
     <p class="emp-note" id="client-jobs-status">${L("Loading…", "جارٍ التحميل…")}</p>
     <div class="grid grid-3 ats-jobs" id="client-jobs-grid">${cards}</div>
   </div></section>`;
@@ -6558,7 +6566,7 @@ function seekerFormHtml(f, fixedJob) {
           </label>
           <input id="c-cv" name="cv" type="file" accept=".pdf,.doc,.docx" hidden>
         </div>
-        <label class="consent-row"><input type="checkbox" id="c-consent"><span>${L("I agree that Business Partner may add me to its candidate pool and contact me about suitable roles.", "أوافق على إضافتي إلى قاعدة مرشّحي بيزنس بارتنر والتواصل معي بشأن الفرص المناسبة.")}</span></label>
+        <label class="consent-row"><input type="checkbox" id="c-consent"><span>${L("I agree that Business Partner may add me to its candidate pool and contact me about suitable roles.", "أوافق على إضافتي إلى قاعدة مرشّحي Business Partner والتواصل معي بشأن الفرص المناسبة.")}</span></label>
         <div class="jss-offer">
           <label class="consent-row"><input type="checkbox" id="c-jobsearch"><span><b>${L("Would you like us to search for a job on your behalf?", "هل ترغب بأن نبحث لك عن وظيفة بالنيابة عنك؟")}</b> ${L("We look every week, nominate you ourselves and follow it through to the offer.", "نبحث لك أسبوعياً، ونرشّحك بأنفسنا، ونتابع حتى العرض الوظيفي.")}</span></label>
           <div id="c-jobsearch-plan" hidden>
@@ -6631,7 +6639,7 @@ function buildJobPage(job) {
     <ul class="check-list">${resp}</ul>
     <h2>${L("What we are looking for", "المتطلبات")}</h2>
     <ul class="check-list">${reqs}</ul>
-    <div class="cta-band" style="margin-top:34px"><h2>${L("Ready to apply?", "جاهز للتقديم؟")}</h2><p>${L("Your application will be logged in the Business Partner ATS and routed for screening.", "سيتم تسجيل طلبك في ATS بيزنس بارتنر وتحويله للفرز.")}</p><a class="btn btn-white btn-lg" href="#apply-form">${L("Apply for this job", "قدّم على الوظيفة")}</a></div>
+    <div class="cta-band" style="margin-top:34px"><h2>${L("Ready to apply?", "جاهز للتقديم؟")}</h2><p>${L("Your application will be logged in the Business Partner ATS and routed for screening.", "سيتم تسجيل طلبك في ATS Business Partner وتحويله للفرز.")}</p><a class="btn btn-white btn-lg" href="#apply-form">${L("Apply for this job", "قدّم على الوظيفة")}</a></div>
   </div></section>
   <section class="section" style="padding-top:0"><div class="container">
     <div style="max-width:640px;margin:0 auto" id="apply-form">
@@ -6639,7 +6647,7 @@ function buildJobPage(job) {
       ${seekerFormHtml(f, { id: job.slug, title })}
     </div>
   </div></section>`;
-  return page({ title: Lraw(`${title} — Business Partner`, `${title} — بيزنس بارتنر`), desc: Lraw(`Apply for ${title} through the Business Partner ATS.`, `قدّم على وظيفة ${title} عبر ATS بيزنس بارتنر.`), active: "/careers", path: "/jobs/" + job.slug, body: body + jobLdScript });
+  return page({ title: Lraw(`${title} — Business Partner`, `${title} — Business Partner`), desc: Lraw(`Apply for ${title} through the Business Partner ATS.`, `قدّم على وظيفة ${title} عبر ATS Business Partner.`), active: "/careers", path: "/jobs/" + job.slug, body: body + jobLdScript });
 }
 
 // Campaign hub: all events-workshop roles grouped by department. Lives under
@@ -6674,7 +6682,7 @@ function buildPostingPage() {
       </div>
       <h2>${L("About this role", "عن الوظيفة")}</h2>
       <div id="jp-desc"></div>
-      <div class="cta-band" style="margin-top:34px"><h2>${L("Ready to apply?", "جاهز للتقديم؟")}</h2><p>${L("Your application will be logged in the Business Partner ATS and routed for screening.", "سيتم تسجيل طلبك في ATS بيزنس بارتنر وتحويله للفرز.")}</p><a class="btn btn-white btn-lg" href="#apply-form">${L("Apply for this job", "قدّم على الوظيفة")}</a></div>
+      <div class="cta-band" style="margin-top:34px"><h2>${L("Ready to apply?", "جاهز للتقديم؟")}</h2><p>${L("Your application will be logged in the Business Partner ATS and routed for screening.", "سيتم تسجيل طلبك في ATS Business Partner وتحويله للفرز.")}</p><a class="btn btn-white btn-lg" href="#apply-form">${L("Apply for this job", "قدّم على الوظيفة")}</a></div>
     </div>
   </div></section>
   <section class="section" style="padding-top:0"><div class="container">
@@ -6683,7 +6691,7 @@ function buildPostingPage() {
       ${seekerFormHtml(f, { id: "", title: "", note: `${L("Applying for", "التقديم على")}: <strong>${L("Loading job…", "جارٍ تحميل الوظيفة…")}</strong>` })}
     </div>
   </div></section>`;
-  return sv1LegacyApp({ title: Lraw("Job posting — Business Partner", "إعلان وظيفي — بيزنس بارتنر"), desc: Lraw("Open job posted through the Business Partner platform — view the details and apply.", "وظيفة منشورة عبر منصة بيزنس بارتنر — اطّلع على التفاصيل وقدّم."), active: "/careers", path: "/job", body });
+  return sv1LegacyApp({ title: Lraw("Job posting — Business Partner", "إعلان وظيفي — Business Partner"), desc: Lraw("Open job posted through the Business Partner platform — view the details and apply.", "وظيفة منشورة عبر منصة Business Partner — اطّلع على التفاصيل وقدّم."), active: "/careers", path: "/job", body });
 }
 
 function buildWorkshopCampaign() {
@@ -6713,13 +6721,13 @@ function buildWorkshopCampaign() {
     <div class="stats" style="grid-template-columns:repeat(3,1fr)">${statsHtml}</div>
   </div></section>
   <section class="section section--gray" id="workshop-roles"><div class="container">
-    <div class="section-head"><span class="eyebrow">${L("Open roles", "الوظائف المفتوحة")}</span><h2>${L("Pick your department and apply", "اختر قسمك وقدّم الآن")}</h2><p>${L("Every application is logged in the Business Partner ATS, screened, and routed straight to the client's hiring pipeline.", "كل تقديم يُسجَّل في ATS بيزنس بارتنر، يُفرز، ويُوجَّه مباشرة إلى مسار توظيف العميل.")}</p></div>
+    <div class="section-head"><span class="eyebrow">${L("Open roles", "الوظائف المفتوحة")}</span><h2>${L("Pick your department and apply", "اختر قسمك وقدّم الآن")}</h2><p>${L("Every application is logged in the Business Partner ATS, screened, and routed straight to the client's hiring pipeline.", "كل تقديم يُسجَّل في ATS Business Partner، يُفرز، ويُوجَّه مباشرة إلى مسار توظيف العميل.")}</p></div>
     ${groupsHtml}
   </div></section>
   <section class="section"><div class="container">
     <div class="cta-band"><h2>${L("Don't see your exact trade?", "لم تجد تخصصك؟")}</h2><p>${L("Hiring runs in waves through December 2026 and more roles open with each wave — join the general candidate pool and we'll match you.", "التوظيف يجري على دفعات حتى ديسمبر 2026 وتُفتح وظائف جديدة مع كل دفعة — انضم لقاعدة المرشحين العامة وسنطابقك مع المناسب.")}</p><a class="btn btn-white btn-lg" href="${u("/careers")}#seeker-form">${L("Join the candidate pool", "انضم لقاعدة المرشحين")}</a></div>
   </div></section>`;
-  return page({ title: Lraw("Events Fabrication Workshop Hiring — Business Partner", "توظيف ورشة تصنيع الفعاليات — بيزنس بارتنر"), desc: Lraw("150+ openings at an events fabrication workshop in Saudi Arabia — managers, engineers, team leaders, technicians, and skilled trades. Apply through Business Partner.", "أكثر من 150 فرصة عمل في ورشة تصنيع فعاليات بالسعودية — مدراء ومهندسون وقادة فرق وفنيون وعمالة ماهرة. قدّم عبر بيزنس بارتنر."), active: "/careers", path: "/jobs/" + wc.slug, body });
+  return page({ title: Lraw("Events Fabrication Workshop Hiring — Business Partner", "توظيف ورشة تصنيع الفعاليات — Business Partner"), desc: Lraw("150+ openings at an events fabrication workshop in Saudi Arabia — managers, engineers, team leaders, technicians, and skilled trades. Apply through Business Partner.", "أكثر من 150 فرصة عمل في ورشة تصنيع فعاليات بالسعودية — مدراء ومهندسون وقادة فرق وفنيون وعمالة ماهرة. قدّم عبر Business Partner."), active: "/careers", path: "/jobs/" + wc.slug, body });
 }
 
 
@@ -6735,7 +6743,7 @@ function buildPortalCandidates() {
   <section class="hero"><div class="container hero-inner" style="max-width:960px">
     <span class="eyebrow">${L("For job seekers", "للباحثين عن عمل")}</span>
     <h1>${L("Find your next opportunity", "فرصتك القادمة تبدأ هنا")}</h1>
-    <p class="lead">${L("Join our candidate pool once — employers hiring through Business Partner reach you when a suitable role opens.", "انضم لقاعدة مرشّحينا مرة واحدة — وأصحاب العمل الذين يوظّفون عبر بيزنس بارتنر يصلونك عند توفّر فرصة مناسبة.")}</p>
+    <p class="lead">${L("Join our candidate pool once — employers hiring through Business Partner reach you when a suitable role opens.", "انضم لقاعدة مرشّحينا مرة واحدة — وأصحاب العمل الذين يوظّفون عبر Business Partner يصلونك عند توفّر فرصة مناسبة.")}</p>
     <div class="talent-actions" style="margin-top:22px">
       <a class="btn btn-primary" href="#seeker-form">${I.upload}<span>${L("Submit your CV", "أرسل سيرتك الذاتية")}</span></a>
       <a class="btn btn-ghost" href="${pu("/join")}">${L("I'm an employer →", "أنا صاحب عمل ←")}</a>
@@ -6749,7 +6757,7 @@ function buildPortalCandidates() {
   </div></section>
 
   ${trackApplicationHtml()}`;
-  return portalPage({ title: Lraw("Jobs for job seekers — HR portal", "التوظيف للباحثين عن عمل — بوابة التوظيف"), desc: Lraw("Join Business Partner's candidate pool and get matched to suitable roles.", "انضم لقاعدة مرشّحي بيزنس بارتنر وتطابق مع الفرص المناسبة."), path: "/portal/candidates", active: "/candidates", body });
+  return portalPage({ title: Lraw("Jobs for job seekers — HR portal", "التوظيف للباحثين عن عمل — بوابة التوظيف"), desc: Lraw("Join Business Partner's candidate pool and get matched to suitable roles.", "انضم لقاعدة مرشّحي Business Partner وتطابق مع الفرص المناسبة."), path: "/portal/candidates", active: "/candidates", body });
 }
 
 // Farina — corporate catering & hospitality (coffee breaks, executive lunch,
@@ -6811,7 +6819,7 @@ function buildFarina() {
   <section class="hero"><div class="container hero-inner">
     <span class="eyebrow">Farina × Business Partner</span>
     <h1>${L("Catering & Hospitality for Companies", "التموين والضيافة للشركات")}</h1>
-    <p class="lead">${L("Coffee breaks, staff meals and VIP hospitality for companies, government entities, hospitals, hotels, recruitment companies and contractors — under Farina, delivered by Business Partner, on one monthly invoice.", "كوفي بريك، وجبات موظفين، وضيافة كبار الزوار — للشركات والجهات الحكومية والمستشفيات والفنادق وشركات الاستقدام والمقاولات، تحت علامة فارينا وبتشغيل بيزنس بارتنر، بفاتورة شهرية واحدة.")}</p>
+    <p class="lead">${L("Coffee breaks, staff meals and VIP hospitality for companies, government entities, hospitals, hotels, recruitment companies and contractors — under Farina, delivered by Business Partner, on one monthly invoice.", "كوفي بريك، وجبات موظفين، وضيافة كبار الزوار — للشركات والجهات الحكومية والمستشفيات والفنادق وشركات الاستقدام والمقاولات، تحت علامة فارينا وبتشغيل Business Partner، بفاتورة شهرية واحدة.")}</p>
     <div class="hero-actions">${waBtn2("Request a quote", "اطلب عرض سعر", "btn-primary", true)}<a class="btn btn-ghost" href="#menus">${L("Browse menus", "تصفّح القوائم")}</a></div>
     <div class="hero-badges">
       <span class="hero-badge">${I.check}${L("4.7★ Google rating — 1,649 reviews", "تقييم Google 4.7 — 1,649 تقييم")}</span>
@@ -6855,7 +6863,7 @@ function buildFarina() {
     <div class="cta-band"><h2>${L("Ready to start your establishment's hospitality program?", "جاهزين نبدأ برنامج الضيافة في منشأتكم؟")}</h2><p>${L("Our team replies quickly and sets your next step.", "فريقنا يرد عليك سريعاً ويحدد لك الخطوة التالية.")}</p>${waBtn2("Request a quote", "اطلب عرض سعر", "btn-white", true)}</div>
   </div></section>`;
   return page({
-    title: Lraw("Catering & Hospitality for Companies — Farina × Business Partner", "التموين والضيافة للشركات — فارينا × بيزنس بارتنر"),
+    title: Lraw("Catering & Hospitality for Companies — Farina × Business Partner", "التموين والضيافة للشركات — فارينا × Business Partner"),
     desc: Lraw("Coffee breaks, staff meals and VIP hospitality for companies, government entities, hospitals, hotels, recruitment companies and contractors — one monthly contract.", "كوفي بريك، وجبات موظفين، وضيافة كبار الزوار للشركات والجهات الحكومية والمستشفيات والفنادق وشركات الاستقدام والمقاولات — بعقد شهري واحد."),
     active: "/farina", path: "/farina", body,
   });
@@ -6971,10 +6979,10 @@ function buildWorkerHousing() {
     <div class="cta-band"><h2>${L("Ready to house your workers the compliant way?", "جاهز تسكّن عمالتك بشكل نظامي؟")}</h2><p>${L("Our team replies quickly and sets your next step.", "فريقنا يرد عليك سريعاً ويحدد لك الخطوة التالية.")}</p>${waBtn2("Book a consultation", "احجز استشارة", "btn-white", true)}</div>
   </div></section>`;
 
-  const script = `<script>(function(){var f=document.getElementById("wh-form");if(!f)return;f.addEventListener("submit",function(e){e.preventDefault();var g=function(id){var el=document.getElementById(id);return el?el.value.trim():""};var company=g("wh-company"),phone=g("wh-phone"),city=g("wh-city"),count=g("wh-count");var res=document.getElementById("wh-result");var show=function(t,ok){res.hidden=false;res.textContent=t;res.style.color=ok?"#137a3e":"#b3261e"};if(!company||!phone||!city||!count){show("${Lraw("Please fill company, mobile, city and worker count.", "يرجى تعبئة اسم المنشأة والجوال والمدينة وعدد العمالة.")}",false);return}var fd=new FormData();fd.append("company",company);fd.append("whatsapp",phone);fd.append("city",city);fd.append("workers_count",count);fd.append("request_type",g("wh-type"));fd.append("email",g("wh-email"));fd.append("notes",g("wh-notes"));fd.append("source","website-worker-housing");fd.append("service","worker-housing");var btn=document.getElementById("wh-submit");btn.disabled=true;fetch("https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web",{method:"POST",body:fd}).then(function(r){if(!r.ok)throw 0;show("${Lraw("Request received! We reply with options and a quote within one working day.", "استلمنا طلبك! نرجع لك بخيارات السكن وعرض السعر خلال يوم عمل.")}",true);f.reset()}).catch(function(){show("${Lraw("Sending failed — try again or contact us on WhatsApp.", "تعذّر الإرسال. جرّب مرة أخرى أو تواصل معنا واتساب.")}",false)}).finally(function(){btn.disabled=false})})})();</script>`;
+  const script = `<script>(function(){var f=document.getElementById("wh-form");if(!f)return;f.addEventListener("submit",function(e){e.preventDefault();var g=function(id){var el=document.getElementById(id);return el?el.value.trim():""};var company=g("wh-company"),phone=g("wh-phone"),city=g("wh-city"),count=g("wh-count");var res=document.getElementById("wh-result");var show=function(t,ok){res.hidden=false;res.textContent=t;res.style.color=ok?"#137a3e":"#b3261e"};if(!company||!phone||!city||!count){show("${Lraw("Please fill company, mobile, city and worker count.", "يرجى تعبئة اسم المنشأة والجوال والمدينة وعدد العمالة.")}",false);return}if(window.BP_TEST_MODE){show(window.bpTestNote("worker-housing form"),false);return}var fd=new FormData();fd.append("company",company);fd.append("whatsapp",phone);fd.append("city",city);fd.append("workers_count",count);fd.append("request_type",g("wh-type"));fd.append("email",g("wh-email"));fd.append("notes",g("wh-notes"));fd.append("source","website-worker-housing");fd.append("service","worker-housing");var btn=document.getElementById("wh-submit");btn.disabled=true;fetch("https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web",{method:"POST",body:fd}).then(function(r){if(!r.ok)throw 0;show("${Lraw("Request received! We reply with options and a quote within one working day.", "استلمنا طلبك! نرجع لك بخيارات السكن وعرض السعر خلال يوم عمل.")}",true);f.reset()}).catch(function(){show("${Lraw("Sending failed — try again or contact us on WhatsApp.", "تعذّر الإرسال. جرّب مرة أخرى أو تواصل معنا واتساب.")}",false)}).finally(function(){btn.disabled=false})})})();</script>`;
 
   return page({
-    title: Lraw("Worker Housing — licensed housing, licensing & operations | Business Partner", "تسكين العمالة — سكن مرخّص وترخيص وتشغيل | بيزنس بارتنر"),
+    title: Lraw("Worker Housing — licensed housing, licensing & operations | Business Partner", "تسكين العمالة — سكن مرخّص وترخيص وتشغيل | Business Partner"),
     desc: Lraw("Ready licensed worker housing + Balady license, Ejar attestation, Civil Defense, Muqeem updates, catering and transport — fully compliant with MoMaH's collective housing regulations.", "سكن عمالة جاهز ومرخّص + رخصة بلدي وتوثيق إيجار والدفاع المدني وتحديث مقيم وإعاشة ونقل — متوافق مع اشتراطات وزارة البلديات والإسكان للسكن الجماعي."),
     active: "/worker-housing", path: "/worker-housing", body, script,
   });
@@ -7009,7 +7017,7 @@ function buildWorkspaces() {
     <div class="cta-band" style="margin-top:34px"><h2>${L("Didn't find it? Tell us your requirements", "ما لقيت؟ أخبرنا بمتطلباتك")}</h2><p>${L("Send your requirements and our matching engine finds options across the Kingdom.", "أرسل متطلباتك ويجد محرّك المطابقة خيارات في كل المملكة.")}</p><a class="btn btn-white btn-lg" href="${u("/workspace-request")}">${L("Request a workspace", "اطلب مساحة عمل")}</a></div>
   </div></section>
   <script>window.BP_WS_LANG=${JSON.stringify(LANG)};</script>`;
-  return page({ title: Lraw("Office spaces & workspaces in Saudi Arabia — Business Partner", "المكاتب ومساحات العمل في السعودية — بيزنس بارتنر"), desc: Lraw("Browse available offices, coworking and commercial spaces, or tell us your requirements and we match you.", "تصفّح المكاتب والمساحات المشتركة والتجارية المتاحة، أو أخبرنا بمتطلباتك ونطابقك."), active: "/workspaces", path: "/workspaces", body });
+  return page({ title: Lraw("Office spaces & workspaces in Saudi Arabia — Business Partner", "المكاتب ومساحات العمل في السعودية — Business Partner"), desc: Lraw("Browse available offices, coworking and commercial spaces, or tell us your requirements and we match you.", "تصفّح المكاتب والمساحات المشتركة والتجارية المتاحة، أو أخبرنا بمتطلباتك ونطابقك."), active: "/workspaces", path: "/workspaces", body });
 }
 
 function buildWorkspaceRequest() {
@@ -7046,7 +7054,7 @@ function buildWorkspaceRequest() {
       <div class="form-success" hidden id="wr-result"></div>
     </form>
   </div></section>`;
-  return page({ title: Lraw("Request a workspace — Business Partner", "اطلب مساحة عمل — بيزنس بارتنر"), desc: Lraw("Tell us your workspace requirements and we match you with the best options in Saudi Arabia.", "أخبرنا بمتطلبات مساحتك ونطابقك مع أفضل الخيارات في السعودية."), active: "/workspaces", path: "/workspace-request", body });
+  return page({ title: Lraw("Request a workspace — Business Partner", "اطلب مساحة عمل — Business Partner"), desc: Lraw("Tell us your workspace requirements and we match you with the best options in Saudi Arabia.", "أخبرنا بمتطلبات مساحتك ونطابقك مع أفضل الخيارات في السعودية."), active: "/workspaces", path: "/workspace-request", body });
 }
 
 // Lets a candidate see how their own profile looks (pipeline stage, CV
@@ -7071,7 +7079,7 @@ function buildCareers() {
   const c = site.careers;
   const f = c.seeker.fields;
   const body = careersBody({ lang: () => LANG, esc }, { jobCards: jobCardsHtml(), seekerForm: seekerFormHtml(f, null), track: trackApplicationHtml(), employerHref: u("/employers") });
-  return sv1LegacyApp({ title: Lraw("Careers — Business Partner", "الوظائف — بيزنس بارتنر"), desc: Lraw("Browse open roles and apply through Business Partner.", "تصفح الوظائف وقدّم عبر بيزنس بارتنر."), active: "/careers", body });
+  return sv1LegacyApp({ title: Lraw("Careers — Business Partner", "الوظائف — Business Partner"), desc: Lraw("Browse open roles and apply through Business Partner.", "تصفح الوظائف وقدّم عبر Business Partner."), active: "/careers", body });
 }
 
 function buildContact() {
@@ -7093,13 +7101,14 @@ function buildContact() {
           <li><span class="ico">${I.clock}</span><div><div class="k">${L("Working hours", "أوقات العمل")}</div><div class="v">${L(c.hoursEn || c.hours, c.hours)}</div></div></li>
         </ul>
         <div class="map-embed">
-          <iframe src="https://www.google.com/maps?q=${encodeURIComponent("حي الملقا الرياض")}&output=embed" loading="lazy" title="${Lraw("Business Partner location", "موقع بيزنس بارتنر")}"></iframe>
+          <iframe src="https://www.google.com/maps?q=${encodeURIComponent("حي الملقا الرياض")}&output=embed" loading="lazy" title="${Lraw("Business Partner location", "موقع Business Partner")}"></iframe>
         </div>
         ${site.social ? `<div class="social-row-wrap">
           <div class="k" style="font-size:.82rem;color:var(--text-soft);margin-bottom:10px">${L("Follow us", "تابعنا")}</div>
           <div class="social-row">
             ${site.social.linkedin ? `<a href="${site.social.linkedin}" target="_blank" rel="noopener" aria-label="LinkedIn">${I.linkedin}</a>` : ""}
             ${site.social.instagram ? `<a href="${site.social.instagram}" target="_blank" rel="noopener" aria-label="Instagram">${I.instagram}</a>` : ""}
+            ${site.social.tiktok ? `<a href="${site.social.tiktok}" target="_blank" rel="noopener" aria-label="TikTok">${I.tiktok}</a>` : ""}
             ${site.social.facebook ? `<a href="${site.social.facebook}" target="_blank" rel="noopener" aria-label="Facebook">${I.facebook}</a>` : ""}
           </div>
         </div>` : ""}
@@ -7132,7 +7141,7 @@ function buildContact() {
       </div>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Contact — Business Partner", "اتصل بنا — بيزنس بارتنر"), desc: Lraw("Contact Business Partner by phone, email or the form — and we'll get back to you.", "تواصل مع بيزنس بارتنر عبر الهاتف أو البريد أو النموذج — ونعاود التواصل معك."), active: "/contact", body });
+  return page({ title: Lraw("Contact — Business Partner", "اتصل بنا — Business Partner"), desc: Lraw("Contact Business Partner by phone, email or the form — and we'll get back to you.", "تواصل مع Business Partner عبر الهاتف أو البريد أو النموذج — ونعاود التواصل معك."), active: "/contact", body });
 }
 
 // Installments: we arrange financing for government-service fees through the
@@ -7144,7 +7153,7 @@ function buildInstallments() {
   const channels = [
     ["🏦", L("Your bank", "عن طريق بنكك"), L("Personal finance or installment POS through the major Saudi banks — we prepare the file and quotation your bank asks for.", "تمويل شخصي أو تقسيط نقاط بيع عبر البنوك السعودية الرئيسية — نجهّز لك الملف وعرض السعر الذي يطلبه بنكك.")],
     ["🟣", L("Tamara", "تمارا"), L("Split the fees into 4+ payments through Tamara, subject to its approval and limits.", "قسّم الرسوم على 4 دفعات أو أكثر عبر تمارا، حسب موافقتها وحدودها.")],
-    ["📱", L("E-wallets", "المحافظ الإلكترونية"), L("STC Pay and similar wallets for scheduled partial payments combined with your Business Partner wallet.", "STC Pay والمحافظ المشابهة لدفعات جزئية مجدولة بالتكامل مع محفظتك في بيزنس بارتنر.")],
+    ["📱", L("E-wallets", "المحافظ الإلكترونية"), L("STC Pay and similar wallets for scheduled partial payments combined with your Business Partner wallet.", "STC Pay والمحافظ المشابهة لدفعات جزئية مجدولة بالتكامل مع محفظتك في Business Partner.")],
   ].map((c) => `<div class="card feature"><div class="card-icon" style="font-size:1.6rem">${c[0]}</div><h3>${c[1]}</h3><p>${c[2]}</p></div>`).join("");
   const steps = [
     [1, L("Pick the service & amount", "حدد الخدمة والمبلغ"), L("Choose the government service or SADAD invoice you want to split.", "اختر الخدمة الحكومية أو فاتورة سداد التي تريد تقسيطها.")],
@@ -7180,7 +7189,7 @@ function buildInstallments() {
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Channels", "القنوات")}</span><h2>${L("Instalment channels we arrange", "قنوات التقسيط التي نرتبها لك")}</h2></div>
     <div class="grid grid-3">${channels}</div>
-    <div class="callout" style="max-width:760px;margin:28px auto 0"><span class="ico">⚖️</span><p>${L("Business Partner arranges and coordinates the financing; final approval, terms and any financing cost are set by the bank / provider.", "بيزنس بارتنر يرتب وينسق التمويل؛ الموافقة النهائية والشروط وأي كلفة تمويل تحددها جهة التمويل نفسها.")}</p></div>
+    <div class="callout" style="max-width:760px;margin:28px auto 0"><span class="ico">⚖️</span><p>${L("Business Partner arranges and coordinates the financing; final approval, terms and any financing cost are set by the bank / provider.", "Business Partner يرتب وينسق التمويل؛ الموافقة النهائية والشروط وأي كلفة تمويل تحددها جهة التمويل نفسها.")}</p></div>
     <div class="callout" style="max-width:760px;margin:14px auto 0"><span class="ico">💰</span><p>${L("Split it today, reclaim it tomorrow: many of these same fees are refundable through Monsha'at's Estrdad initiative — as long as your establishment stays compliant.", "قسّطها اليوم واستردها غداً: كثير من هذه الرسوم نفسها قابلة للاسترداد عبر مبادرة «استرداد» من منشآت — ما دامت منشأتك ممتثلة.")} <a href="${u("/estrdad")}">${L("How refunds work ←", "كيف يعمل الاسترداد ←")}</a></p></div>
   </div></section>
 
@@ -7211,7 +7220,7 @@ function buildInstallments() {
       </form>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Instalments for government services — Business Partner", "تقسيط الخدمات الحكومية — بيزنس بارتنر"), desc: Lraw("Split Saudi government fees through banks, Tamara or e-wallets — we arrange, pay and follow through.", "قسّط الرسوم الحكومية عبر البنوك أو تمارا أو المحافظ الإلكترونية — نرتب ونسدد ونتابع عنك."), active: "/installments", path: "/installments", body });
+  return page({ title: Lraw("Instalments for government services — Business Partner", "تقسيط الخدمات الحكومية — Business Partner"), desc: Lraw("Split Saudi government fees through banks, Tamara or e-wallets — we arrange, pay and follow through.", "قسّط الرسوم الحكومية عبر البنوك أو تمارا أو المحافظ الإلكترونية — نرتب ونسدد ونتابع عنك."), active: "/installments", path: "/installments", body });
 }
 
 // Estrdad (استرداد) — Monsha'at's government-fee refund initiative
@@ -7245,7 +7254,7 @@ function buildEstrdad() {
     [L("Continuous compliance watch", "مراقبة امتثال مستمرة"), L("The Compliance Agent tracks your CR, certificates, licenses and Nitaqat daily and alerts you BEFORE anything expires — so your refund never stops.", "مستشار الامتثال يراقب سجلك وشهاداتك وتراخيصك ونطاقاتك يومياً وينبهك قبل أي انتهاء — فلا تتوقف دفعاتك أبداً."), "/compliance-agent"],
     [L("Nitaqat before it hurts", "نطاقاتك قبل ما تتأثر"), L("HR management (Qiwa, GOSI, Mudad) and recruitment that keep your Saudization inside the eligible band.", "إدارة الموارد البشرية (قوى، التأمينات، مدد) والتوظيف بما يُبقي توطينك ضمن النطاق المؤهل."), "/hr"],
     [L("File preparation & submission", "تجهيز الملف والتقديم"), L("Size certificate, IBAN certificate, activity licenses, accurate data — we prepare the full Estrdad file and follow your request to disbursement, including objections within the 60-day window.", "شهادة حجم المنشأة، شهادة الآيبان، التراخيص، ودقة البيانات — نجهّز ملف استرداد كاملاً ونتابع طلبك حتى الصرف، بما فيه الاعتراض خلال مهلة الـ60 يوماً."), "/consultation"],
-    [L("Renewals paid on time — from your wallet", "تجديداتك تُسدد في وقتها — من محفظتك"), L("Chamber, municipal and license renewals paid from your Business Partner wallet before they lapse — the same fees Estrdad refunds you.", "تجديدات الغرفة والبلدية والتراخيص تُسدد من محفظتك في بيزنس بارتنر قبل انتهائها — وهي نفسها الرسوم التي تستردها من المبادرة."), "/account"],
+    [L("Renewals paid on time — from your wallet", "تجديداتك تُسدد في وقتها — من محفظتك"), L("Chamber, municipal and license renewals paid from your Business Partner wallet before they lapse — the same fees Estrdad refunds you.", "تجديدات الغرفة والبلدية والتراخيص تُسدد من محفظتك في Business Partner قبل انتهائها — وهي نفسها الرسوم التي تستردها من المبادرة."), "/account"],
   ].map((h) => `<div class="card"><h3>${h[0]}</h3><p>${h[1]}</p><a class="card-link" href="${u(h[3] || h[2])}">${L("Learn more", "اعرف أكثر")} ${I.arrow}</a></div>`).join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
@@ -7271,7 +7280,7 @@ function buildEstrdad() {
   </div></section>
 
   <section class="section section--navy"><div class="container">
-    <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${L("Why Business Partner", "ليش بيزنس بارتنر")}</span><h2 style="color:#fff">${L("This is literally why we exist as your operating partner", "هذا حرفياً سبب وجودنا كشريك تشغيلك")}</h2><p style="color:rgba(255,255,255,.85)">${L("We don't just submit your Estrdad request — we keep your establishment refund-eligible every single day through 2028.", "نحن لا نقدّم طلب الاسترداد فقط — نحن نُبقي منشأتك مستحقة للاسترداد كل يوم حتى 2028.")}</p></div>
+    <div class="section-head"><span class="eyebrow" style="background:rgba(255,255,255,.15);color:#fff">${L("Why Business Partner", "ليش Business Partner")}</span><h2 style="color:#fff">${L("This is literally why we exist as your operating partner", "هذا حرفياً سبب وجودنا كشريك تشغيلك")}</h2><p style="color:rgba(255,255,255,.85)">${L("We don't just submit your Estrdad request — we keep your establishment refund-eligible every single day through 2028.", "نحن لا نقدّم طلب الاسترداد فقط — نحن نُبقي منشأتك مستحقة للاسترداد كل يوم حتى 2028.")}</p></div>
     <div class="grid grid-2">${helps}</div>
   </div></section>
 
@@ -7292,9 +7301,9 @@ function buildEstrdad() {
         <div class="form-success" id="estrdad-success" hidden></div>
       </form>
     </div>
-    <div class="callout" style="margin-top:20px"><span class="ico">⚖️</span><p>${L("Estrdad is a Monsha'at initiative and requests are submitted on its official portal; Business Partner prepares your file, keeps you compliant and follows your request — we are not the disbursing authority.", "«استرداد» مبادرة من هيئة منشآت والتقديم عبر بوابتها الرسمية؛ بيزنس بارتنر يجهّز ملفك ويحافظ على امتثالك ويتابع طلبك — ولسنا الجهة الصارفة.")}</p></div>
+    <div class="callout" style="margin-top:20px"><span class="ico">⚖️</span><p>${L("Estrdad is a Monsha'at initiative and requests are submitted on its official portal; Business Partner prepares your file, keeps you compliant and follows your request — we are not the disbursing authority.", "«استرداد» مبادرة من هيئة منشآت والتقديم عبر بوابتها الرسمية؛ Business Partner يجهّز ملفك ويحافظ على امتثالك ويتابع طلبك — ولسنا الجهة الصارفة.")}</p></div>
   </div></section>`;
-  return page({ title: Lraw("Reclaim government fees (Estrdad) — Business Partner", "استرداد الرسوم الحكومية (مبادرة استرداد) — بيزنس بارتنر"), desc: Lraw("Monsha'at refunds SME government fees — if you stay compliant. We keep you eligible and handle the file.", "منشآت تعيد رسومك الحكومية — بشرط الامتثال المستمر. نُبقيك مستحقاً ونجهّز ملفك كاملاً."), active: "/estrdad", path: "/estrdad", body });
+  return page({ title: Lraw("Reclaim government fees (Estrdad) — Business Partner", "استرداد الرسوم الحكومية (مبادرة استرداد) — Business Partner"), desc: Lraw("Monsha'at refunds SME government fees — if you stay compliant. We keep you eligible and handle the file.", "منشآت تعيد رسومك الحكومية — بشرط الامتثال المستمر. نُبقيك مستحقاً ونجهّز ملفك كاملاً."), active: "/estrdad", path: "/estrdad", body });
 }
 
 // Shared partners-repeater markup: rows of (name, mobile, email[, share%]).
@@ -7365,7 +7374,7 @@ function buildBankAccount() {
     </div>
     <div class="callout" style="margin-top:20px"><span class="ico">⚖️</span><p>${L("Account opening and its requirements are the bank's decision; we prepare, coordinate and follow through.", "فتح الحساب ومتطلباته قرار البنك؛ نحن نجهّز وننسق ونتابع حتى الفتح.")}</p></div>
   </div></section>`;
-  return page({ title: Lraw("Corporate bank account opening — Business Partner", "فتح حساب بنكي للشركات — بيزنس بارتنر"), desc: Lraw("We prepare the file, coordinate with your bank and book an online meeting — all partners notified.", "نجهّز الملف وننسق مع بنكك ونحجز اجتماعاً أونلاين — مع إشعار جميع الشركاء."), active: "/bank-account", path: "/bank-account", body });
+  return page({ title: Lraw("Corporate bank account opening — Business Partner", "فتح حساب بنكي للشركات — Business Partner"), desc: Lraw("We prepare the file, coordinate with your bank and book an online meeting — all partners notified.", "نجهّز الملف وننسق مع بنكك ونحجز اجتماعاً أونلاين — مع إشعار جميع الشركاء."), active: "/bank-account", path: "/bank-account", body });
 }
 
 // Manager powers in the formation form — the main→sub structure and wording
@@ -7510,7 +7519,7 @@ function buildFormationContract() {
     </div>
     <script>window.FC_CONFIG=${JSON.stringify(fcConfig).replace(/</g, "\\u003c")};</script>
   </div></section>`;
-  return page({ title: Lraw("Company formation with partners (incorporation contract) — Business Partner", "تأسيس الشركات بين الشركاء (عقد التأسيس) — بيزنس بارتنر"), desc: Lraw("We draft the incorporation contract, submit via the Saudi Business Center, and get every partner to e-sign.", "نصيغ عقد التأسيس ونقدّمه عبر المركز السعودي للأعمال وننسق توقيع كل الشركاء إلكترونياً."), active: "/formation-contract", path: "/formation-contract", body });
+  return page({ title: Lraw("Company formation with partners (incorporation contract) — Business Partner", "تأسيس الشركات بين الشركاء (عقد التأسيس) — Business Partner"), desc: Lraw("We draft the incorporation contract, submit via the Saudi Business Center, and get every partner to e-sign.", "نصيغ عقد التأسيس ونقدّمه عبر المركز السعودي للأعمال وننسق توقيع كل الشركاء إلكترونياً."), active: "/formation-contract", path: "/formation-contract", body });
 }
 
 function buildCart() {
@@ -7548,7 +7557,7 @@ function buildCart() {
       </aside>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Cart — Business Partner", "السلة — بيزنس بارتنر"), desc: Lraw("Your cart of Business Partner services and packages.", "سلة طلباتك من خدمات وباقات بيزنس بارتنر."), active: "/cart", path: "/cart", body });
+  return page({ title: Lraw("Cart — Business Partner", "السلة — Business Partner"), desc: Lraw("Your cart of Business Partner services and packages.", "سلة طلباتك من خدمات وباقات Business Partner."), active: "/cart", path: "/cart", body });
 }
 
 // The discount box the cart and checkout asides share. The aside's stylesheet
@@ -7740,7 +7749,7 @@ function buildCheckout() {
     </div>
   </div></section>`;
   const bodyWithCodes = body + `<script>window.BP_DISCOUNTS=${JSON.stringify(catalogDiscounts())};</script>`;
-  return page({ title: Lraw("Checkout — Business Partner", "إتمام الطلب — بيزنس بارتنر"), desc: Lraw("Pay online by card and your order activates instantly with a tax invoice — or pay by bank transfer and upload the receipt.", "ادفع إلكترونياً بالبطاقة ويتفعّل طلبك فوراً مع فاتورتك الضريبية — أو حوّل بنكياً وارفع الإيصال."), active: "/cart", path: "/checkout", body: bodyWithCodes });
+  return page({ title: Lraw("Checkout — Business Partner", "إتمام الطلب — Business Partner"), desc: Lraw("Pay online by card and your order activates instantly with a tax invoice — or pay by bank transfer and upload the receipt.", "ادفع إلكترونياً بالبطاقة ويتفعّل طلبك فوراً مع فاتورتك الضريبية — أو حوّل بنكياً وارفع الإيصال."), active: "/cart", path: "/checkout", body: bodyWithCodes });
 }
 
 function buildTerms() {
@@ -7780,8 +7789,8 @@ function buildTerms() {
     .terms-list li::marker{color:var(--navy);font-weight:700}
   </style>`;
   return page({
-    title: Lraw("Terms & Conditions — Business Partner", "الشروط والأحكام — بيزنس بارتنر"),
-    desc: Lraw("The terms and conditions governing subscriptions and purchases with Business Partner.", "الشروط والأحكام التي تحكم الاشتراكات والمشتريات مع بيزنس بارتنر."),
+    title: Lraw("Terms & Conditions — Business Partner", "الشروط والأحكام — Business Partner"),
+    desc: Lraw("The terms and conditions governing subscriptions and purchases with Business Partner.", "الشروط والأحكام التي تحكم الاشتراكات والمشتريات مع Business Partner."),
     active: "/terms",
     path: "/terms",
     body,
@@ -8090,7 +8099,7 @@ function buildAccount() {
       </div>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Client portal — Business Partner", "منصّة العملاء — بيزنس بارتنر"), desc: Lraw("Sign in to track your orders and documents with Business Partner.", "سجّل دخولك لمتابعة طلباتك ومستنداتك مع بيزنس بارتنر."), active: "/account", path: "/account", body });
+  return page({ title: Lraw("Client portal — Business Partner", "منصّة العملاء — Business Partner"), desc: Lraw("Sign in to track your orders and documents with Business Partner.", "سجّل دخولك لمتابعة طلباتك ومستنداتك مع Business Partner."), active: "/account", path: "/account", body });
 }
 
 function buildConsultation() {
@@ -8146,7 +8155,7 @@ function buildConsultation() {
       </aside>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Book a consultation — Business Partner", "احجز استشارة — بيزنس بارتنر"), desc: Lraw(b.leadEn, b.lead), active: "/consultation", path: "/consultation", body });
+  return page({ title: Lraw("Book a consultation — Business Partner", "احجز استشارة — Business Partner"), desc: Lraw(b.leadEn, b.lead), active: "/consultation", path: "/consultation", body });
 }
 
 // Must match the "التصنيف" options in the Suppliers Notion registry — the
@@ -8181,7 +8190,7 @@ function buildSuppliers() {
   const body = `
   <section class="hero hero--sm"><div class="container hero-inner">
     <span class="eyebrow">${L("Partners", "الشركاء")}</span>
-    <h1>${L("Join the Business Partner network", "انضم كشريك لدى بيزنس بارتنر")}</h1>
+    <h1>${L("Join the Business Partner network", "انضم كشريك لدى Business Partner")}</h1>
     <p class="lead">${L("We send our clients' service and event requests to registered partners and collect competing offers. Register once — matching requests reach you, and your dashboard opens straight away.", "نرسل طلبات عملائنا (خدمات وفعاليات) للشركاء المسجّلين ونجمع العروض المنافسة. سجّل مرة واحدة — تصلك الطلبات المناسبة لنشاطك وتفتح لوحتك فوراً.")}</p>
     <div class="hero-actions">
       <a class="btn btn-primary btn-lg" href="${joinHref}">${L("Create your partner account", "أنشئ حسابك كشريك")}</a>
@@ -8239,7 +8248,7 @@ function buildSuppliers() {
       <a class="btn btn-white btn-lg" href="${joinHref}">${L("Create your partner account", "أنشئ حسابك كشريك")}</a>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Partner registration — Business Partner", "تسجيل الشركاء — بيزنس بارتنر"), desc: Lraw("Register as a Business Partner partner and receive matching client requests.", "سجّل كشريك لدى بيزنس بارتنر وتصلك طلبات العملاء المناسبة لنشاطك."), active: "/suppliers", path: "/suppliers", body });
+  return page({ title: Lraw("Partner registration — Business Partner", "تسجيل الشركاء — Business Partner"), desc: Lraw("Register as a Business Partner partner and receive matching client requests.", "سجّل كشريك لدى Business Partner وتصلك طلبات العملاء المناسبة لنشاطك."), active: "/suppliers", path: "/suppliers", body });
 }
 
 // Partner dashboard — the operational side of the partners portal, wired to the
@@ -8281,7 +8290,7 @@ function buildContractPage() {
     </div>
     <div id="c-paper" hidden></div>
   </div></section>`;
-  return page({ title: L("Signed contract — Business Partner", "العقد الموقّع — بيزنس بارتنر"), desc: Lraw("Your signed contract.", "عقدك الموقّع."), body, noindex: true });
+  return page({ title: L("Signed contract — Business Partner", "العقد الموقّع — Business Partner"), desc: Lraw("Your signed contract.", "عقدك الموقّع."), body, noindex: true });
 }
 
 function buildQuotePage() {
@@ -8361,7 +8370,7 @@ function buildQuotePage() {
 
       <div class="dash-card" id="q-actions">
         <h3 style="margin-top:0">${L("Your decision", "قرارك")}</h3>
-        <p class="text-soft" style="font-size:.9rem;line-height:1.9">${L("Accepting starts the work. You will then receive the contract to sign and the tax invoice to pay — both from Business Partner.", "القبول يبدأ التنفيذ. بعده يصلك العقد للتوقيع والفاتورة الضريبية للسداد — كلاهما من بيزنس بارتنر.")}</p>
+        <p class="text-soft" style="font-size:.9rem;line-height:1.9">${L("Accepting starts the work. You will then receive the contract to sign and the tax invoice to pay — both from Business Partner.", "القبول يبدأ التنفيذ. بعده يصلك العقد للتوقيع والفاتورة الضريبية للسداد — كلاهما من Business Partner.")}</p>
         <div class="field"><label for="q-note">${L("A note with your decision (optional)", "ملاحظة مع قرارك (اختياري)")}</label><input id="q-note" type="text" maxlength="300"></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <button type="button" class="btn btn-primary btn-lg" id="q-accept" style="flex:1;min-width:180px">✅ ${L("Accept the quote", "أقبل عرض السعر")}</button>
@@ -8422,7 +8431,7 @@ function buildQuotePage() {
       </div>
     </div>
   </div></section>`;
-  return page({ title: L("Quotation — Business Partner", "عرض سعر — بيزنس بارتنر"), desc: Lraw("Review and accept your quotation.", "راجع عرض سعرك واقبله."), body, noindex: true });
+  return page({ title: L("Quotation — Business Partner", "عرض سعر — Business Partner"), desc: Lraw("Review and accept your quotation.", "راجع عرض سعرك واقبله."), body, noindex: true });
 }
 
 function buildPartnerDashboard() {
@@ -8510,14 +8519,14 @@ function buildPartnerDashboard() {
       </nav>
 
       <section data-pt-pane="orders">
-        <div class="dash-panel-head"><h2>${L("Your work orders", "أوامر العمل الخاصة بك")}</h2><p>${L("Assigned to you by the Business Partner team. Update the status as you go, and upload your invoice once delivered.", "مُسنَدة إليك من فريق بيزنس بارتنر. حدّث الحالة أثناء التنفيذ، وارفع فاتورتك بعد التسليم.")}</p></div>
+        <div class="dash-panel-head"><h2>${L("Your work orders", "أوامر العمل الخاصة بك")}</h2><p>${L("Assigned to you by the Business Partner team. Update the status as you go, and upload your invoice once delivered.", "مُسنَدة إليك من فريق Business Partner. حدّث الحالة أثناء التنفيذ، وارفع فاتورتك بعد التسليم.")}</p></div>
         <div id="pt-feed"><p class="dash-empty">${L("No work orders yet — new assignments appear here and reach you by email.", "لا توجد أوامر عمل بعد — كل إسناد جديد يظهر هنا ويصلك على بريدك.")}</p></div>
       </section>
 
       <section data-pt-pane="mine" hidden>
         <div class="dash-panel-head"><h2>${L("My services & prices", "خدماتي وأسعاري")}</h2><p>${L("Build each service once with your price and delivery time. Every quote is then assembled by picking from this list — you never retype a price you already decided.", "ابنِ كل خدمة مرة واحدة بسعرك ومدة تنفيذك. بعدها كل عرض سعر يُبنى بالاختيار من هذه القائمة — ولا تعيد كتابة سعر قرّرته من قبل.")}</p></div>
         <div class="dash-card" style="margin-bottom:14px">
-          <p class="text-soft" style="font-size:.86rem;margin:0 0 10px">${L("This is your price list with us — what you charge Business Partner. It is not published on the site; publishing is a separate proposal.", "هذه قائمة أسعارك معنا — ما تتقاضاه من بيزنس بارتنر. لا تُنشر على الموقع؛ النشر طلب منفصل.")}</p>
+          <p class="text-soft" style="font-size:.86rem;margin:0 0 10px">${L("This is your price list with us — what you charge Business Partner. It is not published on the site; publishing is a separate proposal.", "هذه قائمة أسعارك معنا — ما تتقاضاه من Business Partner. لا تُنشر على الموقع؛ النشر طلب منفصل.")}</p>
           <div id="pm-list"></div>
           <button type="button" class="btn btn-ghost btn-sm" id="pm-add">＋ ${L("Add a service", "أضف خدمة")}</button>
           <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
@@ -8528,7 +8537,7 @@ function buildPartnerDashboard() {
       </section>
 
       <section data-pt-pane="catalog" hidden>
-        <div class="dash-panel-head" id="pt-cat-head"><h2>${L("Services you can execute", "الخدمات التي يمكنك تنفيذها")}</h2><p>${L("Business Partner's published catalogue. The price is what the client pays before VAT; your share is what reaches you after our commission.", "كتالوج بيزنس بارتنر المنشور. السعر هو ما يدفعه العميل قبل الضريبة، ونصيبك هو ما يصلك بعد عمولتنا.")}</p></div>
+        <div class="dash-panel-head" id="pt-cat-head"><h2>${L("Services you can execute", "الخدمات التي يمكنك تنفيذها")}</h2><p>${L("Business Partner's published catalogue. The price is what the client pays before VAT; your share is what reaches you after our commission.", "كتالوج Business Partner المنشور. السعر هو ما يدفعه العميل قبل الضريبة، ونصيبك هو ما يصلك بعد عمولتنا.")}</p></div>
         <div class="calc-form" style="margin-bottom:14px">
           <div class="grid grid-2" style="gap:0 20px">
             <div class="field"><label for="pt-cat-search">${L("Search a service", "ابحث عن خدمة")}</label><input id="pt-cat-search" type="search" placeholder="${Lraw("Service name…", "اسم الخدمة…")}"></div>
@@ -8562,7 +8571,7 @@ function buildPartnerDashboard() {
         </div>
         <div class="dash-card" style="margin-bottom:14px">
           <h3 style="margin:0 0 8px">${L("Escrows held for you", "ضمانات محجوزة لصالحك")}</h3>
-          <p class="text-soft" style="font-size:.84rem;margin:0 0 10px">${L("The client funded these with Business Partner as the guarantor. Each releases to your balance when the client approves delivery.", "موّلها العميل وبيزنس بارتنر هو الضامن. كل مبلغ يتحرر إلى رصيدك عندما يعتمد العميل التسليم.")}</p>
+          <p class="text-soft" style="font-size:.84rem;margin:0 0 10px">${L("The client funded these with Business Partner as the guarantor. Each releases to your balance when the client approves delivery.", "موّلها العميل وBusiness Partner هو الضامن. كل مبلغ يتحرر إلى رصيدك عندما يعتمد العميل التسليم.")}</p>
           <div id="pw-escrows"><p class="dash-empty">${L("Sign in to see your escrows.", "سجّل الدخول لعرض ضماناتك.")}</p></div>
         </div>
         <div class="dash-card" style="margin-bottom:14px">
@@ -8633,7 +8642,7 @@ function buildPartnerDashboard() {
       </form>
     </div>
   </div></div>`;
-  return page({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_SUP_CATS=${JSON.stringify(SUPPLIER_CATS.map((c) => c.ar))};window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Partner dashboard — Business Partner", "لوحة الشريك — بيزنس بارتنر"), desc: Lraw("Partners portal: the services you can execute, the work orders assigned to you, and your invoices.", "بوابة الشركاء: الخدمات التي تقدر تنفّذها، أوامر العمل المسندة إليك، وفواتيرك."), active: "/suppliers", path: "/partner-dashboard", body });
+  return page({ script: `<script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_SUP_CATS=${JSON.stringify(SUPPLIER_CATS.map((c) => c.ar))};window.BP_GOOGLE_CLIENT_ID=${JSON.stringify(process.env.GOOGLE_CLIENT_ID || "")};</script>`, title: Lraw("Partner dashboard — Business Partner", "لوحة الشريك — Business Partner"), desc: Lraw("Partners portal: the services you can execute, the work orders assigned to you, and your invoices.", "بوابة الشركاء: الخدمات التي تقدر تنفّذها، أوامر العمل المسندة إليك، وفواتيرك."), active: "/suppliers", path: "/partner-dashboard", body });
 }
 
 // Owner-only supplier control panel. Gated by the same PANEL_KEY/LEADS_KEY that
@@ -8739,7 +8748,7 @@ function buildJobSearchAdmin() {
       <div id="js-list"><p class="dash-empty">${L("Nothing yet.", "لا يوجد بعد.")}</p></div>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Job-search service — Business Partner", "خدمة البحث عن وظيفة — بيزنس بارتنر"), desc: Lraw("Owner panel for the candidate job-search service.", "لوحة المالك لخدمة البحث عن وظيفة."), active: "/hr", path: "/jobsearch-admin", body, noindex: true });
+  return page({ title: Lraw("Job-search service — Business Partner", "خدمة البحث عن وظيفة — Business Partner"), desc: Lraw("Owner panel for the candidate job-search service.", "لوحة المالك لخدمة البحث عن وظيفة."), active: "/hr", path: "/jobsearch-admin", body, noindex: true });
 }
 
 function buildAgenciesAdmin() {
@@ -8807,7 +8816,7 @@ function buildAgenciesAdmin() {
       <p class="emp-note" style="margin-top:14px">${L("Every candidate an office submits lands in the same ATS pool, tagged with the office name, its contact person and the profession it nominated them for — see the “🌍 مرشحو المكاتب” views in Notion. None of those columns is shown on the public site.", "كل مرشح يرفعه أي مكتب يدخل نفس قاعدة ATS، موسوماً باسم المكتب والشخص المسؤول والمهنة التي رشّحه عليها — راجع فيوهات «🌍 مرشحو المكاتب» في نوشن. ولا يظهر أي من هذه الأعمدة على الموقع.")}</p>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Recruitment providers panel — Business Partner", "لوحة مزوّدي التوظيف — بيزنس بارتنر"), desc: Lraw("Owner panel for the recruitment agency network.", "لوحة المالك لشبكة مكاتب الاستقدام."), active: "/hr", path: "/agencies-admin", body, noindex: true });
+  return page({ title: Lraw("Recruitment providers panel — Business Partner", "لوحة مزوّدي التوظيف — Business Partner"), desc: Lraw("Owner panel for the recruitment agency network.", "لوحة المالك لشبكة مكاتب الاستقدام."), active: "/hr", path: "/agencies-admin", body, noindex: true });
 }
 
 function buildSuppliersAdmin() {
@@ -8868,7 +8877,7 @@ function buildSuppliersAdmin() {
       <div id="sa-suppliers"><p class="dash-empty">${L("No suppliers yet.", "لا يوجد موردون بعد.")}</p></div>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Partners control panel — Business Partner", "لوحة تحكم الشركاء — بيزنس بارتنر"), desc: Lraw("Owner panel for the partner network.", "لوحة المالك لشبكة الشركاء."), active: "/suppliers", path: "/suppliers-admin", body, noindex: true });
+  return page({ title: Lraw("Partners control panel — Business Partner", "لوحة تحكم الشركاء — Business Partner"), desc: Lraw("Owner panel for the partner network.", "لوحة المالك لشبكة الشركاء."), active: "/suppliers", path: "/suppliers-admin", body, noindex: true });
 }
 
 function buildMonitor() {
@@ -9063,7 +9072,10 @@ function buildDashboard() {
       input.value = '';
       pushMsg(card, msg, 'me');
       var thinking = pushMsg(card, '…', 'bot');
-      var btn = card.querySelector('.send'); btn.disabled = true;
+      var btn = card.querySelector('.send');
+      // وضع الاختبار (localhost / معاينة vercel.app): لا يخرج شيء إلى n8n.
+      if (window.BP_TEST_MODE) { thinking.textContent = window.bpTestNote('agent chat'); return; }
+      btn.disabled = true;
       var ctrl = new AbortController();
       var timer = setTimeout(function(){ ctrl.abort(); }, 60000);
       fetch(N8N_BASE + '/' + a.path, {
@@ -9272,7 +9284,7 @@ function buildConnect(pre = "/") {
         <p style="margin-top:.6rem"><a href="${pre}portal" style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:999px;padding:.5rem 1rem;font-weight:700;text-decoration:none;display:inline-block">🎁 جرّب الفريق كامل مجاناً قبل الاشتراك (3 رسائل لكل موظف) ←</a></p>
       </div>
       <div class="emps" id="emps"></div>
-      <p class="emp-note">بعد الدفع نتحقق من الإيصال ونفعّل الوصول — استخدم رقم طلبك كـ كود تفعيل في <a href="${pre}portal">بوابة الموظفين الأذكياء</a>.</p>
+      <p class="emp-note">بعد تأكيد الدفع نفعّل الوصول — استخدم رقم طلبك كـ كود تفعيل في <a href="${pre}portal">بوابة الموظفين الأذكياء</a>.</p>
     </div>
   </section>
   <section id="connect" style="background:#eef1f8">
@@ -9289,8 +9301,8 @@ function buildConnect(pre = "/") {
       <div class="sec-head"><h2>🧭 رحلة العميل — من الاختيار إلى التشغيل</h2><p>خمس خطوات واضحة، كلها داخل الموقع — بدون واتساب وبدون انتظار.</p></div>
       <div class="jgrid">
         <div class="jstep"><span class="jn">1</span><b>اختر موظفيك</b><span>حدّد من هذه الصفحة موظفاً واحداً أو أكثر وأضفهم للسلة${SHOW_PRICES ? " (500 ﷼/شهرياً للموظف)" : ""}.</span></div>
-        <div class="jstep"><span class="jn">2</span><b>ادفع وأرفق الإيصال</b><span>أكمل الطلب من السلة بالتحويل البنكي وأرفق إيصال PDF — يصلك رقم طلب مثل BP-506275.</span></div>
-        <div class="jstep"><span class="jn">3</span><b>نتحقق ونفعّل</b><span>نطابق الإيصال مع طلبك ونعتمد الدفع — رقم طلبك نفسه يصير كود التفعيل.</span></div>
+        <div class="jstep"><span class="jn">2</span><b>ادفع إلكترونياً</b><span>أكمل الطلب من السلة وادفع بالبطاقة (مدى · فيزا · ماستركارد) أو Apple Pay أو تمارا — يصلك رقم طلب مثل BP-506275.</span></div>
+        <div class="jstep"><span class="jn">3</span><b>يتأكد الدفع ونفعّل</b><span>يتأكد الدفع تلقائياً ويُعتمد طلبك — رقم طلبك نفسه يصير كود التفعيل.</span></div>
         <div class="jstep"><span class="jn">4</span><b>ادخل بوابتك</b><span>افتح <a href="${pre}portal">بوابة الموظفين الأذكياء</a> بنفس بريدك + كودك — يفتح لك بالضبط اللي اشتريته.</span></div>
         <div class="jstep"><span class="jn">5</span><b>اشتغل واربط أدواتك</b><span>حادث موظفك بلغتك العادية، واربط Gmail ونوشن وأدواتك من مركز الربط أعلاه.</span></div>
       </div>
@@ -9651,7 +9663,7 @@ function buildPortal(pre = "/") {
       <div class="field"><label>كود التفعيل</label><input id="code" type="text" placeholder="رقم طلبك (مثال BP-506275) أو كود التفعيل" style="text-align:center;letter-spacing:1px" /></div>
       <button class="bigbtn" id="loginBtn">دخول</button>
       <div class="err" id="loginErr"></div>
-      <a class="linkbtn" style="display:block;text-align:center;margin-top:10px;text-decoration:none" href="/ar/account?redirect=employees">🔐 بدون كود — ادخل برمز يوصلك على الإيميل عبر حساب بيزنس بارتنر</a>
+      <a class="linkbtn" style="display:block;text-align:center;margin-top:10px;text-decoration:none" href="/ar/account?redirect=employees">🔐 بدون كود — ادخل برمز يوصلك على الإيميل عبر حساب Business Partner</a>
       <button type="button" class="bigbtn trial" id="trialBtn">🎁 جرّب الفريق كامل مجاناً (3 رسائل لكل موظف)</button>
       <div class="hint-code">💡 بعد ما نتأكد من الدفع، رقم طلبك نفسه يصير كود التفعيل ويفتح فقط الموظفين اللي اشتركت فيهم — على نفس البريد اللي اشتريت فيه.</div>
       <button class="linkbtn" id="noCodeBtn">ما اشتريت بعد؟ اختر موظفيك وابدأ الطلب</button>
@@ -9933,7 +9945,10 @@ function buildPortal(pre = "/") {
       if(isTrial){ trialInc(agentAtSend.slug); updateTrialBadge(agentAtSend.slug); }
       inp.value=''; push(m,'me');
       histRef.push({text:m,cls:'me'}); saveChat(agentAtSend.slug,histRef);
-      var think=push('…','bot'); var btn=$('send'); btn.disabled=true;
+      var think=push('…','bot'); var btn=$('send');
+      // وضع الاختبار (localhost / معاينة vercel.app): لا يخرج شيء إلى n8n.
+      if(window.BP_TEST_MODE){ think.textContent=window.bpTestNote('agent chat'); return; }
+      btn.disabled=true;
       var ctrl=new AbortController(); var timer=setTimeout(function(){ctrl.abort();},60000);
       fetch(N8N_BASE+'/'+agentAtSend.path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client_name:'',channel:'portal',message:m,history:hist}),signal:ctrl.signal})
         .then(function(r){return r.text();})
@@ -10345,7 +10360,7 @@ function buildSharedServices() {
       <div class="sec-head"><h2>${L("How to subscribe & open your service", "كيف تشترك وتفتح خدمتك")}</h2><p>${L("A clear journey from subscription to opening your dashboard.", "رحلة واضحة من الاشتراك حتى فتح لوحتك.")}</p></div>
       <div class="ss-steps">
         <div class="ss-step"><span class="n">1</span><b>${L("Add to cart", "أضف للسلة")}</b><p>${L("Add the shared-services subscription to your cart from this page.", "أضف اشتراك الخدمات المشتركة لسلتك من هذه الصفحة.")}</p></div>
-        <div class="ss-step"><span class="n">2</span><b>${L("Pay", "ادفع")}</b><p>${L("Pay online for instant activation, or by bank transfer with the receipt.", "ادفع إلكترونياً فيتفعّل فوراً، أو بتحويل بنكي مع رفع الإيصال.")}</p></div>
+        <div class="ss-step"><span class="n">2</span><b>${L("Pay", "ادفع")}</b><p>${L("Pay online by card (mada · Visa · Mastercard), Apple Pay or Tamara — it activates instantly.", "ادفع إلكترونياً بالبطاقة (مدى · فيزا · ماستركارد) أو Apple Pay أو تمارا فيتفعّل فوراً.")}</p></div>
         <div class="ss-step"><span class="n">3</span><b>${L("Get your code", "يوصلك رمزك")}</b><p>${L("Once payment is confirmed, your access code is emailed to your registered address.", "بعد تأكيد الدفع، يصلك رمز الدخول على بريدك المسجّل.")}</p></div>
         <div class="ss-step"><span class="n">4</span><b>${L("Open your dashboard", "افتح لوحتك")}</b><p>${L("Enter your code in the service portal and your team dashboard opens.", "أدخل رمزك في بوابة الخدمة فتفتح لوحة فريقك.")}</p></div>
       </div>
@@ -10547,7 +10562,7 @@ function buildSharedServices() {
   </style>`;
   const script = "";
   return page({
-    title: Lraw("Shared Services — your smart executive team | Business Partner", "الخدمات المشتركة — فريقك التنفيذي الذكي | بيزنس بارتنر"),
+    title: Lraw("Shared Services — your smart executive team | Business Partner", "الخدمات المشتركة — فريقك التنفيذي الذكي | Business Partner"),
     desc: Lraw("A full AI executive team that works as your own staff, led by Baher: government, compliance, sales, marketing, IT, procurement and admin — one subscription.", "فريق تنفيذي ذكي متكامل يعمل كموظفيك بقيادة باهر: حكومي، امتثال، مبيعات، تسويق، تقنية، مشتريات وإدارة — باشتراك واحد."),
     active: "/shared-services", path: "/shared-services", body, script,
   });
@@ -10709,7 +10724,7 @@ function buildSharedServicesPortal() {
     <div class="wrap">
       <div class="ss-access">
         <h2>${L("Sign in to the service", "دخول الخدمة")}</h2>
-        <p id="ss-gate-lead">${L("Your team portal opens straight from your Business Partner account — no access code needed.", "بوابة فريقك تفتح مباشرة من حساب العميل في بيزنس بارتنر — بدون أي رمز دخول.")}</p>
+        <p id="ss-gate-lead">${L("Your team portal opens straight from your Business Partner account — no access code needed.", "بوابة فريقك تفتح مباشرة من حساب العميل في Business Partner — بدون أي رمز دخول.")}</p>
         <div class="ss-note-box" id="unl-result" hidden></div>
         <a class="btn btn-primary" id="ss-account-btn" style="width:100%" href="${u("/account")}">🔐 ${L("Sign in with my client account", "ادخل بحساب العميل")}</a>
         <div class="ss-trust">
@@ -11262,6 +11277,8 @@ function buildSharedServicesPortal() {
       var box=document.getElementById('unl-result');
       if(!code){note(box,${JSON.stringify(Lraw("Enter your access code.", "أدخل رمز الوصول."))},'err');return;}
       if(code.toLowerCase()==='demo123'){ setClient({code:'demo123',name:${JSON.stringify(Lraw("Demo preview", "معاينة تجريبية"))},demo:true}); note(box,${JSON.stringify(Lraw("Welcome — opening the preview…", "أهلاً بك — نفتح المعاينة…"))},'ok'); openService(); return; }
+      // وضع الاختبار (localhost / معاينة vercel.app): لا يخرج شيء إلى n8n.
+      if(window.BP_TEST_MODE){note(box,window.bpTestNote('ss-login'),'err');return;}
       note(box,${JSON.stringify(Lraw("Checking your code…", "نتحقق من رمزك…"))},'ok');
       fetch(N8N+'/ss-login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code})})
         .then(function(r){return r.json();})
@@ -11421,6 +11438,7 @@ function buildSharedServicesPortal() {
       if(v===null)return; v=v.trim(); if(!v)return;
       var isUrl=/^(https?:\\/\\/)?[\\w\\u0600-\\u06ff.-]+\\.[a-z\\u0600-\\u06ff]{2,}([\\/?#][^\\s]*)?$/i.test(v)&&v.indexOf(' ')===-1;
       var body={code:c.code}; if(isUrl)body.website=v; else body.about=v;
+      if(window.BP_TEST_MODE){alert(window.bpTestNote('ss-knowledge'));return;}
       kb.disabled=true; kb.textContent='🧠 '+${JSON.stringify(Lraw("Reading & learning…", "نقرأ ونتعلّم…"))};
       fetch(N8N+'/ss-knowledge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
         .then(function(r){return r.json();})
@@ -11458,6 +11476,8 @@ function buildSharedServicesPortal() {
         mine.sent=true;var tick=mineEl.querySelector('.tick');if(tick)tick.classList.add('ok');
         href.push(bm);saveChat(agent.slug,href);
       }
+      // وضع الاختبار (localhost / معاينة vercel.app): لا يخرج شيء إلى n8n، ولا يُحفظ في سجلّ المحادثة.
+      if(window.BP_TEST_MODE){clearTimeout(timer);teamline(false);log.replaceChild(bubble({text:window.bpTestNote('ss-chat'),cls:'bot',ts:Date.now()}),th);log.scrollTop=log.scrollHeight;busy=false;return;}
       fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),signal:ctrl.signal})
         .then(function(r){return r.text();}).then(function(raw){clearTimeout(timer);var rep='';try{var d=JSON.parse(raw);rep=d.reply||d.output||d.text||d.message||'';}catch(e){rep=raw;}finish(rep||BUSY);})
         .catch(function(er){clearTimeout(timer);finish((er&&er.name==='AbortError')?BUSY:ERRT);})
@@ -11617,7 +11637,7 @@ function buildSharedServicesPortal() {
     }
   })();</script>`;
   return page({
-    title: Lraw("Service portal — Shared Services | Business Partner", "بوابة الخدمة — الخدمات المشتركة | بيزنس بارتنر"),
+    title: Lraw("Service portal — Shared Services | Business Partner", "بوابة الخدمة — الخدمات المشتركة | Business Partner"),
     desc: Lraw("Sign in to your Shared Services executive team portal.", "سجّل دخولك لبوابة فريقك التنفيذي في الخدمات المشتركة."),
     active: "/shared-services", path: "/shared-services/dashboard", body, script,
   });
@@ -11693,7 +11713,7 @@ function buildB10X() {
       ${engine("🏢", "B10X Locate", "Real estate & premises", "العقارات والمقار", [["Office, HQ, retail & showroom search", "بحث المكاتب والمقار والمعارض"], ["Warehouse, factory & industrial land", "المستودعات والمصانع والأراضي الصناعية"], ["Shortlist → viewing → negotiation → move-in", "قائمة مختصرة ← معاينة ← تفاوض ← استلام"]], "/workspaces")}
       ${engine("👥", "B10X Workforce", "People & hiring", "الموظفون والتوظيف", [["HR setup, contracts & policies", "تأسيس الموارد البشرية والعقود والسياسات"], ["Saudi & international recruitment", "توظيف محلي ودولي"], ["Visas, work permits & transfers", "التأشيرات ورخص العمل ونقل الخدمات"]], "/hr")}
       ${engine("🎨", "B10X Brand & Digital", "Identity & digital presence", "الهوية والحضور الرقمي", [["Digital Market Entry Kit: identity, profile, deck", "حزمة الدخول الرقمية: هوية وبروفايل وعرض"], ["Launch website (AR/EN) with lead form", "موقع انطلاق عربي/إنجليزي بنموذج عملاء"], ["Social channels setup (LinkedIn, X, Instagram…)", "تجهيز القنوات (لينكدإن، إكس، إنستغرام…)"], ["Advanced tech as priced add-ons", "التقنية المتقدمة كإضافات بعرض مستقل"]], null)}
-      ${engine("📈", "B10X Revenue", "Clients & sales", "العملاء والمبيعات", [["Always-On Revenue Engine — pipeline before landing", "محرك إيراد دائم — بايبلاين قبل الوصول"], ["ICP, target accounts, outreach, meetings", "ICP وحسابات مستهدفة وتواصل واجتماعات"], ["Proposals, negotiations, deals, revenue", "عروض وتفاوض وصفقات وإيراد"]], "/business-development")}
+      ${engine("📈", "B10X Revenue", "Clients & sales", "العملاء والمبيعات", [["Always-On Revenue Engine — pipeline before landing", "محرك إيراد دائم — بايبلاين قبل الوصول"], ["ICP, target accounts, outreach, meetings", "ICP وحسابات مستهدفة وتواصل واجتماعات"], ["Proposals, negotiations, deals, revenue", "عروض وتفاوض وصفقات وإيراد"]], pageVisible("business-development") ? "/business-development" : "")}
       ${engine("🔗", "B10X Source", "Suppliers & partnerships", "الموردون والشراكات", [["Supplier sourcing, RFQs & comparisons", "توريد الموردين وطلبات الأسعار والمقارنات"], ["Distributors, agents & strategic partners", "الموزعون والوكلاء والشركاء الاستراتيجيون"], ["Vendor registration — up to 5/month included", "تسجيل موردين — حتى ٥ شهرياً ضمن الباقة"]], "/suppliers")}
       ${engine("🚀", "B10X Scale", "Growth & deals", "النمو والصفقات", [["New cities, lines & partnerships", "مدن وخطوط أعمال وشراكات جديدة"], ["Acquisition search & M&A coordination", "البحث عن استحواذات وتنسيق الاندماج"], ["B10X Deals — separate mandate per deal", "B10X Deals — باتفاقية مستقلة لكل صفقة"]], "/deals")}
     </div>
@@ -11729,7 +11749,7 @@ function buildB10X() {
         <div id="r1out" class="callout" style="margin-top:12px"><span class="ico">📐</span><p>—</p></div>
         <p class="mini">${L("A planning tool only — it does not represent guaranteed revenue.", "أداة تخطيط فقط — لا تمثّل ضماناً للإيراد.")}</p></div>
     </div>
-    <div class="center mt-32"><a class="btn btn-primary" href="${u("/business-development")}">${L("See the Revenue Engine →", "شاهد محرك الإيرادات ←")}</a></div>
+    ${ifPage("business-development", `<div class="center mt-32"><a class="btn btn-primary" href="${u("/business-development")}">${L("See the Revenue Engine →", "شاهد محرك الإيرادات ←")}</a></div>`)}
   </div></section>
 
   <section class="section dot-bg" id="mission"><div class="container">
@@ -11843,7 +11863,7 @@ function buildB10X() {
   </style>`;
 
   return page({
-    title: Lraw("B10X Faster™ — Saudi Landing OS | Business Partner", "B10X Faster™ — منظومة دخول السعودية | بيزنس بارتنر"),
+    title: Lraw("B10X Faster™ — Saudi Landing OS | Business Partner", "B10X Faster™ — منظومة دخول السعودية | Business Partner"),
     desc: Lraw("Saudi market entry, relocation, operations and growth as a service — formation, housing, government, employees, suppliers and an always-on sales pipeline behind one B10X Account Manager.", "دخول السوق السعودي والانتقال والتشغيل والنمو كخدمة — التأسيس والسكن والحكومة والموظفون والموردون وبايبلاين مبيعات دائم خلف مدير حساب B10X واحد."),
     active: "/b10x", path: "/b10x", body, script: `<script>${script}</script>`, extraHead: b10xCss,
   });
@@ -11859,6 +11879,10 @@ function write(rel, html) {
     // for the internal quote request payload only (never rendered).
     html = html.replace(/ data-price(?:-monthly|-yearly)?="[^"]*"/g, ' data-price=""');
   }
+  // حارس n8n: صفحة ترسل من المتصفح إلى ويبهوك n8n الإنتاجي لا تفعل ذلك من
+  // localhost ولا من معاينة vercel.app (site/scripts/n8n-guard.mjs). الإنتاج
+  // على businesspartner.sa بلا أي تغيير.
+  if (rel.endsWith(".html")) html = injectN8nGuard(html);
   fs.writeFileSync(full, html);
 }
 
@@ -11923,7 +11947,7 @@ function writeFullSite(pre) {
   if (SIMPLE_V1) write(`${pre}catalog.html`, buildSimpleCatalog(SV1, { lang: () => LANG, esc, catLabel: (k) => L(catEn(k), catAr(k)), govLabel }));
   write(`${pre}about.html`, buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
-  write(`${pre}business-development.html`, buildBdaas());
+  if (pageVisible("business-development")) write(`${pre}business-development.html`, buildBdaas());
   write(`${pre}b10x.html`, buildB10X());
   write(`${pre}ai-agents.html`, buildAiAgents());
   write(`${pre}smart-employee.html`, buildSmartEmployeePage());
@@ -12001,6 +12025,9 @@ function writeFullSite(pre) {
     write(`${pre}trips.html`, buildSimpleTrips(SV1, { lang: () => LANG, esc }, TRIPS));
     // التوظيف: تبويب رابع يجمع بوابات صاحب العمل والوظائف المتاحة والباحث عن العمل.
     write(`${pre}hiring.html`, buildSimpleHiring(SV1, { lang: () => LANG, esc }));
+    write(`${pre}eor.html`, buildSimpleEor(SV1, { lang: () => LANG, esc }));
+    write(`${pre}vendor.html`, buildSimpleVendor(SV1, { lang: () => LANG, esc }));
+    write(`${pre}hr-portal.html`, buildSimpleHr(SV1, { lang: () => LANG, esc }));
     // بوابة صاحب العمل على القشرة الجديدة: صفحة واحدة تحلّ محلّ لوحة
     // /hr/employer القديمة. تبقى القديمة مبنيّة حتى تُغلق عمداً.
     write(`${pre}employer.html`, buildSimpleEmployer(SV1, { lang: () => LANG, esc }));
@@ -12244,6 +12271,11 @@ write("ar/portal.html", buildPortal("/ar/"));
 // cleanHtml never touches) and is copied into the ar/ tree on every build;
 // editing it in place under ar/ would be silently deleted by the next run.
 write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/data/compliance-dashboard.html"), "utf8"));
+// بوابة تعبئة ملف الإقامة المميزة (منتج رائد الأعمال): صفحة عملاء بالرابط
+// فقط. تُكتب يدوياً في assets/data/ وتُنسخ كما هي — نموذج بستة تبويبات لا
+// يستفيد من قوالب هذا المولّد، ولا يدخل في paths أدناه فلا يظهر في خريطة
+// الموقع ولا في أي قائمة تنقّل.
+write("pr-intake.html", fs.readFileSync(path.join(ROOT, "assets/data/pr-intake.html"), "utf8"));
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
@@ -12255,6 +12287,7 @@ const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/smart-employ
   .concat([`/jobs/${WORKSHOP_CAMPAIGN.slug}`])
   .concat(WORKSHOP_JOBS.map((j) => `/jobs/${j.slug}`));
 const urls = paths
+  .filter((p) => !isHiddenHref(p))
   .flatMap((p) => [p, p === "/" ? "/ar/" : "/ar" + p].concat(
     FULLY_READY_LANGS.filter((l) => langPathReady(l, p)).map((l) => (p === "/" ? `/${l}/` : `/${l}${p}`)),
   ))
@@ -12333,7 +12366,7 @@ const catalogJson = {
     // the rate buys our closing team — pay a monthly fee alone and the client
     // closes; pay a commission and we close with them. Codes match the cart item
     // ids so the order API's server-side re-pricing can find them.
-    ...[
+    ...visibleCatalogRows([
       { code: "revos-connect", nameAr: "تطوير الأعمال كخدمة — باقة Connect (شهري)", nameEn: "BD as a Service — Connect (monthly)", amount: 499, commission: 12, closedByUs: false,
         featuresAr: ["قائمة شركات مستهدفة بالقطاع والمدينة", "التقاط عملاء وحجز مواعيد على موقعك", "لوحة عميل وتقرير شهري"] },
       { code: "revos-launch", nameAr: "تطوير الأعمال كخدمة — باقة Launch (شهري)", nameEn: "BD as a Service — Launch (monthly)", amount: 2500, commission: 8, closedByUs: false,
@@ -12342,7 +12375,7 @@ const catalogJson = {
         featuresAr: ["Pipeline مستهدف حتى 3M", "CRM وتقارير أسبوعية", "حملات متعددة القنوات", "سعر ثابت بدون أي عمولة"] },
       { code: "revos-professional", nameAr: "تطوير الأعمال كخدمة — باقة Professional (شهري)", nameEn: "BD as a Service — Professional (monthly)", amount: 9500, commission: 5, closedByUs: true,
         featuresAr: ["Pipeline مستهدف حتى 10M", "Forecast وإدارة عروض", "دعم التفاوض والإغلاق"] },
-    ].map((p) => ({
+    ]).map((p) => ({
       group: "revenue-os", groupNameAr: "تطوير الأعمال كخدمة", groupNameEn: "Business Development as a Service",
       code: p.code, key: p.code, nameAr: p.nameAr, nameEn: p.nameEn, amount: p.amount,
       priceLabel: `${p.amount.toLocaleString("en-US")} ﷼ / شهريًا`,
@@ -12370,6 +12403,19 @@ const catalogJson = {
   const sameData = previous && JSON.stringify({ ...previous, updatedAt: "" }) === JSON.stringify({ ...catalogJson, updatedAt: "" });
   catalogJson.updatedAt = sameData ? previous.updatedAt : new Date().toISOString();
   write("assets/data/catalog.json", JSON.stringify(catalogJson, null, 2));
+}
+
+// الصفحات والخدمات المخفية (site/data/hidden.json): سطور 302 مُدارة في
+// vercel.json تحوّلها إلى /catalog بدل 404. لا يُلمس بقية الملف.
+{
+  const vj = path.resolve(ROOT, "..", "vercel.json");
+  try {
+    if (fs.existsSync(vj) && syncVercelRedirects(vj)) console.log("vercel.json: أُعيدت كتابة تحويلات 302 للمخفي.");
+  } catch (e) {
+    // مزامنة التحويلات لا تُسقط البناء: الإخفاء نفسه (الصفحات والكتالوج) لا يعتمد عليها.
+    console.warn("تحذير: تعذّرت مزامنة تحويلات 302 في vercel.json —", e.message);
+  }
+  if (hasHidden()) console.log("المخفي (hidden.json) مُطبَّق: الخدمات والصفحات المذكورة لا تُبنى ولا تُدرَج.");
 }
 
 console.log(`Generated ${pageCount} pages (en + ar) + sitemap + catalog.json.`);

@@ -23,17 +23,35 @@
 //   POST {type:"google", credential}              public  — sign in / sign up
 //   POST {type:"email-code" | "email-verify"}     office  — code by e-mail
 //   POST {type:"save-profile", ...}               office  — onboarding answers
-//   POST {type:"register", ...}                   public  — one-shot sign-up
 //   GET  ?action=requests&email=&code=            office  — demand + open jobs
 //   GET  ?action=submissions&email=&code=         office  — candidates it sent
 //   POST {type:"submit-candidate", ...}           office  — send a candidate
+//   POST {type:"vendor-demand", email, code, lang}                 active office — anonymous EOR demand
+//   POST {type:"vendor-candidates", email, code}                   active office — only ITS candidates
+//   POST {type:"vendor-add-candidate", email, code, name, ...}     active office — add one candidate (+ PDF CV)
+//   POST {type:"vendor-me", email, code}                           any signed-in vendor — kind + whether it may see demand
+//   POST {type:"vendor-offer-submit", email, code, itemId, price, available, prepDays, note}   approved corporate vendor
+//   POST {type:"vendor-offer-withdraw", email, code, offerId}                                  approved corporate vendor
+//   POST {type:"vendor-my-offers", email, code}                                                approved corporate vendor
 //   GET  ?action=admin&key=                       owner   — registry + requests
 //   POST {type:"approve", key, id, decision}      owner   — suspend / reinstate
 //   POST {type:"create-request" | "request-status", key, ...}  owner
 //
 // Env: NOTION_TOKEN, RESEND_API_KEY, OTP_FROM_EMAIL, BP_NOTIFY_EMAIL,
 //      PANEL_KEY/LEADS_KEY (owner actions), GOOGLE_CLIENT_ID, OTP_SECRET,
-//      NOTION_AGENCIES_DB, NOTION_AGENCY_REQUESTS_DB, NOTION_ATS_DB.
+//      NOTION_AGENCIES_DB, NOTION_AGENCY_REQUESTS_DB, NOTION_ATS_DB, NOTION_EOR_DB,
+//      VENDOR_OFFERS_DB (the "BP Vendor Offers" database — the offer routes fail closed without it).
+//
+// Vendor portal (/vendor, slice 1): offices, freelancers and platforms are one registry. A vendor sees EOR demand
+// with the client removed (listVendorDemand in ./_eor.js, re-projected here through its own whitelist) and only the
+// candidates it supplied. A candidate is bound to its office by the office's Notion id ("معرّف المكتب"), not by
+// name; rows written before that column existed are matched by name only while the name is unique in the registry
+// (see rowOwnedBy). The internal source tag ("مصدر المرشح", ./_sources.js) is written to Notion and never returned.
+//
+// Corporate vendor (slice 2): a large workforce company ("مورّد مؤسسي"). Unlike offices it is NOT self-serve: signing up
+// leaves it "قيد المراجعة" and it sees nothing — demand, offers, the legacy office routes — until the owner sets it to
+// "معتمد" (the existing `approve` route). It answers each anonymous demand item with an offer (./_vendor-offers.js).
+// It never reaches the legacy office routes, which show job company names and the employer who asked for an interview.
 //
 // Underscore-prefixed so Vercel treats it as a module, not another serverless
 // function — the plan caps at 12 and this repo is at the cap.
@@ -41,6 +59,10 @@
 import { randomBytes, scryptSync, timingSafeEqual, createHmac, randomInt } from "crypto";
 import { verifyGoogleIdToken, uploadToNotion } from "./_suppliers.js";
 import { nafathPing } from "./_nafath.js";
+import { listVendorDemand, sectorName, nationalityName, NATIONALITIES, VENDOR_ITEM_FIELDS } from "./_eor.js";
+import { occupationById } from "./_occupations.js";
+import { SOURCE_PROP, OFFICE_ID_PROP, CORPORATE_KIND, sourceForVendor } from "./_sources.js";
+import { offersDbId, parseOfferInput, isItemId, submitOffer, withdrawOffer, listOffers } from "./_vendor-offers.js";
 // The agency portal runs candidates through the SAME pipeline as the site's own
 // intake — n8n reads the attached CV, files it on Drive, writes an ATS-friendly
 // version and screens it — so an agency profile lands in the pool as clean,
@@ -160,7 +182,16 @@ async function sendEmail(to, subject, html) {
 // carries real entropy rather than a short derived reference.
 // One welcome mail for every way in — the office is live immediately, so it
 // says what it can do now rather than "we'll be in touch".
-function welcomeEmail(name, code) {
+function welcomeEmail(name, code, corporate = false) {
+  if (corporate) {
+    return `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px">
+    <h2 style="color:#0B1B5A">استلمنا تسجيل شركتكم كمورّد مؤسسي</h2>
+    <p>حساب <b>${esc(name)}</b> أُنشئ في Business Partner وهو الآن <b>بانتظار اعتماد فريقنا</b>.</p>
+    <p>بعد الاعتماد تفتح لكم بوابة المورّدين: تستلمون طلبات التوظيف دون هوية العميل، وتردّون على كل بند بعرض سعر.</p>
+    <p>رمز الدخول الاحتياطي:</p>
+    <p style="font-size:22px;font-weight:bold;letter-spacing:2px;color:#0B1B5A">${esc(code)}</p>
+    <p style="color:#666">لا ترى الحساب أي طلب قبل الاعتماد. سنراسلكم فور اعتماده.</p></div>`;
+  }
   return `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px">
     <h2 style="color:#0B1B5A">أهلاً بك في شبكة مزودي التوظيف ✅</h2>
     <p>حساب <b>${esc(name)}</b> جاهز الآن في Business Partner — لا حاجة لانتظار أي موافقة.</p>
@@ -275,7 +306,9 @@ async function ensureCode(row) {
 // questionnaire so both write the same shape.
 function profileProps(b) {
   const props = {};
-  const KINDS = ["مكتب استقدام", "وكالة توظيف", "الاثنان"];
+  // «مستقل» و«منصة» أُضيفتا مع بوابة المورّدين (/vendor): المورّد قد يكون مكتباً أو مجنِّداً فرداً أو منصة، والنوع هو ما يحدد وسم المصدر الداخلي.
+  // «مورّد مؤسسي» ليس هنا عمداً: يُسجَّل به عند التسجيل ويعتمده المالك، ولا يُقلب إليه مكتبٌ معتمد من ملفه فيكتسب صلاحياته.
+  const KINDS = ["مكتب استقدام", "وكالة توظيف", "الاثنان", "مستقل", "منصة"];
   const YESNO = ["نعم", "لا"];
   const MUSANED = ["نعم", "لا", "قيد التسجيل"];
   const SCOPES = ["استقطاب", "استقدام", "كلاهما"];
@@ -307,7 +340,10 @@ function profileProps(b) {
 // Resolve an agency by email, and only treat it as signed in when the code
 // matches AND the owner has approved it — a pending or suspended agency can
 // hold a code and still see nothing.
-async function authAgency(email, code) {
+//   opts.allowPending — a corporate vendor still awaiting the owner may sign in and fill its profile.
+//   opts.office       — the route is an office route (job board, interview inbox, bulk import): a corporate vendor is refused,
+//                       because those answers carry job company names and the employer who asked for an interview.
+async function authAgency(email, code, opts = {}) {
   const mail = clip(email, 160).toLowerCase();
   if (!isEmail(mail) || !clip(code, 40)) return { ok: false, error: "invalid_credentials" };
   const q = await notion(`databases/${AGENCIES_DB}/query`, "POST", {
@@ -322,7 +358,160 @@ async function authAgency(email, code) {
   if (!stored || !codeEq(stored, code)) return { ok: false, error: "invalid_credentials" };
   const gate = gateApproved(agency);
   if (!gate.ok) return gate;
+  if (agency.kind === CORPORATE_KIND) {
+    if (opts.office) return { ok: false, error: "not_office", status: 403 };
+    if (agency.status !== "معتمد" && !opts.allowPending) return { ok: false, error: "pending_approval", status: 403, agencyStatus: agency.status };
+  }
   return { ok: true, agency, row };
+}
+
+// ---------------------------------------------------------------------------
+// Office <-> candidate binding. A candidate row used to be tied to its office by
+// the office's NAME (the select "مكتب الاستقدام"): rename an office, or register
+// a second one with the same name, and the two portals could read each other's
+// candidates. New rows carry the office's Notion id in "معرّف المكتب" and are
+// matched by it. Rows written before that column existed have no id; they are
+// matched by name ONLY while exactly one registry row has that name (read-only
+// fallback — nothing here rewrites a live row).
+// ---------------------------------------------------------------------------
+const nameKey = (a) => clip(a && a.name, 90).replace(/,/g, "،");
+const normId = (v) => String(v == null ? "" : v).replace(/-/g, "").toLowerCase();
+
+async function legacyNameUnique(agency) {
+  const name = clip(agency && agency.name, 200);
+  if (!name) return false;
+  const r = await notion(`databases/${AGENCIES_DB}/query`, "POST", { page_size: 2, filter: { property: "اسم المكتب", title: { equals: name } } });
+  return !!r.ok && (((r.json || {}).results) || []).length === 1;
+}
+
+// Does this ATS row belong to this office? `props` is the Notion read shape.
+export function rowOwnedBy(props, agency, legacyOk) {
+  const p = props || {};
+  const id = txt(p[OFFICE_ID_PROP]);
+  if (id) return !!agency && normId(id) === normId(agency.id);
+  return !!legacyOk && !!agency && !!txt(p["مكتب الاستقدام"]) && txt(p["مكتب الاستقدام"]) === nameKey(agency);
+}
+
+function officeFilter(agency, legacyOk, withId) {
+  const byName = { property: "مكتب الاستقدام", select: { equals: nameKey(agency) } };
+  if (!withId) return legacyOk ? byName : null;
+  const byId = { property: OFFICE_ID_PROP, rich_text: { equals: agency.id } };
+  return legacyOk ? { or: [byId, { and: [byName, { property: OFFICE_ID_PROP, rich_text: { is_empty: true } }] }] } : byId;
+}
+
+// The office's own ATS rows. Falls back to the name-only filter when the id
+// column has not been added to the database yet (Notion answers 400), and every
+// row is re-checked in code, so a loose filter can never widen what is returned.
+async function officeRows(agency, { extra, sorts, pageSize = 100, legacyOk } = {}) {
+  const legacy = legacyOk === undefined ? await legacyNameUnique(agency) : legacyOk;
+  const run = (withId) => {
+    const f = officeFilter(agency, legacy, withId);
+    if (!f) return Promise.resolve({ ok: true, status: 200, json: { results: [] } });
+    return notion(`databases/${ATS_DB}/query`, "POST", { page_size: pageSize, filter: extra ? { and: [f, extra] } : f, sorts });
+  };
+  let r = await run(true);
+  if (!r.ok && r.status === 400) r = await run(false);
+  if (!r.ok) return { ok: false, rows: [], legacyOk: legacy };
+  const rows = (((r.json || {}).results) || []).filter((pg) => rowOwnedBy(pg.properties, agency, legacy));
+  return { ok: true, rows, legacyOk: legacy, hasMore: !!(r.json && r.json.has_more) };
+}
+
+// ATS write that survives the two new internal columns not existing yet: if
+// Notion rejects the page for a missing/mistyped property, retry without them.
+// The candidate is never lost because an admin has not added a column.
+const NEW_ATS_PROPS = [OFFICE_ID_PROP, SOURCE_PROP];
+async function writeAts(path, method, body) {
+  let cur = body;
+  let r = await notion(path, method, cur);
+  // Notion names one bad property per rejection, so drop and retry until the write passes or no new column is left in it.
+  for (let i = 0; i < NEW_ATS_PROPS.length && !r.ok && r.status === 400; i++) {
+    const present = NEW_ATS_PROPS.filter((k) => cur.properties && cur.properties[k]);
+    if (!present.length) break;
+    const msg = JSON.stringify(r.json || {});
+    const named = present.filter((k) => msg.includes(k));
+    const drop = named.length ? named : present;
+    console.warn("agencies ATS: retrying without", drop.join(" / "));
+    const props = { ...cur.properties };
+    for (const k of drop) delete props[k];
+    cur = { ...cur, properties: props };
+    r = await notion(path, method, cur);
+  }
+  return r;
+}
+
+// The office's private mirror database was never created in this registry (the
+// helper was referenced but never defined, so submit-candidate threw). An empty
+// id makes intakeCandidate skip the mirror row; the ATS row is the record.
+async function ensureCandidatesDb() { return ""; }
+
+// The vendor portal accepts only a live office: مفعّل (self-serve) or معتمد
+// (licence verified). A pending, empty or blocked status sees nothing.
+const VENDOR_ACTIVE = ["مفعّل", "معتمد"];
+async function vendorAuth(b) {
+  const auth = await authAgency(b.email, b.code);
+  if (!auth.ok) return auth;
+  if (!VENDOR_ACTIVE.includes(auth.agency.status)) return { ok: false, error: "not_active", status: 403, agencyStatus: auth.agency.status };
+  return auth;
+}
+
+// What a vendor may see of a demand item: the whitelist from _eor.js and two
+// display labels. Every field is rebuilt here, so a field added to the source
+// later does not pass through until it is named in VENDOR_ITEM_FIELDS.
+function vendorItem(it, lang) {
+  const out = {};
+  for (const k of VENDOR_ITEM_FIELDS) out[k] = it[k] === undefined ? null : it[k];
+  out.sectorName = it.sector ? sectorName(it.sector, lang) : "";
+  out.nationalityNames = (Array.isArray(it.nationalities) ? it.nationalities : []).map((c) => nationalityName(c, lang === "ar" ? "ar" : "en"));
+  return out;
+}
+
+// One short cache for the whole network: the items are identical for every
+// vendor and each read costs one Notion call per request page.
+let demandCache = { at: 0, value: null };
+export function _resetVendorDemandCache() { demandCache = { at: 0, value: null }; }
+async function vendorDemandItems() {
+  if (demandCache.value && Date.now() - demandCache.at < 60 * 1000) return demandCache.value;
+  const r = await listVendorDemand();
+  if (r && r.ok) demandCache = { at: Date.now(), value: r };
+  return r;
+}
+
+// The candidate a vendor sees about its own submissions — no contact, no CV link, no interview detail.
+function mapVendorCandidate(pg) {
+  const p = pg.properties || {};
+  return {
+    id: pg.id,
+    name: txt(p["Candidate Name"]),
+    role: txt(p["مهنة الترشيح"]) || txt(p["Target Role"]),
+    nationality: txt(p["Nationality"]),
+    years: txt(p["Experience Years"]),
+    stage: txt(p["Pipeline Stage"]),
+    submitted: pg.created_time || "",
+  };
+}
+
+// A PDF the vendor attached: checked by size, name and the %PDF signature, not by the type the browser claims.
+const PDF_MAX_BYTES = 3 * 1024 * 1024;   // Vercel's request body cap is 4.5 MB and base64 adds a third
+function cleanPdf(f) {
+  if (f == null || f === "") return { ok: true, file: null };
+  if (typeof f !== "object" || typeof f.base64 !== "string" || !f.base64) return { ok: false, error: "invalid_cv" };
+  const b64 = f.base64.replace(/^data:[^,]*,/, "").replace(/\s+/g, "");
+  if (!/^[A-Za-z0-9+/]+={0,2}$/.test(b64)) return { ok: false, error: "invalid_cv" };
+  const bytes = Math.floor((b64.length * 3) / 4) - (b64.endsWith("==") ? 2 : b64.endsWith("=") ? 1 : 0);
+  if (bytes > PDF_MAX_BYTES) return { ok: false, error: "cv_too_large" };
+  if (Buffer.from(b64.slice(0, 12), "base64").subarray(0, 4).toString("latin1") !== "%PDF") return { ok: false, error: "cv_not_pdf" };
+  const base = clip(String(f.name || "cv").replace(/[\\/\u0000-\u001f]/g, " ").replace(/\.pdf$/i, ""), 120) || "cv";
+  return { ok: true, file: { name: `${base}.pdf`, type: "application/pdf", size: bytes, base64: b64 } };
+}
+
+// A PDF the n8n pipeline did not take: keep it on the candidate's page so the file is not lost.
+async function attachCvToPage(pageId, file) {
+  try {
+    const up = await uploadToNotion(file.base64, file.name, file.type);
+    if (!up) return false;
+    const r = await notion(`blocks/${pageId}/children`, "PATCH", { children: [{ object: "block", type: "pdf", pdf: { type: "file_upload", file_upload: { id: up } } }] });
+    return !!r.ok;
+  } catch { return false; }
 }
 
 
@@ -371,7 +560,10 @@ function candidateProps(agency, c, opts = {}) {
     "Candidate Name": { title: [{ text: { content: name } }] },
     "Target Role": { rich_text: rt(role) },
     "Source": { select: { name: opts.bulk ? "استيراد مكتب" : "مكتب توظيف" } },
-    "مكتب الاستقدام": { select: { name: clip(agency.name, 90).replace(/,/g, "،") } },
+    "مكتب الاستقدام": { select: { name: nameKey(agency) } },
+    // The stable link to the office (its registry id) and the internal source tag.
+    // Both are internal columns: no employer/client/candidate output reads them.
+    [OFFICE_ID_PROP]: { rich_text: rt(agency.id) },
     "مسؤول المكتب": { rich_text: rt(agency.contact || agency.name) },
     "بريد المكتب": { email: agency.email || null },
     "دولة المكتب": { rich_text: rt(agency.country) },
@@ -384,6 +576,8 @@ function candidateProps(agency, c, opts = {}) {
     "Nationality Type": { select: { name: residence === "مواطن سعودي" ? "سعودي" : "غير سعودي" } },
     "الوظيفة المتقدم لها": { rich_text: rt(jobTitle ? `${jobTitle}${jobId ? ` (${jobId})` : ""}` : "قاعدة المكتب") },
   };
+  const tag = sourceForVendor(agency);
+  if (tag) props[SOURCE_PROP] = { select: { name: tag } };
   if (countries.length) props["دول الخبرة"] = { multi_select: countries.map((n) => ({ name: n })) };
   if (region) props["الخبرة الإقليمية"] = { select: { name: region } };
   if (clip(c.phone, 40)) props["Phone"] = { phone_number: clip(c.phone, 40) };
@@ -490,15 +684,20 @@ async function intakeCandidate(agency, c, opts = {}) {
 
   const props = candidateProps(agency, c, opts);
   const existing = await findExisting(candEmail, candPhone).catch(() => null);
+  // A match that belongs to another office, or to the site's own pool, is left
+  // exactly as it is: re-writing it would move that candidate into this office.
+  if (existing && !rowOwnedBy(existing.properties, agency, opts.legacyOk)) {
+    return { ok: true, duplicate: true, updated: false, id: existing.id, url: "", atsCv: "", cvProcessed: false };
+  }
   let r;
   if (existing) {
     applyN8nEnrichment(props, n8n, false);
-    r = await notion(`pages/${existing.id}`, "PATCH", { properties: props });
+    r = await writeAts(`pages/${existing.id}`, "PATCH", { properties: props });
   } else {
     props["Pipeline Stage"] = { select: { name: "جديد" } };
     props["حالة القراءة"] = { select: { name: n8n ? "مكتمل" : "ناقص - بيانات غير كافية" } };
     applyN8nEnrichment(props, n8n, true);
-    r = await notion("pages", "POST", { parent: { database_id: ATS_DB }, properties: props });
+    r = await writeAts("pages", "POST", { parent: { database_id: ATS_DB }, properties: props });
   }
   if (!r.ok) return { ok: false, error: "notion_failed" };
 
@@ -510,10 +709,14 @@ async function intakeCandidate(agency, c, opts = {}) {
       properties: mirrorProps(c, (r.json && r.json.url) || "", atsCv),
     });
   }
+  const cvProcessed = !!(enriched && enriched.drive && (enriched.drive.atsCvDocUrl || enriched.drive.originalCvUrl));
+  // A real PDF the pipeline did not take (n8n slow, down or not configured) is
+  // kept on the candidate's page rather than dropped.
+  let cvStored = cvProcessed;
+  if (cvFile && !cvProcessed && opts.keepCv && r.json && r.json.id) cvStored = await attachCvToPage(r.json.id, cvFile);
   return {
     ok: true, id: r.json && r.json.id, url: (r.json && r.json.url) || "",
-    updated: !!existing, atsCv,
-    cvProcessed: !!(enriched && enriched.drive && (enriched.drive.atsCvDocUrl || enriched.drive.originalCvUrl)),
+    updated: !!existing, atsCv, cvProcessed, cvStored,
   };
 }
 
@@ -553,7 +756,7 @@ export async function handleAgencies(req, res) {
 
     // ---- agency: the demand addressed to it, plus anything open to all ----
     if (action === "requests") {
-      const auth = await authAgency(q.get("email"), q.get("code"));
+      const auth = await authAgency(q.get("email"), q.get("code"), { office: true });
       if (!auth.ok) { res.statusCode = auth.status || 401; return res.end(JSON.stringify({ ok: false, error: auth.error, agencyStatus: auth.agencyStatus })); }
       const r = await notion(`databases/${REQUESTS_DB}/query`, "POST", {
         page_size: 100,
@@ -611,40 +814,29 @@ export async function handleAgencies(req, res) {
 
     // ---- agency: the candidates it has submitted ----
     if (action === "submissions") {
-      const auth = await authAgency(q.get("email"), q.get("code"));
+      const auth = await authAgency(q.get("email"), q.get("code"), { office: true });
       if (!auth.ok) { res.statusCode = auth.status || 401; return res.end(JSON.stringify({ ok: false, error: auth.error, agencyStatus: auth.agencyStatus })); }
-      const r = await notion(`databases/${ATS_DB}/query`, "POST", {
-        page_size: 100,
-        filter: { property: "مكتب الاستقدام", select: { equals: clip(auth.agency.name, 90).replace(/,/g, "،") } },
-        sorts: [{ timestamp: "created_time", direction: "descending" }],
-      });
+      const r = await officeRows(auth.agency, { sorts: [{ timestamp: "created_time", direction: "descending" }] });
       if (!r.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
-      const submissions = (((r.json || {}).results) || []).map(mapSubmission);
-      return send(200, { ok: true, submissions });
+      return send(200, { ok: true, submissions: r.rows.map(mapSubmission) });
     }
 
     // The office's interview inbox: everyone an employer has asked to meet,
     // plus the ones already booked so the office can see its own diary.
     if (action === "interview-requests") {
-      const auth = await authAgency(q.get("email"), q.get("code"));
+      const auth = await authAgency(q.get("email"), q.get("code"), { office: true });
       if (!auth.ok) return send(auth.status || 401, { ok: false, error: auth.error, agencyStatus: auth.agencyStatus });
-      const r = await notion(`databases/${ATS_DB}/query`, "POST", {
-        page_size: 100,
-        filter: {
-          and: [
-            { property: "مكتب الاستقدام", select: { equals: clip(auth.agency.name, 90).replace(/,/g, "،") } },
-            { or: [
-              { property: "Interview Status", select: { equals: "مطلوبة من صاحب العمل" } },
-              { property: "Interview Status", select: { equals: "بانتظار جدولة المكتب" } },
-              { property: "Interview Status", select: { equals: "مجدول" } },
-              { property: "Interview Status", select: { equals: "أُعيدت الجدولة" } },
-            ] },
-          ],
-        },
+      const r = await officeRows(auth.agency, {
+        extra: { or: [
+          { property: "Interview Status", select: { equals: "مطلوبة من صاحب العمل" } },
+          { property: "Interview Status", select: { equals: "بانتظار جدولة المكتب" } },
+          { property: "Interview Status", select: { equals: "مجدول" } },
+          { property: "Interview Status", select: { equals: "أُعيدت الجدولة" } },
+        ] },
         sorts: [{ timestamp: "last_edited_time", direction: "descending" }],
       });
       if (!r.ok) return send(502, { ok: false, error: "notion_failed" });
-      return send(200, { ok: true, requests: (((r.json || {}).results) || []).map(mapSubmission) });
+      return send(200, { ok: true, requests: r.rows.map(mapSubmission) });
     }
 
     res.statusCode = 200;
@@ -661,67 +853,13 @@ export async function handleAgencies(req, res) {
   const b = await readBody(req);
   const type = clip(b.type, 40);
 
-  // ---------------- public registration ----------------
-  if (type === "register") {
-    const name = clip(b.name, 200);
-    const email = clip(b.email, 160).toLowerCase();
-    const country = clip(b.country, 80);
-    const phone = clip(b.phone, 40);
-    if (!name || !isEmail(email) || !country || !phone) {
-      res.statusCode = 400;
-      return res.end(JSON.stringify({ ok: false, error: "invalid_fields" }));
-    }
-    if (!NOTION_TOKEN) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "not_configured" })); }
-
-    // One registry row per email — a repeat submission updates the existing
-    // record instead of creating a duplicate the owner has to reconcile.
-    const existing = await notion(`databases/${AGENCIES_DB}/query`, "POST", {
-      page_size: 1, filter: { property: "البريد", email: { equals: email } },
-    });
-    const dupe = ((existing.json && existing.json.results) || [])[0];
-
-    const props = profileProps({ ...b, name, country, phone });
-    props["البريد"] = { email };
-
-    // The company profile is filed onto the registry row itself, so the owner
-    // reviews the licence and the profile in one place.
-    const pf = b.profileFile && typeof b.profileFile === "object" ? b.profileFile : null;
-    if (pf && typeof pf.base64 === "string" && pf.base64 && Number(pf.size) <= 8 * 1024 * 1024) {
-      const uploadId = await uploadToNotion(pf.base64, clip(pf.name, 200) || "company-profile.pdf", clip(pf.type, 120));
-      if (uploadId) props["المستندات"] = { files: [{ type: "file_upload", file_upload: { id: uploadId }, name: clip(pf.name, 100) || "company-profile" }] };
-    }
-
-    // Self-serve: the office is live the moment it registers and gets its
-    // portal code straight away — no approval step in between.
-    const code = dupe ? await ensureCode(dupe) : makeCode();
-    props["اكتمال الملف"] = { checkbox: true };
-    let r;
-    if (dupe) {
-      r = await notion(`pages/${dupe.id}`, "PATCH", { properties: props });
-    } else {
-      props["الحالة"] = { select: { name: "مفعّل" } };
-      props["طريقة التسجيل"] = { select: { name: "تسجيل يدوي" } };
-      props["رمز الوصول"] = { rich_text: rt(code) };
-      if (clip(b.password, 200).length >= 8) props["بيانات الدخول"] = { rich_text: rt(hashPassword(String(b.password))) };
-      r = await notion("pages", "POST", { parent: { database_id: AGENCIES_DB }, properties: props, icon: { type: "emoji", emoji: "🌍" } });
-    }
-    if (!r.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
-    const registered = mapAgency(r.json || { properties: {} });
-
-    const rows = [
-      ["نوع الجهة", b.kind], ["الدولة", country], ["المدينة", b.city], ["رقم الترخيص", b.license],
-      ["جهة الترخيص", b.licenseBy], ["مساند", b.musaned], ["جهة الاتصال", b.contact],
-      ["البريد", email], ["الجوال", phone], ["واتساب", b.whatsapp],
-      ["الجنسيات", b.nationalities], ["المهن", b.professions], ["الطاقة الشهرية", b.capacity],
-    ].filter(([, v]) => clip(v)).map(([k, v]) => `<tr><td style="padding:4px 10px;color:#666">${esc(k)}</td><td style="padding:4px 10px"><b>${esc(clip(v, 300))}</b></td></tr>`).join("");
-    await sendEmail(NOTIFY, `🌍 تسجيل مكتب استقدام — ${name} (${country})`, `<div dir="rtl" style="font-family:Arial,sans-serif">
-      <h2 style="color:#0B1B5A">تسجيل جديد في سجل مكاتب الاستقدام</h2>
-      <table style="border-collapse:collapse">${rows}</table>
-      <p style="color:#666">راجع الطلب في Notion، واضبط الحالة = «معتمد» لإصدار رمز الدخول للمكتب.</p></div>`);
-    await sendEmail(email, "بوابة مكتبك جاهزة — Business Partner", welcomeEmail(name, code));
-
-    return send(200, { ok: true, updated: !!dupe, agency: registered, email, code });
-  }
+  // `type:"register"` was removed (2026-10-01, security audit). It was public and
+  // unauthenticated, and for an email that already had an office it PATCHed the
+  // registry row with the caller's data and returned that office's access code
+  // in the response — anyone who knew an office's address could take its code
+  // and open its portal. No page ever called it (the UI uses "signup"), so it is
+  // gone rather than patched; an unknown type answers `unknown_type` for every
+  // email alike. New accounts go through "signup" (password) or "google".
 
   // ---------------- self-serve sign-up: e-mail + password ----------------
   // No approval queue: the office creates its account, gets its portal code by
@@ -759,22 +897,36 @@ export async function handleAgencies(req, res) {
     };
     if (clip(b.country, 80)) props["الدولة"] = { rich_text: rt(b.country) };
     if (clip(b.phone, 40)) props["الجوال"] = { phone_number: clip(b.phone, 40) };
-    const r = await notion("pages", "POST", { parent: { database_id: AGENCIES_DB }, properties: props, icon: { type: "emoji", emoji: "🌍" } });
+    // The vendor page asks what kind of vendor this is (office / freelancer / platform); it decides the internal source tag.
+    if (["مكتب استقدام", "مستقل", "منصة", CORPORATE_KIND].includes(b.kind)) props["نوع الجهة"] = { select: { name: b.kind } };
+    // A corporate vendor is the one kind that is NOT live on sign-up: it waits for the owner (set "معتمد" with the approve route).
+    const corporate = b.kind === CORPORATE_KIND;
+    if (corporate) props["الحالة"] = { select: { name: "قيد المراجعة" } };
+    const r = await notion("pages", "POST", { parent: { database_id: AGENCIES_DB }, properties: props, icon: { type: "emoji", emoji: corporate ? "🏢" : "🌍" } });
     if (!r.ok) return send(502, { ok: false, error: "notion_failed" });
     const agency = mapAgency(r.json);
-    await sendEmail(email, "بوابة مكتبك جاهزة — Business Partner", welcomeEmail(name, code));
-    await sendEmail(NOTIFY, `🌍 مزود توظيف جديد سجّل بنفسه — ${name}`, `<div dir="rtl" style="font-family:Arial,sans-serif">
-      <h2 style="color:#0B1B5A">مكتب جديد أنشأ حسابه</h2>
-      <p><b>${esc(name)}</b> — ${esc(email)}</p>
-      <p style="color:#666">الحساب مفعّل تلقائياً. مرشحوه سيظهرون في قاعدة ATS موسومين باسم مكتبه — راجع بياناته في لوحة مكاتب الاستقدام.</p></div>`);
+    await sendEmail(email, corporate ? "استلمنا تسجيل شركتكم — Business Partner" : "بوابة مكتبك جاهزة — Business Partner", welcomeEmail(name, code, corporate));
+    if (corporate) {
+      await sendEmail(NOTIFY, `🏢 مورّد مؤسسي جديد بانتظار الاعتماد — ${name}`, `<div dir="rtl" style="font-family:Arial,sans-serif">
+        <h2 style="color:#0B1B5A">مورّد مؤسسي سجّل وينتظر اعتمادك</h2>
+        <p><b>${esc(name)}</b> — ${esc(email)}</p>
+        <p style="color:#666">الحساب «قيد المراجعة» ولا يرى أي طلب. لاعتماده: type "approve" بقرار «معتمد» من لوحة المكاتب.</p></div>`);
+    } else {
+      await sendEmail(NOTIFY, `🌍 مزود توظيف جديد سجّل بنفسه — ${name}`, `<div dir="rtl" style="font-family:Arial,sans-serif">
+        <h2 style="color:#0B1B5A">مكتب جديد أنشأ حسابه</h2>
+        <p><b>${esc(name)}</b> — ${esc(email)}</p>
+        <p style="color:#666">الحساب مفعّل تلقائياً. مرشحوه سيظهرون في قاعدة ATS موسومين باسم مكتبه — راجع بياناته في لوحة مكاتب الاستقدام.</p></div>`);
+    }
     return send(200, { ok: true, agency, email, code });
   }
 
   // ---------------- the office fills in its profile from inside the portal ----
   if (type === "save-profile") {
-    const auth = await authAgency(b.email, b.code);
+    const auth = await authAgency(b.email, b.code, { allowPending: true });
     if (!auth.ok) return send(auth.status || 401, { ok: false, error: auth.error, agencyStatus: auth.agencyStatus });
     const props = profileProps(b);
+    // A corporate vendor keeps its kind: the owner set it, and it decides what the account may do.
+    if (auth.agency.kind === CORPORATE_KIND) delete props["نوع الجهة"];
     props["اكتمال الملف"] = { checkbox: true };
 
     const pf = b.profileFile && typeof b.profileFile === "object" ? b.profileFile : null;
@@ -814,15 +966,128 @@ export async function handleAgencies(req, res) {
       if (!gate.ok) return send(gate.status || 401, { ok: false, error: gate.error, agencyStatus: gate.agencyStatus });
       return send(200, { ok: true, agency: gate.agency, email: clip(b.email, 160).toLowerCase(), code: await ensureCode(hit.row) });
     }
-    const auth = await authAgency(b.email, b.code);
+    const auth = await authAgency(b.email, b.code, { allowPending: true });
     if (!auth.ok) { res.statusCode = auth.status || 401; return res.end(JSON.stringify({ ok: false, error: auth.error, agencyStatus: auth.agencyStatus })); }
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, agency: auth.agency }));
   }
 
+  // ---------------- vendor portal (/vendor) ----------------
+  // Three actions behind one gate: a signed-in vendor whose status is مفعّل or
+  // معتمد. POST, so the access code travels in the body and not in a URL.
+  if (type === "vendor-demand") {
+    const auth = await vendorAuth(b);
+    if (!auth.ok) return send(auth.status || 401, { ok: false, error: auth.error, agencyStatus: auth.agencyStatus });
+    const lang = ["ar", "en", "fr", "zh"].includes(b.lang) ? b.lang : "en";
+    const r = await vendorDemandItems();
+    if (!r || !r.ok) return send(502, { ok: false, error: "demand_unavailable" });
+    return send(200, { ok: true, items: r.items.map((it) => vendorItem(it, lang)) });
+  }
+
+  if (type === "vendor-candidates") {
+    const auth = await vendorAuth(b);
+    if (!auth.ok) return send(auth.status || 401, { ok: false, error: auth.error, agencyStatus: auth.agencyStatus });
+    const r = await officeRows(auth.agency, { sorts: [{ timestamp: "created_time", direction: "descending" }] });
+    if (!r.ok) return send(502, { ok: false, error: "notion_failed" });
+    return send(200, { ok: true, candidates: r.rows.map(mapVendorCandidate), more: !!r.hasMore });
+  }
+
+  if (type === "vendor-add-candidate") {
+    const auth = await vendorAuth(b);
+    if (!auth.ok) return send(auth.status || 401, { ok: false, error: auth.error, agencyStatus: auth.agencyStatus });
+    const name = clip(b.name, 120);
+    const natIn = clip(b.nationality, 60);
+    const nat = NATIONALITIES.find((n) => n.code === natIn.toUpperCase());
+    const occ = occupationById(clip(b.role, 60));
+    const role = occ ? occ.nameAr : clip(b.role, 160);
+    if (name.length < 2 || !role) return send(400, { ok: false, error: "invalid_fields" });
+    let experience;
+    if (b.experience !== undefined && b.experience !== null && String(b.experience).trim() !== "") {
+      const e = Number(String(b.experience).trim());
+      if (!Number.isInteger(e) || e < 0 || e > 60) return send(400, { ok: false, error: "invalid_experience" });
+      experience = e;
+    }
+    let salary;
+    if (b.salary !== undefined && b.salary !== null && String(b.salary).trim() !== "") {
+      const v = Number(String(b.salary).replace(/[\s,]/g, ""));
+      if (!Number.isFinite(v) || v <= 0 || v > 1000000) return send(400, { ok: false, error: "invalid_salary" });
+      salary = Math.round(v);
+    }
+    const cv = cleanPdf(b.cvFile);
+    if (!cv.ok) return send(400, { ok: false, error: cv.error });
+
+    const out = await intakeCandidate(auth.agency, {
+      name, role, nationality: nat ? nat.ar : natIn, experience, salary, cvFile: cv.file,
+    }, { officeDb: await ensureCandidatesDb(), legacyOk: await legacyNameUnique(auth.agency), keepCv: true });
+    if (!out.ok) return send(out.error === "invalid_fields" ? 400 : 502, { ok: false, error: out.error });
+    if (out.duplicate) return send(200, { ok: true, duplicate: true });
+    if (!out.updated) {
+      await notion(`pages/${auth.agency.id}`, "PATCH", { properties: { "عدد المرشحين": { number: (auth.agency.candidates || 0) + 1 } } });
+    }
+    await sendEmail(NOTIFY, `👤 مرشّح جديد من ${auth.agency.name} — ${name}`, `<div dir="rtl" style="font-family:Arial,sans-serif">
+      <p>أضاف مورّد <b>${esc(auth.agency.name)}</b> مرشّحاً${cv.file ? " مع سيرة ذاتية PDF" : ""}:</p>
+      <p><b>${esc(name)}</b> — ${esc(role)}${nat || natIn ? " · " + esc(nat ? nat.ar : natIn) : ""}</p></div>`);
+    return send(200, { ok: true, id: out.id, updated: !!out.updated, cvStored: cv.file ? !!out.cvStored : null });
+  }
+
+  // ---------------- vendor portal: who am I, and may I see demand yet ----------------
+  // The dashboard asks this first. A corporate vendor awaiting the owner signs in fine and gets active:false, so the page can
+  // say "waiting for approval" instead of a bare error. Nothing about the registry row (code, email, status text) is echoed.
+  if (type === "vendor-me") {
+    const auth = await authAgency(b.email, b.code, { allowPending: true });
+    if (!auth.ok) return send(auth.status || 401, { ok: false, error: auth.error, agencyStatus: auth.agencyStatus });
+    const a = auth.agency;
+    const corporate = a.kind === CORPORATE_KIND;
+    const kind = corporate ? "corporate" : a.kind === "مستقل" ? "freelancer" : a.kind === "منصة" ? "platform" : "office";
+    return send(200, { ok: true, name: a.name, kind, active: corporate ? a.status === "معتمد" : VENDOR_ACTIVE.includes(a.status) });
+  }
+
+  // ---------------- corporate vendor: offers on anonymous demand ----------------
+  // Behind the same gate as the rest of the portal plus two more: the vendor must be a corporate one, and the offers database
+  // must be configured (VENDOR_OFFERS_DB) — without it nothing is read or written.
+  if (type === "vendor-offer-submit" || type === "vendor-offer-withdraw" || type === "vendor-my-offers") {
+    const auth = await vendorAuth(b);
+    if (!auth.ok) return send(auth.status || 401, { ok: false, error: auth.error, agencyStatus: auth.agencyStatus });
+    if (auth.agency.kind !== CORPORATE_KIND) return send(403, { ok: false, error: "not_corporate" });
+    const dbId = offersDbId();
+    if (!dbId) return send(503, { ok: false, error: "not_configured" });
+    const fail = (r) => send(r.status || 502, { ok: false, error: r.error || "notion_failed" });
+
+    if (type === "vendor-my-offers") {
+      const r = await listOffers({ notion, dbId, agency: auth.agency });
+      return r.ok ? send(200, { ok: true, offers: r.offers, more: r.more }) : fail(r);
+    }
+
+    if (type === "vendor-offer-withdraw") {
+      const r = await withdrawOffer({ notion, dbId, agency: auth.agency, offerId: clip(b.offerId, 60) });
+      if (!r.ok) return fail(r);
+      if (!r.already) await sendEmail(NOTIFY, `↩️ سحب عرض — ${auth.agency.name}`, `<div dir="rtl" style="font-family:Arial,sans-serif">
+        <p>سحب المورّد <b>${esc(auth.agency.name)}</b> عرضه على البند <b>${esc(r.offer.itemId)}</b>.</p></div>`);
+      return send(200, { ok: true, offer: r.offer });
+    }
+
+    // vendor-offer-submit
+    const itemId = clip(b.itemId, 70);
+    if (!isItemId(itemId)) return send(400, { ok: false, error: "invalid_item", field: "itemId" });
+    const parsed = parseOfferInput(b);
+    if (!parsed.ok) return send(400, { ok: false, error: parsed.error, field: parsed.field });
+    const demand = await vendorDemandItems();
+    if (!demand || !demand.ok) return send(502, { ok: false, error: "demand_unavailable" });
+    const item = demand.items.find((it) => it.itemId === itemId);
+    if (!item) return send(404, { ok: false, error: "item_not_found" });
+    const r = await submitOffer({ notion, dbId, agency: auth.agency, item, value: parsed.value });
+    if (!r.ok) return fail(r);
+    const v = parsed.value;
+    await sendEmail(NOTIFY, `${r.replaced ? "✏️ عرض محدَّث" : "💼 عرض جديد"} — ${auth.agency.name} — ${item.nameAr}`, `<div dir="rtl" style="font-family:Arial,sans-serif">
+      <p>${r.replaced ? "حدّث" : "قدّم"} المورّد <b>${esc(auth.agency.name)}</b> عرضاً على <b>${esc(item.nameAr)}</b> (${esc(item.itemId)}، المطلوب ${esc(item.count)}):</p>
+      <p>السعر الشهري للعامل: <b>${esc(v.price)}</b> ريال · المتاح: <b>${esc(v.available)}</b> · التجهيز: <b>${esc(v.prepDays)}</b> يوماً</p>
+      ${v.note ? `<p style="color:#666">${esc(v.note)}</p>` : ""}</div>`);
+    return send(200, { ok: true, offer: r.offer, replaced: r.replaced });
+  }
+
   // ---------------- agency submits a candidate ----------------
   if (type === "submit-candidate") {
-    const auth = await authAgency(b.email, b.code);
+    const auth = await authAgency(b.email, b.code, { office: true });
     if (!auth.ok) return send(auth.status || 401, { ok: false, error: auth.error, agencyStatus: auth.agencyStatus });
 
     const c = {
@@ -839,8 +1104,9 @@ export async function handleAgencies(req, res) {
     if (!clip(c.name, 200) || !clip(c.role, 160)) return send(400, { ok: false, error: "invalid_fields" });
 
     const officeDb = await ensureCandidatesDb(auth.agency, auth.agency.id);
-    const out = await intakeCandidate(auth.agency, c, { officeDb });
+    const out = await intakeCandidate(auth.agency, c, { officeDb, legacyOk: await legacyNameUnique(auth.agency) });
     if (!out.ok) return send(out.error === "invalid_fields" ? 400 : 502, { ok: false, error: out.error });
+    if (out.duplicate) return send(200, { ok: true, duplicate: true });
 
     if (!out.updated) {
       await notion(`pages/${auth.agency.id}`, "PATCH", { properties: { "عدد المرشحين": { number: (auth.agency.candidates || 0) + 1 } } });
@@ -861,20 +1127,22 @@ export async function handleAgencies(req, res) {
   // the same de-duplication the single form uses; a bad row is reported back
   // by line number rather than failing the whole import.
   if (type === "bulk-import") {
-    const auth = await authAgency(b.email, b.code);
+    const auth = await authAgency(b.email, b.code, { office: true });
     if (!auth.ok) return send(auth.status || 401, { ok: false, error: auth.error, agencyStatus: auth.agencyStatus });
     const rows = Array.isArray(b.rows) ? b.rows.slice(0, 60) : [];
     if (!rows.length) return send(400, { ok: false, error: "no_rows" });
 
     const officeDb = await ensureCandidatesDb(auth.agency, auth.agency.id);
     const errors = [];
+    const legacyOk = await legacyNameUnique(auth.agency);
     let created = 0, updated = 0;
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i] && typeof rows[i] === "object" ? rows[i] : {};
       const line = Number(row.line) || i + 1;
       if (!clip(row.name, 200) || !clip(row.role, 160)) { errors.push({ line, error: "missing_name_or_role" }); continue; }
-      const out = await intakeCandidate(auth.agency, row, { officeDb, bulk: true });
+      const out = await intakeCandidate(auth.agency, row, { officeDb, bulk: true, legacyOk });
       if (!out.ok) { errors.push({ line, error: out.error }); continue; }
+      if (out.duplicate) { errors.push({ line, error: "duplicate_other_source" }); continue; }
       if (out.updated) updated++; else created++;
     }
     if (created) {
@@ -890,7 +1158,7 @@ export async function handleAgencies(req, res) {
 
   // ---------------- office schedules a requested interview ----------------
   if (type === "interview-schedule") {
-    const auth = await authAgency(b.email, b.code);
+    const auth = await authAgency(b.email, b.code, { office: true });
     if (!auth.ok) return send(auth.status || 401, { ok: false, error: auth.error, agencyStatus: auth.agencyStatus });
     const id = clip(b.candidateId, 60);
     const date = clip(b.date, 10);
@@ -903,8 +1171,7 @@ export async function handleAgencies(req, res) {
     // office write onto another office's candidate.
     const page = await notion(`pages/${id}`, "GET");
     if (!page.ok) return send(404, { ok: false, error: "not_found" });
-    const owner = txt(page.json.properties["مكتب الاستقدام"]);
-    if (owner !== clip(auth.agency.name, 90).replace(/,/g, "،")) return send(403, { ok: false, error: "forbidden" });
+    if (!rowOwnedBy(page.json.properties, auth.agency, await legacyNameUnique(auth.agency))) return send(403, { ok: false, error: "forbidden" });
 
     const startsAt = /^\d{2}:\d{2}$/.test(time) ? `${date}T${time}:00` : date;
     const props = {
@@ -977,21 +1244,21 @@ export async function handleAgencies(req, res) {
     const email = clip(b.email, 160).toLowerCase();
     if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_email" })); }
     const hit = await agencyByEmail(email);
-    // The response never reveals whether an address is registered; a code is
-    // only actually sent to a registered, approved office.
+    // The response never reveals whether an address is registered: the reply
+    // always carries a sealed token. A code is only actually e-mailed to a
+    // registered, non-blocked office; for any other address the token seals a
+    // code nobody received, so it can never be verified.
+    const code = String(randomInt(100000, 1000000));
+    const exp = Date.now() + 15 * 60 * 1000;
     if (hit && !BLOCKED.includes(hit.agency.status)) {
-      const code = String(randomInt(100000, 1000000));
-      const exp = Date.now() + 15 * 60 * 1000;
       await sendEmail(email, `رمز الدخول لبوابة المكاتب: ${code}`, `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:480px">
         <h2 style="color:#0B1B5A">رمز الدخول</h2>
         <p>رمز دخولك إلى بوابة مكاتب الاستقدام (صالح 15 دقيقة):</p>
         <p style="font-size:30px;font-weight:bold;letter-spacing:6px;color:#0B1B5A">${esc(code)}</p>
         <p style="color:#666">إذا لم تطلبه، تجاهل هذه الرسالة.</p></div>`);
-      res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, sent: true, t: sealCode(email, code, exp), exp }));
     }
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, sent: true }));
+    return res.end(JSON.stringify({ ok: true, sent: true, t: sealCode(email, code, exp), exp }));
   }
 
   if (type === "email-verify") {
@@ -1033,13 +1300,20 @@ export async function handleAgencies(req, res) {
     if (!r.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
 
     // Tell the offices that can act on it — the ones addressed, or everyone
-    // approved when it is open to the network.
+    // live when it is open to the network. "Live" is مفعّل (self-serve, the
+    // status every sign-up gets) or معتمد (the owner verified the licence): the
+    // portal already shows the same demand to both, so both get the e-mail.
+    // موقوف / مرفوض / قيد المراجعة stay out.
     try {
       const q = await notion(`databases/${AGENCIES_DB}/query`, "POST", {
-        page_size: 50, filter: { property: "الحالة", select: { equals: "معتمد" } },
+        page_size: 50, filter: { or: [
+          { property: "الحالة", select: { equals: "معتمد" } },
+          { property: "الحالة", select: { equals: "مفعّل" } },
+        ] },
       });
       const all = (((q.json || {}).results) || []).map(mapAgency);
-      const notify = targets.length ? all.filter((a) => targets.includes(a.id)) : all;
+      // Corporate vendors answer through the vendor portal's offers, not through the office job-board mail.
+      const notify = (targets.length ? all.filter((a) => targets.includes(a.id)) : all).filter((a) => a.kind !== CORPORATE_KIND);
       for (const a of notify.slice(0, 40)) {
         if (!isEmail(a.email)) continue;
         await sendEmail(a.email, `طلب توظيف جديد: ${title}`, `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:520px">
@@ -1092,7 +1366,12 @@ export async function handleAgencies(req, res) {
     const r = await notion(`pages/${id}`, "PATCH", { properties: props });
     if (!r.ok) { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "notion_failed" })); }
 
-    if (decision === "معتمد" && isEmail(agency.email)) {
+    if (decision === "معتمد" && agency.kind === CORPORATE_KIND && isEmail(agency.email)) {
+      await sendEmail(agency.email, "تم اعتماد شركتكم كمورّد — Business Partner", `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:520px">
+        <h2 style="color:#0B1B5A">تم اعتماد ${esc(agency.name)} ✅</h2>
+        <p>صارت بوابة المورّدين مفتوحة لكم: استلموا الطلبات وردّوا على كل بند بعرض سعر.</p>
+        <p><a href="https://www.businesspartner.sa/ar/vendor">ادخلوا بوابة المورّدين</a> ببريدكم وكلمة مروركم.</p></div>`);
+    } else if (decision === "معتمد" && isEmail(agency.email)) {
       await sendEmail(agency.email, "تم توثيق مكتبك — Business Partner", `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:520px">
         <h2 style="color:#0B1B5A">تم توثيق ${esc(agency.name)} ✅</h2>
         <p>راجعنا بيانات ترخيصك ووثّقنا مكتبك — يظهر الآن كمزوّد موثّق لدى أصحاب العمل.</p>
