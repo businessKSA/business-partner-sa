@@ -87,12 +87,14 @@ jobs:
           BP_N8N_HOOK_KEY: ${{ secrets.BP_N8N_HOOK_KEY }}
           OWNER_WHATSAPP: ${{ secrets.OWNER_WHATSAPP }}
           BP_AZ_LOCATION: swedencentral
+          # الصلاحية محصورة بمجموعة bp-ai؛ بدونه يحاول السكربت إنشاء bp-agents-rg ويفشل.
+          BP_AZ_RG: bp-ai
         run: bash agents/azure/deploy.sh
 
       - name: إثبات أن المهام موجودة
         run: |
           echo "### المهام على Azure" >> "$GITHUB_STEP_SUMMARY"
-          az containerapp job list -g "${BP_AZ_RG:-bp-agents-rg}" \
+          az containerapp job list -g "bp-ai" \
             --query "[].{name:name,schedule:properties.configuration.scheduleTriggerConfig.cronExpression}" \
             -o table >> "$GITHUB_STEP_SUMMARY" 2>&1 || \
             echo "تعذّر السرد — راجع سجلّ الخطوة السابقة." >> "$GITHUB_STEP_SUMMARY"

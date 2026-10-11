@@ -1,0 +1,57 @@
+# n8n على Azure Container Apps + PostgreSQL.
+# يدوي عمداً: ينشئ موارد تُحتسب من المنحة. الأسرار المطلوبة: AZURE_CREDENTIALS فقط.
+# قبله مرة واحدة في Cloud Shell (الصلاحية محصورة بمجموعة bp-ai لا تسجّل المزوّدين):
+#   az provider register -n Microsoft.App -n Microsoft.OperationalInsights -n Microsoft.DBforPostgreSQL
+name: Deploy n8n to Azure
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'اكتب deploy-n8n للتأكيد'
+        required: true
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: azure-n8n
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: تأكيد النية
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "deploy-n8n" ]; then
+            echo "::error::اكتب deploy-n8n في خانة التأكيد."
+            exit 1
+          fi
+
+      - id: gate
+        name: فحص الأسرار
+        env:
+          AZ: ${{ secrets.AZURE_CREDENTIALS }}
+        run: |
+          [ -n "$AZ" ] || { echo "::error::ينقص AZURE_CREDENTIALS."; exit 1; }
+
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: نشر n8n
+        env:
+          BP_AZ_RG: bp-ai
+          BP_AZ_LOCATION: swedencentral
+        run: bash azure/n8n/deploy.sh
+
+      - name: العنوان
+        run: |
+          F=$(az containerapp show -n bp-n8n -g bp-ai --query properties.configuration.ingress.fqdn -o tsv)
+          echo "### n8n على Azure" >> "$GITHUB_STEP_SUMMARY"
+          echo "https://$F" >> "$GITHUB_STEP_SUMMARY"
+          echo "افتحه الآن وأنشئ حساب المالك فوراً." >> "$GITHUB_STEP_SUMMARY"
