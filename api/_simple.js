@@ -231,6 +231,10 @@ function normScope(items) {
     title: str(it.title, 200),
     why: str(it.why, 400),
     qty: Math.max(1, Math.min(99, Math.round(num(it.qty) || 1))),
+    // A structural line the page added so the scope has a shape the customer can
+    // review (no code, no price of its own). It rides along with a priced line
+    // instead of holding the whole quotation back for a human.
+    ...(it.seed === true && !str(it.code, 40) ? { seed: true } : {}),
   })).filter((it) => it.title);
 }
 // The documents we ask the customer for. Each service has its own list; the
@@ -240,19 +244,28 @@ const DOC_STATES = ["requested", "received", "waived"];
 // figures — so approving the quote is enough to produce it. It used to wait
 // for a human to press a button in /ops, which left the customer looking at
 // «سيصلك العقد للتوقيع» with nothing arriving.
+//
+// `opts.at` pins the date printed on the paper, and `build` (stored with the
+// contract) remembers the lead time / executor that were typed at issue. The
+// customer's view rebuilds the paper from the live quotation to repair old
+// totals — if the rebuild used today's date and no lead time, EVERY rebuild
+// differed from what was issued, so a contract signed yesterday was flagged
+// «corrected after your signature — sign again» the next time anyone opened it.
 function buildContract(row, opts = {}) {
-  const today = new Date().toLocaleDateString("ar-SA-u-nu-latin", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Riyadh" });
+  const at = opts.at && !Number.isNaN(Date.parse(opts.at)) ? new Date(opts.at) : new Date();
+  const today = at.toLocaleDateString("ar-SA-u-nu-latin", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Riyadh" });
+  const build = { lead_time: str(opts.lead_time, 120), executor: str(opts.executor, 120) };
   const html = contractHtml({
     ref: row.ref, clientName: row.company_name || row.client_name || row.client_email, service: row.title,
     lines: row.quote.items.map((l) => ({ name: l.title, nameEn: l.titleEn, qty: l.qty, price: l.price, line: l.line })),
     net: row.quote.net, vat: row.quote.vat, total: row.quote.total, vatRate: 15,
-    leadTime: str(opts.lead_time, 120), executor: str(opts.executor, 120) || "Business Partner", today,
+    leadTime: build.lead_time, executor: build.executor || "Business Partner", today,
     // لغة العميل تُطبع مقابل العربية — والعربية هي المرجع في نص العقد نفسه.
     lang: row.lang || "ar",
   });
   return {
-    number: "C-" + row.ref.replace(/^BP-R-/, ""), status: "SENT", html,
-    created_at: nowIso(), sent_at: nowIso(), quote_number: row.quote.number,
+    number: "C-" + row.ref.replace(/^BP-R-/, ""), status: "SENT", html, build,
+    created_at: at.toISOString(), sent_at: nowIso(), quote_number: row.quote.number,
     mode: SIMPLE_TEST_MODE ? "test-esign" : "portal-esign",
   };
 }
@@ -488,8 +501,12 @@ async function clientAction(action, b, qs, req, res, sess) {
     await patchRequest(row.id, { scope });
     await logEvent(row.id, "customer", who, "scope.confirmed", { items: scope.map((it) => it.title) });
 
-    const priced = await priceItems(scope);
-    const unpriced = priced.filter((l) => !(num(l.price) > 0)).map((l) => l.title);
+    // Lines flagged `seed` are filler: with at least one real line beside them
+    // they do not block (and are not printed on) the quotation.
+    const real = scope.filter((it) => !it.seed);
+    const basis = real.length ? real : scope;
+    const priced = await priceItems(basis);
+    const unpriced = priced.filter(needsHumanPrice).map((l) => l.title);
 
     // كل بند له سعر في الكتالوج ⇒ عرض السعر يصدر فوراً. الكتالوج هو القرار
     // الذي اتُّخذ مسبقاً؛ إعادة اتخاذه يدوياً في كل طلب تأخيرٌ بلا حكم مضاف،
@@ -499,7 +516,7 @@ async function clientAction(action, b, qs, req, res, sess) {
     // في الكتالوج أو من إنسان، ولا يُخترع بينهما. هذا هو الشرط الذي جعل
     // الأتمتة ممكنة — «طالما في كاتالوج للأسعار والعروض واضحة».
     if (!unpriced.length && AUTO_QUOTE) {
-      const issued = await issueQuote({ ...row, scope }, scope, {}, "system", "التسعير الآلي");
+      const issued = await issueQuote({ ...row, scope }, basis, {}, "system", "التسعير الآلي");
       if (issued.ok) {
         await logEvent(row.id, "system", "التسعير الآلي", "quote.auto", { number: issued.quote.number, total: issued.quote.total });
         return json(res, 200, { ok: true, stage: "QUOTE", status: issued.status, scope, quote: issued.quote, auto: true });
@@ -644,10 +661,31 @@ async function clientAction(action, b, qs, req, res, sess) {
   if (action === "quote-approve" || action === "quote-reject") {
     if (row.status !== "QUOTE_SENT" || !row.quote) return json(res, 409, { ok: false, error: "no_open_quote" });
     const approve = action === "quote-approve";
+    // «صالح حتى …» is printed on the quotation; accepting it after that date
+    // would bind us to a price the quotation itself says has lapsed. Declining
+    // an expired quote stays open. The team renews it from /ops (ops-quote).
+    const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Riyadh" });
+    if (approve && /^\d{4}-\d{2}-\d{2}$/.test(String(row.quote.valid_until || "")) && row.quote.valid_until < today) {
+      return json(res, 409, { ok: false, error: "quote_expired", message: "انتهت صلاحية عرض السعر هذا. اكتب لنا من داخل الطلب ليُجدَّد لك بسعر اليوم.", valid_until: row.quote.valid_until });
+    }
     const quote = { ...row.quote, status: approve ? "APPROVED" : "REJECTED", decided_at: nowIso(), decision_note: str(b.note, 500) };
-    const upd = await patchRequest(row.id, { quote, status: approve ? "QUOTE_APPROVED" : "WAITING_CLIENT" });
+    // «طلب تعديل» hands the ball to the TEAM. It used to set «بانتظار ردك»
+    // (waiting for the customer) — the opposite of the truth — and the note the
+    // customer typed went to one mailbox and nowhere else: not into the
+    // conversation, not onto a task. Now it is a message in the request, the
+    // status says the team is reviewing, and the team is alerted like any
+    // other customer message.
+    const patch = { quote, status: approve ? "QUOTE_APPROVED" : "REVIEWING" };
+    if (!approve) patch.conversation = normConversation([...(row.conversation || []), { role: "user", content: `طلب تعديل على عرض السعر ${quote.number}${quote.decision_note ? ": " + quote.decision_note : "."}`, at: nowIso() }]);
+    const upd = await patchRequest(row.id, patch);
     await logEvent(row.id, "customer", who, approve ? "quote.approved" : "quote.rejected", { number: quote.number, note: quote.decision_note });
-    await sendEmail(OWNER_EMAIL, `${approve ? "اعتماد" : "رفض"} عرض السعر ${quote.number} (${ref})`, `<p>${esc(who)}: ${esc(quote.decision_note || "")}</p>`);
+    if (approve) await sendEmail(OWNER_EMAIL, `اعتماد عرض السعر ${quote.number} (${ref})`, `<p>${esc(who)}: ${esc(quote.decision_note || "")}</p>`);
+    else await alertOps({ ...row, ...upd }, "quote-rejected", {
+      subject: `العميل طلب تعديل عرض السعر ${quote.number} — ${row.ref}`,
+      line: `${row.client_name || who} لم يعتمد العرض ${quote.number} (${quote.total} ر.س)${quote.decision_note ? ": " + quote.decision_note.slice(0, 220) : "."}`,
+      windowMin: 1,
+      task: { source: "reply.customer", urgency: "high", title: `عدّل عرض السعر أو ردّ على العميل — ${row.ref}`, details: quote.decision_note || "" },
+    });
     if (approve) {
       // No waiting on a human: the approved quotation already contains
       // everything the contract states.
@@ -683,9 +721,15 @@ async function clientAction(action, b, qs, req, res, sess) {
     // العمليات تقولها للمالك صراحةً.
     let html = row.contract.html;
     let contract = row.contract;
-    if (row.quote && Array.isArray(row.quote.items) && row.quote.items.length) {
+    // A signed contract issued before `build` was stored cannot be rebuilt
+    // faithfully (its lead time is unknown), so a difference would prove
+    // nothing — leave the signed paper alone rather than ask for a new signature.
+    const rebuildable = !row.contract.signature || !!row.contract.build;
+    if (rebuildable && row.quote && Array.isArray(row.quote.items) && row.quote.items.length) {
       try {
-        const rebuilt = buildContract(row, {});
+        // Same inputs as at issue: the date it was issued and the lead time /
+        // executor typed then. Anything else rebuilds a different paper.
+        const rebuilt = buildContract(row, { ...(row.contract.build || {}), at: row.contract.created_at });
         if (rebuilt.html && rebuilt.html !== row.contract.html) {
           const signed = !!row.contract.signature;
           contract = {
@@ -709,7 +753,11 @@ async function clientAction(action, b, qs, req, res, sess) {
     const hash = crypto.createHash("sha256").update(String(row.contract.html || "")).digest("hex");
     const signature = {
       name: signerName, email, ip: clientIp(req), ua: str(req.headers["user-agent"], 200), at: nowIso(),
-      contract_sha256: hash, image: typeof b.signature === "string" && b.signature.startsWith("data:image/") ? b.signature.slice(0, 60000) : null,
+      // A drawn signature is a PNG data URL. Cutting it at a length produced a
+      // corrupt image (the 600×150 canvas of a busy scribble passes 60 000
+      // characters), so it is kept whole or not at all — the name, time, IP and
+      // document hash are the evidence; the picture is a courtesy.
+      contract_sha256: hash, image: typeof b.signature === "string" && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(b.signature) && b.signature.length <= 250000 ? b.signature : null,
       mode: SIMPLE_TEST_MODE ? "test-esign" : "portal-esign",
     };
     const contract = { ...row.contract, status: "SIGNED", signed_at: signature.at, signature };
@@ -1818,9 +1866,16 @@ async function priceItems(items) {
     return { code: it.code, title: it.title || (svc && (svc.nameAr || svc.name)) || "",
       titleEn: str((svc && (svc.nameEn || svc.name)) || it.titleEn || "", 200),
       description: it.description || it.why || "", qty: it.qty || 1,
-      price: it.price != null && it.price !== "" ? num(it.price) : catPrice };
+      price: it.price != null && it.price !== "" ? num(it.price) : catPrice,
+      model: svc ? String(svc.pricingModel || "") : "" };
   });
 }
+// A catalogue price is a decision only when it IS the price. «يبدأ من 800»
+// is a floor, a monthly fee is not one payment, a percentage has no amount —
+// quoting those automatically at the listed number put a binding figure on a
+// number that was never the price. They go to a person.
+const AUTO_PRICE_MODELS = new Set(["", "One Time", "Per Candidate"]);
+const needsHumanPrice = (l) => !(num(l.price) > 0) || !AUTO_PRICE_MODELS.has(String(l.model || ""));
 function guessType(text) {
   const t = String(text || "");
   if (/تأسيس|فرع|رخصة استثمار|ريادة|MISA|سجل تجاري جديد|company|formation|branch/i.test(t)) return "COMPANY_FORMATION";
