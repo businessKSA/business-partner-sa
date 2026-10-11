@@ -7076,7 +7076,23 @@ function trackApplicationHtml() {
 function buildCareers() {
   const c = site.careers;
   const f = c.seeker.fields;
-  const body = careersBody({ lang: () => LANG, esc }, { jobCards: jobCardsHtml(), seekerForm: seekerFormHtml(f, null), track: trackApplicationHtml(), employerHref: u("/employers") });
+  // قائمة الوظائف المنشورة فعلاً (وظائف Business Partner + حملة الورشة)، محسومةَ
+  // اللغة والرابط هنا لأن JOBS/WORKSHOP_* مُعرَّفة في هذا الملف وحده. الإعلانات
+  // الحيّة (نوشن) تُجلب في المتصفّح داخل simple-v1-careers.mjs.
+  const groupTitle = new Map((WORKSHOP_CAMPAIGN.groups || []).map((g) => [g.key, Lraw(g.title.en, g.title.ar)]));
+  const careerJobs = [
+    ...JOBS.map((j) => ({
+      href: u("/jobs/" + j.slug), title: Lraw(j.title.en, j.title.ar), org: "Business Partner",
+      location: Lraw(j.location.en, j.location.ar), city: Lraw(j.location.en, j.location.ar).split(/[,،]/)[0].trim(),
+      field: Lraw("Human resources", j.field), type: Lraw(j.type.en, j.type.ar), openings: 0, summary: Lraw(j.summary.en, j.summary.ar),
+    })),
+    ...WORKSHOP_JOBS.map((j) => ({
+      href: u("/jobs/" + j.slug), title: Lraw(j.title.en, j.title.ar), org: "Business Partner",
+      location: Lraw(j.location.en, j.location.ar), city: "", // «السعودية» بلا مدينة: لا يدخل مرشّح المدينة
+      field: groupTitle.get(j.group) || "", type: Lraw(j.type.en, j.type.ar), openings: Number(j.openings) || 0, summary: Lraw(j.summary.en, j.summary.ar),
+    })),
+  ];
+  const body = careersBody({ lang: () => LANG, esc }, { jobs: careerJobs, jobHref: u("/job") + "?id=", seekerForm: seekerFormHtml(f, null), track: trackApplicationHtml(), employerHref: u("/employers") });
   return sv1LegacyApp({ title: Lraw("Careers — Business Partner", "الوظائف — بيزنس بارتنر"), desc: Lraw("Browse open roles and apply through Business Partner.", "تصفح الوظائف وقدّم عبر بيزنس بارتنر."), active: "/careers", body });
 }
 

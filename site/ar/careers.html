@@ -373,105 +373,212 @@ var S=window.SV1S={
  }};
 var h0=hint();if(h0)S.paint(true,h0);
 })();</script><main class="sv1-legacy"><style id="sv1-careers-css">
-/* البطل: شاشةٌ واحدة تحت ترويسة SV1 (شريط ٣٢px + ترويسة ٧٢px). */
-.sv1-legacy .sv1-ch{background:var(--g);border-bottom:1px solid var(--line2);position:relative;
- display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
- padding:30px 22px 92px;overflow:hidden;
- min-height:calc(100vh - 104px);min-height:calc(100svh - 104px)}
-.sv1-ch-in{width:100%;max-width:940px;margin:0 auto;display:flex;flex-direction:column;align-items:center}
-.sv1-ch-logo{height:34px;width:auto;display:block;margin:0 auto 16px}
+.sv1-legacy .cj{padding:34px 0 8px}
+.sv1-legacy .cj-in{max-width:980px}
+.sv1-legacy .cj-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px 28px;flex-wrap:wrap;margin-bottom:20px}
+.sv1-legacy .cj-head h1{margin:0;font-size:clamp(28px,4.2vw,40px);font-weight:800;letter-spacing:-.02em;line-height:1.25;color:var(--ink)}
+.sv1-legacy .cj-count{margin:6px 0 0;font-size:15px;font-weight:600;color:var(--ac)}
+.sv1-legacy .cj-lead{margin:6px 0 0;font-size:14px;color:var(--mut);line-height:1.8;max-width:560px}
+.sv1-legacy .cj-quick{display:flex;gap:8px;flex-wrap:wrap}
+.sv1-legacy .cj-quick a{font-size:12.5px;padding:8px 14px}
 
-/* الرسمة والعنوان في مكانٍ واحد: العنوان فوقها ومتداخلٌ معها. */
-.sv1-ch-art{position:relative;width:100%;max-width:900px}
-.sv1-ch-brush{display:block;width:100%;height:auto;color:var(--ac)}
-.sv1 .sv1-legacy .sv1-ch-art h1{position:absolute;top:50%;inset-inline:0;transform:translateY(-50%);
- margin:0;padding:0 13%;color:#fff!important;-webkit-text-fill-color:#fff;background:none;
- font-weight:800;letter-spacing:-.03em;line-height:1.2;text-wrap:balance;
- font-size:clamp(26px,6.4vw,74px)}
-.sv1-legacy .sv1-ch-lead{margin:6px auto 0;max-width:560px;color:var(--mut);font-weight:300;
- font-size:15px;line-height:1.9}
+.sv1-legacy .cj-bar{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr);gap:10px;margin-bottom:16px}
+.sv1-legacy .cj-bar input,.sv1-legacy .cj-bar select{width:100%;height:46px;margin:0;padding:0 14px;border:1px solid var(--l);border-radius:10px;
+ background:#fff;color:var(--ink);font:inherit;font-size:14px;box-shadow:none}
+.sv1-legacy .cj-bar input::placeholder{color:var(--faint)}
+.sv1-legacy .cj-bar input:focus,.sv1-legacy .cj-bar select:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px var(--acSoft)}
+.sv1-legacy .cj-bar [hidden]{display:none}
+.sv1-legacy .cj-sub{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0;font-size:12.5px;color:var(--mut)}
+.sv1-legacy .cj-sub [hidden]{display:none}
+.sv1-legacy .cj-sub:has(> [hidden]:first-child):has(> [hidden]:last-child){display:none}
+.sv1-legacy .cj-sub{padding-bottom:10px}
+.sv1-legacy .cj-clear{border:0;background:none;color:var(--ac);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;padding:2px 0;
+ border-bottom:1px solid var(--acLine)}
 
-/* الزرّان: حبّتان مملوءتان متساويتان، كما في المرجع. */
-.sv1-ch-acts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:22px}
-.sv1-legacy .sv1-ch-acts a{display:inline-flex;align-items:center;justify-content:center;
- min-width:230px;padding:17px 30px;border-radius:999px;border:1px solid var(--ac);
- background:var(--ac);color:#fff;font-size:16px;font-weight:600;line-height:1.2;
- box-shadow:0 12px 28px -14px rgba(11,27,90,.6);transition:background .15s,transform .15s}
-.sv1-legacy .sv1-ch-acts a:hover{background:var(--ac2);border-color:var(--ac2);transform:translateY(-1px)}
-.sv1-legacy .sv1-ch-alt{margin:18px 0 0;font-size:13px;color:var(--mut)}
-.sv1-legacy .sv1-ch-alt a{color:var(--ac);font-weight:500;border-bottom:1px solid var(--acLine)}
-
-/* سهم النزول — توسيطٌ بخصائص فيزيائية لأنه محايد الاتجاه في العربية. */
-.sv1-legacy .sv1-ch-down{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
- width:44px;height:44px;border-radius:50%;border:1px solid var(--acLine);background:rgba(255,255,255,.72);
- display:grid;place-items:center;color:var(--ac);font-size:17px;line-height:1;
- animation:sv1chDown 2.4s ease-in-out infinite}
-.sv1-legacy .sv1-ch-down:hover{border-color:var(--ac);background:#fff}
-@keyframes sv1chDown{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(5px)}}
-@media(prefers-reduced-motion:reduce){.sv1-legacy .sv1-ch-down{animation:none}}
+.sv1-legacy .cj-list{border:1px solid var(--l);border-radius:14px;background:#fff;overflow:hidden}
+.sv1-legacy .cj-list[hidden]{display:none}
+.sv1-legacy .cj-row{display:flex;align-items:flex-start;gap:18px;padding:20px 22px;border-top:1px solid var(--line2);transition:background .15s}
+.sv1-legacy .cj-row:first-child{border-top:0}
+.sv1-legacy .cj-row:hover{background:var(--soft)}
+.sv1-legacy .cj-row[hidden]{display:none}
+.sv1-legacy .cj-mn{flex:1;min-width:0}
+.sv1-legacy .cj-row h2{margin:0;font-size:16.5px;font-weight:600;line-height:1.55;letter-spacing:-.01em}
+.sv1-legacy .cj-row h2 a{color:var(--ink)}
+.sv1-legacy .cj-row h2 a:hover{color:var(--ac);text-decoration:underline}
+.sv1-legacy .cj-mt{margin:7px 0 0;font-size:12.5px;color:var(--mut);display:flex;flex-wrap:wrap;align-items:center;gap:7px;line-height:1.7}
+.sv1-legacy .cj-sep{color:var(--l);font-size:10px}
+.sv1-legacy .cj-tg{border:1px solid var(--acLine);background:var(--acSoft);color:var(--ac);border-radius:999px;padding:2px 10px;font-size:11px;font-weight:500}
+.sv1-legacy .cj-ag{color:var(--faint);font-size:11.5px}
+.sv1-legacy .cj-ds{margin:10px 0 0;font-size:12.5px;color:var(--s);line-height:1.85;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sv1-legacy .cj-ac{flex:none;display:flex;flex-direction:column;gap:7px;min-width:130px}
+.sv1-legacy .cj-ac .sv1-btn{width:100%;padding-block:9px}
+.sv1-legacy .cj-none{padding:34px 22px;text-align:center;color:var(--mut);font-size:14px;border:1px dashed var(--l);border-radius:14px}
+.sv1-legacy .cj-none[hidden]{display:none}
+.sv1-legacy .cj-more{display:flex;margin:16px auto 0;min-width:180px}
+.sv1-legacy .cj-more[hidden]{display:none}
+.sv1-legacy .cj-load{font-size:12px;color:var(--faint)}
 
 /* الترويسة لاصقة: بلا هذا الهامش يقف القسم المقصود تحتها فيختفي عنوانه. */
-.sv1-legacy #open-jobs,.sv1-legacy #client-jobs,.sv1-legacy #seeker-form{scroll-margin-top:92px}
+.sv1-legacy #open-jobs,.sv1-legacy #seeker-form{scroll-margin-top:92px}
 
-@media(max-width:560px){
- .sv1-legacy .sv1-ch{padding:22px 18px 84px;min-height:calc(100vh - 92px);min-height:calc(100svh - 92px)}
- /* الحشو يبقى ١٣٪ على الجوال أيضاً: تضييقه يدفع طرفَي السطر خارج الحبر. */
- .sv1 .sv1-legacy .sv1-ch-art h1{font-size:clamp(23px,7.4vw,40px)}
- .sv1-ch-acts{gap:10px;width:100%}
- .sv1-legacy .sv1-ch-acts a{min-width:0;width:100%;padding:15px 22px;font-size:15px}
+@media(max-width:640px){
+ .sv1-legacy .cj{padding-top:22px}
+ .sv1-legacy .cj-bar{grid-template-columns:1fr 1fr}
+ .sv1-legacy .cj-bar input{grid-column:1 / -1}
+ .sv1-legacy .cj-row{flex-direction:column;gap:13px;padding:17px 16px}
+ .sv1-legacy .cj-ac{flex-direction:row;width:100%;min-width:0}
+ .sv1-legacy .cj-ac .sv1-btn{flex:1}
 }
 </style>
-  <section class="sv1-ch">
-    <div class="sv1-ch-in">
-      <img class="sv1-ch-logo" src="/assets/img/logo.png" alt="Business Partner" width="180" height="34">
-      <div class="sv1-ch-art">
-        <svg class="sv1-ch-brush" viewBox="0 0 880 330" aria-hidden="true" focusable="false">
-      <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M140 122C250 74 420 66 560 84c74 10 138 26 180 44" stroke-width="138"/>
-        <path d="M136 168C280 140 520 140 744 172" stroke-width="146"/>
-        <path d="M144 216c118 54 296 72 460 60 60-5 108-15 140-30" stroke-width="138"/>
-        <path d="M604 278c68-9 122-25 148-45" stroke-width="50"/>
-      </g>
-    </svg>
-        <h1>جاهز لخطوتك القادمة؟</h1>
+  <section class="cj" id="open-jobs"><div class="container cj-in">
+    <header class="cj-head">
+      <div>
+        <h1>الوظائف المفتوحة</h1>
+        <p class="cj-count" id="cjCount" aria-live="polite">37 وظيفة مفتوحة</p>
+        <p class="cj-lead">تصفّح الوظائف وقدّم مباشرة. كل طلب يُسجَّل لدى فريق Business Partner ويُراجَع.</p>
       </div>
-      <p class="sv1-ch-lead">تصفّح الوظائف المفتوحة، أو أرسل سيرتك الذاتية مرة واحدة.</p>
-      <div class="sv1-ch-acts">
-        <a href="#open-jobs">الوظائف المفتوحة</a>
-        <a href="#seeker-form">أرسل سيرتك الذاتية</a>
+      <div class="cj-quick">
+        <a class="sv1-btn sm" href="#seeker-form">أرسل سيرتك الذاتية</a>
+        <a class="sv1-btn sm" href="/ar/employers">أنا صاحب عمل</a>
       </div>
-      <p class="sv1-ch-alt"><a href="/ar/employers">أنا صاحب عمل ←</a></p>
-    </div>
-    <a class="sv1-ch-down" href="#open-jobs" aria-label="انزل إلى الوظائف" title="انزل إلى الوظائف">↓</a>
-  </section>
+    </header>
 
-  <section class="section section--gray" id="open-jobs"><div class="container">
-    <div class="section-head"><span class="eyebrow">الوظائف</span><h2>الوظائف المفتوحة عبر بيزنس بارتنر</h2><p>كل تقديم يُسجَّل في ATS بيزنس بارتنر، يُفرز، ويُوجَّه إلى مرحلة التوظيف المناسبة.</p></div>
-    <div class="grid grid-3 ats-jobs"><article class="card ats-job-card">
-        <span class="emp-tag">قاعدة المرشحين</span>
-        <h3>قاعدة المرشحين العامة</h3>
-        <p>إذا لم تجد وظيفة مناسبة الآن، انضم للقاعدة ونطابقك مع طلبات أصحاب العمل.</p>
-        <div class="emp-meta">كل المجالات · السعودية · مشاركة بموافقتك</div>
-        <div class="talent-actions"><a class="btn btn-primary btn-sm ats-apply-link" href="#seeker-form" data-job-id="candidate-pool" data-job-title="قاعدة المرشحين العامة">انضم للقاعدة</a></div>
-      </article></div>
-  </div></section>
-  <section class="section section--gray" id="client-jobs"><div class="container">
-    <div class="section-head"><span class="eyebrow">عملاء بيزنس بارتنر</span><h2>وظائف من عملائنا أصحاب العمل</h2><p>شركات توظّف عبر منصة بيزنس بارتنر. قدّم مباشرة — طلبك يذهب مباشرة إلى مسار توظيفهم.</p></div>
-    <p class="emp-note" id="client-jobs-status">جارٍ التحميل…</p>
-    <div class="grid grid-3 ats-jobs" id="client-jobs-grid"><article class="card ats-job-card">
-        <span class="emp-tag">الرياض · موارد بشرية</span>
-        <h3>أخصائي عمليات موارد بشرية وعلاقات حكومية</h3>
-        <p>إدارة قوى، التأمينات، مدد، مقيم، وعمليات الموارد البشرية اليومية لعملاء بيزنس بارتنر.</p>
-        <div class="emp-meta">دوام كامل · خبرة سوق سعودي · عربي/إنجليزي</div>
-        <div class="talent-actions"><a class="btn btn-primary btn-sm" href="/ar/jobs/hr-operations-specialist">عرض الوظيفة</a><a class="btn btn-ghost btn-sm" href="/ar/jobs/hr-operations-specialist#apply-form">تقديم</a></div>
-      </article><article class="card ats-job-card">
-        <span class="emp-tag">الرياض / هجين · توظيف</span>
-        <h3>منسق توظيف</h3>
-        <p>تنسيق الاستقطاب، فرز السير، المقابلات، المتابعة مع أصحاب العمل والمرشحين.</p>
-        <div class="emp-meta">دوام كامل · ATS · عناية بالمرشحين</div>
-        <div class="talent-actions"><a class="btn btn-primary btn-sm" href="/ar/jobs/recruitment-coordinator">عرض الوظيفة</a><a class="btn btn-ghost btn-sm" href="/ar/jobs/recruitment-coordinator#apply-form">تقديم</a></div>
-      </article></div>
-  </div></section>
+    <div class="cj-bar" role="search">
+      <input type="search" id="cjQ" placeholder="ابحث بالمسمّى أو الكلمة" aria-label="ابحث بالمسمّى أو الكلمة" autocomplete="off">
+      <select id="cjCity" aria-label="المدينة" hidden><option value="">كل المدن</option></select>
+      <select id="cjField" aria-label="المجال" hidden><option value="">كل المجالات</option></select>
+    </div>
+    <div class="cj-sub"><span id="cjSub" class="cj-load" hidden></span><button type="button" class="cj-clear" id="cjClear" hidden>إزالة التصفية</button></div>
+
+    <span id="client-jobs" aria-hidden="true"></span><!-- مرساة قديمة: «العودة للوظائف» في صفحة الحملة تشير إلى /careers#client-jobs -->
+    <div class="cj-list" id="cjList"><article class="cj-row" data-city="الرياض" data-field="موارد بشرية"><div class="cj-mn"><h2><a href="/ar/jobs/hr-operations-specialist">أخصائي عمليات موارد بشرية وعلاقات حكومية</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>الرياض، السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>موارد بشرية</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">إدارة قوى، التأمينات، مدد، مقيم، وعمليات الموارد البشرية اليومية لعملاء بيزنس بارتنر.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/hr-operations-specialist">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/hr-operations-specialist#apply-form">قدّم</a></div></article><article class="cj-row" data-city="الرياض" data-field="موارد بشرية"><div class="cj-mn"><h2><a href="/ar/jobs/recruitment-coordinator">منسق توظيف</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>الرياض، السعودية (هجين)</span><span class="cj-sep" aria-hidden="true">•</span><span>موارد بشرية</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">تنسيق الاستقطاب، فرز السير، المقابلات، المتابعة مع أصحاب العمل والمرشحين.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/recruitment-coordinator">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/recruitment-coordinator#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الإدارة"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-factory-manager">مدير مصنع — تصنيع فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الإدارة</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">قيادة كل العمليات اليومية لورشة تصنيع فعاليات مخصصة — الإنتاج والجودة والسلامة وتسليم المشاريع في الوقت والميزانية.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-factory-manager">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-factory-manager#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الإدارة"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-production-manager">مدير إنتاج — تصنيع فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الإدارة</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">إدارة دورة الإنتاج الكاملة لهياكل الفعاليات وأجنحة المعارض والديكورات والمجسمات المخصصة — من قراءة التصميم حتى التركيب النهائي.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-production-manager">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-production-manager#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الإدارة"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-installation-manager">مدير تركيب — فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الإدارة</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">تخطيط وقيادة تركيب العناصر المشهدية والمعارض وهياكل الفعاليات في المواقع — إدارة الفرق واللوجستيات والسلامة والتنسيق مع العميل.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-installation-manager">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-installation-manager#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الإدارة"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-engineering-manager">مدير هندسة — تصنيع فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الإدارة</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">قيادة الفريق الفني لتحويل المفاهيم الإبداعية إلى هياكل فعاليات آمنة وقابلة للتنفيذ — CAD، رسومات تنفيذية، تحليل إنشائي، وتصميم قابل للتصنيع.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-engineering-manager">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-engineering-manager#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الإدارة"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-quality-manager">مدير جودة — تصنيع فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الإدارة</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">بناء وإدارة نظام الجودة لهياكل الفعاليات المخصصة — من المواد الخام حتى المنتج المركّب نهائياً، بثقافة الإتقان من المصدر.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-quality-manager">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-quality-manager#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الإدارة"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-maintenance-manager">مدير صيانة (ميكاترونكس) — ورشة تصنيع</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الإدارة</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">قيادة صيانة كل معدات التصنيع والبنية التحتية للمنشأة — برنامج صيانة وقائية، استجابة للأعطال، وسلامة.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-maintenance-manager">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-maintenance-manager#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="المستودعات واللوجستيات"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-warehouse-manager">مدير مستودع — تصنيع فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>المستودعات واللوجستيات</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">إدارة استلام وتخزين وشحن المواد الخام والأصول الجاهزة عالية القيمة للفعاليات ضمن مواعيد مشاريع ضيقة.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-warehouse-manager">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-warehouse-manager#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الهندسة والتصميم"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-design-engineer">مهندس تصميم فني — فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الهندسة والتصميم</span><span class="cj-tg">دوام كامل</span><span class="cj-tg">6 شواغر</span></p><p class="cj-ds">تحويل المفاهيم الإبداعية إلى رسومات CAD جاهزة للتنفيذ للفعاليات والمعارض والتفعيلات — حلقة الوصل بين التصميم وأرضية الورشة.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-design-engineer">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-design-engineer#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="المستودعات واللوجستيات"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-logistics-supervisor">مشرف لوجستيات — فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>المستودعات واللوجستيات</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">تنسيق حركة وتخزين وتجهيز المواد والمعدات للفعاليات من الورشة إلى الموقع والعودة.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-logistics-supervisor">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-logistics-supervisor#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="المستودعات واللوجستيات"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-store-keeper">أمين مستودع — ورشة فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>المستودعات واللوجستيات</span><span class="cj-tg">دوام كامل</span><span class="cj-tg">3 شواغر</span></p><p class="cj-ds">إدارة استلام وتخزين وصرف المواد والأدوات والمعدات لمشاريع الفعاليات والمعارض والتجهيز.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-store-keeper">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-store-keeper#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="قادة الفرق"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-installation-team-leader">قائد فريق تركيب — فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>قادة الفرق</span><span class="cj-tg">دوام كامل</span><span class="cj-tg">5 شواغر</span></p><p class="cj-ds">قيادة ميدانية لفرق التركيب في المواقع: شحن وتجميع وتسليم تجهيزات الفعاليات بأمان وفي الموعد وحسب المواصفات.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-installation-team-leader">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-installation-team-leader#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="قادة الفرق"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-carpentry-team-leader">قائد فريق نجارة — ورشة فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>قادة الفرق</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">قيادة قسم النجارة لبناء العناصر المشهدية والمجسمات والأثاث المخصص — عمل ميداني بجودة عالية ومواعيد صارمة.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-carpentry-team-leader">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-carpentry-team-leader#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="قادة الفرق"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-steel-team-leader">قائد فريق تصنيع حديد — ورشة فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>قادة الفرق</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">قيادة قسم الحديد لتصنيع الهياكل المخصصة وإطارات التعليق والدعامات المشهدية بلحام MIG/TIG وبتشطيب جاهز للعرض.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-steel-team-leader">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-steel-team-leader#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="قادة الفرق"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-printing-team-leader">قائد فريق طباعة — ورشة فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>قادة الفرق</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">قيادة قسم الطباعة كبيرة الحجم لإنتاج الجرافيك واللوحات والبراندنج للفعاليات — إدارة الماكينات والفريق والألوان والمواعيد.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-printing-team-leader">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-printing-team-leader#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="قادة الفرق"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-foam-team-leader">قائد فريق نحت وتصنيع فوم — ورشة فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>قادة الفرق</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">قيادة قسم الفوم لتحويل فوم EPS/PU إلى مجسمات ثلاثية الأبعاد وهياكل مشهدية ضخمة عبر CNC والنحت اليدوي.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-foam-team-leader">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-foam-team-leader#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="قادة الفرق"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-painting-team-leader">قائد فريق دهان — ورشة فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>قادة الفرق</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">قيادة قسم الدهان: مطابقة الألوان والتجهيز والرش والتشطيبات المشهدية للعناصر والمجسمات والهياكل المخصصة.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-painting-team-leader">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-painting-team-leader#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الفنيون"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-carpenter">نجار — تصنيع فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الفنيون</span><span class="cj-tg">دوام كامل</span><span class="cj-tg">35 شواغر</span></p><p class="cj-ds">بناء وتشطيب العناصر المشهدية وأجنحة المعارض والمجسمات والأثاث المخصص من الرسومات الفنية — بدقة وسرعة وجاهزية للعرض.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-carpenter">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-carpenter#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الفنيون"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-steel-fabricator">حداد / لحام — فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الفنيون</span><span class="cj-tg">دوام كامل</span><span class="cj-tg">6 شواغر</span></p><p class="cj-ds">قص ولحام وتجميع الهياكل المعدنية المخصصة للمسارح والديكورات وأجنحة المعارض — دقة MIG/TIG وجودة تشطيب للعرض العام.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-steel-fabricator">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-steel-fabricator#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الفنيون"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-printing-operator">مشغل طباعة — كبيرة الحجم</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الفنيون</span><span class="cj-tg">دوام كامل</span><span class="cj-tg">6 شواغر</span></p><p class="cj-ds">إنتاج جرافيك ولوحات وبراندنج كبيرة الحجم بجودة عالية على الطابعات الرقمية وكاتر الفينيل ومعدات التشطيب.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-printing-operator">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-printing-operator#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الفنيون"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-tailor">خياط مشهدي — فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الفنيون</span><span class="cj-tg">دوام كامل</span><span class="cj-tg">3 شواغر</span></p><p class="cj-ds">إنتاج تجهيزات قماشية ضخمة — ستائر مسارح ومفروشات وديكورات مخصصة — لإنتاج الفعاليات والمعارض.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-tailor">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-tailor#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الفنيون"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-foam-fabricator">نحات / مُصنّع فوم — فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الفنيون</span><span class="cj-tg">دوام كامل</span><span class="cj-tg">3 شواغر</span></p><p class="cj-ds">تحويل فوم EPS وPU إلى مجسمات ثلاثية الأبعاد وهياكل مشهدية ضخمة عبر مكونات CNC والنحت اليدوي الماهر.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-foam-fabricator">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-foam-fabricator#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الفنيون"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-painter">دهان — تصنيع فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الفنيون</span><span class="cj-tg">دوام كامل</span><span class="cj-tg">6 شواغر</span></p><p class="cj-ds">تجهيز ودهان وتشطيب العناصر المشهدية والمجسمات والهياكل المخصصة — رش ومطابقة ألوان وتشطيبات مشهدية.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-painter">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-painter#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="العمالة الماهرة"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-skilled-labor">عمالة ماهرة — نجارة، حدادة، طباعة، فوم، دهان، مستودعات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>العمالة الماهرة</span><span class="cj-tg">دوام كامل</span><span class="cj-tg">70 شواغر</span></p><p class="cj-ds">فرص متعددة لعمال مهرة لدعم كل أقسام التصنيع — النجارة والحدادة والطباعة والفوم والدهان والمستودعات واللوجستيات.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-skilled-labor">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-skilled-labor#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="قادة الفرق"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-production-team-leader">قائد فريق إنتاج — ورشة فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>قادة الفرق</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">قيادة ميدانية لأرضية الورشة عبر النجارين واللحامين والدهانين — حلقة الوصل اليومية بين مديري المشاريع والتصنيع.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-production-team-leader">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-production-team-leader#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="قادة الفرق"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-electrical-team-leader">قائد فريق كهرباء — ورشة فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>قادة الفرق</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">قيادة قسم الكهرباء لتمديد وإنارة وتغذية هياكل الفعاليات والعناصر المشهدية المخصصة — بأمان وجاهزية للعرض.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-electrical-team-leader">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-electrical-team-leader#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الفنيون"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-electrical-technician">فني كهرباء — فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الفنيون</span><span class="cj-tg">دوام كامل</span><span class="cj-tg">5 شواغر</span></p><p class="cj-ds">تمديد وإنارة وتغذية العناصر المشهدية وهياكل الفعاليات المخصصة في الورشة والمواقع.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-electrical-technician">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-electrical-technician#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الفنيون"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-branding-technician">فني تركيب / أقمشة وبراندنج — فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الفنيون</span><span class="cj-tg">دوام كامل</span><span class="cj-tg">6 شواغر</span></p><p class="cj-ds">تركيب الفينيل والجرافيك والأقمشة والبراندنج على هياكل الفعاليات والأجنحة والمواقع — تشطيب دقيق يعكس هوية العميل.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-branding-technician">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-branding-technician#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الهندسة والتصميم"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-production-engineer">مهندس إنتاج — تصنيع فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الهندسة والتصميم</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">تخطيط وتحسين مسارات التصنيع عبر النجارة والحديد والطباعة والفوم والدهان — الطاقة الإنتاجية والأساليب والتكلفة.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-production-engineer">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-production-engineer#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الهندسة والتصميم"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-quality-engineer">مهندس جودة — تصنيع فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الهندسة والتصميم</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">تنفيذ الفحوصات أثناء التصنيع وفحوص الإفراج النهائي لهياكل الفعاليات المخصصة — دعم نظام مدير الجودة ميدانياً.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-quality-engineer">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-quality-engineer#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الهندسة والتصميم"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-installation-engineer">مهندس تركيب — فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الهندسة والتصميم</span><span class="cj-tg">دوام كامل</span></p><p class="cj-ds">هندسة التنفيذ الميداني: خطط التركيب ومعاينات المواقع والإشراف الفني على فرق التركيب.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-installation-engineer">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-installation-engineer#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الهندسة والتصميم"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-detailing-engineer">مهندس تفاصيل (ديتيلر) — فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الهندسة والتصميم</span><span class="cj-tg">دوام كامل</span><span class="cj-tg">4 شواغر</span></p><p class="cj-ds">إنتاج رسومات تنفيذية دقيقة وقوائم قص وملفات جاهزة لـ CNC من نماذج فريق التصميم — الرسومات التي تبني منها الورشة.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-detailing-engineer">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-detailing-engineer#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="الفنيون"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-maintenance-technician">فني صيانة (ميكاترونكس) — ورشة</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>الفنيون</span><span class="cj-tg">دوام كامل</span><span class="cj-tg">2 شواغر</span></p><p class="cj-ds">الحفاظ على جاهزية راوترات CNC وماكينات اللحام والطابعات وبنية الورشة — صيانة وقائية واستجابة سريعة للأعطال.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-maintenance-technician">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-maintenance-technician#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="المالية والموارد البشرية والمشتريات"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-finance-officer">موظف مالية — ورشة فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>المالية والموارد البشرية والمشتريات</span><span class="cj-tg">دوام كامل</span><span class="cj-tg">3 شواغر</span></p><p class="cj-ds">إدارة المالية اليومية لورشة تصنيع سريعة الإيقاع — تكاليف المشاريع ومدفوعات الموردين ومدخلات الرواتب والتقارير.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-finance-officer">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-finance-officer#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="المالية والموارد البشرية والمشتريات"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-hr-officer">موظف موارد بشرية وعلاقات حكومية — ورشة فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>المالية والموارد البشرية والمشتريات</span><span class="cj-tg">دوام كامل</span><span class="cj-tg">3 شواغر</span></p><p class="cj-ds">إدارة عمليات الموارد البشرية والمنصات الحكومية لقوى عاملة تتجاوز 180 موظفاً — قوى، التأمينات، مقيم، مدد، العقود، والامتثال.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-hr-officer">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-hr-officer#apply-form">قدّم</a></div></article><article class="cj-row" data-city="" data-field="المالية والموارد البشرية والمشتريات"><div class="cj-mn"><h2><a href="/ar/jobs/workshop-procurement-officer">موظف مشتريات — ورشة فعاليات</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>السعودية</span><span class="cj-sep" aria-hidden="true">•</span><span>المالية والموارد البشرية والمشتريات</span><span class="cj-tg">دوام كامل</span><span class="cj-tg">3 شواغر</span></p><p class="cj-ds">توريد وشراء مواد التصنيع المخصص — خشب وحديد وفوم وخامات طباعة ودهانات — ضمن مواعيد فعاليات ضيقة.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/ar/jobs/workshop-procurement-officer">التفاصيل</a><a class="sv1-btn sm primary" href="/ar/jobs/workshop-procurement-officer#apply-form">قدّم</a></div></article></div>
+    <div class="cj-none" id="cjNone" hidden>لا توجد وظائف تطابق بحثك.</div>
+    <button type="button" class="sv1-btn cj-more" id="cjMore" hidden>عرض المزيد</button>
+  </div></section><script>(function(){"use strict";
+var LANG="ar",TX={"of":"عرض {n} من {m} وظيفة","posted":"نُشرت","loading":"جارٍ تحميل وظائف أصحاب العمل…","anyCity":"كل المدن","anyField":"كل المجالات","counts":{"zero":"لا توجد وظائف مفتوحة حالياً","one":"وظيفة مفتوحة واحدة","two":"وظيفتان مفتوحتان","few":"{n} وظائف مفتوحة","many":"{n} وظيفة مفتوحة","other":"{n} وظيفة مفتوحة"},"view":"التفاصيل","apply":"قدّم"},
+JOB="/ar/job?id=",PAGE=15;
+var cjRow=function cjRow(j, X) {
+  var e = function (s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  };
+  var meta = [];
+  for (var i = 0; i < j.meta.length; i++) if (j.meta[i]) meta.push("<span>" + e(j.meta[i]) + "</span>");
+  var tags = "";
+  for (var k = 0; k < j.tags.length; k++) if (j.tags[k]) tags += '<span class="cj-tg">' + e(j.tags[k]) + "</span>";
+  var when = j.date ? '<span class="cj-ag">' + e(j.dateLabel) + "</span>" : "";
+  var sep = '<span class="cj-sep" aria-hidden="true">•</span>';
+  return '<article class="cj-row" data-city="' + e(j.city) + '" data-field="' + e(j.field) + '">' +
+    '<div class="cj-mn"><h2><a href="' + e(j.href) + '">' + e(j.title) + "</a></h2>" +
+    '<p class="cj-mt">' + meta.join(sep) + tags + when + "</p>" +
+    (j.desc ? '<p class="cj-ds">' + e(j.desc) + "</p>" : "") +
+    '</div><div class="cj-ac"><a class="sv1-btn sm" href="' + e(j.href) + '">' + e(X.view) + "</a>" +
+    '<a class="sv1-btn sm primary" href="' + e(j.href) + '#apply-form">' + e(X.apply) + "</a></div></article>";
+};
+var $=function(i){return document.getElementById(i)};
+var list=$('cjList');if(!list)return;
+var elCount=$('cjCount'),elQ=$('cjQ'),elCity=$('cjCity'),elField=$('cjField'),elMore=$('cjMore'),
+    elNone=$('cjNone'),elSub=$('cjSub'),elClear=$('cjClear');
+var shown=PAGE,M=[],loadingLive=true;
+function clean(v){return String(v==null?'':v).replace(/\s+/g,' ').trim()}
+function norm(v){return clean(v).toLowerCase()}
+function cityKey(v){return clean(String(v==null?'':v).split('|')[0])}
+function num(n){try{return Number(n).toLocaleString('en-US')}catch(e){return String(n)}}
+function plural(n){var k='other';try{k=new Intl.PluralRules(LANG).select(n)}catch(e){}
+ if(n===0&&TX.counts.zero)k='zero';
+ return String(TX.counts[k]||TX.counts.other).replace('{n}',num(n))}
+
+// النموذج: كل صفٍّ كائنٌ {el,live,city,field,hay}. الصفوف الثابتة تُقرأ من DOM
+// الذي رسمه الخادم، والحيّة تُبنى بالدالة نفسها وتُدرَج في رأس القائمة.
+function adopt(el,live){
+ M.push({el:el,live:!!live,city:cityKey(el.getAttribute('data-city')),field:clean(el.getAttribute('data-field')),hay:norm(el.textContent)})}
+Array.prototype.forEach.call(list.querySelectorAll('.cj-row'),function(el){adopt(el,false)});
+
+var F={q:'',city:'',field:''};
+function match(m,skip){
+ if(skip!=='city'&&F.city&&m.city!==F.city)return false;
+ if(skip!=='field'&&F.field&&m.field!==F.field)return false;
+ if(F.q){var w=norm(F.q).split(/[^\p{L}\p{N}]+/u).filter(function(x){return x.length>1});
+  for(var i=0;i<w.length;i++)if(m.hay.indexOf(w[i])<0)return false}
+ return true}
+// الخيارات مبنيّة من الوظائف الموجودة فعلاً مع عدّادها على بقيّة الفلاتر: خيارٌ
+// لا وظيفة تحته لا يُعرض، فلا يعيد فلترٌ صفراً.
+function facet(sel,key,any){
+ var base=M.filter(function(m){return match(m,key)}),c={},order=[];
+ base.forEach(function(m){var v=m[key];if(!v)return;if(c[v]==null){c[v]=0;order.push(v)}c[v]++});
+ order.sort(function(a,b){if(c[b]!==c[a])return c[b]-c[a];try{return a.localeCompare(b,LANG)}catch(e){return 0}});
+ if(F[key]&&c[F[key]]==null)order.unshift(F[key]);
+ // قائمةٌ بخيارٍ واحد لا تصفّي شيئاً — تُخفى حتى تصير ذات معنى.
+ sel.hidden=!(order.length>1||F[key]);
+ sel.textContent='';
+ var o0=document.createElement('option');o0.value='';o0.textContent=any;sel.appendChild(o0);
+ order.forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v+' ('+num(c[v]||0)+')';sel.appendChild(o)});
+ sel.value=F[key]||''}
+
+function paint(){
+ var vis=0;
+ M.forEach(function(m){if(match(m)){vis++;m.el.hidden=vis>shown}else m.el.hidden=true});
+ facet(elCity,'city',TX.anyCity);facet(elField,'field',TX.anyField);
+ var active=!!(F.q||F.city||F.field);
+ elCount.textContent=active?TX.of.replace('{n}',num(vis)).replace('{m}',num(M.length)):plural(M.length);
+ elNone.hidden=vis>0;list.hidden=!vis;
+ elMore.hidden=vis-shown<=0;
+ elClear.hidden=!active;
+ elSub.hidden=!loadingLive;elSub.textContent=loadingLive?TX.loading:''}
+
+function applyF(){shown=PAGE;paint()}
+var tmr=null;
+elQ.addEventListener('input',function(){clearTimeout(tmr);tmr=setTimeout(function(){F.q=elQ.value.trim();applyF()},180)});
+elCity.addEventListener('change',function(){F.city=elCity.value;applyF()});
+elField.addEventListener('change',function(){F.field=elField.value;applyF()});
+elClear.addEventListener('click',function(){F.q=F.city=F.field='';elQ.value='';applyF()});
+elMore.addEventListener('click',function(){shown+=PAGE;paint()});
+
+// الإعلانات الحيّة (نوشن): تُدرَج قبل الوظائف الثابتة، الأحدث أولاً كما تعيدها
+// النقطة. فشل الجلب لا يُظهر شيئاً — القائمة الثابتة تبقى كاملة.
+function fmtDate(v){var t=Date.parse(v);if(isNaN(t))return '';
+ try{return new Intl.DateTimeFormat(LANG==='ar'?'ar-u-nu-latn':LANG,{day:'numeric',month:'short',year:'numeric'}).format(new Date(t))}catch(e){return ''}}
+function liveRow(j){
+ var d=fmtDate(j.postedAt);
+ var html=cjRow({href:JOB+encodeURIComponent(j.id),title:clean(j.title),
+  meta:[clean(j.company),cityKey(j.city),clean(j.field)],tags:[clean(j.type),clean(j.mode)],
+  desc:clean(j.description).slice(0,160),city:cityKey(j.city),field:clean(j.field),
+  date:d,dateLabel:d?TX.posted+' '+d:''},{view:TX.view,apply:TX.apply});
+ var box=document.createElement('div');box.innerHTML=html;return box.firstChild}
+
+// الإعلانات تُكتب بالعربية في نوشن؛ في اللغات الأخرى تُترجَم عند الطلب بالنداء
+// نفسه الذي يستعمله main.js (task:"translate") ومفتاح التخزين نفسه، على دفعات
+// متتابعة لا متوازية (التوازي يستنفد حدّ المزوّد فتسقط اللوحة كلها للعربية).
+function translateParts(parts,id){
+ if(LANG==='ar')return Promise.resolve(null);
+ var key='bp_jobtr_'+LANG+'_'+id;
+ try{var hit=JSON.parse(localStorage.getItem(key)||'null');if(hit&&hit.n===parts.length)return Promise.resolve(hit.parts)}catch(e){}
+ return fetch('/api/hire',{method:'POST',headers:{'content-type':'application/json'},
+  body:JSON.stringify({task:'translate',lang:LANG,items:parts})}).then(function(r){return r.json()}).then(function(d){
+  if(!d||!d.ok||!Array.isArray(d.items)||d.items.length!==parts.length)return null;
+  try{localStorage.setItem(key,JSON.stringify({n:parts.length,parts:d.items}))}catch(e2){}
+  return d.items}).catch(function(){return null})}
+
+fetch('/api/candidates?openJobs=1').then(function(r){return r.json()}).then(function(d){
+ var js=(d&&d.ok&&d.jobs)||[];
+ var first=list.firstChild,made=[];
+ js.forEach(function(j){if(!clean(j.title))return;var el=liveRow(j);list.insertBefore(el,first);adopt(el,true);made.push({j:j,el:el})});
+ // الصفوف الحيّة أمام الثابتة في الـDOM، فيتبعها النموذج (الترقيم يعدّ بترتيبه).
+ M.sort(function(a,b){return (b.live?1:0)-(a.live?1:0)});
+ if(LANG!=='ar'&&made.length){
+  var batches=[];for(var b=0;b<made.length;b+=8)batches.push(made.slice(b,b+8));
+  (function next(i){if(i>=batches.length)return;var bt=batches[i],parts=[];
+   bt.forEach(function(x){parts.push(clean(x.j.title),clean(x.j.description).slice(0,160)||'—')});
+   var key='board-'+bt.map(function(x){return String(x.j.id).slice(-6)}).join('');
+   translateParts(parts,key).then(function(tr){
+    if(tr)bt.forEach(function(x,k){var h=x.el.querySelector('h2 a');if(h)h.textContent=tr[k*2];
+     var ds=x.el.querySelector('.cj-ds');if(ds&&tr[k*2+1]!=='—')ds.textContent=tr[k*2+1];
+     for(var q=0;q<M.length;q++)if(M[q].el===x.el)M[q].hay=norm(x.el.textContent)});
+    next(i+1)})})(0)}
+}).catch(function(){}).then(function(){loadingLive=false;paint()});
+paint();
+})();</script>
 
   <section class="section"><div class="container">
     <div class="grid grid-3" style="margin-bottom:36px"><div class="card"><div class="card-icon" style="font-size:1.5rem">📄</div><h3>سيرة واحدة، فرص كثيرة</h3><p>سجّل مرة واحدة، ونطابقك مع الفرص المناسبة فور توفّرها.</p></div><div class="card"><div class="card-icon" style="font-size:1.5rem">🤝</div><h3>أصحاب العمل يوصلونك</h3><p>الشركات التي توظّف عبرنا تشاهد ملفك للفرص المناسبة.</p></div><div class="card"><div class="card-icon" style="font-size:1.5rem">🔒</div><h3>بياناتك محمية</h3><p>لا نشارك سيرتك دون موافقتك (حماية البيانات).</p></div></div>
