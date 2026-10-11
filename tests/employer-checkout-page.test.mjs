@@ -205,14 +205,34 @@ test("an ordinary cart is untouched: no offer lookup, the normal success message
   const snap = { ref: "BP-100200", items: [{ id: "svc-bp-absher-01", qty: 2 }] };
   const r = await boot(scriptOf(checkoutPage), {
     cart, snap, url: "https://x.test/ar/checkout?id=mock_card_a1b2c3d4e5f6&payment=paid",
-    api: api({ verify: () => ({ ok: true, amount: 69000, invoice: { invoiced: true, number: "INV-8" }, settle: { ok: true, verified: true, ref: "BP-100200" } }) }),
+    api: api({ verify: () => ({ ok: true, amount: 69000, invoice: { invoiced: true, number: "INV-8" }, settle: { ok: true, verified: true, ref: "BP-100200", request: { ok: true, ref: "BP-R-A1B2C3", created: true, documents: 2 } } }) }),
   });
   const res = r.document.getElementById("coResult");
   assert.equal(res.children[0].textContent, TXT("okDone"));
   // the numbers the buyer keeps: order, amount, invoice — each from the server's answer
   const rows = res.children.find((c) => c.className === "sv1-co-rows").children.map((d) => [d.children[0].textContent, d.children[1].textContent]);
-  assert.deepEqual(rows.map((x) => x[0]), [TXT("lblOrder"), TXT("lblPay"), TXT("lblAmt"), TXT("lblInv")]);
-  assert.equal(rows[0][1], "BP-100200"); assert.equal(rows[1][1], "mock_card_a1b2c3d4e5f6"); assert.match(rows[2][1], /690\.00/); assert.equal(rows[3][1], "INV-8");
+  assert.deepEqual(rows.map((x) => x[0]), [TXT("lblReq"), TXT("lblOrder"), TXT("lblPay"), TXT("lblAmt"), TXT("lblInv")]);
+  assert.equal(rows[0][1], "BP-R-A1B2C3"); assert.equal(rows[1][1], "BP-100200"); assert.equal(rows[2][1], "mock_card_a1b2c3d4e5f6"); assert.match(rows[3][1], /690\.00/); assert.equal(rows[4][1], "INV-8");
+  // the request the server opened is linked, and the buyer is told to upload the documents it asked for
+  const link = res.children.find((c) => c.tag === "a");
+  assert.equal(link.href, "/ar/my?ref=BP-R-A1B2C3");
+  assert.equal(link.textContent, TXT("openReq"));
+  assert.ok(res.children.some((c) => (c.textContent || "").startsWith(TXT("nextReqDocs"))));
+});
+
+test("after payment: paid and registered but the request could not be opened keeps the honest hold (no number, no link)", async () => {
+  const cart = [{ id: "svc-bp-absher-01", nameAr: "أبشر", amount: 300, price: "", qty: 1, pricePublic: true }];
+  const snap = { ref: "BP-700800", items: [{ id: "svc-bp-absher-01", qty: 1 }] };
+  const r = await boot(scriptOf(checkoutPage), {
+    cart, snap, url: "https://x.test/ar/checkout?id=mock_card_a1b2c3d4e5f6&payment=paid",
+    api: api({ verify: () => ({ ok: true, amount: 34500, settle: { ok: true, verified: true, ref: "BP-700800", request: { ok: false, error: "create_failed" } } }) }),
+  });
+  const res = r.document.getElementById("coResult");
+  assert.equal(res.className, "sv1-co-result warn");
+  assert.equal(res.children[0].textContent, TXT("paidHold"));
+  assert.equal(res.children.some((c) => c.tag === "a"), false);
+  const rows = res.children.find((c) => c.className === "sv1-co-rows").children.map((d) => d.children[0].textContent);
+  assert.ok(!rows.includes(TXT("lblReq")));
 });
 
 test("after payment: a payment the server could not match is said to be under review, not 'done'", async () => {
@@ -220,12 +240,13 @@ test("after payment: a payment the server could not match is said to be under re
   const snap = { ref: "BP-300400", items: [{ id: "pkg-starter-4-yearly", qty: 1 }] };
   const r = await boot(scriptOf(checkoutPage), {
     cart, snap, url: "https://x.test/ar/checkout?id=mock_card_a1b2c3d4e5f6&payment=paid",
-    api: api({ verify: () => ({ ok: true, amount: 2415000, invoice: { invoiced: false, reason: "amount_mismatch" }, settle: { ok: true, verified: false, ref: "BP-300400" } }) }),
+    api: api({ verify: () => ({ ok: true, amount: 2415000, invoice: { invoiced: false, reason: "amount_mismatch" }, settle: { ok: true, verified: false, ref: "BP-300400", request: { ok: true, ref: "BP-R-D4E5F6", created: true, documents: 0 } } }) }),
   });
   const res = r.document.getElementById("coResult");
   assert.equal(res.className, "sv1-co-result warn");
   assert.equal(res.children[0].textContent, TXT("reviewT"));
   assert.ok(!res.children.some((c) => c.textContent === TXT("okDone")));
+  assert.equal(res.children.find((c) => c.tag === "a").href, "/ar/my?ref=BP-R-D4E5F6", "the request under review is the one opened");
 });
 
 test("after payment: money taken but registration incomplete says so and never claims it is done", async () => {

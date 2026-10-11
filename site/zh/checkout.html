@@ -531,7 +531,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
 })();</script><script>
 (function(){
 var LANG="zh",HOME="/zh/";
-var TX={"empty":"购物车为空。","browse":"浏览服务","needFill":"请先填写姓名、手机号和邮箱。","payDown":"支付表单加载失败。请尝试 Tamara 或稍后重试。","loading":"正在准备支付表单…","quoted":"审核后报价","signIn":"登录后查看价格并付款。","signInBtn":"登录","noAmount":"这些项目将在审核后报价 — 我们会先发送报价，再发送付款链接。","card":"银行卡","payBtn":"完成支付","payWait":"正在确认您的付款…","paidOk":"已收到付款——订单已记录，税务发票将在几分钟内发送到您的邮箱。","paidInv":"发票号：","paidFail":"付款未完成，未扣款——请用银行卡重试或尝试 Tamara。","paidHold":"您的付款已完成但暂时无法自动确认，团队已收到提醒。请勿重复付款——发票稍后送达。","bnplFail":"分期付款未完成——请重试或用银行卡支付。","toMy":"查看我的订单","mockTag":"本地网关——不扣款","needCo":"请填写公司名称——订阅将以其名义开通。","empFail":"暂时无法准备您的订阅，未扣款——请稍后重试或联系我们。","empDone":"已收到付款，您的招聘平台订阅已开通。请用付款时的邮箱登录雇主门户。","empHold":"付款已完成，订阅正在开通——团队已收到提醒。请勿重复付款。","toEmployer":"打开雇主门户","tamaraYr":"Tamara 仅适用于年度订阅。","empSignIn":"请先用将开通订阅的邮箱登录，再付款。","empMail":"邮箱必须与当前登录账户一致。","onePlan":"每个订单仅限一个订阅。","toCart":"返回购物车","onceHd":"一次性付款","recHd":"订阅","billM":"每月","billY":"每年","recNote":"订阅金额为一个周期（一个月或一年）的费用，即现在支付的金额。","tamaraSub":"Tamara 不适用于月度订阅——请用银行卡支付。","lblOrder":"订单号","lblPay":"付款编号","lblAmt":"已付金额（含税）","lblInv":"发票号","okDone":"已收到付款，订单已确认。","nextInv":"下一步：订单确认和税务发票将发送到您的邮箱，随后团队开始执行。","nextNoInv":"下一步：订单确认将发送到您的邮箱。团队正在准备税务发票，并发送到同一邮箱。","reviewT":"我们已收到您的付款，将在工作时间内确认开通。","reviewN":"我们无法自动将金额与公布价格核对，团队将在开通前复核。确认邮件将发送到您的邮箱——请勿重复付款。","myNote":"提示：“我的订单”显示报价请求和预约，直接购买的订单付款后可能不会立即出现在其中。请保存上方订单号——确认和发票将发送到您的邮箱。","signInGo":"登录"};
+var TX={"empty":"购物车为空。","browse":"浏览服务","needFill":"请先填写姓名、手机号和邮箱。","payDown":"支付表单加载失败。请尝试 Tamara 或稍后重试。","loading":"正在准备支付表单…","quoted":"审核后报价","signIn":"登录后查看价格并付款。","signInBtn":"登录","noAmount":"这些项目将在审核后报价 — 我们会先发送报价，再发送付款链接。","card":"银行卡","payBtn":"完成支付","payWait":"正在确认您的付款…","paidOk":"已收到付款——订单已记录，税务发票将在几分钟内发送到您的邮箱。","paidInv":"发票号：","paidFail":"付款未完成，未扣款——请用银行卡重试或尝试 Tamara。","paidHold":"您的付款已完成但暂时无法自动确认，团队已收到提醒。请勿重复付款——发票稍后送达。","bnplFail":"分期付款未完成——请重试或用银行卡支付。","toMy":"查看我的订单","mockTag":"本地网关——不扣款","needCo":"请填写公司名称——订阅将以其名义开通。","empFail":"暂时无法准备您的订阅，未扣款——请稍后重试或联系我们。","empDone":"已收到付款，您的招聘平台订阅已开通。请用付款时的邮箱登录雇主门户。","empHold":"付款已完成，订阅正在开通——团队已收到提醒。请勿重复付款。","toEmployer":"打开雇主门户","tamaraYr":"Tamara 仅适用于年度订阅。","empSignIn":"请先用将开通订阅的邮箱登录，再付款。","empMail":"邮箱必须与当前登录账户一致。","onePlan":"每个订单仅限一个订阅。","toCart":"返回购物车","onceHd":"一次性付款","recHd":"订阅","billM":"每月","billY":"每年","recNote":"订阅金额为一个周期（一个月或一年）的费用，即现在支付的金额。","tamaraSub":"Tamara 不适用于月度订阅——请用银行卡支付。","lblOrder":"订单号","lblPay":"付款编号","lblAmt":"已付金额（含税）","lblInv":"发票号","okDone":"已收到付款，订单已确认。","nextInv":"下一步：订单确认和税务发票将发送到您的邮箱，随后团队开始执行。","nextNoInv":"下一步：订单确认将发送到您的邮箱。团队正在准备税务发票，并发送到同一邮箱。","reviewT":"我们已收到您的付款，将在工作时间内确认开通。","reviewN":"我们无法自动将金额与公布价格核对，团队将在开通前复核。确认邮件将发送到您的邮箱——请勿重复付款。","signInGo":"登录","lblReq":"您的申请编号","openReq":"打开您的申请","nextReqDocs":"下一步：打开您的申请并上传所需文件，团队即可开始执行；您可在那里跟进每个阶段。","nextReq":"下一步：在您的面板中跟进申请进度；执行开始时我们会通知您。","invSent":"税务发票将发送到您的邮箱。","invSoon":"团队正在准备税务发票，并发送到同一邮箱。"};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
 var REC={"bp-hr-03":"monthly","bp-ai-02":"monthly","bp-sub-01":"monthly","bp-vendor-02":"monthly","bp-ai-03":"monthly","bp-ai-smart-employee":"monthly","bp-ai-04":"monthly","bp-ajeer-10":"monthly","starter-4":"monthly","bp-pkg-svc-starter":"monthly","silver":"monthly","bp-pkg-launch":"monthly","gold":"monthly","bp-pkg-growth":"monthly","platinum":"monthly","bp-pkg-scale":"monthly","basic-legal":"monthly","bp-pkg-legal-basic":"monthly","advanced":"monthly","bp-pkg-legal-adv":"monthly","comprehensive":"monthly","bp-pkg-legal-comp":"monthly","strategic":"monthly","bp-pkg-legal-strat":"monthly"};
 var $=function(id){return document.getElementById(id)};
@@ -705,15 +705,22 @@ function showResult(kind,txt,extra,link,det){RESULT.className='sv1-co-result '+k
     if(paidSar>0)rows.push([TX.lblAmt,money(paidSar)]);
     var hasInv=!!(inv&&inv.invoiced&&inv.number);
     if(hasInv)rows.push([TX.lblInv,String(inv.number)]);
+    // الطلب الذي فتحه الخادم لهذه الدفعة في «طلباتي»: رقمه وزرّ يفتحه، من رد الخادم لا من التخمين.
+    var rq=st2&&st2.request,rqRef=(rq&&rq.ok&&rq.ref)?String(rq.ref):'',rqLink=rqRef?{href:HOME+'my?ref='+encodeURIComponent(rqRef),label:TX.openReq}:null;
+    if(rqRef)rows.unshift([TX.lblReq,rqRef]);
+    var invSettled=hasInv||(inv&&inv.reason==='already_settled');
     var det={rows:rows};
     if(hadEmp&&v.employer&&v.employer.activated)showResult('ok',TX.empDone,'',{href:HOME+'employer',label:TX.toEmployer},det);
     else if(hadEmp)showResult('warn',TX.empHold,'',null,det);
     // دفعٌ نجح لكن تسجيله لم يكتمل (الخادم نبّه الفريق): لا نقول «تمّ» ولا نطلب إعادة الدفع.
     else if(!(st2&&st2.ok))showResult('warn',TX.paidHold,'',null,det);
     // دفعٌ سُجّل ولم يُطابَق مبلغه آلياً (باقة سنوية، بند خارج الكتالوج…): مراجعة بشرية، ونقولها.
-    else if(!st2.verified)showResult('warn',TX.reviewT,TX.reviewN,{href:HOME+'my',label:TX.toMy},{rows:rows,note:TX.myNote});
+    // دفعٌ سُجّل ولم يُفتح طلبه في اللوحة (الخادم نبّه الفريق): الرسالة الصادقة نفسها، ولا نعد بما لم يحدث.
+    // (طلب بلا بنود جديدة — دفعُ عرضٍ قائم — يُسوّى في طلبه نفسه فلا يُنتظر منه رقم.)
+    else if(!rqRef&&!(rq&&rq.skipped))showResult('warn',TX.paidHold,'',null,det);
+    else if(!st2.verified)showResult('warn',TX.reviewT,TX.reviewN,rqLink||{href:HOME+'my',label:TX.toMy},det);
     // «already_settled»: القناة الأخرى (خطّاف مُيسّر) سبقت وأصدرت الفاتورة، فهي في طريقها لا قيد التجهيز.
-    else showResult('ok',TX.okDone,'',null,{rows:rows,next:(hasInv||(inv&&inv.reason==='already_settled'))?TX.nextInv:TX.nextNoInv,note:TX.myNote});
+    else showResult('ok',TX.okDone,'',rqLink,{rows:rows,next:rqRef?((rq.documents?TX.nextReqDocs:TX.nextReq)+' '+(invSettled?TX.invSent:TX.invSoon)):(invSettled?TX.nextInv:TX.nextNoInv)});
     $('coWays').classList.add('sv1-hide');for(var k in panes)panes[k].classList.add('sv1-hide');
     try{localStorage.removeItem(CART)}catch(e){}try{sessionStorage.removeItem(SNAP)}catch(e){}
     try{dispatchEvent(new Event('bp:cart'))}catch(e){}return}

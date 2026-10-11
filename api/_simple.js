@@ -16,12 +16,15 @@
 // card, sends a real DocuSign envelope or emails a customer unless
 // SIMPLE_NOTIFY=1 is set explicitly.
 import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { sb, DB_ON, DB_MISSING, getSession, audit, notify } from "./_db.js";
 import { contractHtml, quoteHtml } from "./_docusign.js";
 import { loadCatalog } from "./_catalog.js";
 import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate } from "./_daftra.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
-import { DEV, EMAIL_LIVE, MODES, outbox, outboxList } from "./_mode.js";
+import { DEV, EMAIL_LIVE, MODES, outbox, outboxList, PAY_MOCK, TAMARA_MOCK } from "./_mode.js";
 import { isOwnerEmail } from "./_trial.js";
 import { waSend, waNumber } from "./_stage.js";
 import { storagePut, storageSign, storageDelete } from "./_db.js";
@@ -463,6 +466,7 @@ async function clientAction(action, b, qs, req, res, sess) {
   }
 
   if (action === "scope-update") {
+    if (isCartRow(row)) return json(res, 409, { ok: false, error: "scope_locked", message: "طلب الشراء المباشر نطاقه ما اشتريته — لا يُعدَّل." });
     if (!["NEW", "REVIEWING", "WAITING_CLIENT"].includes(row.status)) return json(res, 409, { ok: false, error: "scope_locked", message: "النطاق مقفل بعد إصدار عرض السعر." });
     const scope = normScope(b.scope);
     await patchRequest(row.id, { scope });
@@ -477,6 +481,7 @@ async function clientAction(action, b, qs, req, res, sess) {
   // quotation itself is still issued by hand from /ops (owner's rule): the
   // price on a scope is a commercial decision, not a lookup.
   if (action === "scope-confirm") {
+    if (isCartRow(row)) return json(res, 409, { ok: false, error: "scope_locked", message: "طلب الشراء المباشر مدفوع مسبقاً — لا عرض سعر له." });
     if (!["NEW", "REVIEWING", "WAITING_CLIENT"].includes(row.status)) return json(res, 409, { ok: false, error: "scope_locked", message: "النطاق مقفل بعد إصدار عرض السعر." });
     const scope = normScope(b.scope && b.scope.length ? b.scope : row.scope);
     if (!scope.length) return json(res, 400, { ok: false, error: "no_items", message: "أضف بنداً واحداً على الأقل إلى نطاق الخدمات." });
@@ -834,6 +839,8 @@ const summary = (r) => ({
   last_message: (r.conversation || []).slice(-1)[0] || null,
   client_name: r.client_name, client_email: r.client_email, client_phone: r.client_phone, company_name: r.company_name,
   assigned_to: r.assigned_to || null,
+  // «شراء مباشر»: the request was opened by a paid cart, not by a conversation.
+  origin: isCartRow(r) ? "cart" : "",
 });
 
 function defaultTitle(type, lang) {
@@ -920,6 +927,242 @@ export async function markRequestPaidByRef(ref, info) {
   const row = await getByRef(ref);
   if (!row || row.status === "PAID" || ["IN_PROGRESS", "COMPLETED"].includes(row.status)) return row;
   return markPaid(row, info);
+}
+
+// ----------------------------------------- a paid cart becomes a real request --
+// Until 2026-10 a cart purchase paid, wrote a Notion CRM row and sent an e-mail
+// — and nothing else. The customer opened «طلباتي» and found no order; the
+// owner opened /ops and found no revenue. /my and /ops read `requests`, so the
+// purchase has to be a row there. api/requests.js {action:"paid-order"} (the
+// sealed, server-only settle) calls this once the payment is confirmed.
+//
+// No migration: the three existing types and the existing statuses are enough,
+// and the provenance lives in the JSON column that already holds money facts —
+// `payment` {source:"cart", order_ref, pay_ref, items[], net, vat, total}.
+// The row has no quotation and no contract on purpose: it was priced by the
+// published catalogue and paid before it existed, so it starts at PAID (or at
+// REVIEWING when the amount could not be matched, which is what we tell the
+// customer — no promise the payment has not earned).
+//
+// Idempotent by construction: the reference is derived from the payment id, so
+// the browser callback, the gateway webhook and a reconcile run all land on the
+// same row. `ref` is UNIQUE in the schema, which settles a true race.
+const CART_CYCLE_AR = { monthly: "شهري", yearly: "سنوي" };
+function isCartRow(r) { return !!(r && r.payment && r.payment.source === "cart"); }
+
+let _cartRefs = null;
+async function readPublished(fsRel, urlPath) {
+  try {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    return JSON.parse(fs.readFileSync(path.join(here, "..", fsRel), "utf8"));
+  } catch { /* not bundled with the function — read the published copy */ }
+  const r = await fetch(`${SELF_BASE}${urlPath}`);
+  if (!r.ok) throw new Error("fetch_failed");
+  return r.json();
+}
+// The published catalogue (service categories, billing model) and the per-service
+// documents list (site.json overrides) — read once, shared for ten minutes.
+async function cartRefs() {
+  if (_cartRefs && Date.now() - _cartRefs.at < 10 * 60 * 1000) return _cartRefs;
+  const [cat, site] = await Promise.all([
+    readPublished("site/assets/data/catalog.json", "/assets/data/catalog.json").catch(() => null),
+    readPublished("site/data/site.json", "/data/site.json").catch(() => null),
+  ]);
+  const services = new Map(), packages = new Map();
+  for (const s of (cat && cat.services) || []) if (s.code) services.set(String(s.code).toLowerCase(), s);
+  for (const p of (cat && cat.packages) || []) for (const k of [p.key, p.code]) if (k) packages.set(String(k).toLowerCase(), p);
+  const refs = { at: Date.now(), services, packages, overrides: (site && site.overrides) || {} };
+  if (cat || site) _cartRefs = refs;
+  return refs;
+}
+// A cart id is not a catalogue code: pages prefix it (svc-, pkg-) and suffix the
+// billing period (-monthly, -yearly). Same normalisation as api/pay.js, kept
+// here because this only classifies — the amount was verified before this runs.
+function resolveCartLine(rawId, refs) {
+  const raw = String(rawId || "").toLowerCase();
+  const sfx = /-(monthly|yearly)$/.exec(raw);
+  let bare = sfx ? raw.slice(0, -sfx[0].length) : raw;
+  bare = bare.replace(/^(svc|pkg)-/, "");
+  const svc = refs.services.get(bare) || refs.services.get(raw) || null;
+  const pkg = svc ? null : (refs.packages.get(bare) || refs.packages.get(raw) || null);
+  const name = (svc && (svc.nameAr || svc.nameEn)) || (pkg && (pkg.nameAr || pkg.nameEn)) || "";
+  let cycle = sfx ? sfx[1] : "";
+  if (!cycle && svc && /monthly/i.test(String(svc.pricingModel || ""))) cycle = "monthly";
+  if (!cycle && pkg && pkg.billingPeriod === "monthly") cycle = "monthly";
+  if (!cycle && /^(agent-|employee-)/.test(raw)) cycle = "monthly";
+  // «استشارة ما قبل التأسيس» تحت فئة التأسيس في الكتالوج، لكنها استشارة: سلةٌ
+  // كلها استشارات تبقى CONSULTATION، ولا تجعل بنداً استشارياً الطلبَ تأسيساً.
+  const consult = /استشار|consult/i.test(name);
+  return {
+    code: svc ? String(svc.code) : pkg ? String(pkg.code || pkg.key || "") : "",
+    name, cycle, consult,
+    formation: !consult && !!((svc && svc.category === "Company Formation") || (pkg && /form/i.test(String(pkg.group || "")))),
+  };
+}
+
+export function cartRequestRef(key, salt = 0) {
+  return "BP-R-" + crypto.createHash("sha256").update(`cart|${salt}|${key}`).digest("hex").slice(0, 6).toUpperCase();
+}
+
+const _cartInflight = new Map();
+// d = the unsealed paid-order payload. Returns {ok, ref, created, status, documents}
+// or {ok:true, skipped} when there is nothing to open a request for, or
+// {ok:false, error} — the caller must tell the owner about that one.
+export function createCartRequest(d) {
+  const key = String((d && (d.payId || d.ref)) || "");
+  if (!key) return Promise.resolve({ ok: false, error: "no_key" });
+  if (_cartInflight.has(key)) return _cartInflight.get(key);
+  const run = cartRequestOnce(d, key).catch((e) => {
+    console.error("simple: cart request failed", String((e && e.message) || e).slice(0, 160));
+    return { ok: false, error: "create_failed" };
+  }).finally(() => _cartInflight.delete(key));
+  _cartInflight.set(key, run);
+  return run;
+}
+
+async function cartRequestOnce(d, key) {
+  if (!DB_ON) return { ok: false, error: "db_off" };
+  const all = (Array.isArray(d.lines) ? d.lines : []).slice(0, 40).filter((l) => l && l.id);
+  // «sv1:BP-R-…» pays an EXISTING request (its own quote and contract); it is
+  // settled by markRequestPaidByRef and must not open a second request.
+  const lines = all.filter((l) => !/^sv1:/i.test(String(l.id)));
+  if (!lines.length) return { ok: true, skipped: all.length ? "pays_existing_request" : "no_lines" };
+
+  const payId = str(d.payId, 64), orderRef = str(d.ref, 40);
+  const verified = !!d.verified;
+  const email = String(d.email || "").trim().toLowerCase();
+  const provider = /^tamara_/i.test(payId) ? "tamara" : "moyasar";
+
+  // Idempotency: the same payment always maps to the same reference.
+  let ref = "", existing = null;
+  for (let salt = 0; salt < 3; salt++) {
+    ref = cartRequestRef(key, salt);
+    const hit = await getByRef(ref);
+    if (!hit) break;
+    const p = hit.payment || {};
+    if (p.source === "cart" && (p.pay_ref || p.order_ref) === (payId || orderRef)) { existing = hit; break; }
+    ref = ""; // a random BP-R- reference took this one — try the next salt
+  }
+  if (existing) return { ok: true, ref: existing.ref, created: false, status: existing.status, documents: (existing.documents || []).length };
+  if (!ref) return { ok: false, error: "ref_collision" };
+
+  const refs = await cartRefs();
+  const items = lines.map((l) => {
+    const r = resolveCartLine(l.id, refs);
+    const qty = Math.max(1, Math.min(99, Math.round(num(l.qty) || 1)));
+    const amount = l.amount == null || l.amount === "" ? null : round2(num(l.amount));
+    return {
+      id: str(l.id, 80), code: r.code, name: (l.name && l.name !== l.id ? str(l.name, 200) : "") || r.name || str(l.id, 80), qty,
+      unit: amount == null ? null : round2(amount / qty), amount,
+      cycle: str(l.cycle, 12) || r.cycle, formation: r.formation, consult: r.consult,
+    };
+  });
+  // Money: what the gateway took is the truth. The pre-VAT figure is the
+  // server's own re-pricing when it matched the catalogue, an estimate when not.
+  const known = items.every((i) => i.amount != null);
+  const itemsNet = known ? round2(items.reduce((s, i) => s + i.amount, 0)) : null;
+  let paid, net;
+  if (lines.length < all.length) { net = itemsNet != null ? itemsNet : round2(num(d.total) / (1 + VAT_RATE)); paid = round2(net * (1 + VAT_RATE)); }
+  else { paid = round2(num(d.total)); net = verified && d.net != null ? round2(num(d.net)) : round2(paid / (1 + VAT_RATE)); }
+  const vat = round2(paid - net);
+
+  const type = items.some((i) => i.formation) ? "COMPANY_FORMATION" : items.every((i) => i.consult) ? "CONSULTATION" : "GOVERNMENT_SERVICE";
+  const first = items[0].name;
+  const title = str(items.length === 1 ? first : `${first} و${items.length - 1} ${items.length - 1 === 1 ? "بند آخر" : "بنود أخرى"}`, 200);
+  const scope = normScope(items.map((i) => ({
+    code: i.code, title: i.name, qty: i.qty,
+    why: [`×${i.qty}`, i.amount != null ? `${i.amount} ر.س قبل الضريبة` : "", i.cycle ? CART_CYCLE_AR[i.cycle] || i.cycle : ""].filter(Boolean).join(" · "),
+  })));
+
+  // The documents we need from the buyer: the service's own list (the same one
+  // its page prints). A package or an item with no list asks for nothing.
+  const seen = new Set(), wanted = [];
+  for (const i of items) {
+    const ov = i.code && refs.overrides[i.code.toLowerCase()];
+    for (const t of (ov && Array.isArray(ov.documents) ? ov.documents : [])) {
+      const title2 = str(t, 200);
+      if (title2 && !seen.has(title2)) { seen.add(title2); wanted.push({ title: title2, note: items.length > 1 ? `للخدمة: ${i.name}` : "", status: "requested" }); }
+    }
+  }
+  const documents = normDocuments(wanted);
+
+  // Attach to the buyer's account when the e-mail already has one. No account is
+  // invented: otherwise the row waits on client_email and `me` claims it at the
+  // first sign-in, exactly as a manually entered request does.
+  let userId = null, orgId = null;
+  if (isEmail(email)) {
+    try {
+      const u = await sb(`users?email=eq.${q(email)}&select=id&limit=1`);
+      if (u && u[0]) {
+        userId = u[0].id;
+        const m = await sb(`organization_members?user_id=eq.${userId}&select=organization_id&limit=1`);
+        orgId = (m && m[0] && m[0].organization_id) || null;
+      }
+    } catch { /* unlinked rows are claimed by e-mail */ }
+  }
+
+  const test = PAY_MOCK() || (provider === "tamara" && TAMARA_MOCK());
+  const payment = {
+    status: "PAID", provider, ref: payId, amount: paid, currency: "SAR", at: nowIso(), test,
+    source: "cart", order_ref: orderRef, pay_ref: payId, verified,
+    items: items.map(({ formation, consult, ...keep }) => keep), net, vat, total: paid, net_estimated: !(verified && d.net != null),
+    ...(d.disc ? { discount_code: str(d.disc, 30) } : {}),
+  };
+  const at = nowIso();
+  const row = {
+    ref, organization_id: orgId, user_id: userId, type, source: "WEBSITE",
+    status: verified ? "PAID" : "REVIEWING", lang: "ar", title,
+    summary: `شراء مباشر بالسلة — رقم عملية الدفع ${payId || "—"} · الإجمالي ${paid} ر.س شامل الضريبة.`,
+    conversation: [{ role: "bp", content: verified
+      ? "تم الدفع واستُلم مبلغ طلبك. سنبدأ التنفيذ بعد استلام المستندات المطلوبة (إن وُجدت) ونبلغك بكل تحديث هنا."
+      : "تم استلام دفعتك، لكن مبلغها لم يُطابَق آلياً مع الأسعار المعتمدة، فيراجعه فريقنا قبل بدء التنفيذ. لا حاجة لإعادة الدفع.", at }],
+    scope, documents, payment,
+    client_name: str(d.name, 160), client_email: email, client_phone: str(d.phone, 40), company_name: str(d.company, 200),
+  };
+
+  let created = null;
+  try {
+    const rows = await sb("requests", { method: "POST", body: [row] });
+    created = rows && rows[0];
+  } catch (e) {
+    // A true race (webhook and browser at the same instant): the loser hits the
+    // UNIQUE reference and simply reads the winner.
+    const hit = await getByRef(ref);
+    if (hit && isCartRow(hit)) return { ok: true, ref: hit.ref, created: false, status: hit.status, documents: (hit.documents || []).length };
+    throw e;
+  }
+  if (!created) return { ok: false, error: "insert_empty" };
+
+  await logEvent(created.id, "system", "السلة", "request.created.cart", { source: "cart", order_ref: orderRef, pay_ref: payId, items: items.length, verified });
+  await logEvent(created.id, "system", provider, "payment.paid", { provider, payId, amount: paid, order_ref: orderRef });
+  if (documents.length) await logEvent(created.id, "system", "النظام", "documents.requested", { documents: documents.map((x) => x.title) });
+  await audit({ organization_id: orgId, actor_user_id: userId, action: "simple.request.cart", entity: "requests", entity_id: created.id, meta: { ref, order_ref: orderRef, pay_ref: payId } });
+
+  // The team: one task, whichever way the money stands.
+  try {
+    await sweepTask(created, verified ? PLAY.PAID : {
+      source: "cart-review", title: (r) => `راجع دفعة السلة — ${r.ref}`,
+      details: () => `دفعة مؤكدة من البوابة (${paid} ر.س) لكن مبلغها لم يُطابَق مع الكتالوج. راجع البنود ثم غيّر الحالة إلى «مدفوع».`,
+      human: true, urgency: "high",
+    }, "النظام");
+  } catch (e) { console.error("simple: cart task", String((e && e.message) || e).slice(0, 100)); }
+
+  // Notices. The buyer's e-mail is the receipt api/requests.js sends right after
+  // this (it carries the same /my link) — so only WhatsApp and the in-app bell
+  // go from here; the owner already gets the settle e-mail, so only WhatsApp too.
+  const needDocs = documents.length ? ` ارفع المستندات المطلوبة (${documents.length}) من صفحة الطلب ليبدأ الفريق.` : "";
+  try {
+    await announce(created, "cart-paid", {
+      subject: verified ? `استلمنا دفعتك — طلبك ${ref}` : `استلمنا دفعتك وطلبك قيد المراجعة — ${ref}`,
+      clientLine: verified
+        ? `استلمنا دفعتك (${paid} ر.س شامل الضريبة) وسجّلنا طلبك «${title}».${needDocs || " نبلغك حين يبدأ التنفيذ."}`
+        : `استلمنا دفعتك (${paid} ر.س) وسجّلنا طلبك «${title}». مبلغها لم يُطابَق آلياً مع الأسعار المعتمدة فيراجعه الفريق قبل التنفيذ — لا تدفع مرة أخرى.`,
+      opsLine: `شراء مباشر بالسلة: ${title} — ${paid} ر.س عبر ${provider} (${payId || "—"})${verified ? "" : " ⚠️ المبلغ لم يُطابَق مع الكتالوج — راجعه"}.`,
+      cta: "افتح طلبك", clientEmail: false, opsEmail: false,
+    });
+  } catch (e) { console.error("simple: cart announce", String((e && e.message) || e).slice(0, 100)); }
+
+  return { ok: true, ref, created: true, status: created.status, documents: documents.length };
 }
 
 // ------------------------------------------------------- the follow-up sweep --
@@ -1016,6 +1259,9 @@ async function runSweep({ actor = "المتابعة الذكية", limit = 400, 
   for (const row of rows) {
     const play = PLAY[row.status];
     if (!play) continue;
+    // A paid cart request held for review already has its own task; the
+    // «pricing» play would tell the team to quote something already bought.
+    if (row.status === "REVIEWING" && isCartRow(row)) continue;
     const idle = (now - new Date(row.updated_at || row.created_at).getTime()) / DAY;
     const due = SLA[row.status];
     if (!(idle >= due)) { skipped.push({ ref: row.ref, status: row.status, idle_days: round2(idle), due_in_days: round2(due - idle) }); continue; }
@@ -1663,7 +1909,7 @@ async function alertOps(row, step, { subject, line, windowMin = 10, task }) {
   } catch (e) { console.error("alertOps", step, String(e.message || e).slice(0, 100)); return false; }
 }
 
-async function announce(row, step, { subject, clientLine, opsLine, cta, to = "both" }) {
+async function announce(row, step, { subject, clientLine, opsLine, cta, to = "both", clientEmail = true, opsEmail = true }) {
   const toClient = to !== "ops", toOps = to !== "client";
   const url = myUrl(row);
   // «لم يُرسل» و«أُرسل إلى صندوق المعاينة» و«رفضته البوابة» ثلاثة أشياء
@@ -1671,7 +1917,8 @@ async function announce(row, step, { subject, clientLine, opsLine, cta, to = "bo
   // الفشل الحقيقي بين مثله.
   const mark = (r) => (r && r.ok ? true : (r && (r.skipped || r.error)) || false);
   const out = { email: "—", wa: "—", ops_email: false, ops_wa: false };
-  if (toClient) try {
+  if (toClient && !clientEmail) out.email = "sent_separately";
+  else if (toClient) try {
     if (row.client_email) {
       out.email = mark(await sendEmail(row.client_email, subject,
         `<p>${esc(clientLine)}</p><p><a href="${url}">${esc(cta || "فتح الطلب")} ${esc(row.ref)}</a></p>`));
@@ -1682,7 +1929,8 @@ async function announce(row, step, { subject, clientLine, opsLine, cta, to = "bo
     else out.wa = "no_phone";
   } catch (e) { out.wa = String(e.message || "failed").slice(0, 60); }
   const who = [row.client_name, row.company_name, row.client_email, row.client_phone].filter(Boolean).join(" · ");
-  if (toOps) try {
+  if (toOps && !opsEmail) out.ops_email = "sent_separately";
+  if (toOps && opsEmail) try {
     const r = await sendEmail(OWNER_EMAIL, `[${row.ref}] ${subject}`,
       `<p>${esc(opsLine || clientLine)}</p><p>${esc(who)}</p><p><a href="${SELF_BASE}/ops?ref=${row.ref}">افتح الطلب في اللوحة</a></p>`);
     out.ops_email = mark(r);

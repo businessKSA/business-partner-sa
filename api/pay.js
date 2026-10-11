@@ -242,24 +242,29 @@ async function settlePaidOrder(order, p) {
   try { priceMap = await catalogPrices(); } catch { priceMap = {}; }
   let net = 0, unknown = !!empBasketProblem(ids);
   const names = [], lines = [];
+  // What the buyer's request will list (api/_simple.js createCartRequest): one
+  // entry per basket line with the amount the server priced it at.
+  const detail = [];
   let emp = null;
   for (const x of ids) {
     if (parseEmpSku(x.id)) {
       const o = await empOffer(x.id);
-      if (!o.ok) { unknown = true; names.push(x.id + " ×" + x.qty); continue; }
+      if (!o.ok) { unknown = true; names.push(x.id + " ×" + x.qty); detail.push({ id: x.id, name: x.id, qty: x.qty, amount: null }); continue; }
       emp = o.offer;
       net += o.offer.amountSar * x.qty;
       lines.push({ id: x.id, line: o.offer.amountSar * x.qty });
       names.push(o.name.ar + " ×" + x.qty);
+      detail.push({ id: x.id, name: o.name.ar, qty: x.qty, amount: o.offer.amountSar * x.qty, cycle: o.offer.billing });
       continue;
     }
     const sv1 = await sv1Line(x.id);
     const a = sv1 ? sv1.amount : skuAmount(x.id, priceMap);
-    if (a == null) { unknown = true; names.push(x.id + " ×" + x.qty); continue; }
+    if (a == null) { unknown = true; names.push(x.id + " ×" + x.qty); detail.push({ id: x.id, name: x.id, qty: x.qty, amount: null }); continue; }
     net += a * x.qty;
     lines.push({ id: x.id, line: a * x.qty });
     const cat = priceRow(priceMap, x.id);
     names.push((sv1 ? sv1.name : cat ? cat.name : x.id) + " ×" + x.qty);
+    detail.push({ id: x.id, name: sv1 ? sv1.name : cat ? cat.name : x.id, qty: x.qty, amount: a * x.qty });
   }
   net += Number(order.surchargeFee) || 0;
   const disc = await catalogDiscount(order.discountCode);
@@ -302,6 +307,8 @@ async function settlePaidOrder(order, p) {
     total: Math.round(Number(p.amount || 0)) / 100,
     ...(disc ? { disc: disc.code } : {}),
     ids: sealedIds, items: names,
+    // For the request api/requests.js opens in /my and /ops from this payment.
+    lines: detail, net: Math.round(net * 100) / 100,
   };
   try {
     const r = await fetch(SELF_BASE + "/api/requests", {
@@ -312,7 +319,7 @@ async function settlePaidOrder(order, p) {
     const j = await r.json().catch(() => ({}));
     if (!r.ok || !j.ok) return { ok: false, error: j.error || ("http_" + r.status), verified, ref: payload.ref, ...(employer ? { employer } : {}) };
     if (verified) await sv1Settle(ids, p, String(p.id || "").startsWith("tamara_") ? "tamara" : "moyasar");
-    return { ok: true, already: !!j.already, verified, ref: payload.ref, activated: j.activated || null, ...(employer ? { employer } : {}) };
+    return { ok: true, already: !!j.already, verified, ref: payload.ref, activated: j.activated || null, request: j.request || null, ...(employer ? { employer } : {}) };
   } catch (e) {
     console.error("pay: settle call failed", String(e.message || e).slice(0, 160));
     return { ok: false, error: "settle_unreachable", verified, ref: payload.ref, ...(employer ? { employer } : {}) };
@@ -1330,7 +1337,7 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({
       ok: true, provider, amount: p.amount, captured: !!v.captured,
       ...(invoicing ? { invoice: invoicing } : {}),
-      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null, ref: settle.ref || "" } } : {}),
+      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null, ref: settle.ref || "", request: settle.request || null } } : {}),
       ...(settle && settle.employer ? { employer: { activated: !!settle.employer.activated } } : {}),
     }));
   }
@@ -1495,7 +1502,7 @@ export default async function handler(req, res) {
       ...(b.context === "compliance" ? { activated: activation.activated } : {}),
       ...(invoicing ? { invoice: invoicing } : {}),
       ...(announced ? { announced } : {}),
-      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null, ref: settle.ref || "" } } : {}),
+      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null, ref: settle.ref || "", request: settle.request || null } } : {}),
       ...(settle && settle.employer ? { employer: { activated: !!settle.employer.activated } } : {}),
     }));
   } catch (e) {

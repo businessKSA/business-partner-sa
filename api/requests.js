@@ -39,7 +39,7 @@ import { azureBlobReady, blobMissing } from "./_azblob.js";
 import { azureSendEmail, azureEmailReady } from "./_azure_notify.js";
 import { graphReady, graphMissing } from "./_msgraph.js";
 import { handleDocAgent } from "./_docagent.js";
-import { handleSimple } from "./_simple.js";
+import { handleSimple, createCartRequest } from "./_simple.js";
 import { handlePrIntake } from "./_printake.js";
 import spacesHandler from "./_spaces.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
@@ -4971,7 +4971,34 @@ export default async function handler(req, res) {
         if (rq.ok) dup = (((await rq.json()) || {}).results || [])[0] || null;
       } catch { /* best-effort */ }
     }
-    if (dup) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, already: true })); }
+    // The purchase becomes a real request — the row /my and /ops read. It is the
+    // same payment whether this is the first arrival or the second, so the call
+    // is idempotent (api/_simple.js derives the reference from the payment id):
+    // a replay returns the request already opened, and heals one that failed to
+    // open the first time. A failure here never undoes the payment — the money
+    // moved — but the owner is told at once, with everything needed by hand.
+    const openRequest = async () => {
+      let out;
+      try { out = await createCartRequest({ ...d, ref, payId, verified, total, email, name, phone, company }); }
+      catch (e) { out = { ok: false, error: "create_failed" }; }
+      if (!out || !out.ok) {
+        console.error("paid-order: request not opened", ref, payId, out && out.error);
+        const key = "req|" + (payId || ref);
+        if (!(globalThis.__bpCartReqAlerted ||= new Set()).has(key)) {
+          globalThis.__bpCartReqAlerted.add(key);
+          await sendEmail(TEAM_EMAIL, `⚠️ دفعة مؤكدة ${ref} لم يُفتح لها طلب في لوحة العميل`,
+            `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#b91c1c">دفعة وصلت ولم يُنشأ طلبها</h2><p>الدفع مؤكد وسُجّل في CRM، لكن إنشاء الطلب الذي يراه العميل في /my وتراه أنت في /ops فشل (${esc((out && out.error) || "unknown")}). العميل رأى رسالة «لا تدفع مرة أخرى». أنشئ الطلب يدوياً من /ops أو أعد تشغيل المطابقة.</p><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", itemsText) + row("الإجمالي المدفوع", total ? total + " ﷼" : "") + row("رقم عملية الدفع", payId) + row("مرجع السلة", ref)}</table></div>`).catch(() => {});
+        }
+      }
+      return out && out.ok
+        ? { ok: true, ref: out.ref || "", created: !!out.created, status: out.status || "", documents: out.documents || 0, ...(out.skipped ? { skipped: out.skipped } : {}) }
+        : { ok: false, error: (out && out.error) || "unknown" };
+    };
+    if (dup) {
+      const request = await openRequest();
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, already: true, request }));
+    }
 
     // The companies-data portal has no per-account backend, so its access code
     // is minted here and written on the CRM row — /api/pay?resource=leads
@@ -5030,16 +5057,21 @@ export default async function handler(req, res) {
     // could not be matched to the catalogue, in which case the old approval
     // links are attached and nothing gated activates until one is clicked.
     const doneList = Object.keys(activated).filter((k) => activated[k]);
-    const okHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">💳 طلب مدفوع إلكترونياً ${esc(ref)} — مفعّل تلقائياً</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", itemsText) + row("الإجمالي المدفوع", total ? total + " ﷼" : "") + row("رقم عملية ميسر", payId)}</table><p>✅ الدفع تحقّقنا منه من ميسر مباشرة، والحالة في CRM «مؤكد - قيد التنفيذ».</p>${doneList.length ? `<p>تفعيلات آلية تمت: <b>${doneList.join("، ")}</b> — وصلت العميل أكواد الوصول على بريده.</p>` : ""}${boughtSeats ? `<p>الموظف الذكي المتخصص (${boughtSeats}): لم يُحدَّد موظف بعينه في الطلب — يختاره العميل من البوابة.</p>` : ""}<p style="color:#666;font-size:13px">لا يلزمك أي إجراء.</p></div>`;
+    // The request the buyer will find in /my (and the owner in /ops).
+    const request = await openRequest();
+    const myLink = `${MKT_SITE_BASE}/ar/my${request.ref ? "?ref=" + encodeURIComponent(request.ref) : ""}`;
+    const opsLink = request.ref ? `<p><a href="${MKT_SITE_BASE}/ops?ref=${encodeURIComponent(request.ref)}" style="color:#0B1B5A">افتح الطلب ${esc(request.ref)} في لوحة العمليات</a></p>` : "";
+    const reqRow = request.ref ? row("رقم الطلب في اللوحة", request.ref) : "";
+    const okHtml =`<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">💳 طلب مدفوع إلكترونياً ${esc(ref)} — مفعّل تلقائياً</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", itemsText) + row("الإجمالي المدفوع", total ? total + " ﷼" : "") + row("رقم عملية ميسر", payId) + reqRow}</table>${opsLink}<p>✅ الدفع تحقّقنا منه من ميسر مباشرة، والحالة في CRM «مؤكد - قيد التنفيذ».</p>${doneList.length ? `<p>تفعيلات آلية تمت: <b>${doneList.join("، ")}</b> — وصلت العميل أكواد الوصول على بريده.</p>` : ""}${boughtSeats ? `<p>الموظف الذكي المتخصص (${boughtSeats}): لم يُحدَّد موظف بعينه في الطلب — يختاره العميل من البوابة.</p>` : ""}<p style="color:#666;font-size:13px">لا يلزمك أي إجراء.</p></div>`;
     const reviewLinks = [
       boughtCompliance && isEmail(email) ? `<p><a href="${MKT_SITE_BASE}/api/requests?action=approve-compliance&t=${encodeURIComponent(ssSeal({ company, email, phone, ref }))}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">✅ تفعيل وكيل الامتثال</a></p>` : "",
       employerPlan && isEmail(email) ? `<p><a href="${MKT_SITE_BASE}/api/requests?action=approve-employer&t=${encodeURIComponent(ssSeal({ company, email, phone, ref, plan: employerPlan }))}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">✅ تفعيل منصة التوظيف</a></p>` : "",
       boughtShared && isEmail(email) ? `<p><a href="${MKT_SITE_BASE}/api/requests?action=approve&t=${encodeURIComponent(ssSeal({ email, name, phone, ref }))}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">✅ اعتماد الخدمات المشتركة</a></p>` : "",
     ].filter(Boolean).join("");
-    const reviewHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#b45309">💳 دفعة إلكترونية ${esc(ref)} تحتاج مراجعة سريعة</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", itemsText) + row("الإجمالي المدفوع", total ? total + " ﷼" : "") + row("رقم عملية ميسر", payId)}</table><p>الدفع نفسه مؤكد من ميسر، لكن المبلغ لم يُطابَق آلياً مع أسعار الكتالوج، فلم نفعّل البوابات تلقائياً.</p><p>بعد مراجعة المبلغ: افتح صف الطلب (رقم المرجع ${esc(ref)}) وغيّر حالة الطلب إلى «مؤكد - قيد التنفيذ»${reviewLinks ? "، وفعّل الاشتراكات:" : "."}</p>${reviewLinks}</div>`;
+    const reviewHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#b45309">💳 دفعة إلكترونية ${esc(ref)} تحتاج مراجعة سريعة</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", itemsText) + row("الإجمالي المدفوع", total ? total + " ﷼" : "") + row("رقم عملية ميسر", payId) + reqRow}</table>${opsLink}<p>الدفع نفسه مؤكد من ميسر، لكن المبلغ لم يُطابَق آلياً مع أسعار الكتالوج، فلم نفعّل البوابات تلقائياً.</p><p>بعد مراجعة المبلغ: افتح صف الطلب (رقم المرجع ${esc(ref)}) وغيّر حالة الطلب إلى «مؤكد - قيد التنفيذ»${reviewLinks ? "، وفعّل الاشتراكات:" : "."}</p>${reviewLinks}</div>`;
     const ownerSubject = verified ? `💳 طلب مدفوع إلكترونياً ${ref} — مفعّل تلقائياً` : `⚠️ دفعة إلكترونية ${ref} تحتاج مراجعة`;
     const ownerHtml2 = verified ? okHtml : reviewHtml;
-    const cHtml2 = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">تم استلام دفعتك${verified ? " وتفعيل خدمتك" : ""} ✅</h2><p>مرحباً ${esc(name || "")}،</p><p>${verified ? "وصلتنا دفعتك الإلكترونية بنجاح وبدأ التنفيذ مباشرة — أي أكواد وصول لخدماتك تصلك في رسائل منفصلة على هذا البريد." : "وصلتنا دفعتك الإلكترونية بنجاح، وجاري تفعيل خدمتك — يصلك تأكيد التفعيل خلال ساعات العمل."}</p><table>${row("رقم المرجع", ref) + row("الخدمات", itemsText) + row("الإجمالي", total ? total + " ﷼" : "")}</table><p>تابع حالة طلبك من لوحتك: <a href="${MKT_SITE_BASE}/ar/account" style="color:#0B1B5A">${MKT_SITE_BASE}/ar/account</a></p></div>`;
+    const cHtml2 = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">تم استلام دفعتك${verified ? " وتفعيل خدمتك" : ""} ✅</h2><p>مرحباً ${esc(name || "")}،</p><p>${verified ? "وصلتنا دفعتك الإلكترونية بنجاح وبدأ التنفيذ مباشرة — أي أكواد وصول لخدماتك تصلك في رسائل منفصلة على هذا البريد." : "وصلتنا دفعتك الإلكترونية بنجاح، وجاري تفعيل خدمتك — يصلك تأكيد التفعيل خلال ساعات العمل."}</p><table>${row("رقم المرجع", ref) + (request.ref ? row("رقم طلبك في لوحتك", request.ref) : "") + row("الخدمات", itemsText) + row("الإجمالي", total ? total + " ﷼" : "")}</table><p>${request.ref ? (request.documents ? `تابع طلبك وارفع المستندات المطلوبة (${request.documents}) من لوحتك:` : "تابع طلبك من لوحتك:") : "تابع حالة طلبك من لوحتك:"} <a href="${myLink}" style="color:#0B1B5A">${myLink}</a></p></div>`;
     await Promise.all([
       sendEmail(TEAM_EMAIL, ownerSubject, ownerHtml2),
       OWNER_EMAIL && OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, ownerSubject, ownerHtml2) : Promise.resolve(),
@@ -5048,7 +5080,7 @@ export default async function handler(req, res) {
       forwardLead({ source: "paid-order", ref, name, phone, email, items: itemsText, total }),
     ]);
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, already: false, verified, activated, ...(gatedCount ? { gated: gatedCount } : {}) }));
+    return res.end(JSON.stringify({ ok: true, already: false, verified, activated, request, ...(gatedCount ? { gated: gatedCount } : {}) }));
   }
 
   if (b.type === "order") {

@@ -163,10 +163,19 @@ const T = {
              en: "We could not match the amount to the published prices automatically, so the team reviews it before activation. A confirmation reaches your e-mail — do not pay again.",
              fr: "Nous n'avons pas pu rapprocher le montant des tarifs automatiquement ; l'équipe le vérifie avant l'activation. Une confirmation arrive par e-mail — ne payez pas une seconde fois.",
              zh: "我们无法自动将金额与公布价格核对，团队将在开通前复核。确认邮件将发送到您的邮箱——请勿重复付款。" },
-  myNote:  { ar: "ملاحظة: لوحة «طلباتي» تعرض طلبات عروض الأسعار والحجوزات، وقد لا يظهر فيها طلب الشراء المباشر فور الدفع. احتفظ برقم الطلب أعلاه — تأكيده والفاتورة يصلانك على بريدك.",
-             en: "Note: “My orders” lists quotation requests and bookings; a direct purchase may not appear there right after payment. Keep the order number above — its confirmation and invoice reach your e-mail.",
-             fr: "Remarque : « Mes commandes » liste les demandes de devis et réservations ; un achat direct peut ne pas y figurer tout de suite. Gardez le numéro ci-dessus — confirmation et facture arrivent par e-mail.",
-             zh: "提示：“我的订单”显示报价请求和预约，直接购买的订单付款后可能不会立即出现在其中。请保存上方订单号——确认和发票将发送到您的邮箱。" },
+  // الدفع صار يفتح طلباً حقيقياً في «طلباتي»: رقمه هنا، وزرّ يفتحه. الرسالة لا تقول إلا ما صدر عن الخادم.
+  lblReq:  { ar: "رقم طلبك في لوحتك", en: "Your request no.", fr: "N° de votre demande", zh: "您的申请编号" },
+  openReq: { ar: "افتح طلبك", en: "Open your request", fr: "Ouvrir votre demande", zh: "打开您的申请" },
+  nextReqDocs:{ ar: "الخطوة التالية: افتح طلبك وارفع المستندات المطلوبة ليبدأ الفريق التنفيذ، وتتابع كل مرحلة من هناك.",
+             en: "Next: open your request and upload the required documents so the team can start; you follow every stage from there.",
+             fr: "Ensuite : ouvrez votre demande et téléversez les documents requis pour que l'équipe démarre ; vous suivez chaque étape de là.",
+             zh: "下一步：打开您的申请并上传所需文件，团队即可开始执行；您可在那里跟进每个阶段。" },
+  nextReq: { ar: "الخطوة التالية: تابع مراحل طلبك من لوحتك، ونبلغك حين يبدأ التنفيذ.",
+             en: "Next: follow your request from your dashboard; we tell you when work starts.",
+             fr: "Ensuite : suivez votre demande depuis votre espace ; nous vous prévenons au début du travail.",
+             zh: "下一步：在您的面板中跟进申请进度；执行开始时我们会通知您。" },
+  invSent: { ar: "وتصلك فاتورتك الضريبية على بريدك.", en: "Your tax invoice reaches your e-mail.", fr: "Votre facture fiscale arrive par e-mail.", zh: "税务发票将发送到您的邮箱。" },
+  invSoon: { ar: "ويجهّز الفريق فاتورتك الضريبية وتصلك على البريد نفسه.", en: "The team prepares your tax invoice and sends it to the same e-mail.", fr: "L'équipe prépare votre facture fiscale et vous l'enverra à la même adresse.", zh: "团队正在准备税务发票，并发送到同一邮箱。" },
   signInGo:{ ar: "سجّل الدخول", en: "Sign in", fr: "Se connecter", zh: "登录" },
 };
 
@@ -297,7 +306,8 @@ var LANG=${JSON.stringify(lang)},HOME=${JSON.stringify(home)};
 var TX=${JSON.stringify({ empty: t("empty"), browse: t("browse"), needFill: t("needFill"), payDown: t("payDown"), loading: t("loading"), quoted: t("quoted"), signIn: t("signIn"), signInBtn: t("signInBtn"), noAmount: t("noAmount"), card: t("card"), payBtn: t("payBtn"), payWait: t("payWait"), paidOk: t("paidOk"), paidInv: t("paidInv"), paidFail: t("paidFail"), paidHold: t("paidHold"), bnplFail: t("bnplFail"), toMy: t("toMy"), mockTag: t("mockTag"), needCo: t("needCo"), empFail: t("empFail"), empDone: t("empDone"), empHold: t("empHold"), toEmployer: t("toEmployer"), tamaraYr: t("tamaraYr"), empSignIn: t("empSignIn"), empMail: t("empMail"), onePlan: t("onePlan"), toCart: t("toCart"),
   onceHd: t("onceHd"), recHd: t("recHd"), billM: t("billM"), billY: t("billY"), recNote: t("recNote"), tamaraSub: t("tamaraSub"),
   lblOrder: t("lblOrder"), lblPay: t("lblPay"), lblAmt: t("lblAmt"), lblInv: t("lblInv"), okDone: t("okDone"),
-  nextInv: t("nextInv"), nextNoInv: t("nextNoInv"), reviewT: t("reviewT"), reviewN: t("reviewN"), myNote: t("myNote"), signInGo: t("signInGo") })};
+  nextInv: t("nextInv"), nextNoInv: t("nextNoInv"), reviewT: t("reviewT"), reviewN: t("reviewN"), signInGo: t("signInGo"),
+  lblReq: t("lblReq"), openReq: t("openReq"), nextReqDocs: t("nextReqDocs"), nextReq: t("nextReq"), invSent: t("invSent"), invSoon: t("invSoon") })};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
 var REC=${JSON.stringify(recurringMap())};
 var $=function(id){return document.getElementById(id)};
@@ -471,15 +481,22 @@ function showResult(kind,txt,extra,link,det){RESULT.className='sv1-co-result '+k
     if(paidSar>0)rows.push([TX.lblAmt,money(paidSar)]);
     var hasInv=!!(inv&&inv.invoiced&&inv.number);
     if(hasInv)rows.push([TX.lblInv,String(inv.number)]);
+    // الطلب الذي فتحه الخادم لهذه الدفعة في «طلباتي»: رقمه وزرّ يفتحه، من رد الخادم لا من التخمين.
+    var rq=st2&&st2.request,rqRef=(rq&&rq.ok&&rq.ref)?String(rq.ref):'',rqLink=rqRef?{href:HOME+'my?ref='+encodeURIComponent(rqRef),label:TX.openReq}:null;
+    if(rqRef)rows.unshift([TX.lblReq,rqRef]);
+    var invSettled=hasInv||(inv&&inv.reason==='already_settled');
     var det={rows:rows};
     if(hadEmp&&v.employer&&v.employer.activated)showResult('ok',TX.empDone,'',{href:HOME+'employer',label:TX.toEmployer},det);
     else if(hadEmp)showResult('warn',TX.empHold,'',null,det);
     // دفعٌ نجح لكن تسجيله لم يكتمل (الخادم نبّه الفريق): لا نقول «تمّ» ولا نطلب إعادة الدفع.
     else if(!(st2&&st2.ok))showResult('warn',TX.paidHold,'',null,det);
     // دفعٌ سُجّل ولم يُطابَق مبلغه آلياً (باقة سنوية، بند خارج الكتالوج…): مراجعة بشرية، ونقولها.
-    else if(!st2.verified)showResult('warn',TX.reviewT,TX.reviewN,{href:HOME+'my',label:TX.toMy},{rows:rows,note:TX.myNote});
+    // دفعٌ سُجّل ولم يُفتح طلبه في اللوحة (الخادم نبّه الفريق): الرسالة الصادقة نفسها، ولا نعد بما لم يحدث.
+    // (طلب بلا بنود جديدة — دفعُ عرضٍ قائم — يُسوّى في طلبه نفسه فلا يُنتظر منه رقم.)
+    else if(!rqRef&&!(rq&&rq.skipped))showResult('warn',TX.paidHold,'',null,det);
+    else if(!st2.verified)showResult('warn',TX.reviewT,TX.reviewN,rqLink||{href:HOME+'my',label:TX.toMy},det);
     // «already_settled»: القناة الأخرى (خطّاف مُيسّر) سبقت وأصدرت الفاتورة، فهي في طريقها لا قيد التجهيز.
-    else showResult('ok',TX.okDone,'',null,{rows:rows,next:(hasInv||(inv&&inv.reason==='already_settled'))?TX.nextInv:TX.nextNoInv,note:TX.myNote});
+    else showResult('ok',TX.okDone,'',rqLink,{rows:rows,next:rqRef?((rq.documents?TX.nextReqDocs:TX.nextReq)+' '+(invSettled?TX.invSent:TX.invSoon)):(invSettled?TX.nextInv:TX.nextNoInv)});
     $('coWays').classList.add('sv1-hide');for(var k in panes)panes[k].classList.add('sv1-hide');
     try{localStorage.removeItem(CART)}catch(e){}try{sessionStorage.removeItem(SNAP)}catch(e){}
     try{dispatchEvent(new Event('bp:cart'))}catch(e){}return}
