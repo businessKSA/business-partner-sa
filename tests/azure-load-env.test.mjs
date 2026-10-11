@@ -45,3 +45,20 @@ test("load-env: يرفض التشغيل بلا وسائط", () => {
   const r = spawnSync(process.execPath, [SCRIPT], { encoding: "utf8" });
   assert.equal(r.status, 2);
 });
+
+test("load-env: قيمة [SENSITIVE] من Vercel تُعدّ ناقصة لا قيمة، وملفٌّ ثانٍ يكمّلها", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "bp-env2-"));
+  const a = path.join(dir, "a.env"), b = path.join(dir, "b.env"), t = path.join(dir, "t.env");
+  fs.writeFileSync(a, 'MOYASAR_SECRET_KEY="[SENSITIVE]"\nDAFTRA_API_KEY="[SENSITIVE]"\nPORTAL_URL=https://x.sa\n');
+  let r = spawnSync(process.execPath, [SCRIPT, "--file", a, "--app", "x", "--rg", "y", "--dry-run", "--write-missing", t], { encoding: "utf8" });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /ناقصة \(2\)/);
+  assert.match(r.stdout, /أسرار 0/);
+  assert.equal(fs.readFileSync(t, "utf8"), "MOYASAR_SECRET_KEY=\nDAFTRA_API_KEY=\n");
+  fs.writeFileSync(b, "MOYASAR_SECRET_KEY=sk_live_REALVALUE\n");
+  r = spawnSync(process.execPath, [SCRIPT, "--file", a, "--file", b, "--app", "x", "--rg", "y", "--dry-run"], { encoding: "utf8" });
+  assert.match(r.stdout, /أسرار 1/);
+  assert.match(r.stdout, /ناقصة \(1\)[^\n]*DAFTRA_API_KEY/);
+  assert.ok(!r.stdout.includes("REALVALUE"));
+  fs.rmSync(dir, { recursive: true, force: true });
+});

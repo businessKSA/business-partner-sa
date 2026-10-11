@@ -3,8 +3,11 @@
 // الأسرار تذهب إلى «secrets» التطبيق وتُربط بمتغيّر بيئة (secretref)، وما سواها يصير متغيّر بيئة عادياً.
 // القيم لا تُطبع ولا تُسجَّل: يُطبع الاسم فقط. شغّله من Azure Cloud Shell بعد رفع الملف، ثم احذف الملف.
 //
-//   node load-env.mjs --file ~/vercel.env --app bp-site-staging --rg rg-bp-web [--staging-safe] [--dry-run]
+//   node load-env.mjs --file ~/vercel.env [--file ~/missing.env] --app bp-site-staging --rg rg-bp-web [--staging-safe] [--dry-run] [--write-missing ~/missing.env]
 //
+// --file          يتكرر: الملف الأخير يغلب (للقيم التي يخرجها Vercel كـ[SENSITIVE] فتُكتب في ملف ثانٍ).
+// --write-missing يكتب قالباً بأسماء ما ينقص (NAME=) لتملأه يدوياً ثم تمرّره كـ--file ثانٍ.
+
 // --staging-safe  يضبط أوضاع التشغيل على الاختبار (دفع تجريبي، تمارا رمليّة، واتساب مُحاكى، بريد معاينة، عقد اختبار)
 //                 فلا يخرج من بيئة الاختبار دفعٌ حقيقي ولا رسالة لعميل. بيانات Notion وقاعدة البيانات تبقى الحقيقية.
 // --dry-run       يعرض الأسماء وتصنيفها ولا يغيّر شيئاً.
@@ -19,7 +22,10 @@ import { isSecret } from "./env-scan.mjs";
 const args = process.argv.slice(2);
 const opt = (n, d = "") => { const i = args.indexOf(n); return i >= 0 && args[i + 1] && !args[i + 1].startsWith("--") ? args[i + 1] : d; };
 const flag = (n) => args.includes(n);
-const FILE = opt("--file").replace(/^~(?=\/)/, process.env.HOME || "~");
+const home = (p) => p.replace(/^~(?=\/)/, process.env.HOME || "~");
+const FILES = args.flatMap((a, i) => (a === "--file" && args[i + 1] ? [home(args[i + 1])] : []));
+const FILE = FILES[0] || "";
+const MISSING_OUT = opt("--write-missing") ? home(opt("--write-missing")) : "";
 const APP = opt("--app");
 const RG = opt("--rg");
 const DRY = flag("--dry-run");
@@ -60,7 +66,13 @@ function az(argv) {
 }
 function chunks(a, n) { const r = []; for (let i = 0; i < a.length; i += n) r.push(a.slice(i, i + n)); return r; }
 
-const env = parseEnv(fs.readFileSync(FILE, "utf8"));
+// Vercel يكتب [SENSITIVE] بدل قيمة المتغيّرات المعلَّمة Sensitive؛ لا تُعدّ قيمة أبداً.
+const PLACEHOLDER = /^\[SENSITIVE\]$/i;
+const env = new Map();
+for (const f of FILES) for (const [k, v] of parseEnv(fs.readFileSync(f, "utf8"))) {
+  if (v === "" || PLACEHOLDER.test(v)) { if (!env.has(k)) env.set(k, ""); continue; }
+  env.set(k, v);
+}
 const secrets = [], plain = [], skipped = [], empty = [];
 for (const [k, v] of env) {
   if (SKIP.test(k)) { skipped.push(k); continue; }
@@ -81,7 +93,8 @@ for (const [k] of secrets) {
 console.log(`الملف: ${env.size} متغيّراً · أسرار ${secrets.length} · عادية ${plain.length} · متجاهَلة ${skipped.length} · فارغة ${empty.length}`);
 console.log("أسرار:", secrets.map(([k]) => k).join(", ") || "-");
 console.log("عادية:", plain.map(([k]) => k).join(", ") || "-");
-if (empty.length) console.log("ناقصة (فارغة في الملف — غالباً Sensitive في Vercel؛ أضفها يدوياً):", empty.join(", "));
+if (empty.length) console.log(`ناقصة (${empty.length}) — فارغة أو [SENSITIVE] في الملف؛ أضفها يدوياً:`, empty.join(", "));
+if (MISSING_OUT && empty.length) { fs.writeFileSync(MISSING_OUT, empty.map((k) => `${k}=`).join("\n") + "\n", { mode: 0o600 }); console.log(`كُتب قالب بأسماء الناقص في ${MISSING_OUT} (أسماء فقط، املأ القيم ثم مرّره كـ--file ثانٍ)`); }
 if (DRY) { console.log("\n(dry-run) لم يتغيّر شيء."); process.exit(0); }
 
 try { az(["containerapp", "show", "-g", RG, "-n", APP, "--query", "name", "-o", "tsv"]); }
