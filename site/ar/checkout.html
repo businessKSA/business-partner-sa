@@ -288,6 +288,20 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-co-way .tx small{font-size:11.5px;color:var(--mut)}
 .sv1-co-way.on{border-color:var(--n);box-shadow:0 0 0 3px rgba(67,56,245,.10)}
 .sv1-co-way[disabled]{opacity:.45;cursor:default}
+.sv1-co-wallets{margin-bottom:14px}
+.sv1-co-wallets ul{list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.sv1-co-wallets li{border:1px solid var(--l);border-radius:12px;padding:10px 11px;background:#fff;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;cursor:default}
+.sv1-co-wallets .nm{display:inline-flex;align-items:center;gap:6px;color:var(--ink);font-size:12.5px}
+.sv1-co-wallets .nm svg{color:var(--n);flex:none}
+.sv1-co-wallets .nm b{font-weight:500}
+.sv1-co-wallets .pill{margin-inline-start:auto;padding:2px 9px;border-radius:999px;font-size:10.5px;font-weight:600;background:#eef1f8;color:var(--mut);white-space:nowrap}
+.sv1-co-wallets small{flex:0 0 100%;font-size:11px;line-height:1.7;color:var(--mut)}
+.sv1-co-wallets li[data-st="ready"]{border-color:#bfe3d2;background:#f0f9f5}
+.sv1-co-wallets li[data-st="ready"] .pill{background:#16815A;color:#fff}
+.sv1-co-wallets li[data-st="dev"] .pill{background:var(--acSoft);color:var(--n)}
+.sv1-co-wallets li[data-st="soon"]{background:var(--soft)}
+.sv1-co-wallets li[data-st="soon"] .nm{opacity:.7}
+@media(max-width:640px){.sv1-co-wallets ul{grid-template-columns:1fr}}
 .sv1-co-mount{min-height:120px}
 .sv1-co-wait{font-size:12.5px;color:var(--mut);padding:22px 0;text-align:center}
 .sv1-co-fine{font-size:11.5px;color:var(--mut);line-height:1.75;margin:10px 0 0}
@@ -418,6 +432,25 @@ var h0=hint();if(h0)S.paint(true,h0);
           </div>
 
           <div id="coPaneCard" class="sv1-co-pane">
+            <div class="sv1-co-wallets" id="coWallets" role="group" aria-label="المحافظ الرقمية">
+              <p class="sv1-co-grp">المحافظ الرقمية</p>
+              <ul>
+                <li id="coW-apple" data-st="chk">
+                  <span class="nm"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H18a2 2 0 0 1 2 2v1"/><path d="M3 7.5V17a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H5.5A2.5 2.5 0 0 1 3 6.5"/><circle cx="16.5" cy="14" r="1.1" fill="currentColor"/></svg><b dir="ltr">Apple Pay</b></span>
+                  <span class="pill" id="coW-apple-pill">نتحقّق…</span>
+                  <small id="coW-apple-why"></small>
+                </li>
+                <li id="coW-samsung" data-st="chk">
+                  <span class="nm"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H18a2 2 0 0 1 2 2v1"/><path d="M3 7.5V17a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H5.5A2.5 2.5 0 0 1 3 6.5"/><circle cx="16.5" cy="14" r="1.1" fill="currentColor"/></svg><b dir="ltr">Samsung Pay</b></span>
+                  <span class="pill" id="coW-samsung-pill">نتحقّق…</span>
+                  <small id="coW-samsung-why"></small>
+                </li>
+                <li id="coW-google" data-st="chk">
+                  <span class="nm"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H18a2 2 0 0 1 2 2v1"/><path d="M3 7.5V17a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H5.5A2.5 2.5 0 0 1 3 6.5"/><circle cx="16.5" cy="14" r="1.1" fill="currentColor"/></svg><b dir="ltr">Google Pay</b></span>
+                  <span class="pill" id="coW-google-pill">نتحقّق…</span>
+                  <small id="coW-google-why"></small>
+                </li></ul>
+            </div>
             <div id="coPayMount" class="sv1-co-mount"><div class="sv1-co-wait">نجهّز نموذج الدفع…</div></div>
             <p class="sv1-co-fine">الدفع يتم على خوادم البوابة المرخّصة — لا تمرّ بيانات بطاقتك من خوادمنا.</p>
           </div>
@@ -613,7 +646,7 @@ window.SV1Login={otp:otp,methods:methods,mountGoogle:mountGoogle,inApp:INAPP,or:
 })();
 (function(){
 var LANG="ar",HOME="/ar/";
-var TX={"empty":"سلتك فارغة.","browse":"استعرض الخدمات","needFill":"أكمل الاسم والجوال والبريد قبل الدفع.","payDown":"تعذّر فتح نموذج الدفع الآن. جرّب تمارا، أو أعد المحاولة بعد قليل، أو راسلنا على واتساب.","loading":"نجهّز نموذج الدفع…","quoted":"يُسعّر عند المراجعة","signIn":"سجّل دخولك لعرض السعر وإتمام الدفع","signInBtn":"دخول إلى حسابي","noAmount":"بعض بنود السلة تُسعّر عند المراجعة ولا تُدفع من هنا. احذفها من السلة لتدفع باقي البنود، أو اطلب لها عرض سعر من صفحة الخدمة.","card":"بطاقة","payBtn":"إتمام الدفع","payWait":"نتحقّق من دفعتك…","paidOk":"تم استلام الدفعة — طلبك مسجّل وفاتورتك الضريبية تصلك على بريدك خلال دقائق.","paidInv":"رقم الفاتورة:","paidFail":"لم تكتمل الدفعة ولم يُخصم شيء — أعد المحاولة بالبطاقة أو جرّب تمارا.","paidHold":"دفعتك تمّت لكن تعذّر تأكيدها آلياً الآن، وقد وصل التنبيه لفريقنا. لا تدفع مرة أخرى — فاتورتك تصلك قريباً.","bnplFail":"لم تكتمل عملية التقسيط — تقدر تحاول مرة أخرى أو تدفع بالبطاقة.","toMy":"افتح طلباتي","mockTag":"بوابة محلية — لا بطاقة ولا خصم","needCo":"اكتب اسم المنشأة — الاشتراك يُفتح باسمها.","empFail":"تعذّر تجهيز اشتراكك الآن ولم يُخصم شيء — أعد المحاولة بعد قليل أو راسلنا.","empDone":"تم الدفع وفُعِّل اشتراكك في منصة التوظيف. ادخل بوابة صاحب العمل بالبريد الذي دفعت به.","empHold":"دفعتك تمّت وجارٍ تفعيل اشتراكك — وصل التنبيه لفريقنا وسيُفعَّل خلال ساعات العمل. لا تدفع مرة أخرى.","toEmployer":"افتح بوابة صاحب العمل","tamaraYr":"تمارا متاحة للاشتراك السنوي فقط.","empSignIn":"سجّل دخولك بالبريد الذي سيُفتح به الاشتراك ثم أكمل الدفع.","empMail":"بريد الدفع يجب أن يطابق بريد حسابك المسجَّل دخوله — الاشتراك يُفتح لحسابك.","onePlan":"اشتراك واحد في كل طلب — أبقِ باقة واحدة في السلة.","toCart":"العودة إلى السلة","onceHd":"دفعة واحدة","recHd":"اشتراكات","billM":"شهرياً","billY":"سنوياً","recNote":"مبلغ الاشتراك المعروض هو قسط فترة واحدة (شهر أو سنة)، وهو ما يُدفع الآن.","tamaraSub":"تمارا غير متاحة للاشتراكات الشهرية — ادفع بالبطاقة.","lblOrder":"رقم الطلب","lblPay":"مرجع الدفعة","lblAmt":"المبلغ المدفوع (شامل الضريبة)","lblInv":"رقم الفاتورة","okDone":"تم استلام دفعتك وتأكيد طلبك.","nextInv":"الخطوة التالية: تصلك على بريدك رسالة تأكيد الطلب وفاتورتك الضريبية، ثم يبدأ الفريق التنفيذ.","nextNoInv":"الخطوة التالية: تصلك على بريدك رسالة تأكيد الطلب. وفاتورتك الضريبية يجهّزها الفريق وتصلك على البريد نفسه.","reviewT":"استلمنا دفعتك وسنؤكد التفعيل خلال ساعات العمل.","reviewN":"لم نستطع مطابقة المبلغ آلياً مع الأسعار المعتمدة، فيراجعه الفريق قبل التفعيل. يصلك تأكيد على بريدك، ولا حاجة لإعادة الدفع.","signInGo":"سجّل الدخول","lblReq":"رقم طلبك في لوحتك","openReq":"افتح طلبك","nextReqDocs":"الخطوة التالية: افتح طلبك وارفع المستندات المطلوبة ليبدأ الفريق التنفيذ، وتتابع كل مرحلة من هناك.","nextReq":"الخطوة التالية: تابع مراحل طلبك من لوحتك، ونبلغك حين يبدأ التنفيذ.","invSent":"وتصلك فاتورتك الضريبية على بريدك.","invSoon":"ويجهّز الفريق فاتورتك الضريبية وتصلك على البريد نفسه."};
+var TX={"empty":"سلتك فارغة.","browse":"استعرض الخدمات","needFill":"أكمل الاسم والجوال والبريد قبل الدفع.","payDown":"تعذّر فتح نموذج الدفع الآن. جرّب تمارا، أو أعد المحاولة بعد قليل، أو راسلنا على واتساب.","loading":"نجهّز نموذج الدفع…","quoted":"يُسعّر عند المراجعة","signIn":"سجّل دخولك لعرض السعر وإتمام الدفع","signInBtn":"دخول إلى حسابي","noAmount":"بعض بنود السلة تُسعّر عند المراجعة ولا تُدفع من هنا. احذفها من السلة لتدفع باقي البنود، أو اطلب لها عرض سعر من صفحة الخدمة.","card":"بطاقة","payBtn":"إتمام الدفع","payWait":"نتحقّق من دفعتك…","paidOk":"تم استلام الدفعة — طلبك مسجّل وفاتورتك الضريبية تصلك على بريدك خلال دقائق.","paidInv":"رقم الفاتورة:","paidFail":"لم تكتمل الدفعة ولم يُخصم شيء — أعد المحاولة بالبطاقة أو جرّب تمارا.","paidHold":"دفعتك تمّت لكن تعذّر تأكيدها آلياً الآن، وقد وصل التنبيه لفريقنا. لا تدفع مرة أخرى — فاتورتك تصلك قريباً.","bnplFail":"لم تكتمل عملية التقسيط — تقدر تحاول مرة أخرى أو تدفع بالبطاقة.","toMy":"افتح طلباتي","mockTag":"بوابة محلية — لا بطاقة ولا خصم","needCo":"اكتب اسم المنشأة — الاشتراك يُفتح باسمها.","empFail":"تعذّر تجهيز اشتراكك الآن ولم يُخصم شيء — أعد المحاولة بعد قليل أو راسلنا.","empDone":"تم الدفع وفُعِّل اشتراكك في منصة التوظيف. ادخل بوابة صاحب العمل بالبريد الذي دفعت به.","empHold":"دفعتك تمّت وجارٍ تفعيل اشتراكك — وصل التنبيه لفريقنا وسيُفعَّل خلال ساعات العمل. لا تدفع مرة أخرى.","toEmployer":"افتح بوابة صاحب العمل","tamaraYr":"تمارا متاحة للاشتراك السنوي فقط.","empSignIn":"سجّل دخولك بالبريد الذي سيُفتح به الاشتراك ثم أكمل الدفع.","empMail":"بريد الدفع يجب أن يطابق بريد حسابك المسجَّل دخوله — الاشتراك يُفتح لحسابك.","onePlan":"اشتراك واحد في كل طلب — أبقِ باقة واحدة في السلة.","toCart":"العودة إلى السلة","onceHd":"دفعة واحدة","recHd":"اشتراكات","billM":"شهرياً","billY":"سنوياً","recNote":"مبلغ الاشتراك المعروض هو قسط فترة واحدة (شهر أو سنة)، وهو ما يُدفع الآن.","tamaraSub":"تمارا غير متاحة للاشتراكات الشهرية — ادفع بالبطاقة.","lblOrder":"رقم الطلب","lblPay":"مرجع الدفعة","lblAmt":"المبلغ المدفوع (شامل الضريبة)","lblInv":"رقم الفاتورة","okDone":"تم استلام دفعتك وتأكيد طلبك.","nextInv":"الخطوة التالية: تصلك على بريدك رسالة تأكيد الطلب وفاتورتك الضريبية، ثم يبدأ الفريق التنفيذ.","nextNoInv":"الخطوة التالية: تصلك على بريدك رسالة تأكيد الطلب. وفاتورتك الضريبية يجهّزها الفريق وتصلك على البريد نفسه.","reviewT":"استلمنا دفعتك وسنؤكد التفعيل خلال ساعات العمل.","reviewN":"لم نستطع مطابقة المبلغ آلياً مع الأسعار المعتمدة، فيراجعه الفريق قبل التفعيل. يصلك تأكيد على بريدك، ولا حاجة لإعادة الدفع.","signInGo":"سجّل الدخول","lblReq":"رقم طلبك في لوحتك","openReq":"افتح طلبك","nextReqDocs":"الخطوة التالية: افتح طلبك وارفع المستندات المطلوبة ليبدأ الفريق التنفيذ، وتتابع كل مرحلة من هناك.","nextReq":"الخطوة التالية: تابع مراحل طلبك من لوحتك، ونبلغك حين يبدأ التنفيذ.","invSent":"وتصلك فاتورتك الضريبية على بريدك.","invSoon":"ويجهّز الفريق فاتورتك الضريبية وتصلك على البريد نفسه.","wChk":"نتحقّق…","wReady":"جاهز","wDev":"على الأجهزة المدعومة","wSoon":"قريباً","wReadyWhy":"اختر زرّها في نموذج الدفع أدناه.","wSoonWhy":"نفعّلها فور اكتمال إعدادها لدى بوابة الدفع.","wApple":"يظهر زرّها تلقائياً على الأجهزة المدعومة (Safari على آبل).","wSamsung":"يظهر زرّها تلقائياً على الأجهزة المدعومة (جوالات سامسونج).","wGoogle":"يظهر زرّها تلقائياً على الأجهزة المدعومة (كروم على أندرويد)."};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
 var REC={"bp-hr-03":"monthly","bp-ai-02":"monthly","bp-sub-01":"monthly","bp-vendor-02":"monthly","bp-ai-03":"monthly","bp-ai-smart-employee":"monthly","bp-ai-04":"monthly","bp-ajeer-10":"monthly","starter-4":"monthly","bp-pkg-svc-starter":"monthly","silver":"monthly","bp-pkg-launch":"monthly","gold":"monthly","bp-pkg-growth":"monthly","platinum":"monthly","bp-pkg-scale":"monthly","basic-legal":"monthly","bp-pkg-legal-basic":"monthly","advanced":"monthly","bp-pkg-legal-adv":"monthly","comprehensive":"monthly","bp-pkg-legal-comp":"monthly","strategic":"monthly","bp-pkg-legal-strat":"monthly"};
 var $=function(id){return document.getElementById(id)};
@@ -855,11 +888,27 @@ $('coTamaraGo').onclick=function(){
 
 // ---- البطاقة والمحافظ (مُيسّر) — نفس نداء التركيب في الموقع القديم
 var mount=$('coPayMount');
-function payFailed(){mount.innerHTML='';var p=document.createElement('p');p.className='sv1-co-fine';p.style.color='#b42318';p.textContent=TX.payDown;mount.appendChild(p)}
+// ---- صفّ المحافظ: حالة صادقة لكلٍّ، من الإعداد + جاهزية هذا الجهاز (لا من الوعود).
+//   ready = مفعّلة عندنا والجهاز جاهز (زرّها الحقيقي في نموذج مُيسّر تحته)
+//   dev   = مفعّلة عندنا لكن هذا الجهاز لا يدعمها — يظهر زرّها وحده على الجهاز المدعوم
+//   soon  = غير مفعّلة بعد في بوابة الدفع (الإعداد يعيدها null)
+// عناصر القائمة ليست أزراراً: لا شيء يُنقر، فلا زرّ ميّت يوهم بالدفع.
+function setWallet(k,st){
+ var li=$('coW-'+k);if(!li)return;li.setAttribute('data-st',st);
+ var why={apple:TX.wApple,samsung:TX.wSamsung,google:TX.wGoogle};
+ $('coW-'+k+'-pill').textContent=st==='ready'?TX.wReady:st==='dev'?TX.wDev:st==='soon'?TX.wSoon:TX.wChk;
+ $('coW-'+k+'-why').textContent=st==='ready'?TX.wReadyWhy:st==='dev'?why[k]:st==='soon'?TX.wSoonWhy:''}
+function settleWallets(cfg,canAP,spOk,gpOk){
+ setWallet('apple',cfg&&cfg.applePay?(canAP?'ready':'dev'):'soon');
+ setWallet('samsung',cfg&&cfg.samsungPay&&cfg.samsungPay.service_id?(spOk?'ready':'dev'):'soon');
+ setWallet('google',cfg&&cfg.googlePay&&cfg.googlePay.merchant_id?(gpOk?'ready':'dev'):'soon')}
+// لا نموذج دفع على الشاشة (سلة فارغة · دخول مطلوب · عطل البوابة): لا صفّ يوحي بمحافظ جاهزة.
+function hideWallets(){var w=$('coWallets');if(w)w.classList.add('sv1-hide')}
+function payFailed(){hideWallets();mount.innerHTML='';var p=document.createElement('p');p.className='sv1-co-fine';p.style.color='#b42318';p.textContent=TX.payDown;mount.appendChild(p)}
 // مُيسّر يرفض مبلغ الصفر برسالة إنجليزية عامة «Form configuration issue»؛
 // لا نصل إليها أصلاً: نقول للمشتري لماذا لا يوجد مبلغ وماذا يفعل.
 function payBlocked(msg,href,label){
- mount.innerHTML='';
+ hideWallets();mount.innerHTML='';
  var p=document.createElement('p');p.className='sv1-co-fine';p.textContent=msg;mount.appendChild(p);
  if(href){var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=href;a.textContent=label;a.style.marginTop='10px';mount.appendChild(a)}
  var tg=$('coTamaraGo');if(tg)tg.disabled=true}
@@ -872,7 +921,7 @@ function guestGoogle(){var L=window.SV1Login;if(!L)return;var a=mount.querySelec
  L.mountGoogle(s,{onSuccess:function(){try{localStorage.setItem('bp_session','1')}catch(x){}location.reload()},
   onError:function(m){var p=document.createElement('p');p.className='sv1-co-fine';p.style.color='#b42318';p.textContent=m;mount.insertBefore(p,or)},
   onHide:function(){or.style.display='none'}})}
-if(!cart.length){mount.innerHTML='';}
+if(!cart.length){hideWallets();mount.innerHTML='';}
 else if(empLines.length>1){payBlocked(TX.onePlan,HOME+'cart',TX.toCart);}
 else if(unpriced){payBlocked(TX.noAmount,HOME+'cart',TX.toCart);}
 // الدخول يرجع إلى هذه الصفحة (next) لا إلى لوحة العميل، فتبقى السلة أمامه.
@@ -882,6 +931,7 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
  PAYCFG=cfg||null;
  if(cfg&&cfg.bnpl&&cfg.bnpl.tamara===false){var tb=$('coWayTamara');if(tb)tb.disabled=true}
  if(cfg&&cfg.enabled&&cfg.mock&&cfg.formUrl){
+  settleWallets(cfg,false,false,false);
   mount.innerHTML='';
   var tg=document.createElement('span');tg.className='sv1-co-mock';tg.textContent=TX.mockTag;mount.appendChild(tg);
   var bt=document.createElement('button');bt.type='button';bt.className='sv1-btn primary';bt.style.width='100%';bt.id='coMockPay';bt.textContent=TX.payBtn;
@@ -931,14 +981,17 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
    if(gp)wanted.push('googlepay');
    if(!wanted.length)wanted=['creditcard'];
    // عنوان الطريقة يسمّي ما سيظهر فعلاً على هذا الجهاز، لا ما هو مكتوب في الإعداد.
+   settleWallets(cfg,canAP,spOk,gpOk);
    var names=[];if(ap)names.push('Apple Pay');if(gp)names.push('Google Pay');if(sp)names.push('Samsung Pay');
    var lb=$('coWayCardLabel');if(lb)lb.textContent=TX.card+(names.length?' · '+names.join(' · '):'');
    try{boot(wanted,ap,sp,gp)}
-   catch(e){try{boot(['creditcard'],null,null,null)}catch(e2){payFailed()}}}
+   catch(e){settleWallets(null,false,false,false);try{boot(['creditcard'],null,null,null)}catch(e2){payFailed()}}}
   function boot(methods,applePay,samsungPay,googlePay){
    mount.innerHTML='<div id="epay-form"></div>';
    var m=meta();
-   var opt={element:'#epay-form',amount:Math.round(total*100),currency:cfg.currency||'SAR',
+   // نموذج مُيسّر يقرأ لغته من <html lang> إن لم تُمرَّر، ولا يعرف إلا العربية والإنجليزية:
+   // على /fr و/zh كان يرسم «Something went wrong» بدل البطاقة (لا يلتقطه فحص الصندوق الفارغ).
+   var opt={element:'#epay-form',language:LANG==='ar'?'ar':'en',amount:Math.round(total*100),currency:cfg.currency||'SAR',
     description:'Business Partner order '+m.ref,publishable_api_key:cfg.publishableKey,
     callback_url:location.origin+location.pathname,metadata:m,
     on_initiating:async function(){

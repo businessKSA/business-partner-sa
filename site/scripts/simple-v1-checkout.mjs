@@ -56,6 +56,30 @@ const T = {
   // جاهزيتها على هذا الجهاز فعلاً (Apple Pay · Google Pay · Samsung Pay).
   card:    { ar: "بطاقة", en: "Card", fr: "Carte", zh: "银行卡" },
   cardSub: { ar: "مدى · فيزا · ماستركارد", en: "mada · Visa · Mastercard", fr: "mada · Visa · Mastercard", zh: "mada · Visa · Mastercard" },
+  // ---- صفّ المحافظ (Apple Pay · Samsung Pay · Google Pay): ظاهر دائماً بحالة صادقة.
+  // جاهز = التفعيل عندنا + الجهاز جاهز (فيرسم النموذج زرّها). device = مفعّلة عندنا لكن هذا
+  // الجهاز لا يدعمها (زرّها يظهر وحده على الجهاز المدعوم). soon = غير مفعّلة بعد في بوابة الدفع.
+  wHd:     { ar: "المحافظ الرقمية", en: "Digital wallets", fr: "Portefeuilles numériques", zh: "数字钱包" },
+  wChk:    { ar: "نتحقّق…", en: "Checking…", fr: "Vérification…", zh: "检测中…" },
+  wReady:  { ar: "جاهز", en: "Ready", fr: "Prêt", zh: "可用" },
+  wDev:    { ar: "على الأجهزة المدعومة", en: "On supported devices", fr: "Appareils compatibles", zh: "支持的设备" },
+  wSoon:   { ar: "قريباً", en: "Coming soon", fr: "Bientôt", zh: "即将推出" },
+  wReadyWhy:{ ar: "اختر زرّها في نموذج الدفع أدناه.", en: "Use its button in the payment form below.",
+             fr: "Utilisez son bouton dans le formulaire de paiement ci-dessous.", zh: "请使用下方支付表单中的按钮。" },
+  wSoonWhy:{ ar: "نفعّلها فور اكتمال إعدادها لدى بوابة الدفع.", en: "We switch it on as soon as it is set up with the payment gateway.",
+             fr: "Nous l'activons dès qu'elle est configurée auprès de la passerelle.", zh: "与支付网关配置完成后立即开通。" },
+  wApple:  { ar: "يظهر زرّها تلقائياً على الأجهزة المدعومة (Safari على آبل).",
+             en: "Its button appears automatically on supported devices (Safari on Apple).",
+             fr: "Son bouton apparaît automatiquement sur les appareils compatibles (Safari sur Apple).",
+             zh: "在受支持的设备上按钮会自动出现（Apple 设备上的 Safari）。" },
+  wSamsung:{ ar: "يظهر زرّها تلقائياً على الأجهزة المدعومة (جوالات سامسونج).",
+             en: "Its button appears automatically on supported devices (Samsung phones).",
+             fr: "Son bouton apparaît automatiquement sur les appareils compatibles (téléphones Samsung).",
+             zh: "在受支持的设备上按钮会自动出现（三星手机）。" },
+  wGoogle: { ar: "يظهر زرّها تلقائياً على الأجهزة المدعومة (كروم على أندرويد).",
+             en: "Its button appears automatically on supported devices (Chrome on Android).",
+             fr: "Son bouton apparaît automatiquement sur les appareils compatibles (Chrome sur Android).",
+             zh: "在受支持的设备上按钮会自动出现（Android 上的 Chrome）。" },
   tamara:  { ar: "تمارا — قسّمها", en: "Tamara — split it", fr: "Tamara — en plusieurs fois", zh: "Tamara 分期" },
   tamaraS: { ar: "ادفع على دفعات بلا فوائد", en: "Interest-free instalments", fr: "Sans frais", zh: "免息分期" },
   needFill:{ ar: "أكمل الاسم والجوال والبريد قبل الدفع.", en: "Fill in name, mobile and e-mail first.",
@@ -186,6 +210,20 @@ export function buildSimpleCheckout(SV1, ctx) {
   const esc = ctx.esc;
   const home = lang === "en" ? "/" : "/" + lang + "/";
 
+  // صفّ المحافظ: عناصر قائمة لا أزرار — لا شيء هنا يُنقر ولا يوهم بالدفع؛ الزرّ الحقيقي
+  // يرسمه نموذج مُيسّر تحته حين تكون المحفظة جاهزة. الحالة تُحسم في السكربت بعد وصول الإعداد.
+  const WALLETS = [
+    { k: "apple", name: "Apple Pay", why: "wApple" },
+    { k: "samsung", name: "Samsung Pay", why: "wSamsung" },
+    { k: "google", name: "Google Pay", why: "wGoogle" },
+  ];
+  const walletItems = WALLETS.map((w) => `
+                <li id="coW-${w.k}" data-st="chk">
+                  <span class="nm"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H18a2 2 0 0 1 2 2v1"/><path d="M3 7.5V17a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H5.5A2.5 2.5 0 0 1 3 6.5"/><circle cx="16.5" cy="14" r="1.1" fill="currentColor"/></svg><b dir="ltr">${w.name}</b></span>
+                  <span class="pill" id="coW-${w.k}-pill">${esc(t("wChk"))}</span>
+                  <small id="coW-${w.k}-why"></small>
+                </li>`).join("");
+
   const body = `${SV1.header("/checkout", { cta: false })}
   <main>
   <section class="sv1-sec"><div class="wrap">
@@ -223,6 +261,10 @@ export function buildSimpleCheckout(SV1, ctx) {
           </div>
 
           <div id="coPaneCard" class="sv1-co-pane">
+            <div class="sv1-co-wallets" id="coWallets" role="group" aria-label="${esc(t("wHd"))}">
+              <p class="sv1-co-grp">${esc(t("wHd"))}</p>
+              <ul>${walletItems}</ul>
+            </div>
             <div id="coPayMount" class="sv1-co-mount"><div class="sv1-co-wait">${esc(t("loading"))}</div></div>
             <p class="sv1-co-fine">${esc(t("payNote"))}</p>
           </div>
@@ -271,6 +313,20 @@ ${SV1.footer()}`;
 .sv1-co-way .tx small{font-size:11.5px;color:var(--mut)}
 .sv1-co-way.on{border-color:var(--n);box-shadow:0 0 0 3px rgba(67,56,245,.10)}
 .sv1-co-way[disabled]{opacity:.45;cursor:default}
+.sv1-co-wallets{margin-bottom:14px}
+.sv1-co-wallets ul{list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.sv1-co-wallets li{border:1px solid var(--l);border-radius:12px;padding:10px 11px;background:#fff;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;cursor:default}
+.sv1-co-wallets .nm{display:inline-flex;align-items:center;gap:6px;color:var(--ink);font-size:12.5px}
+.sv1-co-wallets .nm svg{color:var(--n);flex:none}
+.sv1-co-wallets .nm b{font-weight:500}
+.sv1-co-wallets .pill{margin-inline-start:auto;padding:2px 9px;border-radius:999px;font-size:10.5px;font-weight:600;background:#eef1f8;color:var(--mut);white-space:nowrap}
+.sv1-co-wallets small{flex:0 0 100%;font-size:11px;line-height:1.7;color:var(--mut)}
+.sv1-co-wallets li[data-st="ready"]{border-color:#bfe3d2;background:#f0f9f5}
+.sv1-co-wallets li[data-st="ready"] .pill{background:#16815A;color:#fff}
+.sv1-co-wallets li[data-st="dev"] .pill{background:var(--acSoft);color:var(--n)}
+.sv1-co-wallets li[data-st="soon"]{background:var(--soft)}
+.sv1-co-wallets li[data-st="soon"] .nm{opacity:.7}
+@media(max-width:640px){.sv1-co-wallets ul{grid-template-columns:1fr}}
 .sv1-co-mount{min-height:120px}
 .sv1-co-wait{font-size:12.5px;color:var(--mut);padding:22px 0;text-align:center}
 .sv1-co-fine{font-size:11.5px;color:var(--mut);line-height:1.75;margin:10px 0 0}
@@ -311,7 +367,9 @@ var TX=${JSON.stringify({ empty: t("empty"), browse: t("browse"), needFill: t("n
   onceHd: t("onceHd"), recHd: t("recHd"), billM: t("billM"), billY: t("billY"), recNote: t("recNote"), tamaraSub: t("tamaraSub"),
   lblOrder: t("lblOrder"), lblPay: t("lblPay"), lblAmt: t("lblAmt"), lblInv: t("lblInv"), okDone: t("okDone"),
   nextInv: t("nextInv"), nextNoInv: t("nextNoInv"), reviewT: t("reviewT"), reviewN: t("reviewN"), signInGo: t("signInGo"),
-  lblReq: t("lblReq"), openReq: t("openReq"), nextReqDocs: t("nextReqDocs"), nextReq: t("nextReq"), invSent: t("invSent"), invSoon: t("invSoon") })};
+  lblReq: t("lblReq"), openReq: t("openReq"), nextReqDocs: t("nextReqDocs"), nextReq: t("nextReq"), invSent: t("invSent"), invSoon: t("invSoon"),
+  wChk: t("wChk"), wReady: t("wReady"), wDev: t("wDev"), wSoon: t("wSoon"), wReadyWhy: t("wReadyWhy"), wSoonWhy: t("wSoonWhy"),
+  wApple: t("wApple"), wSamsung: t("wSamsung"), wGoogle: t("wGoogle") })};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
 var REC=${JSON.stringify(recurringMap())};
 var $=function(id){return document.getElementById(id)};
@@ -553,11 +611,27 @@ $('coTamaraGo').onclick=function(){
 
 // ---- البطاقة والمحافظ (مُيسّر) — نفس نداء التركيب في الموقع القديم
 var mount=$('coPayMount');
-function payFailed(){mount.innerHTML='';var p=document.createElement('p');p.className='sv1-co-fine';p.style.color='#b42318';p.textContent=TX.payDown;mount.appendChild(p)}
+// ---- صفّ المحافظ: حالة صادقة لكلٍّ، من الإعداد + جاهزية هذا الجهاز (لا من الوعود).
+//   ready = مفعّلة عندنا والجهاز جاهز (زرّها الحقيقي في نموذج مُيسّر تحته)
+//   dev   = مفعّلة عندنا لكن هذا الجهاز لا يدعمها — يظهر زرّها وحده على الجهاز المدعوم
+//   soon  = غير مفعّلة بعد في بوابة الدفع (الإعداد يعيدها null)
+// عناصر القائمة ليست أزراراً: لا شيء يُنقر، فلا زرّ ميّت يوهم بالدفع.
+function setWallet(k,st){
+ var li=$('coW-'+k);if(!li)return;li.setAttribute('data-st',st);
+ var why={apple:TX.wApple,samsung:TX.wSamsung,google:TX.wGoogle};
+ $('coW-'+k+'-pill').textContent=st==='ready'?TX.wReady:st==='dev'?TX.wDev:st==='soon'?TX.wSoon:TX.wChk;
+ $('coW-'+k+'-why').textContent=st==='ready'?TX.wReadyWhy:st==='dev'?why[k]:st==='soon'?TX.wSoonWhy:''}
+function settleWallets(cfg,canAP,spOk,gpOk){
+ setWallet('apple',cfg&&cfg.applePay?(canAP?'ready':'dev'):'soon');
+ setWallet('samsung',cfg&&cfg.samsungPay&&cfg.samsungPay.service_id?(spOk?'ready':'dev'):'soon');
+ setWallet('google',cfg&&cfg.googlePay&&cfg.googlePay.merchant_id?(gpOk?'ready':'dev'):'soon')}
+// لا نموذج دفع على الشاشة (سلة فارغة · دخول مطلوب · عطل البوابة): لا صفّ يوحي بمحافظ جاهزة.
+function hideWallets(){var w=$('coWallets');if(w)w.classList.add('sv1-hide')}
+function payFailed(){hideWallets();mount.innerHTML='';var p=document.createElement('p');p.className='sv1-co-fine';p.style.color='#b42318';p.textContent=TX.payDown;mount.appendChild(p)}
 // مُيسّر يرفض مبلغ الصفر برسالة إنجليزية عامة «Form configuration issue»؛
 // لا نصل إليها أصلاً: نقول للمشتري لماذا لا يوجد مبلغ وماذا يفعل.
 function payBlocked(msg,href,label){
- mount.innerHTML='';
+ hideWallets();mount.innerHTML='';
  var p=document.createElement('p');p.className='sv1-co-fine';p.textContent=msg;mount.appendChild(p);
  if(href){var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=href;a.textContent=label;a.style.marginTop='10px';mount.appendChild(a)}
  var tg=$('coTamaraGo');if(tg)tg.disabled=true}
@@ -570,7 +644,7 @@ function guestGoogle(){var L=window.SV1Login;if(!L)return;var a=mount.querySelec
  L.mountGoogle(s,{onSuccess:function(){try{localStorage.setItem('bp_session','1')}catch(x){}location.reload()},
   onError:function(m){var p=document.createElement('p');p.className='sv1-co-fine';p.style.color='#b42318';p.textContent=m;mount.insertBefore(p,or)},
   onHide:function(){or.style.display='none'}})}
-if(!cart.length){mount.innerHTML='';}
+if(!cart.length){hideWallets();mount.innerHTML='';}
 else if(empLines.length>1){payBlocked(TX.onePlan,HOME+'cart',TX.toCart);}
 else if(unpriced){payBlocked(TX.noAmount,HOME+'cart',TX.toCart);}
 // الدخول يرجع إلى هذه الصفحة (next) لا إلى لوحة العميل، فتبقى السلة أمامه.
@@ -580,6 +654,7 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
  PAYCFG=cfg||null;
  if(cfg&&cfg.bnpl&&cfg.bnpl.tamara===false){var tb=$('coWayTamara');if(tb)tb.disabled=true}
  if(cfg&&cfg.enabled&&cfg.mock&&cfg.formUrl){
+  settleWallets(cfg,false,false,false);
   mount.innerHTML='';
   var tg=document.createElement('span');tg.className='sv1-co-mock';tg.textContent=TX.mockTag;mount.appendChild(tg);
   var bt=document.createElement('button');bt.type='button';bt.className='sv1-btn primary';bt.style.width='100%';bt.id='coMockPay';bt.textContent=TX.payBtn;
@@ -629,14 +704,17 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
    if(gp)wanted.push('googlepay');
    if(!wanted.length)wanted=['creditcard'];
    // عنوان الطريقة يسمّي ما سيظهر فعلاً على هذا الجهاز، لا ما هو مكتوب في الإعداد.
+   settleWallets(cfg,canAP,spOk,gpOk);
    var names=[];if(ap)names.push('Apple Pay');if(gp)names.push('Google Pay');if(sp)names.push('Samsung Pay');
    var lb=$('coWayCardLabel');if(lb)lb.textContent=TX.card+(names.length?' · '+names.join(' · '):'');
    try{boot(wanted,ap,sp,gp)}
-   catch(e){try{boot(['creditcard'],null,null,null)}catch(e2){payFailed()}}}
+   catch(e){settleWallets(null,false,false,false);try{boot(['creditcard'],null,null,null)}catch(e2){payFailed()}}}
   function boot(methods,applePay,samsungPay,googlePay){
    mount.innerHTML='<div id="epay-form"></div>';
    var m=meta();
-   var opt={element:'#epay-form',amount:Math.round(total*100),currency:cfg.currency||'SAR',
+   // نموذج مُيسّر يقرأ لغته من <html lang> إن لم تُمرَّر، ولا يعرف إلا العربية والإنجليزية:
+   // على /fr و/zh كان يرسم «Something went wrong» بدل البطاقة (لا يلتقطه فحص الصندوق الفارغ).
+   var opt={element:'#epay-form',language:LANG==='ar'?'ar':'en',amount:Math.round(total*100),currency:cfg.currency||'SAR',
     description:'Business Partner order '+m.ref,publishable_api_key:cfg.publishableKey,
     callback_url:location.origin+location.pathname,metadata:m,
     on_initiating:async function(){
