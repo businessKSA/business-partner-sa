@@ -288,6 +288,20 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-co-way .tx small{font-size:11.5px;color:var(--mut)}
 .sv1-co-way.on{border-color:var(--n);box-shadow:0 0 0 3px rgba(67,56,245,.10)}
 .sv1-co-way[disabled]{opacity:.45;cursor:default}
+.sv1-co-wallets{margin-bottom:14px}
+.sv1-co-wallets ul{list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.sv1-co-wallets li{border:1px solid var(--l);border-radius:12px;padding:10px 11px;background:#fff;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;cursor:default}
+.sv1-co-wallets .nm{display:inline-flex;align-items:center;gap:6px;color:var(--ink);font-size:12.5px}
+.sv1-co-wallets .nm svg{color:var(--n);flex:none}
+.sv1-co-wallets .nm b{font-weight:500}
+.sv1-co-wallets .pill{margin-inline-start:auto;padding:2px 9px;border-radius:999px;font-size:10.5px;font-weight:600;background:#eef1f8;color:var(--mut);white-space:nowrap}
+.sv1-co-wallets small{flex:0 0 100%;font-size:11px;line-height:1.7;color:var(--mut)}
+.sv1-co-wallets li[data-st="ready"]{border-color:#bfe3d2;background:#f0f9f5}
+.sv1-co-wallets li[data-st="ready"] .pill{background:#16815A;color:#fff}
+.sv1-co-wallets li[data-st="dev"] .pill{background:var(--acSoft);color:var(--n)}
+.sv1-co-wallets li[data-st="soon"]{background:var(--soft)}
+.sv1-co-wallets li[data-st="soon"] .nm{opacity:.7}
+@media(max-width:640px){.sv1-co-wallets ul{grid-template-columns:1fr}}
 .sv1-co-mount{min-height:120px}
 .sv1-co-wait{font-size:12.5px;color:var(--mut);padding:22px 0;text-align:center}
 .sv1-co-fine{font-size:11.5px;color:var(--mut);line-height:1.75;margin:10px 0 0}
@@ -418,6 +432,25 @@ var h0=hint();if(h0)S.paint(true,h0);
           </div>
 
           <div id="coPaneCard" class="sv1-co-pane">
+            <div class="sv1-co-wallets" id="coWallets" role="group" aria-label="Digital wallets">
+              <p class="sv1-co-grp">Digital wallets</p>
+              <ul>
+                <li id="coW-apple" data-st="chk">
+                  <span class="nm"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H18a2 2 0 0 1 2 2v1"/><path d="M3 7.5V17a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H5.5A2.5 2.5 0 0 1 3 6.5"/><circle cx="16.5" cy="14" r="1.1" fill="currentColor"/></svg><b dir="ltr">Apple Pay</b></span>
+                  <span class="pill" id="coW-apple-pill">Checking…</span>
+                  <small id="coW-apple-why"></small>
+                </li>
+                <li id="coW-samsung" data-st="chk">
+                  <span class="nm"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H18a2 2 0 0 1 2 2v1"/><path d="M3 7.5V17a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H5.5A2.5 2.5 0 0 1 3 6.5"/><circle cx="16.5" cy="14" r="1.1" fill="currentColor"/></svg><b dir="ltr">Samsung Pay</b></span>
+                  <span class="pill" id="coW-samsung-pill">Checking…</span>
+                  <small id="coW-samsung-why"></small>
+                </li>
+                <li id="coW-google" data-st="chk">
+                  <span class="nm"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H18a2 2 0 0 1 2 2v1"/><path d="M3 7.5V17a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H5.5A2.5 2.5 0 0 1 3 6.5"/><circle cx="16.5" cy="14" r="1.1" fill="currentColor"/></svg><b dir="ltr">Google Pay</b></span>
+                  <span class="pill" id="coW-google-pill">Checking…</span>
+                  <small id="coW-google-why"></small>
+                </li></ul>
+            </div>
             <div id="coPayMount" class="sv1-co-mount"><div class="sv1-co-wait">Preparing the payment form…</div></div>
             <p class="sv1-co-fine">Payment runs on the licensed gateway — card details never touch our servers.</p>
           </div>
@@ -613,7 +646,7 @@ window.SV1Login={otp:otp,methods:methods,mountGoogle:mountGoogle,inApp:INAPP,or:
 })();
 (function(){
 var LANG="en",HOME="/";
-var TX={"empty":"Your cart is empty.","browse":"Browse services","needFill":"Fill in name, mobile and e-mail first.","payDown":"The payment form could not load. Try Tamara, retry in a moment, or message us on WhatsApp.","loading":"Preparing the payment form…","quoted":"Quoted on review","signIn":"Sign in to see the price and pay.","signInBtn":"Sign in","noAmount":"Some cart items are quoted on review and cannot be paid here. Remove them from the cart to pay for the rest, or request a quotation from the service page.","card":"Card","payBtn":"Complete payment","payWait":"Confirming your payment…","paidOk":"Payment received — your order is recorded and your tax invoice reaches your e-mail within minutes.","paidInv":"Invoice no.:","paidFail":"The payment did not go through and nothing was charged — retry by card or try Tamara.","paidHold":"Your payment went through but could not be confirmed automatically; our team has been alerted. Do not pay again — your invoice follows shortly.","bnplFail":"The instalment payment was not completed — retry, or pay by card.","toMy":"Open my orders","mockTag":"Local gateway — no card, no charge","needCo":"Enter the company name — the subscription is opened in its name.","empFail":"We could not prepare your subscription and nothing was charged — retry shortly or contact us.","empDone":"Payment received and your recruitment-platform subscription is active. Sign in to the employer portal with the e-mail you paid with.","empHold":"Your payment went through and the subscription is being activated — our team has been alerted. Do not pay again.","toEmployer":"Open the employer portal","tamaraYr":"Tamara is available for the yearly plan only.","empSignIn":"Sign in with the e-mail the subscription will be opened for, then pay.","empMail":"The e-mail must match the account you are signed in with — the subscription opens for that account.","onePlan":"One subscription per order — keep a single plan in the cart.","toCart":"Back to the cart","onceHd":"One-time","recHd":"Subscriptions","billM":"Monthly","billY":"Yearly","recNote":"A subscription's amount is one period's instalment (a month or a year) — that is what is paid now.","tamaraSub":"Tamara is not available for monthly subscriptions — pay by card.","lblOrder":"Order no.","lblPay":"Payment ref.","lblAmt":"Amount paid (incl. VAT)","lblInv":"Invoice no.","okDone":"Payment received and your order is confirmed.","nextInv":"Next: an order confirmation and your tax invoice reach your e-mail, then the team starts work.","nextNoInv":"Next: an order confirmation reaches your e-mail. The team is preparing your tax invoice and sends it to the same address.","reviewT":"We received your payment and will confirm activation during working hours.","reviewN":"We could not match the amount to the published prices automatically, so the team reviews it before activation. A confirmation reaches your e-mail — do not pay again.","signInGo":"Sign in","lblReq":"Your request no.","openReq":"Open your request","nextReqDocs":"Next: open your request and upload the required documents so the team can start; you follow every stage from there.","nextReq":"Next: follow your request from your dashboard; we tell you when work starts.","invSent":"Your tax invoice reaches your e-mail.","invSoon":"The team prepares your tax invoice and sends it to the same e-mail."};
+var TX={"empty":"Your cart is empty.","browse":"Browse services","needFill":"Fill in name, mobile and e-mail first.","payDown":"The payment form could not load. Try Tamara, retry in a moment, or message us on WhatsApp.","loading":"Preparing the payment form…","quoted":"Quoted on review","signIn":"Sign in to see the price and pay.","signInBtn":"Sign in","noAmount":"Some cart items are quoted on review and cannot be paid here. Remove them from the cart to pay for the rest, or request a quotation from the service page.","card":"Card","payBtn":"Complete payment","payWait":"Confirming your payment…","paidOk":"Payment received — your order is recorded and your tax invoice reaches your e-mail within minutes.","paidInv":"Invoice no.:","paidFail":"The payment did not go through and nothing was charged — retry by card or try Tamara.","paidHold":"Your payment went through but could not be confirmed automatically; our team has been alerted. Do not pay again — your invoice follows shortly.","bnplFail":"The instalment payment was not completed — retry, or pay by card.","toMy":"Open my orders","mockTag":"Local gateway — no card, no charge","needCo":"Enter the company name — the subscription is opened in its name.","empFail":"We could not prepare your subscription and nothing was charged — retry shortly or contact us.","empDone":"Payment received and your recruitment-platform subscription is active. Sign in to the employer portal with the e-mail you paid with.","empHold":"Your payment went through and the subscription is being activated — our team has been alerted. Do not pay again.","toEmployer":"Open the employer portal","tamaraYr":"Tamara is available for the yearly plan only.","empSignIn":"Sign in with the e-mail the subscription will be opened for, then pay.","empMail":"The e-mail must match the account you are signed in with — the subscription opens for that account.","onePlan":"One subscription per order — keep a single plan in the cart.","toCart":"Back to the cart","onceHd":"One-time","recHd":"Subscriptions","billM":"Monthly","billY":"Yearly","recNote":"A subscription's amount is one period's instalment (a month or a year) — that is what is paid now.","tamaraSub":"Tamara is not available for monthly subscriptions — pay by card.","lblOrder":"Order no.","lblPay":"Payment ref.","lblAmt":"Amount paid (incl. VAT)","lblInv":"Invoice no.","okDone":"Payment received and your order is confirmed.","nextInv":"Next: an order confirmation and your tax invoice reach your e-mail, then the team starts work.","nextNoInv":"Next: an order confirmation reaches your e-mail. The team is preparing your tax invoice and sends it to the same address.","reviewT":"We received your payment and will confirm activation during working hours.","reviewN":"We could not match the amount to the published prices automatically, so the team reviews it before activation. A confirmation reaches your e-mail — do not pay again.","signInGo":"Sign in","lblReq":"Your request no.","openReq":"Open your request","nextReqDocs":"Next: open your request and upload the required documents so the team can start; you follow every stage from there.","nextReq":"Next: follow your request from your dashboard; we tell you when work starts.","invSent":"Your tax invoice reaches your e-mail.","invSoon":"The team prepares your tax invoice and sends it to the same e-mail.","wChk":"Checking…","wReady":"Ready","wDev":"On supported devices","wSoon":"Coming soon","wReadyWhy":"Use its button in the payment form below.","wSoonWhy":"We switch it on as soon as it is set up with the payment gateway.","wApple":"Its button appears automatically on supported devices (Safari on Apple).","wSamsung":"Its button appears automatically on supported devices (Samsung phones).","wGoogle":"Its button appears automatically on supported devices (Chrome on Android)."};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
 var REC={"bp-hr-03":"monthly","bp-ai-02":"monthly","bp-sub-01":"monthly","bp-vendor-02":"monthly","bp-ai-03":"monthly","bp-ai-smart-employee":"monthly","bp-ai-04":"monthly","bp-ajeer-10":"monthly","starter-4":"monthly","bp-pkg-svc-starter":"monthly","silver":"monthly","bp-pkg-launch":"monthly","gold":"monthly","bp-pkg-growth":"monthly","platinum":"monthly","bp-pkg-scale":"monthly","basic-legal":"monthly","bp-pkg-legal-basic":"monthly","advanced":"monthly","bp-pkg-legal-adv":"monthly","comprehensive":"monthly","bp-pkg-legal-comp":"monthly","strategic":"monthly","bp-pkg-legal-strat":"monthly"};
 var $=function(id){return document.getElementById(id)};
@@ -855,11 +888,27 @@ $('coTamaraGo').onclick=function(){
 
 // ---- البطاقة والمحافظ (مُيسّر) — نفس نداء التركيب في الموقع القديم
 var mount=$('coPayMount');
-function payFailed(){mount.innerHTML='';var p=document.createElement('p');p.className='sv1-co-fine';p.style.color='#b42318';p.textContent=TX.payDown;mount.appendChild(p)}
+// ---- صفّ المحافظ: حالة صادقة لكلٍّ، من الإعداد + جاهزية هذا الجهاز (لا من الوعود).
+//   ready = مفعّلة عندنا والجهاز جاهز (زرّها الحقيقي في نموذج مُيسّر تحته)
+//   dev   = مفعّلة عندنا لكن هذا الجهاز لا يدعمها — يظهر زرّها وحده على الجهاز المدعوم
+//   soon  = غير مفعّلة بعد في بوابة الدفع (الإعداد يعيدها null)
+// عناصر القائمة ليست أزراراً: لا شيء يُنقر، فلا زرّ ميّت يوهم بالدفع.
+function setWallet(k,st){
+ var li=$('coW-'+k);if(!li)return;li.setAttribute('data-st',st);
+ var why={apple:TX.wApple,samsung:TX.wSamsung,google:TX.wGoogle};
+ $('coW-'+k+'-pill').textContent=st==='ready'?TX.wReady:st==='dev'?TX.wDev:st==='soon'?TX.wSoon:TX.wChk;
+ $('coW-'+k+'-why').textContent=st==='ready'?TX.wReadyWhy:st==='dev'?why[k]:st==='soon'?TX.wSoonWhy:''}
+function settleWallets(cfg,canAP,spOk,gpOk){
+ setWallet('apple',cfg&&cfg.applePay?(canAP?'ready':'dev'):'soon');
+ setWallet('samsung',cfg&&cfg.samsungPay&&cfg.samsungPay.service_id?(spOk?'ready':'dev'):'soon');
+ setWallet('google',cfg&&cfg.googlePay&&cfg.googlePay.merchant_id?(gpOk?'ready':'dev'):'soon')}
+// لا نموذج دفع على الشاشة (سلة فارغة · دخول مطلوب · عطل البوابة): لا صفّ يوحي بمحافظ جاهزة.
+function hideWallets(){var w=$('coWallets');if(w)w.classList.add('sv1-hide')}
+function payFailed(){hideWallets();mount.innerHTML='';var p=document.createElement('p');p.className='sv1-co-fine';p.style.color='#b42318';p.textContent=TX.payDown;mount.appendChild(p)}
 // مُيسّر يرفض مبلغ الصفر برسالة إنجليزية عامة «Form configuration issue»؛
 // لا نصل إليها أصلاً: نقول للمشتري لماذا لا يوجد مبلغ وماذا يفعل.
 function payBlocked(msg,href,label){
- mount.innerHTML='';
+ hideWallets();mount.innerHTML='';
  var p=document.createElement('p');p.className='sv1-co-fine';p.textContent=msg;mount.appendChild(p);
  if(href){var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=href;a.textContent=label;a.style.marginTop='10px';mount.appendChild(a)}
  var tg=$('coTamaraGo');if(tg)tg.disabled=true}
@@ -872,7 +921,7 @@ function guestGoogle(){var L=window.SV1Login;if(!L)return;var a=mount.querySelec
  L.mountGoogle(s,{onSuccess:function(){try{localStorage.setItem('bp_session','1')}catch(x){}location.reload()},
   onError:function(m){var p=document.createElement('p');p.className='sv1-co-fine';p.style.color='#b42318';p.textContent=m;mount.insertBefore(p,or)},
   onHide:function(){or.style.display='none'}})}
-if(!cart.length){mount.innerHTML='';}
+if(!cart.length){hideWallets();mount.innerHTML='';}
 else if(empLines.length>1){payBlocked(TX.onePlan,HOME+'cart',TX.toCart);}
 else if(unpriced){payBlocked(TX.noAmount,HOME+'cart',TX.toCart);}
 // الدخول يرجع إلى هذه الصفحة (next) لا إلى لوحة العميل، فتبقى السلة أمامه.
@@ -882,6 +931,7 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
  PAYCFG=cfg||null;
  if(cfg&&cfg.bnpl&&cfg.bnpl.tamara===false){var tb=$('coWayTamara');if(tb)tb.disabled=true}
  if(cfg&&cfg.enabled&&cfg.mock&&cfg.formUrl){
+  settleWallets(cfg,false,false,false);
   mount.innerHTML='';
   var tg=document.createElement('span');tg.className='sv1-co-mock';tg.textContent=TX.mockTag;mount.appendChild(tg);
   var bt=document.createElement('button');bt.type='button';bt.className='sv1-btn primary';bt.style.width='100%';bt.id='coMockPay';bt.textContent=TX.payBtn;
@@ -931,14 +981,17 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
    if(gp)wanted.push('googlepay');
    if(!wanted.length)wanted=['creditcard'];
    // عنوان الطريقة يسمّي ما سيظهر فعلاً على هذا الجهاز، لا ما هو مكتوب في الإعداد.
+   settleWallets(cfg,canAP,spOk,gpOk);
    var names=[];if(ap)names.push('Apple Pay');if(gp)names.push('Google Pay');if(sp)names.push('Samsung Pay');
    var lb=$('coWayCardLabel');if(lb)lb.textContent=TX.card+(names.length?' · '+names.join(' · '):'');
    try{boot(wanted,ap,sp,gp)}
-   catch(e){try{boot(['creditcard'],null,null,null)}catch(e2){payFailed()}}}
+   catch(e){settleWallets(null,false,false,false);try{boot(['creditcard'],null,null,null)}catch(e2){payFailed()}}}
   function boot(methods,applePay,samsungPay,googlePay){
    mount.innerHTML='<div id="epay-form"></div>';
    var m=meta();
-   var opt={element:'#epay-form',amount:Math.round(total*100),currency:cfg.currency||'SAR',
+   // نموذج مُيسّر يقرأ لغته من <html lang> إن لم تُمرَّر، ولا يعرف إلا العربية والإنجليزية:
+   // على /fr و/zh كان يرسم «Something went wrong» بدل البطاقة (لا يلتقطه فحص الصندوق الفارغ).
+   var opt={element:'#epay-form',language:LANG==='ar'?'ar':'en',amount:Math.round(total*100),currency:cfg.currency||'SAR',
     description:'Business Partner order '+m.ref,publishable_api_key:cfg.publishableKey,
     callback_url:location.origin+location.pathname,metadata:m,
     on_initiating:async function(){
