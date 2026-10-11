@@ -38,7 +38,7 @@ const TEST_LOGIN_CODE = String(process.env.SIMPLE_TEST_OTP || "123456").padStart
 // a user_sessions row and sets an httpOnly cookie. Without them, verify
 // degrades to the legacy stateless behavior (db:false in the response).
 // Shared DB helpers live in api/_db.js (not a deployed function).
-import { SUPABASE_URL, SUPABASE_KEY, DB_ON, sb, sha256, readCookie, getSession as dbGetSession, SESSION_COOKIE as COOKIE } from "./_db.js";
+import { DB_ON, DB_DRIVER, dbProbe, sb, sha256, readCookie, getSession as dbGetSession, SESSION_COOKIE as COOKIE } from "./_db.js";
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 // The session must be the same on businesspartner.sa and www.businesspartner.sa:
 // a host-only cookie left a client signed in on one and locked out on the
@@ -194,35 +194,12 @@ export default async function handler(req, res) {
     // dbError carries a safe hint (HTTP status + error code only, no secrets)
     // so setup mistakes (wrong URL / wrong key / missing schema) are
     // diagnosable remotely.
+    // The probe lives in api/_db.js so it follows whichever driver is active
+    // (Supabase today, Azure PostgreSQL behind DB_DRIVER=azure).
     let dbReachable = null, dbError = null, usersCount = null;
     if (DB_ON) {
-      try {
-        const r = await fetch(`${SUPABASE_URL}/rest/v1/user_sessions?select=id&limit=1`, {
-          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
-        });
-        if (r.ok) {
-          dbReachable = true;
-          // Non-sensitive aggregate so first-login writes are verifiable
-          // remotely (a count, never row data).
-          try {
-            const c = await fetch(`${SUPABASE_URL}/rest/v1/users?select=id`, {
-              headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, Prefer: "count=exact", Range: "0-0" },
-            });
-            const cr = c.headers.get("content-range") || "";
-            const total = parseInt(cr.split("/")[1], 10);
-            if (!Number.isNaN(total)) usersCount = total;
-          } catch {}
-        }
-        else {
-          dbReachable = false;
-          const t = await r.text();
-          let code = ""; try { code = (JSON.parse(t).code || JSON.parse(t).message || "").slice(0, 60); } catch { code = t.slice(0, 60); }
-          dbError = `http_${r.status}${code ? ":" + code : ""}`;
-        }
-      } catch (e) {
-        dbReachable = false;
-        dbError = "fetch_failed:" + String(e && e.cause && e.cause.code || e.message || e).slice(0, 60);
-      }
+      const p = await dbProbe();
+      dbReachable = p.reachable; dbError = p.error; usersCount = p.users;
     }
     return res.end(JSON.stringify({
       status: "ok",
@@ -231,6 +208,7 @@ export default async function handler(req, res) {
       smsConfigured: false,
       devEcho: DEV_ECHO,
       dbConfigured: DB_ON,
+      dbDriver: DB_DRIVER,
       dbReachable,
       dbError,
       usersCount,

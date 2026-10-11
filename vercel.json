@@ -1,9 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "echo \"no dependencies\"",
+  "installCommand": "npm install --omit=dev --no-audit --no-fund",
   "buildCommand": "npm run build",
-  "ignoreCommand": "if [ \"$VERCEL_ENV\" = \"production\" ]; then exit 1; fi; case \"$VERCEL_GIT_COMMIT_REF\" in master|main|staging) exit 1;; esac; git log -1 --pretty=%B | grep -qF 'deploy-preview-please' && exit 1; exit 0",
+  "ignoreCommand": "case \"$VERCEL_GIT_COMMIT_REF\" in master|main|staging) exit 1;; esac; git log -1 --pretty=%B | grep -qF 'deploy-preview-please' && exit 1; exit 0",
   "outputDirectory": "site",
   "cleanUrls": true,
   "trailingSlash": false,
@@ -11,7 +11,7 @@
     "api/candidate.js": {
       "maxDuration": 60
     },
-    "api/chat-safe.js": {
+    "api/chat.js": {
       "maxDuration": 60
     },
     "api/requests.js": {
@@ -22,6 +22,26 @@
     }
   },
   "redirects": [
+    {
+      "source": "/hr/employer",
+      "destination": "/employer",
+      "permanent": false
+    },
+    {
+      "source": "/hr/employer/:path*",
+      "destination": "/employer",
+      "permanent": false
+    },
+    {
+      "source": "/:lang(ar|fr|zh)/hr/employer",
+      "destination": "/:lang/employer",
+      "permanent": false
+    },
+    {
+      "source": "/:lang(ar|fr|zh)/hr/employer/:path*",
+      "destination": "/:lang/employer",
+      "permanent": false
+    },
     {
       "source": "/revenue-os",
       "destination": "/business-development",
@@ -148,6 +168,16 @@
       "permanent": false
     },
     {
+      "source": "/client-portal",
+      "destination": "/account",
+      "permanent": false
+    },
+    {
+      "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/client-portal",
+      "destination": "/:lang/account",
+      "permanent": false
+    },
+    {
       "source": "/ar/monitor",
       "destination": "/monitor",
       "permanent": false
@@ -165,12 +195,12 @@
   ],
   "rewrites": [
     {
-      "source": "/api/chat",
-      "destination": "/api/chat-safe"
-    },
-    {
       "source": "/quotes/d/:token",
       "destination": "/api/requests?__route=legacy-doc&t=:token"
+    },
+    {
+      "source": "/offer/:token",
+      "destination": "/api/requests?__route=offer&t=:token"
     },
     {
       "source": "/quotes",
@@ -179,10 +209,6 @@
     {
       "source": "/quotes/:path*",
       "destination": "https://bp-quotes-three.vercel.app/quotes/:path*"
-    },
-    {
-      "source": "/offer/:token",
-      "destination": "/api/requests?__route=offer&t=:token"
     },
     {
       "source": "/api/live-catalog",
@@ -221,19 +247,15 @@
       "destination": "/api/requests?__route=simple"
     },
     {
+      "source": "/api/spaces",
+      "destination": "/api/requests?__route=spaces"
+    },
+    {
       "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/business-development-dashboard",
       "destination": "/assets/data/revenue-command-center"
     },
     {
       "source": "/business-development-dashboard",
-      "destination": "/assets/data/revenue-command-center"
-    },
-    {
-      "source": "/:lang(ar|es|fr|hi|ja|ko|ru|zh)/client-portal",
-      "destination": "/assets/data/revenue-command-center"
-    },
-    {
-      "source": "/client-portal",
       "destination": "/assets/data/revenue-command-center"
     },
     {

@@ -1,0 +1,103 @@
+{
+  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "siteUrl": {
+      "type": "string",
+      "defaultValue": "https://businesspartner.sa"
+    },
+    "hookKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "DOC_AGENT_HOOK_KEY — نفس قيمته في Vercel"
+      }
+    },
+    "verifyToken": {
+      "type": "securestring",
+      "metadata": {
+        "description": "رمز تحقّق ويبهوك واتساب"
+      }
+    }
+  },
+  "triggers": {
+    "whatsapp_webhook": {
+      "type": "Request",
+      "kind": "Http",
+      "inputs": {
+        "method": "POST",
+        "schema": {
+          "type": "object"
+        }
+      }
+    }
+  },
+  "actions": {
+    "has_message": {
+      "type": "If",
+      "expression": {
+        "and": [
+          {
+            "not": {
+              "equals": [
+                "@string(coalesce(triggerBody()?['entry']?[0]?['changes']?[0]?['value']?['messages'], ''))",
+                ""
+              ]
+            }
+          }
+        ]
+      },
+      "actions": {
+        "call_doc_agent": {
+          "type": "Http",
+          "inputs": {
+            "method": "POST",
+            "uri": "@{parameters('siteUrl')}/api/requests?__route=doc-agent",
+            "headers": {
+              "content-type": "application/json",
+              "x-doc-agent-key": "@parameters('hookKey')"
+            },
+            "body": {
+              "action": "whatsapp",
+              "from": "@{triggerBody()?['entry']?[0]?['changes']?[0]?['value']?['messages']?[0]?['from']}",
+              "message": "@{triggerBody()?['entry']?[0]?['changes']?[0]?['value']?['messages']?[0]?['text']?['body']}",
+              "media_id": "@{triggerBody()?['entry']?[0]?['changes']?[0]?['value']?['messages']?[0]?['document']?['id']}",
+              "locale": "ar"
+            },
+            "retryPolicy": {
+              "type": "exponential",
+              "count": 3,
+              "interval": "PT5S"
+            }
+          }
+        },
+        "ack": {
+          "type": "Response",
+          "runAfter": {
+            "call_doc_agent": [
+              "Succeeded",
+              "Failed",
+              "TimedOut",
+              "Skipped"
+            ]
+          },
+          "inputs": {
+            "statusCode": 200,
+            "body": "EVENT_RECEIVED"
+          }
+        }
+      },
+      "else": {
+        "actions": {
+          "ack_noop": {
+            "type": "Response",
+            "inputs": {
+              "statusCode": 200,
+              "body": "EVENT_RECEIVED"
+            }
+          }
+        }
+      }
+    }
+  },
+  "outputs": {}
+}

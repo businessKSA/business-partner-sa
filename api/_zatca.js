@@ -8,6 +8,8 @@
 //
 // Underscore-prefixed: a shared module, not a 13th serverless function.
 
+import { LEGAL_NAME, VAT_NUMBER, UNIFIED_NUMBER } from "./_identity.js";
+
 // Tag-Length-Value, where the length is the byte length of the UTF-8 value —
 // not its character count. Arabic seller names make that distinction load
 // bearing: "شركة" is 4 characters and 8 bytes.
@@ -51,10 +53,17 @@ export function vatNumberLooksValid(v) {
 
 // Who the invoice is from. Read from configuration rather than hardcoded: the
 // VAT number belongs to the business, not to this repository.
+// The registered identity, read from site/data/site.json → legal, the same
+// block the public footer prints. Environment variables still win where they
+// are set, so a deployment can override without a commit.
+//
+// One source for both, deliberately: a VAT number that appears on the invoice
+// and a different one in the footer is the kind of contradiction a customer
+// notices exactly once, and never asks about — they just leave.
 export function sellerProfile() {
-  const name = (process.env.COMPANY_LEGAL_NAME || "شركة بيزنس بارتنر").trim();
-  const vat = (process.env.COMPANY_VAT_NUMBER || "").replace(/\D/g, "");
-  const cr = (process.env.COMPANY_CR_NUMBER || "").replace(/\D/g, "");
+  const name = LEGAL_NAME.trim();
+  const vat = VAT_NUMBER;
+  const cr = (process.env.COMPANY_CR_NUMBER || UNIFIED_NUMBER).replace(/\D/g, "");
   return {
     name, vatNumber: vat, crNumber: cr,
     vatValid: vatNumberLooksValid(vat),

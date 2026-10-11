@@ -110,7 +110,7 @@
           "ar": "منصّة العملاء"
         },
         {
-          "href": "/business-development-dashboard",
+          "href": "/account?redirect=revenue",
           "en": "BD as a Service dashboard",
           "ar": "لوحة تطوير الأعمال كخدمة"
         },
@@ -210,6 +210,11 @@
           "href": "/guide/run-your-business",
           "en": "Run Your Business",
           "ar": "تشغيل عملك"
+        },
+        {
+          "href": "/guide/company-structure",
+          "en": "Structure & Salaries",
+          "ar": "الهيكلة والرواتب"
         },
         {
           "href": "/guide/live-in-saudi",

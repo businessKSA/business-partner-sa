@@ -30,7 +30,32 @@ const P = {
   open: { ar: "فتح", en: "Open", fr: "Ouvrir", zh: "打开" },
   back: { ar: "رجوع", en: "Back", fr: "Retour", zh: "返回" },
   conversation: { ar: "المحادثة", en: "Conversation", fr: "Conversation", zh: "对话" },
-  scope: { ar: "النطاق", en: "Scope", fr: "Périmètre", zh: "服务范围" },
+  // One name for one thing: the homepage, the portal and the operations board
+  // all say «نطاق الخدمات» / "Scope of Work". The portal was still saying
+  // «النطاق» after the rename, so a customer met two names for the same list.
+  scope: { ar: "نطاق الخدمات", en: "Scope of Work", fr: "Périmètre des services", zh: "服务范围" },
+  cancelTitle:{ ar: "إلغاء الطلب", en: "Cancel this request", fr: "Annuler la demande", zh: "取消此请求" },
+  cancelAsk:  { ar: "اطلب الإلغاء", en: "Request cancellation", fr: "Demander l'annulation", zh: "申请取消" },
+  cancelWhy:  { ar: "سبب الإلغاء (اختياري)", en: "Reason (optional)", fr: "Motif (facultatif)", zh: "原因（可选）" },
+  cancelEarly:{ ar: "الطلب لم يصل مرحلةً يترتّب عليها التزام — الإلغاء يتم فوراً.",
+                en: "Nothing is committed yet — cancelling takes effect immediately.",
+                fr: "Rien n'est encore engage — l'annulation prend effet immediatement.",
+                zh: "尚无任何约束 — 取消将立即生效。" },
+  cancelLate: { ar: "الطلب وصل مرحلةً يترتّب عليها التزامات (عقد أو دفعة أو تنفيذ). نستلم طلب الإلغاء ويراجعه الفريق ويعود لك.",
+                en: "This request has reached a stage with commitments (contract, payment or execution). We take your request and the team reviews it and gets back to you.",
+                fr: "Cette demande comporte des engagements (contrat, paiement ou execution). Nous enregistrons votre demande et l'equipe revient vers vous.",
+                zh: "此请求已进入有约束的阶段（合同、付款或执行）。我们会受理并由团队审核后回复您。" },
+  cancelSent: { ar: "استلمنا طلب الإلغاء ويراجعه الفريق.", en: "Cancellation request received and under review.",
+                fr: "Demande d'annulation recue et en cours d'examen.", zh: "已收到取消申请，正在审核。" },
+  cancelDone: { ar: "أُلغي الطلب", en: "Request cancelled", fr: "Demande annulee", zh: "请求已取消" },
+  resign: { ar: "صدرت نسخة مصحَّحة من هذا العقد بعد توقيعك — سنرسلها لك للتوقيع من جديد.",
+            en: "A corrected version of this contract was issued after your signature — we will send it to you to sign again.",
+            fr: "Une version corrigee de ce contrat a ete emise apres votre signature — nous vous l'enverrons a signer de nouveau.",
+            zh: "本合同在您签署后已出具更正版本 — 我们会再次发送给您签署。" },
+  openFull: { ar: "افتح بالحجم الكامل", en: "Open full size", fr: "Ouvrir en grand", zh: "全屏打开" },
+  docPrint: { ar: "طباعة / حفظ PDF", en: "Print / Save PDF", fr: "Imprimer / PDF", zh: "打印 / 保存 PDF" },
+  docClose: { ar: "إغلاق", en: "Close", fr: "Fermer", zh: "关闭" },
+  docWait:  { ar: "نجهّز المستند…", en: "Preparing the document…", fr: "Préparation du document…", zh: "正在准备文件…" },
   attachments: { ar: "المرفقات", en: "Attachments", fr: "Pièces jointes", zh: "附件" },
   quote: { ar: "عرض السعر", en: "Quotation", fr: "Devis", zh: "报价" },
   contract: { ar: "العقد", en: "Contract", fr: "Contrat", zh: "合同" },
@@ -123,6 +148,70 @@ const P = {
   requestCreated: { ar: "تم إنشاء الطلب", en: "Request created", fr: "Demande créée", zh: "申请已创建" },
   testRibbon: { ar: "وضع الاختبار — لا مدفوعات حقيقية", en: "TEST MODE — no real payments", fr: "MODE TEST — aucun paiement réel", zh: "测试模式 — 无真实付款" },
   sourceLbl: { ar: "المصدر", en: "Source", fr: "Source", zh: "来源" },
+  // ---- خزانة المستندات (/my) — نفس خزانة الحساب: جدول documents نفسه،
+  // فالمستند المرفوع من هنا يظهر هناك والعكس. لا خزانة ثانية.
+  navDocs: { ar: "مستنداتي", en: "My documents", fr: "Mes documents", zh: "我的文件" },
+  vaultNote: { ar: "ارفع مستندك مرّة واحدة — نستعمله في كل طلب، ولا يراه أحد خارج حسابك.",
+               en: "Upload a document once — we use it across your requests, and nobody outside your account sees it.",
+               fr: "Téléversez un document une fois — nous l'utilisons pour toutes vos demandes, et personne d'autre ne le voit.",
+               zh: "文件只需上传一次 — 我们会在您的各项申请中使用，账户之外无人可见。" },
+  dzPick: { ar: "اسحب الملف هنا أو اضغط للاختيار", en: "Drop a file here, or click to choose",
+            fr: "Déposez un fichier ici, ou cliquez pour choisir", zh: "将文件拖到此处，或点击选择" },
+  dzHint: { ar: "PDF أو صورة (JPG · PNG · WEBP) — حتى ٨ ميجابايت",
+            en: "PDF or image (JPG · PNG · WEBP) — up to 8 MB",
+            fr: "PDF ou image (JPG · PNG · WEBP) — jusqu'à 8 Mo",
+            zh: "PDF 或图片（JPG · PNG · WEBP）— 最大 8 MB" },
+  dName: { ar: "اسم المستند", en: "Document name", fr: "Nom du document", zh: "文件名称" },
+  dCat: { ar: "نوعه", en: "Type", fr: "Type", zh: "类型" },
+  dExp: { ar: "تاريخ الانتهاء (اختياري)", en: "Expiry date (optional)", fr: "Date d'expiration (facultatif)", zh: "到期日（可选）" },
+  dSend: { ar: "ارفع المستند", en: "Upload document", fr: "Téléverser", zh: "上传文件" },
+  dOther: { ar: "اختر ملفاً آخر", en: "Choose another file", fr: "Choisir un autre fichier", zh: "选择其他文件" },
+  dUploading: { ar: "جارٍ الرفع", en: "Uploading", fr: "Téléversement", zh: "正在上传" },
+  dDone: { ar: "تم رفع المستند ✓", en: "Document uploaded ✓", fr: "Document téléversé ✓", zh: "文件已上传 ✓" },
+  dNewVerDone: { ar: "رُفعت نسخة جديدة ✓", en: "New version uploaded ✓", fr: "Nouvelle version téléversée ✓", zh: "已上传新版本 ✓" },
+  eBig: { ar: "الملف أكبر من ٨ ميجابايت", en: "The file is larger than 8 MB",
+          fr: "Le fichier dépasse 8 Mo", zh: "文件超过 8 MB" },
+  eType: { ar: "هذه الصيغة غير مقبولة. المقبول: PDF · JPG · PNG · WEBP.",
+           en: "This format is not accepted. Accepted: PDF · JPG · PNG · WEBP.",
+           fr: "Format non accepté. Acceptés : PDF · JPG · PNG · WEBP.",
+           zh: "不接受此格式。可用格式：PDF · JPG · PNG · WEBP。" },
+  eEmpty: { ar: "الملف فارغ.", en: "The file is empty.", fr: "Le fichier est vide.", zh: "文件为空。" },
+  eName: { ar: "اكتب اسم المستند أولاً.", en: "Enter a document name first.",
+           fr: "Saisissez d'abord un nom de document.", zh: "请先填写文件名称。" },
+  eNet: { ar: "تعذّر الوصول إلى الخادم — تحقّق من اتصالك وأعد المحاولة.",
+          en: "Could not reach the server — check your connection and try again.",
+          fr: "Serveur injoignable — vérifiez votre connexion et réessayez.",
+          zh: "无法连接服务器 — 请检查网络后重试。" },
+  eUp: { ar: "تعذّر رفع الملف", en: "The file could not be uploaded",
+         fr: "Le fichier n'a pas pu être téléversé", zh: "文件上传失败" },
+  eRead: { ar: "تعذّرت قراءة الملف من جهازك.", en: "The file could not be read from your device.",
+           fr: "Impossible de lire le fichier depuis votre appareil.", zh: "无法从您的设备读取该文件。" },
+  eNoOrg: { ar: "أضف اسم شركتك في «بيانات الشركة» أولاً — الخزانة مرتبطة بالمنشأة.",
+            en: "Add your company name under «Company details» first — the vault belongs to the company.",
+            fr: "Ajoutez d'abord le nom de votre entreprise dans « Données de l'entreprise » — le coffre appartient à l'entreprise.",
+            zh: "请先在“公司信息”中填写公司名称 — 文件保险库归属于公司。" },
+  dOpen: { ar: "فتح", en: "Open", fr: "Ouvrir", zh: "打开" },
+  dNewVer: { ar: "نسخة جديدة", en: "New version", fr: "Nouvelle version", zh: "新版本" },
+  dDel: { ar: "حذف", en: "Delete", fr: "Supprimer", zh: "删除" },
+  dDelAsk: { ar: "حذف هذا المستند نهائياً من خزانتك؟", en: "Delete this document from your vault for good?",
+             fr: "Supprimer définitivement ce document de votre coffre ?", zh: "确定要从保险库中永久删除此文件吗？" },
+  dVer: { ar: "نسخة", en: "v", fr: "v", zh: "版本" },
+  dExpires: { ar: "ينتهي", en: "Expires", fr: "Expire le", zh: "到期" },
+  dExpired: { ar: "منتهي", en: "Expired", fr: "Expiré", zh: "已过期" },
+  dLeftA: { ar: "باقي", en: "", fr: "encore", zh: "还剩" },
+  dLeftB: { ar: "يوم", en: "days left", fr: "jours", zh: "天" },
+  dPending: { ar: "قيد التحقق", en: "Pending review", fr: "En cours de vérification", zh: "待核验" },
+  dReadOk: { ar: "مقروء آلياً ✓", en: "Read automatically ✓", fr: "Lu automatiquement ✓", zh: "已自动识别 ✓" },
+  dNone: { ar: "لا مستندات بعد — ابدأ بأول مستند من الأعلى.",
+           en: "No documents yet — upload your first one above.",
+           fr: "Aucun document — téléversez le premier ci-dessus.",
+           zh: "还没有文件 — 请在上方上传第一个。" },
+  dLoading: { ar: "نحمّل خزانتك…", en: "Loading your vault…", fr: "Chargement de votre coffre…", zh: "正在加载…" },
+  dEntity: { ar: "المنشأة", en: "Entity", fr: "Entité", zh: "主体" },
+  dCr: { ar: "س.ت", en: "CR", fr: "RC", zh: "商业登记号" },
+  dVat: { ar: "الرقم الضريبي", en: "VAT", fr: "TVA", zh: "税号" },
+  dIssued: { ar: "الإصدار", en: "Issued", fr: "Émis le", zh: "签发" },
+  dRetry: { ar: "أعد المحاولة", en: "Try again", fr: "Réessayer", zh: "重试" },
 };
 const STATUS = {
   NEW: { ar: "جديد", en: "New", fr: "Nouveau", zh: "新" }, REVIEWING: { ar: "قيد المراجعة", en: "Reviewing", fr: "En cours d'examen", zh: "审核中" },
@@ -133,6 +222,13 @@ const STATUS = {
   WAITING_INTERNAL: { ar: "قيد التنفيذ", en: "In progress", fr: "En cours", zh: "执行中" }, COMPLETED: { ar: "مكتمل", en: "Completed", fr: "Terminé", zh: "已完成" }, CANCELLED: { ar: "ملغي", en: "Cancelled", fr: "Annulé", zh: "已取消" },
 };
 const EVENTS = { ar: {"request.created": "أنشأ الطلب", "request.created.manual": "أُنشئ الطلب يدوياً", "scope.proposed": "اقترح النطاق", "scope.edited": "عدّل النطاق", "scope.confirmed": "اعتمد النطاق", "quote.pending": "بانتظار عرض السعر", "message.customer": "رسالة من العميل", "message.bp": "رد الفريق", "attachment.added": "أضاف مرفقاً", "quote.drafted": "مسودة عرض سعر", "quote.sent": "أرسل عرض السعر", "quote.approved": "اعتمد العرض", "quote.rejected": "طلب تعديل العرض", "contract.sent": "أرسل العقد", "contract.signed": "وقّع العقد", "payment.paid": "تم الدفع", "payment.failed": "فشل الدفع", "payment.cancelled": "أُلغي الدفع", "payment.pending": "دفع معلّق", "invoice.issued": "صدرت الفاتورة", "appointment.booked": "حجز موعداً", "appointment.rescheduled": "أعاد جدولة الموعد", "appointment.cancelled": "ألغى الموعد", "appointment.set": "ثبّت الموعد", "task.created": "أنشأ مهمة", "task.human_required": "مهمة تحتاج تدخلاً بشرياً", "task.done": "أنجز المهمة", "task.in_progress": "بدأ المهمة", "task.waiting": "مهمة بانتظار", "task.todo": "أعاد فتح المهمة", "execution.started": "بدأ التنفيذ", "request.cancelled": "ألغى الطلب", "request.updated": "حدّث الطلب"}, en: {"request.created": "created the request", "request.created.manual": "request created manually", "scope.proposed": "proposed the scope", "scope.edited": "edited the scope", "scope.confirmed": "confirmed the scope", "quote.pending": "awaiting the quotation", "message.customer": "customer message", "message.bp": "team reply", "attachment.added": "added an attachment", "quote.drafted": "quote drafted", "quote.sent": "sent the quotation", "quote.approved": "approved the quotation", "quote.rejected": "requested changes", "contract.sent": "sent the contract", "contract.signed": "signed the contract", "payment.paid": "payment received", "payment.failed": "payment failed", "payment.cancelled": "payment cancelled", "payment.pending": "payment pending", "invoice.issued": "invoice issued", "appointment.booked": "booked an appointment", "appointment.rescheduled": "rescheduled the appointment", "appointment.cancelled": "cancelled the appointment", "appointment.set": "set the appointment", "task.created": "created a task", "task.human_required": "task needs a human", "task.done": "completed the task", "task.in_progress": "started the task", "task.waiting": "task waiting", "task.todo": "reopened the task", "execution.started": "execution started", "request.cancelled": "cancelled the request", "request.updated": "updated the request"} };
+const DOC_CATS = [
+  ["cr",       { ar: "سجل تجاري", en: "Commercial registration", fr: "Registre de commerce", zh: "商业登记" }],
+  ["vat",      { ar: "شهادة ضريبية", en: "VAT certificate", fr: "Certificat de TVA", zh: "增值税证书" }],
+  ["contract", { ar: "عقد", en: "Contract", fr: "Contrat", zh: "合同" }],
+  ["id",       { ar: "هوية / إقامة", en: "ID / Iqama", fr: "Pièce d'identité / Iqama", zh: "身份证 / 居留证" }],
+  ["other",    { ar: "أخرى", en: "Other", fr: "Autre", zh: "其他" }],
+];
 const TYPES = { CONSULTATION: { ar: "استشارة", en: "Consultation", fr: "Consultation", zh: "咨询" }, GOVERNMENT_SERVICE: { ar: "خدمة حكومية", en: "Government service", fr: "Service gouvernemental", zh: "政府服务" }, COMPANY_FORMATION: { ar: "تأسيس شركة", en: "Company formation", fr: "Création d'entreprise", zh: "公司注册" } };
 
 export function buildSimpleMy(sv1, ctx) {
@@ -140,6 +236,7 @@ export function buildSimpleMy(sv1, ctx) {
   const tx = {}; for (const k of Object.keys(P)) tx[k] = P[k][l] != null ? P[k][l] : P[k].en;
   const st = {}; for (const k of Object.keys(STATUS)) st[k] = STATUS[k][l] || STATUS[k].en;
   const ty = {}; for (const k of Object.keys(TYPES)) ty[k] = TYPES[k][l] || TYPES[k].en;
+  const cats = DOC_CATS.map(([code, n]) => [code, n[l] || n.en]);
   const home = sv1.href("/");
   const CSS = `<style>
 .my{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 68px)}
@@ -149,22 +246,22 @@ export function buildSimpleMy(sv1, ctx) {
 .my-side a .b{margin-inline-start:auto;background:#e11d48;color:#fff;font-size:.7rem;border-radius:999px;padding:2px 7px;font-weight:800}
 .my-side a.on .b{background:#fff;color:var(--n)}
 .my-side .who{padding:8px 12px 14px;border-bottom:1px solid var(--line);margin-bottom:8px}
-.my-side .who b{display:block;color:var(--n)}
+.my-side .who b{display:block;color:#fff}
 .my-side .who small{color:var(--mut)}
 .my-main{background:var(--g);padding:24px}
-.my-main h1{margin:0 0 16px;color:var(--n);font-size:1.4rem}
+.my-main h1{margin:0 0 16px;color:var(--ink);font-size:1.45rem;font-weight:300}
 .my-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:22px}
 .my-kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;cursor:pointer}
-.my-kpi b{display:block;font-size:1.7rem;color:var(--n);line-height:1.1}
+.my-kpi b{display:block;font-size:1.7rem;color:var(--ink);line-height:1.1;font-family:var(--fm);font-weight:500}
 .my-kpi span{color:var(--mut);font-size:.82rem}
 .my-kpi.hot{border-color:#f59e0b;background:#fffbeb}
 .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px}
-.card h2,.card h3{margin:0 0 10px;color:var(--n);font-size:1.05rem}
+.card h2,.card h3{margin:0 0 10px;color:var(--ink);font-size:1.05rem;font-weight:500}
 .list{display:grid;gap:10px}
 .row{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;cursor:pointer}
 .row:hover{border-color:#b7c4e8}
 .row .tt{flex:1;min-width:0}
-.row .tt b{display:block;color:var(--n);font-size:.95rem}
+.row .tt b{display:block;color:var(--ink);font-size:.95rem;font-weight:500}
 .row .tt small{color:var(--mut);font-size:.78rem}
 .pill{display:inline-block;border-radius:999px;padding:4px 10px;font-size:.74rem;font-weight:700;background:#eef2ff;color:#2b56c3;white-space:nowrap}
 .pill.warn{background:#fff3e6;color:#b45309}.pill.ok{background:#eaf7ef;color:#118657}.pill.bad{background:#fee2e2;color:#b91c1c}.pill.mut{background:#eef0f5;color:#5f6880}
@@ -176,7 +273,7 @@ export function buildSimpleMy(sv1, ctx) {
 .msgform{display:flex;gap:8px;margin-top:10px}
 .msgform input,.inp{flex:1;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;width:100%}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border-radius:10px;font-weight:700;font-size:.88rem;border:1px solid var(--n);background:var(--n);color:#fff;cursor:pointer;line-height:1.2}
-.btn.ghost{background:#fff;color:var(--n)}.btn.danger{background:#fff;color:#b91c1c;border-color:#fecaca}.btn.sm{padding:6px 10px;font-size:.8rem}.btn[disabled]{opacity:.5}
+.btn.ghost{background:#fff;color:var(--ink)}.btn.danger{background:#fff;color:#b91c1c;border-color:#fecaca}.btn.sm{padding:6px 10px;font-size:.8rem}.btn[disabled]{opacity:.5}
 .items{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .items li{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:9px 12px}
 .items li .ic{width:24px;height:24px;border-radius:7px;background:#eaf7ef;color:#118657;display:grid;place-items:center;font-weight:900;flex:none;font-size:.8rem}
@@ -193,7 +290,20 @@ table.q tfoot td{font-weight:700}
 .tl li i.ai{background:#efe7ff}.tl li i.human{background:#e6f4ea}.tl li i.customer{background:#eef2ff}.tl li i.system{background:#fff3e6}
 .stat{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:.86rem;color:var(--mut);margin-bottom:12px}
 .stat b{color:var(--ink)}
-.contract-frame{border:1px solid var(--line);border-radius:12px;background:#fff;padding:18px;max-height:420px;overflow:auto;font-size:.9rem;line-height:1.8}
+.contract-frame{display:block;width:100%;height:420px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.doc-open{display:inline-flex;align-items:center;gap:6px;margin-top:10px}
+.docovl{position:fixed;inset:0;z-index:90;background:rgba(12,18,40,.55);display:flex;flex-direction:column}
+.docovl-bar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 16px;background:var(--n2,#081345);color:#fff}
+.docovl-bar b{font-size:.95rem;font-weight:600}
+.docovl-bar .acts{display:flex;gap:8px}
+.docovl-bar button{border:1px solid rgba(255,255,255,.28);background:transparent;color:#fff;
+  border-radius:8px;padding:8px 14px;font:inherit;font-size:.82rem;cursor:pointer}
+.docovl-bar button:hover{background:rgba(255,255,255,.12)}
+.docovl-bar button.p{background:#fff;color:#0B1B5A;border-color:#fff;font-weight:600}
+.docovl iframe{flex:1;width:100%;border:0;background:#fff}
+@media print{body>*:not(.docovl){display:none!important}
+  .docovl{position:static;background:#fff} .docovl-bar{display:none}}
 canvas.sig{border:1px dashed #c7cfe2;border-radius:10px;background:#fff;width:100%;height:150px;touch-action:none}
 .note{font-size:.82rem;color:var(--mut)}
 .ok{color:#118657;font-weight:700}.err{color:#b91c1c;font-size:.84rem}
@@ -201,11 +311,36 @@ canvas.sig{border:1px dashed #c7cfe2;border-radius:10px;background:#fff;width:10
 .login .alt{margin-top:12px;display:flex;gap:14px;flex-wrap:wrap}
 .login .lnk{color:var(--navy);text-decoration:underline;cursor:pointer;font-size:13px}
 .login .gbtn{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:8px}
-.login h1{margin:0 0 6px;color:var(--n);font-size:1.3rem}
+.login h1{margin:0 0 6px;color:var(--ink);font-size:1.35rem;font-weight:400}
 .login p{color:var(--mut);margin:0 0 14px;font-size:.9rem}
 .login input{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit;margin-bottom:8px}
 .form{display:grid;gap:8px;max-width:520px}
 .form label{font-size:.82rem;color:var(--mut)}
+/* خزانة المستندات — منطقة إفلات واحدة، ثم بطاقة لكل مستند. */
+.dz{border:2px dashed #c7cfe2;border-radius:16px;background:#fff;padding:26px 18px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s}
+.dz:hover,.dz.over{border-color:var(--n);background:#f7f9ff}
+.dz:focus-visible{outline:2px solid var(--n);outline-offset:2px}
+.dz .ico{font-size:1.7rem;display:block;margin-bottom:6px;line-height:1}
+.dz b{display:block;color:var(--ink);font-weight:500;font-size:.97rem}
+.dz small{color:var(--mut);font-size:.8rem}
+.dfile{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;margin-top:12px}
+select.inp{background:#fff;color:inherit}
+.dgrid label{display:block;margin-bottom:4px}
+.dfile .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.88rem;color:var(--ink)}
+.dfile .sz{color:var(--mut);font-size:.78rem;white-space:nowrap;font-family:var(--fm)}
+.bar{height:6px;border-radius:999px;background:#eef0f5;overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;background:var(--n);width:0;transition:width .18s}
+.bar.bad i{background:#b91c1c}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.doc{border:1px solid var(--line);border-radius:14px;padding:13px 15px;background:#fff}
+.doc.soon{border-color:#f59e0b;background:#fffbeb}
+.doc.gone{border-color:#fecaca;background:#fff5f5}
+.doc .hd{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.doc .hd b{color:var(--ink);font-size:.95rem;font-weight:500}
+.doc .meta{color:var(--mut);font-size:.78rem;margin-top:5px}
+.doc .read{font-size:.78rem;color:var(--mut);margin-top:6px;line-height:1.9}
+.doc .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+@media(max-width:620px){.dgrid{grid-template-columns:1fr}}
 .mob{display:none}
 @media(max-width:900px){.my{grid-template-columns:1fr}.my-side{position:static;height:auto;display:none}.my-side.open{display:block}.mob{display:flex;gap:6px;overflow:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line)}.mob a{white-space:nowrap;padding:7px 11px;border-radius:999px;border:1px solid var(--line);font-size:.82rem;font-weight:700;color:#2c3550}.mob a.on{background:var(--n);color:#fff;border-color:var(--n)}.my-kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.my-main{padding:14px}}
 </style>`;
@@ -216,7 +351,7 @@ ${sv1.footer()}`;
   const script = `<script>
 (function(){
 var LANG=${JSON.stringify(l)},EV=${JSON.stringify(EVENTS[l === "ar" ? "ar" : "en"])},TX=${JSON.stringify(tx)},ST=${JSON.stringify(st)},TY=${JSON.stringify(ty)},HOME=${JSON.stringify(home)},CHECKOUT=${JSON.stringify(sv1.href("/checkout"))};
-var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:''};
+var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null};
 var $=function(s,r){return (r||document).querySelector(s)};
 function h(tag,attrs,kids){var e=document.createElement(tag);if(attrs)for(var k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.indexOf('on')===0)e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k])}(kids||[]).forEach(function(c){if(c==null)return;e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
 function api(action,data){return fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({action:action},data||{}))}).then(function(r){return r.json()})}
@@ -256,14 +391,14 @@ function init(){try{google.accounts.id.initialize({client_id:cid,callback:window
 if(window.google&&window.google.accounts&&window.google.accounts.id)return init();
 var sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.defer=true;sc.onload=init;sc.onerror=function(){wrap.hidden=true};document.head.appendChild(sc)}
 // ---------- shell
-var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['company',TX.navCompany,'🏢']];
-function badges(){var c=state.me.counts||{};return {quotes:c.quotes,contracts:c.contracts,pay:c.payments}}
+var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['documents',TX.navDocs,'\ud83d\udcc1'],['company',TX.navCompany,'🏢']];
+function badges(){var c=state.me.counts||{};var d=(state.docs||[]).filter(function(x){var n=daysLeft(x.expiry_date);return n!==null&&n<=30}).length;return {quotes:c.quotes,contracts:c.contracts,pay:c.payments,documents:d}}
 function render(){var me=state.me;app.innerHTML='';var bd=badges();
-var side=h('nav',{class:'my-side',id:'mySide'},[h('div',{class:'who'},[h('b',{},[me.user.name||me.user.email]),h('small',{},[(me.organization&&(me.organization.name_ar||me.organization.name_en))||me.user.email])])].concat(NAV.map(function(n){return h('a',{class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1],bd[n[0]]?h('span',{class:'b'},[String(bd[n[0]])]):null])})).concat([h('a',{href:HOME},['🌐 '+TX.site]),h('a',{onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},['↩ '+TX.logout])]));
+var side=h('nav',{class:'my-side',id:'mySide'},[h('div',{class:'who'},[h('b',{},[me.user.name||me.user.email]),h('small',{},[(me.organization&&(me.organization.name_ar||me.organization.name_en))||me.user.email])])].concat(NAV.map(function(n){return h('a',{'data-nav':n[0],class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1],bd[n[0]]?h('span',{class:'b'},[String(bd[n[0]])]):null])})).concat([h('a',{href:HOME},['🌐 '+TX.site]),h('a',{onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},['↩ '+TX.logout])]));
 var mob=h('div',{class:'mob'},NAV.map(function(n){return h('a',{class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1]])}));
 var main=h('div',{class:'my-main',id:'myMain'});
 app.appendChild(mob);var wrap=h('div',{class:'my'},[side,main]);app.appendChild(wrap);
-var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='company')viewCompany(main);else viewHome(main)}
+var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='documents')viewDocuments(main);else if(v==='company')viewCompany(main);else viewHome(main)}
 function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[r.title]),h('small',{},[r.ref+' · '+(TY[r.type]||r.type)+' · '+when(r.updated_at||r.created_at)])]),pill(r.status),h('span',{class:'btn ghost sm'},[TX.open])])}
 function viewHome(m){var c=state.me.counts||{};m.appendChild(h('h1',{},[TX.attention]));
 var k=[['active',TX.kActive,'requests'],['quotes',TX.kQuotes,'quotes'],['contracts',TX.kContracts,'contracts'],['payments',TX.kPayments,'pay'],['appointments',TX.kAppts,'appointments']];
@@ -274,6 +409,28 @@ m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.today]),h('p',{class:'note'}
 var others=state.me.requests.filter(function(r){return need.indexOf(r)<0}).slice(0,6);
 if(others.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.navRequests]),h('div',{class:'list'},others.map(reqRow))]))}
 function viewNew(m){m.appendChild(h('h1',{},[TX.navNew]));m.appendChild(h('div',{class:'card'},[h('p',{},[TX.today]),h('a',{class:'btn',href:HOME+'#chat'},[TX.navNew])]))}
+// المستند بالحجم الكامل: طبقةٌ فوق اللوحة، والمستند داخل iframe معزول فلا
+// تُصادر أنماطُه أنماطَ اللوحة ولا العكس، ويطبع وحده.
+function docOverlay(title,loader){
+ var ovl=h('div',{class:'docovl'});
+ var frame=h('iframe',{title:title,srcdoc:'<!doctype html><meta charset=utf-8><body style="font:14px system-ui;padding:24px;color:#64748b">'+TX.docWait+'</body>'});
+ function close(){document.removeEventListener('keydown',esc2);ovl.remove()}
+ function esc2(e){if(e.key==='Escape')close()}
+ var bar=h('div',{class:'docovl-bar'},[
+   h('b',{},[title]),
+   h('div',{class:'acts'},[
+     h('button',{class:'p',onclick:function(){try{frame.contentWindow.focus();frame.contentWindow.print()}catch(e){window.print()}}},[TX.docPrint]),
+     h('button',{onclick:close},[TX.docClose])])]);
+ ovl.appendChild(bar);ovl.appendChild(frame);
+ ovl.addEventListener('click',function(e){if(e.target===ovl)close()});
+ document.addEventListener('keydown',esc2);
+ document.body.appendChild(ovl);
+ loader().then(function(html){if(html)frame.srcdoc=html});
+ return ovl}
+
+function docBtn(label,title,loader){
+ return h('button',{class:'btn ghost sm doc-open',onclick:function(){docOverlay(title,loader)}},[label])}
+
 function viewList(m,title,f){m.appendChild(h('h1',{},[title]));var rows=state.me.requests.filter(f);m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);if(r.quote&&title===TX.navQuotes)row.insertBefore(h('span',{class:'pill '+(r.quote.status==='APPROVED'?'ok':'warn')},[r.quote.number+' · '+money(r.quote.total)]),row.children[1]);if(r.contract&&title===TX.navContracts)row.insertBefore(h('span',{class:'pill '+(r.contract.status==='SIGNED'?'ok':'warn')},[r.contract.number+' · '+(r.contract.status==='SIGNED'?TX.signed:TX.contract)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]))}
 function viewInvoices(m){m.appendChild(h('h1',{},[TX.navInvoices]));var rows=state.me.requests.filter(function(r){return r.invoice});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill ok'},[r.invoice.number+' · '+money(r.invoice.total)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]))}
 function viewPay(m){m.appendChild(h('h1',{},[TX.navPay]));var rows=state.me.requests.filter(function(r){return ['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill warn'},[money(r.quote?r.quote.total:0)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));m.appendChild(h('div',{class:'card'},[h('a',{class:'btn ghost',href:CHECKOUT},[TX.navPay+' →'])]))}
@@ -288,6 +445,185 @@ m.appendChild(h('div',{class:'card'},[h('div',{class:'stat'},[h('span',{},[TX.em
 var pw=h('input',{class:'inp',type:'password',autocomplete:'new-password',placeholder:TX.password}),pmsg=h('span',{class:'ok'});
 var pf=h('div',{class:'form'},[h('p',{class:'note'},[TX.pwNote]),h('label',{},[TX.password]),pw,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){pmsg.className='ok';if((pw.value||'').length<8){pmsg.className='err';pmsg.textContent=TX.pwShort;return}otp({action:'password-set',password:pw.value}).then(function(o){if(o&&o.ok){pmsg.textContent=TX.pwSaved;pw.value=''}else{pmsg.className='err';pmsg.textContent=(o&&o.message)||TX.error}})}},[TX.pwSave]),pmsg])]);
 m.appendChild(h('div',{class:'card'},[h('h3',{},[TX.pwTitle]),pf]))}
+
+// ---------- المستندات: خزانة واحدة للعميل
+// هذه هي خزانة /account نفسها — الجداول documents و document_versions
+// والمسارات my-ops الموجودة أصلاً. لا خزانة ثانية ولا دالة api جديدة: مستندٌ
+// يُرفع هنا يظهر هناك، وفي المقابل ينتقل العميل بين البوابتين بلا فقدان ورقة.
+//
+// attachment-add في /api/simple ليست المسار: عقدها الفعلي {name,url,note} —
+// بياناتٌ عن مرفق، لا بايتات ملف. راجع تقرير المهمة.
+var DOC_CATS=${JSON.stringify(cats)};
+var MAX_DOC=8*1024*1024;
+var OK_MIME={'application/pdf':'application/pdf','image/jpeg':'image/jpeg','image/jpg':'image/jpeg','image/png':'image/png','image/webp':'image/webp'};
+var OK_EXT={pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp'};
+function extOf(n){var t=String(n||'');var i=t.lastIndexOf('.');return i<0?'':t.slice(i+1).toLowerCase()}
+// النوع من ترويسة المتصفح أولاً، ومن الامتداد حين لا يعرفه المتصفح (يحدث على
+// أندرويد ومع بعض ملفات PDF) — فلا يُرفض ملفٌ سليم لأن المتصفح صمت عن نوعه.
+function mimeOf(f){return OK_MIME[String((f&&f.type)||'').toLowerCase()]||OK_EXT[extOf(f&&f.name)]||''}
+function kb(n){n=Number(n||0);return n>=1048576?((n/1048576).toFixed(1)+' MB'):(Math.max(1,Math.round(n/1024))+' KB')}
+function baseName(n){var t=String(n||'').replace(/\\.[^.]+$/,'');return t.slice(0,120)}
+function daysLeft(d){if(!d)return null;var t=Date.parse(String(d).slice(0,10)+'T00:00:00Z');if(!isFinite(t))return null;
+ var today=Date.parse(new Date().toISOString().slice(0,10)+'T00:00:00Z');return Math.round((t-today)/86400000)}
+function dayStr(n){return LANG==='en'?(n+' '+TX.dLeftB):(TX.dLeftA+' '+n+' '+TX.dLeftB)}
+// الحارس الذي يشتغل قبل أن يغادر الملف الجهاز. صار الخادم يرفض الصيغة
+// والحجم فعلاً (bad_type / too_large)، لكن الرفض هنا أرخص: لا ينتظر
+// العميل رفع ثمانية ميجابايت ليُقال له «غير مقبول». والرسالتان واحدة في
+// الموضعين — upErr يترجم ردّ الخادم إلى النصّ نفسه.
+function fileErr(f){if(!f)return TX.eType;if(!f.size)return TX.eEmpty;
+ if(!mimeOf(f))return TX.eType;if(f.size>MAX_DOC)return TX.eBig+' ('+kb(f.size)+')';return ''}
+function toB64(f){return new Promise(function(res,rej){var fr=new FileReader();
+ fr.onload=function(){var t=String(fr.result||'');var i=t.indexOf(',');i<0?rej(new Error('read')):res(t.slice(i+1))};
+ fr.onerror=function(){rej(new Error('read'))};fr.readAsDataURL(f)})}
+function opsGet(what,extra){return fetch('/api/requests?action=my-ops&what='+what+(extra||''),{credentials:'same-origin',cache:'no-store'})
+ .then(function(r){return r.json()}).catch(function(){return {ok:false,error:'network'}})}
+function opsPost(b){return fetch('/api/requests',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(b)})
+ .then(function(r){return r.json()}).catch(function(){return {ok:false,error:'network'}})}
+// ردّ الخادم رمزٌ إنجليزي، وما يقرؤه العميل جملةٌ بلغته تقول ما المشكلة وما
+// الحلّ. bad_type و too_large حالتا رفضٍ للملف نفسه: إعادة المحاولة بالملف
+// ذاته لن تنجح أبداً، فلا تُعرض بنصّ «حاول مرة أخرى» العامّ. والرمز لا يظهر
+// للعميل في أي حال — يذهب إلى الـconsole لمن يشخّص.
+function upErr(e){e=String(e||'');
+ if(e==='network')return TX.eNet;
+ if(e==='no_org')return TX.eNoOrg;
+ if(e==='bad_type')return TX.eType;
+ if(e==='too_large')return TX.eBig;
+ if(e==='invalid_fields')return TX.eName;
+ if(e&&window.console)console.warn('upload:',e);
+ return TX.eUp}
+// رفعٌ بنسبة مئوية حقيقية: XHR لأن fetch لا يُبلّغ عن تقدّم الرفع. وكل نهاية
+// لها فرع — نجاح، أو خطأ من الخادم برسالته، أو انقطاع شبكة — ولا فرع صامت.
+function sendDoc(payload,onp){return new Promise(function(res){
+ var x=new XMLHttpRequest();x.open('POST','/api/requests',true);x.withCredentials=true;
+ x.setRequestHeader('content-type','application/json');
+ if(x.upload&&onp)x.upload.onprogress=function(e){if(e.lengthComputable)onp(e.loaded/e.total)};
+ x.onload=function(){var o=null;try{o=JSON.parse(x.responseText||'null')}catch(e){}
+  if(o&&typeof o==='object'&&('ok' in o))res(o);else res({ok:false,error:'http_'+x.status})};
+ x.onerror=function(){res({ok:false,error:'network'})};
+ x.onabort=function(){res({ok:false,error:'network'})};
+ x.ontimeout=function(){res({ok:false,error:'network'})};
+ try{x.send(JSON.stringify(payload))}catch(e){res({ok:false,error:'network'})}})}
+function setDocBadge(){var a=document.querySelector('[data-nav="documents"]');if(!a)return;
+ var n=badges().documents;var b=a.querySelector('.b');
+ if(!n){if(b)b.remove();return}
+ if(b)b.textContent=String(n);else a.appendChild(h('span',{class:'b'},[String(n)]))}
+function loadDocs(){return opsGet('documents').then(function(o){if(o&&o.ok)state.docs=o.items||[];setDocBadge();return o})}
+
+function viewDocuments(m){
+ m.appendChild(h('h1',{},[TX.navDocs]));
+ var noOrg=!(state.me.organization&&state.me.organization.id);
+ var card=h('div',{class:'card'});
+ card.appendChild(h('p',{class:'note',style:'margin:0 0 12px'},[TX.vaultNote]));
+ var file=h('input',{type:'file',accept:'application/pdf,image/jpeg,image/png,image/webp',style:'display:none'});
+ var dz=h('div',{class:'dz',tabindex:'0',role:'button'},[h('span',{class:'ico'},['📄']),h('b',{},[TX.dzPick]),h('small',{},[TX.dzHint])]);
+ var err=h('div',{class:'err',style:'margin-top:10px'}),okm=h('div',{class:'ok',style:'margin-top:10px'});
+ var form=h('div',{hidden:'',style:'margin-top:12px'});
+ var picked=null,version=null;   // version = {id,title,category} حين تكون نسخةً جديدة من مستند قائم
+ var fname=h('span',{class:'nm'}),fsize=h('span',{class:'sz'});
+ var again=h('button',{class:'btn ghost sm',onclick:function(){file.click()}},[TX.dOther]);
+ var title=h('input',{class:'inp',maxlength:'200',placeholder:TX.dName});
+ var cat=h('select',{class:'inp'},DOC_CATS.map(function(c){return h('option',{value:c[0]},[c[1]])}));
+ var exp=h('input',{class:'inp',type:'date'});
+ var bar=h('div',{class:'bar',hidden:''},[h('i',{})]);
+ var send=h('button',{class:'btn'},[TX.dSend]);
+ var fields=h('div',{class:'dgrid',style:'margin-top:10px'},[
+  h('div',{},[h('label',{class:'note'},[TX.dName]),title]),
+  h('div',{},[h('label',{class:'note'},[TX.dCat]),cat]),
+  h('div',{},[h('label',{class:'note'},[TX.dExp]),exp])]);
+ form.appendChild(h('div',{class:'dfile'},[h('span',{},['📎']),fname,fsize,again]));
+ form.appendChild(fields);form.appendChild(bar);
+ form.appendChild(h('div',{style:'margin-top:12px'},[send]));
+ function reset(){picked=null;version=null;form.hidden=true;fields.hidden=false;file.value='';
+  title.value='';exp.value='';cat.value='other';bar.hidden=true;bar.className='bar';bar.firstChild.style.width='0';
+  send.disabled=false;send.textContent=TX.dSend}
+ function take(f){err.textContent='';okm.textContent='';
+  var e=fileErr(f);
+  if(e){err.textContent=e;picked=null;form.hidden=true;file.value='';return}
+  picked=f;fname.textContent=f.name;fsize.textContent=kb(f.size);
+  bar.hidden=true;bar.className='bar';bar.firstChild.style.width='0';
+  send.disabled=false;send.textContent=TX.dSend;
+  if(version){title.value=version.title;cat.value=version.category||'other';fields.hidden=true}
+  else{fields.hidden=false;if(!title.value)title.value=baseName(f.name)}
+  form.hidden=false;if(!version)title.focus()}
+ file.addEventListener('change',function(){take(file.files&&file.files[0])});
+ dz.addEventListener('click',function(){if(!noOrg)file.click()});
+ dz.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();if(!noOrg)file.click()}});
+ ['dragenter','dragover'].forEach(function(n){dz.addEventListener(n,function(e){e.preventDefault();dz.classList.add('over')})});
+ ['dragleave','drop'].forEach(function(n){dz.addEventListener(n,function(e){e.preventDefault();dz.classList.remove('over')})});
+ dz.addEventListener('drop',function(e){if(noOrg)return;var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(f)take(f)});
+ send.addEventListener('click',function(){
+  err.textContent='';okm.textContent='';
+  if(!picked){err.textContent=TX.eType;return}
+  var e=fileErr(picked);if(e){err.textContent=e;return}
+  var t=(title.value||'').trim();if(!t){err.textContent=TX.eName;title.focus();return}
+  var wasVersion=!!version;
+  send.disabled=true;bar.hidden=false;bar.className='bar';bar.firstChild.style.width='4%';
+  send.textContent=TX.dUploading+' 0%';
+  toB64(picked).then(function(b64){
+   return sendDoc({action:'ops-doc-upload',title:t,category:cat.value,expiry:exp.value||'',
+                   fileName:picked.name,mime:mimeOf(picked),base64:b64},
+    function(p){var pc=Math.max(4,Math.min(99,Math.round(p*100)));
+     bar.firstChild.style.width=pc+'%';send.textContent=TX.dUploading+' '+pc+'%'})
+  }).then(function(o){
+   if(o&&o.ok){bar.firstChild.style.width='100%';
+    okm.textContent=(wasVersion?TX.dNewVerDone:TX.dDone)+(o.version>1?(' · '+verLbl(o.version)):'');
+    setTimeout(reset,600);return loadDocs().then(draw)}
+   if(o&&o.error==='unauthorized'){location.reload();return}
+   bar.className='bar bad';err.textContent=upErr(o&&o.error);
+   send.disabled=false;send.textContent=TX.dRetry;
+  }).catch(function(){bar.className='bar bad';err.textContent=TX.eRead;
+   send.disabled=false;send.textContent=TX.dRetry})});
+ card.appendChild(dz);card.appendChild(file);card.appendChild(err);card.appendChild(okm);card.appendChild(form);
+ if(noOrg){dz.style.opacity='.55';dz.style.cursor='not-allowed';err.textContent=TX.eNoOrg}
+ m.appendChild(card);
+
+ var list=h('div',{class:'list',style:'margin-top:14px'});m.appendChild(list);
+ list.appendChild(h('p',{class:'note'},[TX.dLoading]));
+ function draw(){
+  list.innerHTML='';
+  var items=state.docs||[];
+  if(!items.length){list.appendChild(h('p',{class:'note'},[TX.dNone]));return}
+  items.forEach(function(d){
+   var n=daysLeft(d.expiry_date);
+   var box=h('div',{class:'doc'+(n===null?'':n<0?' gone':n<=30?' soon':'')});
+   var chips=[h('b',{},[d.title||'']),h('span',{class:'pill mut'},[catName(d.category)])];
+   if(n!==null&&n<=30)chips.push(h('span',{class:'pill '+(n<0?'bad':'warn')},[n<0?TX.dExpired:dayStr(n)]));
+   chips.push(h('span',{class:'pill '+(d.extracted?'ok':'mut')},[d.extracted?TX.dReadOk:TX.dPending]));
+   box.appendChild(h('div',{class:'hd'},chips));
+   var vers=(d.document_versions||[]).slice().sort(function(a,b){return (b.version_no||0)-(a.version_no||0)});
+   var cur=vers[0]||null;
+   var meta=[];
+   if(cur)meta.push((cur.file_name||'')+' · '+verLbl(cur.version_no||1));
+   if(d.expiry_date)meta.push(TX.dExpires+' '+String(d.expiry_date).slice(0,10));
+   meta.push(when(d.created_at));
+   box.appendChild(h('div',{class:'meta'},[meta.join(' · ')]));
+   if(d.extracted){var x=d.extracted,bits=[];
+    if(x.companyNameAr||x.companyNameEn)bits.push(TX.dEntity+': '+(x.companyNameAr||x.companyNameEn));
+    if(x.crNumber)bits.push(TX.dCr+': '+x.crNumber);
+    if(x.vatNumber)bits.push(TX.dVat+': '+x.vatNumber);
+    if(d.issue_date||x.issueDate)bits.push(TX.dIssued+': '+String(d.issue_date||x.issueDate).slice(0,10));
+    if(bits.length)box.appendChild(h('div',{class:'read'},['🤖 '+bits.join(' · ')]))}
+   var dmsg=h('span',{class:'err'});
+   var acts=h('div',{class:'acts'});
+   if(cur)acts.appendChild(h('button',{class:'btn ghost sm',onclick:function(){
+     dmsg.textContent='';opsGet('doc-link','&version='+encodeURIComponent(cur.id)).then(function(o){
+      if(o&&o.ok&&o.url)window.open(o.url,'_blank','noopener');else dmsg.textContent=upErr(o&&o.error)})}},[TX.dOpen]));
+   acts.appendChild(h('button',{class:'btn ghost sm',onclick:function(){
+     version={id:d.id,title:d.title,category:d.category};okm.textContent='';err.textContent='';
+     file.value='';file.click();
+     try{card.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}}},[TX.dNewVer]));
+   acts.appendChild(h('button',{class:'btn danger sm',onclick:function(){
+     if(!window.confirm(TX.dDelAsk+'\\n\\n'+(d.title||'')))return;
+     dmsg.textContent='';opsPost({action:'ops-doc-delete',id:d.id}).then(function(o){
+      if(o&&o.ok){loadDocs().then(draw);return}dmsg.textContent=upErr(o&&o.error)})}},[TX.dDel]));
+   acts.appendChild(dmsg);
+   box.appendChild(acts);
+   list.appendChild(box)})}
+ if(state.docs)draw();
+ loadDocs().then(function(o){if(o&&!o.ok&&o.error==='network'){list.innerHTML='';list.appendChild(h('p',{class:'err'},[TX.eNet]))}else draw()})}
+function verLbl(n){return (LANG==='ar'||LANG==='zh')?(TX.dVer+' '+n):(TX.dVer+n)}
+function catName(c){for(var i=0;i<DOC_CATS.length;i++)if(DOC_CATS[i][0]===c)return DOC_CATS[i][1];
+ return DOC_CATS[DOC_CATS.length-1][1]}
 // ---------- request detail
 function viewRequest(m){m.appendChild(h('a',{class:'btn ghost sm',onclick:function(){go('requests')}},['← '+TX.back]));var hd=h('h1',{style:'margin-top:10px'},['…']);m.appendChild(hd);var box=h('div');m.appendChild(box);
 api('request-get',{ref:state.ref}).then(function(o){if(!o||!o.ok){box.appendChild(h('p',{class:'err'},[TX.error]));return}state.req=o.request;state.testMode=!!o.testMode;drawRequest(hd,box)})}
@@ -318,12 +654,12 @@ if(r.tasks&&r.tasks.length)left.appendChild(h('div',{class:'card'},[h('h3',{},[T
 // quote — while it is being priced the customer sees the step, not silence
 if(!r.quote&&(r.events||[]).some(function(e){return e.event==='quote.pending'}))right.appendChild(h('div',{class:'card',id:'sv1Quote'},[h('h3',{},[TX.quote]),h('p',{class:'note'},[TX.scopePricing])]));
 if(r.quote){var qc=h('div',{class:'card',id:'sv1Quote'});qc.appendChild(h('h3',{},[TX.quote+' '+r.quote.number]));var tb=h('table',{class:'q'});tb.appendChild(h('thead',{},[h('tr',{},[h('th',{},[TX.scope]),h('th',{},[TX.qty]),h('th',{},[TX.price])])]));tb.appendChild(h('tbody',{},r.quote.items.map(function(i){return h('tr',{},[h('td',{},[i.title]),h('td',{},[String(i.qty)]),h('td',{},[money(lineOf(i))])])})));tb.appendChild(h('tfoot',{},[h('tr',{},[h('td',{colspan:'2'},[TX.net]),h('td',{},[money(r.quote.net)])]),h('tr',{},[h('td',{colspan:'2'},[TX.vat]),h('td',{},[money(r.quote.vat)])]),h('tr',{},[h('td',{colspan:'2'},[TX.total]),h('td',{},[money(r.quote.total)])])]));qc.appendChild(tb);
-qc.appendChild(h('p',{class:'note'},[TX.validUntil+': '+(r.quote.valid_until||'')+' · '+TX.terms+': '+(r.quote.payment_terms||'')]));if(r.quote.notes)qc.appendChild(h('p',{class:'note'},[r.quote.notes]));
+qc.appendChild(h('p',{class:'note'},[TX.validUntil+': '+(r.quote.valid_until||'')+' · '+TX.terms+': '+(r.quote.payment_terms||'')]));qc.appendChild(docBtn(TX.openFull,TX.quote+' '+r.quote.number,function(){return api('quote-view',{ref:r.ref}).then(function(o){return o&&o.ok?o.html:''})}));if(r.quote.notes)qc.appendChild(h('p',{class:'note'},[r.quote.notes]));
 if(r.status==='QUOTE_SENT'){var rn=h('input',{class:'inp',placeholder:TX.rejectNote,style:'margin-top:8px'});qc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){api('quote-approve',{ref:r.ref}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;if(o.contract)r.contract=o.contract;refreshMe();drawRequest(hd,box)}})}},[TX.approve]),h('button',{class:'btn ghost',onclick:function(){api('quote-reject',{ref:r.ref,note:rn.value}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;refreshMe();drawRequest(hd,box)}})}},[TX.reject])]));qc.appendChild(rn)}
 else if(r.quote.status==='APPROVED')qc.appendChild(h('p',{class:'ok'},[TX.quoteApproved]));
 right.appendChild(qc)}
 // contract
-if(r.contract){var cc=h('div',{class:'card'});cc.appendChild(h('h3',{},[TX.contract+' '+r.contract.number]));var frame=h('div',{class:'contract-frame'},['…']);cc.appendChild(frame);api('contract-view',{ref:r.ref}).then(function(o){frame.innerHTML=o&&o.ok?o.html:'';state.contractHtml=o&&o.html||''});
+if(r.contract){var cc=h('div',{class:'card'});cc.appendChild(h('h3',{},[TX.contract+' '+r.contract.number]));var frame=h('iframe',{class:'contract-frame',title:TX.contract});cc.appendChild(frame);cc.appendChild(docBtn(TX.openFull,TX.contract+' '+r.contract.number,function(){return api('contract-view',{ref:r.ref}).then(function(o){return o&&o.ok?o.html:''})}));api('contract-view',{ref:r.ref}).then(function(o){var ht=o&&o.ok?o.html:'';frame.srcdoc=ht;state.contractHtml=ht;if(o&&o.needsResign)cc.appendChild(h('p',{class:'note',style:'color:#B45309'},[TX.resign]))});
 if(r.status==='CONTRACT_SENT'){cc.appendChild(h('h3',{style:'margin-top:14px'},[TX.signTitle]));var nm=h('input',{class:'inp',placeholder:TX.signName,value:state.me.user.name||''});cc.appendChild(nm);cc.appendChild(h('p',{class:'note',style:'margin:8px 0 4px'},[TX.signDraw]));var cv=h('canvas',{class:'sig',width:'600',height:'150'});cc.appendChild(cv);var ctx2=cv.getContext('2d'),drawing=false,drew=false;ctx2.lineWidth=2;ctx2.lineCap='round';ctx2.strokeStyle='#0B1B5A';function pos(e){var rc=cv.getBoundingClientRect();var p=e.touches?e.touches[0]:e;return [(p.clientX-rc.left)*cv.width/rc.width,(p.clientY-rc.top)*cv.height/rc.height]}
 cv.addEventListener('pointerdown',function(e){drawing=true;var p=pos(e);ctx2.beginPath();ctx2.moveTo(p[0],p[1])});cv.addEventListener('pointermove',function(e){if(!drawing)return;var p=pos(e);ctx2.lineTo(p[0],p[1]);ctx2.stroke();drew=true});window.addEventListener('pointerup',function(){drawing=false});
 var cons=h('input',{type:'checkbox',id:'consent'});var err=h('div',{class:'err'});cc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn ghost sm',onclick:function(){ctx2.clearRect(0,0,cv.width,cv.height);drew=false}},[TX.signClear])]));cc.appendChild(h('label',{style:'display:flex;gap:8px;align-items:flex-start;margin:10px 0;font-size:.86rem'},[cons,h('span',{},[TX.signConsent])]));
@@ -354,7 +690,7 @@ var d=h('input',{class:'inp',type:'date',min:new Date().toISOString().slice(0,10
 ac.appendChild(h('div',{class:'form'},[h('label',{},[TX.date]),d,h('label',{},[TX.time]),tm,h('label',{},[TX.topic]),tp2,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){api(a&&a.status!=='CANCELLED'?'appointment-reschedule':'appointment-book',{ref:r.ref,date:d.value,time:tm.value,topic:tp2.value}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else ae.textContent=(o&&o.error)||TX.error})}},[a&&a.status!=='CANCELLED'?TX.reschedule:TX.book]),a&&a.status!=='CANCELLED'?h('button',{class:'btn danger',onclick:function(){api('appointment-cancel',{ref:r.ref}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}})}},[TX.cancelAppt]):null]),ae,h('p',{class:'note'},[TX.apptNote])]));right.appendChild(ac)}
 // timeline
 right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.timeline]),h('ul',{class:'tl'},(r.events||[]).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(e.actor?e.actor+': ':'')+(EV[e.event]||e.event)+(e.details&&e.details.number?' '+e.details.number:'')])])}))]));
-if(['NEW','REVIEWING','WAITING_CLIENT','QUOTE_SENT'].indexOf(r.status)>=0)right.appendChild(h('button',{class:'btn danger sm',onclick:function(){if(!confirm(TX.cancelReq+'?'))return;api('request-cancel',{ref:r.ref}).then(function(o){if(o&&o.ok){r.status='CANCELLED';refreshMe();drawRequest(hd,box)}})}},[TX.cancelReq]))}
+if(['CANCELLED','COMPLETED'].indexOf(r.status)<0){var early=['NEW','REVIEWING','WAITING_CLIENT','QUOTE_SENT','PRICING'].indexOf(r.status)>=0;var cnote=h('input',{class:'inp',placeholder:TX.cancelWhy,style:'margin-top:10px'});var cmsg=h('div',{class:'note'},[early?TX.cancelEarly:TX.cancelLate]);var cbtn=h('button',{class:'btn danger sm',onclick:function(){if(!confirm((early?TX.cancelReq:TX.cancelAsk)+'?'))return;var b2=this;b2.disabled=true;api('request-cancel',{ref:r.ref,note:cnote.value.trim()}).then(function(o){b2.disabled=false;if(!o||!o.ok){cmsg.className='err';cmsg.textContent=(o&&o.message)||TX.error;return}if(o.cancelled){r.status='CANCELLED';refreshMe();drawRequest(hd,box);return}cmsg.className='ok';cmsg.textContent=TX.cancelSent;cbtn.disabled=true})}},[early?TX.cancelReq:TX.cancelAsk]);right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),cmsg,cnote,h('div',{class:'msgform',style:'margin-top:8px'},[cbtn])]))}if(r.cancel)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),h('p',{class:'note'},[TX.cancelDone+' · '+when(r.cancel.at)+(r.cancel.note?' · '+r.cancel.note:'')])]))}
 function openInvoice(r){var inv=r.invoice;var w=window.open('','_blank');if(!w)return;var rows=(inv.items||[]).map(function(i){return '<tr><td>'+esc(i.title)+'</td><td>'+i.qty+'</td><td>'+money(lineOf(i))+'</td></tr>'}).join('');w.document.write('<!doctype html><html dir="'+(LANG==='ar'?'rtl':'ltr')+'"><head><meta charset="utf-8"><title>'+inv.number+'</title><style>body{font-family:"IBM Plex Sans Arabic",system-ui;padding:32px;color:#1F2430}h1{color:#0B1B5A}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #e4e8f1;text-align:start}.t{font-weight:700}.tm{background:#b45309;color:#fff;padding:6px 10px;display:inline-block;border-radius:6px}</style></head><body>'+(inv.mode==='test'?'<span class="tm">TEST MODE</span>':'')+'<h1>Business Partner — '+TX.invoice+' '+inv.number+'</h1><p>'+TX.ref+': '+r.ref+' · '+when(inv.issued_at)+'</p><p>'+esc((inv.bill_to&&(inv.bill_to.company||inv.bill_to.name))||'')+'</p><table><thead><tr><th>'+TX.scope+'</th><th>'+TX.qty+'</th><th>'+TX.price+'</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr><td colspan="2">'+TX.net+'</td><td>'+money(inv.net)+'</td></tr><tr><td colspan="2">'+TX.vat+'</td><td>'+money(inv.vat)+'</td></tr><tr class="t"><td colspan="2">'+TX.total+'</td><td>'+money(inv.total)+'</td></tr></tfoot></table><p><b>'+TX.paid+'</b></p></body></html>');w.document.close()}
 function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
 function refreshMe(){api('me').then(function(o){if(o&&o.ok){state.me=o;var side=$('#mySide');if(side){/* re-render nav badges */}}})}
@@ -370,7 +706,16 @@ function settleReturn(u){
     u.searchParams.delete('payment');u.searchParams.delete('id');u.searchParams.delete('amount');u.searchParams.delete('provider');
     history.replaceState({},'',u.pathname+u.search);return true}).catch(function(){return false});
 }
-function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render()})}).catch(function(){renderLogin()})}
+// A visitor sent here to sign in (from /ops, say) lands back where he was
+// going. Only a same-origin path is honoured — never a full URL, and never a
+// protocol-relative «//host», which a browser reads as another site.
+// بمقارنة الحروف لا بتعبير نمطي: هذا السطر يُكتب داخل قالب نصّي، والقالب
+// يلتهم الشرطة المائلة العكسية عند البناء — فيخرج /^/[^/]/ إلى الصفحة، وهو
+// خطأ نحوي يُسقط سكربت اللوحة كله فلا تُفتح البوابة أصلاً. المقارنة تفعل
+// الشيء نفسه: مسارٌ محلي يبدأ بشرطة واحدة، ولا يبدأ بشرطتين («//host» يقرؤه
+// المتصفح موقعاً آخر).
+function nextPath(){try{var n=decodeURIComponent(new URL(location.href).searchParams.get('next')||'');return (n.charAt(0)==='/'&&n.charAt(1)!=='/')?n:''}catch(e){return ''}}
+function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render();if(state.view!=='documents')loadDocs().catch(function(){})})}).catch(function(){renderLogin()})}
 boot();
 })();</script>`;
   return sv1.shell({ title: tx.title, desc: tx.attention, path: "/my", body: CSS + body, script, noindex: true });

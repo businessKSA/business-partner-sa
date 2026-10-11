@@ -10,9 +10,9 @@ const targets = ['site/ar/account.html', 'site/account.html']
 if (!targets.length) process.exit(0);
 
 const css = String.raw`<style id="bp-docagent-v7-css">
-:root{--da7-navy:#07163f;--da7-blue:#3159d8;--da7-cyan:#43d6f4;--da7-line:#e3e8f1;--da7-ink:#111b35;--da7-muted:#6c7891}
+:root{--da7-navy:#0B1B5A;--da7-blue:#3159d8;--da7-cyan:#43d6f4;--da7-line:#e3e8f1;--da7-ink:#111b35;--da7-muted:#6c7891}
 .da7{display:none}.da7.on{display:block}
-.da7-trial{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#07163f,#123c91);color:#fff;border-radius:18px;padding:14px 18px;margin-bottom:16px}
+.da7-trial{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#0B1B5A,#123c91);color:#fff;border-radius:18px;padding:14px 18px;margin-bottom:16px}
 .da7-trial b{font-size:14px}.da7-trial p{margin:3px 0 0;font-size:11.5px;color:rgba(255,255,255,.75);line-height:1.7}
 .da7-trial .days{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 13px;font-size:12px;font-weight:800;white-space:nowrap}
 .da7-trial.ended{background:linear-gradient(135deg,#5b1120,#a32036)}
