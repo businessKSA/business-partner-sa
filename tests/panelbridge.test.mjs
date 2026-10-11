@@ -10,11 +10,12 @@ import path from "node:path";
 process.env.LOCAL_DB = "1";
 process.env.LOCAL_DB_DIR = fs.mkdtempSync(path.join(os.tmpdir(), "bp-panelbridge-"));
 
-let sb, localClientDocs, localOwnerOverview;
+let sb, localClientDocs, localOwnerOverview, handleDocView;
 
 before(async () => {
   ({ sb } = await import("../api/_db.js"));
   ({ localClientDocs, localOwnerOverview } = await import("../api/_panelbridge.js"));
+  ({ handleDocView } = await import("../api/_docview.js"));
 
   // طلب مهاجَر: عرض مقبول + عقد موقّع + فاتورة مدفوعة، مع روابطه.
   const created = await sb("requests?on_conflict=ref", {
@@ -44,6 +45,34 @@ before(async () => {
     method: "POST", prefer: "resolution=merge-duplicates,return=minimal",
     body: [{ ref: "BP-R-NATIVE", type: "CONSULTATION", source: "WEBSITE", status: "NEW", lang: "ar", title: "طلب أصلي", client_email: "t@ex.sa" }],
   });
+
+  // عرض معلّق (SENT) لاختبار زرّ «سجّل الدخول» في docview.
+  await sb("requests?on_conflict=ref", {
+    method: "POST", prefer: "resolution=merge-duplicates,return=minimal",
+    body: [{
+      ref: "BP-R-PEND01", type: "GOVERNMENT_SERVICE", source: "MANUAL", status: "QUOTE_SENT",
+      lang: "ar", title: "عرض معلّق", client_email: "p@ex.sa",
+      quote: { number: "BP-P-1", status: "SENT", total: 500, currency: "SAR", created_at: "2026-07-01T00:00:00Z", items: [] },
+    }],
+  });
+  await sb("quote_tokens?on_conflict=token", {
+    method: "POST", prefer: "resolution=ignore-duplicates,return=minimal",
+    body: [{ token: "tkpend", ref: "BP-R-PEND01", kind: "quote", legacy_number: "BP-P-1" }],
+  });
+});
+
+const viewHtml = (token) => {
+  let body = "";
+  const res = { setHeader() {}, set statusCode(v) {}, end(b) { body = b || ""; } };
+  return handleDocView({ method: "GET", query: { token }, headers: {} }, res).then(() => body);
+};
+
+test("docview يُظهر زرّ تسجيل الدخول لعرض معلّق (SENT) ويخفيه عن المقبول", async () => {
+  const pend = await viewHtml("tkpend");
+  assert.match(pend, /سجّل الدخول للمتابعة/);
+  assert.match(pend, /href="\/account"/);
+  const done = await viewHtml("tkq");            // BP-R-TEST01: ACCEPTED
+  assert.doesNotMatch(done, /سجّل الدخول للمتابعة/);
 });
 
 test("client-documents المحلي يبني الأقسام الثلاثة بالروابط الصحيحة", async () => {
@@ -67,7 +96,7 @@ test("بريد بلا صفوف مهاجَرة يُعيد null (ليرجع الم
 test("owner overview يَعُدّ ويبني أدمن-URL نحو /ops", async () => {
   const ov = await localOwnerOverview();
   assert.ok(ov);
-  assert.equal(ov["عدّادات"]["المستندات"], 2);     // عرض + عقد (الأصلي بلا روابط مستبعد)
+  assert.equal(ov["عدّادات"]["المستندات"], 3);     // TEST01: عرض+عقد، PEND01: عرض (الأصلي بلا روابط مستبعد)
   assert.equal(ov["عدّادات"]["الفواتير"], 1);
   assert.ok(ov.documents[0].adminUrl.includes("/ops?ref="));
   assert.ok(ov.documents.some((d) => d.publicUrl === "/quotes/d/tkq"));

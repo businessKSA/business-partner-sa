@@ -32,6 +32,29 @@ const notFound = (res) => sendHtml(res, 404, page("الرابط غير متاح"
   + `<p>انتهت صلاحية هذا الرابط أو لم يعد متوفّراً. تواصل معنا وسنعيد إرساله.</p>`
   + `<p><a href="https://www.businesspartner.sa">businesspartner.sa</a></p></div>`));
 
+// العارض للقراءة فقط. أما المستند الذي ما زال ينتظر إجراءً (عرض بانتظار قرار،
+// عقد بانتظار توقيع، فاتورة مستحقة) فيُضاف فوقه زرٌّ يوصل العميل إلى حسابه حيث
+// يُكمل القبول/التوقيع/الدفع في طبقة Simple V1 — فلا يعلق أمام صفحة صامتة.
+const ACCOUNT_URL = "/account";
+function ctaBanner(text) {
+  return `<div style="margin:0 0 16px;padding:16px 18px;background:#fff7e6;border:1px solid #ffd591;border-radius:12px;`
+    + `display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between">`
+    + `<span style="font-weight:600">${esc(text)}</span>`
+    + `<a href="${ACCOUNT_URL}" style="background:#0B1B5A;color:#fff;text-decoration:none;padding:10px 18px;`
+    + `border-radius:8px;font-weight:600;white-space:nowrap">سجّل الدخول للمتابعة</a></div>`;
+}
+function pendingCta(kind, row) {
+  if (kind === "contract") {
+    const st = row.contract && row.contract.status;
+    if (st === "SENT" || st === "SIGNING") return ctaBanner("هذا العقد بانتظار توقيعك. سجّل الدخول لإكمال التوقيع الإلكتروني ثم الدفع.");
+  } else if (kind === "invoice") {
+    if (!(row.payment && row.payment.status === "PAID")) return ctaBanner("هذه الفاتورة مستحقة. سجّل الدخول لإكمال الدفع.");
+  } else {
+    if (row.quote && row.quote.status === "SENT") return ctaBanner("هذا العرض بانتظار قرارك. سجّل الدخول لمراجعته واعتماده.");
+  }
+  return "";
+}
+
 const dateAr = (iso) => new Date(iso || Date.now()).toLocaleDateString(
   "ar-SA-u-nu-latin", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Riyadh" });
 
@@ -59,7 +82,7 @@ export async function handleDocView(req, res) {
   if (map.kind === "contract") {
     if (!row.contract || !row.contract.html) return notFound(res);
     const title = `عقد ${row.contract.number || map.legacy_number || ""}`.trim();
-    return sendHtml(res, 200, page(title, `<div class="card">${row.contract.html}</div>`));
+    return sendHtml(res, 200, page(title, pendingCta("contract", row) + `<div class="card">${row.contract.html}</div>`));
   }
 
   // الفاتورة: لا قالب HTML مخزّن لها في Simple V1، فنعرض ملخّصاً بسيطاً بدل 404.
@@ -75,7 +98,7 @@ export async function handleDocView(req, res) {
       + `<tr><td style="padding:8px 0">ضريبة القيمة المضافة</td><td style="text-align:left">${esc(inv.vat ?? "")} ر.س</td></tr>`
       + `<tr style="font-weight:700;border-top:1px solid #e3e8f3"><td style="padding:10px 0">الإجمالي</td><td style="text-align:left">${esc(inv.total ?? "")} ر.س</td></tr>`
       + `</table></div>`;
-    return sendHtml(res, 200, page(title, inner));
+    return sendHtml(res, 200, page(title, pendingCta("invoice", row) + inner));
   }
 
   // الافتراضي: عرض السعر — يُعاد بناء HTML من بيانات الطلب الحالية.
@@ -89,5 +112,5 @@ export async function handleDocView(req, res) {
     today: dateAr(row.quote.created_at),
   });
   const title = `عرض سعر ${row.quote.number || map.legacy_number || ""}`.trim();
-  return sendHtml(res, 200, page(title, `<div class="card">${inner}</div>`));
+  return sendHtml(res, 200, page(title, pendingCta("quote", row) + `<div class="card">${inner}</div>`));
 }
