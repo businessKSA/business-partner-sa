@@ -22,11 +22,10 @@ export function refFromSeed(seed) {
   return "BP-R-" + BigInt("0x" + h.slice(0, 12)).toString(36).toUpperCase().slice(0, 6).padStart(6, "0");
 }
 
-// bp-quotes Document.status → requests.quote.status
-const QUOTE_STATUS = {
-  DRAFT: "DRAFT", APPROVED: "DRAFT", SENT: "SENT", ACCEPTED: "APPROVED",
-  REJECTED: "REJECTED", EXPIRED: "EXPIRED", CANCELLED: "REJECTED",
-};
+// حالة مستند bp-quotes تُحفظ حرفيًا (ضمن المجموعة المعروفة) لأن جسر القراءة في
+// صفحة الحساب ولوحة المالك يعرضها بمفرداتها نفسها (SENT/ACCEPTED/SIGNED/…).
+const DOC_STATES = new Set(["DRAFT", "APPROVED", "SENT", "ACCEPTED", "SIGNING", "SIGNED", "IN_PROGRESS", "REJECTED", "EXPIRED", "CANCELLED"]);
+const docStatus = (s, fallback) => (DOC_STATES.has(String(s)) ? String(s) : fallback);
 // TimelineEvent.actorKind → request_events.actor_kind
 const ACTOR_KIND = { admin: "human", client: "customer", system: "system", docusign: "system", payment: "system" };
 
@@ -50,7 +49,7 @@ function mapQuote(doc) {
   const vat = round2(doc.vatAmount != null ? doc.vatAmount : net * (VAT_RATE / 100));
   return {
     number: String(doc.number || ""),           // الرقم الأصلي كما استلمه العميل
-    status: QUOTE_STATUS[String(doc.status || "DRAFT")] || "DRAFT",
+    status: docStatus(doc.status, "DRAFT"),      // حرفيًا بمفردات bp-quotes
     items, net, vat, total: round2(doc.total != null ? doc.total : net + vat),
     vat_rate: VAT_RATE, currency: String(doc.currency || "SAR"),
     valid_until: dateOnly(doc.validUntil) || "",
@@ -66,7 +65,7 @@ function mapContract(doc, quoteNumber, signatures) {
   const sig = (signatures || []).find((s) => s.role === "client") || null;
   return {
     number: String(doc.number || ""),
-    status: String(doc.status || "SENT") === "SIGNED" ? "SIGNED" : "SENT",
+    status: docStatus(doc.status, "SENT"),       // حرفيًا: SENT / SIGNING / SIGNED …
     html: String(doc.bodyAr || doc.bodyEn || "") || null,   // النص القانوني وقت التوليد
     created_at: iso(doc.issuedAt) || iso(doc.createdAt) || null,
     sent_at: iso(doc.sentAt), signed_at: iso(doc.signedAt),
@@ -103,12 +102,12 @@ function mapPayment(inv) {
   };
 }
 
-// الحالة الكلية للطلب = أبعد مرحلة بلغها.
+// الحالة الكلية للطلب = أبعد مرحلة بلغها (من حالات bp-quotes الحرفية).
 function overallStatus({ quote, contract, payment }) {
   if (payment && payment.status === "PAID") return "PAID";
   if (contract && contract.status === "SIGNED") return "SIGNED";
   if (contract) return "CONTRACT_SENT";
-  if (quote && quote.status === "APPROVED") return "QUOTE_APPROVED";
+  if (quote && ["ACCEPTED", "APPROVED"].includes(quote.status)) return "QUOTE_APPROVED";
   if (quote && quote.status === "SENT") return "QUOTE_SENT";
   return "REVIEWING";
 }

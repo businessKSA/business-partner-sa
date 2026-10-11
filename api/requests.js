@@ -39,6 +39,7 @@ import { graphReady, graphMissing } from "./_msgraph.js";
 import { handleDocAgent } from "./_docagent.js";
 import { handleSimple } from "./_simple.js";
 import { handleDocView } from "./_docview.js";
+import { localClientDocs, localOwnerOverview } from "./_panelbridge.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const NOTION_TOKEN = envFrom(["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]);
@@ -1563,6 +1564,30 @@ export default async function handler(req, res) {
   // vercel.json ليبقى كل رابط في يد عميل حيّاً بعد حذف المشروع الثاني. لا دالة
   // جديدة: يعيش في ./_docview.js ويقرأ خريطة quote_tokens.
   if ((q.__route || "") === "docview") return handleDocView(req, res);
+  // الكتالوج الحيّ للموقع التعريفي — كان rewrite إلى bp-quotes. المرحلة 3:
+  // يُبنى من الكتالوج الرئيسي (مصدر الحقيقة) بنفس الشكل الذي تقرأه live-prices.js.
+  if ((q.__route || "") === "live-catalog") {
+    res.setHeader("Cache-Control", "public, max-age=60, stale-while-revalidate=600");
+    try {
+      const cat = await loadCatalog();
+      const services = (cat.services || []).map((s) => {
+        const price = Number(s.price) || 0;
+        return {
+          code: s.code, nameAr: s.nameAr, nameEn: s.nameEn, category: s.category,
+          // openPrice = لا سعر منشور (يُدخل عند التسعير). خدمة لها مبلغ منشور
+          // تَعرض مبلغها حتى لو احتاجت عرضاً، فلا تُربط هنا بـrequiresProposal.
+          unitPrice: price, openPrice: !(price > 0),
+          unitAr: "", unitEn: "",
+        };
+      });
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ updatedAt: cat.updated, currency: "SAR", count: services.length, services }));
+    } catch (e) {
+      console.error("live-catalog failed", String(e.message || e).slice(0, 160));
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ services: [] }));
+    }
+  }
   if ((q.action || "") === "approve") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
@@ -1787,10 +1812,6 @@ export default async function handler(req, res) {
   // تُقرأ من الطلب أبداً، وإلا صار كل من يعرف بريد غيره يقرأ عقوده.
   if ((q.action || "") === "my-documents") {
     res.setHeader("Cache-Control", "no-store");
-    if (!PANEL_BRIDGE_TOKEN) {
-      res.statusCode = 200;
-      return res.end(JSON.stringify({ ok: true, configured: false, quotes: [], contracts: [], invoices: [] }));
-    }
     let sess = null;
     try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
     if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
@@ -1798,6 +1819,18 @@ export default async function handler(req, res) {
     if (!email) {
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, configured: true, found: false, quotes: [], contracts: [], invoices: [] }));
+    }
+    // المرحلة 3: القراءة المحلية أولاً من requests المهاجَرة. إن وُجدت صفوف
+    // مهاجَرة أعادتها؛ وإلا رجعنا لجسر bp-quotes أثناء الانتقال (قبل الهجرة).
+    if (DB_ON) {
+      try {
+        const local = await localClientDocs(email);
+        if (local) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, configured: true, ...local })); }
+      } catch (e) { console.error("my-documents local read failed", String(e.message || e).slice(0, 160)); }
+    }
+    if (!PANEL_BRIDGE_TOKEN) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, configured: false, quotes: [], contracts: [], invoices: [] }));
     }
     try {
       const r = await fetch(`${PANEL_URL}/api/bridge/client-documents`, {
@@ -1836,6 +1869,16 @@ export default async function handler(req, res) {
   if ((q.action || "") === "panel-quotes") {
     res.setHeader("Cache-Control", "no-store");
     if (!panelOk(q)) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    // login يصنع جلسة مدير في اللوحة — لا يُنفَّذ إلا بطلب صريح من الزرّ.
+    const want = String(q.want || "overview") === "login" ? "login" : "overview";
+    // المرحلة 3: النظرة العامة تُقرأ محليًا من requests المهاجَرة أولاً؛ وإلا
+    // رجعنا لجسر bp-quotes أثناء الانتقال. (login يبقى عبر الجسر ما دامت اللوحة قائمة.)
+    if (want === "overview" && DB_ON) {
+      try {
+        const local = await localOwnerOverview();
+        if (local) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, configured: true, ...local })); }
+      } catch (e) { console.error("panel-quotes local read failed", String(e.message || e).slice(0, 160)); }
+    }
     if (!PANEL_BRIDGE_TOKEN) {
       res.statusCode = 200;
       return res.end(JSON.stringify({
@@ -1844,8 +1887,6 @@ export default async function handler(req, res) {
         ملاحظة: "اضبط PANEL_BRIDGE_TOKEN في متغيرات هذا المشروع بالقيمة نفسها الموضوعة في اللوحة، ثم أعد النشر",
       }));
     }
-    // login يصنع جلسة مدير في اللوحة — لا يُنفَّذ إلا بطلب صريح من الزرّ.
-    const want = String(q.want || "overview") === "login" ? "login" : "overview";
     try {
       const r = await fetch(`${PANEL_URL}/api/bridge/owner`, {
         method: "POST",

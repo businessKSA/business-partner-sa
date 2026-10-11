@@ -22,7 +22,7 @@ test("عرض مقبول + عقد موقّع + فاتورة مدفوعة → طل
   const r = res.request;
   assert.equal(r.status, "PAID");
   assert.equal(r.quote.number, "BP-FI-2026-001");
-  assert.equal(r.quote.status, "APPROVED");
+  assert.equal(r.quote.status, "ACCEPTED");   // حرفيًا من bp-quotes
   assert.equal(r.quote.items.length, 2);
   assert.equal(r.quote.net, 10000);
   assert.equal(r.quote.vat, 1500);

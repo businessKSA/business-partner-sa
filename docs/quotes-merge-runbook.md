@@ -98,12 +98,22 @@ LOCAL_DB=1 node scripts/migrate-quotes.mjs --write   # كتابة محلية ث�
 ```
 المصدر الحقيقي (قراءة فقط): `DATABASE_URL=... node scripts/migrate-quotes.mjs --source=prisma`.
 
-### المتبقّي قبل الحذف (المرحلتان 3 و4)
-- تحويل جسر `api/requests.js` و`/api/live-catalog` لقراءة مباشرة.
+- **المرحلة 3 — تحويل الجسر والكتالوج (قراءة محلية):**
+  - `api/_panelbridge.js`: يبني شكلَي `client-documents` (صفحة الحساب) و`owner
+    overview` (لوحة المالك) من `requests`+`quote_tokens` مباشرة.
+  - `api/requests.js`: `my-documents` و`panel-quotes` يقرآن **محليًا أولًا**، ويرجعان
+    لجسر bp-quotes فقط إن لم تُوجد صفوف مهاجَرة بعد (انتقال بلا انقطاع).
+  - `live-catalog`: `?__route=live-catalog` يبني الكتالوج من المصدر الرئيسي
+    (`loadCatalog`)، و`vercel.json` يشير إليه بدل bp-quotes.
+  - النطاق = الصفوف المهاجَرة (لها رمز)، فلا تتكرّر طلبات Simple V1 الأصلية.
+  - اختبار تكامل: `tests/panelbridge.test.mjs` (3 حالات، تمرّ).
+
+### المتبقّي قبل الحذف (المرحلة 4 — قرار مالك)
 - في `vercel.json`: استبدال تحويل `/quotes/d/:token` ليشير إلى
   `api/requests?__route=docview&token=:token` (بدل bp-quotes)، ثم حذف بقية تحويلات
   `/quotes*`.
 - حذف المشروع من لوحة Vercel (أنت) ثم حذف `quotes/` من المستودع.
+- (جسر `wa-quote` الأمامي لإنشاء العروض يبقى حتى يُؤكَّد أن الإنشاء كله من `/ops`.)
 
 ---
 
