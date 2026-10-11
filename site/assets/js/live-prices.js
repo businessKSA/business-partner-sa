@@ -11,6 +11,12 @@
 (function () {
   "use strict";
 
+  // قرار المالك 2026-10-11: «اعتمد أرقام الموقع». كتالوج الموقع (catalog.json) هو
+  // المصدر الوحيد للسعر المعروض والمدفوع، فلا نستبدل السعر المبني بما في لوحة
+  // العروض القديمة. لإعادة القراءة الحيّة من اللوحة اجعلها true بعد مزامنة اللوحة.
+  var LIVE_OVERRIDE = false;
+  if (!LIVE_OVERRIDE) return;
+
   var nodes = document.querySelectorAll("[data-bp-price], [data-bp-code]");
   if (!nodes.length) return;
 
