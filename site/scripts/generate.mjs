@@ -3198,6 +3198,9 @@ function buildPackages() {
       const yearly = employerYearly(t.amount, yearlyDiscount);
       const nameAr = `${t.nameAr} — اشتراك شهري`;
       const nameEn = `${t.nameEn || t.name} — Monthly subscription`;
+      // اسم البند في السلة يتبع الدورة المختارة: main.js يبدّل data-name-* مع زرّ شهري/سنوي.
+      const nameArY = `${t.nameAr} — اشتراك سنوي`;
+      const nameEnY = `${t.nameEn || t.name} — Yearly subscription`;
       const priceLabelM = `${fmt(t.amount)} ${L("SAR / mo", "ريال / شهرياً")}`;
       const priceLabelY = `${fmt(yearly)} ${L("SAR / yr", "ريال / سنوياً")}`;
       return `<div class="pkg${t.highlight ? " pop" : ""}"${badgeAttr}>
@@ -3208,6 +3211,8 @@ function buildPackages() {
         <button type="button" class="btn ${t.highlight ? "btn-primary" : "btn-ghost"} add-cart emp-plan-btn" style="width:100%"
           data-id="pkg-${esc(t.key)}-monthly" data-kind="package"
           data-name-ar="${esc(nameAr)}" data-name-en="${esc(nameEn)}"
+          data-name-ar-monthly="${esc(nameAr)}" data-name-en-monthly="${esc(nameEn)}"
+          data-name-ar-yearly="${esc(nameArY)}" data-name-en-yearly="${esc(nameEnY)}"
           data-amount="${t.amount}" data-price="${esc(priceLabelM)}"
           data-id-monthly="pkg-${esc(t.key)}-monthly" data-id-yearly="pkg-${esc(t.key)}-yearly"
           data-amount-monthly="${t.amount}" data-amount-yearly="${yearly}"

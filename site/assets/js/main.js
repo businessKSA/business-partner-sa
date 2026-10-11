@@ -4577,14 +4577,18 @@ var BP = window.BP = window.BP || {};
   if (qEl) qEl.addEventListener("keydown", function (e) { if (e.key === "Enter") load(); });
 })();
 
-/* ---------- Employer plan cards — monthly/yearly billing toggle ---------- */
+/* ---------- Employer plan cards — monthly/yearly billing toggle ----------
+   /packages فيها أكثر من تبويب بزرّ تبديل في كلٍّ منها (الخدمات والقانونية). كان
+   المربوط أول زرّ تبديل في الصفحة فقط، فيموت «سنوي» في تبويب الباقات القانونية، وإن
+   ضُغط في الأول تغيّرت أسعار الثاني وأزرار سلّته من وراء زرّه (وهو يعرض «شهري»).
+   الآن تُربط كل الأزرار، وتتزامن حالتها، ويُبدَّل اسم البند في السلة مع دورته
+   (data-name-ar-yearly / data-name-en-yearly إن وُجدت) فلا يظهر «اشتراك شهري» لبندٍ سنوي. */
 var BP_EMP_BILLING = "monthly";
 (function () {
   "use strict";
   document.addEventListener("DOMContentLoaded", function () {
-    var toggle = document.querySelector(".emp-billing-toggle");
-    if (!toggle) return;
-    var btns = toggle.querySelectorAll(".emp-bill-btn");
+    var toggles = document.querySelectorAll(".emp-billing-toggle");
+    if (!toggles.length) return;
     function applyBilling(bill) {
       document.querySelectorAll(".emp-price-m").forEach(function (el) { el.hidden = bill === "yearly"; });
       document.querySelectorAll(".emp-price-y").forEach(function (el) { el.hidden = bill === "monthly"; });
@@ -4592,17 +4596,27 @@ var BP_EMP_BILLING = "monthly";
         var id = b.getAttribute(bill === "yearly" ? "data-id-yearly" : "data-id-monthly");
         var amount = b.getAttribute(bill === "yearly" ? "data-amount-yearly" : "data-amount-monthly");
         var price = b.getAttribute(bill === "yearly" ? "data-price-yearly" : "data-price-monthly");
+        var nameAr = b.getAttribute("data-name-ar-" + bill);
+        var nameEn = b.getAttribute("data-name-en-" + bill);
         if (id) b.setAttribute("data-id", id);
         if (amount) b.setAttribute("data-amount", amount);
         if (price != null) b.setAttribute("data-price", price);
+        if (nameAr) b.setAttribute("data-name-ar", nameAr);
+        if (nameEn) b.setAttribute("data-name-en", nameEn);
+      });
+      toggles.forEach(function (t) {
+        t.querySelectorAll(".emp-bill-btn").forEach(function (b) {
+          b.classList.toggle("active", b.getAttribute("data-bill") === bill);
+        });
       });
     }
-    btns.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var bill = btn.getAttribute("data-bill");
-        BP_EMP_BILLING = bill;
-        btns.forEach(function (b) { b.classList.toggle("active", b === btn); });
-        applyBilling(bill);
+    toggles.forEach(function (toggle) {
+      toggle.querySelectorAll(".emp-bill-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var bill = btn.getAttribute("data-bill");
+          BP_EMP_BILLING = bill;
+          applyBilling(bill);
+        });
       });
     });
   });
