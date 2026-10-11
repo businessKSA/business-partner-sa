@@ -380,105 +380,212 @@ var S=window.SV1S={
  }};
 var h0=hint();if(h0)S.paint(true,h0);
 })();</script><main class="sv1-legacy"><style id="sv1-careers-css">
-/* البطل: شاشةٌ واحدة تحت ترويسة SV1 (شريط ٣٢px + ترويسة ٧٢px). */
-.sv1-legacy .sv1-ch{background:var(--g);border-bottom:1px solid var(--line2);position:relative;
- display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
- padding:30px 22px 92px;overflow:hidden;
- min-height:calc(100vh - 104px);min-height:calc(100svh - 104px)}
-.sv1-ch-in{width:100%;max-width:940px;margin:0 auto;display:flex;flex-direction:column;align-items:center}
-.sv1-ch-logo{height:34px;width:auto;display:block;margin:0 auto 16px}
+.sv1-legacy .cj{padding:34px 0 8px}
+.sv1-legacy .cj-in{max-width:980px}
+.sv1-legacy .cj-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px 28px;flex-wrap:wrap;margin-bottom:20px}
+.sv1-legacy .cj-head h1{margin:0;font-size:clamp(28px,4.2vw,40px);font-weight:800;letter-spacing:-.02em;line-height:1.25;color:var(--ink)}
+.sv1-legacy .cj-count{margin:6px 0 0;font-size:15px;font-weight:600;color:var(--ac)}
+.sv1-legacy .cj-lead{margin:6px 0 0;font-size:14px;color:var(--mut);line-height:1.8;max-width:560px}
+.sv1-legacy .cj-quick{display:flex;gap:8px;flex-wrap:wrap}
+.sv1-legacy .cj-quick a{font-size:12.5px;padding:8px 14px}
 
-/* الرسمة والعنوان في مكانٍ واحد: العنوان فوقها ومتداخلٌ معها. */
-.sv1-ch-art{position:relative;width:100%;max-width:900px}
-.sv1-ch-brush{display:block;width:100%;height:auto;color:var(--ac)}
-.sv1 .sv1-legacy .sv1-ch-art h1{position:absolute;top:50%;inset-inline:0;transform:translateY(-50%);
- margin:0;padding:0 13%;color:#fff!important;-webkit-text-fill-color:#fff;background:none;
- font-weight:800;letter-spacing:-.03em;line-height:1.2;text-wrap:balance;
- font-size:clamp(26px,6.4vw,74px)}
-.sv1-legacy .sv1-ch-lead{margin:6px auto 0;max-width:560px;color:var(--mut);font-weight:300;
- font-size:15px;line-height:1.9}
+.sv1-legacy .cj-bar{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr);gap:10px;margin-bottom:16px}
+.sv1-legacy .cj-bar input,.sv1-legacy .cj-bar select{width:100%;height:46px;margin:0;padding:0 14px;border:1px solid var(--l);border-radius:10px;
+ background:#fff;color:var(--ink);font:inherit;font-size:14px;box-shadow:none}
+.sv1-legacy .cj-bar input::placeholder{color:var(--faint)}
+.sv1-legacy .cj-bar input:focus,.sv1-legacy .cj-bar select:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px var(--acSoft)}
+.sv1-legacy .cj-bar [hidden]{display:none}
+.sv1-legacy .cj-sub{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0;font-size:12.5px;color:var(--mut)}
+.sv1-legacy .cj-sub [hidden]{display:none}
+.sv1-legacy .cj-sub:has(> [hidden]:first-child):has(> [hidden]:last-child){display:none}
+.sv1-legacy .cj-sub{padding-bottom:10px}
+.sv1-legacy .cj-clear{border:0;background:none;color:var(--ac);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;padding:2px 0;
+ border-bottom:1px solid var(--acLine)}
 
-/* الزرّان: حبّتان مملوءتان متساويتان، كما في المرجع. */
-.sv1-ch-acts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:22px}
-.sv1-legacy .sv1-ch-acts a{display:inline-flex;align-items:center;justify-content:center;
- min-width:230px;padding:17px 30px;border-radius:999px;border:1px solid var(--ac);
- background:var(--ac);color:#fff;font-size:16px;font-weight:600;line-height:1.2;
- box-shadow:0 12px 28px -14px rgba(11,27,90,.6);transition:background .15s,transform .15s}
-.sv1-legacy .sv1-ch-acts a:hover{background:var(--ac2);border-color:var(--ac2);transform:translateY(-1px)}
-.sv1-legacy .sv1-ch-alt{margin:18px 0 0;font-size:13px;color:var(--mut)}
-.sv1-legacy .sv1-ch-alt a{color:var(--ac);font-weight:500;border-bottom:1px solid var(--acLine)}
-
-/* سهم النزول — توسيطٌ بخصائص فيزيائية لأنه محايد الاتجاه في العربية. */
-.sv1-legacy .sv1-ch-down{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
- width:44px;height:44px;border-radius:50%;border:1px solid var(--acLine);background:rgba(255,255,255,.72);
- display:grid;place-items:center;color:var(--ac);font-size:17px;line-height:1;
- animation:sv1chDown 2.4s ease-in-out infinite}
-.sv1-legacy .sv1-ch-down:hover{border-color:var(--ac);background:#fff}
-@keyframes sv1chDown{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(5px)}}
-@media(prefers-reduced-motion:reduce){.sv1-legacy .sv1-ch-down{animation:none}}
+.sv1-legacy .cj-list{border:1px solid var(--l);border-radius:14px;background:#fff;overflow:hidden}
+.sv1-legacy .cj-list[hidden]{display:none}
+.sv1-legacy .cj-row{display:flex;align-items:flex-start;gap:18px;padding:20px 22px;border-top:1px solid var(--line2);transition:background .15s}
+.sv1-legacy .cj-row:first-child{border-top:0}
+.sv1-legacy .cj-row:hover{background:var(--soft)}
+.sv1-legacy .cj-row[hidden]{display:none}
+.sv1-legacy .cj-mn{flex:1;min-width:0}
+.sv1-legacy .cj-row h2{margin:0;font-size:16.5px;font-weight:600;line-height:1.55;letter-spacing:-.01em}
+.sv1-legacy .cj-row h2 a{color:var(--ink)}
+.sv1-legacy .cj-row h2 a:hover{color:var(--ac);text-decoration:underline}
+.sv1-legacy .cj-mt{margin:7px 0 0;font-size:12.5px;color:var(--mut);display:flex;flex-wrap:wrap;align-items:center;gap:7px;line-height:1.7}
+.sv1-legacy .cj-sep{color:var(--l);font-size:10px}
+.sv1-legacy .cj-tg{border:1px solid var(--acLine);background:var(--acSoft);color:var(--ac);border-radius:999px;padding:2px 10px;font-size:11px;font-weight:500}
+.sv1-legacy .cj-ag{color:var(--faint);font-size:11.5px}
+.sv1-legacy .cj-ds{margin:10px 0 0;font-size:12.5px;color:var(--s);line-height:1.85;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sv1-legacy .cj-ac{flex:none;display:flex;flex-direction:column;gap:7px;min-width:130px}
+.sv1-legacy .cj-ac .sv1-btn{width:100%;padding-block:9px}
+.sv1-legacy .cj-none{padding:34px 22px;text-align:center;color:var(--mut);font-size:14px;border:1px dashed var(--l);border-radius:14px}
+.sv1-legacy .cj-none[hidden]{display:none}
+.sv1-legacy .cj-more{display:flex;margin:16px auto 0;min-width:180px}
+.sv1-legacy .cj-more[hidden]{display:none}
+.sv1-legacy .cj-load{font-size:12px;color:var(--faint)}
 
 /* الترويسة لاصقة: بلا هذا الهامش يقف القسم المقصود تحتها فيختفي عنوانه. */
-.sv1-legacy #open-jobs,.sv1-legacy #client-jobs,.sv1-legacy #seeker-form{scroll-margin-top:92px}
+.sv1-legacy #open-jobs,.sv1-legacy #seeker-form{scroll-margin-top:92px}
 
-@media(max-width:560px){
- .sv1-legacy .sv1-ch{padding:22px 18px 84px;min-height:calc(100vh - 92px);min-height:calc(100svh - 92px)}
- /* الحشو يبقى ١٣٪ على الجوال أيضاً: تضييقه يدفع طرفَي السطر خارج الحبر. */
- .sv1 .sv1-legacy .sv1-ch-art h1{font-size:clamp(23px,7.4vw,40px)}
- .sv1-ch-acts{gap:10px;width:100%}
- .sv1-legacy .sv1-ch-acts a{min-width:0;width:100%;padding:15px 22px;font-size:15px}
+@media(max-width:640px){
+ .sv1-legacy .cj{padding-top:22px}
+ .sv1-legacy .cj-bar{grid-template-columns:1fr 1fr}
+ .sv1-legacy .cj-bar input{grid-column:1 / -1}
+ .sv1-legacy .cj-row{flex-direction:column;gap:13px;padding:17px 16px}
+ .sv1-legacy .cj-ac{flex-direction:row;width:100%;min-width:0}
+ .sv1-legacy .cj-ac .sv1-btn{flex:1}
 }
 </style>
-  <section class="sv1-ch">
-    <div class="sv1-ch-in">
-      <img class="sv1-ch-logo" src="/assets/img/logo.png" alt="Business Partner" width="180" height="34">
-      <div class="sv1-ch-art">
-        <svg class="sv1-ch-brush" viewBox="0 0 880 330" aria-hidden="true" focusable="false">
-      <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M140 122C250 74 420 66 560 84c74 10 138 26 180 44" stroke-width="138"/>
-        <path d="M136 168C280 140 520 140 744 172" stroke-width="146"/>
-        <path d="M144 216c118 54 296 72 460 60 60-5 108-15 140-30" stroke-width="138"/>
-        <path d="M604 278c68-9 122-25 148-45" stroke-width="50"/>
-      </g>
-    </svg>
-        <h1>准备好迈出下一步了吗？</h1>
+  <section class="cj" id="open-jobs"><div class="container cj-in">
+    <header class="cj-head">
+      <div>
+        <h1>开放职位</h1>
+        <p class="cj-count" id="cjCount" aria-live="polite">37 个开放职位</p>
+        <p class="cj-lead">浏览职位并直接申请。每份申请都会登记到 Business Partner 团队并被审阅。</p>
       </div>
-      <p class="sv1-ch-lead">浏览开放职位，或一次性提交您的简历。</p>
-      <div class="sv1-ch-acts">
-        <a href="#open-jobs">开放职位</a>
-        <a href="#seeker-form">提交简历</a>
+      <div class="cj-quick">
+        <a class="sv1-btn sm" href="#seeker-form">提交简历</a>
+        <a class="sv1-btn sm" href="/zh/employers">我是雇主</a>
       </div>
-      <p class="sv1-ch-alt"><a href="/zh/employers">我是雇主 →</a></p>
-    </div>
-    <a class="sv1-ch-down" href="#open-jobs" aria-label="向下查看职位" title="向下查看职位">↓</a>
-  </section>
+    </header>
 
-  <section class="section section--gray" id="open-jobs"><div class="container">
-    <div class="section-head"><span class="eyebrow">招聘 / 职位</span><h2>Business Partner 在招职位</h2><p>每份申请都会记入 Business Partner 招聘系统，经筛选后进入相应的招聘阶段。</p></div>
-    <div class="grid grid-3 ats-jobs"><article class="card ats-job-card">
-        <span class="emp-tag">人才库</span>
-        <h3>通用人才库</h3>
-        <p>没找到合适的岗位？一次加入人才库，我们会为您匹配合适的雇主需求。</p>
-        <div class="emp-meta">全部领域 · 沙特阿拉伯 · 经本人同意后共享</div>
-        <div class="talent-actions"><a class="btn btn-primary btn-sm ats-apply-link" href="#seeker-form" data-job-id="candidate-pool" data-job-title="通用人才库">加入人才库</a></div>
-      </article></div>
-  </div></section>
-  <section class="section section--gray" id="client-jobs"><div class="container">
-    <div class="section-head"><span class="eyebrow">雇主客户</span><h2>来自我们雇主客户的职位</h2><p>通过 Business Partner 平台招聘的企业。直接投递——您的申请会直达对方的招聘流程。</p></div>
-    <p class="emp-note" id="client-jobs-status">加载中…</p>
-    <div class="grid grid-3 ats-jobs" id="client-jobs-grid"><article class="card ats-job-card">
-        <span class="emp-tag">Riyadh · HR</span>
-        <h3>HR Operations &amp; Government Relations Specialist</h3>
-        <p>Run Qiwa, GOSI, Mudad, Muqeem and day-to-day HR operations for Business Partner clients.</p>
-        <div class="emp-meta">Full-time · Saudi market experience · Arabic/English</div>
-        <div class="talent-actions"><a class="btn btn-primary btn-sm" href="/zh/jobs/hr-operations-specialist">查看职位</a><a class="btn btn-ghost btn-sm" href="/zh/jobs/hr-operations-specialist#apply-form">投递</a></div>
-      </article><article class="card ats-job-card">
-        <span class="emp-tag">Riyadh / Hybrid · Recruitment</span>
-        <h3>Recruitment Coordinator</h3>
-        <p>Coordinate candidate sourcing, screening, interviews, offer follow-up, and employer communication.</p>
-        <div class="emp-meta">Full-time · Hiring pipeline · Candidate care</div>
-        <div class="talent-actions"><a class="btn btn-primary btn-sm" href="/zh/jobs/recruitment-coordinator">查看职位</a><a class="btn btn-ghost btn-sm" href="/zh/jobs/recruitment-coordinator#apply-form">投递</a></div>
-      </article></div>
-  </div></section>
+    <div class="cj-bar" role="search">
+      <input type="search" id="cjQ" placeholder="按职位或关键词搜索" aria-label="按职位或关键词搜索" autocomplete="off">
+      <select id="cjCity" aria-label="城市" hidden><option value="">所有城市</option></select>
+      <select id="cjField" aria-label="领域" hidden><option value="">所有领域</option></select>
+    </div>
+    <div class="cj-sub"><span id="cjSub" class="cj-load" hidden></span><button type="button" class="cj-clear" id="cjClear" hidden>清除筛选</button></div>
+
+    <span id="client-jobs" aria-hidden="true"></span><!-- مرساة قديمة: «العودة للوظائف» في صفحة الحملة تشير إلى /careers#client-jobs -->
+    <div class="cj-list" id="cjList"><article class="cj-row" data-city="利雅得" data-field="人力资源"><div class="cj-mn"><h2><a href="/zh/jobs/hr-operations-specialist">HR Operations &amp; Government Relations Specialist</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>利雅得, 沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>人力资源</span><span class="cj-tg">全职</span></p><p class="cj-ds">Run Qiwa, GOSI, Mudad, Muqeem and day-to-day HR operations for Business Partner clients.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/hr-operations-specialist">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/hr-operations-specialist#apply-form">申请</a></div></article><article class="cj-row" data-city="利雅得" data-field="人力资源"><div class="cj-mn"><h2><a href="/zh/jobs/recruitment-coordinator">Recruitment Coordinator</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>利雅得, 沙特阿拉伯 (混合办公)</span><span class="cj-sep" aria-hidden="true">•</span><span>人力资源</span><span class="cj-tg">全职</span></p><p class="cj-ds">Coordinate candidate sourcing, screening, interviews, offer follow-up, and employer communication.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/recruitment-coordinator">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/recruitment-coordinator#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="管理岗"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-factory-manager">工厂/生产基地经理 —— 活动制作</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>管理岗</span><span class="cj-tg">全职</span></p><p class="cj-ds">统筹定制活动制作工坊的日常运营 —— 生产、质量、安全，并确保场景制作按期按预算出货。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-factory-manager">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-factory-manager#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="管理岗"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-production-manager">生产经理 —— 活动制作</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>管理岗</span><span class="cj-tg">全职</span></p><p class="cj-ds">全面负责活动结构、展台、布景与定制道具的完整生产周期 —— 从设计解读到最终安装。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-production-manager">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-production-manager#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="管理岗"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-installation-manager">安装经理 —— 活动</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>管理岗</span><span class="cj-tg">全职</span></p><p class="cj-ds">规划并带领定制场景元素、展项与活动结构的现场安装 —— 班组、物流、安全与客户对接。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-installation-manager">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-installation-manager#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="管理岗"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-engineering-manager">工程经理 —— 活动制作</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>管理岗</span><span class="cj-tg">全职</span></p><p class="cj-ds">带领技术团队将艺术构想转化为安全、可施工的活动结构 —— CAD、加工图、结构分析与面向制造的设计。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-engineering-manager">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-engineering-manager#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="管理岗"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-quality-manager">质量经理 —— 活动制作</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>管理岗</span><span class="cj-tg">全职</span></p><p class="cj-ds">为定制活动结构建立并运行质量体系 —— 从原材料到最终安装成品，贯彻一次做对的质量文化。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-quality-manager">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-quality-manager#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="管理岗"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-maintenance-manager">维修经理（机电一体化）—— 制作工坊</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>管理岗</span><span class="cj-tg">全职</span></p><p class="cj-ds">负责全部制作设备与厂区基础设施的维修 —— 预防性维修计划、故障响应与安全管理。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-maintenance-manager">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-maintenance-manager#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="仓储与物流"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-warehouse-manager">仓库经理 —— 活动制作</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>仓储与物流</span><span class="cj-tg">全职</span></p><p class="cj-ds">在紧张的项目工期下，管理原材料与高价值活动成品的收货、存储与发运。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-warehouse-manager">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-warehouse-manager#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="工程与设计"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-design-engineer">技术设计工程师 —— 活动</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>工程与设计</span><span class="cj-tg">全职</span><span class="cj-tg">6 个名额</span></p><p class="cj-ds">将创意构想转化为可直接施工的 CAD 图纸，服务于活动、展览与品牌活动 —— 连接设计与工坊车间的桥梁。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-design-engineer">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-design-engineer#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="仓储与物流"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-logistics-supervisor">物流主管 —— 活动</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>仓储与物流</span><span class="cj-tg">全职</span></p><p class="cj-ds">统筹活动材料与设备的全程运输、存储与布置 —— 从工坊到现场再返回。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-logistics-supervisor">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-logistics-supervisor#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="仓储与物流"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-store-keeper">库管员 —— 活动工坊</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>仓储与物流</span><span class="cj-tg">全职</span><span class="cj-tg">3 个名额</span></p><p class="cj-ds">负责活动、展览与装修项目所需材料、工具与设备的收料、保管与发料。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-store-keeper">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-store-keeper#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="班组长"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-installation-team-leader">安装班组长 —— 活动</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>班组长</span><span class="cj-tg">全职</span><span class="cj-tg">5 个名额</span></p><p class="cj-ds">现场安装的一线带队：安全、按期、按标准完成活动布景的运输、组装与交付。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-installation-team-leader">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-installation-team-leader#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="班组长"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-carpentry-team-leader">木工班组长 —— 活动工坊</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>班组长</span><span class="cj-tg">全职</span></p><p class="cj-ds">带领木工组制作场景元素、定制陈列与家具 —— 亲自动手、质量优先、按期交付。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-carpentry-team-leader">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-carpentry-team-leader#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="班组长"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-steel-team-leader">钢结构制作班组长 —— 活动工坊</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>班组长</span><span class="cj-tg">全职</span></p><p class="cj-ds">带领钢构组以 MIG/TIG 焊接制作定制结构、吊挂框架与场景支撑，达到演出级表面质量。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-steel-team-leader">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-steel-team-leader#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="班组长"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-printing-team-leader">印刷班组长 —— 活动工坊</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>班组长</span><span class="cj-tg">全职</span></p><p class="cj-ds">带领大幅面印刷组产出活动所需的图像、标识与品牌物料 —— 统筹设备、人员、色彩与交期。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-printing-team-leader">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-printing-team-leader#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="班组长"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-foam-team-leader">泡沫制作班组长 —— 活动工坊</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>班组长</span><span class="cj-tg">全职</span></p><p class="cj-ds">带领泡沫组，通过 CNC 与手工雕刻把 EPS/PU 泡沫做成精细的立体道具与大型场景结构。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-foam-team-leader">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-foam-team-leader#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="班组长"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-painting-team-leader">喷涂班组长 —— 活动工坊</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>班组长</span><span class="cj-tg">全职</span></p><p class="cj-ds">带领喷涂组：调色、基层处理、喷涂以及定制构件、道具与结构的场景饰面。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-painting-team-leader">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-painting-team-leader#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="技术员"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-carpenter">木工 —— 活动制作</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>技术员</span><span class="cj-tg">全职</span><span class="cj-tg">35 个名额</span></p><p class="cj-ds">依据技术图纸制作并精修定制场景元素、展台、道具与家具 —— 精准、高效、达到演出标准。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-carpenter">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-carpenter#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="技术员"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-steel-fabricator">钢结构制作工/焊工 —— 活动</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>技术员</span><span class="cj-tg">全职</span><span class="cj-tg">6 个名额</span></p><p class="cj-ds">为舞台、布景与展台切割、焊接并组装定制金属结构 —— MIG/TIG 精度，兼顾面向公众的外观质量。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-steel-fabricator">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-steel-fabricator#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="技术员"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-printing-operator">印刷操作员 —— 大幅面</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>技术员</span><span class="cj-tg">全职</span><span class="cj-tg">6 个名额</span></p><p class="cj-ds">在数码印刷机、刻字机与后道设备上产出高品质的大幅面图像、标识与品牌物料。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-printing-operator">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-printing-operator#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="技术员"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-tailor">裁缝/场景缝制工 —— 活动</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>技术员</span><span class="cj-tg">全职</span><span class="cj-tg">3 个名额</span></p><p class="cj-ds">为活动制作与展会产出大型织物装置 —— 幕布、舞台帷幕与定制装饰。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-tailor">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-tailor#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="技术员"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-foam-fabricator">泡沫雕刻师/制作工 —— 活动</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>技术员</span><span class="cj-tg">全职</span><span class="cj-tg">3 个名额</span></p><p class="cj-ds">通过 CNC 切割件与熟练手工雕刻，把 EPS 与 PU 泡沫做成精细的立体道具与大型场景结构。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-foam-fabricator">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-foam-fabricator#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="技术员"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-painter">喷涂工 —— 活动制作</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>技术员</span><span class="cj-tg">全职</span><span class="cj-tg">6 个名额</span></p><p class="cj-ds">对定制场景元素、道具与结构进行基层处理、喷涂与精修 —— 喷枪作业、调色与场景饰面。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-painter">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-painter#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="技术工种与普工"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-skilled-labor">技术工种 —— 木工、钢构、印刷、泡沫、喷涂、仓储</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>技术工种与普工</span><span class="cj-tg">全职</span><span class="cj-tg">70 个名额</span></p><p class="cj-ds">面向各制作环节的技术工人开放多个名额 —— 木工、钢构、印刷、泡沫、喷涂、仓储与物流。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-skilled-labor">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-skilled-labor#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="班组长"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-production-team-leader">生产班组长 —— 活动工坊</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>班组长</span><span class="cj-tg">全职</span></p><p class="cj-ds">在车间一线统管木工、焊工与喷涂工 —— 项目经理与制作现场之间的日常纽带。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-production-team-leader">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-production-team-leader#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="班组长"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-electrical-team-leader">电气班组长 —— 活动工坊</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>班组长</span><span class="cj-tg">全职</span></p><p class="cj-ds">带领电气组完成定制活动结构与场景元素的布线、灯光与供电 —— 安全且达到演出标准。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-electrical-team-leader">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-electrical-team-leader#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="技术员"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-electrical-technician">电气技术员 —— 活动</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>技术员</span><span class="cj-tg">全职</span><span class="cj-tg">5 个名额</span></p><p class="cj-ds">在工坊与现场完成定制场景元素与活动结构的布线、灯光与供电。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-electrical-technician">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-electrical-technician#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="技术员"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-branding-technician">安装/织物与品牌物料技术员 —— 活动</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>技术员</span><span class="cj-tg">全职</span><span class="cj-tg">6 个名额</span></p><p class="cj-ds">在活动结构、展台与场地上粘贴刻字膜、图像、织物与品牌物料 —— 承载客户品牌的精细收口。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-branding-technician">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-branding-technician#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="工程与设计"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-production-engineer">生产工程师 —— 活动制作</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>工程与设计</span><span class="cj-tg">全职</span></p><p class="cj-ds">规划并优化木工、钢构、印刷、泡沫与喷涂各环节的制作流程 —— 产能、工艺与成本。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-production-engineer">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-production-engineer#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="工程与设计"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-quality-engineer">质量工程师 —— 活动制作</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>工程与设计</span><span class="cj-tg">全职</span></p><p class="cj-ds">对定制活动结构执行过程检验与最终放行检查 —— 在车间层面支撑质量经理的体系运行。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-quality-engineer">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-quality-engineer#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="工程与设计"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-installation-engineer">安装工程师 —— 活动</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>工程与设计</span><span class="cj-tg">全职</span></p><p class="cj-ds">负责现场施工的工程工作：施工方案、现场勘查与安装班组的技术监督。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-installation-engineer">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-installation-engineer#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="工程与设计"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-detailing-engineer">深化设计工程师/深化绘图员 —— 活动</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>工程与设计</span><span class="cj-tg">全职</span><span class="cj-tg">4 个名额</span></p><p class="cj-ds">依据设计团队的模型输出精确的加工图、下料清单与可直接用于 CNC 的文件 —— 工坊据此施工的图纸。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-detailing-engineer">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-detailing-engineer#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="技术员"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-maintenance-technician">维修技术员（机电一体化）—— 工坊</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>技术员</span><span class="cj-tg">全职</span><span class="cj-tg">2 个名额</span></p><p class="cj-ds">保障 CNC 雕刻机、焊机、印刷机与工坊基础设施的正常运转 —— 预防性维修与快速故障响应。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-maintenance-technician">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-maintenance-technician#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="财务、人力与采购"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-finance-officer">财务专员 —— 活动工坊</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>财务、人力与采购</span><span class="cj-tg">全职</span><span class="cj-tg">3 个名额</span></p><p class="cj-ds">负责节奏紧凑的制作工坊的日常财务 —— 项目成本核算、供应商付款、薪酬数据与报表。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-finance-officer">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-finance-officer#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="财务、人力与采购"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-hr-officer">人力资源/政府关系专员 —— 活动工坊</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>财务、人力与采购</span><span class="cj-tg">全职</span><span class="cj-tg">3 个名额</span></p><p class="cj-ds">为 180 人以上团队运营人力事务与政府平台 —— Qiwa、GOSI、Muqeem、Mudad、合同与现场合规。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-hr-officer">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-hr-officer#apply-form">申请</a></div></article><article class="cj-row" data-city="" data-field="财务、人力与采购"><div class="cj-mn"><h2><a href="/zh/jobs/workshop-procurement-officer">采购专员 —— 活动工坊</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>沙特阿拉伯</span><span class="cj-sep" aria-hidden="true">•</span><span>财务、人力与采购</span><span class="cj-tg">全职</span><span class="cj-tg">3 个名额</span></p><p class="cj-ds">在紧张的活动工期下为定制制作采购物料 —— 木材、钢材、泡沫、印刷介质与涂料。</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/zh/jobs/workshop-procurement-officer">详情</a><a class="sv1-btn sm primary" href="/zh/jobs/workshop-procurement-officer#apply-form">申请</a></div></article></div>
+    <div class="cj-none" id="cjNone" hidden>没有符合条件的职位。</div>
+    <button type="button" class="sv1-btn cj-more" id="cjMore" hidden>显示更多</button>
+  </div></section><script>(function(){"use strict";
+var LANG="zh",TX={"of":"显示 {n} / {m} 个职位","posted":"发布于","loading":"正在加载雇主发布的职位…","anyCity":"所有城市","anyField":"所有领域","counts":{"zero":"目前没有开放职位","other":"{n} 个开放职位"},"view":"详情","apply":"申请"},
+JOB="/zh/job?id=",PAGE=15;
+var cjRow=function cjRow(j, X) {
+  var e = function (s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  };
+  var meta = [];
+  for (var i = 0; i < j.meta.length; i++) if (j.meta[i]) meta.push("<span>" + e(j.meta[i]) + "</span>");
+  var tags = "";
+  for (var k = 0; k < j.tags.length; k++) if (j.tags[k]) tags += '<span class="cj-tg">' + e(j.tags[k]) + "</span>";
+  var when = j.date ? '<span class="cj-ag">' + e(j.dateLabel) + "</span>" : "";
+  var sep = '<span class="cj-sep" aria-hidden="true">•</span>';
+  return '<article class="cj-row" data-city="' + e(j.city) + '" data-field="' + e(j.field) + '">' +
+    '<div class="cj-mn"><h2><a href="' + e(j.href) + '">' + e(j.title) + "</a></h2>" +
+    '<p class="cj-mt">' + meta.join(sep) + tags + when + "</p>" +
+    (j.desc ? '<p class="cj-ds">' + e(j.desc) + "</p>" : "") +
+    '</div><div class="cj-ac"><a class="sv1-btn sm" href="' + e(j.href) + '">' + e(X.view) + "</a>" +
+    '<a class="sv1-btn sm primary" href="' + e(j.href) + '#apply-form">' + e(X.apply) + "</a></div></article>";
+};
+var $=function(i){return document.getElementById(i)};
+var list=$('cjList');if(!list)return;
+var elCount=$('cjCount'),elQ=$('cjQ'),elCity=$('cjCity'),elField=$('cjField'),elMore=$('cjMore'),
+    elNone=$('cjNone'),elSub=$('cjSub'),elClear=$('cjClear');
+var shown=PAGE,M=[],loadingLive=true;
+function clean(v){return String(v==null?'':v).replace(/\s+/g,' ').trim()}
+function norm(v){return clean(v).toLowerCase()}
+function cityKey(v){return clean(String(v==null?'':v).split('|')[0])}
+function num(n){try{return Number(n).toLocaleString('en-US')}catch(e){return String(n)}}
+function plural(n){var k='other';try{k=new Intl.PluralRules(LANG).select(n)}catch(e){}
+ if(n===0&&TX.counts.zero)k='zero';
+ return String(TX.counts[k]||TX.counts.other).replace('{n}',num(n))}
+
+// النموذج: كل صفٍّ كائنٌ {el,live,city,field,hay}. الصفوف الثابتة تُقرأ من DOM
+// الذي رسمه الخادم، والحيّة تُبنى بالدالة نفسها وتُدرَج في رأس القائمة.
+function adopt(el,live){
+ M.push({el:el,live:!!live,city:cityKey(el.getAttribute('data-city')),field:clean(el.getAttribute('data-field')),hay:norm(el.textContent)})}
+Array.prototype.forEach.call(list.querySelectorAll('.cj-row'),function(el){adopt(el,false)});
+
+var F={q:'',city:'',field:''};
+function match(m,skip){
+ if(skip!=='city'&&F.city&&m.city!==F.city)return false;
+ if(skip!=='field'&&F.field&&m.field!==F.field)return false;
+ if(F.q){var w=norm(F.q).split(/[^\p{L}\p{N}]+/u).filter(function(x){return x.length>1});
+  for(var i=0;i<w.length;i++)if(m.hay.indexOf(w[i])<0)return false}
+ return true}
+// الخيارات مبنيّة من الوظائف الموجودة فعلاً مع عدّادها على بقيّة الفلاتر: خيارٌ
+// لا وظيفة تحته لا يُعرض، فلا يعيد فلترٌ صفراً.
+function facet(sel,key,any){
+ var base=M.filter(function(m){return match(m,key)}),c={},order=[];
+ base.forEach(function(m){var v=m[key];if(!v)return;if(c[v]==null){c[v]=0;order.push(v)}c[v]++});
+ order.sort(function(a,b){if(c[b]!==c[a])return c[b]-c[a];try{return a.localeCompare(b,LANG)}catch(e){return 0}});
+ if(F[key]&&c[F[key]]==null)order.unshift(F[key]);
+ // قائمةٌ بخيارٍ واحد لا تصفّي شيئاً — تُخفى حتى تصير ذات معنى.
+ sel.hidden=!(order.length>1||F[key]);
+ sel.textContent='';
+ var o0=document.createElement('option');o0.value='';o0.textContent=any;sel.appendChild(o0);
+ order.forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v+' ('+num(c[v]||0)+')';sel.appendChild(o)});
+ sel.value=F[key]||''}
+
+function paint(){
+ var vis=0;
+ M.forEach(function(m){if(match(m)){vis++;m.el.hidden=vis>shown}else m.el.hidden=true});
+ facet(elCity,'city',TX.anyCity);facet(elField,'field',TX.anyField);
+ var active=!!(F.q||F.city||F.field);
+ elCount.textContent=active?TX.of.replace('{n}',num(vis)).replace('{m}',num(M.length)):plural(M.length);
+ elNone.hidden=vis>0;list.hidden=!vis;
+ elMore.hidden=vis-shown<=0;
+ elClear.hidden=!active;
+ elSub.hidden=!loadingLive;elSub.textContent=loadingLive?TX.loading:''}
+
+function applyF(){shown=PAGE;paint()}
+var tmr=null;
+elQ.addEventListener('input',function(){clearTimeout(tmr);tmr=setTimeout(function(){F.q=elQ.value.trim();applyF()},180)});
+elCity.addEventListener('change',function(){F.city=elCity.value;applyF()});
+elField.addEventListener('change',function(){F.field=elField.value;applyF()});
+elClear.addEventListener('click',function(){F.q=F.city=F.field='';elQ.value='';applyF()});
+elMore.addEventListener('click',function(){shown+=PAGE;paint()});
+
+// الإعلانات الحيّة (نوشن): تُدرَج قبل الوظائف الثابتة، الأحدث أولاً كما تعيدها
+// النقطة. فشل الجلب لا يُظهر شيئاً — القائمة الثابتة تبقى كاملة.
+function fmtDate(v){var t=Date.parse(v);if(isNaN(t))return '';
+ try{return new Intl.DateTimeFormat(LANG==='ar'?'ar-u-nu-latn':LANG,{day:'numeric',month:'short',year:'numeric'}).format(new Date(t))}catch(e){return ''}}
+function liveRow(j){
+ var d=fmtDate(j.postedAt);
+ var html=cjRow({href:JOB+encodeURIComponent(j.id),title:clean(j.title),
+  meta:[clean(j.company),cityKey(j.city),clean(j.field)],tags:[clean(j.type),clean(j.mode)],
+  desc:clean(j.description).slice(0,160),city:cityKey(j.city),field:clean(j.field),
+  date:d,dateLabel:d?TX.posted+' '+d:''},{view:TX.view,apply:TX.apply});
+ var box=document.createElement('div');box.innerHTML=html;return box.firstChild}
+
+// الإعلانات تُكتب بالعربية في نوشن؛ في اللغات الأخرى تُترجَم عند الطلب بالنداء
+// نفسه الذي يستعمله main.js (task:"translate") ومفتاح التخزين نفسه، على دفعات
+// متتابعة لا متوازية (التوازي يستنفد حدّ المزوّد فتسقط اللوحة كلها للعربية).
+function translateParts(parts,id){
+ if(LANG==='ar')return Promise.resolve(null);
+ var key='bp_jobtr_'+LANG+'_'+id;
+ try{var hit=JSON.parse(localStorage.getItem(key)||'null');if(hit&&hit.n===parts.length)return Promise.resolve(hit.parts)}catch(e){}
+ return fetch('/api/hire',{method:'POST',headers:{'content-type':'application/json'},
+  body:JSON.stringify({task:'translate',lang:LANG,items:parts})}).then(function(r){return r.json()}).then(function(d){
+  if(!d||!d.ok||!Array.isArray(d.items)||d.items.length!==parts.length)return null;
+  try{localStorage.setItem(key,JSON.stringify({n:parts.length,parts:d.items}))}catch(e2){}
+  return d.items}).catch(function(){return null})}
+
+fetch('/api/candidates?openJobs=1').then(function(r){return r.json()}).then(function(d){
+ var js=(d&&d.ok&&d.jobs)||[];
+ var first=list.firstChild,made=[];
+ js.forEach(function(j){if(!clean(j.title))return;var el=liveRow(j);list.insertBefore(el,first);adopt(el,true);made.push({j:j,el:el})});
+ // الصفوف الحيّة أمام الثابتة في الـDOM، فيتبعها النموذج (الترقيم يعدّ بترتيبه).
+ M.sort(function(a,b){return (b.live?1:0)-(a.live?1:0)});
+ if(LANG!=='ar'&&made.length){
+  var batches=[];for(var b=0;b<made.length;b+=8)batches.push(made.slice(b,b+8));
+  (function next(i){if(i>=batches.length)return;var bt=batches[i],parts=[];
+   bt.forEach(function(x){parts.push(clean(x.j.title),clean(x.j.description).slice(0,160)||'—')});
+   var key='board-'+bt.map(function(x){return String(x.j.id).slice(-6)}).join('');
+   translateParts(parts,key).then(function(tr){
+    if(tr)bt.forEach(function(x,k){var h=x.el.querySelector('h2 a');if(h)h.textContent=tr[k*2];
+     var ds=x.el.querySelector('.cj-ds');if(ds&&tr[k*2+1]!=='—')ds.textContent=tr[k*2+1];
+     for(var q=0;q<M.length;q++)if(M[q].el===x.el)M[q].hay=norm(x.el.textContent)});
+    next(i+1)})})(0)}
+}).catch(function(){}).then(function(){loadingLive=false;paint()});
+paint();
+})();</script>
 
   <section class="section"><div class="container">
     <div class="grid grid-3" style="margin-bottom:36px"><div class="card"><div class="card-icon" style="font-size:1.5rem">📄</div><h3>一份简历，多个机会</h3><p>只需登记一次，一旦有合适职位我们就为您匹配。</p></div><div class="card"><div class="card-icon" style="font-size:1.5rem">🤝</div><h3>雇主主动联系您</h3><p>通过我们招聘的企业会查看您的资料以匹配合适职位。</p></div><div class="card"><div class="card-icon" style="font-size:1.5rem">🔒</div><h3>您的数据受保护</h3><p>未经您同意，我们绝不分享您的简历（个人数据保护法）。</p></div></div>

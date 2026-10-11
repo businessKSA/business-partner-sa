@@ -380,105 +380,212 @@ var S=window.SV1S={
  }};
 var h0=hint();if(h0)S.paint(true,h0);
 })();</script><main class="sv1-legacy"><style id="sv1-careers-css">
-/* البطل: شاشةٌ واحدة تحت ترويسة SV1 (شريط ٣٢px + ترويسة ٧٢px). */
-.sv1-legacy .sv1-ch{background:var(--g);border-bottom:1px solid var(--line2);position:relative;
- display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
- padding:30px 22px 92px;overflow:hidden;
- min-height:calc(100vh - 104px);min-height:calc(100svh - 104px)}
-.sv1-ch-in{width:100%;max-width:940px;margin:0 auto;display:flex;flex-direction:column;align-items:center}
-.sv1-ch-logo{height:34px;width:auto;display:block;margin:0 auto 16px}
+.sv1-legacy .cj{padding:34px 0 8px}
+.sv1-legacy .cj-in{max-width:980px}
+.sv1-legacy .cj-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px 28px;flex-wrap:wrap;margin-bottom:20px}
+.sv1-legacy .cj-head h1{margin:0;font-size:clamp(28px,4.2vw,40px);font-weight:800;letter-spacing:-.02em;line-height:1.25;color:var(--ink)}
+.sv1-legacy .cj-count{margin:6px 0 0;font-size:15px;font-weight:600;color:var(--ac)}
+.sv1-legacy .cj-lead{margin:6px 0 0;font-size:14px;color:var(--mut);line-height:1.8;max-width:560px}
+.sv1-legacy .cj-quick{display:flex;gap:8px;flex-wrap:wrap}
+.sv1-legacy .cj-quick a{font-size:12.5px;padding:8px 14px}
 
-/* الرسمة والعنوان في مكانٍ واحد: العنوان فوقها ومتداخلٌ معها. */
-.sv1-ch-art{position:relative;width:100%;max-width:900px}
-.sv1-ch-brush{display:block;width:100%;height:auto;color:var(--ac)}
-.sv1 .sv1-legacy .sv1-ch-art h1{position:absolute;top:50%;inset-inline:0;transform:translateY(-50%);
- margin:0;padding:0 13%;color:#fff!important;-webkit-text-fill-color:#fff;background:none;
- font-weight:800;letter-spacing:-.03em;line-height:1.2;text-wrap:balance;
- font-size:clamp(26px,6.4vw,74px)}
-.sv1-legacy .sv1-ch-lead{margin:6px auto 0;max-width:560px;color:var(--mut);font-weight:300;
- font-size:15px;line-height:1.9}
+.sv1-legacy .cj-bar{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr);gap:10px;margin-bottom:16px}
+.sv1-legacy .cj-bar input,.sv1-legacy .cj-bar select{width:100%;height:46px;margin:0;padding:0 14px;border:1px solid var(--l);border-radius:10px;
+ background:#fff;color:var(--ink);font:inherit;font-size:14px;box-shadow:none}
+.sv1-legacy .cj-bar input::placeholder{color:var(--faint)}
+.sv1-legacy .cj-bar input:focus,.sv1-legacy .cj-bar select:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px var(--acSoft)}
+.sv1-legacy .cj-bar [hidden]{display:none}
+.sv1-legacy .cj-sub{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0;font-size:12.5px;color:var(--mut)}
+.sv1-legacy .cj-sub [hidden]{display:none}
+.sv1-legacy .cj-sub:has(> [hidden]:first-child):has(> [hidden]:last-child){display:none}
+.sv1-legacy .cj-sub{padding-bottom:10px}
+.sv1-legacy .cj-clear{border:0;background:none;color:var(--ac);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;padding:2px 0;
+ border-bottom:1px solid var(--acLine)}
 
-/* الزرّان: حبّتان مملوءتان متساويتان، كما في المرجع. */
-.sv1-ch-acts{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:22px}
-.sv1-legacy .sv1-ch-acts a{display:inline-flex;align-items:center;justify-content:center;
- min-width:230px;padding:17px 30px;border-radius:999px;border:1px solid var(--ac);
- background:var(--ac);color:#fff;font-size:16px;font-weight:600;line-height:1.2;
- box-shadow:0 12px 28px -14px rgba(11,27,90,.6);transition:background .15s,transform .15s}
-.sv1-legacy .sv1-ch-acts a:hover{background:var(--ac2);border-color:var(--ac2);transform:translateY(-1px)}
-.sv1-legacy .sv1-ch-alt{margin:18px 0 0;font-size:13px;color:var(--mut)}
-.sv1-legacy .sv1-ch-alt a{color:var(--ac);font-weight:500;border-bottom:1px solid var(--acLine)}
-
-/* سهم النزول — توسيطٌ بخصائص فيزيائية لأنه محايد الاتجاه في العربية. */
-.sv1-legacy .sv1-ch-down{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
- width:44px;height:44px;border-radius:50%;border:1px solid var(--acLine);background:rgba(255,255,255,.72);
- display:grid;place-items:center;color:var(--ac);font-size:17px;line-height:1;
- animation:sv1chDown 2.4s ease-in-out infinite}
-.sv1-legacy .sv1-ch-down:hover{border-color:var(--ac);background:#fff}
-@keyframes sv1chDown{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(5px)}}
-@media(prefers-reduced-motion:reduce){.sv1-legacy .sv1-ch-down{animation:none}}
+.sv1-legacy .cj-list{border:1px solid var(--l);border-radius:14px;background:#fff;overflow:hidden}
+.sv1-legacy .cj-list[hidden]{display:none}
+.sv1-legacy .cj-row{display:flex;align-items:flex-start;gap:18px;padding:20px 22px;border-top:1px solid var(--line2);transition:background .15s}
+.sv1-legacy .cj-row:first-child{border-top:0}
+.sv1-legacy .cj-row:hover{background:var(--soft)}
+.sv1-legacy .cj-row[hidden]{display:none}
+.sv1-legacy .cj-mn{flex:1;min-width:0}
+.sv1-legacy .cj-row h2{margin:0;font-size:16.5px;font-weight:600;line-height:1.55;letter-spacing:-.01em}
+.sv1-legacy .cj-row h2 a{color:var(--ink)}
+.sv1-legacy .cj-row h2 a:hover{color:var(--ac);text-decoration:underline}
+.sv1-legacy .cj-mt{margin:7px 0 0;font-size:12.5px;color:var(--mut);display:flex;flex-wrap:wrap;align-items:center;gap:7px;line-height:1.7}
+.sv1-legacy .cj-sep{color:var(--l);font-size:10px}
+.sv1-legacy .cj-tg{border:1px solid var(--acLine);background:var(--acSoft);color:var(--ac);border-radius:999px;padding:2px 10px;font-size:11px;font-weight:500}
+.sv1-legacy .cj-ag{color:var(--faint);font-size:11.5px}
+.sv1-legacy .cj-ds{margin:10px 0 0;font-size:12.5px;color:var(--s);line-height:1.85;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sv1-legacy .cj-ac{flex:none;display:flex;flex-direction:column;gap:7px;min-width:130px}
+.sv1-legacy .cj-ac .sv1-btn{width:100%;padding-block:9px}
+.sv1-legacy .cj-none{padding:34px 22px;text-align:center;color:var(--mut);font-size:14px;border:1px dashed var(--l);border-radius:14px}
+.sv1-legacy .cj-none[hidden]{display:none}
+.sv1-legacy .cj-more{display:flex;margin:16px auto 0;min-width:180px}
+.sv1-legacy .cj-more[hidden]{display:none}
+.sv1-legacy .cj-load{font-size:12px;color:var(--faint)}
 
 /* الترويسة لاصقة: بلا هذا الهامش يقف القسم المقصود تحتها فيختفي عنوانه. */
-.sv1-legacy #open-jobs,.sv1-legacy #client-jobs,.sv1-legacy #seeker-form{scroll-margin-top:92px}
+.sv1-legacy #open-jobs,.sv1-legacy #seeker-form{scroll-margin-top:92px}
 
-@media(max-width:560px){
- .sv1-legacy .sv1-ch{padding:22px 18px 84px;min-height:calc(100vh - 92px);min-height:calc(100svh - 92px)}
- /* الحشو يبقى ١٣٪ على الجوال أيضاً: تضييقه يدفع طرفَي السطر خارج الحبر. */
- .sv1 .sv1-legacy .sv1-ch-art h1{font-size:clamp(23px,7.4vw,40px)}
- .sv1-ch-acts{gap:10px;width:100%}
- .sv1-legacy .sv1-ch-acts a{min-width:0;width:100%;padding:15px 22px;font-size:15px}
+@media(max-width:640px){
+ .sv1-legacy .cj{padding-top:22px}
+ .sv1-legacy .cj-bar{grid-template-columns:1fr 1fr}
+ .sv1-legacy .cj-bar input{grid-column:1 / -1}
+ .sv1-legacy .cj-row{flex-direction:column;gap:13px;padding:17px 16px}
+ .sv1-legacy .cj-ac{flex-direction:row;width:100%;min-width:0}
+ .sv1-legacy .cj-ac .sv1-btn{flex:1}
 }
 </style>
-  <section class="sv1-ch">
-    <div class="sv1-ch-in">
-      <img class="sv1-ch-logo" src="/assets/img/logo.png" alt="Business Partner" width="180" height="34">
-      <div class="sv1-ch-art">
-        <svg class="sv1-ch-brush" viewBox="0 0 880 330" aria-hidden="true" focusable="false">
-      <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M140 122C250 74 420 66 560 84c74 10 138 26 180 44" stroke-width="138"/>
-        <path d="M136 168C280 140 520 140 744 172" stroke-width="146"/>
-        <path d="M144 216c118 54 296 72 460 60 60-5 108-15 140-30" stroke-width="138"/>
-        <path d="M604 278c68-9 122-25 148-45" stroke-width="50"/>
-      </g>
-    </svg>
-        <h1>Ready for your next step?</h1>
+  <section class="cj" id="open-jobs"><div class="container cj-in">
+    <header class="cj-head">
+      <div>
+        <h1>Open positions</h1>
+        <p class="cj-count" id="cjCount" aria-live="polite">37 open positions</p>
+        <p class="cj-lead">Browse the roles and apply directly. Every application is logged with the Business Partner team and reviewed.</p>
       </div>
-      <p class="sv1-ch-lead">Browse the open roles, or send your CV once.</p>
-      <div class="sv1-ch-acts">
-        <a href="#open-jobs">Job openings</a>
-        <a href="#seeker-form">Send your CV</a>
+      <div class="cj-quick">
+        <a class="sv1-btn sm" href="#seeker-form">Send your CV</a>
+        <a class="sv1-btn sm" href="/employers">I'm an employer</a>
       </div>
-      <p class="sv1-ch-alt"><a href="/employers">I'm an employer →</a></p>
-    </div>
-    <a class="sv1-ch-down" href="#open-jobs" aria-label="Scroll to the jobs" title="Scroll to the jobs">↓</a>
-  </section>
+    </header>
 
-  <section class="section section--gray" id="open-jobs"><div class="container">
-    <div class="section-head"><span class="eyebrow">Careers / Jobs</span><h2>Open roles at Business Partner</h2><p>Every application is logged in the Business Partner ATS, screened, and routed to the right hiring stage.</p></div>
-    <div class="grid grid-3 ats-jobs"><article class="card ats-job-card">
-        <span class="emp-tag">Candidate pool</span>
-        <h3>General candidate pool</h3>
-        <p>Not seeing the right role? Join the pool once and we'll match you with suitable employer requests.</p>
-        <div class="emp-meta">All fields · Saudi Arabia · Consent-based sharing</div>
-        <div class="talent-actions"><a class="btn btn-primary btn-sm ats-apply-link" href="#seeker-form" data-job-id="candidate-pool" data-job-title="General candidate pool">Join pool</a></div>
-      </article></div>
-  </div></section>
-  <section class="section section--gray" id="client-jobs"><div class="container">
-    <div class="section-head"><span class="eyebrow">Employer clients</span><h2>Jobs from our employer clients</h2><p>Companies hiring through the Business Partner platform. Apply directly — your application goes straight to their pipeline.</p></div>
-    <p class="emp-note" id="client-jobs-status">Loading…</p>
-    <div class="grid grid-3 ats-jobs" id="client-jobs-grid"><article class="card ats-job-card">
-        <span class="emp-tag">Riyadh · HR</span>
-        <h3>HR Operations &amp; Government Relations Specialist</h3>
-        <p>Run Qiwa, GOSI, Mudad, Muqeem and day-to-day HR operations for Business Partner clients.</p>
-        <div class="emp-meta">Full-time · Saudi market experience · Arabic/English</div>
-        <div class="talent-actions"><a class="btn btn-primary btn-sm" href="/jobs/hr-operations-specialist">View job</a><a class="btn btn-ghost btn-sm" href="/jobs/hr-operations-specialist#apply-form">Apply</a></div>
-      </article><article class="card ats-job-card">
-        <span class="emp-tag">Riyadh / Hybrid · Recruitment</span>
-        <h3>Recruitment Coordinator</h3>
-        <p>Coordinate candidate sourcing, screening, interviews, offer follow-up, and employer communication.</p>
-        <div class="emp-meta">Full-time · Hiring pipeline · Candidate care</div>
-        <div class="talent-actions"><a class="btn btn-primary btn-sm" href="/jobs/recruitment-coordinator">View job</a><a class="btn btn-ghost btn-sm" href="/jobs/recruitment-coordinator#apply-form">Apply</a></div>
-      </article></div>
-  </div></section>
+    <div class="cj-bar" role="search">
+      <input type="search" id="cjQ" placeholder="Search by title or keyword" aria-label="Search by title or keyword" autocomplete="off">
+      <select id="cjCity" aria-label="City" hidden><option value="">All cities</option></select>
+      <select id="cjField" aria-label="Field" hidden><option value="">All fields</option></select>
+    </div>
+    <div class="cj-sub"><span id="cjSub" class="cj-load" hidden></span><button type="button" class="cj-clear" id="cjClear" hidden>Clear filters</button></div>
+
+    <span id="client-jobs" aria-hidden="true"></span><!-- مرساة قديمة: «العودة للوظائف» في صفحة الحملة تشير إلى /careers#client-jobs -->
+    <div class="cj-list" id="cjList"><article class="cj-row" data-city="Riyadh" data-field="Human resources"><div class="cj-mn"><h2><a href="/jobs/hr-operations-specialist">HR Operations &amp; Government Relations Specialist</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Riyadh, Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Human resources</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Run Qiwa, GOSI, Mudad, Muqeem and day-to-day HR operations for Business Partner clients.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/hr-operations-specialist">Details</a><a class="sv1-btn sm primary" href="/jobs/hr-operations-specialist#apply-form">Apply</a></div></article><article class="cj-row" data-city="Riyadh" data-field="Human resources"><div class="cj-mn"><h2><a href="/jobs/recruitment-coordinator">Recruitment Coordinator</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Riyadh, Saudi Arabia (hybrid)</span><span class="cj-sep" aria-hidden="true">•</span><span>Human resources</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Coordinate candidate sourcing, screening, interviews, offer follow-up, and employer communication.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/recruitment-coordinator">Details</a><a class="sv1-btn sm primary" href="/jobs/recruitment-coordinator#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Management"><div class="cj-mn"><h2><a href="/jobs/workshop-factory-manager">Factory / Plant Manager — Events Fabrication</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Management</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Lead all daily operations of a custom events fabrication workshop — production, quality, safety, and dispatch of scenic builds on time and on budget.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-factory-manager">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-factory-manager#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Management"><div class="cj-mn"><h2><a href="/jobs/workshop-production-manager">Production Manager — Events Fabrication</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Management</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Own the full production cycle of event structures, exhibition stands, sets, and custom props — from design interpretation to final installation.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-production-manager">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-production-manager#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Management"><div class="cj-mn"><h2><a href="/jobs/workshop-installation-manager">Installation Manager — Events</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Management</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Plan and lead on-site installation of custom-built scenic elements, exhibits, and event structures — crews, logistics, safety, and client liaison.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-installation-manager">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-installation-manager#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Management"><div class="cj-mn"><h2><a href="/jobs/workshop-engineering-manager">Engineering Manager — Events Fabrication</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Management</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Lead the technical team turning artistic concepts into safe, buildable event structures — CAD, shop drawings, structural analysis, and design-for-fabrication.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-engineering-manager">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-engineering-manager#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Management"><div class="cj-mn"><h2><a href="/jobs/workshop-quality-manager">Quality Manager — Events Fabrication</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Management</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Build and run the quality system for custom event structures — from raw materials to final installed products, with a correct-at-source culture.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-quality-manager">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-quality-manager#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Management"><div class="cj-mn"><h2><a href="/jobs/workshop-maintenance-manager">Maintenance Manager (Mechatronics) — Fabrication Workshop</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Management</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Lead maintenance for all fabrication equipment and facility infrastructure — preventative maintenance program, breakdown response, and safety.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-maintenance-manager">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-maintenance-manager#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Warehouse &amp; Logistics"><div class="cj-mn"><h2><a href="/jobs/workshop-warehouse-manager">Warehouse Manager — Events Fabrication</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Warehouse &amp; Logistics</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Manage receiving, storage, and dispatch of raw materials and high-value finished event assets on tight, project-based deadlines.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-warehouse-manager">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-warehouse-manager#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Engineering &amp; Design"><div class="cj-mn"><h2><a href="/jobs/workshop-design-engineer">Technical Design Engineer — Events</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Engineering &amp; Design</span><span class="cj-tg">Full-time</span><span class="cj-tg">6 openings</span></p><p class="cj-ds">Translate creative concepts into build-ready CAD drawings for events, exhibitions, and activations — the bridge between design and the workshop floor.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-design-engineer">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-design-engineer#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Warehouse &amp; Logistics"><div class="cj-mn"><h2><a href="/jobs/workshop-logistics-supervisor">Logistics Supervisor — Events</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Warehouse &amp; Logistics</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Coordinate end-to-end movement, storage, and setup of materials and equipment for events — from workshop to site and back.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-logistics-supervisor">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-logistics-supervisor#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Warehouse &amp; Logistics"><div class="cj-mn"><h2><a href="/jobs/workshop-store-keeper">Store Keeper — Events Workshop</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Warehouse &amp; Logistics</span><span class="cj-tg">Full-time</span><span class="cj-tg">3 openings</span></p><p class="cj-ds">Manage receipt, storage, and issuance of materials, tools, and equipment for events, exhibitions, and fit-out projects.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-store-keeper">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-store-keeper#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Team Leaders"><div class="cj-mn"><h2><a href="/jobs/workshop-installation-team-leader">Installation Team Leader — Events</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Team Leaders</span><span class="cj-tg">Full-time</span><span class="cj-tg">5 openings</span></p><p class="cj-ds">Hands-on leadership of on-site installs: ship, assemble, and deliver fabricated event sets safely, on time, and to spec.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-installation-team-leader">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-installation-team-leader#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Team Leaders"><div class="cj-mn"><h2><a href="/jobs/workshop-carpentry-team-leader">Carpentry Team Leader — Events Workshop</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Team Leaders</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Lead the carpentry section building scenic elements, custom displays, and furniture — hands-on, quality-first, deadline-driven.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-carpentry-team-leader">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-carpentry-team-leader#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Team Leaders"><div class="cj-mn"><h2><a href="/jobs/workshop-steel-team-leader">Steel Fabrication Team Leader — Events Workshop</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Team Leaders</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Lead the steel section fabricating custom structures, rigging frames, and scenic supports with MIG/TIG welding to show-quality finish.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-steel-team-leader">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-steel-team-leader#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Team Leaders"><div class="cj-mn"><h2><a href="/jobs/workshop-printing-team-leader">Printing Team Leader — Events Workshop</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Team Leaders</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Lead the large-format printing section producing graphics, signage, and branding for events — machines, people, color, and deadlines.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-printing-team-leader">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-printing-team-leader#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Team Leaders"><div class="cj-mn"><h2><a href="/jobs/workshop-foam-team-leader">Foam Fabrication Team Leader — Events Workshop</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Team Leaders</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Lead the foam section turning EPS/PU foam into detailed 3D props and large-scale scenic structures with CNC and hand-carving.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-foam-team-leader">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-foam-team-leader#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Team Leaders"><div class="cj-mn"><h2><a href="/jobs/workshop-painting-team-leader">Painting Team Leader — Events Workshop</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Team Leaders</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Lead the painting section: color matching, prep, spraying, and scenic finishes for custom-built elements, props, and structures.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-painting-team-leader">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-painting-team-leader#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Technicians"><div class="cj-mn"><h2><a href="/jobs/workshop-carpenter">Carpenter — Events Fabrication</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Technicians</span><span class="cj-tg">Full-time</span><span class="cj-tg">35 openings</span></p><p class="cj-ds">Build and finish custom scenic elements, exhibition stands, props, and furniture from technical drawings — precise, fast, show-ready.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-carpenter">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-carpenter#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Technicians"><div class="cj-mn"><h2><a href="/jobs/workshop-steel-fabricator">Steel Fabricator / Welder — Events</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Technicians</span><span class="cj-tg">Full-time</span><span class="cj-tg">6 openings</span></p><p class="cj-ds">Cut, weld, and assemble custom metal structures for stages, sets, and exhibition stands — MIG/TIG precision with public-facing finish quality.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-steel-fabricator">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-steel-fabricator#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Technicians"><div class="cj-mn"><h2><a href="/jobs/workshop-printing-operator">Printing Operator — Large Format</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Technicians</span><span class="cj-tg">Full-time</span><span class="cj-tg">6 openings</span></p><p class="cj-ds">Produce high-quality large-format graphics, signage, and branding on digital printers, vinyl cutters, and finishing equipment.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-printing-operator">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-printing-operator#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Technicians"><div class="cj-mn"><h2><a href="/jobs/workshop-tailor">Tailor / Scenic Stitcher — Events</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Technicians</span><span class="cj-tg">Full-time</span><span class="cj-tg">3 openings</span></p><p class="cj-ds">Produce large-scale fabric installations — drapery, stage curtains, custom decor — for event production and trade shows.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-tailor">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-tailor#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Technicians"><div class="cj-mn"><h2><a href="/jobs/workshop-foam-fabricator">Foam Sculptor / Fabricator — Events</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Technicians</span><span class="cj-tg">Full-time</span><span class="cj-tg">3 openings</span></p><p class="cj-ds">Turn EPS and PU foam into detailed 3D props and large-scale scenic structures with CNC-cut components and skilled hand-carving.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-foam-fabricator">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-foam-fabricator#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Technicians"><div class="cj-mn"><h2><a href="/jobs/workshop-painter">Painter — Events Fabrication</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Technicians</span><span class="cj-tg">Full-time</span><span class="cj-tg">6 openings</span></p><p class="cj-ds">Prep, paint, and finish custom-built scenic elements, props, and structures — spray painting, color matching, and scenic finishes.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-painter">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-painter#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Skilled Trades &amp; Labor"><div class="cj-mn"><h2><a href="/jobs/workshop-skilled-labor">Skilled Labor — Carpentry, Steel, Printing, Foam, Painting, Warehouse</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Skilled Trades &amp; Labor</span><span class="cj-tg">Full-time</span><span class="cj-tg">70 openings</span></p><p class="cj-ds">Multiple openings for skilled workers supporting every fabrication section — carpentry, steel, printing, foam, painting, warehouse, and logistics.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-skilled-labor">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-skilled-labor#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Team Leaders"><div class="cj-mn"><h2><a href="/jobs/workshop-production-team-leader">Production Team Leader — Events Workshop</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Team Leaders</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Hands-on leadership of the workshop floor across carpenters, welders, and painters — the daily link between project managers and fabrication.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-production-team-leader">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-production-team-leader#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Team Leaders"><div class="cj-mn"><h2><a href="/jobs/workshop-electrical-team-leader">Electrical Team Leader — Events Workshop</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Team Leaders</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Lead the electrical section wiring, lighting, and powering custom event structures and scenic elements — safely and show-ready.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-electrical-team-leader">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-electrical-team-leader#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Technicians"><div class="cj-mn"><h2><a href="/jobs/workshop-electrical-technician">Electrical Technician — Events</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Technicians</span><span class="cj-tg">Full-time</span><span class="cj-tg">5 openings</span></p><p class="cj-ds">Wire, light, and power custom scenic elements and event structures in the workshop and on site.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-electrical-technician">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-electrical-technician#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Technicians"><div class="cj-mn"><h2><a href="/jobs/workshop-branding-technician">Installation / Fabric &amp; Branding Technician — Events</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Technicians</span><span class="cj-tg">Full-time</span><span class="cj-tg">6 openings</span></p><p class="cj-ds">Apply vinyl, graphics, fabric, and branding to event structures, stands, and venues — precise finishing that carries the client&#39;s brand.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-branding-technician">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-branding-technician#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Engineering &amp; Design"><div class="cj-mn"><h2><a href="/jobs/workshop-production-engineer">Production Engineer — Events Fabrication</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Engineering &amp; Design</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Plan and optimize fabrication workflows across carpentry, steel, printing, foam, and painting — capacity, methods, and cost.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-production-engineer">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-production-engineer#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Engineering &amp; Design"><div class="cj-mn"><h2><a href="/jobs/workshop-quality-engineer">Quality Engineer — Events Fabrication</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Engineering &amp; Design</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Run in-process inspections and final release checks on custom event structures — supporting the Quality Manager&#39;s system on the floor.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-quality-engineer">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-quality-engineer#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Engineering &amp; Design"><div class="cj-mn"><h2><a href="/jobs/workshop-installation-engineer">Installation Engineer — Events</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Engineering &amp; Design</span><span class="cj-tg">Full-time</span></p><p class="cj-ds">Engineer the on-site build: method statements, site surveys, and technical supervision of installation crews.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-installation-engineer">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-installation-engineer#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Engineering &amp; Design"><div class="cj-mn"><h2><a href="/jobs/workshop-detailing-engineer">Detailing Engineer / Detailer — Events</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Engineering &amp; Design</span><span class="cj-tg">Full-time</span><span class="cj-tg">4 openings</span></p><p class="cj-ds">Produce precise shop drawings, cut lists, and CNC-ready files from the design team&#39;s models — the drawings the workshop builds from.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-detailing-engineer">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-detailing-engineer#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Technicians"><div class="cj-mn"><h2><a href="/jobs/workshop-maintenance-technician">Maintenance Technician (Mechatronics) — Workshop</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Technicians</span><span class="cj-tg">Full-time</span><span class="cj-tg">2 openings</span></p><p class="cj-ds">Keep CNC routers, welders, printers, and workshop infrastructure running — preventative maintenance and fast breakdown response.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-maintenance-technician">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-maintenance-technician#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Finance, HR &amp; Procurement"><div class="cj-mn"><h2><a href="/jobs/workshop-finance-officer">Finance Officer — Events Workshop</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Finance, HR &amp; Procurement</span><span class="cj-tg">Full-time</span><span class="cj-tg">3 openings</span></p><p class="cj-ds">Run day-to-day finance for a fast-moving fabrication workshop — project costing, supplier payments, payroll inputs, and reporting.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-finance-officer">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-finance-officer#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Finance, HR &amp; Procurement"><div class="cj-mn"><h2><a href="/jobs/workshop-hr-officer">HR / Government Relations Officer — Events Workshop</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Finance, HR &amp; Procurement</span><span class="cj-tg">Full-time</span><span class="cj-tg">3 openings</span></p><p class="cj-ds">Run HR operations and government platforms for a 180+ workforce — Qiwa, GOSI, Muqeem, Mudad, contracts, and site compliance.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-hr-officer">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-hr-officer#apply-form">Apply</a></div></article><article class="cj-row" data-city="" data-field="Finance, HR &amp; Procurement"><div class="cj-mn"><h2><a href="/jobs/workshop-procurement-officer">Procurement Officer — Events Workshop</a></h2><p class="cj-mt"><span>Business Partner</span><span class="cj-sep" aria-hidden="true">•</span><span>Saudi Arabia</span><span class="cj-sep" aria-hidden="true">•</span><span>Finance, HR &amp; Procurement</span><span class="cj-tg">Full-time</span><span class="cj-tg">3 openings</span></p><p class="cj-ds">Source and buy materials for custom fabrication — wood, steel, foam, print media, paint — on tight event timelines.</p></div><div class="cj-ac"><a class="sv1-btn sm" href="/jobs/workshop-procurement-officer">Details</a><a class="sv1-btn sm primary" href="/jobs/workshop-procurement-officer#apply-form">Apply</a></div></article></div>
+    <div class="cj-none" id="cjNone" hidden>No positions match your search.</div>
+    <button type="button" class="sv1-btn cj-more" id="cjMore" hidden>Show more</button>
+  </div></section><script>(function(){"use strict";
+var LANG="en",TX={"of":"Showing {n} of {m} positions","posted":"Posted","loading":"Loading employer postings…","anyCity":"All cities","anyField":"All fields","counts":{"zero":"No open positions right now","one":"1 open position","other":"{n} open positions"},"view":"Details","apply":"Apply"},
+JOB="/job?id=",PAGE=15;
+var cjRow=function cjRow(j, X) {
+  var e = function (s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  };
+  var meta = [];
+  for (var i = 0; i < j.meta.length; i++) if (j.meta[i]) meta.push("<span>" + e(j.meta[i]) + "</span>");
+  var tags = "";
+  for (var k = 0; k < j.tags.length; k++) if (j.tags[k]) tags += '<span class="cj-tg">' + e(j.tags[k]) + "</span>";
+  var when = j.date ? '<span class="cj-ag">' + e(j.dateLabel) + "</span>" : "";
+  var sep = '<span class="cj-sep" aria-hidden="true">•</span>';
+  return '<article class="cj-row" data-city="' + e(j.city) + '" data-field="' + e(j.field) + '">' +
+    '<div class="cj-mn"><h2><a href="' + e(j.href) + '">' + e(j.title) + "</a></h2>" +
+    '<p class="cj-mt">' + meta.join(sep) + tags + when + "</p>" +
+    (j.desc ? '<p class="cj-ds">' + e(j.desc) + "</p>" : "") +
+    '</div><div class="cj-ac"><a class="sv1-btn sm" href="' + e(j.href) + '">' + e(X.view) + "</a>" +
+    '<a class="sv1-btn sm primary" href="' + e(j.href) + '#apply-form">' + e(X.apply) + "</a></div></article>";
+};
+var $=function(i){return document.getElementById(i)};
+var list=$('cjList');if(!list)return;
+var elCount=$('cjCount'),elQ=$('cjQ'),elCity=$('cjCity'),elField=$('cjField'),elMore=$('cjMore'),
+    elNone=$('cjNone'),elSub=$('cjSub'),elClear=$('cjClear');
+var shown=PAGE,M=[],loadingLive=true;
+function clean(v){return String(v==null?'':v).replace(/\s+/g,' ').trim()}
+function norm(v){return clean(v).toLowerCase()}
+function cityKey(v){return clean(String(v==null?'':v).split('|')[0])}
+function num(n){try{return Number(n).toLocaleString('en-US')}catch(e){return String(n)}}
+function plural(n){var k='other';try{k=new Intl.PluralRules(LANG).select(n)}catch(e){}
+ if(n===0&&TX.counts.zero)k='zero';
+ return String(TX.counts[k]||TX.counts.other).replace('{n}',num(n))}
+
+// النموذج: كل صفٍّ كائنٌ {el,live,city,field,hay}. الصفوف الثابتة تُقرأ من DOM
+// الذي رسمه الخادم، والحيّة تُبنى بالدالة نفسها وتُدرَج في رأس القائمة.
+function adopt(el,live){
+ M.push({el:el,live:!!live,city:cityKey(el.getAttribute('data-city')),field:clean(el.getAttribute('data-field')),hay:norm(el.textContent)})}
+Array.prototype.forEach.call(list.querySelectorAll('.cj-row'),function(el){adopt(el,false)});
+
+var F={q:'',city:'',field:''};
+function match(m,skip){
+ if(skip!=='city'&&F.city&&m.city!==F.city)return false;
+ if(skip!=='field'&&F.field&&m.field!==F.field)return false;
+ if(F.q){var w=norm(F.q).split(/[^\p{L}\p{N}]+/u).filter(function(x){return x.length>1});
+  for(var i=0;i<w.length;i++)if(m.hay.indexOf(w[i])<0)return false}
+ return true}
+// الخيارات مبنيّة من الوظائف الموجودة فعلاً مع عدّادها على بقيّة الفلاتر: خيارٌ
+// لا وظيفة تحته لا يُعرض، فلا يعيد فلترٌ صفراً.
+function facet(sel,key,any){
+ var base=M.filter(function(m){return match(m,key)}),c={},order=[];
+ base.forEach(function(m){var v=m[key];if(!v)return;if(c[v]==null){c[v]=0;order.push(v)}c[v]++});
+ order.sort(function(a,b){if(c[b]!==c[a])return c[b]-c[a];try{return a.localeCompare(b,LANG)}catch(e){return 0}});
+ if(F[key]&&c[F[key]]==null)order.unshift(F[key]);
+ // قائمةٌ بخيارٍ واحد لا تصفّي شيئاً — تُخفى حتى تصير ذات معنى.
+ sel.hidden=!(order.length>1||F[key]);
+ sel.textContent='';
+ var o0=document.createElement('option');o0.value='';o0.textContent=any;sel.appendChild(o0);
+ order.forEach(function(v){var o=document.createElement('option');o.value=v;o.textContent=v+' ('+num(c[v]||0)+')';sel.appendChild(o)});
+ sel.value=F[key]||''}
+
+function paint(){
+ var vis=0;
+ M.forEach(function(m){if(match(m)){vis++;m.el.hidden=vis>shown}else m.el.hidden=true});
+ facet(elCity,'city',TX.anyCity);facet(elField,'field',TX.anyField);
+ var active=!!(F.q||F.city||F.field);
+ elCount.textContent=active?TX.of.replace('{n}',num(vis)).replace('{m}',num(M.length)):plural(M.length);
+ elNone.hidden=vis>0;list.hidden=!vis;
+ elMore.hidden=vis-shown<=0;
+ elClear.hidden=!active;
+ elSub.hidden=!loadingLive;elSub.textContent=loadingLive?TX.loading:''}
+
+function applyF(){shown=PAGE;paint()}
+var tmr=null;
+elQ.addEventListener('input',function(){clearTimeout(tmr);tmr=setTimeout(function(){F.q=elQ.value.trim();applyF()},180)});
+elCity.addEventListener('change',function(){F.city=elCity.value;applyF()});
+elField.addEventListener('change',function(){F.field=elField.value;applyF()});
+elClear.addEventListener('click',function(){F.q=F.city=F.field='';elQ.value='';applyF()});
+elMore.addEventListener('click',function(){shown+=PAGE;paint()});
+
+// الإعلانات الحيّة (نوشن): تُدرَج قبل الوظائف الثابتة، الأحدث أولاً كما تعيدها
+// النقطة. فشل الجلب لا يُظهر شيئاً — القائمة الثابتة تبقى كاملة.
+function fmtDate(v){var t=Date.parse(v);if(isNaN(t))return '';
+ try{return new Intl.DateTimeFormat(LANG==='ar'?'ar-u-nu-latn':LANG,{day:'numeric',month:'short',year:'numeric'}).format(new Date(t))}catch(e){return ''}}
+function liveRow(j){
+ var d=fmtDate(j.postedAt);
+ var html=cjRow({href:JOB+encodeURIComponent(j.id),title:clean(j.title),
+  meta:[clean(j.company),cityKey(j.city),clean(j.field)],tags:[clean(j.type),clean(j.mode)],
+  desc:clean(j.description).slice(0,160),city:cityKey(j.city),field:clean(j.field),
+  date:d,dateLabel:d?TX.posted+' '+d:''},{view:TX.view,apply:TX.apply});
+ var box=document.createElement('div');box.innerHTML=html;return box.firstChild}
+
+// الإعلانات تُكتب بالعربية في نوشن؛ في اللغات الأخرى تُترجَم عند الطلب بالنداء
+// نفسه الذي يستعمله main.js (task:"translate") ومفتاح التخزين نفسه، على دفعات
+// متتابعة لا متوازية (التوازي يستنفد حدّ المزوّد فتسقط اللوحة كلها للعربية).
+function translateParts(parts,id){
+ if(LANG==='ar')return Promise.resolve(null);
+ var key='bp_jobtr_'+LANG+'_'+id;
+ try{var hit=JSON.parse(localStorage.getItem(key)||'null');if(hit&&hit.n===parts.length)return Promise.resolve(hit.parts)}catch(e){}
+ return fetch('/api/hire',{method:'POST',headers:{'content-type':'application/json'},
+  body:JSON.stringify({task:'translate',lang:LANG,items:parts})}).then(function(r){return r.json()}).then(function(d){
+  if(!d||!d.ok||!Array.isArray(d.items)||d.items.length!==parts.length)return null;
+  try{localStorage.setItem(key,JSON.stringify({n:parts.length,parts:d.items}))}catch(e2){}
+  return d.items}).catch(function(){return null})}
+
+fetch('/api/candidates?openJobs=1').then(function(r){return r.json()}).then(function(d){
+ var js=(d&&d.ok&&d.jobs)||[];
+ var first=list.firstChild,made=[];
+ js.forEach(function(j){if(!clean(j.title))return;var el=liveRow(j);list.insertBefore(el,first);adopt(el,true);made.push({j:j,el:el})});
+ // الصفوف الحيّة أمام الثابتة في الـDOM، فيتبعها النموذج (الترقيم يعدّ بترتيبه).
+ M.sort(function(a,b){return (b.live?1:0)-(a.live?1:0)});
+ if(LANG!=='ar'&&made.length){
+  var batches=[];for(var b=0;b<made.length;b+=8)batches.push(made.slice(b,b+8));
+  (function next(i){if(i>=batches.length)return;var bt=batches[i],parts=[];
+   bt.forEach(function(x){parts.push(clean(x.j.title),clean(x.j.description).slice(0,160)||'—')});
+   var key='board-'+bt.map(function(x){return String(x.j.id).slice(-6)}).join('');
+   translateParts(parts,key).then(function(tr){
+    if(tr)bt.forEach(function(x,k){var h=x.el.querySelector('h2 a');if(h)h.textContent=tr[k*2];
+     var ds=x.el.querySelector('.cj-ds');if(ds&&tr[k*2+1]!=='—')ds.textContent=tr[k*2+1];
+     for(var q=0;q<M.length;q++)if(M[q].el===x.el)M[q].hay=norm(x.el.textContent)});
+    next(i+1)})})(0)}
+}).catch(function(){}).then(function(){loadingLive=false;paint()});
+paint();
+})();</script>
 
   <section class="section"><div class="container">
     <div class="grid grid-3" style="margin-bottom:36px"><div class="card"><div class="card-icon" style="font-size:1.5rem">📄</div><h3>One CV, many opportunities</h3><p>Join the pool once; we match you whenever a fitting role opens.</p></div><div class="card"><div class="card-icon" style="font-size:1.5rem">🤝</div><h3>Employers reach you</h3><p>Companies hiring through us see your profile for suitable roles.</p></div><div class="card"><div class="card-icon" style="font-size:1.5rem">🔒</div><h3>Your data is protected</h3><p>We never share your CV without your consent (PDPL).</p></div></div>
