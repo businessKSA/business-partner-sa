@@ -1,0 +1,68 @@
+[
+  {
+    "client": {
+      "id": "clt_1", "nameAr": "محمد العتيبي", "nameEn": "Mohammed Alotaibi",
+      "companyAr": "مؤسسة الأفق التجارية", "companyEn": "Alufuq Trading",
+      "crNumber": "1010123456", "vatNumber": "300012345600003",
+      "email": "Owner@Alufuq.sa", "phone": "966500000001", "city": "الرياض",
+      "portalToken": "ptk_client1", "createdAt": "2026-06-01T08:00:00.000Z"
+    },
+    "documents": [
+      {
+        "id": "doc_q1", "type": "QUOTE", "number": "BP-FI-2026-001", "status": "ACCEPTED",
+        "clientId": "clt_1", "publicToken": "tok_quote_abc123def456", "titleAr": "تأسيس شركة باستثمار أجنبي",
+        "introAr": "عرض سعر لخدمات التأسيس والترخيص.", "currency": "SAR", "vatRate": 0.15,
+        "subtotal": 10000, "vatAmount": 1500, "total": 11500,
+        "issuedAt": "2026-06-02T09:00:00.000Z", "validUntil": "2026-06-16T00:00:00.000Z",
+        "sentAt": "2026-06-02T09:05:00.000Z", "acceptedAt": "2026-06-03T12:00:00.000Z",
+        "items": [
+          { "code": "FI-100", "nameAr": "رخصة استثمار أجنبي", "nameEn": "Foreign Investment License", "descAr": "إصدار الرخصة من وزارة الاستثمار", "qty": 1, "unitPrice": 7000, "lineTotal": 7000 },
+          { "code": "CR-10", "nameAr": "إصدار السجل التجاري", "nameEn": "CR Issuance", "descAr": "", "qty": 1, "unitPrice": 3000, "lineTotal": 3000 }
+        ]
+      },
+      {
+        "id": "doc_c1", "type": "CONTRACT", "number": "BP-C-2026-001", "status": "SIGNED",
+        "clientId": "clt_1", "sourceQuoteId": "doc_q1", "publicToken": "tok_contract_xyz789",
+        "titleAr": "عقد خدمات التأسيس", "bodyAr": "<section><h2>عقد خدمات</h2><p>بين الطرفين على تنفيذ نطاق عرض السعر BP-FI-2026-001.</p></section>",
+        "issuedAt": "2026-06-03T13:00:00.000Z", "sentAt": "2026-06-03T13:05:00.000Z",
+        "signedAt": "2026-06-04T10:00:00.000Z", "acceptedByName": "محمد العتيبي", "acceptedByIp": "5.42.1.9"
+      }
+    ],
+    "invoices": [
+      {
+        "id": "inv_1", "number": "INV-2026-001", "clientId": "clt_1", "documentId": "doc_q1",
+        "payToken": "tok_pay_inv001", "amountExclVat": 10000, "vatAmount": 1500, "total": 11500,
+        "status": "PAID", "provider": "moyasar", "providerRef": "pay_abc", "method": "mada",
+        "paidAt": "2026-06-04T11:00:00.000Z", "createdAt": "2026-06-04T10:30:00.000Z"
+      }
+    ],
+    "signaturesByDoc": {
+      "doc_c1": [
+        { "role": "client", "name": "محمد العتيبي", "email": "owner@alufuq.sa", "ipAddress": "5.42.1.9", "signedAt": "2026-06-04T10:00:00.000Z" }
+      ]
+    },
+    "events": [
+      { "entityId": "doc_q1", "code": "SENT", "titleAr": "أُرسل عرض السعر", "actor": "admin", "actorKind": "admin", "clientId": "clt_1", "createdAt": "2026-06-02T09:05:00.000Z" },
+      { "entityId": "doc_q1", "code": "ACCEPTED", "titleAr": "اعتمد العميل العرض", "actor": "client", "actorKind": "client", "clientId": "clt_1", "createdAt": "2026-06-03T12:00:00.000Z" },
+      { "entityId": "doc_c1", "code": "SIGNED", "titleAr": "وُقّع العقد", "actor": "client", "actorKind": "client", "clientId": "clt_1", "createdAt": "2026-06-04T10:00:00.000Z" }
+    ]
+  },
+  {
+    "client": {
+      "id": "clt_2", "nameAr": "سارة القحطاني", "companyAr": "", "email": "sara@example.sa",
+      "phone": "966500000002", "city": "جدة", "portalToken": "ptk_client2", "createdAt": "2026-07-10T08:00:00.000Z"
+    },
+    "documents": [
+      {
+        "id": "doc_q2", "type": "QUOTE", "number": "BP-QW-2026-014", "status": "SENT",
+        "clientId": "clt_2", "publicToken": "tok_quote_sara014", "titleAr": "خدمة قوى",
+        "currency": "SAR", "subtotal": 2000, "vatAmount": 300, "total": 2300,
+        "issuedAt": "2026-07-11T09:00:00.000Z", "validUntil": "2026-07-26T00:00:00.000Z", "sentAt": "2026-07-11T09:10:00.000Z",
+        "items": [ { "code": "QW-EST", "nameAr": "تأسيس حساب قوى", "qty": 1, "unitPrice": 2000, "lineTotal": 2000 } ]
+      }
+    ],
+    "invoices": [],
+    "signaturesByDoc": {},
+    "events": []
+  }
+]

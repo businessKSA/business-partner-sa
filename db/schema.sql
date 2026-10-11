@@ -834,3 +834,23 @@ create table if not exists wa_agent_gate (
   until timestamptz,                            -- استئناف تلقائي بعد هذا الوقت (null = يدوي)
   updated_at timestamptz not null default now()
 );
+
+-- ============================================================ bp-quotes dmg --
+-- 2026-10-11: خريطة الروابط القديمة لـ bp-quotes.
+--
+-- عروض الأسعار والعقود التي أُرسلت للعملاء منذ أشهر كانت روابطها
+-- /quotes/d/<token> يخدمها تطبيق bp-quotes من Document.publicToken. عند حذف
+-- المشروع الثاني يجب أن تبقى هذه الروابط حيّة من الموقع الرئيسي، فيُحوَّل
+-- /quotes/d/:token في vercel.json إلى api/requests?__route=docview (لا دالة
+-- جديدة — السقف 12/12)، وهذا الجدول هو الجسر: رمزٌ قديم → طلب Simple V1.
+--
+-- يملؤه سكربت الهجرة (scripts/migrate-quotes.mjs). الرمز غير قابل للتخمين،
+-- والمحتوى مستند العميل نفسه الذي استلمه سابقاً، فالعرض عام بلا تسجيل.
+create table if not exists quote_tokens (
+  token text primary key,                       -- bp-quotes Document.publicToken / Invoice.payToken
+  ref text not null references requests(ref) on delete cascade,  -- BP-R-XXXXXX
+  kind text not null default 'quote' check (kind in ('quote','contract','invoice')),
+  legacy_number text,                           -- الرقم الأصلي: BP-FI-2026-001 / INV-2026-001
+  created_at timestamptz not null default now()
+);
+create index if not exists quote_tokens_ref_idx on quote_tokens(ref);

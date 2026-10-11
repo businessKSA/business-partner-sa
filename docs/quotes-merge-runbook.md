@@ -79,10 +79,31 @@
 
 ---
 
-## ما أستطيع أن أبدأه الآن بأمان (بلا نشر، بلا بيانات حقيقية)
-- **(أ)** سكربت الهجرة (المرحلة 1) يعمل على `LOCAL_DB=1` + بيانات بذرة.
-- **(ب)** جدول الربط `token→ref` ومسار `?__route=docview` (المرحلة 2) مع اختبار محلي.
-- كلاهما على فرع التخطيط، بلا مساس بالإنتاج.
+## المُنجَز حتى الآن (بُني واختُبر محليًا — بلا نشر، بلا بيانات حقيقية)
+- **المرحلة 1 — سكربت الهجرة:** `scripts/migrate-quotes.mjs` (منطق التحويل النقي في
+  `scripts/lib/map-quotes.mjs`). الافتراضي **تجربة** (بلا كتابة)؛ `--write` يكتب عبر
+  `sb()` (مع `LOCAL_DB=1` إلى `.localdb/`). المصدر الحقيقي `--source=prisma` يقرأ
+  قاعدة bp-quotes بـ`pg` ويحتاج `DATABASE_URL` (في `.env.local`، لا في المحادثة).
+  **idempotent:** إعادة التشغيل لا تُضاعف الصفوف (upsert على `ref` و`token`).
+  اختبار الخريطة: `tests/migrate-quotes.test.mjs` (5 حالات، تمرّ).
+- **المرحلة 2 — خدمة `/d/<token>`:** جدول `quote_tokens` في `db/schema.sql`، وعارض
+  عام بلا تسجيل `api/_docview.js` مُوزَّع عبر `?__route=docview` من `requests.js`
+  (لا دالة جديدة — الحارس يؤكّد 12/12). اختبار شامل محلي: عرض/عقد/فاتورة → 200،
+  رمز خاطئ → صفحة 404 نظيفة.
+
+### كيف تجرّبها محليًا
+```
+node scripts/migrate-quotes.mjs                 # تجربة على العيّنة (لا كتابة)
+LOCAL_DB=1 node scripts/migrate-quotes.mjs --write   # كتابة محلية ثم افتح /quotes/d/<token>
+```
+المصدر الحقيقي (قراءة فقط): `DATABASE_URL=... node scripts/migrate-quotes.mjs --source=prisma`.
+
+### المتبقّي قبل الحذف (المرحلتان 3 و4)
+- تحويل جسر `api/requests.js` و`/api/live-catalog` لقراءة مباشرة.
+- في `vercel.json`: استبدال تحويل `/quotes/d/:token` ليشير إلى
+  `api/requests?__route=docview&token=:token` (بدل bp-quotes)، ثم حذف بقية تحويلات
+  `/quotes*`.
+- حذف المشروع من لوحة Vercel (أنت) ثم حذف `quotes/` من المستودع.
 
 ---
 
