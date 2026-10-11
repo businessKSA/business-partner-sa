@@ -247,6 +247,10 @@
       "destination": "/api/requests?__route=simple"
     },
     {
+      "source": "/api/pr-intake",
+      "destination": "/api/requests?__route=pr-intake"
+    },
+    {
       "source": "/api/spaces",
       "destination": "/api/requests?__route=spaces"
     },
