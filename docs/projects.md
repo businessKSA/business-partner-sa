@@ -559,3 +559,9 @@ Simple V1. وكيل المنتج لا يلمسها.
 **وكيل `insurance-pricing` (2026-10-08):** يجمع أسعار التأمين الطبي من مصادر عامة (بوبا، التعاونية، ميدغلف، ملاذ، ولاء، الراجحي تكافل، الدرع العربي، أليانز) بحسب الفئة والعمر والجنس، ويكتب **مقترحاً** في `api/_insurance-benchmarks.json` و`docs/insurance-pricing-research.md` بمصدر وتاريخ وثقة لكل رقم. لا يعدّل `api/_eor-pricing.json` (ملك `eor`)، ولا يتواصل مع الشركات. تعريفه: `.claude/agents/insurance-pricing.md`.
 
 **بوابة Business Partner HR (2026-10-08):** `/hr-portal` — «من أنت؟» ست بطاقات (صاحب عمل، مرشح، موظف بدعوة، مكتب، مستقل، منصة)، `noindex` وغير مربوطة في nav/footer/sitemap، ويدخلها المستخدم من زر في `/eor` فقط (`/hr` القديمة هي صفحة التوظيف وتبقى كما هي). الملفات: `site/scripts/simple-v1-hr.mjs` · `api/_eor-cost.js` (حاسبة سعر الحزمة lump/costplus، العميل يرى السعر الشهري وساعة الإضافي فقط) · كتلة `package_rate` في `api/_eor-pricing.json` (أرقام إكسل المالك؛ بنود غير محسومة موثّقة في `docs/hr-pricing-calculator-spec.md`).
+
+---
+
+## وكيل `ai-workspace` — 2026-10-11 (أمر المالك المباشر)
+
+**منصة مساحات Business Partner AI:** `https://ai.businesspartner.sa` — مساحة خاصة لكل شركة (Open WebUI على خادم Azure `bp-ai-server`، خارج هذا المستودع). **المسؤول: نايف** في n8n، يرفع لمحمد (IT). فريقه: لجين (التهيئة والتجارب) · حمد (الاستقرار) · ديم (الدعم). السيناريوهات: `PxBoz6f2i6276hJ8` (المسار `ai-workspace-intake`) و`ZoTA8MKp2QqUPMmY` (فحص `/health` كل ١٥ دقيقة). طلبات المساحات تُسجَّل في Unified Revenue Intake فتصير صفقة لبدر. إنشاء المساحة نفسها بشري على الخادم. الحدّ: `bp-ai-platform` لـNotion الداخلي، و`automation-agents` لبنية n8n. تعريفه: `.claude/agents/ai-workspace.md`.
