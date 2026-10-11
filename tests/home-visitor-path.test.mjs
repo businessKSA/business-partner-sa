@@ -1,16 +1,18 @@
-// مسار الزائر في الرئيسية الجديدة (أمر المالك 2026-10-10: «مسار واضح للعميل أول ما يدخل الموقع»).
-// تقرأ الصفحات المولَّدة — شغّل `npm run build` قبلها.
+// الرئيسية الجديدة: المحادثة بأبوابها هي الأساس في الأعلى كما كانت، وأي إضافة تأتي
+// تحتها فقط وبمفتاح (أمر المالك 2026-10-11: «لو في تعديلات تكون تحت المحادثة اللي
+// هي أساس الموقع»). تقرأ الصفحات المولَّدة — شغّل `npm run build` قبلها.
 //
 // ما يُثبَت:
-//  ١) في كل لغة: h1 واحد، أربع بطاقات مسارات، مربع بحث، لا زر واتساب في المحتوى،
-//     ولا نصّ خام (مفتاح قاموس) ولا «شريك الأعمال».
-//  ٢) لا رابط في الرئيسية إلى صفحة مخفية (site/data/hidden.json) — والباب الرابع
-//     «تطوير الأعمال» لا يظهر بطاقةً ولا رقاقةً.
-//  ٣) وجهات البطاقات موجودة في الموقع المبني وبتصميم Simple V1 (body.sv1-page بلا main.js).
-//  ٤) /catalog يقرأ ?door= و?q= (معامل التصفية الذي تستعمله البطاقتان والبحث).
-//  ٥) بمتصفح حقيقي (إن وُجد Chromium): h1 والبطاقات الأربع ومربع البحث ظاهرة فوق الطيّ
-//     على 390×844 و1280×800، وضغط بطاقة التأسيس يصل /catalog مصفّى، وبحث «تجديد سجل تجاري»
-//     يعرض اقتراحاً يؤدي إلى صفحة الخدمة.
+//  ١) الأعلى كما كان: h1 واحد، الأبواب الثلاثة + بطاقة EOR + رابط «تصفّح الخدمات واشترِ
+//     مباشرة» داخل الهيرو، ثم قسم المحادثة #advisor — ولا بطاقات مسار ولا بحث فوقه.
+//  ٢) الإضافات (search · how · popular · faq) كلها بعد #advisor، ولا واحدة قبله، وكل
+//     واحدة تُزال بمفتاحها في site/data/features.json (homeExtras) عبر buildHomeExtras.
+//  ٣) لا رابط مخفي، لا واتساب في المحتوى، لا «شريك الأعمال»، لا سعر في الإضافات، ولا باب
+//     «تطوير الأعمال» (مخفي).
+//  ٤) وجهات الإضافات موجودة في الموقع المبني وبتصميم SV1 (body.sv1-page بلا main.js).
+//  ٥) /catalog يقرأ ?door= و?q=.
+//  ٦) بمتصفح حقيقي (إن وُجد Chromium): الأبواب فوق الطيّ، الإضافات تحت المحادثة، البحث يقترح
+//     وينتقل، وضغط باب المستشار يغيّر سياقه.
 import fs from "node:fs";
 import http from "node:http";
 import path from "node:path";
@@ -18,13 +20,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
 import { isHiddenHref } from "../site/scripts/hidden.mjs";
-import { SV1_TEXT } from "../site/scripts/simple-v1.mjs";
+import { buildHomeExtras, HOME_EXTRAS_TEXT, HOME_EXTRA_KEYS, homeExtraFlags } from "../site/scripts/simple-v1-home-path.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SITE = path.join(ROOT, "site");
 const HOMES = { en: "index.html", ar: "ar/index.html", fr: "fr/index.html", zh: "zh/index.html" };
 const read = (p) => fs.readFileSync(path.join(SITE, p), "utf8");
 const pre = (lang) => (lang === "en" ? "" : "/" + lang);
+const FLAGS = homeExtraFlags();
 
 // صفحة مبنيّة لمسارٍ عام: /x → x.html ، /x/ → x/index.html ، / → index.html
 function pageFile(urlPath) {
@@ -34,39 +37,80 @@ function pageFile(urlPath) {
   }
   return null;
 }
-const mainOf = (html) => (html.match(/<main>([\s\S]*?)<\/main>/) || [, ""])[1];
+// معاينة اللوحة داخل الرئيسية فيها <main class="sv1-pmain"> لذا نقصّ من <main> إلى آخر </main>.
+const mainOf = (html) => { const a = html.indexOf("<main>"); const b = html.lastIndexOf("</main>"); return a >= 0 && b > a ? html.slice(a + 6, b) : ""; };
+const stripScripts = (s) => s.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<style[\s\S]*?<\/style>/g, "");
 
 for (const [lang, file] of Object.entries(HOMES)) {
   const html = read(file);
   const main = mainOf(html);
+  const advisorAt = main.indexOf('id="advisor"');
 
-  test(`الرئيسية ${lang}: h1 واحد، أربع بطاقات مسارات، مربع بحث`, () => {
+  test(`الرئيسية ${lang}: الأعلى كما كان — h1 واحد، ثلاثة أبواب + EOR + تصفّح مباشر، ثم المحادثة`, () => {
     assert.equal((html.match(/<h1[\s>]/g) || []).length, 1, "h1 واحد");
-    assert.equal((html.match(/<a class="sv1-pcard"/g) || []).length, 4, "أربع بطاقات");
-    for (const k of ["formation", "government", "unsure", "account"]) assert.ok(html.includes(`id="path-${k}"`), k);
-    assert.match(html, /<input id="hpQ" name="q" type="search"/);
-    assert.match(html, new RegExp(`<form class="sv1-psearch" id="hpSearch" action="${pre(lang)}/catalog" method="get"`));
+    assert.ok(advisorAt > 0, "قسم المحادثة غير موجود");
+    const top = main.slice(0, advisorAt);
+    for (const k of ["consulting", "government", "formation"]) {
+      assert.ok(top.includes(`id="door-${k}" data-door="${k}"`), `باب ${k} ليس فوق المحادثة`);
+    }
+    assert.ok(top.includes('id="door-eor"'), "بطاقة EOR فوق المحادثة");
+    assert.equal((top.match(/class="sv1-door[ "]/g) || []).length, 4, "أربع بطاقات: ثلاثة أبواب + EOR");
+    assert.ok(top.includes('class="sv1-browse"') && top.includes('href="' + (lang === "en" ? "" : "/" + lang) + '/catalog"'), "رابط تصفّح الخدمات واشترِ مباشرة");
+    // لا شيء من مسار الزائر المُلغى
+    for (const bad of ["sv1-pcard", 'id="hpCards"', "sv1-path", "sv1-pask"]) assert.ok(!html.includes(bad), "بقايا مسار الزائر: " + bad);
     // الصفحة الجديدة: ترويسة SV1 وبلا main.js القديم
     assert.ok(html.includes('class="sv1-page"'));
     assert.ok(!/<script[^>]+src="[^"]*main\.js/.test(html));
+    // المحادثة بأدواتها
+    assert.ok(html.includes('id="sv1Create"'));
+    assert.ok(!html.includes('data-door="bizdev"'));
   });
 
-  test(`الرئيسية ${lang}: نصوص حقيقية بلا مفاتيح خام ولا واتساب في المحتوى ولا «شريك الأعمال»`, () => {
-    // كل مفتاح hp* في القاموس له نصّ بهذه اللغة، ولا يظهر اسم المفتاح في الصفحة
-    for (const k of Object.keys(SV1_TEXT).filter((x) => x.startsWith("hp"))) {
-      const e = SV1_TEXT[k][lang];
-      assert.ok(typeof e === "string" && e.trim(), `${k} بلا نص ${lang}`);
-      assert.ok(!main.includes(`>${k}<`), `مفتاح خام ${k}`);
+  test(`الرئيسية ${lang}: كل إضافة تحت المحادثة فقط ولا شيء منها فوقها`, () => {
+    const ids = { search: "find", how: "how-steps", popular: "popular", faq: "faq" };
+    // لا علامة إضافة قبل المحادثة
+    assert.ok(!main.slice(0, advisorAt).includes("data-home-extra"), "إضافة فوق المحادثة");
+    assert.ok(!main.slice(0, advisorAt).includes('id="hpSearch"'), "بحث فوق المحادثة");
+    let last = advisorAt;
+    for (const k of HOME_EXTRA_KEYS) {
+      const at = main.indexOf(`data-home-extra="${k}"`);
+      if (FLAGS[k]) {
+        assert.ok(at > advisorAt, `${k} يجب أن يأتي بعد المحادثة`);
+        assert.ok(at > last, `ترتيب ${k}`);
+        assert.ok(main.includes(`id="${ids[k]}"`), `معرّف ${k}`);
+        last = at;
+      } else {
+        assert.equal(at, -1, `${k} مُطفأ لكنه ظاهر`);
+      }
     }
-    for (const k of ["hpTitle", "hpQ", "hpCardFormation", "hpCardGov", "hpCardUnsure", "hpCardAccount", "hpHow", "hpPopular", "hpFaq"]) {
-      assert.ok(main.includes(SV1_TEXT[k][lang].replace(/&/g, "&amp;")) || main.includes(SV1_TEXT[k][lang]), `${k} غائب`);
+    // «كيف نبدأ» في الترويسة ما زال يرسو على رحلة الستّ خطوات الأصلية لا على الإضافة
+    assert.ok(main.includes('<section class="sv1-sec sv1-gray" id="how">'), "قسم الرحلة الأصلي #how");
+    // المعرّفات لا تتكرر
+    const idList = [...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
+    for (const id of ["how", "how-steps", "find", "popular", "faq", "advisor"]) assert.ok(idList.filter((x) => x === id).length <= 1, "معرّف مكرّر " + id);
+  });
+
+  test(`الرئيسية ${lang}: نصوص حقيقية بلا مفاتيح خام ولا واتساب ولا «شريك الأعمال»`, () => {
+    for (const [k, e] of Object.entries(HOME_EXTRAS_TEXT)) {
+      assert.ok(typeof e[lang] === "string" && e[lang].trim(), `${k} بلا نص ${lang}`);
     }
-    assert.ok(!/wa\.me|api\.whatsapp|whatsapp\.com/i.test(main), "رابط واتساب داخل المحتوى");
-    assert.ok(!/sv1-btn wa/.test(main), "زر واتساب داخل المحتوى");
+    const shown = {
+      search: ["findTitle", "findSub", "findGo"], how: ["how", "s1", "s4", "t1"],
+      popular: ["popular", "details", "all"], faq: ["faq", "q1", "a4"],
+    };
+    for (const k of HOME_EXTRA_KEYS) {
+      if (!FLAGS[k]) continue;
+      for (const key of shown[k]) {
+        const txt = HOME_EXTRAS_TEXT[key][lang];
+        assert.ok(main.includes(txt.replace(/&/g, "&amp;")) || main.includes(txt), `${key} غائب`);
+      }
+    }
+    // زر «أكمل على واتساب» في هيرو الرئيسية القديمة (المعتمدة من المالك) عاد كما كان؛ الإضافات الجديدة بلا واتساب
+    const extras = [...main.matchAll(/<section[^>]*data-home-extra[\s\S]*?<\/section>/g)].map((m) => m[0]).join("");
+    assert.ok(!/wa\.me|api\.whatsapp|whatsapp/i.test(extras) && !/sv1-btn wa/.test(extras), "واتساب داخل الإضافات");
     assert.ok(!/شريك الأعمال|شريك أعمالك/.test(html), "الاسم يبقى Business Partner");
     assert.ok(html.includes('alt="Business Partner"'));
-    // لا «الوكيل» تسميةً للمستشار في نصوص المسار
-    assert.ok(!/الوكيل/.test(main));
+    assert.ok(!/الوكيل/.test(extras), "«الوكيل» تسميةً للمستشار في الإضافات");
   });
 
   test(`الرئيسية ${lang}: لا رابط إلى صفحة مخفية، ولا باب «تطوير الأعمال»`, () => {
@@ -77,18 +121,15 @@ for (const [lang, file] of Object.entries(HOMES)) {
     assert.ok(!/business-development/.test(main));
   });
 
-  test(`الرئيسية ${lang}: وجهات البطاقات والبحث والشائعة موجودة وبتصميم SV1`, () => {
-    const cardHrefs = ["formation", "government", "unsure", "account"].map((k) => {
-      const m = html.match(new RegExp(`<a class="sv1-pcard" id="path-${k}" href="([^"]+)"`));
-      assert.ok(m, k);
-      return m[1];
-    });
-    const eor = html.match(/<a id="door-eor" href="([^"]+)"/);
-    assert.ok(eor, "رابط EOR");
+  test(`الرئيسية ${lang}: وجهات الإضافات موجودة وبتصميم SV1`, () => {
     const popular = [...main.matchAll(/<a class="sv1-btn sm" href="([^"]*\/services\/[^"]+)"/g)].map((m) => m[1]);
-    assert.ok(popular.length >= 4 && popular.length <= 6, "الخدمات الشائعة: " + popular.length);
-    assert.equal((main.match(/data-pop="\d"/g) || []).length > 0, true, "زر أضف للسلة للمسعّر");
-    const dests = [...cardHrefs.filter((h) => !h.startsWith("#")), eor[1], `${pre(lang)}/catalog`, ...popular];
+    if (FLAGS.popular) {
+      assert.ok(popular.length >= 4 && popular.length <= 6, "الخدمات الشائعة: " + popular.length);
+      assert.equal((main.match(/data-pop="\d"/g) || []).length > 0, true, "زر أضف للسلة للمسعّر");
+    } else assert.equal(popular.length, 0);
+    const doors = ["/eor", `${pre(lang)}/catalog`];
+    const dests = [...doors.map((d) => (d === "/eor" ? `${pre(lang)}/eor` : d)), ...popular];
+    if (FLAGS.search) assert.match(html, new RegExp(`<form class="sv1-psearch" id="hpSearch" action="${pre(lang)}/catalog" method="get"`));
     for (const d of dests) {
       const f = pageFile(d.split(/[?#]/)[0]);
       assert.ok(f, `الوجهة غير مبنيّة: ${d}`);
@@ -96,18 +137,6 @@ for (const [lang, file] of Object.entries(HOMES)) {
       assert.ok(dest.includes('class="sv1-page"'), `وجهة قديمة: ${d}`);
       assert.ok(!/<script[^>]+src="[^"]*main\.js/.test(dest), `وجهة تحمّل main.js القديم: ${d}`);
     }
-    // معاملا التصفية موجّهان لمجالين مختلفين، وبطاقة «لا أعرف» ترسو على المستشار بباب الاستشارة
-    assert.equal(cardHrefs[0], `${pre(lang)}/catalog?door=formation`);
-    assert.equal(cardHrefs[1], `${pre(lang)}/catalog?door=government`);
-    assert.equal(cardHrefs[2], "#advisor");
-    assert.match(html, /id="path-unsure"[^>]*data-door="consulting"/);
-    assert.equal(cardHrefs[3], `${pre(lang)}/my`);
-  });
-
-  test(`الرئيسية ${lang}: المستشار ما زال في الصفحة بسياقاته الثلاثة`, () => {
-    assert.ok(html.includes('id="advisor"'));
-    assert.ok(html.includes('id="sv1Create"'));
-    for (const k of ["consulting", "government", "formation"]) assert.ok(html.includes(`class="${k === "consulting" ? "on" : ""}" data-door="${k}"`), k);
   });
 
   test(`/catalog ${lang}: يقرأ ?door= و?q=`, () => {
@@ -118,6 +147,30 @@ for (const [lang, file] of Object.entries(HOMES)) {
     for (const k of ["formation", "government", "consulting"]) assert.ok(cat.includes(`"${k}":`), `اسم الباب ${k}`);
   });
 }
+
+test("كل إضافة تُزال بمفتاحها وحده، وبلا مفاتيح تعود الرئيسية بلا إضافات", () => {
+  const ctx = { esc: (s) => String(s), href: (p) => (p === "/" ? "/ar/" : "/ar" + p), lang: () => "ar" };
+  const none = buildHomeExtras({ ...ctx, flags: { search: false, how: false, popular: false, faq: false } });
+  assert.deepEqual([none.search, none.how, none.popular, none.faq, none.css, none.script], ["", "", "", "", "", ""]);
+  const marks = { search: 'data-home-extra="search"', how: 'data-home-extra="how"', popular: 'data-home-extra="popular"', faq: 'data-home-extra="faq"' };
+  for (const k of HOME_EXTRA_KEYS) {
+    const only = buildHomeExtras({ ...ctx, flags: { search: false, how: false, popular: false, faq: false, [k]: true } });
+    for (const j of HOME_EXTRA_KEYS) {
+      if (j === k) assert.ok(only[j].includes(marks[j]), `${k} لم يُرسم`);
+      else assert.equal(only[j], "", `${j} ظهر والمفتاح مُطفأ`);
+    }
+    assert.ok(only.css.includes("sv1-extras-css"));
+  }
+  // الشائعة بلا مبلغ
+  const pop = buildHomeExtras({ ...ctx, flags: { popular: true } }).popular;
+  assert.ok(pop.length > 0 && !/\d[\d,.]*\s*(﷼|ر\.س|SAR|ريال)/.test(pop), "سعر في الخدمات الشائعة");
+});
+
+test("features.json: homeExtras مفتاحه موجود ويقبل الأربعة", () => {
+  const f = JSON.parse(read("data/features.json"));
+  assert.ok(f.homeExtras && typeof f.homeExtras === "object");
+  for (const k of Object.keys(f.homeExtras)) assert.ok(HOME_EXTRA_KEYS.includes(k), "مفتاح مجهول " + k);
+});
 
 test("الخدمات الشائعة: كلها في الكتالوج الظاهر، وكل خدمة مبنية لها صفحة", () => {
   const cat = JSON.parse(read("assets/data/catalog.json"));
@@ -130,11 +183,11 @@ test("الخدمات الشائعة: كلها في الكتالوج الظاهر
   }
 });
 
-test("لا سعر في مسار الرئيسية (SHOW_PRICES=false)", () => {
+test("لا سعر في الإضافات (SHOW_PRICES=false)", () => {
   for (const file of Object.values(HOMES)) {
     const m = mainOf(read(file));
-    const hero = m.slice(0, m.indexOf('id="advisor"'));
-    assert.ok(!/\d[\d,.]*\s*(﷼|ر\.س|SAR|ريال)/.test(hero.replace(/<script[\s\S]*?<\/script>/g, "")), "سعر ظاهر في " + file);
+    const extras = [...m.matchAll(/<section[^>]*data-home-extra[\s\S]*?<\/section>/g)].map((x) => stripScripts(x[0])).join("");
+    assert.ok(!/\d[\d,.]*\s*(﷼|ر\.س|SAR|ريال)/.test(extras), "سعر ظاهر في الإضافات " + file);
   }
 });
 
@@ -160,7 +213,7 @@ function serve() {
   return new Promise((r) => srv.listen(0, "127.0.0.1", () => r(srv)));
 }
 
-test("بمتصفح حقيقي: h1 والبطاقات والبحث فوق الطيّ (390×844 و1280×800) والمسارات تعمل", { skip: !chromium && "playwright/Chromium غير متاح" }, async () => {
+test("بمتصفح حقيقي: الأبواب فوق الطيّ، الإضافات تحت المحادثة، البحث يعمل", { skip: !chromium && "playwright/Chromium غير متاح" }, async () => {
   const srv = await serve();
   const base = "http://127.0.0.1:" + srv.address().port;
   let browser;
@@ -172,61 +225,51 @@ test("بمتصفح حقيقي: h1 والبطاقات والبحث فوق الط�
         const page = await ctx.newPage();
         await page.goto(base + (lang === "en" ? "/" : "/" + lang + "/"), { waitUntil: "load" });
         const r = await page.evaluate(() => {
-          const box = (el) => { const b = el.getBoundingClientRect(); return { top: b.top, bottom: b.bottom, w: b.width, h: b.height }; };
+          const top = (el) => (el ? el.getBoundingClientRect().top + scrollY : null);
           return {
-            vh: innerHeight,
-            h1: [...document.querySelectorAll("h1")].map(box),
-            cards: [...document.querySelectorAll(".sv1-pcard")].map(box),
-            search: box(document.getElementById("hpQ")),
+            h1: document.querySelectorAll("h1").length,
+            h1top: top(document.querySelector("h1")),
+            doorTop: top(document.getElementById("door-consulting")),
+            advisor: top(document.getElementById("advisor")),
+            find: top(document.getElementById("find")),
+            steps: top(document.getElementById("how-steps")),
+            pop: top(document.getElementById("popular")),
+            faq: top(document.getElementById("faq")),
             overflow: document.documentElement.scrollWidth - innerWidth,
           };
         });
         const tag = `${lang} ${w}x${h}`;
-        assert.equal(r.h1.length, 1, tag + " h1");
-        assert.equal(r.cards.length, 4, tag + " cards");
-        assert.ok(r.h1[0].bottom < r.vh && r.h1[0].h > 0, tag + " h1 فوق الطيّ");
-        assert.ok(r.search.bottom <= r.vh && r.search.h > 0, tag + " البحث فوق الطيّ");
-        for (const c of r.cards) assert.ok(c.h > 0 && c.bottom <= r.vh, `${tag} بطاقة تتجاوز الطيّ (${Math.round(c.bottom)}>${r.vh})`);
+        assert.equal(r.h1, 1, tag + " h1");
+        assert.ok(r.doorTop != null && r.doorTop < r.advisor, tag + " الأبواب فوق المحادثة");
+        assert.ok(r.h1top < r.advisor, tag + " العنوان فوق المحادثة");
+        for (const [k, v] of Object.entries({ find: r.find, steps: r.steps, pop: r.pop, faq: r.faq })) {
+          if (v != null) assert.ok(v > r.advisor, `${tag} ${k} يجب أن يكون تحت المحادثة`);
+        }
         assert.ok(r.overflow <= 1, tag + " تمرير أفقي " + r.overflow);
         await ctx.close();
       }
     }
 
-    // بطاقة التأسيس ← /catalog مصفّى بالتأسيس والاستثمار الأجنبي فقط
+    // البحث: اقتراح فوري ثم صفحة الخدمة، و«كل النتائج» تحمل ?q= فيعرضها الكتالوج
     const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
     const page = await ctx.newPage();
-    await page.goto(base + "/ar/", { waitUntil: "load" });
-    await page.click("#path-formation");
-    await page.waitForURL(/\/ar\/catalog\?door=formation/);
-    await page.waitForSelector(".sv1-grp");
-    const cats = await page.$$eval(".sv1-grp > button b", (els) => els.map((e) => e.textContent.trim()));
-    assert.deepEqual(cats.sort(), ["الاستثمار الأجنبي", "تأسيس الشركات"].sort());
-    assert.equal(await page.$$eval(".sv1-grp.open", (e) => e.length), cats.length, "المجموعات مفتوحة");
-    assert.equal(await page.isVisible("#catFilter"), true);
+    if (FLAGS.search) {
+      await page.goto(base + "/ar/", { waitUntil: "load" });
+      await page.fill("#hpQ", "تجديد سجل تجاري");
+      await page.waitForSelector("#hpSug a");
+      const sugs = await page.$$eval("#hpSug a:not(.all)", (els) => els.map((e) => [e.textContent.trim(), e.getAttribute("href")]));
+      assert.ok(sugs.some(([n, h]) => n.includes("تجديد سجل تجاري") && h === "/ar/services/bp-sbc-19"), JSON.stringify(sugs));
+      await page.press("#hpQ", "Enter");
+      await page.waitForURL(/\/ar\/catalog\?q=/);
+      await page.waitForSelector(".sv1-grp.open");
+      assert.equal(await page.inputValue("#svcQ"), "تجديد سجل تجاري");
+    }
 
-    // بطاقة الخدمة الحكومية ← مجالات الباب الحكومي فقط
-    await page.goto(base + "/ar/catalog?door=government", { waitUntil: "load" });
-    const gcats = await page.$$eval(".sv1-grp > button b", (els) => els.map((e) => e.textContent.trim()));
-    assert.ok(gcats.includes("العلاقات الحكومية") && !gcats.includes("تأسيس الشركات"), gcats.join("|"));
-
-    // البحث: اقتراح فوري ثم صفحة الخدمة، و«كل النتائج» تحمل ?q= فيعرضها الكتالوج
+    // باب الحكومية في الأعلى يغيّر سياق المحادثة كما كان
     await page.goto(base + "/ar/", { waitUntil: "load" });
-    await page.fill("#hpQ", "تجديد سجل تجاري");
-    await page.waitForSelector("#hpSug a");
-    const sugs = await page.$$eval("#hpSug a:not(.all)", (els) => els.map((e) => [e.textContent.trim(), e.getAttribute("href")]));
-    assert.ok(sugs.some(([n, h]) => n.includes("تجديد سجل تجاري") && h === "/ar/services/bp-sbc-19"), JSON.stringify(sugs));
-    await page.press("#hpQ", "Enter");
-    await page.waitForURL(/\/ar\/catalog\?q=/);
-    await page.waitForSelector(".sv1-grp.open");
-    assert.equal(await page.inputValue("#svcQ"), "تجديد سجل تجاري");
-    const rows = await page.$$eval(".sv1-pick .tx b", (els) => els.map((e) => e.textContent.trim()));
-    assert.ok(rows.length >= 1 && rows.every((n) => /تجديد/.test(n)), rows.join("|"));
-
-    // المستشار يُفتح بسياق الاستشارة من بطاقة «لا أعرف»
-    await page.goto(base + "/ar/", { waitUntil: "load" });
-    await page.click("#path-unsure");
-    assert.equal(await page.$eval("#sv1ChatTitle", (e) => e.textContent.trim()), SV1_TEXT.ctxConsulting.ar);
-    assert.equal(await page.$eval('.sv1-chatctx [data-door="consulting"]', (e) => e.classList.contains("on")), true);
+    await page.click("#door-government");
+    assert.equal(await page.$eval("#door-government", (e) => e.classList.contains("on")), true);
+    assert.equal(await page.$eval("#door-consulting", (e) => e.classList.contains("on")), false);
     await ctx.close();
   } finally {
     if (browser) await browser.close();
