@@ -531,7 +531,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
 })();</script><script>
 (function(){
 var LANG="ar",HOME="/ar/";
-var TX={"empty":"سلتك فارغة.","browse":"استعرض الخدمات","needFill":"أكمل الاسم والجوال والبريد قبل الدفع.","payDown":"تعذّر فتح نموذج الدفع الآن. جرّب تمارا، أو أعد المحاولة بعد قليل، أو راسلنا على واتساب.","loading":"نجهّز نموذج الدفع…","quoted":"يُسعّر عند المراجعة","signIn":"سجّل دخولك لعرض السعر وإتمام الدفع","signInBtn":"دخول إلى حسابي","noAmount":"هذه البنود تُسعّر عند المراجعة — سنرسل لك عرض السعر ثم رابط الدفع.","card":"بطاقة","payBtn":"إتمام الدفع","payWait":"نتحقّق من دفعتك…","paidOk":"تم استلام الدفعة — طلبك مسجّل وفاتورتك الضريبية تصلك على بريدك خلال دقائق.","paidInv":"رقم الفاتورة:","paidFail":"لم تكتمل الدفعة ولم يُخصم شيء — أعد المحاولة بالبطاقة أو جرّب تمارا.","paidHold":"دفعتك تمّت لكن تعذّر تأكيدها آلياً الآن، وقد وصل التنبيه لفريقنا. لا تدفع مرة أخرى — فاتورتك تصلك قريباً.","bnplFail":"لم تكتمل عملية التقسيط — تقدر تحاول مرة أخرى أو تدفع بالبطاقة.","toMy":"افتح طلباتي","mockTag":"بوابة محلية — لا بطاقة ولا خصم","needCo":"اكتب اسم المنشأة — الاشتراك يُفتح باسمها.","empFail":"تعذّر تجهيز اشتراكك الآن ولم يُخصم شيء — أعد المحاولة بعد قليل أو راسلنا.","empDone":"تم الدفع وفُعِّل اشتراكك في منصة التوظيف. ادخل بوابة صاحب العمل بالبريد الذي دفعت به.","empHold":"دفعتك تمّت وجارٍ تفعيل اشتراكك — وصل التنبيه لفريقنا وسيُفعَّل خلال ساعات العمل. لا تدفع مرة أخرى.","toEmployer":"افتح بوابة صاحب العمل","tamaraYr":"تمارا متاحة للاشتراك السنوي فقط.","empSignIn":"سجّل دخولك بالبريد الذي سيُفتح به الاشتراك ثم أكمل الدفع.","empMail":"بريد الدفع يجب أن يطابق بريد حسابك المسجَّل دخوله — الاشتراك يُفتح لحسابك.","onePlan":"اشتراك واحد في كل طلب — أبقِ باقة واحدة في السلة.","toCart":"العودة إلى السلة","onceHd":"دفعة واحدة","recHd":"اشتراكات","billM":"شهرياً","billY":"سنوياً","recNote":"مبلغ الاشتراك المعروض هو قسط فترة واحدة (شهر أو سنة)، وهو ما يُدفع الآن.","tamaraSub":"تمارا غير متاحة للاشتراكات الشهرية — ادفع بالبطاقة.","lblOrder":"رقم الطلب","lblPay":"مرجع الدفعة","lblAmt":"المبلغ المدفوع (شامل الضريبة)","lblInv":"رقم الفاتورة","okDone":"تم استلام دفعتك وتأكيد طلبك.","nextInv":"الخطوة التالية: تصلك على بريدك رسالة تأكيد الطلب وفاتورتك الضريبية، ثم يبدأ الفريق التنفيذ.","nextNoInv":"الخطوة التالية: تصلك على بريدك رسالة تأكيد الطلب. وفاتورتك الضريبية يجهّزها الفريق وتصلك على البريد نفسه.","reviewT":"استلمنا دفعتك وسنؤكد التفعيل خلال ساعات العمل.","reviewN":"لم نستطع مطابقة المبلغ آلياً مع الأسعار المعتمدة، فيراجعه الفريق قبل التفعيل. يصلك تأكيد على بريدك، ولا حاجة لإعادة الدفع.","signInGo":"سجّل الدخول","lblReq":"رقم طلبك في لوحتك","openReq":"افتح طلبك","nextReqDocs":"الخطوة التالية: افتح طلبك وارفع المستندات المطلوبة ليبدأ الفريق التنفيذ، وتتابع كل مرحلة من هناك.","nextReq":"الخطوة التالية: تابع مراحل طلبك من لوحتك، ونبلغك حين يبدأ التنفيذ.","invSent":"وتصلك فاتورتك الضريبية على بريدك.","invSoon":"ويجهّز الفريق فاتورتك الضريبية وتصلك على البريد نفسه."};
+var TX={"empty":"سلتك فارغة.","browse":"استعرض الخدمات","needFill":"أكمل الاسم والجوال والبريد قبل الدفع.","payDown":"تعذّر فتح نموذج الدفع الآن. جرّب تمارا، أو أعد المحاولة بعد قليل، أو راسلنا على واتساب.","loading":"نجهّز نموذج الدفع…","quoted":"يُسعّر عند المراجعة","signIn":"سجّل دخولك لعرض السعر وإتمام الدفع","signInBtn":"دخول إلى حسابي","noAmount":"بعض بنود السلة تُسعّر عند المراجعة ولا تُدفع من هنا. احذفها من السلة لتدفع باقي البنود، أو اطلب لها عرض سعر من صفحة الخدمة.","card":"بطاقة","payBtn":"إتمام الدفع","payWait":"نتحقّق من دفعتك…","paidOk":"تم استلام الدفعة — طلبك مسجّل وفاتورتك الضريبية تصلك على بريدك خلال دقائق.","paidInv":"رقم الفاتورة:","paidFail":"لم تكتمل الدفعة ولم يُخصم شيء — أعد المحاولة بالبطاقة أو جرّب تمارا.","paidHold":"دفعتك تمّت لكن تعذّر تأكيدها آلياً الآن، وقد وصل التنبيه لفريقنا. لا تدفع مرة أخرى — فاتورتك تصلك قريباً.","bnplFail":"لم تكتمل عملية التقسيط — تقدر تحاول مرة أخرى أو تدفع بالبطاقة.","toMy":"افتح طلباتي","mockTag":"بوابة محلية — لا بطاقة ولا خصم","needCo":"اكتب اسم المنشأة — الاشتراك يُفتح باسمها.","empFail":"تعذّر تجهيز اشتراكك الآن ولم يُخصم شيء — أعد المحاولة بعد قليل أو راسلنا.","empDone":"تم الدفع وفُعِّل اشتراكك في منصة التوظيف. ادخل بوابة صاحب العمل بالبريد الذي دفعت به.","empHold":"دفعتك تمّت وجارٍ تفعيل اشتراكك — وصل التنبيه لفريقنا وسيُفعَّل خلال ساعات العمل. لا تدفع مرة أخرى.","toEmployer":"افتح بوابة صاحب العمل","tamaraYr":"تمارا متاحة للاشتراك السنوي فقط.","empSignIn":"سجّل دخولك بالبريد الذي سيُفتح به الاشتراك ثم أكمل الدفع.","empMail":"بريد الدفع يجب أن يطابق بريد حسابك المسجَّل دخوله — الاشتراك يُفتح لحسابك.","onePlan":"اشتراك واحد في كل طلب — أبقِ باقة واحدة في السلة.","toCart":"العودة إلى السلة","onceHd":"دفعة واحدة","recHd":"اشتراكات","billM":"شهرياً","billY":"سنوياً","recNote":"مبلغ الاشتراك المعروض هو قسط فترة واحدة (شهر أو سنة)، وهو ما يُدفع الآن.","tamaraSub":"تمارا غير متاحة للاشتراكات الشهرية — ادفع بالبطاقة.","lblOrder":"رقم الطلب","lblPay":"مرجع الدفعة","lblAmt":"المبلغ المدفوع (شامل الضريبة)","lblInv":"رقم الفاتورة","okDone":"تم استلام دفعتك وتأكيد طلبك.","nextInv":"الخطوة التالية: تصلك على بريدك رسالة تأكيد الطلب وفاتورتك الضريبية، ثم يبدأ الفريق التنفيذ.","nextNoInv":"الخطوة التالية: تصلك على بريدك رسالة تأكيد الطلب. وفاتورتك الضريبية يجهّزها الفريق وتصلك على البريد نفسه.","reviewT":"استلمنا دفعتك وسنؤكد التفعيل خلال ساعات العمل.","reviewN":"لم نستطع مطابقة المبلغ آلياً مع الأسعار المعتمدة، فيراجعه الفريق قبل التفعيل. يصلك تأكيد على بريدك، ولا حاجة لإعادة الدفع.","signInGo":"سجّل الدخول","lblReq":"رقم طلبك في لوحتك","openReq":"افتح طلبك","nextReqDocs":"الخطوة التالية: افتح طلبك وارفع المستندات المطلوبة ليبدأ الفريق التنفيذ، وتتابع كل مرحلة من هناك.","nextReq":"الخطوة التالية: تابع مراحل طلبك من لوحتك، ونبلغك حين يبدأ التنفيذ.","invSent":"وتصلك فاتورتك الضريبية على بريدك.","invSoon":"ويجهّز الفريق فاتورتك الضريبية وتصلك على البريد نفسه."};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
 var REC={"bp-hr-03":"monthly","bp-ai-02":"monthly","bp-sub-01":"monthly","bp-vendor-02":"monthly","bp-ai-03":"monthly","bp-ai-smart-employee":"monthly","bp-ai-04":"monthly","bp-ajeer-10":"monthly","starter-4":"monthly","bp-pkg-svc-starter":"monthly","silver":"monthly","bp-pkg-launch":"monthly","gold":"monthly","bp-pkg-growth":"monthly","platinum":"monthly","bp-pkg-scale":"monthly","basic-legal":"monthly","bp-pkg-legal-basic":"monthly","advanced":"monthly","bp-pkg-legal-adv":"monthly","comprehensive":"monthly","bp-pkg-legal-comp":"monthly","strategic":"monthly","bp-pkg-legal-strat":"monthly"};
 var $=function(id){return document.getElementById(id)};
@@ -613,6 +613,12 @@ var payable=cart.length&&!unpriced&&!hidden&&total>0&&empLines.length<=1;
   $('coTotal').style.fontSize='14px';$('coTotal').style.fontWeight='600'}
 })();
 
+// عودةٌ من بوابةٍ فشلت أو أُلغيت: ما كتبه العميل قبل أن يضغط «ادفع» محفوظٌ في اللقطة
+// (sessionStorage)، فيُعاد إلى الحقول بدل أن يجد جواله فارغاً ويكتب من جديد.
+(function restoreTyped(){var s=null;try{s=JSON.parse(sessionStorage.getItem(SNAP)||'null')}catch(e){}
+ if(!s)return;
+ [['coName','name'],['coPhone','phone'],['coEmail','email'],['coCo','company']].forEach(function(p){
+  var el=$(p[0]);if(el&&!el.value&&s[p[1]])el.value=String(s[p[1]])})})();
 // تعبئة من الجلسة: من دخل حسابه لا يعيد كتابة بريده عند الدفع.
 getMe().then(function(u){if(!u)return;
   if(!$('coEmail').value)$('coEmail').value=u.email||'';
@@ -633,7 +639,7 @@ function meta(){
  try{items=(s.items||[]).map(function(i){return i.id+'~'+(i.qty||1)}).join(',');if(items.length>400)items=''}catch(e){items=''}
  return {ref:String(s.ref||''),email:String(s.email||'').slice(0,120),name:String(s.name||'').slice(0,60),
    phone:String(s.phone||'').slice(0,30),co:String(s.company||'').slice(0,80),items:items,disc:'',tax:'personal'}}
-function ready(){return $('coName').value.trim()&&$('coPhone').value.trim()&&$('coEmail').value.trim().indexOf('@')>0}
+function ready(){return !!($('coName').value.trim()&&$('coPhone').value.trim()&&/^[^@s]+@[^@s]+.[^@s]+$/.test($('coEmail').value.trim()))}
 // الاشتراك يُفتح باسم منشأة: الحقل الاختياري يصير مطلوباً هنا فقط.
 function readyEmp(){return !hasEmp||!!$('coCo').value.trim()}
 // يفتح صفّ الاشتراك «بانتظار الدفع» ويُلبس مرجعه الطلبَ كلَّه قبل أن يتحرّك المال؛
@@ -777,7 +783,7 @@ function payBlocked(msg,href,label){
  var tg=$('coTamaraGo');if(tg)tg.disabled=true}
 if(!cart.length){mount.innerHTML='';}
 else if(empLines.length>1){payBlocked(TX.onePlan,HOME+'cart',TX.toCart);}
-else if(unpriced){payBlocked(TX.noAmount,HOME+'my',TX.signInBtn);}
+else if(unpriced){payBlocked(TX.noAmount,HOME+'cart',TX.toCart);}
 // الدخول يرجع إلى هذه الصفحة (next) لا إلى لوحة العميل، فتبقى السلة أمامه.
 else if(hidden){payBlocked(TX.signIn,HOME+'my?next='+encodeURIComponent(HOME+'checkout'),TX.signInBtn);}
 else if(!(total>0)){payBlocked(TX.noAmount,HOME+'catalog',TX.browse);}
@@ -842,7 +848,7 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
    mount.innerHTML='<div id="epay-form"></div>';
    var m=meta();
    var opt={element:'#epay-form',amount:Math.round(total*100),currency:cfg.currency||'SAR',
-    description:'Business Partner order',publishable_api_key:cfg.publishableKey,
+    description:'Business Partner order '+m.ref,publishable_api_key:cfg.publishableKey,
     callback_url:location.origin+location.pathname,metadata:m,
     on_initiating:async function(){
      // اشتراك منصة التوظيف: لا يتحرّك المال قبل أن يُفتح الصفّ المعلّق ويُلبس مرجعه الطلب.

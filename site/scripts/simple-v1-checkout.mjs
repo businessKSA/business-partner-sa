@@ -90,10 +90,10 @@ const T = {
   signIn:  { ar: "سجّل دخولك لعرض السعر وإتمام الدفع", en: "Sign in to see the price and pay.",
              fr: "Connectez-vous pour voir le prix et payer.", zh: "登录后查看价格并付款。" },
   signInBtn:{ ar: "دخول إلى حسابي", en: "Sign in", fr: "Se connecter", zh: "登录" },
-  noAmount:{ ar: "هذه البنود تُسعّر عند المراجعة — سنرسل لك عرض السعر ثم رابط الدفع.",
-             en: "These items are quoted on review — we send the quotation, then the payment link.",
-             fr: "Ces éléments sont devisés après examen — nous envoyons le devis, puis le lien de paiement.",
-             zh: "这些项目将在审核后报价 — 我们会先发送报价，再发送付款链接。" },
+  noAmount:{ ar: "بعض بنود السلة تُسعّر عند المراجعة ولا تُدفع من هنا. احذفها من السلة لتدفع باقي البنود، أو اطلب لها عرض سعر من صفحة الخدمة.",
+             en: "Some cart items are quoted on review and cannot be paid here. Remove them from the cart to pay for the rest, or request a quotation from the service page.",
+             fr: "Certains articles sont sur devis et ne se paient pas ici. Retirez-les du panier pour payer le reste, ou demandez un devis depuis la page du service.",
+             zh: "购物车中部分项目需审核后报价，无法在此付款。请从购物车移除这些项目后支付其余部分，或在服务页面申请报价。" },
   payDown: { ar: "تعذّر فتح نموذج الدفع الآن. جرّب تمارا، أو أعد المحاولة بعد قليل، أو راسلنا على واتساب.",
              en: "The payment form could not load. Try Tamara, retry in a moment, or message us on WhatsApp.",
              fr: "Le formulaire n'a pas pu se charger. Essayez Tamara ou réessayez dans un instant.",
@@ -389,6 +389,12 @@ var payable=cart.length&&!unpriced&&!hidden&&total>0&&empLines.length<=1;
   $('coTotal').style.fontSize='14px';$('coTotal').style.fontWeight='600'}
 })();
 
+// عودةٌ من بوابةٍ فشلت أو أُلغيت: ما كتبه العميل قبل أن يضغط «ادفع» محفوظٌ في اللقطة
+// (sessionStorage)، فيُعاد إلى الحقول بدل أن يجد جواله فارغاً ويكتب من جديد.
+(function restoreTyped(){var s=null;try{s=JSON.parse(sessionStorage.getItem(SNAP)||'null')}catch(e){}
+ if(!s)return;
+ [['coName','name'],['coPhone','phone'],['coEmail','email'],['coCo','company']].forEach(function(p){
+  var el=$(p[0]);if(el&&!el.value&&s[p[1]])el.value=String(s[p[1]])})})();
 // تعبئة من الجلسة: من دخل حسابه لا يعيد كتابة بريده عند الدفع.
 getMe().then(function(u){if(!u)return;
   if(!$('coEmail').value)$('coEmail').value=u.email||'';
@@ -409,7 +415,7 @@ function meta(){
  try{items=(s.items||[]).map(function(i){return i.id+'~'+(i.qty||1)}).join(',');if(items.length>400)items=''}catch(e){items=''}
  return {ref:String(s.ref||''),email:String(s.email||'').slice(0,120),name:String(s.name||'').slice(0,60),
    phone:String(s.phone||'').slice(0,30),co:String(s.company||'').slice(0,80),items:items,disc:'',tax:'personal'}}
-function ready(){return $('coName').value.trim()&&$('coPhone').value.trim()&&$('coEmail').value.trim().indexOf('@')>0}
+function ready(){return !!($('coName').value.trim()&&$('coPhone').value.trim()&&/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($('coEmail').value.trim()))}
 // الاشتراك يُفتح باسم منشأة: الحقل الاختياري يصير مطلوباً هنا فقط.
 function readyEmp(){return !hasEmp||!!$('coCo').value.trim()}
 // يفتح صفّ الاشتراك «بانتظار الدفع» ويُلبس مرجعه الطلبَ كلَّه قبل أن يتحرّك المال؛
@@ -553,7 +559,7 @@ function payBlocked(msg,href,label){
  var tg=$('coTamaraGo');if(tg)tg.disabled=true}
 if(!cart.length){mount.innerHTML='';}
 else if(empLines.length>1){payBlocked(TX.onePlan,HOME+'cart',TX.toCart);}
-else if(unpriced){payBlocked(TX.noAmount,HOME+'my',TX.signInBtn);}
+else if(unpriced){payBlocked(TX.noAmount,HOME+'cart',TX.toCart);}
 // الدخول يرجع إلى هذه الصفحة (next) لا إلى لوحة العميل، فتبقى السلة أمامه.
 else if(hidden){payBlocked(TX.signIn,HOME+'my?next='+encodeURIComponent(HOME+'checkout'),TX.signInBtn);}
 else if(!(total>0)){payBlocked(TX.noAmount,HOME+'catalog',TX.browse);}
@@ -618,7 +624,7 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
    mount.innerHTML='<div id="epay-form"></div>';
    var m=meta();
    var opt={element:'#epay-form',amount:Math.round(total*100),currency:cfg.currency||'SAR',
-    description:'Business Partner order',publishable_api_key:cfg.publishableKey,
+    description:'Business Partner order '+m.ref,publishable_api_key:cfg.publishableKey,
     callback_url:location.origin+location.pathname,metadata:m,
     on_initiating:async function(){
      // اشتراك منصة التوظيف: لا يتحرّك المال قبل أن يُفتح الصفّ المعلّق ويُلبس مرجعه الطلب.
