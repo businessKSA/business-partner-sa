@@ -149,6 +149,18 @@ const P = {
   nameEn: { ar: "الاسم بالإنجليزية", en: "Name in English", fr: "Nom en anglais", zh: "英文名称" },
   save: { ar: "حفظ", en: "Save", fr: "Enregistrer", zh: "保存" },
   saved: { ar: "تم الحفظ", en: "Saved", fr: "Enregistré", zh: "已保存" },
+  // Messages for things that used to fail silently or show a raw server code
+  // («friday», «bad_datetime», «card») to the customer.
+  sessEnd: { ar: "انتهت جلستك — سجّل دخولك من جديد لتكمل.", en: "Your session has ended — sign in again to continue.", fr: "Votre session a expiré — reconnectez-vous pour continuer.", zh: "会话已过期 — 请重新登录后继续。" },
+  apptBad: { ar: "اختر التاريخ والوقت أولاً.", en: "Pick a date and a time first.", fr: "Choisissez d'abord une date et une heure.", zh: "请先选择日期和时间。" },
+  apptFri: { ar: "لا مواعيد يوم الجمعة — اختر يوماً آخر.", en: "No appointments on Fridays — please pick another day.", fr: "Pas de rendez-vous le vendredi — choisissez un autre jour.", zh: "周五不安排预约 — 请选择其他日期。" },
+  apptPast: { ar: "هذا الموعد مضى — اختر وقتاً قادماً.", en: "That time has already passed — pick a later one.", fr: "Cet horaire est déjà passé — choisissez-en un autre.", zh: "该时间已过 — 请选择之后的时间。" },
+  provCard: { ar: "بطاقة", en: "Card", fr: "Carte", zh: "银行卡" },
+  provTamara: { ar: "تمارا", en: "Tamara", fr: "Tamara", zh: "Tamara" },
+  provBank: { ar: "تحويل بنكي", en: "Bank transfer", fr: "Virement bancaire", zh: "银行转账" },
+  actAi: { ar: "المستشار الذكي", en: "Smart advisor", fr: "Conseiller intelligent", zh: "智能顾问" },
+  actSys: { ar: "النظام", en: "System", fr: "Système", zh: "系统" },
+  actTeam: { ar: "فريق Business Partner", en: "Business Partner team", fr: "Équipe Business Partner", zh: "Business Partner 团队" },
   you: { ar: "أنت", en: "You", fr: "Vous", zh: "您" },
   team: { ar: "الفريق", en: "Team", fr: "Équipe", zh: "团队" },
   assistant: { ar: "المساعد", en: "Assistant", fr: "Assistant", zh: "助手" },
@@ -283,9 +295,12 @@ export function buildSimpleMy(sv1, ctx) {
 .my-side a .b{margin-inline-start:auto;background:#e11d48;color:#fff;font-size:.7rem;border-radius:999px;padding:2px 7px;font-weight:800}
 .my-side a.on .b{background:#fff;color:var(--n)}
 .my-side .who{padding:8px 12px 14px;border-bottom:1px solid var(--line);margin-bottom:8px}
-.my-side .who b{display:block;color:#fff}
+.my-side .who b{display:block;color:var(--ink)}
 .my-side .who small{color:var(--mut)}
-.my-main{background:var(--g);padding:24px}
+.my-main{background:var(--g);padding:24px;min-width:0}
+/* .sv1 a{color:inherit} outranks .btn, so a link-button drew navy text on its navy fill. */
+.my a.btn:not(.ghost):not(.danger){color:#fff}
+.toast{position:fixed;inset-inline:16px;bottom:88px;max-width:460px;margin-inline:auto;background:#b91c1c;color:#fff;border-radius:12px;padding:12px 16px;z-index:95;font-size:.9rem;box-shadow:0 8px 24px rgba(0,0,0,.2)}
 .my-main h1{margin:0 0 16px;color:var(--ink);font-size:1.45rem;font-weight:300}
 .my-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:22px}
 .my-kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;cursor:pointer}
@@ -294,7 +309,7 @@ export function buildSimpleMy(sv1, ctx) {
 .my-kpi.hot{border-color:#f59e0b;background:#fffbeb}
 .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px}
 .card h2,.card h3{margin:0 0 10px;color:var(--ink);font-size:1.05rem;font-weight:500}
-.list{display:grid;gap:10px}
+.list{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
 .row{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;cursor:pointer}
 .row:hover{border-color:#b7c4e8}
 .row .tt{flex:1;min-width:0}
@@ -377,9 +392,9 @@ select.inp{background:#fff;color:inherit}
 .doc .meta{color:var(--mut);font-size:.78rem;margin-top:5px}
 .doc .read{font-size:.78rem;color:var(--mut);margin-top:6px;line-height:1.9}
 .doc .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-@media(max-width:620px){.dgrid{grid-template-columns:1fr}}
+@media(max-width:620px){.dgrid{grid-template-columns:1fr}.row{flex-wrap:wrap}.row .tt{flex:1 1 100%}.items li{flex-wrap:wrap}.items li>div{flex:1 1 140px;min-width:0}.items li .btn{max-width:100%;white-space:normal;text-align:start}}
 .mob{display:none}
-@media(max-width:900px){.my{grid-template-columns:1fr}.my-side{position:static;height:auto;display:none}.my-side.open{display:block}.mob{display:flex;gap:6px;overflow:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line)}.mob a{white-space:nowrap;padding:7px 11px;border-radius:999px;border:1px solid var(--line);font-size:.82rem;font-weight:700;color:#2c3550}.mob a.on{background:var(--n);color:#fff;border-color:var(--n)}.my-kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:minmax(0,1fr)}.my-main{padding:14px}}
+@media(max-width:900px){.my{grid-template-columns:minmax(0,1fr)}.my-side{position:static;height:auto;display:none}.my-side.open{display:block}.mob{display:flex;gap:6px;overflow:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line)}.mob a{white-space:nowrap;padding:7px 11px;border-radius:999px;border:1px solid var(--line);font-size:.82rem;font-weight:700;color:#2c3550}.mob a.on{background:var(--n);color:#fff;border-color:var(--n)}.my-kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:minmax(0,1fr)}.my-main{padding:14px}}
 </style>`;
   const body = `
 ${sv1.header("/my", { cta: false })}
@@ -391,7 +406,14 @@ var LANG=${JSON.stringify(l)},EV=${JSON.stringify(EVENTS[l === "ar" ? "ar" : "en
 var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null};
 var $=function(s,r){return (r||document).querySelector(s)};
 function h(tag,attrs,kids){var e=document.createElement(tag);if(attrs)for(var k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.indexOf('on')===0)e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k])}(kids||[]).forEach(function(c){if(c==null)return;e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
-function api(action,data){return fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({action:action},data||{}))}).then(function(r){return r.json()})}
+function api(action,data){return fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({action:action},data||{}))}).then(function(r){return r.json()}).catch(function(){return {ok:false,error:'network'}}).then(function(o){if(o&&o.error==='no_session'&&state.me)sessionEnded();return o})}
+// A session that ends mid-visit used to leave every button doing nothing. Say so, and show the door.
+function sessionEnded(){state.me=null;try{localStorage.removeItem('bp_session')}catch(x){}renderLogin(TX.sessEnd)}
+// A failed action is never silent: the customer is told, in their language, and the page stays as it was.
+function toast(msg){var t=h('div',{class:'toast',role:'alert'},[msg]);document.body.appendChild(t);setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t)},5000)}
+function failText(o){return (o&&o.error==='network')?TX.eNet:TX.error}
+function provName(p){p=String(p||'').toLowerCase();return p==='card'||p==='moyasar'||p==='mada'?TX.provCard:p==='tamara'?TX.provTamara:(p==='bank'||p==='bank_transfer')?TX.provBank:p}
+function actorName(e){if(LANG==='ar'||!e.actor)return e.actor||'';return e.actor_kind==='ai'?TX.actAi:e.actor_kind==='system'?TX.actSys:e.actor_kind==='human'?TX.actTeam:e.actor}
 function otp(data){return fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(data)}).then(function(r){return r.json()})}
 // A quotation line may predate the server-side line field (older rows, and
 // anything imported by hand). Falling back to qty x price keeps an invoice
@@ -403,22 +425,25 @@ function lineOf(i){var l=Number(i&&i.line);if(isFinite(l)&&l>0)return l;return M
 function money(n){return (Math.round(Number(n||0)*100)/100).toLocaleString(LANG==='ar'?'ar-SA-u-nu-latn':'en-US')+' '+(LANG==='ar'?'ر.س':'SAR')}
 function when(s){if(!s)return '';try{return new Date(s).toLocaleString(LANG==='ar'?'ar-SA-u-ca-gregory-nu-latn':LANG==='zh'?'zh-CN':LANG,{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Riyadh'})}catch(e){return s}}
 function pillClass(s){return ['QUOTE_SENT','CONTRACT_SENT','SIGNED','PAYMENT_PENDING','WAITING_CLIENT'].indexOf(s)>=0?'warn':['PAID','COMPLETED','QUOTE_APPROVED'].indexOf(s)>=0?'ok':s==='CANCELLED'?'bad':['IN_PROGRESS','WAITING_INTERNAL'].indexOf(s)>=0?'':'mut'}
+// Enter does the one obvious thing in a single-field form; without it the phone keyboard's «Go» key did nothing.
+function onEnter(inp,btn){inp.addEventListener('keydown',function(ev){if(ev.key==='Enter'&&!ev.isComposing){ev.preventDefault();btn.click()}})}
 function pill(s){return h('span',{class:'pill '+pillClass(s)},[ST[s]||s])}
 function go(view,ref){state.view=view;state.ref=ref||null;var u=new URL(location.href);u.searchParams.set('view',view);if(ref)u.searchParams.set('ref',ref);else u.searchParams.delete('ref');history.replaceState(null,'',u.toString());render()}
 // ---------- login
-function renderLogin(){app.innerHTML='';var email='',challenge='';var box=h('div',{class:'login'});var errEl=h('div',{class:'err'});
+function renderLogin(note){app.innerHTML='';var email='',challenge='';var box=h('div',{class:'login'});var errEl=h('div',{class:'err'});
 var e1=h('input',{type:'email',placeholder:TX.email,autocomplete:'email'}),b1=h('button',{class:'btn',onclick:function(){email=e1.value.trim().toLowerCase();errEl.textContent='';b1.disabled=true;otp({action:'start',email:email}).then(function(o){b1.disabled=false;if(!o||!o.ok){errEl.textContent=(o&&o.message)||TX.loginErr;return}challenge=o.challenge;s1.hidden=true;s2.hidden=false;if(o.testLogin)e2.placeholder='TEST: 123456';e2.focus()}).catch(function(){b1.disabled=false;errEl.textContent=TX.loginErr})}},[TX.sendCode]);
 var e2=h('input',{inputmode:'numeric',maxlength:'6',placeholder:TX.code}),b2=h('button',{class:'btn',onclick:function(){b2.disabled=true;otp({action:'verify',email:email,code:e2.value.trim(),challenge:challenge}).then(function(o){b2.disabled=false;if(!o||!o.ok){errEl.textContent=TX.codeErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){b2.disabled=false;errEl.textContent=TX.codeErr})}},[TX.verify]);
+onEnter(e1,b1);onEnter(e2,b2);
 var s1=h('div',{},[e1,b1]),s2=h('div',{hidden:''},[e2,b2]);
 // Three doors to the same account: emailed code, password, Google. Only the
 // ones this deployment has configured are drawn.
 var e3=h('input',{type:'password',placeholder:TX.password,autocomplete:'current-password'});
 var b3=h('button',{class:'btn',onclick:function(){errEl.textContent='';b3.disabled=true;otp({action:'password-login',email:e1.value.trim().toLowerCase(),password:e3.value}).then(function(o){b3.disabled=false;if(!o||!o.ok){errEl.textContent=(o&&o.message)||TX.loginErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){b3.disabled=false;errEl.textContent=TX.loginErr})}},[TX.loginPw]);
-var sp=h('div',{hidden:''},[e3,b3]);
+onEnter(e3,b3);var sp=h('div',{hidden:''},[e3,b3]);
 var toPw=h('a',{class:'lnk',onclick:function(){sp.hidden=false;toPw.hidden=true;toCode.hidden=false;e3.focus()}},[TX.usePw]);
 var toCode=h('a',{class:'lnk',hidden:'',onclick:function(){sp.hidden=true;toPw.hidden=false;toCode.hidden=true}},[TX.useCode]);
 var gwrap=h('div',{class:'gbtn',hidden:''});
-box.appendChild(h('h1',{},[TX.loginTitle]));box.appendChild(h('p',{},[TX.loginText]));box.appendChild(s1);box.appendChild(s2);box.appendChild(sp);box.appendChild(h('div',{class:'alt'},[toPw,toCode]));box.appendChild(gwrap);box.appendChild(errEl);app.appendChild(box);
+box.appendChild(h('h1',{},[TX.loginTitle]));box.appendChild(h('p',{},[TX.loginText]));if(note)box.appendChild(h('p',{class:'err'},[note]));box.appendChild(s1);box.appendChild(s2);box.appendChild(sp);box.appendChild(h('div',{class:'alt'},[toPw,toCode]));box.appendChild(gwrap);box.appendChild(errEl);app.appendChild(box);
 otp({action:'methods'}).then(function(m){if(!m||!m.ok)return;if(!m.password){toPw.hidden=true}if(m.google&&m.googleClientId)mountGoogle(gwrap,m.googleClientId,errEl)}).catch(function(){})}
 // Google Identity Services is loaded only when a client id exists, so a
 // deployment without Google never pulls a script it cannot use.
@@ -475,7 +500,7 @@ function viewChats(m){m.appendChild(h('h1',{},[TX.navChats]));var rows=state.me.
 function viewAppts(m){m.appendChild(h('h1',{},[TX.navAppts]));var rows=state.me.requests.filter(function(r){return r.appointment&&r.appointment.status!=='CANCELLED'});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill'},[r.appointment.date+' '+r.appointment.time]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));var cons=state.me.requests.filter(function(r){return r.type==='CONSULTATION'&&(!r.appointment||r.appointment.status==='CANCELLED')&&r.status!=='CANCELLED'});if(cons.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.book]),h('div',{class:'list'},cons.map(reqRow))]))}
 function viewCompany(m){m.appendChild(h('h1',{},[TX.navCompany]));var o=state.me.organization||{};var f=h('div',{class:'form'});var nAr=h('input',{class:'inp',value:o.name_ar||''}),nEn=h('input',{class:'inp',value:o.name_en||''}),cr=h('input',{class:'inp',value:o.cr_number||''}),msg=h('span',{class:'ok'});
 f.appendChild(h('label',{},[TX.company]));f.appendChild(nAr);f.appendChild(h('label',{},[TX.nameEn]));f.appendChild(nEn);f.appendChild(h('label',{},[TX.cr]));f.appendChild(cr);
-f.appendChild(h('button',{class:'btn',onclick:function(){fetch('/api/requests',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'my-org-update',name_ar:nAr.value,name_en:nEn.value,cr_number:cr.value})}).then(function(r){return r.json()}).then(function(o){msg.textContent=o&&o.ok?TX.saved:TX.error})}},[TX.save]));f.appendChild(msg);
+f.appendChild(h('button',{class:'btn',onclick:function(){fetch('/api/requests',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'my-org-update',name_ar:nAr.value,name_en:nEn.value,cr:cr.value,cr_number:cr.value})}).then(function(r){return r.json()}).catch(function(){return {ok:false,error:'network'}}).then(function(o){if(o&&o.error==='unauthorized'){sessionEnded();return}msg.className=o&&o.ok?'ok':'err';msg.textContent=o&&o.ok?TX.saved:failText(o);if(o&&o.ok&&o.organization)state.me.organization=o.organization})}},[TX.save]));f.appendChild(msg);
 m.appendChild(h('div',{class:'card'},[h('div',{class:'stat'},[h('span',{},[TX.email+': ',h('b',{},[state.me.user.email])])]),f]));
 // Setting a password needs a live session, which is exactly where we are —
 // so the client picks one here and stops waiting for a code every visit.
@@ -748,8 +773,8 @@ box.appendChild(h('div',{class:'stat'},[h('span',{},[TX.ref+': ',h('b',{},[r.ref
 var left=h('div'),right=h('div');box.appendChild(h('div',{class:'grid2'},[left,right]));
 // conversation
 var msgs=h('div',{class:'msgs'},(r.conversation||[]).map(function(mm){return h('div',{class:'m '+mm.role},[stripScope(mm.content),h('small',{},[(mm.role==='user'?TX.you:mm.role==='bp'?TX.team:TX.assistant)+' · '+when(mm.at)])])}));
-var inp=h('input',{placeholder:TX.writeMsg}),sb=h('button',{class:'btn',onclick:function(){var v=inp.value.trim();if(!v)return;sb.disabled=true;api('request-message',{ref:r.ref,content:v}).then(function(o){sb.disabled=false;if(o&&o.ok){r.conversation=o.conversation;r.status=o.status||r.status;inp.value='';drawRequest(hd,box)}})}},[TX.send]);
-left.appendChild(h('div',{class:'card'},[h('h3',{},[TX.conversation]),msgs,h('div',{class:'msgform'},[inp,sb])]));setTimeout(function(){msgs.scrollTop=msgs.scrollHeight},0);
+var inp=h('input',{placeholder:TX.writeMsg}),sb=h('button',{class:'btn',onclick:function(){var v=inp.value.trim();if(!v)return;sb.disabled=true;api('request-message',{ref:r.ref,content:v}).then(function(o){sb.disabled=false;if(o&&o.ok){r.conversation=o.conversation;r.status=o.status||r.status;inp.value='';drawRequest(hd,box)}else if(!o||o.error!=='no_session')toast(failText(o))})}},[TX.send]);
+onEnter(inp,sb);left.appendChild(h('div',{class:'card'},[h('h3',{},[TX.conversation]),msgs,h('div',{class:'msgform'},[inp,sb])]));setTimeout(function(){msgs.scrollTop=msgs.scrollHeight},0);
 // scope
 var isCart=!!(r.payment&&r.payment.source==='cart');var editable=!isCart&&['NEW','REVIEWING','WAITING_CLIENT'].indexOf(r.status)>=0;var sc=h('div',{class:'card'});sc.appendChild(h('h3',{},[TX.scope]));if(r.summary)sc.appendChild(h('p',{class:'note'},[r.summary]));
 var ul=h('ul',{class:'items'});function drawItems(){ul.innerHTML='';(r.scope||[]).forEach(function(it,i){var li=h('li',{},[h('span',{class:'ic'},['✓']),h('div',{},[h('b',editable?{contenteditable:'true',oninput:function(){it.title=this.textContent.trim()}}:{},[it.title]),it.why?h('small',{},[it.why]):null]),editable?h('button',{class:'rm',onclick:function(){r.scope.splice(i,1);drawItems()}},[TX.remove]):null]);ul.appendChild(li)})}drawItems();sc.appendChild(ul);
@@ -769,7 +794,7 @@ if(r.tasks&&r.tasks.length)left.appendChild(h('div',{class:'card'},[h('h3',{},[T
 if(!r.quote&&(r.events||[]).some(function(e){return e.event==='quote.pending'}))right.appendChild(h('div',{class:'card',id:'sv1Quote'},[h('h3',{},[TX.quote]),h('p',{class:'note'},[TX.scopePricing])]));
 if(r.quote){var qc=h('div',{class:'card',id:'sv1Quote'});qc.appendChild(h('h3',{},[TX.quote+' '+r.quote.number]));var tb=h('table',{class:'q'});tb.appendChild(h('thead',{},[h('tr',{},[h('th',{},[TX.scope]),h('th',{},[TX.qty]),h('th',{},[TX.price])])]));tb.appendChild(h('tbody',{},r.quote.items.map(function(i){return h('tr',{},[h('td',{},[i.title]),h('td',{},[String(i.qty)]),h('td',{},[money(lineOf(i))])])})));tb.appendChild(h('tfoot',{},[h('tr',{},[h('td',{colspan:'2'},[TX.net]),h('td',{},[money(r.quote.net)])]),h('tr',{},[h('td',{colspan:'2'},[TX.vat]),h('td',{},[money(r.quote.vat)])]),h('tr',{},[h('td',{colspan:'2'},[TX.total]),h('td',{},[money(r.quote.total)])])]));qc.appendChild(tb);
 qc.appendChild(h('p',{class:'note'},[TX.validUntil+': '+(r.quote.valid_until||'')+' · '+TX.terms+': '+(r.quote.payment_terms||'')]));qc.appendChild(docBtn(TX.openFull,TX.quote+' '+r.quote.number,function(){return api('quote-view',{ref:r.ref}).then(function(o){return o&&o.ok?o.html:''})}));if(r.quote.notes)qc.appendChild(h('p',{class:'note'},[r.quote.notes]));
-if(r.status==='QUOTE_SENT'){var rn=h('input',{class:'inp',placeholder:TX.rejectNote,style:'margin-top:8px'});qc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){api('quote-approve',{ref:r.ref}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;if(o.contract)r.contract=o.contract;refreshMe();drawRequest(hd,box)}})}},[TX.approve]),h('button',{class:'btn ghost',onclick:function(){api('quote-reject',{ref:r.ref,note:rn.value}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;refreshMe();drawRequest(hd,box)}})}},[TX.reject])]));qc.appendChild(rn)}
+if(r.status==='QUOTE_SENT'){var rn=h('input',{class:'inp',placeholder:TX.rejectNote,style:'margin-top:8px'});qc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){api('quote-approve',{ref:r.ref}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;if(o.contract)r.contract=o.contract;refreshMe();drawRequest(hd,box)}else if(!o||o.error!=='no_session')toast(failText(o))})}},[TX.approve]),h('button',{class:'btn ghost',onclick:function(){api('quote-reject',{ref:r.ref,note:rn.value}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;refreshMe();drawRequest(hd,box)}else if(!o||o.error!=='no_session')toast(failText(o))})}},[TX.reject])]));qc.appendChild(rn)}
 else if(r.quote.status==='APPROVED')qc.appendChild(h('p',{class:'ok'},[TX.quoteApproved]));
 right.appendChild(qc)}
 // contract
@@ -788,25 +813,25 @@ function payHere(provider){
   // Test/local: the gateway this server hosts. Otherwise the cart + checkout
   // the rest of the site uses, which needs the classic session.
   if(state.testMode){gwGo(provider);return}
-  api('checkout-start',{ref:r.ref}).then(function(o){if(!o||!o.ok)return;try{var cart=JSON.parse(localStorage.getItem('bp_cart')||'[]');cart=cart.filter(function(i){return i.id!==o.item.id});cart.push(o.item);localStorage.setItem('bp_cart',JSON.stringify(cart))}catch(x){}location.href=CHECKOUT})}
+  api('checkout-start',{ref:r.ref}).then(function(o){if(!o||!o.ok){if(!o||o.error!=='no_session')toast(failText(o));return}try{var cart=JSON.parse(localStorage.getItem('bp_cart')||'[]');cart=cart.filter(function(i){return i.id!==o.item.id});cart.push(o.item);localStorage.setItem('bp_cart',JSON.stringify(cart))}catch(x){}location.href=CHECKOUT})}
 var payRow=h('div',{style:'display:flex;gap:7px;flex-wrap:wrap'},[
   h('button',{class:'btn',onclick:function(){payHere('card')}},[TX.payCardNow]),
   h('button',{class:'btn ghost',onclick:function(){payHere('tamara')}},[TX.payTamaraNow])]);
 pc.appendChild(payRow);pc.appendChild(h('p',{class:'note'},[TX.payVia]));
 if(state.testMode){
-pc.appendChild(h('h3',{style:'margin-top:12px'},[TX.testPay]));var tp=h('div',{style:'display:flex;gap:6px;flex-wrap:wrap'});[['success','card',TX.paySuccess,''],['success','tamara',TX.payTamara,''],['failed','card',TX.payFailed,'danger'],['cancelled','card',TX.payCancelled,'ghost'],['pending','card',TX.payPending,'ghost']].forEach(function(x){tp.appendChild(h('button',{class:'btn sm '+x[3],onclick:function(){api('pay-test',{ref:r.ref,outcome:x[0],provider:x[1]}).then(function(o){if(o&&o.ok){r.status=o.status;r.payment=o.payment;if(o.invoice)r.invoice=o.invoice;refreshMe();drawRequest(hd,box)}})}},[x[2]]))});pc.appendChild(tp)}
+pc.appendChild(h('h3',{style:'margin-top:12px'},[TX.testPay]));var tp=h('div',{style:'display:flex;gap:6px;flex-wrap:wrap'});[['success','card',TX.paySuccess,''],['success','tamara',TX.payTamara,''],['failed','card',TX.payFailed,'danger'],['cancelled','card',TX.payCancelled,'ghost'],['pending','card',TX.payPending,'ghost']].forEach(function(x){tp.appendChild(h('button',{class:'btn sm '+x[3],onclick:function(){api('pay-test',{ref:r.ref,outcome:x[0],provider:x[1]}).then(function(o){if(o&&o.ok){r.status=o.status;r.payment=o.payment;if(o.invoice)r.invoice=o.invoice;refreshMe();drawRequest(hd,box)}else if(!o||o.error!=='no_session')toast(failText(o))})}},[x[2]]))});pc.appendChild(tp)}
 right.appendChild(pc)}
 // شراء مباشر بالسلة: ما اشتُري ومبالغه ودورته، من سجلّ الدفع نفسه (لا عرض سعر لهذا الطلب).
 if(r.payment&&r.payment.source==='cart'){var pi=r.payment,bc=h('div',{class:'card',id:'sv1Bought'});bc.appendChild(h('h3',{},[TX.bought]));var bt=h('table',{class:'q'});bt.appendChild(h('thead',{},[h('tr',{},[h('th',{},[TX.scope]),h('th',{},[TX.qty]),h('th',{},[TX.price])])]));bt.appendChild(h('tbody',{},(pi.items||[]).map(function(i){return h('tr',{},[h('td',{},[i.name+(i.cycle?' · '+(i.cycle==='yearly'?TX.cycY:TX.cycM):'')]),h('td',{},[String(i.qty||1)]),h('td',{},[i.amount==null?'—':money(i.amount)])])})));bt.appendChild(h('tfoot',{},[h('tr',{},[h('td',{colspan:'2'},[TX.net]),h('td',{},[money(pi.net)])]),h('tr',{},[h('td',{colspan:'2'},[TX.vat]),h('td',{},[money(pi.vat)])]),h('tr',{},[h('td',{colspan:'2'},[TX.total]),h('td',{},[money(pi.total||pi.amount)])])]));bc.appendChild(bt);if(pi.verified===false)bc.appendChild(h('p',{class:'note'},[TX.unverifiedNote]));right.appendChild(bc)}
-if(r.payment&&r.payment.status==='PAID')right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.payment]),h('p',{class:'ok'},['✓ '+TX.paid+' · '+money(r.payment.amount)+' · '+(r.payment.provider||'')+' · '+when(r.payment.at)])]));
+if(r.payment&&r.payment.status==='PAID')right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.payment]),h('p',{class:'ok'},['✓ '+TX.paid+' · '+money(r.payment.amount)+' · '+provName(r.payment.provider)+' · '+when(r.payment.at)])]));
 if(r.invoice)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.invoice+' '+r.invoice.number]),h('p',{},[money(r.invoice.total)+' · '+when(r.invoice.issued_at)]),h('button',{class:'btn ghost sm',onclick:function(){openInvoice(r)}},[r.invoice.pdf_url?TX.invOfficial:TX.download])]));
 var dvc=delivCard(r);if(dvc)right.appendChild(dvc);
 // appointment
 if(r.type==='CONSULTATION'){var ac=h('div',{class:'card'});ac.appendChild(h('h3',{},[TX.navAppts]));var a=r.appointment;if(a&&a.status!=='CANCELLED')ac.appendChild(h('p',{class:'ok'},['📅 '+a.date+' · '+a.time+' · '+(a.topic||'')+(a.gcal?' ':'') ,a.gcal?h('a',{href:a.gcal,target:'_blank',class:'btn ghost sm'},['Google Calendar']):null]));
 var d=h('input',{class:'inp',type:'date',min:new Date().toISOString().slice(0,10)}),tm=h('input',{class:'inp',type:'time',value:'10:00',step:'1800'}),tp2=h('input',{class:'inp',placeholder:TX.topic,value:(a&&a.topic)||r.title}),ae=h('div',{class:'err'});
-ac.appendChild(h('div',{class:'form'},[h('label',{},[TX.date]),d,h('label',{},[TX.time]),tm,h('label',{},[TX.topic]),tp2,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){api(a&&a.status!=='CANCELLED'?'appointment-reschedule':'appointment-book',{ref:r.ref,date:d.value,time:tm.value,topic:tp2.value}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else ae.textContent=(o&&o.error)||TX.error})}},[a&&a.status!=='CANCELLED'?TX.reschedule:TX.book]),a&&a.status!=='CANCELLED'?h('button',{class:'btn danger',onclick:function(){api('appointment-cancel',{ref:r.ref}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}})}},[TX.cancelAppt]):null]),ae,h('p',{class:'note'},[TX.apptNote])]));right.appendChild(ac)}
+ac.appendChild(h('div',{class:'form'},[h('label',{},[TX.date]),d,h('label',{},[TX.time]),tm,h('label',{},[TX.topic]),tp2,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){ae.textContent='';if(!d.value||!tm.value){ae.textContent=TX.apptBad;return}api(a&&a.status!=='CANCELLED'?'appointment-reschedule':'appointment-book',{ref:r.ref,date:d.value,time:tm.value,topic:tp2.value}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else if(o&&o.error==='no_session'){}else ae.textContent=o&&o.error==='friday'?TX.apptFri:o&&o.error==='past'?TX.apptPast:o&&o.error==='bad_datetime'?TX.apptBad:failText(o)})}},[a&&a.status!=='CANCELLED'?TX.reschedule:TX.book]),a&&a.status!=='CANCELLED'?h('button',{class:'btn danger',onclick:function(){api('appointment-cancel',{ref:r.ref}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else if(!o||o.error!=='no_session')toast(failText(o))})}},[TX.cancelAppt]):null]),ae,h('p',{class:'note'},[TX.apptNote])]));right.appendChild(ac)}
 // timeline
-right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.timeline]),h('ul',{class:'tl'},(r.events||[]).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(e.actor?e.actor+': ':'')+(EV[e.event]||e.event)+(e.details&&e.details.number?' '+e.details.number:'')])])}))]));
+right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.timeline]),h('ul',{class:'tl'},(r.events||[]).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(actorName(e)?actorName(e)+': ':'')+(EV[e.event]||e.event)+(e.details&&e.details.number?' '+e.details.number:'')])])}))]));
 if(['CANCELLED','COMPLETED'].indexOf(r.status)<0){var early=['NEW','REVIEWING','WAITING_CLIENT','QUOTE_SENT','PRICING'].indexOf(r.status)>=0;var cnote=h('input',{class:'inp',placeholder:TX.cancelWhy,style:'margin-top:10px'});var cmsg=h('div',{class:'note'},[early?TX.cancelEarly:TX.cancelLate]);var cbtn=h('button',{class:'btn danger sm',onclick:function(){if(!confirm((early?TX.cancelReq:TX.cancelAsk)+'?'))return;var b2=this;b2.disabled=true;api('request-cancel',{ref:r.ref,note:cnote.value.trim()}).then(function(o){b2.disabled=false;if(!o||!o.ok){cmsg.className='err';cmsg.textContent=(o&&o.message)||TX.error;return}if(o.cancelled){r.status='CANCELLED';refreshMe();drawRequest(hd,box);return}cmsg.className='ok';cmsg.textContent=TX.cancelSent;cbtn.disabled=true})}},[early?TX.cancelReq:TX.cancelAsk]);right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),cmsg,cnote,h('div',{class:'msgform',style:'margin-top:8px'},[cbtn])]))}if(r.cancel)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),h('p',{class:'note'},[TX.cancelDone+' · '+when(r.cancel.at)+(r.cancel.note?' · '+r.cancel.note:'')])]))}
 // The official invoice is the PDF the accounting system issued and the request
 // kept (invoice.pdf_url): that is what opens when it exists. Only when it does
