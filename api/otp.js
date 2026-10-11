@@ -14,6 +14,7 @@
 import crypto from "node:crypto";
 import { verifyGoogleIdToken } from "./_suppliers.js";
 import { nafathRequest, nafathStatus, nationalIdState, nafathPing, nafathIdHash, nafathSeal, nafathUnseal, isOwnerId, mintOwnerTicket } from "./_nafath.js";
+import { outbox } from "./_mode.js";
 
 const GOOGLE_CLIENT_ID = (process.env.GOOGLE_CLIENT_ID || "").trim();
 const SECRET = process.env.OTP_SECRET || "";
@@ -175,6 +176,111 @@ async function sendSms(_phone, _code) {
   return { ok: false, error: "sms_not_configured" };
 }
 
+// ---- sign-in link (رابط الدخول بالبريد) ---------------------------------------
+// One tap from the mailbox, no code to retype. The e-mail carries a link AND
+// the six digits, so a link that opens in the wrong browser (a mail app's own
+// webview, another device) still has the code to fall back on.
+//
+// Three things make it safe to hand out:
+//  • The token is sealed with its OWN key (derived from the secret plus a label),
+//    not the one that seals OTP challenges. A challenge cannot be replayed as a
+//    link and a link cannot be replayed as a challenge — without this the two
+//    could be confused, because both are AES-GCM blobs under the same secret.
+//  • Opening the link does not sign anyone in. The page it lands on shows one
+//    button, and only that button (a POST) consumes the token. Mail scanners and
+//    link-preview bots open every URL they see; a link that signed in on GET
+//    would be burned before its owner touched it.
+//  • Single use, best effort: a used token leaves a pre-revoked row in
+//    user_sessions (unique token_hash, never a live session) and a note in
+//    memory. Fifteen minutes of lifetime bounds whatever slips past it.
+const LINK_TTL_MS = 15 * 60 * 1000;
+const linkKey = () => crypto.createHash("sha256").update("magic-link|" + SECRET).digest();
+function sealLink(obj) {
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv("aes-256-gcm", linkKey(), iv);
+  const ct = Buffer.concat([cipher.update(JSON.stringify(obj), "utf8"), cipher.final()]);
+  return b64u(Buffer.concat([iv, cipher.getAuthTag(), ct]));
+}
+function unsealLink(token) {
+  try {
+    const raw = Buffer.from(String(token || ""), "base64url");
+    if (raw.length < 29) return null;
+    const d = crypto.createDecipheriv("aes-256-gcm", linkKey(), raw.subarray(0, 12));
+    d.setAuthTag(raw.subarray(12, 28));
+    return JSON.parse(Buffer.concat([d.update(raw.subarray(28)), d.final()]).toString("utf8"));
+  } catch { return null; }
+}
+// The link is built from OUR origin, never from a header the caller controls:
+// a poisoned Host would otherwise mail a victim a link to someone else's site.
+function siteBase(req) {
+  const host = String((req.headers["x-forwarded-host"] || req.headers.host || "")).split(",")[0].trim().toLowerCase();
+  if (/^(www\.)?businesspartner\.sa$/.test(host)) return "https://www.businesspartner.sa";
+  if (LOCAL_DEV && /^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host)) return `http://${host}`;
+  if (/^[a-z0-9-]+\.vercel\.app$/.test(host)) return `https://${host}`;
+  return "https://www.businesspartner.sa";
+}
+const MY_PATH = { ar: "/ar/my", en: "/my", fr: "/fr/my", zh: "/zh/my" };
+// Where the client lands after signing in: a same-origin path only. «//host» is
+// read by a browser as another site, so a leading double slash is refused too.
+function safeNext(n) {
+  const s = String(n || "");
+  if (!s || s.length > 300 || s[0] !== "/" || s[1] === "/" || s.includes("..") || s.includes("\\")) return "";
+  return /^\/[A-Za-z0-9\-._~/?=&%@:+]*$/.test(s) ? s : "";
+}
+const linkSeen = (globalThis.__bpLinkSeen ||= new Map());
+function linkThrottle(key, max) {
+  const now = Date.now();
+  for (const [k, v] of linkSeen) if (now - v.at > 10 * 60 * 1000) linkSeen.delete(k);
+  const hit = linkSeen.get(key);
+  if (!hit) { linkSeen.set(key, { at: now, n: 1 }); return true; }
+  hit.n += 1;
+  return hit.n <= max;
+}
+const linkUsed = (globalThis.__bpLinkUsed ||= new Map());
+async function linkIsUsed(jti) {
+  if (linkUsed.has(jti)) return true;
+  if (!DB_ON) return false;
+  try { return (await sb(`user_sessions?token_hash=eq.${sha256("ml:" + jti)}&select=id&limit=1`)).length > 0; }
+  catch { return false; }
+}
+async function burnLink(jti, userId, exp) {
+  linkUsed.set(jti, exp);
+  for (const [k, v] of linkUsed) if (Date.now() > v) linkUsed.delete(k);
+  if (!DB_ON || !userId) return;
+  try {
+    await sb(`user_sessions`, {
+      method: "POST", prefer: "return=minimal",
+      body: [{ user_id: userId, token_hash: sha256("ml:" + jti), expires_at: new Date(exp).toISOString(), revoked_at: new Date().toISOString() }],
+    });
+  } catch {}
+}
+function linkMail(link, code, lang) {
+  const ar = lang === "ar";
+  const subject = ar ? "رابط دخولك — Business Partner" : "Your sign-in link — Business Partner";
+  const html = `<div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;direction:${ar ? "rtl" : "ltr"};text-align:${ar ? "right" : "left"}">
+    <h2 style="color:#0B1B5A">${ar ? "ادخل إلى حسابك" : "Sign in to your account"}</h2>
+    <p>${ar ? "اضغط الزرّ وتدخل مباشرة — بلا كلمة مرور." : "Tap the button and you are in — no password."}</p>
+    <p style="margin:22px 0"><a href="${link}" style="background:#0B1B5A;color:#fff;text-decoration:none;padding:13px 26px;border-radius:10px;font-weight:bold;display:inline-block">${ar ? "الدخول إلى حسابي" : "Sign in to my account"}</a></p>
+    <p style="color:#555">${ar ? "إن فُتح الرابط في متصفح آخر، اكتب هذا الرمز في صفحة الدخول:" : "If the link opens in another browser, type this code on the sign-in page:"}</p>
+    <p style="font-size:28px;font-weight:bold;letter-spacing:8px;color:#0B1B5A;margin:6px 0">${code}</p>
+    <p style="color:#666;font-size:13px">${ar ? "صالح ١٥ دقيقة ولمرة واحدة. إن لم تطلبه فتجاهل هذه الرسالة." : "Valid for 15 minutes, single use. If you did not ask for it, ignore this message."}</p>
+  </div>`;
+  return { subject, html };
+}
+async function sendLinkEmail(to, link, code, lang) {
+  if (!RESEND_API_KEY) return { ok: false, error: "email_not_configured" };
+  const { subject, html } = linkMail(link, code, lang);
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
+      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+    });
+    if (!r.ok) { console.error("Resend error (link)", r.status, await r.text()); return { ok: false, error: "email_send_failed" }; }
+    return { ok: true };
+  } catch (e) { console.error("email exception (link)", e); return { ok: false, error: "email_send_failed" }; }
+}
+
 async function readBody(req) {
   let body = req.body;
   if (typeof body === "string") { try { body = JSON.parse(body); } catch { body = {}; } }
@@ -260,7 +366,7 @@ export default async function handler(req, res) {
   // only the doors that are configured, instead of a Google button that fails.
   if (action === "methods") {
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, code: true, password: DB_ON, google: !!GOOGLE_CLIENT_ID, googleClientId: GOOGLE_CLIENT_ID || null }));
+    return res.end(JSON.stringify({ ok: true, code: true, link: true, password: DB_ON, google: !!GOOGLE_CLIENT_ID, googleClientId: GOOGLE_CLIENT_ID || null }));
   }
 
   // Sign in with e-mail + password. Same session, same cookie, same everything
@@ -365,6 +471,69 @@ export default async function handler(req, res) {
         return res.end(JSON.stringify({ ok: true, db: false, token: sessionToken(email), email }));
       }
     }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, db: false, token: sessionToken(email), email }));
+  }
+
+  // Sign-in link, step 1: mail a link plus a code (see the note above sealLink).
+  // The answer is the same whether or not the address has an account — a client
+  // is created on first sign-in exactly as it is with the emailed code.
+  if (action === "link-start") {
+    const email = String(body.email || "").trim().toLowerCase();
+    const lang = MY_PATH[body.lang] ? body.lang : "ar";
+    if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_email" })); }
+    const ip = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim() || "?";
+    if (!linkThrottle("e:" + email, 4) || !linkThrottle("ip:" + ip, 20)) {
+      res.statusCode = 429;
+      return res.end(JSON.stringify({ ok: false, error: "too_many", message: "طلبات كثيرة على هذا البريد. انتظر قليلاً ثم أعد المحاولة." }));
+    }
+    const isTestLogin = TEST_LOGIN && (LOCAL_DEV || TEST_LOGIN_DOMAINS.some((d) => email.endsWith(d)));
+    const code = isTestLogin ? TEST_LOGIN_CODE : String(crypto.randomInt(0, 1000000)).padStart(6, "0");
+    const exp = Date.now() + LINK_TTL_MS;
+    const token = sealLink({ t: "ml", email, jti: crypto.randomBytes(12).toString("base64url"), exp });
+    const challenge = seal({ email, code, channel: "email", exp });
+    const next = safeNext(body.next);
+    const link = `${siteBase(req)}${MY_PATH[lang]}${next ? "?next=" + encodeURIComponent(next) : ""}#ml=${token}`;
+    if (isTestLogin) {
+      // Nothing leaves the machine. Locally the mail is parked in the outbox and
+      // the link is handed back so the page can be walked end to end; on a preview
+      // test address there is no outbox, so only the fixed code is on offer.
+      if (LOCAL_DEV) {
+        const m = linkMail(link, code, lang);
+        await outbox({ kind: "email", to: email, subject: m.subject, body: `${link}  code ${code}` });
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, challenge, channel: "test", to: email, testLogin: true, ...(LOCAL_DEV ? { devLink: link, devCode: code } : {}) }));
+    }
+    const delivery = await sendLinkEmail(email, link, code, lang);
+    if (!delivery.ok) {
+      res.statusCode = 503;
+      return res.end(JSON.stringify({ ok: false, error: delivery.error, message: "تعذّر إرسال الرابط الآن. جرّب الدخول بحساب Google أو تواصل عبر واتساب." }));
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, challenge, channel: "email", to: maskEmail(email), linkSent: true }));
+  }
+
+  // Sign-in link, step 2: the one button on the landing page posts the token here.
+  if (action === "link-verify") {
+    const v = unsealLink(body.token);
+    if (!v || v.t !== "ml" || !isEmail(v.email) || !v.jti) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_link" })); }
+    if (Date.now() > Number(v.exp)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "expired" })); }
+    if (await linkIsUsed(v.jti)) { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "link_used" })); }
+    const email = String(v.email).toLowerCase();
+    if (DB_ON) {
+      try {
+        const { raw, user, orgId } = await createSession(req, { email, name: "", company: "" });
+        await burnLink(v.jti, user.id, Number(v.exp));
+        setSessionCookie(res, raw, Math.floor(SESSION_TTL_MS / 1000));
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, db: true, email, user: { id: user.id, email: user.email, name: user.full_name || "" }, organizationId: orgId }));
+      } catch {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: "session_failed" }));
+      }
+    }
+    await burnLink(v.jti, null, Number(v.exp));
     res.statusCode = 200;
     return res.end(JSON.stringify({ ok: true, db: false, token: sessionToken(email), email }));
   }

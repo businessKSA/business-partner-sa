@@ -256,7 +256,9 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
 .sv1-wa-fab{position:fixed;inset-inline-start:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
+.sv1-navlogin{display:none}
 @media(max-width:900px){
+ .sv1-nav .sv1-navlogin{display:block;font-weight:700;color:var(--n)}
  .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
  .sv1-nav.open{display:flex}
  .sv1-burger{display:flex}
@@ -332,6 +334,7 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
     <a href="/fr/catalog">Services</a>
     <a href="/fr/consultation">Réserver</a>
     <a href="/fr/#how">Comment ça marche</a>
+    <a href="/fr/my" class="sv1-navlogin" id="sv1NavLogin">Connexion</a>
     <a href="/fr/my" id="sv1AccountLink">Mon compte</a>
     <details class="sv1-lang"><summary>🌐 Français</summary><div class="menu"><a href="/ar/services/bp-vendor-01" data-lang="ar">العربية</a><a href="/services/bp-vendor-01" data-lang="en">English</a><a href="/fr/services/bp-vendor-01" data-lang="fr" class="on">Français</a><a href="/zh/services/bp-vendor-01" data-lang="zh">中文</a></div></details>
   </nav>
@@ -364,6 +367,7 @@ var S=window.SV1S={
      الرابط عند الخروج بلا حاجة إلى تمرير ترجمةٍ إلى السكربت. */
   if(a){if(S.def==null)S.def=a.textContent;a.textContent=(on&&first(h))||S.def}
   if(lb)lb.classList.toggle('sv1-hide',!!on);
+  var nl=g('sv1NavLogin');if(nl)nl.classList.toggle('sv1-hide',!!on);
   if(ob)ob.classList.toggle('sv1-hide',!on);
   var p=location.pathname;
   if(sb)sb.classList.toggle('sv1-hide',!(on&&(p.indexOf('/my')>=0||p.indexOf('/ops')>=0)));

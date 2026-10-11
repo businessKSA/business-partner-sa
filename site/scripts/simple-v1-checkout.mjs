@@ -32,6 +32,7 @@
 // نطلب `CRYPTOGRAM_3DS` وحده (توثيق مُيسّر): `PAN_ONLY` يعني رقم بطاقة خام بلا 3DS.
 
 import { recurringMap } from "./simple-v1-cart.mjs";
+import { CLIENT_LOGIN_CSS, clientLoginJs } from "./client-login.mjs";
 
 const T = {
   title:   { ar: "إتمام الدفع", en: "Checkout", fr: "Paiement", zh: "结账" },
@@ -300,7 +301,10 @@ ${SV1.footer()}`;
 @media(max-width:600px){.sv1-co-fields{grid-template-columns:1fr}}
 </style>`;
 
+  // سكربتٌ واحد: باب الدخول المشترك أولاً (بلا وسمه) ثم صفحة الدفع. اختبارات هذه الصفحة
+  // تشغّل `script` كله في بيئة مصغَّرة وتنتظر وسماً واحداً.
   const script = `<script>
+${clientLoginJs(lang)}
 (function(){
 var LANG=${JSON.stringify(lang)},HOME=${JSON.stringify(home)};
 var TX=${JSON.stringify({ empty: t("empty"), browse: t("browse"), needFill: t("needFill"), payDown: t("payDown"), loading: t("loading"), quoted: t("quoted"), signIn: t("signIn"), signInBtn: t("signInBtn"), noAmount: t("noAmount"), card: t("card"), payBtn: t("payBtn"), payWait: t("payWait"), paidOk: t("paidOk"), paidInv: t("paidInv"), paidFail: t("paidFail"), paidHold: t("paidHold"), bnplFail: t("bnplFail"), toMy: t("toMy"), mockTag: t("mockTag"), needCo: t("needCo"), empFail: t("empFail"), empDone: t("empDone"), empHold: t("empHold"), toEmployer: t("toEmployer"), tamaraYr: t("tamaraYr"), empSignIn: t("empSignIn"), empMail: t("empMail"), onePlan: t("onePlan"), toCart: t("toCart"),
@@ -551,11 +555,20 @@ function payBlocked(msg,href,label){
  var p=document.createElement('p');p.className='sv1-co-fine';p.textContent=msg;mount.appendChild(p);
  if(href){var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=href;a.textContent=label;a.style.marginTop='10px';mount.appendChild(a)}
  var tg=$('coTamaraGo');if(tg)tg.disabled=true}
+// الضيف عند الدفع يرى «المتابعة بجوجل» هنا في الصفحة نفسها: يدخل وتبقى سلته أمامه
+// (إعادة تحميل بعد الدخول لا انتقال). والزرّ الآخر يذهب إلى /my بالبريد وبـnext.
+function guestGoogle(){var L=window.SV1Login;if(!L)return;var a=mount.querySelector('a');if(!a)return;
+ var s=document.createElement('div');s.style.marginTop='12px';
+ var or=document.createElement('div');or.className='bpg-or';or.textContent=L.or;
+ mount.insertBefore(s,a);mount.insertBefore(or,a);
+ L.mountGoogle(s,{onSuccess:function(){try{localStorage.setItem('bp_session','1')}catch(x){}location.reload()},
+  onError:function(m){var p=document.createElement('p');p.className='sv1-co-fine';p.style.color='#b42318';p.textContent=m;mount.insertBefore(p,or)},
+  onHide:function(){or.style.display='none'}})}
 if(!cart.length){mount.innerHTML='';}
 else if(empLines.length>1){payBlocked(TX.onePlan,HOME+'cart',TX.toCart);}
 else if(unpriced){payBlocked(TX.noAmount,HOME+'my',TX.signInBtn);}
 // الدخول يرجع إلى هذه الصفحة (next) لا إلى لوحة العميل، فتبقى السلة أمامه.
-else if(hidden){payBlocked(TX.signIn,HOME+'my?next='+encodeURIComponent(HOME+'checkout'),TX.signInBtn);}
+else if(hidden){payBlocked(TX.signIn,HOME+'my?next='+encodeURIComponent(HOME+'checkout'),TX.signInBtn);guestGoogle();}
 else if(!(total>0)){payBlocked(TX.noAmount,HOME+'catalog',TX.browse);}
 else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
  PAYCFG=cfg||null;
@@ -660,7 +673,7 @@ priceEmp(function(){whenSession(run)});
     title: `${t("title")} — Business Partner`,
     desc: t("desc"),
     path: "/checkout",
-    body: CSS + body,
+    body: CSS + `<style id="sv1-co-login-css">${CLIENT_LOGIN_CSS}</style>` + body,
     script,
     noindex: true,
   });
