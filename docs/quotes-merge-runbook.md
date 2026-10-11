@@ -108,12 +108,48 @@ LOCAL_DB=1 node scripts/migrate-quotes.mjs --write   # كتابة محلية ث�
   - النطاق = الصفوف المهاجَرة (لها رمز)، فلا تتكرّر طلبات Simple V1 الأصلية.
   - اختبار تكامل: `tests/panelbridge.test.mjs` (3 حالات، تمرّ).
 
-### المتبقّي قبل الحذف (المرحلة 4 — قرار مالك)
-- في `vercel.json`: استبدال تحويل `/quotes/d/:token` ليشير إلى
-  `api/requests?__route=docview&token=:token` (بدل bp-quotes)، ثم حذف بقية تحويلات
-  `/quotes*`.
-- حذف المشروع من لوحة Vercel (أنت) ثم حذف `quotes/` من المستودع.
-- (جسر `wa-quote` الأمامي لإنشاء العروض يبقى حتى يُؤكَّد أن الإنشاء كله من `/ops`.)
+### المرحلة 4 — الفصل والحذف (قرار مالك 🔴)
+
+> ⛔ **شرط مسبق لا يُتجاوز:** لا تُطبَّق خطوة 4أ إلا **بعد** تشغيل الهجرة على
+> البيانات الحقيقية والتأكد منها. السبب: `docview` يقرأ `quote_tokens`؛ وقبل
+> امتلائه بالبيانات الحقيقية، تحويلُ `/quotes/d/:token` إليه يحوّل **كل** رابط
+> عميل قديم إلى 404 فورًا. ما دام الجدول فارغًا، اترك الروابط تُخدَم من bp-quotes.
+
+#### تعديل `vercel.json` — جاهز للّصق (مُتحقَّق منه)
+
+**خطوة 4أ (بعد الهجرة، وbp-quotes ما زال حيًّا):** أضف سطر `docview` **قبل**
+`/quotes/:path*` مباشرةً (الترتيب يحسم الأسبقية في Vercel):
+
+```diff
+   "rewrites": [
++    {"source":"/quotes/d/:token","destination":"/api/requests?__route=docview&token=:token"},
+     {"source":"/quotes","destination":"https://bp-quotes-three.vercel.app/quotes"},
+     {"source":"/quotes/:path*","destination":"https://bp-quotes-three.vercel.app/quotes/:path*"},
+```
+
+ثم افتح ٥–١٠ روابط `/quotes/d/<token>` حقيقية من الموقع الرئيسي وتأكّد أنها تُعرض
+من `docview` (بينما لوحة `/quotes` ما زالت تعمل من bp-quotes).
+
+**خطوة 4ب (بعد أن تحذف المشروع من لوحة Vercel):** احذف سطرَي bp-quotes:
+
+```diff
+   "rewrites": [
+     {"source":"/quotes/d/:token","destination":"/api/requests?__route=docview&token=:token"},
+-    {"source":"/quotes","destination":"https://bp-quotes-three.vercel.app/quotes"},
+-    {"source":"/quotes/:path*","destination":"https://bp-quotes-three.vercel.app/quotes/:path*"},
+     {"source":"/api/live-catalog","destination":"/api/requests?__route=live-catalog"},
+```
+
+#### الترتيب الإلزامي (درس erp)
+1. تشغيل الهجرة الحقيقية + التأكد (أنت) → ثم خطوة 4أ (أطبّقها أنا بإذنك).
+2. حذف مشروع bp-quotes من **لوحة Vercel** (أنت) — لا يحذفه Claude.
+3. خطوة 4ب في `vercel.json` (أنا) → ثم حذف مجلد `quotes/` من المستودع (أنا).
+   الترتيب لازم: حذف مجلدٍ هو جذر مشروع Vercel حيّ يُفشل البناء عند الإقلاع.
+
+#### تنظيف تابع (غير حاجز)
+- زر «فتح لوحة العروض» في `site/.../admin.page.html` (`panel-quotes&want=login`)
+  يفتح admin في bp-quotes — يُوجَّه إلى `/ops` بعد الحذف.
+- جسر `wa-quote` الأمامي لإنشاء العروض يبقى حتى يُؤكَّد أن الإنشاء كله من `/ops`.
 
 ---
 
