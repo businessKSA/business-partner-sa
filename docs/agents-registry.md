@@ -295,3 +295,8 @@
 - `WTBfUJKaeCJSIi3m` (Deal Lifecycle Orchestrator) من كل 5 دقائق إلى **كل 30 دقيقة**؛ هو idempotent (`task_id` = صفقة+مرحلة) فلا يضيع شيء.
 - المهمة `AUTO-ABDULAZIZ_LEGAL-20261005-A` (id 253) كانت تدور بين مازن وعبدالعزيز بلا ناتج؛ أُغلقت (`completed`) وتحققت من الجدول بعد التحديث.
 - **عطل في فرح:** أداة `Update Team Task` كانت تفشل بصمت حين يرسل النموذج `due_at=""` ثم تُبلّغ باهر أن التحديث نجح. صُحّح التعبير إلى `|| undefined`. وتنبيه: المعرّف الصحيح هو `task_id` النصي لا رقم الصف.
+
+### صوت جارفس/Command Space على Azure (2026-10-11، بقرار المالك)
+- `3B9PXV0YhcLOgMqi` (BP AI Space — Data API): عقدتا ElevenLabs (`POST Voice` و`POST Transcribe`) استُبدلتا. النطق: `Azure Speech TTS` (`eastus2`، الاعتماد `Azure Speech — Jarvis`، SSML، افتراضي `ar-SA-ZariyahNeural`، ويقبل `voice/rate/pitch` من الواجهة). التفريغ: `Azure Whisper STT` على نشر `bp-voice` في `bp-ai-ksa-2026` بالاعتماد `Azure Open AI account`.
+- التحقق: التنفيذ `183653` أعاد `audio/mpeg` 25.9KB من Azure. **تفريغ الصوت لم يُختبر طرفاً لطرف** (يحتاج تسجيلاً حقيقياً من الواجهة) لكنه بنفس عقدة فرح العاملة.
+- الواجهة القديمة ترسل `voice_id/model_id` الخاصة بـElevenLabs فتُتجاهل. اعتماد `ElevenLabs` (`XZniaxwj50mgRDHR`) لم يعد مستعملاً في هذا السير ويمكن حذفه من n8n بعد التأكد.
