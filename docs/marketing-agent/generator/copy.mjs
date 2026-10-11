@@ -31,19 +31,29 @@ export function checklist(service) {
 
 // U+FDFC (﷼) is missing from the Noto Arabic faces used for rendering and comes out
 // as a broken glyph on the social cards, so the amount is always spelled out.
-const riyals = (amount) => `${Number(amount).toLocaleString("en-US")} ريال`;
 
-export function priceLine(service) {
-  const p = service.price ?? {};
-  if (!p.amount) return service.requiresProposal ? "بعرض سعر مخصّص" : "";
-  const fees = service.govFeesSeparate ? " · الرسوم الحكومية منفصلة" : "";
-  return `تبدأ من ${riyals(p.amount)}${fees}`;
+// No price is published. The site itself hides prices from anyone not signed in
+// (SHOW_PRICES=false, CLAUDE.md §4) — so a campaign that prints "تبدأ من 750 ريال"
+// on LinkedIn contradicts the product it links to, and quotes a number to a reader
+// the site would not show it to. Owner decision 2026-10-11: «احذف الأسعار من النصوص».
+//
+// Returning "" rather than deleting the nine call sites is deliberate: each one is
+// already written as `price ? … : null` behind a `.filter(keep)`, so the line drops
+// out of every caption on its own, and restoring prices later is this one function
+// again — not nine edits across eight platforms, which is how one of them gets
+// missed and a price ships alone.
+//
+// The amount still reaches the catalogue and the service page. It is the campaign
+// copy that stops carrying it.
+export function priceLine() {
+  return "";
 }
 
-// The social card pill has room for the number, not the caveat.
-export function priceShort(service) {
-  const p = service.price ?? {};
-  return p.amount ? `تبدأ من ${riyals(p.amount)}` : "اطلب عرض سعر";
+// The card pill keeps its slot, but it now carries the call to action instead of a
+// number — the same thing the catalogue already shows for a service priced on
+// request. An empty pill would just leave a hole in the design.
+export function priceShort() {
+  return "اطلب عرض سعر";
 }
 
 // Every link a campaign emits is tagged, because the pipeline currently shows
@@ -251,7 +261,7 @@ export function buildCopy(service) {
       `بطاقة خدمة واحدة — ${title}.`,
       `العنوان: «${pb.outcome}»، وتحته سطر الألم بخط أصغر.`,
       steps.length ? `قائمة من ${steps.length} بنود بعلامة \u2713.` : null,
-      priceTag ? `شارة سعر: ${priceTag}.` : null,
+      priceTag ? `شارة الدعوة: ${priceTag} — بلا رقم سعر على البطاقة.` : null,
       `الهوية: كحلي ${BRAND.navy} وذهبي ${BRAND.gold}، خط Noto Kufi Arabic، اتجاه RTL.`,
       `الأصل الجاهز: docs/marketing-agent/content-packs/${service.slug}/`,
     ].filter(keep).join(" "),
