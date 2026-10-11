@@ -27,7 +27,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // ‏قاعدة المعرفة لم تعد تُحقن كاملة. `pickKnowledge` تختار أقسامها التي
 // تخصّ سؤال العميل — انظر api/_knowledge.js لسبب ذلك ولحجم ما كان يُرسل.
 let KNOWLEDGE = "";
-import { priceSheetText, loadCatalog } from "./_catalog.js";
+import { priceSheetText, loadCatalog, SITE_BASE_FOR_DATA } from "./_catalog.js";
 import { pickKnowledge, KNOWLEDGE_INDEX } from "./_knowledge.js";
 import { transcribeAudio, voiceProviders } from "./_docread.js";
 import { AZURE_KEYS, azureChat, azureConfigured, azureHealth } from "./_azure.js";
@@ -46,7 +46,44 @@ const panelKeyOk = (k) => !panelRequiresNafath() && PANEL_KEYS.size > 0 && PANEL
 // نفسها عن إعطائه. الرقم البشري واحد فلا يُقرأ من البيئة.
 const WHATSAPP_HUMAN = "https://wa.me/966530540231";
 
-const SYSTEM_INSTRUCTIONS = () => `أنت «باهر» — المساعد الذكي على موقع بيزنس بارتنر، شركة خدمات أعمال في السعودية (تأسيس شركات، استثمار أجنبي، تراخيص، موارد بشرية، علاقات حكومية، وخدمات تشغيلية). عرّف بنفسك باسم باهر إذا سُئلت.
+// ───────────────────────── سياسة الأسعار (قرار المالك: SHOW_PRICES=false) ─────────────────────────
+// ‏الأسعار للمسجّلين فقط. كان هذا الملف يحقن «الأسعار الحية» في تعليمات كل محادثة عامة،
+// فيقولها النموذج لزائرٍ بلا حساب بينما الصفحات نفسها تخفيها عنه. القرار الآن في الخادم لا
+// في الواجهة: الجلسة تُقرأ من الكوكي (getSession) —
+//   guest  ← لا سعر في التعليمات ولا في القائمة، ويُحجب أي سعر يتسرّب في الرد.
+//   signed ← الأسعار من كتالوج الموقع بالرمز (SKU) وحده.
+//   none   ← ترتيب الطلب (intake): القائمة أكواد بلا أسعار للجميع، فالتسعير في عرض السعر.
+const LOGIN_URL = { ar: "https://www.businesspartner.sa/ar/my", en: "https://www.businesspartner.sa/my" };
+const PRICE_NOTICE = {
+  login: {
+    ar: `السعر يظهر بعد تسجيل الدخول — سجّل دخولك من هنا: ${LOGIN_URL.ar}`,
+    en: `Prices are shown after you sign in — sign in here: ${LOGIN_URL.en}`,
+  },
+  // ‏مسجَّل لكن القائمة الحيّة غير متاحة الآن: ردٌّ صادق لا رقمٌ مخترَع.
+  unavailable: {
+    ar: `تعذّر عرض السعر الآن. يؤكده لك فريقنا في عرض السعر عبر واتساب: ${WHATSAPP_HUMAN}`,
+    en: `The price is not available right now. Our team will confirm it in a quotation on WhatsApp: ${WHATSAPP_HUMAN}`,
+  },
+};
+
+function priceRules(mode) {
+  if (mode === "login") {
+    return `- **سياسة الأسعار (قرار المالك — أسعارنا للمسجّلين فقط):** هذا الزائر لم يسجّل دخوله. لا تذكر له أي سعر أو أتعاب أو نطاق سعري أو «يبدأ من» أو نسبة أو مقارنة سعرية لأي خدمة أو باقة من خدمات بيزنس بارتنر — لا من قاعدة المعرفة ولا من ذاكرتك، حتى لو ألحّ أو طلب تقديراً تقريبياً. إذا سأل عن السعر فقل له: «السعر يظهر بعد تسجيل الدخول» وأعطه رابط الدخول ${LOGIN_URL.ar} ثم أكمل الإجابة عن بقية سؤاله. الرسوم الحكومية الرسمية من قاعدة المعرفة معلومة حكومية لا سعر خدمتنا: يجوز ذكرها بوصفها رسوماً حكومية فقط ودون أن تضيف إليها أتعابنا.\n`;
+  }
+  if (mode === "unavailable") {
+    return `- **سياسة الأسعار:** هذا الزائر مسجّل الدخول لكن قائمة الأسعار الحية غير متاحة الآن. لا تذكر أي سعر ولا تقدّره؛ قل له بصدق إن السعر غير متاح لحظياً وإن فريقنا يؤكده في عرض السعر عبر واتساب: ${WHATSAPP_HUMAN}\n`;
+  }
+  if (mode === "signed") {
+    return `- **سياسة الأسعار:** هذا الزائر مسجّل الدخول، فيجوز أن تذكر له سعر خدمة أو باقة، لكن من «الأسعار الحية من كتالوج الموقع» أدناه فقط وبرمز الخدمة (SKU) كما هو مكتوب. لا تذكر سعراً غير موجود فيها ولا تقدّره ولا تستنتجه ولا تجمع أسعاراً. إن لم تجد الخدمة في القائمة، أو كان سعرها «حسب الحالة» أو «عرض سعر»، فقل بصدق إن سعرها يُحدَّد في عرض سعر بعد المراجعة وإن فريقنا يؤكده. الرسوم الحكومية تُضاف فوق أتعابنا حيث تُشير القائمة لذلك.\n`;
+  }
+  return "";
+}
+
+// ‏خدمة «تطوير الأعمال» (Revenue OS · REV-*) مخفية بقرار المالك (site/data/hidden.json). الصفحة والبطاقات
+// يخفيها المولّد؛ وهذا السطر يخفيها عن ردود المستشار حتى لا يعرض ما لا يستطيع الزائر فتحه.
+const BIZDEV_HIDDEN_RULE = "- خدمة «تطوير الأعمال» (Revenue OS · أكواد REV-*) غير معروضة حالياً على الموقع: لا تعرضها ولا تقترحها ولا تذكر باقاتها ولا أسعارها. إن سأل عنها قل بإيجاز إنها غير متاحة حالياً، وقدّم الخدمات المتاحة (الاستشارات، الخدمات الحكومية، تأسيس الشركات) أو توصيله بفريقنا.\n";
+
+const SYSTEM_INSTRUCTIONS = (o = {}) => `أنت «باهر» — المساعد الذكي على موقع بيزنس بارتنر، شركة خدمات أعمال في السعودية (تأسيس شركات، استثمار أجنبي، تراخيص، موارد بشرية، علاقات حكومية، وخدمات تشغيلية). عرّف بنفسك باسم باهر إذا سُئلت.
 
 مهمتك: تجاوب زوّار الموقع عن الإجراءات والخدمات الحكومية والأعمال في السعودية بدقة، ثم تقترح بلطف خدمة بيزنس بارتنر ذات العلاقة.
 
@@ -54,8 +91,8 @@ const SYSTEM_INSTRUCTIONS = () => `أنت «باهر» — المساعد الذ
 - اعتمد فقط على «قاعدة المعرفة» أدناه في أي معلومة حكومية (مستندات، شروط، رسوم، مدد، جهات). لا تخترع أرقاماً أو رسوماً أو مدداً غير موجودة فيها. إذا لم تجد المعلومة، قل ذلك بوضوح واعرض توصيل العميل بفريقنا.
 - ردّ بنفس لغة السائل (عربي أو إنجليزي). إذا كتب بالعربي فأجب بالعربي وبدون كلمات إنجليزية غير الضرورية (أسماء الجهات مثل MISA/GOSI مقبولة).
 - كن مختصراً وعملياً: جاوب على السؤال أولاً بخطوات واضحة، ثم في جملة أخيرة اقترح خدمة بيزنس بارتنر المناسبة كخطوة تالية — بيع غير مباشر ولطيف، بلا إلحاح.
-- للأسعار النهائية أو الطلب، وجّه العميل للتواصل عبر واتساب: ${WHATSAPP_HUMAN}
-- نبرة: مباشرة، واضحة، موثوقة، بدون مبالغة. لا تَعِد بما لا تعرفه.
+- لتقديم الطلب أو تأكيد العرض النهائي أو التواصل مع إنسان، وجّه العميل إلى واتساب: ${WHATSAPP_HUMAN}
+${priceRules(o.prices)}${o.hideBizdev ? BIZDEV_HIDDEN_RULE : ""}- نبرة: مباشرة، واضحة، موثوقة، بدون مبالغة. لا تَعِد بما لا تعرفه.
 - التقاط العميل: إذا أبدى الزائر اهتماماً بخدمة، أو سأل عن سعر/باقة، أو طلب متابعة، اطلب منه بلطف اسمه ورقم جواله (أو بريده) حتى يتواصل معه الفريق ويتابع طلبه — جملة واحدة ودّية بدون إلحاح، ومرة وحدة تكفي. إذا أعطاك رقمه أو بريده فاشكره وطمئنه أن مستشاره باهر بيتواصل معه قريباً.
 - عند طلب استشارة أو موعد: لا تكتفِ بأخذ الرقم — اعرض عليه خيارين مباشرين: (1) يحجز موعد استشارته المجانية أونلاين من صفحة الحجز: https://www.businesspartner.sa/ar/consultation ، أو (2) يتواصل مع مستشاره باهر مباشرة على واتساب: https://wa.me/966530540231 . قدّم الخيارين بوضوح ودعه يختار.
 - أرقامنا — قاعدة قاطعة لا تخالفها أبداً:
@@ -213,7 +250,7 @@ const callAzure = (messages, system, maxTokens, left) =>
 // وكيل باهر الحي على n8n — احتياط أخير لا يحتاج مفتاح API في Vercel:
 // نفس وكيل «باهر» (خدمة العملاء) المتصل بفريق المتخصصين. لا يحمل ذاكرة الجلسة
 // عبر الويبهوك، لذا نمرر آخر أدوار المحادثة داخل نص السؤال نفسه.
-async function callN8nBaher(messages, _system, _maxTokens, left) {
+async function callN8nBaher(messages, _system, _maxTokens, left, policy = "") {
   // محلياً/معاينة لا نُرسل أسئلة الزوار إلى n8n الإنتاجي (WHATSAPP_MODE != live).
   if (!WHATSAPP_LIVE) throw new Error("n8n fallback disabled outside live mode");
   const transcript = messages
@@ -228,7 +265,9 @@ async function callN8nBaher(messages, _system, _maxTokens, left) {
       body: JSON.stringify({
         action: "sendMessage",
         sessionId: "site-fallback-" + Math.random().toString(36).slice(2),
+        // ‏وكيل n8n لا يستلم تعليمات الخادم (system)، فسياسة الأسعار والإخفاء تُرافق نصّ السؤال نفسه.
         chatInput:
+          (policy ? policy + "\n\n" : "") +
           "زائر موقع بيزنس بارتنر يسأل (رُدَّ مباشرة وباختصار عملي، وبدون استدعاء زملاء إلا للضرورة):\n" + transcript,
       }),
       // ‏بلا مهلة كان وكيلٌ معلّق يستهلك الدقيقة كلها فلا يبقى وقت للنطاق الاحتياطي.
@@ -263,6 +302,175 @@ const hasModelKey = () => azureConfigured() || PROVIDERS.some((p) => p.keys && !
 const LOCAL_DEV_CHAT = () => process.env.APP_ENV === "development";
 const NO_KEY_HINT = "المحادثة الذكية معطّلة محلياً: أضف ANTHROPIC_API_KEY في ملف .env.local ثم أعد تشغيل الخادم. بقية المسار — النطاق وعرض السعر والعقد والدفع والفاتورة — يعمل بدونه.";
 
+
+// ───────────────── الإخفاء المركزي وحجب الأسعار: قراءة، تنقية القوائم، وحارس الردود ─────────────────
+// ‏مصدر المخفي ملفّ site/data/hidden.json (يقرؤه المولّد عبر site/scripts/hidden.mjs). الدالة تُنشر وحدها
+// بلا مجلد site، لذا يُقرأ الملف المرافق إن وُجد وإلا المنشور على الموقع (كما يفعل _catalog.js)، وإن تعذّر
+// الاثنان فالافتراض مغلق (يبقى المخفي مخفياً) لا مفتوح. BP_HIDDEN_FILE يوجّه الاختبارات كما في hidden.mjs.
+const HIDDEN_DEFAULT = {
+  services: ["REV-START", "REV-LAUNCH", "REV-GROWTH", "REV-PRO", "REV-TEAM", "REV-ENT", "revos-connect", "revos-launch", "revos-growth", "revos-professional"],
+  pages: ["business-development"],
+};
+const _hiddenCache = new Map();
+const _lc = (x) => String(x == null ? "" : x).trim().toLowerCase();
+async function hiddenConfig() {
+  const file = process.env.BP_HIDDEN_FILE || join(__dirname, "..", "site", "data", "hidden.json");
+  const hit = _hiddenCache.get(file);
+  if (hit && Date.now() < hit.until) return hit.v;
+  let raw = null, ok = false;
+  try { raw = JSON.parse(readFileSync(file, "utf8")); ok = true; } catch {}
+  if (!ok && !process.env.BP_HIDDEN_FILE) {
+    try {
+      const r = await fetch(`${SITE_BASE_FOR_DATA}/data/hidden.json`, { signal: AbortSignal.timeout(3000) });
+      if (r.ok) { raw = await r.json(); ok = true; }
+    } catch {}
+  }
+  const src = ok && raw ? raw : HIDDEN_DEFAULT;
+  const services = new Set((Array.isArray(src.services) ? src.services : []).map(_lc).filter(Boolean));
+  const pages = new Set((Array.isArray(src.pages) ? src.pages : []).map((x) => _lc(x).replace(/^\/+|\/+$/g, "")).filter(Boolean));
+  const names = [...services].map((x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const v = {
+    services, pages,
+    bizdev: pages.has("business-development"),
+    // ‏ما يدلّ في نصٍّ على خدمةٍ مخفية: أكوادها المخفية + أسماؤها المعروفة.
+    textRe: new RegExp(
+      [...(names.length ? [`(?<![\\p{L}\\p{N}-])(?:${names.join("|")})(?![\\p{L}\\p{N}])`] : []),
+        ...(pages.has("business-development")
+          ? ["Revenue\\s*-?\\s*OS", "BDaaS", "business\\s+development\\s+as\\s+a\\s+service", "نظام\\s+تشغيل\\s+(?:ال)?[إا]يرادات", "تطوير\\s+(?:ال)?[أا]عمال\\s+كخدمة"] : [])].join("|") || "(?!)",
+      "iu"),
+  };
+  _hiddenCache.set(file, { v, until: Date.now() + (ok ? 5 * 60 * 1000 : 30 * 1000) });
+  return v;
+}
+
+// ‏الباب الرابع مخفي ⇒ يُعامَل كباب الاستشارات (الافتراضي)، لا كباب غير معروف.
+const normalizeContext = (ctx, cfg) => {
+  const c = String(ctx || "consulting");
+  return c === "bizdev" && cfg && cfg.bizdev ? "consulting" : c;
+};
+
+// ‏قسم Revenue OS في المعرفة ينفتح بنيّة السؤال (api/_knowledge.js ليس لهذا الملف) — فيُنزع هنا من النتيجة.
+const BIZDEV_SECTION = /(?:^|\n\n)## [^\n]*(?:Revenue OS|تطوير الأعمال كخدمة)[^\n]*\n[\s\S]*?(?=\n\n## |(?![\s\S]))/g;
+function knowledgeWithoutHidden(text, cfg, rePick) {
+  if (!cfg || !cfg.bizdev) return text;
+  const out = String(text).replace(BIZDEV_SECTION, "").trim();
+  return out.length >= 200 ? out : rePick();
+}
+
+// ‏قائمة الأسعار الحيّة (api/_catalog.js) نصٌّ من سطور ثابتة الشكل:
+//   الباقة:  - الاسم (المجموعة) — السعر · لمن
+//   الخدمة:  - CODE الاسم — السعر (+ الرسوم الحكومية)
+// تُنقّى هنا من الخدمات المخفية، وللزائر غير المسجّل تُحوَّل إلى أسماء وأكواد بلا أي سعر.
+async function hiddenPackageNames(cfg) {
+  if (!cfg.services.size) return [];
+  try { return (await loadCatalog()).packages.filter((p) => cfg.services.has(_lc(p.key))).map((p) => p.nameAr).filter(Boolean); } catch { return []; }
+}
+function dropHiddenSheet(text, cfg, pkgNames) {
+  if (!text || !cfg) return text;
+  return text.split("\n").filter((ln) => {
+    const m = /^- (\S+) /.exec(ln);
+    if (m && cfg.services.has(_lc(m[1]))) return false;
+    return !pkgNames.some((n) => ln.startsWith(`- ${n} (`));
+  }).join("\n");
+}
+function namesOnlySheet(text) {
+  if (!text) return "";
+  const pkgs = [], svcs = [];
+  let sec = "";
+  for (const ln of text.split("\n")) {
+    if (/^الباقات/.test(ln)) { sec = "p"; continue; }
+    if (/^الخدمات/.test(ln)) { sec = "s"; continue; }
+    if (!ln.startsWith("- ")) continue;
+    // ‏القطع عند أول « — »: ما بعده سعرٌ أو وصف، فالخطأ الممكن اختصار اسم لا تسريب رقم.
+    const name = ln.split(" — ")[0];
+    if (MONEY.test(name)) continue;
+    (sec === "p" ? pkgs : svcs).push(name);
+  }
+  if (!pkgs.length && !svcs.length) return "";
+  return [
+    "=== خدمات وباقات بيزنس بارتنر (للتعريف بالخدمة المناسبة ورمزها) ===",
+    "⚠️ لا أسعار في هذه القائمة عمداً. لا تذكر أي سعر لأي خدمة أو باقة.",
+    ...(pkgs.length ? ["الباقات:", ...pkgs] : []),
+    ...(svcs.length ? ["", "الخدمات (الرمز ثم الاسم):", ...svcs] : []),
+    "=== نهاية القائمة ===",
+  ].join("\n");
+}
+
+// ‏حارس الرد. تعليمات النموذج هي الخط الأول؛ هذا هو الثاني وهو حتميّ: لا يعتمد على التزام النموذج.
+// ‏مبلغ بعملة (٧٬٥٠٠ ﷼ / 7,500 SAR / ألف ريال …) — «الرسوم الحكومية» وحدها تمرّ، فهي معلومة جهة لا سعرنا.
+const _AMT = "(?:[0-9٠-٩][0-9٠-٩٬,.٫]*|(?:ألف|الف|آلاف|مليون|مئة|مائة)\\s)";
+const _CUR = "(?:﷼|ر\\.?\\s?س\\.?|ريال(?:ا|ات)?|ريالين|SAR|SR|riyals?|rials?)";
+const MONEY = new RegExp(`${_AMT}\\s*${_CUR}(?![\\p{L}])|(?:﷼|SAR|SR)\\s*[0-9٠-٩]`, "iu");
+const GOV_LINE = /حكوم|government|\bgov\b|رسوم\s+(?:الجهة|الوزارة|المنصة)|مقابل\s+مالي/i;
+const OURS_LINE = /أتعاب|اتعاب|باقة|باقات|اشتراك|خدمتنا|Business Partner|بيزنس بارتنر|\bBP\b|our fees?|package|subscription|\bplan\b|we charge/i;
+const hasPrice = (seg) => MONEY.test(seg) && !(GOV_LINE.test(seg) && !OURS_LINE.test(seg));
+
+const arabicIn = (t) => /[؀-ۿ]/.test(t);
+function redactSegments(reply, drop, notice) {
+  let noticed = false, hit = false;
+  const out = String(reply).split("\n").map((line) => {
+    // ‏كتلتا الواجهة (<<SCOPE>> و<<OPTS>>) بياناتٌ لا كلام: تُنقّى في موضعها لا هنا.
+    if (/<<(?:SCOPE|OPTS)>>/.test(line)) return line;
+    const segs = line.split(/(?<=[.!?؟؛])\s+(?=\S)/).map((seg) => {
+      if (!drop(seg)) return seg;
+      hit = true;
+      if (!notice || noticed) return "";
+      noticed = true;
+      return notice;
+    }).filter(Boolean);
+    return segs.join(" ");
+  });
+  // ‏لا إصابة ⇒ الرد كما جاء حرفاً (لا إعادة تشكيل لمسافاته).
+  if (!hit) return { text: String(reply), hit: false };
+  return { text: out.join("\n").replace(/\n{3,}/g, "\n\n").trim(), hit };
+}
+
+// ‏ينقّي رداً قبل وصوله إلى الزائر.
+//   priceMode: "login" | "unavailable" ← حجب الأسعار؛  "none" ← ترتيب الطلب (لا أسعار) بلا ملاحظة دخول؛  غيره ← لا حجب.
+function guardReply(reply, { priceMode, cfg }) {
+  let text = String(reply || "");
+  let gated = false;
+  if (cfg && cfg.textRe) {
+    const r = redactSegments(text, (seg) => cfg.textRe.test(seg), "");
+    text = r.text;
+  }
+  if (priceMode === "login" || priceMode === "unavailable" || priceMode === "none") {
+    const ar = arabicIn(text);
+    const notice = priceMode === "none" ? "" : PRICE_NOTICE[priceMode][ar ? "ar" : "en"];
+    const r = redactSegments(text, hasPrice, notice);
+    text = r.text;
+    gated = r.hit && priceMode !== "none";
+  }
+  // ‏لو أُفرغ الرد كله: جملة صادقة بدل رد فارغ.
+  if (!text.replace(/<<[\s\S]*?>>/g, "").trim() && !/<<SCOPE>>/.test(text)) {
+    text = arabicIn(String(reply)) || !String(reply).trim()
+      ? `هذه الخدمة غير معروضة حالياً. يسعدنا خدمتك في الاستشارات والخدمات الحكومية وتأسيس الشركات، أو تواصل مع فريقنا: ${WHATSAPP_HUMAN}`
+      : `That is not offered right now. We can help with consultations, government services and company formation, or reach our team: ${WHATSAPP_HUMAN}`;
+  }
+  return { text, gated };
+}
+
+// ‏كتلة النطاق: لا بند بكودٍ مخفي، ولا نوع «تطوير الأعمال» ما دام الباب مخفياً.
+function cleanScope(reply, cfg) {
+  if (!cfg) return reply;
+  return String(reply).replace(/<<SCOPE>>([\s\S]*?)<<END>>/, (m, js) => {
+    let o; try { o = JSON.parse(js); } catch { return m; }
+    if (!o || typeof o !== "object") return m;
+    if (cfg.bizdev && o.type === "BUSINESS_DEVELOPMENT") o.type = "CONSULTATION";
+    if (Array.isArray(o.items)) {
+      o.items = o.items.filter((it) => it && !cfg.services.has(_lc(it.code)) && !cfg.textRe.test(`${it.title || ""} ${it.why || ""}`));
+    }
+    return `<<SCOPE>>${JSON.stringify(o)}<<END>>`;
+  });
+}
+
+// ‏للاختبارات: الحارس دالة نقية. المعالج الافتراضي هو ما تنشره Vercel.
+export { guardReply, cleanScope };
+
+async function viewerSignedIn(req) {
+  try { return !!(await getSession(req)); } catch { return false; }
+}
+
 // ‏خدمة (أو خدمات) اختارها الزائر قبل أن يصل: الواجهة تفتح المحادثة برسالة أولى هي
 // اسم الخدمة حرفياً (أسماء مفصولة بفاصلة عند اختيار متعدد من /catalog). تُطابَق بالاسم
 // العربي أو الإنجليزي في الكتالوج فيُحفظ البند بكوده، ويُعاد [] عند أي لبس.
@@ -285,7 +493,8 @@ async function pickedServices(messages) {
 }
 
 async function intakeFallback(body, messages) {
-  const context = String(body.context || "consulting");
+  const cfg = await hiddenConfig();
+  const context = normalizeContext(body.context, cfg);
   const lang = String(body.lang || "ar");
   const userTurns = messages.filter((m) => m.role === "user").length;
   const presets = {
@@ -345,7 +554,8 @@ async function intakeFallback(body, messages) {
   // العمليات أنه فرع لشركة أجنبية. والخدمة التي اختارها من الموقع تبقى أول البنود بكودها
   // (كان الاستبدال يمسحها فيُنشأ الطلب بخدمات عامة لا تذكر ما اشتراه)، ويُكمَّل بما يلزم
   // ليبقى للطلب هيكلٌ يراجعه العميل، كما تفعل الواجهة عند اختيار خدمة واحدة.
-  const picked = await pickedServices(messages);
+  // ‏خدمة مخفية لا تُحفظ بنداً حتى لو طابق اسمها رسالة العميل الأولى (رابطٌ قديم أو كاش).
+  const picked = (await pickedServices(messages)).filter(({ sv }) => !cfg.services.has(_lc(sv.code)));
   const userText = messages.filter((m) => m.role === "user").map((m) => m.content.trim()).filter(Boolean);
   const items = [
     ...picked.map(({ sv, text }) => ({ code: sv.code, title: text, why: sv.govPlatform || "" })),
@@ -424,15 +634,23 @@ export default async function handler(req, res) {
   // ‏قسم Revenue OS في المعرفة «مقيَّد»: لا ينافس الأقسام الأخرى بالدرجات، ويُضمّ
   // فقط لباب تطوير الأعمال (door) أو لسؤالٍ تدلّ عبارته على نيّته — انظر
   // api/_knowledge.js. الأبواب الأخرى: الاختيار نفسه حرفاً كما كان.
-  const bizdevDoor = isIntake && String(body.context || "") === "bizdev";
-  const knowledge = pickKnowledge(focus, isAdmin ? 20000 : 9000, bizdevDoor ? { door: "bizdev" } : {});
+  // ‏الإخفاء المركزي يسري على المحادثة العامة وترتيب الطلب؛ لوحة الإدارة ومساعد اللوحة للعملاء القائمين لا يُمسّان.
+  const cfg = isAdmin || isAccount ? null : await hiddenConfig();
+  const intakeCtx = normalizeContext(body.context, cfg);
+  const bizdevDoor = isIntake && intakeCtx === "bizdev";
+  const KBUDGET = isAdmin ? 20000 : 9000;
+  const knowledge = knowledgeWithoutHidden(
+    pickKnowledge(focus, KBUDGET, bizdevDoor ? { door: "bizdev" } : {}),
+    cfg,
+    () => pickKnowledge("", KBUDGET, {}),
+  );
   // ‏KNOWLEDGE متغيّر على مستوى الوحدة تقرؤه التعليمات عند بنائها. بين تعيينه وبناء
   // التعليمات كانت هناك awaits (getSession، قاعدة البيانات، قائمة الأسعار)، والوحدة
   // نفسها تخدم طلبات متزامنة في المثيل الواحد: فيطغى طلبٌ على معرفة آخر ويُبنى للأول
   // نظامٌ بأقسام سؤال غيره. التعيين والبناء الآن في خطوة متزامنة واحدة لا تتخللها await.
   const withKnowledge = (build) => { KNOWLEDGE = knowledge; return build(); };
 
-  const intakeSystem = isIntake ? withKnowledge(() => intakeInstructions(String(body.context || "consulting"), String(body.lang || "ar"))) : null;
+  const intakeSystem = isIntake ? withKnowledge(() => intakeInstructions(intakeCtx, String(body.lang || "ar"))) : null;
   let accountSystem = null;
   if (isAccount) {
     let sess = null;
@@ -459,15 +677,27 @@ export default async function handler(req, res) {
       (snap ? `\nلقطة من لوحته الآن (طلبات/حالات): ${snap}` : "");
   }
 
-  const priceSheet = await priceSheetText(isAdmin ? 140 : 45, isAdmin ? "" : focus);
-  const base = isAdmin ? withKnowledge(ADMIN_INSTRUCTIONS) : isAccount ? accountSystem : isIntake ? intakeSystem : withKnowledge(SYSTEM_INSTRUCTIONS);
+  // ‏وضع الأسعار: المالك والمساعد داخل اللوحة (جلسة مؤكَّدة أعلاه) كما كانا؛ الترتيب بلا أسعار للجميع؛
+  // والمحادثة العامة بحسب جلسة الزائر. القرار هنا في الخادم — لا تثق الواجهة ولا النموذج.
+  let priceMode = isAdmin || isAccount ? "full" : isIntake ? "none" : (await viewerSignedIn(req)) ? "signed" : "login";
+  const pkgHidden = cfg ? await hiddenPackageNames(cfg) : [];
+  let priceSheet = await priceSheetText((isAdmin ? 140 : 45) + (cfg ? cfg.services.size : 0), isAdmin ? "" : focus);
+  if (cfg) priceSheet = dropHiddenSheet(priceSheet, cfg, pkgHidden);
+  if (priceMode === "login" || priceMode === "none") priceSheet = namesOnlySheet(priceSheet);
+  else if (priceMode === "signed" && !priceSheet) priceMode = "unavailable";   // ‏مسجَّل لكن الكتالوج تعذّر: ردٌّ صادق لا سعرٌ مخترَع
+  const publicOpts = { prices: priceMode === "full" ? "" : priceMode, hideBizdev: !!(cfg && cfg.bizdev) };
+  const base = isAdmin ? withKnowledge(ADMIN_INSTRUCTIONS) : isAccount ? accountSystem : isIntake ? intakeSystem : withKnowledge(() => SYSTEM_INSTRUCTIONS(publicOpts));
   const maxTokens = isAdmin ? 2048 : 1024;   // ‏مسودات الإدارة طويلة، وردود العميل قصيرة
-  // ‏في الاستقبال القائمةُ لاختيار الأكواد وحدها. رأس القائمة يجيز ذكر أسعار الباقات
-  // وهو يعلو التعليمات بنصّه، فيتعارض مع «لا تذكر أي أسعار» أعلاه؛ والسطر الأخير هو
-  // الحسم الصريح في هذا الباب دون المساس بالشخصيات الأخرى.
+  // ‏في الاستقبال القائمةُ لاختيار الأكواد وحدها (بلا أسعار أصلاً)؛ والسطر الأخير هو الحسم الصريح في هذا الباب.
   const system = priceSheet
     ? base + "\n\n" + priceSheet + (isIntake ? "\nفي هذه المحادثة (ترتيب الطلب) تُستخدم القائمة أعلاه لاختيار أكواد البنود فقط — لا تذكر للعميل أي سعر منها، فالتسعير يأتي في عرض السعر بعد المراجعة." : "")
     : base;
+  // ‏وكيل n8n الاحتياطي لا يرى `system`: تُرسَل له السياسة نفسها مع السؤال.
+  const n8nPolicy = [
+    priceMode === "login" ? `قاعدة إلزامية: الزائر غير مسجّل، فلا تذكر أي سعر أو أتعاب لأي خدمة أو باقة؛ إن سأل عن السعر فقل «السعر يظهر بعد تسجيل الدخول» وأعطه ${LOGIN_URL.ar}` : "",
+    priceMode === "none" || priceMode === "unavailable" ? "قاعدة إلزامية: لا تذكر أي سعر لأي خدمة أو باقة؛ التسعير في عرض السعر بعد المراجعة." : "",
+    publicOpts.hideBizdev && !isAdmin && !isAccount ? "قاعدة إلزامية: خدمة «تطوير الأعمال» (Revenue OS) غير متاحة حالياً؛ لا تعرضها ولا تقترحها." : "",
+  ].filter(Boolean).join("\n");
   console.log(`chat system chars=${system.length} mode=${isAdmin ? "admin" : isAccount ? "account" : isIntake ? "intake" : "public"}`);
 
   const modelOnly = chain.filter((p) => p.name !== "baher-n8n");
@@ -493,18 +723,32 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ error: "no_user_message" }));
   }
 
+  // ‏كل رد يخرج إلى زائر يمرّ بالحارس: لا سعر لغير المسجّل ولا خدمة مخفية، أياً كان المزوّد الذي أجاب.
+  const sendReply = (raw, providerName) => {
+    let reply = raw, gated = false;
+    if (!isAdmin && !isAccount) {
+      const g = guardReply(raw, { priceMode, cfg });
+      reply = isIntake ? cleanScope(g.text, cfg) : g.text;
+      gated = g.gated;
+    }
+    res.statusCode = 200;
+    const out = { reply, provider: providerName };
+    if (priceMode === "login") { out.pricesHidden = true; out.loginUrl = LOGIN_URL.ar; }
+    if (gated) out.priceGate = priceMode;
+    return res.end(JSON.stringify(out));
+  };
+
   const deadline = Date.now() + 54000;   // ‏دون حدّ الدالة (٦٠ث) بهامشٍ يكفي الردّ الاحتياطي
   for (const provider of adminChain) {
     const left = deadline - Date.now();
     if (left < 4000) { console.error(`provider ${provider.name} skipped: ${left}ms left`); continue; }
     try {
-      let reply = await provider.call(messages, system, maxTokens, left);
+      let reply = await provider.call(messages, system, maxTokens, left, n8nPolicy);
       if (!reply) throw new Error(`${provider.name} returned empty reply`);
       if (isIntake && provider.name === "baher-n8n" && messages.filter((m) => m.role === "user").length >= 2 && !reply.includes("<<SCOPE>>")) {
         reply = await intakeFallback(body, messages);
       }
-      res.statusCode = 200;
-      return res.end(JSON.stringify({ reply, provider: provider.name }));
+      return sendReply(reply, provider.name);
     } catch (e) {
       console.error(`provider ${provider.name} failed, trying next:`, e.message || e);
     }
@@ -515,7 +759,7 @@ export default async function handler(req, res) {
   // collects the request and creates an editable scope deterministically.
   if (isIntake) {
     res.statusCode = 200;
-    return res.end(JSON.stringify({ reply: await intakeFallback(body, messages), provider: "intake-fallback" }));
+    return sendReply(await intakeFallback(body, messages), "intake-fallback");
   }
 
   if (LOCAL_DEV_CHAT() && !hasModelKey()) {
