@@ -1,79 +1,82 @@
-// باهر — حاقن ودجت الدعم العائم في كل صفحات الموقع (Simple V1 + الكلاسيكية).
-// دعم فقط: يلتقط اسم/جوال الزائر مرة، يحاور عبر /api/chat (Azure OpenAI)،
-// ويسجّل كل محادثة لفريق الدعم عبر /api/requests (advisor-chat). تصميم موحّد
-// بألوان الموقع الجديد (--ink/--wa) ليطابقه في كل الصفحات.
+// مركز التواصل — حاقن الزرّ العائم الواحد في كل صفحات الموقع (Simple V1 + الكلاسيكية).
+//
+// كان في كل صفحة زرّان عائمان: واتساب الأخضر (`.sv1-wa-fab`، من تذييل SV1) وزرّ
+// «الدعم». صارا زرّاً واحداً «تواصل معنا» يتوسّع إلى ثلاث قنوات:
+//   (أ) المستشار الذكي على واتساب  — contact.whatsappAgent
+//   (ب) فريقنا البشري على واتساب   — contact.whatsappSupport  (لا يُحذف)
+//   (ج) الدعم داخل الموقع          — site/assets/js/bp-support-hub.js
+//
+// الواجهة نفسها (CSS/JS) ملفّان ثابتان في site/assets/{css,js}/bp-support-hub.*
+// يُحمَّلان بمُعرِّف المحتوى (?v=) كبقية الأصول؛ فلا ١٤٠٠ نسخة من الكود في الصفحات.
+// هنا فقط: قراءة الأرقام من site/data/site.json (لا رقم مكتوب في الكود)، وحقن
+// ثلاثة أسطر في كل صفحة، وإزالة زرّ واتساب القديم من الصفحات التي يُحقن فيها المركز
+// (وإلا ظهر زرّان). الصفحات المستثناة (SKIP) تبقى كما هي بزرّها القديم.
 //
 // يُشغَّل في نهاية سلسلة البناء بعد بناة الصفحات كلها، فيغطّي كل صفحة عامة.
 import { readdirSync, statSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { createHash } from "node:crypto";
 
 const SITE = join(process.cwd(), "site");
-const WA_HUMAN = "https://wa.me/966530540231"; // واتساب المستشار/الدعم البشري
 const IMG = "/assets/img/baher.jpg";
 
-// صفحات لا نضع فيها ودجت الدعم العام (لوحات داخلية/مضمّنة/مونيتور).
-const SKIP = [/\/portal\//, /\/admin(\.|\/)/, /\/monitor(\.|\/)/, /\/ops(\.|\/)/, /\/checkout(\.|\/)/,
-  // نسخة المصدر في assets/data — المولّد ينسخها إلى جذر الموقع وهناك
-  // تُحقن. الحقن في المصدر نفسه يجمّد الودجت فيه: الحاقن يتخطّى كل ملف
-  // فيه `bpsFab`، فلا يصله تعديلٌ لاحق على الودجت أبداً.
-  /^\/assets\/data\/pr-intake\.html$/];
+// قرار المالك (SHOW_PRICES=false): الأسعار للمسجَّلين فقط. المركز يلتزم به:
+// يعرض سعر الخدمة لمن له جلسة، ولغيره «السعر بعد الدخول». قلبها إلى true
+// يُظهر الأسعار لكل زائر في أجوبة المركز (قرارٌ للمالك لا للمطوّر).
+const PRICES_PUBLIC = false;
 
-function widget(ar) {
-  const greet = ar
-    ? "حياك الله 👋 أنا باهر، مساعد الدعم في بيزنس بارتنر. كيف نقدر ندعمك؟"
-    : "Hi 👋 I'm Baher, Business Partner's support assistant. How can we help?";
-  const T = (a, e) => (ar ? a : e);
-  return `<style>
-.bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}
-[dir=rtl] .bps-fab{padding:7px 7px 7px 16px}
-.bps-fab img{width:38px;height:38px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}
-.bps-fab .bps-dot{position:absolute;inset-inline-start:40px;top:8px;width:11px;height:11px;border-radius:50%;background:var(--wa,#25D366);border:2px solid var(--ink,#0B1B5A)}
-.bps-fab.bps-hide{display:none}
-.bps-panel{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483001;width:min(380px,calc(100vw - 24px));height:min(600px,calc(100vh - 40px));background:#fff;border:1px solid var(--line,#E5E9F0);border-radius:20px;box-shadow:0 24px 60px rgba(11,27,90,.28);display:none;flex-direction:column;overflow:hidden}
-.bps-panel.bps-on{display:flex}
-.bps-hd{display:flex;align-items:center;gap:10px;padding:13px 15px;background:var(--ink,#0B1B5A);color:#fff}
-.bps-hd img{width:40px;height:40px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}
-.bps-hd b{font-size:1.02rem;display:block}
-.bps-hd small{font-size:.76rem;opacity:.9;display:flex;align-items:center;gap:5px}
-.bps-hd em{width:7px;height:7px;border-radius:50%;background:var(--wa,#25D366);display:inline-block;font-style:normal}
-.bps-x{margin-inline-start:auto;background:rgba(255,255,255,.16);border:0;color:#fff;width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:1.05rem;line-height:1}
-.bps-intake{padding:16px;overflow-y:auto}
-.bps-intake .bps-in{width:100%;box-sizing:border-box;margin-bottom:9px;padding:12px 13px;border:1px solid var(--line,#E5E9F0);border-radius:12px;font-family:inherit;font-size:.95rem}
-.bps-intake h4{color:var(--ink,#0B1B5A);margin:0 0 12px;font-size:1rem;line-height:1.6;font-weight:700}
-.bps-go{width:100%;padding:13px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:12px;font-family:inherit;font-weight:700;font-size:.98rem;cursor:pointer}
-.bps-note{color:#64748b;font-size:.78rem;margin:10px 2px 0}
-.bps-err{color:#b91c1c;font-size:.82rem;margin-top:8px;display:none}
-.bps-chat{display:none;flex-direction:column;height:100%;min-height:0}
-.bps-msgs{flex:1;overflow-y:auto;padding:15px;background:#f6f8fc;display:flex;flex-direction:column;gap:9px}
-.bps-msg{max-width:82%;padding:10px 13px;border-radius:14px;font-size:.92rem;line-height:1.7;white-space:pre-wrap;word-wrap:break-word}
-.bps-msg.bps-bot{background:#fff;border:1px solid var(--line,#E5E9F0);color:#1f2430;align-self:flex-start;border-end-start-radius:4px}
-.bps-msg.bps-me{background:var(--ink,#0B1B5A);color:#fff;align-self:flex-end;border-end-end-radius:4px}
-.bps-msg.bps-ty{opacity:.6}
-.bps-wa{display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;background:#eafaf0;color:#0b7a3b;border-top:1px solid var(--line,#E5E9F0);font-size:.85rem;font-weight:600;text-decoration:none}
-.bps-form{display:flex;gap:8px;padding:11px;border-top:1px solid var(--line,#E5E9F0);background:#fff}
-.bps-form input{flex:1;padding:11px 13px;border:1px solid var(--line,#E5E9F0);border-radius:12px;font-family:inherit;font-size:.95rem}
-.bps-form button{flex:0 0 auto;width:44px;border:0;border-radius:12px;background:var(--ink,#0B1B5A);color:#fff;cursor:pointer;font-size:1.05rem}
-html.bp-embed .bps-fab,html.bp-embed .bps-panel{display:none!important}
-</style>
-<button class="bps-fab" id="bpsFab" aria-label="${T("افتح محادثة الدعم مع باهر", "Open support chat with Baher")}"><img src="${IMG}" alt=""><span class="bps-dot"></span><span>${T("الدعم", "Support")}</span></button>
-<section class="bps-panel" id="bpsPanel" role="dialog" aria-label="${T("دعم باهر", "Baher support")}">
-  <div class="bps-hd"><img src="${IMG}" alt=""><div><b>${T("باهر", "Baher")}</b><small><em></em>${T("الدعم — متصل الآن", "Support — online now")}</small></div><button class="bps-x" id="bpsClose" aria-label="${T("إغلاق", "Close")}">✕</button></div>
-  <div class="bps-intake" id="bpsIntake">
-    <h4>${T("أهلاً بك في دعم بيزنس بارتنر 👋 عرّفنا بنفسك حتى نخدمك ونتابع طلبك.", "Welcome to Business Partner support 👋 Tell us about yourself so we can help and follow up.")}</h4>
-    <input class="bps-in" id="bpsName" type="text" placeholder="${T("الاسم الكامل *", "Full name *")}" autocomplete="name">
-    <input class="bps-in" id="bpsPhone" type="tel" placeholder="${T("الجوال 05XXXXXXXX *", "Mobile 05XXXXXXXX *")}" autocomplete="tel">
-    <button class="bps-go" id="bpsStart">${T("ابدأ الدعم ›", "Start support ›")}</button>
-    <div class="bps-err" id="bpsErr"></div>
-    <p class="bps-note">🔒 ${T("بياناتك تُستخدم فقط لخدمتك ومتابعة طلبك.", "Your details are used only to help and follow up on your request.")}</p>
-  </div>
-  <div class="bps-chat" id="bpsChat">
-    <div class="bps-msgs" id="bpsMsgs"><div class="bps-msg bps-bot">${greet}</div></div>
-    <a class="bps-wa" href="${WA_HUMAN}" target="_blank" rel="noopener">${T("أو تواصل مع فريق الدعم على واتساب", "Or reach the support team on WhatsApp")}</a>
-    <form class="bps-form" id="bpsForm"><input id="bpsInput" type="text" autocomplete="off" placeholder="${T("اكتب رسالتك…", "Type your message…")}"><button type="submit" aria-label="${T("إرسال", "Send")}">➤</button></form>
-  </div>
-</section>
-<script>(function(){var AR=document.documentElement.lang!=='en';var fab=document.getElementById('bpsFab'),panel=document.getElementById('bpsPanel');if(!fab||!panel)return;var msgs=document.getElementById('bpsMsgs'),form=document.getElementById('bpsForm'),input=document.getElementById('bpsInput'),intake=document.getElementById('bpsIntake'),chat=document.getElementById('bpsChat');var sid='';try{sid=sessionStorage.getItem('bps_sid')||''}catch(e){}if(!sid){sid='s'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);try{sessionStorage.setItem('bps_sid',sid)}catch(e){}}var contact=null;try{contact=JSON.parse(sessionStorage.getItem('bps_contact')||'null')}catch(e){}var history=[],busy=false;function view(){if(contact){intake.style.display='none';chat.style.display='flex';setTimeout(function(){input.focus()},60)}else{intake.style.display='block';chat.style.display='none'}}function open(){panel.classList.add('bps-on');fab.classList.add('bps-hide');view()}function close(){panel.classList.remove('bps-on');fab.classList.remove('bps-hide')}function add(txt,who){var d=document.createElement('div');d.className='bps-msg '+who;d.textContent=txt;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d}fab.onclick=open;document.getElementById('bpsClose').onclick=close;document.getElementById('bpsStart').onclick=function(){var n=document.getElementById('bpsName').value.trim(),p=document.getElementById('bpsPhone').value.trim(),err=document.getElementById('bpsErr');if(!n){err.textContent=AR?'الرجاء إدخال اسمك.':'Enter your name.';err.style.display='block';return}if(!/^(?:\\+?966|0)?5\\d{8}$/.test(p.replace(/\\s/g,''))){err.textContent=AR?'أدخل جوالاً سعودياً صحيحاً (05XXXXXXXX).':'Enter a valid Saudi mobile.';err.style.display='block';return}err.style.display='none';contact={name:n,phone:p};try{sessionStorage.setItem('bps_contact',JSON.stringify(contact))}catch(e){}view()};function sync(notify){try{fetch('/api/requests',{method:'POST',headers:{'content-type':'application/json'},keepalive:true,body:JSON.stringify({type:'advisor-chat',sid:sid,messages:history.slice(-24),notify:!!notify,contact:contact})}).catch(function(){})}catch(e){}}form.onsubmit=function(e){e.preventDefault();var v=input.value.trim();if(!v||busy)return;input.value='';add(v,'bps-me');history.push({role:'user',content:v});busy=true;var ty=add(AR?'يكتب…':'Typing…','bps-bot bps-ty');fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({messages:history})}).then(function(r){return r.json().catch(function(){return{}})}).then(function(d){ty.remove();var rep=(d&&d.reply)||(AR?'تعذّر الرد الآن. تواصل معنا على واتساب.':'Could not reply now. Reach us on WhatsApp.');add(rep,'bps-bot');history.push({role:'assistant',content:rep});sync(true)}).catch(function(){ty.remove();add(AR?'صار خلل بسيط، جرّب واتساب.':'Something went wrong, try WhatsApp.','bps-bot')}).finally(function(){busy=false;input.focus()})};})();</script>`;
-}
+// صفحات لا نضع فيها المركز (لوحات داخلية/مضمّنة/مونيتور).
+const SKIP = [/\/portal\//, /\/admin(\.|\/)/, /\/monitor(\.|\/)/, /\/ops(\.|\/)/, /\/checkout(\.|\/)/,
+  // كل ما في assets/data هو نسخة مصدر تنسخها سلسلة البناء إلى جذر الموقع وهناك
+  // يُحقن المركز. الحقن في المصدر نفسه يجمّده فيه (الحاقن يتخطّى ما فيه مركز
+  // سابق) ويُبطل مُعرِّف المحتوى حين يتغيّر الملف لاحقاً.
+  /^\/assets\/data\//];
+
+// ------------------------------------------------------------- الأرقام ----
+// كلها من site/data/site.json. إن غاب رقمٌ يفشل البناء بدل أن يُنشر مركزٌ
+// بلا قناة — «لا تحذف أي قناة» تشمل أن لا تسقط بصمت.
+const site = JSON.parse(readFileSync(join(SITE, "data", "site.json"), "utf8"));
+const contact = site.contact || {};
+const intl = (n) => {
+  const d = String(n || "").replace(/\D/g, "");
+  if (!d) return "";
+  return d.startsWith("966") ? d : "966" + d.replace(/^0/, "");
+};
+const fromUrl = (u) => intl(String(u || "").replace(/^.*wa\.me\//, ""));
+const AGENT = intl(contact.whatsappAgent) || fromUrl(site.whatsapp);
+const HUMAN = intl(contact.whatsappSupport) || fromUrl(site.whatsappSupport);
+if (!AGENT || !HUMAN) throw new Error("baher-support: site.json لا يحمل contact.whatsappAgent / whatsappSupport");
+if (AGENT === HUMAN) throw new Error("baher-support: رقم المستشار الذكي ورقم الفريق البشري متطابقان في site.json");
+
+const CFG = {
+  agent: AGENT,
+  human: HUMAN,
+  humanLocal: contact.whatsappSupport || "",
+  email: contact.email || "",
+  address: contact.address || "",
+  addressEn: contact.addressEn || "",
+  hours: contact.hoursRule || { tz: "Asia/Riyadh", days: [0, 1, 2, 3, 4], from: 9, to: 18 },
+  pricesPublic: PRICES_PUBLIC,
+  img: IMG,
+};
+
+// -------------------------------------------------------- الأصول ومُعرِّفها --
+const ASSET_CSS = "assets/css/bp-support-hub.css";
+const ASSET_JS = "assets/js/bp-support-hub.js";
+const hash = (rel) => createHash("md5").update(readFileSync(join(SITE, rel))).digest("hex").slice(0, 10);
+const CSS_V = hash(ASSET_CSS);
+const JS_V = hash(ASSET_JS);
+
+// ما يُحقن في الصفحة: الأنماط، ثم الإعداد، ثم السكربت. بلا HTML ثابت — يبنيه
+// السكربت بلغة الصفحة (html[lang]).
+const BLOCK = `<link rel="stylesheet" href="/${ASSET_CSS}?v=${CSS_V}">` +
+  `<script id="bpsCfg">window.BPS_CFG=${JSON.stringify(CFG).replace(/</g, "\\u003c")}</script>` +
+  `<script defer src="/${ASSET_JS}?v=${JS_V}"></script>`;
+
+// الودجت القديم («الدعم» + نموذج الاسم والجوال) كان يُحقن كاملاً في كل صفحة. إن بقي
+// في صفحةٍ مولَّدة من مصدرٍ مجمَّد فيه، نستبدله بالمركز بدل أن يظهر زرّان.
+const OLD_WIDGET = /<style>\s*\.bps-fab\{[\s\S]*?<\/style>\s*<button class="bps-fab" id="bpsFab"[\s\S]*?<\/section>\s*<script>\(function\(\)\{var AR=[\s\S]*?<\/script>/;
+const OLD_WA_FAB = /<a class="sv1-wa-fab"[^>]*>[\s\S]*?<\/a>/;
 
 function walk(dir, out) {
   for (const name of readdirSync(dir)) {
@@ -86,17 +89,19 @@ function walk(dir, out) {
 
 const files = [];
 walk(SITE, files);
-let patched = 0;
+let patched = 0, replacedOld = 0, droppedWa = 0;
 for (const f of files) {
   const rel = f.slice(SITE.length).replace(/\\/g, "/");
   if (SKIP.some((re) => re.test(rel))) continue;
   let html = readFileSync(f, "utf8");
-  if (html.includes("bpsFab")) continue; // موجود مسبقاً
+  if (html.includes('id="bpsCfg"')) continue; // موجود مسبقاً
+  if (OLD_WIDGET.test(html)) { html = html.replace(OLD_WIDGET, ""); replacedOld++; }
   const idx = html.lastIndexOf("</body>");
   if (idx === -1) continue;
-  const ar = /<html[^>]*\blang=["']?ar\b/i.test(html);
-  html = html.slice(0, idx) + widget(ar) + html.slice(idx);
+  if (OLD_WA_FAB.test(html)) { html = html.replace(OLD_WA_FAB, ""); droppedWa++; }
+  const at = html.lastIndexOf("</body>");
+  html = html.slice(0, at) + BLOCK + html.slice(at);
   writeFileSync(f, html);
   patched++;
 }
-console.log(`baher-support: widget injected into ${patched} page(s)`);
+console.log(`baher-support: contact hub injected into ${patched} page(s) (old widget replaced in ${replacedOld}, legacy WhatsApp button folded into the hub on ${droppedWa}) · agent ${AGENT} · team ${HUMAN}`);

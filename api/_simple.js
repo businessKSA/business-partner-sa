@@ -150,7 +150,7 @@ function clientView(row, events, tasks) {
   // Machine bookkeeping («notify.paid», «followup.task») is for the panel: the
   // customer's timeline used to print those keys raw.
   const visible = (e) => e.actor_kind !== "internal" && !/^(notify\.|followup\.task)/.test(String(e.event || ""));
-  return { ...pub, attachments: clientAttachments(row), events: (events || []).filter(visible), tasks: (tasks || []).filter((t) => t.assignee === "client") };
+  return { ...pub, origin: isCartRow(row) ? "cart" : isTicketRow(row) ? "ticket" : "", attachments: clientAttachments(row), events: (events || []).filter(visible), tasks: (tasks || []).filter((t) => t.assignee === "client") };
 }
 
 // ------------------------------------------------------------- the files --
@@ -369,6 +369,14 @@ export async function handleSimple(req, res) {
       }
       return opsAction(action, body, qs, req, res, opsUser);
     }
+    // مركز التواصل (ودجت الدعم): التتبّع والتذكرة يعملان بلا جلسة أيضاً —
+    // الزائر الذي لم يدخل بعد هو أكثر من يحتاجهما. الجلسة إن وُجدت ترفع
+    // ما يراه؛ وبلا جلسة لا يخرج شيء إلا بمرجعٍ + بريدٍ مطابقين (supportAction).
+    if (action === "support-track" || action === "support-ticket-create") {
+      let supportSess = null;
+      try { supportSess = await getSession(req); } catch { supportSess = null; }
+      return supportAction(action, body, qs, req, res, supportSess);
+    }
     const sess = await getSession(req);
     if (!sess) return json(res, 401, { ok: false, error: "no_session", message: "سجّل دخولك أولاً." });
     return clientAction(action, body, qs, req, res, sess);
@@ -389,7 +397,7 @@ async function clientAction(action, b, qs, req, res, sess) {
     if (orgId) { try { await sb(`requests?client_email=eq.${q(email)}&organization_id=is.null`, { method: "PATCH", prefer: "return=minimal", body: { organization_id: orgId, user_id: sess.user.id } }); } catch {} }
     const mine = await myRequests(sess);
     const counts = {
-      active: mine.filter((r) => !["COMPLETED", "CANCELLED"].includes(r.status)).length,
+      active: mine.filter((r) => !isTicketRow(r) && !["COMPLETED", "CANCELLED"].includes(r.status)).length,
       quotes: mine.filter((r) => r.status === "QUOTE_SENT").length,
       contracts: mine.filter((r) => r.status === "CONTRACT_SENT").length,
       payments: mine.filter((r) => ["SIGNED", "PAYMENT_PENDING"].includes(r.status)).length,
@@ -840,7 +848,7 @@ const summary = (r) => ({
   client_name: r.client_name, client_email: r.client_email, client_phone: r.client_phone, company_name: r.company_name,
   assigned_to: r.assigned_to || null,
   // «شراء مباشر»: the request was opened by a paid cart, not by a conversation.
-  origin: isCartRow(r) ? "cart" : "",
+  origin: isCartRow(r) ? "cart" : isTicketRow(r) ? "ticket" : "",
 });
 
 function defaultTitle(type, lang) {
@@ -1165,6 +1173,144 @@ async function cartRequestOnce(d, key) {
   return { ok: true, ref, created: true, status: created.status, documents: documents.length };
 }
 
+// ------------------------------------------------------- support hub (widget) --
+// مركز التواصل العائم (site/scripts/baher-support.mjs) يحتاج شيئين من الخادم:
+//   support-track          أين طلبي؟ — بمرجعٍ BP-R-… أو BP-TKT-…
+//   support-ticket-create  افتح تذكرة — برقمٍ يظهر في /my ويصل المالك إشعاره
+//
+// لا جدول جديد ولا نظام موازٍ: التذكرة صفٌّ في `requests` نفسه الذي تعرضه /my
+// وتردّ عليه اللوحة (ops-request-message) وتنبّه عنه alertOps. علامتها بادئة
+// المرجع `BP-TKT-` (كما أن علامة الشراء المباشر payment.source="cart")، فلا عمود
+// ولا قيد جديد في db/schema.sql.
+//
+// من يرى ماذا (قاعدة المالك: لا كشف لبيانات غير صاحبها):
+//   • بجلسة: طلبات حسابه هو فقط (ownedBy)، بملخّص بلا مبالغ ولا بيانات اتصال.
+//   • بلا جلسة: لا شيء إلا بمرجعٍ **و** بريدٍ يطابق بريد الطلب، والخارج منه
+//     حالةٌ وعنوان وتاريخ فقط. الخطأ في أيٍّ منهما يردّ بالجواب نفسه تماماً
+//     (لا «المرجع موجود لكن البريد خطأ») فلا يُستعمل التتبّع لتخمين المراجع.
+//   • بريدٌ وحده بلا جلسة: لا يُعرض شيء — يُدعى إلى الدخول.
+const TICKET_PREFIX = "BP-TKT-";
+const isTicketRow = (r) => !!(r && String(r.ref || "").startsWith(TICKET_PREFIX));
+const TICKET_CATS = { order: "طلب قائم", payment: "الدفع والفواتير", account: "الحساب والدخول", info: "استفسار", other: "أخرى" };
+const SUPPORT_REF_RE = /^BP-(?:R|TKT)-[0-9A-Z]{6}$/;
+const ticketRef = () => TICKET_PREFIX + crypto.randomBytes(3).toString("hex").toUpperCase();
+
+// A small in-process brake. Serverless instances do not share it, so it is a
+// speed bump for a script hammering one instance, not a quota.
+const _supportHits = new Map();
+function supportThrottle(key, max, windowMs) {
+  const now = Date.now();
+  const arr = (_supportHits.get(key) || []).filter((t) => now - t < windowMs);
+  if (arr.length >= max) { _supportHits.set(key, arr); return false; }
+  arr.push(now); _supportHits.set(key, arr);
+  if (_supportHits.size > 4000) for (const [k, v] of _supportHits) if (!v.length || now - v[v.length - 1] > windowMs) _supportHits.delete(k);
+  return true;
+}
+
+function supportTrackView(r, full) {
+  const view = { ref: r.ref, kind: isTicketRow(r) ? "ticket" : "request", title: r.title, status: r.status, created_at: r.created_at, updated_at: r.updated_at || r.created_at };
+  if (!full) return view;
+  const lastBp = [...(r.conversation || [])].reverse().find((m) => m && m.role === "bp");
+  return {
+    ...view,
+    quote: r.quote ? { number: r.quote.number, status: r.quote.status } : null,
+    contract: r.contract ? { number: r.contract.number, status: r.contract.status } : null,
+    payment: r.payment ? { status: r.payment.status } : null,
+    appointment: r.appointment && r.appointment.status !== "CANCELLED" ? { date: r.appointment.date, time: r.appointment.time } : null,
+    last_team_message: lastBp ? { content: String(lastBp.content || "").slice(0, 200), at: lastBp.at } : null,
+  };
+}
+
+async function supportAction(action, b, qs, req, res, sess) {
+  const ip = clientIp(req) || "local";
+
+  if (action === "support-track") {
+    if (!supportThrottle("track:" + ip, 20, 10 * 60e3)) return json(res, 429, { ok: false, error: "slow_down" });
+    const ref = str(b.ref, 40).toUpperCase().replace(/\s+/g, "");
+    const email = str(b.email, 160).toLowerCase();
+    if (!ref) {
+      if (!sess) return json(res, 200, { ok: true, needLogin: true });
+      const mine = await myRequests(sess);
+      return json(res, 200, { ok: true, mine: mine.slice(0, 5).map((r) => supportTrackView(r, true)), total: mine.length });
+    }
+    // One shape for «no such reference» and «not yours»: see the header.
+    const none = () => json(res, 200, { ok: true, found: false });
+    if (!SUPPORT_REF_RE.test(ref)) return none();
+    const row = await getByRef(ref);
+    if (!row) return none();
+    if (sess && ownedBy(row, sess)) return json(res, 200, { ok: true, found: true, verified: "session", item: supportTrackView(row, true) });
+    if (isEmail(email) && String(row.client_email || "").toLowerCase() === email) {
+      return json(res, 200, { ok: true, found: true, verified: "email", item: supportTrackView(row, false) });
+    }
+    return none();
+  }
+
+  if (action === "support-ticket-create") {
+    // A bot fills every field it can see; a person never sees this one.
+    if (str(b.hp, 20)) return json(res, 200, { ok: true, ref: ticketRef(), linked: false });
+    if (!supportThrottle("ticket:" + ip, 6, 60 * 60e3)) return json(res, 429, { ok: false, error: "slow_down" });
+    const subject = str(b.subject, 160);
+    const details = str(b.details, 3000);
+    if (subject.length < 3 || details.length < 5) return json(res, 400, { ok: false, error: "invalid_fields" });
+    const lang = ["ar", "en", "fr", "zh"].includes(b.lang) ? b.lang : "ar";
+    const category = TICKET_CATS[b.category] ? b.category : "other";
+    const user = sess && sess.user ? sess.user : null;
+    const name = str(user ? (user.full_name || user.email) : b.name, 160);
+    const email = String(user ? user.email : str(b.email, 160)).toLowerCase();
+    const phone = str(b.phone, 40);
+    if (!user) {
+      // Someone must be reachable: a name and at least one way back.
+      if (name.length < 2 || !(isEmail(email) || /^(?:\+?966|0)?5\d{8}$/.test(phone.replace(/\s/g, "")))) return json(res, 400, { ok: false, error: "contact_required" });
+      if (isEmail(email) && !supportThrottle("ticket-mail:" + email, 5, 24 * 3600e3)) return json(res, 429, { ok: false, error: "slow_down" });
+    }
+    const related = str(b.related_ref, 40).toUpperCase();
+    const page = str(b.page, 200);
+    const convo = (Array.isArray(b.convo) ? b.convo : [])
+      .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
+      .slice(-10).map((m) => `${m.role === "user" ? "الزائر" : "المستشار"}: ${m.content.slice(0, 300)}`).join("\n");
+
+    let ref = ticketRef();
+    for (let i = 0; i < 4 && (await getByRef(ref)); i++) ref = ticketRef();
+    const now = nowIso();
+    const row = {
+      ref, organization_id: sess && sess.organization ? sess.organization.id : null, user_id: user ? user.id : null,
+      type: "CONSULTATION", source: "WEBSITE", status: "NEW", lang,
+      title: `تذكرة: ${subject}`.slice(0, 200),
+      summary: details,
+      conversation: [{ role: "user", content: details, at: now }],
+      scope: [], documents: [],
+      client_name: name, client_email: isEmail(email) ? email : null, client_phone: phone,
+      company_name: str(sess && sess.organization ? (sess.organization.name_ar || sess.organization.name_en) : "", 200),
+      internal_notes: [
+        `تذكرة دعم من مركز التواصل · القسم: ${TICKET_CATS[category]}`,
+        related && SUPPORT_REF_RE.test(related) ? `متعلّقة بالطلب: ${related}` : "",
+        page ? `الصفحة: ${page}` : "",
+        convo ? `المحادثة قبل التذكرة:\n${convo}` : "",
+      ].filter(Boolean).join("\n").slice(0, 2000),
+    };
+    const rows = await sb("requests", { method: "POST", body: [row] });
+    const created = rows[0];
+    await logEvent(created.id, "customer", name || email || "زائر", "request.created", { kind: "support-ticket", category, related: related || undefined });
+    // The team: mail + WhatsApp to the owner and one open «reply» task, deduped
+    // by alertOps (the same door the customer's in-request messages use).
+    await alertOps(created, "ticket-new", {
+      subject: `تذكرة دعم جديدة ${ref}`,
+      line: `${name || email || "زائر"} فتح تذكرة «${subject}» (${TICKET_CATS[category]}): ${details.slice(0, 160)}`,
+      task: { source: "support-ticket", urgency: "high", title: `ردّ على تذكرة الدعم ${ref}`, details: `${TICKET_CATS[category]} — ${details.slice(0, 360)}` },
+    });
+    // The customer: the number, and where it lives. No promise of a time.
+    const ar = lang === "ar";
+    await announce(created, "ticket-open", {
+      subject: ar ? `استلمنا تذكرتك ${ref}` : `We received your ticket ${ref}`,
+      clientLine: ar ? `استلمنا تذكرتك ${ref} «${subject}». سيردّ عليك الفريق ضمن ساعات الدوام، وتجد الرد في حسابك.` : `We received your ticket ${ref} “${subject}”. The team will reply during working hours, and you will find the reply in your account.`,
+      cta: ar ? "فتح التذكرة" : "Open the ticket", to: "client",
+    });
+    return json(res, 200, { ok: true, ref, signedIn: !!user, linked: !!created.client_email });
+  }
+
+  return json(res, 400, { ok: false, error: "unknown_action" });
+}
+
 // ------------------------------------------------------- the follow-up sweep --
 // A request that nobody touches dies quietly: the quotation goes out and the
 // answer never comes, the contract sits unsigned, the paid job waits for
@@ -1262,6 +1408,10 @@ async function runSweep({ actor = "المتابعة الذكية", limit = 400, 
     // A paid cart request held for review already has its own task; the
     // «pricing» play would tell the team to quote something already bought.
     if (row.status === "REVIEWING" && isCartRow(row)) continue;
+    // A support ticket is not a quotation: the «pricing» play would tell the
+    // team to price a scope that does not exist, and the «new request» play
+    // would open a second task beside the one the ticket opened itself.
+    if (isTicketRow(row) && (row.status === "NEW" || row.status === "REVIEWING")) continue;
     const idle = (now - new Date(row.updated_at || row.created_at).getTime()) / DAY;
     const due = SLA[row.status];
     if (!(idle >= due)) { skipped.push({ ref: row.ref, status: row.status, idle_days: round2(idle), due_in_days: round2(due - idle) }); continue; }

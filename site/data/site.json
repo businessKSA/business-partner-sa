@@ -29,7 +29,8 @@
   "address": "مبنى 9214 · طريق الملك خالد الفرعي · حي العاصمة · الدرعية 13714 · الرقم الفرعي 5076",
   "hours": "الأحد – الخميس · 9 صباحاً – 6 مساءً · والمستشار الذكي على مدار الساعة",
   "addressEn": "Building 9214 · King Khaled Branch Rd. · Al Asemah Dist. · Ad Diriyah 13714 · Additional no. 5076",
-  "hoursEn": "Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock"
+  "hoursEn": "Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock",
+  "hoursRule": { "tz": "Asia/Riyadh", "days": [0, 1, 2, 3, 4], "from": 9, "to": 18 }
  },
  "legal": {
   "name": "شركة بزنس بارتنر سلوشنز",

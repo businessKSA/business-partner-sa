@@ -425,7 +425,7 @@ Simple V1 لا تحمّله — فالرئيسية و`/catalog` و`/cart` و`/my
 | ├ `recruitment-agencies` | `api/_agencies.js` · `api/_sources.js` · `site/scripts/simple-v1-vendor.mjs` (بوابة المورّدين `/vendor`: `vendor-demand` يعرض بنود `listVendorDemand()` بلا هوية عميل، و`vendor-candidates`/`vendor-add-candidate` لمرشحي المورّد وحده بمعرّف المكتب؛ وسم المصدر داخلي لا يُعرض؛ والمورّد المؤسسي `vendor:corporate` يقدّم عروض أسعار على الطلبات المجهولة عبر `api/_vendor-offers.js` وقاعدة «BP Vendor Offers»، ونموذجه في `docs/hr-supplier-model.md`) |
 | └ `recruitment-jobs` | `site/scripts/simple-v1-hiring.mjs` **وحده** — `/jobs/*` و`/job` و`/careers` تُولَّد في `generate.mjs` المملوك لـ`platform-engineer`، فيُنسَّق معه ولا يُكتب فيه |
 | `catalog-content` | `site/assets/data/catalog.json` · `site/data/*.json` · `api/_catalog.js` · `api/_knowledge.js` · `api/knowledge.json` · `site/scripts/simple-v1-guide-structure.mjs` · `site/scripts/simple-v1-gov-cost.mjs` · `site/scripts/simple-v1-knowledge.mjs` · `site/scripts/sv1-guide-sell.mjs` |
-| `automation-agents` | `n8n/**` · `ops/n8n/**` · `api/chat.js` · `site/scripts/service-advisor.mjs` · `site/scripts/baher-support.mjs` · `site/scripts/assets/chat.page.html` |
+| `automation-agents` | `n8n/**` · `ops/n8n/**` · `api/chat.js` · `site/scripts/service-advisor.mjs` · `site/scripts/baher-support.mjs` (+ مركز التواصل: `site/assets/js/bp-support-hub.js` · `site/assets/css/bp-support-hub.css`) · `site/scripts/assets/chat.page.html` |
 
 **إسنادان مقترحان (2026-10-10) — بانتظار قرار المالك.** أظهر تدقيق رحلة العميل
 (`docs/service-journey-*-2026-10-10.md`) ملفَّي خادمٍ بلا مالك في أي صف:
