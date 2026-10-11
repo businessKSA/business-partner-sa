@@ -21,7 +21,7 @@ test("azure-deploy.yml is manual-only and inert until AZURE_DEPLOY_ENABLED=true"
   const jobs = y.split(/^jobs:\n/m)[1].split(/^  (?=[a-z]+:\n)/m).filter(Boolean);
   assert.ok(jobs.length >= 4);
   for (const j of jobs) assert.match(j, /AZURE_DEPLOY_ENABLED == 'true'/, `مهمة بلا بوابة التفعيل:\n${j.slice(0, 60)}`);
-  assert.match(y, /environment: \$\{\{ inputs\.target \}\}/, "النشر يمرّ ببيئة GitHub (موافقة المالك على production)");
+  assert.match(y, /environment: \$\{\{ inputs\.target == 'production' && 'azure-production' \|\| 'staging' \}\}/, "النشر يمرّ ببيئة GitHub (موافقة المالك على azure-production)");
   assert.match(y, /id-token: write/);
 });
 

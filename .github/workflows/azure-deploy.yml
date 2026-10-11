@@ -4,8 +4,8 @@
 #   ١. يعمل يدوياً فقط (workflow_dispatch) — لا push ولا schedule ولا pull_request.
 #   ٢. كل المهام تتخطّى نفسها ما لم يضبط المالك المتغيّر AZURE_DEPLOY_ENABLED=true
 #      (GitHub → Settings → Secrets and variables → Actions → Variables).
-#   ٣. النشر إلى الإنتاج يمرّ ببيئة GitHub باسم `production` ويشترط موافقة المالك
-#      (Settings → Environments → production → Required reviewers).
+#   ٣. النشر إلى الإنتاج يمرّ ببيئة GitHub باسم `azure-production` (لا `production`: هذا الاسم تستعمله Vercel في المستودع) ويشترط موافقة المالك
+#      (Settings → Environments → azure-production → Required reviewers).
 #
 # بلا أسرار في هذا الملف ولا في المستودع: الدخول إلى Azure بـ OIDC (هوية اتحادية
 # بلا كلمة سر)، والقيم أدناه كلها «Variables» عامة. أسرار التطبيق نفسه (مفاتيح
@@ -80,7 +80,7 @@ jobs:
     needs: verify
     if: ${{ vars.AZURE_DEPLOY_ENABLED == 'true' }}
     runs-on: ubuntu-latest
-    environment: ${{ inputs.target }}
+    environment: ${{ inputs.target == 'production' && 'azure-production' || 'staging' }}
     outputs:
       revision: ${{ steps.rev.outputs.name }}
       fqdn: ${{ steps.rev.outputs.fqdn }}
@@ -148,7 +148,7 @@ jobs:
     needs: [deploy, smoke]
     if: ${{ vars.AZURE_DEPLOY_ENABLED == 'true' && inputs.target == 'production' && inputs.promote }}
     runs-on: ubuntu-latest
-    environment: production
+    environment: azure-production
     steps:
       - uses: azure/login@v2
         with:

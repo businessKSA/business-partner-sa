@@ -61,7 +61,7 @@ Dockerfile، جرد المتغيّرات، workflow معطّل بالافترا�
 | 5 | **٣ مهام cron** (UTC): نشرة الأحد ٠٦:٠٠، `jobhunt` الاثنين ٠٥:٠٠، `candidate backfill` يومياً ٠٣:٠٠ — تصل بـ`Authorization: Bearer $CRON_SECRET` | `vercel.json`، `api/newsletter.js`، `api/candidate.js`، `api/_jobhunt.js` | `ops/azure/cron.mjs` + ٣ Container Apps Jobs بالصورة نفسها (يقرأ الجدول من `vercel.json`) |
 | 6 | **headers**: `/assets/(.*)` ← `immutable` سنة، وملف Apple Pay ← `text/plain` | `vercel.json` | نفسه. وترويسات يضيفها Vercel وحدها وتحققتُ منها: `strict-transport-security: max-age=63072000` على كل شيء، `access-control-allow-origin: *` و`etag` للثابت، `cache-control: public, max-age=0, must-revalidate` افتراضياً — **يعيدها الخادم** |
 | 7 | **الأبكس → www بـ308** | إعداد النطاق في لوحة Vercel (ليس في المستودع) | `BP_APEX_HOSTS` في الخادم (§8) |
-| 8 | `ignoreCommand` + علامة النشر `deploy-preview-please` + قاعدة «فرع العمل هو الإنتاج» | `vercel.json`، `CLAUDE.md` §1 | `workflow_dispatch` فقط + متغيّر `AZURE_DEPLOY_ENABLED` + بيئة GitHub `production` بموافقة المالك. **لا علامة في الكوميت تنشر شيئاً على Azure** |
+| 8 | `ignoreCommand` + علامة النشر `deploy-preview-please` + قاعدة «فرع العمل هو الإنتاج» | `vercel.json`، `CLAUDE.md` §1 | `workflow_dispatch` فقط + متغيّر `AZURE_DEPLOY_ENABLED` + بيئة GitHub `azure-production` بموافقة المالك. **لا علامة في الكوميت تنشر شيئاً على Azure** |
 | 9 | `installCommand` (`npm install --omit=dev`) و`buildCommand` (`npm run build`) | `vercel.json` | `Dockerfile`: `npm ci --omit=dev` ثم `npm run build` نفسه (السلسلة بحارسيها دون تغيير) |
 | 10 | متغيّرات `VERCEL` (١ موضع) و`VERCEL_ENV` (٤ مواضع: `_mode.js`، `_simple.js`، `otp.js`، `requests.js`) | الكود | `VERCEL_ENV=preview` يُفعّل أوضاع الاختبار الآمنة؛ **على Azure لا يُضبط في الإنتاج**، ويُضبط بمتغيّر `BP_ENV=preview` في بيئة staging. `VERCEL=1` يبقى **وقت البناء فقط** (يمنع `hidden.mjs` من إعادة كتابة `vercel.json`) |
 | 11 | IP العميل: الدوال تقرأ **أول** عنصر من `X-Forwarded-For` (٦ مواضع) | `api/_suppliers.js`، `candidates.js`، `hire.js`، `requests.js`، `_simple.js` | Vercel يستبدل الترويسة؛ Container Apps **يُلحق** عنوان المتصل في النهاية فيستطيع الزائر انتحال عنوانه (حدود المعدّل، سجل توقيع العقد). **الغلاف يطبّع الترويسة** إلى عنوان واحد موثوق (`BP_TRUSTED_PROXY_HOPS`، افتراضياً ١، و٢ خلف Front Door) |
@@ -395,7 +395,7 @@ node ops/azure/parity.mjs --list                  # الفحوص بلا شبكة
 ### 8.5 أمان الـworkflow (لا نشر عرضي)
 
 `azure-deploy.yml`: ١) `workflow_dispatch` فقط (لا push ولا جدولة) ٢) كل مهمة `if: vars.AZURE_DEPLOY_ENABLED == 'true'`
-والمتغيّر غير موجود الآن ٣) بيئة GitHub `production` تشترط موافقتك. لا أسرار فيه: دخول Azure بـOIDC،
+والمتغيّر غير موجود الآن ٣) بيئة GitHub `azure-production` تشترط موافقتك. لا أسرار فيه: دخول Azure بـOIDC،
 وكل قيمة `vars.*` عامة. لا يلمس Vercel ولا DNS. **النشر لا يستعمل علامة الكوميت أبداً**، فقاعدة
 «لا نشر بلا إذن المالك» (`CLAUDE.md` §0) محفوظة بآلية أصلب: لا يحدث شيء إلا بضغطة زر منك.
 
@@ -432,13 +432,13 @@ node ops/azure/parity.mjs --list                  # الفحوص بلا شبكة
 **ج) ربط GitHub (بلا كلمة سر)**
 10. Microsoft Entra ID ← App registrations ← **New** باسم `bp-github-deploy`. افتحه ← Certificates & secrets ←
     **Federated credentials** ← Add ← «GitHub Actions deploying Azure resources»: المنظمة `businessKSA`،
-    المستودع `business-partner-sa`، Entity: **Environment** = `production` (ثم أخرى = `staging`).
+    المستودع `business-partner-sa`، Entity: **Environment** = `azure-production` (ثم أخرى = `staging`) — الاسم `production` محجوز لـVercel في هذا المستودع.
 11. على `rg-bp-web`: Access control (IAM) ← امنح التطبيق دور **Contributor**؛ وعلى سجل ACR دور **AcrPush**.
-12. في GitHub → المستودع → Settings → **Environments**: أنشئ `staging` و`production`؛ في `production` فعّل
+12. في GitHub → المستودع → Settings → **Environments**: أنشئ `staging` و`azure-production`؛ في `azure-production` فعّل
     **Required reviewers** (أنت). Settings → Secrets and variables → Actions → **Variables** أضف:
     `AZURE_CLIENT_ID`، `AZURE_TENANT_ID`، `AZURE_SUBSCRIPTION_ID`، `AZURE_RESOURCE_GROUP=rg-bp-web`،
     `AZURE_ACR_NAME`، ومتغيّرات البناء العامة (`GOOGLE_CLIENT_ID`،
-    `PORTAL_URL`، `COMPANY_*` … من Vercel). وفي **كل بيئة** (`staging` ثم `production`) أضف متغيّر البيئة `AZURE_CONTAINERAPP_NAME` (`bp-site-staging` / `bp-site`) كي لا ينشر staging فوق الإنتاج.
+    `PORTAL_URL`، `COMPANY_*` … من Vercel). وفي **كل بيئة** (`staging` ثم `azure-production`) أضف متغيّر البيئة `AZURE_CONTAINERAPP_NAME` (`bp-site-staging` / `bp-site`) كي لا ينشر staging فوق الإنتاج.
     **آخر شيء:** `AZURE_DEPLOY_ENABLED=true` (قبلها الـworkflow خامل).
 
 **د) Front Door والنطاق**
@@ -474,7 +474,7 @@ node ops/azure/parity.mjs --list                  # الفحوص بلا شبكة
 
 ## 11) ما يتغيّر في `CLAUDE.md` بعد قرارك (للمدير — لا أعدّله أنا)
 
-- §0 «لا ينشر إلا بإذن المالك»: يبقى. على Azure لا علامة كوميت؛ الإذن = ضغط **Run workflow** + موافقة بيئة `production`.
+- §0 «لا ينشر إلا بإذن المالك»: يبقى. على Azure لا علامة كوميت؛ الإذن = ضغط **Run workflow** + موافقة بيئة `azure-production`.
 - §1 «هدف واحد للنشر: Vercel»: يُستبدل بـ«هدف واحد: Azure Container Apps `bp-site`»، ويبقى مشروع
   Vercel الرئيسي *احتياطاً للرجوع* ثم يُحذف بقرارك، و`bp-quotes` حتى النقل.
 - فقرة «فرع العمل هو الإنتاج في Vercel / `ignoreCommand` / العلامة `deploy-preview-please`»: تبقى صالحة
