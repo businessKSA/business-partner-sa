@@ -17,7 +17,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { makePicker, pickKnowledge } from "../api/_knowledge.js";
+import { makePicker, pickKnowledge, hideServiceFees } from "../api/_knowledge.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const RAW = JSON.parse(readFileSync(join(HERE, "..", "api", "knowledge.json"), "utf8"));
@@ -179,9 +179,22 @@ test("الميزانية الصغيرة: القسم يُقصّ ولا يتجاو
   assert.ok(got.length <= 1500 && got.startsWith("## "));
 });
 
+// ‏الوحدة الحيّة تحجب «أتعاب الخدمة: N ريال» (hideServiceFees) قبل البناء؛ فالمرجع هنا
+// الأداة نفسها على القاعدة بعد الحجب — وما عدا ذلك يتطابق حرفاً بحرف.
+const LIVE_REF = makePicker(hideServiceFees(RAW));
 test("الوحدة الحيّة (pickKnowledge) تطابق الأداة المبنيّة على القاعدة نفسها", () => {
   for (const q of [...OLD_QUESTIONS, ...BIZDEV_QUESTIONS]) {
-    assert.equal(pickKnowledge(q), WITH.pick(q), q);
+    assert.equal(pickKnowledge(q), LIVE_REF.pick(q), q);
   }
-  assert.equal(pickKnowledge("x", 9000, { door: "bizdev" }), WITH.pick("x", 9000, { door: "bizdev" }));
+  assert.equal(pickKnowledge("x", 9000, { door: "bizdev" }), LIVE_REF.pick("x", 9000, { door: "bizdev" }));
+});
+
+test("أتعاب الخدمة في المعرفة لا تصل النموذج برقم: المرجع كتالوج الموقع وحده", () => {
+  assert.ok((RAW.match(/أتعاب الخدمة:\s*[\d,٬.٫]+\s*ريال/g) || []).length > 0, "القاعدة الخام فيها أرقام أتعاب (لولا الحجب)");
+  for (const q of ["تأسيس شركة ذات مسؤولية محدودة", "قيد سجل تجاري لمؤسسة فردية", "الترخيص الصناعي", "طلب تأييد العمالة", "شهادة الدواء"]) {
+    const got = pickKnowledge(q, 20000);
+    assert.equal((got.match(/أتعاب[^\n]{0,30}\d/g) || []).length, 0, q);
+  }
+  // ‏الرسوم الحكومية معلومة الجهة فتبقى.
+  assert.match(pickKnowledge("قيد سجل تجاري لمؤسسة فردية", 20000), /الرسوم الحكومية: \d/);
 });

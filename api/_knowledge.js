@@ -205,7 +205,16 @@ export function makePicker(raw) {
   return { pick, index, sections: SECTIONS.length, gated: GATED.map((g) => g.gate) };
 }
 
-const MAIN = makePicker(RAW);
+// ‏«أتعاب الخدمة: N ريال» في أقسام الجهات (٤٦ موضعاً، «عبر Business Partner BP») أرقامٌ
+// منقولة من قائمة المركز السعودي للأعمال تخالف كتالوجنا: تأسيس ذات مسؤولية محدودة
+// ٢٬٤٨٨ هنا مقابل ٧٬٥٠٠ في BP-SBC-01، وقيد مؤسسة فردية ٢٥٦ مقابل ١٬٠٠٠ في BP-SBC-31.
+// المرجع الوحيد لأتعابنا كتالوج الموقع (priceSheetText) — لا يجوز أن يرى النموذج رقماً
+// ثانياً فيقتبسه لعميل. تُحجب القيمة وتبقى الجملة ليعرف النموذج أن الأتعاب تُحدَّد في
+// عرض السعر. الرسوم الحكومية («الرسوم الحكومية: N ريال») لا تُمسّ: هي معلومة الجهة.
+export const SERVICE_FEE = /أتعاب الخدمة:\s*[\d,٬.٫]+\s*ريال/g;
+export const hideServiceFees = (text) => String(text).replace(SERVICE_FEE, "أتعاب الخدمة: تُحدَّد في عرض السعر");
+
+const MAIN = makePicker(hideServiceFees(RAW));
 
 /**
  * @param {string} query
