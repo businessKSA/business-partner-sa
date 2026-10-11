@@ -39,6 +39,10 @@ const D = {
   sep:     { ar: "\u060C ", en: ", ", fr: ", ", zh: "\u3001" },
   bespoke: { ar: "يُسعَّر بعرضٍ مخصّص", en: "Quoted bespoke", fr: "Devis sur mesure", zh: "定制报价" },
   sendReq: { ar: "أرسل طلبي", en: "Send my request", fr: "Envoyer ma demande", zh: "发送请求" },
+  sendFail:{ ar: "تعذّر تسليم طلبك للمستشار: متصفحك يمنع حفظ اختياراتك مؤقتاً (غالباً نافذة خاصة). لم يضع شيء مما أدخلتَه — افتح الصفحة في نافذة عادية وأعد المحاولة، أو تواصل معنا عبر واتساب.",
+             en: "We couldn't hand your request to the advisor: your browser is blocking temporary storage (usually a private window). Nothing you entered was lost — reopen the page in a normal window and try again, or reach us on WhatsApp.",
+             fr: "Impossible de transmettre votre demande au conseiller : votre navigateur bloque le stockage temporaire (souvent une fenêtre privée). Rien de ce que vous avez saisi n'est perdu — rouvrez la page dans une fenêtre normale ou écrivez-nous sur WhatsApp.",
+             zh: "无法将您的请求交给顾问：浏览器阻止了临时存储（通常是隐私窗口）。您填写的内容没有丢失 — 请在普通窗口重新打开本页再试，或通过 WhatsApp 联系我们。" },
   pickedN: { ar: "مختار", en: "selected", fr: "sélectionné", zh: "已选" },
   needPick:{ ar: "اختر بنداً واحداً على الأقل.", en: "Pick at least one item.",
              fr: "Choisissez au moins un élément.", zh: "请至少选择一项。" },
@@ -432,7 +436,7 @@ export function buildSimpleTrips(sv1, ctx, data) {
     found: t("found"), add: t("add"), added: t("added"), seats: t("seats"),
     inclVat: t("inclVat"), details: t("details"),
     lineInv: t("lineInv"), lineCorp: t("lineCorp"), pickMore: t("pickMore"),
-    pickedN: t("pickedN"), needPick: t("needPick"),
+    pickedN: t("pickedN"), needPick: t("needPick"), sendFail: t("sendFail"), sep: t("sep"),
     yourVisit: t("yourVisit"), visitDate: t("visitDate"), reqMiss: t("reqMiss"),
   };
 
@@ -555,14 +559,24 @@ function pickList(host,key,countEl){
   lab.appendChild(cb);lab.appendChild(tx);el.appendChild(lab)});
  $(countEl).textContent=TX.pickMore}
 
+// التسليم إلى مستشار الصفحة الرئيسية. المفتاح والشكل هما ما تقرؤه الرئيسية
+// (site/scripts/simple-v1.mjs): bp_sva_request بحقول items/door/text/at. كان
+// هذا الملف يكتب مفتاحاً آخر (sv1_handoff) لا يقرؤه أحد، فيصل العميل إلى
+// محادثةٍ فارغة وكأن طلبه لم يُرسَل. وإن منع المتصفح التخزين لا ننتقل
+// أصلاً: تبقى اختيارات العميل مكانها وتظهر له رسالة صادقة.
+function handToAdvisor(label,titles,msgEl){
+ var items=titles.map(function(x){return {code:'',title:x,why:label}});
+ var payload=JSON.stringify({items:items,door:'consulting',text:label+': '+titles.join(TX.sep),name:label,platform:'محفول مكفول',at:Date.now()});
+ var ok=false;
+ try{sessionStorage.setItem('bp_sva_request',payload);ok=sessionStorage.getItem('bp_sva_request')===payload}catch(e){}
+ if(!ok){msgEl.textContent=TX.sendFail;return false}
+ location.href=HOME+'#advisor';return true}
+
 // البنود بلا أسعار، فلا تدخل السلة: تُسلَّم للمستشار نطاقاً مبدئياً فيبني
 // عليه الطلب ويصدر عرضاً مخصّصاً — نفس المسار، بلا سعرٍ مخترع.
 function sendPicks(key,countEl,label){
  if(!picked[key].length){$(countEl).textContent=TX.needPick;return}
- try{sessionStorage.setItem('sv1_handoff',JSON.stringify({
-   ctx:'consulting',name:label,platform:'محفول مكفول',
-   items:picked[key].map(function(x){return {title:x,why:label}})}))}catch(e){}
- location.href=HOME+'#advisor'}
+ handToAdvisor(label,picked[key],$(countEl))}
 
 var lines={inv:$('trPanelInv'),tour:$('trPanelTour'),corp:$('trPanelCorp')};
 Array.prototype.forEach.call(document.querySelectorAll('#trLines .sv1-tab'),function(b){
@@ -649,10 +663,7 @@ $('trInvGo').onclick=function(){
  var miss=invMissing();
  if(miss.length){$('trInvErr').textContent=TX.reqMiss+miss.join(TX.sep);return}
  var p=invPairs();
- try{sessionStorage.setItem('sv1_handoff',JSON.stringify({
-   ctx:'consulting',name:TX.lineInv,platform:'محفول مكفول',
-   items:p.map(function(kv){return {title:kv[0]+': '+kv[1],why:TX.lineInv}})}))}catch(e){}
- location.href=HOME+'#advisor'};
+ handToAdvisor(TX.lineInv,p.map(function(kv){return kv[0]+': '+kv[1]}),$('trInvErr'))};
 
 pickList('trCorpList','corp','trCorpN');
 $('trCorpGo').onclick=function(){sendPicks('corp','trCorpN',TX.lineCorp)};
