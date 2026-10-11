@@ -83,6 +83,25 @@ var SRC={WEBSITE:'الموقع',WHATSAPP:'واتساب',EMAIL:'بريد',PHONE:'
 function srcOf(r){return (r.origin==='cart'||(r.payment&&r.payment.source==='cart'))?'شراء مباشر':(SRC[r.source]||r.source)}
 var EV={"request.created": "أنشأ الطلب", "request.created.manual": "أُنشئ الطلب يدوياً", "request.created.cart": "أُنشئ الطلب من شراء مباشر بالسلة", "scope.proposed": "اقترح النطاق", "scope.edited": "عدّل النطاق", "scope.confirmed": "اعتمد النطاق", "quote.pending": "بانتظار التسعير", "message.customer": "رسالة من العميل", "message.bp": "رد الفريق", "attachment.added": "أضاف مرفقاً", "quote.drafted": "مسودة عرض سعر", "quote.sent": "أرسل عرض السعر", "quote.approved": "اعتمد العرض", "quote.rejected": "طلب تعديل العرض", "contract.sent": "أرسل العقد", "contract.signed": "وقّع العقد", "payment.paid": "تم الدفع", "payment.failed": "فشل الدفع", "payment.cancelled": "أُلغي الدفع", "payment.pending": "دفع معلّق", "invoice.issued": "صدرت الفاتورة", "appointment.booked": "حجز موعداً", "appointment.rescheduled": "أعاد جدولة الموعد", "appointment.cancelled": "ألغى الموعد", "appointment.set": "ثبّت الموعد", "task.created": "أنشأ مهمة", "task.human_required": "مهمة تحتاج تدخلاً بشرياً", "task.done": "أنجز المهمة", "task.in_progress": "بدأ المهمة", "task.waiting": "مهمة بانتظار", "task.todo": "أعاد فتح المهمة", "execution.started": "بدأ التنفيذ", "request.cancelled": "ألغى الطلب", "request.updated": "حدّث الطلب"};
 var TS={TODO:'جديدة',IN_PROGRESS:'جارية',WAITING:'بانتظار',DONE:'منجزة'};
+// ما يُكتب في الخط الزمني بمفاتيح الآلة (notify.* و status.* و documents.*) كان يُطبع للمالك كما هو.
+// هنا يُترجَم، وإشعارات العميل تقول أي قناة خرجت — فالمالك يعرف هل وصل الخبر.
+Object.assign(EV,{'payment.receipt':'استلم إيصال التحويل','contract.reissued':'أعاد إصدار العقد','contract.corrected':'صحّح العقد','request.reopened':'أعاد فتح الطلب','cancel.requested':'طلب الإلغاء','deliverable.added':'سلّم ملفاً للعميل','deliverable.removed':'سحب ملفاً مُسلَّماً','quote.auto':'أصدر عرض السعر آلياً','message.whatsapp':'رسالة واتساب','followup.reminded':'ذكّر العميل بالخطوة التالية','document.received':'استلمنا مستنداً'});
+var QS={DRAFT:'مسودة',SENT:'مُرسل',APPROVED:'معتمد',REJECTED:'مرفوض',EXPIRED:'منتهٍ'};
+var PS={PAID:'مدفوع',PENDING:'معلّق',FAILED:'فشل',CANCELLED:'مُلغى',REFUNDED:'مُسترد'};
+var PV={bank_transfer:'تحويل بنكي',card:'بطاقة',moyasar:'بطاقة (مُيسّر)',tamara:'تمارا',cart:'السلة',test:'اختبار'};
+var DS={requested:'مطلوب',received:'استُلم',waived:'معفى'};
+var NSTEP={quote:'عرض السعر',contract:'العقد','status-in-progress':'بدء التنفيذ','status-waiting-internal':'بدء التنفيذ','status-completed':'اكتمال الطلب','status-reviewing':'قيد المراجعة','status-waiting-client':'بانتظار ردّ العميل','status-cancelled':'إلغاء الطلب',paid:'تأكيد الدفع',signed:'التوقيع',receipt:'استلام الإيصال',reopened:'إعادة فتح الطلب',cancelled:'إلغاء الطلب','cancel-request':'طلب الإلغاء','appt-set':'تثبيت الموعد','appt-cancelled':'إلغاء الموعد','cart-paid':'الشراء بالسلة',deliverable:'تسليم ملف'};
+function chan(v,name){return v===true?name+' ✓':(!v||v==='—'||v==='no_email'||v==='no_phone')?'':v==='sent_separately'?name+' (أُرسل منفصلاً)':/preview|mock/.test(String(v))?name+' (معاينة محلية)':name+' ✗'}
+function evLabel(e){var k=String(e.event||''),d=e.details||{};
+ if(EV[k])return EV[k]+(d.number?' '+d.number:'')+(d.title?' — '+d.title:'');
+ if(k.indexOf('notify.')===0){var st=k.slice(7),to=e.actor_kind==='internal'?'أُبلغ المالك':'أُبلغ العميل';
+  var ch=[chan(d.email,'بريد'),chan(d.wa,'واتساب')].filter(Boolean).join(' · ');
+  return to+' — '+(NSTEP[st]||st)+(ch?' ('+ch+')':'')}
+ if(k.indexOf('status.')===0){var s=k.slice(7).toUpperCase();return 'غيّر الحالة إلى '+(ST[s]||s)}
+ if(k==='documents.requested')return 'حدّد المستندات المطلوبة';
+ if(k==='followup.task')return 'المتابعة الذكية فتحت مهمة';
+ if(k==='document.received')return 'استلم مستنداً';
+ return k}
 var app=document.getElementById('app'),state={key:'',view:'home',ref:null,sum:null,reqs:[],tasks:[],req:null,filter:''};
 try{state.key=localStorage.getItem('bp_ops_key')||localStorage.getItem('bp_panel_key')||''}catch(e){}
 var $=function(s,r){return (r||document).querySelector(s)};
@@ -340,7 +359,7 @@ function draw(){
     r.status?pill(r.status):null])})));
  }).catch(function(){st.textContent='تعذّر الاتصال.'})}
 draw()}
-function vCatalog(m){m.appendChild(h('h1',{},['الخدمات والأسعار']));var q=h('input',{class:'inp',placeholder:'بحث في الكتالوج (140 خدمة)'});var box=h('div',{class:'list'});m.appendChild(h('div',{class:'card'},[h('p',{class:'note',},['الكتالوج يبقى في الخلفية؛ العميل يرى النطاق فقط. التعديل من /admin ← المحتوى.']),q,h('a',{class:'btn ghost sm',href:'/admin',target:'_blank',style:'margin-top:8px'},['فتح لوحة المحتوى'])]));m.appendChild(box);fetch('/assets/data/catalog.json').then(function(r){return r.json()}).then(function(c){var all=c.services||[];function draw(){var f=q.value.toLowerCase();box.innerHTML='';all.filter(function(s){return !f||[s.code,s.nameAr,s.nameEn,s.categoryAr,s.govPlatform].join(' ').toLowerCase().indexOf(f)>=0}).slice(0,60).forEach(function(s){box.appendChild(h('div',{class:'row',style:'cursor:default'},[h('div',{class:'tt'},[h('b',{},[s.nameAr||s.nameEn]),h('small',{},[s.code+' · '+(s.categoryAr||'')+' · '+(s.govPlatform||'')])]),h('span',{class:'pill'},[s.amount?money(s.amount):(s.priceLabel||'حسب العرض')])]))})}q.oninput=draw;draw()}).catch(function(){box.appendChild(h('p',{class:'note'},['تعذّر تحميل الكتالوج.']))})}
+function vCatalog(m){m.appendChild(h('h1',{},['الخدمات والأسعار']));var q=h('input',{class:'inp',placeholder:'بحث في الكتالوج بالاسم أو الرمز أو المنصة'});var box=h('div',{class:'list'});m.appendChild(h('div',{class:'card'},[h('p',{class:'note',},['الكتالوج يبقى في الخلفية؛ العميل يرى النطاق فقط. التعديل من /admin ← المحتوى.']),q,h('a',{class:'btn ghost sm',href:'/admin',target:'_blank',style:'margin-top:8px'},['فتح لوحة المحتوى'])]));m.appendChild(box);fetch('/assets/data/catalog.json').then(function(r){return r.json()}).then(function(c){var all=c.services||[];function draw(){var f=q.value.toLowerCase();box.innerHTML='';all.filter(function(s){return !f||[s.code,s.nameAr,s.nameEn,s.categoryAr,s.govPlatform].join(' ').toLowerCase().indexOf(f)>=0}).slice(0,60).forEach(function(s){box.appendChild(h('div',{class:'row',style:'cursor:default'},[h('div',{class:'tt'},[h('b',{},[s.nameAr||s.nameEn]),h('small',{},[s.code+' · '+(s.categoryAr||'')+' · '+(s.govPlatform||'')])]),h('span',{class:'pill'},[s.amount?money(s.amount):(s.priceLabel||'حسب العرض')])]))})}q.oninput=draw;draw()}).catch(function(){box.appendChild(h('p',{class:'note'},['تعذّر تحميل الكتالوج.']))})}
 function vSettings(m){m.appendChild(h('h1',{},['الإعدادات']));
 // Integration health, from the server. Booleans only — never a key value.
 var ig=(state.sum&&state.sum.integrations)||null;
@@ -362,7 +381,18 @@ m.appendChild(h('div',{class:'card'},[h('div',{class:'stat'},[h('span',{},['ال
 function vRequest(m){m.appendChild(h('a',{class:'btn ghost sm',onclick:function(){go('requests')}},['← الطلبات']));var hd=h('h1',{style:'margin-top:10px'},['…']);m.appendChild(hd);var box=h('div');m.appendChild(box);api('ops-request',{ref:state.ref}).then(function(o){if(!o||!o.ok){box.appendChild(h('p',{class:'err'},['تعذّر التحميل']));return}state.req=o.request;draw(hd,box)})}
 function draw(hd,box){var r=state.req;hd.innerHTML='';hd.appendChild(document.createTextNode(r.title+' '));hd.appendChild(pill(r.status));box.innerHTML='';
 var stSel=h('select',{class:'inp',style:'width:auto'},Object.keys(ST).map(function(k){return h('option',{value:k,selected:r.status===k?'':null},[ST[k]])}));var asg=h('input',{class:'inp',style:'width:160px',placeholder:'مسند إلى',value:r.assigned_to||''});
-box.appendChild(h('div',{class:'card'},[h('div',{class:'stat'},[h('span',{},['الرقم ',h('b',{},[r.ref])]),h('span',{},['العميل ',h('b',{},[r.client_name||'—'])]),h('span',{},[r.client_email||'']),h('span',{},[r.client_phone||'']),h('span',{},['الشركة ',h('b',{},[r.company_name||'—'])]),h('span',{},['المصدر ',h('span',{class:'pill src'},[srcOf(r)])]),h('span',{},[TY[r.type]||r.type]),h('span',{},[when(r.created_at)])]),h('div',{class:'rowf'},[stSel,asg,h('button',{class:'btn sm',onclick:function(){api('ops-request-update',{ref:r.ref,status:stSel.value,assigned_to:asg.value}).then(function(){reload(hd,box)})}},['حفظ']),r.status==='PAID'?h('button',{class:'btn ok sm',onclick:function(){api('ops-ready',{ref:r.ref}).then(function(){reload(hd,box)})}},['بدء التنفيذ']):null,h('a',{class:'btn ghost sm',href:'https://wa.me/966'+String(r.client_phone||'').replace(/\\D/g,'').replace(/^0/,'').replace(/^966/,''),target:'_blank'},['واتساب للعميل']),r.client_email?h('a',{class:'btn ghost sm',href:'mailto:'+r.client_email+'?subject='+encodeURIComponent(r.ref+' — '+r.title)},['بريد للعميل']):null])]));
+var cnote=h('input',{class:'inp',style:'width:230px',placeholder:'ملاحظة تصل العميل مع تغيير الحالة (اختياري)'}),hmsg=h('span',{class:'err'});
+// تغيير الحالة من القائمة يُبلغ العميل فوراً بالبريد والواتساب (إلا بين «تنفيذ» و«بانتظار داخلي»).
+// ولذلك لا تمرّ من هنا الحالات التي لها مسارها: الإلغاء له سببه وسجلّه، و«مدفوع» لها تأكيد التحويل وفاتورتها.
+function saveHead(){var to=stSel.value,paidOk=!!(r.payment&&r.payment.status==='PAID');hmsg.textContent='';
+ if(to!==r.status){
+  if(to==='CANCELLED'){hmsg.textContent='للإلغاء استعمل بطاقة «إلغاء الطلب» أسفل الصفحة — فيها السبب وسجلّ الإلغاء.';stSel.value=r.status;return}
+  if(to==='PAID'&&!paidOk){hmsg.textContent='لا تُحوَّل الحالة إلى «مدفوع» يدوياً: يُسجَّل الدفع بـ«تأكيد استلام تحويل بنكي» في بطاقة الدفع فتصدر معه الفاتورة.';stSel.value=r.status;return}
+  if((to==='COMPLETED'||to==='IN_PROGRESS')&&r.quote&&!paidOk&&!confirm('هذا الطلب له عرض سعر ولا دفع مسجّل عليه. تأكيد «'+ST[to]+'» يُبلغ العميل بذلك. متابعة؟'))return;
+  if(['REVIEWING','WAITING_CLIENT','IN_PROGRESS','WAITING_INTERNAL','COMPLETED'].indexOf(to)>=0&&!confirm('سيصل العميل إشعار «'+ST[to]+'» بالبريد والواتساب. متابعة؟'))return}
+ var b=this;if(b&&b.disabled!==undefined)b.disabled=true;
+ api('ops-request-update',{ref:r.ref,status:to,assigned_to:asg.value,client_note:cnote.value.trim()||undefined}).then(function(o){if(b&&b.disabled!==undefined)b.disabled=false;if(o&&o.ok)reload(hd,box);else hmsg.textContent='تعذّر الحفظ: '+((o&&(o.message||o.error))||'خطأ')})}
+box.appendChild(h('div',{class:'card'},[h('div',{class:'stat'},[h('span',{},['الرقم ',h('b',{},[r.ref])]),h('span',{},['العميل ',h('b',{},[r.client_name||'—'])]),h('span',{},[r.client_email||'']),h('span',{},[r.client_phone||'']),h('span',{},['الشركة ',h('b',{},[r.company_name||'—'])]),h('span',{},['المصدر ',h('span',{class:'pill src'},[srcOf(r)])]),h('span',{},[TY[r.type]||r.type]),h('span',{},[when(r.created_at)])]),h('div',{class:'rowf'},[stSel,asg,cnote,h('button',{class:'btn sm',onclick:saveHead},['حفظ']),hmsg,r.status==='PAID'?h('button',{class:'btn ok sm',onclick:function(){api('ops-ready',{ref:r.ref}).then(function(){reload(hd,box)})}},['بدء التنفيذ']):null,waFmt(r.client_phone)?h('a',{class:'btn ghost sm',href:'https://wa.me/'+waFmt(r.client_phone).slice(1),target:'_blank',rel:'noopener'},['واتساب للعميل']):null,r.client_email?h('a',{class:'btn ghost sm',href:'mailto:'+r.client_email+'?subject='+encodeURIComponent(r.ref+' — '+r.title)},['بريد للعميل']):null])]));
 var left=h('div'),right=h('div');box.appendChild(h('div',{class:'grid2'},[left,right]));
 // conversation + AI summary
 var msgs=h('div',{class:'msgs'},(r.conversation||[]).map(function(mm){return h('div',{class:'m '+mm.role},[String(mm.content||'').replace(/<<SCOPE>>[\\s\\S]*?<<END>>/g,'').trim(),h('small',{},[(mm.role==='user'?'العميل':mm.role==='bp'?'الفريق':mm.role==='assistant'?'المساعد':'النظام')+' · '+when(mm.at)])])}));
@@ -395,7 +425,7 @@ var addT=h('input',{class:'inp',placeholder:'إضافة خدمة / بند'}),val
 var totBox=h('p',{class:'note',style:'margin:8px 0 0;font-weight:700;color:var(--navy)'});
 function drawTotal(){var net=items.reduce(function(a,i){return a+(Number(i.qty)||1)*(Number(i.price)||0)},0);var vat=Math.round(net*15)/100;totBox.textContent='قبل الضريبة '+money(net)+' · ضريبة '+money(vat)+' · الإجمالي '+money(net+vat)+(items.some(function(i){return !(Number(i.price)>0)})?'  ⚠ بنود بلا سعر':'')}
 var _di=drawItems;drawItems=function(){_di();drawTotal()};
-var qc=h('div',{class:'card'},[h('h3',{},['نطاق الخدمات والتسعير'+(r.quote?' — '+r.quote.number+' ('+r.quote.status+')':'')]),r.summary?h('p',{class:'note'},[r.summary]):null,tb,totBox]);
+var qc=h('div',{class:'card'},[h('h3',{},['نطاق الخدمات والتسعير'+(r.quote?' — '+r.quote.number+' ('+(QS[r.quote.status]||r.quote.status)+')':'')]),r.summary?h('p',{class:'note'},[r.summary]):null,tb,totBox]);
 drawTotal();
 // The customer confirmed this scope and is waiting on a price: say so here,
 // where the quote is actually issued, not only in the timeline.
@@ -443,19 +473,80 @@ left.appendChild(qc);
  }
  box.appendChild(msg);left.appendChild(box);
 })();
-if(r.attachments&&r.attachments.length)left.appendChild(h('div',{class:'card'},[h('h3',{},['المستندات']),h('ul',{},r.attachments.map(function(a){return h('li',{},[a.url?h('a',{href:a.url,target:'_blank'},[a.name]):a.name,' · '+(a.note||'')+' · '+when(a.at)])}))]));
+var loose=(r.attachments||[]).filter(function(a){return a.kind!=='deliverable'&&!(a.kind==='document'&&a.doc)});
+if(loose.length)left.appendChild(h('div',{class:'card'},[h('h3',{},['مرفقات أخرى']),h('ul',{},loose.map(function(a){return h('li',{},[a.url?h('a',{href:a.url,target:'_blank'},[a.name]):a.name,' · '+(a.note||'')+' · '+when(a.at)])}))]));
 // contract
-var cc=h('div',{class:'card'});cc.appendChild(h('h3',{},['العقد'+(r.contract?' — '+r.contract.number+' ('+r.contract.status+')':'')]));
+var cc=h('div',{class:'card'});cc.appendChild(h('h3',{},['العقد'+(r.contract?' — '+r.contract.number+' ('+(r.contract.status==='SIGNED'?'موقّع':r.contract.status==='SENT'?'بانتظار التوقيع':r.contract.status)+')':'')]));
 if(r.status==='QUOTE_APPROVED'){var lt=h('input',{class:'inp',placeholder:'مدة التنفيذ المتوقعة (مثال: 10 أيام عمل)'});cc.appendChild(h('div',{class:'frm'},[lt,h('button',{class:'btn',onclick:function(){api('ops-contract',{ref:r.ref,lead_time:lt.value}).then(function(o){if(o&&o.ok)reload(hd,box)})}},['توليد العقد وإرساله للتوقيع'])]))}
 if(r.contract&&r.contract.has_html!==false){var fr=h('iframe',{class:'contract-frame',title:'العقد'});cc.appendChild(fr);var warn=h('div',{});cc.appendChild(warn);api('ops-contract-html',{ref:r.ref}).then(function(o){fr.srcdoc=o&&o.ok?o.html:'';if(o&&o.needsResign){warn.appendChild(h('p',{class:'warn-t'},['\u26A0\uFE0F صُحِّح هذا العقد بعد توقيعه (كانت قيم البنود صفراً). التوقيع القديم ليس على هذه النسخة — أعد إصداره ليوقّع العميل النسخة الصحيحة.']));warn.appendChild(h('button',{class:'btn sm',onclick:function(){var b=this;b.disabled=true;api('ops-contract-reissue',{ref:r.ref}).then(function(x){b.disabled=false;if(x&&x.ok)location.reload()})}},['إعادة إصدار العقد للتوقيع']))}});if(r.contract.signature)cc.appendChild(h('p',{class:'ok-t'},['✓ وقّعه '+r.contract.signature.name+' · '+when(r.contract.signed_at)+' · '+(r.contract.signature.mode||'')+' · IP '+(r.contract.signature.ip||'')]))}
+if(!r.contract&&r.status!=='QUOTE_APPROVED')cc.appendChild(h('p',{class:'note'},[r.quote?'يصدر العقد بعد اعتماد العميل لعرض السعر.':'لا عقد بعد.']));
 right.appendChild(cc);
 // payment & invoice
 var pcard=h('div',{class:'card'});pcard.appendChild(h('h3',{},['الدفع والفاتورة']));
-if(r.payment)pcard.appendChild(h('p',{},[h('span',{class:'pill '+(r.payment.status==='PAID'?'ok':'warn')},[r.payment.status]),' '+money(r.payment.amount)+' · '+(r.payment.provider||'')+' · '+(r.payment.ref||'')+' · '+when(r.payment.at)+(r.payment.test?' · TEST':'')]));
-if(r.invoice)pcard.appendChild(h('p',{class:'ok-t'},['الفاتورة '+r.invoice.number+' · '+money(r.invoice.total)+' · '+(r.invoice.mode||'')]));
+if(r.payment)pcard.appendChild(h('p',{},[h('span',{class:'pill '+(r.payment.status==='PAID'?'ok':'warn')},[PS[r.payment.status]||r.payment.status]),' '+money(r.payment.amount)+' · '+(PV[r.payment.provider]||r.payment.provider||'')+' · '+(r.payment.ref||'')+' · '+when(r.payment.at)+(r.payment.test?' · اختبار':'')]));
+if(r.invoice)pcard.appendChild(h('p',{class:'ok-t'},['الفاتورة '+r.invoice.number+' · '+money(r.invoice.total)+(r.invoice.mode==='test'?' · اختبار':r.invoice.mode?' · '+r.invoice.mode:'')]));
 if(['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0){var pref=h('input',{class:'inp',placeholder:'مرجع التحويل البنكي'});pcard.appendChild(h('div',{class:'rowf'},[pref,h('button',{class:'btn ok sm',onclick:function(){api('ops-mark-paid',{ref:r.ref,provider:'bank_transfer',reference:pref.value}).then(function(o){if(o&&o.ok)reload(hd,box)})}},['تأكيد استلام تحويل بنكي'])]))}
 if(!r.payment&&!r.quote)pcard.appendChild(h('p',{class:'note'},['يظهر بعد إصدار العرض.']));
 right.appendChild(pcard);
+// ---------- المستندات المطلوبة من العميل: ما طُلب، وما وصل، وما أُعفي منه.
+// كان المالك يرى المرفقات وحدها ولا يرى القائمة المطلوبة، فلا يعرف ما ينقص قبل أن يبدأ العمل.
+(function(){
+ var docs=(r.documents||[]).map(function(d){return {title:d.title,note:d.note||'',status:d.status||'requested',at:d.at,received_at:d.received_at}});
+ var card=h('div',{class:'card'}),dmsg=h('span',{class:'err'});card.appendChild(h('h3',{},['المستندات المطلوبة من العميل']));
+ function save(){api('ops-request-update',{ref:r.ref,documents:docs}).then(function(o){if(o&&o.ok)reload(hd,box);else dmsg.textContent='تعذّر الحفظ'})}
+ var mine=function(t){return (r.attachments||[]).filter(function(a){return a.kind==='document'&&a.doc===t})};
+ if(!docs.length)card.appendChild(h('p',{class:'note'},['لم يُحدَّد مستند مطلوب لهذا الطلب.']));
+ else card.appendChild(h('div',{class:'list'},docs.map(function(d,i){var fs=mine(d.title);
+  return h('div',{class:'row',style:'cursor:default;flex-wrap:wrap'},[h('div',{class:'tt'},[h('b',{},[d.title]),h('small',{},[fs.length?fs.map(function(f){return f.name}).join('، '):(d.status==='received'?'استُلم يدوياً':d.status==='waived'?'أُعفي العميل منه':'لم يصل بعد')])]),
+   h('span',{class:'pill '+(d.status==='received'?'ok':d.status==='waived'?'mut':'warn')},[DS[d.status]||d.status]),
+   fs.length&&fs[0].url?h('a',{class:'btn ghost sm',href:fs[0].url,target:'_blank',rel:'noopener'},['فتح']):null,
+   d.status!=='received'?h('button',{class:'btn ghost sm',onclick:function(){d.status='received';save()}},['استُلم']):null,
+   d.status!=='waived'?h('button',{class:'btn ghost sm',onclick:function(){d.status='waived';save()}},['إعفاء']):null,
+   d.status!=='requested'?h('button',{class:'btn ghost sm',onclick:function(){d.status='requested';d.received_at=undefined;save()}},['مطلوب']):null])})));
+ var nd=h('input',{class:'inp',placeholder:'اطلب مستنداً إضافياً من العميل'});
+ card.appendChild(h('div',{class:'rowf',style:'margin-top:8px'},[nd,h('button',{class:'btn ghost sm',onclick:function(){var t=nd.value.trim();if(!t)return;docs.push({title:t,note:'',status:'requested'});save()}},['أضف']),dmsg]));
+ right.appendChild(card)})();
+// ---------- تسليم العمل المنجز للعميل: ملف + عنوان، ويصله إشعار، ويراه في «مخرجات الطلب» داخل طلبه.
+// الخادم (ops-deliverable-add) يرفض ما قبل الدفع بلا تأكيد صريح، ويقبل «سلّم وأغلق» في خطوة واحدة.
+// الحدّ هنا ٣ ميغابايت لا ٨: الملف يُرسل نصاً مشفّراً (base64) فيكبر ثلثاً، وبوابة الاستضافة ترفض أي طلب فوق ٤٫٥ ميغابايت قبل أن يصل الخادم.
+(function(){
+ var MAXB=3*1024*1024,OKX={pdf:1,jpg:1,jpeg:1,png:1,webp:1,docx:1,xlsx:1,xls:1};
+ var card=h('div',{class:'card'}),msg=h('div',{class:'note',style:'margin-top:8px'});card.appendChild(h('h3',{},['تسليم العمل للعميل']));
+ var files=(r.attachments||[]).filter(function(a){return a.kind==='deliverable'});
+ function kbs(n){n=Number(n||0);return n>=1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB'}
+ if(files.length)card.appendChild(h('div',{class:'list',style:'margin-bottom:10px'},files.map(function(a){
+  return h('div',{class:'row',style:'cursor:default;flex-wrap:wrap'},[h('div',{class:'tt'},[h('b',{},[a.title||a.name]),h('small',{},[a.name+' · '+kbs(a.size)+' · '+when(a.at)+(a.by_name?' · '+a.by_name:'')])]),
+   a.url?h('a',{class:'btn ghost sm',href:a.url,target:'_blank',rel:'noopener'},['تنزيل']):null,
+   a.id?h('button',{class:'btn danger sm',onclick:function(){if(!confirm('سحب «'+(a.title||a.name)+'» من مخرجات العميل؟ يُحذف الملف.'))return;var b=this;b.disabled=true;api('ops-deliverable-delete',{ref:r.ref,id:a.id}).then(function(o){b.disabled=false;if(o&&o.ok)reload(hd,box);else{msg.className='err';msg.textContent='تعذّر السحب'}})}},['سحب']):null])})));
+ else card.appendChild(h('p',{class:'note'},['لم يُسلَّم للعميل شيء بعد. ما تسلّمه هنا يظهر له في «مخرجات الطلب» داخل طلبه، ويصله إشعار.']));
+ if(r.status==='CANCELLED'){card.appendChild(h('p',{class:'note'},['الطلب ملغى — لا تسليم عليه.']));right.appendChild(card);return}
+ var ti=h('input',{class:'inp',placeholder:'عنوان المخرج (يراه العميل) — مثال: رخصة العمل الجديدة'}),no=h('input',{class:'inp',placeholder:'ملاحظة للعميل (اختياري)'}),fi=h('input',{class:'inp',type:'file',accept:'.pdf,.jpg,.jpeg,.png,.webp,.docx,.xlsx,.xls,application/pdf,image/*'});
+ var closable=['PAID','IN_PROGRESS','WAITING_INTERNAL'].indexOf(r.status)>=0;
+ var cc2=h('input',{type:'checkbox'}),nn=h('input',{type:'checkbox',checked:''});nn.checked=true;
+ var btn=h('button',{class:'btn ok sm'},['تسليم للعميل']);
+ function ext(n){var m=/\\.([A-Za-z0-9]+)$/.exec(String(n||''));return m?m[1].toLowerCase():''}
+ function say(t,bad){msg.className=bad?'err':'ok-t';msg.textContent=t}
+ function b64(f){return new Promise(function(res,rej){var fr=new FileReader();fr.onload=function(){var t=String(fr.result||''),i=t.indexOf(',');i<0?rej(new Error('read')):res(t.slice(i+1))};fr.onerror=function(){rej(new Error('read'))};fr.readAsDataURL(f)})}
+ var ERR={bad_type:'صيغة الملف غير مقبولة — PDF أو صورة أو Word أو Excel فقط، ويجب أن يكون الملف سليماً.',too_large:'الملف أكبر من الحدّ.',empty:'الملف فارغ.',request_closed:'الطلب ملغى — لا تسليم عليه.',too_many_files:'بلغ الطلب أقصى عدد ملفات.',storage_failed:'تعذّر حفظ الملف في التخزين — حاول مرة أخرى.',missing_title:'اكتب عنواناً للمخرج.',no_file:'اختر ملفاً.'};
+ function send(f,force){return b64(f).then(function(data){return api('ops-deliverable-add',{ref:r.ref,title:ti.value.trim(),note:no.value.trim(),name:f.name,mime:f.type||'',base64:data,complete:closable&&cc2.checked,notify:nn.checked,force:force||undefined})})}
+ btn.onclick=function(){
+  var f=fi.files&&fi.files[0];
+  if(!ti.value.trim()){say('اكتب عنواناً للمخرج.',1);return}
+  if(!f){say('اختر الملف المراد تسليمه.',1);return}
+  if(!OKX[ext(f.name)]){say(ERR.bad_type,1);return}
+  if(!f.size){say(ERR.empty,1);return}
+  if(f.size>MAXB){say('الملف '+kbs(f.size)+' — أكبر من ٣ ميغابايت. اضغطه أو قسّمه ثم ارفعه.',1);return}
+  if(!nn.checked&&!confirm('لن يصل العميل أي إشعار بهذا التسليم. متابعة؟'))return;
+  btn.disabled=true;say('جارٍ الرفع…');
+  send(f).then(function(o){
+   if(o&&o.error==='not_paid'){btn.disabled=false;if(confirm((o.message||'الطلب غير مدفوع.')+'\\n\\nتسليمه رغم ذلك؟')){btn.disabled=true;say('جارٍ الرفع…');return send(f,true).then(done)}say('لم يُسلَّم شيء.');return}
+   done(o)})
+   .catch(function(){btn.disabled=false;say('تعذّر الإرسال — غالباً الملف أكبر مما تقبله الخدمة، أو انقطع الاتصال.',1)})
+  function done(o){btn.disabled=false;if(o&&o.ok){state.flash='سُلِّم «'+ti.value.trim()+'» للعميل'+(o.status==='COMPLETED'?' وأُغلق الطلب':'')+(nn.checked?' — وأُبلغ بذلك':'')+' ✓';reload(hd,box)}else say(ERR[o&&o.error]||(o&&o.message)||'تعذّر التسليم'+(o&&o.error?' ('+o.error+')':''),1)}};
+ card.appendChild(h('div',{class:'frm'},[ti,no,h('label',{},['الملف — PDF أو صورة أو Word أو Excel، حتى ٣ ميغابايت']),fi,
+  closable?h('label',{class:'rowf'},[cc2,'سلّم وأغلق الطلب (يصير «مكتمل» ويصل العميل إشعار واحد)']):h('p',{class:'note'},[r.status==='COMPLETED'?'الطلب مكتمل — يمكنك إضافة ملف تكميلي.':'لإغلاق الطلب مع التسليم: يجب أن يكون الطلب «مدفوع» أو «قيد التنفيذ».']),
+  h('label',{class:'rowf'},[nn,'أبلغ العميل ببريد وواتساب']),h('div',{class:'rowf'},[btn])]));
+ card.appendChild(msg);right.appendChild(card)})();
 // tasks
 var tt=h('input',{class:'inp',placeholder:'مهمة جديدة: مثال — الدخول إلى قوى وفحص الحساب'}),ta=h('input',{class:'inp',style:'width:130px',placeholder:'مسند إلى'}),tp=h('select',{class:'inp',style:'width:auto'},['normal','high','urgent','low'].map(function(p){return h('option',{value:p},[{normal:'عادية',high:'مرتفعة',urgent:'عاجلة',low:'منخفضة'}[p]])})),th=h('input',{type:'checkbox'}),tc=h('input',{type:'checkbox'});
 right.appendChild(h('div',{class:'card'},[h('h3',{},['المهام']),(r.tasks||[]).length?h('div',{class:'list'},r.tasks.map(function(t){t.request={ref:r.ref};return taskRow(t)})):h('p',{class:'note'},['لا مهام.']),h('div',{class:'frm',style:'margin-top:10px'},[tt,h('div',{class:'rowf'},[ta,tp,h('label',{class:'rowf'},[th,'تدخل بشري']),h('label',{class:'rowf'},[tc,'مطلوبة من العميل'])]),h('button',{class:'btn sm',onclick:function(){if(!tt.value.trim())return;api('ops-task-create',{ref:r.ref,title:tt.value,assigned_to:ta.value,priority:tp.value,human_action:th.checked,assignee:tc.checked?'client':'bp'}).then(function(o){if(o&&o.ok)reload(hd,box)})}},['إنشاء مهمة'])])]));
@@ -465,7 +556,7 @@ right.appendChild(h('div',{class:'card'},[h('h3',{},['الموعد']),r.appointm
 // notes + timeline
 var nt=h('textarea',{class:'inp',placeholder:'ملاحظات داخلية (لا يراها العميل)'},[r.internal_notes||'']),nmsg=h('span',{class:'ok-t'});
 right.appendChild(h('div',{class:'card'},[h('h3',{},['ملاحظات داخلية']),nt,h('div',{class:'rowf'},[h('button',{class:'btn sm',onclick:function(){api('ops-request-update',{ref:r.ref,internal_notes:nt.value}).then(function(o){nmsg.textContent=o&&o.ok?'حُفظ':'خطأ'})}},['حفظ']),nmsg])]));
-right.appendChild(h('div',{class:'card'},[h('h3',{},['الخط الزمني']),h('ul',{class:'tl'},(r.events||[]).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(e.actor?e.actor+': ':'')+(EV[e.event]||e.event)+(e.details&&e.details.number?' '+e.details.number:'')+(e.details&&e.details.title?' — '+e.details.title:'')])])}))]))}
+right.appendChild(h('div',{class:'card'},[h('h3',{},['الخط الزمني']),h('ul',{class:'tl'},(r.events||[]).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(e.actor&&String(e.event||'').indexOf('notify.')!==0?e.actor+': ':'')+evLabel(e)])])}))]))}
 function reload(hd,box){Promise.all([api('ops-request',{ref:state.ref}),api('ops-summary'),api('ops-requests'),api('ops-tasks')]).then(function(r){if(r[0]&&r[0].ok)state.req=r[0].request;if(r[1]&&r[1].ok)state.sum=r[1];state.reqs=(r[2]&&r[2].requests)||state.reqs;state.tasks=(r[3]&&r[3].tasks)||state.tasks;render()})}
 if(state.key)load();else gate();
 })();</script>`;
