@@ -256,7 +256,9 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
 .sv1-wa-fab{position:fixed;inset-inline-start:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
+.sv1-navlogin{display:none}
 @media(max-width:900px){
+ .sv1-nav .sv1-navlogin{display:block;font-weight:700;color:var(--n)}
  .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
  .sv1-nav.open{display:flex}
  .sv1-burger{display:flex}
@@ -314,6 +316,17 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-co-mock{display:inline-block;background:#b45309;color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;margin-bottom:10px}
 @media(max-width:900px){.sv1-co-grid{grid-template-columns:1fr}.sv1-co-sum{position:static}}
 @media(max-width:600px){.sv1-co-fields{grid-template-columns:1fr}}
+</style><style id="sv1-co-login-css">
+.bpg{margin:0 0 6px}
+.bpg-host{display:flex;justify-content:center;min-height:44px}
+.bpg-ph{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:44px;padding:0 14px;border:1px solid var(--line,#E5E9F0);border-radius:12px;background:#fff;color:#1f2937;font:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:border-color .15s,background .15s}
+.bpg-ph:hover{border-color:var(--acLine,#C3CDE6);background:var(--soft,#F5F7FB)}
+.bpg-ph svg{width:18px;height:18px;flex:none}
+.bpg-ph[disabled]{opacity:.6;cursor:progress}
+.bpg-note{margin:8px 0 0;font-size:12.5px;line-height:1.7;color:var(--mut,#5A6478);text-align:center}
+.bpg-note.err{color:#b91c1c}
+.bpg-or{display:flex;align-items:center;gap:10px;margin:14px 0 10px;color:var(--faint,#8D97AE);font-size:12.5px}
+.bpg-or:before,.bpg-or:after{content:"";flex:1;height:1px;background:var(--line,#E5E9F0)}
 </style><div class="sv1-bar"><div class="wrap">
   <div class="sv1-bar-l">
     <span><span class="sv1-pulse"></span><b>All systems operational</b></span>
@@ -329,6 +342,7 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
     <a href="/catalog">Services</a>
     <a href="/consultation">Book a call</a>
     <a href="/#how">How it works</a>
+    <a href="/my" class="sv1-navlogin" id="sv1NavLogin">Sign in</a>
     <a href="/my" id="sv1AccountLink">My account</a>
     <details class="sv1-lang"><summary>🌐 English</summary><div class="menu"><a href="/ar/checkout" data-lang="ar">العربية</a><a href="/checkout" data-lang="en" class="on">English</a><a href="/fr/checkout" data-lang="fr">Français</a><a href="/zh/checkout" data-lang="zh">中文</a></div></details>
   </nav>
@@ -361,6 +375,7 @@ var S=window.SV1S={
      الرابط عند الخروج بلا حاجة إلى تمرير ترجمةٍ إلى السكربت. */
   if(a){if(S.def==null)S.def=a.textContent;a.textContent=(on&&first(h))||S.def}
   if(lb)lb.classList.toggle('sv1-hide',!!on);
+  var nl=g('sv1NavLogin');if(nl)nl.classList.toggle('sv1-hide',!!on);
   if(ob)ob.classList.toggle('sv1-hide',!on);
   var p=location.pathname;
   if(sb)sb.classList.toggle('sv1-hide',!(on&&(p.indexOf('/my')>=0||p.indexOf('/ops')>=0)));
@@ -529,6 +544,73 @@ document.addEventListener("click",function(e){
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>
+(function(){"use strict";
+if(window.SV1Login)return;
+var LX={"btn":"Continue with Google","loading":"Getting Google sign-in ready…","fail":"Google sign-in could not be shown — your network or a browser extension may be blocking it, or it is not enabled on this address. Use the e-mail link below.","err":"Google sign-in did not go through. Try the e-mail link below.","inapp":"If the button does nothing, open this page in Safari or Chrome — in-app browsers (WhatsApp, Instagram…) block Google.","or":"Or with your e-mail"},LL="en",G="<svg viewBox=\"0 0 48 48\" aria-hidden=\"true\"><path fill=\"#EA4335\" d=\"M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z\"/><path fill=\"#4285F4\" d=\"M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.2 5.6c4.3-3.9 6.8-9.7 6.8-17z\"/><path fill=\"#FBBC05\" d=\"M10.5 28.7c-.5-1.4-.8-2.9-.8-4.7s.3-3.3.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z\"/><path fill=\"#34A853\" d=\"M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.2-5.6c-2 1.4-4.6 2.2-8.7 2.2-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z\"/></svg>";
+function otp(d){return fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(d)}).then(function(r){return r.json()})}
+// ما تعرضه هذه النشرة من أبواب الدخول — طلبٌ واحد تتشاركه كل الأزرار في الصفحة.
+var M=null;function methods(){if(!M)M=otp({action:'methods'}).catch(function(){return null});return M}
+// متصفحات داخل التطبيقات تمنع Google (سياسة Google نفسها: disallowed_useragent).
+var APPS=['FBAN','FBAV','FB_IAB','Instagram','Snapchat','MicroMessenger','TikTok','Twitter','WhatsApp','Line/','; wv)'];
+var UA=String((typeof navigator!=='undefined'&&navigator.userAgent)||'');
+var INAPP=APPS.some(function(s){return UA.indexOf(s)>=0});
+var gsi=null;
+function loadGsi(){
+ if(gsi)return gsi;
+ gsi=new Promise(function(ok,no){
+  if(window.google&&window.google.accounts&&window.google.accounts.id)return ok();
+  var sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.defer=true;
+  sc.onload=function(){ok()};sc.onerror=function(){no(new Error('gsi'))};
+  document.head.appendChild(sc);
+  setTimeout(function(){no(new Error('gsi-timeout'))},9000)});
+ return gsi}
+function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+// opt: {onSuccess(o), onError(msg)} — o هو ردّ otp {action:'google'} الناجح.
+// يُرسَم زرٌّ بديل فوراً (لا فراغ ولا اختفاء)، ويحلّ محلّه زرّ Google الرسمي حين يجهز.
+// فشل التحميل يُكتب للزائر بدل أن يختفي الزرّ.
+function mountGoogle(slot,opt){
+ opt=opt||{};slot.innerHTML='';slot.className=(slot.className+' bpg').trim();
+ var host=el('div','bpg-host'),ph=el('button','bpg-ph');ph.type='button';ph.innerHTML=G;
+ var lab=el('span',null,LX.btn);ph.appendChild(lab);host.appendChild(ph);slot.appendChild(host);
+ var note=el('p','bpg-note');note.hidden=true;slot.appendChild(note);
+ function say(t,err){note.hidden=!t;note.textContent=t||'';note.className='bpg-note'+(err?' err':'')}
+ if(INAPP)say(LX.inapp,false);
+ var state='wait';
+ ph.onclick=function(){if(state==='fail')say(LX.fail,true);else say(LX.loading,false)};
+ methods().then(function(m){
+  if(!m||!m.ok||!m.google||!m.googleClientId){slot.hidden=true;if(opt.onHide)opt.onHide();return}
+  return loadGsi().then(function(){
+   var cb=function(resp){
+    otp({action:'google',credential:resp&&resp.credential}).then(function(o){
+     if(o&&o.ok&&o.db!==false){if(opt.onSuccess)opt.onSuccess(o);return}
+     if(opt.onError)opt.onError(LX.err)}).catch(function(){if(opt.onError)opt.onError(LX.err)})};
+   window.google.accounts.id.initialize({client_id:m.googleClientId,callback:cb,auto_select:false,itp_support:true});
+   var w=Math.round(slot.getBoundingClientRect().width)||320;w=Math.max(200,Math.min(400,w));
+   var real=el('div');real.style.cssText='position:absolute;visibility:hidden;pointer-events:none';host.appendChild(real);
+   window.google.accounts.id.renderButton(real,{theme:'outline',size:'large',text:'continue_with',shape:'rectangular',logo_alignment:'left',width:w,locale:LL});
+   // الزرّ الرسمي يُرسم داخل iframe بعد لحظات. لا يُستبدل البديل بمجرد ظهوره: حين ترفض Google
+   // النطاق («The given origin is not allowed for the given client ID») أو المعرّف، يظهر
+   // الـiframe لحظةً ثم ينهار إلى 0×0 ويختفي الزرّ بلا أثر — وهذا بالضبط ما يراه من يفتح
+   // الصفحة على عنوانٍ لم يُضَف في Google Cloud (معاينة Vercel مثلاً). فلا نكشفه إلا إذا بقي
+   // ظاهراً ثانيةً ونصفاً، وإن انهار بعد الكشف رجع البديل ومعه السبب مكتوباً.
+   var tries=0,stable=0;
+   // الزرّ المرئي (div) يبقى في الصفحة حتى حين ترفض Google النطاق، أما الـiframe الشفّاف فوقه
+   // — وهو الذي يستقبل النقر — فينهار إلى 0×0. فالحكم على الـiframe حين يوجد.
+   function seen(){var f=real.querySelector('iframe');if(f)return f.offsetHeight>0&&f.offsetWidth>0;var d=real.querySelector('div[role=button]');return !!(d&&d.offsetHeight>0)}
+   function reveal(){real.style.cssText='';ph.hidden=true;state='ready';say('');if(INAPP)say(LX.inapp,false);
+    var n=0;(function watch(){if(!seen()){hard();return}if(++n<12)setTimeout(watch,1000)})()}
+   function soft(){state='fail';say(LX.fail,true)}
+   function hard(){state='fail';ph.hidden=false;real.remove();say(LX.fail,true)}
+   (function wait(){
+    if(seen())stable++;else stable=0;
+    if(stable>=8){reveal();return}
+    tries++;
+    if(tries===25)soft();      // بعد نحو ثلاث ثوانٍ ونصف: السبب مكتوب، والبديل ظاهر، والانتظار مستمر
+    if(tries>70){hard();return}  // ثم يُترك
+    setTimeout(wait,150)})()
+  })}).catch(function(){state='fail';say(LX.fail,true)})}
+window.SV1Login={otp:otp,methods:methods,mountGoogle:mountGoogle,inApp:INAPP,or:LX.or,t:LX};
+})();
 (function(){
 var LANG="en",HOME="/";
 var TX={"empty":"Your cart is empty.","browse":"Browse services","needFill":"Fill in name, mobile and e-mail first.","payDown":"The payment form could not load. Try Tamara, retry in a moment, or message us on WhatsApp.","loading":"Preparing the payment form…","quoted":"Quoted on review","signIn":"Sign in to see the price and pay.","signInBtn":"Sign in","noAmount":"Some cart items are quoted on review and cannot be paid here. Remove them from the cart to pay for the rest, or request a quotation from the service page.","card":"Card","payBtn":"Complete payment","payWait":"Confirming your payment…","paidOk":"Payment received — your order is recorded and your tax invoice reaches your e-mail within minutes.","paidInv":"Invoice no.:","paidFail":"The payment did not go through and nothing was charged — retry by card or try Tamara.","paidHold":"Your payment went through but could not be confirmed automatically; our team has been alerted. Do not pay again — your invoice follows shortly.","bnplFail":"The instalment payment was not completed — retry, or pay by card.","toMy":"Open my orders","mockTag":"Local gateway — no card, no charge","needCo":"Enter the company name — the subscription is opened in its name.","empFail":"We could not prepare your subscription and nothing was charged — retry shortly or contact us.","empDone":"Payment received and your recruitment-platform subscription is active. Sign in to the employer portal with the e-mail you paid with.","empHold":"Your payment went through and the subscription is being activated — our team has been alerted. Do not pay again.","toEmployer":"Open the employer portal","tamaraYr":"Tamara is available for the yearly plan only.","empSignIn":"Sign in with the e-mail the subscription will be opened for, then pay.","empMail":"The e-mail must match the account you are signed in with — the subscription opens for that account.","onePlan":"One subscription per order — keep a single plan in the cart.","toCart":"Back to the cart","onceHd":"One-time","recHd":"Subscriptions","billM":"Monthly","billY":"Yearly","recNote":"A subscription's amount is one period's instalment (a month or a year) — that is what is paid now.","tamaraSub":"Tamara is not available for monthly subscriptions — pay by card.","lblOrder":"Order no.","lblPay":"Payment ref.","lblAmt":"Amount paid (incl. VAT)","lblInv":"Invoice no.","okDone":"Payment received and your order is confirmed.","nextInv":"Next: an order confirmation and your tax invoice reach your e-mail, then the team starts work.","nextNoInv":"Next: an order confirmation reaches your e-mail. The team is preparing your tax invoice and sends it to the same address.","reviewT":"We received your payment and will confirm activation during working hours.","reviewN":"We could not match the amount to the published prices automatically, so the team reviews it before activation. A confirmation reaches your e-mail — do not pay again.","signInGo":"Sign in","lblReq":"Your request no.","openReq":"Open your request","nextReqDocs":"Next: open your request and upload the required documents so the team can start; you follow every stage from there.","nextReq":"Next: follow your request from your dashboard; we tell you when work starts.","invSent":"Your tax invoice reaches your e-mail.","invSoon":"The team prepares your tax invoice and sends it to the same e-mail."};
@@ -781,11 +863,20 @@ function payBlocked(msg,href,label){
  var p=document.createElement('p');p.className='sv1-co-fine';p.textContent=msg;mount.appendChild(p);
  if(href){var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=href;a.textContent=label;a.style.marginTop='10px';mount.appendChild(a)}
  var tg=$('coTamaraGo');if(tg)tg.disabled=true}
+// الضيف عند الدفع يرى «المتابعة بجوجل» هنا في الصفحة نفسها: يدخل وتبقى سلته أمامه
+// (إعادة تحميل بعد الدخول لا انتقال). والزرّ الآخر يذهب إلى /my بالبريد وبـnext.
+function guestGoogle(){var L=window.SV1Login;if(!L)return;var a=mount.querySelector('a');if(!a)return;
+ var s=document.createElement('div');s.style.marginTop='12px';
+ var or=document.createElement('div');or.className='bpg-or';or.textContent=L.or;
+ mount.insertBefore(s,a);mount.insertBefore(or,a);
+ L.mountGoogle(s,{onSuccess:function(){try{localStorage.setItem('bp_session','1')}catch(x){}location.reload()},
+  onError:function(m){var p=document.createElement('p');p.className='sv1-co-fine';p.style.color='#b42318';p.textContent=m;mount.insertBefore(p,or)},
+  onHide:function(){or.style.display='none'}})}
 if(!cart.length){mount.innerHTML='';}
 else if(empLines.length>1){payBlocked(TX.onePlan,HOME+'cart',TX.toCart);}
 else if(unpriced){payBlocked(TX.noAmount,HOME+'cart',TX.toCart);}
 // الدخول يرجع إلى هذه الصفحة (next) لا إلى لوحة العميل، فتبقى السلة أمامه.
-else if(hidden){payBlocked(TX.signIn,HOME+'my?next='+encodeURIComponent(HOME+'checkout'),TX.signInBtn);}
+else if(hidden){payBlocked(TX.signIn,HOME+'my?next='+encodeURIComponent(HOME+'checkout'),TX.signInBtn);guestGoogle();}
 else if(!(total>0)){payBlocked(TX.noAmount,HOME+'catalog',TX.browse);}
 else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
  PAYCFG=cfg||null;
