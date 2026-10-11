@@ -207,6 +207,8 @@ const P = {
   sourceLbl: { ar: "المصدر", en: "Source", fr: "Source", zh: "来源" },
   // ---- شراء مباشر بالسلة: طلب يبدأ مدفوعاً، بلا عرض سعر ولا عقد.
   direct: { ar: "شراء مباشر", en: "Direct purchase", fr: "Achat direct", zh: "直接购买" },
+  // تذكرة الدعم من مركز التواصل (baher-support): صفٌّ في requests نفسه مرجعه BP-TKT-.
+  ticket: { ar: "تذكرة دعم", en: "Support ticket", fr: "Ticket d'assistance", zh: "支持工单" },
   bought: { ar: "ما اشتريته", en: "What you bought", fr: "Votre achat", zh: "您购买的内容" },
   directNote: { ar: "اشتريت هذه الخدمة مباشرة من السلة ودفعت قبل فتح الطلب، فلا عرض سعر ولا عقد له. تتابع هنا مراحله، وترفع مستنداتك، وتستلم مخرجاته.", en: "You bought this directly from the cart and paid before the request opened, so it has no quotation or contract. Follow its stages here, upload your documents and receive the deliverables.", fr: "Vous avez acheté ceci directement depuis le panier et payé avant l'ouverture de la demande : pas de devis ni de contrat. Suivez ici les étapes, téléversez vos documents et recevez les livrables.", zh: "您直接通过购物车购买并已付款，因此没有报价和合同。您可以在此跟进进度、上传文件并接收交付成果。" },
   cycM: { ar: "شهري", en: "monthly", fr: "mensuel", zh: "按月" },
@@ -495,7 +497,7 @@ var mob=h('div',{class:'mob'},NAV.map(function(n){return h('a',{class:state.view
 var main=h('div',{class:'my-main',id:'myMain'});
 app.appendChild(mob);var wrap=h('div',{class:'my'},[side,main]);app.appendChild(wrap);
 var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='documents')viewDocuments(main);else if(v==='company')viewCompany(main);else viewHome(main)}
-function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[r.title]),h('small',{},[r.ref+' · '+(TY[r.type]||r.type)+' · '+when(r.updated_at||r.created_at)])]),(r.origin==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),pill(r.status),h('span',{class:'btn ghost sm'},[TX.open])])}
+function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[r.title]),h('small',{},[r.ref+' · '+(r.origin==='ticket'?TX.ticket:(TY[r.type]||r.type))+' · '+when(r.updated_at||r.created_at)])]),(r.origin==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),pill(r.status),h('span',{class:'btn ghost sm'},[TX.open])])}
 function viewHome(m){var c=state.me.counts||{};m.appendChild(h('h1',{},[TX.attention]));
 var k=[['active',TX.kActive,'requests'],['quotes',TX.kQuotes,'quotes'],['contracts',TX.kContracts,'contracts'],['payments',TX.kPayments,'pay'],['appointments',TX.kAppts,'appointments']];
 m.appendChild(h('div',{class:'my-kpis'},k.map(function(x){return h('div',{class:'my-kpi'+(x[0]!=='active'&&c[x[0]]?' hot':''),onclick:function(){go(x[2])}},[h('b',{},[String(c[x[0]]||0)]),h('span',{},[x[1]])])})));
@@ -802,8 +804,8 @@ function delivCard(r){
 // ---------- request detail
 function viewRequest(m){m.appendChild(h('a',{class:'btn ghost sm',onclick:function(){go('requests')}},['← '+TX.back]));var hd=h('h1',{style:'margin-top:10px'},['…']);m.appendChild(hd);var box=h('div');m.appendChild(box);
 api('request-get',{ref:state.ref}).then(function(o){if(!o||!o.ok){box.appendChild(h('p',{class:'err'},[TX.error]));return}state.req=o.request;state.testMode=!!o.testMode;drawRequest(hd,box)})}
-function drawRequest(hd,box){var r=state.req;hd.textContent=r.title;box.innerHTML='';
-box.appendChild(h('div',{class:'stat'},[h('span',{},[TX.ref+': ',h('b',{},[r.ref])]),h('span',{},[TX.status+': ',pill(r.status)]),h('span',{},[(TY[r.type]||r.type)]),(r.payment&&r.payment.source==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),h('span',{},[when(r.created_at)])]));
+function drawRequest(hd,box){var r=state.req;var isTicket=r.origin==='ticket';hd.textContent=r.title;box.innerHTML='';
+box.appendChild(h('div',{class:'stat'},[h('span',{},[TX.ref+': ',h('b',{},[r.ref])]),h('span',{},[TX.status+': ',pill(r.status)]),h('span',{},[isTicket?TX.ticket:(TY[r.type]||r.type)]),(r.payment&&r.payment.source==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),h('span',{},[when(r.created_at)])]));
 var left=h('div'),right=h('div');box.appendChild(h('div',{class:'grid2'},[left,right]));
 // conversation
 var msgs=h('div',{class:'msgs'},(r.conversation||[]).map(function(mm){return h('div',{class:'m '+mm.role},[stripScope(mm.content),h('small',{},[(mm.role==='user'?TX.you:mm.role==='bp'?TX.team:TX.assistant)+' · '+when(mm.at)])])}));
@@ -821,7 +823,7 @@ var goBtn=h('button',{class:'btn',onclick:function(){msgS.className='ok';msgS.te
 sc.appendChild(h('div',{class:'msgform'},[ai,h('button',{class:'btn ghost',onclick:function(){if(!ai.value.trim())return;r.scope.push({code:'',title:ai.value.trim(),why:''});ai.value='';drawItems()}},[TX.addItem]),h('button',{class:'btn ghost',onclick:function(){api('scope-update',{ref:r.ref,scope:r.scope}).then(function(o){msgS.className='ok';msgS.textContent=o&&o.ok?TX.saved:TX.error})}},[TX.saveScope]),goBtn,msgS]));
 if(state.flash){sc.appendChild(h('p',{class:'ok'},[state.flash]));state.flash=null}}else sc.appendChild(h('p',{class:'note'},[isCart?TX.directNote:TX.scopeLocked]));
 sc.appendChild(dc.firstChild?dc:document.createComment(''));
-left.appendChild(sc);
+if(!isTicket)left.appendChild(sc);
 // tasks for client
 if(r.tasks&&r.tasks.length)left.appendChild(h('div',{class:'card'},[h('h3',{},[TX.tasksTitle]),h('ul',{class:'items'},r.tasks.map(function(t){return h('li',{},[h('span',{class:'ic'},[t.status==='DONE'?'✓':'•']),h('div',{},[h('b',{},[t.title]),t.details?h('small',{},[t.details]):null])])}))]));
 // quote — while it is being priced the customer sees the step, not silence
@@ -862,7 +864,7 @@ if(r.payment&&r.payment.status==='PAID')right.appendChild(h('div',{class:'card'}
 if(r.invoice)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.invoice+' '+r.invoice.number]),h('p',{},[money(r.invoice.total)+' · '+when(r.invoice.issued_at)]),h('button',{class:'btn ghost sm',onclick:function(){openInvoice(r)}},[r.invoice.pdf_url?TX.invOfficial:TX.download])]));
 var dvc=delivCard(r);if(dvc)right.appendChild(dvc);
 // appointment
-if(r.type==='CONSULTATION'){var ac=h('div',{class:'card'});ac.appendChild(h('h3',{},[TX.navAppts]));var a=r.appointment;if(a&&a.status!=='CANCELLED')ac.appendChild(h('p',{class:'ok'},['📅 '+a.date+' · '+a.time+' · '+(a.topic||'')+(a.gcal?' ':'') ,a.gcal?h('a',{href:a.gcal,target:'_blank',class:'btn ghost sm'},['Google Calendar']):null]));
+if(r.type==='CONSULTATION'&&!isTicket){var ac=h('div',{class:'card'});ac.appendChild(h('h3',{},[TX.navAppts]));var a=r.appointment;if(a&&a.status!=='CANCELLED')ac.appendChild(h('p',{class:'ok'},['📅 '+a.date+' · '+a.time+' · '+(a.topic||'')+(a.gcal?' ':'') ,a.gcal?h('a',{href:a.gcal,target:'_blank',class:'btn ghost sm'},['Google Calendar']):null]));
 var d=h('input',{class:'inp',type:'date',min:new Date().toISOString().slice(0,10)}),tm=h('input',{class:'inp',type:'time',value:'10:00',step:'1800'}),tp2=h('input',{class:'inp',placeholder:TX.topic,value:(a&&a.topic)||r.title}),ae=h('div',{class:'err'});
 ac.appendChild(h('div',{class:'form'},[h('label',{},[TX.date]),d,h('label',{},[TX.time]),tm,h('label',{},[TX.topic]),tp2,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){ae.textContent='';if(!d.value||!tm.value){ae.textContent=TX.apptBad;return}api(a&&a.status!=='CANCELLED'?'appointment-reschedule':'appointment-book',{ref:r.ref,date:d.value,time:tm.value,topic:tp2.value}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else if(o&&o.error==='no_session'){}else ae.textContent=o&&o.error==='friday'?TX.apptFri:o&&o.error==='past'?TX.apptPast:o&&o.error==='bad_datetime'?TX.apptBad:failText(o)})}},[a&&a.status!=='CANCELLED'?TX.reschedule:TX.book]),a&&a.status!=='CANCELLED'?h('button',{class:'btn danger',onclick:function(){api('appointment-cancel',{ref:r.ref}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else if(!o||o.error!=='no_session')toast(failText(o))})}},[TX.cancelAppt]):null]),ae,h('p',{class:'note'},[TX.apptNote])]));right.appendChild(ac)}
 // timeline
