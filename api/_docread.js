@@ -107,8 +107,17 @@ export function parseJson(text) {
 // فيردّ Azure بخطأ نشرٍ غير موجود على كل رسالة صوتية. للتفريغ متغيّره الخاص.
 const AZURE_ASR_DEPLOYMENT = () => String(
   process.env.AZURE_OPENAI_WHISPER_DEPLOYMENT ||
-  process.env.AZURE_OPENAI_TRANSCRIBE_DEPLOYMENT || "whisper"
+  process.env.AZURE_OPENAI_TRANSCRIBE_DEPLOYMENT ||
+  process.env.AZURE_OPENAI_ASR_DEPLOYMENT || "whisper"
 ).trim();
+
+// الأسماء التي يعطيها المالكون عادةً لنشر التفريغ في بوابة Azure. الاسم
+// المضبوط في البيئة يُجرَّب أولاً؛ وإن ردّ Azure «النشر غير موجود» (404)
+// جُرِّب التالي، وحُفظ أول ما نجح في ذاكرة الدالة فلا يتكرر البحث.
+// ما يلي الاسم المضبوط تخمين، فلا يُعتمد عليه بديلاً عن ضبط المتغيّر.
+const ASR_DEPLOYMENT_GUESSES = ["whisper", "whisper-1", "gpt-4o-transcribe", "gpt-4o-mini-transcribe"];
+export const asrDeploymentCandidates = () =>
+  [...new Set([AZURE_ASR_DEPLOYMENT(), ...ASR_DEPLOYMENT_GUESSES].filter(Boolean))];
 
 // اختيار النشر (vision/text) انتقل إلى `azureRegions()` في `_azure.js`، فلكل
 // منطقة نشرها. كان هنا نسخة ثانية بنفس القواعد، وهي بالضبط ما ينحرف بصمت.
@@ -402,30 +411,100 @@ const ASR_PROMPT_AR = [
 ].join(" ");
 const ASR_PROMPT = { ar: ASR_PROMPT_AR, en: "A conversation about business services in Saudi Arabia: commercial registration, sponsorship transfer, iqama, visas, licences, Qiwa, Muqeem, ZATCA, MISA." };
 
-// Azure OpenAI — accepts Whisper API calls via the v1/audio/transcriptions endpoint
+// تحديد الصيغة من بايتات الملف نفسها لا من الاسم الذي ادّعاه المتصفح: سفاري
+// وبعض أجهزة أندرويد يعلنان نوعاً ويُخرجان غيره، وAzure يحكم بالمحتوى.
+// يعيد { type, ext } أو null إن لم يعرف الترويسة (فيبقى النوع المعلن).
+export function sniffAudio(buf) {
+  if (!buf || buf.length < 12) return null;
+  if (buf[0] === 0x1a && buf[1] === 0x45 && buf[2] === 0xdf && buf[3] === 0xa3) return { type: "audio/webm", ext: "webm" };
+  if (buf.toString("latin1", 0, 4) === "OggS") return { type: "audio/ogg", ext: "ogg" };
+  if (buf.toString("latin1", 0, 4) === "RIFF" && buf.toString("latin1", 8, 12) === "WAVE") return { type: "audio/wav", ext: "wav" };
+  if (buf.toString("latin1", 4, 8) === "ftyp") return { type: "audio/mp4", ext: "mp4" };
+  if (buf.toString("latin1", 0, 3) === "ID3" || (buf[0] === 0xff && (buf[1] & 0xe0) === 0xe0 && (buf[1] & 0x06) !== 0)) return { type: "audio/mpeg", ext: "mp3" };
+  return null;
+}
+
+// كل فشل يحمل سبباً مقروءاً للعميل لا نصاً خاماً:
+//   deployment — اسم النشر غير موجود عند المالك      (404)
+//   auth       — المفتاح مرفوض أو لا صلاحية له       (401/403)
+//   format     — الصيغة/المعاملات مرفوضة              (400/415)
+//   busy       — حدّ الطلبات أو الحصة                 (429)
+//   timeout    — انقطع الاتصال أو طال الانتظار
+//   unavailable— عطل مؤقت عند Azure                  (5xx)
+const reasonFor = (status) =>
+  status === 404 ? "deployment" : status === 401 || status === 403 ? "auth" :
+  status === 400 || status === 413 || status === 415 || status === 422 ? "format" :
+  status === 429 ? "busy" : "unavailable";
+const failWith = (reason, msg) => Object.assign(new Error(msg), { reason });
+
+let asrWorking = "";   // النشر الذي نجح آخر مرة في هذه النسخة من الدالة
+
+// Azure OpenAI v1: POST {endpoint}/openai/v1/audio/transcriptions، واسم النشر
+// في الحقل model. whisper يعيد verbose_json (مع اللغة)؛ نماذج gpt-4o-*-transcribe
+// لا تقبل إلا json أو text — وإرسال verbose_json إليها يردّ 400 على كل رسالة.
 async function speechAzure(base64, mime, hint) {
-  const endpoint = AZURE_ENDPOINT();
-  if (!endpoint) throw new Error("no_key");
-  const key = envFrom(AZURE_KEYS);
-  const clean = String(mime).split(";")[0];
-  const ext = AUDIO_EXT[clean.split("/")[1]] || "webm";
-  const form = new FormData();
-  form.append("file", new Blob([Buffer.from(base64, "base64")], { type: clean }), `voice.${ext}`);
-  form.append("model", AZURE_ASR_DEPLOYMENT());
-  form.append("response_format", "verbose_json");
-  form.append("temperature", "0");
-  if (hint && /^[a-z]{2}$/.test(hint)) form.append("language", hint);
+  const regions = azureRegions();
+  if (!regions.length) throw new Error("no_key");
+  const buf = Buffer.from(base64, "base64");
+  const sniffed = sniffAudio(buf);
+  const clean = sniffed ? sniffed.type : String(mime).split(";")[0].toLowerCase().replace("audio/x-m4a", "audio/mp4").replace("audio/m4a", "audio/mp4").replace("audio/mp3", "audio/mpeg");
+  const ext = sniffed ? sniffed.ext : (AUDIO_EXT[clean.split("/")[1]] || "webm");
   const prime = ASR_PROMPT[hint] || (hint === "ar" ? ASR_PROMPT_AR : "");
-  if (prime) form.append("prompt", prime);
-  const r = await fetch(`${endpoint}/openai/v1/audio/transcriptions`, {
-    method: "POST",
-    headers: { authorization: `Bearer ${key}`, "api-key": key },
-    body: form,
-    signal: AbortSignal.timeout(60000),
-  });
-  if (!r.ok) throw new Error(`azure ${r.status}: ${(await r.text()).slice(0, 160)}`);
-  const d = await r.json();
-  return { text: String(d.text || "").trim(), lang: String(d.language || "").slice(0, 8).toLowerCase() };
+  const deadline = Date.now() + 50000;      // دالة Vercel مهلتها ٦٠ ثانية
+  let last = null;
+
+  const call = async (region, deployment, format) => {
+    const form = new FormData();
+    form.append("file", new Blob([buf], { type: clean }), `voice.${ext}`);
+    form.append("model", deployment);
+    form.append("response_format", format);
+    form.append("temperature", "0");
+    if (hint && /^[a-z]{2}$/.test(hint)) form.append("language", hint);
+    if (prime) form.append("prompt", prime);
+    let r;
+    try {
+      r = await fetch(`${region.endpoint}/openai/v1/audio/transcriptions`, {
+        method: "POST",
+        headers: { authorization: `Bearer ${region.key}`, "api-key": region.key },
+        body: form,
+        signal: AbortSignal.timeout(Math.max(5000, Math.min(30000, deadline - Date.now()))),
+      });
+    } catch (e) {
+      throw failWith("timeout", `azure network: ${String(e.name || e.message || e).slice(0, 60)}`);
+    }
+    if (!r.ok) {
+      const body = (await r.text().catch(() => "")).replace(/\s+/g, " ").slice(0, 140);
+      throw Object.assign(failWith(reasonFor(r.status), `azure ${r.status} [${deployment}/${format}]: ${body}`), { status: r.status, body });
+    }
+    const d = await r.json();
+    return { text: String(d.text || "").trim(), lang: String(d.language || hint || "").slice(0, 8).toLowerCase() };
+  };
+
+  for (const region of regions) {
+    const names = region.label === "azure-primary" ? asrDeploymentCandidates()
+      : [...new Set([process.env.AZURE_OPENAI_WHISPER_DEPLOYMENT_2, process.env.AZURE_OPENAI_TRANSCRIBE_DEPLOYMENT_2, ...asrDeploymentCandidates()].filter(Boolean).map((x) => String(x).trim()))];
+    if (asrWorking && region.label === "azure-primary" && names.includes(asrWorking)) names.splice(names.indexOf(asrWorking), 1), names.unshift(asrWorking);
+    for (const dep of names) {
+      if (Date.now() > deadline) break;
+      let format = /transcribe/i.test(dep) ? "json" : "verbose_json";
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const out = await call(region, dep, format);
+          if (region.label === "azure-primary") asrWorking = dep;
+          return out;
+        } catch (e) {
+          last = e;
+          // 400 بسبب response_format: الصيغة الأخرى مرة واحدة، لا حلقة.
+          if (e.status === 400 && attempt === 0 && /response_format|verbose_json/i.test(e.body || "")) { format = format === "json" ? "verbose_json" : "json"; continue; }
+          break;
+        }
+      }
+      // نشر غير موجود → الاسم التالي. غير ذلك (مفتاح/حصة/عطل) يفشل بالمثل
+      // مع كل اسم في هذه المنطقة، فننتقل إلى المنطقة التالية.
+      if (!last || last.reason !== "deployment") break;
+    }
+  }
+  throw last || failWith("unavailable", "azure: no attempt");
 }
 
 const LANG_ALIAS = { arabic: "ar", english: "en", french: "fr", chinese: "zh", mandarin: "zh", "zh-cn": "zh", "ar-sa": "ar", "en-us": "en" };
@@ -433,7 +512,11 @@ const LANG_ALIAS = { arabic: "ar", english: "en", french: "fr", chinese: "zh", m
 // تقريرٌ للفحص: أي مفرِّغٍ مُهيّأ وباسم أي متغيّر — الأسماء فقط، لا القيم.
 export function voiceProviders() {
   return [["azure", AZURE_KEYS]]
-    .map(([name, keys]) => ({ name, configured: !keys || !!envFrom(keys), via: keys ? (keys.find((k) => process.env[k] && String(process.env[k]).trim()) || null) : "no key needed" }));
+    .map(([name, keys]) => ({
+      name, configured: !keys || !!envFrom(keys), via: keys ? (keys.find((k) => process.env[k] && String(process.env[k]).trim()) || null) : "no key needed",
+      // أسماء النشر التي سيجرّبها التفريغ بالترتيب، وما نجح منها آخر مرة — أسماء لا أسرار.
+      deployments: asrDeploymentCandidates(), deploymentSet: !!(process.env.AZURE_OPENAI_WHISPER_DEPLOYMENT || process.env.AZURE_OPENAI_TRANSCRIBE_DEPLOYMENT || process.env.AZURE_OPENAI_ASR_DEPLOYMENT), lastWorking: asrWorking || null,
+    }));
 }
 
 export async function transcribeAudio(base64, mime, hint) {
@@ -441,6 +524,7 @@ export async function transcribeAudio(base64, mime, hint) {
   if (!AUDIO_MIME_OK.test(String(mime || ""))) return { ok: false, error: "bad_type" };
   if (Buffer.byteLength(base64, "base64") > MAX_AUDIO_BYTES) return { ok: false, error: "too_large" };
   const tried = [];
+  let reason = "";
   // Azure Speech وحده — التفريغ الصوتي لا يخرج من Azure كبقية طبقة الذكاء.
   for (const [name, call] of [["azure", speechAzure]]) {
     try {
@@ -453,14 +537,15 @@ export async function transcribeAudio(base64, mime, hint) {
       return { ok: true, text: fixed.text, raw: fixed.changed ? text.slice(0, 4000) : undefined, lang: /^[a-z]{2}$/.test(lang) ? lang : "", provider: name };
     } catch (e) {
       const msg = String(e.message || e);
-      tried.push(`${name}: ${msg.slice(0, 70)}`);
-      if (msg !== "no_key" && msg !== "unsupported_mime") console.error("transcribe", name, msg.slice(0, 160));
+      tried.push(`${name}: ${msg.slice(0, 200)}`);
+      if (e && e.reason) reason = e.reason;
+      if (msg !== "no_key" && msg !== "unsupported_mime") console.error("transcribe", name, msg.slice(0, 200));
     }
   }
-  const anyKey = envFrom(AZURE_KEYS);
+  const anyKey = azureReady();   // مفتاح ونقطة نهاية معاً، لا أحدهما
   // السبب يعود مع الرد: «لم يُهيَّأ مفتاح» و«رفض المزوّد الصيغة» و«انقطع
   // الاتصال» ثلاثة أشياء، وإخفاؤها خلف «تعذّر» واحد يُطيل كل تشخيص.
-  return { ok: false, error: anyKey ? "transcribe_failed" : "not_configured", detail: tried.join(" · ").slice(0, 300) };
+  return { ok: false, error: anyKey ? "transcribe_failed" : "not_configured", reason: anyKey ? (reason || "unavailable") : "", detail: tried.join(" · ").slice(0, 300) };
 }
 
 
