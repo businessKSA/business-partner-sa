@@ -215,6 +215,7 @@ const D = {
   navPartners: { ar: "الشركاء", en: "Partners", fr: "Partenaires", zh: "合作伙伴" },
   navBizDev: { ar: "تطوير الأعمال", en: "Business development", fr: "Développement commercial", zh: "业务拓展" },
   footLegalName: { ar: "الاسم في السجل التجاري", en: "Registered name", fr: "Raison sociale", zh: "注册名称" },
+  footFollow: { ar: "تابعنا", en: "Follow us", fr: "Suivez-nous", zh: "关注我们" },
   footCr: { ar: "السجل التجاري", en: "Commercial registration", fr: "Registre de commerce", zh: "商业登记号" },
   footUnified: { ar: "الرقم الموحد", en: "Unified number", fr: "Numéro unifié", zh: "统一编号" },
   footVat: { ar: "الرقم الضريبي", en: "VAT number", fr: "Numéro de TVA", zh: "增值税号" },
@@ -295,6 +296,13 @@ const D = {
 // لأي صفحة. رُفعت من داخل `simpleV1()` إلى مستوى الوحدة ليستوردها
 // `simplified-global-header.mjs` ويضعها على الصفحات القديمة بدل أن
 // تُنسخ نسخةً ثانية تفترق عنها. النص نفسه لم يتغيّر حرفاً.
+const SV1_SOCIAL_ICONS = {
+  linkedin: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>',
+  instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" fill="currentColor" stroke="none"/></svg>',
+  tiktok: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 1 1-1.87-2.49v-3.1a5.67 5.67 0 1 0 4.96 5.62V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3a4.3 4.3 0 0 1-3.24-1.48z"/></svg>',
+  facebook: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-7.5h2.5l.5-3h-3V8.6c0-.87.24-1.46 1.5-1.46H16.6V4.5c-.28-.04-1.23-.12-2.34-.12-2.31 0-3.9 1.41-3.9 4v2.12H7.9v3h2.46V21h3.14z"/></svg>',
+};
+
 export const SV1_CSS = `<style id="sv1-css">
 /* اتجاه «مختبر» بألوان الهوية (قرار المالك 2026-09-05): بنية «مختبر» —
    أرضية بيضاء، شبكة ١px، حروفٌ أحادية للأرقام وحدها، عناوين خفيفة الوزن —
@@ -500,6 +508,10 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-foot-row.id span:first-child{min-width:0;font-size:10.5px;letter-spacing:.02em}
 .sv1-foot-row.id b,.sv1-foot-row.id bdi{font-size:13px}
 .sv1-foot-row .v{color:#ccd4ed;font-size:11.5px}
+.sv1-foot-social{display:flex;gap:8px;align-items:center;padding:8px 0 0;flex-wrap:wrap}
+.sv1-foot-social a{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.08);color:#ccd4ed;transition:background .15s,color .15s}
+.sv1-foot-social a:hover{background:#c8973b;color:#0b1b5a}
+.sv1-foot-social svg{width:16px;height:16px;display:block}
 .sv1-foot-row bdi{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:#fff}
 .sv1-foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
 .sv1-foot-end{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
@@ -727,6 +739,18 @@ export function simpleV1(ctx) {
       <div class="sv1-foot-row"><span>${t("footEmail")}</span><a href="mailto:${esc(contact.email || "")}"><bdi dir="ltr">${esc(contact.email || "")}</bdi></a></div>
       ${contact.address ? `<div class="sv1-foot-row"><span>${t("footAddress")}</span><span class="v">${esc(lang() === "ar" ? contact.address : contact.addressEn || contact.address)}</span></div>` : ""}
       ${contact.hours ? `<div class="sv1-foot-row"><span>${t("footHours")}</span><span class="v">${esc(lang() === "ar" ? contact.hours : contact.hoursEn || contact.hours)}</span></div>` : ""}
+      ${(() => {
+        // The accounts exist and the site never linked them: before this, only
+        // /contact carried a social icon, so 1,490 pages pointed nowhere. Each
+        // link is rendered only when site.json actually holds a URL for it.
+        const soc = site.social || {};
+        const order = [["linkedin", "LinkedIn"], ["instagram", "Instagram"], ["tiktok", "TikTok"], ["facebook", "Facebook"]];
+        const links = order
+          .filter(([k]) => soc[k])
+          .map(([k, label]) => `<a href="${esc(soc[k])}" target="_blank" rel="noopener" aria-label="${label}">${SV1_SOCIAL_ICONS[k]}</a>`)
+          .join("");
+        return links ? `<div class="sv1-foot-row"><span>${t("footFollow")}</span></div><div class="sv1-foot-social">${links}</div>` : "";
+      })()}
     </div>
     <div class="sv1-foot-col">
       <h4>${t("footPay")}</h4>
