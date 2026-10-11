@@ -6,10 +6,14 @@
 //   2) الرقم الشخصي 966503793356 قراءة فقط نهائياً (قاعدة مالك صريحة).
 //   3) الأسرار من البيئة وحدها. لا قيمة افتراضية لسرّ، ولا سرّ في المستودع.
 
+import { loadEnvFile } from './dotenv.mjs';
 import path from 'node:path';
 import { logger } from './log.mjs';
 import { Sender } from './post.mjs';
 import { AccountSession } from './session.mjs';
+
+// يُقرأ .env قبل أي استعمال لـprocess.env. البيئة الحقيقية تسبقه دائماً.
+loadEnvFile();
 
 const log = logger('bridge');
 
