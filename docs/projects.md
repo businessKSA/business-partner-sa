@@ -52,7 +52,7 @@
 | 31 | **منصة العقارات** | Real Estate Platform Manager | `/workspaces` · `_spaces.js` · `workspace.js` · `BP-RE-*` | 🟡 نواة قائمة (معرض من Notion) · نموذج الطلب بلا حقول |
 | 32 | **مُيسّر** | Moyasar Manager | `_moyasar.js` · التفعيلات | 🟡 Samsung Pay خلف مفتاح ينتظر تفعيل المالك |
 | 33 | **تمارا** | Tamara Manager | تكامل BNPL | ✅ رمليّة محلياً |
-| 34 | **الدفترة** | Daftra Manager | `_daftra.js` · الفاتورة عند الدفع | ⚠️ أدوات الفاتورة اليدوية بلا نظير في `/ops` |
+| 34 | **الدفترة** | Daftra Manager | `_daftra.js` · `_invoicing.js` (دفعة ← فاتورة ← بريد العميل ← إعادة المحاولة) | ⚠️ أدوات الفاتورة اليدوية بلا نظير في `/ops` |
 | 35 | **الشركاء والموردون** | Suppliers & Partners Manager | `/suppliers` · `/partner-dashboard` · `_suppliers.js` · escrow | 🔴 الضمان والمحافظ بلا نظير في `/my`/`/ops` |
 | 36 | **منصة Business Partner AI** | BP AI Platform Manager | CRM/Tasks/Email في Notion · الموجّه الرئيسي · `followup-sweep.js` · `/chat` | ⚠️ الكتالوج الذي تقرؤه ≠ الموقع |
 

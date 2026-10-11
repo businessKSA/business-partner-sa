@@ -26,14 +26,15 @@
 
 import crypto from "node:crypto";
 import { LEGAL_NAME } from "./_identity.js";
-import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate, nationalAddressLine, daftraPayLink, daftraPublicInvoiceLink} from "./_daftra.js";
+import { daftraConfigured, daftraVatRate, nationalAddressLine } from "./_daftra.js";
+import { issuePaidInvoice, reportInvoiceBlocked, invoiceIsComplete, invoicingEnabled } from "./_invoicing.js";
 import { markOrderPaid, quotePriced } from "./_suppliers.js";
 import { tamaraConfigured, createTamaraSession, verifyTamaraOrder } from "./_bnpl.js";
 import { PAY_MOCK, payGuard, MODES } from "./_mode.js";
 import { contactForRef } from "./_stage.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { sb, DB_ON } from "./_db.js";
-import { markRequestPaidByRef } from "./_simple.js";
+import { markRequestPaidByRef, invoiceTargetFor } from "./_simple.js";
 import { parseEmpSku, empOffer, empPrepare, empSessionEmail, empActivate, empBasketProblem, empBnplAllowed } from "./_emp-pay.js";
 
 // Simple V1: a cart line "sv1:BP-R-XXXXXX" is an approved, signed quotation.
@@ -470,8 +471,36 @@ function billTo(order) {
   };
 }
 
-async function invoicePaidOrder(order, paidHalalas, payId = "") {
-  if (!daftraConfigured()) return { invoiced: false, reason: "daftra_not_configured" };
+// The invoice itself — Daftra, the payment record, the e-mail to the buyer, the
+// retry and the owner's alert — is api/_invoicing.js, shared with the quote path
+// in api/_simple.js. This function prices the basket from the server's own
+// numbers and checks it against the charge; what is left is the engine's job.
+//
+// It is called by every channel that can confirm a payment (the browser's return,
+// Moyasar's webhook, Tamara's verify, the reconcile run), and may be called again
+// for the same payment: the invoice lives on the request row the cart opened
+// (`requests.invoice`), so a second call finds it finished, finds it being issued
+// by the other channel, or finds it unfinished and completes it. Never twice.
+async function invoicePaidOrder(order, paidHalalas, payId = "", { alreadySettled = false } = {}) {
+  if (!daftraConfigured() && !invoicingEnabled()) return { invoiced: false, reason: "daftra_not_configured" };
+  const target = payId ? await invoiceTargetFor(payId, order.ref).catch(() => null) : null;
+  if (!target) {
+    // No request row to hold the state (a bespoke quote, or the database is
+    // off): the other channel's settle is the only record that this was done.
+    if (alreadySettled) return { invoiced: false, reason: "already_settled" };
+  } else if (target.invoice) {
+    if (invoiceIsComplete(target.invoice)) {
+      const r = target.invoice;
+      return { invoiced: true, already: true, number: r.number, total: r.total, clientEmailed: !!(r.delivery && r.delivery.sent_at) };
+    }
+    // Unfinished: complete it from the draft it was claimed with — the prices
+    // the buyer was charged, not today's.
+    if (target.invoice.draft) return issuePaidInvoice({ key: payId, draft: target.invoice.draft, target });
+  }
+  const blocked = async (reason, extra = {}) => ({
+    ...(await reportInvoiceBlocked({ key: payId || order.ref, draft: { ref: order.ref || "", payId, buyer: billTo(order) }, target, reason, detail: JSON.stringify(extra), total: Number(paidHalalas || 0) / 100 })),
+    ...extra,
+  });
   const items = [];
   let net = 0;
   // A bespoke quote is not in the published catalogue: its lines are the price
@@ -532,7 +561,14 @@ async function invoicePaidOrder(order, paidHalalas, payId = "") {
       }
     }
   }
-  if (!items.length) return { invoiced: false, reason: "no_priced_items" };
+  if (!items.length) {
+    // A payment for a signed quotation (sv1:BP-R-…) is invoiced on that request
+    // by markPaid; it has no catalogue lines of its own to price here.
+    if ((Array.isArray(order.items) ? order.items : []).length && order.items.every((it) => /^sv1:/i.test(String((it && it.id) || "")))) {
+      return { invoiced: false, reason: "settled_on_request" };
+    }
+    return blocked("no_priced_items");
+  }
 
   const rate = Number(daftraVatRate()) || 15;
   const expected = Math.round(net * (1 + rate / 100) * 100);
@@ -540,7 +576,7 @@ async function invoicePaidOrder(order, paidHalalas, payId = "") {
   // the payment form each do on their own side.
   if (Math.abs(expected - Number(paidHalalas || 0)) > 100) {
     console.error("pay: basket does not match the charge", { expected, paid: paidHalalas, ref: order.ref });
-    return { invoiced: false, reason: "amount_mismatch", expected, paid: Number(paidHalalas || 0) };
+    return blocked("amount_mismatch", { expected, paid: Number(paidHalalas || 0) });
   }
 
   // Who the invoice belongs to. On the quote path the buyer is whoever the CRM
@@ -552,9 +588,7 @@ async function invoicePaidOrder(order, paidHalalas, payId = "") {
     if (c) buyer = { ...order, name: order.name || c.name, email: order.email || c.email, phone: order.phone || c.phone };
   }
   const who = billTo(buyer);
-  if (!who.name || !isEmail(who.email)) return { invoiced: false, reason: "missing_buyer" };
-  const { client } = await daftraFindOrCreateClient(who);
-  if (!client || !client.id) return { invoiced: false, reason: "client_failed" };
+  if (!who.name || !isEmail(who.email)) return blocked("missing_buyer");
   const notes = [
     order.ref ? `مرجع الطلب: ${order.ref}` : "",
     "مدفوعة إلكترونياً عبر الموقع",
@@ -562,65 +596,11 @@ async function invoicePaidOrder(order, paidHalalas, payId = "") {
     who.isCompany && who.address ? `العنوان الوطني: ${nationalAddressLine(who.address)}` : "",
     who.contact ? `الشخص المسؤول: ${who.contact}` : "",
   ].filter(Boolean).join("\n");
-  const inv = await daftraCreateInvoice({ clientId: client.id, items, notes, ref: order.ref || "" });
-
-  // Settle the invoice in the books with the money Moyasar took, under the
-  // gateway's own transaction id — so the invoice reads «مدفوعة», not
-  // «مستحقة», with no hand-recording. A failure here never voids the sale:
-  // the invoice stands and the owner gets one email naming what to record.
-  let paymentRecorded = false;
-  try {
-    await daftraRecordPayment({ invoiceId: inv.id, amount: inv.total, transactionId: payId, method: "Moyasar" });
-    paymentRecorded = true;
-  } catch (e) {
-    console.error("pay: daftra payment record failed", String(e.message || e).slice(0, 160), String(e.detail || "").slice(0, 160));
-    await sendMail(OWNER_EMAIL, `⚠️ فاتورة ${inv.number} صدرت والدفعة لم تُسجَّل في الدفترة`,
-      `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><p>الفاتورة <b>${esc(inv.number)}</b> صدرت بنجاح بإجمالي <b>${inv.total} ﷼</b> بعد دفعة ميسر مؤكدة${payId ? ` (رقم العملية <b style="direction:ltr;display:inline-block">${esc(payId)}</b>)` : ""}، لكن تسجيل السداد على الفاتورة في الدفترة تعذّر آلياً.</p><p><b>المطلوب:</b> افتح الفاتورة في الدفترة وسجّل عليها دفعة بقيمة ${inv.total} ﷼ بطريقة «Moyasar».</p></div>`);
-  }
-
-  let pdf = null;
-  try { pdf = await daftraDocPdf("invoice", inv.id); } catch { pdf = null; }
-  // Already paid on this path, so no pay button — but the link is returned so
-  // the owner can open the invoice the client received.
-  let payUrl = "";
-  try { payUrl = (await daftraPayLink(inv.id)).url; } catch { payUrl = ""; }
-
-  if (pdf) {
-    await sendMail(who.email, `فاتورة ${inv.number} — Business Partner`,
-      `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px;margin:auto;text-align:right">
-        <h2 style="color:#0B1B5A">فاتورتك الضريبية من ${esc(LEGAL_NAME)}</h2>
-        <p>شكراً لك — تم استلام دفعتك بنجاح.</p>
-        <p>رقم الفاتورة: <b>${esc(inv.number)}</b>${order.ref ? ` · مرجع الطلب: <b style="direction:ltr;display:inline-block">${esc(order.ref)}</b>` : ""}</p>
-        <p style="line-height:2">الإجمالي قبل الضريبة: <b>${inv.net} ﷼</b><br>ضريبة القيمة المضافة (${rate}%): <b>${inv.vat} ﷼</b><br>الإجمالي المدفوع: <b style="color:#0B1B5A;font-size:18px">${inv.total} ﷼</b></p>
-        <p style="color:#0B1B5A">الفاتورة الضريبية بصيغة PDF مرفقة مع هذه الرسالة.</p>
-        <p style="color:#94a3b8;font-size:12px">فاتورة ضريبية صادرة عبر نظام الدفترة ومتوافقة مع متطلبات هيئة الزكاة والضريبة والجمارك.</p></div>`,
-      [{ filename: `TAX_Invoice-${String(inv.number).replace(/[^\w-]/g, "")}.pdf`, content: pdf.base64 }]);
-  } else {
-    // No PDF. Before falling back to a manual step, try Daftra's own page for
-    // this invoice — same document, same numbering, same books, and nothing
-    // issued by us. It is only used when a client can actually open it.
-    let pub = null;
-    try { pub = await daftraPublicInvoiceLink(inv.id, inv.publicUrl || inv.url || ""); } catch { pub = null; }
-    if (pub && pub.url) {
-      await sendMail(who.email, `فاتورة ${inv.number} — Business Partner`,
-        `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px;margin:auto;text-align:right">
-          <h2 style="color:#0B1B5A">فاتورتك الضريبية من ${esc(LEGAL_NAME)}</h2>
-          <p>شكراً لك — تم استلام دفعتك بنجاح.</p>
-          <p>رقم الفاتورة: <b>${esc(inv.number)}</b>${order.ref ? ` · مرجع الطلب: <b style="direction:ltr;display:inline-block">${esc(order.ref)}</b>` : ""}</p>
-          <p style="line-height:2">الإجمالي قبل الضريبة: <b>${inv.net} ﷼</b><br>ضريبة القيمة المضافة (${rate}%): <b>${inv.vat} ﷼</b><br>الإجمالي المدفوع: <b style="color:#0B1B5A;font-size:18px">${inv.total} ﷼</b></p>
-          <p style="margin:18px 0"><a href="${esc(pub.url)}" style="background:#0B1B5A;color:#fff;padding:12px 26px;border-radius:10px;text-decoration:none;font-weight:bold;display:inline-block">افتح فاتورتك الضريبية</a></p>
-          <p style="color:#94a3b8;font-size:12px">فاتورة ضريبية صادرة عبر نظام الدفترة ومتوافقة مع متطلبات هيئة الزكاة والضريبة والجمارك.</p></div>`);
-      return { invoiced: true, number: inv.number, total: inv.total, pdfAttached: false, clientEmailed: true, deliveredBy: "daftra_link", payUrl };
-    }
-    // The client is not sent a message with no invoice in it. The owner is,
-    // because they can attach the file from the panel in under a minute.
-    await sendMail(OWNER_EMAIL, `⚠️ فاتورة ${inv.number} تحتاج إرفاق PDF يدوياً`,
-      `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right">
-        <p>دفع العميل <b>${esc(who.name)}</b> (${esc(who.email)}) وصدرت الفاتورة <b>${esc(inv.number)}</b> بإجمالي <b>${inv.total} ﷼</b>.</p>
-        <p>الدفترة ما سلّمت الملف المطبوع، فما أُرسلت للعميل رسالة بلا فاتورة.</p>
-        <p><b>المطلوب:</b> افتح لوحة التحكم ← الأدوات ← «تصحيح فاتورة صادرة»، ابحث عن ${esc(inv.number)}، أرفق ملف PDF من الدفترة واضغط أرسل.</p></div>`);
-  }
-  return { invoiced: true, number: inv.number, total: inv.total, paymentRecorded, pdfAttached: !!pdf, clientEmailed: !!pdf, payUrl };
+  return issuePaidInvoice({
+    key: payId || order.ref,
+    draft: { ref: order.ref || "", payId, method: String(payId).startsWith("tamara_") ? "Tamara" : "Moyasar", buyer: who, items, notes },
+    target,
+  });
 }
 
 async function notion(path, method, payload) {
@@ -1042,12 +1022,16 @@ export default async function handler(req, res) {
         const settle = await settlePaidOrder(order, p);
         row.settled = !!(settle && settle.ok);
         row.already = !!(settle && settle.already);
-        if (settle && settle.ok && !settle.already) {
-          try { await markOrderPaid(ref, { total: row.amount, method: "online" }); } catch (e) {
-            console.error("reconcile: announce failed", ref, String(e.message || e).slice(0, 120));
+        if (settle && settle.ok) {
+          if (!settle.already) {
+            try { await markOrderPaid(ref, { total: row.amount, method: "online" }); } catch (e) {
+              console.error("reconcile: announce failed", ref, String(e.message || e).slice(0, 120));
+            }
           }
+          // Also for a payment settled earlier: its invoice may be the part that
+          // never finished, and finishing it is idempotent.
           try {
-            const inv = await invoicePaidOrder(order, p.amount, p.id);
+            const inv = await invoicePaidOrder(order, p.amount, p.id, { alreadySettled: !!settle.already });
             row.invoice = inv && inv.number ? String(inv.number) : null;
             row.invoiced = !!(inv && inv.invoiced);
           } catch (e) {
@@ -1179,17 +1163,22 @@ export default async function handler(req, res) {
         try { cartSettle = await settlePaidOrder(order, p); }
         catch (e) { console.error("pay webhook: cart settle failed", String(e.message || e).slice(0, 160)); }
         let cartInvoice = null;
-        if (cartSettle && cartSettle.ok && !cartSettle.already) {
+        if (cartSettle && cartSettle.ok) {
           if (String(meta.tax || "") === "company") {
             // A standard (company) tax invoice needs the full tax profile,
             // which never fits in payment metadata — issuing a personal one
             // instead would mean a void and a reissue. The owner issues it
             // from the panel; the client's money and activation are not held.
-            await sendMail(OWNER_EMAIL, `🧾 فاتورة منشأة تصدر يدوياً — ${ref}`,
-              `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right"><p>دفعة إلكترونية مؤكدة (${Math.round(p.amount) / 100} ﷼) على الطلب <b style="direction:ltr;display:inline-block">${esc(ref)}</b> والعميل طلب فاتورة باسم منشأة، لكن الدفع اكتمل دون رجوع المتصفح فلم تصلنا بيانات المنشأة الضريبية كاملة.</p><p><b>المطلوب:</b> افتح لوحة التحكم ← الفواتير، وأصدر الفاتورة يدوياً ببيانات المنشأة من صف الطلب ${esc(ref)}.</p></div>`);
-            cartInvoice = { invoiced: false, reason: "company_invoice_manual" };
+            // (When the browser's return got here first it carried the full
+            // profile and has already issued it: `already` leaves it alone.)
+            if (cartSettle.already) cartInvoice = { invoiced: false, reason: "already_settled" };
+            else {
+              const target = await invoiceTargetFor(pid, ref).catch(() => null);
+              cartInvoice = await reportInvoiceBlocked({ key: pid, draft: { ref, payId: pid, buyer: billTo(order) }, target, reason: "company_invoice_manual",
+                detail: "دفع بطاقة اكتمل دون رجوع المتصفح فلم تصلنا بيانات المنشأة الضريبية كاملة؛ أصدر الفاتورة ببيانات المنشأة", total: Math.round(p.amount) / 100 });
+            }
           } else {
-            try { cartInvoice = await invoicePaidOrder(order, p.amount, pid); }
+            try { cartInvoice = await invoicePaidOrder(order, p.amount, pid, { alreadySettled: !!cartSettle.already }); }
             catch (e) {
               console.error("pay webhook: cart invoice failed", String(e.message || e).slice(0, 200));
               cartInvoice = { invoiced: false, reason: String(e.message || "invoice_failed") };
@@ -1323,11 +1312,8 @@ export default async function handler(req, res) {
       catch (e) { console.error("bnpl settle failed", String(e.message || e).slice(0, 160)); }
       // The snapshot carries the full tax profile (same as the card path), so
       // billTo decides company vs simplified invoice on its own.
-      if (settle && settle.already) invoicing = { invoiced: false, reason: "already_settled" };
-      else {
-        try { invoicing = await invoicePaidOrder(order, p.amount, p.id); }
-        catch (e) { invoicing = { invoiced: false, reason: String(e.message || "invoice_failed") }; }
-      }
+      try { invoicing = await invoicePaidOrder(order, p.amount, p.id, { alreadySettled: !!(settle && settle.already) }); }
+      catch (e) { invoicing = { invoiced: false, reason: String(e.message || "invoice_failed") }; }
     }
     if (!v.captured) {
       await sendMail(OWNER_EMAIL, `⚠️ دفعة أقساط (${provider}) مؤكدة لكن لم تُقبض — أكمل القبض يدوياً`,
@@ -1447,16 +1433,14 @@ export default async function handler(req, res) {
         try { settle = await settlePaidOrder(b.order, p); }
         catch (e) { console.error("pay: settle failed", String(e.message || e).slice(0, 160)); }
       }
-      const alreadySettled = (announced && announced.orderFound && !announced.recorded) || (settle && settle.already);
-      if (alreadySettled) {
-        invoicing = { invoiced: false, reason: "already_settled" };
-      } else {
-        try {
-          invoicing = await invoicePaidOrder(b.order, p.amount, String(p.id || ""));
-        } catch (e) {
-          console.error("pay: automatic invoice failed", String(e.message || e).slice(0, 200), String(e.detail || "").slice(0, 200));
-          invoicing = { invoiced: false, reason: String(e.message || "invoice_failed") };
-        }
+      // Whichever channel got here second still asks: the invoice may be the part
+      // the first one did not finish, and asking is idempotent (see invoicePaidOrder).
+      const alreadySettled = !!((announced && announced.orderFound && !announced.recorded) || (settle && settle.already));
+      try {
+        invoicing = await invoicePaidOrder(b.order, p.amount, String(p.id || ""), { alreadySettled });
+      } catch (e) {
+        console.error("pay: automatic invoice failed", String(e.message || e).slice(0, 200), String(e.detail || "").slice(0, 200));
+        invoicing = { invoiced: false, reason: String(e.message || "invoice_failed") };
       }
     }
 
@@ -1466,7 +1450,10 @@ export default async function handler(req, res) {
     // everything needed to finish it by hand.
     if (paid) {
       const settleMissing = !b.order || !settle || (!settle.ok && !settle.already);
-      const invoiceMissing = !invoicing || (invoicing.invoiced === false && invoicing.reason !== "already_settled");
+      // The engine tells the owner itself (and opens the task) when it fails; a
+      // payment settled on its own request (sv1) is invoiced there.
+      const invoiceMissing = !invoicing || (invoicing.invoiced === false && invoicing.reason !== "already_settled" && !invoicing.alerted
+        && !(invoicing.reason === "settled_on_request" && settle && settle.verified));
       if (settleMissing || invoiceMissing) {
         const why = [
           settleMissing ? `التسجيل في CRM: ${settle ? (settle.error || settle.skipped || "لم يكتمل") : "لم يُستدعَ"}` : "",
