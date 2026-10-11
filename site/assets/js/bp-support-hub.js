@@ -44,6 +44,7 @@
     return el;
   }
   var ICON = {
+    chat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 11.5h7M8.5 14.5h4.5"/></svg>',
     wa: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>',
     team: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.6M18 14.8c2 .7 3.2 2.4 3.2 5.2"/></svg>',
     site: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H11l-4.2 3.6c-.5.4-1.3.1-1.3-.6V16A2.5 2.5 0 0 1 4 13.5z"/><path d="M8.5 8.5h7M8.5 11.5h4.5"/></svg>',
@@ -241,7 +242,7 @@
     hdSub = h("small", {}, [h("i"), h("span", { text: T("المستشار الذكي متاح على مدار الساعة", "The smart advisor is available 24/7") })]);
     var hd = h("div", { class: "bps-hd" }, [
       h("button", { class: "bps-ib bps-back", type: "button", "aria-label": T("رجوع", "Back"), html: ICON.back, onclick: function () { show("home"); } }),
-      h("img", { src: CFG.img || "/assets/img/baher.jpg", alt: "", width: "40", height: "40" }),
+      h("span", { class: "bps-mark", "aria-hidden": "true", html: ICON.chat }),
       h("div", { class: "bps-ht" }, [hdTitle, hdSub]),
       h("button", { class: "bps-ib", type: "button", "aria-label": T("إغلاق", "Close"), html: ICON.x, onclick: function () { close(); } })
     ]);
@@ -674,7 +675,7 @@
     if (doc.getElementById("bpsFab")) return;
     wrap = h("div", { class: "bps-hub", dir: AR ? "rtl" : "ltr" });
     fab = h("button", { class: "bps-fab", id: "bpsFab", type: "button", "aria-haspopup": "dialog", "aria-expanded": "false", "aria-controls": "bpsPanel", "aria-label": T("افتح مركز التواصل", "Open the contact centre"), onclick: function () { open("home"); } }, [
-      h("span", { class: "bps-av" }, [h("img", { src: CFG.img || "/assets/img/baher.jpg", alt: "", width: "38", height: "38" }), h("span", { class: "bps-dot" })]),
+      h("span", { class: "bps-av" }, [h("span", { class: "bps-mark", html: ICON.chat }), h("span", { class: "bps-dot" })]),
       h("span", { class: "bps-lbl", text: T("تواصل معنا", "Contact us") })
     ]);
     wrap.appendChild(fab);

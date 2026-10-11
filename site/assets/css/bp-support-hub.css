@@ -150,3 +150,5 @@
 /* لا يظهر في الطباعة ولا داخل الإطارات المضمّنة. */
 @media print{.bps-hub{display:none!important}}
 html.bp-embed .bps-hub,.bp6-embed .bps-hub{display:none!important}
+
+.bps-mark{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.55);flex:0 0 auto}.bps-mark svg{width:22px;height:22px}.bps-fab .bps-av .bps-mark{width:38px;height:38px}@media(max-width:620px){.bps-fab .bps-av .bps-mark{width:36px;height:36px}}
