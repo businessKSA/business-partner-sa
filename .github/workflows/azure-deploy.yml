@@ -28,6 +28,11 @@
 name: Azure Deploy (manual, disabled by default)
 
 on:
+  # مؤقت: GitHub لا يعرض زرّ Run workflow لملفٍ ليس على الفرع الافتراضي (master)، فيُشغَّل
+  # من دفعة على فرع الاختبار هذا وحده، ودائماً إلى بيئة staging (لا نقل حركة ولا إنتاج).
+  # يُحذف هذا الـpush عند دمج الملف في master، فيبقى يدوياً فقط.
+  push:
+    branches: [azure-migration]
   workflow_dispatch:
     inputs:
       target:
@@ -141,7 +146,7 @@ jobs:
           node ops/azure/parity.mjs \
             --a "https://www.businesspartner.sa" \
             --b "https://${{ needs.deploy.outputs.fqdn }}" \
-            --sample 40 ${{ inputs.target == 'staging' && '--skip-api' || '' }}
+            --sample 40 ${{ inputs.target != 'production' && '--skip-api' || '' }}
 
   promote:
     name: move traffic (explicit, production only)

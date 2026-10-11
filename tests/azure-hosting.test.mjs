@@ -15,7 +15,9 @@ test("azure-deploy.yml is manual-only and inert until AZURE_DEPLOY_ENABLED=true"
   const y = read(".github/workflows/azure-deploy.yml");
   const onBlock = /^on:\n((?:[ \t]+.*\n|\n)+)/m.exec(y)[1];
   assert.match(onBlock, /^\s{2}workflow_dispatch:/m);
-  for (const trigger of ["push:", "pull_request", "schedule:", "workflow_run", "release:", "repository_dispatch"]) {
+  // استثناء مؤقت وموثَّق: push على فرع الاختبار azure-migration وحده (يُحذف بعد دمج الملف في master)
+  if (onBlock.includes("push:")) assert.match(onBlock, /push:\n\s+branches: \[azure-migration\]\n/, "push مسموح على azure-migration وحده");
+  for (const trigger of ["pull_request", "schedule:", "workflow_run", "release:", "repository_dispatch"]) {
     assert.ok(!onBlock.includes(trigger), `الـworkflow يحمل trigger تلقائياً: ${trigger}`);
   }
   const jobs = y.split(/^jobs:\n/m)[1].split(/^  (?=[a-z]+:\n)/m).filter(Boolean);
