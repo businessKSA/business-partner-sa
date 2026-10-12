@@ -57,6 +57,7 @@ az containerapp create \
     "WA_BATCH_WINDOW_S=${WA_BATCH_WINDOW_S:-120}" \
     "WA_IGNORE_OLDER_H=${WA_IGNORE_OLDER_H:-24}" \
     "WA_SEND_ENABLED=0" \
+    "WA_PAIRING_CODE=1" \
   -o none 2>/dev/null || true
 
 echo "▸ ربط القرص الدائم على /data — لا بديل عنه"
@@ -76,6 +77,7 @@ YAML
 echo "   راجع /tmp/bp-wa-volume.yaml ثم:"
 echo "   az containerapp update -n $APP -g $RG --yaml /tmp/bp-wa-volume.yaml"
 echo
-echo "▸ أول تشغيل: QR يُطبع في السجل لكل حساب. افتحه وامسحه من الهاتف:"
+echo "▸ أول تشغيل: كود ربط من ٨ خانات يُطبع في السجل لكل حساب."
+echo "   أدخله من: واتساب ← الأجهزة المرتبطة ← ربط جهاز ← الربط برقم الهاتف:"
 echo "   az containerapp logs show -n $APP -g $RG --follow"
-echo "▸ بعد المسح يبقى في القرص الدائم، فلا يُطلب مرة أخرى."
+echo "▸ بعد الربط تبقى الجلسة في القرص الدائم، فلا يُطلب الكود مرة أخرى."

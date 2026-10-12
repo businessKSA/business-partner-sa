@@ -100,6 +100,25 @@ export class AccountSession {
     });
     this.sock = sock;
 
+    // الربط بكود رقمي بدل QR. ضروري على Azure: السجل نصّي ولا شاشة فيه
+    // لمسح رمز. الكود يُطلب مرة واحدة فقط حين لا توجد جلسة محفوظة بعد.
+    if (process.env.WA_PAIRING_CODE === '1' && !auth.state.creds.registered) {
+      setTimeout(async () => {
+        try {
+          const code = await sock.requestPairingCode(this.msisdn);
+          const pretty = String(code || '').match(/.{1,4}/g);
+          this.log.warn(
+            `كود ربط الحساب ${this.name} (${this.msisdn}): ${pretty ? pretty.join('-') : code}`
+          );
+          this.log.warn(
+            'أدخله من: واتساب ← الأجهزة المرتبطة ← ربط جهاز ← «الربط برقم الهاتف بدلاً من ذلك». صالح دقائق معدودة.'
+          );
+        } catch (err) {
+          this.log.error('تعذّر طلب كود الربط', { error: String((err && err.message) || err) });
+        }
+      }, 3000);
+    }
+
     sock.ev.on('creds.update', auth.saveCreds);
 
     sock.ev.on('connection.update', (u) => { this.onConnection(u); });
@@ -132,8 +151,13 @@ export class AccountSession {
     const lastDisconnect = update.lastDisconnect;
 
     if (update.qr) {
-      this.log.warn(`امسح رمز QR من واتساب → الأجهزة المرتبطة — الحساب ${this.name} (${this.msisdn})`);
-      qrcode.generate(update.qr, { small: true });
+      if (process.env.WA_PAIRING_CODE === '1') {
+        // الكود الرقمي يُطلب أعلاه؛ رسم QR في سجل Azure بلا فائدة ويملؤه ضجيجاً.
+        this.log.info(`بانتظار إدخال كود الربط — الحساب ${this.name}`);
+      } else {
+        this.log.warn(`امسح رمز QR من واتساب → الأجهزة المرتبطة — الحساب ${this.name} (${this.msisdn})`);
+        qrcode.generate(update.qr, { small: true });
+      }
     }
 
     if (connection === 'open') {
