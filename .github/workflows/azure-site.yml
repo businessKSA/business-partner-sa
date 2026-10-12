@@ -1,0 +1,73 @@
+# الموقع (site/ + api/) → Azure Container Apps (staging أولاً).
+#
+# يدوي عمداً (workflow_dispatch): يبني صورة ويحدّث حاوية. النشر على الإنتاج
+# (bp-site) يتطلب target=production صراحةً، وتحويل النطاق businesspartner.sa
+# خطوة DNS منفصلة لا يفعلها هذا السير.
+#
+# الأسرار: AZURE_CREDENTIALS (مثل azure-agents.yml). المتغيرات السرية للموقع
+# (SUPABASE_* وMoyasar وغيرها) تُضبط على الحاوية نفسها لا هنا.
+
+name: Deploy Site to Azure
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'staging أو production'
+        required: true
+        default: 'staging'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-azure
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      RG: rg-bp-web
+      ACR: bpsiteacr
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: gate
+        name: فحص الأسرار
+        env:
+          AZ: ${{ secrets.AZURE_CREDENTIALS }}
+        run: |
+          [ -z "$AZ" ] && { echo "::error::ينقص AZURE_CREDENTIALS"; exit 1; }
+          case "${{ github.event.inputs.target }}" in
+            staging) echo "app=bp-site-staging" >> "$GITHUB_OUTPUT" ;;
+            production) echo "app=bp-site" >> "$GITHUB_OUTPUT" ;;
+            *) echo "::error::target يجب أن يكون staging أو production"; exit 1 ;;
+          esac
+
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: سجلّ الصور (يُنشأ مرة واحدة)
+        run: |
+          az acr show -n "$ACR" -g "$RG" >/dev/null 2>&1 || \
+            az acr create -n "$ACR" -g "$RG" --sku Basic --admin-enabled false >/dev/null
+
+      - name: بناء الصورة في ACR
+        run: az acr build -r "$ACR" -t "bp-site:${{ github.sha }}" -f azure/site/Dockerfile .
+
+      - name: تحديث الحاوية
+        run: |
+          az containerapp registry set -n "${{ steps.gate.outputs.app }}" -g "$RG" \
+            --server "$ACR.azurecr.io" --identity system >/dev/null 2>&1 || true
+          az containerapp update -n "${{ steps.gate.outputs.app }}" -g "$RG" \
+            --image "$ACR.azurecr.io/bp-site:${{ github.sha }}" \
+            --set-env-vars PORT=8080 \
+            --min-replicas 1 --max-replicas 3
+
+      - name: فحص الصحة
+        run: |
+          fqdn=$(az containerapp show -n "${{ steps.gate.outputs.app }}" -g "$RG" --query properties.configuration.ingress.fqdn -o tsv)
+          sleep 20
+          curl -fsS "https://$fqdn/healthz" && echo "https://$fqdn"
