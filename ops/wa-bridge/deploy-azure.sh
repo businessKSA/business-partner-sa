@@ -40,13 +40,16 @@ echo "▸ بناء الصورة من ops/wa-bridge"
 az acr build -r "$ACR" -t "bp-wa-bridge:$TAG" -f Dockerfile . -o none
 
 echo "▸ التطبيق (نسخة واحدة، بلا منفذ خارجي)"
+ACR_USER="$(az acr credential show -n "$ACR" --query username -o tsv)"
+ACR_PASS="$(az acr credential show -n "$ACR" --query "passwords[0].value" -o tsv)"
 az containerapp create \
   -n "$APP" -g "$RG" --environment "$ENVIRONMENT" \
   --image "$ACR.azurecr.io/bp-wa-bridge:$TAG" \
   --registry-server "$ACR.azurecr.io" \
+  --registry-username "$ACR_USER" \
+  --registry-password "$ACR_PASS" \
   --cpu 0.5 --memory 1Gi \
   --min-replicas 1 --max-replicas 1 \
-  --ingress disabled \
   --secrets "wa-bridge-secret=$WA_BRIDGE_SECRET" \
   --env-vars \
     "WA_WEBHOOK_URL=$WA_WEBHOOK_URL" \
@@ -58,7 +61,7 @@ az containerapp create \
     "WA_IGNORE_OLDER_H=${WA_IGNORE_OLDER_H:-24}" \
     "WA_SEND_ENABLED=0" \
     "WA_PAIRING_CODE=1" \
-  -o none 2>/dev/null || true
+  -o none
 
 echo "▸ ربط القرص الدائم على /data — لا بديل عنه"
 cat > /tmp/bp-wa-volume.yaml <<'YAML'
