@@ -15,7 +15,12 @@ ENV NODE_ENV=production TZ=Asia/Riyadh
 
 # التبعيات أولاً حتى تُستفاد ذاكرة الطبقات بين النشرات.
 COPY package.json ./
-RUN npm install --omit=dev --no-audit --no-fund
+# git مطلوب أثناء التثبيت وحده: Baileys تسحب إحدى تبعياتها من مستودع
+# GitHub لا من سجلّ npm، وصورة alpine تأتي بلا git فيفشل التثبيت بـ
+# "spawn git ENOENT". يُحذف بعد التثبيت فلا يبقى في الصورة النهائية.
+RUN apk add --no-cache --virtual .build-deps git \
+ && npm install --omit=dev --no-audit --no-fund \
+ && apk del .build-deps
 
 COPY src/ ./src/
 
