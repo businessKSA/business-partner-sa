@@ -64,3 +64,36 @@
 3. مستدعو الويبهوك (الموقع و`api/` وn8n نفسه) يشيرون لعنوان Cloud عبر `BP_N8N_BASE` وما شابهه؛ يُحوَّل قبل مرحلة webhooks.
 4. مشغّلات خارجية: gmailTrigger ×2 وwhatsAppTrigger ×2 (BP-WhatsApp-Main وMahfol — الأخير يُركَن) وnotionTrigger ×1، وتحتاج اعتماداتها حيّة في Azure.
 الاختبار التشغيلي لفرح على Azure نجح يدوياً (قراءة تقويم وDrive وحارس البريد وتسجيل الرسائل). ترتيب المراحل في رأس `cutover.mjs`: schedulers ← webhooks ← whatsapp، ولكل مرحلة `--rollback`.
+
+## 10) الجلسة الثانية 2026-10-13 — ما وُجد قبل التنفيذ، وما بقي بأمر واحد
+
+> فُحص من المصدر (الواجهتان العامتان لـCloud وAzure) بالقراءة فقط. هذه الجلسة **لم تكتب شيئاً على n8n**: صلاحيتها ترفض أي كتابة على n8n Azure (تصنيف «مورد مشترك»)، فحُوِّل كل ما يحتاج كتابةً إلى سكربتات جاهزة أدناه يشغّلها المالك أو جلسةٌ بصلاحية الكتابة. الأرقام: **88** سيراً نشطاً في Cloud (كانت 91)، **170** على Azure، كلها موجودة بالاسم.
+
+### ما كشفه الفحص (ولم تعرفه المذكرة)
+1. **37 سيراً على Azure تحمل اعتمادات بمعرّف Cloud نفسه** — أثقلها عقدة `Azure OpenAI (bp-main)` في **16 مديراً** (`hA1ULr5qtFuoBZ6B` وهو معرّف Cloud؛ معرّف Azure للاعتماد نفسه `fI2SkJuYmB2v3zCo`)، ثم Gmail وواتساب والتقويم وDrive وOutlook وGitHub وSpeech ومشغّل واتساب في `BP-WhatsApp-Main`. السبب: الاستيراد سبق إنشاء الاعتمادات، وn8n يربط بالاسم **عند الحفظ** فقط (`replaceInvalidCredentials`)، فما لم يُعَد حفظه بقي بمعرّف ميت. لو فُعِّلت هذه السير لفشلت أول تنفيذ. العلاج: `ops/azure-n8n/cred-rebind.mjs --apply` (إعادة حفظ بلا تعديل + تقرير). ما يبقى بعده بلا اعتماد يُنشأ على Azure **بالنوع والاسم تماماً** كما يطبعه التقرير، ثم يُعاد التشغيل حتى يصفر. و`cutover.mjs` صار **يغلق البوابة** على هذا الشرط.
+2. **أسماء مكرّرة على Azure** لثلاثة سير نشطة (طارق العقارات ×2، محلل ملفات العملاء ×2، Candidate ↔ Job Matcher ×2) وثلاثة غير نشطة. كان السكربت يختار بالاسم فقط؛ صار يختار التوأم الذي **تطابق عقدُه عقدَ Cloud** ثم الأحدث، ويطبع اختياره. النسخ الزائدة تُحذف يدوياً بعد التحويل (`8NN8ceUbJZL8bLft`، `hAAKGoZt0vg3TEtg`، `Dp2NQQ0TKbV8i4e8`).
+3. **سيران مختلطان** (ويبهوك + مشغّل استطلاعي): `BP — WhatsApp Web Reader → Notion` (مؤقّت) و`Recruitment Agent — Job Posting & Screening` (Gmail). لا يصلح تشغيلهما على الطرفين، فيُنقلان حصرياً مع `--retire-cloud`.
+4. **الجداول متأخرة يوماً**: `BP_AI_Tasks` +14 صفاً و45 تحديثاً، `BP_AI_Performance` +11، `BP_News_Feed` 24 تحديثاً، `BP_Agent_Registry` 5 تحديثات (بلا لمس `workflow_id`). و`BP_WA_Style` (من قارئ واتساب ويب، #351) **غير موجود على Azure** — يُنشأ بالأعمدة نفسها قبل تفعيل ذاك السير. العلاج: `tables-sync.mjs --apply` ثم `registry-ids.mjs --apply`.
+5. **سير «استخراج المستندات B» محوَّل فعلاً** إلى Azure (العقدة تنادي `bp-main` باعتماد Azure)، وما فيها من مراجع OpenAI/Header Auth بقايا غير مستعملة. لا عقدة ذكاء خارج Azure في أي سير نشط.
+6. على Azure: لا تنفيذ لغير فرح، ولا تنفيذ بخطأ. على Cloud آخر الأخطاء متفرقة في `Virtual Baher Task` (10-09 إلى 10-12).
+
+### مستدعو الويبهوك من الموقع — صار لهم مفتاح واحد
+- `api/_n8n.js`: كل نداء n8n في `api/` (`book` · `requests` · `_stage` · `candidate` · `_chat`) يمرّ بـ`n8nHook()`، والعنوان من `BP_N8N_BASE` وافتراضه Cloud.
+- `site/scripts/n8n-base.mjs` (خطوة بناء قبل حارس الصفحات): إن ضُبط `BP_N8N_PUBLIC_BASE` بُدِّل عنوان Cloud في كل صفحات `site/` المولَّدة والثابتة (dashboard · portal · monitor · admin · الخدمات المشتركة…). بلا المتغيّر لا تفعل شيئاً. فالتحويل ضبطُ متغيّرين في Vercel ونشرة، والرجوع حذفُهما ونشرة.
+
+### ترتيب التنفيذ (كلها بالمفتاحين `N8N_AZURE_API_KEY` و`N8N_CLOUD_API_KEY` في البيئة)
+```
+node ops/azure-n8n/cred-rebind.mjs --apply      # كرّره بعد إنشاء ما يطبعه ناقصاً حتى يصفر
+node ops/azure-n8n/tables-sync.mjs --apply
+node ops/azure-n8n/registry-ids.mjs --apply
+node ops/azure-n8n/cutover.mjs                  # يجب أن ينتهي بـ exit 0
+node ops/azure-n8n/cutover.mjs --phase=schedulers --apply
+#   راقب 15 دقيقة: الموزّع QWFV22wp5WDi0vM3 ينفّذ كل خمس دقائق، و GET /api/v1/executions?status=error على Azure يبقى فارغاً
+node ops/azure-n8n/cutover.mjs --phase=webhooks --keep-cloud --apply
+#   ثم في Vercel (Production): BP_N8N_BASE و BP_N8N_PUBLIC_BASE = https://bp-n8n.delightfulhill-a9ef6e21.swedencentral.azurecontainerapps.io
+#   نشرة بالعلامة (قرار المالك) → اختبار نموذج من الموقع يصل Azure
+node ops/azure-n8n/cutover.mjs --phase=webhooks --retire-cloud --apply
+#   whatsapp: §5 — بعد فحص farah ورقم المرسل وقرار المالك
+#   ثم: تصفير farah، حذف مفاتيح API المؤقتة، حذف النسخ المكرّرة أعلاه
+```
+الرجوع لأي مرحلة: `--phase=X --rollback --apply` (يفعّل Cloud ويعطّل Azure)، وللموقع حذف المتغيّرين ونشرة.
