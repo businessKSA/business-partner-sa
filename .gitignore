@@ -40,3 +40,4 @@ agents/node_modules/
 .env.local
 .claude/worktrees/
 .azure-n8n-backups/
+.claude/settings.local.json
