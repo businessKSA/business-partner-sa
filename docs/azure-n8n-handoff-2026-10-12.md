@@ -97,3 +97,23 @@ node ops/azure-n8n/cutover.mjs --phase=webhooks --retire-cloud --apply
 #   ثم: تصفير farah، حذف مفاتيح API المؤقتة، حذف النسخ المكرّرة أعلاه
 ```
 الرجوع لأي مرحلة: `--phase=X --rollback --apply` (يفعّل Cloud ويعطّل Azure)، وللموقع حذف المتغيّرين ونشرة.
+
+## 11) نُفِّذت المجدولات وواتساب الرئيسي — 2026-10-13 (مساءً UTC)
+
+> نُفِّذ بجلسة بصلاحية الكتابة وبموافقة المالك مرحلةً مرحلة. الأرقام من الواجهة العامة لـAzure بالقراءة بعد التنفيذ.
+
+**ما تمّ**
+- **الاعتمادات الخمسة** أنشأها المالك على Azure بالاسم والنوع تماماً (Gemini · Vercel Header Auth · Gmail · Outlook · GitHub)، ثم `cred-rebind.mjs --apply` ربط السير الخمسة. `cutover.mjs` خرج بصفر.
+- **المجدولات: 34 من 34 على Azure.** 33 بالدفعة الأولى، والـ34 (`BP - Sync Visa Tracker to Companies Employees`، `OHkxRibLXkRt8xOr`) فشل تفعيله لأن عقدة `Visa Tracker Updated` كانت `authentication: oAuth2` بلا اعتماد OAuth؛ حُوِّلت إلى `apiKey` بالاعتماد `Notion — Business Partner OS — Production` ثم نُقل. المراقبة: الموزّع `QWFV22wp5WDi0vM3` نفّذ كل خمس دقائق من 20:35 إلى 22:25 بلا فجوة. نسخ احتياطية للسير في `.azure-n8n-backups/` (خارج git).
+- **واتساب الرئيسي (`BP-WhatsApp-Main`) على Azure منذ 20:46**، وCallback تطبيق Meta «Business partner» (1006610415315995) صار `…/webhook/4f86756f-28ad-4c52-928c-672360b512a2/webhook` على Azure (الرابط القديم على Cloud للتراجع). تنفيذات ناجحة 22:10–22:11. الرجوع: `--phase=whatsapp --rollback --apply` ثم إعادة الـCallback القديم.
+- **فرح عادت إلى Cloud**: مشغّلها `Baher WhatsApp In` معطّل عمداً على Azure (§5)، فنقلها يقطع استقبالها. **لكن واتساب الرئيسي ينادي فرح على Azure كسير فرعي (`Run: Muin Assistant` ← `g2Y2k2KbxYwmhSqu`)، فنسخة Azure يجب أن تبقى نشطة بمشغّلها المعطّل.** وفرح على Cloud تحتاج سيرها الفرعي `BP3 — قائد الامتثال (WhatsApp)` (`DHdxNSbhQQb1AWKg`) نشطاً على Cloud.
+- **تطبيق Muin (الرقم 0530540231) ما زال على Cloud** — لا يُغيَّر رابطه قبل قرار فرح.
+
+**درس نوشن (مهم):** 189 عقدة نوشن على Azure صارت `apiKey` + `notionApi` بينما كانت على Cloud `oAuth2`. المفتاح لا يرى إلا ما شُورك مع تكامل «Business Partner»، فظهرت أخطاء «Could not find database … shared with your integration» (`RE — Matching Engine`، `BP Publisher`، `ترقيع ATS`). شارك المالك الصفحات العليا مع التكامل؛ وبعدها نجح `BP Publisher`. **لم يُتحقَّق بعد** من `RE — Matching Engine` (كل 20 دقيقة) و`ترقيع ATS` (كل ساعة): لا تنفيذ لهما بعد 21:00 UTC.
+
+**المتبقي**
+1. تأكيد أن `RE — Matching Engine` و`ترقيع ATS` عادا ينفّذان بلا خطأ نوشن (ولماذا لا تنفيذ بعد 21:00).
+2. `BP — وكيل Outlook CVs → ATS` فشل: «The mailbox is either inactive, soft-deleted, or is hosted on-premise» — الحساب المربوط في الاعتماد `Outlook — Business Partner — Production` بلا صندوق بريد Exchange Online فعّال؛ يُراجَع الحساب المستعمل.
+3. مرحلة الويبهوكات (49) والسيران المختلطان — قرار المالك (§10).
+4. حذف النسخ المكرّرة (`8NN8ceUbJZL8bLft` · `hAAKGoZt0vg3TEtg` · `Dp2NQQ0TKbV8i4e8`) بعد التحويل، وجدول `BP_WA_Style`، وتأكيد مزامنة الجداول (`tables-sync.mjs` / `registry-ids.mjs` لم يُتحقَّق من تشغيلهما هنا).
+5. اعتماد `Outlook — Personal — Baher` (Hotmail) أُنشئ ومتصل ولا يستعمله أي سير بعد.
