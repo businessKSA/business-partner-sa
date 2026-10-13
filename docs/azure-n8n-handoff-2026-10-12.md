@@ -112,7 +112,7 @@ node ops/azure-n8n/cutover.mjs --phase=webhooks --retire-cloud --apply
 **درس نوشن (مهم):** 189 عقدة نوشن على Azure صارت `apiKey` + `notionApi` بينما كانت على Cloud `oAuth2`. المفتاح لا يرى إلا ما شُورك مع تكامل «Business Partner»، فظهرت أخطاء «Could not find database … shared with your integration» (`RE — Matching Engine`، `BP Publisher`، `ترقيع ATS`). شارك المالك الصفحات العليا مع التكامل؛ وبعدها نجح `BP Publisher`. **لم يُتحقَّق بعد** من `RE — Matching Engine` (كل 20 دقيقة) و`ترقيع ATS` (كل ساعة): لا تنفيذ لهما بعد 21:00 UTC.
 
 **المتبقي**
-1. تأكيد أن `RE — Matching Engine` و`ترقيع ATS` عادا ينفّذان بلا خطأ نوشن (ولماذا لا تنفيذ بعد 21:00).
+1. `RE — Matching Engine` و`ترقيع ATS`: لا تنفيذ ظاهراً بعد 21:00 UTC ولا خطأ جديد. **أرجح تفسير (استنتاج لا إثبات):** Azure لا تحفظ التنفيذات الناجحة افتراضياً — كل السير التسعة التي ظهر لها نجاح في السجل لها `saveDataSuccessExecution: all` صريح، و25 من 39 سيراً نشطاً بلا إعداد صريح وبلا أي نجاح ظاهر. أي أن الأخطاء وحدها تظهر في `executions` للسير الافتراضية، فغياب الخطأ هو دليل النجاح؛ ولو أردت مراقبة النجاح فاضبط `EXECUTIONS_DATA_SAVE_ON_SUCCESS=all` على حاوية n8n (يزيد التخزين).
 2. `BP — وكيل Outlook CVs → ATS` فشل: «The mailbox is either inactive, soft-deleted, or is hosted on-premise» — الحساب المربوط في الاعتماد `Outlook — Business Partner — Production` بلا صندوق بريد Exchange Online فعّال؛ يُراجَع الحساب المستعمل.
 3. مرحلة الويبهوكات (49) والسيران المختلطان — قرار المالك (§10).
 4. حذف النسخ المكرّرة (`8NN8ceUbJZL8bLft` · `hAAKGoZt0vg3TEtg` · `Dp2NQQ0TKbV8i4e8`) بعد التحويل، وجدول `BP_WA_Style`، وتأكيد مزامنة الجداول (`tables-sync.mjs` / `registry-ids.mjs` لم يُتحقَّق من تشغيلهما هنا).
