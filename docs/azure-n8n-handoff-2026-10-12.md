@@ -117,3 +117,11 @@ node ops/azure-n8n/cutover.mjs --phase=webhooks --retire-cloud --apply
 3. مرحلة الويبهوكات (49) والسيران المختلطان — قرار المالك (§10).
 4. حذف النسخ المكرّرة (`8NN8ceUbJZL8bLft` · `hAAKGoZt0vg3TEtg` · `Dp2NQQ0TKbV8i4e8`) بعد التحويل، وجدول `BP_WA_Style`، وتأكيد مزامنة الجداول (`tables-sync.mjs` / `registry-ids.mjs` لم يُتحقَّق من تشغيلهما هنا).
 5. اعتماد `Outlook — Personal — Baher` (Hotmail) أُنشئ ومتصل ولا يستعمله أي سير بعد.
+
+## 12) سياسة النماذج — أرخص نشرة تكفي، وفرح وحدها قوية (قرار المالك 2026-10-14)
+
+- نشرات `bp-ai-ksa-2026` (Sweden Central): `bp-fast` = gpt-4.1-mini (الأرخص المستعمل) · `bp-main` = gpt-4.1 · `bp-ultra` = gpt-5.1 · `bp-embed` = text-embedding-3-small (جاهز لذاكرة فرح) · وغيرها. أرخص منها متاح للنشر ولم يُنشر: `gpt-4.1-nano` و`gpt-5-nano`.
+- **حُوِّل كل الوكلاء (62 سيراً · 87 عقدة) من `bp-main` إلى `bp-fast`** بـ`ops/azure-n8n/switch-model.mjs` (تجربة جافة افتراضياً، نسخة احتياطية لكل سير، تراجع بعكس المعاملين). فرح (3 سير) باقية على `bp-main`. التجربة الحيّة لـ`bp-fast` ردّت `gpt-4.1-mini`.
+- مُستثنى مؤقتاً: «سحب كل سير Hotmail (Backfill)» (`Ws1zQQ6YezxAOMSN`) لأن مؤشره في `staticData` وحفظه قد يصفّره؛ يُحوَّل بعد انتهاء التجربة.
+- **Document Intelligence متاح** على موارد AIServices الثلاثة (`prebuilt-read` يردّ 200، API `2024-11-30`) — لا حاجة لمورد جديد. أحدها: `bp-ai-claude-eu` (Sweden Central).
+- تحذير: `bp-ultra` (gpt-5.1) نموذج استدلال قد يرفض `temperature` و`max_tokens` في عقدة n8n؛ يُجرَّب مباشرة قبل أن تُحوَّل فرح إليه.
