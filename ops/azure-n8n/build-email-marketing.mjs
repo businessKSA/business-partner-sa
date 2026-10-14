@@ -29,8 +29,9 @@ const AZ_URL = "https://bp-ai-ksa-2026.openai.azure.com/openai/deployments/bp-ma
 const w = await (await fetch(`${B}/api/v1/workflows/${ID}`, { headers: H })).json();
 if (w.active) { console.error("السير نشط — يُبنى وهو معطّل فقط"); process.exit(1); }
 const credOf = (type) => w.nodes.find((n) => n.credentials?.[type])?.credentials[type];
-const NOTION = { notionApi: credOf("notionApi") }, GMAIL = { gmailOAuth2: credOf("gmailOAuth2") };
-if (!NOTION.notionApi || !GMAIL.gmailOAuth2) throw new Error("اعتماد Notion أو Gmail مفقود في السير");
+// اعتماد Gmail الموجود فعلاً على Azure (الاعتماد القديم 1AQfIiEH6y5Zu61s لم يُنقل إلى Azure فيفشل أي إرسال).
+const NOTION = { notionApi: credOf("notionApi") }, GMAIL = { gmailOAuth2: { id: "fKJNtBfZTsc3UkW9", name: "Gmail — Business Partner — Production" } };
+if (!NOTION.notionApi) throw new Error("اعتماد Notion مفقود في السير");
 
 const uid = () => crypto.randomUUID();
 const node = (name, type, typeVersion, position, parameters, credentials) => ({ id: uid(), name, type, typeVersion, position, parameters, ...(credentials ? { credentials } : {}) });
