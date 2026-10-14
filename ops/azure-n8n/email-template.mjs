@@ -12,16 +12,18 @@ export function renderEmail(kind, d) {
   const C = {
     phone: "0530540231", phoneIntl: "+966530540231", agentWa: "https://wa.me/966507034157", agentNo: "0507034157",
     mail: "business@businesspartner.sa",
+    // [ملف الشعار، الاسم، الرابط] — الحسابات الموثّقة في «مكتبة التواصل والسوشال ميديا». تُضاف X وTikTok وYouTube وSnapchat بسطر بعد تسلّم روابطها.
     social: [
-      ["in", "LinkedIn", "https://www.linkedin.com/company/108785026/"],
-      ["f", "Facebook", "https://www.facebook.com/BusinessPartnerKsa/"],
-      ["ig", "Instagram", "https://www.instagram.com/businesspartnersa/"],
+      ["linkedin", "LinkedIn", "https://www.linkedin.com/company/108785026/"],
+      ["facebook", "Facebook", "https://www.facebook.com/BusinessPartnerKsa/"],
+      ["instagram", "Instagram", "https://www.instagram.com/businesspartnersa/"],
+      ["whatsapp", "WhatsApp", "https://wa.me/966507034157"],
     ],
   };
   const UNSUB = d.unsubUrl || SITE;
   const L = {
     ar: {
-      dir: "rtl", align: "right", font: "Tahoma,Arial,'Segoe UI',sans-serif",
+      dir: "rtl", align: "right", font: "'IBM Plex Sans Arabic',Tajawal,-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans Arabic',Roboto,Tahoma,Arial,sans-serif", hf: "'IBM Plex Sans Arabic',Tajawal,-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans Arabic',Roboto,Tahoma,Arial,sans-serif",
       hello: `السادة / <span dir="ltr" style="unicode-bidi:isolate;">${esc(d.company)}</span> المحترمين،`,
       cta: "اطلب استشارتك", browse: "تصفّح كل خدماتنا", bye: "مع خالص التحية،", team: "فريق Business Partner",
       close: "يكفي أن تردّوا على هذه الرسالة بما يهمّكم، وسنتواصل معكم في الوقت الذي يناسبكم.",
@@ -32,7 +34,7 @@ export function renderEmail(kind, d) {
       more: "اقرأ المزيد", whatTitle: "ما الذي تشمله الخدمة", forTitle: "لمن تناسب", svcTitle: "ما الذي نقدّمه لكم",
     },
     en: {
-      dir: "ltr", align: "left", font: "'Segoe UI',Arial,Tahoma,sans-serif",
+      dir: "ltr", align: "left", font: "Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif", hf: "'Playfair Display',Georgia,'Times New Roman',serif",
       hello: `Dear <span dir="auto" style="unicode-bidi:isolate;">${esc(d.company)}</span> team,`,
       cta: "Request a consultation", browse: "Browse all our services", bye: "Kind regards,", team: "The Business Partner team",
       close: "Simply reply to this email with what matters to you and we will get back to you at a time that suits you.",
@@ -54,7 +56,7 @@ export function renderEmail(kind, d) {
     en: [["Company Formation", "Commercial registration, articles of association, Chamber of Commerce membership and licensing"], ["Foreign Investment", "Foreign-owned and joint-venture company setup, investor licences"], ["Premium Residency", "Eligibility assessment, pathway selection and application"], ["Government Services", "Absher Business, Muqeem, GOSI, Wage Protection (Mudad), municipal licences"], ["HR & Recruitment", "Work visas and recruitment, PEO/EOR, executive search"], ["Business Support", "Corporate bank account opening, digital marketing, franchise compliance"], ["Offices & Workspaces", "Virtual office with a national address, coworking, private offices"], ["AI & Automation", "Smart advisor, smart employee, compliance advisor"]],
   };
   const check = (t, dsc, F, D) => `<tr><td width="40" valign="top" style="padding:0 0 14px 0;"><span style="display:inline-block;width:24px;height:24px;line-height:24px;border-radius:12px;background:${NAVY};color:#ffffff;text-align:center;font-size:13px;font-family:Arial,sans-serif;">&#10003;</span></td><td valign="top" style="padding:0 0 14px 0;font-family:${F};${D}"><div style="font-size:15.5px;font-weight:bold;color:${NAVY};line-height:1.6;">${esc(t)}</div>${dsc ? `<div style="font-size:13.5px;color:#5a6478;line-height:1.7;">${esc(dsc)}</div>` : ""}</td></tr>`;
-  const heading = (txt) => `<div style="font-size:18px;font-weight:bold;color:${NAVY};margin:0 0 6px;">${txt}</div><div style="width:46px;height:3px;background:${NAVY};margin:0 0 18px;font-size:0;line-height:0;">&nbsp;</div>`;
+  const heading = (txt, hf) => `<div style="font-family:${hf};font-size:19px;font-weight:bold;color:${NAVY};margin:0 0 6px;">${txt}</div><div style="width:46px;height:3px;background:${NAVY};margin:0 0 18px;font-size:0;line-height:0;">&nbsp;</div>`;
   const button = (href, txt) => `<a href="${href}" style="display:inline-block;background:${NAVY};color:#ffffff;text-decoration:none;font-size:16px;font-weight:bold;padding:14px 38px;border-radius:8px;">${txt}</a>`;
   const paras = (s) => String(s ?? "").trim().split(/\n\s*\n/).filter(Boolean).map((p) => `<p style="margin:0 0 14px;font-size:16px;line-height:1.95;color:#1f2937;">${esc(p.trim()).replace(/\n/g, "<br>")}</p>`).join("");
 
@@ -64,30 +66,31 @@ export function renderEmail(kind, d) {
     const intro = k === "ar" ? d.introAr : d.introEn;
     let main = "";
     if (kind === "welcome") {
-      main = sec(`${heading(t.svcTitle)}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" dir="${t.dir}">${SERVICES[k].map(([a, b]) => check(a, b, F, D)).join("")}</table>`);
+      main = sec(`${heading(t.svcTitle, t.hf)}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" dir="${t.dir}">${SERVICES[k].map(([a, b]) => check(a, b, F, D)).join("")}</table>`);
     } else if (kind === "service") {
       const s = d.service || {};
       const what = (k === "ar" ? s.whatAr : s.whatEn) || [];
       const forWho = k === "ar" ? s.forAr : s.forEn;
-      main = sec(`${heading(t.whatTitle)}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" dir="${t.dir}">${what.map((w) => check(w, "", F, D)).join("")}</table>`)
+      main = sec(`${heading(t.whatTitle, t.hf)}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" dir="${t.dir}">${what.map((w) => check(w, "", F, D)).join("")}</table>`)
         + (forWho ? sec(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef2ff;border-radius:10px;"><tr><td style="padding:16px 20px;font-family:${F};${D}"><div style="font-size:15px;font-weight:bold;color:${NAVY};margin:0 0 6px;">${t.forTitle}</div><div style="font-size:14.5px;line-height:1.9;color:#1f2937;">${esc(forWho)}</div></td></tr></table>`, "6px 36px 4px") : "");
     } else {
       main = sec((d.items || []).map((it) => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e9f0;border-radius:10px;margin:0 0 14px;"><tr><td style="padding:16px 18px;font-family:${F};${D}">
 ${it.tag ? `<span style="display:inline-block;background:#eef2ff;color:${NAVY};font-size:12px;font-weight:bold;padding:3px 10px;border-radius:10px;margin:0 0 8px;">${esc(it.tag)}</span>${it.date ? `<span style="font-size:12px;color:#5a6478;"> &nbsp;${esc(it.date)}</span>` : ""}` : ""}
-<div style="font-size:16px;font-weight:bold;color:${NAVY};line-height:1.7;margin:2px 0 4px;">${esc(k === "ar" ? it.titleAr : it.titleEn)}</div>
+<div style="font-family:${t.hf};font-size:16.5px;font-weight:bold;color:${NAVY};line-height:1.7;margin:2px 0 4px;">${esc(k === "ar" ? it.titleAr : it.titleEn)}</div>
 <div style="font-size:14px;line-height:1.85;color:#374151;">${esc(k === "ar" ? it.bodyAr : it.bodyEn)}</div>
 ${it.url ? `<div style="margin-top:8px;font-size:13.5px;"><a href="${esc(it.url)}" style="color:${NAVY};font-weight:bold;text-decoration:underline;">${t.more}</a></div>` : ""}
 </td></tr></table>`).join(""), "10px 36px 4px");
     }
     const whyBox = kind === "welcome" ? sec(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef2ff;border-radius:10px;"><tr><td style="padding:16px 20px;font-family:${F};${D}"><div style="font-size:15px;font-weight:bold;color:${NAVY};margin:0 0 6px;">${t.why}</div><table role="presentation" width="100%" cellpadding="0" cellspacing="0" dir="${t.dir}">${t.whyItems.map((w) => `<tr><td style="padding:5px 0;font-family:${F};font-size:14px;color:#1f2937;${D}line-height:1.7;"><span style="color:${NAVY};font-weight:bold;">&#9679;</span>&nbsp; ${esc(w)}</td></tr>`).join("")}</table></td></tr></table>`, "6px 36px 4px") : "";
     const ctaUrl = kind === "service" && d.service?.url ? d.service.url : SITE;
-    return `<tr><td style="background:${NAVY};padding:32px 36px;${D}font-family:${F};"><div style="font-size:12.5px;letter-spacing:.3px;color:#aab6e6;margin:0 0 10px;">${h[0]}</div><div style="font-size:24px;line-height:1.6;font-weight:bold;color:#ffffff;margin:0 0 10px;">${h[1]}</div><div style="font-size:14.5px;line-height:1.9;color:#dbe2fb;">${h[2]}</div></td></tr>
+    return `<tr><td style="background:${NAVY};padding:32px 36px;${D}font-family:${F};"><div style="font-size:12.5px;letter-spacing:.3px;color:#aab6e6;margin:0 0 10px;">${h[0]}</div><div style="font-family:${t.hf};font-size:25px;line-height:1.6;font-weight:bold;color:#ffffff;margin:0 0 10px;">${h[1]}</div><div style="font-size:14.5px;line-height:1.9;color:#dbe2fb;">${h[2]}</div></td></tr>
 <tr><td style="padding:28px 36px 6px;font-family:${F};${D}"><p style="margin:0 0 14px;font-size:17px;font-weight:bold;color:${NAVY};">${t.hello}</p>${paras(intro)}</td></tr>
 ${main}${whyBox}
 <tr><td align="center" style="padding:24px 36px 6px;font-family:${F};">${button(ctaUrl, t.cta)}<div style="margin-top:14px;font-size:13.5px;"><a href="${SITE}/catalog" style="color:${NAVY};text-decoration:underline;">${t.browse}</a></div></td></tr>
 <tr><td style="padding:18px 36px 22px;font-family:${F};${D}font-size:15px;line-height:1.9;color:#1f2937;">${t.close}<br><br>${t.bye}<br><strong style="color:${NAVY};">${t.team}</strong></td></tr>`;
   };
-  const badge = (txt, href, title) => `<a href="${href}" title="${title}" style="display:inline-block;width:34px;height:34px;line-height:34px;border-radius:17px;background:${NAVY};color:#ffffff;text-decoration:none;text-align:center;font-family:Arial,sans-serif;font-size:14px;font-weight:bold;margin:0 4px;">${txt}</a>`;
+  const ASSETS = (d.assetBase || SITE) + "/assets/img/social/";
+  const badge = (file, href, title) => href ? `<a href="${href}" title="${title}" style="text-decoration:none;display:inline-block;margin:0 5px;"><img src="${ASSETS}${file}.png" width="36" height="36" alt="${title}" style="display:block;border:0;width:36px;height:36px;border-radius:18px;"></a>` : "";
   const row = (icon, label, val) => `<tr><td width="30" valign="top" style="font-size:16px;line-height:1.9;">${icon}</td><td style="font-size:14px;line-height:1.9;color:#1f2937;">${label ? `<strong>${label}:</strong> ` : ""}${val}</td></tr>`;
   const contactBlock = (k) => {
     const t = L[k], F = t.font, D = `direction:${t.dir};text-align:${t.align};`;
@@ -109,7 +112,7 @@ ${row("&#128339;", "", t.hours)}
 <div style="direction:rtl;text-align:right;"><strong style="color:${NAVY};">${L.ar.legal.split(" — ")[0]}</strong> — ${L.ar.legal.split(" — ")[1]}<br>${L.ar.unsub}</div>
 <div style="direction:ltr;text-align:left;margin-top:10px;"><strong style="color:${NAVY};">${L.en.legal.split(" — ")[0]}</strong> — ${L.en.legal.split(" — ")[1]}<br>${L.en.unsub}</div></td></tr>`;
   return `<!doctype html>
-<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(d.subject)}</title></head>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(d.subject)}</title><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Inter:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"></head>
 <body style="margin:0;padding:0;background:#f3f5fa;">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#f3f5fa;font-size:1px;line-height:1px;">${esc(d.subject)} — Business Partner</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f5fa;padding:24px 10px;"><tr><td align="center">
