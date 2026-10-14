@@ -115,3 +115,7 @@
 
 ### 10.10) عميل واحد في كل دورة — قرار المالك 2026-10-14
 `جلب العملاء الجاهزين` صار `limit: 1`، فكل تنفيذ (يدوي أو جدولة أيام العمل 9 ص) يصوغ رسالة واحدة وتنتظر موافقة المالك وحدها، فلا تتشارك الموافقة بين عملاء (قيد send-and-wait في 10.9). معدل الإرسال المتوقع عميل واحد يومياً في أيام العمل؛ يُرفع لاحقاً بتغيير الجدولة لا بزيادة الحد. السير غير نشط.
+
+### 10.11) تصحيح اعتماد Gmail الميت (2026-10-14، `ops/azure-n8n/fix-dead-gmail-cred.mjs`)
+`1AQfIiEH6y5Zu61s` (غير موجود على Azure) → `fKJNtBfZTsc3UkW9` «Gmail — Business Partner — Production» في **11 عقدة / 9 سير، كلها غير نشطة** (تجربة جافة ثم `--apply`، ونسخة احتياطية لكل سير؛ لم تتغير حالة تفعيل أي سير). التحقق بعد التطبيق: 0 عقدة بالاعتماد الميت. السير: Email Campaign V1 · استقبال المرشحين من البريد · My workflow 2 · RE — Commission Notice TEST Send · RE — Client Intake · **BP Campaign Sender (Companies Sales DB)** · RE — Vendor Commission Notice Campaign · Campaign Launcher · Campaign Sender.
+**تكرار محتمل:** `BP Campaign Sender (Companies Sales DB)` (`gw9GOcav5vnlU29P`) سير سابق لإرسال حملة من القاعدة نفسها (جدولة 10:00 يومياً، حارس تحقق، فحص MX، وسم «أُرسل») وهو أكثر ضمانات من «Email Marketing Network» (لا موافقة بشرية فيه). يُقرَّر مع المالك: دمجهما (إضافة موافقة المالك وقالب HTML إلى الأقدم ثم أرشفة الآخر) أو أرشفة أحدهما.
