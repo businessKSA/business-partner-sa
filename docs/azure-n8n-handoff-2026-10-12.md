@@ -69,3 +69,16 @@
 - **فحص `cutover.mjs` (قراءة فقط):** Cloud النشطة 53 · Azure 170، لا ناقص ولا عقد ذكاء خارج Azure بين النشطة. التوزيع: schedulers 1 · webhooks 51 · whatsapp 1. لم يُنفَّذ `--apply`.
 - **عقد الذكاء المتبقية (كلها في سير غير نشطة على Azure، 8 عقد في 8 سير):** Email Campaign V1 (`6CYU2UO8TilXzBqO`, openAi) · استقبال المرشحين من البريد (`8ki6w3hoym6VK0n2`, anthropic) · BP3 Compliance ×3 (`Ao2FXaIgHUQAFE8e` OpenAI HTTP، `qVNwlYHUDpkY7dhk` و`rDQXYYplqelAQAmY` Anthropic HTTP) · استقبال من Outlook (`e7FmrFfBK0yrmMJz`, openAi) · باهر v2 (`mytupyHHG9EIyzjL`, Anthropic Managed Agents) · Email Marketing Network (`T7XUSox6eNNKLSZm`: توليد صورة + عقدتا openAi فارغتان). **لم تُحوَّل بعد:** لكل سير شكل مخرجات مختلف (`content[0].text` / `choices[0].message.content`) فتحتاج محوّلاً خاصاً بكل واحد، وتوليد الصور لا يغطيه `bp-main` (gpt-4.1). تبقى غير نشطة حتى التحويل.
 - **الموقع على staging:** سجل الصور الفعلي `bpwebacr5235` (لا `bpsiteacr` المذكور في `azure-site.yml` — يلزم تصحيحه). بُنيت الصورة `bp-site:c75cf5827a40` وحُدّثت `bp-site-staging` (rg-bp-web) → `Succeeded`. `/healthz` و`/` و`/catalog` و`/cart` و`/my` كلها 200. لم يُمسّ الإنتاج `bp-site` ولا النطاق ولا DNS.
+
+### 10.1) تحويل عقد الذكاء المتبقية — `ops/azure-n8n/convert-ai-remaining.mjs` (2026-10-14)
+حُوّلت **6 من 8 سير** إلى Azure OpenAI (`bp-main`) على Azure فقط، وكلها غير نشطة (تجربة جافة ثم `--apply`، ونسخة احتياطية لكل سير قبل الكتابة خارج المستودع):
+- `Ao2FXaIgHUQAFE8e` (OpenAI HTTP): الوجهة والاعتماد → Azure فقط (الصيغة نفسها).
+- `qVNwlYHUDpkY7dhk` و`rDQXYYplqelAQAmY` (Claude HTTP): الطلب يُحوَّل إلى صيغة الدردشة، ومحلّل «بناء سجل التنبيه» يقرأ `choices` أيضاً.
+- `e7FmrFfBK0yrmMJz` (Outlook) و`8ki6w3hoym6VK0n2` (البريد): عقدة HTTP + Set تعيد `content`/`text` كما يقرأه محلّل السيرة.
+- `6CYU2UO8TilXzBqO` (Email Campaign): HTTP + Code يعيد `output[0].content[0].text` ككائن لعقدة Gmail.
+
+**لم يُحوَّل عمداً، ويحتاج قرارك:** `mytupyHHG9EIyzjL` (باهر v2 — يفتح جلسة Claude Managed Agents، الطبقة محذوفة بقرار 2026-09-17، فالبديل هو فريق `agents/azure/`)، و`T7XUSox6eNNKLSZm` (Email Marketing Network — توليد صور لا يغطيه `bp-main`، وعقدتا الرسائل فارغتان).
+**لم تُنفَّذ أي من السير المحوّلة** (غير نشطة وليس في واجهة n8n العامة تنفيذ يدوي) — يُختبر كلٌّ من واجهة n8n بتنفيذ يدوي قبل التفعيل.
+
+### 10.2) المرحلة الأولى من التحويل (schedulers) — بموافقة المالك الصريحة 2026-10-14
+سير واحد: «BP3 — قائد الامتثال (WhatsApp)» (سير فرعي `executeWorkflowTrigger`): Cloud `DHdxNSbhQQb1AWKg` → `active=false`، وAzure `JJmvzvFTDUSxiEx1` → `active=true`. لا تنفيذات له بعد (يُستدعى من سير آخر). الرجوع: `node ops/azure-n8n/cutover.mjs --phase=schedulers --rollback --apply`.
