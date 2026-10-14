@@ -2,12 +2,14 @@
 //   N8N_AZURE_API_KEY=… node ops/azure-n8n/build-email-marketing.mjs          # تجربة بلا كتابة
 //   N8N_AZURE_API_KEY=… BACKUP_DIR=… node ops/azure-n8n/build-email-marketing.mjs --apply
 //
-// المسار ١ (يدوي + أيام العمل 9 صباحاً): عملاء Status=Ready (٥ كحد أقصى) → صياغة Azure (bp-main) →
-//   موافقة المالك بالبريد (send-and-wait) → إرسال للعميل → Status=Sent.  لا يخرج بريد بلا موافقة.
-// المسار ٢ (Gmail كل ١٥ دقيقة): ردّ وارد → تصنيف Azure → إيجاد العميل بالبريد → Status=Replied/Unsubscribed + ملاحظة.
+// القاعدة الفعلية: «BP — Companies Sales DB» (أعمدتها فُحصت): Email, Campaign Sent, Last Campaign Status, Campaign Date,
+//   Suppressed, Suppress Reason, Duplicate, Stage (status), Sector, City, ICP Score, Notes.
+// المسار ١ (يدوي + أيام العمل 9 صباحاً): عملاء لهم Email وليسوا Campaign Sent/Suppressed/Duplicate (٥ كحد أقصى) →
+//   صياغة Azure (bp-main) → موافقة المالك بالبريد (send-and-wait) → إرسال للعميل → Campaign Sent ✓ + Last Campaign Status=Sent + Campaign Date.
+//   لا يخرج بريد بلا موافقة.
+// المسار ٢ (Gmail كل ١٥ دقيقة): ردّ وارد → تصنيف Azure → إيجاد العميل بالبريد → Stage=In progress؛ وإن طلب إلغاء المراسلة
+//   → Suppressed ✓ + Suppress Reason=Unsubscribed؛ وملخص الرد يُضاف في الصفحة.
 // حُذفت: توليد الصور (OpenAI) وBannerbear — مدفوعان خارج Azure.
-// افتراضات أسماء أعمدة Notion (من سير Email Campaign V1): Status (select: Ready/Sent/Replied/Unsubscribed)،
-//   Email (email) ← يظهر مبسّطاً property_email. عدّل الثوابت أدناه إن اختلفت في «Riyadh Chamber Data - Leads».
 import fs from "node:fs";
 import path from "node:path";
 
@@ -18,9 +20,8 @@ const apply = process.argv.includes("--apply");
 const backupDir = process.env.BACKUP_DIR || ".";
 const H = { "X-N8N-API-KEY": key, "content-type": "application/json" };
 const ID = "T7XUSox6eNNKLSZm";
-const LEADS_DB = "37fd108d-ee5c-80d2-a522-d49e98030020";
+const LEADS_DB = "26faca27-6188-4b6a-b584-924c374f2d22"; // BP — Companies Sales DB (قاعدة الشركات)
 const APPROVER = "dr.baher.magnas@gmail.com"; // المالك (CLAUDE.md) — يوافق على كل رسالة قبل خروجها
-const STATUS = { ready: "Ready", sent: "Sent", replied: "Replied", unsub: "Unsubscribed" };
 const CRED_AZ = { azureOpenAiApi: { id: "fI2SkJuYmB2v3zCo", name: "Azure Open AI account" } };
 const AZ_URL = "https://bp-ai-ksa-2026.openai.azure.com/openai/deployments/bp-main/chat/completions?api-version=2025-03-01-preview";
 
@@ -75,12 +76,17 @@ const N = {
   draft: "صياغة الرسالة (Azure)", parse: "تجهيز الرسالة", approve: "موافقة المالك (إرسال وانتظار)", ok: "تمت الموافقة؟",
   send: "إرسال للعميل", sent: "وسم: أُرسل",
   gmail: "ردود Gmail الواردة", classify: "تصنيف الرد (Azure)", reply: "تجهيز الرد", find: "إيجاد العميل بالبريد",
-  found: "وُجد العميل؟", mark: "وسم: ردّ", note: "تسجيل ملخص الرد في الصفحة",
+  found: "وُجد العميل؟", mark: "وسم: العميل ردّ", unsub: "طلب إلغاء المراسلة؟", suppress: "وسم: إيقاف المراسلة", note: "تسجيل ملخص الرد في الصفحة",
 };
 const nodes = [
   node(N.manual, "n8n-nodes-base.manualTrigger", 1, [0, 0], {}),
   node(N.sched, "n8n-nodes-base.scheduleTrigger", 1.3, [0, 220], { rule: { interval: [{ field: "cronExpression", expression: "0 9 * * 1-5" }] } }),
-  notionLeads(N.leads, [260, 100], { limit: 5, filterType: "manual", matchType: "allFilters", filters: { conditions: [{ key: "Status|select", condition: "equals", selectValue: STATUS.ready }] }, options: {} }),
+  notionLeads(N.leads, [260, 100], { limit: 5, filterType: "manual", matchType: "allFilters", filters: { conditions: [
+    { key: "Email|email", condition: "is_not_empty" },
+    { key: "Campaign Sent|checkbox", condition: "equals", checkboxValue: false },
+    { key: "Suppressed|checkbox", condition: "equals", checkboxValue: false },
+    { key: "Duplicate|checkbox", condition: "equals", checkboxValue: false },
+  ] }, options: {} }),
   ifNode(N.hasMail, [500, 100], "={{ $json.property_email }}", NOT_EMPTY),
   ai(N.draft, [740, 80], SYS_DRAFT, "`بيانات العميل المحتمل (JSON):\\n${JSON.stringify($json)}\\n\\nاكتب رسالة تعريفية مخصصة له.`", "temperature: 0.4,"),
   node(N.parse, "n8n-nodes-base.code", 2, [980, 80], {
@@ -107,7 +113,11 @@ const nodes = [
     message: `={{ $('${N.parse}').item.json.body }}`,
     options: { appendAttribution: false },
   }, GMAIL),
-  notionUpdate(N.sent, [1940, 40], `={{ $('${N.parse}').item.json.leadId }}`, [{ key: "Status|select", type: "select", selectValue: STATUS.sent }]),
+  notionUpdate(N.sent, [1940, 40], `={{ $('${N.parse}').item.json.leadId }}`, [
+    { key: "Campaign Sent|checkbox", type: "checkbox", checkboxValue: true },
+    { key: "Last Campaign Status|select", type: "select", selectValue: "Sent" },
+    { key: "Campaign Date|date", type: "date", includeTime: false, date: "={{ $now.toISODate() }}" },
+  ]),
 
   node(N.gmail, "n8n-nodes-base.gmailTrigger", 1.4, [0, 560], {
     pollTimes: { item: [{ mode: "everyX", value: 15, unit: "minutes" }] }, simple: true,
@@ -128,8 +138,13 @@ const nodes = [
   }),
   notionLeads(N.find, [740, 560], { limit: 1, filterType: "manual", matchType: "allFilters", filters: { conditions: [{ key: "Email|email", condition: "equals", emailValue: "={{ $json.email }}" }] }, options: {} }),
   ifNode(N.found, [980, 560], "={{ $json.id }}", NOT_EMPTY),
-  notionUpdate(N.mark, [1220, 520], "={{ $json.id }}", [{ key: "Status|select", type: "select", selectValue: `={{ $('${N.reply}').item.json.unsub ? '${STATUS.unsub}' : '${STATUS.replied}' }}` }]),
-  node(N.note, "n8n-nodes-base.notion", 2.2, [1460, 520], {
+  notionUpdate(N.mark, [1220, 520], "={{ $json.id }}", [{ key: "Stage|status", type: "status", statusValue: "In progress" }]),
+  ifNode(N.unsub, [1460, 520], `={{ $('${N.reply}').item.json.unsub }}`, IS_TRUE),
+  notionUpdate(N.suppress, [1700, 480], "={{ $json.id }}", [
+    { key: "Suppressed|checkbox", type: "checkbox", checkboxValue: true },
+    { key: "Suppress Reason|select", type: "select", selectValue: "Unsubscribed" },
+  ]),
+  node(N.note, "n8n-nodes-base.notion", 2.2, [1940, 520], {
     authentication: "apiKey", resource: "block", operation: "append",
     blockId: { __rl: true, mode: "id", value: "={{ $json.id }}" },
     blockUi: { blockValues: [{ type: "paragraph", textContent: `={{ 'ردّ (' + $('${N.reply}').item.json.intent + '): ' + $('${N.reply}').item.json.summary }}` }] },
@@ -141,7 +156,7 @@ const connections = link(
   [N.hasMail, [[N.draft], []]], [N.draft, [[N.parse]]], [N.parse, [[N.approve]]], [N.approve, [[N.ok]]],
   [N.ok, [[N.send], []]], [N.send, [[N.sent]]],
   [N.gmail, [[N.classify]]], [N.classify, [[N.reply]]], [N.reply, [[N.find]]], [N.find, [[N.found]]],
-  [N.found, [[N.mark], []]], [N.mark, [[N.note]]],
+  [N.found, [[N.mark], []]], [N.mark, [[N.unsub]]], [N.unsub, [[N.suppress], [N.note]]], [N.suppress, [[N.note]]],
 );
 
 fs.mkdirSync(backupDir, { recursive: true });
