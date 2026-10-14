@@ -159,4 +159,8 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+// عطلٌ في مسار واحد (وحدة ناقصة، وعدٌ مرفوض) لا يُسقط الموقع كله: يُسجَّل ويستمر الخادم.
+process.on("uncaughtException", (e) => console.error("uncaughtException", e));
+process.on("unhandledRejection", (e) => console.error("unhandledRejection", e));
+
 server.listen(PORT, () => console.log(`bp-site listening on :${PORT}`));
