@@ -101,3 +101,6 @@
 
 ### 10.6) Email Marketing Network — رُبط بالقاعدة الفعلية (2026-10-14)
 القاعدة: **«BP — Companies Sales DB (قاعدة الشركات)»** (`26faca27-6188-4b6a-b584-924c374f2d22`) — تُلغي افتراضات 10.5 عن أعمدة `Status`. المرشّح: `Email` غير فارغ و`Campaign Sent`/`Suppressed`/`Duplicate` غير مؤشّرة (٥ كحد أقصى). بعد الإرسال: `Campaign Sent` ✓ و`Last Campaign Status=Sent` و`Campaign Date`. الردود: `Stage=In progress`، وطلب إلغاء المراسلة → `Suppressed` ✓ و`Suppress Reason=Unsubscribed`. 19 عقدة، غير نشط. **تنبيه اختبار:** القاعدة بيانات عملاء حقيقيين — لا تنفّذ قبل أن تؤشّر `Campaign Sent` على كل الصفوف عدا صف تجريبي بريدك، وإلا ظهرت مسودات لعملاء حقيقيين في بريد الموافقة (لا يُرسل لهم شيء بلا موافقتك).
+
+### 10.7) قالب HTML بشعار Business Partner (2026-10-14)
+البريد الصادر لعملاء Email Marketing Network صار HTML من اليمين لليسار (`ops/azure-n8n/email-template.mjs`): شريط كحلي `#0B1B5A`، الشعار من `https://www.businesspartner.sa/assets/img/logo.png`، عنوان ونص وزر «تعرّف على خدماتنا» وتذييل فيه سطر إيقاف المراسلة بالرد. الدالة نفسها تُحقن في عقدة «تجهيز الرسالة» داخل السير وتُستعمل محلياً لتوليد المعاينة (`node ops/azure-n8n/email-template.mjs > preview.html`). بريد موافقة المالك نص عادي مع ملاحظة أن الرسالة ستصل بقالب HTML. اختُبر الكود المحقون بمحاكاة (يخرج `html` بالشعار) وصُوّرت المعاينة؛ لم يُنفَّذ السير فعلياً. السير غير نشط.

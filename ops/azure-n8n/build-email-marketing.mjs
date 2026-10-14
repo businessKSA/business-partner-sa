@@ -12,6 +12,7 @@
 // حُذفت: توليد الصور (OpenAI) وBannerbear — مدفوعان خارج Azure.
 import fs from "node:fs";
 import path from "node:path";
+import { renderEmail } from "./email-template.mjs";
 
 const B = process.env.N8N_AZURE_BASE || "https://bp-n8n.delightfulhill-a9ef6e21.swedencentral.azurecontainerapps.io";
 const key = process.env.N8N_AZURE_API_KEY;
@@ -92,25 +93,26 @@ const nodes = [
   node(N.parse, "n8n-nodes-base.code", 2, [980, 80], {
     mode: "runOnceForEachItem", language: "javaScript",
     jsCode: [
+      renderEmail.toString(),
       "let t = {};",
       "try { t = JSON.parse($json.choices?.[0]?.message?.content || '{}'); } catch (e) { t = {}; }",
       `const lead = $('${N.leads}').item.json;`,
       "if (!t.subject || !t.body) throw new Error('تعذّرت صياغة الرسالة لهذا العميل');",
-      "return { json: { subject: String(t.subject), body: String(t.body), leadId: lead.id, to: lead.property_email } };",
+      "return { json: { subject: String(t.subject), body: String(t.body), html: renderEmail(String(t.subject), String(t.body)), leadId: lead.id, to: lead.property_email } };",
     ].join("\n"),
   }),
   node(N.approve, "n8n-nodes-base.gmail", 2.2, [1220, 80], {
     operation: "sendAndWait", sendTo: APPROVER,
     subject: "={{ '[مراجعة قبل الإرسال] ' + $json.subject }}",
-    message: "={{ 'إلى: ' + $json.to + '\\n\\n' + $json.subject + '\\n\\n' + $json.body }}",
+    message: "={{ 'إلى: ' + $json.to + '\\n\\n' + $json.subject + '\\n\\n' + $json.body + '\\n\\n— سيصل للعميل بقالب HTML بشعار Business Partner.' }}",
     responseType: "approval", approvalOptions: { values: { approvalType: "double" } }, options: {},
   }, GMAIL),
   ifNode(N.ok, [1460, 80], "={{ $json.data?.approved }}", IS_TRUE),
   node(N.send, "n8n-nodes-base.gmail", 2.2, [1700, 40], {
-    resource: "message", operation: "send", emailType: "text",
+    resource: "message", operation: "send", emailType: "html",
     sendTo: `={{ $('${N.parse}').item.json.to }}`,
     subject: `={{ $('${N.parse}').item.json.subject }}`,
-    message: `={{ $('${N.parse}').item.json.body }}`,
+    message: `={{ $('${N.parse}').item.json.html }}`,
     options: { appendAttribution: false },
   }, GMAIL),
   notionUpdate(N.sent, [1940, 40], `={{ $('${N.parse}').item.json.leadId }}`, [
