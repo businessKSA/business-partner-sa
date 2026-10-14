@@ -64,3 +64,8 @@
 3. مستدعو الويبهوك (الموقع و`api/` وn8n نفسه) يشيرون لعنوان Cloud عبر `BP_N8N_BASE` وما شابهه؛ يُحوَّل قبل مرحلة webhooks.
 4. مشغّلات خارجية: gmailTrigger ×2 وwhatsAppTrigger ×2 (BP-WhatsApp-Main وMahfol — الأخير يُركَن) وnotionTrigger ×1، وتحتاج اعتماداتها حيّة في Azure.
 الاختبار التشغيلي لفرح على Azure نجح يدوياً (قراءة تقويم وDrive وحارس البريد وتسجيل الرسائل). ترتيب المراحل في رأس `cutover.mjs`: schedulers ← webhooks ← whatsapp، ولكل مرحلة `--rollback`.
+
+## 10) تنفيذ 2026-10-14 (جلسة المتابعة)
+- **فحص `cutover.mjs` (قراءة فقط):** Cloud النشطة 53 · Azure 170، لا ناقص ولا عقد ذكاء خارج Azure بين النشطة. التوزيع: schedulers 1 · webhooks 51 · whatsapp 1. لم يُنفَّذ `--apply`.
+- **عقد الذكاء المتبقية (كلها في سير غير نشطة على Azure، 8 عقد في 8 سير):** Email Campaign V1 (`6CYU2UO8TilXzBqO`, openAi) · استقبال المرشحين من البريد (`8ki6w3hoym6VK0n2`, anthropic) · BP3 Compliance ×3 (`Ao2FXaIgHUQAFE8e` OpenAI HTTP، `qVNwlYHUDpkY7dhk` و`rDQXYYplqelAQAmY` Anthropic HTTP) · استقبال من Outlook (`e7FmrFfBK0yrmMJz`, openAi) · باهر v2 (`mytupyHHG9EIyzjL`, Anthropic Managed Agents) · Email Marketing Network (`T7XUSox6eNNKLSZm`: توليد صورة + عقدتا openAi فارغتان). **لم تُحوَّل بعد:** لكل سير شكل مخرجات مختلف (`content[0].text` / `choices[0].message.content`) فتحتاج محوّلاً خاصاً بكل واحد، وتوليد الصور لا يغطيه `bp-main` (gpt-4.1). تبقى غير نشطة حتى التحويل.
+- **الموقع على staging:** سجل الصور الفعلي `bpwebacr5235` (لا `bpsiteacr` المذكور في `azure-site.yml` — يلزم تصحيحه). بُنيت الصورة `bp-site:c75cf5827a40` وحُدّثت `bp-site-staging` (rg-bp-web) → `Succeeded`. `/healthz` و`/` و`/catalog` و`/cart` و`/my` كلها 200. لم يُمسّ الإنتاج `bp-site` ولا النطاق ولا DNS.
