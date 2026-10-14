@@ -82,3 +82,9 @@
 
 ### 10.2) المرحلة الأولى من التحويل (schedulers) — بموافقة المالك الصريحة 2026-10-14
 سير واحد: «BP3 — قائد الامتثال (WhatsApp)» (سير فرعي `executeWorkflowTrigger`): Cloud `DHdxNSbhQQb1AWKg` → `active=false`، وAzure `JJmvzvFTDUSxiEx1` → `active=true`. لا تنفيذات له بعد (يُستدعى من سير آخر). الرجوع: `node ops/azure-n8n/cutover.mjs --phase=schedulers --rollback --apply`.
+
+### 10.3) باهر v2 — أُرشف (2026-10-14، بتفويض المالك: «نحذفه أو نؤرشفه إن كان مكرراً»)
+الفحص: السير مجرد هيكل — معرّفات `REPLACE_WITH_*` لم تُملأ قط، ويستدعي Claude Managed Agents (مدفوع وخارج Azure، والطبقة محذوفة بقرار 2026-09-17)، ولا مرجع له إلا ملف مصدره `ops/n8n/baher-intake-v2.workflow.js`. والوظيفة مغطاة بسير نشطة: «Virtual Baher Live — Open AI Chat» و«BP Team — Baher (Business Advisor)» و«عميل صفر — باهر (Front Desk)». **أُرشف نسخة Azure `mytupyHHG9EIyzjL` ونسخة Cloud `pP51EK66BKWcU5c7`** (أرشفة قابلة للاسترجاع من واجهة n8n، لا حذف). ملف المصدر في المستودع تُرك كما هو.
+
+### 10.4) تنبيه أمني — فرح على Azure نشطة (`g2Y2k2KbxYwmhSqu`)
+وُجدت `active=true` يوم 2026-10-14 بينما كانت «غير منشورة عمداً» (البند 4)، و`Command Space Direct In` و`TEMP Muin GET Health` بلا مصادقة (`authentication: none`). لم أفعل ذلك ولم أُعطّلها بعد؛ بانتظار قرار المالك: إلغاء النشر حتى تُضاف مصادقة Header Auth، أم إبقاؤها.
