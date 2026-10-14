@@ -263,6 +263,26 @@
       "has": [
         {
           "type": "host",
+          "value": "osamh.businesspartner.sa"
+        }
+      ],
+      "destination": "/preview/osamh/index"
+    },
+    {
+      "source": "/poc",
+      "has": [
+        {
+          "type": "host",
+          "value": "osamh.businesspartner.sa"
+        }
+      ],
+      "destination": "/preview/osamh/poc"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
           "value": "hr.businesspartner.sa"
         }
       ],
