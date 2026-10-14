@@ -125,3 +125,11 @@ node ops/azure-n8n/cutover.mjs --phase=webhooks --retire-cloud --apply
 - مُستثنى مؤقتاً: «سحب كل سير Hotmail (Backfill)» (`Ws1zQQ6YezxAOMSN`) لأن مؤشره في `staticData` وحفظه قد يصفّره؛ يُحوَّل بعد انتهاء التجربة.
 - **Document Intelligence متاح** على موارد AIServices الثلاثة (`prebuilt-read` يردّ 200، API `2024-11-30`) — لا حاجة لمورد جديد. أحدها: `bp-ai-claude-eu` (Sweden Central).
 - تحذير: `bp-ultra` (gpt-5.1) نموذج استدلال قد يرفض `temperature` و`max_tokens` في عقدة n8n؛ يُجرَّب مباشرة قبل أن تُحوَّل فرح إليه.
+
+## 13) القارئ الشامل (2026-10-14)
+
+سير `BP — القارئ الشامل` (`W7Eu9jVJV4RiHpZ8`، يُنشأ بـ`ops/azure-n8n/universal-reader.mjs`) يقرأ أي ملف عبر Azure Document Intelligence:
+PDF (مصوَّر أيضاً) · صور · Word · Excel · PowerPoint · HTML · نصوص. **مُختبَر بملفات حقيقية** (docx, png, pdf, xlsx, pptx, txt).
+الصيغ القديمة (`.doc .xls .ppt`) تُرجع `ok:false` مع ملاحظة تحويل — لا تُتجاهل بصمت.
+المدخل: `{filename, mimeType?, mediaId? | url? | base64?}`. فرح (نسخة Azure `g2Y2k2KbxYwmhSqu`) صار لها أداة `Read File` وتلميح مرفقات في `Normalize`.
+**لم يُنقل بعد:** ويبهوك رقم «مُعين» (واتساب) ما زال على Cloud، فمرفقات واتساب الحقيقية لا تصل نسخة Azure من فرح قبل نقله.
