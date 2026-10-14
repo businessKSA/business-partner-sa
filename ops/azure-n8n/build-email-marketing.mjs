@@ -4,7 +4,7 @@
 //
 // القاعدة الفعلية: «BP — Companies Sales DB» (أعمدتها فُحصت): Email, Campaign Sent, Last Campaign Status, Campaign Date,
 //   Suppressed, Suppress Reason, Duplicate, Stage (status), Sector, City, ICP Score, Notes.
-// المسار ١ (يدوي + أيام العمل 9 صباحاً): عملاء لهم Email وليسوا Campaign Sent/Suppressed/Duplicate (٥ كحد أقصى) →
+// المسار ١ (يدوي + أيام العمل 9 صباحاً): عملاء لهم Email وليسوا Campaign Sent/Suppressed/Duplicate (عميل واحد في كل دورة — قرار المالك 2026-10-14: موافقة مستقلة لكل رسالة) →
 //   صياغة Azure (bp-main) → موافقة المالك بالبريد (send-and-wait) → إرسال للعميل → Campaign Sent ✓ + Last Campaign Status=Sent + Campaign Date.
 //   لا يخرج بريد بلا موافقة.
 // المسار ٢ (Gmail كل ١٥ دقيقة): ردّ وارد → تصنيف Azure → إيجاد العميل بالبريد → Stage=In progress؛ وإن طلب إلغاء المراسلة
@@ -84,7 +84,7 @@ const N = {
 const nodes = [
   node(N.manual, "n8n-nodes-base.manualTrigger", 1, [0, 0], {}),
   node(N.sched, "n8n-nodes-base.scheduleTrigger", 1.3, [0, 220], { rule: { interval: [{ field: "cronExpression", expression: "0 9 * * 1-5" }] } }),
-  notionLeads(N.leads, [260, 100], { limit: 5, filterType: "manual", matchType: "allFilters", filters: { conditions: [
+  notionLeads(N.leads, [260, 100], { limit: 1, filterType: "manual", matchType: "allFilters", filters: { conditions: [
     { key: "Email|email", condition: "is_not_empty" },
     { key: "Campaign Sent|checkbox", condition: "equals", checkboxValue: false },
     { key: "Suppressed|checkbox", condition: "equals", checkboxValue: false },
