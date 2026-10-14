@@ -37,7 +37,19 @@ async function main() {
     ignore_older_h: cfg.ignoreOlderH,
     profile_mirrored: cfg.profileLocalDir !== '',
     hide_presence: cfg.hidePresence,
+    read_labels: cfg.readLabels,
+    backfill: cfg.backfill.enabled,
   });
+  if (cfg.backfill.enabled) {
+    log.warn('⚠️ وضع الجرد الشامل مطلوب — يعمل مرة واحدة بعد استقرار الجلسة ثم يتوقّف', {
+      max_chats: cfg.backfill.maxChats,
+      msgs_per_chat: cfg.backfill.msgsPerChat,
+      days: cfg.backfill.days,
+      delay_ms: cfg.backfill.delayMs,
+      skip_groups: cfg.backfill.skipGroups,
+      force: cfg.backfill.force,
+    });
+  }
   log.info(`الرقم الشخصي ${BLOCKED_MSISDNS.join(', ')} ممنوع هنا — يقرأ بـBaileys ولا يُمسّ`);
 
   const sender = new Sender({ url: cfg.webhookUrl, secret: cfg.secret, queueDir: cfg.queueDir });
@@ -54,6 +66,8 @@ async function main() {
     resolveNames: cfg.resolveNames,
     hidePresence: cfg.hidePresence,
     printRawQr: cfg.printRawQr,
+    readLabels: cfg.readLabels,
+    backfill: cfg.backfill,
     sender,
   });
 

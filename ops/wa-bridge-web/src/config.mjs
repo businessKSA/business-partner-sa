@@ -7,6 +7,7 @@
 //      على أي جهاز، بلا `npm install` وبلا متصفّح.
 
 import path from 'node:path';
+import { readBackfillConfig } from './backfill.mjs';
 
 /** رقم الشركة — هو وحده ما بُني هذا الجسر له. */
 export const COMPANY_MSISDN = '966530540231';
@@ -95,6 +96,10 @@ export function readConfig() {
   const hidePresence = flag('WA_HIDE_PRESENCE', true);
   const printRawQr = flag('WA_QR_RAW', true);
   const allowAny = flag('WA_ALLOW_ANY_MSISDN', false);
+  const readLabels = flag('WA_READ_LABELS', true);
+  // يُقرأ هنا لا في `session.mjs`: إعدادٌ خاطئ للجرد يجب أن يُسقط العملية
+  // **قبل** إقلاع Chromium، كبقية ما في هذا الملف.
+  const backfill = readBackfillConfig();
 
   if (!webhookUrl) throw new Error('WA_WEBHOOK_URL مطلوب');
   if (!secret) throw new Error('WA_BRIDGE_SECRET مطلوب — بلا توقيع يرفض السير الحمولة');
@@ -115,5 +120,6 @@ export function readConfig() {
   return {
     webhookUrl, secret, authDir, queueDir, accounts, batchWindowS, ignoreOlderH,
     profileLocalDir, snapshotEverySec, resolveNames, hidePresence, printRawQr,
+    readLabels, backfill,
   };
 }

@@ -17,6 +17,7 @@ import {
   shouldSkip,
   tsOf,
 } from './normalize.mjs';
+import { BACKFILL_CHUNK, BackfillState, HistoryCollector } from './backfill.mjs';
 
 const {
   default: makeWASocket,
@@ -42,6 +43,21 @@ export class AccountSession {
     this.ignoreOlderH = Number(cfg.ignoreOlderH) || 24;
     this.sender = cfg.sender;
     this.log = logger(`wa:${cfg.name}`);
+    this.backfillCfg = cfg.backfill || { enabled: false };
+    this.backfillStateDir = path.join(cfg.authDir, '.backfill');
+    this.backfillStarted = false;
+    /** @type {HistoryCollector|null} */
+    this.collector = null;
+    /**
+     * ليبلات المالك — تصل من `labels.edit` و`labels.association` إن كان
+     * الحساب بزنس. انظر رأس `backfill.mjs`: الرقم الشخصي ليس بزنس على
+     * الأرجح، فتبقى هذه فارغة ويُسجَّل سطر واحد يقول ذلك.
+     * @type {Map<string, string>} معرّف الليبل → اسمه
+     */
+    this.labelNames = new Map();
+    /** @type {Map<string, Set<string>>} معرّف المحادثة → معرّفات ليبلاتها */
+    this.chatLabelIds = new Map();
+    this.labelsSeen = false;
 
     this.sock = null;
     this.stopped = false;
@@ -60,6 +76,24 @@ export class AccountSession {
     if (known) return known;
     const head = String(jid || '').split('@')[0];
     return head || jid;
+  }
+
+  /** ليبلات المحادثة بأسمائها — فارغة إن لم يصل شيء من واتساب. */
+  labelsFor(jid) {
+    const ids = this.chatLabelIds.get(jid);
+    if (!ids || !ids.size) return [];
+    const out = [];
+    for (const id of ids) {
+      const name = this.labelNames.get(String(id));
+      if (name) out.push(name);
+    }
+    return out;
+  }
+
+  noteLabelsArrived(what) {
+    if (this.labelsSeen) return;
+    this.labelsSeen = true;
+    this.log.info('ليبلات المالك وصلت من واتساب — تُقرأ كسياق للتصنيف', { via: what });
   }
 
   rememberName(jid, name) {
@@ -93,7 +127,9 @@ export class AccountSession {
         }),
       },
       printQRInTerminal: false,
-      syncFullHistory: false,
+      // `true` في الجرد وحده: بـ`false` لا يدفع واتساب إلا رسائل قليلة
+      // جداً، فيخرج الجرد شبه فارغ. انظر رأس `backfill.mjs`.
+      syncFullHistory: this.backfillCfg.enabled === true && this.backfillCfg.fullHistory !== false,
       markOnlineOnConnect: false, // لا نُظهر المالك «متصل»، ولا نسرق الإشعارات من هاتفه
       // توقيع المتصفح: واتساب يرفض الربط لبعض الحسابات حين يكون التوقيع
       // غير مألوف. `web.whatsapp.com` يربط لأنه يرسل توقيعاً قياسياً،
@@ -143,6 +179,56 @@ export class AccountSession {
       for (const g of list || []) this.rememberName(g.id, g.subject);
     });
 
+    // ليبلات واتساب بزنس. مُتحقَّق من BaileysEventMap في 6.7.9:
+    //   'labels.edit' → Label { id, name, color, deleted }
+    //   'labels.association' → { association: { type, chatId, labelId }, type: 'add'|'remove' }
+    // لا تصل لحساب غير بزنس بحال، فغيابها ليس عطلاً.
+    sock.ev.on('labels.edit', (label) => {
+      const id = String((label && label.id) || '');
+      if (!id) return;
+      if (label && label.deleted === true) {
+        this.labelNames.delete(id);
+        return;
+      }
+      const name = String((label && label.name) || '').trim();
+      if (!name) return;
+      if (this.labelNames.size > 500) this.labelNames.clear();
+      this.labelNames.set(id, name.slice(0, 60));
+      this.noteLabelsArrived('labels.edit');
+    });
+    sock.ev.on('labels.association', (ev) => {
+      const a = (ev && ev.association) || {};
+      // 'label_jid' = ليبل على محادثة. 'label_message' يوسم رسالةً بعينها
+      // ولا يعنينا: تصنيف المالك الذي نريده هو تصنيفه للجهة.
+      if (String(a.type || '') !== 'label_jid') return;
+      const chatId = String(a.chatId || '');
+      const labelId = String(a.labelId || '');
+      if (!chatId || !labelId) return;
+      let set = this.chatLabelIds.get(chatId);
+      if (!set) {
+        if (this.chatLabelIds.size > 4000) this.chatLabelIds.clear();
+        set = new Set();
+        this.chatLabelIds.set(chatId, set);
+      }
+      if (String((ev && ev.type) || 'add') === 'remove') set.delete(labelId);
+      else set.add(labelId);
+      this.noteLabelsArrived('labels.association');
+    });
+
+    // تاريخ المحادثات الذي يدفعه واتساب. يُستهلك في الجرد وحده؛ وبلا
+    // `WA_BACKFILL=1` لا مُجمِّع فلا شيء يُقرأ منه (والتدفّق الحيّ يمرّ
+    // بـ'messages.upsert' لا بهذا الحدث).
+    sock.ev.on('messaging-history.set', (ev) => {
+      if (!this.collector) return;
+      try {
+        this.collector.absorb(ev);
+      } catch (err) {
+        this.log.error('جرد: تعذّر استيعاب دفعة التاريخ', {
+          error: String((err && err.message) || err),
+        });
+      }
+    });
+
     sock.ev.on('messages.upsert', (ev) => {
       // 'append' يصل عند مزامنة التاريخ؛ الفلتر الزمني يتولّى القديم منه.
       if (!ev || !ev.messages) return;
@@ -175,6 +261,16 @@ export class AccountSession {
         );
       }
       this.sender.drain();
+      if (!this.labelsSeen) {
+        this.log.info(
+          'لا ليبلات وصلت لهذا الرقم — الحساب ليس واتساب بزنس على الأرجح، '
+          + 'فتُرسل labels فارغة. هذا حدٌّ في الحساب لا عطل.',
+        );
+      }
+      // بعد «الجلسة مفتوحة» لا قبلها.
+      this.maybeBackfill().catch((err) => {
+        this.log.error('الجرد سقط', { error: String((err && err.message) || err) });
+      });
       return;
     }
 
@@ -261,7 +357,9 @@ export class AccountSession {
     if (!batch.messages.length) return;
 
     batch.messages.sort(function (a, b) { return a.ts - b.ts; });
-    const payload = buildPayload(this.name, this.msisdn, chatId, batch.name, batch.messages);
+    const payload = buildPayload(this.name, this.msisdn, chatId, batch.name, batch.messages, {
+      labels: this.labelsFor(chatId),
+    });
     this.sender.send(payload).catch((err) => {
       this.log.error('خطأ غير متوقّع أثناء الإرسال', { error: String((err && err.message) || err) });
     });
@@ -269,6 +367,91 @@ export class AccountSession {
 
   flushAll() {
     for (const chatId of Array.from(this.batches.keys())) this.flush(chatId);
+  }
+
+  /** يبني دفعات الجرد لمحادثة واحدة ويرسلها. يعيد عدد الرسائل المقبولة. */
+  async emitBackfillBatch(chatId, chatName, raws, labels) {
+    const norm = [];
+    for (const raw of raws) {
+      // `ignoreOlderH: 0` يُلغي حارس العمر وحده ويُبقي بقية الفلاتر
+      // (بثّ · قنوات · رسائل نظام · بلا متن). المدى يحكمه WA_BACKFILL_DAYS.
+      if (shouldSkip(raw, { ignoreOlderH: 0 })) continue;
+      const id = String(((raw && raw.key) || {}).id || '');
+      if (!id) continue;
+      const key = `${chatId}|${id}`;
+      if (this.seen.has(key)) continue;
+      if (this.seen.size > 5000) this.seen.clear();
+      this.seen.add(key);
+      if (raw.pushName && !((raw.key || {}).fromMe) && !String(chatId).endsWith('@g.us')) {
+        this.rememberName(chatId, raw.pushName);
+      }
+      const one = normalizeMessage(raw, {
+        accountMsisdn: this.msisdn,
+        pushNameFor: (jid) => this.chatNames.get(jid) || '',
+      });
+      if (!one.text && !one.media_name && one.kind === 'other') continue;
+      norm.push(one);
+    }
+    if (!norm.length) return 0;
+
+    norm.sort(function (a, b) { return a.ts - b.ts; });
+    let accepted = 0;
+    for (let i = 0; i < norm.length; i += BACKFILL_CHUNK) {
+      const slice = norm.slice(i, i + BACKFILL_CHUNK);
+      const payload = buildPayload(this.name, this.msisdn, chatId, chatName, slice, {
+        labels,
+        backfill: true,
+      });
+      await this.sender.send(payload);
+      accepted += slice.length;
+    }
+    return accepted;
+  }
+
+  /**
+   * يجهّز مُجمِّع التاريخ مرة واحدة إن طُلب الجرد ولم يكن منجَزاً.
+   * لا يطلب شيئاً من واتساب: يُصغي لما يدفعه هو (انظر `backfill.mjs`).
+   */
+  async maybeBackfill() {
+    const cfg = this.backfillCfg || {};
+    if (!cfg.enabled) return;
+    if (this.backfillStarted) return;
+    this.backfillStarted = true;
+
+    const state = new BackfillState(this.backfillStateDir, this.name);
+    await state.load();
+    if (state.isDone()) {
+      if (!cfg.force) {
+        this.log.info('الجرد منجَز سابقاً — لا يُعاد تلقائياً', {
+          done_at: state.data.done_at,
+          chats: state.doneChats(),
+          marker: state.file,
+          to_repeat: 'امسح ملف التقدّم أو اضبط WA_BACKFILL_FORCE=1',
+        });
+        return;
+      }
+      this.log.warn('WA_BACKFILL_FORCE=1 — علامة الاكتمال تُلغى والجرد يُعاد');
+      state.reset();
+    }
+
+    this.collector = new HistoryCollector({
+      cfg,
+      state,
+      log: this.log,
+      stopped: () => this.stopped || this.loggedOut,
+      nameFor: (jid) => this.nameFor(jid),
+      labelsFor: (jid) => this.labelsFor(jid),
+      emit: (chatId, chatName, raws, labels) =>
+        this.emitBackfillBatch(chatId, chatName, raws, labels),
+    });
+    this.log.info('جرد Baileys جاهز — يُصغي لما يدفعه واتساب', {
+      collect_ms: cfg.collectMs,
+      full_history: cfg.fullHistory !== false,
+      note: 'ناقصٌ بطبيعته: واتساب يقرّر ما يدفع — انظر رأس src/backfill.mjs',
+    });
+    // إن لم يدفع واتساب شيئاً أصلاً فلا حدث يُسلّح المؤقّت: سلّحه هنا
+    // ليُقفل الجرد بعد المهلة ويسجّل أنه خرج فارغاً، بدل أن يبقى معلّقاً.
+    this.collector.arm();
   }
 
   async stop() {

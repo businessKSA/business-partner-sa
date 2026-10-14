@@ -4,10 +4,12 @@
   "private": true,
   "type": "module",
   "description": "BP WhatsApp reader — browser engine. Runs web.whatsapp.com in a real headless Chromium (whatsapp-web.js) for the COMPANY number only, and posts batched conversations to n8n using the exact same v1 contract as ops/wa-bridge. Read-only: no send, no read receipts.",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "start": "node src/index.mjs",
-    "check": "node --check src/index.mjs && node --check src/config.mjs && node --check src/session.mjs && node --check src/post.mjs && node --check src/normalize.mjs && node --check src/profile.mjs && node --check src/log.mjs && node --check src/dotenv.mjs && npm run guard",
+    "check": "node --check src/index.mjs && node --check src/config.mjs && node --check src/session.mjs && node --check src/post.mjs && node --check src/normalize.mjs && node --check src/profile.mjs && node --check src/backfill.mjs && node --check src/log.mjs && node --check src/dotenv.mjs && npm run guard",
     "guard": "node scripts/guard.mjs"
   },
   "dependencies": {

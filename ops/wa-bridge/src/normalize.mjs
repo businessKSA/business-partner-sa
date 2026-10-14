@@ -181,17 +181,31 @@ export function normalizeMessage(raw, meta) {
 
 /**
  * يبني الحمولة الكاملة لدفعة محادثة واحدة (عقد v1 — لا يُغيَّر).
+ *
+ * `opts` إضافةٌ لا تكسر العقد — حقول جديدة فقط، ولا يُمسّ حقل قائم:
+ *   `backfill: true` يُكتب **في أعلى الحمولة** لدفعات الجرد الشامل وحدها،
+ *       فيعرف السير أنها تاريخ لا تدفّقٌ حيّ (ويكتم التنبيه).
+ *       لا يُكتب أصلاً في الدفعات الحيّة، فتبقى بايتاً ببايت كما كانت.
+ *   `labels: []` ليبلات واتساب بزنس التي وسم بها **المالك نفسه** المحادثة.
+ *       تُرسل دائماً (وهي فارغة في هذا الجسر غالباً — انظر `backfill.mjs`).
  */
-export function buildPayload(account, accountMsisdn, chatId, chatName, messages) {
-  return {
-    v: 1,
-    account,
-    account_msisdn: digits(accountMsisdn),
-    chat_id: String(chatId),
-    chat_name: String(chatName || '').slice(0, 200),
-    is_group: isGroupJid(chatId),
-    messages,
-  };
+export function buildPayload(account, accountMsisdn, chatId, chatName, messages, opts) {
+  const o = opts || {};
+  const labels = [];
+  for (const raw of Array.isArray(o.labels) ? o.labels : []) {
+    const name = String(raw || '').trim();
+    if (name) labels.push(name.slice(0, 60));
+  }
+  const payload = { v: 1 };
+  if (o.backfill === true) payload.backfill = true;
+  payload.account = account;
+  payload.account_msisdn = digits(accountMsisdn);
+  payload.chat_id = String(chatId);
+  payload.chat_name = String(chatName || '').slice(0, 200);
+  payload.is_group = isGroupJid(chatId);
+  payload.labels = labels;
+  payload.messages = messages;
+  return payload;
 }
 
 export { isGroupJid, msisdnFromJid };

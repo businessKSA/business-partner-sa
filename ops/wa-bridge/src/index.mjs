@@ -11,6 +11,7 @@ import path from 'node:path';
 import { logger } from './log.mjs';
 import { Sender } from './post.mjs';
 import { AccountSession } from './session.mjs';
+import { readBackfillConfig } from './backfill.mjs';
 
 // يُقرأ .env قبل أي استعمال لـprocess.env. البيئة الحقيقية تسبقه دائماً.
 loadEnvFile();
@@ -68,7 +69,12 @@ function readConfig() {
   if (!Number.isFinite(batchWindowS) || batchWindowS < 5) throw new Error('WA_BATCH_WINDOW_S لا يقل عن 5');
   if (!Number.isFinite(ignoreOlderH) || ignoreOlderH < 0) throw new Error('WA_IGNORE_OLDER_H رقم غير صالح');
 
-  return { webhookUrl, secret, authDir, queueDir, accounts, batchWindowS, ignoreOlderH };
+  // يُقرأ ويُتحقّق منه هنا فيسقط الإقلاع على إعدادٍ خاطئ، لا في منتصف الجرد.
+  const backfill = readBackfillConfig();
+
+  return {
+    webhookUrl, secret, authDir, queueDir, accounts, batchWindowS, ignoreOlderH, backfill,
+  };
 }
 
 async function main() {
@@ -78,7 +84,19 @@ async function main() {
     accounts: cfg.accounts.length,
     batch_window_s: cfg.batchWindowS,
     ignore_older_h: cfg.ignoreOlderH,
+    backfill: cfg.backfill.enabled,
   });
+  if (cfg.backfill.enabled) {
+    log.warn('⚠️ وضع الجرد مطلوب — ناقصٌ بطبيعته في Baileys، انظر رأس src/backfill.mjs', {
+      max_chats: cfg.backfill.maxChats,
+      msgs_per_chat: cfg.backfill.msgsPerChat,
+      days: cfg.backfill.days,
+      delay_ms: cfg.backfill.delayMs,
+      skip_groups: cfg.backfill.skipGroups,
+      full_history: cfg.backfill.fullHistory,
+      force: cfg.backfill.force,
+    });
+  }
   for (const a of cfg.accounts) {
     const ro = READ_ONLY_MSISDNS.indexOf(a.msisdn) >= 0;
     log.info(`حساب: ${a.name} (${a.msisdn})${ro ? ' — قراءة فقط نهائياً' : ''}`);
@@ -95,6 +113,7 @@ async function main() {
       authDir: cfg.authDir,
       batchWindowS: cfg.batchWindowS,
       ignoreOlderH: cfg.ignoreOlderH,
+      backfill: cfg.backfill,
       sender,
     });
     sessions.push(s);
