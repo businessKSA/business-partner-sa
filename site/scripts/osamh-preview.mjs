@@ -33,7 +33,10 @@ fs.mkdirSync(OUT, { recursive: true });
 // unlinked path is NOT private: the prototype became publicly fetchable by
 // anyone holding or guessing the URL. It is not deployed at all any more; it
 // lives in ops/ for the repository, and is shown to the client directly.
-const PUBLISHED = new Set(['index.html']);
+// `poc.html` هي تجربة الرحلة الحيّة (طلب ← مكتب ← عرض ← عقد ← دفع ← فاتورة).
+// لا تحمل أي رقم من أرقام العميل: أسعارها عيّنة معلنة في الصفحة نفسها،
+// والدفع فيها وضع اختبار. ولهذا تُنشر، بخلاف النموذج الداخلي أعلاه.
+const PUBLISHED = new Set(['index.html', 'poc.html']);
 
 let copied = 0;
 for (const entry of fs.readdirSync(SRC, { withFileTypes: true })) {
