@@ -95,7 +95,11 @@ export class AccountSession {
       printQRInTerminal: false,
       syncFullHistory: false,
       markOnlineOnConnect: false, // لا نُظهر المالك «متصل»، ولا نسرق الإشعارات من هاتفه
-      browser: ['BP Reader', 'Chrome', '1.0.0'],
+      // توقيع المتصفح: واتساب يرفض الربط لبعض الحسابات حين يكون التوقيع
+      // غير مألوف. `web.whatsapp.com` يربط لأنه يرسل توقيعاً قياسياً،
+      // فنرسل مثله. يُضبط بـWA_BROWSER (مثال: "Mac OS,Safari,16.5").
+      browser: (process.env.WA_BROWSER || 'Mac OS,Desktop,10.15.7')
+        .split(',').map((x) => x.trim()).slice(0, 3),
       getMessage: async function () { return undefined; },
     });
     this.sock = sock;
