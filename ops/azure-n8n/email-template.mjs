@@ -21,9 +21,11 @@ export function renderEmail(kind, d) {
     ],
   };
   const UNSUB = d.unsubUrl || SITE;
+  const EMAIL_ASSETS = (d.assetBase || SITE) + "/assets/img/email/";
+  const plain = (x) => String(x ?? "").replace(/<br\s*\/?>/g, " ").replace(/<[^>]+>/g, "");
   const L = {
     ar: {
-      dir: "rtl", align: "right", font: "'IBM Plex Sans Arabic',Tajawal,-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans Arabic',Roboto,Tahoma,Arial,sans-serif", hf: "'IBM Plex Sans Arabic',Tajawal,-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans Arabic',Roboto,Tahoma,Arial,sans-serif",
+      dir: "rtl", align: "right", font: "Tajawal,'IBM Plex Sans Arabic',-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans Arabic',Roboto,Tahoma,Arial,sans-serif", hf: "Tajawal,'IBM Plex Sans Arabic',-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans Arabic',Roboto,Tahoma,Arial,sans-serif",
       hello: `السادة / <span dir="ltr" style="unicode-bidi:isolate;">${esc(d.company)}</span> المحترمين،`,
       cta: "اطلب استشارتك", browse: "تصفّح كل خدماتنا", bye: "مع خالص التحية،", team: "فريق Business Partner",
       close: "يكفي أن تردّوا على هذه الرسالة بما يهمّكم، وسنتواصل معكم في الوقت الذي يناسبكم.",
@@ -55,6 +57,17 @@ export function renderEmail(kind, d) {
     ar: [["تأسيس الشركات", "السجل التجاري، عقد التأسيس، عضوية الغرفة التجارية، والترخيص"], ["الاستثمار الأجنبي", "تأسيس الشركات الأجنبية والمشتركة وتراخيص المستثمرين"], ["الإقامة المميزة", "تقييم الأهلية وتحديد المسار وتقديم الإجراءات"], ["الخدمات الحكومية", "أبشر أعمال، مقيم، التأمينات الاجتماعية، حماية الأجور (مُدد)، الرخص البلدية"], ["الموارد البشرية والتوظيف", "تأشيرات العمل والاستقدام، التوظيف والتعاقد الخارجي (PEO/EOR)، الاستقطاب التنفيذي"], ["دعم الأعمال", "فتح الحساب البنكي التجاري، التسويق الرقمي، الامتياز التجاري"], ["المكاتب ومساحات العمل", "مكتب افتراضي بعنوان وطني، مساحات عمل مشتركة، مكاتب خاصة"], ["الأتمتة والذكاء الاصطناعي", "المستشار الذكي، الموظف الذكي، مستشار الامتثال"]],
     en: [["Company Formation", "Commercial registration, articles of association, Chamber of Commerce membership and licensing"], ["Foreign Investment", "Foreign-owned and joint-venture company setup, investor licences"], ["Premium Residency", "Eligibility assessment, pathway selection and application"], ["Government Services", "Absher Business, Muqeem, GOSI, Wage Protection (Mudad), municipal licences"], ["HR & Recruitment", "Work visas and recruitment, PEO/EOR, executive search"], ["Business Support", "Corporate bank account opening, digital marketing, franchise compliance"], ["Offices & Workspaces", "Virtual office with a national address, coworking, private offices"], ["AI & Automation", "Smart advisor, smart employee, compliance advisor"]],
   };
+  const svcUrl = (code) => "https://businesspartner.sa/services/" + code;
+  const CATS = [
+    ["تأسيس الشركات", "Company Formation", [["bp-sbc-01", "تأسيس شركة سعودية", "Saudi company formation"], ["bp-sbc-02", "إصدار سجل تجاري جديد", "New commercial registration"], ["bp-sbc-05", "حجز اسم شركة", "Company name reservation"], ["bp-chamber-01", "عضوية الغرفة التجارية", "Chamber of Commerce membership"]]],
+    ["الاستثمار الأجنبي", "Foreign Investment", [["bp-fi-01", "تأسيس شركة لمستثمر أجنبي", "Foreign investor company"], ["bp-fi-02", "ترخيص الاستثمار الأجنبي", "Foreign investment licence"], ["bp-fi-04", "شركة بشراكة أجنبية", "Joint-venture company"], ["bp-fi-05", "رخصة ريادة الأعمال", "Entrepreneur licence"]]],
+    ["الإقامة المميزة", "Premium Residency", [["bp-pr-03", "تقييم الأهلية وتحديد المسار", "Eligibility and route assessment"], ["bp-pr-01", "الإقامة المميزة (إجراءات وتقديم)", "Procedures and application"], ["bp-pr-04", "مسار مستثمر الأعمال", "Business investor route"]]],
+    ["الخدمات الحكومية", "Government Services", [["bp-absher-01", "تفعيل أبشر أعمال", "Absher Business setup"], ["bp-qiwa-01", "إعداد وتفعيل منصة قوى", "Qiwa setup"], ["bp-gosi-01", "التسجيل في التأمينات (GOSI)", "GOSI registration"], ["bp-mudad-01", "منصة مُدد لحماية الأجور", "Mudad wage protection"], ["bp-balady-01", "رخصة بلدية", "Municipal licence"]]],
+    ["الموارد البشرية والتوظيف", "HR & Recruitment", [["bp-rec-01", "الاستقدام وتأشيرات العمل", "Recruitment and work visas"], ["bp-rec-03", "التوظيف والتعاقد الخارجي PEO/EOR", "PEO / EOR"], ["bp-rec-04", "الاستقطاب التنفيذي", "Executive search"], ["bp-rec-05", "التوظيف المحلي", "Local recruitment"], ["bp-hr-03", "إدارة الموارد البشرية", "HR management"]]],
+    ["دعم الأعمال", "Business Support", [["bp-pl-0051", "فتح حساب بنكي تجاري", "Corporate bank account"], ["bp-bs-01", "التسويق الرقمي والإعلان", "Digital marketing"], ["bp-pl-0019", "الامتياز التجاري (فرنشايز)", "Franchise compliance"], ["bp-pl-0057", "دراسة الجدوى الاقتصادية", "Feasibility study"], ["bp-pl-0058", "خطة العمل والاستراتيجية", "Business plan and strategy"]]],
+    ["المكاتب ومساحات العمل", "Offices & Workspaces", [["bp-re-03", "مكتب افتراضي بعنوان وطني", "Virtual office, national address"], ["bp-re-02", "مساحة عمل مشتركة", "Coworking space"], ["bp-re-01", "مكتب خاص", "Private office"], ["bp-re-05", "خدمة البحث عن مكتب", "Office search"]]],
+    ["الأتمتة والذكاء الاصطناعي", "AI & Automation", [["bp-ai-02", "إعداد المستشار الذكي", "AI advisor setup"], ["bp-ai-smart-employee", "الموظف الذكي المتخصص", "Specialist smart employee"], ["bp-ai-03", "مستشار الامتثال", "Compliance advisor"], ["bp-ai-04", "فريق الخدمات المشتركة", "Shared services team"]]],
+  ];
   const check = (t, dsc, F, D) => `<tr><td width="40" valign="top" style="padding:0 0 14px 0;"><span style="display:inline-block;width:24px;height:24px;line-height:24px;border-radius:12px;background:${NAVY};color:#ffffff;text-align:center;font-size:13px;font-family:Arial,sans-serif;">&#10003;</span></td><td valign="top" style="padding:0 0 14px 0;font-family:${F};${D}"><div style="font-size:15.5px;font-weight:bold;color:${NAVY};line-height:1.6;">${esc(t)}</div>${dsc ? `<div style="font-size:13.5px;color:#5a6478;line-height:1.7;">${esc(dsc)}</div>` : ""}</td></tr>`;
   const heading = (txt, hf) => `<div style="font-family:${hf};font-size:19px;font-weight:bold;color:${NAVY};margin:0 0 6px;">${txt}</div><div style="width:46px;height:3px;background:${NAVY};margin:0 0 18px;font-size:0;line-height:0;">&nbsp;</div>`;
   const button = (href, txt) => `<a href="${href}" style="display:inline-block;background:${NAVY};color:#ffffff;text-decoration:none;font-size:16px;font-weight:bold;padding:14px 38px;border-radius:8px;">${txt}</a>`;
@@ -66,7 +79,11 @@ export function renderEmail(kind, d) {
     const intro = k === "ar" ? d.introAr : d.introEn;
     let main = "";
     if (kind === "welcome") {
-      main = sec(`${heading(t.svcTitle, t.hf)}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" dir="${t.dir}">${SERVICES[k].map(([a, b]) => check(a, b, F, D)).join("")}</table>`);
+      const idx = k === "ar" ? 0 : 1, nm = k === "ar" ? 1 : 2;
+      const card = (c) => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e1e6f4;border-radius:12px;background:#ffffff;"><tr><td style="padding:14px 16px;font-family:${F};${D}"><div style="font-family:${t.hf};font-size:16px;font-weight:bold;color:${NAVY};margin:0 0 4px;">${esc(c[idx])}</div><div style="width:34px;height:3px;background:${NAVY};margin:0 0 8px;font-size:0;line-height:0;">&nbsp;</div>${c[2].map((x) => `<div style="font-size:13.5px;line-height:2;"><a href="${svcUrl(x[0])}" style="color:#1f2937;text-decoration:none;"><span style="color:${NAVY};font-weight:bold;">&#8250;</span>&nbsp;${esc(x[nm])}</a></div>`).join("")}</td></tr></table>`;
+      const pairs = [];
+      for (let i = 0; i < CATS.length; i += 2) pairs.push(CATS.slice(i, i + 2));
+      main = sec(`${heading(t.svcTitle, t.hf)}<table role="presentation" width="100%" cellpadding="0" cellspacing="0" dir="${t.dir}">${pairs.map((pr) => `<tr>${pr.map((c, j) => `<td class="col" width="50%" valign="top" style="padding:0 ${j === 0 ? "6px" : "0"} 12px ${j === 0 ? "0" : "6px"};">${card(c)}</td>`).join("")}</tr>`).join("")}</table>`);
     } else if (kind === "service") {
       const s = d.service || {};
       const what = (k === "ar" ? s.whatAr : s.whatEn) || [];
@@ -83,7 +100,9 @@ ${it.url ? `<div style="margin-top:8px;font-size:13.5px;"><a href="${esc(it.url)
     }
     const whyBox = kind === "welcome" ? sec(`<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef2ff;border-radius:10px;"><tr><td style="padding:16px 20px;font-family:${F};${D}"><div style="font-size:15px;font-weight:bold;color:${NAVY};margin:0 0 6px;">${t.why}</div><table role="presentation" width="100%" cellpadding="0" cellspacing="0" dir="${t.dir}">${t.whyItems.map((w) => `<tr><td style="padding:5px 0;font-family:${F};font-size:14px;color:#1f2937;${D}line-height:1.7;"><span style="color:${NAVY};font-weight:bold;">&#9679;</span>&nbsp; ${esc(w)}</td></tr>`).join("")}</table></td></tr></table>`, "6px 36px 4px") : "";
     const ctaUrl = kind === "service" && d.service?.url ? d.service.url : SITE;
-    return `<tr><td style="background:${NAVY};padding:32px 36px;${D}font-family:${F};"><div style="font-size:12.5px;letter-spacing:.3px;color:#aab6e6;margin:0 0 10px;">${h[0]}</div><div style="font-family:${t.hf};font-size:25px;line-height:1.6;font-weight:bold;color:#ffffff;margin:0 0 10px;">${h[1]}</div><div style="font-size:14.5px;line-height:1.9;color:#dbe2fb;">${h[2]}</div></td></tr>
+    const svcName = kind === "service" ? `<tr><td style="padding:26px 36px 0;font-family:${F};${D}"><div style="font-family:${t.hf};font-size:26px;line-height:1.5;font-weight:bold;color:${NAVY};"><a href="${esc(d.service?.url || SITE)}" style="color:${NAVY};text-decoration:none;">${esc(k === "ar" ? d.service?.nameAr : d.service?.nameEn)}</a></div></td></tr>` : "";
+    return `<tr><td bgcolor="${NAVY}" style="background:${NAVY};padding:0;line-height:0;font-size:0;"><img src="${EMAIL_ASSETS}hero-${kind}-${k}.png" width="620" alt="${esc(plain(h[1]))}" style="display:block;width:100%;max-width:620px;height:auto;border:0;"></td></tr>
+${svcName}
 <tr><td style="padding:28px 36px 6px;font-family:${F};${D}"><p style="margin:0 0 14px;font-size:17px;font-weight:bold;color:${NAVY};">${t.hello}</p>${paras(intro)}</td></tr>
 ${main}${whyBox}
 <tr><td align="center" style="padding:24px 36px 6px;font-family:${F};">${button(ctaUrl, t.cta)}<div style="margin-top:14px;font-size:13.5px;"><a href="${SITE}/catalog" style="color:${NAVY};text-decoration:underline;">${t.browse}</a></div></td></tr>
@@ -112,7 +131,7 @@ ${row("&#128339;", "", t.hours)}
 <div style="direction:rtl;text-align:right;"><strong style="color:${NAVY};">${L.ar.legal.split(" — ")[0]}</strong> — ${L.ar.legal.split(" — ")[1]}<br>${L.ar.unsub}</div>
 <div style="direction:ltr;text-align:left;margin-top:10px;"><strong style="color:${NAVY};">${L.en.legal.split(" — ")[0]}</strong> — ${L.en.legal.split(" — ")[1]}<br>${L.en.unsub}</div></td></tr>`;
   return `<!doctype html>
-<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(d.subject)}</title><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Inter:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"></head>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(d.subject)}</title><style>@media only screen and (max-width:520px){.col{display:block!important;width:100%!important;padding:0 0 12px 0!important}}</style><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Inter:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"></head>
 <body style="margin:0;padding:0;background:#f3f5fa;">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#f3f5fa;font-size:1px;line-height:1px;">${esc(d.subject)} — Business Partner</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f5fa;padding:24px 10px;"><tr><td align="center">
