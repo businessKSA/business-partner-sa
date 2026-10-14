@@ -88,3 +88,4 @@
 
 ### 10.4) تنبيه أمني — فرح على Azure نشطة (`g2Y2k2KbxYwmhSqu`)
 وُجدت `active=true` يوم 2026-10-14 بينما كانت «غير منشورة عمداً» (البند 4)، و`Command Space Direct In` و`TEMP Muin GET Health` بلا مصادقة (`authentication: none`). لم أفعل ذلك ولم أُعطّلها بعد؛ بانتظار قرار المالك: إلغاء النشر حتى تُضاف مصادقة Header Auth، أم إبقاؤها.
+**قرار المالك 2026-10-14: «عطّل فرح حتى نضيف المصادقة» — نُفّذ.** `g2Y2k2KbxYwmhSqu` على Azure صارت `active=false`، ورابطا `Command Space` و`Health` يردّان 404. تبقى معطّلة حتى تُضاف Header Auth بمفتاح سرّي لعقدة `Command Space Direct In` (وحذف `TEMP Muin GET Health`). نسخة Cloud (`YgRwn40v1CqsscJw`) لم تُمسّ.
