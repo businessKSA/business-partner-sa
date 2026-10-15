@@ -168,7 +168,7 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-item small{font-size:10.5px;color:#888;display:block;margin-top:2px}
 .sv1-item .del{border:0;width:27px;height:27px;border-radius:7px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:14px}
 .sv1-addrow{display:flex;gap:6px;margin-top:2px}
-.sv1-addrow input{flex:1;border:1px solid var(--l);border-radius:9px;padding:9px;font:inherit;font-size:12.5px;outline:none}
+.sv1-addrow input{flex:1;min-width:0;border:1px solid var(--l);border-radius:9px;padding:9px;font:inherit;font-size:12.5px;outline:none}
 .sv1-docs{margin-top:16px;padding-top:14px;border-top:1px dashed #cfd6e6}
 .sv1-docs h4{margin:0 0 2px;color:var(--ink);font-size:15px}
 .sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#777}
@@ -258,7 +258,8 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-burger{display:flex}
  .sv1-hdr .right .sv1-btn:not(.primary):not(#sv1OutBtn):not(#sv1SiteBtn){display:none}
  .sv1-hdr .right #sv1SiteBtn{display:none}
- .sv1-hero .grid,.sv1-appgrid,.sv1-pgrid,.sv1-cols{grid-template-columns:1fr}
+ .sv1-hero .grid,.sv1-appgrid,.sv1-pgrid,.sv1-cols{grid-template-columns:minmax(0,1fr)}
+ .sv1-chat,.sv1-scope{min-width:0}
  .sv1-chat{border-inline-end:0;border-bottom:1px solid var(--l)}
  .sv1-flow{grid-template-columns:repeat(3,1fr)}
  .sv1-three{grid-template-columns:1fr}
