@@ -41,7 +41,7 @@
       setT: "اختر كلمة مرور", setS: "تدخل بها المرة القادمة دون رمز. 8 أحرف على الأقل.", setGo: "حفظ ومتابعة", skip: "تخطّي الآن",
       badEmail: "اكتب بريداً صحيحاً.", badCreds: "البريد أو كلمة المرور غير صحيحة.", netErr: "تعذّر الاتصال. تحقق من الإنترنت وحاول مرة أخرى.",
       badCode: "الرمز غير صحيح أو انتهت صلاحيته.", terms: "الشروط والأحكام", contact: "تواصل معنا",
-      chat: "المحادثة", menu: "القائمة", my: "طلباتي ومستنداتي", out: "تسجيل الخروج", ver: "الإصدار", signed: "مسجّل باسم",
+      chat: "المحادثة", svc: "الخدمات", cart: "السلة", me: "حسابي", menu: "القائمة", my: "طلباتي ومستنداتي", out: "تسجيل الخروج", ver: "الإصدار", signed: "مسجّل باسم",
       del: "طلب حذف الحساب", delQ: "سنفتح محادثة واتساب برسالة جاهزة لطلب حذف حسابك، ونتواصل معك لتأكيد الطلب. لا يُحذف شيء قبل تأكيدك.",
       delGo: "أرسل الطلب", delNo: "إلغاء", delMsg: "أرغب في حذف حسابي في تطبيق Business Partner.",
       off: "أنت غير متصل بالإنترنت", pushT: "فعّل الإشعارات لمتابعة طلباتك وعروضك", pushB: "تفعيل", pushX: "لاحقاً"
@@ -55,7 +55,7 @@
       setT: "Choose a password", setS: "Use it next time instead of a code. At least 8 characters.", setGo: "Save and continue", skip: "Skip for now",
       badEmail: "Enter a valid email.", badCreds: "Wrong email or password.", netErr: "Could not connect. Check your internet and try again.",
       badCode: "The code is wrong or has expired.", terms: "Terms and conditions", contact: "Contact us",
-      chat: "Chat", menu: "Menu", my: "My requests and documents", out: "Sign out", ver: "Version", signed: "Signed in as",
+      chat: "Chat", svc: "Services", cart: "Cart", me: "Account", menu: "Menu", my: "My requests and documents", out: "Sign out", ver: "Version", signed: "Signed in as",
       del: "Request account deletion", delQ: "We will open a WhatsApp chat with a ready message asking to delete your account, then contact you to confirm. Nothing is deleted before you confirm.",
       delGo: "Send request", delNo: "Cancel", delMsg: "I would like to delete my account in the Business Partner app.",
       off: "You are offline", pushT: "Turn on notifications to follow your requests and quotes", pushB: "Enable", pushX: "Later"
@@ -94,8 +94,15 @@
     // الشاشة الأولى محادثة صرفة: بلا شريط مكرر، والمحادثة تملأ الشاشة وحقل الكتابة في أسفلها.
     // لوحة نطاق الطلب تحتها بالتمرير (هي طريق إنشاء الطلب).
     "html.bp-chat .sv1-appbar{display:none}",
-    "html.bp-chat .sv1-chat{height:calc(100vh - 52px - " + SAFE_T + ");height:calc(100dvh - 52px - " + SAFE_T + ");min-height:0}",
+    "html.bp-chat .sv1-chat{height:calc(100vh - 116px - " + SAFE_T + " - " + SAFE_B + ");height:calc(100dvh - 116px - " + SAFE_T + " - " + SAFE_B + ");min-height:0}",
     "html.bp-chat .sv1-chat .sv1-msgs{flex:1 1 auto;min-height:0;max-height:none;overflow-y:auto}",
+    // شريط التبويب السفلي للعميل: المحادثة · الخدمات · السلة · حسابي
+    ".bp-tabbar{position:fixed;left:0;right:0;bottom:0;z-index:2147483000;display:flex;align-items:stretch;background:rgba(255,255,255,.97);-webkit-backdrop-filter:saturate(180%) blur(14px);backdrop-filter:saturate(180%) blur(14px);border-top:1px solid #E5E9F0;padding:6px 4px calc(6px + " + SAFE_B + ");font-family:inherit}",
+    ".bp-tab{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:48px;color:#5A6478;text-decoration:none;font-size:11px;font-weight:600;line-height:1.1;-webkit-tap-highlight-color:transparent;position:relative}",
+    ".bp-tab svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.bp-tab.on{color:#0B1B5A}.bp-tab.on svg{stroke-width:2.2}.bp-tab:active{opacity:.6}",
+    ".bp-tab i{position:absolute;top:2px;inset-inline-start:calc(50% + 6px);min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#0B1B5A;color:#fff;font:700 10px/16px inherit;font-style:normal;text-align:center}",
+    "body.bp-has-tabbar{padding-bottom:calc(64px + " + SAFE_B + ")!important}",
+    "body.bp-has-tabbar .sv1-wa-fab,body.bp-has-tabbar #bpsFab,body.bp-has-tabbar #bpsPanel{bottom:calc(76px + " + SAFE_B + ")!important}",
     // شريط علوي خاص بالتطبيق
     ".bp-top{position:sticky;top:0;z-index:2147482000;display:flex;align-items:center;gap:10px;min-height:52px;padding:0 12px;background:rgba(255,255,255,.97);",
     "-webkit-backdrop-filter:saturate(180%) blur(14px);backdrop-filter:saturate(180%) blur(14px);border-bottom:1px solid #E5E9F0;font-family:inherit;color:#0B1B5A}",
@@ -124,7 +131,7 @@
     ".bp-sheet .row{display:flex;gap:10px;padding:0 20px 8px}.bp-sheet .row a,.bp-sheet .row button{flex:1;min-height:50px;border-radius:14px;border:0;justify-content:center;font:700 15px inherit;text-decoration:none;cursor:pointer}",
     ".bp-sheet .go{background:#B42318;color:#fff}.bp-sheet .no{background:#EEF2FB;color:#0B1B5A}",
     ".bp-off{position:fixed;left:0;right:0;top:0;z-index:2147483001;background:#B45309;color:#fff;text-align:center;font:600 13px/1 inherit;padding:calc(8px + " + SAFE_T + ") 12px 8px;transform:translateY(-110%);transition:transform .2s}.bp-off.on{transform:none}",
-    ".bp-push{position:fixed;left:12px;right:12px;bottom:calc(14px + " + SAFE_B + ");z-index:2147482999;background:#0B1B5A;color:#fff;border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:center;font:600 13.5px/1.5 inherit;box-shadow:0 12px 32px -8px rgba(11,27,90,.45)}.bp-push b{flex:1;font-weight:600}",
+    ".bp-push{position:fixed;left:12px;right:12px;bottom:calc(76px + " + SAFE_B + ");z-index:2147482999;background:#0B1B5A;color:#fff;border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:center;font:600 13.5px/1.5 inherit;box-shadow:0 12px 32px -8px rgba(11,27,90,.45)}.bp-push b{flex:1;font-weight:600}",
     ".bp-push button{border:0;border-radius:10px;min-height:36px;padding:0 14px;font:700 13px inherit;cursor:pointer}.bp-push .y{background:#fff;color:#0B1B5A}.bp-push .n{background:transparent;color:#C3CDE6}"
   ].join("");
   var st = document.createElement("style");
@@ -137,6 +144,51 @@
     back: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>',
     menu: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>'
   };
+  var TABICON = {
+    chat: '<path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L3 21l1.7-5.1A8.5 8.5 0 1 1 21 12Z"/>',
+    svc: '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>',
+    cart: '<path d="M3 4h2.5l2.2 11h10.6l2-8H6.4"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/>',
+    me: '<circle cx="12" cy="8.5" r="3.7"/><path d="M4.5 20c.8-3.8 3.9-5.8 7.5-5.8s6.7 2 7.5 5.8"/>'
+  };
+  var TABS = [["chat", "/", /^\/$/], ["svc", "/catalog", /^\/(catalog|services)(\/|$)/], ["cart", "/cart", /^\/(cart|checkout)(\/|$)/], ["me", "/my", /^\/(my|account)(\/|$)/]];
+  function cartCount() {
+    return safe(function () {
+      var raw = JSON.parse(localStorage.getItem("bp_cart") || "null");
+      var arr = Array.isArray(raw) ? raw : raw && Array.isArray(raw.items) ? raw.items : [];
+      var n = 0;
+      for (var i = 0; i < arr.length; i++) n += Number(arr[i] && (arr[i].qty || arr[i].q)) || 1;
+      return n;
+    }) || 0;
+  }
+  // لا شريط في الدفع (يغطي زر «ادفع») ولا في لوحة العمليات.
+  var noBar = /^\/(checkout|ops|admin)(\/|$)/.test(path);
+  var bar;
+  function tabBar() {
+    if (noBar || bar || !document.body) return;
+    bar = el("nav", "bp-tabbar");
+    bar.setAttribute("role", "navigation"); bar.setAttribute("aria-label", "Business Partner");
+    var n = cartCount();
+    TABS.forEach(function (t) {
+      var on = t[2].test(path);
+      var a = el("a", "bp-tab" + (on ? " on" : ""));
+      a.href = prefix + t[1]; a.dataset.t = t[0];
+      if (on) a.setAttribute("aria-current", "page");
+      a.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + TABICON[t[0]] + "</svg>";
+      a.appendChild(el("span", null, T[t[0]]));
+      if (t[0] === "cart" && n) a.appendChild(el("i", null, n > 9 ? "9+" : String(n)));
+      a.addEventListener("click", function () { tap("LIGHT"); });
+      bar.appendChild(a);
+    });
+    document.body.appendChild(bar);
+    document.body.classList.add("bp-has-tabbar");
+  }
+  window.addEventListener("storage", function () {
+    if (!bar) return;
+    var a = bar.querySelector('[data-t="cart"]'), b = a && a.querySelector("i"), n = cartCount();
+    if (!a) return;
+    if (!n && b) b.remove(); else if (n) { if (!b) { b = el("i"); a.appendChild(b); } b.textContent = n > 9 ? "9+" : String(n); }
+  });
+
   var session = null, gate = null, methods = { google: false };
 
   function field(label, type, name, auto) {
@@ -337,15 +389,8 @@
     if (document.querySelector(".bp-top")) return;
     var bar = el("div", "bp-top");
     bar.setAttribute("role", "banner");
-    if (!isHome) {
-      var bk = el("a", "bk"); bk.href = prefix + "/"; bk.setAttribute("aria-label", T.chat);
-      bk.innerHTML = ICON.back; bk.appendChild(el("span", null, T.chat));
-      bar.appendChild(bk);
-      bar.appendChild(el("span", "t"));
-    } else {
-      var t = el("span", "t"), lg = document.createElement("img");
-      lg.src = "/assets/img/logo.png"; lg.alt = "Business Partner"; t.appendChild(lg); bar.appendChild(t);
-    }
+    var t = el("span", "t"), lg = document.createElement("img");
+    lg.src = "/assets/img/logo.png"; lg.alt = "Business Partner"; t.appendChild(lg); bar.appendChild(t);
     if (session) {
       var mb = el("button"); mb.type = "button"; mb.setAttribute("aria-label", T.menu); mb.innerHTML = ICON.menu;
       mb.onclick = openMenu; bar.appendChild(mb);
@@ -415,6 +460,7 @@
     html.classList.remove("bp-pending");
     if (isHome) html.classList.add("bp-chat");
     topBar();
+    tabBar();
     pushBanner();
     hideSplash();
   }

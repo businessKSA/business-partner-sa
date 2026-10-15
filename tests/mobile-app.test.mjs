@@ -53,7 +53,12 @@ test("mobile: الدخول إجباري والتطبيق محادثة فقط (ق
   assert.match(src, /password-login/, "دخول كلمة المرور");
   assert.match(src, /else showLogin\(\);/, "بلا جلسة تظهر البوابة (لا مسار يتجاوزها غير الصفحات العامة)");
   assert.match(src, /html\.bp-chat main>section:not\(#advisor\)/, "وضع المحادثة يخفي ما عدا المحادثة");
-  assert.doesNotMatch(src, /class="bp-tabbar"|bp-tabbar/, "لا شريط تبويب");
+  // الشريط السفلي للعميل: المحادثة · الخدمات · السلة · حسابي (طلب المالك 2026-10-15)
+  assert.match(src, /\["chat", "\/"/);
+  assert.match(src, /\["svc", "\/catalog"/);
+  assert.match(src, /\["cart", "\/cart"/);
+  assert.match(src, /\["me", "\/my"/);
+  assert.match(src, /tabBar\(\);\n    pushBanner/, "الشريط يُبنى بعد الدخول فقط");
   // جوجل لا يظهر إلا بتهيئة الخادم ووجود المكوّن الأصلي
   assert.match(src, /methods\.google && P\.SocialLogin/);
 });
