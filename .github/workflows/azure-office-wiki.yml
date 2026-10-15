@@ -1,0 +1,51 @@
+# مساحة المكتب الداخلية (Outline) على Azure Container Apps + PostgreSQL + Azure Files.
+# يدوي عمداً: ينشئ موارد تُحتسب من المنحة. الأسرار المطلوبة:
+#   AZURE_CREDENTIALS · OFFICE_TENANT_ID · OFFICE_CLIENT_ID · OFFICE_CLIENT_SECRET
+name: Deploy Office Wiki to Azure
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'اكتب deploy-office للتأكيد'
+        required: true
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: azure-office-wiki
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: تأكيد النية
+        run: |
+          [ "${{ github.event.inputs.confirm }}" = "deploy-office" ] || { echo "::error::اكتب deploy-office."; exit 1; }
+
+      - name: فحص الأسرار
+        env:
+          A: ${{ secrets.AZURE_CREDENTIALS }}
+          T: ${{ secrets.OFFICE_TENANT_ID }}
+          C: ${{ secrets.OFFICE_CLIENT_ID }}
+          S: ${{ secrets.OFFICE_CLIENT_SECRET }}
+        run: |
+          for v in A T C S; do [ -n "${!v}" ] || { echo "::error::ينقص سرّ ($v)."; exit 1; }; done
+
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: نشر المساحة
+        env:
+          BP_AZ_RG: bp-ai
+          BP_AZ_LOCATION: swedencentral
+          OFFICE_TENANT_ID: ${{ secrets.OFFICE_TENANT_ID }}
+          OFFICE_CLIENT_ID: ${{ secrets.OFFICE_CLIENT_ID }}
+          OFFICE_CLIENT_SECRET: ${{ secrets.OFFICE_CLIENT_SECRET }}
+        run: bash azure/office-wiki/deploy.sh
