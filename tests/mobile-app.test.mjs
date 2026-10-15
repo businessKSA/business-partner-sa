@@ -23,7 +23,10 @@ test("mobile: الجسر لا يفعل شيئاً خارج Capacitor الأصل�
   const firstDom = src.indexOf("document.");
   assert.ok(guard > 0, "حارس isNativePlatform مفقود");
   assert.ok(guard < firstDom, "الحارس يجب أن يسبق أول لمسة لـdocument");
-  assert.doesNotMatch(src, /\bfetch\(|XMLHttpRequest|sendBeacon/, "الجسر لا يتصل بالشبكة بنفسه");
+  assert.doesNotMatch(src, /XMLHttpRequest|sendBeacon/, "الجسر لا يستعمل غير fetch");
+  // الاتصال الوحيد المسموح: POST إلى /api/otp من الأصل نفسه (الدخول والجلسة).
+  const urls = [...src.matchAll(/fetch\(\s*("[^"]*"|'[^']*'|[A-Za-z_.]+)/g)].map((m) => m[1]);
+  assert.deepEqual([...new Set(urls)], ['"/api/otp"'], "الجسر يتصل بـ/api/otp وحده");
 });
 
 test("mobile: الإشعارات لا تُفعَّل بلا علامة bp-push (register بلا Firebase يُسقط Android)", () => {
@@ -43,6 +46,16 @@ test("mobile: أسرار التوقيع لا تُدفع", () => {
 test("mobile: الفوتر مخفي داخل التطبيق فقط (قرار المالك 2026-10-15: تطبيق لا موقع)", () => {
   const src = read("site/assets/js/app-bridge.js");
   assert.match(src, /html\.bp-native footer\.sv1-foot/);
+});
+
+test("mobile: الدخول إجباري والتطبيق محادثة فقط (قرار المالك 2026-10-15)", () => {
+  const src = read("site/assets/js/app-bridge.js");
+  assert.match(src, /password-login/, "دخول كلمة المرور");
+  assert.match(src, /else showLogin\(\);/, "بلا جلسة تظهر البوابة (لا مسار يتجاوزها غير الصفحات العامة)");
+  assert.match(src, /html\.bp-chat main>section:not\(#advisor\)/, "وضع المحادثة يخفي ما عدا المحادثة");
+  assert.doesNotMatch(src, /class="bp-tabbar"|bp-tabbar/, "لا شريط تبويب");
+  // جوجل لا يظهر إلا بتهيئة الخادم ووجود المكوّن الأصلي
+  assert.match(src, /methods\.google && P\.SocialLogin/);
 });
 
 test("mobile: قسم «عن التطبيق» لا يخترع رابط خصوصية قبل وجود صفحته", () => {
