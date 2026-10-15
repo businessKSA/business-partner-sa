@@ -1,0 +1,231 @@
+---
+// القصر موتورز — صفحة سيارة توضيحية: قصر السيارة (توأم رقمي + تمويل + بائع ذكي)
+import MotorsLayout from '../../layouts/MotorsLayout.astro';
+const WHATSAPP = 'https://wa.me/966503793356';
+---
+
+<MotorsLayout title="تويوتا لاندكروزر GXR 2022 | القصر موتورز">
+  <section class="section wrap">
+    <div class="car-hero">
+      <!-- قصر السيارة -->
+      <div class="car-stage">
+        <div class="stage-frame">
+          <img id="mainImg" src="https://unsplash.com/photos/YPzKIbxlFPY/download?w=1600" alt="تويوتا لاندكروزر GXR 2022" onerror="this.parentElement.classList.add('noimg')" />
+          <div class="noimg-note">👑 تعذّر تحميل الصورة في هذه البيئة</div>
+          <div class="stage-badges">
+            <span class="chip green">مفحوصة ✓ 200 نقطة</span>
+            <span class="chip">توأم رقمي 🧬</span>
+          </div>
+        </div>
+        <div class="angles-row" id="anglesRow"></div>
+      </div>
+
+      <!-- التفاصيل -->
+      <aside class="car-panel">
+        <div class="kicker" style="color:var(--gold);font-size:0.8rem;font-weight:700;letter-spacing:0.14em">◆ الجناح الخليجي · الرياض</div>
+        <h1>تويوتا لاندكروزر GXR</h1>
+        <div style="color:var(--muted);font-size:0.9rem">2022 · 48,000 كم · فل كامل · دفع رباعي</div>
+        <div class="stats" style="margin-top:0.4rem">
+          <div class="stat"><b>96%</b><small>نتيجة الفحص</small></div>
+          <div class="stat"><b>1</b><small>مالك سابق</small></div>
+          <div class="stat"><b>0</b><small>حوادث مسجلة</small></div>
+        </div>
+        <div class="price-block">
+          <div>
+            <div class="p">265,000 <small>ريال</small></div>
+            <div class="sub">💡 السعر العادل بالذكاء الاصطناعي: 258–272 ألف — <b style="color:#7ee2ac">سعر ممتاز</b></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap">
+          <a class="btn-gold" href={WHATSAPP + '?text=' + encodeURIComponent('أرغب بحجز معاينة: تويوتا لاندكروزر GXR 2022 (القصر موتورز)')} target="_blank" rel="noopener">📅 احجز معاينة</a>
+          <a class="btn-ghost" href={WHATSAPP + '?text=' + encodeURIComponent('أرغب بتجربة اللاندكروزر GXR ثلاثة أيام قبل الشراء')} target="_blank" rel="noopener">🚗 جرّبها 3 أيام</a>
+        </div>
+        <div class="chip blue" style="align-self:flex-start">🔔 3 مشترين مؤهلين مهتمين — يمكن فتح مزايدة الجادّين</div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- التوأم الرقمي -->
+  <section class="section wrap">
+    <div class="section-head">
+      <div class="kicker">التوأم الرقمي 🧬</div>
+      <h2>سيرة السيارة كاملة — بلا أسرار</h2>
+      <p>ملف حي يرافق السيارة من مالك لمالك: الفحص، الصيانة، الممشى الموثق — امسح QR على الزجاج وشف كل شيء.</p>
+    </div>
+    <div class="steps" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))">
+      <div class="step"><div class="ic">🛡️</div><h4>الفحص المعتمد</h4><p>هيكل سليم 100% · محرك ممتاز · إطارات 70% · تكييف ممتاز · تقرير كامل PDF</p></div>
+      <div class="step"><div class="ic">🔧</div><h4>سجل الصيانة</h4><p>12 زيارة موثقة لدى الوكيل — آخرها قبل شهرين (زيت + فلاتر + فحص شامل).</p></div>
+      <div class="step"><div class="ic">🛣️</div><h4>الممشى الموثق</h4><p>قراءات العداد متسلسلة عبر سجلات الفحص الدوري — لا تلاعب.</p></div>
+      <div class="step"><div class="ic">📜</div><h4>تاريخ الملكية</h4><p>مالك واحد · مسجلة بالرياض · لا رهون ولا مخالفات قائمة.</p></div>
+    </div>
+  </section>
+
+  <!-- التمويل -->
+  <section class="section wrap" id="financing">
+    <div class="section-head">
+      <div class="kicker">مؤهل مسبقًا؟ اعرف قبل ما تكلم البائع</div>
+      <h2>قسّطها على كيفك</h2>
+    </div>
+    <div class="fin-box">
+      <div class="fin-controls">
+        <div>
+          <label>الدفعة الأولى <span class="val" id="vDown">20% (53,000 ريال)</span></label>
+          <input type="range" id="rDown" min="0" max="50" step="5" value="20" />
+        </div>
+        <div>
+          <label>مدة التمويل <span class="val" id="vYears">5 سنوات</span></label>
+          <input type="range" id="rYears" min="1" max="7" step="1" value="5" />
+        </div>
+        <div>
+          <label>راتبك الشهري <span class="val" id="vSalary">15,000 ريال</span></label>
+          <input type="range" id="rSalary" min="4000" max="60000" step="1000" value="15000" />
+        </div>
+        <div class="ai-price" id="eligibility">
+          <div style="font-size:0.82rem;color:var(--muted);margin-bottom:0.3rem">🔮 تقييم فرصتك التمويلية (توضيحي)</div>
+          <div class="range" id="eligText">—</div>
+        </div>
+        <div class="fin-note">* أرقام توضيحية. العروض النهائية من جهات تمويل مرخصة من البنك المركزي حسب ملفك الائتماني.</div>
+      </div>
+      <div class="fin-offers">
+        <div class="offer"><div class="name">💠 أقساط مرابحة<small>تملك فوري</small></div><div class="monthly"><span id="mMurabaha">—</span> <small>ريال/شهر</small></div></div>
+        <div class="offer"><div class="name">🔑 منتهي بالتمليك<small>دفعة أخيرة 30%</small></div><div class="monthly"><span id="mLease">—</span> <small>ريال/شهر</small></div></div>
+        <div class="offer"><div class="name">🚗 إيجار مرن<small>بدون تملك</small></div><div class="monthly"><span id="mRent">—</span> <small>ريال/شهر</small></div></div>
+        <a class="btn-gold" href={WHATSAPP + '?text=' + encodeURIComponent('أرغب بالتأهيل التمويلي المسبق للاندكروزر GXR 2022')} target="_blank" rel="noopener" style="text-align:center">أرسل طلب التأهيل المسبق</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- اسأل خالد -->
+  <section class="section wrap">
+    <div class="section-head">
+      <div class="kicker">البائع الذكي 🤖</div>
+      <h2>اسأل «خالد» عن هذي السيارة</h2>
+      <p>يعرف تقرير فحصها وسجلها كاملًا ويرد عليك فورًا — وهذي عيّنة توضيحية، والنسخة الصوتية الكاملة في صفحة «تحدث مع خالد».</p>
+    </div>
+    <div class="chat-demo">
+      <div class="chat-log" id="chatLog">
+        <div class="msg bot">حياك الله 🌹 أنا خالد، مستشارك في القصر موتورز. اسألني أي شيء عن اللاندكروزر GXR — فحصها قدامي كامل.</div>
+      </div>
+      <div class="chat-quick" id="chatQuick"></div>
+    </div>
+  </section>
+
+  <style is:global>
+    .car-hero { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.4rem; }
+    .car-stage { display: flex; flex-direction: column; gap: 0.7rem; }
+    .stage-frame {
+      position: relative; border-radius: 18px; overflow: hidden; aspect-ratio: 16/10;
+      border: 1px solid rgba(212, 175, 55, 0.5); background: #0b0e14;
+      box-shadow: 0 0 0 5px rgba(14,16,22,0.9), 0 0 0 6px rgba(212,175,55,0.45), 0 26px 50px rgba(0,0,0,0.6);
+    }
+    .stage-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .stage-frame .noimg-note { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; color: var(--gold-2); }
+    .stage-frame.noimg img { display: none; }
+    .stage-frame.noimg .noimg-note { display: flex; }
+    .stage-badges { position: absolute; top: 0.7rem; inset-inline-start: 0.7rem; display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .angles-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+    .angles-row button {
+      width: 96px; height: 60px; border-radius: 10px; overflow: hidden; cursor: pointer;
+      border: 2px solid var(--line); background: #0b0e14; padding: 0; position: relative;
+    }
+    .angles-row button.on { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.2); }
+    .angles-row img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .angles-row .lbl { position: absolute; inset-inline: 0; bottom: 0; font-size: 0.6rem; font-weight: 700; color: var(--gold-2); background: rgba(7,8,12,0.75); }
+    .car-panel { display: flex; flex-direction: column; gap: 0.9rem; }
+    .car-panel h1 { color: var(--text); font-size: clamp(1.5rem, 3vw, 2.1rem); }
+    .price-block .p { color: var(--gold-2); font-weight: 800; font-size: 2rem; font-variant-numeric: tabular-nums; }
+    .price-block .p small { color: var(--muted); font-size: 0.9rem; font-weight: 400; }
+    .price-block .sub { color: var(--muted); font-size: 0.8rem; margin-top: 0.2rem; line-height: 1.7; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; }
+    .stat { border: 1px solid var(--line); border-radius: 14px; padding: 0.7rem 0.6rem; text-align: center; background: rgba(255,255,255,0.02); }
+    .stat b { display: block; font-size: 1.3rem; color: var(--gold-2); font-weight: 800; }
+    .stat small { color: var(--muted); font-size: 0.72rem; }
+    .chat-demo { max-width: 720px; margin: 0 auto; border: 1px solid var(--line); border-radius: 22px; background: var(--panel); padding: 1.2rem; }
+    .chat-log { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 0.9rem; max-height: 340px; overflow-y: auto; }
+    .msg { padding: 0.65rem 1rem; border-radius: 14px; font-size: 0.9rem; line-height: 1.8; max-width: 85%; }
+    .msg.bot { background: rgba(212, 175, 55, 0.08); border: 1px solid var(--gold-dim); align-self: flex-start; }
+    .msg.user { background: rgba(74, 168, 216, 0.1); border: 1px solid rgba(74,168,216,0.35); align-self: flex-end; }
+    .chat-quick { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .chat-quick button {
+      font-family: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      color: var(--gold-2); background: transparent; border: 1px solid var(--gold-dim);
+      border-radius: 999px; padding: 0.4rem 0.9rem;
+    }
+    .chat-quick button:hover { background: rgba(212, 175, 55, 0.08); }
+    @media (max-width: 900px) { .car-hero { grid-template-columns: 1fr; } }
+  </style>
+
+  <script>
+    const IMG = (id, w) => `https://unsplash.com/photos/${id}/download?w=${w}`;
+    const PHOTOS = [
+      { id: 'YPzKIbxlFPY', lbl: 'خارجية' },
+      { id: 'r3cA8C6a-UA', lbl: 'أمامية' },
+      { id: 'D5FI8jv6ndU', lbl: 'المقصورة' },
+    ];
+    const row = document.getElementById('anglesRow');
+    const main = document.getElementById('mainImg');
+    PHOTOS.forEach((p, i) => {
+      const b = document.createElement('button');
+      b.className = i === 0 ? 'on' : '';
+      b.innerHTML = `<img src="${IMG(p.id, 300)}" alt="" loading="lazy" onerror="this.style.display='none'"/><span class="lbl">${p.lbl}</span>`;
+      b.addEventListener('click', () => {
+        main.parentElement.classList.remove('noimg');
+        main.src = IMG(p.id, 1600);
+        row.querySelectorAll('button').forEach((x, j) => x.classList.toggle('on', j === i));
+      });
+      row.appendChild(b);
+    });
+
+    // حاسبة التمويل + التأهيل (توضيحي)
+    const $ = (id) => document.getElementById(id);
+    const fmt = new Intl.NumberFormat('en-US');
+    const PRICE = 265000;
+    function calc() {
+      const downPct = Number($('rDown').value);
+      const years = Number($('rYears').value);
+      const salary = Number($('rSalary').value);
+      const financed = PRICE * (1 - downPct / 100);
+      const months = years * 12;
+      const murabaha = (financed * (1 + 0.06 * years)) / months;
+      const lease = Math.max(0, (financed * (1 + 0.055 * years) - PRICE * 0.3) / months);
+      const rent = PRICE * 0.012;
+      $('vDown').textContent = `${downPct}% (${fmt.format(Math.round(PRICE * downPct / 100))} ريال)`;
+      $('vYears').textContent = years + (years <= 2 ? ' سنة' : ' سنوات');
+      $('vSalary').textContent = fmt.format(salary) + ' ريال';
+      $('mMurabaha').textContent = fmt.format(Math.round(murabaha));
+      $('mLease').textContent = fmt.format(Math.round(lease));
+      $('mRent').textContent = fmt.format(Math.round(rent));
+      // قاعدة استقطاع توضيحية: القسط ≤ 33% من الراتب
+      const ratio = murabaha / salary;
+      const el = $('eligText');
+      if (ratio <= 0.33) { el.textContent = '✅ فرصتك ممتازة — القسط ' + Math.round(ratio * 100) + '% من راتبك'; el.style.color = '#7ee2ac'; }
+      else if (ratio <= 0.45) { el.textContent = '🟡 ممكنة — جرّب دفعة أعلى أو مدة أطول'; el.style.color = '#f3d98b'; }
+      else { el.textContent = '⚠️ صعبة حاليًا — القسط يتجاوز نصف الراتب'; el.style.color = '#ff9b9e'; }
+    }
+    ['rDown', 'rYears', 'rSalary'].forEach((id) => $(id).addEventListener('input', calc));
+    calc();
+
+    // خالد — أسئلة وأجوبة توضيحية من ملف السيارة
+    const QA = [
+      { q: 'وش وضع الهيكل والحوادث؟', a: 'الهيكل سليم 100% وما فيه أي حادث مسجل — تقرير الفحص يأكد سلامة الشاصي والدعامات، والرش الأصلي كامل ما عدا رتوش تجميلية بسيطة في الصدام الخلفي موثقة بالصور.' },
+      { q: 'ليش السعر 265 ألف؟', a: 'قارنت لك 23 صفقة لاندكروزر GXR 2022 بنفس الفئة آخر 60 يوم — متوسط السوق 268 ألف. سعرها أقل من المتوسط مع فحص ممتاز، ولهذا صنفتها «سعر ممتاز». وإذا جاد أقدر أفتح لك تفاوض مع البائع.' },
+      { q: 'كم يطلع قسطها على راتب 12 ألف؟', a: 'بدفعة 20% ومدة 5 سنوات، قسط المرابحة التوضيحي حوالي 3,450 ريال — يعني 29% من راتبك وهذا ضمن النطاق الممتاز ✅. تبغاني أرسل لك طلب تأهيل مسبق؟' },
+      { q: 'أقدر أجربها قبل الشراء؟', a: 'أكيد! برنامج «جرّبها قبلها» يعطيك السيارة 3 أيام بتأمين شامل، وقيمة التجربة تنخصم من السعر إذا اشتريتها. أحجز لك من بكرة؟' },
+    ];
+    const log = document.getElementById('chatLog');
+    const quick = document.getElementById('chatQuick');
+    QA.forEach((item) => {
+      const b = document.createElement('button');
+      b.textContent = item.q;
+      b.addEventListener('click', () => {
+        log.insertAdjacentHTML('beforeend', `<div class="msg user">${item.q}</div>`);
+        setTimeout(() => {
+          log.insertAdjacentHTML('beforeend', `<div class="msg bot">${item.a}</div>`);
+          log.scrollTop = log.scrollHeight;
+        }, 500);
+        log.scrollTop = log.scrollHeight;
+      });
+      quick.appendChild(b);
+    });
+  </script>
+</MotorsLayout>
