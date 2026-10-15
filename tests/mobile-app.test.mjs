@@ -39,3 +39,8 @@ test("mobile: أسرار التوقيع لا تُدفع", () => {
     assert.ok(ig.includes(pat), `mobile/.gitignore يجب أن يتجاهل ${pat}`);
   }
 });
+
+test("mobile: الفوتر مخفي داخل التطبيق فقط (قرار المالك 2026-10-15: تطبيق لا موقع)", () => {
+  const src = read("site/assets/js/app-bridge.js");
+  assert.match(src, /html\.bp-native footer\.sv1-foot/);
+});

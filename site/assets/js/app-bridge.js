@@ -67,6 +67,8 @@
     ".bp-push button{border:0;border-radius:10px;min-height:36px;padding:0 14px;font:700 13px inherit;cursor:pointer}",
     ".bp-push .y{background:#fff;color:#0B1B5A}.bp-push .n{background:transparent;color:#C3CDE6}",
     "html.bp-native{-webkit-touch-callout:none}html.bp-native body{-webkit-user-select:auto;overscroll-behavior-y:none}",
+    // تطبيق لا موقع: لا فوتر (روابط الشركة والحقوق) داخل التطبيق؛ الشريط السفلي هو التنقل.
+    "html.bp-native footer.sv1-foot,html.bp-native .sv1-foot{display:none!important}",
     "html.bp-native .bp-web-only,html.bp-native [data-web-only]{display:none!important}",
   ].join("");
   var st = document.createElement("style");
