@@ -427,7 +427,7 @@ document.addEventListener("click",function(e){
  send({kind:"click",path:location.pathname,name:n})},true);
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
-})();</script><script>
+})();</script><script src="/assets/js/app-bridge.js?v=1" defer></script><script>
 (function(){
 var TX={"loading":"نقرأ المواعيد المتاحة…","noSlots":"لا مواعيد متاحة في المدى القريب. راسلنا على واتساب ونرتّب لك موعداً.","need":"أكمل الاسم والجوال والبريد واختر موعداً.","busy":"نؤكّد حجزك…","taken":"حُجزت هذه الفترة قبل قليل. اختر فترة أخرى.","failed":"تعذّر تأكيد الحجز. حاول مرة أخرى أو راسلنا على واتساب.","doneT":"تم الحجز","doneOn":"موعدك","meet":"رابط الاجتماع","addCal":"أضِف إلى تقويمك","mailed":"أرسلنا التفاصيل إلى بريدك.","confirm":"الفريق يؤكّد الموعد ويصلك التأكيد على بريدك.","tz":"بتوقيت الرياض","mins":"دقيقة","another":"احجز موعداً آخر","pickTime":"اختر الوقت"},HOME="/ar/",AR=true;
 var $=function(id){return document.getElementById(id)};

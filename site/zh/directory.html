@@ -3731,7 +3731,7 @@ document.addEventListener("click",function(e){
  send({kind:"click",path:location.pathname,name:n})},true);
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
-})();</script><script>
+})();</script><script src="/assets/js/app-bridge.js?v=1" defer></script><script>
   (function(){
     var root=document.getElementById('eco'); if(!root)return;
     var search=root.querySelector('#eco-search');

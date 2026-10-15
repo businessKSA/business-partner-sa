@@ -509,7 +509,7 @@ document.addEventListener("click",function(e){
  send({kind:"click",path:location.pathname,name:n})},true);
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
-})();</script><script>
+})();</script><script src="/assets/js/app-bridge.js?v=1" defer></script><script>
 (function(){
 var LANG="zh",HOME="/zh/";
 var TX={"empty":"购物车为空。","browse":"浏览服务","needFill":"请先填写姓名、手机号和邮箱。","payDown":"支付表单加载失败。请尝试 Tamara 或稍后重试。","loading":"正在准备支付表单…","quoted":"审核后报价","signIn":"登录后查看价格并付款。","signInBtn":"登录","noAmount":"这些项目将在审核后报价 — 我们会先发送报价，再发送付款链接。","cardSP":"银行卡 · Apple Pay · Samsung Pay","payBtn":"完成支付","payWait":"正在确认您的付款…","paidOk":"已收到付款——订单已记录，税务发票将在几分钟内发送到您的邮箱。","paidInv":"发票号：","paidFail":"付款未完成，未扣款——请用银行卡重试或尝试 Tamara。","paidHold":"您的付款已完成但暂时无法自动确认，团队已收到提醒。请勿重复付款——发票稍后送达。","bnplFail":"分期付款未完成——请重试或用银行卡支付。","toMy":"查看我的订单","mockTag":"本地网关——不扣款"};

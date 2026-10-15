@@ -413,7 +413,7 @@ document.addEventListener("click",function(e){
  send({kind:"click",path:location.pathname,name:n})},true);
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
-})();</script><script>
+})();</script><script src="/assets/js/app-bridge.js?v=1" defer></script><script>
 (function(){
 var ST={NEW:'جديد',REVIEWING:'قيد المراجعة',WAITING_CLIENT:'بانتظار العميل',QUOTE_SENT:'عرض مُرسل',QUOTE_APPROVED:'العرض معتمد',CONTRACT_SENT:'عقد مُرسل',SIGNED:'موقّع',PAYMENT_PENDING:'بانتظار الدفع',PAID:'مدفوع',IN_PROGRESS:'قيد التنفيذ',WAITING_INTERNAL:'بانتظار داخلي',COMPLETED:'مكتمل',CANCELLED:'ملغي'};
 var TY={CONSULTATION:'استشارة',GOVERNMENT_SERVICE:'خدمة حكومية',COMPANY_FORMATION:'تأسيس شركة'};

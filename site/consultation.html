@@ -427,7 +427,7 @@ document.addEventListener("click",function(e){
  send({kind:"click",path:location.pathname,name:n})},true);
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
-})();</script><script>
+})();</script><script src="/assets/js/app-bridge.js?v=1" defer></script><script>
 (function(){
 var TX={"loading":"Loading available times…","noSlots":"No times available soon. Message us on WhatsApp and we will arrange one.","need":"Fill in name, mobile and e-mail, and pick a time.","busy":"Confirming…","taken":"That slot was just taken. Please pick another.","failed":"Could not confirm. Try again or message us on WhatsApp.","doneT":"Booked","doneOn":"Your appointment","meet":"Meeting link","addCal":"Add to your calendar","mailed":"We emailed you the details.","confirm":"The team confirms the time and you get the confirmation by e-mail.","tz":"Riyadh time","mins":"minutes","another":"Book another","pickTime":"Pick a time"},HOME="/",AR=false;
 var $=function(id){return document.getElementById(id)};

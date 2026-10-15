@@ -483,7 +483,7 @@ document.addEventListener("click",function(e){
  send({kind:"click",path:location.pathname,name:n})},true);
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
-})();</script><script>(function(){
+})();</script><script src="/assets/js/app-bridge.js?v=1" defer></script><script>(function(){
 var T={"prof":"المهنة","profPh":"مثال: عامل، فني، مهندس…","status":"الحالة","sExisting":"قائم (على رأس العمل)","sNew":"جديد (أول دخول)","count":"العدد","late":"تأخير تجديد الإقامة","lNone":"لا يوجد","lFirst":"المرة الأولى (+500)","lSecond":"المرة الثانية (+1,000)","remove":"حذف","sar":"﷼"},AR=true;
 var $=function(i){return document.getElementById(i)};
 var fmt=function(n){return Math.round(n).toLocaleString(AR?"ar-SA":"en-US")};

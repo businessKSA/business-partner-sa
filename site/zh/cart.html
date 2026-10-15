@@ -464,7 +464,7 @@ document.addEventListener("click",function(e){
  send({kind:"click",path:location.pathname,name:n})},true);
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
-})();</script><script>(function(){
+})();</script><script src="/assets/js/app-bridge.js?v=1" defer></script><script>(function(){
 var CART="bp_cart",VAT=0.15,LANG="zh",HOME="/zh/";
 var TX={"empty":"您的购物车是空的。","browse":"浏览服务","quoted":"审核后报价","hidden":"登录后显示价格","remove":"移除","needQuote":"部分项目需审核后报价——团队将在付款前确认最终金额。","signIn":"登录以查看价格并完成订单"};
 var $=function(id){return document.getElementById(id)};

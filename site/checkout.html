@@ -509,7 +509,7 @@ document.addEventListener("click",function(e){
  send({kind:"click",path:location.pathname,name:n})},true);
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
-})();</script><script>
+})();</script><script src="/assets/js/app-bridge.js?v=1" defer></script><script>
 (function(){
 var LANG="en",HOME="/";
 var TX={"empty":"Your cart is empty.","browse":"Browse services","needFill":"Fill in name, mobile and e-mail first.","payDown":"The payment form could not load. Try Tamara, retry in a moment, or message us on WhatsApp.","loading":"Preparing the payment form…","quoted":"Quoted on review","signIn":"Sign in to see the price and pay.","signInBtn":"Sign in","noAmount":"These items are quoted on review — we send the quotation, then the payment link.","cardSP":"Card · Apple Pay · Samsung Pay","payBtn":"Complete payment","payWait":"Confirming your payment…","paidOk":"Payment received — your order is recorded and your tax invoice reaches your e-mail within minutes.","paidInv":"Invoice no.:","paidFail":"The payment did not go through and nothing was charged — retry by card or try Tamara.","paidHold":"Your payment went through but could not be confirmed automatically; our team has been alerted. Do not pay again — your invoice follows shortly.","bnplFail":"The instalment payment was not completed — retry, or pay by card.","toMy":"Open my orders","mockTag":"Local gateway — no card, no charge"};

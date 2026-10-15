@@ -509,7 +509,7 @@ document.addEventListener("click",function(e){
  send({kind:"click",path:location.pathname,name:n})},true);
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
-})();</script><script>
+})();</script><script src="/assets/js/app-bridge.js?v=1" defer></script><script>
 (function(){
 var LANG="fr",HOME="/fr/";
 var TX={"empty":"Votre panier est vide.","browse":"Voir les services","needFill":"Renseignez nom, mobile et e-mail.","payDown":"Le formulaire n'a pas pu se charger. Essayez Tamara ou réessayez dans un instant.","loading":"Préparation du paiement…","quoted":"Devis après examen","signIn":"Connectez-vous pour voir le prix et payer.","signInBtn":"Se connecter","noAmount":"Ces éléments sont devisés après examen — nous envoyons le devis, puis le lien de paiement.","cardSP":"Carte · Apple Pay · Samsung Pay","payBtn":"Payer","payWait":"Vérification du paiement…","paidOk":"Paiement reçu — votre commande est enregistrée et votre facture arrive par e-mail sous peu.","paidInv":"Facture n° :","paidFail":"Le paiement n'a pas abouti, rien n'a été débité — réessayez par carte ou avec Tamara.","paidHold":"Votre paiement a abouti mais n'a pas pu être confirmé automatiquement ; notre équipe est prévenue. Ne payez pas une seconde fois.","bnplFail":"Le paiement en plusieurs fois n'a pas abouti — réessayez ou payez par carte.","toMy":"Mes commandes","mockTag":"Passerelle locale — aucun débit"};

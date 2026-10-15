@@ -464,7 +464,7 @@ document.addEventListener("click",function(e){
  send({kind:"click",path:location.pathname,name:n})},true);
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
-})();</script><script>(function(){
+})();</script><script src="/assets/js/app-bridge.js?v=1" defer></script><script>(function(){
 var CART="bp_cart",VAT=0.15,LANG="en",HOME="/";
 var TX={"empty":"Your cart is empty.","browse":"Browse services","quoted":"Quoted on review","hidden":"Price shown after you sign in","remove":"Remove","needQuote":"Some items are quoted on review — the team confirms the final amount before payment.","signIn":"Sign in to see prices and complete your order"};
 var $=function(id){return document.getElementById(id)};
