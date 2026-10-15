@@ -5899,6 +5899,14 @@ export default async function handler(req, res) {
     const email = String(contact.email || "").trim().toLowerCase().slice(0, 160);
     const notify = !!b.notify && (phone || isEmail(email));
     await upsertConversation({ sid, messages, phone, email, name, hot: notify });
+    // فرح تعرف كل محادثة (لا الساخنة فقط). best-effort بمهلة 4 ثوانٍ؛ بلا المتغيرين لا يحدث شيء.
+    const FARAH_URL = process.env.FARAH_CHAT_WEBHOOK_URL || "", FARAH_KEY = process.env.FARAH_CHAT_KEY || "";
+    if (FARAH_URL && FARAH_KEY) {
+      const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 4000);
+      await fetch(FARAH_URL, { method: "POST", signal: ctl.signal,
+        headers: { "content-type": "application/json", "X-BP-Chat-Key": FARAH_KEY },
+        body: JSON.stringify({ sid, name, phone, email, messages, hot: notify }) }).catch(() => {}).finally(() => clearTimeout(tm));
+    }
     if (notify) {
       const ref = "WEB-" + sid;
       const bookUrl = `${MKT_SITE_BASE}/consultation`;
