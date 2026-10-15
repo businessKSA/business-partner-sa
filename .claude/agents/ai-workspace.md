@@ -35,6 +35,16 @@ description: منصة مساحات Business Partner AI على ai.businesspartner
 Revenue Intake فتُنشأ صفقة ومهمة لبدر) · `Consult Department Director`.
 السجلّ: `BP_Agent_Registry` الصفوف `nayef_ai_workspace` و`aiws_*`.
 
+## ⚠️ n8n ينتقل إلى Azure — فريق نايف ما زال على Cloud (2026-10-16)
+n8n يُنقل من Cloud إلى Azure (`bp-n8n` على Container Apps، المذكرة
+`docs/azure-n8n-handoff-2026-10-12.md` على فرع `claude/intelligent-agents-collaboration-y788ck`).
+السير نُسخت إلى Azure يوم 2026-10-12، **وسيرا نايف (`PxBoz6f2i6276hJ8`) والمراقب
+(`ZoTA8MKp2QqUPMmY`) أُنشئا بعده على Cloud، فليسا على Azure**. وتعديل محمد
+(إضافة `ai-workspace-intake` إلى أداة Consult Department Director وفقرة نايف في
+موجّهه، 2026-10-11) نُفِّذ على نسخة Cloud وحدها. قبل تعطيل Cloud في مرحلة
+webhooks: تُنقل السيرتان وتُفعَّلان على Azure، ويُعاد تعديل محمد على نسخته في
+Azure، وتُضاف صفوف `nayef_ai_workspace` و`aiws_*` بعد `registry-ids.mjs`.
+
 ## نطاقك
 - محتوى سيناريوهَي نايف والمراقب أعلاه وموجّهاتهما.
 - أي صفحة أو زر في الموقع يقود إلى ai.businesspartner.sa — **بالتنسيق** مع مالك
