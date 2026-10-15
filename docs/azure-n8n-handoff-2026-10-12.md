@@ -198,3 +198,28 @@ if (FARAH_URL && FARAH_KEY) {
 4. **صفحة ملاحظاتك الخاصة (اختيارية):** أنشئ صفحة Notion خاصة، شاركها مع تكامل n8n، وأعطني معرّفها لأضعه في عقدة `Validate`؛ بدونها تصلك الملاحظات الخاصة بالبريد فقط.
 5. **تنبيهات واتساب لك** تمر من الرقم نفسه الذي تستعمله فرح، فتخضع لقيد 24 ساعة (الخطأ 131047): إن لم تراسلها يومياً قد لا تصل — الحل قالب Meta معتمد (بند 5 في 7).
 6. **قرار التفعيل:** تفعيل أي من السيرين (الاستقبال، المحضر) ومعه المتغيران في Vercel هو إجراء حيّ بموافقتك. المحضر: جرّبه أولاً يدوياً بتسجيل قصير.
+
+## 12) جلسة 2026-10-15 — ما مُنع تنفيذه وجرد «كله داخل Azure»
+
+### 12.1) ما لم يُنفَّذ ولماذا (فحص حيّ بالقراءة فقط)
+أول إجراء حيّ (تعطيل فرح `g2Y2k2KbxYwmhSqu` على Azure) **رفضه نظام صلاحيات الجلسة** («تعديل مورد مشترك»)، فتوقفتُ ولم ألتفّ عليه. لذلك **لم يُنفَّذ شيء حيّ**: لا تعطيل، ولا اعتماد، ولا `az containerapp secret set`، ولا تفعيل، ولا ربط أداة الرد.
+الحالة المقروءة الآن: فرح `active=true` · الاستقبال `BJXmNPkgkS5BwXqx` `false` · الرد `Rx8wwvV1D9P117xb` `false` · المحضر `zteADpS9yormFBZC` `false` · الموجّه `FIHrYSg706SpvNzr` و«الإرسال الآمن» `LaPfNkA4fug0x73i` `true`.
+**تنبيه قبل إعادة تفعيل فرح بعد أي تعديل:** فيها عقدة `Baher WhatsApp In` (`whatsAppTrigger`) وتفعيلها يسجّل عنوان Azure لدى Meta، أي تغيير Callback خارج التفويض. الحل المقترح: وضع `disabled: true` على هذه العقدة قبل التفعيل (الموجّه يستدعي فرح كسير فرعي عبر `When Called by WhatsApp Router` فلا حاجة لها).
+أسرار الحاوية `bp-site-staging` الحالية لا تتضمن أي مفتاح لفرح أو للمحادثات؛ ويلزم متغيران: `FARAH_CHAT_WEBHOOK_URL` و`FARAH_CHAT_KEY` (+ مفتاح Command Space للمستدعين).
+
+### 12.2) جرد «كل شيء داخل Azure» (قراءة من الكود والإعدادات)
+| البند | الحالة اليوم | التصنيف | البديل / الخطوة | الجهد |
+|---|---|---|---|---|
+| موقع Vercel (الإنتاج) | `businesspartner.sa` على Vercel؛ staging على `bp-site-staging` | ينتقل إلى Azure | `bp-site` (Container Apps) + نقل المتغيرات السرية (13 سراً مسمّى في staging) | نصف يوم + إدخال المالك للأسرار غير المقروءة |
+| تحويل DNS | عند Vercel | **قرار المالك** | CNAME إلى Container Apps + شهادة؛ خطة رجوع فورية | ساعة، بعد اختبار staging |
+| Crons Vercel (`/api/newsletter`، `/api/requests?__route=jobhunt…`، وثالث) | `vercel.json` `crons` | ينتقل | Container Apps Jobs تستدعي المسارات نفسها | ٢–٣ ساعات |
+| n8n Cloud (53 نشطاً بآخر فحص) | يعمل | ينتقل | مراحل `cutover.mjs` (schedulers ✓ ← webhooks ← whatsapp) | يوم، ولكل مرحلة موافقة |
+| ويبهوكات يستدعيها الكود إلى Cloud | `api/requests.js:122` و`api/_stage.js:39,241,400` و`api/book.js:336` (`OWNER_WA_WEBHOOK` افتراضيها `website-lead-notify`)، `api/candidate.js:41` (`bp-ats-application`)، `api/_simple.js:985` (`bp-chat-monitor-x7k2m9`)، `api/_chat.js:190` (سير الدردشة) | ينتقل | تغيير القيم الافتراضية/المتغيرات إلى عناوين Azure مع مرحلة webhooks | ساعتان |
+| `agents/azure/tools.mjs` (`BP_N8N_BASE`) | يقرأ متغيراً | ينتقل | يشير لـAzure | دقائق |
+| قاعدة Supabase | قاعدة الموقع (طلبات، حسابات، `farah` لا — فرح على PostgreSQL Azure) | **قرار المالك** | Azure PostgreSQL Flexible + نقل المخطط والبيانات + إعادة كتابة مصادقة/RLS التي يعتمد عليها `api/` | أيام؛ الأثقل |
+| بريد Resend | `RESEND_API_KEY` | **قرار المالك** | Azure Communication Services Email (يحتاج نطاق وSPF/DKIM) | يوم |
+| تخزين الملفات | Supabase Storage (حسب `api/`) | ينتقل | Azure Blob | نصف يوم مع نقل الملفات |
+| Notion · Moyasar · Tamara · Daftra · Meta واتساب · Google (Gmail/Drive/Calendar) · LinkedIn | SaaS | **يبقى خارجياً بحكم طبيعته** | — | — |
+| روابط `vercel.app` في الكود | `site/scripts/generate.mjs`, `compare-prices.mjs` | تُراجَع عند النقل | استبدال بعنوان الإنتاج | دقائق |
+| حاوية `rg-farah/farah` (OpenClaw) | فيها Callback تطبيق «Farah Assistant» | **قرار المالك** | تُصفَّر بعد التأكد من عدم الاستعمال، لا تُحذف | دقائق |
+| `bp-wa-bridge` | جسر واتساب ويب غير رسمي | **قرار المالك** | مراجعة/إيقاف (خطر حظر) | — |
