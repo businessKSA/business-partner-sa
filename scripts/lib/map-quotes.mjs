@@ -16,10 +16,12 @@ const iso = (v) => { if (!v) return null; const d = new Date(v); return Number.i
 const dateOnly = (v) => { const s = iso(v); return s ? s.slice(0, 10) : null; };
 
 // ref ثابت مشتقّ من رمز العرض/رقمه، فإعادة تشغيل السكربت تنتج نفس المرجع ولا
-// تضاعف الصفوف (مع حارس التفرّد على quote_tokens.token).
+// تضاعف الصفوف (مع حارس التفرّد على quote_tokens.token). ثمانية رموز base36
+// (من 64 بت) ≈ 2.8e12 احتمالاً، فتصادم مرجعين في هجرة واقعية مستبعَد عمليًا؛
+// وحارس التصادم في migrate-quotes.mjs يمسك ما ندر قبل أي كتابة.
 export function refFromSeed(seed) {
   const h = crypto.createHash("sha256").update(String(seed || "")).digest("hex");
-  return "BP-R-" + BigInt("0x" + h.slice(0, 12)).toString(36).toUpperCase().slice(0, 6).padStart(6, "0");
+  return "BP-R-" + BigInt("0x" + h.slice(0, 16)).toString(36).toUpperCase().slice(0, 8).padStart(8, "0");
 }
 
 // حالة مستند bp-quotes تُحفظ حرفيًا (ضمن المجموعة المعروفة) لأن جسر القراءة في

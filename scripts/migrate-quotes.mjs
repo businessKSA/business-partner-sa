@@ -109,6 +109,18 @@ async function write(mapped) {
   const events = mapped.reduce((s, m) => s + m.events.length, 0);
   console.log(`» طلبات ستُنشأ: ${mapped.length} | أحداث: ${events} | روابط (tokens): ${tokens}`);
 
+  // حارس تصادم المراجع: مرجعان مختلفان (عرضان مختلفان) ينتجان نفس ref يعني أن
+  // الكتابة ستستبدل صفّ عميل بآخر. نكشفه قبل أي كتابة ونوقف بدل أن نفقد بيانات.
+  const byRef = new Map();
+  let collisions = 0;
+  for (const m of mapped) {
+    const id = (m.request.quote && m.request.quote.number) || (m.tokens[0] && m.tokens[0].token) || m.request.ref;
+    const prev = byRef.get(m.request.ref);
+    if (prev && prev !== id) { collisions++; console.error(`✗ تصادم ref ${m.request.ref}: «${prev}» و«${id}»`); }
+    else byRef.set(m.request.ref, id);
+  }
+  if (collisions) { console.error(`✗ ${collisions} تصادم مرجع — أوقفت العملية قبل أي كتابة. راجع refFromSeed.`); process.exit(3); }
+
   if (mapped.length) {
     const s = mapped[0];
     console.log("\n— عيّنة أول طلب مُحوّل —");

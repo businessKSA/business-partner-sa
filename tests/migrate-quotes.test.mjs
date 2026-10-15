@@ -13,7 +13,7 @@ const bundles = JSON.parse(fs.readFileSync(FIXTURE, "utf8"));
 test("refFromSeed ثابت ومتوافق مع صيغة BP-R-", () => {
   const a = refFromSeed("tok_quote_abc123def456");
   assert.equal(a, refFromSeed("tok_quote_abc123def456"));   // إعادة التشغيل تنتج نفس المرجع
-  assert.match(a, /^BP-R-[0-9A-Z]{6}$/);
+  assert.match(a, /^BP-R-[0-9A-Z]{8}$/);
   assert.notEqual(a, refFromSeed("tok_quote_sara014"));      // بذور مختلفة → مراجع مختلفة
 });
 
