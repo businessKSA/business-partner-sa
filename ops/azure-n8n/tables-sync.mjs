@@ -39,7 +39,7 @@ for (const t of ct.data) {
   }
   console.log(`• ${t.name}: cloud=${cr.length} azure=${ar.length} · مفتاح=${key || "المحتوى"} · إدراج=${toInsert.length} تحديث=${toUpdate.length}`);
   if (!apply) continue;
-  for (let i = 0; i < toInsert.length; i += 100) await req(AZ, azKey, `/data-tables/${a.id}/insert`, { method: "POST", body: JSON.stringify({ data: toInsert.slice(i, i + 100), returnType: "count" }) });
+  for (let i = 0; i < toInsert.length; i += 100) await req(AZ, azKey, `/data-tables/${a.id}/rows`, { method: "POST", body: JSON.stringify({ data: toInsert.slice(i, i + 100), returnType: "count" }) });
   for (const u of toUpdate) await req(AZ, azKey, `/data-tables/${a.id}/rows/update`, { method: "PATCH", body: JSON.stringify({ filter: { type: "and", filters: [{ columnName: key, condition: "eq", value: u.k }] }, data: u.data }) });
   if (toInsert.length || toUpdate.length) console.log(`   تمّ. ${t.name === "BP_Agent_Registry" ? "⚠ شغّل registry-ids.mjs --apply الآن." : ""}`);
 }
