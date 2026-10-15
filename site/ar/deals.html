@@ -237,7 +237,7 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
 }).catch(function(){});
 })();</script></div><main>
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">جديد — مطابقة ذكية + صفقات</span>
+    <span class="eyebrow">جديد — مطابقة ذكية + صفقات · 🆓 الخدمة مجانية حاليًا</span>
     <h1>ما نعرض لك صفقات فقط — نطابقك مع الشريك الصح</h1>
     <p class="lead">قدّم صفقتك أو ملفك مرة واحدة، ونقارنه فورًا بكل الفرص المتاحة حسب القطاع والمدينة ونوع الصفقة، ونرشّح لك أقرب النتائج بالاسم. التعارف الفعلي لا يتم إلا بعد موافقة الطرفين.</p>
     <div class="hero-actions">
@@ -263,58 +263,58 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
   <section class="section" id="deal-wall"><div class="container">
     <div class="section-head"><h2>الصفقات المنشورة هذا الأسبوع</h2><p>تصفح مجانًا، أو قدّم ملفك ليحسب النظام أقرب المطابقات لك تلقائيًا.</p></div>
     <div class="deal-filters"><button class="deal-chip active" data-filter="all" type="button">الكل</button><button class="deal-chip" data-filter="offer" type="button">عرض صفقة</button><button class="deal-chip" data-filter="seek" type="button">بحث عن شريك</button><button class="deal-chip" data-filter="idea" type="button">فكرة مشروع</button><span class="deal-filters-count"><span id="deal-visible-count">0</span> صفقة ظاهرة</span></div>
-    <div class="grid grid-3" id="deal-wall-grid"><article class="card deal-ticket" data-type="seek" data-sector="food" data-city="riyadh">
-      <span class="deal-badge seek">🔎 يبحث عن شريك</span>
-      <h3>مطعم مأكولات سعودية — الرياض</h3>
+    <div class="grid grid-3" id="deal-wall-grid"><article class="card deal-ticket" data-type="offer" data-sector="food" data-city="riyadh">
+      <span class="deal-badge offer">🤝 بائع يعرض منشأة للبيع</span>
+      <h3>مقهى متخصص قائم — للبيع في الرياض</h3>
       <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> الرياض</span><span>🍽️ مطاعم وأغذية</span></div>
-      <p class="text-soft">مطعم قائم منذ 3 سنوات يبحث عن شريك مموّل لافتتاح فرع ثانٍ في جدة، مع خبرة تشغيلية جاهزة.</p>
-      <div class="deal-ticket-stat"><span>الحصة المطروحة</span><b>30%</b></div>
+      <p class="text-soft">مقهى قائم منذ سنتين بموقع حيوي وقاعدة عملاء ثابتة، صاحبه يبيع كامل المنشأة لتفرغه لمشروع آخر.</p>
+      <div class="deal-ticket-stat"><span>السعر المطلوب</span><b>250 ألف ﷼</b></div>
       <div class="deal-ticket-foot"><span>نُشرت قبل يومين</span><button class="deal-ticket-btn" type="button">طلب تعارف</button></div>
+    </article><article class="card deal-ticket" data-type="seek" data-sector="retail" data-city="jeddah">
+      <span class="deal-badge seek">🔎 مشترٍ يبحث عن منشأة</span>
+      <h3>مستثمر يبحث عن محل تجزئة قائم للشراء</h3>
+      <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> جدة</span><span>🛍️ تجزئة</span></div>
+      <p class="text-soft">مستثمر جاهز بميزانية محددة يبحث عن محل أو سلسلة صغيرة قائمة في قطاع التجزئة للاستحواذ عليها وتشغيلها مباشرة.</p>
+      <div class="deal-ticket-stat"><span>الميزانية المتاحة</span><b>حتى 500 ألف ﷼</b></div>
+      <div class="deal-ticket-foot"><span>نُشرت أمس</span><button class="deal-ticket-btn" type="button">طلب تعارف</button></div>
+    </article><article class="card deal-ticket" data-type="seek" data-sector="services" data-city="riyadh">
+      <span class="deal-badge seek">🔎 يبحث عن مستثمر</span>
+      <h3>رائد أعمال يبحث عن مستثمر لتوسعة مشروع قائم</h3>
+      <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> الرياض</span><span>🧰 خدمات</span></div>
+      <p class="text-soft">مشروع خدمات قائم ومربح يبحث صاحبه عن مستثمر لتمويل التوسع لمدينة جديدة، مقابل حصة في الشركة.</p>
+      <div class="deal-ticket-stat"><span>التمويل المطلوب</span><b>300 ألف ﷼ مقابل 20%</b></div>
+      <div class="deal-ticket-foot"><span>نُشرت قبل 3 أيام</span><button class="deal-ticket-btn" type="button">طلب تعارف</button></div>
+    </article><article class="card deal-ticket" data-type="seek" data-sector="other" data-city="dammam">
+      <span class="deal-badge seek">🔎 مستثمر يبحث عن فرصة</span>
+      <h3>مستثمر يبحث عن فرصة استثمارية واعدة</h3>
+      <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> الدمام</span><span>🗂️ أخرى</span></div>
+      <p class="text-soft">مستثمر لديه رأس مال جاهز يبحث عن مشروع قائم أو فكرة واعدة في أي قطاع لضخ استثمار مقابل شراكة أو حصة.</p>
+      <div class="deal-ticket-stat"><span>رأس المال المتاح</span><b>1–3 مليون ﷼</b></div>
+      <div class="deal-ticket-foot"><span>نُشرت قبل 4 أيام</span><button class="deal-ticket-btn" type="button">طلب تعارف</button></div>
+    </article><article class="card deal-ticket" data-type="offer" data-sector="food" data-city="jeddah">
+      <span class="deal-badge offer">🤝 عرض شراكة</span>
+      <h3>سلسلة مطاعم تعرض حق امتياز (فرنشايز)</h3>
+      <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> جدة</span><span>🍽️ مطاعم وأغذية</span></div>
+      <p class="text-soft">علامة مطاعم محلية ناجحة تعرض حق امتياز لفتح فروع جديدة، مع تدريب كامل ودعم تشغيلي مستمر.</p>
+      <div class="deal-ticket-stat"><span>رسوم الامتياز</span><b>150 ألف ﷼</b></div>
+      <div class="deal-ticket-foot"><span>نُشرت قبل أسبوع</span><button class="deal-ticket-btn" type="button">طلب تعارف</button></div>
     </article><article class="card deal-ticket" data-type="idea" data-sector="tech" data-city="jeddah">
       <span class="deal-badge idea">💡 فكرة مشروع</span>
       <h3>تطبيق حجز صيانة منزلية عند الطلب</h3>
       <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> جدة</span><span>🛠️ تقنية</span></div>
       <p class="text-soft">فكرة مدروسة بدراسة سوق أولية، صاحبها يبحث عن شريك مؤسس تقني لبناء المنتج وإطلاقه.</p>
       <div class="deal-ticket-stat"><span>المطلوب</span><b>شريك تقني</b></div>
-      <div class="deal-ticket-foot"><span>نُشرت أمس</span><button class="deal-ticket-btn" type="button">طلب تعارف</button></div>
-    </article><article class="card deal-ticket" data-type="offer" data-sector="logistics" data-city="dammam">
-      <span class="deal-badge offer">🤝 عرض صفقة</span>
-      <h3>توزيع حصري لمنتجات غذائية — المنطقة الشرقية</h3>
-      <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> الدمام</span><span>🚚 لوجستيات</span></div>
-      <p class="text-soft">شركة توزيع قائمة تعرض اتفاقية توزيع حصري لتجار التجزئة في المنطقة الشرقية بشروط تفضيلية.</p>
-      <div class="deal-ticket-stat"><span>الحد الأدنى للطلب</span><b>50 ألف ﷼</b></div>
-      <div class="deal-ticket-foot"><span>نُشرت قبل 3 أيام</span><button class="deal-ticket-btn" type="button">طلب تعارف</button></div>
-    </article><article class="card deal-ticket" data-type="seek" data-sector="beauty" data-city="jeddah">
-      <span class="deal-badge seek">🔎 يبحث عن شريك</span>
-      <h3>صالون تجميل نسائي — فرع جديد</h3>
-      <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> جدة</span><span>💇‍♀️ تجميل</span></div>
-      <p class="text-soft">صالون ناجح بفرعين يبحث عن شريكة لإدارة وتشغيل فرع ثالث، مع تدريب كامل وعلامة تجارية جاهزة.</p>
-      <div class="deal-ticket-stat"><span>رأس المال المطلوب</span><b>180 ألف ﷼</b></div>
-      <div class="deal-ticket-foot"><span>نُشرت قبل 4 أيام</span><button class="deal-ticket-btn" type="button">طلب تعارف</button></div>
-    </article><article class="card deal-ticket" data-type="offer" data-sector="industry" data-city="riyadh">
-      <span class="deal-badge offer">🤝 عرض صفقة</span>
-      <h3>تصنيع أثاث بالجملة لتجار التجزئة</h3>
-      <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> الرياض</span><span>🪑 صناعة</span></div>
-      <p class="text-soft">مصنع أثاث محلي يعرض تعاقدات تصنيع بالجملة بأسعار تنافسية لمتاجر الأثاث والمفروشات.</p>
-      <div class="deal-ticket-stat"><span>مدة التوريد</span><b>2–4 أسابيع</b></div>
-      <div class="deal-ticket-foot"><span>نُشرت قبل أسبوع</span><button class="deal-ticket-btn" type="button">طلب تعارف</button></div>
-    </article><article class="card deal-ticket" data-type="idea" data-sector="hr" data-city="riyadh">
-      <span class="deal-badge idea">💡 فكرة مشروع</span>
-      <h3>منصة توظيف عن بُعد للمواهب السعودية</h3>
-      <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> الرياض</span><span>👥 موارد بشرية</span></div>
-      <p class="text-soft">رائد أعمال يملك خبرة توظيف 8 سنوات ويبحث عن شريك مؤسس مطوّر لبناء منصة ربط الشركات بالمواهب.</p>
-      <div class="deal-ticket-stat"><span>المطلوب</span><b>شريك مؤسس</b></div>
-      <div class="deal-ticket-foot"><span>نُشرت قبل أسبوع</span><button class="deal-ticket-btn" type="button">طلب تعارف</button></div>
+      <div class="deal-ticket-foot"><span>نُشرت قبل 5 أيام</span><button class="deal-ticket-btn" type="button">طلب تعارف</button></div>
     </article></div>
     <div class="center mt-32"><button class="btn btn-primary" id="deal-open-bottom" type="button">أضف صفقتك للحائط</button></div>
   </div></section>
 
   <section class="section section--gray"><div class="container">
     <div class="deal-trust">
+      <span>🆓 الخدمة مجانية حاليًا بدون أي عمولة</span>
       <span>🔒 مراجعة يدوية قبل النشر</span>
       <span>🎯 نسبة تطابق محسوبة تلقائيًا</span>
       <span>🤝 تعارف بموافقة الطرفين فقط</span>
-      <span>✉️ تحديثات فورية بالبريد</span>
     </div>
   </div></section>
 
@@ -410,6 +410,7 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
       <a href="/ar/packages">الباقات</a>
       <a href="/ar/ai-agents">المستشارون الأذكياء</a>
       <a href="/ar/business-development">تطوير الأعمال</a>
+      <a href="/ar/deals">الصفقات والفرص</a>
     </div>
     <div class="sv1-foot-navcol">
       <h5>المعرفة</h5>

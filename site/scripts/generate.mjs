@@ -2967,31 +2967,40 @@ const DEAL_TYPE_META = {
   seek: { icon: "🔎", en: "Seeking a partner", ar: "يبحث عن شريك" },
   idea: { icon: "💡", en: "Pitching an idea", ar: "فكرة مشروع" },
 };
+/* البطاقات تمثّل شخصيات الموقع الحقيقية: بائع منشأة، مشترٍ، رائد يبحث عن مستثمر،
+   مستثمر يبحث عن فرصة، عارض امتياز، وصاحب فكرة. `badgeAr/badgeEn` تدقّق الوصف
+   حين لا يكفي عنوان النوع العام («عرض صفقة» لا تميّز بائعاً من عارض امتياز)؛
+   و`type` يبقى كما هو لأن فلاتر الحائط تعمل عليه. */
 const DEAL_TICKETS = [
-  { type: "seek", sector: "food", city: "riyadh", titleEn: "Saudi cuisine restaurant — Riyadh", titleAr: "مطعم مأكولات سعودية — الرياض",
-    descEn: "A restaurant running for 3 years is looking for a funding partner to open a second branch in Jeddah, with an operating team ready to go.",
-    descAr: "مطعم قائم منذ 3 سنوات يبحث عن شريك مموّل لافتتاح فرع ثانٍ في جدة، مع خبرة تشغيلية جاهزة.",
-    statEn: "Stake offered", statAr: "الحصة المطروحة", valueEn: "30%", valueAr: "30%", postedEn: "Posted 2 days ago", postedAr: "نُشرت قبل يومين" },
+  { type: "offer", sector: "food", city: "riyadh", badgeEn: "Seller offering a business", badgeAr: "بائع يعرض منشأة للبيع",
+    titleEn: "Established specialty café — for sale in Riyadh", titleAr: "مقهى متخصص قائم — للبيع في الرياض",
+    descEn: "A 2-year-old café with a prime location and a loyal customer base — the owner is selling the whole business to focus on another venture.",
+    descAr: "مقهى قائم منذ سنتين بموقع حيوي وقاعدة عملاء ثابتة، صاحبه يبيع كامل المنشأة لتفرغه لمشروع آخر.",
+    statEn: "Asking price", statAr: "السعر المطلوب", valueEn: "SAR 250,000", valueAr: "250 ألف ﷼", postedEn: "Posted 2 days ago", postedAr: "نُشرت قبل يومين" },
+  { type: "seek", sector: "retail", city: "jeddah", badgeEn: "Buyer seeking a business", badgeAr: "مشترٍ يبحث عن منشأة",
+    titleEn: "Investor looking to acquire an existing retail business", titleAr: "مستثمر يبحث عن محل تجزئة قائم للشراء",
+    descEn: "A ready investor with a set budget is looking to acquire an existing shop or small retail chain to take over and operate directly.",
+    descAr: "مستثمر جاهز بميزانية محددة يبحث عن محل أو سلسلة صغيرة قائمة في قطاع التجزئة للاستحواذ عليها وتشغيلها مباشرة.",
+    statEn: "Budget available", statAr: "الميزانية المتاحة", valueEn: "Up to SAR 500,000", valueAr: "حتى 500 ألف ﷼", postedEn: "Posted yesterday", postedAr: "نُشرت أمس" },
+  { type: "seek", sector: "services", city: "riyadh", badgeEn: "Seeking an investor", badgeAr: "يبحث عن مستثمر",
+    titleEn: "Founder seeking an investor to expand an existing business", titleAr: "رائد أعمال يبحث عن مستثمر لتوسعة مشروع قائم",
+    descEn: "A profitable, established services business is looking for an investor to fund expansion into a new city, in exchange for equity.",
+    descAr: "مشروع خدمات قائم ومربح يبحث صاحبه عن مستثمر لتمويل التوسع لمدينة جديدة، مقابل حصة في الشركة.",
+    statEn: "Funding needed", statAr: "التمويل المطلوب", valueEn: "SAR 300,000 for 20%", valueAr: "300 ألف ﷼ مقابل 20%", postedEn: "Posted 3 days ago", postedAr: "نُشرت قبل 3 أيام" },
+  { type: "seek", sector: "other", city: "dammam", badgeEn: "Investor seeking an opportunity", badgeAr: "مستثمر يبحث عن فرصة",
+    titleEn: "Investor looking for a promising opportunity", titleAr: "مستثمر يبحث عن فرصة استثمارية واعدة",
+    descEn: "An investor with capital ready to deploy is looking for an existing business or a promising idea in any sector, for equity or partnership.",
+    descAr: "مستثمر لديه رأس مال جاهز يبحث عن مشروع قائم أو فكرة واعدة في أي قطاع لضخ استثمار مقابل شراكة أو حصة.",
+    statEn: "Capital available", statAr: "رأس المال المتاح", valueEn: "SAR 1–3M", valueAr: "1–3 مليون ﷼", postedEn: "Posted 4 days ago", postedAr: "نُشرت قبل 4 أيام" },
+  { type: "offer", sector: "food", city: "jeddah", badgeEn: "Partnership offer", badgeAr: "عرض شراكة",
+    titleEn: "Restaurant chain offering a franchise", titleAr: "سلسلة مطاعم تعرض حق امتياز (فرنشايز)",
+    descEn: "A successful local restaurant brand is offering a franchise to open new branches, with full training and ongoing operating support.",
+    descAr: "علامة مطاعم محلية ناجحة تعرض حق امتياز لفتح فروع جديدة، مع تدريب كامل ودعم تشغيلي مستمر.",
+    statEn: "Franchise fee", statAr: "رسوم الامتياز", valueEn: "SAR 150,000", valueAr: "150 ألف ﷼", postedEn: "Posted a week ago", postedAr: "نُشرت قبل أسبوع" },
   { type: "idea", sector: "tech", city: "jeddah", titleEn: "On-demand home maintenance booking app", titleAr: "تطبيق حجز صيانة منزلية عند الطلب",
     descEn: "A researched idea with initial market study — the founder is looking for a technical co-founder to build and launch the product.",
     descAr: "فكرة مدروسة بدراسة سوق أولية، صاحبها يبحث عن شريك مؤسس تقني لبناء المنتج وإطلاقه.",
-    statEn: "Looking for", statAr: "المطلوب", valueEn: "Technical partner", valueAr: "شريك تقني", postedEn: "Posted yesterday", postedAr: "نُشرت أمس" },
-  { type: "offer", sector: "logistics", city: "dammam", titleEn: "Exclusive food-product distribution — Eastern Province", titleAr: "توزيع حصري لمنتجات غذائية — المنطقة الشرقية",
-    descEn: "An established distribution company offers an exclusive distribution agreement to retailers in the Eastern Province on preferential terms.",
-    descAr: "شركة توزيع قائمة تعرض اتفاقية توزيع حصري لتجار التجزئة في المنطقة الشرقية بشروط تفضيلية.",
-    statEn: "Minimum order", statAr: "الحد الأدنى للطلب", valueEn: "SAR 50,000", valueAr: "50 ألف ﷼", postedEn: "Posted 3 days ago", postedAr: "نُشرت قبل 3 أيام" },
-  { type: "seek", sector: "beauty", city: "jeddah", titleEn: "Women's beauty salon — new branch", titleAr: "صالون تجميل نسائي — فرع جديد",
-    descEn: "A successful 2-branch salon is looking for a partner to run and operate a third branch, with full training and a ready brand.",
-    descAr: "صالون ناجح بفرعين يبحث عن شريكة لإدارة وتشغيل فرع ثالث، مع تدريب كامل وعلامة تجارية جاهزة.",
-    statEn: "Capital required", statAr: "رأس المال المطلوب", valueEn: "SAR 180,000", valueAr: "180 ألف ﷼", postedEn: "Posted 4 days ago", postedAr: "نُشرت قبل 4 أيام" },
-  { type: "offer", sector: "industry", city: "riyadh", titleEn: "Wholesale furniture manufacturing for retailers", titleAr: "تصنيع أثاث بالجملة لتجار التجزئة",
-    descEn: "A local furniture factory offers wholesale manufacturing contracts at competitive prices for furniture and furnishing stores.",
-    descAr: "مصنع أثاث محلي يعرض تعاقدات تصنيع بالجملة بأسعار تنافسية لمتاجر الأثاث والمفروشات.",
-    statEn: "Lead time", statAr: "مدة التوريد", valueEn: "2–4 weeks", valueAr: "2–4 أسابيع", postedEn: "Posted a week ago", postedAr: "نُشرت قبل أسبوع" },
-  { type: "idea", sector: "hr", city: "riyadh", titleEn: "Remote hiring platform for Saudi talent", titleAr: "منصة توظيف عن بُعد للمواهب السعودية",
-    descEn: "An entrepreneur with 8 years of recruitment experience is looking for a technical co-founder to build a platform connecting companies with talent.",
-    descAr: "رائد أعمال يملك خبرة توظيف 8 سنوات ويبحث عن شريك مؤسس مطوّر لبناء منصة ربط الشركات بالمواهب.",
-    statEn: "Looking for", statAr: "المطلوب", valueEn: "Co-founder", valueAr: "شريك مؤسس", postedEn: "Posted a week ago", postedAr: "نُشرت قبل أسبوع" },
+    statEn: "Looking for", statAr: "المطلوب", valueEn: "Technical partner", valueAr: "شريك تقني", postedEn: "Posted 5 days ago", postedAr: "نُشرت قبل 5 أيام" },
 ];
 
 /* Curated, source-backed market opportunities Business Partner tracks (giga-projects
@@ -3030,7 +3039,7 @@ function buildDeals() {
     const city = DEAL_CITIES.find((c) => c.key === t.city);
     const meta = DEAL_TYPE_META[t.type];
     return `<article class="card deal-ticket" data-type="${t.type}" data-sector="${t.sector}" data-city="${t.city}">
-      <span class="deal-badge ${t.type}">${meta.icon} ${L(meta.en, meta.ar)}</span>
+      <span class="deal-badge ${t.type}">${meta.icon} ${L(t.badgeEn || meta.en, t.badgeAr || meta.ar)}</span>
       <h3>${L(t.titleEn, t.titleAr)}</h3>
       <div class="deal-ticket-meta"><span>${I.pin} ${L(city.en, city.ar)}</span><span>${sec.icon} ${L(sec.en, sec.ar)}</span></div>
       <p class="text-soft">${L(t.descEn, t.descAr)}</p>
@@ -3040,7 +3049,7 @@ function buildDeals() {
   }).join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">${L("New — smart matching + deals", "جديد — مطابقة ذكية + صفقات")}</span>
+    <span class="eyebrow">${L("New — smart matching + deals · 🆓 free right now", "جديد — مطابقة ذكية + صفقات · 🆓 الخدمة مجانية حاليًا")}</span>
     <h1>${L("We don't just list deals — we match you with the right partner", "ما نعرض لك صفقات فقط — نطابقك مع الشريك الصح")}</h1>
     <p class="lead">${L("Submit your deal or file once, and we compare it instantly against every available opportunity by sector, city and deal type, then recommend the closest matches by name. Real introductions only happen with mutual consent.", "قدّم صفقتك أو ملفك مرة واحدة، ونقارنه فورًا بكل الفرص المتاحة حسب القطاع والمدينة ونوع الصفقة، ونرشّح لك أقرب النتائج بالاسم. التعارف الفعلي لا يتم إلا بعد موافقة الطرفين.")}</p>
     <div class="hero-actions">
@@ -3072,10 +3081,10 @@ function buildDeals() {
 
   <section class="section section--gray"><div class="container">
     <div class="deal-trust">
+      <span>🆓 ${L("Free right now — no commission", "الخدمة مجانية حاليًا بدون أي عمولة")}</span>
       <span>🔒 ${L("Manual review before publishing", "مراجعة يدوية قبل النشر")}</span>
       <span>🎯 ${L("Automatically calculated match score", "نسبة تطابق محسوبة تلقائيًا")}</span>
       <span>🤝 ${L("Mutual-consent introductions only", "تعارف بموافقة الطرفين فقط")}</span>
-      <span>✉️ ${L("Instant email updates", "تحديثات فورية بالبريد")}</span>
     </div>
   </div></section>
 

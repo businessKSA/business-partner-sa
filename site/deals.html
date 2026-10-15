@@ -237,7 +237,7 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
 }).catch(function(){});
 })();</script></div><main>
   <section class="hero"><div class="container hero-inner">
-    <span class="eyebrow">New — smart matching + deals</span>
+    <span class="eyebrow">New — smart matching + deals · 🆓 free right now</span>
     <h1>We don't just list deals — we match you with the right partner</h1>
     <p class="lead">Submit your deal or file once, and we compare it instantly against every available opportunity by sector, city and deal type, then recommend the closest matches by name. Real introductions only happen with mutual consent.</p>
     <div class="hero-actions">
@@ -263,58 +263,58 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
   <section class="section" id="deal-wall"><div class="container">
     <div class="section-head"><h2>Deals published this week</h2><p>Browse for free, or submit your file so the system calculates your closest matches automatically.</p></div>
     <div class="deal-filters"><button class="deal-chip active" data-filter="all" type="button">All</button><button class="deal-chip" data-filter="offer" type="button">Offering a deal</button><button class="deal-chip" data-filter="seek" type="button">Seeking a partner</button><button class="deal-chip" data-filter="idea" type="button">Project idea</button><span class="deal-filters-count"><span id="deal-visible-count">0</span> deals visible</span></div>
-    <div class="grid grid-3" id="deal-wall-grid"><article class="card deal-ticket" data-type="seek" data-sector="food" data-city="riyadh">
-      <span class="deal-badge seek">🔎 Seeking a partner</span>
-      <h3>Saudi cuisine restaurant — Riyadh</h3>
+    <div class="grid grid-3" id="deal-wall-grid"><article class="card deal-ticket" data-type="offer" data-sector="food" data-city="riyadh">
+      <span class="deal-badge offer">🤝 Seller offering a business</span>
+      <h3>Established specialty café — for sale in Riyadh</h3>
       <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> Riyadh</span><span>🍽️ Restaurants &amp; Food</span></div>
-      <p class="text-soft">A restaurant running for 3 years is looking for a funding partner to open a second branch in Jeddah, with an operating team ready to go.</p>
-      <div class="deal-ticket-stat"><span>Stake offered</span><b>30%</b></div>
+      <p class="text-soft">A 2-year-old café with a prime location and a loyal customer base — the owner is selling the whole business to focus on another venture.</p>
+      <div class="deal-ticket-stat"><span>Asking price</span><b>SAR 250,000</b></div>
       <div class="deal-ticket-foot"><span>Posted 2 days ago</span><button class="deal-ticket-btn" type="button">Request intro</button></div>
+    </article><article class="card deal-ticket" data-type="seek" data-sector="retail" data-city="jeddah">
+      <span class="deal-badge seek">🔎 Buyer seeking a business</span>
+      <h3>Investor looking to acquire an existing retail business</h3>
+      <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> Jeddah</span><span>🛍️ Retail</span></div>
+      <p class="text-soft">A ready investor with a set budget is looking to acquire an existing shop or small retail chain to take over and operate directly.</p>
+      <div class="deal-ticket-stat"><span>Budget available</span><b>Up to SAR 500,000</b></div>
+      <div class="deal-ticket-foot"><span>Posted yesterday</span><button class="deal-ticket-btn" type="button">Request intro</button></div>
+    </article><article class="card deal-ticket" data-type="seek" data-sector="services" data-city="riyadh">
+      <span class="deal-badge seek">🔎 Seeking an investor</span>
+      <h3>Founder seeking an investor to expand an existing business</h3>
+      <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> Riyadh</span><span>🧰 Services</span></div>
+      <p class="text-soft">A profitable, established services business is looking for an investor to fund expansion into a new city, in exchange for equity.</p>
+      <div class="deal-ticket-stat"><span>Funding needed</span><b>SAR 300,000 for 20%</b></div>
+      <div class="deal-ticket-foot"><span>Posted 3 days ago</span><button class="deal-ticket-btn" type="button">Request intro</button></div>
+    </article><article class="card deal-ticket" data-type="seek" data-sector="other" data-city="dammam">
+      <span class="deal-badge seek">🔎 Investor seeking an opportunity</span>
+      <h3>Investor looking for a promising opportunity</h3>
+      <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> Dammam</span><span>🗂️ Other</span></div>
+      <p class="text-soft">An investor with capital ready to deploy is looking for an existing business or a promising idea in any sector, for equity or partnership.</p>
+      <div class="deal-ticket-stat"><span>Capital available</span><b>SAR 1–3M</b></div>
+      <div class="deal-ticket-foot"><span>Posted 4 days ago</span><button class="deal-ticket-btn" type="button">Request intro</button></div>
+    </article><article class="card deal-ticket" data-type="offer" data-sector="food" data-city="jeddah">
+      <span class="deal-badge offer">🤝 Partnership offer</span>
+      <h3>Restaurant chain offering a franchise</h3>
+      <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> Jeddah</span><span>🍽️ Restaurants &amp; Food</span></div>
+      <p class="text-soft">A successful local restaurant brand is offering a franchise to open new branches, with full training and ongoing operating support.</p>
+      <div class="deal-ticket-stat"><span>Franchise fee</span><b>SAR 150,000</b></div>
+      <div class="deal-ticket-foot"><span>Posted a week ago</span><button class="deal-ticket-btn" type="button">Request intro</button></div>
     </article><article class="card deal-ticket" data-type="idea" data-sector="tech" data-city="jeddah">
       <span class="deal-badge idea">💡 Pitching an idea</span>
       <h3>On-demand home maintenance booking app</h3>
       <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> Jeddah</span><span>🛠️ Tech</span></div>
       <p class="text-soft">A researched idea with initial market study — the founder is looking for a technical co-founder to build and launch the product.</p>
       <div class="deal-ticket-stat"><span>Looking for</span><b>Technical partner</b></div>
-      <div class="deal-ticket-foot"><span>Posted yesterday</span><button class="deal-ticket-btn" type="button">Request intro</button></div>
-    </article><article class="card deal-ticket" data-type="offer" data-sector="logistics" data-city="dammam">
-      <span class="deal-badge offer">🤝 Offering a deal</span>
-      <h3>Exclusive food-product distribution — Eastern Province</h3>
-      <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> Dammam</span><span>🚚 Logistics</span></div>
-      <p class="text-soft">An established distribution company offers an exclusive distribution agreement to retailers in the Eastern Province on preferential terms.</p>
-      <div class="deal-ticket-stat"><span>Minimum order</span><b>SAR 50,000</b></div>
-      <div class="deal-ticket-foot"><span>Posted 3 days ago</span><button class="deal-ticket-btn" type="button">Request intro</button></div>
-    </article><article class="card deal-ticket" data-type="seek" data-sector="beauty" data-city="jeddah">
-      <span class="deal-badge seek">🔎 Seeking a partner</span>
-      <h3>Women's beauty salon — new branch</h3>
-      <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> Jeddah</span><span>💇‍♀️ Beauty</span></div>
-      <p class="text-soft">A successful 2-branch salon is looking for a partner to run and operate a third branch, with full training and a ready brand.</p>
-      <div class="deal-ticket-stat"><span>Capital required</span><b>SAR 180,000</b></div>
-      <div class="deal-ticket-foot"><span>Posted 4 days ago</span><button class="deal-ticket-btn" type="button">Request intro</button></div>
-    </article><article class="card deal-ticket" data-type="offer" data-sector="industry" data-city="riyadh">
-      <span class="deal-badge offer">🤝 Offering a deal</span>
-      <h3>Wholesale furniture manufacturing for retailers</h3>
-      <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> Riyadh</span><span>🪑 Industry</span></div>
-      <p class="text-soft">A local furniture factory offers wholesale manufacturing contracts at competitive prices for furniture and furnishing stores.</p>
-      <div class="deal-ticket-stat"><span>Lead time</span><b>2–4 weeks</b></div>
-      <div class="deal-ticket-foot"><span>Posted a week ago</span><button class="deal-ticket-btn" type="button">Request intro</button></div>
-    </article><article class="card deal-ticket" data-type="idea" data-sector="hr" data-city="riyadh">
-      <span class="deal-badge idea">💡 Pitching an idea</span>
-      <h3>Remote hiring platform for Saudi talent</h3>
-      <div class="deal-ticket-meta"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> Riyadh</span><span>👥 HR</span></div>
-      <p class="text-soft">An entrepreneur with 8 years of recruitment experience is looking for a technical co-founder to build a platform connecting companies with talent.</p>
-      <div class="deal-ticket-stat"><span>Looking for</span><b>Co-founder</b></div>
-      <div class="deal-ticket-foot"><span>Posted a week ago</span><button class="deal-ticket-btn" type="button">Request intro</button></div>
+      <div class="deal-ticket-foot"><span>Posted 5 days ago</span><button class="deal-ticket-btn" type="button">Request intro</button></div>
     </article></div>
     <div class="center mt-32"><button class="btn btn-primary" id="deal-open-bottom" type="button">Add your deal to the wall</button></div>
   </div></section>
 
   <section class="section section--gray"><div class="container">
     <div class="deal-trust">
+      <span>🆓 Free right now — no commission</span>
       <span>🔒 Manual review before publishing</span>
       <span>🎯 Automatically calculated match score</span>
       <span>🤝 Mutual-consent introductions only</span>
-      <span>✉️ Instant email updates</span>
     </div>
   </div></section>
 
@@ -410,6 +410,7 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
       <a href="/packages">Packages</a>
       <a href="/ai-agents">Smart advisors</a>
       <a href="/business-development">Business development</a>
+      <a href="/deals">Deals & opportunities</a>
     </div>
     <div class="sv1-foot-navcol">
       <h5>Knowledge</h5>
