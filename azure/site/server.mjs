@@ -51,9 +51,14 @@ const MIME = {
 };
 
 const handlers = new Map();
+// مسارات عامة لوحدات مساعدة (تبدأ بـ_ فلا تُحمَّل بالاسم): الودجت والرئيسية تستدعي /api/chat،
+// ولا ملف api/chat.js في الشجرة منذ ردّ الدوال إلى ١٢ — فيُربط هنا صراحةً بقائمة مغلقة.
+const PUBLIC_HELPERS = { chat: "_chat" };
+
 async function loadHandler(name) {
-  if (!/^[A-Za-z0-9_-]+$/.test(name) || name.startsWith("_")) return null;
-  const file = path.join(ROOT, "api", `${name}.js`);
+  const file0 = PUBLIC_HELPERS[name];
+  if (!file0 && (!/^[A-Za-z0-9_-]+$/.test(name) || name.startsWith("_"))) return null;
+  const file = path.join(ROOT, "api", `${file0 || name}.js`);
   if (!fs.existsSync(file)) return null;
   if (!handlers.has(file)) handlers.set(file, import(pathToFileURL(file).href).then((m) => m.default || null));
   return handlers.get(file);
@@ -158,5 +163,9 @@ const server = http.createServer(async (req, res) => {
     if (!res.writableEnded) res.end(JSON.stringify({ ok: false, error: "server_error" }));
   }
 });
+
+// عطلٌ في مسار واحد (وحدة ناقصة، وعدٌ مرفوض) لا يُسقط الموقع كله: يُسجَّل ويستمر الخادم.
+process.on("uncaughtException", (e) => console.error("uncaughtException", e));
+process.on("unhandledRejection", (e) => console.error("unhandledRejection", e));
 
 server.listen(PORT, () => console.log(`bp-site listening on :${PORT}`));

@@ -39,3 +39,5 @@ agents/node_modules/
 .localdb/
 .env.local
 .claude/worktrees/
+.azure-n8n-backups/
+.claude/settings.local.json

@@ -43,6 +43,7 @@ import { handleDocAgent } from "./_docagent.js";
 import { handleSimple } from "./_simple.js";
 import spacesHandler from "./_spaces.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
+import { n8nHook } from "./_n8n.js";
 // خزنة مستندات العميل (`ops-doc-upload`): الصيغ المقبولة والحدّ الأعلى.
 // حدّ الخزنة (٨MB) غير حدّ القراءة الآلية (`MAX_DOC_BYTES` = ٦MB): الأول ما
 // يُحفَظ، والثاني ما يُرسَل إلى القارئ. هما رقمان مختلفان عن قصد.
@@ -119,7 +120,7 @@ async function forwardLead(payload) {
 // test data and created a real lead. Same gate as e-mail in _simple.js: unless
 // WHATSAPP_MODE is live (production default; mock on localhost and previews)
 // the payload goes to the outbox and nothing leaves the machine.
-const OWNER_WA_WEBHOOK = process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify";
+const OWNER_WA_WEBHOOK = process.env.OWNER_WA_WEBHOOK || n8nHook("website-lead-notify");
 async function ownerWaNotify(payload) {
   if (!WHATSAPP_LIVE) {
     await outbox({ kind: "whatsapp", to: OWNER_WA_WEBHOOK, subject: `${payload.source || "notify"} ${payload.ref || ""}`.trim(), body: String(payload.transcript || "").slice(0, 2000), payload });

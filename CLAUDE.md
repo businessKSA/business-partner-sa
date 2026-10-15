@@ -125,9 +125,19 @@
   `‏/webhook/bp-ai-control-j8PUwUks3morvPEaHyx5aNGfjlsbEm66`. حمايتها سرّية
   الرابط فقط، ولهذا نُقلت اللوحة الأساسية إلى Azure ببوابة حقيقية.
 
+## 1.5) n8n ينتقل من Cloud إلى Azure — اقرأ المذكرة قبل أي لمسة على n8n
+
+الاتجاه (قرار المالك 2026-10-12): كل شيء على Azure، وn8n Cloud يُطفأ بعد التحويل. المرجع
+الوحيد لحالة التحويل والأوامر المتبقية هو `docs/azure-n8n-handoff-2026-10-12.md` (§9 و§10)،
+وأدواته في `ops/azure-n8n/`. قاعدتان: **لا يُفعَّل سيرٌ على Azure وهو نشط في Cloud إلا
+الويبهوك** (المشغّلات الاستطلاعية وواتساب تتكرّر)، و**لا يُنفَّذ `cutover.mjs --apply` وبوابته
+مغلقة** (سير ناقص، أو ذكاء خارج Azure، أو اعتماد بمعرّف Cloud). عنوان n8n في الموقع صار
+مفتاحاً واحداً: `BP_N8N_BASE` لـ`api/` و`BP_N8N_PUBLIC_BASE` للصفحات (خطوة بناء)؛ افتراضهما
+Cloud حتى تُفعَّل ويبهوكات Azure.
+
 ## 2) فرع واحد و Pull Request واحد
 
-- فرع الإنتاج للعمل: `claude/intelligent-agents-collaboration-y788ck`، والـ PR المفتوح هو **#315** — لا يُفتح PR آخر لهذا العمل.
+- فرع الإنتاج للعمل: `claude/intelligent-agents-collaboration-y788ck`، والـ PR المفتوح هو **#352** — لا يُفتح PR آخر لهذا العمل. (**#315** و**#350** دُمجا في 2026-10-12؛ الطلب المدموج لا يُعاد استعماله.)
 - **تصحيح 2026-09-23:** كان هذا البند يقول الفرع `claude/bpic-marketing-site-jvrnga` والطلب **#271**. و**#271 دُمج فعلاً في 2026-09-04** (`merged_at`)، فبقي البند يوجّه الجلسات إلى فرعٍ وطلبٍ منتهيين تسعة عشر يوماً. الطلب المدموج لا يُعاد استعماله ولا يتتبّع عملاً جديداً. تحقّق من الفرع بـ`git rev-parse --abbrev-ref HEAD` قبل أن تصدّق أي اسم مكتوب هنا.
 - قبل كل دفعة: `git fetch` ثم `git rebase origin/claude/intelligent-agents-collaboration-y788ck`. تعارضات ملفات البناء (`site/**/*.html`, `site/assets/data/catalog.json`) تُحل بأخذ أي نسخة ثم `npm run build` وإعادة التوليد. بعد أي تعارض: `grep -rln "^<<<<<<< " site/ api/ db/` يجب أن يعود فارغاً.
 - **لا تدفع أبداً إلى فرع آخر** دون إذن صريح من المالك.
@@ -365,4 +375,4 @@ node until a real run returns `engine_fallback: false`.
 
 **The working branch IS the Vercel production branch (2026-09-23).** `claude/bpic-marketing-site-jvrnga`, not `master`, is what `businesspartner.sa` serves — `master` deploys nothing, so merging into it does not publish. Every push to the working branch used to reach the live site in about a minute, unreviewed; two sessions did exactly that within forty minutes on 2026-09-23. The `ignoreCommand` in `vercel.json` no longer exempts production, so a deployment now happens only when the last commit message carries the agreed marker. Push freely; publish deliberately.
 
-**One deployment target only:** the Vercel project `business-partner-sa-businessksa` (`prj_0QXlyAeL02QYYNrAQCfc6lRheTGp`). The `bp-quotes` (`quotes/`) Vercel project is being folded into the main site and will then be permanently deleted by the owner from the Vercel dashboard; `bp-erp` was deleted from the dashboard on 2026-09-04 and `erp/` then removed from the repository — in that order, because removing the root directory of a live project fails every build at container init, before `ignoreCommand` is ever read. Do not create Vercel projects, do not build new features inside `quotes/` as a standalone app, do not pause those projects before their functionality has been merged. One branch (`claude/intelligent-agents-collaboration-y788ck`), one PR (#315 — #271 was merged on 2026-09-04 and must not be reused); rebase before every push; full `npm run build`; verify every `api/` import resolves before pushing.
+**One deployment target only:** the Vercel project `business-partner-sa-businessksa` (`prj_0QXlyAeL02QYYNrAQCfc6lRheTGp`). The `bp-quotes` (`quotes/`) Vercel project is being folded into the main site and will then be permanently deleted by the owner from the Vercel dashboard; `bp-erp` was deleted from the dashboard on 2026-09-04 and `erp/` then removed from the repository — in that order, because removing the root directory of a live project fails every build at container init, before `ignoreCommand` is ever read. Do not create Vercel projects, do not build new features inside `quotes/` as a standalone app, do not pause those projects before their functionality has been merged. One branch (`claude/intelligent-agents-collaboration-y788ck`), one PR (#352 — #271, #315 and #350 are merged and must not be reused); rebase before every push; full `npm run build`; verify every `api/` import resolves before pushing.
