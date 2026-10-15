@@ -21,7 +21,7 @@ import { contractHtml, quoteHtml } from "./_docusign.js";
 import { loadCatalog } from "./_catalog.js";
 import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate } from "./_daftra.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
-import { DEV, EMAIL_LIVE, MODES, outbox, outboxList } from "./_mode.js";
+import { DEV, EMAIL_LIVE, WHATSAPP_LIVE, MODES, outbox, outboxList } from "./_mode.js";
 import { isOwnerEmail } from "./_trial.js";
 import { waSend, waNumber } from "./_stage.js";
 import { storagePut, storageSign } from "./_db.js";
@@ -281,7 +281,12 @@ export async function handleSimple(req, res) {
       // he asked for the dashboard to open from his company e-mail, and a
       // secret string he has to carry between devices is not that.
       let opsUser = null;
-      if (!opsOk({ key: body.key || qs.key, ticket: body.ticket || qs.ticket })) {
+      // The inbox actions take the key from the body or the session only. A key
+      // in a URL lands in browser history, proxy logs and Referer headers — the
+      // old /monitor sent it that way on every poll. (The pre-existing ops-*
+      // actions still accept ?key= because n8n calls some of them that way.)
+      const urlKeyOk = !INBOX_NO_URL_KEY.has(action);
+      if (!opsOk({ key: body.key || (urlKeyOk ? qs.key : ""), ticket: body.ticket || (urlKeyOk ? qs.ticket : "") })) {
         const sess = await getSession(req);
         if (!isOwnerEmail(sess && sess.user && sess.user.email)) {
           return json(res, 401, { ok: false, error: "unauthorized", signin: `${SELF_BASE}/ar/my` });
@@ -957,6 +962,172 @@ async function waGateSet(phone, { paused, minutes, reason, actor }) {
   return (Array.isArray(out) ? out[0] : out) || row;
 }
 
+// Inbox actions that never read a key from the URL (see handleSimple).
+const INBOX_NO_URL_KEY = new Set(["ops-inbox-feed", "ops-inbox-thread", "ops-inbox-read", "ops-inbox-reply", "ops-inbox-suggest"]);
+// ------------------------------------------------------- unified inbox ("الوارد") --
+// Moved here from /monitor (2026-10-14). Three sources, one list:
+//   web  — the site advisor's conversations. They live in the Notion CRM page
+//          that api/requests.js upsertConversation() writes ("WEB-<sid>"), one
+//          page per browser session, whether or not the visitor left a number.
+//   wa   — WhatsApp, read from the n8n feed /monitor already uses, but fetched
+//          by THIS server so the browser never holds the n8n URL or the key.
+//   (requests and support tickets keep coming from ops-inbox.)
+// Nothing here writes to the customer on its own: a reply is a human clicking
+// «إرسال», and a draft from the model is only ever put in the text box.
+const IN_NOTION_TOKEN = ["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY", "NOTION_INTEGRATION_TOKEN", "NOTION"]
+  .map((k) => String(process.env[k] || "").trim()).find(Boolean) || "";
+const IN_CRM_DB = process.env.NOTION_CRM_DB || "d9a342be24774be3b4095d439d21fc90";
+const IN_CONV_SOURCE = "مستشار الموقع";
+const IN_NOTION_HEADERS = () => ({ Authorization: `Bearer ${IN_NOTION_TOKEN}`, "Notion-Version": "2022-06-28", "content-type": "application/json" });
+// The n8n WhatsApp feed (the same webhook /monitor polls). It is skipped
+// unless WhatsApp is live, so a local run or a preview never talks to the
+// production n8n. Moving it to Azure later is one env var.
+const IN_WA_FEED = process.env.WA_INBOX_FEED_URL || "https://businesspartnerai.app.n8n.cloud/webhook/bp-chat-monitor-x7k2m9";
+// Same patterns as commitmentIn() in agents/azure/tools.mjs: a price, a
+// guarantee or a discount in a reply to a customer needs a deliberate second click.
+const IN_COMMIT_RE = /(\d[\d,]*\s*(ريال|ر\.س|﷼|sar)|السعر\s*(النهائي|هو)|نوقّع|التوقيع\s*غد|أضمن|ضمان\s*(القبول|الموافقة)|خصم\s*\d)/i;
+
+const inTxt = (arr) => (arr || []).map((t) => t.plain_text).join("");
+function inParseWeb(pg) {
+  const p = pg.properties || {};
+  const ref = inTxt(p["رقم المرجع"] && p["رقم المرجع"].rich_text).trim() || pg.id;
+  const notes = inTxt(p["Notes"] && p["Notes"].rich_text);
+  const nameM = notes.match(/(?:الموقع\)|دعم)\s*·\s*([^·\n]+?)(?:\s*·|\n)/);
+  const phoneM = notes.match(/الجوال:\s*([+\d][\d\s()-]{5,})/);
+  const emailM = notes.match(/البريد:\s*([^\s·]+@[^\s·]+)/);
+  const phone = phoneM ? phoneM[1].replace(/[\s()-]/g, "").trim() : "";
+  const email = emailM ? emailM[1].toLowerCase() : "";
+  const messages = notes.split("\n").slice(1).filter((l) => /^(🧑|🤖)/.test(l)).map((line) => ({
+    role: line.startsWith("🤖") ? "assistant" : "user",
+    content: line.replace(/^(🧑\s*الزائر:|🤖\s*باهر:)\s*/, "").trim(),
+  }));
+  const last = messages[messages.length - 1] || null;
+  return {
+    kind: "web", id: ref, channel: "WEBSITE",
+    name: nameM ? nameM[1].trim() : "", phone, email,
+    // «ساخن» = the visitor left a way to reach them. A conversation with a
+    // number or an e-mail is a lead somebody can still act on.
+    hot: !!(phone || email),
+    messages, count: messages.length,
+    last: last ? { role: last.role, content: last.content.slice(0, 200) } : null,
+    at: new Date(pg.last_edited_time || pg.created_time || Date.now()).toISOString(),
+    crm: `https://www.notion.so/${String(pg.id).replace(/-/g, "")}`,
+  };
+}
+async function inWebList(limit = 100) {
+  if (!IN_NOTION_TOKEN) return { threads: [], problem: "notion_not_configured" };
+  try {
+    const r = await fetch(`https://api.notion.com/v1/databases/${IN_CRM_DB}/query`, {
+      method: "POST", headers: IN_NOTION_HEADERS(),
+      body: JSON.stringify({ page_size: Math.min(Math.max(num(limit) || 100, 1), 100), filter: { property: "Lead Source", select: { equals: IN_CONV_SOURCE } }, sorts: [{ property: "Last Activity", direction: "descending" }] }),
+    });
+    if (!r.ok) return { threads: [], problem: `notion_http_${r.status}` };
+    const data = await r.json();
+    return { threads: (data.results || []).map(inParseWeb) };
+  } catch { return { threads: [], problem: "notion_unreachable" }; }
+}
+async function inWebOne(ref) {
+  if (!IN_NOTION_TOKEN) return null;
+  try {
+    const r = await fetch(`https://api.notion.com/v1/databases/${IN_CRM_DB}/query`, {
+      method: "POST", headers: IN_NOTION_HEADERS(),
+      body: JSON.stringify({ page_size: 1, filter: { and: [{ property: "Lead Source", select: { equals: IN_CONV_SOURCE } }, { property: "رقم المرجع", rich_text: { equals: ref } }] } }),
+    });
+    if (!r.ok) return null;
+    const pg = ((await r.json()).results || [])[0];
+    return pg ? inParseWeb(pg) : null;
+  } catch { return null; }
+}
+// WhatsApp messages as the n8n feed returns them: {phone,name,sender,text,time,alert}.
+async function inWaList() {
+  if (!WHATSAPP_LIVE) return { threads: [], problem: "wa_mock_mode" };
+  const key = [...PANEL_KEYS][0] || "";
+  if (!key) return { threads: [], problem: "wa_feed_key_missing" };
+  let data = null;
+  try {
+    const r = await fetch(`${IN_WA_FEED}?key=${encodeURIComponent(key)}`, { headers: { "cache-control": "no-store" }, signal: AbortSignal.timeout(9000) });
+    if (!r.ok) return { threads: [], problem: `wa_feed_http_${r.status}` };
+    data = await r.json();
+  } catch { return { threads: [], problem: "wa_feed_unreachable" }; }
+  if (!data || !data.ok) return { threads: [], problem: "wa_feed_rejected" };
+  const by = new Map();
+  for (const m of data.messages || []) {
+    const ph = waKey(m && m.phone);
+    // Website threads in the same feed (they carry a WEB- key) are served from
+    // Notion above; alerts are agent-gate notices, not conversation.
+    if (!ph || ph === WA_ALL || m.alert || !/^\d{9,15}$/.test(ph)) continue;
+    if (!by.has(ph)) by.set(ph, []);
+    by.get(ph).push(m);
+  }
+  const roleOf = (m) => (m.sender === "العميل" ? "user" : m.sender === "الوكيل" ? "assistant" : "bp");
+  const threads = [];
+  for (const [ph, ms] of by) {
+    ms.sort((a, c) => (new Date(a.time) - new Date(c.time)));
+    const lastM = ms[ms.length - 1];
+    const lastCustomer = [...ms].reverse().find((m) => m.sender === "العميل");
+    threads.push({
+      kind: "wa", id: "WA-" + ph, channel: "WHATSAPP", phone: ph,
+      name: (ms.find((m) => m.name) || {}).name || "", email: "", hot: true,
+      messages: ms.slice(-40).map((m) => ({ role: roleOf(m), content: String(m.text || "").slice(0, 2000), at: m.time })),
+      count: ms.length,
+      last: { role: roleOf(lastM), content: String(lastM.text || "").slice(0, 200) },
+      at: new Date(lastM.time).toISOString(),
+      last_customer_at: lastCustomer ? new Date(lastCustomer.time).toISOString() : null,
+    });
+  }
+  return { threads };
+}
+// Read markers and sent replies are rows of audit_logs: that table exists in
+// every environment and a read marker is an audit fact (who opened what, when).
+// Website replies need somewhere durable of their own: the widget rewrites the
+// Notion transcript from the visitor's history on every message, so a reply
+// appended there would vanish at the next sync.
+async function inState() {
+  const out = new Map();
+  let rows = [];
+  try { rows = await sb("audit_logs?action=in.(ops.inbox.read,ops.inbox.reply)&select=action,actor_label,after,created_at&order=created_at.desc&limit=1000"); } catch { rows = []; }
+  for (const r of rows) {
+    const a = r.after || {};
+    const id = a.id;
+    if (!id) continue;
+    if (!out.has(id)) out.set(id, { readAt: "", replies: [] });
+    const st = out.get(id);
+    if (r.action === "ops.inbox.read") { if (!st.readAt) st.readAt = a.at || r.created_at; }
+    else st.replies.push({ role: "bp", content: String(a.text || ""), at: a.at || r.created_at, channel: a.channel, by: r.actor_label || "", delivered: a.delivered !== false });
+  }
+  for (const st of out.values()) st.replies.sort((a, c) => (a.at < c.at ? -1 : 1));
+  return out;
+}
+async function inMark(id, action, after, actor) {
+  try { await sb("audit_logs", { method: "POST", prefer: "return=minimal", body: [{ action, actor_label: str(actor, 120) || "owner", entity_type: "inbox_thread", after: { id, at: nowIso(), ...after } }] }); return true; } catch { return false; }
+}
+function inDecorate(t, st) {
+  const s = st || { readAt: "", replies: [] };
+  const lastReply = s.replies.length ? s.replies[s.replies.length - 1].at : "";
+  // A website thread is only rewritten when the visitor writes, so its edit
+  // time is the visitor's last word. For WhatsApp the feed says who spoke last.
+  const lastCustomer = t.kind === "wa" ? (t.last_customer_at || "") : t.at;
+  const seen = [s.readAt, lastReply].filter(Boolean).sort().pop() || "";
+  // Unread: the customer spoke after anyone opened or answered the thread.
+  const unread = !!lastCustomer && (!seen || lastCustomer > seen);
+  const { messages, ...rest } = t;
+  return { ...rest, at: lastReply && lastReply > t.at ? lastReply : t.at, unread, replies: s.replies.length, ...(t.kind === "wa" ? { messages, reply_items: s.replies } : {}) };
+}
+// Calls the owner-panel assistant in-process (no HTTP hop, nothing leaves but
+// what the model call itself sends). Returns a draft or a named failure.
+async function runChatDraft(prompt, key, ticket) {
+  let chat;
+  try { chat = (await import("./_chat.js")).default; } catch { return { ok: false, error: "chat_unavailable", message: "المساعد الذكي غير متاح." }; }
+  let payload = "";
+  const res = { statusCode: 200, setHeader() {}, end(s) { payload = s; } };
+  try { await chat({ method: "POST", headers: {}, body: { mode: "admin", key, ticket, messages: [{ role: "user", content: prompt }] } }, res); } catch { return { ok: false, error: "chat_failed", message: "تعذّر توليد مسودة." }; }
+  let data = {};
+  try { data = JSON.parse(payload || "{}"); } catch {}
+  if (res.statusCode === 401) return { ok: false, error: "chat_unauthorized", message: "المساعد الذكي لا يقبل هذا الدخول (يلزم مفتاح اللوحة الرسمي أو تذكرة نفاذ)." };
+  if (res.statusCode === 200 && data.reply && !data.error) return { ok: true, reply: String(data.reply).trim().slice(0, 3000), provider: data.provider || "" };
+  return { ok: false, error: data.error || "chat_failed", message: data.error === "missing_api_key" ? "المحرّك الذكي غير مفعّل (Azure OpenAI)." : "تعذّر توليد مسودة." };
+}
+
 // --------------------------------------------------------------- ops side --
 async function opsAction(action, b, qs, req, res, opsUser) {
   // Who did this, in the audit trail. A named owner beats the generic
@@ -1045,10 +1216,128 @@ async function opsAction(action, b, qs, req, res, opsUser) {
     for (const t of tickets) {
       const msgs = (t.ticket_messages || []).sort((a, c) => a.created_at < c.created_at ? 1 : -1);
       const last = msgs[0] || null;
-      threads.push({ kind: "ticket", channel: "PORTAL", ref: t.number, title: t.subject, status: t.status, last: last ? { role: last.author_kind, content: String(last.body || "").slice(0, 200), at: last.created_at } : null, at: (last && last.created_at) || t.created_at, unread: t.status === "new" || t.status === "waiting_bp" });
+      threads.push({
+        kind: "ticket", channel: "PORTAL", ref: t.number, title: t.subject, status: t.status,
+        last: last ? { role: last.author_kind, content: String(last.body || "").slice(0, 200), at: last.created_at } : null,
+        messages: msgs.slice().reverse().slice(-30).map((m) => ({ role: m.author_kind, content: String(m.body || "").slice(0, 2000), at: m.created_at })),
+        at: (last && last.created_at) || t.created_at, unread: t.status === "new" || t.status === "waiting_bp",
+      });
     }
     threads.sort((a, c) => (a.at < c.at ? 1 : -1));
     return json(res, 200, { ok: true, threads });
+  }
+
+  // ---- الوارد: every website conversation and every WhatsApp thread ----------
+  // The list. Not limited to conversations that became requests, and not
+  // limited to visitors who left a number — that limit was the reason the
+  // owner kept a second inbox open.
+  if (action === "ops-inbox-feed") {
+    const [web, wa, state] = await Promise.all([inWebList(100), inWaList(), inState()]);
+    const threads = [...web.threads, ...wa.threads].map((t) => inDecorate(t, state.get(t.id)));
+    threads.sort((a, c) => (a.at < c.at ? 1 : -1));
+    return json(res, 200, {
+      ok: true, threads,
+      problems: { web: web.problem || null, wa: wa.problem || null },
+      canSend: { whatsapp: WHATSAPP_LIVE ? waConfigured() : true, email: true, live: { whatsapp: WHATSAPP_LIVE, email: EMAIL_LIVE && !SIMPLE_TEST_MODE } },
+      counts: { all: threads.length, unread: threads.filter((t) => t.unread).length, hot: threads.filter((t) => t.hot).length },
+    });
+  }
+
+  // One website thread, whole, with the replies sent from here. Opening it
+  // marks it read — that is the whole meaning of «read».
+  if (action === "ops-inbox-thread") {
+    const id = str(b.id, 80);
+    if (!/^WEB-[A-Za-z0-9_-]{1,60}$/.test(id)) return json(res, 400, { ok: false, error: "bad_id" });
+    const [t, state] = await Promise.all([inWebOne(id), inState()]);
+    if (!t) return json(res, 404, { ok: false, error: "not_found" });
+    const st = state.get(id) || { readAt: "", replies: [] };
+    await inMark(id, "ops.inbox.read", {}, actor);
+    return json(res, 200, { ok: true, thread: { ...t, messages: t.messages, replies: st.replies, unread: false } });
+  }
+
+  if (action === "ops-inbox-read") {
+    const id = str(b.id, 80);
+    if (!/^(WEB-[A-Za-z0-9_-]{1,60}|WA-\d{9,15})$/.test(id)) return json(res, 400, { ok: false, error: "bad_id" });
+    await inMark(id, "ops.inbox.read", {}, actor);
+    return json(res, 200, { ok: true });
+  }
+
+  // A reply typed by a person and sent on the channel the customer gave us.
+  // The destination is read from the conversation here, never taken from the
+  // browser, so this cannot be turned into «send anything to any number».
+  if (action === "ops-inbox-reply") {
+    const id = str(b.id, 80);
+    const text = str(b.text, 3000);
+    const channel = b.channel === "email" ? "email" : "whatsapp";
+    if (!text) return json(res, 400, { ok: false, error: "empty" });
+    const hit = text.match(IN_COMMIT_RE);
+    if (hit && b.confirm_commitment !== true) {
+      return json(res, 409, { ok: false, error: "commitment", matched: hit[0], message: `الرد يحتوي ما يشبه التزاماً («${hit[0]}»): سعر أو ضمان أو خصم. الأسعار من الكتالوج بالرمز فقط ولا وعود. أكّد صراحةً إن كان مقصوداً.` });
+    }
+    let to = "", name = "";
+    if (/^WEB-[A-Za-z0-9_-]{1,60}$/.test(id)) {
+      const t = await inWebOne(id);
+      if (!t) return json(res, 404, { ok: false, error: "not_found" });
+      to = channel === "email" ? t.email : waKey(t.phone);
+      name = t.name;
+    } else if (/^WA-\d{9,15}$/.test(id)) {
+      if (channel !== "whatsapp") return json(res, 400, { ok: false, error: "bad_channel" });
+      to = waKey(id.slice(3));
+    } else return json(res, 400, { ok: false, error: "bad_id" });
+    if (!to || to === WA_ALL) return json(res, 400, { ok: false, error: channel === "email" ? "no_email" : "no_phone", message: channel === "email" ? "هذه المحادثة بلا بريد." : "هذه المحادثة بلا رقم جوال صالح." });
+
+    let mode = "", delivered = true;
+    if (channel === "email") {
+      const html = `<div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.9;color:#1F2430"><p>${esc(name ? "مرحباً " + name + "،" : "مرحباً،")}</p><p style="white-space:pre-wrap">${esc(text)}</p><p style="color:#64748b">بيزنس بارتنر · businesspartner.sa</p></div>`;
+      const sent = await sendEmail(to, "رد من بيزنس بارتنر", html);
+      // A skipped send is not a failure: in preview and locally it lands in the
+      // outbox on purpose. It is reported as such, not as «sent».
+      if (!sent.ok && !sent.skipped) return json(res, 502, { ok: false, error: sent.error || "email_failed", message: "تعذّر إرسال البريد." });
+      mode = sent.ok ? "email" : "outbox"; delivered = !!sent.ok;
+    } else if (!WHATSAPP_LIVE) {
+      await outbox({ kind: "whatsapp", to, body: text });
+      mode = "outbox"; delivered = false;
+    } else {
+      const sent = await waSend(to, text);
+      if (!sent.ok) return json(res, 502, { ok: false, error: sent.error || "wa_failed", message: waFailMessage(sent.error) });
+      mode = sent.mode;
+      // A person is now in the conversation: keep the automatic agent quiet on
+      // this number for an hour, as ops-wa-send does.
+      if (b.hold !== false) await waGateSet(to, { paused: true, minutes: 60, reason: "ردّ يدوي من الوارد", actor });
+    }
+    await inMark(id, "ops.inbox.reply", { channel, text, to: channel === "email" ? to : to.replace(/\d(?=\d{3})/g, "•"), delivered, mode, commitment_confirmed: !!hit }, actor);
+    return json(res, 200, { ok: true, mode, delivered });
+  }
+
+  // A draft, never a send: the text goes to the box, a person edits and sends.
+  // It runs on the same in-process assistant as the rest of the owner panel
+  // (Azure only in admin mode — api/_chat.js drops the n8n/paid providers).
+  if (action === "ops-inbox-suggest") {
+    const id = str(b.id, 80);
+    let msgs = [], who = "";
+    if (/^WEB-[A-Za-z0-9_-]{1,60}$/.test(id)) {
+      const t = await inWebOne(id);
+      if (!t) return json(res, 404, { ok: false, error: "not_found" });
+      msgs = t.messages.map((m) => ({ who: m.role === "user" ? "العميل" : "المستشار الذكي", text: m.content })); who = t.name;
+    } else if (/^WA-\d{9,15}$/.test(id)) {
+      const wa = await inWaList();
+      const t = wa.threads.find((x) => x.id === id);
+      msgs = ((t && t.messages) || []).map((m) => ({ who: m.role === "user" ? "العميل" : m.role === "bp" ? "الفريق" : "المستشار الذكي", text: m.content })); who = (t && t.name) || "";
+    } else return json(res, 400, { ok: false, error: "bad_id" });
+    if (!msgs.length) return json(res, 404, { ok: false, error: "no_messages" });
+    const transcript = msgs.slice(-14).map((m) => `${m.who}: ${m.text}`).join("\n").slice(-6000);
+    const instruction = str(b.instruction, 400);
+    const prompt =
+      "اكتب مسودة ردّ قصير للعميل على آخر رسالة منه، بنبرة مهنية ودودة وبنفس لغته. سيراجعها موظف بشري قبل الإرسال.\n" +
+      "قواعد: لا أسعار ولا رسوم ولا مدد ولا وعود ولا ضمانات ولا خصومات ولا معلومات حكومية من خارج قاعدة المعرفة؛ " +
+      "إن احتاج الأمر سعراً قل إن الفريق سيرسل عرضاً رسمياً. اطلب المعلومة الناقصة إن وُجدت. ردّ نصي فقط بلا شرح ولا ترقيم.\n" +
+      (instruction ? `تعليمات الموظف: ${instruction}\n` : "") +
+      `\nالمحادثة${who ? " مع " + who : ""}:\n${transcript}`;
+    const key = str(b.key, 200) || [...PANEL_KEYS][0] || "";
+    const out = await runChatDraft(prompt, key, str(b.ticket, 400));
+    if (!out.ok) return json(res, 200, { ok: false, error: out.error, message: out.message });
+    const warn = out.reply.match(IN_COMMIT_RE);
+    return json(res, 200, { ok: true, reply: out.reply, provider: out.provider, warning: warn ? `المسودة تحتوي «${warn[0]}» — راجعها: لا أسعار ولا وعود.` : null });
   }
 
   if (action === "ops-manual-intake") {

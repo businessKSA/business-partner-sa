@@ -65,78 +65,174 @@
 4. مشغّلات خارجية: gmailTrigger ×2 وwhatsAppTrigger ×2 (BP-WhatsApp-Main وMahfol — الأخير يُركَن) وnotionTrigger ×1، وتحتاج اعتماداتها حيّة في Azure.
 الاختبار التشغيلي لفرح على Azure نجح يدوياً (قراءة تقويم وDrive وحارس البريد وتسجيل الرسائل). ترتيب المراحل في رأس `cutover.mjs`: schedulers ← webhooks ← whatsapp، ولكل مرحلة `--rollback`.
 
-## 10) الجلسة الثانية 2026-10-13 — ما وُجد قبل التنفيذ، وما بقي بأمر واحد
+## 10) تنفيذ 2026-10-14 (جلسة المتابعة)
+- **فحص `cutover.mjs` (قراءة فقط):** Cloud النشطة 53 · Azure 170، لا ناقص ولا عقد ذكاء خارج Azure بين النشطة. التوزيع: schedulers 1 · webhooks 51 · whatsapp 1. لم يُنفَّذ `--apply`.
+- **عقد الذكاء المتبقية (كلها في سير غير نشطة على Azure، 8 عقد في 8 سير):** Email Campaign V1 (`6CYU2UO8TilXzBqO`, openAi) · استقبال المرشحين من البريد (`8ki6w3hoym6VK0n2`, anthropic) · BP3 Compliance ×3 (`Ao2FXaIgHUQAFE8e` OpenAI HTTP، `qVNwlYHUDpkY7dhk` و`rDQXYYplqelAQAmY` Anthropic HTTP) · استقبال من Outlook (`e7FmrFfBK0yrmMJz`, openAi) · باهر v2 (`mytupyHHG9EIyzjL`, Anthropic Managed Agents) · Email Marketing Network (`T7XUSox6eNNKLSZm`: توليد صورة + عقدتا openAi فارغتان). **لم تُحوَّل بعد:** لكل سير شكل مخرجات مختلف (`content[0].text` / `choices[0].message.content`) فتحتاج محوّلاً خاصاً بكل واحد، وتوليد الصور لا يغطيه `bp-main` (gpt-4.1). تبقى غير نشطة حتى التحويل.
+- **الموقع على staging:** سجل الصور الفعلي `bpwebacr5235` (لا `bpsiteacr` المذكور في `azure-site.yml` — يلزم تصحيحه). بُنيت الصورة `bp-site:c75cf5827a40` وحُدّثت `bp-site-staging` (rg-bp-web) → `Succeeded`. `/healthz` و`/` و`/catalog` و`/cart` و`/my` كلها 200. لم يُمسّ الإنتاج `bp-site` ولا النطاق ولا DNS.
 
-> فُحص من المصدر (الواجهتان العامتان لـCloud وAzure) بالقراءة فقط. هذه الجلسة **لم تكتب شيئاً على n8n**: صلاحيتها ترفض أي كتابة على n8n Azure (تصنيف «مورد مشترك»)، فحُوِّل كل ما يحتاج كتابةً إلى سكربتات جاهزة أدناه يشغّلها المالك أو جلسةٌ بصلاحية الكتابة. الأرقام: **88** سيراً نشطاً في Cloud (كانت 91)، **170** على Azure، كلها موجودة بالاسم.
+### 10.1) تحويل عقد الذكاء المتبقية — `ops/azure-n8n/convert-ai-remaining.mjs` (2026-10-14)
+حُوّلت **6 من 8 سير** إلى Azure OpenAI (`bp-main`) على Azure فقط، وكلها غير نشطة (تجربة جافة ثم `--apply`، ونسخة احتياطية لكل سير قبل الكتابة خارج المستودع):
+- `Ao2FXaIgHUQAFE8e` (OpenAI HTTP): الوجهة والاعتماد → Azure فقط (الصيغة نفسها).
+- `qVNwlYHUDpkY7dhk` و`rDQXYYplqelAQAmY` (Claude HTTP): الطلب يُحوَّل إلى صيغة الدردشة، ومحلّل «بناء سجل التنبيه» يقرأ `choices` أيضاً.
+- `e7FmrFfBK0yrmMJz` (Outlook) و`8ki6w3hoym6VK0n2` (البريد): عقدة HTTP + Set تعيد `content`/`text` كما يقرأه محلّل السيرة.
+- `6CYU2UO8TilXzBqO` (Email Campaign): HTTP + Code يعيد `output[0].content[0].text` ككائن لعقدة Gmail.
 
-### ما كشفه الفحص (ولم تعرفه المذكرة)
-1. **37 سيراً على Azure تحمل اعتمادات بمعرّف Cloud نفسه** — أثقلها عقدة `Azure OpenAI (bp-main)` في **16 مديراً** (`hA1ULr5qtFuoBZ6B` وهو معرّف Cloud؛ معرّف Azure للاعتماد نفسه `fI2SkJuYmB2v3zCo`)، ثم Gmail وواتساب والتقويم وDrive وOutlook وGitHub وSpeech ومشغّل واتساب في `BP-WhatsApp-Main`. السبب: الاستيراد سبق إنشاء الاعتمادات، وn8n يربط بالاسم **عند الحفظ** فقط (`replaceInvalidCredentials`)، فما لم يُعَد حفظه بقي بمعرّف ميت. لو فُعِّلت هذه السير لفشلت أول تنفيذ. العلاج: `ops/azure-n8n/cred-rebind.mjs --apply` (إعادة حفظ بلا تعديل + تقرير). ما يبقى بعده بلا اعتماد يُنشأ على Azure **بالنوع والاسم تماماً** كما يطبعه التقرير، ثم يُعاد التشغيل حتى يصفر. و`cutover.mjs` صار **يغلق البوابة** على هذا الشرط.
-2. **أسماء مكرّرة على Azure** لثلاثة سير نشطة (طارق العقارات ×2، محلل ملفات العملاء ×2، Candidate ↔ Job Matcher ×2) وثلاثة غير نشطة. كان السكربت يختار بالاسم فقط؛ صار يختار التوأم الذي **تطابق عقدُه عقدَ Cloud** ثم الأحدث، ويطبع اختياره. النسخ الزائدة تُحذف يدوياً بعد التحويل (`8NN8ceUbJZL8bLft`، `hAAKGoZt0vg3TEtg`، `Dp2NQQ0TKbV8i4e8`).
-3. **سيران مختلطان** (ويبهوك + مشغّل استطلاعي): `BP — WhatsApp Web Reader → Notion` (مؤقّت) و`Recruitment Agent — Job Posting & Screening` (Gmail). لا يصلح تشغيلهما على الطرفين، فيُنقلان حصرياً مع `--retire-cloud`.
-4. **الجداول متأخرة يوماً**: `BP_AI_Tasks` +14 صفاً و45 تحديثاً، `BP_AI_Performance` +11، `BP_News_Feed` 24 تحديثاً، `BP_Agent_Registry` 5 تحديثات (بلا لمس `workflow_id`). و`BP_WA_Style` (من قارئ واتساب ويب، #351) **غير موجود على Azure** — يُنشأ بالأعمدة نفسها قبل تفعيل ذاك السير. العلاج: `tables-sync.mjs --apply` ثم `registry-ids.mjs --apply`.
-5. **سير «استخراج المستندات B» محوَّل فعلاً** إلى Azure (العقدة تنادي `bp-main` باعتماد Azure)، وما فيها من مراجع OpenAI/Header Auth بقايا غير مستعملة. لا عقدة ذكاء خارج Azure في أي سير نشط.
-6. على Azure: لا تنفيذ لغير فرح، ولا تنفيذ بخطأ. على Cloud آخر الأخطاء متفرقة في `Virtual Baher Task` (10-09 إلى 10-12).
+**لم يُحوَّل عمداً، ويحتاج قرارك:** `mytupyHHG9EIyzjL` (باهر v2 — يفتح جلسة Claude Managed Agents، الطبقة محذوفة بقرار 2026-09-17، فالبديل هو فريق `agents/azure/`)، و`T7XUSox6eNNKLSZm` (Email Marketing Network — توليد صور لا يغطيه `bp-main`، وعقدتا الرسائل فارغتان).
+**لم تُنفَّذ أي من السير المحوّلة** (غير نشطة وليس في واجهة n8n العامة تنفيذ يدوي) — يُختبر كلٌّ من واجهة n8n بتنفيذ يدوي قبل التفعيل.
 
-### مستدعو الويبهوك من الموقع — صار لهم مفتاح واحد
-- `api/_n8n.js`: كل نداء n8n في `api/` (`book` · `requests` · `_stage` · `candidate` · `_chat`) يمرّ بـ`n8nHook()`، والعنوان من `BP_N8N_BASE` وافتراضه Cloud.
-- `site/scripts/n8n-base.mjs` (خطوة بناء قبل حارس الصفحات): إن ضُبط `BP_N8N_PUBLIC_BASE` بُدِّل عنوان Cloud في كل صفحات `site/` المولَّدة والثابتة (dashboard · portal · monitor · admin · الخدمات المشتركة…). بلا المتغيّر لا تفعل شيئاً. فالتحويل ضبطُ متغيّرين في Vercel ونشرة، والرجوع حذفُهما ونشرة.
+### 10.2) المرحلة الأولى من التحويل (schedulers) — بموافقة المالك الصريحة 2026-10-14
+سير واحد: «BP3 — قائد الامتثال (WhatsApp)» (سير فرعي `executeWorkflowTrigger`): Cloud `DHdxNSbhQQb1AWKg` → `active=false`، وAzure `JJmvzvFTDUSxiEx1` → `active=true`. لا تنفيذات له بعد (يُستدعى من سير آخر). الرجوع: `node ops/azure-n8n/cutover.mjs --phase=schedulers --rollback --apply`.
 
-### ترتيب التنفيذ (كلها بالمفتاحين `N8N_AZURE_API_KEY` و`N8N_CLOUD_API_KEY` في البيئة)
+### 10.3) باهر v2 — أُرشف (2026-10-14، بتفويض المالك: «نحذفه أو نؤرشفه إن كان مكرراً»)
+الفحص: السير مجرد هيكل — معرّفات `REPLACE_WITH_*` لم تُملأ قط، ويستدعي Claude Managed Agents (مدفوع وخارج Azure، والطبقة محذوفة بقرار 2026-09-17)، ولا مرجع له إلا ملف مصدره `ops/n8n/baher-intake-v2.workflow.js`. والوظيفة مغطاة بسير نشطة: «Virtual Baher Live — Open AI Chat» و«BP Team — Baher (Business Advisor)» و«عميل صفر — باهر (Front Desk)». **أُرشف نسخة Azure `mytupyHHG9EIyzjL` ونسخة Cloud `pP51EK66BKWcU5c7`** (أرشفة قابلة للاسترجاع من واجهة n8n، لا حذف). ملف المصدر في المستودع تُرك كما هو.
+
+### 10.4) تنبيه أمني — فرح على Azure نشطة (`g2Y2k2KbxYwmhSqu`)
+وُجدت `active=true` يوم 2026-10-14 بينما كانت «غير منشورة عمداً» (البند 4)، و`Command Space Direct In` و`TEMP Muin GET Health` بلا مصادقة (`authentication: none`). لم أفعل ذلك ولم أُعطّلها بعد؛ بانتظار قرار المالك: إلغاء النشر حتى تُضاف مصادقة Header Auth، أم إبقاؤها.
+**قرار المالك 2026-10-14: «عطّل فرح حتى نضيف المصادقة» — نُفّذ.** `g2Y2k2KbxYwmhSqu` على Azure صارت `active=false`، ورابطا `Command Space` و`Health` يردّان 404. تبقى معطّلة حتى تُضاف Header Auth بمفتاح سرّي لعقدة `Command Space Direct In` (وحذف `TEMP Muin GET Health`). نسخة Cloud (`YgRwn40v1CqsscJw`) لم تُمسّ.
+**قرار المالك 2026-10-14: «أضف المصادقة لفرح وانشرها» — نُفّذ.** أُنشئ اعتماد `Header Auth — فرح Command Space` (`LdQ9dkKZU09TRa6H`، الترويسة `X-BP-Farah-Key`) بمفتاح عشوائي لم يُطبع ولم يُكتب في أي ملف، وربط بعقدة `Command Space Direct In`. حُذفت `TEMP Muin GET Health` و`Prepare TEMP Health Envelope` (كانت تحقن مغلف واتساب مزيفاً في خط فرح بلا مصادقة). نُشرت `g2Y2k2KbxYwmhSqu` (`active=true`، 88 عقدة). التحقق: بلا ترويسة 403، مفتاح خاطئ 403، رابط الصحة 404. **لم يُجرَّب المسار الناجح** (يشغّل فرح فعلياً).
+**المطلوب من المالك قبل تحويل أي مستدعٍ (اللوحة، ai-space، راوتر واتساب) إلى Azure:** افتح الاعتماد في واجهة n8n على Azure واكتب فيه مفتاحاً تعرفه (Credentials ← «Header Auth — فرح Command Space» ← Value) ثم ضعه في ترويسة `X-BP-Farah-Key` عند المستدعين. إلى ذلك الحين الرابط مغلق لكل الناس (آمن افتراضياً)، والمستدعون ما زالوا يوجَّهون إلى Cloud.
+
+### 10.5) Email Marketing Network — اكتمل بناؤه ويبقى **غير نشط** للاختبار (2026-10-14، `ops/azure-n8n/build-email-marketing.mjs`)
+أُعيد بناء `T7XUSox6eNNKLSZm` (15 → 17 عقدة) بالإعدادات المقترحة؛ حُذف توليد الصور وBannerbear (مدفوعان خارج Azure).
+- **المسار ١** (يدوي + أيام العمل 9 ص بتوقيت الرياض): عملاء `Status=Ready` (٥ كحد أقصى) ← صياغة Azure `bp-main` ← **موافقة المالك بالبريد** (Gmail send-and-wait إلى المالك) ← إرسال للعميل ← `Status=Sent`. لا يخرج بريد بلا موافقة.
+- **المسار ٢** (Gmail كل ١٥ دقيقة، وارد الأساسي غير المقروء): تصنيف Azure ← إيجاد العميل بالبريد ← `Status=Replied` أو `Unsubscribed` + فقرة ملخص في صفحته.
+- **افتراضات تُتحقَّق عند الاختبار** (لم أستطع قراءة قاعدة «Riyadh Chamber Data - Leads» من موصّل Notion المتاح): عمود `Status` من نوع select بالقيم Ready/Sent/Replied/Unsubscribed، وعمود `Email` من نوع email. إن اختلفت الأسماء تُعدَّل الثوابت أعلى السكربت ويُعاد تشغيله.
+- **الاختبار:** من واجهة n8n بتنفيذ يدوي من «تشغيل يدوي» مع عميل تجريبي `Ready` بريده بريدك؛ لا يُفعَّل قبل اجتياز الاختبار.
+
+### 10.6) Email Marketing Network — رُبط بالقاعدة الفعلية (2026-10-14)
+القاعدة: **«BP — Companies Sales DB (قاعدة الشركات)»** (`26faca27-6188-4b6a-b584-924c374f2d22`) — تُلغي افتراضات 10.5 عن أعمدة `Status`. المرشّح: `Email` غير فارغ و`Campaign Sent`/`Suppressed`/`Duplicate` غير مؤشّرة (٥ كحد أقصى). بعد الإرسال: `Campaign Sent` ✓ و`Last Campaign Status=Sent` و`Campaign Date`. الردود: `Stage=In progress`، وطلب إلغاء المراسلة → `Suppressed` ✓ و`Suppress Reason=Unsubscribed`. 19 عقدة، غير نشط. **تنبيه اختبار:** القاعدة بيانات عملاء حقيقيين — لا تنفّذ قبل أن تؤشّر `Campaign Sent` على كل الصفوف عدا صف تجريبي بريدك، وإلا ظهرت مسودات لعملاء حقيقيين في بريد الموافقة (لا يُرسل لهم شيء بلا موافقتك).
+
+### 10.7) قالب HTML بشعار Business Partner (2026-10-14)
+البريد الصادر لعملاء Email Marketing Network صار HTML من اليمين لليسار (`ops/azure-n8n/email-template.mjs`): شريط كحلي `#0B1B5A`، الشعار من `https://www.businesspartner.sa/assets/img/logo.png`، عنوان ونص وزر «تعرّف على خدماتنا» وتذييل فيه سطر إيقاف المراسلة بالرد. الدالة نفسها تُحقن في عقدة «تجهيز الرسالة» داخل السير وتُستعمل محلياً لتوليد المعاينة (`node ops/azure-n8n/email-template.mjs > preview.html`). بريد موافقة المالك نص عادي مع ملاحظة أن الرسالة ستصل بقالب HTML. اختُبر الكود المحقون بمحاكاة (يخرج `html` بالشعار) وصُوّرت المعاينة؛ لم يُنفَّذ السير فعلياً. السير غير نشط.
+
+### 10.8) اختبار حيّ جزئي لـ Email Marketing Network (2026-10-14)
+نُفّذ بسير مؤقت (ويبهوك بمسار عشوائي، حُذف بعد الاختبار): **جلب العملاء من القاعدة الفعلية بالمرشّحات ← صياغة Azure `bp-main` ← تجهيز الرسالة وHTML — نجح** (موضوع ونص عربي سليمان للمنشأة، `html` مولَّد). **لم يُختبر:** إرسال بريد الموافقة، إرسال العميل، تحديث Notion، ومسار الردود (تحتاج Gmail وتكتب في القاعدة). أُضيف لتعليمات الصياغة افتتاح «السادة / المنشأة المحترمين» وخاتمة «مع خالص التحية، فريق Business Partner». السير غير نشط.
+
+### 10.9) خطأ اعتماد Gmail على Azure + إرسال 5 مسودات للمراجعة (2026-10-14)
+- **خطأ وُجد بالاختبار الحيّ:** السير كان يشير لاعتماد Gmail `1AQfIiEH6y5Zu61s` ولا وجود له على Azure («Credential … does not exist»). **صُحّح** في `build-email-marketing.mjs` إلى `fKJNtBfZTsc3UkW9` «Gmail — Business Partner — Production» (المستعمل في 23 عقدة بسير نشطة). **14 عقدة أخرى** في سير غير نشطة على Azure ما زالت تشير للاعتماد الميت (Business Partner Email Campaign، استقبال المرشحين، «My workflow 2»…) — تُصحَّح قبل تفعيل أي منها.
+- **أُرسلت 5 مسودات حقيقية** من القاعدة الفعلية إلى بريد المالك (HTML بالشعار، بشريط «للمراجعة فقط — لم يُرسل للعميل»، من حساب Gmail الإنتاجي) عبر سير مؤقت حُذف بعد الإرسال. لم يصل شيء لأي عميل ولم يُكتب شيء في Notion.
+- **قيد تصميمي لم يُحسم:** Gmail send-and-wait مع عدة عناصر في تنفيذ واحد يشترك في رابط استئناف واحد، فالموافقة على رسالة واحدة قد تستأنف التنفيذ كله — فالسير الإنتاجي بحد ٥ عملاء للتنفيذ قد لا يعطي موافقة مستقلة لكل رسالة. المقترح: معالجة عميل واحد في كل دورة (Loop Over Items بحجم 1) أو الموافقة من لوحة. **بانتظار قرار المالك** قبل التفعيل.
+
+### 10.10) عميل واحد في كل دورة — قرار المالك 2026-10-14
+`جلب العملاء الجاهزين` صار `limit: 1`، فكل تنفيذ (يدوي أو جدولة أيام العمل 9 ص) يصوغ رسالة واحدة وتنتظر موافقة المالك وحدها، فلا تتشارك الموافقة بين عملاء (قيد send-and-wait في 10.9). معدل الإرسال المتوقع عميل واحد يومياً في أيام العمل؛ يُرفع لاحقاً بتغيير الجدولة لا بزيادة الحد. السير غير نشط.
+
+### 10.11) تصحيح اعتماد Gmail الميت (2026-10-14، `ops/azure-n8n/fix-dead-gmail-cred.mjs`)
+`1AQfIiEH6y5Zu61s` (غير موجود على Azure) → `fKJNtBfZTsc3UkW9` «Gmail — Business Partner — Production» في **11 عقدة / 9 سير، كلها غير نشطة** (تجربة جافة ثم `--apply`، ونسخة احتياطية لكل سير؛ لم تتغير حالة تفعيل أي سير). التحقق بعد التطبيق: 0 عقدة بالاعتماد الميت. السير: Email Campaign V1 · استقبال المرشحين من البريد · My workflow 2 · RE — Commission Notice TEST Send · RE — Client Intake · **BP Campaign Sender (Companies Sales DB)** · RE — Vendor Commission Notice Campaign · Campaign Launcher · Campaign Sender.
+**تكرار محتمل:** `BP Campaign Sender (Companies Sales DB)` (`gw9GOcav5vnlU29P`) سير سابق لإرسال حملة من القاعدة نفسها (جدولة 10:00 يومياً، حارس تحقق، فحص MX، وسم «أُرسل») وهو أكثر ضمانات من «Email Marketing Network» (لا موافقة بشرية فيه). يُقرَّر مع المالك: دمجهما (إضافة موافقة المالك وقالب HTML إلى الأقدم ثم أرشفة الآخر) أو أرشفة أحدهما.
+
+### 10.12) دمج الإرسال في السير القديم — قرار المالك 2026-10-14 (الخيار الأول) — `ops/azure-n8n/upgrade-campaign-sender.mjs`
+- **رُقّي `BP Campaign Sender (Companies Sales DB)` (`gw9GOcav5vnlU29P`)** من 10 إلى 15 عقدة: بعد `Build Emails` ← عميل واحد في الدورة ← صياغة Azure ← تجهيز HTML بالشعار ← **موافقة المالك بالبريد** ← `Send via Gmail` ← `Mark Sent`. كل حمايات السير القديم باقية (Guard وسقف 25 وقائمة DEAD وفحص MX واستثناءات النطاقات). **ما زال غير نشط**، وREADME فيه محدَّث. اختُبرت السلسلة الجديدة اختباراً حيّاً بسير مؤقت (قراءة فقط): نجحت صياغة الرسالة وتجهيزها. لم يُختبر بريد الموافقة والإرسال وMark Sent.
+- **أُرشف `Email Marketing Network` على Azure (`T7XUSox6eNNKLSZm`)** (أرشفة قابلة للاسترجاع). نسخة Cloud القديمة (`9r9CPunFMDTgovDp`) لم تُمس. سيشبه مسار الردود المحذوف ما في سير «Reply Intelligence Engine» و«Bounce Handler» المذكورين في README.
+- **تنبيهات يجب أن يعرفها كل من يعمل على الموضوع:**
+  1. السير القديم **متوقف منذ 2026-08-06** لأن أول حملة ارتدّت 25–40% (الحد الآمن 5%) وعرّضت نطاق الإرسال للخطر. لا يُفعَّل قبل قراءة `docs/marketing-agent/email-campaign-hygiene.md` — **وهذا الملف غير موجود في المستودع** (يلزم استرجاعه) — ولا قبل تجربة بصف تجريبي.
+  2. تجربة بصف بريدك: `Build Emails` يستثني `dr.baher.magnas@gmail.com` من القائمة، فاستعمل `TEST_TO` بدل ذلك (ضع بريدك فيه) لتصل الرسالة لك وتبقى `TEST_TO=""` للإنتاج.
+  3. موافقة المالك تظهر في بريد «[موافقة إرسال]» على هيئة بطاقة n8n (نص بأسطر جديدة وزرّا Approve/Decline)؛ HTML داخل رسالة الموافقة لا يُهرَّب لكنه يضيق في بطاقة 448px، لذا عُرض النص الصِّرف فقط.
+  4. القالب القديم الثابت (بلا شعار ولا سطر إيقاف) لم يعد مستعملاً في المسار؛ العقدة `Build Emails` ما زالت تنتجه في `_html` ثم يُستبدل ببريد القالب الجديد.
+  5. جلسات متوازية على الموضوع نفسه: عند كتابة هذا البند كانت جلسة أخرى دفعت `60c22190` (تصحيح سجل الصور في `azure-site.yml`) وعدّلت سير Outlook CVs/Backfill النشطة على Azure — لم أمسّها. سكربتات `ops/azure-n8n/` تكتب فقط على سير مسمّاة، وهذا السكربت يلغي الكتابة إن تغيّر `updatedAt` أثناء التحضير.
+
+### 10.13) اختبار كامل من الطرف إلى الطرف للسير المطوَّر (2026-10-14)
+بصف تجريبي («TEST — اختبار الإرسال (احذفني)»، بريده `dr.baher.magnas+bptest@gmail.com`) في «BP — Companies Sales DB» وسير مؤقت يحاكي عقد `BP Campaign Sender` نفسها مع `TEST_TO` = بريد المالك وحصر الصف بالاسم: مرّ الحارس وفحص MX وصياغة Azure وقالب HTML ← **بريد «[موافقة إرسال]» وصل ← ضغط المالك Approve ← وصلت الرسالة النهائية (HTML بالشعار) إلى بريد المالك ← `Campaign Sent` ✓ و`Last Campaign Status=Sent` و`Campaign Date` و`n8n Processed` ✓ على الصف التجريبي.** حُذف السير المؤقت. السير الحقيقي `gw9GOcav5vnlU29P` لم يُشغَّل ولم يُنشَّط ويبقى `TEST_TO=""`. **بقي:** حذف الصف التجريبي من القاعدة (بانتظار تأكيد المالك).
+
+### 10.14) قالب البريد الثنائي اللغة + حادثة حذف (2026-10-14)
+- **القالب:** `ops/azure-n8n/email-template.mjs` صار ثنائي اللغة (عربي ثم إنجليزي): شعار، بطاقة رئيسية، تحية، مقدمة يكتبها Azure، **ثمانية بنود خدمات بنقاط** من الكتالوج بلا أسعار، «لماذا Business Partner»، زر استشارة، توقيع، تذييل إيقاف المراسلة باللغتين، وموضوع ثنائي `عربي | English`. طُبّق على `gw9GOcav5vnlU29P` عبر `ops/azure-n8n/update-campaign-email.mjs` (النسخة الاحتياطية خارج المستودع)؛ السير غير نشط. أُرسلت معاينة حقيقية إلى بريد المالك.
+- **حادثة (خطئي):** عند تنظيف سيري المؤقت حذفت حلقة التنظيف **كل** السير التي اسمها يبدأ بـ«TEMP —» بدل سيري وحده، فحُذفت 4 سير مؤقتة تعود لجلسة أخرى (غير نشطة، حذف نهائي، لا نسخ احتياطية عندي): `1UT5p8GtpCgm8Ct4` «TEMP — WhatsApp number lookup»، `ceS2M2OgwACUkSyo` «… lookup 2»، `NYl36q4cufOnJHVr` «TEMP — Azure deployment probe (manual, read-only)»، `OlF9wYIxEib7ytdD` «TEMP — Create Processed Folder». **القاعدة من الآن:** لا يُحذف أي سير إلا بمعرّفه الذي أنشأه السكربت نفسه، لا بمطابقة الاسم. على الجلسة الأخرى إعادة إنشاء ما تحتاجه منها.
+
+### 10.15) إلغاء الاشتراك + أربعة قوالب + مطلب الجدولة (2026-10-14)
+- **إلغاء الاشتراك (حي):** سير `BP — Unsubscribe (رابط إلغاء الاشتراك)` (`YOOuIDaizGoESn9J`، **نشط**): `GET /webhook/bp-unsubscribe?p=<معرّف صفحة العميل>` يتحقق أن الصفحة من «BP — Companies Sales DB» (parent) ثم يؤشّر `Suppressed` ✓ و`Suppress Reason=Unsubscribed` ويعرض صفحة تأكيد عربي/إنجليزي؛ `?preview=1` يعرضها بلا تغيير. **اختُبر بخمس حالات** (معاينة، بلا معرّف، معرّف عشوائي، صفحة ليست من القاعدة → «غير صالح» بلا تغيير، الصف التجريبي → «تم إيقاف الرسائل»). السير `BP — Unsubscribe (ردّ إيقاف/STOP)` (`IXGSNIgO9dg9FfEb`) **غير نشط** — يُفعَّل مع بدء الحملة. الإرسال يستثني `Suppressed` أصلاً (Get Ready-to-Send والحارس) فلا تُرسل رسالة ثانية. **ملاحظة:** الرابط بنطاق n8n الطويل؛ نطاق فرعي مثل `unsubscribe.businesspartner.sa` خطوة DNS تتطلب موافقة المالك.
+- **القوالب** (`ops/azure-n8n/email-template.mjs`، `renderEmail(kind, d)`): `welcome` (الرسالة الرئيسية الأولى) · `service` (خدمة الأسبوع) · `news` · `platforms` — ثنائية اللغة، فيها بيانات التواصل الحقيقية من صفحة التواصل (هاتف الفريق 0530540231، المستشار الذكي واتساب 0507034157، business@businesspartner.sa، الموقع، ساعات العمل، العنوان الوطني) وأيقونات رموز وشارات LinkedIn وFacebook وInstagram (الحسابات الثلاثة الموجودة في المستودع فقط). أُرسلت أربع معاينات حقيقية إلى بريد المالك. **`update-campaign-email.mjs` لم يُحدَّث لتوقيع القالب الجديد؛ السير يعمل بالنسخة السابقة حتى يقرّر المالك التصميم.**
+- **مطلب المالك للجدولة (لم يُنفَّذ بعد):** 25 رسالة يومياً الساعة 9 صباحاً لعملاء جدد (الرسالة الرئيسية الأولى)، ثم في الأسابيع التالية يتلقى العملاء الذين سبق مراسلتهم الخدمات الرئيسية ثم خدمة جديدة كل أحد، إضافة لإيميل أخبار أسبوعي وإيميل تحديثات المنصات. **يتعارض مع الموافقة لكل رسالة (send-and-wait لا يصلح لـ25 رسالة)** — المقترح: موافقة واحدة على دفعة اليوم مع افتراضي «لا إرسال» عند عدم الرد. بانتظار قرار المالك.
+
+### 10.16) الخطوط وشعارات المنصات (2026-10-14)
+- **الخطوط** من «Brand Guidelines — Business Partner» في Notion: العربي IBM Plex Sans Arabic (ثم Tajawal)، والإنجليزي Inter للنص وPlayfair Display للعناوين، مع بدائل نظام حديثة (`-apple-system` وSegoe UI وNoto Sans Arabic وRoboto). **Gmail لا يحمّل خطوطاً مخصصة** فيعرض بدائل النظام؛ Apple Mail وiOS وOutlook لـMac تعرض خطوط العلامة عبر رابط Google Fonts في `<head>`.
+- **شعارات المنصات الرسمية:** `site/assets/img/social/{linkedin,facebook,instagram,whatsapp,x,tiktok,youtube,snapchat}.png` (136×136 شفافة، من حزمة Simple Icons بألوان العلامات؛ LinkedIn من الإصدار 13 لأن الإصدارات الأحدث أزالته). تظهر في البريد: LinkedIn وFacebook وInstagram وWhatsApp (المستشار الذكي) فقط — **الحسابات الموثّقة في «مكتبة التواصل والسوشال ميديا».** X وTikTok وYouTube وSnapchat لها ملفات جاهزة لكن لا روابط حسابات موثّقة؛ تُضاف بسطر في مصفوفة `C.social` بعد تسلّم الروابط.
+- **الاستضافة:** الشعارات منشورة على staging فقط (`bp-site-staging`)؛ معاينات البريد تستعملها عبر `assetBase`. رابطها الحقيقي `https://www.businesspartner.sa/assets/img/social/…` **لا يعمل حتى يُنشر الموقع الحي** (علامة النشر في كوميت، بموافقة المالك) — لذا لا تُفعَّل الحملة قبل ذلك أو يُضبط `assetBase` على نطاق يعمل.
+
+### 10.17) العنوان الوطني الجديد — بأمر المالك 2026-10-14
+إثبات العنوان **1095200801** (صدر 6/10/2026، ينتهي 26/3/2027): **RDAA9214** · مبنى 9214 · طريق الملك خالد الفرعي · حي العاصمة · الدرعية 13714 · الرقم الفرعي 5076 (كان RHSC2978 — السليمانية، الرياض). حُدِّث في `site/data/site.json` (مصدر الحقيقة، وتقرؤه صفحات الموقع وهوية البائع في `api/_zatca.js` و`api/_identity.js`) وأُعيد التوليد (1375 ملفاً، 0 أثر للعنوان القديم، `npm test` بلا فشل)، وفي `docs/go-live.md` و`.claude/agents/daftra.md` وتذييل قوالب البريد. **لا يُنشر على الموقع الحي إلا بموافقة المالك.** **على المالك بنفسه** (خارج المستودع، ولا يمكن لأي وكيل فعله): تحديث العنوان الوطني في بوابة هيئة الزكاة (فاتورة/تسجيل الضريبة)، وفي حساب الدفترة، وسجلات البنك والغرفة التجارية والسجل التجاري — وإلا اختلف عنوان البائع في الفواتير عن المسجّل رسمياً.
+
+### 10.18) التصميم v3 (2026-10-14)
+`ops/azure-n8n/email-template.mjs`: بنر علوي صورة لكل نوع ولغة (`site/assets/img/email/hero-{welcome,service,news,platforms}-{ar,en}.png`) بخط تجوال/Playfair المعتمد فيظهر خط العلامة حتى في Gmail؛ خدمات الرسالة الرئيسية في **بطاقات من عمودين، كل خدمة فيها رابط لصفحتها** (`https://businesspartner.sa/services/<code>`، الرموز من `catalog.json`)، وتتكدّس البطاقات في الجوال؛ نص الرسالة بخط تجوال ثم IBM Plex ثم خطوط النظام. العناوين والشعارات على staging فقط حتى النشر الحي. القالب يتطلب `assetBase` لاختبار staging؛ افتراضيه `www.businesspartner.sa`.
+
+## 11) فرح: محادثات الموقع والرد على العملاء ومحاضر الاجتماعات (2026-10-14، بأمر المالك «نفّذ»)
+
+### 11.1) حالة فرح (فُحصت من المصدر)
+`g2Y2k2KbxYwmhSqu` على Azure **`active=true`** لكن **المسار الوحيد المفتوح للويب `Command Space Direct In` عليه Header Auth** (`LdQ9dkKZU09TRa6H`)، و`TEMP Muin GET Health` محذوفة. فزال سبب التعطيل المطلوب (رابط بلا مصادقة)، وقرارك السابق في 10.4 «أضف المصادقة وانشرها» قائم، فلم أعطّلها. ما زال `Baher WhatsApp In` (مشغّل واتساب) فيها؛ **لم أتحقق من عنوان Callback لدى Meta** — راجعه قبل أي تحويل واتساب. المسار الناجح بالمفتاح لم يُجرَّب (المفتاح عندك).
+
+### 11.2) ما أُنشئ (كله **غير منشور**، `ops/azure-n8n/build-farah-inbox.mjs`، كل سطر بلا أسرار)
+| العنصر | المعرّف |
+|---|---|
+| سير «محادثات الموقع ← فرح» | `BJXmNPkgkS5BwXqx` (Webhook + ملخص 20:00 الرياض) |
+| سير فرعي «الرد على العميل (Safe)» = أداة `Reply To Client (Safe)` | `Rx8wwvV1D9P117xb` |
+| سير «محضر اجتماع (ملف ← محضر)» | `zteADpS9yormFBZC` |
+| اعتماد `Header Auth — محادثات الموقع ← فرح` (الترويسة `X-BP-Chat-Key`) | `BRXrOv1FAYBPf1Jf` |
+| اعتماد `Header Auth — محاضر فرح (تسجيل اجتماع)` (`X-BP-Meeting-Key`) | `lj0gs25sc3V3omHr` |
+| اعتماد `Custom Auth — مفتاح لوحة /ops (يُدخله المالك)` | `tpqxEVNzGT7ZQkI7` (قيمته نص مؤقت، **ليس** مفتاحاً) |
+
+**البند 1 (الاستقبال):** يطبّع `{sid,name,phone,email,messages,hot}` (دالة `classifyChat`): ساخنة إن وُجد جوال/بريد أو نية شراء أو شكوى. يكتب في `farah.messages` (المصدر `website`، بلا تكرار)، ويفتح `farah.pending` من النوع `lead` للساخن، ويرسل لك واتساب «عميل جديد: الاسم، الجوال، يريد كذا — تواصل الآن» **مرة واحدة لكل محادثة** (وتنبيه ثانٍ فقط إذا أضاف الزائر جواله لاحقاً). الباقي «للعلم» في ملخص يومي 20:00. لا نموذج لغوي في هذا السير؛ لا يلتزم بشيء.
+**البند 1ب (الرد):** `lookup` يعيد المرشحين لاسم/جوال/بريد؛ `send` لا يمرّ إلا إذا: وُجد `baher_order` (اقتباس أمرك)، **مرشّح واحد** معروف، طرف واحد، قناة بريد أو واتساب بوسيلة صالحة، النص ≤1500، لا سعر/خصم/ضمان/التزام حكومي إلا بـ`approved_by_baher=true`، وواتساب فقط ضمن 24 ساعة (أو `wa_window_confirmed=true`). الإرسال عبر `POST /api/simple` بالإجراء `ops-inbox-reply` الموجود أصلاً في الموقع (حارس الالتزامات + إيقاف الوكيل الآلي ساعة + سجل)، ثم يُسجَّل الرد في `farah.messages` ويُغلق بند الـlead. **اختُبر بسير مؤقت حيّ (حُذف):** بحث، إرسال مسموح، حجب السعر، حجب واتساب خارج 24س — والاستعلامات تعمل على القاعدة الفعلية (صفوف تجريبية نُظّفت).
+**البند 3 المرحلة 1:** Webhook (Header Auth) يقبل `drive_file_id` أو `audio_url` (https عام فقط) أو ملفاً في الحقل `audio` + `title/attendees/locales/max_speakers/consent_confirmed` ← Azure Speech (fast transcription، `ar-SA,en-US`، تمييز المتحدثين) ← `bp-main` ← محضر (ملخص، قرارات، مهام بمسؤول وموعد، أسئلة، مخاطر، ملاحظات خاصة). مهام الفريق تُنشأ في «مهام الفريق» بحالة **«بانتظار اعتماد باهر»**، والخاص صفحة Notion خاصة (إن حُدّد الأب) أو في بريدك فقط. يصلك ملخص واتساب + المحضر كاملاً بالبريد. كل محضر يحمل تنبيه **علم الأطراف** وهل أكّدته. النص المفرَّغ يُعامل بيانات لا تعليمات.
+
+### 11.3) الاختبارات
+`node --test ops/azure-n8n/farah-guards.test.mjs` → 18/18 (الحارس، التصنيف، الملخص). شيفرة عقد المحضر الثلاث (التحقق من الطلب/منع SSRF، بناء النص، تحليل المحضر) 13/13 بمحاكاة n8n. **لم يُشغَّل مسار المحضر كاملاً** (يحتاج ملفاً صوتياً حقيقياً) ولا إرسال واتساب/بريد ولا إنشاء مهمة Notion.
+
+### 11.4) عدم تفعيل «Email Marketing Network» (`T7XUSox6eNNKLSZm`)
+قرار المالك: يبقى **معطّلاً** (توليد الصور لا يغطيه `bp-main`). هو مؤرشف أصلاً منذ 10.12 ودُمج إرساله في `gw9GOcav5vnlU29P`. لا شيء فُعِّل.
+
+### 11.5) تعديل مرسل المحادثات في الموقع — **مقترح فقط، لم يُنفَّذ** (`api/requests.js`، مالك: baher-support)
+بعد `await upsertConversation(...)` في فرع `b.type === "advisor-chat"` وقبل `if (notify)`:
+```js
+const FARAH_URL = process.env.FARAH_CHAT_WEBHOOK_URL || "", FARAH_KEY = process.env.FARAH_CHAT_KEY || "";
+if (FARAH_URL && FARAH_KEY) {
+  const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 4000);
+  await fetch(FARAH_URL, { method: "POST", signal: ctl.signal,
+    headers: { "content-type": "application/json", "X-BP-Chat-Key": FARAH_KEY },
+    body: JSON.stringify({ sid, name, phone, email, messages, hot: notify }) }).catch(() => {}).finally(() => clearTimeout(tm));
+}
 ```
-node ops/azure-n8n/cred-rebind.mjs --apply      # كرّره بعد إنشاء ما يطبعه ناقصاً حتى يصفر
-node ops/azure-n8n/tables-sync.mjs --apply
-node ops/azure-n8n/registry-ids.mjs --apply
-node ops/azure-n8n/cutover.mjs                  # يجب أن ينتهي بـ exit 0
-node ops/azure-n8n/cutover.mjs --phase=schedulers --apply
-#   راقب 15 دقيقة: الموزّع QWFV22wp5WDi0vM3 ينفّذ كل خمس دقائق، و GET /api/v1/executions?status=error على Azure يبقى فارغاً
-node ops/azure-n8n/cutover.mjs --phase=webhooks --keep-cloud --apply
-#   ثم في Vercel (Production): BP_N8N_BASE و BP_N8N_PUBLIC_BASE = https://bp-n8n.delightfulhill-a9ef6e21.swedencentral.azurecontainerapps.io
-#   نشرة بالعلامة (قرار المالك) → اختبار نموذج من الموقع يصل Azure
-node ops/azure-n8n/cutover.mjs --phase=webhooks --retire-cloud --apply
-#   whatsapp: §5 — بعد فحص farah ورقم المرسل وقرار المالك
-#   ثم: تصفير farah، حذف مفاتيح API المؤقتة، حذف النسخ المكرّرة أعلاه
-```
-الرجوع لأي مرحلة: `--phase=X --rollback --apply` (يفعّل Cloud ويعطّل Azure)، وللموقع حذف المتغيّرين ونشرة.
+يُرسل **كل** محادثة (لا الساخنة فقط)، لا يكسر الرد إن فشل (مهلة 4 ثوانٍ)، ويُبقي `OWNER_WA_WEBHOOK` وبريد الفريق كما هما. يحتاج متغيرين في Vercel (سريّان، تضعهما أنت): `FARAH_CHAT_WEBHOOK_URL` = `<عنوان n8n Azure>/webhook/bp-website-chat-farah-182de2312d35` و`FARAH_CHAT_KEY` = نفس قيمة الاعتماد. يصل الموقع الحيّ بموافقتك فقط.
 
-## 11) نُفِّذت المجدولات وواتساب الرئيسي — 2026-10-13 (مساءً UTC)
+### 11.6) ما ينتظرك
+1. **المفاتيح (في واجهة n8n على Azure، لا هنا):** في الاعتمادين `Header Auth — محادثات الموقع ← فرح` و`… محاضر فرح` اكتب مفتاحاً تعرفه (الحاليان عشوائيان لا يعرفهما أحد)؛ وفي `Custom Auth — مفتاح لوحة /ops` ضع مفتاح اللوحة (`PANEL_KEY`) مكان النص المؤقت داخل JSON.
+2. **أمر الرد داخل فرح:** الأداة **غير موصولة** بفرح الحيّة. بعد موافقتك: `N8N_AZURE_API_KEY=… node ops/azure-n8n/build-farah-inbox.mjs --attach-farah --apply` (يعدّل سير فرح النشط ويأخذ نسخة احتياطية).
+3. **تحقق قبل التفعيل:** (أ) أن إجراء `ops-inbox-reply` موجود على الموقع الحيّ (جاء مع «الوارد» في `/ops` ولا يصل إلا بنشر بعلامتك). (ب) عقدة Azure Speech: الاعتماد `Azure Speech — Jarvis` يجب أن تكون ترويسته `Ocp-Apim-Subscription-Key`، والنقطة `eastus2` الإقليمية افتراضية. (ج) تعرّف اللغة في الملف الواحد يختار لغة رئيسية واحدة؛ اجتماع مخلوط عربي/إنجليزي قد يضعف، وبديله النشر `bp-voice` (بلا تمييز متحدثين). (د) خيار الحالة «بانتظار اعتماد باهر» في Notion يُنشأ تلقائياً عند أول مهمة.
+4. **صفحة ملاحظاتك الخاصة (اختيارية):** أنشئ صفحة Notion خاصة، شاركها مع تكامل n8n، وأعطني معرّفها لأضعه في عقدة `Validate`؛ بدونها تصلك الملاحظات الخاصة بالبريد فقط.
+5. **تنبيهات واتساب لك** تمر من الرقم نفسه الذي تستعمله فرح، فتخضع لقيد 24 ساعة (الخطأ 131047): إن لم تراسلها يومياً قد لا تصل — الحل قالب Meta معتمد (بند 5 في 7).
+6. **قرار التفعيل:** تفعيل أي من السيرين (الاستقبال، المحضر) ومعه المتغيران في Vercel هو إجراء حيّ بموافقتك. المحضر: جرّبه أولاً يدوياً بتسجيل قصير.
 
-> نُفِّذ بجلسة بصلاحية الكتابة وبموافقة المالك مرحلةً مرحلة. الأرقام من الواجهة العامة لـAzure بالقراءة بعد التنفيذ.
+## 12) جلسة 2026-10-15 — ما مُنع تنفيذه وجرد «كله داخل Azure»
 
-**ما تمّ**
-- **الاعتمادات الخمسة** أنشأها المالك على Azure بالاسم والنوع تماماً (Gemini · Vercel Header Auth · Gmail · Outlook · GitHub)، ثم `cred-rebind.mjs --apply` ربط السير الخمسة. `cutover.mjs` خرج بصفر.
-- **المجدولات: 34 من 34 على Azure.** 33 بالدفعة الأولى، والـ34 (`BP - Sync Visa Tracker to Companies Employees`، `OHkxRibLXkRt8xOr`) فشل تفعيله لأن عقدة `Visa Tracker Updated` كانت `authentication: oAuth2` بلا اعتماد OAuth؛ حُوِّلت إلى `apiKey` بالاعتماد `Notion — Business Partner OS — Production` ثم نُقل. المراقبة: الموزّع `QWFV22wp5WDi0vM3` نفّذ كل خمس دقائق من 20:35 إلى 22:25 بلا فجوة. نسخ احتياطية للسير في `.azure-n8n-backups/` (خارج git).
-- **واتساب الرئيسي (`BP-WhatsApp-Main`) على Azure منذ 20:46**، وCallback تطبيق Meta «Business partner» (1006610415315995) صار `…/webhook/4f86756f-28ad-4c52-928c-672360b512a2/webhook` على Azure (الرابط القديم على Cloud للتراجع). تنفيذات ناجحة 22:10–22:11. الرجوع: `--phase=whatsapp --rollback --apply` ثم إعادة الـCallback القديم.
-- **فرح عادت إلى Cloud**: مشغّلها `Baher WhatsApp In` معطّل عمداً على Azure (§5)، فنقلها يقطع استقبالها. **لكن واتساب الرئيسي ينادي فرح على Azure كسير فرعي (`Run: Muin Assistant` ← `g2Y2k2KbxYwmhSqu`)، فنسخة Azure يجب أن تبقى نشطة بمشغّلها المعطّل.** وفرح على Cloud تحتاج سيرها الفرعي `BP3 — قائد الامتثال (WhatsApp)` (`DHdxNSbhQQb1AWKg`) نشطاً على Cloud.
-- **تطبيق Muin (الرقم 0530540231) ما زال على Cloud** — لا يُغيَّر رابطه قبل قرار فرح.
+### 12.1) ما لم يُنفَّذ ولماذا (فحص حيّ بالقراءة فقط)
+أول إجراء حيّ (تعطيل فرح `g2Y2k2KbxYwmhSqu` على Azure) **رفضه نظام صلاحيات الجلسة** («تعديل مورد مشترك»)، فتوقفتُ ولم ألتفّ عليه. لذلك **لم يُنفَّذ شيء حيّ**: لا تعطيل، ولا اعتماد، ولا `az containerapp secret set`، ولا تفعيل، ولا ربط أداة الرد.
+الحالة المقروءة الآن: فرح `active=true` · الاستقبال `BJXmNPkgkS5BwXqx` `false` · الرد `Rx8wwvV1D9P117xb` `false` · المحضر `zteADpS9yormFBZC` `false` · الموجّه `FIHrYSg706SpvNzr` و«الإرسال الآمن» `LaPfNkA4fug0x73i` `true`.
+**تنبيه قبل إعادة تفعيل فرح بعد أي تعديل:** فيها عقدة `Baher WhatsApp In` (`whatsAppTrigger`) وتفعيلها يسجّل عنوان Azure لدى Meta، أي تغيير Callback خارج التفويض. الحل المقترح: وضع `disabled: true` على هذه العقدة قبل التفعيل (الموجّه يستدعي فرح كسير فرعي عبر `When Called by WhatsApp Router` فلا حاجة لها).
+أسرار الحاوية `bp-site-staging` الحالية لا تتضمن أي مفتاح لفرح أو للمحادثات؛ ويلزم متغيران: `FARAH_CHAT_WEBHOOK_URL` و`FARAH_CHAT_KEY` (+ مفتاح Command Space للمستدعين).
 
-**درس نوشن (مهم):** 189 عقدة نوشن على Azure صارت `apiKey` + `notionApi` بينما كانت على Cloud `oAuth2`. المفتاح لا يرى إلا ما شُورك مع تكامل «Business Partner»، فظهرت أخطاء «Could not find database … shared with your integration» (`RE — Matching Engine`، `BP Publisher`، `ترقيع ATS`). شارك المالك الصفحات العليا مع التكامل؛ وبعدها نجح `BP Publisher`. **لم يُتحقَّق بعد** من `RE — Matching Engine` (كل 20 دقيقة) و`ترقيع ATS` (كل ساعة): لا تنفيذ لهما بعد 21:00 UTC.
+### 12.2) جرد «كل شيء داخل Azure» (قراءة من الكود والإعدادات)
+| البند | الحالة اليوم | التصنيف | البديل / الخطوة | الجهد |
+|---|---|---|---|---|
+| موقع Vercel (الإنتاج) | `businesspartner.sa` على Vercel؛ staging على `bp-site-staging` | ينتقل إلى Azure | `bp-site` (Container Apps) + نقل المتغيرات السرية (13 سراً مسمّى في staging) | نصف يوم + إدخال المالك للأسرار غير المقروءة |
+| تحويل DNS | عند Vercel | **قرار المالك** | CNAME إلى Container Apps + شهادة؛ خطة رجوع فورية | ساعة، بعد اختبار staging |
+| Crons Vercel (`/api/newsletter`، `/api/requests?__route=jobhunt…`، وثالث) | `vercel.json` `crons` | ينتقل | Container Apps Jobs تستدعي المسارات نفسها | ٢–٣ ساعات |
+| n8n Cloud (53 نشطاً بآخر فحص) | يعمل | ينتقل | مراحل `cutover.mjs` (schedulers ✓ ← webhooks ← whatsapp) | يوم، ولكل مرحلة موافقة |
+| ويبهوكات يستدعيها الكود إلى Cloud | `api/requests.js:122` و`api/_stage.js:39,241,400` و`api/book.js:336` (`OWNER_WA_WEBHOOK` افتراضيها `website-lead-notify`)، `api/candidate.js:41` (`bp-ats-application`)، `api/_simple.js:985` (`bp-chat-monitor-x7k2m9`)، `api/_chat.js:190` (سير الدردشة) | ينتقل | تغيير القيم الافتراضية/المتغيرات إلى عناوين Azure مع مرحلة webhooks | ساعتان |
+| `agents/azure/tools.mjs` (`BP_N8N_BASE`) | يقرأ متغيراً | ينتقل | يشير لـAzure | دقائق |
+| قاعدة Supabase | قاعدة الموقع (طلبات، حسابات، `farah` لا — فرح على PostgreSQL Azure) | **قرار المالك** | Azure PostgreSQL Flexible + نقل المخطط والبيانات + إعادة كتابة مصادقة/RLS التي يعتمد عليها `api/` | أيام؛ الأثقل |
+| بريد Resend | `RESEND_API_KEY` | **قرار المالك** | Azure Communication Services Email (يحتاج نطاق وSPF/DKIM) | يوم |
+| تخزين الملفات | Supabase Storage (حسب `api/`) | ينتقل | Azure Blob | نصف يوم مع نقل الملفات |
+| Notion · Moyasar · Tamara · Daftra · Meta واتساب · Google (Gmail/Drive/Calendar) · LinkedIn | SaaS | **يبقى خارجياً بحكم طبيعته** | — | — |
+| روابط `vercel.app` في الكود | `site/scripts/generate.mjs`, `compare-prices.mjs` | تُراجَع عند النقل | استبدال بعنوان الإنتاج | دقائق |
+| حاوية `rg-farah/farah` (OpenClaw) | فيها Callback تطبيق «Farah Assistant» | **قرار المالك** | تُصفَّر بعد التأكد من عدم الاستعمال، لا تُحذف | دقائق |
+| `bp-wa-bridge` | جسر واتساب ويب غير رسمي | **قرار المالك** | مراجعة/إيقاف (خطر حظر) | — |
 
-**المتبقي**
-1. `RE — Matching Engine` و`ترقيع ATS`: لا تنفيذ ظاهراً بعد 21:00 UTC ولا خطأ جديد. **أرجح تفسير (استنتاج لا إثبات):** Azure لا تحفظ التنفيذات الناجحة افتراضياً — كل السير التسعة التي ظهر لها نجاح في السجل لها `saveDataSuccessExecution: all` صريح، و25 من 39 سيراً نشطاً بلا إعداد صريح وبلا أي نجاح ظاهر. أي أن الأخطاء وحدها تظهر في `executions` للسير الافتراضية، فغياب الخطأ هو دليل النجاح؛ ولو أردت مراقبة النجاح فاضبط `EXECUTIONS_DATA_SAVE_ON_SUCCESS=all` على حاوية n8n (يزيد التخزين).
-2. `BP — وكيل Outlook CVs → ATS` فشل: «The mailbox is either inactive, soft-deleted, or is hosted on-premise» — الحساب المربوط في الاعتماد `Outlook — Business Partner — Production` بلا صندوق بريد Exchange Online فعّال؛ يُراجَع الحساب المستعمل.
-3. مرحلة الويبهوكات (49) والسيران المختلطان — قرار المالك (§10).
-4. حذف النسخ المكرّرة (`8NN8ceUbJZL8bLft` · `hAAKGoZt0vg3TEtg` · `Dp2NQQ0TKbV8i4e8`) بعد التحويل، وجدول `BP_WA_Style`، وتأكيد مزامنة الجداول (`tables-sync.mjs` / `registry-ids.mjs` لم يُتحقَّق من تشغيلهما هنا).
-5. اعتماد `Outlook — Personal — Baher` (Hotmail) أُنشئ ومتصل ولا يستعمله أي سير بعد.
+### 12.3) ما نُفِّذ فعلاً بعد السماح (2026-10-15، من التنفيذات)
+- **فرح `g2Y2k2KbxYwmhSqu`:** عُطّلت ثم عُدِّلت ثم فُعِّلت. أُنشئ اعتماد `Header Auth — فرح Command Space (v2)` (`tqti0J6F2x2Qa5Mw`، `X-BP-Farah-Key`) بمفتاح عشوائي 32 بايت لم يُطبع، وربط بعقدة `Command Space Direct In`. عُطّلت عقدة `Baher WhatsApp In` (مشغّل واتساب) كي لا يُسجَّل Callback لدى Meta عند التفعيل. أداة `Reply To Client (Safe)` موصولة أصلاً (الأداة + قاعدة النظام موجودتان)، لا عقدة ذكاء خارج Azure، كل العقد معتمداتها مرتبطة. اختبار الحارس 18/18. **تنبيه:** مسار Command Space يردّ 403 حتى بالمفتاح المخزَّن (لم يُعرف السبب؛ نفس الطريقة نجحت مع الاستقبال) — مغلق افتراضياً، والمسار الناجح لم يُجرَّب، وإعادة توليد الاعتماد رُفضت من الصلاحيات.
+- **الأسرار:** `farah-command-key` و`farah-chat-key` و`farah-meeting-key` في `bp-site-staging` (rg-bp-web) + متغيرات `FARAH_COMMAND_KEY`/`FARAH_CHAT_KEY`/`FARAH_MEETING_KEY` مرجعية + `FARAH_CHAT_WEBHOOK_URL`. اعتمادات n8n الجديدة: الاستقبال `ItP83P5zvMXSSIt3`، المحضر `dKOR80zAysYbiSSi`.
+- **استقبال المحادثات `BJXmNPkgkS5BwXqx`: مفعَّل.** اختُبر بتنفيذ حقيقي: بلا مفتاح 403، مفتاح خاطئ 403، صحيح 200. محادثة غير ساخنة ← سُجّلت (`farah.messages` 253). ساخنة (جوال) ← سُجّلت 254 + بند lead رقم 46 + **واتساب لباهر أُرسل فعلاً** + سُجّل التنبيه. صفوف الاختبار `WEB-TEST-1015*` وبند 46 **ما زالت في القاعدة** (التنظيف بسير مؤقت رُفض) — تُحذف يدوياً.
+- **تسرّب جزئي:** عرض نتيجة تنفيذ طبع أول 36 خانة من مفتاح الاستقبال (`X-BP-Chat-Key`) في سجل الجلسة؛ يُعاد توليده (اعتماد جديد + سرّ) قبل ربط الموقع به.
+- **المحضر `zteADpS9yormFBZC`: غير مفعَّل.** يحتاج ملفاً صوتياً حقيقياً لتنفيذ ناجح، ولم أستطع تركيب ملف اختبار (سير مؤقت بويبهوك عام رُفض). المالك يجرّبه بتسجيل قصير.
+- **سير الرد `Rx8wwvV1D9P117xb`:** غير مفعَّل (سير فرعي يُستدعى من فرح). اعتماد `/ops` ما زال نصاً مؤقتاً فلا يمرّ الإرسال حتى يضع المالك المفتاح. الإعداد `saveDataSuccessExecution=all` أُضيف لسيري الاستقبال والرد والمحضر (الافتراضي كان لا يحفظ التنفيذات الناجحة).
 
-## 12) سياسة النماذج — أرخص نشرة تكفي، وفرح وحدها قوية (قرار المالك 2026-10-14)
-
-- نشرات `bp-ai-ksa-2026` (Sweden Central): `bp-fast` = gpt-4.1-mini (الأرخص المستعمل) · `bp-main` = gpt-4.1 · `bp-ultra` = gpt-5.1 · `bp-embed` = text-embedding-3-small (جاهز لذاكرة فرح) · وغيرها. أرخص منها متاح للنشر ولم يُنشر: `gpt-4.1-nano` و`gpt-5-nano`.
-- **حُوِّل كل الوكلاء (62 سيراً · 87 عقدة) من `bp-main` إلى `bp-fast`** بـ`ops/azure-n8n/switch-model.mjs` (تجربة جافة افتراضياً، نسخة احتياطية لكل سير، تراجع بعكس المعاملين). فرح (3 سير) باقية على `bp-main`. التجربة الحيّة لـ`bp-fast` ردّت `gpt-4.1-mini`.
-- مُستثنى مؤقتاً: «سحب كل سير Hotmail (Backfill)» (`Ws1zQQ6YezxAOMSN`) لأن مؤشره في `staticData` وحفظه قد يصفّره؛ يُحوَّل بعد انتهاء التجربة.
-- **Document Intelligence متاح** على موارد AIServices الثلاثة (`prebuilt-read` يردّ 200، API `2024-11-30`) — لا حاجة لمورد جديد. أحدها: `bp-ai-claude-eu` (Sweden Central).
-- تحذير: `bp-ultra` (gpt-5.1) نموذج استدلال قد يرفض `temperature` و`max_tokens` في عقدة n8n؛ يُجرَّب مباشرة قبل أن تُحوَّل فرح إليه.
-
-## 13) القارئ الشامل (2026-10-14)
-
-سير `BP — القارئ الشامل` (`W7Eu9jVJV4RiHpZ8`، يُنشأ بـ`ops/azure-n8n/universal-reader.mjs`) يقرأ أي ملف عبر Azure Document Intelligence:
-PDF (مصوَّر أيضاً) · صور · Word · Excel · PowerPoint · HTML · نصوص. **مُختبَر بملفات حقيقية** (docx, png, pdf, xlsx, pptx, txt).
-الصيغ القديمة (`.doc .xls .ppt`) تُرجع `ok:false` مع ملاحظة تحويل — لا تُتجاهل بصمت.
-المدخل: `{filename, mimeType?, mediaId? | url? | base64?}`. فرح (نسخة Azure `g2Y2k2KbxYwmhSqu`) صار لها أداة `Read File` وتلميح مرفقات في `Normalize`.
-**لم يُنقل بعد:** ويبهوك رقم «مُعين» (واتساب) ما زال على Cloud، فمرفقات واتساب الحقيقية لا تصل نسخة Azure من فرح قبل نقله.
-
-### 13.1) ربط القارئ بسحب السير (2026-10-14)
-
-- `Ws1zQQ6YezxAOMSN` (سحب Hotmail مرة واحدة) و`KDka4AWWoOsUerSa` (وكيل Outlook CVs): اختيار المرفق صار PDF ثم Word ثم صور (≥25KB) ثم الباقي، والقراءة عبر `القارئ الشامل`؛ غير المقروء يُسجَّل مخفياً بسببه الفعلي ولا يُتخطّى.
-- **عطل وُجد وأُصلح:** عمود `Target Role` في ATS صار select فكانت الكتابة بنص حرّ تفشل بـ«Bad request» وتُنقل الرسائل مع ذلك (٢٠ رسالة نُقلت بلا سجل). الآن يُكتب في `مهنة الترشيح` (نص)، والحقول الفارغة تُتجاهَل، وبوابة `❓ كُتب في ATS؟` تمنع النقل إن فشلت الكتابة.
-- التحقق: التنفيذ `605` — ١٠ سجلات في ATS (واحد مخفي «فشل التحليل»)، ١٠ روابط CV، ٩ بمجال، ٨ بجنسية.
-- الحدّ: `LIMIT=200, BATCH=20` بعد نجاح التجربة. إعادة معالجة الـ٢٠ المنقولة: السير `AqqXIwFWHoTfUOZo` (مرة واحدة، يقفل نفسه؛ يأخذ `lastModifiedDateTime ≥ 2026-10-14T01:15Z` من `CVs-Processed`). تبقى مجلدات Drive الأولى (٢٠) يتيمة.
+### 12.4) تدوير المفاتيح + مرسل المحادثات (2026-10-15، لاحقاً)
+- **المفاتيح دُوِّرت** (بإذن المالك): فرح ← اعتماد `(v3)` (`MjN7xsnHCn0jyblZ`)، الاستقبال ← `(v3)` (`opJfeRtIuNfYxXB6`)، وحُدِّث السرّان `farah-command-key` و`farah-chat-key` في `bp-site-staging` (يحتاج إعادة تشغيل لتفعيل القيم). المفتاح المسرَّب جزئياً (الاستقبال) أُبطل بهذا التدوير. الاستقبال بالمفتاح الجديد: 200.
+- **Command Space لفرح ما زال 403 حتى بمفتاح جديد سليم** (الاستقبال بالطريقة نفسها 200) ⇒ السبب ليس المفتاح. لم يُحسم؛ يُفحص من واجهة n8n (فتح عقدة `Command Space Direct In` واختبارها يدوياً) أو من سجل الحاوية. فرح مغلقة آمنة في الأثناء.
+- **api/requests.js**: فرع `advisor-chat` صار يرسل كل محادثة إلى `FARAH_CHAT_WEBHOOK_URL` بترويسة `X-BP-Chat-Key` (مهلة 4 ثوانٍ، best-effort، لا يفعل شيئاً بلا المتغيرين). الكوميت `00f3c8e1` بلا علامة نشر. لتفعيله على Vercel: ضع `FARAH_CHAT_WEBHOOK_URL` و`FARAH_CHAT_KEY` (قيمته في سرّ `farah-chat-key` ببوابة Azure) ثم انشر بعلامتك.
