@@ -178,6 +178,7 @@ const D = {
   // ثلاثة عناوين في الفوتر وحده. الترويسة تبقى على بابها الواحد — «ابدأ طلبك»
   // — لأن الزائر الذي يرى عشرين رابطاً لا يضغط أياً منها.
   footExplore: { ar: "الخدمات", en: "Services", fr: "Services", zh: "服务" },
+  footDeals: { ar: "الصفقات والفرص", en: "Deals & opportunities", fr: "Offres et opportunités", zh: "交易与机会" },
   footKnow: { ar: "المعرفة", en: "Knowledge", fr: "Ressources", zh: "知识库" },
   footCompany: { ar: "الشركة", en: "Company", fr: "Société", zh: "公司" },
   navPackages: { ar: "الباقات", en: "Packages", fr: "Forfaits", zh: "套餐" },
@@ -709,6 +710,7 @@ export function simpleV1(ctx) {
       <a href="${href("/packages")}">${t("navPackages")}</a>
       <a href="${href("/ai-agents")}">${t("navAdvisors")}</a>
       <a href="${href("/business-development")}">${t("navBizDev")}</a>
+      <a href="${href("/deals")}">${t("footDeals")}</a>
     </div>
     <div class="sv1-foot-navcol">
       <h5>${t("footKnow")}</h5>
