@@ -51,9 +51,14 @@ const MIME = {
 };
 
 const handlers = new Map();
+// مسارات عامة لوحدات مساعدة (تبدأ بـ_ فلا تُحمَّل بالاسم): الودجت والرئيسية تستدعي /api/chat،
+// ولا ملف api/chat.js في الشجرة منذ ردّ الدوال إلى ١٢ — فيُربط هنا صراحةً بقائمة مغلقة.
+const PUBLIC_HELPERS = { chat: "_chat" };
+
 async function loadHandler(name) {
-  if (!/^[A-Za-z0-9_-]+$/.test(name) || name.startsWith("_")) return null;
-  const file = path.join(ROOT, "api", `${name}.js`);
+  const file0 = PUBLIC_HELPERS[name];
+  if (!file0 && (!/^[A-Za-z0-9_-]+$/.test(name) || name.startsWith("_"))) return null;
+  const file = path.join(ROOT, "api", `${file0 || name}.js`);
   if (!fs.existsSync(file)) return null;
   if (!handlers.has(file)) handlers.set(file, import(pathToFileURL(file).href).then((m) => m.default || null));
   return handlers.get(file);
