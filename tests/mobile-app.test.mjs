@@ -44,3 +44,11 @@ test("mobile: الفوتر مخفي داخل التطبيق فقط (قرار ا�
   const src = read("site/assets/js/app-bridge.js");
   assert.match(src, /html\.bp-native footer\.sv1-foot/);
 });
+
+test("mobile: قسم «عن التطبيق» لا يخترع رابط خصوصية قبل وجود صفحته", () => {
+  const src = read("site/assets/js/app-bridge.js");
+  assert.match(src, /var PRIVACY_PATH = (null|"\/[a-z-]+");/);
+  if (/var PRIVACY_PATH = null;/.test(src)) return;
+  const m = src.match(/var PRIVACY_PATH = "(\/[a-z-]+)";/);
+  assert.ok(m, "PRIVACY_PATH بصيغة غير متوقعة");
+});

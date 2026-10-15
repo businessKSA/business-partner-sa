@@ -27,8 +27,14 @@
   var path = location.pathname.replace(/^\/(ar|fr|zh)(?=\/|$)/, "") || "/";
 
   var L = {
-    ar: { home: "الرئيسية", svc: "الخدمات", ask: "المستشار", cart: "السلة", me: "حسابي", off: "أنت غير متصل بالإنترنت", pushT: "فعّل الإشعارات لمتابعة طلباتك وعروضك", pushB: "تفعيل", pushX: "لاحقاً" },
-    en: { home: "Home", svc: "Services", ask: "Advisor", cart: "Cart", me: "Account", off: "You are offline", pushT: "Turn on notifications to follow your requests and quotes", pushB: "Enable", pushX: "Later" },
+    ar: { home: "الرئيسية", svc: "الخدمات", ask: "المستشار", cart: "السلة", me: "حسابي", off: "أنت غير متصل بالإنترنت", pushT: "فعّل الإشعارات لمتابعة طلباتك وعروضك", pushB: "تفعيل", pushX: "لاحقاً",
+      abT: "عن التطبيق", abTerms: "الشروط والأحكام", abPriv: "سياسة الخصوصية", abContact: "تواصل معنا", abVer: "الإصدار", abDel: "طلب حذف الحساب",
+      abDelQ: "سنفتح محادثة واتساب برسالة جاهزة لطلب حذف حسابك، ونتواصل معك لتأكيد الطلب. لا يُحذف شيء قبل تأكيدك.", abDelGo: "أرسل الطلب", abDelNo: "إلغاء",
+      abDelMsg: "أرغب في حذف حسابي في تطبيق Business Partner." },
+    en: { home: "Home", svc: "Services", ask: "Advisor", cart: "Cart", me: "Account", off: "You are offline", pushT: "Turn on notifications to follow your requests and quotes", pushB: "Enable", pushX: "Later",
+      abT: "About the app", abTerms: "Terms and conditions", abPriv: "Privacy policy", abContact: "Contact us", abVer: "Version", abDel: "Request account deletion",
+      abDelQ: "We will open a WhatsApp chat with a ready message asking to delete your account, then contact you to confirm. Nothing is deleted before you confirm.", abDelGo: "Send request", abDelNo: "Cancel",
+      abDelMsg: "I would like to delete my account in the Business Partner app." },
     fr: { home: "Accueil", svc: "Services", ask: "Conseiller", cart: "Panier", me: "Compte", off: "Vous êtes hors ligne", pushT: "Activez les notifications pour suivre vos demandes", pushB: "Activer", pushX: "Plus tard" },
     zh: { home: "首页", svc: "服务", ask: "顾问", cart: "购物车", me: "我的", off: "您已离线", pushT: "开启通知以跟进您的请求", pushB: "开启", pushX: "稍后" },
   };
@@ -66,6 +72,18 @@
     "box-shadow:0 12px 32px -8px rgba(11,27,90,.45)}.bp-push b{flex:1;font-weight:600}",
     ".bp-push button{border:0;border-radius:10px;min-height:36px;padding:0 14px;font:700 13px inherit;cursor:pointer}",
     ".bp-push .y{background:#fff;color:#0B1B5A}.bp-push .n{background:transparent;color:#C3CDE6}",
+    ".bp-about{margin:24px 16px 96px;background:#fff;border:1px solid #E5E9F0;border-radius:16px;overflow:hidden;font-family:inherit;color:#232A3D}",
+    ".bp-about h2{margin:0;padding:14px 16px 6px;font-size:13px;font-weight:600;color:#5A6478}",
+    ".bp-about a,.bp-about button{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:52px;padding:0 16px;border:0;border-top:1px solid #EBEFF7;background:none;",
+    "color:inherit;font:600 15px inherit;text-decoration:none;text-align:start;cursor:pointer;-webkit-tap-highlight-color:transparent}",
+    ".bp-about a:active,.bp-about button:active{background:#F5F7FB}.bp-about .meta{display:block;padding:12px 16px 16px;border-top:1px solid #EBEFF7;font-size:12.5px;color:#8D97AE;line-height:1.7}",
+    ".bp-about .del{color:#B42318}.bp-about svg{width:18px;height:18px;stroke:#8D97AE;fill:none;stroke-width:2;flex:none}",
+    "[dir=rtl] .bp-about svg{transform:scaleX(-1)}",
+    ".bp-sheet{position:fixed;inset:0;z-index:2147483002;background:rgba(11,27,90,.45);display:flex;align-items:flex-end}",
+    ".bp-sheet>div{width:100%;background:#fff;border-radius:20px 20px 0 0;padding:20px 20px calc(20px + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)));color:#232A3D;font-family:inherit}",
+    ".bp-sheet p{margin:0 0 16px;font-size:15px;line-height:1.7}.bp-sheet .row{display:flex;gap:10px}",
+    ".bp-sheet a,.bp-sheet button{flex:1;min-height:50px;border-radius:14px;border:0;font:700 15px inherit;display:grid;place-items:center;text-decoration:none;cursor:pointer}",
+    ".bp-sheet .go{background:#B42318;color:#fff}.bp-sheet .no{background:#EEF2FB;color:#0B1B5A}",
     "html.bp-native{-webkit-touch-callout:none}html.bp-native body{-webkit-user-select:auto;overscroll-behavior-y:none}",
     // تطبيق لا موقع: لا فوتر (روابط الشركة والحقوق) داخل التطبيق؛ الشريط السفلي هو التنقل.
     "html.bp-native footer.sv1-foot,html.bp-native .sv1-foot{display:none!important}",
@@ -190,9 +208,50 @@
     document.body.appendChild(d);
   }
 
+  // ------------------------------------------------------------ عن التطبيق --
+  // يظهر في «حسابي» فقط، بديلاً عن الفوتر. صفّ الخصوصية يبقى مخفياً حتى توجد صفحتها
+  // (لا نص قانوني مخترع). حذف الحساب طلبٌ عبر واتساب إلى أن يُبنى مسار خادم له.
+  var PRIVACY_PATH = null;
+  var WA = "966530540231";
+  var CHEV = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
+  function aboutSection() {
+    if (!/^\/(my|account)(\/|$)/.test(path) || document.querySelector(".bp-about")) return;
+    var host = document.querySelector(".sv1") || document.body;
+    var ver = (navigator.userAgent.match(/BusinessPartnerApp\/([0-9.]+)/) || [])[1] || "1.0";
+    var s = document.createElement("section");
+    s.className = "bp-about";
+    s.setAttribute("aria-label", T.abT);
+    var rows = '<h2>' + T.abT + "</h2>" +
+      '<a href="' + prefix + '/terms">' + T.abTerms + CHEV + "</a>" +
+      (PRIVACY_PATH ? '<a href="' + prefix + PRIVACY_PATH + '">' + T.abPriv + CHEV + "</a>" : "") +
+      '<a href="' + prefix + '/contact">' + T.abContact + CHEV + "</a>" +
+      '<button type="button" class="del" data-act="del">' + T.abDel + CHEV + "</button>" +
+      '<span class="meta">Business Partner · ' + T.abVer + " " + ver + "</span>";
+    s.innerHTML = rows;
+    host.parentNode.insertBefore(s, host.nextSibling);
+    s.querySelector('[data-act="del"]').addEventListener("click", delSheet);
+  }
+  function delSheet() {
+    var d = document.createElement("div");
+    d.className = "bp-sheet";
+    d.setAttribute("role", "dialog");
+    d.setAttribute("aria-modal", "true");
+    d.innerHTML = "<div><p></p><div class=\"row\"><button type=\"button\" class=\"no\"></button><a class=\"go\" target=\"_blank\" rel=\"noopener\"></a></div></div>";
+    d.querySelector("p").textContent = T.abDelQ;
+    d.querySelector(".no").textContent = T.abDelNo;
+    var go = d.querySelector(".go");
+    go.textContent = T.abDelGo;
+    go.href = "https://wa.me/" + WA + "?text=" + encodeURIComponent(T.abDelMsg);
+    d.querySelector(".no").onclick = function () { d.remove(); };
+    go.onclick = function () { tap("MEDIUM"); setTimeout(function () { d.remove(); }, 200); };
+    d.addEventListener("click", function (e) { if (e.target === d) d.remove(); });
+    document.body.appendChild(d);
+  }
+
   // ------------------------------------------------------------ تشغيل --
   function boot() {
     buildBar();
+    aboutSection();
     pushBanner();
     if (P.SplashScreen && P.SplashScreen.hide) safe(function () { P.SplashScreen.hide(); });
   }
