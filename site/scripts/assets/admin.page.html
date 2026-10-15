@@ -2827,39 +2827,17 @@
         });
     };
 
-    /* ---- دخول المالك وجرد اللوحة كاملاً --------------------------------
-     * الرابط يُطلب لحظة الضغط ولا يُخزَّن: جلسة مدير تُصنع مرة وتُستهلك مرة،
-     * وحفظها في الصفحة يجعل تبويباً منسيّاً باباً مفتوحاً.
+    /* ---- مركز العمليات (Simple V1) -------------------------------------
+     * لوحة العروض انتقلت إلى /ops على الموقع نفسه. كان هذا الزر يفتح admin
+     * لوحة bp-quotes بجلسة مدير لمرة واحدة؛ ومع دمج اللوحة وحذف مشروعها صار
+     * الجرد يُقرأ محلياً (زر «قراءة اللوحة» أدناه) والإدارة من /ops مباشرة.
      */
     $('qpOwner').onclick = function(){
-      var btn = this, m = $('qpAllMsg');
-      btn.disabled = true; m.style.display = 'block'; m.innerHTML = '⏳ أجهّز جلسة المالك…';
-      fetch(API_URL + '?action=panel-quotes&want=login' + authQS(), { cache: 'no-store' })
-        .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, j: j }; }); })
-        .then(function(res){
-          btn.disabled = false;
-          var j = res.j || {};
-          if (j.configured === false){
-            m.innerHTML = '<span style="color:#b45309">الجسر غير مضبوط.</span>' +
-              '<div style="color:var(--soft);font-size:12px;margin-top:6px">' + esc(j['ملاحظة'] || '') + '</div>';
-            return;
-          }
-          if (!res.ok || !j.ok || !j.url){
-            m.innerHTML = '<span style="color:#b91c1c">تعذّر: ' + esc(j.error || 'خطأ') + '</span>' +
-              (j['ملاحظة'] ? '<div style="color:var(--soft);font-size:12px;margin-top:6px">' + esc(j['ملاحظة']) + '</div>' : '');
-            return;
-          }
-          // النافذة تُفتح من داخل معالج الضغط قد يمنعها المتصفح لأن الردّ
-          // جاء متأخراً — فيُعرض الرابط أيضاً ليُفتح باليد.
-          var w = window.open(j.url, '_blank', 'noopener');
-          m.innerHTML = (w ? '✅ فُتحت اللوحة بجلسة مالك.' : '✅ الرابط جاهز — المتصفح منع الفتح التلقائي.') +
-            ' <a href="' + esc(j.url) + '" target="_blank" rel="noopener" style="color:var(--navy);font-weight:700">افتح يدوياً</a>' +
-            '<div style="color:var(--soft);font-size:12px;margin-top:6px">رابط لمرة واحدة ينتهي خلال 30 دقيقة.</div>';
-        })
-        .catch(function(e){
-          btn.disabled = false;
-          m.innerHTML = '<span style="color:#b91c1c">تعذّر الاتصال (' + esc(String(e.message || e)) + ').</span>';
-        });
+      var m = $('qpAllMsg');
+      m.style.display = 'block';
+      var w = window.open('/ops', '_blank', 'noopener');
+      m.innerHTML = (w ? '✅ فُتح مركز العمليات /ops.' : '✅ ') +
+        ' <a href="/ops" target="_blank" rel="noopener" style="color:var(--navy);font-weight:700">افتح /ops</a>';
     };
 
     $('qpAll').onclick = function(){

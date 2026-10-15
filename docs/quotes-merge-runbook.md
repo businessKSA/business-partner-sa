@@ -128,24 +128,35 @@ LOCAL_DB=1 node scripts/migrate-quotes.mjs --write   # كتابة محلية ث�
 
 #### تعديل `vercel.json` — جاهز للّصق (مُتحقَّق منه)
 
-**خطوة 4أ (بعد الهجرة، وbp-quotes ما زال حيًّا):** أضف سطر `docview` **قبل**
-`/quotes/:path*` مباشرةً (الترتيب يحسم الأسبقية في Vercel):
+> **لماذا أكثر من سطر:** تحت `/quotes/*` روابط أُرسلت للعملاء غير `/d/<token>`:
+> روابط دفع الفواتير `/portal/pay/<payToken>` (`send.ts: payUrl`)، وصفحات البوابة
+> `/portal/quotes|invoices|contracts`. فحذف `/quotes/:path*` وحده يكسرها. رمز
+> الدفع مخزَّن أصلاً في `quote_tokens` (kind=invoice)، و`docview` يعرض الفاتورة
+> وزرَّ الدفع — فيكفي توجيهه إليه. (روابط الموردين `/rfp/:token` ليست مهاجَرة —
+> انظر «قبل الحذف» أدناه.)
+
+**خطوة 4أ (بعد الهجرة، وbp-quotes ما زال حيًّا):** أضف الأسطر **قبل**
+`/quotes/:path*` مباشرةً (الترتيب يحسم الأسبقية؛ الأخصّ أولاً):
 
 ```diff
    "rewrites": [
 +    {"source":"/quotes/d/:token","destination":"/api/requests?__route=docview&token=:token"},
++    {"source":"/quotes/portal/pay/:token","destination":"/api/requests?__route=docview&token=:token"},
++    {"source":"/quotes/portal/:path*","destination":"/account"},
      {"source":"/quotes","destination":"https://bp-quotes-three.vercel.app/quotes"},
      {"source":"/quotes/:path*","destination":"https://bp-quotes-three.vercel.app/quotes/:path*"},
 ```
 
-ثم افتح ٥–١٠ روابط `/quotes/d/<token>` حقيقية من الموقع الرئيسي وتأكّد أنها تُعرض
-من `docview` (بينما لوحة `/quotes` ما زالت تعمل من bp-quotes).
+ثم افتح روابط حقيقية (`/quotes/d/<token>` و`/quotes/portal/pay/<payToken>`) من الموقع
+الرئيسي وتأكّد أنها تُعرض من `docview` (بينما لوحة `/quotes` ما زالت تعمل من bp-quotes).
 
 **خطوة 4ب (بعد أن تحذف المشروع من لوحة Vercel):** احذف سطرَي bp-quotes:
 
 ```diff
    "rewrites": [
      {"source":"/quotes/d/:token","destination":"/api/requests?__route=docview&token=:token"},
+     {"source":"/quotes/portal/pay/:token","destination":"/api/requests?__route=docview&token=:token"},
+     {"source":"/quotes/portal/:path*","destination":"/account"},
 -    {"source":"/quotes","destination":"https://bp-quotes-three.vercel.app/quotes"},
 -    {"source":"/quotes/:path*","destination":"https://bp-quotes-three.vercel.app/quotes/:path*"},
      {"source":"/api/live-catalog","destination":"/api/requests?__route=live-catalog"},
@@ -157,9 +168,19 @@ LOCAL_DB=1 node scripts/migrate-quotes.mjs --write   # كتابة محلية ث�
 3. خطوة 4ب في `vercel.json` (أنا) → ثم حذف مجلد `quotes/` من المستودع (أنا).
    الترتيب لازم: حذف مجلدٍ هو جذر مشروع Vercel حيّ يُفشل البناء عند الإقلاع.
 
-#### تنظيف تابع (غير حاجز)
-- زر «فتح لوحة العروض» في `site/.../admin.page.html` (`panel-quotes&want=login`)
-  يفتح admin في bp-quotes — يُوجَّه إلى `/ops` بعد الحذف.
+#### بوابة إضافية قبل الحذف: الموردون (R2)
+روابط `/quotes/rfp/<token>` (تقديم عروض الموردين، `sourcing.ts: rfpUrl`) **ليست
+مهاجَرة** — التوريد يعيش في جداول الموقع الرئيسي وبوابته. قبل الحذف تأكّد أنه لا
+`SupplierRfp` مفتوح ينتظر عرض مورد في bp-quotes. يعدّه `pending-docs.mjs` تلقائياً
+متى وُجد `DATABASE_URL` (يفحص قاعدة bp-quotes مباشرة).
+
+#### DocuSign (R5 — قديم/منخفض)
+bp-quotes يسجّل webhook توقيع. Simple V1 يوقّع داخل البوابة (لا DocuSign)، فهذا
+قديم فقط؛ تأكّد لا ظرف توقيع نشط قبل الحذف.
+
+#### تنظيف تابع
+- ✅ **نُفّذ:** زر «لوحة العروض» في `admin.page.html` صار يفتح `/ops` بدل admin
+  لوحة bp-quotes (زر «قراءة اللوحة» يبقى — يقرأ الجرد محلياً).
 - جسر `wa-quote` الأمامي لإنشاء العروض يبقى حتى يُؤكَّد أن الإنشاء كله من `/ops`.
 
 ---

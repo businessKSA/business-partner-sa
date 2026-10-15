@@ -26,6 +26,27 @@ const pendKind = {
   invoice: (r) => r.invoice && !(r.payment && r.payment.status === "PAID"),
 };
 
+// R2: عروض الموردين المفتوحة ليست مهاجَرة (تعيش في bp-quotes). إن توفّر
+// DATABASE_URL نفحص قاعدتها مباشرة: RFP أُرسل ولم يُردّ ولم يُرفض ولم تنتهِ مدته.
+async function openSupplierRfps() {
+  const url = (process.env.DATABASE_URL || "").trim();
+  if (!url) return null;
+  let pg;
+  try { ({ default: pg } = await import("pg")); } catch { return null; }
+  const client = new pg.Client({ connectionString: url, ssl: /sslmode=require/.test(url) ? { rejectUnauthorized: false } : undefined });
+  await client.connect();
+  try {
+    const { rows } = await client.query(
+      `select r.token, s."nameAr" as supplier, sr.number as request
+         from "SupplierRfp" r
+         join "Supplier" s on s.id = r."supplierId"
+         join "SupplyRequest" sr on sr.id = r."supplyRequestId"
+        where r."respondedAt" is null and r."declinedAt" is null
+          and (r."expiresAt" is null or r."expiresAt" > now())`);
+    return rows;
+  } finally { await client.end(); }
+}
+
 (async () => {
   const { sb, DB_ON } = await import(path.join(ROOT, "api", "_db.js"));
   if (!DB_ON) { console.error("✗ قاعدة البيانات غير مضبوطة (LOCAL_DB=1 أو SUPABASE_URL/SUPABASE_SERVICE_KEY)."); process.exit(2); }
@@ -55,5 +76,18 @@ const pendKind = {
     console.log("\n⚠ يوجد معلّق — تأجيل المرحلة 4 أسلم، أو تابعها مع العملاء، أو نفّذ 4أ (زر «سجّل الدخول» يبقيهم قادرين على المتابعة من الحساب).");
   } else {
     console.log("\n✔ لا مستند معلّق — الفصل (المرحلة 4) بلا أثر على أي عميل.");
+  }
+
+  // R2: عروض الموردين المفتوحة (غير مهاجَرة) — بوابة إضافية قبل الحذف.
+  let rfps = null;
+  try { rfps = await openSupplierRfps(); }
+  catch (e) { console.log(`\n(تعذّر فحص عروض الموردين: ${String(e.message || e).slice(0, 120)})`); }
+  if (rfps === null) {
+    console.log("\n» عروض الموردين (RFP): لم تُفحَص — اضبط DATABASE_URL لقاعدة bp-quotes لعدّها.");
+  } else if (rfps.length) {
+    console.log(`\n⚠ عروض موردين مفتوحة تنتظر ردًّا: ${rfps.length} (روابط /quotes/rfp/<token> ستنكسر بالحذف)`);
+    for (const r of rfps) console.log(`  ${r.request}  ·  ${r.supplier}  ·  ${String(r.token).slice(0, 8)}…`);
+  } else {
+    console.log("\n✔ لا عرض مورد مفتوح — روابط الموردين بلا أثر.");
   }
 })().catch((e) => { console.error("✗ فشل:", e.message || e); process.exit(1); });
