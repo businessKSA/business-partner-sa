@@ -236,3 +236,17 @@ if (FARAH_URL && FARAH_KEY) {
 - **المفاتيح دُوِّرت** (بإذن المالك): فرح ← اعتماد `(v3)` (`MjN7xsnHCn0jyblZ`)، الاستقبال ← `(v3)` (`opJfeRtIuNfYxXB6`)، وحُدِّث السرّان `farah-command-key` و`farah-chat-key` في `bp-site-staging` (يحتاج إعادة تشغيل لتفعيل القيم). المفتاح المسرَّب جزئياً (الاستقبال) أُبطل بهذا التدوير. الاستقبال بالمفتاح الجديد: 200.
 - **Command Space لفرح ما زال 403 حتى بمفتاح جديد سليم** (الاستقبال بالطريقة نفسها 200) ⇒ السبب ليس المفتاح. لم يُحسم؛ يُفحص من واجهة n8n (فتح عقدة `Command Space Direct In` واختبارها يدوياً) أو من سجل الحاوية. فرح مغلقة آمنة في الأثناء.
 - **api/requests.js**: فرع `advisor-chat` صار يرسل كل محادثة إلى `FARAH_CHAT_WEBHOOK_URL` بترويسة `X-BP-Chat-Key` (مهلة 4 ثوانٍ، best-effort، لا يفعل شيئاً بلا المتغيرين). الكوميت `00f3c8e1` بلا علامة نشر. لتفعيله على Vercel: ضع `FARAH_CHAT_WEBHOOK_URL` و`FARAH_CHAT_KEY` (قيمته في سرّ `farah-chat-key` ببوابة Azure) ثم انشر بعلامتك.
+
+## 14) نقل الموقع إلى Azure — الحالة (2026-10-15)
+
+**ما اكتمل (والنطاق ما زال على Vercel — لا زائر حقيقي على Azure بعد):**
+- `bp-site` على Azure يعمل بصورة مبنية من فرع العمل بعد دمج فرع الإنتاج فيه؛ اختبار الدخان `azure/site/smoke.mjs` يمرّ (الاستثناء الوحيد `/jobs` وهي 404 على Vercel أيضاً).
+- `/api/chat` صار مربوطاً صراحةً بـ`api/_chat.js` في `azure/site/server.mjs` (`PUBLIC_HELPERS`): لا ملف `api/chat.js` في الشجرة منذ ردّ الدوال إلى ١٢، فكان 404 على Azure. **تنبيه:** هذه الشجرة نفسها لو نُشرت على Vercel لانكسر الودجت لنفس السبب — نشرة Vercel الحيّة أقدم من الفرع.
+- `CRON_SECRET` أُنشئ في الخزنة (`cron-secret`) وربط بالحاويتين. وكلا `BP_N8N_BASE` على Azure يشير إلى n8n على Azure.
+- المهام المجدولة: `ops/azure-site/crons.sh create` أنشأ `bp-cron-newsletter|jobhunt|backfill` (Container Apps Jobs) **موقوفة** (جدولها 31 فبراير). تُفعَّل بـ`crons.sh activate` عند تحويل النطاق **وفي الدفعة نفسها تُحذف `crons` من vercel.json**؛ تشغيل الاثنين معاً يرسل النشرة مرتين.
+- ⚠️ `GET /api/candidate?action=backfill` ليس قراءة: يرسل بريداً حقيقياً لمن قدّموا عبر الموقع (علَم `SENT_FLAG` يمنع التكرار). لا يُستعمل للاختبار — استعمل `dryRun=true`.
+
+**ما بقي قبل تحويل النطاق `businesspartner.sa` (الـDNS عند Vercel: ns1/ns2.vercel-dns.com):**
+1. المالك يشغّل `bash ops/azure-site/enter-secrets.sh` (واتساب، DASHBOARD_KEY، LEADS_KEY، SIMPLE_OPS_KEY، OFFER_OPS_KEY، DOC_AGENT_HOOK_KEY) — بدونها تتعطل وظائفها بعد التحويل.
+2. قرار المالك الصريح بتحويل النطاق: سجلات A/CNAME للجذر وwww فقط (MX لـGoogle لا يُمس) + شهادة Azure المُدارة + `crons.sh activate` + حذف `crons` من vercel.json.
+3. `BP_N8N_PUBLIC_BASE` لخطوة البناء (الصفحات ما زالت تنادي n8n Cloud مباشرة).
