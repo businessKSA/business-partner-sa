@@ -1,0 +1,35 @@
+{
+  "name": "business-partner-mobile",
+  "private": true,
+  "version": "1.0.0",
+  "description": "تطبيق Business Partner لـ iOS وAndroid — غلاف Capacitor فوق الموقع الجديد (Simple V1)",
+  "type": "module",
+  "scripts": {
+    "assets": "node scripts/make-assets.mjs && capacitor-assets generate --assetPath resources",
+    "sync": "cap sync",
+    "android": "cap sync android && cap open android",
+    "ios": "cap sync ios && cap open ios",
+    "android:debug": "cap sync android && cd android && ./gradlew assembleDebug",
+    "android:release": "cap sync android && cd android && ./gradlew bundleRelease",
+    "check": "node scripts/check-config.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/browser": "^8.0.5",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/ios": "^8.5.3",
+    "@capacitor/keyboard": "^8.0.6",
+    "@capacitor/network": "^8.0.1",
+    "@capacitor/push-notifications": "^8.1.3",
+    "@capacitor/share": "^8.0.3",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.4"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.5.3",
+    "sharp": "^0.35.5"
+  }
+}

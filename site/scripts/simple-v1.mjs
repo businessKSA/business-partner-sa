@@ -768,13 +768,15 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script>`;
 
+  const APP_BRIDGE_TAG = '<script src="/assets/js/app-bridge.js?v=1" defer></script>';
   function shell({ title, desc, path, body, script = "", noindex = false, oneLang = false }) {
     const h = head(title, desc, path)
       .replace("</head>", CSS + "</head>")
       .replace("</head>", noindex ? '<meta name="robots" content="noindex, nofollow"></head>' : "</head>")
       .replace("<html ", `<html data-sv1-test="${esc(t("testMode"))}" `)
       .replace("<body>", '<body class="sv1-page">');
-    return h + `<div class="sv1">${body}</div>` + CHROME_JS + BEACON_JS + script + "</body></html>";
+    // جسر التطبيق الأصلي (iOS/Android): ينتهي فوراً خارج Capacitor. يُحمَّل أيضاً من main.js للقديم.
+    return h + `<div class="sv1">${body}</div>` + CHROME_JS + BEACON_JS + APP_BRIDGE_TAG + script + "</body></html>";
   }
 
   // ------------------------------------------------------------ homepage --

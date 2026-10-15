@@ -9025,3 +9025,14 @@ var BP_EMP_BILLING = "monthly";
     }
   });
 })();
+
+/* جسر التطبيق الأصلي (قاعدة 2.6: موضعان — SV1.shell للجديد وهذا للقديم).
+   لا يفعل شيئاً خارج غلاف Capacitor. المنطق كله في app-bridge.js (وكيل mobile-app). */
+(function () {
+  var c = window.Capacitor;
+  if (!c || typeof c.isNativePlatform !== "function" || !c.isNativePlatform() || window.__bpAppBridge) return;
+  var s = document.createElement("script");
+  s.src = "/assets/js/app-bridge.js?v=1";
+  s.defer = true;
+  (document.head || document.documentElement).appendChild(s);
+})();

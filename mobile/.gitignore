@@ -1,0 +1,25 @@
+node_modules/
+# أسرار التوقيع والمتاجر — لا تُدفع أبداً (أنشئها بيد المالك، انظر docs/mobile-app.md)
+*.jks
+*.keystore
+*.p12
+*.p8
+*.mobileprovision
+google-services.json
+GoogleService-Info.plist
+keystore.properties
+local.properties
+# مخرجات البناء
+android/app/build/
+android/build/
+android/.gradle/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+ios/App/Pods/
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+ios/DerivedData/
+*.apk
+*.aab
+*.ipa

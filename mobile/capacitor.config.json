@@ -1,0 +1,41 @@
+{
+  "appId": "sa.businesspartner.app",
+  "appName": "Business Partner",
+  "webDir": "www",
+  "appendUserAgent": "BusinessPartnerApp/1.0",
+  "backgroundColor": "#FFFFFF",
+  "server": {
+    "url": "https://businesspartner.sa/",
+    "errorPath": "offline.html",
+    "allowNavigation": ["businesspartner.sa", "*.businesspartner.sa", "*.moyasar.com", "*.tamara.co"]
+  },
+  "ios": {
+    "contentInset": "automatic",
+    "scrollEnabled": true,
+    "limitsNavigationsToAppBoundDomains": false,
+    "preferredContentMode": "mobile"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": true,
+      "launchShowDuration": 1200,
+      "launchFadeOutDuration": 250,
+      "backgroundColor": "#0B1B5A",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "LIGHT",
+      "backgroundColor": "#FFFFFF",
+      "overlaysWebView": false
+    },
+    "Keyboard": {
+      "resize": "body",
+      "resizeOnFullScreen": true
+    }
+  }
+}
