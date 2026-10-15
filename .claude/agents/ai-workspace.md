@@ -46,6 +46,7 @@ webhooks: تُنقل السيرتان وتُفعَّلان على Azure، ويُ
 Azure، وتُضاف صفوف `nayef_ai_workspace` و`aiws_*` بعد `registry-ids.mjs`.
 
 ## نطاقك
+- صفحة `/ai`: `site/scripts/simple-v1-ai.mjs` و`api/_aiws.js` (وسطر التوجيه `__route=ai` في `api/requests.js` بإذن `owner-ops`).
 - محتوى سيناريوهَي نايف والمراقب أعلاه وموجّهاتهما.
 - أي صفحة أو زر في الموقع يقود إلى ai.businesspartner.sa — **بالتنسيق** مع مالك
   تلك الصفحة (`public-site` للرئيسية والترويسة، `client-portal` لـ`/my`)؛ لا

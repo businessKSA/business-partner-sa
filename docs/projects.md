@@ -565,3 +565,5 @@ Simple V1. وكيل المنتج لا يلمسها.
 ## وكيل `ai-workspace` — 2026-10-11 (أمر المالك المباشر)
 
 **منصة مساحات Business Partner AI:** `https://ai.businesspartner.sa` — مساحة خاصة لكل شركة (Open WebUI على خادم Azure `bp-ai-server`، خارج هذا المستودع). **المسؤول: نايف** في n8n، يرفع لمحمد (IT). فريقه: لجين (التهيئة والتجارب) · حمد (الاستقرار) · ديم (الدعم). السيناريوهات: `PxBoz6f2i6276hJ8` (المسار `ai-workspace-intake`) و`ZoTA8MKp2QqUPMmY` (فحص `/health` كل ١٥ دقيقة). طلبات المساحات تُسجَّل في Unified Revenue Intake فتصير صفقة لبدر. إنشاء المساحة نفسها بشري على الخادم. الحدّ: `bp-ai-platform` لـNotion الداخلي، و`automation-agents` لبنية n8n. تعريفه: `.claude/agents/ai-workspace.md`.
+
+**صفحة `/ai` (2026-10-16، بأمر المالك «نعم ابدأ في صفحة /ai»):** صفحة المنتج على SV1 بأربع لغات — `site/scripts/simple-v1-ai.mjs` · `api/_aiws.js` (عبر `api/requests.js?__route=ai`). الباقات تُقرأ من المنصة بلا أسعار، وطلب التجربة يذهب إلى Unified Revenue Intake ولا يُنشئ مساحة. غير مرتبطة في الترويسة ولا في خريطة الموقع حتى يقرر المالك.
