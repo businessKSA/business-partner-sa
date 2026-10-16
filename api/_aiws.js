@@ -16,7 +16,9 @@
 // في CLAUDE.md §4)، فتُحذف حقول السعر من ردّ المنصة قبل أن يصل المتصفح.
 
 const AIWS_BASE = String(process.env.AIWS_BASE || "https://ai.businesspartner.sa").replace(/\/+$/, "");
-const INTAKE_URL = process.env.BP_REVENUE_INTAKE_URL || "https://businesspartnerai.app.n8n.cloud/webhook/bp-ai/revenue-intake";
+import { n8nWebhookUrl } from "./_n8n.js";
+
+const INTAKE_URL = process.env.BP_REVENUE_INTAKE_URL || n8nWebhookUrl("bp-ai/revenue-intake");
 const PLANS_TTL_MS = 10 * 60e3;
 const PLAN_FIELDS = ["code", "name", "seats", "days", "credit_usd", "features"];
 // ميزة تعلنها المنصة ولا وجود لها بعد (لا SSO على الخادم — تقرير التسليم البند 4) لا تُعرض.

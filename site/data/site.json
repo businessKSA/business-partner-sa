@@ -9602,10 +9602,12 @@
   }
  },
  "social": {
-  "linkedin": "https://www.linkedin.com/company/108785026/",
-  "instagram": "https://www.instagram.com/businesspartnersa/",
-    "tiktok": "https://www.tiktok.com/@businesspartnersa",
-  "facebook": "https://www.facebook.com/BusinessPartnerKsa/"
+  "linkedin": "https://www.linkedin.com/company/business-partner-sa",
+  "x": "https://x.com/business_partnr",
+  "facebook": "https://www.facebook.com/BusinessPartnerKsa",
+  "snapchat": "https://www.snapchat.com/add/business_partnr",
+  "tiktok": "https://www.tiktok.com/@businesspartnersa",
+  "instagram": "https://www.instagram.com/businesspartnersa/"
  },
  "booking": {
   "title": "احجز استشارتك",
