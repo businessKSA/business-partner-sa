@@ -35,10 +35,10 @@
     ar: {
       hello: "أهلاً بك في Business Partner", sub: "سجّل دخولك لتبدأ المحادثة مع مستشارك.",
       email: "البريد الإلكتروني", pass: "كلمة المرور", login: "دخول", wait: "لحظة…",
-      first: "أول مرة أو نسيت كلمة المرور؟ ادخل برمز يصل بريدك", firstT: "الدخول برمز البريد", back: "العودة لتسجيل الدخول",
+      or: "أو", noAcc: "ليس لديك حساب؟", signup: "إنشاء حساب", name: "الاسم", back: "لديك حساب؟ سجّل دخولك", googleOff: "دخول جوجل غير مفعّل بعد. استخدم البريد وكلمة المرور، أو أنشئ حساباً.",
       sendCode: "أرسل الرمز", code: "الرمز المكوّن من 6 أرقام", verify: "تأكيد", codeSent: "أرسلنا الرمز إلى بريدك",
       google: "المتابعة عبر جوجل",
-      setT: "اختر كلمة مرور", setS: "تدخل بها المرة القادمة دون رمز. 8 أحرف على الأقل.", setGo: "حفظ ومتابعة", skip: "تخطّي الآن",
+      setT: "اختر كلمة مرور", setS: "تدخل بها دائماً، ولو نسيتها أنشئ حساباً بالبريد نفسه واختر كلمة جديدة. 8 أحرف على الأقل.", setGo: "حفظ ومتابعة",
       badEmail: "اكتب بريداً صحيحاً.", badCreds: "البريد أو كلمة المرور غير صحيحة.", netErr: "تعذّر الاتصال. تحقق من الإنترنت وحاول مرة أخرى.",
       badCode: "الرمز غير صحيح أو انتهت صلاحيته.", terms: "الشروط والأحكام", contact: "تواصل معنا",
       chat: "المحادثة", svc: "الخدمات", cart: "السلة", me: "حسابي", menu: "القائمة", my: "طلباتي ومستنداتي", out: "تسجيل الخروج", ver: "الإصدار", signed: "مسجّل باسم",
@@ -49,10 +49,10 @@
     en: {
       hello: "Welcome to Business Partner", sub: "Sign in to start chatting with your advisor.",
       email: "Email", pass: "Password", login: "Sign in", wait: "One moment…",
-      first: "First time or forgot your password? Sign in with an emailed code", firstT: "Sign in with an emailed code", back: "Back to sign in",
+      or: "or", noAcc: "No account yet?", signup: "Create account", name: "Name", back: "Already have an account? Sign in", googleOff: "Google sign-in is not enabled yet. Use your email and password, or create an account.",
       sendCode: "Send code", code: "6-digit code", verify: "Confirm", codeSent: "We emailed you a code",
       google: "Continue with Google",
-      setT: "Choose a password", setS: "Use it next time instead of a code. At least 8 characters.", setGo: "Save and continue", skip: "Skip for now",
+      setT: "Choose a password", setS: "You will use it to sign in. If you forget it, create an account with the same email and choose a new one. At least 8 characters.", setGo: "Save and continue",
       badEmail: "Enter a valid email.", badCreds: "Wrong email or password.", netErr: "Could not connect. Check your internet and try again.",
       badCode: "The code is wrong or has expired.", terms: "Terms and conditions", contact: "Contact us",
       chat: "Chat", svc: "Services", cart: "Cart", me: "Account", menu: "Menu", my: "My requests and documents", out: "Sign out", ver: "Version", signed: "Signed in as",
@@ -118,7 +118,10 @@
     ".bp-login input{min-height:52px;border:1px solid #DDE3EF;border-radius:14px;padding:0 14px;font:inherit;font-size:16px;background:#fff;color:#232A3D;direction:ltr;text-align:start;outline:none}",
     ".bp-login input:focus{border-color:#0B1B5A}",
     ".bp-login .pri{min-height:54px;border:0;border-radius:14px;background:#0B1B5A;color:#fff;font:700 16px inherit;cursor:pointer}.bp-login .pri[disabled]{opacity:.6}",
-    ".bp-login .gg{min-height:54px;border:1px solid #DDE3EF;border-radius:14px;background:#fff;color:#232A3D;font:700 15px inherit;cursor:pointer}",
+    ".bp-login .gg{min-height:54px;border:1px solid #DDE3EF;border-radius:14px;background:#fff;color:#232A3D;font:700 15px inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}",
+    ".bp-login .gg svg{width:20px;height:20px;flex:none}",
+    ".bp-login .or{display:flex;align-items:center;gap:12px;color:#8D97AE;font-size:13px}.bp-login .or::before,.bp-login .or::after{content:\"\";flex:1;height:1px;background:#DDE3EF}",
+    ".bp-login .alt{display:flex;gap:6px;justify-content:center;align-items:center;color:#5A6478;font-size:14px}",
     ".bp-login .lnk{background:none;border:0;color:#0B1B5A;font:600 14px/1.6 inherit;text-decoration:underline;cursor:pointer;padding:6px 0}",
     ".bp-login .err{min-height:1.4em;color:#B42318;font-size:14px;text-align:center}",
     ".bp-login .legal{display:flex;gap:16px;justify-content:center;font-size:13px}.bp-login .legal a{color:#5A6478}",
@@ -189,6 +192,7 @@
     if (!n && b) b.remove(); else if (n) { if (!b) { b = el("i"); a.appendChild(b); } b.textContent = n > 9 ? "9+" : String(n); }
   });
 
+  var GLOGO = '<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
   var session = null, gate = null, methods = { google: false };
 
   function field(label, type, name, auto) {
@@ -244,14 +248,15 @@
     var go = el("button", "pri", T.login); go.type = "submit";
     f.appendChild(e.box); f.appendChild(p.box); f.appendChild(err); f.appendChild(go);
     c.appendChild(f);
-    if (methods.google && P.SocialLogin) {
-      var g = el("button", "gg", T.google); g.type = "button";
-      g.onclick = function () { googleLogin(err); };
-      c.appendChild(g);
-    }
-    var first = el("button", "lnk", T.first); first.type = "button";
-    first.onclick = stepCodeEmail;
-    c.appendChild(first);
+    c.appendChild(el("div", "or", T.or));
+    var g = el("button", "gg"); g.type = "button";
+    g.innerHTML = GLOGO;
+    g.appendChild(el("span", null, T.google));
+    g.onclick = function () { googleLogin(err); };
+    c.appendChild(g);
+    var alt = el("div", "alt", T.noAcc);
+    var su = el("button", "lnk", T.signup); su.type = "button"; su.onclick = stepSignupEmail;
+    alt.appendChild(su); c.appendChild(alt);
     legal(c);
     f.addEventListener("submit", function (ev) {
       ev.preventDefault();
@@ -266,19 +271,22 @@
     });
   }
 
-  function stepCodeEmail() {
+  var signupName = "";
+  function stepSignupEmail() {
     var c = frame();
-    c.appendChild(el("h1", null, T.firstT));
+    c.appendChild(el("h1", null, T.signup));
     var f = form();
-    var e = field(T.email, "email", "email", "username");
+    var n = field(T.name, "text", "name", "name"), e = field(T.email, "email", "email", "username");
+    n.input.style.direction = "inherit";
     var err = errBox();
     var go = el("button", "pri", T.sendCode); go.type = "submit";
-    f.appendChild(e.box); f.appendChild(err); f.appendChild(go); c.appendChild(f);
+    f.appendChild(n.box); f.appendChild(e.box); f.appendChild(err); f.appendChild(go); c.appendChild(f);
     var back = el("button", "lnk", T.back); back.type = "button"; back.onclick = stepPassword; c.appendChild(back);
     f.addEventListener("submit", function (ev) {
       ev.preventDefault();
       var em = e.input.value.trim().toLowerCase();
       if (!isEmail(em)) { err.textContent = T.badEmail; return; }
+      signupName = n.input.value.trim();
       err.textContent = ""; busy(go, true);
       api("start", { email: em }).then(function (r) {
         if (r.body.ok && r.body.challenge) { stepCode(em, r.body.challenge, r.body.devCode); return; }
@@ -300,7 +308,7 @@
     f.addEventListener("submit", function (ev) {
       ev.preventDefault();
       err.textContent = ""; busy(go, true);
-      api("verify", { email: email, code: k.input.value.trim(), challenge: challenge }).then(function (r) {
+      api("verify", { email: email, code: k.input.value.trim(), challenge: challenge, name: signupName }).then(function (r) {
         if (r.body.ok) { tap("MEDIUM"); stepSetPassword(); return; }
         busy(go, false); err.textContent = T.badCode;
       }).catch(function () { busy(go, false); err.textContent = T.netErr; });
@@ -316,7 +324,6 @@
     var err = errBox();
     var go = el("button", "pri", T.setGo); go.type = "submit";
     f.appendChild(p.box); f.appendChild(err); f.appendChild(go); c.appendChild(f);
-    var skip = el("button", "lnk", T.skip); skip.type = "button"; skip.onclick = goChat; c.appendChild(skip);
     f.addEventListener("submit", function (ev) {
       ev.preventDefault();
       if (p.input.value.length < 8) { err.textContent = T.setS; return; }
@@ -328,10 +335,11 @@
     });
   }
 
-  // جوجل: يعمل فقط بعد تهيئة العميل في الخادم وإضافة المكوّن الأصلي (docs/mobile-app.md).
+  // جوجل: الزر ظاهر دائماً؛ يعمل بعد تهيئة العميل في الخادم وإضافة المكوّن الأصلي (docs/mobile-app.md)،
+  // وقبل ذلك يقول بصراحة إنه غير مفعّل بدل أن يفشل بصمت.
   function googleLogin(err) {
     var SL = P.SocialLogin;
-    if (!SL || !SL.login) return;
+    if (!methods.google || !SL || !SL.login) { err.textContent = T.googleOff; return; }
     SL.login({ provider: "google", options: { scopes: ["email", "profile"] } }).then(function (res) {
       var tok = res && res.result && res.result.idToken;
       if (!tok) { err.textContent = T.netErr; return; }

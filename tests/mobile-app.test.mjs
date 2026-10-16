@@ -59,8 +59,11 @@ test("mobile: الدخول إجباري والتطبيق محادثة فقط (ق
   assert.match(src, /\["cart", "\/cart"/);
   assert.match(src, /\["me", "\/my"/);
   assert.match(src, /tabBar\(\);\n    pushBanner/, "الشريط يُبنى بعد الدخول فقط");
-  // جوجل لا يظهر إلا بتهيئة الخادم ووجود المكوّن الأصلي
-  assert.match(src, /methods\.google && P\.SocialLogin/);
+  // شاشة الدخول: جوجل ظاهر دائماً (يصرّح إن لم يُفعَّل) + إنشاء حساب، ولا رابط «ادخل برمز» (طلب المالك)
+  assert.match(src, /g\.onclick = function \(\) \{ googleLogin\(err\); \}/);
+  assert.match(src, /!methods\.google \|\| !SL \|\| !SL\.login/, "جوجل غير المفعّل يصرّح بدل الفشل الصامت");
+  assert.match(src, /stepSignupEmail/);
+  assert.doesNotMatch(src, /first\.onclick|T\.first\b/, "لا رابط «أول مرة… ادخل برمز»");
 });
 
 test("mobile: قسم «عن التطبيق» لا يخترع رابط خصوصية قبل وجود صفحته", () => {
