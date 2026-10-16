@@ -25,7 +25,10 @@
    for Arabic, and an English phone UI must not bounce them back to English. */
 if(!s){if(c!=="en")return;if(sessionStorage.getItem("bp_lang_auto"))return;var bl=((navigator.languages&&navigator.languages[0])||navigator.language||"").slice(0,2).toLowerCase();if(!bl||bl===c)return;var al=document.querySelector('link[rel="alternate"][hreflang="'+bl+'"]');if(al&&al.href){sessionStorage.setItem("bp_lang_auto","1");location.replace(al.href);}return;}
 if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
-<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/assets/img/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="/assets/img/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@200;300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
@@ -283,6 +286,9 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-co-fields label{display:block;font-size:11.5px;color:var(--mut);margin-bottom:5px}
 .sv1-co-in{width:100%;border:1px solid var(--l);border-radius:11px;padding:12px 13px;font:inherit;font-size:14px;outline:none;background:#fff}
 .sv1-co-in:focus{border-color:var(--n)}
+.sv1-co-kind{display:flex;gap:18px;flex-wrap:wrap;margin:14px 0 4px;font-size:13px}
+.sv1-co-kind label{display:flex;align-items:center;gap:7px;cursor:pointer}
+#coTax{margin-top:10px}
 .sv1-co-ways{display:grid;gap:8px;margin-bottom:16px}
 .sv1-co-way{display:flex;align-items:center;gap:12px;text-align:start;background:#fff;border:1px solid var(--l);border-radius:13px;padding:14px;cursor:pointer;font-family:inherit;color:var(--ink)}
 .sv1-co-way .ico{width:38px;height:38px;border-radius:10px;background:var(--acSoft);display:grid;place-items:center;color:var(--n);flex:none}
@@ -389,6 +395,29 @@ var h0=hint();if(h0)S.paint(true,h0);
             <div><label for="coPhone">رقم الجوال</label><input id="coPhone" class="sv1-co-in" inputmode="tel" autocomplete="tel"></div>
             <div><label for="coEmail">البريد الإلكتروني</label><input id="coEmail" class="sv1-co-in" type="email" autocomplete="email"></div>
             <div><label for="coCo">المنشأة (اختياري)</label><input id="coCo" class="sv1-co-in" autocomplete="organization"></div>
+          </div>
+          <div class="sv1-co-kind" role="radiogroup">
+            <label><input type="radio" id="coKindP" name="coKind" value="personal" checked> فاتورة شخصية</label>
+            <label><input type="radio" id="coKindC" name="coKind" value="company"> فاتورة باسم منشأة (ضريبية)</label>
+          </div>
+          <div id="coTax" class="sv1-hide">
+            <p class="sv1-co-fine">الفاتورة الضريبية لا تُعدَّل بعد صدورها، فتأكد من الاسم والرقم الضريبي والعنوان الوطني كما في السجل.</p>
+            <div class="sv1-co-fields">
+              <div><label for="coTaxName">اسم المنشأة بالعربي كما في السجل</label><input id="coTaxName" class="sv1-co-in" autocomplete="organization"></div>
+              <div><label for="coTaxVat">الرقم الضريبي (١٥ رقماً)</label><input id="coTaxVat" class="sv1-co-in" inputmode="numeric" maxlength="15" dir="ltr"></div>
+              <div><label for="coTaxCr">السجل التجاري (اختياري)</label><input id="coTaxCr" class="sv1-co-in" inputmode="numeric" dir="ltr"></div>
+              <div><label for="coTaxContact">الشخص المسؤول</label><input id="coTaxContact" class="sv1-co-in" autocomplete="name"></div>
+              <div><label for="coTaxMobile">جوال المسؤول</label><input id="coTaxMobile" class="sv1-co-in" inputmode="tel" autocomplete="tel"></div>
+            </div>
+            <p class="sv1-co-grp">العنوان الوطني</p>
+            <div class="sv1-co-fields">
+              <div><label for="coNaBno">رقم المبنى</label><input id="coNaBno" class="sv1-co-in" inputmode="numeric" dir="ltr"></div>
+              <div><label for="coNaStreet">الشارع</label><input id="coNaStreet" class="sv1-co-in"></div>
+              <div><label for="coNaDistrict">الحي</label><input id="coNaDistrict" class="sv1-co-in"></div>
+              <div><label for="coNaCity">المدينة</label><input id="coNaCity" class="sv1-co-in"></div>
+              <div><label for="coNaPost">الرمز البريدي</label><input id="coNaPost" class="sv1-co-in" inputmode="numeric" dir="ltr"></div>
+              <div><label for="coNaAdd">الرقم الإضافي (اختياري)</label><input id="coNaAdd" class="sv1-co-in" inputmode="numeric" dir="ltr"></div>
+            </div>
           </div>
         </div>
 
@@ -537,7 +566,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
 })();</script><script>
 (function(){
 var LANG="ar",HOME="/ar/";
-var TX={"empty":"سلتك فارغة.","browse":"استعرض الخدمات","needFill":"أكمل الاسم والجوال والبريد قبل الدفع.","payDown":"تعذّر فتح نموذج الدفع الآن. جرّب تمارا، أو أعد المحاولة بعد قليل، أو راسلنا على واتساب.","loading":"نجهّز نموذج الدفع…","quoted":"يُسعّر عند المراجعة","signIn":"سجّل دخولك لعرض السعر وإتمام الدفع","signInBtn":"دخول إلى حسابي","noAmount":"هذه البنود تُسعّر عند المراجعة — سنرسل لك عرض السعر ثم رابط الدفع.","card":"بطاقة","payBtn":"إتمام الدفع","payWait":"نتحقّق من دفعتك…","paidOk":"تم استلام الدفعة — طلبك مسجّل وفاتورتك الضريبية تصلك على بريدك خلال دقائق.","paidInv":"رقم الفاتورة:","paidFail":"لم تكتمل الدفعة ولم يُخصم شيء — أعد المحاولة بالبطاقة أو جرّب تمارا.","paidHold":"دفعتك تمّت لكن تعذّر تأكيدها آلياً الآن، وقد وصل التنبيه لفريقنا. لا تدفع مرة أخرى — فاتورتك تصلك قريباً.","bnplFail":"لم تكتمل عملية التقسيط — تقدر تحاول مرة أخرى أو تدفع بالبطاقة.","toMy":"افتح طلباتي","mockTag":"بوابة محلية — لا بطاقة ولا خصم","needCo":"اكتب اسم المنشأة — الاشتراك يُفتح باسمها.","empFail":"تعذّر تجهيز اشتراكك الآن ولم يُخصم شيء — أعد المحاولة بعد قليل أو راسلنا.","empDone":"تم الدفع وفُعِّل اشتراكك في منصة التوظيف. ادخل بوابة صاحب العمل بالبريد الذي دفعت به.","empHold":"دفعتك تمّت وجارٍ تفعيل اشتراكك — وصل التنبيه لفريقنا وسيُفعَّل خلال ساعات العمل. لا تدفع مرة أخرى.","toEmployer":"افتح بوابة صاحب العمل","tamaraYr":"تمارا متاحة للاشتراك السنوي فقط.","empSignIn":"سجّل دخولك بالبريد الذي سيُفتح به الاشتراك ثم أكمل الدفع.","empMail":"بريد الدفع يجب أن يطابق بريد حسابك المسجَّل دخوله — الاشتراك يُفتح لحسابك.","onePlan":"اشتراك واحد في كل طلب — أبقِ باقة واحدة في السلة.","toCart":"العودة إلى السلة","onceHd":"دفعة واحدة","recHd":"اشتراكات","billM":"شهرياً","billY":"سنوياً","recNote":"مبلغ الاشتراك المعروض هو قسط فترة واحدة (شهر أو سنة)، وهو ما يُدفع الآن.","tamaraSub":"تمارا غير متاحة للاشتراكات الشهرية — ادفع بالبطاقة.","lblOrder":"رقم الطلب","lblPay":"مرجع الدفعة","lblAmt":"المبلغ المدفوع (شامل الضريبة)","lblInv":"رقم الفاتورة","okDone":"تم استلام دفعتك وتأكيد طلبك.","nextInv":"الخطوة التالية: تصلك على بريدك رسالة تأكيد الطلب وفاتورتك الضريبية، ثم يبدأ الفريق التنفيذ.","nextNoInv":"الخطوة التالية: تصلك على بريدك رسالة تأكيد الطلب. وفاتورتك الضريبية يجهّزها الفريق وتصلك على البريد نفسه.","reviewT":"استلمنا دفعتك وسنؤكد التفعيل خلال ساعات العمل.","reviewN":"لم نستطع مطابقة المبلغ آلياً مع الأسعار المعتمدة، فيراجعه الفريق قبل التفعيل. يصلك تأكيد على بريدك، ولا حاجة لإعادة الدفع.","signInGo":"سجّل الدخول","lblReq":"رقم طلبك في لوحتك","openReq":"افتح طلبك","nextReqDocs":"الخطوة التالية: افتح طلبك وارفع المستندات المطلوبة ليبدأ الفريق التنفيذ، وتتابع كل مرحلة من هناك.","nextReq":"الخطوة التالية: تابع مراحل طلبك من لوحتك، ونبلغك حين يبدأ التنفيذ.","invSent":"وتصلك فاتورتك الضريبية على بريدك.","invSoon":"ويجهّز الفريق فاتورتك الضريبية وتصلك على البريد نفسه."};
+var TX={"empty":"سلتك فارغة.","browse":"استعرض الخدمات","needFill":"أكمل الاسم والجوال والبريد قبل الدفع.","payDown":"تعذّر فتح نموذج الدفع الآن. جرّب تمارا، أو أعد المحاولة بعد قليل، أو راسلنا على واتساب.","loading":"نجهّز نموذج الدفع…","quoted":"يُسعّر عند المراجعة","signIn":"سجّل دخولك لعرض السعر وإتمام الدفع","signInBtn":"دخول إلى حسابي","noAmount":"هذه البنود تُسعّر عند المراجعة — سنرسل لك عرض السعر ثم رابط الدفع.","card":"بطاقة","payBtn":"إتمام الدفع","payWait":"نتحقّق من دفعتك…","paidOk":"تم استلام الدفعة — طلبك مسجّل وفاتورتك الضريبية تصلك على بريدك خلال دقائق.","paidInv":"رقم الفاتورة:","paidFail":"لم تكتمل الدفعة ولم يُخصم شيء — أعد المحاولة بالبطاقة أو جرّب تمارا.","paidHold":"دفعتك تمّت لكن تعذّر تأكيدها آلياً الآن، وقد وصل التنبيه لفريقنا. لا تدفع مرة أخرى — فاتورتك تصلك قريباً.","bnplFail":"لم تكتمل عملية التقسيط — تقدر تحاول مرة أخرى أو تدفع بالبطاقة.","toMy":"افتح طلباتي","mockTag":"بوابة محلية — لا بطاقة ولا خصم","needCo":"اكتب اسم المنشأة — الاشتراك يُفتح باسمها.","needTax":"أكمل بيانات المنشأة: الاسم، الرقم الضريبي (١٥ رقماً)، المسؤول وجواله، والعنوان الوطني (المبنى والشارع والحي والمدينة والرمز البريدي).","empFail":"تعذّر تجهيز اشتراكك الآن ولم يُخصم شيء — أعد المحاولة بعد قليل أو راسلنا.","empDone":"تم الدفع وفُعِّل اشتراكك في منصة التوظيف. ادخل بوابة صاحب العمل بالبريد الذي دفعت به.","empHold":"دفعتك تمّت وجارٍ تفعيل اشتراكك — وصل التنبيه لفريقنا وسيُفعَّل خلال ساعات العمل. لا تدفع مرة أخرى.","toEmployer":"افتح بوابة صاحب العمل","tamaraYr":"تمارا متاحة للاشتراك السنوي فقط.","empSignIn":"سجّل دخولك بالبريد الذي سيُفتح به الاشتراك ثم أكمل الدفع.","empMail":"بريد الدفع يجب أن يطابق بريد حسابك المسجَّل دخوله — الاشتراك يُفتح لحسابك.","onePlan":"اشتراك واحد في كل طلب — أبقِ باقة واحدة في السلة.","toCart":"العودة إلى السلة","onceHd":"دفعة واحدة","recHd":"اشتراكات","billM":"شهرياً","billY":"سنوياً","recNote":"مبلغ الاشتراك المعروض هو قسط فترة واحدة (شهر أو سنة)، وهو ما يُدفع الآن.","tamaraSub":"تمارا غير متاحة للاشتراكات الشهرية — ادفع بالبطاقة.","lblOrder":"رقم الطلب","lblPay":"مرجع الدفعة","lblAmt":"المبلغ المدفوع (شامل الضريبة)","lblInv":"رقم الفاتورة","okDone":"تم استلام دفعتك وتأكيد طلبك.","nextInv":"الخطوة التالية: تصلك على بريدك رسالة تأكيد الطلب وفاتورتك الضريبية، ثم يبدأ الفريق التنفيذ.","nextNoInv":"الخطوة التالية: تصلك على بريدك رسالة تأكيد الطلب. وفاتورتك الضريبية يجهّزها الفريق وتصلك على البريد نفسه.","reviewT":"استلمنا دفعتك وسنؤكد التفعيل خلال ساعات العمل.","reviewN":"لم نستطع مطابقة المبلغ آلياً مع الأسعار المعتمدة، فيراجعه الفريق قبل التفعيل. يصلك تأكيد على بريدك، ولا حاجة لإعادة الدفع.","signInGo":"سجّل الدخول","lblReq":"رقم طلبك في لوحتك","openReq":"افتح طلبك","nextReqDocs":"الخطوة التالية: افتح طلبك وارفع المستندات المطلوبة ليبدأ الفريق التنفيذ، وتتابع كل مرحلة من هناك.","nextReq":"الخطوة التالية: تابع مراحل طلبك من لوحتك، ونبلغك حين يبدأ التنفيذ.","invSent":"وتصلك فاتورتك الضريبية على بريدك.","invSoon":"ويجهّز الفريق فاتورتك الضريبية وتصلك على البريد نفسه."};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
 var REC={"bp-hr-03":"monthly","bp-ai-02":"monthly","bp-sub-01":"monthly","bp-vendor-02":"monthly","bp-ai-03":"monthly","bp-ai-smart-employee":"monthly","bp-ai-04":"monthly","bp-ajeer-10":"monthly","starter-4":"monthly","bp-pkg-svc-starter":"monthly","silver":"monthly","bp-pkg-launch":"monthly","gold":"monthly","bp-pkg-growth":"monthly","platinum":"monthly","bp-pkg-scale":"monthly","basic-legal":"monthly","bp-pkg-legal-basic":"monthly","advanced":"monthly","bp-pkg-legal-adv":"monthly","comprehensive":"monthly","bp-pkg-legal-comp":"monthly","strategic":"monthly","bp-pkg-legal-strat":"monthly"};
 var $=function(id){return document.getElementById(id)};
@@ -626,19 +655,36 @@ getMe().then(function(u){if(!u)return;
 
 // اللقطة والبيانات الوصفية بنفس شكل الموقع القديم حرفياً — المرجع يبقى ثابتاً
 // بين تركيب النموذج والعودة من التحقق البنكي، وإلا صارت الدفعة بلا طلب.
+// فاتورة المنشأة: نفس شكل taxProfile الذي يقرؤه api/pay.js (billTo) ويكتبه الموقع
+// القديم — الرقم الضريبي ١٥ رقماً والعنوان الوطني يصلان إلى الدفترة. الأرقام
+// العربية تُحوَّل لاتينية قبل التنظيف وإلا حُذفت كلها.
+function digits(s){return String(s||'').replace(/[٠-٩]/g,function(d){return String(d.charCodeAt(0)-1632)}).replace(/[۰-۹]/g,function(d){return String(d.charCodeAt(0)-1776)})}
+function isCo(){return !!$('coKindC').checked}
+function fv(id){return $(id).value.trim()}
+function taxProfile(){
+ if(!isCo())return {kind:'personal'};
+ return {kind:'company',nameAr:fv('coTaxName'),vat:digits(fv('coTaxVat')).replace(/[^0-9]/g,''),cr:digits(fv('coTaxCr')).replace(/[^0-9]/g,''),
+  contact:fv('coTaxContact'),contactPhone:fv('coTaxMobile'),
+  address:{buildingNo:digits(fv('coNaBno')),street:fv('coNaStreet'),district:fv('coNaDistrict'),city:fv('coNaCity'),postalCode:digits(fv('coNaPost')),additionalNo:digits(fv('coNaAdd'))}}}
+function readyTax(){
+ if(!isCo())return true;
+ var p=taxProfile(),a=p.address;
+ return !!(p.nameAr&&p.vat.length===15&&p.contact&&p.contactPhone&&a.buildingNo&&a.street&&a.district&&a.city&&a.postalCode)}
+['coKindP','coKindC'].forEach(function(id){
+ $(id).onchange=function(){$('coTax').classList.toggle('sv1-hide',!isCo())}});
 function snapshot(){
  var prev='',pe='',pk='';try{var ps=JSON.parse(sessionStorage.getItem(SNAP)||'{}')||{};prev=ps.ref||'';pe=ps.empRef||'';pk=ps.empKey||''}catch(e){}
  var o={ref:prev||'BP-'+Date.now().toString().slice(-6),empRef:pe,empKey:pk,
    name:$('coName').value.trim(),email:$('coEmail').value.trim().toLowerCase(),phone:$('coPhone').value.trim(),
    items:cart.map(function(i){return {id:i.id||'',qty:i.qty||1}}),company:$('coCo').value.trim(),
-   surchargeFee:0,discountCode:'',taxProfile:{kind:'personal'}};
+   surchargeFee:0,discountCode:'',taxProfile:taxProfile()};
  try{sessionStorage.setItem(SNAP,JSON.stringify(o))}catch(e){}
  return o}
 function meta(){
  var s=snapshot(),items='';
  try{items=(s.items||[]).map(function(i){return i.id+'~'+(i.qty||1)}).join(',');if(items.length>400)items=''}catch(e){items=''}
  return {ref:String(s.ref||''),email:String(s.email||'').slice(0,120),name:String(s.name||'').slice(0,60),
-   phone:String(s.phone||'').slice(0,30),co:String(s.company||'').slice(0,80),items:items,disc:'',tax:'personal'}}
+   phone:String(s.phone||'').slice(0,30),co:String(s.company||'').slice(0,80),items:items,disc:'',tax:isCo()?'company':'personal'}}
 function ready(){return $('coName').value.trim()&&$('coPhone').value.trim()&&$('coEmail').value.trim().indexOf('@')>0}
 // الاشتراك يُفتح باسم منشأة: الحقل الاختياري يصير مطلوباً هنا فقط.
 function readyEmp(){return !hasEmp||!!$('coCo').value.trim()}
@@ -758,6 +804,7 @@ $('coTamaraGo').onclick=function(){
  if(!payable){n.textContent=unpriced?TX.noAmount:TX.signIn;return}
  if(!ready()){n.textContent=TX.needFill;return}
  if(!readyEmp()){n.textContent=TX.needCo;return}
+ if(!readyTax()){n.textContent=TX.needTax;return}
  if(hasEmp&&!empBnplOk){n.textContent=TX.tamaraYr;return}
  if(PAYCFG&&PAYCFG.mock&&PAYCFG.formUrl){
   var sm=this;sm.disabled=true;prepareEmp().then(function(ok){if(ok){location.href=mockUrl('tamara');return}sm.disabled=false;n.textContent=empMsg()});return}
@@ -795,7 +842,7 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
   var tg=document.createElement('span');tg.className='sv1-co-mock';tg.textContent=TX.mockTag;mount.appendChild(tg);
   var bt=document.createElement('button');bt.type='button';bt.className='sv1-btn primary';bt.style.width='100%';bt.id='coMockPay';bt.textContent=TX.payBtn;
   var nt=document.createElement('p');nt.className='sv1-co-fine';
-  bt.onclick=function(){if(!ready()){nt.textContent=TX.needFill;return}if(!readyEmp()){nt.textContent=TX.needCo;return}
+  bt.onclick=function(){if(!ready()){nt.textContent=TX.needFill;return}if(!readyEmp()){nt.textContent=TX.needCo;return}if(!readyTax()){nt.textContent=TX.needTax;return}
    bt.disabled=true;prepareEmp().then(function(ok){if(ok){location.href=mockUrl('card');return}bt.disabled=false;nt.textContent=empMsg()})};
   mount.appendChild(bt);mount.appendChild(nt);return}
  if(!cfg||!cfg.enabled||!cfg.publishableKey||!cfg.scriptUrl){payFailed();return}
@@ -852,6 +899,7 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
     callback_url:location.origin+location.pathname,metadata:m,
     on_initiating:async function(){
      // اشتراك منصة التوظيف: لا يتحرّك المال قبل أن يُفتح الصفّ المعلّق ويُلبس مرجعه الطلب.
+     if(!readyTax()){showResult('warn',TX.needTax);return false}
      if(hasEmp){
       if(!ready()||!readyEmp()){showResult('warn',ready()?TX.needCo:TX.needFill);return false}
       if(!(await prepareEmp())){showResult('warn',empMsg());return false}}

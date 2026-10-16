@@ -44,6 +44,28 @@ const T = {
   phone:   { ar: "رقم الجوال", en: "Mobile", fr: "Mobile", zh: "手机号" },
   email:   { ar: "البريد الإلكتروني", en: "E-mail", fr: "E-mail", zh: "邮箱" },
   company: { ar: "المنشأة (اختياري)", en: "Company (optional)", fr: "Société (optionnel)", zh: "公司（选填）" },
+  kindP:   { ar: "فاتورة شخصية", en: "Personal invoice", fr: "Facture personnelle", zh: "个人发票" },
+  kindC:   { ar: "فاتورة باسم منشأة (ضريبية)", en: "Company tax invoice", fr: "Facture fiscale société", zh: "公司税务发票" },
+  taxNote: { ar: "الفاتورة الضريبية لا تُعدَّل بعد صدورها، فتأكد من الاسم والرقم الضريبي والعنوان الوطني كما في السجل.",
+             en: "A tax invoice cannot be amended once issued — check the name, VAT number and national address exactly as registered.",
+             fr: "Une facture fiscale ne peut plus être modifiée une fois émise — vérifiez le nom, le numéro de TVA et l'adresse nationale.",
+             zh: "税务发票开具后无法修改——请核对注册名称、增值税号和国家地址。" },
+  taxName: { ar: "اسم المنشأة بالعربي كما في السجل", en: "Company name (Arabic, as registered)", fr: "Raison sociale (arabe, selon le registre)", zh: "公司名称（阿拉伯语，与注册一致）" },
+  taxVat:  { ar: "الرقم الضريبي (١٥ رقماً)", en: "VAT number (15 digits)", fr: "N° de TVA (15 chiffres)", zh: "增值税号（15位）" },
+  taxCr:   { ar: "السجل التجاري (اختياري)", en: "Commercial registration (optional)", fr: "Registre de commerce (optionnel)", zh: "商业登记号（选填）" },
+  taxCon:  { ar: "الشخص المسؤول", en: "Responsible person", fr: "Personne responsable", zh: "负责人" },
+  taxMob:  { ar: "جوال المسؤول", en: "Contact mobile", fr: "Mobile du responsable", zh: "负责人手机" },
+  naTitle: { ar: "العنوان الوطني", en: "National address", fr: "Adresse nationale", zh: "国家地址" },
+  naBno:   { ar: "رقم المبنى", en: "Building no.", fr: "N° du bâtiment", zh: "楼号" },
+  naSt:    { ar: "الشارع", en: "Street", fr: "Rue", zh: "街道" },
+  naDi:    { ar: "الحي", en: "District", fr: "Quartier", zh: "区" },
+  naCi:    { ar: "المدينة", en: "City", fr: "Ville", zh: "城市" },
+  naPo:    { ar: "الرمز البريدي", en: "Postal code", fr: "Code postal", zh: "邮编" },
+  naAd:    { ar: "الرقم الإضافي (اختياري)", en: "Additional no. (optional)", fr: "N° additionnel (optionnel)", zh: "附加号（选填）" },
+  needTax: { ar: "أكمل بيانات المنشأة: الاسم، الرقم الضريبي (١٥ رقماً)، المسؤول وجواله، والعنوان الوطني (المبنى والشارع والحي والمدينة والرمز البريدي).",
+             en: "Complete the company details: name, 15-digit VAT number, responsible person and mobile, and the national address (building, street, district, city, postal code).",
+             fr: "Complétez les données de la société : nom, n° de TVA à 15 chiffres, responsable et mobile, adresse nationale.",
+             zh: "请填写公司信息：名称、15位增值税号、负责人及手机、国家地址（楼号、街道、区、城市、邮编）。" },
   summary: { ar: "ملخص طلبك", en: "Order summary", fr: "Récapitulatif", zh: "订单摘要" },
   net:     { ar: "قبل الضريبة", en: "Subtotal", fr: "Sous-total", zh: "小计" },
   vat:     { ar: "ضريبة القيمة المضافة ١٥٪", en: "VAT 15%", fr: "TVA 15 %", zh: "增值税 15%" },
@@ -205,6 +227,29 @@ export function buildSimpleCheckout(SV1, ctx) {
             <div><label for="coEmail">${esc(t("email"))}</label><input id="coEmail" class="sv1-co-in" type="email" autocomplete="email"></div>
             <div><label for="coCo">${esc(t("company"))}</label><input id="coCo" class="sv1-co-in" autocomplete="organization"></div>
           </div>
+          <div class="sv1-co-kind" role="radiogroup">
+            <label><input type="radio" id="coKindP" name="coKind" value="personal" checked> ${esc(t("kindP"))}</label>
+            <label><input type="radio" id="coKindC" name="coKind" value="company"> ${esc(t("kindC"))}</label>
+          </div>
+          <div id="coTax" class="sv1-hide">
+            <p class="sv1-co-fine">${esc(t("taxNote"))}</p>
+            <div class="sv1-co-fields">
+              <div><label for="coTaxName">${esc(t("taxName"))}</label><input id="coTaxName" class="sv1-co-in" autocomplete="organization"></div>
+              <div><label for="coTaxVat">${esc(t("taxVat"))}</label><input id="coTaxVat" class="sv1-co-in" inputmode="numeric" maxlength="15" dir="ltr"></div>
+              <div><label for="coTaxCr">${esc(t("taxCr"))}</label><input id="coTaxCr" class="sv1-co-in" inputmode="numeric" dir="ltr"></div>
+              <div><label for="coTaxContact">${esc(t("taxCon"))}</label><input id="coTaxContact" class="sv1-co-in" autocomplete="name"></div>
+              <div><label for="coTaxMobile">${esc(t("taxMob"))}</label><input id="coTaxMobile" class="sv1-co-in" inputmode="tel" autocomplete="tel"></div>
+            </div>
+            <p class="sv1-co-grp">${esc(t("naTitle"))}</p>
+            <div class="sv1-co-fields">
+              <div><label for="coNaBno">${esc(t("naBno"))}</label><input id="coNaBno" class="sv1-co-in" inputmode="numeric" dir="ltr"></div>
+              <div><label for="coNaStreet">${esc(t("naSt"))}</label><input id="coNaStreet" class="sv1-co-in"></div>
+              <div><label for="coNaDistrict">${esc(t("naDi"))}</label><input id="coNaDistrict" class="sv1-co-in"></div>
+              <div><label for="coNaCity">${esc(t("naCi"))}</label><input id="coNaCity" class="sv1-co-in"></div>
+              <div><label for="coNaPost">${esc(t("naPo"))}</label><input id="coNaPost" class="sv1-co-in" inputmode="numeric" dir="ltr"></div>
+              <div><label for="coNaAdd">${esc(t("naAd"))}</label><input id="coNaAdd" class="sv1-co-in" inputmode="numeric" dir="ltr"></div>
+            </div>
+          </div>
         </div>
 
         <div class="sv1-panel" style="margin-top:14px;">
@@ -263,6 +308,9 @@ ${SV1.footer()}`;
 .sv1-co-fields label{display:block;font-size:11.5px;color:var(--mut);margin-bottom:5px}
 .sv1-co-in{width:100%;border:1px solid var(--l);border-radius:11px;padding:12px 13px;font:inherit;font-size:14px;outline:none;background:#fff}
 .sv1-co-in:focus{border-color:var(--n)}
+.sv1-co-kind{display:flex;gap:18px;flex-wrap:wrap;margin:14px 0 4px;font-size:13px}
+.sv1-co-kind label{display:flex;align-items:center;gap:7px;cursor:pointer}
+#coTax{margin-top:10px}
 .sv1-co-ways{display:grid;gap:8px;margin-bottom:16px}
 .sv1-co-way{display:flex;align-items:center;gap:12px;text-align:start;background:#fff;border:1px solid var(--l);border-radius:13px;padding:14px;cursor:pointer;font-family:inherit;color:var(--ink)}
 .sv1-co-way .ico{width:38px;height:38px;border-radius:10px;background:var(--acSoft);display:grid;place-items:center;color:var(--n);flex:none}
@@ -303,7 +351,7 @@ ${SV1.footer()}`;
   const script = `<script>
 (function(){
 var LANG=${JSON.stringify(lang)},HOME=${JSON.stringify(home)};
-var TX=${JSON.stringify({ empty: t("empty"), browse: t("browse"), needFill: t("needFill"), payDown: t("payDown"), loading: t("loading"), quoted: t("quoted"), signIn: t("signIn"), signInBtn: t("signInBtn"), noAmount: t("noAmount"), card: t("card"), payBtn: t("payBtn"), payWait: t("payWait"), paidOk: t("paidOk"), paidInv: t("paidInv"), paidFail: t("paidFail"), paidHold: t("paidHold"), bnplFail: t("bnplFail"), toMy: t("toMy"), mockTag: t("mockTag"), needCo: t("needCo"), empFail: t("empFail"), empDone: t("empDone"), empHold: t("empHold"), toEmployer: t("toEmployer"), tamaraYr: t("tamaraYr"), empSignIn: t("empSignIn"), empMail: t("empMail"), onePlan: t("onePlan"), toCart: t("toCart"),
+var TX=${JSON.stringify({ empty: t("empty"), browse: t("browse"), needFill: t("needFill"), payDown: t("payDown"), loading: t("loading"), quoted: t("quoted"), signIn: t("signIn"), signInBtn: t("signInBtn"), noAmount: t("noAmount"), card: t("card"), payBtn: t("payBtn"), payWait: t("payWait"), paidOk: t("paidOk"), paidInv: t("paidInv"), paidFail: t("paidFail"), paidHold: t("paidHold"), bnplFail: t("bnplFail"), toMy: t("toMy"), mockTag: t("mockTag"), needCo: t("needCo"), needTax: t("needTax"), empFail: t("empFail"), empDone: t("empDone"), empHold: t("empHold"), toEmployer: t("toEmployer"), tamaraYr: t("tamaraYr"), empSignIn: t("empSignIn"), empMail: t("empMail"), onePlan: t("onePlan"), toCart: t("toCart"),
   onceHd: t("onceHd"), recHd: t("recHd"), billM: t("billM"), billY: t("billY"), recNote: t("recNote"), tamaraSub: t("tamaraSub"),
   lblOrder: t("lblOrder"), lblPay: t("lblPay"), lblAmt: t("lblAmt"), lblInv: t("lblInv"), okDone: t("okDone"),
   nextInv: t("nextInv"), nextNoInv: t("nextNoInv"), reviewT: t("reviewT"), reviewN: t("reviewN"), signInGo: t("signInGo"),
@@ -396,19 +444,36 @@ getMe().then(function(u){if(!u)return;
 
 // اللقطة والبيانات الوصفية بنفس شكل الموقع القديم حرفياً — المرجع يبقى ثابتاً
 // بين تركيب النموذج والعودة من التحقق البنكي، وإلا صارت الدفعة بلا طلب.
+// فاتورة المنشأة: نفس شكل taxProfile الذي يقرؤه api/pay.js (billTo) ويكتبه الموقع
+// القديم — الرقم الضريبي ١٥ رقماً والعنوان الوطني يصلان إلى الدفترة. الأرقام
+// العربية تُحوَّل لاتينية قبل التنظيف وإلا حُذفت كلها.
+function digits(s){return String(s||'').replace(/[٠-٩]/g,function(d){return String(d.charCodeAt(0)-1632)}).replace(/[۰-۹]/g,function(d){return String(d.charCodeAt(0)-1776)})}
+function isCo(){return !!$('coKindC').checked}
+function fv(id){return $(id).value.trim()}
+function taxProfile(){
+ if(!isCo())return {kind:'personal'};
+ return {kind:'company',nameAr:fv('coTaxName'),vat:digits(fv('coTaxVat')).replace(/[^0-9]/g,''),cr:digits(fv('coTaxCr')).replace(/[^0-9]/g,''),
+  contact:fv('coTaxContact'),contactPhone:fv('coTaxMobile'),
+  address:{buildingNo:digits(fv('coNaBno')),street:fv('coNaStreet'),district:fv('coNaDistrict'),city:fv('coNaCity'),postalCode:digits(fv('coNaPost')),additionalNo:digits(fv('coNaAdd'))}}}
+function readyTax(){
+ if(!isCo())return true;
+ var p=taxProfile(),a=p.address;
+ return !!(p.nameAr&&p.vat.length===15&&p.contact&&p.contactPhone&&a.buildingNo&&a.street&&a.district&&a.city&&a.postalCode)}
+['coKindP','coKindC'].forEach(function(id){
+ $(id).onchange=function(){$('coTax').classList.toggle('sv1-hide',!isCo())}});
 function snapshot(){
  var prev='',pe='',pk='';try{var ps=JSON.parse(sessionStorage.getItem(SNAP)||'{}')||{};prev=ps.ref||'';pe=ps.empRef||'';pk=ps.empKey||''}catch(e){}
  var o={ref:prev||'BP-'+Date.now().toString().slice(-6),empRef:pe,empKey:pk,
    name:$('coName').value.trim(),email:$('coEmail').value.trim().toLowerCase(),phone:$('coPhone').value.trim(),
    items:cart.map(function(i){return {id:i.id||'',qty:i.qty||1}}),company:$('coCo').value.trim(),
-   surchargeFee:0,discountCode:'',taxProfile:{kind:'personal'}};
+   surchargeFee:0,discountCode:'',taxProfile:taxProfile()};
  try{sessionStorage.setItem(SNAP,JSON.stringify(o))}catch(e){}
  return o}
 function meta(){
  var s=snapshot(),items='';
  try{items=(s.items||[]).map(function(i){return i.id+'~'+(i.qty||1)}).join(',');if(items.length>400)items=''}catch(e){items=''}
  return {ref:String(s.ref||''),email:String(s.email||'').slice(0,120),name:String(s.name||'').slice(0,60),
-   phone:String(s.phone||'').slice(0,30),co:String(s.company||'').slice(0,80),items:items,disc:'',tax:'personal'}}
+   phone:String(s.phone||'').slice(0,30),co:String(s.company||'').slice(0,80),items:items,disc:'',tax:isCo()?'company':'personal'}}
 function ready(){return $('coName').value.trim()&&$('coPhone').value.trim()&&$('coEmail').value.trim().indexOf('@')>0}
 // الاشتراك يُفتح باسم منشأة: الحقل الاختياري يصير مطلوباً هنا فقط.
 function readyEmp(){return !hasEmp||!!$('coCo').value.trim()}
@@ -528,6 +593,7 @@ $('coTamaraGo').onclick=function(){
  if(!payable){n.textContent=unpriced?TX.noAmount:TX.signIn;return}
  if(!ready()){n.textContent=TX.needFill;return}
  if(!readyEmp()){n.textContent=TX.needCo;return}
+ if(!readyTax()){n.textContent=TX.needTax;return}
  if(hasEmp&&!empBnplOk){n.textContent=TX.tamaraYr;return}
  if(PAYCFG&&PAYCFG.mock&&PAYCFG.formUrl){
   var sm=this;sm.disabled=true;prepareEmp().then(function(ok){if(ok){location.href=mockUrl('tamara');return}sm.disabled=false;n.textContent=empMsg()});return}
@@ -565,7 +631,7 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
   var tg=document.createElement('span');tg.className='sv1-co-mock';tg.textContent=TX.mockTag;mount.appendChild(tg);
   var bt=document.createElement('button');bt.type='button';bt.className='sv1-btn primary';bt.style.width='100%';bt.id='coMockPay';bt.textContent=TX.payBtn;
   var nt=document.createElement('p');nt.className='sv1-co-fine';
-  bt.onclick=function(){if(!ready()){nt.textContent=TX.needFill;return}if(!readyEmp()){nt.textContent=TX.needCo;return}
+  bt.onclick=function(){if(!ready()){nt.textContent=TX.needFill;return}if(!readyEmp()){nt.textContent=TX.needCo;return}if(!readyTax()){nt.textContent=TX.needTax;return}
    bt.disabled=true;prepareEmp().then(function(ok){if(ok){location.href=mockUrl('card');return}bt.disabled=false;nt.textContent=empMsg()})};
   mount.appendChild(bt);mount.appendChild(nt);return}
  if(!cfg||!cfg.enabled||!cfg.publishableKey||!cfg.scriptUrl){payFailed();return}
@@ -622,6 +688,7 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
     callback_url:location.origin+location.pathname,metadata:m,
     on_initiating:async function(){
      // اشتراك منصة التوظيف: لا يتحرّك المال قبل أن يُفتح الصفّ المعلّق ويُلبس مرجعه الطلب.
+     if(!readyTax()){showResult('warn',TX.needTax);return false}
      if(hasEmp){
       if(!ready()||!readyEmp()){showResult('warn',ready()?TX.needCo:TX.needFill);return false}
       if(!(await prepareEmp())){showResult('warn',empMsg());return false}}

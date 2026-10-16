@@ -271,3 +271,24 @@ test("cart: the subscription line has no quantity buttons and is corrected to th
   const qty = row.children.find((c) => c.className === "sv1-qty");
   assert.equal(qty.children.length, 0, "no −/+ for a subscription");
 });
+
+test("checkout: a company tax invoice needs the full profile, and the snapshot carries it to the server (Arabic digits normalised)", async () => {
+  const w = await boot(scriptOf(checkoutPage), { cart: staleCart("BP-EMP-PRO-Y"), api: api() });
+  const btn = mockPayBtn(w), note = w.document.getElementById("coPayMount").children.find((c) => c.className === "sv1-co-fine");
+  const set = (id, v) => { w.document.getElementById(id).value = v; };
+  fill(w, "Acme");
+  w.document.getElementById("coKindC").checked = true;
+  btn.onclick(); await settle();
+  assert.equal(note.textContent, TXT("needTax"));
+  assert.equal(w.location.href.includes("mock-form"), false, "no money moves with an incomplete company profile");
+
+  set("coTaxName", "شركة أكمي"); set("coTaxVat", "٣١٠١٢٣٤٥٦٧٨٩٠٠٣"); set("coTaxContact", "علي"); set("coTaxMobile", "0500000000");
+  set("coNaBno", "١٢٣٤"); set("coNaStreet", "العليا"); set("coNaDistrict", "الملقا"); set("coNaCity", "الرياض"); set("coNaPost", "12211");
+  btn.onclick(); await settle();
+  assert.match(w.location.href, /mock-form/);
+  const tp = JSON.parse(w.session.getItem("bp_pay_order")).taxProfile;
+  assert.equal(tp.kind, "company");
+  assert.equal(tp.vat, "310123456789003");
+  assert.equal(tp.address.buildingNo, "1234");
+  assert.equal(tp.address.city, "الرياض");
+});
