@@ -35,18 +35,18 @@ test("provider: development defaults to the simulator, never to a live call", ()
   assert.equal(nafath.nafathPing().dailyLimit, 1000);
 });
 
-test("provider: rabet is a skeleton — it refuses with not_implemented and touches no network", async () => {
+test("provider: rabet without its settings fails closed and touches no network", async () => {
   process.env.NAFATH_PROVIDER = "rabet";
   try {
     assert.equal(nafath.nafathConfigured(), false);
-    await assert.rejects(() => nafath.nafathRequest({ nationalId: "1000000001" }), /not_implemented/);
-    await assert.rejects(() => nafath.nafathStatus({ nationalId: "1000000001", transId: "x", random: "12" }), /not_implemented/);
+    await assert.rejects(() => nafath.nafathRequest({ nationalId: "1000000001" }), /nafath_not_configured|nafath_service_not_configured/);
+    await assert.rejects(() => nafath.nafathStatus({ nationalId: "1000000001", transId: "x", random: "12" }), /nafath_not_configured/);
     const r = await otp({ action: "nafath-start", nationalId: "1000000011", purpose: "portal" });
     assert.equal(r.status, 503);
-    assert.equal(r.json.error, "not_implemented");
     const m = await otp({ action: "methods" });
     assert.equal(m.json.nafath.available, false);
     assert.equal(m.json.nafath.provider, "rabet");
+    assert.ok(m.json.nafath.missing === undefined || Array.isArray(m.json.nafath.missing));
   } finally { delete process.env.NAFATH_PROVIDER; }
 });
 

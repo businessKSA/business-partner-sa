@@ -234,7 +234,7 @@ export function nafathPing() {
     // How many identities may open the owner's panels — the count, never the ids.
     owners: ownerIdsConfigured(),
     hashSecret: !!HASH_SECRET,
-    missing: [nafathProviderName() !== "elm" || APP_ID ? null : "NAFATH_APP_ID", nafathProviderName() !== "elm" || SERVICE ? null : "NAFATH_SERVICE", HASH_SECRET ? null : "OTP_SECRET"].filter(Boolean),
+    missing: [nafathProviderName() !== "elm" || APP_ID ? null : "NAFATH_APP_ID", nafathProviderName() !== "elm" || SERVICE ? null : "NAFATH_SERVICE", HASH_SECRET ? null : "OTP_SECRET", ...(nafathProviderName() === "rabet" ? rabet.missing() : [])].filter(Boolean),
   };
 }
 
