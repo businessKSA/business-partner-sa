@@ -6,6 +6,8 @@
 	<string>$(CAPACITOR_DEBUG)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>نستخدم الميكروفون لتكتب طلبك بصوتك في المحادثة مع المستشار. لا نسجّل شيئاً إلا عند ضغطك على زر الميكروفون.</string>
 	<key>CFBundleDisplayName</key>
         <string>Business Partner</string>
 	<key>CFBundleExecutable</key>

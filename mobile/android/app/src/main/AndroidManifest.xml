@@ -32,4 +32,7 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- زر الميكروفون في المحادثة (getUserMedia). Capacitor يطلب الإذن من المستخدم عند أول استعمال. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 </manifest>

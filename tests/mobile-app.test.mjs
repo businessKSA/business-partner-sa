@@ -76,3 +76,8 @@ test("mobile: قسم «عن التطبيق» لا يخترع رابط خصوصي
   const m = src.match(/var PRIVACY_PATH = "(\/[a-z-]+)";/);
   assert.ok(m, "PRIVACY_PATH بصيغة غير متوقعة");
 });
+
+test("mobile: أذونات الميكروفون حاضرة (زر الصوت في المحادثة يستعمل getUserMedia)", () => {
+  assert.match(read("mobile/android/app/src/main/AndroidManifest.xml"), /android\.permission\.RECORD_AUDIO/);
+  assert.match(read("mobile/ios/App/App/Info.plist"), /NSMicrophoneUsageDescription/);
+});
