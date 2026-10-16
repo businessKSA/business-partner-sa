@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Business Partner AI — مساحة ذكاء اصطناعي للشركات</title>
-<meta name="description" content="Business Partner AI: مساحة ذكاء اصطناعي خاصة لكل شركة — محادثات الفريق وملفات الشركة ومعرفتها في مكان واحد، ودخول ببريد الشركة. اطلب تجربة لشركتك.">
+<meta name="description" content="Business Partner AI: مساحة ذكاء اصطناعي خاصة لكل شركة — محادثات الفريق وملفات الشركة ومعرفتها في مكان واحد، ودخول ببريد الشركة. اطلب مساحة لشركتك.">
 <meta property="og:title" content="Business Partner AI — مساحة ذكاء اصطناعي للشركات">
-<meta property="og:description" content="Business Partner AI: مساحة ذكاء اصطناعي خاصة لكل شركة — محادثات الفريق وملفات الشركة ومعرفتها في مكان واحد، ودخول ببريد الشركة. اطلب تجربة لشركتك.">
+<meta property="og:description" content="Business Partner AI: مساحة ذكاء اصطناعي خاصة لكل شركة — محادثات الفريق وملفات الشركة ومعرفتها في مكان واحد، ودخول ببريد الشركة. اطلب مساحة لشركتك.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="ar_SA">
@@ -378,8 +378,7 @@ var h0=hint();if(h0)S.paint(true,h0);
     <p class="sub">مساحة خاصة لشركتك، يعمل فيها فريقك مع الذكاء الاصطناعي</p>
     <p class="lead">لكل شركة مساحتها المستقلة: محادثات فريقك مع الذكاء الاصطناعي، وملفات الشركة ومعرفتها، في مكان واحد لا يراه غيركم. يدخلها فريقك ببريد الشركة.</p>
     <div class="sv1-ai-acts">
-      <a class="sv1-btn primary" href="#ai-trial" data-track="AI: اطلب تجربة">اطلب تجربة لشركتك</a>
-      <a class="sv1-btn" href="https://ai.businesspartner.sa/" rel="noopener" data-track="AI: دخول المنصة">دخول المنصة</a>
+      <a class="sv1-btn primary" href="#ai-trial" data-track="AI: اطلب مساحة">اطلب مساحة لشركتك</a>
     </div>
     <p class="sv1-ai-note">لديك مساحة؟ ادخل من رابط شركتك الذي وصلك منّا.</p>
   </div></section>
@@ -396,11 +395,11 @@ var h0=hint();if(h0)S.paint(true,h0);
 
   <section class="sv1-sec"><div class="wrap">
     <div class="sv1-title"><h2>كيف تبدأ</h2></div>
-    <ol class="sv1-ai-steps"><li>تطلب التجربة باسم شركتك وبريدها</li><li>يتواصل معك فريقنا ويجهّز مساحة شركتك باسمها وشعارها</li><li>يصلك رابط مساحتك، فتدخل أنت وفريقك ببريد الشركة</li><li>تختار باقتك حين تكون جاهزاً</li></ol>
+    <ol class="sv1-ai-steps"><li>تطلب مساحة باسم شركتك وبريدها</li><li>يتواصل معك فريقنا ويجهّز مساحة شركتك باسمها وشعارها</li><li>يصلك رابط مساحتك، فتدخل أنت وفريقك ببريد الشركة</li><li>تختار باقتك حين تكون جاهزاً</li></ol>
   </div></section>
 
   <section class="sv1-sec" id="ai-trial" style="background:var(--soft)"><div class="wrap">
-    <div class="sv1-title"><h2>اطلب تجربة لشركتك</h2><p>لا يُلزمك الطلب بشيء. يراجعه فريقنا ويعود إليك.</p></div>
+    <div class="sv1-title"><h2>اطلب مساحة لشركتك</h2><p>لا يُلزمك الطلب بشيء. يراجعه فريقنا ويعود إليك.</p></div>
     <form class="sv1-ai-form" id="aiForm" novalidate autocomplete="off">
       <div class="sv1-ai-hp" aria-hidden="true"><label>Fax<input type="text" id="aiHp" tabindex="-1" autocomplete="off"></label></div>
       <div class="sv1-ai-cols sv1-ai-f">
@@ -521,7 +520,7 @@ document.addEventListener("click",function(e){
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>(function aiClient(C) {
-    var TX = C.tx, FT = C.ft, LANG = C.lang, API = "/api/requests?__route=ai";
+    var TX = C.tx, FT = C.ft, PN = C.pn, LANG = C.lang, API = "/api/requests?__route=ai";
     var $ = function (id) { return document.getElementById(id); };
     var el = function (tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
     var num = function (n) { try { return Number(n).toLocaleString(LANG === "ar" ? "ar-SA" : LANG); } catch (e) { return String(n); } };
@@ -532,11 +531,9 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
       if (!plans || !plans.length) { box.appendChild(el("p", "sv1-ai-msg", TX.plansErr)); return; }
       plans.forEach(function (p) {
         var c = el("div", "sv1-ai-plan");
-        var h = el("h3", null, p.name || p.code);
-        if (p.code === "trial") h.appendChild(el("span", "badge", TX.trialBadge));
-        c.appendChild(h);
+        c.appendChild(el("h3", null, PN[p.code] || p.name || p.code));
         var facts = [];
-        if (p.seats != null) facts.push(num(p.seats) + " " + TX.seats);
+        if (p.seats != null) facts.push(Number(p.seats) === 1 ? TX.seat1 : num(p.seats) + " " + TX.seats);
         if (p.days != null) facts.push(num(p.days) + " " + TX.days);
         if (p.credit_usd != null) facts.push(TX.credit + " $" + num(p.credit_usd));
         c.appendChild(el("p", "facts", facts.join(" · ")));
@@ -582,7 +579,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
         })
         .catch(function () { btn.disabled = false; btn.textContent = TX.send; say("err", TX.eNet); });
     });
-  })({"lang":"ar","tx":{"plansErr":"تعذّر تحميل الباقات الآن. اطلب تجربتك وسنرسلها لك.","seats":"مستخدمون","days":"يوماً","credit":"رصيد استخدام","trialBadge":"للتجربة","sending":"جارٍ الإرسال…","send":"أرسل الطلب","done":"استلمنا طلبك. رقم المرجع:","doneNext":"سيتواصل معك فريقنا قريباً.","eCompany":"اكتب اسم الشركة.","eName":"اكتب اسمك.","eEmail":"اكتب بريداً صحيحاً.","eEmailFree":"نحتاج بريد الشركة لا بريداً شخصياً، فبه يدخل فريقك.","ePhone":"اكتب رقم جوال صحيحاً.","eRate":"أرسلت طلبات كثيرة. حاول بعد قليل.","eNet":"تعذّر الإرسال. حاول مرة أخرى."},"ft":{"chat":"محادثات مع الذكاء الاصطناعي","files":"رفع الملفات والسؤال عنها","notes":"ملاحظات الفريق","knowledge":"قاعدة معرفة الشركة","connectors":"الربط مع أنظمتك","custom_agents":"مستشارون مخصّصون لشركتك","priority":"أولوية في الدعم","audit":"سجل تدقيق","dedicated_support":"دعم مخصّص"}});</script><style>
+  })({"lang":"ar","tx":{"plansErr":"تعذّر تحميل الباقات الآن. اطلب مساحتك وسنرسلها لك.","seats":"مستخدمون","seat1":"مستخدم واحد","days":"يوماً","credit":"رصيد استخدام","sending":"جارٍ الإرسال…","send":"أرسل الطلب","done":"استلمنا طلبك. رقم المرجع:","doneNext":"سيتواصل معك فريقنا قريباً.","eCompany":"اكتب اسم الشركة.","eName":"اكتب اسمك.","eEmail":"اكتب بريداً صحيحاً.","eEmailFree":"نحتاج بريد الشركة لا بريداً شخصياً، فبه يدخل فريقك.","ePhone":"اكتب رقم جوال صحيحاً.","eRate":"أرسلت طلبات كثيرة. حاول بعد قليل.","eNet":"تعذّر الإرسال. حاول مرة أخرى."},"ft":{"chat":"محادثات مع الذكاء الاصطناعي","files":"رفع الملفات والسؤال عنها","notes":"ملاحظات الفريق","knowledge":"قاعدة معرفة الشركة","connectors":"الربط مع أنظمتك","custom_agents":"مستشارون مخصّصون لشركتك","priority":"أولوية في الدعم","audit":"سجل تدقيق","dedicated_support":"دعم مخصّص"},"pn":{"individual":"فرد","business":"أعمال","business_plus":"أعمال بلس","enterprise":"مؤسسات"}});</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}
 [dir=rtl] .bps-fab{padding:7px 7px 7px 16px}
 .bps-fab img{width:38px;height:38px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}

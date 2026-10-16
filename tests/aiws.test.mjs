@@ -7,11 +7,11 @@ const upstream = { lang: "en", currency: "USD", plans: [
   { code: "enterprise", name: "Enterprise", base: 100, total: 128, credit_usd: 1000, seats: 100, days: 30, features: ["chat", "sso", "audit"] },
 ] };
 
-test("الباقات تصل بلا أسعار ولا نماذج، وتُحذف ميزة SSO غير الموجودة", () => {
+test("الباقات تصل بلا أسعار ولا نماذج، بلا باقة التجربة، وتُحذف ميزة SSO غير الموجودة", () => {
   const p = sanitizePlans(upstream);
-  assert.equal(p.length, 2);
+  assert.deepEqual(p.map((x) => x.code), ["enterprise"]);
   for (const x of p) for (const k of ["base", "total", "amount", "fees", "vat", "models"]) assert.ok(!(k in x), k);
-  assert.deepEqual(p[1].features, ["chat", "audit"]);
+  assert.deepEqual(p[0].features, ["chat", "audit"]);
 });
 
 test("plans: تُخزَّن عشر دقائق، والفشل يعيد 502", async () => {

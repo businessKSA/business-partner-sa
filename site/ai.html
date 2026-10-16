@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Business Partner AI — AI workspace for companies</title>
-<meta name="description" content="Business Partner AI: a private AI workspace for each company — team conversations, company files and knowledge in one place, with company-email sign-in. Request a trial.">
+<meta name="description" content="Business Partner AI: a private AI workspace for each company — team conversations, company files and knowledge in one place, with company-email sign-in. Request your workspace.">
 <meta property="og:title" content="Business Partner AI — AI workspace for companies">
-<meta property="og:description" content="Business Partner AI: a private AI workspace for each company — team conversations, company files and knowledge in one place, with company-email sign-in. Request a trial.">
+<meta property="og:description" content="Business Partner AI: a private AI workspace for each company — team conversations, company files and knowledge in one place, with company-email sign-in. Request your workspace.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="en_US">
@@ -378,8 +378,7 @@ var h0=hint();if(h0)S.paint(true,h0);
     <p class="sub">A private workspace where your team works with AI</p>
     <p class="lead">Each company gets its own isolated workspace: your team's AI conversations, company files and knowledge, in one place nobody else can see. Your team signs in with the company email.</p>
     <div class="sv1-ai-acts">
-      <a class="sv1-btn primary" href="#ai-trial" data-track="AI: اطلب تجربة">Request a trial</a>
-      <a class="sv1-btn" href="https://ai.businesspartner.sa/" rel="noopener" data-track="AI: دخول المنصة">Sign in to the platform</a>
+      <a class="sv1-btn primary" href="#ai-trial" data-track="AI: اطلب مساحة">Request your company workspace</a>
     </div>
     <p class="sv1-ai-note">Already have a workspace? Sign in from your company link we sent you.</p>
   </div></section>
@@ -396,11 +395,11 @@ var h0=hint();if(h0)S.paint(true,h0);
 
   <section class="sv1-sec"><div class="wrap">
     <div class="sv1-title"><h2>How to start</h2></div>
-    <ol class="sv1-ai-steps"><li>You request a trial with your company name and email</li><li>Our team contacts you and prepares your workspace with your name and logo</li><li>You receive your workspace link; you and your team sign in with the company email</li><li>You pick your plan when you are ready</li></ol>
+    <ol class="sv1-ai-steps"><li>You request a workspace with your company name and email</li><li>Our team contacts you and prepares your workspace with your name and logo</li><li>You receive your workspace link; you and your team sign in with the company email</li><li>You pick your plan when you are ready</li></ol>
   </div></section>
 
   <section class="sv1-sec" id="ai-trial" style="background:var(--soft)"><div class="wrap">
-    <div class="sv1-title"><h2>Request a trial for your company</h2><p>The request commits you to nothing. Our team reviews it and gets back to you.</p></div>
+    <div class="sv1-title"><h2>Request a workspace for your company</h2><p>The request commits you to nothing. Our team reviews it and gets back to you.</p></div>
     <form class="sv1-ai-form" id="aiForm" novalidate autocomplete="off">
       <div class="sv1-ai-hp" aria-hidden="true"><label>Fax<input type="text" id="aiHp" tabindex="-1" autocomplete="off"></label></div>
       <div class="sv1-ai-cols sv1-ai-f">
@@ -521,7 +520,7 @@ document.addEventListener("click",function(e){
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>(function aiClient(C) {
-    var TX = C.tx, FT = C.ft, LANG = C.lang, API = "/api/requests?__route=ai";
+    var TX = C.tx, FT = C.ft, PN = C.pn, LANG = C.lang, API = "/api/requests?__route=ai";
     var $ = function (id) { return document.getElementById(id); };
     var el = function (tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
     var num = function (n) { try { return Number(n).toLocaleString(LANG === "ar" ? "ar-SA" : LANG); } catch (e) { return String(n); } };
@@ -532,11 +531,9 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
       if (!plans || !plans.length) { box.appendChild(el("p", "sv1-ai-msg", TX.plansErr)); return; }
       plans.forEach(function (p) {
         var c = el("div", "sv1-ai-plan");
-        var h = el("h3", null, p.name || p.code);
-        if (p.code === "trial") h.appendChild(el("span", "badge", TX.trialBadge));
-        c.appendChild(h);
+        c.appendChild(el("h3", null, PN[p.code] || p.name || p.code));
         var facts = [];
-        if (p.seats != null) facts.push(num(p.seats) + " " + TX.seats);
+        if (p.seats != null) facts.push(Number(p.seats) === 1 ? TX.seat1 : num(p.seats) + " " + TX.seats);
         if (p.days != null) facts.push(num(p.days) + " " + TX.days);
         if (p.credit_usd != null) facts.push(TX.credit + " $" + num(p.credit_usd));
         c.appendChild(el("p", "facts", facts.join(" · ")));
@@ -582,7 +579,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
         })
         .catch(function () { btn.disabled = false; btn.textContent = TX.send; say("err", TX.eNet); });
     });
-  })({"lang":"en","tx":{"plansErr":"Plans could not be loaded right now. Request a trial and we will send them to you.","seats":"users","days":"days","credit":"usage credit","trialBadge":"Trial","sending":"Sending…","send":"Send request","done":"We received your request. Reference:","doneNext":"Our team will contact you soon.","eCompany":"Enter the company name.","eName":"Enter your name.","eEmail":"Enter a valid email.","eEmailFree":"We need the company email, not a personal one — your team signs in with it.","ePhone":"Enter a valid mobile number.","eRate":"Too many requests. Please try again shortly.","eNet":"Could not send. Please try again."},"ft":{"chat":"AI conversations","files":"File upload and Q&A","notes":"Team notes","knowledge":"Company knowledge base","connectors":"Connectors to your systems","custom_agents":"Custom advisors for your company","priority":"Priority support","audit":"Audit log","dedicated_support":"Dedicated support"}});</script><style>
+  })({"lang":"en","tx":{"plansErr":"Plans could not be loaded right now. Request your workspace and we will send them to you.","seats":"users","seat1":"1 user","days":"days","credit":"usage credit","sending":"Sending…","send":"Send request","done":"We received your request. Reference:","doneNext":"Our team will contact you soon.","eCompany":"Enter the company name.","eName":"Enter your name.","eEmail":"Enter a valid email.","eEmailFree":"We need the company email, not a personal one — your team signs in with it.","ePhone":"Enter a valid mobile number.","eRate":"Too many requests. Please try again shortly.","eNet":"Could not send. Please try again."},"ft":{"chat":"AI conversations","files":"File upload and Q&A","notes":"Team notes","knowledge":"Company knowledge base","connectors":"Connectors to your systems","custom_agents":"Custom advisors for your company","priority":"Priority support","audit":"Audit log","dedicated_support":"Dedicated support"},"pn":{"individual":"Individual","business":"Business","business_plus":"Business Plus","enterprise":"Enterprise"}});</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}
 [dir=rtl] .bps-fab{padding:7px 7px 7px 16px}
 .bps-fab img{width:38px;height:38px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}

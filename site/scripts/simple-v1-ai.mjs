@@ -2,7 +2,7 @@
 //
 // صفحة المنتج على SV1.shell() بأربع لغات (ar/en/fr/zh)، بنمط simple-v1-eor.mjs. يملكها وكيل `ai-workspace`.
 // المنصة نفسها لا تعيش هنا: لكل شركة مساحة Open WebUI مستقلة على ai.businesspartner.sa (خادم Azure)،
-// وهذه الصفحة تشرحها وتعرض باقاتها وتستقبل طلب التجربة.
+// وهذه الصفحة تشرحها وتعرض باقاتها وتستقبل طلب المساحة.
 //
 // ما خلفها: api/_aiws.js عبر /api/requests?__route=ai
 //   GET  action=plans  ← الباقات من المنصة نفسها (لا تُكتب هنا يدوياً)، بلا أسعار: الأسعار للمسجّلين وحدهم.
@@ -11,8 +11,6 @@
 //
 // بلا main.js (قشرة SV1 وحدها) ولا localStorage. كل نصٍّ من الخادم يدخل الصفحة بـtextContent.
 // السكربت العميل دالةٌ عاديّة (aiClient) تُسلسَل بـtoString، فلا يُضاعَف فيها الـbackslash.
-
-export const AIWS_APP_URL = "https://ai.businesspartner.sa/";
 
 // ar, en, fr, zh
 const D = {
@@ -26,13 +24,12 @@ const D = {
     "每家公司拥有独立空间：团队与 AI 的对话、公司文件与知识集中一处，他人不可见。团队使用公司邮箱登录。",
   ],
   desc: [
-    "Business Partner AI: مساحة ذكاء اصطناعي خاصة لكل شركة — محادثات الفريق وملفات الشركة ومعرفتها في مكان واحد، ودخول ببريد الشركة. اطلب تجربة لشركتك.",
-    "Business Partner AI: a private AI workspace for each company — team conversations, company files and knowledge in one place, with company-email sign-in. Request a trial.",
-    "Business Partner AI : un espace IA privé pour chaque entreprise — conversations d'équipe, fichiers et savoir au même endroit, connexion par e-mail d'entreprise. Demandez un essai.",
-    "Business Partner AI：为每家公司提供专属 AI 工作空间——团队对话、公司文件与知识集中一处，使用公司邮箱登录。申请试用。",
+    "Business Partner AI: مساحة ذكاء اصطناعي خاصة لكل شركة — محادثات الفريق وملفات الشركة ومعرفتها في مكان واحد، ودخول ببريد الشركة. اطلب مساحة لشركتك.",
+    "Business Partner AI: a private AI workspace for each company — team conversations, company files and knowledge in one place, with company-email sign-in. Request your workspace.",
+    "Business Partner AI : un espace IA privé pour chaque entreprise — conversations d'équipe, fichiers et savoir au même endroit, connexion par e-mail d'entreprise. Demandez votre espace.",
+    "Business Partner AI：为每家公司提供专属 AI 工作空间——团队对话、公司文件与知识集中一处，使用公司邮箱登录。申请空间。",
   ],
-  cta: ["اطلب تجربة لشركتك", "Request a trial", "Demander un essai", "申请试用"],
-  login: ["دخول المنصة", "Sign in to the platform", "Accéder à la plateforme", "登录平台"],
+  cta: ["اطلب مساحة لشركتك", "Request your company workspace", "Demandez l'espace de votre entreprise", "为贵公司申请空间"],
   loginNote: ["لديك مساحة؟ ادخل من رابط شركتك الذي وصلك منّا.", "Already have a workspace? Sign in from your company link we sent you.", "Vous avez déjà un espace ? Connectez-vous via le lien de votre entreprise.", "已有空间？请通过我们发送给您的公司链接登录。"],
   whatH: ["ماذا تحصل عليه", "What you get", "Ce que vous obtenez", "您将获得"],
   f1: ["مساحة مستقلة لشركتك", "An isolated workspace", "Un espace isolé", "独立空间"],
@@ -46,11 +43,15 @@ const D = {
   plansH: ["الباقات", "Plans", "Formules", "套餐"],
   plansP: ["تُقرأ مباشرة من المنصة. تصلك الأسعار مع ردّنا على طلبك.", "Read live from the platform. Prices come with our reply to your request.", "Lues en direct depuis la plateforme. Les prix vous parviennent avec notre réponse.", "直接读取自平台。价格随我们的回复一并发送。"],
   plansLoad: ["جارٍ تحميل الباقات…", "Loading plans…", "Chargement des formules…", "正在加载套餐…"],
-  plansErr: ["تعذّر تحميل الباقات الآن. اطلب تجربتك وسنرسلها لك.", "Plans could not be loaded right now. Request a trial and we will send them to you.", "Impossible de charger les formules. Demandez un essai et nous vous les enverrons.", "暂时无法加载套餐。申请试用后我们会发送给您。"],
+  plansErr: ["تعذّر تحميل الباقات الآن. اطلب مساحتك وسنرسلها لك.", "Plans could not be loaded right now. Request your workspace and we will send them to you.", "Impossible de charger les formules. Demandez votre espace et nous vous les enverrons.", "暂时无法加载套餐。申请空间后我们会发送给您。"],
   seats: ["مستخدمون", "users", "utilisateurs", "位用户"],
   days: ["يوماً", "days", "jours", "天"],
+  seat1: ["مستخدم واحد", "1 user", "1 utilisateur", "1 位用户"],
   credit: ["رصيد استخدام", "usage credit", "crédit d'usage", "用量额度"],
-  trialBadge: ["للتجربة", "Trial", "Essai", "试用"],
+  pn_individual: ["فرد", "Individual", "Individuel", "个人"],
+  pn_business: ["أعمال", "Business", "Entreprise", "商务"],
+  pn_business_plus: ["أعمال بلس", "Business Plus", "Entreprise Plus", "商务增强版"],
+  pn_enterprise: ["مؤسسات", "Enterprise", "Grands comptes", "企业版"],
   ft_chat: ["محادثات مع الذكاء الاصطناعي", "AI conversations", "Conversations IA", "AI 对话"],
   ft_files: ["رفع الملفات والسؤال عنها", "File upload and Q&A", "Fichiers et questions", "文件上传与问答"],
   ft_notes: ["ملاحظات الفريق", "Team notes", "Notes d'équipe", "团队笔记"],
@@ -61,11 +62,11 @@ const D = {
   ft_audit: ["سجل تدقيق", "Audit log", "Journal d'audit", "审计日志"],
   ft_dedicated_support: ["دعم مخصّص", "Dedicated support", "Support dédié", "专属支持"],
   howH: ["كيف تبدأ", "How to start", "Comment commencer", "如何开始"],
-  s1: ["تطلب التجربة باسم شركتك وبريدها", "You request a trial with your company name and email", "Vous demandez un essai avec le nom et l'e-mail de l'entreprise", "以公司名称和邮箱申请试用"],
+  s1: ["تطلب مساحة باسم شركتك وبريدها", "You request a workspace with your company name and email", "Vous demandez un espace avec le nom et l'e-mail de l'entreprise", "以公司名称和邮箱申请空间"],
   s2: ["يتواصل معك فريقنا ويجهّز مساحة شركتك باسمها وشعارها", "Our team contacts you and prepares your workspace with your name and logo", "Notre équipe vous contacte et prépare votre espace à votre nom", "我们的团队联系您，并以贵公司名称与标识准备空间"],
   s3: ["يصلك رابط مساحتك، فتدخل أنت وفريقك ببريد الشركة", "You receive your workspace link; you and your team sign in with the company email", "Vous recevez le lien ; vous et votre équipe vous connectez avec l'e-mail de l'entreprise", "您收到空间链接，您与团队用公司邮箱登录"],
   s4: ["تختار باقتك حين تكون جاهزاً", "You pick your plan when you are ready", "Vous choisissez votre formule quand vous êtes prêt", "准备好后选择套餐"],
-  formH: ["اطلب تجربة لشركتك", "Request a trial for your company", "Demandez un essai pour votre entreprise", "为贵公司申请试用"],
+  formH: ["اطلب مساحة لشركتك", "Request a workspace for your company", "Demandez un espace pour votre entreprise", "为贵公司申请空间"],
   formP: ["لا يُلزمك الطلب بشيء. يراجعه فريقنا ويعود إليك.", "The request commits you to nothing. Our team reviews it and gets back to you.", "La demande ne vous engage à rien. Notre équipe l'examine et revient vers vous.", "申请不构成任何约束。我们的团队审核后与您联系。"],
   fCompany: ["اسم الشركة", "Company name", "Nom de l'entreprise", "公司名称"],
   fWebsite: ["موقع الشركة (اختياري)", "Company website (optional)", "Site web (facultatif)", "公司网站（选填）"],
@@ -111,8 +112,10 @@ export function buildSimpleAi(sv1, ctx) {
   const FT = {};
   for (const k of FEATURE_KEYS) FT[k] = t("ft_" + k);
   const TX = {};
-  for (const k of ["plansErr", "seats", "days", "credit", "trialBadge", "sending", "send", "done", "doneNext", "eCompany", "eName", "eEmail", "eEmailFree", "ePhone", "eRate", "eNet"]) TX[k] = t(k);
-  const CFG = { lang: l, tx: TX, ft: FT };
+  for (const k of ["plansErr", "seats", "seat1", "days", "credit", "sending", "send", "done", "doneNext", "eCompany", "eName", "eEmail", "eEmailFree", "ePhone", "eRate", "eNet"]) TX[k] = t(k);
+  const PN = {};
+  for (const k of ["individual", "business", "business_plus", "enterprise"]) PN[k] = t("pn_" + k);
+  const CFG = { lang: l, tx: TX, ft: FT, pn: PN };
 
   const card = (h, p) => `<div class="sv1-ai-card"><h3>${esc(t(h))}</h3><p>${esc(t(p))}</p></div>`;
   const li = (k) => `<li>${esc(t(k))}</li>`;
@@ -170,8 +173,7 @@ textarea.sv1-ai-in{min-height:84px;resize:vertical}
     <p class="sub">${esc(t("sub"))}</p>
     <p class="lead">${esc(t("lead"))}</p>
     <div class="sv1-ai-acts">
-      <a class="sv1-btn primary" href="#ai-trial" data-track="AI: اطلب تجربة">${esc(t("cta"))}</a>
-      <a class="sv1-btn" href="${AIWS_APP_URL}" rel="noopener" data-track="AI: دخول المنصة">${esc(t("login"))}</a>
+      <a class="sv1-btn primary" href="#ai-trial" data-track="AI: اطلب مساحة">${esc(t("cta"))}</a>
     </div>
     <p class="sv1-ai-note">${esc(t("loginNote"))}</p>
   </div></section>
@@ -221,7 +223,7 @@ textarea.sv1-ai-in{min-height:84px;resize:vertical}
 ${sv1.footer()}`;
 
   function aiClient(C) {
-    var TX = C.tx, FT = C.ft, LANG = C.lang, API = "/api/requests?__route=ai";
+    var TX = C.tx, FT = C.ft, PN = C.pn, LANG = C.lang, API = "/api/requests?__route=ai";
     var $ = function (id) { return document.getElementById(id); };
     var el = function (tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
     var num = function (n) { try { return Number(n).toLocaleString(LANG === "ar" ? "ar-SA" : LANG); } catch (e) { return String(n); } };
@@ -232,11 +234,9 @@ ${sv1.footer()}`;
       if (!plans || !plans.length) { box.appendChild(el("p", "sv1-ai-msg", TX.plansErr)); return; }
       plans.forEach(function (p) {
         var c = el("div", "sv1-ai-plan");
-        var h = el("h3", null, p.name || p.code);
-        if (p.code === "trial") h.appendChild(el("span", "badge", TX.trialBadge));
-        c.appendChild(h);
+        c.appendChild(el("h3", null, PN[p.code] || p.name || p.code));
         var facts = [];
-        if (p.seats != null) facts.push(num(p.seats) + " " + TX.seats);
+        if (p.seats != null) facts.push(Number(p.seats) === 1 ? TX.seat1 : num(p.seats) + " " + TX.seats);
         if (p.days != null) facts.push(num(p.days) + " " + TX.days);
         if (p.credit_usd != null) facts.push(TX.credit + " $" + num(p.credit_usd));
         c.appendChild(el("p", "facts", facts.join(" · ")));

@@ -21,13 +21,15 @@ const PLANS_TTL_MS = 10 * 60e3;
 const PLAN_FIELDS = ["code", "name", "seats", "days", "credit_usd", "features"];
 // ميزة تعلنها المنصة ولا وجود لها بعد (لا SSO على الخادم — تقرير التسليم البند 4) لا تُعرض.
 const HIDDEN_FEATURES = new Set(["sso"]);
+// باقة التجربة (Starter) لا تُعرض: قرار المالك 2026-10-16 «التجربة ستارتر تُحذف». البيع بالشراء.
+const HIDDEN_PLANS = new Set(["trial"]);
 
 const cache = new Map(); // lang → { at, plans }
 
 export function sanitizePlans(raw) {
   const list = raw && Array.isArray(raw.plans) ? raw.plans : [];
   return list
-    .filter((p) => p && typeof p.code === "string")
+    .filter((p) => p && typeof p.code === "string" && !HIDDEN_PLANS.has(p.code))
     .map((p) => {
       const o = {};
       for (const k of PLAN_FIELDS) if (p[k] != null) o[k] = p[k];
