@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-06T16:03:57.979Z",
+  "updatedAt": "2026-10-16T12:44:40.341Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -9,6 +9,40 @@
       "expires": "",
       "note": "خصم ترحيبي 10%",
       "services": []
+    }
+  ],
+  "aiPlans": [
+    {
+      "code": "BP-AIWS-IND",
+      "plan": "individual",
+      "nameAr": "Business Partner AI — باقة فرد",
+      "nameEn": "Business Partner AI — Individual",
+      "amount": 93.75,
+      "billingPeriod": "monthly"
+    },
+    {
+      "code": "BP-AIWS-BUS",
+      "plan": "business",
+      "nameAr": "Business Partner AI — باقة أعمال",
+      "nameEn": "Business Partner AI — Business",
+      "amount": 187.5,
+      "billingPeriod": "monthly"
+    },
+    {
+      "code": "BP-AIWS-BPLUS",
+      "plan": "business_plus",
+      "nameAr": "Business Partner AI — باقة أعمال بلس",
+      "nameEn": "Business Partner AI — Business Plus",
+      "amount": 375,
+      "billingPeriod": "monthly"
+    },
+    {
+      "code": "BP-AIWS-ENT",
+      "plan": "enterprise",
+      "nameAr": "Business Partner AI — باقة مؤسسات",
+      "nameEn": "Business Partner AI — Enterprise",
+      "amount": 750,
+      "billingPeriod": "monthly"
     }
   ],
   "trips": [

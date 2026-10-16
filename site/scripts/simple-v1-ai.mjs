@@ -12,6 +12,13 @@
 // بلا main.js (قشرة SV1 وحدها) ولا localStorage. كل نصٍّ من الخادم يدخل الصفحة بـtextContent.
 // السكربت العميل دالةٌ عاديّة (aiClient) تُسلسَل بـtoString، فلا يُضاعَف فيها الـbackslash.
 
+import fs from "node:fs";
+
+// الباقات القابلة للشراء: الرمز والسعر من site/data/ai-plans.json (المصدر نفسه الذي ينشره
+// generate.mjs في catalog.json → aiPlans ويعيد api/pay.js التسعير منه). المبلغ في بند السلة
+// تلميحٌ للعرض؛ الخادم لا يثق به.
+const AI_PLANS = JSON.parse(fs.readFileSync(new URL("../data/ai-plans.json", import.meta.url), "utf8")).plans;
+
 // ar, en, fr, zh
 const D = {
   title: ["Business Partner AI", "Business Partner AI", "Business Partner AI", "Business Partner AI"],
@@ -29,7 +36,7 @@ const D = {
     "Business Partner AI : un espace IA privé pour chaque entreprise — conversations d'équipe, fichiers et savoir au même endroit, connexion par e-mail d'entreprise. Demandez votre espace.",
     "Business Partner AI：为每家公司提供专属 AI 工作空间——团队对话、公司文件与知识集中一处，使用公司邮箱登录。申请空间。",
   ],
-  cta: ["اطلب مساحة لشركتك", "Request your company workspace", "Demandez l'espace de votre entreprise", "为贵公司申请空间"],
+  cta: ["اختر باقتك", "Choose your plan", "Choisissez votre formule", "选择套餐"],
   loginNote: ["لديك مساحة؟ ادخل من رابط شركتك الذي وصلك منّا.", "Already have a workspace? Sign in from your company link we sent you.", "Vous avez déjà un espace ? Connectez-vous via le lien de votre entreprise.", "已有空间？请通过我们发送给您的公司链接登录。"],
   whatH: ["ماذا تحصل عليه", "What you get", "Ce que vous obtenez", "您将获得"],
   f1: ["مساحة مستقلة لشركتك", "An isolated workspace", "Un espace isolé", "独立空间"],
@@ -41,11 +48,14 @@ const D = {
   f4: ["على Azure في السويد", "On Azure in Sweden", "Sur Azure en Suède", "部署于瑞典 Azure"],
   f4p: ["المنصة ونماذجها تعمل على Microsoft Azure في منطقة السويد، وحدود الاستخدام مضبوطة لكل شركة.", "The platform and its models run on Microsoft Azure in the Sweden region, with usage limits set per company.", "La plateforme et ses modèles tournent sur Microsoft Azure en Suède, avec des limites d'usage par entreprise.", "平台及其模型运行于 Microsoft Azure 瑞典区域，并为每家公司设定用量上限。"],
   plansH: ["الباقات", "Plans", "Formules", "套餐"],
-  plansP: ["تُقرأ مباشرة من المنصة. تصلك الأسعار مع ردّنا على طلبك.", "Read live from the platform. Prices come with our reply to your request.", "Lues en direct depuis la plateforme. Les prix vous parviennent avec notre réponse.", "直接读取自平台。价格随我们的回复一并发送。"],
+  plansP: ["تُقرأ مباشرة من المنصة. السعر يظهر في السلة.", "Read live from the platform. The price shows in the cart.", "Lues en direct depuis la plateforme. Le prix s'affiche dans le panier.", "直接读取自平台。价格显示在购物车中。"],
   plansLoad: ["جارٍ تحميل الباقات…", "Loading plans…", "Chargement des formules…", "正在加载套餐…"],
   plansErr: ["تعذّر تحميل الباقات الآن. اطلب مساحتك وسنرسلها لك.", "Plans could not be loaded right now. Request your workspace and we will send them to you.", "Impossible de charger les formules. Demandez votre espace et nous vous les enverrons.", "暂时无法加载套餐。申请空间后我们会发送给您。"],
   seats: ["مستخدمون", "users", "utilisateurs", "位用户"],
   days: ["يوماً", "days", "jours", "天"],
+  buy: ["اشترِ هذه الباقة", "Buy this plan", "Acheter cette formule", "购买此套餐"],
+  cartErr: ["تعذّر فتح السلة في هذا المتصفح.", "The cart could not be opened in this browser.", "Impossible d'ouvrir le panier dans ce navigateur.", "无法在此浏览器中打开购物车。"],
+  cur: ["﷼", "SAR", "SAR", "SAR"],
   seat1: ["مستخدم واحد", "1 user", "1 utilisateur", "1 位用户"],
   credit: ["رصيد استخدام", "usage credit", "crédit d'usage", "用量额度"],
   pn_individual: ["فرد", "Individual", "Individuel", "个人"],
@@ -62,12 +72,12 @@ const D = {
   ft_audit: ["سجل تدقيق", "Audit log", "Journal d'audit", "审计日志"],
   ft_dedicated_support: ["دعم مخصّص", "Dedicated support", "Support dédié", "专属支持"],
   howH: ["كيف تبدأ", "How to start", "Comment commencer", "如何开始"],
-  s1: ["تطلب مساحة باسم شركتك وبريدها", "You request a workspace with your company name and email", "Vous demandez un espace avec le nom et l'e-mail de l'entreprise", "以公司名称和邮箱申请空间"],
-  s2: ["يتواصل معك فريقنا ويجهّز مساحة شركتك باسمها وشعارها", "Our team contacts you and prepares your workspace with your name and logo", "Notre équipe vous contacte et prépare votre espace à votre nom", "我们的团队联系您，并以贵公司名称与标识准备空间"],
-  s3: ["يصلك رابط مساحتك، فتدخل أنت وفريقك ببريد الشركة", "You receive your workspace link; you and your team sign in with the company email", "Vous recevez le lien ; vous et votre équipe vous connectez avec l'e-mail de l'entreprise", "您收到空间链接，您与团队用公司邮箱登录"],
-  s4: ["تختار باقتك حين تكون جاهزاً", "You pick your plan when you are ready", "Vous choisissez votre formule quand vous êtes prêt", "准备好后选择套餐"],
-  formH: ["اطلب مساحة لشركتك", "Request a workspace for your company", "Demandez un espace pour votre entreprise", "为贵公司申请空间"],
-  formP: ["لا يُلزمك الطلب بشيء. يراجعه فريقنا ويعود إليك.", "The request commits you to nothing. Our team reviews it and gets back to you.", "La demande ne vous engage à rien. Notre équipe l'examine et revient vers vous.", "申请不构成任何约束。我们的团队审核后与您联系。"],
+  s1: ["تختار باقتك وتدفع إلكترونياً من السلة", "You pick your plan and pay online from the cart", "Vous choisissez votre formule et payez en ligne depuis le panier", "选择套餐并在购物车中在线支付"],
+  s2: ["بعد تأكيد الدفع نجهّز مساحة شركتك باسمها", "Once payment is confirmed, we set up your workspace under your company name", "Une fois le paiement confirmé, nous préparons votre espace au nom de votre entreprise", "确认付款后，我们以贵公司名称准备空间"],
+  s3: ["يصلك رابط مساحتك على بريدك، فتدخل أنت وفريقك ببريد الشركة", "You receive your workspace link by email; you and your team sign in with the company email", "Vous recevez le lien par e-mail ; vous et votre équipe vous connectez avec l'e-mail de l'entreprise", "您通过邮件收到空间链接，您与团队用公司邮箱登录"],
+  s4: ["تتابع اشتراكك وفواتيرك من لوحتك", "You follow your subscription and invoices from your portal", "Vous suivez votre abonnement et vos factures depuis votre espace client", "在您的账户中查看订阅与发票"],
+  formH: ["تحتاج مساحة بمواصفات خاصة؟", "Need a workspace with special requirements?", "Besoin d'un espace sur mesure ?", "需要特殊配置的空间？"],
+  formP: ["اكتب لنا وسيتواصل معك فريقنا. لا يُلزمك الطلب بشيء.", "Write to us and our team will contact you. The request commits you to nothing.", "Écrivez-nous et notre équipe vous contactera. La demande ne vous engage à rien.", "请留言，我们的团队将与您联系。申请不构成任何约束。"],
   fCompany: ["اسم الشركة", "Company name", "Nom de l'entreprise", "公司名称"],
   fWebsite: ["موقع الشركة (اختياري)", "Company website (optional)", "Site web (facultatif)", "公司网站（选填）"],
   fName: ["اسمك", "Your name", "Votre nom", "您的姓名"],
@@ -112,10 +122,12 @@ export function buildSimpleAi(sv1, ctx) {
   const FT = {};
   for (const k of FEATURE_KEYS) FT[k] = t("ft_" + k);
   const TX = {};
-  for (const k of ["plansErr", "seats", "seat1", "days", "credit", "sending", "send", "done", "doneNext", "eCompany", "eName", "eEmail", "eEmailFree", "ePhone", "eRate", "eNet"]) TX[k] = t(k);
+  for (const k of ["plansErr", "seats", "seat1", "days", "credit", "cur", "buy", "cartErr", "sending", "send", "done", "doneNext", "eCompany", "eName", "eEmail", "eEmailFree", "ePhone", "eRate", "eNet"]) TX[k] = t(k);
   const PN = {};
   for (const k of ["individual", "business", "business_plus", "enterprise"]) PN[k] = t("pn_" + k);
-  const CFG = { lang: l, tx: TX, ft: FT, pn: PN };
+  const SKU = {};
+  for (const p of AI_PLANS) SKU[p.plan] = { id: "svc-" + p.code.toLowerCase(), nameAr: p.nameAr, nameEn: p.nameEn, amount: p.amount };
+  const CFG = { lang: l, tx: TX, ft: FT, pn: PN, sku: SKU, checkout: sv1.href("/checkout") };
 
   const card = (h, p) => `<div class="sv1-ai-card"><h3>${esc(t(h))}</h3><p>${esc(t(p))}</p></div>`;
   const li = (k) => `<li>${esc(t(k))}</li>`;
@@ -140,6 +152,7 @@ export function buildSimpleAi(sv1, ctx) {
 .sv1-ai-plan .badge{font-size:11px;font-weight:400;border:1px solid var(--ac);color:var(--ac);border-radius:20px;padding:1px 9px}
 .sv1-ai-plan .facts{color:var(--ink);font-size:13px;margin:0}
 .sv1-ai-plan ul{margin:4px 0 0;padding:0 18px;color:var(--mut);font-size:12.5px;line-height:1.9}
+.sv1-ai-plan .sv1-ai-buy{margin-top:auto;width:100%}
 .sv1-ai-msg{text-align:center;color:var(--mut);font-size:13px}
 .sv1-ai-steps{max-width:760px;margin:0 auto;display:grid;gap:10px;padding:0;list-style:none;counter-reset:s}
 .sv1-ai-steps li{display:flex;gap:14px;align-items:flex-start;background:Canvas;border:1px solid var(--l);border-radius:11px;padding:13px 16px;font-size:13.5px}
@@ -173,7 +186,7 @@ textarea.sv1-ai-in{min-height:84px;resize:vertical}
     <p class="sub">${esc(t("sub"))}</p>
     <p class="lead">${esc(t("lead"))}</p>
     <div class="sv1-ai-acts">
-      <a class="sv1-btn primary" href="#ai-trial" data-track="AI: اطلب مساحة">${esc(t("cta"))}</a>
+      <a class="sv1-btn primary" href="#ai-plans" data-track="AI: اختر باقتك">${esc(t("cta"))}</a>
     </div>
     <p class="sv1-ai-note">${esc(t("loginNote"))}</p>
   </div></section>
@@ -223,7 +236,7 @@ textarea.sv1-ai-in{min-height:84px;resize:vertical}
 ${sv1.footer()}`;
 
   function aiClient(C) {
-    var TX = C.tx, FT = C.ft, PN = C.pn, LANG = C.lang, API = "/api/requests?__route=ai";
+    var TX = C.tx, FT = C.ft, PN = C.pn, SKU = C.sku, LANG = C.lang, API = "/api/requests?__route=ai";
     var $ = function (id) { return document.getElementById(id); };
     var el = function (tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
     var num = function (n) { try { return Number(n).toLocaleString(LANG === "ar" ? "ar-SA" : LANG); } catch (e) { return String(n); } };
@@ -238,13 +251,32 @@ ${sv1.footer()}`;
         var facts = [];
         if (p.seats != null) facts.push(Number(p.seats) === 1 ? TX.seat1 : num(p.seats) + " " + TX.seats);
         if (p.days != null) facts.push(num(p.days) + " " + TX.days);
-        if (p.credit_usd != null) facts.push(TX.credit + " $" + num(p.credit_usd));
+        if (p.credit_usd != null) facts.push(TX.credit + " " + num(Math.round(p.credit_usd * 3.75 * 100) / 100) + " " + TX.cur); // رصيد الخادم بالدولار، يُعرض بالريال بسعر الصرف الثابت
         c.appendChild(el("p", "facts", facts.join(" · ")));
         var ul = el("ul");
         (p.features || []).forEach(function (f) { if (FT[f]) ul.appendChild(el("li", null, FT[f])); });
         if (ul.childNodes.length) c.appendChild(ul);
+        if (SKU[p.code]) {
+          var b = el("button", "sv1-btn primary sv1-ai-buy", TX.buy);
+          b.type = "button";
+          b.setAttribute("data-track", "AI: اشترِ " + p.code);
+          b.onclick = function () { buy(p.code); };
+          c.appendChild(b);
+        }
         box.appendChild(c);
       });
+    }
+    // اشتراكٌ واحد في كل طلب: يُبدَّل أي بند Business Partner AI سابق، بعقد bp_cart نفسه.
+    function buy(code) {
+      var o = SKU[code], c;
+      if (!o) return;
+      try { c = JSON.parse(localStorage.getItem("bp_cart")) || []; if (!Array.isArray(c)) c = []; } catch (e) { c = []; }
+      c = c.filter(function (x) { return !/^svc-bp-aiws-/i.test(String((x && x.id) || "")); });
+      c.push({ id: o.id, nameEn: o.nameEn, nameAr: o.nameAr, amount: o.amount, price: "", kind: "subscription", qty: 1,
+        surchargeAmount: null, surchargeFreeCount: null, pricePublic: 0, billingPeriod: "monthly", renewsAt: null, commissionPercent: 0 });
+      try { localStorage.setItem("bp_cart", JSON.stringify(c)); } catch (e) { alert(TX.cartErr); return; }
+      try { document.dispatchEvent(new CustomEvent("bp:cart", { bubbles: true })); } catch (e) {}
+      location.href = C.checkout;
     }
     fetch(API + "&action=plans&lang=" + (LANG === "ar" ? "ar" : "en"), { credentials: "same-origin" })
       .then(function (r) { return r.json(); })

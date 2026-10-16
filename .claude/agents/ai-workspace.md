@@ -51,8 +51,21 @@ n8n يُنقل من Cloud إلى Azure (`bp-n8n`، المذكرة `docs/azure-n8
 webhooks (تعديلات 2026-10-16 على الحقائق وديم نُسخت إلى Azure بـ PUT وجُرِّبت).
 نايف على Cloud يبقى نشطاً لأن محمد على Cloud ما زال يستدعيه.
 
+## الشراء والتفعيل (2026-10-16)
+- **الأسعار** (اعتمدها المالك، شهرية قبل الضريبة): فرد 93.75 · أعمال 187.50 · أعمال بلس 375 ·
+  مؤسسات 750 ريالاً — في `site/data/ai-plans.json` وحده، وينشرها البناء في `catalog.json → aiPlans`
+  (لا في services.json، فلا تظهر في /catalog). `api/pay.js` يعيد التسعير منها.
+- **المسار:** زر «اشترِ هذه الباقة» في /ai ← سلة bp_cart (`svc-bp-aiws-*`، اشتراك شهري، بند واحد) ←
+  /checkout ← ميسر ← `paid-order` في `api/requests.js` ← إن تحقق الدفع: `activateAiws()` في
+  `api/_aiws.js` يرسل الحدث إلى **«مفعّل الخدمات»**.
+- **مفعّل الخدمات** (n8n Azure `3704LYPiUNGgWBpW`، المسار `bp-service-activator`، Header Auth
+  `X-BP-Activator-Key`): يمنع التكرار برقم الدفع، ويفتح مهمة P1 لنايف في `BP_AI_Tasks`، وفيه عقدة
+  تجهيز المساحة على الخادم **معطّلة** حتى يبني اللوكال مسار التفعيل. سجلّه: `service_activator`.
+- **متغيّرا Vercel** (يضعهما المالك): `AIWS_ACTIVATOR_URL` = عنوان الويبهوك أعلاه، و`AIWS_ACTIVATOR_KEY`
+  = القيمة نفسها التي يكتبها في اعتماد «Header Auth — مفعّل الخدمات». بدونهما يصل المالكَ بريدٌ «جهّز يدوياً».
+
 ## نطاقك
-- صفحة `/ai`: `site/scripts/simple-v1-ai.mjs` و`api/_aiws.js` (وسطر التوجيه `__route=ai` في `api/requests.js` بإذن `owner-ops`).
+- صفحة `/ai`: `site/scripts/simple-v1-ai.mjs` و`api/_aiws.js` و`site/data/ai-plans.json` (وسطر التوجيه `__route=ai` في `api/requests.js` بإذن `owner-ops`).
 - محتوى سيناريوهَي نايف والمراقب أعلاه وموجّهاتهما.
 - أي صفحة أو زر في الموقع يقود إلى ai.businesspartner.sa — **بالتنسيق** مع مالك
   تلك الصفحة (`public-site` للرئيسية والترويسة، `client-portal` لـ`/my`)؛ لا

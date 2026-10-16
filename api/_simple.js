@@ -971,6 +971,8 @@ async function cartRefs() {
   const services = new Map(), packages = new Map();
   for (const s of (cat && cat.services) || []) if (s.code) services.set(String(s.code).toLowerCase(), s);
   for (const p of (cat && cat.packages) || []) for (const k of [p.key, p.code]) if (k) packages.set(String(k).toLowerCase(), p);
+  // باقات Business Partner AI: تُصنَّف خدمةً شهرية باسمها (catalog.json → aiPlans).
+  for (const ap of (cat && cat.aiPlans) || []) if (ap.code) services.set(String(ap.code).toLowerCase(), { code: ap.code, nameAr: ap.nameAr, nameEn: ap.nameEn, pricingModel: "Monthly", category: "AI Automation" });
   const refs = { at: Date.now(), services, packages, overrides: (site && site.overrides) || {} };
   if (cat || site) _cartRefs = refs;
   return refs;

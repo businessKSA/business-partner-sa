@@ -295,6 +295,7 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-ai-plan .badge{font-size:11px;font-weight:400;border:1px solid var(--ac);color:var(--ac);border-radius:20px;padding:1px 9px}
 .sv1-ai-plan .facts{color:var(--ink);font-size:13px;margin:0}
 .sv1-ai-plan ul{margin:4px 0 0;padding:0 18px;color:var(--mut);font-size:12.5px;line-height:1.9}
+.sv1-ai-plan .sv1-ai-buy{margin-top:auto;width:100%}
 .sv1-ai-msg{text-align:center;color:var(--mut);font-size:13px}
 .sv1-ai-steps{max-width:760px;margin:0 auto;display:grid;gap:10px;padding:0;list-style:none;counter-reset:s}
 .sv1-ai-steps li{display:flex;gap:14px;align-items:flex-start;background:Canvas;border:1px solid var(--l);border-radius:11px;padding:13px 16px;font-size:13.5px}
@@ -378,7 +379,7 @@ var h0=hint();if(h0)S.paint(true,h0);
     <p class="sub">مساحة خاصة لشركتك، يعمل فيها فريقك مع الذكاء الاصطناعي</p>
     <p class="lead">لكل شركة مساحتها المستقلة: محادثات فريقك مع الذكاء الاصطناعي، وملفات الشركة ومعرفتها، في مكان واحد لا يراه غيركم. يدخلها فريقك ببريد الشركة.</p>
     <div class="sv1-ai-acts">
-      <a class="sv1-btn primary" href="#ai-trial" data-track="AI: اطلب مساحة">اطلب مساحة لشركتك</a>
+      <a class="sv1-btn primary" href="#ai-plans" data-track="AI: اختر باقتك">اختر باقتك</a>
     </div>
     <p class="sv1-ai-note">لديك مساحة؟ ادخل من رابط شركتك الذي وصلك منّا.</p>
   </div></section>
@@ -389,17 +390,17 @@ var h0=hint();if(h0)S.paint(true,h0);
   </div></section>
 
   <section class="sv1-sec" id="ai-plans" style="background:var(--soft)"><div class="wrap">
-    <div class="sv1-title"><h2>الباقات</h2><p>تُقرأ مباشرة من المنصة. تصلك الأسعار مع ردّنا على طلبك.</p></div>
+    <div class="sv1-title"><h2>الباقات</h2><p>تُقرأ مباشرة من المنصة. السعر يظهر في السلة.</p></div>
     <div class="sv1-ai-plans" id="aiPlans"><p class="sv1-ai-msg">جارٍ تحميل الباقات…</p></div>
   </div></section>
 
   <section class="sv1-sec"><div class="wrap">
     <div class="sv1-title"><h2>كيف تبدأ</h2></div>
-    <ol class="sv1-ai-steps"><li>تطلب مساحة باسم شركتك وبريدها</li><li>يتواصل معك فريقنا ويجهّز مساحة شركتك باسمها وشعارها</li><li>يصلك رابط مساحتك، فتدخل أنت وفريقك ببريد الشركة</li><li>تختار باقتك حين تكون جاهزاً</li></ol>
+    <ol class="sv1-ai-steps"><li>تختار باقتك وتدفع إلكترونياً من السلة</li><li>بعد تأكيد الدفع نجهّز مساحة شركتك باسمها</li><li>يصلك رابط مساحتك على بريدك، فتدخل أنت وفريقك ببريد الشركة</li><li>تتابع اشتراكك وفواتيرك من لوحتك</li></ol>
   </div></section>
 
   <section class="sv1-sec" id="ai-trial" style="background:var(--soft)"><div class="wrap">
-    <div class="sv1-title"><h2>اطلب مساحة لشركتك</h2><p>لا يُلزمك الطلب بشيء. يراجعه فريقنا ويعود إليك.</p></div>
+    <div class="sv1-title"><h2>تحتاج مساحة بمواصفات خاصة؟</h2><p>اكتب لنا وسيتواصل معك فريقنا. لا يُلزمك الطلب بشيء.</p></div>
     <form class="sv1-ai-form" id="aiForm" novalidate autocomplete="off">
       <div class="sv1-ai-hp" aria-hidden="true"><label>Fax<input type="text" id="aiHp" tabindex="-1" autocomplete="off"></label></div>
       <div class="sv1-ai-cols sv1-ai-f">
@@ -520,7 +521,7 @@ document.addEventListener("click",function(e){
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>(function aiClient(C) {
-    var TX = C.tx, FT = C.ft, PN = C.pn, LANG = C.lang, API = "/api/requests?__route=ai";
+    var TX = C.tx, FT = C.ft, PN = C.pn, SKU = C.sku, LANG = C.lang, API = "/api/requests?__route=ai";
     var $ = function (id) { return document.getElementById(id); };
     var el = function (tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
     var num = function (n) { try { return Number(n).toLocaleString(LANG === "ar" ? "ar-SA" : LANG); } catch (e) { return String(n); } };
@@ -535,13 +536,32 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
         var facts = [];
         if (p.seats != null) facts.push(Number(p.seats) === 1 ? TX.seat1 : num(p.seats) + " " + TX.seats);
         if (p.days != null) facts.push(num(p.days) + " " + TX.days);
-        if (p.credit_usd != null) facts.push(TX.credit + " $" + num(p.credit_usd));
+        if (p.credit_usd != null) facts.push(TX.credit + " " + num(Math.round(p.credit_usd * 3.75 * 100) / 100) + " " + TX.cur); // رصيد الخادم بالدولار، يُعرض بالريال بسعر الصرف الثابت
         c.appendChild(el("p", "facts", facts.join(" · ")));
         var ul = el("ul");
         (p.features || []).forEach(function (f) { if (FT[f]) ul.appendChild(el("li", null, FT[f])); });
         if (ul.childNodes.length) c.appendChild(ul);
+        if (SKU[p.code]) {
+          var b = el("button", "sv1-btn primary sv1-ai-buy", TX.buy);
+          b.type = "button";
+          b.setAttribute("data-track", "AI: اشترِ " + p.code);
+          b.onclick = function () { buy(p.code); };
+          c.appendChild(b);
+        }
         box.appendChild(c);
       });
+    }
+    // اشتراكٌ واحد في كل طلب: يُبدَّل أي بند Business Partner AI سابق، بعقد bp_cart نفسه.
+    function buy(code) {
+      var o = SKU[code], c;
+      if (!o) return;
+      try { c = JSON.parse(localStorage.getItem("bp_cart")) || []; if (!Array.isArray(c)) c = []; } catch (e) { c = []; }
+      c = c.filter(function (x) { return !/^svc-bp-aiws-/i.test(String((x && x.id) || "")); });
+      c.push({ id: o.id, nameEn: o.nameEn, nameAr: o.nameAr, amount: o.amount, price: "", kind: "subscription", qty: 1,
+        surchargeAmount: null, surchargeFreeCount: null, pricePublic: 0, billingPeriod: "monthly", renewsAt: null, commissionPercent: 0 });
+      try { localStorage.setItem("bp_cart", JSON.stringify(c)); } catch (e) { alert(TX.cartErr); return; }
+      try { document.dispatchEvent(new CustomEvent("bp:cart", { bubbles: true })); } catch (e) {}
+      location.href = C.checkout;
     }
     fetch(API + "&action=plans&lang=" + (LANG === "ar" ? "ar" : "en"), { credentials: "same-origin" })
       .then(function (r) { return r.json(); })
@@ -579,7 +599,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
         })
         .catch(function () { btn.disabled = false; btn.textContent = TX.send; say("err", TX.eNet); });
     });
-  })({"lang":"ar","tx":{"plansErr":"تعذّر تحميل الباقات الآن. اطلب مساحتك وسنرسلها لك.","seats":"مستخدمون","seat1":"مستخدم واحد","days":"يوماً","credit":"رصيد استخدام","sending":"جارٍ الإرسال…","send":"أرسل الطلب","done":"استلمنا طلبك. رقم المرجع:","doneNext":"سيتواصل معك فريقنا قريباً.","eCompany":"اكتب اسم الشركة.","eName":"اكتب اسمك.","eEmail":"اكتب بريداً صحيحاً.","eEmailFree":"نحتاج بريد الشركة لا بريداً شخصياً، فبه يدخل فريقك.","ePhone":"اكتب رقم جوال صحيحاً.","eRate":"أرسلت طلبات كثيرة. حاول بعد قليل.","eNet":"تعذّر الإرسال. حاول مرة أخرى."},"ft":{"chat":"محادثات مع الذكاء الاصطناعي","files":"رفع الملفات والسؤال عنها","notes":"ملاحظات الفريق","knowledge":"قاعدة معرفة الشركة","connectors":"الربط مع أنظمتك","custom_agents":"مستشارون مخصّصون لشركتك","priority":"أولوية في الدعم","audit":"سجل تدقيق","dedicated_support":"دعم مخصّص"},"pn":{"individual":"فرد","business":"أعمال","business_plus":"أعمال بلس","enterprise":"مؤسسات"}});</script><style>
+  })({"lang":"ar","tx":{"plansErr":"تعذّر تحميل الباقات الآن. اطلب مساحتك وسنرسلها لك.","seats":"مستخدمون","seat1":"مستخدم واحد","days":"يوماً","credit":"رصيد استخدام","cur":"﷼","buy":"اشترِ هذه الباقة","cartErr":"تعذّر فتح السلة في هذا المتصفح.","sending":"جارٍ الإرسال…","send":"أرسل الطلب","done":"استلمنا طلبك. رقم المرجع:","doneNext":"سيتواصل معك فريقنا قريباً.","eCompany":"اكتب اسم الشركة.","eName":"اكتب اسمك.","eEmail":"اكتب بريداً صحيحاً.","eEmailFree":"نحتاج بريد الشركة لا بريداً شخصياً، فبه يدخل فريقك.","ePhone":"اكتب رقم جوال صحيحاً.","eRate":"أرسلت طلبات كثيرة. حاول بعد قليل.","eNet":"تعذّر الإرسال. حاول مرة أخرى."},"ft":{"chat":"محادثات مع الذكاء الاصطناعي","files":"رفع الملفات والسؤال عنها","notes":"ملاحظات الفريق","knowledge":"قاعدة معرفة الشركة","connectors":"الربط مع أنظمتك","custom_agents":"مستشارون مخصّصون لشركتك","priority":"أولوية في الدعم","audit":"سجل تدقيق","dedicated_support":"دعم مخصّص"},"pn":{"individual":"فرد","business":"أعمال","business_plus":"أعمال بلس","enterprise":"مؤسسات"},"sku":{"individual":{"id":"svc-bp-aiws-ind","nameAr":"Business Partner AI — باقة فرد","nameEn":"Business Partner AI — Individual","amount":93.75},"business":{"id":"svc-bp-aiws-bus","nameAr":"Business Partner AI — باقة أعمال","nameEn":"Business Partner AI — Business","amount":187.5},"business_plus":{"id":"svc-bp-aiws-bplus","nameAr":"Business Partner AI — باقة أعمال بلس","nameEn":"Business Partner AI — Business Plus","amount":375},"enterprise":{"id":"svc-bp-aiws-ent","nameAr":"Business Partner AI — باقة مؤسسات","nameEn":"Business Partner AI — Enterprise","amount":750}},"checkout":"/ar/checkout"});</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}
 [dir=rtl] .bps-fab{padding:7px 7px 7px 16px}
 .bps-fab img{width:38px;height:38px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}
