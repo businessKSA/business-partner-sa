@@ -206,6 +206,53 @@ export async function verifyGoogleIdToken(idToken) {
   return { email: String(payload.email).toLowerCase(), name: payload.name || "", picture: payload.picture || "" };
 }
 
+// Sign in with Apple (the iOS app). Apple signs an identity token (RS256) whose
+// audience is the app's bundle id for native sign-in. APPLE_CLIENT_ID holds that
+// bundle id (comma-separated if a Services ID is added later for the web flow).
+// Same checks as the Google path: signature against Apple's published keys,
+// issuer, audience, expiry, and a present e-mail. Apple may hand back a private
+// relay address (…@privaterelay.appleid.com); that is still a verified address
+// that reaches the person, so it is accepted like any other.
+const APPLE_CLIENT_IDS = (process.env.APPLE_CLIENT_ID || "").split(",").map((x) => x.trim()).filter(Boolean);
+export function appleSignInConfigured() { return APPLE_CLIENT_IDS.length > 0; }
+export async function verifyAppleIdToken(idToken, { audiences = APPLE_CLIENT_IDS } = {}) {
+  if (!audiences.length) return null;
+  const parts = String(idToken || "").split(".");
+  if (parts.length !== 3) return null;
+  let header, payload;
+  try {
+    header = JSON.parse(Buffer.from(parts[0], "base64url").toString());
+    payload = JSON.parse(Buffer.from(parts[1], "base64url").toString());
+  } catch { return null; }
+  if (header.alg !== "RS256") return null;
+  let jwks;
+  try {
+    const r = await fetch("https://appleid.apple.com/auth/keys");
+    if (!r.ok) return null;
+    jwks = await r.json();
+  } catch { return null; }
+  const jwk = (jwks.keys || []).find((k) => k.kid === header.kid);
+  if (!jwk) return null;
+  let ok = false;
+  try {
+    const { createPublicKey, createVerify } = await import("crypto");
+    const key = createPublicKey({ key: jwk, format: "jwk" });
+    const v = createVerify("RSA-SHA256");
+    v.update(parts[0] + "." + parts[1]);
+    v.end();
+    ok = v.verify(key, Buffer.from(parts[2], "base64url"));
+  } catch { return null; }
+  if (!ok) return null;
+  if (payload.iss !== "https://appleid.apple.com") return null;
+  if (!audiences.includes(payload.aud)) return null;
+  if (!payload.exp || Date.now() / 1000 > payload.exp) return null;
+  if (!isEmail(payload.email)) return null;
+  // email_verified arrives as true or "true"; Apple only issues tokens for verified Apple IDs,
+  // but a token that explicitly says false is refused.
+  if (payload.email_verified === false || payload.email_verified === "false") return null;
+  return { email: String(payload.email).toLowerCase(), sub: String(payload.sub || "") };
+}
+
 async function notion(path, method = "GET", body) {
   if (!NOTION_TOKEN) return { ok: false, status: 503, json: null };
   try {

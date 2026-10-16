@@ -37,7 +37,7 @@
       email: "البريد الإلكتروني", pass: "كلمة المرور", login: "دخول", wait: "لحظة…",
       or: "أو", noAcc: "ليس لديك حساب؟", signup: "إنشاء حساب", name: "الاسم", back: "لديك حساب؟ سجّل دخولك", googleOff: "دخول جوجل غير مفعّل بعد. استخدم البريد وكلمة المرور، أو أنشئ حساباً.",
       sendCode: "أرسل الرمز", code: "الرمز المكوّن من 6 أرقام", verify: "تأكيد", codeSent: "أرسلنا الرمز إلى بريدك",
-      google: "المتابعة عبر جوجل",
+      google: "المتابعة عبر جوجل", apple: "المتابعة عبر Apple", appleErr: "تعذّر الدخول عبر Apple. حاول مرة أخرى أو استخدم البريد وكلمة المرور.",
       setT: "اختر كلمة مرور", setS: "تدخل بها دائماً، ولو نسيتها أنشئ حساباً بالبريد نفسه واختر كلمة جديدة. 8 أحرف على الأقل.", setGo: "حفظ ومتابعة",
       badEmail: "اكتب بريداً صحيحاً.", badCreds: "البريد أو كلمة المرور غير صحيحة.", netErr: "تعذّر الاتصال. تحقق من الإنترنت وحاول مرة أخرى.",
       badCode: "الرمز غير صحيح أو انتهت صلاحيته.", terms: "الشروط والأحكام", contact: "تواصل معنا",
@@ -51,7 +51,7 @@
       email: "Email", pass: "Password", login: "Sign in", wait: "One moment…",
       or: "or", noAcc: "No account yet?", signup: "Create account", name: "Name", back: "Already have an account? Sign in", googleOff: "Google sign-in is not enabled yet. Use your email and password, or create an account.",
       sendCode: "Send code", code: "6-digit code", verify: "Confirm", codeSent: "We emailed you a code",
-      google: "Continue with Google",
+      google: "Continue with Google", apple: "Continue with Apple", appleErr: "Could not sign in with Apple. Try again or use your email and password.",
       setT: "Choose a password", setS: "You will use it to sign in. If you forget it, create an account with the same email and choose a new one. At least 8 characters.", setGo: "Save and continue",
       badEmail: "Enter a valid email.", badCreds: "Wrong email or password.", netErr: "Could not connect. Check your internet and try again.",
       badCode: "The code is wrong or has expired.", terms: "Terms and conditions", contact: "Contact us",
@@ -120,6 +120,8 @@
     ".bp-login .pri{min-height:54px;border:0;border-radius:14px;background:#0B1B5A;color:#fff;font:700 16px inherit;cursor:pointer}.bp-login .pri[disabled]{opacity:.6}",
     ".bp-login .gg{min-height:54px;border:1px solid #DDE3EF;border-radius:14px;background:#fff;color:#232A3D;font:700 15px inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}",
     ".bp-login .gg svg{width:20px;height:20px;flex:none}",
+    ".bp-login .ap{min-height:54px;border:0;border-radius:14px;background:#000;color:#fff;font:700 15px inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}",
+    ".bp-login .ap svg{width:20px;height:20px;flex:none;fill:#fff}",
     ".bp-login .or{display:flex;align-items:center;gap:12px;color:#8D97AE;font-size:13px}.bp-login .or::before,.bp-login .or::after{content:\"\";flex:1;height:1px;background:#DDE3EF}",
     ".bp-login .alt{display:flex;gap:6px;justify-content:center;align-items:center;color:#5A6478;font-size:14px}",
     ".bp-login .lnk{background:none;border:0;color:#0B1B5A;font:600 14px/1.6 inherit;text-decoration:underline;cursor:pointer;padding:6px 0}",
@@ -193,7 +195,10 @@
   });
 
   var GLOGO = '<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
-  var session = null, gate = null, methods = { google: false };
+  var ALOGO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>';
+  // معرّف عميل iOS من Google Cloud (ليس سرّاً). فارغ حتى يُنشأ — انظر docs/google-signin-setup.md.
+  var GOOGLE_IOS_CLIENT_ID = null;
+  var session = null, gate = null, methods = { google: false, googleClientId: null, apple: false };
 
   function field(label, type, name, auto) {
     var l = el("label", null, label), i = document.createElement("input");
@@ -254,6 +259,13 @@
     g.appendChild(el("span", null, T.google));
     g.onclick = function () { googleLogin(err); };
     c.appendChild(g);
+    if (platform === "ios") {
+      var ap = el("button", "ap"); ap.type = "button";
+      ap.innerHTML = ALOGO;
+      ap.appendChild(el("span", null, T.apple));
+      ap.onclick = function () { appleLogin(err); };
+      c.appendChild(ap);
+    }
     var alt = el("div", "alt", T.noAcc);
     var su = el("button", "lnk", T.signup); su.type = "button"; su.onclick = stepSignupEmail;
     alt.appendChild(su); c.appendChild(alt);
@@ -335,16 +347,48 @@
     });
   }
 
-  // جوجل: الزر ظاهر دائماً؛ يعمل بعد تهيئة العميل في الخادم وإضافة المكوّن الأصلي (docs/mobile-app.md)،
-  // وقبل ذلك يقول بصراحة إنه غير مفعّل بدل أن يفشل بصمت.
-  function googleLogin(err) {
+  // الدخول الاجتماعي عبر المكوّن الأصلي (جوجل يمنع الدخول داخل WebView). تُهيَّأ مرة واحدة.
+  //  • جوجل: الزر ظاهر دائماً؛ يعمل حين يوجد معرّف الويب (من الخادم) ومعرّف iOS على iOS،
+  //    وقبل ذلك يقول بصراحة إنه غير مفعّل بدل أن يفشل بصمت.
+  //  • Apple: iOS فقط، ولا يحتاج معرّفات (يعتمد على معرّف الحزمة والصلاحية في Xcode).
+  var socialReady = null;
+  function initSocial() {
     var SL = P.SocialLogin;
-    if (!methods.google || !SL || !SL.login) { err.textContent = T.googleOff; return; }
-    SL.login({ provider: "google", options: { scopes: ["email", "profile"] } }).then(function (res) {
-      var tok = res && res.result && res.result.idToken;
-      if (!tok) { err.textContent = T.netErr; return; }
-      return api("google", { credential: tok }).then(function (r) { if (r.body.ok) goChat(); else err.textContent = r.body.message || T.netErr; });
+    if (!SL || !SL.initialize) return Promise.reject(new Error("no_plugin"));
+    if (socialReady) return socialReady;
+    var cfg = {};
+    var googleOk = !!methods.googleClientId && (platform !== "ios" || !!GOOGLE_IOS_CLIENT_ID);
+    if (googleOk) cfg.google = { webClientId: methods.googleClientId, iOSClientId: GOOGLE_IOS_CLIENT_ID || undefined, iOSServerClientId: methods.googleClientId, mode: "online" };
+    if (platform === "ios") cfg.apple = {};
+    socialReady = Promise.resolve(SL.initialize(cfg)).then(function () { return { google: googleOk }; });
+    socialReady.catch(function () { socialReady = null; });
+    return socialReady;
+  }
+  function idTokenOf(res) { return res && res.result && (res.result.idToken || (res.result.accessToken && res.result.idToken)); }
+  function googleLogin(err) {
+    if (!methods.google || !P.SocialLogin) { err.textContent = T.googleOff; return; }
+    err.textContent = "";
+    initSocial().then(function (r) {
+      if (!r.google) { err.textContent = T.googleOff; return; }
+      return P.SocialLogin.login({ provider: "google", options: { scopes: ["email", "profile"] } }).then(function (res) {
+        var tok = idTokenOf(res);
+        if (!tok) { err.textContent = T.netErr; return; }
+        return api("google", { credential: tok }).then(function (a) { if (a.body.ok) goChat(); else err.textContent = a.body.message || T.netErr; });
+      });
     }).catch(function () { err.textContent = T.netErr; });
+  }
+  function appleLogin(err) {
+    if (!P.SocialLogin) { err.textContent = T.appleErr; return; }
+    err.textContent = "";
+    initSocial().then(function () {
+      return P.SocialLogin.login({ provider: "apple", options: { scopes: ["email", "name"] } }).then(function (res) {
+        var tok = idTokenOf(res);
+        var prof = (res && res.result && res.result.profile) || {};
+        var nm = [prof.givenName, prof.familyName].filter(Boolean).join(" ");
+        if (!tok) { err.textContent = T.appleErr; return; }
+        return api("apple", { credential: tok, name: nm }).then(function (a) { if (a.body.ok) goChat(); else err.textContent = T.appleErr; });
+      });
+    }).catch(function () { err.textContent = T.appleErr; });
   }
 
   // ------------------------------------------------------------ شريط علوي وقائمة --
@@ -483,7 +527,7 @@
       else showLogin();
     }
     var timer = setTimeout(function () { resolve(null); }, 6000);
-    api("methods").then(function (r) { methods.google = !!(r.body && r.body.google); }).catch(function () {})
+    api("methods").then(function (r) { methods.google = !!(r.body && r.body.google); methods.googleClientId = (r.body && r.body.googleClientId) || null; methods.apple = !!(r.body && r.body.apple); }).catch(function () {})
       .then(function () { return api("me"); })
       .then(function (r) { clearTimeout(timer); resolve(r.body && r.body.session); })
       .catch(function () { clearTimeout(timer); resolve(null); });

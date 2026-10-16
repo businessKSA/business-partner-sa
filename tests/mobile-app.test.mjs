@@ -61,8 +61,11 @@ test("mobile: الدخول إجباري والتطبيق محادثة فقط (ق
   assert.match(src, /tabBar\(\);\n    pushBanner/, "الشريط يُبنى بعد الدخول فقط");
   // شاشة الدخول: جوجل ظاهر دائماً (يصرّح إن لم يُفعَّل) + إنشاء حساب، ولا رابط «ادخل برمز» (طلب المالك)
   assert.match(src, /g\.onclick = function \(\) \{ googleLogin\(err\); \}/);
-  assert.match(src, /!methods\.google \|\| !SL \|\| !SL\.login/, "جوجل غير المفعّل يصرّح بدل الفشل الصامت");
+  assert.match(src, /if \(!methods\.google \|\| !P\.SocialLogin\) \{ err\.textContent = T\.googleOff; return; \}/, "جوجل غير المفعّل يصرّح بدل الفشل الصامت");
   assert.match(src, /stepSignupEmail/);
+  // Apple على iOS فقط (شرط آبل 4.8 مع جوجل)، وAndroid جوجل فقط
+  assert.match(src, /if \(platform === "ios"\) \{\n      var ap = /, "زر Apple لـiOS فقط");
+  assert.match(src, /api\("apple"/);
   assert.doesNotMatch(src, /first\.onclick|T\.first\b/, "لا رابط «أول مرة… ادخل برمز»");
 });
 

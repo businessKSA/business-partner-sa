@@ -12,7 +12,7 @@
 // Optional:
 //   OTP_DEV_ECHO=1   returns the code in the response (TESTING ONLY — never in production)
 import crypto from "node:crypto";
-import { verifyGoogleIdToken } from "./_suppliers.js";
+import { verifyGoogleIdToken, verifyAppleIdToken, appleSignInConfigured } from "./_suppliers.js";
 import { nafathRequest, nafathStatus, nationalIdState, nafathPing, nafathIdHash, nafathSeal, nafathUnseal, isOwnerId, mintOwnerTicket } from "./_nafath.js";
 
 const GOOGLE_CLIENT_ID = (process.env.GOOGLE_CLIENT_ID || "").trim();
@@ -260,7 +260,7 @@ export default async function handler(req, res) {
   // only the doors that are configured, instead of a Google button that fails.
   if (action === "methods") {
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, code: true, password: DB_ON, google: !!GOOGLE_CLIENT_ID, googleClientId: GOOGLE_CLIENT_ID || null }));
+    return res.end(JSON.stringify({ ok: true, code: true, password: DB_ON, google: !!GOOGLE_CLIENT_ID, googleClientId: GOOGLE_CLIENT_ID || null, apple: appleSignInConfigured() }));
   }
 
   // Sign in with e-mail + password. Same session, same cookie, same everything
@@ -351,6 +351,39 @@ export default async function handler(req, res) {
         const { raw, user, orgId } = await createSession(req, {
           email,
           name: String(g.name || body.name || "").slice(0, 120),
+          company: String(body.company || "").slice(0, 160),
+        });
+        setSessionCookie(res, raw, Math.floor(SESSION_TTL_MS / 1000));
+        res.statusCode = 200;
+        return res.end(JSON.stringify({
+          ok: true, db: true, email,
+          user: { id: user.id, email: user.email, name: user.full_name || "" },
+          organizationId: orgId,
+        }));
+      } catch {
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, db: false, token: sessionToken(email), email }));
+      }
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, db: false, token: sessionToken(email), email }));
+  }
+
+  // Sign in with Apple (iOS app) reaches the same place Google and the emailed code do:
+  // Apple has verified the address, a checked identity token stands in for the round trip,
+  // and the session minted is identical — one account, several ways in. Apple sends the
+  // person's name only on the very first authorisation, so the app passes it along in body.name.
+  if (action === "apple") {
+    let a = null;
+    try { a = await verifyAppleIdToken(String(body.credential || "")); }
+    catch (e) { console.error("otp apple verify", String(e.message || e).slice(0, 160)); }
+    if (!a || !a.email) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "bad_token" })); }
+    const email = String(a.email).trim().toLowerCase();
+    if (DB_ON) {
+      try {
+        const { raw, user, orgId } = await createSession(req, {
+          email,
+          name: String(body.name || "").slice(0, 120),
           company: String(body.company || "").slice(0, 160),
         });
         setSessionCookie(res, raw, Math.floor(SESSION_TTL_MS / 1000));
