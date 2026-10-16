@@ -243,3 +243,8 @@ if (FARAH_URL && FARAH_KEY) {
 
 ### 12.6) تنظيف صفوف الاختبار (2026-10-15/16)
 أغلقت فرح بند الـ lead رقم 46 بأداتها، ثم حذف المالك بنفسه عبر `psql`: `farah.pending` ← `DELETE 1`، و`farah.messages` ← `DELETE 5` (كلها `WEB-TEST-1015*`). لا بقايا اختبار في القاعدة.
+
+### 12.7) المحضر: اختُبر من الطرف إلى الطرف ومفعَّل (2026-10-16)
+ملف اختبار عربي (24 ثانية) وُلّد بـAzure TTS في Cloud Shell وأُرسل إلى `/webhook/bp-meeting-minutes-…` بمفتاح الترويسة. التنفيذ `8632` **success** في 6 ثوانٍ: Validate ← Azure Speech (نص سليم بتمييز المتحدث) ← `bp-main` ← محضر ← **واتساب لباهر أُرسل** ← **بريد أُرسل** ← **مهمة في «مهام الفريق»** («إرسال عرض السعر للعميل»، المسؤول ناصر، بانتظار اعتماد باهر) ← تسجيل في `farah.messages`. السير `zteADpS9yormFBZC` **مفعَّل** (الرابط بلا مفتاح 403).
+- **عيب شكلي:** سطر «المدة» في المحضر يظهر `undefined` (كان يقرأ `duration_txt` من Validate بينما تضعه Build Transcript). صُحّح في `build-farah-inbox.mjs`؛ **لم يُطبَّق على السير الحيّ** (تعديل الحيّ رُفض من الصلاحيات) — يُطبَّق بتبديل `cfg.duration_txt` في عقدة `Parse Minutes` بـ`$('Build Transcript').first().json.duration_txt`.
+- **لم يُختبر:** صفحة الملاحظات الخاصة (لا `FARAH_PRIVATE_PARENT_PAGE_ID`)، ومدخل `drive_file_id`/`audio_url`. وصفحة Notion للمهمة التجريبية على المالك حذفها.

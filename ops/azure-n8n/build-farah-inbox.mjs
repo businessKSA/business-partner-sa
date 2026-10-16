@@ -196,7 +196,7 @@ const consent = cfg.consent_confirmed ? 'أكّد باهر أن الأطراف �
 const warn = '⚠️ تسجيل الاجتماعات يتطلب علم الأطراف وموافقتهم قبل التسجيل (نظام حماية البيانات الشخصية). ' + consent;
 const bullets = (a) => a.length ? a.map(x => '• ' + x).join('\n') : '—';
 const teamTxt = team.length ? team.map((t, i) => (i + 1) + '. ' + t.title + ' — المسؤول: ' + t.owner + ' — الموعد: ' + t.due).join('\n') : '—';
-const md = ['📝 محضر: ' + title, 'المدة: ' + cfg.duration_txt, '', 'الملخص:\n' + bullets(summary), '', 'القرارات:\n' + bullets(decisions), '', 'المهام (بانتظار اعتمادك قبل أن تُسنَد للفريق):\n' + teamTxt, '', 'أسئلة مفتوحة:\n' + bullets(questions), '', 'مخاطر:\n' + bullets(risks), '', 'ملاحظات خاصة بك:\n' + bullets(notes), '', warn].join('\n');
+const md = ['📝 محضر: ' + title, 'المدة: ' + ($('Build Transcript').first().json.duration_txt || 'غير معروفة'), '', 'الملخص:\n' + bullets(summary), '', 'القرارات:\n' + bullets(decisions), '', 'المهام (بانتظار اعتمادك قبل أن تُسنَد للفريق):\n' + teamTxt, '', 'أسئلة مفتوحة:\n' + bullets(questions), '', 'مخاطر:\n' + bullets(risks), '', 'ملاحظات خاصة بك:\n' + bullets(notes), '', warn].join('\n');
 const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 const html = '<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;line-height:1.9;color:#1F2430;max-width:640px">' + esc(md).replace(/\n/g, '<br>') + '</div>';
 const waText = ['📝 محضر: ' + title, ...summary.slice(0, 4).map(x => '• ' + x), '', 'مهام بانتظار اعتمادك: ' + team.length, 'القرارات: ' + decisions.length, 'المحضر الكامل وصلك على البريد.', '⚠️ التسجيل يتطلب علم الأطراف.'].join('\n').slice(0, 1500);
