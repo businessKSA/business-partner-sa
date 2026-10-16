@@ -151,6 +151,31 @@ const KW = {
   "خدمات منزلية": ["عاملة منزلية", "خادمة", "منزلية", "مربية", "housemaid", "nanny", "domestic"],
 };
 
+// المختصرات المهنية الشائعة: **للعرض فقط**. تُظهر للزائر ما يعنيه مختصره تحت
+// الصندوق ليتأكد أننا فهمناه؛ أما توسيع البحث نفسه فيتم في الخادم (api/
+// candidates.js) لا هنا — فلا يُرسَل من هنا إلا ما كتبه الزائر حرفياً.
+// [المختصر، بالإنجليزية، بالعربية، حسّاس لحالة الأحرف]: الحسّاس لا يُطابَق إلا
+// مكتوباً بحروفٍ كبيرة لأن صورته الصغيرة كلمةٌ عاديةٌ (it · pro · gm).
+const ABBR = [
+  ["CDP", "Chef de Partie", "شيف قسم", 0],
+  ["DCDP", "Demi Chef de Partie", "مساعد شيف قسم", 0],
+  ["F&B", "Food & Beverage", "الأغذية والمشروبات", 0],
+  ["HR", "Human Resources", "الموارد البشرية", 0],
+  ["GM", "General Manager", "مدير عام", 1],
+  ["AGM", "Assistant General Manager", "نائب المدير العام", 0],
+  ["FOM", "Front Office Manager", "مدير مكتب الاستقبال", 0],
+  ["FO", "Front Office", "مكتب الاستقبال", 1],
+  ["HK", "Housekeeping", "التدبير المنزلي", 1],
+  ["QA", "Quality Assurance", "ضمان الجودة", 0],
+  ["QC", "Quality Control", "مراقبة الجودة", 0],
+  ["HSE", "Health, Safety & Environment", "الصحة والسلامة والبيئة", 0],
+  ["PRO", "Public Relations Officer", "مندوب علاقات حكومية", 1],
+  ["IT", "Information Technology", "تقنية المعلومات", 1],
+  ["CFO", "Chief Financial Officer", "المدير المالي", 0],
+  ["CEO", "Chief Executive Officer", "الرئيس التنفيذي", 0],
+  ["COO", "Chief Operating Officer", "رئيس العمليات", 0],
+];
+
 const T = {
   title:  { ar: "التوظيف", en: "Hiring", fr: "Recrutement", zh: "招聘" },
   // عنوانٌ بلا وعدٍ مخترع: لا رقم ولا نسبة ولا «الأسرع» ولا «الأفضل».
@@ -212,10 +237,6 @@ const T = {
             fr: "Les annonces n'indiquent pas l'expérience",
             zh: "职位公告未标注工作年限" },
 
-  needNarrow:{ ar: "اختر المجال أو المدينة أولاً — قاعدة المرشّحين كبيرة، والبحث فيها كلها بطيء.",
-            en: "Pick a field or a city first — the talent pool is large, and searching all of it is slow.",
-            fr: "Choisissez d'abord un domaine ou une ville — le vivier est vaste.",
-            zh: "请先选择领域或城市——人才库很大，全量搜索较慢。" },
   needText:{ ar: "اكتب ما تبحث عنه أولاً.", en: "Write what you're looking for first.", fr: "Écrivez d'abord ce que vous cherchez.", zh: "请先输入您要找的内容。" },
   searching:{ ar: "نبحث…", en: "Searching…", fr: "Recherche…", zh: "搜索中…" },
   failed: { ar: "تعذّر البحث الآن. حاول بعد قليل.", en: "Search failed. Try again shortly.", fr: "Échec de la recherche. Réessayez.", zh: "搜索失败，请稍后重试。" },
@@ -227,12 +248,27 @@ const T = {
             en: "No open vacancy matches that yet — send your CV and we'll nominate you the moment one fits.",
             fr: "Aucun poste ouvert ne correspond — envoyez votre CV et nous vous proposerons dès qu'un poste s'ouvre.",
             zh: "暂无匹配的开放职位——请提交简历，一旦有合适职位我们会推荐您。" },
-  foundC: { ar: "{n} مرشّحاً في قاعدتنا", en: "{n} candidates in our pool", fr: "{n} candidats dans notre vivier", zh: "人才库中 {n} 位候选人" },
+  shownN: { ar: "المعروض {n}", en: "Showing {n}", fr: "Affichés : {n}", zh: "已显示 {n}" },
+  ofT:    { ar: "من أصل نحو {t}", en: "of about {t}", fr: "sur environ {t}", zh: "约 {t} 位中" },
   foundJ: { ar: "{n} وظيفة مفتوحة", en: "{n} open vacancies", fr: "{n} postes ouverts", zh: "{n} 个开放职位" },
   more:   { ar: "النتائج أكثر مما يُعرض — ضيّق بالمجال أو المدينة لتراها كلها.",
             en: "There are more results than shown — narrow by field or city to see them all.",
             fr: "Il y a plus de résultats — affinez par domaine ou ville.",
             zh: "结果多于显示数量——请按领域或城市缩小范围。" },
+
+  relaxF: { ar: "لم نجد في «{w}»، هذه نتائج «{q}» في كل المجالات.",
+            en: "Nothing found in “{w}” — these are the results for “{q}” across all fields.",
+            fr: "Rien dans « {w} » — voici les résultats pour « {q} » dans tous les domaines.",
+            zh: "在“{w}”中没有找到——以下是“{q}”在所有领域的结果。" },
+  relaxC: { ar: "لم نجد في «{w}»، هذه نتائج «{q}» في كل المدن.",
+            en: "Nothing found in “{w}” — these are the results for “{q}” across all cities.",
+            fr: "Rien dans « {w} » — voici les résultats pour « {q} » dans toutes les villes.",
+            zh: "在“{w}”中没有找到——以下是“{q}”在所有城市的结果。" },
+  relaxX: { ar: "لم نجد بهذه القيود («{w}»)، هذه نتائج «{q}» بلا قيد.",
+            en: "Nothing found with these limits (“{w}”) — these are the results for “{q}” without them.",
+            fr: "Rien avec ces critères (« {w} ») — voici les résultats pour « {q} » sans eux.",
+            zh: "按这些条件（“{w}”）没有找到——以下是不加条件的“{q}”结果。" },
+  alsoFor:{ ar: "نبحث أيضاً عن:", en: "Also searching for:", fr: "Nous cherchons aussi :", zh: "同时搜索：" },
 
   aiBtn:  { ar: "رتّبهم بالمطابقة الذكية", en: "Rank them with AI matching", fr: "Classer par correspondance IA", zh: "用智能匹配排序" },
   aiWork: { ar: "نقرأ الملفات ونرتّبها…", en: "Reading the profiles and ranking…", fr: "Lecture et classement…", zh: "正在阅读并排序…" },
@@ -253,7 +289,7 @@ const T = {
 
   // السطر الثانوي — يقود إلى خدمةٍ قائمة فعلاً في الكتالوج / الموقع.
   secQEmp:{ ar: "توظيف بالجملة أو منصب قيادي؟", en: "Hiring in bulk, or a leadership role?", fr: "Recrutement en volume ou poste de direction ?", zh: "批量招聘或高管职位？" },
-  secBEmp:{ ar: "خدمة التوظيف والاستقدام ←", en: "Recruitment service →", fr: "Service de recrutement →", zh: "招聘与引进服务 →" },
+  secBEmp:{ ar: "احجز استشارة التوظيف والاستقدام ←", en: "Book a recruitment consultation →", fr: "Réserver une consultation recrutement →", zh: "预约招聘与引进咨询 →" },
   secQSeek:{ ar: "لم تجد وظيفتك اليوم؟", en: "Didn't find your job today?", fr: "Pas trouvé votre poste aujourd'hui ?", zh: "今天没找到合适的工作？" },
   secBSeek:{ ar: "نبحث لك بالنيابة عنك ←", en: "We search on your behalf →", fr: "Nous cherchons pour vous →", zh: "我们代您搜索 →" },
   learn:  { ar: "اعرف المزيد ↓", en: "Learn more ↓", fr: "En savoir plus ↓", zh: "了解更多 ↓" },
@@ -375,6 +411,8 @@ export function buildSimpleHiring(SV1, ctx) {
 .sv1-hsec2{display:flex;flex-wrap:wrap;gap:11px;align-items:center;justify-content:center;margin:20px auto 0;padding-top:18px;border-top:1px solid var(--line2);max-width:560px;font-size:13px;color:var(--mut)}
 .sv1-hmore{display:block;text-align:center;margin:26px auto 0;font-size:12.5px;color:var(--ac);background:0;border:0;font-family:inherit;cursor:pointer;text-decoration:none}
 .sv1-hnote{margin:14px auto 0;max-width:600px;font-size:12px;color:var(--ac);background:var(--acSoft);border:1px solid var(--acLine);border-radius:10px;padding:9px 13px;line-height:1.7;text-align:center}
+.sv1-habbr{margin:9px auto 0;max-width:620px;padding-inline:6px;font-size:12px;color:var(--mut);line-height:1.7;text-align:start;unicode-bidi:plaintext}
+.sv1-habbr b{color:var(--ac);font-weight:600;unicode-bidi:isolate}
 .sv1-hhint{margin:12px auto 0;max-width:620px;font-size:11.5px;color:var(--faint);line-height:1.7;text-align:center}
 
 .sv1-hb-out{margin:34px auto 0;max-width:1000px}
@@ -511,12 +549,13 @@ export function buildSimpleHiring(SV1, ctx) {
           <div class="sv1-voice" id="hireVoice" style="margin:0 0 9px"></div>
           <textarea id="hireQ" rows="3" placeholder="${esc(t("phEmp"))}" aria-label="${esc(t("phEmp"))}"></textarea>
           <div class="sv1-hb-acts">
-            <a class="rb off" id="hireUp" href="${esc(u("/careers"))}#seeker-form" aria-label="${esc(t("upEmp"))}" title="${esc(t("upEmp"))}" aria-disabled="true">📎</a>
+            <a class="rb off" id="hireUp" href="#" aria-label="${esc(t("upEmp"))}" title="${esc(t("upEmp"))}" aria-disabled="true">📎</a>
             <button type="button" class="rb off" id="hireMic" disabled aria-label="${esc(t("micOff"))}" title="${esc(t("micOff"))}">🎙</button>
             <button type="submit" class="rb go" id="hireGo" aria-label="${esc(t("send"))}" title="${esc(t("send"))}">↑</button>
           </div>
         </div>
       </form>
+      <p class="sv1-habbr sv1-hide" id="hireAbbr" aria-live="polite"></p>
 
       <div class="sv1-hchips">
         ${chip("hireCity", "📍", t("lblCity"), cityOpts, t("cAny"))}
@@ -533,7 +572,7 @@ export function buildSimpleHiring(SV1, ctx) {
 
       <div class="sv1-hsec2">
         <span id="hireSecQ">${esc(t("secQEmp"))}</span>
-        <a class="sv1-btn sm" id="hireSecB" href="${esc(u("/services/rec-gen"))}">${esc(t("secBEmp"))}</a>
+        <a class="sv1-btn sm" id="hireSecB" href="${esc(u("/consultation"))}?topic=rec-gen">${esc(t("secBEmp"))}</a>
       </div>
 
       <p class="sv1-hhint" id="hireHint">${esc(t("maskNote"))}</p>
@@ -547,6 +586,7 @@ export function buildSimpleHiring(SV1, ctx) {
       </div>
       <p class="sv1-muted sv1-hide" id="hireStatus"></p>
       <div class="sv1-hire-grid" id="hireResults"></div>
+      <button type="button" class="sv1-btn sv1-jmore sv1-hide" id="hireMoreC">${esc(t("moreBtn"))}</button>
     </div>
 
     <div class="sv1-tabs">
@@ -600,11 +640,12 @@ export function buildSimpleHiring(SV1, ctx) {
     phEmp: t("phEmp"), phSeek: t("phSeek"),
     secQEmp: t("secQEmp"), secBEmp: t("secBEmp"), secQSeek: t("secQSeek"), secBSeek: t("secBSeek"),
     maskNote: t("maskNote"), seekNoteTop: t("seekNoteTop"), upEmp: t("upEmp"), upSeek: t("upSeek"),
-    statW: t("statW"), expSoon: t("expSoon"), xAny: t("xAny"),
+    statW: t("statW"), expSoon: t("expSoon"), xAny: t("xAny"), xN: t("xN"),
     ctaEmp: t("ctaEmp"), ctaSeek: t("ctaSeek"),
-    needNarrow: t("needNarrow"), needText: t("needText"),
+    needText: t("needText"),
     searching: t("searching"), failed: t("failed"),
-    noneC: t("noneC"), noneJ: t("noneJ"), foundC: t("foundC"), foundJ: t("foundJ"),
+    noneC: t("noneC"), noneJ: t("noneJ"), shownN: t("shownN"), ofT: t("ofT"), foundJ: t("foundJ"),
+    relaxF: t("relaxF"), relaxC: t("relaxC"), relaxX: t("relaxX"), alsoFor: t("alsoFor"),
     more: t("more"),
     aiWork: t("aiWork"), aiFail: t("aiFail"), aiDone: t("aiDone"),
     empty: t("empty"), emptyF: t("emptyF"), jobsFail: t("jobsFail"), loading: t("loading"),
@@ -623,13 +664,14 @@ var $=function(i){return document.getElementById(i)};
 var LANG=${JSON.stringify(lang)};
 var TX=${JSON.stringify(TX)};
 var KW=${JSON.stringify(KW)};
+var ABBR=${JSON.stringify(ABBR)};
 var CITIES=${JSON.stringify(CITIES)};
 var TY=${JSON.stringify(TY)};
 var FCOL=${JSON.stringify(fi)};
 var JOB=${JSON.stringify(u("/job") + "?id=")};
 var EMP=${JSON.stringify(u("/employer"))};
 var SEEKCV=${JSON.stringify(u("/careers") + "#seeker-form")};
-var SVC_EMP=${JSON.stringify(u("/services/rec-gen"))};
+var SVC_EMP=${JSON.stringify(u("/consultation") + "?topic=rec-gen")};
 var SVC_SEEK=${JSON.stringify(u("/job-search-service"))};
 var MAXSHOW=24;
 
@@ -699,7 +741,8 @@ function setRole(r){
  secB.textContent=seek?TX.secBSeek:TX.secBEmp;
  secB.href=seek?SVC_SEEK:SVC_EMP;
  hint.textContent=seek?TX.seekNoteTop:TX.maskNote;
- out.innerHTML='';show(bar,false);show(st,false);show(note,false);lastRows=[]}
+ out.innerHTML='';show(bar,false);show(st,false);show(note,false);lastRows=[];
+ candSeq++;cs=null;show(moreC,false)}
 
 up.addEventListener('click',function(e){if(up.classList.contains('off'))e.preventDefault()});
 $('hireRoleEmp').onclick=function(){setRole('emp')};
@@ -724,16 +767,36 @@ fetch('/api/candidates?count=1').then(function(r){return r.json()}).then(functio
  show(el,true)}).catch(function(){});
 
 // ---- بطاقات
+// دفاعٌ ثانٍ في المتصفّح: الخادم يُسقط بيانات التواصل من الردّ، لكن حقلاً حرّاً
+// (مسمّى · مهارات · تعليم) قد يحمل بريداً أو رقماً كتبه المرشّح بنفسه. أي نصٍّ
+// يشبههما يُحذف كلّه من البطاقة — لا يُقصّ منه الجزء الظاهر فيبقى نصفه.
+// الجوّال: تسعة أرقام فأكثر بفاصلٍ واحدٍ على الأكثر بين رقمٍ ورقم، فلا يُحسب
+// «2015 - 2019» رقماً (بين الرقمين فاصلٌ مزدوج) ولا «ISO 9001:2015».
+var RE_MAIL=/[^\\s@]+@[^\\s@]+\\.[^\\s@]+/;
+var RE_TEL=/(?:\\+?[0-9\\u0660-\\u0669][\\s().\\-]?){9,}/;
+function looksContact(v){var x=String(v);return RE_MAIL.test(x)||RE_TEL.test(x)}
+function safeTxt(v){var x=clean(v);return(!x||looksContact(x))?'':x}
+function safeSkills(c){
+ var raw=c.skills,list=Array.isArray(raw)?raw:String(raw==null?'':raw).split(/[,\\u060C;\\u061B|\\n]+/);
+ var role=norm(safeTxt(c.role)),seen={},out2=[];
+ list.forEach(function(it){
+  var x=safeTxt(it);if(!x)return;
+  var k=norm(x);if(k===role||seen[k])return;
+  seen[k]=1;out2.push(x)});
+ return out2.slice(0,8).join(' \\u00B7 ').slice(0,120)}
+
 function candCard(c){
- var meta=[c.field,c.city].filter(Boolean).join(' · ');
+ var role=safeTxt(c.role),field=safeTxt(c.field),city=safeTxt(c.city);
+ var meta=[field,city].filter(Boolean).join(' \\u00B7 ');
  var yr=years(c.experience);
- var line=[yr!=null?TX.expY+' '+yr+' '+TX.yrs:'',c.education||''].filter(Boolean).join(' · ');
+ var line=[yr!=null?TX.expY+' '+yr+' '+TX.yrs:'',safeTxt(c.education)].filter(Boolean).join(' \\u00B7 ');
+ var sk=safeSkills(c);
  return '<article class="sv1-hire-job"><div class="tp">'+
   (meta?'<span class="mt">'+esc(meta)+'</span>':'')+
   (c._score!=null?'<span class="sc">'+esc(String(c._score))+'%</span>':'')+'</div>'+
-  '<h4>'+esc(c.role||c.field||'—')+'</h4>'+
+  '<h4>'+esc(role||field||'\\u2014')+'</h4>'+
   (line?'<p>'+esc(line)+'</p>':'')+
-  (c.skills?'<p>'+esc(String(c.skills).slice(0,120))+'</p>':'')+
+  (sk?'<p>'+esc(sk)+'</p>':'')+
   (c._why?'<p class="why">'+esc(c._why)+'</p>':'')+
   '</article>'}
 
@@ -1008,38 +1071,158 @@ function searchJobs(text,f,c){
   say(rows.length>MAXSHOW?TX.more:'')
  }).catch(function(){st.textContent=TX.failed;show(st,true)})}
 
-function searchCands(text,f,c,x){
- st.textContent=TX.searching;show(st,true);out.innerHTML='';show(bar,false);
- var p='/api/candidates?'+(f?'field='+encodeURIComponent(f):'')+(c?(f?'&':'')+'city='+encodeURIComponent(c):'');
- fetch(p).then(function(r){return r.json()}).then(function(d){
+// ---- بحث المرشّحين: النص يُرسَل إلى الخادم (q=) فيبحث في القاعدة كلها لا في
+// صفحةٍ جُلبت بالفلتر. «اعرض المزيد» يتبع nextCursor، ولا سقف محلياً صامتاً.
+// الفلتر المستنتَج من كلام الزائر (مجال/مدينة/خبرة) اقتراحٌ لا شرط: إن أفرغ
+// القائمة أعدنا الطلب بدونه وقلنا ذلك صراحةً.
+var CAND_PAGE=30,CAND_FILL=4;
+var cs=null,candSeq=0;
+var moreC=$('hireMoreC');
+
+function candUrl(k,cursor){
+ var p=['limit='+CAND_PAGE];
+ if(k.f)p.push('field='+encodeURIComponent(k.f));
+ if(k.c)p.push('city='+encodeURIComponent(k.c));
+ if(k.text)p.push('q='+encodeURIComponent(k.text.slice(0,120)));
+ if(k.x)p.push('minExp='+encodeURIComponent(k.x));
+ if(cursor)p.push('cursor='+encodeURIComponent(cursor));
+ return '/api/candidates?'+p.join('&')}
+
+// صفحةٌ واحدة، ثم صفحاتٌ إضافية فقط إن أفرغها فلتر الخبرة المحلّي ولم تنتهِ
+// القائمة — حتى لا يرى الزائر «لا شيء» وفي الصفحة التالية ما يطابق.
+function candPull(k,left){
+ return fetch(candUrl(k,k.cursor)).then(function(r){return r.json()}).then(function(d){
   if(!d||!d.ok)throw new Error('bad');
-  var rows=d.candidates||[];
-  if(x){var n=parseInt(x,10);rows=rows.filter(function(r2){var y=years(r2.experience);return y!=null&&y>=n})}
-  if(text)rows=rows.map(function(r2){return {r:r2,s:score(text,(r2.role||'')+' '+(r2.field||'')+' '+(r2.skills||''))}})
-   .sort(function(a,b){return b.s-a.s}).map(function(z){return z.r});
-  show(st,false);
-  if(!rows.length){st.textContent=TX.noneC;show(st,true);return}
-  lastRows=rows;lastQuery=text;
+  var fresh=[];
+  (d.candidates||[]).forEach(function(r2){
+   var id=r2.id!=null?String(r2.id):null;
+   if(id!=null){if(k.seen[id])return;k.seen[id]=1}
+   if(k.x){var n=parseInt(k.x,10),y=years(r2.experience);if(y==null||y<n)return}
+   fresh.push(r2)});
+  var next=d.nextCursor||null;
+  if(next&&next===k.cursor)next=null;
+  k.cursor=next;
+  k.done=!next||d.done===true;
+  if(typeof d.total==='number'&&isFinite(d.total))k.total=d.total;
+  k.rows=k.rows.concat(fresh);
+  k.fresh=(k.fresh||[]).concat(fresh);
+  if(!fresh.length&&!k.done&&left>0)return candPull(k,left-1);
+  return k})}
+
+function newCand(text,f,c,x){return {text:text,f:f,c:c,x:x,cursor:null,done:false,total:null,rows:[],fresh:[],seen:{}}}
+
+// «المعروض N» دائماً؛ «من أصل نحو T» فقط إن عاد الخادم بإجماليٍّ أكبر مما
+// عُرض فعلاً. إجماليٌّ لا يزيد على المعروض لا يُكتب — لا رقم مخمَّن.
+function candCount(){
+ if(!cs)return;
+ var t2=nfmt(TX.shownN,num(cs.rows.length));
+ if(!cs.done&&cs.total!=null&&cs.total>cs.rows.length)t2+=' \\u00B7 '+TX.ofT.replace('{t}',num(cs.total));
+ cnt.textContent=t2}
+
+function candPaint(append){
+ var html=(cs.fresh||[]).map(candCard).join('');
+ cs.fresh=[];
+ if(append)out.insertAdjacentHTML('beforeend',html);else out.innerHTML=html;
+ lastRows=cs.rows;
+ candCount();
+ show(moreC,!cs.done);moreC.disabled=false}
+
+function relaxNote(text,inf){
+ var w=[];
+ if(inf.f)w.push(optLabel(fSel,inf.f));
+ if(inf.c)w.push(optLabel(cSel,inf.c));
+ if(inf.x)w.push(TX.xN.replace('{n}',inf.x));
+ // فلترٌ واحد بعينه يُسمّى مجالاً أو مدينة؛ وأكثر من واحد أو الخبرة «قيود».
+ var key=(inf.f&&!inf.c&&!inf.x)?'relaxF':(inf.c&&!inf.f&&!inf.x)?'relaxC':'relaxX';
+ return TX[key].replace('{w}',w.join(' \\u00B7 ')).replace('{q}',text)}
+function optLabel(sel,v){
+ for(var i=0;i<sel.options.length;i++)if(sel.options[i].value===v)return sel.options[i].text;
+ return v}
+
+// inf: ما استُنتج من النص وطُبّق مؤقتاً {f,c,x} — ما اختاره الزائر بنفسه لا يدخل
+// فيه ولا يُرفع أبداً.
+function searchCands(text,f,c,x,inf){
+ var my=++candSeq;
+ st.textContent=TX.searching;show(st,true);out.innerHTML='';show(bar,false);show(moreC,false);
+ var k=newCand(text,f,c,x);
+ candPull(k,CAND_FILL).then(function(){
+  if(my!==candSeq)return;
+  if(!k.rows.length&&text&&(inf.f||inf.c||inf.x)){
+   var k2=newCand(text,inf.f?'':f,inf.c?'':c,inf.x?'':x);
+   return candPull(k2,CAND_FILL).then(function(){
+    if(my!==candSeq)return;
+    if(k2.rows.length){
+     // الفلتر المستنتَج لم يُطبَّق على ما يُعرض: تُفرَّغ رقاقته لئلا تبدو شرطاً.
+     if(inf.f){fSel.value='';markChip(fSel)}
+     if(inf.c){cSel.value='';markChip(cSel)}
+     if(inf.x){xSel.value='';markChip(xSel)}
+     say(relaxNote(text,inf))}
+    return k2})}
+  return k}).then(function(r2){
+  if(!r2||my!==candSeq)return;
+  cs=r2;show(st,false);
+  if(!cs.rows.length){st.textContent=TX.noneC;show(st,true);return}
+  lastQuery=text;
   show(bar,true);show(aiBtn,true);aiBtn.disabled=false;
-  cnt.textContent=nfmt(TX.foundC,rows.length);
-  out.innerHTML=rows.slice(0,MAXSHOW).map(candCard).join('');
-  say((rows.length>MAXSHOW||d.done===false)?TX.more:'')
- }).catch(function(){st.textContent=TX.failed;show(st,true)})}
+  candPaint(false)
+ }).catch(function(){if(my!==candSeq)return;st.textContent=TX.failed;show(st,true)})}
+
+moreC.addEventListener('click',function(){
+ if(!cs||cs.done||busy||moreC.disabled)return;
+ var my=candSeq,mine=cs;
+ moreC.disabled=true;
+ candPull(mine,CAND_FILL).then(function(){
+  if(my!==candSeq||cs!==mine)return;
+  candPaint(true)
+ }).catch(function(){if(my!==candSeq)return;moreC.disabled=false;say(TX.failed)})});
+
+// ---- المختصرات: سطرٌ للعرض فقط تحت الصندوق، والبحث يُرسَل بنصّ الزائر وحده.
+var abbrEl=$('hireAbbr');
+function abbrHits(text){
+ var seen={},hits=[];
+ String(text||'').split(/[^A-Za-z0-9&]+/).forEach(function(tok){
+  if(!tok||hits.length>=3)return;
+  var up2=tok.toUpperCase();
+  for(var i=0;i<ABBR.length;i++){var a=ABBR[i];
+   if(a[0]!==up2||seen[up2])continue;
+   if(a[3]&&tok!==up2)continue;
+   seen[up2]=1;hits.push(a)}});
+ return hits}
+function paintAbbr(){
+ var hs=abbrHits(q.value);
+ if(!hs.length){abbrEl.textContent='';show(abbrEl,false);return}
+ var parts=hs.map(function(a){return LANG==='ar'?a[1]+' \\u00B7 '+a[2]:a[1]});
+ abbrEl.textContent='';
+ abbrEl.appendChild(document.createTextNode(TX.alsoFor+' '));
+ var b=document.createElement('b');b.textContent=parts.join(' \\u00B7 ');
+ abbrEl.appendChild(b);show(abbrEl,true)}
+q.addEventListener('input',paintAbbr);
+
+// رقاقةٌ استنتجناها من الكلام تُمسح قبل البحث التالي ما لم يلمسها الزائر؛ وإلا
+// بقي «ضيافة وسياحة» من البحث السابق شرطاً خفياً على بحثٍ عن شيءٍ آخر.
+var auto={f:false,c:false,x:false};
+fSel.addEventListener('change',function(){auto.f=false});
+cSel.addEventListener('change',function(){auto.c=false});
+xSel.addEventListener('change',function(){auto.x=false});
 
 $('hireForm').addEventListener('submit',function(e){
  e.preventDefault();
  if(busy)return;
  var text=q.value.trim();
- var d=derive(text);
- // الرقاقة التي اختارها الزائر بنفسه أقوى من استنتاجنا من كلامه.
- if(!fSel.value&&d.field){fSel.value=d.field;markChip(fSel)}
- if(!cSel.value&&d.city){cSel.value=d.city;markChip(cSel)}
- if(role==='emp'&&!xSel.value&&d.exp){xSel.value=d.exp;markChip(xSel)}
+ // ما استنتجناه في بحثٍ سابق يُرفع أولاً؛ ثم يُستنتج من النص الحالي.
+ if(auto.f){fSel.value='';markChip(fSel);auto.f=false}
+ if(auto.c){cSel.value='';markChip(cSel);auto.c=false}
+ if(auto.x){xSel.value='';markChip(xSel);auto.x=false}
+ var d=derive(text),inf={f:'',c:'',x:''};
+ // الرقاقة التي اختارها الزائر بنفسه أقوى من استنتاجنا من كلامه، ولا تُرفع.
+ if(!fSel.value&&d.field){fSel.value=d.field;markChip(fSel);auto.f=true;inf.f=d.field}
+ if(!cSel.value&&d.city){cSel.value=d.city;markChip(cSel);auto.c=true;inf.c=d.city}
+ if(role==='emp'&&!xSel.value&&d.exp){xSel.value=d.exp;markChip(xSel);auto.x=true;inf.x=d.exp}
  var f=fSel.value,c=cSel.value,x=(role==='emp'?xSel.value:'');
+ // النص وحده يكفي للبحث؛ بلا نصٍّ نحتاج مجالاً أو مدينة على الأقل.
  if(!text&&!f&&!c){say(TX.needText);q.focus();return}
- if(role==='emp'&&!f&&!c){say(TX.needNarrow);fSel.focus();return}
  say('');
- if(role==='emp')searchCands(text,f,c,x);else searchJobs(text,f,c)});
+ if(role==='emp')searchCands(text,f,c,x,inf);else searchJobs(text,f,c)});
 
 // ---- المطابقة الذكية: نداءٌ مدفوع، فلا يُطلق إلا بضغطة من الزائر.
 aiBtn.onclick=function(){
@@ -1058,9 +1241,9 @@ aiBtn.onclick=function(){
    c._score=Math.max(0,Math.min(100,Math.round(Number(m.score)||0)));
    c._why=String(m.reason||'').slice(0,220);rows.push(c)});
   if(!rows.length)throw new Error('nomatch');
-  cnt.textContent=TX.aiDone+' · '+nfmt(TX.foundC,rows.length);
+  cnt.textContent=TX.aiDone+' \u00B7 '+nfmt(TX.shownN,num(rows.length));
   out.innerHTML=rows.map(candCard).join('');
-  show(aiBtn,false);say('')
+  show(aiBtn,false);show(moreC,false);say('')
  }).catch(function(){aiBtn.textContent=prev;say(TX.aiFail)})
  .then(function(){busy=false;aiBtn.disabled=false})};
 

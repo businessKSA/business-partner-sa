@@ -163,6 +163,11 @@ function mapSubscriber(pg) {
     email: txt(p["Email"]),
     phone: txt(p["Phone"]),
     residence: txt(p["حالة الإقامة"]),
+    // التوطين والامتثال — تُقرآن الآن لأن الوكيل كان يقرأ «حالة الإقامة» وحدها،
+    // فيرشّح غير سعوديٍّ لإعلانٍ على مهنة مقصورة. والقيمتان تكتبهما
+    // `applySaudization` في api/candidate.js، وهذا الملف يقرؤهما ولا يكتبهما.
+    saudization: txt(p["التوطين Saudization"]),
+    compliance: txt(p["الامتثال Compliance"]),
     region: txt(p["الخبرة الإقليمية"]),
     service: txt(p["خدمة البحث عن وظيفة"]),
     plan: txt(p["باقة الخدمة"]),
@@ -213,6 +218,10 @@ async function rankJobs(candidate, jobs) {
     candidate.skills ? `المهارات: ${clip(candidate.skills, 500)}` : "",
     [candidate.city, candidate.country].filter(Boolean).join("، ") ? `الموقع: ${[candidate.city, candidate.country].filter(Boolean).join("، ")}` : "",
     candidate.residence ? `حالة الإقامة: ${candidate.residence}` : "",
+    // التوطين كما هو مخزّن، بلا تفسيرٍ ولا نسبةٍ ولا قرار: المطابق يحتاج أن
+    // يعرف أن المهنة مقصورة أو عليها اشتراطات قبل أن يرشّح عليها.
+    candidate.saudization ? `توطين المهنة المستهدفة: ${candidate.saudization}` : "",
+    candidate.compliance ? `الامتثال المحسوب للمرشّح: ${candidate.compliance}` : "",
     candidate.region ? `الخبرة الإقليمية: ${candidate.region}` : "",
   ].filter(Boolean).join("\n");
 
@@ -244,6 +253,28 @@ async function rankJobs(candidate, jobs) {
     return [];
   }
 }
+
+/* ═══════════ الحاجز: لا يُرشَّح مَن امتثاله ⛔ — والغياب ليس منعاً ═══════════
+ *
+ * «⛔ مهنة سعودية - غير سعودي» جملةٌ تعني أن مهنة المرشّح المستهدفة مقصورة على
+ * السعوديين وهو ليس سعودياً. فكل إعلانٍ يطابق مهنته هو إعلانٌ لن يُقبل فيه —
+ * وإرسالُ قائمةٍ كهذه يعطيه صورةَ وظيفةٍ بلا وظيفة. فلا تُرسل، ويُكتب على صفّه
+ * السبب ليقرأه من يراجع ملفه.
+ *
+ * ⚠️ والحدّ الذي يجعل هذا إصلاحاً لا عطلاً جديداً: **الأغلبية اليوم بلا توطين
+ * محسوب** (١٨٣٣ صفّاً بلا قيمة في قياس 2026-09-29، وكل المئة والسبعة عشر
+ * الظاهرة منها). فلترةٌ على حقلٍ فارغ تُسكت الوكيل عن كل الناس. الغياب ليس
+ * منعاً: لا يحجب إلا القيمة الواحدة الصريحة، وكل ما عداها — فارغ، «بحاجة فحص»،
+ * 🔍، ⚠️، ✅ — يمرّ كما يمرّ اليوم بلا فرق.
+ *
+ * والقيمة نصٌّ حرفي مشتركٌ مع `COMP_BLOCKED` في api/candidate.js (وهو مالكها
+ * الكاتب). لا يُستورد الملف من هنا كي لا تُحمَّل دالةُ الطلبات وحدةَ المرشّح
+ * كلها؛ ويحرس تطابقَ النصّين اختبارٌ يقرأ الملفين.
+ */
+const COMP_BLOCKED = "⛔ مهنة سعودية - غير سعودي";
+export const blockedBySaudization = (c) => (c && c.compliance) === COMP_BLOCKED;
+// ونصُّ ما يُكتب على الصفّ. مراجعةٌ وبديل، لا وعدٌ ولا إلغاء ولا رقم.
+const BLOCKED_NOTE = "لم يُرشَّح هذه الجولة: المهنة المستهدفة مصنّفة مقصورة على السعوديين والمرشّح غير سعودي — يُراجع الملف لاختيار مهنة بديلة.";
 
 function matchesEmail(name, matches) {
   const rows = matches.map((m) => `<li style="margin-bottom:8px"><b>${esc(m.job.title)}</b>${m.job.company ? ` — ${esc(m.job.company)}` : ""}${m.job.city ? ` · ${esc(m.job.city)}` : ""}<br><span style="color:#666">${esc(m.reason)}</span></li>`).join("");
@@ -320,10 +351,15 @@ export async function handleJobhunt(req, res) {
       const today = new Date().toISOString().slice(0, 10);
       const report = [];
       for (const c of subs) {
-        const matches = await rankJobs(c, jobs);
-        const summary = matches.length
-          ? matches.map((m) => `${m.job.title}${m.job.company ? ` — ${m.job.company}` : ""} (${m.score}%) — ${m.reason}`).join("\n")
-          : "لا توجد وظيفة مناسبة في هذه الجولة.";
+        // الحاجز قبل المطابقة: يوفّر نداءً مدفوعاً أيضاً، لكن سببه أنه لا معنى
+        // لترتيب إعلاناتٍ على مهنةٍ لن يُقبل فيها.
+        const blocked = blockedBySaudization(c);
+        const matches = blocked ? [] : await rankJobs(c, jobs);
+        const summary = blocked
+          ? BLOCKED_NOTE
+          : matches.length
+            ? matches.map((m) => `${m.job.title}${m.job.company ? ` — ${m.job.company}` : ""} (${m.score}%) — ${m.reason}`).join("\n")
+            : "لا توجد وظيفة مناسبة في هذه الجولة.";
         await notion(`pages/${c.id}`, "PATCH", {
           properties: {
             "وظائف مقترحة من الوكيل": { rich_text: rt(summary) },
@@ -331,11 +367,11 @@ export async function handleJobhunt(req, res) {
           },
         });
         if (matches.length && isEmail(c.email)) await sendEmail(c.email, `وجدنا لك ${matches.length} وظيفة مناسبة`, matchesEmail(c.name, matches));
-        report.push({ id: c.id, name: c.name, matches: matches.length });
+        report.push({ id: c.id, name: c.name, matches: matches.length, ...(blocked ? { blocked: "saudization" } : {}) });
       }
 
       if (report.length) {
-        const lines = report.map((x) => `<li>${esc(x.name)} — ${x.matches} وظيفة</li>`).join("");
+        const lines = report.map((x) => `<li>${esc(x.name)} — ${x.blocked ? "مهنة مقصورة على السعوديين، لم يُرشَّح" : `${x.matches} وظيفة`}</li>`).join("");
         await sendEmail(NOTIFY, `🤖 وكيل البحث عن وظائف — ${report.length} مشترك`, `<div dir="rtl" style="font-family:Arial,sans-serif">
           <h2 style="color:#0B1B5A">جولة بحث مكتملة</h2><ul>${lines}</ul></div>`);
       }

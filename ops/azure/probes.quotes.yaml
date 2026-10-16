@@ -1,0 +1,35 @@
+# فحوص الصحة لتطبيق لوحة العروض bp-quotes (Next.js على Azure Container Apps).
+# التطبيق:  az containerapp update -g "$RG" -n bp-quotes --yaml ops/azure/probes.quotes.yaml
+# التحقق:   az containerapp show -g "$RG" -n bp-quotes --query "properties.template.containers[0].probes"
+#
+# /quotes/api/health يردّ بلا تسجيل دخول وبلا سرّ (حالة إعداد فقط) ولا يستعلم القاعدة. Next يحتاج وقت إقلاع أطول من خادم الموقع.
+properties:
+  template:
+    containers:
+      - name: bp-quotes
+        probes:
+          - type: Startup
+            httpGet:
+              path: /quotes/api/health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 10
+          - type: Liveness
+            httpGet:
+              path: /quotes/api/health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          - type: Readiness
+            httpGet:
+              path: /quotes/api/health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1

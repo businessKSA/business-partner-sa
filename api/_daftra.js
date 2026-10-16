@@ -637,6 +637,11 @@ async function createDoc(kind, { partyId, items, notes, ref, dueDays = 0, vatRat
     out = await dq(K.path, { method: "POST", body: full });
   } catch (e) {
     if (e.message === "daftra_unauthorized" || e.message === "daftra_unreachable") throw e;
+    // A 5xx is not a rejection: Daftra may have saved the document and failed
+    // while answering. Retrying with the minimal payload then creates the
+    // invoice a second time. The caller decides (it looks the document up by
+    // its reference before it tries again); only a refusal is safe to re-send.
+    if (Number(e.status) >= 500) throw e;
     firstError = String(e.detail || e.message || "");
     try {
       out = await dq(K.path, { method: "POST", body: minimal });
@@ -735,21 +740,42 @@ function pdfCandidates(view, id) {
   ];
 }
 
-export async function daftraDocPdf(kind, id) {
+// `budgetMs` / `cache` are for the automatic path that runs inside a payment
+// webhook: twelve routes tried one after another, each with no time limit, can
+// outlast the function itself — and the invoice is already issued by then. With
+// `cache` the route that answered is tried first next time, and a full miss is
+// remembered for ten minutes so the next buyer does not pay the same twelve
+// failed calls. The panel's manual send does not pass them and behaves as before.
+let _pdfWinner = -1, _pdfDeadUntil = 0;
+export function daftraResetPdfCache() { _pdfWinner = -1; _pdfDeadUntil = 0; }
+
+export async function daftraDocPdf(kind, id, { budgetMs = 0, cache = false } = {}) {
   const K = DOC_KINDS[kind] || DOC_KINDS.invoice;
-  for (const url of pdfCandidates(K.view, id)) {
+  if (cache && _pdfWinner < 0 && Date.now() < _pdfDeadUntil) return null;
+  const urls = pdfCandidates(K.view, id);
+  const order = urls.map((_, i) => i);
+  if (cache && _pdfWinner >= 0) order.sort((a, b) => (a === _pdfWinner ? -1 : b === _pdfWinner ? 1 : 0));
+  const t0 = Date.now();
+  for (const i of order) {
+    if (budgetMs && Date.now() - t0 > budgetMs) break;
+    const url = urls[i];
     try {
-      const r = await fetch(url, { headers: { APIKEY: API_KEY, accept: "application/pdf" }, redirect: "follow" });
+      const r = await fetch(url, {
+        headers: { APIKEY: API_KEY, accept: "application/pdf" }, redirect: "follow",
+        ...(budgetMs ? { signal: AbortSignal.timeout(Math.max(800, Math.min(3000, budgetMs - (Date.now() - t0)))) } : {}),
+      });
       if (!r.ok) continue;
       const buf = Buffer.from(await r.arrayBuffer());
       // The magic bytes decide, not the declared content type: a login page
       // served as application/pdf would otherwise be attached as the invoice,
       // and a real PDF served as octet-stream would be rejected.
       if (buf.length > 1000 && buf.subarray(0, 5).toString("latin1") === "%PDF-") {
+        if (cache) _pdfWinner = i;
         return { base64: buf.toString("base64"), bytes: buf.length, source: url };
       }
     } catch { /* try the next candidate */ }
   }
+  if (cache) { _pdfWinner = -1; _pdfDeadUntil = Date.now() + 10 * 60 * 1000; }
   console.error("daftra: no PDF endpoint answered for", kind, id);
   return null;
 }
@@ -879,6 +905,35 @@ export async function daftraFindInvoice(numberOrId) {
       return { id: hit.id, row, raw: one, ...(await invoiceContext(hit.id, row, one)) };
     }
     if (rows.length < 100) break;
+  }
+  return null;
+}
+
+// The invoice this site already issued for an order reference, if any. Used
+// only when an earlier attempt may have reached Daftra and then lost the
+// answer (a dropped connection, a function killed mid-way): creating again
+// would put two tax invoices in the books for one payment. The reference is
+// written to every invoice we issue — as `client_reference` and in the notes
+// line «مرجع الطلب: …» — and either one counts; the recent pages are scanned
+// because this account documents no server-side filter on them. Null means
+// "none found", never "none exists": the caller then creates as it would anyway.
+export async function daftraFindInvoiceByRef(ref, { pages = 2 } = {}) {
+  const want = String(ref || "").trim().toLowerCase();
+  if (!want) return null;
+  for (let page = 1; page <= pages; page++) {
+    let rows = [];
+    try {
+      const data = await dq(`/invoices.json?limit=50&page=${page}`);
+      const list = pick(data, ["data", "Invoices", "invoices"]) || data;
+      rows = unwrap(Array.isArray(list) ? list : [], "Invoice");
+    } catch { return null; }
+    const hit = rows.find((i) => {
+      if (String(i.client_reference || "").trim().toLowerCase() === want) return true;
+      const notes = String(i.notes || "").toLowerCase();
+      return notes.includes(`مرجع الطلب: ${want}`);
+    });
+    if (hit && hit.id) return { id: hit.id, number: String(hit.no || hit.invoice_number || hit.number || hit.id) };
+    if (rows.length < 50) break;
   }
   return null;
 }

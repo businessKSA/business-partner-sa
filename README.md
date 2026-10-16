@@ -20,7 +20,7 @@ A complete bilingual (Arabic/English) landing page for Business Partner Services
 - **Phone**: 0530540231
 - **Email**: business@businesspartner.sa
 - **Website**: www.businesspartner.sa
-- **Address**: الرياض – حي العارض – شارع ريحانة بنت زيد
+- **Address**: الدرعية – حي العاصمة – طريق الملك خالد الفرعي (RDAA9214)
 - **CR**: 1009008634
 - **VAT**: 310887376200003
 - **Unified**: 7038696196

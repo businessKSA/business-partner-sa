@@ -1,7 +1,8 @@
 // Business Partner — Simple V1 (2026-09).
 //
-// The simplified customer-facing layer: one homepage that sells three things
-// (consulting, government services, company formation) through ONE chat, a
+// The simplified customer-facing layer: one homepage that sells four things
+// (consulting, government services, company formation, business development
+// — the fourth door, 2026-09-24) through ONE chat, a
 // client portal (/my) and an operations dashboard (/ops). Built by
 // generate.mjs alongside the classic site; nothing here removes a classic
 // route. This homepage IS "/" as of the owner's approval on 2026-09-04; the
@@ -27,6 +28,23 @@
 // one step — SIMPLE_V1=0 in the environment, or revert this line — and the
 // classic homepage comes back untouched at "/".
 export const SIMPLE_V1 = process.env.SIMPLE_V1 !== "0";
+
+// مفتاح الباب الرابع «تطوير الأعمال» — site/data/features.json (bizdevDoor).
+// false (الافتراضي): الرئيسية ثلاثة أبواب كما كانت حرفاً — لا باب ولا رقاقة ولا
+// ترحيب ولا نوع طلب ولا شبكة 2×2. true: أربعة أبواب. السبب في features.json.
+// يُقرأ هنا لا في generate.mjs: القيمة لا تخصّ غير هذه الصفحة، فلا يُلمس المولّد.
+import { readFileSync } from "node:fs";
+import { pageVisible } from "./hidden.mjs";
+// الباب لا يظهر أبداً والصفحة مخفية (site/data/hidden.json) حتى لو فُتح المفتاح.
+const BIZDEV_DOOR = (() => {
+  try { return pageVisible("business-development") && JSON.parse(readFileSync(new URL("../data/features.json", import.meta.url), "utf8")).bizdevDoor === true; }
+  catch { return false; }
+})();
+// بطاقة «موظفون على بند التعاقد (EOR)» في الرئيسية (أمر المالك 2026-10-01): العنوان
+// والوصف بالأربع لغات من مصدر صفحة /eor نفسها (EOR_PAGE_TEXT) فلا يتباعد النصّان.
+// بابٌ برابط إلى /eor لا زرّ مستشار: لا نوع طلب له في الرئيسية ولا يمسّ المعرفة.
+import { EOR_PAGE_TEXT } from "./simple-v1-eor.mjs";
+import { buildHomeExtras } from "./simple-v1-home-path.mjs";
 export const SIMPLE_LANGS = ["ar", "en", "fr", "zh"];
 
 const D = {
@@ -52,6 +70,7 @@ const D = {
   trust1: { ar: "الاستشارات", en: "Consulting", fr: "Conseil", zh: "咨询" },
   trust2: { ar: "الخدمات الحكومية", en: "Government services", fr: "Services gouvernementaux", zh: "政府服务" },
   trust3: { ar: "تأسيس الشركات", en: "Company formation", fr: "Création d'entreprise", zh: "公司注册" },
+  trust4: { ar: "تطوير الأعمال", en: "Business development", fr: "Développement commercial", zh: "业务拓展" },
 
   noNameTitle: { ar: "ما تحتاج تعرف اسم الخدمة", en: "You don't need to know the name of the service", fr: "Vous n'avez pas besoin de connaître le nom du service", zh: "您无需知道服务的名称" },
   noNameSub: { ar: "اختر القسم المناسب أو اشرح طلبك مباشرة. نرتّب الطلب في الخلفية، وأنت تشوف فقط ما يخص احتياجك.", en: "Pick a section or just describe what you need. We organise the request in the background; you only see what relates to your need.", fr: "Choisissez une rubrique ou décrivez simplement votre besoin. Nous organisons la demande en arrière-plan ; vous ne voyez que ce qui vous concerne.", zh: "选择相应板块，或直接描述您的需求。我们在后台整理申请，您只看到与您相关的内容。" },
@@ -65,12 +84,19 @@ const D = {
   ctxConsulting: { ar: "الاستشارات", en: "Consulting", fr: "Conseil", zh: "咨询" },
   ctxGovernment: { ar: "الخدمات الحكومية", en: "Government services", fr: "Services gouvernementaux", zh: "政府服务" },
   ctxFormation: { ar: "تأسيس الشركات", en: "Company formation", fr: "Création d'entreprise", zh: "公司注册" },
+  ctxBizdev: { ar: "تطوير الأعمال", en: "Business development", fr: "Développement commercial", zh: "业务拓展" },
   doorConsulting: { ar: "سؤال، تحدٍّ، قرار أو موضوع يخص شركتك.", en: "A question, a challenge, a decision or any matter about your company.", fr: "Une question, un défi, une décision ou tout sujet concernant votre société.", zh: "关于贵公司的问题、挑战或决策。" },
   doorGovernment: { ar: "معاملة، مشكلة في منصة، أو إدارة منصاتك الحكومية.", en: "A transaction, a problem on a platform, or running your government platforms.", fr: "Une démarche, un problème sur une plateforme, ou la gestion de vos plateformes.", zh: "办理事务、平台问题，或代管您的政府平台。" },
   doorFormation: { ar: "فرع لشركة أجنبية أو شركة عبر مسار ريادة الأعمال.", en: "A branch of a foreign company, or a company via the entrepreneurship route.", fr: "Une succursale étrangère ou une société via le parcours entrepreneur.", zh: "外国公司分支机构，或通过创业路径设立公司。" },
+  doorBizdev: { ar: "عملاء أو موردون أو شريك جديد؟ نحدّد معك مسار النمو المناسب.", en: "New customers, suppliers or a partner? We map the right growth route with you.", fr: "De nouveaux clients, fournisseurs ou un partenaire ? Nous définissons la bonne voie avec vous.", zh: "寻找客户、供应商或合作伙伴？我们与您确定合适的拓展路径。" },
   ctaConsulting: { ar: "ابدأ الاستشارة ←", en: "Start the consultation →", fr: "Démarrer le conseil →", zh: "开始咨询 →" },
   ctaGovernment: { ar: "ابدأ الطلب ←", en: "Start the request →", fr: "Démarrer la demande →", zh: "开始申请 →" },
   ctaFormation: { ar: "ابدأ التأسيس ←", en: "Start the formation →", fr: "Démarrer la création →", zh: "开始注册 →" },
+  ctaEor: { ar: "اعرف أكثر ←", en: "Learn more →", fr: "En savoir plus →", zh: "了解更多 →" },
+  ctaBizdev: { ar: "ابدأ مع المستشار ←", en: "Start with the advisor →", fr: "Démarrer avec le conseiller →", zh: "与顾问开始 →" },
+  // مسلك الشراء الذاتي (سؤال المالك 2026-09-24: «ليش ما العميل يقدر يشتري
+  // مباشرة بدون الشات؟»): رابطٌ ثانوي هادئ تحت الأبواب لا باباً خامساً.
+  browseDirect: { ar: "تصفّح الخدمات واشترِ مباشرة ←", en: "Browse the services and buy directly →", fr: "Parcourir les services et acheter directement →", zh: "浏览服务并直接购买 →" },
 
   advisorTitle: { ar: "كل شيء يبدأ من المحادثة", en: "Everything starts with the conversation", fr: "Tout commence par la conversation", zh: "一切从对话开始" },
   advisorSub: { ar: "اشرح احتياجك بطريقتك، ونرتّب لك الطلب والخدمات المناسبة. راجع البنود بنفسك — احذف أو أضف أو عدّل — قبل عرض السعر.", en: "Explain your need in your own words and we organise the request and the right services. Review the items yourself — remove, add or edit — before the quotation.", fr: "Expliquez votre besoin avec vos mots ; nous organisons la demande et les services adaptés. Revoyez les éléments — supprimez, ajoutez, modifiez — avant le devis.", zh: "用您自己的话说明需求，我们整理申请与相应服务。在报价之前，您可自行删除、添加或修改条目。" },
@@ -85,6 +111,7 @@ const D = {
   chatError: { ar: "تعذّر الرد الآن. جرّب مرة أخرى أو تواصل معنا عبر واتساب.", en: "We couldn't reply right now. Try again or reach us on WhatsApp.", fr: "Impossible de répondre pour le moment. Réessayez ou contactez-nous sur WhatsApp.", zh: "暂时无法回复，请重试或通过 WhatsApp 联系我们。" },
   welcomeConsulting: { ar: "حياك الله 👋 اشرح لي الموضوع اللي تحتاج تستشير فيه.", en: "Welcome 👋 Tell me the matter you'd like advice on.", fr: "Bienvenue 👋 Expliquez-moi le sujet sur lequel vous souhaitez un conseil.", zh: "欢迎 👋 请说明您想咨询的事项。" },
   welcomeGovernment: { ar: "حياك الله 👋 اشرح لي المعاملة أو المشكلة في المنصة.", en: "Welcome 👋 Tell me the transaction or the problem on the platform.", fr: "Bienvenue 👋 Décrivez la démarche ou le problème sur la plateforme.", zh: "欢迎 👋 请说明需要办理的事务或平台上的问题。" },
+  welcomeBizdev: { ar: "حياك الله 👋 أنا مستشار تطوير الأعمال. قل لي عن نشاطك، وهل تبحث عن عملاء أو موردين أو شريك.", en: "Welcome 👋 I'm the business development advisor. Tell me about your business, and whether you're looking for customers, suppliers or a partner.", fr: "Bienvenue 👋 Je suis le conseiller en développement commercial. Parlez-moi de votre activité et dites-moi si vous cherchez des clients, des fournisseurs ou un partenaire.", zh: "欢迎 👋 我是业务拓展顾问。请介绍您的业务，以及您是在寻找客户、供应商还是合作伙伴。" },
   welcomeFormation: { ar: "حياك الله 👋 قل لي عن الشركة اللي تبغى تؤسسها.", en: "Welcome 👋 Tell me about the company you want to set up.", fr: "Bienvenue 👋 Parlez-moi de la société que vous voulez créer.", zh: "欢迎 👋 请介绍您想设立的公司。" },
 
   scopeTag: { ar: "ملخص طلبك", en: "Your request", fr: "Votre demande", zh: "您的申请" },
@@ -198,10 +225,14 @@ const D = {
   footHours: { ar: "أوقات العمل", en: "Hours", fr: "Horaires", zh: "营业时间" },
   footIdentity: { ar: "بيانات المنشأة", en: "Company details", fr: "Informations légales", zh: "公司信息" },
   footPay: { ar: "الدفع", en: "Payments", fr: "Paiements", zh: "支付方式" },
-  footPayLine: { ar: "مدى · فيزا · ماستركارد · Apple Pay · تمارا — والدفع عبر بوابة مرخّصة، لا تمرّ بيانات بطاقتك من خوادمنا.",
-                 en: "mada · Visa · Mastercard · Apple Pay · Tamara — through a licensed gateway; card details never touch our servers.",
-                 fr: "mada · Visa · Mastercard · Apple Pay · Tamara — via une passerelle agréée ; vos données de carte ne passent pas par nos serveurs.",
-                 zh: "mada · Visa · Mastercard · Apple Pay · Tamara — 通过持牌支付网关，卡片信息不经过我们的服务器。" },
+  // ‏لا يُذكر هنا إلا ما يظهر فعلاً في /checkout لكل زائر: البطاقات (مدى · فيزا ·
+  // ماستركارد) وتمارا. محافظ الجوال (Apple Pay · Samsung Pay · Google Pay) لا
+  // تظهر إلا إن فعّلها مفتاح البوابة **وكان الجهاز يدعمها** (انظر الشرط في
+  // simple-v1-checkout.mjs)، فتُذكر مشروطةً لا وعداً.
+  footPayLine: { ar: "مدى · فيزا · ماستركارد، أو التقسيط عبر تمارا. وتظهر محافظ الجوال (مثل Apple Pay) في صفحة الدفع إن كانت متاحة على جهازك. الدفع عبر بوابة مرخّصة، ولا تمرّ بيانات بطاقتك من خوادمنا.",
+                 en: "mada · Visa · Mastercard, or instalments with Tamara. Mobile wallets (such as Apple Pay) appear at checkout only when your device supports them. Payment runs through a licensed gateway; card details never touch our servers.",
+                 fr: "mada · Visa · Mastercard, ou paiement en plusieurs fois avec Tamara. Les portefeuilles mobiles (comme Apple Pay) n'apparaissent au paiement que si votre appareil les prend en charge. Le paiement passe par une passerelle agréée ; vos données de carte ne transitent pas par nos serveurs.",
+                 zh: "mada · Visa · Mastercard，或通过 Tamara 分期。Apple Pay 等手机钱包仅在您的设备支持时才会在结账页出现。支付通过持牌支付网关完成，卡片信息不经过我们的服务器。" },
   footInvoice: { ar: "فاتورة ضريبية متوافقة مع هيئة الزكاة والضريبة والجمارك لكل عملية مدفوعة.",
                  en: "A ZATCA-compliant tax invoice for every paid order.",
                  fr: "Une facture fiscale conforme ZATCA pour chaque commande payée.",
@@ -236,6 +267,14 @@ const D = {
               en: "Could not transcribe. Type your message or try again.",
               fr: "Transcription impossible. Écrivez ou réessayez.",
               zh: "转写失败。请输入文字或重试。" },
+  micFormat:{ ar: "صيغة التسجيل في متصفحك غير مدعومة. اكتب رسالتك أو جرّب متصفحاً آخر.",
+              en: "Your browser's recording format is not supported. Type your message or try another browser.",
+              fr: "Le format d'enregistrement de votre navigateur n'est pas pris en charge. Écrivez ou essayez un autre navigateur.",
+              zh: "您浏览器的录音格式不受支持。请输入文字或换用其他浏览器。" },
+  micTemp:  { ar: "خدمة التفريغ مشغولة لحظياً. أعد المحاولة بعد قليل أو اكتب رسالتك.",
+              en: "Transcription is busy for a moment. Try again shortly or type your message.",
+              fr: "La transcription est momentanément occupée. Réessayez dans un instant ou écrivez.",
+              zh: "转写服务暂时繁忙。请稍后重试或直接输入文字。" },
   micLong:  { ar: "التسجيل طويل. سجّل مقطعاً أقصر.", en: "The recording is too long. Record a shorter clip.",
               fr: "Enregistrement trop long. Enregistrez plus court.", zh: "录音过长，请录短一些。" },
   barStatus: { ar: "جميع الأنظمة تعمل", en: "All systems operational",
@@ -245,16 +284,23 @@ const D = {
   barLangs:  { ar: "منصّة واحدة · أربع لغات", en: "One platform · four languages",
                fr: "Une plateforme · quatre langues", zh: "一个平台 · 四种语言" },
   footRights: { ar: "جميع الحقوق محفوظة", en: "All rights reserved", fr: "Tous droits réservés", zh: "版权所有" },
+  // الإتاحة (2026-10-16): أسماء المعالم والأزرار لقارئات الشاشة، ورابط بيان الإتاحة.
+  navLabel: { ar: "التنقل الرئيسي", en: "Main navigation", fr: "Navigation principale", zh: "主导航" },
+  menuLabel: { ar: "القائمة", en: "Menu", fr: "Menu", zh: "菜单" },
+  barLabel: { ar: "الحالة واللغة", en: "Status and language", fr: "Statut et langue", zh: "状态与语言" },
+  footA11y: { ar: "الإتاحة", en: "Accessibility", fr: "Accessibilité", zh: "无障碍" },
 
   // Quick chips shown before the first message.
   chipsConsulting: { ar: ["استشارة عن ترخيص", "مشكلة في الشركة", "تحديد الجهات ذات العلاقة", "عمالة مؤقتة وتصاريح أجير", "فحص شامل للشركة"], en: ["A licensing question", "A problem in the company", "Which authorities are involved", "Temporary labour & Ajeer permits", "A full company review"], fr: ["Une question de licence", "Un problème dans la société", "Quelles autorités sont concernées", "Main-d'œuvre temporaire et permis Ajeer", "Un examen complet"], zh: ["许可相关咨询", "公司内部问题", "涉及哪些主管机关", "临时用工与 Ajeer 许可", "公司全面检查"] },
   chipsGovernment: { ar: ["مشكلة في قوى", "تصاريح أجير", "تصعيد أو شكوى لدى الوزارة", "مخالفة أو مديونية", "تغيير مهنة", "نقل خدمات", "تأشيرات", "النطاقات والتوطين", "إدارة المنصات"], en: ["A problem on Qiwa", "Ajeer permits", "An escalation or complaint", "A violation or a debt", "Change a profession", "Transfer of services", "Visas", "Nitaqat & Saudisation", "Manage my platforms"], fr: ["Un problème sur Qiwa", "Permis Ajeer", "Une escalade ou une plainte", "Une infraction ou une dette", "Changer une profession", "Transfert de services", "Visas", "Nitaqat et saoudisation", "Gérer mes plateformes"], zh: ["Qiwa 平台问题", "Ajeer 许可", "升级或投诉", "违规或欠款", "变更职业", "服务转移", "签证", "Nitaqat 与本地化", "代管平台"] },
   chipsFormation: { ar: ["فرع شركة أجنبية", "شركة ريادة أعمال", "التسجيل الاستثماري", "متطلبات التأسيس"], en: ["Branch of a foreign company", "Entrepreneurship licence", "Investment registration", "Formation requirements"], fr: ["Succursale étrangère", "Licence entrepreneur", "Enregistrement d'investissement", "Conditions de création"], zh: ["外国公司分支", "创业许可", "投资注册", "设立要求"] },
+  chipsBizdev: { ar: ["أبحث عن عملاء", "أبحث عن موردين", "أبحث عن شريك أو موزع", "لا أعرف من أين أبدأ"], en: ["I'm looking for customers", "I'm looking for suppliers", "I'm looking for a partner or distributor", "I don't know where to start"], fr: ["Je cherche des clients", "Je cherche des fournisseurs", "Je cherche un partenaire ou distributeur", "Je ne sais pas par où commencer"], zh: ["寻找客户", "寻找供应商", "寻找合作伙伴或经销商", "不知从何开始"] },
 
   // The scope the customer sees the moment they pick a door — the assistant
   // refines it during the conversation; it is never a price list.
   seedConsulting: { ar: ["فهم الموضوع والحالة الحالية", "تحديد الجهات والمتطلبات ذات العلاقة", "تحديد الخطوات والتوصيات المطلوبة"], en: ["Understand the matter and the current position", "Identify the authorities and requirements involved", "Define the steps and recommendations"], fr: ["Comprendre le sujet et la situation actuelle", "Identifier les autorités et exigences concernées", "Définir les étapes et recommandations"], zh: ["了解事项与现状", "确定涉及的机关与要求", "明确步骤与建议"] },
   seedGovernment: { ar: ["فحص المشكلة أو المعاملة", "تحديد الخدمات الحكومية المطلوبة", "تنفيذ أو متابعة الخدمات المتفق عليها"], en: ["Examine the problem or the transaction", "Identify the government services required", "Execute or follow up the agreed services"], fr: ["Examiner le problème ou la démarche", "Identifier les services gouvernementaux requis", "Exécuter ou suivre les services convenus"], zh: ["检查问题或事务", "确定所需政府服务", "执行或跟进约定的服务"] },
+  seedBizdev: { ar: ["فهم نشاطك وسوقك وهدفك", "تحديد المسار: عملاء أو موردون أو شريك", "بناء قائمة الحسابات المستهدفة وتأهيلها", "التواصل وحجز الاجتماعات ومتابعة الفرص"], en: ["Understand your business, market and goal", "Define the route: customers, suppliers or a partner", "Build and qualify the target accounts list", "Outreach, booking meetings and following up opportunities"], fr: ["Comprendre votre activité, votre marché et votre objectif", "Définir la voie : clients, fournisseurs ou partenaire", "Constituer et qualifier la liste de comptes cibles", "Prospection, prise de rendez-vous et suivi des opportunités"], zh: ["了解您的业务、市场与目标", "确定路径：客户、供应商或合作伙伴", "建立并筛选目标客户名单", "触达、预约会议并跟进商机"] },
   seedFormation: { ar: ["تحديد مسار التأسيس", "إجراءات التأسيس والسجل وعقد التأسيس", "الاشتراك في المنصات الحكومية الأساسية", "تعيين المدير على الشركة", "دعم فتح الحساب البنكي"], en: ["Define the formation route", "Formation, commercial register and articles of association", "Registration on the core government platforms", "Appointing the company manager", "Support with opening the bank account"], fr: ["Définir la voie de création", "Création, registre de commerce et statuts", "Inscription aux plateformes gouvernementales essentielles", "Nomination du gérant", "Accompagnement à l'ouverture du compte bancaire"], zh: ["确定设立路径", "设立手续、商业登记与公司章程", "核心政府平台注册", "任命公司经理", "协助开立银行账户"] },
 };
 
@@ -270,7 +316,7 @@ export const SV1_CSS = `<style id="sv1-css">
    الرماديات مائلةٌ إلى الكحلي لا محايدة، فتقرأ كأنها من العلامة. */
 .sv1{--n:#0B1B5A;--ac:#0B1B5A;--ac2:#16307F;--acSoft:#EEF2FB;--acLine:#C3CDE6;
  --n2:#081345;--g:#F5F7FB;--l:#E5E9F0;--line:#E5E9F0;--line2:#EBEFF7;
- --t:#232A3D;--ink:#0B1B5A;--s:#5A6478;--mut:#5A6478;--faint:#8D97AE;--soft:#F5F7FB;
+ --t:#232A3D;--ink:#0B1B5A;--s:#5A6478;--mut:#5A6478;--faint:#66708a;--soft:#F5F7FB;
  --ok:#047857;--okSoft:#E7F4EF;--warn:#B45309;--wa:#25D366;
  --sh:0 1px 2px rgba(11,27,90,.06);--sh2:0 22px 56px -18px rgba(11,27,90,.22),0 2px 8px rgba(11,27,90,.06);
  --fm:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace;
@@ -292,9 +338,9 @@ export const SV1_CSS = `<style id="sv1-css">
  margin-inline-end:7px;box-shadow:0 0 0 0 rgba(52,211,153,.65);animation:sv1pulse 2.6s infinite}
 @keyframes sv1pulse{70%{box-shadow:0 0 0 7px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
 .sv1-bar-langs{display:flex;gap:10px;font-family:var(--fm);font-size:10.5px;letter-spacing:.06em}
-.sv1-bar-langs a{opacity:.5}
-.sv1-bar-langs a:hover{opacity:.85}
-.sv1-bar-langs a.on{opacity:1;color:#fff}
+.sv1-bar-langs a{color:#C9D1EA;display:inline-block;min-width:24px;min-height:24px;line-height:24px;text-align:center}
+.sv1-bar-langs a:hover{color:#fff}
+.sv1-bar-langs a.on{color:#fff;font-weight:700;text-decoration:underline;text-underline-offset:4px}
 @media(max-width:760px){.sv1-bar .hide-s{display:none}}
 .sv1-hdr{border-bottom:1px solid var(--l);background:rgba(255,255,255,.86);backdrop-filter:blur(14px);position:sticky;top:0;z-index:20}
 .sv1-hdr .wrap{height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}
@@ -341,7 +387,11 @@ export const SV1_CSS = `<style id="sv1-css">
 .sv1-three .sv1-panel{padding:20px}
 .sv1-three h4{font-size:15px;margin:0 0 6px}
 .sv1-three p{margin:0;font-size:13px;line-height:1.7}
-.sv1-doors{display:grid;gap:10px}
+.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-doors>:last-child:nth-child(odd){grid-column:1/-1}
+a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
+.sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+.sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
 .sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
 .sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
 .sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
@@ -363,7 +413,7 @@ export const SV1_CSS = `<style id="sv1-css">
 .sv1-chat{display:flex;flex-direction:column;border-inline-end:1px solid var(--l)}
 .sv1-chathead{padding:16px;border-bottom:1px solid var(--l)}
 .sv1-chathead h3{font-size:18px;margin:0 0 1px}
-.sv1-chathead p{font-size:11.5px;color:#777;margin:0}
+.sv1-chathead p{font-size:11.5px;color:#5c6376;margin:0}
 .sv1-msgs{padding:16px;background:#fbfcfe;flex:1;overflow:auto;max-height:420px}
 .sv1-msg{max-width:85%;padding:10px 13px;border-radius:13px;font-size:13px;margin-bottom:9px;white-space:pre-wrap;line-height:1.75}
 .sv1-msg.a{background:#fff;border:1px solid var(--l)}
@@ -390,28 +440,28 @@ export const SV1_CSS = `<style id="sv1-css">
 .sv1-voice .t{font-family:var(--fm);margin-inline-start:auto;font-size:11px;color:var(--faint)}
 .sv1-scope{padding:19px;display:flex;flex-direction:column}
 .sv1-scope h3{font-size:19px;margin:9px 0 2px}
-.sv1-scope>p{font-size:11.5px;color:#777;margin:0 0 12px}
+.sv1-scope>p{font-size:11.5px;color:#5c6376;margin:0 0 12px}
 .sv1-item{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--l);border-radius:11px;padding:10px;margin-bottom:7px}
 .sv1-item b{font-size:12.5px;display:block;color:#32394a;outline:none;font-weight:600}
 .sv1-item b:focus{background:#fffbe6;border-radius:4px}
-.sv1-item small{font-size:10.5px;color:#888;display:block;margin-top:2px}
+.sv1-item small{font-size:10.5px;color:#656c7f;display:block;margin-top:2px}
 .sv1-item .del{border:0;width:27px;height:27px;border-radius:7px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:14px}
 .sv1-addrow{display:flex;gap:6px;margin-top:2px}
 .sv1-addrow input{flex:1;border:1px solid var(--l);border-radius:9px;padding:9px;font:inherit;font-size:12.5px;outline:none}
 .sv1-docs{margin-top:16px;padding-top:14px;border-top:1px dashed #cfd6e6}
 .sv1-docs h4{margin:0 0 2px;color:var(--ink);font-size:15px}
-.sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#777}
+.sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#5c6376}
 .sv1-doc{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:8px 10px;margin-bottom:6px}
 .sv1-doc span{font-size:12.5px;color:#32394a;display:flex;gap:7px;align-items:center}
 .sv1-doc span::before{content:"📄";font-size:13px}
 .sv1-doc .del{border:0;width:24px;height:24px;border-radius:6px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:13px}
-.sv1-docs .empty{font-size:11.5px;color:#9aa0b0;padding:6px 2px;margin-bottom:6px}
+.sv1-docs .empty{font-size:11.5px;color:#656c7f;padding:6px 2px;margin-bottom:6px}
 .sv1-summary{background:var(--acSoft);border:1px solid var(--acLine);border-radius:10px;padding:11px 13px;margin:14px 0;font-size:12px}
 .sv1-summary div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .sv1-summary strong{font-size:16px;color:var(--ac)}
 .sv1-login{border-top:1px solid var(--l);padding:16px 19px;background:#fff}
 .sv1-login h4{margin:0 0 4px;color:var(--ink);font-size:15px}
-.sv1-login p{margin:0 0 10px;color:#777;font-size:12px}
+.sv1-login p{margin:0 0 10px;color:#5c6376;font-size:12px}
 .sv1-login .g{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .sv1-login input{border:1px solid var(--l);border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;width:100%;outline:none}
 .sv1-login .full{grid-column:1/-1}
@@ -421,7 +471,7 @@ export const SV1_CSS = `<style id="sv1-css">
 .sv1-flow div{background:#fff;border:1px solid var(--l);border-radius:11px;padding:16px;text-align:center}
 .sv1-flow i{font-style:normal;font-family:var(--fm);width:34px;height:34px;background:var(--acSoft);color:var(--ac);border-radius:9px;display:grid;place-items:center;margin:0 auto 9px;font-weight:500;font-size:12px}
 .sv1-flow b{display:block;font-size:12.5px;color:var(--ink);font-weight:500}
-.sv1-flow small{font-size:10px;color:#888}
+.sv1-flow small{font-size:10px;color:#656c7f}
 .sv1-tabs{text-align:center;margin-bottom:15px;display:flex;gap:8px;justify-content:center}
 .sv1-tab{border:1px solid var(--l);background:#fff;border-radius:9px;padding:9px 17px;font-weight:500;color:var(--mut);cursor:pointer;font-family:inherit;font-size:13px}
 .sv1-tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
@@ -437,10 +487,10 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-mi.on{background:#fff;color:var(--ink);font-weight:500}
 .sv1-pmain{padding:22px;background:#fbfcfe}
 .sv1-pmain h3{font-size:21px;margin:0 0 2px}
-.sv1-muted{color:#777;font-size:11.5px}
+.sv1-muted{color:#5c6376;font-size:11.5px}
 .sv1-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:15px 0}
 .sv1-stat,.sv1-panel{background:#fff;border:1px solid var(--l);border-radius:11px;padding:14px}
-.sv1-stat span{font-size:9.5px;color:#777;display:block}
+.sv1-stat span{font-size:9.5px;color:#5c6376;display:block}
 .sv1-stat b{font-size:21px;color:var(--ink);font-family:var(--fm);font-weight:500}
 .sv1-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sv1-panel h4{color:var(--ink);margin:0 0 8px;font-size:13px;font-weight:500}
@@ -448,13 +498,13 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-prow:last-child{border-bottom:0}
 .sv1-status{font-size:9.5px;border-radius:999px;padding:3px 9px;background:var(--acSoft);color:var(--ac);white-space:nowrap}
 .sv1-status.done{background:var(--okSoft);color:var(--ok)}
-.sv1-pnote{text-align:center;color:#8b90a0;font-size:11px;margin-top:12px}
+.sv1-pnote{text-align:center;color:#656c7f;font-size:11px;margin-top:12px}
 .sv1-foot{margin-top:auto;padding:38px 0 22px;background:var(--n2);color:#ccd4ed;font-size:12px}
 .sv1-foot b{color:#fff}
 .sv1-foot a{color:#fff;text-decoration:underline;text-underline-offset:2px}
 .sv1-foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1.1fr 1fr;gap:26px 34px}
-.sv1-foot-col h4{color:#fff;font-size:12px;margin:0 0 10px;letter-spacing:.02em}
-.sv1-foot-col p{margin:0 0 8px;line-height:1.75}
+.sv1-foot-col h2{color:#fff;font-size:12px;font-weight:700;margin:0 0 10px;letter-spacing:.02em;text-wrap:wrap}
+.sv1-foot-col p{margin:0 0 8px;line-height:1.75;color:#ccd4ed}
 .sv1-foot-brand{display:block;font-size:15px;margin-bottom:6px}
 .sv1-foot-note{color:rgba(255,255,255,.62);font-size:11.5px;line-height:1.7}
 .sv1-foot-row{display:flex;gap:10px;align-items:baseline;padding:3px 0;line-height:1.6}
@@ -471,7 +521,7 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-foot-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 34px;
  margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1)}
 .sv1-foot-navcol{display:flex;flex-direction:column;gap:7px;min-width:0}
-.sv1-foot-navcol h5{color:rgba(255,255,255,.5);font-size:10.5px;font-weight:600;
+.sv1-foot-navcol h3{color:rgba(255,255,255,.5);font-size:10.5px;font-weight:600;
  letter-spacing:.07em;margin:0 0 3px;text-transform:uppercase}
 .sv1-foot-navcol a{color:rgba(255,255,255,.72);font-size:12.5px;line-height:1.5;
  text-decoration:none;transition:color .15s}
@@ -482,6 +532,19 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-wa-fab{position:fixed;inset-inline-start:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
 .sv1-navlogin{display:none}
+/* أهداف اللمس ≥ 44px على الجوال (قرار الإتاحة 2026-10-16). سطح المكتب لا يتغيّر. */
+@media(pointer:coarse),(max-width:760px){
+ .sv1 button:not(.sv1-door):not(.sv1-lang summary),.sv1 .sv1-btn,.sv1 input:not([type=hidden]):not([type=checkbox]):not([type=radio]),.sv1 select,.sv1 textarea{min-height:44px}
+ .sv1-btn.sm{min-height:44px;padding-block:10px}
+ .sv1 button.del,.sv1 .sv1-item .del,.sv1 .sv1-doc .del{min-width:44px;min-height:44px}
+ .sv1-burger{width:44px;height:44px}
+ .sv1-lang summary{min-height:44px}
+ .sv1-nav a{min-height:44px;display:flex;align-items:center}
+ .sv1-chips button{min-height:44px;padding-block:10px}
+ .sv1-compose .send,.sv1-mic{min-width:46px;min-height:46px}
+ .sv1 input[type=checkbox],.sv1 input[type=radio]{min-width:24px;min-height:24px}
+ .sv1-foot-navcol a,.sv1-foot-links a{display:inline-flex;align-items:center;min-height:44px}
+}
 @media(max-width:900px){
  .sv1-nav .sv1-navlogin{display:block;font-weight:700;color:var(--n)}
  .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
@@ -496,7 +559,8 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-side{display:none}
  .sv1-stats{grid-template-columns:1fr 1fr}
 }
-@media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+@media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
+ .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
 </style>`;
 
 // ------------------------------------------------- حالة الدخول في الترويسة --
@@ -592,15 +656,15 @@ export function simpleV1(ctx) {
   const CSS = SV1_CSS;
 
   function langSwitch(path) {
-    const items = SIMPLE_LANGS.map((l) => `<a href="${pathInLang(path, l)}" data-lang="${l}"${l === lang() ? ' class="on"' : ""}>${LANG_NAMES[l]}</a>`).join("");
-    return `<details class="sv1-lang"><summary>🌐 ${LANG_NAMES[lang()]}</summary><div class="menu">${items}</div></details>`;
+    const items = SIMPLE_LANGS.map((l) => `<a href="${pathInLang(path, l)}" data-lang="${l}" lang="${l}" hreflang="${l}"${l === lang() ? ' class="on" aria-current="true"' : ""}>${LANG_NAMES[l]}</a>`).join("");
+    return `<details class="sv1-lang"><summary><span aria-hidden="true">🌐</span> ${LANG_NAMES[lang()]}</summary><div class="menu">${items}</div></details>`;
   }
   // شريط الحالة: نبضةٌ حيّة واللغات الأربع بأكوادها. اللغات هنا إشارةٌ صادقة
   // — المنصّة كلها مترجمة، والروابط تفتح نفس الصفحة بلغتها لا الصفحة الأولى.
   function statusBar(path, oneLang) {
     const codes = SIMPLE_LANGS.map((l) =>
-      `<a href="${pathInLang(path, l)}" data-lang="${l}"${l === lang() ? ' class="on"' : ""}>${l.toUpperCase()}</a>`).join("");
-    return `<div class="sv1-bar"><div class="wrap">
+      `<a href="${pathInLang(path, l)}" data-lang="${l}" lang="${l}" hreflang="${l}" aria-label="${LANG_NAMES[l]}"${l === lang() ? ' class="on" aria-current="true"' : ""}>${l.toUpperCase()}</a>`).join("");
+    return `<div class="sv1-bar" role="region" aria-label="${esc(t("barLabel"))}"><div class="wrap">
   <div class="sv1-bar-l">
     <span><span class="sv1-pulse"></span><b>${t("barStatus")}</b></span>
     <span class="hide-s">${t("barCity")}</span>
@@ -614,7 +678,7 @@ export function simpleV1(ctx) {
   function header(path, { cta = true, oneLang = false } = {}) {
     return `${statusBar(path, oneLang)}<header class="sv1-hdr"><div class="wrap">
   <a class="logo" href="${href("/")}" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
-  <nav class="sv1-nav" id="sv1Nav">
+  <nav class="sv1-nav" id="sv1Nav" aria-label="${esc(t("navLabel"))}">
     <a href="${SIMPLE_V1 ? href("/catalog") : href("/") + "#doors"}">${t("navServices")}</a>
     <a href="${href("/consultation")}">${t("navBook")}</a>
     <a href="${href("/")}#how">${t("navHow")}</a>
@@ -623,7 +687,7 @@ export function simpleV1(ctx) {
     ${oneLang ? "" : langSwitch(path)}
   </nav>
   <div class="right">
-    <button class="sv1-burger" id="sv1Burger" aria-label="Menu" aria-expanded="false">☰</button>
+    <button type="button" class="sv1-burger" id="sv1Burger" aria-label="${esc(t("menuLabel"))}" aria-controls="sv1Nav" aria-expanded="false"><span aria-hidden="true">☰</span></button>
     <a class="sv1-btn sm sv1-cart sv1-hide" id="sv1CartBtn" href="${href("/cart")}" aria-label="${t("navCart")}">
       <span>${t("navCart")}</span><b id="sv1CartN">0</b></a>
     <a class="sv1-btn" id="sv1LoginBtn" href="${href("/my")}">${t("login")}</a>
@@ -684,18 +748,18 @@ export function simpleV1(ctx) {
       <p class="sv1-foot-note">${t("footInvoice")}</p>
     </div>
     <div class="sv1-foot-col">
-      <h4>${t("footIdentity")}</h4>
+      <h2>${t("footIdentity")}</h2>
       ${identity || `<p class="sv1-foot-note">${esc(id.name || "")}</p>`}
     </div>
     <div class="sv1-foot-col">
-      <h4>${t("footContact")}</h4>
+      <h2>${t("footContact")}</h2>
       <div class="sv1-foot-row"><span>${t("footPhone")}</span><a href="tel:${esc(contact.phoneIntl || contact.phone || "")}">${num(contact.phone || "")}</a></div>
       <div class="sv1-foot-row"><span>${t("footEmail")}</span><a href="mailto:${esc(contact.email || "")}"><bdi dir="ltr">${esc(contact.email || "")}</bdi></a></div>
       ${contact.address ? `<div class="sv1-foot-row"><span>${t("footAddress")}</span><span class="v">${esc(lang() === "ar" ? contact.address : contact.addressEn || contact.address)}</span></div>` : ""}
       ${contact.hours ? `<div class="sv1-foot-row"><span>${t("footHours")}</span><span class="v">${esc(lang() === "ar" ? contact.hours : contact.hoursEn || contact.hours)}</span></div>` : ""}
     </div>
     <div class="sv1-foot-col">
-      <h4>${t("footPay")}</h4>
+      <h2>${t("footPay")}</h2>
       <p class="sv1-foot-note">${t("footPayLine")}</p>
     </div>
   </div>
@@ -708,33 +772,34 @@ export function simpleV1(ctx) {
        المنتجات المفردة التي بابها صفحة الكتالوج. -->
   <div class="sv1-foot-nav">
     <div class="sv1-foot-navcol">
-      <h5>${t("footExplore")}</h5>
+      <h3>${t("footExplore")}</h3>
       <a href="${href("/catalog")}">${t("footClassic")}</a>
       <a href="${href("/packages")}">${t("navPackages")}</a>
       <a href="${href("/ai-agents")}">${t("navAdvisors")}</a>
-      <a href="${href("/business-development")}">${t("navBizDev")}</a>
+      ${pageVisible("business-development") ? `<a href="${href("/business-development")}">${t("navBizDev")}</a>` : ""}
     </div>
     <div class="sv1-foot-navcol">
-      <h5>${t("footKnow")}</h5>
+      <h3>${t("footKnow")}</h3>
       <!-- قرار المالك (2026-09-24): للمعرفة رابطٌ واحد فقط — «مركز المعرفة» — وكل
            صفحاتها (الأدلة، الحاسبات، المجلة، الاستثمار في السعودية) داخله. -->
       ${knowledge ? `<a href="${href("/knowledge-center")}">${esc(knowledge[lang()] || knowledge.en)}</a>` : ""}
     </div>
     <div class="sv1-foot-navcol">
-      <h5>${t("footCompany")}</h5>
+      <h3>${t("footCompany")}</h3>
       <a href="${href("/about")}">${t("navAbout")}</a>
       <a href="${href("/contact")}">${t("navContact")}</a>
       <a href="${href("/careers")}">${t("navCareers")}</a>
       <a href="${href("/suppliers")}">${t("navPartners")}</a>
       <a href="${href("/terms")}">${t("footTerms")}</a>
+      <a href="${href("/accessibility")}">${t("footA11y")}</a>
     </div>
   </div>
   <div class="sv1-foot-end">© ${year} Business Partner · ${t("footRights")}</div>
-</div></footer>
-<a class="sv1-wa-fab" href="${WA_HUMAN}" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a>`;
+</div>
+<a class="sv1-wa-fab" href="${WA_HUMAN}" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></footer>`;
   }
   const CHROME_JS = `<script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
-fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
+fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.setAttribute('role','region');d.setAttribute('aria-label','Test mode');d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
 var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};
 /* الرسم الفوري جرى بعد «</header>» مباشرة (SV1_SESSION_JS)؛ هنا التصحيح. */
 ${SV1_SESSION_SYNC_JS}
@@ -754,6 +819,10 @@ function send(p){p.action="hit";p.visitor=vid;try{var b=JSON.stringify(p);
 if(navigator.sendBeacon)navigator.sendBeacon("/api/requests",new Blob([b],{type:"application/json"}));
 else fetch("/api/requests",{method:"POST",headers:{"content-type":"application/json"},body:b,keepalive:true}).catch(function(){})}catch(e){}}
 var rh="";try{if(document.referrer){var u=new URL(document.referrer);if(u.host!==location.host)rh=u.host}}catch(e){}
+// وسوم UTM تسبق المُحيل: واتساب وتيك توك لا يرسلان Referer، فزياراتهما تظهر
+// «مباشرة» في اللوحة. الشكل utm:<source>/<medium>/<campaign>/<content>، والقصّ
+// إلى 120 حرفاً لأن عمود ref في api/requests.js يقصّه إلى 120.
+try{var q=new URLSearchParams(location.search);if(q.get("utm_source")){rh=("utm:"+[q.get("utm_source"),q.get("utm_medium"),q.get("utm_campaign"),q.get("utm_content")].map(function(v){return v||""}).join("/")).slice(0,120)}}catch(e){}
 send({kind:"view",path:location.pathname,ref:rh,lang:document.documentElement.lang||"",device:window.innerWidth<768?"mobile":"desktop"});
 // أزرار الموقع الجديد بأسمائها العربية كما تظهر في اللوحة، ومعها محدّدات
 // الموقع القديم حتى تُحسب الصفحتان بالمسمّى نفسه.
@@ -772,7 +841,23 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script>`;
 
+  // صفحاتٌ (لوحة /my و/ops) تكتب ما بين الترويسة والتذييل بلا <main>، فتفقد معلم
+  // «المحتوى الرئيسي» الذي يقفز إليه قارئ الشاشة ورابط التخطّي. نلفّ ذلك المقطع به
+  // هنا بدل تعديل ملف كل صفحة. لا يمسّ صفحةً فيها <main> أصلاً، ولا يغيّر التنسيق:
+  // <main> عنصر كتلة عاديّ داخل عمود .sv1 والتذييل يبقى في أسفله بـmargin-top:auto.
+  function withMain(body) {
+    if (/<main[\s>]/i.test(body)) return body;
+    const hEnd = body.indexOf("</header>");
+    if (hEnd < 0) return body;
+    let from = hEnd + "</header>".length;
+    if (body.startsWith(SV1_SESSION_JS, from)) from += SV1_SESSION_JS.length;
+    let to = body.indexOf('<footer class="sv1-foot"', from);
+    if (to < 0) to = body.length;
+    return body.slice(0, from) + "<main>" + body.slice(from, to) + "</main>" + body.slice(to);
+  }
+
   function shell({ title, desc, path, body, script = "", noindex = false, oneLang = false }) {
+    body = withMain(body);
     const h = head(title, desc, path)
       .replace("</head>", CSS + "</head>")
       .replace("</head>", noindex ? '<meta name="robots" content="noindex, nofollow"></head>' : "</head>")
@@ -788,7 +873,14 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
       ["consulting", "💬", t("ctxConsulting"), t("doorConsulting"), t("ctaConsulting")],
       ["government", "🏛️", t("ctxGovernment"), t("doorGovernment"), t("ctaGovernment")],
       ["formation", "🏢", t("ctxFormation"), t("doorFormation"), t("ctaFormation")],
+      ...(BIZDEV_DOOR ? [["bizdev", "📈", t("ctxBizdev"), t("doorBizdev"), t("ctaBizdev")]] : []),
     ].map(([k, ic, h3, p, cta]) => `<button type="button" class="sv1-door${k === "consulting" ? " on" : ""}" id="door-${k}" data-door="${k}"><div class="ico">${ic}</div><h3>${h3}</h3><p>${p}</p><span>${cta}</span></button>`).join("");
+    // EOR: بابٌ برابط (لا data-door) — يفتح /eor بالبادئة اللغوية ولا يغيّر سياق المستشار.
+    const eorTx = EOR_PAGE_TEXT[l] || EOR_PAGE_TEXT.en;
+    // إضافات تحت المحادثة فقط (أمر المالك 2026-10-11): أقسام مستقلة بمفاتيح في
+    // site/data/features.json (homeExtras). لا شيء منها فوق المحادثة ولا بين الأبواب.
+    const ex = buildHomeExtras({ esc, href, lang });
+    const eorDoor = `<a class="sv1-door" id="door-eor" href="${href("/eor")}" data-track="باب: eor"><div class="ico">👥</div><h3>${eorTx.title}</h3><p>${eorTx.desc}</p><span>${t("ctaEor")}</span></a>`;
 
     const flow = [1, 2, 3, 4, 5, 6].map((n) => `<div><i>${n}</i><b>${t("j" + n)}</b><small>${t("j" + n + "s")}</small></div>`).join("");
 
@@ -801,15 +893,15 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
     const TX = {
       thinking: t("thinking"), chatError: t("chatError"), scopeIn: t("scopeIn"), needScope: t("needScope"),
       micStart: t("micStart"), micStop: t("micStop"), micRec: t("micRec"), micWork: t("micWork"),
-      micDenied: t("micDenied"), micNone: t("micNone"), micQuiet: t("micQuiet"), micFail: t("micFail"), micLong: t("micLong"), micOff: t("micOff"),
+      micDenied: t("micDenied"), micNone: t("micNone"), micQuiet: t("micQuiet"), micFail: t("micFail"), micLong: t("micLong"), micOff: t("micOff"), micFormat: t("micFormat"), micTemp: t("micTemp"),
       loginErr: t("loginErr"), codeErr: t("codeErr"), creating: t("creating"), created: t("created"), openPortal: t("openPortal"),
       stateReady: t("stateReady"), docsEmpty: t("docsEmpty"),
-      titles: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation") },
-      welcome: { consulting: t("welcomeConsulting"), government: t("welcomeGovernment"), formation: t("welcomeFormation") },
-      chips: { consulting: arr("chipsConsulting"), government: arr("chipsGovernment"), formation: arr("chipsFormation") },
-      seed: { consulting: arr("seedConsulting"), government: arr("seedGovernment"), formation: arr("seedFormation") },
-      types: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation") },
-      doorSub: { consulting: t("doorConsulting"), government: t("doorGovernment"), formation: t("doorFormation") },
+      titles: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation"), ...(BIZDEV_DOOR ? { bizdev: t("ctxBizdev") } : {}) },
+      welcome: { consulting: t("welcomeConsulting"), government: t("welcomeGovernment"), formation: t("welcomeFormation"), ...(BIZDEV_DOOR ? { bizdev: t("welcomeBizdev") } : {}) },
+      chips: { consulting: arr("chipsConsulting"), government: arr("chipsGovernment"), formation: arr("chipsFormation"), ...(BIZDEV_DOOR ? { bizdev: arr("chipsBizdev") } : {}) },
+      seed: { consulting: arr("seedConsulting"), government: arr("seedGovernment"), formation: arr("seedFormation"), ...(BIZDEV_DOOR ? { bizdev: arr("seedBizdev") } : {}) },
+      types: { consulting: t("ctxConsulting"), government: t("ctxGovernment"), formation: t("ctxFormation"), ...(BIZDEV_DOOR ? { bizdev: t("ctxBizdev") } : {}) },
+      doorSub: { consulting: t("doorConsulting"), government: t("doorGovernment"), formation: t("doorFormation"), ...(BIZDEV_DOOR ? { bizdev: t("doorBizdev") } : {}) },
     };
 
     const body = `
@@ -824,9 +916,12 @@ ${header(path)}
         <a class="sv1-btn primary" href="#advisor">${t("heroChat")}</a>
         <a class="sv1-btn wa" href="${WA_HUMAN}" target="_blank" rel="noopener">${t("heroWa")}</a>
       </div>
-      <ul class="sv1-trust"><li>${t("trust1")}</li><li>${t("trust2")}</li><li>${t("trust3")}</li></ul>
+      <ul class="sv1-trust"><li>${t("trust1")}</li><li>${t("trust2")}</li><li>${t("trust3")}</li>${BIZDEV_DOOR ? `<li>${t("trust4")}</li>` : ""}</ul>
     </div>
-    <div class="sv1-doors" id="doors">${doors}</div>
+    <div class="sv1-doorwrap">
+      <div class="sv1-doors" id="doors">${doors}${eorDoor}</div>
+      <a class="sv1-browse" href="${href("/catalog")}" data-track="تصفّح الخدمات واشترِ مباشرة">${t("browseDirect")}</a>
+    </div>
   </div></section>
 
   <section class="sv1-sec" id="advisor"><div class="wrap">
@@ -886,6 +981,7 @@ ${header(path)}
     </div>
   </div></section>
 
+  ${ex.search}${ex.how}${ex.popular}
   <section class="sv1-sec" id="simple"><div class="wrap">
     <div class="sv1-title"><h2>${t("noNameTitle")}</h2><p>${t("noNameSub")}</p></div>
     <div class="sv1-three">
@@ -929,13 +1025,14 @@ ${header(path)}
     </div>
     <p class="sv1-pnote">${t("previewNote")}</p>
   </div></section>
+  ${ex.faq}
 </main>
 ${footer()}`;
 
     const script = `<script>
 (function(){
 var LANG=${JSON.stringify(l)},TX=${JSON.stringify(TX)},PORTAL=${JSON.stringify(href("/my"))};
-var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION'};
+var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION'${BIZDEV_DOOR ? ",bizdev:'BUSINESS_DEVELOPMENT'" : ""}};
 var $=function(id){return document.getElementById(id)};
 var msgs=$('sv1Msgs'),form=$('sv1Form'),input=$('sv1In'),send=$('sv1Send');
 var state={ctx:'consulting',history:[],items:[],docs:[],summary:'',title:'',ready:false,busy:false};
@@ -993,31 +1090,40 @@ function submit(){var v=input.value.trim();if(!v||state.busy)return;var c=msgs.q
   if(tick){clearInterval(tick);tick=null}stopTracks();rec=null}
  function send2(blob,type){
   if(blob.size<1200){reset();say('err',TX.micQuiet);return}
-  if(blob.size>12*1024*1024){reset();say('err',TX.micLong);return}
+  if(blob.size>3.2*1024*1024){reset();say('err',TX.micLong);return}   // Vercel يرفض جسم الطلب فوق ٤٫٥ م.ب (وbase64 يزيده الثلث)
   mic.classList.remove('rec');mic.classList.add('busy');mic.disabled=true;say('',TX.micWork);
   var fr=new FileReader();
   fr.onerror=function(){reset();say('err',TX.micFail)};
   fr.onload=function(){
    var b64=String(fr.result||'').split(',')[1]||'';
+   if(!b64){reset();say('err',TX.micQuiet);return}
+   var status=0;
    fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json'},
      body:JSON.stringify({mode:'voice',mime:type||'audio/webm',lang:LANG,audio:b64})})
-    .then(function(r){return r.json()}).then(function(o){
+    .then(function(r){status=r.status;return r.text()}).then(function(raw){
      reset();
-     if(!o||!o.ok){var e2=o&&o.error;say('err',e2==='no_speech'?TX.micQuiet:e2==='too_large'?TX.micLong:e2==='not_configured'?TX.micOff:TX.micFail);if(o&&o.detail&&window.console)console.warn('voice:',e2,o.detail);return}
+     var o=null;try{o=JSON.parse(raw)}catch(e){}
+     // ردٌّ ليس JSON = الاستضافة ردّت قبل الدالة: ٤١٣ جسم كبير، ٥٠٤ مهلة، ٥٠٢/٥٠٣ عطل مؤقت.
+     if(!o){say('err',status===413?TX.micLong:status>=500||status===429?TX.micTemp:TX.micFail);if(window.console)console.warn('voice: http',status);return}
+     if(!o.ok){var e2=o.error,rs=o.reason;
+      // السبب يحدد الرسالة: لا كلام / كبير / غير مُفعَّل (مفتاح أو نشر عند المالك) / صيغة / مشغول مؤقتاً.
+      say('err',e2==='no_speech'||e2==='no_audio'?TX.micQuiet:e2==='too_large'?TX.micLong:e2==='not_configured'||rs==='deployment'||rs==='auth'?TX.micOff:e2==='bad_type'||rs==='format'?TX.micFormat:rs==='busy'||rs==='timeout'||rs==='unavailable'?TX.micTemp:TX.micFail);
+      if(o.detail&&window.console)console.warn('voice:',e2,rs,o.detail);return}
      hide();
      // لغة الكلام تُمرَّر مع الرسالة فيردّ المستشار بها ولو كانت الصفحة بلغةٍ أخرى.
      if(o.lang)state.voiceLang=o.lang;
-     input.value=(input.value?input.value.replace(/\s*$/,' '):'')+o.text;
+     input.value=(input.value?input.value.replace(/\\s*$/,' '):'')+o.text;
      input.focus();
      try{input.setSelectionRange(input.value.length,input.value.length)}catch(e){}
      input.style.height='auto';input.style.height=Math.min(120,input.scrollHeight)+'px'})
-    .catch(function(){reset();say('err',TX.micFail)})};
+    .catch(function(){reset();say('err',TX.micTemp)})};
   fr.readAsDataURL(blob)}
  function start(){
   if(!CAN){say('err',TX.micNone);return}
   navigator.mediaDevices.getUserMedia({audio:true}).then(function(st){
    stream=st;var type=pickType();chunks=[];
-   try{rec=type?new MediaRecorder(st,{mimeType:type}):new MediaRecorder(st)}catch(e){rec=new MediaRecorder(st)}
+   try{rec=type?new MediaRecorder(st,{mimeType:type,audioBitsPerSecond:32000}):new MediaRecorder(st,{audioBitsPerSecond:32000})}   // كلامٌ لا موسيقى: يُبقي ثلاث دقائق دون حدّ الطلب
+   catch(e){try{rec=new MediaRecorder(st)}catch(e2){stopTracks();say('err',TX.micNone);return}}
    var used=rec.mimeType||type||'audio/webm';
    rec.ondataavailable=function(e){if(e.data&&e.data.size)chunks.push(e.data)};
    rec.onstop=function(){send2(new Blob(chunks,{type:used}),used)};
@@ -1087,9 +1193,9 @@ msgs.innerHTML='';state.history.forEach(function(m){var p=m.role==='assistant'?p
 else setCtx(state.ctx,true);
 })();</script>`;
     return shell({
-      title: { ar: "Business Partner — استشارات، خدمات حكومية، تأسيس شركات", en: "Business Partner — Consulting, government services, company formation", fr: "Business Partner — Conseil, services gouvernementaux, création d'entreprise", zh: "Business Partner — 咨询、政府服务、公司注册" }[l],
+      title: (BIZDEV_DOOR ? { ar: "Business Partner — استشارات، خدمات حكومية، تأسيس شركات، تطوير أعمال", en: "Business Partner — Consulting, government services, company formation, business development", fr: "Business Partner — Conseil, services gouvernementaux, création d'entreprise, développement commercial", zh: "Business Partner — 咨询、政府服务、公司注册、业务拓展" } : { ar: "Business Partner — استشارات، خدمات حكومية، تأسيس شركات", en: "Business Partner — Consulting, government services, company formation", fr: "Business Partner — Conseil, services gouvernementaux, création d'entreprise", zh: "Business Partner — 咨询、政府服务、公司注册" })[l],
       desc: t("heroText"),
-      path, body, script,
+      path, body: ex.css + body, script: script + ex.script,
     });
   }
 

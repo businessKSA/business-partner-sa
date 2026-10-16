@@ -145,9 +145,9 @@ test("اللغات الأربع: النصوص الجديدة مُترجَمة ف
     en: "site/employer.html", fr: "site/fr/employer.html", zh: "site/zh/employer.html",
   };
   const want = {
-    en: ["CV on the site", "Not scored yet", "Not checked", "Original CV (as uploaded)"],
-    fr: ["CV sur le site", "Pas encore évalué", "Non vérifié"],
-    zh: ["站内简历", "尚未评分", "未核查"],
+    en: ["Full CV text", "Not scored yet", "Not checked", "Original CV (as uploaded)"],
+    fr: ["Texte complet du CV", "Pas encore évalué", "Non vérifié"],
+    zh: ["简历全文", "尚未评分", "未核查"],
   };
   for (const [lang, rel] of Object.entries(pages)) {
     const p = path.join(ROOT, rel);
@@ -157,6 +157,6 @@ test("اللغات الأربع: النصوص الجديدة مُترجَمة ف
       assert.ok(s.includes(phrase), `${rel}: غائب «${phrase}» — سلسلةٌ لم تُترجَم`);
     }
     // ولا نصَّ عربيٍّ مكتوبٍ في واجهة اللغات الأخرى بدل الترجمة.
-    assert.ok(!s.includes("السيرة الذاتية على الموقع"), rel + ": سُرِّبت السلسلة العربية إلى واجهةٍ أخرى");
+    assert.ok(!s.includes("تحميل السيرة الأصلية"), rel + ": سُرِّبت السلسلة العربية إلى واجهةٍ أخرى");
   }
 });
