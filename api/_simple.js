@@ -20,7 +20,7 @@ import { sb, DB_ON, DB_MISSING, getSession, audit, notify } from "./_db.js";
 import { contractHtml, quoteHtml } from "./_docusign.js";
 import { loadCatalog } from "./_catalog.js";
 import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate } from "./_daftra.js";
-import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
+import { ownerTicketOk, panelRequiresNafath, isNafathPlaceholderEmail } from "./_nafath.js";
 import { DEV, EMAIL_LIVE, MODES, outbox, outboxList } from "./_mode.js";
 import { isOwnerEmail } from "./_trial.js";
 import { waSend, waNumber } from "./_stage.js";
@@ -74,7 +74,12 @@ function opsOk(src) {
   const key = String((src && src.key) || "").trim();
   const ticket = String((src && src.ticket) || "").trim();
   if (ticket && ownerTicketOk(ticket)) return true;
-  if (!panelRequiresNafath() && PANEL_KEYS.size && PANEL_KEYS.has(key)) return true;
+  // With PANEL_REQUIRE_NAFATH on, the ticket above is the ONLY way in: not the
+  // panel key, and not the throwaway test keys below either. (The test keys used
+  // to slip past this switch — harmless in production, where they do not exist,
+  // but a preview with the switch on would still have opened to a known string.)
+  if (panelRequiresNafath()) return false;
+  if (PANEL_KEYS.size && PANEL_KEYS.has(key)) return true;
   // Preview/test only: a throwaway key so the owner can test /ops without
   // exposing the production panel key on a preview URL.
   if (SIMPLE_TEST_MODE && key && key === (process.env.SIMPLE_OPS_KEY || "test-ops")) return true;
@@ -282,6 +287,10 @@ export async function handleSimple(req, res) {
       // secret string he has to carry between devices is not that.
       let opsUser = null;
       if (!opsOk({ key: body.key || qs.key, ticket: body.ticket || qs.ticket })) {
+        // PANEL_REQUIRE_NAFATH closes this door too (owner decision 2026-10-16:
+        // the owner's panel opens with Nafath only). A session proves a mailbox,
+        // not a person standing at the phone.
+        if (panelRequiresNafath()) return json(res, 401, { ok: false, error: "unauthorized", nafath: true, signin: `${SELF_BASE}/ar/ops` });
         const sess = await getSession(req);
         if (!isOwnerEmail(sess && sess.user && sess.user.email)) {
           return json(res, 401, { ok: false, error: "unauthorized", signin: `${SELF_BASE}/ar/my` });
@@ -305,7 +314,19 @@ async function clientAction(action, b, qs, req, res, sess) {
   const orgId = sess.organization?.id || null;
   const who = sess.user?.full_name || email;
 
+  // A first Nafath sign-in opens an account under a placeholder address; until
+  // the client gives a real e-mail and mobile (api/otp.js nafath-contact-*), the
+  // account may look at itself but not act — a request, a quote or an invoice
+  // written against an address nobody can read is a request nobody can answer.
+  const contactPending = isNafathPlaceholderEmail(email);
+  if (contactPending && action !== "me") {
+    return json(res, 403, { ok: false, error: "contact_required", message: "أكمل بريدك وجوالك أولاً لنتمكن من خدمتك." });
+  }
+
   if (action === "me") {
+    if (contactPending) {
+      return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, user: { name: sess.user.full_name || "", email: "", contactPending: true }, organization: sess.organization, counts: {}, requests: [] });
+    }
     // Claim requests created for this e-mail before the client registered.
     if (orgId) { try { await sb(`requests?client_email=eq.${q(email)}&organization_id=is.null`, { method: "PATCH", prefer: "return=minimal", body: { organization_id: orgId, user_id: sess.user.id } }); } catch {} }
     const mine = await myRequests(sess);

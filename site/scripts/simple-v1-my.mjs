@@ -3,6 +3,8 @@
 // sees what needs attention, their requests, and the one action each request
 // is waiting on (approve quote → sign contract → pay → done).
 
+import { CLIENT_LOGIN_CSS, clientLoginScript } from "./client-login.mjs";
+
 const P = {
   title: { ar: "حسابي — Business Partner", en: "My account — Business Partner", fr: "Mon compte — Business Partner", zh: "我的账户 — Business Partner" },
   navHome: { ar: "الرئيسية", en: "Home", fr: "Accueil", zh: "首页" },
@@ -123,14 +125,56 @@ const P = {
   team: { ar: "الفريق", en: "Team", fr: "Équipe", zh: "团队" },
   assistant: { ar: "المساعد", en: "Assistant", fr: "Assistant", zh: "助手" },
   loginTitle: { ar: "تسجيل الدخول", en: "Sign in", fr: "Connexion", zh: "登录" },
-  loginText: { ar: "أدخل بريدك ونرسل لك رمز دخول.", en: "Enter your email and we'll send a sign-in code.", fr: "Saisissez votre e-mail, nous envoyons un code.", zh: "输入邮箱，我们将发送登录验证码。" },
+  loginText: { ar: "اختر طريقة الدخول — حسابك واحد مهما اخترت.", en: "Choose how to sign in — it is one account whichever you pick.", fr: "Choisissez comment vous connecter — un seul compte, quel que soit le moyen.", zh: "选择登录方式——无论哪种方式都是同一个账户。" },
+  tabPw: { ar: "كلمة المرور", en: "Password", fr: "Mot de passe", zh: "密码" },
+  tabNew: { ar: "حساب جديد", en: "New account", fr: "Nouveau compte", zh: "新账户" },
+  tabLink: { ar: "رابط بالبريد", en: "E-mail link", fr: "Lien par e-mail", zh: "邮件链接" },
+  forgot: { ar: "نسيت كلمة المرور؟ ادخل برابط يصلك بالبريد", en: "Forgot it? Sign in with an e-mailed link", fr: "Oublié ? Connectez-vous par lien e-mail", zh: "忘记密码？使用邮件链接登录" },
+  badCreds: { ar: "البريد أو كلمة المرور غير صحيحة.", en: "Wrong e-mail or password.", fr: "E-mail ou mot de passe incorrect.", zh: "邮箱或密码不正确。" },
+  tooMany: { ar: "محاولات كثيرة. انتظر قليلاً ثم أعد المحاولة.", en: "Too many attempts. Wait a little and try again.", fr: "Trop de tentatives. Patientez un peu puis réessayez.", zh: "尝试次数过多，请稍等后再试。" },
+  pwNew: { ar: "اختر كلمة مرور", en: "Choose a password", fr: "Choisissez un mot de passe", zh: "设置密码" },
+  pwConfirm: { ar: "أعد كتابة كلمة المرور", en: "Repeat the password", fr: "Répétez le mot de passe", zh: "再次输入密码" },
+  pwMismatch: { ar: "كلمتا المرور غير متطابقتين.", en: "The passwords do not match.", fr: "Les mots de passe ne correspondent pas.", zh: "两次输入的密码不一致。" },
+  pwRule: { ar: "٨ أحرف على الأقل، وتحوي حرفاً ورقماً.", en: "At least 8 characters, with a letter and a digit.", fr: "8 caractères minimum, avec une lettre et un chiffre.", zh: "至少 8 个字符，包含字母和数字。" },
+  pwr_short: { ar: "كلمة المرور ٨ أحرف على الأقل.", en: "The password must be at least 8 characters.", fr: "8 caractères minimum.", zh: "密码至少 8 个字符。" },
+  pwr_long: { ar: "كلمة المرور أطول من المسموح.", en: "That password is too long.", fr: "Ce mot de passe est trop long.", zh: "密码过长。" },
+  pwr_no_letter: { ar: "كلمة المرور تحتاج حرفاً واحداً على الأقل.", en: "The password needs at least one letter.", fr: "Le mot de passe doit contenir au moins une lettre.", zh: "密码至少需要一个字母。" },
+  pwr_no_digit: { ar: "كلمة المرور تحتاج رقماً واحداً على الأقل.", en: "The password needs at least one digit.", fr: "Le mot de passe doit contenir au moins un chiffre.", zh: "密码至少需要一个数字。" },
+  pwr_repetitive: { ar: "كلمة المرور متكررة الأحرف. اختر غيرها.", en: "That password repeats too much. Pick another.", fr: "Ce mot de passe est trop répétitif. Choisissez-en un autre.", zh: "密码字符过于重复，请换一个。" },
+  pwr_common: { ar: "كلمة المرور شائعة جداً. اختر غيرها.", en: "That password is too common. Pick another.", fr: "Ce mot de passe est trop courant. Choisissez-en un autre.", zh: "密码过于常见，请换一个。" },
+  pwr_has_email: { ar: "لا تضع بريدك داخل كلمة المرور.", en: "Do not put your e-mail inside the password.", fr: "Ne mettez pas votre e-mail dans le mot de passe.", zh: "密码中不要包含您的邮箱。" },
+  signupGo: { ar: "أنشئ حسابي وأرسل الرمز", en: "Create my account and send the code", fr: "Créer mon compte et envoyer le code", zh: "创建账户并发送验证码" },
+  signupNote: { ar: "سنرسل رمزاً إلى بريدك. لا تُفعَّل كلمة المرور قبل تأكيده.", en: "We e-mail you a code. The password is not active until you confirm it.", fr: "Nous vous envoyons un code. Le mot de passe n'est actif qu'après confirmation.", zh: "我们会向您的邮箱发送验证码，确认后密码才会生效。" },
+  codeSent: { ar: "أرسلنا رمز التحقق إلى {e}.", en: "We sent a verification code to {e}.", fr: "Code de vérification envoyé à {e}.", zh: "验证码已发送到 {e}。" },
+  codeOld: { ar: "انتهت صلاحية الرمز. ابدأ من جديد.", en: "That code has expired. Start again.", fr: "Ce code a expiré. Recommencez.", zh: "验证码已过期，请重新开始。" },
+  confirmGo: { ar: "أكّد وادخل", en: "Confirm and sign in", fr: "Confirmer et se connecter", zh: "确认并登录" },
+  cStep: { ar: "خطوة واحدة تُطلب مرة واحدة", en: "One step, asked once", fr: "Une seule étape, demandée une fois", zh: "仅需一步，只需一次" },
+  cTitle: { ar: "أكمل حسابك", en: "Complete your account", fr: "Complétez votre compte", zh: "完善您的账户" },
+  cText: { ar: "تم التحقق من هويتك عبر نفاذ. نحتاج بريدك لتصلك عليه الفاتورة الضريبية وإشعارات طلباتك، وجوالك ليتواصل معك الفريق.", en: "Your identity is verified through Nafath. We need your e-mail for your tax invoice and request updates, and your mobile so the team can reach you.", fr: "Votre identité est vérifiée par Nafath. Nous avons besoin de votre e-mail pour la facture fiscale et le suivi, et de votre mobile pour vous joindre.", zh: "您的身份已通过 Nafath 验证。我们需要您的邮箱以发送税务发票和申请进度，并需要您的手机号以便团队联系您。" },
+  cPhone: { ar: "رقم الجوال", en: "Mobile number", fr: "Numéro de mobile", zh: "手机号码" },
+  cPhonePh: { ar: "05XXXXXXXX", en: "05XXXXXXXX", fr: "05XXXXXXXX", zh: "05XXXXXXXX" },
+  cBadPhone: { ar: "اكتب رقم جوال صحيحاً، مثل 05XXXXXXXX.", en: "Enter a valid mobile number, such as 05XXXXXXXX.", fr: "Saisissez un numéro de mobile valide, par ex. 05XXXXXXXX.", zh: "请输入有效的手机号，例如 05XXXXXXXX。" },
+  cSend: { ar: "أرسل رمز التحقق", en: "Send the verification code", fr: "Envoyer le code de vérification", zh: "发送验证码" },
+  cMismatch: { ar: "هذا البريد مرتبط بهوية وطنية أخرى. استعمل بريداً آخر أو تواصل معنا.", en: "This e-mail is linked to a different national ID. Use another e-mail or contact us.", fr: "Cet e-mail est lié à une autre identité nationale. Utilisez un autre e-mail ou contactez-nous.", zh: "此邮箱已关联另一个身份。请使用其他邮箱或联系我们。" },
   email: { ar: "البريد الإلكتروني", en: "Email", fr: "E-mail", zh: "邮箱" },
   sendCode: { ar: "أرسل الرمز", en: "Send code", fr: "Envoyer le code", zh: "发送验证码" },
   password: { ar: "كلمة المرور", en: "Password", fr: "Mot de passe", zh: "密码" },
   loginPw: { ar: "دخول بكلمة المرور", en: "Sign in with password", fr: "Se connecter avec mot de passe", zh: "使用密码登录" },
   usePw: { ar: "لديك كلمة مرور؟ ادخل بها", en: "Have a password? Sign in with it", fr: "Vous avez un mot de passe ?", zh: "使用密码登录" },
   useCode: { ar: "ادخل برمز البريد بدلاً من ذلك", en: "Use an emailed code instead", fr: "Utiliser un code par e-mail", zh: "改用邮箱验证码" },
-  orGoogle: { ar: "أو ادخل بحساب Google", en: "Or continue with Google", fr: "Ou continuer avec Google", zh: "或使用 Google 登录" },
+  sendLink: { ar: "أرسل لي رابط الدخول", en: "Email me a sign-in link", fr: "Envoyez-moi un lien de connexion", zh: "给我发送登录链接" },
+  badEmail: { ar: "اكتب بريداً إلكترونياً صحيحاً.", en: "Enter a valid e-mail address.", fr: "Saisissez une adresse e-mail valide.", zh: "请输入有效的邮箱地址。" },
+  linkSent: { ar: "أرسلنا رابط الدخول إلى {e} — افتح بريدك واضغط الرابط وتدخل مباشرة (صالح ١٥ دقيقة).", en: "We sent a sign-in link to {e} — open your mailbox and tap it to get in (valid for 15 minutes).", fr: "Lien de connexion envoyé à {e} — ouvrez votre boîte mail et cliquez dessus (valable 15 minutes).", zh: "登录链接已发送到 {e}——打开邮箱点击即可登录（15 分钟内有效）。" },
+  orCode: { ar: "أو اكتب الرمز المرسل في الرسالة نفسها:", en: "Or type the code from the same message:", fr: "Ou saisissez le code du même message :", zh: "或输入同一封邮件中的验证码：" },
+  resend: { ar: "أرسل الرابط مرة أخرى", en: "Send the link again", fr: "Renvoyer le lien", zh: "重新发送链接" },
+  resendIn: { ar: "إعادة الإرسال بعد {n} ث", en: "Send again in {n}s", fr: "Renvoyer dans {n} s", zh: "{n} 秒后可重发" },
+  changeEmail: { ar: "بريد آخر", en: "Use another e-mail", fr: "Autre e-mail", zh: "更换邮箱" },
+  openLink: { ar: "افتح رابط الاختبار", en: "Open the test link", fr: "Ouvrir le lien de test", zh: "打开测试链接" },
+  linkTitle: { ar: "تأكيد الدخول", en: "Confirm sign-in", fr: "Confirmer la connexion", zh: "确认登录" },
+  linkText: { ar: "اضغط الزرّ لإكمال الدخول إلى حسابك.", en: "Tap the button to finish signing in to your account.", fr: "Appuyez sur le bouton pour terminer la connexion.", zh: "点击按钮完成登录。" },
+  linkGo: { ar: "أكمل الدخول", en: "Continue to my account", fr: "Continuer vers mon compte", zh: "继续进入我的账户" },
+  linkBad: { ar: "الرابط منتهٍ أو استُعمل من قبل. اطلب رابطاً جديداً.", en: "This link has expired or was already used. Request a new one.", fr: "Ce lien a expiré ou a déjà été utilisé. Demandez-en un nouveau.", zh: "此链接已过期或已被使用，请重新获取。" },
+  linkNew: { ar: "اطلب رابطاً جديداً", en: "Request a new link", fr: "Demander un nouveau lien", zh: "获取新链接" },
   pwTitle: { ar: "كلمة المرور", en: "Password", fr: "Mot de passe", zh: "密码" },
   pwNote: { ar: "اضبط كلمة مرور لحسابك لتدخل بها مباشرة بدل انتظار رمز البريد في كل مرة.", en: "Set a password so you can sign in directly instead of waiting for an emailed code.", fr: "Définissez un mot de passe pour vous connecter directement.", zh: "设置密码即可直接登录，无需每次等待验证码。" },
   pwSave: { ar: "حفظ كلمة المرور", en: "Save password", fr: "Enregistrer", zh: "保存密码" },
@@ -310,7 +354,16 @@ canvas.sig{border:1px dashed #c7cfe2;border-radius:10px;background:#fff;width:10
 .login{max-width:440px;margin:60px auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px}
 .login .alt{margin-top:12px;display:flex;gap:14px;flex-wrap:wrap}
 .login .lnk{color:var(--navy);text-decoration:underline;cursor:pointer;font-size:13px}
-.login .gbtn{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:8px}
+.login .btn{width:100%}.login .btn.sm{width:auto}.login .note{margin:12px 0 8px}.login .sent{color:var(--ink);font-size:.92rem;line-height:1.8;margin:0 0 4px}.login .alt{justify-content:space-between}
+${CLIENT_LOGIN_CSS}
+.login .seg{display:flex;gap:4px;padding:3px;margin:0 0 10px;border-radius:12px;background:var(--soft,#F5F7FB);border:1px solid var(--line)}
+.login .segb{flex:1;min-height:38px;border:0;border-radius:9px;background:transparent;font:inherit;font-size:.84rem;font-weight:700;color:var(--mut);cursor:pointer;padding:0 6px}
+.login .segb.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(11,27,90,.12)}
+.login .segb[hidden]{display:none}
+.login .rule{margin:0 0 8px;font-size:.8rem}.login .rule.bad{color:#b91c1c}.login .rule.good{color:var(--ok,#047857)}
+.login .cstep{display:inline-block;margin:0 0 8px;padding:3px 10px;border-radius:999px;background:var(--acSoft,#EEF2FB);color:var(--ink);font-size:.76rem;font-weight:700}
+.login label{display:block;margin:6px 0 4px;font-size:.84rem;font-weight:600;color:var(--ink)}
+@media(max-width:520px){.login{margin:18px 12px;padding:18px}}
 .login h1{margin:0 0 6px;color:var(--ink);font-size:1.35rem;font-weight:400}
 .login p{color:var(--mut);margin:0 0 14px;font-size:.9rem}
 .login input{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit;margin-bottom:8px}
@@ -348,7 +401,7 @@ select.inp{background:#fff;color:inherit}
 ${sv1.header("/my", { cta: false })}
 <div id="app"></div>
 ${sv1.footer()}`;
-  const script = `<script>
+  const script = clientLoginScript(l) + `<script>
 (function(){
 var LANG=${JSON.stringify(l)},EV=${JSON.stringify(EVENTS[l === "ar" ? "ar" : "en"])},TX=${JSON.stringify(tx)},ST=${JSON.stringify(st)},TY=${JSON.stringify(ty)},HOME=${JSON.stringify(home)},CHECKOUT=${JSON.stringify(sv1.href("/checkout"))};
 var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null};
@@ -369,27 +422,97 @@ function pillClass(s){return ['QUOTE_SENT','CONTRACT_SENT','SIGNED','PAYMENT_PEN
 function pill(s){return h('span',{class:'pill '+pillClass(s)},[ST[s]||s])}
 function go(view,ref){state.view=view;state.ref=ref||null;var u=new URL(location.href);u.searchParams.set('view',view);if(ref)u.searchParams.set('ref',ref);else u.searchParams.delete('ref');history.replaceState(null,'',u.toString());render()}
 // ---------- login
-function renderLogin(){app.innerHTML='';var email='',challenge='';var box=h('div',{class:'login'});var errEl=h('div',{class:'err'});
-var e1=h('input',{type:'email',placeholder:TX.email,autocomplete:'email'}),b1=h('button',{class:'btn',onclick:function(){email=e1.value.trim().toLowerCase();errEl.textContent='';b1.disabled=true;otp({action:'start',email:email}).then(function(o){b1.disabled=false;if(!o||!o.ok){errEl.textContent=(o&&o.message)||TX.loginErr;return}challenge=o.challenge;s1.hidden=true;s2.hidden=false;if(o.testLogin)e2.placeholder='TEST: 123456';e2.focus()}).catch(function(){b1.disabled=false;errEl.textContent=TX.loginErr})}},[TX.sendCode]);
-var e2=h('input',{inputmode:'numeric',maxlength:'6',placeholder:TX.code}),b2=h('button',{class:'btn',onclick:function(){b2.disabled=true;otp({action:'verify',email:email,code:e2.value.trim(),challenge:challenge}).then(function(o){b2.disabled=false;if(!o||!o.ok){errEl.textContent=TX.codeErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){b2.disabled=false;errEl.textContent=TX.codeErr})}},[TX.verify]);
-var s1=h('div',{},[e1,b1]),s2=h('div',{hidden:''},[e2,b2]);
-// Three doors to the same account: emailed code, password, Google. Only the
-// ones this deployment has configured are drawn.
-var e3=h('input',{type:'password',placeholder:TX.password,autocomplete:'current-password'});
-var b3=h('button',{class:'btn',onclick:function(){errEl.textContent='';b3.disabled=true;otp({action:'password-login',email:e1.value.trim().toLowerCase(),password:e3.value}).then(function(o){b3.disabled=false;if(!o||!o.ok){errEl.textContent=(o&&o.message)||TX.loginErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){b3.disabled=false;errEl.textContent=TX.loginErr})}},[TX.loginPw]);
-var sp=h('div',{hidden:''},[e3,b3]);
-var toPw=h('a',{class:'lnk',onclick:function(){sp.hidden=false;toPw.hidden=true;toCode.hidden=false;e3.focus()}},[TX.usePw]);
-var toCode=h('a',{class:'lnk',hidden:'',onclick:function(){sp.hidden=true;toPw.hidden=false;toCode.hidden=true}},[TX.useCode]);
-var gwrap=h('div',{class:'gbtn',hidden:''});
-box.appendChild(h('h1',{},[TX.loginTitle]));box.appendChild(h('p',{},[TX.loginText]));box.appendChild(s1);box.appendChild(s2);box.appendChild(sp);box.appendChild(h('div',{class:'alt'},[toPw,toCode]));box.appendChild(gwrap);box.appendChild(errEl);app.appendChild(box);
-otp({action:'methods'}).then(function(m){if(!m||!m.ok)return;if(!m.password){toPw.hidden=true}if(m.google&&m.googleClientId)mountGoogle(gwrap,m.googleClientId,errEl)}).catch(function(){})}
-// Google Identity Services is loaded only when a client id exists, so a
-// deployment without Google never pulls a script it cannot use.
-function mountGoogle(wrap,cid,errEl){wrap.hidden=false;wrap.appendChild(h('p',{class:'note'},[TX.orGoogle]));var slot=h('div',{id:'bpGoogleBtn'});wrap.appendChild(slot);
-window.__bpGoogleCb=function(resp){otp({action:'google',credential:resp&&resp.credential}).then(function(o){if(!o||!o.ok){errEl.textContent=TX.loginErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()})};
-function init(){try{google.accounts.id.initialize({client_id:cid,callback:window.__bpGoogleCb});google.accounts.id.renderButton(slot,{theme:'outline',size:'large',width:280,locale:LANG==='ar'?'ar':'en'})}catch(e){wrap.hidden=true}}
-if(window.google&&window.google.accounts&&window.google.accounts.id)return init();
-var sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.defer=true;sc.onload=init;sc.onerror=function(){wrap.hidden=true};document.head.appendChild(sc)}
+// One page, one decision. Google first (the official button, with a written
+// failure state instead of vanishing), then an e-mailed link that carries its own
+// code as a fallback, then — small and last — the password for those who set one.
+// Every success path keeps the literal «localStorage…boot()» sequence: the build
+// step sv1-quote-auth-flow.mjs rewrites it into a full navigation so the browser
+// commits the session cookie before the portal asks for the account.
+function hashParam(k){try{var m=String(location.hash||'').replace('#','').split('&');for(var i=0;i<m.length;i++){var p=m[i].split('=');if(p[0]===k)return decodeURIComponent(p.slice(1).join('='))}}catch(e){}return ''}
+function noHash(){try{history.replaceState(null,'',location.pathname+location.search)}catch(x){}}
+function renderLogin(){app.innerHTML='';var email='',challenge='',wait=0,timer=null,pwChallenge='',pwEmail='';var box=h('div',{class:'login'});var errEl=h('div',{class:'err',role:'alert'});
+function fail(m){errEl.textContent=m||TX.loginErr}
+// 1 · Nafath — the first and largest door. A first sign-in creates the account;
+// the next screen (renderContact) asks for the e-mail and mobile once.
+var nslot=h('div',{id:'bpNafath'});
+// 2 · Google — the official button, with a written failure state.
+var gslot=h('div',{id:'bpGoogleBtn'});
+var orA=h('div',{class:'bpg-or'},[(window.SV1Login&&window.SV1Login.orPlain)||'']);
+var orB=h('div',{class:'bpg-or'},[(window.SV1Login&&window.SV1Login.or)||'']);
+// 3 · E-mail: password (sign in / new account) or an e-mailed link and code.
+var em=h('input',{type:'email',placeholder:TX.email,autocomplete:'email',inputmode:'email','aria-label':TX.email});
+var tabs=h('div',{class:'seg',role:'tablist'});var panels={};
+function tab(id,label){var a=h('button',{type:'button',role:'tab',class:'segb',onclick:function(){pick(id)}},[label]);a.setAttribute('data-tab',id);tabs.appendChild(a);return a}
+var tPw=tab('login',TX.tabPw),tNew=tab('signup',TX.tabNew),tLink=tab('link',TX.tabLink);
+function pick(id){errEl.textContent='';[tPw,tNew,tLink].forEach(function(b){b.className='segb'+(b.getAttribute('data-tab')===id?' on':'');b.setAttribute('aria-selected',b.getAttribute('data-tab')===id?'true':'false')});for(var k in panels)panels[k].hidden=(k!==id)}
+// -- password sign-in
+var pwIn=h('input',{type:'password',placeholder:TX.password,autocomplete:'current-password','aria-label':TX.password});
+var bPw=h('button',{class:'btn',onclick:function(){errEl.textContent='';if(em.value.indexOf('@')<1){fail(TX.badEmail);return}bPw.disabled=true;otp({action:'password-login',email:em.value.trim().toLowerCase(),password:pwIn.value}).then(function(o){bPw.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:o&&o.error==='bad_credentials'?TX.badCreds:TX.loginErr);return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){bPw.disabled=false;fail(TX.loginErr)})}},[TX.loginPw]);
+var forgot=h('a',{class:'lnk',onclick:function(){pick('link')}},[TX.forgot]);
+panels.login=h('div',{},[pwIn,bPw,h('div',{class:'alt'},[forgot])]);
+pwIn.addEventListener('keydown',function(ev){if(ev.key==='Enter')bPw.click()});
+// -- new account: the password only counts once the mailbox is proven
+function pwWhy(p,e){if(p.length<8)return 'short';if(p.length>128)return 'long';var L=false,D=false,i,c,seen={},n=0;for(i=0;i<p.length;i++){c=p.charCodeAt(i);if((c>=48&&c<=57)||(c>=1632&&c<=1641))D=true;else if((c>=65&&c<=90)||(c>=97&&c<=122)||c>=192)L=true;if(!seen[c]){seen[c]=1;n++}}
+ if(!L)return 'no_letter';if(!D)return 'no_digit';if(n<4)return 'repetitive';var lp=String(e||'').split('@')[0].toLowerCase();if(lp.length>=4&&p.toLowerCase().indexOf(lp)>=0)return 'has_email';return ''}
+var npw=h('input',{type:'password',placeholder:TX.pwNew,autocomplete:'new-password','aria-label':TX.pwNew});
+var npw2=h('input',{type:'password',placeholder:TX.pwConfirm,autocomplete:'new-password','aria-label':TX.pwConfirm});
+var rule=h('p',{class:'note rule'},[TX.pwRule]);
+npw.addEventListener('input',function(){var w=pwWhy(npw.value,em.value);rule.className='note rule'+(npw.value&&w?' bad':npw.value?' good':'');rule.textContent=npw.value&&w?(TX['pwr_'+w]||TX.pwRule):TX.pwRule});
+var bNew=h('button',{class:'btn',onclick:function(){errEl.textContent='';var e=em.value.trim().toLowerCase();if(e.indexOf('@')<1||e.indexOf('.')<0){fail(TX.badEmail);return}var w=pwWhy(npw.value,e);if(w){fail(TX['pwr_'+w]);return}if(npw.value!==npw2.value){fail(TX.pwMismatch);return}
+ bNew.disabled=true;otp({action:'password-signup-start',email:e,password:npw.value}).then(function(o){bNew.disabled=false;if(!o||!o.ok){fail(o&&o.error==='weak'?(TX['pwr_'+o.reason]||TX.pwRule):o&&o.error==='too_many'?TX.tooMany:(o&&o.message)||TX.loginErr);return}pwChallenge=o.challenge;pwEmail=e;nSent.textContent=TX.codeSent.replace('{e}',e);if(o.testLogin)nCode.placeholder='TEST: 123456';nStep1.hidden=true;nStep2.hidden=false;nCode.focus()}).catch(function(){bNew.disabled=false;fail(TX.loginErr)})}},[TX.signupGo]);
+var nStep1=h('div',{},[npw,npw2,rule,h('p',{class:'note'},[TX.signupNote]),bNew]);
+var nSent=h('p',{class:'sent'});var nCode=h('input',{inputmode:'numeric',maxlength:'6',placeholder:TX.code,autocomplete:'one-time-code','aria-label':TX.code});
+var bNC=h('button',{class:'btn',onclick:function(){errEl.textContent='';bNC.disabled=true;otp({action:'password-signup-verify',email:pwEmail,code:nCode.value.trim(),challenge:pwChallenge}).then(function(o){bNC.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:o&&o.error==='expired'?TX.codeOld:TX.codeErr);return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){bNC.disabled=false;fail(TX.codeErr)})}},[TX.confirmGo]);
+var nBack=h('a',{class:'lnk',onclick:function(){nStep2.hidden=true;nStep1.hidden=false;errEl.textContent=''}},[TX.changeEmail]);
+var nStep2=h('div',{hidden:''},[nSent,nCode,bNC,h('div',{class:'alt'},[nBack])]);
+nCode.addEventListener('keydown',function(ev){if(ev.key==='Enter')bNC.click()});
+panels.signup=h('div',{hidden:''},[nStep1,nStep2]);
+// -- e-mailed link (with its own code as a fallback in the same message)
+var b1=h('button',{class:'btn',onclick:function(){sendLink()}},[TX.sendLink]);
+var s1=h('div',{},[b1]);
+var sentMsg=h('p',{class:'sent'}),dev=h('div',{});
+var e2=h('input',{inputmode:'numeric',maxlength:'6',placeholder:TX.code,autocomplete:'one-time-code','aria-label':TX.code});
+var b2=h('button',{class:'btn',onclick:function(){b2.disabled=true;errEl.textContent='';otp({action:'verify',email:email,code:e2.value.trim(),challenge:challenge}).then(function(o){b2.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:TX.codeErr);return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){b2.disabled=false;fail(TX.codeErr)})}},[TX.verify]);
+var resend=h('a',{class:'lnk',onclick:function(){if(wait>0)return;sendLink()}},[TX.resend]);
+var change=h('a',{class:'lnk',onclick:function(){s2.hidden=true;s1.hidden=false;errEl.textContent='';em.focus()}},[TX.changeEmail]);
+var s2=h('div',{hidden:''},[sentMsg,dev,h('p',{class:'note'},[TX.orCode]),e2,b2,h('div',{class:'alt'},[resend,change])]);
+function cool(){wait=30;resend.textContent=TX.resendIn.replace('{n}',wait);clearInterval(timer);timer=setInterval(function(){wait--;if(wait<=0){clearInterval(timer);resend.textContent=TX.resend}else resend.textContent=TX.resendIn.replace('{n}',wait)},1000)}
+function sendLink(){email=em.value.trim().toLowerCase();errEl.textContent='';if(email.indexOf('@')<1||email.indexOf('.')<0){fail(TX.badEmail);return}b1.disabled=true;
+otp({action:'link-start',email:email,lang:LANG,next:nextPath()}).then(function(o){b1.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:(o&&o.message)||TX.loginErr);return}challenge=o.challenge;sentMsg.textContent=TX.linkSent.replace('{e}',email);if(o.testLogin)e2.placeholder='TEST: 123456';dev.innerHTML='';if(o.devLink)dev.appendChild(h('a',{class:'btn ghost sm',href:o.devLink,id:'devLink'},['DEV · '+TX.openLink]));s1.hidden=true;s2.hidden=false;e2.focus();cool()}).catch(function(){b1.disabled=false;fail(TX.loginErr)})}
+em.addEventListener('keydown',function(ev){if(ev.key==='Enter'){var on=document.querySelector('.login .segb.on');var t=on&&on.getAttribute('data-tab');if(t==='link')sendLink();else if(t==='login')bPw.click()}});
+e2.addEventListener('keydown',function(ev){if(ev.key==='Enter')b2.click()});
+panels.link=h('div',{hidden:''},[s1,s2]);
+var mail=h('div',{class:'mailbox'},[tabs,em,panels.login,panels.signup,panels.link]);
+box.appendChild(h('h1',{},[TX.loginTitle]));box.appendChild(h('p',{},[TX.loginText]));
+box.appendChild(nslot);box.appendChild(orA);box.appendChild(gslot);box.appendChild(orB);box.appendChild(mail);box.appendChild(errEl);app.appendChild(box);pick('login');
+otp({action:'methods'}).then(function(m){if(m&&m.ok&&!m.password){tPw.hidden=true;tNew.hidden=true;pick('link')}else if(m&&m.ok&&!m.passwordSignup){tNew.hidden=true}}).catch(function(){});
+if(window.SV1Login){window.SV1Login.mountNafath(nslot,{purpose:'portal',onSuccess:function(){try{localStorage.setItem('bp_session','1')}catch(x){}boot()}});
+ window.SV1Login.mountGoogle(gslot,{onSuccess:function(){try{localStorage.setItem('bp_session','1')}catch(x){}boot()},onError:function(msg){errEl.textContent=msg},onHide:function(){orB.style.display='none'}})}else{orA.style.display='none';orB.style.display='none'}}
+// The one-time step after a first Nafath sign-in: the account exists (keyed by the
+// national-id digest, never the number); this asks for the real e-mail and mobile.
+// The e-mail is proven with a code. If it already has an account, the two are joined.
+function renderContact(){app.innerHTML='';var box=h('div',{class:'login'});var errEl=h('div',{class:'err',role:'alert'});var chal='',sentTo='';
+function fail(m){errEl.textContent=m||TX.error}
+var ce=h('input',{type:'email',placeholder:TX.email,autocomplete:'email',inputmode:'email','aria-label':TX.email});
+var cp=h('input',{type:'tel',placeholder:TX.cPhonePh,autocomplete:'tel',inputmode:'tel','aria-label':TX.cPhone,dir:'ltr'});
+function phoneOk(v){var d='',i,c;v=String(v||'');for(i=0;i<v.length;i++){c=v.charCodeAt(i);if(c>=48&&c<=57)d+=v.charAt(i);else if(c>=1632&&c<=1641)d+=String(c-1632);else if(c>=1776&&c<=1785)d+=String(c-1776)}return d.length>=8&&d.length<=15}
+var b1=h('button',{class:'btn',onclick:function(){errEl.textContent='';var e=ce.value.trim().toLowerCase();if(e.indexOf('@')<1||e.indexOf('.')<0){fail(TX.badEmail);return}if(!phoneOk(cp.value)){fail(TX.cBadPhone);return}b1.disabled=true;
+ otp({action:'nafath-contact-start',email:e,phone:cp.value}).then(function(o){b1.disabled=false;if(!o||!o.ok){fail(o&&o.error==='invalid_phone'?TX.cBadPhone:o&&o.error==='invalid_email'?TX.badEmail:o&&o.error==='too_many'?TX.tooMany:TX.loginErr);return}chal=o.challenge;sentTo=e;sent.textContent=TX.codeSent.replace('{e}',e);if(o.testLogin)code.placeholder='TEST: 123456';s1.hidden=true;s2.hidden=false;code.focus()}).catch(function(){b1.disabled=false;fail(TX.loginErr)})}},[TX.cSend]);
+var s1=h('div',{},[h('label',{},[TX.email]),ce,h('label',{},[TX.cPhone]),cp,b1]);
+var sent=h('p',{class:'sent'});var code=h('input',{inputmode:'numeric',maxlength:'6',placeholder:TX.code,autocomplete:'one-time-code','aria-label':TX.code});
+var b2=h('button',{class:'btn',onclick:function(){errEl.textContent='';b2.disabled=true;otp({action:'nafath-contact-verify',code:code.value.trim(),challenge:chal}).then(function(o){b2.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:o&&o.error==='expired'?TX.codeOld:o&&o.error==='identity_mismatch'?TX.cMismatch:o&&o.error==='wrong_code'?TX.codeErr:TX.error);return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){b2.disabled=false;fail(TX.error)})}},[TX.confirmGo]);
+var back=h('a',{class:'lnk',onclick:function(){s2.hidden=true;s1.hidden=false;errEl.textContent=''}},[TX.changeEmail]);
+var out=h('a',{class:'lnk',onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},[TX.logout]);
+var s2=h('div',{hidden:''},[sent,code,b2,h('div',{class:'alt'},[back])]);
+code.addEventListener('keydown',function(ev){if(ev.key==='Enter')b2.click()});
+box.appendChild(h('div',{class:'cstep'},[TX.cStep]));box.appendChild(h('h1',{},[TX.cTitle]));box.appendChild(h('p',{},[TX.cText]));box.appendChild(s1);box.appendChild(s2);box.appendChild(h('div',{class:'alt'},[out]));box.appendChild(errEl);app.appendChild(box)}
+// The page a sign-in link lands on. Opening the link signs nobody in: mail
+// scanners open every URL they find, so only this button (a POST) spends it.
+function renderLinkConfirm(token){app.innerHTML='';var box=h('div',{class:'login'});var errEl=h('div',{class:'err',role:'alert'});
+var back=h('a',{class:'lnk',hidden:'',onclick:function(){noHash();renderLogin()}},[TX.linkNew]);
+var go1=h('button',{class:'btn',id:'linkGo',onclick:function(){go1.disabled=true;errEl.textContent='';otp({action:'link-verify',token:token}).then(function(o){if(o&&o.ok&&o.db!==false){noHash();try{localStorage.setItem('bp_session','1')}catch(x){}boot();return}go1.disabled=false;errEl.textContent=TX.linkBad;back.hidden=false}).catch(function(){go1.disabled=false;errEl.textContent=TX.loginErr})}},[TX.linkGo]);
+box.appendChild(h('h1',{},[TX.linkTitle]));box.appendChild(h('p',{},[TX.linkText]));box.appendChild(go1);box.appendChild(h('div',{class:'alt'},[back]));box.appendChild(errEl);app.appendChild(box)}
+window.addEventListener('hashchange',function(){if(hashParam('ml'))boot()});
 // ---------- shell
 var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['documents',TX.navDocs,'\ud83d\udcc1'],['company',TX.navCompany,'🏢']];
 function badges(){var c=state.me.counts||{};var d=(state.docs||[]).filter(function(x){var n=daysLeft(x.expiry_date);return n!==null&&n<=30}).length;return {quotes:c.quotes,contracts:c.contracts,pay:c.payments,documents:d}}
@@ -443,7 +566,7 @@ m.appendChild(h('div',{class:'card'},[h('div',{class:'stat'},[h('span',{},[TX.em
 // Setting a password needs a live session, which is exactly where we are —
 // so the client picks one here and stops waiting for a code every visit.
 var pw=h('input',{class:'inp',type:'password',autocomplete:'new-password',placeholder:TX.password}),pmsg=h('span',{class:'ok'});
-var pf=h('div',{class:'form'},[h('p',{class:'note'},[TX.pwNote]),h('label',{},[TX.password]),pw,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){pmsg.className='ok';if((pw.value||'').length<8){pmsg.className='err';pmsg.textContent=TX.pwShort;return}otp({action:'password-set',password:pw.value}).then(function(o){if(o&&o.ok){pmsg.textContent=TX.pwSaved;pw.value=''}else{pmsg.className='err';pmsg.textContent=(o&&o.message)||TX.error}})}},[TX.pwSave]),pmsg])]);
+var pf=h('div',{class:'form'},[h('p',{class:'note'},[TX.pwNote]),h('label',{},[TX.password]),pw,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){pmsg.className='ok';if((pw.value||'').length<8){pmsg.className='err';pmsg.textContent=TX.pwShort;return}otp({action:'password-set',password:pw.value}).then(function(o){if(o&&o.ok){pmsg.textContent=TX.pwSaved;pw.value=''}else{pmsg.className='err';pmsg.textContent=(o&&o.reason&&TX['pwr_'+o.reason])||(o&&o.message)||TX.error}})}},[TX.pwSave]),pmsg])]);
 m.appendChild(h('div',{class:'card'},[h('h3',{},[TX.pwTitle]),pf]))}
 
 // ---------- المستندات: خزانة واحدة للعميل
@@ -715,7 +838,7 @@ function settleReturn(u){
 // الشيء نفسه: مسارٌ محلي يبدأ بشرطة واحدة، ولا يبدأ بشرطتين («//host» يقرؤه
 // المتصفح موقعاً آخر).
 function nextPath(){try{var n=decodeURIComponent(new URL(location.href).searchParams.get('next')||'');return (n.charAt(0)==='/'&&n.charAt(1)!=='/')?n:''}catch(e){return ''}}
-function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render();if(state.view!=='documents')loadDocs().catch(function(){})})}).catch(function(){renderLogin()})}
+function boot(){var ml=hashParam('ml');if(ml){renderLinkConfirm(ml);return}api('me').then(function(o){if(!o||!o.ok){renderLogin();return}if(o.user&&o.user.contactPending){renderContact();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render();if(state.view!=='documents')loadDocs().catch(function(){})})}).catch(function(){renderLogin()})}
 boot();
 })();</script>`;
   return sv1.shell({ title: tx.title, desc: tx.attention, path: "/my", body: CSS + body, script, noindex: true });

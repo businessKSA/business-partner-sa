@@ -15,6 +15,10 @@
 // Underscore-prefixed: a shared module, not a 13th serverless function.
 
 import crypto from "node:crypto";
+import { DEV } from "./_mode.js";
+import { DB_ON, sb } from "./_db.js";
+import { asciiDigits } from "./_clientauth.js";
+import rabet from "./_nafath-rabet.js";
 
 const env = (n, d = "") => (process.env[n] || d).trim();
 const APP_ID = env("NAFATH_APP_ID");
@@ -28,7 +32,34 @@ const BASE = env("NAFATH_BASE_URL", IS_PROD ? "https://nafath.api.elm.sa" : "htt
 // so it is configuration and has no default worth inventing.
 const SERVICE = env("NAFATH_SERVICE");
 
-export const nafathConfigured = () => !!APP_ID;
+/* --- which provider answers --------------------------------------------------
+ * One interface, whoever stands behind it:
+ *     request({ nationalId, locale, service }) → { requestId, transId, random }
+ *     status({ nationalId, transId, random })  → { status, raw }
+ * NAFATH_PROVIDER picks the implementation: "elm" (the default — today's
+ * behaviour, untouched), "rabet" (api/_nafath-rabet.js, a skeleton that refuses
+ * with not_implemented until its documentation arrives), or "mock" (local
+ * development only: a stateless simulation so the sign-in screens can be walked
+ * with no Nafath account — it does not exist outside APP_ENV=development).
+ * An unrecognised value is an error, not a silent fall-back to Elm: a typo must
+ * not change who is asked to verify an identity.
+ */
+const rawProvider = () => env("NAFATH_PROVIDER").toLowerCase();
+export function nafathProviderName() {
+  const p = rawProvider();
+  if (!p) return DEV && !APP_ID ? "mock" : "elm";
+  return p;
+}
+function pickProvider() {
+  const n = nafathProviderName();
+  if (n === "elm") return elmProvider;
+  if (n === "rabet") return rabet;
+  if (n === "mock" && DEV) return mockProvider;
+  const e = new Error("nafath_provider_unknown"); e.provider = n; throw e;
+}
+export function nafathConfigured() {
+  try { return !!pickProvider().configured(); } catch { return false; }
+}
 
 // The spec contradicts itself: creating a request accepts an id starting with
 // 9, checking its status does not. A 9-prefixed id would therefore start a
@@ -36,8 +67,12 @@ export const nafathConfigured = () => !!APP_ID;
 // applied at the door — refusing early beats stranding someone mid-flow.
 const ID_CREATE = /^[1234569]\d{9}$/;
 const ID_STATUS = /^[123456]\d{9}$/;
+// The first digits the status call accepts — the sign-in page mirrors this one
+// rule in the browser (a test holds the two together), so a mistyped id is
+// caught before it rings anyone's phone.
+export const NATIONAL_ID_FIRST_DIGITS = "123456";
 export function nationalIdState(id) {
-  const v = String(id || "").replace(/\D/g, "");
+  const v = asciiDigits(id).replace(/\D/g, "");
   if (!/^\d{10}$/.test(v)) return { ok: false, reason: "must_be_10_digits" };
   if (!ID_CREATE.test(v)) return { ok: false, reason: "bad_prefix" };
   // Accepted by create, rejected by status — unusable end to end.
@@ -75,6 +110,11 @@ async function call(path, { method = "POST", query, body } = {}) {
 export async function nafathRequest({ nationalId, locale = "ar", service }) {
   const id = nationalIdState(nationalId);
   if (!id.ok) { const e = new Error("bad_national_id"); e.reason = id.reason; throw e; }
+  return pickProvider().request({ nationalId: id.value, locale, service });
+}
+
+async function elmRequest({ nationalId, locale = "ar", service }) {
+  const id = { value: nationalId };
   const svc = service || SERVICE;
   if (!svc) throw new Error("nafath_service_not_configured");
   const requestId = crypto.randomUUID();
@@ -89,11 +129,39 @@ export async function nafathRequest({ nationalId, locale = "ar", service }) {
 export async function nafathStatus({ nationalId, transId, random }) {
   const id = nationalIdState(nationalId);
   if (!id.ok) { const e = new Error("bad_national_id"); e.reason = id.reason; throw e; }
+  return pickProvider().status({ nationalId: id.value, transId, random });
+}
+
+async function elmStatus({ nationalId, transId, random }) {
+  const id = { value: nationalId };
   const out = await call("/api/v1/mfa/request/status", {
     body: { nationalId: id.value, transId: String(transId || ""), random: String(random || "") },
   });
   return { status: (out && out.status) || "UNKNOWN", raw: out };
 }
+
+const elmProvider = { name: "elm", configured: () => !!APP_ID, request: elmRequest, status: elmStatus };
+
+/* Local simulation. Stateless on purpose (the dev server re-reads api/ on every
+ * request, so memory would not survive): the transaction id carries its own
+ * start time. A national id ending in 7 is REJECTED, ending in 8 EXPIRES, any
+ * other COMPLETES after NAFATH_MOCK_DELAY_MS (default 6 s). */
+const MOCK_DELAY = Math.max(500, Number(env("NAFATH_MOCK_DELAY_MS", "6000")) || 6000);
+const mockProvider = {
+  name: "mock",
+  configured: () => DEV,
+  async request({ nationalId }) {
+    const transId = "mock-" + Date.now() + "-" + crypto.randomBytes(3).toString("hex");
+    const random = String(10 + (crypto.createHash("sha256").update(transId + nationalId).digest()[0] % 90));
+    return { requestId: crypto.randomUUID(), transId, random };
+  },
+  async status({ nationalId, transId }) {
+    const t0 = Number(String(transId).split("-")[1]) || 0;
+    if (Date.now() - t0 < MOCK_DELAY) return { status: "WAITING", raw: null };
+    const last = String(nationalId).slice(-1);
+    return { status: last === "7" ? "REJECTED" : last === "8" ? "EXPIRED" : "COMPLETED", raw: null };
+  },
+};
 
 // Elm's public keys, cached. Refetched when a token names a key we have not
 // seen, so a rotation does not need a deploy.
@@ -156,15 +224,17 @@ export async function nafathVerify(token) {
 // Configuration only — never the app id itself.
 export function nafathPing() {
   return {
-    configured: !!APP_ID,
+    configured: nafathConfigured(),
+    provider: nafathProviderName(),
+    dailyLimit: nafathDailyLimit(),
     environment: IS_PROD ? "production" : "staging",
     base: BASE,
-    serviceConfigured: !!SERVICE,
+    serviceConfigured: nafathProviderName() !== "elm" || !!SERVICE,
     appKeySent: !!APP_KEY,
     // How many identities may open the owner's panels — the count, never the ids.
     owners: ownerIdsConfigured(),
     hashSecret: !!HASH_SECRET,
-    missing: [APP_ID ? null : "NAFATH_APP_ID", SERVICE ? null : "NAFATH_SERVICE", HASH_SECRET ? null : "OTP_SECRET"].filter(Boolean),
+    missing: [nafathProviderName() !== "elm" || APP_ID ? null : "NAFATH_APP_ID", nafathProviderName() !== "elm" || SERVICE ? null : "NAFATH_SERVICE", HASH_SECRET ? null : "OTP_SECRET"].filter(Boolean),
   };
 }
 
@@ -271,3 +341,102 @@ export function ownerTicketOk(ticket) {
  * shared key stops being a way in.
  */
 export const panelRequiresNafath = () => /^(1|true|yes)$/i.test(env("PANEL_REQUIRE_NAFATH"));
+
+/* ---------------------------------------------------------------------------
+ * The daily meter.
+ *
+ * Every request rings a real person's phone and, with a commercial provider,
+ * is billed. Without a ceiling, one script could spend a month's allowance in
+ * an afternoon — so the number of requests started per Riyadh day is counted
+ * and refused past NAFATH_DAILY_LIMIT (default 1000), with a warning logged
+ * (and a row left in audit_logs for the owner's dashboard) once 80% is used.
+ *
+ * Counting lives where the platform already keeps its tallies: rows in
+ * audit_logs (action "nafath.request"), the same table the hiring meter uses,
+ * so the count survives restarts and is shared by every function instance. A
+ * per-instance counter sits in front of it and the table is re-read at most
+ * every 30 seconds. If the table cannot be read the memory count alone decides
+ * — the meter must never be the reason a client cannot sign in.
+ *
+ * The owner's own panel sign-in is counted but never refused: a flood of
+ * public requests must not be able to lock him out of his own screens.
+ * ------------------------------------------------------------------------- */
+export const NAFATH_REQUEST_ACTION = "nafath.request";
+export const NAFATH_ALERT_ACTION = "nafath.alert";
+const RIYADH_OFFSET_MS = 3 * 3600 * 1000;
+export const riyadhDayStart = (now = Date.now()) =>
+  new Date(Math.floor((now + RIYADH_OFFSET_MS) / 86400000) * 86400000 - RIYADH_OFFSET_MS);
+export function nafathDailyLimit() {
+  const v = Math.floor(Number(env("NAFATH_DAILY_LIMIT", "1000")));
+  return Number.isFinite(v) && v > 0 ? v : 1000;
+}
+const ALERT_AT = 0.8;
+const meter = (globalThis.__bpNafathMeter ||= { day: "", n: 0, readAt: 0, alerted: false });
+
+async function meterSync(now) {
+  const since = riyadhDayStart(now);
+  const key = since.toISOString();
+  if (meter.day !== key) { meter.day = key; meter.n = 0; meter.readAt = 0; meter.alerted = false; }
+  if (!DB_ON || now - meter.readAt < 30000) return;
+  meter.readAt = now;
+  try {
+    const cap = nafathDailyLimit() + 1;
+    const rows = await sb(`audit_logs?action=eq.${NAFATH_REQUEST_ACTION}&created_at=gte.${encodeURIComponent(key)}&select=id&limit=${cap}`);
+    if (Array.isArray(rows)) meter.n = Math.max(meter.n, rows.length);
+  } catch (e) { console.warn("nafath meter read failed", String(e && e.message || e).slice(0, 120)); }
+}
+
+/** { used, limit, remaining, ratio } for today (Riyadh day). */
+export async function nafathUsage(now = Date.now()) {
+  await meterSync(now);
+  const limit = nafathDailyLimit();
+  return { used: meter.n, limit, remaining: Math.max(0, limit - meter.n), ratio: meter.n / limit, day: meter.day };
+}
+
+/** May a new request start? The panel is never refused; everyone else is at the ceiling. */
+export async function nafathQuota({ purpose = "portal", now = Date.now() } = {}) {
+  const u = await nafathUsage(now);
+  if (purpose === "panel") return { ok: true, ...u };
+  return { ok: u.used < u.limit, reason: u.used < u.limit ? null : "daily_limit", ...u };
+}
+
+/** Count one request that Nafath really accepted. Never throws. */
+export async function nafathQuotaRecord({ purpose = "portal", now = Date.now() } = {}) {
+  try {
+    await meterSync(now);
+    meter.n += 1;
+    const limit = nafathDailyLimit();
+    if (DB_ON) {
+      try { await sb("audit_logs", { method: "POST", prefer: "return=minimal", body: [{ action: NAFATH_REQUEST_ACTION, actor_label: "nafath:" + purpose, after: { purpose } }] }); } catch {}
+    }
+    if (!meter.alerted && meter.n >= Math.ceil(limit * ALERT_AT)) {
+      meter.alerted = true;
+      console.warn(`[nafath] daily usage at ${Math.round((meter.n / limit) * 100)}% (${meter.n}/${limit}) — requests are refused at ${limit}`);
+      if (DB_ON) {
+        try {
+          const dup = await sb(`audit_logs?action=eq.${NAFATH_ALERT_ACTION}&created_at=gte.${encodeURIComponent(meter.day)}&select=id&limit=1`);
+          if (!dup.length) await sb("audit_logs", { method: "POST", prefer: "return=minimal", body: [{ action: NAFATH_ALERT_ACTION, actor_label: "nafath:meter", after: { used: meter.n, limit, threshold: ALERT_AT } }] });
+        } catch {}
+      }
+    }
+    return { used: meter.n, limit };
+  } catch { return null; }
+}
+
+/* ---------------------------------------------------------------------------
+ * The account a first Nafath sign-in creates.
+ *
+ * Nafath proves WHO a person is; it returns no mailbox. A client signing in
+ * for the first time therefore gets an account at once, keyed by the keyed
+ * digest of the national id (nafathIdHash — the raw number is never stored),
+ * under a placeholder address that cannot receive mail (the reserved .invalid
+ * TLD). The first screen after sign-in asks for the real e-mail and mobile,
+ * once; until they are confirmed the account can look but not act.
+ * ------------------------------------------------------------------------- */
+export const NAFATH_PLACEHOLDER_DOMAIN = "nafath.invalid";
+export const NAFATH_ORG_LABEL = "حسابي";
+export function nafathPlaceholderEmail(hash) {
+  if (!hash) return "";
+  return "nafath-" + crypto.createHash("sha256").update("placeholder:" + hash).digest("hex").slice(0, 24) + "@" + NAFATH_PLACEHOLDER_DOMAIN;
+}
+export const isNafathPlaceholderEmail = (e) => String(e || "").toLowerCase().endsWith("@" + NAFATH_PLACEHOLDER_DOMAIN);

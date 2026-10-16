@@ -24,6 +24,8 @@
 // يُعرض إلا حين يعيده /api/pay مع `samsungPay` (معرّف الخدمة من حساب سامسونج
 // للمطوّرين) — زرٌّ يفشل عند لمسه أسوأ من زرٍّ لم يُعرض.
 
+import { CLIENT_LOGIN_CSS, clientLoginJs } from "./client-login.mjs";
+
 const T = {
   title:   { ar: "إتمام الدفع", en: "Checkout", fr: "Paiement", zh: "结账" },
   desc:    { ar: "ادفع إلكترونياً بالبطاقة (مدى · فيزا · ماستركارد) أو Apple Pay أو تمارا — وتصلك فاتورتك الضريبية فور تأكيد الدفع.",
@@ -204,7 +206,10 @@ ${SV1.footer()}`;
 @media(max-width:600px){.sv1-co-fields{grid-template-columns:1fr}}
 </style>`;
 
+  // سكربتٌ واحد: باب الدخول المشترك أولاً (بلا وسمه) ثم صفحة الدفع. اختبارات هذه الصفحة
+  // تشغّل `script` كله في بيئة مصغَّرة وتنتظر وسماً واحداً.
   const script = `<script>
+${clientLoginJs(lang)}
 (function(){
 var LANG=${JSON.stringify(lang)},HOME=${JSON.stringify(home)};
 var TX=${JSON.stringify({ empty: t("empty"), browse: t("browse"), needFill: t("needFill"), payDown: t("payDown"), loading: t("loading"), quoted: t("quoted"), signIn: t("signIn"), signInBtn: t("signInBtn"), noAmount: t("noAmount"), cardSP: t("cardSP"), payBtn: t("payBtn"), payWait: t("payWait"), paidOk: t("paidOk"), paidInv: t("paidInv"), paidFail: t("paidFail"), paidHold: t("paidHold"), bnplFail: t("bnplFail"), toMy: t("toMy"), mockTag: t("mockTag") })};
@@ -248,6 +253,9 @@ var payable=cart.length&&!unpriced&&!hidden&&total>0;
 // تعبئة من الجلسة: من دخل حسابه لا يعيد كتابة بريده عند الدفع.
 fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
  .then(function(r){return r.json()}).then(function(o){var u=o&&o.session&&o.session.user;if(!u)return;
+  // حسابٌ أنشأه أول دخول بنفاذ ولم يُكمِل بريده وجواله: عنوانه البديل لا يستقبل بريداً،
+  // فلا يُكتب في خانة الفاتورة. يُرسَل إلى خطوة الإكمال في /my ثم يعود إلى هنا.
+  if(u.contactPending){location.replace(HOME+'my?next='+encodeURIComponent(HOME+'checkout'));return}
   if(!$('coEmail').value)$('coEmail').value=u.email||'';
   if(!$('coName').value)$('coName').value=u.full_name||'';}).catch(function(){});
 
@@ -347,9 +355,25 @@ function payBlocked(msg,href,label){
  var p=document.createElement('p');p.className='sv1-co-fine';p.textContent=msg;mount.appendChild(p);
  if(href){var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=href;a.textContent=label;a.style.marginTop='10px';mount.appendChild(a)}
  var tg=$('coTamaraGo');if(tg)tg.disabled=true}
+// الضيف عند الدفع يرى «المتابعة بجوجل» هنا في الصفحة نفسها: يدخل وتبقى سلته أمامه
+// (إعادة تحميل بعد الدخول لا انتقال). والزرّ الآخر يذهب إلى /my بالبريد وبـnext.
+// الترتيب كما قرّر المالك: نفاذ أولاً، ثم جوجل، ثم البريد (الزرّ الأخير يذهب إلى /my).
+// أول دخول بنفاذ ينشئ الحساب، فيُرسَل إلى /my خطوةً واحدة لبريده وجواله ثم يعود إلى الدفع.
+function guestGoogle(){var L=window.SV1Login;if(!L)return;var a=mount.querySelector('a');if(!a)return;
+ var ns=document.createElement('div');ns.style.marginTop='12px';
+ var or0=document.createElement('div');or0.className='bpg-or';or0.textContent=L.orPlain;
+ var s=document.createElement('div');
+ var or=document.createElement('div');or.className='bpg-or';or.textContent=L.or;
+ mount.insertBefore(ns,a);mount.insertBefore(or0,a);mount.insertBefore(s,a);mount.insertBefore(or,a);
+ L.mountNafath(ns,{purpose:'portal',onSuccess:function(o){try{localStorage.setItem('bp_session','1')}catch(x){}
+  if(o&&o.needsContact){location.href=HOME+'my?next='+encodeURIComponent(HOME+'checkout')}else{location.reload()}}});
+ L.mountGoogle(s,{onSuccess:function(){try{localStorage.setItem('bp_session','1')}catch(x){}location.reload()},
+  onError:function(m){var p=document.createElement('p');p.className='sv1-co-fine';p.style.color='#b42318';p.textContent=m;mount.insertBefore(p,or)},
+  onHide:function(){or.style.display='none'}})}
 if(!cart.length){mount.innerHTML='';}
 else if(unpriced){payBlocked(TX.noAmount,HOME+'my',TX.signInBtn);}
-else if(hidden){payBlocked(TX.signIn,HOME+'my',TX.signInBtn);}
+// الدخول يرجع إلى هذه الصفحة (next) لا إلى لوحة العميل، فتبقى السلة أمامه.
+else if(hidden){payBlocked(TX.signIn,HOME+'my?next='+encodeURIComponent(HOME+'checkout'),TX.signInBtn);guestGoogle();}
 else if(!(total>0)){payBlocked(TX.noAmount,HOME+'catalog',TX.browse);}
 else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
  PAYCFG=cfg||null;
@@ -398,7 +422,7 @@ else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
     title: `${t("title")} — Business Partner`,
     desc: t("desc"),
     path: "/checkout",
-    body: CSS + body,
+    body: CSS + `<style id="sv1-co-login-css">${CLIENT_LOGIN_CSS}</style>` + body,
     script,
     noindex: true,
   });

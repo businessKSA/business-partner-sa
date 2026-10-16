@@ -481,7 +481,9 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
  .sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
 .sv1-wa-fab{position:fixed;inset-inline-start:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
+.sv1-navlogin{display:none}
 @media(max-width:900px){
+ .sv1-nav .sv1-navlogin{display:block;font-weight:700;color:var(--n)}
  .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
  .sv1-nav.open{display:flex}
  .sv1-burger{display:flex}
@@ -546,6 +548,7 @@ var S=window.SV1S={
      الرابط عند الخروج بلا حاجة إلى تمرير ترجمةٍ إلى السكربت. */
   if(a){if(S.def==null)S.def=a.textContent;a.textContent=(on&&first(h))||S.def}
   if(lb)lb.classList.toggle('sv1-hide',!!on);
+  var nl=g('sv1NavLogin');if(nl)nl.classList.toggle('sv1-hide',!!on);
   if(ob)ob.classList.toggle('sv1-hide',!on);
   var p=location.pathname;
   if(sb)sb.classList.toggle('sv1-hide',!(on&&(p.indexOf('/my')>=0||p.indexOf('/ops')>=0)));
@@ -615,6 +618,7 @@ export function simpleV1(ctx) {
     <a href="${SIMPLE_V1 ? href("/catalog") : href("/") + "#doors"}">${t("navServices")}</a>
     <a href="${href("/consultation")}">${t("navBook")}</a>
     <a href="${href("/")}#how">${t("navHow")}</a>
+    <a href="${href("/my")}" class="sv1-navlogin" id="sv1NavLogin">${t("login")}</a>
     <a href="${href("/my")}" id="sv1AccountLink">${t("navAccount")}</a>
     ${oneLang ? "" : langSwitch(path)}
   </nav>
