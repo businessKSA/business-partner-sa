@@ -323,6 +323,8 @@ import { buildSimpleCatalog } from "./simple-v1-catalog.mjs";
 import { buildSimpleServiceDetail } from "./simple-v1-service-detail.mjs";
 import { buildSimpleServiceCategory } from "./simple-v1-service-category.mjs";
 import { injectN8nGuard } from "./n8n-guard.mjs";
+import { injectA11y } from "./a11y-layer.mjs";
+import { buildSimpleAccessibility } from "./simple-v1-accessibility.mjs";
 import { buildSimpleCheckout } from "./simple-v1-checkout.mjs";
 import { buildSimpleCart } from "./simple-v1-cart.mjs";
 import { buildSimpleTrips } from "./simple-v1-trips.mjs";
@@ -11888,6 +11890,8 @@ function buildB10X() {
 }
 
 /* ---------- write ---------- */
+// بصمتا ملفَّي الإتاحة (محتوى الملف) — الأصول تُخدَم immutable فالبصمة هي المُبطِل.
+const A11Y_V = { cssV: assetV("assets/css/bp-a11y.css"), jsV: assetV("assets/js/bp-a11y.js") };
 function write(rel, html) {
   const full = path.join(ROOT, rel);
   fs.mkdirSync(path.dirname(full), { recursive: true });
@@ -11901,6 +11905,9 @@ function write(rel, html) {
   // localhost ولا من معاينة vercel.app (site/scripts/n8n-guard.mjs). الإنتاج
   // على businesspartner.sa بلا أي تغيير.
   if (rel.endsWith(".html")) html = injectN8nGuard(html);
+  // وضع الإتاحة: زرّ ولوحة وتخطٍّ إلى المحتوى في كل صفحة عامة، في موضعٍ واحد
+  // (site/scripts/a11y-layer.mjs). بلا إعدادٍ مفعَّل لا يتغيّر مظهر الصفحة.
+  if (rel.endsWith(".html")) html = injectA11y(html, rel, A11Y_V);
   fs.writeFileSync(full, html);
 }
 
@@ -12059,6 +12066,8 @@ function writeFullSite(pre) {
     write(`${pre}consultation.html`, buildConsultation());
   }
   write(`${pre}terms.html`, buildTerms());
+  // بيان الإتاحة (2026-10-16): ما نوفّره وكيف يبلّغ المستخدم عن عائق. بلا ادّعاء شهادة امتثال.
+  write(`${pre}accessibility.html`, buildSimpleAccessibility(SV1, { lang: () => LANG, esc, site }));
   write(`${pre}account.html`, buildAccount());
   write(`${pre}shared-services.html`, buildSharedServices());
   write(`${pre}shared-services/dashboard.html`, buildSharedServicesPortal());
@@ -12074,7 +12083,7 @@ function writeFullSite(pre) {
   JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
   write(`${pre}jobs/${WORKSHOP_CAMPAIGN.slug}.html`, buildWorkshopCampaign());
   WORKSHOP_JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
-  pageCount += 18 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length + 1 + WORKSHOP_JOBS.length;
+  pageCount += 19 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length + 1 + WORKSHOP_JOBS.length;
 }
 
 for (const lang of ["en", "ar"]) {
@@ -12297,7 +12306,7 @@ write("pr-intake.html", fs.readFileSync(path.join(ROOT, "assets/data/pr-intake.h
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/smart-employee", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/knowledge-center", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/company-structure", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
+const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/smart-employee", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/knowledge-center", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/company-structure", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/accessibility", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
