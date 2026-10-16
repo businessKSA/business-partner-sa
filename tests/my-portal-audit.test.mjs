@@ -48,15 +48,20 @@ test("بيانات الشركة: المفاتيح التي يرسلها /my هي
 test("كل رمز خطأ يعيده الخادم لحجز الموعد له نصٌّ للعميل بلغته (كان يظهر friday وbad_datetime كما هما)", () => {
   const src = fs.readFileSync(path.join(ROOT, "api/_simple.js"), "utf8");
   const at = src.indexOf('action === "appointment-book"');
-  const codes = [...src.slice(at, at + 1400).matchAll(/error: "(\w+)"/g)].map((m) => m[1]);
-  for (const c of ["bad_datetime", "past", "friday"]) assert.ok(codes.includes(c), `الخادم يعيد ${c}`);
+  assert.ok(src.slice(at, at + 1200).includes("validateSlot("), "الفحص بقواعد الحجز المشتركة (api/_booking.js) لا بنسخةٍ ثانية");
+  // الرموز يقولها validateSlot (ساعات الجلسات، يوم العطلة، الماضي، مهلة الساعة) وapi/book.js (التعارض والسقف والإكثار)
+  const bk = fs.readFileSync(path.join(ROOT, "api/_booking.js"), "utf8");
+  const vAt = bk.indexOf("export function validateSlot");
+  const codes = [...bk.slice(vAt, vAt + 1800).matchAll(/error: "(\w+)"/g)].map((m) => m[1]);
+  for (const c of ["bad_datetime", "off_day", "out_of_hours", "past", "too_soon", "too_far"]) assert.ok(codes.includes(c), `الخادم يعيد ${c}`);
   for (const l of LANGS) {
     const s = PAGES[l].script;
-    for (const c of ["friday", "past", "bad_datetime"]) assert.ok(s.includes(`'${c}'`), `${l}: المعالجة لـ ${c}`);
+    for (const c of [...codes, "friday", "slot_taken", "too_many_active", "rate_limited"]) assert.ok(s.includes(`'${c}'`), `${l}: المعالجة لـ ${c}`);
     const tx = JSON.parse(/TX=(\{.*?\}),ST=/s.exec(s)[1]);
-    for (const k of ["apptBad", "apptFri", "apptPast"]) assert.ok(tx[k] && tx[k].length > 8, `${l}: ${k}`);
+    const KEYS = ["apptBad", "apptFri", "apptPast", "apptOut", "apptSoon", "apptFar", "apptTaken", "apptMany", "apptRate"];
+    for (const k of KEYS) assert.ok(tx[k] && tx[k].length > 8, `${l}: ${k}`);
     // لا نصّ عربي في لغة غير عربية
-    if (l !== "ar") for (const k of ["apptBad", "apptFri", "apptPast", "sessEnd", "provCard", "actAi", "actSys", "actTeam"]) assert.ok(!/[؀-ۿ]/.test(tx[k]), `${l}.${k} بلا حروف عربية`);
+    if (l !== "ar") for (const k of [...KEYS, "sessEnd", "provCard", "actAi", "actSys", "actTeam"]) assert.ok(!/[؀-ۿ]/.test(tx[k]), `${l}.${k} بلا حروف عربية`);
   }
 });
 

@@ -30,6 +30,7 @@ import { isOwnerEmail } from "./_trial.js";
 import { waSend, waNumber } from "./_stage.js";
 import { storagePut, storageSign, storageDelete } from "./_db.js";
 import { readDocumentRaw, parseJson, DOC_MIME_OK, MAX_DOC_BYTES } from "./_docread.js";
+import { validateSlot, bookingMessage, bookingConfig, manageToken } from "./_booking.js";
 
 export const SIMPLE_TEST_MODE = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview" || DEV;
 // Live since 2026-09-04: a customer who approves a quotation must be told the
@@ -418,7 +419,7 @@ async function clientAction(action, b, qs, req, res, sess) {
       quotes: mine.filter((r) => r.status === "QUOTE_SENT").length,
       contracts: mine.filter((r) => r.status === "CONTRACT_SENT").length,
       payments: mine.filter((r) => ["SIGNED", "PAYMENT_PENDING"].includes(r.status)).length,
-      appointments: mine.filter((r) => r.appointment && r.appointment.status !== "CANCELLED" && r.appointment.date >= nowIso().slice(0, 10)).length,
+      appointments: new Set(mine.filter((r) => r.appointment && r.appointment.status !== "CANCELLED" && r.appointment.date >= nowIso().slice(0, 10)).map((r) => r.appointment.date + " " + r.appointment.time)).size,
     };
     return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, user: { name: sess.user.full_name || "", email }, organization: sess.organization, counts, requests: mine.map(summary) });
   }
@@ -814,23 +815,41 @@ async function clientAction(action, b, qs, req, res, sess) {
 
   if (action === "appointment-book" || action === "appointment-reschedule") {
     const date = str(b.date, 10), time = str(b.time, 5);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time)) return json(res, 400, { ok: false, error: "bad_datetime" });
-    if (new Date(date + "T" + time + ":00+03:00") < new Date()) return json(res, 400, { ok: false, error: "past" });
-    if (new Date(date + "T12:00:00+03:00").getUTCDay() === 5) return json(res, 400, { ok: false, error: "friday" });
+    // الموعد يُفحص بقواعد الحجز نفسها (api/_booking.js): ساعات الجلسات ويوم
+    // العطلة والماضي ومهلة الساعة. كان هنا فحصٌ للجمعة وللماضي فقط، وصفحة
+    // /consultation تقبل غير ما تقبله هذه.
+    const v = validateSlot(date, time);
+    if (!v.ok) return json(res, 400, { ok: false, error: v.error, message: bookingMessage(v.error, row.lang === "en" ? "en" : "ar") });
     const prev = row.appointment;
+    const live = prev && prev.status !== "CANCELLED";
+    const mlang = ["ar", "en", "fr", "zh"].includes(row.lang) ? row.lang : "ar";
+    const topic = str(b.topic, 200) || row.title;
     const appointment = {
-      date, time, tz: "Asia/Riyadh", topic: str(b.topic, 200) || row.title, note: str(b.note, 500),
-      status: prev && prev.status !== "CANCELLED" && action === "appointment-reschedule" ? "RESCHEDULED" : "BOOKED",
-      booked_at: nowIso(), ref: (prev && prev.ref) || null, gcal: null, mode: "online",
+      date, time, tz: "Asia/Riyadh", topic, note: str(b.note, 500),
+      status: live && action === "appointment-reschedule" ? "RESCHEDULED" : "BOOKED",
+      booked_at: nowIso(), ref: (prev && prev.ref) || null, gcal: (prev && prev.gcal) || null, meet: (prev && prev.meet) || "", mode: "video", minutes: bookingConfig().slotMin,
     };
-    // Reuse the consultation booking function: it e-mails the team, writes
-    // the CRM lead and asks n8n to put the slot on the owner's calendar.
+    // الحجز كلّه في api/book.js (الحدث في تقويم الشركة + Meet + دعوة العميل
+    // والمالك + البريد). تُمرَّر كوكي الجلسة فيعرف أن الحاجز صاحب الحساب نفسه.
+    // لا يُسجَّل موعدٌ فشل حجزُه: كان الخطأ يُبتلع فيرى العميل «تم» بلا حدث.
+    const post = async (payload) => {
+      const r = await fetch(SELF_BASE + "/api/book", { method: "POST", headers: { "content-type": "application/json", cookie: String(req.headers.cookie || ""), "x-forwarded-for": clientIp(req) }, body: JSON.stringify(payload) });
+      return r.json().catch(() => ({}));
+    };
+    let j;
     try {
-      const r = await fetch(SELF_BASE + "/api/book", { method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name: row.client_name || who, email, phone: row.client_phone || "", company: row.company_name || "", topic: appointment.topic, date, time, notes: `${ref} · ${appointment.note}`, lang: row.lang || "ar", source: "simple-v1", test: SIMPLE_TEST_MODE }) });
-      const j = await r.json().catch(() => ({}));
-      if (j && j.ok) { appointment.ref = j.ref || appointment.ref; appointment.gcal = j.gcal || j.calendar || null; }
-    } catch {}
+      if (live && action === "appointment-reschedule" && prev.ref && prev.gcal) {
+        j = await post({ action: "reschedule", ref: prev.ref, t: manageToken(prev.ref, email), date, time, lang: mlang });
+      } else {
+        j = await post({ name: row.client_name || who, email, phone: row.client_phone || "", company: row.company_name || "", topic, date, time, notes: `${ref} · ${appointment.note}`, lang: mlang, source: "simple-v1" });
+      }
+    } catch { return json(res, 502, { ok: false, error: "book_unavailable", message: bookingMessage("server_error", mlang === "en" ? "en" : "ar") }); }
+    if (!j || !j.ok) return json(res, j && j.error === "slot_taken" ? 409 : 400, { ok: false, error: (j && j.error) || "book_failed", message: (j && j.message) || bookingMessage("server_error", mlang === "en" ? "en" : "ar") });
+    appointment.ref = j.ref || appointment.ref;
+    appointment.gcal = j.eventId || appointment.gcal;
+    appointment.meet = j.meet || appointment.meet || "";
+    appointment.confirmed = j.confirmed !== false;
+    if (!appointment.confirmed) appointment.status = "PENDING";
     await patchRequest(row.id, { appointment });
     await logEvent(row.id, "customer", who, action === "appointment-book" ? "appointment.booked" : "appointment.rescheduled", { date, time });
     return json(res, 200, { ok: true, appointment });
@@ -838,11 +857,22 @@ async function clientAction(action, b, qs, req, res, sess) {
 
   if (action === "appointment-cancel") {
     if (!row.appointment) return json(res, 404, { ok: false, error: "no_appointment" });
+    // الحدث في تقويم الشركة يُلغى معه (فتصل العميلَ والمالكَ رسالةُ الإلغاء من جوجل)،
+    // وإلا بقي الموعد في تقويم المالك بعد أن ألغاه العميل.
+    let calendar = "none";
+    if (row.appointment.ref && row.appointment.gcal) {
+      try {
+        const r = await fetch(SELF_BASE + "/api/book", { method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ action: "cancel", ref: row.appointment.ref, t: manageToken(row.appointment.ref, email) }) });
+        const j = await r.json().catch(() => ({}));
+        calendar = j && j.ok ? "cancelled" : "failed";
+      } catch { calendar = "failed"; }
+    }
     const appointment = { ...row.appointment, status: "CANCELLED", cancelled_at: nowIso() };
     await patchRequest(row.id, { appointment });
     await logEvent(row.id, "customer", who, "appointment.cancelled", {});
-    await sendEmail(OWNER_EMAIL, `إلغاء موعد ${ref}`, `<p>${esc(who)} ألغى موعد ${esc(row.appointment.date)} ${esc(row.appointment.time)}</p>`);
-    return json(res, 200, { ok: true, appointment });
+    await sendEmail(OWNER_EMAIL, `إلغاء موعد ${ref}`, `<p>${esc(who)} ألغى موعد ${esc(row.appointment.date)} ${esc(row.appointment.time)}${calendar === "failed" ? " — <b>تعذّر إلغاء الحدث في التقويم، أزِله يدوياً</b>" : ""}</p>`);
+    return json(res, 200, { ok: true, appointment, calendar });
   }
 
   // الإلغاء من جهة العميل. قبل اعتماد العرض يُلغى فوراً — لا شيء يترتّب عليه.
@@ -895,7 +925,7 @@ const summary = (r) => ({
   contract: r.contract ? { number: r.contract.number, status: r.contract.status } : null,
   payment: r.payment ? { status: r.payment.status, amount: r.payment.amount, provider: r.payment.provider } : null,
   invoice: publicInvoice(r.invoice) ? { number: r.invoice.number, total: r.invoice.total } : null,
-  appointment: r.appointment ? { date: r.appointment.date, time: r.appointment.time, status: r.appointment.status, topic: r.appointment.topic } : null,
+  appointment: r.appointment ? { date: r.appointment.date, time: r.appointment.time, status: r.appointment.status, topic: r.appointment.topic, ref: r.appointment.ref || null, meet: r.appointment.meet || "", minutes: r.appointment.minutes || null, mode: r.appointment.mode || "" } : null,
   last_message: (r.conversation || []).slice(-1)[0] || null,
   client_name: r.client_name, client_email: r.client_email, client_phone: r.client_phone, company_name: r.company_name,
   assigned_to: r.assigned_to || null,
