@@ -4,7 +4,7 @@ const base = (process.argv[2] || "").replace(/\/$/, "");
 if (!base) { console.error("usage: node azure/site/smoke.mjs <base-url>"); process.exit(2); }
 
 const pages = ["/", "/catalog", "/cart", "/checkout", "/my", "/ops", "/account", "/packages",
-  "/services", "/contact", "/jobs", "/deals", "/quote", "/robots.txt", "/sitemap.xml"];
+  "/services", "/contact", "/careers", "/deals", "/quote", "/robots.txt", "/sitemap.xml"];
 const apis = [ // GET آمنة فقط
   ["/healthz", [200]],
   ["/api/live-catalog", [200]],
@@ -15,9 +15,14 @@ const apis = [ // GET آمنة فقط
 let fail = 0;
 const row = (ok, name, info) => { if (!ok) fail++; console.log(`${ok ? "OK  " : "FAIL"} ${name} ${info}`); };
 
+// الحاوية تنام عند انعدام الطلبات؛ أول طلب قد يتجاوز المهلة (بدء بارد) فنعيده مرة.
+const get = async (u, opt) => {
+  try { return await fetch(u, { ...opt, signal: AbortSignal.timeout(30000) }); }
+  catch { return await fetch(u, { ...opt, signal: AbortSignal.timeout(30000) }); }
+};
 for (const p of pages) {
   try {
-    const r = await fetch(base + p, { redirect: "manual", signal: AbortSignal.timeout(15000) });
+    const r = await get(base + p, { redirect: "manual" });
     row([200, 301, 302, 308].includes(r.status), p, r.status);
   } catch (e) { row(false, p, e.message); }
 }

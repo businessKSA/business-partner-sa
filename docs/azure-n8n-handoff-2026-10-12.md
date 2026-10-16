@@ -248,3 +248,31 @@ if (FARAH_URL && FARAH_KEY) {
 ملف اختبار عربي (24 ثانية) وُلّد بـAzure TTS في Cloud Shell وأُرسل إلى `/webhook/bp-meeting-minutes-…` بمفتاح الترويسة. التنفيذ `8632` **success** في 6 ثوانٍ: Validate ← Azure Speech (نص سليم بتمييز المتحدث) ← `bp-main` ← محضر ← **واتساب لباهر أُرسل** ← **بريد أُرسل** ← **مهمة في «مهام الفريق»** («إرسال عرض السعر للعميل»، المسؤول ناصر، بانتظار اعتماد باهر) ← تسجيل في `farah.messages`. السير `zteADpS9yormFBZC` **مفعَّل** (الرابط بلا مفتاح 403).
 - **عيب شكلي:** سطر «المدة» في المحضر يظهر `undefined` (كان يقرأ `duration_txt` من Validate بينما تضعه Build Transcript). صُحّح في `build-farah-inbox.mjs`؛ **لم يُطبَّق على السير الحيّ** (تعديل الحيّ رُفض من الصلاحيات) — يُطبَّق بتبديل `cfg.duration_txt` في عقدة `Parse Minutes` بـ`$('Build Transcript').first().json.duration_txt`.
 - **لم يُختبر:** صفحة الملاحظات الخاصة (لا `FARAH_PRIVATE_PARENT_PAGE_ID`)، ومدخل `drive_file_id`/`audio_url`. وصفحة Notion للمهمة التجريبية على المالك حذفها.
+
+## 13) جلسة 2026-10-16 — اختبار دخان `bp-site-staging` والأسرار الناقصة
+
+### 13.1) اختبار الدخان (قراءة فقط)
+الرابط: `https://bp-site-staging.politewater-6c4f245f.uaenorth.azurecontainerapps.io` (المراجعة بنسخة `b7b563ece390`). `node azure/site/smoke.mjs <الرابط>` ← **كل الفحوص نجحت (22/22)** بعد تصحيحين في السكربت نفسه:
+- `/jobs` كان في القائمة وهو 404 **على الإنتاج الحالي أيضاً** (لا صفحة بهذا المسار) ← استُبدل بـ`/careers` (200 على الإنتاج وstaging).
+- أول طلب بعد خمول يتجاوز المهلة (بدء بارد للحاوية) ← صار السكربت يعيد المحاولة مرة بمهلة 30 ثانية. لا عطل في الموقع: `/` يردّ 200 في ~1 ثانية بعد الإيقاظ.
+
+### 13.2) مسارات «وضع الاختبار»
+المقروء من `/api/simple?action=config` على staging: `payments=test · moyasar=test · tamara=sandbox · whatsapp=mock · email=preview · contract=test · calendar=test`. **لكن:**
+1. **الدفع ليس معزولاً فعلاً.** staging فيه `MOYASAR_PUBLISHABLE_KEY` من نوع `pk_live_` و`MOYASAR_SECRET_KEY` (حقيقي كما في Vercel)، و`/api/pay?action=config` يردّ المفتاح الحيّ و`modeMatch:true`. المتغيران `PAYMENTS_MODE/MOYASAR_MODE=test` **لا يمنعان شيئاً** — الحارس `payGuard()` في `api/_mode.js` يعمل فقط حين `APP_ENV=development`. أي زائر يصل رابط staging ويدفع ببطاقة **يُخصم منه فعلاً**. (الحل: مفاتيح `pk_test_/sk_test_` في staging، أو جعل `payGuard` يطبّق `MOYASAR_MODE=test` — ملف `moyasar`/`cart-checkout` لا ملف هذه الجلسة.)
+2. **قاعدة البيانات = قاعدة الإنتاج** (`SUPABASE_URL` نفسه + `SUPABASE_SERVICE_KEY`)، و`FARAH_CHAT_WEBHOOK_URL` يشير لفرح الحيّة (تُرسل واتساب لباهر لمحادثة ساخنة).
+لذلك **لم أُرسل أي نموذج ولا محادثة ولا دفعة** من staging: كل منها يكتب في قاعدة العملاء الحقيقية أو يوقظ فرح. الفحص اقتصر على GET وعلى قراءة الأوضاع. بريد/واتساب: الوضعان `preview`/`mock` فالخروج مسدود بالكود (`EMAIL_LIVE`/`WHATSAPP_LIVE` = false) — لكن مسار الدفع والقاعدة أعلاه مفتوحان.
+
+### 13.3) المتغيرات السرية الناقصة في staging مقابل إنتاج Vercel (أسماء فقط)
+| الاسم | يستعمله | من أين يحصل عليها المالك |
+|---|---|---|
+| `DATABASE_URL`, `DIRECT_DATABASE_URL` | لوحة العروض/`quotes` وتاريخها (`ops/quotes-import.mjs`) | لوحة `bp-quotes` على Vercel/Supabase (Connection string) — لا تُلصق في المحادثة |
+| `DOCUSIGN_INTEGRATION_KEY`, `DOCUSIGN_USER_ID`, `DOCUSIGN_ACCOUNT_ID`, `DOCUSIGN_PRIVATE_KEY`, `DOCUSIGN_ENV` | توقيع العقود (`CONTRACT_MODE`) | DocuSign Admin ← Apps and Keys (المفتاح الخاص RSA) |
+| `EMPLOYER_CODES` | رموز دخول أصحاب العمل | Vercel ← Environment Variables (من إعدادك الحالي) |
+| `GITHUB_TOKEN` | مزامنة المحتوى (`CONTENT_REPO`) | GitHub ← Settings ← Developer settings (fine-grained، مستودع واحد) |
+| `GROQ_API_KEY`, `BusinessPartnerGimini` (Gemini), `GrokBusinessPartner` | احتياطي مجاني للمحرّك | console.groq.com / aistudio.google.com / x.ai — **اختيارية**: Azure OpenAI هو الأساس |
+| `ElevenLabs`, `ANTHROPIC_API_KEY` | صوت/نموذج **مدفوعان خارج Azure** | **لا تُنقل** (مخالفة للقاعدة 2.6) — يُحوَّل ما يستعملهما إلى Azure Speech/OpenAI أو يُترك |
+أسرار كانت في staging من قبل وليست في هذه القائمة: Moyasar/Tamara/Daftra/Resend/Notion/Supabase/OTP/Session/Panel/Azure OpenAI/Farah/Cron — موجودة. ملاحظة: متغيرات `api/` الأخرى (`NOTION_*_DB`, `WHATSAPP_*`, `OWNER_*`…) ليست في Vercel أيضاً بالاسم نفسه، فالقائمة أعلاه هي الفرق الفعلي عن الإنتاج.
+وقبل DNS: `bp-site` الإنتاجية فيها اليوم **نفس الأسماء الـ35** التي في staging (لم تُلمس).
+
+### 13.4) المتبقي بقرارك
+(أ) مفاتيح اختبار مُيسّر لـstaging أو إيقاف الدفع هناك؛ (ب) قاعدة منفصلة أو قبول الكتابة على الحقيقية لاختبار النماذج؛ (ج) DocuSign و`DATABASE_URL` إن أردت العقود وتاريخ العروض في Azure.
