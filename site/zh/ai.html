@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Business Partner AI — 企业 AI 工作空间</title>
-<meta name="description" content="Business Partner AI：为每家公司提供专属 AI 工作空间——团队对话、公司文件与知识集中一处，使用公司邮箱登录。申请试用。">
+<meta name="description" content="Business Partner AI：为每家公司提供专属 AI 工作空间——团队对话、公司文件与知识集中一处，使用公司邮箱登录。申请空间。">
 <meta property="og:title" content="Business Partner AI — 企业 AI 工作空间">
-<meta property="og:description" content="Business Partner AI：为每家公司提供专属 AI 工作空间——团队对话、公司文件与知识集中一处，使用公司邮箱登录。申请试用。">
+<meta property="og:description" content="Business Partner AI：为每家公司提供专属 AI 工作空间——团队对话、公司文件与知识集中一处，使用公司邮箱登录。申请空间。">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="zh_CN">
@@ -378,8 +378,7 @@ var h0=hint();if(h0)S.paint(true,h0);
     <p class="sub">专属于贵公司的空间，团队在此与 AI 协作</p>
     <p class="lead">每家公司拥有独立空间：团队与 AI 的对话、公司文件与知识集中一处，他人不可见。团队使用公司邮箱登录。</p>
     <div class="sv1-ai-acts">
-      <a class="sv1-btn primary" href="#ai-trial" data-track="AI: اطلب تجربة">申请试用</a>
-      <a class="sv1-btn" href="https://ai.businesspartner.sa/" rel="noopener" data-track="AI: دخول المنصة">登录平台</a>
+      <a class="sv1-btn primary" href="#ai-trial" data-track="AI: اطلب مساحة">为贵公司申请空间</a>
     </div>
     <p class="sv1-ai-note">已有空间？请通过我们发送给您的公司链接登录。</p>
   </div></section>
@@ -396,11 +395,11 @@ var h0=hint();if(h0)S.paint(true,h0);
 
   <section class="sv1-sec"><div class="wrap">
     <div class="sv1-title"><h2>如何开始</h2></div>
-    <ol class="sv1-ai-steps"><li>以公司名称和邮箱申请试用</li><li>我们的团队联系您，并以贵公司名称与标识准备空间</li><li>您收到空间链接，您与团队用公司邮箱登录</li><li>准备好后选择套餐</li></ol>
+    <ol class="sv1-ai-steps"><li>以公司名称和邮箱申请空间</li><li>我们的团队联系您，并以贵公司名称与标识准备空间</li><li>您收到空间链接，您与团队用公司邮箱登录</li><li>准备好后选择套餐</li></ol>
   </div></section>
 
   <section class="sv1-sec" id="ai-trial" style="background:var(--soft)"><div class="wrap">
-    <div class="sv1-title"><h2>为贵公司申请试用</h2><p>申请不构成任何约束。我们的团队审核后与您联系。</p></div>
+    <div class="sv1-title"><h2>为贵公司申请空间</h2><p>申请不构成任何约束。我们的团队审核后与您联系。</p></div>
     <form class="sv1-ai-form" id="aiForm" novalidate autocomplete="off">
       <div class="sv1-ai-hp" aria-hidden="true"><label>Fax<input type="text" id="aiHp" tabindex="-1" autocomplete="off"></label></div>
       <div class="sv1-ai-cols sv1-ai-f">
@@ -521,7 +520,7 @@ document.addEventListener("click",function(e){
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>(function aiClient(C) {
-    var TX = C.tx, FT = C.ft, LANG = C.lang, API = "/api/requests?__route=ai";
+    var TX = C.tx, FT = C.ft, PN = C.pn, LANG = C.lang, API = "/api/requests?__route=ai";
     var $ = function (id) { return document.getElementById(id); };
     var el = function (tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
     var num = function (n) { try { return Number(n).toLocaleString(LANG === "ar" ? "ar-SA" : LANG); } catch (e) { return String(n); } };
@@ -532,11 +531,9 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
       if (!plans || !plans.length) { box.appendChild(el("p", "sv1-ai-msg", TX.plansErr)); return; }
       plans.forEach(function (p) {
         var c = el("div", "sv1-ai-plan");
-        var h = el("h3", null, p.name || p.code);
-        if (p.code === "trial") h.appendChild(el("span", "badge", TX.trialBadge));
-        c.appendChild(h);
+        c.appendChild(el("h3", null, PN[p.code] || p.name || p.code));
         var facts = [];
-        if (p.seats != null) facts.push(num(p.seats) + " " + TX.seats);
+        if (p.seats != null) facts.push(Number(p.seats) === 1 ? TX.seat1 : num(p.seats) + " " + TX.seats);
         if (p.days != null) facts.push(num(p.days) + " " + TX.days);
         if (p.credit_usd != null) facts.push(TX.credit + " $" + num(p.credit_usd));
         c.appendChild(el("p", "facts", facts.join(" · ")));
@@ -582,7 +579,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
         })
         .catch(function () { btn.disabled = false; btn.textContent = TX.send; say("err", TX.eNet); });
     });
-  })({"lang":"zh","tx":{"plansErr":"暂时无法加载套餐。申请试用后我们会发送给您。","seats":"位用户","days":"天","credit":"用量额度","trialBadge":"试用","sending":"正在提交…","send":"提交申请","done":"已收到您的申请。参考编号：","doneNext":"我们的团队将尽快与您联系。","eCompany":"请填写公司名称。","eName":"请填写您的姓名。","eEmail":"请填写有效邮箱。","eEmailFree":"需要公司邮箱而非个人邮箱，团队将以此登录。","ePhone":"请填写有效手机号。","eRate":"请求过多，请稍后再试。","eNet":"提交失败，请重试。"},"ft":{"chat":"AI 对话","files":"文件上传与问答","notes":"团队笔记","knowledge":"公司知识库","connectors":"系统连接","custom_agents":"定制顾问","priority":"优先支持","audit":"审计日志","dedicated_support":"专属支持"}});</script><style>
+  })({"lang":"zh","tx":{"plansErr":"暂时无法加载套餐。申请空间后我们会发送给您。","seats":"位用户","seat1":"1 位用户","days":"天","credit":"用量额度","sending":"正在提交…","send":"提交申请","done":"已收到您的申请。参考编号：","doneNext":"我们的团队将尽快与您联系。","eCompany":"请填写公司名称。","eName":"请填写您的姓名。","eEmail":"请填写有效邮箱。","eEmailFree":"需要公司邮箱而非个人邮箱，团队将以此登录。","ePhone":"请填写有效手机号。","eRate":"请求过多，请稍后再试。","eNet":"提交失败，请重试。"},"ft":{"chat":"AI 对话","files":"文件上传与问答","notes":"团队笔记","knowledge":"公司知识库","connectors":"系统连接","custom_agents":"定制顾问","priority":"优先支持","audit":"审计日志","dedicated_support":"专属支持"},"pn":{"individual":"个人","business":"商务","business_plus":"商务增强版","enterprise":"企业版"}});</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}
 [dir=rtl] .bps-fab{padding:7px 7px 7px 16px}
 .bps-fab img{width:38px;height:38px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}
