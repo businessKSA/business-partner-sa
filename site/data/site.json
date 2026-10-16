@@ -118,7 +118,7 @@
   },
   "coreServices": {
    "title": "خدماتنا الرئيسية",
-   "subtitle": "أكثر من 90 خدمة مصنّفة حسب الكتالوج الرسمي — نغطّي رحلة عملك من التأسيس حتى التشغيل.",
+   "subtitle": "195 خدمة مصنّفة حسب الكتالوج الرسمي — نغطّي رحلة عملك من التأسيس حتى التشغيل.",
    "cards": [
     {
      "title": "تأسيس الشركات",
@@ -171,7 +171,7 @@
      "label": "سنة خبرة في السوق السعودي"
     },
     {
-     "value": "+90",
+     "value": "195",
      "label": "خدمة في الكتالوج الرسمي"
     },
     {
@@ -9604,6 +9604,7 @@
  "social": {
   "linkedin": "https://www.linkedin.com/company/108785026/",
   "instagram": "https://www.instagram.com/businesspartnersa/",
+    "tiktok": "https://www.tiktok.com/@businesspartnersa",
   "facebook": "https://www.facebook.com/BusinessPartnerKsa/"
  },
  "booking": {

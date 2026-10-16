@@ -99,6 +99,7 @@
 | `recruitment-agencies` | `/recruitment-agencies` · `/agency-portal` | 🟡 |
 | `recruitment-agencies` | `/vendor` | 🟢 SV1 جديدة |
 | `eor` | `/hr-portal` (بوابة «من أنت؟»، مخفية) | 🟢 SV1 جديدة |
+| `ai-workspace` | `/ai` (صفحة منتج Business Partner AI؛ المنصة نفسها على ai.businesspartner.sa) | 🟢 SV1 جديدة — لم تُنشر |
 | `recruitment-jobs` | `/jobs/*` (٣٨) · `/job` · `/hiring` · `/careers` (العرض) | 🟡 / ✅ |
 
 ## 7) `automation-agents` — المستشارون الأذكياء كمنتج
