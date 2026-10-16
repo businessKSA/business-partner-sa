@@ -5,13 +5,23 @@
   'use strict';
 
   var CFG = window.BP_SPACE_CONFIG || {};
+  /* كل النداءات تمرّ عبر /api/bp/* (دالة Azure في ai-space/api). مسارات n8n
+     ومفتاح فرح في إعدادات التطبيق على Azure لا في المتصفح ولا في git. */
+  var API_BASE = CFG.apiBase || '/api/bp';
   var API = {
-    data: (CFG.n8n || '') + (CFG.dataPath || ''),
-    chat: (CFG.n8n || '') + (CFG.chatPath || ''),
-    action: (CFG.n8n || '') + (CFG.actionPath || ''),
-    voice: CFG.voicePath ? (CFG.n8n || '') + CFG.voicePath : '',
-    stt: CFG.sttPath ? (CFG.n8n || '') + CFG.sttPath : ''
+    data: API_BASE + '/data',
+    pulse: API_BASE + '/pulse',
+    health: API_BASE + '/health',
+    chat: API_BASE + '/chat',
+    chatResult: API_BASE + '/chatresult',
+    action: API_BASE + '/action',
+    voice: API_BASE + '/voice',
+    stt: API_BASE + '/stt'
   };
+
+  /* جسر لوحدة جارفس (jarvis.js): التوجيه إلى مدير عبر فرح، وأصوات المدراء. */
+  var BP = window.BPSpace = window.BPSpace || {};
+  BP.routes = BP.routes || {};   // target -> { message(text), target_agent, voice:{voice,rate,pitch} }
   var CHAT_TIMEOUT = CFG.chatTimeoutMs || 150000;
   var REFRESH_MS = CFG.refreshMs === 0 ? 0 : (CFG.refreshMs || 45000);
 
@@ -479,6 +489,13 @@
     $('targetLine').textContent = 'التوجيه: ' + label;
   }
 
+  BP.ask = ask;
+  BP.setTarget = setTarget;
+  BP.note = note;
+  BP.getTarget = function () { return target; };
+  BP.isBusy = function () { return busy; };
+  BP.reload = function () { return loadData(); };
+
   /* =====================================================================
      4. ONE CONVERSATION RUNTIME (typed + spoken hit the same endpoint)
      ===================================================================== */
@@ -577,6 +594,36 @@
 
   /* نداء واحد إلى المدراء. فُصل عن ask() لأن إعادة المحاولة بعد حدّ المزوّد
      تحتاج تكرار النداء وحده — لا إعادة رسم الرسالة ولا تصفير حالة الواجهة. */
+  function chatPayload(text) {
+    var rt = BP.routes[target];
+    if (rt) return { message: rt.message(text), target_agent: rt.target_agent, source: 'command_space' };
+    return { message: text, target_agent: target, source: 'command_space' };
+  }
+
+  /* وضع الرد الطويل (اختياري، يعمل حين يردّ n8n بـ{job_id}): وسيط Azure لا يحتمل
+     أكثر من ٤٥ ثانية، فالسير غير المتزامن يعيد معرّف مهمة ونسألها كل ٣ ث. */
+  function awaitJob(j, ctl) {
+    var body = Array.isArray(j) ? (j[0] || {}) : j;
+    var job = body && body.job_id;
+    if (!job || body.reply || body.output || body.text) return Promise.resolve(j);
+    var until = Date.now() + CHAT_TIMEOUT;
+    return new Promise(function (res, rej) {
+      (function poll() {
+        if (ctl.signal.aborted) return rej(new Error('أُلغي الطلب'));
+        if (Date.now() > until) return rej(new Error('انتهت المهلة ولم ترد فرح'));
+        fetch(API.chatResult + '?job=' + encodeURIComponent(job), { cache: 'no-store', signal: ctl.signal })
+          .then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)); })
+          .then(function (d) {
+            var b = Array.isArray(d) ? (d[0] || {}) : d;
+            if (b && (b.reply || b.output || b.text)) return res(b);
+            if (b && b.status === 'error') return rej(new Error(b.error || 'فشل الرد'));
+            setTimeout(poll, 3000);
+          })
+          .catch(rej);
+      })();
+    });
+  }
+
   function sendOnce(text) {
     var ctl = new AbortController();
     inflight = ctl;
@@ -585,19 +632,21 @@
     return fetch(API.chat, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text, target_agent: target, source: 'command_space' }),
+      body: JSON.stringify(chatPayload(text)),
       signal: ctl.signal
     })
       .then(function (r) {
         return r.text().then(function (raw) {
           // ٤٢٩ صريحة من الحافة قبل أن تصل السير أصلاً.
           if (r.status === 429) throw new Error('RATE_LIMIT');
+          if (r.status === 504) throw new Error('انتهت مهلة وسيط Azure (٤٥ ث) قبل أن ترد فرح — راجع «خطة الرد الطويل» في ai-space/UNIFIED.md');
           if (!r.ok) throw new Error('الخادم رجّع HTTP ' + r.status + (raw ? ' · ' + raw.slice(0, 180) : ''));
           if (!raw.trim()) throw new Error('الخادم رجّع ردًا فارغًا (السير توقّف قبل عقدة الرد)');
           try { return JSON.parse(raw); }
           catch (e) { throw new Error('رد غير صالح من الخادم · ' + raw.slice(0, 180)); }
         });
       })
+      .then(function (j) { return awaitJob(j, ctl); })
       .then(function (j) {
         var body = Array.isArray(j) ? (j[0] || {}) : j;
         var reply = body.reply || body.output || body.text || body.message || 'تم استلام الطلب.';
@@ -753,6 +802,13 @@
     });
   }
 
+  function voiceBody(s) {
+    var rt = BP.routes[target];
+    var b = { text: s.slice(0, 900) };   // سقف نص Azure TTS في سير الصوت
+    if (rt && rt.voice) { b.voice = rt.voice.voice; b.rate = rt.voice.rate; b.pitch = rt.voice.pitch; }
+    return b;
+  }
+
   function speakNeural(s) {
     return new Promise(function (res, rej) {
       pauseListening();
@@ -762,7 +818,7 @@
       fetch(API.voice, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: s.slice(0, 2500) }),
+        body: JSON.stringify(voiceBody(s)),
         signal: ctl.signal
       })
         .then(function (r) {
@@ -1495,9 +1551,6 @@
   }
 
   /* ---------- boot ---------- */
-  if (!API.data || API.data.indexOf('REPLACE') !== -1 || API.data.indexOf('YOUR-INSTANCE') !== -1) {
-    note('config.js لم يُعبّأ بعد — انسخ config.example.js إلى config.js وضع مسارات n8n الحقيقية.');
-  }
   setState('needmic');
   addMsg('أنا معك. اسألني عن الفريق، العملاء، الفلوس، أو التسويق — أو أعطني أمرًا وأنا أوزّعه على المدراء.', 'ai');
 
