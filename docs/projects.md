@@ -75,6 +75,7 @@
 | طبقة التصميم الموحّد | `site/scripts/simple-v1-service-pages.mjs` |
 | قالب صفحة الخدمة وقالب التصنيف (Simple V1) | `site/scripts/simple-v1-service-detail.mjs` · `site/scripts/simple-v1-service-category.mjs` — يجهّز `generate.mjs` المعطيات (`buildServiceDetail` · `buildServiceCategory`)، وتبني القوالب الصفحة داخل `SV1.shell()` |
 | حارس n8n في المتصفح | `site/scripts/n8n-guard.mjs` (يُحقن في `write()` بـ`generate.mjs`) — لا شيء يخرج من `localhost` ولا من معاينة `vercel.app` إلى ويبهوكات n8n الإنتاجية؛ الإنتاج بلا تغيير. اختباره `tests/n8n-guard.test.mjs` |
+| وضع الإتاحة (2026-10-16) | `site/scripts/a11y-layer.mjs` (يُحقن من `write()` في `generate.mjs` في كل صفحة عامة: رابط «تخطَّ إلى المحتوى» + زرّ «إتاحة» ولوحته) · `site/assets/css/bp-a11y.css` · `site/assets/js/bp-a11y.js` · بيان `/accessibility` من `site/scripts/simple-v1-accessibility.mjs` · `tests/a11y-layer.test.mjs`. لوحة الإتاحة تحفظ تفضيلات المستخدم في `localStorage` (`bp_a11y`) فقط. **«الصوت أولاً»** يعيد استعمال ميكروفون المستشار `#sv1Mic` في الرئيسية ولا يملك تسجيلاً ثانياً — إن غُيّرت معرّفات `#sv1Msgs`/`#sv1Mic`/`#sv1In`/`#sv1Form` في الرئيسية فانتبه لهذا الربط. الصياغة المعتمدة: «نسعى للالتزام بـWCAG 2.1 AA» لا «مطابق». |
 | قواعد الجلسات | `CLAUDE.md` · `AGENTS.md` |
 | Azure | `api/_azure.js` · `_azblob.js` · `_msgraph.js` · `_azpg.js` |
 
@@ -416,7 +417,7 @@ Simple V1 لا تحمّله — فالرئيسية و`/catalog` و`/cart` و`/my
 
 | الوكيل | يملك هذه الملفات وحده |
 |---|---|
-| `platform-engineer` | `package.json` · `vercel.json` · `CLAUDE.md` · `AGENTS.md` · `docs/projects.md` · `site/scripts/verify-*.mjs` · `site/scripts/generate.mjs` · `site/scripts/simple-v1-service-pages.mjs` · `site/scripts/simple-v1-service-detail.mjs` · `site/scripts/simple-v1-service-category.mjs` · `site/scripts/n8n-guard.mjs` · `tests/n8n-guard.test.mjs` · `tests/service-category.test.mjs` · `site/scripts/bump-b10x-cache.mjs` · `api/_azure.js` · `api/_azblob.js` · `api/_msgraph.js` · `api/_azpg.js` · `ops/azure/**` · `tests/azure-*.test.mjs` |
+| `platform-engineer` | `package.json` · `vercel.json` · `CLAUDE.md` · `AGENTS.md` · `docs/projects.md` · `site/scripts/verify-*.mjs` · `site/scripts/generate.mjs` · `site/scripts/simple-v1-service-pages.mjs` · `site/scripts/simple-v1-service-detail.mjs` · `site/scripts/simple-v1-service-category.mjs` · `site/scripts/n8n-guard.mjs` · `tests/n8n-guard.test.mjs` · `tests/service-category.test.mjs` · `site/scripts/bump-b10x-cache.mjs` · `site/scripts/a11y-layer.mjs` · `site/scripts/simple-v1-accessibility.mjs` · `site/assets/css/bp-a11y.css` · `site/assets/js/bp-a11y.js` · `tests/a11y-layer.test.mjs` · `api/_azure.js` · `api/_azblob.js` · `api/_msgraph.js` · `api/_azpg.js` · `ops/azure/**` · `tests/azure-*.test.mjs` |
 | `client-portal` | `site/scripts/simple-v1-my.mjs` · `simple-v1-checkout.mjs` · `client-portal-v6.mjs` · `sv1-quote-auth-flow.mjs` · `portal-trust-layer.mjs` · `api/_simple.js` · `api/pay.js` · `api/otp.js` · `api/book.js` · `api/_stage.js` *(إسناد **مقترح** 2026-10-10 — بانتظار قرار المالك، انظر الملاحظة أدناه)* |
 | `owner-ops` | `site/scripts/simple-v1-ops.mjs` · `admin-command-center-v8.mjs` · `site/scripts/assets/admin.page.html` · `assets/monitor.page.html` · `api/requests.js` |
 | `recruitment` | **مدير — لا يملك ملفاً ولا يكتب كوداً.** يوزّع على الأربعة أدناه ويتحقق |
