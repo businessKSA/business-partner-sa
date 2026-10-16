@@ -1,0 +1,61 @@
+# إعداد دخول جوجل في تطبيق الجوال
+
+أُنشئ 2026-10-16. الحالة اليوم: زر «المتابعة عبر جوجل» ظاهر في التطبيق لكنه يقول «غير مفعّل بعد».
+الخادم جاهز (`api/otp.js` ← `action: google`)، والناقص ثلاثة أشياء: معرّفات OAuth، ومتغيّر في Vercel، ومكوّن أصلي في التطبيق.
+
+> **لماذا مكوّن أصلي؟** جوجل **يمنع** تسجيل الدخول داخل WebView. فلا يُفتح الدخول من صفحة الموقع؛ يلزم نافذة
+> جوجل الأصلية في iOS وAndroid، وتُرجع رمز هوية (ID token) يرسله التطبيق إلى `/api/otp`.
+
+## أ) Google Cloud (مجاني) — يفعله المالك
+1. ادخل <https://console.cloud.google.com> ← أنشئ مشروعاً باسم `Business Partner App`.
+2. **Google Auth Platform ← Branding / OAuth consent screen:** اسم التطبيق `Business Partner`، بريد الدعم،
+   الشعار، النطاق المصرّح `businesspartner.sa`، **رابط سياسة الخصوصية ورابط الشروط**
+   (⚠️ صفحة الخصوصية غير موجودة بعد — انظر `docs/mobile-app.md`)، النوع **External**.
+3. **Scopes:** `openid` و`email` و`profile` فقط (لا تحتاج مراجعة من جوجل). وانقل حالة التطبيق إلى **In production**
+   قبل الإطلاق، وإلا لا يدخل إلا «Test users» الذين تضيفهم يدوياً.
+4. **Credentials ← Create credentials ← OAuth client ID** ثلاث مرات:
+
+| النوع | ما تكتبه | ما تأخذه |
+|---|---|---|
+| **Web application** | الاسم `BP Server`، ولا تحتاج Redirect URIs | **Client ID** ← هو `GOOGLE_CLIENT_ID` في الخادم |
+| **iOS** | Bundle ID = `sa.businesspartner.app` | **Client ID (iOS)** |
+| **Android** | Package name = `sa.businesspartner.app` + **SHA-1** لمفتاح التوقيع | يكفي إنشاؤه، لا تنسخ منه شيئاً |
+
+5. **لا تحتاج Client Secret** في أي مكان. معرّفات العميل ليست أسراراً، فيمكن إرسالها في المحادثة.
+
+## ب) بصمة SHA-1 لـAndroid
+- **مفتاح الإصدار** (تنشئه أنت وتحفظه خارج git — ضياعه يمنع تحديث التطبيق):
+  `keytool -genkeypair -v -keystore bp-release.jks -alias bp -keyalg RSA -keysize 2048 -validity 10000`
+  ثم `keytool -list -v -keystore bp-release.jks -alias bp` وانسخ سطر **SHA1**.
+- للتجربة على جهازك: بصمة مفتاح التصحيح `~/.android/debug.keystore` (كلمة مرورها `android`).
+- بعد رفع التطبيق إلى Google Play: أضف أيضاً بصمة **Play App Signing** (Play Console ← App integrity)،
+  وإلا يفشل الدخول في النسخة المنزّلة من المتجر.
+- يلزم عميل Android واحد لكل بصمة.
+
+## ج) الخادم (Vercel) — قرار نشر يخصك
+- أضف متغيّر البيئة `GOOGLE_CLIENT_ID` = **Web Client ID** في المشروع الرئيسي (Production).
+  الخادم يقبل رمزاً واحداً فقط: `payload.aud === GOOGLE_CLIENT_ID` (`api/_suppliers.js:202`)،
+  لذلك يجب أن يكون الـWeb Client ID نفسه هو **audience** الرموز القادمة من iOS وAndroid
+  (المكوّن يضبط ذلك بتمريره `iOSServerClientId` = معرّف الويب).
+- بعدها يُنشر الموقع بالعلامة المتفق عليها. وعندئذ يعيد `action: methods` القيمة `google: true`.
+
+## د) التطبيق — أنفّذه أنا حين تُرسل المعرّفين
+أرسل لي في المحادثة: **Web Client ID** و**iOS Client ID**. أنا:
+1. أضيف `@capgo/capacitor-social-login` (v8.5.x، متوافق مع Capacitor 8).
+2. أستدعي `SocialLogin.initialize({ google: { webClientId, iOSClientId, iOSServerClientId: webClientId, mode: "online" } })`
+   من `app-bridge.js` قبل أول ضغطة على الزر.
+3. أضيف إلى `Info.plist` مخطط الرابط المعكوس (`com.googleusercontent.apps.<iOS-ID>`).
+4. أجرّب على جهاز Android حقيقي (لا أستطيع على iOS من هنا — يحتاج Mac).
+
+## هـ) شرط آبل 4.8 — يحسم قرارك لـiOS
+أي تطبيق iOS يقدّم دخولاً بجوجل **يجب** أن يقدّم معه **Sign in with Apple** (أو خياراً يطابق شروط الخصوصية، وجوجل لا يطابقها).
+يحتاج حساب آبل المطوّر المدفوع (99$/سنة). الخيارات:
+1. **جوجل + آبل على iOS** (الأكمل).
+2. **بلا جوجل على iOS**، وجوجل على Android فقط (يُخفى الزر في iOS).
+3. تأجيل جوجل كلياً: يبقى البريد وكلمة المرور (ويجب حينها **إخفاء الزر** من الشاشة، فالآن يظهر وهو لا يعمل وتراه آبل خللاً).
+
+## و) أخطاء شائعة
+- **`USER_CANCELLED` أو فشل صامت على Android:** غالباً الحزمة أو SHA-1 أو `webClientId` لا تطابق ما في الكونسول.
+  و`webClientId` يجب أن يكون معرّف **Web** لا معرّف Android.
+- **مستخدم حقيقي مرفوض:** التطبيق ما زال بحالة Testing ولم تُضف حسابه كـTest user.
+- **`bad_token` من الخادم:** `GOOGLE_CLIENT_ID` في Vercel ليس معرّف الويب نفسه.
