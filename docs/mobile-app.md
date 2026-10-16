@@ -81,3 +81,12 @@ npm run ios                   # يفتح Xcode (macOS فقط)
 - روابط عميقة (`apple-app-site-association` و`assetlinks.json` تحت `/.well-known/` — تمسّ المنصة).
 - تفعيل الإشعارات: ضع `google-services.json` و`GoogleService-Info.plist` ثم أضف `bp-push` إلى
   `appendUserAgent` في `capacitor.config.json`.
+
+## الدخول بنفاذ (2026-10-16)
+
+زر «الدخول عبر نفاذ» في شاشة الدخول على iOS وAndroid، موصول بالخادم الجاهز (`nafath-start` ← `nafath-poll` ← `nafath-link` في `api/otp.js`). يكتب المستخدم رقم هويته، فيظهر له رقم من رقمين يختاره في تطبيق نفاذ، والتطبيق يستطلع الحالة.
+
+- **التفعيل ينقصه إعداد من الهيئة لا كود:** `NAFATH_APP_ID` و`NAFATH_SERVICE` (و`NAFATH_ENV=prod` للإنتاج) من Elm. حتى تُضبط يقول الزر «غير مفعّل بعد» (`methods.nafath` تكون false).
+- **أول مرة:** نفاذ يثبت الهوية ولا يعطي بريداً، فمن لم تُربط هويته بحساب يدخل مرة بالبريد أو جوجل، ثم يُربط تلقائياً (`bp_nafath_link` ← `nafath-link`) وبعدها يدخل بنفاذ وحده.
+- الهوية الوطنية لا تُخزَّن في المتصفح؛ يُخزَّن الإثبات المختوم فقط.
+- لم يُجرَّب مع نفاذ حقيقي. جُرّب الجريان بخادم وهمي في Chromium (الرقم، الاستطلاع، رسالة الربط).

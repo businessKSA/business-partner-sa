@@ -37,7 +37,7 @@
       email: "البريد الإلكتروني", pass: "كلمة المرور", login: "دخول", wait: "لحظة…",
       or: "أو", noAcc: "ليس لديك حساب؟", signup: "إنشاء حساب", name: "الاسم", back: "لديك حساب؟ سجّل دخولك", googleOff: "دخول جوجل غير مفعّل بعد. استخدم البريد وكلمة المرور، أو أنشئ حساباً.",
       sendCode: "أرسل الرمز", code: "الرمز المكوّن من 6 أرقام", verify: "تأكيد", codeSent: "أرسلنا الرمز إلى بريدك",
-      google: "المتابعة عبر جوجل", apple: "المتابعة عبر Apple", appleErr: "تعذّر الدخول عبر Apple. حاول مرة أخرى أو استخدم البريد وكلمة المرور.",
+      google: "المتابعة عبر جوجل", nafath: "الدخول عبر نفاذ", nafathOff: "الدخول عبر نفاذ غير مفعّل بعد. استخدم البريد وكلمة المرور.", nafathT: "الدخول عبر نفاذ", nafathS: "اكتب رقم هويتك الوطنية أو الإقامة (10 أرقام). سنرسل طلباً إلى تطبيق نفاذ على جوالك.", nid: "رقم الهوية أو الإقامة", nafathGo: "إرسال الطلب", nafathPick: "افتح تطبيق نفاذ واختر هذا الرقم", nafathWait: "بانتظار موافقتك في تطبيق نفاذ…", nafathBad: "رقم الهوية أو الإقامة عشرة أرقام.", nafathFail: "تعذّر الدخول عبر نفاذ. حاول مرة أخرى.", nafathLink: "تم التحقق من هويتك ✓ ادخل مرة واحدة بالبريد أو بجوجل لنربط هويتك بحسابك، وبعدها تدخل بنفاذ مباشرة.", apple: "المتابعة عبر Apple", appleErr: "تعذّر الدخول عبر Apple. حاول مرة أخرى أو استخدم البريد وكلمة المرور.",
       setT: "اختر كلمة مرور", setS: "تدخل بها دائماً، ولو نسيتها أنشئ حساباً بالبريد نفسه واختر كلمة جديدة. 8 أحرف على الأقل.", setGo: "حفظ ومتابعة",
       badEmail: "اكتب بريداً صحيحاً.", badCreds: "البريد أو كلمة المرور غير صحيحة.", netErr: "تعذّر الاتصال. تحقق من الإنترنت وحاول مرة أخرى.",
       badCode: "الرمز غير صحيح أو انتهت صلاحيته.", terms: "الشروط والأحكام", contact: "تواصل معنا",
@@ -51,7 +51,7 @@
       email: "Email", pass: "Password", login: "Sign in", wait: "One moment…",
       or: "or", noAcc: "No account yet?", signup: "Create account", name: "Name", back: "Already have an account? Sign in", googleOff: "Google sign-in is not enabled yet. Use your email and password, or create an account.",
       sendCode: "Send code", code: "6-digit code", verify: "Confirm", codeSent: "We emailed you a code",
-      google: "Continue with Google", apple: "Continue with Apple", appleErr: "Could not sign in with Apple. Try again or use your email and password.",
+      google: "Continue with Google", nafath: "Sign in with Nafath", nafathOff: "Nafath sign-in is not enabled yet. Use your email and password.", nafathT: "Sign in with Nafath", nafathS: "Enter your national ID or Iqama number (10 digits). We will send a request to your Nafath app.", nid: "National ID or Iqama", nafathGo: "Send request", nafathPick: "Open the Nafath app and choose this number", nafathWait: "Waiting for your approval in Nafath…", nafathBad: "National ID or Iqama is 10 digits.", nafathFail: "Could not sign in with Nafath. Try again.", nafathLink: "Identity verified ✓ Sign in once with email or Google so we can link it to your account; after that you sign in with Nafath directly.", apple: "Continue with Apple", appleErr: "Could not sign in with Apple. Try again or use your email and password.",
       setT: "Choose a password", setS: "You will use it to sign in. If you forget it, create an account with the same email and choose a new one. At least 8 characters.", setGo: "Save and continue",
       badEmail: "Enter a valid email.", badCreds: "Wrong email or password.", netErr: "Could not connect. Check your internet and try again.",
       badCode: "The code is wrong or has expired.", terms: "Terms and conditions", contact: "Contact us",
@@ -120,6 +120,7 @@
     ".bp-login .pri{min-height:54px;border:0;border-radius:14px;background:#0B1B5A;color:#fff;font:700 16px inherit;cursor:pointer}.bp-login .pri[disabled]{opacity:.6}",
     ".bp-login .gg{min-height:54px;border:1px solid #DDE3EF;border-radius:14px;background:#fff;color:#232A3D;font:700 15px inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}",
     ".bp-login .gg svg{width:20px;height:20px;flex:none}",
+    ".bp-login .nfnum{font:800 56px/1 inherit;text-align:center;letter-spacing:2px;padding:18px;border:2px solid #1B6B52;border-radius:16px;color:#1B6B52;font-variant-numeric:tabular-nums}",
     ".bp-login .ap{min-height:54px;border:0;border-radius:14px;background:#000;color:#fff;font:700 15px inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}",
     ".bp-login .ap svg{width:20px;height:20px;flex:none;fill:#fff}",
     ".bp-login .or{display:flex;align-items:center;gap:12px;color:#8D97AE;font-size:13px}.bp-login .or::before,.bp-login .or::after{content:\"\";flex:1;height:1px;background:#DDE3EF}",
@@ -198,7 +199,7 @@
   var ALOGO = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>';
   // معرّف عميل iOS من Google Cloud (ليس سرّاً). فارغ حتى يُنشأ — انظر docs/google-signin-setup.md.
   var GOOGLE_IOS_CLIENT_ID = null;
-  var session = null, gate = null, methods = { google: false, googleClientId: null, apple: false };
+  var session = null, gate = null, methods = { google: false, googleClientId: null, apple: false, nafath: false };
 
   function field(label, type, name, auto) {
     var l = el("label", null, label), i = document.createElement("input");
@@ -259,6 +260,9 @@
     g.appendChild(el("span", null, T.google));
     g.onclick = function () { googleLogin(err); };
     c.appendChild(g);
+    var nf = el("button", "gg", T.nafath); nf.type = "button";
+    nf.onclick = function () { if (!methods.nafath) { err.textContent = T.nafathOff; return; } stepNafath(); };
+    c.appendChild(nf);
     if (platform === "ios") {
       var ap = el("button", "ap"); ap.type = "button";
       ap.innerHTML = ALOGO;
@@ -281,6 +285,57 @@
         busy(go, false); err.textContent = r.body.message || T.badCreds;
       }).catch(function () { busy(go, false); err.textContent = T.netErr; });
     });
+  }
+
+  // نفاذ: رقم الهوية ← الرقم الذي يظهر للمستخدم ← استطلاع الحالة. الخادم يحمل الهوية مختومة ولا تعود للمتصفح.
+  var nafathTimer = null;
+  function stepNafath() {
+    var c = frame();
+    c.appendChild(el("h1", null, T.nafathT));
+    c.appendChild(el("p", null, T.nafathS));
+    var f = form();
+    var n = field(T.nid, "text", "nid", "off");
+    n.input.maxLength = 10; n.input.inputMode = "numeric";
+    var err = errBox();
+    var go = el("button", "pri", T.nafathGo); go.type = "submit";
+    f.appendChild(n.box); f.appendChild(err); f.appendChild(go); c.appendChild(f);
+    var back = el("button", "lnk", T.back); back.type = "button"; back.onclick = function () { clearTimeout(nafathTimer); stepPassword(); }; c.appendChild(back);
+    f.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var id = n.input.value.replace(/\D/g, "");
+      if (id.length !== 10) { err.textContent = T.nafathBad; return; }
+      err.textContent = ""; busy(go, true);
+      api("nafath-start", { nationalId: id, purpose: "portal", locale: lang === "ar" ? "ar" : "en" }).then(function (r) {
+        if (r.body.ok && r.body.challenge) { nafathWaiting(r.body.random, r.body.challenge); return; }
+        busy(go, false); err.textContent = r.body.message || T.nafathFail;
+      }).catch(function () { busy(go, false); err.textContent = T.netErr; });
+    });
+  }
+  function nafathWaiting(random, challenge) {
+    var c = frame();
+    c.appendChild(el("h1", null, T.nafathPick));
+    c.appendChild(el("div", "nfnum", String(random || "")));
+    c.appendChild(el("p", null, T.nafathWait));
+    var err = errBox(); c.appendChild(err);
+    var back = el("button", "lnk", T.back); back.type = "button"; back.onclick = function () { clearTimeout(nafathTimer); stepPassword(); }; c.appendChild(back);
+    var until = Date.now() + 120000;
+    (function poll() {
+      nafathTimer = setTimeout(function () {
+        api("nafath-poll", { challenge: challenge }).then(function (r) {
+          var b = r.body || {};
+          if (b.ok && b.status === "WAITING") { if (Date.now() < until) poll(); else { stepNafath(); } return; }
+          if (b.ok && b.status === "COMPLETED") { tap("MEDIUM"); goChat(); return; }
+          if (b.error === "identity_not_linked" && b.link) { ls("bp_nafath_link", b.link); stepPassword(); var e2 = gate.querySelector(".err"); if (e2) e2.textContent = T.nafathLink; return; }
+          err.textContent = b.message || T.nafathFail;
+        }).catch(function () { err.textContent = T.netErr; });
+      }, 3000);
+    })();
+  }
+  // بعد دخول عادي: أكمل ربط هوية نفاذ التي تحقّقنا منها قبل الدخول.
+  function finishNafathLink() {
+    var link = ls("bp_nafath_link");
+    if (!link) return;
+    api("nafath-link", { link: link }).then(function () { safe(function () { localStorage.removeItem("bp_nafath_link"); }); }).catch(function () {});
   }
 
   var signupName = "";
@@ -510,6 +565,7 @@
   // ------------------------------------------------------------ تشغيل --
   function enter() {
     html.classList.remove("bp-pending");
+    finishNafathLink();
     if (isHome) html.classList.add("bp-chat");
     topBar();
     tabBar();
@@ -527,7 +583,7 @@
       else showLogin();
     }
     var timer = setTimeout(function () { resolve(null); }, 6000);
-    api("methods").then(function (r) { methods.google = !!(r.body && r.body.google); methods.googleClientId = (r.body && r.body.googleClientId) || null; methods.apple = !!(r.body && r.body.apple); }).catch(function () {})
+    api("methods").then(function (r) { methods.google = !!(r.body && r.body.google); methods.googleClientId = (r.body && r.body.googleClientId) || null; methods.apple = !!(r.body && r.body.apple); methods.nafath = !!(r.body && r.body.nafath); }).catch(function () {})
       .then(function () { return api("me"); })
       .then(function (r) { clearTimeout(timer); resolve(r.body && r.body.session); })
       .catch(function () { clearTimeout(timer); resolve(null); });

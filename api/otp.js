@@ -260,7 +260,7 @@ export default async function handler(req, res) {
   // only the doors that are configured, instead of a Google button that fails.
   if (action === "methods") {
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, code: true, password: DB_ON, google: !!GOOGLE_CLIENT_ID, googleClientId: GOOGLE_CLIENT_ID || null, apple: appleSignInConfigured() }));
+    return res.end(JSON.stringify({ ok: true, code: true, password: DB_ON, google: !!GOOGLE_CLIENT_ID, googleClientId: GOOGLE_CLIENT_ID || null, apple: appleSignInConfigured(), nafath: (() => { const n = nafathPing(); return !!(n.configured && n.serviceConfigured && n.hashSecret); })() }));
   }
 
   // Sign in with e-mail + password. Same session, same cookie, same everything

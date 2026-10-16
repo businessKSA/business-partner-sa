@@ -81,3 +81,14 @@ test("mobile: أذونات الميكروفون حاضرة (زر الصوت في
   assert.match(read("mobile/android/app/src/main/AndroidManifest.xml"), /android\.permission\.RECORD_AUDIO/);
   assert.match(read("mobile/ios/App/App/Info.plist"), /NSMicrophoneUsageDescription/);
 });
+
+test("mobile: الدخول بنفاذ في شاشة الدخول (طلب المالك 2026-10-16)", () => {
+  const src = read("site/assets/js/app-bridge.js");
+  assert.match(src, /api\("nafath-start"/);
+  assert.match(src, /api\("nafath-poll"/);
+  assert.match(src, /api\("nafath-link"/, "ربط الهوية بعد أول دخول عادي");
+  assert.match(src, /if \(!methods\.nafath\) \{ err\.textContent = T\.nafathOff; return; \}/, "غير المفعّل يصرّح ولا يفشل بصمت");
+  // الهوية الوطنية لا تُخزَّن في المتصفح: يُخزَّن الإثبات المختوم فقط
+  assert.doesNotMatch(src, /ls\("[a-z_]*nid[a-z_]*"/i);
+  assert.match(read("api/otp.js"), /nafath: \(\(\) => \{ const n = nafathPing\(\)/, "methods تعلن جاهزية نفاذ");
+});
