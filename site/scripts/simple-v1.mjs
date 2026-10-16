@@ -664,7 +664,6 @@ export function simpleV1(ctx) {
   <nav class="sv1-nav" id="sv1Nav">
     <a href="${SIMPLE_V1 ? href("/catalog") : href("/") + "#doors"}">${t("navServices")}</a>
     <a href="${href("/consultation")}">${t("navBook")}</a>
-    <a href="${href("/ai")}" data-track="ترويسة: Business Partner AI">Business Partner AI</a>
     <a href="${href("/")}#how">${t("navHow")}</a>
     <a href="${href("/my")}" id="sv1AccountLink">${t("navAccount")}</a>
     ${oneLang ? "" : langSwitch(path)}
@@ -771,6 +770,7 @@ export function simpleV1(ctx) {
       <a href="${href("/catalog")}">${t("footClassic")}</a>
       <a href="${href("/packages")}">${t("navPackages")}</a>
       <a href="${href("/ai-agents")}">${t("navAdvisors")}</a>
+      <a href="${href("/ai")}" data-track="تذييل: Business Partner AI">Business Partner AI</a>
       ${pageVisible("business-development") ? `<a href="${href("/business-development")}">${t("navBizDev")}</a>` : ""}
     </div>
     <div class="sv1-foot-navcol">
