@@ -1,0 +1,22 @@
+# يقرأه BuildKit بجوار ops/azure/Dockerfile.quotes (سياق البناء = جذر المستودع).
+.git
+.github
+.claude
+**/node_modules
+quotes/.next
+quotes/.env
+quotes/.env.*
+quotes/storage
+quotes/.localdb
+api
+lib
+n8n
+site
+docs
+tests
+db
+ops
+vercel.json
+package.json
+package-lock.json
+*.log

@@ -6,9 +6,16 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { visibleServices, visibleCatalogRows, pruneLinks, isHiddenHref, pageVisible, syncVercelRedirects, hasHidden } from "./hidden.mjs";
+import { n8nBase, N8N_LEGACY_BASE } from "../../api/_n8n.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
+// عنوان n8n الذي تتكلّم معه صفحات المتصفح — وقت البناء، من N8N_BASE_URL
+// (الافتراضي n8n Cloud الحالي حرفياً فلا يتغيّر ناتج البناء قبل القطع إلى Azure).
+// الصفحات المكتوبة كملفات خام (assets/monitor.page.html وadmin.page.html
+// وdata/compliance-dashboard.html) تحمل العنوان القديم نصّاً، فيُستبدل عند القراءة.
+const N8N_BASE_URL = n8nBase();
+const withN8nBase = (html) => (N8N_BASE_URL === N8N_LEGACY_BASE ? html : html.split(N8N_LEGACY_BASE).join(N8N_BASE_URL));
 const read = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), "utf8"));
 // Cache-busting fingerprints: assets are served with a 1-year immutable
 // Cache-Control, so every content change must produce a new URL.
@@ -323,6 +330,8 @@ import { buildSimpleCatalog } from "./simple-v1-catalog.mjs";
 import { buildSimpleServiceDetail } from "./simple-v1-service-detail.mjs";
 import { buildSimpleServiceCategory } from "./simple-v1-service-category.mjs";
 import { injectN8nGuard } from "./n8n-guard.mjs";
+import { injectA11y } from "./a11y-layer.mjs";
+import { buildSimpleAccessibility } from "./simple-v1-accessibility.mjs";
 import { buildSimpleCheckout } from "./simple-v1-checkout.mjs";
 import { buildSimpleCart } from "./simple-v1-cart.mjs";
 import { buildSimpleTrips } from "./simple-v1-trips.mjs";
@@ -6982,7 +6991,7 @@ function buildWorkerHousing() {
     <div class="cta-band"><h2>${L("Ready to house your workers the compliant way?", "جاهز تسكّن عمالتك بشكل نظامي؟")}</h2><p>${L("Our team replies quickly and sets your next step.", "فريقنا يرد عليك سريعاً ويحدد لك الخطوة التالية.")}</p>${waBtn2("Book a consultation", "احجز استشارة", "btn-white", true)}</div>
   </div></section>`;
 
-  const script = `<script>(function(){var f=document.getElementById("wh-form");if(!f)return;f.addEventListener("submit",function(e){e.preventDefault();var g=function(id){var el=document.getElementById(id);return el?el.value.trim():""};var company=g("wh-company"),phone=g("wh-phone"),city=g("wh-city"),count=g("wh-count");var res=document.getElementById("wh-result");var show=function(t,ok){res.hidden=false;res.textContent=t;res.style.color=ok?"#137a3e":"#b3261e"};if(!company||!phone||!city||!count){show("${Lraw("Please fill company, mobile, city and worker count.", "يرجى تعبئة اسم المنشأة والجوال والمدينة وعدد العمالة.")}",false);return}if(window.BP_TEST_MODE){show(window.bpTestNote("worker-housing form"),false);return}var fd=new FormData();fd.append("company",company);fd.append("whatsapp",phone);fd.append("city",city);fd.append("workers_count",count);fd.append("request_type",g("wh-type"));fd.append("email",g("wh-email"));fd.append("notes",g("wh-notes"));fd.append("source","website-worker-housing");fd.append("service","worker-housing");var btn=document.getElementById("wh-submit");btn.disabled=true;fetch("https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web",{method:"POST",body:fd}).then(function(r){if(!r.ok)throw 0;show("${Lraw("Request received! We reply with options and a quote within one working day.", "استلمنا طلبك! نرجع لك بخيارات السكن وعرض السعر خلال يوم عمل.")}",true);f.reset()}).catch(function(){show("${Lraw("Sending failed — try again or contact us on WhatsApp.", "تعذّر الإرسال. جرّب مرة أخرى أو تواصل معنا واتساب.")}",false)}).finally(function(){btn.disabled=false})})})();</script>`;
+  const script = `<script>(function(){var f=document.getElementById("wh-form");if(!f)return;f.addEventListener("submit",function(e){e.preventDefault();var g=function(id){var el=document.getElementById(id);return el?el.value.trim():""};var company=g("wh-company"),phone=g("wh-phone"),city=g("wh-city"),count=g("wh-count");var res=document.getElementById("wh-result");var show=function(t,ok){res.hidden=false;res.textContent=t;res.style.color=ok?"#137a3e":"#b3261e"};if(!company||!phone||!city||!count){show("${Lraw("Please fill company, mobile, city and worker count.", "يرجى تعبئة اسم المنشأة والجوال والمدينة وعدد العمالة.")}",false);return}if(window.BP_TEST_MODE){show(window.bpTestNote("worker-housing form"),false);return}var fd=new FormData();fd.append("company",company);fd.append("whatsapp",phone);fd.append("city",city);fd.append("workers_count",count);fd.append("request_type",g("wh-type"));fd.append("email",g("wh-email"));fd.append("notes",g("wh-notes"));fd.append("source","website-worker-housing");fd.append("service","worker-housing");var btn=document.getElementById("wh-submit");btn.disabled=true;fetch("${N8N_BASE_URL}/webhook/client-intake-web",{method:"POST",body:fd}).then(function(r){if(!r.ok)throw 0;show("${Lraw("Request received! We reply with options and a quote within one working day.", "استلمنا طلبك! نرجع لك بخيارات السكن وعرض السعر خلال يوم عمل.")}",true);f.reset()}).catch(function(){show("${Lraw("Sending failed — try again or contact us on WhatsApp.", "تعذّر الإرسال. جرّب مرة أخرى أو تواصل معنا واتساب.")}",false)}).finally(function(){btn.disabled=false})})})();</script>`;
 
   return page({
     title: Lraw("Worker Housing — licensed housing, licensing & operations | Business Partner", "تسكين العمالة — سكن مرخّص وترخيص وتشغيل | Business Partner"),
@@ -8902,12 +8911,12 @@ function buildMonitor() {
   // BP Inbox page is authored as a standalone raw HTML file (scripts/assets/monitor.page.html)
   // and emitted verbatim. Keeping it out of a JS template literal avoids escaping
   // hazards (backticks / ${} / backslashes) that previously broke the page script.
-  return fs.readFileSync(path.join(__dirname, 'assets', 'monitor.page.html'), 'utf8');
+  return withN8nBase(fs.readFileSync(path.join(__dirname, 'assets', 'monitor.page.html'), 'utf8'));
 }
 
 function buildAdmin() {
   // Owner control panel (/admin) — same standalone-raw-file pattern as monitor.
-  return fs.readFileSync(path.join(__dirname, 'assets', 'admin.page.html'), 'utf8');
+  return withN8nBase(fs.readFileSync(path.join(__dirname, 'assets', 'admin.page.html'), 'utf8'));
 }
 
 /* ---------- owner dashboard: control + live-test the specialized-team agents ---------- */
@@ -8993,9 +9002,9 @@ function buildDashboard() {
       <h2>🎯 أدوات وكيل التوظيف — Sourcing &amp; Screening</h2>
       <p>استقبال طلبات التقديم من مواقع الوظائف تلقائي بالكامل (عبر مراقبة البريد الإلكتروني). الأدوات التالية يستخدمها فريق التوظيف يدوياً — كل ما بعدها (التقييم، حجز المقابلة، إشعار العميل) يتم تلقائياً.</p>
       <div class="toolrow">
-        <a class="toolbtn" href="https://businesspartnerai.app.n8n.cloud/form/5b3298ae-2361-420b-9de3-b573837e44e6" target="_blank" rel="noopener">➕ تسجيل مرشح (Headhunting)</a>
-        <a class="toolbtn" href="https://businesspartnerai.app.n8n.cloud/form/97fdba3a-a01d-46d1-821d-bfccc0334408" target="_blank" rel="noopener">📝 تقييم مقابلة الفرز</a>
-        <a class="toolbtn" href="https://businesspartnerai.app.n8n.cloud/form/32932655-821b-47f8-b985-5821a293a76b" target="_blank" rel="noopener">📄 صياغة إعلان وظيفة بالذكاء الاصطناعي</a>
+        <a class="toolbtn" href="${N8N_BASE_URL}/form/5b3298ae-2361-420b-9de3-b573837e44e6" target="_blank" rel="noopener">➕ تسجيل مرشح (Headhunting)</a>
+        <a class="toolbtn" href="${N8N_BASE_URL}/form/97fdba3a-a01d-46d1-821d-bfccc0334408" target="_blank" rel="noopener">📝 تقييم مقابلة الفرز</a>
+        <a class="toolbtn" href="${N8N_BASE_URL}/form/32932655-821b-47f8-b985-5821a293a76b" target="_blank" rel="noopener">📄 صياغة إعلان وظيفة بالذكاء الاصطناعي</a>
       </div>
     </section>
 
@@ -9006,7 +9015,7 @@ function buildDashboard() {
   </div>
 
   <script>
-    var N8N_BASE = 'https://businesspartnerai.app.n8n.cloud/webhook';
+    var N8N_BASE = '${N8N_BASE_URL}/webhook';
     var AGENTS = [
       { slug:'baher',     path:'baher-intake',      name:'باهر', en:'Baher', role:'مستشار الأعمال',          emoji:'🎯' },
       { slug:'mazen',     path:'mazen-intake',      name:'مازن',     en:'Mazen',     role:'مدير العمليات',           emoji:'🧭' },
@@ -9729,7 +9738,7 @@ function buildPortal(pre = "/") {
     </div>
   </div>
   <script>
-    var N8N_BASE='https://businesspartnerai.app.n8n.cloud/webhook';
+    var N8N_BASE='${N8N_BASE_URL}/webhook';
     var AGENTS=[
       {slug:'baher',path:'baher-intake',name:'باهر',role:'مستشار الأعمال',e:'🎯'},
       {slug:'mazen',path:'mazen-intake',name:'مازن',role:'مدير العمليات',e:'🧭'},
@@ -10046,7 +10055,7 @@ function buildSharedServices() {
   // Full roster for the dashboard — each specialist is chatted with individually.
   // Baher leads via his chat webhook (chatTrigger protocol); the rest use their
   // own `<slug>-intake` webhooks (client_name/channel/message → { reply }).
-  const KHALED_EP = "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat";
+  const KHALED_EP = `${N8N_BASE_URL}/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat`;
   const agentData = [
     { slug: "khaled", e: "👑", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor", mode: "chat", ep: KHALED_EP },
     { slug: "mazen", e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager", path: "mazen-intake" },
@@ -10608,7 +10617,7 @@ function buildSharedServicesPortal() {
   // Full roster for the dashboard — each specialist is chatted with individually.
   // Baher leads via his chat webhook (chatTrigger protocol); the rest use their
   // own `<slug>-intake` webhooks (client_name/channel/message → { reply }).
-  const KHALED_EP = "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat";
+  const KHALED_EP = `${N8N_BASE_URL}/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat`;
   const agentData = [
     { slug: "khaled", e: "👑", ar: "باهر", arRole: "مستشار الأعمال", en: "Baher", enRole: "Business Advisor", mode: "chat", ep: KHALED_EP },
     { slug: "mazen", e: "🧭", ar: "مازن", arRole: "مدير العمليات", en: "Mazen", enRole: "Operations Manager", path: "mazen-intake" },
@@ -11261,7 +11270,7 @@ function buildSharedServicesPortal() {
     .ss-gate-links a:hover{text-decoration:underline}
   </style>`;
   const script = `<script>(function(){
-    var N8N='https://businesspartnerai.app.n8n.cloud/webhook';
+    var N8N='${N8N_BASE_URL}/webhook';
     var AGENTS=${AGENTS_JS};
     var TOOLS=${TOOLS_JS};
     var BUSY=${JSON.stringify(busyMsg)}, ERRT=${JSON.stringify(errMsg)};
@@ -11888,6 +11897,8 @@ function buildB10X() {
 }
 
 /* ---------- write ---------- */
+// بصمتا ملفَّي الإتاحة (محتوى الملف) — الأصول تُخدَم immutable فالبصمة هي المُبطِل.
+const A11Y_V = { cssV: assetV("assets/css/bp-a11y.css"), jsV: assetV("assets/js/bp-a11y.js") };
 function write(rel, html) {
   const full = path.join(ROOT, rel);
   fs.mkdirSync(path.dirname(full), { recursive: true });
@@ -11901,6 +11912,9 @@ function write(rel, html) {
   // localhost ولا من معاينة vercel.app (site/scripts/n8n-guard.mjs). الإنتاج
   // على businesspartner.sa بلا أي تغيير.
   if (rel.endsWith(".html")) html = injectN8nGuard(html);
+  // وضع الإتاحة: زرّ ولوحة وتخطٍّ إلى المحتوى في كل صفحة عامة، في موضعٍ واحد
+  // (site/scripts/a11y-layer.mjs). بلا إعدادٍ مفعَّل لا يتغيّر مظهر الصفحة.
+  if (rel.endsWith(".html")) html = injectA11y(html, rel, A11Y_V);
   fs.writeFileSync(full, html);
 }
 
@@ -12059,6 +12073,8 @@ function writeFullSite(pre) {
     write(`${pre}consultation.html`, buildConsultation());
   }
   write(`${pre}terms.html`, buildTerms());
+  // بيان الإتاحة (2026-10-16): ما نوفّره وكيف يبلّغ المستخدم عن عائق. بلا ادّعاء شهادة امتثال.
+  write(`${pre}accessibility.html`, buildSimpleAccessibility(SV1, { lang: () => LANG, esc, site }));
   write(`${pre}account.html`, buildAccount());
   write(`${pre}shared-services.html`, buildSharedServices());
   write(`${pre}shared-services/dashboard.html`, buildSharedServicesPortal());
@@ -12074,7 +12090,7 @@ function writeFullSite(pre) {
   JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
   write(`${pre}jobs/${WORKSHOP_CAMPAIGN.slug}.html`, buildWorkshopCampaign());
   WORKSHOP_JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
-  pageCount += 18 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length + 1 + WORKSHOP_JOBS.length;
+  pageCount += 19 + TEAM_AGENTS.length + services.length + categories.length + JOBS.length + 1 + WORKSHOP_JOBS.length;
 }
 
 for (const lang of ["en", "ar"]) {
@@ -12288,7 +12304,7 @@ write("ar/portal.html", buildPortal("/ar/"));
 // only to n8n webhooks. Its source of truth lives under assets/data (which
 // cleanHtml never touches) and is copied into the ar/ tree on every build;
 // editing it in place under ar/ would be silently deleted by the next run.
-write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/data/compliance-dashboard.html"), "utf8"));
+write("ar/compliance-dashboard.html", withN8nBase(fs.readFileSync(path.join(ROOT, "assets/data/compliance-dashboard.html"), "utf8")));
 // بوابة تعبئة ملف الإقامة المميزة (منتج رائد الأعمال): صفحة عملاء بالرابط
 // فقط. تُكتب يدوياً في assets/data/ وتُنسخ كما هي — نموذج بستة تبويبات لا
 // يستفيد من قوالب هذا المولّد، ولا يدخل في paths أدناه فلا يظهر في خريطة
@@ -12297,7 +12313,7 @@ write("pr-intake.html", fs.readFileSync(path.join(ROOT, "assets/data/pr-intake.h
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/smart-employee", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/knowledge-center", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/company-structure", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
+const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/smart-employee", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/knowledge-center", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/company-structure", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/accessibility", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))

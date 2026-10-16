@@ -258,8 +258,8 @@ textarea.add:focus{outline:none;border-color:var(--accent)}
   .stop h1{max-width:52vw}
 }
 </style>
-</head>
-<body>
+<script>(function(){try{var s=JSON.parse(localStorage.getItem('bp_a11y')||'null');if(!s||typeof s!=='object')return;var e=document.documentElement,k=['zoom','spacing','font','contrast','theme','links','cursor','focus','motion','imgs','voice'];for(var i=0;i<k.length;i++){var v=s[k[i]];if(v&&(typeof v==='number'||v==='dark'))e.setAttribute('data-bpa-'+k[i],String(v))}}catch(x){}})();</script><link rel="stylesheet" href="/assets/css/bp-a11y.css?v=655ad8d6f8"><script defer src="/assets/js/bp-a11y.js?v=24f51302c6"></script></head>
+<body><a class="bpa-skip" href="#bp-main">تخطَّ إلى المحتوى</a>
 
 
 <div class="app" id="app">
@@ -317,7 +317,7 @@ textarea.add:focus{outline:none;border-color:var(--accent)}
     </div>
   </aside>
 
-  <main class="stage">
+  <main class="stage" id="bp-main" tabindex="-1">
     <div class="stop">
       <button class="ghost-ic" id="openRail" style="display:none">☰</button>
       <h1 id="chatTitle">إعارة ٦ عمال عبر أجير</h1>

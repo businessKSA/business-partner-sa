@@ -41,7 +41,7 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
    الرماديات مائلةٌ إلى الكحلي لا محايدة، فتقرأ كأنها من العلامة. */
 .sv1{--n:#0B1B5A;--ac:#0B1B5A;--ac2:#16307F;--acSoft:#EEF2FB;--acLine:#C3CDE6;
  --n2:#081345;--g:#F5F7FB;--l:#E5E9F0;--line:#E5E9F0;--line2:#EBEFF7;
- --t:#232A3D;--ink:#0B1B5A;--s:#5A6478;--mut:#5A6478;--faint:#8D97AE;--soft:#F5F7FB;
+ --t:#232A3D;--ink:#0B1B5A;--s:#5A6478;--mut:#5A6478;--faint:#66708a;--soft:#F5F7FB;
  --ok:#047857;--okSoft:#E7F4EF;--warn:#B45309;--wa:#25D366;
  --sh:0 1px 2px rgba(11,27,90,.06);--sh2:0 22px 56px -18px rgba(11,27,90,.22),0 2px 8px rgba(11,27,90,.06);
  --fm:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace;
@@ -63,9 +63,9 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
  margin-inline-end:7px;box-shadow:0 0 0 0 rgba(52,211,153,.65);animation:sv1pulse 2.6s infinite}
 @keyframes sv1pulse{70%{box-shadow:0 0 0 7px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
 .sv1-bar-langs{display:flex;gap:10px;font-family:var(--fm);font-size:10.5px;letter-spacing:.06em}
-.sv1-bar-langs a{opacity:.5}
-.sv1-bar-langs a:hover{opacity:.85}
-.sv1-bar-langs a.on{opacity:1;color:#fff}
+.sv1-bar-langs a{color:#C9D1EA;display:inline-block;min-width:24px;min-height:24px;line-height:24px;text-align:center}
+.sv1-bar-langs a:hover{color:#fff}
+.sv1-bar-langs a.on{color:#fff;font-weight:700;text-decoration:underline;text-underline-offset:4px}
 @media(max-width:760px){.sv1-bar .hide-s{display:none}}
 .sv1-hdr{border-bottom:1px solid var(--l);background:rgba(255,255,255,.86);backdrop-filter:blur(14px);position:sticky;top:0;z-index:20}
 .sv1-hdr .wrap{height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}
@@ -138,7 +138,7 @@ a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
 .sv1-chat{display:flex;flex-direction:column;border-inline-end:1px solid var(--l)}
 .sv1-chathead{padding:16px;border-bottom:1px solid var(--l)}
 .sv1-chathead h3{font-size:18px;margin:0 0 1px}
-.sv1-chathead p{font-size:11.5px;color:#777;margin:0}
+.sv1-chathead p{font-size:11.5px;color:#5c6376;margin:0}
 .sv1-msgs{padding:16px;background:#fbfcfe;flex:1;overflow:auto;max-height:420px}
 .sv1-msg{max-width:85%;padding:10px 13px;border-radius:13px;font-size:13px;margin-bottom:9px;white-space:pre-wrap;line-height:1.75}
 .sv1-msg.a{background:#fff;border:1px solid var(--l)}
@@ -165,28 +165,28 @@ a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
 .sv1-voice .t{font-family:var(--fm);margin-inline-start:auto;font-size:11px;color:var(--faint)}
 .sv1-scope{padding:19px;display:flex;flex-direction:column}
 .sv1-scope h3{font-size:19px;margin:9px 0 2px}
-.sv1-scope>p{font-size:11.5px;color:#777;margin:0 0 12px}
+.sv1-scope>p{font-size:11.5px;color:#5c6376;margin:0 0 12px}
 .sv1-item{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--l);border-radius:11px;padding:10px;margin-bottom:7px}
 .sv1-item b{font-size:12.5px;display:block;color:#32394a;outline:none;font-weight:600}
 .sv1-item b:focus{background:#fffbe6;border-radius:4px}
-.sv1-item small{font-size:10.5px;color:#888;display:block;margin-top:2px}
+.sv1-item small{font-size:10.5px;color:#656c7f;display:block;margin-top:2px}
 .sv1-item .del{border:0;width:27px;height:27px;border-radius:7px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:14px}
 .sv1-addrow{display:flex;gap:6px;margin-top:2px}
 .sv1-addrow input{flex:1;border:1px solid var(--l);border-radius:9px;padding:9px;font:inherit;font-size:12.5px;outline:none}
 .sv1-docs{margin-top:16px;padding-top:14px;border-top:1px dashed #cfd6e6}
 .sv1-docs h4{margin:0 0 2px;color:var(--ink);font-size:15px}
-.sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#777}
+.sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#5c6376}
 .sv1-doc{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:8px 10px;margin-bottom:6px}
 .sv1-doc span{font-size:12.5px;color:#32394a;display:flex;gap:7px;align-items:center}
 .sv1-doc span::before{content:"📄";font-size:13px}
 .sv1-doc .del{border:0;width:24px;height:24px;border-radius:6px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:13px}
-.sv1-docs .empty{font-size:11.5px;color:#9aa0b0;padding:6px 2px;margin-bottom:6px}
+.sv1-docs .empty{font-size:11.5px;color:#656c7f;padding:6px 2px;margin-bottom:6px}
 .sv1-summary{background:var(--acSoft);border:1px solid var(--acLine);border-radius:10px;padding:11px 13px;margin:14px 0;font-size:12px}
 .sv1-summary div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .sv1-summary strong{font-size:16px;color:var(--ac)}
 .sv1-login{border-top:1px solid var(--l);padding:16px 19px;background:#fff}
 .sv1-login h4{margin:0 0 4px;color:var(--ink);font-size:15px}
-.sv1-login p{margin:0 0 10px;color:#777;font-size:12px}
+.sv1-login p{margin:0 0 10px;color:#5c6376;font-size:12px}
 .sv1-login .g{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .sv1-login input{border:1px solid var(--l);border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;width:100%;outline:none}
 .sv1-login .full{grid-column:1/-1}
@@ -196,7 +196,7 @@ a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
 .sv1-flow div{background:#fff;border:1px solid var(--l);border-radius:11px;padding:16px;text-align:center}
 .sv1-flow i{font-style:normal;font-family:var(--fm);width:34px;height:34px;background:var(--acSoft);color:var(--ac);border-radius:9px;display:grid;place-items:center;margin:0 auto 9px;font-weight:500;font-size:12px}
 .sv1-flow b{display:block;font-size:12.5px;color:var(--ink);font-weight:500}
-.sv1-flow small{font-size:10px;color:#888}
+.sv1-flow small{font-size:10px;color:#656c7f}
 .sv1-tabs{text-align:center;margin-bottom:15px;display:flex;gap:8px;justify-content:center}
 .sv1-tab{border:1px solid var(--l);background:#fff;border-radius:9px;padding:9px 17px;font-weight:500;color:var(--mut);cursor:pointer;font-family:inherit;font-size:13px}
 .sv1-tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
@@ -212,10 +212,10 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-mi.on{background:#fff;color:var(--ink);font-weight:500}
 .sv1-pmain{padding:22px;background:#fbfcfe}
 .sv1-pmain h3{font-size:21px;margin:0 0 2px}
-.sv1-muted{color:#777;font-size:11.5px}
+.sv1-muted{color:#5c6376;font-size:11.5px}
 .sv1-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:15px 0}
 .sv1-stat,.sv1-panel{background:#fff;border:1px solid var(--l);border-radius:11px;padding:14px}
-.sv1-stat span{font-size:9.5px;color:#777;display:block}
+.sv1-stat span{font-size:9.5px;color:#5c6376;display:block}
 .sv1-stat b{font-size:21px;color:var(--ink);font-family:var(--fm);font-weight:500}
 .sv1-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sv1-panel h4{color:var(--ink);margin:0 0 8px;font-size:13px;font-weight:500}
@@ -223,13 +223,13 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-prow:last-child{border-bottom:0}
 .sv1-status{font-size:9.5px;border-radius:999px;padding:3px 9px;background:var(--acSoft);color:var(--ac);white-space:nowrap}
 .sv1-status.done{background:var(--okSoft);color:var(--ok)}
-.sv1-pnote{text-align:center;color:#8b90a0;font-size:11px;margin-top:12px}
+.sv1-pnote{text-align:center;color:#656c7f;font-size:11px;margin-top:12px}
 .sv1-foot{margin-top:auto;padding:38px 0 22px;background:var(--n2);color:#ccd4ed;font-size:12px}
 .sv1-foot b{color:#fff}
 .sv1-foot a{color:#fff;text-decoration:underline;text-underline-offset:2px}
 .sv1-foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1.1fr 1fr;gap:26px 34px}
-.sv1-foot-col h4{color:#fff;font-size:12px;margin:0 0 10px;letter-spacing:.02em}
-.sv1-foot-col p{margin:0 0 8px;line-height:1.75}
+.sv1-foot-col h2{color:#fff;font-size:12px;font-weight:700;margin:0 0 10px;letter-spacing:.02em;text-wrap:wrap}
+.sv1-foot-col p{margin:0 0 8px;line-height:1.75;color:#ccd4ed}
 .sv1-foot-brand{display:block;font-size:15px;margin-bottom:6px}
 .sv1-foot-note{color:rgba(255,255,255,.62);font-size:11.5px;line-height:1.7}
 .sv1-foot-row{display:flex;gap:10px;align-items:baseline;padding:3px 0;line-height:1.6}
@@ -246,7 +246,7 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-foot-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 34px;
  margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1)}
 .sv1-foot-navcol{display:flex;flex-direction:column;gap:7px;min-width:0}
-.sv1-foot-navcol h5{color:rgba(255,255,255,.5);font-size:10.5px;font-weight:600;
+.sv1-foot-navcol h3{color:rgba(255,255,255,.5);font-size:10.5px;font-weight:600;
  letter-spacing:.07em;margin:0 0 3px;text-transform:uppercase}
 .sv1-foot-navcol a{color:rgba(255,255,255,.72);font-size:12.5px;line-height:1.5;
  text-decoration:none;transition:color .15s}
@@ -257,6 +257,19 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-wa-fab{position:fixed;inset-inline-start:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
 .sv1-navlogin{display:none}
+/* أهداف اللمس ≥ 44px على الجوال (قرار الإتاحة 2026-10-16). سطح المكتب لا يتغيّر. */
+@media(pointer:coarse),(max-width:760px){
+ .sv1 button:not(.sv1-door):not(.sv1-lang summary),.sv1 .sv1-btn,.sv1 input:not([type=hidden]):not([type=checkbox]):not([type=radio]),.sv1 select,.sv1 textarea{min-height:44px}
+ .sv1-btn.sm{min-height:44px;padding-block:10px}
+ .sv1 button.del,.sv1 .sv1-item .del,.sv1 .sv1-doc .del{min-width:44px;min-height:44px}
+ .sv1-burger{width:44px;height:44px}
+ .sv1-lang summary{min-height:44px}
+ .sv1-nav a{min-height:44px;display:flex;align-items:center}
+ .sv1-chips button{min-height:44px;padding-block:10px}
+ .sv1-compose .send,.sv1-mic{min-width:46px;min-height:46px}
+ .sv1 input[type=checkbox],.sv1 input[type=radio]{min-width:24px;min-height:24px}
+ .sv1-foot-navcol a,.sv1-foot-links a{display:inline-flex;align-items:center;min-height:44px}
+}
 @media(max-width:900px){
  .sv1-nav .sv1-navlogin{display:block;font-weight:700;color:var(--n)}
  .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
@@ -273,9 +286,9 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 }
 @media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
  .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
-</style><meta name="robots" content="noindex, nofollow"><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
+</style><meta name="robots" content="noindex, nofollow"><script>(function(){try{var s=JSON.parse(localStorage.getItem('bp_a11y')||'null');if(!s||typeof s!=='object')return;var e=document.documentElement,k=['zoom','spacing','font','contrast','theme','links','cursor','focus','motion','imgs','voice'];for(var i=0;i<k.length;i++){var v=s[k[i]];if(v&&(typeof v==='number'||v==='dark'))e.setAttribute('data-bpa-'+k[i],String(v))}}catch(x){}})();</script><link rel="stylesheet" href="/assets/css/bp-a11y.css?v=655ad8d6f8"><script defer src="/assets/js/bp-a11y.js?v=24f51302c6"></script><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
-<body class="sv1-page"><div class="sv1"><style>
+<body class="sv1-page"><a class="bpa-skip" href="#bp-main">تخطَّ إلى المحتوى</a><div class="sv1"><style>
 .my{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 68px)}
 .my-side{background:#fff;border-inline-end:1px solid var(--line);padding:16px 12px;position:sticky;top:68px;height:calc(100vh - 68px);overflow:auto}
 .my-side a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-weight:600;font-size:.92rem;color:#2c3550;cursor:pointer}
@@ -396,27 +409,27 @@ select.inp{background:#fff;color:inherit}
 .mob{display:none}
 @media(max-width:900px){.my{grid-template-columns:minmax(0,1fr)}.my-side{position:static;height:auto;display:none}.my-side.open{display:block}.mob{display:flex;gap:6px;overflow:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line)}.mob a{white-space:nowrap;padding:7px 11px;border-radius:999px;border:1px solid var(--line);font-size:.82rem;font-weight:700;color:#2c3550}.mob a.on{background:var(--n);color:#fff;border-color:var(--n)}.my-kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:minmax(0,1fr)}.my-main{padding:14px}}
 </style>
-<div class="sv1-bar"><div class="wrap">
+<div class="sv1-bar" role="region" aria-label="الحالة واللغة"><div class="wrap">
   <div class="sv1-bar-l">
     <span><span class="sv1-pulse"></span><b>جميع الأنظمة تعمل</b></span>
     <span class="hide-s">الرياض · المملكة العربية السعودية</span>
   </div>
   <div class="sv1-bar-r">
     <span class="hide-s">منصّة واحدة · أربع لغات</span>
-    <span class="sv1-bar-langs"><a href="/ar/my" data-lang="ar" class="on">AR</a><a href="/my" data-lang="en">EN</a><a href="/fr/my" data-lang="fr">FR</a><a href="/zh/my" data-lang="zh">ZH</a></span>
+    <span class="sv1-bar-langs"><a href="/ar/my" data-lang="ar" lang="ar" hreflang="ar" aria-label="العربية" class="on" aria-current="true">AR</a><a href="/my" data-lang="en" lang="en" hreflang="en" aria-label="English">EN</a><a href="/fr/my" data-lang="fr" lang="fr" hreflang="fr" aria-label="Français">FR</a><a href="/zh/my" data-lang="zh" lang="zh" hreflang="zh" aria-label="中文">ZH</a></span>
   </div>
 </div></div><header class="sv1-hdr"><div class="wrap">
   <a class="logo" href="/ar/" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
-  <nav class="sv1-nav" id="sv1Nav">
+  <nav class="sv1-nav" id="sv1Nav" aria-label="التنقل الرئيسي">
     <a href="/ar/catalog">الخدمات</a>
     <a href="/ar/consultation">احجز استشارة</a>
     <a href="/ar/#how">كيف نبدأ</a>
     <a href="/ar/my" class="sv1-navlogin" id="sv1NavLogin">دخول</a>
     <a href="/ar/my" id="sv1AccountLink">حسابي</a>
-    <details class="sv1-lang"><summary>🌐 العربية</summary><div class="menu"><a href="/ar/my" data-lang="ar" class="on">العربية</a><a href="/my" data-lang="en">English</a><a href="/fr/my" data-lang="fr">Français</a><a href="/zh/my" data-lang="zh">中文</a></div></details>
+    <details class="sv1-lang"><summary><span aria-hidden="true">🌐</span> العربية</summary><div class="menu"><a href="/ar/my" data-lang="ar" lang="ar" hreflang="ar" class="on" aria-current="true">العربية</a><a href="/my" data-lang="en" lang="en" hreflang="en">English</a><a href="/fr/my" data-lang="fr" lang="fr" hreflang="fr">Français</a><a href="/zh/my" data-lang="zh" lang="zh" hreflang="zh">中文</a></div></details>
   </nav>
   <div class="right">
-    <button class="sv1-burger" id="sv1Burger" aria-label="Menu" aria-expanded="false">☰</button>
+    <button type="button" class="sv1-burger" id="sv1Burger" aria-label="القائمة" aria-controls="sv1Nav" aria-expanded="false"><span aria-hidden="true">☰</span></button>
     <a class="sv1-btn sm sv1-cart sv1-hide" id="sv1CartBtn" href="/ar/cart" aria-label="السلة">
       <span>السلة</span><b id="sv1CartN">0</b></a>
     <a class="sv1-btn" id="sv1LoginBtn" href="/ar/my">دخول</a>
@@ -450,9 +463,9 @@ var S=window.SV1S={
   if(sb)sb.classList.toggle('sv1-hide',!(on&&(p.indexOf('/my')>=0||p.indexOf('/ops')>=0)));
  }};
 var h0=hint();if(h0)S.paint(true,h0);
-})();</script>
+})();</script><main><span id="bp-main" tabindex="-1"></span>
 <div id="app"></div>
-<footer class="sv1-foot"><div class="wrap">
+</main><footer class="sv1-foot"><div class="wrap">
   <div class="sv1-foot-grid">
     <div class="sv1-foot-col">
       <b class="sv1-foot-brand">Business Partner</b>
@@ -460,18 +473,18 @@ var h0=hint();if(h0)S.paint(true,h0);
       <p class="sv1-foot-note">فاتورة ضريبية متوافقة مع هيئة الزكاة والضريبة والجمارك لكل عملية مدفوعة.</p>
     </div>
     <div class="sv1-foot-col">
-      <h4>بيانات المنشأة</h4>
+      <h2>بيانات المنشأة</h2>
       <div class="sv1-foot-row id"><span>الاسم في السجل التجاري</span><b>شركة بزنس بارتنر سلوشنز</b></div><div class="sv1-foot-row id"><span>الرقم الموحد</span><bdi dir="ltr">7038825860</bdi></div><div class="sv1-foot-row id"><span>الرقم الضريبي</span><bdi dir="ltr">312079341500003</bdi></div><div class="sv1-foot-row id"><span>العنوان الوطني المختصر</span><bdi dir="ltr">RDAA9214</bdi></div>
     </div>
     <div class="sv1-foot-col">
-      <h4>تواصل</h4>
+      <h2>تواصل</h2>
       <div class="sv1-foot-row"><span>الهاتف</span><a href="tel:+966530540231"><bdi dir="ltr">0530540231</bdi></a></div>
       <div class="sv1-foot-row"><span>البريد</span><a href="mailto:business@businesspartner.sa"><bdi dir="ltr">business@businesspartner.sa</bdi></a></div>
       <div class="sv1-foot-row"><span>العنوان الوطني</span><span class="v">مبنى 9214 · طريق الملك خالد الفرعي · حي العاصمة · الدرعية 13714 · الرقم الفرعي 5076</span></div>
       <div class="sv1-foot-row"><span>أوقات العمل</span><span class="v">الأحد – الخميس · 9 صباحاً – 6 مساءً · والمستشار الذكي على مدار الساعة</span></div>
     </div>
     <div class="sv1-foot-col">
-      <h4>الدفع</h4>
+      <h2>الدفع</h2>
       <p class="sv1-foot-note">مدى · فيزا · ماستركارد، أو التقسيط عبر تمارا. وتظهر محافظ الجوال (مثل Apple Pay) في صفحة الدفع إن كانت متاحة على جهازك. الدفع عبر بوابة مرخّصة، ولا تمرّ بيانات بطاقتك من خوادمنا.</p>
     </div>
   </div>
@@ -484,31 +497,32 @@ var h0=hint();if(h0)S.paint(true,h0);
        المنتجات المفردة التي بابها صفحة الكتالوج. -->
   <div class="sv1-foot-nav">
     <div class="sv1-foot-navcol">
-      <h5>الخدمات</h5>
+      <h3>الخدمات</h3>
       <a href="/ar/catalog">كل الخدمات</a>
       <a href="/ar/packages">الباقات</a>
       <a href="/ar/ai-agents">المستشارون الأذكياء</a>
       
     </div>
     <div class="sv1-foot-navcol">
-      <h5>المعرفة</h5>
+      <h3>المعرفة</h3>
       <!-- قرار المالك (2026-09-24): للمعرفة رابطٌ واحد فقط — «مركز المعرفة» — وكل
            صفحاتها (الأدلة، الحاسبات، المجلة، الاستثمار في السعودية) داخله. -->
       <a href="/ar/knowledge-center">مركز المعرفة</a>
     </div>
     <div class="sv1-foot-navcol">
-      <h5>الشركة</h5>
+      <h3>الشركة</h3>
       <a href="/ar/about">من نحن</a>
       <a href="/ar/contact">تواصل معنا</a>
       <a href="/ar/careers">الوظائف</a>
       <a href="/ar/suppliers">الشركاء</a>
       <a href="/ar/terms">الشروط والأحكام</a>
+      <a href="/ar/accessibility">الإتاحة</a>
     </div>
   </div>
   <div class="sv1-foot-end">© 2026 Business Partner · جميع الحقوق محفوظة</div>
-</div></footer>
-</div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
-fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
+</div>
+</footer></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
+fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.setAttribute('role','region');d.setAttribute('aria-label','Test mode');d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
 var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};
 /* الرسم الفوري جرى بعد «</header>» مباشرة (SV1_SESSION_JS)؛ هنا التصحيح. */
 fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
@@ -612,7 +626,7 @@ function mountGoogle(slot,opt){
 window.SV1Login={otp:otp,methods:methods,mountGoogle:mountGoogle,inApp:INAPP,or:LX.or,t:LX};
 })();</script><script>
 (function(){
-var LANG="ar",EV={"request.created":"أنشأ الطلب","request.created.manual":"أُنشئ الطلب يدوياً","request.created.cart":"أُنشئ الطلب من شراء مباشر بالسلة","scope.proposed":"اقترح النطاق","scope.edited":"عدّل النطاق","scope.confirmed":"اعتمد النطاق","quote.pending":"بانتظار عرض السعر","message.customer":"رسالة من العميل","message.bp":"رد الفريق","attachment.added":"أضاف مرفقاً","quote.drafted":"مسودة عرض سعر","quote.sent":"أرسل عرض السعر","quote.approved":"اعتمد العرض","quote.rejected":"طلب تعديل العرض","contract.sent":"أرسل العقد","contract.signed":"وقّع العقد","payment.paid":"تم الدفع","payment.failed":"فشل الدفع","payment.cancelled":"أُلغي الدفع","payment.pending":"دفع معلّق","invoice.issued":"صدرت الفاتورة","appointment.booked":"حجز موعداً","appointment.rescheduled":"أعاد جدولة الموعد","appointment.cancelled":"ألغى الموعد","appointment.set":"ثبّت الموعد","task.created":"أنشأ مهمة","task.human_required":"مهمة تحتاج تدخلاً بشرياً","task.done":"أنجز المهمة","task.in_progress":"بدأ المهمة","task.waiting":"مهمة بانتظار","task.todo":"أعاد فتح المهمة","execution.started":"بدأ التنفيذ","request.cancelled":"ألغى الطلب","request.updated":"حدّث الطلب","document.received":"استلمنا المستند","deliverable.added":"سلّم مخرجاً من الطلب","deliverable.removed":"سحب مخرجاً","status.completed":"اكتمل الطلب","status.in_progress":"بدأ التنفيذ","status.waiting_internal":"قيد التنفيذ","status.reviewing":"قيد المراجعة","status.waiting_client":"بانتظار ردّك","status.cancelled":"أُلغي الطلب","quote.auto":"أصدر عرض السعر آلياً","documents.requested":"حدّد المستندات المطلوبة","payment.receipt":"استلم إيصال التحويل","message.whatsapp":"رسالة واتساب","contract.reissued":"أعاد إصدار العقد","request.reopened":"أعاد فتح الطلب","cancel.requested":"طلب الإلغاء","followup.reminded":"ذكّرك بالخطوة التالية"},TX={"title":"حسابي — Business Partner","navHome":"الرئيسية","navNew":"ابدأ طلب جديد","navRequests":"طلباتي","navQuotes":"عروض الأسعار","navContracts":"العقود","navAppts":"المواعيد","navPay":"السلة والدفع","navInvoices":"الفواتير","navChats":"المحادثات","navCompany":"بيانات الشركة","logout":"تسجيل الخروج","site":"الموقع","attention":"وش يحتاج انتباهك الآن؟","kActive":"طلبات نشطة","kQuotes":"عروض بانتظار اعتمادك","kContracts":"عقود بانتظار توقيعك","kPayments":"مدفوعات مستحقة","kAppts":"موعد قادم","today":"وش تحتاج اليوم؟","empty":"لا يوجد شيء هنا بعد.","ref":"رقم الطلب","status":"الحالة","open":"فتح","back":"رجوع","conversation":"المحادثة","scope":"نطاق الخدمات","cancelTitle":"إلغاء الطلب","cancelAsk":"اطلب الإلغاء","cancelWhy":"سبب الإلغاء (اختياري)","cancelEarly":"الطلب لم يصل مرحلةً يترتّب عليها التزام — الإلغاء يتم فوراً.","cancelLate":"الطلب وصل مرحلةً يترتّب عليها التزامات (عقد أو دفعة أو تنفيذ). نستلم طلب الإلغاء ويراجعه الفريق ويعود لك.","cancelSent":"استلمنا طلب الإلغاء ويراجعه الفريق.","cancelDone":"أُلغي الطلب","resign":"صدرت نسخة مصحَّحة من هذا العقد بعد توقيعك — سنرسلها لك للتوقيع من جديد.","openFull":"افتح بالحجم الكامل","docPrint":"طباعة / حفظ PDF","docClose":"إغلاق","docWait":"نجهّز المستند…","attachments":"المرفقات","quote":"عرض السعر","contract":"العقد","payment":"الدفع","invoice":"الفاتورة","timeline":"الخط الزمني","writeMsg":"اكتب رسالة للفريق…","send":"إرسال","saveScope":"حفظ التعديلات","confirmScope":"اعتمد النطاق وتابع","scopePricing":"تم اعتماد النطاق ✓ — الفريق يجهّز عرض السعر ويصلك هنا وعلى بريدك.","docs":"المستندات المطلوبة","docsNote":"نطلب هذه المستندات لإتمام طلبك — ارفع كل مستند من زره هنا، ويصل الفريق مباشرة.","docsNone":"لا مستندات مطلوبة حتى الآن. تقدر مع ذلك ترفع أي مستند يخص الطلب.","docUp":"ارفع","docUpMore":"ارفع ملفاً آخر","docUpAny":"ارفع مستنداً آخر","docRecv":"استُلم ✓","docWaived":"معفى","docAsked":"مطلوب","docSent":"وصل مستندك للفريق ✓","fOpen":"فتح","eMany":"وصلت إلى الحدّ الأقصى لعدد الملفات في هذا الطلب.","eClosed":"الطلب مغلق ولا يقبل مستندات.","delivTitle":"مخرجات الطلب","delivNone":"ستظهر هنا الملفات التي نسلّمها لك، وننبّهك بالبريد فور تسليمها.","delivNoneDone":"اكتمل الطلب ولا توجد ملفات مسلَّمة داخله.","delivDl":"تنزيل","delivErr":"تعذّر فتح الملف — حاول مرة أخرى.","invSeller":"البائع","invVat":"الرقم الضريبي للبائع","invBuyer":"العميل","invOfficial":"الفاتورة الرسمية (PDF)","addItem":"إضافة بند","remove":"حذف","scopeLocked":"النطاق مقفل بعد إصدار عرض السعر.","qty":"الكمية","price":"السعر","net":"الإجمالي قبل الضريبة","vat":"ضريبة القيمة المضافة 15%","total":"الإجمالي","validUntil":"صالح حتى","terms":"شروط الدفع","approve":"اعتماد العرض","reject":"طلب تعديل","rejectNote":"ما الذي تريد تعديله؟","quoteApproved":"تم اعتماد العرض، والعقد جاهز للتوقيع الآن.","quoteApprovedDone":"تم اعتماد العرض ✓","quoteExpired":"انتهت صلاحية عرض السعر هذا. اكتب لنا من داخل الطلب ليُجدَّد لك بسعر اليوم.","viewContract":"عرض العقد","signTitle":"التوقيع الإلكتروني","signName":"الاسم الكامل للموقّع","signDraw":"ارسم توقيعك","signClear":"مسح","signConsent":"أوافق على أن توقيعي الإلكتروني ملزم وفق نظام التعاملات الإلكترونية.","signBtn":"توقيع العقد","signed":"تم توقيع العقد","payNow":"ادفع الآن","payCardNow":"ادفع بالبطاقة","payTamaraNow":"قسّطها مع تمارا","payReturning":"نؤكّد دفعتك…","payVia":"الدفع عبر صفحة الدفع الآمنة (مدى، فيزا، ماستركارد، Apple Pay، تمارا عند توفرها)","testPay":"محاكاة الدفع (وضع الاختبار)","paySuccess":"نجاح — بطاقة","payTamara":"نجاح — تمارا","payFailed":"فشل","payCancelled":"إلغاء","payPending":"معلّق","paid":"مدفوع","download":"عرض الفاتورة","book":"احجز موعداً","reschedule":"إعادة جدولة","cancelAppt":"إلغاء الموعد","date":"التاريخ","time":"الوقت","topic":"الموضوع","confirm":"تأكيد","apptNote":"المواعيد من الأحد إلى الخميس، بتوقيت الرياض. نؤكد الموعد على بريدك.","cancelReq":"إلغاء الطلب","company":"اسم الشركة","cr":"السجل التجاري","nameEn":"الاسم بالإنجليزية","save":"حفظ","saved":"تم الحفظ","sessEnd":"انتهت جلستك — سجّل دخولك من جديد لتكمل.","apptBad":"اختر التاريخ والوقت أولاً.","apptFri":"لا مواعيد يوم الجمعة — اختر يوماً آخر.","apptPast":"هذا الموعد مضى — اختر وقتاً قادماً.","provCard":"بطاقة","provTamara":"تمارا","provBank":"تحويل بنكي","actAi":"المستشار الذكي","actSys":"النظام","actTeam":"فريق Business Partner","you":"أنت","team":"الفريق","assistant":"المساعد","loginTitle":"تسجيل الدخول","loginText":"ادخل بحساب Google، أو بالبريد: نرسل لك رابطاً تضغطه فتدخل — بلا كلمة مرور.","email":"البريد الإلكتروني","sendCode":"أرسل الرمز","password":"كلمة المرور","loginPw":"دخول بكلمة المرور","usePw":"لديك كلمة مرور؟ ادخل بها","useCode":"ادخل برمز البريد بدلاً من ذلك","sendLink":"أرسل لي رابط الدخول","badEmail":"اكتب بريداً إلكترونياً صحيحاً.","linkSent":"أرسلنا رابط الدخول إلى {e} — افتح بريدك واضغط الرابط وتدخل مباشرة (صالح ١٥ دقيقة).","orCode":"أو اكتب الرمز المرسل في الرسالة نفسها:","resend":"أرسل الرابط مرة أخرى","resendIn":"إعادة الإرسال بعد {n} ث","changeEmail":"بريد آخر","openLink":"افتح رابط الاختبار","linkTitle":"تأكيد الدخول","linkText":"اضغط الزرّ لإكمال الدخول إلى حسابك.","linkGo":"أكمل الدخول","linkBad":"الرابط منتهٍ أو استُعمل من قبل. اطلب رابطاً جديداً.","linkNew":"اطلب رابطاً جديداً","pwTitle":"كلمة المرور","pwNote":"اضبط كلمة مرور لحسابك لتدخل بها مباشرة بدل انتظار رمز البريد في كل مرة.","pwSave":"حفظ كلمة المرور","pwShort":"كلمة المرور ٨ أحرف على الأقل.","pwSaved":"تم حفظ كلمة المرور ✓","code":"رمز الدخول","verify":"دخول","loginErr":"تعذّر إرسال الرمز.","codeErr":"الرمز غير صحيح.","error":"حدث خطأ. حاول مرة أخرى.","waitingTeam":"الفريق يراجع طلبك","needYou":"بانتظارك","tasksTitle":"مطلوب منك","done":"تم","requestCreated":"تم إنشاء الطلب","testRibbon":"وضع الاختبار — لا مدفوعات حقيقية","sourceLbl":"المصدر","direct":"شراء مباشر","ticket":"تذكرة دعم","bought":"ما اشتريته","directNote":"اشتريت هذه الخدمة مباشرة من السلة ودفعت قبل فتح الطلب، فلا عرض سعر ولا عقد له. تتابع هنا مراحله، وترفع مستنداتك، وتستلم مخرجاته.","cycM":"شهري","cycY":"سنوي","unverifiedNote":"مبلغ هذه الدفعة لم يُطابَق آلياً مع الأسعار المعتمدة، فيراجعه الفريق قبل بدء التنفيذ. لا حاجة لإعادة الدفع.","navDocs":"مستنداتي","vaultNote":"ارفع مستندك مرّة واحدة — نستعمله في كل طلب، ولا يراه أحد خارج حسابك.","dzPick":"اسحب الملف هنا أو اضغط للاختيار","dzHint":"PDF أو صورة (JPG · PNG · WEBP) — حتى ٨ ميجابايت","dName":"اسم المستند","dCat":"نوعه","dExp":"تاريخ الانتهاء (اختياري)","dSend":"ارفع المستند","dOther":"اختر ملفاً آخر","dUploading":"جارٍ الرفع","dDone":"تم رفع المستند ✓","dNewVerDone":"رُفعت نسخة جديدة ✓","eBig":"الملف أكبر من ٨ ميجابايت","eType":"هذه الصيغة غير مقبولة. المقبول: PDF · JPG · PNG · WEBP.","eEmpty":"الملف فارغ.","eName":"اكتب اسم المستند أولاً.","eNet":"تعذّر الوصول إلى الخادم — تحقّق من اتصالك وأعد المحاولة.","eUp":"تعذّر رفع الملف","eRead":"تعذّرت قراءة الملف من جهازك.","eNoOrg":"أضف اسم شركتك في «بيانات الشركة» أولاً — الخزانة مرتبطة بالمنشأة.","dOpen":"فتح","dNewVer":"نسخة جديدة","dDel":"حذف","dDelAsk":"حذف هذا المستند نهائياً من خزانتك؟","dVer":"نسخة","dExpires":"ينتهي","dExpired":"منتهي","dLeftA":"باقي","dLeftB":"يوم","dPending":"قيد التحقق","dReadOk":"مقروء آلياً ✓","dNone":"لا مستندات بعد — ابدأ بأول مستند من الأعلى.","dLoading":"نحمّل خزانتك…","dEntity":"المنشأة","dCr":"س.ت","dVat":"الرقم الضريبي","dIssued":"الإصدار","dRetry":"أعد المحاولة"},ST={"NEW":"جديد","REVIEWING":"قيد المراجعة","WAITING_CLIENT":"بانتظار ردك","QUOTE_SENT":"عرض سعر بانتظار اعتمادك","QUOTE_APPROVED":"العرض معتمد","CONTRACT_SENT":"عقد بانتظار توقيعك","SIGNED":"موقّع — بانتظار الدفع","PAYMENT_PENDING":"بانتظار الدفع","PAID":"مدفوع — جاهز للتنفيذ","IN_PROGRESS":"قيد التنفيذ","WAITING_INTERNAL":"قيد التنفيذ","COMPLETED":"مكتمل","CANCELLED":"ملغي"},TY={"CONSULTATION":"استشارة","GOVERNMENT_SERVICE":"خدمة حكومية","COMPANY_FORMATION":"تأسيس شركة","BUSINESS_DEVELOPMENT":"تطوير الأعمال"},HOME="/ar/",CHECKOUT="/ar/checkout",SELLER={"name":"شركة بزنس بارتنر سلوشنز","nameEn":"Business Partner Solutions Company","vat":"312079341500003","city":"الدرعية","cityEn":"Ad Diriyah"};
+var LANG="ar",EV={"request.created":"أنشأ الطلب","request.created.manual":"أُنشئ الطلب يدوياً","request.created.cart":"أُنشئ الطلب من شراء مباشر بالسلة","scope.proposed":"اقترح النطاق","scope.edited":"عدّل النطاق","scope.confirmed":"اعتمد النطاق","quote.pending":"بانتظار عرض السعر","message.customer":"رسالة من العميل","message.bp":"رد الفريق","attachment.added":"أضاف مرفقاً","quote.drafted":"مسودة عرض سعر","quote.sent":"أرسل عرض السعر","quote.approved":"اعتمد العرض","quote.rejected":"طلب تعديل العرض","contract.sent":"أرسل العقد","contract.signed":"وقّع العقد","payment.paid":"تم الدفع","payment.failed":"فشل الدفع","payment.cancelled":"أُلغي الدفع","payment.pending":"دفع معلّق","invoice.issued":"صدرت الفاتورة","appointment.booked":"حجز موعداً","appointment.rescheduled":"أعاد جدولة الموعد","appointment.cancelled":"ألغى الموعد","appointment.set":"ثبّت الموعد","task.created":"أنشأ مهمة","task.human_required":"مهمة تحتاج تدخلاً بشرياً","task.done":"أنجز المهمة","task.in_progress":"بدأ المهمة","task.waiting":"مهمة بانتظار","task.todo":"أعاد فتح المهمة","execution.started":"بدأ التنفيذ","request.cancelled":"ألغى الطلب","request.updated":"حدّث الطلب","document.received":"استلمنا المستند","deliverable.added":"سلّم مخرجاً من الطلب","deliverable.removed":"سحب مخرجاً","status.completed":"اكتمل الطلب","status.in_progress":"بدأ التنفيذ","status.waiting_internal":"قيد التنفيذ","status.reviewing":"قيد المراجعة","status.waiting_client":"بانتظار ردّك","status.cancelled":"أُلغي الطلب","quote.auto":"أصدر عرض السعر آلياً","documents.requested":"حدّد المستندات المطلوبة","payment.receipt":"استلم إيصال التحويل","message.whatsapp":"رسالة واتساب","contract.reissued":"أعاد إصدار العقد","request.reopened":"أعاد فتح الطلب","cancel.requested":"طلب الإلغاء","followup.reminded":"ذكّرك بالخطوة التالية"},TX={"title":"حسابي — Business Partner","navHome":"الرئيسية","navNew":"ابدأ طلب جديد","navRequests":"طلباتي","navQuotes":"عروض الأسعار","navContracts":"العقود","navAppts":"المواعيد","navPay":"السلة والدفع","navInvoices":"الفواتير","navChats":"المحادثات","navCompany":"بيانات الشركة","logout":"تسجيل الخروج","site":"الموقع","attention":"وش يحتاج انتباهك الآن؟","kActive":"طلبات نشطة","kQuotes":"عروض بانتظار اعتمادك","kContracts":"عقود بانتظار توقيعك","kPayments":"مدفوعات مستحقة","kAppts":"موعد قادم","today":"وش تحتاج اليوم؟","empty":"لا يوجد شيء هنا بعد.","ref":"رقم الطلب","status":"الحالة","open":"فتح","back":"رجوع","conversation":"المحادثة","scope":"نطاق الخدمات","cancelTitle":"إلغاء الطلب","cancelAsk":"اطلب الإلغاء","cancelWhy":"سبب الإلغاء (اختياري)","cancelEarly":"الطلب لم يصل مرحلةً يترتّب عليها التزام — الإلغاء يتم فوراً.","cancelLate":"الطلب وصل مرحلةً يترتّب عليها التزامات (عقد أو دفعة أو تنفيذ). نستلم طلب الإلغاء ويراجعه الفريق ويعود لك.","cancelSent":"استلمنا طلب الإلغاء ويراجعه الفريق.","cancelDone":"أُلغي الطلب","resign":"صدرت نسخة مصحَّحة من هذا العقد بعد توقيعك — سنرسلها لك للتوقيع من جديد.","openFull":"افتح بالحجم الكامل","docPrint":"طباعة / حفظ PDF","docClose":"إغلاق","docWait":"نجهّز المستند…","attachments":"المرفقات","quote":"عرض السعر","contract":"العقد","payment":"الدفع","invoice":"الفاتورة","timeline":"الخط الزمني","writeMsg":"اكتب رسالة للفريق…","send":"إرسال","saveScope":"حفظ التعديلات","confirmScope":"اعتمد النطاق وتابع","scopePricing":"تم اعتماد النطاق ✓ — الفريق يجهّز عرض السعر ويصلك هنا وعلى بريدك.","docs":"المستندات المطلوبة","docsNote":"نطلب هذه المستندات لإتمام طلبك — ارفع كل مستند من زره هنا، ويصل الفريق مباشرة.","docsNone":"لا مستندات مطلوبة حتى الآن. تقدر مع ذلك ترفع أي مستند يخص الطلب.","docUp":"ارفع","docUpMore":"ارفع ملفاً آخر","docUpAny":"ارفع مستنداً آخر","docRecv":"استُلم ✓","docWaived":"معفى","docAsked":"مطلوب","docSent":"وصل مستندك للفريق ✓","fOpen":"فتح","eMany":"وصلت إلى الحدّ الأقصى لعدد الملفات في هذا الطلب.","eClosed":"الطلب مغلق ولا يقبل مستندات.","delivTitle":"مخرجات الطلب","delivNone":"ستظهر هنا الملفات التي نسلّمها لك، وننبّهك بالبريد فور تسليمها.","delivNoneDone":"اكتمل الطلب ولا توجد ملفات مسلَّمة داخله.","delivDl":"تنزيل","delivErr":"تعذّر فتح الملف — حاول مرة أخرى.","invSeller":"البائع","invVat":"الرقم الضريبي للبائع","invBuyer":"العميل","invOfficial":"الفاتورة الرسمية (PDF)","addItem":"إضافة بند","remove":"حذف","scopeLocked":"النطاق مقفل بعد إصدار عرض السعر.","qty":"الكمية","price":"السعر","net":"الإجمالي قبل الضريبة","vat":"ضريبة القيمة المضافة 15%","total":"الإجمالي","validUntil":"صالح حتى","terms":"شروط الدفع","approve":"اعتماد العرض","reject":"طلب تعديل","rejectNote":"ما الذي تريد تعديله؟","quoteApproved":"تم اعتماد العرض، والعقد جاهز للتوقيع الآن.","quoteApprovedDone":"تم اعتماد العرض ✓","quoteExpired":"انتهت صلاحية عرض السعر هذا. اكتب لنا من داخل الطلب ليُجدَّد لك بسعر اليوم.","viewContract":"عرض العقد","signTitle":"التوقيع الإلكتروني","signName":"الاسم الكامل للموقّع","signDraw":"ارسم توقيعك","signClear":"مسح","signConsent":"أوافق على أن توقيعي الإلكتروني ملزم وفق نظام التعاملات الإلكترونية.","signBtn":"توقيع العقد","signed":"تم توقيع العقد","payNow":"ادفع الآن","payCardNow":"ادفع بالبطاقة","payTamaraNow":"قسّطها مع تمارا","payReturning":"نؤكّد دفعتك…","payVia":"الدفع عبر صفحة الدفع الآمنة (مدى، فيزا، ماستركارد، Apple Pay، تمارا عند توفرها)","testPay":"محاكاة الدفع (وضع الاختبار)","paySuccess":"نجاح — بطاقة","payTamara":"نجاح — تمارا","payFailed":"فشل","payCancelled":"إلغاء","payPending":"معلّق","paid":"مدفوع","download":"عرض الفاتورة","book":"احجز موعداً","reschedule":"إعادة جدولة","cancelAppt":"إلغاء الموعد","date":"التاريخ","time":"الوقت","topic":"الموضوع","confirm":"تأكيد","apptNote":"جلسة بالفيديو عبر Google Meet، مجانية، وكل الأوقات بتوقيت الرياض. نؤكد الموعد على بريدك ونرسل دعوة تقويم.","apptHours":"الجلسات من {a} إلى {b} بتوقيت الرياض (GMT+3)، مدة الجلسة {n} دقيقة.","apptDays":"كل الأيام عدا {d}.","apptDaysAll":"كل أيام الأسبوع.","apptLoading":"نقرأ المواعيد المتاحة…","apptNone":"لا مواعيد متاحة الآن. راسلنا على واتساب ونرتّب لك موعداً.","apptOut":"هذا الوقت خارج ساعات الجلسات — اختر وقتاً من القائمة.","apptSoon":"نحتاج ساعةً على الأقل قبل الجلسة — اختر وقتاً أبعد.","apptFar":"هذا التاريخ أبعد من المدى المفتوح للحجز.","apptTaken":"حُجزت هذه الفترة قبل قليل — اختر فترة أخرى.","apptMany":"لديك موعدان قادمان بالفعل — ألغِ أحدهما أو انتظر حتى يمضي.","apptRate":"محاولات كثيرة — انتظر قليلاً ثم أعد المحاولة.","nextAppt":"موعدك القادم","videoFree":"الاتصال المرئي — استشارة مجانية","joinNow":"انضم إلى الاجتماع","joinSoon":"يُفتح الانضمام قبل الموعد بخمس دقائق.","meetLink":"رابط الاجتماع","addCal":"أضِف إلى التقويم","apptPending":"الموعد بانتظار تأكيد الفريق — يصلك رابط الاجتماع ودعوة التقويم على بريدك بعد التثبيت.","apptOver":"انتهت هذه الجلسة.","riyadh":"بتوقيت الرياض","cancelReq":"إلغاء الطلب","company":"اسم الشركة","cr":"السجل التجاري","nameEn":"الاسم بالإنجليزية","save":"حفظ","saved":"تم الحفظ","sessEnd":"انتهت جلستك — سجّل دخولك من جديد لتكمل.","apptBad":"اختر التاريخ والوقت أولاً.","apptFri":"لا جلسات في هذا اليوم — اختر يوماً آخر.","apptPast":"هذا الموعد مضى — اختر وقتاً قادماً.","provCard":"بطاقة","provTamara":"تمارا","provBank":"تحويل بنكي","actAi":"المستشار الذكي","actSys":"النظام","actTeam":"فريق Business Partner","you":"أنت","team":"الفريق","assistant":"المساعد","loginTitle":"تسجيل الدخول","loginText":"ادخل بحساب Google، أو بالبريد: نرسل لك رابطاً تضغطه فتدخل — بلا كلمة مرور.","email":"البريد الإلكتروني","sendCode":"أرسل الرمز","password":"كلمة المرور","loginPw":"دخول بكلمة المرور","usePw":"لديك كلمة مرور؟ ادخل بها","useCode":"ادخل برمز البريد بدلاً من ذلك","sendLink":"أرسل لي رابط الدخول","badEmail":"اكتب بريداً إلكترونياً صحيحاً.","linkSent":"أرسلنا رابط الدخول إلى {e} — افتح بريدك واضغط الرابط وتدخل مباشرة (صالح ١٥ دقيقة).","orCode":"أو اكتب الرمز المرسل في الرسالة نفسها:","resend":"أرسل الرابط مرة أخرى","resendIn":"إعادة الإرسال بعد {n} ث","changeEmail":"بريد آخر","openLink":"افتح رابط الاختبار","linkTitle":"تأكيد الدخول","linkText":"اضغط الزرّ لإكمال الدخول إلى حسابك.","linkGo":"أكمل الدخول","linkBad":"الرابط منتهٍ أو استُعمل من قبل. اطلب رابطاً جديداً.","linkNew":"اطلب رابطاً جديداً","pwTitle":"كلمة المرور","pwNote":"اضبط كلمة مرور لحسابك لتدخل بها مباشرة بدل انتظار رمز البريد في كل مرة.","pwSave":"حفظ كلمة المرور","pwShort":"كلمة المرور ٨ أحرف على الأقل.","pwSaved":"تم حفظ كلمة المرور ✓","code":"رمز الدخول","verify":"دخول","loginErr":"تعذّر إرسال الرمز.","codeErr":"الرمز غير صحيح.","error":"حدث خطأ. حاول مرة أخرى.","waitingTeam":"الفريق يراجع طلبك","needYou":"بانتظارك","tasksTitle":"مطلوب منك","done":"تم","requestCreated":"تم إنشاء الطلب","testRibbon":"وضع الاختبار — لا مدفوعات حقيقية","sourceLbl":"المصدر","direct":"شراء مباشر","ticket":"تذكرة دعم","bought":"ما اشتريته","directNote":"اشتريت هذه الخدمة مباشرة من السلة ودفعت قبل فتح الطلب، فلا عرض سعر ولا عقد له. تتابع هنا مراحله، وترفع مستنداتك، وتستلم مخرجاته.","cycM":"شهري","cycY":"سنوي","unverifiedNote":"مبلغ هذه الدفعة لم يُطابَق آلياً مع الأسعار المعتمدة، فيراجعه الفريق قبل بدء التنفيذ. لا حاجة لإعادة الدفع.","navDocs":"مستنداتي","vaultNote":"ارفع مستندك مرّة واحدة — نستعمله في كل طلب، ولا يراه أحد خارج حسابك.","dzPick":"اسحب الملف هنا أو اضغط للاختيار","dzHint":"PDF أو صورة (JPG · PNG · WEBP) — حتى ٨ ميجابايت","dName":"اسم المستند","dCat":"نوعه","dExp":"تاريخ الانتهاء (اختياري)","dSend":"ارفع المستند","dOther":"اختر ملفاً آخر","dUploading":"جارٍ الرفع","dDone":"تم رفع المستند ✓","dNewVerDone":"رُفعت نسخة جديدة ✓","eBig":"الملف أكبر من ٨ ميجابايت","eType":"هذه الصيغة غير مقبولة. المقبول: PDF · JPG · PNG · WEBP.","eEmpty":"الملف فارغ.","eName":"اكتب اسم المستند أولاً.","eNet":"تعذّر الوصول إلى الخادم — تحقّق من اتصالك وأعد المحاولة.","eUp":"تعذّر رفع الملف","eRead":"تعذّرت قراءة الملف من جهازك.","eNoOrg":"أضف اسم شركتك في «بيانات الشركة» أولاً — الخزانة مرتبطة بالمنشأة.","dOpen":"فتح","dNewVer":"نسخة جديدة","dDel":"حذف","dDelAsk":"حذف هذا المستند نهائياً من خزانتك؟","dVer":"نسخة","dExpires":"ينتهي","dExpired":"منتهي","dLeftA":"باقي","dLeftB":"يوم","dPending":"قيد التحقق","dReadOk":"مقروء آلياً ✓","dNone":"لا مستندات بعد — ابدأ بأول مستند من الأعلى.","dLoading":"نحمّل خزانتك…","dEntity":"المنشأة","dCr":"س.ت","dVat":"الرقم الضريبي","dIssued":"الإصدار","dRetry":"أعد المحاولة"},ST={"NEW":"جديد","REVIEWING":"قيد المراجعة","WAITING_CLIENT":"بانتظار ردك","QUOTE_SENT":"عرض سعر بانتظار اعتمادك","QUOTE_APPROVED":"العرض معتمد","CONTRACT_SENT":"عقد بانتظار توقيعك","SIGNED":"موقّع — بانتظار الدفع","PAYMENT_PENDING":"بانتظار الدفع","PAID":"مدفوع — جاهز للتنفيذ","IN_PROGRESS":"قيد التنفيذ","WAITING_INTERNAL":"قيد التنفيذ","COMPLETED":"مكتمل","CANCELLED":"ملغي"},TY={"CONSULTATION":"استشارة","GOVERNMENT_SERVICE":"خدمة حكومية","COMPANY_FORMATION":"تأسيس شركة","BUSINESS_DEVELOPMENT":"تطوير الأعمال"},HOME="/ar/",CHECKOUT="/ar/checkout",SELLER={"name":"شركة بزنس بارتنر سلوشنز","nameEn":"Business Partner Solutions Company","vat":"312079341500003","city":"الدرعية","cityEn":"Ad Diriyah"};
 var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null};
 var $=function(s,r){return (r||document).querySelector(s)};
 function h(tag,attrs,kids){var e=document.createElement(tag);if(attrs)for(var k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.indexOf('on')===0)e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k])}(kids||[]).forEach(function(c){if(c==null)return;e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
@@ -683,7 +697,7 @@ window.addEventListener('hashchange',function(){if(hashParam('ml'))boot()});
 // ---------- shell
 var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['documents',TX.navDocs,'📁'],['company',TX.navCompany,'🏢']];
 function badges(){var c=state.me.counts||{};var d=(state.docs||[]).filter(function(x){var n=daysLeft(x.expiry_date);return n!==null&&n<=30}).length;return {quotes:c.quotes,contracts:c.contracts,pay:c.payments,documents:d}}
-function render(){var me=state.me;app.innerHTML='';var bd=badges();
+function render(){var me=state.me;app.innerHTML='';joinBoxes=[];var bd=badges();
 var side=h('nav',{class:'my-side',id:'mySide'},[h('div',{class:'who'},[h('b',{},[me.user.name||me.user.email]),h('small',{},[(me.organization&&(me.organization.name_ar||me.organization.name_en))||me.user.email])])].concat(NAV.map(function(n){return h('a',{'data-nav':n[0],class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1],bd[n[0]]?h('span',{class:'b'},[String(bd[n[0]])]):null])})).concat([h('a',{href:HOME},['🌐 '+TX.site]),h('a',{onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},['↩ '+TX.logout])]));
 var mob=h('div',{class:'mob'},NAV.map(function(n){return h('a',{class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1]])}));
 var main=h('div',{class:'my-main',id:'myMain'});
@@ -694,6 +708,7 @@ function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r
 function viewHome(m){var c=state.me.counts||{};m.appendChild(h('h1',{},[TX.attention]));
 var k=[['active',TX.kActive,'requests'],['quotes',TX.kQuotes,'quotes'],['contracts',TX.kContracts,'contracts'],['payments',TX.kPayments,'pay'],['appointments',TX.kAppts,'appointments']];
 m.appendChild(h('div',{class:'my-kpis'},k.map(function(x){return h('div',{class:'my-kpi'+(x[0]!=='active'&&c[x[0]]?' hot':''),onclick:function(){go(x[2])}},[h('b',{},[String(c[x[0]]||0)]),h('span',{},[x[1]])])})));
+var nca=nextApptCard();if(nca)m.appendChild(nca);
 var need=state.me.requests.filter(function(r){return ['QUOTE_SENT','CONTRACT_SENT','SIGNED','PAYMENT_PENDING','WAITING_CLIENT'].indexOf(r.status)>=0});
 if(need.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.needYou]),h('div',{class:'list'},need.map(reqRow))]));
 m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.today]),h('p',{class:'note'},[TX.navNew]),h('a',{class:'btn',href:HOME+'#chat'},[TX.navNew])]));
@@ -726,7 +741,47 @@ function viewList(m,title,f){m.appendChild(h('h1',{},[title]));var rows=state.me
 function viewInvoices(m){m.appendChild(h('h1',{},[TX.navInvoices]));var rows=state.me.requests.filter(function(r){return r.invoice});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill ok'},[r.invoice.number+' · '+money(r.invoice.total)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]))}
 function viewPay(m){m.appendChild(h('h1',{},[TX.navPay]));var rows=state.me.requests.filter(function(r){return ['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill warn'},[money(r.quote?r.quote.total:0)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));m.appendChild(h('div',{class:'card'},[h('a',{class:'btn ghost',href:CHECKOUT},[TX.navPay+' →'])]))}
 function viewChats(m){m.appendChild(h('h1',{},[TX.navChats]));var rows=state.me.requests.filter(function(r){return r.last_message});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.querySelector('small').textContent=(r.last_message.content||'').slice(0,90);return row})):h('p',{class:'note'},[TX.empty]))}
-function viewAppts(m){m.appendChild(h('h1',{},[TX.navAppts]));var rows=state.me.requests.filter(function(r){return r.appointment&&r.appointment.status!=='CANCELLED'});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill'},[r.appointment.date+' '+r.appointment.time]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));var cons=state.me.requests.filter(function(r){return r.type==='CONSULTATION'&&(!r.appointment||r.appointment.status==='CANCELLED')&&r.status!=='CANCELLED'});if(cons.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.book]),h('div',{class:'list'},cons.map(reqRow))]))}
+// ---------- الاتصال المرئي: الموعد القادم والانضمام (قبل خمس دقائق)
+function apptStart(a){return new Date(a.date+'T'+a.time+':00+03:00').getTime()}
+function apptEnd(a){return apptStart(a)+(Number(a.minutes)||30)*60000}
+function nextAppt(){var now=Date.now(),best=null;((state.me&&state.me.requests)||[]).forEach(function(r){var a=r.appointment;if(!a||!a.date||!a.time||a.status==='CANCELLED'||r.status==='CANCELLED')return;if(apptEnd(a)<now)return;if(!best||apptStart(a)<apptStart(best.a))best={a:a,r:r}});return best}
+function c12(hm){var p=String(hm).split(':'),hh=+p[0],h12=((hh+11)%12)+1;return h12+':'+p[1]+' '+(LANG==='ar'?(hh<12?'ص':'م'):(hh<12?'AM':'PM'))}
+function fillT(t,o){return String(t).replace(/\{(\w)\}/g,function(_,k){return o[k]==null?'':o[k]})}
+function dayNameOf(i){try{return new Intl.DateTimeFormat(LANG==='ar'?'ar-SA':LANG==='zh'?'zh-CN':LANG,{weekday:'long',timeZone:'UTC'}).format(new Date(Date.UTC(2024,0,7+i)))}catch(e){return String(i)}}
+function hoursText(o){if(!o||!o.hours)return TX.apptNote;var off=o.offDays||[];return fillT(TX.apptHours,{a:c12(o.hours.from),b:c12(o.hours.to),n:o.slotMinutes||30})+' '+(off.length?fillT(TX.apptDays,{d:off.map(dayNameOf).join(LANG==='ar'?' و':' & ')}):TX.apptDaysAll)}
+function p2(n){return (n<10?'0':'')+n}
+function gcalAdd(a){var s=apptStart(a),e=apptEnd(a);function f(t){var d=new Date(t+3*3600000);return d.getUTCFullYear()+p2(d.getUTCMonth()+1)+p2(d.getUTCDate())+'T'+p2(d.getUTCHours())+p2(d.getUTCMinutes())+'00'}
+ return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(TX.videoFree+(a.topic?' - '+a.topic:''))+'&dates='+f(s)+'/'+f(e)+'&ctz=Asia%2FRiyadh&details='+encodeURIComponent(a.meet||'')+'&location='+encodeURIComponent(a.meet||'Google Meet')}
+var joinBoxes=[];
+setInterval(function(){joinBoxes=joinBoxes.filter(function(b){return b.box.isConnected});joinBoxes.forEach(function(b){b.upd()})},15000);
+// رابط الاجتماع يظهر دائماً؛ زرّ «انضم» يُفتح قبل الموعد بخمس دقائق ويُغلق بانتهائه.
+function joinBox(a){var box=h('div',{class:'joinbox','data-join':'1'});
+ function upd(){box.innerHTML='';var now=Date.now(),s=apptStart(a),e=apptEnd(a);
+  if(a.status==='PENDING'||!a.meet){box.appendChild(h('p',{class:'note'},[TX.apptPending]));return}
+  if(now>e){box.appendChild(h('p',{class:'note'},[TX.apptOver]));return}
+  var open=now>=s-300000;
+  box.appendChild(h('p',{class:'note'},[TX.meetLink+': ',h('a',{href:a.meet,target:'_blank',rel:'noopener',dir:'ltr'},[a.meet])]));
+  var row=h('div',{class:'msgform'});
+  if(open)row.appendChild(h('a',{class:'btn','data-join-open':'1',href:a.meet,target:'_blank',rel:'noopener'},[TX.joinNow]));
+  else row.appendChild(h('button',{class:'btn',type:'button',disabled:'disabled','data-join-open':'0'},[TX.joinNow]));
+  row.appendChild(h('a',{class:'btn ghost',href:gcalAdd(a),target:'_blank',rel:'noopener'},[TX.addCal]));
+  box.appendChild(row);
+  if(!open)box.appendChild(h('p',{class:'note'},[TX.joinSoon]))}
+ upd();joinBoxes.push({box:box,upd:upd});return box}
+function nextApptCard(){var na=nextAppt();if(!na)return null;var a=na.a;
+ return h('div',{class:'card',id:'sv1NextAppt'},[h('h2',{},[TX.nextAppt]),h('p',{class:'note'},[TX.videoFree]),h('p',{},['📅 '+a.date+' · '+a.time+' ('+c12(a.time)+') · '+TX.riyadh+(a.topic?' · '+a.topic:'')]),joinBox(a),h('div',{class:'msgform'},[h('a',{class:'btn ghost sm',onclick:function(){go('request',na.r.ref)}},[TX.open])])])}
+// مختار الفترات من الخادم نفسه (api/book?action=slots): لا ساعات مكتوبة هنا — ما يُعرض هو ما يقبله الخادم.
+function slotPicker(){var st={days:[]};var d=h('select',{class:'inp'}),tm=h('select',{class:'inp'}),note=h('p',{class:'note'},[TX.apptLoading]);
+ function dayLabel(ds){try{return new Date(ds+'T12:00:00+03:00').toLocaleDateString(LANG==='ar'?'ar-SA-u-ca-gregory-nu-latn':LANG==='zh'?'zh-CN':LANG,{weekday:'long',day:'numeric',month:'long',timeZone:'Asia/Riyadh'})}catch(e){return ds}}
+ function fillTimes(){tm.innerHTML='';var x=st.days.filter(function(y){return y.date===d.value})[0];(x?x.slots:[]).forEach(function(t){tm.appendChild(h('option',{value:t},[t+' ('+c12(t)+')']))})}
+ d.addEventListener('change',fillTimes);
+ fetch('/api/book?action=slots').then(function(r){return r.json()}).then(function(o){
+  if(!o||!o.ok||!(o.days||[]).length){note.textContent=TX.apptNone;return}
+  st.days=o.days;o.days.forEach(function(x){d.appendChild(h('option',{value:x.date},[dayLabel(x.date)]))});fillTimes();note.textContent=hoursText(o)})
+ .catch(function(){note.textContent=TX.apptNone});
+ return {day:d,time:tm,note:note}}
+function apptErr(o){var e=o&&o.error;return e==='bad_datetime'?TX.apptBad:(e==='off_day'||e==='friday')?TX.apptFri:e==='past'?TX.apptPast:e==='out_of_hours'?TX.apptOut:e==='too_soon'?TX.apptSoon:e==='too_far'?TX.apptFar:e==='slot_taken'?TX.apptTaken:e==='too_many_active'?TX.apptMany:e==='rate_limited'?TX.apptRate:failText(o)}
+function viewAppts(m){m.appendChild(h('h1',{},[TX.navAppts]));var nc=nextApptCard();if(nc)m.appendChild(nc);var rows=state.me.requests.filter(function(r){return r.appointment&&r.appointment.status!=='CANCELLED'});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill'},[r.appointment.date+' '+r.appointment.time]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));var cons=state.me.requests.filter(function(r){return r.type==='CONSULTATION'&&(!r.appointment||r.appointment.status==='CANCELLED')&&r.status!=='CANCELLED'});if(cons.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.book]),h('div',{class:'list'},cons.map(reqRow))]))}
 function viewCompany(m){m.appendChild(h('h1',{},[TX.navCompany]));var o=state.me.organization||{};var f=h('div',{class:'form'});var nAr=h('input',{class:'inp',value:o.name_ar||''}),nEn=h('input',{class:'inp',value:o.name_en||''}),cr=h('input',{class:'inp',value:o.cr_number||''}),msg=h('span',{class:'ok'});
 f.appendChild(h('label',{},[TX.company]));f.appendChild(nAr);f.appendChild(h('label',{},[TX.nameEn]));f.appendChild(nEn);f.appendChild(h('label',{},[TX.cr]));f.appendChild(cr);
 f.appendChild(h('button',{class:'btn',onclick:function(){fetch('/api/requests',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'my-org-update',name_ar:nAr.value,name_en:nEn.value,cr:cr.value,cr_number:cr.value})}).then(function(r){return r.json()}).catch(function(){return {ok:false,error:'network'}}).then(function(o){if(o&&o.error==='unauthorized'){sessionEnded();return}msg.className=o&&o.ok?'ok':'err';msg.textContent=o&&o.ok?TX.saved:failText(o);if(o&&o.ok&&o.organization)state.me.organization=o.organization})}},[TX.save]));f.appendChild(msg);
@@ -1057,9 +1112,9 @@ if(r.payment&&r.payment.status==='PAID')right.appendChild(h('div',{class:'card'}
 if(r.invoice)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.invoice+' '+r.invoice.number]),h('p',{},[money(r.invoice.total)+' · '+when(r.invoice.issued_at)]),h('button',{class:'btn ghost sm',onclick:function(){openInvoice(r)}},[r.invoice.pdf_url?TX.invOfficial:TX.download])]));
 var dvc=delivCard(r);if(dvc)right.appendChild(dvc);
 // appointment
-if(r.type==='CONSULTATION'&&!isTicket){var ac=h('div',{class:'card'});ac.appendChild(h('h3',{},[TX.navAppts]));var a=r.appointment;if(a&&a.status!=='CANCELLED')ac.appendChild(h('p',{class:'ok'},['📅 '+a.date+' · '+a.time+' · '+(a.topic||'')+(a.gcal?' ':'') ,a.gcal?h('a',{href:a.gcal,target:'_blank',class:'btn ghost sm'},['Google Calendar']):null]));
-var d=h('input',{class:'inp',type:'date',min:new Date().toISOString().slice(0,10)}),tm=h('input',{class:'inp',type:'time',value:'10:00',step:'1800'}),tp2=h('input',{class:'inp',placeholder:TX.topic,value:(a&&a.topic)||displayRequestTitle(r)}),ae=h('div',{class:'err'});
-ac.appendChild(h('div',{class:'form'},[h('label',{},[TX.date]),d,h('label',{},[TX.time]),tm,h('label',{},[TX.topic]),tp2,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){ae.textContent='';if(!d.value||!tm.value){ae.textContent=TX.apptBad;return}api(a&&a.status!=='CANCELLED'?'appointment-reschedule':'appointment-book',{ref:r.ref,date:d.value,time:tm.value,topic:tp2.value}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else if(o&&o.error==='no_session'){}else ae.textContent=o&&o.error==='friday'?TX.apptFri:o&&o.error==='past'?TX.apptPast:o&&o.error==='bad_datetime'?TX.apptBad:failText(o)})}},[a&&a.status!=='CANCELLED'?TX.reschedule:TX.book]),a&&a.status!=='CANCELLED'?h('button',{class:'btn danger',onclick:function(){api('appointment-cancel',{ref:r.ref}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else if(!o||o.error!=='no_session')toast(failText(o))})}},[TX.cancelAppt]):null]),ae,h('p',{class:'note'},[TX.apptNote])]));right.appendChild(ac)}
+if(r.type==='CONSULTATION'&&!isTicket){var ac=h('div',{class:'card'});ac.appendChild(h('h3',{},[TX.navAppts]));var a=r.appointment;if(a&&a.status!=='CANCELLED'){ac.appendChild(h('p',{class:'note'},[TX.videoFree]));ac.appendChild(h('p',{class:'ok'},['📅 '+a.date+' · '+a.time+' ('+c12(a.time)+') · '+TX.riyadh+' · '+(a.topic||'')]));ac.appendChild(joinBox(a))}
+var sp=slotPicker(),d=sp.day,tm=sp.time,tp2=h('input',{class:'inp',placeholder:TX.topic,value:(a&&a.topic)||displayRequestTitle(r)}),ae=h('div',{class:'err'});
+ac.appendChild(h('div',{class:'form'},[h('label',{},[TX.date]),d,h('label',{},[TX.time]),tm,h('label',{},[TX.topic]),tp2,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){ae.textContent='';if(!d.value||!tm.value){ae.textContent=TX.apptBad;return}api(a&&a.status!=='CANCELLED'?'appointment-reschedule':'appointment-book',{ref:r.ref,date:d.value,time:tm.value,topic:tp2.value}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else if(o&&o.error==='no_session'){}else ae.textContent=apptErr(o)})}},[a&&a.status!=='CANCELLED'?TX.reschedule:TX.book]),a&&a.status!=='CANCELLED'?h('button',{class:'btn danger',onclick:function(){api('appointment-cancel',{ref:r.ref}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else if(!o||o.error!=='no_session')toast(failText(o))})}},[TX.cancelAppt]):null]),ae,sp.note,h('p',{class:'note'},[TX.apptNote])]));right.appendChild(ac)}
 // timeline
 right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.timeline]),h('ul',{class:'tl'},(r.events||[]).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(actorName(e)?actorName(e)+': ':'')+(EV[e.event]||e.event)+(e.details&&e.details.number?' '+e.details.number:'')])])}))]));
 if(['CANCELLED','COMPLETED'].indexOf(r.status)<0){var early=['NEW','REVIEWING','WAITING_CLIENT','QUOTE_SENT','PRICING'].indexOf(r.status)>=0;var cnote=h('input',{class:'inp',placeholder:TX.cancelWhy,style:'margin-top:10px'});var cmsg=h('div',{class:'note'},[early?TX.cancelEarly:TX.cancelLate]);var cbtn=h('button',{class:'btn danger sm',onclick:function(){if(!confirm((early?TX.cancelReq:TX.cancelAsk)+'?'))return;var b2=this;b2.disabled=true;api('request-cancel',{ref:r.ref,note:cnote.value.trim()}).then(function(o){b2.disabled=false;if(!o||!o.ok){cmsg.className='err';cmsg.textContent=(o&&o.message)||TX.error;return}if(o.cancelled){r.status='CANCELLED';refreshMe();drawRequest(hd,box);return}cmsg.className='ok';cmsg.textContent=TX.cancelSent;cbtn.disabled=true})}},[early?TX.cancelReq:TX.cancelAsk]);right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),cmsg,cnote,h('div',{class:'msgform',style:'margin-top:8px'},[cbtn])]))}if(r.cancel)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),h('p',{class:'note'},[TX.cancelDone+' · '+when(r.cancel.at)+(r.cancel.note?' · '+r.cancel.note:'')])]))}

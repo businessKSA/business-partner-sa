@@ -19,6 +19,7 @@ import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
 import crypto from "node:crypto";
+import v8 from "node:v8";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   loadRouting, findRedirect, findRewrite, findHeaders, maxDurationFor, isExternal,
@@ -50,22 +51,68 @@ const HOP_BY_HOP = new Set([
   "transfer-encoding", "upgrade",
 ]);
 
+const VERCEL_HOST = /(^|\.)vercel\.app$/i;
 const NOT_FOUND_BODY = "The page could not be found\n\nNOT_FOUND\n";
 const HSTS = "max-age=63072000";
 const DEFAULT_CACHE = "public, max-age=0, must-revalidate";
 
 function firstOf(v) { return String(v || "").split(",")[0].trim(); }
 
-export function readConfig(env = process.env) {
+/** سقف ذاكرة الحاوية من cgroup (v2 ثم v1)، بالبايت؛ 0 إن لم يُقرأ أو لم يُحدَّد سقف. */
+export function readCgroupLimitBytes(read = (f) => fs.readFileSync(f, "utf8")) {
+  for (const f of ["/sys/fs/cgroup/memory.max", "/sys/fs/cgroup/memory/memory.limit_in_bytes"]) {
+    try {
+      const n = Number(String(read(f)).trim());
+      // "max" (بلا سقف) تصير NaN؛ وv1 يعيد رقماً هائلاً (≈2^63) حين لا سقف.
+      if (Number.isFinite(n) && n > 0 && n < 2 ** 50) return n;
+    } catch { /* الملف غائب خارج Linux/الحاويات */ }
+  }
+  return 0;
+}
+
+/** ترجمة BP_ORIGIN_MAP="https://من=http://إلى,…" إلى Map(origin→origin). المدخل الفاسد يُتجاهل مع تحذير في warnings. */
+export function parseOriginMap(raw, warnings = []) {
+  const map = new Map();
+  for (const part of String(raw || "").split(",").map((x) => x.trim()).filter(Boolean)) {
+    const i = part.indexOf("=");
+    let from, to;
+    try { from = new URL(part.slice(0, i)); to = new URL(part.slice(i + 1)); } catch { from = to = null; }
+    if (i < 1 || !from || !to || !/^https?:$/.test(from.protocol) || !/^https?:$/.test(to.protocol)) {
+      warnings.push("BP_ORIGIN_MAP: مدخل غير صالح تجاهلتُه (الصيغة https://من=http://إلى)");
+      continue;
+    }
+    map.set(from.origin, to.origin);
+  }
+  return map;
+}
+
+export function readConfig(env = process.env, cgroupLimit = readCgroupLimitBytes) {
   const num = (k, d) => (Number(env[k]) > 0 ? Number(env[k]) : d);
   const list = (k, d) => String(env[k] === undefined ? d : env[k]).split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+  const warnings = [];
+  const frontDoorId = String(env.BP_FRONT_DOOR_ID || "").trim().toLowerCase();
+  // خلف Front Door يصل الطلب بـ«عميل، حافة FD» في X-Forwarded-For، فالعميل ما قبل الأخير (٢).
+  // لو بقي الافتراضي ١ لقرأت الدوال عنوان حافة FD لكل الزوار فتتشارك حدود المعدّل عدداً قليلاً من العناوين.
+  // لذا إن ضُبط BP_FRONT_DOOR_ID ولم يُضبط BP_TRUSTED_PROXY_HOPS صراحةً صار الافتراضي ٢.
+  const hopsExplicit = Number(env.BP_TRUSTED_PROXY_HOPS) > 0;
+  const trustedHops = hopsExplicit ? Number(env.BP_TRUSTED_PROXY_HOPS) : (frontDoorId ? 2 : 1);
+  if (frontDoorId && trustedHops < 2) warnings.push("BP_FRONT_DOOR_ID مضبوط لكن BP_TRUSTED_PROXY_HOPS=1: كل الزوار سيُقرأون بعنوان حافة Front Door. اضبطه ٢.");
+  if (!frontDoorId && trustedHops >= 2) warnings.push("BP_TRUSTED_PROXY_HOPS≥2 بلا BP_FRONT_DOOR_ID: من يصل إلى عنوان Container Apps مباشرة يستطيع انتحال عنوانه. اضبط BP_FRONT_DOOR_ID.");
+  // سقف RSS: يُحسب من cgroup (٩٠٪) ما لم يُضبط BP_MAX_RSS_MB صراحةً (٠ = معطّل). تجاوزه يجعل /__health يعيد ٥٠٣
+  // فيُعيد Container Apps تشغيل النسخة بإغلاق لطيف قبل أن يقتلها OOM بلا إنذار.
+  const limit = cgroupLimit();
+  const explicitRss = env.BP_MAX_RSS_MB !== undefined && env.BP_MAX_RSS_MB !== "";
+  const maxRssMb = explicitRss ? Math.max(0, Number(env.BP_MAX_RSS_MB) || 0) : (limit ? Math.floor((limit * 0.9) / 1048576) : 0);
   return {
+    warnings,
+    maxRssMb,
+    originMap: parseOriginMap(env.BP_ORIGIN_MAP, warnings),
     bpEnv: String(env.BP_ENV || "production").toLowerCase(),
     port: num("PORT", 8080),
     canonicalHost: String(env.BP_CANONICAL_HOST || "www.businesspartner.sa").toLowerCase(),
     apexHosts: new Set(list("BP_APEX_HOSTS", "businesspartner.sa")),
     forceHttps: env.BP_FORCE_HTTPS !== "0",
-    trustedHops: num("BP_TRUSTED_PROXY_HOPS", 1),
+    trustedHops,
     fnTimeoutS: num("BP_FN_DEFAULT_TIMEOUT_S", 30),
     maxBody: num("BP_MAX_BODY_BYTES", MAX_BODY_BYTES),
     proxyTimeoutS: num("BP_PROXY_TIMEOUT_S", 100),
@@ -73,9 +120,14 @@ export function readConfig(env = process.env) {
     // GET /scripts/verify-api.mjs → 200) ولا صفحة تحمّل منه شيئاً. على Azure يُغلق.
     blockScripts: env.BP_SERVE_BUILD_SCRIPTS !== "1",
     shutdownGraceS: num("BP_SHUTDOWN_GRACE_S", 25),
+    // وضع القراءة فقط: يُرفض كل ما ليس GET/HEAD/OPTIONS بـ٥٠٣ + Retry-After. نافذة تجميد الكتابة أثناء نقل القاعدة
+    // (docs/azure-cutover-runbook-2026-10-16.md الخطوة د): لا كتابة جديدة بين النسخة الأخيرة والتبديل.
+    readOnly: env.BP_READ_ONLY === "1",
+    // يمنع أي خروج إلى *.vercel.app (وكيل الخادم و`fetch` داخل الدوال) — الضمان الصريح لـ«لا طلب إلى Vercel».
+    blockVercelOrigins: env.BP_BLOCK_VERCEL_ORIGINS === "1",
     // معرّف Front Door (X-Azure-FDID). إن ضُبط، لا يُقبل إلا الطلب الذي مرّ منه، فلا يُتجاوز
     // جدار الحماية بالذهاب إلى عنوان Container Apps مباشرة. لا يمسّ /__health ولا الأبكس.
-    frontDoorId: String(env.BP_FRONT_DOOR_ID || "").trim().toLowerCase(),
+    frontDoorId,
   };
 }
 
@@ -90,7 +142,8 @@ export function createAzureServer(opts = {}) {
   const hostRouting = { ...routing, rewrites: routing.rewrites.filter(isHostRule) };
   const plainRouting = { ...routing, rewrites: routing.rewrites.filter((x) => !isHostRule(x)) };
   const log = opts.log || ((o) => console.log(JSON.stringify(o)));
-  const stats = { requests: 0, errors: 0, startedAt: Date.now(), draining: false };
+  const stats = { requests: 0, errors: 0, startedAt: Date.now(), draining: false, memTripLogged: false, readOnlyBlocked: 0, egressBlocked: 0 };
+  const memoryUsage = opts.memoryUsage || (() => process.memoryUsage());
 
   // ------------------------------------------------------------ static ----
   const etagCache = new Map();    // file → { mtimeMs, size, etag }
@@ -277,9 +330,23 @@ export function createAzureServer(opts = {}) {
 
     if (pathname === "/__health") {
       res.setHeader("cache-control", "no-store");
-      const ok = !stats.draining;
+      // حياة العملية لا جاهزية الخدمات الخارجية: فحص يمرّ بالقاعدة كان سيُخرج كل النسخ من التوزيع
+      // عند عطل عابر فيها فيتحوّل عطلٌ جزئي إلى انقطاع كامل. عمق الفحص (القاعدة) عبر /api/otp.
+      const mem = memoryUsage();
+      const rssMb = Math.round(mem.rss / 1048576);
+      const memTrip = cfg.maxRssMb > 0 && rssMb > cfg.maxRssMb;
+      if (!memTrip) stats.memTripLogged = false;
+      else if (!stats.memTripLogged) { stats.memTripLogged = true; log({ level: "error", msg: "rss_over_limit", rssMb, maxRssMb: cfg.maxRssMb }); }
+      const ok = !stats.draining && !memTrip;
       return send(res, ok ? 200 : 503, { "content-type": "application/json; charset=utf-8" },
-        JSON.stringify({ ok, env: cfg.bpEnv, uptimeS: Math.round((Date.now() - stats.startedAt) / 1000), requests: stats.requests, errors: stats.errors, sha: process.env.BP_BUILD_SHA || null }));
+        JSON.stringify({
+          ok, env: cfg.bpEnv, uptimeS: Math.round((Date.now() - stats.startedAt) / 1000), requests: stats.requests, errors: stats.errors,
+          sha: process.env.BP_BUILD_SHA || null,
+          ...(cfg.readOnly ? { readOnly: true, readOnlyBlocked: stats.readOnlyBlocked } : {}),
+          ...(cfg.blockVercelOrigins ? { egressBlocked: stats.egressBlocked } : {}),
+          rssMb, heapUsedMb: Math.round(mem.heapUsed / 1048576), heapLimitMb: Math.round(v8.getHeapStatistics().heap_size_limit / 1048576),
+          ...(memTrip ? { reason: "memory" } : {}),
+        }));
     }
 
     if (cfg.frontDoorId && !cfg.apexHosts.has(host) && String(req.headers["x-azure-fdid"] || "").toLowerCase() !== cfg.frontDoorId) {
@@ -304,6 +371,13 @@ export function createAzureServer(opts = {}) {
 
     const r = findRedirect(routing, ctx);
     if (r) return send(res, r.status, { location: r.location, "cache-control": DEFAULT_CACHE }, "Redirecting...\n");
+
+    if (cfg.readOnly && req.method !== "GET" && req.method !== "HEAD" && req.method !== "OPTIONS") {
+      stats.readOnlyBlocked++;
+      req.resume();   // يُستهلك الجسم المُرسَل ويُهمل: اتصال keep-alive يُعاد استعماله بسلام
+      return send(res, 503, { "content-type": "application/json; charset=utf-8", "retry-after": "120", "cache-control": "no-store" },
+        JSON.stringify({ ok: false, error: "maintenance_read_only", message: "الموقع في صيانة قصيرة (قراءة فقط). أعد المحاولة بعد دقائق." }));
+    }
 
     const customHeaders = findHeaders(routing, pathname);
     const hostRewrite = hostRouting.rewrites.length ? findRewrite(hostRouting, ctx) : null;
@@ -335,7 +409,17 @@ export function createAzureServer(opts = {}) {
       const want = new URL(rw.rule.destination.replace(/:[A-Za-z_]\w*\*?.*$/, "")).origin;
       const got = new URL(rw.destination);
       if (got.origin !== want) return send(res, 400, { "content-type": "text/plain; charset=utf-8" }, "Bad Request\n");
-      return proxy(req, res, rw.destination, customHeaders);
+      // BP_ORIGIN_MAP: على Azure يُحوَّل أصل خارجي مكتوب في vercel.json (bp-quotes-three.vercel.app) إلى
+      // عنوان داخلي في بيئة Container Apps نفسها (http://bp-quotes)، فلا يخرج طلب إلى vercel.app
+      // ويبقى vercel.json مصدر الحقيقة الوحيد. التحويل بعد التحقق من الأصل، فلا يُوجَّه إلا ما يعلنه الملف.
+      const mapped = cfg.originMap && cfg.originMap.get(got.origin);
+      const target = mapped ? mapped + got.pathname + got.search : rw.destination;
+      if (cfg.blockVercelOrigins && VERCEL_HOST.test(new URL(target).hostname)) {
+        stats.egressBlocked++;
+        log({ level: "error", msg: "egress_blocked", host: new URL(target).hostname, hint: "اضبط BP_ORIGIN_MAP لهذا الأصل" });
+        return send(res, 502, { "content-type": "text/plain; charset=utf-8" }, "Upstream blocked: *.vercel.app\n");
+      }
+      return proxy(req, res, target, customHeaders);
     }
     const dest = new URL(rw.destination, "http://x");
     const m = /^\/api\/([^/]+)$/.exec(dest.pathname);
@@ -377,7 +461,7 @@ export function createAzureServer(opts = {}) {
 }
 
 // -------------------------------------------------------------- main ------
-function start() {
+async function start() {
   const cfg = readConfig();
   // سلامة الإنتاج: لا قاعدة محلية ولا بيئة تطوير في خادم الإنتاج.
   if (cfg.bpEnv === "production") {
@@ -393,7 +477,25 @@ function start() {
   // واتساب محاكى، بريد معاينة، دخول بالرمز التجريبي. لا يُضبط VERCEL_ENV في الإنتاج.
   if (cfg.bpEnv === "preview" && !process.env.VERCEL_ENV) process.env.VERCEL_ENV = "preview";
 
+  for (const w of cfg.warnings) console.warn(JSON.stringify({ level: "warn", msg: w }));
+  if (cfg.originMap.size) console.log(JSON.stringify({ level: "info", msg: "origin_map", entries: [...cfg.originMap].map(([a, b]) => `${new URL(a).host}→${new URL(b).host}`) }));
+  // حارس الخروج: لا نداء من داخل الدوال إلى *.vercel.app (يُثبَّت قبل جسر البريد فيمرّ الجسر عبره).
+  let egress = null;
+  if (cfg.blockVercelOrigins) {
+    const { installEgressGuard } = await import("./egress-guard.mjs");
+    egress = installEgressGuard({ log: (o) => console.log(JSON.stringify(o)) });
+    console.log(JSON.stringify({ level: "info", msg: "egress_guard", blocks: "*.vercel.app" }));
+  }
+  // جسر البريد: يحوّل نداءات api.resend.com/emails إلى Azure Communication Services دون لمس api/.
+  // لا يُحمَّل شيء ما لم يُضبط BP_MAIL_BRIDGE=acs (docs/azure-cutover-runbook-2026-10-16.md، الخطوة هـ).
+  if (String(process.env.BP_MAIL_BRIDGE || "").toLowerCase() === "acs") {
+    const { installMailBridge } = await import("./mail-bridge.mjs");
+    const b = installMailBridge({ log: (o) => console.log(JSON.stringify(o)) });
+    console.log(JSON.stringify({ level: "info", msg: "mail_bridge", ready: b.ready, missing: b.missing }));
+  }
+
   const server = createAzureServer();
+  if (egress) egress.onBlock = () => { server.bpStats.egressBlocked++; };
   // عملية طويلة العمر مشتركة: رفضٌ غير معالَج في مهمة «أطلق وانسَ» لا يجوز أن يُسقط كل الطلبات
   // (في Vercel كان يقتل استدعاءً واحداً). يُسجَّل ويُعدّ في /__health.errors ويستمر الخادم.
   const swallow = (kind) => (e) => {
@@ -416,4 +518,4 @@ function start() {
   process.on("SIGINT", stop);
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) start();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) start().catch((e) => { console.error(String((e && e.stack) || e)); process.exit(1); });

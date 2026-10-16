@@ -50,7 +50,9 @@ export const SERVICES = [
   [/^(DOC_AGENT|EMP_|EMPLOYER|ESCROW|GRACE|HIRE|JOBS_FEED|SIMPLE_|SS_|SUPPLIER)/, "إعدادات المنتجات (حدود وأرقام)"],
 ];
 
-const SECRET = /(KEY|SECRET|TOKEN|PASSWORD|PRIVATE|CONNECTION_STRING|_PG_URL|POSTGRES_URL|_CODES?$|WEBHOOK|^NOTION$|^BusinessPartnerSiteNotion$|^GH_|^GITHUB_PAT$)/i;
+// DATABASE_URL وDIRECT_DATABASE_URL (لوحة العروض/Prisma) تحملان كلمة سر القاعدة داخل الرابط؛ وSMTP_PASS كلمة سر بريد.
+// كلاهما لم يكن يُعدّ سراً فكان load-env.mjs يضعه متغيّراً عادياً ظاهراً في بوابة Azure.
+const SECRET = /(KEY|SECRET|TOKEN|PASSWORD|PRIVATE|CONNECTION_STRING|_PG_URL|POSTGRES_URL|DATABASE_URL|(^|_)PASS$|_CODES?$|WEBHOOK|^NOTION$|^BusinessPartnerSiteNotion$|^GH_|^GITHUB_PAT$)/i;
 const NOT_SECRET = /^(DOC_AGENT_SERVICE_CODES|GOOGLE_CLIENT_ID|MOYASAR_PUBLISHABLE_KEY|MOYASAR_GOOGLE_MERCHANT_ID|DOCUSIGN_INTEGRATION_KEY|CATALOG_FROM_PANEL|.*_PUBLISHABLE_.*|AZURE_PG_SSL.*|AZURE_PG_POOL_MAX|AZURE_STORAGE_SUFFIX|AZURE_STORAGE_CONTAINER)$/;
 // أسماء تُمسح من النص لكنها ليست متغيّرات (حروف كبيرة داخل أوامر env()).
 const NOISE = /^(faq|how|popular|sFuture|sHired|sInt|sNew|sOffer|sRej|sReview|sSent|sShort|search|NOTION|NODE_ENV)$/;

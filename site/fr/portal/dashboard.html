@@ -33,16 +33,16 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
 <script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
 <style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
-<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
+<script>(function(){try{var s=JSON.parse(localStorage.getItem('bp_a11y')||'null');if(!s||typeof s!=='object')return;var e=document.documentElement,k=['zoom','spacing','font','contrast','theme','links','cursor','focus','motion','imgs','voice'];for(var i=0;i<k.length;i++){var v=s[k[i]];if(v&&(typeof v==='number'||v==='dark'))e.setAttribute('data-bpa-'+k[i],String(v))}}catch(x){}})();</script><link rel="stylesheet" href="/assets/css/bp-a11y.css?v=655ad8d6f8"><script defer src="/assets/js/bp-a11y.js?v=24f51302c6"></script><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
-<body><header class="site-header portal-header"><div class="container header-inner">
+<body><a class="bpa-skip" href="#bp-main">Skip to content</a><header class="site-header portal-header"><div class="container header-inner">
   <a class="logo" href="https://hr.businesspartner.sa/en" aria-label="Business Partner HR" style="display:flex;align-items:center;gap:10px">
     <img src="/assets/img/logo.png" alt="Business Partner" width="150" height="28">
     <span style="font-size:.78rem;font-weight:700;color:var(--brand);background:var(--bg-soft);padding:3px 10px;border-radius:999px">Portail RH</span>
   </a>
   <nav class="nav" aria-label="Portal navigation"><a href="https://hr.businesspartner.sa/en">Accueil</a><a href="https://hr.businesspartner.sa/en/join">Pour les employeurs</a><a href="https://hr.businesspartner.sa/en/dashboard" class="active">Tableau de bord</a><a href="https://hr.businesspartner.sa/en/candidates">Pour les candidats</a></nav>
   <div class="header-cta"><a class="lang-toggle" href="https://hr.businesspartner.sa/dashboard">العربية</a></div>
-</div></header><main>
+</div></header><main><span id="bp-main" tabindex="-1"></span>
   <section class="hero"><div class="container hero-inner" style="max-width:1080px">
     <span class="eyebrow">OS de recrutement IA</span>
     <h1>Votre système d'exploitation de recrutement par IA</h1>

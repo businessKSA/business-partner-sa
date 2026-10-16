@@ -62,3 +62,15 @@ test("load-env: قيمة [SENSITIVE] من Vercel تُعدّ ناقصة لا قي
   assert.ok(!r.stdout.includes("REALVALUE"));
   fs.rmSync(dir, { recursive: true, force: true });
 });
+
+test("load-env: DATABASE_URL وDIRECT_DATABASE_URL وSMTP_PASS (لوحة العروض) تُعامَل أسراراً لا متغيّرات عادية", () => {
+  const r = run(["DATABASE_URL=postgres://u:pw@h/d", "DIRECT_DATABASE_URL=postgres://u:pw@h/d", "SMTP_PASS=pw", "SMTP_USER=u", "SMTP_HOST=smtp.azurecomm.net", "APP_URL=https://x"].join("\n"));
+  const secrets = (/أسرار:\s*(.*)/.exec(r.stdout) || [])[1] || "";
+  const plain = (/عادية:\s*(.*)/.exec(r.stdout) || [])[1] || "";
+  for (const n of ["DATABASE_URL", "DIRECT_DATABASE_URL", "SMTP_PASS"]) {
+    assert.match(secrets, new RegExp(`\\b${n}\\b`), n);
+    assert.doesNotMatch(plain, new RegExp(`\\b${n}\\b`), n);
+  }
+  for (const n of ["SMTP_USER", "SMTP_HOST", "APP_URL"]) assert.match(plain, new RegExp(`\\b${n}\\b`), n);
+  assert.doesNotMatch(r.stdout, /pw@h|postgres:\/\//, "لا قيمة في المخرجات");
+});

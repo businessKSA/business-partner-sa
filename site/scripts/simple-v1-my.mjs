@@ -145,7 +145,27 @@ const P = {
   time: { ar: "الوقت", en: "Time", fr: "Heure", zh: "时间" },
   topic: { ar: "الموضوع", en: "Topic", fr: "Sujet", zh: "主题" },
   confirm: { ar: "تأكيد", en: "Confirm", fr: "Confirmer", zh: "确认" },
-  apptNote: { ar: "المواعيد من الأحد إلى الخميس، بتوقيت الرياض. نؤكد الموعد على بريدك.", en: "Sunday to Thursday, Riyadh time. We confirm by email.", fr: "Du dimanche au jeudi, heure de Riyad. Confirmation par e-mail.", zh: "周日至周四，利雅得时间。我们将通过邮件确认。" },
+  apptNote: { ar: "جلسة بالفيديو عبر Google Meet، مجانية، وكل الأوقات بتوقيت الرياض. نؤكد الموعد على بريدك ونرسل دعوة تقويم.", en: "A free video session on Google Meet; all times are Riyadh time. We confirm by e-mail and send a calendar invitation.", fr: "Séance vidéo gratuite sur Google Meet ; heures de Riyad. Confirmation par e-mail et invitation d'agenda.", zh: "通过 Google Meet 进行的免费视频会谈；均为利雅得时间。我们将通过邮件确认并发送日历邀请。" },
+  apptHours: { ar: "الجلسات من {a} إلى {b} بتوقيت الرياض (GMT+3)، مدة الجلسة {n} دقيقة.", en: "Sessions run {a} – {b} Riyadh time (GMT+3), {n} minutes each.", fr: "Séances de {a} à {b}, heure de Riyad (GMT+3), {n} minutes chacune.", zh: "会谈时间 {a}–{b}（利雅得时间 GMT+3），每次 {n} 分钟。" },
+  apptDays: { ar: "كل الأيام عدا {d}.", en: "Every day except {d}.", fr: "Tous les jours sauf {d}.", zh: "除{d}外每天。" },
+  apptDaysAll: { ar: "كل أيام الأسبوع.", en: "Every day of the week.", fr: "Tous les jours de la semaine.", zh: "每周每天。" },
+  apptLoading: { ar: "نقرأ المواعيد المتاحة…", en: "Loading available times…", fr: "Chargement des créneaux…", zh: "正在加载可预约时间…" },
+  apptNone: { ar: "لا مواعيد متاحة الآن. راسلنا على واتساب ونرتّب لك موعداً.", en: "No times are available now. Message us on WhatsApp and we will arrange one.", fr: "Aucun créneau disponible. Écrivez-nous sur WhatsApp.", zh: "目前没有可用时间。请通过 WhatsApp 联系我们。" },
+  apptOut: { ar: "هذا الوقت خارج ساعات الجلسات — اختر وقتاً من القائمة.", en: "That time is outside session hours — pick one from the list.", fr: "Cet horaire est hors des heures de séance — choisissez dans la liste.", zh: "该时间不在会谈时段内 — 请从列表中选择。" },
+  apptSoon: { ar: "نحتاج ساعةً على الأقل قبل الجلسة — اختر وقتاً أبعد.", en: "We need at least one hour before a session — pick a later time.", fr: "Il faut au moins une heure avant la séance — choisissez plus tard.", zh: "预约需至少提前一小时 — 请选择更晚的时间。" },
+  apptFar: { ar: "هذا التاريخ أبعد من المدى المفتوح للحجز.", en: "That date is beyond the booking window.", fr: "Cette date dépasse la période de réservation.", zh: "该日期超出可预约范围。" },
+  apptTaken: { ar: "حُجزت هذه الفترة قبل قليل — اختر فترة أخرى.", en: "That slot was just taken — pick another.", fr: "Ce créneau vient d'être pris — choisissez-en un autre.", zh: "该时段刚被预订 — 请另选。" },
+  apptMany: { ar: "لديك موعدان قادمان بالفعل — ألغِ أحدهما أو انتظر حتى يمضي.", en: "You already have two upcoming sessions — cancel one or wait for it to pass.", fr: "Vous avez déjà deux séances à venir — annulez-en une ou attendez.", zh: "您已有两个即将进行的预约 — 请取消其一或等待其结束。" },
+  apptRate: { ar: "محاولات كثيرة — انتظر قليلاً ثم أعد المحاولة.", en: "Too many attempts — wait a little and try again.", fr: "Trop de tentatives — patientez un peu.", zh: "尝试次数过多 — 请稍后再试。" },
+  nextAppt: { ar: "موعدك القادم", en: "Your next appointment", fr: "Votre prochain rendez-vous", zh: "您的下一次预约" },
+  videoFree: { ar: "الاتصال المرئي — استشارة مجانية", en: "Video call — free consultation", fr: "Appel vidéo — consultation gratuite", zh: "视频通话 — 免费咨询" },
+  joinNow: { ar: "انضم إلى الاجتماع", en: "Join the meeting", fr: "Rejoindre la réunion", zh: "加入会议" },
+  joinSoon: { ar: "يُفتح الانضمام قبل الموعد بخمس دقائق.", en: "Joining opens five minutes before the start.", fr: "L'accès s'ouvre cinq minutes avant le début.", zh: "开始前五分钟开放加入。" },
+  meetLink: { ar: "رابط الاجتماع", en: "Meeting link", fr: "Lien de la réunion", zh: "会议链接" },
+  addCal: { ar: "أضِف إلى التقويم", en: "Add to calendar", fr: "Ajouter à l'agenda", zh: "添加到日历" },
+  apptPending: { ar: "الموعد بانتظار تأكيد الفريق — يصلك رابط الاجتماع ودعوة التقويم على بريدك بعد التثبيت.", en: "The time is awaiting the team's confirmation — the meeting link and calendar invitation reach your e-mail once it is set.", fr: "Le créneau attend la confirmation de l'équipe — le lien et l'invitation arrivent par e-mail.", zh: "时间等待团队确认 — 确认后会议链接和日历邀请将发送到您的邮箱。" },
+  apptOver: { ar: "انتهت هذه الجلسة.", en: "This session has ended.", fr: "Cette séance est terminée.", zh: "此会谈已结束。" },
+  riyadh: { ar: "بتوقيت الرياض", en: "Riyadh time", fr: "heure de Riyad", zh: "利雅得时间" },
   cancelReq: { ar: "إلغاء الطلب", en: "Cancel request", fr: "Annuler la demande", zh: "取消申请" },
   company: { ar: "اسم الشركة", en: "Company name", fr: "Nom de l'entreprise", zh: "公司名称" },
   cr: { ar: "السجل التجاري", en: "CR number", fr: "Numéro RC", zh: "商业登记号" },
@@ -156,7 +176,7 @@ const P = {
   // («friday», «bad_datetime», «card») to the customer.
   sessEnd: { ar: "انتهت جلستك — سجّل دخولك من جديد لتكمل.", en: "Your session has ended — sign in again to continue.", fr: "Votre session a expiré — reconnectez-vous pour continuer.", zh: "会话已过期 — 请重新登录后继续。" },
   apptBad: { ar: "اختر التاريخ والوقت أولاً.", en: "Pick a date and a time first.", fr: "Choisissez d'abord une date et une heure.", zh: "请先选择日期和时间。" },
-  apptFri: { ar: "لا مواعيد يوم الجمعة — اختر يوماً آخر.", en: "No appointments on Fridays — please pick another day.", fr: "Pas de rendez-vous le vendredi — choisissez un autre jour.", zh: "周五不安排预约 — 请选择其他日期。" },
+  apptFri: { ar: "لا جلسات في هذا اليوم — اختر يوماً آخر.", en: "No sessions on this day — please pick another day.", fr: "Pas de séance ce jour-là — choisissez un autre jour.", zh: "当天不安排会谈 — 请选择其他日期。" },
   apptPast: { ar: "هذا الموعد مضى — اختر وقتاً قادماً.", en: "That time has already passed — pick a later one.", fr: "Cet horaire est déjà passé — choisissez-en un autre.", zh: "该时间已过 — 请选择之后的时间。" },
   provCard: { ar: "بطاقة", en: "Card", fr: "Carte", zh: "银行卡" },
   provTamara: { ar: "تمارا", en: "Tamara", fr: "Tamara", zh: "Tamara" },
@@ -491,7 +511,7 @@ window.addEventListener('hashchange',function(){if(hashParam('ml'))boot()});
 // ---------- shell
 var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['documents',TX.navDocs,'\ud83d\udcc1'],['company',TX.navCompany,'🏢']];
 function badges(){var c=state.me.counts||{};var d=(state.docs||[]).filter(function(x){var n=daysLeft(x.expiry_date);return n!==null&&n<=30}).length;return {quotes:c.quotes,contracts:c.contracts,pay:c.payments,documents:d}}
-function render(){var me=state.me;app.innerHTML='';var bd=badges();
+function render(){var me=state.me;app.innerHTML='';joinBoxes=[];var bd=badges();
 var side=h('nav',{class:'my-side',id:'mySide'},[h('div',{class:'who'},[h('b',{},[me.user.name||me.user.email]),h('small',{},[(me.organization&&(me.organization.name_ar||me.organization.name_en))||me.user.email])])].concat(NAV.map(function(n){return h('a',{'data-nav':n[0],class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1],bd[n[0]]?h('span',{class:'b'},[String(bd[n[0]])]):null])})).concat([h('a',{href:HOME},['🌐 '+TX.site]),h('a',{onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},['↩ '+TX.logout])]));
 var mob=h('div',{class:'mob'},NAV.map(function(n){return h('a',{class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1]])}));
 var main=h('div',{class:'my-main',id:'myMain'});
@@ -501,6 +521,7 @@ function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r
 function viewHome(m){var c=state.me.counts||{};m.appendChild(h('h1',{},[TX.attention]));
 var k=[['active',TX.kActive,'requests'],['quotes',TX.kQuotes,'quotes'],['contracts',TX.kContracts,'contracts'],['payments',TX.kPayments,'pay'],['appointments',TX.kAppts,'appointments']];
 m.appendChild(h('div',{class:'my-kpis'},k.map(function(x){return h('div',{class:'my-kpi'+(x[0]!=='active'&&c[x[0]]?' hot':''),onclick:function(){go(x[2])}},[h('b',{},[String(c[x[0]]||0)]),h('span',{},[x[1]])])})));
+var nca=nextApptCard();if(nca)m.appendChild(nca);
 var need=state.me.requests.filter(function(r){return ['QUOTE_SENT','CONTRACT_SENT','SIGNED','PAYMENT_PENDING','WAITING_CLIENT'].indexOf(r.status)>=0});
 if(need.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.needYou]),h('div',{class:'list'},need.map(reqRow))]));
 m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.today]),h('p',{class:'note'},[TX.navNew]),h('a',{class:'btn',href:HOME+'#chat'},[TX.navNew])]));
@@ -533,7 +554,47 @@ function viewList(m,title,f){m.appendChild(h('h1',{},[title]));var rows=state.me
 function viewInvoices(m){m.appendChild(h('h1',{},[TX.navInvoices]));var rows=state.me.requests.filter(function(r){return r.invoice});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill ok'},[r.invoice.number+' · '+money(r.invoice.total)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]))}
 function viewPay(m){m.appendChild(h('h1',{},[TX.navPay]));var rows=state.me.requests.filter(function(r){return ['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill warn'},[money(r.quote?r.quote.total:0)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));m.appendChild(h('div',{class:'card'},[h('a',{class:'btn ghost',href:CHECKOUT},[TX.navPay+' →'])]))}
 function viewChats(m){m.appendChild(h('h1',{},[TX.navChats]));var rows=state.me.requests.filter(function(r){return r.last_message});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.querySelector('small').textContent=(r.last_message.content||'').slice(0,90);return row})):h('p',{class:'note'},[TX.empty]))}
-function viewAppts(m){m.appendChild(h('h1',{},[TX.navAppts]));var rows=state.me.requests.filter(function(r){return r.appointment&&r.appointment.status!=='CANCELLED'});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill'},[r.appointment.date+' '+r.appointment.time]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));var cons=state.me.requests.filter(function(r){return r.type==='CONSULTATION'&&(!r.appointment||r.appointment.status==='CANCELLED')&&r.status!=='CANCELLED'});if(cons.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.book]),h('div',{class:'list'},cons.map(reqRow))]))}
+// ---------- الاتصال المرئي: الموعد القادم والانضمام (قبل خمس دقائق)
+function apptStart(a){return new Date(a.date+'T'+a.time+':00+03:00').getTime()}
+function apptEnd(a){return apptStart(a)+(Number(a.minutes)||30)*60000}
+function nextAppt(){var now=Date.now(),best=null;((state.me&&state.me.requests)||[]).forEach(function(r){var a=r.appointment;if(!a||!a.date||!a.time||a.status==='CANCELLED'||r.status==='CANCELLED')return;if(apptEnd(a)<now)return;if(!best||apptStart(a)<apptStart(best.a))best={a:a,r:r}});return best}
+function c12(hm){var p=String(hm).split(':'),hh=+p[0],h12=((hh+11)%12)+1;return h12+':'+p[1]+' '+(LANG==='ar'?(hh<12?'ص':'م'):(hh<12?'AM':'PM'))}
+function fillT(t,o){return String(t).replace(/\\{(\\w)\\}/g,function(_,k){return o[k]==null?'':o[k]})}
+function dayNameOf(i){try{return new Intl.DateTimeFormat(LANG==='ar'?'ar-SA':LANG==='zh'?'zh-CN':LANG,{weekday:'long',timeZone:'UTC'}).format(new Date(Date.UTC(2024,0,7+i)))}catch(e){return String(i)}}
+function hoursText(o){if(!o||!o.hours)return TX.apptNote;var off=o.offDays||[];return fillT(TX.apptHours,{a:c12(o.hours.from),b:c12(o.hours.to),n:o.slotMinutes||30})+' '+(off.length?fillT(TX.apptDays,{d:off.map(dayNameOf).join(LANG==='ar'?' و':' & ')}):TX.apptDaysAll)}
+function p2(n){return (n<10?'0':'')+n}
+function gcalAdd(a){var s=apptStart(a),e=apptEnd(a);function f(t){var d=new Date(t+3*3600000);return d.getUTCFullYear()+p2(d.getUTCMonth()+1)+p2(d.getUTCDate())+'T'+p2(d.getUTCHours())+p2(d.getUTCMinutes())+'00'}
+ return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(TX.videoFree+(a.topic?' - '+a.topic:''))+'&dates='+f(s)+'/'+f(e)+'&ctz=Asia%2FRiyadh&details='+encodeURIComponent(a.meet||'')+'&location='+encodeURIComponent(a.meet||'Google Meet')}
+var joinBoxes=[];
+setInterval(function(){joinBoxes=joinBoxes.filter(function(b){return b.box.isConnected});joinBoxes.forEach(function(b){b.upd()})},15000);
+// رابط الاجتماع يظهر دائماً؛ زرّ «انضم» يُفتح قبل الموعد بخمس دقائق ويُغلق بانتهائه.
+function joinBox(a){var box=h('div',{class:'joinbox','data-join':'1'});
+ function upd(){box.innerHTML='';var now=Date.now(),s=apptStart(a),e=apptEnd(a);
+  if(a.status==='PENDING'||!a.meet){box.appendChild(h('p',{class:'note'},[TX.apptPending]));return}
+  if(now>e){box.appendChild(h('p',{class:'note'},[TX.apptOver]));return}
+  var open=now>=s-300000;
+  box.appendChild(h('p',{class:'note'},[TX.meetLink+': ',h('a',{href:a.meet,target:'_blank',rel:'noopener',dir:'ltr'},[a.meet])]));
+  var row=h('div',{class:'msgform'});
+  if(open)row.appendChild(h('a',{class:'btn','data-join-open':'1',href:a.meet,target:'_blank',rel:'noopener'},[TX.joinNow]));
+  else row.appendChild(h('button',{class:'btn',type:'button',disabled:'disabled','data-join-open':'0'},[TX.joinNow]));
+  row.appendChild(h('a',{class:'btn ghost',href:gcalAdd(a),target:'_blank',rel:'noopener'},[TX.addCal]));
+  box.appendChild(row);
+  if(!open)box.appendChild(h('p',{class:'note'},[TX.joinSoon]))}
+ upd();joinBoxes.push({box:box,upd:upd});return box}
+function nextApptCard(){var na=nextAppt();if(!na)return null;var a=na.a;
+ return h('div',{class:'card',id:'sv1NextAppt'},[h('h2',{},[TX.nextAppt]),h('p',{class:'note'},[TX.videoFree]),h('p',{},['📅 '+a.date+' · '+a.time+' ('+c12(a.time)+') · '+TX.riyadh+(a.topic?' · '+a.topic:'')]),joinBox(a),h('div',{class:'msgform'},[h('a',{class:'btn ghost sm',onclick:function(){go('request',na.r.ref)}},[TX.open])])])}
+// مختار الفترات من الخادم نفسه (api/book?action=slots): لا ساعات مكتوبة هنا — ما يُعرض هو ما يقبله الخادم.
+function slotPicker(){var st={days:[]};var d=h('select',{class:'inp'}),tm=h('select',{class:'inp'}),note=h('p',{class:'note'},[TX.apptLoading]);
+ function dayLabel(ds){try{return new Date(ds+'T12:00:00+03:00').toLocaleDateString(LANG==='ar'?'ar-SA-u-ca-gregory-nu-latn':LANG==='zh'?'zh-CN':LANG,{weekday:'long',day:'numeric',month:'long',timeZone:'Asia/Riyadh'})}catch(e){return ds}}
+ function fillTimes(){tm.innerHTML='';var x=st.days.filter(function(y){return y.date===d.value})[0];(x?x.slots:[]).forEach(function(t){tm.appendChild(h('option',{value:t},[t+' ('+c12(t)+')']))})}
+ d.addEventListener('change',fillTimes);
+ fetch('/api/book?action=slots').then(function(r){return r.json()}).then(function(o){
+  if(!o||!o.ok||!(o.days||[]).length){note.textContent=TX.apptNone;return}
+  st.days=o.days;o.days.forEach(function(x){d.appendChild(h('option',{value:x.date},[dayLabel(x.date)]))});fillTimes();note.textContent=hoursText(o)})
+ .catch(function(){note.textContent=TX.apptNone});
+ return {day:d,time:tm,note:note}}
+function apptErr(o){var e=o&&o.error;return e==='bad_datetime'?TX.apptBad:(e==='off_day'||e==='friday')?TX.apptFri:e==='past'?TX.apptPast:e==='out_of_hours'?TX.apptOut:e==='too_soon'?TX.apptSoon:e==='too_far'?TX.apptFar:e==='slot_taken'?TX.apptTaken:e==='too_many_active'?TX.apptMany:e==='rate_limited'?TX.apptRate:failText(o)}
+function viewAppts(m){m.appendChild(h('h1',{},[TX.navAppts]));var nc=nextApptCard();if(nc)m.appendChild(nc);var rows=state.me.requests.filter(function(r){return r.appointment&&r.appointment.status!=='CANCELLED'});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill'},[r.appointment.date+' '+r.appointment.time]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));var cons=state.me.requests.filter(function(r){return r.type==='CONSULTATION'&&(!r.appointment||r.appointment.status==='CANCELLED')&&r.status!=='CANCELLED'});if(cons.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.book]),h('div',{class:'list'},cons.map(reqRow))]))}
 function viewCompany(m){m.appendChild(h('h1',{},[TX.navCompany]));var o=state.me.organization||{};var f=h('div',{class:'form'});var nAr=h('input',{class:'inp',value:o.name_ar||''}),nEn=h('input',{class:'inp',value:o.name_en||''}),cr=h('input',{class:'inp',value:o.cr_number||''}),msg=h('span',{class:'ok'});
 f.appendChild(h('label',{},[TX.company]));f.appendChild(nAr);f.appendChild(h('label',{},[TX.nameEn]));f.appendChild(nEn);f.appendChild(h('label',{},[TX.cr]));f.appendChild(cr);
 f.appendChild(h('button',{class:'btn',onclick:function(){fetch('/api/requests',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'my-org-update',name_ar:nAr.value,name_en:nEn.value,cr:cr.value,cr_number:cr.value})}).then(function(r){return r.json()}).catch(function(){return {ok:false,error:'network'}}).then(function(o){if(o&&o.error==='unauthorized'){sessionEnded();return}msg.className=o&&o.ok?'ok':'err';msg.textContent=o&&o.ok?TX.saved:failText(o);if(o&&o.ok&&o.organization)state.me.organization=o.organization})}},[TX.save]));f.appendChild(msg);
@@ -864,9 +925,9 @@ if(r.payment&&r.payment.status==='PAID')right.appendChild(h('div',{class:'card'}
 if(r.invoice)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.invoice+' '+r.invoice.number]),h('p',{},[money(r.invoice.total)+' · '+when(r.invoice.issued_at)]),h('button',{class:'btn ghost sm',onclick:function(){openInvoice(r)}},[r.invoice.pdf_url?TX.invOfficial:TX.download])]));
 var dvc=delivCard(r);if(dvc)right.appendChild(dvc);
 // appointment
-if(r.type==='CONSULTATION'&&!isTicket){var ac=h('div',{class:'card'});ac.appendChild(h('h3',{},[TX.navAppts]));var a=r.appointment;if(a&&a.status!=='CANCELLED')ac.appendChild(h('p',{class:'ok'},['📅 '+a.date+' · '+a.time+' · '+(a.topic||'')+(a.gcal?' ':'') ,a.gcal?h('a',{href:a.gcal,target:'_blank',class:'btn ghost sm'},['Google Calendar']):null]));
-var d=h('input',{class:'inp',type:'date',min:new Date().toISOString().slice(0,10)}),tm=h('input',{class:'inp',type:'time',value:'10:00',step:'1800'}),tp2=h('input',{class:'inp',placeholder:TX.topic,value:(a&&a.topic)||r.title}),ae=h('div',{class:'err'});
-ac.appendChild(h('div',{class:'form'},[h('label',{},[TX.date]),d,h('label',{},[TX.time]),tm,h('label',{},[TX.topic]),tp2,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){ae.textContent='';if(!d.value||!tm.value){ae.textContent=TX.apptBad;return}api(a&&a.status!=='CANCELLED'?'appointment-reschedule':'appointment-book',{ref:r.ref,date:d.value,time:tm.value,topic:tp2.value}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else if(o&&o.error==='no_session'){}else ae.textContent=o&&o.error==='friday'?TX.apptFri:o&&o.error==='past'?TX.apptPast:o&&o.error==='bad_datetime'?TX.apptBad:failText(o)})}},[a&&a.status!=='CANCELLED'?TX.reschedule:TX.book]),a&&a.status!=='CANCELLED'?h('button',{class:'btn danger',onclick:function(){api('appointment-cancel',{ref:r.ref}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else if(!o||o.error!=='no_session')toast(failText(o))})}},[TX.cancelAppt]):null]),ae,h('p',{class:'note'},[TX.apptNote])]));right.appendChild(ac)}
+if(r.type==='CONSULTATION'&&!isTicket){var ac=h('div',{class:'card'});ac.appendChild(h('h3',{},[TX.navAppts]));var a=r.appointment;if(a&&a.status!=='CANCELLED'){ac.appendChild(h('p',{class:'note'},[TX.videoFree]));ac.appendChild(h('p',{class:'ok'},['📅 '+a.date+' · '+a.time+' ('+c12(a.time)+') · '+TX.riyadh+' · '+(a.topic||'')]));ac.appendChild(joinBox(a))}
+var sp=slotPicker(),d=sp.day,tm=sp.time,tp2=h('input',{class:'inp',placeholder:TX.topic,value:(a&&a.topic)||r.title}),ae=h('div',{class:'err'});
+ac.appendChild(h('div',{class:'form'},[h('label',{},[TX.date]),d,h('label',{},[TX.time]),tm,h('label',{},[TX.topic]),tp2,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){ae.textContent='';if(!d.value||!tm.value){ae.textContent=TX.apptBad;return}api(a&&a.status!=='CANCELLED'?'appointment-reschedule':'appointment-book',{ref:r.ref,date:d.value,time:tm.value,topic:tp2.value}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else if(o&&o.error==='no_session'){}else ae.textContent=apptErr(o)})}},[a&&a.status!=='CANCELLED'?TX.reschedule:TX.book]),a&&a.status!=='CANCELLED'?h('button',{class:'btn danger',onclick:function(){api('appointment-cancel',{ref:r.ref}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else if(!o||o.error!=='no_session')toast(failText(o))})}},[TX.cancelAppt]):null]),ae,sp.note,h('p',{class:'note'},[TX.apptNote])]));right.appendChild(ac)}
 // timeline
 right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.timeline]),h('ul',{class:'tl'},(r.events||[]).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(actorName(e)?actorName(e)+': ':'')+(EV[e.event]||e.event)+(e.details&&e.details.number?' '+e.details.number:'')])])}))]));
 if(['CANCELLED','COMPLETED'].indexOf(r.status)<0){var early=['NEW','REVIEWING','WAITING_CLIENT','QUOTE_SENT','PRICING'].indexOf(r.status)>=0;var cnote=h('input',{class:'inp',placeholder:TX.cancelWhy,style:'margin-top:10px'});var cmsg=h('div',{class:'note'},[early?TX.cancelEarly:TX.cancelLate]);var cbtn=h('button',{class:'btn danger sm',onclick:function(){if(!confirm((early?TX.cancelReq:TX.cancelAsk)+'?'))return;var b2=this;b2.disabled=true;api('request-cancel',{ref:r.ref,note:cnote.value.trim()}).then(function(o){b2.disabled=false;if(!o||!o.ok){cmsg.className='err';cmsg.textContent=(o&&o.message)||TX.error;return}if(o.cancelled){r.status='CANCELLED';refreshMe();drawRequest(hd,box);return}cmsg.className='ok';cmsg.textContent=TX.cancelSent;cbtn.disabled=true})}},[early?TX.cancelReq:TX.cancelAsk]);right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),cmsg,cnote,h('div',{class:'msgform',style:'margin-top:8px'},[cbtn])]))}if(r.cancel)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),h('p',{class:'note'},[TX.cancelDone+' · '+when(r.cancel.at)+(r.cancel.note?' · '+r.cancel.note:'')])]))}

@@ -284,6 +284,11 @@ const D = {
   barLangs:  { ar: "منصّة واحدة · أربع لغات", en: "One platform · four languages",
                fr: "Une plateforme · quatre langues", zh: "一个平台 · 四种语言" },
   footRights: { ar: "جميع الحقوق محفوظة", en: "All rights reserved", fr: "Tous droits réservés", zh: "版权所有" },
+  // الإتاحة (2026-10-16): أسماء المعالم والأزرار لقارئات الشاشة، ورابط بيان الإتاحة.
+  navLabel: { ar: "التنقل الرئيسي", en: "Main navigation", fr: "Navigation principale", zh: "主导航" },
+  menuLabel: { ar: "القائمة", en: "Menu", fr: "Menu", zh: "菜单" },
+  barLabel: { ar: "الحالة واللغة", en: "Status and language", fr: "Statut et langue", zh: "状态与语言" },
+  footA11y: { ar: "الإتاحة", en: "Accessibility", fr: "Accessibilité", zh: "无障碍" },
 
   // Quick chips shown before the first message.
   chipsConsulting: { ar: ["استشارة عن ترخيص", "مشكلة في الشركة", "تحديد الجهات ذات العلاقة", "عمالة مؤقتة وتصاريح أجير", "فحص شامل للشركة"], en: ["A licensing question", "A problem in the company", "Which authorities are involved", "Temporary labour & Ajeer permits", "A full company review"], fr: ["Une question de licence", "Un problème dans la société", "Quelles autorités sont concernées", "Main-d'œuvre temporaire et permis Ajeer", "Un examen complet"], zh: ["许可相关咨询", "公司内部问题", "涉及哪些主管机关", "临时用工与 Ajeer 许可", "公司全面检查"] },
@@ -311,7 +316,7 @@ export const SV1_CSS = `<style id="sv1-css">
    الرماديات مائلةٌ إلى الكحلي لا محايدة، فتقرأ كأنها من العلامة. */
 .sv1{--n:#0B1B5A;--ac:#0B1B5A;--ac2:#16307F;--acSoft:#EEF2FB;--acLine:#C3CDE6;
  --n2:#081345;--g:#F5F7FB;--l:#E5E9F0;--line:#E5E9F0;--line2:#EBEFF7;
- --t:#232A3D;--ink:#0B1B5A;--s:#5A6478;--mut:#5A6478;--faint:#8D97AE;--soft:#F5F7FB;
+ --t:#232A3D;--ink:#0B1B5A;--s:#5A6478;--mut:#5A6478;--faint:#66708a;--soft:#F5F7FB;
  --ok:#047857;--okSoft:#E7F4EF;--warn:#B45309;--wa:#25D366;
  --sh:0 1px 2px rgba(11,27,90,.06);--sh2:0 22px 56px -18px rgba(11,27,90,.22),0 2px 8px rgba(11,27,90,.06);
  --fm:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace;
@@ -333,9 +338,9 @@ export const SV1_CSS = `<style id="sv1-css">
  margin-inline-end:7px;box-shadow:0 0 0 0 rgba(52,211,153,.65);animation:sv1pulse 2.6s infinite}
 @keyframes sv1pulse{70%{box-shadow:0 0 0 7px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
 .sv1-bar-langs{display:flex;gap:10px;font-family:var(--fm);font-size:10.5px;letter-spacing:.06em}
-.sv1-bar-langs a{opacity:.5}
-.sv1-bar-langs a:hover{opacity:.85}
-.sv1-bar-langs a.on{opacity:1;color:#fff}
+.sv1-bar-langs a{color:#C9D1EA;display:inline-block;min-width:24px;min-height:24px;line-height:24px;text-align:center}
+.sv1-bar-langs a:hover{color:#fff}
+.sv1-bar-langs a.on{color:#fff;font-weight:700;text-decoration:underline;text-underline-offset:4px}
 @media(max-width:760px){.sv1-bar .hide-s{display:none}}
 .sv1-hdr{border-bottom:1px solid var(--l);background:rgba(255,255,255,.86);backdrop-filter:blur(14px);position:sticky;top:0;z-index:20}
 .sv1-hdr .wrap{height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}
@@ -408,7 +413,7 @@ a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
 .sv1-chat{display:flex;flex-direction:column;border-inline-end:1px solid var(--l)}
 .sv1-chathead{padding:16px;border-bottom:1px solid var(--l)}
 .sv1-chathead h3{font-size:18px;margin:0 0 1px}
-.sv1-chathead p{font-size:11.5px;color:#777;margin:0}
+.sv1-chathead p{font-size:11.5px;color:#5c6376;margin:0}
 .sv1-msgs{padding:16px;background:#fbfcfe;flex:1;overflow:auto;max-height:420px}
 .sv1-msg{max-width:85%;padding:10px 13px;border-radius:13px;font-size:13px;margin-bottom:9px;white-space:pre-wrap;line-height:1.75}
 .sv1-msg.a{background:#fff;border:1px solid var(--l)}
@@ -435,28 +440,28 @@ a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
 .sv1-voice .t{font-family:var(--fm);margin-inline-start:auto;font-size:11px;color:var(--faint)}
 .sv1-scope{padding:19px;display:flex;flex-direction:column}
 .sv1-scope h3{font-size:19px;margin:9px 0 2px}
-.sv1-scope>p{font-size:11.5px;color:#777;margin:0 0 12px}
+.sv1-scope>p{font-size:11.5px;color:#5c6376;margin:0 0 12px}
 .sv1-item{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--l);border-radius:11px;padding:10px;margin-bottom:7px}
 .sv1-item b{font-size:12.5px;display:block;color:#32394a;outline:none;font-weight:600}
 .sv1-item b:focus{background:#fffbe6;border-radius:4px}
-.sv1-item small{font-size:10.5px;color:#888;display:block;margin-top:2px}
+.sv1-item small{font-size:10.5px;color:#656c7f;display:block;margin-top:2px}
 .sv1-item .del{border:0;width:27px;height:27px;border-radius:7px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:14px}
 .sv1-addrow{display:flex;gap:6px;margin-top:2px}
 .sv1-addrow input{flex:1;border:1px solid var(--l);border-radius:9px;padding:9px;font:inherit;font-size:12.5px;outline:none}
 .sv1-docs{margin-top:16px;padding-top:14px;border-top:1px dashed #cfd6e6}
 .sv1-docs h4{margin:0 0 2px;color:var(--ink);font-size:15px}
-.sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#777}
+.sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#5c6376}
 .sv1-doc{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:8px 10px;margin-bottom:6px}
 .sv1-doc span{font-size:12.5px;color:#32394a;display:flex;gap:7px;align-items:center}
 .sv1-doc span::before{content:"📄";font-size:13px}
 .sv1-doc .del{border:0;width:24px;height:24px;border-radius:6px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:13px}
-.sv1-docs .empty{font-size:11.5px;color:#9aa0b0;padding:6px 2px;margin-bottom:6px}
+.sv1-docs .empty{font-size:11.5px;color:#656c7f;padding:6px 2px;margin-bottom:6px}
 .sv1-summary{background:var(--acSoft);border:1px solid var(--acLine);border-radius:10px;padding:11px 13px;margin:14px 0;font-size:12px}
 .sv1-summary div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .sv1-summary strong{font-size:16px;color:var(--ac)}
 .sv1-login{border-top:1px solid var(--l);padding:16px 19px;background:#fff}
 .sv1-login h4{margin:0 0 4px;color:var(--ink);font-size:15px}
-.sv1-login p{margin:0 0 10px;color:#777;font-size:12px}
+.sv1-login p{margin:0 0 10px;color:#5c6376;font-size:12px}
 .sv1-login .g{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .sv1-login input{border:1px solid var(--l);border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;width:100%;outline:none}
 .sv1-login .full{grid-column:1/-1}
@@ -466,7 +471,7 @@ a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
 .sv1-flow div{background:#fff;border:1px solid var(--l);border-radius:11px;padding:16px;text-align:center}
 .sv1-flow i{font-style:normal;font-family:var(--fm);width:34px;height:34px;background:var(--acSoft);color:var(--ac);border-radius:9px;display:grid;place-items:center;margin:0 auto 9px;font-weight:500;font-size:12px}
 .sv1-flow b{display:block;font-size:12.5px;color:var(--ink);font-weight:500}
-.sv1-flow small{font-size:10px;color:#888}
+.sv1-flow small{font-size:10px;color:#656c7f}
 .sv1-tabs{text-align:center;margin-bottom:15px;display:flex;gap:8px;justify-content:center}
 .sv1-tab{border:1px solid var(--l);background:#fff;border-radius:9px;padding:9px 17px;font-weight:500;color:var(--mut);cursor:pointer;font-family:inherit;font-size:13px}
 .sv1-tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
@@ -482,10 +487,10 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-mi.on{background:#fff;color:var(--ink);font-weight:500}
 .sv1-pmain{padding:22px;background:#fbfcfe}
 .sv1-pmain h3{font-size:21px;margin:0 0 2px}
-.sv1-muted{color:#777;font-size:11.5px}
+.sv1-muted{color:#5c6376;font-size:11.5px}
 .sv1-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:15px 0}
 .sv1-stat,.sv1-panel{background:#fff;border:1px solid var(--l);border-radius:11px;padding:14px}
-.sv1-stat span{font-size:9.5px;color:#777;display:block}
+.sv1-stat span{font-size:9.5px;color:#5c6376;display:block}
 .sv1-stat b{font-size:21px;color:var(--ink);font-family:var(--fm);font-weight:500}
 .sv1-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sv1-panel h4{color:var(--ink);margin:0 0 8px;font-size:13px;font-weight:500}
@@ -493,13 +498,13 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-prow:last-child{border-bottom:0}
 .sv1-status{font-size:9.5px;border-radius:999px;padding:3px 9px;background:var(--acSoft);color:var(--ac);white-space:nowrap}
 .sv1-status.done{background:var(--okSoft);color:var(--ok)}
-.sv1-pnote{text-align:center;color:#8b90a0;font-size:11px;margin-top:12px}
+.sv1-pnote{text-align:center;color:#656c7f;font-size:11px;margin-top:12px}
 .sv1-foot{margin-top:auto;padding:38px 0 22px;background:var(--n2);color:#ccd4ed;font-size:12px}
 .sv1-foot b{color:#fff}
 .sv1-foot a{color:#fff;text-decoration:underline;text-underline-offset:2px}
 .sv1-foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1.1fr 1fr;gap:26px 34px}
-.sv1-foot-col h4{color:#fff;font-size:12px;margin:0 0 10px;letter-spacing:.02em}
-.sv1-foot-col p{margin:0 0 8px;line-height:1.75}
+.sv1-foot-col h2{color:#fff;font-size:12px;font-weight:700;margin:0 0 10px;letter-spacing:.02em;text-wrap:wrap}
+.sv1-foot-col p{margin:0 0 8px;line-height:1.75;color:#ccd4ed}
 .sv1-foot-brand{display:block;font-size:15px;margin-bottom:6px}
 .sv1-foot-note{color:rgba(255,255,255,.62);font-size:11.5px;line-height:1.7}
 .sv1-foot-row{display:flex;gap:10px;align-items:baseline;padding:3px 0;line-height:1.6}
@@ -516,7 +521,7 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-foot-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 34px;
  margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1)}
 .sv1-foot-navcol{display:flex;flex-direction:column;gap:7px;min-width:0}
-.sv1-foot-navcol h5{color:rgba(255,255,255,.5);font-size:10.5px;font-weight:600;
+.sv1-foot-navcol h3{color:rgba(255,255,255,.5);font-size:10.5px;font-weight:600;
  letter-spacing:.07em;margin:0 0 3px;text-transform:uppercase}
 .sv1-foot-navcol a{color:rgba(255,255,255,.72);font-size:12.5px;line-height:1.5;
  text-decoration:none;transition:color .15s}
@@ -527,6 +532,19 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-wa-fab{position:fixed;inset-inline-start:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
 .sv1-navlogin{display:none}
+/* أهداف اللمس ≥ 44px على الجوال (قرار الإتاحة 2026-10-16). سطح المكتب لا يتغيّر. */
+@media(pointer:coarse),(max-width:760px){
+ .sv1 button:not(.sv1-door):not(.sv1-lang summary),.sv1 .sv1-btn,.sv1 input:not([type=hidden]):not([type=checkbox]):not([type=radio]),.sv1 select,.sv1 textarea{min-height:44px}
+ .sv1-btn.sm{min-height:44px;padding-block:10px}
+ .sv1 button.del,.sv1 .sv1-item .del,.sv1 .sv1-doc .del{min-width:44px;min-height:44px}
+ .sv1-burger{width:44px;height:44px}
+ .sv1-lang summary{min-height:44px}
+ .sv1-nav a{min-height:44px;display:flex;align-items:center}
+ .sv1-chips button{min-height:44px;padding-block:10px}
+ .sv1-compose .send,.sv1-mic{min-width:46px;min-height:46px}
+ .sv1 input[type=checkbox],.sv1 input[type=radio]{min-width:24px;min-height:24px}
+ .sv1-foot-navcol a,.sv1-foot-links a{display:inline-flex;align-items:center;min-height:44px}
+}
 @media(max-width:900px){
  .sv1-nav .sv1-navlogin{display:block;font-weight:700;color:var(--n)}
  .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
@@ -638,15 +656,15 @@ export function simpleV1(ctx) {
   const CSS = SV1_CSS;
 
   function langSwitch(path) {
-    const items = SIMPLE_LANGS.map((l) => `<a href="${pathInLang(path, l)}" data-lang="${l}"${l === lang() ? ' class="on"' : ""}>${LANG_NAMES[l]}</a>`).join("");
-    return `<details class="sv1-lang"><summary>🌐 ${LANG_NAMES[lang()]}</summary><div class="menu">${items}</div></details>`;
+    const items = SIMPLE_LANGS.map((l) => `<a href="${pathInLang(path, l)}" data-lang="${l}" lang="${l}" hreflang="${l}"${l === lang() ? ' class="on" aria-current="true"' : ""}>${LANG_NAMES[l]}</a>`).join("");
+    return `<details class="sv1-lang"><summary><span aria-hidden="true">🌐</span> ${LANG_NAMES[lang()]}</summary><div class="menu">${items}</div></details>`;
   }
   // شريط الحالة: نبضةٌ حيّة واللغات الأربع بأكوادها. اللغات هنا إشارةٌ صادقة
   // — المنصّة كلها مترجمة، والروابط تفتح نفس الصفحة بلغتها لا الصفحة الأولى.
   function statusBar(path, oneLang) {
     const codes = SIMPLE_LANGS.map((l) =>
-      `<a href="${pathInLang(path, l)}" data-lang="${l}"${l === lang() ? ' class="on"' : ""}>${l.toUpperCase()}</a>`).join("");
-    return `<div class="sv1-bar"><div class="wrap">
+      `<a href="${pathInLang(path, l)}" data-lang="${l}" lang="${l}" hreflang="${l}" aria-label="${LANG_NAMES[l]}"${l === lang() ? ' class="on" aria-current="true"' : ""}>${l.toUpperCase()}</a>`).join("");
+    return `<div class="sv1-bar" role="region" aria-label="${esc(t("barLabel"))}"><div class="wrap">
   <div class="sv1-bar-l">
     <span><span class="sv1-pulse"></span><b>${t("barStatus")}</b></span>
     <span class="hide-s">${t("barCity")}</span>
@@ -660,7 +678,7 @@ export function simpleV1(ctx) {
   function header(path, { cta = true, oneLang = false } = {}) {
     return `${statusBar(path, oneLang)}<header class="sv1-hdr"><div class="wrap">
   <a class="logo" href="${href("/")}" aria-label="Business Partner"><img src="/assets/img/logo.png" alt="Business Partner" width="180" height="34"></a>
-  <nav class="sv1-nav" id="sv1Nav">
+  <nav class="sv1-nav" id="sv1Nav" aria-label="${esc(t("navLabel"))}">
     <a href="${SIMPLE_V1 ? href("/catalog") : href("/") + "#doors"}">${t("navServices")}</a>
     <a href="${href("/consultation")}">${t("navBook")}</a>
     <a href="${href("/")}#how">${t("navHow")}</a>
@@ -669,7 +687,7 @@ export function simpleV1(ctx) {
     ${oneLang ? "" : langSwitch(path)}
   </nav>
   <div class="right">
-    <button class="sv1-burger" id="sv1Burger" aria-label="Menu" aria-expanded="false">☰</button>
+    <button type="button" class="sv1-burger" id="sv1Burger" aria-label="${esc(t("menuLabel"))}" aria-controls="sv1Nav" aria-expanded="false"><span aria-hidden="true">☰</span></button>
     <a class="sv1-btn sm sv1-cart sv1-hide" id="sv1CartBtn" href="${href("/cart")}" aria-label="${t("navCart")}">
       <span>${t("navCart")}</span><b id="sv1CartN">0</b></a>
     <a class="sv1-btn" id="sv1LoginBtn" href="${href("/my")}">${t("login")}</a>
@@ -730,18 +748,18 @@ export function simpleV1(ctx) {
       <p class="sv1-foot-note">${t("footInvoice")}</p>
     </div>
     <div class="sv1-foot-col">
-      <h4>${t("footIdentity")}</h4>
+      <h2>${t("footIdentity")}</h2>
       ${identity || `<p class="sv1-foot-note">${esc(id.name || "")}</p>`}
     </div>
     <div class="sv1-foot-col">
-      <h4>${t("footContact")}</h4>
+      <h2>${t("footContact")}</h2>
       <div class="sv1-foot-row"><span>${t("footPhone")}</span><a href="tel:${esc(contact.phoneIntl || contact.phone || "")}">${num(contact.phone || "")}</a></div>
       <div class="sv1-foot-row"><span>${t("footEmail")}</span><a href="mailto:${esc(contact.email || "")}"><bdi dir="ltr">${esc(contact.email || "")}</bdi></a></div>
       ${contact.address ? `<div class="sv1-foot-row"><span>${t("footAddress")}</span><span class="v">${esc(lang() === "ar" ? contact.address : contact.addressEn || contact.address)}</span></div>` : ""}
       ${contact.hours ? `<div class="sv1-foot-row"><span>${t("footHours")}</span><span class="v">${esc(lang() === "ar" ? contact.hours : contact.hoursEn || contact.hours)}</span></div>` : ""}
     </div>
     <div class="sv1-foot-col">
-      <h4>${t("footPay")}</h4>
+      <h2>${t("footPay")}</h2>
       <p class="sv1-foot-note">${t("footPayLine")}</p>
     </div>
   </div>
@@ -754,33 +772,34 @@ export function simpleV1(ctx) {
        المنتجات المفردة التي بابها صفحة الكتالوج. -->
   <div class="sv1-foot-nav">
     <div class="sv1-foot-navcol">
-      <h5>${t("footExplore")}</h5>
+      <h3>${t("footExplore")}</h3>
       <a href="${href("/catalog")}">${t("footClassic")}</a>
       <a href="${href("/packages")}">${t("navPackages")}</a>
       <a href="${href("/ai-agents")}">${t("navAdvisors")}</a>
       ${pageVisible("business-development") ? `<a href="${href("/business-development")}">${t("navBizDev")}</a>` : ""}
     </div>
     <div class="sv1-foot-navcol">
-      <h5>${t("footKnow")}</h5>
+      <h3>${t("footKnow")}</h3>
       <!-- قرار المالك (2026-09-24): للمعرفة رابطٌ واحد فقط — «مركز المعرفة» — وكل
            صفحاتها (الأدلة، الحاسبات، المجلة، الاستثمار في السعودية) داخله. -->
       ${knowledge ? `<a href="${href("/knowledge-center")}">${esc(knowledge[lang()] || knowledge.en)}</a>` : ""}
     </div>
     <div class="sv1-foot-navcol">
-      <h5>${t("footCompany")}</h5>
+      <h3>${t("footCompany")}</h3>
       <a href="${href("/about")}">${t("navAbout")}</a>
       <a href="${href("/contact")}">${t("navContact")}</a>
       <a href="${href("/careers")}">${t("navCareers")}</a>
       <a href="${href("/suppliers")}">${t("navPartners")}</a>
       <a href="${href("/terms")}">${t("footTerms")}</a>
+      <a href="${href("/accessibility")}">${t("footA11y")}</a>
     </div>
   </div>
   <div class="sv1-foot-end">© ${year} Business Partner · ${t("footRights")}</div>
-</div></footer>
-<a class="sv1-wa-fab" href="${WA_HUMAN}" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a>`;
+</div>
+<a class="sv1-wa-fab" href="${WA_HUMAN}" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></footer>`;
   }
   const CHROME_JS = `<script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
-fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
+fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.setAttribute('role','region');d.setAttribute('aria-label','Test mode');d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
 var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};
 /* الرسم الفوري جرى بعد «</header>» مباشرة (SV1_SESSION_JS)؛ هنا التصحيح. */
 ${SV1_SESSION_SYNC_JS}
@@ -822,7 +841,23 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script>`;
 
+  // صفحاتٌ (لوحة /my و/ops) تكتب ما بين الترويسة والتذييل بلا <main>، فتفقد معلم
+  // «المحتوى الرئيسي» الذي يقفز إليه قارئ الشاشة ورابط التخطّي. نلفّ ذلك المقطع به
+  // هنا بدل تعديل ملف كل صفحة. لا يمسّ صفحةً فيها <main> أصلاً، ولا يغيّر التنسيق:
+  // <main> عنصر كتلة عاديّ داخل عمود .sv1 والتذييل يبقى في أسفله بـmargin-top:auto.
+  function withMain(body) {
+    if (/<main[\s>]/i.test(body)) return body;
+    const hEnd = body.indexOf("</header>");
+    if (hEnd < 0) return body;
+    let from = hEnd + "</header>".length;
+    if (body.startsWith(SV1_SESSION_JS, from)) from += SV1_SESSION_JS.length;
+    let to = body.indexOf('<footer class="sv1-foot"', from);
+    if (to < 0) to = body.length;
+    return body.slice(0, from) + "<main>" + body.slice(from, to) + "</main>" + body.slice(to);
+  }
+
   function shell({ title, desc, path, body, script = "", noindex = false, oneLang = false }) {
+    body = withMain(body);
     const h = head(title, desc, path)
       .replace("</head>", CSS + "</head>")
       .replace("</head>", noindex ? '<meta name="robots" content="noindex, nofollow"></head>' : "</head>")
