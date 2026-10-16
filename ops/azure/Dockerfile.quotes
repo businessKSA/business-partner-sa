@@ -1,0 +1,55 @@
+# syntax=docker/dockerfile:1
+# Business Partner — صورة لوحة العروض والعقود `bp-quotes` (Next.js، المجلد quotes/) لـ Azure Container Apps.
+#
+# لماذا هذه الصورة: كل طلب إلى www.businesspartner.sa/quotes/* و/api/live-catalog يمرّره خادم الموقع إلى أصلٍ
+# خارجي (bp-quotes-three.vercel.app). لا يبقى «أي طلب إلى *.vercel.app» ما لم تعمل اللوحة نفسها على Azure.
+# هذا نقلٌ حرفي للتطبيق كما هو (لا تعديل في quotes/): الخادم الجديد يوجّه إليها داخلياً عبر
+# BP_ORIGIN_MAP=https://bp-quotes-three.vercel.app=http://bp-quotes  (docs/azure-cutover-runbook-2026-10-16.md الخطوة أ).
+#
+# البناء من جذر المستودع (السياق = .):
+#   az acr build -r <سجل> -t bp-quotes:<sha> -f ops/azure/Dockerfile.quotes .
+# أو محلياً:  docker build -f ops/azure/Dockerfile.quotes -t bp-quotes:local .
+#
+# ما يختلف عن Vercel وتفسيره:
+#   • PDF_DRIVER=local مع Chromium النظام (CHROMIUM_PATH) بدل @sparticuz/chromium المضغوط المخصّص للدوال.
+#   • INTERNAL_URL=http://127.0.0.1:8080/quotes: صفحة الطباعة التي يطبعها Chromium تُفتح من الحاوية نفسها
+#     لا عبر النطاق العام (Front Door ← الموقع ← اللوحة) — قفزتان أقل وبلا اعتماد على النطاق أثناء الطباعة.
+#   • القاعدة: DATABASE_URL وDIRECT_DATABASE_URL أسرار تُحقن عند التشغيل (انظر load-env.mjs) ولا تدخل الصورة.
+#   • مخطّط القاعدة يُنشأ بـ`prisma db push` من Cloud Shell مرة واحدة (الخطوة أ) لا عند كل إقلاع كما كان `vercel-build`.
+# لم يُبنَ هذا الملف في بيئة فيها Docker؛ أول بناء فعلي يجري في ACR (docs/azure-cutover-runbook-2026-10-16.md).
+
+ARG NODE_VERSION=22
+
+FROM node:${NODE_VERSION}-bookworm-slim AS build
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+# openssl لازم لمحرّك Prisma على Debian slim.
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+COPY quotes/package.json quotes/package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY quotes/ ./
+# prisma generate + next build (سكربت build في quotes/package.json). لا اتصال بقاعدة البيانات أثناء البناء.
+RUN npm run build
+
+FROM node:${NODE_VERSION}-bookworm-slim AS runtime
+ARG BP_BUILD_SHA=dev
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    BP_BUILD_SHA=${BP_BUILD_SHA} \
+    PORT=8080 \
+    HOSTNAME=0.0.0.0 \
+    PDF_DRIVER=local \
+    CHROMIUM_PATH=/usr/bin/chromium \
+    INTERNAL_URL=http://127.0.0.1:8080/quotes
+# Chromium لطباعة المستندات PDF (عربي ثنائي الاتجاه)، وخطوط احتياطية؛ خط Tajawal نفسه في public/fonts.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      chromium openssl ca-certificates fonts-noto-core fonts-noto-color-emoji \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+# node_modules كاملة (فيها prisma وtsx لأوامر الصيانة من الحاوية نفسها: `npx prisma db push`).
+COPY --from=build --chown=node:node /app ./
+USER node
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||8080)+'/quotes/api/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"
+CMD ["node_modules/.bin/next", "start", "-p", "8080", "-H", "0.0.0.0"]

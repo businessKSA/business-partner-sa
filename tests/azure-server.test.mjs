@@ -10,7 +10,8 @@ import os from "node:os";
 import path from "node:path";
 import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
-import { createAzureServer } from "../ops/azure/server.mjs";
+import { installEgressGuard } from "../ops/azure/egress-guard.mjs";
+import { createAzureServer, readConfig, readCgroupLimitBytes, parseOriginMap } from "../ops/azure/server.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const realVercel = JSON.parse(fs.readFileSync(path.join(ROOT, "vercel.json"), "utf8"));
@@ -343,7 +344,7 @@ test("health: ok, then 503 once draining; no secrets in the body", async () => {
   assert.equal(ok.status, 200);
   const j = JSON.parse(ok.text);
   assert.equal(j.ok, true);
-  assert.deepEqual(Object.keys(j).sort(), ["env", "errors", "ok", "requests", "sha", "uptimeS"]);
+  assert.deepEqual(Object.keys(j).sort(), ["env", "errors", "heapLimitMb", "heapUsedMb", "ok", "requests", "rssMb", "sha", "uptimeS"]);
   s.bpStats.draining = true;
   assert.equal((await call(p, "/__health")).status, 503);
   await close(s);
@@ -359,4 +360,156 @@ test("request log never carries the query string or client address", async () =>
   assert.ok(lines.length >= 1);
   assert.doesNotMatch(text, /SECRET123|a@b\.c|198\.51\.100\.7/);
   await close(s);
+});
+
+// ---- قطع Azure: ذاكرة، أصل داخلي، Front Door ------------------------------------
+test("health: RSS over the limit → 503 {reason:memory} so Container Apps restarts the replica gracefully; under it → 200", async () => {
+  let rss = 500 * 1048576;
+  const lines = [];
+  const s = mk({ vercelJson: realVercel, log: (o) => lines.push(o), config: { ...baseCfg, maxRssMb: 1000 }, memoryUsage: () => ({ rss, heapUsed: 1 }) });
+  const p = await listen(s);
+  const ok = await call(p, "/__health");
+  assert.equal(ok.status, 200);
+  assert.equal(JSON.parse(ok.text).rssMb, 500);
+  rss = 1200 * 1048576;
+  const bad = await call(p, "/__health");
+  assert.equal(bad.status, 503);
+  assert.equal(JSON.parse(bad.text).reason, "memory");
+  await call(p, "/__health");
+  assert.equal(lines.filter((l) => l.msg === "rss_over_limit").length, 1, "يُسجَّل مرة واحدة لا مع كل فحص");
+  rss = 400 * 1048576;
+  assert.equal((await call(p, "/__health")).status, 200, "ينزل تحت السقف فيعود سليماً");
+  const off = mk({ vercelJson: realVercel, log: quiet, config: { ...baseCfg, maxRssMb: 0 }, memoryUsage: () => ({ rss: 9e12, heapUsed: 1 }) });
+  assert.equal((await call(await listen(off), "/__health")).status, 200, "٠ = الحارس معطّل");
+  await close(s); await close(off);
+});
+
+test("readCgroupLimitBytes: v2 number, 'max' (no limit), v1 sentinel, missing files", () => {
+  const files = (m) => (f) => { if (!(f in m)) throw new Error("ENOENT"); return m[f]; };
+  assert.equal(readCgroupLimitBytes(files({ "/sys/fs/cgroup/memory.max": "2147483648\n" })), 2147483648);
+  assert.equal(readCgroupLimitBytes(files({ "/sys/fs/cgroup/memory.max": "max\n" })), 0);
+  assert.equal(readCgroupLimitBytes(files({ "/sys/fs/cgroup/memory/memory.limit_in_bytes": "9223372036854771712" })), 0);
+  assert.equal(readCgroupLimitBytes(files({ "/sys/fs/cgroup/memory/memory.limit_in_bytes": "1073741824" })), 1073741824);
+  assert.equal(readCgroupLimitBytes(files({})), 0);
+});
+
+test("readConfig: RSS cap defaults to 90% of the cgroup limit, BP_MAX_RSS_MB wins, 0 disables", () => {
+  const two = () => 2 * 1024 * 1048576;
+  assert.equal(readConfig({}, two).maxRssMb, Math.floor(2048 * 0.9));
+  assert.equal(readConfig({ BP_MAX_RSS_MB: "1500" }, two).maxRssMb, 1500);
+  assert.equal(readConfig({ BP_MAX_RSS_MB: "0" }, two).maxRssMb, 0);
+  assert.equal(readConfig({}, () => 0).maxRssMb, 0, "بلا cgroup لا سقف مخمَّن");
+});
+
+test("readConfig: Front Door ID implies 2 proxy hops; mismatches are reported, not silent", () => {
+  const none = () => 0;
+  assert.equal(readConfig({}, none).trustedHops, 1);
+  assert.deepEqual(readConfig({}, none).warnings, []);
+  const fd = readConfig({ BP_FRONT_DOOR_ID: "abc" }, none);
+  assert.equal(fd.trustedHops, 2, "بلا ضبط صريح: خلف FD = ٢");
+  assert.deepEqual(fd.warnings, []);
+  const wrong = readConfig({ BP_FRONT_DOOR_ID: "abc", BP_TRUSTED_PROXY_HOPS: "1" }, none);
+  assert.equal(wrong.trustedHops, 1, "الصريح يُحترم");
+  assert.match(wrong.warnings.join("|"), /حافة Front Door/);
+  const open = readConfig({ BP_TRUSTED_PROXY_HOPS: "2" }, none);
+  assert.match(open.warnings.join("|"), /انتحال/);
+});
+
+test("BP_ORIGIN_MAP: parsed strictly; junk is ignored with a warning", () => {
+  const w = [];
+  const m = parseOriginMap("https://bp-quotes-three.vercel.app=http://bp-quotes, nonsense, ftp://a=http://b,https://x.test=", w);
+  assert.deepEqual([...m], [["https://bp-quotes-three.vercel.app", "http://bp-quotes"]]);
+  assert.equal(w.length, 3);
+  assert.equal(parseOriginMap("").size, 0);
+});
+
+test("BP_ORIGIN_MAP: the vercel.json external origin is replaced by the internal one (path+query kept); no request reaches the vercel.app origin", async () => {
+  const hit = [];
+  const quotes = http.createServer((req, res) => { hit.push({ url: req.url, host: req.headers.host, fwd: req.headers["x-forwarded-host"] }); res.end("quotes:" + req.url); });
+  const qPort = await listen(quotes);
+  const m = new Map([["https://bp-quotes-three.vercel.app", `http://127.0.0.1:${qPort}`]]);
+  const s = mk({ vercelJson: realVercel, log: quiet, config: { ...baseCfg, originMap: m } });
+  const p = await listen(s);
+  const r = await call(p, "/quotes/d/abc?t=1", { headers: { host: "www.businesspartner.sa" } });
+  assert.equal(r.text, "quotes:/quotes/d/abc?t=1");
+  const cat = await call(p, "/api/live-catalog");
+  assert.equal(cat.text, "quotes:/quotes/api/catalog", "تمريرة الكتالوج تمرّ بالخريطة أيضاً");
+  assert.equal(hit[0].fwd, "www.businesspartner.sa");
+  assert.match(hit[0].host, /^127\.0\.0\.1:/);
+  // بلا خريطة يبقى السلوك الأصلي (الوجهة vercel.app): نكتفي بإثبات أن الخريطة هي ما غيّر الوجهة، فلا نُجري نداءً خارجياً.
+  await close(s); await close(quotes);
+});
+
+test("every vercel.app origin named in vercel.json is covered by exactly the one BP_ORIGIN_MAP entry the runbook sets", () => {
+  const origins = new Set();
+  for (const r of realVercel.rewrites) { if (/^https?:\/\//.test(r.destination)) origins.add(new URL(r.destination.replace(/:[A-Za-z_]\w*\*?.*$/, "")).origin); }
+  const runbook = fs.readFileSync(path.join(ROOT, "docs", "azure-cutover-runbook-2026-10-16.md"), "utf8");
+  for (const o of origins) assert.ok(runbook.includes(`BP_ORIGIN_MAP=${o}=`), `الدليل لا يضبط BP_ORIGIN_MAP لـ${o}`);
+});
+
+test("BP_READ_ONLY: writes get 503 + Retry-After (functions, proxy, anything non-GET); reads, health and redirects keep working", async () => {
+  const hit = [];
+  const quotes = http.createServer((req, res) => { hit.push(req.method + " " + req.url); res.end("q"); });
+  const qPort = await listen(quotes);
+  const m = new Map([["https://bp-quotes-three.vercel.app", `http://127.0.0.1:${qPort}`]]);
+  const s = mk({ vercelJson: realVercel, log: quiet, config: { ...baseCfg, readOnly: true, originMap: m } });
+  const p = await listen(s);
+  for (const [method, path_] of [["POST", "/api/otp"], ["PUT", "/api/simple"], ["DELETE", "/api/pay"], ["POST", "/quotes/api/payments/webhook"], ["PATCH", "/about"]]) {
+    // DELETE بلا جسم: عميل Node لا يرسل Transfer-Encoding لـDELETE فيُقرأ الجسم المكتوب طلباً ثانياً مشوّهاً.
+    const r = await call(p, path_, method === "DELETE" ? { method } : { method, headers: { "content-type": "application/json" }, body: "{}" });
+    assert.equal(r.status, 503, `${method} ${path_}`);
+    assert.equal(r.headers["retry-after"], "120");
+    assert.equal(JSON.parse(r.text).error, "maintenance_read_only");
+  }
+  assert.deepEqual(hit, [], "لا شيء من الكتابات وصل إلى لوحة العروض");
+  assert.equal((await call(p, "/about")).status, 200);
+  assert.equal((await call(p, "/api/otp")).status, 200, "GET على الدوال يعمل");
+  assert.equal((await call(p, "/quotes/x")).text, "q", "GET إلى اللوحة يمرّ");
+  assert.equal((await call(p, "/revenue-os")).status, 308);
+  assert.equal((await call(p, "/", { method: "OPTIONS" })).status, 204);
+  const h = JSON.parse((await call(p, "/__health")).text);
+  assert.equal(h.ok, true);
+  assert.equal(h.readOnly, true);
+  assert.equal(h.readOnlyBlocked, 5);
+  const off = mk({ vercelJson: realVercel, log: quiet, config: { ...baseCfg } });
+  assert.equal((await call(await listen(off), "/about", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" })).status, 405, "بلا العلم لا حجب: يصل إلى منطق الخادم العادي");
+  await close(s); await close(quotes); await close(off);
+});
+
+test("BP_BLOCK_VERCEL_ORIGINS: an unmapped *.vercel.app proxy target is refused (502) and logged; a mapped one passes", async () => {
+  const lines = [];
+  const s = mk({ vercelJson: realVercel, log: (o) => lines.push(o), config: { ...baseCfg, blockVercelOrigins: true } });
+  const p = await listen(s);
+  const r = await call(p, "/quotes/d/abc");
+  assert.equal(r.status, 502);
+  assert.match(r.text, /vercel\.app/);
+  assert.ok(lines.some((l) => l.msg === "egress_blocked" && l.host === "bp-quotes-three.vercel.app"));
+  const h = JSON.parse((await call(p, "/__health")).text);
+  assert.equal(h.egressBlocked, 1);
+  const quotes = http.createServer((q, res) => res.end("ok-internal"));
+  const qPort = await listen(quotes);
+  const ok = mk({ vercelJson: realVercel, log: quiet, config: { ...baseCfg, blockVercelOrigins: true, originMap: new Map([["https://bp-quotes-three.vercel.app", `http://127.0.0.1:${qPort}`]]) } });
+  assert.equal((await call(await listen(ok), "/quotes")).text, "ok-internal");
+  await close(s); await close(ok); await close(quotes);
+});
+
+test("egress guard: fetch to *.vercel.app is answered 502 without touching the network; everything else passes; restore() undoes it", async () => {
+  const seen = [];
+  const target = { fetch: async (u) => { seen.push(String(u)); return new Response("real"); } };
+  const blocked = [];
+  const g = installEgressGuard({ target, log: (o) => blocked.push(o) });
+  g.onBlock = (h) => blocked.push("cb:" + h);
+  for (const u of ["https://bp-quotes-three.vercel.app/quotes/api/catalog", "https://x.y.vercel.app/", "http://VERCEL.APP/z"]) {
+    const r = await target.fetch(u);
+    assert.equal(r.status, 502, u);
+    assert.equal((await r.json()).error, "egress_blocked");
+  }
+  assert.deepEqual(seen, [], "لم يصل شيء إلى fetch الحقيقي");
+  assert.equal(g.blocked, 3);
+  for (const u of ["https://api.notion.com/v1/pages", "https://notvercel.app.evil.test/", "https://www.businesspartner.sa/quotes", "relative/path"]) assert.equal((await target.fetch(u)).status, 200, u);
+  assert.equal(seen.length, 4);
+  assert.ok(blocked.includes("cb:bp-quotes-three.vercel.app"));
+  g.restore();
+  await target.fetch("https://a.vercel.app/");
+  assert.ok(seen.includes("https://a.vercel.app/"));
 });

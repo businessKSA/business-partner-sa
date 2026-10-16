@@ -14,13 +14,19 @@
 
 | الخدمة | أين تُستعمل | المتغيّرات | البديل في Azure | الحالة |
 |---|---|---|---|---|
-| **Vercel** (الموقع + `api/` + crons) | كل الإنتاج حتى القطع | — | Container Apps + Front Door (`ops/azure/`) | staging يعمل؛ القطع بأمر المالك |
+| **Vercel** (الموقع + `api/` + crons + **مشروع `bp-quotes`**) | كل الإنتاج حتى القطع؛ لوحة العروض عبر ٣ rewrites في `vercel.json` و`QUOTES_PANEL_URL` الافتراضي | `QUOTES_PANEL_URL` | Container Apps + Front Door؛ لوحة العروض صورة `Dockerfile.quotes` بوصول داخلي؛ `BP_BLOCK_VERCEL_ORIGINS=1` يحجب أي خروج إلى `*.vercel.app` | **جاهز للقطع** بدليل `docs/azure-cutover-runbook-2026-10-16.md` (أ، ب، ج). الحذف قرار المالك (ز) |
+| **Vercel Deploy Hook** (سير n8n `catalog-sync`) | `ops/n8n/catalog-sync.workflow.js` يستدعيه لإعادة نشر الكتالوج | — | `workflow_dispatch` على GitHub | **باقٍ** — يُستبدل قبل حذف Vercel (`automation-agents`) |
+| **Vercel Cron** (٣ مهام) | نشرة الأحد · جمع الوظائف · backfill | `CRON_SECRET` | Container Apps Jobs بأداة `cron-switch.sh` (يُطفأ Vercel ثم يُنشأ Azure؛ والعكس للتراجع) | جاهز؛ يُنفَّذ يوم القطع |
 | **n8n Cloud** `businesspartnerai.app.n8n.cloud` | ٦ مواضع في `api/` + سيناريوهات الواتساب والمتابعات | `n8n/*` | n8n على Container App في مجموعة `bp-ai` | **حالة النقل غير مؤكَّدة** — `az containerapp list -g bp-ai` |
-| **Supabase** (طوكيو) | قاعدة البيانات `DB_DRIVER` | `SUPABASE_URL` · `SUPABASE_SERVICE_KEY` | Azure Database for PostgreSQL (`AZURE_PG_URL`) — السائق جاهز في الكود | لم تُنقل البيانات |
-| **Resend** | البريد (٢٣ موضعاً) | `RESEND_API_KEY` · `OTP_FROM_EMAIL` | Azure Communication Services Email (`ACS_CONNECTION_STRING`) — مدعوم في الكود | قرار: متى نبدّل |
+| **Supabase** (طوكيو) | قاعدة البيانات `DB_DRIVER` + Storage للملفات القديمة (رجوع القراءة عند 404) | `SUPABASE_URL` · `SUPABASE_SERVICE_KEY` | Azure Database for PostgreSQL (`AZURE_PG_URL`) — السائق جاهز، وأداة النقل `ops/azure/migrate-db.mjs` (لقطة متّسقة، تحقّق بالبصمة، مختبرة على Postgres حقيقي) | لم تُنقل البيانات؛ نافذة (د) في الدليل. **الملفات القديمة في Supabase Storage لم تُنسخ إلى Blob** — شرط قبل إيقاف Supabase |
+| **قاعدة لوحة العروض `bp-quotes`** (Postgres تابعة لـPrisma؛ المضيف غير معروف: Neon أو Supabase) | `DATABASE_URL` · `DIRECT_DATABASE_URL` | — | قاعدة `bpquotes` على Azure PG نفسه (`prisma db push` ثم `migrate-db.mjs`) | **جرد جديد** — لم تكن في الجرد. تُنقل مع (د) |
+| **S3/R2** (ملفات العروض والعقود) | `quotes/src/lib/storage.ts` (`STORAGE_DRIVER=s3`) | `S3_*` | سائق Azure Blob غير موجود في اللوحة — يحتاج `quotes-contracts` | **جرد جديد**؛ يبقى مؤقتاً (قرار المالك ق٢) |
+| **Inngest** (طابور اللوحة) | `quotes/src/lib/queue/inngest.ts` | `INNGEST_*` | لا بديل مباشر؛ `inline` بلا إعادة محاولة | **جرد جديد**؛ يبقى (ق٣) |
+| **Anthropic API** (وكيل لوحة العروض) | `quotes/src/lib/agent.ts` — يعمل فقط إن ضُبط `ANTHROPIC_API_KEY` | `ANTHROPIC_API_KEY` | Azure OpenAI | **جرد جديد**: يخالف قاعدة «لا Anthropic API» إن كان المفتاح مضبوطاً في Vercel — يُتحقَّق ويُعطَّل أو يُنقل (`quotes-contracts`) |
+| **Resend** | البريد: **٢٣ نداءً في ١٦ ملفاً** (`api.resend.com/emails` ×١٦ + جمهور النشرة ×٧) + لوحة العروض (`MAIL_PROVIDER`) | `RESEND_API_KEY` · `RESEND_AUDIENCE_ID` · `OTP_FROM_EMAIL` | ACS Email: **جسر `ops/azure/mail-bridge.mjs`** يحوّل النداءات داخل الخادم (`BP_MAIL_BRIDGE=acs`) ويحفظ جمهور النشرة في Blob؛ لوحة العروض بـ`MAIL_PROVIDER=smtp` إلى `smtp.azurecomm.net` | الكود كان يدعم ACS في موضعين فقط (تصحيح لما كتبه هذا الجدول). الجسر مختبر؛ التفعيل بقرار المالك (هـ) بعد توثيق النطاق `mail.businesspartner.sa` ورفع حدود ACS |
 | **Notion** | CRM والقوائم (٧٣ موضعاً) | `NOTION_*_DB` | لا بديل مباشر | يبقى؛ مجاني ضمن الخطة الحالية — قرار المالك |
 | **GitHub** | المستودع ومزامنة المحتوى | `CONTENT_REPO` | Azure DevOps (اختياري) | يبقى |
-| **نماذج الذكاء** (Groq / Gemini / Grok / Anthropic / ElevenLabs إن وُجدت مفاتيحها) | `api/chat.js` · `_docread.js` · `requests.js` | مفاتيح `*_API_KEY` | Azure OpenAI (`AZURE_OPENAI_*`) — منفّذ جزئياً | يُتحقَّق من كل مفتاح خارجي ويُعطَّل |
+| **نماذج الذكاء** (Groq / Gemini / Grok / Anthropic / ElevenLabs) | **`api/` و`quotes/src` و`site/scripts`: لا نداء إلى أيٍّ منها** (فُحص بالبحث عن المضيفات 2026-10-16) عدا وكيل لوحة العروض أعلاه | مفاتيح `*_API_KEY` | Azure OpenAI (`AZURE_OPENAI_*`) | الموقع نظيف في الكود؛ يبقى حذف المفاتيح القديمة من Vercel بعد القطع (لا أثر لها) |
 | **مُيسّر** | الدفع | `MOYASAR_*` | لا بديل (بوابة سعودية) | يبقى — عمولة لا رصيد |
 | **تمارا** | التقسيط | `TAMARA_*` | لا بديل | يبقى |
 | **الدفترة** | الفواتير الضريبية | `DAFTRA_*` | لا بديل | يبقى |
@@ -32,11 +38,11 @@
 
 ## ما يُنفَّذ بالترتيب (كلٌّ بإذن المالك)
 
-1. **تأكيد حالة n8n**: تشغيل `az containerapp list -g bp-ai -o table` ثم قرار نقل السيناريوهات إلى n8n على Azure واستبدال خطّاف نشر الكتالوج الذي يشير إلى Vercel.
-2. **قاعدة البيانات**: نقل Supabase إلى Azure PostgreSQL (نسخ ثم تحقق ثم تبديل `DB_DRIVER`) — يوم القطع أو قبله بإذن.
-3. **البريد**: التحويل إلى ACS Email بعد توثيق النطاق (SPF/DKIM) وإصلاح سجلّ Resend الحالي أو التخلي عنه.
+1. **تأكيد حالة n8n**: تشغيل `az containerapp list -g bp-ai -o table` ثم قرار نقل السيناريوهات إلى n8n على Azure واستبدال خطّاف نشر الكتالوج الذي يشير إلى Vercel. **قاعدة المجدول:** في كل وقت مجدولٌ واحد فعّال لكل سير — يُعطَّل في Cloud قبل أن يُفعَّل على Azure (`docs/azure-cutover-runbook-2026-10-16.md` ج٤).
+2. **قاعدة البيانات**: نقل قاعدتَي الموقع واللوحة إلى Azure PostgreSQL بعد القطع بـ٤٨ ساعة على الأقل، بنافذة قراءة فقط (`BP_READ_ONLY=1`) ثم `migrate-db.mjs --clean` و`--verify` ثم تبديل `DB_DRIVER` (الدليل د).
+3. **البريد**: التحويل إلى ACS Email عبر الجسر بعد توثيق النطاق (SPF/DKIM) ورفع حدود ACS (الدليل هـ). ثم إلغاء Resend بعد أسبوع.
 4. **مفاتيح الذكاء الخارجية**: جرد كل مفتاح غير Azure في Vercel/Container App وتعطيله بعد التأكد أن مسار Azure يغطي استعماله.
-5. **Vercel**: بعد القطع يُحذف المشروع من اللوحة (يفعل المالك) ويُحدَّث CLAUDE.md §1.
+5. **Vercel**: بعد القطع بسبعة أيام وقائمة التحقق (ز) في الدليل: يُحذف مشروعا `bp-quotes` والرئيسي من اللوحة (يفعل المالك) ويُحدَّث CLAUDE.md §1. القطع نفسه ودليله: `docs/azure-cutover-runbook-2026-10-16.md`.
 
 ## ما لا يدخل هذا القرار (يحتاج قراراً صريحاً من المالك)
 

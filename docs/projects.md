@@ -78,6 +78,7 @@
 | وضع الإتاحة (2026-10-16) | `site/scripts/a11y-layer.mjs` (يُحقن من `write()` في `generate.mjs` في كل صفحة عامة: رابط «تخطَّ إلى المحتوى» + زرّ «إتاحة» ولوحته) · `site/assets/css/bp-a11y.css` · `site/assets/js/bp-a11y.js` · بيان `/accessibility` من `site/scripts/simple-v1-accessibility.mjs` · `tests/a11y-layer.test.mjs`. لوحة الإتاحة تحفظ تفضيلات المستخدم في `localStorage` (`bp_a11y`) فقط. **«الصوت أولاً»** يعيد استعمال ميكروفون المستشار `#sv1Mic` في الرئيسية ولا يملك تسجيلاً ثانياً — إن غُيّرت معرّفات `#sv1Msgs`/`#sv1Mic`/`#sv1In`/`#sv1Form` في الرئيسية فانتبه لهذا الربط. الصياغة المعتمدة: «نسعى للالتزام بـWCAG 2.1 AA» لا «مطابق». |
 | قواعد الجلسات | `CLAUDE.md` · `AGENTS.md` |
 | Azure | `api/_azure.js` · `_azblob.js` · `_msgraph.js` · `_azpg.js` |
+| استضافة Azure والقطع (2026-10-16) | `ops/azure/**` — الخادم `server.mjs` · جسر البريد `mail-bridge.mjs` · حارس الخروج `egress-guard.mjs` · نقل القواعد `migrate-db.mjs` · المجدول `cron-switch.sh` · التنبيهات `alerts.sh` · صورة لوحة العروض `Dockerfile.quotes` · الدليل `docs/azure-cutover-runbook-2026-10-16.md` · الاختبارات `tests/azure-*.test.mjs` |
 
 **مفتوح:** ٦١٥ صفحة خارج التصميم الجديد · ثلاث دفعات Azure متنافسة
 (`#318`/`#319`/`#320`) · `api/_azpg.js` مكتوب وغير موصول.
