@@ -26,6 +26,15 @@ const P = {
   navInvoices: { ar: "الفواتير", en: "Invoices", fr: "Factures", zh: "发票" },
   navChats: { ar: "المحادثات", en: "Conversations", fr: "Conversations", zh: "对话" },
   navCompany: { ar: "بيانات الشركة", en: "Company details", fr: "Données de l'entreprise", zh: "公司信息" },
+  navBoards: { ar: "لوحاتي", en: "My dashboards", fr: "Mes tableaux", zh: "我的面板" },
+  boardsNote: { ar: "اللوحات المتخصصة المرتبطة بحسابك. تفتح بالجلسة نفسها، ولا تعرض إلا ما يخصّك.", en: "The specialist dashboards linked to your account. They open with this same session and show only what belongs to you.", fr: "Les tableaux spécialisés liés à votre compte. Ils s'ouvrent avec la même session.", zh: "与您账户关联的专用面板，使用同一会话登录。" },
+  bCompliance: { ar: "لوحة الامتثال", en: "Compliance dashboard", fr: "Tableau de conformité", zh: "合规面板" },
+  bComplianceD: { ar: "مخالفاتك ومواعيدها وحالة كل اعتراض.", en: "Your violations, their deadlines and the status of every objection.", fr: "Vos infractions, leurs échéances et le statut de chaque recours.", zh: "您的违规记录、期限与每项申诉状态。" },
+  bShared: { ar: "الخدمات المشتركة", en: "Shared services", fr: "Services partagés", zh: "共享服务" },
+  bSharedD: { ar: "فريقك التنفيذي الذكي: الحكومي والامتثال والموارد البشرية والمالية.", en: "Your smart executive team: government, compliance, HR and finance.", fr: "Votre équipe exécutive intelligente : administratif, conformité, RH et finance.", zh: "您的智能执行团队：政务、合规、人力与财务。" },
+  bPortal: { ar: "بوابة الموظفين الأذكياء", en: "Smart employees portal", fr: "Portail des employés intelligents", zh: "智能员工门户" },
+  bPortalD: { ar: "المستشارون المتخصصون الذين اشتركت فيهم.", en: "The specialist advisors you subscribed to.", fr: "Les conseillers spécialisés auxquels vous êtes abonné.", zh: "您已订阅的专业顾问。" },
+  opsLink: { ar: "لوحة العمليات", en: "Operations panel", fr: "Panneau des opérations", zh: "运营面板" },
   logout: { ar: "تسجيل الخروج", en: "Sign out", fr: "Déconnexion", zh: "退出登录" },
   site: { ar: "الموقع", en: "Website", fr: "Site", zh: "网站" },
   attention: { ar: "وش يحتاج انتباهك الآن؟", en: "What needs your attention now?", fr: "Qu'est-ce qui demande votre attention ?", zh: "现在需要您关注什么？" },
@@ -275,6 +284,13 @@ export function buildSimpleMy(sv1, ctx) {
   const ty = {}; for (const k of Object.keys(TYPES)) ty[k] = TYPES[k][l] || TYPES[k].en;
   const cats = DOC_CATS.map(([code, n]) => [code, n[l] || n.en]);
   const home = sv1.href("/");
+  // اللوحات المتخصصة التي يملكها العميل — تُحسب هنا لا في المتصفح، لأن
+  // مرايا اللغات ناقصة: الامتثال عربيّ وحده، و/portal عربيّ وإنجليزيّ فقط.
+  // رابطٌ لصفحة غير موجودة أسوأ من غياب الرابط.
+  const boards = [];
+  if (l === "ar") boards.push(["/ar/compliance-dashboard", tx.bCompliance, tx.bComplianceD]);
+  boards.push([sv1.href("/shared-services/dashboard"), tx.bShared, tx.bSharedD]);
+  boards.push([l === "ar" ? "/ar/portal" : "/portal", tx.bPortal, tx.bPortalD]);
   const CSS = `<style>
 .my{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 68px)}
 .my-side{background:#fff;border-inline-end:1px solid var(--line);padding:16px 12px;position:sticky;top:68px;height:calc(100vh - 68px);overflow:auto}
@@ -387,7 +403,7 @@ ${sv1.header("/my", { cta: false })}
 ${sv1.footer()}`;
   const script = `<script>
 (function(){
-var LANG=${JSON.stringify(l)},EV=${JSON.stringify(EVENTS[l === "ar" ? "ar" : "en"])},TX=${JSON.stringify(tx)},ST=${JSON.stringify(st)},TY=${JSON.stringify(ty)},HOME=${JSON.stringify(home)},CHECKOUT=${JSON.stringify(sv1.href("/checkout"))},SELLER=${JSON.stringify(sellerFromSite())};
+var LANG=${JSON.stringify(l)},EV=${JSON.stringify(EVENTS[l === "ar" ? "ar" : "en"])},TX=${JSON.stringify(tx)},ST=${JSON.stringify(st)},TY=${JSON.stringify(ty)},HOME=${JSON.stringify(home)},BOARDS=${JSON.stringify(boards)},CHECKOUT=${JSON.stringify(sv1.href("/checkout"))},SELLER=${JSON.stringify(sellerFromSite())};
 var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null};
 var $=function(s,r){return (r||document).querySelector(s)};
 function h(tag,attrs,kids){var e=document.createElement(tag);if(attrs)for(var k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.indexOf('on')===0)e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k])}(kids||[]).forEach(function(c){if(c==null)return;e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
@@ -428,14 +444,14 @@ function init(){try{google.accounts.id.initialize({client_id:cid,callback:window
 if(window.google&&window.google.accounts&&window.google.accounts.id)return init();
 var sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.defer=true;sc.onload=init;sc.onerror=function(){wrap.hidden=true};document.head.appendChild(sc)}
 // ---------- shell
-var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['documents',TX.navDocs,'\ud83d\udcc1'],['company',TX.navCompany,'🏢']];
+var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['documents',TX.navDocs,'\ud83d\udcc1'],['company',TX.navCompany,'🏢'],['boards',TX.navBoards,'🧭']];
 function badges(){var c=state.me.counts||{};var d=(state.docs||[]).filter(function(x){var n=daysLeft(x.expiry_date);return n!==null&&n<=30}).length;return {quotes:c.quotes,contracts:c.contracts,pay:c.payments,documents:d}}
 function render(){var me=state.me;app.innerHTML='';var bd=badges();
-var side=h('nav',{class:'my-side',id:'mySide'},[h('div',{class:'who'},[h('b',{},[me.user.name||me.user.email]),h('small',{},[(me.organization&&(me.organization.name_ar||me.organization.name_en))||me.user.email])])].concat(NAV.map(function(n){return h('a',{'data-nav':n[0],class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1],bd[n[0]]?h('span',{class:'b'},[String(bd[n[0]])]):null])})).concat([h('a',{href:HOME},['🌐 '+TX.site]),h('a',{onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},['↩ '+TX.logout])]));
+var side=h('nav',{class:'my-side',id:'mySide'},[h('div',{class:'who'},[h('b',{},[me.user.name||me.user.email]),h('small',{},[(me.organization&&(me.organization.name_ar||me.organization.name_en))||me.user.email])])].concat(NAV.map(function(n){return h('a',{'data-nav':n[0],class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1],bd[n[0]]?h('span',{class:'b'},[String(bd[n[0]])]):null])})).concat(me.owner?[h('a',{href:'/ops'},['🛠 '+TX.opsLink])]:[]).concat([h('a',{href:HOME},['🌐 '+TX.site]),h('a',{onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},['↩ '+TX.logout])]));
 var mob=h('div',{class:'mob'},NAV.map(function(n){return h('a',{class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1]])}));
 var main=h('div',{class:'my-main',id:'myMain'});
 app.appendChild(mob);var wrap=h('div',{class:'my'},[side,main]);app.appendChild(wrap);
-var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='documents')viewDocuments(main);else if(v==='company')viewCompany(main);else viewHome(main)}
+var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='documents')viewDocuments(main);else if(v==='company')viewCompany(main);else if(v==='boards')viewBoards(main);else viewHome(main)}
 function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[r.title]),h('small',{},[r.ref+' · '+(TY[r.type]||r.type)+' · '+when(r.updated_at||r.created_at)])]),(r.origin==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),pill(r.status),h('span',{class:'btn ghost sm'},[TX.open])])}
 function viewHome(m){var c=state.me.counts||{};m.appendChild(h('h1',{},[TX.attention]));
 var k=[['active',TX.kActive,'requests'],['quotes',TX.kQuotes,'quotes'],['contracts',TX.kContracts,'contracts'],['payments',TX.kPayments,'pay'],['appointments',TX.kAppts,'appointments']];
@@ -473,6 +489,8 @@ function viewInvoices(m){m.appendChild(h('h1',{},[TX.navInvoices]));var rows=sta
 function viewPay(m){m.appendChild(h('h1',{},[TX.navPay]));var rows=state.me.requests.filter(function(r){return ['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill warn'},[money(r.quote?r.quote.total:0)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));m.appendChild(h('div',{class:'card'},[h('a',{class:'btn ghost',href:CHECKOUT},[TX.navPay+' →'])]))}
 function viewChats(m){m.appendChild(h('h1',{},[TX.navChats]));var rows=state.me.requests.filter(function(r){return r.last_message});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.querySelector('small').textContent=(r.last_message.content||'').slice(0,90);return row})):h('p',{class:'note'},[TX.empty]))}
 function viewAppts(m){m.appendChild(h('h1',{},[TX.navAppts]));var rows=state.me.requests.filter(function(r){return r.appointment&&r.appointment.status!=='CANCELLED'});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill'},[r.appointment.date+' '+r.appointment.time]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));var cons=state.me.requests.filter(function(r){return r.type==='CONSULTATION'&&(!r.appointment||r.appointment.status==='CANCELLED')&&r.status!=='CANCELLED'});if(cons.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.book]),h('div',{class:'list'},cons.map(reqRow))]))}
+function viewBoards(m){m.appendChild(h('h1',{},[TX.navBoards]));m.appendChild(h('p',{class:'note'},[TX.boardsNote]));
+BOARDS.forEach(function(b){m.appendChild(h('div',{class:'card'},[h('h2',{},[b[1]]),h('p',{class:'note'},[b[2]]),h('a',{class:'btn ghost',href:b[0]},[TX.open])]))})}
 function viewCompany(m){m.appendChild(h('h1',{},[TX.navCompany]));var o=state.me.organization||{};var f=h('div',{class:'form'});var nAr=h('input',{class:'inp',value:o.name_ar||''}),nEn=h('input',{class:'inp',value:o.name_en||''}),cr=h('input',{class:'inp',value:o.cr_number||''}),msg=h('span',{class:'ok'});
 f.appendChild(h('label',{},[TX.company]));f.appendChild(nAr);f.appendChild(h('label',{},[TX.nameEn]));f.appendChild(nEn);f.appendChild(h('label',{},[TX.cr]));f.appendChild(cr);
 f.appendChild(h('button',{class:'btn',onclick:function(){fetch('/api/requests',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'my-org-update',name_ar:nAr.value,name_en:nEn.value,cr_number:cr.value})}).then(function(r){return r.json()}).then(function(o){msg.textContent=o&&o.ok?TX.saved:TX.error})}},[TX.save]));f.appendChild(msg);

@@ -395,7 +395,9 @@ async function clientAction(action, b, qs, req, res, sess) {
       payments: mine.filter((r) => ["SIGNED", "PAYMENT_PENDING"].includes(r.status)).length,
       appointments: mine.filter((r) => r.appointment && r.appointment.status !== "CANCELLED" && r.appointment.date >= nowIso().slice(0, 10)).length,
     };
-    return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, user: { name: sess.user.full_name || "", email }, organization: sess.organization, counts, requests: mine.map(summary) });
+    // owner: يُظهر رابط /ops في بوابة العميل للمالك وحده. إظهارٌ فقط — بوابة
+    // /ops نفسها تتحقّق من جديد في الخادم، فإخفاء الرابط ليس حمايةً ولا يُعتمد عليه.
+    return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, user: { name: sess.user.full_name || "", email }, owner: isOwnerEmail(email), organization: sess.organization, counts, requests: mine.map(summary) });
   }
 
   if (action === "requests") {
