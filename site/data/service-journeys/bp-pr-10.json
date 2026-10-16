@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-PR-10",
+  "slug": "bp-pr-10",
+  "authority": {
+    "platform_ar": "الإقامة المميزة",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "٣ إلى ٥ أيام عمل للتجهيز، والقرار حسب مدة الجهة",
+    "value_en": "3–5 business days to prepare; the decision per the authority",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "إقامتك المميزة",
+      "عقد الزواج وشهادات ميلاد الأبناء",
+      "جوازات أفراد الأسرة"
+    ],
+    "items_en": [
+      "Your Premium Residency",
+      "Marriage certificate and children's birth certificates",
+      "Family members' passports"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

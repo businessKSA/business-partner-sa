@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "code": "BP-PL-0019",
+  "slug": "bp-pl-0019",
+  "authority": {
+    "platform_ar": "وزارة التجارة",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "يُحدَّد بعد تقييم الوضع ونطاق العمل",
+    "value_en": "Confirmed after the assessment and scoping",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "اتفاقية الامتياز (وأي نسخ/تعديلات سابقة)",
+      "وثيقة الإفصاح إن وُجدت",
+      "دليل التشغيل وإرشادات العلامة إن وُجدت",
+      "بيانات تسجيل العلامة التجارية في السعودية",
+      "السجل التجاري وبيانات الكيان لمانح الامتياز",
+      "بيانات أصحاب الامتياز (الفرنشايزي) في المملكة"
+    ],
+    "items_en": [
+      "Franchise agreement (and any earlier versions/amendments)",
+      "Disclosure document, if one exists",
+      "Operations manual & brand guidelines, if available",
+      "Trademark registration details in Saudi Arabia",
+      "Franchisor's commercial registration & entity details",
+      "Details of the Saudi franchisees"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

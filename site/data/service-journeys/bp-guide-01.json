@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "code": "BP-GUIDE-01",
+  "slug": "bp-guide-01",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": "عادةً من يوم إلى 5 أيام عمل حسب العمق المطلوب.",
+    "value_en": "Usually 1–5 business days depending on depth",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "موضوع القطاع أو النشاط المطلوب",
+      "أي معايير خاصة مطلوبة إن وجدت"
+    ],
+    "items_en": [
+      "The target sector or activity",
+      "Any specific criteria required"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

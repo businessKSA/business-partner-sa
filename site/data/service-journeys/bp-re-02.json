@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "code": "BP-RE-02",
+  "slug": "bp-re-02",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+    "value_en": "Usually one business day to a few days, depending on the authority and complexity",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": true,
+    "items_ar": [],
+    "items_en": [],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

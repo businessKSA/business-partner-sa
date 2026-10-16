@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-REC-06",
+  "slug": "bp-rec-06",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "الأوصاف الوظيفية والأعداد لكل وظيفة",
+      "جدول المشروع وتواريخ المباشرة",
+      "نطاق الرواتب والمزايا والسكن إن وجد",
+      "السجل التجاري ورقم المنشأة في قوى"
+    ],
+    "items_en": [
+      "Job descriptions and headcount per role",
+      "Project schedule and start dates",
+      "Salary, benefits and accommodation details if provided",
+      "Commercial Registration and the establishment number on Qiwa"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

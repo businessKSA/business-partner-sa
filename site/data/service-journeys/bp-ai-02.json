@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-AI-02",
+  "slug": "bp-ai-02",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "رقم واتساب للأعمال وبيانات الدخول إلى موقعك",
+      "قائمة خدماتك وأسعارها كما تريد أن يعرضها المستشار الذكي",
+      "الأسئلة الشائعة ونماذج الردود المعتمدة",
+      "صلاحيات الوصول إلى CRM أو البريد أو التقويم إن وجدت"
+    ],
+    "items_en": [
+      "WhatsApp Business number and access to your website",
+      "Your list of services and prices as the smart advisor should present them",
+      "Frequently asked questions and approved reply templates",
+      "Access to CRM, email or calendar where applicable"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

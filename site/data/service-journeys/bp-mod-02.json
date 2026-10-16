@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-MOD-02",
+  "slug": "bp-mod-02",
+  "authority": {
+    "platform_ar": "الدفاع المدني",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+    "value_en": "Usually one business day to a few days, depending on the authority and complexity",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "بيانات الموقع",
+      "عقد الإيجار أو الصك",
+      "المخططات أو التقرير الفني",
+      "السجل التجاري"
+    ],
+    "items_en": [
+      "Location details",
+      "Lease contract or title deed",
+      "Plans or technical report",
+      "Commercial Registration"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

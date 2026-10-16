@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-PL-0080",
+  "slug": "bp-pl-0080",
+  "authority": {
+    "platform_ar": "متعدد الجهات",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "يوم عمل واحد.",
+    "value_en": "About one business day",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "بيانات المنشأة",
+      "الخطة التشغيلية أو الاحتياج",
+      "أي مستندات داعمة تطلبها الجهة"
+    ],
+    "items_en": [
+      "Establishment details",
+      "Operational plan or need",
+      "Any supporting documents the authority requires"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

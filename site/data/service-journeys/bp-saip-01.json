@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "code": "BP-SAIP-01",
+  "slug": "bp-saip-01",
+  "authority": {
+    "platform_ar": "الملكية الفكرية SAIP",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "60–90 يوم عمل (القبول المبدئي خلال نحو 7 أيام)",
+    "value_en": "60–90 working days (initial acceptance in ~7 days)",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "وصف تفصيلي للعلامة + تصنيف المنتجات/الخدمات (فئة نيس)",
+      "نسخة من الوثائق الرسمية (سجل تجاري أو هوية)",
+      "عقد رسمي لنقل الملكية (عند طلب النقل)",
+      "طلب التجديد قبل انتهاء الحماية (عند التجديد)",
+      "وكالة مصدّقة من السفارة السعودية (للشركات خارج المملكة)"
+    ],
+    "items_en": [
+      "Detailed description of the mark and the classification of goods/services (Nice class)",
+      "Copy of official documents (Commercial Registration or ID)",
+      "Formal assignment agreement (for transfer of ownership)",
+      "Renewal request before protection expires (for renewals)",
+      "Power of attorney attested by the Saudi embassy (for companies outside the Kingdom)"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

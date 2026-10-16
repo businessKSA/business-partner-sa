@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-REC-01",
+  "slug": "bp-rec-01",
+  "authority": {
+    "platform_ar": "قوى",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+    "value_en": "Usually one business day to a few days, depending on the authority and complexity",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري",
+      "بيانات المنشأة",
+      "بيانات العامل أو الإقامة أو الجواز (حسب الخدمة)",
+      "صلاحية الدخول لحساب قوى"
+    ],
+    "items_en": [
+      "Commercial Registration",
+      "Establishment details",
+      "Worker/Iqama/passport details (per the service)",
+      "Qiwa account access"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

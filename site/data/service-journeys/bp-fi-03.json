@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "code": "BP-FI-03",
+  "slug": "bp-fi-03",
+  "authority": {
+    "platform_ar": "وزارة الاستثمار MISA",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "تختلف حسب الترخيص والنشاط",
+    "value_en": "Varies by license and activity",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري للشركة الأم — مصدّق من الخارجية والسفارة السعودية",
+      "عقد التأسيس والنظام الأساسي للشركة الأم — مصدّق من الخارجية والسفارة السعودية",
+      "القوائم المالية المدققة للشركة الأم (آخر سنة مالية)",
+      "قرار مجلس الإدارة بالموافقة على فتح فرع/شركة في السعودية",
+      "توكيل رسمي لممثل الشركة في السعودية — مصدّق",
+      "خطاب تعيين المدير العام للفرع في السعودية"
+    ],
+    "items_en": [
+      "Parent company's Commercial Registration, attested by the Ministry of Foreign Affairs and the Saudi embassy",
+      "Parent company's articles of association and bylaws, attested by the Ministry of Foreign Affairs and the Saudi embassy",
+      "Parent company's audited financial statements (latest financial year)",
+      "Board resolution approving the opening of a branch/company in Saudi Arabia",
+      "Attested power of attorney for the company's representative in Saudi Arabia",
+      "Letter appointing the general manager of the branch in Saudi Arabia"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

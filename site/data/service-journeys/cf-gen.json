@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "CF-GEN",
+  "slug": "cf-gen",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "وصف النشاط المطلوب والمدينة",
+      "هوية أو جواز سفر الشركاء وصفتهم (أفراد أو شركات)",
+      "رأس المال المقترح وشكل الكيان إن كان محدداً",
+      "أي تراخيص أو موافقات سابقة إن وجدت"
+    ],
+    "items_en": [
+      "Description of the intended activity and city",
+      "ID or passport of the partners and their type (individuals or companies)",
+      "Proposed capital and entity form if already decided",
+      "Any previous licences or approvals, if any"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

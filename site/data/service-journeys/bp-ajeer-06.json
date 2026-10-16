@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-AJEER-06",
+  "slug": "bp-ajeer-06",
+  "authority": {
+    "platform_ar": "أجير — قوى",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "حسب جدول الموسم المعلن من الجهة",
+    "value_en": "Per the season schedule announced by the authority",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري للمنشأتين",
+      "بيانات العمالة المشمولة",
+      "العقد أو الاتفاق بين الطرفين",
+      "بيانات المفوّض المسؤول"
+    ],
+    "items_en": [
+      "Commercial Registration of both establishments",
+      "Data of the workers covered",
+      "The contract or agreement between the parties",
+      "Authorised person's details"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

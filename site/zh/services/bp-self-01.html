@@ -291,6 +291,13 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-svc-docs li::before{content:"\1F4C4";font-size:14px;flex:none}
 .sv1-svc-does li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;line-height:1.75;color:var(--t)}
 .sv1-svc-does li::before{content:"\2713";color:var(--ok);font-weight:700;flex:none}
+.sv1-svc-steplist{list-style:none;margin:0;padding:0;display:grid;gap:8px;counter-reset:sv1step}
+.sv1-svc-step{counter-increment:sv1step;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:10px 13px;font-size:14px;color:var(--t)}
+.sv1-svc-step::before{content:counter(sv1step);font-family:var(--fm);color:var(--ac);font-weight:600;flex:none}
+.sv1-svc-actor{font-size:11.5px;color:var(--mut);font-weight:500}
+.sv1-svc-sdur{margin-inline-start:auto;font-size:12.5px;color:var(--mut)}
+.sv1-svc-src{list-style:none;margin:10px 2px 0;padding:0;font-size:12px;color:var(--mut)}
+.sv1-svc-src a{text-decoration:underline}
 .sv1-svc-hint{margin:10px 2px 0;font-size:12.5px;color:var(--mut)}
 .sv1-svc-q{border:1px solid var(--l);border-radius:12px;background:#fff;margin-bottom:8px}
 .sv1-svc-q summary{cursor:pointer;list-style:none;padding:13px 15px;font-size:14px;font-weight:500;color:var(--ink);display:flex;justify-content:space-between;gap:12px;align-items:center}
@@ -391,6 +398,7 @@ var h0=hint();if(h0)S.paint(true,h0);
     </section>
       <section class="sv1-svc-sec"><h2>我们负责的事项</h2>
       <ul class="sv1-svc-does"><li>Running the self-assessment across the compliance items</li><li>A report on the compliance rate and where the gaps are</li><li>A correction list ordered by priority and impact</li><li>Following the closure of findings and re-assessing</li></ul></section>
+      
       
     </div>
     <aside class="sv1-svc-buy" aria-label="服务费">

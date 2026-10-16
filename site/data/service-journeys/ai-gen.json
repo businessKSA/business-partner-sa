@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "AI-GEN",
+  "slug": "ai-gen",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "وصف العملية المطلوب أتمتتها وخطواتها الحالية",
+      "الأدوات والأنظمة المستخدمة فيها حالياً",
+      "نماذج من المدخلات والمخرجات",
+      "السجل التجاري أو هوية طالب الخدمة"
+    ],
+    "items_en": [
+      "Description of the process to automate and its current steps",
+      "The tools and systems currently used in it",
+      "Samples of inputs and outputs",
+      "Commercial Registration or the requester's ID"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

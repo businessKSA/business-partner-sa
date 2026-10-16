@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "SBC-GEN",
+  "slug": "sbc-gen",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "وصف المهمة المطلوبة ومجالها (حكومي، امتثال، مالي، قانوني)",
+      "السجل التجاري وبيانات المنشأة",
+      "المستندات المتعلقة بالمهمة",
+      "صلاحيات الوصول اللازمة على المنصات أو الأنظمة"
+    ],
+    "items_en": [
+      "Description of the required task and its area (government, compliance, finance, legal)",
+      "Commercial Registration and company details",
+      "Documents related to the task",
+      "Required access to platforms or systems"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

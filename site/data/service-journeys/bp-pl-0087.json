@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-PL-0087",
+  "slug": "bp-pl-0087",
+  "authority": {
+    "platform_ar": "متعدد الجهات",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "30 يوم عمل.",
+    "value_en": "About 30 business days",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "مستندات الكيان",
+      "المؤهلات أو التراخيص المهنية",
+      "المستندات النظامية المطلوبة"
+    ],
+    "items_en": [
+      "Entity documents",
+      "Professional qualifications or licenses",
+      "Required regulatory documents"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

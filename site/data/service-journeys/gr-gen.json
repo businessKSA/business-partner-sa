@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "GR-GEN",
+  "slug": "gr-gen",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري وبيانات المنشأة",
+      "قائمة المنصات والجهات المطلوب متابعتها",
+      "تفويض للمندوب على المنصات والجهات",
+      "جدول المتابعة الدورية المطلوب"
+    ],
+    "items_en": [
+      "Commercial Registration and company details",
+      "List of platforms and authorities to be followed",
+      "Delegation for the representative on the platforms and with the authorities",
+      "Required follow-up schedule"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

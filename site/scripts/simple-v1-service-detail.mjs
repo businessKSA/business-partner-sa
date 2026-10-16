@@ -23,8 +23,39 @@
 //  • «طلب عرض سعر» يسلّم الخدمة إلى محادثة الرئيسية بـ`bp_sva_request` كما يفعل
 //    «ابدأ طلبك بها» في /catalog، فالمسار نفسه: نطاق ← عرض ← عقد ← دفع ← فاتورة.
 
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+// ‏رحلة الخدمة من `site/data/service-journeys/<code>.json` (مالكها service-journey).
+// القاعدة: ما لا مصدر له لا يُكتب. لا تُعرض خطوةٌ ولا سطر مصدر إلا إن كان status=verified
+// ومعه source_url بـhttps وverified_at بتاريخ؛ وما سواه «بحاجة تحقق» يبقى في الملف ولا يظهر.
+const JDIR = process.env.BP_JOURNEYS_DIR || path.join(path.dirname(fileURLToPath(import.meta.url)), "../data/service-journeys");
+const jcache = new Map();
+export function loadJourney(code) {
+  const k = String(code || "").toLowerCase();
+  if (!k) return null;
+  if (!jcache.has(k)) {
+    let j = null;
+    try { j = JSON.parse(fs.readFileSync(path.join(JDIR, k + ".json"), "utf8")); } catch (e) { j = null; }
+    jcache.set(k, j);
+  }
+  return jcache.get(k);
+}
+export const isVerified = (c) =>
+  !!c && c.status === "verified" && /^https:\/\/[^\s/]+\.[^\s]+$/.test(c.source_url || "") && /^\d{4}-\d{2}-\d{2}$/.test(c.verified_at || "");
+
+const ACTOR = {
+  client:    { ar: "أنت", en: "You", fr: "Vous", zh: "您" },
+  bp:        { ar: "Business Partner", en: "Business Partner", fr: "Business Partner", zh: "Business Partner" },
+  authority: { ar: "الجهة", en: "Authority", fr: "Autorité", zh: "办理机构" },
+};
+
 const T = {
   home:      { ar: "الرئيسية", en: "Home", fr: "Accueil", zh: "首页" },
+  steps:     { ar: "خطوات الطلب", en: "How the request runs", fr: "Déroulement de la demande", zh: "办理流程" },
+  source:    { ar: "المصدر", en: "Source", fr: "Source", zh: "来源" },
+  verifiedOn:{ ar: "تاريخ التحقق", en: "Verified on", fr: "Vérifié le", zh: "核实日期" },
   services:  { ar: "الخدمات", en: "Services", fr: "Services", zh: "服务" },
   fee:       { ar: "أتعاب الخدمة", en: "Service fee", fr: "Honoraires du service", zh: "服务费" },
   custom:    { ar: "السعر حسب حالتك", en: "Priced to your case", fr: "Tarif selon votre cas", zh: "按您的情况报价" },
@@ -113,6 +144,20 @@ export function buildSimpleServiceDetail(SV1, ctx, v) {
     ? `<section class="sv1-svc-sec"><h2>${esc(t("faq"))}</h2>
       ${v.faq.map((f) => `<details class="sv1-svc-q"><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join("")}</section>` : "";
 
+  // ---- رحلة الطلب: خطوات موثّقة فقط، ولغتها تُعرض بلغتها (لا إنجليزية في صفحة فرنسية).
+  const journey = loadJourney(v.code);
+  const L = (o, base) => o[base + "_" + lang] || "";
+  const steps = ((journey && journey.steps) || [])
+    .filter((s) => isVerified(s) && ACTOR[s.actor] && L(s, "title"))
+    .map((s) => `<li class="sv1-svc-step" data-actor="${esc(s.actor)}"><span class="sv1-svc-actor">${esc(ACTOR[s.actor][lang] || ACTOR[s.actor].en)}</span><span class="sv1-svc-stx">${esc(L(s, "title"))}</span>${L(s, "duration") ? `<span class="sv1-svc-sdur">${esc(L(s, "duration"))}</span>` : ""}</li>`);
+  const hostOf = (u) => { try { return new URL(u).hostname; } catch (e) { return u; } };
+  const srcs = [...new Map(((journey && journey.steps) || []).filter((s) => isVerified(s) && L(s, "title")).map((s) => [s.source_url, s])).values()]
+    .map((s) => `<li><a href="${esc(s.source_url)}" rel="noopener" target="_blank">${esc(hostOf(s.source_url))}</a> · ${esc(t("verifiedOn"))} <bdi dir="ltr">${esc(s.verified_at)}</bdi></li>`);
+  const stepsSec = steps.length
+    ? `<section class="sv1-svc-sec sv1-svc-steps"><h2>${esc(t("steps"))}</h2>
+      <ol class="sv1-svc-steplist">${steps.join("")}</ol>
+      <ul class="sv1-svc-src" aria-label="${esc(t("source"))}">${srcs.join("")}</ul></section>` : "";
+
   const body = `<style id="sv1-svc-css">
 .sv1-svc-hero{padding:34px 0 30px}
 .sv1-svc-hero .sv1-tag{margin-top:14px}
@@ -129,6 +174,13 @@ export function buildSimpleServiceDetail(SV1, ctx, v) {
 .sv1-svc-docs li::before{content:"\\1F4C4";font-size:14px;flex:none}
 .sv1-svc-does li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;line-height:1.75;color:var(--t)}
 .sv1-svc-does li::before{content:"\\2713";color:var(--ok);font-weight:700;flex:none}
+.sv1-svc-steplist{list-style:none;margin:0;padding:0;display:grid;gap:8px;counter-reset:sv1step}
+.sv1-svc-step{counter-increment:sv1step;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:10px 13px;font-size:14px;color:var(--t)}
+.sv1-svc-step::before{content:counter(sv1step);font-family:var(--fm);color:var(--ac);font-weight:600;flex:none}
+.sv1-svc-actor{font-size:11.5px;color:var(--mut);font-weight:500}
+.sv1-svc-sdur{margin-inline-start:auto;font-size:12.5px;color:var(--mut)}
+.sv1-svc-src{list-style:none;margin:10px 2px 0;padding:0;font-size:12px;color:var(--mut)}
+.sv1-svc-src a{text-decoration:underline}
 .sv1-svc-hint{margin:10px 2px 0;font-size:12.5px;color:var(--mut)}
 .sv1-svc-q{border:1px solid var(--l);border-radius:12px;background:#fff;margin-bottom:8px}
 .sv1-svc-q summary{cursor:pointer;list-style:none;padding:13px 15px;font-size:14px;font-weight:500;color:var(--ink);display:flex;justify-content:space-between;gap:12px;align-items:center}
@@ -169,6 +221,7 @@ ${SV1.header("/services/" + v.slug)}
     <div class="sv1-svc-main">
       ${docs}
       ${does}
+      ${stepsSec}
       ${faq}
     </div>
     <aside class="sv1-svc-buy" aria-label="${esc(t("fee"))}">

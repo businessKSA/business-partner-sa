@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-FI-08",
+  "slug": "bp-fi-08",
+  "authority": {
+    "platform_ar": "وزارة الاستثمار MISA",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "٤ إلى ٨ أسابيع حسب اكتمال المستندات",
+    "value_en": "4–8 weeks depending on document readiness",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري للشركة الأم مصدّقاً",
+      "هيكل المجموعة وفروعها الإقليمية",
+      "القوائم المالية المدققة",
+      "خطة الأنشطة الاختيارية"
+    ],
+    "items_en": [
+      "The parent's attested commercial registration",
+      "The group structure and its regional branches",
+      "Audited financial statements",
+      "A plan for the elective activities"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

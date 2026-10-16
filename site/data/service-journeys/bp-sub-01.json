@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-SUB-01",
+  "slug": "bp-sub-01",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": "اشتراك شهري مستمر",
+    "value_en": "An ongoing monthly subscription",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "وصف النطاق",
+      "الجهة أو الموضوع المستهدف",
+      "أي مرجع أساسي للمتابعة"
+    ],
+    "items_en": [
+      "Scope description",
+      "The target entity or topic",
+      "Any base reference to track"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

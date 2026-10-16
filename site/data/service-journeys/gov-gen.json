@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "GOV-GEN",
+  "slug": "gov-gen",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "اسم المعاملة والجهة المختصة إن كانت معروفة",
+      "السجل التجاري أو الهوية حسب الحالة",
+      "المستندات أو الإشعارات المتعلقة بالمعاملة (خطابات، مخالفات للمراجعة، طلبات سابقة)",
+      "صلاحية وصول أو تفويض على المنصة عند الحاجة"
+    ],
+    "items_en": [
+      "Name of the transaction and the competent authority, if known",
+      "Commercial Registration or ID as applicable",
+      "Documents or notices related to the transaction (letters, violations for review, previous requests)",
+      "Platform access or delegation where needed"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

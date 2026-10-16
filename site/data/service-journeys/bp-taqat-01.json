@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-TAQAT-01",
+  "slug": "bp-taqat-01",
+  "authority": {
+    "platform_ar": "طاقات — هدف",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "يوم إلى ٣ أيام عمل للتسجيل، والدعم حسب مدة الجهة",
+    "value_en": "One to three business days to register; support per the authority's window",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري ورقم المنشأة",
+      "وصف الشواغر ومتطلباتها",
+      "بيانات المفوّض المسؤول"
+    ],
+    "items_en": [
+      "Commercial Registration and establishment number",
+      "Vacancy descriptions and requirements",
+      "Authorised person's details"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

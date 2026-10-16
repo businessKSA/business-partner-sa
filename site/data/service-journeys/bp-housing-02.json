@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-HOUSING-02",
+  "slug": "bp-housing-02",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "عدد العمالة ومواقع السكن والعمل",
+      "جدول الورديات وأوقات التشغيل",
+      "المدة المطلوبة (شهري / سنوي)"
+    ],
+    "items_en": [
+      "Worker count, housing and work-site locations",
+      "Shift schedule and operating hours",
+      "Required duration (monthly / yearly)"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

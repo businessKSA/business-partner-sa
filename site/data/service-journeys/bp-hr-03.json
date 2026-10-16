@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-HR-03",
+  "slug": "bp-hr-03",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": "خدمة أو اشتراك شهري مستمر",
+    "value_en": "An ongoing monthly service or subscription",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "بيانات العميل أو الشركة",
+      "وصف الخدمة المطلوبة",
+      "المستندات التشغيلية أو التعاقدية المرتبطة"
+    ],
+    "items_en": [
+      "Client or company details",
+      "Description of the required service",
+      "Related operational or contractual documents"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

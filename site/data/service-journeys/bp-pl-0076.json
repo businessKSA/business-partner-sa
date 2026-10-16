@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-PL-0076",
+  "slug": "bp-pl-0076",
+  "authority": {
+    "platform_ar": "متعدد الجهات",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "7 أيام عمل.",
+    "value_en": "About 7 business days",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "بيانات المنشأة",
+      "السجل التجاري عند الحاجة",
+      "بيانات الموقع",
+      "المستندات الفنية أو التشغيلية المرتبطة"
+    ],
+    "items_en": [
+      "Establishment details",
+      "Commercial Registration (if required)",
+      "Location details",
+      "Related technical or operational documents"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}
