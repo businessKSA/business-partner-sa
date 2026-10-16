@@ -28,6 +28,7 @@ import { LEADS_DB as BD_LEADS_DB, matchQuery as bdMatchQuery, mapCompany as bdMa
 import { handleAgencies } from "./_agencies.js";
 import { handleJobhunt } from "./_jobhunt.js";
 import { handleEor, isBillingAction, authFromSession } from "./_eor.js";
+import { handleAiws } from "./_aiws.js";
 import { stageChannels, announce, waSend } from "./_stage.js";
 import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
@@ -885,6 +886,27 @@ async function readBody(req) {
   return await new Promise((resolve) => {
     let d = ""; req.on("data", (c) => (d += c)); req.on("end", () => { try { resolve(JSON.parse(d)); } catch { resolve({}); } });
   });
+}
+
+// Business Partner AI (/ai) — الباقات من المنصة وطلب التجربة. المنطق كله في ./_aiws.js.
+async function handleAiwsRoute(req, res) {
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  const qq = req.query || {};
+  let body;
+  if (req.method === "GET" && String(qq.action || "") === "plans") {
+    res.setHeader("Cache-Control", "public, max-age=300");
+    body = { action: "plans", lang: qq.lang };
+  } else if (req.method === "POST") {
+    res.setHeader("Cache-Control", "no-store");
+    body = await readBody(req);
+    if (!body || typeof body !== "object" || Array.isArray(body)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_body" })); }
+  } else {
+    res.statusCode = 405; return res.end(JSON.stringify({ ok: false, error: "method_not_allowed" }));
+  }
+  const ip = String((req.headers && (req.headers["x-forwarded-for"] || req.headers["x-real-ip"])) || "").split(",")[0].trim().slice(0, 64);
+  const r = await handleAiws(body, { ip, dev: DEV, outbox });
+  res.statusCode = r.status;
+  return res.end(JSON.stringify(r.body));
 }
 
 // POST /api/requests?__route=eor        — حمولة النموذج → { ok, ref }
@@ -1864,6 +1886,7 @@ export default async function handler(req, res) {
   if ((q.__route || "") === "spaces") return spacesHandler(req, res);
   // موظفون على بند التعاقد (EOR) — المنطق كله في ./_eor.js؛ هنا توصيلٌ فقط.
   if ((q.__route || "") === "eor") return handleEorRoute(req, res);
+  if ((q.__route || "") === "ai") return handleAiwsRoute(req, res);
   if ((q.action || "") === "approve") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }

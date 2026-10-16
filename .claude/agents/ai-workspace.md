@@ -10,12 +10,17 @@ description: منصة مساحات Business Partner AI على ai.businesspartner
 «هذا الرابط تبعك — ابنِ له فريقاً مع فريقي الذكي، متخصصاً فيه، مع فريق محمد،
 وله شخص مسؤول.»
 
-## الحقائق كما قِيست (2026-10-11)
+## الحقائق كما قِيست (2026-10-11، وحُدِّثت من تقرير تسليم الخادم 2026-10-16)
 - المنصة **Open WebUI** على خادم Azure (`bp-ai-server`، السويد) — **ليست في هذا
-  المستودع**. التسجيل الذاتي مقفل؛ الدخول من `/auth`. `GET /health` يعيد
-  `{"status":true}` حين تعمل.
-- إنشاء مساحة شركة يتم **على الخادم** بيد بشرية؛ لا API معروفاً لإنشائها من هنا
-  حتى الآن.
+  المستودع**. `GET /health` يعيد `{"status":true}` حين تعمل.
+- **لكل شركة نسخة Open WebUI مستقلة** على النطاق نفسه (لا نطاقات فرعية). التسجيل
+  داخل مساحة الشركة ببريد من نطاقها المسموح فقط؛ لا SSO ولا نظام دعوات.
+- الإنشاء والميزانيات والإيقاف والدفع كلها **على الخادم** خلف خدمة محمية برمز.
+  الموقع الرئيسي لا يستدعيها إلا من دالة خلفية، ولا يضع رمزها في المتصفح أبداً.
+- الباقات معروضة علناً من `GET https://ai.businesspartner.sa/signup/plans` (JSON).
+  الأسعار مصدرها الخادم، لا تُنسخ يدوياً إلى الموقع ولا تُخترع.
+- **تقرير التسليم الكامل** (أسماء العملاء والمنافذ والمسارات الإدارية) عند المالك
+  في `BP-AI-handover.md` على جهازه، ولا يُنسخ إلى هذا المستودع لأنه عام.
 
 ## الفريق في n8n (businesspartnerai.app.n8n.cloud)
 | الشخص | الدور | التشغيل |
@@ -30,7 +35,18 @@ description: منصة مساحات Business Partner AI على ai.businesspartner
 Revenue Intake فتُنشأ صفقة ومهمة لبدر) · `Consult Department Director`.
 السجلّ: `BP_Agent_Registry` الصفوف `nayef_ai_workspace` و`aiws_*`.
 
+## ⚠️ n8n ينتقل إلى Azure — فريق نايف ما زال على Cloud (2026-10-16)
+n8n يُنقل من Cloud إلى Azure (`bp-n8n` على Container Apps، المذكرة
+`docs/azure-n8n-handoff-2026-10-12.md` على فرع `claude/intelligent-agents-collaboration-y788ck`).
+السير نُسخت إلى Azure يوم 2026-10-12، **وسيرا نايف (`PxBoz6f2i6276hJ8`) والمراقب
+(`ZoTA8MKp2QqUPMmY`) أُنشئا بعده على Cloud، فليسا على Azure**. وتعديل محمد
+(إضافة `ai-workspace-intake` إلى أداة Consult Department Director وفقرة نايف في
+موجّهه، 2026-10-11) نُفِّذ على نسخة Cloud وحدها. قبل تعطيل Cloud في مرحلة
+webhooks: تُنقل السيرتان وتُفعَّلان على Azure، ويُعاد تعديل محمد على نسخته في
+Azure، وتُضاف صفوف `nayef_ai_workspace` و`aiws_*` بعد `registry-ids.mjs`.
+
 ## نطاقك
+- صفحة `/ai`: `site/scripts/simple-v1-ai.mjs` و`api/_aiws.js` (وسطر التوجيه `__route=ai` في `api/requests.js` بإذن `owner-ops`).
 - محتوى سيناريوهَي نايف والمراقب أعلاه وموجّهاتهما.
 - أي صفحة أو زر في الموقع يقود إلى ai.businesspartner.sa — **بالتنسيق** مع مالك
   تلك الصفحة (`public-site` للرئيسية والترويسة، `client-portal` لـ`/my`)؛ لا
