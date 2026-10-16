@@ -1,0 +1,4 @@
+[
+  { "id": "sample-sector-1", "name": { "ar": "قطاع نموذجي ١", "en": "Sample sector 1" }, "summary": { "ar": "نص نموذجي لشكل البطاقة فقط.", "en": "Placeholder text to show the card layout only." }, "source_url": "", "verified_at": "", "status": "needs_verification" },
+  { "id": "sample-sector-2", "name": { "ar": "قطاع نموذجي ٢", "en": "Sample sector 2" }, "summary": { "ar": "نص نموذجي لشكل البطاقة فقط.", "en": "Placeholder text to show the card layout only." }, "source_url": "", "verified_at": "", "status": "needs_verification" }
+]

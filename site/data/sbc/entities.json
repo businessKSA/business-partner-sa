@@ -1,0 +1,5 @@
+[
+  { "id": "sample-entity-a", "name": { "ar": "جهة نموذجية (أ)", "en": "Sample entity (A)" }, "platform": { "ar": "منصة نموذجية", "en": "Sample platform" }, "source_url": "", "verified_at": "", "status": "needs_verification" },
+  { "id": "sample-entity-b", "name": { "ar": "جهة نموذجية (ب)", "en": "Sample entity (B)" }, "platform": { "ar": "منصة نموذجية", "en": "Sample platform" }, "source_url": "", "verified_at": "", "status": "needs_verification" },
+  { "id": "sample-entity-c", "name": { "ar": "جهة نموذجية (ج)", "en": "Sample entity (C)" }, "platform": { "ar": "منصة نموذجية", "en": "Sample platform" }, "source_url": "", "verified_at": "", "status": "needs_verification" }
+]
