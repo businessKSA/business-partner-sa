@@ -1,0 +1,5 @@
+{
+  "_note": "بيانات نموذجية للهيكل فقط — لا تحتوي أي معلومة حكومية حقيقية. تُستبدل بعد تحقق المالك.",
+  "sample": true,
+  "tabs": ["journey", "procedures", "regulations", "offices", "appeals", "violations", "video"]
+}
