@@ -66,10 +66,28 @@ export function canonicalJid(jid) {
   return `${head}@${domain}`;
 }
 
-/** رقم من JID: 9665xxxxxxx@c.us → 9665xxxxxxx */
+/**
+ * رقم من JID — ولا شيء سوى رقم.
+ *
+ * واتساب صار يعطي بعض المحادثات معرّفاً مخفياً `<رقم>@lid` بدل الجوال
+ * (ظهر في بيانات الشركة يوم 2026-10-15). طوله خمس عشرة خانة، فلو جُرّد من
+ * لاحقته لمرّ كأنه جوال دولي: كُتب في نوشن كرقم عميل، وصار رابط wa.me منه
+ * يفتح محادثة وهمية. ولأن المعرّف الواحد قد يخدم أكثر من اسم، ظهر «عميل»
+ * واحد بستة أسماء مختلفة.
+ *
+ * فلا يُشتقّ رقم إلا من نطاق يحمل جوالاً فعلاً: `@s.whatsapp.net` و`@c.us`
+ * (وJID بلا لاحقة، وهو ما تمرّره بعض المسارات). وما عداه — `@lid` و`@g.us`
+ * و`@newsletter` و`@broadcast` — معرّفٌ لا رقم، فيعود فارغاً.
+ * المعرّف نفسه لا يضيع: `chat_id` يحمله كاملاً بلاحقته.
+ */
 function msisdnFromJid(jid) {
-  const head = String(jid || '').split('@')[0] || '';
-  return digits(head.split(':')[0]);
+  const raw = String(jid || '');
+  if (!raw) return '';
+  const at = raw.indexOf('@');
+  const head = (at < 0 ? raw : raw.slice(0, at)).split(':')[0];
+  const domain = at < 0 ? '' : raw.slice(at + 1).toLowerCase();
+  if (domain && domain !== 's.whatsapp.net' && domain !== 'c.us') return '';
+  return digits(head);
 }
 
 function isGroupJid(jid) {
