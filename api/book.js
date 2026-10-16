@@ -24,6 +24,7 @@ import crypto from "node:crypto";
 import { gcalState, gcalCanInvite, busy as gcalBusy, createEvent as gcalCreate, moveEvent as gcalMove, cancelEvent as gcalCancel, CAL_ID } from "./_gcal.js";
 import { sb, DB_ON, getSession } from "./_db.js";
 import { WHATSAPP_LIVE, EMAIL_LIVE, outbox } from "./_mode.js";
+import { n8nWebhookUrl } from "./_n8n.js";
 import {
   TZ, bookingConfig, slotsOfDay, validateSlot, iso, riyadhToday, isOffDay, hhmm,
   bookingMessage, manageToken, checkManageToken,
@@ -584,7 +585,7 @@ export default async function handler(req, res) {
     // on the owner's Google Calendar (workflow bldhMv0BAGs41Xqo).
     // محلياً/معاينة (WHATSAPP_MODE != live) لا يغادر شيءٌ إلى n8n الإنتاجي: تُسجَّل في صندوق الصادر.
     (WHATSAPP_LIVE
-      ? fetch(process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify", {
+      ? fetch(process.env.OWNER_WA_WEBHOOK || n8nWebhookUrl("website-lead-notify"), {
           method: "POST", headers: { "content-type": "application/json" },
           body: JSON.stringify({ source: "booking", ref, name, phone, email, date, time, topic, transcript: `📅 حجز استشارة (${topic || "عام"}): ${date} · ${time}` }),
         }).catch(() => {})

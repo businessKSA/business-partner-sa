@@ -30,6 +30,7 @@ import { isCountryCode, countryNameFromCatalog, resolveOccupationId, occupationR
 import { localizationNotices, localizationModeFrom } from "./_eor-localization.js";
 import { azureChat, azureConfigured } from "./_azure.js";
 import { isBillingAction, handleEorBilling } from "./_eor-billing.js";
+import { n8nWebhookUrl } from "./_n8n.js";
 // المسار (api/requests.js) يحسب ctx.auth للإجراءات المحجوزة ويستورد هذين من هنا مع handleEor.
 export { isBillingAction, authFromSession } from "./_eor-billing.js";
 // قوائم اختيار التأمين المسموحة (معرّفات فقط، لا أرقام) — تستوردها صفحة /eor من هنا لا من الحاسبة.
@@ -44,7 +45,7 @@ const NOTION_TOKEN_ENV = ["NOTION_TOKEN", "BusinessPartnerSiteNotion", "NOTION_S
 const NOTION_VERSION = "2022-06-28";
 const EOR_DB_DEFAULT = "11797acc09724f66a99d5a7576a66976";
 const SITE = process.env.MKT_SITE_BASE || "https://www.businesspartner.sa";
-const OWNER_WA_WEBHOOK_DEFAULT = "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify";
+const OWNER_WA_WEBHOOK_DEFAULT = n8nWebhookUrl("website-lead-notify");
 
 /* ═════════════ الحدود ═════════════ */
 export const EOR_LIMITS = Object.freeze({

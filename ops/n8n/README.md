@@ -105,3 +105,18 @@ Supabase (روابط موقّعة قصيرة العمر)؛ هذه مرآة تش�
 - `PKG_ALIAS` في `site/assets/js/live-prices.js`
 
 يزول هذا كله يوم تُعاد تسمية صفوف الباقات في اللوحة إلى أكواد نوشن.
+
+---
+
+## نقل n8n إلى Azure (قرار المالك 2026-10-16)
+
+العُدّة الكاملة وترتيب القطع والتراجع: [`docs/n8n-azure-cutover-2026-10-16.md`](../../docs/n8n-azure-cutover-2026-10-16.md).
+
+| الملف | ما هو |
+|---|---|
+| `azure/deploy.sh` | نشر n8n على Container Apps (UAE North) + PostgreSQL + Key Vault، أوامر مرقّمة لـCloud Shell |
+| `migrate-workflows.mjs` | تصدير/استيراد/تفعيل السيناريوهات عبر REST بحماية من التكرار (`--dry-run`، `--apply`) |
+| `../../api/_n8n.js` | عنوان n8n الموحّد: `N8N_BASE_URL` |
+
+`catalog-sync.workflow.js` فيه الآن عقدتان لإعادة نشر الموقع: Vercel (القديمة، تبقى حتى القطع)
+وGitHub `workflow_dispatch` لسير النشر على Azure.
