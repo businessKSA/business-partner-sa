@@ -73,7 +73,7 @@ export default async function Dashboard({
       ) : null}
       {!agentReady() ? (
         <div className="notice warn">
-          الوكيل الذكي غير مفعّل: ANTHROPIC_API_KEY غير معرّف في ملف .env. بقية النظام يعمل بشكل طبيعي.
+          الوكيل الذكي غير مفعّل: متغيرات AZURE_OPENAI_* غير مضبوطة في بيئة التشغيل. بقية النظام يعمل بشكل طبيعي.
         </div>
       ) : null}
 
