@@ -2,7 +2,7 @@
 // Keeps the existing advisor implementation intact, but guarantees that the
 // public Simple V1 intake chat still answers when every external AI provider
 // is unavailable, out of credit, or misconfigured.
-import originalHandler from "./chat.js";
+import originalHandler from "./_chat.js";
 
 const N8N_URL = "https://businesspartnerai.app.n8n.cloud/webhook/f08bf4a4-62e9-4aa6-9a44-bf3080682fb3/chat";
 

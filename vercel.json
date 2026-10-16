@@ -11,9 +11,6 @@
     "api/candidate.js": {
       "maxDuration": 60
     },
-    "api/chat.js": {
-      "maxDuration": 60
-    },
     "api/chat-safe.js": {
       "maxDuration": 60
     },
