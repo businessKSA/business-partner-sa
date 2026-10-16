@@ -59,12 +59,16 @@ function checkService(s, lang) {
       if (!html.includes(`data-amount="${s.amount}"`)) fail("c2", "مبلغ الزر ≠ الكتالوج");
       if (!html.includes("bp_cart")) fail("c2", "لا عقد bp_cart");
     }
-    if (s.requiresProposal && !hasQuote) fail("c2", "تحتاج عرضاً بلا زر عرض سعر");
+    // قرار المالك 2026-10-16: المسعّرة شراء مباشر بالسلة ولو requiresProposal — لا زرّ عرض سعر يزاحمه،
+    // ولا سؤال يَعِد بعرض مخصّص، وبعد الدفع يظهر ما سيحدث.
+    if (hasQuote) fail("c2", "خدمة مسعّرة فيها زر عرض سعر");
+    if (!/sv1-svc-after/.test(main)) fail("c3", "لا قسم «بعد الدفع» للمسعّرة");
+    if (/عرض مخصّص|اطلب عرضاً|tailored proposal|request a quote/i.test(main)) fail("c2", "نص يَعِد بعرض سعر في خدمة مسعّرة");
   } else if (!hasQuote && !/workspace-request|\/tourism/.test(main)) fail("c2", "بلا مسار شراء ولا عرض");
   const bad = [...new Set([...main.matchAll(/href="([^"]+)"/g)].map((m) => m[1]).filter((h) => !resolves(h)))];
   if (bad.length) fail("c2", "روابط لا تُحَل: " + bad.slice(0, 3).join(" "));
   // c3: قسم خطوات الرحلة (ينفّذ كل خطوة من، مدة، حالة ما بعد الشراء)
-  if (!/sv1-svc-steps/.test(main)) fail("c3", "لا قسم خطوات الرحلة");
+  if (!/sv1-svc-steps/.test(main)) fail("c3", "لا قسم خطوات الرحلة موثّقة");
   // c4
   const ov = siteJson.overrides[slugOf(s)] || {};
   if (!(ov.documents || ov.documentsEn)) fail("c4", "مستندات عامة (٣ بنود افتراضية)");

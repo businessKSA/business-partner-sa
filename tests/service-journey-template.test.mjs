@@ -32,7 +32,7 @@ test("isVerified يطلب status وhttps وتاريخاً معاً", () => {
 test("الملفات المزروعة (بحاجة تحقق) لا تُظهر قسم الخطوات ولا سطر مصدر", () => {
   const html = build("ar", view());
   assert.doesNotMatch(html, /sv1-svc-steps/);
-  assert.doesNotMatch(html, /sv1-svc-step"/);
+  assert.doesNotMatch(html, /<ul class="sv1-svc-src"/);
   assert.match(html, /id="svcAdd"/);
   assert.ok(loadJourney("BP-ABSHER-01"));
 });
@@ -62,4 +62,27 @@ test("خطوة موثّقة تُعرض بمنفّذها ومصدرها وتار�
     delete process.env.BP_JOURNEYS_DIR;
     fs.rmSync(tmp, { recursive: true, force: true });
   }
+});
+
+test("مسعّرة وrequiresProposal: شراء مباشر بلا زر عرض سعر، وبعد الدفع تظهر الخطوات", () => {
+  const v = view({ requiresProposal: true, docsGeneric: false, duration: "يوم" });
+  for (const lang of ["ar", "en", "fr", "zh"]) {
+    const h = build(lang, v);
+    assert.match(h, /id="svcAdd"/, lang);
+    assert.doesNotMatch(h, /id="svcQuote"/, lang);
+    assert.match(h, /sv1-svc-after/, lang);
+    assert.match(h, /data-amount="300"/, lang);
+  }
+  assert.match(build("ar", v), /ترفع المستندات المطلوبة/);
+  assert.match(build("ar", view({ requiresProposal: true, docsGeneric: true })), /إن لزمت مستندات/);
+});
+
+test("خدمة مسعّرة: سؤال يَعِد بعرض مخصّص يسقط، وغير المسعّرة تبقى كما هي", () => {
+  const faq = [{ q: "كيف تُحدَّد الأتعاب؟", a: "نحدّد الأتعاب بعرض مخصّص — احجز استشارة أو اطلب عرضاً." }, { q: "هل أحتاج وكالة؟", a: "لا." }];
+  const priced = build("ar", view({ faq, requiresProposal: true }));
+  assert.doesNotMatch(priced, /عرض مخصّص/);
+  assert.match(priced, /هل أحتاج وكالة/);
+  const unpriced = build("ar", view({ faq, priced: false, amount: null }));
+  assert.match(unpriced, /عرض مخصّص/);
+  assert.doesNotMatch(build("ar", view({ priced: false, amount: null })), /sv1-svc-after/);
 });

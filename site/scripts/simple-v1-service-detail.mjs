@@ -53,6 +53,24 @@ const ACTOR = {
 
 const T = {
   home:      { ar: "الرئيسية", en: "Home", fr: "Accueil", zh: "首页" },
+  after:     { ar: "بعد الدفع", en: "After you pay", fr: "Après le paiement", zh: "付款之后" },
+  a1:        { ar: "تصلك فاتورة ضريبية على بريدك، ويُسجَّل طلبك في «طلباتي» برقم مرجعي.",
+               en: "A tax invoice reaches your e-mail and your order is recorded in “My requests” under a reference number.",
+               fr: "Une facture fiscale arrive par e-mail et votre commande est enregistrée dans « Mes demandes » avec un numéro de référence.",
+               zh: "增值税发票将发送至您的邮箱，订单会以参考编号记录在“我的请求”中。" },
+  a2doc:     { ar: "ترفع المستندات المطلوبة المذكورة أعلاه من صفحة الطلب ليبدأ الفريق.",
+               en: "You upload the required documents listed above from the request page so the team can start.",
+               fr: "Vous téléversez les documents requis listés ci-dessus depuis la page de la demande pour que l’équipe démarre.",
+               zh: "您在请求页面上传上方列出的所需文件，团队随即开始办理。" },
+  a2gen:     { ar: "إن لزمت مستندات نطلبها منك في صفحة الطلب، ونبدأ التنفيذ بعد استلامها.",
+               en: "If documents are needed, we ask for them on the request page and start once we have them.",
+               fr: "Si des documents sont nécessaires, nous les demandons sur la page de la demande et démarrons dès leur réception.",
+               zh: "如需文件，我们会在请求页面向您索取，收到后即开始办理。" },
+  a3:        { ar: "يبدأ الفريق التنفيذ ونبلغك بكل تحديث في صفحة الطلب.",
+               en: "The team starts work and tells you every update on the request page.",
+               fr: "L’équipe démarre le travail et vous informe de chaque mise à jour sur la page de la demande.",
+               zh: "团队开始办理，并在请求页面向您通报每一次进展。" },
+  aDur:      { ar: "المدة المعتادة لهذه الخدمة", en: "Usual duration of this service", fr: "Délai habituel de ce service", zh: "此服务的通常时长" },
   steps:     { ar: "خطوات الطلب", en: "How the request runs", fr: "Déroulement de la demande", zh: "办理流程" },
   source:    { ar: "المصدر", en: "Source", fr: "Source", zh: "来源" },
   verifiedOn:{ ar: "تاريخ التحقق", en: "Verified on", fr: "Vérifié le", zh: "核实日期" },
@@ -121,7 +139,8 @@ export function buildSimpleServiceDetail(SV1, ctx, v) {
       <p class="sv1-svc-note price-amt">${esc(note)}</p>
       <p class="sv1-svc-note" data-guest-note>${esc(t("guest"))}</p>`;
     primary = `<button type="button" class="sv1-btn primary add-cart" id="svcAdd" data-id="${esc(v.cartId)}" data-name-en="${esc(v.nameEn)}" data-name-ar="${esc(v.nameAr)}" data-amount="${esc(String(v.amount))}" data-price="" data-kind="service" data-bp-code="${esc(v.code.toUpperCase())}">${esc(t("addCart"))}</button>`;
-    if (v.requiresProposal) secondary = quoteBtn("");
+    // قرار المالك 2026-10-16: المسعّرة تبقى شراءً مباشراً بالسلة حتى لو requiresProposal في
+    // الكتالوج (حقل catalog-content لا يُمسّ هنا) — فلا زرّ «اطلب عرض سعر» يزاحم الشراء.
   } else {
     price = `<div class="sv1-svc-price sv1-svc-custom">${esc(t("custom"))}</div>`;
     if (v.special === "workspace") primary = `<a class="sv1-btn primary" href="${esc(v.hrefs.workspace)}">${esc(t("workspace"))}</a>`;
@@ -140,9 +159,13 @@ export function buildSimpleServiceDetail(SV1, ctx, v) {
   const does = v.feats.length
     ? `<section class="sv1-svc-sec"><h2>${esc(t("does"))}</h2>
       <ul class="sv1-svc-does">${v.feats.map((f) => `<li>${esc(f)}</li>`).join("")}</ul></section>` : "";
-  const faq = v.faq.length
+  // خدمة مسعّرة تُشترى بالسلة: يسقط سؤال يَعِد بـ«عرض مخصّص» أو يدعو لطلب عرض (المصدر في
+  // site.json ملك catalog-content؛ يُصحَّح هناك ثم يُحذف هذا الفلتر).
+  const QUOTE_PROMISE = /عرض مخصّص|اطلب عرضاً|tailored proposal|request a quote|devis personnalis|devis sur mesure|定制报价|申请报价/i;
+  const faqList = v.priced ? v.faq.filter((f) => !QUOTE_PROMISE.test(f.q + " " + f.a)) : v.faq;
+  const faq = faqList.length
     ? `<section class="sv1-svc-sec"><h2>${esc(t("faq"))}</h2>
-      ${v.faq.map((f) => `<details class="sv1-svc-q"><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join("")}</section>` : "";
+      ${faqList.map((f) => `<details class="sv1-svc-q"><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join("")}</section>` : "";
 
   // ---- رحلة الطلب: خطوات موثّقة فقط، ولغتها تُعرض بلغتها (لا إنجليزية في صفحة فرنسية).
   const journey = loadJourney(v.code);
@@ -157,6 +180,17 @@ export function buildSimpleServiceDetail(SV1, ctx, v) {
     ? `<section class="sv1-svc-sec sv1-svc-steps"><h2>${esc(t("steps"))}</h2>
       <ol class="sv1-svc-steplist">${steps.join("")}</ol>
       <ul class="sv1-svc-src" aria-label="${esc(t("source"))}">${srcs.join("")}</ul></section>` : "";
+
+  // ---- بعد الدفع (للمسعّرة): ما يجري فعلاً في api/_simple.js createCartRequest — الطلب صفٌّ في
+  // «طلباتي» يبدأ PAID، وتُطلب فيه مستندات الخدمة نفسها، والفاتورة بالبريد. لا موعد يُوعَد:
+  // المدة المعروضة هي ما في بيانات الخدمة.
+  const afterSec = v.priced
+    ? `<section class="sv1-svc-sec sv1-svc-after"><h2>${esc(t("after"))}</h2>
+      <ol class="sv1-svc-steplist">
+        <li class="sv1-svc-step" data-actor="bp"><span class="sv1-svc-actor">${esc(ACTOR.bp[lang] || ACTOR.bp.en)}</span><span class="sv1-svc-stx">${esc(t("a1"))}</span></li>
+        <li class="sv1-svc-step" data-actor="client"><span class="sv1-svc-actor">${esc(ACTOR.client[lang] || ACTOR.client.en)}</span><span class="sv1-svc-stx">${esc(v.docsGeneric ? t("a2gen") : t("a2doc"))}</span></li>
+        <li class="sv1-svc-step" data-actor="bp"><span class="sv1-svc-actor">${esc(ACTOR.bp[lang] || ACTOR.bp.en)}</span><span class="sv1-svc-stx">${esc(t("a3"))}</span>${v.duration ? `<span class="sv1-svc-sdur">${esc(t("aDur"))}: ${esc(v.duration)}</span>` : ""}</li>
+      </ol></section>` : "";
 
   const body = `<style id="sv1-svc-css">
 .sv1-svc-hero{padding:34px 0 30px}
@@ -221,6 +255,7 @@ ${SV1.header("/services/" + v.slug)}
     <div class="sv1-svc-main">
       ${docs}
       ${does}
+      ${afterSec}
       ${stepsSec}
       ${faq}
     </div>
