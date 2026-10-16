@@ -22,7 +22,7 @@ description: منصة مساحات Business Partner AI على ai.businesspartner
 - **تقرير التسليم الكامل** (أسماء العملاء والمنافذ والمسارات الإدارية) عند المالك
   في `BP-AI-handover.md` على جهازه، ولا يُنسخ إلى هذا المستودع لأنه عام.
 
-## الفريق في n8n (businesspartnerai.app.n8n.cloud)
+## الفريق في n8n (المعرّفات أدناه لنسخة Cloud، ونسخ Azure في القسم التالي)
 | الشخص | الدور | التشغيل |
 |---|---|---|
 | **نايف** — المسؤول | قائد المنصة، يرفع لمحمد (`mohammed_it`) | `PxBoz6f2i6276hJ8` · المسار `ai-workspace-intake` |
@@ -35,15 +35,21 @@ description: منصة مساحات Business Partner AI على ai.businesspartner
 Revenue Intake فتُنشأ صفقة ومهمة لبدر) · `Consult Department Director`.
 السجلّ: `BP_Agent_Registry` الصفوف `nayef_ai_workspace` و`aiws_*`.
 
-## ⚠️ n8n ينتقل إلى Azure — فريق نايف ما زال على Cloud (2026-10-16)
-n8n يُنقل من Cloud إلى Azure (`bp-n8n` على Container Apps، المذكرة
-`docs/azure-n8n-handoff-2026-10-12.md` على فرع `claude/intelligent-agents-collaboration-y788ck`).
-السير نُسخت إلى Azure يوم 2026-10-12، **وسيرا نايف (`PxBoz6f2i6276hJ8`) والمراقب
-(`ZoTA8MKp2QqUPMmY`) أُنشئا بعده على Cloud، فليسا على Azure**. وتعديل محمد
-(إضافة `ai-workspace-intake` إلى أداة Consult Department Director وفقرة نايف في
-موجّهه، 2026-10-11) نُفِّذ على نسخة Cloud وحدها. قبل تعطيل Cloud في مرحلة
-webhooks: تُنقل السيرتان وتُفعَّلان على Azure، ويُعاد تعديل محمد على نسخته في
-Azure، وتُضاف صفوف `nayef_ai_workspace` و`aiws_*` بعد `registry-ids.mjs`.
+## n8n على Azure — حالة فريق نايف (فُحصت 2026-10-16)
+n8n يُنقل من Cloud إلى Azure (`bp-n8n`، المذكرة `docs/azure-n8n-handoff-2026-10-12.md`
+على فرع `claude/intelligent-agents-collaboration-y788ck`). الفريق موجود في الجهتين:
+
+| | Cloud | Azure |
+|---|---|---|
+| نايف | `PxBoz6f2i6276hJ8` نشط | `OaAwsC5geYPcqcut` نشط — يردّ على `/webhook/ai-workspace-intake` (جُرِّب) |
+| المراقب | `ZoTA8MKp2QqUPMmY` **معطّل** | `qEC0kKstvXTkeaCi` نشط — مرحلة المجدولات نُقلت |
+| محمد | `e9G9S6GG0j7lCiWt` | `ffOVBNcVuktFmQ3w` — فيه فقرة نايف وأداته |
+| السجلّ | `nayef_ai_workspace` + `aiws_*` | الصفوف نفسها بمعرّف Azure |
+
+نسخ Azure معدّلة عمداً: روابط الويبهوك إلى عنوان Azure، والنموذج `bp-fast`.
+**أي تعديل على موجّهات نايف يُطبَّق في الجهتين** حتى تُطفأ نسخة Cloud في مرحلة
+webhooks (تعديلات 2026-10-16 على الحقائق وديم نُسخت إلى Azure بـ PUT وجُرِّبت).
+نايف على Cloud يبقى نشطاً لأن محمد على Cloud ما زال يستدعيه.
 
 ## نطاقك
 - صفحة `/ai`: `site/scripts/simple-v1-ai.mjs` و`api/_aiws.js` (وسطر التوجيه `__route=ai` في `api/requests.js` بإذن `owner-ops`).
