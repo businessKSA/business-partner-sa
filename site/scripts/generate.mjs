@@ -30,7 +30,12 @@ function copyAsset(src, dest) {
   }
 }
 copyAsset("logo.png", "logo.png");
-copyAsset("favicon.svg", "favicon.svg");
+// أيقونة التبويب: شعار Business Partner (حرفا B وP من الشعار) — قرار المالك 2026-10-16.
+for (const n of ["favicon-16.png", "favicon-32.png", "favicon-48.png", "apple-touch-icon.png", "icon-192.png", "icon-512.png"]) copyAsset(n, n);
+{
+  const ico = path.join(ROOT, "..", "public", "favicon.ico");
+  if (fs.existsSync(ico)) fs.copyFileSync(ico, path.join(ROOT, "favicon.ico"));
+}
 copyAsset("Facebook Cover Photo.png", "cover.png");
 
 // Copy connector brand logos (open-source CC0 marks) into the static output so
@@ -599,7 +604,10 @@ ${oneLang ? "" : `<link rel="alternate" hreflang="x-default" href="${pathInLang(
    for Arabic, and an English phone UI must not bounce them back to English. */
 if(!s){if(c!=="en")return;if(sessionStorage.getItem("bp_lang_auto"))return;var bl=((navigator.languages&&navigator.languages[0])||navigator.language||"").slice(0,2).toLowerCase();if(!bl||bl===c)return;var al=document.querySelector('link[rel="alternate"][hreflang="'+bl+'"]');if(al&&al.href){sessionStorage.setItem("bp_lang_auto","1");location.replace(al.href);}return;}
 if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\\/$/,""),cur=location.href.split("#")[0].replace(/\\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
-<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/assets/img/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="/assets/img/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@200;300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
