@@ -45,6 +45,8 @@ const BIZDEV_DOOR = (() => {
 // بابٌ برابط إلى /eor لا زرّ مستشار: لا نوع طلب له في الرئيسية ولا يمسّ المعرفة.
 import { EOR_PAGE_TEXT } from "./simple-v1-eor.mjs";
 import { buildHomeExtras } from "./simple-v1-home-path.mjs";
+// مدخل «دليل المستثمر» (/guide) يحلّ محلّ شريط «رحلة واحدة لكل الخدمات» (أمر المالك 2026-10-16).
+import { guideEntrance } from "./simple-v1-guide.mjs";
 export const SIMPLE_LANGS = ["ar", "en", "fr", "zh"];
 
 const D = {
@@ -907,9 +909,8 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
     // إضافات تحت المحادثة فقط (أمر المالك 2026-10-11): أقسام مستقلة بمفاتيح في
     // site/data/features.json (homeExtras). لا شيء منها فوق المحادثة ولا بين الأبواب.
     const ex = buildHomeExtras({ esc, href, lang });
+    const gd = guideEntrance({ esc, href, lang });
     const eorDoor = `<a class="sv1-door" id="door-eor" href="${href("/eor")}" data-track="باب: eor"><div class="ico">👥</div><h3>${eorTx.title}</h3><p>${eorTx.desc}</p><span>${t("ctaEor")}</span></a>`;
-
-    const flow = [1, 2, 3, 4, 5, 6].map((n) => `<div><i>${n}</i><b>${t("j" + n)}</b><small>${t("j" + n + "s")}</small></div>`).join("");
 
     const clientMenu = ["pClientHome", "pClientNew", "pClientReqs", "pClientQuotes", "pClientContracts", "pClientAppts", "pClientPay", "pClientInv", "pClientChats"]
       .map((k, i) => `<div class="sv1-mi${i === 0 ? " on" : ""}">${t(k)}</div>`).join("");
@@ -1018,10 +1019,7 @@ ${header(path)}
     </div>
   </div></section>
 
-  <section class="sv1-sec sv1-gray" id="how"><div class="wrap">
-    <div class="sv1-title"><h2>${t("journeyTitle")}</h2><p>${t("journeySub")}</p></div>
-    <div class="sv1-flow">${flow}</div>
-  </div></section>
+  ${gd.html}
 
   <section class="sv1-sec" id="portal"><div class="wrap">
     <div class="sv1-title"><h2>${t("portalTitle")}</h2><p>${t("portalSub")}</p></div>
@@ -1222,7 +1220,7 @@ else setCtx(state.ctx,true);
     return shell({
       title: (BIZDEV_DOOR ? { ar: "Business Partner — استشارات، خدمات حكومية، تأسيس شركات، تطوير أعمال", en: "Business Partner — Consulting, government services, company formation, business development", fr: "Business Partner — Conseil, services gouvernementaux, création d'entreprise, développement commercial", zh: "Business Partner — 咨询、政府服务、公司注册、业务拓展" } : { ar: "Business Partner — استشارات، خدمات حكومية، تأسيس شركات", en: "Business Partner — Consulting, government services, company formation", fr: "Business Partner — Conseil, services gouvernementaux, création d'entreprise", zh: "Business Partner — 咨询、政府服务、公司注册" })[l],
       desc: t("heroText"),
-      path, body: ex.css + body, script: script + ex.script,
+      path, body: ex.css + gd.css + body, script: script + ex.script,
     });
   }
 

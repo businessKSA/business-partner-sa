@@ -351,6 +351,7 @@ import { careersBody } from "./simple-v1-careers.mjs";
 import { buildSimpleBook } from "./simple-v1-book.mjs";
 import { buildSimpleOps } from "./simple-v1-ops.mjs";
 import { buildSimpleGuideStructure } from "./simple-v1-guide-structure.mjs";
+import { buildSimpleGuide } from "./simple-v1-guide.mjs";
 import { buildSimpleGovCost } from "./simple-v1-gov-cost.mjs";
 import { buildSimpleGuideSaudiMarket } from "./simple-v1-guide-saudi-market.mjs";
 import { buildSimpleGuideBusinessSetup } from "./simple-v1-guide-business-setup.mjs";
@@ -12024,6 +12025,7 @@ function writeFullSite(pre) {
   write(`${pre}guide/business-setup.html`, buildSimpleGuideBusinessSetup(SV1, { lang: () => LANG, esc }));
   write(`${pre}guide/run-your-business.html`, buildSimpleGuideRunBusiness(SV1, { lang: () => LANG, esc }));
   // أول دليل على الموقع الجديد (SV1.shell) — بقية الأدلة ما زالت على الطبقة القديمة.
+  write(`${pre}guide.html`, buildSimpleGuide(SV1, { lang: () => LANG, esc }));
   write(`${pre}guide/company-structure.html`, buildSimpleGuideStructure(SV1, { lang: () => LANG, esc }));
   write(`${pre}guide/live-in-saudi.html`, buildSimpleGuideLiveInSaudi(SV1, { lang: () => LANG, esc }));
   write(`${pre}guide/residency.html`, buildSimpleGuideResidency(SV1, { lang: () => LANG, esc }));

@@ -83,8 +83,13 @@ for (const [lang, file] of Object.entries(HOMES)) {
         assert.equal(at, -1, `${k} مُطفأ لكنه ظاهر`);
       }
     }
-    // «كيف نبدأ» في الترويسة ما زال يرسو على رحلة الستّ خطوات الأصلية لا على الإضافة
-    assert.ok(main.includes('<section class="sv1-sec sv1-gray" id="how">'), "قسم الرحلة الأصلي #how");
+    // «كيف نبدأ» في الترويسة يرسو على #how — صار مدخل «دليل المستثمر» بدل شريط «رحلة واحدة لكل
+    // الخدمات» (أمر المالك 2026-10-16)، تحت المحادثة، بتسع بطاقات قطاعات وزر «افتح الدليل».
+    assert.ok(main.includes('<section class="sv1-sec sv1-gray" id="how">'), "مدخل الدليل #how");
+    assert.ok(main.indexOf('id="how">') > advisorAt, "مدخل الدليل تحت المحادثة");
+    assert.equal((main.match(/class="sv1-gh-card"/g) || []).length, 9, "بطاقات القطاعات");
+    assert.ok(main.includes(`href="${pre(lang)}/guide"`), "زر افتح الدليل");
+    assert.ok(!main.includes("sv1-flow"), "خطوات الرحلة الستّ أُزيلت");
     // المعرّفات لا تتكرر
     const idList = [...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
     for (const id of ["how", "how-steps", "find", "popular", "faq", "advisor"]) assert.ok(idList.filter((x) => x === id).length <= 1, "معرّف مكرّر " + id);

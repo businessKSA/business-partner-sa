@@ -1,4 +1,466 @@
 [
-  { "id": "sample-sector-1", "name": { "ar": "قطاع نموذجي ١", "en": "Sample sector 1" }, "summary": { "ar": "نص نموذجي لشكل البطاقة فقط.", "en": "Placeholder text to show the card layout only." }, "source_url": "", "verified_at": "", "status": "needs_verification" },
-  { "id": "sample-sector-2", "name": { "ar": "قطاع نموذجي ٢", "en": "Sample sector 2" }, "summary": { "ar": "نص نموذجي لشكل البطاقة فقط.", "en": "Placeholder text to show the card layout only." }, "source_url": "", "verified_at": "", "status": "needs_verification" }
+  {
+    "id": "company-formation",
+    "category": "Company Formation",
+    "slug": "company-formation",
+    "door": "formation",
+    "icon": "🏢",
+    "name": {
+      "ar": "تأسيس الشركات",
+      "en": "Company formation",
+      "fr": "Création d'entreprise",
+      "zh": "公司注册"
+    },
+    "summary": {
+      "ar": "من اختيار الاسم والعقد إلى السجل والمنصات الحكومية، ثم التجديد والتعديل.",
+      "en": "From the name and the articles to the commercial registration and government platforms, then renewals and amendments.",
+      "fr": "Du nom et des statuts à l'immatriculation et aux plateformes publiques, puis renouvellements et modifications.",
+      "zh": "从名称与章程到商业登记与政府平台，再到续期与变更。"
+    },
+    "bundle": [
+      "BP-SBC-01"
+    ],
+    "steps": [
+      {
+        "stage": "advise",
+        "skus": [
+          "BP-PL-0066",
+          "BP-PL-0055"
+        ]
+      },
+      {
+        "stage": "name",
+        "skus": [
+          "BP-SBC-05",
+          "BP-SBC-15",
+          "BP-SBC-03"
+        ]
+      },
+      {
+        "stage": "register",
+        "skus": [
+          "BP-SBC-02",
+          "BP-SBC-31"
+        ]
+      },
+      {
+        "stage": "platforms",
+        "skus": [
+          "BP-SBC-06",
+          "BP-CHAMBER-01",
+          "BP-ZATCA-01",
+          "BP-GOSI-01",
+          "BP-SUBL-01"
+        ]
+      },
+      {
+        "stage": "operate",
+        "skus": [
+          "BP-SBC-19",
+          "BP-SBC-22",
+          "BP-SBC-21"
+        ]
+      },
+      {
+        "stage": "change",
+        "skus": [
+          "BP-SBC-10",
+          "BP-SBC-11",
+          "BP-SBC-08"
+        ]
+      }
+    ],
+    "official_order_status": "needs_verification"
+  },
+  {
+    "id": "foreign-investment",
+    "category": "Foreign Investment",
+    "slug": "foreign-investment",
+    "door": "formation",
+    "icon": "🌍",
+    "name": {
+      "ar": "الاستثمار الأجنبي",
+      "en": "Foreign investment",
+      "fr": "Investissement étranger",
+      "zh": "外国投资"
+    },
+    "summary": {
+      "ar": "ترخيص الاستثمار الأجنبي ثم الكيان المناسب: شركة أو فرع أو مكتب تمثيل أو مقر إقليمي.",
+      "en": "The foreign investment licence, then the right entity: company, branch, representative office or regional HQ.",
+      "fr": "La licence d'investissement étranger, puis l'entité adaptée : société, succursale, bureau de représentation ou siège régional.",
+      "zh": "先取得外商投资许可，再选择合适主体：公司、分支机构、代表处或区域总部。"
+    },
+    "bundle": [
+      "BP-FI-01"
+    ],
+    "steps": [
+      {
+        "stage": "advise",
+        "skus": [
+          "BP-FI-13",
+          "BP-FI-07"
+        ]
+      },
+      {
+        "stage": "register",
+        "skus": [
+          "BP-FI-02",
+          "BP-FI-03",
+          "BP-FI-04",
+          "BP-FI-05",
+          "BP-FI-06",
+          "BP-FI-09",
+          "BP-FI-08"
+        ]
+      },
+      {
+        "stage": "platforms",
+        "skus": [
+          "BP-SBC-06",
+          "BP-ZATCA-01",
+          "BP-GOSI-01"
+        ]
+      },
+      {
+        "stage": "operate",
+        "skus": [
+          "BP-FI-10"
+        ]
+      },
+      {
+        "stage": "change",
+        "skus": [
+          "BP-FI-11",
+          "BP-FI-12"
+        ]
+      }
+    ],
+    "official_order_status": "needs_verification"
+  },
+  {
+    "id": "premium-residency",
+    "category": "Premium Residency",
+    "slug": "premium-residency",
+    "door": "government",
+    "icon": "🪪",
+    "name": {
+      "ar": "الإقامة المميزة",
+      "en": "Premium residency",
+      "fr": "Résidence premium",
+      "zh": "优质居留"
+    },
+    "summary": {
+      "ar": "تقييم أهليتك واختيار المسار المناسب ثم التقديم وضمّ الأسرة.",
+      "en": "Assess your eligibility, pick the right track, then apply and add family members.",
+      "fr": "Évaluez votre éligibilité, choisissez le bon parcours, puis déposez la demande et ajoutez votre famille.",
+      "zh": "评估资格、选择合适路径，然后提交申请并为家属办理随行。"
+    },
+    "bundle": [
+      "BP-PR-01"
+    ],
+    "steps": [
+      {
+        "stage": "advise",
+        "skus": [
+          "BP-PR-03",
+          "BP-PR-02"
+        ]
+      },
+      {
+        "stage": "track",
+        "skus": [
+          "BP-PR-04",
+          "BP-PR-05",
+          "BP-PR-06",
+          "BP-PR-07",
+          "BP-PR-08",
+          "BP-PR-09"
+        ]
+      },
+      {
+        "stage": "family",
+        "skus": [
+          "BP-PR-10"
+        ]
+      }
+    ],
+    "official_order_status": "needs_verification"
+  },
+  {
+    "id": "government-relations",
+    "category": "Government Relations",
+    "slug": "government-relations",
+    "door": "government",
+    "icon": "🏛️",
+    "name": {
+      "ar": "العلاقات الحكومية",
+      "en": "Government relations",
+      "fr": "Relations gouvernementales",
+      "zh": "政府事务"
+    },
+    "summary": {
+      "ar": "تفعيل المنصات الحكومية والتراخيص والعمالة والإقرارات في مكان واحد.",
+      "en": "Government platforms, licences, workforce permits and returns in one place.",
+      "fr": "Plateformes publiques, licences, permis de main-d'œuvre et déclarations au même endroit.",
+      "zh": "政府平台、许可证、用工许可与申报，一处办理。"
+    },
+    "bundle": [],
+    "steps": [
+      {
+        "stage": "platforms",
+        "skus": [
+          "BP-ABSHER-01",
+          "BP-QIWA-01",
+          "BP-MUDAD-01",
+          "BP-GOSI-01",
+          "BP-ZATCA-01",
+          "BP-SUBL-01"
+        ]
+      },
+      {
+        "stage": "register",
+        "skus": [
+          "BP-BALADY-01",
+          "BP-MOD-01",
+          "BP-SAIP-01",
+          "BP-ZATCA-04"
+        ]
+      },
+      {
+        "stage": "people",
+        "skus": [
+          "BP-QIWA-06",
+          "BP-QIWA-02",
+          "BP-AJEER-01"
+        ]
+      },
+      {
+        "stage": "operate",
+        "skus": [
+          "BP-ZATCA-05",
+          "BP-ZATCA-03",
+          "BP-HRSD-09"
+        ]
+      },
+      {
+        "stage": "fix",
+        "skus": [
+          "BP-HRSD-04",
+          "BP-HRSD-01"
+        ]
+      }
+    ],
+    "official_order_status": "needs_verification"
+  },
+  {
+    "id": "hr-services",
+    "category": "HR Services",
+    "slug": "hr-services",
+    "door": "government",
+    "icon": "👥",
+    "name": {
+      "ar": "الموارد البشرية",
+      "en": "HR services",
+      "fr": "Ressources humaines",
+      "zh": "人力资源"
+    },
+    "summary": {
+      "ar": "ملف المنشأة والأجور والإقامات والشهادات الصحية لموظفيك.",
+      "en": "Your establishment file, wage protection, residency permits and health certificates for employees.",
+      "fr": "Dossier de l'établissement, protection des salaires, titres de séjour et certificats de santé de vos employés.",
+      "zh": "企业档案、工资保护、员工居留与健康证明。"
+    },
+    "bundle": [],
+    "steps": [
+      {
+        "stage": "platforms",
+        "skus": [
+          "BP-HR-02",
+          "BP-MUDAD-02"
+        ]
+      },
+      {
+        "stage": "people",
+        "skus": [
+          "BP-MUQEEM-02",
+          "BP-MUQEEM-03",
+          "BP-HR-01"
+        ]
+      },
+      {
+        "stage": "operate",
+        "skus": [
+          "BP-HR-03",
+          "BP-MUDAD-03"
+        ]
+      }
+    ],
+    "official_order_status": "needs_verification"
+  },
+  {
+    "id": "recruitment",
+    "category": "Recruitment",
+    "slug": "recruitment",
+    "door": "government",
+    "icon": "🧑‍💼",
+    "name": {
+      "ar": "التوظيف والاستقدام",
+      "en": "Recruitment & hiring",
+      "fr": "Recrutement",
+      "zh": "招聘与引进"
+    },
+    "summary": {
+      "ar": "تأشيرات العمل والاستقدام والتوظيف المحلي والجماعي والموظفون على بند التعاقد.",
+      "en": "Work visas, recruitment, local and bulk hiring, and employees on an employer-of-record basis.",
+      "fr": "Visas de travail, recrutement, embauche locale et groupée, et salariés via un employeur de référence (EOR).",
+      "zh": "工作签证、招聘引进、本地与批量招聘，以及合同代雇（EOR）员工。"
+    },
+    "bundle": [],
+    "steps": [
+      {
+        "stage": "people",
+        "skus": [
+          "BP-REC-02",
+          "BP-REC-01"
+        ]
+      },
+      {
+        "stage": "build",
+        "skus": [
+          "BP-REC-05",
+          "BP-REC-04",
+          "BP-REC-06",
+          "CV-10"
+        ]
+      },
+      {
+        "stage": "operate",
+        "skus": [
+          "BP-REC-03"
+        ]
+      }
+    ],
+    "official_order_status": "needs_verification"
+  },
+  {
+    "id": "business-support",
+    "category": "Business Support",
+    "slug": "business-support",
+    "door": "consulting",
+    "icon": "📊",
+    "name": {
+      "ar": "دعم الأعمال",
+      "en": "Business support",
+      "fr": "Soutien aux entreprises",
+      "zh": "商务支持"
+    },
+    "summary": {
+      "ar": "دراسات الجدوى والاستشارات القانونية والمالية والحساب البنكي وقيد الوكالات.",
+      "en": "Feasibility studies, legal and financial advice, the business bank account and agency registration.",
+      "fr": "Études de faisabilité, conseil juridique et financier, compte bancaire professionnel et enregistrement d'agences commerciales.",
+      "zh": "可行性研究、法律与财务咨询、企业银行账户与商业代理登记。"
+    },
+    "bundle": [],
+    "steps": [
+      {
+        "stage": "advise",
+        "skus": [
+          "BP-PL-0056",
+          "BP-PL-0057",
+          "BP-PL-0058",
+          "BP-DIAG-01"
+        ]
+      },
+      {
+        "stage": "legal",
+        "skus": [
+          "BP-PL-0054",
+          "BP-PL-0052",
+          "BP-PL-0088"
+        ]
+      },
+      {
+        "stage": "platforms",
+        "skus": [
+          "BP-PL-0051",
+          "BP-SBC-26"
+        ]
+      },
+      {
+        "stage": "operate",
+        "skus": [
+          "BP-PL-0059",
+          "BP-PL-0060",
+          "BP-SBC-28"
+        ]
+      }
+    ],
+    "official_order_status": "needs_verification"
+  },
+  {
+    "id": "real-estate",
+    "category": "Real Estate",
+    "slug": "real-estate",
+    "door": "consulting",
+    "icon": "🏗️",
+    "name": {
+      "ar": "المكاتب ومساحات العمل",
+      "en": "Offices and workspaces",
+      "fr": "Bureaux et espaces de travail",
+      "zh": "办公室与共享空间"
+    },
+    "summary": {
+      "ar": "مكتب خاص أو مساحة مشتركة أو مكتب افتراضي بعنوان وطني، أو نبحث لك عن المكان.",
+      "en": "A private office, a shared space or a virtual office with a national address — or we find the place for you.",
+      "fr": "Bureau privé, espace partagé ou bureau virtuel avec adresse nationale, ou nous cherchons le lieu pour vous.",
+      "zh": "独立办公室、共享空间或带国家地址的虚拟办公室，或由我们为您寻找场地。"
+    },
+    "bundle": [],
+    "steps": [
+      {
+        "stage": "space",
+        "skus": [
+          "BP-RE-05",
+          "BP-RE-01",
+          "BP-RE-02",
+          "BP-RE-04",
+          "BP-RE-03"
+        ]
+      }
+    ],
+    "official_order_status": "not_applicable"
+  },
+  {
+    "id": "ai-automation",
+    "category": "AI Automation",
+    "slug": "ai-automation",
+    "door": "consulting",
+    "icon": "🤖",
+    "name": {
+      "ar": "الأتمتة والذكاء الاصطناعي",
+      "en": "AI & automation",
+      "fr": "IA et automatisation",
+      "zh": "人工智能与自动化"
+    },
+    "summary": {
+      "ar": "مستشارون أذكياء وموظف ذكي وفريق خدمات مشتركة لأتمتة أعمالك.",
+      "en": "Smart advisors, a smart employee and a shared-services team to automate your operations.",
+      "fr": "Conseillers intelligents, employé intelligent et équipe de services partagés pour automatiser vos opérations.",
+      "zh": "智能顾问、智能员工与共享服务团队，助您实现业务自动化。"
+    },
+    "bundle": [],
+    "steps": [
+      {
+        "stage": "build",
+        "skus": [
+          "BP-AI-02",
+          "BP-AI-03",
+          "BP-AI-SMART-EMPLOYEE",
+          "BP-AI-04",
+          "BP-AI-01"
+        ]
+      }
+    ],
+    "official_order_status": "not_applicable"
+  }
 ]

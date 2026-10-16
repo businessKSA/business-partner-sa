@@ -1,0 +1,305 @@
+[
+ {
+  "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+  "fetched_at": "2026-10-08",
+  "source_ref": "api/_saudi-labor-data.json#eosb",
+  "verified_at": "",
+  "status": "sourced",
+  "note": null,
+  "id": "labor-law",
+  "group": "hrsd",
+  "kind": "law",
+  "title": {
+   "ar": "نظام العمل (النسخة الموحّدة)",
+   "en": "Labour Law (consolidated version)"
+  }
+ },
+ {
+  "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-03/ntaqat-almtwr.pdf",
+  "fetched_at": "2026-10-08",
+  "source_ref": "api/_saudi-labor-data.json#localization.nitaqat",
+  "verified_at": "",
+  "status": "sourced",
+  "note": null,
+  "id": "nitaqat-guide",
+  "group": "hrsd",
+  "kind": "guide",
+  "title": {
+   "ar": "دليل برنامج نطاقات المطوَّر",
+   "en": "Developed Nitaqat programme guide"
+  }
+ },
+ {
+  "source_url": "https://es.hrsd.gov.sa/services/Inquiry/NitaqatCalculatorMotawar2026.aspx",
+  "fetched_at": "2026-10-08",
+  "source_ref": "api/_saudi-labor-data.json#localization.nitaqat.small_entities",
+  "verified_at": "",
+  "status": "sourced",
+  "note": null,
+  "id": "nitaqat-calculator",
+  "group": "hrsd",
+  "kind": "tool",
+  "title": {
+   "ar": "حاسبة نطاقات المطوَّر",
+   "en": "Developed Nitaqat calculator"
+  }
+ },
+ {
+  "source_url": "https://www.hrsd.gov.sa/media-center/news/777585",
+  "fetched_at": "2026-10-08",
+  "source_ref": "api/_saudi-labor-data.json#saudi_min_wage.nitaqat_counting",
+  "verified_at": "",
+  "status": "sourced",
+  "note": null,
+  "id": "nitaqat-wage-counting",
+  "group": "hrsd",
+  "kind": "decision",
+  "title": {
+   "ar": "قرار احتساب أجور السعوديين في نطاقات (خبر الوزارة)",
+   "en": "Decision on counting Saudi wages in Nitaqat (ministry news)"
+  }
+ },
+ {
+  "source_url": "https://www.hrsd.gov.sa/sites/default/files/2021-11/24112021.pdf",
+  "fetched_at": "2026-10-08",
+  "source_ref": "api/_saudi-labor-data.json#fees.work_permit_levy",
+  "verified_at": "",
+  "status": "sourced",
+  "note": {
+   "ar": "الوثيقة صادرة في نوفمبر 2021؛ تأكّد من آخر تحديث قبل الاعتماد عليها.",
+   "en": "Issued in November 2021; check for later updates before relying on it."
+  },
+  "id": "work-permit-levy-guide",
+  "group": "hrsd",
+  "kind": "guide",
+  "title": {
+   "ar": "دليل المقابل المالي على العمالة الوافدة",
+   "en": "Expatriate work-permit levy guide"
+  }
+ },
+ {
+  "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-04/aldlyl-ala-jray-y-lqrar-twtyn-mhn-altswyq-v5.pdf",
+  "fetched_at": "2026-10-08",
+  "source_ref": "api/_saudi-labor-data.json#localization.profession_decisions.marketing",
+  "verified_at": "",
+  "status": "sourced",
+  "note": null,
+  "id": "localization-marketing",
+  "group": "hrsd",
+  "kind": "decision",
+  "title": {
+   "ar": "الدليل الإجرائي لقرار توطين مهن التسويق",
+   "en": "Procedural guide to the marketing-professions localisation decision"
+  }
+ },
+ {
+  "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-ala-jray-y-lqrar-twtyn-mhn-almby-at.pdf",
+  "fetched_at": "2026-10-08",
+  "source_ref": "api/_saudi-labor-data.json#localization.profession_decisions.sales",
+  "verified_at": "",
+  "status": "sourced",
+  "note": null,
+  "id": "localization-sales",
+  "group": "hrsd",
+  "kind": "decision",
+  "title": {
+   "ar": "الدليل الإجرائي لقرار توطين مهن المبيعات",
+   "en": "Procedural guide to the sales-professions localisation decision"
+  }
+ },
+ {
+  "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-04/aldlyl-alajrayy-lqrar-twtyn-almhn-almhasbyt.pdf",
+  "fetched_at": "2026-10-08",
+  "source_ref": "api/_saudi-labor-data.json#localization.profession_decisions.accounting",
+  "verified_at": "",
+  "status": "sourced",
+  "note": null,
+  "id": "localization-accounting",
+  "group": "hrsd",
+  "kind": "decision",
+  "title": {
+   "ar": "الدليل الإجرائي لقرار توطين المهن المحاسبية",
+   "en": "Procedural guide to the accounting-professions localisation decision"
+  }
+ },
+ {
+  "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-08/aldlyl-alajrayy-lqrar-almhn-adart-almshary--alnhayy-v.1.pdf",
+  "fetched_at": "2026-10-08",
+  "source_ref": "api/_saudi-labor-data.json#localization.profession_decisions.project_management",
+  "verified_at": "",
+  "status": "sourced",
+  "note": null,
+  "id": "localization-project-management",
+  "group": "hrsd",
+  "kind": "decision",
+  "title": {
+   "ar": "الدليل الإجرائي لقرار توطين مهن إدارة المشاريع",
+   "en": "Procedural guide to the project-management-professions localisation decision"
+  }
+ },
+ {
+  "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-almhn-alhndsyt.pdf",
+  "fetched_at": "2026-10-08",
+  "source_ref": "api/_saudi-labor-data.json#localization.profession_decisions.engineering",
+  "verified_at": "",
+  "status": "sourced",
+  "note": null,
+  "id": "localization-engineering",
+  "group": "hrsd",
+  "kind": "decision",
+  "title": {
+   "ar": "الدليل الإجرائي لقرار توطين المهن الهندسية",
+   "en": "Procedural guide to the engineering-professions localisation decision"
+  }
+ },
+ {
+  "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-04/aldlyl-alajrayy-lqrar-twtyn-almhn-aladaryt-almsandt--2-.pdf",
+  "fetched_at": "2026-10-08",
+  "source_ref": "api/_saudi-labor-data.json#localization.profession_decisions.admin_support",
+  "verified_at": "",
+  "status": "sourced",
+  "note": null,
+  "id": "localization-admin-support",
+  "group": "hrsd",
+  "kind": "decision",
+  "title": {
+   "ar": "الدليل الإجرائي لقرار توطين المهن الإدارية المساندة",
+   "en": "Procedural guide to the administrative-support-professions localisation decision"
+  }
+ },
+ {
+  "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-twtyn-mhn-almshtryat_5.pdf",
+  "fetched_at": "2026-10-08",
+  "source_ref": "api/_saudi-labor-data.json#localization.profession_decisions.procurement",
+  "verified_at": "",
+  "status": "needs_verification",
+  "note": null,
+  "id": "localization-procurement",
+  "group": "hrsd",
+  "kind": "decision",
+  "title": {
+   "ar": "الدليل الإجرائي لقرار توطين مهن المشتريات",
+   "en": "Procedural guide to the procurement-professions localisation decision"
+  }
+ },
+ {
+  "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-01/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A%20%D9%84%D9%82%D8%B1%D8%A7%D8%B1%20%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D9%85%D9%87%D9%86%D8%A9%20%D8%A7%D9%84%D8%B5%D9%8A%D8%AF%D9%84%D8%A9_1.pdf",
+  "fetched_at": "2026-10-08",
+  "source_ref": "api/_saudi-labor-data.json#localization.profession_decisions.pharmacy",
+  "verified_at": "",
+  "status": "needs_verification",
+  "note": null,
+  "id": "localization-pharmacy",
+  "group": "hrsd",
+  "kind": "decision",
+  "title": {
+   "ar": "الدليل الإجرائي لقرار توطين مهن الصيدلة",
+   "en": "Procedural guide to the pharmacy-professions localisation decision"
+  }
+ },
+ {
+  "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-01/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A%20%D9%84%D9%82%D8%B1%D8%A7%D8%B1%20%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D9%85%D9%87%D9%86%D8%A9%20%D8%B7%D8%A8%20%D8%A7%D9%84%D8%A3%D8%B3%D9%86%D8%A7%D9%86_1.pdf",
+  "fetched_at": "2026-10-08",
+  "source_ref": "api/_saudi-labor-data.json#localization.profession_decisions.dental",
+  "verified_at": "",
+  "status": "needs_verification",
+  "note": null,
+  "id": "localization-dental",
+  "group": "hrsd",
+  "kind": "decision",
+  "title": {
+   "ar": "الدليل الإجرائي لقرار توطين مهنة طب الأسنان",
+   "en": "Procedural guide to the dentistry localisation decision"
+  }
+ },
+ {
+  "source_url": "https://www.hrsd.gov.sa/en/node/841823",
+  "fetched_at": "2026-10-08",
+  "source_ref": "api/_saudi-labor-data.json#localization.profession_decisions.it_telecom",
+  "verified_at": "",
+  "status": "needs_verification",
+  "note": null,
+  "id": "localization-it-telecom",
+  "group": "hrsd",
+  "kind": "decision",
+  "title": {
+   "ar": "توطين مهن الاتصالات وتقنية المعلومات",
+   "en": "Localisation of telecom and IT professions"
+  }
+ },
+ {
+  "source_url": "https://awareness.gosi.gov.sa/pdf/Contributions.pdf",
+  "fetched_at": "2026-10-08",
+  "source_ref": "api/_saudi-labor-data.json#gosi.regimes.new_system_saudi",
+  "verified_at": "",
+  "status": "sourced",
+  "note": null,
+  "id": "gosi-contributions",
+  "group": "gosi",
+  "kind": "guide",
+  "title": {
+   "ar": "جدول اشتراكات التأمينات الاجتماعية",
+   "en": "Social-insurance contributions table"
+  }
+ },
+ {
+  "source_url": "https://awareness.gosi.gov.sa/businessJourney.html",
+  "fetched_at": "2026-10-08",
+  "source_ref": "api/_saudi-labor-data.json#gosi.contributory_wage",
+  "verified_at": "",
+  "status": "sourced",
+  "note": null,
+  "id": "gosi-employer-awareness",
+  "group": "gosi",
+  "kind": "guide",
+  "title": {
+   "ar": "التأمينات الاجتماعية — صفحة التوعية لأصحاب الأعمال",
+   "en": "Social insurance — employer awareness page"
+  }
+ },
+ {
+  "source_url": "",
+  "fetched_at": "",
+  "source_ref": "",
+  "verified_at": "",
+  "status": "needs_verification",
+  "note": null,
+  "id": "companies-law",
+  "group": "general",
+  "kind": "law",
+  "title": {
+   "ar": "نظام الشركات",
+   "en": "Companies Law"
+  }
+ },
+ {
+  "source_url": "",
+  "fetched_at": "",
+  "source_ref": "",
+  "verified_at": "",
+  "status": "needs_verification",
+  "note": null,
+  "id": "investment-law",
+  "group": "general",
+  "kind": "law",
+  "title": {
+   "ar": "نظام الاستثمار",
+   "en": "Investment Law"
+  }
+ },
+ {
+  "source_url": "",
+  "fetched_at": "",
+  "source_ref": "",
+  "verified_at": "",
+  "status": "needs_verification",
+  "note": null,
+  "id": "commercial-register-law",
+  "group": "general",
+  "kind": "law",
+  "title": {
+   "ar": "نظام السجل التجاري",
+   "en": "Commercial Register Law"
+  }
+ }
+]

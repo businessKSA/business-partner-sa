@@ -1,0 +1,30 @@
+{
+  "source_note": "مراحلنا في العمل وأصناف مركز المخالفات الموجود في الموقع (site/scripts/violations-center.mjs). لا مهلة ولا رسم ولا نظام رسمي هنا.",
+  "stages": [
+    { "id": "review", "title": { "ar": "مراجعة", "en": "Review", "fr": "Revue", "zh": "审阅" },
+      "text": { "ar": "نقرأ المخالفة: الجهة والنوع والتاريخ والقيمة والمهلة.", "en": "We read the violation: authority, type, date, amount and deadline.", "fr": "Nous lisons l'infraction : autorité, type, date, montant et délai.", "zh": "我们核对违规信息：机构、类型、日期、金额与期限。" } },
+    { "id": "eligibility", "title": { "ar": "دراسة أهلية الاعتراض", "en": "Objection eligibility study", "fr": "Étude de recevabilité", "zh": "异议资格研究" },
+      "text": { "ar": "نفحص المسار المتاح للاعتراض ونحدد الأدلة أو المعلومات الناقصة.", "en": "We check which objection route is available and which evidence or information is missing.", "fr": "Nous vérifions la voie de recours disponible et les preuves ou informations manquantes.", "zh": "我们评估可用的异议途径，并确认缺少的证据或信息。" } },
+    { "id": "prepare", "title": { "ar": "تجهيز", "en": "Preparation", "fr": "Préparation", "zh": "准备" },
+      "text": { "ar": "نجهّز ملف الاعتراض أو المعالجة ونعرضه عليك للاعتماد.", "en": "We prepare the objection or remediation file and show it to you for approval.", "fr": "Nous préparons le dossier d'opposition ou de régularisation et vous le soumettons pour approbation.", "zh": "我们准备异议或整改材料，并交由您确认。" } },
+    { "id": "submit", "title": { "ar": "تقديم", "en": "Submission", "fr": "Dépôt", "zh": "提交" },
+      "text": { "ar": "نقدّم الاعتراض أو الطلب عبر منصة الجهة بعد اعتمادك.", "en": "We file the objection or request on the authority's platform once you approve.", "fr": "Nous déposons l'opposition ou la demande sur la plateforme de l'autorité après votre accord.", "zh": "经您确认后，我们在相关机构平台上提交异议或申请。" } },
+    { "id": "follow", "title": { "ar": "متابعة", "en": "Follow-up", "fr": "Suivi", "zh": "跟进" },
+      "text": { "ar": "نتابع الحالة والمهلة والإجراء التالي حتى الإغلاق.", "en": "We track the status, the deadline and the next action until closure.", "fr": "Nous suivons le statut, le délai et la prochaine action jusqu'à la clôture.", "zh": "我们持续跟进状态、期限与下一步，直至结案。" } }
+  ],
+  "types": [
+    { "id": "objection", "name": { "ar": "اعتراض على مخالفة", "en": "Objection to a violation", "fr": "Opposition à une infraction", "zh": "对违规提出异议" } },
+    { "id": "municipal", "name": { "ar": "مخالفات بلدية", "en": "Municipal violations", "fr": "Infractions municipales", "zh": "市政违规" } },
+    { "id": "hr", "name": { "ar": "موارد بشرية", "en": "Human resources", "fr": "Ressources humaines", "zh": "人力资源" } },
+    { "id": "transport", "name": { "ar": "نقل ولوجستيات", "en": "Transport and logistics", "fr": "Transport et logistique", "zh": "运输与物流" } },
+    { "id": "traffic", "name": { "ar": "مرورية", "en": "Traffic", "fr": "Circulation", "zh": "交通" } },
+    { "id": "establishment", "name": { "ar": "منشآت", "en": "Establishments", "fr": "Établissements", "zh": "企业场所" } }
+  ],
+  "no_guarantee": {
+    "ar": "لا نضمن إلغاء المخالفة أو تخفيضها؛ النتيجة بيد الجهة المختصة وبحسب الأنظمة والإجراءات المتاحة.",
+    "en": "We do not guarantee that a violation will be cancelled or reduced; the outcome rests with the competent authority under the rules and procedures available.",
+    "fr": "Nous ne garantissons ni l'annulation ni la réduction d'une infraction ; la décision appartient à l'autorité compétente selon les règles et procédures disponibles.",
+    "zh": "我们不保证违规被撤销或减轻；结果由主管机构依据现行规则与程序决定。"
+  },
+  "windows_status": "needs_verification"
+}

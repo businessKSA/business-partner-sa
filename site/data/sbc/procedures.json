@@ -1,17 +1,1 @@
-[
-  { "id": "sample-proc-1", "entity": "sample-entity-a", "sector": "sample-sector-1",
-    "title": { "ar": "إجراء نموذجي ١", "en": "Sample procedure 1" },
-    "summary": { "ar": "وصف نموذجي بصياغتنا لإظهار شكل البطاقة.", "en": "Placeholder description to show the card layout." },
-    "steps": [], "documents": [], "gov_fee": null, "duration": null, "platform": null,
-    "catalog_sku": null, "source_url": "", "verified_at": "", "status": "needs_verification" },
-  { "id": "sample-proc-2", "entity": "sample-entity-b", "sector": "sample-sector-1",
-    "title": { "ar": "إجراء نموذجي ٢", "en": "Sample procedure 2" },
-    "summary": { "ar": "وصف نموذجي بصياغتنا لإظهار شكل البطاقة.", "en": "Placeholder description to show the card layout." },
-    "steps": [], "documents": [], "gov_fee": null, "duration": null, "platform": null,
-    "catalog_sku": null, "source_url": "", "verified_at": "", "status": "needs_verification" },
-  { "id": "sample-proc-3", "entity": "sample-entity-c", "sector": "sample-sector-2",
-    "title": { "ar": "إجراء نموذجي ٣", "en": "Sample procedure 3" },
-    "summary": { "ar": "وصف نموذجي بصياغتنا لإظهار شكل البطاقة.", "en": "Placeholder description to show the card layout." },
-    "steps": [], "documents": [], "gov_fee": null, "duration": null, "platform": null,
-    "catalog_sku": null, "source_url": "", "verified_at": "", "status": "needs_verification" }
-]
+[]
