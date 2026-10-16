@@ -183,8 +183,13 @@ const FILES=walk(ROOT).filter((f)=> !/[/\\]assets[/\\]data[/\\]/.test(f));
 const BUILT=new Set();
 for(const f of FILES){ const {lang,base}=pageOf(f); BUILT.add(lang+' '+base); }
 
-function headerFor(file){
-  const { lang, base } = pageOf(file);
+// langHint: لغة المستند نفسه حين تخالف مسارَه. اللوحات الداخلية عربية المحتوى
+// وتعيش في الجذر (/dashboard · /monitor · /admin)، فاشتقاق اللغة من المسار
+// وحده كان يعطيها ترويسة إنجليزية فوق صفحة dir="rtl".
+function headerFor(file, langHint){
+  const p = pageOf(file);
+  const base = p.base;
+  const lang = (langHint && SIMPLE_LANGS.includes(langHint)) ? langHint : p.lang;
   const t=(k)=>{ const e=SV1_TEXT[k]; if(!e) return k; return e[lang]!=null?e[lang]:e.en; };
   const href=(p)=> (p==='/' ? (lang==='en'?'/':'/'+lang+'/') : (lang==='en'?'':'/'+lang)+p);
   const home=href('/');
@@ -234,7 +239,8 @@ for(const file of FILES){
   const hasHeader=html.includes('<header class="site-header">');
   const hasFooter=html.includes('<footer class="site-footer">');
   if(!hasHeader && !hasFooter) continue;
-  if(hasHeader) html=html.replace(/<header class="site-header">[\s\S]*?<\/header>/, headerFor(file));
+  const docLang=(/<html[^>]*\blang="([a-z]{2})"/.exec(html)||[])[1];
+  if(hasHeader) html=html.replace(/<header class="site-header">[\s\S]*?<\/header>/, headerFor(file, docLang));
   if(hasFooter){ html=html.replace(OLD_FOOTER, FOOTER[pageOf(file).lang]); feet++; }
   // كتلة CSS تُستبدل إن وُجدت من بناءٍ سابق، لا تُتخطّى — فإعادة تشغيل
   // السكربت وحده على موقعٍ مبنيّ تصل إلى النتيجة نفسها التي يصلها البناء الكامل.

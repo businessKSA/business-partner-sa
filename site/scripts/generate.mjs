@@ -8909,9 +8909,11 @@ function buildDashboard() {
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root{
-      --navy:#0B1B5A; --navy-700:#13246e; --navy-900:#081345;
-      --green:#16a34a; --green-soft:#dcfce7; --amber:#f59e0b;
-      --bg:#F5F6FA; --surface:#fff; --line:#E4E7F0; --text:#1F2430; --muted:#6a7085;
+      /* رموز Simple V1 نفسها حرفياً — مأخوذة من الرئيسية لا مقارَبة لها،
+         حتى لا تنجرف اللوحة عن الموقع مع أول تعديل على التصميم. */
+      --navy:#0B1B5A; --navy-700:#16307F; --navy-900:#081345;
+      --green:#047857; --green-soft:#dcfce7; --amber:#B45309;
+      --bg:#F5F7FB; --surface:#fff; --line:#E5E9F0; --text:#232A3D; --muted:#5A6478;
       --radius:16px; --shadow:0 8px 30px rgba(11,27,90,.06);
     }
     *{box-sizing:border-box;margin:0;padding:0}
@@ -8944,7 +8946,7 @@ function buildDashboard() {
     .inrow{display:flex;gap:.5rem}
     .input{flex:1;border:1px solid var(--line);border-radius:10px;padding:.55rem .7rem;font:inherit;outline:none}
     .input:focus{border-color:var(--navy)}
-    .send{background:var(--green);color:#fff;border:0;border-radius:10px;padding:0 1.1rem;font-weight:600}
+    .send{background:var(--navy);color:#fff;border:0;border-radius:10px;padding:0 1.1rem;font-weight:600}
     .send:disabled{opacity:.5;cursor:not-allowed}
     .hint{font-size:.75rem;color:var(--muted);min-height:1em;margin-top:.35rem}
     .foot{margin-top:2.2rem;background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:12px;padding:1rem 1.25rem;font-size:.86rem}
@@ -8958,6 +8960,9 @@ function buildDashboard() {
   </style>
 </head>
 <body>
+  <!-- ترويسة الموقع: تُستبدل بترويسة SV1 كاملة في simplified-global-header.mjs،
+       وهي القناة نفسها التي ترقّي بها ٣٨٤ صفحة أخرى — لا ترويسة خاصة بهذه اللوحة. -->
+  <header class="site-header"></header>
   <div class="wrap">
     <div class="topbar">
       <div class="badge">🔒 لوحة داخلية للمالك — تحكم واختبار كل موظف</div>
@@ -9646,6 +9651,7 @@ function buildPortal(pre = "/") {
   </style>
 </head>
 <body>
+  <header class="site-header"></header>
   <div class="topbar">
     <div class="brand">Business Partner<small>بوابة الموظفين الأذكياء</small></div>
     <a class="tb-link" href="${pre}connect">الأدوات ورحلة العميل</a>
@@ -12148,7 +12154,7 @@ a{color:var(--blue)}
 .note{color:var(--muted);font-size:.85rem}
 </style>
 </head>
-<body><div class="wrap">
+<body><header class="site-header"></header><div class="wrap">
 <h1>🗂️ مستشار المستندات — لوحة المتابعة والتدخل</h1>
 <div class="bar">
   <input id="k" type="password" placeholder="مفتاح اللوحة (يُحفظ محلياً)" style="min-width:240px"/>
