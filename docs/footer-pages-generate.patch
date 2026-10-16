@@ -1,0 +1,18 @@
+diff --git a/site/scripts/generate.mjs b/site/scripts/generate.mjs
+index dcf30e0..7f01e07 100644
+--- a/site/scripts/generate.mjs
++++ b/site/scripts/generate.mjs
+@@ -344,2 +344,3 @@ import { buildSimpleGuideResidency } from "./simple-v1-guide-residency.mjs";
+ import { buildSimpleKnowledge } from "./simple-v1-knowledge.mjs";
++import { buildSimpleAiAgents, buildSimplePackages } from "./simple-v1-footer-pages.mjs";
+ function T(en) {
+@@ -11969,3 +11970,3 @@ function writeFullSite(pre) {
+   write(`${pre}b10x.html`, buildB10X());
+-  write(`${pre}ai-agents.html`, buildAiAgents());
++  write(`${pre}ai-agents.html`, SIMPLE_V1 ? buildSimpleAiAgents(SV1, { lang: () => LANG, esc, localizeLabel, pageVisible, services }) : buildAiAgents());
+   write(`${pre}smart-employee.html`, buildSmartEmployeePage());
+@@ -11977,3 +11978,3 @@ function writeFullSite(pre) {
+   write(`${pre}opportunities.html`, buildOpportunities());
+-  write(`${pre}packages.html`, buildPackages());
++  write(`${pre}packages.html`, SIMPLE_V1 ? buildSimplePackages(SV1, { lang: () => LANG, esc, localizeLabel, site, pkgCode, employerYearly, portalQuoteUrl }) : buildPackages());
+   write(`${pre}calculator.html`, buildCalculator());
