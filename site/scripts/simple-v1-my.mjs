@@ -524,32 +524,32 @@ var gslot=h('div',{id:'bpGoogleBtn'});
 var orA=h('div',{class:'bpg-or'},[(window.SV1Login&&window.SV1Login.orPlain)||'']);
 var orB=h('div',{class:'bpg-or'},[(window.SV1Login&&window.SV1Login.or)||'']);
 // 3 · E-mail: password (sign in / new account) or an e-mailed link and code.
-var em=h('input',{type:'email',placeholder:TX.email,autocomplete:'email',inputmode:'email','aria-label':TX.email});
+var e1=h('input',{type:'email',placeholder:TX.email,autocomplete:'email',inputmode:'email','aria-label':TX.email});
 var tabs=h('div',{class:'seg',role:'tablist'});var panels={};
 function tab(id,label){var a=h('button',{type:'button',role:'tab',class:'segb',onclick:function(){pick(id)}},[label]);a.setAttribute('data-tab',id);tabs.appendChild(a);return a}
 var tPw=tab('login',TX.tabPw),tNew=tab('signup',TX.tabNew),tLink=tab('link',TX.tabLink);
 function pick(id){errEl.textContent='';[tPw,tNew,tLink].forEach(function(b){b.className='segb'+(b.getAttribute('data-tab')===id?' on':'');b.setAttribute('aria-selected',b.getAttribute('data-tab')===id?'true':'false')});for(var k in panels)panels[k].hidden=(k!==id)}
 // -- password sign-in
-var pwIn=h('input',{type:'password',placeholder:TX.password,autocomplete:'current-password','aria-label':TX.password});
-var bPw=h('button',{class:'btn',onclick:function(){errEl.textContent='';if(em.value.indexOf('@')<1){fail(TX.badEmail);return}bPw.disabled=true;otp({action:'password-login',email:em.value.trim().toLowerCase(),password:pwIn.value}).then(function(o){bPw.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:o&&o.error==='bad_credentials'?TX.badCreds:TX.loginErr);return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){bPw.disabled=false;fail(TX.loginErr)})}},[TX.loginPw]);
+var e3=h('input',{type:'password',placeholder:TX.password,autocomplete:'current-password','aria-label':TX.password});
+var b3=h('button',{class:'btn',onclick:function(){errEl.textContent='';if(e1.value.indexOf('@')<1){fail(TX.badEmail);return}b3.disabled=true;otp({action:'password-login',email:e1.value.trim().toLowerCase(),password:e3.value}).then(function(o){b3.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:o&&o.error==='bad_credentials'?TX.badCreds:TX.loginErr);return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){b3.disabled=false;fail(TX.loginErr)})}},[TX.loginPw]);
 var forgot=h('a',{class:'lnk',onclick:function(){pick('link')}},[TX.forgot]);
-panels.login=h('div',{},[pwIn,bPw,h('div',{class:'alt'},[forgot])]);
-pwIn.addEventListener('keydown',function(ev){if(ev.key==='Enter')bPw.click()});
+panels.login=h('div',{},[e3,b3,h('div',{class:'alt'},[forgot])]);
+onEnter(e3,b3);
 // -- new account: the password only counts once the mailbox is proven
 function pwWhy(p,e){if(p.length<8)return 'short';if(p.length>128)return 'long';var L=false,D=false,i,c,seen={},n=0;for(i=0;i<p.length;i++){c=p.charCodeAt(i);if((c>=48&&c<=57)||(c>=1632&&c<=1641))D=true;else if((c>=65&&c<=90)||(c>=97&&c<=122)||c>=192)L=true;if(!seen[c]){seen[c]=1;n++}}
  if(!L)return 'no_letter';if(!D)return 'no_digit';if(n<4)return 'repetitive';var lp=String(e||'').split('@')[0].toLowerCase();if(lp.length>=4&&p.toLowerCase().indexOf(lp)>=0)return 'has_email';return ''}
 var npw=h('input',{type:'password',placeholder:TX.pwNew,autocomplete:'new-password','aria-label':TX.pwNew});
 var npw2=h('input',{type:'password',placeholder:TX.pwConfirm,autocomplete:'new-password','aria-label':TX.pwConfirm});
 var rule=h('p',{class:'note rule'},[TX.pwRule]);
-npw.addEventListener('input',function(){var w=pwWhy(npw.value,em.value);rule.className='note rule'+(npw.value&&w?' bad':npw.value?' good':'');rule.textContent=npw.value&&w?(TX['pwr_'+w]||TX.pwRule):TX.pwRule});
-var bNew=h('button',{class:'btn',onclick:function(){errEl.textContent='';var e=em.value.trim().toLowerCase();if(e.indexOf('@')<1||e.indexOf('.')<0){fail(TX.badEmail);return}var w=pwWhy(npw.value,e);if(w){fail(TX['pwr_'+w]);return}if(npw.value!==npw2.value){fail(TX.pwMismatch);return}
+npw.addEventListener('input',function(){var w=pwWhy(npw.value,e1.value);rule.className='note rule'+(npw.value&&w?' bad':npw.value?' good':'');rule.textContent=npw.value&&w?(TX['pwr_'+w]||TX.pwRule):TX.pwRule});
+var bNew=h('button',{class:'btn',onclick:function(){errEl.textContent='';var e=e1.value.trim().toLowerCase();if(e.indexOf('@')<1||e.indexOf('.')<0){fail(TX.badEmail);return}var w=pwWhy(npw.value,e);if(w){fail(TX['pwr_'+w]);return}if(npw.value!==npw2.value){fail(TX.pwMismatch);return}
  bNew.disabled=true;otp({action:'password-signup-start',email:e,password:npw.value}).then(function(o){bNew.disabled=false;if(!o||!o.ok){fail(o&&o.error==='weak'?(TX['pwr_'+o.reason]||TX.pwRule):o&&o.error==='too_many'?TX.tooMany:(o&&o.message)||TX.loginErr);return}pwChallenge=o.challenge;pwEmail=e;nSent.textContent=TX.codeSent.replace('{e}',e);if(o.testLogin)nCode.placeholder='TEST: 123456';nStep1.hidden=true;nStep2.hidden=false;nCode.focus()}).catch(function(){bNew.disabled=false;fail(TX.loginErr)})}},[TX.signupGo]);
 var nStep1=h('div',{},[npw,npw2,rule,h('p',{class:'note'},[TX.signupNote]),bNew]);
 var nSent=h('p',{class:'sent'});var nCode=h('input',{inputmode:'numeric',maxlength:'6',placeholder:TX.code,autocomplete:'one-time-code','aria-label':TX.code});
 var bNC=h('button',{class:'btn',onclick:function(){errEl.textContent='';bNC.disabled=true;otp({action:'password-signup-verify',email:pwEmail,code:nCode.value.trim(),challenge:pwChallenge}).then(function(o){bNC.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:o&&o.error==='expired'?TX.codeOld:TX.codeErr);return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){bNC.disabled=false;fail(TX.codeErr)})}},[TX.confirmGo]);
 var nBack=h('a',{class:'lnk',onclick:function(){nStep2.hidden=true;nStep1.hidden=false;errEl.textContent=''}},[TX.changeEmail]);
 var nStep2=h('div',{hidden:''},[nSent,nCode,bNC,h('div',{class:'alt'},[nBack])]);
-nCode.addEventListener('keydown',function(ev){if(ev.key==='Enter')bNC.click()});
+onEnter(nCode,bNC);
 panels.signup=h('div',{hidden:''},[nStep1,nStep2]);
 // -- e-mailed link (with its own code as a fallback in the same message)
 var b1=h('button',{class:'btn',onclick:function(){sendLink()}},[TX.sendLink]);
@@ -558,15 +558,15 @@ var sentMsg=h('p',{class:'sent'}),dev=h('div',{});
 var e2=h('input',{inputmode:'numeric',maxlength:'6',placeholder:TX.code,autocomplete:'one-time-code','aria-label':TX.code});
 var b2=h('button',{class:'btn',onclick:function(){b2.disabled=true;errEl.textContent='';otp({action:'verify',email:email,code:e2.value.trim(),challenge:challenge}).then(function(o){b2.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:TX.codeErr);return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){b2.disabled=false;fail(TX.codeErr)})}},[TX.verify]);
 var resend=h('a',{class:'lnk',onclick:function(){if(wait>0)return;sendLink()}},[TX.resend]);
-var change=h('a',{class:'lnk',onclick:function(){s2.hidden=true;s1.hidden=false;errEl.textContent='';em.focus()}},[TX.changeEmail]);
+var change=h('a',{class:'lnk',onclick:function(){s2.hidden=true;s1.hidden=false;errEl.textContent='';e1.focus()}},[TX.changeEmail]);
 var s2=h('div',{hidden:''},[sentMsg,dev,h('p',{class:'note'},[TX.orCode]),e2,b2,h('div',{class:'alt'},[resend,change])]);
 function cool(){wait=30;resend.textContent=TX.resendIn.replace('{n}',wait);clearInterval(timer);timer=setInterval(function(){wait--;if(wait<=0){clearInterval(timer);resend.textContent=TX.resend}else resend.textContent=TX.resendIn.replace('{n}',wait)},1000)}
-function sendLink(){email=em.value.trim().toLowerCase();errEl.textContent='';if(email.indexOf('@')<1||email.indexOf('.')<0){fail(TX.badEmail);return}b1.disabled=true;
+function sendLink(){email=e1.value.trim().toLowerCase();errEl.textContent='';if(email.indexOf('@')<1||email.indexOf('.')<0){fail(TX.badEmail);return}b1.disabled=true;
 otp({action:'link-start',email:email,lang:LANG,next:nextPath()}).then(function(o){b1.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:(o&&o.message)||TX.loginErr);return}challenge=o.challenge;sentMsg.textContent=TX.linkSent.replace('{e}',email);if(o.testLogin)e2.placeholder='TEST: 123456';dev.innerHTML='';if(o.devLink)dev.appendChild(h('a',{class:'btn ghost sm',href:o.devLink,id:'devLink'},['DEV · '+TX.openLink]));s1.hidden=true;s2.hidden=false;e2.focus();cool()}).catch(function(){b1.disabled=false;fail(TX.loginErr)})}
-em.addEventListener('keydown',function(ev){if(ev.key==='Enter'){var on=document.querySelector('.login .segb.on');var t=on&&on.getAttribute('data-tab');if(t==='link')sendLink();else if(t==='login')bPw.click()}});
+e1.addEventListener('keydown',function(ev){if(ev.key==='Enter'&&!ev.isComposing){var on=document.querySelector('.login .segb.on');var t=on&&on.getAttribute('data-tab');ev.preventDefault();if(t==='link')sendLink();else if(t==='login')b3.click()}});
 e2.addEventListener('keydown',function(ev){if(ev.key==='Enter')b2.click()});
 panels.link=h('div',{hidden:''},[s1,s2]);
-var mail=h('div',{class:'mailbox'},[tabs,em,panels.login,panels.signup,panels.link]);
+var mail=h('div',{class:'mailbox'},[tabs,e1,panels.login,panels.signup,panels.link]);
 box.appendChild(h('h1',{},[TX.loginTitle]));box.appendChild(h('p',{},[TX.loginText]));if(note)box.appendChild(h('p',{class:'err'},[note]));
 box.appendChild(nslot);box.appendChild(orA);box.appendChild(gslot);box.appendChild(orB);box.appendChild(mail);box.appendChild(errEl);app.appendChild(box);pick('login');
 otp({action:'methods'}).then(function(m){if(m&&m.ok&&!m.password){tPw.hidden=true;tNew.hidden=true;pick('link')}else if(m&&m.ok&&!m.passwordSignup){tNew.hidden=true}}).catch(function(){});
@@ -588,7 +588,7 @@ var b2=h('button',{class:'btn',onclick:function(){errEl.textContent='';b2.disabl
 var back=h('a',{class:'lnk',onclick:function(){s2.hidden=true;s1.hidden=false;errEl.textContent=''}},[TX.changeEmail]);
 var out=h('a',{class:'lnk',onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},[TX.logout]);
 var s2=h('div',{hidden:''},[sent,code,b2,h('div',{class:'alt'},[back])]);
-code.addEventListener('keydown',function(ev){if(ev.key==='Enter')b2.click()});
+onEnter(code,b2);
 box.appendChild(h('div',{class:'cstep'},[TX.cStep]));box.appendChild(h('h1',{},[TX.cTitle]));box.appendChild(h('p',{},[TX.cText]));box.appendChild(s1);box.appendChild(s2);box.appendChild(h('div',{class:'alt'},[out]));box.appendChild(errEl);app.appendChild(box)}
 // The page a sign-in link lands on. Opening the link signs nobody in: mail
 // scanners open every URL they find, so only this button (a POST) spends it.
