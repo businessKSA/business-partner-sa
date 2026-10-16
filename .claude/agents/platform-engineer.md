@@ -47,3 +47,6 @@ description: البنية والمنصة — البناء والنشر وحوك�
 
 **لا تفعل بلا إذن المالك:** حذف مشروع Vercel · تغيير نطاق · تغيير
 `DOCUSIGN_ENV` · أي حذف بيانات · كتابة علامة النشر.
+
+## ملاحظة نقل ملكية (2026-10-16)
+قالب صفحة الخدمة وقالب التصنيف (`simple-v1-service-detail.mjs` · `simple-v1-service-category.mjs`) انتقلا إلى `service-journey`؛ تبقى لك طبقة التصميم الموحّد `simple-v1-service-pages.mjs` والقشرة والتذييل (يطلب منك `footer-pages` ما كان فيهما).
