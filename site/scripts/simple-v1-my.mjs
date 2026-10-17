@@ -48,6 +48,39 @@ const P = {
   cancelSent: { ar: "استلمنا طلب الإلغاء ويراجعه الفريق.", en: "Cancellation request received and under review.",
                 fr: "Demande d'annulation recue et en cours d'examen.", zh: "已收到取消申请，正在审核。" },
   cancelDone: { ar: "أُلغي الطلب", en: "Request cancelled", fr: "Demande annulee", zh: "请求已取消" },
+  // Cancellation, in the order the customer meets it: the sheet he confirms in,
+  // the state the request then shows, and what an error says. The sheet is
+  // ours, not window.confirm — an embedded browser or a blocked dialog answers
+  // «no» without asking, and the button then looks dead.
+  cxNowTitle: { ar: "إلغاء هذا الطلب؟", en: "Cancel this request?", fr: "Annuler cette demande ?", zh: "取消此请求？" },
+  cxAskTitle: { ar: "طلب إلغاء هذا الطلب", en: "Request cancellation", fr: "Demander l'annulation", zh: "申请取消此请求" },
+  cxNowGo:    { ar: "نعم، ألغِ الطلب", en: "Yes, cancel the request", fr: "Oui, annuler la demande", zh: "是，取消请求" },
+  cxAskGo:    { ar: "أرسل طلب الإلغاء", en: "Send cancellation request", fr: "Envoyer la demande d'annulation", zh: "提交取消申请" },
+  cxKeep:     { ar: "تراجع، أبقِ الطلب", en: "No, keep it", fr: "Non, la garder", zh: "不，保留" },
+  cxSigned:   { ar: "العقد موقَّع من جهتك، فلا يُلغى بضغطة: نسجّل طلب الإلغاء ويراجعه الفريق ويعود لك. يبقى الطلب كما هو إلى ذلك الحين.",
+                en: "The contract is signed, so it cannot be cancelled with one click: we record your request, the team reviews it and gets back to you. The request stays as it is until then.",
+                fr: "Le contrat est signé : l'annulation n'est pas immédiate. Nous enregistrons votre demande, l'équipe l'examine et revient vers vous. La demande reste en l'état d'ici là.",
+                zh: "合同已签署，无法一键取消：我们会记录您的申请，由团队审核后回复您。在此期间请求保持不变。" },
+  cxPaid:     { ar: "تم الدفع، فلا يُلغى بضغطة: نسجّل طلب الإلغاء ويراجعه الفريق، وأي استرداد يقرّره بعد المراجعة. يبقى الطلب كما هو إلى ذلك الحين.",
+                en: "Payment has been made, so it cannot be cancelled with one click: we record your request and the team reviews it, including any refund. The request stays as it is until then.",
+                fr: "Le paiement a été effectué : l'annulation n'est pas immédiate. Nous enregistrons votre demande et l'équipe l'examine, remboursement compris. La demande reste en l'état d'ici là.",
+                zh: "款项已支付，无法一键取消：我们会记录您的申请，由团队审核（包括退款）。在此期间请求保持不变。" },
+  evNotify:   { ar: "أُرسل إشعار", en: "Notification sent", fr: "Notification envoyée", zh: "已发送通知" },
+  cxAppt:     { ar: "وسيُلغى معه موعد الاستشارة المحجوز.", en: "The booked consultation slot will be cancelled with it.", fr: "Le rendez-vous de consultation réservé sera annulé avec elle.", zh: "已预约的咨询时间也将一并取消。" },
+  cxNowNote:  { ar: "الإلغاء يتم فوراً، ولم يُخصم منك شيء.", en: "Cancellation is immediate and nothing has been charged.", fr: "L'annulation est immédiate et rien n'a été débité.", zh: "立即取消，且未产生任何扣款。" },
+  cxDoneNow:  { ar: "أُلغي الطلب", en: "Request cancelled", fr: "Demande annulée", zh: "请求已取消" },
+  cxDoneNowT: { ar: "ألغينا طلبك كما طلبت، وسُحب من طلباتك النشطة. تقدر تبدأ طلباً جديداً في أي وقت.", en: "Your request is cancelled and removed from your active requests. You can start a new one any time.", fr: "Votre demande est annulée et retirée de vos demandes actives. Vous pouvez en créer une nouvelle à tout moment.", zh: "您的请求已取消，并已从进行中的申请中移除。您可以随时发起新申请。" },
+  cxPendTitle:{ ar: "طلب الإلغاء قيد مراجعة الفريق", en: "Cancellation request under team review", fr: "Demande d'annulation en cours d'examen", zh: "取消申请正在由团队审核" },
+  cxPendText: { ar: "نراجع ما ترتّب على الطلب من عقد أو دفعة أو تنفيذ ونعود لك. يبقى الطلب كما هو إلى ذلك الحين.", en: "We are reviewing what the request involves (contract, payment, execution) and will get back to you. The request stays as it is until then.", fr: "Nous examinons ce que la demande implique (contrat, paiement, exécution) et revenons vers vous. La demande reste en l'état d'ici là.", zh: "我们正在审核该请求涉及的合同、付款或执行情况并会回复您。在此期间请求保持不变。" },
+  cxSentAt:   { ar: "أُرسل في", en: "Sent on", fr: "Envoyée le", zh: "提交于" },
+  cxPill:     { ar: "إلغاء قيد المراجعة", en: "Cancellation under review", fr: "Annulation en examen", zh: "取消审核中" },
+  cxNewReq:   { ar: "ابدأ طلباً جديداً", en: "Start a new request", fr: "Nouvelle demande", zh: "发起新申请" },
+  cxAlready:  { ar: "طلب الإلغاء مسجَّل مسبقاً ويراجعه الفريق.", en: "A cancellation request is already on file and under review.", fr: "Une demande d'annulation est déjà enregistrée et en cours d'examen.", zh: "取消申请已登记，正在审核。" },
+  cxErrClosed:{ ar: "هذا الطلب مُغلق أصلاً (ملغى أو مكتمل).", en: "This request is already closed (cancelled or completed).", fr: "Cette demande est déjà close (annulée ou terminée).", zh: "此请求已关闭（已取消或已完成）。" },
+  cxErrSess:  { ar: "انتهت جلستك. سجّل دخولك من جديد ثم أعد المحاولة.", en: "Your session has expired. Sign in again, then retry.", fr: "Votre session a expiré. Reconnectez-vous puis réessayez.", zh: "登录已过期，请重新登录后再试。" },
+  cxErrNet:   { ar: "تعذّر الاتصال بالخادم. تأكد من الإنترنت وأعد المحاولة.", en: "Could not reach the server. Check your connection and try again.", fr: "Serveur injoignable. Vérifiez votre connexion et réessayez.", zh: "无法连接服务器。请检查网络后重试。" },
+  cxErrNF:    { ar: "لم نجد هذا الطلب في حسابك.", en: "We could not find this request in your account.", fr: "Cette demande est introuvable dans votre compte.", zh: "在您的账户中找不到此请求。" },
+  cxErrGen:   { ar: "تعذّر تنفيذ الإلغاء الآن. أعد المحاولة بعد قليل أو راسل الفريق من المحادثة.", en: "We could not cancel right now. Try again shortly or message the team from the conversation.", fr: "Annulation impossible pour le moment. Réessayez ou écrivez à l'équipe depuis la conversation.", zh: "暂时无法取消。请稍后重试，或在对话中联系团队。" },
   resign: { ar: "صدرت نسخة مصحَّحة من هذا العقد بعد توقيعك — سنرسلها لك للتوقيع من جديد.",
             en: "A corrected version of this contract was issued after your signature — we will send it to you to sign again.",
             fr: "Une version corrigee de ce contrat a ete emise apres votre signature — nous vous l'enverrons a signer de nouveau.",
@@ -221,7 +254,7 @@ const STATUS = {
   PAID: { ar: "مدفوع — جاهز للتنفيذ", en: "Paid — ready for execution", fr: "Payé — prêt pour exécution", zh: "已付款 — 准备执行" }, IN_PROGRESS: { ar: "قيد التنفيذ", en: "In progress", fr: "En cours", zh: "执行中" },
   WAITING_INTERNAL: { ar: "قيد التنفيذ", en: "In progress", fr: "En cours", zh: "执行中" }, COMPLETED: { ar: "مكتمل", en: "Completed", fr: "Terminé", zh: "已完成" }, CANCELLED: { ar: "ملغي", en: "Cancelled", fr: "Annulé", zh: "已取消" },
 };
-const EVENTS = { ar: {"request.created": "أنشأ الطلب", "request.created.manual": "أُنشئ الطلب يدوياً", "scope.proposed": "اقترح النطاق", "scope.edited": "عدّل النطاق", "scope.confirmed": "اعتمد النطاق", "quote.pending": "بانتظار عرض السعر", "message.customer": "رسالة من العميل", "message.bp": "رد الفريق", "attachment.added": "أضاف مرفقاً", "quote.drafted": "مسودة عرض سعر", "quote.sent": "أرسل عرض السعر", "quote.approved": "اعتمد العرض", "quote.rejected": "طلب تعديل العرض", "contract.sent": "أرسل العقد", "contract.signed": "وقّع العقد", "payment.paid": "تم الدفع", "payment.failed": "فشل الدفع", "payment.cancelled": "أُلغي الدفع", "payment.pending": "دفع معلّق", "invoice.issued": "صدرت الفاتورة", "appointment.booked": "حجز موعداً", "appointment.rescheduled": "أعاد جدولة الموعد", "appointment.cancelled": "ألغى الموعد", "appointment.set": "ثبّت الموعد", "task.created": "أنشأ مهمة", "task.human_required": "مهمة تحتاج تدخلاً بشرياً", "task.done": "أنجز المهمة", "task.in_progress": "بدأ المهمة", "task.waiting": "مهمة بانتظار", "task.todo": "أعاد فتح المهمة", "execution.started": "بدأ التنفيذ", "request.cancelled": "ألغى الطلب", "request.updated": "حدّث الطلب"}, en: {"request.created": "created the request", "request.created.manual": "request created manually", "scope.proposed": "proposed the scope", "scope.edited": "edited the scope", "scope.confirmed": "confirmed the scope", "quote.pending": "awaiting the quotation", "message.customer": "customer message", "message.bp": "team reply", "attachment.added": "added an attachment", "quote.drafted": "quote drafted", "quote.sent": "sent the quotation", "quote.approved": "approved the quotation", "quote.rejected": "requested changes", "contract.sent": "sent the contract", "contract.signed": "signed the contract", "payment.paid": "payment received", "payment.failed": "payment failed", "payment.cancelled": "payment cancelled", "payment.pending": "payment pending", "invoice.issued": "invoice issued", "appointment.booked": "booked an appointment", "appointment.rescheduled": "rescheduled the appointment", "appointment.cancelled": "cancelled the appointment", "appointment.set": "set the appointment", "task.created": "created a task", "task.human_required": "task needs a human", "task.done": "completed the task", "task.in_progress": "started the task", "task.waiting": "task waiting", "task.todo": "reopened the task", "execution.started": "execution started", "request.cancelled": "cancelled the request", "request.updated": "updated the request"} };
+const EVENTS = { ar: {"request.created": "أنشأ الطلب", "request.created.manual": "أُنشئ الطلب يدوياً", "scope.proposed": "اقترح النطاق", "scope.edited": "عدّل النطاق", "scope.confirmed": "اعتمد النطاق", "quote.pending": "بانتظار عرض السعر", "message.customer": "رسالة من العميل", "message.bp": "رد الفريق", "attachment.added": "أضاف مرفقاً", "quote.drafted": "مسودة عرض سعر", "quote.sent": "أرسل عرض السعر", "quote.approved": "اعتمد العرض", "quote.rejected": "طلب تعديل العرض", "contract.sent": "أرسل العقد", "contract.signed": "وقّع العقد", "payment.paid": "تم الدفع", "payment.failed": "فشل الدفع", "payment.cancelled": "أُلغي الدفع", "payment.pending": "دفع معلّق", "invoice.issued": "صدرت الفاتورة", "appointment.booked": "حجز موعداً", "appointment.rescheduled": "أعاد جدولة الموعد", "appointment.cancelled": "ألغى الموعد", "appointment.set": "ثبّت الموعد", "task.created": "أنشأ مهمة", "task.human_required": "مهمة تحتاج تدخلاً بشرياً", "task.done": "أنجز المهمة", "task.in_progress": "بدأ المهمة", "task.waiting": "مهمة بانتظار", "task.todo": "أعاد فتح المهمة", "execution.started": "بدأ التنفيذ", "request.cancelled": "ألغى الطلب", "cancel.requested": "طلب إلغاء الطلب", "payment.after_cancel": "وصلت دفعة بعد الإلغاء","request.updated": "حدّث الطلب"}, en: {"request.created": "created the request", "request.created.manual": "request created manually", "scope.proposed": "proposed the scope", "scope.edited": "edited the scope", "scope.confirmed": "confirmed the scope", "quote.pending": "awaiting the quotation", "message.customer": "customer message", "message.bp": "team reply", "attachment.added": "added an attachment", "quote.drafted": "quote drafted", "quote.sent": "sent the quotation", "quote.approved": "approved the quotation", "quote.rejected": "requested changes", "contract.sent": "sent the contract", "contract.signed": "signed the contract", "payment.paid": "payment received", "payment.failed": "payment failed", "payment.cancelled": "payment cancelled", "payment.pending": "payment pending", "invoice.issued": "invoice issued", "appointment.booked": "booked an appointment", "appointment.rescheduled": "rescheduled the appointment", "appointment.cancelled": "cancelled the appointment", "appointment.set": "set the appointment", "task.created": "created a task", "task.human_required": "task needs a human", "task.done": "completed the task", "task.in_progress": "started the task", "task.waiting": "task waiting", "task.todo": "reopened the task", "execution.started": "execution started", "request.cancelled": "cancelled the request", "cancel.requested": "requested cancellation", "payment.after_cancel": "payment received after cancellation","request.updated": "updated the request"} };
 const DOC_CATS = [
   ["cr",       { ar: "سجل تجاري", en: "Commercial registration", fr: "Registre de commerce", zh: "商业登记" }],
   ["vat",      { ar: "شهادة ضريبية", en: "VAT certificate", fr: "Certificat de TVA", zh: "增值税证书" }],
@@ -306,6 +339,23 @@ table.q tfoot td{font-weight:700}
   .docovl{position:static;background:#fff} .docovl-bar{display:none}}
 canvas.sig{border:1px dashed #c7cfe2;border-radius:10px;background:#fff;width:100%;height:150px;touch-action:none}
 .note{font-size:.82rem;color:var(--mut)}
+/* the cancel sheet: ours, not window.confirm, so it also works where a native dialog is blocked */
+.cx-ovl{position:fixed;inset:0;z-index:95;background:rgba(12,18,40,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+.cx-box{background:#fff;border-radius:18px;max-width:460px;width:100%;padding:22px;box-shadow:0 24px 60px rgba(12,18,40,.35);max-height:calc(100vh - 32px);overflow:auto}
+.cx-box h3{margin:0 0 8px;color:var(--ink);font-size:1.1rem;font-weight:600}
+.cx-box p{margin:0 0 10px;font-size:.9rem;line-height:1.8;color:#3b4561}
+.cx-box input{display:block;width:100%;box-sizing:border-box;border:1px solid #b9c3dc;border-radius:10px;padding:11px 12px;font:inherit;background:#fff;color:#1F2430;margin-top:4px}
+.cx-box input:focus{outline:2px solid var(--n);outline-offset:1px}
+.cx-box .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.cx-box .acts .btn{flex:1;min-width:140px;padding:11px 14px}
+.btn.solid-danger{background:#b91c1c;border-color:#b91c1c;color:#fff}
+.cx-state{border-radius:16px;padding:16px 18px;margin-bottom:14px;border:1px solid}
+.cx-state h3{margin:0 0 6px;font-size:1.02rem;font-weight:600}
+.cx-state p{margin:0;font-size:.88rem;line-height:1.8}
+.cx-state.done{background:#fef2f2;border-color:#fecaca;color:#7f1d1d}
+.cx-state.pend{background:#fff7ed;border-color:#fed7aa;color:#7c2d12}
+.cx-state .btn{margin-top:10px}
+.stat .cxbtn{margin-inline-start:auto}
 .ok{color:#118657;font-weight:700}.err{color:#b91c1c;font-size:.84rem}
 .login{max-width:440px;margin:60px auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px}
 .login .alt{margin-top:12px;display:flex;gap:14px;flex-wrap:wrap}
@@ -399,7 +449,7 @@ var mob=h('div',{class:'mob'},NAV.map(function(n){return h('a',{class:state.view
 var main=h('div',{class:'my-main',id:'myMain'});
 app.appendChild(mob);var wrap=h('div',{class:'my'},[side,main]);app.appendChild(wrap);
 var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='documents')viewDocuments(main);else if(v==='company')viewCompany(main);else viewHome(main)}
-function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[r.title]),h('small',{},[r.ref+' · '+(TY[r.type]||r.type)+' · '+when(r.updated_at||r.created_at)])]),pill(r.status),h('span',{class:'btn ghost sm'},[TX.open])])}
+function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[r.title]),h('small',{},[r.ref+' · '+(TY[r.type]||r.type)+' · '+when(r.updated_at||r.created_at)])]),pill(r.status),(r.cancel_requested&&r.status!=='CANCELLED')?h('span',{class:'pill warn'},[TX.cxPill]):null,h('span',{class:'btn ghost sm'},[TX.open])])}
 function viewHome(m){var c=state.me.counts||{};m.appendChild(h('h1',{},[TX.attention]));
 var k=[['active',TX.kActive,'requests'],['quotes',TX.kQuotes,'quotes'],['contracts',TX.kContracts,'contracts'],['payments',TX.kPayments,'pay'],['appointments',TX.kAppts,'appointments']];
 m.appendChild(h('div',{class:'my-kpis'},k.map(function(x){return h('div',{class:'my-kpi'+(x[0]!=='active'&&c[x[0]]?' hot':''),onclick:function(){go(x[2])}},[h('b',{},[String(c[x[0]]||0)]),h('span',{},[x[1]])])})));
@@ -435,7 +485,7 @@ function viewList(m,title,f){m.appendChild(h('h1',{},[title]));var rows=state.me
 function viewInvoices(m){m.appendChild(h('h1',{},[TX.navInvoices]));var rows=state.me.requests.filter(function(r){return r.invoice});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill ok'},[r.invoice.number+' · '+money(r.invoice.total)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]))}
 function viewPay(m){m.appendChild(h('h1',{},[TX.navPay]));var rows=state.me.requests.filter(function(r){return ['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill warn'},[money(r.quote?r.quote.total:0)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));m.appendChild(h('div',{class:'card'},[h('a',{class:'btn ghost',href:CHECKOUT},[TX.navPay+' →'])]))}
 function viewChats(m){m.appendChild(h('h1',{},[TX.navChats]));var rows=state.me.requests.filter(function(r){return r.last_message});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.querySelector('small').textContent=(r.last_message.content||'').slice(0,90);return row})):h('p',{class:'note'},[TX.empty]))}
-function viewAppts(m){m.appendChild(h('h1',{},[TX.navAppts]));var rows=state.me.requests.filter(function(r){return r.appointment&&r.appointment.status!=='CANCELLED'});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill'},[r.appointment.date+' '+r.appointment.time]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));var cons=state.me.requests.filter(function(r){return r.type==='CONSULTATION'&&(!r.appointment||r.appointment.status==='CANCELLED')&&r.status!=='CANCELLED'});if(cons.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.book]),h('div',{class:'list'},cons.map(reqRow))]))}
+function viewAppts(m){m.appendChild(h('h1',{},[TX.navAppts]));var rows=state.me.requests.filter(function(r){return r.appointment&&r.appointment.status!=='CANCELLED'&&r.status!=='CANCELLED'});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill'},[r.appointment.date+' '+r.appointment.time]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));var cons=state.me.requests.filter(function(r){return r.type==='CONSULTATION'&&(!r.appointment||r.appointment.status==='CANCELLED')&&r.status!=='CANCELLED'});if(cons.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.book]),h('div',{class:'list'},cons.map(reqRow))]))}
 function viewCompany(m){m.appendChild(h('h1',{},[TX.navCompany]));var o=state.me.organization||{};var f=h('div',{class:'form'});var nAr=h('input',{class:'inp',value:o.name_ar||''}),nEn=h('input',{class:'inp',value:o.name_en||''}),cr=h('input',{class:'inp',value:o.cr_number||''}),msg=h('span',{class:'ok'});
 f.appendChild(h('label',{},[TX.company]));f.appendChild(nAr);f.appendChild(h('label',{},[TX.nameEn]));f.appendChild(nEn);f.appendChild(h('label',{},[TX.cr]));f.appendChild(cr);
 f.appendChild(h('button',{class:'btn',onclick:function(){fetch('/api/requests',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'my-org-update',name_ar:nAr.value,name_en:nEn.value,cr_number:cr.value})}).then(function(r){return r.json()}).then(function(o){msg.textContent=o&&o.ok?TX.saved:TX.error})}},[TX.save]));f.appendChild(msg);
@@ -628,7 +678,10 @@ function catName(c){for(var i=0;i<DOC_CATS.length;i++)if(DOC_CATS[i][0]===c)retu
 function viewRequest(m){m.appendChild(h('a',{class:'btn ghost sm',onclick:function(){go('requests')}},['← '+TX.back]));var hd=h('h1',{style:'margin-top:10px'},['…']);m.appendChild(hd);var box=h('div');m.appendChild(box);
 api('request-get',{ref:state.ref}).then(function(o){if(!o||!o.ok){box.appendChild(h('p',{class:'err'},[TX.error]));return}state.req=o.request;state.testMode=!!o.testMode;drawRequest(hd,box)})}
 function drawRequest(hd,box){var r=state.req;hd.textContent=r.title;box.innerHTML='';
-box.appendChild(h('div',{class:'stat'},[h('span',{},[TX.ref+': ',h('b',{},[r.ref])]),h('span',{},[TX.status+': ',pill(r.status)]),h('span',{},[(TY[r.type]||r.type)]),h('span',{},[when(r.created_at)])]));
+var cxm=cxMode(r),cxPend=!!r.cancel_request&&r.status!=='CANCELLED';
+box.appendChild(h('div',{class:'stat'},[h('span',{},[TX.ref+': ',h('b',{},[r.ref])]),h('span',{},[TX.status+': ',pill(r.status),cxPend?h('span',{class:'pill warn',style:'margin-inline-start:6px'},[TX.cxPill]):null]),h('span',{},[(TY[r.type]||r.type)]),h('span',{},[when(r.created_at)]),
+ (cxm!=='closed'&&!cxPend)?h('button',{class:'btn danger sm cxbtn',id:'sv1CancelTop',onclick:function(){cxSheet(r)}},[cxm==='now'?TX.cancelReq:TX.cancelAsk]):null]));
+var cxb=cxBanner(r);if(cxb)box.appendChild(cxb);
 var left=h('div'),right=h('div');box.appendChild(h('div',{class:'grid2'},[left,right]));
 // conversation
 var msgs=h('div',{class:'msgs'},(r.conversation||[]).map(function(mm){return h('div',{class:'m '+mm.role},[stripScope(mm.content),h('small',{},[(mm.role==='user'?TX.you:mm.role==='bp'?TX.team:TX.assistant)+' · '+when(mm.at)])])}));
@@ -646,7 +699,7 @@ if(editable){var ai=h('input',{class:'inp',placeholder:TX.addItem}),msgS=h('span
 // plain save stays for intermediate edits.
 var goBtn=h('button',{class:'btn',onclick:function(){msgS.className='ok';msgS.textContent='';goBtn.disabled=true;api('scope-confirm',{ref:r.ref,scope:r.scope}).then(function(o){goBtn.disabled=false;if(!o||!o.ok){msgS.className='err';msgS.textContent=(o&&o.message)||TX.error;return}state.flash=TX.scopePricing;api('request-get',{ref:r.ref}).then(function(g){if(g&&g.ok){state.req=g.request;drawRequest(hd,box);var q=document.getElementById('sv1Quote');if(q&&q.scrollIntoView)q.scrollIntoView({behavior:'smooth',block:'start'})}})})}},[TX.confirmScope]);
 sc.appendChild(h('div',{class:'msgform'},[ai,h('button',{class:'btn ghost',onclick:function(){if(!ai.value.trim())return;r.scope.push({code:'',title:ai.value.trim(),why:''});ai.value='';drawItems()}},[TX.addItem]),h('button',{class:'btn ghost',onclick:function(){api('scope-update',{ref:r.ref,scope:r.scope}).then(function(o){msgS.className='ok';msgS.textContent=o&&o.ok?TX.saved:TX.error})}},[TX.saveScope]),goBtn,msgS]));
-if(state.flash){sc.appendChild(h('p',{class:'ok'},[state.flash]));state.flash=null}}else sc.appendChild(h('p',{class:'note'},[TX.scopeLocked]));
+if(state.flash){sc.appendChild(h('p',{class:'ok'},[state.flash]));state.flash=null}}else if(r.status!=='CANCELLED')sc.appendChild(h('p',{class:'note'},[TX.scopeLocked]));
 sc.appendChild(dc.firstChild?dc:document.createComment(''));
 left.appendChild(sc);
 // tasks for client
@@ -689,11 +742,51 @@ if(r.type==='CONSULTATION'){var ac=h('div',{class:'card'});ac.appendChild(h('h3'
 var d=h('input',{class:'inp',type:'date',min:new Date().toISOString().slice(0,10)}),tm=h('input',{class:'inp',type:'time',value:'10:00',step:'1800'}),tp2=h('input',{class:'inp',placeholder:TX.topic,value:(a&&a.topic)||r.title}),ae=h('div',{class:'err'});
 ac.appendChild(h('div',{class:'form'},[h('label',{},[TX.date]),d,h('label',{},[TX.time]),tm,h('label',{},[TX.topic]),tp2,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){api(a&&a.status!=='CANCELLED'?'appointment-reschedule':'appointment-book',{ref:r.ref,date:d.value,time:tm.value,topic:tp2.value}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else ae.textContent=(o&&o.error)||TX.error})}},[a&&a.status!=='CANCELLED'?TX.reschedule:TX.book]),a&&a.status!=='CANCELLED'?h('button',{class:'btn danger',onclick:function(){api('appointment-cancel',{ref:r.ref}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}})}},[TX.cancelAppt]):null]),ae,h('p',{class:'note'},[TX.apptNote])]));right.appendChild(ac)}
 // timeline
-right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.timeline]),h('ul',{class:'tl'},(r.events||[]).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(e.actor?e.actor+': ':'')+(EV[e.event]||e.event)+(e.details&&e.details.number?' '+e.details.number:'')])])}))]));
-if(['CANCELLED','COMPLETED'].indexOf(r.status)<0){var early=['NEW','REVIEWING','WAITING_CLIENT','QUOTE_SENT','PRICING'].indexOf(r.status)>=0;var cnote=h('input',{class:'inp',placeholder:TX.cancelWhy,style:'margin-top:10px'});var cmsg=h('div',{class:'note'},[early?TX.cancelEarly:TX.cancelLate]);var cbtn=h('button',{class:'btn danger sm',onclick:function(){if(!confirm((early?TX.cancelReq:TX.cancelAsk)+'?'))return;var b2=this;b2.disabled=true;api('request-cancel',{ref:r.ref,note:cnote.value.trim()}).then(function(o){b2.disabled=false;if(!o||!o.ok){cmsg.className='err';cmsg.textContent=(o&&o.message)||TX.error;return}if(o.cancelled){r.status='CANCELLED';refreshMe();drawRequest(hd,box);return}cmsg.className='ok';cmsg.textContent=TX.cancelSent;cbtn.disabled=true})}},[early?TX.cancelReq:TX.cancelAsk]);right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),cmsg,cnote,h('div',{class:'msgform',style:'margin-top:8px'},[cbtn])]))}if(r.cancel)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),h('p',{class:'note'},[TX.cancelDone+' · '+when(r.cancel.at)+(r.cancel.note?' · '+r.cancel.note:'')])]))}
+right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.timeline]),h('ul',{class:'tl'},(r.events||[]).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(e.actor?e.actor+': ':'')+(EV[e.event]||(String(e.event).indexOf("notify.")===0?TX.evNotify:e.event))+(e.details&&e.details.number?' '+e.details.number:'')])])}))]));
+if(cxm!=='closed'&&!cxPend){right.appendChild(h('div',{class:'card',id:'sv1Cancel'},[h('h3',{},[TX.cancelTitle]),h('p',{class:'note'},[cxText(r)+((cxm==='now'&&cxApptLive(r))?' '+TX.cxAppt:'')]),h('div',{class:'msgform',style:'margin-top:8px'},[h('button',{class:'btn danger sm',onclick:function(){cxSheet(r)}},[cxm==='now'?TX.cancelReq:TX.cancelAsk])])]))}}
+// ---------- cancellation
+// One policy, held by the server (cancel_policy on the request): 'now' when
+// nothing has been signed or paid, 'ask' when the team has to look first.
+// This page only words it — it never decides it.
+function cxApi(action,data){return fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({action:action},data||{}))}).then(function(r){return r.json().catch(function(){return {ok:false,error:'server_error'}})}).catch(function(){return {ok:false,error:'network'}})}
+function cxErr(o){var e=(o&&o.error)||'';return e==='already_closed'?TX.cxErrClosed:(e==='no_session'||e==='unauthorized')?TX.cxErrSess:e==='network'?TX.cxErrNet:e==='not_found'?TX.cxErrNF:TX.cxErrGen}
+function cxMode(r){if(['CANCELLED','COMPLETED'].indexOf(r.status)>=0)return 'closed';return r.cancel_policy==='now'?'now':'ask'}
+function cxText(r){if(cxMode(r)==='now')return TX.cxNowNote;if(r.payment&&r.payment.status==='PAID')return TX.cxPaid;if(r.contract&&r.contract.status==='SIGNED')return TX.cxSigned;return TX.cancelLate}
+function cxApptLive(r){return !!(r.appointment&&r.appointment.status!=='CANCELLED')}
+function cxBanner(r){
+ if(r.status==='CANCELLED'){var c=r.cancel||{};return h('div',{class:'cx-state done',id:'sv1CancelState'},[h('h3',{},[TX.cxDoneNow+(c.at?' · '+when(c.at):'')]),h('p',{},[(c.by==='ops'?'':TX.cxDoneNowT+' ')+(c.note?'« '+c.note+' »':'')]),h('a',{class:'btn ghost sm',href:HOME+'#chat'},[TX.cxNewReq])])}
+ if(r.cancel_request){var q=r.cancel_request;return h('div',{class:'cx-state pend',id:'sv1CancelState'},[h('h3',{},[TX.cxPendTitle]),h('p',{},[TX.cxPendText+' '+TX.cxSentAt+' '+when(q.at)+'.'+(q.note?' « '+q.note+' »':'')])])}
+ return null}
+function cxSheet(r){
+ if(document.getElementById('sv1CancelSheet'))return;
+ var now=cxMode(r)==='now';
+ var note=h('input',{class:'inp',placeholder:TX.cancelWhy,maxlength:'500',style:'border-color:#cfd6e6'});
+ var err=h('div',{class:'err',role:'alert',style:'margin-top:8px'});
+ var ok=h('button',{class:'btn solid-danger',id:'sv1CancelOk'},[now?TX.cxNowGo:TX.cxAskGo]);
+ var keep=h('button',{class:'btn ghost',id:'sv1CancelKeep'},[TX.cxKeep]);
+ var ovl=h('div',{class:'cx-ovl',id:'sv1CancelSheet',role:'dialog','aria-modal':'true','aria-label':now?TX.cxNowTitle:TX.cxAskTitle},[
+  h('div',{class:'cx-box'},[h('h3',{},[now?TX.cxNowTitle:TX.cxAskTitle]),h('p',{},[cxText(r)+((now&&cxApptLive(r))?' '+TX.cxAppt:'')]),note,err,h('div',{class:'acts'},[ok,keep])])]);
+ function close(){document.removeEventListener('keydown',onKey);ovl.remove()}
+ function onKey(e){if(e.key==='Escape')close()}
+ keep.addEventListener('click',close);
+ ovl.addEventListener('click',function(e){if(e.target===ovl)close()});
+ document.addEventListener('keydown',onKey);
+ ok.addEventListener('click',function(){
+  err.textContent='';ok.disabled=true;keep.disabled=true;
+  cxApi('request-cancel',{ref:r.ref,note:note.value.trim()}).then(function(o){
+   ok.disabled=false;keep.disabled=false;
+   if(!o||!o.ok){err.textContent=cxErr(o);return}
+   close();
+   // a cancelled request's line must not wait in the cart
+   try{var cart=JSON.parse(localStorage.getItem('bp_cart')||'[]');localStorage.setItem('bp_cart',JSON.stringify(cart.filter(function(i){return i.id!=='sv1:'+r.ref})))}catch(x){}
+   // re-read everything: the page then shows what the server holds, and the
+   // sidebar badges and counters move with it
+   refreshMe().then(function(){render();window.scrollTo(0,0)})})});
+ document.body.appendChild(ovl);
+ try{keep.focus()}catch(x){}}
 function openInvoice(r){var inv=r.invoice;var w=window.open('','_blank');if(!w)return;var rows=(inv.items||[]).map(function(i){return '<tr><td>'+esc(i.title)+'</td><td>'+i.qty+'</td><td>'+money(lineOf(i))+'</td></tr>'}).join('');w.document.write('<!doctype html><html dir="'+(LANG==='ar'?'rtl':'ltr')+'"><head><meta charset="utf-8"><title>'+inv.number+'</title><style>body{font-family:"IBM Plex Sans Arabic",system-ui;padding:32px;color:#1F2430}h1{color:#0B1B5A}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #e4e8f1;text-align:start}.t{font-weight:700}.tm{background:#b45309;color:#fff;padding:6px 10px;display:inline-block;border-radius:6px}</style></head><body>'+(inv.mode==='test'?'<span class="tm">TEST MODE</span>':'')+'<h1>Business Partner — '+TX.invoice+' '+inv.number+'</h1><p>'+TX.ref+': '+r.ref+' · '+when(inv.issued_at)+'</p><p>'+esc((inv.bill_to&&(inv.bill_to.company||inv.bill_to.name))||'')+'</p><table><thead><tr><th>'+TX.scope+'</th><th>'+TX.qty+'</th><th>'+TX.price+'</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr><td colspan="2">'+TX.net+'</td><td>'+money(inv.net)+'</td></tr><tr><td colspan="2">'+TX.vat+'</td><td>'+money(inv.vat)+'</td></tr><tr class="t"><td colspan="2">'+TX.total+'</td><td>'+money(inv.total)+'</td></tr></tfoot></table><p><b>'+TX.paid+'</b></p></body></html>');w.document.close()}
 function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
-function refreshMe(){api('me').then(function(o){if(o&&o.ok){state.me=o;var side=$('#mySide');if(side){/* re-render nav badges */}}})}
+function refreshMe(){return api('me').then(function(o){if(o&&o.ok){state.me=o}}).catch(function(){})}
 // Coming back from a payment gateway (local or hosted): the outcome rides on
 // the URL exactly as Moyasar and Tamara return it, and is settled through the
 // same action the test buttons use — one settle path, not two.

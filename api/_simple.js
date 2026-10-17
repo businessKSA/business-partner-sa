@@ -53,6 +53,27 @@ export const REQUEST_STATUSES = [
   "NEW", "REVIEWING", "WAITING_CLIENT", "QUOTE_SENT", "QUOTE_APPROVED", "CONTRACT_SENT", "SIGNED",
   "PAYMENT_PENDING", "PAID", "IN_PROGRESS", "WAITING_INTERNAL", "COMPLETED", "CANCELLED",
 ];
+// ----------------------------------------------------- cancellation policy --
+// What the customer may cancel on his own (owner's rule, 2026-10-16): anything
+// where nothing has been paid and the work has not started. Beyond that the
+// team has to look first — there is money, or an executed order, to account for.
+//
+// The money check reads the request's own payment record, not the status name:
+// PAYMENT_PENDING means «the customer pressed pay», not «the customer paid».
+// SIGNED is deliberately NOT in the list: the contract is signed, so it is a
+// request for the team even though nothing has been charged yet.
+const CANCEL_NOW = ["NEW", "REVIEWING", "WAITING_CLIENT", "QUOTE_SENT", "PRICING", "QUOTE_APPROVED", "CONTRACT_SENT", "PAYMENT_PENDING"];
+const PAID_STATES = ["PAID", "AUTHORIZED", "CAPTURED", "APPROVED", "COMPLETED", "SUCCEEDED", "SETTLED", "SUCCESS"];
+function moneyReceived(row) {
+  const p = row && row.payment;
+  if (p && (PAID_STATES.includes(String(p.status || "").toUpperCase()) || p.paid_at)) return true;
+  return !!(row && row.invoice && row.invoice.number);
+}
+// "now" | "ask" | "closed" — the one place that decides; the portal only words it.
+export function cancelPolicy(row) {
+  if (!row || ["CANCELLED", "COMPLETED"].includes(row.status)) return "closed";
+  return CANCEL_NOW.includes(row.status) && !moneyReceived(row) ? "now" : "ask";
+}
 const TASK_STATUS = { TODO: "open", IN_PROGRESS: "in_progress", WAITING: "blocked", DONE: "done" };
 const TASK_STATUS_BACK = { open: "TODO", in_progress: "IN_PROGRESS", blocked: "WAITING", done: "DONE", cancelled: "DONE" };
 const VAT_RATE = 0.15;
@@ -144,7 +165,7 @@ function ownedBy(row, sess) {
 function clientView(row, events, tasks) {
   const { internal_notes, assigned_to, ai_summary, ...pub } = row;
   if (pub.contract && pub.contract.html) pub.contract = { ...pub.contract, html: undefined, html_signed: undefined, has_html: true };
-  return { ...pub, events: (events || []).filter((e) => e.actor_kind !== "internal"), tasks: (tasks || []).filter((t) => t.assignee === "client") };
+  return { ...pub, cancel_policy: cancelPolicy(row), events: (events || []).filter((e) => e.actor_kind !== "internal"), tasks: (tasks || []).filter((t) => t.assignee === "client") };
 }
 
 function normScope(items) {
@@ -314,7 +335,7 @@ async function clientAction(action, b, qs, req, res, sess) {
       quotes: mine.filter((r) => r.status === "QUOTE_SENT").length,
       contracts: mine.filter((r) => r.status === "CONTRACT_SENT").length,
       payments: mine.filter((r) => ["SIGNED", "PAYMENT_PENDING"].includes(r.status)).length,
-      appointments: mine.filter((r) => r.appointment && r.appointment.status !== "CANCELLED" && r.appointment.date >= nowIso().slice(0, 10)).length,
+      appointments: mine.filter((r) => r.status !== "CANCELLED" && r.appointment && r.appointment.status !== "CANCELLED" && r.appointment.date >= nowIso().slice(0, 10)).length,
     };
     return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, user: { name: sess.user.full_name || "", email }, organization: sess.organization, counts, requests: mine.map(summary) });
   }
@@ -647,41 +668,74 @@ async function clientAction(action, b, qs, req, res, sess) {
     return json(res, 200, { ok: true, appointment });
   }
 
-  // الإلغاء من جهة العميل. قبل اعتماد العرض يُلغى فوراً — لا شيء يترتّب عليه.
-  // بعده لا يُلغى بضغطة: هناك عقدٌ أو دفعةٌ أو تنفيذٌ جارٍ، فيُسجَّل طلب
-  // إلغاء ويُفتح على الفريق ويُشعر الطرفان. رفضُ الطلب بـ409 كان يترك
-  // العميل بلا مخرج، وهذا ليس إلغاءً «متاحاً».
+  // الإلغاء من جهة العميل. السياسة في cancelPolicy: ما لم يُدفع منه شيء ولم
+  // يبدأ تنفيذه يُلغى فوراً — ويأخذ معه ما يتعلّق به (موعد الاستشارة، ومهام
+  // المتابعة الآلية، وسطر السلة يموت وحده لأن sv1Line لا يقبل إلا SIGNED
+  // وPAYMENT_PENDING). وما بعد ذلك يُسجَّل طلب إلغاء للفريق، مرةً واحدة، وتقرؤه
+  // البوابة فتعرض «قيد المراجعة» بدل أن تعيد الزرّ كأن شيئاً لم يحدث.
+  // الأخطاء أكواد ثابتة (already_closed · not_found · no_session…) والبوابة
+  // تترجمها بلغة العميل؛ لا نصوص عربية من الخادم هنا.
   if (action === "request-cancel") {
     const note = str(b.note, 500);
-    if (["CANCELLED", "COMPLETED"].includes(row.status)) return json(res, 409, { ok: false, error: "already_closed" });
-    if (["NEW", "REVIEWING", "WAITING_CLIENT", "QUOTE_SENT", "PRICING"].includes(row.status)) {
-      const upd = await patchRequest(row.id, { status: "CANCELLED", cancel: { at: nowIso(), by: "customer", actor: who, note, stage: row.status } });
+    const policy = cancelPolicy(row);
+    if (policy === "closed") return json(res, 409, { ok: false, error: "already_closed" });
+    if (policy === "now") {
+      const at = nowIso();
+      const contractSigned = !!(row.contract && row.contract.status === "SIGNED");
+      const apptLive = !!(row.appointment && row.appointment.status !== "CANCELLED");
+      const patch = {
+        status: "CANCELLED",
+        cancel: { at, by: "customer", actor: who, note, stage: row.status, contract_signed: contractSigned },
+        cancel_request: null,
+      };
+      if (apptLive) patch.appointment = { ...row.appointment, status: "CANCELLED", cancelled_at: at };
+      const upd = (await patchRequest(row.id, patch)) || { ...row, ...patch };
       await logEvent(row.id, "customer", who, "request.cancelled", { note, stage: row.status });
+      if (apptLive) await logEvent(row.id, "customer", who, "appointment.cancelled", { date: row.appointment.date, time: row.appointment.time, with_request: true });
+      await closeAutoTasks(row.id);
+      const opsBits = [`${row.client_name || who} ألغى الطلب بنفسه من مرحلة ${row.status}.`,
+        contractSigned ? "العقد كان موقَّعاً ولم يُدفع شيء." : "قبل أي توقيع أو دفع."];
+      if (apptLive) opsBits.push(`أُلغي موعده ${row.appointment.date} ${row.appointment.time} — أزله من التقويم.`);
+      if (note) opsBits.push(`السبب: ${note}`);
       await announce(upd, "cancelled", {
         subject: `أُلغي الطلب ${row.ref}`,
         clientLine: "ألغينا طلبك كما طلبت. تقدر تبدأ طلباً جديداً في أي وقت.",
-        opsLine: `${row.client_name || who} ألغى الطلب بنفسه قبل اعتماد العرض.${note ? ` السبب: ${note}` : ""}`,
+        opsLine: opsBits.join(" "),
       });
-      return json(res, 200, { ok: true, status: "CANCELLED", cancelled: true });
+      return json(res, 200, { ok: true, status: "CANCELLED", cancelled: true, appointment_cancelled: apptLive });
     }
+    // يراجعه الفريق: مرةً واحدة. التكرار لا يضاعف المهمة ولا البريد.
+    if (row.cancel_request) return json(res, 200, { ok: true, status: row.status, requested: true, already: true });
+    const paid = moneyReceived(row);
     const pending = { at: nowIso(), by: "customer", actor: who, note, stage: row.status };
-    const upd = await patchRequest(row.id, { cancel_request: pending });
+    const upd = (await patchRequest(row.id, { cancel_request: pending })) || { ...row, cancel_request: pending };
     await logEvent(row.id, "customer", who, "cancel.requested", { note, stage: row.status });
     await sweepTask(upd, {
       source: "cancel.request", urgency: "high", human: true,
       title: () => `طلب إلغاء — ${row.ref}`,
-      details: () => `العميل طلب إلغاء الطلب وهو في مرحلة ${row.status}.${note ? ` السبب: ${note}` : ""} راجع ما ترتّب عليه (عقد موقّع / دفعة / تنفيذ) ثم ألغِه أو تواصل معه.`,
+      details: () => `العميل طلب إلغاء الطلب وهو في مرحلة ${row.status}.${paid ? " ⚠️ الطلب مدفوع — الاسترداد قرارٌ منفصل." : ""}${note ? ` السبب: ${note}` : ""} راجع ما ترتّب عليه (عقد موقّع / دفعة / تنفيذ) ثم ألغِه من اللوحة أو تواصل معه.`,
     }, "المستشار الذكي");
     await announce(upd, "cancel-request", {
       subject: `طلب إلغاء ${row.ref} بانتظار مراجعة الفريق`,
       clientLine: "استلمنا طلب الإلغاء. الطلب وصل مرحلةً يترتّب عليها التزامات، فيراجعه الفريق ويعود لك.",
-      opsLine: `${row.client_name || who} طلب إلغاء الطلب في مرحلة ${row.status}.${note ? ` السبب: ${note}` : ""}`,
+      opsLine: `${row.client_name || who} طلب إلغاء الطلب في مرحلة ${row.status}.${paid ? " الطلب مدفوع — الاسترداد قرارٌ منفصل." : ""}${note ? ` السبب: ${note}` : ""}`,
       cta: "افتح الطلب في لوحة العمليات",
     });
     return json(res, 200, { ok: true, status: row.status, requested: true });
   }
 
   return json(res, 400, { ok: false, error: "unknown_action" });
+}
+
+// مهام المتابعة الآلية (مراجعة جديد، تسعير، تذكير بالدفع…) تفقد معناها بإلغاء
+// الطلب. اليدوية تبقى: إنسانٌ كتبها وهو من يغلقها.
+async function closeAutoTasks(requestId) {
+  try {
+    const open = await sb(`tasks?request_id=eq.${requestId}&status=in.(open,in_progress,blocked)&select=id,source`);
+    for (const t of open || []) {
+      if (/^(sweep-|pricing$)/.test(String(t.source || ""))) await sb(`tasks?id=eq.${t.id}`, { method: "PATCH", prefer: "return=minimal", body: { status: "cancelled" } });
+    }
+  } catch (e) { console.error("simple: close tasks", String(e.message || e).slice(0, 120)); }
 }
 
 async function myRequests(sess) {
@@ -701,6 +755,7 @@ const summary = (r) => ({
   last_message: (r.conversation || []).slice(-1)[0] || null,
   client_name: r.client_name, client_email: r.client_email, client_phone: r.client_phone, company_name: r.company_name,
   assigned_to: r.assigned_to || null,
+  cancel_requested: r.cancel_request ? { at: r.cancel_request.at } : null,
 });
 
 function defaultTitle(type, lang) {
@@ -785,7 +840,25 @@ export async function markPaid(row, { provider, payId, amount, test, actor }) {
 export async function markRequestPaidByRef(ref, info) {
   const row = await getByRef(ref);
   if (!row || row.status === "PAID" || ["IN_PROGRESS", "COMPLETED"].includes(row.status)) return row;
+  if (row.status === "CANCELLED") return holdPaymentOnCancelled(row, info);
   return markPaid(row, info);
+}
+// The customer cancelled while a gateway page was still open and then paid on
+// it. The money is real, so it is recorded — but the request is not revived and
+// no tax invoice is issued on its own: reopening, refunding or invoicing is the
+// team's call, and a task says so.
+async function holdPaymentOnCancelled(row, { provider, payId, amount, test, actor }) {
+  if (row.payment && row.payment.after_cancel && row.payment.ref === payId) return row; // webhook + callback
+  const payment = { status: "PAID", provider, ref: payId, amount: round2(num(amount)), currency: "SAR", at: nowIso(), test: !!test, after_cancel: true };
+  const upd = (await patchRequest(row.id, { payment })) || { ...row, payment };
+  await logEvent(row.id, "system", test ? "TEST MODE" : provider, "payment.after_cancel", { provider, payId, amount: payment.amount });
+  await sweepTask(upd, {
+    source: "payment.after_cancel", urgency: "high", human: true,
+    title: (r) => `دفعة وصلت بعد الإلغاء — ${r.ref}`,
+    details: () => `وصلت دفعة ${payment.amount} ر.س عبر ${provider} (${payId}) على طلب ملغى. لم يُصدَر شيء تلقائياً: قرّر الاسترداد أو أعد فتح الطلب.`,
+  }, "النظام");
+  try { await sendEmail(OWNER_EMAIL, `[${row.ref}] دفعة وصلت بعد إلغاء الطلب`, `<p>وصلت دفعة ${esc(String(payment.amount))} ر.س (${esc(payId)}) على طلب ملغى. راجعه في اللوحة.</p><p><a href="${SELF_BASE}/ops?ref=${row.ref}">افتح الطلب</a></p>`); } catch {}
+  return upd;
 }
 
 // ------------------------------------------------------- the follow-up sweep --
