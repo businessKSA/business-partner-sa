@@ -144,7 +144,7 @@ function ownedBy(row, sess) {
 function clientView(row, events, tasks) {
   const { internal_notes, assigned_to, ai_summary, ...pub } = row;
   if (pub.contract && pub.contract.html) pub.contract = { ...pub.contract, html: undefined, html_signed: undefined, has_html: true };
-  return { ...pub, events: (events || []).filter((e) => e.actor_kind !== "internal"), tasks: (tasks || []).filter((t) => t.assignee === "client") };
+  return { ...pub, attachments: (pub.attachments || []).map(attView), events: (events || []).filter((e) => e.actor_kind !== "internal"), tasks: (tasks || []).filter((t) => t.assignee === "client") };
 }
 
 function normScope(items) {
@@ -240,7 +240,75 @@ function normConversation(msgs) {
     role: ["user", "assistant", "bp", "system"].includes(m.role) ? m.role : "user",
     content: str(stripScopeBlock(m.content), 4000),
     at: m.at && !Number.isNaN(Date.parse(m.at)) ? new Date(m.at).toISOString() : nowIso(),
-  })).filter((m) => m.content);
+    // معرّفات مرفقات الطلب التي تخصّ هذه الرسالة (لا روابط ولا مسارات): الملف
+    // نفسه يُفتح برابطٍ قصير العمر يصدر عند الطلب (request-file-link).
+    ...(Array.isArray(m.att) && m.att.length ? { att: m.att.map((x) => str(x, 24)).filter(Boolean).slice(0, 3) } : {}),
+  })).filter((m) => m.content || (m.att && m.att.length));
+}
+
+// ---------------------------------------------------- ملفات محادثة الطلب --
+// المحادثة تحمل ملفاً واحداً أو أكثر لكل رسالة. البايتات في الخزنة نفسها
+// (storagePut) ولا يُحفظ في صفّ الطلب رابطٌ موقّع: يُحفظ المسار (path) فقط،
+// ويُصدر الرابط عند كل فتح وبعمرٍ قصير. الحدّ 3MB لا 8MB: جسم الطلب هنا
+// base64 (×1.33) داخل JSON، وسقف جسم الدالة على Vercel 4.5MB.
+const CHAT_FILE_MIME = /^(application\/pdf|image\/(jpeg|png|webp)|application\/vnd\.openxmlformats-officedocument\.(spreadsheetml\.sheet|wordprocessingml\.document))$/;
+const CHAT_FILE_EXT = { pdf: "application/pdf", jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" };
+export const CHAT_FILE_MAX_BYTES = 3 * 1024 * 1024;
+const CHAT_FILES_PER_REQUEST = 30;
+const CHAT_LINK_TTL = 180; // ثوانٍ
+function chatFileMime(raw, name) {
+  const m = String(raw || "").trim().toLowerCase();
+  if (m === "image/jpg" || m === "image/pjpeg") return "image/jpeg";
+  if (m && m !== "application/octet-stream" && m !== "binary/octet-stream") return m;
+  return CHAT_FILE_EXT[String(name || "").split(".").pop().toLowerCase()] || m;
+}
+// الصيغة المعلنة يجب أن تطابق أول بايتات الملف: ملف نصي باسم .pdf يُرفض.
+function chatFileSniff(mime, buf) {
+  const h = (i, ...b) => b.every((v, k) => buf[i + k] === v);
+  if (mime === "application/pdf") return h(0, 0x25, 0x50, 0x44, 0x46);
+  if (mime === "image/png") return h(0, 0x89, 0x50, 0x4e, 0x47);
+  if (mime === "image/jpeg") return h(0, 0xff, 0xd8, 0xff);
+  if (mime === "image/webp") return h(0, 0x52, 0x49, 0x46, 0x46) && h(8, 0x57, 0x45, 0x42, 0x50);
+  return h(0, 0x50, 0x4b); // docx / xlsx: حاوية zip
+}
+// ما يراه العميل من مرفق: لا مسار تخزين. القديمة (روابط بلا path) تبقى كما كانت.
+function attView(a) {
+  const { path, ...rest } = a || {};
+  return { ...rest, has_file: !!path, ...(path ? { url: undefined } : {}) };
+}
+async function addRequestFile(row, b, by, actor) {
+  const name = str(b.name || b.fileName, 120) || "file";
+  const mime = chatFileMime(b.mime, name);
+  const base64 = String(b.base64 || "").replace(/^data:[^;]+;base64,/, "");
+  if (!base64) return { code: 400, error: "no_file" };
+  if (!CHAT_FILE_MIME.test(mime)) return { code: 400, error: "bad_type" };
+  // يُفحص الطول قبل إنشاء أي Buffer.
+  if (base64.length > Math.ceil(CHAT_FILE_MAX_BYTES / 3) * 4 + 8) return { code: 413, error: "too_large", max: CHAT_FILE_MAX_BYTES };
+  const buf = Buffer.from(base64, "base64");
+  if (!buf.length) return { code: 400, error: "no_file" };
+  if (buf.length > CHAT_FILE_MAX_BYTES) return { code: 413, error: "too_large", max: CHAT_FILE_MAX_BYTES };
+  if (!chatFileSniff(mime, buf)) return { code: 400, error: "bad_type" };
+  if ((row.attachments || []).filter((a) => a && a.path).length >= CHAT_FILES_PER_REQUEST) return { code: 409, error: "too_many_files" };
+  const id = crypto.randomBytes(6).toString("hex");
+  const safe = name.replace(/[^\w.\-]+/g, "_").slice(-80) || "file";
+  const path = `requests/${row.ref}/${Date.now()}-${id}-${safe}`;
+  try { await storagePut(path, buf, mime); } catch (e) { console.error("chat file store", String(e.message || e).slice(0, 160)); return { code: 502, error: "storage_failed" }; }
+  const at = nowIso();
+  const att = { id, name: str(name, 160), path, mime, size: buf.length, kind: "chat", note: "", at, by };
+  const text = str(b.content, 4000);
+  const attachments = [...(row.attachments || []), att].slice(-60);
+  const conversation = normConversation([...(row.conversation || []), { role: by === "customer" ? "user" : "bp", content: text, at, att: [id] }]);
+  return { att, attachments, conversation, text };
+}
+async function signRequestFile(row, id) {
+  const a = (row.attachments || []).find((x) => x && x.id === id && x.path);
+  if (!a) return { code: 404, error: "not_found" };
+  let url = "";
+  try { url = (await storageSign(a.path, CHAT_LINK_TTL)) || ""; } catch (e) { console.error("chat file sign", String(e.message || e).slice(0, 160)); }
+  if (!url) return { code: 502, error: "sign_failed" };
+  return { url, name: a.name, mime: a.mime, expires_in: CHAT_LINK_TTL };
 }
 
 function computeQuote(items, opts = {}) {
@@ -431,6 +499,26 @@ async function clientAction(action, b, qs, req, res, sess) {
     await patchRequest(row.id, { attachments });
     await logEvent(row.id, "customer", who, "attachment.added", { name: att.name });
     return json(res, 200, { ok: true, attachments });
+  }
+
+  // ملف داخل محادثة الطلب (يرفعه العميل). الملكية فُحصت أعلاه (ownedBy)، والمسار
+  // يُبنى من رقم الطلب في الخادم لا من أي قيمة يرسلها العميل.
+  if (action === "request-file") {
+    const out = await addRequestFile(row, b, "customer", who);
+    if (out.error) return json(res, out.code, { ok: false, error: out.error, max: out.max });
+    const patch = { attachments: out.attachments, conversation: out.conversation };
+    if (row.status === "WAITING_CLIENT") patch.status = "REVIEWING";
+    const upd = await patchRequest(row.id, patch);
+    await logEvent(row.id, "customer", who, "attachment.added", { name: out.att.name, via: "chat" });
+    if (out.text) await logEvent(row.id, "customer", who, "message.customer", { preview: out.text.slice(0, 140) });
+    return json(res, 200, { ok: true, id: out.att.id, conversation: upd.conversation, attachments: (upd.attachments || []).map(attView), status: upd.status });
+  }
+
+  // رابط قصير العمر لملف في هذا الطلب (رفعه العميل أو أرفقه الفريق).
+  if (action === "request-file-link") {
+    const out = await signRequestFile(row, str(b.id || qs.id, 24));
+    if (out.error) return json(res, out.code, { ok: false, error: out.error });
+    return json(res, 200, { ok: true, ...out });
   }
 
   // إيصال التحويل البنكي: العميل يرفعه هنا، فيقرأه المستشار ويقارن مبلغه
@@ -701,6 +789,9 @@ const summary = (r) => ({
   last_message: (r.conversation || []).slice(-1)[0] || null,
   client_name: r.client_name, client_email: r.client_email, client_phone: r.client_phone, company_name: r.company_name,
   assigned_to: r.assigned_to || null,
+  // لتتبّع الطلبات في /my: ما المطلوب من العميل الآن دون جلب الطلب كاملاً.
+  docs_pending: (r.documents || []).filter((d) => d && d.status === "requested").length,
+  cancel_requested: !!r.cancel_request,
 });
 
 function defaultTitle(type, lang) {
@@ -1199,6 +1290,23 @@ async function opsAction(action, b, qs, req, res, opsUser) {
     if (row.organization_id) await notify({ organization_id: row.organization_id, event: "simple_message", title: `رد جديد على طلبك ${row.ref}`, body: content.slice(0, 200), idempotency_key: `simple_msg_${row.ref}_${Date.now()}` });
     if (row.client_email) await sendEmail(row.client_email, `رد على طلبك ${row.ref}`, `<p>${esc(content)}</p><p><a href="${SELF_BASE}/${row.lang === "en" ? "" : (row.lang || "ar") + "/"}my?ref=${row.ref}">فتح الطلب</a></p>`);
     return json(res, 200, { ok: true, conversation: upd.conversation, status: upd.status });
+  }
+
+  // ملف يرفعه الفريق إلى محادثة الطلب (يراه العميل في /my ويفتحه برابط قصير العمر).
+  if (action === "ops-request-file") {
+    const out = await addRequestFile(row, b, "bp", actor);
+    if (out.error) return json(res, out.code, { ok: false, error: out.error, max: out.max });
+    const upd = await patchRequest(row.id, { attachments: out.attachments, conversation: out.conversation, status: row.status === "REVIEWING" || row.status === "NEW" ? "WAITING_CLIENT" : row.status });
+    await logEvent(row.id, "human", actor, "attachment.team", { name: out.att.name });
+    if (row.organization_id) await notify({ organization_id: row.organization_id, event: "simple_message", title: `ملف جديد على طلبك ${row.ref}`, body: out.att.name.slice(0, 200), idempotency_key: `simple_file_${row.ref}_${out.att.id}` });
+    if (row.client_email) await sendEmail(row.client_email, `ملف جديد على طلبك ${row.ref}`, `<p>${esc(out.text || out.att.name)}</p><p><a href="${SELF_BASE}/${row.lang === "en" ? "" : (row.lang || "ar") + "/"}my?ref=${row.ref}">فتح الطلب</a></p>`);
+    return json(res, 200, { ok: true, id: out.att.id, conversation: upd.conversation, attachments: (upd.attachments || []).map(attView), status: upd.status });
+  }
+
+  if (action === "ops-request-file-link") {
+    const out = await signRequestFile(row, str(b.id || qs.id, 24));
+    if (out.error) return json(res, out.code, { ok: false, error: out.error });
+    return json(res, 200, { ok: true, ...out });
   }
 
   if (action === "ops-quote") {

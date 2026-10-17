@@ -120,8 +120,8 @@ const P = {
   save: { ar: "حفظ", en: "Save", fr: "Enregistrer", zh: "保存" },
   saved: { ar: "تم الحفظ", en: "Saved", fr: "Enregistré", zh: "已保存" },
   you: { ar: "أنت", en: "You", fr: "Vous", zh: "您" },
-  team: { ar: "الفريق", en: "Team", fr: "Équipe", zh: "团队" },
-  assistant: { ar: "المساعد", en: "Assistant", fr: "Assistant", zh: "助手" },
+  team: { ar: "فريقك في Business Partner", en: "Your Business Partner team", fr: "Votre équipe Business Partner", zh: "您的 Business Partner 团队" },
+  assistant: { ar: "المستشار الذكي", en: "Smart Advisor", fr: "Conseiller intelligent", zh: "智能顾问" },
   loginTitle: { ar: "تسجيل الدخول", en: "Sign in", fr: "Connexion", zh: "登录" },
   loginText: { ar: "أدخل بريدك ونرسل لك رمز دخول.", en: "Enter your email and we'll send a sign-in code.", fr: "Saisissez votre e-mail, nous envoyons un code.", zh: "输入邮箱，我们将发送登录验证码。" },
   email: { ar: "البريد الإلكتروني", en: "Email", fr: "E-mail", zh: "邮箱" },
@@ -212,6 +212,50 @@ const P = {
   dVat: { ar: "الرقم الضريبي", en: "VAT", fr: "TVA", zh: "税号" },
   dIssued: { ar: "الإصدار", en: "Issued", fr: "Émis le", zh: "签发" },
   dRetry: { ar: "أعد المحاولة", en: "Try again", fr: "Réessayer", zh: "重试" },
+  // ---- تتبّع الطلبات (تبويبات + مراحل) ومحادثة كل طلب
+  tabActive: { ar: "نشطة", en: "Active", fr: "Actives", zh: "进行中" },
+  tabDone: { ar: "مكتملة", en: "Completed", fr: "Terminées", zh: "已完成" },
+  tabCancelled: { ar: "ملغاة", en: "Cancelled", fr: "Annulées", zh: "已取消" },
+  lastUpd: { ar: "آخر تحديث", en: "Last update", fr: "Dernière mise à jour", zh: "最近更新" },
+  stageLbl: { ar: "المرحلة", en: "Stage", fr: "Étape", zh: "阶段" },
+  sgReview: { ar: "مراجعة الطلب", en: "Review", fr: "Examen", zh: "审核" },
+  sgQuote: { ar: "عرض السعر", en: "Quotation", fr: "Devis", zh: "报价" },
+  sgContract: { ar: "العقد", en: "Contract", fr: "Contrat", zh: "合同" },
+  sgPay: { ar: "الدفع", en: "Payment", fr: "Paiement", zh: "付款" },
+  sgExec: { ar: "التنفيذ", en: "Execution", fr: "Exécution", zh: "执行" },
+  sgDone: { ar: "مكتمل", en: "Completed", fr: "Terminé", zh: "完成" },
+  nowYou: { ar: "مطلوب منك الآن:", en: "Needed from you now:", fr: "Attendu de vous :", zh: "现在需要您：" },
+  nowTeam: { ar: "الآن:", en: "Now:", fr: "En ce moment :", zh: "当前：" },
+  nScope: { ar: "راجع نطاق الخدمات واعتمده لنجهّز عرض السعر.", en: "Review and confirm the scope of work so we can prepare your quotation.", fr: "Vérifiez et confirmez le périmètre pour que nous préparions le devis.", zh: "请核对并确认服务范围，以便我们准备报价。" },
+  nReply: { ar: "فريقك ينتظر ردّك في المحادثة.", en: "Your team is waiting for your reply in the conversation.", fr: "Votre équipe attend votre réponse dans la conversation.", zh: "团队正在对话中等待您的回复。" },
+  nQuote: { ar: "راجع عرض السعر واعتمده أو اطلب تعديله.", en: "Review the quotation, then approve it or request changes.", fr: "Examinez le devis, puis approuvez-le ou demandez des modifications.", zh: "请查看报价，确认或要求修改。" },
+  nSign: { ar: "وقّع العقد إلكترونياً.", en: "Sign the contract electronically.", fr: "Signez le contrat électroniquement.", zh: "请在线签署合同。" },
+  nPay: { ar: "أتمّ الدفع لنبدأ التنفيذ.", en: "Complete the payment so we can start.", fr: "Effectuez le paiement pour que nous démarrions.", zh: "请完成付款以便开始执行。" },
+  nDocs: { ar: "ارفع المستندات المطلوبة ({n}) في محادثة الطلب.", en: "Upload the requested documents ({n}) in the request conversation.", fr: "Téléversez les documents demandés ({n}) dans la conversation.", zh: "请在对话中上传所需文件（{n}）。" },
+  nReview: { ar: "فريقك في Business Partner يراجع طلبك.", en: "Your Business Partner team is reviewing your request.", fr: "Votre équipe Business Partner examine votre demande.", zh: "您的 Business Partner 团队正在审核申请。" },
+  nQuoteRev: { ar: "استلمنا طلب تعديل العرض والفريق يعدّله.", en: "We received your change request and the team is revising the quotation.", fr: "Demande de modification reçue ; l'équipe révise le devis.", zh: "已收到修改要求，团队正在调整报价。" },
+  nContractPrep: { ar: "العرض معتمد — نجهّز العقد.", en: "Quotation approved — we are preparing the contract.", fr: "Devis approuvé — nous préparons le contrat.", zh: "报价已确认，正在准备合同。" },
+  nPayReview: { ar: "الفريق يتحقق من دفعتك.", en: "The team is verifying your payment.", fr: "L'équipe vérifie votre paiement.", zh: "团队正在核实您的付款。" },
+  nStart: { ar: "تم الدفع — يبدأ التنفيذ.", en: "Payment received — execution is starting.", fr: "Paiement reçu — l'exécution démarre.", zh: "已收到付款，即将开始执行。" },
+  nExec: { ar: "الطلب قيد التنفيذ، ولا يلزمك شيء الآن.", en: "Your request is in progress; nothing is needed from you.", fr: "Votre demande est en cours ; rien n'est attendu de vous.", zh: "申请执行中，您暂无需操作。" },
+  nCancelReq: { ar: "طلب الإلغاء قيد مراجعة الفريق.", en: "Your cancellation request is under review.", fr: "Votre demande d'annulation est en cours d'examen.", zh: "取消申请正在审核。" },
+  nDone: { ar: "اكتمل الطلب.", en: "This request is completed.", fr: "Cette demande est terminée.", zh: "该申请已完成。" },
+  nCancelled: { ar: "أُلغي هذا الطلب.", en: "This request was cancelled.", fr: "Cette demande a été annulée.", zh: "该申请已取消。" },
+  openChat: { ar: "افتح المحادثة", en: "Open conversation", fr: "Ouvrir la conversation", zh: "打开对话" },
+  chatEmpty: { ar: "لا رسائل بعد. اكتب لفريقك في Business Partner أو أرفق ملفاً.", en: "No messages yet. Write to your Business Partner team or attach a file.", fr: "Aucun message. Écrivez à votre équipe Business Partner ou joignez un fichier.", zh: "暂无消息。给您的 Business Partner 团队留言或附上文件。" },
+  chatNote: { ar: "يردّ فريقك على رسائلك هنا، ونبلغك عبر بريدك عند وصول ردّ أو ملف.", en: "Your team replies here, and we email you when a reply or file arrives.", fr: "Votre équipe répond ici ; nous vous prévenons par e-mail.", zh: "团队会在此回复，有回复或文件时将邮件通知您。" },
+  attachFile: { ar: "إرفاق ملف", en: "Attach a file", fr: "Joindre un fichier", zh: "附加文件" },
+  chatFiles: { ar: "ملفات الطلب", en: "Request files", fr: "Fichiers de la demande", zh: "申请文件" },
+  fromYou: { ar: "من عندك", en: "From you", fr: "De vous", zh: "来自您" },
+  fromTeam: { ar: "من فريقك", en: "From your team", fr: "De votre équipe", zh: "来自团队" },
+  openFile: { ar: "فتح", en: "Open", fr: "Ouvrir", zh: "打开" },
+  fileGone: { ar: "تعذّر فتح الملف، حاول مرة أخرى.", en: "The file could not be opened. Try again.", fr: "Impossible d'ouvrir le fichier. Réessayez.", zh: "无法打开文件，请重试。" },
+  cType: { ar: "المقبول: PDF · JPG · PNG · WEBP · DOCX · XLSX.", en: "Accepted: PDF · JPG · PNG · WEBP · DOCX · XLSX.", fr: "Acceptés : PDF · JPG · PNG · WEBP · DOCX · XLSX.", zh: "可用格式：PDF · JPG · PNG · WEBP · DOCX · XLSX。" },
+  cBig: { ar: "الملف أكبر من ٣ ميجابايت.", en: "The file is larger than 3 MB.", fr: "Le fichier dépasse 3 Mo.", zh: "文件超过 3 MB。" },
+  cMany: { ar: "وصل الطلب إلى الحد الأقصى من الملفات.", en: "This request reached the maximum number of files.", fr: "Nombre maximal de fichiers atteint.", zh: "该申请的文件数量已达上限。" },
+  sending: { ar: "جارٍ الإرسال", en: "Sending", fr: "Envoi", zh: "发送中" },
+  fileMsg: { ar: "ملف", en: "File", fr: "Fichier", zh: "文件" },
+  chatHint: { ar: "اكتب رسالة…", en: "Write a message…", fr: "Écrire un message…", zh: "输入消息…" },
 };
 const STATUS = {
   NEW: { ar: "جديد", en: "New", fr: "Nouveau", zh: "新" }, REVIEWING: { ar: "قيد المراجعة", en: "Reviewing", fr: "En cours d'examen", zh: "审核中" },
@@ -341,6 +385,54 @@ select.inp{background:#fff;color:inherit}
 .doc .read{font-size:.78rem;color:var(--mut);margin-top:6px;line-height:1.9}
 .doc .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
 @media(max-width:620px){.dgrid{grid-template-columns:1fr}}
+/* تتبّع الطلبات: تبويبات، بطاقة طلب بمراحل، ومحادثة الطلب. */
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px}
+.tabs button{flex:none;display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);background:#fff;color:#2c3550;border-radius:999px;padding:8px 14px;font:inherit;font-size:.86rem;font-weight:700;cursor:pointer}
+.tabs button.on{background:var(--n);color:#fff;border-color:var(--n)}
+.tabs button em{font-style:normal;font-family:var(--fm);font-size:.74rem;background:rgba(0,0,0,.08);border-radius:999px;padding:1px 7px}
+.tabs button.on em{background:rgba(255,255,255,.22)}
+.rq{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 15px;display:grid;gap:10px;cursor:pointer}
+.rq:hover{border-color:#b7c4e8}
+.rq.you{border-color:#f59e0b;background:#fffdf7}
+.rq-h{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.rq-h .tt{min-width:0;flex:1}
+.rq-h .tt b{display:block;color:var(--ink);font-size:.97rem;font-weight:500;overflow-wrap:anywhere}
+.rq-h .tt small{color:var(--mut);font-size:.78rem}
+.rq-n{font-size:.86rem;line-height:1.7;color:#2c3550}
+.rq-n.you{color:#8a4b08}.rq-n b{font-weight:800}
+.rq-f{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:.76rem;color:var(--mut)}
+.prog{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.prog i{display:block;height:6px;border-radius:999px;background:#e4e8f1}
+.prog i.d{background:var(--n)}.prog i.c{background:#f59e0b}
+.prog-l{display:flex;justify-content:space-between;gap:8px;font-size:.78rem;color:var(--mut);margin-top:6px}
+.prog-l b{color:var(--ink);font-weight:700}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.steps li{display:grid;justify-items:center;gap:5px;text-align:center;font-size:.74rem;color:var(--mut);line-height:1.4}
+.steps li span{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#e4e8f1;color:#5f6880;font-weight:800;font-size:.74rem}
+.steps li.d span{background:var(--n);color:#fff}
+.steps li.c span{background:#f59e0b;color:#fff}
+.steps li.c,.steps li.d{color:var(--ink);font-weight:700}
+.need{border-radius:12px;padding:11px 13px;font-size:.9rem;line-height:1.7;margin-top:12px;background:#f4f6fb;color:#2c3550}
+.need.you{background:#fffbeb;border:1px solid #f59e0b;color:#8a4b08}
+.need b{font-weight:800}
+.chat .msgs{max-height:420px;min-height:90px}
+.chat.full .msgs{max-height:58vh}
+.m .fchip{display:flex;align-items:center;gap:6px;margin-top:6px;max-width:100%;border:1px solid rgba(0,0,0,.14);background:rgba(255,255,255,.92);color:var(--ink);border-radius:10px;padding:7px 10px;font:inherit;font-size:.82rem;cursor:pointer;text-align:start}
+.m .fchip span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.m .fchip small{display:inline;margin:0;opacity:.65}
+.m.bp,.m.assistant{border-inline-start:3px solid var(--n)}
+.cmp{margin-top:10px;display:grid;gap:8px}
+.cmp .row2{display:flex;gap:8px;align-items:center}
+.cmp .row2 .inp{flex:1;min-width:0}
+.cmp .pick{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:.84rem}
+.cmp .pick span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cmp .btn{flex:none;min-height:42px}
+.cfiles{margin-top:12px;border-top:1px solid var(--line);padding-top:10px;display:grid;gap:6px}
+.cfiles h4{margin:0;font-size:.84rem;color:var(--ink);font-weight:700}
+.cfiles .f{display:flex;gap:8px;align-items:center;font-size:.82rem;border:1px solid var(--line);border-radius:10px;padding:7px 10px}
+.cfiles .f span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cfiles .f small{color:var(--mut);white-space:nowrap}
+@media(max-width:620px){.steps{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:12px}.rq-f .btn{width:100%}.cmp .row2 .btn{padding-inline:12px}}
 .mob{display:none}
 @media(max-width:900px){.my{grid-template-columns:1fr}.my-side{position:static;height:auto;display:none}.my-side.open{display:block}.mob{display:flex;gap:6px;overflow:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line)}.mob a{white-space:nowrap;padding:7px 11px;border-radius:999px;border:1px solid var(--line);font-size:.82rem;font-weight:700;color:#2c3550}.mob a.on{background:var(--n);color:#fff;border-color:var(--n)}.my-kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.my-main{padding:14px}}
 </style>`;
@@ -351,7 +443,7 @@ ${sv1.footer()}`;
   const script = `<script>
 (function(){
 var LANG=${JSON.stringify(l)},EV=${JSON.stringify(EVENTS[l === "ar" ? "ar" : "en"])},TX=${JSON.stringify(tx)},ST=${JSON.stringify(st)},TY=${JSON.stringify(ty)},HOME=${JSON.stringify(home)},CHECKOUT=${JSON.stringify(sv1.href("/checkout"))};
-var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null};
+var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null,tab:'active',poll:null};
 var $=function(s,r){return (r||document).querySelector(s)};
 function h(tag,attrs,kids){var e=document.createElement(tag);if(attrs)for(var k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.indexOf('on')===0)e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k])}(kids||[]).forEach(function(c){if(c==null)return;e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
 function api(action,data){return fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({action:action},data||{}))}).then(function(r){return r.json()})}
@@ -493,8 +585,8 @@ function upErr(e){e=String(e||'');
  return TX.eUp}
 // رفعٌ بنسبة مئوية حقيقية: XHR لأن fetch لا يُبلّغ عن تقدّم الرفع. وكل نهاية
 // لها فرع — نجاح، أو خطأ من الخادم برسالته، أو انقطاع شبكة — ولا فرع صامت.
-function sendDoc(payload,onp){return new Promise(function(res){
- var x=new XMLHttpRequest();x.open('POST','/api/requests',true);x.withCredentials=true;
+function sendDoc(payload,onp,url){return new Promise(function(res){
+ var x=new XMLHttpRequest();x.open('POST',url||'/api/requests',true);x.withCredentials=true;
  x.setRequestHeader('content-type','application/json');
  if(x.upload&&onp)x.upload.onprogress=function(e){if(e.lengthComputable)onp(e.loaded/e.total)};
  x.onload=function(){var o=null;try{o=JSON.parse(x.responseText||'null')}catch(e){}
