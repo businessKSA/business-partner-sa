@@ -37,8 +37,27 @@ const T = {
   svcWord:{ ar: "خدمة", en: "services", fr: "services", zh: "项服务" },
   start:  { ar: "ابدأ طلبك بها", en: "Start a request", fr: "Lancer la demande", zh: "开始申请" },
   clear:  { ar: "مسح", en: "Clear", fr: "Effacer", zh: "清除" },
-  openAll:{ ar: "افتح الكل", en: "Expand all", fr: "Tout ouvrir", zh: "全部展开" },
-  closeAll:{ar: "اطوِ الكل", en: "Collapse all", fr: "Tout fermer", zh: "全部收起" },
+  byField:{ ar: "حسب المجال", en: "By field", fr: "Par domaine", zh: "按领域" },
+  byGov:  { ar: "حسب الجهة", en: "By authority", fr: "Par autorité", zh: "按主管部门" },
+  all:    { ar: "الكل", en: "All", fr: "Tout", zh: "全部" },
+  govLbl: { ar: "الجهة", en: "Authority", fr: "Autorité", zh: "主管部门" },
+  askSvc: { ar: "اسأل المستشار عنها", en: "Ask the Smart Advisor", fr: "Demander au conseiller intelligent", zh: "咨询智能顾问" },
+  add:    { ar: "أضف للطلب", en: "Add to request", fr: "Ajouter à la demande", zh: "加入申请" },
+  added:  { ar: "أُضيفت ✓", en: "Added ✓", fr: "Ajoutée ✓", zh: "已加入 ✓" },
+  more:   { ar: "عرض المزيد", en: "Show more", fr: "Voir plus", zh: "显示更多" },
+  shown:  { ar: "من", en: "of", fr: "sur", zh: "/" },
+  vat:    { ar: "قبل ضريبة القيمة المضافة ١٥٪", en: "Excl. 15% VAT", fr: "Hors TVA 15 %", zh: "不含15%增值税" },
+  govFee: { ar: "الرسوم الحكومية مستثناة", en: "Government fees excluded", fr: "Frais gouvernementaux exclus", zh: "不含政府规费" },
+  quote:  { ar: "السعر حسب حالتك", en: "Priced to your case", fr: "Prix selon votre cas", zh: "按您的情况报价" },
+  pctDeal:{ ar: "نسبة من قيمة الصفقة", en: "Percentage of deal value", fr: "Pourcentage de la valeur", zh: "按交易额百分比" },
+  from:   { ar: "يبدأ من", en: "From", fr: "À partir de", zh: "起" },
+  perCand:{ ar: "لكل مرشّح", en: "per candidate", fr: "par candidat", zh: "每位候选人" },
+  perCv:  { ar: "سيرة ذاتية", en: "per CV", fr: "par CV", zh: "每份简历" },
+  perEnt: { ar: "كيان", en: "per entity", fr: "par entité", zh: "每个实体" },
+  perEst: { ar: "منشأة", en: "per establishment", fr: "par établissement", zh: "每个机构" },
+  svcCount:{ar: "خدمة", en: "services", fr: "services", zh: "项服务" },
+  askQ:   { ar: "أريد أن أعرف عن خدمة «{n}»: المتطلبات والخطوات.", en: "I'd like to know about “{n}”: requirements and steps.",
+            fr: "Je souhaite en savoir plus sur « {n} » : conditions et étapes.", zh: "我想了解“{n}”：所需材料与步骤。" },
   pkgAsk: { ar: "اطلب هذه الباقة", en: "Request this package", fr: "Demander ce forfait", zh: "申请此套餐" },
   pkgNote:{ ar: "الباقة اشتراك شهري يُدار من حسابك — تبدأ بطلب، ثم عرض سعر وعقد وفاتورة كبقية الخدمات.",
             en: "A package is a monthly subscription managed from your account — it starts as a request, then quotation, contract and invoice like any service.",
@@ -76,6 +95,30 @@ export function buildSimpleCatalog(SV1, ctx) {
   let raw = { services: [], packages: [] };
   try { raw = JSON.parse(fs.readFileSync(path.resolve("site/assets/data/catalog.json"), "utf8")); } catch {}
 
+  // ‏السعر من الكتالوج بالـSKU حصراً (amount/priceLabel). العربية تعرض
+  // `priceLabel` كما هو؛ واللغات الأخرى تُبنى من `amount` + `pricingModel`،
+  // وأي لاحقةٍ لا نعرف ترجمتها تسقط إلى «السعر حسب حالتك» بدل أن تُعرض
+  // خاطئة. لا يُخترع رقم ولا مدة ولا جهة.
+  const SUFFIX = { "شهرياً": "monthly", "شهر": "monthly", "لكل مرشّح": "perCand", "سيرة ذاتية": "perCv", "كيان": "perEnt", "منشأة": "perEst" };
+  const priceOf = (s) => {
+    const label = String(s.priceLabel || "").trim();
+    const amt = s.amount != null ? Number(s.amount) : null;
+    if (!(amt > 0)) {
+      if (ar) return label;
+      return label === "نسبة من قيمة الصفقة" ? t("pctDeal") : t("quote");
+    }
+    if (ar) return label || (amt.toLocaleString("en-US") + " ﷼");
+    const num = amt.toLocaleString("en-US") + " ﷼";
+    const m = label.match(/\/\s*(.+)$/);
+    let suffix = "";
+    if (m) {
+      const key = SUFFIX[m[1].trim()];
+      if (!key) return t("quote");
+      suffix = " · " + t(key);
+    }
+    return (s.pricingModel === "Starting From" ? t("from") + " " : "") + num + suffix;
+  };
+
   const services = (raw.services || []).map((s) => ({
     code: s.code || "",
     // ‏رابط صفحة الخدمة. الصفحات الـ٢٠٠ تُبنى بنطاق عملها ومستنداتها وأسئلتها
@@ -89,15 +132,28 @@ export function buildSimpleCatalog(SV1, ctx) {
     cat: (catLabel ? catLabel(s.category || s.categoryAr) : s.categoryAr) || s.categoryAr || "",
     gov: s.govPlatform && s.govPlatform !== "بدون جهة حكومية"
       ? (govLabel ? govLabel(s.govPlatform) : s.govPlatform) : "",
+    price: priceOf(s),
+    govFees: s.govFeesSeparate === true,
+    // ‏الضريبة تُذكر فقط مع رقمٍ فعلي؛ «حسب حالتك» لا رقم فيه ليُقال قبل ضريبته.
+    hasAmt: Number(s.amount) > 0,
     door: DOOR[s.categoryAr] || "consulting",
   })).filter((s) => s.name);
 
-  const groups = [];
-  for (const s of services) {
-    let g = groups.find((x) => x.cat === s.cat);
-    if (!g) { g = { cat: s.cat || "—", items: [] }; groups.push(g); }
-    g.items.push(s);
-  }
+  // ‏مرشّحات التصفية: القطاع (كل خدمة لها قطاع) والجهة (حقل `govPlatform` الحقيقي).
+  // الجهات تُعرض أزراراً فقط إن غطّت ٥ خدمات فأكثر؛ الباقي يبقى قابلاً للبحث
+  // النصي. لا تجميع يدوي للجهات ولا أسماء من خارج الكتالوج.
+  const tally = (key) => {
+    const out = [];
+    for (const s of services) {
+      const k = s[key];
+      if (!k) continue;
+      const hit = out.find((x) => x.k === k);
+      if (hit) hit.n++; else out.push({ k, n: 1 });
+    }
+    return out;
+  };
+  const cats = tally("cat");
+  const govs = tally("gov").filter((x) => x.n >= 5).sort((x, y) => y.n - x.n);
 
   const packages = (raw.packages || []).map((p) => ({
     code: p.code || "",
@@ -138,9 +194,15 @@ export function buildSimpleCatalog(SV1, ctx) {
     <div id="paneSvc">
       <div class="sv1-cat-tools">
         <input id="svcQ" class="sv1-cat-q" type="search" placeholder="${esc(t("search"))}" aria-label="${esc(t("search"))}">
-        <button type="button" class="sv1-btn sm ghost" id="svcToggleAll">${esc(t("openAll"))}</button>
       </div>
-      <div id="svcList"></div>
+      <div class="sv1-cat-mode" role="group" aria-label="${esc(t("byField"))} / ${esc(t("byGov"))}">
+        <button type="button" class="on" id="modeCat" aria-pressed="true">${esc(t("byField"))}</button>
+        <button type="button" id="modeGov" aria-pressed="false">${esc(t("byGov"))}</button>
+      </div>
+      <div class="sv1-cat-chips" id="svcChips" role="group"></div>
+      <p class="sv1-muted sv1-cat-count" id="svcCount" aria-live="polite"></p>
+      <div class="sv1-cat-grid" id="svcList"></div>
+      <div class="sv1-cat-morewrap"><button type="button" class="sv1-btn sm sv1-hide" id="svcMore">${esc(t("more"))}</button></div>
     </div>
 
     <div id="panePkg" class="sv1-hide">
@@ -169,27 +231,35 @@ ${SV1.footer()}`;
 .sv1-cat-journey ol{list-style:none;display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;counter-reset:j}
 .sv1-cat-journey li{counter-increment:j;font-size:11.5px;color:var(--ink);background:#fff;border:1px solid var(--l);border-radius:999px;padding:5px 11px;font-weight:600}
 .sv1-cat-journey li::before{content:counter(j) " · ";color:var(--mut);font-weight:700}
-.sv1-cat-tools{display:flex;gap:8px;align-items:center;margin-bottom:16px}
-.sv1-cat-q{flex:1;min-width:0;border:1px solid var(--l);border-radius:12px;padding:13px 15px;font:inherit;font-size:15px;outline:none;background:#fff}
+.sv1-cat-tools{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.sv1-cat-q{flex:1;min-width:0;border:1px solid var(--l);border-radius:12px;padding:13px 15px;font:inherit;font-size:16px;outline:none;background:#fff}
 .sv1-cat-q:focus{border-color:var(--n)}
-.sv1-grp{border:1px solid var(--l);border-radius:14px;background:#fff;margin-bottom:9px;overflow:hidden}
-.sv1-grp>button{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;background:none;border:0;padding:15px 17px;cursor:pointer;font-family:inherit;text-align:start}
-.sv1-grp>button b{font-size:14.5px;color:var(--ink);font-weight:500}
-.sv1-grp>button .meta{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:12px}
-.sv1-grp>button .chev{transition:.2s;display:inline-block}
-.sv1-grp.open>button .chev{transform:rotate(180deg)}
-.sv1-grp .body{display:none;border-top:1px solid var(--l);padding:8px}
-.sv1-grp.open .body{display:block}
-.sv1-pick{display:flex;gap:10px;align-items:flex-start;padding:10px 11px;border-radius:10px}
-.sv1-pick-lab{display:flex;gap:10px;align-items:flex-start;flex:1;min-width:0;cursor:pointer}
-.sv1-pick-more{flex:none;align-self:center;font-size:11.5px;color:var(--ac);text-decoration:none;border:1px solid var(--acLine);border-radius:8px;padding:4px 9px;background:var(--acSoft);white-space:nowrap}
-.sv1-pick-more:hover{background:var(--ac);color:#fff;border-color:var(--ac)}
-.sv1-pick:hover{background:var(--soft)}
-.sv1-pick input{margin:2px 0 0;width:17px;height:17px;accent-color:var(--n);flex:none}
-.sv1-pick .tx b{display:block;font-size:13.5px;color:var(--ink);font-weight:600;line-height:1.55}
-.sv1-pick .tx small{font-size:11.5px;color:var(--mut)}
-.sv1-pick.on{background:#eef1f9}
-.sv1-grp .badge{background:var(--acSoft);color:var(--ac);border-radius:999px;padding:2px 9px;font-size:11px;font-weight:500;font-family:var(--fm)}
+.sv1-cat-mode{display:flex;gap:6px;margin-bottom:10px}
+.sv1-cat-mode button{flex:1;min-height:44px;border:1px solid var(--l);background:#fff;border-radius:10px;font:inherit;font-size:13px;font-weight:600;color:var(--mut);cursor:pointer}
+.sv1-cat-mode button.on{background:var(--acSoft);color:var(--ac);border-color:var(--acLine)}
+.sv1-cat-chips{display:flex;gap:8px;overflow-x:auto;max-width:100%;padding:2px 0 8px;margin-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.sv1-cat-chips::-webkit-scrollbar{display:none}
+.sv1-cat-chips button{flex:none;min-height:44px;border:1px solid var(--l);background:#fff;border-radius:999px;padding:0 15px;font:inherit;font-size:13px;color:var(--ink);cursor:pointer;white-space:nowrap}
+.sv1-cat-chips button small{color:var(--mut);font-size:11px;margin-inline-start:6px}
+.sv1-cat-chips button.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.sv1-cat-chips button.on small{color:rgba(255,255,255,.75)}
+.sv1-cat-count{font-size:12px;margin:0 0 10px}
+.sv1-cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:10px}
+.sv1-svc{border:1px solid var(--l);border-radius:14px;background:#fff;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.sv1-svc.on{border-color:var(--ac);background:#f6f8fd}
+.sv1-svc h3{margin:0;font-size:15px;line-height:1.6;color:var(--ink);font-weight:600;overflow-wrap:anywhere}
+.sv1-svc .meta{display:grid;gap:3px;font-size:12px;color:var(--mut)}
+.sv1-svc .meta b{color:var(--s);font-weight:600}
+.sv1-svc .cat{font-size:11px;color:var(--mut)}
+.sv1-svc .pr{display:grid;gap:2px;border-top:1px dashed var(--l);padding-top:8px}
+.sv1-svc .pr b{font-size:15px;font-weight:600;color:var(--ink);font-family:var(--fm)}
+.sv1-svc .pr small{font-size:11px;color:var(--mut);line-height:1.6}
+.sv1-svc .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:4px}
+.sv1-svc .acts .sv1-btn{min-height:44px;flex:1 1 auto;justify-content:center}
+.sv1-svc .acts .ask{flex:1 1 100%}
+.sv1-svc .acts a.sv1-btn{text-decoration:none;display:inline-flex;align-items:center}
+.sv1-cat-morewrap{text-align:center;margin-top:14px}
+.sv1-cat-morewrap .sv1-btn{min-height:44px;padding-inline:24px}
 .sv1-tray{position:sticky;bottom:0;z-index:25;background:var(--n);color:#fff;box-shadow:0 -8px 24px rgba(11,27,90,.22)}
 .sv1-tray .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 22px}
 .sv1-tray #trayCount{font-weight:700;font-size:13.5px}
@@ -209,13 +279,17 @@ body.sv1-tray-on .sv1-wa-fab{bottom:78px}
 .sv1-pkg-h{font-size:14px;margin:22px 0 10px;color:var(--ink)}
 .sv1-cat-ask{margin-top:30px;text-align:center}
 .sv1-cat-ask h4{margin:0 0 10px;color:var(--ink);font-size:15px}
-@media(max-width:600px){.sv1-cat-journey{display:none}.sv1-tray .wrap{padding:10px 14px}.sv1-tray #trayCount{font-size:12.5px}}
+@media(max-width:600px){.sv1-cat-journey{display:none}.sv1-tray .wrap{padding:10px 14px}.sv1-tray #trayCount{font-size:12.5px}.sv1-tabs{gap:6px}.sv1-tabs .sv1-tab{flex:1;padding:11px 6px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-sizing:border-box}}
+/* داخل التطبيق: شريط التبويب السفلي ثابت فوق كل شيء، فيجلس شريط الاختيار فوقه لا تحته. */
+html.bp-native .sv1-tray{bottom:calc(64px + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)))}
+html.bp-native body.sv1-tray-on .sv1-wa-fab{bottom:calc(136px + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)))!important}
+html.bp-native .sv1-cat-ask{margin-bottom:12px}
 </style>`;
 
   const script = `<script>
 (function(){
-var GROUPS=${JSON.stringify(groups)},PKGS=${JSON.stringify(packages)},LANG=${JSON.stringify(lang)};
-var TX=${JSON.stringify({ none: t("none"), picked: t("picked"), svcWord: t("svcWord"), openAll: t("openAll"), closeAll: t("closeAll"), pkgAsk: t("pkgAsk"), monthly: t("monthly"), details: t("details") })};
+var SVCS=${JSON.stringify(services)},CATS=${JSON.stringify(cats)},GOVS=${JSON.stringify(govs)},PKGS=${JSON.stringify(packages)},LANG=${JSON.stringify(lang)};
+var TX=${JSON.stringify({ none: t("none"), picked: t("picked"), svcWord: t("svcWord"), pkgAsk: t("pkgAsk"), monthly: t("monthly"), details: t("details"), all: t("all"), govLbl: t("govLbl"), askSvc: t("askSvc"), add: t("add"), added: t("added"), more: t("more"), shown: t("shown"), svcCount: t("svcCount"), vat: t("vat"), govFee: t("govFee"), askQ: t("askQ") })};
 var HOME=${JSON.stringify(lang === "en" ? "/" : "/" + lang + "/")};
 var $=function(id){return document.getElementById(id)};
 var list=$('svcList'),q=$('svcQ'),tray=$('svcTray'),cnt=$('trayCount');
@@ -244,50 +318,69 @@ function go(){
  var door=Object.keys(tally).sort(function(a,b){return tally[b]-tally[a]})[0]||'consulting';
  handoff(picked.map(function(p){return {code:p.code,title:p.title,why:p.why}}),door,picked.map(function(p){return p.title}).join('، '));
 }
+// ---- التصفية: وضعان على الحقلين الحقيقيين في الكتالوج — القطاع أو الجهة.
+var PAGE=24,limit=PAGE,mode='cat',sel='';
+var chipsBox=$('svcChips'),cntEl=$('svcCount'),moreBtn=$('svcMore');
+function drawChips(){
+ chipsBox.innerHTML='';
+ var src=mode==='cat'?CATS:GOVS;
+ function chip(label,n,val){
+  var b=el('button',null,label);b.type='button';
+  if(n!=null)b.appendChild(el('small',null,String(n)));
+  var on=(sel===val);b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');
+  b.onclick=function(){sel=val;limit=PAGE;drawChips();draw()};
+  chipsBox.appendChild(b)}
+ chip(TX.all,SVCS.length,'');
+ src.forEach(function(x){chip(x.k,x.n,x.k)});
+}
+function setMode(m){
+ mode=m;sel='';limit=PAGE;
+ $('modeCat').classList.toggle('on',m==='cat');$('modeCat').setAttribute('aria-pressed',m==='cat'?'true':'false');
+ $('modeGov').classList.toggle('on',m==='gov');$('modeGov').setAttribute('aria-pressed',m==='gov'?'true':'false');
+ drawChips();draw();
+}
+$('modeCat').onclick=function(){setMode('cat')};
+$('modeGov').onclick=function(){setMode('gov')};
+// «اسأل المستشار»: يستعمل آلية التسليم القائمة نفسها (bp_sva_request) فتُفتح
+// المحادثة في «/» والسؤال أول رسالة فيها.
+function askAbout(s){handoff([{code:s.code,title:s.name,why:s.gov||''}],s.door,TX.askQ.replace('{n}',s.name))}
+function card(s){
+ var c=el('article','sv1-svc');
+ if(isPicked(s.code,s.name))c.classList.add('on');
+ c.appendChild(el('h3',null,s.name));
+ var meta=el('div','meta');
+ if(s.gov){var g=el('span');g.appendChild(el('b',null,TX.govLbl+': '));g.appendChild(document.createTextNode(s.gov));meta.appendChild(g)}
+ if(s.cat)meta.appendChild(el('span','cat',s.cat));
+ c.appendChild(meta);
+ // ‏كل ما يخص السعر داخل .price-amt: القاعدة العامة تخفيه عن الزائر كاملاً
+ // (SHOW_PRICES=false) فلا يبقى رقمٌ ولا تلميحٌ بالسعر.
+ if(s.price){
+  var pr=el('div','pr price-amt');pr.appendChild(el('b',null,s.price));
+  if(s.hasAmt)pr.appendChild(el('small',null,TX.vat+(s.govFees?' · '+TX.govFee:'')));
+  c.appendChild(pr)}
+ var acts=el('div','acts');
+ var ask=el('button','sv1-btn primary sm ask',TX.askSvc);ask.type='button';ask.onclick=function(){askAbout(s)};
+ acts.appendChild(ask);
+ var add=el('button','sv1-btn sm',isPicked(s.code,s.name)?TX.added:TX.add);add.type='button';
+ add.setAttribute('aria-pressed',isPicked(s.code,s.name)?'true':'false');
+ add.onclick=function(){var on=!isPicked(s.code,s.name);toggle(s,on);c.classList.toggle('on',on);add.textContent=on?TX.added:TX.add;add.setAttribute('aria-pressed',on?'true':'false')};
+ acts.appendChild(add);
+ if(s.slug){var a=document.createElement('a');a.className='sv1-btn sm';a.href=HOME+'services/'+s.slug;a.textContent=TX.details;acts.appendChild(a)}
+ c.appendChild(acts);
+ return c}
 function draw(){
  var f=(q.value||'').trim().toLowerCase();
+ var hits=SVCS.filter(function(s){
+  if(sel&&(mode==='cat'?s.cat:s.gov)!==sel)return false;
+  return !f||(s.name+' '+s.code+' '+s.cat+' '+s.gov).toLowerCase().indexOf(f)>=0});
  list.innerHTML='';
- var any=false;
- GROUPS.forEach(function(g){
-  var hits=g.items.filter(function(s){return !f||(s.name+' '+s.code+' '+s.cat+' '+s.gov).toLowerCase().indexOf(f)>=0});
-  if(!hits.length)return;
-  any=true;
-  var box=el('div','sv1-grp');
-  // البحث يفتح ما طابق: نتيجةٌ مخبّأة خلف عنوان مطويّ ليست نتيجة.
-  if(f)box.classList.add('open');
-  var head=el('button');head.type='button';
-  var left=el('span');left.appendChild(el('b',null,g.cat));
-  var meta=el('span','meta');
-  meta.appendChild(el('span','badge',String(hits.length)));
-  meta.appendChild(el('span','chev','⌄'));
-  head.appendChild(left);head.appendChild(meta);
-  head.onclick=function(){box.classList.toggle('open')};
-  var body=el('div','body');
-  hits.forEach(function(s){
-   var row=el('div','sv1-pick');
-   var lab=document.createElement('label');lab.className='sv1-pick-lab';
-   var cb=document.createElement('input');cb.type='checkbox';cb.checked=isPicked(s.code,s.name);
-   if(cb.checked)row.classList.add('on');
-   cb.onchange=function(){row.classList.toggle('on',cb.checked);toggle(s,cb.checked)};
-   var tx=el('span','tx');tx.appendChild(el('b',null,s.name));
-   if(s.gov)tx.appendChild(el('small',null,s.gov));
-   lab.appendChild(cb);lab.appendChild(tx);
-   row.appendChild(lab);
-   if(s.slug){var a=document.createElement('a');a.className='sv1-pick-more';
-    a.href=HOME+'services/'+s.slug;a.textContent=TX.details;
-    a.onclick=function(e){e.stopPropagation()};row.appendChild(a)}
-   body.appendChild(row)});
-  box.appendChild(head);box.appendChild(body);
-  list.appendChild(box)});
- if(!any)list.appendChild(el('p','sv1-muted',TX.none));
+ hits.slice(0,limit).forEach(function(s){list.appendChild(card(s))});
+ if(!hits.length)list.appendChild(el('p','sv1-muted',TX.none));
+ cntEl.textContent=hits.length?(Math.min(limit,hits.length)+' '+TX.shown+' '+hits.length+' '+TX.svcCount):'';
+ moreBtn.classList.toggle('sv1-hide',hits.length<=limit);
 }
-q.addEventListener('input',draw);
-$('svcToggleAll').onclick=function(){
- var boxes=list.querySelectorAll('.sv1-grp');
- var open=list.querySelectorAll('.sv1-grp.open').length>=boxes.length/2;
- Array.prototype.forEach.call(boxes,function(b){b.classList.toggle('open',!open)});
- this.textContent=open?TX.openAll:TX.closeAll;
-};
+q.addEventListener('input',function(){limit=PAGE;draw()});
+moreBtn.onclick=function(){limit+=PAGE;draw()};
 $('trayClear').onclick=function(){picked=[];drawTray();draw()};
 $('trayGo').onclick=go;
 
@@ -316,7 +409,7 @@ function drawPkgs(){
 }
 $('tabSvc').onclick=function(){this.classList.add('on');$('tabPkg').classList.remove('on');$('paneSvc').classList.remove('sv1-hide');$('panePkg').classList.add('sv1-hide')};
 $('tabPkg').onclick=function(){this.classList.add('on');$('tabSvc').classList.remove('on');$('panePkg').classList.remove('sv1-hide');$('paneSvc').classList.add('sv1-hide')};
-draw();drawPkgs();drawTray();
+drawChips();draw();drawPkgs();drawTray();
 if(/[?&]tab=packages/.test(location.search))$('tabPkg').click();
 })();</script>`;
 

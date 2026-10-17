@@ -23,6 +23,7 @@
 | `/team/*` (١٢) | 🟡 | صفحات الفريق: baher · abdulaziz · abdulrahman · ahmed · badr · farah · malak · mazen · mishari · mohammed · nasser · strategy |
 | `/news` | ✅ | الرؤى والأخبار |
 | `/newsletter` | ✅ | النشرة |
+| `/gov-news` | ✅ | أخبار الجهات الحكومية — تبويب «الأخبار» في تطبيق الجوال. بطاقات من `site/assets/data/gov-news.json` (جهة · تاريخ · ملخص · «اقرأ المزيد» إلى المصدر · تصفية بفئات العناصر الفعلية). الملف فارغ ⇒ «لا أخبار بعد»؛ تغذيته من `automation-agents` بعد اعتماد المالك |
 | `/saudi-arabia` | ✅ | السوق السعودي |
 | `/opportunities` | ✅ | الفرص الاستثمارية — محتوى عام؛ إن صار خدمةً تُباع انتقلت إلى `mahfol` |
 | `/classic-home` | 🗄️ | الرئيسية القديمة محفوظة |

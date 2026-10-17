@@ -326,6 +326,7 @@ import { buildSimpleGuideRunBusiness } from "./simple-v1-guide-run-your-business
 import { buildSimpleGuideLiveInSaudi } from "./simple-v1-guide-live-in-saudi.mjs";
 import { buildSimpleGuideResidency } from "./simple-v1-guide-residency.mjs";
 import { buildSimpleKnowledge } from "./simple-v1-knowledge.mjs";
+import { buildSimpleGovNews } from "./simple-v1-gov-news.mjs";
 function T(en) {
   const dict = TRANSLATIONS[LANG];
   return (dict && dict[en]) || en;
@@ -11941,6 +11942,8 @@ function writeFullSite(pre) {
   write(`${pre}calculators/government-cost.html`, buildSimpleGovCost(SV1, { lang: () => LANG, esc }));
   // مركز المعرفة: الباب الوحيد إلى الأدلة والأدوات من الموقع الجديد (رابطٌ واحد في التذييل).
   write(`${pre}knowledge-center.html`, buildSimpleKnowledge(SV1, { lang: () => LANG, esc }, NAV_GROUPS.find((g) => g.en === "Knowledge Center")));
+  // أخبار الجهات (تبويب «الأخبار» في التطبيق): بيانات site/assets/data/gov-news.json، فارغة ⇒ حالة «لا أخبار بعد».
+  write(`${pre}gov-news.html`, buildSimpleGovNews(SV1, { lang: () => LANG, esc }, read("assets/data/gov-news.json")));
   write(`${pre}calculators/profession-checker.html`, buildProfessionChecker());
   write(`${pre}calculators/end-of-service.html`, buildEndOfServiceCalculator());
   write(`${pre}calculators/annual-leave.html`, buildAnnualLeaveCalculator());
@@ -12247,7 +12250,7 @@ write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/da
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/smart-employee", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/knowledge-center", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/company-structure", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
+const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/smart-employee", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/knowledge-center", "/gov-news", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/company-structure", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
