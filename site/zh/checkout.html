@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>结账 — Business Partner</title>
-<meta name="description" content="在线支付：银行卡（mada · Visa · Mastercard）或 Tamara 分期——确认后立即收到税务发票。">
+<meta name="description" content="银行卡（mada · Visa · Mastercard）、Tamara 分期，或银行转账并上传回单——确认付款后发送税务发票。">
 <meta property="og:title" content="结账 — Business Partner">
-<meta property="og:description" content="在线支付：银行卡（mada · Visa · Mastercard）或 Tamara 分期——确认后立即收到税务发票。">
+<meta property="og:description" content="银行卡（mada · Visa · Mastercard）、Tamara 分期，或银行转账并上传回单——确认付款后发送税务发票。">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="zh_CN">
@@ -382,7 +382,7 @@ var h0=hint();if(h0)S.paint(true,h0);
     <div class="sv1-title" style="margin-bottom:26px;">
       <span class="sv1-tag">结账</span>
       <h2>结账</h2>
-      <p>在线支付：银行卡（mada · Visa · Mastercard）或 Tamara 分期——确认后立即收到税务发票。</p>
+      <p>银行卡（mada · Visa · Mastercard）、Tamara 分期，或银行转账并上传回单——确认付款后发送税务发票。</p>
     </div>
 
     <div class="sv1-co-grid">
@@ -433,6 +433,10 @@ var h0=hint();if(h0)S.paint(true,h0);
               <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 12h18"/><path d="M7 7h10"/><path d="M7 17h10"/></svg></span>
               <span class="tx"><b>Tamara 分期</b><small>免息分期</small></span>
             </button>
+            <button type="button" class="sv1-co-way sv1-hide" data-way="bank" id="coWayBank">
+              <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 12 4l9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 20h18"/></svg></span>
+              <span class="tx"><b>银行转账</b><small>转账后上传回单</small></span>
+            </button>
           </div>
 
           <div id="coPaneCard" class="sv1-co-pane">
@@ -443,6 +447,14 @@ var h0=hint();if(h0)S.paint(true,h0);
           <div id="coPaneTamara" class="sv1-co-pane sv1-hide">
             <button type="button" class="sv1-btn primary" style="width:100%" id="coTamaraGo">Tamara 分期</button>
             <p class="sv1-co-fine" id="coTamaraNote">免息分期</p>
+          </div>
+
+          <div id="coPaneBank" class="sv1-co-pane sv1-hide">
+            <dl class="sv1-co-rows" id="coBankRows"></dl>
+            <p class="sv1-co-fine">请将全额转入上述账户并上传回单。团队确认款项到账后，服务开通并开具发票。</p>
+            <div style="margin-top:12px"><label for="coRcpt" class="sv1-co-fine" style="display:block;margin:0 0 5px">转账回单（图片或 PDF）</label><input id="coRcpt" type="file" accept="image/*,application/pdf" class="sv1-co-in"></div>
+            <button type="button" class="sv1-btn primary" style="width:100%;margin-top:12px" id="coBankGo">提交订单和回单</button>
+            <p class="sv1-co-fine" id="coBankNote"></p>
           </div>
         </div>
       </div>
@@ -566,7 +578,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
 })();</script><script>
 (function(){
 var LANG="zh",HOME="/zh/";
-var TX={"empty":"购物车为空。","browse":"浏览服务","needFill":"请先填写姓名、手机号和邮箱。","payDown":"支付表单加载失败。请尝试 Tamara 或稍后重试。","loading":"正在准备支付表单…","quoted":"审核后报价","signIn":"登录后查看价格并付款。","signInBtn":"登录","noAmount":"这些项目将在审核后报价 — 我们会先发送报价，再发送付款链接。","card":"银行卡","payBtn":"完成支付","payWait":"正在确认您的付款…","paidOk":"已收到付款——订单已记录，税务发票将在几分钟内发送到您的邮箱。","paidInv":"发票号：","paidFail":"付款未完成，未扣款——请用银行卡重试或尝试 Tamara。","paidHold":"您的付款已完成但暂时无法自动确认，团队已收到提醒。请勿重复付款——发票稍后送达。","bnplFail":"分期付款未完成——请重试或用银行卡支付。","toMy":"查看我的订单","mockTag":"本地网关——不扣款","needCo":"请填写公司名称——订阅将以其名义开通。","needTax":"请填写公司信息：名称、15位增值税号、负责人及手机、国家地址（楼号、街道、区、城市、邮编）。","empFail":"暂时无法准备您的订阅，未扣款——请稍后重试或联系我们。","empDone":"已收到付款，您的招聘平台订阅已开通。请用付款时的邮箱登录雇主门户。","empHold":"付款已完成，订阅正在开通——团队已收到提醒。请勿重复付款。","toEmployer":"打开雇主门户","tamaraYr":"Tamara 仅适用于年度订阅。","empSignIn":"请先用将开通订阅的邮箱登录，再付款。","empMail":"邮箱必须与当前登录账户一致。","onePlan":"每个订单仅限一个订阅。","toCart":"返回购物车","onceHd":"一次性付款","recHd":"订阅","billM":"每月","billY":"每年","recNote":"订阅金额为一个周期（一个月或一年）的费用，即现在支付的金额。","tamaraSub":"Tamara 不适用于月度订阅——请用银行卡支付。","lblOrder":"订单号","lblPay":"付款编号","lblAmt":"已付金额（含税）","lblInv":"发票号","okDone":"已收到付款，订单已确认。","nextInv":"下一步：订单确认和税务发票将发送到您的邮箱，随后团队开始执行。","nextNoInv":"下一步：订单确认将发送到您的邮箱。团队正在准备税务发票，并发送到同一邮箱。","reviewT":"我们已收到您的付款，将在工作时间内确认开通。","reviewN":"我们无法自动将金额与公布价格核对，团队将在开通前复核。确认邮件将发送到您的邮箱——请勿重复付款。","signInGo":"登录","lblReq":"您的申请编号","openReq":"打开您的申请","nextReqDocs":"下一步：打开您的申请并上传所需文件，团队即可开始执行；您可在那里跟进每个阶段。","nextReq":"下一步：在您的面板中跟进申请进度；执行开始时我们会通知您。","invSent":"税务发票将发送到您的邮箱。","invSoon":"团队正在准备税务发票，并发送到同一邮箱。"};
+var TX={"empty":"购物车为空。","browse":"浏览服务","needFill":"请先填写姓名、手机号和邮箱。","payDown":"支付表单加载失败。请尝试 Tamara 或稍后重试。","loading":"正在准备支付表单…","quoted":"审核后报价","signIn":"登录后查看价格并付款。","signInBtn":"登录","noAmount":"这些项目将在审核后报价 — 我们会先发送报价，再发送付款链接。","card":"银行卡","payBtn":"完成支付","payWait":"正在确认您的付款…","paidOk":"已收到付款——订单已记录，税务发票将在几分钟内发送到您的邮箱。","paidInv":"发票号：","paidFail":"付款未完成，未扣款——请用银行卡重试或尝试 Tamara。","paidHold":"您的付款已完成但暂时无法自动确认，团队已收到提醒。请勿重复付款——发票稍后送达。","bnplFail":"分期付款未完成——请重试或用银行卡支付。","toMy":"查看我的订单","mockTag":"本地网关——不扣款","needCo":"请填写公司名称——订阅将以其名义开通。","needTax":"请填写公司信息：名称、15位增值税号、负责人及手机、国家地址（楼号、街道、区、城市、邮编）。","bkBen":"收款人","bkBank":"银行","bkIban":"IBAN","bkAmt":"应付金额（含税）","needRcpt":"请先上传转账回单。","badRcpt":"回单必须是图片或 PDF。","bigRcpt":"回单超过 5 MB。","bankFail":"暂时无法提交，订单未记录——请稍后重试。","bankDone":"已收到订单和回单。状态：等待确认款项到账。","bankNext":"团队审核回单并确认到账后，服务开通，税务发票将发送至您的邮箱。","empFail":"暂时无法准备您的订阅，未扣款——请稍后重试或联系我们。","empDone":"已收到付款，您的招聘平台订阅已开通。请用付款时的邮箱登录雇主门户。","empHold":"付款已完成，订阅正在开通——团队已收到提醒。请勿重复付款。","toEmployer":"打开雇主门户","tamaraYr":"Tamara 仅适用于年度订阅。","empSignIn":"请先用将开通订阅的邮箱登录，再付款。","empMail":"邮箱必须与当前登录账户一致。","onePlan":"每个订单仅限一个订阅。","toCart":"返回购物车","onceHd":"一次性付款","recHd":"订阅","billM":"每月","billY":"每年","recNote":"订阅金额为一个周期（一个月或一年）的费用，即现在支付的金额。","tamaraSub":"Tamara 不适用于月度订阅——请用银行卡支付。","lblOrder":"订单号","lblPay":"付款编号","lblAmt":"已付金额（含税）","lblInv":"发票号","okDone":"已收到付款，订单已确认。","nextInv":"下一步：订单确认和税务发票将发送到您的邮箱，随后团队开始执行。","nextNoInv":"下一步：订单确认将发送到您的邮箱。团队正在准备税务发票，并发送到同一邮箱。","reviewT":"我们已收到您的付款，将在工作时间内确认开通。","reviewN":"我们无法自动将金额与公布价格核对，团队将在开通前复核。确认邮件将发送到您的邮箱——请勿重复付款。","signInGo":"登录","lblReq":"您的申请编号","openReq":"打开您的申请","nextReqDocs":"下一步：打开您的申请并上传所需文件，团队即可开始执行；您可在那里跟进每个阶段。","nextReq":"下一步：在您的面板中跟进申请进度；执行开始时我们会通知您。","invSent":"税务发票将发送到您的邮箱。","invSoon":"团队正在准备税务发票，并发送到同一邮箱。"};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
 var REC={"bp-hr-03":"monthly","bp-ai-02":"monthly","bp-sub-01":"monthly","bp-vendor-02":"monthly","bp-ai-03":"monthly","bp-ai-smart-employee":"monthly","bp-ai-04":"monthly","bp-ajeer-10":"monthly","starter-4":"monthly","bp-pkg-svc-starter":"monthly","silver":"monthly","bp-pkg-launch":"monthly","gold":"monthly","bp-pkg-growth":"monthly","platinum":"monthly","bp-pkg-scale":"monthly","basic-legal":"monthly","bp-pkg-legal-basic":"monthly","advanced":"monthly","bp-pkg-legal-adv":"monthly","comprehensive":"monthly","bp-pkg-legal-comp":"monthly","strategic":"monthly","bp-pkg-legal-strat":"monthly"};
 var $=function(id){return document.getElementById(id)};
@@ -706,7 +718,7 @@ function prepareEmp(){
    return true}).catch(function(){return false})}
 
 // ---- اختيار الطريقة
-var panes={card:$('coPaneCard'),tamara:$('coPaneTamara')};
+var panes={card:$('coPaneCard'),tamara:$('coPaneTamara'),bank:$('coPaneBank')};
 var PAYCFG=null; // إعداد /api/pay بعد وصوله — يحتاجه زر تمارا في الوضع المحلي
 
 // ---- العودة من البوابة
@@ -817,6 +829,47 @@ $('coTamaraGo').onclick=function(){
    if(o&&o.ok&&o.url){location.href=o.url;return}
    self.disabled=false;n.textContent=(o&&o.message)||TX.payDown})})
  .catch(function(){self.disabled=false;n.textContent=TX.payDown})};
+
+// ---- التحويل البنكي مع رفع الإيصال
+// يظهر فقط إن أعاد /api/pay بيانات الحساب، وللسلال التي تُفعَّل بالدفع الإلكتروني وحده
+// (اشتراك التوظيف · العروض الموقَّعة) لا يظهر. الطلب يذهب إلى المسار القائم نفسه
+// (POST /api/requests type:"order") — المبلغ يُعاد تسعيره في الخادم من الكتالوج،
+// والفريق هو من يؤكد وصول المال؛ لا «مدفوعة» ولا فاتورة من هنا.
+function initBank(){
+ fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
+  var b=cfg&&cfg.bankTransfer;if(!b||!b.iban)return;
+  var dl=$('coBankRows');dl.innerHTML='';
+  [[TX.bkBen,b.beneficiary],[TX.bkBank,b.bank],[TX.bkIban,b.iban],[TX.bkAmt,money(total)]].forEach(function(r){
+   if(!r[1])return;var d=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');
+   dt.textContent=r[0];dd.textContent=r[1];d.appendChild(dt);d.appendChild(dd);dl.appendChild(d)});
+  $('coWayBank').classList.remove('sv1-hide')}).catch(function(){})}
+$('coBankGo').onclick=function(){
+ var n=$('coBankNote'),f=$('coRcpt').files&&$('coRcpt').files[0];
+ if(!ready()){n.textContent=TX.needFill;return}
+ if(!readyTax()){n.textContent=TX.needTax;return}
+ if(!f){n.textContent=TX.needRcpt;return}
+ var okType=f.type==='application/pdf'||(f.type==='image/jpeg'||f.type==='image/png'||f.type==='image/webp')||/[.](pdf|jpe?g|png|webp)$/i.test(f.name||'');
+ if(!okType){n.textContent=TX.badRcpt;return}
+ if(f.size>5*1024*1024){n.textContent=TX.bigRcpt;return}
+ var btn=this,s=snapshot();btn.disabled=true;n.textContent=TX.loading;
+ function fail(){btn.disabled=false;n.textContent=TX.bankFail}
+ var rd=new FileReader();
+ rd.onerror=fail;
+ rd.onload=function(){
+  fetch('/api/requests',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
+   type:'order',ref:s.ref,name:s.name,phone:s.phone,email:s.email,company:s.company,
+   items:cart.map(nameOf),itemsData:cart.map(function(i){return {id:i.id||'',qty:i.qty||1,price:i.amount||0}}),
+   total:total,surchargeFee:0,discountCode:'',taxProfile:s.taxProfile,
+   receiptName:f.name,receiptType:f.type||'',receiptBase64:String(rd.result||'').split(',').pop()})})
+  .then(function(r){return r.json()}).then(function(o){
+   if(!(o&&o.ok)){fail();return}
+   showResult('ok',TX.bankDone,'',null,{rows:[[TX.lblOrder,s.ref],[TX.bkAmt,money(total)]],next:TX.bankNext});
+   $('coWays').classList.add('sv1-hide');for(var k in panes)panes[k].classList.add('sv1-hide');
+   try{localStorage.removeItem(CART)}catch(e){}try{sessionStorage.removeItem(SNAP)}catch(e){}
+   try{dispatchEvent(new Event('bp:cart'))}catch(e){}})
+  .catch(fail)};
+ rd.readAsDataURL(f)};
+if(payable&&!hasEmp&&!cart.some(function(i){return /^sv1:/i.test(String(i&&i.id||''))}))initBank();
 
 // ---- البطاقة والمحافظ (مُيسّر) — نفس نداء التركيب في الموقع القديم
 var mount=$('coPayMount');

@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>إتمام الدفع — Business Partner</title>
-<meta name="description" content="ادفع إلكترونياً بالبطاقة (مدى · فيزا · ماستركارد) أو قسّطها عبر تمارا — وتصلك فاتورتك الضريبية فور تأكيد الدفع.">
+<meta name="description" content="ادفع بالبطاقة (مدى · فيزا · ماستركارد) أو قسّطها عبر تمارا أو حوّل بنكياً وارفع الإيصال — وتصلك فاتورتك الضريبية بعد تأكيد الدفع.">
 <meta property="og:title" content="إتمام الدفع — Business Partner">
-<meta property="og:description" content="ادفع إلكترونياً بالبطاقة (مدى · فيزا · ماستركارد) أو قسّطها عبر تمارا — وتصلك فاتورتك الضريبية فور تأكيد الدفع.">
+<meta property="og:description" content="ادفع بالبطاقة (مدى · فيزا · ماستركارد) أو قسّطها عبر تمارا أو حوّل بنكياً وارفع الإيصال — وتصلك فاتورتك الضريبية بعد تأكيد الدفع.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="ar_SA">
@@ -382,7 +382,7 @@ var h0=hint();if(h0)S.paint(true,h0);
     <div class="sv1-title" style="margin-bottom:26px;">
       <span class="sv1-tag">إتمام الدفع</span>
       <h2>إتمام الدفع</h2>
-      <p>ادفع إلكترونياً بالبطاقة (مدى · فيزا · ماستركارد) أو قسّطها عبر تمارا — وتصلك فاتورتك الضريبية فور تأكيد الدفع.</p>
+      <p>ادفع بالبطاقة (مدى · فيزا · ماستركارد) أو قسّطها عبر تمارا أو حوّل بنكياً وارفع الإيصال — وتصلك فاتورتك الضريبية بعد تأكيد الدفع.</p>
     </div>
 
     <div class="sv1-co-grid">
@@ -433,6 +433,10 @@ var h0=hint();if(h0)S.paint(true,h0);
               <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 12h18"/><path d="M7 7h10"/><path d="M7 17h10"/></svg></span>
               <span class="tx"><b>تمارا — قسّمها</b><small>ادفع على دفعات بلا فوائد</small></span>
             </button>
+            <button type="button" class="sv1-co-way sv1-hide" data-way="bank" id="coWayBank">
+              <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 12 4l9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 20h18"/></svg></span>
+              <span class="tx"><b>تحويل بنكي</b><small>حوّل المبلغ ثم ارفع الإيصال</small></span>
+            </button>
           </div>
 
           <div id="coPaneCard" class="sv1-co-pane">
@@ -443,6 +447,14 @@ var h0=hint();if(h0)S.paint(true,h0);
           <div id="coPaneTamara" class="sv1-co-pane sv1-hide">
             <button type="button" class="sv1-btn primary" style="width:100%" id="coTamaraGo">تمارا — قسّمها</button>
             <p class="sv1-co-fine" id="coTamaraNote">ادفع على دفعات بلا فوائد</p>
+          </div>
+
+          <div id="coPaneBank" class="sv1-co-pane sv1-hide">
+            <dl class="sv1-co-rows" id="coBankRows"></dl>
+            <p class="sv1-co-fine">حوّل المبلغ كاملاً إلى الحساب أعلاه ثم ارفع الإيصال. تُفعَّل خدمتك وتصدر فاتورتك بعد أن يؤكد الفريق وصول المبلغ في الحساب.</p>
+            <div style="margin-top:12px"><label for="coRcpt" class="sv1-co-fine" style="display:block;margin:0 0 5px">إيصال التحويل (صورة أو PDF)</label><input id="coRcpt" type="file" accept="image/*,application/pdf" class="sv1-co-in"></div>
+            <button type="button" class="sv1-btn primary" style="width:100%;margin-top:12px" id="coBankGo">أرسل الطلب والإيصال</button>
+            <p class="sv1-co-fine" id="coBankNote"></p>
           </div>
         </div>
       </div>
@@ -566,7 +578,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
 })();</script><script>
 (function(){
 var LANG="ar",HOME="/ar/";
-var TX={"empty":"سلتك فارغة.","browse":"استعرض الخدمات","needFill":"أكمل الاسم والجوال والبريد قبل الدفع.","payDown":"تعذّر فتح نموذج الدفع الآن. جرّب تمارا، أو أعد المحاولة بعد قليل، أو راسلنا على واتساب.","loading":"نجهّز نموذج الدفع…","quoted":"يُسعّر عند المراجعة","signIn":"سجّل دخولك لعرض السعر وإتمام الدفع","signInBtn":"دخول إلى حسابي","noAmount":"هذه البنود تُسعّر عند المراجعة — سنرسل لك عرض السعر ثم رابط الدفع.","card":"بطاقة","payBtn":"إتمام الدفع","payWait":"نتحقّق من دفعتك…","paidOk":"تم استلام الدفعة — طلبك مسجّل وفاتورتك الضريبية تصلك على بريدك خلال دقائق.","paidInv":"رقم الفاتورة:","paidFail":"لم تكتمل الدفعة ولم يُخصم شيء — أعد المحاولة بالبطاقة أو جرّب تمارا.","paidHold":"دفعتك تمّت لكن تعذّر تأكيدها آلياً الآن، وقد وصل التنبيه لفريقنا. لا تدفع مرة أخرى — فاتورتك تصلك قريباً.","bnplFail":"لم تكتمل عملية التقسيط — تقدر تحاول مرة أخرى أو تدفع بالبطاقة.","toMy":"افتح طلباتي","mockTag":"بوابة محلية — لا بطاقة ولا خصم","needCo":"اكتب اسم المنشأة — الاشتراك يُفتح باسمها.","needTax":"أكمل بيانات المنشأة: الاسم، الرقم الضريبي (١٥ رقماً)، المسؤول وجواله، والعنوان الوطني (المبنى والشارع والحي والمدينة والرمز البريدي).","empFail":"تعذّر تجهيز اشتراكك الآن ولم يُخصم شيء — أعد المحاولة بعد قليل أو راسلنا.","empDone":"تم الدفع وفُعِّل اشتراكك في منصة التوظيف. ادخل بوابة صاحب العمل بالبريد الذي دفعت به.","empHold":"دفعتك تمّت وجارٍ تفعيل اشتراكك — وصل التنبيه لفريقنا وسيُفعَّل خلال ساعات العمل. لا تدفع مرة أخرى.","toEmployer":"افتح بوابة صاحب العمل","tamaraYr":"تمارا متاحة للاشتراك السنوي فقط.","empSignIn":"سجّل دخولك بالبريد الذي سيُفتح به الاشتراك ثم أكمل الدفع.","empMail":"بريد الدفع يجب أن يطابق بريد حسابك المسجَّل دخوله — الاشتراك يُفتح لحسابك.","onePlan":"اشتراك واحد في كل طلب — أبقِ باقة واحدة في السلة.","toCart":"العودة إلى السلة","onceHd":"دفعة واحدة","recHd":"اشتراكات","billM":"شهرياً","billY":"سنوياً","recNote":"مبلغ الاشتراك المعروض هو قسط فترة واحدة (شهر أو سنة)، وهو ما يُدفع الآن.","tamaraSub":"تمارا غير متاحة للاشتراكات الشهرية — ادفع بالبطاقة.","lblOrder":"رقم الطلب","lblPay":"مرجع الدفعة","lblAmt":"المبلغ المدفوع (شامل الضريبة)","lblInv":"رقم الفاتورة","okDone":"تم استلام دفعتك وتأكيد طلبك.","nextInv":"الخطوة التالية: تصلك على بريدك رسالة تأكيد الطلب وفاتورتك الضريبية، ثم يبدأ الفريق التنفيذ.","nextNoInv":"الخطوة التالية: تصلك على بريدك رسالة تأكيد الطلب. وفاتورتك الضريبية يجهّزها الفريق وتصلك على البريد نفسه.","reviewT":"استلمنا دفعتك وسنؤكد التفعيل خلال ساعات العمل.","reviewN":"لم نستطع مطابقة المبلغ آلياً مع الأسعار المعتمدة، فيراجعه الفريق قبل التفعيل. يصلك تأكيد على بريدك، ولا حاجة لإعادة الدفع.","signInGo":"سجّل الدخول","lblReq":"رقم طلبك في لوحتك","openReq":"افتح طلبك","nextReqDocs":"الخطوة التالية: افتح طلبك وارفع المستندات المطلوبة ليبدأ الفريق التنفيذ، وتتابع كل مرحلة من هناك.","nextReq":"الخطوة التالية: تابع مراحل طلبك من لوحتك، ونبلغك حين يبدأ التنفيذ.","invSent":"وتصلك فاتورتك الضريبية على بريدك.","invSoon":"ويجهّز الفريق فاتورتك الضريبية وتصلك على البريد نفسه."};
+var TX={"empty":"سلتك فارغة.","browse":"استعرض الخدمات","needFill":"أكمل الاسم والجوال والبريد قبل الدفع.","payDown":"تعذّر فتح نموذج الدفع الآن. جرّب تمارا، أو أعد المحاولة بعد قليل، أو راسلنا على واتساب.","loading":"نجهّز نموذج الدفع…","quoted":"يُسعّر عند المراجعة","signIn":"سجّل دخولك لعرض السعر وإتمام الدفع","signInBtn":"دخول إلى حسابي","noAmount":"هذه البنود تُسعّر عند المراجعة — سنرسل لك عرض السعر ثم رابط الدفع.","card":"بطاقة","payBtn":"إتمام الدفع","payWait":"نتحقّق من دفعتك…","paidOk":"تم استلام الدفعة — طلبك مسجّل وفاتورتك الضريبية تصلك على بريدك خلال دقائق.","paidInv":"رقم الفاتورة:","paidFail":"لم تكتمل الدفعة ولم يُخصم شيء — أعد المحاولة بالبطاقة أو جرّب تمارا.","paidHold":"دفعتك تمّت لكن تعذّر تأكيدها آلياً الآن، وقد وصل التنبيه لفريقنا. لا تدفع مرة أخرى — فاتورتك تصلك قريباً.","bnplFail":"لم تكتمل عملية التقسيط — تقدر تحاول مرة أخرى أو تدفع بالبطاقة.","toMy":"افتح طلباتي","mockTag":"بوابة محلية — لا بطاقة ولا خصم","needCo":"اكتب اسم المنشأة — الاشتراك يُفتح باسمها.","needTax":"أكمل بيانات المنشأة: الاسم، الرقم الضريبي (١٥ رقماً)، المسؤول وجواله، والعنوان الوطني (المبنى والشارع والحي والمدينة والرمز البريدي).","bkBen":"المستفيد","bkBank":"البنك","bkIban":"الآيبان","bkAmt":"المبلغ المطلوب (شامل الضريبة)","needRcpt":"ارفع إيصال التحويل أولاً.","badRcpt":"الإيصال يجب أن يكون صورة أو ملف PDF.","bigRcpt":"حجم الإيصال أكبر من ٥ ميجابايت.","bankFail":"تعذّر إرسال الطلب الآن ولم يُسجَّل — أعد المحاولة بعد قليل.","bankDone":"استلمنا طلبك وإيصال التحويل. الحالة: بانتظار تأكيد وصول المبلغ.","bankNext":"يراجع الفريق الإيصال ويؤكد وصول المبلغ، ثم تُفعَّل خدمتك وتصلك فاتورتك الضريبية على بريدك.","empFail":"تعذّر تجهيز اشتراكك الآن ولم يُخصم شيء — أعد المحاولة بعد قليل أو راسلنا.","empDone":"تم الدفع وفُعِّل اشتراكك في منصة التوظيف. ادخل بوابة صاحب العمل بالبريد الذي دفعت به.","empHold":"دفعتك تمّت وجارٍ تفعيل اشتراكك — وصل التنبيه لفريقنا وسيُفعَّل خلال ساعات العمل. لا تدفع مرة أخرى.","toEmployer":"افتح بوابة صاحب العمل","tamaraYr":"تمارا متاحة للاشتراك السنوي فقط.","empSignIn":"سجّل دخولك بالبريد الذي سيُفتح به الاشتراك ثم أكمل الدفع.","empMail":"بريد الدفع يجب أن يطابق بريد حسابك المسجَّل دخوله — الاشتراك يُفتح لحسابك.","onePlan":"اشتراك واحد في كل طلب — أبقِ باقة واحدة في السلة.","toCart":"العودة إلى السلة","onceHd":"دفعة واحدة","recHd":"اشتراكات","billM":"شهرياً","billY":"سنوياً","recNote":"مبلغ الاشتراك المعروض هو قسط فترة واحدة (شهر أو سنة)، وهو ما يُدفع الآن.","tamaraSub":"تمارا غير متاحة للاشتراكات الشهرية — ادفع بالبطاقة.","lblOrder":"رقم الطلب","lblPay":"مرجع الدفعة","lblAmt":"المبلغ المدفوع (شامل الضريبة)","lblInv":"رقم الفاتورة","okDone":"تم استلام دفعتك وتأكيد طلبك.","nextInv":"الخطوة التالية: تصلك على بريدك رسالة تأكيد الطلب وفاتورتك الضريبية، ثم يبدأ الفريق التنفيذ.","nextNoInv":"الخطوة التالية: تصلك على بريدك رسالة تأكيد الطلب. وفاتورتك الضريبية يجهّزها الفريق وتصلك على البريد نفسه.","reviewT":"استلمنا دفعتك وسنؤكد التفعيل خلال ساعات العمل.","reviewN":"لم نستطع مطابقة المبلغ آلياً مع الأسعار المعتمدة، فيراجعه الفريق قبل التفعيل. يصلك تأكيد على بريدك، ولا حاجة لإعادة الدفع.","signInGo":"سجّل الدخول","lblReq":"رقم طلبك في لوحتك","openReq":"افتح طلبك","nextReqDocs":"الخطوة التالية: افتح طلبك وارفع المستندات المطلوبة ليبدأ الفريق التنفيذ، وتتابع كل مرحلة من هناك.","nextReq":"الخطوة التالية: تابع مراحل طلبك من لوحتك، ونبلغك حين يبدأ التنفيذ.","invSent":"وتصلك فاتورتك الضريبية على بريدك.","invSoon":"ويجهّز الفريق فاتورتك الضريبية وتصلك على البريد نفسه."};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
 var REC={"bp-hr-03":"monthly","bp-ai-02":"monthly","bp-sub-01":"monthly","bp-vendor-02":"monthly","bp-ai-03":"monthly","bp-ai-smart-employee":"monthly","bp-ai-04":"monthly","bp-ajeer-10":"monthly","starter-4":"monthly","bp-pkg-svc-starter":"monthly","silver":"monthly","bp-pkg-launch":"monthly","gold":"monthly","bp-pkg-growth":"monthly","platinum":"monthly","bp-pkg-scale":"monthly","basic-legal":"monthly","bp-pkg-legal-basic":"monthly","advanced":"monthly","bp-pkg-legal-adv":"monthly","comprehensive":"monthly","bp-pkg-legal-comp":"monthly","strategic":"monthly","bp-pkg-legal-strat":"monthly"};
 var $=function(id){return document.getElementById(id)};
@@ -706,7 +718,7 @@ function prepareEmp(){
    return true}).catch(function(){return false})}
 
 // ---- اختيار الطريقة
-var panes={card:$('coPaneCard'),tamara:$('coPaneTamara')};
+var panes={card:$('coPaneCard'),tamara:$('coPaneTamara'),bank:$('coPaneBank')};
 var PAYCFG=null; // إعداد /api/pay بعد وصوله — يحتاجه زر تمارا في الوضع المحلي
 
 // ---- العودة من البوابة
@@ -817,6 +829,47 @@ $('coTamaraGo').onclick=function(){
    if(o&&o.ok&&o.url){location.href=o.url;return}
    self.disabled=false;n.textContent=(o&&o.message)||TX.payDown})})
  .catch(function(){self.disabled=false;n.textContent=TX.payDown})};
+
+// ---- التحويل البنكي مع رفع الإيصال
+// يظهر فقط إن أعاد /api/pay بيانات الحساب، وللسلال التي تُفعَّل بالدفع الإلكتروني وحده
+// (اشتراك التوظيف · العروض الموقَّعة) لا يظهر. الطلب يذهب إلى المسار القائم نفسه
+// (POST /api/requests type:"order") — المبلغ يُعاد تسعيره في الخادم من الكتالوج،
+// والفريق هو من يؤكد وصول المال؛ لا «مدفوعة» ولا فاتورة من هنا.
+function initBank(){
+ fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
+  var b=cfg&&cfg.bankTransfer;if(!b||!b.iban)return;
+  var dl=$('coBankRows');dl.innerHTML='';
+  [[TX.bkBen,b.beneficiary],[TX.bkBank,b.bank],[TX.bkIban,b.iban],[TX.bkAmt,money(total)]].forEach(function(r){
+   if(!r[1])return;var d=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');
+   dt.textContent=r[0];dd.textContent=r[1];d.appendChild(dt);d.appendChild(dd);dl.appendChild(d)});
+  $('coWayBank').classList.remove('sv1-hide')}).catch(function(){})}
+$('coBankGo').onclick=function(){
+ var n=$('coBankNote'),f=$('coRcpt').files&&$('coRcpt').files[0];
+ if(!ready()){n.textContent=TX.needFill;return}
+ if(!readyTax()){n.textContent=TX.needTax;return}
+ if(!f){n.textContent=TX.needRcpt;return}
+ var okType=f.type==='application/pdf'||(f.type==='image/jpeg'||f.type==='image/png'||f.type==='image/webp')||/[.](pdf|jpe?g|png|webp)$/i.test(f.name||'');
+ if(!okType){n.textContent=TX.badRcpt;return}
+ if(f.size>5*1024*1024){n.textContent=TX.bigRcpt;return}
+ var btn=this,s=snapshot();btn.disabled=true;n.textContent=TX.loading;
+ function fail(){btn.disabled=false;n.textContent=TX.bankFail}
+ var rd=new FileReader();
+ rd.onerror=fail;
+ rd.onload=function(){
+  fetch('/api/requests',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
+   type:'order',ref:s.ref,name:s.name,phone:s.phone,email:s.email,company:s.company,
+   items:cart.map(nameOf),itemsData:cart.map(function(i){return {id:i.id||'',qty:i.qty||1,price:i.amount||0}}),
+   total:total,surchargeFee:0,discountCode:'',taxProfile:s.taxProfile,
+   receiptName:f.name,receiptType:f.type||'',receiptBase64:String(rd.result||'').split(',').pop()})})
+  .then(function(r){return r.json()}).then(function(o){
+   if(!(o&&o.ok)){fail();return}
+   showResult('ok',TX.bankDone,'',null,{rows:[[TX.lblOrder,s.ref],[TX.bkAmt,money(total)]],next:TX.bankNext});
+   $('coWays').classList.add('sv1-hide');for(var k in panes)panes[k].classList.add('sv1-hide');
+   try{localStorage.removeItem(CART)}catch(e){}try{sessionStorage.removeItem(SNAP)}catch(e){}
+   try{dispatchEvent(new Event('bp:cart'))}catch(e){}})
+  .catch(fail)};
+ rd.readAsDataURL(f)};
+if(payable&&!hasEmp&&!cart.some(function(i){return /^sv1:/i.test(String(i&&i.id||''))}))initBank();
 
 // ---- البطاقة والمحافظ (مُيسّر) — نفس نداء التركيب في الموقع القديم
 var mount=$('coPayMount');

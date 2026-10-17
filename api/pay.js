@@ -1,10 +1,13 @@
 // Vercel Serverless Function — online payments (Moyasar) for Business Partner 3.0.
 // ESM module (repo package.json has "type": "module").
 //
-// Payment is online only (owner's order, 2026-09-24): mada / Visa / Mastercard /
-// Apple Pay / Samsung Pay through the Moyasar form, plus Tamara instalments.
-// The new /checkout offers no bank transfer; `receipt-upload` in api/_simple.js
-// stays only for requests that started a transfer before that decision.
+// Payment: mada / Visa / Mastercard / Apple Pay / Samsung Pay through the Moyasar
+// form, plus Tamara instalments — and, again since 2026-10-17 (owner's order,
+// reversing 2026-09-24), a bank transfer with an uploaded receipt. The transfer
+// is not a payment this file confirms: /checkout posts the order and receipt to
+// /api/requests {type:"order"} and the team confirms the money arrived. GET
+// /api/pay only publishes the account (`bankTransfer`) so the page can show it;
+// with no IBAN configured it is null and the option stays hidden.
 //
 // Env vars:
 //   MOYASAR_PUBLISHABLE_KEY  pk_live_... / pk_test_...  → enables the checkout form
@@ -25,7 +28,7 @@
 //                            emails them that the service unlocked.
 
 import crypto from "node:crypto";
-import { LEGAL_NAME } from "./_identity.js";
+import { LEGAL_NAME, BANK } from "./_identity.js";
 import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate, nationalAddressLine, daftraPayLink, daftraPublicInvoiceLink} from "./_daftra.js";
 import { markOrderPaid, quotePriced } from "./_suppliers.js";
 import { tamaraConfigured, createTamaraSession, verifyTamaraOrder } from "./_bnpl.js";
@@ -158,6 +161,9 @@ async function sendMail(to, subject, html, attachments) {
 // the published catalogue and the re-priced total is checked against what
 // Moyasar says was actually charged. Without that check a crafted page could
 // pair a real payment id with an invented basket and mint a tax invoice.
+
+// The receiving account as printed on every invoice — public by design.
+const bankInfo = () => (BANK.iban ? { beneficiary: BANK.beneficiary, bank: BANK.bank, iban: BANK.iban } : null);
 
 const OWNER_EMAIL = (process.env.BP_OWNER_EMAIL || "business@businesspartner.sa").toLowerCase();
 // Same owner gate the panel uses everywhere else.
@@ -891,7 +897,7 @@ export default async function handler(req, res) {
         enabled: true, provider: "local-mock", mock: true, canVerify: true, modeMatch: true,
         publishableKey: null, formUrl: "/api/pay?action=mock-form",
         currency: "SAR", methods: ["creditcard"], applePay: null, samsungPay: null, googlePay: null,
-        bnpl: { tamara: tamaraConfigured() }, modes: MODES(),
+        bnpl: { tamara: tamaraConfigured() }, modes: MODES(), bankTransfer: bankInfo(),
       }));
     }
     return res.end(JSON.stringify({
@@ -928,6 +934,7 @@ export default async function handler(req, res) {
       // Installments (BNPL): Tamara flips on the day its key lands in Vercel —
       // until then the checkout shows its button as «قريباً».
       bnpl: { tamara: tamaraConfigured() },
+      bankTransfer: bankInfo(),
     }));
   }
 

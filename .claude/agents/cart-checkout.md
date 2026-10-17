@@ -12,11 +12,16 @@ description: تصميم السلة والشراء والدفع — /cart و /che
   qty, kind, pricePublic}` — `amount` هو الرقم، و`price` نصُّ عرض؛ قراءة
   `price` رقمياً أسقطت الحساب إلى 0.00 في الإنتاج مرة. الصفحات القديمة تكتب
   الصيغة نفسها (تحقّق 2026-09-24: bp-absher-01 ٣٠٠×٢ = ٦٠٠٫٠٠).
-- الدفع: **Moyasar** (`api/pay.js`, `api/_moyasar.js`: creditcard · mada ·
-  applepay · stcpay) + **Tamara**. Samsung Pay غير موجود في الكود.
-- قرار المالك (2026-09-24): **إلكتروني فقط** — مدى · فيزا · ماستركارد · Apple Pay ·
-  Samsung Pay (إن أثبت توثيق Moyasar دعمه) · تمارا. **لا تحويل بنكي.** إزالته من
-  `/checkout` جارية (client-portal في worktree)؛ ما بعدها لك.
+- الدفع: **Moyasar** (`api/pay.js`, `api/_moyasar.js`: creditcard · mada · applepay ·
+  samsungpay · googlepay · stcpay — تظهر المحافظ فقط بعد ضبط `MOYASAR_METHODS`
+  ومعرّفات التفعيل في Vercel وجاهزية الجهاز) + **Tamara**.
+- قرار المالك: الدفع إلكتروني (مدى · فيزا · ماستركارد · Apple Pay · Samsung Pay ·
+  تمارا) **و«التحويل البنكي مع رفع الإيصال» خيارٌ ثالث** (أمر 2026-10-17، وكان
+  قد أُزيل 2026-09-24). التحويل لا يؤكد دفعةً: يُرسل الطلب والإيصال إلى
+  `POST /api/requests {type:"order"}` ويؤكد الفريق وصول المال؛ ويُخفى لسلال BP-EMP
+  والعروض الموقَّعة (`sv1:`).
+- فاتورة المنشأة: `/checkout` يجمع `taxProfile` (الرقم الضريبي ١٥ رقماً والعنوان
+  الوطني) ويقرؤه `billTo` في `api/pay.js` فتصل الدفترة.
 - `api/_mode.js`: محلياً الدفع اختبار وتمارا رمليّة — لا بطاقة تُخصم.
 
 ## نطاقك

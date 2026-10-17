@@ -15,10 +15,14 @@
 // حين يدفع العميل ثم يغلق الصفحة قبل أن يعود. شكلٌ مختلف للبيانات = دفعةٌ
 // وصلت ولا أحد يعرف لمن.
 //
-// الدفع إلكتروني فقط (أمر المالك 2026-09-24): مدى · فيزا · ماستركارد · Apple Pay
-// · Samsung Pay · Google Pay · تمارا. لا تحويل بنكي ولا رفع إيصال من هذه
-// الصفحة — مسار `receipt-upload` في api/_simple.js باقٍ للطلبات التي بدأت
-// تحويلاً قبل القرار، ولا يدخله طلب جديد من هنا.
+// طرق الدفع: مدى · فيزا · ماستركارد · Apple Pay · Samsung Pay · Google Pay ·
+// تمارا، **والتحويل البنكي مع رفع الإيصال** (أمر المالك 2026-10-17: «رجعها خليها
+// من ضمن الخيارات» — وكان قد أُزيل في 2026-09-24). التحويل لا يُنشئ دفعةً مؤكَّدة:
+// يُرسَل الطلب والإيصال إلى POST /api/requests {type:"order"} (المسار القائم
+// نفسه: يعيد التسعير من الكتالوج، ويفتح صفّ CRM، وينبّه الفريق ليؤكد وصول المال)،
+// ولا تُفعَّل الخدمة ولا تصدر فاتورة آلياً قبل ذلك التأكيد. يُخفى لاشتراكات
+// منصة التوظيف (BP-EMP) وبنود العروض الموقَّعة (sv1:) لأن تفعيلها يمرّ بالدفع
+// الإلكتروني وحده. ويظهر فقط إن أعاد /api/pay بيانات الحساب (`bankTransfer`).
 //
 // المحافظ ثلاث، ولكلٍّ شرطان لا يكفي أحدهما: تفعيلٌ عند المالك (يعيده /api/pay:
 // `applePay` · `samsungPay` · `googlePay`) **وجاهزيةٌ على جهاز الزائر** (Apple:
@@ -35,10 +39,10 @@ import { recurringMap } from "./simple-v1-cart.mjs";
 
 const T = {
   title:   { ar: "إتمام الدفع", en: "Checkout", fr: "Paiement", zh: "结账" },
-  desc:    { ar: "ادفع إلكترونياً بالبطاقة (مدى · فيزا · ماستركارد) أو قسّطها عبر تمارا — وتصلك فاتورتك الضريبية فور تأكيد الدفع.",
-             en: "Pay online by card (mada · Visa · Mastercard) or split it with Tamara — your tax invoice arrives the moment payment is confirmed.",
-             fr: "Payez en ligne par carte (mada · Visa · Mastercard) ou en plusieurs fois avec Tamara — votre facture fiscale arrive dès confirmation.",
-             zh: "在线支付：银行卡（mada · Visa · Mastercard）或 Tamara 分期——确认后立即收到税务发票。" },
+  desc:    { ar: "ادفع بالبطاقة (مدى · فيزا · ماستركارد) أو قسّطها عبر تمارا أو حوّل بنكياً وارفع الإيصال — وتصلك فاتورتك الضريبية بعد تأكيد الدفع.",
+             en: "Pay by card (mada · Visa · Mastercard), split it with Tamara, or send a bank transfer and upload the receipt — your tax invoice follows once payment is confirmed.",
+             fr: "Payez par carte (mada · Visa · Mastercard), en plusieurs fois avec Tamara ou par virement avec reçu — votre facture fiscale suit la confirmation du paiement.",
+             zh: "银行卡（mada · Visa · Mastercard）、Tamara 分期，或银行转账并上传回单——确认付款后发送税务发票。" },
   yourData:{ ar: "بياناتك", en: "Your details", fr: "Vos informations", zh: "您的信息" },
   name:    { ar: "الاسم الكامل", en: "Full name", fr: "Nom complet", zh: "姓名" },
   phone:   { ar: "رقم الجوال", en: "Mobile", fr: "Mobile", zh: "手机号" },
@@ -62,6 +66,28 @@ const T = {
   naCi:    { ar: "المدينة", en: "City", fr: "Ville", zh: "城市" },
   naPo:    { ar: "الرمز البريدي", en: "Postal code", fr: "Code postal", zh: "邮编" },
   naAd:    { ar: "الرقم الإضافي (اختياري)", en: "Additional no. (optional)", fr: "N° additionnel (optionnel)", zh: "附加号（选填）" },
+  bank:    { ar: "تحويل بنكي", en: "Bank transfer", fr: "Virement bancaire", zh: "银行转账" },
+  bankSub: { ar: "حوّل المبلغ ثم ارفع الإيصال", en: "Transfer, then upload the receipt", fr: "Virement, puis reçu à téléverser", zh: "转账后上传回单" },
+  bkBen:   { ar: "المستفيد", en: "Beneficiary", fr: "Bénéficiaire", zh: "收款人" },
+  bkBank:  { ar: "البنك", en: "Bank", fr: "Banque", zh: "银行" },
+  bkIban:  { ar: "الآيبان", en: "IBAN", fr: "IBAN", zh: "IBAN" },
+  bkAmt:   { ar: "المبلغ المطلوب (شامل الضريبة)", en: "Amount due (incl. VAT)", fr: "Montant dû (TTC)", zh: "应付金额（含税）" },
+  bankNote:{ ar: "حوّل المبلغ كاملاً إلى الحساب أعلاه ثم ارفع الإيصال. تُفعَّل خدمتك وتصدر فاتورتك بعد أن يؤكد الفريق وصول المبلغ في الحساب.",
+             en: "Transfer the full amount to the account above, then upload the receipt. Your service is activated and your invoice issued once the team confirms the money has arrived.",
+             fr: "Virez le montant total sur le compte ci-dessus puis téléversez le reçu. Service activé et facture émise après confirmation de réception par l'équipe.",
+             zh: "请将全额转入上述账户并上传回单。团队确认款项到账后，服务开通并开具发票。" },
+  rcpt:    { ar: "إيصال التحويل (صورة أو PDF)", en: "Transfer receipt (image or PDF)", fr: "Reçu du virement (image ou PDF)", zh: "转账回单（图片或 PDF）" },
+  bankGo:  { ar: "أرسل الطلب والإيصال", en: "Send order and receipt", fr: "Envoyer la commande et le reçu", zh: "提交订单和回单" },
+  needRcpt:{ ar: "ارفع إيصال التحويل أولاً.", en: "Upload the transfer receipt first.", fr: "Téléversez d'abord le reçu.", zh: "请先上传转账回单。" },
+  badRcpt: { ar: "الإيصال يجب أن يكون صورة أو ملف PDF.", en: "The receipt must be an image or a PDF.", fr: "Le reçu doit être une image ou un PDF.", zh: "回单必须是图片或 PDF。" },
+  bigRcpt: { ar: "حجم الإيصال أكبر من ٥ ميجابايت.", en: "The receipt is larger than 5 MB.", fr: "Le reçu dépasse 5 Mo.", zh: "回单超过 5 MB。" },
+  bankFail:{ ar: "تعذّر إرسال الطلب الآن ولم يُسجَّل — أعد المحاولة بعد قليل.", en: "We could not send the order and nothing was recorded — please try again shortly.",
+             fr: "Envoi impossible, rien n'a été enregistré — réessayez dans un instant.", zh: "暂时无法提交，订单未记录——请稍后重试。" },
+  bankDone:{ ar: "استلمنا طلبك وإيصال التحويل. الحالة: بانتظار تأكيد وصول المبلغ.", en: "We received your order and transfer receipt. Status: awaiting confirmation that the money arrived.",
+             fr: "Commande et reçu reçus. Statut : en attente de confirmation de réception des fonds.", zh: "已收到订单和回单。状态：等待确认款项到账。" },
+  bankNext:{ ar: "يراجع الفريق الإيصال ويؤكد وصول المبلغ، ثم تُفعَّل خدمتك وتصلك فاتورتك الضريبية على بريدك.",
+             en: "The team reviews the receipt and confirms the money arrived, then your service is activated and your tax invoice reaches your e-mail.",
+             fr: "L'équipe vérifie le reçu et la réception des fonds, puis active le service et envoie la facture fiscale.", zh: "团队审核回单并确认到账后，服务开通，税务发票将发送至您的邮箱。" },
   needTax: { ar: "أكمل بيانات المنشأة: الاسم، الرقم الضريبي (١٥ رقماً)، المسؤول وجواله، والعنوان الوطني (المبنى والشارع والحي والمدينة والرمز البريدي).",
              en: "Complete the company details: name, 15-digit VAT number, responsible person and mobile, and the national address (building, street, district, city, postal code).",
              fr: "Complétez les données de la société : nom, n° de TVA à 15 chiffres, responsable et mobile, adresse nationale.",
@@ -264,6 +290,10 @@ export function buildSimpleCheckout(SV1, ctx) {
               <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 12h18"/><path d="M7 7h10"/><path d="M7 17h10"/></svg></span>
               <span class="tx"><b>${esc(t("tamara"))}</b><small>${esc(t("tamaraS"))}</small></span>
             </button>
+            <button type="button" class="sv1-co-way sv1-hide" data-way="bank" id="coWayBank">
+              <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 12 4l9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 20h18"/></svg></span>
+              <span class="tx"><b>${esc(t("bank"))}</b><small>${esc(t("bankSub"))}</small></span>
+            </button>
           </div>
 
           <div id="coPaneCard" class="sv1-co-pane">
@@ -274,6 +304,14 @@ export function buildSimpleCheckout(SV1, ctx) {
           <div id="coPaneTamara" class="sv1-co-pane sv1-hide">
             <button type="button" class="sv1-btn primary" style="width:100%" id="coTamaraGo">${esc(t("tamara"))}</button>
             <p class="sv1-co-fine" id="coTamaraNote">${esc(t("tamaraS"))}</p>
+          </div>
+
+          <div id="coPaneBank" class="sv1-co-pane sv1-hide">
+            <dl class="sv1-co-rows" id="coBankRows"></dl>
+            <p class="sv1-co-fine">${esc(t("bankNote"))}</p>
+            <div style="margin-top:12px"><label for="coRcpt" class="sv1-co-fine" style="display:block;margin:0 0 5px">${esc(t("rcpt"))}</label><input id="coRcpt" type="file" accept="image/*,application/pdf" class="sv1-co-in"></div>
+            <button type="button" class="sv1-btn primary" style="width:100%;margin-top:12px" id="coBankGo">${esc(t("bankGo"))}</button>
+            <p class="sv1-co-fine" id="coBankNote"></p>
           </div>
         </div>
       </div>
@@ -351,7 +389,7 @@ ${SV1.footer()}`;
   const script = `<script>
 (function(){
 var LANG=${JSON.stringify(lang)},HOME=${JSON.stringify(home)};
-var TX=${JSON.stringify({ empty: t("empty"), browse: t("browse"), needFill: t("needFill"), payDown: t("payDown"), loading: t("loading"), quoted: t("quoted"), signIn: t("signIn"), signInBtn: t("signInBtn"), noAmount: t("noAmount"), card: t("card"), payBtn: t("payBtn"), payWait: t("payWait"), paidOk: t("paidOk"), paidInv: t("paidInv"), paidFail: t("paidFail"), paidHold: t("paidHold"), bnplFail: t("bnplFail"), toMy: t("toMy"), mockTag: t("mockTag"), needCo: t("needCo"), needTax: t("needTax"), empFail: t("empFail"), empDone: t("empDone"), empHold: t("empHold"), toEmployer: t("toEmployer"), tamaraYr: t("tamaraYr"), empSignIn: t("empSignIn"), empMail: t("empMail"), onePlan: t("onePlan"), toCart: t("toCart"),
+var TX=${JSON.stringify({ empty: t("empty"), browse: t("browse"), needFill: t("needFill"), payDown: t("payDown"), loading: t("loading"), quoted: t("quoted"), signIn: t("signIn"), signInBtn: t("signInBtn"), noAmount: t("noAmount"), card: t("card"), payBtn: t("payBtn"), payWait: t("payWait"), paidOk: t("paidOk"), paidInv: t("paidInv"), paidFail: t("paidFail"), paidHold: t("paidHold"), bnplFail: t("bnplFail"), toMy: t("toMy"), mockTag: t("mockTag"), needCo: t("needCo"), needTax: t("needTax"), bkBen: t("bkBen"), bkBank: t("bkBank"), bkIban: t("bkIban"), bkAmt: t("bkAmt"), needRcpt: t("needRcpt"), badRcpt: t("badRcpt"), bigRcpt: t("bigRcpt"), bankFail: t("bankFail"), bankDone: t("bankDone"), bankNext: t("bankNext"), empFail: t("empFail"), empDone: t("empDone"), empHold: t("empHold"), toEmployer: t("toEmployer"), tamaraYr: t("tamaraYr"), empSignIn: t("empSignIn"), empMail: t("empMail"), onePlan: t("onePlan"), toCart: t("toCart"),
   onceHd: t("onceHd"), recHd: t("recHd"), billM: t("billM"), billY: t("billY"), recNote: t("recNote"), tamaraSub: t("tamaraSub"),
   lblOrder: t("lblOrder"), lblPay: t("lblPay"), lblAmt: t("lblAmt"), lblInv: t("lblInv"), okDone: t("okDone"),
   nextInv: t("nextInv"), nextNoInv: t("nextNoInv"), reviewT: t("reviewT"), reviewN: t("reviewN"), signInGo: t("signInGo"),
@@ -495,7 +533,7 @@ function prepareEmp(){
    return true}).catch(function(){return false})}
 
 // ---- اختيار الطريقة
-var panes={card:$('coPaneCard'),tamara:$('coPaneTamara')};
+var panes={card:$('coPaneCard'),tamara:$('coPaneTamara'),bank:$('coPaneBank')};
 var PAYCFG=null; // إعداد /api/pay بعد وصوله — يحتاجه زر تمارا في الوضع المحلي
 
 // ---- العودة من البوابة
@@ -606,6 +644,47 @@ $('coTamaraGo').onclick=function(){
    if(o&&o.ok&&o.url){location.href=o.url;return}
    self.disabled=false;n.textContent=(o&&o.message)||TX.payDown})})
  .catch(function(){self.disabled=false;n.textContent=TX.payDown})};
+
+// ---- التحويل البنكي مع رفع الإيصال
+// يظهر فقط إن أعاد /api/pay بيانات الحساب، وللسلال التي تُفعَّل بالدفع الإلكتروني وحده
+// (اشتراك التوظيف · العروض الموقَّعة) لا يظهر. الطلب يذهب إلى المسار القائم نفسه
+// (POST /api/requests type:"order") — المبلغ يُعاد تسعيره في الخادم من الكتالوج،
+// والفريق هو من يؤكد وصول المال؛ لا «مدفوعة» ولا فاتورة من هنا.
+function initBank(){
+ fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
+  var b=cfg&&cfg.bankTransfer;if(!b||!b.iban)return;
+  var dl=$('coBankRows');dl.innerHTML='';
+  [[TX.bkBen,b.beneficiary],[TX.bkBank,b.bank],[TX.bkIban,b.iban],[TX.bkAmt,money(total)]].forEach(function(r){
+   if(!r[1])return;var d=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');
+   dt.textContent=r[0];dd.textContent=r[1];d.appendChild(dt);d.appendChild(dd);dl.appendChild(d)});
+  $('coWayBank').classList.remove('sv1-hide')}).catch(function(){})}
+$('coBankGo').onclick=function(){
+ var n=$('coBankNote'),f=$('coRcpt').files&&$('coRcpt').files[0];
+ if(!ready()){n.textContent=TX.needFill;return}
+ if(!readyTax()){n.textContent=TX.needTax;return}
+ if(!f){n.textContent=TX.needRcpt;return}
+ var okType=f.type==='application/pdf'||(f.type==='image/jpeg'||f.type==='image/png'||f.type==='image/webp')||/[.](pdf|jpe?g|png|webp)$/i.test(f.name||'');
+ if(!okType){n.textContent=TX.badRcpt;return}
+ if(f.size>5*1024*1024){n.textContent=TX.bigRcpt;return}
+ var btn=this,s=snapshot();btn.disabled=true;n.textContent=TX.loading;
+ function fail(){btn.disabled=false;n.textContent=TX.bankFail}
+ var rd=new FileReader();
+ rd.onerror=fail;
+ rd.onload=function(){
+  fetch('/api/requests',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
+   type:'order',ref:s.ref,name:s.name,phone:s.phone,email:s.email,company:s.company,
+   items:cart.map(nameOf),itemsData:cart.map(function(i){return {id:i.id||'',qty:i.qty||1,price:i.amount||0}}),
+   total:total,surchargeFee:0,discountCode:'',taxProfile:s.taxProfile,
+   receiptName:f.name,receiptType:f.type||'',receiptBase64:String(rd.result||'').split(',').pop()})})
+  .then(function(r){return r.json()}).then(function(o){
+   if(!(o&&o.ok)){fail();return}
+   showResult('ok',TX.bankDone,'',null,{rows:[[TX.lblOrder,s.ref],[TX.bkAmt,money(total)]],next:TX.bankNext});
+   $('coWays').classList.add('sv1-hide');for(var k in panes)panes[k].classList.add('sv1-hide');
+   try{localStorage.removeItem(CART)}catch(e){}try{sessionStorage.removeItem(SNAP)}catch(e){}
+   try{dispatchEvent(new Event('bp:cart'))}catch(e){}})
+  .catch(fail)};
+ rd.readAsDataURL(f)};
+if(payable&&!hasEmp&&!cart.some(function(i){return /^sv1:/i.test(String(i&&i.id||''))}))initBank();
 
 // ---- البطاقة والمحافظ (مُيسّر) — نفس نداء التركيب في الموقع القديم
 var mount=$('coPayMount');

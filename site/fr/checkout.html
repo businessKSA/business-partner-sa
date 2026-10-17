@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Paiement — Business Partner</title>
-<meta name="description" content="Payez en ligne par carte (mada · Visa · Mastercard) ou en plusieurs fois avec Tamara — votre facture fiscale arrive dès confirmation.">
+<meta name="description" content="Payez par carte (mada · Visa · Mastercard), en plusieurs fois avec Tamara ou par virement avec reçu — votre facture fiscale suit la confirmation du paiement.">
 <meta property="og:title" content="Paiement — Business Partner">
-<meta property="og:description" content="Payez en ligne par carte (mada · Visa · Mastercard) ou en plusieurs fois avec Tamara — votre facture fiscale arrive dès confirmation.">
+<meta property="og:description" content="Payez par carte (mada · Visa · Mastercard), en plusieurs fois avec Tamara ou par virement avec reçu — votre facture fiscale suit la confirmation du paiement.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="fr_FR">
@@ -382,7 +382,7 @@ var h0=hint();if(h0)S.paint(true,h0);
     <div class="sv1-title" style="margin-bottom:26px;">
       <span class="sv1-tag">Paiement</span>
       <h2>Paiement</h2>
-      <p>Payez en ligne par carte (mada · Visa · Mastercard) ou en plusieurs fois avec Tamara — votre facture fiscale arrive dès confirmation.</p>
+      <p>Payez par carte (mada · Visa · Mastercard), en plusieurs fois avec Tamara ou par virement avec reçu — votre facture fiscale suit la confirmation du paiement.</p>
     </div>
 
     <div class="sv1-co-grid">
@@ -433,6 +433,10 @@ var h0=hint();if(h0)S.paint(true,h0);
               <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 12h18"/><path d="M7 7h10"/><path d="M7 17h10"/></svg></span>
               <span class="tx"><b>Tamara — en plusieurs fois</b><small>Sans frais</small></span>
             </button>
+            <button type="button" class="sv1-co-way sv1-hide" data-way="bank" id="coWayBank">
+              <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 12 4l9 6"/><path d="M5 10v8M9.5 10v8M14.5 10v8M19 10v8"/><path d="M3 20h18"/></svg></span>
+              <span class="tx"><b>Virement bancaire</b><small>Virement, puis reçu à téléverser</small></span>
+            </button>
           </div>
 
           <div id="coPaneCard" class="sv1-co-pane">
@@ -443,6 +447,14 @@ var h0=hint();if(h0)S.paint(true,h0);
           <div id="coPaneTamara" class="sv1-co-pane sv1-hide">
             <button type="button" class="sv1-btn primary" style="width:100%" id="coTamaraGo">Tamara — en plusieurs fois</button>
             <p class="sv1-co-fine" id="coTamaraNote">Sans frais</p>
+          </div>
+
+          <div id="coPaneBank" class="sv1-co-pane sv1-hide">
+            <dl class="sv1-co-rows" id="coBankRows"></dl>
+            <p class="sv1-co-fine">Virez le montant total sur le compte ci-dessus puis téléversez le reçu. Service activé et facture émise après confirmation de réception par l'équipe.</p>
+            <div style="margin-top:12px"><label for="coRcpt" class="sv1-co-fine" style="display:block;margin:0 0 5px">Reçu du virement (image ou PDF)</label><input id="coRcpt" type="file" accept="image/*,application/pdf" class="sv1-co-in"></div>
+            <button type="button" class="sv1-btn primary" style="width:100%;margin-top:12px" id="coBankGo">Envoyer la commande et le reçu</button>
+            <p class="sv1-co-fine" id="coBankNote"></p>
           </div>
         </div>
       </div>
@@ -566,7 +578,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
 })();</script><script>
 (function(){
 var LANG="fr",HOME="/fr/";
-var TX={"empty":"Votre panier est vide.","browse":"Voir les services","needFill":"Renseignez nom, mobile et e-mail.","payDown":"Le formulaire n'a pas pu se charger. Essayez Tamara ou réessayez dans un instant.","loading":"Préparation du paiement…","quoted":"Devis après examen","signIn":"Connectez-vous pour voir le prix et payer.","signInBtn":"Se connecter","noAmount":"Ces éléments sont devisés après examen — nous envoyons le devis, puis le lien de paiement.","card":"Carte","payBtn":"Payer","payWait":"Vérification du paiement…","paidOk":"Paiement reçu — votre commande est enregistrée et votre facture arrive par e-mail sous peu.","paidInv":"Facture n° :","paidFail":"Le paiement n'a pas abouti, rien n'a été débité — réessayez par carte ou avec Tamara.","paidHold":"Votre paiement a abouti mais n'a pas pu être confirmé automatiquement ; notre équipe est prévenue. Ne payez pas une seconde fois.","bnplFail":"Le paiement en plusieurs fois n'a pas abouti — réessayez ou payez par carte.","toMy":"Mes commandes","mockTag":"Passerelle locale — aucun débit","needCo":"Indiquez la société — l'abonnement est ouvert à son nom.","needTax":"Complétez les données de la société : nom, n° de TVA à 15 chiffres, responsable et mobile, adresse nationale.","empFail":"Impossible de préparer votre abonnement, rien n'a été débité — réessayez ou contactez-nous.","empDone":"Paiement reçu et abonnement activé. Connectez-vous au portail employeur avec l'e-mail utilisé pour payer.","empHold":"Votre paiement a abouti et l'abonnement est en cours d'activation — notre équipe est prévenue. Ne payez pas une seconde fois.","toEmployer":"Ouvrir le portail employeur","tamaraYr":"Tamara n'est disponible que pour l'abonnement annuel.","empSignIn":"Connectez-vous avec l'e-mail de l'abonnement, puis payez.","empMail":"L'e-mail doit correspondre au compte connecté.","onePlan":"Un seul abonnement par commande.","toCart":"Retour au panier","onceHd":"Paiement unique","recHd":"Abonnements","billM":"Mensuel","billY":"Annuel","recNote":"Le montant d'un abonnement correspond à une période (mois ou année) — c'est ce qui est payé maintenant.","tamaraSub":"Tamara n'est pas disponible pour les abonnements mensuels — payez par carte.","lblOrder":"N° de commande","lblPay":"Réf. du paiement","lblAmt":"Montant payé (TTC)","lblInv":"N° de facture","okDone":"Paiement reçu et commande confirmée.","nextInv":"Ensuite : la confirmation et votre facture fiscale arrivent par e-mail, puis l'équipe commence le travail.","nextNoInv":"Ensuite : la confirmation arrive par e-mail. L'équipe prépare votre facture fiscale et vous l'enverra à la même adresse.","reviewT":"Nous avons reçu votre paiement et confirmerons l'activation pendant les heures de bureau.","reviewN":"Nous n'avons pas pu rapprocher le montant des tarifs automatiquement ; l'équipe le vérifie avant l'activation. Une confirmation arrive par e-mail — ne payez pas une seconde fois.","signInGo":"Se connecter","lblReq":"N° de votre demande","openReq":"Ouvrir votre demande","nextReqDocs":"Ensuite : ouvrez votre demande et téléversez les documents requis pour que l'équipe démarre ; vous suivez chaque étape de là.","nextReq":"Ensuite : suivez votre demande depuis votre espace ; nous vous prévenons au début du travail.","invSent":"Votre facture fiscale arrive par e-mail.","invSoon":"L'équipe prépare votre facture fiscale et vous l'enverra à la même adresse."};
+var TX={"empty":"Votre panier est vide.","browse":"Voir les services","needFill":"Renseignez nom, mobile et e-mail.","payDown":"Le formulaire n'a pas pu se charger. Essayez Tamara ou réessayez dans un instant.","loading":"Préparation du paiement…","quoted":"Devis après examen","signIn":"Connectez-vous pour voir le prix et payer.","signInBtn":"Se connecter","noAmount":"Ces éléments sont devisés après examen — nous envoyons le devis, puis le lien de paiement.","card":"Carte","payBtn":"Payer","payWait":"Vérification du paiement…","paidOk":"Paiement reçu — votre commande est enregistrée et votre facture arrive par e-mail sous peu.","paidInv":"Facture n° :","paidFail":"Le paiement n'a pas abouti, rien n'a été débité — réessayez par carte ou avec Tamara.","paidHold":"Votre paiement a abouti mais n'a pas pu être confirmé automatiquement ; notre équipe est prévenue. Ne payez pas une seconde fois.","bnplFail":"Le paiement en plusieurs fois n'a pas abouti — réessayez ou payez par carte.","toMy":"Mes commandes","mockTag":"Passerelle locale — aucun débit","needCo":"Indiquez la société — l'abonnement est ouvert à son nom.","needTax":"Complétez les données de la société : nom, n° de TVA à 15 chiffres, responsable et mobile, adresse nationale.","bkBen":"Bénéficiaire","bkBank":"Banque","bkIban":"IBAN","bkAmt":"Montant dû (TTC)","needRcpt":"Téléversez d'abord le reçu.","badRcpt":"Le reçu doit être une image ou un PDF.","bigRcpt":"Le reçu dépasse 5 Mo.","bankFail":"Envoi impossible, rien n'a été enregistré — réessayez dans un instant.","bankDone":"Commande et reçu reçus. Statut : en attente de confirmation de réception des fonds.","bankNext":"L'équipe vérifie le reçu et la réception des fonds, puis active le service et envoie la facture fiscale.","empFail":"Impossible de préparer votre abonnement, rien n'a été débité — réessayez ou contactez-nous.","empDone":"Paiement reçu et abonnement activé. Connectez-vous au portail employeur avec l'e-mail utilisé pour payer.","empHold":"Votre paiement a abouti et l'abonnement est en cours d'activation — notre équipe est prévenue. Ne payez pas une seconde fois.","toEmployer":"Ouvrir le portail employeur","tamaraYr":"Tamara n'est disponible que pour l'abonnement annuel.","empSignIn":"Connectez-vous avec l'e-mail de l'abonnement, puis payez.","empMail":"L'e-mail doit correspondre au compte connecté.","onePlan":"Un seul abonnement par commande.","toCart":"Retour au panier","onceHd":"Paiement unique","recHd":"Abonnements","billM":"Mensuel","billY":"Annuel","recNote":"Le montant d'un abonnement correspond à une période (mois ou année) — c'est ce qui est payé maintenant.","tamaraSub":"Tamara n'est pas disponible pour les abonnements mensuels — payez par carte.","lblOrder":"N° de commande","lblPay":"Réf. du paiement","lblAmt":"Montant payé (TTC)","lblInv":"N° de facture","okDone":"Paiement reçu et commande confirmée.","nextInv":"Ensuite : la confirmation et votre facture fiscale arrivent par e-mail, puis l'équipe commence le travail.","nextNoInv":"Ensuite : la confirmation arrive par e-mail. L'équipe prépare votre facture fiscale et vous l'enverra à la même adresse.","reviewT":"Nous avons reçu votre paiement et confirmerons l'activation pendant les heures de bureau.","reviewN":"Nous n'avons pas pu rapprocher le montant des tarifs automatiquement ; l'équipe le vérifie avant l'activation. Une confirmation arrive par e-mail — ne payez pas une seconde fois.","signInGo":"Se connecter","lblReq":"N° de votre demande","openReq":"Ouvrir votre demande","nextReqDocs":"Ensuite : ouvrez votre demande et téléversez les documents requis pour que l'équipe démarre ; vous suivez chaque étape de là.","nextReq":"Ensuite : suivez votre demande depuis votre espace ; nous vous prévenons au début du travail.","invSent":"Votre facture fiscale arrive par e-mail.","invSoon":"L'équipe prépare votre facture fiscale et vous l'enverra à la même adresse."};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
 var REC={"bp-hr-03":"monthly","bp-ai-02":"monthly","bp-sub-01":"monthly","bp-vendor-02":"monthly","bp-ai-03":"monthly","bp-ai-smart-employee":"monthly","bp-ai-04":"monthly","bp-ajeer-10":"monthly","starter-4":"monthly","bp-pkg-svc-starter":"monthly","silver":"monthly","bp-pkg-launch":"monthly","gold":"monthly","bp-pkg-growth":"monthly","platinum":"monthly","bp-pkg-scale":"monthly","basic-legal":"monthly","bp-pkg-legal-basic":"monthly","advanced":"monthly","bp-pkg-legal-adv":"monthly","comprehensive":"monthly","bp-pkg-legal-comp":"monthly","strategic":"monthly","bp-pkg-legal-strat":"monthly"};
 var $=function(id){return document.getElementById(id)};
@@ -706,7 +718,7 @@ function prepareEmp(){
    return true}).catch(function(){return false})}
 
 // ---- اختيار الطريقة
-var panes={card:$('coPaneCard'),tamara:$('coPaneTamara')};
+var panes={card:$('coPaneCard'),tamara:$('coPaneTamara'),bank:$('coPaneBank')};
 var PAYCFG=null; // إعداد /api/pay بعد وصوله — يحتاجه زر تمارا في الوضع المحلي
 
 // ---- العودة من البوابة
@@ -817,6 +829,47 @@ $('coTamaraGo').onclick=function(){
    if(o&&o.ok&&o.url){location.href=o.url;return}
    self.disabled=false;n.textContent=(o&&o.message)||TX.payDown})})
  .catch(function(){self.disabled=false;n.textContent=TX.payDown})};
+
+// ---- التحويل البنكي مع رفع الإيصال
+// يظهر فقط إن أعاد /api/pay بيانات الحساب، وللسلال التي تُفعَّل بالدفع الإلكتروني وحده
+// (اشتراك التوظيف · العروض الموقَّعة) لا يظهر. الطلب يذهب إلى المسار القائم نفسه
+// (POST /api/requests type:"order") — المبلغ يُعاد تسعيره في الخادم من الكتالوج،
+// والفريق هو من يؤكد وصول المال؛ لا «مدفوعة» ولا فاتورة من هنا.
+function initBank(){
+ fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
+  var b=cfg&&cfg.bankTransfer;if(!b||!b.iban)return;
+  var dl=$('coBankRows');dl.innerHTML='';
+  [[TX.bkBen,b.beneficiary],[TX.bkBank,b.bank],[TX.bkIban,b.iban],[TX.bkAmt,money(total)]].forEach(function(r){
+   if(!r[1])return;var d=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');
+   dt.textContent=r[0];dd.textContent=r[1];d.appendChild(dt);d.appendChild(dd);dl.appendChild(d)});
+  $('coWayBank').classList.remove('sv1-hide')}).catch(function(){})}
+$('coBankGo').onclick=function(){
+ var n=$('coBankNote'),f=$('coRcpt').files&&$('coRcpt').files[0];
+ if(!ready()){n.textContent=TX.needFill;return}
+ if(!readyTax()){n.textContent=TX.needTax;return}
+ if(!f){n.textContent=TX.needRcpt;return}
+ var okType=f.type==='application/pdf'||(f.type==='image/jpeg'||f.type==='image/png'||f.type==='image/webp')||/[.](pdf|jpe?g|png|webp)$/i.test(f.name||'');
+ if(!okType){n.textContent=TX.badRcpt;return}
+ if(f.size>5*1024*1024){n.textContent=TX.bigRcpt;return}
+ var btn=this,s=snapshot();btn.disabled=true;n.textContent=TX.loading;
+ function fail(){btn.disabled=false;n.textContent=TX.bankFail}
+ var rd=new FileReader();
+ rd.onerror=fail;
+ rd.onload=function(){
+  fetch('/api/requests',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
+   type:'order',ref:s.ref,name:s.name,phone:s.phone,email:s.email,company:s.company,
+   items:cart.map(nameOf),itemsData:cart.map(function(i){return {id:i.id||'',qty:i.qty||1,price:i.amount||0}}),
+   total:total,surchargeFee:0,discountCode:'',taxProfile:s.taxProfile,
+   receiptName:f.name,receiptType:f.type||'',receiptBase64:String(rd.result||'').split(',').pop()})})
+  .then(function(r){return r.json()}).then(function(o){
+   if(!(o&&o.ok)){fail();return}
+   showResult('ok',TX.bankDone,'',null,{rows:[[TX.lblOrder,s.ref],[TX.bkAmt,money(total)]],next:TX.bankNext});
+   $('coWays').classList.add('sv1-hide');for(var k in panes)panes[k].classList.add('sv1-hide');
+   try{localStorage.removeItem(CART)}catch(e){}try{sessionStorage.removeItem(SNAP)}catch(e){}
+   try{dispatchEvent(new Event('bp:cart'))}catch(e){}})
+  .catch(fail)};
+ rd.readAsDataURL(f)};
+if(payable&&!hasEmp&&!cart.some(function(i){return /^sv1:/i.test(String(i&&i.id||''))}))initBank();
 
 // ---- البطاقة والمحافظ (مُيسّر) — نفس نداء التركيب في الموقع القديم
 var mount=$('coPayMount');

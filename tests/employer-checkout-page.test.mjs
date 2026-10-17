@@ -292,3 +292,25 @@ test("checkout: a company tax invoice needs the full profile, and the snapshot c
   assert.equal(tp.address.buildingNo, "1234");
   assert.equal(tp.address.city, "الرياض");
 });
+
+test("checkout: bank transfer shows only when /api/pay publishes the account, needs a receipt, and posts the order to /api/requests", async () => {
+  const bankApi = (rec) => (rec.method === "GET" && !rec.url.includes("action=") ? { ...MOCKCFG, bankTransfer: { beneficiary: "شركة", bank: "بنك", iban: "SA0000000000000000000000" } } : api()(rec));
+  const cart = [{ id: "bp-absher-01", nameAr: "خدمة", amount: 300, price: "300 ر.س", qty: 2, kind: "service", pricePublic: true }];
+  const w = await boot(scriptOf(checkoutPage), { cart, api: bankApi });
+  const way = w.document.getElementById("coWayBank");
+  assert.equal(way.classes.has("sv1-hide"), false, "option appears once the account is published");
+  assert.match(w.document.getElementById("coBankRows").children.map((d) => d.children[1].textContent).join("|"), /SA0000000000000000000000/);
+
+  const none = await boot(scriptOf(checkoutPage), { cart, api: api() });
+  assert.equal(none.document.getElementById("coBankRows").children.length, 0, "no IBAN → no account rows, option stays hidden");
+
+  fill(w, "");
+  const go = w.document.getElementById("coBankGo");
+  go.onclick(); await settle();
+  assert.equal(w.document.getElementById("coBankNote").textContent, TXT("needRcpt"));
+  assert.equal(w.fetches.some((f) => f.url === "/api/requests"), false);
+
+  // BP-EMP لا يُعرض له التحويل
+  const emp = await boot(scriptOf(checkoutPage), { cart: staleCart("BP-EMP-PRO-Y"), api: bankApi });
+  assert.equal(emp.document.getElementById("coBankRows").children.length, 0, "an employer plan never offers the transfer");
+});
