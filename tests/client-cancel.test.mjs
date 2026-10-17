@@ -252,7 +252,9 @@ test("واجهة /my: لا window.confirm، وكل نصوص الإلغاء با�
   const seen = {};
   for (const lang of ["ar", "en", "fr", "zh"]) {
     const html = buildSimpleMy(stub, { lang: () => lang });
-    const script = html.slice(html.indexOf("<script>") + 8, html.lastIndexOf("</script>"));
+    // الصفحة فيها عدة وسوم script (أبواب الدخول وغيرها): نأخذ سكربت البوابة الذي يحوي request-cancel
+    const script = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).find((x) => x.includes("request-cancel")) || "";
+    assert.ok(script, lang + ": سكربت البوابة غير موجود");
     new vm.Script(script); // خطأ نحوي واحد يُسقط البوابة كلها
     // (حذف المستند له تأكيده الخاص خارج هذا النطاق — الفحص حول نداء الإلغاء وحده)
     for (let i = script.indexOf("request-cancel"); i >= 0; i = script.indexOf("request-cancel", i + 1))
