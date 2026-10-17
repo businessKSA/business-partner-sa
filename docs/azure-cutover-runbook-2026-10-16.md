@@ -667,3 +667,29 @@ ContainerAppConsoleLogs_CL | where ContainerGroupName_s startswith "bp-cron" | p
 - هل Elm (نفاذ) واعتماد تشترطان قائمة IP ثابتة للمُرسِل — اسألهما قبل القطع (خطة 2026-10-11 §1.6).
 - صحارى: لا أعرف قدرات لوحتها (ALIAS، تعديل نوع السجل) — ق٤.
 - تكلفة PostgreSQL General Purpose وACS: تقدير يُعاد في Pricing Calculator.
+
+## (و) متغيّرات الإنتاج التي لا يُصدّرها فيرسل (2026-10-17)
+
+فيرسل يخفي قيم المتغيّرات المعلَّمة Sensitive فلا يُصدّرها `vercel env pull`. هذه ناقصة في حاوية الإنتاج `bp-site` وتُعبّأ يدوياً من مصدرها:
+
+| المتغيّر | المصدر | ملاحظة |
+|---|---|---|
+| `DOCUSIGN_INTEGRATION_KEY` | DocuSign ← Settings ← Apps and Keys | معرّف التطبيق |
+| `DOCUSIGN_USER_ID` | الصفحة نفسها «My Account Information» | `e85c6b78-9a07-439d-ab33-22117b31eade` |
+| `DOCUSIGN_ACCOUNT_ID` | الصفحة نفسها «API Account ID» | `100e446c-4fc4-46a1-9acb-0e65add1e12a` |
+| `DOCUSIGN_ENV` | `production` | الافتراضي في الكود `demo` |
+| **`DOCUSIGN_BASE_URI`** | الصفحة نفسها «Account Base URI» | **`https://na4.docusign.net`**. الافتراضي في `api/_docusign.js` للإنتاج هو `na1`، وحساب المالك على `na4`، فبدونه يفشل التوقيع |
+| `DOCUSIGN_PRIVATE_KEY` | زوج RSA في الصفحة نفسها (يظهر مرة واحدة عند الإنشاء) | سرّ. سطر واحد بفواصل `\n` |
+| `GITHUB_TOKEN` | GitHub ← Fine-grained token على المستودع | سرّ |
+| `EMPLOYER_CODES` | قائمة المالك لأكواد أصحاب العمل | سرّ |
+
+تُكتب في ملف على Cloud Shell (لا في المحادثة) ثم:
+
+```bash
+node ops/azure/load-env.mjs --file ~/prod.env --app bp-site --rg rg-bp-web && rm -f ~/prod.env
+```
+
+أول استعمال لمفتاح تكامل جديد على حساب DocuSign يطلب **موافقة مرة واحدة** من المستخدم (رابط consent). إن ظهر `consent_required` عند أول توقيع فتُمنح الموافقة من الرابط الذي يُرجعه DocuSign.
+
+مفاتيح الذكاء الخارجية (Groq وGemini وGrok وAnthropic وElevenLabs) لا تُنقل عن قصد (قرار المالك: Azure فقط).
+`DATABASE_URL` و`DIRECT_DATABASE_URL` تخصّ لوحة العروض `bp-quotes` وتبقى على فيرسل حتى تُنقل.
