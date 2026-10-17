@@ -109,7 +109,8 @@ export function makeRunner({ pgConfig, loadWorkflow, model, now = () => new Date
         }
         if (t === "postgres" || t === "postgresTool") {
           const outs = [];
-          const list = inItems.length ? inItems : [{ json: {} }];
+          let list = inItems.length ? inItems : [{ json: {} }];
+          if (node.executeOnce) list = list.slice(0, 1); // n8n otherwise runs the node once PER input item
           for (let idx = 0; idx < list.length; idx++) {
             const sc = scopeFor(node, list, idx);
             const params = p.options?.queryReplacement ? resolve(p.options.queryReplacement, sc) : [];

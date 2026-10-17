@@ -122,12 +122,12 @@ SELECT * FROM (
    FROM farah.messages m, t WHERE m.id = t.id)
   UNION ALL
   (SELECT 'after', m.id, to_char(m.ts AT TIME ZONE 'Asia/Riyadh','MM-DD HH24:MI'), m.direction, m.source, left(m.body,1500), NULL::json FROM farah.messages m, t WHERE m.id > t.id AND m.source IN ('conversation','proactive') ORDER BY m.id ASC LIMIT 3)
-) x ORDER BY id`, "={{ [ String($('Trigger').first().json.replyToId || '') ] }}", [480, 0], { alwaysOutputData: true }),
-    pg("Running Topics", `SELECT subject, content, source, to_char(updated_at AT TIME ZONE 'Asia/Riyadh','MM-DD HH24:MI') AS u FROM farah.memories WHERE active AND kind='topic' ORDER BY updated_at DESC LIMIT 12`, null, [720, 0], { alwaysOutputData: true }),
+) x ORDER BY id`, "={{ [ String($('Trigger').first().json.replyToId || '') ] }}", [480, 0], { alwaysOutputData: true, executeOnce: true }),
+    pg("Running Topics", `SELECT subject, content, source, to_char(updated_at AT TIME ZONE 'Asia/Riyadh','MM-DD HH24:MI') AS u FROM farah.memories WHERE active AND kind='topic' ORDER BY updated_at DESC LIMIT 12`, null, [720, 0], { alwaysOutputData: true, executeOnce: true }),
     pg("Pending + Prefs + Summaries", `SELECT
  (SELECT json_agg(x) FROM (SELECT id, kind, title, digest_no FROM farah.pending WHERE status='open' AND kind <> 'reply_draft' ORDER BY created_at DESC LIMIT 8) x) AS pending,
  (SELECT json_agg(y) FROM (SELECT kind, subject, left(content,300) AS content FROM farah.memories WHERE active AND kind IN ('preference','rule','decision') ORDER BY updated_at DESC LIMIT 10) y) AS prefs,
- (SELECT json_agg(z) FROM (SELECT day::text AS d, left(summary,900) AS s FROM farah.daily_summaries ORDER BY day DESC LIMIT 2) z) AS summaries`, null, [960, 0], { alwaysOutputData: true }),
+ (SELECT json_agg(z) FROM (SELECT day::text AS d, left(summary,900) AS s FROM farah.daily_summaries ORDER BY day DESC LIMIT 2) z) AS summaries`, null, [960, 0], { alwaysOutputData: true, executeOnce: true }),
     code("Assemble", [1200, 0], `${fnSrc(buildContext)}
 const t = $('Trigger').first().json;
 const all = (n) => { try { return $(n).all().map(i => i.json).filter(r => r && Object.keys(r).length); } catch (e) { return []; } };
@@ -200,8 +200,8 @@ FROM farah.messages WHERE source IN ('website','whatsapp','reply','conversation'
  AND (wa_id = $1::text OR meta->>'name' ILIKE '%'||$1::text||'%' OR meta->>'email' ILIKE $1::text)
 ORDER BY ts DESC LIMIT 14`, "={{ [ String($json.who || '').slice(0, 120) ] }}", [240, 0], { alwaysOutputData: true }),
     pg("What We Know", `SELECT kind, subject, left(content,300) AS content FROM farah.memories WHERE active AND kind IN ('person','company','decision','fact')
- AND (tsv @@ plainto_tsquery('simple', $1::text) OR subject ILIKE '%'||$1::text||'%') ORDER BY updated_at DESC LIMIT 6`, "={{ [ String($('Trigger').first().json.who || '').slice(0, 120) ] }}", [480, 0], { alwaysOutputData: true }),
-    pg("Style Samples", `SELECT content FROM farah.memories WHERE active AND kind='style_sample' ORDER BY updated_at DESC LIMIT 6`, null, [720, 0], { alwaysOutputData: true }),
+ AND (tsv @@ plainto_tsquery('simple', $1::text) OR subject ILIKE '%'||$1::text||'%') ORDER BY updated_at DESC LIMIT 6`, "={{ [ String($('Trigger').first().json.who || '').slice(0, 120) ] }}", [480, 0], { alwaysOutputData: true, executeOnce: true }),
+    pg("Style Samples", `SELECT content FROM farah.memories WHERE active AND kind='style_sample' ORDER BY updated_at DESC LIMIT 6`, null, [720, 0], { alwaysOutputData: true, executeOnce: true }),
     code("Build Understand Prompt", [960, 0], `${fnSrc(buildUnderstandPrompt)}
 const t = $('Trigger').first().json;
 const rows = (n) => { try { return $(n).all().map(i => i.json).filter(r => r && Object.keys(r).length); } catch (e) { return []; } };
@@ -345,7 +345,7 @@ FROM jsonb_to_recordset($1::jsonb) AS x(preview text,label text,decision text,re
   w.connections["Gate Items (money/customers only)"] = { main: [[{ node: "Anything Worth Sending?", type: "main", index: 0 }, { node: "Log Gate Decisions", type: "main", index: 0 }]] };
   w.connections["Anything Worth Sending?"] = { main: [[{ node: "Number Items", type: "main", index: 0 }], []] };
   // 2) morning brief: money + customers only, plus a one-line count of what was held
-  const held = pg("Read Held Yesterday", `SELECT count(*)::int AS n FROM farah.messages WHERE source='gate' AND meta->>'decision'='log' AND coalesce(meta->>'test','false')<>'true' AND ts > now() - interval '24 hours'`, null, [680, 560], { alwaysOutputData: true });
+  const held = pg("Read Held Yesterday", `SELECT count(*)::int AS n FROM farah.messages WHERE source='gate' AND meta->>'decision'='log' AND coalesce(meta->>'test','false')<>'true' AND ts > now() - interval '24 hours'`, null, [680, 560], { alwaysOutputData: true, executeOnce: true });
   w.nodes.push(held);
   w.connections["Read KPIs"] = { main: [[{ node: "Read Held Yesterday", type: "main", index: 0 }]] };
   w.connections["Read Held Yesterday"] = { main: [[{ node: "Compose Facts", type: "main", index: 0 }]] };
@@ -415,13 +415,13 @@ FROM jsonb_to_recordset($1::jsonb) AS x(ts text,direction text,source text,wa_id
     execWf("Run Draft", [760, -60], ids.draft),
     execWf("Run Topics", [760, 120], ids.topics),
     execWf("Run Compaction", [760, 300], ids.compact),
-    pg("Read Back", `SELECT 'topics' AS what, json_agg(t) AS data FROM (SELECT subject, content, source, active FROM farah.memories WHERE kind='topic' AND source LIKE 'topic:TEST%' ORDER BY id) t
+    pg("Read Back", `SELECT 'topics' AS what, json_agg(t) AS data FROM (SELECT subject, content, source, active FROM farah.memories WHERE kind='topic' AND (source LIKE 'topic:TEST%' OR created_at > now() - interval '3 hours') ORDER BY id) t
 UNION ALL SELECT 'gate', json_agg(g) FROM (SELECT body, meta FROM farah.messages WHERE source='gate' AND meta->>'test'='true' ORDER BY id DESC LIMIT 20) g
 UNION ALL SELECT 'summary', json_agg(s) FROM (SELECT day::text, summary FROM farah.daily_summaries WHERE day='2000-01-01') s
 UNION ALL SELECT 'drafts', json_agg(d) FROM (SELECT id, kind, title, left(detail,1200) AS detail, status FROM farah.pending WHERE kind='reply_draft' AND detail LIKE '%TEST-WEB%' ORDER BY id DESC LIMIT 5) d
 UNION ALL SELECT 'v2_inbound', json_agg(m) FROM (SELECT id, left(body,160) AS body FROM farah.messages WHERE body LIKE '%[TEST-V2]%' ORDER BY id DESC LIMIT 10) m`, null, [760, 480]),
     pg("Cleanup", `WITH a AS (DELETE FROM farah.messages WHERE meta->>'test'='true' OR body LIKE '%[TEST-V2]%' OR wa_id LIKE 'TEST-%' RETURNING 1),
- b AS (DELETE FROM farah.memories WHERE source LIKE 'topic:TEST%' OR source LIKE 'test:%' RETURNING 1),
+ b AS (DELETE FROM farah.memories WHERE source LIKE 'topic:TEST%' OR source LIKE 'test:%' OR (kind='topic' AND created_at > now() - interval '3 hours') RETURNING 1),
  c AS (DELETE FROM farah.pending WHERE detail LIKE '%TEST-WEB%' OR title LIKE '%[TEST-V2]%' RETURNING 1),
  d AS (DELETE FROM farah.daily_summaries WHERE day='2000-01-01' RETURNING 1)
 SELECT (SELECT count(*) FROM a) AS messages, (SELECT count(*) FROM b) AS memories, (SELECT count(*) FROM c) AS pending, (SELECT count(*) FROM d) AS summaries`, null, [760, 660]),
@@ -487,7 +487,9 @@ const liveProactive = liveByName(/فرح — متابعة استباقية/);
 const liveCash = liveByName(/Cash & Execution Watchdog/);
 const liveErr = wfs.find((w) => w.name === "BP-Error-Handler");
 const liveNews = liveByName(/رادار الجهات الحكومية/);
-const farahCred = await ensureCred(NAMES.farahCred, "httpHeaderAuth", { name: "X-BP-Farah-V2-Key", value: hex(32) }, "farahV2");
+const farahKey = hex(32);
+const farahCred = await ensureCred(NAMES.farahCred, "httpHeaderAuth", { name: "X-BP-Farah-V2-Key", value: farahKey }, "farahV2");
+const farahKeyKnown = !credByName(NAMES.farahCred);
 if (liveFarah) ids.farah = await ensureWf(farahV2(await full(liveFarah.id), ids, farahCred), "farah");
 if (liveProactive) ids.proactive = await ensureWf(proactiveV2(await full(liveProactive.id)), "proactive");
 if (liveCash) ids.cash = await ensureWf(gatedCopy(await full(liveCash.id), NAMES.cash, ids.gate, [{ send: "WhatsApp Baher Focus Alert", origin: "watchdog" }]), "cash");
@@ -498,7 +500,7 @@ if (TEST) {
   const testKey = hex(32), path = "farah-v2-harness-" + hex(8);
   const testCred = await ensureCred(NAMES.testCred, "httpHeaderAuth", { name: "X-BP-Test-Key", value: testKey }, "test");
   await ensureWf(harness(testCred, path, ids), "harness");
-  if (APPLY && KEY_FILE) fs.writeFileSync(KEY_FILE, JSON.stringify({ harness_path: "/webhook/" + path, harness_key: testKey, harness_wf: out.workflows.harness, farah_v2_wf: ids.farah, ids }), { mode: 0o600 });
+  if (APPLY && KEY_FILE) fs.writeFileSync(KEY_FILE, JSON.stringify({ harness_path: "/webhook/" + path, harness_key: testKey, harness_wf: out.workflows.harness, farah_v2_key: farahKeyKnown ? farahKey : null, farah_v2_wf: ids.farah, ids }), { mode: 0o600 });
   log.push("  (test key written to --key-file only; not printed)");
 }
 

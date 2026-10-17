@@ -60,6 +60,10 @@ await t("context: a reply to the digest states the quoted message, its neighbour
   assert.match(j.ctx, /ملخص الأيام السابقة/);
   assert.equal(j.userText, "موافق ②", "the original item fields must pass through");
   assert.equal(j.ctx_stats.recent, 6); assert.equal(j.ctx_stats.replied, true);
+  // regression (found on the live run): a PG node runs once PER INPUT ITEM in n8n, so un-guarded queries multiplied rows
+  assert.equal((j.ctx.match(/وش وضع شركة/g) || []).length, 2, "the neighbour appears once under «بعدها» and once in the recent list, never multiplied");
+  assert.equal((j.ctx.match(/عرض شركة \(س\) — بانتظار/g) || []).length, 1, "one topic line");
+  for (const n of ["Replied Message + Neighbours", "Running Topics", "Pending + Prefs + Summaries"]) assert.equal((await loadWorkflow(ID.ctx)).nodes.find((x) => x.name === n).executeOnce, true, n);
 });
 await t("context: not a reply -> no reply section, last 6 messages oldest-first", async () => {
   const j = (await R.runWorkflow(ID.ctx, [{ userText: "هلا", replyToId: "" }])).items[0];
