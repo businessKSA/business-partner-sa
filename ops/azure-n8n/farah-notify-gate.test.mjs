@@ -25,6 +25,9 @@ test("other: news, system status, account security mail, hiring, internal meetin
   assert.equal(c({ origin: "calendar", text: "⏰ بعد ساعة: اجتماع فريق العمل الداخلي" }).decision, "log");
   assert.equal(c({ origin: "digest", text: "🗒️ ملخص محادثات الموقع (آخر 24 ساعة): 5 محادثة — 4 للعلم" }).decision, "log");
 });
+test("site guardian alerts (a broken purchase journey) pass as money", () => {
+  assert.equal(c({ origin: "site", text: "🛡️ حارس الموقع — 🔴 عطل يمسّ العملاء\n• تعطّلت الخطوة «أضف للسلة» — رحلة العميل" }).decision, "send");
+});
 test("his own requests are never held back", () => {
   assert.equal(c({ origin: "minutes", text: "📝 محضر: اختبار" }).decision, "send");
   assert.equal(c({ origin: "reply", text: "تم" }).decision, "send");

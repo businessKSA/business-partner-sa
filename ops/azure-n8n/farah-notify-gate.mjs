@@ -8,7 +8,7 @@ export const GATE_THRESHOLD = { send: 3, ambiguous: 1 };
 
 // ---- 1) classify ONE notification -> { label: money|customer|other, decision: send|log, ambiguous, score, reasons, hash }
 // input: { text, subject, sender, origin }
-// origin: deal | lead | payment | task | mail | calendar | watchdog | reader | website-notice | error | news | digest | brief | other
+// origin: deal | lead | payment | task | mail | calendar | watchdog | reader | website-notice | error | news | site | digest | brief | other
 export function classifyNotification(input) {
   const j = input && typeof input === "object" ? input : {};
   const clean = (s, n) => String(s == null ? "" : s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "").trim().slice(0, n);
@@ -50,7 +50,7 @@ export function classifyNotification(input) {
   const prior = { deal: ["c", 4, "صفقة جديدة"], lead: ["c", 4, "عميل محتمل"], "website-notice": ["c", 3, "محادثة موقع"], payment: ["m", 4, "دفعة"],
     calendar: ["c", /فريق العمل|الفريق الداخلي|داخلي|team sync|stand-?up|daily/i.test(t) ? 0 : (/عميل|اجتماع|موعد|meeting|عرض|مكالمة|call|demo|×/i.test(t) ? 3 : 0), "موعد"],
     reader: ["c", 2, "رسالة تنتظر ردك"],
-    news: ["n", 6, "أخبار"], digest: ["n", 4, "ملخص"], error: ["n", 2, "عطل نظام"], brief: ["n", 0, ""] }[origin];
+    news: ["n", 6, "أخبار"], site: ["m", 4, "عطل في رحلة الشراء/الموقع"], digest: ["n", 4, "ملخص"], error: ["n", 2, "عطل نظام"], brief: ["n", 0, ""] }[origin];
   if (prior && prior[1]) { if (prior[0] === "m") money += prior[1]; else if (prior[0] === "c") customer += prior[1]; else noise += prior[1]; reasons.push("المصدر: " + prior[2]); }
 
   // payment problems inside system errors still matter
