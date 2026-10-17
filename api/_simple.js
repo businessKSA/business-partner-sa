@@ -16,16 +16,21 @@
 // card, sends a real DocuSign envelope or emails a customer unless
 // SIMPLE_NOTIFY=1 is set explicitly.
 import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { sb, DB_ON, DB_MISSING, getSession, audit, notify } from "./_db.js";
 import { contractHtml, quoteHtml } from "./_docusign.js";
 import { loadCatalog } from "./_catalog.js";
-import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate } from "./_daftra.js";
-import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
-import { DEV, EMAIL_LIVE, MODES, outbox, outboxList } from "./_mode.js";
+import { daftraConfigured } from "./_daftra.js";
+import { issuePaidInvoice, reportInvoiceBlocked, invoiceIsComplete, invoiceRetryDue, publicInvoice } from "./_invoicing.js";
+import { ownerTicketOk, panelRequiresNafath, isNafathPlaceholderEmail } from "./_nafath.js";
+import { DEV, EMAIL_LIVE, MODES, outbox, outboxList, PAY_MOCK, TAMARA_MOCK } from "./_mode.js";
 import { isOwnerEmail } from "./_trial.js";
 import { waSend, waNumber } from "./_stage.js";
-import { storagePut, storageSign } from "./_db.js";
+import { storagePut, storageSign, storageDelete } from "./_db.js";
 import { readDocumentRaw, parseJson, DOC_MIME_OK, MAX_DOC_BYTES } from "./_docread.js";
+import { validateSlot, bookingMessage, bookingConfig, manageToken } from "./_booking.js";
 
 export const SIMPLE_TEST_MODE = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview" || DEV;
 // Live since 2026-09-04: a customer who approves a quotation must be told the
@@ -47,7 +52,7 @@ const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.
 // customer's request sits unread.
 const OWNER_EMAIL = process.env.BP_OWNER_EMAIL || "business@businesspartner.sa,business@businesspartnerksa.com";
 
-export const REQUEST_TYPES = ["CONSULTATION", "GOVERNMENT_SERVICE", "COMPANY_FORMATION"];
+export const REQUEST_TYPES = ["CONSULTATION", "GOVERNMENT_SERVICE", "COMPANY_FORMATION", "BUSINESS_DEVELOPMENT"];
 export const REQUEST_SOURCES = ["WEBSITE", "WHATSAPP", "EMAIL", "PHONE", "AI_ASSISTANT", "MANUAL", "REFERRAL"];
 export const REQUEST_STATUSES = [
   "NEW", "REVIEWING", "WAITING_CLIENT", "QUOTE_SENT", "QUOTE_APPROVED", "CONTRACT_SENT", "SIGNED",
@@ -95,7 +100,12 @@ function opsOk(src) {
   const key = String((src && src.key) || "").trim();
   const ticket = String((src && src.ticket) || "").trim();
   if (ticket && ownerTicketOk(ticket)) return true;
-  if (!panelRequiresNafath() && PANEL_KEYS.size && PANEL_KEYS.has(key)) return true;
+  // With PANEL_REQUIRE_NAFATH on, the ticket above is the ONLY way in: not the
+  // panel key, and not the throwaway test keys below either. (The test keys used
+  // to slip past this switch — harmless in production, where they do not exist,
+  // but a preview with the switch on would still have opened to a known string.)
+  if (panelRequiresNafath()) return false;
+  if (PANEL_KEYS.size && PANEL_KEYS.has(key)) return true;
   // Preview/test only: a throwaway key so the owner can test /ops without
   // exposing the production panel key on a preview URL.
   if (SIMPLE_TEST_MODE && key && key === (process.env.SIMPLE_OPS_KEY || "test-ops")) return true;
@@ -164,8 +174,86 @@ function ownedBy(row, sess) {
 // The public view of a request — no internal notes, no assignment.
 function clientView(row, events, tasks) {
   const { internal_notes, assigned_to, ai_summary, ...pub } = row;
+  // The invoice record carries the issuing state and the draft it was built from;
+  // the customer sees it only once Daftra has numbered it, and without those.
+  pub.invoice = publicInvoice(pub.invoice);
   if (pub.contract && pub.contract.html) pub.contract = { ...pub.contract, html: undefined, html_signed: undefined, has_html: true };
-  return { ...pub, cancel_policy: cancelPolicy(row), events: (events || []).filter((e) => e.actor_kind !== "internal"), tasks: (tasks || []).filter((t) => t.assignee === "client") };
+  // Machine bookkeeping («notify.paid», «followup.task») is for the panel: the
+  // customer's timeline used to print those keys raw.
+  const visible = (e) => e.actor_kind !== "internal" && !/^(notify\.|followup\.task)/.test(String(e.event || ""));
+  return { ...pub, cancel_policy: cancelPolicy(row), origin: isCartRow(row) ? "cart" : isTicketRow(row) ? "ticket" : "", attachments: clientAttachments(row), events: (events || []).filter(visible), tasks: (tasks || []).filter((t) => t.assignee === "client") };
+}
+
+// ------------------------------------------------------------- the files --
+// One list, three kinds of entry, all in `requests.attachments` (no new column):
+//   kind "document"    — a file the customer uploaded, usually against one of
+//                        the documents we asked for (`doc` = that title)
+//   kind "deliverable" — finished work the team hands over (by "team")
+//   anything else      — older rows: a receipt, or a bare {name,url,note}
+// Bytes live in storage under `path`; the row never holds a long-lived link.
+// A link is signed on demand, after the request's ownership is checked.
+//
+// Same rules as the document vault (api/requests.js `ops-doc-upload`): the type
+// is refused rather than guessed, the size is measured on the text BEFORE any
+// Buffer exists, and the file must really look like what it says it is.
+const UPLOAD_MIME = /^(application\/pdf|image\/(jpeg|png|webp)|application\/vnd\.openxmlformats-officedocument\.(spreadsheetml\.sheet|wordprocessingml\.document)|application\/vnd\.ms-excel)$/;
+const UPLOAD_MAX_BYTES = 8 * 1024 * 1024;
+const UPLOAD_EXT = {
+  pdf: "application/pdf", jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  xls: "application/vnd.ms-excel",
+};
+const UPLOAD_CAP = 60;          // files per request, all kinds together
+const CUSTOMER_UPLOAD_CAP = 30;
+function uploadMime(rawMime, fileName) {
+  const m = String(rawMime || "").trim().toLowerCase();
+  if (m === "image/jpg" || m === "image/pjpeg") return "image/jpeg";
+  if (m && m !== "application/octet-stream" && m !== "binary/octet-stream") return m;
+  return UPLOAD_EXT[String(fileName || "").split(".").pop().toLowerCase()] || m;
+}
+function sniffOk(mime, buf) {
+  const b = buf;
+  if (mime === "application/pdf") return b.subarray(0, 1024).includes("%PDF");
+  if (mime === "image/jpeg") return b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF;
+  if (mime === "image/png") return b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4E && b[3] === 0x47;
+  if (mime === "image/webp") return b.subarray(0, 4).toString("latin1") === "RIFF" && b.subarray(8, 12).toString("latin1") === "WEBP";
+  if (mime === "application/vnd.ms-excel") return b[0] === 0xD0 && b[1] === 0xCF && b[2] === 0x11 && b[3] === 0xE0;
+  // docx / xlsx are zip containers
+  return b[0] === 0x50 && b[1] === 0x4B;
+}
+// Validates and stores one uploaded file. Never throws; returns the record that
+// goes into `attachments`, or {ok:false,status,error}.
+async function storeUpload(row, b, { kind, by, note, doc }) {
+  const base64 = typeof b.base64 === "string" ? b.base64.replace(/^data:[^;]+;base64,/, "") : "";
+  if (!base64) return { ok: false, status: 400, error: "no_file" };
+  const display = str(b.file_name || b.fileName || b.name, 160).replace(/[\r\n]+/g, " ") || "file";
+  const mime = uploadMime(b.mime, display);
+  if (!UPLOAD_MIME.test(mime)) return { ok: false, status: 400, error: "bad_type" };
+  // measured on the text first: 8 MB of bytes is ~10.7 M characters of base64
+  if (base64.length > Math.ceil(UPLOAD_MAX_BYTES * 4 / 3) + 8) return { ok: false, status: 413, error: "too_large", max: UPLOAD_MAX_BYTES };
+  const bytes = Buffer.byteLength(base64, "base64");
+  if (bytes > UPLOAD_MAX_BYTES) return { ok: false, status: 413, error: "too_large", max: UPLOAD_MAX_BYTES };
+  if (!bytes) return { ok: false, status: 400, error: "empty" };
+  const buf = Buffer.from(base64, "base64");
+  if (!sniffOk(mime, buf)) return { ok: false, status: 400, error: "bad_type" };
+  const id = crypto.randomBytes(6).toString("hex");
+  const ext = (display.split(".").pop() || "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 5);
+  const path = `requests/${row.ref}/${Date.now()}-${id}${ext ? "." + ext : ""}`;
+  try { await storagePut(path, buf, mime); }
+  catch (e) { console.error("simple upload store", String(e.message || e).slice(0, 160)); return { ok: false, status: 502, error: "storage_failed" }; }
+  return { ok: true, rec: { id, name: display, path, size: bytes, mime, kind, note: str(note, 300), doc: str(doc, 200) || undefined, at: nowIso(), by } };
+}
+// What the customer's browser may see of an attachment: no storage path, no
+// internal files, and a link only for the old rows that carried one.
+function clientAttachments(row) {
+  return (Array.isArray(row.attachments) ? row.attachments : [])
+    .filter((a) => a && a.visibility !== "internal")
+    .map((a) => ({
+      id: a.id || undefined, name: a.name, title: a.title || undefined, note: a.note || "", at: a.at, by: a.by, kind: a.kind || "", doc: a.doc || "",
+      size: a.size || 0, mime: a.mime || "", file: !!a.path,
+      url: !a.path && /^https?:\/\//i.test(String(a.url || "")) ? a.url : undefined,
+    }));
 }
 
 function normScope(items) {
@@ -174,6 +262,10 @@ function normScope(items) {
     title: str(it.title, 200),
     why: str(it.why, 400),
     qty: Math.max(1, Math.min(99, Math.round(num(it.qty) || 1))),
+    // A structural line the page added so the scope has a shape the customer can
+    // review (no code, no price of its own). It rides along with a priced line
+    // instead of holding the whole quotation back for a human.
+    ...(it.seed === true && !str(it.code, 40) ? { seed: true } : {}),
   })).filter((it) => it.title);
 }
 // The documents we ask the customer for. Each service has its own list; the
@@ -183,19 +275,28 @@ const DOC_STATES = ["requested", "received", "waived"];
 // figures — so approving the quote is enough to produce it. It used to wait
 // for a human to press a button in /ops, which left the customer looking at
 // «سيصلك العقد للتوقيع» with nothing arriving.
+//
+// `opts.at` pins the date printed on the paper, and `build` (stored with the
+// contract) remembers the lead time / executor that were typed at issue. The
+// customer's view rebuilds the paper from the live quotation to repair old
+// totals — if the rebuild used today's date and no lead time, EVERY rebuild
+// differed from what was issued, so a contract signed yesterday was flagged
+// «corrected after your signature — sign again» the next time anyone opened it.
 function buildContract(row, opts = {}) {
-  const today = new Date().toLocaleDateString("ar-SA-u-nu-latin", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Riyadh" });
+  const at = opts.at && !Number.isNaN(Date.parse(opts.at)) ? new Date(opts.at) : new Date();
+  const today = at.toLocaleDateString("ar-SA-u-nu-latin", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Riyadh" });
+  const build = { lead_time: str(opts.lead_time, 120), executor: str(opts.executor, 120) };
   const html = contractHtml({
     ref: row.ref, clientName: row.company_name || row.client_name || row.client_email, service: row.title,
     lines: row.quote.items.map((l) => ({ name: l.title, nameEn: l.titleEn, qty: l.qty, price: l.price, line: l.line })),
     net: row.quote.net, vat: row.quote.vat, total: row.quote.total, vatRate: 15,
-    leadTime: str(opts.lead_time, 120), executor: str(opts.executor, 120) || "Business Partner", today,
+    leadTime: build.lead_time, executor: build.executor || "Business Partner", today,
     // لغة العميل تُطبع مقابل العربية — والعربية هي المرجع في نص العقد نفسه.
     lang: row.lang || "ar",
   });
   return {
-    number: "C-" + row.ref.replace(/^BP-R-/, ""), status: "SENT", html,
-    created_at: nowIso(), sent_at: nowIso(), quote_number: row.quote.number,
+    number: "C-" + row.ref.replace(/^BP-R-/, ""), status: "SENT", html, build,
+    created_at: at.toISOString(), sent_at: nowIso(), quote_number: row.quote.number,
     mode: SIMPLE_TEST_MODE ? "test-esign" : "portal-esign",
   };
 }
@@ -242,6 +343,7 @@ function normDocuments(list) {
       note: str(it.note, 400),
       status: DOC_STATES.includes(it.status) ? it.status : "requested",
       at: str(it.at, 40) || nowIso(),
+      ...(it.received_at ? { received_at: str(it.received_at, 40) } : {}),
     };
   }).filter((d) => d.title);
 }
@@ -303,6 +405,10 @@ export async function handleSimple(req, res) {
       // secret string he has to carry between devices is not that.
       let opsUser = null;
       if (!opsOk({ key: body.key || qs.key, ticket: body.ticket || qs.ticket })) {
+        // PANEL_REQUIRE_NAFATH closes this door too (owner decision 2026-10-16:
+        // the owner's panel opens with Nafath only). A session proves a mailbox,
+        // not a person standing at the phone.
+        if (panelRequiresNafath()) return json(res, 401, { ok: false, error: "unauthorized", nafath: true, signin: `${SELF_BASE}/ar/ops` });
         const sess = await getSession(req);
         if (!isOwnerEmail(sess && sess.user && sess.user.email)) {
           return json(res, 401, { ok: false, error: "unauthorized", signin: `${SELF_BASE}/ar/my` });
@@ -310,6 +416,14 @@ export async function handleSimple(req, res) {
         opsUser = { email: String(sess.user.email).toLowerCase(), name: sess.user.full_name || "" };
       }
       return opsAction(action, body, qs, req, res, opsUser);
+    }
+    // مركز التواصل (ودجت الدعم): التتبّع والتذكرة يعملان بلا جلسة أيضاً —
+    // الزائر الذي لم يدخل بعد هو أكثر من يحتاجهما. الجلسة إن وُجدت ترفع
+    // ما يراه؛ وبلا جلسة لا يخرج شيء إلا بمرجعٍ + بريدٍ مطابقين (supportAction).
+    if (action === "support-track" || action === "support-ticket-create") {
+      let supportSess = null;
+      try { supportSess = await getSession(req); } catch { supportSess = null; }
+      return supportAction(action, body, qs, req, res, supportSess);
     }
     const sess = await getSession(req);
     if (!sess) return json(res, 401, { ok: false, error: "no_session", message: "سجّل دخولك أولاً." });
@@ -326,16 +440,28 @@ async function clientAction(action, b, qs, req, res, sess) {
   const orgId = sess.organization?.id || null;
   const who = sess.user?.full_name || email;
 
+  // A first Nafath sign-in opens an account under a placeholder address; until
+  // the client gives a real e-mail and mobile (api/otp.js nafath-contact-*), the
+  // account may look at itself but not act — a request, a quote or an invoice
+  // written against an address nobody can read is a request nobody can answer.
+  const contactPending = isNafathPlaceholderEmail(email);
+  if (contactPending && action !== "me") {
+    return json(res, 403, { ok: false, error: "contact_required", message: "أكمل بريدك وجوالك أولاً لنتمكن من خدمتك." });
+  }
+
   if (action === "me") {
+    if (contactPending) {
+      return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, user: { name: sess.user.full_name || "", email: "", contactPending: true }, organization: sess.organization, counts: {}, requests: [] });
+    }
     // Claim requests created for this e-mail before the client registered.
     if (orgId) { try { await sb(`requests?client_email=eq.${q(email)}&organization_id=is.null`, { method: "PATCH", prefer: "return=minimal", body: { organization_id: orgId, user_id: sess.user.id } }); } catch {} }
     const mine = await myRequests(sess);
     const counts = {
-      active: mine.filter((r) => !["COMPLETED", "CANCELLED"].includes(r.status)).length,
+      active: mine.filter((r) => !isTicketRow(r) && !["COMPLETED", "CANCELLED"].includes(r.status)).length,
       quotes: mine.filter((r) => r.status === "QUOTE_SENT").length,
       contracts: mine.filter((r) => r.status === "CONTRACT_SENT").length,
       payments: mine.filter((r) => ["SIGNED", "PAYMENT_PENDING"].includes(r.status)).length,
-      appointments: mine.filter((r) => r.status !== "CANCELLED" && r.appointment && r.appointment.status !== "CANCELLED" && r.appointment.date >= nowIso().slice(0, 10)).length,
+      appointments: new Set(mine.filter((r) => r.status !== "CANCELLED" && r.appointment && r.appointment.status !== "CANCELLED" && r.appointment.date >= nowIso().slice(0, 10)).map((r) => r.appointment.date + " " + r.appointment.time)).size,
     };
     return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, user: { name: sess.user.full_name || "", email }, organization: sess.organization, counts, requests: mine.map(summary) });
   }
@@ -389,11 +515,26 @@ async function clientAction(action, b, qs, req, res, sess) {
     const patch = { conversation };
     if (role === "user" && row.status === "WAITING_CLIENT") patch.status = "REVIEWING";
     const upd = await patchRequest(row.id, patch);
-    if (role === "user") await logEvent(row.id, "customer", who, "message.customer", { preview: content.slice(0, 140) });
+    if (role === "user") {
+      await logEvent(row.id, "customer", who, "message.customer", { preview: content.slice(0, 140) });
+      // The customer wrote inside the request and nobody on the team was told:
+      // the only sign was a badge on a panel no one had open. Now the team
+      // gets the mail + WhatsApp and one open «reply» task per request.
+      await alertOps({ ...row, ...upd }, "message-in", {
+        subject: `رسالة جديدة من العميل — ${row.ref}`,
+        line: `${row.client_name || who} كتب في الطلب «${row.title}»: ${content.slice(0, 220)}`,
+        task: {
+          source: "reply.customer", urgency: "high",
+          title: `ردّ على رسالة العميل — ${row.ref}`,
+          details: content.slice(0, 400),
+        },
+      });
+    }
     return json(res, 200, { ok: true, conversation: upd.conversation, status: upd.status });
   }
 
   if (action === "scope-update") {
+    if (isCartRow(row)) return json(res, 409, { ok: false, error: "scope_locked", message: "طلب الشراء المباشر نطاقه ما اشتريته — لا يُعدَّل." });
     if (!["NEW", "REVIEWING", "WAITING_CLIENT"].includes(row.status)) return json(res, 409, { ok: false, error: "scope_locked", message: "النطاق مقفل بعد إصدار عرض السعر." });
     const scope = normScope(b.scope);
     await patchRequest(row.id, { scope });
@@ -408,14 +549,19 @@ async function clientAction(action, b, qs, req, res, sess) {
   // quotation itself is still issued by hand from /ops (owner's rule): the
   // price on a scope is a commercial decision, not a lookup.
   if (action === "scope-confirm") {
+    if (isCartRow(row)) return json(res, 409, { ok: false, error: "scope_locked", message: "طلب الشراء المباشر مدفوع مسبقاً — لا عرض سعر له." });
     if (!["NEW", "REVIEWING", "WAITING_CLIENT"].includes(row.status)) return json(res, 409, { ok: false, error: "scope_locked", message: "النطاق مقفل بعد إصدار عرض السعر." });
     const scope = normScope(b.scope && b.scope.length ? b.scope : row.scope);
     if (!scope.length) return json(res, 400, { ok: false, error: "no_items", message: "أضف بنداً واحداً على الأقل إلى نطاق الخدمات." });
     await patchRequest(row.id, { scope });
     await logEvent(row.id, "customer", who, "scope.confirmed", { items: scope.map((it) => it.title) });
 
-    const priced = await priceItems(scope);
-    const unpriced = priced.filter((l) => !(num(l.price) > 0)).map((l) => l.title);
+    // Lines flagged `seed` are filler: with at least one real line beside them
+    // they do not block (and are not printed on) the quotation.
+    const real = scope.filter((it) => !it.seed);
+    const basis = real.length ? real : scope;
+    const priced = await priceItems(basis);
+    const unpriced = priced.filter(needsHumanPrice).map((l) => l.title);
 
     // كل بند له سعر في الكتالوج ⇒ عرض السعر يصدر فوراً. الكتالوج هو القرار
     // الذي اتُّخذ مسبقاً؛ إعادة اتخاذه يدوياً في كل طلب تأخيرٌ بلا حكم مضاف،
@@ -425,7 +571,7 @@ async function clientAction(action, b, qs, req, res, sess) {
     // في الكتالوج أو من إنسان، ولا يُخترع بينهما. هذا هو الشرط الذي جعل
     // الأتمتة ممكنة — «طالما في كاتالوج للأسعار والعروض واضحة».
     if (!unpriced.length && AUTO_QUOTE) {
-      const issued = await issueQuote({ ...row, scope }, scope, {}, "system", "التسعير الآلي");
+      const issued = await issueQuote({ ...row, scope }, basis, {}, "system", "التسعير الآلي");
       if (issued.ok) {
         await logEvent(row.id, "system", "التسعير الآلي", "quote.auto", { number: issued.quote.number, total: issued.quote.total });
         return json(res, 200, { ok: true, stage: "QUOTE", status: issued.status, scope, quote: issued.quote, auto: true });
@@ -445,13 +591,56 @@ async function clientAction(action, b, qs, req, res, sess) {
     return json(res, 200, { ok: true, stage: "PRICING", status: upd.status, scope, unpriced });
   }
 
+  // A document the customer sends inside the request. With `base64` it is a real
+  // upload (the file is stored, and if `doc_title` / `doc_index` names one of
+  // the documents we asked for, that line flips to «received»). Without it, the
+  // old {name,url,note} shape still works — but only for an http(s) link: the
+  // panel renders `url` as a link, and «javascript:» must never get there.
   if (action === "attachment-add") {
-    const att = { name: str(b.name, 160), url: str(b.url, 600), note: str(b.note, 300), at: nowIso(), by: "customer" };
-    if (!att.name) return json(res, 400, { ok: false, error: "missing_name" });
-    const attachments = [...(row.attachments || []), att].slice(-40);
-    await patchRequest(row.id, { attachments });
-    await logEvent(row.id, "customer", who, "attachment.added", { name: att.name });
-    return json(res, 200, { ok: true, attachments });
+    if (row.status === "CANCELLED") return json(res, 409, { ok: false, error: "request_closed" });
+    const all = Array.isArray(row.attachments) ? row.attachments : [];
+    if (typeof b.base64 !== "string" || !b.base64) {
+      const link = str(b.url, 600);
+      const att = { name: str(b.name, 160), url: /^https?:\/\//i.test(link) ? link : "", note: str(b.note, 300), at: nowIso(), by: "customer" };
+      if (!att.name) return json(res, 400, { ok: false, error: "missing_name" });
+      const attachments = [...all, att].slice(-UPLOAD_CAP);
+      await patchRequest(row.id, { attachments });
+      await logEvent(row.id, "customer", who, "attachment.added", { name: att.name });
+      return json(res, 200, { ok: true, attachments: clientAttachments({ attachments }) });
+    }
+    if (all.length >= UPLOAD_CAP || all.filter((a) => a && a.by === "customer" && a.kind === "document").length >= CUSTOMER_UPLOAD_CAP) {
+      return json(res, 409, { ok: false, error: "too_many_files" });
+    }
+    const docs = normDocuments(row.documents);
+    let at = -1;
+    if (b.doc_index != null && b.doc_index !== "" && Number.isInteger(Number(b.doc_index)) && docs[Number(b.doc_index)]) at = Number(b.doc_index);
+    if (at < 0 && b.doc_title) at = docs.findIndex((d) => d.title === str(b.doc_title, 200));
+    const stored = await storeUpload(row, b, { kind: "document", by: "customer", note: b.note, doc: at >= 0 ? docs[at].title : "" });
+    if (!stored.ok) return json(res, stored.status, { ok: false, error: stored.error, max: stored.max });
+    const attachments = [...all, stored.rec].slice(-UPLOAD_CAP);
+    const patch = { attachments };
+    if (at >= 0 && docs[at].status !== "received") { docs[at] = { ...docs[at], status: "received", received_at: nowIso() }; patch.documents = docs; }
+    const upd = await patchRequest(row.id, patch);
+    await logEvent(row.id, "customer", who, "attachment.added", { name: stored.rec.name, doc: stored.rec.doc || undefined });
+    if (patch.documents) await logEvent(row.id, "customer", who, "document.received", { title: docs[at].title });
+    await alertOps({ ...row, ...upd }, "doc-in", {
+      subject: `مستند جديد من العميل — ${row.ref}`,
+      line: `${row.client_name || who} رفع ${stored.rec.doc ? "المستند المطلوب «" + stored.rec.doc + "»" : "ملفاً"} (${stored.rec.name}) على الطلب «${row.title}».`,
+      windowMin: 2,
+    });
+    return json(res, 200, { ok: true, attachments: clientAttachments({ attachments }), documents: upd.documents || docs, received: at >= 0 ? docs[at].title : null });
+  }
+
+  // A short-lived link to one file on this request — the customer's own upload
+  // or work the team delivered. The request was already matched to the signed-in
+  // customer above; the id must belong to THAT request's list.
+  if (action === "attachment-link") {
+    const att = (row.attachments || []).find((a) => a && a.id && a.id === str(b.id || qs.id, 40) && a.visibility !== "internal");
+    if (!att || !att.path) return json(res, 404, { ok: false, error: "not_found" });
+    let url = "";
+    try { url = (await storageSign(att.path, 300)) || ""; } catch (e) { console.error("simple link", String(e.message || e).slice(0, 120)); }
+    if (!url) return json(res, 502, { ok: false, error: "link_failed" });
+    return json(res, 200, { ok: true, url, name: att.name, mime: att.mime || "" });
   }
 
   // إيصال التحويل البنكي: العميل يرفعه هنا، فيقرأه المستشار ويقارن مبلغه
@@ -527,10 +716,31 @@ async function clientAction(action, b, qs, req, res, sess) {
   if (action === "quote-approve" || action === "quote-reject") {
     if (row.status !== "QUOTE_SENT" || !row.quote) return json(res, 409, { ok: false, error: "no_open_quote" });
     const approve = action === "quote-approve";
+    // «صالح حتى …» is printed on the quotation; accepting it after that date
+    // would bind us to a price the quotation itself says has lapsed. Declining
+    // an expired quote stays open. The team renews it from /ops (ops-quote).
+    const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Riyadh" });
+    if (approve && /^\d{4}-\d{2}-\d{2}$/.test(String(row.quote.valid_until || "")) && row.quote.valid_until < today) {
+      return json(res, 409, { ok: false, error: "quote_expired", message: "انتهت صلاحية عرض السعر هذا. اكتب لنا من داخل الطلب ليُجدَّد لك بسعر اليوم.", valid_until: row.quote.valid_until });
+    }
     const quote = { ...row.quote, status: approve ? "APPROVED" : "REJECTED", decided_at: nowIso(), decision_note: str(b.note, 500) };
-    const upd = await patchRequest(row.id, { quote, status: approve ? "QUOTE_APPROVED" : "WAITING_CLIENT" });
+    // «طلب تعديل» hands the ball to the TEAM. It used to set «بانتظار ردك»
+    // (waiting for the customer) — the opposite of the truth — and the note the
+    // customer typed went to one mailbox and nowhere else: not into the
+    // conversation, not onto a task. Now it is a message in the request, the
+    // status says the team is reviewing, and the team is alerted like any
+    // other customer message.
+    const patch = { quote, status: approve ? "QUOTE_APPROVED" : "REVIEWING" };
+    if (!approve) patch.conversation = normConversation([...(row.conversation || []), { role: "user", content: `طلب تعديل على عرض السعر ${quote.number}${quote.decision_note ? ": " + quote.decision_note : "."}`, at: nowIso() }]);
+    const upd = await patchRequest(row.id, patch);
     await logEvent(row.id, "customer", who, approve ? "quote.approved" : "quote.rejected", { number: quote.number, note: quote.decision_note });
-    await sendEmail(OWNER_EMAIL, `${approve ? "اعتماد" : "رفض"} عرض السعر ${quote.number} (${ref})`, `<p>${esc(who)}: ${esc(quote.decision_note || "")}</p>`);
+    if (approve) await sendEmail(OWNER_EMAIL, `اعتماد عرض السعر ${quote.number} (${ref})`, `<p>${esc(who)}: ${esc(quote.decision_note || "")}</p>`);
+    else await alertOps({ ...row, ...upd }, "quote-rejected", {
+      subject: `العميل طلب تعديل عرض السعر ${quote.number} — ${row.ref}`,
+      line: `${row.client_name || who} لم يعتمد العرض ${quote.number} (${quote.total} ر.س)${quote.decision_note ? ": " + quote.decision_note.slice(0, 220) : "."}`,
+      windowMin: 1,
+      task: { source: "reply.customer", urgency: "high", title: `عدّل عرض السعر أو ردّ على العميل — ${row.ref}`, details: quote.decision_note || "" },
+    });
     if (approve) {
       // No waiting on a human: the approved quotation already contains
       // everything the contract states.
@@ -566,9 +776,15 @@ async function clientAction(action, b, qs, req, res, sess) {
     // العمليات تقولها للمالك صراحةً.
     let html = row.contract.html;
     let contract = row.contract;
-    if (row.quote && Array.isArray(row.quote.items) && row.quote.items.length) {
+    // A signed contract issued before `build` was stored cannot be rebuilt
+    // faithfully (its lead time is unknown), so a difference would prove
+    // nothing — leave the signed paper alone rather than ask for a new signature.
+    const rebuildable = !row.contract.signature || !!row.contract.build;
+    if (rebuildable && row.quote && Array.isArray(row.quote.items) && row.quote.items.length) {
       try {
-        const rebuilt = buildContract(row, {});
+        // Same inputs as at issue: the date it was issued and the lead time /
+        // executor typed then. Anything else rebuilds a different paper.
+        const rebuilt = buildContract(row, { ...(row.contract.build || {}), at: row.contract.created_at });
         if (rebuilt.html && rebuilt.html !== row.contract.html) {
           const signed = !!row.contract.signature;
           contract = {
@@ -592,7 +808,11 @@ async function clientAction(action, b, qs, req, res, sess) {
     const hash = crypto.createHash("sha256").update(String(row.contract.html || "")).digest("hex");
     const signature = {
       name: signerName, email, ip: clientIp(req), ua: str(req.headers["user-agent"], 200), at: nowIso(),
-      contract_sha256: hash, image: typeof b.signature === "string" && b.signature.startsWith("data:image/") ? b.signature.slice(0, 60000) : null,
+      // A drawn signature is a PNG data URL. Cutting it at a length produced a
+      // corrupt image (the 600×150 canvas of a busy scribble passes 60 000
+      // characters), so it is kept whole or not at all — the name, time, IP and
+      // document hash are the evidence; the picture is a courtesy.
+      contract_sha256: hash, image: typeof b.signature === "string" && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(b.signature) && b.signature.length <= 250000 ? b.signature : null,
       mode: SIMPLE_TEST_MODE ? "test-esign" : "portal-esign",
     };
     const contract = { ...row.contract, status: "SIGNED", signed_at: signature.at, signature };
@@ -637,23 +857,41 @@ async function clientAction(action, b, qs, req, res, sess) {
 
   if (action === "appointment-book" || action === "appointment-reschedule") {
     const date = str(b.date, 10), time = str(b.time, 5);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time)) return json(res, 400, { ok: false, error: "bad_datetime" });
-    if (new Date(date + "T" + time + ":00+03:00") < new Date()) return json(res, 400, { ok: false, error: "past" });
-    if (new Date(date + "T12:00:00+03:00").getUTCDay() === 5) return json(res, 400, { ok: false, error: "friday" });
+    // الموعد يُفحص بقواعد الحجز نفسها (api/_booking.js): ساعات الجلسات ويوم
+    // العطلة والماضي ومهلة الساعة. كان هنا فحصٌ للجمعة وللماضي فقط، وصفحة
+    // /consultation تقبل غير ما تقبله هذه.
+    const v = validateSlot(date, time);
+    if (!v.ok) return json(res, 400, { ok: false, error: v.error, message: bookingMessage(v.error, row.lang === "en" ? "en" : "ar") });
     const prev = row.appointment;
+    const live = prev && prev.status !== "CANCELLED";
+    const mlang = ["ar", "en", "fr", "zh"].includes(row.lang) ? row.lang : "ar";
+    const topic = str(b.topic, 200) || row.title;
     const appointment = {
-      date, time, tz: "Asia/Riyadh", topic: str(b.topic, 200) || row.title, note: str(b.note, 500),
-      status: prev && prev.status !== "CANCELLED" && action === "appointment-reschedule" ? "RESCHEDULED" : "BOOKED",
-      booked_at: nowIso(), ref: (prev && prev.ref) || null, gcal: null, mode: "online",
+      date, time, tz: "Asia/Riyadh", topic, note: str(b.note, 500),
+      status: live && action === "appointment-reschedule" ? "RESCHEDULED" : "BOOKED",
+      booked_at: nowIso(), ref: (prev && prev.ref) || null, gcal: (prev && prev.gcal) || null, meet: (prev && prev.meet) || "", mode: "video", minutes: bookingConfig().slotMin,
     };
-    // Reuse the consultation booking function: it e-mails the team, writes
-    // the CRM lead and asks n8n to put the slot on the owner's calendar.
+    // الحجز كلّه في api/book.js (الحدث في تقويم الشركة + Meet + دعوة العميل
+    // والمالك + البريد). تُمرَّر كوكي الجلسة فيعرف أن الحاجز صاحب الحساب نفسه.
+    // لا يُسجَّل موعدٌ فشل حجزُه: كان الخطأ يُبتلع فيرى العميل «تم» بلا حدث.
+    const post = async (payload) => {
+      const r = await fetch(SELF_BASE + "/api/book", { method: "POST", headers: { "content-type": "application/json", cookie: String(req.headers.cookie || ""), "x-forwarded-for": clientIp(req) }, body: JSON.stringify(payload) });
+      return r.json().catch(() => ({}));
+    };
+    let j;
     try {
-      const r = await fetch(SELF_BASE + "/api/book", { method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name: row.client_name || who, email, phone: row.client_phone || "", company: row.company_name || "", topic: appointment.topic, date, time, notes: `${ref} · ${appointment.note}`, lang: row.lang || "ar", source: "simple-v1", test: SIMPLE_TEST_MODE }) });
-      const j = await r.json().catch(() => ({}));
-      if (j && j.ok) { appointment.ref = j.ref || appointment.ref; appointment.gcal = j.gcal || j.calendar || null; }
-    } catch {}
+      if (live && action === "appointment-reschedule" && prev.ref && prev.gcal) {
+        j = await post({ action: "reschedule", ref: prev.ref, t: manageToken(prev.ref, email), date, time, lang: mlang });
+      } else {
+        j = await post({ name: row.client_name || who, email, phone: row.client_phone || "", company: row.company_name || "", topic, date, time, notes: `${ref} · ${appointment.note}`, lang: mlang, source: "simple-v1" });
+      }
+    } catch { return json(res, 502, { ok: false, error: "book_unavailable", message: bookingMessage("server_error", mlang === "en" ? "en" : "ar") }); }
+    if (!j || !j.ok) return json(res, j && j.error === "slot_taken" ? 409 : 400, { ok: false, error: (j && j.error) || "book_failed", message: (j && j.message) || bookingMessage("server_error", mlang === "en" ? "en" : "ar") });
+    appointment.ref = j.ref || appointment.ref;
+    appointment.gcal = j.eventId || appointment.gcal;
+    appointment.meet = j.meet || appointment.meet || "";
+    appointment.confirmed = j.confirmed !== false;
+    if (!appointment.confirmed) appointment.status = "PENDING";
     await patchRequest(row.id, { appointment });
     await logEvent(row.id, "customer", who, action === "appointment-book" ? "appointment.booked" : "appointment.rescheduled", { date, time });
     return json(res, 200, { ok: true, appointment });
@@ -661,11 +899,22 @@ async function clientAction(action, b, qs, req, res, sess) {
 
   if (action === "appointment-cancel") {
     if (!row.appointment) return json(res, 404, { ok: false, error: "no_appointment" });
+    // الحدث في تقويم الشركة يُلغى معه (فتصل العميلَ والمالكَ رسالةُ الإلغاء من جوجل)،
+    // وإلا بقي الموعد في تقويم المالك بعد أن ألغاه العميل.
+    let calendar = "none";
+    if (row.appointment.ref && row.appointment.gcal) {
+      try {
+        const r = await fetch(SELF_BASE + "/api/book", { method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ action: "cancel", ref: row.appointment.ref, t: manageToken(row.appointment.ref, email) }) });
+        const j = await r.json().catch(() => ({}));
+        calendar = j && j.ok ? "cancelled" : "failed";
+      } catch { calendar = "failed"; }
+    }
     const appointment = { ...row.appointment, status: "CANCELLED", cancelled_at: nowIso() };
     await patchRequest(row.id, { appointment });
     await logEvent(row.id, "customer", who, "appointment.cancelled", {});
-    await sendEmail(OWNER_EMAIL, `إلغاء موعد ${ref}`, `<p>${esc(who)} ألغى موعد ${esc(row.appointment.date)} ${esc(row.appointment.time)}</p>`);
-    return json(res, 200, { ok: true, appointment });
+    await sendEmail(OWNER_EMAIL, `إلغاء موعد ${ref}`, `<p>${esc(who)} ألغى موعد ${esc(row.appointment.date)} ${esc(row.appointment.time)}${calendar === "failed" ? " — <b>تعذّر إلغاء الحدث في التقويم، أزِله يدوياً</b>" : ""}</p>`);
+    return json(res, 200, { ok: true, appointment, calendar });
   }
 
   // الإلغاء من جهة العميل. السياسة في cancelPolicy: ما لم يُدفع منه شيء ولم
@@ -689,13 +938,23 @@ async function clientAction(action, b, qs, req, res, sess) {
         cancel_request: null,
       };
       if (apptLive) patch.appointment = { ...row.appointment, status: "CANCELLED", cancelled_at: at };
+      // حدث التقويم يُلغى مع الموعد كما في appointment-cancel، وإلا بقي في تقويم المالك.
+      let calendar = "none";
+      if (apptLive && row.appointment.ref && row.appointment.gcal) {
+        try {
+          const r = await fetch(SELF_BASE + "/api/book", { method: "POST", headers: { "content-type": "application/json" },
+            body: JSON.stringify({ action: "cancel", ref: row.appointment.ref, t: manageToken(row.appointment.ref, email) }) });
+          const j = await r.json().catch(() => ({}));
+          calendar = j && j.ok ? "cancelled" : "failed";
+        } catch { calendar = "failed"; }
+      }
       const upd = (await patchRequest(row.id, patch)) || { ...row, ...patch };
       await logEvent(row.id, "customer", who, "request.cancelled", { note, stage: row.status });
       if (apptLive) await logEvent(row.id, "customer", who, "appointment.cancelled", { date: row.appointment.date, time: row.appointment.time, with_request: true });
       await closeAutoTasks(row.id);
       const opsBits = [`${row.client_name || who} ألغى الطلب بنفسه من مرحلة ${row.status}.`,
         contractSigned ? "العقد كان موقَّعاً ولم يُدفع شيء." : "قبل أي توقيع أو دفع."];
-      if (apptLive) opsBits.push(`أُلغي موعده ${row.appointment.date} ${row.appointment.time} — أزله من التقويم.`);
+      if (apptLive) opsBits.push(`أُلغي موعده ${row.appointment.date} ${row.appointment.time}${calendar === "cancelled" ? " وأُلغي حدثه في التقويم." : calendar === "failed" ? " — تعذّر إلغاء حدثه في التقويم، أزله يدوياً." : " — أزله من التقويم إن وُجد."}`);
       if (note) opsBits.push(`السبب: ${note}`);
       await announce(upd, "cancelled", {
         subject: `أُلغي الطلب ${row.ref}`,
@@ -750,12 +1009,14 @@ const summary = (r) => ({
   quote: r.quote ? { number: r.quote.number, total: r.quote.total, status: r.quote.status, valid_until: r.quote.valid_until } : null,
   contract: r.contract ? { number: r.contract.number, status: r.contract.status } : null,
   payment: r.payment ? { status: r.payment.status, amount: r.payment.amount, provider: r.payment.provider } : null,
-  invoice: r.invoice ? { number: r.invoice.number, total: r.invoice.total } : null,
-  appointment: r.appointment ? { date: r.appointment.date, time: r.appointment.time, status: r.appointment.status, topic: r.appointment.topic } : null,
+  invoice: publicInvoice(r.invoice) ? { number: r.invoice.number, total: r.invoice.total } : null,
+  appointment: r.appointment ? { date: r.appointment.date, time: r.appointment.time, status: r.appointment.status, topic: r.appointment.topic, ref: r.appointment.ref || null, meet: r.appointment.meet || "", minutes: r.appointment.minutes || null, mode: r.appointment.mode || "" } : null,
   last_message: (r.conversation || []).slice(-1)[0] || null,
   client_name: r.client_name, client_email: r.client_email, client_phone: r.client_phone, company_name: r.company_name,
   assigned_to: r.assigned_to || null,
   cancel_requested: r.cancel_request ? { at: r.cancel_request.at } : null,
+  // «شراء مباشر»: the request was opened by a paid cart, not by a conversation.
+  origin: isCartRow(r) ? "cart" : isTicketRow(r) ? "ticket" : "",
 });
 
 function defaultTitle(type, lang) {
@@ -763,76 +1024,100 @@ function defaultTitle(type, lang) {
     CONSULTATION: { ar: "استشارة", en: "Consultation", fr: "Consultation", zh: "咨询" },
     GOVERNMENT_SERVICE: { ar: "طلب حكومي", en: "Government request", fr: "Demande gouvernementale", zh: "政府服务申请" },
     COMPANY_FORMATION: { ar: "تأسيس شركة", en: "Company formation", fr: "Création d'entreprise", zh: "公司注册" },
+    BUSINESS_DEVELOPMENT: { ar: "تطوير الأعمال", en: "Business development", fr: "Développement commercial", zh: "业务拓展" },
   }[type] || {};
   return t[lang] || t.ar || "طلب";
 }
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 // Shared by the test payment and by the real gateway settle (api/pay.js
-// calls markRequestPaid after Moyasar/Tamara confirm a `sv1:<ref>` line).
+// calls markRequestPaidByRef after Moyasar/Tamara confirm a `sv1:<ref>` line).
+//
 // The tax invoice belongs in the books, not only in our own row. A paid request
 // issues it in Daftra under the client's record, with the payment recorded
-// against it, and keeps the number + PDF on the request so the customer can
-// open it from /my. Locally and in test mode nothing is sent: the internal
-// TEST-INV- number stands in, and the reason is recorded so a missing invoice
-// is never a mystery.
-async function daftraInvoiceForRequest(row, payment) {
-  if (!daftraConfigured()) return { ok: false, reason: "daftra_not_configured" };
-  if (payment.test) return { ok: false, reason: "test_mode" };
+// against it, e-mails it to the client, and keeps the record on the request so
+// «الفواتير» in /my shows it. All of that lives in api/_invoicing.js — the same
+// engine the cart uses — so the claim, the retry and the alert are one thing.
+//
+// Locally and in test mode nothing reaches Daftra: the internal TEST-INV- number
+// stands in, and the reason is recorded so a missing invoice is never a mystery.
+// In production a request is never given a made-up number: either Daftra
+// numbered it, or the customer sees nothing yet and the owner is told.
+function invoiceDraftForRequest(row, payment) {
   const items = (row.quote?.items || []).map((l) => ({
     name: str(l.title, 140) || "خدمة", quantity: Math.max(1, Math.min(999, num(l.qty) || 1)), unitPrice: round2(num(l.price)),
   })).filter((i) => i.unitPrice >= 0);
-  if (!items.length) return { ok: false, reason: "no_priced_items" };
-  const who = {
+  const buyer = {
     name: str(row.company_name || row.client_name, 160),
     email: str(row.client_email, 160), phone: str(row.client_phone, 40),
   };
-  if (!who.name || !isEmail(who.email)) return { ok: false, reason: "missing_buyer" };
-  try {
-    const { client } = await daftraFindOrCreateClient(who);
-    if (!client || !client.id) return { ok: false, reason: "client_failed" };
-    const notes = [`مرجع الطلب: ${row.ref}`, `عرض السعر: ${row.quote?.number || ""}`, "مدفوعة إلكترونياً عبر الموقع"].filter(Boolean).join("\n");
-    const inv = await daftraCreateInvoice({ clientId: client.id, items, notes, ref: row.ref });
-    let recorded = false;
-    try {
-      await daftraRecordPayment({ invoiceId: inv.id, amount: inv.total, transactionId: payment.ref || "", method: payment.provider === "tamara" ? "Tamara" : "Moyasar" });
-      recorded = true;
-    } catch (e) { console.error("simple: daftra payment record failed", String(e.message || e).slice(0, 160)); }
-    let pdf = null;
-    try { pdf = await daftraDocPdf("invoice", inv.id); } catch { pdf = null; }
-    return { ok: true, id: inv.id, number: inv.number, net: inv.net, vat: inv.vat, total: inv.total,
-      vat_rate: Number(daftraVatRate()) || 15, recorded, pdf_url: (pdf && pdf.url) || "" };
-  } catch (e) {
-    console.error("simple: daftra invoice failed", String(e.message || e).slice(0, 200));
-    return { ok: false, reason: String(e.message || "daftra_failed").slice(0, 120) };
-  }
+  const notes = [`مرجع الطلب: ${row.ref}`, `عرض السعر: ${row.quote?.number || ""}`, "مدفوعة إلكترونياً عبر الموقع"].filter(Boolean).join("\n");
+  return { ref: row.ref, payId: payment.ref || "", method: payment.provider === "tamara" ? "Tamara" : "Moyasar", buyer, items, notes };
+}
+
+// What the invoice engine needs to know about a request row.
+function invoiceHooks(row) {
+  return {
+    // «invoice.issued» has a customer-facing label; everything else is bookkeeping
+    // for the panel and is hidden from the customer's timeline (actor_kind internal).
+    event: async (name, details) => {
+      await logEvent(row.id, name === "invoice.issued" ? "system" : "internal", "الفواتير", name, details);
+      // The invoice reached the customer: the human task that said it had not is done.
+      if (name === "invoice.emailed") {
+        try { await sb(`tasks?request_id=eq.${row.id}&source=eq.invoice-failed&status=in.(open,in_progress,blocked)`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: nowIso() } }); } catch { /* the task stays open; harmless */ }
+      }
+    },
+    failed: (rec, why) => sweepTask(row, {
+      source: "invoice-failed", human: true, urgency: "high",
+      title: (r) => `الفاتورة لم تكتمل — ${r.ref}`,
+      details: () => `الدفع مؤكد لكن الفاتورة لم تصدر أو لم تصل العميل (${why}${rec && rec.last_error ? ": " + rec.last_error : ""}). تُعاد المحاولة تلقائياً؛ وإن بقيت عالقة أصدرها من الدفترة وأرسلها للعميل، أو أعد المحاولة من اللوحة (ops-invoice-retry).`,
+    }, "الفواتير"),
+  };
+}
+const invoiceTarget = (row) => ({ rowId: row.id, ref: row.ref, myUrl: myUrl(row), hooks: invoiceHooks(row) });
+
+async function issueRequestInvoice(row, payment) {
+  const draft = invoiceDraftForRequest(row, payment);
+  const target = invoiceTarget(row);
+  const key = payment.ref || row.ref;
+  if (!draft.items.length) return reportInvoiceBlocked({ key, draft, target, reason: "no_priced_items", detail: "عرض السعر بلا بنود", total: payment.amount });
+  if (!draft.buyer.name || !isEmail(draft.buyer.email)) return reportInvoiceBlocked({ key, draft, target, reason: "missing_buyer", detail: "اسم العميل أو بريده ناقص على الطلب", total: payment.amount });
+  return issuePaidInvoice({ key, draft, target });
 }
 
 export async function markPaid(row, { provider, payId, amount, test, actor }) {
   const suffix = row.ref.replace(/^BP-R-/, "");
   const payment = { status: "PAID", provider, ref: payId, amount: round2(num(amount)), currency: "SAR", at: nowIso(), test: !!test };
-  let invoice = row.invoice || {
-    number: (test ? "TEST-INV-" : "INV-") + suffix, issued_at: nowIso(), mode: test ? "test" : "pending-daftra",
+  const testInvoice = (why) => ({
+    number: "TEST-INV-" + suffix, issued_at: nowIso(), mode: "test",
     net: row.quote?.net || 0, vat: row.quote?.vat || 0, total: row.quote?.total || 0, currency: "SAR", vat_rate: 15,
     items: row.quote?.items || [], bill_to: { name: row.client_name, company: row.company_name, email: row.client_email },
-  };
-  if (!row.invoice) {
-    const d = await daftraInvoiceForRequest(row, payment);
-    invoice = d.ok
-      ? { ...invoice, number: d.number, daftra_id: d.id, mode: "daftra", net: d.net, vat: d.vat, total: d.total,
-          vat_rate: d.vat_rate, pdf_url: d.pdf_url, payment_recorded: d.recorded }
-      : { ...invoice, daftra: { issued: false, reason: d.reason } };
+    daftra: { issued: false, reason: why },
+  });
+  let invoice = row.invoice, testIssued = false;
+  if (invoiceIsComplete(invoice)) { /* already invoiced: never twice */ }
+  else if (test) { invoice = testInvoice("test_mode"); testIssued = true; }
+  else {
+    const r = await issueRequestInvoice(row, payment);
+    if (r.reason === "daftra_skipped_nonlive" || (r.reason === "daftra_not_configured" && SIMPLE_TEST_MODE)) { invoice = testInvoice(r.reason); testIssued = true; }
+    // (A real payment with no Daftra key is not special-cased: the engine records the
+    // failure, tells the owner once, and completes it when the key is set.)
+    else if (r.record) invoice = r.record;
   }
-  const upd = await patchRequest(row.id, { payment, invoice, status: "PAID" });
+  const upd = await patchRequest(row.id, { payment, status: "PAID", ...(invoice ? { invoice } : {}) });
   await logEvent(row.id, "system", test ? "TEST MODE" : provider, "payment.paid", { provider, payId, amount: payment.amount });
-  await logEvent(row.id, "system", test ? "TEST MODE" : "invoicing", "invoice.issued", { number: invoice.number, total: invoice.total });
+  if (testIssued) await logEvent(row.id, "system", "TEST MODE", "invoice.issued", { number: invoice.number, total: invoice.total });
+  const invNo = invoice && invoice.number ? invoice.number : "";
+  const sent = !!(invoice && invoice.delivery && invoice.delivery.sent_at);
   if (row.organization_id) {
-    await notify({ organization_id: row.organization_id, event: "simple_paid", title: `تم استلام الدفع — ${row.ref}`, body: `الفاتورة ${invoice.number}`, idempotency_key: `simple_paid_${row.ref}` });
+    await notify({ organization_id: row.organization_id, event: "simple_paid", title: `تم استلام الدفع — ${row.ref}`, body: invNo ? `الفاتورة ${invNo}` : "الفاتورة قيد الإصدار", idempotency_key: `simple_paid_${row.ref}` });
   }
   await announce(upd, "paid", {
-    subject: `تم استلام الدفع — فاتورتك ${invoice.number}`,
-    clientLine: `استلمنا ${payment.amount} ر.س. فاتورتك الضريبية ${invoice.number} جاهزة في حسابك، وبدأنا التنفيذ.`,
-    opsLine: `دفع مستلم ${payment.amount} ر.س عبر ${provider} (${payId}). الفاتورة ${invoice.number}${invoice.daftra && invoice.daftra.issued === false ? " — لم تصدر من الدفترة: " + (invoice.daftra.reason || "") : ""}.`,
+    subject: invNo ? `تم استلام الدفع — فاتورتك ${invNo}` : "تم استلام الدفع",
+    clientLine: invNo
+      ? `استلمنا ${payment.amount} ر.س. فاتورتك الضريبية ${invNo} ${sent ? "أُرسلت إلى بريدك وتجدها أيضاً" : "جاهزة"} في «الفواتير» داخل حسابك، وبدأنا التنفيذ.`
+      : `استلمنا ${payment.amount} ر.س وبدأنا التنفيذ. فاتورتك الضريبية قيد الإصدار وتصلك على بريدك.`,
+    opsLine: `دفع مستلم ${payment.amount} ر.س عبر ${provider} (${payId}). ${invNo ? `الفاتورة ${invNo}` : "الفاتورة لم تصدر بعد"}${invoice && invoice.daftra && invoice.daftra.issued === false ? " — لم تصدر من الدفترة: " + (invoice.daftra.reason || "") : ""}${invoice && invoice.status && invoice.status !== "issued" && invoice.last_error ? " — " + invoice.last_error : ""}.`,
     cta: "افتح فاتورتك",
   });
   return upd;
@@ -859,6 +1144,423 @@ async function holdPaymentOnCancelled(row, { provider, payId, amount, test, acto
   }, "النظام");
   try { await sendEmail(OWNER_EMAIL, `[${row.ref}] دفعة وصلت بعد إلغاء الطلب`, `<p>وصلت دفعة ${esc(String(payment.amount))} ر.س (${esc(payId)}) على طلب ملغى. راجعه في اللوحة.</p><p><a href="${SELF_BASE}/ops?ref=${row.ref}">افتح الطلب</a></p>`); } catch {}
   return upd;
+}
+
+// ----------------------------------------- a paid cart becomes a real request --
+// Until 2026-10 a cart purchase paid, wrote a Notion CRM row and sent an e-mail
+// — and nothing else. The customer opened «طلباتي» and found no order; the
+// owner opened /ops and found no revenue. /my and /ops read `requests`, so the
+// purchase has to be a row there. api/requests.js {action:"paid-order"} (the
+// sealed, server-only settle) calls this once the payment is confirmed.
+//
+// No migration: the three existing types and the existing statuses are enough,
+// and the provenance lives in the JSON column that already holds money facts —
+// `payment` {source:"cart", order_ref, pay_ref, items[], net, vat, total}.
+// The row has no quotation and no contract on purpose: it was priced by the
+// published catalogue and paid before it existed, so it starts at PAID (or at
+// REVIEWING when the amount could not be matched, which is what we tell the
+// customer — no promise the payment has not earned).
+//
+// Idempotent by construction: the reference is derived from the payment id, so
+// the browser callback, the gateway webhook and a reconcile run all land on the
+// same row. `ref` is UNIQUE in the schema, which settles a true race.
+const CART_CYCLE_AR = { monthly: "شهري", yearly: "سنوي" };
+function isCartRow(r) { return !!(r && r.payment && r.payment.source === "cart"); }
+
+let _cartRefs = null;
+async function readPublished(fsRel, urlPath) {
+  try {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    return JSON.parse(fs.readFileSync(path.join(here, "..", fsRel), "utf8"));
+  } catch { /* not bundled with the function — read the published copy */ }
+  const r = await fetch(`${SELF_BASE}${urlPath}`);
+  if (!r.ok) throw new Error("fetch_failed");
+  return r.json();
+}
+// The published catalogue (service categories, billing model) and the per-service
+// documents list (site.json overrides) — read once, shared for ten minutes.
+async function cartRefs() {
+  if (_cartRefs && Date.now() - _cartRefs.at < 10 * 60 * 1000) return _cartRefs;
+  const [cat, site] = await Promise.all([
+    readPublished("site/assets/data/catalog.json", "/assets/data/catalog.json").catch(() => null),
+    readPublished("site/data/site.json", "/data/site.json").catch(() => null),
+  ]);
+  const services = new Map(), packages = new Map();
+  for (const s of (cat && cat.services) || []) if (s.code) services.set(String(s.code).toLowerCase(), s);
+  for (const p of (cat && cat.packages) || []) for (const k of [p.key, p.code]) if (k) packages.set(String(k).toLowerCase(), p);
+  const refs = { at: Date.now(), services, packages, overrides: (site && site.overrides) || {} };
+  if (cat || site) _cartRefs = refs;
+  return refs;
+}
+// A cart id is not a catalogue code: pages prefix it (svc-, pkg-) and suffix the
+// billing period (-monthly, -yearly). Same normalisation as api/pay.js, kept
+// here because this only classifies — the amount was verified before this runs.
+function resolveCartLine(rawId, refs) {
+  const raw = String(rawId || "").toLowerCase();
+  const sfx = /-(monthly|yearly)$/.exec(raw);
+  let bare = sfx ? raw.slice(0, -sfx[0].length) : raw;
+  bare = bare.replace(/^(svc|pkg)-/, "");
+  const svc = refs.services.get(bare) || refs.services.get(raw) || null;
+  const pkg = svc ? null : (refs.packages.get(bare) || refs.packages.get(raw) || null);
+  const name = (svc && (svc.nameAr || svc.nameEn)) || (pkg && (pkg.nameAr || pkg.nameEn)) || "";
+  let cycle = sfx ? sfx[1] : "";
+  if (!cycle && svc && /monthly/i.test(String(svc.pricingModel || ""))) cycle = "monthly";
+  if (!cycle && pkg && pkg.billingPeriod === "monthly") cycle = "monthly";
+  if (!cycle && /^(agent-|employee-)/.test(raw)) cycle = "monthly";
+  // «استشارة ما قبل التأسيس» تحت فئة التأسيس في الكتالوج، لكنها استشارة: سلةٌ
+  // كلها استشارات تبقى CONSULTATION، ولا تجعل بنداً استشارياً الطلبَ تأسيساً.
+  const consult = /استشار|consult/i.test(name);
+  return {
+    code: svc ? String(svc.code) : pkg ? String(pkg.code || pkg.key || "") : "",
+    name, cycle, consult,
+    formation: !consult && !!((svc && svc.category === "Company Formation") || (pkg && /form/i.test(String(pkg.group || "")))),
+  };
+}
+
+export function cartRequestRef(key, salt = 0) {
+  return "BP-R-" + crypto.createHash("sha256").update(`cart|${salt}|${key}`).digest("hex").slice(0, 6).toUpperCase();
+}
+
+const _cartInflight = new Map();
+// d = the unsealed paid-order payload. Returns {ok, ref, created, status, documents}
+// or {ok:true, skipped} when there is nothing to open a request for, or
+// {ok:false, error} — the caller must tell the owner about that one.
+export function createCartRequest(d) {
+  const key = String((d && (d.payId || d.ref)) || "");
+  if (!key) return Promise.resolve({ ok: false, error: "no_key" });
+  if (_cartInflight.has(key)) return _cartInflight.get(key);
+  const run = cartRequestOnce(d, key).catch((e) => {
+    console.error("simple: cart request failed", String((e && e.message) || e).slice(0, 160));
+    return { ok: false, error: "create_failed" };
+  }).finally(() => _cartInflight.delete(key));
+  _cartInflight.set(key, run);
+  return run;
+}
+
+async function cartRequestOnce(d, key) {
+  if (!DB_ON) return { ok: false, error: "db_off" };
+  const all = (Array.isArray(d.lines) ? d.lines : []).slice(0, 40).filter((l) => l && l.id);
+  // «sv1:BP-R-…» pays an EXISTING request (its own quote and contract); it is
+  // settled by markRequestPaidByRef and must not open a second request.
+  const lines = all.filter((l) => !/^sv1:/i.test(String(l.id)));
+  if (!lines.length) return { ok: true, skipped: all.length ? "pays_existing_request" : "no_lines" };
+
+  const payId = str(d.payId, 64), orderRef = str(d.ref, 40);
+  const verified = !!d.verified;
+  const email = String(d.email || "").trim().toLowerCase();
+  const provider = /^tamara_/i.test(payId) ? "tamara" : "moyasar";
+
+  // Idempotency: the same payment always maps to the same reference.
+  let ref = "", existing = null;
+  for (let salt = 0; salt < 3; salt++) {
+    ref = cartRequestRef(key, salt);
+    const hit = await getByRef(ref);
+    if (!hit) break;
+    const p = hit.payment || {};
+    if (p.source === "cart" && (p.pay_ref || p.order_ref) === (payId || orderRef)) { existing = hit; break; }
+    ref = ""; // a random BP-R- reference took this one — try the next salt
+  }
+  if (existing) return { ok: true, ref: existing.ref, created: false, status: existing.status, documents: (existing.documents || []).length };
+  if (!ref) return { ok: false, error: "ref_collision" };
+
+  const refs = await cartRefs();
+  const items = lines.map((l) => {
+    const r = resolveCartLine(l.id, refs);
+    const qty = Math.max(1, Math.min(99, Math.round(num(l.qty) || 1)));
+    const amount = l.amount == null || l.amount === "" ? null : round2(num(l.amount));
+    return {
+      id: str(l.id, 80), code: r.code, name: (l.name && l.name !== l.id ? str(l.name, 200) : "") || r.name || str(l.id, 80), qty,
+      unit: amount == null ? null : round2(amount / qty), amount,
+      cycle: str(l.cycle, 12) || r.cycle, formation: r.formation, consult: r.consult,
+    };
+  });
+  // Money: what the gateway took is the truth. The pre-VAT figure is the
+  // server's own re-pricing when it matched the catalogue, an estimate when not.
+  const known = items.every((i) => i.amount != null);
+  const itemsNet = known ? round2(items.reduce((s, i) => s + i.amount, 0)) : null;
+  let paid, net;
+  if (lines.length < all.length) { net = itemsNet != null ? itemsNet : round2(num(d.total) / (1 + VAT_RATE)); paid = round2(net * (1 + VAT_RATE)); }
+  else { paid = round2(num(d.total)); net = verified && d.net != null ? round2(num(d.net)) : round2(paid / (1 + VAT_RATE)); }
+  const vat = round2(paid - net);
+
+  const type = items.some((i) => i.formation) ? "COMPANY_FORMATION" : items.every((i) => i.consult) ? "CONSULTATION" : "GOVERNMENT_SERVICE";
+  const first = items[0].name;
+  const title = str(items.length === 1 ? first : `${first} و${items.length - 1} ${items.length - 1 === 1 ? "بند آخر" : "بنود أخرى"}`, 200);
+  const scope = normScope(items.map((i) => ({
+    code: i.code, title: i.name, qty: i.qty,
+    why: [`×${i.qty}`, i.amount != null ? `${i.amount} ر.س قبل الضريبة` : "", i.cycle ? CART_CYCLE_AR[i.cycle] || i.cycle : ""].filter(Boolean).join(" · "),
+  })));
+
+  // The documents we need from the buyer: the service's own list (the same one
+  // its page prints). A package or an item with no list asks for nothing.
+  const seen = new Set(), wanted = [];
+  for (const i of items) {
+    const ov = i.code && refs.overrides[i.code.toLowerCase()];
+    for (const t of (ov && Array.isArray(ov.documents) ? ov.documents : [])) {
+      const title2 = str(t, 200);
+      if (title2 && !seen.has(title2)) { seen.add(title2); wanted.push({ title: title2, note: items.length > 1 ? `للخدمة: ${i.name}` : "", status: "requested" }); }
+    }
+  }
+  const documents = normDocuments(wanted);
+
+  // Attach to the buyer's account when the e-mail already has one. No account is
+  // invented: otherwise the row waits on client_email and `me` claims it at the
+  // first sign-in, exactly as a manually entered request does.
+  let userId = null, orgId = null;
+  if (isEmail(email)) {
+    try {
+      const u = await sb(`users?email=eq.${q(email)}&select=id&limit=1`);
+      if (u && u[0]) {
+        userId = u[0].id;
+        const m = await sb(`organization_members?user_id=eq.${userId}&select=organization_id&limit=1`);
+        orgId = (m && m[0] && m[0].organization_id) || null;
+      }
+    } catch { /* unlinked rows are claimed by e-mail */ }
+  }
+
+  const test = PAY_MOCK() || (provider === "tamara" && TAMARA_MOCK());
+  const payment = {
+    status: "PAID", provider, ref: payId, amount: paid, currency: "SAR", at: nowIso(), test,
+    source: "cart", order_ref: orderRef, pay_ref: payId, verified,
+    items: items.map(({ formation, consult, ...keep }) => keep), net, vat, total: paid, net_estimated: !(verified && d.net != null),
+    ...(d.disc ? { discount_code: str(d.disc, 30) } : {}),
+  };
+  const at = nowIso();
+  const row = {
+    ref, organization_id: orgId, user_id: userId, type, source: "WEBSITE",
+    status: verified ? "PAID" : "REVIEWING", lang: "ar", title,
+    summary: `شراء مباشر بالسلة — رقم عملية الدفع ${payId || "—"} · الإجمالي ${paid} ر.س شامل الضريبة.`,
+    conversation: [{ role: "bp", content: verified
+      ? "تم الدفع واستُلم مبلغ طلبك. سنبدأ التنفيذ بعد استلام المستندات المطلوبة (إن وُجدت) ونبلغك بكل تحديث هنا."
+      : "تم استلام دفعتك، لكن مبلغها لم يُطابَق آلياً مع الأسعار المعتمدة، فيراجعه فريقنا قبل بدء التنفيذ. لا حاجة لإعادة الدفع.", at }],
+    scope, documents, payment,
+    client_name: str(d.name, 160), client_email: email, client_phone: str(d.phone, 40), company_name: str(d.company, 200),
+  };
+
+  let created = null;
+  try {
+    const rows = await sb("requests", { method: "POST", body: [row] });
+    created = rows && rows[0];
+  } catch (e) {
+    // A true race (webhook and browser at the same instant): the loser hits the
+    // UNIQUE reference and simply reads the winner.
+    const hit = await getByRef(ref);
+    if (hit && isCartRow(hit)) return { ok: true, ref: hit.ref, created: false, status: hit.status, documents: (hit.documents || []).length };
+    throw e;
+  }
+  if (!created) return { ok: false, error: "insert_empty" };
+
+  await logEvent(created.id, "system", "السلة", "request.created.cart", { source: "cart", order_ref: orderRef, pay_ref: payId, items: items.length, verified });
+  await logEvent(created.id, "system", provider, "payment.paid", { provider, payId, amount: paid, order_ref: orderRef });
+  if (documents.length) await logEvent(created.id, "system", "النظام", "documents.requested", { documents: documents.map((x) => x.title) });
+  await audit({ organization_id: orgId, actor_user_id: userId, action: "simple.request.cart", entity: "requests", entity_id: created.id, meta: { ref, order_ref: orderRef, pay_ref: payId } });
+
+  // The team: one task, whichever way the money stands.
+  try {
+    await sweepTask(created, verified ? PLAY.PAID : {
+      source: "cart-review", title: (r) => `راجع دفعة السلة — ${r.ref}`,
+      details: () => `دفعة مؤكدة من البوابة (${paid} ر.س) لكن مبلغها لم يُطابَق مع الكتالوج. راجع البنود ثم غيّر الحالة إلى «مدفوع».`,
+      human: true, urgency: "high",
+    }, "النظام");
+  } catch (e) { console.error("simple: cart task", String((e && e.message) || e).slice(0, 100)); }
+
+  // Notices. The buyer's e-mail is the receipt api/requests.js sends right after
+  // this (it carries the same /my link) — so only WhatsApp and the in-app bell
+  // go from here; the owner already gets the settle e-mail, so only WhatsApp too.
+  const needDocs = documents.length ? ` ارفع المستندات المطلوبة (${documents.length}) من صفحة الطلب ليبدأ الفريق.` : "";
+  try {
+    await announce(created, "cart-paid", {
+      subject: verified ? `استلمنا دفعتك — طلبك ${ref}` : `استلمنا دفعتك وطلبك قيد المراجعة — ${ref}`,
+      clientLine: verified
+        ? `استلمنا دفعتك (${paid} ر.س شامل الضريبة) وسجّلنا طلبك «${title}».${needDocs || " نبلغك حين يبدأ التنفيذ."}`
+        : `استلمنا دفعتك (${paid} ر.س) وسجّلنا طلبك «${title}». مبلغها لم يُطابَق آلياً مع الأسعار المعتمدة فيراجعه الفريق قبل التنفيذ — لا تدفع مرة أخرى.`,
+      opsLine: `شراء مباشر بالسلة: ${title} — ${paid} ر.س عبر ${provider} (${payId || "—"})${verified ? "" : " ⚠️ المبلغ لم يُطابَق مع الكتالوج — راجعه"}.`,
+      cta: "افتح طلبك", clientEmail: false, opsEmail: false,
+    });
+  } catch (e) { console.error("simple: cart announce", String((e && e.message) || e).slice(0, 100)); }
+
+  return { ok: true, ref, created: true, status: created.status, documents: documents.length };
+}
+
+// ------------------------------------------------------- support hub (widget) --
+// مركز التواصل العائم (site/scripts/baher-support.mjs) يحتاج شيئين من الخادم:
+//   support-track          أين طلبي؟ — بمرجعٍ BP-R-… أو BP-TKT-…
+//   support-ticket-create  افتح تذكرة — برقمٍ يظهر في /my ويصل المالك إشعاره
+//
+// لا جدول جديد ولا نظام موازٍ: التذكرة صفٌّ في `requests` نفسه الذي تعرضه /my
+// وتردّ عليه اللوحة (ops-request-message) وتنبّه عنه alertOps. علامتها بادئة
+// المرجع `BP-TKT-` (كما أن علامة الشراء المباشر payment.source="cart")، فلا عمود
+// ولا قيد جديد في db/schema.sql.
+//
+// من يرى ماذا (قاعدة المالك: لا كشف لبيانات غير صاحبها):
+//   • بجلسة: طلبات حسابه هو فقط (ownedBy)، بملخّص بلا مبالغ ولا بيانات اتصال.
+//   • بلا جلسة: لا شيء إلا بمرجعٍ **و** بريدٍ يطابق بريد الطلب، والخارج منه
+//     حالةٌ وعنوان وتاريخ فقط. الخطأ في أيٍّ منهما يردّ بالجواب نفسه تماماً
+//     (لا «المرجع موجود لكن البريد خطأ») فلا يُستعمل التتبّع لتخمين المراجع.
+//   • بريدٌ وحده بلا جلسة: لا يُعرض شيء — يُدعى إلى الدخول.
+const TICKET_PREFIX = "BP-TKT-";
+const isTicketRow = (r) => !!(r && String(r.ref || "").startsWith(TICKET_PREFIX));
+const TICKET_CATS = { order: "طلب قائم", payment: "الدفع والفواتير", account: "الحساب والدخول", info: "استفسار", other: "أخرى" };
+const SUPPORT_REF_RE = /^BP-(?:R|TKT)-[0-9A-Z]{6}$/;
+const ticketRef = () => TICKET_PREFIX + crypto.randomBytes(3).toString("hex").toUpperCase();
+
+// A small in-process brake. Serverless instances do not share it, so it is a
+// speed bump for a script hammering one instance, not a quota.
+const _supportHits = new Map();
+function supportThrottle(key, max, windowMs) {
+  const now = Date.now();
+  const arr = (_supportHits.get(key) || []).filter((t) => now - t < windowMs);
+  if (arr.length >= max) { _supportHits.set(key, arr); return false; }
+  arr.push(now); _supportHits.set(key, arr);
+  if (_supportHits.size > 4000) for (const [k, v] of _supportHits) if (!v.length || now - v[v.length - 1] > windowMs) _supportHits.delete(k);
+  return true;
+}
+
+function supportTrackView(r, full) {
+  const view = { ref: r.ref, kind: isTicketRow(r) ? "ticket" : "request", title: r.title, status: r.status, created_at: r.created_at, updated_at: r.updated_at || r.created_at };
+  if (!full) return view;
+  const lastBp = [...(r.conversation || [])].reverse().find((m) => m && m.role === "bp");
+  return {
+    ...view,
+    quote: r.quote ? { number: r.quote.number, status: r.quote.status } : null,
+    contract: r.contract ? { number: r.contract.number, status: r.contract.status } : null,
+    payment: r.payment ? { status: r.payment.status } : null,
+    appointment: r.appointment && r.appointment.status !== "CANCELLED" ? { date: r.appointment.date, time: r.appointment.time } : null,
+    last_team_message: lastBp ? { content: String(lastBp.content || "").slice(0, 200), at: lastBp.at } : null,
+  };
+}
+
+async function supportAction(action, b, qs, req, res, sess) {
+  const ip = clientIp(req) || "local";
+
+  if (action === "support-track") {
+    if (!supportThrottle("track:" + ip, 20, 10 * 60e3)) return json(res, 429, { ok: false, error: "slow_down" });
+    const ref = str(b.ref, 40).toUpperCase().replace(/\s+/g, "");
+    const email = str(b.email, 160).toLowerCase();
+    if (!ref) {
+      if (!sess) return json(res, 200, { ok: true, needLogin: true });
+      const mine = await myRequests(sess);
+      return json(res, 200, { ok: true, mine: mine.slice(0, 5).map((r) => supportTrackView(r, true)), total: mine.length });
+    }
+    // One shape for «no such reference» and «not yours»: see the header.
+    const none = () => json(res, 200, { ok: true, found: false });
+    if (!SUPPORT_REF_RE.test(ref)) return none();
+    const row = await getByRef(ref);
+    if (!row) return none();
+    if (sess && ownedBy(row, sess)) return json(res, 200, { ok: true, found: true, verified: "session", item: supportTrackView(row, true) });
+    if (isEmail(email) && String(row.client_email || "").toLowerCase() === email) {
+      return json(res, 200, { ok: true, found: true, verified: "email", item: supportTrackView(row, false) });
+    }
+    return none();
+  }
+
+  if (action === "support-ticket-create") {
+    // A bot fills every field it can see; a person never sees this one.
+    if (str(b.hp, 20)) return json(res, 200, { ok: true, ref: ticketRef(), linked: false });
+    if (!supportThrottle("ticket:" + ip, 6, 60 * 60e3)) return json(res, 429, { ok: false, error: "slow_down" });
+    const subject = str(b.subject, 160);
+    const details = str(b.details, 3000);
+    if (subject.length < 3 || details.length < 5) return json(res, 400, { ok: false, error: "invalid_fields" });
+    const lang = ["ar", "en", "fr", "zh"].includes(b.lang) ? b.lang : "ar";
+    const category = TICKET_CATS[b.category] ? b.category : "other";
+    const user = sess && sess.user ? sess.user : null;
+    const name = str(user ? (user.full_name || user.email) : b.name, 160);
+    const email = String(user ? user.email : str(b.email, 160)).toLowerCase();
+    const phone = str(b.phone, 40);
+    if (!user) {
+      // Someone must be reachable: a name and at least one way back.
+      if (name.length < 2 || !(isEmail(email) || /^(?:\+?966|0)?5\d{8}$/.test(phone.replace(/\s/g, "")))) return json(res, 400, { ok: false, error: "contact_required" });
+      if (isEmail(email) && !supportThrottle("ticket-mail:" + email, 5, 24 * 3600e3)) return json(res, 429, { ok: false, error: "slow_down" });
+    }
+    const related = str(b.related_ref, 40).toUpperCase();
+    const page = str(b.page, 200);
+    const convo = (Array.isArray(b.convo) ? b.convo : [])
+      .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
+      .slice(-10).map((m) => `${m.role === "user" ? "الزائر" : "المستشار"}: ${m.content.slice(0, 300)}`).join("\n");
+
+    let ref = ticketRef();
+    for (let i = 0; i < 4 && (await getByRef(ref)); i++) ref = ticketRef();
+    const now = nowIso();
+    const row = {
+      ref, organization_id: sess && sess.organization ? sess.organization.id : null, user_id: user ? user.id : null,
+      type: "CONSULTATION", source: "WEBSITE", status: "NEW", lang,
+      title: `تذكرة: ${subject}`.slice(0, 200),
+      summary: details,
+      conversation: [{ role: "user", content: details, at: now }],
+      scope: [], documents: [],
+      client_name: name, client_email: isEmail(email) ? email : null, client_phone: phone,
+      company_name: str(sess && sess.organization ? (sess.organization.name_ar || sess.organization.name_en) : "", 200),
+      internal_notes: [
+        `تذكرة دعم من مركز التواصل · القسم: ${TICKET_CATS[category]}`,
+        related && SUPPORT_REF_RE.test(related) ? `متعلّقة بالطلب: ${related}` : "",
+        page ? `الصفحة: ${page}` : "",
+        convo ? `المحادثة قبل التذكرة:\n${convo}` : "",
+      ].filter(Boolean).join("\n").slice(0, 2000),
+    };
+    const rows = await sb("requests", { method: "POST", body: [row] });
+    const created = rows[0];
+    await logEvent(created.id, "customer", name || email || "زائر", "request.created", { kind: "support-ticket", category, related: related || undefined });
+    // The team: mail + WhatsApp to the owner and one open «reply» task, deduped
+    // by alertOps (the same door the customer's in-request messages use).
+    await alertOps(created, "ticket-new", {
+      subject: `تذكرة دعم جديدة ${ref}`,
+      line: `${name || email || "زائر"} فتح تذكرة «${subject}» (${TICKET_CATS[category]}): ${details.slice(0, 160)}`,
+      task: { source: "support-ticket", urgency: "high", title: `ردّ على تذكرة الدعم ${ref}`, details: `${TICKET_CATS[category]} — ${details.slice(0, 360)}` },
+    });
+    // The customer: the number, and where it lives. No promise of a time.
+    const ar = lang === "ar";
+    await announce(created, "ticket-open", {
+      subject: ar ? `استلمنا تذكرتك ${ref}` : `We received your ticket ${ref}`,
+      clientLine: ar ? `استلمنا تذكرتك ${ref} «${subject}». سيردّ عليك الفريق ضمن ساعات الدوام، وتجد الرد في حسابك.` : `We received your ticket ${ref} “${subject}”. The team will reply during working hours, and you will find the reply in your account.`,
+      cta: ar ? "فتح التذكرة" : "Open the ticket", to: "client",
+    });
+    return json(res, 200, { ok: true, ref, signedIn: !!user, linked: !!created.client_email });
+  }
+
+  return json(res, 400, { ok: false, error: "unknown_action" });
+}
+
+// ---------------------------------------------- the cart's invoice, on its row --
+// The request a paid cart opened is where its tax invoice lives (`invoice`), so
+// «الفواتير» in /my lists it like any other. This finds that row from the payment
+// — the same derivation createCartRequest uses — and hands the invoice engine
+// what it needs. Null when there is no row (database off, or the request failed
+// to open and the owner was already told): the engine then works in memory only.
+export async function invoiceTargetFor(payId, orderRef) {
+  if (!DB_ON) return null;
+  const want = String(payId || orderRef || "");
+  if (!want) return null;
+  try {
+    for (let salt = 0; salt < 3; salt++) {
+      const hit = await getByRef(cartRequestRef(want, salt));
+      if (!hit) return null;
+      const p = hit.payment || {};
+      if (p.source === "cart" && (p.pay_ref || p.order_ref) === want) return { ...invoiceTarget(hit), invoice: hit.invoice || null };
+    }
+  } catch { /* no row to attach to */ }
+  return null;
+}
+
+// Re-run every invoice that was left unfinished (Daftra was down, the mail was
+// refused, the function died mid-way) once its back-off has passed. `ref` + `force`
+// is the owner's «أعد المحاولة»: one request, now, whatever the back-off says.
+export async function retryPendingInvoices({ limit = 200, force = false, ref = "" } = {}) {
+  const rows = await sb(`requests?${ref ? `ref=eq.${q(ref)}` : "invoice=not.is.null"}&select=*&order=updated_at.desc&limit=${limit}`);
+  const out = { scanned: rows.length, retried: 0, issued: 0, failed: 0, skipped: [], details: [] };
+  for (const row of rows) {
+    const rec = row.invoice;
+    const forced = force && !!ref;
+    // A paid request that never got a record at all (the owner forcing a retry).
+    const orphan = forced && !rec && row.quote && row.payment && row.payment.status === "PAID" && !row.payment.test;
+    if (!orphan && !invoiceRetryDue(rec, Date.now(), forced)) continue;
+    const draft = (rec && rec.draft) || (row.quote ? invoiceDraftForRequest(row, row.payment || {}) : null);
+    if (!draft) { out.skipped.push({ ref: row.ref, reason: "no_draft" }); continue; }
+    out.retried++;
+    const r = await issuePaidInvoice({ key: draft.payId || row.ref, draft, target: invoiceTarget(row), force: forced });
+    if (r.invoiced) out.issued++; else if (r.reason !== "already_settled") out.failed++;
+    out.details.push({ ref: row.ref, invoiced: !!r.invoiced, emailed: !!r.clientEmailed, reason: r.reason || null });
+  }
+  return out;
 }
 
 // ------------------------------------------------------- the follow-up sweep --
@@ -955,6 +1657,13 @@ async function runSweep({ actor = "المتابعة الذكية", limit = 400, 
   for (const row of rows) {
     const play = PLAY[row.status];
     if (!play) continue;
+    // A paid cart request held for review already has its own task; the
+    // «pricing» play would tell the team to quote something already bought.
+    if (row.status === "REVIEWING" && isCartRow(row)) continue;
+    // A support ticket is not a quotation: the «pricing» play would tell the
+    // team to price a scope that does not exist, and the «new request» play
+    // would open a second task beside the one the ticket opened itself.
+    if (isTicketRow(row) && (row.status === "NEW" || row.status === "REVIEWING")) continue;
     const idle = (now - new Date(row.updated_at || row.created_at).getTime()) / DAY;
     const due = SLA[row.status];
     if (!(idle >= due)) { skipped.push({ ref: row.ref, status: row.status, idle_days: round2(idle), due_in_days: round2(due - idle) }); continue; }
@@ -1171,7 +1880,23 @@ async function opsAction(action, b, qs, req, res, opsUser) {
   // produce a second task or a second e-mail.
   if (action === "ops-sweep") {
     const out = await runSweep({ actor, limit: 400, dry: b.dry === true });
-    return json(res, 200, { ok: true, ...out });
+    // Paid but not yet invoiced (or invoiced but not delivered): try again now
+    // that the back-off has passed. A scheduler hitting this endpoint is what
+    // makes the retry automatic.
+    let invoices = null;
+    if (b.dry !== true) { try { invoices = await retryPendingInvoices({ limit: 200 }); } catch (e) { invoices = { error: String(e && e.message || e).slice(0, 80) }; } }
+    return json(res, 200, { ok: true, ...out, ...(invoices ? { invoices } : {}) });
+  }
+
+  // The owner's «أعد محاولة الفاتورة» for one request: now, whatever the back-off
+  // says. Safe to press twice — an invoice that already went out is reported, not
+  // issued again.
+  if (action === "ops-invoice-retry") {
+    const ref = str(b.ref || qs.ref, 40);
+    if (!ref) return json(res, 400, { ok: false, error: "bad_ref" });
+    const out = await retryPendingInvoices({ ref, force: true, limit: 1 });
+    const row = await getByRef(ref);
+    return json(res, 200, { ok: true, ...out, invoice: row ? row.invoice || null : null });
   }
 
   // ------------------------------------------------ WhatsApp agent control --
@@ -1241,7 +1966,18 @@ async function opsAction(action, b, qs, req, res, opsUser) {
 
   if (action === "ops-request") {
     const [events, tasks] = await Promise.all([eventsFor(row.id, 200), tasksFor(row.id)]);
-    return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, request: { ...row, contract: row.contract ? { ...row.contract, html: undefined, has_html: !!row.contract.html } : null, events, tasks } });
+    // Files stored by path get a fresh one-hour link each time the panel loads
+    // the request, so the panel's existing «المستندات» list (name + url) shows
+    // the customer's uploads and the team's deliverables with no new field.
+    const attachments = await Promise.all((Array.isArray(row.attachments) ? row.attachments : []).map(async (a) => {
+      if (!a || !a.path) return a;
+      let url = "";
+      try { url = (await storageSign(a.path, 3600)) || ""; } catch {}
+      // the panel prints `note` beside the name, so say what the file IS there
+      const label = [a.kind === "deliverable" ? "تسليم للعميل" : a.doc ? "مستند مطلوب: " + a.doc : "", a.title, a.note].filter(Boolean).join(" · ");
+      return { ...a, note: label, url: url || undefined, path: undefined };
+    }));
+    return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, request: { ...row, attachments, contract: row.contract ? { ...row.contract, html: undefined, has_html: !!row.contract.html } : null, events, tasks } });
   }
 
   if (action === "ops-request-update") {
@@ -1257,9 +1993,27 @@ async function opsAction(action, b, qs, req, res, opsUser) {
     if (b.scope) { if (row.quote && row.quote.status !== "REJECTED") return json(res, 409, { ok: false, error: "scope_locked" }); patch.scope = normScope(b.scope); }
     for (const k of ["client_name", "client_phone", "company_name"]) if (b[k] != null) patch[k] = str(b[k], 200);
     if (b.client_email != null && isEmail(String(b.client_email).toLowerCase())) patch.client_email = String(b.client_email).toLowerCase();
+    // The list of documents we ask the customer for: the panel can add a line,
+    // waive one, or mark one received by hand. A line that flips to
+    // received/waived is stamped so the customer's page can say since when.
+    if (Array.isArray(b.documents)) {
+      const before = new Map(normDocuments(row.documents).map((d) => [d.title, d]));
+      patch.documents = normDocuments(b.documents).map((d) => {
+        const was = before.get(d.title);
+        return d.status !== "requested" && !d.received_at && (!was || was.status === "requested") ? { ...d, received_at: nowIso() } : d;
+      });
+    }
     if (!Object.keys(patch).length) return json(res, 400, { ok: false, error: "nothing_to_update" });
     const upd = await patchRequest(row.id, patch);
     await logEvent(row.id, "human", actor, patch.status ? `status.${patch.status.toLowerCase()}` : "request.updated", { fields: Object.keys(patch) });
+    // A change of stage on the team's side used to be silent: the customer saw
+    // the badge change if and when they opened the page. Now they are told, by
+    // the same channels as every other step — unless the panel says `notify:false`
+    // (a correction that is not news to the customer).
+    if (patch.status && patch.status !== row.status && b.notify !== false) {
+      const n = statusNotice({ ...row, ...upd }, row.status, patch.status, str(b.client_note, 500));
+      if (n) await announce({ ...row, ...upd }, n.step, { ...n, to: "client" });
+    }
     return json(res, 200, { ok: true, request: summary(upd) });
   }
 
@@ -1270,7 +2024,10 @@ async function opsAction(action, b, qs, req, res, opsUser) {
     const upd = await patchRequest(row.id, { conversation, status: row.status === "REVIEWING" || row.status === "NEW" ? "WAITING_CLIENT" : row.status });
     await logEvent(row.id, "human", actor, "message.bp", { preview: content.slice(0, 140) });
     if (row.organization_id) await notify({ organization_id: row.organization_id, event: "simple_message", title: `رد جديد على طلبك ${row.ref}`, body: content.slice(0, 200), idempotency_key: `simple_msg_${row.ref}_${Date.now()}` });
-    if (row.client_email) await sendEmail(row.client_email, `رد على طلبك ${row.ref}`, `<p>${esc(content)}</p><p><a href="${SELF_BASE}/${row.lang === "en" ? "" : (row.lang || "ar") + "/"}my?ref=${row.ref}">فتح الطلب</a></p>`);
+    if (row.client_email) await sendEmail(row.client_email, `رد على طلبك ${row.ref}`, `<p>${esc(content)}</p><p><a href="${myUrl(row)}">فتح الطلب</a></p>`);
+    // The team answered: the «reply to the customer» task opened by their
+    // message is done. Best-effort — a task that stays open is only noise.
+    try { await sb(`tasks?request_id=eq.${row.id}&source=eq.reply.customer&status=in.(open,in_progress,blocked)`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: nowIso() } }); } catch {}
     return json(res, 200, { ok: true, conversation: upd.conversation, status: upd.status });
   }
 
@@ -1377,16 +2134,84 @@ async function opsAction(action, b, qs, req, res, opsUser) {
 
   if (action === "ops-ready") {
     if (row.status !== "PAID") return json(res, 409, { ok: false, error: "not_paid" });
-    await patchRequest(row.id, { status: "IN_PROGRESS" });
+    const upd = await patchRequest(row.id, { status: "IN_PROGRESS" });
     await logEvent(row.id, "human", actor, "execution.started", {});
+    // «بدء التنفيذ» is the moment the customer has been waiting for since the
+    // payment; it used to land in the timeline and nowhere else.
+    if (b.notify !== false) {
+      const n = statusNotice({ ...row, ...upd }, row.status, "IN_PROGRESS", str(b.client_note, 500));
+      if (n) await announce({ ...row, ...upd }, n.step, { ...n, to: "client" });
+    }
     return json(res, 200, { ok: true, status: "IN_PROGRESS" });
   }
 
   if (action === "ops-appointment") {
+    const prev = row.appointment || null;
     const appointment = { ...(row.appointment || {}), date: str(b.date, 10) || row.appointment?.date, time: str(b.time, 5) || row.appointment?.time, topic: str(b.topic, 200) || row.appointment?.topic || row.title, status: b.cancel ? "CANCELLED" : "BOOKED", by: actor, updated_at: nowIso() };
-    await patchRequest(row.id, { appointment });
+    const upd = await patchRequest(row.id, { appointment });
     await logEvent(row.id, "human", actor, b.cancel ? "appointment.cancelled" : "appointment.set", { date: appointment.date, time: appointment.time });
+    // Moving or cancelling a customer's appointment without telling them is how
+    // somebody turns up to a call nobody is on. Told only when something the
+    // customer would notice changed.
+    const moved = !prev || prev.status === "CANCELLED" || prev.date !== appointment.date || prev.time !== appointment.time;
+    const live = { ...row, ...upd };
+    if (b.notify !== false) {
+      if (b.cancel && prev && prev.status !== "CANCELLED") {
+        await announce(live, "appt-cancelled", {
+          subject: `أُلغي موعدك — ${row.ref}`,
+          clientLine: `ألغينا موعد ${prev.date} الساعة ${prev.time} (بتوقيت الرياض) الخاص بطلبك «${row.title}». إن احتجت موعداً بديلاً اكتب لنا من داخل الطلب.`,
+          cta: "افتح الطلب", to: "client",
+        });
+      } else if (!b.cancel && appointment.date && appointment.time && moved) {
+        await announce(live, "appt-set", {
+          subject: `${prev && prev.status !== "CANCELLED" ? "تعديل موعدك" : "تم تثبيت موعدك"} — ${row.ref}`,
+          clientLine: `${prev && prev.status !== "CANCELLED" ? "عدّلنا موعدك إلى" : "ثبّتنا موعدك يوم"} ${appointment.date} الساعة ${appointment.time} (بتوقيت الرياض) — ${appointment.topic}. إن لم يناسبك غيّره من داخل الطلب.`,
+          cta: "افتح الطلب", to: "client",
+        });
+      }
+    }
     return json(res, 200, { ok: true, appointment });
+  }
+
+  // Finished work handed to the customer: a file, a title, an optional note. It
+  // lands in «مخرجات الطلب» inside the request in /my and the customer is told
+  // by mail. `complete:true` also closes the request in the same step (one
+  // message, not two). A delivery on a quoted request needs the payment first;
+  // `force:true` is the panel's explicit «deliver anyway».
+  if (action === "ops-deliverable-add") {
+    if (row.status === "CANCELLED") return json(res, 409, { ok: false, error: "request_closed" });
+    const title = str(b.title, 200);
+    if (!title) return json(res, 400, { ok: false, error: "missing_title" });
+    if (row.quote && !(row.payment && row.payment.status === "PAID") && b.force !== true) return json(res, 409, { ok: false, error: "not_paid", message: "الطلب غير مدفوع بعد — لا يُسلَّم العمل قبل الدفع إلا بتأكيد صريح." });
+    const all = Array.isArray(row.attachments) ? row.attachments : [];
+    if (all.length >= UPLOAD_CAP) return json(res, 409, { ok: false, error: "too_many_files" });
+    const stored = await storeUpload(row, b, { kind: "deliverable", by: "team", note: b.note });
+    if (!stored.ok) return json(res, stored.status, { ok: false, error: stored.error, max: stored.max });
+    const rec = { ...stored.rec, title, by_name: actor };
+    const patch = { attachments: [...all, rec] };
+    const closing = b.complete === true && ["PAID", "IN_PROGRESS", "WAITING_INTERNAL"].includes(row.status);
+    if (closing) patch.status = "COMPLETED";
+    const upd = await patchRequest(row.id, patch);
+    await logEvent(row.id, "human", actor, "deliverable.added", { title, name: rec.name });
+    if (closing) await logEvent(row.id, "human", actor, "status.completed", { fields: ["status"] });
+    if (b.notify !== false) {
+      await announce({ ...row, ...upd }, "deliverable", {
+        subject: `سلّمنا لك: ${title} — ${row.ref}`,
+        clientLine: `${closing ? "اكتمل طلبك «" + row.title + "» وسلّمنا لك" : "سلّمنا لك"} «${title}»${rec.note ? " — " + rec.note : ""}. تجده في قسم «مخرجات الطلب» داخل طلبك، وتنزّله من هناك.`,
+        cta: "افتح مخرجات الطلب", to: "client",
+      });
+    }
+    return json(res, 200, { ok: true, status: upd.status, deliverable: { ...rec, path: undefined } });
+  }
+
+  if (action === "ops-deliverable-delete") {
+    const id = str(b.id, 40);
+    const att = (row.attachments || []).find((a) => a && a.id === id && a.kind === "deliverable");
+    if (!att) return json(res, 404, { ok: false, error: "not_found" });
+    await patchRequest(row.id, { attachments: row.attachments.filter((a) => a !== att && !(a && a.id === id)) });
+    if (att.path) { try { await storageDelete(att.path); } catch {} }
+    await logEvent(row.id, "human", actor, "deliverable.removed", { title: att.title || att.name });
+    return json(res, 200, { ok: true });
   }
 
   return json(res, 400, { ok: false, error: "unknown_action" });
@@ -1411,9 +2236,16 @@ async function priceItems(items) {
     return { code: it.code, title: it.title || (svc && (svc.nameAr || svc.name)) || "",
       titleEn: str((svc && (svc.nameEn || svc.name)) || it.titleEn || "", 200),
       description: it.description || it.why || "", qty: it.qty || 1,
-      price: it.price != null && it.price !== "" ? num(it.price) : catPrice };
+      price: it.price != null && it.price !== "" ? num(it.price) : catPrice,
+      model: svc ? String(svc.pricingModel || "") : "" };
   });
 }
+// A catalogue price is a decision only when it IS the price. «يبدأ من 800»
+// is a floor, a monthly fee is not one payment, a percentage has no amount —
+// quoting those automatically at the listed number put a binding figure on a
+// number that was never the price. They go to a person.
+const AUTO_PRICE_MODELS = new Set(["", "One Time", "Per Candidate"]);
+const needsHumanPrice = (l) => !(num(l.price) > 0) || !AUTO_PRICE_MODELS.has(String(l.model || ""));
 function guessType(text) {
   const t = String(text || "");
   if (/تأسيس|فرع|رخصة استثمار|ريادة|MISA|سجل تجاري جديد|company|formation|branch/i.test(t)) return "COMPANY_FORMATION";
@@ -1461,41 +2293,86 @@ function integrationStatus() {
 // إشعارٌ يُظنّ أنه وصل وهو لم يصل أسوأ من إشعار لم يُرسل.
 const OWNER_WA = String(process.env.CRM_OWNER_WHATSAPP || process.env.OWNER_WHATSAPP || "966530540231").replace(/\D/g, "");
 
-async function announce(row, step, { subject, clientLine, opsLine, cta }) {
-  const url = `${SELF_BASE}/${row.lang === "en" ? "" : (row.lang || "ar") + "/"}my?ref=${row.ref}`;
+// The request's own page in /my — the one link every message to the customer
+// carries.
+const myUrl = (row) => `${SELF_BASE}/${row.lang === "en" ? "" : (row.lang || "ar") + "/"}my?ref=${row.ref}`;
+
+// What the customer is told when the TEAM moves their request. Only the stages
+// that are the team's to move; the steps owned by the quotation / contract /
+// payment flows announce themselves where they happen. The customer's own
+// words for a stage (see ST in simple-v1-my.mjs) are kept: WAITING_INTERNAL
+// reads «قيد التنفيذ» to them, so moving between the two is not news.
+function statusNotice(row, from, to, note) {
+  const same = (s) => (s === "WAITING_INTERNAL" ? "IN_PROGRESS" : s);
+  if (same(from) === same(to)) return null;
+  const tail = note ? ` ${note}` : "";
+  const files = (Array.isArray(row.attachments) ? row.attachments : []).some((a) => a && a.kind === "deliverable");
+  const t = {
+    REVIEWING: { subject: `طلبك قيد المراجعة — ${row.ref}`, line: "بدأ فريقنا مراجعة طلبك. نعود إليك بالخطوة التالية من داخل الطلب." },
+    WAITING_CLIENT: { subject: `طلبك بانتظار ردّك — ${row.ref}`, line: "نحتاج منك ردّاً أو معلومة لنكمل طلبك. افتح الطلب واكتب لنا." },
+    IN_PROGRESS: { subject: `بدأ تنفيذ طلبك — ${row.ref}`, line: "بدأ فريقنا تنفيذ طلبك الآن. نبلغك بأي تحديث، وتجد كل جديد داخل طلبك." },
+    WAITING_INTERNAL: { subject: `بدأ تنفيذ طلبك — ${row.ref}`, line: "بدأ فريقنا تنفيذ طلبك الآن. نبلغك بأي تحديث، وتجد كل جديد داخل طلبك." },
+    COMPLETED: { subject: `اكتمل طلبك — ${row.ref}`, line: `اكتمل طلبك «${row.title}».${files ? " ملفات التسليم في قسم «مخرجات الطلب» داخل طلبك." : ""} شكراً لثقتك.` },
+    CANCELLED: { subject: `أُلغي الطلب ${row.ref}`, line: "أُلغي طلبك. إن كان لديك استفسار راسلنا من داخل الحساب وسنساعدك." },
+  }[to];
+  if (!t) return null;
+  return { step: "status-" + to.toLowerCase().replace(/_/g, "-"), subject: t.subject, clientLine: t.line + tail, cta: to === "WAITING_CLIENT" ? "افتح الطلب وردّ" : "افتح الطلب" };
+}
+
+// A notice to the TEAM about something the customer did. At most one per
+// request per window (a customer typing five lines in a minute is one alert,
+// not five), recorded as an internal event so the customer's timeline never
+// shows it. `task` opens one — and only one — pending human task.
+async function alertOps(row, step, { subject, line, windowMin = 10, task }) {
+  try {
+    if (task) { try { await sweepTask(row, { source: task.source, title: () => task.title, details: () => task.details || "", human: true, urgency: task.urgency || "high" }, "النظام"); } catch (e) { console.error("alertOps task", String(e.message || e).slice(0, 100)); } }
+    const since = new Date(Date.now() - windowMin * 6e4).toISOString();
+    const recent = await sb(`request_events?request_id=eq.${row.id}&event=eq.notify.${step}&created_at=gte.${since}&select=id&limit=1`);
+    if (recent && recent[0]) return false;
+    await announce(row, step, { subject, clientLine: line, opsLine: line, to: "ops" });
+    return true;
+  } catch (e) { console.error("alertOps", step, String(e.message || e).slice(0, 100)); return false; }
+}
+
+async function announce(row, step, { subject, clientLine, opsLine, cta, to = "both", clientEmail = true, opsEmail = true }) {
+  const toClient = to !== "ops", toOps = to !== "client";
+  const url = myUrl(row);
   // «لم يُرسل» و«أُرسل إلى صندوق المعاينة» و«رفضته البوابة» ثلاثة أشياء
   // مختلفة. تسجيلها كلها `false` يجعل اللوحة تقول «فشل» حيث لا فشل، ويخفي
   // الفشل الحقيقي بين مثله.
   const mark = (r) => (r && r.ok ? true : (r && (r.skipped || r.error)) || false);
   const out = { email: "—", wa: "—", ops_email: false, ops_wa: false };
-  try {
+  if (toClient && !clientEmail) out.email = "sent_separately";
+  else if (toClient) try {
     if (row.client_email) {
       out.email = mark(await sendEmail(row.client_email, subject,
         `<p>${esc(clientLine)}</p><p><a href="${url}">${esc(cta || "فتح الطلب")} ${esc(row.ref)}</a></p>`));
     } else out.email = "no_email";
   } catch (e) { out.email = String(e.message || "failed").slice(0, 60); }
-  try {
+  if (toClient) try {
     if (row.client_phone) out.wa = mark(await waSend(row.client_phone, `${clientLine}\n${url}`));
     else out.wa = "no_phone";
   } catch (e) { out.wa = String(e.message || "failed").slice(0, 60); }
   const who = [row.client_name, row.company_name, row.client_email, row.client_phone].filter(Boolean).join(" · ");
-  try {
+  if (toOps && !opsEmail) out.ops_email = "sent_separately";
+  if (toOps && opsEmail) try {
     const r = await sendEmail(OWNER_EMAIL, `[${row.ref}] ${subject}`,
       `<p>${esc(opsLine || clientLine)}</p><p>${esc(who)}</p><p><a href="${SELF_BASE}/ops?ref=${row.ref}">افتح الطلب في اللوحة</a></p>`);
     out.ops_email = mark(r);
   } catch {}
-  try {
+  if (toOps) try {
     if (OWNER_WA) {
       const r = await waSend(OWNER_WA, `${row.ref} — ${opsLine || clientLine}\n${SELF_BASE}/ops?ref=${row.ref}`);
       out.ops_wa = mark(r);
     }
   } catch {}
-  try {
+  if (toClient) try {
     if (row.organization_id) {
       await notify({ organization_id: row.organization_id, event: `simple_${step}`, title: subject, body: clientLine.slice(0, 200), idempotency_key: `simple_${step}_${row.ref}_${Math.floor(Date.now() / 6e4)}` });
     }
   } catch {}
-  await logEvent(row.id, "system", "الإشعارات", `notify.${step}`, out);
+  // a notice to the team is bookkeeping, not part of the customer's story
+  await logEvent(row.id, toClient ? "system" : "internal", "الإشعارات", `notify.${step}`, out);
   return out;
 }
 

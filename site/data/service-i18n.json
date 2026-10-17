@@ -248,8 +248,8 @@
     "ar": "إصدار تأشيرة عمل (تأشيرة استقدام)"
   },
   "BP-REC-03": {
-    "en": "Outsourced Employment & Contracting (PEO/EOR)",
-    "ar": "التوظيف والتعاقد الخارجي (PEO/EOR)"
+    "en": "Staff on our contract (EOR)",
+    "ar": "موظفون على بند التعاقد (EOR)"
   },
   "BP-REC-04": {
     "en": "Executive Search",
@@ -778,6 +778,10 @@
   "BP-SBC-30": {
     "en": "Document attestation & apostille via MOFA",
     "ar": "تصديق المستندات وأبوستيل عبر الخارجية"
+  },
+  "BP-SBC-31": {
+    "en": "New Sole Proprietorship Formation & Registration",
+    "ar": "تأسيس / قيد مؤسسة فردية جديدة"
   },
   "BP-FI-08": {
     "en": "Regional Headquarters (RHQ) — qualification & filing",

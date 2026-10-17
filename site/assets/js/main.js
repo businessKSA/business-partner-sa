@@ -1324,7 +1324,7 @@ var BP = window.BP = window.BP || {};
 
     function render(v, j) {
       titleEl.textContent = v.title;
-      document.title = v.title + (BP.lang === "ar" ? " — بيزنس بارتنر" : " — Business Partner");
+      document.title = v.title + " — Business Partner";
       document.getElementById("jp-company").textContent = [v.company, v.city].filter(function (x) { return x && x !== "—"; }).join(" · ");
       document.getElementById("jp-city").textContent = v.city || "—";
       document.getElementById("jp-field").textContent = v.field || "—";
@@ -2613,7 +2613,7 @@ var BP = window.BP = window.BP || {};
         if (!rows.length) { box.innerHTML = '<p class="dash-empty">' + T("No matching service.", "لا توجد خدمة مطابقة.") + "</p>"; return; }
         box.innerHTML =
           '<p class="dash-empty" style="text-align:start;margin-bottom:10px">' +
-            T("Your commission rate: ", "نسبة عمولة بيزنس بارتنر عليك: ") + "<b>" + pct + "%</b> · " +
+            T("Your commission rate: ", "نسبة عمولة Business Partner عليك: ") + "<b>" + pct + "%</b> · " +
             T("prices exclude VAT", "الأسعار قبل ضريبة القيمة المضافة") + "</p>" +
           '<div class="tbl-scroll"><table class="mini-table"><thead><tr>' +
             "<th>" + T("Code", "الكود") + "</th><th>" + T("Service", "الخدمة") + "</th>" +
@@ -2785,7 +2785,7 @@ var BP = window.BP = window.BP || {};
             var held = d.held || [];
             esBox.innerHTML = held.length ? held.map(function (e) {
               var st = e.status === "refund_requested"
-                ? [T("Client asked for a refund — your consent or BP's decision settles it", "طلب العميل الاسترجاع — يُحسم بموافقتك أو بقرار بيزنس بارتنر"), "#b45309"]
+                ? [T("Client asked for a refund — your consent or BP's decision settles it", "طلب العميل الاسترجاع — يُحسم بموافقتك أو بقرار Business Partner"), "#b45309"]
                 : e.status === "delivered"
                 ? [T("You declared delivery — awaiting the client's approval", "أعلنتَ التسليم — بانتظار اعتماد العميل للاستلام"), "#7c3aed"]
                 : [T("Held — declare delivery when the work is done", "محجوز — أعلن التسليم عند إتمام العمل"), "#2563eb"];
@@ -4577,14 +4577,18 @@ var BP = window.BP = window.BP || {};
   if (qEl) qEl.addEventListener("keydown", function (e) { if (e.key === "Enter") load(); });
 })();
 
-/* ---------- Employer plan cards — monthly/yearly billing toggle ---------- */
+/* ---------- Employer plan cards — monthly/yearly billing toggle ----------
+   /packages فيها أكثر من تبويب بزرّ تبديل في كلٍّ منها (الخدمات والقانونية). كان
+   المربوط أول زرّ تبديل في الصفحة فقط، فيموت «سنوي» في تبويب الباقات القانونية، وإن
+   ضُغط في الأول تغيّرت أسعار الثاني وأزرار سلّته من وراء زرّه (وهو يعرض «شهري»).
+   الآن تُربط كل الأزرار، وتتزامن حالتها، ويُبدَّل اسم البند في السلة مع دورته
+   (data-name-ar-yearly / data-name-en-yearly إن وُجدت) فلا يظهر «اشتراك شهري» لبندٍ سنوي. */
 var BP_EMP_BILLING = "monthly";
 (function () {
   "use strict";
   document.addEventListener("DOMContentLoaded", function () {
-    var toggle = document.querySelector(".emp-billing-toggle");
-    if (!toggle) return;
-    var btns = toggle.querySelectorAll(".emp-bill-btn");
+    var toggles = document.querySelectorAll(".emp-billing-toggle");
+    if (!toggles.length) return;
     function applyBilling(bill) {
       document.querySelectorAll(".emp-price-m").forEach(function (el) { el.hidden = bill === "yearly"; });
       document.querySelectorAll(".emp-price-y").forEach(function (el) { el.hidden = bill === "monthly"; });
@@ -4592,17 +4596,27 @@ var BP_EMP_BILLING = "monthly";
         var id = b.getAttribute(bill === "yearly" ? "data-id-yearly" : "data-id-monthly");
         var amount = b.getAttribute(bill === "yearly" ? "data-amount-yearly" : "data-amount-monthly");
         var price = b.getAttribute(bill === "yearly" ? "data-price-yearly" : "data-price-monthly");
+        var nameAr = b.getAttribute("data-name-ar-" + bill);
+        var nameEn = b.getAttribute("data-name-en-" + bill);
         if (id) b.setAttribute("data-id", id);
         if (amount) b.setAttribute("data-amount", amount);
         if (price != null) b.setAttribute("data-price", price);
+        if (nameAr) b.setAttribute("data-name-ar", nameAr);
+        if (nameEn) b.setAttribute("data-name-en", nameEn);
+      });
+      toggles.forEach(function (t) {
+        t.querySelectorAll(".emp-bill-btn").forEach(function (b) {
+          b.classList.toggle("active", b.getAttribute("data-bill") === bill);
+        });
       });
     }
-    btns.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var bill = btn.getAttribute("data-bill");
-        BP_EMP_BILLING = bill;
-        btns.forEach(function (b) { b.classList.toggle("active", b === btn); });
-        applyBilling(bill);
+    toggles.forEach(function (toggle) {
+      toggle.querySelectorAll(".emp-bill-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var bill = btn.getAttribute("data-bill");
+          BP_EMP_BILLING = bill;
+          applyBilling(bill);
+        });
       });
     });
   });
@@ -8806,6 +8820,15 @@ var BP_EMP_BILLING = "monthly";
   }
   var refHost = "";
   try { if (document.referrer) { var u = new URL(document.referrer); if (u.host !== location.host) refHost = u.host; } } catch (e) {}
+  // وسوم UTM تسبق المُحيل: واتساب وتيك توك لا يرسلان Referer، فزياراتهما تظهر
+  // «مباشرة» في اللوحة. الشكل utm:<source>/<medium>/<campaign>/<content>، والقصّ
+  // إلى 120 حرفاً لأن عمود ref في api/requests.js يقصّه إلى 120.
+  try {
+    var q = new URLSearchParams(location.search);
+    if (q.get("utm_source")) {
+      refHost = ("utm:" + [q.get("utm_source"), q.get("utm_medium"), q.get("utm_campaign"), q.get("utm_content")].map(function (v) { return v || ""; }).join("/")).slice(0, 120);
+    }
+  } catch (e) {}
   send({ kind: "view", path: location.pathname, ref: refHost, lang: document.documentElement.lang || "", device: window.innerWidth < 768 ? "mobile" : "desktop" });
   document.addEventListener("click", function (e) {
     var t = e.target.closest && e.target.closest(".add-cart,#cart-checkout,#co-submit,#disc-apply,a[href*='wa.me'],a[href*='whatsapp'],[data-track]");

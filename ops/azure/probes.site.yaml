@@ -1,0 +1,40 @@
+# فحوص الصحة لتطبيق الموقع bp-site (Azure Container Apps).
+# التطبيق:  az containerapp update -g "$RG" -n bp-site --yaml ops/azure/probes.site.yaml
+# التحقق:   az containerapp show -g "$RG" -n bp-site --query "properties.template.containers[0].probes"
+#
+# الفحوص الثلاثة على /__health (حياة العملية وقرار الذاكرة، لا جاهزية القاعدة): فحصٌ يمرّ بقاعدة البيانات كان سيُخرج كل النسخ
+# من التوزيع عند عطل عابر فيها. عمق الفحص (القاعدة) عبر /api/otp → dbReachable ويُراقَب من الخارج.
+#
+# ما يحدث عند تجاوز BP_MAX_RSS_MB: /__health يعيد ٥٠٣ → readiness يُخرج النسخة من التوزيع فوراً (٣×٥ث)،
+# وliveness يُعيد تشغيلها بإغلاق لطيف (٣×١٠ث) قبل أن يقتلها OOM بلا إنذار.
+# الحدود: failureThreshold ١–١٠، initialDelaySeconds ١–٦٠ في Container Apps.
+properties:
+  template:
+    containers:
+      - name: bp-site
+        probes:
+          - type: Startup
+            httpGet:
+              path: /__health
+              port: 8080
+            initialDelaySeconds: 2
+            periodSeconds: 3
+            timeoutSeconds: 3
+            failureThreshold: 10
+          - type: Liveness
+            httpGet:
+              path: /__health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          - type: Readiness
+            httpGet:
+              path: /__health
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+            successThreshold: 1

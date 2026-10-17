@@ -16,8 +16,22 @@ description: بوابة مُيسّر (Moyasar) — البطاقات ومدى وA
   Certificate) → Service ID للويب بنطاق `businesspartner.sa` → اعتماد سامسونج
   → `MOYASAR_SAMSUNG_SERVICE_ID` (و`MOYASAR_SAMSUNG_ENV`) في Vercel. **لا بطاقات
   اختبار لـSamsung Pay** — يُختبر ببطاقة حقيقية في محفظة سامسونج.
-- `api/_moyasar.js` يحمل نسخته من `ALLOWED_METHODS` بلا `samsungpay` — لوحة
-  الفحص لن تُظهر تفعيله حتى يُضاف هناك (أول عملك).
+- **Google Pay** (2026-10-01): نموذج 2.2.10 يدعمه ككائن `google_pay`
+  (`merchant_id` · `country` · `label` · `environment`)، والزر يُرسم من
+  `merchant_id` وحده؛ `googlepay` ليست في قائمة `methods` الداخلية للمكتبة. في
+  الكود خلف `MOYASAR_GOOGLE_MERCHANT_ID` (و`MOYASAR_GOOGLE_ENV=test` للتجربة).
+  الإنتاج يتطلّب اعتماد Google للموقع في Google Pay & Wallet Console. نطلب
+  `CRYPTOGRAM_3DS` فقط. **أسماء الشبكات**: الافتراضي يضيف UNIONPAY وهو ليس اسماً
+  عند Google، فحين يكون Google Pay فعّالاً يُمرَّر `supported_networks` =
+  مدى/فيزا/ماستركارد (يُسقط UnionPay من نموذج البطاقة في تلك الجلسة).
+- **الشاشة صادقة**: `/checkout` يسمّي في عنوان البطاقة المحافظ التي ثبتت
+  جاهزيتها على جهاز الزائر فقط (Apple: `canMakePayments`؛ Samsung/Google:
+  `isReadyToPay`)، فلا يُرى Apple Pay في Chrome ولا يُوعَد به.
+- ملف تحقق Apple Pay **موجود ويخدم 200** على `/.well-known/apple-developer-
+  merchantid-domain-association` (بلا امتداد — `.txt` يعطي 404 وهذا صحيح).
+  المسجَّل عند مُيسّر النطاق `www.businesspartner.sa`.
+- `api/_moyasar.js` صار يعرف `samsungpay` و`googlepay` ويُبلغ `samsungPayOn` و
+  `googlePayOn` (وجود المعرّف فقط).
 - محلياً الدفع محاكاة (`api/_mode.js`) — لا بطاقة تُخصم.
 
 ## نطاقك

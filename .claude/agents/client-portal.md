@@ -8,7 +8,8 @@ description: لوحة العميل — /my و /account: الدخول، الجل�
 ## نطاقك — تملك هذه الملفات وحدك
 
 `site/scripts/simple-v1-my.mjs` · `simple-v1-checkout.mjs` · `client-portal-v6.mjs`
-`sv1-quote-auth-flow.mjs` · `portal-trust-layer.mjs`
+`sv1-quote-auth-flow.mjs` · `portal-trust-layer.mjs` · `client-login.mjs` (باب الدخول الموحَّد:
+«المتابعة بجوجل» + رابط البريد — يُستعمل في `/my` و`/checkout`) · `tests/client-login.test.mjs`
 `api/_simple.js` · `api/pay.js` · `api/otp.js`
 
 **قاعدة الإسناد:** أي صفحة يدخلها عميل بحساب تتبعك، مهما كان محتواها. وأي صفحة

@@ -1,0 +1,179 @@
+/* Business Partner — وضع الإتاحة (Accessibility).
+ *
+ * يُحقن في كل صفحة عامة عبر site/scripts/a11y-layer.mjs (من write() في generate.mjs)،
+ * وبعده site/assets/js/bp-a11y.js الذي يبني الزرّ واللوحة ويطبّق الإعدادات.
+ * كل تفضيل = سمة data-bpa-* على <html> (تُضبط قبل أول رسم بسكربتٍ مضمَّن في <head>)،
+ * فلا ومضة ولا إعادة تنسيق. بلا أي إعداد مفعَّل لا يغيّر هذا الملف مظهر أي صفحة
+ * إلا رابط «تخطَّ إلى المحتوى» حين يأخذ التركيز، وحركةً أقلّ لمن ضبط نظامه على ذلك.
+ *
+ * لوحة الإتاحة نفسها (.bpa-ui) مستثناة من تعديلات النص والتباعد والخط والتكبير حتى
+ * تبقى مقروءة وفي مكانها مهما بلغ ضبط المستخدم. */
+
+/* ---------------------------------------------------------------- رابط التخطّي */
+.bpa-skip{position:fixed;top:-120px;inset-inline-start:12px;z-index:2147483600;
+ background:#0B1B5A;color:#fff;padding:12px 18px;min-height:44px;display:inline-flex;align-items:center;
+ border-radius:10px;font:600 14px/1.4 "IBM Plex Sans Arabic","IBM Plex Sans",system-ui,sans-serif;
+ text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.35);border:2px solid #fff}
+.bpa-skip:focus{top:12px;outline:3px solid #FFC400;outline-offset:2px}
+main[id="bp-main"]:focus,#bp-main:focus{outline:none}
+
+/* ------------------------------------------------------ الحركة (النظام أو الخيار) */
+@media (prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto!important}
+ *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+  transition-duration:.001ms!important;scroll-behavior:auto!important}
+}
+html[data-bpa-motion]{scroll-behavior:auto!important}
+html[data-bpa-motion] *,html[data-bpa-motion] *::before,html[data-bpa-motion] *::after{
+ animation:none!important;transition:none!important;scroll-behavior:auto!important}
+
+/* --------------------------------------------------------------- حجم النص (تكبير) */
+html[data-bpa-zoom="1"]{--bpa-z:1.25}
+html[data-bpa-zoom="2"]{--bpa-z:1.5}
+/* على الهاتف التكبير يقلّص عرض التخطيط الفعلي بنسبته، فنخفّفه ليبقى المحتوى في الشاشة. */
+@media(max-width:600px){html[data-bpa-zoom="1"]{--bpa-z:1.15}html[data-bpa-zoom="2"]{--bpa-z:1.3}}
+html[data-bpa-zoom] body>:not(.bpa-ui):not(script):not(style):not(link):not(.bpa-skip):not([class*="bps-"]){zoom:var(--bpa-z)}
+/* التكبير يضاعف 100vh أيضاً؛ نقسمه ليبقى التذييل في أسفل الصفحة لا بعد فراغ. */
+html[data-bpa-zoom] .sv1{min-height:calc(100vh / var(--bpa-z))}
+html[data-bpa-zoom] body{overflow-wrap:anywhere}
+/* ترويسة SV1 بارتفاع ثابت ٧٢px وصفٍّ واحد: مع التكبير تلتفّ بدل أن تُقصّ. */
+html[data-bpa-zoom] .sv1-hdr .wrap{height:auto;min-height:72px;flex-wrap:wrap;row-gap:6px;padding-block:8px}
+html[data-bpa-zoom] .sv1-bar .wrap{height:auto;min-height:32px;flex-wrap:wrap;padding-block:4px}
+html[data-bpa-zoom] .sv1-nav{top:100%}
+html[data-bpa-zoom] body>:not(.bpa-ui) img{max-width:100%}
+
+/* ------------------------------------------------------------ تباعد النص (WCAG 1.4.12) */
+html[data-bpa-spacing] body>:not(.bpa-ui) *{line-height:1.95!important;word-spacing:.14em!important}
+html[data-bpa-spacing]:not([lang^="ar"]) body>:not(.bpa-ui) *{letter-spacing:.04em!important}
+html[data-bpa-spacing] body>:not(.bpa-ui) p,html[data-bpa-spacing] body>:not(.bpa-ui) li{margin-bottom:1.4em}
+
+/* -------------------------------------------------------------- خط سهل القراءة */
+html[data-bpa-font]{--bpa-font:"Atkinson Hyperlegible","Readex Pro","Lexend",Verdana,Tahoma,system-ui,sans-serif}
+html[data-bpa-font][lang^="ar"]{--bpa-font:"Readex Pro","Tajawal",Tahoma,"Segoe UI",system-ui,sans-serif}
+html[data-bpa-font] body>:not(.bpa-ui),html[data-bpa-font] body>:not(.bpa-ui) *:not(svg):not(svg *){font-family:var(--bpa-font)!important}
+html[data-bpa-font] body>:not(.bpa-ui) :is(i,em,cite){font-style:normal!important}
+
+/* --------------------------------------------------------- الوضع الداكن (قلب الألوان) */
+/* قلب + تدوير اللون ١٨٠° يعطي داكناً بألوانٍ قريبة من الأصل لكل صفحة دون تعديل
+   مئات الأصناف الحرفية؛ والصور والفيديو تُقلب ثانيةً فتبقى طبيعية. الشعار يبقى
+   مقلوباً فيظهر فاتحاً على الداكن. مع التباين العالي لا يُستعمل القلب (انظر أدناه). */
+html[data-bpa-theme="dark"]:not([data-bpa-contrast]){filter:invert(1) hue-rotate(180deg);background:#fff}
+html[data-bpa-theme="dark"]:not([data-bpa-contrast]) :is(img,video,picture,canvas,iframe,embed,object,[style*="background-image"]):not(.logo img):not(.bpa-ui *){
+ filter:invert(1) hue-rotate(180deg)}
+html[data-bpa-theme="dark"]:not([data-bpa-contrast]) :is(.sv1-door .ico,.ico,.sv1-pulse,.bps-avatar,.bps-fab img){filter:invert(1) hue-rotate(180deg)}
+
+/* ------------------------------------------------------------------ تباين عالٍ */
+/* فاتح: أسود على أبيض، روابط زرقاء داكنة مسطّرة، حدود ٢px، لا ظلال ولا خلفيات صور. */
+html[data-bpa-contrast]:not([data-bpa-theme="dark"]) body>:not(.bpa-ui),
+html[data-bpa-contrast]:not([data-bpa-theme="dark"]) body>:not(.bpa-ui) *:not(svg *){
+ color:#000!important;background-color:#fff!important;background-image:none!important;
+ border-color:#000!important;box-shadow:none!important;text-shadow:none!important}
+html[data-bpa-contrast]:not([data-bpa-theme="dark"]) body>:not(.bpa-ui) a:not(.sv1-btn),
+html[data-bpa-contrast]:not([data-bpa-theme="dark"]) body>:not(.bpa-ui) a:not(.sv1-btn) *{color:#0000B8!important;text-decoration:underline!important}
+html[data-bpa-contrast]:not([data-bpa-theme="dark"]) body>:not(.bpa-ui) :is(.sv1-btn.primary,.primary,.send,.sv1-msg.u,.sv1-steps .active,.sv1-mi.on,.sv1-tab.on,.sv1-door.on,[aria-pressed="true"],[aria-current="page"],[aria-selected="true"]),
+html[data-bpa-contrast]:not([data-bpa-theme="dark"]) body>:not(.bpa-ui) :is(.sv1-btn.primary,.primary,.send,.sv1-msg.u,.sv1-steps .active,.sv1-mi.on,.sv1-tab.on,.sv1-door.on,[aria-pressed="true"],[aria-current="page"],[aria-selected="true"]) *{
+ background-color:#000!important;color:#fff!important}
+html[data-bpa-contrast]:not([data-bpa-theme="dark"]) body>:not(.bpa-ui) :is(button,input,select,textarea,.sv1-btn,.sv1-door,.sv1-panel,.sv1-item,.sv1-msg){border:2px solid #000!important}
+html[data-bpa-contrast]:not([data-bpa-theme="dark"]) body>:not(.bpa-ui) ::placeholder{color:#222!important;opacity:1}
+/* داكن + تباين: أبيض على أسود، روابط صفراء. */
+html[data-bpa-contrast][data-bpa-theme="dark"]{background:#000}
+html[data-bpa-contrast][data-bpa-theme="dark"] body>:not(.bpa-ui),
+html[data-bpa-contrast][data-bpa-theme="dark"] body>:not(.bpa-ui) *:not(svg *){
+ color:#fff!important;background-color:#000!important;background-image:none!important;
+ border-color:#fff!important;box-shadow:none!important;text-shadow:none!important}
+html[data-bpa-contrast][data-bpa-theme="dark"] body>:not(.bpa-ui) a:not(.sv1-btn),
+html[data-bpa-contrast][data-bpa-theme="dark"] body>:not(.bpa-ui) a:not(.sv1-btn) *{color:#FFE14A!important;text-decoration:underline!important}
+html[data-bpa-contrast][data-bpa-theme="dark"] body>:not(.bpa-ui) :is(.sv1-btn.primary,.primary,.send,.sv1-msg.u,.sv1-steps .active,.sv1-mi.on,.sv1-tab.on,.sv1-door.on,[aria-pressed="true"],[aria-current="page"],[aria-selected="true"]),
+html[data-bpa-contrast][data-bpa-theme="dark"] body>:not(.bpa-ui) :is(.sv1-btn.primary,.primary,.send,.sv1-msg.u,.sv1-steps .active,.sv1-mi.on,.sv1-tab.on,.sv1-door.on,[aria-pressed="true"],[aria-current="page"],[aria-selected="true"]) *{
+ background-color:#fff!important;color:#000!important}
+html[data-bpa-contrast][data-bpa-theme="dark"] body>:not(.bpa-ui) :is(button,input,select,textarea,.sv1-btn,.sv1-door,.sv1-panel,.sv1-item,.sv1-msg){border:2px solid #fff!important}
+html[data-bpa-contrast][data-bpa-theme="dark"] body>:not(.bpa-ui) ::placeholder{color:#ddd!important;opacity:1}
+html[data-bpa-contrast] body>:not(.bpa-ui) *::before,html[data-bpa-contrast] body>:not(.bpa-ui) *::after{color:inherit!important;background-image:none!important;box-shadow:none!important}
+html[data-bpa-contrast] body>:not(.bpa-ui) .sv1-hero::after{display:none}
+html[data-bpa-contrast][data-bpa-theme="dark"] body>:not(.bpa-ui) :is(.logo img,img.logo){filter:invert(1) grayscale(1) brightness(2)}
+html[data-bpa-contrast] body>:not(.bpa-ui) :disabled{opacity:.6}
+html[data-bpa-contrast] body>:not(.bpa-ui) .sv1-bar-langs a{opacity:1}
+
+/* ------------------------------------- عدم الاعتماد على اللون وحده (روابط وحالات) */
+html[data-bpa-links] body>:not(.bpa-ui) a:not(.sv1-btn):not(.sv1-door):not(.logo):not(.sv1-wa-fab){
+ text-decoration:underline!important;text-underline-offset:3px;text-decoration-thickness:1.5px}
+html[data-bpa-links] body>:not(.bpa-ui) :is(.sv1-status,.sv1-steps span,.sv1-tag,.tg){outline:1.5px solid currentColor;outline-offset:-1px}
+html[data-bpa-links] body>:not(.bpa-ui) [aria-current]{font-weight:700;text-decoration:underline!important}
+html[data-bpa-links] body>:not(.bpa-ui) [aria-invalid="true"]{border:2px dashed #b42318!important;outline:2px solid #b42318!important}
+html[data-bpa-links] body>:not(.bpa-ui) :is(.sv1-err,.err,[id$="Err"],[role="alert"]):not(:empty)::before{content:"\26A0\FE0E  ";font-weight:700}
+html[data-bpa-links] body>:not(.bpa-ui) :is(.sv1-ok,.ok):not(:empty)::before{content:"\2713  ";font-weight:700}
+
+/* ------------------------------------------------------------- مؤشر كبير */
+html[data-bpa-cursor],html[data-bpa-cursor] *{cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 24 24'><path d='M4 2l16 9-7 2 4 8-3 1.6-4-8-5 5z' fill='black' stroke='white' stroke-width='1.6' stroke-linejoin='round'/></svg>") 4 2,auto!important}
+html[data-bpa-cursor] :is(a,button,[role="button"],[role="switch"],summary,label,select,input[type="checkbox"],input[type="radio"],input[type="submit"],[onclick],.sv1-door,.sv1-btn){
+ cursor:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 24 24'><path d='M4 2l16 9-7 2 4 8-3 1.6-4-8-5 5z' fill='%23FFC400' stroke='black' stroke-width='1.6' stroke-linejoin='round'/></svg>") 4 2,pointer!important}
+html[data-bpa-cursor] :is(input[type="text"],input[type="email"],input[type="tel"],input[type="password"],input[type="search"],input:not([type]),textarea){cursor:text!important}
+
+/* ------------------------------------------------------ تمييز التركيز بوضوح */
+html[data-bpa-focus] :focus-visible,html[data-bpa-focus] :focus{outline:4px solid #FFC400!important;outline-offset:3px!important;
+ box-shadow:0 0 0 7px #0B1B5A!important;border-radius:4px}
+html[data-bpa-focus] .bpa-ui :focus-visible{box-shadow:0 0 0 6px #0B1B5A!important}
+
+/* ------------------------------------------------------ إخفاء الصور الزخرفية */
+html[data-bpa-imgs] body>:not(.bpa-ui) :is(img[alt=""],img[role="presentation"],img[role="none"],[aria-hidden="true"]>img,picture:has(>img[alt=""])){display:none!important}
+html[data-bpa-imgs] body>:not(.bpa-ui) *,html[data-bpa-imgs] body>:not(.bpa-ui) *::before,html[data-bpa-imgs] body>:not(.bpa-ui) *::after{background-image:none!important}
+html[data-bpa-imgs] .sv1-hero::before,html[data-bpa-imgs] .sv1-hero::after{display:none!important}
+
+/* ------------------------------------------------- القراءة بصوتٍ عالٍ: الكتلة الحالية */
+.bpa-reading{outline:3px solid #FFC400!important;outline-offset:3px!important;background-color:rgba(255,196,0,.2)!important;border-radius:4px}
+
+/* =============================================================================
+   الزرّ واللوحة
+   ============================================================================= */
+.bpa-ui{--bpa-bg:#fff;--bpa-fg:#232A3D;--bpa-mut:#4d566b;--bpa-ac:#0B1B5A;--bpa-line:#C3CDE6;--bpa-soft:#EEF2FB;--bpa-on:#fff;--bpa-ring:#FFC400;
+ font:400 14px/1.6 "IBM Plex Sans Arabic","IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--bpa-fg);text-align:start;letter-spacing:normal;word-spacing:normal}
+.bpa-ui *,.bpa-ui *::before,.bpa-ui *::after{box-sizing:border-box;letter-spacing:normal!important;word-spacing:normal!important}
+html[data-bpa-contrast][data-bpa-theme="dark"] .bpa-ui{--bpa-bg:#000;--bpa-fg:#fff;--bpa-mut:#ddd;--bpa-ac:#fff;--bpa-line:#fff;--bpa-soft:#111;--bpa-on:#000}
+html[data-bpa-theme="dark"]:not([data-bpa-contrast]) .bpa-ui{--bpa-bg:#fff}
+.bpa-fab{position:fixed;inset-inline-start:14px;bottom:86px;z-index:2147482990;display:inline-flex;align-items:center;gap:8px;
+ min-width:48px;height:48px;padding:0 14px;border-radius:999px;border:2px solid #fff;background:var(--bpa-ac);color:var(--bpa-on);
+ font-weight:600;font-size:13.5px;line-height:1;font-family:inherit;cursor:pointer;box-shadow:0 8px 22px -6px rgba(11,27,90,.55)}
+.bpa-fab:hover{background:#16307F}
+.bpa-fab svg{width:24px;height:24px;flex:none}
+.bpa-fab:focus-visible,.bpa-ui button:focus-visible,.bpa-ui a:focus-visible,.bpa-ui [tabindex]:focus-visible{outline:3px solid var(--bpa-ring);outline-offset:2px;box-shadow:0 0 0 5px #0B1B5A}
+@media(max-width:520px){.bpa-fab{padding:0;width:48px;justify-content:center}.bpa-fab .bpa-fab-t{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
+.bpa-panel{position:fixed;inset-inline-start:14px;bottom:146px;z-index:2147483200;width:min(392px,calc(100vw - 28px));
+ max-height:min(680px,calc(100vh - 170px));display:flex;flex-direction:column;background:var(--bpa-bg);color:var(--bpa-fg);
+ border:1px solid var(--bpa-line);border-radius:16px;box-shadow:0 26px 60px -16px rgba(11,27,90,.45),0 2px 8px rgba(11,27,90,.1);overflow:hidden}
+.bpa-panel[hidden]{display:none}
+.bpa-hd{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-block:12px;padding-inline:16px 10px;border-bottom:1px solid var(--bpa-line);background:var(--bpa-soft)}
+.bpa-hd h2{margin:0;font-size:16px;font-weight:600;color:var(--bpa-ac);letter-spacing:normal}
+.bpa-hd h2:focus{outline:none}
+.bpa-x{width:44px;height:44px;border-radius:10px;border:1px solid var(--bpa-line);background:var(--bpa-bg);color:var(--bpa-fg);font-size:20px;line-height:1;cursor:pointer;display:grid;place-items:center}
+.bpa-body{overflow:auto;padding:6px 16px 14px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.bpa-intro{margin:10px 0 2px;font-size:12.5px;color:var(--bpa-mut)}
+.bpa-g{border:0;margin:14px 0 0;padding:0;min-width:0}
+.bpa-g>legend,.bpa-gt{display:block;padding:0;margin:0 0 7px;font-size:12px;font-weight:700;letter-spacing:.02em;color:var(--bpa-ac)}
+.bpa-row{display:flex;flex-wrap:wrap;gap:8px}
+.bpa-seg{display:flex;gap:6px;flex-wrap:wrap}
+.bpa-seg button,.bpa-act{min-height:44px;min-width:44px;padding:8px 14px;border:1.5px solid var(--bpa-line);border-radius:10px;background:var(--bpa-bg);color:var(--bpa-fg);font-weight:500;font-size:13px;line-height:1.3;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:1 1 auto}
+.bpa-seg button[aria-pressed="true"]{background:var(--bpa-ac);color:var(--bpa-on);border-color:var(--bpa-ac);font-weight:700}
+.bpa-seg button[aria-pressed="true"]::before{content:"\2713";font-size:12px}
+.bpa-act:hover,.bpa-seg button:hover{border-color:var(--bpa-ac)}
+.bpa-act.pri{background:var(--bpa-ac);color:var(--bpa-on);border-color:var(--bpa-ac);font-weight:600}
+.bpa-act[disabled]{opacity:.5;cursor:default}
+.bpa-sw{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:48px;padding:8px 12px;margin:0 0 6px;border:1.5px solid var(--bpa-line);border-radius:10px;background:var(--bpa-bg);color:var(--bpa-fg);font-weight:500;font-size:13px;line-height:1.4;font-family:inherit;text-align:start;cursor:pointer}
+.bpa-sw:hover{border-color:var(--bpa-ac)}
+.bpa-sw .bpa-st{flex:none;min-width:58px;text-align:center;padding:3px 10px;border-radius:999px;border:1.5px solid var(--bpa-line);font-size:11.5px;font-weight:700;background:var(--bpa-soft);color:var(--bpa-mut)}
+.bpa-sw[aria-checked="true"]{border-color:var(--bpa-ac);background:var(--bpa-soft)}
+.bpa-sw[aria-checked="true"] .bpa-st{background:var(--bpa-ac);color:var(--bpa-on);border-color:var(--bpa-ac)}
+.bpa-help{margin:0 0 8px;font-size:12px;color:var(--bpa-mut);line-height:1.65}
+.bpa-stat{margin:8px 0 0;font-size:12px;color:var(--bpa-mut);min-height:1.2em}
+.bpa-keys{margin:14px 0 0;padding:10px 12px;border:1px dashed var(--bpa-line);border-radius:10px;font-size:12px;color:var(--bpa-mut);line-height:1.8}
+.bpa-keys kbd{font:600 11.5px/1 ui-monospace,SFMono-Regular,Menlo,monospace;padding:2px 6px;border:1px solid var(--bpa-line);border-radius:5px;background:var(--bpa-soft);color:var(--bpa-fg);direction:ltr;unicode-bidi:isolate;display:inline-block}
+.bpa-ft{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--bpa-line);background:var(--bpa-soft)}
+.bpa-ft a{color:var(--bpa-ac);font-weight:600;text-decoration:underline;text-underline-offset:3px;min-height:44px;display:inline-flex;align-items:center}
+.bpa-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.bpa-toast{position:fixed;inset-inline:16px;bottom:146px;margin-inline:auto;width:max-content;max-width:calc(100vw - 32px);z-index:2147483201;
+ background:#0B1B5A;color:#fff;border:2px solid #fff;border-radius:12px;padding:12px 18px;font-size:14px;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+.bpa-toast[hidden]{display:none}
+@media(max-width:600px){
+ .bpa-panel{inset-inline:8px;bottom:8px;width:auto;max-height:calc(100vh - 16px);border-radius:16px}
+ .bpa-fab{bottom:86px}
+}
+@media print{.bpa-ui,.bpa-skip{display:none!important}}

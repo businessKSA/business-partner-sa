@@ -3,6 +3,18 @@
 // sees what needs attention, their requests, and the one action each request
 // is waiting on (approve quote → sign contract → pay → done).
 
+import fs from "node:fs";
+import { CLIENT_LOGIN_CSS, clientLoginScript } from "./client-login.mjs";
+
+// The seller printed on the invoice page comes from the one place the company's
+// legal identity lives (site/data/site.json → legal), never typed here.
+function sellerFromSite() {
+  try {
+    const L = JSON.parse(fs.readFileSync(new URL("../data/site.json", import.meta.url), "utf8")).legal || {};
+    return { name: L.name || "", nameEn: L.nameEn || "", vat: String(L.vat || ""), city: L.city || "", cityEn: L.cityEn || "" };
+  } catch { return { name: "", nameEn: "", vat: "", city: "", cityEn: "" }; }
+}
+
 const P = {
   title: { ar: "حسابي — Business Partner", en: "My account — Business Partner", fr: "Mon compte — Business Partner", zh: "我的账户 — Business Partner" },
   navHome: { ar: "الرئيسية", en: "Home", fr: "Accueil", zh: "首页" },
@@ -101,8 +113,27 @@ const P = {
   confirmScope: { ar: "اعتمد النطاق وتابع", en: "Confirm scope & continue", fr: "Confirmer et continuer", zh: "确认范围并继续" },
   scopePricing: { ar: "تم اعتماد النطاق ✓ — الفريق يجهّز عرض السعر ويصلك هنا وعلى بريدك.", en: "Scope confirmed ✓ — our team is preparing your quotation; it will appear here and in your inbox.", fr: "Périmètre confirmé ✓ — l'équipe prépare votre devis.", zh: "范围已确认 ✓ — 团队正在准备报价。" },
   docs: { ar: "المستندات المطلوبة", en: "Documents required", fr: "Documents requis", zh: "所需文件" },
-  docsNote: { ar: "جهّز هذه المستندات — نطلبها لإتمام طلبك.", en: "Prepare these documents — we need them to complete your request.", fr: "Préparez ces documents — ils sont nécessaires pour traiter votre demande.", zh: "请准备这些文件 — 我们需要它们来完成您的申请。" },
-  docsNone: { ar: "لا مستندات مطلوبة حتى الآن.", en: "No documents requested yet.", fr: "Aucun document demandé pour l'instant.", zh: "暂无所需文件。" },
+  docsNote: { ar: "نطلب هذه المستندات لإتمام طلبك — ارفع كل مستند من زره هنا، ويصل الفريق مباشرة.", en: "We need these documents to complete your request — upload each one with its button and our team receives it right away.", fr: "Ces documents sont nécessaires pour traiter votre demande — téléversez chacun avec son bouton, l'équipe le reçoit aussitôt.", zh: "我们需要这些文件来完成您的申请 — 用对应按钮上传，团队会立即收到。" },
+  docsNone: { ar: "لا مستندات مطلوبة حتى الآن. تقدر مع ذلك ترفع أي مستند يخص الطلب.", en: "No documents requested yet. You can still upload any document that belongs to this request.", fr: "Aucun document demandé pour l'instant. Vous pouvez tout de même téléverser un document lié à cette demande.", zh: "暂无所需文件。您仍可上传与此申请相关的任何文件。" },
+  docUp: { ar: "ارفع", en: "Upload", fr: "Téléverser", zh: "上传" },
+  docUpMore: { ar: "ارفع ملفاً آخر", en: "Upload another", fr: "Téléverser un autre", zh: "再上传一个" },
+  docUpAny: { ar: "ارفع مستنداً آخر", en: "Upload another document", fr: "Téléverser un autre document", zh: "上传其他文件" },
+  docRecv: { ar: "استُلم ✓", en: "Received ✓", fr: "Reçu ✓", zh: "已收到 ✓" },
+  docWaived: { ar: "معفى", en: "Not needed", fr: "Non requis", zh: "无需提供" },
+  docAsked: { ar: "مطلوب", en: "Requested", fr: "Demandé", zh: "待提供" },
+  docSent: { ar: "وصل مستندك للفريق ✓", en: "Your document reached the team ✓", fr: "Votre document est arrivé à l'équipe ✓", zh: "您的文件已送达团队 ✓" },
+  fOpen: { ar: "فتح", en: "Open", fr: "Ouvrir", zh: "打开" },
+  eMany: { ar: "وصلت إلى الحدّ الأقصى لعدد الملفات في هذا الطلب.", en: "You reached the maximum number of files for this request.", fr: "Nombre maximal de fichiers atteint pour cette demande.", zh: "此申请的文件数量已达上限。" },
+  eClosed: { ar: "الطلب مغلق ولا يقبل مستندات.", en: "This request is closed and takes no more documents.", fr: "Cette demande est close.", zh: "此申请已关闭，无法再上传文件。" },
+  delivTitle: { ar: "مخرجات الطلب", en: "Deliverables", fr: "Livrables", zh: "交付成果" },
+  delivNone: { ar: "ستظهر هنا الملفات التي نسلّمها لك، وننبّهك بالبريد فور تسليمها.", en: "The files we hand over will appear here, and we e-mail you as soon as they are delivered.", fr: "Les fichiers que nous vous remettons apparaîtront ici ; nous vous prévenons par e-mail dès la livraison.", zh: "我们交付的文件会显示在这里，交付后会立即发邮件通知您。" },
+  delivNoneDone: { ar: "اكتمل الطلب ولا توجد ملفات مسلَّمة داخله.", en: "The request is complete and has no delivered files.", fr: "La demande est terminée et ne comporte aucun fichier livré.", zh: "申请已完成，没有交付文件。" },
+  delivDl: { ar: "تنزيل", en: "Download", fr: "Télécharger", zh: "下载" },
+  delivErr: { ar: "تعذّر فتح الملف — حاول مرة أخرى.", en: "The file could not be opened — try again.", fr: "Impossible d'ouvrir le fichier — réessayez.", zh: "无法打开文件 — 请重试。" },
+  invSeller: { ar: "البائع", en: "Seller", fr: "Vendeur", zh: "卖方" },
+  invVat: { ar: "الرقم الضريبي للبائع", en: "Seller VAT number", fr: "N° de TVA du vendeur", zh: "卖方税号" },
+  invBuyer: { ar: "العميل", en: "Bill to", fr: "Client", zh: "买方" },
+  invOfficial: { ar: "الفاتورة الرسمية (PDF)", en: "Official invoice (PDF)", fr: "Facture officielle (PDF)", zh: "正式发票 (PDF)" },
   addItem: { ar: "إضافة بند", en: "Add item", fr: "Ajouter", zh: "添加条目" },
   remove: { ar: "حذف", en: "Remove", fr: "Supprimer", zh: "删除" },
   scopeLocked: { ar: "النطاق مقفل بعد إصدار عرض السعر.", en: "Scope is locked once a quotation is issued.", fr: "Le périmètre est verrouillé après l'émission du devis.", zh: "报价发出后范围已锁定。" },
@@ -117,6 +148,8 @@ const P = {
   reject: { ar: "طلب تعديل", en: "Request changes", fr: "Demander des modifications", zh: "要求修改" },
   rejectNote: { ar: "ما الذي تريد تعديله؟", en: "What would you like changed?", fr: "Que souhaitez-vous modifier ?", zh: "您希望修改什么？" },
   quoteApproved: { ar: "تم اعتماد العرض، والعقد جاهز للتوقيع الآن.", en: "Quote approved — your contract is ready to sign now.", fr: "Devis approuvé — votre contrat est prêt à signer.", zh: "报价已确认，合同现已可供签署。" },
+  quoteApprovedDone: { ar: "تم اعتماد العرض ✓", en: "Quote approved ✓", fr: "Devis approuvé ✓", zh: "报价已确认 ✓" },
+  quoteExpired: { ar: "انتهت صلاحية عرض السعر هذا. اكتب لنا من داخل الطلب ليُجدَّد لك بسعر اليوم.", en: "This quotation has expired. Message us in the request and we will renew it at today's price.", fr: "Ce devis a expiré. Écrivez-nous depuis la demande et nous le renouvelons au prix du jour.", zh: "此报价已过期。请在申请中留言，我们将按当日价格为您更新。" },
   viewContract: { ar: "عرض العقد", en: "View contract", fr: "Voir le contrat", zh: "查看合同" },
   signTitle: { ar: "التوقيع الإلكتروني", en: "Electronic signature", fr: "Signature électronique", zh: "电子签名" },
   signName: { ar: "الاسم الكامل للموقّع", en: "Signer's full name", fr: "Nom complet du signataire", zh: "签署人全名" },
@@ -145,25 +178,99 @@ const P = {
   time: { ar: "الوقت", en: "Time", fr: "Heure", zh: "时间" },
   topic: { ar: "الموضوع", en: "Topic", fr: "Sujet", zh: "主题" },
   confirm: { ar: "تأكيد", en: "Confirm", fr: "Confirmer", zh: "确认" },
-  apptNote: { ar: "المواعيد من الأحد إلى الخميس، بتوقيت الرياض. نؤكد الموعد على بريدك.", en: "Sunday to Thursday, Riyadh time. We confirm by email.", fr: "Du dimanche au jeudi, heure de Riyad. Confirmation par e-mail.", zh: "周日至周四，利雅得时间。我们将通过邮件确认。" },
+  apptNote: { ar: "جلسة بالفيديو عبر Google Meet، مجانية، وكل الأوقات بتوقيت الرياض. نؤكد الموعد على بريدك ونرسل دعوة تقويم.", en: "A free video session on Google Meet; all times are Riyadh time. We confirm by e-mail and send a calendar invitation.", fr: "Séance vidéo gratuite sur Google Meet ; heures de Riyad. Confirmation par e-mail et invitation d'agenda.", zh: "通过 Google Meet 进行的免费视频会谈；均为利雅得时间。我们将通过邮件确认并发送日历邀请。" },
+  apptHours: { ar: "الجلسات من {a} إلى {b} بتوقيت الرياض (GMT+3)، مدة الجلسة {n} دقيقة.", en: "Sessions run {a} – {b} Riyadh time (GMT+3), {n} minutes each.", fr: "Séances de {a} à {b}, heure de Riyad (GMT+3), {n} minutes chacune.", zh: "会谈时间 {a}–{b}（利雅得时间 GMT+3），每次 {n} 分钟。" },
+  apptDays: { ar: "كل الأيام عدا {d}.", en: "Every day except {d}.", fr: "Tous les jours sauf {d}.", zh: "除{d}外每天。" },
+  apptDaysAll: { ar: "كل أيام الأسبوع.", en: "Every day of the week.", fr: "Tous les jours de la semaine.", zh: "每周每天。" },
+  apptLoading: { ar: "نقرأ المواعيد المتاحة…", en: "Loading available times…", fr: "Chargement des créneaux…", zh: "正在加载可预约时间…" },
+  apptNone: { ar: "لا مواعيد متاحة الآن. راسلنا على واتساب ونرتّب لك موعداً.", en: "No times are available now. Message us on WhatsApp and we will arrange one.", fr: "Aucun créneau disponible. Écrivez-nous sur WhatsApp.", zh: "目前没有可用时间。请通过 WhatsApp 联系我们。" },
+  apptOut: { ar: "هذا الوقت خارج ساعات الجلسات — اختر وقتاً من القائمة.", en: "That time is outside session hours — pick one from the list.", fr: "Cet horaire est hors des heures de séance — choisissez dans la liste.", zh: "该时间不在会谈时段内 — 请从列表中选择。" },
+  apptSoon: { ar: "نحتاج ساعةً على الأقل قبل الجلسة — اختر وقتاً أبعد.", en: "We need at least one hour before a session — pick a later time.", fr: "Il faut au moins une heure avant la séance — choisissez plus tard.", zh: "预约需至少提前一小时 — 请选择更晚的时间。" },
+  apptFar: { ar: "هذا التاريخ أبعد من المدى المفتوح للحجز.", en: "That date is beyond the booking window.", fr: "Cette date dépasse la période de réservation.", zh: "该日期超出可预约范围。" },
+  apptTaken: { ar: "حُجزت هذه الفترة قبل قليل — اختر فترة أخرى.", en: "That slot was just taken — pick another.", fr: "Ce créneau vient d'être pris — choisissez-en un autre.", zh: "该时段刚被预订 — 请另选。" },
+  apptMany: { ar: "لديك موعدان قادمان بالفعل — ألغِ أحدهما أو انتظر حتى يمضي.", en: "You already have two upcoming sessions — cancel one or wait for it to pass.", fr: "Vous avez déjà deux séances à venir — annulez-en une ou attendez.", zh: "您已有两个即将进行的预约 — 请取消其一或等待其结束。" },
+  apptRate: { ar: "محاولات كثيرة — انتظر قليلاً ثم أعد المحاولة.", en: "Too many attempts — wait a little and try again.", fr: "Trop de tentatives — patientez un peu.", zh: "尝试次数过多 — 请稍后再试。" },
+  nextAppt: { ar: "موعدك القادم", en: "Your next appointment", fr: "Votre prochain rendez-vous", zh: "您的下一次预约" },
+  videoFree: { ar: "الاتصال المرئي — استشارة مجانية", en: "Video call — free consultation", fr: "Appel vidéo — consultation gratuite", zh: "视频通话 — 免费咨询" },
+  joinNow: { ar: "انضم إلى الاجتماع", en: "Join the meeting", fr: "Rejoindre la réunion", zh: "加入会议" },
+  joinSoon: { ar: "يُفتح الانضمام قبل الموعد بخمس دقائق.", en: "Joining opens five minutes before the start.", fr: "L'accès s'ouvre cinq minutes avant le début.", zh: "开始前五分钟开放加入。" },
+  meetLink: { ar: "رابط الاجتماع", en: "Meeting link", fr: "Lien de la réunion", zh: "会议链接" },
+  addCal: { ar: "أضِف إلى التقويم", en: "Add to calendar", fr: "Ajouter à l'agenda", zh: "添加到日历" },
+  apptPending: { ar: "الموعد بانتظار تأكيد الفريق — يصلك رابط الاجتماع ودعوة التقويم على بريدك بعد التثبيت.", en: "The time is awaiting the team's confirmation — the meeting link and calendar invitation reach your e-mail once it is set.", fr: "Le créneau attend la confirmation de l'équipe — le lien et l'invitation arrivent par e-mail.", zh: "时间等待团队确认 — 确认后会议链接和日历邀请将发送到您的邮箱。" },
+  apptOver: { ar: "انتهت هذه الجلسة.", en: "This session has ended.", fr: "Cette séance est terminée.", zh: "此会谈已结束。" },
+  riyadh: { ar: "بتوقيت الرياض", en: "Riyadh time", fr: "heure de Riyad", zh: "利雅得时间" },
   cancelReq: { ar: "إلغاء الطلب", en: "Cancel request", fr: "Annuler la demande", zh: "取消申请" },
   company: { ar: "اسم الشركة", en: "Company name", fr: "Nom de l'entreprise", zh: "公司名称" },
   cr: { ar: "السجل التجاري", en: "CR number", fr: "Numéro RC", zh: "商业登记号" },
   nameEn: { ar: "الاسم بالإنجليزية", en: "Name in English", fr: "Nom en anglais", zh: "英文名称" },
   save: { ar: "حفظ", en: "Save", fr: "Enregistrer", zh: "保存" },
   saved: { ar: "تم الحفظ", en: "Saved", fr: "Enregistré", zh: "已保存" },
+  // Messages for things that used to fail silently or show a raw server code
+  // («friday», «bad_datetime», «card») to the customer.
+  sessEnd: { ar: "انتهت جلستك — سجّل دخولك من جديد لتكمل.", en: "Your session has ended — sign in again to continue.", fr: "Votre session a expiré — reconnectez-vous pour continuer.", zh: "会话已过期 — 请重新登录后继续。" },
+  apptBad: { ar: "اختر التاريخ والوقت أولاً.", en: "Pick a date and a time first.", fr: "Choisissez d'abord une date et une heure.", zh: "请先选择日期和时间。" },
+  apptFri: { ar: "لا جلسات في هذا اليوم — اختر يوماً آخر.", en: "No sessions on this day — please pick another day.", fr: "Pas de séance ce jour-là — choisissez un autre jour.", zh: "当天不安排会谈 — 请选择其他日期。" },
+  apptPast: { ar: "هذا الموعد مضى — اختر وقتاً قادماً.", en: "That time has already passed — pick a later one.", fr: "Cet horaire est déjà passé — choisissez-en un autre.", zh: "该时间已过 — 请选择之后的时间。" },
+  provCard: { ar: "بطاقة", en: "Card", fr: "Carte", zh: "银行卡" },
+  provTamara: { ar: "تمارا", en: "Tamara", fr: "Tamara", zh: "Tamara" },
+  provBank: { ar: "تحويل بنكي", en: "Bank transfer", fr: "Virement bancaire", zh: "银行转账" },
+  actAi: { ar: "المستشار الذكي", en: "Smart advisor", fr: "Conseiller intelligent", zh: "智能顾问" },
+  actSys: { ar: "النظام", en: "System", fr: "Système", zh: "系统" },
+  actTeam: { ar: "فريق Business Partner", en: "Business Partner team", fr: "Équipe Business Partner", zh: "Business Partner 团队" },
   you: { ar: "أنت", en: "You", fr: "Vous", zh: "您" },
   team: { ar: "الفريق", en: "Team", fr: "Équipe", zh: "团队" },
   assistant: { ar: "المساعد", en: "Assistant", fr: "Assistant", zh: "助手" },
   loginTitle: { ar: "تسجيل الدخول", en: "Sign in", fr: "Connexion", zh: "登录" },
-  loginText: { ar: "أدخل بريدك ونرسل لك رمز دخول.", en: "Enter your email and we'll send a sign-in code.", fr: "Saisissez votre e-mail, nous envoyons un code.", zh: "输入邮箱，我们将发送登录验证码。" },
+  loginText: { ar: "اختر طريقة الدخول — حسابك واحد مهما اخترت.", en: "Choose how to sign in — it is one account whichever you pick.", fr: "Choisissez comment vous connecter — un seul compte, quel que soit le moyen.", zh: "选择登录方式——无论哪种方式都是同一个账户。" },
+  tabPw: { ar: "كلمة المرور", en: "Password", fr: "Mot de passe", zh: "密码" },
+  tabNew: { ar: "حساب جديد", en: "New account", fr: "Nouveau compte", zh: "新账户" },
+  tabLink: { ar: "رابط بالبريد", en: "E-mail link", fr: "Lien par e-mail", zh: "邮件链接" },
+  forgot: { ar: "نسيت كلمة المرور؟ ادخل برابط يصلك بالبريد", en: "Forgot it? Sign in with an e-mailed link", fr: "Oublié ? Connectez-vous par lien e-mail", zh: "忘记密码？使用邮件链接登录" },
+  badCreds: { ar: "البريد أو كلمة المرور غير صحيحة.", en: "Wrong e-mail or password.", fr: "E-mail ou mot de passe incorrect.", zh: "邮箱或密码不正确。" },
+  tooMany: { ar: "محاولات كثيرة. انتظر قليلاً ثم أعد المحاولة.", en: "Too many attempts. Wait a little and try again.", fr: "Trop de tentatives. Patientez un peu puis réessayez.", zh: "尝试次数过多，请稍等后再试。" },
+  pwNew: { ar: "اختر كلمة مرور", en: "Choose a password", fr: "Choisissez un mot de passe", zh: "设置密码" },
+  pwConfirm: { ar: "أعد كتابة كلمة المرور", en: "Repeat the password", fr: "Répétez le mot de passe", zh: "再次输入密码" },
+  pwMismatch: { ar: "كلمتا المرور غير متطابقتين.", en: "The passwords do not match.", fr: "Les mots de passe ne correspondent pas.", zh: "两次输入的密码不一致。" },
+  pwRule: { ar: "٨ أحرف على الأقل، وتحوي حرفاً ورقماً.", en: "At least 8 characters, with a letter and a digit.", fr: "8 caractères minimum, avec une lettre et un chiffre.", zh: "至少 8 个字符，包含字母和数字。" },
+  pwr_short: { ar: "كلمة المرور ٨ أحرف على الأقل.", en: "The password must be at least 8 characters.", fr: "8 caractères minimum.", zh: "密码至少 8 个字符。" },
+  pwr_long: { ar: "كلمة المرور أطول من المسموح.", en: "That password is too long.", fr: "Ce mot de passe est trop long.", zh: "密码过长。" },
+  pwr_no_letter: { ar: "كلمة المرور تحتاج حرفاً واحداً على الأقل.", en: "The password needs at least one letter.", fr: "Le mot de passe doit contenir au moins une lettre.", zh: "密码至少需要一个字母。" },
+  pwr_no_digit: { ar: "كلمة المرور تحتاج رقماً واحداً على الأقل.", en: "The password needs at least one digit.", fr: "Le mot de passe doit contenir au moins un chiffre.", zh: "密码至少需要一个数字。" },
+  pwr_repetitive: { ar: "كلمة المرور متكررة الأحرف. اختر غيرها.", en: "That password repeats too much. Pick another.", fr: "Ce mot de passe est trop répétitif. Choisissez-en un autre.", zh: "密码字符过于重复，请换一个。" },
+  pwr_common: { ar: "كلمة المرور شائعة جداً. اختر غيرها.", en: "That password is too common. Pick another.", fr: "Ce mot de passe est trop courant. Choisissez-en un autre.", zh: "密码过于常见，请换一个。" },
+  pwr_has_email: { ar: "لا تضع بريدك داخل كلمة المرور.", en: "Do not put your e-mail inside the password.", fr: "Ne mettez pas votre e-mail dans le mot de passe.", zh: "密码中不要包含您的邮箱。" },
+  signupGo: { ar: "أنشئ حسابي وأرسل الرمز", en: "Create my account and send the code", fr: "Créer mon compte et envoyer le code", zh: "创建账户并发送验证码" },
+  signupNote: { ar: "سنرسل رمزاً إلى بريدك. لا تُفعَّل كلمة المرور قبل تأكيده.", en: "We e-mail you a code. The password is not active until you confirm it.", fr: "Nous vous envoyons un code. Le mot de passe n'est actif qu'après confirmation.", zh: "我们会向您的邮箱发送验证码，确认后密码才会生效。" },
+  codeSent: { ar: "أرسلنا رمز التحقق إلى {e}.", en: "We sent a verification code to {e}.", fr: "Code de vérification envoyé à {e}.", zh: "验证码已发送到 {e}。" },
+  codeOld: { ar: "انتهت صلاحية الرمز. ابدأ من جديد.", en: "That code has expired. Start again.", fr: "Ce code a expiré. Recommencez.", zh: "验证码已过期，请重新开始。" },
+  confirmGo: { ar: "أكّد وادخل", en: "Confirm and sign in", fr: "Confirmer et se connecter", zh: "确认并登录" },
+  cStep: { ar: "خطوة واحدة تُطلب مرة واحدة", en: "One step, asked once", fr: "Une seule étape, demandée une fois", zh: "仅需一步，只需一次" },
+  cTitle: { ar: "أكمل حسابك", en: "Complete your account", fr: "Complétez votre compte", zh: "完善您的账户" },
+  cText: { ar: "تم التحقق من هويتك عبر نفاذ. نحتاج بريدك لتصلك عليه الفاتورة الضريبية وإشعارات طلباتك، وجوالك ليتواصل معك الفريق.", en: "Your identity is verified through Nafath. We need your e-mail for your tax invoice and request updates, and your mobile so the team can reach you.", fr: "Votre identité est vérifiée par Nafath. Nous avons besoin de votre e-mail pour la facture fiscale et le suivi, et de votre mobile pour vous joindre.", zh: "您的身份已通过 Nafath 验证。我们需要您的邮箱以发送税务发票和申请进度，并需要您的手机号以便团队联系您。" },
+  cPhone: { ar: "رقم الجوال", en: "Mobile number", fr: "Numéro de mobile", zh: "手机号码" },
+  cPhonePh: { ar: "05XXXXXXXX", en: "05XXXXXXXX", fr: "05XXXXXXXX", zh: "05XXXXXXXX" },
+  cBadPhone: { ar: "اكتب رقم جوال صحيحاً، مثل 05XXXXXXXX.", en: "Enter a valid mobile number, such as 05XXXXXXXX.", fr: "Saisissez un numéro de mobile valide, par ex. 05XXXXXXXX.", zh: "请输入有效的手机号，例如 05XXXXXXXX。" },
+  cSend: { ar: "أرسل رمز التحقق", en: "Send the verification code", fr: "Envoyer le code de vérification", zh: "发送验证码" },
+  cMismatch: { ar: "هذا البريد مرتبط بهوية وطنية أخرى. استعمل بريداً آخر أو تواصل معنا.", en: "This e-mail is linked to a different national ID. Use another e-mail or contact us.", fr: "Cet e-mail est lié à une autre identité nationale. Utilisez un autre e-mail ou contactez-nous.", zh: "此邮箱已关联另一个身份。请使用其他邮箱或联系我们。" },
   email: { ar: "البريد الإلكتروني", en: "Email", fr: "E-mail", zh: "邮箱" },
   sendCode: { ar: "أرسل الرمز", en: "Send code", fr: "Envoyer le code", zh: "发送验证码" },
   password: { ar: "كلمة المرور", en: "Password", fr: "Mot de passe", zh: "密码" },
   loginPw: { ar: "دخول بكلمة المرور", en: "Sign in with password", fr: "Se connecter avec mot de passe", zh: "使用密码登录" },
   usePw: { ar: "لديك كلمة مرور؟ ادخل بها", en: "Have a password? Sign in with it", fr: "Vous avez un mot de passe ?", zh: "使用密码登录" },
   useCode: { ar: "ادخل برمز البريد بدلاً من ذلك", en: "Use an emailed code instead", fr: "Utiliser un code par e-mail", zh: "改用邮箱验证码" },
-  orGoogle: { ar: "أو ادخل بحساب Google", en: "Or continue with Google", fr: "Ou continuer avec Google", zh: "或使用 Google 登录" },
+  sendLink: { ar: "أرسل لي رابط الدخول", en: "Email me a sign-in link", fr: "Envoyez-moi un lien de connexion", zh: "给我发送登录链接" },
+  badEmail: { ar: "اكتب بريداً إلكترونياً صحيحاً.", en: "Enter a valid e-mail address.", fr: "Saisissez une adresse e-mail valide.", zh: "请输入有效的邮箱地址。" },
+  linkSent: { ar: "أرسلنا رابط الدخول إلى {e} — افتح بريدك واضغط الرابط وتدخل مباشرة (صالح ١٥ دقيقة).", en: "We sent a sign-in link to {e} — open your mailbox and tap it to get in (valid for 15 minutes).", fr: "Lien de connexion envoyé à {e} — ouvrez votre boîte mail et cliquez dessus (valable 15 minutes).", zh: "登录链接已发送到 {e}——打开邮箱点击即可登录（15 分钟内有效）。" },
+  orCode: { ar: "أو اكتب الرمز المرسل في الرسالة نفسها:", en: "Or type the code from the same message:", fr: "Ou saisissez le code du même message :", zh: "或输入同一封邮件中的验证码：" },
+  resend: { ar: "أرسل الرابط مرة أخرى", en: "Send the link again", fr: "Renvoyer le lien", zh: "重新发送链接" },
+  resendIn: { ar: "إعادة الإرسال بعد {n} ث", en: "Send again in {n}s", fr: "Renvoyer dans {n} s", zh: "{n} 秒后可重发" },
+  changeEmail: { ar: "بريد آخر", en: "Use another e-mail", fr: "Autre e-mail", zh: "更换邮箱" },
+  openLink: { ar: "افتح رابط الاختبار", en: "Open the test link", fr: "Ouvrir le lien de test", zh: "打开测试链接" },
+  linkTitle: { ar: "تأكيد الدخول", en: "Confirm sign-in", fr: "Confirmer la connexion", zh: "确认登录" },
+  linkText: { ar: "اضغط الزرّ لإكمال الدخول إلى حسابك.", en: "Tap the button to finish signing in to your account.", fr: "Appuyez sur le bouton pour terminer la connexion.", zh: "点击按钮完成登录。" },
+  linkGo: { ar: "أكمل الدخول", en: "Continue to my account", fr: "Continuer vers mon compte", zh: "继续进入我的账户" },
+  linkBad: { ar: "الرابط منتهٍ أو استُعمل من قبل. اطلب رابطاً جديداً.", en: "This link has expired or was already used. Request a new one.", fr: "Ce lien a expiré ou a déjà été utilisé. Demandez-en un nouveau.", zh: "此链接已过期或已被使用，请重新获取。" },
+  linkNew: { ar: "اطلب رابطاً جديداً", en: "Request a new link", fr: "Demander un nouveau lien", zh: "获取新链接" },
   pwTitle: { ar: "كلمة المرور", en: "Password", fr: "Mot de passe", zh: "密码" },
   pwNote: { ar: "اضبط كلمة مرور لحسابك لتدخل بها مباشرة بدل انتظار رمز البريد في كل مرة.", en: "Set a password so you can sign in directly instead of waiting for an emailed code.", fr: "Définissez un mot de passe pour vous connecter directement.", zh: "设置密码即可直接登录，无需每次等待验证码。" },
   pwSave: { ar: "حفظ كلمة المرور", en: "Save password", fr: "Enregistrer", zh: "保存密码" },
@@ -181,6 +288,15 @@ const P = {
   requestCreated: { ar: "تم إنشاء الطلب", en: "Request created", fr: "Demande créée", zh: "申请已创建" },
   testRibbon: { ar: "وضع الاختبار — لا مدفوعات حقيقية", en: "TEST MODE — no real payments", fr: "MODE TEST — aucun paiement réel", zh: "测试模式 — 无真实付款" },
   sourceLbl: { ar: "المصدر", en: "Source", fr: "Source", zh: "来源" },
+  // ---- شراء مباشر بالسلة: طلب يبدأ مدفوعاً، بلا عرض سعر ولا عقد.
+  direct: { ar: "شراء مباشر", en: "Direct purchase", fr: "Achat direct", zh: "直接购买" },
+  // تذكرة الدعم من مركز التواصل (baher-support): صفٌّ في requests نفسه مرجعه BP-TKT-.
+  ticket: { ar: "تذكرة دعم", en: "Support ticket", fr: "Ticket d'assistance", zh: "支持工单" },
+  bought: { ar: "ما اشتريته", en: "What you bought", fr: "Votre achat", zh: "您购买的内容" },
+  directNote: { ar: "اشتريت هذه الخدمة مباشرة من السلة ودفعت قبل فتح الطلب، فلا عرض سعر ولا عقد له. تتابع هنا مراحله، وترفع مستنداتك، وتستلم مخرجاته.", en: "You bought this directly from the cart and paid before the request opened, so it has no quotation or contract. Follow its stages here, upload your documents and receive the deliverables.", fr: "Vous avez acheté ceci directement depuis le panier et payé avant l'ouverture de la demande : pas de devis ni de contrat. Suivez ici les étapes, téléversez vos documents et recevez les livrables.", zh: "您直接通过购物车购买并已付款，因此没有报价和合同。您可以在此跟进进度、上传文件并接收交付成果。" },
+  cycM: { ar: "شهري", en: "monthly", fr: "mensuel", zh: "按月" },
+  cycY: { ar: "سنوي", en: "yearly", fr: "annuel", zh: "按年" },
+  unverifiedNote: { ar: "مبلغ هذه الدفعة لم يُطابَق آلياً مع الأسعار المعتمدة، فيراجعه الفريق قبل بدء التنفيذ. لا حاجة لإعادة الدفع.", en: "This payment's amount could not be matched automatically to the published prices, so the team reviews it before work starts. No need to pay again.", fr: "Le montant de ce paiement n'a pas pu être rapproché automatiquement des tarifs ; l'équipe le vérifie avant de commencer. Inutile de payer à nouveau.", zh: "此笔付款金额无法自动与公布价格核对，团队将在开始执行前复核。无需重复付款。" },
   // ---- خزانة المستندات (/my) — نفس خزانة الحساب: جدول documents نفسه،
   // فالمستند المرفوع من هنا يظهر هناك والعكس. لا خزانة ثانية.
   navDocs: { ar: "مستنداتي", en: "My documents", fr: "Mes documents", zh: "我的文件" },
@@ -254,7 +370,7 @@ const STATUS = {
   PAID: { ar: "مدفوع — جاهز للتنفيذ", en: "Paid — ready for execution", fr: "Payé — prêt pour exécution", zh: "已付款 — 准备执行" }, IN_PROGRESS: { ar: "قيد التنفيذ", en: "In progress", fr: "En cours", zh: "执行中" },
   WAITING_INTERNAL: { ar: "قيد التنفيذ", en: "In progress", fr: "En cours", zh: "执行中" }, COMPLETED: { ar: "مكتمل", en: "Completed", fr: "Terminé", zh: "已完成" }, CANCELLED: { ar: "ملغي", en: "Cancelled", fr: "Annulé", zh: "已取消" },
 };
-const EVENTS = { ar: {"request.created": "أنشأ الطلب", "request.created.manual": "أُنشئ الطلب يدوياً", "scope.proposed": "اقترح النطاق", "scope.edited": "عدّل النطاق", "scope.confirmed": "اعتمد النطاق", "quote.pending": "بانتظار عرض السعر", "message.customer": "رسالة من العميل", "message.bp": "رد الفريق", "attachment.added": "أضاف مرفقاً", "quote.drafted": "مسودة عرض سعر", "quote.sent": "أرسل عرض السعر", "quote.approved": "اعتمد العرض", "quote.rejected": "طلب تعديل العرض", "contract.sent": "أرسل العقد", "contract.signed": "وقّع العقد", "payment.paid": "تم الدفع", "payment.failed": "فشل الدفع", "payment.cancelled": "أُلغي الدفع", "payment.pending": "دفع معلّق", "invoice.issued": "صدرت الفاتورة", "appointment.booked": "حجز موعداً", "appointment.rescheduled": "أعاد جدولة الموعد", "appointment.cancelled": "ألغى الموعد", "appointment.set": "ثبّت الموعد", "task.created": "أنشأ مهمة", "task.human_required": "مهمة تحتاج تدخلاً بشرياً", "task.done": "أنجز المهمة", "task.in_progress": "بدأ المهمة", "task.waiting": "مهمة بانتظار", "task.todo": "أعاد فتح المهمة", "execution.started": "بدأ التنفيذ", "request.cancelled": "ألغى الطلب", "cancel.requested": "طلب إلغاء الطلب", "payment.after_cancel": "وصلت دفعة بعد الإلغاء","request.updated": "حدّث الطلب"}, en: {"request.created": "created the request", "request.created.manual": "request created manually", "scope.proposed": "proposed the scope", "scope.edited": "edited the scope", "scope.confirmed": "confirmed the scope", "quote.pending": "awaiting the quotation", "message.customer": "customer message", "message.bp": "team reply", "attachment.added": "added an attachment", "quote.drafted": "quote drafted", "quote.sent": "sent the quotation", "quote.approved": "approved the quotation", "quote.rejected": "requested changes", "contract.sent": "sent the contract", "contract.signed": "signed the contract", "payment.paid": "payment received", "payment.failed": "payment failed", "payment.cancelled": "payment cancelled", "payment.pending": "payment pending", "invoice.issued": "invoice issued", "appointment.booked": "booked an appointment", "appointment.rescheduled": "rescheduled the appointment", "appointment.cancelled": "cancelled the appointment", "appointment.set": "set the appointment", "task.created": "created a task", "task.human_required": "task needs a human", "task.done": "completed the task", "task.in_progress": "started the task", "task.waiting": "task waiting", "task.todo": "reopened the task", "execution.started": "execution started", "request.cancelled": "cancelled the request", "cancel.requested": "requested cancellation", "payment.after_cancel": "payment received after cancellation","request.updated": "updated the request"} };
+const EVENTS = { ar: {"request.created": "أنشأ الطلب", "request.created.manual": "أُنشئ الطلب يدوياً", "request.created.cart": "أُنشئ الطلب من شراء مباشر بالسلة", "scope.proposed": "اقترح النطاق", "scope.edited": "عدّل النطاق", "scope.confirmed": "اعتمد النطاق", "quote.pending": "بانتظار عرض السعر", "message.customer": "رسالة من العميل", "message.bp": "رد الفريق", "attachment.added": "أضاف مرفقاً", "quote.drafted": "مسودة عرض سعر", "quote.sent": "أرسل عرض السعر", "quote.approved": "اعتمد العرض", "quote.rejected": "طلب تعديل العرض", "contract.sent": "أرسل العقد", "contract.signed": "وقّع العقد", "payment.paid": "تم الدفع", "payment.failed": "فشل الدفع", "payment.cancelled": "أُلغي الدفع", "payment.pending": "دفع معلّق", "invoice.issued": "صدرت الفاتورة", "appointment.booked": "حجز موعداً", "appointment.rescheduled": "أعاد جدولة الموعد", "appointment.cancelled": "ألغى الموعد", "appointment.set": "ثبّت الموعد", "task.created": "أنشأ مهمة", "task.human_required": "مهمة تحتاج تدخلاً بشرياً", "task.done": "أنجز المهمة", "task.in_progress": "بدأ المهمة", "task.waiting": "مهمة بانتظار", "task.todo": "أعاد فتح المهمة", "execution.started": "بدأ التنفيذ", "request.cancelled": "ألغى الطلب", "request.updated": "حدّث الطلب", "document.received": "استلمنا المستند", "deliverable.added": "سلّم مخرجاً من الطلب", "deliverable.removed": "سحب مخرجاً", "status.completed": "اكتمل الطلب", "status.in_progress": "بدأ التنفيذ", "status.waiting_internal": "قيد التنفيذ", "status.reviewing": "قيد المراجعة", "status.waiting_client": "بانتظار ردّك", "status.cancelled": "أُلغي الطلب", "quote.auto": "أصدر عرض السعر آلياً", "documents.requested": "حدّد المستندات المطلوبة", "payment.receipt": "استلم إيصال التحويل", "message.whatsapp": "رسالة واتساب", "contract.reissued": "أعاد إصدار العقد", "request.reopened": "أعاد فتح الطلب", "cancel.requested": "طلب الإلغاء", "payment.after_cancel": "وصلت دفعة بعد الإلغاء", "followup.reminded": "ذكّرك بالخطوة التالية"}, en: {"request.created": "created the request", "request.created.manual": "request created manually", "request.created.cart": "request opened from a direct cart purchase", "scope.proposed": "proposed the scope", "scope.edited": "edited the scope", "scope.confirmed": "confirmed the scope", "quote.pending": "awaiting the quotation", "message.customer": "customer message", "message.bp": "team reply", "attachment.added": "added an attachment", "quote.drafted": "quote drafted", "quote.sent": "sent the quotation", "quote.approved": "approved the quotation", "quote.rejected": "requested changes", "contract.sent": "sent the contract", "contract.signed": "signed the contract", "payment.paid": "payment received", "payment.failed": "payment failed", "payment.cancelled": "payment cancelled", "payment.pending": "payment pending", "invoice.issued": "invoice issued", "appointment.booked": "booked an appointment", "appointment.rescheduled": "rescheduled the appointment", "appointment.cancelled": "cancelled the appointment", "appointment.set": "set the appointment", "task.created": "created a task", "task.human_required": "task needs a human", "task.done": "completed the task", "task.in_progress": "started the task", "task.waiting": "task waiting", "task.todo": "reopened the task", "execution.started": "execution started", "request.cancelled": "cancelled the request", "request.updated": "updated the request", "document.received": "document received", "deliverable.added": "delivered a file", "deliverable.removed": "withdrew a delivered file", "status.completed": "request completed", "status.in_progress": "execution started", "status.waiting_internal": "in progress", "status.reviewing": "under review", "status.waiting_client": "waiting for your reply", "status.cancelled": "request cancelled", "quote.auto": "issued the quotation automatically", "documents.requested": "listed the required documents", "payment.receipt": "received the transfer receipt", "message.whatsapp": "WhatsApp message", "contract.reissued": "re-issued the contract", "request.reopened": "reopened the request", "cancel.requested": "cancellation requested", "payment.after_cancel": "payment received after cancellation", "followup.reminded": "reminded you of the next step"} };
 const DOC_CATS = [
   ["cr",       { ar: "سجل تجاري", en: "Commercial registration", fr: "Registre de commerce", zh: "商业登记" }],
   ["vat",      { ar: "شهادة ضريبية", en: "VAT certificate", fr: "Certificat de TVA", zh: "增值税证书" }],
@@ -262,7 +378,7 @@ const DOC_CATS = [
   ["id",       { ar: "هوية / إقامة", en: "ID / Iqama", fr: "Pièce d'identité / Iqama", zh: "身份证 / 居留证" }],
   ["other",    { ar: "أخرى", en: "Other", fr: "Autre", zh: "其他" }],
 ];
-const TYPES = { CONSULTATION: { ar: "استشارة", en: "Consultation", fr: "Consultation", zh: "咨询" }, GOVERNMENT_SERVICE: { ar: "خدمة حكومية", en: "Government service", fr: "Service gouvernemental", zh: "政府服务" }, COMPANY_FORMATION: { ar: "تأسيس شركة", en: "Company formation", fr: "Création d'entreprise", zh: "公司注册" } };
+const TYPES = { CONSULTATION: { ar: "استشارة", en: "Consultation", fr: "Consultation", zh: "咨询" }, GOVERNMENT_SERVICE: { ar: "خدمة حكومية", en: "Government service", fr: "Service gouvernemental", zh: "政府服务" }, COMPANY_FORMATION: { ar: "تأسيس شركة", en: "Company formation", fr: "Création d'entreprise", zh: "公司注册" }, BUSINESS_DEVELOPMENT: { ar: "تطوير الأعمال", en: "Business development", fr: "Développement commercial", zh: "业务拓展" } };
 
 export function buildSimpleMy(sv1, ctx) {
   const l = ctx.lang();
@@ -279,9 +395,12 @@ export function buildSimpleMy(sv1, ctx) {
 .my-side a .b{margin-inline-start:auto;background:#e11d48;color:#fff;font-size:.7rem;border-radius:999px;padding:2px 7px;font-weight:800}
 .my-side a.on .b{background:#fff;color:var(--n)}
 .my-side .who{padding:8px 12px 14px;border-bottom:1px solid var(--line);margin-bottom:8px}
-.my-side .who b{display:block;color:#fff}
+.my-side .who b{display:block;color:var(--ink)}
 .my-side .who small{color:var(--mut)}
-.my-main{background:var(--g);padding:24px}
+.my-main{background:var(--g);padding:24px;min-width:0}
+/* .sv1 a{color:inherit} outranks .btn, so a link-button drew navy text on its navy fill. */
+.my a.btn:not(.ghost):not(.danger){color:#fff}
+.toast{position:fixed;inset-inline:16px;bottom:88px;max-width:460px;margin-inline:auto;background:#b91c1c;color:#fff;border-radius:12px;padding:12px 16px;z-index:95;font-size:.9rem;box-shadow:0 8px 24px rgba(0,0,0,.2)}
 .my-main h1{margin:0 0 16px;color:var(--ink);font-size:1.45rem;font-weight:300}
 .my-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:22px}
 .my-kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;cursor:pointer}
@@ -290,7 +409,7 @@ export function buildSimpleMy(sv1, ctx) {
 .my-kpi.hot{border-color:#f59e0b;background:#fffbeb}
 .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px}
 .card h2,.card h3{margin:0 0 10px;color:var(--ink);font-size:1.05rem;font-weight:500}
-.list{display:grid;gap:10px}
+.list{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
 .row{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#fff;cursor:pointer}
 .row:hover{border-color:#b7c4e8}
 .row .tt{flex:1;min-width:0}
@@ -298,7 +417,7 @@ export function buildSimpleMy(sv1, ctx) {
 .row .tt small{color:var(--mut);font-size:.78rem}
 .pill{display:inline-block;border-radius:999px;padding:4px 10px;font-size:.74rem;font-weight:700;background:#eef2ff;color:#2b56c3;white-space:nowrap}
 .pill.warn{background:#fff3e6;color:#b45309}.pill.ok{background:#eaf7ef;color:#118657}.pill.bad{background:#fee2e2;color:#b91c1c}.pill.mut{background:#eef0f5;color:#5f6880}
-.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;align-items:start}
+.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;align-items:start}.grid2>*{min-width:0}.grid2 .note,.grid2 small{overflow-wrap:anywhere}
 .msgs{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow:auto;padding:4px}
 .m{max-width:85%;padding:10px 13px;border-radius:14px;font-size:.92rem;line-height:1.7;white-space:pre-wrap}
 .m.user{background:var(--n);color:#fff;align-self:flex-end}.m.assistant,.m.bp,.m.system{background:var(--g);align-self:flex-start}
@@ -360,7 +479,16 @@ canvas.sig{border:1px dashed #c7cfe2;border-radius:10px;background:#fff;width:10
 .login{max-width:440px;margin:60px auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px}
 .login .alt{margin-top:12px;display:flex;gap:14px;flex-wrap:wrap}
 .login .lnk{color:var(--navy);text-decoration:underline;cursor:pointer;font-size:13px}
-.login .gbtn{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:8px}
+.login .btn{width:100%}.login .btn.sm{width:auto}.login .note{margin:12px 0 8px}.login .sent{color:var(--ink);font-size:.92rem;line-height:1.8;margin:0 0 4px}.login .alt{justify-content:space-between}
+${CLIENT_LOGIN_CSS}
+.login .seg{display:flex;gap:4px;padding:3px;margin:0 0 10px;border-radius:12px;background:var(--soft,#F5F7FB);border:1px solid var(--line)}
+.login .segb{flex:1;min-height:38px;border:0;border-radius:9px;background:transparent;font:inherit;font-size:.84rem;font-weight:700;color:var(--mut);cursor:pointer;padding:0 6px}
+.login .segb.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(11,27,90,.12)}
+.login .segb[hidden]{display:none}
+.login .rule{margin:0 0 8px;font-size:.8rem}.login .rule.bad{color:#b91c1c}.login .rule.good{color:var(--ok,#047857)}
+.login .cstep{display:inline-block;margin:0 0 8px;padding:3px 10px;border-radius:999px;background:var(--acSoft,#EEF2FB);color:var(--ink);font-size:.76rem;font-weight:700}
+.login label{display:block;margin:6px 0 4px;font-size:.84rem;font-weight:600;color:var(--ink)}
+@media(max-width:520px){.login{margin:18px 12px;padding:18px}}
 .login h1{margin:0 0 6px;color:var(--ink);font-size:1.35rem;font-weight:400}
 .login p{color:var(--mut);margin:0 0 14px;font-size:.9rem}
 .login input{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit;margin-bottom:8px}
@@ -390,21 +518,28 @@ select.inp{background:#fff;color:inherit}
 .doc .meta{color:var(--mut);font-size:.78rem;margin-top:5px}
 .doc .read{font-size:.78rem;color:var(--mut);margin-top:6px;line-height:1.9}
 .doc .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-@media(max-width:620px){.dgrid{grid-template-columns:1fr}}
+@media(max-width:620px){.dgrid{grid-template-columns:1fr}.row{flex-wrap:wrap}.row .tt{flex:1 1 100%}.items li{flex-wrap:wrap}.items li>div{flex:1 1 140px;min-width:0}.items li .btn{max-width:100%;white-space:normal;text-align:start}}
 .mob{display:none}
-@media(max-width:900px){.my{grid-template-columns:1fr}.my-side{position:static;height:auto;display:none}.my-side.open{display:block}.mob{display:flex;gap:6px;overflow:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line)}.mob a{white-space:nowrap;padding:7px 11px;border-radius:999px;border:1px solid var(--line);font-size:.82rem;font-weight:700;color:#2c3550}.mob a.on{background:var(--n);color:#fff;border-color:var(--n)}.my-kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.my-main{padding:14px}}
+@media(max-width:900px){.my{grid-template-columns:minmax(0,1fr)}.my-side{position:static;height:auto;display:none}.my-side.open{display:block}.mob{display:flex;gap:6px;overflow:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line)}.mob a{white-space:nowrap;padding:7px 11px;border-radius:999px;border:1px solid var(--line);font-size:.82rem;font-weight:700;color:#2c3550}.mob a.on{background:var(--n);color:#fff;border-color:var(--n)}.my-kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:minmax(0,1fr)}.my-main{padding:14px}}
 </style>`;
   const body = `
 ${sv1.header("/my", { cta: false })}
 <div id="app"></div>
 ${sv1.footer()}`;
-  const script = `<script>
+  const script = clientLoginScript(l) + `<script>
 (function(){
-var LANG=${JSON.stringify(l)},EV=${JSON.stringify(EVENTS[l === "ar" ? "ar" : "en"])},TX=${JSON.stringify(tx)},ST=${JSON.stringify(st)},TY=${JSON.stringify(ty)},HOME=${JSON.stringify(home)},CHECKOUT=${JSON.stringify(sv1.href("/checkout"))};
+var LANG=${JSON.stringify(l)},EV=${JSON.stringify(EVENTS[l === "ar" ? "ar" : "en"])},TX=${JSON.stringify(tx)},ST=${JSON.stringify(st)},TY=${JSON.stringify(ty)},HOME=${JSON.stringify(home)},CHECKOUT=${JSON.stringify(sv1.href("/checkout"))},SELLER=${JSON.stringify(sellerFromSite())};
 var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null};
 var $=function(s,r){return (r||document).querySelector(s)};
 function h(tag,attrs,kids){var e=document.createElement(tag);if(attrs)for(var k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.indexOf('on')===0)e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k])}(kids||[]).forEach(function(c){if(c==null)return;e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
-function api(action,data){return fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({action:action},data||{}))}).then(function(r){return r.json()})}
+function api(action,data){return fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({action:action},data||{}))}).then(function(r){return r.json()}).catch(function(){return {ok:false,error:'network'}}).then(function(o){if(o&&o.error==='no_session'&&state.me)sessionEnded();return o})}
+// A session that ends mid-visit used to leave every button doing nothing. Say so, and show the door.
+function sessionEnded(){state.me=null;try{localStorage.removeItem('bp_session')}catch(x){}renderLogin(TX.sessEnd)}
+// A failed action is never silent: the customer is told, in their language, and the page stays as it was.
+function toast(msg){var t=h('div',{class:'toast',role:'alert'},[msg]);document.body.appendChild(t);setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t)},5000)}
+function failText(o){return (o&&o.error==='network')?TX.eNet:TX.error}
+function provName(p){p=String(p||'').toLowerCase();return p==='card'||p==='moyasar'||p==='mada'?TX.provCard:p==='tamara'?TX.provTamara:(p==='bank'||p==='bank_transfer')?TX.provBank:p}
+function actorName(e){if(LANG==='ar'||!e.actor)return e.actor||'';return e.actor_kind==='ai'?TX.actAi:e.actor_kind==='system'?TX.actSys:e.actor_kind==='human'?TX.actTeam:e.actor}
 function otp(data){return fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(data)}).then(function(r){return r.json()})}
 // A quotation line may predate the server-side line field (older rows, and
 // anything imported by hand). Falling back to qty x price keeps an invoice
@@ -416,43 +551,116 @@ function lineOf(i){var l=Number(i&&i.line);if(isFinite(l)&&l>0)return l;return M
 function money(n){return (Math.round(Number(n||0)*100)/100).toLocaleString(LANG==='ar'?'ar-SA-u-nu-latn':'en-US')+' '+(LANG==='ar'?'ر.س':'SAR')}
 function when(s){if(!s)return '';try{return new Date(s).toLocaleString(LANG==='ar'?'ar-SA-u-ca-gregory-nu-latn':LANG==='zh'?'zh-CN':LANG,{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Riyadh'})}catch(e){return s}}
 function pillClass(s){return ['QUOTE_SENT','CONTRACT_SENT','SIGNED','PAYMENT_PENDING','WAITING_CLIENT'].indexOf(s)>=0?'warn':['PAID','COMPLETED','QUOTE_APPROVED'].indexOf(s)>=0?'ok':s==='CANCELLED'?'bad':['IN_PROGRESS','WAITING_INTERNAL'].indexOf(s)>=0?'':'mut'}
+// Enter does the one obvious thing in a single-field form; without it the phone keyboard's «Go» key did nothing.
+function onEnter(inp,btn){inp.addEventListener('keydown',function(ev){if(ev.key==='Enter'&&!ev.isComposing){ev.preventDefault();btn.click()}})}
 function pill(s){return h('span',{class:'pill '+pillClass(s)},[ST[s]||s])}
 function go(view,ref){state.view=view;state.ref=ref||null;var u=new URL(location.href);u.searchParams.set('view',view);if(ref)u.searchParams.set('ref',ref);else u.searchParams.delete('ref');history.replaceState(null,'',u.toString());render()}
 // ---------- login
-function renderLogin(){app.innerHTML='';var email='',challenge='';var box=h('div',{class:'login'});var errEl=h('div',{class:'err'});
-var e1=h('input',{type:'email',placeholder:TX.email,autocomplete:'email'}),b1=h('button',{class:'btn',onclick:function(){email=e1.value.trim().toLowerCase();errEl.textContent='';b1.disabled=true;otp({action:'start',email:email}).then(function(o){b1.disabled=false;if(!o||!o.ok){errEl.textContent=(o&&o.message)||TX.loginErr;return}challenge=o.challenge;s1.hidden=true;s2.hidden=false;if(o.testLogin)e2.placeholder='TEST: 123456';e2.focus()}).catch(function(){b1.disabled=false;errEl.textContent=TX.loginErr})}},[TX.sendCode]);
-var e2=h('input',{inputmode:'numeric',maxlength:'6',placeholder:TX.code}),b2=h('button',{class:'btn',onclick:function(){b2.disabled=true;otp({action:'verify',email:email,code:e2.value.trim(),challenge:challenge}).then(function(o){b2.disabled=false;if(!o||!o.ok){errEl.textContent=TX.codeErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){b2.disabled=false;errEl.textContent=TX.codeErr})}},[TX.verify]);
-var s1=h('div',{},[e1,b1]),s2=h('div',{hidden:''},[e2,b2]);
-// Three doors to the same account: emailed code, password, Google. Only the
-// ones this deployment has configured are drawn.
-var e3=h('input',{type:'password',placeholder:TX.password,autocomplete:'current-password'});
-var b3=h('button',{class:'btn',onclick:function(){errEl.textContent='';b3.disabled=true;otp({action:'password-login',email:e1.value.trim().toLowerCase(),password:e3.value}).then(function(o){b3.disabled=false;if(!o||!o.ok){errEl.textContent=(o&&o.message)||TX.loginErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){b3.disabled=false;errEl.textContent=TX.loginErr})}},[TX.loginPw]);
-var sp=h('div',{hidden:''},[e3,b3]);
-var toPw=h('a',{class:'lnk',onclick:function(){sp.hidden=false;toPw.hidden=true;toCode.hidden=false;e3.focus()}},[TX.usePw]);
-var toCode=h('a',{class:'lnk',hidden:'',onclick:function(){sp.hidden=true;toPw.hidden=false;toCode.hidden=true}},[TX.useCode]);
-var gwrap=h('div',{class:'gbtn',hidden:''});
-box.appendChild(h('h1',{},[TX.loginTitle]));box.appendChild(h('p',{},[TX.loginText]));box.appendChild(s1);box.appendChild(s2);box.appendChild(sp);box.appendChild(h('div',{class:'alt'},[toPw,toCode]));box.appendChild(gwrap);box.appendChild(errEl);app.appendChild(box);
-otp({action:'methods'}).then(function(m){if(!m||!m.ok)return;if(!m.password){toPw.hidden=true}if(m.google&&m.googleClientId)mountGoogle(gwrap,m.googleClientId,errEl)}).catch(function(){})}
-// Google Identity Services is loaded only when a client id exists, so a
-// deployment without Google never pulls a script it cannot use.
-function mountGoogle(wrap,cid,errEl){wrap.hidden=false;wrap.appendChild(h('p',{class:'note'},[TX.orGoogle]));var slot=h('div',{id:'bpGoogleBtn'});wrap.appendChild(slot);
-window.__bpGoogleCb=function(resp){otp({action:'google',credential:resp&&resp.credential}).then(function(o){if(!o||!o.ok){errEl.textContent=TX.loginErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()})};
-function init(){try{google.accounts.id.initialize({client_id:cid,callback:window.__bpGoogleCb});google.accounts.id.renderButton(slot,{theme:'outline',size:'large',width:280,locale:LANG==='ar'?'ar':'en'})}catch(e){wrap.hidden=true}}
-if(window.google&&window.google.accounts&&window.google.accounts.id)return init();
-var sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.defer=true;sc.onload=init;sc.onerror=function(){wrap.hidden=true};document.head.appendChild(sc)}
+// One page, one decision. Google first (the official button, with a written
+// failure state instead of vanishing), then an e-mailed link that carries its own
+// code as a fallback, then — small and last — the password for those who set one.
+// Every success path keeps the literal «localStorage…boot()» sequence: the build
+// step sv1-quote-auth-flow.mjs rewrites it into a full navigation so the browser
+// commits the session cookie before the portal asks for the account.
+function hashParam(k){try{var m=String(location.hash||'').replace('#','').split('&');for(var i=0;i<m.length;i++){var p=m[i].split('=');if(p[0]===k)return decodeURIComponent(p.slice(1).join('='))}}catch(e){}return ''}
+function noHash(){try{history.replaceState(null,'',location.pathname+location.search)}catch(x){}}
+function renderLogin(note){app.innerHTML='';var email='',challenge='',wait=0,timer=null,pwChallenge='',pwEmail='';var box=h('div',{class:'login'});var errEl=h('div',{class:'err',role:'alert'});
+function fail(m){errEl.textContent=m||TX.loginErr}
+// 1 · Nafath — the first and largest door. A first sign-in creates the account;
+// the next screen (renderContact) asks for the e-mail and mobile once.
+var nslot=h('div',{id:'bpNafath'});
+// 2 · Google — the official button, with a written failure state.
+var gslot=h('div',{id:'bpGoogleBtn'});
+var orA=h('div',{class:'bpg-or'},[(window.SV1Login&&window.SV1Login.orPlain)||'']);
+var orB=h('div',{class:'bpg-or'},[(window.SV1Login&&window.SV1Login.or)||'']);
+// 3 · E-mail: password (sign in / new account) or an e-mailed link and code.
+var e1=h('input',{type:'email',placeholder:TX.email,autocomplete:'email',inputmode:'email','aria-label':TX.email});
+var tabs=h('div',{class:'seg',role:'tablist'});var panels={};
+function tab(id,label){var a=h('button',{type:'button',role:'tab',class:'segb',onclick:function(){pick(id)}},[label]);a.setAttribute('data-tab',id);tabs.appendChild(a);return a}
+var tPw=tab('login',TX.tabPw),tNew=tab('signup',TX.tabNew),tLink=tab('link',TX.tabLink);
+function pick(id){errEl.textContent='';[tPw,tNew,tLink].forEach(function(b){b.className='segb'+(b.getAttribute('data-tab')===id?' on':'');b.setAttribute('aria-selected',b.getAttribute('data-tab')===id?'true':'false')});for(var k in panels)panels[k].hidden=(k!==id)}
+// -- password sign-in
+var e3=h('input',{type:'password',placeholder:TX.password,autocomplete:'current-password','aria-label':TX.password});
+var b3=h('button',{class:'btn',onclick:function(){errEl.textContent='';if(e1.value.indexOf('@')<1){fail(TX.badEmail);return}b3.disabled=true;otp({action:'password-login',email:e1.value.trim().toLowerCase(),password:e3.value}).then(function(o){b3.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:o&&o.error==='bad_credentials'?TX.badCreds:TX.loginErr);return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){b3.disabled=false;fail(TX.loginErr)})}},[TX.loginPw]);
+var forgot=h('a',{class:'lnk',onclick:function(){pick('link')}},[TX.forgot]);
+panels.login=h('div',{},[e3,b3,h('div',{class:'alt'},[forgot])]);
+onEnter(e3,b3);
+// -- new account: the password only counts once the mailbox is proven
+function pwWhy(p,e){if(p.length<8)return 'short';if(p.length>128)return 'long';var L=false,D=false,i,c,seen={},n=0;for(i=0;i<p.length;i++){c=p.charCodeAt(i);if((c>=48&&c<=57)||(c>=1632&&c<=1641))D=true;else if((c>=65&&c<=90)||(c>=97&&c<=122)||c>=192)L=true;if(!seen[c]){seen[c]=1;n++}}
+ if(!L)return 'no_letter';if(!D)return 'no_digit';if(n<4)return 'repetitive';var lp=String(e||'').split('@')[0].toLowerCase();if(lp.length>=4&&p.toLowerCase().indexOf(lp)>=0)return 'has_email';return ''}
+var npw=h('input',{type:'password',placeholder:TX.pwNew,autocomplete:'new-password','aria-label':TX.pwNew});
+var npw2=h('input',{type:'password',placeholder:TX.pwConfirm,autocomplete:'new-password','aria-label':TX.pwConfirm});
+var rule=h('p',{class:'note rule'},[TX.pwRule]);
+npw.addEventListener('input',function(){var w=pwWhy(npw.value,e1.value);rule.className='note rule'+(npw.value&&w?' bad':npw.value?' good':'');rule.textContent=npw.value&&w?(TX['pwr_'+w]||TX.pwRule):TX.pwRule});
+var bNew=h('button',{class:'btn',onclick:function(){errEl.textContent='';var e=e1.value.trim().toLowerCase();if(e.indexOf('@')<1||e.indexOf('.')<0){fail(TX.badEmail);return}var w=pwWhy(npw.value,e);if(w){fail(TX['pwr_'+w]);return}if(npw.value!==npw2.value){fail(TX.pwMismatch);return}
+ bNew.disabled=true;otp({action:'password-signup-start',email:e,password:npw.value}).then(function(o){bNew.disabled=false;if(!o||!o.ok){fail(o&&o.error==='weak'?(TX['pwr_'+o.reason]||TX.pwRule):o&&o.error==='too_many'?TX.tooMany:(o&&o.message)||TX.loginErr);return}pwChallenge=o.challenge;pwEmail=e;nSent.textContent=TX.codeSent.replace('{e}',e);if(o.testLogin)nCode.placeholder='TEST: 123456';nStep1.hidden=true;nStep2.hidden=false;nCode.focus()}).catch(function(){bNew.disabled=false;fail(TX.loginErr)})}},[TX.signupGo]);
+var nStep1=h('div',{},[npw,npw2,rule,h('p',{class:'note'},[TX.signupNote]),bNew]);
+var nSent=h('p',{class:'sent'});var nCode=h('input',{inputmode:'numeric',maxlength:'6',placeholder:TX.code,autocomplete:'one-time-code','aria-label':TX.code});
+var bNC=h('button',{class:'btn',onclick:function(){errEl.textContent='';bNC.disabled=true;otp({action:'password-signup-verify',email:pwEmail,code:nCode.value.trim(),challenge:pwChallenge}).then(function(o){bNC.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:o&&o.error==='expired'?TX.codeOld:TX.codeErr);return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){bNC.disabled=false;fail(TX.codeErr)})}},[TX.confirmGo]);
+var nBack=h('a',{class:'lnk',onclick:function(){nStep2.hidden=true;nStep1.hidden=false;errEl.textContent=''}},[TX.changeEmail]);
+var nStep2=h('div',{hidden:''},[nSent,nCode,bNC,h('div',{class:'alt'},[nBack])]);
+onEnter(nCode,bNC);
+panels.signup=h('div',{hidden:''},[nStep1,nStep2]);
+// -- e-mailed link (with its own code as a fallback in the same message)
+var b1=h('button',{class:'btn',onclick:function(){sendLink()}},[TX.sendLink]);
+var s1=h('div',{},[b1]);
+var sentMsg=h('p',{class:'sent'}),dev=h('div',{});
+var e2=h('input',{inputmode:'numeric',maxlength:'6',placeholder:TX.code,autocomplete:'one-time-code','aria-label':TX.code});
+var b2=h('button',{class:'btn',onclick:function(){b2.disabled=true;errEl.textContent='';otp({action:'verify',email:email,code:e2.value.trim(),challenge:challenge}).then(function(o){b2.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:TX.codeErr);return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){b2.disabled=false;fail(TX.codeErr)})}},[TX.verify]);
+var resend=h('a',{class:'lnk',onclick:function(){if(wait>0)return;sendLink()}},[TX.resend]);
+var change=h('a',{class:'lnk',onclick:function(){s2.hidden=true;s1.hidden=false;errEl.textContent='';e1.focus()}},[TX.changeEmail]);
+var s2=h('div',{hidden:''},[sentMsg,dev,h('p',{class:'note'},[TX.orCode]),e2,b2,h('div',{class:'alt'},[resend,change])]);
+function cool(){wait=30;resend.textContent=TX.resendIn.replace('{n}',wait);clearInterval(timer);timer=setInterval(function(){wait--;if(wait<=0){clearInterval(timer);resend.textContent=TX.resend}else resend.textContent=TX.resendIn.replace('{n}',wait)},1000)}
+function sendLink(){email=e1.value.trim().toLowerCase();errEl.textContent='';if(email.indexOf('@')<1||email.indexOf('.')<0){fail(TX.badEmail);return}b1.disabled=true;
+otp({action:'link-start',email:email,lang:LANG,next:nextPath()}).then(function(o){b1.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:(o&&o.message)||TX.loginErr);return}challenge=o.challenge;sentMsg.textContent=TX.linkSent.replace('{e}',email);if(o.testLogin)e2.placeholder='TEST: 123456';dev.innerHTML='';if(o.devLink)dev.appendChild(h('a',{class:'btn ghost sm',href:o.devLink,id:'devLink'},['DEV · '+TX.openLink]));s1.hidden=true;s2.hidden=false;e2.focus();cool()}).catch(function(){b1.disabled=false;fail(TX.loginErr)})}
+e1.addEventListener('keydown',function(ev){if(ev.key==='Enter'&&!ev.isComposing){var on=document.querySelector('.login .segb.on');var t=on&&on.getAttribute('data-tab');ev.preventDefault();if(t==='link')sendLink();else if(t==='login')b3.click()}});
+e2.addEventListener('keydown',function(ev){if(ev.key==='Enter')b2.click()});
+panels.link=h('div',{hidden:''},[s1,s2]);
+var mail=h('div',{class:'mailbox'},[tabs,e1,panels.login,panels.signup,panels.link]);
+box.appendChild(h('h1',{},[TX.loginTitle]));box.appendChild(h('p',{},[TX.loginText]));if(note)box.appendChild(h('p',{class:'err'},[note]));
+box.appendChild(nslot);box.appendChild(orA);box.appendChild(gslot);box.appendChild(orB);box.appendChild(mail);box.appendChild(errEl);app.appendChild(box);pick('login');
+otp({action:'methods'}).then(function(m){if(m&&m.ok&&!m.password){tPw.hidden=true;tNew.hidden=true;pick('link')}else if(m&&m.ok&&!m.passwordSignup){tNew.hidden=true}}).catch(function(){});
+if(window.SV1Login){window.SV1Login.mountNafath(nslot,{purpose:'portal',onSuccess:function(){try{localStorage.setItem('bp_session','1')}catch(x){}boot()}});
+ window.SV1Login.mountGoogle(gslot,{onSuccess:function(){try{localStorage.setItem('bp_session','1')}catch(x){}boot()},onError:function(msg){errEl.textContent=msg},onHide:function(){orB.style.display='none'}})}else{orA.style.display='none';orB.style.display='none'}}
+// The one-time step after a first Nafath sign-in: the account exists (keyed by the
+// national-id digest, never the number); this asks for the real e-mail and mobile.
+// The e-mail is proven with a code. If it already has an account, the two are joined.
+function renderContact(){app.innerHTML='';var box=h('div',{class:'login'});var errEl=h('div',{class:'err',role:'alert'});var chal='',sentTo='';
+function fail(m){errEl.textContent=m||TX.error}
+var ce=h('input',{type:'email',placeholder:TX.email,autocomplete:'email',inputmode:'email','aria-label':TX.email});
+var cp=h('input',{type:'tel',placeholder:TX.cPhonePh,autocomplete:'tel',inputmode:'tel','aria-label':TX.cPhone,dir:'ltr'});
+function phoneOk(v){var d='',i,c;v=String(v||'');for(i=0;i<v.length;i++){c=v.charCodeAt(i);if(c>=48&&c<=57)d+=v.charAt(i);else if(c>=1632&&c<=1641)d+=String(c-1632);else if(c>=1776&&c<=1785)d+=String(c-1776)}return d.length>=8&&d.length<=15}
+var b1=h('button',{class:'btn',onclick:function(){errEl.textContent='';var e=ce.value.trim().toLowerCase();if(e.indexOf('@')<1||e.indexOf('.')<0){fail(TX.badEmail);return}if(!phoneOk(cp.value)){fail(TX.cBadPhone);return}b1.disabled=true;
+ otp({action:'nafath-contact-start',email:e,phone:cp.value}).then(function(o){b1.disabled=false;if(!o||!o.ok){fail(o&&o.error==='invalid_phone'?TX.cBadPhone:o&&o.error==='invalid_email'?TX.badEmail:o&&o.error==='too_many'?TX.tooMany:TX.loginErr);return}chal=o.challenge;sentTo=e;sent.textContent=TX.codeSent.replace('{e}',e);if(o.testLogin)code.placeholder='TEST: 123456';s1.hidden=true;s2.hidden=false;code.focus()}).catch(function(){b1.disabled=false;fail(TX.loginErr)})}},[TX.cSend]);
+var s1=h('div',{},[h('label',{},[TX.email]),ce,h('label',{},[TX.cPhone]),cp,b1]);
+var sent=h('p',{class:'sent'});var code=h('input',{inputmode:'numeric',maxlength:'6',placeholder:TX.code,autocomplete:'one-time-code','aria-label':TX.code});
+var b2=h('button',{class:'btn',onclick:function(){errEl.textContent='';b2.disabled=true;otp({action:'nafath-contact-verify',code:code.value.trim(),challenge:chal}).then(function(o){b2.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:o&&o.error==='expired'?TX.codeOld:o&&o.error==='identity_mismatch'?TX.cMismatch:o&&o.error==='wrong_code'?TX.codeErr:TX.error);return}try{localStorage.setItem('bp_session','1')}catch(x){}boot()}).catch(function(){b2.disabled=false;fail(TX.error)})}},[TX.confirmGo]);
+var back=h('a',{class:'lnk',onclick:function(){s2.hidden=true;s1.hidden=false;errEl.textContent=''}},[TX.changeEmail]);
+var out=h('a',{class:'lnk',onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},[TX.logout]);
+var s2=h('div',{hidden:''},[sent,code,b2,h('div',{class:'alt'},[back])]);
+onEnter(code,b2);
+box.appendChild(h('div',{class:'cstep'},[TX.cStep]));box.appendChild(h('h1',{},[TX.cTitle]));box.appendChild(h('p',{},[TX.cText]));box.appendChild(s1);box.appendChild(s2);box.appendChild(h('div',{class:'alt'},[out]));box.appendChild(errEl);app.appendChild(box)}
+// The page a sign-in link lands on. Opening the link signs nobody in: mail
+// scanners open every URL they find, so only this button (a POST) spends it.
+function renderLinkConfirm(token){app.innerHTML='';var box=h('div',{class:'login'});var errEl=h('div',{class:'err',role:'alert'});
+var back=h('a',{class:'lnk',hidden:'',onclick:function(){noHash();renderLogin()}},[TX.linkNew]);
+var go1=h('button',{class:'btn',id:'linkGo',onclick:function(){go1.disabled=true;errEl.textContent='';otp({action:'link-verify',token:token}).then(function(o){if(o&&o.ok&&o.db!==false){noHash();try{localStorage.setItem('bp_session','1')}catch(x){}boot();return}go1.disabled=false;errEl.textContent=TX.linkBad;back.hidden=false}).catch(function(){go1.disabled=false;errEl.textContent=TX.loginErr})}},[TX.linkGo]);
+box.appendChild(h('h1',{},[TX.linkTitle]));box.appendChild(h('p',{},[TX.linkText]));box.appendChild(go1);box.appendChild(h('div',{class:'alt'},[back]));box.appendChild(errEl);app.appendChild(box)}
+window.addEventListener('hashchange',function(){if(hashParam('ml'))boot()});
 // ---------- shell
 var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['documents',TX.navDocs,'\ud83d\udcc1'],['company',TX.navCompany,'🏢']];
 function badges(){var c=state.me.counts||{};var d=(state.docs||[]).filter(function(x){var n=daysLeft(x.expiry_date);return n!==null&&n<=30}).length;return {quotes:c.quotes,contracts:c.contracts,pay:c.payments,documents:d}}
-function render(){var me=state.me;app.innerHTML='';var bd=badges();
+function render(){var me=state.me;app.innerHTML='';joinBoxes=[];var bd=badges();
 var side=h('nav',{class:'my-side',id:'mySide'},[h('div',{class:'who'},[h('b',{},[me.user.name||me.user.email]),h('small',{},[(me.organization&&(me.organization.name_ar||me.organization.name_en))||me.user.email])])].concat(NAV.map(function(n){return h('a',{'data-nav':n[0],class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1],bd[n[0]]?h('span',{class:'b'},[String(bd[n[0]])]):null])})).concat([h('a',{href:HOME},['🌐 '+TX.site]),h('a',{onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},['↩ '+TX.logout])]));
 var mob=h('div',{class:'mob'},NAV.map(function(n){return h('a',{class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1]])}));
 var main=h('div',{class:'my-main',id:'myMain'});
 app.appendChild(mob);var wrap=h('div',{class:'my'},[side,main]);app.appendChild(wrap);
 var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='documents')viewDocuments(main);else if(v==='company')viewCompany(main);else viewHome(main)}
-function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[r.title]),h('small',{},[r.ref+' · '+(TY[r.type]||r.type)+' · '+when(r.updated_at||r.created_at)])]),pill(r.status),(r.cancel_requested&&r.status!=='CANCELLED')?h('span',{class:'pill warn'},[TX.cxPill]):null,h('span',{class:'btn ghost sm'},[TX.open])])}
+function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[r.title]),h('small',{},[r.ref+' · '+(r.origin==='ticket'?TX.ticket:(TY[r.type]||r.type))+' · '+when(r.updated_at||r.created_at)])]),(r.origin==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),pill(r.status),(r.cancel_requested&&r.status!=='CANCELLED')?h('span',{class:'pill warn'},[TX.cxPill]):null,h('span',{class:'btn ghost sm'},[TX.open])])}
 function viewHome(m){var c=state.me.counts||{};m.appendChild(h('h1',{},[TX.attention]));
 var k=[['active',TX.kActive,'requests'],['quotes',TX.kQuotes,'quotes'],['contracts',TX.kContracts,'contracts'],['payments',TX.kPayments,'pay'],['appointments',TX.kAppts,'appointments']];
 m.appendChild(h('div',{class:'my-kpis'},k.map(function(x){return h('div',{class:'my-kpi'+(x[0]!=='active'&&c[x[0]]?' hot':''),onclick:function(){go(x[2])}},[h('b',{},[String(c[x[0]]||0)]),h('span',{},[x[1]])])})));
+var nca=nextApptCard();if(nca)m.appendChild(nca);
 var need=state.me.requests.filter(function(r){return ['QUOTE_SENT','CONTRACT_SENT','SIGNED','PAYMENT_PENDING','WAITING_CLIENT'].indexOf(r.status)>=0});
 if(need.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.needYou]),h('div',{class:'list'},need.map(reqRow))]));
 m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.today]),h('p',{class:'note'},[TX.navNew]),h('a',{class:'btn',href:HOME+'#chat'},[TX.navNew])]));
@@ -485,15 +693,55 @@ function viewList(m,title,f){m.appendChild(h('h1',{},[title]));var rows=state.me
 function viewInvoices(m){m.appendChild(h('h1',{},[TX.navInvoices]));var rows=state.me.requests.filter(function(r){return r.invoice});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill ok'},[r.invoice.number+' · '+money(r.invoice.total)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]))}
 function viewPay(m){m.appendChild(h('h1',{},[TX.navPay]));var rows=state.me.requests.filter(function(r){return ['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill warn'},[money(r.quote?r.quote.total:0)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));m.appendChild(h('div',{class:'card'},[h('a',{class:'btn ghost',href:CHECKOUT},[TX.navPay+' →'])]))}
 function viewChats(m){m.appendChild(h('h1',{},[TX.navChats]));var rows=state.me.requests.filter(function(r){return r.last_message});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.querySelector('small').textContent=(r.last_message.content||'').slice(0,90);return row})):h('p',{class:'note'},[TX.empty]))}
-function viewAppts(m){m.appendChild(h('h1',{},[TX.navAppts]));var rows=state.me.requests.filter(function(r){return r.appointment&&r.appointment.status!=='CANCELLED'&&r.status!=='CANCELLED'});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill'},[r.appointment.date+' '+r.appointment.time]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));var cons=state.me.requests.filter(function(r){return r.type==='CONSULTATION'&&(!r.appointment||r.appointment.status==='CANCELLED')&&r.status!=='CANCELLED'});if(cons.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.book]),h('div',{class:'list'},cons.map(reqRow))]))}
+// ---------- الاتصال المرئي: الموعد القادم والانضمام (قبل خمس دقائق)
+function apptStart(a){return new Date(a.date+'T'+a.time+':00+03:00').getTime()}
+function apptEnd(a){return apptStart(a)+(Number(a.minutes)||30)*60000}
+function nextAppt(){var now=Date.now(),best=null;((state.me&&state.me.requests)||[]).forEach(function(r){var a=r.appointment;if(!a||!a.date||!a.time||a.status==='CANCELLED'||r.status==='CANCELLED')return;if(apptEnd(a)<now)return;if(!best||apptStart(a)<apptStart(best.a))best={a:a,r:r}});return best}
+function c12(hm){var p=String(hm).split(':'),hh=+p[0],h12=((hh+11)%12)+1;return h12+':'+p[1]+' '+(LANG==='ar'?(hh<12?'ص':'م'):(hh<12?'AM':'PM'))}
+function fillT(t,o){return String(t).replace(/\\{(\\w)\\}/g,function(_,k){return o[k]==null?'':o[k]})}
+function dayNameOf(i){try{return new Intl.DateTimeFormat(LANG==='ar'?'ar-SA':LANG==='zh'?'zh-CN':LANG,{weekday:'long',timeZone:'UTC'}).format(new Date(Date.UTC(2024,0,7+i)))}catch(e){return String(i)}}
+function hoursText(o){if(!o||!o.hours)return TX.apptNote;var off=o.offDays||[];return fillT(TX.apptHours,{a:c12(o.hours.from),b:c12(o.hours.to),n:o.slotMinutes||30})+' '+(off.length?fillT(TX.apptDays,{d:off.map(dayNameOf).join(LANG==='ar'?' و':' & ')}):TX.apptDaysAll)}
+function p2(n){return (n<10?'0':'')+n}
+function gcalAdd(a){var s=apptStart(a),e=apptEnd(a);function f(t){var d=new Date(t+3*3600000);return d.getUTCFullYear()+p2(d.getUTCMonth()+1)+p2(d.getUTCDate())+'T'+p2(d.getUTCHours())+p2(d.getUTCMinutes())+'00'}
+ return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(TX.videoFree+(a.topic?' - '+a.topic:''))+'&dates='+f(s)+'/'+f(e)+'&ctz=Asia%2FRiyadh&details='+encodeURIComponent(a.meet||'')+'&location='+encodeURIComponent(a.meet||'Google Meet')}
+var joinBoxes=[];
+setInterval(function(){joinBoxes=joinBoxes.filter(function(b){return b.box.isConnected});joinBoxes.forEach(function(b){b.upd()})},15000);
+// رابط الاجتماع يظهر دائماً؛ زرّ «انضم» يُفتح قبل الموعد بخمس دقائق ويُغلق بانتهائه.
+function joinBox(a){var box=h('div',{class:'joinbox','data-join':'1'});
+ function upd(){box.innerHTML='';var now=Date.now(),s=apptStart(a),e=apptEnd(a);
+  if(a.status==='PENDING'||!a.meet){box.appendChild(h('p',{class:'note'},[TX.apptPending]));return}
+  if(now>e){box.appendChild(h('p',{class:'note'},[TX.apptOver]));return}
+  var open=now>=s-300000;
+  box.appendChild(h('p',{class:'note'},[TX.meetLink+': ',h('a',{href:a.meet,target:'_blank',rel:'noopener',dir:'ltr'},[a.meet])]));
+  var row=h('div',{class:'msgform'});
+  if(open)row.appendChild(h('a',{class:'btn','data-join-open':'1',href:a.meet,target:'_blank',rel:'noopener'},[TX.joinNow]));
+  else row.appendChild(h('button',{class:'btn',type:'button',disabled:'disabled','data-join-open':'0'},[TX.joinNow]));
+  row.appendChild(h('a',{class:'btn ghost',href:gcalAdd(a),target:'_blank',rel:'noopener'},[TX.addCal]));
+  box.appendChild(row);
+  if(!open)box.appendChild(h('p',{class:'note'},[TX.joinSoon]))}
+ upd();joinBoxes.push({box:box,upd:upd});return box}
+function nextApptCard(){var na=nextAppt();if(!na)return null;var a=na.a;
+ return h('div',{class:'card',id:'sv1NextAppt'},[h('h2',{},[TX.nextAppt]),h('p',{class:'note'},[TX.videoFree]),h('p',{},['📅 '+a.date+' · '+a.time+' ('+c12(a.time)+') · '+TX.riyadh+(a.topic?' · '+a.topic:'')]),joinBox(a),h('div',{class:'msgform'},[h('a',{class:'btn ghost sm',onclick:function(){go('request',na.r.ref)}},[TX.open])])])}
+// مختار الفترات من الخادم نفسه (api/book?action=slots): لا ساعات مكتوبة هنا — ما يُعرض هو ما يقبله الخادم.
+function slotPicker(){var st={days:[]};var d=h('select',{class:'inp'}),tm=h('select',{class:'inp'}),note=h('p',{class:'note'},[TX.apptLoading]);
+ function dayLabel(ds){try{return new Date(ds+'T12:00:00+03:00').toLocaleDateString(LANG==='ar'?'ar-SA-u-ca-gregory-nu-latn':LANG==='zh'?'zh-CN':LANG,{weekday:'long',day:'numeric',month:'long',timeZone:'Asia/Riyadh'})}catch(e){return ds}}
+ function fillTimes(){tm.innerHTML='';var x=st.days.filter(function(y){return y.date===d.value})[0];(x?x.slots:[]).forEach(function(t){tm.appendChild(h('option',{value:t},[t+' ('+c12(t)+')']))})}
+ d.addEventListener('change',fillTimes);
+ fetch('/api/book?action=slots').then(function(r){return r.json()}).then(function(o){
+  if(!o||!o.ok||!(o.days||[]).length){note.textContent=TX.apptNone;return}
+  st.days=o.days;o.days.forEach(function(x){d.appendChild(h('option',{value:x.date},[dayLabel(x.date)]))});fillTimes();note.textContent=hoursText(o)})
+ .catch(function(){note.textContent=TX.apptNone});
+ return {day:d,time:tm,note:note}}
+function apptErr(o){var e=o&&o.error;return e==='bad_datetime'?TX.apptBad:(e==='off_day'||e==='friday')?TX.apptFri:e==='past'?TX.apptPast:e==='out_of_hours'?TX.apptOut:e==='too_soon'?TX.apptSoon:e==='too_far'?TX.apptFar:e==='slot_taken'?TX.apptTaken:e==='too_many_active'?TX.apptMany:e==='rate_limited'?TX.apptRate:failText(o)}
+function viewAppts(m){m.appendChild(h('h1',{},[TX.navAppts]));var nc=nextApptCard();if(nc)m.appendChild(nc);var rows=state.me.requests.filter(function(r){return r.appointment&&r.appointment.status!=='CANCELLED'&&r.status!=='CANCELLED'});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill'},[r.appointment.date+' '+r.appointment.time]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));var cons=state.me.requests.filter(function(r){return r.type==='CONSULTATION'&&(!r.appointment||r.appointment.status==='CANCELLED')&&r.status!=='CANCELLED'});if(cons.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.book]),h('div',{class:'list'},cons.map(reqRow))]))}
 function viewCompany(m){m.appendChild(h('h1',{},[TX.navCompany]));var o=state.me.organization||{};var f=h('div',{class:'form'});var nAr=h('input',{class:'inp',value:o.name_ar||''}),nEn=h('input',{class:'inp',value:o.name_en||''}),cr=h('input',{class:'inp',value:o.cr_number||''}),msg=h('span',{class:'ok'});
 f.appendChild(h('label',{},[TX.company]));f.appendChild(nAr);f.appendChild(h('label',{},[TX.nameEn]));f.appendChild(nEn);f.appendChild(h('label',{},[TX.cr]));f.appendChild(cr);
-f.appendChild(h('button',{class:'btn',onclick:function(){fetch('/api/requests',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'my-org-update',name_ar:nAr.value,name_en:nEn.value,cr_number:cr.value})}).then(function(r){return r.json()}).then(function(o){msg.textContent=o&&o.ok?TX.saved:TX.error})}},[TX.save]));f.appendChild(msg);
+f.appendChild(h('button',{class:'btn',onclick:function(){fetch('/api/requests',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'my-org-update',name_ar:nAr.value,name_en:nEn.value,cr:cr.value,cr_number:cr.value})}).then(function(r){return r.json()}).catch(function(){return {ok:false,error:'network'}}).then(function(o){if(o&&o.error==='unauthorized'){sessionEnded();return}msg.className=o&&o.ok?'ok':'err';msg.textContent=o&&o.ok?TX.saved:failText(o);if(o&&o.ok&&o.organization)state.me.organization=o.organization})}},[TX.save]));f.appendChild(msg);
 m.appendChild(h('div',{class:'card'},[h('div',{class:'stat'},[h('span',{},[TX.email+': ',h('b',{},[state.me.user.email])])]),f]));
 // Setting a password needs a live session, which is exactly where we are —
 // so the client picks one here and stops waiting for a code every visit.
 var pw=h('input',{class:'inp',type:'password',autocomplete:'new-password',placeholder:TX.password}),pmsg=h('span',{class:'ok'});
-var pf=h('div',{class:'form'},[h('p',{class:'note'},[TX.pwNote]),h('label',{},[TX.password]),pw,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){pmsg.className='ok';if((pw.value||'').length<8){pmsg.className='err';pmsg.textContent=TX.pwShort;return}otp({action:'password-set',password:pw.value}).then(function(o){if(o&&o.ok){pmsg.textContent=TX.pwSaved;pw.value=''}else{pmsg.className='err';pmsg.textContent=(o&&o.message)||TX.error}})}},[TX.pwSave]),pmsg])]);
+var pf=h('div',{class:'form'},[h('p',{class:'note'},[TX.pwNote]),h('label',{},[TX.password]),pw,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){pmsg.className='ok';if((pw.value||'').length<8){pmsg.className='err';pmsg.textContent=TX.pwShort;return}otp({action:'password-set',password:pw.value}).then(function(o){if(o&&o.ok){pmsg.textContent=TX.pwSaved;pw.value=''}else{pmsg.className='err';pmsg.textContent=(o&&o.reason&&TX['pwr_'+o.reason])||(o&&o.message)||TX.error}})}},[TX.pwSave]),pmsg])]);
 m.appendChild(h('div',{class:'card'},[h('h3',{},[TX.pwTitle]),pf]))}
 
 // ---------- المستندات: خزانة واحدة للعميل
@@ -537,14 +785,17 @@ function upErr(e){e=String(e||'');
  if(e==='network')return TX.eNet;
  if(e==='no_org')return TX.eNoOrg;
  if(e==='bad_type')return TX.eType;
- if(e==='too_large')return TX.eBig;
+ if(e==='too_large'||e==='http_413')return TX.eBig;
+ if(e==='empty')return TX.eEmpty;
+ if(e==='too_many_files')return TX.eMany;
+ if(e==='request_closed')return TX.eClosed;
  if(e==='invalid_fields')return TX.eName;
  if(e&&window.console)console.warn('upload:',e);
  return TX.eUp}
 // رفعٌ بنسبة مئوية حقيقية: XHR لأن fetch لا يُبلّغ عن تقدّم الرفع. وكل نهاية
 // لها فرع — نجاح، أو خطأ من الخادم برسالته، أو انقطاع شبكة — ولا فرع صامت.
-function sendDoc(payload,onp){return new Promise(function(res){
- var x=new XMLHttpRequest();x.open('POST','/api/requests',true);x.withCredentials=true;
+function sendDoc(payload,onp,url){return new Promise(function(res){
+ var x=new XMLHttpRequest();x.open('POST',url||'/api/requests',true);x.withCredentials=true;
  x.setRequestHeader('content-type','application/json');
  if(x.upload&&onp)x.upload.onprogress=function(e){if(e.lengthComputable)onp(e.loaded/e.total)};
  x.onload=function(){var o=null;try{o=JSON.parse(x.responseText||'null')}catch(e){}
@@ -674,42 +925,117 @@ function viewDocuments(m){
 function verLbl(n){return (LANG==='ar'||LANG==='zh')?(TX.dVer+' '+n):(TX.dVer+n)}
 function catName(c){for(var i=0;i<DOC_CATS.length;i++)if(DOC_CATS[i][0]===c)return DOC_CATS[i][1];
  return DOC_CATS[DOC_CATS.length-1][1]}
+// ---------- files inside a request
+// A link to one file is made at the moment of the click, by the server, after it
+// has checked the request is this customer's — nothing long-lived is stored in
+// the page. The window is opened first (inside the click, so the browser lets
+// it) and pointed at the link when it arrives.
+function openFile(a,btn){
+ if(a.url&&!a.file){window.open(a.url,'_blank','noopener');return}
+ var w=null;try{w=window.open('','_blank')}catch(e){}
+ var old=btn?btn.textContent:'';if(btn)btn.disabled=true;
+ function done(){if(btn){btn.disabled=false;btn.textContent=old}}
+ function fail(){if(w){try{w.close()}catch(e){}}done();if(btn){btn.textContent=TX.delivErr;setTimeout(function(){btn.textContent=old},3500)}}
+ api('attachment-link',{ref:state.req.ref,id:a.id}).then(function(o){
+  if(o&&o.ok&&o.url){done();if(w){try{w.opener=null}catch(e){}w.location.href=o.url}else location.href=o.url}else fail()}).catch(fail)}
+// «المستندات المطلوبة»: each line is a real upload. The file goes to the request
+// (not to the vault), the server flips the line to «received», and the team is
+// told. Same guard as the vault, in the browser first: type and size are
+// refused before a megabyte leaves the device.
+function docsCard(r,again){
+ var open=r.status!=='CANCELLED';
+ var dc=h('div',{class:'card',id:'sv1Docs'});dc.appendChild(h('h3',{},[TX.docs]));
+ dc.appendChild(h('p',{class:'note'},[(r.documents&&r.documents.length)?TX.docsNote:TX.docsNone]));
+ var msg=h('div',{class:'err',style:'margin-top:8px'}),okm=h('div',{class:'ok',style:'margin-top:8px'});
+ if(state.docFlash){okm.textContent=state.docFlash;state.docFlash=null}
+ var file=h('input',{type:'file',accept:'application/pdf,image/jpeg,image/png,image/webp',style:'display:none'});
+ var target=null;
+ function pick(t){if(!open)return;target=t;msg.textContent='';okm.textContent='';file.value='';file.click()}
+ file.addEventListener('change',function(){
+  var f=file.files&&file.files[0];file.value='';if(!f||!target)return;
+  var e=fileErr(f);if(e){msg.textContent=e;return}
+  var t=target,old=t.btn.textContent;t.btn.disabled=true;t.btn.textContent=TX.dUploading+' 0%';
+  function reset(){t.btn.disabled=false;t.btn.textContent=old}
+  toB64(f).then(function(b64){
+   return sendDoc({action:'attachment-add',ref:r.ref,name:f.name,mime:mimeOf(f),base64:b64,
+     doc_index:t.index>=0?t.index:'',doc_title:t.title||''},
+    function(p){t.btn.textContent=TX.dUploading+' '+Math.max(1,Math.min(99,Math.round(p*100)))+'%'},'/api/simple')
+  }).then(function(o){
+   if(o&&o.ok){r.attachments=o.attachments||r.attachments;if(o.documents)r.documents=o.documents;state.docFlash=TX.docSent;again();return}
+   if(o&&(o.error==='no_session'||o.error==='unauthorized')){location.reload();return}
+   reset();msg.textContent=upErr(o&&o.error);
+  }).catch(function(){reset();msg.textContent=TX.eRead})});
+ dc.appendChild(file);
+ if(r.documents&&r.documents.length){
+  var ul=h('ul',{class:'items'});
+  r.documents.forEach(function(d,i){
+   var got=(r.attachments||[]).filter(function(a){return a.kind==='document'&&a.doc===d.title});
+   var st=d.status==='received'?h('span',{class:'pill ok'},[TX.docRecv]):d.status==='waived'?h('span',{class:'pill mut'},[TX.docWaived]):h('span',{class:'pill warn'},[TX.docAsked]);
+   var info=h('div',{},[h('b',{},[d.title]),d.note?h('small',{},[d.note]):null]);
+   got.forEach(function(a){
+    var ob=h('button',{class:'btn ghost sm',style:'margin-top:4px;margin-inline-end:6px',onclick:function(){openFile(a,ob)}},['📎 '+a.name+' · '+kb(a.size)]);
+    if(a.id&&a.file)info.appendChild(h('div',{},[ob]));else info.appendChild(h('small',{},['📎 '+a.name]))});
+   var li=h('li',{},[h('span',{class:'ic'},[d.status==='received'?'✓':'📄']),info,st]);
+   if(open&&d.status!=='waived'){var b=h('button',{class:'btn'+(got.length?' ghost':'')+' sm',onclick:function(){pick({index:i,title:d.title,btn:b})}},[got.length?TX.docUpMore:TX.docUp]);li.appendChild(b)}
+   ul.appendChild(li)});
+  dc.appendChild(ul)}
+ // anything else that belongs to the request, not tied to a line above
+ var loose=(r.attachments||[]).filter(function(a){return a.kind!=='deliverable'&&!(a.kind==='document'&&a.doc)&&(a.file||a.url)});
+ if(loose.length){var lu=h('ul',{class:'items',style:'margin-top:10px'});loose.forEach(function(a){
+   var ob=h('button',{class:'btn ghost sm',onclick:function(){openFile(a,ob)}},[TX.fOpen]);
+   lu.appendChild(h('li',{},[h('span',{class:'ic'},['📎']),h('div',{},[h('b',{},[a.name]),h('small',{},[(a.note?a.note+' · ':'')+when(a.at)])]),ob]))});dc.appendChild(lu)}
+ if(open){var any=h('button',{class:'btn ghost sm',style:'margin-top:10px',onclick:function(){pick({index:-1,title:'',btn:any})}},['＋ '+TX.docUpAny]);dc.appendChild(any)}
+ dc.appendChild(msg);dc.appendChild(okm);
+ return dc}
+// «مخرجات الطلب»: the finished work the team handed over. It is drawn from the
+// moment payment is in, so the customer sees where the work will arrive before
+// it does — and a completed request is never an empty page.
+function delivCard(r){
+ var files=(r.attachments||[]).filter(function(a){return a.kind==='deliverable'});
+ var stage=['PAID','IN_PROGRESS','WAITING_INTERNAL','COMPLETED'].indexOf(r.status)>=0;
+ if(!files.length&&!stage)return null;
+ var c=h('div',{class:'card',id:'sv1Deliv'});c.appendChild(h('h3',{},[TX.delivTitle]));
+ if(!files.length){c.appendChild(h('p',{class:'note'},[r.status==='COMPLETED'?TX.delivNoneDone:TX.delivNone]));return c}
+ var ul=h('ul',{class:'items'});
+ files.forEach(function(a){
+  var b=h('button',{class:'btn sm',onclick:function(){openFile(a,b)}},[TX.delivDl]);
+  ul.appendChild(h('li',{},[h('span',{class:'ic'},['📦']),h('div',{},[h('b',{},[a.title||a.name]),h('small',{},[(a.note?a.note+' · ':'')+a.name+' · '+kb(a.size)+' · '+when(a.at)])]),b]))});
+ c.appendChild(ul);return c}
 // ---------- request detail
 function viewRequest(m){m.appendChild(h('a',{class:'btn ghost sm',onclick:function(){go('requests')}},['← '+TX.back]));var hd=h('h1',{style:'margin-top:10px'},['…']);m.appendChild(hd);var box=h('div');m.appendChild(box);
 api('request-get',{ref:state.ref}).then(function(o){if(!o||!o.ok){box.appendChild(h('p',{class:'err'},[TX.error]));return}state.req=o.request;state.testMode=!!o.testMode;drawRequest(hd,box)})}
-function drawRequest(hd,box){var r=state.req;hd.textContent=r.title;box.innerHTML='';
+function drawRequest(hd,box){var r=state.req;var isTicket=r.origin==='ticket';hd.textContent=r.title;box.innerHTML='';
 var cxm=cxMode(r),cxPend=!!r.cancel_request&&r.status!=='CANCELLED';
-box.appendChild(h('div',{class:'stat'},[h('span',{},[TX.ref+': ',h('b',{},[r.ref])]),h('span',{},[TX.status+': ',pill(r.status),cxPend?h('span',{class:'pill warn',style:'margin-inline-start:6px'},[TX.cxPill]):null]),h('span',{},[(TY[r.type]||r.type)]),h('span',{},[when(r.created_at)]),
+box.appendChild(h('div',{class:'stat'},[h('span',{},[TX.ref+': ',h('b',{},[r.ref])]),h('span',{},[TX.status+': ',pill(r.status),cxPend?h('span',{class:'pill warn',style:'margin-inline-start:6px'},[TX.cxPill]):null]),h('span',{},[isTicket?TX.ticket:(TY[r.type]||r.type)]),(r.payment&&r.payment.source==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),h('span',{},[when(r.created_at)]),
  (cxm!=='closed'&&!cxPend)?h('button',{class:'btn danger sm cxbtn',id:'sv1CancelTop',onclick:function(){cxSheet(r)}},[cxm==='now'?TX.cancelReq:TX.cancelAsk]):null]));
 var cxb=cxBanner(r);if(cxb)box.appendChild(cxb);
 var left=h('div'),right=h('div');box.appendChild(h('div',{class:'grid2'},[left,right]));
 // conversation
 var msgs=h('div',{class:'msgs'},(r.conversation||[]).map(function(mm){return h('div',{class:'m '+mm.role},[stripScope(mm.content),h('small',{},[(mm.role==='user'?TX.you:mm.role==='bp'?TX.team:TX.assistant)+' · '+when(mm.at)])])}));
-var inp=h('input',{placeholder:TX.writeMsg}),sb=h('button',{class:'btn',onclick:function(){var v=inp.value.trim();if(!v)return;sb.disabled=true;api('request-message',{ref:r.ref,content:v}).then(function(o){sb.disabled=false;if(o&&o.ok){r.conversation=o.conversation;r.status=o.status||r.status;inp.value='';drawRequest(hd,box)}})}},[TX.send]);
-left.appendChild(h('div',{class:'card'},[h('h3',{},[TX.conversation]),msgs,h('div',{class:'msgform'},[inp,sb])]));setTimeout(function(){msgs.scrollTop=msgs.scrollHeight},0);
+var inp=h('input',{placeholder:TX.writeMsg}),sb=h('button',{class:'btn',onclick:function(){var v=inp.value.trim();if(!v)return;sb.disabled=true;api('request-message',{ref:r.ref,content:v}).then(function(o){sb.disabled=false;if(o&&o.ok){r.conversation=o.conversation;r.status=o.status||r.status;inp.value='';drawRequest(hd,box)}else if(!o||o.error!=='no_session')toast(failText(o))})}},[TX.send]);
+onEnter(inp,sb);left.appendChild(h('div',{class:'card'},[h('h3',{},[TX.conversation]),msgs,h('div',{class:'msgform'},[inp,sb])]));setTimeout(function(){msgs.scrollTop=msgs.scrollHeight},0);
 // scope
-var editable=['NEW','REVIEWING','WAITING_CLIENT'].indexOf(r.status)>=0;var sc=h('div',{class:'card'});sc.appendChild(h('h3',{},[TX.scope]));if(r.summary)sc.appendChild(h('p',{class:'note'},[r.summary]));
+var isCart=!!(r.payment&&r.payment.source==='cart');var editable=!isCart&&['NEW','REVIEWING','WAITING_CLIENT'].indexOf(r.status)>=0;var sc=h('div',{class:'card'});sc.appendChild(h('h3',{},[TX.scope]));if(r.summary)sc.appendChild(h('p',{class:'note'},[r.summary]));
 var ul=h('ul',{class:'items'});function drawItems(){ul.innerHTML='';(r.scope||[]).forEach(function(it,i){var li=h('li',{},[h('span',{class:'ic'},['✓']),h('div',{},[h('b',editable?{contenteditable:'true',oninput:function(){it.title=this.textContent.trim()}}:{},[it.title]),it.why?h('small',{},[it.why]):null]),editable?h('button',{class:'rm',onclick:function(){r.scope.splice(i,1);drawItems()}},[TX.remove]):null]);ul.appendChild(li)})}drawItems();sc.appendChild(ul);
 // documents the advisor asked for — every service has its own list
-var dc=h('div',{class:'card'});dc.appendChild(h('h3',{},[TX.docs]));
-dc.appendChild(h('p',{class:'note'},[(r.documents&&r.documents.length)?TX.docsNote:TX.docsNone]));
-if(r.documents&&r.documents.length){var dul=h('ul',{class:'items'});(r.documents||[]).forEach(function(d){dul.appendChild(h('li',{},[h('span',{class:'ic'},['\ud83d\udcc4']),h('div',{},[h('b',{},[d.title]),d.note?h('small',{},[d.note]):null])]))});dc.appendChild(dul)}
+var dc=docsCard(r,function(){drawRequest(hd,box)});
 if(editable){var ai=h('input',{class:'inp',placeholder:TX.addItem}),msgS=h('span',{class:'ok'});
 // Confirming the scope is what moves the request on to the quotation; the
 // plain save stays for intermediate edits.
 var goBtn=h('button',{class:'btn',onclick:function(){msgS.className='ok';msgS.textContent='';goBtn.disabled=true;api('scope-confirm',{ref:r.ref,scope:r.scope}).then(function(o){goBtn.disabled=false;if(!o||!o.ok){msgS.className='err';msgS.textContent=(o&&o.message)||TX.error;return}state.flash=TX.scopePricing;api('request-get',{ref:r.ref}).then(function(g){if(g&&g.ok){state.req=g.request;drawRequest(hd,box);var q=document.getElementById('sv1Quote');if(q&&q.scrollIntoView)q.scrollIntoView({behavior:'smooth',block:'start'})}})})}},[TX.confirmScope]);
 sc.appendChild(h('div',{class:'msgform'},[ai,h('button',{class:'btn ghost',onclick:function(){if(!ai.value.trim())return;r.scope.push({code:'',title:ai.value.trim(),why:''});ai.value='';drawItems()}},[TX.addItem]),h('button',{class:'btn ghost',onclick:function(){api('scope-update',{ref:r.ref,scope:r.scope}).then(function(o){msgS.className='ok';msgS.textContent=o&&o.ok?TX.saved:TX.error})}},[TX.saveScope]),goBtn,msgS]));
-if(state.flash){sc.appendChild(h('p',{class:'ok'},[state.flash]));state.flash=null}}else if(r.status!=='CANCELLED')sc.appendChild(h('p',{class:'note'},[TX.scopeLocked]));
+if(state.flash){sc.appendChild(h('p',{class:'ok'},[state.flash]));state.flash=null}}else if(r.status!=='CANCELLED')sc.appendChild(h('p',{class:'note'},[isCart?TX.directNote:TX.scopeLocked]));
 sc.appendChild(dc.firstChild?dc:document.createComment(''));
-left.appendChild(sc);
+if(!isTicket)left.appendChild(sc);
 // tasks for client
 if(r.tasks&&r.tasks.length)left.appendChild(h('div',{class:'card'},[h('h3',{},[TX.tasksTitle]),h('ul',{class:'items'},r.tasks.map(function(t){return h('li',{},[h('span',{class:'ic'},[t.status==='DONE'?'✓':'•']),h('div',{},[h('b',{},[t.title]),t.details?h('small',{},[t.details]):null])])}))]));
 // quote — while it is being priced the customer sees the step, not silence
 if(!r.quote&&(r.events||[]).some(function(e){return e.event==='quote.pending'}))right.appendChild(h('div',{class:'card',id:'sv1Quote'},[h('h3',{},[TX.quote]),h('p',{class:'note'},[TX.scopePricing])]));
 if(r.quote){var qc=h('div',{class:'card',id:'sv1Quote'});qc.appendChild(h('h3',{},[TX.quote+' '+r.quote.number]));var tb=h('table',{class:'q'});tb.appendChild(h('thead',{},[h('tr',{},[h('th',{},[TX.scope]),h('th',{},[TX.qty]),h('th',{},[TX.price])])]));tb.appendChild(h('tbody',{},r.quote.items.map(function(i){return h('tr',{},[h('td',{},[i.title]),h('td',{},[String(i.qty)]),h('td',{},[money(lineOf(i))])])})));tb.appendChild(h('tfoot',{},[h('tr',{},[h('td',{colspan:'2'},[TX.net]),h('td',{},[money(r.quote.net)])]),h('tr',{},[h('td',{colspan:'2'},[TX.vat]),h('td',{},[money(r.quote.vat)])]),h('tr',{},[h('td',{colspan:'2'},[TX.total]),h('td',{},[money(r.quote.total)])])]));qc.appendChild(tb);
 qc.appendChild(h('p',{class:'note'},[TX.validUntil+': '+(r.quote.valid_until||'')+' · '+TX.terms+': '+(r.quote.payment_terms||'')]));qc.appendChild(docBtn(TX.openFull,TX.quote+' '+r.quote.number,function(){return api('quote-view',{ref:r.ref}).then(function(o){return o&&o.ok?o.html:''})}));if(r.quote.notes)qc.appendChild(h('p',{class:'note'},[r.quote.notes]));
-if(r.status==='QUOTE_SENT'){var rn=h('input',{class:'inp',placeholder:TX.rejectNote,style:'margin-top:8px'});qc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){api('quote-approve',{ref:r.ref}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;if(o.contract)r.contract=o.contract;refreshMe();drawRequest(hd,box)}})}},[TX.approve]),h('button',{class:'btn ghost',onclick:function(){api('quote-reject',{ref:r.ref,note:rn.value}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;refreshMe();drawRequest(hd,box)}})}},[TX.reject])]));qc.appendChild(rn)}
-else if(r.quote.status==='APPROVED')qc.appendChild(h('p',{class:'ok'},[TX.quoteApproved]));
+if(r.status==='QUOTE_SENT'){var rn=h('input',{class:'inp',placeholder:TX.rejectNote,style:'margin-top:8px'});var qerr=h('div',{class:'err'});function qfail(bt,o){bt.disabled=false;qerr.textContent=o&&o.error==='quote_expired'?TX.quoteExpired:((o&&o.message)||TX.error)}
+qc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(e){var bt=e.currentTarget;qerr.textContent='';bt.disabled=true;api('quote-approve',{ref:r.ref}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;if(o.contract)r.contract=o.contract;refreshMe();drawRequest(hd,box)}else{bt.disabled=false;toast(o&&o.error==='quote_expired'?TX.quoteExpired:failText(o))}}).catch(function(){qfail(bt)})}},[TX.approve]),h('button',{class:'btn ghost',onclick:function(e){var bt=e.currentTarget;qerr.textContent='';bt.disabled=true;api('quote-reject',{ref:r.ref,note:rn.value}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;refreshMe();drawRequest(hd,box)}else{bt.disabled=false;toast(failText(o))}}).catch(function(){qfail(bt)})}},[TX.reject])]));qc.appendChild(rn);qc.appendChild(qerr)}
+else if(r.quote.status==='APPROVED')qc.appendChild(h('p',{class:'ok'},[(r.status==='QUOTE_APPROVED'||r.status==='CONTRACT_SENT')?TX.quoteApproved:TX.quoteApprovedDone]));
 right.appendChild(qc)}
 // contract
 if(r.contract){var cc=h('div',{class:'card'});cc.appendChild(h('h3',{},[TX.contract+' '+r.contract.number]));var frame=h('iframe',{class:'contract-frame',title:TX.contract});cc.appendChild(frame);cc.appendChild(docBtn(TX.openFull,TX.contract+' '+r.contract.number,function(){return api('contract-view',{ref:r.ref}).then(function(o){return o&&o.ok?o.html:''})}));api('contract-view',{ref:r.ref}).then(function(o){var ht=o&&o.ok?o.html:'';frame.srcdoc=ht;state.contractHtml=ht;if(o&&o.needsResign)cc.appendChild(h('p',{class:'note',style:'color:#B45309'},[TX.resign]))});
@@ -727,22 +1053,25 @@ function payHere(provider){
   // Test/local: the gateway this server hosts. Otherwise the cart + checkout
   // the rest of the site uses, which needs the classic session.
   if(state.testMode){gwGo(provider);return}
-  api('checkout-start',{ref:r.ref}).then(function(o){if(!o||!o.ok)return;try{var cart=JSON.parse(localStorage.getItem('bp_cart')||'[]');cart=cart.filter(function(i){return i.id!==o.item.id});cart.push(o.item);localStorage.setItem('bp_cart',JSON.stringify(cart))}catch(x){}location.href=CHECKOUT})}
+  api('checkout-start',{ref:r.ref}).then(function(o){if(!o||!o.ok){if(!o||o.error!=='no_session')toast(failText(o));return}try{var cart=JSON.parse(localStorage.getItem('bp_cart')||'[]');cart=cart.filter(function(i){return i.id!==o.item.id});cart.push(o.item);localStorage.setItem('bp_cart',JSON.stringify(cart))}catch(x){}location.href=CHECKOUT})}
 var payRow=h('div',{style:'display:flex;gap:7px;flex-wrap:wrap'},[
   h('button',{class:'btn',onclick:function(){payHere('card')}},[TX.payCardNow]),
   h('button',{class:'btn ghost',onclick:function(){payHere('tamara')}},[TX.payTamaraNow])]);
 pc.appendChild(payRow);pc.appendChild(h('p',{class:'note'},[TX.payVia]));
 if(state.testMode){
-pc.appendChild(h('h3',{style:'margin-top:12px'},[TX.testPay]));var tp=h('div',{style:'display:flex;gap:6px;flex-wrap:wrap'});[['success','card',TX.paySuccess,''],['success','tamara',TX.payTamara,''],['failed','card',TX.payFailed,'danger'],['cancelled','card',TX.payCancelled,'ghost'],['pending','card',TX.payPending,'ghost']].forEach(function(x){tp.appendChild(h('button',{class:'btn sm '+x[3],onclick:function(){api('pay-test',{ref:r.ref,outcome:x[0],provider:x[1]}).then(function(o){if(o&&o.ok){r.status=o.status;r.payment=o.payment;if(o.invoice)r.invoice=o.invoice;refreshMe();drawRequest(hd,box)}})}},[x[2]]))});pc.appendChild(tp)}
+pc.appendChild(h('h3',{style:'margin-top:12px'},[TX.testPay]));var tp=h('div',{style:'display:flex;gap:6px;flex-wrap:wrap'});[['success','card',TX.paySuccess,''],['success','tamara',TX.payTamara,''],['failed','card',TX.payFailed,'danger'],['cancelled','card',TX.payCancelled,'ghost'],['pending','card',TX.payPending,'ghost']].forEach(function(x){tp.appendChild(h('button',{class:'btn sm '+x[3],onclick:function(){api('pay-test',{ref:r.ref,outcome:x[0],provider:x[1]}).then(function(o){if(o&&o.ok){r.status=o.status;r.payment=o.payment;if(o.invoice)r.invoice=o.invoice;refreshMe();drawRequest(hd,box)}else if(!o||o.error!=='no_session')toast(failText(o))})}},[x[2]]))});pc.appendChild(tp)}
 right.appendChild(pc)}
-if(r.payment&&r.payment.status==='PAID')right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.payment]),h('p',{class:'ok'},['✓ '+TX.paid+' · '+money(r.payment.amount)+' · '+(r.payment.provider||'')+' · '+when(r.payment.at)])]));
-if(r.invoice)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.invoice+' '+r.invoice.number]),h('p',{},[money(r.invoice.total)+' · '+when(r.invoice.issued_at)]),h('button',{class:'btn ghost sm',onclick:function(){openInvoice(r)}},[TX.download])]));
+// شراء مباشر بالسلة: ما اشتُري ومبالغه ودورته، من سجلّ الدفع نفسه (لا عرض سعر لهذا الطلب).
+if(r.payment&&r.payment.source==='cart'){var pi=r.payment,bc=h('div',{class:'card',id:'sv1Bought'});bc.appendChild(h('h3',{},[TX.bought]));var bt=h('table',{class:'q'});bt.appendChild(h('thead',{},[h('tr',{},[h('th',{},[TX.scope]),h('th',{},[TX.qty]),h('th',{},[TX.price])])]));bt.appendChild(h('tbody',{},(pi.items||[]).map(function(i){return h('tr',{},[h('td',{},[i.name+(i.cycle?' · '+(i.cycle==='yearly'?TX.cycY:TX.cycM):'')]),h('td',{},[String(i.qty||1)]),h('td',{},[i.amount==null?'—':money(i.amount)])])})));bt.appendChild(h('tfoot',{},[h('tr',{},[h('td',{colspan:'2'},[TX.net]),h('td',{},[money(pi.net)])]),h('tr',{},[h('td',{colspan:'2'},[TX.vat]),h('td',{},[money(pi.vat)])]),h('tr',{},[h('td',{colspan:'2'},[TX.total]),h('td',{},[money(pi.total||pi.amount)])])]));bc.appendChild(bt);if(pi.verified===false)bc.appendChild(h('p',{class:'note'},[TX.unverifiedNote]));right.appendChild(bc)}
+if(r.payment&&r.payment.status==='PAID')right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.payment]),h('p',{class:'ok'},['✓ '+TX.paid+' · '+money(r.payment.amount)+' · '+provName(r.payment.provider)+' · '+when(r.payment.at)])]));
+if(r.invoice)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.invoice+' '+r.invoice.number]),h('p',{},[money(r.invoice.total)+' · '+when(r.invoice.issued_at)]),h('button',{class:'btn ghost sm',onclick:function(){openInvoice(r)}},[r.invoice.pdf_url?TX.invOfficial:TX.download])]));
+var dvc=delivCard(r);if(dvc)right.appendChild(dvc);
 // appointment
-if(r.type==='CONSULTATION'){var ac=h('div',{class:'card'});ac.appendChild(h('h3',{},[TX.navAppts]));var a=r.appointment;if(a&&a.status!=='CANCELLED')ac.appendChild(h('p',{class:'ok'},['📅 '+a.date+' · '+a.time+' · '+(a.topic||'')+(a.gcal?' ':'') ,a.gcal?h('a',{href:a.gcal,target:'_blank',class:'btn ghost sm'},['Google Calendar']):null]));
-var d=h('input',{class:'inp',type:'date',min:new Date().toISOString().slice(0,10)}),tm=h('input',{class:'inp',type:'time',value:'10:00',step:'1800'}),tp2=h('input',{class:'inp',placeholder:TX.topic,value:(a&&a.topic)||r.title}),ae=h('div',{class:'err'});
-ac.appendChild(h('div',{class:'form'},[h('label',{},[TX.date]),d,h('label',{},[TX.time]),tm,h('label',{},[TX.topic]),tp2,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){api(a&&a.status!=='CANCELLED'?'appointment-reschedule':'appointment-book',{ref:r.ref,date:d.value,time:tm.value,topic:tp2.value}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else ae.textContent=(o&&o.error)||TX.error})}},[a&&a.status!=='CANCELLED'?TX.reschedule:TX.book]),a&&a.status!=='CANCELLED'?h('button',{class:'btn danger',onclick:function(){api('appointment-cancel',{ref:r.ref}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}})}},[TX.cancelAppt]):null]),ae,h('p',{class:'note'},[TX.apptNote])]));right.appendChild(ac)}
+if(r.type==='CONSULTATION'&&!isTicket){var ac=h('div',{class:'card'});ac.appendChild(h('h3',{},[TX.navAppts]));var a=r.appointment;if(a&&a.status!=='CANCELLED'){ac.appendChild(h('p',{class:'note'},[TX.videoFree]));ac.appendChild(h('p',{class:'ok'},['📅 '+a.date+' · '+a.time+' ('+c12(a.time)+') · '+TX.riyadh+' · '+(a.topic||'')]));ac.appendChild(joinBox(a))}
+var sp=slotPicker(),d=sp.day,tm=sp.time,tp2=h('input',{class:'inp',placeholder:TX.topic,value:(a&&a.topic)||r.title}),ae=h('div',{class:'err'});
+ac.appendChild(h('div',{class:'form'},[h('label',{},[TX.date]),d,h('label',{},[TX.time]),tm,h('label',{},[TX.topic]),tp2,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){ae.textContent='';if(!d.value||!tm.value){ae.textContent=TX.apptBad;return}api(a&&a.status!=='CANCELLED'?'appointment-reschedule':'appointment-book',{ref:r.ref,date:d.value,time:tm.value,topic:tp2.value}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else if(o&&o.error==='no_session'){}else ae.textContent=apptErr(o)})}},[a&&a.status!=='CANCELLED'?TX.reschedule:TX.book]),a&&a.status!=='CANCELLED'?h('button',{class:'btn danger',onclick:function(){api('appointment-cancel',{ref:r.ref}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else if(!o||o.error!=='no_session')toast(failText(o))})}},[TX.cancelAppt]):null]),ae,sp.note,h('p',{class:'note'},[TX.apptNote])]));right.appendChild(ac)}
 // timeline
-right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.timeline]),h('ul',{class:'tl'},(r.events||[]).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(e.actor?e.actor+': ':'')+(EV[e.event]||(String(e.event).indexOf("notify.")===0?TX.evNotify:e.event))+(e.details&&e.details.number?' '+e.details.number:'')])])}))]));
+right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.timeline]),h('ul',{class:'tl'},(r.events||[]).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(actorName(e)?actorName(e)+': ':'')+(EV[e.event]||e.event)+(e.details&&e.details.number?' '+e.details.number:'')])])}))]));
 if(cxm!=='closed'&&!cxPend){right.appendChild(h('div',{class:'card',id:'sv1Cancel'},[h('h3',{},[TX.cancelTitle]),h('p',{class:'note'},[cxText(r)+((cxm==='now'&&cxApptLive(r))?' '+TX.cxAppt:'')]),h('div',{class:'msgform',style:'margin-top:8px'},[h('button',{class:'btn danger sm',onclick:function(){cxSheet(r)}},[cxm==='now'?TX.cancelReq:TX.cancelAsk])])]))}}
 // ---------- cancellation
 // One policy, held by the server (cancel_policy on the request): 'now' when
@@ -784,7 +1113,13 @@ function cxSheet(r){
    refreshMe().then(function(){render();window.scrollTo(0,0)})})});
  document.body.appendChild(ovl);
  try{keep.focus()}catch(x){}}
-function openInvoice(r){var inv=r.invoice;var w=window.open('','_blank');if(!w)return;var rows=(inv.items||[]).map(function(i){return '<tr><td>'+esc(i.title)+'</td><td>'+i.qty+'</td><td>'+money(lineOf(i))+'</td></tr>'}).join('');w.document.write('<!doctype html><html dir="'+(LANG==='ar'?'rtl':'ltr')+'"><head><meta charset="utf-8"><title>'+inv.number+'</title><style>body{font-family:"IBM Plex Sans Arabic",system-ui;padding:32px;color:#1F2430}h1{color:#0B1B5A}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #e4e8f1;text-align:start}.t{font-weight:700}.tm{background:#b45309;color:#fff;padding:6px 10px;display:inline-block;border-radius:6px}</style></head><body>'+(inv.mode==='test'?'<span class="tm">TEST MODE</span>':'')+'<h1>Business Partner — '+TX.invoice+' '+inv.number+'</h1><p>'+TX.ref+': '+r.ref+' · '+when(inv.issued_at)+'</p><p>'+esc((inv.bill_to&&(inv.bill_to.company||inv.bill_to.name))||'')+'</p><table><thead><tr><th>'+TX.scope+'</th><th>'+TX.qty+'</th><th>'+TX.price+'</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr><td colspan="2">'+TX.net+'</td><td>'+money(inv.net)+'</td></tr><tr><td colspan="2">'+TX.vat+'</td><td>'+money(inv.vat)+'</td></tr><tr class="t"><td colspan="2">'+TX.total+'</td><td>'+money(inv.total)+'</td></tr></tfoot></table><p><b>'+TX.paid+'</b></p></body></html>');w.document.close()}
+// The official invoice is the PDF the accounting system issued and the request
+// kept (invoice.pdf_url): that is what opens when it exists. Only when it does
+// not does the page below stand in — it carries the seller's tax number, taken
+// from the site's legal data, so it is never a bare list of lines.
+function openInvoice(r){var inv=r.invoice;
+ if(inv.pdf_url&&/^https?:[/][/]/i.test(String(inv.pdf_url))){window.open(inv.pdf_url,'_blank','noopener');return}
+ var w=window.open('','_blank');if(!w)return;var sellerName=LANG==='ar'?(SELLER.name||SELLER.nameEn):(SELLER.nameEn||SELLER.name);var sellerBlock='<p><b>'+TX.invSeller+':</b> '+esc(sellerName)+(SELLER.vat?'<br><b>'+TX.invVat+':</b> '+esc(SELLER.vat):'')+'</p>';var rows=(inv.items||[]).map(function(i){return '<tr><td>'+esc(i.title)+'</td><td>'+i.qty+'</td><td>'+money(lineOf(i))+'</td></tr>'}).join('');w.document.write('<!doctype html><html dir="'+(LANG==='ar'?'rtl':'ltr')+'"><head><meta charset="utf-8"><title>'+inv.number+'</title><style>body{font-family:"IBM Plex Sans Arabic",system-ui;padding:32px;color:#1F2430}h1{color:#0B1B5A}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #e4e8f1;text-align:start}.t{font-weight:700}.tm{background:#b45309;color:#fff;padding:6px 10px;display:inline-block;border-radius:6px}</style></head><body>'+(inv.mode==='test'?'<span class="tm">TEST MODE</span>':'')+'<h1>Business Partner — '+TX.invoice+' '+inv.number+'</h1><p>'+TX.ref+': '+r.ref+' · '+when(inv.issued_at)+'</p>'+sellerBlock+'<p><b>'+TX.invBuyer+':</b> '+esc((inv.bill_to&&(inv.bill_to.company||inv.bill_to.name))||'')+'</p><table><thead><tr><th>'+TX.scope+'</th><th>'+TX.qty+'</th><th>'+TX.price+'</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr><td colspan="2">'+TX.net+'</td><td>'+money(inv.net)+'</td></tr><tr><td colspan="2">'+TX.vat+'</td><td>'+money(inv.vat)+'</td></tr><tr class="t"><td colspan="2">'+TX.total+'</td><td>'+money(inv.total)+'</td></tr></tfoot></table><p><b>'+TX.paid+'</b></p></body></html>');w.document.close()}
 function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
 function refreshMe(){return api('me').then(function(o){if(o&&o.ok){state.me=o}}).catch(function(){})}
 // Coming back from a payment gateway (local or hosted): the outcome rides on
@@ -808,7 +1143,7 @@ function settleReturn(u){
 // الشيء نفسه: مسارٌ محلي يبدأ بشرطة واحدة، ولا يبدأ بشرطتين («//host» يقرؤه
 // المتصفح موقعاً آخر).
 function nextPath(){try{var n=decodeURIComponent(new URL(location.href).searchParams.get('next')||'');return (n.charAt(0)==='/'&&n.charAt(1)!=='/')?n:''}catch(e){return ''}}
-function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render();if(state.view!=='documents')loadDocs().catch(function(){})})}).catch(function(){renderLogin()})}
+function boot(){var ml=hashParam('ml');if(ml){renderLinkConfirm(ml);return}api('me').then(function(o){if(!o||!o.ok){renderLogin();return}if(o.user&&o.user.contactPending){renderContact();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render();if(state.view!=='documents')loadDocs().catch(function(){})})}).catch(function(){renderLogin()})}
 boot();
 })();</script>`;
   return sv1.shell({ title: tx.title, desc: tx.attention, path: "/my", body: CSS + body, script, noindex: true });

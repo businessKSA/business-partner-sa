@@ -2,8 +2,6 @@ import crypto from "node:crypto";
 import { DB_ON, sb, getSession, audit, notify, storagePut, storageSign, storageDelete } from "./_db.js";
 
 import { loadCatalog, normalizeText } from "./_catalog.js";
-import { putOffer, getOffer, offerHtml } from "./_offer.js";
-import { handleLiveCatalog, handleLegacyDoc, clientDocuments, PANEL_RETIRED } from "./_quotes.js";
 // Business Partner 3.0 — client requests serverless function (ESM).
 // Handles two request types from the site:
 //   type "event"    — corporate event request from /tourism (company email required)
@@ -29,6 +27,8 @@ import {
 import { LEADS_DB as BD_LEADS_DB, matchQuery as bdMatchQuery, mapCompany as bdMapCompany, explainMatch as bdExplainMatch } from "./_bdmatch.js";
 import { handleAgencies } from "./_agencies.js";
 import { handleJobhunt } from "./_jobhunt.js";
+import { handleEor, isBillingAction, authFromSession } from "./_eor.js";
+import { handleAiws } from "./_aiws.js";
 import { stageChannels, announce, waSend } from "./_stage.js";
 import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
@@ -40,9 +40,11 @@ import { azureBlobReady, blobMissing } from "./_azblob.js";
 import { azureSendEmail, azureEmailReady } from "./_azure_notify.js";
 import { graphReady, graphMissing } from "./_msgraph.js";
 import { handleDocAgent } from "./_docagent.js";
-import { handleSimple } from "./_simple.js";
+import { handleSimple, createCartRequest } from "./_simple.js";
+import { handlePrIntake } from "./_printake.js";
 import spacesHandler from "./_spaces.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
+import { n8nWebhookUrl } from "./_n8n.js";
 // خزنة مستندات العميل (`ops-doc-upload`): الصيغ المقبولة والحدّ الأعلى.
 // حدّ الخزنة (٨MB) غير حدّ القراءة الآلية (`MAX_DOC_BYTES` = ٦MB): الأول ما
 // يُحفَظ، والثاني ما يُرسَل إلى القارئ. هما رقمان مختلفان عن قصد.
@@ -119,7 +121,7 @@ async function forwardLead(payload) {
 // test data and created a real lead. Same gate as e-mail in _simple.js: unless
 // WHATSAPP_MODE is live (production default; mock on localhost and previews)
 // the payload goes to the outbox and nothing leaves the machine.
-const OWNER_WA_WEBHOOK = process.env.OWNER_WA_WEBHOOK || "https://businesspartnerai.app.n8n.cloud/webhook/website-lead-notify";
+const OWNER_WA_WEBHOOK = process.env.OWNER_WA_WEBHOOK || n8nWebhookUrl("website-lead-notify");
 async function ownerWaNotify(payload) {
   if (!WHATSAPP_LIVE) {
     await outbox({ kind: "whatsapp", to: OWNER_WA_WEBHOOK, subject: `${payload.source || "notify"} ${payload.ref || ""}`.trim(), body: String(payload.transcript || "").slice(0, 2000), payload });
@@ -887,6 +889,64 @@ async function readBody(req) {
   });
 }
 
+// Business Partner AI (/ai) — الباقات من المنصة وطلب التجربة. المنطق كله في ./_aiws.js.
+async function handleAiwsRoute(req, res) {
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  const qq = req.query || {};
+  let body;
+  if (req.method === "GET" && String(qq.action || "") === "plans") {
+    res.setHeader("Cache-Control", "public, max-age=300");
+    body = { action: "plans", lang: qq.lang };
+  } else if (req.method === "POST") {
+    res.setHeader("Cache-Control", "no-store");
+    body = await readBody(req);
+    if (!body || typeof body !== "object" || Array.isArray(body)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_body" })); }
+  } else {
+    res.statusCode = 405; return res.end(JSON.stringify({ ok: false, error: "method_not_allowed" }));
+  }
+  const ip = String((req.headers && (req.headers["x-forwarded-for"] || req.headers["x-real-ip"])) || "").split(",")[0].trim().slice(0, 64);
+  const r = await handleAiws(body, { ip, dev: DEV, outbox });
+  res.statusCode = r.status;
+  return res.end(JSON.stringify(r.body));
+}
+
+// POST /api/requests?__route=eor        — حمولة النموذج → { ok, ref }
+// GET  /api/requests?__route=eor&action=search&q=...  — بحث المهن → { ok, results }
+// البريد وتنبيه المالك بالدالتين القائمتين نفسيهما (sendEmail / ownerWaNotify) فيحكمهما
+// EMAIL_MODE / WHATSAPP_MODE كبقية النماذج. الحمولة لا تُسجَّل هنا ولا تُمرَّر إلى console.
+async function handleEorRoute(req, res) {
+  res.setHeader("Cache-Control", "no-store");
+  const send = (status, obj) => { res.statusCode = status; return res.end(JSON.stringify(obj)); };
+  let body;
+  if (req.method === "GET") {
+    const qq = req.query || {};
+    if (String(qq.action || "") !== "search") return send(405, { ok: false, error: "method_not_allowed" });
+    body = { action: "search", q: qq.q };
+  } else if (req.method === "POST") {
+    body = await readBody(req);
+    if (!body || typeof body !== "object" || Array.isArray(body)) return send(400, { ok: false, error: "invalid_body" });
+  } else {
+    return send(405, { ok: false, error: "method_not_allowed" });
+  }
+  const ip = String((req.headers && (req.headers["x-forwarded-for"] || req.headers["x-real-ip"])) || "").split(",")[0].trim().slice(0, 64);
+  let r;
+  try {
+    // الفوترة الشهرية وحدها تحتاج هوية: المالك (opsGate) أو العميل بجلسة مُثبتة.
+    // أي إجراء عام لا يُمرَّر له auth، فيبقى كما كان بلا مصادقة.
+    let auth;
+    if (isBillingAction(body.action)) {
+      auth = (await opsGate(req, { key: body.key || (req.headers && req.headers["x-ops-key"]) }))
+        ? { role: "ops" }
+        : authFromSession(await getSession(req).catch(() => null));
+    }
+    r = await handleEor(body, { ip, sendEmail, notify: ownerWaNotify, teamEmail: TEAM_EMAIL, ownerEmail: OWNER_EMAIL, ...(auth ? { auth } : {}) });
+  } catch (e) {
+    console.error("eor route exception", String((e && e.message) || e).slice(0, 120));
+    return send(502, { ok: false, error: "unavailable" });
+  }
+  return send(r.ok ? 200 : (r.status || 400), r);
+}
+
 const row = (k, v) => `<tr><td style="padding:4px 10px;color:#666">${k}</td><td style="padding:4px 10px"><b>${esc(v || "—")}</b></td></tr>`;
 
 // The gateway is enabled inside Daftra (PayTabs / PayFort), so Daftra's own
@@ -1618,52 +1678,6 @@ async function handleDaftraInvoice(req, res) {
   });
 }
 
-
-/* صفحة العرض الخاصة بالعميل.
-   GET  ?__route=offer&t=TOKEN  → صفحة HTML للعميل، الرمز هو الإذن.
-   POST ?__route=offer          → n8n يحفظ حزمة عرض ويستلم الرابط.
-
-   الكتابة محميّة بمفتاح، والقراءة بالرمز وحده: العميل لا يملك حساباً ولن
-   ينشئ واحداً ليرى عرضاً، وإلزامه بذلك يقتل الغرض. لهذا لا يُوضع في الحزمة
-   سعر داخلي ولا هامش ولا بيانات عميل آخر — «سرّية بالرابط» لا «مصادَقة». */
-async function handleOffer(req, res) {
-  const q = req.query || {};
-
-  if (req.method === "POST") {
-    const key = String(req.headers["x-ops-key"] || q.key || "");
-    const want = String(process.env.OFFER_OPS_KEY || process.env.SIMPLE_OPS_KEY || "");
-    // بلا مفتاح مضبوط لا تُفتح الكتابة إطلاقاً: افتراض آمن بدل باب مفتوح
-    if (!want || key !== want) {
-      res.statusCode = 401;
-      res.setHeader("Content-Type", "application/json; charset=utf-8");
-      return res.end(JSON.stringify({ ok: false, error: "unauthorized" }));
-    }
-    const pkg = req.body && typeof req.body === "object" ? req.body : {};
-    try {
-      const token = await putOffer(pkg);
-      const base = String(process.env.PUBLIC_BASE_URL || "https://www.businesspartner.sa").replace(/\/+$/, "");
-      res.setHeader("Content-Type", "application/json; charset=utf-8");
-      return res.end(JSON.stringify({ ok: true, token, url: `${base}/offer/${token}` }));
-    } catch (e) {
-      res.statusCode = 500;
-      res.setHeader("Content-Type", "application/json; charset=utf-8");
-      return res.end(JSON.stringify({ ok: false, error: String(e && e.message || e) }));
-    }
-  }
-
-  const pkg = await getOffer(q.t || q.token);
-  res.setHeader("Content-Type", "text/html; charset=utf-8");
-  res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
-  res.setHeader("Referrer-Policy", "no-referrer");
-  // لا تخزين: الرابط سرّي، وبقاؤه في ذاكرة وسيط مشترك تسريب
-  res.setHeader("Cache-Control", "no-store, must-revalidate");
-  if (!pkg) {
-    res.statusCode = 404;
-    return res.end(offerHtml({ client_name: "", offers: [] }));
-  }
-  return res.end(offerHtml(pkg));
-}
-
 // ---------------------------------------------------------------------------
 // إحصائيات /ops — المدد الست التي طلبها المالك بالاسم.
 //
@@ -1867,13 +1881,13 @@ export default async function handler(req, res) {
   // ./_docagent.js: intake, classification, extraction, chat, filling, QA.
   if ((q.__route || "") === "doc-agent") return handleDocAgent(req, res);
   if ((q.__route || "") === "simple") return handleSimple(req, res);
-  if ((q.__route || "") === "offer") return handleOffer(req, res);
-  // طيّ لوحة العروض داخل الموقع (docs/quotes-cutover.md). الكتالوج الحيّ كان
-  // تمريرةً إلى المشروع الذي نريد حذفه، وروابط `/quotes/d/<token>` في يد
-  // عملاء منذ أشهر — الاثنان يُخدَمان من هنا الآن. ./_quotes.js
-  if ((q.__route || "") === "live-catalog") return handleLiveCatalog(req, res);
-  if ((q.__route || "") === "legacy-doc") return handleLegacyDoc(req, res, q.t);
+  // ونفس السبب لـ/api/pr-intake — بوابة تعبئة ملف الإقامة المميزة
+  // (منتج رائد الأعمال) تعيش في ./_printake.js: المسوّدة والمرفقات والإرسال.
+  if ((q.__route || "") === "pr-intake") return handlePrIntake(req, res);
   if ((q.__route || "") === "spaces") return spacesHandler(req, res);
+  // موظفون على بند التعاقد (EOR) — المنطق كله في ./_eor.js؛ هنا توصيلٌ فقط.
+  if ((q.__route || "") === "eor") return handleEorRoute(req, res);
+  if ((q.__route || "") === "ai") return handleAiwsRoute(req, res);
   if ((q.action || "") === "approve") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
@@ -2098,6 +2112,10 @@ export default async function handler(req, res) {
   // تُقرأ من الطلب أبداً، وإلا صار كل من يعرف بريد غيره يقرأ عقوده.
   if ((q.action || "") === "my-documents") {
     res.setHeader("Cache-Control", "no-store");
+    if (!PANEL_BRIDGE_TOKEN) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, configured: false, quotes: [], contracts: [], invoices: [] }));
+    }
     let sess = null;
     try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
     if (!sess) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
@@ -2106,57 +2124,29 @@ export default async function handler(req, res) {
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, configured: true, found: false, quotes: [], contracts: [], invoices: [] }));
     }
-
-    // قاعدتنا أولاً. جدول `requests` يحمل العرض والعقد والفاتورة أصلاً، وكان
-    // هذا القسم ينادي اللوحة وحدها — فكان يموت بموتها ويخفي ما عندنا نحن.
-    let mine = { quotes: [], contracts: [], invoices: [] };
-    let mineOk = false;
-    try { mine = await clientDocuments(email); mineOk = true; }
-    catch (e) { console.error("my-documents local read failed", String(e.message || e).slice(0, 200)); }
-
-    // واللوحة ثانياً، ما دامت حيّة، لأن تاريخها لم يُنقل كلّه بعد. حين تُحذف
-    // (QUOTES_PANEL_RETIRED=1) يسقط هذا الفرع وحده ويبقى القسم عاملاً.
-    let panelOkFlag = false, panelErr = "";
-    if (!PANEL_RETIRED && PANEL_BRIDGE_TOKEN) {
-      try {
-        const r = await fetch(`${PANEL_URL}/api/bridge/client-documents`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${PANEL_BRIDGE_TOKEN}`, "content-type": "application/json" },
-          body: JSON.stringify({ email }),
-          signal: AbortSignal.timeout(12000),
-        });
-        const j = await r.json().catch(() => null);
-        if (r.status === 401) throw new Error("panel_token_mismatch");
-        if (!r.ok || !j || j.ok !== true) throw new Error(`panel_http_${r.status}`);
-        // الدمج بالرقم: المستند المنقول موجود في الجهتين، وعرضه مرتين يجعل
-        // العميل يظن أن عليه فاتورتين.
-        for (const key of ["quotes", "contracts", "invoices"]) {
-          const seen = new Set(mine[key].map((x) => String(x.number || x.ref || "")));
-          for (const it of (Array.isArray(j[key]) ? j[key] : [])) {
-            if (!seen.has(String(it.number || it.ref || ""))) mine[key].push(it);
-          }
-        }
-        panelOkFlag = true;
-      } catch (e) {
-        panelErr = String(e.message || e).slice(0, 200);
-        console.error("my-documents bridge failed", panelErr);
-      }
-    }
-
-    // لا قاعدة ولا لوحة = لا نعرف شيئاً، فلا نقول «لا مستندات لك» لمن له
-    // مستندات. أما نجاح أحدهما فيكفي لعرض ما نعرفه مع بيان النقص.
-    if (!mineOk && !panelOkFlag) {
+    try {
+      const r = await fetch(`${PANEL_URL}/api/bridge/client-documents`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${PANEL_BRIDGE_TOKEN}`, "content-type": "application/json" },
+        body: JSON.stringify({ email }),
+        signal: AbortSignal.timeout(12000),
+      });
+      const j = await r.json().catch(() => null);
+      // ٤٠١ ليست عطلاً عابراً بل سرّان مختلفان: الموقع يرسل قيمته واللوحة
+      // تقارنها بقيمتها. وقولها «تعذّرت القراءة، سنعيد المحاولة» يجعل صاحبها
+      // يحدّث الصفحة أبداً بلا فائدة، فتُميَّز عمّا سواها.
+      if (r.status === 401) throw new Error("panel_token_mismatch");
+      if (!r.ok || !j || j.ok !== true) throw new Error(`panel_http_${r.status}`);
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, configured: true, ...j }));
+    } catch (e) {
+      // تعذّر الوصول للوحة لا يُسقط صفحة الحساب: بقيتها تعمل، وهذا القسم
+      // وحده يقول إنه لم يستطع القراءة الآن.
+      const why = String(e.message || e).slice(0, 200);
+      console.error("my-documents bridge failed", why);
       res.statusCode = 502;
-      return res.end(JSON.stringify({ ok: false, error: panelErr === "panel_token_mismatch" ? panelErr : "documents_unreachable" }));
+      return res.end(JSON.stringify({ ok: false, error: why === "panel_token_mismatch" ? why : "panel_unreachable" }));
     }
-    res.statusCode = 200;
-    return res.end(JSON.stringify({
-      ok: true,
-      configured: true,
-      source: panelOkFlag ? "local+panel" : "local",
-      partial: !mineOk || (!!PANEL_BRIDGE_TOKEN && !PANEL_RETIRED && !panelOkFlag),
-      ...mine,
-    }));
   }
 
   // ---- لوحة العروض داخل لوحة الموقع (للمالك) ------------------------------
@@ -4958,23 +4948,34 @@ export default async function handler(req, res) {
     const total = Number(d.total) || 0;
     const payId = String(d.payId || "").slice(0, 64);
     const verified = !!d.verified;
+    // The service page (Simple V1) puts these subscriptions in the cart as
+    // svc-<catalog code>, while the activation below reads the ids the older
+    // pages used (agent-*). Without this map a verified payment was filed as a
+    // plain service: the client paid and received no code and no portal.
+    // The amount was already verified against the catalog by api/pay.js.
+    const SVC_PAGE_ALIAS = { "svc-bp-ai-03": "agent-compliance-agent", "svc-bp-ai-04": "agent-shared-services-team" };
+    const SEAT_ID = "svc-bp-ai-smart-employee";
     const ids = (Array.isArray(d.ids) ? d.ids : []).slice(0, 40)
       .map((x) => ({ id: String((x && x.id) || "").slice(0, 80), qty: Math.max(1, Math.min(99, Number(x && x.qty) || 1)) }))
-      .filter((x) => x.id);
+      .filter((x) => x.id)
+      .map((x) => ({ id: SVC_PAGE_ALIAS[x.id.toLowerCase()] || x.id, qty: x.qty }));
     // Entitlements come from the paid item ids themselves, not from flags a
     // page could claim — the same ids the amount was verified against.
     const lower = (s) => String(s || "").toLowerCase();
-    const agents = ids.filter((x) => lower(x.id).indexOf("employee-") === 0).map((x) => x.id.slice("employee-".length).toLowerCase()).filter((s) => /^[a-z0-9]{1,30}$/.test(s));
+    // "employee-all" is not a specialist: it would write the ALL entitlement
+    // (the shared-services team, 1500/month) on a 500 riyal line.
+    const agents = ids.filter((x) => lower(x.id).indexOf("employee-") === 0).map((x) => x.id.slice("employee-".length).toLowerCase()).filter((s) => /^[a-z0-9]{1,30}$/.test(s) && s !== "all");
+    const boughtSeats = ids.reduce((n, x) => n + (lower(x.id) === SEAT_ID ? x.qty : 0), 0);
     const boughtShared = ids.some((x) => lower(x.id).indexOf("agent-shared-services") === 0);
     if (boughtShared) agents.push("all");
     const boughtCompliance = ids.some((x) => lower(x.id).indexOf("agent-compliance") === 0);
     const empItem = ids.map((x) => lower(x.id)).find((id) => id.indexOf("employer-plan-") === 0) || "";
     const employerPlan = empItem ? empItem.replace("employer-plan-", "").replace(/-monthly$|-yearly$/, "") : "";
     const boughtData = ids.some((x) => lower(x.id) === "companies-data-access");
-    const gatedCount = (boughtCompliance ? 1 : 0) + (employerPlan ? 1 : 0) + (boughtShared ? 1 : 0) + (boughtData ? 1 : 0) + agents.filter((a) => a !== "all").length;
+    const gatedCount = (boughtCompliance ? 1 : 0) + (employerPlan ? 1 : 0) + (boughtShared ? 1 : 0) + (boughtData ? 1 : 0) + (boughtSeats ? 1 : 0) + agents.filter((a) => a !== "all").length;
     const plainItems = ids.filter((x) => {
       const id = lower(x.id);
-      return !(id.indexOf("employee-") === 0 || id.indexOf("agent-") === 0 || id.indexOf("employer-plan-") === 0 || id === "companies-data-access");
+      return !(id.indexOf("employee-") === 0 || id.indexOf("agent-") === 0 || id.indexOf("employer-plan-") === 0 || id === "companies-data-access" || id === SEAT_ID);
     });
     const itemsText = (Array.isArray(d.items) && d.items.length ? d.items.map(String) : ids.map((x) => x.id + " ×" + x.qty)).join("، ").slice(0, 900);
 
@@ -4994,7 +4995,34 @@ export default async function handler(req, res) {
         if (rq.ok) dup = (((await rq.json()) || {}).results || [])[0] || null;
       } catch { /* best-effort */ }
     }
-    if (dup) { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, already: true })); }
+    // The purchase becomes a real request — the row /my and /ops read. It is the
+    // same payment whether this is the first arrival or the second, so the call
+    // is idempotent (api/_simple.js derives the reference from the payment id):
+    // a replay returns the request already opened, and heals one that failed to
+    // open the first time. A failure here never undoes the payment — the money
+    // moved — but the owner is told at once, with everything needed by hand.
+    const openRequest = async () => {
+      let out;
+      try { out = await createCartRequest({ ...d, ref, payId, verified, total, email, name, phone, company }); }
+      catch (e) { out = { ok: false, error: "create_failed" }; }
+      if (!out || !out.ok) {
+        console.error("paid-order: request not opened", ref, payId, out && out.error);
+        const key = "req|" + (payId || ref);
+        if (!(globalThis.__bpCartReqAlerted ||= new Set()).has(key)) {
+          globalThis.__bpCartReqAlerted.add(key);
+          await sendEmail(TEAM_EMAIL, `⚠️ دفعة مؤكدة ${ref} لم يُفتح لها طلب في لوحة العميل`,
+            `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#b91c1c">دفعة وصلت ولم يُنشأ طلبها</h2><p>الدفع مؤكد وسُجّل في CRM، لكن إنشاء الطلب الذي يراه العميل في /my وتراه أنت في /ops فشل (${esc((out && out.error) || "unknown")}). العميل رأى رسالة «لا تدفع مرة أخرى». أنشئ الطلب يدوياً من /ops أو أعد تشغيل المطابقة.</p><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", itemsText) + row("الإجمالي المدفوع", total ? total + " ﷼" : "") + row("رقم عملية الدفع", payId) + row("مرجع السلة", ref)}</table></div>`).catch(() => {});
+        }
+      }
+      return out && out.ok
+        ? { ok: true, ref: out.ref || "", created: !!out.created, status: out.status || "", documents: out.documents || 0, ...(out.skipped ? { skipped: out.skipped } : {}) }
+        : { ok: false, error: (out && out.error) || "unknown" };
+    };
+    if (dup) {
+      const request = await openRequest();
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, already: true, request }));
+    }
 
     // The companies-data portal has no per-account backend, so its access code
     // is minted here and written on the CRM row — /api/pay?resource=leads
@@ -5034,6 +5062,16 @@ export default async function handler(req, res) {
           activated.agents = !!(await sendEmail(email, `تم تفعيل موظفيك الأذكياء — رمز الدخول ${ref}`, aHtml)).ok;
         } catch { activated.agents = false; }
       }
+      if (boughtSeats && isEmail(email)) {
+        // The service page sells "a specialist smart employee" without naming
+        // one, so there is no slug to write on the CRM row. The portal opens
+        // for the buyer's own account (open-access policy); the buyer picks
+        // the specialist there.
+        try {
+          const sHtml = `<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;text-align:right" dir="rtl"><h2 style="color:#0B1B5A">تم تفعيل اشتراكك في الموظف الذكي المتخصص 🎉</h2><p>عدد الموظفين المشمولين: <b>${boughtSeats}</b>. افتح بوابة الموظفين الأذكياء وسجّل الدخول بحسابك بالبريد نفسه (${esc(email)}) ثم اختر موظفك المتخصص.</p><p><a href="${MKT_SITE_BASE}/ar/connect" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح بوابة الموظفين الأذكياء</a></p><p style="color:#475569">رقم المرجع: <b style="direction:ltr;display:inline-block">${esc(ref)}</b></p></div>`;
+          activated.seat = !!(await sendEmail(email, `تم تفعيل اشتراك الموظف الذكي المتخصص — ${ref}`, sHtml)).ok;
+        } catch { activated.seat = false; }
+      }
       if (plainItems.length && isEmail(email)) {
         try { activated.service = !!(await approveService({ service: itemsText, company: company !== name ? company : "", email, phone, ref, note: "تم تأكيد دفعتك الإلكترونية وبدأ التنفيذ مباشرة." })); } catch { activated.service = false; }
       }
@@ -5043,16 +5081,21 @@ export default async function handler(req, res) {
     // could not be matched to the catalogue, in which case the old approval
     // links are attached and nothing gated activates until one is clicked.
     const doneList = Object.keys(activated).filter((k) => activated[k]);
-    const okHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">💳 طلب مدفوع إلكترونياً ${esc(ref)} — مفعّل تلقائياً</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", itemsText) + row("الإجمالي المدفوع", total ? total + " ﷼" : "") + row("رقم عملية ميسر", payId)}</table><p>✅ الدفع تحقّقنا منه من ميسر مباشرة، والحالة في CRM «مؤكد - قيد التنفيذ».</p>${doneList.length ? `<p>تفعيلات آلية تمت: <b>${doneList.join("، ")}</b> — وصلت العميل أكواد الوصول على بريده.</p>` : ""}<p style="color:#666;font-size:13px">لا يلزمك أي إجراء.</p></div>`;
+    // The request the buyer will find in /my (and the owner in /ops).
+    const request = await openRequest();
+    const myLink = `${MKT_SITE_BASE}/ar/my${request.ref ? "?ref=" + encodeURIComponent(request.ref) : ""}`;
+    const opsLink = request.ref ? `<p><a href="${MKT_SITE_BASE}/ops?ref=${encodeURIComponent(request.ref)}" style="color:#0B1B5A">افتح الطلب ${esc(request.ref)} في لوحة العمليات</a></p>` : "";
+    const reqRow = request.ref ? row("رقم الطلب في اللوحة", request.ref) : "";
+    const okHtml =`<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">💳 طلب مدفوع إلكترونياً ${esc(ref)} — مفعّل تلقائياً</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", itemsText) + row("الإجمالي المدفوع", total ? total + " ﷼" : "") + row("رقم عملية ميسر", payId) + reqRow}</table>${opsLink}<p>✅ الدفع تحقّقنا منه من ميسر مباشرة، والحالة في CRM «مؤكد - قيد التنفيذ».</p>${doneList.length ? `<p>تفعيلات آلية تمت: <b>${doneList.join("، ")}</b> — وصلت العميل أكواد الوصول على بريده.</p>` : ""}${boughtSeats ? `<p>الموظف الذكي المتخصص (${boughtSeats}): لم يُحدَّد موظف بعينه في الطلب — يختاره العميل من البوابة.</p>` : ""}<p style="color:#666;font-size:13px">لا يلزمك أي إجراء.</p></div>`;
     const reviewLinks = [
       boughtCompliance && isEmail(email) ? `<p><a href="${MKT_SITE_BASE}/api/requests?action=approve-compliance&t=${encodeURIComponent(ssSeal({ company, email, phone, ref }))}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">✅ تفعيل وكيل الامتثال</a></p>` : "",
       employerPlan && isEmail(email) ? `<p><a href="${MKT_SITE_BASE}/api/requests?action=approve-employer&t=${encodeURIComponent(ssSeal({ company, email, phone, ref, plan: employerPlan }))}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">✅ تفعيل منصة التوظيف</a></p>` : "",
       boughtShared && isEmail(email) ? `<p><a href="${MKT_SITE_BASE}/api/requests?action=approve&t=${encodeURIComponent(ssSeal({ email, name, phone, ref }))}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">✅ اعتماد الخدمات المشتركة</a></p>` : "",
     ].filter(Boolean).join("");
-    const reviewHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#b45309">💳 دفعة إلكترونية ${esc(ref)} تحتاج مراجعة سريعة</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", itemsText) + row("الإجمالي المدفوع", total ? total + " ﷼" : "") + row("رقم عملية ميسر", payId)}</table><p>الدفع نفسه مؤكد من ميسر، لكن المبلغ لم يُطابَق آلياً مع أسعار الكتالوج، فلم نفعّل البوابات تلقائياً.</p><p>بعد مراجعة المبلغ: افتح صف الطلب (رقم المرجع ${esc(ref)}) وغيّر حالة الطلب إلى «مؤكد - قيد التنفيذ»${reviewLinks ? "، وفعّل الاشتراكات:" : "."}</p>${reviewLinks}</div>`;
+    const reviewHtml = `<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#b45309">💳 دفعة إلكترونية ${esc(ref)} تحتاج مراجعة سريعة</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", itemsText) + row("الإجمالي المدفوع", total ? total + " ﷼" : "") + row("رقم عملية ميسر", payId) + reqRow}</table>${opsLink}<p>الدفع نفسه مؤكد من ميسر، لكن المبلغ لم يُطابَق آلياً مع أسعار الكتالوج، فلم نفعّل البوابات تلقائياً.</p><p>بعد مراجعة المبلغ: افتح صف الطلب (رقم المرجع ${esc(ref)}) وغيّر حالة الطلب إلى «مؤكد - قيد التنفيذ»${reviewLinks ? "، وفعّل الاشتراكات:" : "."}</p>${reviewLinks}</div>`;
     const ownerSubject = verified ? `💳 طلب مدفوع إلكترونياً ${ref} — مفعّل تلقائياً` : `⚠️ دفعة إلكترونية ${ref} تحتاج مراجعة`;
     const ownerHtml2 = verified ? okHtml : reviewHtml;
-    const cHtml2 = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">تم استلام دفعتك${verified ? " وتفعيل خدمتك" : ""} ✅</h2><p>مرحباً ${esc(name || "")}،</p><p>${verified ? "وصلتنا دفعتك الإلكترونية بنجاح وبدأ التنفيذ مباشرة — أي أكواد وصول لخدماتك تصلك في رسائل منفصلة على هذا البريد." : "وصلتنا دفعتك الإلكترونية بنجاح، وجاري تفعيل خدمتك — يصلك تأكيد التفعيل خلال ساعات العمل."}</p><table>${row("رقم المرجع", ref) + row("الخدمات", itemsText) + row("الإجمالي", total ? total + " ﷼" : "")}</table><p>تابع حالة طلبك من لوحتك: <a href="${MKT_SITE_BASE}/ar/account" style="color:#0B1B5A">${MKT_SITE_BASE}/ar/account</a></p></div>`;
+    const cHtml2 = `<div dir="rtl" style="font-family:Arial,sans-serif;color:#1F2430"><h2 style="color:#0B1B5A">تم استلام دفعتك${verified ? " وتفعيل خدمتك" : ""} ✅</h2><p>مرحباً ${esc(name || "")}،</p><p>${verified ? "وصلتنا دفعتك الإلكترونية بنجاح وبدأ التنفيذ مباشرة — أي أكواد وصول لخدماتك تصلك في رسائل منفصلة على هذا البريد." : "وصلتنا دفعتك الإلكترونية بنجاح، وجاري تفعيل خدمتك — يصلك تأكيد التفعيل خلال ساعات العمل."}</p><table>${row("رقم المرجع", ref) + (request.ref ? row("رقم طلبك في لوحتك", request.ref) : "") + row("الخدمات", itemsText) + row("الإجمالي", total ? total + " ﷼" : "")}</table><p>${request.ref ? (request.documents ? `تابع طلبك وارفع المستندات المطلوبة (${request.documents}) من لوحتك:` : "تابع طلبك من لوحتك:") : "تابع حالة طلبك من لوحتك:"} <a href="${myLink}" style="color:#0B1B5A">${myLink}</a></p></div>`;
     await Promise.all([
       sendEmail(TEAM_EMAIL, ownerSubject, ownerHtml2),
       OWNER_EMAIL && OWNER_EMAIL !== TEAM_EMAIL ? sendEmail(OWNER_EMAIL, ownerSubject, ownerHtml2) : Promise.resolve(),
@@ -5061,7 +5104,7 @@ export default async function handler(req, res) {
       forwardLead({ source: "paid-order", ref, name, phone, email, items: itemsText, total }),
     ]);
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, already: false, verified, activated, ...(gatedCount ? { gated: gatedCount } : {}) }));
+    return res.end(JSON.stringify({ ok: true, already: false, verified, activated, request, ...(gatedCount ? { gated: gatedCount } : {}) }));
   }
 
   if (b.type === "order") {

@@ -212,6 +212,10 @@
   <url><loc>https://businesspartner.sa/ar/terms</loc></url>
   <url><loc>https://businesspartner.sa/fr/terms</loc></url>
   <url><loc>https://businesspartner.sa/zh/terms</loc></url>
+  <url><loc>https://businesspartner.sa/accessibility</loc></url>
+  <url><loc>https://businesspartner.sa/ar/accessibility</loc></url>
+  <url><loc>https://businesspartner.sa/fr/accessibility</loc></url>
+  <url><loc>https://businesspartner.sa/zh/accessibility</loc></url>
   <url><loc>https://businesspartner.sa/account</loc></url>
   <url><loc>https://businesspartner.sa/ar/account</loc></url>
   <url><loc>https://businesspartner.sa/fr/account</loc></url>
@@ -860,30 +864,6 @@
   <url><loc>https://businesspartner.sa/ar/services/qw-est</loc></url>
   <url><loc>https://businesspartner.sa/fr/services/qw-est</loc></url>
   <url><loc>https://businesspartner.sa/zh/services/qw-est</loc></url>
-  <url><loc>https://businesspartner.sa/services/rev-launch</loc></url>
-  <url><loc>https://businesspartner.sa/ar/services/rev-launch</loc></url>
-  <url><loc>https://businesspartner.sa/fr/services/rev-launch</loc></url>
-  <url><loc>https://businesspartner.sa/zh/services/rev-launch</loc></url>
-  <url><loc>https://businesspartner.sa/services/rev-start</loc></url>
-  <url><loc>https://businesspartner.sa/ar/services/rev-start</loc></url>
-  <url><loc>https://businesspartner.sa/fr/services/rev-start</loc></url>
-  <url><loc>https://businesspartner.sa/zh/services/rev-start</loc></url>
-  <url><loc>https://businesspartner.sa/services/rev-growth</loc></url>
-  <url><loc>https://businesspartner.sa/ar/services/rev-growth</loc></url>
-  <url><loc>https://businesspartner.sa/fr/services/rev-growth</loc></url>
-  <url><loc>https://businesspartner.sa/zh/services/rev-growth</loc></url>
-  <url><loc>https://businesspartner.sa/services/rev-pro</loc></url>
-  <url><loc>https://businesspartner.sa/ar/services/rev-pro</loc></url>
-  <url><loc>https://businesspartner.sa/fr/services/rev-pro</loc></url>
-  <url><loc>https://businesspartner.sa/zh/services/rev-pro</loc></url>
-  <url><loc>https://businesspartner.sa/services/rev-team</loc></url>
-  <url><loc>https://businesspartner.sa/ar/services/rev-team</loc></url>
-  <url><loc>https://businesspartner.sa/fr/services/rev-team</loc></url>
-  <url><loc>https://businesspartner.sa/zh/services/rev-team</loc></url>
-  <url><loc>https://businesspartner.sa/services/rev-ent</loc></url>
-  <url><loc>https://businesspartner.sa/ar/services/rev-ent</loc></url>
-  <url><loc>https://businesspartner.sa/fr/services/rev-ent</loc></url>
-  <url><loc>https://businesspartner.sa/zh/services/rev-ent</loc></url>
   <url><loc>https://businesspartner.sa/services/bp-ref-01</loc></url>
   <url><loc>https://businesspartner.sa/ar/services/bp-ref-01</loc></url>
   <url><loc>https://businesspartner.sa/fr/services/bp-ref-01</loc></url>
@@ -1100,6 +1080,10 @@
   <url><loc>https://businesspartner.sa/ar/services/bp-sbc-30</loc></url>
   <url><loc>https://businesspartner.sa/fr/services/bp-sbc-30</loc></url>
   <url><loc>https://businesspartner.sa/zh/services/bp-sbc-30</loc></url>
+  <url><loc>https://businesspartner.sa/services/bp-sbc-31</loc></url>
+  <url><loc>https://businesspartner.sa/ar/services/bp-sbc-31</loc></url>
+  <url><loc>https://businesspartner.sa/fr/services/bp-sbc-31</loc></url>
+  <url><loc>https://businesspartner.sa/zh/services/bp-sbc-31</loc></url>
   <url><loc>https://businesspartner.sa/services/bp-fi-08</loc></url>
   <url><loc>https://businesspartner.sa/ar/services/bp-fi-08</loc></url>
   <url><loc>https://businesspartner.sa/fr/services/bp-fi-08</loc></url>
