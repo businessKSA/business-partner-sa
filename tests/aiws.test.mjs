@@ -57,3 +57,24 @@ test("محلياً: لا يصل شيء إلى n8n", async () => {
     { fetch: async () => { n++; return { ok: true }; }, dev: true, outbox: async (e) => { boxed = e; } });
   assert.equal(r.status, 200); assert.equal(n, 0); assert.equal(boxed.kind, "n8n");
 });
+
+import { aiwsPlanOf, activateAiws } from "../api/_aiws.js";
+
+test("aiwsPlanOf: معرّفات السلة ← رمز باقة المنصة، وغيرها فارغ", () => {
+  assert.equal(aiwsPlanOf("svc-bp-aiws-bus"), "business");
+  assert.equal(aiwsPlanOf("SVC-BP-AIWS-BPLUS"), "business_plus");
+  assert.equal(aiwsPlanOf("bp-aiws-ent"), "enterprise");
+  assert.equal(aiwsPlanOf("svc-bp-ai-03"), "");
+  assert.equal(aiwsPlanOf("agent-compliance-agent"), "");
+});
+
+test("activateAiws: محلياً إلى الصندوق، وبلا إعداد لا يرسل، وحمولة ناقصة تُرفض", async () => {
+  let boxed = null, sent = 0;
+  const o = { ref: "BP-1", payId: "pay_1", plans: [{ sku: "BP-AIWS-BUS", plan: "business", qty: 1 }], company: "شركة", name: "س", email: "S@co.sa", phone: "05", total: 215.63 };
+  const dev = await activateAiws(o, { dev: true, outbox: async (e) => { boxed = e; }, fetch: async () => { sent++; return { ok: true }; } });
+  assert.equal(dev.ok, true); assert.equal(sent, 0);
+  assert.equal(boxed.payload.event, "aiws.paid"); assert.equal(boxed.payload.email, "s@co.sa"); assert.equal(boxed.payload.plans[0].plan, "business");
+  const off = await activateAiws(o, { fetch: async () => { sent++; return { ok: true }; } });
+  assert.equal(off.ok, false); assert.equal(off.error, "not_configured"); assert.equal(sent, 0);
+  assert.equal((await activateAiws({ ...o, payId: "" }, { dev: true })).ok, false);
+});

@@ -28,7 +28,7 @@ import { LEADS_DB as BD_LEADS_DB, matchQuery as bdMatchQuery, mapCompany as bdMa
 import { handleAgencies } from "./_agencies.js";
 import { handleJobhunt } from "./_jobhunt.js";
 import { handleEor, isBillingAction, authFromSession } from "./_eor.js";
-import { handleAiws } from "./_aiws.js";
+import { handleAiws, activateAiws, aiwsPlanOf } from "./_aiws.js";
 import { stageChannels, announce, waSend } from "./_stage.js";
 import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
@@ -1307,6 +1307,10 @@ async function catalogPrices() {
     for (const k of [p.code, p.key].map((x) => String(x || "").toLowerCase()).filter(Boolean)) {
       if (!map[k]) map[k] = entry;
     }
+  }
+  for (const ap of c.aiPlans || []) if (ap.code) {
+    const k = String(ap.code).toLowerCase();
+    if (!map[k]) map[k] = { amount: Number(ap.amount) || 0, name: ap.nameAr || ap.nameEn || ap.code };
   }
   _catCache = map; _catAt = Date.now();
   _catDiscounts = Array.isArray(c.discounts) ? c.discounts : [];
@@ -4971,10 +4975,12 @@ export default async function handler(req, res) {
     const empItem = ids.map((x) => lower(x.id)).find((id) => id.indexOf("employer-plan-") === 0) || "";
     const employerPlan = empItem ? empItem.replace("employer-plan-", "").replace(/-monthly$|-yearly$/, "") : "";
     const boughtData = ids.some((x) => lower(x.id) === "companies-data-access");
-    const gatedCount = (boughtCompliance ? 1 : 0) + (employerPlan ? 1 : 0) + (boughtShared ? 1 : 0) + (boughtData ? 1 : 0) + (boughtSeats ? 1 : 0) + agents.filter((a) => a !== "all").length;
+    // باقات Business Partner AI (svc-bp-aiws-*): تُسلَّم إلى «مفعّل الخدمات» بعد التحقق.
+    const aiwsPlans = ids.map((x) => ({ sku: x.id.replace(/^svc-/i, ""), plan: aiwsPlanOf(x.id), qty: x.qty })).filter((x) => x.plan);
+    const gatedCount = (aiwsPlans.length ? 1 : 0) + (boughtCompliance ? 1 : 0) + (employerPlan ? 1 : 0) + (boughtShared ? 1 : 0) + (boughtData ? 1 : 0) + (boughtSeats ? 1 : 0) + agents.filter((a) => a !== "all").length;
     const plainItems = ids.filter((x) => {
       const id = lower(x.id);
-      return !(id.indexOf("employee-") === 0 || id.indexOf("agent-") === 0 || id.indexOf("employer-plan-") === 0 || id === "companies-data-access" || id === SEAT_ID);
+      return !(id.indexOf("employee-") === 0 || id.indexOf("agent-") === 0 || id.indexOf("employer-plan-") === 0 || id === "companies-data-access" || id === SEAT_ID || aiwsPlanOf(id));
     });
     const itemsText = (Array.isArray(d.items) && d.items.length ? d.items.map(String) : ids.map((x) => x.id + " ×" + x.qty)).join("، ").slice(0, 900);
 
@@ -5071,6 +5077,11 @@ export default async function handler(req, res) {
           activated.seat = !!(await sendEmail(email, `تم تفعيل اشتراك الموظف الذكي المتخصص — ${ref}`, sHtml)).ok;
         } catch { activated.seat = false; }
       }
+      if (aiwsPlans.length && isEmail(email)) {
+        const r = await activateAiws({ ref, payId, plans: aiwsPlans, company, name, email, phone, total }, { dev: DEV, outbox }).catch(() => ({ ok: false }));
+        activated.aiws = !!(r && r.ok);
+        if (!activated.aiws) console.error("paid-order aiws", ref, r && r.error);
+      }
       if (plainItems.length && isEmail(email)) {
         try { activated.service = !!(await approveService({ service: itemsText, company: company !== name ? company : "", email, phone, ref, note: "تم تأكيد دفعتك الإلكترونية وبدأ التنفيذ مباشرة." })); } catch { activated.service = false; }
       }
@@ -5085,7 +5096,7 @@ export default async function handler(req, res) {
     const myLink = `${MKT_SITE_BASE}/ar/my${request.ref ? "?ref=" + encodeURIComponent(request.ref) : ""}`;
     const opsLink = request.ref ? `<p><a href="${MKT_SITE_BASE}/ops?ref=${encodeURIComponent(request.ref)}" style="color:#0B1B5A">افتح الطلب ${esc(request.ref)} في لوحة العمليات</a></p>` : "";
     const reqRow = request.ref ? row("رقم الطلب في اللوحة", request.ref) : "";
-    const okHtml =`<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">💳 طلب مدفوع إلكترونياً ${esc(ref)} — مفعّل تلقائياً</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", itemsText) + row("الإجمالي المدفوع", total ? total + " ﷼" : "") + row("رقم عملية ميسر", payId) + reqRow}</table>${opsLink}<p>✅ الدفع تحقّقنا منه من ميسر مباشرة، والحالة في CRM «مؤكد - قيد التنفيذ».</p>${doneList.length ? `<p>تفعيلات آلية تمت: <b>${doneList.join("، ")}</b> — وصلت العميل أكواد الوصول على بريده.</p>` : ""}${boughtSeats ? `<p>الموظف الذكي المتخصص (${boughtSeats}): لم يُحدَّد موظف بعينه في الطلب — يختاره العميل من البوابة.</p>` : ""}<p style="color:#666;font-size:13px">لا يلزمك أي إجراء.</p></div>`;
+    const okHtml =`<div dir="rtl" style="font-family:Arial,sans-serif"><h2 style="color:#0B1B5A">💳 طلب مدفوع إلكترونياً ${esc(ref)} — مفعّل تلقائياً</h2><table>${row("الاسم", name) + row("الجوال", phone) + row("البريد", email) + row("الخدمات", itemsText) + row("الإجمالي المدفوع", total ? total + " ﷼" : "") + row("رقم عملية ميسر", payId) + reqRow}</table>${opsLink}<p>✅ الدفع تحقّقنا منه من ميسر مباشرة، والحالة في CRM «مؤكد - قيد التنفيذ».</p>${doneList.length ? `<p>تفعيلات آلية تمت: <b>${doneList.join("، ")}</b> — وصلت العميل أكواد الوصول على بريده.</p>` : ""}${aiwsPlans.length && !activated.aiws ? `<p style="color:#b45309">⚠️ Business Partner AI: لم يصل الطلب إلى «مفعّل الخدمات» — جهّز المساحة يدوياً (${esc(aiwsPlans.map((p) => p.plan).join("، "))}) لـ ${esc(company)}.</p>` : ""}${boughtSeats ? `<p>الموظف الذكي المتخصص (${boughtSeats}): لم يُحدَّد موظف بعينه في الطلب — يختاره العميل من البوابة.</p>` : ""}<p style="color:#666;font-size:13px">لا يلزمك أي إجراء.</p></div>`;
     const reviewLinks = [
       boughtCompliance && isEmail(email) ? `<p><a href="${MKT_SITE_BASE}/api/requests?action=approve-compliance&t=${encodeURIComponent(ssSeal({ company, email, phone, ref }))}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">✅ تفعيل وكيل الامتثال</a></p>` : "",
       employerPlan && isEmail(email) ? `<p><a href="${MKT_SITE_BASE}/api/requests?action=approve-employer&t=${encodeURIComponent(ssSeal({ company, email, phone, ref, plan: employerPlan }))}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">✅ تفعيل منصة التوظيف</a></p>` : "",
