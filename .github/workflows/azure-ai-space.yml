@@ -36,27 +36,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # The secrets context is not available in a job-level `if`, so the gate
-      # lives here: before the Static Web App exists, every push would
-      # otherwise fail on a missing token.
+      # Only the deployment token gates the deploy now. config.js is no longer
+      # secret: it carries timing options only (n8n paths and the Farah key live
+      # in the Static Web App's application settings, read by ai-space/api).
       - id: gate
         name: Check Azure wiring
         env:
           TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
-          CONFIG: ${{ secrets.AI_SPACE_CONFIG }}
         run: |
-          if [ -z "$TOKEN" ] || [ -z "$CONFIG" ]; then
-            echo "::notice::Azure Static Web App not wired up yet (missing AZURE_STATIC_WEB_APPS_API_TOKEN or AI_SPACE_CONFIG) — skipping deploy."
+          if [ -z "$TOKEN" ]; then
+            echo "::notice::Azure Static Web App not wired up yet (missing AZURE_STATIC_WEB_APPS_API_TOKEN) — skipping deploy."
             echo "ready=false" >> "$GITHUB_OUTPUT"
           else
             echo "ready=true" >> "$GITHUB_OUTPUT"
           fi
 
+      # config.js holds timing options only. The old AI_SPACE_CONFIG secret (which
+      # carried webhook paths) is deliberately ignored: nothing secret may reach
+      # the browser. Delete that secret once the app settings are in place.
       - name: Write runtime config
         if: steps.gate.outputs.ready == 'true'
-        env:
-          AI_SPACE_CONFIG: ${{ secrets.AI_SPACE_CONFIG }}
-        run: printf '%s\n' "$AI_SPACE_CONFIG" > ai-space/config.js
+        run: cp ai-space/config.example.js ai-space/config.js
 
       - name: Deploy
         if: steps.gate.outputs.ready == 'true'
@@ -65,6 +65,7 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           action: upload
           app_location: ai-space
+          api_location: ai-space/api
           output_location: ''
           skip_app_build: true
-          skip_api_build: true
+          skip_api_build: true  # zero-dependency functions: nothing to build
