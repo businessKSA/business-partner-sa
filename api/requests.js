@@ -784,7 +784,7 @@ function richChunks(text) {
   while (s.length) { out.push({ text: { content: s.slice(0, 1900) } }); s = s.slice(1900); }
   return out.length ? out : [{ text: { content: "" } }];
 }
-async function findConvPage(ref) {
+async function findConvPage(ref, full) {
   const r = await fetch(`https://api.notion.com/v1/databases/${CRM_DB}/query`, {
     method: "POST",
     headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
@@ -792,10 +792,13 @@ async function findConvPage(ref) {
   });
   if (!r.ok) return null;
   const data = await r.json();
-  return (data.results && data.results[0] && data.results[0].id) || null;
+  const page = data.results && data.results[0];
+  return full ? page || null : (page && page.id) || null;
 }
+// Returns { wasHot }: true when this conversation already rang the team once
+// (its row is flagged «Human Required»), so the caller doesn't notify again.
 async function upsertConversation({ sid, messages, phone, email, name, hot }) {
-  if (!NOTION_TOKEN || !sid) return;
+  if (!NOTION_TOKEN || !sid) return { wasHot: false };
   const ref = ("WEB-" + sid).slice(0, 60);
   const today = new Date().toISOString().slice(0, 10);
   const firstQ = (messages.find((m) => m.role === "user") || {}).content || "محادثة موقع";
@@ -810,8 +813,11 @@ async function upsertConversation({ sid, messages, phone, email, name, hot }) {
     "رقم المرجع": { rich_text: [{ text: { content: ref } }] },
     "حالة الطلب": { select: { name: "محادثة موقع" } },
   };
+  let wasHot = false;
   try {
-    const existing = await findConvPage(ref);
+    const page = await findConvPage(ref, true);
+    const existing = page && page.id;
+    wasHot = !!(page && page.properties && page.properties["Human Required"] && page.properties["Human Required"].checkbox);
     const url = existing ? `https://api.notion.com/v1/pages/${existing}` : "https://api.notion.com/v1/pages";
     const body = existing ? { properties: props } : { parent: { database_id: CRM_DB }, properties: props };
     const r = await fetch(url, {
@@ -821,6 +827,7 @@ async function upsertConversation({ sid, messages, phone, email, name, hot }) {
     });
     if (!r.ok) console.error("conv upsert error", r.status, (await r.text()).slice(0, 200));
   } catch (e) { console.error("conv upsert exception", String(e).slice(0, 150)); }
+  return { wasHot };
 }
 
 async function addToAudience(email, name) {
@@ -5950,8 +5957,11 @@ export default async function handler(req, res) {
     const name = String(contact.name || "").trim().slice(0, 120);
     const phone = String(contact.phone || "").trim().slice(0, 40);
     const email = String(contact.email || "").trim().toLowerCase().slice(0, 160);
-    const notify = !!b.notify && (phone || isEmail(email));
-    await upsertConversation({ sid, messages, phone, email, name, hot: notify });
+    const wantsNotify = !!b.notify && !!(phone || isEmail(email));
+    const { wasHot } = await upsertConversation({ sid, messages, phone, email, name, hot: wantsNotify });
+    // The widget syncs with notify:true after every reply; ring the team once
+    // per conversation, not once per message.
+    const notify = wantsNotify && !wasHot;
     if (notify) {
       const ref = "WEB-" + sid;
       const bookUrl = `${MKT_SITE_BASE}/consultation`;
