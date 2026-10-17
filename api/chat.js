@@ -1,22 +1,14 @@
 // Vercel Serverless Function — "المستشار" (The Advisor) chatbot.
 // ESM module (repo package.json has "type": "module").
 //
-// Multi-provider with automatic failover: tries every configured provider in
-// order until one answers, so the advisor never stops because one provider
-// ran out of credit. System prompt = official BP knowledge base pulled from
-// Notion (api/knowledge.json). Government facts come only from that base —
-// the model is told not to invent them.
+// Azure-only (owner policy, Sept 2026): Azure OpenAI is the single model
+// provider (a second Azure region inside api/_azure.js is the only redundancy),
+// with the keyless n8n «باهر» agent as last resort. System prompt = official BP
+// knowledge base (api/knowledge.json). Government facts come only from that
+// base — the model is told not to invent them.
 //
-// Providers (set whichever API keys you have; order of preference):
-//   0. AZURE_OPENAI_ENDPOINT + AZURE_OPENAI_KEY + AZURE_OPENAI_DEPLOYMENT
-//                        — Azure OpenAI / AI Foundry، يُدفع من رصيد Microsoft
-//                          for Startups (١٠٠ ألف دولار حتى 2028-09-08) — يتقدّم
-//                          الكل لأنه الوحيد الذي لا يستهلك بطاقة المالك.
-//   1. GEMINI_API_KEY    — Google Gemini, FREE tier (aistudio.google.com/apikey)
-//   2. GROQ_API_KEY      — Groq Llama, FREE tier (console.groq.com/keys)
-//   3. ANTHROPIC_API_KEY — Claude (paid)
-//   4. OPENAI_API_KEY    — OpenAI (paid)
-// Optional model overrides: GEMINI_MODEL, GROQ_MODEL, MODEL (Claude), OPENAI_MODEL
+// Env: AZURE_OPENAI_ENDPOINT + AZURE_OPENAI_KEY + AZURE_OPENAI_DEPLOYMENT
+// (see api/_azure.js for the optional second region and deployment overrides).
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -250,7 +242,7 @@ const configured = () => PROVIDERS.filter((p) => (p.name === "azure" ? azureConf
 // key, so locally we name what is missing instead.
 const hasModelKey = () => azureConfigured() || PROVIDERS.some((p) => p.keys && !!envFrom(p.keys));
 const LOCAL_DEV_CHAT = () => process.env.APP_ENV === "development";
-const NO_KEY_HINT = "المحادثة الذكية معطّلة محلياً: أضف ANTHROPIC_API_KEY في ملف .env.local ثم أعد تشغيل الخادم. بقية المسار — النطاق وعرض السعر والعقد والدفع والفاتورة — يعمل بدونه.";
+const NO_KEY_HINT = "المحادثة الذكية معطّلة محلياً: أضف AZURE_OPENAI_ENDPOINT وAZURE_OPENAI_KEY وAZURE_OPENAI_DEPLOYMENT في ملف .env.local ثم أعد تشغيل الخادم. بقية المسار — النطاق وعرض السعر والعقد والدفع والفاتورة — يعمل بدونه.";
 
 function intakeFallback(body, messages) {
   const context = String(body.context || "consulting");
