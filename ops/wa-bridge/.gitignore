@@ -1,0 +1,4 @@
+.env
+.wa-auth/
+.wa-queue/
+node_modules/

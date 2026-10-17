@@ -44,7 +44,7 @@
 | 23 | **ERP** | ERP Manager | الدفترة وأدوات المال | ⚠️ `erp/` حُذف — الدفترة هي الواقع |
 | 24 | **باهر للدعم** | Baher Support Manager | ودجت الدعم | ✅ يعمل · بلا قياس |
 | 25 | **المستشار الذكي** | Advisor Manager | `api/chat.js` والمعرفة | ✅ Azure فقط |
-| 26 | **واتساب** | WhatsApp Manager | وكيل n8n ولوحة التحكم | ⚠️ يقرأ أسعاراً غير الموقع |
+| 26 | **واتساب** | WhatsApp Manager | وكيل n8n ولوحة التحكم · **قارئ واتساب ويب** (`ops/wa-bridge/` + سير `C67P6DK5aAmIl6qf`، [الوثيقة](wa-web-reader.md)) | ⚠️ يقرأ أسعاراً غير الموقع · القارئ مسودّة غير مفعّلة |
 | 27 | **البريد** | Email Manager | Resend والمتابعات | ⚠️ بلا قياس |
 | 28 | **التواصل الاجتماعي** | Social Media Manager | — | 🔴 لا شيء مبنيّ |
 | 29 | **الحاضنات والاستثمار الجريء** | Incubators & VC Manager | `/directory` · `ecosystem.json` | ⚠️ محتوى لا خدمة |
