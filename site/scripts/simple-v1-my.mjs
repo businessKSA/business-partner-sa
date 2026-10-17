@@ -255,6 +255,7 @@ const P = {
   cMany: { ar: "وصل الطلب إلى الحد الأقصى من الملفات.", en: "This request reached the maximum number of files.", fr: "Nombre maximal de fichiers atteint.", zh: "该申请的文件数量已达上限。" },
   sending: { ar: "جارٍ الإرسال", en: "Sending", fr: "Envoi", zh: "发送中" },
   fileMsg: { ar: "ملف", en: "File", fr: "Fichier", zh: "文件" },
+  goTo: { ar: "اذهب إليه", en: "Go there", fr: "Y aller", zh: "前往" },
   chatHint: { ar: "اكتب رسالة…", en: "Write a message…", fr: "Écrire un message…", zh: "输入消息…" },
 };
 const STATUS = {
@@ -265,7 +266,7 @@ const STATUS = {
   PAID: { ar: "مدفوع — جاهز للتنفيذ", en: "Paid — ready for execution", fr: "Payé — prêt pour exécution", zh: "已付款 — 准备执行" }, IN_PROGRESS: { ar: "قيد التنفيذ", en: "In progress", fr: "En cours", zh: "执行中" },
   WAITING_INTERNAL: { ar: "قيد التنفيذ", en: "In progress", fr: "En cours", zh: "执行中" }, COMPLETED: { ar: "مكتمل", en: "Completed", fr: "Terminé", zh: "已完成" }, CANCELLED: { ar: "ملغي", en: "Cancelled", fr: "Annulé", zh: "已取消" },
 };
-const EVENTS = { ar: {"request.created": "أنشأ الطلب", "request.created.manual": "أُنشئ الطلب يدوياً", "scope.proposed": "اقترح النطاق", "scope.edited": "عدّل النطاق", "scope.confirmed": "اعتمد النطاق", "quote.pending": "بانتظار عرض السعر", "message.customer": "رسالة من العميل", "message.bp": "رد الفريق", "attachment.added": "أضاف مرفقاً", "quote.drafted": "مسودة عرض سعر", "quote.sent": "أرسل عرض السعر", "quote.approved": "اعتمد العرض", "quote.rejected": "طلب تعديل العرض", "contract.sent": "أرسل العقد", "contract.signed": "وقّع العقد", "payment.paid": "تم الدفع", "payment.failed": "فشل الدفع", "payment.cancelled": "أُلغي الدفع", "payment.pending": "دفع معلّق", "invoice.issued": "صدرت الفاتورة", "appointment.booked": "حجز موعداً", "appointment.rescheduled": "أعاد جدولة الموعد", "appointment.cancelled": "ألغى الموعد", "appointment.set": "ثبّت الموعد", "task.created": "أنشأ مهمة", "task.human_required": "مهمة تحتاج تدخلاً بشرياً", "task.done": "أنجز المهمة", "task.in_progress": "بدأ المهمة", "task.waiting": "مهمة بانتظار", "task.todo": "أعاد فتح المهمة", "execution.started": "بدأ التنفيذ", "request.cancelled": "ألغى الطلب", "request.updated": "حدّث الطلب"}, en: {"request.created": "created the request", "request.created.manual": "request created manually", "scope.proposed": "proposed the scope", "scope.edited": "edited the scope", "scope.confirmed": "confirmed the scope", "quote.pending": "awaiting the quotation", "message.customer": "customer message", "message.bp": "team reply", "attachment.added": "added an attachment", "quote.drafted": "quote drafted", "quote.sent": "sent the quotation", "quote.approved": "approved the quotation", "quote.rejected": "requested changes", "contract.sent": "sent the contract", "contract.signed": "signed the contract", "payment.paid": "payment received", "payment.failed": "payment failed", "payment.cancelled": "payment cancelled", "payment.pending": "payment pending", "invoice.issued": "invoice issued", "appointment.booked": "booked an appointment", "appointment.rescheduled": "rescheduled the appointment", "appointment.cancelled": "cancelled the appointment", "appointment.set": "set the appointment", "task.created": "created a task", "task.human_required": "task needs a human", "task.done": "completed the task", "task.in_progress": "started the task", "task.waiting": "task waiting", "task.todo": "reopened the task", "execution.started": "execution started", "request.cancelled": "cancelled the request", "request.updated": "updated the request"} };
+const EVENTS = { ar: {"request.created": "أنشأ الطلب", "request.created.manual": "أُنشئ الطلب يدوياً", "scope.proposed": "اقترح النطاق", "scope.edited": "عدّل النطاق", "scope.confirmed": "اعتمد النطاق", "quote.pending": "بانتظار عرض السعر", "message.customer": "رسالة من العميل", "message.bp": "رد الفريق", "attachment.added": "أضاف مرفقاً", "attachment.team": "أرفق الفريق ملفاً", "quote.drafted": "مسودة عرض سعر", "quote.sent": "أرسل عرض السعر", "quote.approved": "اعتمد العرض", "quote.rejected": "طلب تعديل العرض", "contract.sent": "أرسل العقد", "contract.signed": "وقّع العقد", "payment.paid": "تم الدفع", "payment.failed": "فشل الدفع", "payment.cancelled": "أُلغي الدفع", "payment.pending": "دفع معلّق", "invoice.issued": "صدرت الفاتورة", "appointment.booked": "حجز موعداً", "appointment.rescheduled": "أعاد جدولة الموعد", "appointment.cancelled": "ألغى الموعد", "appointment.set": "ثبّت الموعد", "task.created": "أنشأ مهمة", "task.human_required": "مهمة تحتاج تدخلاً بشرياً", "task.done": "أنجز المهمة", "task.in_progress": "بدأ المهمة", "task.waiting": "مهمة بانتظار", "task.todo": "أعاد فتح المهمة", "execution.started": "بدأ التنفيذ", "request.cancelled": "ألغى الطلب", "request.updated": "حدّث الطلب"}, en: {"request.created": "created the request", "request.created.manual": "request created manually", "scope.proposed": "proposed the scope", "scope.edited": "edited the scope", "scope.confirmed": "confirmed the scope", "quote.pending": "awaiting the quotation", "message.customer": "customer message", "message.bp": "team reply", "attachment.added": "added an attachment", "attachment.team": "the team attached a file", "quote.drafted": "quote drafted", "quote.sent": "sent the quotation", "quote.approved": "approved the quotation", "quote.rejected": "requested changes", "contract.sent": "sent the contract", "contract.signed": "signed the contract", "payment.paid": "payment received", "payment.failed": "payment failed", "payment.cancelled": "payment cancelled", "payment.pending": "payment pending", "invoice.issued": "invoice issued", "appointment.booked": "booked an appointment", "appointment.rescheduled": "rescheduled the appointment", "appointment.cancelled": "cancelled the appointment", "appointment.set": "set the appointment", "task.created": "created a task", "task.human_required": "task needs a human", "task.done": "completed the task", "task.in_progress": "started the task", "task.waiting": "task waiting", "task.todo": "reopened the task", "execution.started": "execution started", "request.cancelled": "cancelled the request", "request.updated": "updated the request"} };
 const DOC_CATS = [
   ["cr",       { ar: "سجل تجاري", en: "Commercial registration", fr: "Registre de commerce", zh: "商业登记" }],
   ["vat",      { ar: "شهادة ضريبية", en: "VAT certificate", fr: "Certificat de TVA", zh: "增值税证书" }],
@@ -283,7 +284,7 @@ export function buildSimpleMy(sv1, ctx) {
   const cats = DOC_CATS.map(([code, n]) => [code, n[l] || n.en]);
   const home = sv1.href("/");
   const CSS = `<style>
-.my{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 68px)}
+.my{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:calc(100vh - 68px)}
 .my-side{background:#fff;border-inline-end:1px solid var(--line);padding:16px 12px;position:sticky;top:68px;height:calc(100vh - 68px);overflow:auto}
 .my-side a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-weight:600;font-size:.92rem;color:#2c3550;cursor:pointer}
 .my-side a.on{background:var(--n);color:#fff}
@@ -314,7 +315,7 @@ export function buildSimpleMy(sv1, ctx) {
 .m{max-width:85%;padding:10px 13px;border-radius:14px;font-size:.92rem;line-height:1.7;white-space:pre-wrap}
 .m.user{background:var(--n);color:#fff;align-self:flex-end}.m.assistant,.m.bp,.m.system{background:var(--g);align-self:flex-start}
 .m small{display:block;opacity:.7;font-size:.7rem;margin-top:3px}
-.msgform{display:flex;gap:8px;margin-top:10px}
+.msgform{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .msgform input,.inp{flex:1;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;width:100%}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border-radius:10px;font-weight:700;font-size:.88rem;border:1px solid var(--n);background:var(--n);color:#fff;cursor:pointer;line-height:1.2}
 .btn.ghost{background:#fff;color:var(--ink)}.btn.danger{background:#fff;color:#b91c1c;border-color:#fecaca}.btn.sm{padding:6px 10px;font-size:.8rem}.btn[disabled]{opacity:.5}
@@ -422,6 +423,7 @@ select.inp{background:#fff;color:inherit}
 .m .fchip small{display:inline;margin:0;opacity:.65}
 .m.bp,.m.assistant{border-inline-start:3px solid var(--n)}
 .cmp{margin-top:10px;display:grid;gap:8px}
+.cmp [hidden]{display:none!important}
 .cmp .row2{display:flex;gap:8px;align-items:center}
 .cmp .row2 .inp{flex:1;min-width:0}
 .cmp .pick{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:.84rem}
@@ -429,12 +431,12 @@ select.inp{background:#fff;color:inherit}
 .cmp .btn{flex:none;min-height:42px}
 .cfiles{margin-top:12px;border-top:1px solid var(--line);padding-top:10px;display:grid;gap:6px}
 .cfiles h4{margin:0;font-size:.84rem;color:var(--ink);font-weight:700}
-.cfiles .f{display:flex;gap:8px;align-items:center;font-size:.82rem;border:1px solid var(--line);border-radius:10px;padding:7px 10px}
-.cfiles .f span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cfiles .f small{color:var(--mut);white-space:nowrap}
+.cfiles .f{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;font-size:.82rem;border:1px solid var(--line);border-radius:10px;padding:7px 10px}
+.cfiles .f span{flex:1 1 100%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cfiles .f small{color:var(--mut);flex:1}
 @media(max-width:620px){.steps{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:12px}.rq-f .btn{width:100%}.cmp .row2 .btn{padding-inline:12px}}
 .mob{display:none}
-@media(max-width:900px){.my{grid-template-columns:1fr}.my-side{position:static;height:auto;display:none}.my-side.open{display:block}.mob{display:flex;gap:6px;overflow:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line)}.mob a{white-space:nowrap;padding:7px 11px;border-radius:999px;border:1px solid var(--line);font-size:.82rem;font-weight:700;color:#2c3550}.mob a.on{background:var(--n);color:#fff;border-color:var(--n)}.my-kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.my-main{padding:14px}}
+@media(max-width:900px){.my{grid-template-columns:minmax(0,1fr)}.my-main{min-width:0}.my-side{position:static;height:auto;display:none}.my-side.open{display:block}.mob{display:flex;gap:6px;overflow:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line)}.mob a{white-space:nowrap;padding:7px 11px;border-radius:999px;border:1px solid var(--line);font-size:.82rem;font-weight:700;color:#2c3550}.mob a.on{background:var(--n);color:#fff;border-color:var(--n)}.my-kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:minmax(0,1fr)}.my-main{padding:14px}}
 </style>`;
   const body = `
 ${sv1.header("/my", { cta: false })}
@@ -485,18 +487,19 @@ var sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/
 // ---------- shell
 var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['documents',TX.navDocs,'\ud83d\udcc1'],['company',TX.navCompany,'🏢']];
 function badges(){var c=state.me.counts||{};var d=(state.docs||[]).filter(function(x){var n=daysLeft(x.expiry_date);return n!==null&&n<=30}).length;return {quotes:c.quotes,contracts:c.contracts,pay:c.payments,documents:d}}
+function navOn(){return state.view==='chat'?'chats':state.view==='request'?'requests':state.view}
 function render(){var me=state.me;app.innerHTML='';var bd=badges();
-var side=h('nav',{class:'my-side',id:'mySide'},[h('div',{class:'who'},[h('b',{},[me.user.name||me.user.email]),h('small',{},[(me.organization&&(me.organization.name_ar||me.organization.name_en))||me.user.email])])].concat(NAV.map(function(n){return h('a',{'data-nav':n[0],class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1],bd[n[0]]?h('span',{class:'b'},[String(bd[n[0]])]):null])})).concat([h('a',{href:HOME},['🌐 '+TX.site]),h('a',{onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},['↩ '+TX.logout])]));
-var mob=h('div',{class:'mob'},NAV.map(function(n){return h('a',{class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1]])}));
+var side=h('nav',{class:'my-side',id:'mySide'},[h('div',{class:'who'},[h('b',{},[me.user.name||me.user.email]),h('small',{},[(me.organization&&(me.organization.name_ar||me.organization.name_en))||me.user.email])])].concat(NAV.map(function(n){return h('a',{'data-nav':n[0],class:navOn()===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1],bd[n[0]]?h('span',{class:'b'},[String(bd[n[0]])]):null])})).concat([h('a',{href:HOME},['🌐 '+TX.site]),h('a',{onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},['↩ '+TX.logout])]));
+var mob=h('div',{class:'mob'},NAV.map(function(n){return h('a',{class:navOn()===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1]])}));
 var main=h('div',{class:'my-main',id:'myMain'});
 app.appendChild(mob);var wrap=h('div',{class:'my'},[side,main]);app.appendChild(wrap);
-var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='documents')viewDocuments(main);else if(v==='company')viewCompany(main);else viewHome(main)}
+var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewRequests(main);else if(v==='chat')viewChat(main);else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='documents')viewDocuments(main);else if(v==='company')viewCompany(main);else viewHome(main)}
 function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[r.title]),h('small',{},[r.ref+' · '+(TY[r.type]||r.type)+' · '+when(r.updated_at||r.created_at)])]),pill(r.status),h('span',{class:'btn ghost sm'},[TX.open])])}
 function viewHome(m){var c=state.me.counts||{};m.appendChild(h('h1',{},[TX.attention]));
 var k=[['active',TX.kActive,'requests'],['quotes',TX.kQuotes,'quotes'],['contracts',TX.kContracts,'contracts'],['payments',TX.kPayments,'pay'],['appointments',TX.kAppts,'appointments']];
-m.appendChild(h('div',{class:'my-kpis'},k.map(function(x){return h('div',{class:'my-kpi'+(x[0]!=='active'&&c[x[0]]?' hot':''),onclick:function(){go(x[2])}},[h('b',{},[String(c[x[0]]||0)]),h('span',{},[x[1]])])})));
+m.appendChild(h('div',{class:'my-kpis'},k.map(function(x){return h('div',{class:'my-kpi'+(x[0]!=='active'&&c[x[0]]?' hot':''),onclick:function(){if(x[2]==='requests')state.tab='active';go(x[2])}},[h('b',{},[String(c[x[0]]||0)]),h('span',{},[x[1]])])})));
 var need=state.me.requests.filter(function(r){return ['QUOTE_SENT','CONTRACT_SENT','SIGNED','PAYMENT_PENDING','WAITING_CLIENT'].indexOf(r.status)>=0});
-if(need.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.needYou]),h('div',{class:'list'},need.map(reqRow))]));
+if(need.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.needYou]),h('div',{class:'list'},need.map(rqCard))]));
 m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.today]),h('p',{class:'note'},[TX.navNew]),h('a',{class:'btn',href:HOME+'#chat'},[TX.navNew])]));
 var others=state.me.requests.filter(function(r){return need.indexOf(r)<0}).slice(0,6);
 if(others.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.navRequests]),h('div',{class:'list'},others.map(reqRow))]))}
@@ -526,7 +529,9 @@ function docBtn(label,title,loader){
 function viewList(m,title,f){m.appendChild(h('h1',{},[title]));var rows=state.me.requests.filter(f);m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);if(r.quote&&title===TX.navQuotes)row.insertBefore(h('span',{class:'pill '+(r.quote.status==='APPROVED'?'ok':'warn')},[r.quote.number+' · '+money(r.quote.total)]),row.children[1]);if(r.contract&&title===TX.navContracts)row.insertBefore(h('span',{class:'pill '+(r.contract.status==='SIGNED'?'ok':'warn')},[r.contract.number+' · '+(r.contract.status==='SIGNED'?TX.signed:TX.contract)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]))}
 function viewInvoices(m){m.appendChild(h('h1',{},[TX.navInvoices]));var rows=state.me.requests.filter(function(r){return r.invoice});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill ok'},[r.invoice.number+' · '+money(r.invoice.total)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]))}
 function viewPay(m){m.appendChild(h('h1',{},[TX.navPay]));var rows=state.me.requests.filter(function(r){return ['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill warn'},[money(r.quote?r.quote.total:0)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));m.appendChild(h('div',{class:'card'},[h('a',{class:'btn ghost',href:CHECKOUT},[TX.navPay+' →'])]))}
-function viewChats(m){m.appendChild(h('h1',{},[TX.navChats]));var rows=state.me.requests.filter(function(r){return r.last_message});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.querySelector('small').textContent=(r.last_message.content||'').slice(0,90);return row})):h('p',{class:'note'},[TX.empty]))}
+function viewChats(m){m.appendChild(h('h1',{},[TX.navChats]));var rows=state.me.requests.filter(function(r){return r.status!=='CANCELLED'}).sort(function(a,b){var x=a.last_message?a.last_message.at:a.updated_at,y=b.last_message?b.last_message.at:b.updated_at;return String(y||'')<String(x||'')?-1:1});
+m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=h('div',{class:'row',onclick:function(){go('chat',r.ref)}},[h('div',{class:'tt'},[h('b',{},[r.title]),h('small',{},[chatPreview(r)||TX.chatEmpty])]),pill(r.status),h('span',{class:'btn ghost sm'},['💬'])]);return row})):h('p',{class:'note'},[TX.empty]))}
+function chatPreview(r){var lm=r.last_message;if(!lm)return '';var t=stripScope(lm.content).slice(0,90);if(!t&&lm.att&&lm.att.length)t='📎 '+TX.fileMsg;return t}
 function viewAppts(m){m.appendChild(h('h1',{},[TX.navAppts]));var rows=state.me.requests.filter(function(r){return r.appointment&&r.appointment.status!=='CANCELLED'});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill'},[r.appointment.date+' '+r.appointment.time]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));var cons=state.me.requests.filter(function(r){return r.type==='CONSULTATION'&&(!r.appointment||r.appointment.status==='CANCELLED')&&r.status!=='CANCELLED'});if(cons.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.book]),h('div',{class:'list'},cons.map(reqRow))]))}
 function viewCompany(m){m.appendChild(h('h1',{},[TX.navCompany]));var o=state.me.organization||{};var f=h('div',{class:'form'});var nAr=h('input',{class:'inp',value:o.name_ar||''}),nEn=h('input',{class:'inp',value:o.name_en||''}),cr=h('input',{class:'inp',value:o.cr_number||''}),msg=h('span',{class:'ok'});
 f.appendChild(h('label',{},[TX.company]));f.appendChild(nAr);f.appendChild(h('label',{},[TX.nameEn]));f.appendChild(nEn);f.appendChild(h('label',{},[TX.cr]));f.appendChild(cr);
@@ -716,18 +721,151 @@ function viewDocuments(m){
 function verLbl(n){return (LANG==='ar'||LANG==='zh')?(TX.dVer+' '+n):(TX.dVer+n)}
 function catName(c){for(var i=0;i<DOC_CATS.length;i++)if(DOC_CATS[i][0]===c)return DOC_CATS[i][1];
  return DOC_CATS[DOC_CATS.length-1][1]}
+// ---------- تتبّع الطلبات
+// المراحل ليست مخترعة: كل مرحلة تجمع حالات requests.status الموجودة في
+// db/schema.sql (انظر REQUEST_STATUSES في api/_simple.js). الطلب الملغى
+// لا شريط له — لا نعرف في أي مرحلة أُلغي، فلا نرسم تقدّماً لم يحدث.
+//   0 مراجعة : NEW · REVIEWING · WAITING_CLIENT (قبل صدور عرض سعر)
+//   1 عرض سعر : QUOTE_SENT · QUOTE_APPROVED · وأي حالة مفتوحة بعد رفض العرض
+//   2 العقد   : CONTRACT_SENT
+//   3 الدفع   : SIGNED · PAYMENT_PENDING
+//   4 التنفيذ : PAID · IN_PROGRESS · WAITING_INTERNAL
+//   5 مكتمل   : COMPLETED
+var SG=[TX.sgReview,TX.sgQuote,TX.sgContract,TX.sgPay,TX.sgExec,TX.sgDone];
+function qOpen(r){return !!(r.quote&&r.quote.status&&r.quote.status!=='DRAFT')}
+function stageOf(r){var s=r.status;
+ if(s==='NEW'||s==='REVIEWING'||s==='WAITING_CLIENT')return qOpen(r)?1:0;
+ if(s==='QUOTE_SENT'||s==='QUOTE_APPROVED')return 1;
+ if(s==='CONTRACT_SENT')return 2;
+ if(s==='SIGNED'||s==='PAYMENT_PENDING')return 3;
+ if(s==='PAID'||s==='IN_PROGRESS'||s==='WAITING_INTERNAL')return 4;
+ if(s==='COMPLETED')return 5;
+ return -1}
+function tabOf(r){return r.status==='COMPLETED'?'done':r.status==='CANCELLED'?'cancelled':'active'}
+// ملخّص القائمة يحمل scope_count وdocs_pending وcancel_requested؛ والطلب الكامل
+// يحمل scope وdocuments وcancel_request. نقرأ الاثنين بالطريقة نفسها.
+function needOf(r){var s=r.status,q=r.quote||null,p=r.payment||null;
+ var scope=r.scope_count!=null?r.scope_count:(r.scope||[]).length;
+ var docs=r.docs_pending!=null?r.docs_pending:(r.documents||[]).filter(function(d){return d&&d.status==='requested'}).length;
+ var cr=r.cancel_requested!=null?!!r.cancel_requested:!!r.cancel_request;
+ var rej=!!(q&&q.status==='REJECTED');
+ if(s==='CANCELLED')return {k:'none',t:TX.nCancelled};
+ if(s==='COMPLETED')return {k:'none',t:TX.nDone};
+ if(cr)return {k:'team',t:TX.nCancelReq};
+ if(s==='QUOTE_SENT')return {k:'you',t:TX.nQuote,to:'sv1Quote'};
+ if(s==='CONTRACT_SENT')return {k:'you',t:TX.nSign,to:'sv1Contract'};
+ if(s==='SIGNED'||s==='PAYMENT_PENDING'){if(p&&p.status==='REVIEW')return {k:'team',t:TX.nPayReview};return {k:'you',t:TX.nPay,to:'sv1Pay'}}
+ if(s==='WAITING_CLIENT'&&!rej)return {k:'you',t:TX.nReply,to:'sv1Chat'};
+ if(s==='NEW'&&!q&&scope>0)return {k:'you',t:TX.nScope,to:'sv1Scope'};
+ if(docs>0)return {k:'you',t:TX.nDocs.replace('{n}',String(docs)),to:'sv1Chat'};
+ if(rej)return {k:'team',t:TX.nQuoteRev};
+ if(s==='QUOTE_APPROVED')return {k:'team',t:TX.nContractPrep};
+ if(s==='PAID')return {k:'team',t:TX.nStart};
+ if(s==='IN_PROGRESS'||s==='WAITING_INTERNAL')return {k:'team',t:TX.nExec};
+ return {k:'team',t:TX.nReview}}
+function urlParam(k,v){try{var u=new URL(location.href);if(v)u.searchParams.set(k,v);else u.searchParams.delete(k);history.replaceState(null,'',u.toString())}catch(e){}}
+function progressBar(r){var st=stageOf(r),box=h('div');
+ if(st<0)return box;
+ var bar=h('div',{class:'prog',role:'progressbar','aria-valuemin':'1','aria-valuemax':'6','aria-valuenow':String(st+1),'aria-label':TX.stageLbl});
+ for(var i=0;i<6;i++)bar.appendChild(h('i',{class:st===5||i<st?'d':i===st?'c':''}));
+ box.appendChild(bar);box.appendChild(h('div',{class:'prog-l'},[h('span',{},[TX.stageLbl+': ',h('b',{},[SG[st]])]),h('span',{},[(st+1)+'/6'])]));return box}
+function stepper(r){var st=stageOf(r);if(st<0)return null;
+ return h('ol',{class:'steps'},SG.map(function(n,i){var c=st===5||i<st?'d':i===st?'c':'';return h('li',{class:c,'aria-current':i===st?'step':null},[h('span',{},[c==='d'?'✓':String(i+1)]),n])}))}
+function rqCard(r){var n=needOf(r);
+ return h('div',{class:'rq'+(n.k==='you'?' you':''),onclick:function(){go('request',r.ref)}},[
+  h('div',{class:'rq-h'},[h('div',{class:'tt'},[h('b',{},[r.title]),h('small',{},[r.ref+' · '+(TY[r.type]||r.type)])]),pill(r.status)]),
+  progressBar(r),
+  h('div',{class:'rq-n '+n.k},[n.k==='you'?h('b',{},[TX.nowYou+' ']):null,n.t]),
+  h('div',{class:'rq-f'},[h('span',{},[TX.lastUpd+': '+when(r.updated_at||r.created_at)]),
+   r.status==='CANCELLED'?null:h('button',{class:'btn ghost sm',type:'button',onclick:function(e){e.stopPropagation();go('chat',r.ref)}},['💬 '+TX.openChat])])])}
+function viewRequests(m){m.appendChild(h('h1',{},[TX.navRequests]));
+ var by={active:[],done:[],cancelled:[]};state.me.requests.forEach(function(r){by[tabOf(r)].push(r)});
+ by.active.sort(function(a,b){var x=needOf(a).k==='you'?0:1,y=needOf(b).k==='you'?0:1;return x!==y?x-y:(String(b.updated_at||'')<String(a.updated_at||'')?-1:1)});
+ if(!by[state.tab])state.tab='active';
+ var tabs=h('div',{class:'tabs',role:'tablist'}),list=h('div',{class:'list'});
+ function paint(){list.innerHTML='';var rows=by[state.tab];if(!rows.length){list.appendChild(h('p',{class:'note'},[TX.empty]));return}rows.forEach(function(r){list.appendChild(rqCard(r))})}
+ function setTab(t){state.tab=t;Array.prototype.forEach.call(tabs.children,function(b){var on=b.getAttribute('data-tab')===t;b.className=on?'on':'';b.setAttribute('aria-selected',on?'true':'false')});urlParam('tab',t);paint()}
+ [['active',TX.tabActive],['done',TX.tabDone],['cancelled',TX.tabCancelled]].forEach(function(t){tabs.appendChild(h('button',{type:'button',role:'tab','data-tab':t[0],class:state.tab===t[0]?'on':'','aria-selected':state.tab===t[0]?'true':'false',onclick:function(){setTab(t[0])}},[t[1],h('em',{},[String(by[t[0]].length)])]))});
+ m.appendChild(tabs);m.appendChild(list);paint()}
+// بطاقة التقدّم داخل الطلب: المراحل + ما المطلوب منك الآن.
+function progressCard(r){var card=h('div',{class:'card'});
+ function paint(){card.innerHTML='';var sp=stepper(r);if(sp)card.appendChild(sp);
+  var n=needOf(r);var box=h('div',{class:'need '+n.k},[n.k==='you'?h('b',{},[TX.nowYou+' ']):null,n.t]);
+  if(n.k==='you'&&n.to)box.appendChild(h('div',{style:'margin-top:8px'},[h('button',{class:'btn sm',type:'button',onclick:function(){var t=document.getElementById(n.to);if(t&&t.scrollIntoView)t.scrollIntoView({behavior:'smooth',block:'start'})}},[TX.goTo+' ↓'])]));
+  card.appendChild(box);card.appendChild(h('p',{class:'note',style:'margin:10px 0 0'},[TX.lastUpd+': '+when(r.updated_at||r.created_at)]))}
+ paint();return {el:card,paint:paint}}
+// ---------- محادثة الطلب
+// الرسائل في requests.conversation والملفات في requests.attachments (بلا أي
+// رابط محفوظ): كل فتح لملف يطلب رابطاً قصير العمر من الخادم (request-file-link)
+// الذي يتحقق أن الطلب طلبُك. الحدّ ٣ ميجابايت لأن الملف يسافر base64 داخل JSON.
+var CHAT_MAX=3*1024*1024;
+var CHAT_EXT={pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'};
+function chatMime(f){var t=String(f.type||'').toLowerCase();if(t==='image/jpg')t='image/jpeg';
+ var known=Object.keys(CHAT_EXT).some(function(k){return CHAT_EXT[k]===t});return known?t:(CHAT_EXT[extOf(f.name)]||'')}
+function chatFileErr(f){if(!f.size)return TX.eEmpty;if(!chatMime(f))return TX.cType;if(f.size>CHAT_MAX)return TX.cBig+' ('+kb(f.size)+')';return ''}
+function chatErr(o){var e=String((o&&o.error)||'');
+ if(e==='bad_type')return TX.cType;if(e==='too_large')return TX.cBig;if(e==='too_many_files')return TX.cMany;
+ if(e==='network')return TX.eNet;if(e==='no_file')return TX.eEmpty;if(e==='storage_failed')return TX.eUp;return TX.error}
+function chatPanel(r,opts){opts=opts||{};
+ var wrap=h('div',{class:'card chat'+(opts.full?' full':''),id:'sv1Chat'});
+ wrap.appendChild(h('h3',{},[TX.conversation]));
+ var msgs=h('div',{class:'msgs','aria-live':'polite'}),files=h('div'),err=h('div',{class:'err',style:'margin-top:8px'}),busy=false,picked=null,first=true;
+ function attOf(id){return (r.attachments||[]).filter(function(a){return a&&a.id===id})[0]||null}
+ function openFile(a){err.textContent='';api('request-file-link',{ref:r.ref,id:a.id}).then(function(o){if(o&&o.ok&&o.url)window.open(o.url,'_blank','noopener');else err.textContent=TX.fileGone}).catch(function(){err.textContent=TX.fileGone})}
+ function chip(id){var a=attOf(id);
+  if(!a||!a.has_file)return h('span',{class:'note'},['📎 '+TX.fileMsg]);
+  return h('button',{class:'fchip',type:'button',onclick:function(){openFile(a)}},[h('span',{},['📎 '+a.name]),h('small',{},[kb(a.size)])])}
+ function who(role){return role==='user'?TX.you:role==='bp'?TX.team:TX.assistant}
+ function drawFiles(){files.innerHTML='';var list=(r.attachments||[]).filter(function(a){return a&&a.has_file}).slice().reverse();if(!list.length)return;
+  var box=h('div',{class:'cfiles'},[h('h4',{},[TX.chatFiles])]);
+  list.forEach(function(a){box.appendChild(h('div',{class:'f'},[h('span',{},['📎 '+a.name]),h('small',{},[(a.by==='customer'?TX.fromYou:TX.fromTeam)+' · '+when(a.at)]),h('button',{class:'btn ghost sm',type:'button',onclick:function(){openFile(a)}},[TX.openFile])]))});
+  files.appendChild(box)}
+ function draw(){var atBottom=first||msgs.scrollTop+msgs.clientHeight>=msgs.scrollHeight-40;msgs.innerHTML='';var n=0;
+  (r.conversation||[]).forEach(function(mm){var txt=stripScope(mm.content),ids=mm.att||[];if(!txt&&!ids.length)return;n++;
+   var kids=[];if(txt)kids.push(txt);ids.forEach(function(id){kids.push(chip(id))});kids.push(h('small',{},[who(mm.role)+' · '+when(mm.at)]));
+   msgs.appendChild(h('div',{class:'m '+mm.role},kids))});
+  if(!n)msgs.appendChild(h('p',{class:'note'},[TX.chatEmpty]));
+  if(atBottom)msgs.scrollTop=msgs.scrollHeight;first=false;drawFiles()}
+ var inp=h('input',{class:'inp',placeholder:TX.chatHint,maxlength:'4000','aria-label':TX.chatHint});
+ var file=h('input',{type:'file',style:'display:none',accept:'application/pdf,image/jpeg,image/png,image/webp,.docx,.xlsx'});
+ var pickName=h('span',{}),pickEl=h('div',{class:'pick',hidden:''},[h('span',{},['📎']),pickName,h('button',{class:'btn ghost sm',type:'button','aria-label':TX.remove,onclick:function(){clearPick()}},['✕'])]);
+ var attBtn=h('button',{class:'btn ghost',type:'button','aria-label':TX.attachFile,title:TX.attachFile,onclick:function(){file.click()}},['📎']);
+ var sb=h('button',{class:'btn',type:'button',onclick:function(){send()}},[TX.send]);
+ function clearPick(){picked=null;file.value='';pickEl.hidden=true;pickName.textContent=''}
+ file.addEventListener('change',function(){var f=file.files&&file.files[0];if(!f)return;var e=chatFileErr(f);if(e){err.textContent=e;clearPick();return}err.textContent='';picked=f;pickName.textContent=f.name+' · '+kb(f.size);pickEl.hidden=false});
+ function done(o){busy=false;sb.disabled=false;attBtn.disabled=false;sb.textContent=TX.send;
+  if(o&&o.ok){r.conversation=o.conversation;if(o.attachments)r.attachments=o.attachments;if(o.status)r.status=o.status;inp.value='';clearPick();first=true;draw();if(opts.onChange)opts.onChange();refreshMe();return}
+  if(o&&(o.error==='no_session'||o.error==='unauthorized')){location.reload();return}
+  err.textContent=chatErr(o)}
+ function send(){if(busy)return;var v=inp.value.trim();if(!v&&!picked)return;err.textContent='';busy=true;sb.disabled=true;attBtn.disabled=true;
+  if(picked){var f=picked;sb.textContent=TX.sending+' 0%';
+   toB64(f).then(function(b64){return sendDoc({action:'request-file',ref:r.ref,name:f.name,mime:chatMime(f),base64:b64,content:v},function(p){sb.textContent=TX.sending+' '+Math.max(1,Math.min(99,Math.round(p*100)))+'%'},'/api/simple')}).then(done).catch(function(){done({ok:false,error:'read'})})}
+  else api('request-message',{ref:r.ref,content:v}).then(done).catch(function(){done({ok:false,error:'network'})})}
+ inp.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.isComposing){e.preventDefault();send()}});
+ wrap.appendChild(msgs);wrap.appendChild(files);
+ wrap.appendChild(h('div',{class:'cmp'},[pickEl,h('div',{class:'row2'},[inp,attBtn,sb]),file]));wrap.appendChild(err);
+ wrap.appendChild(h('p',{class:'note',style:'margin:10px 0 0'},[TX.chatNote]));
+ draw();
+ // الرد الجديد (من الفريق مثلاً) يظهر دون إعادة تحميل الصفحة.
+ var sig=function(){var c=r.conversation||[],l=c[c.length-1];return c.length+'|'+(l?l.at:'')+'|'+(r.attachments||[]).length};
+ var t=setInterval(function(){if(!document.body.contains(wrap)){clearInterval(t);return}if(document.hidden||busy)return;
+  api('request-get',{ref:r.ref}).then(function(o){if(!o||!o.ok||busy)return;var s0=sig(),st0=r.status;r.conversation=o.request.conversation;r.attachments=o.request.attachments;r.status=o.request.status;if(sig()!==s0)draw();if(r.status!==st0&&opts.onChange)opts.onChange()}).catch(function(){})},20000);
+ return wrap}
+function viewChat(m){m.appendChild(h('a',{class:'btn ghost sm',onclick:function(){go('chats')}},['← '+TX.back]));var hd=h('h1',{style:'margin-top:10px'},['…']);m.appendChild(hd);var box=h('div');m.appendChild(box);
+ api('request-get',{ref:state.ref}).then(function(o){if(!o||!o.ok){box.appendChild(h('p',{class:'err'},[TX.error]));return}var r=o.request;state.req=r;hd.textContent=r.title;
+  box.appendChild(h('div',{class:'stat'},[h('span',{},[TX.ref+': ',h('b',{},[r.ref])]),h('span',{},[TX.status+': ',pill(r.status)])]));
+  var pg=progressCard(r);box.appendChild(pg.el);box.appendChild(chatPanel(r,{full:true,onChange:pg.paint}));
+  box.appendChild(h('div',{style:'margin-top:4px'},[h('a',{class:'btn ghost sm',onclick:function(){go('request',r.ref)}},['↗ '+r.ref])]))}).catch(function(){box.appendChild(h('p',{class:'err'},[TX.error]))})}
 // ---------- request detail
 function viewRequest(m){m.appendChild(h('a',{class:'btn ghost sm',onclick:function(){go('requests')}},['← '+TX.back]));var hd=h('h1',{style:'margin-top:10px'},['…']);m.appendChild(hd);var box=h('div');m.appendChild(box);
 api('request-get',{ref:state.ref}).then(function(o){if(!o||!o.ok){box.appendChild(h('p',{class:'err'},[TX.error]));return}state.req=o.request;state.testMode=!!o.testMode;drawRequest(hd,box)})}
 function drawRequest(hd,box){var r=state.req;hd.textContent=r.title;box.innerHTML='';
 box.appendChild(h('div',{class:'stat'},[h('span',{},[TX.ref+': ',h('b',{},[r.ref])]),h('span',{},[TX.status+': ',pill(r.status)]),h('span',{},[(TY[r.type]||r.type)]),h('span',{},[when(r.created_at)])]));
-var left=h('div'),right=h('div');box.appendChild(h('div',{class:'grid2'},[left,right]));
-// conversation
-var msgs=h('div',{class:'msgs'},(r.conversation||[]).map(function(mm){return h('div',{class:'m '+mm.role},[stripScope(mm.content),h('small',{},[(mm.role==='user'?TX.you:mm.role==='bp'?TX.team:TX.assistant)+' · '+when(mm.at)])])}));
-var inp=h('input',{placeholder:TX.writeMsg}),sb=h('button',{class:'btn',onclick:function(){var v=inp.value.trim();if(!v)return;sb.disabled=true;api('request-message',{ref:r.ref,content:v}).then(function(o){sb.disabled=false;if(o&&o.ok){r.conversation=o.conversation;r.status=o.status||r.status;inp.value='';drawRequest(hd,box)}})}},[TX.send]);
-left.appendChild(h('div',{class:'card'},[h('h3',{},[TX.conversation]),msgs,h('div',{class:'msgform'},[inp,sb])]));setTimeout(function(){msgs.scrollTop=msgs.scrollHeight},0);
+var pgc=progressCard(r);box.appendChild(pgc.el);var left=h('div'),right=h('div');box.appendChild(h('div',{class:'grid2'},[left,right]));
+// conversation + files
+left.appendChild(chatPanel(r,{onChange:pgc.paint}));
 // scope
-var editable=['NEW','REVIEWING','WAITING_CLIENT'].indexOf(r.status)>=0;var sc=h('div',{class:'card'});sc.appendChild(h('h3',{},[TX.scope]));if(r.summary)sc.appendChild(h('p',{class:'note'},[r.summary]));
+var editable=['NEW','REVIEWING','WAITING_CLIENT'].indexOf(r.status)>=0;var sc=h('div',{class:'card',id:'sv1Scope'});sc.appendChild(h('h3',{},[TX.scope]));if(r.summary)sc.appendChild(h('p',{class:'note'},[r.summary]));
 var ul=h('ul',{class:'items'});function drawItems(){ul.innerHTML='';(r.scope||[]).forEach(function(it,i){var li=h('li',{},[h('span',{class:'ic'},['✓']),h('div',{},[h('b',editable?{contenteditable:'true',oninput:function(){it.title=this.textContent.trim()}}:{},[it.title]),it.why?h('small',{},[it.why]):null]),editable?h('button',{class:'rm',onclick:function(){r.scope.splice(i,1);drawItems()}},[TX.remove]):null]);ul.appendChild(li)})}drawItems();sc.appendChild(ul);
 // documents the advisor asked for — every service has its own list
 var dc=h('div',{class:'card'});dc.appendChild(h('h3',{},[TX.docs]));
@@ -751,7 +889,7 @@ if(r.status==='QUOTE_SENT'){var rn=h('input',{class:'inp',placeholder:TX.rejectN
 else if(r.quote.status==='APPROVED')qc.appendChild(h('p',{class:'ok'},[TX.quoteApproved]));
 right.appendChild(qc)}
 // contract
-if(r.contract){var cc=h('div',{class:'card'});cc.appendChild(h('h3',{},[TX.contract+' '+r.contract.number]));var frame=h('iframe',{class:'contract-frame',title:TX.contract});cc.appendChild(frame);cc.appendChild(docBtn(TX.openFull,TX.contract+' '+r.contract.number,function(){return api('contract-view',{ref:r.ref}).then(function(o){return o&&o.ok?o.html:''})}));api('contract-view',{ref:r.ref}).then(function(o){var ht=o&&o.ok?o.html:'';frame.srcdoc=ht;state.contractHtml=ht;if(o&&o.needsResign)cc.appendChild(h('p',{class:'note',style:'color:#B45309'},[TX.resign]))});
+if(r.contract){var cc=h('div',{class:'card',id:'sv1Contract'});cc.appendChild(h('h3',{},[TX.contract+' '+r.contract.number]));var frame=h('iframe',{class:'contract-frame',title:TX.contract});cc.appendChild(frame);cc.appendChild(docBtn(TX.openFull,TX.contract+' '+r.contract.number,function(){return api('contract-view',{ref:r.ref}).then(function(o){return o&&o.ok?o.html:''})}));api('contract-view',{ref:r.ref}).then(function(o){var ht=o&&o.ok?o.html:'';frame.srcdoc=ht;state.contractHtml=ht;if(o&&o.needsResign)cc.appendChild(h('p',{class:'note',style:'color:#B45309'},[TX.resign]))});
 if(r.status==='CONTRACT_SENT'){cc.appendChild(h('h3',{style:'margin-top:14px'},[TX.signTitle]));var nm=h('input',{class:'inp',placeholder:TX.signName,value:state.me.user.name||''});cc.appendChild(nm);cc.appendChild(h('p',{class:'note',style:'margin:8px 0 4px'},[TX.signDraw]));var cv=h('canvas',{class:'sig',width:'600',height:'150'});cc.appendChild(cv);var ctx2=cv.getContext('2d'),drawing=false,drew=false;ctx2.lineWidth=2;ctx2.lineCap='round';ctx2.strokeStyle='#0B1B5A';function pos(e){var rc=cv.getBoundingClientRect();var p=e.touches?e.touches[0]:e;return [(p.clientX-rc.left)*cv.width/rc.width,(p.clientY-rc.top)*cv.height/rc.height]}
 cv.addEventListener('pointerdown',function(e){drawing=true;var p=pos(e);ctx2.beginPath();ctx2.moveTo(p[0],p[1])});cv.addEventListener('pointermove',function(e){if(!drawing)return;var p=pos(e);ctx2.lineTo(p[0],p[1]);ctx2.stroke();drew=true});window.addEventListener('pointerup',function(){drawing=false});
 var cons=h('input',{type:'checkbox',id:'consent'});var err=h('div',{class:'err'});cc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn ghost sm',onclick:function(){ctx2.clearRect(0,0,cv.width,cv.height);drew=false}},[TX.signClear])]));cc.appendChild(h('label',{style:'display:flex;gap:8px;align-items:flex-start;margin:10px 0;font-size:.86rem'},[cons,h('span',{},[TX.signConsent])]));
@@ -759,7 +897,7 @@ cc.appendChild(h('button',{class:'btn',onclick:function(){err.textContent='';if(
 else if(r.contract.status==='SIGNED')cc.appendChild(h('p',{class:'ok'},['✓ '+TX.signed+' · '+when(r.contract.signed_at)]));
 right.appendChild(cc)}
 // payment
-if(['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0&&r.quote){var pc=h('div',{class:'card'});pc.appendChild(h('h3',{},[TX.payment+' · '+money(r.quote.total)]));if(r.payment&&r.payment.status&&r.payment.status!=='PENDING'&&r.payment.status!=='PAID')pc.appendChild(h('p',{class:'err'},[TX.payment+': '+r.payment.status]));
+if(['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0&&r.quote){var pc=h('div',{class:'card',id:'sv1Pay'});pc.appendChild(h('h3',{},[TX.payment+' · '+money(r.quote.total)]));if(r.payment&&r.payment.status&&r.payment.status!=='PENDING'&&r.payment.status!=='PAID')pc.appendChild(h('p',{class:'err'},[TX.payment+': '+r.payment.status]));
 function gwGo(provider){var back=encodeURIComponent(location.pathname+'?view=request&ref='+encodeURIComponent(r.ref));
 location.href='/api/pay?action=mock-form&provider='+provider+'&amount='+encodeURIComponent(String((r.quote&&r.quote.total)||0))+'&label='+encodeURIComponent(r.ref)+'&back='+back}
 function payHere(provider){
@@ -807,7 +945,7 @@ function settleReturn(u){
 // الشيء نفسه: مسارٌ محلي يبدأ بشرطة واحدة، ولا يبدأ بشرطتين («//host» يقرؤه
 // المتصفح موقعاً آخر).
 function nextPath(){try{var n=decodeURIComponent(new URL(location.href).searchParams.get('next')||'');return (n.charAt(0)==='/'&&n.charAt(1)!=='/')?n:''}catch(e){return ''}}
-function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render();if(state.view!=='documents')loadDocs().catch(function(){})})}).catch(function(){renderLogin()})}
+function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');var tb=u.searchParams.get('tab');if(tb==='done'||tb==='cancelled'||tb==='active')state.tab=tb;if(ref&&v==='chat'){state.view='chat';state.ref=ref}else if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render();if(state.view!=='documents')loadDocs().catch(function(){})})}).catch(function(){renderLogin()})}
 boot();
 })();</script>`;
   return sv1.shell({ title: tx.title, desc: tx.attention, path: "/my", body: CSS + body, script, noindex: true });
