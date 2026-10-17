@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-SBC-31",
+  "slug": "bp-sbc-31",
+  "authority": {
+    "platform_ar": "المركز السعودي للأعمال",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "عادةً خلال يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب.",
+    "value_en": "Usually one business day to a few days",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "هوية مالك المؤسسة",
+      "بيانات النشاط والعنوان الوطني",
+      "الاسم التجاري المقترح (إن وُجد)"
+    ],
+    "items_en": [
+      "Owner's identity document",
+      "Activity details & National Address",
+      "Proposed trade name (if any)"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-PL-0089",
+  "slug": "bp-pl-0089",
+  "authority": {
+    "platform_ar": "المركز السعودي للأعمال",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "يوم عمل واحد.",
+    "value_en": "About one business day",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "القيد الحالي",
+      "مستندات التعديل",
+      "بيانات الأطراف أو التصديقات اللازمة"
+    ],
+    "items_en": [
+      "The current registration",
+      "Amendment documents",
+      "Parties' details or attestations"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

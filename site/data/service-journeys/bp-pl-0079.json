@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-PL-0079",
+  "slug": "bp-pl-0079",
+  "authority": {
+    "platform_ar": "متعدد الجهات",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "3 أيام عمل.",
+    "value_en": "About 3 business days",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "الترخيص الحالي",
+      "مستندات المالك الجديد",
+      "قرارات أو عقود نقل الملكية"
+    ],
+    "items_en": [
+      "The current license",
+      "New owner documents",
+      "Ownership-transfer resolutions or contracts"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-PL-0066",
+  "slug": "bp-pl-0066",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "وصف مختصر للنشاط المطلوب",
+      "عدد الشركاء وجنسياتهم وصفتهم (أفراد أو شركات)",
+      "هوية أو جواز سفر كل شريك",
+      "رأس المال المبدئي والمدينة المقترحة للنشاط"
+    ],
+    "items_en": [
+      "A brief description of the intended activity",
+      "Number of partners, their nationalities and type (individuals or companies)",
+      "ID or passport of each partner",
+      "Initial capital and proposed city of operation"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

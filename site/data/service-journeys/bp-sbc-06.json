@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-SBC-06",
+  "slug": "bp-sbc-06",
+  "authority": {
+    "platform_ar": "أبشر أعمال",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "عادةً خلال يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب.",
+    "value_en": "Usually one business day to a few days",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري",
+      "بيانات النشاط والعنوان الوطني",
+      "قرارات أو مستندات الشركاء (حسب الخدمة)"
+    ],
+    "items_en": [
+      "Commercial Registration",
+      "Activity details & National Address",
+      "Partners' resolutions or documents (per the service)"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-FI-13",
+  "slug": "bp-fi-13",
+  "authority": {
+    "platform_ar": "وزارة الاستثمار MISA",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "جلسة واحدة، والتقرير خلال ٣ أيام عمل",
+    "value_en": "One session; the report within three business days",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "نبذة عن النشاط المستهدف",
+      "مستندات الشركة الأم إن وُجدت",
+      "تصوّرك لرأس المال والشراكة"
+    ],
+    "items_en": [
+      "A brief on the target activity",
+      "The parent company's documents, if any",
+      "Your view on capital and partnership"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

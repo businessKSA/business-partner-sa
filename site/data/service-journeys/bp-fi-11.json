@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-FI-11",
+  "slug": "bp-fi-11",
+  "authority": {
+    "platform_ar": "وزارة الاستثمار MISA",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "٥ إلى ١٠ أيام عمل",
+    "value_en": "5–10 business days",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري ورقم المنشأة",
+      "المستندات المؤيدة للطلب",
+      "بيانات المفوّض المسؤول"
+    ],
+    "items_en": [
+      "Commercial Registration and establishment number",
+      "Documents supporting the request",
+      "Authorised person's details"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

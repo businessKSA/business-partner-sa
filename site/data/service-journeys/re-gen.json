@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "RE-GEN",
+  "slug": "re-gen",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "نوع العقار المطلوب (مكتب، مستودع، سكن موظفين) والمدينة",
+      "المساحة والميزانية والمدة المطلوبة",
+      "السجل التجاري للمنشأة",
+      "تاريخ الاستلام المطلوب وأي متطلبات خاصة"
+    ],
+    "items_en": [
+      "Type of property required (office, warehouse, staff housing) and city",
+      "Area, budget and term required",
+      "Company's Commercial Registration",
+      "Required handover date and any special requirements"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

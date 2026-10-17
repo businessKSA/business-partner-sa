@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-SBC-28",
+  "slug": "bp-sbc-28",
+  "authority": {
+    "platform_ar": "المركز السعودي للأعمال",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "٢ إلى ٤ أيام عمل بعد اكتمال القوائم",
+    "value_en": "2–4 business days once the statements are ready",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري ورقم المنشأة",
+      "المستندات المؤيدة للطلب",
+      "بيانات المفوّض المسؤول"
+    ],
+    "items_en": [
+      "Commercial Registration and establishment number",
+      "Documents supporting the request",
+      "Authorised person's details"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

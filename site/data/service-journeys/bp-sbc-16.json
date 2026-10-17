@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-SBC-16",
+  "slug": "bp-sbc-16",
+  "authority": {
+    "platform_ar": "متعدد الجهات",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "5–10 أيام عمل (وقد تصل 20–30 يوماً للحالات المعقّدة)",
+    "value_en": "5–10 working days (up to 20–30 days for complex cases)",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "الوثائق الرسمية (سجل تجاري أو هوية)",
+      "دراسة جدوى المشروع",
+      "مخططات هندسية للمصنع",
+      "بيانات دقيقة عن النشاط الصناعي"
+    ],
+    "items_en": [
+      "Official documents (Commercial Registration or ID)",
+      "Project feasibility study",
+      "Engineering drawings of the factory",
+      "Accurate details of the industrial activity"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

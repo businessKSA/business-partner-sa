@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "code": "BP-PR-01",
+  "slug": "bp-pr-01",
+  "authority": {
+    "platform_ar": "الإقامة المميزة",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "الموافقة عادةً خلال 30–90 يوماً",
+    "value_en": "Approval usually within 30–90 days",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "صورة جواز السفر (ساري 180 يوماً فأكثر)",
+      "شهادة عدم وجود سوابق جنائية",
+      "تقارير طبية محدّثة",
+      "إثبات الملاءة المالية (كشف حساب بنكي / شهادة دخل)",
+      "الإقامة النظامية (إن وجدت)"
+    ],
+    "items_en": [
+      "Passport copy (valid for 180 days or more)",
+      "Criminal record clearance certificate",
+      "Up-to-date medical reports",
+      "Proof of financial solvency (bank statement / income certificate)",
+      "Valid residency permit (if any)"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-VENDOR-02",
+  "slug": "bp-vendor-02",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": "اشتراك شهري مستمر",
+    "value_en": "An ongoing monthly subscription",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "العقود أو الاتفاقات ذات الصلة",
+      "بيانات المورد",
+      "النطاق التشغيلي المطلوب"
+    ],
+    "items_en": [
+      "Related contracts or agreements",
+      "Vendor details",
+      "The required operational scope"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

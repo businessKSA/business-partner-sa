@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-MUQEEM-03",
+  "slug": "bp-muqeem-03",
+  "authority": {
+    "platform_ar": "مقيم",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "يوم عمل واحد عادةً",
+    "value_en": "Usually one business day",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "رقم الحدود أو الإقامة أو الجواز",
+      "بيانات العامل",
+      "صلاحية الدخول لمنصة مقيم"
+    ],
+    "items_en": [
+      "Border number, Iqama or passport",
+      "Worker details",
+      "Muqeem platform access"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

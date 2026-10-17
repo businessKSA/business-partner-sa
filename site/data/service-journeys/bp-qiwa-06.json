@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-QIWA-06",
+  "slug": "bp-qiwa-06",
+  "authority": {
+    "platform_ar": "قوى",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "يوم إلى يومي عمل بعد السداد",
+    "value_en": "One to two business days after payment",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري ورقم المنشأة",
+      "بيانات العامل ورقم إقامته",
+      "بيانات المفوّض المسؤول"
+    ],
+    "items_en": [
+      "Commercial Registration and establishment number",
+      "The worker's details and residency number",
+      "Authorised person's details"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

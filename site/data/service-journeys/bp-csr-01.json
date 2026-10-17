@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-CSR-01",
+  "slug": "bp-csr-01",
+  "authority": {
+    "platform_ar": "المنصة الوطنية للمسؤولية الاجتماعية",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "٣ إلى ٥ أيام عمل للتسجيل والتوثيق",
+    "value_en": "3–5 business days to register and document",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري ورقم المنشأة",
+      "وصف المبادرات وميزانياتها",
+      "بيانات المفوّض المسؤول"
+    ],
+    "items_en": [
+      "Commercial Registration and establishment number",
+      "Descriptions of the initiatives and their budgets",
+      "Authorised person's details"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

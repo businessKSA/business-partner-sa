@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "SUP-GEN",
+  "slug": "sup-gen",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "وصف الحالة أو السؤال",
+      "المستندات أو المراسلات المتعلقة بها",
+      "السجل التجاري أو الهوية حسب الحالة"
+    ],
+    "items_en": [
+      "Description of the case or question",
+      "Related documents or correspondence",
+      "Commercial Registration or ID as applicable"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-REC-04",
+  "slug": "bp-rec-04",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "الوصف الوظيفي للمنصب ومتطلباته",
+      "الهيكل التنظيمي وموقع المنصب فيه",
+      "نطاق الراتب والمزايا المستهدف",
+      "السجل التجاري للمنشأة"
+    ],
+    "items_en": [
+      "Job description and requirements for the position",
+      "Organisation chart and where the role sits",
+      "Target salary and benefits range",
+      "Company's Commercial Registration"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

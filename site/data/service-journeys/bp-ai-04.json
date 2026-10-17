@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-AI-04",
+  "slug": "bp-ai-04",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري وبيانات المنشأة (أو هوية الفرد)",
+      "صلاحيات وصول على المنصات الحكومية والأنظمة الداخلية المطلوب ربطها",
+      "الأقسام والتخصصات المطلوبة في الفريق وأولوياتها",
+      "المسؤول عن الاعتماد وقنوات التنبيه"
+    ],
+    "items_en": [
+      "Commercial Registration and company details (or the individual's ID)",
+      "Access to the government platforms and internal systems to be connected",
+      "The departments and specialties required in the team and their priorities",
+      "The approver and the alert channels"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

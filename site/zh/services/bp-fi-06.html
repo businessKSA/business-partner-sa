@@ -308,6 +308,13 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-svc-docs li::before{content:"\1F4C4";font-size:14px;flex:none}
 .sv1-svc-does li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;line-height:1.75;color:var(--t)}
 .sv1-svc-does li::before{content:"\2713";color:var(--ok);font-weight:700;flex:none}
+.sv1-svc-steplist{list-style:none;margin:0;padding:0;display:grid;gap:8px;counter-reset:sv1step}
+.sv1-svc-step{counter-increment:sv1step;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:10px 13px;font-size:14px;color:var(--t)}
+.sv1-svc-step::before{content:counter(sv1step);font-family:var(--fm);color:var(--ac);font-weight:600;flex:none}
+.sv1-svc-actor{font-size:11.5px;color:var(--mut);font-weight:500}
+.sv1-svc-sdur{margin-inline-start:auto;font-size:12.5px;color:var(--mut)}
+.sv1-svc-src{list-style:none;margin:10px 2px 0;padding:0;font-size:12px;color:var(--mut)}
+.sv1-svc-src a{text-decoration:underline}
 .sv1-svc-hint{margin:10px 2px 0;font-size:12.5px;color:var(--mut)}
 .sv1-svc-q{border:1px solid var(--l);border-radius:12px;background:#fff;margin-bottom:8px}
 .sv1-svc-q summary{cursor:pointer;list-style:none;padding:13px 15px;font-size:14px;font-weight:500;color:var(--ink);display:flex;justify-content:space-between;gap:12px;align-items:center}
@@ -408,6 +415,13 @@ var h0=hint();if(h0)S.paint(true,h0);
     </section>
       <section class="sv1-svc-sec"><h2>我们负责的事项</h2>
       <ul class="sv1-svc-does"><li>Preparing the branch license requirements</li><li>MISA investment license</li><li>Branch Commercial Registration (CR)</li><li>Chamber of Commerce membership</li></ul></section>
+      <section class="sv1-svc-sec sv1-svc-after"><h2>付款之后</h2>
+      <ol class="sv1-svc-steplist">
+        <li class="sv1-svc-step" data-actor="bp"><span class="sv1-svc-actor">Business Partner</span><span class="sv1-svc-stx">增值税发票将发送至您的邮箱，订单会以参考编号记录在“我的请求”中。</span></li>
+        <li class="sv1-svc-step" data-actor="client"><span class="sv1-svc-actor">您</span><span class="sv1-svc-stx">您在请求页面上传上方列出的所需文件，团队随即开始办理。</span></li>
+        <li class="sv1-svc-step" data-actor="bp"><span class="sv1-svc-actor">Business Partner</span><span class="sv1-svc-stx">团队开始办理，并在请求页面向您通报每一次进展。</span><span class="sv1-svc-sdur">此服务的通常时长: 视许可证类型与文件齐备程度而定——通常为数日至数周</span></li>
+      </ol></section>
+      
       
     </div>
     <aside class="sv1-svc-buy" aria-label="服务费">
@@ -416,7 +430,7 @@ var h0=hint();if(h0)S.paint(true,h0);
       <p class="sv1-svc-note price-amt">不含 15% 增值税（单列一行，随后为含税总额），也不含政府规费——按实际费用向相关机构缴纳。</p>
       <p class="sv1-svc-note" data-guest-note>登录后可查看适用于您情况的服务费。</p>
       <button type="button" class="sv1-btn primary add-cart" id="svcAdd" data-id="svc-bp-fi-06" data-name-en="Foreign Company Branch Registration" data-name-ar="تسجيل فرع لشركة أجنبية" data-amount="12000" data-price="" data-kind="service" data-bp-code="BP-FI-06">加入购物车</button>
-      <a class="sv1-btn " id="svcQuote" href="/zh/#advisor" data-track="طلب عرض سعر">申请报价</a>
+      
       <dl class="sv1-svc-facts"><div><dt>办理时长</dt><dd>视许可证类型与文件齐备程度而定——通常为数日至数周</dd></div><div><dt>办理机构</dt><dd>投资部（MISA）</dd></div><div><dt>编号</dt><dd class="sv1-mono">BP-FI-06</dd></div></dl>
     </aside>
   </div>

@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "QW-EST",
+  "slug": "qw-est",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري والرقم الموحّد للمنشأة",
+      "هوية المالك أو المفوّض وحسابه في أبشر أو النفاذ الوطني",
+      "العنوان الوطني للمنشأة",
+      "بيانات التواصل الرسمية وتفويض المدير على قوى"
+    ],
+    "items_en": [
+      "Commercial Registration and unified establishment number",
+      "ID of the owner or authorised person and their Absher / National Single Sign-On account",
+      "National Address of the establishment",
+      "Official contact details and the manager's delegation on Qiwa"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

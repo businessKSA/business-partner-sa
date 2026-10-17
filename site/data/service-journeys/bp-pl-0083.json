@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-PL-0083",
+  "slug": "bp-pl-0083",
+  "authority": {
+    "platform_ar": "متعدد الجهات",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "3 أيام عمل.",
+    "value_en": "About 3 business days",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "قوائم المواد",
+      "نشرات السلامة",
+      "الفواتير",
+      "مستندات الشحنة أو التصنيع"
+    ],
+    "items_en": [
+      "Materials lists",
+      "Safety data sheets",
+      "Invoices",
+      "Shipment or manufacturing documents"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

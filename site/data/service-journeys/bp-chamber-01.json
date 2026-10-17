@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-CHAMBER-01",
+  "slug": "bp-chamber-01",
+  "authority": {
+    "platform_ar": "الغرفة التجارية",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "نسخة من السجل التجاري",
+      "العنوان الوطني للمنشأة",
+      "هوية المالك أو المفوّض بالتوقيع",
+      "بيانات التواصل الرسمية للمنشأة (جوال وبريد إلكتروني)"
+    ],
+    "items_en": [
+      "Copy of the Commercial Registration",
+      "National Address of the establishment",
+      "ID of the owner or authorised signatory",
+      "Official contact details of the establishment (mobile and email)"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

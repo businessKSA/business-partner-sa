@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-PL-0084",
+  "slug": "bp-pl-0084",
+  "authority": {
+    "platform_ar": "متعدد الجهات",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "حسب نطاق الطلب.",
+    "value_en": "Depends on the request scope",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "الفواتير",
+      "المواصفات الفنية",
+      "بيانات الاستيراد أو التصنيع",
+      "أي خطابات داعمة"
+    ],
+    "items_en": [
+      "Invoices",
+      "Technical specifications",
+      "Import or manufacturing data",
+      "Any supporting letters"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

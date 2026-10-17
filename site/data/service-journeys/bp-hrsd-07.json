@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-HRSD-07",
+  "slug": "bp-hrsd-07",
+  "authority": {
+    "platform_ar": "بوابة المستفيد — الموارد البشرية",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "يوم إلى ٣ أيام عمل بعد اكتمال المستندات",
+    "value_en": "One to three business days once documents are complete",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري ورقم المنشأة",
+      "صورة الإجراء أو المخالفة أو المطالبة محل الطلب",
+      "المراسلات والمستندات المؤيدة",
+      "بيانات المفوّض المسؤول"
+    ],
+    "items_en": [
+      "Commercial Registration and establishment number",
+      "A copy of the procedure, violation or claim at issue",
+      "Supporting correspondence and documents",
+      "Authorised person's details"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

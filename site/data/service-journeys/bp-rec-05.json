@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-REC-05",
+  "slug": "bp-rec-05",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "الوصف الوظيفي وعدد الوظائف المطلوبة",
+      "نطاق الراتب والمزايا",
+      "السجل التجاري ورقم المنشأة في قوى",
+      "موقع العمل وساعاته"
+    ],
+    "items_en": [
+      "Job description and number of vacancies",
+      "Salary and benefits range",
+      "Commercial Registration and the establishment number on Qiwa",
+      "Work location and hours"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

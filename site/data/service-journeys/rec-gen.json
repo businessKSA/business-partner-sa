@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "REC-GEN",
+  "slug": "rec-gen",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "الأوصاف الوظيفية والأعداد والجنسيات المطلوبة",
+      "السجل التجاري ورقم المنشأة في قوى",
+      "نطاق الرواتب والمزايا",
+      "حالة التأشيرات أو رصيدها إن كان الطلب استقداماً"
+    ],
+    "items_en": [
+      "Job descriptions, headcount and required nationalities",
+      "Commercial Registration and the establishment number on Qiwa",
+      "Salary and benefits range",
+      "Visa status or balance if the request is overseas manpower"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

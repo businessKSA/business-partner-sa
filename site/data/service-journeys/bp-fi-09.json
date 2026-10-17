@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-FI-09",
+  "slug": "bp-fi-09",
+  "authority": {
+    "platform_ar": "وزارة الاستثمار MISA",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "٣ إلى ٦ أسابيع حسب اكتمال المستندات",
+    "value_en": "3–6 weeks depending on document readiness",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "مستندات الشركة الأم مصدّقة ومترجمة",
+      "قرار الشركة الأم بفتح المكتب",
+      "جواز مدير المكتب"
+    ],
+    "items_en": [
+      "The parent's attested and translated documents",
+      "The parent's resolution to open the office",
+      "The office manager's passport"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

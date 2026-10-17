@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-HRSD-05",
+  "slug": "bp-hrsd-05",
+  "authority": {
+    "platform_ar": "بوابة المستفيد — الموارد البشرية",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "الرفع خلال ٢ إلى ٣ أيام عمل، والقرار حسب مدة الجهة",
+    "value_en": "Filed within 2–3 business days; the decision per the authority",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري ورقم المنشأة",
+      "صورة الإجراء أو المخالفة أو المطالبة محل الطلب",
+      "المراسلات والمستندات المؤيدة",
+      "بيانات المفوّض المسؤول"
+    ],
+    "items_en": [
+      "Commercial Registration and establishment number",
+      "A copy of the procedure, violation or claim at issue",
+      "Supporting correspondence and documents",
+      "Authorised person's details"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

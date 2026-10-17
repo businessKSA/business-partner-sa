@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-SELF-01",
+  "slug": "bp-self-01",
+  "authority": {
+    "platform_ar": "منصة التقييم الذاتي",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "٣ إلى ٧ أيام عمل حسب حجم المنشأة",
+    "value_en": "3–7 business days depending on the establishment's size",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري ورقم المنشأة",
+      "عقود العمل ولوائح المنشأة",
+      "بيانات الأجور والعمالة",
+      "أي ملاحظات أو مخالفات سابقة"
+    ],
+    "items_en": [
+      "Commercial Registration and establishment number",
+      "Employment contracts and internal bylaws",
+      "Wage and workforce data",
+      "Any earlier findings or violations"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}
