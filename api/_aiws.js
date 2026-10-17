@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 // Business Partner AI — خلفية صفحة /ai على الموقع. يملكها وكيل `ai-workspace`.
 //
 // المنصة نفسها (مساحة Open WebUI مستقلة لكل شركة) تعيش على ai.businesspartner.sa
@@ -211,4 +212,199 @@ export async function activateAiws(o, ctx = {}) {
   } catch {
     return { ok: false, error: "activator_unreachable" };
   }
+}
+
+/* ───────────── قسم Business Partner AI في لوحة العميل /my ───────────── */
+// ما يراه العميل عن اشتراكه ومساحته، وما يرسله لتجهيزها (اسم المنشأة، رابطها، شعارها،
+// لونها، مديروها). لا جدول جديد: الاشتراك هو طلب الشراء نفسه (requests.payment.items)،
+// وبيانات المساحة وحالتها أحداثٌ على ذلك الطلب (request_events): aiws.setup من العميل،
+// وaiws.ready من فريق نايف حين تجهز المساحة. آخر حدث من كل نوع هو الحالة الحالية.
+//
+// العزل: كل قراءة وكتابة بمنشأة الجلسة وحدها، ولا يُقبل معرّف منشأة من المتصفح.
+// والمالك لا يرى من هنا شيئاً: لوحته تقرأ الأرقام (اشتراك، مستخدمون، استخدام) لا المحتوى.
+
+const DAY = 86400e3;
+const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$/;
+// أسماء لا تُعطى لعميل: نطاقات فرعية قائمة أو محجوزة للمنصة والموقع.
+const RESERVED_SLUGS = new Set(["www", "ai", "api", "app", "admin", "my", "ops", "mail", "email", "smtp", "n8n", "cdn", "static", "assets", "quotes", "portal", "login", "auth", "signup", "billing", "status", "help", "support", "docs", "blog", "dev", "test", "staging", "preview", "businesspartner", "business-partner", "bp", "root", "owner"]);
+const COLOR_RE = /^#[0-9a-f]{6}$/i;
+const LOGO_MAX = 300 * 1024;
+const LOGO_MIME = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp" }; // لا SVG: قد يحمل سكربتاً.
+
+/** الاشتراكات من طلبات الشراء: كل بند svc-bp-aiws-* في طلب مدفوع من السلة. */
+export function aiwsSubscriptions(rows, now = Date.now()) {
+  const out = [];
+  for (const r of rows || []) {
+    const p = (r && r.payment) || {};
+    if (p.status !== "PAID" && r.status !== "PAID" && r.status !== "IN_PROGRESS" && r.status !== "COMPLETED") continue;
+    for (const it of Array.isArray(p.items) ? p.items : []) {
+      const plan = aiwsPlanOf(it && it.id);
+      if (!plan) continue;
+      const paidAt = p.at || r.created_at || null;
+      const t = paidAt ? Date.parse(paidAt) : NaN;
+      const renews = isFinite(t) ? new Date(t + 30 * DAY).toISOString().slice(0, 10) : null;
+      out.push({
+        request_id: r.id, ref: r.ref, plan, sku: String(it.code || it.id || "").toUpperCase().replace(/^SVC-/, ""),
+        qty: Math.max(1, Number(it.qty) || 1), amount: it.amount == null ? null : Number(it.amount),
+        paid_at: paidAt, renews_at: renews,
+        state: isFinite(t) && now > t + 30 * DAY ? "renewal_due" : "active",
+        test: !!p.test,
+      });
+    }
+  }
+  return out.sort((a, b) => String(b.paid_at || "").localeCompare(String(a.paid_at || "")));
+}
+
+/** يتحقق من نموذج تجهيز المساحة. logo اختياري: {mime, b64}. */
+export function validateSetup(b) {
+  const errors = [];
+  const company = clean(b && b.company, 120);
+  const slug = String((b && b.slug) || "").trim().toLowerCase();
+  const color = String((b && b.color) || "").trim();
+  const admins = [...new Set((Array.isArray(b && b.admins) ? b.admins : String((b && b.admins) || "").split(/[\s,;،]+/))
+    .map((e) => clean(e, 160).toLowerCase()).filter(Boolean))].slice(0, 10);
+  if (company.length < 2) errors.push("company");
+  if (!SLUG_RE.test(slug) || slug.includes("--") || RESERVED_SLUGS.has(slug)) errors.push("slug");
+  if (color && !COLOR_RE.test(color)) errors.push("color");
+  if (!admins.length || admins.some((e) => !EMAIL_RE.test(e))) errors.push("admins");
+  let logo = null;
+  if (b && b.logo && b.logo.b64) {
+    const ext = LOGO_MIME[String(b.logo.mime || "").toLowerCase()];
+    let buf = null;
+    try { buf = Buffer.from(String(b.logo.b64), "base64"); } catch {}
+    if (!ext || !buf || !buf.length) errors.push("logo_type");
+    else if (buf.length > LOGO_MAX) errors.push("logo_size");
+    else logo = { ext, mime: String(b.logo.mime).toLowerCase(), buf };
+  }
+  return { fields: { company, slug, color: color.toLowerCase(), admins }, logo, errors };
+}
+
+function workspaceFrom(events) {
+  const setup = (events || []).find((e) => e.event === "aiws.setup") || null;
+  const ready = (events || []).find((e) => e.event === "aiws.ready") || null;
+  const d = (setup && setup.details) || {};
+  return {
+    status: ready ? "ready" : setup ? "provisioning" : "needs_setup",
+    company: d.company || "", slug: d.slug || "", color: d.color || "", admins: d.admins || [],
+    logo_key: d.logo_key || "", submitted_at: setup ? setup.created_at : null,
+    url: ready && ready.details ? ready.details.url || "" : "", ready_at: ready ? ready.created_at : null,
+  };
+}
+
+/**
+ * قسم العميل. ctx = { sess, sb, storagePut, storageSign, notify, activate, fetch, now, lang }
+ *   action "my"     ← { ok, subscriptions, workspace, plan:{seats,credit_sar} }
+ *   action "setup"  ← يحفظ بيانات المساحة ويرسلها إلى «مفعّل الخدمات»
+ */
+export async function handleAiwsMy(action, body, ctx) {
+  const sess = ctx.sess;
+  if (!sess || !sess.user) return { status: 401, body: { ok: false, error: "unauthorized" } };
+  const orgId = sess.organization && sess.organization.id;
+  if (!orgId) return { status: 200, body: { ok: true, subscriptions: [], workspace: workspaceFrom([]) } };
+  const rows = await ctx.sb(`requests?organization_id=eq.${orgId}&select=id,ref,status,payment,created_at&order=created_at.desc&limit=200`);
+  const subs = aiwsSubscriptions(rows, ctx.now || Date.now());
+  const ids = [...new Set(subs.map((s) => s.request_id))];
+  const events = ids.length
+    ? await ctx.sb(`request_events?request_id=in.(${ids.join(",")})&event=in.(aiws.setup,aiws.ready)&select=request_id,event,details,created_at&order=created_at.desc&limit=50`)
+    : [];
+  const ws = workspaceFrom(events);
+
+  if (action === "my") {
+    let plan = null;
+    if (subs.length) {
+      try {
+        const plans = await getPlans(ctx.lang === "ar" ? "ar" : "en", ctx.fetch || fetch, ctx.now || Date.now());
+        const p = plans.find((x) => x.code === subs[0].plan);
+        if (p) plan = { seats: p.seats == null ? null : p.seats, credit_sar: p.credit_usd == null ? null : Math.round(p.credit_usd * 3.75) };
+      } catch {}
+    }
+    let logo_url = "";
+    if (ws.logo_key && ctx.storageSign) { try { logo_url = await ctx.storageSign(ws.logo_key, 600); } catch {} }
+    const { logo_key, ...pub } = ws;
+    return { status: 200, body: { ok: true, subscriptions: subs.map(({ request_id, ...s }) => s), workspace: { ...pub, logo_url }, plan } };
+  }
+
+  if (action === "setup") {
+    if (!subs.length) return { status: 403, body: { ok: false, error: "no_subscription" } };
+    const { fields, logo, errors } = validateSetup(body);
+    if (errors.length) return { status: 400, body: { ok: false, error: "invalid_fields", fields: errors } };
+    // الرابط لا يتغيّر بعد أن تجهز المساحة: صار عنوانها عند مستخدميها.
+    if (ws.status === "ready" && ws.slug && fields.slug !== ws.slug) return { status: 409, body: { ok: false, error: "slug_locked" } };
+    // الرابط لمنشأة واحدة. أفضل جهد هنا، والخادم يرفض المكرّر عند الإنشاء على كل حال.
+    try {
+      const taken = await ctx.sb(`request_events?event=eq.aiws.setup&select=request_id,details&order=created_at.desc&limit=1000`);
+      if ((taken || []).some((e) => e.details && e.details.slug === fields.slug && !ids.includes(e.request_id))) {
+        return { status: 409, body: { ok: false, error: "slug_taken" } };
+      }
+    } catch {}
+    let logo_key = ws.logo_key || "";
+    if (logo) {
+      logo_key = `aiws/${orgId}/logo-${(ctx.now || Date.now()).toString(36)}.${logo.ext}`;
+      await ctx.storagePut(logo_key, logo.buf, logo.mime);
+    }
+    const sub = subs[0];
+    const details = { ...fields, logo_key };
+    await ctx.sb("request_events", { method: "POST", body: { request_id: sub.request_id, actor_kind: "customer", actor: sess.user.email || "", event: "aiws.setup", details }, prefer: "return=minimal" });
+    let logo_url = "";
+    if (logo_key && ctx.storageSign) { try { logo_url = await ctx.storageSign(logo_key, 7 * 86400); } catch {} }
+    let queued = false;
+    if (ctx.activate) {
+      const r = await ctx.activate({
+        event: "aiws.setup", ref: sub.ref, plan: sub.plan, sku: sub.sku,
+        company: fields.company, slug: fields.slug, color: fields.color, admins: fields.admins,
+        logo_url, email: sess.user.email || "", lang: ctx.lang === "en" ? "en" : "ar",
+      }).catch(() => ({ ok: false }));
+      queued = !!(r && r.ok);
+    }
+    return { status: 200, body: { ok: true, status: ws.status === "ready" ? "ready" : "provisioning", queued } };
+  }
+
+  return { status: 400, body: { ok: false, error: "unknown_action" } };
+}
+
+/** يرسل حدث تجهيز المساحة إلى «مفعّل الخدمات» بالمفتاح نفسه. */
+export async function sendAiwsSetup(payload, ctx = {}) {
+  if (ctx.dev) {
+    if (ctx.outbox) await ctx.outbox({ kind: "n8n", to: "bp-service-activator", subject: payload.ref, payload }).catch(() => {});
+    return { ok: true, queued: true };
+  }
+  if (!ACTIVATOR_URL || !ACTIVATOR_KEY) return { ok: false, error: "not_configured" };
+  try {
+    const r = await (ctx.fetch || fetch)(ACTIVATOR_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json", "X-BP-Activator-Key": ACTIVATOR_KEY },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(20000),
+    });
+    return r.ok ? { ok: true, queued: true } : { ok: false, error: "activator_" + r.status };
+  } catch {
+    return { ok: false, error: "activator_unreachable" };
+  }
+}
+
+/**
+ * فريق نايف يُبلغ الموقع أن المساحة جهزت: POST {action:"ready", ref, url} بترويسة
+ * X-BP-Activator-Key نفسها. يكتب حدث aiws.ready فيظهر الرابط للعميل في /my.
+ */
+export async function handleAiwsReady(body, ctx) {
+  const key = String(ctx.key || "");
+  if (!ACTIVATOR_KEY && !ctx.dev) return { status: 503, body: { ok: false, error: "not_configured" } };
+  const want = ACTIVATOR_KEY || (ctx.dev ? "dev-activator" : "");
+  const a = Buffer.from(key), b = Buffer.from(want);
+  if (!want || a.length !== b.length || !crypto.timingSafeEqual(a, b)) return { status: 403, body: { ok: false, error: "forbidden" } };
+  const ref = clean(body && body.ref, 40);
+  let url = "";
+  try {
+    const u = new URL(String((body && body.url) || ""));
+    if (u.protocol === "https:" && (u.hostname === "businesspartner.sa" || u.hostname.endsWith(".businesspartner.sa"))) url = u.origin + u.pathname.replace(/\/+$/, "");
+  } catch {}
+  if (!/^BP-R-[A-Z0-9]{4,12}$/.test(ref) || !url) return { status: 400, body: { ok: false, error: "invalid_fields" } };
+  const rows = await ctx.sb(`requests?ref=eq.${ref}&select=id,organization_id&limit=1`);
+  const r = rows && rows[0];
+  if (!r) return { status: 404, body: { ok: false, error: "not_found" } };
+  await ctx.sb("request_events", { method: "POST", body: { request_id: r.id, actor_kind: "internal", actor: "nayef_ai_workspace", event: "aiws.ready", details: { url } }, prefer: "return=minimal" });
+  if (ctx.notify && r.organization_id) {
+    await ctx.notify({ organization_id: r.organization_id, channel: "inapp", event: "aiws.ready", title: "مساحتك في Business Partner AI جاهزة", body: url, idempotency_key: `aiws.ready:${ref}:${url}` }).catch(() => {});
+  }
+  return { status: 200, body: { ok: true } };
 }
