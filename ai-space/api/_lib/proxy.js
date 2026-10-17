@@ -90,7 +90,9 @@ async function handle(req, env, fetchImpl) {
     return { status: 200, headers: { 'Content-Type': ct, 'Cache-Control': 'no-store' }, body: spec.binary ? buf : buf.toString('utf8'), binary: !!spec.binary };
   } catch (e) {
     if (e && e.name === 'AbortError') return json(504, { error: 'upstream_timeout', seconds: Math.round(spec.timeout / 1000) });
-    return json(502, { error: 'upstream_unreachable' });
+    // رمز الشبكة فقط (ENOTFOUND, ECONNREFUSED, ERR_INVALID_URL…) — لا نص الخطأ ولا العنوان.
+    var code = (e && e.cause && e.cause.code) || (e && e.code) || (e && e.name) || 'error';
+    return json(502, { error: 'upstream_unreachable', detail: String(code).replace(/[^A-Za-z0-9_]/g, '').slice(0, 40) });
   } finally { clearTimeout(tm); }
 }
 

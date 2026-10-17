@@ -184,7 +184,9 @@
     return fetch(BASE + '/pulse', { cache: 'no-store' })
       .then(function (r) {
         if (r.status === 503) throw new Error('غير مُعدّ بعد (BP_PATH_PULSE)');
-        if (!r.ok) throw new Error('HTTP ' + r.status);
+        if (!r.ok) return r.json().catch(function () { return {}; }).then(function (b) {
+          throw new Error('HTTP ' + r.status + (b.error ? ' · ' + b.error : '') + (b.detail ? ' · ' + b.detail : ''));
+        });
         return r.json();
       })
       .then(function (d) {
