@@ -65,9 +65,10 @@ export const REQUEST_STATUSES = [
 //
 // The money check reads the request's own payment record, not the status name:
 // PAYMENT_PENDING means «the customer pressed pay», not «the customer paid».
-// SIGNED is deliberately NOT in the list: the contract is signed, so it is a
-// request for the team even though nothing has been charged yet.
-const CANCEL_NOW = ["NEW", "REVIEWING", "WAITING_CLIENT", "QUOTE_SENT", "PRICING", "QUOTE_APPROVED", "CONTRACT_SENT", "PAYMENT_PENDING"];
+// SIGNED is in the list (owner's decision, 2026-10-17: «ألغِ الاثنين فوراً»): a
+// signed contract with nothing charged yet is cancelled at once, exactly like
+// PAYMENT_PENDING; the moment a payment or an invoice exists it goes to the team.
+const CANCEL_NOW = ["NEW", "REVIEWING", "WAITING_CLIENT", "QUOTE_SENT", "PRICING", "QUOTE_APPROVED", "CONTRACT_SENT", "SIGNED", "PAYMENT_PENDING"];
 const PAID_STATES = ["PAID", "AUTHORIZED", "CAPTURED", "APPROVED", "COMPLETED", "SUCCEEDED", "SETTLED", "SUCCESS"];
 function moneyReceived(row) {
   const p = row && row.payment;

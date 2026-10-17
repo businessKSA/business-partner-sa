@@ -56,6 +56,7 @@ fs.writeFileSync(path.join(DBDIR, "db.json"), JSON.stringify({
     req("T-QUOTE", "QUOTE_SENT", { quote: { ...quote, status: "SENT" } }),
     req("T-CONTRACT", "CONTRACT_SENT", { quote, contract: unsigned }),
     req("T-SIGNED", "SIGNED", { quote, contract: signed, payment: { status: "PENDING", amount: 1150 } }),
+    req("T-SIGNMONEY", "SIGNED", { quote, contract: signed, payment: { status: "PAID", amount: 1150 } }),
     req("T-PAYPEND", "PAYMENT_PENDING", { quote, contract: signed, payment: { status: "FAILED", amount: 1150, test: true } }),
     req("T-PAYGATE", "PAYMENT_PENDING", { quote, contract: signed }),
     req("T-PAYMONEY", "PAYMENT_PENDING", { quote, contract: signed, payment: { status: "PAID", amount: 1150 } }),
@@ -112,7 +113,10 @@ test("cancelPolicy: يُلغى فوراً ما لم يُوقَّع ولم يُد
   assert.equal(cancelPolicy({ status: "PAYMENT_PENDING", invoice: { number: "INV-1" } }), "ask");
   assert.equal(cancelPolicy({ status: "NEW", payment: { status: "PAID" } }), "ask");
   // ما بعد التوقيع والدفع والتنفيذ
-  for (const s of ["SIGNED", "PAID", "IN_PROGRESS", "WAITING_INTERNAL"]) assert.equal(cancelPolicy({ status: s }), "ask", s);
+  // موقَّع بلا دفعة ولا فاتورة: يُلغى فوراً (قرار المالك 2026-10-17)؛ وموقَّع وفيه دفعة: للفريق
+  assert.equal(cancelPolicy({ status: "SIGNED" }), "now");
+  assert.equal(cancelPolicy({ status: "SIGNED", payment: { status: "PAID" } }), "ask");
+  for (const s of ["PAID", "IN_PROGRESS", "WAITING_INTERNAL"]) assert.equal(cancelPolicy({ status: s }), "ask", s);
   for (const s of ["CANCELLED", "COMPLETED"]) assert.equal(cancelPolicy({ status: s }), "closed", s);
 });
 
@@ -139,17 +143,17 @@ test("NEW/REVIEWING/QUOTE_SENT/CONTRACT_SENT: إلغاء فوري، والطلب
   assert.equal(row.status, "CANCELLED");
 });
 
-test("PAYMENT_PENDING بلا دفعة ناجحة: يُلغى فوراً، ويُدوَّن أن العقد كان موقَّعاً", async () => {
-  for (const ref of ["T-PAYPEND", "T-PAYGATE"]) {
+test("PAYMENT_PENDING وSIGNED بلا دفعة ناجحة: يُلغى فوراً، ويُدوَّن أن العقد كان موقَّعاً", async () => {
+  for (const ref of ["T-PAYPEND", "T-PAYGATE", "T-SIGNED"]) {
     const o = await call("request-cancel", { ref });
     assert.equal(o.ok, true, ref); assert.equal(o.cancelled, true, ref);
     const r = await rowOf(ref);
     assert.equal(r.status, "CANCELLED");
-    assert.equal(r.cancel.stage, "PAYMENT_PENDING");
+    assert.ok(["PAYMENT_PENDING", "SIGNED"].includes(r.cancel.stage), r.cancel.stage);
     assert.equal(r.cancel.contract_signed, true, "الفريق يرى أن العقد كان موقَّعاً");
     assert.equal(r.contract.status, "SIGNED", "نسخة العقد الموقَّعة لا تُمسّ");
   }
-  assert.equal((await call("me")).counts.payments, 2, "لم يبقَ مستحقاً إلا T-SIGNED و T-PAYMONEY");
+  assert.equal((await call("me")).counts.payments, 2, "لم يبقَ مستحقاً إلا T-PAYMONEY و T-SIGNMONEY (فيهما دفعة)");
 });
 
 test("PAYMENT_PENDING وفيه دفعة ناجحة: لا يُلغى فوراً بل يُطلَب", async () => {
@@ -183,8 +187,8 @@ test("الإلغاء الفوري يغلق مهام المتابعة الآلي�
 });
 
 // ------------------------------------------------------------ طلب الإلغاء --
-test("SIGNED/PAID/IN_PROGRESS: يُسجَّل طلب إلغاء للفريق ولا تتغيّر الحالة", async () => {
-  for (const ref of ["T-SIGNED", "T-PAID", "T-WORK"]) {
+test("SIGNED المدفوع/PAID/IN_PROGRESS: يُسجَّل طلب إلغاء للفريق ولا تتغيّر الحالة", async () => {
+  for (const ref of ["T-SIGNMONEY", "T-PAID", "T-WORK"]) {
     const o = await call("request-cancel", { ref, note: "لا أريد المتابعة" });
     assert.equal(o.ok, true, ref); assert.equal(o.requested, true, ref); assert.notEqual(o.cancelled, true, ref);
     const r = await rowOf(ref);
@@ -195,19 +199,19 @@ test("SIGNED/PAID/IN_PROGRESS: يُسجَّل طلب إلغاء للفريق و�
 });
 
 test("تكرار طلب الإلغاء لا يضاعف المهمة ولا الحدث (idempotent)", async () => {
-  const again = await call("request-cancel", { ref: "T-SIGNED" });
+  const again = await call("request-cancel", { ref: "T-SIGNMONEY" });
   assert.equal(again.ok, true); assert.equal(again.already, true); assert.equal(again.requested, true);
-  const tasks = await sb("tasks?request_id=eq.id-T-SIGNED&source=eq.cancel.request&select=id");
+  const tasks = await sb("tasks?request_id=eq.id-T-SIGNMONEY&source=eq.cancel.request&select=id");
   assert.equal(tasks.length, 1, "مهمة واحدة للفريق");
-  const ev = (await eventsOf("T-SIGNED")).filter((e) => e.event === "cancel.requested");
+  const ev = (await eventsOf("T-SIGNMONEY")).filter((e) => e.event === "cancel.requested");
   assert.equal(ev.length, 1, "حدث واحد");
 });
 
 test("البوابة ترى طلب الإلغاء: cancel_requested في القائمة و cancel_policy في الطلب", async () => {
   const me = await call("me");
-  assert.ok(me.requests.find((r) => r.ref === "T-SIGNED").cancel_requested, "القائمة تعرضه");
+  assert.ok(me.requests.find((r) => r.ref === "T-SIGNMONEY").cancel_requested, "القائمة تعرضه");
   assert.equal(me.requests.find((r) => r.ref === "T-DONE").cancel_requested || null, null);
-  const got = await call("request-get", { ref: "T-SIGNED" });
+  const got = await call("request-get", { ref: "T-SIGNMONEY" });
   assert.equal(got.request.cancel_policy, "ask");
   assert.ok(got.request.cancel_request && got.request.cancel_request.at, "الصفحة تقرأ ما سُجِّل فلا تعيد الزرّ كأن شيئاً لم يحدث");
   assert.equal((await call("request-get", { ref: "T-GONE" })).request.cancel_policy, "closed");
