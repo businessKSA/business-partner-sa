@@ -9,7 +9,8 @@
 // نجح فعلاً**: صفحة واتساب في متصفح حقيقي، لا بروتوكولاً مُعاد تنفيذه.
 //
 // الحدود الصلبة — مكتوبة في `config.mjs` ومفحوصة قبل إقلاع Chromium:
-//   1) لا إرسال ولا تعليم قراءة. `WA_SEND_ENABLED=1` يمنع الإقلاع.
+//   1) لا تعليم قراءة أبداً. ولا إرسال إلا الصادر المأمور من فرح (`outbox.mjs`)،
+//      مغلق افتراضياً ويُفتح بـWA_OUTBOX=1 + WA_OUTBOX_ACCOUNTS. `WA_SEND_ENABLED=1` يمنع الإقلاع.
 //   2) الرقم الشخصي `966503793356` ممنوع هنا منعاً مطلقاً — يقرأ بـBaileys
 //      في `ops/wa-bridge` ولا يُمسّ.
 //   3) الأسرار من البيئة وحدها. لا قيمة افتراضية لسرّ، ولا سرّ في المستودع.
@@ -30,7 +31,7 @@ async function main() {
   const cfg = readConfig();
   const account = cfg.accounts[0];
 
-  log.info('جسر المتصفّح يُقلع — قارئ فقط، لا إرسال ولا تعليم قراءة', {
+  log.info(`جسر المتصفّح يُقلع — قارئ${cfg.outbox ? ' + صادر مأمور من فرح (مفتوح)' : ' فقط، لا إرسال'}، ولا تعليم قراءة`, {
     account: account.name,
     msisdn: account.msisdn,
     batch_window_s: cfg.batchWindowS,
@@ -68,6 +69,7 @@ async function main() {
     printRawQr: cfg.printRawQr,
     readLabels: cfg.readLabels,
     backfill: cfg.backfill,
+    outbox: cfg.outbox,
     sender,
   });
 

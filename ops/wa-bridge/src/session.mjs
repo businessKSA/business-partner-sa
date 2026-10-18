@@ -8,6 +8,7 @@
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import qrcode from 'qrcode-terminal';
+import { Outbox, makeTransport } from './outbox.mjs';
 import baileys from '@whiskeysockets/baileys';
 import { logger } from './log.mjs';
 import {
@@ -58,6 +59,11 @@ export class AccountSession {
     /** @type {Map<string, Set<string>>} معرّف المحادثة → معرّفات ليبلاتها */
     this.chatLabelIds = new Map();
     this.labelsSeen = false;
+
+    // الصادر: null = مغلق (الأصل). يُفتح بالإعداد صراحةً — انظر outbox.mjs.
+    this.outboxCfg = cfg.outbox || null;
+    this.outbox = null;
+    this.connOpen = false;
 
     this.sock = null;
     this.stopped = false;
@@ -250,8 +256,11 @@ export class AccountSession {
       }
     }
 
+    if (connection === 'close') this.connOpen = false;
+
     if (connection === 'open') {
       this.attempt = 0;
+      this.connOpen = true;
       const me = (this.sock && this.sock.user && this.sock.user.id) || '';
       const meDigits = String(me).split(':')[0].replace(/\D/g, '');
       this.log.info('الجلسة مفتوحة', { linked_as: meDigits || 'unknown' });
@@ -271,6 +280,7 @@ export class AccountSession {
       this.maybeBackfill().catch((err) => {
         this.log.error('الجرد سقط', { error: String((err && err.message) || err) });
       });
+      this.startOutbox();
       return;
     }
 
@@ -302,6 +312,29 @@ export class AccountSession {
     }, wait);
   }
 
+  /** يفتح الصادر مرة واحدة (open يتكرر عند كل إعادة اتصال). مغلق ما لم يُضبط. */
+  startOutbox() {
+    if (!this.outboxCfg || this.outbox) return;
+    try {
+      this.outbox = new Outbox({
+        account: this.name,
+        cfg: this.outboxCfg,
+        userSuffix: 's.whatsapp.net',
+        isReady: () => this.connOpen && !!this.sock && !this.stopped,
+        transport: makeTransport(() => this.sock),
+      });
+      this.outbox.init()
+        .then(() => { if (this.outbox) this.outbox.start(); })
+        .catch((err) => {
+          this.outbox = null;
+          this.log.error('تعذّر فتح الصادر', { error: String((err && err.message) || err) });
+        });
+    } catch (err) {
+      this.outbox = null;
+      this.log.error('تعذّر فتح الصادر', { error: String((err && err.message) || err) });
+    }
+  }
+
   onMessage(raw) {
     const reason = shouldSkip(raw, { ignoreOlderH: this.ignoreOlderH });
     if (reason) {
@@ -325,6 +358,8 @@ export class AccountSession {
       pushNameFor: (jid) => this.chatNames.get(jid) || '',
     });
     if (!msg.text && !msg.media_name && msg.kind === 'other') return;
+    // ما أرسلته فرح بأمر المالك يُؤرشف كاملاً، لكن لا يُحسب من أسلوب باهر.
+    if (msg.from_me && this.outbox && this.outbox.isMine(chatId, msg.text)) msg.via_farah = true;
 
     this.push(chatId, msg, tsOf(raw));
   }
@@ -456,6 +491,7 @@ export class AccountSession {
 
   async stop() {
     this.stopped = true;
+    if (this.outbox) this.outbox.stop();
     this.flushAll();
     try {
       if (this.sock) this.sock.end(undefined);

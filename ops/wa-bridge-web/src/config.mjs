@@ -8,6 +8,7 @@
 
 import path from 'node:path';
 import { readBackfillConfig } from './backfill.mjs';
+import { readOutboxConfig } from './outbox.mjs';
 
 /** رقم الشركة — هو وحده ما بُني هذا الجسر له. */
 export const COMPANY_MSISDN = '966530540231';
@@ -106,8 +107,8 @@ export function readConfig() {
   if (secret.length < 24) throw new Error('WA_BRIDGE_SECRET قصير جداً — 24 محرفاً على الأقل');
   if (sendEnabled) {
     throw new Error(
-      'WA_SEND_ENABLED=1 غير مسموح: هذا الجسر قارئ فقط. '
-      + 'الردود تُصاغ وتُعرض على المالك ولا تُرسَل.',
+      'WA_SEND_ENABLED=1 غير مسموح ولن يُدعم. الإرسال الوحيد المسموح هو الصادر '
+      + 'المأمور من فرح: WA_OUTBOX=1 مع WA_OUTBOX_ACCOUNTS (انظر src/outbox.mjs).',
     );
   }
   if (!Number.isFinite(batchWindowS) || batchWindowS < 5) throw new Error('WA_BATCH_WINDOW_S لا يقل عن 5');
@@ -116,10 +117,13 @@ export function readConfig() {
     throw new Error('WA_PROFILE_SNAPSHOT_S لا يقل عن 60 — اللقط أسرع من ذلك يُثقل القرص الشبكي');
   }
   for (const a of accounts) assertAllowed(a, allowAny);
+  // الصادر مغلق افتراضياً ويُفتح لحساب مسمّى صراحةً (WA_OUTBOX_ACCOUNTS).
+  // يُقرأ هنا فيسقط الإقلاع على إعدادٍ ناقص قبل Chromium.
+  const outbox = readOutboxConfig(accounts[0].name, authDir);
 
   return {
     webhookUrl, secret, authDir, queueDir, accounts, batchWindowS, ignoreOlderH,
     profileLocalDir, snapshotEverySec, resolveNames, hidePresence, printRawQr,
-    readLabels, backfill,
+    readLabels, backfill, outbox,
   };
 }

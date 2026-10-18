@@ -1,7 +1,9 @@
 // جلسة واتساب واحدة بمحرّك **متصفح حقيقي**: صفحة `web.whatsapp.com` داخل
 // Chromium بلا رأس، تُقادُ بـwhatsapp-web.js.
 //
-// ⚠️⚠️ قارئ فقط — وهذا الملف هو موضع الخطر الحقيقي.
+// ⚠️⚠️ قارئ فقط — إلا الصادر المأمور من فرح، وهو في `outbox.mjs` وحده ومغلق
+// افتراضياً. هذا الملف لا يستدعي أي دالة إرسال أو تعليم قراءة.
+// وهذا الملف هو موضع الخطر الحقيقي.
 //
 // في الجسر الأول (Baileys) كان «لا إرسال» سهلاً: لا دالة إرسال في الملف.
 // هنا الأمر أخطر: كائن `Client` **يملك** `sendMessage` و`sendSeen` جاهزتين،
@@ -28,6 +30,7 @@
 // المُطفأ هو **إيصال القراءة** (الأزرق) وحالة «غير مقروء» على جوال المالك.
 
 import { mkdir } from 'node:fs/promises';
+import { Outbox, makeTransport } from './outbox.mjs';
 import path from 'node:path';
 import qrcode from 'qrcode-terminal';
 import wweb from 'whatsapp-web.js';
@@ -108,6 +111,10 @@ export class WebAccountSession {
     // الاسم تمنع تعارضه مع مجلد حساب (أسماء الحسابات /^[a-z0-9_-]+$/).
     this.backfillStateDir = path.join(cfg.authDir, '.backfill');
     this.backfillStarted = false;
+    // الصادر: null = مغلق (الأصل). يُفتح بالإعداد صراحةً — انظر outbox.mjs.
+    this.outboxCfg = cfg.outbox || null;
+    this.outbox = null;
+    this.isReady = false;
 
     this.client = null;
     this.stopped = false;
@@ -221,6 +228,7 @@ export class WebAccountSession {
 
     client.on('ready', async () => {
       this.attempt = 0;
+      this.isReady = true;
       const wid = (client.info && client.info.wid) || {};
       const linked = String(wid.user || '').replace(/\D/g, '');
       this.log.info('الجلسة مفتوحة', { linked_as: linked || 'unknown' });
@@ -249,6 +257,7 @@ export class WebAccountSession {
       this.maybeBackfill(client).catch((err) => {
         this.log.error('الجرد الشامل سقط', { error: String((err && err.message) || err) });
       });
+      await this.startOutbox();
     });
 
     client.on('change_state', (state) => {
@@ -273,8 +282,28 @@ export class WebAccountSession {
     await client.initialize();
   }
 
+  /** يفتح الصادر مرة واحدة (ready يُطلق بعد كل إعادة اتصال). مغلق ما لم يُضبط. */
+  async startOutbox() {
+    if (!this.outboxCfg || this.outbox) return;
+    try {
+      this.outbox = new Outbox({
+        account: this.name,
+        cfg: this.outboxCfg,
+        userSuffix: 'c.us',
+        isReady: () => this.isReady && !!this.client && !this.stopped,
+        transport: makeTransport(() => this.client),
+      });
+      await this.outbox.init();
+      this.outbox.start();
+    } catch (err) {
+      this.outbox = null;
+      this.log.error('تعذّر فتح الصادر', { error: String((err && err.message) || err) });
+    }
+  }
+
   onDisconnected(reason) {
     this.log.warn('الاتصال انقطع', { reason });
+    this.isReady = false;
     // ألقط قبل أي شيء: ربما كان الاعتماد قد تجدّد قبل القطع.
     this.snapshotter.take('عند القطع');
 
@@ -441,6 +470,8 @@ export class WebAccountSession {
 
     const norm = normalizeMessage(msg, { accountMsisdn: this.msisdn, senderName });
     if (!norm.text && !norm.media_name && norm.kind === 'other') return;
+    // ما أرسلته فرح بأمر المالك يُؤرشف كاملاً، لكن لا يُحسب من أسلوب باهر.
+    if (norm.from_me && this.outbox && this.outbox.isMine(chatId, norm.text)) norm.via_farah = true;
 
     this.push(chatId, chatName, norm, tsOf(msg));
   }
@@ -584,6 +615,7 @@ export class WebAccountSession {
 
   async stop() {
     this.stopped = true;
+    if (this.outbox) this.outbox.stop();
     if (this.snapshotTimer) clearInterval(this.snapshotTimer);
     this.flushAll();
     const client = this.client;
