@@ -1,0 +1,7 @@
+.env
+.wa-auth-web/
+.wa-queue-web/
+.wwebjs_auth/
+.wwebjs_cache/
+profile/
+node_modules/

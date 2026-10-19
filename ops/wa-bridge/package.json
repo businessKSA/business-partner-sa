@@ -1,0 +1,20 @@
+{
+  "name": "bp-wa-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "BP WhatsApp Web reader bridge — reads the owner's two WhatsApp Web sessions and posts batched conversations to n8n. Reads only, except the opt-in owner-commanded outbox (outbox.mjs, off by default).",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.mjs",
+    "check": "node --check src/index.mjs && node --check src/session.mjs && node --check src/post.mjs && node --check src/normalize.mjs && node --check src/backfill.mjs && node --check src/log.mjs && node --check src/outbox.mjs && npm run guard",
+    "guard": "node scripts/guard.mjs",
+    "test": "node scripts/outbox-test.mjs"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "6.7.9",
+    "qrcode-terminal": "0.12.0"
+  }
+}
