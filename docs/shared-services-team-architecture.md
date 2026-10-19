@@ -233,3 +233,7 @@ questions. Never binds anything; anything sensitive routes to Human Approval.
 
 Expectation for all: correct routing · base JSON schema returned · task logged ·
 binding actions blocked behind Human Approval · placeholder-only pricing.
+
+## المرحلة التالية: الفريق كـ Managed Agents
+
+التحول من chainLlm في n8n إلى وكلاء حقيقيين بحلقة عمل وذاكرة وجدولة موثّق في [`agents/README.md`](../agents/README.md): باهر منسّقًا، ومازن وبدر وفرح ومحمد متخصصين، وn8n قناة أحداث وإرسال فقط.

@@ -1,14 +1,16 @@
 // Read a client's VAT certificate, commercial registration or national address
 // document and return the fields an invoice needs, so nobody types them.
 //
-// Every provider here is already configured for the site's advisor (api/chat.js)
-// — this module adds the vision/document calls that file does not make. Gemini
-// goes first: it is on a free tier, reads Arabic scans well, and accepts PDFs
-// directly. Anthropic is the fallback for PDFs and images, OpenAI for images.
+// Azure only (owner policy, September 2026). This module adds the vision and
+// document calls the site's advisor (api/chat.js) does not make, on the same
+// Azure account. Gemini, Anthropic and OpenAI used to take turns here and were
+// removed on 2026-09-23 — those accounts carry no credit, so a fallback to them
+// bought an outage dressed as a retry. Redundancy is a second Azure region now.
 //
 // Nothing is stored: the upload is read, the fields come back, the bytes are
 // dropped. The extracted values are a starting point for a human to confirm —
 // a wrong VAT number on an issued tax invoice cannot be edited, only voided.
+import { azureRegions } from "./_azure.js";
 
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
 const AZURE_KEYS = ["AZURE_OPENAI_KEY", "AZURE_OPENAI_API_KEY", "AZURE_AI_KEY"];
@@ -108,15 +110,15 @@ const AZURE_ASR_DEPLOYMENT = () => String(
   process.env.AZURE_OPENAI_TRANSCRIBE_DEPLOYMENT || "whisper"
 ).trim();
 
-const azureDeployment = (kind) => String(
-  (kind === "vision" ? process.env.AZURE_OPENAI_VISION_DEPLOYMENT : process.env.AZURE_OPENAI_TEXT_DEPLOYMENT) ||
-  process.env.AZURE_OPENAI_DEPLOYMENT || "gpt-4o-mini",
-).trim();
+// اختيار النشر (vision/text) انتقل إلى `azureRegions()` في `_azure.js`، فلكل
+// منطقة نشرها. كان هنا نسخة ثانية بنفس القواعد، وهي بالضبط ما ينحرف بصمت.
 
-// سياسة المالك (سبتمبر 2026): البنية التحتية الرقمية على Microsoft Azure،
-// فلا يُستدعى مزوّدٌ آخر ما دام Azure مُهيّأً. المزوّدون الآخرون يبقون في
-// الملف معطّلين، ولا يعملون إلا بتفعيلٍ صريح عبر DOC_AI_ALLOW_FALLBACK=1 —
-// صمّام أمانٍ لانقطاعٍ في Azure، لا مساراً افتراضياً.
+// سياسة المالك (سبتمبر 2026): البنية التحتية الرقمية على Microsoft Azure.
+// المزوّدون الآخرون حُذفوا من هذا الملف في 2026-09-23 ولم يعودوا موجودين،
+// و`DOC_AI_ALLOW_FALLBACK` لم يعد له أثر في الكود — حساباتهم بلا رصيد، فالرجوع
+// إليها عند العطل كان يشتري انقطاعاً بثوب محاولةٍ ثانية. صمّام الأمان اليوم
+// منطقة Azure ثانية (`AZURE_OPENAI_ENDPOINT_2`)، تُجرَّب تلقائياً عند تعطّل
+// الأولى — إن لم تكن مضبوطة فلا بديل، وذلك ظاهرٌ في رسالة العطل لا صامت.
 const azureMissing = () => {
   const miss = [];
   if (!AZURE_ENDPOINT()) miss.push("AZURE_OPENAI_ENDPOINT");
@@ -129,16 +131,16 @@ const visionChain = (all) => all.filter(([n]) => n === "azure");
 
 export const azureReady = () => !!(AZURE_ENDPOINT() && envFrom(AZURE_KEYS));
 
-async function azureChat(messages, maxTokens, kind) {
-  const endpoint = AZURE_ENDPOINT();
-  if (!endpoint) throw new Error("no_key");
-  const key = envFrom(AZURE_KEYS);
-  if (!key) throw new Error("no_key");
-  const r = await fetch(`${endpoint}/openai/v1/chat/completions`, {
+// Retryable on another region: the region is busy or broken, not the request.
+// A 400 or a 401 would fail identically everywhere, so it stops the loop.
+const worthFailover = (status) => status === 429 || status === 408 || status >= 500;
+
+async function callAzureRegion(region, messages, maxTokens, kind) {
+  const r = await fetch(`${region.endpoint}/openai/v1/chat/completions`, {
     method: "POST",
-    headers: { "api-key": key, authorization: `Bearer ${key}`, "content-type": "application/json" },
+    headers: { "api-key": region.key, authorization: `Bearer ${region.key}`, "content-type": "application/json" },
     body: JSON.stringify({
-      model: azureDeployment(kind),
+      model: kind === "vision" ? region.vision : region.text,
       max_completion_tokens: maxTokens || 900,
       temperature: 0,
       response_format: { type: "json_object" },
@@ -146,12 +148,35 @@ async function azureChat(messages, maxTokens, kind) {
     }),
     signal: AbortSignal.timeout(60000),
   });
-  if (!r.ok) throw new Error(`azure ${r.status}: ${(await r.text()).slice(0, 200)}`);
+  if (!r.ok) {
+    const e = new Error(`azure ${r.status}: ${(await r.text()).slice(0, 200)}`);
+    e.status = r.status;
+    throw e;
+  }
   const data = await r.json();
   const choice = data && data.choices && data.choices[0];
   // A response cut off at the token ceiling still carries usable JSON prefix,
   // which parseJson salvages — the same contract the other providers have.
   return { text: (choice && choice.message && choice.message.content) || "", truncated: choice && choice.finish_reason === "length" };
+}
+
+// Every region the account has, primary first — the same list the chat uses, so
+// both fail over together instead of one surviving an outage the other dies on.
+// Deleting the old provider chain (2026-09-23) left this path with no fallback
+// at all: one region down meant every document stopped being read.
+async function azureChat(messages, maxTokens, kind) {
+  const regions = azureRegions();
+  if (!regions.length) throw new Error("no_key");
+  const errors = [];
+  for (const region of regions) {
+    try {
+      return await callAzureRegion(region, messages, maxTokens, kind);
+    } catch (e) {
+      errors.push(`${region.label} ${e.message || e}`.slice(0, 200));
+      if (e.status && !worthFailover(e.status)) break;
+    }
+  }
+  throw new Error(errors.join(" | ") || "azure: no answer");
 }
 
 // ‏Azure AI Document Intelligence — قراءة الـPDF.

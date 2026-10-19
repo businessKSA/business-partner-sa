@@ -1,9 +1,10 @@
 // Vercel Serverless Function — online payments (Moyasar) for Business Partner 3.0.
 // ESM module (repo package.json has "type": "module").
 //
-// The site works with bank transfer by default. As soon as the Moyasar keys are
-// added in Vercel, the checkout page automatically shows the online-payment
-// form (mada / Visa / Mastercard / Apple Pay) — no code changes needed.
+// Payment is online only (owner's order, 2026-09-24): mada / Visa / Mastercard /
+// Apple Pay / Samsung Pay through the Moyasar form, plus Tamara instalments.
+// The new /checkout offers no bank transfer; `receipt-upload` in api/_simple.js
+// stays only for requests that started a transfer before that decision.
 //
 // Env vars:
 //   MOYASAR_PUBLISHABLE_KEY  pk_live_... / pk_test_...  → enables the checkout form
@@ -70,20 +71,34 @@ const SK = (process.env.MOYASAR_SECRET_KEY || "").trim();
 // unauthenticated POST that claims a payment succeeded.
 const WEBHOOK_SECRET = (process.env.MOYASAR_WEBHOOK_SECRET || "").trim();
 
-// Which wallets the form offers. Apple Pay and STC Pay each need enabling on
-// the Moyasar side first — Apple Pay also needs the domain registered and the
-// association file served — and a wallet button that fails when tapped is
-// worse than one that was never shown. So this is a switch the owner flips
-// once the other side is actually done, not a code change.
-//   MOYASAR_METHODS=creditcard,applepay,stcpay
-const ALLOWED_METHODS = new Set(["creditcard", "applepay", "stcpay"]);
+// Which wallets the form offers. Apple Pay, Samsung Pay and STC Pay each need
+// enabling on the Moyasar side first — Apple Pay also needs the domain
+// registered and the association file served; Samsung Pay needs a Samsung
+// Developer partner account, a CSR from Moyasar Dashboard → Settings → Samsung
+// Certificate, and a Web Service ID whose Service Domain is the exact checkout
+// hostname (docs.moyasar.com/guides/samsung-pay/samsung-pay-account) — and a
+// wallet button that fails when tapped is worse than one that was never shown.
+// So this is a switch the owner flips once the other side is actually done,
+// not a code change. Values are the form's own
+// (docs.moyasar.com/guides/references/form-configuration#payment-methods-optional):
+//   MOYASAR_METHODS=creditcard,applepay,samsungpay,stcpay
+const ALLOWED_METHODS = new Set(["creditcard", "applepay", "samsungpay", "stcpay"]);
 const METHODS = (process.env.MOYASAR_METHODS || "creditcard")
   .split(",").map((m) => m.trim().toLowerCase()).filter((m) => ALLOWED_METHODS.has(m));
-const PAY_METHODS = METHODS.length ? METHODS : ["creditcard"];
-// The name the buyer sees in the Apple Pay sheet — theirs is the last screen
-// before the money moves, so it says who is being paid.
+// Samsung Pay is only offered once its Service ID exists: the form requires
+// `samsung_pay.service_id`, and listing the method without it draws a button
+// that cannot open a sheet.
+const SAMSUNG_PAY_SERVICE_ID = (process.env.MOYASAR_SAMSUNG_SERVICE_ID || "").trim();
+const PAY_METHODS = (METHODS.length ? METHODS : ["creditcard"])
+  .filter((m) => m !== "samsungpay" || SAMSUNG_PAY_SERVICE_ID);
+// The name the buyer sees in the Apple Pay / Samsung Pay sheet — theirs is the
+// last screen before the money moves, so it says who is being paid.
 const APPLE_PAY_LABEL = process.env.MOYASAR_APPLE_PAY_LABEL || "Business Partner";
 const APPLE_PAY_VALIDATE_URL = process.env.MOYASAR_APPLE_PAY_VALIDATE_URL || "https://api.moyasar.com/v1/applepay/initiate";
+const SAMSUNG_PAY_LABEL = process.env.MOYASAR_SAMSUNG_PAY_LABEL || APPLE_PAY_LABEL;
+// Moyasar: "We recommend always setting this option to PRODUCTION"; STAGE is
+// only for a Samsung staging wallet APK and Service ID.
+const SAMSUNG_PAY_ENV = /^stage$/i.test(process.env.MOYASAR_SAMSUNG_ENV || "") ? "STAGE" : "PRODUCTION";
 // The form library is served from this site's own /assets — the pinned CDN
 // copy (mpf 1.15) mounted an empty box with no exception on live checkouts,
 // and the current 2.x build ships on npm under the MIT licence, so the exact
@@ -750,7 +765,7 @@ export default async function handler(req, res) {
       return res.end(JSON.stringify({
         enabled: true, provider: "local-mock", mock: true, canVerify: true, modeMatch: true,
         publishableKey: null, formUrl: "/api/pay?action=mock-form",
-        currency: "SAR", methods: ["creditcard"], applePay: null,
+        currency: "SAR", methods: ["creditcard"], applePay: null, samsungPay: null,
         bnpl: { tamara: tamaraConfigured() }, modes: MODES(),
       }));
     }
@@ -775,6 +790,11 @@ export default async function handler(req, res) {
       applePay: PAY_METHODS.includes("applepay")
         ? { country: "SA", label: APPLE_PAY_LABEL, validate_merchant_url: APPLE_PAY_VALIDATE_URL }
         : null,
+      // The checkout adds `order_number` (the order ref) itself — it is the one
+      // per-payment field, and the form requires it.
+      samsungPay: PAY_METHODS.includes("samsungpay")
+        ? { service_id: SAMSUNG_PAY_SERVICE_ID, country: "SA", label: SAMSUNG_PAY_LABEL, environment: SAMSUNG_PAY_ENV }
+        : null,
       // Installments (BNPL): Tamara flips on the day its key lands in Vercel —
       // until then the checkout shows its button as «قريباً».
       bnpl: { tamara: tamaraConfigured() },
@@ -786,7 +806,10 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ error: "method_not_allowed" }));
   }
 
-  if (!SK) {
+  // The local gateway issues and verifies its own ids (see below), so the
+  // secret-key check is production's alone — without this exemption the
+  // buyer's return from the local gateway was a 500 and nothing settled.
+  if (!SK && !PAY_MOCK()) {
     res.statusCode = 500;
     return res.end(JSON.stringify({ ok: false, error: "not_configured" }));
   }

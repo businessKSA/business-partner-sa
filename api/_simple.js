@@ -16,7 +16,7 @@
 // card, sends a real DocuSign envelope or emails a customer unless
 // SIMPLE_NOTIFY=1 is set explicitly.
 import crypto from "node:crypto";
-import { sb, DB_ON, getSession, audit, notify } from "./_db.js";
+import { sb, DB_ON, DB_MISSING, getSession, audit, notify } from "./_db.js";
 import { contractHtml, quoteHtml } from "./_docusign.js";
 import { loadCatalog } from "./_catalog.js";
 import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate } from "./_daftra.js";
@@ -263,7 +263,7 @@ function computeQuote(items, opts = {}) {
 
 // ------------------------------------------------------------ the handler --
 export async function handleSimple(req, res) {
-  if (!DB_ON) return json(res, 503, { ok: false, error: "db_off", message: "قاعدة البيانات غير مضبوطة (SUPABASE_URL / SUPABASE_SERVICE_KEY)." });
+  if (!DB_ON) return json(res, 503, { ok: false, error: "db_off", message: `قاعدة البيانات غير مضبوطة (${DB_MISSING}).` });
   let body = {};
   if (req.method === "POST") {
     try { body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {}); } catch { return json(res, 400, { ok: false, error: "bad_json" }); }
@@ -436,6 +436,10 @@ async function clientAction(action, b, qs, req, res, sess) {
   // إيصال التحويل البنكي: العميل يرفعه هنا، فيقرأه المستشار ويقارن مبلغه
   // بإجمالي الطلب. القراءة ليست إثباتاً لوصول المال — ولذلك لا تُعلَّم الحالة
   // «مدفوعة» هنا أبداً؛ تُفتح مهمة تأكيد على لوحة العمليات بنتيجة المقارنة.
+  //
+  // منذ 2026-09-24 (أمر المالك: الدفع إلكتروني فقط) لا تعرض /checkout الجديدة
+  // التحويل البنكي ولا تنادي هذا المسار. يبقى للطلبات التي بدأت تحويلاً قبل
+  // القرار وما زالت بحالة PAYMENT_PENDING — حذفه يقطعها في منتصف الطريق.
   if (action === "receipt-upload") {
     const total = round2(num(row.quote?.total));
     if (!total) return json(res, 409, { ok: false, error: "no_quote" });

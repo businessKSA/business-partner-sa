@@ -11,11 +11,12 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root{
-      /* Brand design system (owner, Aug 2026): navy #07163F, B10X blue #3159D8,
+      /* Brand design system: navy #0B1B5A (Simple V1 identity, unified 2026-09-23 —
+         was #07163F until then), B10X blue #3159D8,
          AI cyan #43D6F4, success mint #16B875, ground #F7F9FD. Same tokens as
          the homepage and the admin command center, so the portal reads as the
          same product. */
-      --navy:#07163f; --navy-700:#123b8e; --navy-900:#05102f;
+      --navy:#0B1B5A; --navy-700:#123b8e; --navy-900:#05102f;
       --blue:#3159d8; --cyan:#43d6f4;
       --bg:#F7F9FD; --surface:#fff; --line:#e5e9f2;
       --text:#101a35; --soft:#68748d; --muted:#94a0b5;
@@ -220,8 +221,8 @@
     /* ---- brand pass (Aug 2026): the portal wears the same design system as
        the homepage and admin — token swap above does most of it; these rules
        finish the chrome without touching any id or behavior. ---- */
-    .side{background:linear-gradient(180deg,#07163f 0%,#0a245e 100%)}
-    .side nav button.on{background:#fff;color:#07163f;box-shadow:0 8px 20px rgba(0,0,0,.13)}
+    .side{background:linear-gradient(180deg,#0B1B5A 0%,#0a245e 100%)}
+    .side nav button.on{background:#fff;color:#0B1B5A;box-shadow:0 8px 20px rgba(0,0,0,.13)}
     .side nav button.on .b{background:var(--bad)}
     .btn{background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:10px}
     .btn.sm{border-radius:9px}
@@ -232,7 +233,7 @@
     input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue)!important;box-shadow:0 0 0 3px rgba(49,89,216,.13)}
 
   </style>
-<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=9e4f8ca5dc">
+<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 <script>window.BP_GOOGLE_CLIENT_ID="";</script><script src="https://accounts.google.com/gsi/client" async defer></script>
 <style id="bp-portal-trust-css">
 .bp-request-demo{margin:0 0 16px;background:linear-gradient(135deg,#fff,#f7f9ff);border:1px solid #cfd9f2;border-radius:16px;overflow:hidden;box-shadow:0 8px 28px rgba(11,27,90,.06)}
@@ -247,9 +248,9 @@
 .bp-tour-toast{position:fixed;z-index:10010;left:50%;bottom:22px;transform:translateX(-50%);background:#101828;color:#fff;padding:9px 13px;border-radius:10px;font-size:10.5px;box-shadow:0 12px 32px rgba(0,0,0,.18)}
 @media(max-width:850px){.bp-rd-grid{grid-template-columns:repeat(2,1fr)}.bp-rd-body{grid-template-columns:1fr}.bp-rd-steps{grid-template-columns:repeat(3,1fr)}.bp-rd-step:after{display:none}}
 </style><style id="bp-docagent-v7-css">
-:root{--da7-navy:#07163f;--da7-blue:#3159d8;--da7-cyan:#43d6f4;--da7-line:#e3e8f1;--da7-ink:#111b35;--da7-muted:#6c7891}
+:root{--da7-navy:#0B1B5A;--da7-blue:#3159d8;--da7-cyan:#43d6f4;--da7-line:#e3e8f1;--da7-ink:#111b35;--da7-muted:#6c7891}
 .da7{display:none}.da7.on{display:block}
-.da7-trial{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#07163f,#123c91);color:#fff;border-radius:18px;padding:14px 18px;margin-bottom:16px}
+.da7-trial{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#0B1B5A,#123c91);color:#fff;border-radius:18px;padding:14px 18px;margin-bottom:16px}
 .da7-trial b{font-size:14px}.da7-trial p{margin:3px 0 0;font-size:11.5px;color:rgba(255,255,255,.75);line-height:1.7}
 .da7-trial .days{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 13px;font-size:12px;font-weight:800;white-space:nowrap}
 .da7-trial.ended{background:linear-gradient(135deg,#5b1120,#a32036)}
@@ -420,7 +421,7 @@
           <a class="mainbtn" id="mobPrimary" href="#" style="display:none"></a>
           <div class="content">
             <!-- B10X: the flagship, first thing on the client's home -->
-            <div class="card c12" id="b10xCard" style="background:linear-gradient(135deg,#07163f,#123c91);color:#fff;border-color:transparent">
+            <div class="card c12" id="b10xCard" style="background:linear-gradient(135deg,#0B1B5A,#123c91);color:#fff;border-color:transparent">
               <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
                 <div style="flex:1;min-width:240px">
                   <div style="font-size:11px;font-weight:800;letter-spacing:.3px;opacity:.75;margin-bottom:4px">B10X</div>
@@ -1042,6 +1043,7 @@
         docCatCr: 'سجل تجاري', docCatVat: 'شهادة ضريبية', docCatContract: 'عقد', docCatId: 'هوية / إقامة', docCatOther: 'أخرى',
         docSubmit: 'رفع', docListTitle: 'مستنداتي', docNone: 'لا مستندات بعد — ارفع أول مستند من الأعلى.',
         docNeedFields: 'أدخل اسم المستند واختر ملفاً (PDF أو صورة).', docTooLarge: 'الملف أكبر من 8MB.',
+        docBadType: 'هذه الصيغة غير مقبولة. المقبول: PDF · JPG · PNG · WEBP.',
         docUploading: 'جارٍ الرفع…', docUploaded: 'تم رفع المستند ✅ — قيد التحقق.',
         docVer: 'نسخة', docDownload: 'تنزيل', docExpiryLbl: 'ينتهي',
         docStPending: 'قيد التحقق', docStVerified: 'موثق يدوياً', docStRejected: 'مرفوض',
@@ -1168,6 +1170,7 @@
         docCatCr: 'Commercial registration', docCatVat: 'VAT certificate', docCatContract: 'Contract', docCatId: 'ID / Iqama', docCatOther: 'Other',
         docSubmit: 'Upload', docListTitle: 'My documents', docNone: 'No documents yet — upload the first one above.',
         docNeedFields: 'Enter a document name and choose a file (PDF or image).', docTooLarge: 'File is larger than 8MB.',
+        docBadType: 'This format is not accepted. Accepted: PDF · JPG · PNG · WEBP.',
         docUploading: 'Uploading…', docUploaded: 'Document uploaded ✅ — pending verification.',
         docVer: 'v', docDownload: 'Download', docExpiryLbl: 'Expires',
         docStPending: 'Pending verification', docStVerified: 'Manually verified', docStRejected: 'Rejected',
@@ -3310,7 +3313,7 @@
         var b64 = String(rd.result).split(',')[1] || '';
         opsPost({
           action: 'ops-doc-upload', title: title, category: $('docCat').value,
-          expiry: $('docExpiry').value || '', fileName: f.name, mime: f.type || 'application/pdf', base64: b64
+          expiry: $('docExpiry').value || '', fileName: f.name, mime: f.type || '', base64: b64
         }).then(function(o){
           $('docSend').disabled = false;
           if (o.ok){
@@ -3336,7 +3339,13 @@
             } else { note.textContent = t('docUploaded'); }
             $('docTitle').value = ''; $('docFile').value = ''; $('docExpiry').value = '';
             opsGet('documents').then(function(x){ if (x.ok){ ops.docs = x.items || []; renderDocs(); } });
-          } else { note.className = 'note err'; note.textContent = t('opsFail'); }
+          }
+          // رفضُ الملف نفسه ليس عطلاً عابراً: `opsFail` تقول «حدّث الصفحة وحاول
+          // مرة أخرى» وهي دعوةٌ إلى محاولةٍ لن تنجح أبداً ما دام الملف هو هو.
+          // الصيغة والحجم يُقالان صراحةً، بنصّ `/my` نفسه، ولا يُعرض رمز إنجليزي.
+          else if (o.error === 'bad_type'){ note.className = 'note err'; note.textContent = t('docBadType'); }
+          else if (o.error === 'too_large'){ note.className = 'note err'; note.textContent = t('docTooLarge'); }
+          else { note.className = 'note err'; note.textContent = t('opsFail'); }
         }).catch(function(){ $('docSend').disabled = false; note.className = 'note err'; note.textContent = t('opsFail'); });
       };
       rd.readAsDataURL(f);

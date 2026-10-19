@@ -8,6 +8,7 @@ import {
   LOCAL_DB, localRest,
   localStoragePut, localStorageGet, localStorageDelete, localStorageSign,
 } from "./_localdb.js";
+import { azurePgReady, azurePgMissing, azpgRest, azpgPing } from "./_azpg.js";
 
 // Normalize hand-pasted env values; fall back to the project's known URL
 // (a public identifier, not a secret) when the value isn't a valid
@@ -18,12 +19,31 @@ if (_su && !/^https?:\/\//i.test(_su)) _su = "https://" + _su;
 if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(_su)) _su = _su ? DEFAULT_SUPABASE_URL : "";
 export const SUPABASE_URL = _su;
 export const SUPABASE_KEY = (process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
+// ‏سبتمبر 2026: قاعدة البيانات في طريقها إلى Azure Database for PostgreSQL.
+// التبديل بمتغيّر واحد: DB_DRIVER=azure (مع AZURE_PG_URL) يحوّل كل نداءات
+// sb() إلى المترجم في api/_azpg.js. بلا المتغيّر يبقى Supabase كما هو، ولا
+// يُحمَّل `pg` أصلاً. ومع المتغيّر بلا رابط يُرفض الطلب باسم الناقص بدل
+// الرجوع الصامت إلى Supabase — حتى لا يُظنّ أن التحويل تمّ وهو لم يتم.
+export const DB_DRIVER = String(process.env.DB_DRIVER || "").trim().toLowerCase() || "supabase";
+export const AZURE_DB = DB_DRIVER === "azure";
 // LOCAL_DB=1 (npm run dev) swaps the whole persistence layer for a JSON file
 // under .localdb/ so localhost never reads or writes production data.
-export const DB_ON = LOCAL_DB || !!(SUPABASE_URL && SUPABASE_KEY);
+export const DB_ON = LOCAL_DB || (AZURE_DB ? azurePgReady() : !!(SUPABASE_URL && SUPABASE_KEY));
+// اسم المتغيّر الناقص لرسائل «قاعدة البيانات غير مضبوطة» — بحسب المشغّل.
+export const DB_MISSING = LOCAL_DB ? "" : AZURE_DB ? azurePgMissing() : "SUPABASE_URL / SUPABASE_SERVICE_KEY";
 
 export async function sb(path, { method = "GET", body, prefer } = {}) {
   if (LOCAL_DB) return localRest(path, { method, body, prefer });
+  if (AZURE_DB) {
+    if (!azurePgReady()) throw new Error("db_failed");
+    try { return await azpgRest(path, { method, body, prefer }); }
+    catch (e) {
+      // نفس عقد الخطأ الذي يتوقعه المستدعون من Supabase (db_failed)، مع
+      // السبب الحقيقي في السجل لا في الاستجابة.
+      console.error("azure pg error", method, String(path).slice(0, 200), String(e && (e.code || e.message) || e).slice(0, 300));
+      throw new Error("db_failed");
+    }
+  }
   const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     method,
     headers: {
@@ -41,6 +61,44 @@ export async function sb(path, { method = "GET", body, prefer } = {}) {
 }
 
 export const sha256 = (s) => crypto.createHash("sha256").update(s).digest("hex");
+
+// فحص وصول القاعدة لصفحات الحالة — { reachable, error, users } بلا بيانات صفوف.
+// عدد المستخدمين رقمٌ مجمّع فقط، يثبت أن أول تسجيل دخول كتب فعلاً.
+export async function dbProbe() {
+  if (!DB_ON) return { reachable: null, error: DB_MISSING || "db_off", users: null };
+  if (LOCAL_DB) {
+    const users = await sb("users?select=id");
+    return { reachable: true, error: null, users: users.length };
+  }
+  if (AZURE_DB) {
+    const p = await azpgPing();
+    if (!p.ok) return { reachable: false, error: "azure_pg:" + p.error, users: null };
+    let users = null;
+    try { users = (await sb("users?select=id")).length; } catch {}
+    return { reachable: true, error: null, users };
+  }
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/user_sessions?select=id&limit=1`, {
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+    });
+    if (!r.ok) {
+      const t = await r.text();
+      let code = ""; try { code = (JSON.parse(t).code || JSON.parse(t).message || "").slice(0, 60); } catch { code = t.slice(0, 60); }
+      return { reachable: false, error: `http_${r.status}${code ? ":" + code : ""}`, users: null };
+    }
+    let users = null;
+    try {
+      const c = await fetch(`${SUPABASE_URL}/rest/v1/users?select=id`, {
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, Prefer: "count=exact", Range: "0-0" },
+      });
+      const total = parseInt((c.headers.get("content-range") || "").split("/")[1], 10);
+      if (!Number.isNaN(total)) users = total;
+    } catch {}
+    return { reachable: true, error: null, users };
+  } catch (e) {
+    return { reachable: false, error: "fetch_failed:" + String(e && e.cause && e.cause.code || e.message || e).slice(0, 60), users: null };
+  }
+}
 
 // Return all values for a cookie name. During the apex/www session-cookie
 // migration a browser can legitimately carry two bp_sid cookies: an older

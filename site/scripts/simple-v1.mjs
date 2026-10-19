@@ -175,6 +175,18 @@ const D = {
   // gives and stays inside this design.
   footClassic: { ar: "كل الخدمات", en: "All services", fr: "Tous les services", zh: "全部服务" },
   footTerms: { ar: "الشروط والأحكام", en: "Terms", fr: "Conditions", zh: "条款" },
+  // ثلاثة عناوين في الفوتر وحده. الترويسة تبقى على بابها الواحد — «ابدأ طلبك»
+  // — لأن الزائر الذي يرى عشرين رابطاً لا يضغط أياً منها.
+  footExplore: { ar: "الخدمات", en: "Services", fr: "Services", zh: "服务" },
+  footKnow: { ar: "المعرفة", en: "Knowledge", fr: "Ressources", zh: "知识库" },
+  footCompany: { ar: "الشركة", en: "Company", fr: "Société", zh: "公司" },
+  navPackages: { ar: "الباقات", en: "Packages", fr: "Forfaits", zh: "套餐" },
+  navAdvisors: { ar: "المستشارون الأذكياء", en: "Smart advisors", fr: "Conseillers IA", zh: "智能顾问" },
+  navAbout: { ar: "من نحن", en: "About", fr: "À propos", zh: "关于我们" },
+  navContact: { ar: "تواصل معنا", en: "Contact", fr: "Contact", zh: "联系我们" },
+  navCareers: { ar: "الوظائف", en: "Careers", fr: "Carrières", zh: "招聘" },
+  navPartners: { ar: "الشركاء", en: "Partners", fr: "Partenaires", zh: "合作伙伴" },
+  navBizDev: { ar: "تطوير الأعمال", en: "Business development", fr: "Développement commercial", zh: "业务拓展" },
   footLegalName: { ar: "الاسم في السجل التجاري", en: "Registered name", fr: "Raison sociale", zh: "注册名称" },
   footCr: { ar: "السجل التجاري", en: "Commercial registration", fr: "Registre de commerce", zh: "商业登记号" },
   footUnified: { ar: "الرقم الموحد", en: "Unified number", fr: "Numéro unifié", zh: "统一编号" },
@@ -246,20 +258,11 @@ const D = {
   seedFormation: { ar: ["تحديد مسار التأسيس", "إجراءات التأسيس والسجل وعقد التأسيس", "الاشتراك في المنصات الحكومية الأساسية", "تعيين المدير على الشركة", "دعم فتح الحساب البنكي"], en: ["Define the formation route", "Formation, commercial register and articles of association", "Registration on the core government platforms", "Appointing the company manager", "Support with opening the bank account"], fr: ["Définir la voie de création", "Création, registre de commerce et statuts", "Inscription aux plateformes gouvernementales essentielles", "Nomination du gérant", "Accompagnement à l'ouverture du compte bancaire"], zh: ["确定设立路径", "设立手续、商业登记与公司章程", "核心政府平台注册", "任命公司经理", "协助开立银行账户"] },
 };
 
-export function simpleV1(ctx) {
-  const { lang, esc, site, head, pathInLang } = ctx;
-  const t = (k) => { const e = D[k]; if (!e) return k; const l = lang(); return e[l] != null ? e[l] : e.en; };
-  const arr = (k) => { const e = D[k]; const l = lang(); return Array.isArray(e[l]) ? e[l] : e.en; };
-  const pre = () => (lang() === "en" ? "" : "/" + lang());
-  const href = (p) => (p === "/" ? (lang() === "en" ? "/" : "/" + lang() + "/") : pre() + p);
-  const LANG_NAMES = { ar: "العربية", en: "English", fr: "Français", zh: "中文" };
-  const contact = site.contact || {};
-  const WA_HUMAN = "https://wa.me/966" + String(contact.whatsappSupport || contact.phone || "0530540231").replace(/^0/, "");
-  // No price is shown on the public homepage: the approved concept puts the
-  // catalogue and its prices in the backend, and the figure reaches the
-  // customer in the quotation for the scope they approved.
-
-  const CSS = `<style id="sv1-css">
+// أصناف الترويسة والتذييل هنا غير مُقيَّدة بـ`.sv1`، فتصلح ترويسةً
+// لأي صفحة. رُفعت من داخل `simpleV1()` إلى مستوى الوحدة ليستوردها
+// `simplified-global-header.mjs` ويضعها على الصفحات القديمة بدل أن
+// تُنسخ نسخةً ثانية تفترق عنها. النص نفسه لم يتغيّر حرفاً.
+export const SV1_CSS = `<style id="sv1-css">
 /* اتجاه «مختبر» بألوان الهوية (قرار المالك 2026-09-05): بنية «مختبر» —
    أرضية بيضاء، شبكة ١px، حروفٌ أحادية للأرقام وحدها، عناوين خفيفة الوزن —
    لكن اللون كحلي العلامة #0B1B5A لا الأسود ولا البنفسجي. الأسطح الداكنة
@@ -463,9 +466,20 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-foot-row bdi{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:#fff}
 .sv1-foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
 .sv1-foot-end{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
+/* روابط الصفحات التي لا تظهر في الترويسة: فاصلٌ خفيف ثم ثلاثة أعمدة صغيرة.
+   حجمها أصغر من باقي الفوتر عمداً — هي مسلكٌ لمن يبحث، لا دعوةٌ للضغط. */
+.sv1-foot-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 34px;
+ margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1)}
+.sv1-foot-navcol{display:flex;flex-direction:column;gap:7px;min-width:0}
+.sv1-foot-navcol h5{color:rgba(255,255,255,.5);font-size:10.5px;font-weight:600;
+ letter-spacing:.07em;margin:0 0 3px;text-transform:uppercase}
+.sv1-foot-navcol a{color:rgba(255,255,255,.72);font-size:12.5px;line-height:1.5;
+ text-decoration:none;transition:color .15s}
+.sv1-foot-navcol a:hover{color:#fff}
 @media(max-width:900px){.sv1-foot-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}}
-.sv1-wa-fab{position:fixed;left:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
+@media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}
+ .sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
+.sv1-wa-fab{position:fixed;inset-inline-start:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
 @media(max-width:900px){
  .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
@@ -482,6 +496,97 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 }
 @media(max-width:600px){.sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
 </style>`;
+
+// ------------------------------------------------- حالة الدخول في الترويسة --
+// المالك رأى `/ar/` تقول «داخل» و`/ar/packages` في اللحظة نفسها تقول «دخول».
+// السبب لم يكن المنطق بل **الترتيب**: الترويسة تُرسم دائماً بحالة «غير داخل»
+// ثم تنادي `/api/otp` بـ`{"action":"me"}` وتصحّح نفسها بعد الردّ. فبين الرسم
+// والردّ يرى الزائر حالةً خاطئة — ثانية على نتٍ بطيء، وأطول على الصفحات
+// القديمة الثقيلة — ويرى صفحتين متجاورتين بحالتين.
+//
+// الحل: تلميحٌ محفوظ في `localStorage` تكتبه الترويسة نفسها عند كل ردّ ناجح،
+// ويُقرأ قبل أي شبكة، فتُرسم الحالة الصحيحة من أول إطار ثم تُصحَّح إن لزم.
+//
+// ⚠️ التلميح **تجميلي فقط**. لا يفتح بوابةً ولا يمرّر صلاحية ولا يُعدّ جلسة:
+// الجلسة الحقيقية كوكي httpOnly يقرؤه الخادم وحده، وكل ما يحميه الخادم يبقى
+// محمياً ولو كتب أحدهم التلميح بيده في المتصفح. أقصى ما يفعله تزويره: اسمٌ
+// خاطئ في الترويسة لثوانٍ حتى يردّ `/api/otp` فيُمسح. لا تبنِ عليه أي قرار
+// صلاحية، هنا أو في أي ملف آخر.
+//
+// المفتاح `bp_session` مستعمل أصلاً، ويكتب فيه أكثر من طرف — ومنهم
+// `main.js` في الموقع القديم حيث الحساب **محلي للجهاز** ولا جلسة خادم خلفه
+// (`viaRequest`، و`finishLogin`). لذلك يميّز التلميح صاحبه بالشكل:
+//   • `{…, srv:true}` → كتبته هذه الترويسة بعد ردّ خادم ناجح: يُصدَّق ويُمسح.
+//   • `1` المجرّد       → تكتبه شاشات دخول SV1 بعد تحقّق OTP حقيقي: يُصدَّق
+//                         ويُمسح (بلا اسم، فيظهر النص الافتراضي لحظتها).
+//   • كائنٌ بلا `srv`   → قيمة `main.js` المحلية: **لا** تُصدَّق (حتى لا تدّعي
+//                         الترويسة دخولاً لا يعرفه الخادم) و**لا** تُمسح (حتى
+//                         لا ينكسر الموقع القديم الذي يقرؤها).
+//
+// يُحقن هذا السكربت مباشرةً بعد `</header>` في الموقعين — صفحات SV1 والصفحات
+// القديمة — لأن العنصر يلزم أن يكون قد وُلد، والرسم يلزم أن يسبق بقية
+// الصفحة. أما نداء الشبكة فيبقى في `CHROME_JS` (انظر `SV1_SESSION_SYNC_JS`).
+export const SV1_SESSION_JS = `<script>(function(){"use strict";
+var K='bp_session';
+function raw(){try{return JSON.parse(localStorage.getItem(K)||'null')}catch(e){return null}}
+/* التلميح الذي تملكه الترويسة وحدها — انظر التعليق في simple-v1.mjs. */
+function hint(){var v=raw();
+ if(v===1||v==='1'||v===true)return{};
+ if(v&&typeof v==='object'&&v.srv)return v;
+ return null}
+function first(h){var n=String((h&&(h.name||h.email))||'').trim();return n?n.split(' ')[0]:''}
+var S=window.SV1S={
+ hint:hint,
+ save:function(u){try{localStorage.setItem(K,JSON.stringify({email:(u&&u.email)||'',name:(u&&(u.full_name||u.name))||'',srv:true}))}catch(e){}},
+ clear:function(){if(hint()){try{localStorage.removeItem(K)}catch(e){}}},
+ paint:function(on,h){
+  var g=function(id){return document.getElementById(id)};
+  var a=g('sv1AccountLink'),lb=g('sv1LoginBtn'),ob=g('sv1OutBtn'),sb=g('sv1SiteBtn');
+  /* النص الافتراضي («حسابي») يُلتقط من الصفحة قبل أول استبدال، فيعود إليه
+     الرابط عند الخروج بلا حاجة إلى تمرير ترجمةٍ إلى السكربت. */
+  if(a){if(S.def==null)S.def=a.textContent;a.textContent=(on&&first(h))||S.def}
+  if(lb)lb.classList.toggle('sv1-hide',!!on);
+  if(ob)ob.classList.toggle('sv1-hide',!on);
+  var p=location.pathname;
+  if(sb)sb.classList.toggle('sv1-hide',!(on&&(p.indexOf('/my')>=0||p.indexOf('/ops')>=0)));
+ }};
+var h0=hint();if(h0)S.paint(true,h0);
+})();</script>`;
+
+// نداء `me` وتصحيح الترويسة بعده. يُوضع داخل `CHROME_JS` في الموقعين.
+// المهم فيه شيئان:
+//  • ردٌّ بلا جلسة (أو بجسمٍ غير مقروء) = الجلسة انتهت → يُمسح التلميح وترجع
+//    الترويسة «دخول». بدون هذا المسح يبقى الموقع يقول «داخل» بعد انتهاء
+//    الجلسة إلى الأبد.
+//  • فشل النقل وحده (بلا ردّ: انقطاع نت) لا يمسح شيئاً ولا يقلب الحالة —
+//    ومضةُ «خروج» عند كل ارتعاشة شبكة هي التناقض نفسه معكوساً، والخادم على
+//    كل حال هو من يقرّر الصلاحية لا هذه الترويسة.
+export const SV1_SESSION_SYNC_JS = `fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
+.then(function(r){return r.json().catch(function(){return{}})}).then(function(o){
+ var S=window.SV1S,u=o&&o.session&&o.session.user;
+ if(u){window.SV1_SESSION=o.session;if(S){S.save(u);S.paint(true,{name:u.full_name||'',email:u.email||''})}}
+ else if(S){S.clear();S.paint(false,null)}
+}).catch(function(){});`;
+
+export const SV1_TEXT = D;
+
+export function simpleV1(ctx) {
+  const { lang, esc, site, head, pathInLang } = ctx;
+  // مجموعة «Knowledge Center» من site/data/nav.json (يمرّرها generate.mjs): اسم
+  // رابط التذييل الوحيد «مركز المعرفة»، ومحتوى صفحته /knowledge-center.
+  const knowledge = ctx.knowledge || null;
+  const t = (k) => { const e = D[k]; if (!e) return k; const l = lang(); return e[l] != null ? e[l] : e.en; };
+  const arr = (k) => { const e = D[k]; const l = lang(); return Array.isArray(e[l]) ? e[l] : e.en; };
+  const pre = () => (lang() === "en" ? "" : "/" + lang());
+  const href = (p) => (p === "/" ? (lang() === "en" ? "/" : "/" + lang() + "/") : pre() + p);
+  const LANG_NAMES = { ar: "العربية", en: "English", fr: "Français", zh: "中文" };
+  const contact = site.contact || {};
+  const WA_HUMAN = "https://wa.me/966" + String(contact.whatsappSupport || contact.phone || "0530540231").replace(/^0/, "");
+  // No price is shown on the public homepage: the approved concept puts the
+  // catalogue and its prices in the backend, and the figure reaches the
+  // customer in the quotation for the scope they approved.
+
+  const CSS = SV1_CSS;
 
   function langSwitch(path) {
     const items = SIMPLE_LANGS.map((l) => `<a href="${pathInLang(path, l)}" data-lang="${l}"${l === lang() ? ' class="on"' : ""}>${LANG_NAMES[l]}</a>`).join("");
@@ -522,7 +627,7 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
     <button type="button" class="sv1-btn sm sv1-hide" id="sv1OutBtn">${t("logout")}</button>
     ${cta ? `<a class="sv1-btn primary" href="${href("/")}#advisor">${t("navStart")}</a>` : ""}
   </div>
-</div></header>`;
+</div></header>${SV1_SESSION_JS}`;
   }
   // Who we legally are. Every value comes from configuration — site/data/site.json
   // first, then the same build-time environment variables the ZATCA invoice
@@ -588,10 +693,36 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
     <div class="sv1-foot-col">
       <h4>${t("footPay")}</h4>
       <p class="sv1-foot-note">${t("footPayLine")}</p>
-      <div class="sv1-foot-links">
-        <a href="${href("/terms")}">${t("footTerms")}</a>
-        ${SIMPLE_V1 ? `<a href="${href("/catalog")}">${t("footClassic")}</a>` : ""}
-      </div>
+    </div>
+  </div>
+
+  <!-- الصفحات التي لا تظهر في الترويسة. الموقع الجديد يربط ست وجهات فقط،
+       فبقيت ثمانٍ وخمسون صفحة بلا بابٍ إليها: منتجات وأدلة وحاسبات ومجلة.
+       تُجمع هنا في ثلاثة أعمدة بخمسة روابط لكل عمود — ما يزيد يصير قائمةً
+       تُتجاهَل. وما لا يُذكر هنا يبقى مقصوداً: اللوحات وبوابات الدخول
+       (يصلها صاحبها برابطه)، والنسخ المحفوظة بلاحقة -classic، وصفحات
+       المنتجات المفردة التي بابها صفحة الكتالوج. -->
+  <div class="sv1-foot-nav">
+    <div class="sv1-foot-navcol">
+      <h5>${t("footExplore")}</h5>
+      <a href="${href("/catalog")}">${t("footClassic")}</a>
+      <a href="${href("/packages")}">${t("navPackages")}</a>
+      <a href="${href("/ai-agents")}">${t("navAdvisors")}</a>
+      <a href="${href("/business-development")}">${t("navBizDev")}</a>
+    </div>
+    <div class="sv1-foot-navcol">
+      <h5>${t("footKnow")}</h5>
+      <!-- قرار المالك (2026-09-24): للمعرفة رابطٌ واحد فقط — «مركز المعرفة» — وكل
+           صفحاتها (الأدلة، الحاسبات، المجلة، الاستثمار في السعودية) داخله. -->
+      ${knowledge ? `<a href="${href("/knowledge-center")}">${esc(knowledge[lang()] || knowledge.en)}</a>` : ""}
+    </div>
+    <div class="sv1-foot-navcol">
+      <h5>${t("footCompany")}</h5>
+      <a href="${href("/about")}">${t("navAbout")}</a>
+      <a href="${href("/contact")}">${t("navContact")}</a>
+      <a href="${href("/careers")}">${t("navCareers")}</a>
+      <a href="${href("/suppliers")}">${t("navPartners")}</a>
+      <a href="${href("/terms")}">${t("footTerms")}</a>
     </div>
   </div>
   <div class="sv1-foot-end">© ${year} Business Partner · ${t("footRights")}</div>
@@ -600,7 +731,42 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
   }
   const CHROME_JS = `<script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
 fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
-var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'}).then(function(r){return r.json()}).then(function(o){if(!(o&&o.session&&o.session.user))return;window.SV1_SESSION=o.session;var a=$h('sv1AccountLink');if(a){var nm=(o.session.user.full_name||o.session.user.email||'').split(' ')[0];if(nm)a.textContent=nm}var lb=$h('sv1LoginBtn');if(lb)lb.classList.add('sv1-hide');var sb=$h('sv1SiteBtn'),ob=$h('sv1OutBtn');var pn=location.pathname;if(sb&&(pn.indexOf('/my')>=0||pn.indexOf('/ops')>=0))sb.classList.remove('sv1-hide');if(ob)ob.classList.remove('sv1-hide');}).catch(function(){});})();</script>`;
+var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};
+/* الرسم الفوري جرى بعد «</header>» مباشرة (SV1_SESSION_JS)؛ هنا التصحيح. */
+${SV1_SESSION_SYNC_JS}
+})();</script>`;
+
+  // عدّاد الزيارات — نفس عقد `main.js` حرفاً بحرف (action:"hit"، ومفتاح
+  // الزائر `bp_vid`)، فتندمج بيانات الموقع الجديد مع القديم في الجداول نفسها
+  // بدل أن تصير سلسلتين لا تُجمعان.
+  //
+  // كان الموقع الجديد **بلا عدّاد إطلاقاً**: العدّاد يعيش في `main.js`، وصفحات
+  // Simple V1 لا تحمّله. فالرئيسية و/catalog و/cart و/my — أهمّ ما في الموقع —
+  // لم تكن تُحسب، وكل رقم في لوحة الإحصائيات كان ينقصها.
+  const BEACON_JS = `<script>(function(){"use strict";
+if(navigator.webdriver)return;
+var vid="";try{vid=localStorage.getItem("bp_vid")||"";if(!vid){vid=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("bp_vid",vid)}}catch(e){}
+function send(p){p.action="hit";p.visitor=vid;try{var b=JSON.stringify(p);
+if(navigator.sendBeacon)navigator.sendBeacon("/api/requests",new Blob([b],{type:"application/json"}));
+else fetch("/api/requests",{method:"POST",headers:{"content-type":"application/json"},body:b,keepalive:true}).catch(function(){})}catch(e){}}
+var rh="";try{if(document.referrer){var u=new URL(document.referrer);if(u.host!==location.host)rh=u.host}}catch(e){}
+send({kind:"view",path:location.pathname,ref:rh,lang:document.documentElement.lang||"",device:window.innerWidth<768?"mobile":"desktop"});
+// أزرار الموقع الجديد بأسمائها العربية كما تظهر في اللوحة، ومعها محدّدات
+// الموقع القديم حتى تُحسب الصفحتان بالمسمّى نفسه.
+document.addEventListener("click",function(e){
+ var t=e.target.closest&&e.target.closest("[data-track],.add-cart,#cartGo,#cart-checkout,#coPay,#co-submit,a[href*='wa.me'],a[href*='whatsapp'],.sv1-door,#sv1CartBtn,#sv1LoginBtn");
+ if(!t)return;
+ var n=t.getAttribute("data-track")||
+  (t.id==="cartGo"||t.id==="cart-checkout"?"إتمام الطلب":
+   t.id==="coPay"||t.id==="co-submit"?"إرسال الطلب":
+   t.id==="sv1CartBtn"?"فتح السلة":
+   t.id==="sv1LoginBtn"?"تسجيل الدخول":
+   t.classList&&t.classList.contains("sv1-door")?("باب: "+(t.getAttribute("data-door")||"")):
+   t.classList&&t.classList.contains("add-cart")?"أضف للسلة":"واتساب");
+ send({kind:"click",path:location.pathname,name:n})},true);
+var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
+ send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
+})();</script>`;
 
   function shell({ title, desc, path, body, script = "", noindex = false, oneLang = false }) {
     const h = head(title, desc, path)
@@ -608,7 +774,7 @@ var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('s
       .replace("</head>", noindex ? '<meta name="robots" content="noindex, nofollow"></head>' : "</head>")
       .replace("<html ", `<html data-sv1-test="${esc(t("testMode"))}" `)
       .replace("<body>", '<body class="sv1-page">');
-    return h + `<div class="sv1">${body}</div>` + CHROME_JS + script + "</body></html>";
+    return h + `<div class="sv1">${body}</div>` + CHROME_JS + BEACON_JS + script + "</body></html>";
   }
 
   // ------------------------------------------------------------ homepage --

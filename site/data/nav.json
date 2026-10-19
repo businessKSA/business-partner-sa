@@ -328,6 +328,11 @@
               "ar": "تشغيل عملك"
             },
             {
+              "href": "/guide/company-structure",
+              "en": "Structure & Salaries",
+              "ar": "الهيكلة والرواتب"
+            },
+            {
               "href": "/directory",
               "en": "Entrepreneurship guide",
               "ar": "دليل ريادة الأعمال"
@@ -370,9 +375,9 @@
               "ar": "كل الأدوات"
             },
             {
-              "href": "/calculator",
-              "en": "Cost calculator",
-              "ar": "حاسبة التكاليف"
+              "href": "/catalog",
+              "en": "Build & price your request",
+              "ar": "كوّن طلبك وسعّره"
             },
             {
               "href": "/calculators/government-cost",
