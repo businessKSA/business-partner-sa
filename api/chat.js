@@ -105,6 +105,7 @@ ${INTAKE_CONTEXT[context] || INTAKE_CONTEXT.consulting}
 هدفك: افهم → رتّب → بِع → نفّذ. لا تعطِ تقريراً استشارياً مجانياً طويلاً؛ أجب باختصار شديد على أي سؤال عام (جملتان كحد أقصى) ثم اجمع ما تحتاجه لترتيب الطلب.
 قواعد:
 - لغة الرد: ${INTAKE_LANG[lang] || INTAKE_LANG.ar} دائماً، مهما كانت لغة قاعدة المعرفة. أسماء الجهات (MISA, GOSI, Qiwa) مقبولة.
+- إن كتب العميل بلغة غير لغة الصفحة فأجبه بلغته هو (وكذلك عنوان الطلب وملخصه وبنوده ومستنداته في الكتلة)، ولغة الصفحة هي الافتراضية حين لا تتضح لغته.
 - **سؤال واحد فقط في كل دور.** لا سؤالين ولا ثلاثة ولا قائمة مرقّمة من الأسئلة — العميل على جواله ولن يجيب عن ثلاثة في رسالة واحدة، فيجيب عن واحد ويضيع الباقي. اختر السؤال الذي يغيّر مسار الطلب أكثر من غيره، واسأله وحده. لا تكرر سؤالاً أُجيب عنه.
 - **أعطِه خيارات جاهزة كلما أمكن.** حين يكون لسؤالك إجابات متوقّعة، أضف بعد ردّك سطراً مستقلاً بهذا الشكل بالضبط:
 <<OPTS>>["خيار قصير","خيار قصير آخر"]<<END>>
@@ -204,7 +205,18 @@ const callAzure = (messages, system) => azureChat({ system, messages, maxTokens:
 // وكيل باهر الحي على n8n — احتياط أخير لا يحتاج مفتاح API في Vercel:
 // نفس وكيل «باهر» (خدمة العملاء) المتصل بفريق المتخصصين. لا يحمل ذاكرة الجلسة
 // عبر الويبهوك، لذا نمرر آخر أدوار المحادثة داخل نص السؤال نفسه.
-async function callN8nBaher(messages) {
+const N8N_LANG_RULE = {
+  en: "Reply in English only (if the visitor writes in another language, answer in theirs).",
+  fr: "Reply in French only (if the visitor writes in another language, answer in theirs).",
+  zh: "Reply in Simplified Chinese only (if the visitor writes in another language, answer in theirs).",
+};
+// ‏العربية: لا تعليمة (السلوك القديم كما هو). أي لغة أخرى غير معروفة: بلغة الزائر.
+function n8nLangRule(lang) {
+  const l = String(lang || "ar").toLowerCase();
+  if (l === "ar") return "";
+  return (N8N_LANG_RULE[l] || "Reply in the visitor's language.") + "\n";
+}
+async function callN8nBaher(messages, _system, opts) {
   // محلياً/معاينة لا نُرسل أسئلة الزوار إلى n8n الإنتاجي (WHATSAPP_MODE != live).
   if (!WHATSAPP_LIVE) throw new Error("n8n fallback disabled outside live mode");
   const transcript = messages
@@ -220,6 +232,7 @@ async function callN8nBaher(messages) {
         action: "sendMessage",
         sessionId: "site-fallback-" + Math.random().toString(36).slice(2),
         chatInput:
+          n8nLangRule(opts && opts.lang) +
           "زائر موقع بيزنس بارتنر يسأل (رُدَّ مباشرة وباختصار عملي، وبدون استدعاء زملاء إلا للضرورة):\n" + transcript,
       }),
     }
@@ -421,8 +434,10 @@ export default async function handler(req, res) {
 
   const modelOnly = chain.filter((p) => p.name !== "baher-n8n");
   const n8n = chain.find((p) => p.name === "baher-n8n");
+  // ‏intake: Azure أولاً (يحمل intakeInstructions بلغتها)، وn8n احتياط أخير فقط —
+  // كان أولاً فيجيب بالعربية دائماً ويتجاوز تعليمات اللغة والنطاق.
   const adminChain = isIntake
-    ? (n8n ? [n8n, ...modelOnly] : modelOnly)
+    ? (n8n ? [...modelOnly, n8n] : modelOnly)
     : (isAdmin || isAccount) ? modelOnly : chain;
 
   const incoming = Array.isArray(body.messages) ? body.messages : [];
@@ -439,7 +454,7 @@ export default async function handler(req, res) {
 
   for (const provider of adminChain) {
     try {
-      let reply = await provider.call(messages, system);
+      let reply = await provider.call(messages, system, { lang: String(body.lang || "ar") });
       if (!reply) throw new Error(`${provider.name} returned empty reply`);
       if (isIntake && provider.name === "baher-n8n" && messages.filter((m) => m.role === "user").length >= 2 && !reply.includes("<<SCOPE>>")) {
         reply = intakeFallback(body, messages);
