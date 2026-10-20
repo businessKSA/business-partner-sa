@@ -249,6 +249,38 @@ const P = {
   dVat: { ar: "الرقم الضريبي", en: "VAT", fr: "TVA", zh: "税号" },
   dIssued: { ar: "الإصدار", en: "Issued", fr: "Émis le", zh: "签发" },
   dRetry: { ar: "أعد المحاولة", en: "Try again", fr: "Réessayer", zh: "重试" },
+  // ---- الامتثال والمخالفات (/my) — نفس مسارات my-ops الحيّة، بلا منطق جديد:
+  // compliance-access للحالة، violations للمخالفات، وop-violation-add/object.
+  // المستشار الذكي للامتثال اسمه «مشاري» — لا «الوكيل».
+  navCompliance: { ar: "الامتثال والمخالفات", en: "Compliance & violations", fr: "Conformité et infractions", zh: "合规与违规" },
+  cIntro: { ar: "«مشاري»، المستشار الذكي للامتثال، يتابع استحقاقات منشأتك ومخالفاتها ويجهّز الاعتراضات.", en: "“Mishari”, the compliance smart advisor, tracks your company's obligations and violations and prepares objections.", fr: "« Mishari », le conseiller intelligent de conformité, suit les échéances et infractions de votre entreprise et prépare les objections.", zh: "合规智能顾问“Mishari”跟踪贵公司的义务与违规并准备申诉。" },
+  cLoading: { ar: "نحمّل بيانات الامتثال…", en: "Loading compliance…", fr: "Chargement de la conformité…", zh: "正在加载合规信息…" },
+  cActive: { ar: "اشتراك الامتثال نشط", en: "Compliance subscription active", fr: "Abonnement conformité actif", zh: "合规订阅已激活" },
+  cTrialLbl: { ar: "تجربة مجانية للامتثال", en: "Free compliance trial", fr: "Essai gratuit de conformité", zh: "合规免费试用" },
+  cLockedTitle: { ar: "انتهت التجربة المجانية", en: "Your free trial has ended", fr: "Votre essai gratuit est terminé", zh: "免费试用已结束" },
+  cLocked: { ar: "اشترك في خدمة الامتثال لتتابع استحقاقاتك ومخالفاتك وتقدّم اعتراضاتك من هنا.", en: "Subscribe to the compliance service to keep tracking your obligations and violations and file objections here.", fr: "Abonnez-vous au service de conformité pour continuer à suivre vos échéances et infractions et déposer vos objections ici.", zh: "订阅合规服务以继续在此跟踪义务与违规并提交申诉。" },
+  cSubscribe: { ar: "اشترك في خدمة الامتثال", en: "Subscribe to compliance", fr: "S'abonner à la conformité", zh: "订阅合规服务" },
+  cDocsTitle: { ar: "استحقاقات قريبة", en: "Upcoming renewals", fr: "Échéances à venir", zh: "即将到期" },
+  cDocsNone: { ar: "لا استحقاقات قريبة في مستنداتك خلال ٦٠ يوماً.", en: "No document renewals due within 60 days.", fr: "Aucune échéance de document dans les 60 jours.", zh: "60 天内没有文件需续期。" },
+  cManageDocs: { ar: "إدارة مستنداتك ورفعها", en: "Manage & upload your documents", fr: "Gérer et téléverser vos documents", zh: "管理并上传您的文件" },
+  cViolTitle: { ar: "المخالفات", en: "Violations", fr: "Infractions", zh: "违规" },
+  cViolIntro: { ar: "سجّل أي مخالفة حكومية (بلدي، قوى، زاتكا، الدفاع المدني…) وقدّم اعتراضاً عليها، ويتابع فريقنا الاعتراض لدى الجهة نيابةً عنك.", en: "Log any government violation (Baladi, Qiwa, ZATCA, Civil Defense…) and file an objection; our team pursues it with the authority on your behalf.", fr: "Enregistrez toute infraction gouvernementale (Baladi, Qiwa, ZATCA, Protection civile…) et déposez une objection ; notre équipe la poursuit auprès de l'autorité en votre nom.", zh: "登记任何政府违规（Baladi、Qiwa、ZATCA、民防…）并提交申诉，我们的团队将代您向主管机关跟进。" },
+  cStages: { ar: "مسار الاعتراض: مراجعة ← دراسة أهلية الاعتراض ← تجهيز ← تقديم ← متابعة. لا نَعِد بإلغاء المخالفة؛ ندرس أهلية الاعتراض ونتابعه لدى الجهة.", en: "Objection path: review → eligibility study → preparation → submission → follow-up. We do not promise cancellation; we study eligibility and pursue the objection with the authority.", fr: "Parcours de l'objection : examen → étude de recevabilité → préparation → dépôt → suivi. Nous ne promettons pas l'annulation ; nous étudions la recevabilité et assurons le suivi auprès de l'autorité.", zh: "申诉流程：审查 → 受理资格研究 → 准备 → 提交 → 跟进。我们不承诺撤销；我们研究受理资格并向主管机关跟进。" },
+  cViolNone: { ar: "لا مخالفات مسجّلة. إن وصلتك مخالفة، سجّلها بالأسفل.", en: "No violations logged. If you receive one, log it below.", fr: "Aucune infraction enregistrée. Si vous en recevez une, enregistrez-la ci-dessous.", zh: "尚无违规记录。如收到违规，请在下方登记。" },
+  cNew: { ar: "جديدة", en: "New", fr: "Nouvelle", zh: "新" },
+  cDeadline: { ar: "آخر موعد للاعتراض", en: "Objection deadline", fr: "Délai d'objection", zh: "申诉截止" },
+  cObjectBtn: { ar: "قدّم اعتراض", en: "File an objection", fr: "Déposer une objection", zh: "提交申诉" },
+  cObjectNote: { ar: "مبرراتك للاعتراض — الوقائع والمستندات المؤيدة…", en: "Your grounds — the facts and supporting documents…", fr: "Vos motifs — les faits et documents à l'appui…", zh: "您的申诉理由——事实与证明文件…" },
+  cObjectFiled: { ar: "قيد الاعتراض — الفريق يتابعه", en: "Objection in progress — our team is on it", fr: "Objection en cours — notre équipe s'en occupe", zh: "申诉进行中 — 团队正在处理" },
+  cAddTitle: { ar: "سجّل مخالفة", en: "Log a violation", fr: "Enregistrer une infraction", zh: "登记违规" },
+  cAuthority: { ar: "الجهة (بلدي، قوى، زاتكا…)", en: "Authority (Baladi, Qiwa, ZATCA…)", fr: "Autorité (Baladi, Qiwa, ZATCA…)", zh: "主管机关（Baladi、Qiwa、ZATCA…）" },
+  cVTitle: { ar: "وصف المخالفة", en: "Violation description", fr: "Description de l'infraction", zh: "违规描述" },
+  cVNumber: { ar: "رقم المخالفة (اختياري)", en: "Violation number (optional)", fr: "Numéro d'infraction (facultatif)", zh: "违规编号（可选）" },
+  cVAmount: { ar: "المبلغ بالريال (اختياري)", en: "Amount in SAR (optional)", fr: "Montant en SAR (facultatif)", zh: "金额（里亚尔，可选）" },
+  cVDate: { ar: "تاريخ المخالفة (اختياري)", en: "Violation date (optional)", fr: "Date de l'infraction (facultatif)", zh: "违规日期（可选）" },
+  cVDeadline: { ar: "آخر موعد للاعتراض (اختياري)", en: "Objection deadline (optional)", fr: "Délai d'objection (facultatif)", zh: "申诉截止日期（可选）" },
+  cAddBtn: { ar: "سجّل المخالفة", en: "Log violation", fr: "Enregistrer", zh: "登记违规" },
+  cAddDone: { ar: "سُجّلت المخالفة ✓", en: "Violation logged ✓", fr: "Infraction enregistrée ✓", zh: "违规已登记 ✓" },
 };
 const STATUS = {
   NEW: { ar: "جديد", en: "New", fr: "Nouveau", zh: "新" }, REVIEWING: { ar: "قيد المراجعة", en: "Reviewing", fr: "En cours d'examen", zh: "审核中" },
@@ -388,7 +420,7 @@ ${sv1.footer()}`;
   const script = `<script>
 (function(){
 var LANG=${JSON.stringify(l)},EV=${JSON.stringify(EVENTS[l === "ar" ? "ar" : "en"])},TX=${JSON.stringify(tx)},ST=${JSON.stringify(st)},TY=${JSON.stringify(ty)},HOME=${JSON.stringify(home)},CHECKOUT=${JSON.stringify(sv1.href("/checkout"))},SELLER=${JSON.stringify(sellerFromSite())};
-var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null};
+var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null,violations:null};
 var $=function(s,r){return (r||document).querySelector(s)};
 function h(tag,attrs,kids){var e=document.createElement(tag);if(attrs)for(var k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.indexOf('on')===0)e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k])}(kids||[]).forEach(function(c){if(c==null)return;e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
 function api(action,data){return fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({action:action},data||{}))}).then(function(r){return r.json()})}
@@ -428,14 +460,14 @@ function init(){try{google.accounts.id.initialize({client_id:cid,callback:window
 if(window.google&&window.google.accounts&&window.google.accounts.id)return init();
 var sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.defer=true;sc.onload=init;sc.onerror=function(){wrap.hidden=true};document.head.appendChild(sc)}
 // ---------- shell
-var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['documents',TX.navDocs,'\ud83d\udcc1'],['company',TX.navCompany,'🏢']];
-function badges(){var c=state.me.counts||{};var d=(state.docs||[]).filter(function(x){var n=daysLeft(x.expiry_date);return n!==null&&n<=30}).length;return {quotes:c.quotes,contracts:c.contracts,pay:c.payments,documents:d}}
+var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['documents',TX.navDocs,'\ud83d\udcc1'],['compliance',TX.navCompliance,'🛡️'],['company',TX.navCompany,'🏢']];
+function badges(){var c=state.me.counts||{};var d=(state.docs||[]).filter(function(x){var n=daysLeft(x.expiry_date);return n!==null&&n<=30}).length;return {quotes:c.quotes,contracts:c.contracts,pay:c.payments,documents:d,compliance:(state.violations||[]).filter(isActionableViol).length}}
 function render(){var me=state.me;app.innerHTML='';var bd=badges();
 var side=h('nav',{class:'my-side',id:'mySide'},[h('div',{class:'who'},[h('b',{},[me.user.name||me.user.email]),h('small',{},[(me.organization&&(me.organization.name_ar||me.organization.name_en))||me.user.email])])].concat(NAV.map(function(n){return h('a',{'data-nav':n[0],class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1],bd[n[0]]?h('span',{class:'b'},[String(bd[n[0]])]):null])})).concat([h('a',{href:HOME},['🌐 '+TX.site]),h('a',{onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},['↩ '+TX.logout])]));
 var mob=h('div',{class:'mob'},NAV.map(function(n){return h('a',{class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1]])}));
 var main=h('div',{class:'my-main',id:'myMain'});
 app.appendChild(mob);var wrap=h('div',{class:'my'},[side,main]);app.appendChild(wrap);
-var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='documents')viewDocuments(main);else if(v==='company')viewCompany(main);else viewHome(main)}
+var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='documents')viewDocuments(main);else if(v==='compliance')viewCompliance(main);else if(v==='company')viewCompany(main);else viewHome(main)}
 function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[r.title]),h('small',{},[r.ref+' · '+(TY[r.type]||r.type)+' · '+when(r.updated_at||r.created_at)])]),(r.origin==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),pill(r.status),h('span',{class:'btn ghost sm'},[TX.open])])}
 function viewHome(m){var c=state.me.counts||{};m.appendChild(h('h1',{},[TX.attention]));
 var k=[['active',TX.kActive,'requests'],['quotes',TX.kQuotes,'quotes'],['contracts',TX.kContracts,'contracts'],['payments',TX.kPayments,'pay'],['appointments',TX.kAppts,'appointments']];
@@ -664,6 +696,118 @@ function viewDocuments(m){
 function verLbl(n){return (LANG==='ar'||LANG==='zh')?(TX.dVer+' '+n):(TX.dVer+n)}
 function catName(c){for(var i=0;i<DOC_CATS.length;i++)if(DOC_CATS[i][0]===c)return DOC_CATS[i][1];
  return DOC_CATS[DOC_CATS.length-1][1]}
+// ---------- الامتثال والمخالفات
+// لا منطق امتثال جديد هنا: الحالة من compliance-access، والمخالفات من
+// violations، والتسجيل والاعتراض عبر ops-violation-add/object — كلها مسارات
+// my-ops الحيّة نفسها. المستندات تُدار من قسم «مستنداتي» (go('documents')),
+// فلا نكرّر خزانةً ثانية. ومشاري لا يَعِد بإلغاء مخالفة — ندرس الأهلية ونتابع.
+function isActionableViol(v){var s=String((v&&v.status)||'').trim();return !s||/جديد/.test(s)}
+function violPill(s){s=String(s||'').trim();if(!s)return h('span',{class:'pill warn'},[TX.cNew]);
+ var good=/مقبول|ملغا|مغلق|منجز|accepted|closed/i.test(s),bad=/مرفوض|rejected/i.test(s),obj=/اعتراض/.test(s);
+ return h('span',{class:'pill '+(good?'ok':bad?'bad':obj?'warn':'mut')},[s])}
+function setComplianceBadge(){var a=document.querySelector('[data-nav="compliance"]');if(!a)return;
+ var n=(state.violations||[]).filter(isActionableViol).length;var b=a.querySelector('.b');
+ if(!n){if(b)b.remove();return}if(b)b.textContent=String(n);else a.appendChild(h('span',{class:'b'},[String(n)]))}
+function viewCompliance(m){
+ m.appendChild(h('h1',{},[TX.navCompliance]));
+ m.appendChild(h('p',{class:'note',style:'margin:-6px 0 14px'},[TX.cIntro]));
+ var access=h('div',{class:'card'});access.appendChild(h('p',{class:'note'},[TX.cLoading]));m.appendChild(access);
+ var body=h('div');m.appendChild(body);
+ opsGet('compliance-access').then(function(a){
+  access.innerHTML='';
+  if(!a||!a.ok){access.appendChild(h('p',{class:'err'},[TX.eNet]));return}
+  // بلا منشأة: الخزانة والمخالفات مرتبطتان بالمنشأة، فنوجّه لبيانات الشركة.
+  if(!('active' in a)){access.appendChild(h('p',{class:'note'},[TX.eNoOrg]));
+   access.appendChild(h('button',{class:'btn ghost sm',style:'margin-top:8px',onclick:function(){go('company')}},['🏢 '+TX.navCompany]));return}
+  var days=Number(a.days_left)||0;
+  if(a.active){access.appendChild(h('span',{class:'pill ok'},['🛡️ '+TX.cActive]))}
+  else if(a.trial&&days>0){access.appendChild(h('span',{class:'pill warn'},['🛡️ '+TX.cTrialLbl+' · '+dayStr(days)]));
+   if(a.ends_at)access.appendChild(h('p',{class:'note',style:'margin-top:8px'},[TX.validUntil+': '+String(a.ends_at).slice(0,10)]))}
+  else{access.appendChild(h('h3',{},['🛡️ '+TX.cLockedTitle]));access.appendChild(h('p',{class:'note'},[TX.cLocked]));
+   access.appendChild(h('a',{class:'btn',style:'margin-top:8px',href:'/ar/compliance-agent'},[TX.cSubscribe]));return}
+  drawComplianceBody(body);
+ })}
+function drawComplianceBody(body){
+ body.innerHTML='';
+ // 1) استحقاقات قريبة من مستنداتك + زر الإدارة والرفع (يعيد استعمال قسم المستندات)
+ var dcard=h('div',{class:'card'});dcard.appendChild(h('h3',{},[TX.cDocsTitle]));
+ var dlist=h('div',{class:'list'});dcard.appendChild(dlist);
+ dcard.appendChild(h('button',{class:'btn ghost sm',style:'margin-top:10px',onclick:function(){go('documents')}},['📁 '+TX.cManageDocs]));
+ body.appendChild(dcard);
+ function fillDocs(){dlist.innerHTML='';
+  var items=(state.docs||[]).map(function(d){return {d:d,n:daysLeft(d.expiry_date)}}).filter(function(x){return x.n!==null&&x.n<=60}).sort(function(a,b){return a.n-b.n});
+  if(!items.length){dlist.appendChild(h('p',{class:'note'},[TX.cDocsNone]));return}
+  items.forEach(function(x){var n=x.n;dlist.appendChild(h('div',{class:'row',onclick:function(){go('documents')}},[
+   h('div',{class:'tt'},[h('b',{},[x.d.title||'']),h('small',{},[x.d.expiry_date?(TX.dExpires+' '+String(x.d.expiry_date).slice(0,10)):''])]),
+   h('span',{class:'pill '+(n<0?'bad':'warn')},[n<0?TX.dExpired:dayStr(n)])]))})}
+ if(state.docs)fillDocs();else{dlist.appendChild(h('p',{class:'note'},[TX.dLoading]));loadDocs().then(fillDocs)}
+ // 2) المخالفات + تقديم الاعتراض
+ var vcard=h('div',{class:'card'});vcard.appendChild(h('h3',{},[TX.cViolTitle]));
+ vcard.appendChild(h('p',{class:'note'},[TX.cViolIntro]));
+ vcard.appendChild(h('p',{class:'note',style:'color:#b45309'},[TX.cStages]));
+ var vlist=h('div',{class:'list',style:'margin-top:10px'});vcard.appendChild(vlist);
+ vlist.appendChild(h('p',{class:'note'},[TX.cLoading]));
+ body.appendChild(vcard);
+ function openObject(v,box,redraw){
+  if(box.querySelector('.objform'))return;
+  var note=h('textarea',{class:'inp',rows:'3',placeholder:TX.cObjectNote});
+  var msg=h('div',{class:'err'});
+  var send=h('button',{class:'btn sm'},['⚖️ '+TX.cObjectBtn]);
+  var cancel=h('button',{class:'btn ghost sm',onclick:function(){wrap.remove()}},[TX.docClose]);
+  send.addEventListener('click',function(){msg.className='err';msg.textContent='';
+   if(!note.value.trim()){msg.textContent=TX.eName;note.focus();return}
+   send.disabled=true;
+   opsPost({action:'ops-violation-object',id:v.id,note:note.value.trim()}).then(function(o){
+    send.disabled=false;
+    if(o&&o.ok){opsGet('violations').then(function(r){if(r&&r.ok)state.violations=r.items||[];redraw()})}
+    else{msg.textContent=upErr(o&&o.error)}})});
+  var wrap=h('div',{class:'objform',style:'margin-top:10px'},[note,h('div',{class:'msgform'},[send,cancel]),msg]);
+  box.appendChild(wrap);note.focus()}
+ function drawViol(){vlist.innerHTML='';var items=state.violations||[];
+  if(!items.length){vlist.appendChild(h('p',{class:'note'},[TX.cViolNone]));return}
+  items.forEach(function(v){
+   var box=h('div',{class:'doc'});
+   box.appendChild(h('div',{class:'hd'},[h('b',{},[v.title||'']),violPill(v.status)]));
+   var meta=[v.authority||''];if(v.violation_number)meta.push('#'+v.violation_number);if(v.amount)meta.push(money(v.amount));if(v.violation_date)meta.push(String(v.violation_date).slice(0,10));
+   box.appendChild(h('div',{class:'meta'},[meta.filter(Boolean).join(' · ')]));
+   if(v.objection_deadline){var dn=daysLeft(v.objection_deadline);box.appendChild(h('div',{class:'meta'},[TX.cDeadline+': '+String(v.objection_deadline).slice(0,10)+(dn!==null?(' · '+(dn<0?TX.dExpired:dayStr(dn))):'')]))}
+   var acts=h('div',{class:'acts'});
+   if(/اعتراض/.test(String(v.status||''))){acts.appendChild(h('span',{class:'ok'},['✓ '+TX.cObjectFiled]));
+    if(v.objection_note)box.appendChild(h('div',{class:'read'},['📝 '+v.objection_note]))}
+   else{acts.appendChild(h('button',{class:'btn sm',onclick:function(){openObject(v,box,draw)}},['⚖️ '+TX.cObjectBtn]))}
+   box.appendChild(acts);vlist.appendChild(box)})}
+ function draw(){drawViol();setComplianceBadge()}
+ if(state.violations)draw();
+ opsGet('violations').then(function(o){if(o&&o.ok)state.violations=o.items||[];
+  if(o&&!o.ok&&o.error==='network'){vlist.innerHTML='';vlist.appendChild(h('p',{class:'err'},[TX.eNet]))}else draw()});
+ // 3) سجّل مخالفة
+ var add=h('div',{class:'card'});add.appendChild(h('h3',{},[TX.cAddTitle]));
+ var authority=h('input',{class:'inp',maxlength:'80',placeholder:TX.cAuthority});
+ var vtitle=h('input',{class:'inp',maxlength:'300',placeholder:TX.cVTitle});
+ var vnum=h('input',{class:'inp',maxlength:'80',placeholder:TX.cVNumber});
+ var vamount=h('input',{class:'inp',type:'number',min:'0',placeholder:TX.cVAmount});
+ var vdate=h('input',{class:'inp',type:'date'});
+ var vdeadline=h('input',{class:'inp',type:'date'});
+ var amsg=h('div',{class:'err'});
+ var abtn=h('button',{class:'btn'},[TX.cAddBtn]);
+ abtn.addEventListener('click',function(){amsg.className='err';amsg.textContent='';
+  if(!authority.value.trim()||!vtitle.value.trim()){amsg.textContent=TX.eName;return}
+  abtn.disabled=true;
+  opsPost({action:'ops-violation-add',authority:authority.value.trim(),title:vtitle.value.trim(),number:vnum.value.trim(),amount:vamount.value,date:vdate.value,deadline:vdeadline.value}).then(function(o){
+   abtn.disabled=false;
+   if(o&&o.ok){amsg.className='ok';amsg.textContent=TX.cAddDone;
+    authority.value='';vtitle.value='';vnum.value='';vamount.value='';vdate.value='';vdeadline.value='';
+    opsGet('violations').then(function(r){if(r&&r.ok){state.violations=r.items||[];draw()}})}
+   else{amsg.textContent=upErr(o&&o.error)}})});
+ add.appendChild(h('div',{class:'dgrid',style:'margin-top:6px'},[
+  h('div',{},[h('label',{class:'note'},[TX.cAuthority]),authority]),
+  h('div',{},[h('label',{class:'note'},[TX.cVTitle]),vtitle]),
+  h('div',{},[h('label',{class:'note'},[TX.cVNumber]),vnum]),
+  h('div',{},[h('label',{class:'note'},[TX.cVAmount]),vamount]),
+  h('div',{},[h('label',{class:'note'},[TX.cVDate]),vdate]),
+  h('div',{},[h('label',{class:'note'},[TX.cVDeadline]),vdeadline])]));
+ add.appendChild(h('div',{style:'margin-top:12px'},[abtn,amsg]));
+ body.appendChild(add)}
 // ---------- files inside a request
 // A link to one file is made at the moment of the click, by the server, after it
 // has checked the request is this customer's — nothing long-lived is stored in
@@ -838,7 +982,7 @@ function settleReturn(u){
 // الشيء نفسه: مسارٌ محلي يبدأ بشرطة واحدة، ولا يبدأ بشرطتين («//host» يقرؤه
 // المتصفح موقعاً آخر).
 function nextPath(){try{var n=decodeURIComponent(new URL(location.href).searchParams.get('next')||'');return (n.charAt(0)==='/'&&n.charAt(1)!=='/')?n:''}catch(e){return ''}}
-function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render();if(state.view!=='documents')loadDocs().catch(function(){})})}).catch(function(){renderLogin()})}
+function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render();if(state.view!=='documents')loadDocs().catch(function(){});if(state.view!=='compliance')opsGet('violations').then(function(o){if(o&&o.ok){state.violations=o.items||[];setComplianceBadge()}}).catch(function(){})})}).catch(function(){renderLogin()})}
 boot();
 })();</script>`;
   return sv1.shell({ title: tx.title, desc: tx.attention, path: "/my", body: CSS + body, script, noindex: true });
