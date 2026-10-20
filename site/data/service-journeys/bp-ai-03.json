@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-AI-03",
+  "slug": "bp-ai-03",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري والرقم الموحّد للمنشأة",
+      "صلاحية مستخدم مفوّض على قوى ومقيم والتأمينات الاجتماعية ومدد",
+      "قائمة الموظفين وتواريخ انتهاء الإقامات والعقود",
+      "قناة التنبيه المفضّلة (واتساب أو بريد) والمسؤول عن الاعتماد"
+    ],
+    "items_en": [
+      "Commercial Registration and unified establishment number",
+      "Delegated-user access on Qiwa, Muqeem, GOSI and Mudad",
+      "Employee list with residency and contract expiry dates",
+      "Preferred alert channel (WhatsApp or email) and the person who approves"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "TR-GEN",
+  "slug": "tr-gen",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "عدد الضيوف أو الموظفين وجنسياتهم",
+      "التواريخ والمدن والبرنامج المطلوب",
+      "جوازات سفر المسافرين (عند الحاجة لتأشيرات أو حجوزات)",
+      "السجل التجاري للشركة الطالبة"
+    ],
+    "items_en": [
+      "Number of guests or staff and their nationalities",
+      "Dates, cities and the required programme",
+      "Travellers' passports (where visas or bookings are needed)",
+      "Requesting company's Commercial Registration"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "code": "BP-RE-06",
+  "slug": "bp-re-06",
+  "authority": {
+    "platform_ar": "الهيئة العامة للعقار (REGA) · منصة عقارات السعودية",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "إثبات الهوية: الإقامة (للمقيم) · هوية رقمية عبر نفاذ (لغير المقيم) · رقم موحّد من وزارة الاستثمار (للشركات)",
+      "للشركات الأجنبية: سجل تجاري من بلد المنشأ مترجم ومصدّق من السفارة السعودية",
+      "للشركات الأجنبية: عقد التأسيس مترجم ومصدّق + وكالة معتمدة لتعيين ممثل الشركة",
+      "بيانات العقار والتأكد من وقوعه داخل نطاق تملّك معتمد (وأن يكون العميل شركة سعودية أو فردًا مسلمًا إذا كان في مكة أو المدينة)",
+      "سداد الرسوم الحكومية: رسم النقل العقاري (حتى 5%) + ضريبة التصرفات العقارية (5%)"
+    ],
+    "items_en": [
+      "Proof of identity: Iqama (resident) · Nafath digital identity (non-resident) · MISA unified number (companies)",
+      "Foreign companies: home-country Commercial Registration, translated and authenticated by the Saudi Embassy",
+      "Foreign companies: articles of incorporation (translated & certified) + a certified power of attorney appointing a representative",
+      "Property details, confirmed to be inside an approved ownership zone (and the client a Saudi company or Muslim individual if in Makkah/Madinah)",
+      "Payment of government fees: real estate transfer fee (up to 5%) + Real Estate Transaction Tax (5%)"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

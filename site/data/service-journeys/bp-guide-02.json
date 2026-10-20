@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-GUIDE-02",
+  "slug": "bp-guide-02",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": "عادةً من 3 إلى 10 أيام عمل حسب مستوى التخصيص.",
+    "value_en": "Usually 3–10 business days depending on customization",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "تفاصيل النطاق",
+      "أي مستندات مرجعية",
+      "أهداف الاستخدام"
+    ],
+    "items_en": [
+      "Scope details",
+      "Any reference documents",
+      "The intended use goals"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

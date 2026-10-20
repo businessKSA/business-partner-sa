@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "code": "BP-REC-03",
+  "slug": "bp-rec-03",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "الوصف الوظيفي لكل وظيفة",
+      "عرض الراتب والمزايا لكل موظف",
+      "جواز سفر المرشّح وشهاداته",
+      "السجل التجاري للمنشأة العميلة (للتعاقد)",
+      "تاريخ المباشرة المتوقع ومدة التعاقد"
+    ],
+    "items_en": [
+      "Job description for each role",
+      "Salary and benefits offer for each employee",
+      "Candidate's passport and qualifications",
+      "Client company's Commercial Registration (for the agreement)",
+      "Expected start date and contract term"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

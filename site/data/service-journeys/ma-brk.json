@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "code": "MA-BRK",
+  "slug": "ma-brk",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري وعقد التأسيس للشركة",
+      "القوائم المالية لآخر ثلاث سنوات",
+      "ملخص النشاط والعملاء والأصول الرئيسية",
+      "تصوّر الصفقة المطلوبة (بيع، شراء، اندماج) والحصة والتقييم المبدئي",
+      "اتفاقية سرية موقّعة"
+    ],
+    "items_en": [
+      "Company's Commercial Registration and articles of association",
+      "Financial statements for the last three years",
+      "Summary of the business, customers and key assets",
+      "Outline of the intended deal (sale, purchase, merger), stake and indicative valuation",
+      "Signed non-disclosure agreement"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

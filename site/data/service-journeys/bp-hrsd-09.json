@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-HRSD-09",
+  "slug": "bp-hrsd-09",
+  "authority": {
+    "platform_ar": "بوابة المستفيد — الموارد البشرية",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "٥ إلى ١٠ أيام عمل للصياغة، والاعتماد حسب مدة الجهة",
+    "value_en": "5–10 business days to draft; approval per the authority's window",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري",
+      "عدد العمالة وأنشطة المنشأة",
+      "اللائحة الحالية إن وُجدت"
+    ],
+    "items_en": [
+      "Commercial Registration",
+      "Headcount and establishment activities",
+      "The current bylaw, if any"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-AI-01",
+  "slug": "bp-ai-01",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "وصف العمليات والأقسام المطلوب ربطها",
+      "قائمة الأنظمة والحسابات الحالية (CRM، بريد، محاسبة، منصات حكومية) وصلاحيات الوصول إليها",
+      "نماذج من المستندات والتقارير التي تتعامل معها",
+      "مسؤول من منشأتك للتنسيق والاعتماد"
+    ],
+    "items_en": [
+      "Description of the processes and departments to be connected",
+      "List of current systems and accounts (CRM, email, accounting, government platforms) with access permissions",
+      "Samples of the documents and reports you work with",
+      "A named contact at your company for coordination and approvals"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

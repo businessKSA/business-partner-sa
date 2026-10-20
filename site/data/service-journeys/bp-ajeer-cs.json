@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-AJEER-CS",
+  "slug": "bp-ajeer-cs",
+  "authority": {
+    "platform_ar": "أجير — قوى",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "جلسة واحدة، والتقرير خلال يومي عمل",
+    "value_en": "One session; the report within two business days",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "نبذة عن نشاط المنشأة",
+      "بيان العمالة الحالية أو المطلوبة",
+      "أي تصاريح أو عقود قائمة"
+    ],
+    "items_en": [
+      "A brief on the establishment's activity",
+      "Current or required workforce",
+      "Any existing permits or contracts"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

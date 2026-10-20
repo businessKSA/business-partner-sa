@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-DIAG-01",
+  "slug": "bp-diag-01",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": "عادةً من يومي عمل إلى 7 أيام عمل حسب نطاق التشخيص.",
+    "value_en": "Usually 2–7 business days depending on scope",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "نبذة عن النشاط",
+      "المستندات أو البيانات المتاحة",
+      "أي مواد داعمة مرتبطة بالنطاق"
+    ],
+    "items_en": [
+      "Business overview",
+      "Available documents or data",
+      "Any supporting materials for the scope"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

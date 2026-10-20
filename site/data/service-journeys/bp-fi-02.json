@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-FI-02",
+  "slug": "bp-fi-02",
+  "authority": {
+    "platform_ar": "وزارة الاستثمار MISA",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "حسب نوع الترخيص وجاهزية المستندات — عادةً من عدة أيام إلى عدة أسابيع",
+    "value_en": "Depends on the license type and document readiness — usually a few days to a few weeks",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "مستندات الشركة الأم أو المستثمر",
+      "جوازات الشركاء",
+      "القوائم المالية (عند الحاجة)",
+      "قرار مجلس أو تفويض رسمي"
+    ],
+    "items_en": [
+      "Parent company / investor documents",
+      "Partners' passports",
+      "Financial statements (if required)",
+      "Board resolution or power of attorney"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

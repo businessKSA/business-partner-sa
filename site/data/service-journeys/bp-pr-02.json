@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-PR-02",
+  "slug": "bp-pr-02",
+  "authority": {
+    "platform_ar": "الإقامة المميزة",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "حسب نطاق الاستشارة",
+    "value_en": "Depends on the scope of the consultation",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "جواز السفر",
+      "الهوية أو الإقامة",
+      "التقارير المالية أو الصحية (عند الحاجة)",
+      "المستندات الداعمة للمسار"
+    ],
+    "items_en": [
+      "Passport",
+      "National ID or residency",
+      "Financial or medical reports (if required)",
+      "Supporting documents for the pathway"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

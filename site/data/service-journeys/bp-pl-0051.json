@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "code": "BP-PL-0051",
+  "slug": "bp-pl-0051",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": "حسب نطاق الخدمة",
+    "value_en": "Depends on the scope of the service",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": true,
+    "items_ar": [],
+    "items_en": [],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

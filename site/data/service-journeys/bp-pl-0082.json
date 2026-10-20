@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-PL-0082",
+  "slug": "bp-pl-0082",
+  "authority": {
+    "platform_ar": "الغرفة التجارية",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "3 أيام عمل.",
+    "value_en": "About 3 business days",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "الفواتير",
+      "بيانات الشحنة أو المنتج",
+      "المستندات التجارية الداعمة"
+    ],
+    "items_en": [
+      "Invoices",
+      "Shipment or product data",
+      "Supporting commercial documents"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

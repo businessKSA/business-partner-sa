@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "code": "BP-HOUSING-01",
+  "slug": "bp-housing-01",
+  "authority": {
+    "platform_ar": "بلدي",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري للمنشأة",
+      "عقد إيجار السكن (أو نوثقه لك في إيجار)",
+      "بيانات موقع السكن وعدد العمالة",
+      "رخصة السكن الجماعي الحالية إن وجدت (أو نصدرها من بلدي)",
+      "قائمة العمالة لتحديث عناوينهم في مقيم"
+    ],
+    "items_en": [
+      "Company Commercial Registration",
+      "Housing lease contract (or we attest it in Ejar)",
+      "Housing site details and worker count",
+      "Existing collective-housing license if any (or we issue it via Balady)",
+      "Worker list for Muqeem address updates"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

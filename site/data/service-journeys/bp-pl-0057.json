@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "code": "BP-PL-0057",
+  "slug": "bp-pl-0057",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": "4–8 أسابيع حسب حجم المشروع",
+    "value_en": "4–8 weeks depending on project size",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "فكرة واضحة عن المشروع",
+      "بيانات مالية مبدئية",
+      "تحديد السوق المستهدف",
+      "توضيح الأهداف والرؤية",
+      "أي معلومات إضافية عند الطلب"
+    ],
+    "items_en": [
+      "A clear description of the project idea",
+      "Preliminary financial data",
+      "Definition of the target market",
+      "Objectives and vision",
+      "Any additional information on request"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "PR-GEN",
+  "slug": "pr-gen",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "جواز السفر وبيانات الإقامة الحالية",
+      "وصف حالتك وما يميّزها عن المسارات المدرجة",
+      "ما يثبت الأهلية (مؤهلات، استثمارات، عقارات، دخل) حسب المسار",
+      "شهادة السوابق الجنائية والتقرير الطبي عند التقديم"
+    ],
+    "items_en": [
+      "Passport and current residency details",
+      "Description of your case and how it differs from the listed routes",
+      "Evidence of eligibility (qualifications, investments, property, income) by route",
+      "Criminal record certificate and medical report at the time of filing"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

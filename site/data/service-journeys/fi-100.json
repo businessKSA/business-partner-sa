@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "code": "FI-100",
+  "slug": "fi-100",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري للشركة الأم (أو جواز سفر المستثمر الفرد) مصدّقاً من السفارة السعودية",
+      "عقد التأسيس والنظام الأساسي للشركة الأم مصدّقاً",
+      "القوائم المالية المدققة لآخر سنة مالية",
+      "قرار الشركاء بالتأسيس في المملكة وتعيين المدير العام",
+      "جواز سفر المدير العام",
+      "توكيل مصدّق لممثل الشركة"
+    ],
+    "items_en": [
+      "Parent company's Commercial Registration (or the individual investor's passport), attested by the Saudi embassy",
+      "Parent company's attested articles of association and bylaws",
+      "Audited financial statements for the latest financial year",
+      "Shareholders' resolution to incorporate in the Kingdom and appoint the general manager",
+      "General manager's passport",
+      "Attested power of attorney for the company's representative"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

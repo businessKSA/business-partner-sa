@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-AI-SMART-EMPLOYEE",
+  "slug": "bp-ai-smart-employee",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "التخصص المطلوب (تسويق، إداري، مبيعات، تقني، مشتريات) ووصف المهام اليومية",
+      "صلاحيات الوصول إلى الأدوات التي سيعمل فيها (بريد، CRM، حسابات التواصل، نظام المشتريات)",
+      "سياسات المنشأة وحدود الصلاحيات ونماذج الردود المعتمدة",
+      "المشرف المسؤول عن المراجعة والاعتماد"
+    ],
+    "items_en": [
+      "The required specialty (marketing, admin, sales, technical, procurement) and a description of the daily tasks",
+      "Access to the tools it will work in (email, CRM, social accounts, procurement system)",
+      "Company policies, authority limits and approved reply templates",
+      "The supervisor responsible for review and approval"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

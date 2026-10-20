@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-QIWA-09",
+  "slug": "bp-qiwa-09",
+  "authority": {
+    "platform_ar": "قوى",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "يوم إلى ٣ أيام عمل",
+    "value_en": "One to three business days",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجلات التجارية للفروع",
+      "بيان توزيع العمالة المطلوب",
+      "بيانات المفوّض المسؤول"
+    ],
+    "items_en": [
+      "The branches' Commercial Registrations",
+      "The required worker distribution",
+      "Authorised person's details"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-PR-03",
+  "slug": "bp-pr-03",
+  "authority": {
+    "platform_ar": "الإقامة المميزة",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "جلسة واحدة، والتقرير خلال يومي عمل",
+    "value_en": "One session; the report within two business days",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "نبذة عن جنسيتك ونشاطك",
+      "ما لديك من رخص أو أصول أو مؤهلات",
+      "أي طلب سابق أو قرار صادر بحقك"
+    ],
+    "items_en": [
+      "A brief on your nationality and activity",
+      "Any licences, assets or qualifications you hold",
+      "Any earlier application or decision concerning you"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-VENDOR-01",
+  "slug": "bp-vendor-01",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": "عادةً من 3 إلى 10 أيام عمل حسب تعقيد التأهيل",
+    "value_en": "Usually 3–10 business days depending on complexity",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "بيانات المورد",
+      "الوثائق النظامية",
+      "معايير أو متطلبات الاعتماد"
+    ],
+    "items_en": [
+      "Vendor details",
+      "Regulatory documents",
+      "Accreditation criteria or requirements"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

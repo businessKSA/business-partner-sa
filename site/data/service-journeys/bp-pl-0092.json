@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-PL-0092",
+  "slug": "bp-pl-0092",
+  "authority": {
+    "platform_ar": "المركز السعودي للأعمال",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "حسب المراجعة.",
+    "value_en": "Depends on the authority review",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري",
+      "بيانات المنتجات أو العروض",
+      "أي مستندات داعمة تطلبها الجهة"
+    ],
+    "items_en": [
+      "Commercial Registration",
+      "Product or offer details",
+      "Any supporting documents the authority requires"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

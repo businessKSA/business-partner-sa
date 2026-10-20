@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-ZATCA-04",
+  "slug": "bp-zatca-04",
+  "authority": {
+    "platform_ar": "الزكاة والضريبة ZATCA",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+    "value_en": "Usually one business day to a few days, depending on the authority and complexity",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري",
+      "رقم الهوية أو الإقامة للمفوض",
+      "بيانات النشاط",
+      "البيانات المالية أو الفواتير (عند الحاجة)"
+    ],
+    "items_en": [
+      "Commercial Registration",
+      "Authorized person's national ID or Iqama",
+      "Business activity details",
+      "Financial statements or invoices (if required)"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

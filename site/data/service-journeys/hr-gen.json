@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "HR-GEN",
+  "slug": "hr-gen",
+  "authority": {
+    "platform_ar": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "not_applicable"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "وصف الخدمة المطلوبة (عقود، رواتب، إجراء موظف)",
+      "السجل التجاري ورقم المنشأة في قوى",
+      "بيانات الموظفين المعنيين (هوية أو إقامة، عقد، راتب)",
+      "صلاحية وصول على قوى أو مدد أو التأمينات الاجتماعية عند الحاجة"
+    ],
+    "items_en": [
+      "Description of the required service (contracts, payroll, an employee procedure)",
+      "Commercial Registration and the establishment number on Qiwa",
+      "Details of the employees concerned (ID or iqama, contract, salary)",
+      "Access to Qiwa, Mudad or GOSI where needed"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

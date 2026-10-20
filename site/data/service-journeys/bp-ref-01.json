@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "code": "BP-REF-01",
+  "slug": "bp-ref-01",
+  "authority": {
+    "platform_ar": "منشآت",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": null,
+    "value_en": null,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري والرقم الموحّد للمنشأة",
+      "إيصالات أو سندات سداد الرسوم المطلوب استردادها",
+      "بيان من المنصة (قوى أو مقيم أو غيرها) يوضح الرسوم المسددة",
+      "الحساب البنكي (آيبان) للمنشأة لاستلام المبلغ عند الموافقة",
+      "تفويض على المنصة المختصة عند الحاجة"
+    ],
+    "items_en": [
+      "Commercial Registration and unified establishment number",
+      "Receipts or payment vouchers for the fees to be refunded",
+      "A statement from the platform (Qiwa, Muqeem or other) showing the fees paid",
+      "Company IBAN to receive the amount if approved",
+      "Delegation on the relevant platform where needed"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": false,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

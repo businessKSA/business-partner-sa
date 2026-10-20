@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-HRSD-11",
+  "slug": "bp-hrsd-11",
+  "authority": {
+    "platform_ar": "بوابة المستفيد — الموارد البشرية",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "يوم إلى يومي عمل بعد اكتمال المستندات",
+    "value_en": "One to two business days once documents are complete",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "عقد العمل",
+      "ما يثبت تصفية المستحقات",
+      "بيانات العامل ورقم إقامته"
+    ],
+    "items_en": [
+      "The employment contract",
+      "Evidence that dues are settled",
+      "The worker's details and residency number"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

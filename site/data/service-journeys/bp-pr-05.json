@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-PR-05",
+  "slug": "bp-pr-05",
+  "authority": {
+    "platform_ar": "الإقامة المميزة",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "تجهيز الملف خلال ٥ إلى ١٠ أيام عمل، والقرار حسب مدة الجهة",
+    "value_en": "File prepared in 5–10 business days; the decision per the authority's window",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "جواز السفر ساري المفعول",
+      "ما يثبت استيفاء شرط المسار (رخصة أو أصول أو مؤهلات)",
+      "الفحص الطبي وشهادة السجل الجنائي",
+      "ما يثبت الملاءة المالية"
+    ],
+    "items_en": [
+      "A valid passport",
+      "Evidence the route's condition is met (licence, assets or qualifications)",
+      "Medical examination and criminal-record certificate",
+      "Evidence of financial standing"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

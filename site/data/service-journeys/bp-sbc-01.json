@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-SBC-01",
+  "slug": "bp-sbc-01",
+  "authority": {
+    "platform_ar": "المركز السعودي للأعمال",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "حسب جاهزية المستندات — غالباً من عدة أيام إلى عدة أسابيع",
+    "value_en": "Depends on document readiness — usually a few days to a few weeks",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "هوية أو جواز الشركاء",
+      "بيانات النشاط التجاري",
+      "العنوان الوطني",
+      "عقد أو قرارات الشركة (حسب الحالة)"
+    ],
+    "items_en": [
+      "Partners' national ID or passport",
+      "Business activity details",
+      "National Address",
+      "Company contract or resolutions (as applicable)"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

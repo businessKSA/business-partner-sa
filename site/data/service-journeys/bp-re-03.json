@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "code": "BP-RE-03",
+  "slug": "bp-re-03",
+  "authority": {
+    "platform_ar": "سُبل",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "عادةً من يوم عمل إلى عدة أيام حسب الجهة وتعقيد الطلب",
+    "value_en": "Usually one business day to a few days, depending on the authority and complexity",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري",
+      "بيانات العنوان",
+      "عقد الإيجار أو إثبات الموقع",
+      "بيانات المفوض"
+    ],
+    "items_en": [
+      "Commercial Registration",
+      "Address details",
+      "Lease contract or proof of location",
+      "Authorized person's details"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}

@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "code": "BP-MOWA-01",
+  "slug": "bp-mowa-01",
+  "authority": {
+    "platform_ar": "منصة مواءمة",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "duration": {
+    "value_ar": "المراجعة خلال ٥ أيام عمل، والشهادة حسب مدة الجهة",
+    "value_en": "Review within 5 business days; the certificate per the authority's window",
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "documents": {
+    "generic": false,
+    "items_ar": [
+      "السجل التجاري ورقم المنشأة",
+      "وصف مقر العمل ومرافقه",
+      "بيانات الموظفين ذوي الإعاقة إن وُجدوا"
+    ],
+    "items_en": [
+      "Commercial Registration and establishment number",
+      "A description of the premises and facilities",
+      "Details of employees with disabilities, if any"
+    ],
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "gov_fees": {
+    "separate": true,
+    "source_url": null,
+    "verified_at": null,
+    "status": "needs_verification"
+  },
+  "steps": []
+}
