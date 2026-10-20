@@ -299,6 +299,16 @@ export async function handleSimple(req, res) {
   }
 }
 
+// A quotation that is still standing (sent, approved, signed, paid) fixes the
+// scope. The status alone is not enough to know that: operations can move a
+// paid request to WAITING_CLIENT («بانتظار ردك») to ask for a document, and the
+// scope editor used to re-open with it — a customer could then re-confirm the
+// scope and have a new quotation issued over a signed contract. Only a REJECTED
+// quotation (the customer asked for changes) or an unsent DRAFT leaves it open.
+export function scopeLockedByQuote(row) {
+  return !!(row.quote && !["REJECTED", "DRAFT"].includes(row.quote.status));
+}
+
 // ------------------------------------------------------------ client side --
 async function clientAction(action, b, qs, req, res, sess) {
   const email = String(sess.user?.email || "").toLowerCase();
@@ -373,7 +383,7 @@ async function clientAction(action, b, qs, req, res, sess) {
   }
 
   if (action === "scope-update") {
-    if (!["NEW", "REVIEWING", "WAITING_CLIENT"].includes(row.status)) return json(res, 409, { ok: false, error: "scope_locked", message: "النطاق مقفل بعد إصدار عرض السعر." });
+    if (!["NEW", "REVIEWING", "WAITING_CLIENT"].includes(row.status) || scopeLockedByQuote(row)) return json(res, 409, { ok: false, error: "scope_locked", message: "النطاق مقفل بعد إصدار عرض السعر." });
     const scope = normScope(b.scope);
     await patchRequest(row.id, { scope });
     await logEvent(row.id, "customer", who, "scope.edited", { items: scope.map((s) => s.title) });
@@ -387,7 +397,7 @@ async function clientAction(action, b, qs, req, res, sess) {
   // quotation itself is still issued by hand from /ops (owner's rule): the
   // price on a scope is a commercial decision, not a lookup.
   if (action === "scope-confirm") {
-    if (!["NEW", "REVIEWING", "WAITING_CLIENT"].includes(row.status)) return json(res, 409, { ok: false, error: "scope_locked", message: "النطاق مقفل بعد إصدار عرض السعر." });
+    if (!["NEW", "REVIEWING", "WAITING_CLIENT"].includes(row.status) || scopeLockedByQuote(row)) return json(res, 409, { ok: false, error: "scope_locked", message: "النطاق مقفل بعد إصدار عرض السعر." });
     const scope = normScope(b.scope && b.scope.length ? b.scope : row.scope);
     if (!scope.length) return json(res, 400, { ok: false, error: "no_items", message: "أضف بنداً واحداً على الأقل إلى نطاق الخدمات." });
     await patchRequest(row.id, { scope });
