@@ -40,6 +40,7 @@ import { graphReady, graphMissing } from "./_msgraph.js";
 import { handleDocAgent } from "./_docagent.js";
 import { handleSimple } from "./_simple.js";
 import spacesHandler from "./_spaces.js";
+import { handleUnsubscribe } from "./_unsub.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
 // خزنة مستندات العميل (`ops-doc-upload`): الصيغ المقبولة والحدّ الأعلى.
 // حدّ الخزنة (٨MB) غير حدّ القراءة الآلية (`MAX_DOC_BYTES` = ٦MB): الأول ما
@@ -1820,6 +1821,9 @@ export default async function handler(req, res) {
   if ((q.__route || "") === "doc-agent") return handleDocAgent(req, res);
   if ((q.__route || "") === "simple") return handleSimple(req, res);
   if ((q.__route || "") === "spaces") return spacesHandler(req, res);
+  // Reached as /unsubscribe (rewritten in vercel.json). Answers GET with a page
+  // and POST with a bare 200, which is what RFC 8058 one-click sends.
+  if ((q.__route || "") === "unsubscribe") return handleUnsubscribe(req, res);
   if ((q.action || "") === "approve") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
