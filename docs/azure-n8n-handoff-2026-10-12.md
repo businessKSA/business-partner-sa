@@ -284,3 +284,7 @@ if (FARAH_URL && FARAH_KEY) {
 **ما يفعله المالك (staging فقط):** Azure Portal ← Container Apps ← `bp-site-staging` ← Environment variables ← أضف `PAYMENTS_DISABLED=1` ← Create new revision. ثم تحقّق: `GET <رابط staging>/api/pay?action=config` يردّ 503 وبلا مفتاح.
 **الإنتاج:** لا يوضع فيه `PAYMENTS_DISABLED` ولا `APP_ENV=staging` — غيابهما يُبقي السلوك كما هو تماماً (مُختبَر).
 **خارج نطاق هذا الحارس:** قاعدة البيانات في staging ما زالت قاعدة الإنتاج (13.2 بند 2)، وإجراء المحفظة في `api/requests.js` لا يُستدعى إلا بختم صادر من `pay.js` فلا طريق إليه بلا دفعة.
+### 12.8) اختبار رد حقيقي على عميل تجريبي (2026-10-20)
+أُنشئت محادثة `WEB-TESTREPLY1020` على الموقع الحيّ (بريدها `dr.baher.magnas+bptest@gmail.com`) وسُجّلت في ذاكرة فرح، ثم أمرتها بالرد بالبريد. **الحارس والبحث نجحا، والإرسال رفضه الموقع الحيّ بـ`unauthorized`** (فرح فتحت بند موافقة رقم 171 كما صُمّمت).
+**السبب (مفحوص):** مفتاح `panel-key` المخزَّن في `bp-site-staging` **يُقبل على staging** (`ops-inbox-read` ← 400 `missing_ref` أي مرّ الاعتماد) و**يُرفض على `www.businesspartner.sa`** (401). فإما `PANEL_KEY` في Vercel قيمته مختلفة، أو `PANEL_REQUIRE_NAFATH` مفعّل هناك (حينها لا يُقبل أي مفتاح لوحة، `api/_nafath.js:273`). لا يمكن التمييز دون رؤية متغيرات Vercel (لا تُقرأ من الجلسة).
+**المطلوب:** إما قيمة `PANEL_KEY` الحيّة في اعتماد `/ops (v2)` (`AhVJutWyAIyQrQ0e` ← يُنشأ اعتماد جديد)، أو توجيه سير الرد إلى تذكرة نفاذ للمالك إن كان Nafath مفعّلاً. صفوف الاختبار الباقية: محادثة `WEB-TESTREPLY1020` في قاعدة الموقع، وصفوف `farah.messages` المقابلة، وبند `farah.pending` رقم 171 — تُنظَّف.
