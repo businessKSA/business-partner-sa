@@ -25,7 +25,10 @@
    for Arabic, and an English phone UI must not bounce them back to English. */
 if(!s){if(c!=="en")return;if(sessionStorage.getItem("bp_lang_auto"))return;var bl=((navigator.languages&&navigator.languages[0])||navigator.language||"").slice(0,2).toLowerCase();if(!bl||bl===c)return;var al=document.querySelector('link[rel="alternate"][hreflang="'+bl+'"]');if(al&&al.href){sessionStorage.setItem("bp_lang_auto","1");location.replace(al.href);}return;}
 if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
-<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/assets/img/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="/assets/img/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@200;300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
@@ -358,6 +361,34 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .bpg-note.err{color:#b91c1c}
 .bpg-or{display:flex;align-items:center;gap:10px;margin:14px 0 10px;color:var(--faint,#8D97AE);font-size:12.5px}
 .bpg-or:before,.bpg-or:after{content:"";flex:1;height:1px;background:var(--line,#E5E9F0)}
+/* Nafath: the first door, so the largest. Tokens are SV1's own; nothing new. */
+.nf{border:1.5px solid var(--acLine,#C3CDE6);border-radius:16px;padding:16px 16px 14px;background:linear-gradient(180deg,var(--acSoft,#EEF2FB),#fff 70%)}
+.nf-h{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.nf-badge{flex:none;width:42px;height:42px;border-radius:12px;background:var(--n,#0B1B5A);color:#fff;display:grid;place-items:center}
+.nf-badge svg{width:23px;height:23px}
+.nf-h b{display:block;color:var(--ink,#0B1B5A);font-size:1.02rem;line-height:1.35}
+.nf-sub{margin:2px 0 0!important;font-size:.82rem!important;line-height:1.6;color:var(--mut,#5A6478)}
+.nf label{display:block;margin:0 0 5px;font-size:.84rem;font-weight:600;color:var(--ink,#0B1B5A)}
+.nf .nf-in{width:100%;box-sizing:border-box;border:1px solid var(--line,#E5E9F0);border-radius:10px;padding:12px;font:inherit;font-size:16px;letter-spacing:.14em;text-align:center;direction:ltr;background:#fff;margin:0 0 10px}
+.nf .nf-in:focus{outline:2px solid var(--ac,#0B1B5A);outline-offset:1px}
+.nf .nf-btn{width:100%;min-height:46px;border-radius:12px;border:1px solid var(--n,#0B1B5A);background:var(--n,#0B1B5A);color:#fff;font:inherit;font-size:.95rem;font-weight:700;cursor:pointer}
+.nf .nf-btn[disabled]{opacity:.55;cursor:not-allowed}
+.nf .nf-btn.ghost{background:#fff;color:var(--n,#0B1B5A)}
+.nf-msg{margin:10px 0 0!important;font-size:.84rem!important;line-height:1.7;color:var(--mut,#5A6478)}
+.nf-msg.err{color:#b91c1c}.nf-msg.ok{color:var(--ok,#047857);font-weight:700}
+.nf-wait{text-align:center}
+.nf-wait h4{margin:0 0 4px;font-size:1rem;color:var(--ink,#0B1B5A)}
+.nf .nf-wait p{margin:0 0 10px;font-size:.86rem;line-height:1.7;color:var(--mut,#5A6478)}
+.nf-num{width:92px;height:92px;margin:6px auto 12px;border-radius:50%;border:3px solid var(--n,#0B1B5A);display:grid;place-items:center;font-size:2.4rem;font-weight:700;color:var(--ink,#0B1B5A);font-variant-numeric:tabular-nums;direction:ltr;background:#fff}
+.nf-dots{display:inline-flex;gap:5px;vertical-align:middle;margin-inline-end:8px}
+.nf-dots i{width:7px;height:7px;border-radius:50%;background:var(--n,#0B1B5A);opacity:.25;animation:nfp 1.2s infinite}
+.nf-dots i:nth-child(2){animation-delay:.2s}.nf-dots i:nth-child(3){animation-delay:.4s}
+@keyframes nfp{0%,100%{opacity:.25}50%{opacity:1}}
+@media(prefers-reduced-motion:reduce){.nf-dots i{animation:none;opacity:.6}}
+.nf-link{display:inline-block;margin-top:8px;color:var(--n,#0B1B5A);text-decoration:underline;cursor:pointer;font-size:.84rem;background:none;border:0;font-family:inherit}
+.nf-ok{width:62px;height:62px;margin:4px auto 10px;border-radius:50%;background:var(--okSoft,#E7F4EF);color:var(--ok,#047857);display:grid;place-items:center}
+.nf-ok svg{width:32px;height:32px}
+.nf-dev{margin:8px 0 0!important;font-size:.74rem!important;color:var(--faint,#8D97AE)!important;text-align:center;direction:ltr}
 </style><div class="sv1-bar" role="region" aria-label="Statut et langue"><div class="wrap">
   <div class="sv1-bar-l">
     <span><span class="sv1-pulse"></span><b>Tous les systèmes fonctionnent</b></span>
@@ -518,7 +549,7 @@ var h0=hint();if(h0)S.paint(true,h0);
       <div class="sv1-foot-row"><span>E-mail</span><a href="mailto:business@businesspartner.sa"><bdi dir="ltr">business@businesspartner.sa</bdi></a></div>
       <div class="sv1-foot-row"><span>Adresse nationale</span><span class="v">Building 9214 · King Khaled Branch Rd. · Al Asemah Dist. · Ad Diriyah 13714 · Additional no. 5076</span></div>
       <div class="sv1-foot-row"><span>Horaires</span><span class="v">Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span></div>
-      <div class="sv1-foot-row"><span>Suivez-nous</span></div><div class="sv1-foot-social"><a href="https://www.linkedin.com/company/108785026/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a><a href="https://www.instagram.com/businesspartnersa/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" fill="currentColor" stroke="none"/></svg></a><a href="https://www.tiktok.com/@businesspartnersa" target="_blank" rel="noopener" aria-label="TikTok"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 1 1-1.87-2.49v-3.1a5.67 5.67 0 1 0 4.96 5.62V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3a4.3 4.3 0 0 1-3.24-1.48z"/></svg></a><a href="https://www.facebook.com/BusinessPartnerKsa/" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-7.5h2.5l.5-3h-3V8.6c0-.87.24-1.46 1.5-1.46H16.6V4.5c-.28-.04-1.23-.12-2.34-.12-2.31 0-3.9 1.41-3.9 4v2.12H7.9v3h2.46V21h3.14z"/></svg></a></div>
+      <div class="sv1-foot-row"><span>Suivez-nous</span></div><div class="sv1-foot-social"><a href="https://www.linkedin.com/company/business-partner-sa" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a><a href="https://x.com/business_partnr" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.4l-5.8-7.58-6.64 7.58H.47l8.6-9.83L0 1.15h7.59l5.24 6.93 6.07-6.93Zm-1.29 19.5h2.04L6.49 3.24H4.3l13.31 17.41Z"/></svg></a><a href="https://www.facebook.com/BusinessPartnerKsa" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-7.5h2.5l.5-3h-3V8.6c0-.87.24-1.46 1.5-1.46H16.6V4.5c-.28-.04-1.23-.12-2.34-.12-2.31 0-3.9 1.41-3.9 4v2.12H7.9v3h2.46V21h3.14z"/></svg></a><a href="https://www.snapchat.com/add/business_partnr" target="_blank" rel="noopener" aria-label="Snapchat"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.6c-3.1 0-5.2 2.3-5.2 5.3v1.9c-.5.2-1.4.6-1.4 1.2 0 .6.9.9 1.5 1.1-.4 1.1-1.3 2.2-2.5 2.8.7.5 1.5.7 2.3.8.2.5.3 1 .6 1.3.6.5 1.4-.3 2.6-.3 1.1 0 1.9.9 2.6.9.6 0 1.4-.9 2.5-.9 1.2 0 2 .8 2.6.3.3-.3.4-.8.6-1.3.8-.1 1.6-.3 2.3-.8-1.2-.6-2.1-1.7-2.5-2.8.6-.2 1.5-.5 1.5-1.1 0-.6-.9-1-1.4-1.2V7.9c0-3-2.1-5.3-5.1-5.3Z"/></svg></a><a href="https://www.tiktok.com/@businesspartnersa" target="_blank" rel="noopener" aria-label="TikTok"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 1 1-1.87-2.49v-3.1a5.67 5.67 0 1 0 4.96 5.62V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3a4.3 4.3 0 0 1-3.24-1.48z"/></svg></a><a href="https://www.instagram.com/businesspartnersa/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" fill="currentColor" stroke="none"/></svg></a></div>
     </div>
     <div class="sv1-foot-col">
       <h2>Paiements</h2>
@@ -599,7 +630,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
 })();</script><script>
 (function(){"use strict";
 if(window.SV1Login)return;
-var LX={"btn":"Continuer avec Google","loading":"Préparation de la connexion Google…","fail":"La connexion Google n'a pas pu s'afficher — votre réseau ou une extension la bloque peut-être, ou elle n'est pas activée sur cette adresse. Utilisez le lien par e-mail ci-dessous.","err":"La connexion Google a échoué. Essayez le lien par e-mail ci-dessous.","inapp":"Si le bouton ne répond pas, ouvrez cette page dans Safari ou Chrome — les navigateurs intégrés (WhatsApp, Instagram…) bloquent Google.","or":"Ou avec votre e-mail"},LL="fr",G="<svg viewBox=\"0 0 48 48\" aria-hidden=\"true\"><path fill=\"#EA4335\" d=\"M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z\"/><path fill=\"#4285F4\" d=\"M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.2 5.6c4.3-3.9 6.8-9.7 6.8-17z\"/><path fill=\"#FBBC05\" d=\"M10.5 28.7c-.5-1.4-.8-2.9-.8-4.7s.3-3.3.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z\"/><path fill=\"#34A853\" d=\"M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.2-5.6c-2 1.4-4.6 2.2-8.7 2.2-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z\"/></svg>";
+var LX={"btn":"Continuer avec Google","loading":"Préparation de la connexion Google…","fail":"La connexion Google n'a pas pu s'afficher — votre réseau ou une extension la bloque peut-être, ou elle n'est pas activée sur cette adresse. Utilisez le lien par e-mail ci-dessous.","err":"La connexion Google a échoué. Essayez le lien par e-mail ci-dessous.","inapp":"Si le bouton ne répond pas, ouvrez cette page dans Safari ou Chrome — les navigateurs intégrés (WhatsApp, Instagram…) bloquent Google.","or":"Ou avec votre e-mail","orPlain":"ou","nfTitle":"Se connecter avec Nafath","nfSub":"Le moyen le plus rapide et le plus sûr. Votre première connexion crée votre compte automatiquement.","nfLabel":"N° d'identité nationale ou d'Iqama","nfPh":"10 chiffres","nfBtn":"Continuer avec Nafath","nfSending":"Envoi de la demande à Nafath…","nfWaitTitle":"Ouvrez l'application Nafath sur votre téléphone","nfWaitText":"Choisissez ce numéro parmi ceux affichés dans l'application pour confirmer votre connexion :","nfWaiting":"En attente de votre confirmation dans l'application…","nfHint":"Pas de notification ? Ouvrez vous-même l'application Nafath. Ne choisissez pas un autre numéro.","nfDone":"Votre identité est vérifiée ✓","nfDoneNext":"Ouverture de votre compte…","nfRejected":"La demande a été refusée dans l'application Nafath.","nfExpired":"La demande a expiré. Recommencez.","nfRetry":"Réessayer","nfCancel":"Annuler","nfFail":"Impossible de joindre Nafath. Réessayez dans un instant ou choisissez un autre moyen.","nfMany":"Trop de tentatives. Patientez une minute puis réessayez.","nfDaily":"La connexion Nafath a atteint sa limite quotidienne. Utilisez Google ou votre e-mail, ou réessayez demain.","nfSoon":"La connexion Nafath arrive bientôt. Utilisez Google ou votre e-mail pour l'instant.","nfBad10":"Un numéro d'identité ou d'Iqama comporte 10 chiffres.","nfBadPrefix":"Ce numéro n'est pas valide. Vérifiez-le et réessayez.","nfPrefix9":"Nafath ne peut pas vérifier ce numéro."},LL="fr",G="<svg viewBox=\"0 0 48 48\" aria-hidden=\"true\"><path fill=\"#EA4335\" d=\"M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z\"/><path fill=\"#4285F4\" d=\"M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.2 5.6c4.3-3.9 6.8-9.7 6.8-17z\"/><path fill=\"#FBBC05\" d=\"M10.5 28.7c-.5-1.4-.8-2.9-.8-4.7s.3-3.3.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z\"/><path fill=\"#34A853\" d=\"M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.2-5.6c-2 1.4-4.6 2.2-8.7 2.2-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z\"/></svg>",NF_SVG="<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 3l7 3v5c0 4.6-2.9 8.1-7 10-4.1-1.9-7-5.4-7-10V6l7-3z\"/><path d=\"M9 12l2.2 2.2L15.5 10\"/></svg>",NF_OK="<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></svg>",NF_FIRST="123456";
 function otp(d){return fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(d)}).then(function(r){return r.json()})}
 // ما تعرضه هذه النشرة من أبواب الدخول — طلبٌ واحد تتشاركه كل الأزرار في الصفحة.
 var M=null;function methods(){if(!M)M=otp({action:'methods'}).catch(function(){return null});return M}
@@ -662,7 +693,80 @@ function mountGoogle(slot,opt){
     if(tries>70){hard();return}  // ثم يُترك
     setTimeout(wait,150)})()
   })}).catch(function(){state='fail';say(LX.fail,true)})}
-window.SV1Login={otp:otp,methods:methods,mountGoogle:mountGoogle,inApp:INAPP,or:LX.or,t:LX};
+// ---- Nafath ----------------------------------------------------------------
+// The id is checked here with the same rule api/_nafath.js applies (a test keeps
+// the two in step), so a mistyped number is caught before it rings anyone's
+// phone. Arabic-Indic digits are converted first: a Saudi keyboard types them as
+// readily as 0-9, and a check that only sees ASCII would call them "not digits".
+function nfNorm(v){var s=String(v==null?'':v),o='',i,c;for(i=0;i<s.length;i++){c=s.charCodeAt(i);
+ if(c>=48&&c<=57)o+=s.charAt(i);else if(c>=1632&&c<=1641)o+=String(c-1632);else if(c>=1776&&c<=1785)o+=String(c-1776)}return o}
+function nfState(v){var d=nfNorm(v);if(d.length!==10)return{ok:false,reason:'must_be_10_digits'};
+ if(NF_FIRST.indexOf(d.charAt(0))<0)return{ok:false,reason:d.charAt(0)==='9'?'unsupported_prefix_9':'bad_prefix'};
+ return{ok:true,value:d}}
+function nfWhy(r){return r==='must_be_10_digits'?LX.nfBad10:r==='unsupported_prefix_9'?LX.nfPrefix9:LX.nfBadPrefix}
+// What a failed answer from the server means to this visitor, in this language.
+function nfErr(o){var e=o&&o.error;
+ if(e==='daily_limit')return LX.nfDaily;if(e==='too_many')return LX.nfMany;
+ if(e==='must_be_10_digits'||e==='unsupported_prefix_9'||e==='bad_prefix')return nfWhy(e);
+ if(e==='nafath_not_configured'||e==='nafath_service_not_configured'||e==='not_implemented'||e==='nafath_provider_unknown')return LX.nfSoon;
+ return LX.nfFail}
+// opt: {onSuccess(o), purpose}. o is the poll answer that opened the session; when
+// o.needsContact is true the account was just created and still needs a real
+// e-mail and mobile (the page asks for them next).
+function mountNafath(slot,opt){
+ opt=opt||{};slot.innerHTML='';slot.className=(slot.className+' nf').trim();
+ var badge=el('div','nf-badge');badge.innerHTML=NF_SVG;
+ var head=el('div','nf-h');var tt=el('div');tt.appendChild(el('b',null,LX.nfTitle));tt.appendChild(el('p','nf-sub',LX.nfSub));head.appendChild(badge);head.appendChild(tt);slot.appendChild(head);
+ var form=el('div','nf-form');
+ var lab=el('label',null,LX.nfLabel);var inp=el('input','nf-in');inp.type='text';inp.setAttribute('inputmode','numeric');inp.setAttribute('autocomplete','off');inp.maxLength=10;inp.placeholder=LX.nfPh;inp.id='nfId'+Math.floor(Math.random()*1e6);lab.setAttribute('for',inp.id);
+ var btn=el('button','nf-btn',LX.nfBtn);btn.type='button';
+ var msg=el('p','nf-msg');msg.hidden=true;msg.setAttribute('role','alert');
+ form.appendChild(lab);form.appendChild(inp);form.appendChild(btn);form.appendChild(msg);slot.appendChild(form);
+ var wait=el('div','nf-wait');wait.hidden=true;slot.appendChild(wait);
+ var dev=el('p','nf-dev');dev.hidden=true;slot.appendChild(dev);
+ var dead=false,timer=null,sid=0;
+ function say(t,kind){msg.hidden=!t;msg.textContent=t||'';msg.className='nf-msg'+(kind?' '+kind:'')}
+ function showForm(){dead=true;clearTimeout(timer);wait.hidden=true;wait.innerHTML='';form.hidden=false;btn.disabled=false;inp.disabled=false}
+ var can=true;
+ methods().then(function(m){var n=m&&m.nafath;
+  if(n&&n.available===false){can=false;inp.disabled=true;btn.disabled=true;say(LX.nfSoon,'')}
+  if(n&&n.provider==='mock'){dev.hidden=false;dev.textContent='DEV mock: ID ending 7 = rejected, 8 = expired, other = approved after ~6 s'}
+ }).catch(function(){});
+ function start(){
+  var s=nfState(inp.value);if(!s.ok){say(nfWhy(s.reason),'err');inp.focus();return}
+  btn.disabled=true;inp.disabled=true;say(LX.nfSending,'');
+  otp({action:'nafath-start',nationalId:s.value,purpose:opt.purpose||'portal',locale:LL}).then(function(o){
+   if(!o||!o.ok||!o.random||!o.challenge){btn.disabled=!can;inp.disabled=!can;say(nfErr(o),'err');return}
+   inp.value='';wait_(String(o.random),o.challenge)
+  }).catch(function(){btn.disabled=!can;inp.disabled=!can;say(LX.nfFail,'err')})}
+ btn.onclick=start;inp.addEventListener('keydown',function(ev){if(ev.key==='Enter')start()});
+ function wait_(random,ch){
+  dead=false;form.hidden=true;say('');wait.hidden=false;wait.innerHTML='';
+  wait.appendChild(el('h4',null,LX.nfWaitTitle));wait.appendChild(el('p',null,LX.nfWaitText));
+  var num=el('div','nf-num',random);num.setAttribute('aria-label',random);wait.appendChild(num);
+  var st=el('p','nf-msg');var dots=el('span','nf-dots');dots.innerHTML='<i></i><i></i><i></i>';st.appendChild(dots);st.appendChild(document.createTextNode(LX.nfWaiting));st.setAttribute('role','status');wait.appendChild(st);
+  wait.appendChild(el('p','nf-sub',LX.nfHint));
+  var cancel=el('button','nf-link',LX.nfCancel);cancel.type='button';cancel.onclick=function(){showForm()};wait.appendChild(cancel);
+  var t0=Date.now(),fails=0,my=++sid;
+  function end(text){dead=true;clearTimeout(timer);wait.innerHTML='';var m=el('p','nf-msg err',text);m.setAttribute('role','alert');wait.appendChild(m);
+   var again=el('button','nf-btn ghost',LX.nfRetry);again.type='button';again.onclick=function(){showForm();inp.focus()};wait.appendChild(again)}
+  function done(o){dead=true;clearTimeout(timer);wait.innerHTML='';var ok=el('div','nf-ok');ok.innerHTML=NF_OK;wait.appendChild(ok);
+   var m=el('p','nf-msg ok',LX.nfDone);m.setAttribute('role','status');wait.appendChild(m);wait.appendChild(el('p','nf-sub',LX.nfDoneNext));
+   setTimeout(function(){if(opt.onSuccess)opt.onSuccess(o)},opt.successDelay==null?900:opt.successDelay)}
+  function next(){if(dead||my!==sid)return;if(Date.now()-t0>600000){end(LX.nfExpired);return}timer=setTimeout(poll,opt.pollMs||3000)}
+  function poll(){if(dead||my!==sid)return;
+   otp({action:'nafath-poll',challenge:ch}).then(function(o){if(dead||my!==sid)return;
+    if(o&&o.ok&&o.status==='WAITING'){fails=0;next();return}
+    if(o&&o.ok&&o.status==='COMPLETED'&&o.db!==false){done(o);return}
+    if(o&&o.ok&&o.status==='REJECTED'){end(LX.nfRejected);return}
+    if(o&&o.ok&&o.status==='EXPIRED'){end(LX.nfExpired);return}
+    if(o&&o.error==='expired_challenge'){end(LX.nfExpired);return}
+    if(o&&o.error==='bind_failed'){end(LX.nfFail);return}
+    if(++fails>=4){end(LX.nfFail);return}next()
+   }).catch(function(){if(dead||my!==sid)return;if(++fails>=4){end(LX.nfFail);return}next()})}
+  timer=setTimeout(poll,opt.firstPollMs||2000)}
+}
+window.SV1Login={otp:otp,methods:methods,mountGoogle:mountGoogle,mountNafath:mountNafath,nid:nfState,inApp:INAPP,or:LX.or,orPlain:LX.orPlain,t:LX};
 })();
 (function(){
 var LANG="fr",HOME="/fr/";
@@ -756,6 +860,9 @@ var payable=cart.length&&!unpriced&&!hidden&&total>0&&empLines.length<=1;
   var el=$(p[0]);if(el&&!el.value&&s[p[1]])el.value=String(s[p[1]])})})();
 // تعبئة من الجلسة: من دخل حسابه لا يعيد كتابة بريده عند الدفع.
 getMe().then(function(u){if(!u)return;
+  // حسابٌ أنشأه أول دخول بنفاذ ولم يُكمِل بريده وجواله: لا بريد حقيقياً بعد لخانة الفاتورة.
+  // يُرسَل إلى خطوة الإكمال في /my ثم يعود إلى هنا.
+  if(u.contactPending){location.replace(HOME+'my?next='+encodeURIComponent(HOME+'checkout'));return}
   if(!$('coEmail').value)$('coEmail').value=u.email||'';
   if(!$('coName').value)$('coName').value=u.full_name||'';});
 
@@ -934,10 +1041,16 @@ function payBlocked(msg,href,label){
  var tg=$('coTamaraGo');if(tg)tg.disabled=true}
 // الضيف عند الدفع يرى «المتابعة بجوجل» هنا في الصفحة نفسها: يدخل وتبقى سلته أمامه
 // (إعادة تحميل بعد الدخول لا انتقال). والزرّ الآخر يذهب إلى /my بالبريد وبـnext.
+// الترتيب كما قرّر المالك: نفاذ أولاً، ثم جوجل، ثم البريد (الزرّ الأخير يذهب إلى /my).
+// أول دخول بنفاذ ينشئ الحساب، فيُرسَل إلى /my خطوةً واحدة لبريده وجواله ثم يعود إلى الدفع.
 function guestGoogle(){var L=window.SV1Login;if(!L)return;var a=mount.querySelector('a');if(!a)return;
- var s=document.createElement('div');s.style.marginTop='12px';
+ var ns=document.createElement('div');ns.style.marginTop='12px';
+ var or0=document.createElement('div');or0.className='bpg-or';or0.textContent=L.orPlain;
+ var s=document.createElement('div');
  var or=document.createElement('div');or.className='bpg-or';or.textContent=L.or;
- mount.insertBefore(s,a);mount.insertBefore(or,a);
+ mount.insertBefore(ns,a);mount.insertBefore(or0,a);mount.insertBefore(s,a);mount.insertBefore(or,a);
+ L.mountNafath(ns,{purpose:'portal',onSuccess:function(o){try{localStorage.setItem('bp_session','1')}catch(x){}
+  if(o&&o.needsContact){location.href=HOME+'my?next='+encodeURIComponent(HOME+'checkout')}else{location.reload()}}});
  L.mountGoogle(s,{onSuccess:function(){try{localStorage.setItem('bp_session','1')}catch(x){}location.reload()},
   onError:function(m){var p=document.createElement('p');p.className='sv1-co-fine';p.style.color='#b42318';p.textContent=m;mount.insertBefore(p,or)},
   onHide:function(){or.style.display='none'}})}

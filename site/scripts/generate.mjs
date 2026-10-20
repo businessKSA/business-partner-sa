@@ -328,6 +328,8 @@ const SINGLE_LANG_PATHS = new Set(["/ops"]);
 // لقطة قاعدة الرحلات في نوشن (site/data/trips.json). تُحدَّث بإعادة السحب
 // من نوشن، ولا تُحرَّر باليد كي لا يفترق الموقع عن مصدره.
 const TRIPS = read("data/trips.json");
+// باقات Business Partner AI — تُشترى من /ai وحدها؛ أسعارها هنا لا في services.json حتى لا تظهر في /catalog.
+const AI_PLANS = read("data/ai-plans.json");
 const langPathReady = (lang, path) => !NEVER_EXTRA_LANG_PATHS.has(path) && (FULLY_READY_LANGS.includes(lang) || EXTRA_LANG_PATHS.has(path));
 import { TRANSLATIONS } from "./i18n.mjs";
 import { simpleV1, SIMPLE_V1 } from "./simple-v1.mjs";
@@ -12364,6 +12366,9 @@ const catalogJson = {
   // ينطبق على أي بند — التسعير الآلي وعرض السعر والعقد والفاتورة. سعرها
   // المعلن شاملُ الضريبة، والصافي مشتقٌّ منه بدقّةٍ تكفي لأن يعود المعلن
   // كما هو بعد إضافة ١٥٪.
+  // باقات Business Partner AI: رمزٌ وسعرٌ صافٍ شهري، يعيد api/pay.js التسعير منه.
+  // لا تُعرض في /catalog (ليست في services) — تُشترى من /ai وحدها.
+  aiPlans: AI_PLANS.plans.map((p) => ({ code: p.code, plan: p.plan, nameAr: p.nameAr, nameEn: p.nameEn, amount: p.amount, billingPeriod: p.billingPeriod })),
   trips: TRIPS.trips.map((t) => ({
     code: t.code, nameAr: t.nameAr, nameEn: t.nameEn,
     category: "Tourism", categoryAr: "الرحلات السياحية",

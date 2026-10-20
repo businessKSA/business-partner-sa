@@ -162,3 +162,55 @@ export async function handleAiws(body, ctx = {}) {
 
   return { status: 400, body: { ok: false, error: "unknown_action" } };
 }
+
+/* ───────────── مفعّل الخدمات: بعد الدفع ───────────── */
+// الدفع تحقّق منه api/pay.js مع ميسر مباشرة (verified) قبل أن يصل هنا. هذه الدالة
+// تسلّم حدث الشراء إلى «مفعّل الخدمات» في n8n (Azure) بمفتاح ترويسة، وهو يجهّز
+// المساحة ويُبلغ العميل. لا تُنشئ مساحة بنفسها ولا تحمل رمز خادم المنصة.
+const ACTIVATOR_URL = process.env.AIWS_ACTIVATOR_URL || "";
+const ACTIVATOR_KEY = process.env.AIWS_ACTIVATOR_KEY || "";
+export const AIWS_SKU_PLAN = { "bp-aiws-ind": "individual", "bp-aiws-bus": "business", "bp-aiws-bplus": "business_plus", "bp-aiws-ent": "enterprise" };
+
+/** معرّف سطر السلة (svc-bp-aiws-bus) ← رمز باقة المنصة، أو "" لغير باقات Business Partner AI. */
+export function aiwsPlanOf(id) {
+  const k = String(id || "").toLowerCase().replace(/^svc-/, "").replace(/-monthly$/, "");
+  return AIWS_SKU_PLAN[k] || "";
+}
+
+/**
+ * @param {object} o { ref, payId, plans:[{sku,plan,qty}], company, name, email, phone, total, lang }
+ * @param {object} ctx { fetch, dev, outbox }
+ * @returns {Promise<{ok:boolean, queued?:boolean, error?:string}>}
+ */
+export async function activateAiws(o, ctx = {}) {
+  const payload = {
+    event: "aiws.paid",
+    ref: String(o.ref || "").slice(0, 40),
+    pay_id: String(o.payId || "").slice(0, 64),
+    plans: (o.plans || []).slice(0, 4).map((p) => ({ sku: String(p.sku || "").toUpperCase().slice(0, 30), plan: String(p.plan || ""), qty: Math.max(1, Math.min(9, Number(p.qty) || 1)) })),
+    company: clean(o.company, 200),
+    name: clean(o.name, 160),
+    email: clean(o.email, 160).toLowerCase(),
+    phone: clean(o.phone, 40),
+    total: Number(o.total) || 0,
+    lang: o.lang === "en" ? "en" : "ar",
+  };
+  if (!payload.pay_id || !payload.plans.length || !EMAIL_RE.test(payload.email)) return { ok: false, error: "invalid" };
+  if (ctx.dev) {
+    if (ctx.outbox) await ctx.outbox({ kind: "n8n", to: "bp-service-activator", subject: payload.ref, payload }).catch(() => {});
+    return { ok: true, queued: true };
+  }
+  if (!ACTIVATOR_URL || !ACTIVATOR_KEY) return { ok: false, error: "not_configured" };
+  try {
+    const r = await (ctx.fetch || fetch)(ACTIVATOR_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json", "X-BP-Activator-Key": ACTIVATOR_KEY },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!r.ok) return { ok: false, error: "activator_" + r.status };
+    return { ok: true, queued: true };
+  } catch {
+    return { ok: false, error: "activator_unreachable" };
+  }
+}

@@ -216,7 +216,27 @@
 
 **وكلاء n8n (٣ نشطون):** `FXyYuDiYyrSvXdvZ` واتساب محفول (أقدم سيناريو في
 المنظومة — 2026-06-01) · `OYtiKvINZrfuCiiY` مصمّم الرحلات · `0UKcVmH6lTTli5BN`
-التحقق من إيصالات الدفع (بوابة اعتماد بشري).
+التحقق من إيصالات الدفع (بوابة اعتماد بشري). يملكها `automation-agents`، لا
+فريق محفول — وفريق محفول يطلب منه ولا يكتب فيها.
+
+#### فريق محفول (2026-09-24)
+
+| الوكيل | يملك | الحالة |
+|---|---|---|
+| `mahfol` **مدير** | دوال محفول في `generate.mjs`: `buildMahfolMakfol()` · `buildTourism()` · `buildMahfolTrips()`+`DEST` · `mmSubnav()` | يعمل |
+| `mahfol-trips` | `site/scripts/simple-v1-trips.mjs` · `site/data/trips.json` | يعمل |
+| `mahfol-investor` | `simple-v1-mahfol-investor.mjs` | **لم يُنشأ** |
+| `mahfol-corporate` | `simple-v1-tourism.mjs` | **لم يُنشأ** |
+
+**لماذا اثنان فقط:** `/trips` وحدها لها ملف مستقل. أما `/mahfol-makfol`
+و`/tourism` و`/mahfol-makfol/trips` فثلاثتها داخل `generate.mjs` المشترك
+(الأسطر ~٤٤١٧ و~٤٥١٨ و~٤٩١٧) — ووكيلان يكتبان في ملف واحد يتصادمان، وهو
+العطل الذي كُتب هذا السجل لمنعه. فتبقى الدوال الثلاث في يد `mahfol` وحده.
+
+**شرط إنشاء الوكيلين الباقيين:** يُنشأ `mahfol-investor` يوم تُستخرج
+`buildMahfolMakfol()` إلى `simple-v1-mahfol-investor.mjs`، و`mahfol-corporate`
+يوم تُستخرج `buildTourism()` إلى `simple-v1-tourism.mjs` — ويُسجَّل كلٌّ منهما
+في `CLAUDE.md` وهنا **في الدفعة نفسها**. لا وكيل بلا ملفٍّ يملكه وحده.
 
 `/guide/company-structure` (الهيكلة والرواتب وتكلفة الموظف) — **أول دليل على
 الموقع الجديد** (`SV1.shell()`، `site/scripts/simple-v1-guide-structure.mjs`).
@@ -569,3 +589,5 @@ Simple V1. وكيل المنتج لا يلمسها.
 **منصة مساحات Business Partner AI:** `https://ai.businesspartner.sa` — مساحة خاصة لكل شركة (Open WebUI على خادم Azure `bp-ai-server`، خارج هذا المستودع). **المسؤول: نايف** في n8n، يرفع لمحمد (IT). فريقه: لجين (التهيئة والتجارب) · حمد (الاستقرار) · ديم (الدعم). السيناريوهات: `PxBoz6f2i6276hJ8` (المسار `ai-workspace-intake`) و`ZoTA8MKp2QqUPMmY` (فحص `/health` كل ١٥ دقيقة). طلبات المساحات تُسجَّل في Unified Revenue Intake فتصير صفقة لبدر. إنشاء المساحة نفسها بشري على الخادم. الحدّ: `bp-ai-platform` لـNotion الداخلي، و`automation-agents` لبنية n8n. تعريفه: `.claude/agents/ai-workspace.md`.
 
 **صفحة `/ai` (2026-10-16، بأمر المالك «نعم ابدأ في صفحة /ai»):** صفحة المنتج على SV1 بأربع لغات — `site/scripts/simple-v1-ai.mjs` · `api/_aiws.js` (عبر `api/requests.js?__route=ai`). الباقات تُقرأ من المنصة بلا أسعار، وطلب التجربة يذهب إلى Unified Revenue Intake ولا يُنشئ مساحة. غير مرتبطة في الترويسة ولا في خريطة الموقع حتى يقرر المالك.
+
+**الشراء والتفعيل (2026-10-16):** أربع باقات شهرية بالريال في `site/data/ai-plans.json` → `catalog.json → aiPlans`، تُشترى من /ai عبر السلة والدفع، وبعد التحقق يُسلَّم الحدث إلى «مفعّل الخدمات» (n8n Azure) الذي يفتح مهمة تجهيز لنايف. كتالوج الربطات (Connectors) مصنّفاً حسب العمل: `docs/ai-connectors-catalog.md`.

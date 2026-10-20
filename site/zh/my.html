@@ -25,7 +25,10 @@
    for Arabic, and an English phone UI must not bounce them back to English. */
 if(!s){if(c!=="en")return;if(sessionStorage.getItem("bp_lang_auto"))return;var bl=((navigator.languages&&navigator.languages[0])||navigator.language||"").slice(0,2).toLowerCase();if(!bl||bl===c)return;var al=document.querySelector('link[rel="alternate"][hreflang="'+bl+'"]');if(al&&al.href){sessionStorage.setItem("bp_lang_auto","1");location.replace(al.href);}return;}
 if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+s+'"]');if(a&&a.href){var to=a.href.split("#")[0].replace(/\/$/,""),cur=location.href.split("#")[0].replace(/\/$/,"");if(to!==cur)location.replace(a.href);}}catch(e){}})();</script>
-<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/assets/img/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="/assets/img/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@200;300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
@@ -363,6 +366,23 @@ table.q tfoot td{font-weight:700}
   .docovl{position:static;background:#fff} .docovl-bar{display:none}}
 canvas.sig{border:1px dashed #c7cfe2;border-radius:10px;background:#fff;width:100%;height:150px;touch-action:none}
 .note{font-size:.82rem;color:var(--mut)}
+/* the cancel sheet: ours, not window.confirm, so it also works where a native dialog is blocked */
+.cx-ovl{position:fixed;inset:0;z-index:95;background:rgba(12,18,40,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+.cx-box{background:#fff;border-radius:18px;max-width:460px;width:100%;padding:22px;box-shadow:0 24px 60px rgba(12,18,40,.35);max-height:calc(100vh - 32px);overflow:auto}
+.cx-box h3{margin:0 0 8px;color:var(--ink);font-size:1.1rem;font-weight:600}
+.cx-box p{margin:0 0 10px;font-size:.9rem;line-height:1.8;color:#3b4561}
+.cx-box input{display:block;width:100%;box-sizing:border-box;border:1px solid #b9c3dc;border-radius:10px;padding:11px 12px;font:inherit;background:#fff;color:#1F2430;margin-top:4px}
+.cx-box input:focus{outline:2px solid var(--n);outline-offset:1px}
+.cx-box .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.cx-box .acts .btn{flex:1;min-width:140px;padding:11px 14px}
+.btn.solid-danger{background:#b91c1c;border-color:#b91c1c;color:#fff}
+.cx-state{border-radius:16px;padding:16px 18px;margin-bottom:14px;border:1px solid}
+.cx-state h3{margin:0 0 6px;font-size:1.02rem;font-weight:600}
+.cx-state p{margin:0;font-size:.88rem;line-height:1.8}
+.cx-state.done{background:#fef2f2;border-color:#fecaca;color:#7f1d1d}
+.cx-state.pend{background:#fff7ed;border-color:#fed7aa;color:#7c2d12}
+.cx-state .btn{margin-top:10px}
+.stat .cxbtn{margin-inline-start:auto}
 .ok{color:#118657;font-weight:700}.err{color:#b91c1c;font-size:.84rem}
 .login{max-width:440px;margin:60px auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px}
 .login .alt{margin-top:12px;display:flex;gap:14px;flex-wrap:wrap}
@@ -379,7 +399,43 @@ canvas.sig{border:1px dashed #c7cfe2;border-radius:10px;background:#fff;width:10
 .bpg-note.err{color:#b91c1c}
 .bpg-or{display:flex;align-items:center;gap:10px;margin:14px 0 10px;color:var(--faint,#8D97AE);font-size:12.5px}
 .bpg-or:before,.bpg-or:after{content:"";flex:1;height:1px;background:var(--line,#E5E9F0)}
+/* Nafath: the first door, so the largest. Tokens are SV1's own; nothing new. */
+.nf{border:1.5px solid var(--acLine,#C3CDE6);border-radius:16px;padding:16px 16px 14px;background:linear-gradient(180deg,var(--acSoft,#EEF2FB),#fff 70%)}
+.nf-h{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.nf-badge{flex:none;width:42px;height:42px;border-radius:12px;background:var(--n,#0B1B5A);color:#fff;display:grid;place-items:center}
+.nf-badge svg{width:23px;height:23px}
+.nf-h b{display:block;color:var(--ink,#0B1B5A);font-size:1.02rem;line-height:1.35}
+.nf-sub{margin:2px 0 0!important;font-size:.82rem!important;line-height:1.6;color:var(--mut,#5A6478)}
+.nf label{display:block;margin:0 0 5px;font-size:.84rem;font-weight:600;color:var(--ink,#0B1B5A)}
+.nf .nf-in{width:100%;box-sizing:border-box;border:1px solid var(--line,#E5E9F0);border-radius:10px;padding:12px;font:inherit;font-size:16px;letter-spacing:.14em;text-align:center;direction:ltr;background:#fff;margin:0 0 10px}
+.nf .nf-in:focus{outline:2px solid var(--ac,#0B1B5A);outline-offset:1px}
+.nf .nf-btn{width:100%;min-height:46px;border-radius:12px;border:1px solid var(--n,#0B1B5A);background:var(--n,#0B1B5A);color:#fff;font:inherit;font-size:.95rem;font-weight:700;cursor:pointer}
+.nf .nf-btn[disabled]{opacity:.55;cursor:not-allowed}
+.nf .nf-btn.ghost{background:#fff;color:var(--n,#0B1B5A)}
+.nf-msg{margin:10px 0 0!important;font-size:.84rem!important;line-height:1.7;color:var(--mut,#5A6478)}
+.nf-msg.err{color:#b91c1c}.nf-msg.ok{color:var(--ok,#047857);font-weight:700}
+.nf-wait{text-align:center}
+.nf-wait h4{margin:0 0 4px;font-size:1rem;color:var(--ink,#0B1B5A)}
+.nf .nf-wait p{margin:0 0 10px;font-size:.86rem;line-height:1.7;color:var(--mut,#5A6478)}
+.nf-num{width:92px;height:92px;margin:6px auto 12px;border-radius:50%;border:3px solid var(--n,#0B1B5A);display:grid;place-items:center;font-size:2.4rem;font-weight:700;color:var(--ink,#0B1B5A);font-variant-numeric:tabular-nums;direction:ltr;background:#fff}
+.nf-dots{display:inline-flex;gap:5px;vertical-align:middle;margin-inline-end:8px}
+.nf-dots i{width:7px;height:7px;border-radius:50%;background:var(--n,#0B1B5A);opacity:.25;animation:nfp 1.2s infinite}
+.nf-dots i:nth-child(2){animation-delay:.2s}.nf-dots i:nth-child(3){animation-delay:.4s}
+@keyframes nfp{0%,100%{opacity:.25}50%{opacity:1}}
+@media(prefers-reduced-motion:reduce){.nf-dots i{animation:none;opacity:.6}}
+.nf-link{display:inline-block;margin-top:8px;color:var(--n,#0B1B5A);text-decoration:underline;cursor:pointer;font-size:.84rem;background:none;border:0;font-family:inherit}
+.nf-ok{width:62px;height:62px;margin:4px auto 10px;border-radius:50%;background:var(--okSoft,#E7F4EF);color:var(--ok,#047857);display:grid;place-items:center}
+.nf-ok svg{width:32px;height:32px}
+.nf-dev{margin:8px 0 0!important;font-size:.74rem!important;color:var(--faint,#8D97AE)!important;text-align:center;direction:ltr}
 
+.login .seg{display:flex;gap:4px;padding:3px;margin:0 0 10px;border-radius:12px;background:var(--soft,#F5F7FB);border:1px solid var(--line)}
+.login .segb{flex:1;min-height:38px;border:0;border-radius:9px;background:transparent;font:inherit;font-size:.84rem;font-weight:700;color:var(--mut);cursor:pointer;padding:0 6px}
+.login .segb.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(11,27,90,.12)}
+.login .segb[hidden]{display:none}
+.login .rule{margin:0 0 8px;font-size:.8rem}.login .rule.bad{color:#b91c1c}.login .rule.good{color:var(--ok,#047857)}
+.login .cstep{display:inline-block;margin:0 0 8px;padding:3px 10px;border-radius:999px;background:var(--acSoft,#EEF2FB);color:var(--ink);font-size:.76rem;font-weight:700}
+.login label{display:block;margin:6px 0 4px;font-size:.84rem;font-weight:600;color:var(--ink)}
+@media(max-width:520px){.login{margin:18px 12px;padding:18px}}
 .login h1{margin:0 0 6px;color:var(--ink);font-size:1.35rem;font-weight:400}
 .login p{color:var(--mut);margin:0 0 14px;font-size:.9rem}
 .login input{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit;margin-bottom:8px}
@@ -486,7 +542,7 @@ var h0=hint();if(h0)S.paint(true,h0);
       <div class="sv1-foot-row"><span>邮箱</span><a href="mailto:business@businesspartner.sa"><bdi dir="ltr">business@businesspartner.sa</bdi></a></div>
       <div class="sv1-foot-row"><span>国家地址</span><span class="v">Building 9214 · King Khaled Branch Rd. · Al Asemah Dist. · Ad Diriyah 13714 · Additional no. 5076</span></div>
       <div class="sv1-foot-row"><span>营业时间</span><span class="v">Sun–Thu · 9 AM – 6 PM · and the smart agent around the clock</span></div>
-      <div class="sv1-foot-row"><span>关注我们</span></div><div class="sv1-foot-social"><a href="https://www.linkedin.com/company/108785026/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a><a href="https://www.instagram.com/businesspartnersa/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" fill="currentColor" stroke="none"/></svg></a><a href="https://www.tiktok.com/@businesspartnersa" target="_blank" rel="noopener" aria-label="TikTok"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 1 1-1.87-2.49v-3.1a5.67 5.67 0 1 0 4.96 5.62V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3a4.3 4.3 0 0 1-3.24-1.48z"/></svg></a><a href="https://www.facebook.com/BusinessPartnerKsa/" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-7.5h2.5l.5-3h-3V8.6c0-.87.24-1.46 1.5-1.46H16.6V4.5c-.28-.04-1.23-.12-2.34-.12-2.31 0-3.9 1.41-3.9 4v2.12H7.9v3h2.46V21h3.14z"/></svg></a></div>
+      <div class="sv1-foot-row"><span>关注我们</span></div><div class="sv1-foot-social"><a href="https://www.linkedin.com/company/business-partner-sa" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg></a><a href="https://x.com/business_partnr" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.4l-5.8-7.58-6.64 7.58H.47l8.6-9.83L0 1.15h7.59l5.24 6.93 6.07-6.93Zm-1.29 19.5h2.04L6.49 3.24H4.3l13.31 17.41Z"/></svg></a><a href="https://www.facebook.com/BusinessPartnerKsa" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-7.5h2.5l.5-3h-3V8.6c0-.87.24-1.46 1.5-1.46H16.6V4.5c-.28-.04-1.23-.12-2.34-.12-2.31 0-3.9 1.41-3.9 4v2.12H7.9v3h2.46V21h3.14z"/></svg></a><a href="https://www.snapchat.com/add/business_partnr" target="_blank" rel="noopener" aria-label="Snapchat"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.6c-3.1 0-5.2 2.3-5.2 5.3v1.9c-.5.2-1.4.6-1.4 1.2 0 .6.9.9 1.5 1.1-.4 1.1-1.3 2.2-2.5 2.8.7.5 1.5.7 2.3.8.2.5.3 1 .6 1.3.6.5 1.4-.3 2.6-.3 1.1 0 1.9.9 2.6.9.6 0 1.4-.9 2.5-.9 1.2 0 2 .8 2.6.3.3-.3.4-.8.6-1.3.8-.1 1.6-.3 2.3-.8-1.2-.6-2.1-1.7-2.5-2.8.6-.2 1.5-.5 1.5-1.1 0-.6-.9-1-1.4-1.2V7.9c0-3-2.1-5.3-5.1-5.3Z"/></svg></a><a href="https://www.tiktok.com/@businesspartnersa" target="_blank" rel="noopener" aria-label="TikTok"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 1 1-1.87-2.49v-3.1a5.67 5.67 0 1 0 4.96 5.62V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3a4.3 4.3 0 0 1-3.24-1.48z"/></svg></a><a href="https://www.instagram.com/businesspartnersa/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" fill="currentColor" stroke="none"/></svg></a></div>
     </div>
     <div class="sv1-foot-col">
       <h2>支付方式</h2>
@@ -566,7 +622,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>(function(){"use strict";
 if(window.SV1Login)return;
-var LX={"btn":"使用 Google 继续","loading":"正在准备 Google 登录…","fail":"无法显示 Google 登录——可能被网络或浏览器扩展拦截，或此网址未启用。请使用下方的邮件链接登录。","err":"Google 登录未成功。请使用下方的邮件链接。","inapp":"如果按钮没有反应，请在 Safari 或 Chrome 中打开此页面——应用内浏览器（WhatsApp、Instagram 等）会拦截 Google。","or":"或使用邮箱"},LL="zh",G="<svg viewBox=\"0 0 48 48\" aria-hidden=\"true\"><path fill=\"#EA4335\" d=\"M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z\"/><path fill=\"#4285F4\" d=\"M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.2 5.6c4.3-3.9 6.8-9.7 6.8-17z\"/><path fill=\"#FBBC05\" d=\"M10.5 28.7c-.5-1.4-.8-2.9-.8-4.7s.3-3.3.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z\"/><path fill=\"#34A853\" d=\"M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.2-5.6c-2 1.4-4.6 2.2-8.7 2.2-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z\"/></svg>";
+var LX={"btn":"使用 Google 继续","loading":"正在准备 Google 登录…","fail":"无法显示 Google 登录——可能被网络或浏览器扩展拦截，或此网址未启用。请使用下方的邮件链接登录。","err":"Google 登录未成功。请使用下方的邮件链接。","inapp":"如果按钮没有反应，请在 Safari 或 Chrome 中打开此页面——应用内浏览器（WhatsApp、Instagram 等）会拦截 Google。","or":"或使用邮箱","orPlain":"或","nfTitle":"使用 Nafath 登录","nfSub":"最快、最安全的方式。首次登录将自动为您创建账户。","nfLabel":"身份证或居留证号码","nfPh":"10 位数字","nfBtn":"通过 Nafath 继续","nfSending":"正在向 Nafath 发送请求…","nfWaitTitle":"请在手机上打开 Nafath 应用","nfWaitText":"请在应用显示的数字中选择此数字，以确认登录：","nfWaiting":"正在等待您在应用中确认…","nfHint":"没有收到通知？请自行打开 Nafath 应用。切勿选择其他数字。","nfDone":"身份验证成功 ✓","nfDoneNext":"正在打开您的账户…","nfRejected":"Nafath 应用已拒绝该请求。","nfExpired":"请求已过期，请重新开始。","nfRetry":"重试","nfCancel":"取消","nfFail":"暂时无法连接 Nafath。请稍后重试或使用其他方式登录。","nfMany":"尝试次数过多，请稍等一分钟再试。","nfDaily":"今日 Nafath 登录次数已达上限。请改用 Google 或邮箱登录，或明天再试。","nfSoon":"Nafath 登录即将开通。目前请使用 Google 或邮箱登录。","nfBad10":"身份证或居留证号码为 10 位数字。","nfBadPrefix":"号码无效，请检查后重试。","nfPrefix9":"Nafath 无法验证此号码。"},LL="zh",G="<svg viewBox=\"0 0 48 48\" aria-hidden=\"true\"><path fill=\"#EA4335\" d=\"M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z\"/><path fill=\"#4285F4\" d=\"M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.2 5.6c4.3-3.9 6.8-9.7 6.8-17z\"/><path fill=\"#FBBC05\" d=\"M10.5 28.7c-.5-1.4-.8-2.9-.8-4.7s.3-3.3.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z\"/><path fill=\"#34A853\" d=\"M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.2-5.6c-2 1.4-4.6 2.2-8.7 2.2-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z\"/></svg>",NF_SVG="<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 3l7 3v5c0 4.6-2.9 8.1-7 10-4.1-1.9-7-5.4-7-10V6l7-3z\"/><path d=\"M9 12l2.2 2.2L15.5 10\"/></svg>",NF_OK="<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></svg>",NF_FIRST="123456";
 function otp(d){return fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(d)}).then(function(r){return r.json()})}
 // ما تعرضه هذه النشرة من أبواب الدخول — طلبٌ واحد تتشاركه كل الأزرار في الصفحة.
 var M=null;function methods(){if(!M)M=otp({action:'methods'}).catch(function(){return null});return M}
@@ -629,11 +685,84 @@ function mountGoogle(slot,opt){
     if(tries>70){hard();return}  // ثم يُترك
     setTimeout(wait,150)})()
   })}).catch(function(){state='fail';say(LX.fail,true)})}
-window.SV1Login={otp:otp,methods:methods,mountGoogle:mountGoogle,inApp:INAPP,or:LX.or,t:LX};
+// ---- Nafath ----------------------------------------------------------------
+// The id is checked here with the same rule api/_nafath.js applies (a test keeps
+// the two in step), so a mistyped number is caught before it rings anyone's
+// phone. Arabic-Indic digits are converted first: a Saudi keyboard types them as
+// readily as 0-9, and a check that only sees ASCII would call them "not digits".
+function nfNorm(v){var s=String(v==null?'':v),o='',i,c;for(i=0;i<s.length;i++){c=s.charCodeAt(i);
+ if(c>=48&&c<=57)o+=s.charAt(i);else if(c>=1632&&c<=1641)o+=String(c-1632);else if(c>=1776&&c<=1785)o+=String(c-1776)}return o}
+function nfState(v){var d=nfNorm(v);if(d.length!==10)return{ok:false,reason:'must_be_10_digits'};
+ if(NF_FIRST.indexOf(d.charAt(0))<0)return{ok:false,reason:d.charAt(0)==='9'?'unsupported_prefix_9':'bad_prefix'};
+ return{ok:true,value:d}}
+function nfWhy(r){return r==='must_be_10_digits'?LX.nfBad10:r==='unsupported_prefix_9'?LX.nfPrefix9:LX.nfBadPrefix}
+// What a failed answer from the server means to this visitor, in this language.
+function nfErr(o){var e=o&&o.error;
+ if(e==='daily_limit')return LX.nfDaily;if(e==='too_many')return LX.nfMany;
+ if(e==='must_be_10_digits'||e==='unsupported_prefix_9'||e==='bad_prefix')return nfWhy(e);
+ if(e==='nafath_not_configured'||e==='nafath_service_not_configured'||e==='not_implemented'||e==='nafath_provider_unknown')return LX.nfSoon;
+ return LX.nfFail}
+// opt: {onSuccess(o), purpose}. o is the poll answer that opened the session; when
+// o.needsContact is true the account was just created and still needs a real
+// e-mail and mobile (the page asks for them next).
+function mountNafath(slot,opt){
+ opt=opt||{};slot.innerHTML='';slot.className=(slot.className+' nf').trim();
+ var badge=el('div','nf-badge');badge.innerHTML=NF_SVG;
+ var head=el('div','nf-h');var tt=el('div');tt.appendChild(el('b',null,LX.nfTitle));tt.appendChild(el('p','nf-sub',LX.nfSub));head.appendChild(badge);head.appendChild(tt);slot.appendChild(head);
+ var form=el('div','nf-form');
+ var lab=el('label',null,LX.nfLabel);var inp=el('input','nf-in');inp.type='text';inp.setAttribute('inputmode','numeric');inp.setAttribute('autocomplete','off');inp.maxLength=10;inp.placeholder=LX.nfPh;inp.id='nfId'+Math.floor(Math.random()*1e6);lab.setAttribute('for',inp.id);
+ var btn=el('button','nf-btn',LX.nfBtn);btn.type='button';
+ var msg=el('p','nf-msg');msg.hidden=true;msg.setAttribute('role','alert');
+ form.appendChild(lab);form.appendChild(inp);form.appendChild(btn);form.appendChild(msg);slot.appendChild(form);
+ var wait=el('div','nf-wait');wait.hidden=true;slot.appendChild(wait);
+ var dev=el('p','nf-dev');dev.hidden=true;slot.appendChild(dev);
+ var dead=false,timer=null,sid=0;
+ function say(t,kind){msg.hidden=!t;msg.textContent=t||'';msg.className='nf-msg'+(kind?' '+kind:'')}
+ function showForm(){dead=true;clearTimeout(timer);wait.hidden=true;wait.innerHTML='';form.hidden=false;btn.disabled=false;inp.disabled=false}
+ var can=true;
+ methods().then(function(m){var n=m&&m.nafath;
+  if(n&&n.available===false){can=false;inp.disabled=true;btn.disabled=true;say(LX.nfSoon,'')}
+  if(n&&n.provider==='mock'){dev.hidden=false;dev.textContent='DEV mock: ID ending 7 = rejected, 8 = expired, other = approved after ~6 s'}
+ }).catch(function(){});
+ function start(){
+  var s=nfState(inp.value);if(!s.ok){say(nfWhy(s.reason),'err');inp.focus();return}
+  btn.disabled=true;inp.disabled=true;say(LX.nfSending,'');
+  otp({action:'nafath-start',nationalId:s.value,purpose:opt.purpose||'portal',locale:LL}).then(function(o){
+   if(!o||!o.ok||!o.random||!o.challenge){btn.disabled=!can;inp.disabled=!can;say(nfErr(o),'err');return}
+   inp.value='';wait_(String(o.random),o.challenge)
+  }).catch(function(){btn.disabled=!can;inp.disabled=!can;say(LX.nfFail,'err')})}
+ btn.onclick=start;inp.addEventListener('keydown',function(ev){if(ev.key==='Enter')start()});
+ function wait_(random,ch){
+  dead=false;form.hidden=true;say('');wait.hidden=false;wait.innerHTML='';
+  wait.appendChild(el('h4',null,LX.nfWaitTitle));wait.appendChild(el('p',null,LX.nfWaitText));
+  var num=el('div','nf-num',random);num.setAttribute('aria-label',random);wait.appendChild(num);
+  var st=el('p','nf-msg');var dots=el('span','nf-dots');dots.innerHTML='<i></i><i></i><i></i>';st.appendChild(dots);st.appendChild(document.createTextNode(LX.nfWaiting));st.setAttribute('role','status');wait.appendChild(st);
+  wait.appendChild(el('p','nf-sub',LX.nfHint));
+  var cancel=el('button','nf-link',LX.nfCancel);cancel.type='button';cancel.onclick=function(){showForm()};wait.appendChild(cancel);
+  var t0=Date.now(),fails=0,my=++sid;
+  function end(text){dead=true;clearTimeout(timer);wait.innerHTML='';var m=el('p','nf-msg err',text);m.setAttribute('role','alert');wait.appendChild(m);
+   var again=el('button','nf-btn ghost',LX.nfRetry);again.type='button';again.onclick=function(){showForm();inp.focus()};wait.appendChild(again)}
+  function done(o){dead=true;clearTimeout(timer);wait.innerHTML='';var ok=el('div','nf-ok');ok.innerHTML=NF_OK;wait.appendChild(ok);
+   var m=el('p','nf-msg ok',LX.nfDone);m.setAttribute('role','status');wait.appendChild(m);wait.appendChild(el('p','nf-sub',LX.nfDoneNext));
+   setTimeout(function(){if(opt.onSuccess)opt.onSuccess(o)},opt.successDelay==null?900:opt.successDelay)}
+  function next(){if(dead||my!==sid)return;if(Date.now()-t0>600000){end(LX.nfExpired);return}timer=setTimeout(poll,opt.pollMs||3000)}
+  function poll(){if(dead||my!==sid)return;
+   otp({action:'nafath-poll',challenge:ch}).then(function(o){if(dead||my!==sid)return;
+    if(o&&o.ok&&o.status==='WAITING'){fails=0;next();return}
+    if(o&&o.ok&&o.status==='COMPLETED'&&o.db!==false){done(o);return}
+    if(o&&o.ok&&o.status==='REJECTED'){end(LX.nfRejected);return}
+    if(o&&o.ok&&o.status==='EXPIRED'){end(LX.nfExpired);return}
+    if(o&&o.error==='expired_challenge'){end(LX.nfExpired);return}
+    if(o&&o.error==='bind_failed'){end(LX.nfFail);return}
+    if(++fails>=4){end(LX.nfFail);return}next()
+   }).catch(function(){if(dead||my!==sid)return;if(++fails>=4){end(LX.nfFail);return}next()})}
+  timer=setTimeout(poll,opt.firstPollMs||2000)}
+}
+window.SV1Login={otp:otp,methods:methods,mountGoogle:mountGoogle,mountNafath:mountNafath,nid:nfState,inApp:INAPP,or:LX.or,orPlain:LX.orPlain,t:LX};
 })();</script><script>
 (function(){
-var LANG="zh",EV={"request.created":"created the request","request.created.manual":"request created manually","request.created.cart":"request opened from a direct cart purchase","scope.proposed":"proposed the scope","scope.edited":"edited the scope","scope.confirmed":"confirmed the scope","quote.pending":"awaiting the quotation","message.customer":"customer message","message.bp":"team reply","attachment.added":"added an attachment","quote.drafted":"quote drafted","quote.sent":"sent the quotation","quote.approved":"approved the quotation","quote.rejected":"requested changes","contract.sent":"sent the contract","contract.signed":"signed the contract","payment.paid":"payment received","payment.failed":"payment failed","payment.cancelled":"payment cancelled","payment.pending":"payment pending","invoice.issued":"invoice issued","appointment.booked":"booked an appointment","appointment.rescheduled":"rescheduled the appointment","appointment.cancelled":"cancelled the appointment","appointment.set":"set the appointment","task.created":"created a task","task.human_required":"task needs a human","task.done":"completed the task","task.in_progress":"started the task","task.waiting":"task waiting","task.todo":"reopened the task","execution.started":"execution started","request.cancelled":"cancelled the request","request.updated":"updated the request","document.received":"document received","deliverable.added":"delivered a file","deliverable.removed":"withdrew a delivered file","status.completed":"request completed","status.in_progress":"execution started","status.waiting_internal":"in progress","status.reviewing":"under review","status.waiting_client":"waiting for your reply","status.cancelled":"request cancelled","quote.auto":"issued the quotation automatically","documents.requested":"listed the required documents","payment.receipt":"received the transfer receipt","message.whatsapp":"WhatsApp message","contract.reissued":"re-issued the contract","request.reopened":"reopened the request","cancel.requested":"cancellation requested","followup.reminded":"reminded you of the next step"},TX={"title":"我的账户 — Business Partner","navHome":"首页","navNew":"新申请","navRequests":"我的申请","navQuotes":"报价","navContracts":"合同","navAppts":"预约","navPay":"购物车与付款","navInvoices":"发票","navChats":"对话","navCompany":"公司信息","logout":"退出登录","site":"网站","attention":"现在需要您关注什么？","kActive":"进行中的申请","kQuotes":"待确认的报价","kContracts":"待签署的合同","kPayments":"待付款项","kAppts":"即将到来的预约","today":"今天需要什么帮助？","empty":"这里还没有内容。","ref":"编号","status":"状态","open":"打开","back":"返回","conversation":"对话","scope":"服务范围","cancelTitle":"取消此请求","cancelAsk":"申请取消","cancelWhy":"原因（可选）","cancelEarly":"尚无任何约束 — 取消将立即生效。","cancelLate":"此请求已进入有约束的阶段（合同、付款或执行）。我们会受理并由团队审核后回复您。","cancelSent":"已收到取消申请，正在审核。","cancelDone":"请求已取消","resign":"本合同在您签署后已出具更正版本 — 我们会再次发送给您签署。","openFull":"全屏打开","docPrint":"打印 / 保存 PDF","docClose":"关闭","docWait":"正在准备文件…","attachments":"附件","quote":"报价","contract":"合同","payment":"付款","invoice":"发票","timeline":"时间线","writeMsg":"给团队留言…","send":"发送","saveScope":"保存修改","confirmScope":"确认范围并继续","scopePricing":"范围已确认 ✓ — 团队正在准备报价。","docs":"所需文件","docsNote":"我们需要这些文件来完成您的申请 — 用对应按钮上传，团队会立即收到。","docsNone":"暂无所需文件。您仍可上传与此申请相关的任何文件。","docUp":"上传","docUpMore":"再上传一个","docUpAny":"上传其他文件","docRecv":"已收到 ✓","docWaived":"无需提供","docAsked":"待提供","docSent":"您的文件已送达团队 ✓","fOpen":"打开","eMany":"此申请的文件数量已达上限。","eClosed":"此申请已关闭，无法再上传文件。","delivTitle":"交付成果","delivNone":"我们交付的文件会显示在这里，交付后会立即发邮件通知您。","delivNoneDone":"申请已完成，没有交付文件。","delivDl":"下载","delivErr":"无法打开文件 — 请重试。","invSeller":"卖方","invVat":"卖方税号","invBuyer":"买方","invOfficial":"正式发票 (PDF)","addItem":"添加条目","remove":"删除","scopeLocked":"报价发出后范围已锁定。","qty":"数量","price":"价格","net":"小计","vat":"增值税 15%","total":"总计","validUntil":"有效期至","terms":"付款条款","approve":"确认报价","reject":"要求修改","rejectNote":"您希望修改什么？","quoteApproved":"报价已确认，合同现已可供签署。","quoteApprovedDone":"报价已确认 ✓","quoteExpired":"此报价已过期。请在申请中留言，我们将按当日价格为您更新。","viewContract":"查看合同","signTitle":"电子签名","signName":"签署人全名","signDraw":"请手写签名","signClear":"清除","signConsent":"我同意我的电子签名根据《电子交易法》具有约束力。","signBtn":"签署合同","signed":"合同已签署","payNow":"立即付款","payCardNow":"银行卡付款","payTamaraNow":"使用 Tamara 分期","payReturning":"正在确认您的付款…","payVia":"通过安全支付页面付款（mada、Visa、Mastercard、Apple Pay，Tamara 可用时）","testPay":"模拟付款（测试模式）","paySuccess":"成功 — 银行卡","payTamara":"成功 — Tamara","payFailed":"失败","payCancelled":"取消","payPending":"待处理","paid":"已付款","download":"查看发票","book":"预约","reschedule":"改期","cancelAppt":"取消预约","date":"日期","time":"时间","topic":"主题","confirm":"确认","apptNote":"通过 Google Meet 进行的免费视频会谈；均为利雅得时间。我们将通过邮件确认并发送日历邀请。","apptHours":"会谈时间 {a}–{b}（利雅得时间 GMT+3），每次 {n} 分钟。","apptDays":"除{d}外每天。","apptDaysAll":"每周每天。","apptLoading":"正在加载可预约时间…","apptNone":"目前没有可用时间。请通过 WhatsApp 联系我们。","apptOut":"该时间不在会谈时段内 — 请从列表中选择。","apptSoon":"预约需至少提前一小时 — 请选择更晚的时间。","apptFar":"该日期超出可预约范围。","apptTaken":"该时段刚被预订 — 请另选。","apptMany":"您已有两个即将进行的预约 — 请取消其一或等待其结束。","apptRate":"尝试次数过多 — 请稍后再试。","nextAppt":"您的下一次预约","videoFree":"视频通话 — 免费咨询","joinNow":"加入会议","joinSoon":"开始前五分钟开放加入。","meetLink":"会议链接","addCal":"添加到日历","apptPending":"时间等待团队确认 — 确认后会议链接和日历邀请将发送到您的邮箱。","apptOver":"此会谈已结束。","riyadh":"利雅得时间","cancelReq":"取消申请","company":"公司名称","cr":"商业登记号","nameEn":"英文名称","save":"保存","saved":"已保存","sessEnd":"会话已过期 — 请重新登录后继续。","apptBad":"请先选择日期和时间。","apptFri":"当天不安排会谈 — 请选择其他日期。","apptPast":"该时间已过 — 请选择之后的时间。","provCard":"银行卡","provTamara":"Tamara","provBank":"银行转账","actAi":"智能顾问","actSys":"系统","actTeam":"Business Partner 团队","you":"您","team":"团队","assistant":"助手","loginTitle":"登录","loginText":"使用 Google 登录，或使用邮箱：我们发送一个链接，点击即可登录——无需密码。","email":"邮箱","sendCode":"发送验证码","password":"密码","loginPw":"使用密码登录","usePw":"使用密码登录","useCode":"改用邮箱验证码","sendLink":"给我发送登录链接","badEmail":"请输入有效的邮箱地址。","linkSent":"登录链接已发送到 {e}——打开邮箱点击即可登录（15 分钟内有效）。","orCode":"或输入同一封邮件中的验证码：","resend":"重新发送链接","resendIn":"{n} 秒后可重发","changeEmail":"更换邮箱","openLink":"打开测试链接","linkTitle":"确认登录","linkText":"点击按钮完成登录。","linkGo":"继续进入我的账户","linkBad":"此链接已过期或已被使用，请重新获取。","linkNew":"获取新链接","pwTitle":"密码","pwNote":"设置密码即可直接登录，无需每次等待验证码。","pwSave":"保存密码","pwShort":"密码至少 8 个字符。","pwSaved":"密码已保存 ✓","code":"验证码","verify":"登录","loginErr":"无法发送验证码。","codeErr":"验证码错误。","error":"出错了，请重试。","waitingTeam":"团队正在审核您的申请","needYou":"等待您处理","tasksTitle":"需要您完成","done":"完成","requestCreated":"申请已创建","testRibbon":"测试模式 — 无真实付款","sourceLbl":"来源","direct":"直接购买","ticket":"支持工单","bought":"您购买的内容","directNote":"您直接通过购物车购买并已付款，因此没有报价和合同。您可以在此跟进进度、上传文件并接收交付成果。","cycM":"按月","cycY":"按年","unverifiedNote":"此笔付款金额无法自动与公布价格核对，团队将在开始执行前复核。无需重复付款。","navDocs":"我的文件","vaultNote":"文件只需上传一次 — 我们会在您的各项申请中使用，账户之外无人可见。","dzPick":"将文件拖到此处，或点击选择","dzHint":"PDF 或图片（JPG · PNG · WEBP）— 最大 8 MB","dName":"文件名称","dCat":"类型","dExp":"到期日（可选）","dSend":"上传文件","dOther":"选择其他文件","dUploading":"正在上传","dDone":"文件已上传 ✓","dNewVerDone":"已上传新版本 ✓","eBig":"文件超过 8 MB","eType":"不接受此格式。可用格式：PDF · JPG · PNG · WEBP。","eEmpty":"文件为空。","eName":"请先填写文件名称。","eNet":"无法连接服务器 — 请检查网络后重试。","eUp":"文件上传失败","eRead":"无法从您的设备读取该文件。","eNoOrg":"请先在“公司信息”中填写公司名称 — 文件保险库归属于公司。","dOpen":"打开","dNewVer":"新版本","dDel":"删除","dDelAsk":"确定要从保险库中永久删除此文件吗？","dVer":"版本","dExpires":"到期","dExpired":"已过期","dLeftA":"还剩","dLeftB":"天","dPending":"待核验","dReadOk":"已自动识别 ✓","dNone":"还没有文件 — 请在上方上传第一个。","dLoading":"正在加载…","dEntity":"主体","dCr":"商业登记号","dVat":"税号","dIssued":"签发","dRetry":"重试"},ST={"NEW":"新","REVIEWING":"审核中","WAITING_CLIENT":"等待您回复","QUOTE_SENT":"报价待确认","QUOTE_APPROVED":"报价已确认","CONTRACT_SENT":"合同待签署","SIGNED":"已签署 — 待付款","PAYMENT_PENDING":"待付款","PAID":"已付款 — 准备执行","IN_PROGRESS":"执行中","WAITING_INTERNAL":"执行中","COMPLETED":"已完成","CANCELLED":"已取消"},TY={"CONSULTATION":"咨询","GOVERNMENT_SERVICE":"政府服务","COMPANY_FORMATION":"公司注册","BUSINESS_DEVELOPMENT":"业务拓展"},HOME="/zh/",CHECKOUT="/zh/checkout",SELLER={"name":"شركة بزنس بارتنر سلوشنز","nameEn":"Business Partner Solutions Company","vat":"312079341500003","city":"الدرعية","cityEn":"Ad Diriyah"};
-var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null};
+var LANG="zh",EV={"request.created":"created the request","request.created.manual":"request created manually","request.created.cart":"request opened from a direct cart purchase","scope.proposed":"proposed the scope","scope.edited":"edited the scope","scope.confirmed":"confirmed the scope","quote.pending":"awaiting the quotation","message.customer":"customer message","message.bp":"team reply","attachment.added":"added an attachment","quote.drafted":"quote drafted","quote.sent":"sent the quotation","quote.approved":"approved the quotation","quote.rejected":"requested changes","contract.sent":"sent the contract","contract.signed":"signed the contract","payment.paid":"payment received","payment.failed":"payment failed","payment.cancelled":"payment cancelled","payment.pending":"payment pending","invoice.issued":"invoice issued","appointment.booked":"booked an appointment","appointment.rescheduled":"rescheduled the appointment","appointment.cancelled":"cancelled the appointment","appointment.set":"set the appointment","task.created":"created a task","task.human_required":"task needs a human","task.done":"completed the task","task.in_progress":"started the task","task.waiting":"task waiting","task.todo":"reopened the task","execution.started":"execution started","request.cancelled":"cancelled the request","request.updated":"updated the request","document.received":"document received","deliverable.added":"delivered a file","deliverable.removed":"withdrew a delivered file","status.completed":"request completed","status.in_progress":"execution started","status.waiting_internal":"in progress","status.reviewing":"under review","status.waiting_client":"waiting for your reply","status.cancelled":"request cancelled","quote.auto":"issued the quotation automatically","documents.requested":"listed the required documents","payment.receipt":"received the transfer receipt","message.whatsapp":"WhatsApp message","contract.reissued":"re-issued the contract","request.reopened":"reopened the request","cancel.requested":"cancellation requested","payment.after_cancel":"payment received after cancellation","followup.reminded":"reminded you of the next step"},TX={"title":"我的账户 — Business Partner","navHome":"首页","navNew":"新申请","navRequests":"我的申请","navQuotes":"报价","navContracts":"合同","navAppts":"预约","navPay":"购物车与付款","navInvoices":"发票","navChats":"对话","navCompany":"公司信息","logout":"退出登录","site":"网站","attention":"现在需要您关注什么？","kActive":"进行中的申请","kQuotes":"待确认的报价","kContracts":"待签署的合同","kPayments":"待付款项","kAppts":"即将到来的预约","today":"今天需要什么帮助？","empty":"这里还没有内容。","ref":"编号","status":"状态","open":"打开","back":"返回","conversation":"对话","scope":"服务范围","cancelTitle":"取消此请求","cancelAsk":"申请取消","cancelWhy":"原因（可选）","cancelEarly":"尚无任何约束 — 取消将立即生效。","cancelLate":"此请求已进入有约束的阶段（合同、付款或执行）。我们会受理并由团队审核后回复您。","cancelSent":"已收到取消申请，正在审核。","cancelDone":"请求已取消","cxNowTitle":"取消此请求？","cxAskTitle":"申请取消此请求","cxNowGo":"是，取消请求","cxAskGo":"提交取消申请","cxKeep":"不，保留","cxSigned":"合同已签署，无法一键取消：我们会记录您的申请，由团队审核后回复您。在此期间请求保持不变。","cxPaid":"款项已支付，无法一键取消：我们会记录您的申请，由团队审核（包括退款）。在此期间请求保持不变。","evNotify":"已发送通知","cxAppt":"已预约的咨询时间也将一并取消。","cxNowNote":"立即取消，且未产生任何扣款。","cxDoneNow":"请求已取消","cxDoneNowT":"您的请求已取消，并已从进行中的申请中移除。您可以随时发起新申请。","cxPendTitle":"取消申请正在由团队审核","cxPendText":"我们正在审核该请求涉及的合同、付款或执行情况并会回复您。在此期间请求保持不变。","cxSentAt":"提交于","cxPill":"取消审核中","cxNewReq":"发起新申请","cxAlready":"取消申请已登记，正在审核。","cxErrClosed":"此请求已关闭（已取消或已完成）。","cxErrSess":"登录已过期，请重新登录后再试。","cxErrNet":"无法连接服务器。请检查网络后重试。","cxErrNF":"在您的账户中找不到此请求。","cxErrGen":"暂时无法取消。请稍后重试，或在对话中联系团队。","resign":"本合同在您签署后已出具更正版本 — 我们会再次发送给您签署。","openFull":"全屏打开","docPrint":"打印 / 保存 PDF","docClose":"关闭","docWait":"正在准备文件…","attachments":"附件","quote":"报价","contract":"合同","payment":"付款","invoice":"发票","timeline":"时间线","writeMsg":"给团队留言…","send":"发送","saveScope":"保存修改","confirmScope":"确认范围并继续","scopePricing":"范围已确认 ✓ — 团队正在准备报价。","docs":"所需文件","docsNote":"我们需要这些文件来完成您的申请 — 用对应按钮上传，团队会立即收到。","docsNone":"暂无所需文件。您仍可上传与此申请相关的任何文件。","docUp":"上传","docUpMore":"再上传一个","docUpAny":"上传其他文件","docRecv":"已收到 ✓","docWaived":"无需提供","docAsked":"待提供","docSent":"您的文件已送达团队 ✓","fOpen":"打开","eMany":"此申请的文件数量已达上限。","eClosed":"此申请已关闭，无法再上传文件。","delivTitle":"交付成果","delivNone":"我们交付的文件会显示在这里，交付后会立即发邮件通知您。","delivNoneDone":"申请已完成，没有交付文件。","delivDl":"下载","delivErr":"无法打开文件 — 请重试。","invSeller":"卖方","invVat":"卖方税号","invBuyer":"买方","invOfficial":"正式发票 (PDF)","addItem":"添加条目","remove":"删除","scopeLocked":"报价发出后范围已锁定。","qty":"数量","price":"价格","net":"小计","vat":"增值税 15%","total":"总计","validUntil":"有效期至","terms":"付款条款","approve":"确认报价","reject":"要求修改","rejectNote":"您希望修改什么？","quoteApproved":"报价已确认，合同现已可供签署。","quoteApprovedDone":"报价已确认 ✓","quoteExpired":"此报价已过期。请在申请中留言，我们将按当日价格为您更新。","viewContract":"查看合同","signTitle":"电子签名","signName":"签署人全名","signDraw":"请手写签名","signClear":"清除","signConsent":"我同意我的电子签名根据《电子交易法》具有约束力。","signBtn":"签署合同","signed":"合同已签署","payNow":"立即付款","payCardNow":"银行卡付款","payTamaraNow":"使用 Tamara 分期","payReturning":"正在确认您的付款…","payVia":"通过安全支付页面付款（mada、Visa、Mastercard、Apple Pay，Tamara 可用时）","testPay":"模拟付款（测试模式）","paySuccess":"成功 — 银行卡","payTamara":"成功 — Tamara","payFailed":"失败","payCancelled":"取消","payPending":"待处理","paid":"已付款","download":"查看发票","book":"预约","reschedule":"改期","cancelAppt":"取消预约","date":"日期","time":"时间","topic":"主题","confirm":"确认","apptNote":"通过 Google Meet 进行的免费视频会谈；均为利雅得时间。我们将通过邮件确认并发送日历邀请。","apptHours":"会谈时间 {a}–{b}（利雅得时间 GMT+3），每次 {n} 分钟。","apptDays":"除{d}外每天。","apptDaysAll":"每周每天。","apptLoading":"正在加载可预约时间…","apptNone":"目前没有可用时间。请通过 WhatsApp 联系我们。","apptOut":"该时间不在会谈时段内 — 请从列表中选择。","apptSoon":"预约需至少提前一小时 — 请选择更晚的时间。","apptFar":"该日期超出可预约范围。","apptTaken":"该时段刚被预订 — 请另选。","apptMany":"您已有两个即将进行的预约 — 请取消其一或等待其结束。","apptRate":"尝试次数过多 — 请稍后再试。","nextAppt":"您的下一次预约","videoFree":"视频通话 — 免费咨询","joinNow":"加入会议","joinSoon":"开始前五分钟开放加入。","meetLink":"会议链接","addCal":"添加到日历","apptPending":"时间等待团队确认 — 确认后会议链接和日历邀请将发送到您的邮箱。","apptOver":"此会谈已结束。","riyadh":"利雅得时间","cancelReq":"取消申请","company":"公司名称","cr":"商业登记号","nameEn":"英文名称","save":"保存","saved":"已保存","sessEnd":"会话已过期 — 请重新登录后继续。","apptBad":"请先选择日期和时间。","apptFri":"当天不安排会谈 — 请选择其他日期。","apptPast":"该时间已过 — 请选择之后的时间。","provCard":"银行卡","provTamara":"Tamara","provBank":"银行转账","actAi":"智能顾问","actSys":"系统","actTeam":"Business Partner 团队","you":"您","team":"团队","assistant":"助手","loginTitle":"登录","loginText":"选择登录方式——无论哪种方式都是同一个账户。","tabPw":"密码","tabNew":"新账户","tabLink":"邮件链接","forgot":"忘记密码？使用邮件链接登录","badCreds":"邮箱或密码不正确。","tooMany":"尝试次数过多，请稍等后再试。","pwNew":"设置密码","pwConfirm":"再次输入密码","pwMismatch":"两次输入的密码不一致。","pwRule":"至少 8 个字符，包含字母和数字。","pwr_short":"密码至少 8 个字符。","pwr_long":"密码过长。","pwr_no_letter":"密码至少需要一个字母。","pwr_no_digit":"密码至少需要一个数字。","pwr_repetitive":"密码字符过于重复，请换一个。","pwr_common":"密码过于常见，请换一个。","pwr_has_email":"密码中不要包含您的邮箱。","signupGo":"创建账户并发送验证码","signupNote":"我们会向您的邮箱发送验证码，确认后密码才会生效。","codeSent":"验证码已发送到 {e}。","codeOld":"验证码已过期，请重新开始。","confirmGo":"确认并登录","cStep":"仅需一步，只需一次","cTitle":"完善您的账户","cText":"您的身份已通过 Nafath 验证。我们需要您的邮箱以发送税务发票和申请进度，并需要您的手机号以便团队联系您。","cPhone":"手机号码","cPhonePh":"05XXXXXXXX","cBadPhone":"请输入有效的手机号，例如 05XXXXXXXX。","cSend":"发送验证码","cMismatch":"此邮箱已关联另一个身份。请使用其他邮箱或联系我们。","email":"邮箱","sendCode":"发送验证码","password":"密码","loginPw":"使用密码登录","usePw":"使用密码登录","useCode":"改用邮箱验证码","sendLink":"给我发送登录链接","badEmail":"请输入有效的邮箱地址。","linkSent":"登录链接已发送到 {e}——打开邮箱点击即可登录（15 分钟内有效）。","orCode":"或输入同一封邮件中的验证码：","resend":"重新发送链接","resendIn":"{n} 秒后可重发","changeEmail":"更换邮箱","openLink":"打开测试链接","linkTitle":"确认登录","linkText":"点击按钮完成登录。","linkGo":"继续进入我的账户","linkBad":"此链接已过期或已被使用，请重新获取。","linkNew":"获取新链接","pwTitle":"密码","pwNote":"设置密码即可直接登录，无需每次等待验证码。","pwSave":"保存密码","pwShort":"密码至少 8 个字符。","pwSaved":"密码已保存 ✓","code":"验证码","verify":"登录","loginErr":"无法发送验证码。","codeErr":"验证码错误。","error":"出错了，请重试。","waitingTeam":"团队正在审核您的申请","needYou":"等待您处理","tasksTitle":"需要您完成","done":"完成","requestCreated":"申请已创建","testRibbon":"测试模式 — 无真实付款","sourceLbl":"来源","direct":"直接购买","ticket":"支持工单","bought":"您购买的内容","directNote":"您直接通过购物车购买并已付款，因此没有报价和合同。您可以在此跟进进度、上传文件并接收交付成果。","cycM":"按月","cycY":"按年","unverifiedNote":"此笔付款金额无法自动与公布价格核对，团队将在开始执行前复核。无需重复付款。","navDocs":"我的文件","vaultNote":"文件只需上传一次 — 我们会在您的各项申请中使用，账户之外无人可见。","dzPick":"将文件拖到此处，或点击选择","dzHint":"PDF 或图片（JPG · PNG · WEBP）— 最大 8 MB","dName":"文件名称","dCat":"类型","dExp":"到期日（可选）","dSend":"上传文件","dOther":"选择其他文件","dUploading":"正在上传","dDone":"文件已上传 ✓","dNewVerDone":"已上传新版本 ✓","eBig":"文件超过 8 MB","eType":"不接受此格式。可用格式：PDF · JPG · PNG · WEBP。","eEmpty":"文件为空。","eName":"请先填写文件名称。","eNet":"无法连接服务器 — 请检查网络后重试。","eUp":"文件上传失败","eRead":"无法从您的设备读取该文件。","eNoOrg":"请先在“公司信息”中填写公司名称 — 文件保险库归属于公司。","dOpen":"打开","dNewVer":"新版本","dDel":"删除","dDelAsk":"确定要从保险库中永久删除此文件吗？","dVer":"版本","dExpires":"到期","dExpired":"已过期","dLeftA":"还剩","dLeftB":"天","dPending":"待核验","dReadOk":"已自动识别 ✓","dNone":"还没有文件 — 请在上方上传第一个。","dLoading":"正在加载…","dEntity":"主体","dCr":"商业登记号","dVat":"税号","dIssued":"签发","dRetry":"重试","navCompliance":"合规与违规","cIntro":"合规智能顾问“Mishari”跟踪贵公司的义务与违规并准备申诉。","cLoading":"正在加载合规信息…","cActive":"合规订阅已激活","cTrialLbl":"合规免费试用","cLockedTitle":"免费试用已结束","cLocked":"订阅合规服务以继续在此跟踪义务与违规并提交申诉。","cSubscribe":"订阅合规服务","cDocsTitle":"即将到期","cDocsNone":"60 天内没有文件需续期。","cManageDocs":"管理并上传您的文件","cViolTitle":"违规","cViolIntro":"登记任何政府违规（Baladi、Qiwa、ZATCA、民防…）并提交申诉，我们的团队将代您向主管机关跟进。","cStages":"申诉流程：审查 → 受理资格研究 → 准备 → 提交 → 跟进。我们不承诺撤销；我们研究受理资格并向主管机关跟进。","cViolNone":"尚无违规记录。如收到违规，请在下方登记。","cNew":"新","cDeadline":"申诉截止","cObjectBtn":"提交申诉","cObjectNote":"您的申诉理由——事实与证明文件…","cObjectFiled":"申诉进行中 — 团队正在处理","cAddTitle":"登记违规","cAuthority":"主管机关（Baladi、Qiwa、ZATCA…）","cVTitle":"违规描述","cVNumber":"违规编号（可选）","cVAmount":"金额（里亚尔，可选）","cVDate":"违规日期（可选）","cVDeadline":"申诉截止日期（可选）","cAddBtn":"登记违规","cAddDone":"违规已登记 ✓"},ST={"NEW":"新","REVIEWING":"审核中","WAITING_CLIENT":"等待您回复","QUOTE_SENT":"报价待确认","QUOTE_APPROVED":"报价已确认","CONTRACT_SENT":"合同待签署","SIGNED":"已签署 — 待付款","PAYMENT_PENDING":"待付款","PAID":"已付款 — 准备执行","IN_PROGRESS":"执行中","WAITING_INTERNAL":"执行中","COMPLETED":"已完成","CANCELLED":"已取消"},TY={"CONSULTATION":"咨询","GOVERNMENT_SERVICE":"政府服务","COMPANY_FORMATION":"公司注册","BUSINESS_DEVELOPMENT":"业务拓展"},HOME="/zh/",CHECKOUT="/zh/checkout",SELLER={"name":"شركة بزنس بارتنر سلوشنز","nameEn":"Business Partner Solutions Company","vat":"312079341500003","city":"الدرعية","cityEn":"Ad Diriyah"};
+var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null,violations:null};
 var $=function(s,r){return (r||document).querySelector(s)};
 function h(tag,attrs,kids){var e=document.createElement(tag);if(attrs)for(var k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.indexOf('on')===0)e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k])}(kids||[]).forEach(function(c){if(c==null)return;e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
 function api(action,data){return fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({action:action},data||{}))}).then(function(r){return r.json()}).catch(function(){return {ok:false,error:'network'}}).then(function(o){if(o&&o.error==='no_session'&&state.me)sessionEnded();return o})}
@@ -668,31 +797,82 @@ function go(view,ref){state.view=view;state.ref=ref||null;var u=new URL(location
 // commits the session cookie before the portal asks for the account.
 function hashParam(k){try{var m=String(location.hash||'').replace('#','').split('&');for(var i=0;i<m.length;i++){var p=m[i].split('=');if(p[0]===k)return decodeURIComponent(p.slice(1).join('='))}}catch(e){}return ''}
 function noHash(){try{history.replaceState(null,'',location.pathname+location.search)}catch(x){}}
-function renderLogin(note){app.innerHTML='';var email='',challenge='',wait=0,timer=null;var box=h('div',{class:'login'});var errEl=h('div',{class:'err',role:'alert'});
+function renderLogin(note){app.innerHTML='';var email='',challenge='',wait=0,timer=null,pwChallenge='',pwEmail='';var box=h('div',{class:'login'});var errEl=h('div',{class:'err',role:'alert'});
+function fail(m){errEl.textContent=m||TX.loginErr}
+// 1 · Nafath — the first and largest door. A first sign-in creates the account;
+// the next screen (renderContact) asks for the e-mail and mobile once.
+var nslot=h('div',{id:'bpNafath'});
+// 2 · Google — the official button, with a written failure state.
 var gslot=h('div',{id:'bpGoogleBtn'});
-var orl=h('div',{class:'bpg-or'},[(window.SV1Login&&window.SV1Login.or)||'']);
-var e1=h('input',{type:'email',placeholder:TX.email,autocomplete:'email',inputmode:'email'});
+var orA=h('div',{class:'bpg-or'},[(window.SV1Login&&window.SV1Login.orPlain)||'']);
+var orB=h('div',{class:'bpg-or'},[(window.SV1Login&&window.SV1Login.or)||'']);
+// 3 · E-mail: password (sign in / new account) or an e-mailed link and code.
+var e1=h('input',{type:'email',placeholder:TX.email,autocomplete:'email',inputmode:'email','aria-label':TX.email});
+var tabs=h('div',{class:'seg',role:'tablist'});var panels={};
+function tab(id,label){var a=h('button',{type:'button',role:'tab',class:'segb',onclick:function(){pick(id)}},[label]);a.setAttribute('data-tab',id);tabs.appendChild(a);return a}
+var tPw=tab('login',TX.tabPw),tNew=tab('signup',TX.tabNew),tLink=tab('link',TX.tabLink);
+function pick(id){errEl.textContent='';[tPw,tNew,tLink].forEach(function(b){b.className='segb'+(b.getAttribute('data-tab')===id?' on':'');b.setAttribute('aria-selected',b.getAttribute('data-tab')===id?'true':'false')});for(var k in panels)panels[k].hidden=(k!==id)}
+// -- password sign-in
+var e3=h('input',{type:'password',placeholder:TX.password,autocomplete:'current-password','aria-label':TX.password});
+var b3=h('button',{class:'btn',onclick:function(){errEl.textContent='';if(e1.value.indexOf('@')<1){fail(TX.badEmail);return}b3.disabled=true;otp({action:'password-login',email:e1.value.trim().toLowerCase(),password:e3.value}).then(function(o){b3.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:o&&o.error==='bad_credentials'?TX.badCreds:TX.loginErr);return}try{localStorage.setItem('bp_session','1')}catch(x){}location.replace(location.href)}).catch(function(){b3.disabled=false;fail(TX.loginErr)})}},[TX.loginPw]);
+var forgot=h('a',{class:'lnk',onclick:function(){pick('link')}},[TX.forgot]);
+panels.login=h('div',{},[e3,b3,h('div',{class:'alt'},[forgot])]);
+onEnter(e3,b3);
+// -- new account: the password only counts once the mailbox is proven
+function pwWhy(p,e){if(p.length<8)return 'short';if(p.length>128)return 'long';var L=false,D=false,i,c,seen={},n=0;for(i=0;i<p.length;i++){c=p.charCodeAt(i);if((c>=48&&c<=57)||(c>=1632&&c<=1641))D=true;else if((c>=65&&c<=90)||(c>=97&&c<=122)||c>=192)L=true;if(!seen[c]){seen[c]=1;n++}}
+ if(!L)return 'no_letter';if(!D)return 'no_digit';if(n<4)return 'repetitive';var lp=String(e||'').split('@')[0].toLowerCase();if(lp.length>=4&&p.toLowerCase().indexOf(lp)>=0)return 'has_email';return ''}
+var npw=h('input',{type:'password',placeholder:TX.pwNew,autocomplete:'new-password','aria-label':TX.pwNew});
+var npw2=h('input',{type:'password',placeholder:TX.pwConfirm,autocomplete:'new-password','aria-label':TX.pwConfirm});
+var rule=h('p',{class:'note rule'},[TX.pwRule]);
+npw.addEventListener('input',function(){var w=pwWhy(npw.value,e1.value);rule.className='note rule'+(npw.value&&w?' bad':npw.value?' good':'');rule.textContent=npw.value&&w?(TX['pwr_'+w]||TX.pwRule):TX.pwRule});
+var bNew=h('button',{class:'btn',onclick:function(){errEl.textContent='';var e=e1.value.trim().toLowerCase();if(e.indexOf('@')<1||e.indexOf('.')<0){fail(TX.badEmail);return}var w=pwWhy(npw.value,e);if(w){fail(TX['pwr_'+w]);return}if(npw.value!==npw2.value){fail(TX.pwMismatch);return}
+ bNew.disabled=true;otp({action:'password-signup-start',email:e,password:npw.value}).then(function(o){bNew.disabled=false;if(!o||!o.ok){fail(o&&o.error==='weak'?(TX['pwr_'+o.reason]||TX.pwRule):o&&o.error==='too_many'?TX.tooMany:(o&&o.message)||TX.loginErr);return}pwChallenge=o.challenge;pwEmail=e;nSent.textContent=TX.codeSent.replace('{e}',e);if(o.testLogin)nCode.placeholder='TEST: 123456';nStep1.hidden=true;nStep2.hidden=false;nCode.focus()}).catch(function(){bNew.disabled=false;fail(TX.loginErr)})}},[TX.signupGo]);
+var nStep1=h('div',{},[npw,npw2,rule,h('p',{class:'note'},[TX.signupNote]),bNew]);
+var nSent=h('p',{class:'sent'});var nCode=h('input',{inputmode:'numeric',maxlength:'6',placeholder:TX.code,autocomplete:'one-time-code','aria-label':TX.code});
+var bNC=h('button',{class:'btn',onclick:function(){errEl.textContent='';bNC.disabled=true;otp({action:'password-signup-verify',email:pwEmail,code:nCode.value.trim(),challenge:pwChallenge}).then(function(o){bNC.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:o&&o.error==='expired'?TX.codeOld:TX.codeErr);return}try{localStorage.setItem('bp_session','1')}catch(x){}location.replace(location.href)}).catch(function(){bNC.disabled=false;fail(TX.codeErr)})}},[TX.confirmGo]);
+var nBack=h('a',{class:'lnk',onclick:function(){nStep2.hidden=true;nStep1.hidden=false;errEl.textContent=''}},[TX.changeEmail]);
+var nStep2=h('div',{hidden:''},[nSent,nCode,bNC,h('div',{class:'alt'},[nBack])]);
+onEnter(nCode,bNC);
+panels.signup=h('div',{hidden:''},[nStep1,nStep2]);
+// -- e-mailed link (with its own code as a fallback in the same message)
 var b1=h('button',{class:'btn',onclick:function(){sendLink()}},[TX.sendLink]);
-var s1=h('div',{},[e1,b1]);
+var s1=h('div',{},[b1]);
 var sentMsg=h('p',{class:'sent'}),dev=h('div',{});
-var e2=h('input',{inputmode:'numeric',maxlength:'6',placeholder:TX.code,autocomplete:'one-time-code'});
-var b2=h('button',{class:'btn',onclick:function(){b2.disabled=true;errEl.textContent='';otp({action:'verify',email:email,code:e2.value.trim(),challenge:challenge}).then(function(o){b2.disabled=false;if(!o||!o.ok){errEl.textContent=TX.codeErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}location.replace(location.href)}).catch(function(){b2.disabled=false;errEl.textContent=TX.codeErr})}},[TX.verify]);
+var e2=h('input',{inputmode:'numeric',maxlength:'6',placeholder:TX.code,autocomplete:'one-time-code','aria-label':TX.code});
+var b2=h('button',{class:'btn',onclick:function(){b2.disabled=true;errEl.textContent='';otp({action:'verify',email:email,code:e2.value.trim(),challenge:challenge}).then(function(o){b2.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:TX.codeErr);return}try{localStorage.setItem('bp_session','1')}catch(x){}location.replace(location.href)}).catch(function(){b2.disabled=false;fail(TX.codeErr)})}},[TX.verify]);
 var resend=h('a',{class:'lnk',onclick:function(){if(wait>0)return;sendLink()}},[TX.resend]);
 var change=h('a',{class:'lnk',onclick:function(){s2.hidden=true;s1.hidden=false;errEl.textContent='';e1.focus()}},[TX.changeEmail]);
 var s2=h('div',{hidden:''},[sentMsg,dev,h('p',{class:'note'},[TX.orCode]),e2,b2,h('div',{class:'alt'},[resend,change])]);
 function cool(){wait=30;resend.textContent=TX.resendIn.replace('{n}',wait);clearInterval(timer);timer=setInterval(function(){wait--;if(wait<=0){clearInterval(timer);resend.textContent=TX.resend}else resend.textContent=TX.resendIn.replace('{n}',wait)},1000)}
-function sendLink(){email=e1.value.trim().toLowerCase();errEl.textContent='';if(email.indexOf('@')<1||email.indexOf('.')<0){errEl.textContent=TX.badEmail;return}b1.disabled=true;
-otp({action:'link-start',email:email,lang:LANG,next:nextPath()}).then(function(o){b1.disabled=false;if(!o||!o.ok){errEl.textContent=(o&&o.message)||TX.loginErr;return}challenge=o.challenge;sentMsg.textContent=TX.linkSent.replace('{e}',email);if(o.testLogin)e2.placeholder='TEST: 123456';dev.innerHTML='';if(o.devLink)dev.appendChild(h('a',{class:'btn ghost sm',href:o.devLink,id:'devLink'},['DEV · '+TX.openLink]));s1.hidden=true;s2.hidden=false;e2.focus();cool()}).catch(function(){b1.disabled=false;errEl.textContent=TX.loginErr})}
-e1.addEventListener('keydown',function(ev){if(ev.key==='Enter')sendLink()});
+function sendLink(){email=e1.value.trim().toLowerCase();errEl.textContent='';if(email.indexOf('@')<1||email.indexOf('.')<0){fail(TX.badEmail);return}b1.disabled=true;
+otp({action:'link-start',email:email,lang:LANG,next:nextPath()}).then(function(o){b1.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:(o&&o.message)||TX.loginErr);return}challenge=o.challenge;sentMsg.textContent=TX.linkSent.replace('{e}',email);if(o.testLogin)e2.placeholder='TEST: 123456';dev.innerHTML='';if(o.devLink)dev.appendChild(h('a',{class:'btn ghost sm',href:o.devLink,id:'devLink'},['DEV · '+TX.openLink]));s1.hidden=true;s2.hidden=false;e2.focus();cool()}).catch(function(){b1.disabled=false;fail(TX.loginErr)})}
+e1.addEventListener('keydown',function(ev){if(ev.key==='Enter'&&!ev.isComposing){var on=document.querySelector('.login .segb.on');var t=on&&on.getAttribute('data-tab');ev.preventDefault();if(t==='link')sendLink();else if(t==='login')b3.click()}});
 e2.addEventListener('keydown',function(ev){if(ev.key==='Enter')b2.click()});
-var e3=h('input',{type:'password',placeholder:TX.password,autocomplete:'current-password'});
-var b3=h('button',{class:'btn',onclick:function(){errEl.textContent='';b3.disabled=true;otp({action:'password-login',email:e1.value.trim().toLowerCase(),password:e3.value}).then(function(o){b3.disabled=false;if(!o||!o.ok){errEl.textContent=(o&&o.message)||TX.loginErr;return}try{localStorage.setItem('bp_session','1')}catch(x){}location.replace(location.href)}).catch(function(){b3.disabled=false;errEl.textContent=TX.loginErr})}},[TX.loginPw]);
-onEnter(e3,b3);var sp=h('div',{hidden:''},[e3,b3]);
-var toPw=h('a',{class:'lnk',onclick:function(){s2.hidden=true;s1.hidden=false;sp.hidden=false;toPw.hidden=true;toCode.hidden=false;e3.focus()}},[TX.usePw]);
-var toCode=h('a',{class:'lnk',hidden:'',onclick:function(){sp.hidden=true;toPw.hidden=false;toCode.hidden=true}},[TX.useCode]);
-box.appendChild(h('h1',{},[TX.loginTitle]));box.appendChild(h('p',{},[TX.loginText]));if(note)box.appendChild(h('p',{class:'err'},[note]));box.appendChild(gslot);box.appendChild(orl);box.appendChild(s1);box.appendChild(s2);box.appendChild(sp);box.appendChild(h('div',{class:'alt'},[toPw,toCode]));box.appendChild(errEl);app.appendChild(box);
-otp({action:'methods'}).then(function(m){if(m&&m.ok&&!m.password)toPw.hidden=true}).catch(function(){});
-if(window.SV1Login)window.SV1Login.mountGoogle(gslot,{onSuccess:function(){try{localStorage.setItem('bp_session','1')}catch(x){}location.replace(location.href)},onError:function(msg){errEl.textContent=msg},onHide:function(){orl.style.display='none'}});else orl.style.display='none'}
+panels.link=h('div',{hidden:''},[s1,s2]);
+var mail=h('div',{class:'mailbox'},[tabs,e1,panels.login,panels.signup,panels.link]);
+box.appendChild(h('h1',{},[TX.loginTitle]));box.appendChild(h('p',{},[TX.loginText]));if(note)box.appendChild(h('p',{class:'err'},[note]));
+box.appendChild(nslot);box.appendChild(orA);box.appendChild(gslot);box.appendChild(orB);box.appendChild(mail);box.appendChild(errEl);app.appendChild(box);pick('login');
+otp({action:'methods'}).then(function(m){if(m&&m.ok&&!m.password){tPw.hidden=true;tNew.hidden=true;pick('link')}else if(m&&m.ok&&!m.passwordSignup){tNew.hidden=true}}).catch(function(){});
+if(window.SV1Login){window.SV1Login.mountNafath(nslot,{purpose:'portal',onSuccess:function(){try{localStorage.setItem('bp_session','1')}catch(x){}location.replace(location.href)}});
+ window.SV1Login.mountGoogle(gslot,{onSuccess:function(){try{localStorage.setItem('bp_session','1')}catch(x){}location.replace(location.href)},onError:function(msg){errEl.textContent=msg},onHide:function(){orB.style.display='none'}})}else{orA.style.display='none';orB.style.display='none'}}
+// The one-time step after a first Nafath sign-in: the account exists (keyed by the
+// national-id digest, never the number); this asks for the real e-mail and mobile.
+// The e-mail is proven with a code. If it already has an account, the two are joined.
+function renderContact(){app.innerHTML='';var box=h('div',{class:'login'});var errEl=h('div',{class:'err',role:'alert'});var chal='',sentTo='';
+function fail(m){errEl.textContent=m||TX.error}
+var ce=h('input',{type:'email',placeholder:TX.email,autocomplete:'email',inputmode:'email','aria-label':TX.email});
+var cp=h('input',{type:'tel',placeholder:TX.cPhonePh,autocomplete:'tel',inputmode:'tel','aria-label':TX.cPhone,dir:'ltr'});
+function phoneOk(v){var d='',i,c;v=String(v||'');for(i=0;i<v.length;i++){c=v.charCodeAt(i);if(c>=48&&c<=57)d+=v.charAt(i);else if(c>=1632&&c<=1641)d+=String(c-1632);else if(c>=1776&&c<=1785)d+=String(c-1776)}return d.length>=8&&d.length<=15}
+var b1=h('button',{class:'btn',onclick:function(){errEl.textContent='';var e=ce.value.trim().toLowerCase();if(e.indexOf('@')<1||e.indexOf('.')<0){fail(TX.badEmail);return}if(!phoneOk(cp.value)){fail(TX.cBadPhone);return}b1.disabled=true;
+ otp({action:'nafath-contact-start',email:e,phone:cp.value}).then(function(o){b1.disabled=false;if(!o||!o.ok){fail(o&&o.error==='invalid_phone'?TX.cBadPhone:o&&o.error==='invalid_email'?TX.badEmail:o&&o.error==='too_many'?TX.tooMany:TX.loginErr);return}chal=o.challenge;sentTo=e;sent.textContent=TX.codeSent.replace('{e}',e);if(o.testLogin)code.placeholder='TEST: 123456';s1.hidden=true;s2.hidden=false;code.focus()}).catch(function(){b1.disabled=false;fail(TX.loginErr)})}},[TX.cSend]);
+var s1=h('div',{},[h('label',{},[TX.email]),ce,h('label',{},[TX.cPhone]),cp,b1]);
+var sent=h('p',{class:'sent'});var code=h('input',{inputmode:'numeric',maxlength:'6',placeholder:TX.code,autocomplete:'one-time-code','aria-label':TX.code});
+var b2=h('button',{class:'btn',onclick:function(){errEl.textContent='';b2.disabled=true;otp({action:'nafath-contact-verify',code:code.value.trim(),challenge:chal}).then(function(o){b2.disabled=false;if(!o||!o.ok){fail(o&&o.error==='too_many'?TX.tooMany:o&&o.error==='expired'?TX.codeOld:o&&o.error==='identity_mismatch'?TX.cMismatch:o&&o.error==='wrong_code'?TX.codeErr:TX.error);return}try{localStorage.setItem('bp_session','1')}catch(x){}location.replace(location.href)}).catch(function(){b2.disabled=false;fail(TX.error)})}},[TX.confirmGo]);
+var back=h('a',{class:'lnk',onclick:function(){s2.hidden=true;s1.hidden=false;errEl.textContent=''}},[TX.changeEmail]);
+var out=h('a',{class:'lnk',onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},[TX.logout]);
+var s2=h('div',{hidden:''},[sent,code,b2,h('div',{class:'alt'},[back])]);
+onEnter(code,b2);
+box.appendChild(h('div',{class:'cstep'},[TX.cStep]));box.appendChild(h('h1',{},[TX.cTitle]));box.appendChild(h('p',{},[TX.cText]));box.appendChild(s1);box.appendChild(s2);box.appendChild(h('div',{class:'alt'},[out]));box.appendChild(errEl);app.appendChild(box)}
 // The page a sign-in link lands on. Opening the link signs nobody in: mail
 // scanners open every URL they find, so only this button (a POST) spends it.
 function renderLinkConfirm(token){app.innerHTML='';var box=h('div',{class:'login'});var errEl=h('div',{class:'err',role:'alert'});
@@ -701,16 +881,16 @@ var go1=h('button',{class:'btn',id:'linkGo',onclick:function(){go1.disabled=true
 box.appendChild(h('h1',{},[TX.linkTitle]));box.appendChild(h('p',{},[TX.linkText]));box.appendChild(go1);box.appendChild(h('div',{class:'alt'},[back]));box.appendChild(errEl);app.appendChild(box)}
 window.addEventListener('hashchange',function(){if(hashParam('ml'))boot()});
 // ---------- shell
-var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['documents',TX.navDocs,'📁'],['company',TX.navCompany,'🏢']];
-function badges(){var c=state.me.counts||{};var d=(state.docs||[]).filter(function(x){var n=daysLeft(x.expiry_date);return n!==null&&n<=30}).length;return {quotes:c.quotes,contracts:c.contracts,pay:c.payments,documents:d}}
+var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['documents',TX.navDocs,'📁'],['compliance',TX.navCompliance,'🛡️'],['company',TX.navCompany,'🏢']];
+function badges(){var c=state.me.counts||{};var d=(state.docs||[]).filter(function(x){var n=daysLeft(x.expiry_date);return n!==null&&n<=30}).length;return {quotes:c.quotes,contracts:c.contracts,pay:c.payments,documents:d,compliance:(state.violations||[]).filter(isActionableViol).length}}
 function render(){var me=state.me;app.innerHTML='';joinBoxes=[];var bd=badges();
 var side=h('nav',{class:'my-side',id:'mySide'},[h('div',{class:'who'},[h('b',{},[me.user.name||me.user.email]),h('small',{},[(me.organization&&(me.organization.name_ar||me.organization.name_en))||me.user.email])])].concat(NAV.map(function(n){return h('a',{'data-nav':n[0],class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1],bd[n[0]]?h('span',{class:'b'},[String(bd[n[0]])]):null])})).concat([h('a',{href:HOME},['🌐 '+TX.site]),h('a',{onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},['↩ '+TX.logout])]));
 var mob=h('div',{class:'mob'},NAV.map(function(n){return h('a',{class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1]])}));
 var main=h('div',{class:'my-main',id:'myMain'});
 app.appendChild(mob);var wrap=h('div',{class:'my'},[side,main]);app.appendChild(wrap);
-var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='documents')viewDocuments(main);else if(v==='company')viewCompany(main);else viewHome(main)}
+var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='documents')viewDocuments(main);else if(v==='compliance')viewCompliance(main);else if(v==='company')viewCompany(main);else viewHome(main)}
 function displayRequestTitle(r){var raw=String((r&&r.title)||'').trim(),src=String((r&&r.lang)||'').slice(0,2).toLowerCase(),generic=(TY&&TY[r.type])||TX.navRequests;if(!raw)return generic;if(src&&src!==LANG)return generic;if(LANG!=='ar'&&/[\u0600-\u06FF]/.test(raw))return generic;if(LANG==='ar'&&!/[\u0600-\u06FF]/.test(raw)&&/[A-Za-z]/.test(raw))return generic;return raw}
-function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[displayRequestTitle(r)]),h('small',{},[r.ref+' · '+(r.origin==='ticket'?TX.ticket:(TY[r.type]||r.type))+' · '+when(r.updated_at||r.created_at)])]),(r.origin==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),pill(r.status),h('span',{class:'btn ghost sm'},[TX.open])])}
+function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[displayRequestTitle(r)]),h('small',{},[r.ref+' · '+(r.origin==='ticket'?TX.ticket:(TY[r.type]||r.type))+' · '+when(r.updated_at||r.created_at)])]),(r.origin==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),pill(r.status),(r.cancel_requested&&r.status!=='CANCELLED')?h('span',{class:'pill warn'},[TX.cxPill]):null,h('span',{class:'btn ghost sm'},[TX.open])])}
 function viewHome(m){var c=state.me.counts||{};m.appendChild(h('h1',{},[TX.attention]));
 var k=[['active',TX.kActive,'requests'],['quotes',TX.kQuotes,'quotes'],['contracts',TX.kContracts,'contracts'],['payments',TX.kPayments,'pay'],['appointments',TX.kAppts,'appointments']];
 m.appendChild(h('div',{class:'my-kpis'},k.map(function(x){return h('div',{class:'my-kpi'+(x[0]!=='active'&&c[x[0]]?' hot':''),onclick:function(){go(x[2])}},[h('b',{},[String(c[x[0]]||0)]),h('span',{},[x[1]])])})));
@@ -787,7 +967,7 @@ function slotPicker(){var st={days:[]};var d=h('select',{class:'inp'}),tm=h('sel
  .catch(function(){note.textContent=TX.apptNone});
  return {day:d,time:tm,note:note}}
 function apptErr(o){var e=o&&o.error;return e==='bad_datetime'?TX.apptBad:(e==='off_day'||e==='friday')?TX.apptFri:e==='past'?TX.apptPast:e==='out_of_hours'?TX.apptOut:e==='too_soon'?TX.apptSoon:e==='too_far'?TX.apptFar:e==='slot_taken'?TX.apptTaken:e==='too_many_active'?TX.apptMany:e==='rate_limited'?TX.apptRate:failText(o)}
-function viewAppts(m){m.appendChild(h('h1',{},[TX.navAppts]));var nc=nextApptCard();if(nc)m.appendChild(nc);var rows=state.me.requests.filter(function(r){return r.appointment&&r.appointment.status!=='CANCELLED'});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill'},[r.appointment.date+' '+r.appointment.time]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));var cons=state.me.requests.filter(function(r){return r.type==='CONSULTATION'&&(!r.appointment||r.appointment.status==='CANCELLED')&&r.status!=='CANCELLED'});if(cons.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.book]),h('div',{class:'list'},cons.map(reqRow))]))}
+function viewAppts(m){m.appendChild(h('h1',{},[TX.navAppts]));var nc=nextApptCard();if(nc)m.appendChild(nc);var rows=state.me.requests.filter(function(r){return r.appointment&&r.appointment.status!=='CANCELLED'&&r.status!=='CANCELLED'});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill'},[r.appointment.date+' '+r.appointment.time]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));var cons=state.me.requests.filter(function(r){return r.type==='CONSULTATION'&&(!r.appointment||r.appointment.status==='CANCELLED')&&r.status!=='CANCELLED'});if(cons.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.book]),h('div',{class:'list'},cons.map(reqRow))]))}
 function viewCompany(m){m.appendChild(h('h1',{},[TX.navCompany]));var o=state.me.organization||{};var f=h('div',{class:'form'});var nAr=h('input',{class:'inp',value:o.name_ar||''}),nEn=h('input',{class:'inp',value:o.name_en||''}),cr=h('input',{class:'inp',value:o.cr_number||''}),msg=h('span',{class:'ok'});
 f.appendChild(h('label',{},[TX.company]));f.appendChild(nAr);f.appendChild(h('label',{},[TX.nameEn]));f.appendChild(nEn);f.appendChild(h('label',{},[TX.cr]));f.appendChild(cr);
 f.appendChild(h('button',{class:'btn',onclick:function(){fetch('/api/requests',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'my-org-update',name_ar:nAr.value,name_en:nEn.value,cr:cr.value,cr_number:cr.value})}).then(function(r){return r.json()}).catch(function(){return {ok:false,error:'network'}}).then(function(o){if(o&&o.error==='unauthorized'){sessionEnded();return}msg.className=o&&o.ok?'ok':'err';msg.textContent=o&&o.ok?TX.saved:failText(o);if(o&&o.ok&&o.organization)state.me.organization=o.organization})}},[TX.save]));f.appendChild(msg);
@@ -795,7 +975,7 @@ m.appendChild(h('div',{class:'card'},[h('div',{class:'stat'},[h('span',{},[TX.em
 // Setting a password needs a live session, which is exactly where we are —
 // so the client picks one here and stops waiting for a code every visit.
 var pw=h('input',{class:'inp',type:'password',autocomplete:'new-password',placeholder:TX.password}),pmsg=h('span',{class:'ok'});
-var pf=h('div',{class:'form'},[h('p',{class:'note'},[TX.pwNote]),h('label',{},[TX.password]),pw,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){pmsg.className='ok';if((pw.value||'').length<8){pmsg.className='err';pmsg.textContent=TX.pwShort;return}otp({action:'password-set',password:pw.value}).then(function(o){if(o&&o.ok){pmsg.textContent=TX.pwSaved;pw.value=''}else{pmsg.className='err';pmsg.textContent=(o&&o.message)||TX.error}})}},[TX.pwSave]),pmsg])]);
+var pf=h('div',{class:'form'},[h('p',{class:'note'},[TX.pwNote]),h('label',{},[TX.password]),pw,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){pmsg.className='ok';if((pw.value||'').length<8){pmsg.className='err';pmsg.textContent=TX.pwShort;return}otp({action:'password-set',password:pw.value}).then(function(o){if(o&&o.ok){pmsg.textContent=TX.pwSaved;pw.value=''}else{pmsg.className='err';pmsg.textContent=(o&&o.reason&&TX['pwr_'+o.reason])||(o&&o.message)||TX.error}})}},[TX.pwSave]),pmsg])]);
 m.appendChild(h('div',{class:'card'},[h('h3',{},[TX.pwTitle]),pf]))}
 
 // ---------- المستندات: خزانة واحدة للعميل
@@ -979,6 +1159,118 @@ function viewDocuments(m){
 function verLbl(n){return (LANG==='ar'||LANG==='zh')?(TX.dVer+' '+n):(TX.dVer+n)}
 function catName(c){for(var i=0;i<DOC_CATS.length;i++)if(DOC_CATS[i][0]===c)return DOC_CATS[i][1];
  return DOC_CATS[DOC_CATS.length-1][1]}
+// ---------- الامتثال والمخالفات
+// لا منطق امتثال جديد هنا: الحالة من compliance-access، والمخالفات من
+// violations، والتسجيل والاعتراض عبر ops-violation-add/object — كلها مسارات
+// my-ops الحيّة نفسها. المستندات تُدار من قسم «مستنداتي» (go('documents')),
+// فلا نكرّر خزانةً ثانية. ومشاري لا يَعِد بإلغاء مخالفة — ندرس الأهلية ونتابع.
+function isActionableViol(v){var s=String((v&&v.status)||'').trim();return !s||/جديد/.test(s)}
+function violPill(s){s=String(s||'').trim();if(!s)return h('span',{class:'pill warn'},[TX.cNew]);
+ var good=/مقبول|ملغا|مغلق|منجز|accepted|closed/i.test(s),bad=/مرفوض|rejected/i.test(s),obj=/اعتراض/.test(s);
+ return h('span',{class:'pill '+(good?'ok':bad?'bad':obj?'warn':'mut')},[s])}
+function setComplianceBadge(){var a=document.querySelector('[data-nav="compliance"]');if(!a)return;
+ var n=(state.violations||[]).filter(isActionableViol).length;var b=a.querySelector('.b');
+ if(!n){if(b)b.remove();return}if(b)b.textContent=String(n);else a.appendChild(h('span',{class:'b'},[String(n)]))}
+function viewCompliance(m){
+ m.appendChild(h('h1',{},[TX.navCompliance]));
+ m.appendChild(h('p',{class:'note',style:'margin:-6px 0 14px'},[TX.cIntro]));
+ var access=h('div',{class:'card'});access.appendChild(h('p',{class:'note'},[TX.cLoading]));m.appendChild(access);
+ var body=h('div');m.appendChild(body);
+ opsGet('compliance-access').then(function(a){
+  access.innerHTML='';
+  if(!a||!a.ok){access.appendChild(h('p',{class:'err'},[TX.eNet]));return}
+  // بلا منشأة: الخزانة والمخالفات مرتبطتان بالمنشأة، فنوجّه لبيانات الشركة.
+  if(!('active' in a)){access.appendChild(h('p',{class:'note'},[TX.eNoOrg]));
+   access.appendChild(h('button',{class:'btn ghost sm',style:'margin-top:8px',onclick:function(){go('company')}},['🏢 '+TX.navCompany]));return}
+  var days=Number(a.days_left)||0;
+  if(a.active){access.appendChild(h('span',{class:'pill ok'},['🛡️ '+TX.cActive]))}
+  else if(a.trial&&days>0){access.appendChild(h('span',{class:'pill warn'},['🛡️ '+TX.cTrialLbl+' · '+dayStr(days)]));
+   if(a.ends_at)access.appendChild(h('p',{class:'note',style:'margin-top:8px'},[TX.validUntil+': '+String(a.ends_at).slice(0,10)]))}
+  else{access.appendChild(h('h3',{},['🛡️ '+TX.cLockedTitle]));access.appendChild(h('p',{class:'note'},[TX.cLocked]));
+   access.appendChild(h('a',{class:'btn',style:'margin-top:8px',href:'/ar/compliance-agent'},[TX.cSubscribe]));return}
+  drawComplianceBody(body);
+ })}
+function drawComplianceBody(body){
+ body.innerHTML='';
+ // 1) استحقاقات قريبة من مستنداتك + زر الإدارة والرفع (يعيد استعمال قسم المستندات)
+ var dcard=h('div',{class:'card'});dcard.appendChild(h('h3',{},[TX.cDocsTitle]));
+ var dlist=h('div',{class:'list'});dcard.appendChild(dlist);
+ dcard.appendChild(h('button',{class:'btn ghost sm',style:'margin-top:10px',onclick:function(){go('documents')}},['📁 '+TX.cManageDocs]));
+ body.appendChild(dcard);
+ function fillDocs(){dlist.innerHTML='';
+  var items=(state.docs||[]).map(function(d){return {d:d,n:daysLeft(d.expiry_date)}}).filter(function(x){return x.n!==null&&x.n<=60}).sort(function(a,b){return a.n-b.n});
+  if(!items.length){dlist.appendChild(h('p',{class:'note'},[TX.cDocsNone]));return}
+  items.forEach(function(x){var n=x.n;dlist.appendChild(h('div',{class:'row',onclick:function(){go('documents')}},[
+   h('div',{class:'tt'},[h('b',{},[x.d.title||'']),h('small',{},[x.d.expiry_date?(TX.dExpires+' '+String(x.d.expiry_date).slice(0,10)):''])]),
+   h('span',{class:'pill '+(n<0?'bad':'warn')},[n<0?TX.dExpired:dayStr(n)])]))})}
+ if(state.docs)fillDocs();else{dlist.appendChild(h('p',{class:'note'},[TX.dLoading]));loadDocs().then(fillDocs)}
+ // 2) المخالفات + تقديم الاعتراض
+ var vcard=h('div',{class:'card'});vcard.appendChild(h('h3',{},[TX.cViolTitle]));
+ vcard.appendChild(h('p',{class:'note'},[TX.cViolIntro]));
+ vcard.appendChild(h('p',{class:'note',style:'color:#b45309'},[TX.cStages]));
+ var vlist=h('div',{class:'list',style:'margin-top:10px'});vcard.appendChild(vlist);
+ vlist.appendChild(h('p',{class:'note'},[TX.cLoading]));
+ body.appendChild(vcard);
+ function openObject(v,box,redraw){
+  if(box.querySelector('.objform'))return;
+  var note=h('textarea',{class:'inp',rows:'3',placeholder:TX.cObjectNote});
+  var msg=h('div',{class:'err'});
+  var send=h('button',{class:'btn sm'},['⚖️ '+TX.cObjectBtn]);
+  var cancel=h('button',{class:'btn ghost sm',onclick:function(){wrap.remove()}},[TX.docClose]);
+  send.addEventListener('click',function(){msg.className='err';msg.textContent='';
+   if(!note.value.trim()){msg.textContent=TX.eName;note.focus();return}
+   send.disabled=true;
+   opsPost({action:'ops-violation-object',id:v.id,note:note.value.trim()}).then(function(o){
+    send.disabled=false;
+    if(o&&o.ok){opsGet('violations').then(function(r){if(r&&r.ok)state.violations=r.items||[];redraw()})}
+    else{msg.textContent=upErr(o&&o.error)}})});
+  var wrap=h('div',{class:'objform',style:'margin-top:10px'},[note,h('div',{class:'msgform'},[send,cancel]),msg]);
+  box.appendChild(wrap);note.focus()}
+ function drawViol(){vlist.innerHTML='';var items=state.violations||[];
+  if(!items.length){vlist.appendChild(h('p',{class:'note'},[TX.cViolNone]));return}
+  items.forEach(function(v){
+   var box=h('div',{class:'doc'});
+   box.appendChild(h('div',{class:'hd'},[h('b',{},[v.title||'']),violPill(v.status)]));
+   var meta=[v.authority||''];if(v.violation_number)meta.push('#'+v.violation_number);if(v.amount)meta.push(money(v.amount));if(v.violation_date)meta.push(String(v.violation_date).slice(0,10));
+   box.appendChild(h('div',{class:'meta'},[meta.filter(Boolean).join(' · ')]));
+   if(v.objection_deadline){var dn=daysLeft(v.objection_deadline);box.appendChild(h('div',{class:'meta'},[TX.cDeadline+': '+String(v.objection_deadline).slice(0,10)+(dn!==null?(' · '+(dn<0?TX.dExpired:dayStr(dn))):'')]))}
+   var acts=h('div',{class:'acts'});
+   if(/اعتراض/.test(String(v.status||''))){acts.appendChild(h('span',{class:'ok'},['✓ '+TX.cObjectFiled]));
+    if(v.objection_note)box.appendChild(h('div',{class:'read'},['📝 '+v.objection_note]))}
+   else{acts.appendChild(h('button',{class:'btn sm',onclick:function(){openObject(v,box,draw)}},['⚖️ '+TX.cObjectBtn]))}
+   box.appendChild(acts);vlist.appendChild(box)})}
+ function draw(){drawViol();setComplianceBadge()}
+ if(state.violations)draw();
+ opsGet('violations').then(function(o){if(o&&o.ok)state.violations=o.items||[];
+  if(o&&!o.ok&&o.error==='network'){vlist.innerHTML='';vlist.appendChild(h('p',{class:'err'},[TX.eNet]))}else draw()});
+ // 3) سجّل مخالفة
+ var add=h('div',{class:'card'});add.appendChild(h('h3',{},[TX.cAddTitle]));
+ var authority=h('input',{class:'inp',maxlength:'80',placeholder:TX.cAuthority});
+ var vtitle=h('input',{class:'inp',maxlength:'300',placeholder:TX.cVTitle});
+ var vnum=h('input',{class:'inp',maxlength:'80',placeholder:TX.cVNumber});
+ var vamount=h('input',{class:'inp',type:'number',min:'0',placeholder:TX.cVAmount});
+ var vdate=h('input',{class:'inp',type:'date'});
+ var vdeadline=h('input',{class:'inp',type:'date'});
+ var amsg=h('div',{class:'err'});
+ var abtn=h('button',{class:'btn'},[TX.cAddBtn]);
+ abtn.addEventListener('click',function(){amsg.className='err';amsg.textContent='';
+  if(!authority.value.trim()||!vtitle.value.trim()){amsg.textContent=TX.eName;return}
+  abtn.disabled=true;
+  opsPost({action:'ops-violation-add',authority:authority.value.trim(),title:vtitle.value.trim(),number:vnum.value.trim(),amount:vamount.value,date:vdate.value,deadline:vdeadline.value}).then(function(o){
+   abtn.disabled=false;
+   if(o&&o.ok){amsg.className='ok';amsg.textContent=TX.cAddDone;
+    authority.value='';vtitle.value='';vnum.value='';vamount.value='';vdate.value='';vdeadline.value='';
+    opsGet('violations').then(function(r){if(r&&r.ok){state.violations=r.items||[];draw()}})}
+   else{amsg.textContent=upErr(o&&o.error)}})});
+ add.appendChild(h('div',{class:'dgrid',style:'margin-top:6px'},[
+  h('div',{},[h('label',{class:'note'},[TX.cAuthority]),authority]),
+  h('div',{},[h('label',{class:'note'},[TX.cVTitle]),vtitle]),
+  h('div',{},[h('label',{class:'note'},[TX.cVNumber]),vnum]),
+  h('div',{},[h('label',{class:'note'},[TX.cVAmount]),vamount]),
+  h('div',{},[h('label',{class:'note'},[TX.cVDate]),vdate]),
+  h('div',{},[h('label',{class:'note'},[TX.cVDeadline]),vdeadline])]));
+ add.appendChild(h('div',{style:'margin-top:12px'},[abtn,amsg]));
+ body.appendChild(add)}
 // ---------- files inside a request
 // A link to one file is made at the moment of the click, by the server, after it
 // has checked the request is this customer's — nothing long-lived is stored in
@@ -1059,7 +1351,10 @@ function delivCard(r){
 function viewRequest(m){m.appendChild(h('a',{class:'btn ghost sm',onclick:function(){go('requests')}},['← '+TX.back]));var hd=h('h1',{style:'margin-top:10px'},['…']);m.appendChild(hd);var box=h('div');m.appendChild(box);
 api('request-get',{ref:state.ref}).then(function(o){if(!o||!o.ok){box.appendChild(h('p',{class:'err'},[TX.error]));return}state.req=o.request;state.testMode=!!o.testMode;drawRequest(hd,box)})}
 function drawRequest(hd,box){var r=state.req;var isTicket=r.origin==='ticket';hd.textContent=displayRequestTitle(r);box.innerHTML='';
-box.appendChild(h('div',{class:'stat'},[h('span',{},[TX.ref+': ',h('b',{},[r.ref])]),h('span',{},[TX.status+': ',pill(r.status)]),h('span',{},[isTicket?TX.ticket:(TY[r.type]||r.type)]),(r.payment&&r.payment.source==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),h('span',{},[when(r.created_at)])]));
+var cxm=cxMode(r),cxPend=!!r.cancel_request&&r.status!=='CANCELLED';
+box.appendChild(h('div',{class:'stat'},[h('span',{},[TX.ref+': ',h('b',{},[r.ref])]),h('span',{},[TX.status+': ',pill(r.status),cxPend?h('span',{class:'pill warn',style:'margin-inline-start:6px'},[TX.cxPill]):null]),h('span',{},[isTicket?TX.ticket:(TY[r.type]||r.type)]),(r.payment&&r.payment.source==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),h('span',{},[when(r.created_at)]),
+ (cxm!=='closed'&&!cxPend)?h('button',{class:'btn danger sm cxbtn',id:'sv1CancelTop',onclick:function(){cxSheet(r)}},[cxm==='now'?TX.cancelReq:TX.cancelAsk]):null]));
+var cxb=cxBanner(r);if(cxb)box.appendChild(cxb);
 var left=h('div'),right=h('div');box.appendChild(h('div',{class:'grid2'},[left,right]));
 // conversation
 var msgs=h('div',{class:'msgs'},(r.conversation||[]).map(function(mm){return h('div',{class:'m '+mm.role},[stripScope(mm.content),h('small',{},[(mm.role==='user'?TX.you:mm.role==='bp'?TX.team:TX.assistant)+' · '+when(mm.at)])])}));
@@ -1075,7 +1370,7 @@ if(editable){var ai=h('input',{class:'inp',placeholder:TX.addItem}),msgS=h('span
 // plain save stays for intermediate edits.
 var goBtn=h('button',{class:'btn',onclick:function(){msgS.className='ok';msgS.textContent='';goBtn.disabled=true;api('scope-confirm',{ref:r.ref,scope:r.scope}).then(function(o){goBtn.disabled=false;if(!o||!o.ok){msgS.className='err';msgS.textContent=(o&&o.message)||TX.error;return}state.flash=TX.scopePricing;api('request-get',{ref:r.ref}).then(function(g){if(g&&g.ok){state.req=g.request;drawRequest(hd,box);var q=document.getElementById('sv1Quote');if(q&&q.scrollIntoView)q.scrollIntoView({behavior:'smooth',block:'start'})}})})}},[TX.confirmScope]);
 sc.appendChild(h('div',{class:'msgform'},[ai,h('button',{class:'btn ghost',onclick:function(){if(!ai.value.trim())return;r.scope.push({code:'',title:ai.value.trim(),why:''});ai.value='';drawItems()}},[TX.addItem]),h('button',{class:'btn ghost',onclick:function(){api('scope-update',{ref:r.ref,scope:r.scope}).then(function(o){msgS.className='ok';msgS.textContent=o&&o.ok?TX.saved:TX.error})}},[TX.saveScope]),goBtn,msgS]));
-if(state.flash){sc.appendChild(h('p',{class:'ok'},[state.flash]));state.flash=null}}else sc.appendChild(h('p',{class:'note'},[isCart?TX.directNote:TX.scopeLocked]));
+if(state.flash){sc.appendChild(h('p',{class:'ok'},[state.flash]));state.flash=null}}else if(r.status!=='CANCELLED')sc.appendChild(h('p',{class:'note'},[isCart?TX.directNote:TX.scopeLocked]));
 sc.appendChild(dc.firstChild?dc:document.createComment(''));
 if(!isTicket)left.appendChild(sc);
 // tasks for client
@@ -1123,7 +1418,47 @@ var sp=slotPicker(),d=sp.day,tm=sp.time,tp2=h('input',{class:'inp',placeholder:T
 ac.appendChild(h('div',{class:'form'},[h('label',{},[TX.date]),d,h('label',{},[TX.time]),tm,h('label',{},[TX.topic]),tp2,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){ae.textContent='';if(!d.value||!tm.value){ae.textContent=TX.apptBad;return}api(a&&a.status!=='CANCELLED'?'appointment-reschedule':'appointment-book',{ref:r.ref,date:d.value,time:tm.value,topic:tp2.value}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else if(o&&o.error==='no_session'){}else ae.textContent=apptErr(o)})}},[a&&a.status!=='CANCELLED'?TX.reschedule:TX.book]),a&&a.status!=='CANCELLED'?h('button',{class:'btn danger',onclick:function(){api('appointment-cancel',{ref:r.ref}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else if(!o||o.error!=='no_session')toast(failText(o))})}},[TX.cancelAppt]):null]),ae,sp.note,h('p',{class:'note'},[TX.apptNote])]));right.appendChild(ac)}
 // timeline
 right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.timeline]),h('ul',{class:'tl'},(r.events||[]).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(actorName(e)?actorName(e)+': ':'')+(EV[e.event]||e.event)+(e.details&&e.details.number?' '+e.details.number:'')])])}))]));
-if(['CANCELLED','COMPLETED'].indexOf(r.status)<0){var early=['NEW','REVIEWING','WAITING_CLIENT','QUOTE_SENT','PRICING'].indexOf(r.status)>=0;var cnote=h('input',{class:'inp',placeholder:TX.cancelWhy,style:'margin-top:10px'});var cmsg=h('div',{class:'note'},[early?TX.cancelEarly:TX.cancelLate]);var cbtn=h('button',{class:'btn danger sm',onclick:function(){if(!confirm((early?TX.cancelReq:TX.cancelAsk)+'?'))return;var b2=this;b2.disabled=true;api('request-cancel',{ref:r.ref,note:cnote.value.trim()}).then(function(o){b2.disabled=false;if(!o||!o.ok){cmsg.className='err';cmsg.textContent=(o&&o.message)||TX.error;return}if(o.cancelled){r.status='CANCELLED';refreshMe();drawRequest(hd,box);return}cmsg.className='ok';cmsg.textContent=TX.cancelSent;cbtn.disabled=true})}},[early?TX.cancelReq:TX.cancelAsk]);right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),cmsg,cnote,h('div',{class:'msgform',style:'margin-top:8px'},[cbtn])]))}if(r.cancel)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),h('p',{class:'note'},[TX.cancelDone+' · '+when(r.cancel.at)+(r.cancel.note?' · '+r.cancel.note:'')])]))}
+if(cxm!=='closed'&&!cxPend){right.appendChild(h('div',{class:'card',id:'sv1Cancel'},[h('h3',{},[TX.cancelTitle]),h('p',{class:'note'},[cxText(r)+((cxm==='now'&&cxApptLive(r))?' '+TX.cxAppt:'')]),h('div',{class:'msgform',style:'margin-top:8px'},[h('button',{class:'btn danger sm',onclick:function(){cxSheet(r)}},[cxm==='now'?TX.cancelReq:TX.cancelAsk])])]))}}
+// ---------- cancellation
+// One policy, held by the server (cancel_policy on the request): 'now' when
+// nothing has been signed or paid, 'ask' when the team has to look first.
+// This page only words it — it never decides it.
+function cxApi(action,data){return fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({action:action},data||{}))}).then(function(r){return r.json().catch(function(){return {ok:false,error:'server_error'}})}).catch(function(){return {ok:false,error:'network'}})}
+function cxErr(o){var e=(o&&o.error)||'';return e==='already_closed'?TX.cxErrClosed:(e==='no_session'||e==='unauthorized')?TX.cxErrSess:e==='network'?TX.cxErrNet:e==='not_found'?TX.cxErrNF:TX.cxErrGen}
+function cxMode(r){if(['CANCELLED','COMPLETED'].indexOf(r.status)>=0)return 'closed';return r.cancel_policy==='now'?'now':'ask'}
+function cxText(r){if(cxMode(r)==='now')return TX.cxNowNote;if(r.payment&&r.payment.status==='PAID')return TX.cxPaid;if(r.contract&&r.contract.status==='SIGNED')return TX.cxSigned;return TX.cancelLate}
+function cxApptLive(r){return !!(r.appointment&&r.appointment.status!=='CANCELLED')}
+function cxBanner(r){
+ if(r.status==='CANCELLED'){var c=r.cancel||{};return h('div',{class:'cx-state done',id:'sv1CancelState'},[h('h3',{},[TX.cxDoneNow+(c.at?' · '+when(c.at):'')]),h('p',{},[(c.by==='ops'?'':TX.cxDoneNowT+' ')+(c.note?'« '+c.note+' »':'')]),h('a',{class:'btn ghost sm',href:HOME+'#chat'},[TX.cxNewReq])])}
+ if(r.cancel_request){var q=r.cancel_request;return h('div',{class:'cx-state pend',id:'sv1CancelState'},[h('h3',{},[TX.cxPendTitle]),h('p',{},[TX.cxPendText+' '+TX.cxSentAt+' '+when(q.at)+'.'+(q.note?' « '+q.note+' »':'')])])}
+ return null}
+function cxSheet(r){
+ if(document.getElementById('sv1CancelSheet'))return;
+ var now=cxMode(r)==='now';
+ var note=h('input',{class:'inp',placeholder:TX.cancelWhy,maxlength:'500',style:'border-color:#cfd6e6'});
+ var err=h('div',{class:'err',role:'alert',style:'margin-top:8px'});
+ var ok=h('button',{class:'btn solid-danger',id:'sv1CancelOk'},[now?TX.cxNowGo:TX.cxAskGo]);
+ var keep=h('button',{class:'btn ghost',id:'sv1CancelKeep'},[TX.cxKeep]);
+ var ovl=h('div',{class:'cx-ovl',id:'sv1CancelSheet',role:'dialog','aria-modal':'true','aria-label':now?TX.cxNowTitle:TX.cxAskTitle},[
+  h('div',{class:'cx-box'},[h('h3',{},[now?TX.cxNowTitle:TX.cxAskTitle]),h('p',{},[cxText(r)+((now&&cxApptLive(r))?' '+TX.cxAppt:'')]),note,err,h('div',{class:'acts'},[ok,keep])])]);
+ function close(){document.removeEventListener('keydown',onKey);ovl.remove()}
+ function onKey(e){if(e.key==='Escape')close()}
+ keep.addEventListener('click',close);
+ ovl.addEventListener('click',function(e){if(e.target===ovl)close()});
+ document.addEventListener('keydown',onKey);
+ ok.addEventListener('click',function(){
+  err.textContent='';ok.disabled=true;keep.disabled=true;
+  cxApi('request-cancel',{ref:r.ref,note:note.value.trim()}).then(function(o){
+   ok.disabled=false;keep.disabled=false;
+   if(!o||!o.ok){err.textContent=cxErr(o);return}
+   close();
+   // a cancelled request's line must not wait in the cart
+   try{var cart=JSON.parse(localStorage.getItem('bp_cart')||'[]');localStorage.setItem('bp_cart',JSON.stringify(cart.filter(function(i){return i.id!=='sv1:'+r.ref})))}catch(x){}
+   // re-read everything: the page then shows what the server holds, and the
+   // sidebar badges and counters move with it
+   refreshMe().then(function(){render();window.scrollTo(0,0)})})});
+ document.body.appendChild(ovl);
+ try{keep.focus()}catch(x){}}
 // The official invoice is the PDF the accounting system issued and the request
 // kept (invoice.pdf_url): that is what opens when it exists. Only when it does
 // not does the page below stand in — it carries the seller's tax number, taken
@@ -1132,7 +1467,7 @@ function openInvoice(r){var inv=r.invoice;
  if(inv.pdf_url&&/^https?:[/][/]/i.test(String(inv.pdf_url))){window.open(inv.pdf_url,'_blank','noopener');return}
  var w=window.open('','_blank');if(!w)return;var sellerName=LANG==='ar'?(SELLER.name||SELLER.nameEn):(SELLER.nameEn||SELLER.name);var sellerBlock='<p><b>'+TX.invSeller+':</b> '+esc(sellerName)+(SELLER.vat?'<br><b>'+TX.invVat+':</b> '+esc(SELLER.vat):'')+'</p>';var rows=(inv.items||[]).map(function(i){return '<tr><td>'+esc(i.title)+'</td><td>'+i.qty+'</td><td>'+money(lineOf(i))+'</td></tr>'}).join('');w.document.write('<!doctype html><html dir="'+(LANG==='ar'?'rtl':'ltr')+'"><head><meta charset="utf-8"><title>'+inv.number+'</title><style>body{font-family:"IBM Plex Sans Arabic",system-ui;padding:32px;color:#1F2430}h1{color:#0B1B5A}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #e4e8f1;text-align:start}.t{font-weight:700}.tm{background:#b45309;color:#fff;padding:6px 10px;display:inline-block;border-radius:6px}</style></head><body>'+(inv.mode==='test'?'<span class="tm">TEST MODE</span>':'')+'<h1>Business Partner — '+TX.invoice+' '+inv.number+'</h1><p>'+TX.ref+': '+r.ref+' · '+when(inv.issued_at)+'</p>'+sellerBlock+'<p><b>'+TX.invBuyer+':</b> '+esc((inv.bill_to&&(inv.bill_to.company||inv.bill_to.name))||'')+'</p><table><thead><tr><th>'+TX.scope+'</th><th>'+TX.qty+'</th><th>'+TX.price+'</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr><td colspan="2">'+TX.net+'</td><td>'+money(inv.net)+'</td></tr><tr><td colspan="2">'+TX.vat+'</td><td>'+money(inv.vat)+'</td></tr><tr class="t"><td colspan="2">'+TX.total+'</td><td>'+money(inv.total)+'</td></tr></tfoot></table><p><b>'+TX.paid+'</b></p></body></html>');w.document.close()}
 function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
-function refreshMe(){api('me').then(function(o){if(o&&o.ok){state.me=o;var side=$('#mySide');if(side){/* re-render nav badges */}}})}
+function refreshMe(){return api('me').then(function(o){if(o&&o.ok){state.me=o}}).catch(function(){})}
 // Coming back from a payment gateway (local or hosted): the outcome rides on
 // the URL exactly as Moyasar and Tamara return it, and is settled through the
 // same action the test buttons use — one settle path, not two.
@@ -1154,6 +1489,6 @@ function settleReturn(u){
 // الشيء نفسه: مسارٌ محلي يبدأ بشرطة واحدة، ولا يبدأ بشرطتين («//host» يقرؤه
 // المتصفح موقعاً آخر).
 function nextPath(){try{var n=decodeURIComponent(new URL(location.href).searchParams.get('next')||'');return (n.charAt(0)==='/'&&n.charAt(1)!=='/')?n:''}catch(e){return ''}}
-function boot(){var ml=hashParam('ml');if(ml){renderLinkConfirm(ml);return}api('me').then(function(o){if(!o||!o.ok){renderLogin();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render();if(state.view!=='documents')loadDocs().catch(function(){})})}).catch(function(){renderLogin()})}
+function boot(){var ml=hashParam('ml');if(ml){renderLinkConfirm(ml);return}api('me').then(function(o){if(!o||!o.ok){renderLogin();return}if(o.user&&o.user.contactPending){renderContact();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render();if(state.view!=='documents')loadDocs().catch(function(){});if(state.view!=='compliance')opsGet('violations').then(function(o){if(o&&o.ok){state.violations=o.items||[];setComplianceBadge()}}).catch(function(){})})}).catch(function(){renderLogin()})}
 boot();
 })();</script><link rel="stylesheet" href="/assets/css/bp-support-hub.css?v=1d8787db96"><script id="bpsCfg">window.BPS_CFG={"agent":"966507034157","human":"966530540231","humanLocal":"0530540231","email":"business@businesspartner.sa","address":"مبنى 9214 · طريق الملك خالد الفرعي · حي العاصمة · الدرعية 13714 · الرقم الفرعي 5076","addressEn":"Building 9214 · King Khaled Branch Rd. · Al Asemah Dist. · Ad Diriyah 13714 · Additional no. 5076","hours":{"tz":"Asia/Riyadh","days":[0,1,2,3,4],"from":9,"to":18},"pricesPublic":false,"img":"/assets/img/baher.jpg"}</script><script defer src="/assets/js/bp-support-hub.js?v=ced7d129da"></script></body></html>

@@ -414,6 +414,11 @@ async function catalogPrices() {
       if (!map[k]) map[k] = entry;
     }
   }
+  // باقات Business Partner AI (catalog.json → aiPlans): تُسعَّر كالخدمات بالرمز.
+  for (const ap of c.aiPlans || []) if (ap.code) {
+    const k = String(ap.code).toLowerCase();
+    if (!map[k]) map[k] = { amount: Number(ap.amount) || 0, name: ap.nameAr || ap.nameEn || ap.code, code: String(ap.code).toUpperCase() };
+  }
   _catCache = map; _catAt = Date.now();
   _catDiscounts = Array.isArray(c.discounts) ? c.discounts : [];
   return map;
