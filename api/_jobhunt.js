@@ -18,6 +18,9 @@
 // Routes (under /api/jobhunt, rewritten to /api/requests?__route=jobhunt)
 //   POST {type:"opt-in", name, email, phone, plan, role}   public — sign up
 //   GET  ?action=status&email=&phone=                      public — own state
+//   POST {type:"preview", cvFile|cvText}                   public — مطابقة السيرة قبل التسجيل (بلا حفظ)
+//   POST {type:"draft", cvText, jobId, tone, lang}         public — مسودة تقديم يدوي (Azure)
+//   POST {type:"my-applications", email, ref}              public — حالة طلباتي (بريدٌ + مرجع)
 //   GET  ?action=run&key=&limit=                           owner  — run agent
 //   GET  ?action=subscribers&key=                          owner  — the book
 //   POST {type:"activate", key, id, plan}                  owner  — start it
@@ -28,6 +31,8 @@
 //
 // Underscore-prefixed so Vercel treats it as a module, not a 13th serverless
 // function — the plan caps at 12 and this repo is at the cap.
+
+import { handlePreview, handleDraft, handleMyApplications } from "./_jobpreview.js";
 
 const envFrom = (names) => {
   for (const n of names) {
@@ -286,6 +291,10 @@ function matchesEmail(name, matches) {
     <p style="color:#666">خدمة البحث عن وظيفة — Business Partner</p></div>`;
 }
 
+// يحقنها الاختبار (دون شبكة)؛ في الإنتاج تبقى فارغة.
+let previewDeps = null;
+export function _setPreviewDeps(d) { previewDeps = d; }
+
 export async function handleJobhunt(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   const send = (status, obj) => { res.statusCode = status; return res.end(JSON.stringify(obj)); };
@@ -384,6 +393,19 @@ export async function handleJobhunt(req, res) {
   if (req.method !== "POST") return send(405, { ok: false, error: "method_not_allowed" });
   const b = await readBody(req);
   const type = clip(b.type, 40);
+
+  // المعاينة والمسودة وسجلّ الحالات: قراءةٌ بلا كتابة (انظر _jobpreview.js). وحدة المرشّح
+  // (قارئ السيرة) تُحمَّل عند الطلب فقط، لا مع كل نداءٍ إلى دالة الطلبات.
+  if (type === "preview" || type === "draft" || type === "my-applications") {
+    const deps = { notion, jobsDb: JOBS_DB, atsDb: ATS_DB, ...(previewDeps || {}) };
+    if (!deps.cv) {
+      const c = await import("./candidate.js");
+      deps.cv = { extractCvText: c.extractCvText, cvTextQuality: c.cvTextQuality, normalizeCvText: c.normalizeCvText };
+    }
+    const fn = type === "preview" ? handlePreview : type === "draft" ? handleDraft : handleMyApplications;
+    const out = await fn(b, req, deps);
+    return send(out.status, out.body);
+  }
 
   // A candidate asks us to search on their behalf. This records the intent and
   // the plan only — activation, and therefore billing, is a human decision.

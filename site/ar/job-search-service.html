@@ -387,6 +387,70 @@ var h0=hint();if(h0)S.paint(true,h0);
     <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#jss-form">ابدأ البحث</a><a class="btn btn-ghost btn-lg" href="#jss-plans">شوف الأسعار</a></div>
   </div></section>
 
+  <style id="jss-preview-css">
+#jss-preview .jp-card{border:1px solid var(--l);border-radius:14px;padding:18px;box-shadow:var(--sh)}
+#jss-preview .jp-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+#jss-preview .jp-re{display:flex;gap:6px 16px;flex-wrap:wrap;margin:10px 0 0;padding:0;list-style:none;font-size:12px;color:var(--mut)}
+#jss-preview .jp-re li{line-height:1.6}
+#jss-preview .jp-msg{min-height:20px;margin:10px 0 0;font-size:13px;color:var(--mut)}
+#jss-preview .jp-msg.is-err{color:var(--warn)}
+#jss-preview .jp-count{font-size:clamp(20px,3vw,28px);font-weight:300;color:var(--ink);margin:0 0 4px}
+#jss-preview .jp-of,#jss-preview .jp-est{font-size:12.5px;color:var(--mut);margin:0 0 6px}
+#jss-preview .jp-job{border:1px solid var(--l);border-radius:12px;padding:14px 16px;margin-top:10px}
+#jss-preview .jp-job.is-skipped{opacity:.55}
+#jss-preview .jp-head{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+#jss-preview .jp-title{font-weight:500;color:var(--ink);margin:0}
+#jss-preview .jp-meta{font-size:12.5px;color:var(--mut);margin:2px 0 0}
+#jss-preview .jp-pct{font-family:var(--fm);font-size:13px;color:var(--ac);background:var(--acSoft);border:1px solid var(--acLine);border-radius:999px;padding:3px 10px;white-space:nowrap}
+#jss-preview .jp-draft{margin-top:12px}
+#jss-preview .jp-draft label{display:block;margin:10px 0 4px}
+#jss-preview .jp-draft textarea{width:100%;min-height:96px;resize:vertical}
+#jss-preview .jp-note{font-size:12px;color:var(--mut);margin:8px 0 0}
+#jss-preview .jp-consent{background:var(--acSoft);border:1px solid var(--acLine);border-radius:12px;padding:14px;margin-top:12px}
+#jss-preview .jp-consent .jp-chk{display:flex;gap:8px;align-items:flex-start;margin:10px 0}
+#jss-preview .jp-consent .jp-chk input{width:auto;margin-top:4px}
+#jss-preview .jp-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+@media(max-width:640px){#jss-preview .jp-grid{grid-template-columns:1fr}}
+#jss-preview .jp-led{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+#jss-preview .jp-led th,#jss-preview .jp-led td{text-align:start;padding:8px 10px;border-bottom:1px solid var(--line2)}
+#jss-preview .jp-chip{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;border:1px solid var(--acLine);background:var(--acSoft);color:var(--ink)}
+#jss-preview .jp-chip.st-sent,#jss-preview .jp-chip.st-replied{background:var(--okSoft);border-color:var(--ok);color:var(--ok)}
+#jss-preview .jp-chip.st-preparing{background:var(--g);border-color:var(--l);color:var(--mut)}
+</style>
+  <section class="section" id="jss-preview"><div class="container" style="max-width:900px">
+    <div class="section-head"><span class="eyebrow">ابدأ من سيرتك</span><h2>كم وظيفة مفتوحة تناسب سيرتك الآن؟</h2><p>ارفع سيرتك الذاتية فنعرض لك الوظائف المفتوحة المطابقة من إعلاناتنا، قبل أي تسجيل أو دفع.</p></div>
+    <div class="jp-card">
+      <form id="jp-form" novalidate>
+        <div class="field"><label for="jp-file">سيرتك الذاتية (PDF أو صورة، حتى ٣ م.ب)</label><input id="jp-file" type="file" accept="application/pdf,image/png,image/jpeg"></div>
+        <div class="jp-row"><button type="submit" class="btn btn-primary btn-lg" id="jp-go">اعرض الوظائف المطابقة</button></div>
+        <ul class="jp-re"><li>🔒 نقرأ سيرتك لحساب المطابقة فقط، ولا نحفظها قبل موافقتك الصريحة</li><li>المعاينة مجانية</li><li>يمكنك التوقف في أي وقت</li></ul>
+        <p class="jp-msg" id="jp-msg" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+    <div id="jp-result" aria-live="polite" hidden>
+      <p class="jp-count" id="jp-count"></p><p class="jp-of" id="jp-of"></p><p class="jp-est" id="jp-est"></p>
+      <div id="jp-jobs"></div>
+      <div class="jp-consent" id="jp-consent" hidden>
+        <h3 style="margin:0 0 8px">قبل الإرسال: بياناتك وموافقتك</h3>
+        <div class="jp-grid">
+          <div class="field"><label for="jp-name">اسمك الكامل *</label><input id="jp-name" type="text" autocomplete="name"></div>
+          <div class="field"><label for="jp-phone">الجوال *</label><input id="jp-phone" type="tel" autocomplete="tel" placeholder="+9665XXXXXXXX"></div>
+        </div>
+        <div class="field"><label for="jp-email">البريد الإلكتروني (لتتابع حالة طلباتك)</label><input id="jp-email" type="email" autocomplete="email"></div>
+        <label class="jp-chk"><input type="checkbox" id="jp-agree"><span>أوافق على حفظ سيرتي وبياناتي لدى Business Partner وإرسال ملفي لصاحب هذه الوظيفة.</span></label>
+        <button type="button" class="btn btn-primary" id="jp-confirm">أرسل طلبي</button>
+        <p class="jp-msg" id="jp-cmsg" role="status" aria-live="polite"></p>
+      </div>
+      <p class="jp-note">لا نضمن وظيفة ولا مقابلة؛ نعرض لك المطابقة ونساعدك على التقديم بموافقتك.</p>
+    </div>
+    <div id="jp-ledger" hidden>
+      <h3 style="margin:22px 0 0">طلباتي</h3>
+      <table class="jp-led"><tbody id="jp-led-body"></tbody></table>
+      <div class="jp-row" style="margin-top:10px"><button type="button" class="btn" id="jp-refresh">حدّث الحالة</button></div>
+      <p class="jp-note">الحالة تأتي من ملفك لدينا، ونحتفظ حالياً بآخر وظيفة قدّمت لها فقط.</p>
+    </div>
+  </div></section>
+
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">كيف تعمل الخدمة</span><h2>أربع خطوات، ننفّذ ثلاثاً منها</h2></div>
     <div class="grid grid-4"><div class="card"><div class="card-icon">1</div><h3>قل لنا عمّا تبحث</h3><p>مهنتك وخبرتك وأين تريد أن تعمل. إن كنت قد تقدّمت عبرنا من قبل فسيرتك الذاتية موجودة لدينا.</p></div><div class="card"><div class="card-icon">2</div><h3>اختر طريقة الدفع</h3><p>١٠٠ ريال شهرياً طوال فترة البحث — أو لا شيء إطلاقاً حتى تقبل عرضاً وظيفياً.</p></div><div class="card"><div class="card-icon">3</div><h3>نبحث لك أسبوعياً</h3><p>مستشارنا الذكي يقرأ كل وظيفة جديدة مقابل ملفك ويرسل لك ما يناسبك فعلاً فقط.</p></div><div class="card"><div class="card-icon">4</div><h3>نرشّحك بأنفسنا</h3><p>نرشّحك لصاحب العمل، ونرتّب المقابلة، ونتابع حتى العرض الوظيفي.</p></div></div>
@@ -514,7 +578,237 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
  if(u){window.SV1_SESSION=o.session;if(S){S.save(u);S.paint(true,{name:u.full_name||'',email:u.email||''})}}
  else if(S){S.clear();S.paint(false,null)}
 }).catch(function(){});
-})();</script><script src="/assets/js/main.js?v=ed369abdab"></script><script src="/assets/js/live-prices.js?v=3b0920ab7a" defer></script><style>
+})();</script><script src="/assets/js/main.js?v=ed369abdab"></script><script src="/assets/js/live-prices.js?v=3b0920ab7a" defer></script><script>(function clientMain(S, lang, env) {
+  "use strict";
+  var doc = (env && env.document) || document;
+  var doFetch = (env && env.fetch) || function () { return fetch.apply(null, arguments); };
+  var $ = function (id) { return doc.getElementById(id); };
+  var form = $("jp-form");
+  if (!form) return;
+
+  var MAX = 3 * 1024 * 1024;
+  var OK_TYPES = /^(application\/pdf|image\/png|image\/jpeg)$/;
+  var state = { file: null, cvText: "", jobs: {}, ident: null, email: "", ref: "", pending: null, busy: {}, ledger: [] };
+
+  function fmt(s, o) { return String(s).replace(/\{(\w+)\}/g, function (_, k) { return o[k] != null ? o[k] : ""; }); }
+  function say(el, key, isErr, vars) {
+    var text = key && S.e[key] ? S.e[key] : (key || "");
+    el.textContent = vars ? fmt(text, vars) : text;
+    el.className = "jp-msg" + (isErr ? " is-err" : "");
+  }
+  function post(body) {
+    return doFetch("/api/jobhunt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return null; }).then(function (d) { return { status: r.status, d: d }; }); });
+  }
+  function mk(tag, cls, text) { var e = doc.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function toBase64(file) {
+    return new Promise(function (resolve, reject) {
+      var rd = new ((env && env.FileReader) || FileReader)();
+      rd.onload = function () { var s = String(rd.result || ""); resolve(s.slice(s.indexOf(",") + 1)); };
+      rd.onerror = function () { reject(new Error("read")); };
+      rd.readAsDataURL(file);
+    });
+  }
+  function failKey(res) {
+    var d = res.d || {};
+    if (res.status === 429) return "rate_limited";
+    if (d.key && S.e[d.key]) return d.key;
+    if (d.error && S.e[d.error]) return d.error;
+    return "network";
+  }
+
+  /* ───────── ١. المعاينة ───────── */
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var msg = $("jp-msg"), btn = $("jp-go"), f = $("jp-file").files && $("jp-file").files[0];
+    if (!f) return say(msg, "no_file", true);
+    if (f.size > MAX) return say(msg, "too_large", true);
+    if (!OK_TYPES.test(f.type || "")) return say(msg, "bad_type", true);
+    btn.disabled = true; say(msg, S.reading, false);
+    toBase64(f).then(function (b64) {
+      state.file = { name: f.name, type: f.type, size: f.size, base64: b64 };
+      return post({ type: "preview", cvFile: { name: f.name, type: f.type, base64: b64 } });
+    }).then(function (res) {
+      btn.disabled = false;
+      var d = res.d;
+      if (!d || !d.ok) { state.file = null; return say(msg, failKey(res), true); }
+      say(msg, "", false);
+      state.cvText = d.cvText || "";
+      renderResult(d);
+    }).catch(function () { btn.disabled = false; state.file = null; say(msg, "network", true); });
+  });
+
+  function renderResult(d) {
+    $("jp-result").hidden = false;
+    $("jp-count").textContent = d.matchedCount > 0 ? fmt(S.resCount, { n: d.matchedCount }) : S.resNone;
+    $("jp-of").textContent = d.matchedCount > 0 ? fmt(S.resOf, { m: d.openTotal }) : "";
+    $("jp-est").textContent = d.matchedCount > 0 ? S.estimate : "";
+    var box = $("jp-jobs"); box.textContent = ""; state.jobs = {};
+    (d.top || []).forEach(function (j) {
+      state.jobs[j.id] = { id: j.id, title: j.title, city: j.city, score: j.score, status: "", skipped: false };
+      box.appendChild(jobCard(state.jobs[j.id]));
+    });
+  }
+
+  function jobCard(j) {
+    var card = mk("div", "jp-job"); card.id = "jp-job-" + j.id;
+    var head = mk("div", "jp-head"), left = mk("div");
+    left.appendChild(mk("p", "jp-title", j.title));
+    if (j.city) left.appendChild(mk("p", "jp-meta", j.city));
+    head.appendChild(left);
+    head.appendChild(mk("span", "jp-pct", j.score + "% " + S.match));
+    card.appendChild(head);
+    var row = mk("div", "jp-row"); row.style.marginTop = "10px";
+    var prep = mk("button", "btn", S.prep); prep.type = "button";
+    prep.addEventListener("click", function () { draft(j, card, "default"); });
+    row.appendChild(prep); card.appendChild(row);
+    j.prepBtn = prep;
+    return card;
+  }
+
+  /* ───────── ٢. المسودة ───────── */
+  function draft(j, card, tone) {
+    if (state.busy[j.id]) return;
+    var wrap = card.querySelector(".jp-draft");
+    var prev = null;
+    if (wrap) prev = { summary: wrap.querySelector(".jp-sum").value, letter: wrap.querySelector(".jp-let").value };
+    state.busy[j.id] = true;
+    var note = wrap ? wrap.querySelector(".jp-dmsg") : null;
+    if (j.prepBtn) j.prepBtn.disabled = true;
+    if (note) say(note, S.drafting, false);
+    else { var tmp = mk("p", "jp-msg", S.drafting); tmp.className = "jp-msg jp-tmp"; card.appendChild(tmp); }
+    post({ type: "draft", cvText: state.cvText, jobId: j.id, tone: tone, lang: lang, previous: prev || undefined }).then(function (res) {
+      state.busy[j.id] = false;
+      var t = card.querySelector(".jp-tmp"); if (t) t.remove();
+      if (j.prepBtn) j.prepBtn.disabled = false;
+      var d = res.d;
+      if (!d || !d.ok) {
+        var m = card.querySelector(".jp-dmsg") || card.appendChild(mk("p", "jp-msg"));
+        if (!m.classList.contains("jp-dmsg")) m.classList.add("jp-dmsg");
+        return say(m, failKey(res), true);
+      }
+      showDraft(j, card, d);
+    }).catch(function () {
+      state.busy[j.id] = false;
+      var t = card.querySelector(".jp-tmp"); if (t) t.remove();
+      if (j.prepBtn) j.prepBtn.disabled = false;
+      var m = card.querySelector(".jp-dmsg") || card.appendChild(mk("p", "jp-msg jp-dmsg"));
+      say(m, "network", true);
+    });
+  }
+
+  function showDraft(j, card, d) {
+    var old = card.querySelector(".jp-draft");
+    if (old) {
+      old.querySelector(".jp-sum").value = d.summary; old.querySelector(".jp-let").value = d.letter;
+      say(old.querySelector(".jp-dmsg"), "", false);
+      return;
+    }
+    if (j.prepBtn) j.prepBtn.hidden = true;
+    setLedger(j, "preparing");
+    var wrap = mk("div", "jp-draft");
+    var l1 = mk("label", "", S.sumL), t1 = mk("textarea", "jp-sum"); t1.value = d.summary; t1.rows = 4;
+    var l2 = mk("label", "", S.letL), t2 = mk("textarea", "jp-let"); t2.value = d.letter; t2.rows = 6;
+    var row = mk("div", "jp-row"); row.style.marginTop = "10px";
+    var bShort = mk("button", "btn", S.shorter), bFormal = mk("button", "btn", S.formal);
+    var bApply = mk("button", "btn btn-primary", S.apply), bSkip = mk("button", "btn", S.skip);
+    [bShort, bFormal, bApply, bSkip].forEach(function (b) { b.type = "button"; row.appendChild(b); });
+    var msg = mk("p", "jp-msg jp-dmsg");
+    wrap.appendChild(l1); wrap.appendChild(t1); wrap.appendChild(l2); wrap.appendChild(t2);
+    wrap.appendChild(row); wrap.appendChild(mk("p", "jp-note", S.aiNote)); wrap.appendChild(msg);
+    card.appendChild(wrap);
+    bShort.addEventListener("click", function () { draft(j, card, "short"); });
+    bFormal.addEventListener("click", function () { draft(j, card, "formal"); });
+    bSkip.addEventListener("click", function () {
+      j.skipped = true; card.classList.add("is-skipped"); wrap.hidden = true;
+      removeLedger(j); var m = mk("p", "jp-msg", S.skipped); card.appendChild(m);
+      if (state.pending === j.id) { state.pending = null; $("jp-consent").hidden = true; }
+    });
+    bApply.addEventListener("click", function () { apply(j, card, msg, bApply); });
+  }
+
+  /* ───────── ٣. «قدّم» (نقرةٌ صريحة، مرةً واحدة) ───────── */
+  function apply(j, card, msg, btn) {
+    if (j.status === "sent" || state.busy["apply:" + j.id]) return;
+    var letter = card.querySelector(".jp-let").value.trim(), summary = card.querySelector(".jp-sum").value.trim();
+    if (!letter) return;
+    if (!state.ident) {
+      state.pending = j.id;
+      var c = $("jp-consent"); c.hidden = false; card.parentNode.insertBefore(c, card.nextSibling);
+      $("jp-name").focus();
+      return;
+    }
+    send(j, card, msg, btn, summary, letter);
+  }
+
+  $("jp-confirm").addEventListener("click", function () {
+    var cm = $("jp-cmsg"), name = $("jp-name").value.trim(), phone = $("jp-phone").value.trim(), email = $("jp-email").value.trim();
+    if (!name || !phone || !$("jp-agree").checked) return say(cm, S.needFields, true);
+    state.ident = { name: name, phone: phone, email: email };
+    $("jp-consent").hidden = true; say(cm, "", false);
+    var j = state.jobs[state.pending]; if (!j) return;
+    var card = $("jp-job-" + j.id);
+    send(j, card, card.querySelector(".jp-dmsg"), card.querySelector(".btn-primary"), card.querySelector(".jp-sum").value.trim(), card.querySelector(".jp-let").value.trim());
+  });
+
+  function send(j, card, msg, btn, summary, letter) {
+    var key = "apply:" + j.id;
+    if (state.busy[key] || j.status === "sent") return;
+    state.busy[key] = true; btn.disabled = true; say(msg, S.sending, false);
+    // يمرّ بمسار التقديم الموجود نفسه. الموافقة تُرسَل صريحةً (consent) بعد أن علّمها المرشّح بيده.
+    doFetch("/api/candidate", {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        name: state.ident.name, phone: state.ident.phone, email: state.ident.email,
+        consent: true, jobId: j.id, jobTitle: j.title, lang: lang,
+        cvFile: state.file,
+        questions: { interest: letter.slice(0, 700), strengths: summary.slice(0, 700) },
+      }),
+    }).then(function (r) { return r.json().catch(function () { return null; }); }).then(function (d) {
+      state.busy[key] = false;
+      if (!d || !d.ok) { btn.disabled = false; return say(msg, "apply_failed", true); }
+      j.status = "sent";
+      card.querySelector(".jp-draft").querySelectorAll("button,textarea").forEach(function (e) { e.disabled = true; });
+      if (d.duplicate) { say(msg, S.dup, false); return setLedger(j, "sent", d.ref); }
+      state.ref = d.ref || state.ref; state.email = state.ident.email || state.email;
+      say(msg, fmt(S.sent, { ref: d.ref || "" }), false);
+      setLedger(j, "sent", d.ref);
+    }).catch(function () { state.busy[key] = false; btn.disabled = false; say(msg, "apply_failed", true); });
+  }
+
+  /* ───────── ٤. سجلّ الحالات ───────── */
+  function setLedger(j, status, ref) {
+    var e = state.ledger.filter(function (x) { return x.jobId === j.id; })[0];
+    if (!e) { e = { jobId: j.id, title: j.title }; state.ledger.push(e); }
+    e.status = status; e.at = new Date().toISOString(); if (ref) e.ref = ref;
+    renderLedger();
+  }
+  function removeLedger(j) { state.ledger = state.ledger.filter(function (x) { return x.jobId !== j.id; }); renderLedger(); }
+  function renderLedger() {
+    var body = $("jp-led-body"); body.textContent = "";
+    $("jp-ledger").hidden = !state.ledger.length;
+    $("jp-refresh").hidden = !(state.ref && state.email);
+    state.ledger.forEach(function (e) {
+      var tr = mk("tr"), t1 = mk("td", "", e.title), t2 = mk("td"), t3 = mk("td", "", fmtTime(e.at));
+      t2.appendChild(mk("span", "jp-chip st-" + e.status, S.st[e.status] || e.status));
+      tr.appendChild(t1); tr.appendChild(t2); tr.appendChild(t3); body.appendChild(tr);
+    });
+  }
+  function fmtTime(iso) {
+    try { return new Date(iso).toLocaleString(lang === "zh" ? "zh-CN" : lang, { dateStyle: "medium", timeStyle: "short" }); } catch (e) { return iso || ""; }
+  }
+  $("jp-refresh").addEventListener("click", function () {
+    if (!state.ref || !state.email) return;
+    post({ type: "my-applications", email: state.email, ref: state.ref }).then(function (res) {
+      var d = res.d; if (!d || !d.ok || !d.found) return;
+      (d.applications || []).forEach(function (a) {
+        var e = state.ledger.filter(function (x) { return x.jobId === a.jobId; })[0];
+        if (e) { e.status = a.status; if (a.updatedAt) e.at = a.updatedAt; }
+      });
+      renderLedger();
+    });
+  });
+})({"eyebrow":"ابدأ من سيرتك","h2":"كم وظيفة مفتوحة تناسب سيرتك الآن؟","sub":"ارفع سيرتك الذاتية فنعرض لك الوظائف المفتوحة المطابقة من إعلاناتنا، قبل أي تسجيل أو دفع.","upLabel":"سيرتك الذاتية (PDF أو صورة، حتى ٣ م.ب)","upBtn":"اعرض الوظائف المطابقة","rePrivacy":"🔒 نقرأ سيرتك لحساب المطابقة فقط، ولا نحفظها قبل موافقتك الصريحة","reFree":"المعاينة مجانية","reCancel":"يمكنك التوقف في أي وقت","reading":"نقرأ سيرتك…","resCount":"{n} وظيفة مفتوحة تطابق سيرتك الآن","resOf":"من أصل {m} وظيفة مفتوحة حالياً","resNone":"لا توجد وظيفة مفتوحة تطابق سيرتك الآن في إعلاناتنا الحالية. لا نعرض لك وظائف لا تناسبك.","estimate":"النسبة تقدير أوّلي من مطابقة المسمّى والكلمات، وليست حكماً بالقبول ولا ضماناً لمقابلة.","match":"مطابقة","prep":"جهّز مسودة التقديم","sumL":"الملخص المهني","letL":"خطاب التقديم","shorter":"أقصر","formal":"أرسمي","apply":"قدّم","skip":"تخطَّ","aiNote":"تُكتب المسودة بخدمة Azure OpenAI من نصّ سيرتك عند طلبك فقط. راجعها وعدّلها — لا يُرسل شيء لأي جهة قبل نقرتك على «قدّم».","drafting":"نجهّز المسودة…","consentH":"قبل الإرسال: بياناتك وموافقتك","fName":"اسمك الكامل","fPhone":"الجوال","fEmail":"البريد الإلكتروني (لتتابع حالة طلباتك)","consent":"أوافق على حفظ سيرتي وبياناتي لدى Business Partner وإرسال ملفي لصاحب هذه الوظيفة.","confirm":"أرسل طلبي","needFields":"أضف اسمك وجوالك ووافق على الحفظ والإرسال.","sending":"جارٍ الإرسال…","sent":"أُرسل طلبك. مرجعك: {ref}","dup":"سبق أن قدّمت على هذه الوظيفة — لم نرسل شيئاً مرة ثانية.","skipped":"تخطّيتَ هذه الوظيفة — لم يُرسل شيء.","ledH":"طلباتي","ledEmpty":"لا طلبات بعد.","refresh":"حدّث الحالة","ledNote":"الحالة تأتي من ملفك لدينا، ونحتفظ حالياً بآخر وظيفة قدّمت لها فقط.","st":{"preparing":"جاري التجهيز","sent":"أُرسل","waiting":"بانتظار الرد","replied":"رُدّ عليه","interview":"مقابلة"},"disclaim":"لا نضمن وظيفة ولا مقابلة؛ نعرض لك المطابقة ونساعدك على التقديم بموافقتك.","e":{"unclear":"لم نستطع قراءة سيرتك بوضوح كافٍ لنعرض مطابقةً صادقة. ارفع نسخة أوضح (PDF نصّي أو صورة واضحة) وسنحاول مجدداً.","too_large":"الملف أكبر من ٣ م.ب. ارفع نسخة أصغر.","bad_type":"نوع الملف غير مدعوم. ارفع PDF أو صورة.","no_file":"اختر ملف سيرتك أولاً.","reader_off":"قارئ المستندات غير متاح الآن. حاول لاحقاً.","jobs_unavailable":"تعذّر تحميل الوظائف المفتوحة الآن. حاول بعد قليل.","rate_limited":"طلبات كثيرة في وقت قصير. حاول بعد قليل.","network":"خطأ في الاتصال. حاول مجدداً.","ai_unavailable":"كتابة المسودة غير متاحة الآن. يمكنك المحاولة لاحقاً.","draft_failed":"تعذّر تجهيز المسودة. حاول مجدداً.","job_not_open":"هذه الوظيفة لم تعد مفتوحة.","apply_failed":"تعذّر إرسال الطلب. لم يُرسل شيء، حاول مجدداً."}},"ar");</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}
 [dir=rtl] .bps-fab{padding:7px 7px 7px 16px}
 .bps-fab img{width:38px;height:38px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}

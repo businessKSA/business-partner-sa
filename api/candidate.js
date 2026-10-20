@@ -1805,6 +1805,20 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: false, error: "invalid_fields" }));
   }
 
+  // تقديمٌ ثانٍ على الوظيفة نفسها لا يُرسَل ولا يُشعَر به صاحب العمل مرتين: النقرة المزدوجة
+  // وإعادة الإرسال من الشبكة يصلان هنا بالمحتوى نفسه. الصفّ يحتفظ بآخر وظيفةٍ تقدّم لها
+  // («الوظيفة المتقدم لها» = «عنوان (معرّف)»)، فهذا ما يُكشف به التكرار؛ والسلّة العامة لا تُعدّ.
+  // نتيجة البحث تُعاد استعمالها أدناه بدل استعلامٍ ثانٍ.
+  let priorRow = null;
+  try { priorRow = await findExisting(email, phone); } catch { priorRow = null; }
+  if (priorRow && jobId !== "candidate-pool" && !/^General candidate pool$/i.test(jobTitle)) {
+    const stamp = txt((priorRow.properties || {})["الوظيفة المتقدم لها"]);
+    if (stamp.includes(`(${jobId})`)) {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, ref: "CV-" + priorRow.id.slice(-6), updated: true, duplicate: true }));
+    }
+  }
+
   const expYears = experienceYears(exp);
   const expectedSalary = firstNumber(salary);
   const fieldCat = guessField(field);
@@ -1918,7 +1932,7 @@ export default async function handler(req, res) {
       ? { saudization: fromN8n.saudization, details: saudDetailLine(fromN8n.saudization, roleForSaud, fromN8n.saudization_details), source: "n8n" }
       : mine;
 
-    const existing = await findExisting(email, phone);
+    const existing = priorRow;
     if (existing) {
       // SECURITY / data-integrity: a resubmission must NOT re-expose a
       // candidate an admin deliberately hid, nor wipe recruiter notes. Both

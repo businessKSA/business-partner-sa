@@ -341,6 +341,7 @@ import { buildSimpleAi } from "./simple-v1-ai.mjs";
 import { buildSimpleHr } from "./simple-v1-hr.mjs";
 import { buildSimpleEmployer } from "./simple-v1-employer.mjs";
 import { careersBody } from "./simple-v1-careers.mjs";
+import { candidatePreviewSection, candidatePreviewScript } from "./candidate-preview.mjs";
 import { buildSimpleBook } from "./simple-v1-book.mjs";
 import { buildSimpleOps } from "./simple-v1-ops.mjs";
 import { buildSimpleGuideStructure } from "./simple-v1-guide-structure.mjs";
@@ -5729,6 +5730,8 @@ function buildJobSearchService() {
     <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#jss-form">${L("Start the search", "ابدأ البحث")}</a><a class="btn btn-ghost btn-lg" href="#jss-plans">${L("See the pricing", "شوف الأسعار")}</a></div>
   </div></section>
 
+  ${candidatePreviewSection({ lang: () => LANG, esc })}
+
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("How it works", "كيف تعمل الخدمة")}</span><h2>${L("Four steps, and we do three of them", "أربع خطوات، ننفّذ ثلاثاً منها")}</h2></div>
     <div class="grid grid-4">${steps}</div>
@@ -5790,7 +5793,7 @@ function buildJobSearchService() {
     </div>
     <p class="emp-note" style="text-align:center;margin-top:14px">${L("Already signed up? We email you every time we find something — no login needed.", "سجّلت من قبل؟ يصلك بريد كلما وجدنا لك وظيفة — بدون تسجيل دخول.")}</p>
   </div></section>`;
-  return sv1LegacyApp({ title: Lraw("We search for the job on your behalf — Business Partner", "نبحث لك عن الوظيفة بالنيابة عنك — Business Partner"), desc: Lraw("Business Partner searches for jobs on your behalf: 100 SAR a month, or one month's salary over three instalments paid only once you're hired.", "Business Partner يبحث لك عن وظيفة بالنيابة عنك: ١٠٠ ريال شهرياً، أو راتب شهر على ثلاث دفعات تُدفع فقط بعد توظيفك."), active: "/careers", path: "/job-search-service", body });
+  return sv1LegacyApp({ title: Lraw("We search for the job on your behalf — Business Partner", "نبحث لك عن الوظيفة بالنيابة عنك — Business Partner"), desc: Lraw("Business Partner searches for jobs on your behalf: 100 SAR a month, or one month's salary over three instalments paid only once you're hired.", "Business Partner يبحث لك عن وظيفة بالنيابة عنك: ١٠٠ ريال شهرياً، أو راتب شهر على ثلاث دفعات تُدفع فقط بعد توظيفك."), active: "/careers", path: "/job-search-service", body, script: candidatePreviewScript({ lang: () => LANG }) });
 }
 
 function buildRecruitmentAgencies() {
