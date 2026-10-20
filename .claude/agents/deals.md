@@ -19,3 +19,7 @@ description: منصة الصفقات — «اعرض صفقتك، ابحث عن �
 
 ## ملفات مشتركة — اطلب ولا تكتب
 `api/requests.js` → owner-ops · `simple-v1-my.mjs` → client-portal.
+
+## قاعدة النشر (قرار المالك 2026-10-20)
+
+لا تدفع إلى `claude/bpic-marketing-site-jvrnga` ولا إلى `azure-migration`، ولا تضع علامة `deploy-preview-please` في أي كوميت، ولا تنفّذ أوامر `az` تغيّر الإنتاج أو DNS أو Vercel. النشر من الجلسة الرئيسية (المدير) وحدها. اعمل على فرعك الخاص وسلّم المدير اسم الفرع وآخر كوميت. التفصيل في `CLAUDE.md` §0.1.
