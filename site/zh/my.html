@@ -536,8 +536,8 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>
 (function(){
-var LANG="zh",EV={"request.created":"created the request","request.created.manual":"request created manually","request.created.cart":"request opened from a direct cart purchase","scope.proposed":"proposed the scope","scope.edited":"edited the scope","scope.confirmed":"confirmed the scope","quote.pending":"awaiting the quotation","message.customer":"customer message","message.bp":"team reply","attachment.added":"added an attachment","quote.drafted":"quote drafted","quote.sent":"sent the quotation","quote.approved":"approved the quotation","quote.rejected":"requested changes","contract.sent":"sent the contract","contract.signed":"signed the contract","payment.paid":"payment received","payment.failed":"payment failed","payment.cancelled":"payment cancelled","payment.pending":"payment pending","invoice.issued":"invoice issued","appointment.booked":"booked an appointment","appointment.rescheduled":"rescheduled the appointment","appointment.cancelled":"cancelled the appointment","appointment.set":"set the appointment","task.created":"created a task","task.human_required":"task needs a human","task.done":"completed the task","task.in_progress":"started the task","task.waiting":"task waiting","task.todo":"reopened the task","execution.started":"execution started","request.cancelled":"cancelled the request","request.updated":"updated the request","document.received":"document received","deliverable.added":"delivered a file","deliverable.removed":"withdrew a delivered file","status.completed":"request completed","status.in_progress":"execution started","status.waiting_internal":"in progress","status.reviewing":"under review","status.waiting_client":"waiting for your reply","status.cancelled":"request cancelled","quote.auto":"issued the quotation automatically","documents.requested":"listed the required documents","payment.receipt":"received the transfer receipt","message.whatsapp":"WhatsApp message","contract.reissued":"re-issued the contract","request.reopened":"reopened the request","cancel.requested":"cancellation requested","followup.reminded":"reminded you of the next step"},TX={"title":"我的账户 — Business Partner","navHome":"首页","navNew":"新申请","navRequests":"我的申请","navQuotes":"报价","navContracts":"合同","navAppts":"预约","navPay":"购物车与付款","navInvoices":"发票","navChats":"对话","navCompany":"公司信息","logout":"退出登录","site":"网站","attention":"现在需要您关注什么？","kActive":"进行中的申请","kQuotes":"待确认的报价","kContracts":"待签署的合同","kPayments":"待付款项","kAppts":"即将到来的预约","today":"今天需要什么帮助？","empty":"这里还没有内容。","ref":"编号","status":"状态","open":"打开","back":"返回","conversation":"对话","scope":"服务范围","cancelTitle":"取消此请求","cancelAsk":"申请取消","cancelWhy":"原因（可选）","cancelEarly":"尚无任何约束 — 取消将立即生效。","cancelLate":"此请求已进入有约束的阶段（合同、付款或执行）。我们会受理并由团队审核后回复您。","cancelSent":"已收到取消申请，正在审核。","cancelDone":"请求已取消","resign":"本合同在您签署后已出具更正版本 — 我们会再次发送给您签署。","openFull":"全屏打开","docPrint":"打印 / 保存 PDF","docClose":"关闭","docWait":"正在准备文件…","attachments":"附件","quote":"报价","contract":"合同","payment":"付款","invoice":"发票","timeline":"时间线","writeMsg":"给团队留言…","send":"发送","saveScope":"保存修改","confirmScope":"确认范围并继续","scopePricing":"范围已确认 ✓ — 团队正在准备报价。","docs":"所需文件","docsNote":"我们需要这些文件来完成您的申请 — 用对应按钮上传，团队会立即收到。","docsNone":"暂无所需文件。您仍可上传与此申请相关的任何文件。","docUp":"上传","docUpMore":"再上传一个","docUpAny":"上传其他文件","docRecv":"已收到 ✓","docWaived":"无需提供","docAsked":"待提供","docSent":"您的文件已送达团队 ✓","fOpen":"打开","eMany":"此申请的文件数量已达上限。","eClosed":"此申请已关闭，无法再上传文件。","delivTitle":"交付成果","delivNone":"我们交付的文件会显示在这里，交付后会立即发邮件通知您。","delivNoneDone":"申请已完成，没有交付文件。","delivDl":"下载","delivErr":"无法打开文件 — 请重试。","invSeller":"卖方","invVat":"卖方税号","invBuyer":"买方","invOfficial":"正式发票 (PDF)","addItem":"添加条目","remove":"删除","scopeLocked":"报价发出后范围已锁定。","qty":"数量","price":"价格","net":"小计","vat":"增值税 15%","total":"总计","validUntil":"有效期至","terms":"付款条款","approve":"确认报价","reject":"要求修改","rejectNote":"您希望修改什么？","quoteApproved":"报价已确认，合同现已可供签署。","viewContract":"查看合同","signTitle":"电子签名","signName":"签署人全名","signDraw":"请手写签名","signClear":"清除","signConsent":"我同意我的电子签名根据《电子交易法》具有约束力。","signBtn":"签署合同","signed":"合同已签署","payNow":"立即付款","payCardNow":"银行卡付款","payTamaraNow":"使用 Tamara 分期","payReturning":"正在确认您的付款…","payVia":"通过安全支付页面付款（mada、Visa、Mastercard、Apple Pay，Tamara 可用时）","testPay":"模拟付款（测试模式）","paySuccess":"成功 — 银行卡","payTamara":"成功 — Tamara","payFailed":"失败","payCancelled":"取消","payPending":"待处理","paid":"已付款","download":"查看发票","book":"预约","reschedule":"改期","cancelAppt":"取消预约","date":"日期","time":"时间","topic":"主题","confirm":"确认","apptNote":"周日至周四，利雅得时间。我们将通过邮件确认。","cancelReq":"取消申请","company":"公司名称","cr":"商业登记号","nameEn":"英文名称","save":"保存","saved":"已保存","you":"您","team":"团队","assistant":"助手","loginTitle":"登录","loginText":"输入邮箱，我们将发送登录验证码。","email":"邮箱","sendCode":"发送验证码","password":"密码","loginPw":"使用密码登录","usePw":"使用密码登录","useCode":"改用邮箱验证码","orGoogle":"或使用 Google 登录","pwTitle":"密码","pwNote":"设置密码即可直接登录，无需每次等待验证码。","pwSave":"保存密码","pwShort":"密码至少 8 个字符。","pwSaved":"密码已保存 ✓","code":"验证码","verify":"登录","loginErr":"无法发送验证码。","codeErr":"验证码错误。","error":"出错了，请重试。","waitingTeam":"团队正在审核您的申请","needYou":"等待您处理","tasksTitle":"需要您完成","done":"完成","requestCreated":"申请已创建","testRibbon":"测试模式 — 无真实付款","sourceLbl":"来源","direct":"直接购买","bought":"您购买的内容","directNote":"您直接通过购物车购买并已付款，因此没有报价和合同。您可以在此跟进进度、上传文件并接收交付成果。","cycM":"按月","cycY":"按年","unverifiedNote":"此笔付款金额无法自动与公布价格核对，团队将在开始执行前复核。无需重复付款。","navDocs":"我的文件","vaultNote":"文件只需上传一次 — 我们会在您的各项申请中使用，账户之外无人可见。","dzPick":"将文件拖到此处，或点击选择","dzHint":"PDF 或图片（JPG · PNG · WEBP）— 最大 8 MB","dName":"文件名称","dCat":"类型","dExp":"到期日（可选）","dSend":"上传文件","dOther":"选择其他文件","dUploading":"正在上传","dDone":"文件已上传 ✓","dNewVerDone":"已上传新版本 ✓","eBig":"文件超过 8 MB","eType":"不接受此格式。可用格式：PDF · JPG · PNG · WEBP。","eEmpty":"文件为空。","eName":"请先填写文件名称。","eNet":"无法连接服务器 — 请检查网络后重试。","eUp":"文件上传失败","eRead":"无法从您的设备读取该文件。","eNoOrg":"请先在“公司信息”中填写公司名称 — 文件保险库归属于公司。","dOpen":"打开","dNewVer":"新版本","dDel":"删除","dDelAsk":"确定要从保险库中永久删除此文件吗？","dVer":"版本","dExpires":"到期","dExpired":"已过期","dLeftA":"还剩","dLeftB":"天","dPending":"待核验","dReadOk":"已自动识别 ✓","dNone":"还没有文件 — 请在上方上传第一个。","dLoading":"正在加载…","dEntity":"主体","dCr":"商业登记号","dVat":"税号","dIssued":"签发","dRetry":"重试"},ST={"NEW":"新","REVIEWING":"审核中","WAITING_CLIENT":"等待您回复","QUOTE_SENT":"报价待确认","QUOTE_APPROVED":"报价已确认","CONTRACT_SENT":"合同待签署","SIGNED":"已签署 — 待付款","PAYMENT_PENDING":"待付款","PAID":"已付款 — 准备执行","IN_PROGRESS":"执行中","WAITING_INTERNAL":"执行中","COMPLETED":"已完成","CANCELLED":"已取消"},TY={"CONSULTATION":"咨询","GOVERNMENT_SERVICE":"政府服务","COMPANY_FORMATION":"公司注册","BUSINESS_DEVELOPMENT":"业务拓展"},HOME="/zh/",CHECKOUT="/zh/checkout",SELLER={"name":"شركة بزنس بارتنر سلوشنز","nameEn":"Business Partner Solutions Company","vat":"312079341500003","city":"الدرعية","cityEn":"Ad Diriyah"};
-var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null};
+var LANG="zh",EV={"request.created":"created the request","request.created.manual":"request created manually","request.created.cart":"request opened from a direct cart purchase","scope.proposed":"proposed the scope","scope.edited":"edited the scope","scope.confirmed":"confirmed the scope","quote.pending":"awaiting the quotation","message.customer":"customer message","message.bp":"team reply","attachment.added":"added an attachment","quote.drafted":"quote drafted","quote.sent":"sent the quotation","quote.approved":"approved the quotation","quote.rejected":"requested changes","contract.sent":"sent the contract","contract.signed":"signed the contract","payment.paid":"payment received","payment.failed":"payment failed","payment.cancelled":"payment cancelled","payment.pending":"payment pending","invoice.issued":"invoice issued","appointment.booked":"booked an appointment","appointment.rescheduled":"rescheduled the appointment","appointment.cancelled":"cancelled the appointment","appointment.set":"set the appointment","task.created":"created a task","task.human_required":"task needs a human","task.done":"completed the task","task.in_progress":"started the task","task.waiting":"task waiting","task.todo":"reopened the task","execution.started":"execution started","request.cancelled":"cancelled the request","request.updated":"updated the request","document.received":"document received","deliverable.added":"delivered a file","deliverable.removed":"withdrew a delivered file","status.completed":"request completed","status.in_progress":"execution started","status.waiting_internal":"in progress","status.reviewing":"under review","status.waiting_client":"waiting for your reply","status.cancelled":"request cancelled","quote.auto":"issued the quotation automatically","documents.requested":"listed the required documents","payment.receipt":"received the transfer receipt","message.whatsapp":"WhatsApp message","contract.reissued":"re-issued the contract","request.reopened":"reopened the request","cancel.requested":"cancellation requested","followup.reminded":"reminded you of the next step"},TX={"title":"我的账户 — Business Partner","navHome":"首页","navNew":"新申请","navRequests":"我的申请","navQuotes":"报价","navContracts":"合同","navAppts":"预约","navPay":"购物车与付款","navInvoices":"发票","navChats":"对话","navCompany":"公司信息","logout":"退出登录","site":"网站","attention":"现在需要您关注什么？","kActive":"进行中的申请","kQuotes":"待确认的报价","kContracts":"待签署的合同","kPayments":"待付款项","kAppts":"即将到来的预约","today":"今天需要什么帮助？","empty":"这里还没有内容。","ref":"编号","status":"状态","open":"打开","back":"返回","conversation":"对话","scope":"服务范围","cancelTitle":"取消此请求","cancelAsk":"申请取消","cancelWhy":"原因（可选）","cancelEarly":"尚无任何约束 — 取消将立即生效。","cancelLate":"此请求已进入有约束的阶段（合同、付款或执行）。我们会受理并由团队审核后回复您。","cancelSent":"已收到取消申请，正在审核。","cancelDone":"请求已取消","resign":"本合同在您签署后已出具更正版本 — 我们会再次发送给您签署。","openFull":"全屏打开","docPrint":"打印 / 保存 PDF","docClose":"关闭","docWait":"正在准备文件…","attachments":"附件","quote":"报价","contract":"合同","payment":"付款","invoice":"发票","timeline":"时间线","writeMsg":"给团队留言…","send":"发送","saveScope":"保存修改","confirmScope":"确认范围并继续","scopePricing":"范围已确认 ✓ — 团队正在准备报价。","docs":"所需文件","docsNote":"我们需要这些文件来完成您的申请 — 用对应按钮上传，团队会立即收到。","docsNone":"暂无所需文件。您仍可上传与此申请相关的任何文件。","docUp":"上传","docUpMore":"再上传一个","docUpAny":"上传其他文件","docRecv":"已收到 ✓","docWaived":"无需提供","docAsked":"待提供","docSent":"您的文件已送达团队 ✓","fOpen":"打开","eMany":"此申请的文件数量已达上限。","eClosed":"此申请已关闭，无法再上传文件。","delivTitle":"交付成果","delivNone":"我们交付的文件会显示在这里，交付后会立即发邮件通知您。","delivNoneDone":"申请已完成，没有交付文件。","delivDl":"下载","delivErr":"无法打开文件 — 请重试。","invSeller":"卖方","invVat":"卖方税号","invBuyer":"买方","invOfficial":"正式发票 (PDF)","addItem":"添加条目","remove":"删除","scopeLocked":"报价发出后范围已锁定。","qty":"数量","price":"价格","net":"小计","vat":"增值税 15%","total":"总计","validUntil":"有效期至","terms":"付款条款","approve":"确认报价","reject":"要求修改","rejectNote":"您希望修改什么？","quoteApproved":"报价已确认，合同现已可供签署。","viewContract":"查看合同","signTitle":"电子签名","signName":"签署人全名","signDraw":"请手写签名","signClear":"清除","signConsent":"我同意我的电子签名根据《电子交易法》具有约束力。","signBtn":"签署合同","signed":"合同已签署","payNow":"立即付款","payCardNow":"银行卡付款","payTamaraNow":"使用 Tamara 分期","payReturning":"正在确认您的付款…","payVia":"通过安全支付页面付款（mada、Visa、Mastercard、Apple Pay，Tamara 可用时）","testPay":"模拟付款（测试模式）","paySuccess":"成功 — 银行卡","payTamara":"成功 — Tamara","payFailed":"失败","payCancelled":"取消","payPending":"待处理","paid":"已付款","download":"查看发票","book":"预约","reschedule":"改期","cancelAppt":"取消预约","date":"日期","time":"时间","topic":"主题","confirm":"确认","apptNote":"周日至周四，利雅得时间。我们将通过邮件确认。","cancelReq":"取消申请","company":"公司名称","cr":"商业登记号","nameEn":"英文名称","save":"保存","saved":"已保存","you":"您","team":"团队","assistant":"助手","loginTitle":"登录","loginText":"输入邮箱，我们将发送登录验证码。","email":"邮箱","sendCode":"发送验证码","password":"密码","loginPw":"使用密码登录","usePw":"使用密码登录","useCode":"改用邮箱验证码","orGoogle":"或使用 Google 登录","pwTitle":"密码","pwNote":"设置密码即可直接登录，无需每次等待验证码。","pwSave":"保存密码","pwShort":"密码至少 8 个字符。","pwSaved":"密码已保存 ✓","code":"验证码","verify":"登录","loginErr":"无法发送验证码。","codeErr":"验证码错误。","error":"出错了，请重试。","waitingTeam":"团队正在审核您的申请","needYou":"等待您处理","tasksTitle":"需要您完成","done":"完成","requestCreated":"申请已创建","testRibbon":"测试模式 — 无真实付款","sourceLbl":"来源","direct":"直接购买","bought":"您购买的内容","directNote":"您直接通过购物车购买并已付款，因此没有报价和合同。您可以在此跟进进度、上传文件并接收交付成果。","cycM":"按月","cycY":"按年","unverifiedNote":"此笔付款金额无法自动与公布价格核对，团队将在开始执行前复核。无需重复付款。","navDocs":"我的文件","vaultNote":"文件只需上传一次 — 我们会在您的各项申请中使用，账户之外无人可见。","dzPick":"将文件拖到此处，或点击选择","dzHint":"PDF 或图片（JPG · PNG · WEBP）— 最大 8 MB","dName":"文件名称","dCat":"类型","dExp":"到期日（可选）","dSend":"上传文件","dOther":"选择其他文件","dUploading":"正在上传","dDone":"文件已上传 ✓","dNewVerDone":"已上传新版本 ✓","eBig":"文件超过 8 MB","eType":"不接受此格式。可用格式：PDF · JPG · PNG · WEBP。","eEmpty":"文件为空。","eName":"请先填写文件名称。","eNet":"无法连接服务器 — 请检查网络后重试。","eUp":"文件上传失败","eRead":"无法从您的设备读取该文件。","eNoOrg":"请先在“公司信息”中填写公司名称 — 文件保险库归属于公司。","dOpen":"打开","dNewVer":"新版本","dDel":"删除","dDelAsk":"确定要从保险库中永久删除此文件吗？","dVer":"版本","dExpires":"到期","dExpired":"已过期","dLeftA":"还剩","dLeftB":"天","dPending":"待核验","dReadOk":"已自动识别 ✓","dNone":"还没有文件 — 请在上方上传第一个。","dLoading":"正在加载…","dEntity":"主体","dCr":"商业登记号","dVat":"税号","dIssued":"签发","dRetry":"重试","navCompliance":"合规与违规","cIntro":"合规智能顾问“Mishari”跟踪贵公司的义务与违规并准备申诉。","cLoading":"正在加载合规信息…","cActive":"合规订阅已激活","cTrialLbl":"合规免费试用","cLockedTitle":"免费试用已结束","cLocked":"订阅合规服务以继续在此跟踪义务与违规并提交申诉。","cSubscribe":"订阅合规服务","cDocsTitle":"即将到期","cDocsNone":"60 天内没有文件需续期。","cManageDocs":"管理并上传您的文件","cViolTitle":"违规","cViolIntro":"登记任何政府违规（Baladi、Qiwa、ZATCA、民防…）并提交申诉，我们的团队将代您向主管机关跟进。","cStages":"申诉流程：审查 → 受理资格研究 → 准备 → 提交 → 跟进。我们不承诺撤销；我们研究受理资格并向主管机关跟进。","cViolNone":"尚无违规记录。如收到违规，请在下方登记。","cNew":"新","cDeadline":"申诉截止","cObjectBtn":"提交申诉","cObjectNote":"您的申诉理由——事实与证明文件…","cObjectFiled":"申诉进行中 — 团队正在处理","cAddTitle":"登记违规","cAuthority":"主管机关（Baladi、Qiwa、ZATCA…）","cVTitle":"违规描述","cVNumber":"违规编号（可选）","cVAmount":"金额（里亚尔，可选）","cVDate":"违规日期（可选）","cVDeadline":"申诉截止日期（可选）","cAddBtn":"登记违规","cAddDone":"违规已登记 ✓"},ST={"NEW":"新","REVIEWING":"审核中","WAITING_CLIENT":"等待您回复","QUOTE_SENT":"报价待确认","QUOTE_APPROVED":"报价已确认","CONTRACT_SENT":"合同待签署","SIGNED":"已签署 — 待付款","PAYMENT_PENDING":"待付款","PAID":"已付款 — 准备执行","IN_PROGRESS":"执行中","WAITING_INTERNAL":"执行中","COMPLETED":"已完成","CANCELLED":"已取消"},TY={"CONSULTATION":"咨询","GOVERNMENT_SERVICE":"政府服务","COMPANY_FORMATION":"公司注册","BUSINESS_DEVELOPMENT":"业务拓展"},HOME="/zh/",CHECKOUT="/zh/checkout",SELLER={"name":"شركة بزنس بارتنر سلوشنز","nameEn":"Business Partner Solutions Company","vat":"312079341500003","city":"الدرعية","cityEn":"Ad Diriyah"};
+var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null,violations:null};
 var $=function(s,r){return (r||document).querySelector(s)};
 function h(tag,attrs,kids){var e=document.createElement(tag);if(attrs)for(var k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.indexOf('on')===0)e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k])}(kids||[]).forEach(function(c){if(c==null)return;e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
 function api(action,data){return fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({action:action},data||{}))}).then(function(r){return r.json()})}
@@ -577,14 +577,14 @@ function init(){try{google.accounts.id.initialize({client_id:cid,callback:window
 if(window.google&&window.google.accounts&&window.google.accounts.id)return init();
 var sc=document.createElement('script');sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.defer=true;sc.onload=init;sc.onerror=function(){wrap.hidden=true};document.head.appendChild(sc)}
 // ---------- shell
-var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['documents',TX.navDocs,'📁'],['company',TX.navCompany,'🏢']];
-function badges(){var c=state.me.counts||{};var d=(state.docs||[]).filter(function(x){var n=daysLeft(x.expiry_date);return n!==null&&n<=30}).length;return {quotes:c.quotes,contracts:c.contracts,pay:c.payments,documents:d}}
+var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['documents',TX.navDocs,'📁'],['compliance',TX.navCompliance,'🛡️'],['company',TX.navCompany,'🏢']];
+function badges(){var c=state.me.counts||{};var d=(state.docs||[]).filter(function(x){var n=daysLeft(x.expiry_date);return n!==null&&n<=30}).length;return {quotes:c.quotes,contracts:c.contracts,pay:c.payments,documents:d,compliance:(state.violations||[]).filter(isActionableViol).length}}
 function render(){var me=state.me;app.innerHTML='';var bd=badges();
 var side=h('nav',{class:'my-side',id:'mySide'},[h('div',{class:'who'},[h('b',{},[me.user.name||me.user.email]),h('small',{},[(me.organization&&(me.organization.name_ar||me.organization.name_en))||me.user.email])])].concat(NAV.map(function(n){return h('a',{'data-nav':n[0],class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1],bd[n[0]]?h('span',{class:'b'},[String(bd[n[0]])]):null])})).concat([h('a',{href:HOME},['🌐 '+TX.site]),h('a',{onclick:function(){otp({action:'logout'}).then(function(){try{localStorage.removeItem('bp_session')}catch(x){}location.href=HOME})}},['↩ '+TX.logout])]));
 var mob=h('div',{class:'mob'},NAV.map(function(n){return h('a',{class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1]])}));
 var main=h('div',{class:'my-main',id:'myMain'});
 app.appendChild(mob);var wrap=h('div',{class:'my'},[side,main]);app.appendChild(wrap);
-var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='documents')viewDocuments(main);else if(v==='company')viewCompany(main);else viewHome(main)}
+var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!r.contract});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='documents')viewDocuments(main);else if(v==='compliance')viewCompliance(main);else if(v==='company')viewCompany(main);else viewHome(main)}
 function displayRequestTitle(r){var raw=String((r&&r.title)||'').trim(),src=String((r&&r.lang)||'').slice(0,2).toLowerCase(),generic=(TY&&TY[r.type])||TX.navRequests;if(!raw)return generic;if(src&&src!==LANG)return generic;if(LANG!=='ar'&&/[\u0600-\u06FF]/.test(raw))return generic;if(LANG==='ar'&&!/[\u0600-\u06FF]/.test(raw)&&/[A-Za-z]/.test(raw))return generic;return raw}
 function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[displayRequestTitle(r)]),h('small',{},[r.ref+' · '+(TY[r.type]||r.type)+' · '+when(r.updated_at||r.created_at)])]),(r.origin==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),pill(r.status),h('span',{class:'btn ghost sm'},[TX.open])])}
 function viewHome(m){var c=state.me.counts||{};m.appendChild(h('h1',{},[TX.attention]));
@@ -814,6 +814,118 @@ function viewDocuments(m){
 function verLbl(n){return (LANG==='ar'||LANG==='zh')?(TX.dVer+' '+n):(TX.dVer+n)}
 function catName(c){for(var i=0;i<DOC_CATS.length;i++)if(DOC_CATS[i][0]===c)return DOC_CATS[i][1];
  return DOC_CATS[DOC_CATS.length-1][1]}
+// ---------- الامتثال والمخالفات
+// لا منطق امتثال جديد هنا: الحالة من compliance-access، والمخالفات من
+// violations، والتسجيل والاعتراض عبر ops-violation-add/object — كلها مسارات
+// my-ops الحيّة نفسها. المستندات تُدار من قسم «مستنداتي» (go('documents')),
+// فلا نكرّر خزانةً ثانية. ومشاري لا يَعِد بإلغاء مخالفة — ندرس الأهلية ونتابع.
+function isActionableViol(v){var s=String((v&&v.status)||'').trim();return !s||/جديد/.test(s)}
+function violPill(s){s=String(s||'').trim();if(!s)return h('span',{class:'pill warn'},[TX.cNew]);
+ var good=/مقبول|ملغا|مغلق|منجز|accepted|closed/i.test(s),bad=/مرفوض|rejected/i.test(s),obj=/اعتراض/.test(s);
+ return h('span',{class:'pill '+(good?'ok':bad?'bad':obj?'warn':'mut')},[s])}
+function setComplianceBadge(){var a=document.querySelector('[data-nav="compliance"]');if(!a)return;
+ var n=(state.violations||[]).filter(isActionableViol).length;var b=a.querySelector('.b');
+ if(!n){if(b)b.remove();return}if(b)b.textContent=String(n);else a.appendChild(h('span',{class:'b'},[String(n)]))}
+function viewCompliance(m){
+ m.appendChild(h('h1',{},[TX.navCompliance]));
+ m.appendChild(h('p',{class:'note',style:'margin:-6px 0 14px'},[TX.cIntro]));
+ var access=h('div',{class:'card'});access.appendChild(h('p',{class:'note'},[TX.cLoading]));m.appendChild(access);
+ var body=h('div');m.appendChild(body);
+ opsGet('compliance-access').then(function(a){
+  access.innerHTML='';
+  if(!a||!a.ok){access.appendChild(h('p',{class:'err'},[TX.eNet]));return}
+  // بلا منشأة: الخزانة والمخالفات مرتبطتان بالمنشأة، فنوجّه لبيانات الشركة.
+  if(!('active' in a)){access.appendChild(h('p',{class:'note'},[TX.eNoOrg]));
+   access.appendChild(h('button',{class:'btn ghost sm',style:'margin-top:8px',onclick:function(){go('company')}},['🏢 '+TX.navCompany]));return}
+  var days=Number(a.days_left)||0;
+  if(a.active){access.appendChild(h('span',{class:'pill ok'},['🛡️ '+TX.cActive]))}
+  else if(a.trial&&days>0){access.appendChild(h('span',{class:'pill warn'},['🛡️ '+TX.cTrialLbl+' · '+dayStr(days)]));
+   if(a.ends_at)access.appendChild(h('p',{class:'note',style:'margin-top:8px'},[TX.validUntil+': '+String(a.ends_at).slice(0,10)]))}
+  else{access.appendChild(h('h3',{},['🛡️ '+TX.cLockedTitle]));access.appendChild(h('p',{class:'note'},[TX.cLocked]));
+   access.appendChild(h('a',{class:'btn',style:'margin-top:8px',href:'/ar/compliance-agent'},[TX.cSubscribe]));return}
+  drawComplianceBody(body);
+ })}
+function drawComplianceBody(body){
+ body.innerHTML='';
+ // 1) استحقاقات قريبة من مستنداتك + زر الإدارة والرفع (يعيد استعمال قسم المستندات)
+ var dcard=h('div',{class:'card'});dcard.appendChild(h('h3',{},[TX.cDocsTitle]));
+ var dlist=h('div',{class:'list'});dcard.appendChild(dlist);
+ dcard.appendChild(h('button',{class:'btn ghost sm',style:'margin-top:10px',onclick:function(){go('documents')}},['📁 '+TX.cManageDocs]));
+ body.appendChild(dcard);
+ function fillDocs(){dlist.innerHTML='';
+  var items=(state.docs||[]).map(function(d){return {d:d,n:daysLeft(d.expiry_date)}}).filter(function(x){return x.n!==null&&x.n<=60}).sort(function(a,b){return a.n-b.n});
+  if(!items.length){dlist.appendChild(h('p',{class:'note'},[TX.cDocsNone]));return}
+  items.forEach(function(x){var n=x.n;dlist.appendChild(h('div',{class:'row',onclick:function(){go('documents')}},[
+   h('div',{class:'tt'},[h('b',{},[x.d.title||'']),h('small',{},[x.d.expiry_date?(TX.dExpires+' '+String(x.d.expiry_date).slice(0,10)):''])]),
+   h('span',{class:'pill '+(n<0?'bad':'warn')},[n<0?TX.dExpired:dayStr(n)])]))})}
+ if(state.docs)fillDocs();else{dlist.appendChild(h('p',{class:'note'},[TX.dLoading]));loadDocs().then(fillDocs)}
+ // 2) المخالفات + تقديم الاعتراض
+ var vcard=h('div',{class:'card'});vcard.appendChild(h('h3',{},[TX.cViolTitle]));
+ vcard.appendChild(h('p',{class:'note'},[TX.cViolIntro]));
+ vcard.appendChild(h('p',{class:'note',style:'color:#b45309'},[TX.cStages]));
+ var vlist=h('div',{class:'list',style:'margin-top:10px'});vcard.appendChild(vlist);
+ vlist.appendChild(h('p',{class:'note'},[TX.cLoading]));
+ body.appendChild(vcard);
+ function openObject(v,box,redraw){
+  if(box.querySelector('.objform'))return;
+  var note=h('textarea',{class:'inp',rows:'3',placeholder:TX.cObjectNote});
+  var msg=h('div',{class:'err'});
+  var send=h('button',{class:'btn sm'},['⚖️ '+TX.cObjectBtn]);
+  var cancel=h('button',{class:'btn ghost sm',onclick:function(){wrap.remove()}},[TX.docClose]);
+  send.addEventListener('click',function(){msg.className='err';msg.textContent='';
+   if(!note.value.trim()){msg.textContent=TX.eName;note.focus();return}
+   send.disabled=true;
+   opsPost({action:'ops-violation-object',id:v.id,note:note.value.trim()}).then(function(o){
+    send.disabled=false;
+    if(o&&o.ok){opsGet('violations').then(function(r){if(r&&r.ok)state.violations=r.items||[];redraw()})}
+    else{msg.textContent=upErr(o&&o.error)}})});
+  var wrap=h('div',{class:'objform',style:'margin-top:10px'},[note,h('div',{class:'msgform'},[send,cancel]),msg]);
+  box.appendChild(wrap);note.focus()}
+ function drawViol(){vlist.innerHTML='';var items=state.violations||[];
+  if(!items.length){vlist.appendChild(h('p',{class:'note'},[TX.cViolNone]));return}
+  items.forEach(function(v){
+   var box=h('div',{class:'doc'});
+   box.appendChild(h('div',{class:'hd'},[h('b',{},[v.title||'']),violPill(v.status)]));
+   var meta=[v.authority||''];if(v.violation_number)meta.push('#'+v.violation_number);if(v.amount)meta.push(money(v.amount));if(v.violation_date)meta.push(String(v.violation_date).slice(0,10));
+   box.appendChild(h('div',{class:'meta'},[meta.filter(Boolean).join(' · ')]));
+   if(v.objection_deadline){var dn=daysLeft(v.objection_deadline);box.appendChild(h('div',{class:'meta'},[TX.cDeadline+': '+String(v.objection_deadline).slice(0,10)+(dn!==null?(' · '+(dn<0?TX.dExpired:dayStr(dn))):'')]))}
+   var acts=h('div',{class:'acts'});
+   if(/اعتراض/.test(String(v.status||''))){acts.appendChild(h('span',{class:'ok'},['✓ '+TX.cObjectFiled]));
+    if(v.objection_note)box.appendChild(h('div',{class:'read'},['📝 '+v.objection_note]))}
+   else{acts.appendChild(h('button',{class:'btn sm',onclick:function(){openObject(v,box,draw)}},['⚖️ '+TX.cObjectBtn]))}
+   box.appendChild(acts);vlist.appendChild(box)})}
+ function draw(){drawViol();setComplianceBadge()}
+ if(state.violations)draw();
+ opsGet('violations').then(function(o){if(o&&o.ok)state.violations=o.items||[];
+  if(o&&!o.ok&&o.error==='network'){vlist.innerHTML='';vlist.appendChild(h('p',{class:'err'},[TX.eNet]))}else draw()});
+ // 3) سجّل مخالفة
+ var add=h('div',{class:'card'});add.appendChild(h('h3',{},[TX.cAddTitle]));
+ var authority=h('input',{class:'inp',maxlength:'80',placeholder:TX.cAuthority});
+ var vtitle=h('input',{class:'inp',maxlength:'300',placeholder:TX.cVTitle});
+ var vnum=h('input',{class:'inp',maxlength:'80',placeholder:TX.cVNumber});
+ var vamount=h('input',{class:'inp',type:'number',min:'0',placeholder:TX.cVAmount});
+ var vdate=h('input',{class:'inp',type:'date'});
+ var vdeadline=h('input',{class:'inp',type:'date'});
+ var amsg=h('div',{class:'err'});
+ var abtn=h('button',{class:'btn'},[TX.cAddBtn]);
+ abtn.addEventListener('click',function(){amsg.className='err';amsg.textContent='';
+  if(!authority.value.trim()||!vtitle.value.trim()){amsg.textContent=TX.eName;return}
+  abtn.disabled=true;
+  opsPost({action:'ops-violation-add',authority:authority.value.trim(),title:vtitle.value.trim(),number:vnum.value.trim(),amount:vamount.value,date:vdate.value,deadline:vdeadline.value}).then(function(o){
+   abtn.disabled=false;
+   if(o&&o.ok){amsg.className='ok';amsg.textContent=TX.cAddDone;
+    authority.value='';vtitle.value='';vnum.value='';vamount.value='';vdate.value='';vdeadline.value='';
+    opsGet('violations').then(function(r){if(r&&r.ok){state.violations=r.items||[];draw()}})}
+   else{amsg.textContent=upErr(o&&o.error)}})});
+ add.appendChild(h('div',{class:'dgrid',style:'margin-top:6px'},[
+  h('div',{},[h('label',{class:'note'},[TX.cAuthority]),authority]),
+  h('div',{},[h('label',{class:'note'},[TX.cVTitle]),vtitle]),
+  h('div',{},[h('label',{class:'note'},[TX.cVNumber]),vnum]),
+  h('div',{},[h('label',{class:'note'},[TX.cVAmount]),vamount]),
+  h('div',{},[h('label',{class:'note'},[TX.cVDate]),vdate]),
+  h('div',{},[h('label',{class:'note'},[TX.cVDeadline]),vdeadline])]));
+ add.appendChild(h('div',{style:'margin-top:12px'},[abtn,amsg]));
+ body.appendChild(add)}
 // ---------- files inside a request
 // A link to one file is made at the moment of the click, by the server, after it
 // has checked the request is this customer's — nothing long-lived is stored in
@@ -988,7 +1100,7 @@ function settleReturn(u){
 // الشيء نفسه: مسارٌ محلي يبدأ بشرطة واحدة، ولا يبدأ بشرطتين («//host» يقرؤه
 // المتصفح موقعاً آخر).
 function nextPath(){try{var n=decodeURIComponent(new URL(location.href).searchParams.get('next')||'');return (n.charAt(0)==='/'&&n.charAt(1)!=='/')?n:''}catch(e){return ''}}
-function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render();if(state.view!=='documents')loadDocs().catch(function(){})})}).catch(function(){renderLogin()})}
+function boot(){api('me').then(function(o){if(!o||!o.ok){renderLogin();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render();if(state.view!=='documents')loadDocs().catch(function(){});if(state.view!=='compliance')opsGet('violations').then(function(o){if(o&&o.ok){state.violations=o.items||[];setComplianceBadge()}}).catch(function(){})})}).catch(function(){renderLogin()})}
 boot();
 })();</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}

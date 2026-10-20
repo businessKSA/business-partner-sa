@@ -1,5 +1,9 @@
 // Business Partner 3.0 — public office/workspace gallery (read supply from Notion, ESM).
-// Returns a SANITIZED list of AVAILABLE workspaces from "Property Workspace Supply".
+// Returns a SANITIZED list of AVAILABLE workspaces from the unified
+// "Real Estate Demand & Supply Board" — the same board the matching engine and
+// /api/workspace use, so the gallery and the matching never disagree on supply.
+// NOTION_SUPPLY_DB=644ac54670e44fdb8f03904fe9eed362 points it back at the legacy
+// "Property Workspace Supply" (rollback; both held the same 28 listings, 2026-10-20).
 // Vendor identity, contacts and raw price are hidden (BP is the intermediary and
 // keeps its margin) — the public sees the space; enquiries route through BP.
 //
@@ -17,7 +21,9 @@ const NOTION_TOKEN = envFrom([
   "NOTION_TOKEN", "NOTION_SECRET", "NOTION_API_KEY", "NOTION_KEY",
   "NOTION_INTEGRATION_TOKEN", "BusinessPartnerSiteNotion", "BUSINESS_PARTNER_SITE_NOTION", "NOTION",
 ]);
-const DB_ID = process.env.NOTION_SUPPLY_DB || "644ac54670e44fdb8f03904fe9eed362";
+const BOARD_DB = "f416606b4fab4cbb80ced171f75e0a3b";
+const DB_ID = (process.env.NOTION_SUPPLY_DB || BOARD_DB).replace(/-/g, "");
+const IS_BOARD = DB_ID === BOARD_DB;
 const NOTION_VERSION = "2022-06-28";
 
 const plain = (p) => {
@@ -42,7 +48,15 @@ export default async function handler(req, res) {
   const q = (url.searchParams.get("q") || "").trim().toLowerCase();
 
   try {
-    const body = { page_size: 100, filter: { property: "Status", select: { equals: "Available" } } };
+    const available = { property: "Status", select: { equals: "Available" } };
+    // ‏اللوحة الموحّدة تحمل الطلب والعرض معاً: يُنشر العرض المتاح فقط، لا طلبات العملاء.
+    const filter = IS_BOARD
+      ? { and: [available, { or: [
+          { property: "Record Type", select: { equals: "Supply - For Rent" } },
+          { property: "Record Type", select: { equals: "Supply - For Sale" } },
+        ] }] }
+      : available;
+    const body = { page_size: 100, filter };
     const r = await fetch(`https://api.notion.com/v1/databases/${DB_ID}/query`, {
       method: "POST",
       headers: { Authorization: `Bearer ${NOTION_TOKEN}`, "Notion-Version": NOTION_VERSION, "content-type": "application/json" },
@@ -56,27 +70,30 @@ export default async function handler(req, res) {
     let spaces = (data.results || []).map((pg) => {
       const p = pg.properties || {};
       return {
-        name: plain(p["Listing Name"]),
+        name: plain(p["Listing Name"]) || plain(p["Name"]),
         city: plain(p["City"]),
         district: plain(p["District"]),
-        type: plain(p["Property Type"]) || plain(p["Supply Category"]),
-        area: plain(p["Area sqm"]) || null,
-        seats: plain(p["Seats Capacity"]) || null,
+        type: plain(p["Property Type"]) || plain(p["Supply Category"]) || plain(p["Property Category"]),
+        area: plain(p["Area sqm"]) || plain(p["Size sqm"]) || null,
+        seats: plain(p["Seats Capacity"]) || plain(p["Seats / Capacity"]) || null,
         furnished: plain(p["Furnished"]),
         parking: plain(p["Parking"]),
         nationalAddress: plain(p["National Address Available"]),
         licenseSupport: plain(p["License Support"]),
-        description: plain(p["Description"]).slice(0, 300),
+        description: String(plain(p["Description"]) || plain(p["Location"]) || "").slice(0, 300),
         suitableFor: plain(p["Suitable For"]),
-        photo: plain(p["Photos URL"]) || "",
+        photo: plain(p["Photos URL"]) || plain(p["Photos"]) || "",
         // Deliberately omitted (business margin): Vendor Name, Contact Person, Phone, Email, exact price.
       };
     });
     // Only publish listings that actually have a name (skip empty/legacy rows).
     spaces = spaces.filter((s) => s.name);
+    // ‏اسم الإعلان يحمل علامة المورّد (Regus، Servcorp، IWG…) — وBusiness Partner
+    // وسيطٌ لا يكشف مورّده. الزائر يرى النوع والموقع؛ الاسم للبحث داخلياً فقط.
     if (fCity) spaces = spaces.filter((s) => s.city === fCity);
     if (fType) spaces = spaces.filter((s) => (s.type || "").toLowerCase().indexOf(fType.toLowerCase()) !== -1);
-    if (q) spaces = spaces.filter((s) => (s.name + " " + s.district + " " + s.suitableFor + " " + s.description).toLowerCase().indexOf(q) !== -1);
+    if (q) spaces = spaces.filter((s) => (s.district + " " + s.city + " " + s.type + " " + s.suitableFor + " " + s.description).toLowerCase().indexOf(q) !== -1);
+    spaces = spaces.map(({ name, ...pub }) => pub);
 
     return res.end(JSON.stringify({ ok: true, total: spaces.length, spaces }));
   } catch (e) {
