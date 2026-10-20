@@ -1,0 +1,102 @@
+{
+  "generatedAt": "2026-10-20",
+  "intervalDays": 14,
+  "cycle": 4,
+  "tracks": [
+    {
+      "step": 0,
+      "key": "core",
+      "nameAr": "الخدمات الأساسية",
+      "subjectAr": "ما الذي نديره عنك — Business Partner",
+      "intentAr": "التعريف: من نحن وما الذي نتولّاه نيابةً عن منشأتك.",
+      "sourceOfTruth": "site/data/services.json",
+      "always": true,
+      "leadCode": null,
+      "services": [
+        {
+          "code": "BP-REC-03",
+          "name": "التوظيف والتعاقد الخارجي (PEO/EOR)",
+          "category": "Recruitment",
+          "slug": "bp-rec-03",
+          "requiresProposal": true
+        },
+        {
+          "code": "BP-AI-01",
+          "name": "AI Business Partner Enterprise",
+          "category": "AI Automation",
+          "slug": "bp-ai-01",
+          "requiresProposal": true
+        },
+        {
+          "code": "REV-GROWTH",
+          "name": "Business Development — Revenue Operating System — Growth Package",
+          "category": "Business Support",
+          "slug": "rev-growth",
+          "requiresProposal": false
+        }
+      ]
+    },
+    {
+      "step": 1,
+      "key": "new",
+      "nameAr": "الجديد لدينا",
+      "subjectAr": "أضفنا هذا الشهر — Business Partner",
+      "intentAr": "ما أضفناه حديثاً، وفي صدارته Business Partner AI.",
+      "sourceOfTruth": "docs/marketing-agent/generator/email-rotation.mjs (NEW_SERVICES)",
+      "always": true,
+      "leadCode": "BP-AI-01",
+      "services": [
+        {
+          "code": "BP-AI-01",
+          "name": "AI Business Partner Enterprise",
+          "category": "AI Automation",
+          "slug": "bp-ai-01",
+          "requiresProposal": true
+        },
+        {
+          "code": "BP-AI-SMART-EMPLOYEE",
+          "name": "Specialist smart employee",
+          "category": "AI Automation",
+          "slug": "bp-ai-smart-employee",
+          "requiresProposal": false
+        },
+        {
+          "code": "BP-AI-03",
+          "name": "Compliance & obligations agent",
+          "category": "AI Automation",
+          "slug": "bp-ai-03",
+          "requiresProposal": false
+        },
+        {
+          "code": "AI-GEN",
+          "name": "Artificial Intelligence Automation — Bespoke Service",
+          "category": "AI Automation",
+          "slug": "ai-gen",
+          "requiresProposal": true
+        }
+      ]
+    },
+    {
+      "step": 2,
+      "key": "news",
+      "nameAr": "أخبار Business Partner",
+      "subjectAr": "ما الذي جرى — نشرة Business Partner",
+      "intentAr": "أخبار الشركة والسوق كما ترصدها المنظومة.",
+      "sourceOfTruth": "docs/marketing-agent/briefs/news/<issue>.json",
+      "always": false,
+      "leadCode": null,
+      "services": []
+    },
+    {
+      "step": 3,
+      "key": "platform",
+      "nameAr": "تحديثات المنصات",
+      "subjectAr": "تحديثات المنصات الحكومية — Business Partner",
+      "intentAr": "ما تغيّر في قوى ومقيم والتأمينات وبقية المنصات، وما الذي يلزم فعله.",
+      "sourceOfTruth": "docs/marketing-agent/briefs/<issue>.json",
+      "always": false,
+      "leadCode": null,
+      "services": []
+    }
+  ]
+}
