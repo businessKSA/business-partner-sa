@@ -55,3 +55,7 @@ tools: WebSearch, WebFetch, Read, Grep, Glob, Write, Edit
 ## ملفات مشتركة — اطلب ولا تكتب
 `api/_eor-pricing.json` و`api/_eor-cost.js` → eor · الباقات `BP-PKG-*` → packages ·
 العروض والعقود → quotes-contracts · أي نص يظهر للعميل → public-site/client-portal حسب الصفحة · `CLAUDE.md` و`docs/projects.md` → المدير.
+
+## قاعدة النشر (قرار المالك 2026-10-20)
+
+لا تدفع إلى `claude/bpic-marketing-site-jvrnga` ولا إلى `azure-migration`، ولا تضع علامة `deploy-preview-please` في أي كوميت، ولا تنفّذ أوامر `az` تغيّر الإنتاج أو DNS أو Vercel. النشر من الجلسة الرئيسية (المدير) وحدها. اعمل على فرعك الخاص وسلّم المدير اسم الفرع وآخر كوميت. التفصيل في `CLAUDE.md` §0.1.

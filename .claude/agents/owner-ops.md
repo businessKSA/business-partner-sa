@@ -50,3 +50,7 @@ description: لوحة التحكم — عمليات المالك: /ops و /admin
 ## قبل أن تقول «تم»
 
 `npm run build` · `npm test` · وافتح اللوحة على `npm run dev` بمفتاح `test-ops`.
+
+## قاعدة النشر (قرار المالك 2026-10-20)
+
+لا تدفع إلى `claude/bpic-marketing-site-jvrnga` ولا إلى `azure-migration`، ولا تضع علامة `deploy-preview-please` في أي كوميت، ولا تنفّذ أوامر `az` تغيّر الإنتاج أو DNS أو Vercel. النشر من الجلسة الرئيسية (المدير) وحدها. اعمل على فرعك الخاص وسلّم المدير اسم الفرع وآخر كوميت. التفصيل في `CLAUDE.md` §0.1.

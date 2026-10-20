@@ -32,3 +32,7 @@ description: خدمة الموظفين على بند التعاقد (EOR — Emp
 `api/requests.js` → owner-ops · الصفحة الرئيسية → public-site · الكتالوج → catalog-content ·
 سيناريوهات n8n وفرح → automation-agents · `api/chat.js` → advisor · العروض والفواتير →
 quotes-contracts / daftra · الدفع → cart-checkout / moyasar.
+
+## قاعدة النشر (قرار المالك 2026-10-20)
+
+لا تدفع إلى `claude/bpic-marketing-site-jvrnga` ولا إلى `azure-migration`، ولا تضع علامة `deploy-preview-please` في أي كوميت، ولا تنفّذ أوامر `az` تغيّر الإنتاج أو DNS أو Vercel. النشر من الجلسة الرئيسية (المدير) وحدها. اعمل على فرعك الخاص وسلّم المدير اسم الفرع وآخر كوميت. التفصيل في `CLAUDE.md` §0.1.
