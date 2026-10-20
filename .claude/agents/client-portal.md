@@ -8,7 +8,8 @@ description: لوحة العميل — /my و /account: الدخول، الجل�
 ## نطاقك — تملك هذه الملفات وحدك
 
 `site/scripts/simple-v1-my.mjs` · `simple-v1-checkout.mjs` · `client-portal-v6.mjs`
-`sv1-quote-auth-flow.mjs` · `portal-trust-layer.mjs`
+`sv1-quote-auth-flow.mjs` · `portal-trust-layer.mjs` · `client-login.mjs` (باب الدخول الموحَّد:
+«المتابعة بجوجل» + رابط البريد — يُستعمل في `/my` و`/checkout`) · `tests/client-login.test.mjs`
 `api/_simple.js` · `api/pay.js` · `api/otp.js`
 
 **قاعدة الإسناد:** أي صفحة يدخلها عميل بحساب تتبعك، مهما كان محتواها. وأي صفحة
@@ -51,3 +52,7 @@ description: لوحة العميل — /my و /account: الدخول، الجل�
 
 `npm run build` · `npm test` · وافتح المسار فعلياً على `npm run dev`
 (`localhost:3000`) — الدفع محلياً اختبار ولا بطاقة تُخصم.
+
+## قاعدة النشر (قرار المالك 2026-10-20)
+
+لا تدفع إلى `claude/bpic-marketing-site-jvrnga` ولا إلى `azure-migration`، ولا تضع علامة `deploy-preview-please` في أي كوميت، ولا تنفّذ أوامر `az` تغيّر الإنتاج أو DNS أو Vercel. النشر من الجلسة الرئيسية (المدير) وحدها. اعمل على فرعك الخاص وسلّم المدير اسم الفرع وآخر كوميت. التفصيل في `CLAUDE.md` §0.1.

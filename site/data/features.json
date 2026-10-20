@@ -1,0 +1,6 @@
+{
+  "_note": "مفاتيح الميزات. bizdevDoor: الباب الرابع «تطوير الأعمال» في الرئيسية. يبقى false حتى ينفّذ المالك migration قيد requests_type_check على Supabase الإنتاجي (db/schema.sql آخر الملف، يقبل BUSINESS_DEVELOPMENT) ويُسدّ انحدار اختيار المعرفة في المستشار (وكيل advisor). خريطة TYPE في sv1-quote-auth-flow.mjs أُصلحت 2026-10-01. false = الرئيسية ثلاثة أبواب كما كانت حرفاً (مع رابط «تصفّح واشترِ مباشرة»). للتفعيل: غيّر القيمة إلى true في كوميت صغير واحد ثم انشر.",
+  "bizdevDoor": false,
+  "_homeExtras": "إضافات الرئيسية «تحت المحادثة» فقط (أمر المالك 2026-10-11)، كل قسم مستقل بسطر واحد: search = شريط «ابحث عن خدمتك» · how = «كيف يعمل» بأربع خطوات · popular = ست خدمات شائعة بلا أسعار · faq = أسئلة سريعة. false أو حذف السطر = يختفي القسم عند البناء؛ حذف homeExtras كله = الرئيسية القديمة حرفاً. لا شيء منها فوق المحادثة. المنطق: site/scripts/simple-v1-home-path.mjs.",
+  "homeExtras": { "search": false, "how": false, "popular": false, "faq": false }
+}

@@ -1,0 +1,9 @@
+{
+  "_note": "باقات Business Partner AI (منصة المساحات ai.businesspartner.sa). المصدر الوحيد لأسعارها على الموقع: generate.mjs ينشرها في catalog.json تحت aiPlans، و api/pay.js يعيد التسعير منها. الأسعار بالريال، شهرية، قبل الضريبة — اعتمدها المالك 2026-10-16 («اعتمدها كما هي»: الدولار × 3.75). لا تظهر في /catalog ولا تُبنى لها صفحة خدمة؛ تُشترى من /ai وحدها. plan = رمز الباقة على خادم المنصة (plans.py).",
+  "plans": [
+    { "code": "BP-AIWS-IND", "plan": "individual", "nameAr": "Business Partner AI — باقة فرد", "nameEn": "Business Partner AI — Individual", "amount": 93.75, "billingPeriod": "monthly" },
+    { "code": "BP-AIWS-BUS", "plan": "business", "nameAr": "Business Partner AI — باقة أعمال", "nameEn": "Business Partner AI — Business", "amount": 187.5, "billingPeriod": "monthly" },
+    { "code": "BP-AIWS-BPLUS", "plan": "business_plus", "nameAr": "Business Partner AI — باقة أعمال بلس", "nameEn": "Business Partner AI — Business Plus", "amount": 375, "billingPeriod": "monthly" },
+    { "code": "BP-AIWS-ENT", "plan": "enterprise", "nameAr": "Business Partner AI — باقة مؤسسات", "nameEn": "Business Partner AI — Enterprise", "amount": 750, "billingPeriod": "monthly" }
+  ]
+}

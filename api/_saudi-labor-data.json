@@ -1,0 +1,3200 @@
+{
+  "_meta": {
+    "title": "بيانات أنظمة العمل السعودية لحاسبة/نموذج طلب الموظفين (EOR)",
+    "fetched_at": "2026-10-08",
+    "purpose": "مرجع بيانات (ليس فتوى قانونية) لتقدير تكاليف الموظفين على بند التعاقد وإخطار العميل بمتطلبات التوطين. كل رقم بمصدر وتاريخ جلب. لا تُكتب أرقام منها في الواجهة قبل مراجعة قانونية.",
+    "spec": "docs/eor-request-form-spec.md §3",
+    "companion_doc": "docs/saudi-labor-sources.md",
+    "confidence_legend": {
+      "high": "نص/جدول من وثيقة رسمية قُرئت مباشرة (hrsd.gov.sa، gosi.gov.sa، uqn.gov.sa، ...).",
+      "medium": "مصدر رسمي لكن عنوان فقط أو قديم أو غير قاطع، أو خبر صحفي ينقل بياناً رسمياً، أو استنتاج حسابي من أرقام رسمية.",
+      "low": "مصدر تجاري/مدونة فقط — إشارة لا اعتماد. لا يُستعمل في حساب سعر."
+    },
+    "conventions": {
+      "value_null": "null = لم يوجد مصدر رسمي، أو تعارض مصدران. التفاصيل في note، و unverified_candidate إن وُجد رقم مرشّح.",
+      "verify": "true = يلزم تحقق (قوى/مقيم/GOSI/مراجعة قانونية) قبل الاعتماد في عرض سعر أو واجهة.",
+      "percent": "النسب بوحدة «%» كأرقام (9.5 تعني 9.5%).",
+      "currency": "SAR",
+      "dates": "ISO (ميلادي). التواريخ الهجرية في note عند وجودها في المصدر."
+    },
+    "legal_review_required": true,
+    "blocks": [
+      "gosi",
+      "fees",
+      "eosb",
+      "leave_tickets",
+      "localization",
+      "saudi_min_wage",
+      "owner_claims_check",
+      "open_questions"
+    ]
+  },
+  "gosi": {
+    "_about": "اشتراكات التأمينات الاجتماعية (المؤسسة العامة للتأمينات الاجتماعية). النسب على الأجر الخاضع للاشتراك.",
+    "regimes": {
+      "new_system_saudi": {
+        "applies_to": "سعودي لا مدد اشتراك سابقة له في نظامي التقاعد المدني أو التأمينات قبل 2024-07-03 (نظام التأمينات الاجتماعية 1445هـ، م/273 وتاريخ 1445/12/26هـ)، التحق بالعمل بعد ذلك التاريخ.",
+        "schedule_by_year": [
+          {
+            "annuities_each_side": 9,
+            "employer_total": 11.75,
+            "employee_total": 9.75,
+            "total": 21.5,
+            "effective_from": "2024-07-03",
+            "note": "السنة الأولى من سريان النظام الجديد — لا زيادة"
+          },
+          {
+            "annuities_each_side": 9.5,
+            "employer_total": 12.25,
+            "employee_total": 10.25,
+            "total": 22.5,
+            "effective_from": "2025-07-01"
+          },
+          {
+            "annuities_each_side": 10,
+            "employer_total": 12.75,
+            "employee_total": 10.75,
+            "total": 23.5,
+            "effective_from": "2026-07-01",
+            "note": "السارية وقت الجلب (2026-10-08)"
+          },
+          {
+            "annuities_each_side": 10.5,
+            "employer_total": 13.25,
+            "employee_total": 11.25,
+            "total": 24.5,
+            "effective_from": "2027-07-01"
+          },
+          {
+            "annuities_each_side": 11,
+            "employer_total": 13.75,
+            "employee_total": 11.75,
+            "total": 25.5,
+            "effective_from": "2028-07-01",
+            "note": "نهاية الزيادة التدريجية؛ تثبت بعدها بحسب ما أعلنته المؤسسة"
+          }
+        ],
+        "components": {
+          "annuities": {
+            "employer_and_employee_each": "9% ترتفع 0.5% سنوياً كل 1 يوليو حتى 11%",
+            "source_url": "https://awareness.gosi.gov.sa/pdf/Contributions.pdf"
+          },
+          "saned_unemployment": {
+            "employer": 0.75,
+            "employee": 0.75,
+            "unit": "%",
+            "source_url": "https://awareness.gosi.gov.sa/businessJourney.html"
+          },
+          "occupational_hazards": {
+            "employer": 2,
+            "employee": 0,
+            "unit": "%",
+            "source_url": "https://awareness.gosi.gov.sa/businessJourney.html",
+            "note": "تتحمّله المنشأة وحدها؛ قد يُضاعَف على من يخالف تعليمات السلامة (حتى 4% بحسب أسئلة المؤسسة الشائعة — verify)."
+          }
+        },
+        "current_as_of_fetch": {
+          "effective_from": "2026-07-01",
+          "employer_total": 12.75,
+          "employee_total": 10.75,
+          "total": 23.5,
+          "unit": "%"
+        },
+        "source_url": "https://awareness.gosi.gov.sa/pdf/Contributions.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "الجدول منقول من «الدليل التعريفي للمشتركين الجدد بنظام التأمينات الاجتماعية الجديد 1445هـ — الزيادة التدريجية لنسب الاشتراكات» (PDF من المنصة التوعوية للمؤسسة، أغسطس 2025): الجدول يعرض نسبة المعاشات لكل طرف: 9% (3 يوليو 2024) ثم 9.5% (1 يوليو 2025) ثم 10% (2026) ثم 10.5% (2027) ثم 11% (2028). الإجماليات (employer_total/employee_total/total) محسوبة هنا بإضافة ساند 0.75% للطرفين والأخطار المهنية 2% لصاحب العمل (من المنصة التوعوية)، ولا ينصّ عليها الدليل جدولاً. الزيادة تخص فرع المعاشات فقط. بعض الصحف ونتائج البحث نقلت 10.75% على أنها «نسبة المعاشات» والصحيح أنها إجمالي حصة الموظف (10% معاشات + 0.75% ساند)."
+      },
+      "legacy_saudi": {
+        "applies_to": "سعودي لديه مدد اشتراك سابقة قبل 2024-07-03 (يبقى على الأحكام السابقة).",
+        "rates": {
+          "annuities": {
+            "employer": 9,
+            "employee": 9
+          },
+          "saned": {
+            "employer": 0.75,
+            "employee": 0.75
+          },
+          "occupational_hazards": {
+            "employer": 2,
+            "employee": 0
+          },
+          "unit": "%"
+        },
+        "employer_total": 11.75,
+        "employee_total": 9.75,
+        "total": 21.5,
+        "unit": "%",
+        "increases_over_time": false,
+        "source_url": "https://www.gosi.gov.sa/GOSIOnline/FAQ_Employer?locale=en_US",
+        "fetched_at": "2026-10-08",
+        "confidence": "medium",
+        "verify": true,
+        "note": "المعاشات 9%+9% وأخطار مهنية 2% على صاحب العمل: من أسئلة المؤسسة الشائعة (نظام 1421هـ). ساند 0.75%+0.75%: من المنصة التوعوية (للنظام الجديد) ومن خبر المؤسسة عن ساند؛ لم أقرأ صفحة رسمية حديثة تنص عليه للنظام القديم تحديداً. الإجمالي محسوب هنا. لا تشمله الزيادة التدريجية بحسب المؤسسة."
+      },
+      "non_saudi": {
+        "applies_to": "العامل غير السعودي (مقيم).",
+        "occupational_hazards": {
+          "value": 2,
+          "unit": "% من الأجر الخاضع",
+          "applies_to": "صاحب العمل وحده (الموظف 0%)",
+          "rule_text_ar": "صاحب العمل يدفع 2% من الأجر الخاضع للاشتراك عن كل عامل غير سعودي؛ لا حصة على العامل.",
+          "source_url": "https://awareness.gosi.gov.sa/businessJourney.html",
+          "fetched_at": "2026-10-08",
+          "confidence": "high",
+          "verify": false,
+          "note": "فرع الأخطار المهنية يشمل السعودي وغير السعودي (م4(1) من النظام، منشور في صفحة المؤسسة). غير السعودي غير مشمول بفرعي المعاشات وساند. لا يُخصم شيء من راتبه."
+        },
+        "annuities_saned": {
+          "value": null,
+          "unit": "%",
+          "applies_to": "غير السعودي",
+          "source_url": "https://beta.gosi.gov.sa/en/social-insurance",
+          "fetched_at": "2026-10-08",
+          "confidence": "high",
+          "verify": false,
+          "note": "غير مشمول: م4(2) تقصر فرع المعاشات على السعوديين؛ وساند للسعوديين."
+        }
+      }
+    },
+    "contributory_wage": {
+      "maximum": {
+        "value": 45000,
+        "unit": "SAR/شهر",
+        "applies_to": "كل المشتركين",
+        "source_url": "https://awareness.gosi.gov.sa/businessJourney.html",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "الحد الأعلى للأجر الخاضع للاشتراك (النظام الجديد، وكذا نظام 1421هـ م19(1)(ب)). عند تعدد أصحاب العمل لا يتجاوز المجموع 45,000 بحسب ما نقلته نتائج البحث عن اللائحة (لم أقرأ نص اللائحة)."
+      },
+      "minimum_new_system": {
+        "value": null,
+        "unit": "SAR/شهر",
+        "applies_to": "النظام الجديد",
+        "unverified_candidate": null,
+        "source_url": "https://awareness.gosi.gov.sa/businessJourney.html",
+        "fetched_at": "2026-10-08",
+        "confidence": "low",
+        "verify": true,
+        "note": "لم أجد حداً أدنى منصوصاً عليه في المنصة التوعوية للنظام الجديد؛ نص اللائحة التنفيذية (قرار وزير المالية 230 تاريخ 1445/12/26هـ) مرفق لم يُقرأ. لا تُخترع قيمة."
+      },
+      "minimum_legacy_per_gosi_faq": {
+        "value": null,
+        "unit": "SAR/شهر",
+        "applies_to": "نظام 1421هـ",
+        "unverified_candidate": {
+          "annuities": 1500,
+          "occupational_hazards": 400
+        },
+        "source_url": "https://www.gosi.gov.sa/GOSIOnline/FAQ_Employer?locale=en_US",
+        "fetched_at": "2026-10-08",
+        "confidence": "medium",
+        "verify": true,
+        "note": "صفحة الأسئلة الشائعة للمؤسسة تذكر 1,500 ريال حداً أدنى لفرع المعاشات و400 لفرع الأخطار المهنية، وفي سؤال آخر 400 فقط دون مواءمة بين الرقمين، والنص قديم. يُحتمل أن مصدر رقم المالك «الأجنبي من 400» هو حد 400 هذا (لا حداً أدنى للأجر نظاماً)."
+      },
+      "elements": {
+        "value": "الأجر الأساسي + بدل السكن النقدي (+ السكن العيني يُقدَّر بأجر شهرين أساسي ما لم يعفِ المحافظ) ؛ ويدخل في الأساسي العمولات ونسب المبيعات/الأرباح",
+        "unit": "—",
+        "applies_to": "كل المشتركين",
+        "source_url": "https://awareness.gosi.gov.sa/businessJourney.html",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": true,
+        "note": "من المنصة التوعوية. بعض المواقع التجارية تضيف بدل النقل ولا يؤيده المصدر الرسمي الذي قرأته — تُراجَع قبل الحساب."
+      },
+      "payment_due": {
+        "value": "خلال الأيام الخمسة عشر الأولى من الشهر التالي",
+        "unit": "—",
+        "applies_to": "كل المشتركين",
+        "source_url": "https://www.gosi.gov.sa/GOSIOnline/FAQ_Employer?locale=en_US",
+        "fetched_at": "2026-10-08",
+        "confidence": "medium",
+        "verify": true,
+        "note": "نص نظام 1421هـ؛ غرامة التأخير 2% شهرياً (م19(5)) في نظام 1421هـ — لم أتحقق من بقائها في النظام الجديد."
+      }
+    },
+    "classification_rule_for_eor": "تحديد النظام (جديد/قديم) لكل موظف سعودي يلزمه تاريخ أول تسجيل في التأمينات/التقاعد المدني — حقل مطلوب في الطلب أو يُفترض «جديد» للخريج الجديد فقط. لا يُستنتج من تاريخ التعيين.",
+    "liability_note": "تأخر صاحب العمل 6 أشهر عن السداد يعلّق مدد الاشتراك والتغطية (الدليل التعريفي، م35 من اللائحة)."
+  },
+  "fees": {
+    "_about": "الرسوم الحكومية للعامل الأجنبي. م40 من نظام العمل: يتحمّلها صاحب العمل (الاستقدام، الإقامة، رخصة العمل وتجديدهما، غرامات تأخيرها، تغيير المهنة، الخروج والعودة، تذكرة العودة، نقل الخدمات).",
+    "work_permit_levy": {
+      "monthly_levy_expat_exceeds_saudis": {
+        "value": 800,
+        "unit": "SAR/شهر/عامل",
+        "applies_to": "منشأة عدد وافديها > عدد سعودييها (القطاع الخاص عدا العمالة المنزلية)",
+        "rule_text_ar": "المقابل المالي عن كل عامل وافد: 800 ريال شهرياً (9,600 سنوياً) إن زاد عدد الوافدين على السعوديين.",
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2021-11/24112021.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "دليل وزارة الموارد البشرية لتجزئة المقابل المالي (نوفمبر 2021) — جدول: 800 شهرياً = 9,600 سنوياً. مستند إلى قرار مجلس الوزراء 197 وتاريخ 1438/3/23هـ. لم يظهر لي مصدر رسمي لاحق يغيّره، لكن الوثيقة 2021 فيُستحسن التأكد من قوى."
+      },
+      "annual_levy_expat_exceeds_saudis": {
+        "value": 9600,
+        "unit": "SAR/سنة/عامل",
+        "applies_to": "نفس السابق",
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2021-11/24112021.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "يطابق رقم المالك."
+      },
+      "monthly_levy_expat_not_exceeding_saudis": {
+        "value": 700,
+        "unit": "SAR/شهر/عامل",
+        "applies_to": "منشأة عدد وافديها ≤ عدد سعودييها",
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2021-11/24112021.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "700 شهرياً = 8,400 سنوياً (الجدول نفسه). المالك لم يذكر هذه الشريحة."
+      },
+      "annual_levy_expat_not_exceeding_saudis": {
+        "value": 8400,
+        "unit": "SAR/سنة/عامل",
+        "applies_to": "نفس السابق",
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2021-11/24112021.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "—"
+      },
+      "work_permit_fee": {
+        "value": 100,
+        "unit": "SAR/سنة (12 شهراً)",
+        "applies_to": "كل رخصة عمل",
+        "rule_text_ar": "رسم الرخصة يُحتسب بنسبة مدة الرخصة: 3أشهر=25، 6=50، 9=75، 12=100.",
+        "supporting_url": "https://www.hrsd.gov.sa/en/ministry-services/services/%D8%A5%D8%B5%D8%AF%D8%A7%D8%B1-%D9%88-%D8%AA%D8%AC%D8%AF%D9%8A%D8%AF-%D8%B1%D8%AE%D8%B5-%D8%A7%D9%84%D8%B9%D9%85%D9%84",
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2021-11/24112021.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "رسوم رخصة العمل 100 ريال لرخصة 12 شهراً (25/50/75 لرخص 3/6/9 أشهر). صفحة خدمة «إصدار وتجديد رخص العمل» في موقع الوزارة تعرض رسم الخدمة 100 ريال أيضاً. يطابق «+100» عند المالك."
+      },
+      "tranches": {
+        "allowed_durations_months": [
+          3,
+          6,
+          9,
+          12
+        ],
+        "minimum_tranche_months": 3,
+        "table_expat_exceeds_saudis": {
+          "3": {
+            "levy": 2400,
+            "permit_fee": 25
+          },
+          "6": {
+            "levy": 4800,
+            "permit_fee": 50
+          },
+          "9": {
+            "levy": 7200,
+            "permit_fee": 75
+          },
+          "12": {
+            "levy": 9600,
+            "permit_fee": 100
+          }
+        },
+        "table_expat_not_exceeding_saudis": {
+          "3": {
+            "levy": 2100,
+            "permit_fee": 25
+          },
+          "6": {
+            "levy": 4200,
+            "permit_fee": 50
+          },
+          "9": {
+            "levy": 6300,
+            "permit_fee": 75
+          },
+          "12": {
+            "levy": 8400,
+            "permit_fee": 100
+          }
+        },
+        "unit": "SAR",
+        "applies_to": "القطاع الخاص عدا العمالة المنزلية",
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2021-11/24112021.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "يؤكد كلام المالك «تُقسَّم على أرباع»: الدليل ينص على قرار مجلس الوزراء 325 وتاريخ 1442/6/13هـ الذي يتيح سداد المقابل وإصدار/تجديد الرخصة لمدة ثلاثة أشهر كحد أدنى (3/6/9/12). صفحة الخدمة تضيف: التجديد مسموح إذا بقي 180 يوماً أو أقل، ولا يُصدر/يُجدَّد لمنشأة في النطاق الأحمر. لم أجد في قوى نصاً يصف «ربع سنوي» بهذا الاسم؛ المصطلح الرسمي «تجزئة المقابل المالي»."
+      },
+      "exemptions": {
+        "industrial_licensed_facilities": {
+          "value": null,
+          "unit": "—",
+          "applies_to": "منشآت صناعية مرخّصة",
+          "source_url": "https://www.spa.gov.sa/N2468170",
+          "fetched_at": "2026-10-08",
+          "confidence": "medium",
+          "verify": true,
+          "note": "عنوان خبر واس: مجلس الوزراء يعتمد إلغاء المقابل المالي المقرر على العمالة الوافدة في المنشآت الصناعية المرخّصة (قرار في ديسمبر 2025 بحسب مصدر ثانوي). نص القرار وتاريخ سريانه ومدته لم أقرأها."
+        },
+        "small_establishments": {
+          "value": null,
+          "unit": "—",
+          "applies_to": "منشآت صغيرة",
+          "source_url": "https://www.hrsd.gov.sa/sites/default/files/2021-11/24112021.pdf",
+          "fetched_at": "2026-10-08",
+          "confidence": "low",
+          "verify": true,
+          "note": "مصادر تجارية تتحدث عن إعفاء لمنشآت صغيرة قد ينتهي 2027-01-21 دون ربط بقرار رسمي قرأته؛ لا يُعتمد. القاعدة التي يعتمد عليها التسعير: لا إعفاء حتى تُثبت قوى خلافه."
+        }
+      }
+    },
+    "residence_iqama": {
+      "annual_fee": {
+        "value": null,
+        "unit": "SAR/سنة/عامل",
+        "applies_to": "العامل الوافد على منشأة",
+        "unverified_candidate": 650,
+        "owner_claim": 650,
+        "source_url": "https://www.alriyadh.com/327403",
+        "fetched_at": "2026-10-08",
+        "confidence": "low",
+        "verify": true,
+        "note": "لم أجد صفحة رسمية (أبشر/مقيم/الجوازات) تنص على رسم تجديد الإقامة؛ مواقع my.gov.sa وabsher أعادت 403 أو بلا مبلغ. المبلغ 650 ريال شائع في مصادر تجارية وتعليق على منصة X منقول عن مقال في جريدة الرياض (أُعيد 503 عند الجلب)، وبعض المصادر تذكر 600 للعمالة المنزلية — تعارض لم يُحسم. المبلغ يُعرض عند السداد في أبشر/مقيم وهو المرجع."
+      },
+      "partial_period_issue_renew": {
+        "value": "إصدار/تجديد هوية مقيم لمدد 3 أو 6 أو 9 أشهر أو 12–24 شهراً",
+        "unit": "—",
+        "applies_to": "العامل على كفالة صاحب العمل (أبشر أعمال/مقيم)",
+        "unverified_candidate": {
+          "3_months": 163,
+          "6_months": 325,
+          "9_months": 488
+        },
+        "source_url": "https://www.okaz.com.sa/news/local/2094702",
+        "fetched_at": "2026-10-08",
+        "confidence": "medium",
+        "verify": true,
+        "note": "خبر عكاظ (2022-01-21) عن بيان الجوازات؛ يدعم «تُقسَّم». لم يُصرَّح فيه بأن الرسم يتناسب مع المدة؛ مبالغ مثل 163/325/488 للأرباع (650÷4) وردت في مواقع تجارية فقط — لا تُعتمد."
+      },
+      "late_renewal_fine": {
+        "value": "500 ريال (أولى)، 1000 (ثانية)، ثم الإبعاد (ثالثة)",
+        "unit": "SAR",
+        "applies_to": "من لم يجدد الهوية قبل انتهائها",
+        "source_url": "https://www.spa.gov.sa/w1267874?lang=ar&newsid=2035610",
+        "fetched_at": "2026-10-08",
+        "confidence": "low",
+        "verify": true,
+        "note": "من بيان للجوازات 2020 كما نُقل في نتائج البحث (واس)؛ لم أقرأ نص الخبر. ليس ضرورياً للحاسبة."
+      }
+    },
+    "transfer_of_services": {
+      "value": null,
+      "unit": "SAR",
+      "applies_to": "نقل خدمات عامل إلى المنشأة",
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "medium",
+      "verify": true,
+      "note": "م40(3): يتحمل صاحب العمل رسوم نقل خدمات العامل الراغب في نقل خدماته إليه. مبلغ الرسم لم أجده في مصدر رسمي (يظهر في قوى عند الطلب)."
+    },
+    "exit_reentry_visa": {
+      "single_trip": {
+        "value": 200,
+        "unit": "SAR (لسفرة واحدة، حتى شهرين)",
+        "applies_to": "مقيم داخل المملكة",
+        "rule_text_ar": "سفرة واحدة: 200 ريال لمدة شهرين كحد أقصى، +100 لكل شهر إضافي (داخل المملكة) أو +200 (خارجها).",
+        "extra_month_inside": 100,
+        "extra_month_outside": 200,
+        "supporting_url": "https://www.argaam.com/ar/article/articledetail/id/1612433",
+        "source_url": "https://www.uqn.gov.sa/details?p=21153",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "المرسوم الملكي م/71 وتاريخ 1444/6/1هـ (2022-12-30) المعدِّل للبند (سادساً) من المرسوم م/68 وتاريخ 1437/11/6هـ — منشور في أم القرى. 100 ريال لكل شهر إضافي داخل المملكة؛ ويُضاعَف رسم الشهر الإضافي لمن هو خارجها؛ ضمن مدة الإقامة."
+      },
+      "multiple_trips": {
+        "value": 500,
+        "unit": "SAR (عدة سفرات، 3 أشهر)",
+        "applies_to": "مقيم داخل المملكة",
+        "extra_month_inside": 200,
+        "extra_month_outside": 400,
+        "source_url": "https://www.uqn.gov.sa/details?p=21153",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "+200 لكل شهر إضافي داخل المملكة، ويُضاعَف خارجها؛ ضمن مدة الإقامة."
+      },
+      "who_bears": {
+        "value": "صاحب العمل",
+        "unit": "—",
+        "applies_to": "غير السعودي",
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "م40(1) من نظام العمل: يتحمل صاحب العمل رسوم الخروج والعودة."
+      }
+    },
+    "dependents_levy": {
+      "value": {
+        "2017-07": 100,
+        "2018-07": 200,
+        "2019-07": 300,
+        "2020-07": 400
+      },
+      "unit": "SAR/شهر/مرافق",
+      "applies_to": "مرافقو العامل الوافد في القطاع الخاص (يُسدَّد مقدماً سنوياً عند إصدار/تجديد الهوية أو تأشيرة الخروج والعودة)",
+      "supporting_url": "https://www.spa.gov.sa/453fdfed0d",
+      "source_url": "https://www.argaam.com/ar/article/articledetail/id/494014",
+      "fetched_at": "2026-10-08",
+      "confidence": "medium",
+      "verify": true,
+      "note": "من إعلان الجوازات (2017) كما نقلته أرقام؛ واس نشر العنوان فقط. الجدول التصاعدي 100→400 ريال شهرياً. لم أتحقق من بقاء 400 بعد 2020 ولا من أي تعديل. ذو صلة بالحاسبة فقط إذا طلب العميل مرافقين."
+    },
+    "employer_borne_by_law": {
+      "items": [
+        "استقدام العامل غير السعودي",
+        "رسوم الإقامة ورخصة العمل وتجديدهما وغرامات تأخيرها بسبب صاحب العمل",
+        "تغيير المهنة",
+        "الخروج والعودة",
+        "تذكرة عودة العامل إلى موطنه بعد انتهاء العلاقة",
+        "نقل خدمات العامل إليه"
+      ],
+      "worker_bears": "تكاليف عودته إلى بلده إن لم يصلح للعمل أو رغب في العودة دون سبب مشروع (م40(2)).",
+      "article": 40,
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": false,
+      "note": "نص م40 (المعدّلة بالمرسومين م/46 وم/44) من النسخة الموحدة في موقع الوزارة."
+    }
+  },
+  "eosb": {
+    "_about": "مكافأة نهاية الخدمة وما يتصل بها في نظام العمل (م/51 وتاريخ 1426/8/23هـ، المعدَّل بآخرها المرسوم م/44 وتاريخ 1446/2/8هـ). النص منقول من النسخة الموحدة المنشورة في موقع وزارة الموارد البشرية (آخر تحديث للصفحة 2026-10-07).",
+    "version": {
+      "law": "نظام العمل م/51 وتاريخ 1426/8/23هـ",
+      "latest_amendment": "م/44 وتاريخ 1446/2/8هـ (قرار مجلس الوزراء 117 وتاريخ 1446/2/2هـ)",
+      "amendment_effective": "تسري التعديلات بعد 180 يوماً من النشر؛ أعلنت الوزارة سريانها 2025-02-19 (20 شعبان 1446هـ) — التاريخ من عنوان خبر الوزارة في نتائج البحث (medium)",
+      "source_url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D9%86%D8%B8%D8%A7%D9%85-%D8%A7%D9%84%D8%B9%D9%85%D9%84",
+      "amendment_source_url": "https://www.uqn.gov.sa/details?p=25377",
+      "fetched_at": "2026-10-08",
+      "confidence": "medium",
+      "verify": true,
+      "note": "نص المواد مقروء مباشرة (high)؛ تاريخ السريان من عنوان خبر (medium). لم أجد نظام عمل جديداً بديلاً عن م/51؛ مصدر تجاري ذكر مرسوماً آخر (م/135 أو رقم 14 لسنة 1447) ولم يؤيده شيء رسمي — يُتجاهل."
+    },
+    "same_for_saudi_and_non_saudi": {
+      "value": true,
+      "unit": "—",
+      "applies_to": "كل العاملين",
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": true,
+      "note": "لا يفرّق نظام العمل بين السعودي والأجنبي في المادتين 84–85. الفرق عملياً: (1) م37: عقد غير السعودي مكتوب ومحدد المدة دائماً (فإن خلا من المدة فسنة، ويتجدد لمدة مماثلة)؛ (2) بعد م55 تتحول عقود السعودي المحددة بعد 3 تجديدات أو 4 سنوات (الأقل) إلى غير محددة بينما غير السعودي يبقى محدد المدة؛ (3) اشتراكات التأمينات منفصلة عن المكافأة. مخالف لافتراض المواصفة أن المكافأة «تختلف بين الأجنبي والسعودي» — راجع مستشاراً قانونياً."
+    },
+    "accrual": {
+      "article": 84,
+      "title_ar": "مكافأة نهاية الخدمة — الأصل",
+      "rule_text_ar": "عند انتهاء علاقة العمل على صاحب العمل أن يدفع مكافأة عن مدة الخدمة على أساس أجر نصف شهر عن كل سنة من السنوات الخمس الأولى، وأجر شهر عن كل سنة بعدها؛ ويتخذ الأجر الأخير أساساً للحساب؛ ويستحق العامل مكافأة عن أجزاء السنة بنسبة ما قضاه منها.",
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": false,
+      "note": "يمكن الاتفاق على استبعاد العمولات والنسب المئوية من الأجر المحتسب (م86). حساب المكافأة في الحاسبة يلزمه تحديد: أساسي فقط أم أجر فعلي — قرار قانوني.",
+      "formula": {
+        "months_per_year_first_5": 0.5,
+        "months_per_year_after_5": 1.0,
+        "pro_rata_partial_year": true,
+        "base": "الأجر الأخير"
+      },
+      "formula_text": "eosb_months(y) = 0.5 × min(y,5) + 1 × max(y−5,0)  ثم × الأجر الأخير. مثال: 2 سنة = 1 شهر؛ 5 سنوات = 2.5 شهر؛ 8 سنوات = 5.5 شهر.",
+      "wage_base_definition": "«الأجر» في النظام = الأجر الفعلي: الأساسي + العلاوات الدورية + العمولات/نسب المبيعات والأرباح + البدلات + المنح المقررة + الميزات العينية (بحد أقصى أجر شهرين أساسي عن السنة ما لم يُقدَّر أعلى في العقد) — من التعريفات في م2."
+    },
+    "resignation_reduction": {
+      "article": 85,
+      "title_ar": "استقالة العامل",
+      "rule_text_ar": "إن كان انتهاء علاقة العمل باستقالة العامل: لا شيء إن كانت الخدمة أقل من سنتين؛ ثلث المكافأة بعد خدمة لا تقل عن سنتين متتاليتين ولا تزيد على خمس سنوات؛ ثلثاها إذا زادت على خمس ولم تبلغ عشراً؛ كاملة إذا بلغت عشر سنوات فأكثر.",
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": true,
+      "note": "حدود الشرائح عند 5 بالضبط تُقرأ من النص: «لا تزيد على خمس» → الثلث، «زادت على خمس» → الثلثان. بعد تعديل م/44 عُرّفت «الاستقالة» تعريفاً جديداً وأضيفت م79 مكرر (قبول الاستقالة بعد 30 يوماً وتأجيل ≤60 يوماً)؛ أثرها على عقد محدد المدة يحتاج مراجعة قانونية.",
+      "tiers": [
+        {
+          "service_years_from": 0,
+          "service_years_to": 2,
+          "fraction": 0,
+          "note": "أقل من سنتين"
+        },
+        {
+          "service_years_from": 2,
+          "service_years_to": 5,
+          "fraction": "1/3",
+          "note": "من سنتين حتى خمس (شاملة 5)"
+        },
+        {
+          "service_years_from": 5,
+          "service_years_to": 10,
+          "fraction": "2/3",
+          "note": "أكثر من خمس وأقل من عشر"
+        },
+        {
+          "service_years_from": 10,
+          "service_years_to": null,
+          "fraction": 1,
+          "note": "عشر سنوات فأكثر"
+        }
+      ]
+    },
+    "full_eosb_exceptions": {
+      "article": 87,
+      "title_ar": "مكافأة كاملة رغم الاستقالة",
+      "rule_text_ar": "تستحق المكافأة كاملة إذا ترك العامل العمل لقوة قاهرة خارجة عن إرادته؛ وتستحقها العاملة إذا أنهت العقد خلال ستة أشهر من عقد زواجها أو ثلاثة أشهر من وضعها.",
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": false,
+      "note": ""
+    },
+    "settlement_deadline": {
+      "article": 88,
+      "title_ar": "تصفية الحقوق",
+      "rule_text_ar": "عند انتهاء الخدمة يدفع صاحب العمل الأجر ويصفي الحقوق خلال أسبوع على الأكثر إن أنهى هو العلاقة؛ وخلال مدة لا تزيد على أسبوعين إن أنهى العامل العقد. وله حسم أي دين مستحق له بسبب العمل.",
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": false,
+      "note": ""
+    },
+    "expiry_of_fixed_term": {
+      "article": 74,
+      "title_ar": "انتهاء العقد المحدد",
+      "rule_text_ar": "ينتهي العقد بانتهاء مدته المحددة ما لم يتجدد صراحة. انتهاء المدة ليس استقالة، فتُحسب المكافأة كاملة وفق م84 (استنتاج من م74(2) وم84–85؛ يُراجع قانونياً).",
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": true,
+      "note": "هذا ما يخص عقود EOR (سنة/سنتان): عند انتهاء العقد بانتهاء مدته لا يُطبَّق تخفيض م85."
+    },
+    "fixed_term_contract_for_non_saudi": {
+      "article": 37,
+      "title_ar": "عقد غير السعودي",
+      "rule_text_ar": "يجب أن يكون عقد عمل غير السعودي مكتوباً ومحدد المدة؛ فإن خلا من بيان مدته عُدَّت (سنة) من تاريخ المباشرة الفعلية؛ وإن استمر العمل بعد انتهائها عُدَّ متجدداً لمدة مماثلة.",
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": false,
+      "note": ""
+    },
+    "fixed_term_renewal": {
+      "article": 55,
+      "title_ar": "تجديد العقد المحدد",
+      "rule_text_ar": "يتجدد العقد المحدد بالاتفاق؛ وإذا تعدد التجديد ثلاث مرات متتالية أو بلغت مدة العقد الأصلي مع التجديد أربع سنوات (أيهما أقل) واستمر الطرفان في تنفيذه تحوّل العقد إلى غير محدد المدة (مع مراعاة م37 لغير السعوديين).",
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": false,
+      "note": "مدة التجديد تُحسب امتداداً للأصلية في حقوق العامل (م56)."
+    },
+    "probation": {
+      "article": 53,
+      "title_ar": "فترة التجربة",
+      "rule_text_ar": "يُنص عليها صراحة في العقد وبمدة واضحة لا تزيد في مجموعها على 180 يوماً؛ ولكل طرف إنهاء العقد خلالها. م54: لا يستحق أي طرف تعويضاً ولا يستحق العامل مكافأة نهاية خدمة عن ذلك إن أُنهي العقد خلال التجربة.",
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": true,
+      "note": "المادة معدَّلة بالمرسوم م/46 ثم م/44 بحسب حواشي النسخة الموحدة؛ لم أقارن بالنص السابق، فلا أجزم بما كانت عليه المدة قبل التعديل."
+    },
+    "notice_indefinite_term": {
+      "article": 75,
+      "title_ar": "مهلة الإشعار — العقد غير المحدد",
+      "rule_text_ar": "أجر شهري: العامل يخطر قبل 30 يوماً على الأقل، وصاحب العمل قبل 60 يوماً على الأقل؛ دون ذلك يُدفع أجر المهلة (م76).",
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": false,
+      "note": "لا تنطبق على عقود غير السعوديين لأنها محددة."
+    },
+    "compensation_wrongful_termination": {
+      "article": 77,
+      "title_ar": "تعويض الإنهاء لسبب غير مشروع",
+      "rule_text_ar": "ما لم يحدد العقد تعويضاً: أجر 15 يوماً عن كل سنة خدمة إن كان العقد غير محدد المدة؛ أجر المدة الباقية إن كان محدداً؛ وبحد أدنى أجر شهرين.",
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": true,
+      "note": "يلزم عند تصميم «فسخ مبكر» في عقد EOR (ثلاثة سيناريوهات: انتهاء مدة، استقالة، فسخ)."
+    },
+    "bundle_for_costing": {
+      "rule_text_ar": "تقدير نهاية الخدمة في عرض السعر: يُقدَّر لكل عقد (محدد المدة) أنه ينتهي بانتهاء مدته → مكافأة كاملة بحسب م84 على مدة العقد (سنة=0.5 شهر؛ سنتان=1 شهر؛ …) وتُجنَّب على مدى العقد. تخفيض الاستقالة لا يُحتسب في التسعير (حالة تقل الكلفة).",
+      "confidence": "medium",
+      "verify": true,
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "note": "هذا استنتاج تسعيري من المواد المذكورة وليس نصاً نظامياً."
+    }
+  },
+  "leave_tickets": {
+    "_about": "الإجازات والتذاكر في نظام العمل (النسخة الموحدة بعد م/44).",
+    "annual_leave": {
+      "article": 109,
+      "title_ar": "الإجازة السنوية",
+      "rule_text_ar": "يستحق العامل عن كل عام إجازة سنوية لا تقل عن 21 يوماً، تزاد إلى 30 يوماً على الأقل إذا أمضى خمس سنوات متصلة في خدمة صاحب العمل؛ وتكون بأجر يدفع مقدماً.",
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": false,
+      "note": "لا يجوز النزول عنها ولا استبدالها نقداً أثناء الخدمة (م109(2)). تأجيل: بموافقة العامل للسنة التالية، أو من صاحب العمل ≤90 يوماً (م110). مصدر ثانوي ذكر شرط «سن الخمسين/10 سنوات» للثلاثين — لم يرد في النص الرسمي المقروء.",
+      "days_default": 21,
+      "days_after_5_continuous_years": 30,
+      "unit": "يوم/سنة"
+    },
+    "unused_leave_payout": {
+      "article": 111,
+      "title_ar": "بدل الإجازة عند ترك العمل",
+      "rule_text_ar": "للعامل الحق في أجر أيام الإجازة المستحقة إذا ترك العمل قبل استعمالها، ويستحق أجرة الإجازة عن أجزاء السنة بنسبة ما قضاه.",
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": false,
+      "note": "يُجنَّب في الكلفة بنسبة 21/365 من الأجر سنوياً كحد أدنى (استنتاج)."
+    },
+    "other_statutory_leave": {
+      "marriage_or_bereavement_days": 5,
+      "sibling_bereavement_days": 3,
+      "paternity_days": 3,
+      "hajj_days_range": [
+        10,
+        15
+      ],
+      "hajj_min_service_years": 2,
+      "article": [
+        113,
+        114
+      ],
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": false,
+      "note": "م113: 5 أيام زواجاً أو وفاة الزوج/الأصول/الفروع، 3 أيام وفاة الأخ/الأخت، 3 أيام ولادة مولود (خلال 7 أيام). م114: حج 10–15 يوماً بأجر لمرة واحدة بعد سنتين متصلتين. إجازات المرضية والأعياد في اللائحة — لم تُستخرج."
+    },
+    "return_ticket_end_of_contract": {
+      "article": 40,
+      "title_ar": "تذكرة العودة (نهاية العلاقة)",
+      "rule_text_ar": "يتحمل صاحب العمل رسوم استقدام العامل غير السعودي ... وتذكرة عودة العامل إلى موطنه بعد انتهاء العلاقة بين الطرفين. ويتحمل العامل تكاليف عودته في حالة عدم صلاحيته للعمل أو إذا رغب في العودة دون سبب مشروع.",
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": false,
+      "note": "واجب نظامي على صاحب العمل لغير السعودي عند انتهاء العلاقة؛ يسقط عنه إذا رغب العامل في العودة دون سبب مشروع أو لم يصلح للعمل.",
+      "statutory": true
+    },
+    "arrival_ticket": {
+      "value": null,
+      "unit": "—",
+      "applies_to": "غير السعودي القادم من الخارج",
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "medium",
+      "verify": true,
+      "note": "م40(1) تُحمّل صاحب العمل «رسوم استقدام» العامل؛ لم يرد لفظ «تذكرة قدوم» صراحة في النص المقروء. اعتباره جزءاً من رسوم الاستقدام تفسير يحتاج مراجعة، وغالباً يُنظَّم في عقد العمل الموحّد."
+    },
+    "annual_leave_ticket": {
+      "value": null,
+      "unit": "—",
+      "applies_to": "العامل غير السعودي",
+      "statutory": false,
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "medium",
+      "verify": true,
+      "note": "لم أجد في م109–111 ولا في النص المقروء إلزاماً بتذكرة سفر للإجازة السنوية؛ هي بند تعاقدي (عقد العمل) أو لائحة المنشأة. يُسعَّر كخيار تعاقدي لا نظامي."
+    }
+  },
+  "localization": {
+    "_about": "قرارات توطين المهن (وزارة الموارد البشرية والتنمية الاجتماعية) + برنامج نطاقات المطور. تسري القرارات المهنية «على مستوى الكيان» بالتوازي مع نطاقات، وإذا تعددت القرارات على مهنة تُطبَّق النسبة الأعلى (نص كل دليل). الأنظمة تتابعها المنظومة آلياً من قاعدة التأمينات الاجتماعية (المسمى المهني + الأجر + الاعتماد).",
+    "profession_decisions": [
+      {
+        "id": "marketing",
+        "title_ar": "توطين مهن التسويق",
+        "decision_number": "101319",
+        "issued": "2026-01-19",
+        "effective_from": "2026-04-19",
+        "percent": 60,
+        "applies_when": "منشأة قطاع خاص يعمل بها 3 عاملين فأكثر في المهن المستهدفة (يُحسب على مستوى الكيان بغض النظر عن نطاقها)",
+        "saudi_min_wage_to_count": {
+          "value": 5500,
+          "unit": "SAR/شهر",
+          "basis": "الأجر الشهري المسجل في التأمينات (الأجر الخاضع للاشتراك)"
+        },
+        "professions": [
+          {
+            "sco_code": "122103",
+            "name_ar": "مدير تسويق"
+          },
+          {
+            "sco_code": "333901",
+            "name_ar": "وكيل دعاية وإعلان"
+          },
+          {
+            "sco_code": "122201",
+            "name_ar": "مدير دعاية وإعلان"
+          },
+          {
+            "sco_code": "216601",
+            "name_ar": "مصمم جرافيك"
+          },
+          {
+            "sco_code": "216604",
+            "name_ar": "مصمم إعلان"
+          },
+          {
+            "sco_code": "264204",
+            "name_ar": "أخصائي إعلامي"
+          },
+          {
+            "sco_code": "243202",
+            "name_ar": "أخصائي علاقات عامة"
+          },
+          {
+            "sco_code": "243101",
+            "name_ar": "أخصائي دعاية وإعلان"
+          },
+          {
+            "sco_code": "243110",
+            "name_ar": "أخصائي تسويق"
+          },
+          {
+            "sco_code": "122203",
+            "name_ar": "مدير علاقات عامة"
+          },
+          {
+            "sco_code": "343101",
+            "name_ar": "مصور فوتوغرافي"
+          }
+        ],
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-04/aldlyl-ala-jray-y-lqrar-twtyn-mhn-altswyq-v5.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "يؤكد مثال المالك «التسويق 60%». الدليل الإجرائي (نسخة v5 أبريل 2026) يسرد 11 مهنة بينها «أخصائي إعلامي 264204» بينما ذكر الخبر الصحفي 10 مهن — المعتمد الدليل. فترة السماح 3 أشهر من الإصدار. مهن العلاقات العامة (243202، 122203) واردة أيضاً في قرار المهن الإدارية المساندة بنسبة 100% فيُطبَّق الأعلى (نص كل دليل: «تطبق نسبة التوطين الأعلى»). قرار التسويق السابق بنسبة 30% (1442هـ؛ رقمه 57818 بحسب مصدر ثانوي) استُبدل.",
+        "required_formula": "required_saudis = round(total_in_target_professions × 0.60) − counted_saudis ؛ التقريب: ≤0.49 للأدنى، ≥0.5 للأعلى؛ مبدأ الإحلال.",
+        "penalties_reference": "جدول المخالفات والعقوبات: القرار الوزاري 75913 وتاريخ 1445/5/19هـ والقرار 44558 وتاريخ 1446/4/3هـ"
+      },
+      {
+        "id": "sales",
+        "title_ar": "توطين مهن المبيعات",
+        "decision_number": "101278",
+        "issued": "2026-01-19",
+        "effective_from": "2026-04-19",
+        "percent": 60,
+        "applies_when": "3 عاملين فأكثر في مهن المبيعات المستهدفة (على مستوى الكيان)",
+        "saudi_min_wage_to_count": {
+          "value": null,
+          "unit": "SAR/شهر",
+          "basis": "لم يرد في الدليل الإجرائي حد أدنى للأجر. الخبر الصحفي ربط 5,500 بقرار التسويق فقط.",
+          "verify": true
+        },
+        "professions": [
+          {
+            "sco_code": "122104",
+            "name_ar": "مدير مبيعات"
+          },
+          {
+            "sco_code": "142001",
+            "name_ar": "مدير مبيعات تجزئة"
+          },
+          {
+            "sco_code": "142003",
+            "name_ar": "مدير مبيعات جملة"
+          },
+          {
+            "sco_code": "332201",
+            "name_ar": "مندوب مبيعات"
+          },
+          {
+            "sco_code": "332401",
+            "name_ar": "وسيط سلع مستقبلية"
+          },
+          {
+            "sco_code": "332402",
+            "name_ar": "وسيط سلع"
+          },
+          {
+            "sco_code": "243401",
+            "name_ar": "أخصائي مبيعات أجهزة تقنية المعلومات والاتصالات"
+          },
+          {
+            "sco_code": "243109",
+            "name_ar": "أخصائي مبيعات"
+          },
+          {
+            "sco_code": "243106",
+            "name_ar": "أخصائي تجاري"
+          }
+        ],
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-ala-jray-y-lqrar-twtyn-mhn-almby-at.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "الدليل الإجرائي (PDF رسمي) يؤكد 60% و3 عاملين. لم أقرأ نص القرار الوزاري (PDF مصوّر). خبر الصحافة يذكر 8 مهن وبعضها أسماء مختلفة (مندوب مبيعات تجزئة/جملة)؛ المعتمد ما في جدول الدليل (9 مهن بالرموز).",
+        "required_formula": "required_saudis = round(total_in_target_professions × 0.60) − counted_saudis"
+      },
+      {
+        "id": "accounting",
+        "title_ar": "توطين المهن المحاسبية",
+        "decision_number": "103108",
+        "issued": "2025-01-26",
+        "effective_from": "2025-10-27 (المرحلة الأولى)",
+        "percent": [
+          {
+            "phase": 1,
+            "percent": 40,
+            "from": "2025-10-27",
+            "applies_to": "منشآت 5 محاسبين فأكثر"
+          },
+          {
+            "phase": 2,
+            "percent": 50,
+            "from": "2026-10-27",
+            "applies_to": "منشآت 5 فأكثر"
+          },
+          {
+            "phase": 3,
+            "percent": 60,
+            "from": "2027-10-27",
+            "applies_to": "منشآت 5 فأكثر"
+          },
+          {
+            "phase": 4,
+            "percent": 70,
+            "from": "2028-10-27",
+            "applies_to": "منشآت 5 فأكثر"
+          },
+          {
+            "phase": 5,
+            "percent": 30,
+            "from": "2029-10-27",
+            "applies_to": "منشآت 3–4 محاسبين (مع استمرار المرحلة 4 على الـ5 فأكثر)"
+          }
+        ],
+        "applies_when": "خمسة عاملين فأكثر في المهن المحاسبية (المرحلتان 1–4)، و3–4 في المرحلة الخامسة",
+        "saudi_min_wage_to_count": {
+          "value": [
+            {
+              "qualification": "بكالوريوس أو ما يعادله",
+              "amount": 6000
+            },
+            {
+              "qualification": "دبلوم أو ما يعادله",
+              "amount": 4500
+            }
+          ],
+          "unit": "SAR/شهر",
+          "basis": "الأجر الشهري المسجل في التأمينات (الخاضع للاشتراك)"
+        },
+        "professions": [
+          {
+            "sco_code": "121101",
+            "name_ar": "مدير مالي"
+          },
+          {
+            "sco_code": "121102",
+            "name_ar": "مدير حسابات"
+          },
+          {
+            "sco_code": "121103",
+            "name_ar": "مدير حسابات تعريفة"
+          },
+          {
+            "sco_code": "121104",
+            "name_ar": "مدير خزينة"
+          },
+          {
+            "sco_code": "121105",
+            "name_ar": "مدير ميزانية"
+          },
+          {
+            "sco_code": "121106",
+            "name_ar": "مدير مراجعة"
+          },
+          {
+            "sco_code": "121107",
+            "name_ar": "مدير مراجعة داخلية"
+          },
+          {
+            "sco_code": "121113",
+            "name_ar": "مدير تحصيل"
+          },
+          {
+            "sco_code": "121116",
+            "name_ar": "مدير خزانة"
+          },
+          {
+            "sco_code": "241101",
+            "name_ar": "محاسب"
+          },
+          {
+            "sco_code": "241102",
+            "name_ar": "محاسب تكاليف"
+          },
+          {
+            "sco_code": "241103",
+            "name_ar": "مراجع داخلي"
+          },
+          {
+            "sco_code": "241105",
+            "name_ar": "محاسب قانوني"
+          },
+          {
+            "sco_code": "241106",
+            "name_ar": "مراقب مالي"
+          },
+          {
+            "sco_code": "241107",
+            "name_ar": "أخصائي موازنة مالية"
+          },
+          {
+            "sco_code": "241108",
+            "name_ar": "أخصائي حسابات ضرائب"
+          },
+          {
+            "sco_code": "241109",
+            "name_ar": "أخصائي مراقبة مخزون"
+          },
+          {
+            "sco_code": "331301",
+            "name_ar": "مساعد حسابات"
+          },
+          {
+            "sco_code": "331302",
+            "name_ar": "مراقب مخزون"
+          },
+          {
+            "sco_code": "335202",
+            "name_ar": "مسؤول ضرائب"
+          },
+          {
+            "sco_code": "431101",
+            "name_ar": "كاتب حسابات"
+          },
+          {
+            "sco_code": "431201",
+            "name_ar": "كاتب مالي"
+          }
+        ],
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-04/aldlyl-alajrayy-lqrar-twtyn-almhn-almhasbyt.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "النسبة السارية وقت الجلب 40%؛ تصبح 50% بعد 19 يوماً (2026-10-27). يُشترط اعتماد الهيئة السعودية للمراجعين والمحاسبين (غير المعتمد لا يُحتسب). المكاتب المحاسبية تُحتسب بحسب لائحة نظام مهنة المحاسبة (قرار 658). النسخة القديمة 30% (قرار 86972 سارية من 2021-06-11) مُلغاة بالجديد.",
+        "current_percent_at_fetch": 40,
+        "next_change": {
+          "percent": 50,
+          "from": "2026-10-27"
+        },
+        "required_formula": "required_saudis = round(total_accountants × current_phase_percent) − counted_saudis"
+      },
+      {
+        "id": "procurement",
+        "title_ar": "توطين مهن المشتريات",
+        "decision_number": "77050",
+        "issued": "2025-11-30",
+        "effective_from": "2026-05-31",
+        "percent": 70,
+        "applies_when": "3 عاملين فأكثر في مهن المشتريات المستهدفة",
+        "saudi_min_wage_to_count": {
+          "value": null,
+          "unit": "SAR/شهر",
+          "basis": "لم يرد حد أدنى في الدليل المقروء (نصه مختل الترميز في بعض الأسطر)",
+          "verify": true
+        },
+        "professions": [
+          {
+            "sco_code": "132417",
+            "name_ar": "مدير مشتريات"
+          },
+          {
+            "sco_code": "332302",
+            "name_ar": "مندوب مشتريات"
+          },
+          {
+            "sco_code": "243102",
+            "name_ar": "أخصائي مشتريات"
+          },
+          {
+            "sco_code": "243104",
+            "name_ar": "أخصائي مناقصات"
+          },
+          {
+            "sco_code": "332301",
+            "name_ar": "أخصائي توريد للعلامات التجارية الخاصة"
+          },
+          {
+            "sco_code": "122105",
+            "name_ar": "مدير عقود"
+          },
+          {
+            "sco_code": "243107",
+            "name_ar": "أخصائي تجارة إلكترونية"
+          },
+          {
+            "sco_code": "132415",
+            "name_ar": "مدير خدمات لوجستية"
+          },
+          {
+            "sco_code": "243108",
+            "name_ar": "أخصائي أبحاث أسواق"
+          },
+          {
+            "sco_code": "241110",
+            "name_ar": "أخصائي مستودعات"
+          },
+          {
+            "sco_code": "132418",
+            "name_ar": "مدير مستودع"
+          },
+          {
+            "sco_code": "313907",
+            "name_ar": "أمين مستودع"
+          }
+        ],
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-twtyn-mhn-almshtryat_5.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": true,
+        "note": "قرار قديم 141612 (1444هـ) كان 50% بالشروط نفسها — مُحدَّث. تحقق من حد الأجر في نص القرار."
+      },
+      {
+        "id": "project_management",
+        "title_ar": "توطين مهن إدارة المشاريع",
+        "decision_number": "41454",
+        "issued": "2026-08-13",
+        "effective_from": "2027-02-14",
+        "percent": 70,
+        "applies_when": "3 عاملين فأكثر في مهن إدارة المشاريع",
+        "saudi_min_wage_to_count": {
+          "value": null,
+          "unit": "SAR/شهر",
+          "basis": "لم يرد في الدليل",
+          "verify": true
+        },
+        "professions": [
+          {
+            "sco_code": "121314",
+            "name_ar": "مدير إدارة مشاريع"
+          },
+          {
+            "sco_code": "214909",
+            "name_ar": "مهندس إدارة مشاريع"
+          },
+          {
+            "sco_code": "242108",
+            "name_ar": "أخصائي إدارة مشاريع"
+          }
+        ],
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-08/aldlyl-alajrayy-lqrar-almhn-adart-almshary--alnhayy-v.1.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "لم يدخل حيز التنفيذ بعد (فترة سماح 6 أشهر). يسري على كل عميل يطلب هذه المهن بعد 2027-02-14.",
+        "status_at_fetch": "لم يبدأ"
+      },
+      {
+        "id": "engineering",
+        "title_ar": "توطين المهن الهندسية",
+        "decision_number": "93483",
+        "issued": "2025-12-31",
+        "effective_from": "2026-06-30",
+        "percent": 30,
+        "applies_when": "5 عاملين فأكثر في المهن الهندسية",
+        "saudi_min_wage_to_count": {
+          "value": 8000,
+          "unit": "SAR/شهر",
+          "basis": "الأجر الشهري المسجل في التأمينات (الخاضع للاشتراك)"
+        },
+        "professions": [
+          {
+            "sco_code": "214101",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214102",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214103",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214201",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214202",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214204",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214205",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214206",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214207",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214301",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214302",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214303",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214401",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214402",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214404",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214405",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214406",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214407",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214408",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214409",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214410",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214411",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214412",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214501",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214502",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214504",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214601",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214602",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214603",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214902",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214903",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214904",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214906",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214908",
+            "name_ar": null
+          },
+          {
+            "sco_code": "214915",
+            "name_ar": null
+          },
+          {
+            "sco_code": "215101",
+            "name_ar": null
+          },
+          {
+            "sco_code": "215102",
+            "name_ar": null
+          },
+          {
+            "sco_code": "215104",
+            "name_ar": null
+          },
+          {
+            "sco_code": "215105",
+            "name_ar": null
+          },
+          {
+            "sco_code": "215106",
+            "name_ar": null
+          },
+          {
+            "sco_code": "215107",
+            "name_ar": null
+          },
+          {
+            "sco_code": "215108",
+            "name_ar": null
+          },
+          {
+            "sco_code": "215201",
+            "name_ar": null
+          },
+          {
+            "sco_code": "216101",
+            "name_ar": null
+          },
+          {
+            "sco_code": "216102",
+            "name_ar": null
+          },
+          {
+            "sco_code": "216201",
+            "name_ar": null
+          }
+        ],
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-almhn-alhndsyt.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "يُشترط الاعتماد المهني من الهيئة السعودية للمهندسين (غير المعتمد لا يُحتسب). 46 مهنة هندسية (الرموز فقط؛ الأسماء في الدليل). قراران صدرا معاً مع المشتريات (واس N2481123). فترة سماح 6 أشهر. نسبة 20% القديمة (1443هـ) متجاوزة.",
+        "required_formula": "required_saudis = round(total_engineers × 0.30) − counted_saudis",
+        "names_missing_reason": "الجدول 46 مهنة؛ لم تُرمَّز الأسماء لتفادي خطأ ترميز PDF"
+      },
+      {
+        "id": "admin_support",
+        "title_ar": "توطين المهن الإدارية المساندة (بما فيها الموارد البشرية)",
+        "decision_number": "132249",
+        "issued": "2026-04-05",
+        "effective_from": {
+          "immediate_group": "2026-04-05 (19 مهنة)",
+          "six_month_group": "2026-10-04 (50 مهنة)"
+        },
+        "percent": 100,
+        "applies_when": "منشأة قطاع خاص يعمل بها عامل واحد فأكثر في هذه المهن (قصر العمل على السعوديين)",
+        "saudi_min_wage_to_count": {
+          "value": null,
+          "unit": "SAR/شهر",
+          "basis": "لم يرد حد أجر في الدليل",
+          "verify": true
+        },
+        "professions": null,
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-04/aldlyl-alajrayy-lqrar-twtyn-almhn-aladaryt-almsandt--2-.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "قصر بنسبة 100% — لا مكان لموظف غير سعودي في هذه المسميات (69 مهنة في الجدول (1)): 19 مهنة نافذة من 2026-04-05، و50 مهنة بعد 6 أشهر أي 2026-10-04؛ كلها نافذة وقت الجلب (2026-10-08). تشمل الموارد البشرية (مدراء ومتخصصون)، العلاقات العامة، السكرتارية، الاستقبال، المترجمين، حراس الأمن، إدخال البيانات، الكتبة. أثره على EOR: يُمنع اختيار «أجنبي» لهذه المهن في الطلب. الدليل لا يصرّح بحد أجر ولا بعتبة عدد.",
+        "professions_groups": {
+          "effective_2026_04_05": [
+            {
+              "sco_code": "264302",
+              "name_ar": "مترجم فوري"
+            },
+            {
+              "sco_code": "264301",
+              "name_ar": "مترجم"
+            },
+            {
+              "sco_code": "264305",
+              "name_ar": "أخصائي لغوي"
+            },
+            {
+              "sco_code": "241104",
+              "name_ar": "أمين صندوق"
+            },
+            {
+              "sco_code": "412002",
+              "name_ar": "سكرتير"
+            },
+            {
+              "sco_code": "334301",
+              "name_ar": "سكرتير تنفيذي"
+            },
+            {
+              "sco_code": "333103",
+              "name_ar": "مخلص جمركي"
+            },
+            {
+              "sco_code": "413201",
+              "name_ar": "مدخل بيانات"
+            },
+            {
+              "sco_code": "413101",
+              "name_ar": "كاتب اختزال"
+            },
+            {
+              "sco_code": "432101",
+              "name_ar": "أمين مخزن"
+            },
+            {
+              "sco_code": "422602",
+              "name_ar": "كاتب استقبال مرضى"
+            },
+            {
+              "sco_code": "422502",
+              "name_ar": "كاتب شكاوى"
+            },
+            {
+              "sco_code": "422401",
+              "name_ar": "موظف استقبال فندق"
+            },
+            {
+              "sco_code": "441401",
+              "name_ar": "ناسخ"
+            },
+            {
+              "sco_code": "541403",
+              "name_ar": "حارس شخصي"
+            },
+            {
+              "sco_code": "541402",
+              "name_ar": "حارس أمن"
+            },
+            {
+              "sco_code": "441601",
+              "name_ar": "كاتب موارد بشرية"
+            },
+            {
+              "sco_code": "121211",
+              "name_ar": "مدير شؤون عمل"
+            },
+            {
+              "sco_code": "121208",
+              "name_ar": "مدير علاقات الأفراد"
+            }
+          ],
+          "effective_2026_10_04": [
+            {
+              "sco_code": "121216",
+              "name_ar": "مدير موارد بشرية — أمن سيبراني (الاسم كما استُخرج من PDF؛ يُراجَع)"
+            },
+            {
+              "sco_code": "121215",
+              "name_ar": "مدير تحقيق إداري"
+            },
+            {
+              "sco_code": "121214",
+              "name_ar": "مدير تنظيم إداري"
+            },
+            {
+              "sco_code": "121213",
+              "name_ar": "مدير تطوير مؤسسي"
+            },
+            {
+              "sco_code": "121212",
+              "name_ar": "مدير مكتب خدمة مدنية"
+            },
+            {
+              "sco_code": "121210",
+              "name_ar": "مدير مكتب عمل"
+            },
+            {
+              "sco_code": "121209",
+              "name_ar": "مدير مكتب استقدام"
+            },
+            {
+              "sco_code": "121207",
+              "name_ar": "مدير تطوير موارد بشرية"
+            },
+            {
+              "sco_code": "121206",
+              "name_ar": "مدير مواهب"
+            },
+            {
+              "sco_code": "121205",
+              "name_ar": "مدير تعويضات"
+            },
+            {
+              "sco_code": "121204",
+              "name_ar": "مدير توظيف"
+            },
+            {
+              "sco_code": "121203",
+              "name_ar": "مدير تصنيف مهن"
+            },
+            {
+              "sco_code": "121202",
+              "name_ar": "مدير تخطيط قوى عاملة"
+            },
+            {
+              "sco_code": "121201",
+              "name_ar": "مدير عمليات موارد بشرية"
+            },
+            {
+              "sco_code": "122206",
+              "name_ar": "مدير مراسم"
+            },
+            {
+              "sco_code": "122205",
+              "name_ar": "مدير جمع التبرعات"
+            },
+            {
+              "sco_code": "122203",
+              "name_ar": "مدير علاقات عامة"
+            },
+            {
+              "sco_code": "242313",
+              "name_ar": "خبير موارد بشرية"
+            },
+            {
+              "sco_code": "242312",
+              "name_ar": "مستشار موارد بشرية"
+            },
+            {
+              "sco_code": "242311",
+              "name_ar": "أخصائي استقدام"
+            },
+            {
+              "sco_code": "242310",
+              "name_ar": "أخصائي مراقبة موارد بشرية"
+            },
+            {
+              "sco_code": "242309",
+              "name_ar": "أخصائي تخطيط قوى عاملة"
+            },
+            {
+              "sco_code": "242308",
+              "name_ar": "عضو هيئة عمالية"
+            },
+            {
+              "sco_code": "242307",
+              "name_ar": "محقق عمالي"
+            },
+            {
+              "sco_code": "242306",
+              "name_ar": "أخصائي توجيه مهني"
+            },
+            {
+              "sco_code": "242305",
+              "name_ar": "أخصائي تعويضات"
+            },
+            {
+              "sco_code": "242304",
+              "name_ar": "أخصائي توظيف"
+            },
+            {
+              "sco_code": "242303",
+              "name_ar": "أخصائي تصنيف وظيفي ومهني"
+            },
+            {
+              "sco_code": "242302",
+              "name_ar": "أخصائي عمليات موارد بشرية"
+            },
+            {
+              "sco_code": "242301",
+              "name_ar": "أخصائي ارتباط وظيفي"
+            },
+            {
+              "sco_code": "243209",
+              "name_ar": "خبير علاقات عامة"
+            },
+            {
+              "sco_code": "243208",
+              "name_ar": "مستشار علاقات عامة"
+            },
+            {
+              "sco_code": "243207",
+              "name_ar": "أخصائي مراسم"
+            },
+            {
+              "sco_code": "243206",
+              "name_ar": "أخصائي تنظيم مؤتمرات وفعاليات"
+            },
+            {
+              "sco_code": "243205",
+              "name_ar": "أخصائي توعية جمهور"
+            },
+            {
+              "sco_code": "243204",
+              "name_ar": "أخصائي تواصل داخلي"
+            },
+            {
+              "sco_code": "243202",
+              "name_ar": "أخصائي علاقات عامة"
+            },
+            {
+              "sco_code": "264304",
+              "name_ar": "مترجم لغة إشارة"
+            },
+            {
+              "sco_code": "264303",
+              "name_ar": "مصحح لغوي"
+            },
+            {
+              "sco_code": "333102",
+              "name_ar": "وكيل جمركي"
+            },
+            {
+              "sco_code": "333101",
+              "name_ar": "وكيل شحن"
+            },
+            {
+              "sco_code": "411002",
+              "name_ar": "كاتب سجل"
+            },
+            {
+              "sco_code": "411001",
+              "name_ar": "كاتب علاقات حكومية"
+            },
+            {
+              "sco_code": "413102",
+              "name_ar": "طباع"
+            },
+            {
+              "sco_code": "412001",
+              "name_ar": "مساعد إداري"
+            },
+            {
+              "sco_code": "422601",
+              "name_ar": "موظف استقبال"
+            },
+            {
+              "sco_code": "422501",
+              "name_ar": "كاتب استعلامات"
+            },
+            {
+              "sco_code": "432103",
+              "name_ar": "كاتب حركة مخزون"
+            },
+            {
+              "sco_code": "432102",
+              "name_ar": "كاتب شحن"
+            },
+            {
+              "sco_code": "541401",
+              "name_ar": "مراقب كاميرات أمنية"
+            }
+          ]
+        },
+        "eor_impact": "حظر كامل على الأجنبي في المهنة؛ لا حاجة لحساب نسبة",
+        "names_note": "الأسماء مستخرجة من جدول PDF مصوّر الترتيب؛ رمز SCO هو المفتاح، والاسم 121216 يُراجَع."
+      },
+      {
+        "id": "it_telecom",
+        "title_ar": "توطين مهن الاتصالات وتقنية المعلومات",
+        "decision_number": "غير ظاهر في الصفحة",
+        "issued": "2021-06-27 (نشر الخبر؛ 17 ذو القعدة 1442هـ)",
+        "effective_from": "بعد فترة السماح (الخبر: «تنفيذ من اليوم»)",
+        "percent": 25,
+        "applies_when": "5 عاملين فأكثر في هندسة الاتصالات وتقنية المعلومات، تطوير التطبيقات والبرمجة والتحليل، والدعم الفني لمهن الاتصالات",
+        "saudi_min_wage_to_count": {
+          "value": [
+            {
+              "type": "مهن تخصصية",
+              "amount": 7000
+            },
+            {
+              "type": "مهن فنية",
+              "amount": 5000
+            }
+          ],
+          "unit": "SAR/شهر",
+          "basis": "«الأجر المحتسب» بحسب صفحة الوزارة"
+        },
+        "professions": null,
+        "source_url": "https://www.hrsd.gov.sa/en/node/841823",
+        "fetched_at": "2026-10-08",
+        "confidence": "medium",
+        "verify": true,
+        "note": "الأجور وعتبة الـ5 من صفحة الوزارة (hrsd.gov.sa/en/node/841823)، أما نسبة 25% فمن عنوان خبر عكاظ/آجل (المصدر الثانوي: https://www.okaz.com.sa/economy/saudi/2073354) ولم تُذكر في صفحة الوزارة. قرار قديم (2021) — يلزم التحقق من قائمة المهن الحالية ومن أي تحديث. لا أنقل قائمة مهن لأنها لم تُقرأ."
+      },
+      {
+        "id": "pharmacy",
+        "title_ar": "توطين مهن الصيدلة",
+        "decision_number": "103111",
+        "issued": "2025-01-26",
+        "effective_from": "2025-07-27",
+        "percent": {
+          "community_pharmacies_and_general_medical_complexes": 35,
+          "hospitals": 65,
+          "other_pharmacy_activities": 55
+        },
+        "applies_when": "5 عاملين فأكثر في مهن الصيدلة",
+        "saudi_min_wage_to_count": {
+          "value": 7000,
+          "unit": "SAR/شهر",
+          "basis": "الأجر الخاضع للاشتراك"
+        },
+        "professions": null,
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-01/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A%20%D9%84%D9%82%D8%B1%D8%A7%D8%B1%20%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D9%85%D9%87%D9%86%D8%A9%20%D8%A7%D9%84%D8%B5%D9%8A%D8%AF%D9%84%D8%A9_1.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": true,
+        "note": "قراءة الدليل الصادر 2025-01؛ قد توجد نسخة محدثة. غير ذي صلة بالغالبية من طلبات EOR."
+      },
+      {
+        "id": "dental",
+        "title_ar": "توطين مهنة طب الأسنان",
+        "decision_number": "103107",
+        "issued": "2025-01-26",
+        "effective_from": "2025-07-27 (45%) ثم 2026-01-27 (55%)",
+        "percent": [
+          {
+            "phase": 1,
+            "percent": 45,
+            "from": "2025-07-27"
+          },
+          {
+            "phase": 2,
+            "percent": 55,
+            "from": "2026-01-27"
+          }
+        ],
+        "applies_when": "3 عاملين فأكثر في مهن طب الأسنان",
+        "saudi_min_wage_to_count": {
+          "value": 9000,
+          "unit": "SAR/شهر",
+          "basis": "الأجر الخاضع للاشتراك"
+        },
+        "professions": null,
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2025-01/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A%20%D9%84%D9%82%D8%B1%D8%A7%D8%B1%20%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D9%85%D9%87%D9%86%D8%A9%20%D8%B7%D8%A8%20%D8%A7%D9%84%D8%A3%D8%B3%D9%86%D8%A7%D9%86_1.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": true,
+        "note": "النسبة السارية وقت الجلب 55%. في موقع الوزارة «الدليل الإجرائي لقرار توطين مهنة طب الأسنان» بتاريخ 2026-01-27 (نسخة أحدث لم أقرأ نصها) — يُراجع."
+      }
+    ],
+    "common_rules": {
+      "counting_unit": "الكيان (جميع فروع المنشأة لنفس النشاط الاقتصادي المملوكة لمنشأة واحدة) لا الفرع.",
+      "rounding": "التقريب لأقرب عدد صحيح: 0.49 فأقل للأدنى، 0.5 فأكثر للأعلى.",
+      "formula_ar": "العدد المطلوب = (إجمالي العاملين في المهن المستهدفة × نسبة التوطين) − عدد السعوديين المحتسبين؛ يُطبَّق مبدأ الإحلال (استبدال أجنبي بسعودي) وتُعاد المعادلة عند إضافة سعوديين.",
+      "applies_to_job_title_and_actual_work": "تُطبَّق على المسمى المهني المسجَّل (التصنيف السعودي الموحد للمهن) وعلى العمل الفعلي.",
+      "penalty_for_assigning_to_non_saudi": "إسناد مهام المهنة الموطّنة إلى غير سعودي بطريقة مباشرة أو غير مباشرة تحت مسمى آخر مخالفة.",
+      "penalties_decisions": [
+        "75913 (1445/5/19هـ)",
+        "44558 (1446/4/3هـ)",
+        "112377 (1447/8/21هـ، مذكور في دليل إدارة المشاريع)"
+      ],
+      "penalties_amounts": null,
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-04/aldlyl-ala-jray-y-lqrar-twtyn-mhn-altswyq-v5.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": false,
+      "note": "مبالغ الغرامات لم أستخرجها؛ مرجعها جداول المخالفات في القرارات المذكورة."
+    },
+    "support_programs": {
+      "text": "محفزات واستقطاب وتدريب وتوظيف واستقرار وظيفي وأولوية الاستفادة من برامج دعم التوطين (بند في كل دليل).",
+      "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-04/aldlyl-ala-jray-y-lqrar-twtyn-mhn-altswyq-v5.pdf",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": false,
+      "note": "تفاصيل برامج الدعم لم تُجلب."
+    },
+    "other_decisions_seen_not_extracted": {
+      "items": [
+        {
+          "title_ar": "توطين المهن القانونية",
+          "source": "hrsd.gov.sa (نتيجة بحث)"
+        },
+        {
+          "title_ar": "توطين مهن الأشعة (1446هـ)",
+          "source": "hrsd.gov.sa"
+        },
+        {
+          "title_ar": "توطين قطاع الأجهزة الطبية",
+          "source": "hrsd.gov.sa"
+        },
+        {
+          "title_ar": "توطين المهن في المراكز والصالات الرياضية",
+          "date": "2025-11-24",
+          "source": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/evidence"
+        },
+        {
+          "title_ar": "توطين مهنة مشرف مسكن",
+          "date": "2025-11-05",
+          "source": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/evidence"
+        },
+        {
+          "title_ar": "المهن الإدارية والمساندة في نشاط مراكز الاسترخاء والعناية الشخصية",
+          "date": "2025-11-11",
+          "source": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/evidence"
+        },
+        {
+          "title_ar": "توطين التموينات والأسواق المركزية",
+          "source": "hrsd.gov.sa"
+        },
+        {
+          "title_ar": "قرار توطين منافذ 7 أنشطة اقتصادية",
+          "source": "hrsd.gov.sa"
+        },
+        {
+          "title_ar": "قرارات مناطقية (عسير، نجران، القصيم، الحدود الشمالية) لقصر العمل",
+          "date": "2019-08",
+          "source": "hrsd.gov.sa/ministerial-decisions"
+        },
+        {
+          "title_ar": "قطاع السياحة 40% (مصدر تجاري)",
+          "confidence": "low"
+        }
+      ],
+      "fetched_at": "2026-10-08",
+      "confidence": "low",
+      "verify": true,
+      "note": "ظهرت عناوينها فقط؛ لم تُقرأ نسبها ولا تواريخ سريانها. الصفحة المرجعية تضم 5 صفحات من الأدلة لم تُستعرض كلها (الفلترة بنوع «قرارات التوطين» تعطي القائمة الكاملة)."
+    },
+    "nitaqat": {
+      "program": "نطاقات المطور — المرحلة 2026–2028 (الدليل الإجرائي، نسخة مارس 2026؛ قرار 182495 بتاريخ نشر 2026-01-22 بحسب نتائج البحث)",
+      "bands": [
+        "red",
+        "low_green",
+        "medium_green",
+        "high_green",
+        "platinum"
+      ],
+      "formula": {
+        "text": "الحد الأدنى للنسبة (%) لكل نطاق أخضر/بلاتيني: y = m × ln(S) + c_year ؛ S = إجمالي العمالة (سعودي + وافد) في الكيان؛ m و c من جدول المرفق (1) لكل نشاط ونطاق وسنة. يُصنَّف الكيان: nسبته < حد الأخضر المنخفض → أحمر؛ وهكذا صعوداً.",
+        "localization_ratio": "نسبة التوطين = مجموع متوسطات العمالة السعودية ÷ (متوسطات السعودية + متوسطات الوافدة) × 100",
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-03/ntaqat-almtwr.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "الصيغة من نص الدليل. القيم تحت extracted_from_pdf تحتاج مطابقة مع حاسبة الوزارة."
+      },
+      "small_entities": {
+        "value": "منشأة بـ5 عاملين فأقل: يكفي إضافة عامل سعودي واحد؛ الحاسبة مصممة لـ6 عاملين فأكثر",
+        "unit": "—",
+        "applies_to": "كيان ≤ 5 عاملين",
+        "source_url": "https://es.hrsd.gov.sa/services/Inquiry/NitaqatCalculatorMotawar2026.aspx",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "نص صفحة الحاسبة الرسمية."
+      },
+      "effects_by_band": {
+        "red": [
+          "لا طلب تأشيرات جديدة",
+          "لا إصدار رخص عمل جديدة ولا تجديد الرخص الحالية",
+          "لا تغيير مهن ولا نقل خدمات إليها"
+        ],
+        "low_green": [
+          "إيقاف طلبات التأشيرات الجديدة وتغيير المهن",
+          "يمكن تجديد الرخص (بشرط ألا يتبقى في الإقامة أكثر من 6 أشهر)"
+        ],
+        "medium_green_high_green_platinum": [
+          "استقبال طلبات رصيد التأشيرات",
+          "تغيير مهن الوافدين ونقل الخدمات",
+          "تجديد الرخص بشرط ألا يزيد المتبقي في الإقامة على 6 أشهر"
+        ],
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-03/ntaqat-almtwr.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "ملخّص لبنود «خدمات الوزارة حسب النطاق» في الدليل."
+      },
+      "activities_coefficients": {
+        "count": 41,
+        "columns": {
+          "m": "ثابت المنحنى",
+          "c_2026": "ث لعام 2026",
+          "c_2027": "ث لعام 2027",
+          "c_2028": "ث لعام 2028"
+        },
+        "items": [
+          {
+            "activity_ar": "الإنتاج الزراعي والحيواني وخدماتها وأندية الفروسية",
+            "bands": {
+              "low_green": {
+                "m": 0.19,
+                "c_2026": 4.38,
+                "c_2027": 4.38,
+                "c_2028": 4.38
+              },
+              "medium_green": {
+                "m": 0.58,
+                "c_2026": 5.13,
+                "c_2027": 5.13,
+                "c_2028": 5.13
+              },
+              "high_green": {
+                "m": 0.58,
+                "c_2026": 9.38,
+                "c_2027": 9.38,
+                "c_2028": 9.38
+              },
+              "platinum": {
+                "m": 0.58,
+                "c_2026": 14.38,
+                "c_2027": 14.38,
+                "c_2028": 14.38
+              }
+            }
+          },
+          {
+            "activity_ar": "أنشطة الهيدروكربونات وعملياتها",
+            "bands": {
+              "low_green": {
+                "m": 4.98,
+                "c_2026": 5.62,
+                "c_2027": 7.62,
+                "c_2028": 9.62
+              },
+              "medium_green": {
+                "m": 6.0,
+                "c_2026": 20.0,
+                "c_2027": 22.0,
+                "c_2028": 24.0
+              },
+              "high_green": {
+                "m": 6.0,
+                "c_2026": 22.0,
+                "c_2027": 24.0,
+                "c_2028": 26.0
+              },
+              "platinum": {
+                "m": 6.0,
+                "c_2026": 24.0,
+                "c_2027": 26.0,
+                "c_2028": 28.0
+              }
+            }
+          },
+          {
+            "activity_ar": "تعدين المعادن الفلزية والأحجار الكريمة",
+            "bands": {
+              "low_green": {
+                "m": 1.68,
+                "c_2026": 16.0,
+                "c_2027": 16.0,
+                "c_2028": 16.0
+              },
+              "medium_green": {
+                "m": 1.87,
+                "c_2026": 19.0,
+                "c_2027": 19.0,
+                "c_2028": 19.0
+              },
+              "high_green": {
+                "m": 2.08,
+                "c_2026": 28.0,
+                "c_2027": 28.0,
+                "c_2028": 28.0
+              },
+              "platinum": {
+                "m": 6.0,
+                "c_2026": 23.0,
+                "c_2027": 23.0,
+                "c_2028": 23.0
+              }
+            }
+          },
+          {
+            "activity_ar": "تعدين المعادن غير الفلزية والصناعية",
+            "bands": {
+              "low_green": {
+                "m": 1.68,
+                "c_2026": 18.0,
+                "c_2027": 20.0,
+                "c_2028": 22.0
+              },
+              "medium_green": {
+                "m": 1.87,
+                "c_2026": 19.0,
+                "c_2027": 21.0,
+                "c_2028": 23.0
+              },
+              "high_green": {
+                "m": 2.08,
+                "c_2026": 21.0,
+                "c_2027": 23.0,
+                "c_2028": 25.0
+              },
+              "platinum": {
+                "m": 6.0,
+                "c_2026": 25.0,
+                "c_2027": 27.0,
+                "c_2028": 29.0
+              }
+            }
+          },
+          {
+            "activity_ar": "تعدين مواد البناء",
+            "bands": {
+              "low_green": {
+                "m": 0.0,
+                "c_2026": 7.0,
+                "c_2027": 7.0,
+                "c_2028": 7.0
+              },
+              "medium_green": {
+                "m": 0.0,
+                "c_2026": 10.0,
+                "c_2027": 10.0,
+                "c_2028": 10.0
+              },
+              "high_green": {
+                "m": 0.0,
+                "c_2026": 13.0,
+                "c_2027": 13.0,
+                "c_2028": 13.0
+              },
+              "platinum": {
+                "m": 6.0,
+                "c_2026": 23.0,
+                "c_2027": 23.0,
+                "c_2028": 23.0
+              }
+            }
+          },
+          {
+            "activity_ar": "الطاقة والمياه وخدماتها",
+            "bands": {
+              "low_green": {
+                "m": 1.35,
+                "c_2026": 8.36,
+                "c_2027": 10.36,
+                "c_2028": 12.36
+              },
+              "medium_green": {
+                "m": 2.6,
+                "c_2026": 9.32,
+                "c_2027": 11.32,
+                "c_2028": 13.32
+              },
+              "high_green": {
+                "m": 3.0,
+                "c_2026": 17.18,
+                "c_2027": 19.18,
+                "c_2028": 21.18
+              },
+              "platinum": {
+                "m": 3.0,
+                "c_2026": 32.93,
+                "c_2027": 34.93,
+                "c_2028": 36.93
+              }
+            }
+          },
+          {
+            "activity_ar": "الصناعات",
+            "bands": {
+              "low_green": {
+                "m": 1.68,
+                "c_2026": 15.08,
+                "c_2027": 18.08,
+                "c_2028": 21.08
+              },
+              "medium_green": {
+                "m": 1.87,
+                "c_2026": 21.87,
+                "c_2027": 24.87,
+                "c_2028": 27.87
+              },
+              "high_green": {
+                "m": 2.08,
+                "c_2026": 23.97,
+                "c_2027": 26.97,
+                "c_2028": 29.97
+              },
+              "platinum": {
+                "m": 2.08,
+                "c_2026": 29.87,
+                "c_2027": 32.87,
+                "c_2028": 35.87
+              }
+            }
+          },
+          {
+            "activity_ar": "مقاولات التشييد والبناء",
+            "bands": {
+              "low_green": {
+                "m": -0.37,
+                "c_2026": 14.17,
+                "c_2027": 16.17,
+                "c_2028": 18.17
+              },
+              "medium_green": {
+                "m": -0.37,
+                "c_2026": 16.17,
+                "c_2027": 18.17,
+                "c_2028": 20.17
+              },
+              "high_green": {
+                "m": 0.0,
+                "c_2026": 17.5,
+                "c_2027": 19.5,
+                "c_2028": 21.5
+              },
+              "platinum": {
+                "m": 0.0,
+                "c_2026": 22.5,
+                "c_2027": 24.5,
+                "c_2028": 26.5
+              }
+            }
+          },
+          {
+            "activity_ar": "التشغيل والصيانة",
+            "bands": {
+              "low_green": {
+                "m": 0.14,
+                "c_2026": 17.12,
+                "c_2027": 18.12,
+                "c_2028": 19.12
+              },
+              "medium_green": {
+                "m": 0.14,
+                "c_2026": 21.12,
+                "c_2027": 22.12,
+                "c_2028": 23.12
+              },
+              "high_green": {
+                "m": 0.48,
+                "c_2026": 24.96,
+                "c_2027": 25.96,
+                "c_2028": 26.96
+              },
+              "platinum": {
+                "m": 0.76,
+                "c_2026": 29.09,
+                "c_2027": 30.09,
+                "c_2028": 31.09
+              }
+            }
+          },
+          {
+            "activity_ar": "مقاولات النظافة والمغاسل",
+            "bands": {
+              "low_green": {
+                "m": -0.37,
+                "c_2026": 12.17,
+                "c_2027": 12.17,
+                "c_2028": 12.17
+              },
+              "medium_green": {
+                "m": -0.37,
+                "c_2026": 14.17,
+                "c_2027": 14.17,
+                "c_2028": 14.17
+              },
+              "high_green": {
+                "m": 0.0,
+                "c_2026": 17.0,
+                "c_2027": 17.0,
+                "c_2028": 17.0
+              },
+              "platinum": {
+                "m": 0.0,
+                "c_2026": 22.0,
+                "c_2027": 22.0,
+                "c_2028": 22.0
+              }
+            }
+          },
+          {
+            "activity_ar": "البيع بالجملة والتجزئة العامة",
+            "bands": {
+              "low_green": {
+                "m": 2.47,
+                "c_2026": 23.25,
+                "c_2027": 26.25,
+                "c_2028": 29.25
+              },
+              "medium_green": {
+                "m": 2.47,
+                "c_2026": 27.72,
+                "c_2027": 30.72,
+                "c_2028": 33.72
+              },
+              "high_green": {
+                "m": 2.67,
+                "c_2026": 30.41,
+                "c_2027": 33.41,
+                "c_2028": 36.41
+              },
+              "platinum": {
+                "m": 2.84,
+                "c_2026": 38.91,
+                "c_2027": 41.91,
+                "c_2028": 44.91
+              }
+            }
+          },
+          {
+            "activity_ar": "البيع بالتجزئة للعطور والساعات",
+            "bands": {
+              "low_green": {
+                "m": 2.47,
+                "c_2026": 25.25,
+                "c_2027": 30.25,
+                "c_2028": 35.25
+              },
+              "medium_green": {
+                "m": 2.47,
+                "c_2026": 29.72,
+                "c_2027": 34.72,
+                "c_2028": 39.72
+              },
+              "high_green": {
+                "m": 2.67,
+                "c_2026": 33.91,
+                "c_2027": 38.91,
+                "c_2028": 43.91
+              },
+              "platinum": {
+                "m": 2.84,
+                "c_2026": 41.91,
+                "c_2027": 46.91,
+                "c_2028": 51.91
+              }
+            }
+          },
+          {
+            "activity_ar": "البيع بالتجزئة للأزياء والكماليات والسلع المتنوعة",
+            "bands": {
+              "low_green": {
+                "m": 2.47,
+                "c_2026": 24.25,
+                "c_2027": 28.25,
+                "c_2028": 32.25
+              },
+              "medium_green": {
+                "m": 2.47,
+                "c_2026": 28.72,
+                "c_2027": 32.72,
+                "c_2028": 36.72
+              },
+              "high_green": {
+                "m": 2.67,
+                "c_2026": 32.91,
+                "c_2027": 36.91,
+                "c_2028": 40.91
+              },
+              "platinum": {
+                "m": 2.84,
+                "c_2026": 40.91,
+                "c_2027": 44.91,
+                "c_2028": 48.91
+              }
+            }
+          },
+          {
+            "activity_ar": "السلع النسائية، بيع الهواتف المحمولة وصيانتها",
+            "bands": {
+              "low_green": {
+                "m": 0.0,
+                "c_2026": 82.0,
+                "c_2027": 82.0,
+                "c_2028": 82.0
+              },
+              "medium_green": {
+                "m": 0.0,
+                "c_2026": 85.0,
+                "c_2027": 85.0,
+                "c_2028": 85.0
+              },
+              "high_green": {
+                "m": 0.0,
+                "c_2026": 89.0,
+                "c_2027": 89.0,
+                "c_2028": 89.0
+              },
+              "platinum": {
+                "m": 0.27,
+                "c_2026": 93.42,
+                "c_2027": 93.42,
+                "c_2028": 93.42
+              }
+            }
+          },
+          {
+            "activity_ar": "حلول الاتصالات",
+            "bands": {
+              "low_green": {
+                "m": 2.19,
+                "c_2026": 27.76,
+                "c_2027": 29.76,
+                "c_2028": 31.76
+              },
+              "medium_green": {
+                "m": 2.52,
+                "c_2026": 36.76,
+                "c_2027": 38.76,
+                "c_2028": 40.76
+              },
+              "high_green": {
+                "m": 2.91,
+                "c_2026": 42.02,
+                "c_2027": 44.02,
+                "c_2028": 46.02
+              },
+              "platinum": {
+                "m": 3.22,
+                "c_2026": 48.15,
+                "c_2027": 50.15,
+                "c_2028": 52.15
+              }
+            }
+          },
+          {
+            "activity_ar": "أنشطة البريد",
+            "bands": {
+              "low_green": {
+                "m": 0.81,
+                "c_2026": 17.1,
+                "c_2027": 17.1,
+                "c_2028": 17.1
+              },
+              "medium_green": {
+                "m": 0.81,
+                "c_2026": 22.1,
+                "c_2027": 22.1,
+                "c_2028": 22.1
+              },
+              "high_green": {
+                "m": 1.01,
+                "c_2026": 32.5,
+                "c_2027": 32.5,
+                "c_2028": 32.5
+              },
+              "platinum": {
+                "m": 1.01,
+                "c_2026": 42.5,
+                "c_2027": 42.5,
+                "c_2028": 42.5
+              }
+            }
+          },
+          {
+            "activity_ar": "البنية التحتية لتقنية المعلومات",
+            "bands": {
+              "low_green": {
+                "m": 3.61,
+                "c_2026": 17.77,
+                "c_2027": 19.77,
+                "c_2028": 21.77
+              },
+              "medium_green": {
+                "m": 3.61,
+                "c_2026": 24.64,
+                "c_2027": 26.64,
+                "c_2028": 28.64
+              },
+              "high_green": {
+                "m": 3.61,
+                "c_2026": 40.0,
+                "c_2027": 42.0,
+                "c_2028": 44.0
+              },
+              "platinum": {
+                "m": 3.61,
+                "c_2026": 50.0,
+                "c_2027": 52.0,
+                "c_2028": 54.0
+              }
+            }
+          },
+          {
+            "activity_ar": "البنية التحتية للاتصالات",
+            "bands": {
+              "low_green": {
+                "m": 0.0,
+                "c_2026": 17.0,
+                "c_2027": 19.0,
+                "c_2028": 21.0
+              },
+              "medium_green": {
+                "m": 0.0,
+                "c_2026": 21.0,
+                "c_2027": 23.0,
+                "c_2028": 25.0
+              },
+              "high_green": {
+                "m": 0.0,
+                "c_2026": 23.5,
+                "c_2027": 25.5,
+                "c_2028": 27.5
+              },
+              "platinum": {
+                "m": 0.0,
+                "c_2026": 28.5,
+                "c_2027": 30.5,
+                "c_2028": 32.5
+              }
+            }
+          },
+          {
+            "activity_ar": "التشغيل والصيانة للاتصالات",
+            "bands": {
+              "low_green": {
+                "m": 0.0,
+                "c_2026": 17.0,
+                "c_2027": 19.0,
+                "c_2028": 21.0
+              },
+              "medium_green": {
+                "m": 0.39,
+                "c_2026": 20.98,
+                "c_2027": 22.98,
+                "c_2028": 24.98
+              },
+              "high_green": {
+                "m": 0.39,
+                "c_2026": 23.83,
+                "c_2027": 25.83,
+                "c_2028": 27.83
+              },
+              "platinum": {
+                "m": 0.39,
+                "c_2026": 29.0,
+                "c_2027": 31.0,
+                "c_2028": 33.0
+              }
+            }
+          },
+          {
+            "activity_ar": "التشغيل والصيانة لتقنية المعلومات",
+            "bands": {
+              "low_green": {
+                "m": 4.85,
+                "c_2026": 15.96,
+                "c_2027": 17.96,
+                "c_2028": 19.96
+              },
+              "medium_green": {
+                "m": 4.85,
+                "c_2026": 24.42,
+                "c_2027": 26.42,
+                "c_2028": 28.42
+              },
+              "high_green": {
+                "m": 4.85,
+                "c_2026": 27.42,
+                "c_2027": 29.42,
+                "c_2028": 31.42
+              },
+              "platinum": {
+                "m": 4.85,
+                "c_2026": 33.36,
+                "c_2027": 35.36,
+                "c_2028": 37.36
+              }
+            }
+          },
+          {
+            "activity_ar": "حلول تقنية المعلومات",
+            "bands": {
+              "low_green": {
+                "m": 2.19,
+                "c_2026": 26.76,
+                "c_2027": 28.76,
+                "c_2028": 30.76
+              },
+              "medium_green": {
+                "m": 2.34,
+                "c_2026": 32.54,
+                "c_2027": 34.54,
+                "c_2028": 36.54
+              },
+              "high_green": {
+                "m": 2.91,
+                "c_2026": 40.02,
+                "c_2027": 42.02,
+                "c_2028": 44.02
+              },
+              "platinum": {
+                "m": 3.22,
+                "c_2026": 48.15,
+                "c_2027": 50.15,
+                "c_2028": 52.15
+              }
+            }
+          },
+          {
+            "activity_ar": "النقل البري والتخزين",
+            "bands": {
+              "low_green": {
+                "m": 1.15,
+                "c_2026": 12.09,
+                "c_2027": 13.09,
+                "c_2028": 14.09
+              },
+              "medium_green": {
+                "m": 1.15,
+                "c_2026": 16.2,
+                "c_2027": 17.2,
+                "c_2028": 18.2
+              },
+              "high_green": {
+                "m": 1.5,
+                "c_2026": 17.82,
+                "c_2027": 18.82,
+                "c_2028": 19.82
+              },
+              "platinum": {
+                "m": 1.71,
+                "c_2026": 27.74,
+                "c_2027": 28.74,
+                "c_2028": 29.74
+              }
+            }
+          },
+          {
+            "activity_ar": "النقل البحري والجوي",
+            "bands": {
+              "low_green": {
+                "m": 1.45,
+                "c_2026": 26.57,
+                "c_2027": 28.57,
+                "c_2028": 30.57
+              },
+              "medium_green": {
+                "m": 1.45,
+                "c_2026": 39.98,
+                "c_2027": 41.98,
+                "c_2028": 43.98
+              },
+              "high_green": {
+                "m": 1.86,
+                "c_2026": 48.38,
+                "c_2027": 50.38,
+                "c_2028": 52.38
+              },
+              "platinum": {
+                "m": 2.67,
+                "c_2026": 56.29,
+                "c_2027": 58.29,
+                "c_2028": 60.29
+              }
+            }
+          },
+          {
+            "activity_ar": "مطاعم مع الخدمة (لا تشمل مطاعم الوجبات السريعة)",
+            "bands": {
+              "low_green": {
+                "m": 1.58,
+                "c_2026": 13.47,
+                "c_2027": 14.47,
+                "c_2028": 15.47
+              },
+              "medium_green": {
+                "m": 1.67,
+                "c_2026": 16.98,
+                "c_2027": 17.98,
+                "c_2028": 18.98
+              },
+              "high_green": {
+                "m": 1.67,
+                "c_2026": 20.26,
+                "c_2027": 21.26,
+                "c_2028": 22.26
+              },
+              "platinum": {
+                "m": 1.67,
+                "c_2026": 26.71,
+                "c_2027": 27.71,
+                "c_2028": 28.71
+              }
+            }
+          },
+          {
+            "activity_ar": "مطاعم خدمة سريعة ومحلات الآيسكريم",
+            "bands": {
+              "low_green": {
+                "m": 1.58,
+                "c_2026": 15.08,
+                "c_2027": 16.08,
+                "c_2028": 17.08
+              },
+              "medium_green": {
+                "m": 1.67,
+                "c_2026": 20.04,
+                "c_2027": 21.04,
+                "c_2028": 22.04
+              },
+              "high_green": {
+                "m": 1.67,
+                "c_2026": 23.27,
+                "c_2027": 24.27,
+                "c_2028": 25.27
+              },
+              "platinum": {
+                "m": 1.67,
+                "c_2026": 29.26,
+                "c_2027": 30.26,
+                "c_2028": 31.26
+              }
+            }
+          },
+          {
+            "activity_ar": "المقاهي ومحلات تقديم المشروبات",
+            "bands": {
+              "low_green": {
+                "m": 1.58,
+                "c_2026": 16.98,
+                "c_2027": 17.98,
+                "c_2028": 18.98
+              },
+              "medium_green": {
+                "m": 1.67,
+                "c_2026": 20.49,
+                "c_2027": 21.49,
+                "c_2028": 22.49
+              },
+              "high_green": {
+                "m": 1.67,
+                "c_2026": 31.42,
+                "c_2027": 32.42,
+                "c_2028": 33.42
+              },
+              "platinum": {
+                "m": 1.67,
+                "c_2026": 35.52,
+                "c_2027": 36.52,
+                "c_2028": 37.52
+              }
+            }
+          },
+          {
+            "activity_ar": "التموين والإعاشة",
+            "bands": {
+              "low_green": {
+                "m": 1.58,
+                "c_2026": 14.46,
+                "c_2027": 15.46,
+                "c_2028": 16.46
+              },
+              "medium_green": {
+                "m": 1.67,
+                "c_2026": 17.97,
+                "c_2027": 18.97,
+                "c_2028": 19.97
+              },
+              "high_green": {
+                "m": 1.67,
+                "c_2026": 21.25,
+                "c_2027": 22.25,
+                "c_2028": 23.25
+              },
+              "platinum": {
+                "m": 1.67,
+                "c_2026": 27.93,
+                "c_2027": 28.93,
+                "c_2028": 29.93
+              }
+            }
+          },
+          {
+            "activity_ar": "حراسات أمنية ومكاتب التوظيف الأهلية",
+            "bands": {
+              "low_green": {
+                "m": 0.34,
+                "c_2026": 74.5,
+                "c_2027": 74.5,
+                "c_2028": 74.5
+              },
+              "medium_green": {
+                "m": 0.34,
+                "c_2026": 77.5,
+                "c_2027": 77.5,
+                "c_2028": 77.5
+              },
+              "high_green": {
+                "m": 0.34,
+                "c_2026": 80.5,
+                "c_2027": 80.5,
+                "c_2028": 80.5
+              },
+              "platinum": {
+                "m": 0.34,
+                "c_2026": 84.5,
+                "c_2027": 84.5,
+                "c_2028": 84.5
+              }
+            }
+          },
+          {
+            "activity_ar": "المؤسسات المالية",
+            "bands": {
+              "low_green": {
+                "m": 2.6,
+                "c_2026": 50.0,
+                "c_2027": 50.0,
+                "c_2028": 50.0
+              },
+              "medium_green": {
+                "m": 2.6,
+                "c_2026": 57.0,
+                "c_2027": 57.0,
+                "c_2028": 57.0
+              },
+              "high_green": {
+                "m": 2.6,
+                "c_2026": 62.0,
+                "c_2027": 62.0,
+                "c_2028": 62.0
+              },
+              "platinum": {
+                "m": 2.6,
+                "c_2026": 65.0,
+                "c_2027": 65.0,
+                "c_2028": 65.0
+              }
+            }
+          },
+          {
+            "activity_ar": "خدمات الأعمال",
+            "bands": {
+              "low_green": {
+                "m": 1.03,
+                "c_2026": 33.78,
+                "c_2027": 36.78,
+                "c_2028": 39.78
+              },
+              "medium_green": {
+                "m": 1.03,
+                "c_2026": 42.62,
+                "c_2027": 45.62,
+                "c_2028": 48.62
+              },
+              "high_green": {
+                "m": 2.19,
+                "c_2026": 43.62,
+                "c_2027": 46.62,
+                "c_2028": 49.62
+              },
+              "platinum": {
+                "m": 2.19,
+                "c_2026": 54.82,
+                "c_2027": 57.82,
+                "c_2028": 60.82
+              }
+            }
+          },
+          {
+            "activity_ar": "الخدمات الاجتماعية",
+            "bands": {
+              "low_green": {
+                "m": 1.83,
+                "c_2026": 14.82,
+                "c_2027": 16.82,
+                "c_2028": 18.82
+              },
+              "medium_green": {
+                "m": 2.38,
+                "c_2026": 26.9,
+                "c_2027": 28.9,
+                "c_2028": 30.9
+              },
+              "high_green": {
+                "m": 3.5,
+                "c_2026": 32.74,
+                "c_2027": 34.74,
+                "c_2028": 36.74
+              },
+              "platinum": {
+                "m": 3.5,
+                "c_2026": 56.52,
+                "c_2027": 58.52,
+                "c_2028": 60.52
+              }
+            }
+          },
+          {
+            "activity_ar": "الخدمات الشخصية",
+            "bands": {
+              "low_green": {
+                "m": 1.46,
+                "c_2026": 14.07,
+                "c_2027": 14.07,
+                "c_2028": 14.07
+              },
+              "medium_green": {
+                "m": 1.92,
+                "c_2026": 20.36,
+                "c_2027": 20.36,
+                "c_2028": 20.36
+              },
+              "high_green": {
+                "m": 4.4,
+                "c_2026": 24.63,
+                "c_2027": 24.63,
+                "c_2028": 24.63
+              },
+              "platinum": {
+                "m": 5.0,
+                "c_2026": 26.13,
+                "c_2027": 26.13,
+                "c_2028": 26.13
+              }
+            }
+          },
+          {
+            "activity_ar": "التعليم العالي",
+            "bands": {
+              "low_green": {
+                "m": 0.0,
+                "c_2026": 34.0,
+                "c_2027": 34.0,
+                "c_2028": 34.0
+              },
+              "medium_green": {
+                "m": 0.0,
+                "c_2026": 48.0,
+                "c_2027": 48.0,
+                "c_2028": 48.0
+              },
+              "high_green": {
+                "m": 0.43,
+                "c_2026": 75.37,
+                "c_2027": 75.37,
+                "c_2028": 75.37
+              },
+              "platinum": {
+                "m": 0.43,
+                "c_2026": 82.0,
+                "c_2027": 82.0,
+                "c_2028": 82.0
+              }
+            }
+          },
+          {
+            "activity_ar": "التعليم العالي للتخصصات الصحية",
+            "bands": {
+              "low_green": {
+                "m": 0.0,
+                "c_2026": 25.0,
+                "c_2027": 25.0,
+                "c_2028": 25.0
+              },
+              "medium_green": {
+                "m": 0.0,
+                "c_2026": 30.0,
+                "c_2027": 30.0,
+                "c_2028": 30.0
+              },
+              "high_green": {
+                "m": 0.0,
+                "c_2026": 35.0,
+                "c_2027": 35.0,
+                "c_2028": 35.0
+              },
+              "platinum": {
+                "m": 0.0,
+                "c_2026": 37.0,
+                "c_2027": 37.0,
+                "c_2028": 37.0
+              }
+            }
+          },
+          {
+            "activity_ar": "مدارس البنات ورياض الأطفال والحضانات",
+            "bands": {
+              "low_green": {
+                "m": 0.0,
+                "c_2026": 51.0,
+                "c_2027": 51.0,
+                "c_2028": 51.0
+              },
+              "medium_green": {
+                "m": 0.0,
+                "c_2026": 66.0,
+                "c_2027": 66.0,
+                "c_2028": 66.0
+              },
+              "high_green": {
+                "m": 0.0,
+                "c_2026": 89.56,
+                "c_2027": 89.56,
+                "c_2028": 89.56
+              },
+              "platinum": {
+                "m": 0.0,
+                "c_2026": 95.0,
+                "c_2027": 95.0,
+                "c_2028": 95.0
+              }
+            }
+          },
+          {
+            "activity_ar": "المدارس الأجنبية",
+            "bands": {
+              "low_green": {
+                "m": 2.3,
+                "c_2026": 4.95,
+                "c_2027": 4.95,
+                "c_2028": 4.95
+              },
+              "medium_green": {
+                "m": 2.3,
+                "c_2026": 14.19,
+                "c_2027": 14.19,
+                "c_2028": 14.19
+              },
+              "high_green": {
+                "m": 2.3,
+                "c_2026": 19.99,
+                "c_2027": 19.99,
+                "c_2028": 19.99
+              },
+              "platinum": {
+                "m": 2.3,
+                "c_2026": 28.77,
+                "c_2027": 28.77,
+                "c_2028": 28.77
+              }
+            }
+          },
+          {
+            "activity_ar": "المختبرات والخدمات الصحية",
+            "bands": {
+              "low_green": {
+                "m": 0.35,
+                "c_2026": 25.74,
+                "c_2027": 27.74,
+                "c_2028": 29.74
+              },
+              "medium_green": {
+                "m": 0.35,
+                "c_2026": 30.74,
+                "c_2027": 32.74,
+                "c_2028": 34.74
+              },
+              "high_green": {
+                "m": 0.35,
+                "c_2026": 34.24,
+                "c_2027": 36.24,
+                "c_2028": 38.24
+              },
+              "platinum": {
+                "m": 0.35,
+                "c_2026": 34.74,
+                "c_2027": 36.74,
+                "c_2028": 38.74
+              }
+            }
+          },
+          {
+            "activity_ar": "الإيواء والترفيه والسياحة",
+            "bands": {
+              "low_green": {
+                "m": 2.42,
+                "c_2026": 24.6,
+                "c_2027": 26.6,
+                "c_2028": 28.6
+              },
+              "medium_green": {
+                "m": 2.42,
+                "c_2026": 31.02,
+                "c_2027": 33.02,
+                "c_2028": 35.02
+              },
+              "high_green": {
+                "m": 2.59,
+                "c_2026": 36.4,
+                "c_2027": 38.4,
+                "c_2028": 40.4
+              },
+              "platinum": {
+                "m": 2.59,
+                "c_2026": 42.52,
+                "c_2027": 44.52,
+                "c_2028": 46.52
+              }
+            }
+          },
+          {
+            "activity_ar": "السلع الأساسية والمحروقات",
+            "bands": {
+              "low_green": {
+                "m": 0.17,
+                "c_2026": 9.86,
+                "c_2027": 10.86,
+                "c_2028": 11.86
+              },
+              "medium_green": {
+                "m": 0.56,
+                "c_2026": 12.22,
+                "c_2027": 13.22,
+                "c_2028": 14.22
+              },
+              "high_green": {
+                "m": 0.56,
+                "c_2026": 22.59,
+                "c_2027": 23.59,
+                "c_2028": 24.59
+              },
+              "platinum": {
+                "m": 1.19,
+                "c_2026": 26.09,
+                "c_2027": 27.09,
+                "c_2028": 28.09
+              }
+            }
+          },
+          {
+            "activity_ar": "مدارس البنين ومجمعات البنين والبنات",
+            "bands": {
+              "low_green": {
+                "m": 1.31,
+                "c_2026": 29.3,
+                "c_2027": 29.3,
+                "c_2028": 29.3
+              },
+              "medium_green": {
+                "m": 1.31,
+                "c_2026": 39.15,
+                "c_2027": 39.15,
+                "c_2028": 39.15
+              },
+              "high_green": {
+                "m": 1.31,
+                "c_2026": 50.27,
+                "c_2027": 50.27,
+                "c_2028": 50.27
+              },
+              "platinum": {
+                "m": 1.31,
+                "c_2026": 61.0,
+                "c_2027": 61.0,
+                "c_2028": 61.0
+              }
+            }
+          },
+          {
+            "activity_ar": "الكيانات المجمعة",
+            "bands": {
+              "low_green": {
+                "m": 2.23,
+                "c_2026": 10.99,
+                "c_2027": 10.99,
+                "c_2028": 10.99
+              },
+              "medium_green": {
+                "m": 2.23,
+                "c_2026": 22.4,
+                "c_2027": 22.4,
+                "c_2028": 22.4
+              },
+              "high_green": {
+                "m": 2.23,
+                "c_2026": 33.81,
+                "c_2027": 33.81,
+                "c_2028": 33.81
+              },
+              "platinum": {
+                "m": 2.23,
+                "c_2026": 44.0,
+                "c_2027": 44.0,
+                "c_2028": 44.0
+              }
+            }
+          }
+        ],
+        "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-03/ntaqat-almtwr.pdf",
+        "fetched_at": "2026-10-08",
+        "confidence": "medium",
+        "verify": true,
+        "note": "مستخرجة آلياً من جدول المرفق (1) في PDF الرسمي (ترتيب الأعمدة في النص: 2028، 2027، 2026، m). تحقق: 164 صفاً = 41 نشاطاً × 4 نطاقات، وأسماء الأنشطة وُضعت يدوياً بالترتيب ولا تُعتمد في الإنتاج قبل مطابقة عينة مع حاسبة الوزارة (https://es.hrsd.gov.sa/services/Inquiry/NitaqatCalculatorMotawar2026.aspx). فحص صحة الأعمدة والصيغة: نشاط «الصناعات» بـ200 عامل → 1.68×ln(200)+15.08 = 23.98% لعام 2026 (و26.98 لـ2027، 29.98 لـ2028) وهو الرقم نفسه الوارد مثالاً في مصدر ثانوي. لا يوجد جدول نسب بحسب «فئات الحجم» كما في نطاقات القديم؛ الحجم يدخل عبر ln(S)."
+      },
+      "not_to_confuse": "جداول نسب ثابتة بحسب حجم المنشأة (مثل 44%/52%/70% للتجزئة) في مواقع تجارية تتعارض مع صيغة اللوغاريتم الرسمية؛ لا تُستعمل."
+    }
+  },
+  "saudi_min_wage": {
+    "_about": "ما يخص «الحد الأدنى لأجر السعودي» لأغراض التوطين، موزعاً بحسب الجهة. لا يوجد في ما قرأته حد أدنى نظامي عام لأجور السعوديين في القطاع الخاص (م89 من نظام العمل تجيز لمجلس الوزراء وضع حد أدنى عند الاقتضاء).",
+    "nitaqat_counting": {
+      "full_count_threshold": {
+        "value": 4000,
+        "unit": "SAR/شهر",
+        "applies_to": "سعودي يُحتسب بواحد كامل في نطاقات",
+        "rule_text_ar": "يُحتسب السعودي بواحد إذا لم يقل أجره الشهري عن 4,000 ريال.",
+        "source_url": "https://www.hrsd.gov.sa/media-center/news/777585",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "قرار وزير الموارد البشرية (نشر الخبر 2020-11-18، 3 ربيع الآخر 1442هـ): رفع الحد الأدنى لاحتساب أجور السعوديين من 3,000 إلى 4,000. هذا هو مصدر رقم المالك 4,000. النص يقول «أجره الشهري» دون تحديد «الأساسي»؛ وأدلة المهن الأحدث تحسب على الأجر الخاضع للاشتراك (أساسي + سكن) — تحقق من عناصر الأجر في قوى."
+      },
+      "half_count_range": {
+        "value": {
+          "from_inclusive": 3000,
+          "to_exclusive": 4000,
+          "weight": 0.5
+        },
+        "unit": "SAR/شهر",
+        "applies_to": "سعودي أجره بين 3,000 و3,999",
+        "source_url": "https://www.hrsd.gov.sa/media-center/news/777585",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "يُحتسب بنصف؛ ومن أجره دون 3,000 لا يُحتسب."
+      },
+      "below_3000_weight": {
+        "value": 0,
+        "unit": "—",
+        "applies_to": "سعودي أجره أقل من 3,000",
+        "source_url": "https://www.hrsd.gov.sa/media-center/news/777585",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": false,
+        "note": "لا يُحتسب."
+      },
+      "part_time": {
+        "value": 0.5,
+        "unit": "وزن",
+        "applies_to": "دوام جزئي — بشرط سداد التأمينات وألا يقل أجره عن 3,000 وألا يُحتسب لدى أكثر من كيانين",
+        "source_url": "https://www.hrsd.gov.sa/media-center/news/777585",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": true,
+        "note": "ملخّص من خبر 2020؛ قد تكون الشروط عُدّلت."
+      },
+      "flexible_work": {
+        "value": 0.3333,
+        "unit": "وزن",
+        "applies_to": "عمل مرن — بإكمال 168 ساعة وسداد التأمينات",
+        "source_url": "https://www.hrsd.gov.sa/media-center/news/777585",
+        "fetched_at": "2026-10-08",
+        "confidence": "high",
+        "verify": true,
+        "note": "من الخبر نفسه؛ ثلث عامل."
+      }
+    },
+    "profession_decisions_wage_floors": {
+      "marketing": 5500,
+      "engineering": 8000,
+      "accounting_bachelor": 6000,
+      "accounting_diploma": 4500,
+      "pharmacy": 7000,
+      "dental": 9000,
+      "it_telecom_specialized": 7000,
+      "it_telecom_technical": 5000,
+      "sales": null,
+      "procurement": null,
+      "project_management": null,
+      "admin_support": null,
+      "unit": "SAR/شهر (أجر مسجَّل في التأمينات)",
+      "source_url": "انظر localization.profession_decisions[*].source_url",
+      "fetched_at": "2026-10-08",
+      "confidence": "high",
+      "verify": true,
+      "note": "الحد يخص احتساب السعودي في نسبة المهنة المعنية فقط، لا العامل عموماً. المبيعات والمشتريات وإدارة المشاريع: لم يرد حد في الأدلة المقروءة (null). الأرقام من الأدلة الإجرائية الرسمية (تواريخها في الكتلة المقابلة)."
+    },
+    "owner_claim_assessment": "«السعودي لا يقل عن 4000 أساسي»: الرقم صحيح كعتبة احتساب في نطاقات (بواحد كامل) وليس حداً أدنى قانونياً لتوظيفه؛ وللمهن المستهدفة حدود أعلى (التسويق 5,500؛ المحاسبة 6,000؛ الهندسة 8,000…)."
+  },
+  "owner_claims_check": [
+    {
+      "claim": "GOSI: السعودي ≈23% تزداد سنوياً",
+      "verdict": "جزئي",
+      "detail": "القديم (قبل 2024-07-03) 21.5% ثابتة؛ الجديد 22.5% (2025-07)، 23.5% (2026-07 الآن)، 24.5% (2027-07)، 25.5% (2028-07). حصة صاحب العمل 12.75% والموظف 10.75% حالياً للجديد. الزيادة تخص الجديد فقط.",
+      "sources": [
+        "https://awareness.gosi.gov.sa/pdf/Contributions.pdf",
+        "https://awareness.gosi.gov.sa/businessJourney.html"
+      ]
+    },
+    {
+      "claim": "GOSI: الأجنبي 2% على صاحب العمل",
+      "verdict": "صحيح",
+      "detail": "أخطار مهنية 2% على صاحب العمل، دون خصم من العامل؛ على أساسي+سكن بحد أقصى 45,000.",
+      "sources": [
+        "https://awareness.gosi.gov.sa/businessJourney.html",
+        "https://beta.gosi.gov.sa/en/social-insurance"
+      ]
+    },
+    {
+      "claim": "رخصة العمل 9,600 + 100",
+      "verdict": "صحيح بشرط",
+      "detail": "9,600 = 800×12 إن زاد الوافدون على السعوديين؛ 8,400 (700×12) إن لم يزيدوا؛ +100 رسم رخصة لـ12 شهراً. تُجزَّأ على 3/6/9/12 (حد أدنى 3 أشهر).",
+      "sources": [
+        "https://www.hrsd.gov.sa/sites/default/files/2021-11/24112021.pdf"
+      ]
+    },
+    {
+      "claim": "الإقامة 650 (تُقسَّم)",
+      "verdict": "غير مؤكد رسمياً",
+      "detail": "لم أجد مصدراً رسمياً للمبلغ؛ التقسيم (3/6/9 أشهر) مؤكد بخبر عن بيان الجوازات.",
+      "sources": [
+        "https://www.okaz.com.sa/news/local/2094702"
+      ]
+    },
+    {
+      "claim": "نهاية الخدمة تختلف بين الأجنبي والسعودي",
+      "verdict": "مخالف للنص",
+      "detail": "م84–85 واحدة للجميع؛ الاختلاف في نوع العقد (م37) لا في المكافأة.",
+      "sources": [
+        "https://www.hrsd.gov.sa/sites/default/files/2025-11/labor-law.pdf"
+      ]
+    },
+    {
+      "claim": "التسويق 60%",
+      "verdict": "صحيح",
+      "detail": "قرار 101319، 2026-04-19، ≥3 عاملين، سعودي ≥5,500 مسجَّلة.",
+      "sources": [
+        "https://www.hrsd.gov.sa/sites/default/files/2026-04/aldlyl-ala-jray-y-lqrar-twtyn-mhn-altswyq-v5.pdf"
+      ]
+    },
+    {
+      "claim": "السعودي لا يقل عن 4000 أساسي",
+      "verdict": "جزئي",
+      "detail": "عتبة نطاقات للاحتساب الكامل (أجر شهري)، لا حد نظامي للتوظيف؛ للمهن حدود أعلى.",
+      "sources": [
+        "https://www.hrsd.gov.sa/media-center/news/777585"
+      ]
+    },
+    {
+      "claim": "الأجنبي من 400 ريال (حقل الراتب)",
+      "verdict": "لا مصدر نظامي",
+      "detail": "لا حد أدنى لأجر الأجنبي في ما قرأت؛ 400 يطابق حد GOSI الأدنى لفرع الأخطار المهنية في صفحة قديمة.",
+      "sources": [
+        "https://www.gosi.gov.sa/GOSIOnline/FAQ_Employer?locale=en_US"
+      ]
+    }
+  ],
+  "open_questions": [
+    "من يُحتسب «صاحب العمل» لأغراض التوطين والمقابل المالي وGOSI والمقيم عند EOR: مزوّد EOR أم العميل؟ (قرار تعاقدي/قانوني حاسم لكل الكتل).",
+    "نسبة التوطين المهنية تُحسب على الكيان؛ فهل يُعامل موظفو العميل لدى EOR ضمن كيان EOR (فيتعذر الالتزام عملياً)؟",
+    "هل يسمح نموذج العقد بفسخ مبكر؟ تحديد سيناريوهات م77 وم85 على العقد المحدد.",
+    "أساس احتساب المكافأة في الحاسبة: أساسي أم أجر فعلي (م2/م86)؟",
+    "رسم الإقامة الفعلي (650؟) وتناسبه مع الأرباع — يُقرأ من أبشر/مقيم مباشرة.",
+    "سريان إعفاءات المقابل المالي (منشآت صناعية، صغيرة) على عملاء EOR.",
+    "الحد الأدنى للأجر الخاضع للاشتراك في نظام التأمينات 1445هـ (نص اللائحة التنفيذية).",
+    "المهن الإدارية المساندة 100%: صياغة تنبيه للعميل ومنع الطلب أم تحويله لموظف سعودي؟"
+  ]
+}

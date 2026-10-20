@@ -1,0 +1,17 @@
+# يقرأه BuildKit بجوار ops/azure/Dockerfile (سياق البناء = جذر المستودع).
+# الصورة لا تحمل تاريخ git ولا نسخ الوكلاء ولا بيانات التطوير المحلي.
+.git
+.github
+.claude
+.vscode
+node_modules
+.localdb
+.env
+.env.*
+docs
+tests
+quotes
+db
+ops/n8n
+ops/*.md
+*.log

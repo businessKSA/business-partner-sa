@@ -11,6 +11,12 @@
 (function () {
   "use strict";
 
+  // قرار المالك 2026-10-11: «اعتمد أرقام الموقع». كتالوج الموقع (catalog.json) هو
+  // المصدر الوحيد للسعر المعروض والمدفوع، فلا نستبدل السعر المبني بما في لوحة
+  // العروض القديمة. لإعادة القراءة الحيّة من اللوحة اجعلها true بعد مزامنة اللوحة.
+  var LIVE_OVERRIDE = false;
+  if (!LIVE_OVERRIDE) return;
+
   var nodes = document.querySelectorAll("[data-bp-price], [data-bp-code]");
   if (!nodes.length) return;
 
@@ -115,6 +121,16 @@
     });
   }
 
+  // عنصرٌ يحمل data-bp-pending يُخفي رقم البناء إلى أن تستقرّ القراءة، فلا يرى
+  // المسجَّل ومضةً من رقمٍ ثم رقمٍ آخر (صفحة الخدمة الجديدة). ينزعها هذا الملف
+  // في الحالتين — وصلت القراءة أو تعذّرت — وصفحة الخدمة تُظهره بنفسها (CSS)
+  // بعد ثانيتين إن لم يُحمَّل هذا الملف أصلاً.
+  function settle() {
+    document.querySelectorAll("[data-bp-pending]").forEach(function (el) {
+      el.removeAttribute("data-bp-pending");
+    });
+  }
+
   fetch("/api/live-catalog", { headers: { accept: "application/json" } })
     .then(function (r) {
       if (!r.ok) throw new Error("HTTP " + r.status);
@@ -126,8 +142,10 @@
         byCode[String(row.code).toUpperCase()] = row;
       });
       apply(byCode);
+      settle();
     })
     .catch(function () {
       /* يبقى سعر البناء ظاهراً — لا رسالة خطأ للزائر. */
+      settle();
     });
 })();

@@ -104,7 +104,15 @@ export async function loadCatalog() {
   ]);
 
   const list = Array.isArray(rawServices) ? rawServices : (rawServices.services || []);
-  const services = list.map((s) => ({
+  // ‏تجاوزات السعر في site.json (overrides[slug].priceLabel) يطبّقها مولّد الموقع على
+  // الصفحات والبطاقات (generate.mjs) — فيجب أن يراها المستشار أيضاً، وإلا ذكر للزائر
+  // سعراً غير الذي يقرؤه في الصفحة (BP-REC-05: «نسبة من قيمة الصفقة» هنا و«عرض
+  // مخصّص حسب الحالة» في الموقع). الاسم والوصف يُحسمان من service-i18n أصلاً.
+  const ovs = (site && site.overrides) || {};
+  const services = list.map((raw) => {
+    const ov = raw.slug && ovs[raw.slug];
+    const s = ov && ov.priceLabel ? { ...raw, price: { label: ov.priceLabel, amount: ov.priceAmount ?? null } } : raw;
+    return {
     code: s.code || "",
     nameAr: (i18n[s.code] && i18n[s.code].ar) || s.nameAr || s.name || "",
     nameEn: (i18n[s.code] && i18n[s.code].en) || s.nameEn || s.name || "",
@@ -128,7 +136,8 @@ export async function loadCatalog() {
       s.category, s.categoryAr, s.govPlatform, s.code, s.description, s.targetClient,
       Array.isArray(s.deliverables) ? s.deliverables.join(" ") : s.deliverables,
     ].join(" ")),
-  }));
+    };
+  });
 
   const groups = (site.packages && site.packages.groups) || [];
   const packages = [];

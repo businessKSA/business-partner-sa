@@ -3,6 +3,20 @@
 قرار المالك (2026-09-15): **كل شيء على Azure**. هذا الملف يحصر ما نُقل، وما
 يجب ضبطه في Vercel، وما بقي.
 
+> **الاستضافة (قرار 2026-10-11):** نقل الموقع والـAPI نفسيهما من Vercel إلى Azure Container Apps
+> — الخطة والجرد والتكلفة وخطوات المالك وخطة القطع والرجوع في
+> [`docs/azure-migration-2026-10-11.md`](../../docs/azure-migration-2026-10-11.md). الأدوات في هذا المجلد:
+> `server.mjs` (خادم الإنتاج) · `routing.mjs` (يقرأ `vercel.json`) · `vercel-compat.mjs` · `cron.mjs` ·
+> `parity.mjs` (فحص التكافؤ) · `env-scan.mjs` · `Dockerfile`. قسم قاعدة البيانات أدناه (§5) مستقل عنها.
+
+> **القطع النهائي (2026-10-16):** [`docs/azure-cutover-runbook-2026-10-16.md`](../../docs/azure-cutover-runbook-2026-10-16.md) — دليل المالك
+> خطوة بخطوة (لوحة العروض، النطاق وFront Door، المجدول، القاعدة، البريد، المراقبة والتراجع، حذف Vercel). أدواته هنا:
+> `migrate-db.mjs` (Postgres → Azure PG مباشرةً، لقطة متّسقة، `--dry-run`/`--verify`/`--clean`، بلا طباعة قيم) ·
+> `mail-bridge.mjs` (Resend → ACS داخل الخادم بلا لمس `api/`) · `egress-guard.mjs` (يحجب `*.vercel.app`) ·
+> `cron-switch.sh` (مجدولٌ واحد: Vercel ↔ Jobs بترتيب مفروض) · `alerts.sh` (Azure Monitor) · `probes.site.yaml`/`probes.quotes.yaml` ·
+> `Dockerfile.quotes` (لوحة العروض). متغيّرات الخادم الجديدة: `BP_ORIGIN_MAP` · `BP_BLOCK_VERCEL_ORIGINS` · `BP_READ_ONLY` ·
+> `BP_MAX_RSS_MB` · `BP_MAIL_BRIDGE` (+ `BP_FRONT_DOOR_ID` يفرض `BP_TRUSTED_PROXY_HOPS=2` تلقائياً).
+
 ---
 
 ## 1) ما انتقل فعلاً في هذه الدفعة

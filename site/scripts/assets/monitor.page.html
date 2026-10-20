@@ -151,6 +151,14 @@
         .cols.chat-open .chat-pane { display: flex; }
         .chat-head .back { display: block; }
         #chatArea { padding: 14px 4%; }
+        /* الشريط العلوي كان يوسّع الصفحة فوق عرض الجوال فيُقصّ نصف المحتوى — والمالك يوقف وكيل واتساب من هنا */
+        .topbar { padding: 0 10px; gap: 8px; min-width: 0; }
+        .topbar img, .topbar .brand small { display: none; }
+        .topbar .brand { white-space: nowrap; }
+        .topbar .conn { min-width: 0; font-size: 11px; }
+        .topbar .conn #connText { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 30vw; }
+        .topbar .btn-ghost, .topbar button { white-space: nowrap; padding: 6px 9px; }
+        .topbar .spacer { display: none; }
       }
       /* ---- Phase 1: composer toolbar (emoji + snippets) ---- */
       #chatMain { position: relative; }

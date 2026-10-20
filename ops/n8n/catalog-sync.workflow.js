@@ -2,6 +2,16 @@ import { workflow, node, trigger, sticky, newCredential, expr } from '@n8n/workf
 
 const PANEL = 'https://bp-quotes-three.vercel.app/quotes';
 
+// إعادة نشر الموقع بعد تغيّر الكتالوج — مساران يعملان معاً حتى يوم القطع:
+//   ١) Vercel Deploy Hook (القديم) — يبقى صالحاً حتى يُوقَف Vercel.
+//   ٢) GitHub workflow_dispatch إلى سير النشر على Azure (الجديد، قرار المالك 2026-10-16:
+//      «أوقف Vercel وn8n تماماً»). يبني صورة جديدة ويُنشئ مراجعة في Container App.
+// يوم القطع: احذف عقدة «أعد نشر الموقع التعريفي» (Vercel) وأبقِ عقدة Azure.
+// التفاصيل: docs/n8n-azure-cutover-2026-10-16.md §الكتالوج.
+const GITHUB_REPO = 'businessKSA/business-partner-sa';
+const SITE_DEPLOY_WORKFLOW = 'azure-deploy.yml'; // ملف سير النشر على Azure (يُؤكَّد يوم القطع)
+const SITE_DEPLOY_REF = 'master';                // الفرع الذي يحمل ملف السير (GitHub يشترط الافتراضي لزرّ التشغيل)
+
 const notionPull = trigger({
   type: 'n8n-nodes-base.scheduleTrigger',
   version: 1.3,
@@ -294,6 +304,42 @@ const rebuildSite = node({
   output: [{ statusCode: 201, body: { job: { state: 'PENDING' } } }],
 });
 
+// المسار الجديد: يُشغّل سير نشر الموقع على Azure عبر GitHub. promote=false عمداً —
+// تُنشأ مراجعة جديدة بلا حركة مرور، وبيئة azure-production تنتظر موافقة المالك
+// (CLAUDE.md §0: لا نشر بلا إذنه). غيّرها إلى 'true' فقط بقرار منه.
+// الاعتماد: GitHub API (fine-grained token على هذا المستودع، صلاحية Actions: Read and write).
+// قبل أن يوجد ملف السير على الفرع يردّ GitHub 404 ويُتجاوَز بلا أثر (onError + neverError).
+const rebuildSiteAzure = node({
+  type: 'n8n-nodes-base.httpRequest',
+  version: 4.5,
+  config: {
+    name: 'شغّل نشر الموقع على Azure',
+    position: [640, 300],
+    executeOnce: true,
+    onError: 'continueRegularOutput',
+    parameters: {
+      method: 'POST',
+      url: `https://api.github.com/repos/${GITHUB_REPO}/actions/workflows/${SITE_DEPLOY_WORKFLOW}/dispatches`,
+      authentication: 'predefinedCredentialType',
+      nodeCredentialType: 'githubApi',
+      sendHeaders: true,
+      headerParameters: {
+        parameters: [
+          { name: 'Accept', value: 'application/vnd.github+json' },
+          { name: 'X-GitHub-Api-Version', value: '2022-11-28' },
+        ],
+      },
+      sendBody: true,
+      contentType: 'json',
+      specifyBody: 'json',
+      jsonBody: JSON.stringify({ ref: SITE_DEPLOY_REF, inputs: { target: 'production', promote: 'false' } }),
+      options: { timeout: 30000, response: { response: { neverError: true, fullResponse: true } } },
+    },
+    credentials: { githubApi: newCredential('BP — GitHub (تشغيل نشر Azure)') },
+  },
+  output: [{ statusCode: 204 }],
+});
+
 const noteTop = sticky(
   '## نوشن ← اللوحة (كل ساعة)\n' +
     'كتالوج نوشن الرسمي هو سطح التحرير البشري. يُقرأ كل ساعة، تُطابَق صفوفه بالكود، ويُدفع إلى اللوحة.\n' +
@@ -305,8 +351,9 @@ const noteTop = sticky(
 const noteBottom = sticky(
   '## اللوحة ← نوشن + الموقع (فوري)\n' +
     'أي حفظ في /admin/catalog يستدعي هذا الويبهوك، فيُحدَّث صف نوشن ويُعاد نشر الموقع.\n' +
-    'ضع رابط Deploy Hook من Vercel في العقدة الأخيرة قبل تفعيلها.',
-  [panelChanged, readPanel, pickChanged, writeNotion, rebuildSite],
+    'ضع رابط Deploy Hook من Vercel في عقدة Vercel (حتى القطع)، واعتماد GitHub في عقدة Azure قبل تفعيلها.\n' +
+    'يوم القطع من Vercel: احذف عقدة Vercel وأبقِ عقدة Azure.',
+  [panelChanged, readPanel, pickChanged, writeNotion, rebuildSite, rebuildSiteAzure],
   { color: 3 },
 );
 
@@ -321,5 +368,6 @@ export default workflow('bp-catalog-sync', 'BP — مزامنة الكتالوج
   .to(pickChanged)
   .to(writeNotion)
   .to(rebuildSite)
+  .to(rebuildSiteAzure)
   .add(noteTop)
   .add(noteBottom);

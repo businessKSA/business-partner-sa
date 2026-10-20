@@ -1,0 +1,15 @@
+{
+  "advise": { "ar": "استشر وقيّم", "en": "Advise and assess", "fr": "Conseil et évaluation", "zh": "咨询与评估" },
+  "name": { "ar": "الاسم والعقد", "en": "Name and contract", "fr": "Nom et statuts", "zh": "名称与章程" },
+  "register": { "ar": "السجل والترخيص", "en": "Registration and licence", "fr": "Immatriculation et licence", "zh": "注册与许可" },
+  "platforms": { "ar": "فعّل منصاتك الحكومية", "en": "Activate your government platforms", "fr": "Activez vos plateformes publiques", "zh": "开通政府平台" },
+  "people": { "ar": "العمالة والإقامة", "en": "Workforce and residency", "fr": "Main-d'œuvre et résidence", "zh": "员工与居留" },
+  "operate": { "ar": "شغّل والتزم", "en": "Operate and comply", "fr": "Exploitation et conformité", "zh": "运营与合规" },
+  "change": { "ar": "عدّل أو أنهِ", "en": "Amend or close", "fr": "Modifier ou clôturer", "zh": "变更或注销" },
+  "track": { "ar": "اختر مسارك", "en": "Choose your track", "fr": "Choisissez votre parcours", "zh": "选择路径" },
+  "family": { "ar": "ضمّ الأسرة", "en": "Add family members", "fr": "Ajouter la famille", "zh": "家属随行" },
+  "space": { "ar": "اختر مكانك", "en": "Choose your space", "fr": "Choisissez votre espace", "zh": "选择场地" },
+  "build": { "ar": "ابنِ وطوّر", "en": "Build and grow", "fr": "Construire et croître", "zh": "建设与发展" },
+  "legal": { "ar": "قانوني ومالي", "en": "Legal and finance", "fr": "Juridique et finance", "zh": "法务与财务" },
+  "fix": { "ar": "عالج المخالفات", "en": "Resolve violations", "fr": "Régler les infractions", "zh": "处理违规" }
+}

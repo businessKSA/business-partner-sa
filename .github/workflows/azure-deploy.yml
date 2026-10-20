@@ -1,0 +1,171 @@
+# Business Partner — نشر الموقع + API إلى Azure Container Apps.
+#
+# معطَّل بالافتراض بثلاث طبقات، فوجود الملف لا يغيّر شيئاً:
+#   ١. يعمل يدوياً فقط (workflow_dispatch) — لا push ولا schedule ولا pull_request.
+#   ٢. كل المهام تتخطّى نفسها ما لم يضبط المالك المتغيّر AZURE_DEPLOY_ENABLED=true
+#      (GitHub → Settings → Secrets and variables → Actions → Variables).
+#   ٣. النشر إلى الإنتاج يمرّ ببيئة GitHub باسم `azure-production` (لا `production`: هذا الاسم تستعمله Vercel في المستودع) ويشترط موافقة المالك
+#      (Settings → Environments → azure-production → Required reviewers).
+#
+# بلا أسرار في هذا الملف ولا في المستودع: الدخول إلى Azure بـ OIDC (هوية اتحادية
+# بلا كلمة سر)، والقيم أدناه كلها «Variables» عامة. أسرار التطبيق نفسه (مفاتيح
+# الدفع وقاعدة البيانات…) تعيش في Container Apps/Key Vault ولا تمرّ من هنا.
+#
+# لا يلمس Vercel ولا DNS. النشر ينشئ «مراجعة» (revision) جديدة بلا حركة مرور؛ تُفحص
+# على عنوانها الخاص، ثم تُنقل إليها الحركة بخطوة صريحة (promote)، والرجوع = إعادة
+# الحركة إلى المراجعة السابقة (يستغرق ثوانٍ). التفاصيل: docs/azure-migration-2026-10-11.md §8.
+#
+# المتغيّرات المطلوبة (Variables):
+#   AZURE_DEPLOY_ENABLED   true لتفعيل الملف
+#   AZURE_CLIENT_ID · AZURE_TENANT_ID · AZURE_SUBSCRIPTION_ID   هوية OIDC (App registration)
+#   AZURE_RESOURCE_GROUP · AZURE_ACR_NAME
+#   AZURE_CONTAINERAPP_NAME   **متغيّر بيئة (Environment variable) في كل من staging وproduction**
+#                             (bp-site-staging / bp-site) لا متغيّراً عاماً، كي لا ينشر staging فوق الإنتاج
+#   وللبناء (اختيارية، قيم عامة تُكتب في الصفحات): GOOGLE_CLIENT_ID · PORTAL_URL ·
+#   SIMPLE_V1 · COMPANY_LEGAL_NAME · COMPANY_CR_NUMBER · COMPANY_UNIFIED_NUMBER ·
+#   COMPANY_VAT_NUMBER · CATALOG_FROM_PANEL
+
+name: Azure Deploy (manual, disabled by default)
+
+on:
+  # مؤقت: GitHub لا يعرض زرّ Run workflow لملفٍ ليس على الفرع الافتراضي (master)، فيُشغَّل
+  # من دفعة على فرع الاختبار هذا وحده، ودائماً إلى بيئة staging (لا نقل حركة ولا إنتاج).
+  # يُحذف هذا الـpush عند دمج الملف في master، فيبقى يدوياً فقط.
+  push:
+    branches: [azure-migration]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "البيئة"
+        type: choice
+        options: [staging, production]
+        default: staging
+      promote:
+        description: "انقل 100% من الحركة إلى المراجعة الجديدة بعد نجاح الفحص (production فقط)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write   # OIDC إلى Azure — لا كلمة سر مخزّنة
+
+concurrency:
+  group: azure-deploy-${{ inputs.target }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: build + test
+    if: ${{ vars.AZURE_DEPLOY_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: install (production deps only, as vercel.json does)
+        run: npm ci --omit=dev --no-audit --no-fund
+      - name: build (full chain incl. API guard and page guard)
+        env:
+          VERCEL: "1"
+          GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
+          PORTAL_URL: ${{ vars.PORTAL_URL }}
+          SIMPLE_V1: ${{ vars.SIMPLE_V1 }}
+          COMPANY_LEGAL_NAME: ${{ vars.COMPANY_LEGAL_NAME }}
+          COMPANY_CR_NUMBER: ${{ vars.COMPANY_CR_NUMBER }}
+          COMPANY_UNIFIED_NUMBER: ${{ vars.COMPANY_UNIFIED_NUMBER }}
+          COMPANY_VAT_NUMBER: ${{ vars.COMPANY_VAT_NUMBER }}
+          CATALOG_FROM_PANEL: ${{ vars.CATALOG_FROM_PANEL }}
+        run: npm run build
+      - name: tests
+        run: npm test
+
+  deploy:
+    name: image → revision (no traffic)
+    needs: verify
+    if: ${{ vars.AZURE_DEPLOY_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target == 'production' && 'azure-production' || 'staging' }}
+    outputs:
+      revision: ${{ steps.rev.outputs.name }}
+      fqdn: ${{ steps.rev.outputs.fqdn }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: build image in ACR (no local Docker needed)
+        env:
+          SHA: ${{ github.sha }}
+          ACR: ${{ vars.AZURE_ACR_NAME }}
+        run: |
+          az acr build -r "$ACR" -t "bp-site:${SHA::12}" -f ops/azure/Dockerfile \
+            --build-arg "BP_BUILD_SHA=${SHA::12}" \
+            --build-arg "GOOGLE_CLIENT_ID=${{ vars.GOOGLE_CLIENT_ID }}" \
+            --build-arg "PORTAL_URL=${{ vars.PORTAL_URL }}" \
+            --build-arg "SIMPLE_V1=${{ vars.SIMPLE_V1 }}" \
+            --build-arg "COMPANY_LEGAL_NAME=${{ vars.COMPANY_LEGAL_NAME }}" \
+            --build-arg "COMPANY_CR_NUMBER=${{ vars.COMPANY_CR_NUMBER }}" \
+            --build-arg "COMPANY_UNIFIED_NUMBER=${{ vars.COMPANY_UNIFIED_NUMBER }}" \
+            --build-arg "COMPANY_VAT_NUMBER=${{ vars.COMPANY_VAT_NUMBER }}" \
+            --build-arg "CATALOG_FROM_PANEL=${{ vars.CATALOG_FROM_PANEL }}" \
+            .
+      - name: create revision (traffic stays on the current one)
+        id: rev
+        env:
+          SHA: ${{ github.sha }}
+          RG: ${{ vars.AZURE_RESOURCE_GROUP }}
+          APP: ${{ vars.AZURE_CONTAINERAPP_NAME }}
+          ACR: ${{ vars.AZURE_ACR_NAME }}
+        run: |
+          SUFFIX="g${SHA::7}"
+          az containerapp update -g "$RG" -n "$APP" \
+            --image "$ACR.azurecr.io/bp-site:${SHA::12}" \
+            --revision-suffix "$SUFFIX" \
+            --set-env-vars "BP_BUILD_SHA=${SHA::12}"
+          NAME="$(az containerapp revision list -g "$RG" -n "$APP" --query "[?ends_with(name, '$SUFFIX')].name | [0]" -o tsv)"
+          FQDN="$(az containerapp revision show -g "$RG" -n "$APP" --revision "$NAME" --query properties.fqdn -o tsv)"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "fqdn=$FQDN" >> "$GITHUB_OUTPUT"
+          echo "revision $NAME  https://$FQDN" >> "$GITHUB_STEP_SUMMARY"
+
+  smoke:
+    name: smoke on the new revision
+    needs: deploy
+    if: ${{ vars.AZURE_DEPLOY_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: parity against the live site (read-only GETs)
+        run: |
+          node ops/azure/parity.mjs \
+            --a "https://www.businesspartner.sa" \
+            --b "https://${{ needs.deploy.outputs.fqdn }}" \
+            --sample 40 ${{ inputs.target != 'production' && '--skip-api' || '' }}
+
+  promote:
+    name: move traffic (explicit, production only)
+    needs: [deploy, smoke]
+    if: ${{ vars.AZURE_DEPLOY_ENABLED == 'true' && inputs.target == 'production' && inputs.promote }}
+    runs-on: ubuntu-latest
+    environment: azure-production
+    steps:
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: previous revision (for rollback) + shift 100%
+        env:
+          RG: ${{ vars.AZURE_RESOURCE_GROUP }}
+          APP: ${{ vars.AZURE_CONTAINERAPP_NAME }}
+          NEW: ${{ needs.deploy.outputs.revision }}
+        run: |
+          PREV="$(az containerapp ingress traffic show -g "$RG" -n "$APP" --query "[?weight==\`100\`].revisionName | [0]" -o tsv)"
+          echo "rollback target: ${PREV:-none}" >> "$GITHUB_STEP_SUMMARY"
+          az containerapp ingress traffic set -g "$RG" -n "$APP" --revision-weight "$NEW=100"

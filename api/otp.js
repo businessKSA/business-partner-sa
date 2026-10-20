@@ -13,7 +13,13 @@
 //   OTP_DEV_ECHO=1   returns the code in the response (TESTING ONLY — never in production)
 import crypto from "node:crypto";
 import { verifyGoogleIdToken } from "./_suppliers.js";
-import { nafathRequest, nafathStatus, nationalIdState, nafathPing, nafathIdHash, nafathSeal, nafathUnseal, isOwnerId, mintOwnerTicket } from "./_nafath.js";
+import {
+  nafathRequest, nafathStatus, nationalIdState, nafathPing, nafathIdHash, nafathSeal, nafathUnseal, isOwnerId, mintOwnerTicket,
+  nafathConfigured, nafathProviderName, nafathQuota, nafathQuotaRecord,
+  nafathPlaceholderEmail, isNafathPlaceholderEmail, NAFATH_ORG_LABEL,
+} from "./_nafath.js";
+import { passwordProblem, PASSWORD_MESSAGE_AR, normalizePhone, createThrottle } from "./_clientauth.js";
+import { outbox } from "./_mode.js";
 
 const GOOGLE_CLIENT_ID = (process.env.GOOGLE_CLIENT_ID || "").trim();
 const SECRET = process.env.OTP_SECRET || "";
@@ -69,31 +75,35 @@ function verifyPassword(pw, stored) {
   if (candidate.length !== expected.length) return false;
   return crypto.timingSafeEqual(candidate, expected);
 }
-const PASSWORD_MIN = 8;
-// In-memory throttle: one function instance, so this slows a burst rather than
+// In-memory throttles: one function instance, so these slow a burst rather than
 // standing in for a real lockout — enough to make guessing expensive without a
 // table write on every attempt.
-const pwTries = new Map();
-function pwThrottled(email) {
-  const now = Date.now();
-  const rec = pwTries.get(email) || { n: 0, at: now };
-  if (now - rec.at > 15 * 60 * 1000) { rec.n = 0; rec.at = now; }
-  return rec.n >= 8;
-}
-function pwFailed(email) {
-  const now = Date.now();
-  const rec = pwTries.get(email) || { n: 0, at: now };
-  if (now - rec.at > 15 * 60 * 1000) { rec.n = 0; rec.at = now; }
-  rec.n += 1; pwTries.set(email, rec);
-  if (pwTries.size > 500) pwTries.clear();
-}
+//   pwTries    wrong passwords per address        (8 / 15 min, as before)
+//   pwIpTries  wrong passwords per source address (30 / 15 min) — one address
+//              trying many accounts is the shape of a spray attack
+//   codeFails  wrong e-mailed codes per address   (6 / 15 min) — a six-digit
+//              code has only a million values and the challenge is stateless,
+//              so without this it could be walked in a few minutes
+//   mailAsks   code e-mails requested per address / per source (4 / 10 min · 20)
+const WINDOW_15 = 15 * 60 * 1000;
+const pwTries = createThrottle({ windowMs: WINDOW_15, max: 8, cap: 500 });
+const pwIpTries = createThrottle({ windowMs: WINDOW_15, max: 30 });
+const codeFails = createThrottle({ windowMs: WINDOW_15, max: 6 });
+const mailAsks = createThrottle({ windowMs: 10 * 60 * 1000, max: 4 });
+const mailAsksIp = createThrottle({ windowMs: 10 * 60 * 1000, max: 20 });
+const pwThrottled = (email) => !pwTries.peek(email);
+const pwFailed = (email) => { pwTries.hit(email); };
+const srcIp = (req) => String(req.headers["x-forwarded-for"] || "").split(",")[0].trim() || "?";
 
 // Upsert user + ensure org membership + mint a session. Returns cookie payload.
-async function createSession(req, { email, name, company }) {
+// `verified:false` is for the account a first Nafath sign-in creates: its
+// address is a placeholder nobody has proven, so it must not be stamped as a
+// verified mailbox. `extra` adds columns to the same upsert (nafath_id).
+async function createSession(req, { email, name, company, verified = true, extra = null }) {
   const users = await sb(`users?on_conflict=email`, {
     method: "POST",
     prefer: "resolution=merge-duplicates,return=representation",
-    body: [{ email, email_verified_at: new Date().toISOString(), ...(name ? { full_name: name } : {}) }],
+    body: [{ email, ...(verified ? { email_verified_at: new Date().toISOString() } : {}), ...(name ? { full_name: name } : {}), ...(extra || {}) }],
   });
   const user = users[0];
   let orgId = null;
@@ -126,6 +136,19 @@ async function createSession(req, { email, name, company }) {
   return { raw, user, orgId };
 }
 
+// Move a Nafath identity from one account to another. The column is unique, so
+// the old holder lets go first; if the new holder cannot take it, the old one is
+// given it back and the failure is raised — an identity is never left homeless.
+async function moveNafathId(hash, fromId, toId) {
+  await sb(`users?id=eq.${fromId}`, { method: "PATCH", prefer: "return=minimal", body: { nafath_id: null } });
+  try {
+    await sb(`users?id=eq.${toId}`, { method: "PATCH", prefer: "return=minimal", body: { nafath_id: hash } });
+  } catch (e) {
+    try { await sb(`users?id=eq.${fromId}`, { method: "PATCH", prefer: "return=minimal", body: { nafath_id: hash } }); } catch {}
+    throw e;
+  }
+}
+
 const getSession = dbGetSession;
 
 const b64u = (buf) => Buffer.from(buf).toString("base64url");
@@ -149,7 +172,9 @@ function unseal(token) {
 const sessionToken = (email) =>
   b64u(email) + "." + crypto.createHmac("sha256", SECRET).update(email + "|" + Date.now()).digest("base64url");
 const maskEmail = (e) => e.replace(/^(.).*(.@.*)$/, "$1***$2");
-const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
+// The placeholder address of a Nafath-created account is not a mailbox anybody
+// can sign in to by e-mail, so it is refused everywhere an address is accepted.
+const isEmail = (e) => typeof e === "string" && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e) && !isNafathPlaceholderEmail(e);
 
 async function sendEmail(to, code) {
   if (!RESEND_API_KEY) return { ok: false, error: "email_not_configured" };
@@ -170,9 +195,136 @@ async function sendEmail(to, code) {
   } catch (e) { console.error("email exception", e); return { ok: false, error: "email_send_failed" }; }
 }
 
+// One emailed six-digit code, the way `start` sends it: a fixed code and no mail
+// for local/preview test addresses, a real message otherwise. Used by the actions
+// that prove a mailbox before something is attached to it (password sign-up, the
+// first-time Nafath contact step). Returns what the caller seals and answers.
+async function issueEmailCode(email) {
+  const isTest = TEST_LOGIN && (LOCAL_DEV || TEST_LOGIN_DOMAINS.some((d) => email.endsWith(d)));
+  const code = isTest ? TEST_LOGIN_CODE : String(crypto.randomInt(0, 1000000)).padStart(6, "0");
+  if (isTest) return { ok: true, code, test: true };
+  const d = await sendEmail(email, code);
+  if (!d.ok && !DEV_ECHO) return { ok: false, error: d.error };
+  return { ok: true, code, test: false };
+}
+const codeAnswer = (issued, challenge, email) => ({
+  ok: true, challenge, channel: issued.test ? "test" : "email", to: issued.test ? email : maskEmail(email),
+  ...(issued.test ? { testLogin: true } : {}),
+  ...((LOCAL_DEV && issued.test) || DEV_ECHO ? { devCode: issued.code } : {}),
+});
+const codeMatches = (entered, expected) => {
+  const a = Buffer.from(String(entered || "").trim()), b = Buffer.from(String(expected));
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+};
+
 // Scaffold for SMS OTP — wire a provider (e.g. Unifonic/Twilio) here later.
 async function sendSms(_phone, _code) {
   return { ok: false, error: "sms_not_configured" };
+}
+
+// ---- sign-in link (رابط الدخول بالبريد) ---------------------------------------
+// One tap from the mailbox, no code to retype. The e-mail carries a link AND
+// the six digits, so a link that opens in the wrong browser (a mail app's own
+// webview, another device) still has the code to fall back on.
+//
+// Three things make it safe to hand out:
+//  • The token is sealed with its OWN key (derived from the secret plus a label),
+//    not the one that seals OTP challenges. A challenge cannot be replayed as a
+//    link and a link cannot be replayed as a challenge — without this the two
+//    could be confused, because both are AES-GCM blobs under the same secret.
+//  • Opening the link does not sign anyone in. The page it lands on shows one
+//    button, and only that button (a POST) consumes the token. Mail scanners and
+//    link-preview bots open every URL they see; a link that signed in on GET
+//    would be burned before its owner touched it.
+//  • Single use, best effort: a used token leaves a pre-revoked row in
+//    user_sessions (unique token_hash, never a live session) and a note in
+//    memory. Fifteen minutes of lifetime bounds whatever slips past it.
+const LINK_TTL_MS = 15 * 60 * 1000;
+const linkKey = () => crypto.createHash("sha256").update("magic-link|" + SECRET).digest();
+function sealLink(obj) {
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv("aes-256-gcm", linkKey(), iv);
+  const ct = Buffer.concat([cipher.update(JSON.stringify(obj), "utf8"), cipher.final()]);
+  return b64u(Buffer.concat([iv, cipher.getAuthTag(), ct]));
+}
+function unsealLink(token) {
+  try {
+    const raw = Buffer.from(String(token || ""), "base64url");
+    if (raw.length < 29) return null;
+    const d = crypto.createDecipheriv("aes-256-gcm", linkKey(), raw.subarray(0, 12));
+    d.setAuthTag(raw.subarray(12, 28));
+    return JSON.parse(Buffer.concat([d.update(raw.subarray(28)), d.final()]).toString("utf8"));
+  } catch { return null; }
+}
+// The link is built from OUR origin, never from a header the caller controls:
+// a poisoned Host would otherwise mail a victim a link to someone else's site.
+function siteBase(req) {
+  const host = String((req.headers["x-forwarded-host"] || req.headers.host || "")).split(",")[0].trim().toLowerCase();
+  if (/^(www\.)?businesspartner\.sa$/.test(host)) return "https://www.businesspartner.sa";
+  if (LOCAL_DEV && /^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host)) return `http://${host}`;
+  if (/^[a-z0-9-]+\.vercel\.app$/.test(host)) return `https://${host}`;
+  return "https://www.businesspartner.sa";
+}
+const MY_PATH = { ar: "/ar/my", en: "/my", fr: "/fr/my", zh: "/zh/my" };
+// Where the client lands after signing in: a same-origin path only. «//host» is
+// read by a browser as another site, so a leading double slash is refused too.
+function safeNext(n) {
+  const s = String(n || "");
+  if (!s || s.length > 300 || s[0] !== "/" || s[1] === "/" || s.includes("..") || s.includes("\\")) return "";
+  return /^\/[A-Za-z0-9\-._~/?=&%@:+]*$/.test(s) ? s : "";
+}
+const linkSeen = (globalThis.__bpLinkSeen ||= new Map());
+function linkThrottle(key, max) {
+  const now = Date.now();
+  for (const [k, v] of linkSeen) if (now - v.at > 10 * 60 * 1000) linkSeen.delete(k);
+  const hit = linkSeen.get(key);
+  if (!hit) { linkSeen.set(key, { at: now, n: 1 }); return true; }
+  hit.n += 1;
+  return hit.n <= max;
+}
+const linkUsed = (globalThis.__bpLinkUsed ||= new Map());
+async function linkIsUsed(jti) {
+  if (linkUsed.has(jti)) return true;
+  if (!DB_ON) return false;
+  try { return (await sb(`user_sessions?token_hash=eq.${sha256("ml:" + jti)}&select=id&limit=1`)).length > 0; }
+  catch { return false; }
+}
+async function burnLink(jti, userId, exp) {
+  linkUsed.set(jti, exp);
+  for (const [k, v] of linkUsed) if (Date.now() > v) linkUsed.delete(k);
+  if (!DB_ON || !userId) return;
+  try {
+    await sb(`user_sessions`, {
+      method: "POST", prefer: "return=minimal",
+      body: [{ user_id: userId, token_hash: sha256("ml:" + jti), expires_at: new Date(exp).toISOString(), revoked_at: new Date().toISOString() }],
+    });
+  } catch {}
+}
+function linkMail(link, code, lang) {
+  const ar = lang === "ar";
+  const subject = ar ? "رابط دخولك — Business Partner" : "Your sign-in link — Business Partner";
+  const html = `<div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;direction:${ar ? "rtl" : "ltr"};text-align:${ar ? "right" : "left"}">
+    <h2 style="color:#0B1B5A">${ar ? "ادخل إلى حسابك" : "Sign in to your account"}</h2>
+    <p>${ar ? "اضغط الزرّ وتدخل مباشرة — بلا كلمة مرور." : "Tap the button and you are in — no password."}</p>
+    <p style="margin:22px 0"><a href="${link}" style="background:#0B1B5A;color:#fff;text-decoration:none;padding:13px 26px;border-radius:10px;font-weight:bold;display:inline-block">${ar ? "الدخول إلى حسابي" : "Sign in to my account"}</a></p>
+    <p style="color:#555">${ar ? "إن فُتح الرابط في متصفح آخر، اكتب هذا الرمز في صفحة الدخول:" : "If the link opens in another browser, type this code on the sign-in page:"}</p>
+    <p style="font-size:28px;font-weight:bold;letter-spacing:8px;color:#0B1B5A;margin:6px 0">${code}</p>
+    <p style="color:#666;font-size:13px">${ar ? "صالح ١٥ دقيقة ولمرة واحدة. إن لم تطلبه فتجاهل هذه الرسالة." : "Valid for 15 minutes, single use. If you did not ask for it, ignore this message."}</p>
+  </div>`;
+  return { subject, html };
+}
+async function sendLinkEmail(to, link, code, lang) {
+  if (!RESEND_API_KEY) return { ok: false, error: "email_not_configured" };
+  const { subject, html } = linkMail(link, code, lang);
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "content-type": "application/json" },
+      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+    });
+    if (!r.ok) { console.error("Resend error (link)", r.status, await r.text()); return { ok: false, error: "email_send_failed" }; }
+    return { ok: true };
+  } catch (e) { console.error("email exception (link)", e); return { ok: false, error: "email_send_failed" }; }
 }
 
 async function readBody(req) {
@@ -231,7 +383,13 @@ export default async function handler(req, res) {
   // Who am I — resolves the httpOnly session cookie server-side.
   if (action === "me") {
     try {
-      const sess = await getSession(req);
+      let sess = await getSession(req);
+      // A Nafath account that has not given its real address yet: the placeholder
+      // is an implementation detail and must never be drawn (the header would print
+      // it as the client's name). The page is told to ask for the contact step.
+      if (sess && sess.user && isNafathPlaceholderEmail(sess.user.email)) {
+        sess = { ...sess, user: { ...sess.user, email: "", contactPending: true } };
+      }
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, db: DB_ON, session: sess }));
     } catch {
@@ -260,7 +418,13 @@ export default async function handler(req, res) {
   // only the doors that are configured, instead of a Google button that fails.
   if (action === "methods") {
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true, code: true, password: DB_ON, google: !!GOOGLE_CLIENT_ID, googleClientId: GOOGLE_CLIENT_ID || null }));
+    return res.end(JSON.stringify({
+      ok: true, code: true, link: true, password: DB_ON, passwordSignup: DB_ON && !!SECRET,
+      google: !!GOOGLE_CLIENT_ID, googleClientId: GOOGLE_CLIENT_ID || null,
+      // Nafath is always offered first; "available" tells the page whether the
+      // door opens yet or should say so honestly instead of failing on touch.
+      nafath: { available: nafathConfigured() && DB_ON, provider: nafathProviderName() },
+    }));
   }
 
   // Sign in with e-mail + password. Same session, same cookie, same everything
@@ -270,7 +434,7 @@ export default async function handler(req, res) {
     const pw = String(body.password || "");
     if (!isEmail(email) || !pw) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "missing_fields" })); }
     if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_off", message: "الدخول بكلمة المرور غير متاح الآن — استخدم رمز البريد." })); }
-    if (pwThrottled(email)) { res.statusCode = 429; return res.end(JSON.stringify({ ok: false, error: "too_many", message: "محاولات كثيرة. جرّب بعد ربع ساعة أو ادخل برمز البريد." })); }
+    if (pwThrottled(email) || !pwIpTries.peek(srcIp(req))) { res.statusCode = 429; return res.end(JSON.stringify({ ok: false, error: "too_many", message: "محاولات كثيرة. جرّب بعد ربع ساعة أو ادخل برمز البريد." })); }
     let rows = [];
     try { rows = await sb(`users?email=eq.${encodeURIComponent(email)}&select=id,email,full_name,password_hash&limit=1`); }
     catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
@@ -278,7 +442,7 @@ export default async function handler(req, res) {
     // One message for "no such account" and "wrong password": telling them
     // apart hands an attacker a list of who banks here.
     if (!u || !u.password_hash || !verifyPassword(pw, u.password_hash)) {
-      pwFailed(email);
+      pwFailed(email); pwIpTries.hit(srcIp(req));
       res.statusCode = 401;
       return res.end(JSON.stringify({ ok: false, error: "bad_credentials", message: "البريد أو كلمة المرور غير صحيحة." }));
     }
@@ -296,10 +460,14 @@ export default async function handler(req, res) {
   // Set or change the password — only from inside a live session.
   if (action === "password-set") {
     const pw = String(body.password || "");
-    if (pw.length < PASSWORD_MIN) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "weak", message: `كلمة المرور ${PASSWORD_MIN} أحرف على الأقل.` })); }
     let sess = null;
     try { sess = await getSession(req); } catch {}
     if (!sess || !sess.user) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "no_session", message: "سجّل دخولك أولاً." })); }
+    // A Nafath account that has not given a real address yet has no mailbox to
+    // fall back on if the password is forgotten.
+    if (isNafathPlaceholderEmail(sess.user.email)) { res.statusCode = 403; return res.end(JSON.stringify({ ok: false, error: "contact_required", message: "أكمل بريدك وجوالك أولاً." })); }
+    const weak = passwordProblem(pw, sess.user.email);
+    if (weak) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "weak", reason: weak, message: PASSWORD_MESSAGE_AR[weak] })); }
     try {
       await sb(`users?id=eq.${sess.user.id}`, { method: "PATCH", prefer: "return=minimal", body: { password_hash: hashPassword(pw) } });
     } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
@@ -369,6 +537,69 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: true, db: false, token: sessionToken(email), email }));
   }
 
+  // Sign-in link, step 1: mail a link plus a code (see the note above sealLink).
+  // The answer is the same whether or not the address has an account — a client
+  // is created on first sign-in exactly as it is with the emailed code.
+  if (action === "link-start") {
+    const email = String(body.email || "").trim().toLowerCase();
+    const lang = MY_PATH[body.lang] ? body.lang : "ar";
+    if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_email" })); }
+    const ip = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim() || "?";
+    if (!linkThrottle("e:" + email, 4) || !linkThrottle("ip:" + ip, 20)) {
+      res.statusCode = 429;
+      return res.end(JSON.stringify({ ok: false, error: "too_many", message: "طلبات كثيرة على هذا البريد. انتظر قليلاً ثم أعد المحاولة." }));
+    }
+    const isTestLogin = TEST_LOGIN && (LOCAL_DEV || TEST_LOGIN_DOMAINS.some((d) => email.endsWith(d)));
+    const code = isTestLogin ? TEST_LOGIN_CODE : String(crypto.randomInt(0, 1000000)).padStart(6, "0");
+    const exp = Date.now() + LINK_TTL_MS;
+    const token = sealLink({ t: "ml", email, jti: crypto.randomBytes(12).toString("base64url"), exp });
+    const challenge = seal({ email, code, channel: "email", exp });
+    const next = safeNext(body.next);
+    const link = `${siteBase(req)}${MY_PATH[lang]}${next ? "?next=" + encodeURIComponent(next) : ""}#ml=${token}`;
+    if (isTestLogin) {
+      // Nothing leaves the machine. Locally the mail is parked in the outbox and
+      // the link is handed back so the page can be walked end to end; on a preview
+      // test address there is no outbox, so only the fixed code is on offer.
+      if (LOCAL_DEV) {
+        const m = linkMail(link, code, lang);
+        await outbox({ kind: "email", to: email, subject: m.subject, body: `${link}  code ${code}` });
+      }
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, challenge, channel: "test", to: email, testLogin: true, ...(LOCAL_DEV ? { devLink: link, devCode: code } : {}) }));
+    }
+    const delivery = await sendLinkEmail(email, link, code, lang);
+    if (!delivery.ok) {
+      res.statusCode = 503;
+      return res.end(JSON.stringify({ ok: false, error: delivery.error, message: "تعذّر إرسال الرابط الآن. جرّب الدخول بحساب Google أو تواصل عبر واتساب." }));
+    }
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, challenge, channel: "email", to: maskEmail(email), linkSent: true }));
+  }
+
+  // Sign-in link, step 2: the one button on the landing page posts the token here.
+  if (action === "link-verify") {
+    const v = unsealLink(body.token);
+    if (!v || v.t !== "ml" || !isEmail(v.email) || !v.jti) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_link" })); }
+    if (Date.now() > Number(v.exp)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "expired" })); }
+    if (await linkIsUsed(v.jti)) { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "link_used" })); }
+    const email = String(v.email).toLowerCase();
+    if (DB_ON) {
+      try {
+        const { raw, user, orgId } = await createSession(req, { email, name: "", company: "" });
+        await burnLink(v.jti, user.id, Number(v.exp));
+        setSessionCookie(res, raw, Math.floor(SESSION_TTL_MS / 1000));
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, db: true, email, user: { id: user.id, email: user.email, name: user.full_name || "" }, organizationId: orgId }));
+      } catch {
+        res.statusCode = 502;
+        return res.end(JSON.stringify({ ok: false, error: "session_failed" }));
+      }
+    }
+    await burnLink(v.jti, null, Number(v.exp));
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ok: true, db: false, token: sessionToken(email), email }));
+  }
+
   /* ---------------- Nafath: prove who you are, not what you know -----------
    * Two purposes share one mechanism.
    *
@@ -419,15 +650,24 @@ export default async function handler(req, res) {
       res.statusCode = 403;
       return res.end(JSON.stringify({ ok: false, error: "not_owner", message: "هذه الهوية غير مصرّح لها بفتح هذه اللوحة." }));
     }
+    // The daily ceiling (api/_nafath.js). The owner's own panel sign-in is
+    // never refused; everyone else is told plainly and pointed at the other doors.
+    const quota = await nafathQuota({ purpose });
+    if (!quota.ok) {
+      console.warn(`[nafath] daily limit reached (${quota.used}/${quota.limit}) — portal request refused`);
+      res.statusCode = 429;
+      return res.end(JSON.stringify({ ok: false, error: "daily_limit", message: "بلغ الدخول عبر نفاذ حدّه اليومي. ادخل الآن بحساب Google أو بالبريد الإلكتروني، أو جرّب نفاذ غداً." }));
+    }
     let started;
     try {
       started = await nafathRequest({ nationalId: id.value, locale: body.locale === "en" ? "en" : "ar" });
     } catch (e) {
       const why = String(e.message || e);
       console.error("nafath start", why, String(e.detail || "").slice(0, 200));
-      res.statusCode = why === "nafath_not_configured" || why === "nafath_service_not_configured" ? 503 : 502;
+      const off = why === "nafath_not_configured" || why === "nafath_service_not_configured" || why === "not_implemented" || why === "nafath_provider_unknown";
+      res.statusCode = off ? 503 : 502;
       return res.end(JSON.stringify({ ok: false, error: why, message:
-        why === "nafath_not_configured" || why === "nafath_service_not_configured" ? "الدخول عبر نفاذ غير مُفعّل بعد."
+        off ? "الدخول عبر نفاذ غير مُفعّل بعد."
         : why === "nafath_unauthorized" ? "بيانات الاتصال بنفاذ مرفوضة."
         : "تعذّر الوصول إلى نفاذ الآن." }));
     }
@@ -435,6 +675,7 @@ export default async function handler(req, res) {
       res.statusCode = 502;
       return res.end(JSON.stringify({ ok: false, error: "no_transaction", message: "لم تُنشئ نفاذ طلباً. حاول مرة أخرى." }));
     }
+    await nafathQuotaRecord({ purpose });
     res.statusCode = 200;
     return res.end(JSON.stringify({
       ok: true,
@@ -487,12 +728,15 @@ export default async function handler(req, res) {
       // before, so there is nothing left to ask for.
       const known = await sb(`users?nafath_id=eq.${encodeURIComponent(hash)}&select=id,email&limit=1`);
       if (known.length) {
-        const { raw, user, orgId } = await createSession(req, { email: String(known[0].email) });
+        const em = String(known[0].email);
+        const pending = isNafathPlaceholderEmail(em);
+        const { raw, user, orgId } = await createSession(req, { email: em, verified: !pending, company: NAFATH_ORG_LABEL });
         setSessionCookie(res, raw, Math.floor(SESSION_TTL_MS / 1000));
         res.statusCode = 200;
         return res.end(JSON.stringify({
-          ok: true, status: "COMPLETED", db: true, email: user.email, verified: true,
-          user: { id: user.id, email: user.email, name: user.full_name || "" },
+          ok: true, status: "COMPLETED", db: true, email: pending ? "" : user.email, verified: true,
+          needsContact: pending,
+          user: { id: user.id, email: pending ? "" : user.email, name: user.full_name || "" },
           organizationId: orgId,
         }));
       }
@@ -500,18 +744,26 @@ export default async function handler(req, res) {
       // First time. Nafath proves WHO someone is; it says nothing about which
       // mailbox is theirs. Opening a session on an address typed at this point
       // would let anyone with a valid Nafath identity sign in as any client by
-      // typing that client's e-mail — so the binding attaches to a session the
-      // person already holds, and never creates one from an unproven address.
+      // typing that client's e-mail — so an address is never taken on trust.
+      // What happens instead depends on whether the person is already signed in:
+      //  • signed in (by e-mail or Google): the identity is bound to THAT
+      //    account, below — one account, now with a second door.
+      //  • not signed in: an account is created at once, keyed by the digest of
+      //    the national id under a placeholder address nobody can mail, and the
+      //    next screen asks for the real e-mail and mobile (nafath-contact-*).
+      //    That step proves the mailbox with a code, and if the address already
+      //    has an account the two are joined rather than duplicated.
       const sess = await dbGetSession(req);
       if (!sess || !sess.user || !sess.user.id) {
+        const ph = nafathPlaceholderEmail(hash);
+        const { raw, user, orgId } = await createSession(req, { email: ph, verified: false, company: NAFATH_ORG_LABEL, extra: { nafath_id: hash } });
+        setSessionCookie(res, raw, Math.floor(SESSION_TTL_MS / 1000));
         res.statusCode = 200;
-        return res.end(JSON.stringify({ ok: false, status: "COMPLETED", error: "identity_not_linked",
-          // The verification really did happen, so it is not thrown away: this
-          // is our own sealed note that this identity passed, good for ten
-          // minutes. The client signs in the ordinary way and hands it back,
-          // and the binding completes without troubling Nafath again.
-          link: nafathSeal({ t: "verified", hash, exp: Date.now() + 10 * 60 * 1000 }),
-          message: "تم التحقق من هويتك عبر نفاذ ✓ — ادخل مرة واحدة بالبريد أو بحساب جوجل، وسنربط هويتك بحسابك تلقائياً." }));
+        return res.end(JSON.stringify({
+          ok: true, status: "COMPLETED", db: true, created: true, verified: true, needsContact: true, email: "",
+          user: { id: user.id, email: "", name: "" },
+          organizationId: orgId,
+        }));
       }
       try {
         await sb(`users?id=eq.${sess.user.id}`, { method: "PATCH", prefer: "return=minimal", body: { nafath_id: hash } });
@@ -549,12 +801,20 @@ export default async function handler(req, res) {
     try {
       const sess = await dbGetSession(req);
       if (!sess || !sess.user || !sess.user.id) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "no_session" })); }
-      const taken = await sb(`users?nafath_id=eq.${encodeURIComponent(v.hash)}&select=id&limit=1`);
+      const taken = await sb(`users?nafath_id=eq.${encodeURIComponent(v.hash)}&select=id,email&limit=1`);
       if (taken.length && taken[0].id !== sess.user.id) {
-        res.statusCode = 409;
-        return res.end(JSON.stringify({ ok: false, error: "identity_already_linked", message: "هذه الهوية مرتبطة بحساب آخر." }));
+        // The only holder we may take the identity from is the account a first
+        // Nafath sign-in created and nobody has completed: its address is the
+        // placeholder, so it has no mailbox, no password and no history to lose.
+        // An account with a real address keeps its identity.
+        if (!isNafathPlaceholderEmail(taken[0].email)) {
+          res.statusCode = 409;
+          return res.end(JSON.stringify({ ok: false, error: "identity_already_linked", message: "هذه الهوية مرتبطة بحساب آخر." }));
+        }
+        await moveNafathId(v.hash, taken[0].id, sess.user.id);
+      } else if (!taken.length) {
+        await sb(`users?id=eq.${sess.user.id}`, { method: "PATCH", prefer: "return=minimal", body: { nafath_id: v.hash } });
       }
-      if (!taken.length) await sb(`users?id=eq.${sess.user.id}`, { method: "PATCH", prefer: "return=minimal", body: { nafath_id: v.hash } });
       res.statusCode = 200;
       return res.end(JSON.stringify({ ok: true, linked: true, message: "تم توثيق هويتك عبر نفاذ ✓" }));
     } catch (e) {
@@ -564,17 +824,162 @@ export default async function handler(req, res) {
     }
   }
 
+  /* ---------------- Nafath first sign-in: the one-time contact step ---------
+   * The account a first Nafath sign-in creates has a placeholder address. This
+   * step replaces it with the client's real e-mail (the tax invoice from Daftra
+   * is mailed there) and mobile. The e-mail is proven with a code before it is
+   * attached — otherwise a verified national id could claim any address that
+   * has no account yet, and its true owner would later sign in to a stranger's
+   * account. If the address ALREADY has an account the code, which only that
+   * mailbox could read, joins the two: the identity moves onto the existing
+   * account and the placeholder is retired. One person, one account.
+   */
+  async function pendingNafathSession() {
+    let s = null;
+    try { s = await dbGetSession(req); } catch {}
+    if (!s || !s.user || !s.user.id) return { err: [401, "no_session"] };
+    if (!isNafathPlaceholderEmail(s.user.email)) return { err: [409, "not_pending"] };
+    return { sess: s };
+  }
+
+  if (action === "nafath-contact-start") {
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_off" })); }
+    const gate = await pendingNafathSession();
+    if (gate.err) { res.statusCode = gate.err[0]; return res.end(JSON.stringify({ ok: false, error: gate.err[1] })); }
+    const email = String(body.email || "").trim().toLowerCase();
+    if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_email" })); }
+    const ph = normalizePhone(body.phone);
+    if (!ph.ok) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_phone", reason: ph.reason })); }
+    if (!mailAsks.hit("c:" + gate.sess.user.id) || !mailAsks.hit("e:" + email) || !mailAsksIp.hit(srcIp(req))) {
+      res.statusCode = 429;
+      return res.end(JSON.stringify({ ok: false, error: "too_many", message: "طلبات كثيرة. انتظر قليلاً ثم أعد المحاولة." }));
+    }
+    const issued = await issueEmailCode(email);
+    if (!issued.ok) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: issued.error, message: "تعذّر إرسال الرمز الآن. حاول بعد قليل أو تواصل عبر واتساب." })); }
+    const challenge = seal({ purpose: "nafath-contact", uid: gate.sess.user.id, email, phone: ph.value, code: issued.code, exp: Date.now() + TTL_MS });
+    res.statusCode = 200;
+    return res.end(JSON.stringify({ ...codeAnswer(issued, challenge, email), phone: ph.value }));
+  }
+
+  if (action === "nafath-contact-verify") {
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_off" })); }
+    const gate = await pendingNafathSession();
+    if (gate.err) { res.statusCode = gate.err[0]; return res.end(JSON.stringify({ ok: false, error: gate.err[1] })); }
+    const uid = gate.sess.user.id;
+    let data;
+    try { data = unseal(String(body.challenge || "")); } catch { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_challenge" })); }
+    // Bound to this purpose AND to this session's user: a challenge minted for
+    // someone else's contact step is not usable here.
+    if (!data || data.purpose !== "nafath-contact" || data.uid !== uid || !isEmail(data.email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_challenge" })); }
+    if (Date.now() > data.exp) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "expired" })); }
+    if (!codeFails.peek("n:" + uid)) { res.statusCode = 429; return res.end(JSON.stringify({ ok: false, error: "too_many", message: "محاولات كثيرة. اطلب رمزاً جديداً بعد قليل." })); }
+    if (!codeMatches(body.code, data.code)) { codeFails.hit("n:" + uid); res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "wrong_code" })); }
+    codeFails.reset("n:" + uid);
+    const email = String(data.email).toLowerCase();
+    try {
+      const mine = await sb(`users?id=eq.${uid}&select=id,nafath_id&limit=1`);
+      const hash = mine[0] && mine[0].nafath_id;
+      if (!hash) { res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "not_pending" })); }
+      const existing = await sb(`users?email=eq.${encodeURIComponent(email)}&select=id,email,nafath_id,phone&limit=1`);
+      if (!existing.length) {
+        // A fresh address: the placeholder account becomes the real one in place.
+        try {
+          await sb(`users?id=eq.${uid}`, { method: "PATCH", prefer: "return=minimal", body: { email, email_verified_at: new Date().toISOString(), phone: data.phone } });
+        } catch {
+          // Lost a race for the address between the lookup and the write.
+          res.statusCode = 409; return res.end(JSON.stringify({ ok: false, error: "email_taken", message: "تعذّر حفظ البريد. أعد المحاولة." }));
+        }
+        const org = gate.sess.organization;
+        if (org && org.id && org.name_ar === NAFATH_ORG_LABEL) {
+          try { await sb(`organizations?id=eq.${org.id}`, { method: "PATCH", prefer: "return=minimal", body: { name_ar: email.split("@")[0] } }); } catch {}
+        }
+        res.statusCode = 200;
+        return res.end(JSON.stringify({ ok: true, db: true, email, phone: data.phone, merged: false }));
+      }
+      const target = existing[0];
+      if (target.nafath_id && target.nafath_id !== hash) {
+        res.statusCode = 409;
+        return res.end(JSON.stringify({ ok: false, error: "identity_mismatch", message: "هذا البريد مرتبط بهوية وطنية أخرى. استعمل بريداً آخر أو تواصل معنا." }));
+      }
+      await moveNafathId(hash, uid, target.id);
+      if (!target.phone) { try { await sb(`users?id=eq.${target.id}`, { method: "PATCH", prefer: "return=minimal", body: { phone: data.phone } }); } catch {} }
+      // The placeholder's sessions end; the person continues as the account they already had.
+      try { await sb(`user_sessions?user_id=eq.${uid}`, { method: "PATCH", prefer: "return=minimal", body: { revoked_at: new Date().toISOString() } }); } catch {}
+      const { raw, user, orgId } = await createSession(req, { email: target.email });
+      setSessionCookie(res, raw, Math.floor(SESSION_TTL_MS / 1000));
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, db: true, email, phone: data.phone, merged: true, user: { id: user.id, email: user.email, name: user.full_name || "" }, organizationId: orgId }));
+    } catch (e) {
+      console.error("nafath contact", String(e && e.message || e).slice(0, 160));
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "contact_failed" }));
+    }
+  }
+
+  /* ---------------- E-mail + password: a new account -------------------------
+   * The password does nothing until the mailbox is proven with a code: sign-up
+   * seals {address, code, hashed password} into a challenge, mails the code, and
+   * only the matching code writes the hash. So a password can never be planted on
+   * an address its typist does not control — and because the proof is the same
+   * one `verify` asks for, an existing account that forgot its password can use
+   * this very path to set a new one.
+   */
+  if (action === "password-signup-start") {
+    const email = String(body.email || "").trim().toLowerCase();
+    const pw = String(body.password || "");
+    if (!isEmail(email)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_email" })); }
+    const weak = passwordProblem(pw, email);
+    if (weak) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "weak", reason: weak, message: PASSWORD_MESSAGE_AR[weak] })); }
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_off", message: "إنشاء حساب بكلمة مرور غير متاح الآن — ادخل برمز البريد." })); }
+    if (!mailAsks.hit("s:" + email) || !mailAsksIp.hit(srcIp(req))) {
+      res.statusCode = 429;
+      return res.end(JSON.stringify({ ok: false, error: "too_many", message: "طلبات كثيرة على هذا البريد. انتظر قليلاً ثم أعد المحاولة." }));
+    }
+    const issued = await issueEmailCode(email);
+    if (!issued.ok) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: issued.error, message: "تعذّر إرسال الرمز الآن. جرّب الدخول بحساب Google أو تواصل عبر واتساب." })); }
+    const challenge = seal({ purpose: "pw-signup", email, code: issued.code, pwh: hashPassword(pw), exp: Date.now() + TTL_MS });
+    res.statusCode = 200;
+    return res.end(JSON.stringify(codeAnswer(issued, challenge, email)));
+  }
+
+  if (action === "password-signup-verify") {
+    const email = String(body.email || "").trim().toLowerCase();
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_off" })); }
+    let data;
+    try { data = unseal(String(body.challenge || "")); } catch { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_challenge" })); }
+    if (!data || data.purpose !== "pw-signup" || !data.pwh || data.email !== email) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_challenge" })); }
+    if (Date.now() > data.exp) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "expired" })); }
+    if (!codeFails.peek("s:" + email)) { res.statusCode = 429; return res.end(JSON.stringify({ ok: false, error: "too_many", message: "محاولات كثيرة. اطلب رمزاً جديداً بعد قليل." })); }
+    if (!codeMatches(body.code, data.code)) { codeFails.hit("s:" + email); res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "wrong_code" })); }
+    codeFails.reset("s:" + email);
+    try {
+      const { raw, user, orgId } = await createSession(req, { email, name: String(body.name || "").slice(0, 120), company: String(body.company || "").slice(0, 160) });
+      await sb(`users?id=eq.${user.id}`, { method: "PATCH", prefer: "return=minimal", body: { password_hash: data.pwh } });
+      setSessionCookie(res, raw, Math.floor(SESSION_TTL_MS / 1000));
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, db: true, email, passwordSet: true, user: { id: user.id, email: user.email, name: user.full_name || "" }, organizationId: orgId }));
+    } catch {
+      res.statusCode = 502;
+      return res.end(JSON.stringify({ ok: false, error: "session_failed" }));
+    }
+  }
+
   if (action === "verify") {
     const code = String(body.code || "").trim();
     const email = String(body.email || "").trim().toLowerCase();
     let data;
     try { data = unseal(String(body.challenge || "")); }
     catch { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_challenge" })); }
+    // A challenge minted for another purpose (password sign-up, the Nafath
+    // contact step) carries a purpose; it must not double as a plain login code.
+    if (data.purpose) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_challenge" })); }
     if (Date.now() > data.exp) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "expired" })); }
     if (data.email !== email) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "email_mismatch" })); }
+    if (!codeFails.peek("v:" + email)) { res.statusCode = 429; return res.end(JSON.stringify({ ok: false, error: "too_many", message: "محاولات كثيرة. اطلب رمزاً جديداً بعد قليل." })); }
     const expected = String(data.code);
     const ok = code.length === expected.length && crypto.timingSafeEqual(Buffer.from(code), Buffer.from(expected));
-    if (!ok) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "wrong_code" })); }
+    if (!ok) { codeFails.hit("v:" + email); res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "wrong_code" })); }
+    codeFails.reset("v:" + email);
     // OTP passed — mint a real server session when the operational DB is
     // configured; otherwise keep the legacy stateless token so nothing breaks.
     if (DB_ON) {

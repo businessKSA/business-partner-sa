@@ -12,8 +12,8 @@ export const COMPANY = {
   crNumber: '7038825860',
   vatNumber: '312079341500003',
   address: {
-    ar: 'العارض، مكتب 25، 5890 ريحانة بنت زيد، الرياض، المملكة العربية السعودية',
-    en: 'Al Arid, Office 25, 5890 Rihana bint Zaid, Riyadh, Saudi Arabia',
+    ar: 'مبنى 9214، طريق الملك خالد الفرعي، حي العاصمة، الدرعية 13714، الرقم الفرعي 5076، المملكة العربية السعودية',
+    en: 'Building 9214, King Khaled Branch Road, Al Asemah Dist., Ad Diriyah 13714, Additional no. 5076, Saudi Arabia',
   },
   phone: '+966530540231',
   phoneDisplay: '+966 53 054 0231',
