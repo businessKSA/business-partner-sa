@@ -115,6 +115,61 @@ function opsOk(src) {
   return false;
 }
 
+// ---------------------------------------------------------- the sales role --
+// A narrow door beside the owner's, for the sales team (owner decision
+// 2026-10-21): they keep their own clients' stages and published updates, and
+// see nothing else in /ops — no payments, invoices, contracts, quotes, other
+// clients, tasks or settings.
+//
+//   WHO    — a signed-in session whose e-mail is listed in SALES_TEAM_EMAILS (an
+//            environment variable: comma / space separated). Unset or empty =
+//            there is no sales role at all; nothing defaults to anything.
+//   WHAT   — only the actions in SALES_ACTIONS. Every other ops-* action is 403.
+//   WHOSE  — only requests the owner tagged for sales: `assigned_to` equals
+//            «sales» (the whole team) or the member's own e-mail. A sales user
+//            cannot change `assigned_to` (ops-request-update is not in the list),
+//            so he cannot hand himself a client. Anything else is 403.
+//
+// The owner's own door is untouched: a valid panel key / Nafath ticket / owner
+// e-mail session is resolved first, exactly as before, and PANEL_REQUIRE_NAFATH
+// still closes the owner's session door. The sales door never opens an owner
+// action, so it weakens nothing there.
+const SALES_EMAIL_RE = /^[a-z0-9._+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$/i; // no comma / paren: the address is placed inside a PostgREST or=() filter
+export function salesTeamEmails() {
+  return String(process.env.SALES_TEAM_EMAILS || "").split(/[\s,;]+/).map((x) => x.trim().toLowerCase()).filter((x) => SALES_EMAIL_RE.test(x));
+}
+export const isSalesEmail = (email) => { const e = String(email || "").trim().toLowerCase(); return !!e && salesTeamEmails().includes(e); };
+export const SALES_ACTIONS = new Set(["ops-requests", "ops-request", "ops-stages-init", "ops-stage-set", "ops-update-add", "ops-update-edit", "ops-update-publish", "ops-update-unpublish", "ops-update-delete"]);
+export const SALES_TAG = "sales";
+export function inSalesScope(row, email) {
+  const a = String((row && row.assigned_to) || "").trim().toLowerCase();
+  return !!a && (a === SALES_TAG || a === String(email || "").trim().toLowerCase());
+}
+// What a sales user may read of a request: who the client is, where the work
+// stands, the stages and the team's updates (drafts included — they are his).
+// Nothing monetary or contractual, no conversation, no internal notes, no tasks.
+function salesRequestView(row, events) {
+  return {
+    ref: row.ref, type: row.type, source: row.source, status: row.status, title: row.title, lang: row.lang,
+    created_at: row.created_at, updated_at: row.updated_at,
+    client_name: row.client_name, client_email: row.client_email, client_phone: row.client_phone, company_name: row.company_name,
+    assigned_to: row.assigned_to || null,
+    stages: Array.isArray(row.stages) ? row.stages : [],
+    updates: Array.isArray(row.updates) ? row.updates : [],
+    events: (events || []).filter((e) => /^(stages?|update)\./.test(String(e.event || ""))),
+  };
+}
+function salesListRow(row) {
+  const st = Array.isArray(row.stages) ? row.stages : [];
+  return {
+    ref: row.ref, type: row.type, source: row.source, status: row.status, title: row.title,
+    created_at: row.created_at, updated_at: row.updated_at,
+    client_name: row.client_name, client_email: row.client_email, client_phone: row.client_phone, company_name: row.company_name,
+    assigned_to: row.assigned_to || null,
+    stages_total: st.length, stages_done: st.filter((x) => x && x.status === "done").length,
+  };
+}
+
 async function sendEmail(to, subject, html) {
   // "to" may be a comma-separated list (the owner mailboxes): send to each so
   // one bad address cannot swallow the whole notice.
@@ -508,15 +563,25 @@ export async function handleSimple(req, res) {
       // secret string he has to carry between devices is not that.
       let opsUser = null;
       if (!opsOk({ key: body.key || qs.key, ticket: body.ticket || qs.ticket })) {
-        // PANEL_REQUIRE_NAFATH closes this door too (owner decision 2026-10-16:
-        // the owner's panel opens with Nafath only). A session proves a mailbox,
-        // not a person standing at the phone.
-        if (panelRequiresNafath()) return json(res, 401, { ok: false, error: "unauthorized", nafath: true, signin: `${SELF_BASE}/ar/ops` });
+        // PANEL_REQUIRE_NAFATH closes the owner's session door (owner decision
+        // 2026-10-16: the owner's panel opens with Nafath only). A session proves a
+        // mailbox, not a person standing at the phone. The sales role is a
+        // different, narrower door (see above) and is the only thing a session may
+        // still open while Nafath is required.
+        const nafathOnly = panelRequiresNafath();
+        const salesOn = salesTeamEmails().length > 0;
+        if (nafathOnly && !salesOn) return json(res, 401, { ok: false, error: "unauthorized", nafath: true, signin: `${SELF_BASE}/ar/ops` });
         const sess = await getSession(req);
-        if (!isOwnerEmail(sess && sess.user && sess.user.email)) {
+        const mail = sess && sess.user && sess.user.email;
+        if (!nafathOnly && isOwnerEmail(mail)) {
+          opsUser = { email: String(mail).toLowerCase(), name: sess.user.full_name || "" };
+        } else if (salesOn && isSalesEmail(mail)) {
+          opsUser = { email: String(mail).trim().toLowerCase(), name: sess.user.full_name || "", role: "sales" };
+        } else if (nafathOnly) {
+          return json(res, 401, { ok: false, error: "unauthorized", nafath: true, signin: `${SELF_BASE}/ar/ops` });
+        } else {
           return json(res, 401, { ok: false, error: "unauthorized", signin: `${SELF_BASE}/ar/my` });
         }
-        opsUser = { email: String(sess.user.email).toLowerCase(), name: sess.user.full_name || "" };
       }
       return opsAction(action, body, qs, req, res, opsUser);
     }
@@ -1853,7 +1918,13 @@ async function waGateSet(phone, { paused, minutes, reason, actor }) {
 async function opsAction(action, b, qs, req, res, opsUser) {
   // Who did this, in the audit trail. A named owner beats the generic
   // «المالك» that a shared panel key can only ever produce.
-  const actor = (opsUser && (opsUser.name || opsUser.email)) || str(b.actor || qs.actor, 80) || "المالك";
+  const isSales = !!(opsUser && opsUser.role === "sales");
+  // The sales role is an allowlist, checked before anything else runs: an action
+  // that is not listed is refused here, whatever it would have done below.
+  if (isSales && !SALES_ACTIONS.has(action)) return json(res, 403, { ok: false, error: "forbidden_role", role: "sales" });
+  // A sales member is named by e-mail in the audit trail (a display name can be
+  // edited by its owner; the address is what was authenticated).
+  const actor = isSales ? opsUser.email : (opsUser && (opsUser.name || opsUser.email)) || str(b.actor || qs.actor, 80) || "المالك";
 
   if (action === "ops-summary") {
     const all = await sb("requests?select=ref,type,source,status,title,created_at,updated_at,quote,payment,invoice,appointment,client_name,company_name,assigned_to&order=created_at.desc&limit=500");
@@ -1891,6 +1962,12 @@ async function opsAction(action, b, qs, req, res, opsUser) {
   // Development only: what would have been emailed / sent on WhatsApp.
   if (action === "ops-outbox") {
     return json(res, 200, { ok: true, modes: MODES(), outbox: DEV ? await outboxList(60) : [] });
+  }
+
+  if (action === "ops-requests" && isSales) {
+    // Only the clients tagged for sales; the SQL narrows, the predicate decides.
+    const rows = await sb(`requests?select=*&or=(assigned_to.ilike.${SALES_TAG},assigned_to.ilike.${q(opsUser.email)})&order=updated_at.desc&limit=300`);
+    return json(res, 200, { ok: true, role: "sales", requests: rows.filter((r) => inSalesScope(r, opsUser.email)).map(salesListRow) });
   }
 
   if (action === "ops-requests") {
@@ -2072,7 +2149,14 @@ async function opsAction(action, b, qs, req, res, opsUser) {
   const ref = str(b.ref || qs.ref, 40);
   if (!ref) return json(res, 400, { ok: false, error: "missing_ref" });
   const row = await getByRef(ref);
+  // For a sales member a missing request and somebody else's are the same
+  // answer: 403 tells him nothing about which references exist.
+  if (isSales && !(row && inSalesScope(row, opsUser.email))) return json(res, 403, { ok: false, error: "forbidden_scope" });
   if (!row) return json(res, 404, { ok: false, error: "not_found" });
+
+  if (action === "ops-request" && isSales) {
+    return json(res, 200, { ok: true, role: "sales", request: salesRequestView(row, await eventsFor(row.id, 200)) });
+  }
 
   if (action === "ops-request") {
     const [events, tasks] = await Promise.all([eventsFor(row.id, 200), tasksFor(row.id)]);
