@@ -327,6 +327,7 @@ import { buildSimpleGuideRunBusiness } from "./simple-v1-guide-run-your-business
 import { buildSimpleGuideLiveInSaudi } from "./simple-v1-guide-live-in-saudi.mjs";
 import { buildSimpleGuideResidency } from "./simple-v1-guide-residency.mjs";
 import { buildSimpleKnowledge } from "./simple-v1-knowledge.mjs";
+import { buildSimpleBizDev } from "./simple-v1-business-development.mjs";
 function T(en) {
   const dict = TRANSLATIONS[LANG];
   return (dict && dict[en]) || en;
@@ -12031,7 +12032,10 @@ function writeFullSite(pre) {
   if (SIMPLE_V1) write(`${pre}catalog.html`, buildSimpleCatalog(SV1, { lang: () => LANG, esc, catLabel: (k) => L(catEn(k), catAr(k)), govLabel }));
   write(`${pre}about.html`, buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
-  write(`${pre}business-development.html`, buildBdaas());
+  // تطوير الأعمال كخدمة: عمودٌ من أعمدة المسار الأساسي، على الموقع الجديد
+  // (SV1.shell) تطبيقاً لـCLAUDE.md §2.6. buildBdaas() القديمة بقيت بلا نداء:
+  // كانت تُظهر الأسعار والعمولات و«30 يوماً مجاناً» واسم العلامة مترجَماً.
+  write(`${pre}business-development.html`, buildSimpleBizDev(SV1, { lang: () => LANG, esc, services, svcI18n }));
   write(`${pre}b10x.html`, buildB10X());
   write(`${pre}ai-agents.html`, buildAiAgents());
   write(`${pre}smart-employee.html`, buildSmartEmployeePage());
