@@ -20,7 +20,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { sb, DB_ON, DB_MISSING, getSession, audit, notify } from "./_db.js";
-import { contractHtml, quoteHtml } from "./_docusign.js";
+import { contractHtml, quoteHtml, portalContractHtml } from "./_docusign.js";
 import { loadCatalog } from "./_catalog.js";
 import { daftraConfigured } from "./_daftra.js";
 import { issuePaidInvoice, reportInvoiceBlocked, invoiceIsComplete, invoiceRetryDue, publicInvoice } from "./_invoicing.js";
@@ -31,6 +31,7 @@ import { waSend, waNumber } from "./_stage.js";
 import { storagePut, storageSign, storageDelete } from "./_db.js";
 import { readDocumentRaw, parseJson, DOC_MIME_OK, MAX_DOC_BYTES } from "./_docread.js";
 import { validateSlot, bookingMessage, bookingConfig, manageToken } from "./_booking.js";
+import { normalizePhone } from "./_clientauth.js";
 
 export const SIMPLE_TEST_MODE = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview" || DEV;
 // Live since 2026-09-04: a customer who approves a quotation must be told the
@@ -80,6 +81,14 @@ export function cancelPolicy(row) {
   if (!row || ["CANCELLED", "COMPLETED"].includes(row.status)) return "closed";
   return CANCEL_NOW.includes(row.status) && !moneyReceived(row) ? "now" : "ask";
 }
+// The stage in the team's words, for the lines the engine writes itself (the
+// panel and the e-mail both print them; a raw code like IN_PROGRESS is not a sentence).
+const STAGE_AR = {
+  NEW: "جديد", REVIEWING: "قيد المراجعة", WAITING_CLIENT: "بانتظار ردّ العميل", WAITING_INTERNAL: "بانتظار الفريق", PRICING: "قيد التسعير",
+  QUOTE_SENT: "عرض سعر مُرسل", QUOTE_APPROVED: "العرض معتمد", CONTRACT_SENT: "عقد بانتظار التوقيع", SIGNED: "عقد موقّع بانتظار الدفع",
+  PAYMENT_PENDING: "بانتظار الدفع", PAID: "مدفوع", IN_PROGRESS: "قيد التنفيذ", COMPLETED: "مكتمل", CANCELLED: "ملغي",
+};
+const stageAr = (s) => STAGE_AR[s] || String(s || "");
 const TASK_STATUS = { TODO: "open", IN_PROGRESS: "in_progress", WAITING: "blocked", DONE: "done" };
 const TASK_STATUS_BACK = { open: "TODO", in_progress: "IN_PROGRESS", blocked: "WAITING", done: "DONE", cancelled: "DONE" };
 const VAT_RATE = 0.15;
@@ -94,6 +103,51 @@ const nowIso = () => new Date().toISOString();
 const q = (s) => encodeURIComponent(String(s));
 const newRef = () => "BP-R-" + crypto.randomBytes(3).toString("hex").toUpperCase();
 const clientIp = (req) => String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "").split(",")[0].trim().slice(0, 64);
+
+// ------------------------------------------------ who the client is (D3) --
+// An account opened with an e-mail link or a password has no name: the first
+// sign-in used the part of the address before the «@» as the person's name and
+// as the organisation's name, and from there it travelled onto the quotation,
+// the contract, the invoice and the operations board («journey1»,
+// «العميل —», «لا رقم جوال»). A name that is only the address's own prefix is
+// a placeholder, never a name — it is asked for once, in /my, and the real one
+// replaces it everywhere the client is written down.
+const emailLocal = (email) => String(email || "").split("@")[0].trim().toLowerCase();
+export function isPlaceholderName(name, email) {
+  const n = String(name == null ? "" : name).trim().toLowerCase();
+  if (!n || n.includes("@")) return true;
+  const lp = emailLocal(email);
+  return !!lp && n === lp;
+}
+// The name printed on a quotation, contract or invoice: the company if the
+// client named one, else the person; the address's prefix is never either.
+export function partyName(row) {
+  const email = row && row.client_email;
+  const company = String((row && row.company_name) || "").trim(), person = String((row && row.client_name) || "").trim();
+  if (company && !isPlaceholderName(company, email)) return company;
+  if (person && !isPlaceholderName(person, email)) return person;
+  return String(email || "") || company || person;
+}
+const cleanFullName = (v) => String(v == null ? "" : v).replace(/\s+/g, " ").trim().slice(0, 160);
+// «الاسم الكامل»: at least two words, letters only — a single token is the
+// address prefix again, and digits or markup are never part of a person's name.
+export function fullNameOk(v) {
+  const n = cleanFullName(v);
+  return n.length >= 5 && !/[\d@<>{}\\/]/.test(n) && n.split(" ").filter((w) => w.length >= 2).length >= 2;
+}
+async function userPhone(sess) {
+  try {
+    const r = await sb(`users?id=eq.${q(sess.user.id)}&select=phone&limit=1`);
+    return str(r && r[0] && r[0].phone, 40);
+  } catch { return ""; }
+}
+// What /my needs to ask before it can serve this client properly.
+async function profileOf(sess) {
+  const email = String(sess.user?.email || "").toLowerCase();
+  const name = isPlaceholderName(sess.user?.full_name, email) ? "" : cleanFullName(sess.user.full_name);
+  const phone = await userPhone(sess);
+  return { name, phone, needsName: !fullNameOk(name), needsPhone: !phone };
+}
 
 // The owner's panel key, exactly as /api/requests and /api/chat accept it.
 const PANEL_KEYS = new Set([(process.env.PANEL_KEY || "").trim(), (process.env.LEADS_KEY || process.env.DASHBOARD_KEY || "").trim()].filter(Boolean));
@@ -348,9 +402,14 @@ const DOC_STATES = ["requested", "received", "waived"];
 function buildContract(row, opts = {}) {
   const at = opts.at && !Number.isNaN(Date.parse(opts.at)) ? new Date(opts.at) : new Date();
   const today = at.toLocaleDateString("ar-SA-u-nu-latin", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Riyadh" });
-  const build = { lead_time: str(opts.lead_time, 120), executor: str(opts.executor, 120) };
+  // The party's name is remembered too (D3): a signed paper must rebuild with
+  // the name it was signed under, not whatever the client's profile says today —
+  // otherwise filling in a real name would flag every signed contract «sign again».
+  // Contracts issued before this was stored fall back to the old rule they were built by.
+  const party = opts.party != null ? str(opts.party, 200) : opts.legacyName ? str(row.company_name || row.client_name || row.client_email, 200) : str(partyName(row), 200);
+  const build = { lead_time: str(opts.lead_time, 120), executor: str(opts.executor, 120), party };
   const html = contractHtml({
-    ref: row.ref, clientName: row.company_name || row.client_name || row.client_email, service: row.title,
+    ref: row.ref, clientName: party, service: row.title,
     lines: row.quote.items.map((l) => ({ name: l.title, nameEn: l.titleEn, qty: l.qty, price: l.price, line: l.line })),
     net: row.quote.net, vat: row.quote.vat, total: row.quote.total, vatRate: 15,
     leadTime: build.lead_time, executor: build.executor || "Business Partner", today,
@@ -631,7 +690,49 @@ async function clientAction(action, b, qs, req, res, sess) {
       payments: mine.filter((r) => ["SIGNED", "PAYMENT_PENDING"].includes(r.status)).length,
       appointments: new Set(mine.filter((r) => r.status !== "CANCELLED" && r.appointment && r.appointment.status !== "CANCELLED" && r.appointment.date >= nowIso().slice(0, 10)).map((r) => r.appointment.date + " " + r.appointment.time)).size,
     };
-    return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, user: { name: sess.user.full_name || "", email }, organization: sess.organization, counts, requests: mine.map(summary) });
+    // The address prefix is not the client's name (D3): /my asks for the real
+    // name and mobile once, and the answer fills every open request below.
+    const prof = await profileOf(sess);
+    return json(res, 200, {
+      ok: true, testMode: SIMPLE_TEST_MODE,
+      user: { name: prof.name, email, phone: prof.phone, needsName: prof.needsName, needsPhone: prof.needsPhone, needsProfile: prof.needsName || prof.needsPhone },
+      organization: sess.organization, counts, requests: mine.map(summary),
+    });
+  }
+
+  // Name and mobile, asked once (D3). The mobile goes through the same
+  // normaliser as the Nafath contact step, so a number is either a real Saudi
+  // (or international) mobile or it is refused; nothing here weakens sign-in —
+  // the account was already proven by its own door, this only says who it is.
+  // The answer replaces the placeholder name on the user, the organisation and
+  // every open request, so the quotation, the contract, the invoice and /ops
+  // all carry the same person from now on. A request whose contract is already
+  // signed or paid is left exactly as signed.
+  if (action === "profile-set") {
+    const name = cleanFullName(b.name);
+    if (!fullNameOk(name)) return json(res, 400, { ok: false, error: "invalid_name" });
+    const ph = normalizePhone(b.phone);
+    if (!ph.ok) return json(res, 400, { ok: false, error: "invalid_phone", reason: ph.reason });
+    await sb(`users?id=eq.${q(sess.user.id)}`, { method: "PATCH", prefer: "return=minimal", body: { full_name: name, phone: ph.value } });
+    if (orgId && isPlaceholderName(sess.organization?.name_ar, email)) {
+      try { await sb(`organizations?id=eq.${q(orgId)}`, { method: "PATCH", prefer: "return=minimal", body: { name_ar: name } }); } catch (e) { console.error("profile org", String(e.message || e).slice(0, 120)); }
+    }
+    let updated = 0;
+    try {
+      const mine = await myRequests(sess);
+      for (const r of mine) {
+        if (["CANCELLED", "COMPLETED"].includes(r.status) || (r.contract && r.contract.status === "SIGNED") || moneyReceived(r)) continue;
+        const patch = {};
+        if (isPlaceholderName(r.client_name, r.client_email)) patch.client_name = name;
+        if (!str(r.client_phone, 40)) patch.client_phone = ph.value;
+        if (isPlaceholderName(r.company_name, r.client_email)) patch.company_name = name;
+        if (!Object.keys(patch).length) continue;
+        await patchRequest(r.id, patch);
+        updated++;
+      }
+    } catch (e) { console.error("profile requests", String(e.message || e).slice(0, 120)); }
+    await audit({ organization_id: orgId, actor_user_id: sess.user.id, action: "simple.profile.set", entity: "users", entity_id: sess.user.id, meta: { requests: updated } });
+    return json(res, 200, { ok: true, user: { name, email, phone: ph.value, needsName: false, needsPhone: false, needsProfile: false }, updated });
   }
 
   if (action === "requests") {
@@ -645,14 +746,22 @@ async function clientAction(action, b, qs, req, res, sess) {
     const conversation = normConversation(b.conversation);
     const scope = normScope(b.scope);
     const ref = newRef();
+    // The person's own name and mobile (D3): what the form sent, else what the
+    // account holds. The address prefix is never used as either.
+    const prof = await profileOf(sess);
+    const typed = cleanFullName(b.name);
+    const cName = !isPlaceholderName(typed, email) ? typed : prof.name;
+    const typedPhone = normalizePhone(b.phone);
+    const cPhone = typedPhone.ok ? typedPhone.value : (prof.phone || str(b.phone, 40));
+    const orgName = str(sess.organization?.name_ar || sess.organization?.name_en, 200);
     const row = {
       ref, organization_id: orgId, user_id: sess.user.id, type, source, status: "NEW",
       lang: ["ar", "en", "fr", "zh"].includes(b.lang) ? b.lang : "ar",
       title: str(b.title, 200) || defaultTitle(type, b.lang),
       summary: str(b.summary, 2000),
       conversation, scope, documents: normDocuments(b.documents),
-      client_name: str(b.name || sess.user.full_name, 160), client_email: email, client_phone: str(b.phone, 40),
-      company_name: str(b.company || sess.organization?.name_ar || sess.organization?.name_en, 200),
+      client_name: cName, client_email: email, client_phone: cPhone,
+      company_name: str(b.company, 200) || (orgName && !isPlaceholderName(orgName, email) ? orgName : cName),
     };
     const rows = await sb("requests", { method: "POST", body: [row] });
     const created = rows[0];
@@ -721,6 +830,18 @@ async function clientAction(action, b, qs, req, res, sess) {
     if (!["NEW", "REVIEWING", "WAITING_CLIENT"].includes(row.status) || scopeLockedByQuote(row)) return json(res, 409, { ok: false, error: "scope_locked", message: "النطاق مقفل بعد إصدار عرض السعر." });
     const scope = normScope(b.scope && b.scope.length ? b.scope : row.scope);
     if (!scope.length) return json(res, 400, { ok: false, error: "no_items", message: "أضف بنداً واحداً على الأقل إلى نطاق الخدمات." });
+    // The quotation, the contract and the invoice carry this person's name, and
+    // the team replies to this mobile (D3): neither is a guess from the address.
+    const prof = await profileOf(sess);
+    if (prof.needsName || (!prof.phone && !str(row.client_phone, 40))) {
+      return json(res, 409, { ok: false, error: "profile_required", message: "أكمل اسمك الكامل ورقم جوالك أولاً — يظهران في عرض السعر والعقد والفاتورة." });
+    }
+    // Carry them onto this request now, so the paper issued next is already right.
+    const carry = {};
+    if (isPlaceholderName(row.client_name, row.client_email) && prof.name) carry.client_name = prof.name;
+    if (!str(row.client_phone, 40) && prof.phone) carry.client_phone = prof.phone;
+    if (isPlaceholderName(row.company_name, row.client_email) && prof.name) carry.company_name = prof.name;
+    if (Object.keys(carry).length) { await patchRequest(row.id, carry); Object.assign(row, carry); }
     await patchRequest(row.id, { scope });
     await logEvent(row.id, "customer", who, "scope.confirmed", { items: scope.map((it) => it.title) });
 
@@ -884,6 +1005,9 @@ async function clientAction(action, b, qs, req, res, sess) {
   if (action === "quote-approve" || action === "quote-reject") {
     if (row.status !== "QUOTE_SENT" || !row.quote) return json(res, 409, { ok: false, error: "no_open_quote" });
     const approve = action === "quote-approve";
+    // D4: a request to change the quotation says what to change — one line is
+    // enough, but silence gives the team nothing to act on.
+    if (!approve && str(b.note, 500).length < 3) return json(res, 400, { ok: false, error: "note_required" });
     // «صالح حتى …» is printed on the quotation; accepting it after that date
     // would bind us to a price the quotation itself says has lapsed. Declining
     // an expired quote stays open. The team renews it from /ops (ops-quote).
@@ -923,7 +1047,7 @@ async function clientAction(action, b, qs, req, res, sess) {
     if (!row.quote) return json(res, 404, { ok: false, error: "no_quote" });
     const html = quoteHtml({
       ref: row.ref, number: row.quote.number,
-      clientName: row.company_name || row.client_name || row.client_email,
+      clientName: partyName(row),
       items: row.quote.items || [], net: row.quote.net, vat: row.quote.vat, total: row.quote.total,
       validUntil: row.quote.valid_until || "", paymentTerms: row.quote.payment_terms || "",
       notes: row.quote.notes || "", lang: row.lang || "ar",
@@ -952,7 +1076,11 @@ async function clientAction(action, b, qs, req, res, sess) {
       try {
         // Same inputs as at issue: the date it was issued and the lead time /
         // executor typed then. Anything else rebuilds a different paper.
-        const rebuilt = buildContract(row, { ...(row.contract.build || {}), at: row.contract.created_at });
+        const b0 = row.contract.build || {};
+        const signedNow = !!row.contract.signature;
+        const rebuilt = buildContract(row, signedNow
+          ? { ...b0, at: row.contract.created_at, legacyName: b0.party == null }
+          : { lead_time: b0.lead_time, executor: b0.executor, at: row.contract.created_at });
         if (rebuilt.html && rebuilt.html !== row.contract.html) {
           const signed = !!row.contract.signature;
           contract = {
@@ -966,7 +1094,10 @@ async function clientAction(action, b, qs, req, res, sess) {
         }
       } catch (e) { console.error("contract rebuild", String(e.message || e).slice(0, 140)); }
     }
-    return json(res, 200, { ok: true, html, needsResign: !!contract.needs_resign, contract: { ...contract, html: undefined, html_signed: undefined } });
+    // D1: the stored paper (and its SHA-256) never changes; only what is shown
+    // is turned into a page a person can read — no DocuSign tags, and after
+    // signing the signer's name, date, drawing and short fingerprint.
+    return json(res, 200, { ok: true, html: portalContractHtml(html, { signature: contract.signature, signedAt: contract.signed_at, stale: !!contract.needs_resign }), needsResign: !!contract.needs_resign, contract: { ...contract, html: undefined, html_signed: undefined } });
   }
 
   if (action === "contract-sign") {
@@ -1123,7 +1254,7 @@ async function clientAction(action, b, qs, req, res, sess) {
       await logEvent(row.id, "customer", who, "request.cancelled", { note, stage: row.status });
       if (apptLive) await logEvent(row.id, "customer", who, "appointment.cancelled", { date: row.appointment.date, time: row.appointment.time, with_request: true });
       await closeAutoTasks(row.id);
-      const opsBits = [`${row.client_name || who} ألغى الطلب بنفسه من مرحلة ${row.status}.`,
+      const opsBits = [`${row.client_name || who} ألغى الطلب بنفسه من مرحلة «${stageAr(row.status)}».`,
         contractSigned ? "العقد كان موقَّعاً ولم يُدفع شيء." : "قبل أي توقيع أو دفع."];
       if (apptLive) opsBits.push(`أُلغي موعده ${row.appointment.date} ${row.appointment.time}${calendar === "cancelled" ? " وأُلغي حدثه في التقويم." : calendar === "failed" ? " — تعذّر إلغاء حدثه في التقويم، أزله يدوياً." : " — أزله من التقويم إن وُجد."}`);
       if (note) opsBits.push(`السبب: ${note}`);
@@ -1143,12 +1274,14 @@ async function clientAction(action, b, qs, req, res, sess) {
     await sweepTask(upd, {
       source: "cancel.request", urgency: "high", human: true,
       title: () => `طلب إلغاء — ${row.ref}`,
-      details: () => `العميل طلب إلغاء الطلب وهو في مرحلة ${row.status}.${paid ? " ⚠️ الطلب مدفوع — الاسترداد قرارٌ منفصل." : ""}${note ? ` السبب: ${note}` : ""} راجع ما ترتّب عليه (عقد موقّع / دفعة / تنفيذ) ثم ألغِه من اللوحة أو تواصل معه.`,
+      details: () => `العميل طلب إلغاء الطلب وهو في مرحلة «${stageAr(row.status)}».${paid ? " ⚠️ الطلب مدفوع — الاسترداد قرارٌ منفصل." : ""}${note ? ` السبب: ${note}` : ""} راجع ما ترتّب عليه (عقد موقّع / دفعة / تنفيذ) ثم ألغِه من اللوحة أو تواصل معه.`,
     }, "المستشار الذكي");
     await announce(upd, "cancel-request", {
       subject: `طلب إلغاء ${row.ref} بانتظار مراجعة الفريق`,
-      clientLine: "استلمنا طلب الإلغاء. الطلب وصل مرحلةً يترتّب عليها التزامات، فيراجعه الفريق ويعود لك.",
-      opsLine: `${row.client_name || who} طلب إلغاء الطلب في مرحلة ${row.status}.${paid ? " الطلب مدفوع — الاسترداد قرارٌ منفصل." : ""}${note ? ` السبب: ${note}` : ""}`,
+      clientLine: paid
+        ? "استلمنا طلب الإلغاء. الطلب مدفوع، فيراجع الفريق الدفعة وما ترتّب على الطلب ويعود لك بالقرار. لا نَعِد هنا بمبلغ أو بمدة قبل أن تكتمل المراجعة."
+        : "استلمنا طلب الإلغاء. الطلب وصل مرحلةً يترتّب عليها التزامات، فيراجعه الفريق ويعود لك.",
+      opsLine: `${row.client_name || who} طلب إلغاء الطلب في مرحلة «${stageAr(row.status)}».${paid ? " الطلب مدفوع — الاسترداد قرارٌ منفصل." : ""}${note ? ` السبب: ${note}` : ""}`,
       cta: "افتح الطلب في لوحة العمليات",
     });
     return json(res, 200, { ok: true, status: row.status, requested: true });
@@ -1219,7 +1352,7 @@ function invoiceDraftForRequest(row, payment) {
     name: str(l.title, 140) || "خدمة", quantity: Math.max(1, Math.min(999, num(l.qty) || 1)), unitPrice: round2(num(l.price)),
   })).filter((i) => i.unitPrice >= 0);
   const buyer = {
-    name: str(row.company_name || row.client_name, 160),
+    name: str(partyName(row), 160),
     email: str(row.client_email, 160), phone: str(row.client_phone, 40),
   };
   const notes = [`مرجع الطلب: ${row.ref}`, `عرض السعر: ${row.quote?.number || ""}`, "مدفوعة إلكترونياً عبر الموقع"].filter(Boolean).join("\n");
@@ -2171,7 +2304,13 @@ async function opsAction(action, b, qs, req, res, opsUser) {
       const label = [a.kind === "deliverable" ? "تسليم للعميل" : a.doc ? "مستند مطلوب: " + a.doc : "", a.title, a.note].filter(Boolean).join(" · ");
       return { ...a, note: label, url: url || undefined, path: undefined };
     }));
-    return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, request: { ...row, attachments, contract: row.contract ? { ...row.contract, html: undefined, has_html: !!row.contract.html } : null, events, tasks } });
+    const rejectedItems = row.quote && row.quote.status === "REJECTED" && Array.isArray(row.quote.items) ? row.quote.items : [];
+    const scope = (row.scope || []).map((it) => {
+      if (it.price != null || !rejectedItems.length) return it;
+      const was = rejectedItems.find((l) => it.code && l.code && String(l.code).toUpperCase() === String(it.code).toUpperCase()) || rejectedItems.find((l) => l.title === it.title);
+      return was && was.price != null ? { ...it, price: was.price } : it;
+    });
+    return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, request: { ...row, scope, attachments, contract: row.contract ? { ...row.contract, html: undefined, has_html: !!row.contract.html } : null, events, tasks } });
   }
 
   if (action === "ops-request-update") {
@@ -2243,7 +2382,7 @@ async function opsAction(action, b, qs, req, res, opsUser) {
     if (!row.contract || !row.contract.html) return json(res, 404, { ok: false, error: "no_contract" });
     // اللوحة تقرأ ما يقرأه العميل — بما فيه النسخة المصحَّحة — وتُنبَّه إن
     // كان العقد قد صُحِّح بعد التوقيع فيحتاج توقيعاً جديداً.
-    return json(res, 200, { ok: true, html: row.contract.html, needsResign: !!row.contract.needs_resign, correctedAt: row.contract.corrected_at || "" });
+    return json(res, 200, { ok: true, html: portalContractHtml(row.contract.html, { signature: row.contract.signature, signedAt: row.contract.signed_at, stale: !!row.contract.needs_resign }), needsResign: !!row.contract.needs_resign, correctedAt: row.contract.corrected_at || "" });
   }
 
   // الإلغاء من لوحة العمليات: في أي مرحلة، بسببٍ مُدوَّن، وبإشعار الطرفين.
@@ -2263,8 +2402,8 @@ async function opsAction(action, b, qs, req, res, opsUser) {
     await audit({ organization_id: row.organization_id, action: "simple.request.cancel", entity: "requests", entity_id: row.id, meta: { ref: row.ref, note } });
     await announce(upd, "cancelled", {
       subject: `أُلغي الطلب ${row.ref}`,
-      clientLine: `ألغينا الطلب.${note ? ` السبب: ${note}` : ""} إن كان لديك استفسار راسلنا وسنساعدك.`,
-      opsLine: `${actor} ألغى الطلب من مرحلة ${row.status}.${wasPaid ? " ⚠️ الطلب مدفوع — الاسترداد قرارٌ منفصل لم يُنفَّذ." : ""}`,
+      clientLine: `ألغينا الطلب.${note ? ` السبب: ${note}` : ""}${wasPaid ? " وبما أنّ الطلب كان مدفوعاً، يراجع الفريق الدفعة ويتواصل معك بشأنها؛ لا نَعِد هنا بمبلغ أو بمدة قبل اكتمال المراجعة." : ""} إن كان لديك استفسار راسلنا وسنساعدك.`,
+      opsLine: `${actor} ألغى الطلب من مرحلة «${stageAr(row.status)}».${wasPaid ? " ⚠️ الطلب مدفوع — الاسترداد قرارٌ منفصل لم يُنفَّذ." : ""}`,
     });
     return json(res, 200, { ok: true, status: "CANCELLED", wasPaid: !!wasPaid, refundPending: !!wasPaid });
   }

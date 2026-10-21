@@ -754,14 +754,24 @@ else setCtx(state.ctx,true);
   var PORTAL="/fr/my", HOME="/fr/", LANG="fr";
   var TYPE={consulting:'CONSULTATION',government:'GOVERNMENT_SERVICE',formation:'COMPANY_FORMATION',bizdev:'BUSINESS_DEVELOPMENT'};
   var LABELS={"empty":"Vérifiez le périmètre avant de créer le devis.","creating":"Création de votre demande…","error":"Impossible de créer la demande. Réessayez."};
-  function draft(){try{return JSON.parse(sessionStorage.getItem('sv1_chat')||'null')}catch(e){return null}}
+  // The chat draft lives in this TAB's sessionStorage. A guest who asks for an
+  // e-mailed sign-in link finishes signing in in ANOTHER tab, which cannot see it
+  // (D2). So the click below also leaves a copy in localStorage for one hour —
+  // the portal tab that the link opens reads it and completes the request; it is
+  // removed the moment the request is created. Only what the guest typed into the
+  // public chat is in it, in his own browser.
+  function pending(){try{var p=JSON.parse(localStorage.getItem('sv1_pending_quote')||'null');if(p&&p.at&&Date.now()-p.at<36e5&&p.draft)return p}catch(e){}return null}
+  // In the tab a sign-in link opened, the home page has already filled its own
+  // chat with the default starter scope; the guest's real draft is the copy.
+  function draft(fromLink){var d=null;try{d=JSON.parse(sessionStorage.getItem('sv1_chat')||'null')}catch(e){}var p=pending();if(fromLink&&p)return p.draft;if(d&&Array.isArray(d.items)&&d.items.length)return d;return p?p.draft:d}
+  function alreadyCreated(){try{var pid=sessionStorage.getItem('sv1_pid');return !!pid&&localStorage.getItem('sv1_pending_done')===pid}catch(e){return false}}
   function accountUrl(){
     // The portal already supports ?next= and returns the signed-in customer to it.
     var resume=HOME+'?resume=quote#advisor';
     return PORTAL+'?next='+encodeURIComponent(resume);
   }
-  function createFromDraft(btn){
-    var d=draft();
+  function createFromDraft(btn,fromLink){
+    var d=draft(fromLink);
     if(!d||!Array.isArray(d.items)||!d.items.length){alert(LABELS.empty);return}
     var original=btn.textContent; btn.disabled=true; btn.textContent=LABELS.creating;
     var sess=window.SV1_SESSION&&window.SV1_SESSION.user||{};
@@ -771,7 +781,7 @@ else setCtx(state.ctx,true);
       name:sess.full_name||'',phone:sess.phone||''
     })}).then(function(r){return r.json()}).then(function(o){
       if(!o||!o.ok)throw new Error((o&&o.message)||'request_failed');
-      try{sessionStorage.removeItem('sv1_chat');sessionStorage.removeItem('sv1_resume_quote')}catch(e){}
+      try{var pp=pending();if(pp&&pp.pid)localStorage.setItem('sv1_pending_done',pp.pid);localStorage.removeItem('sv1_pending_quote');sessionStorage.removeItem('sv1_chat');sessionStorage.removeItem('sv1_resume_quote')}catch(e){}
       location.href=PORTAL+'?ref='+encodeURIComponent(o.ref);
     }).catch(function(){btn.disabled=false;btn.textContent=original;alert(LABELS.error)});
   }
@@ -782,9 +792,11 @@ else setCtx(state.ctx,true);
     var btn=e.target&&e.target.closest&&e.target.closest('#sv1Create');
     if(!btn)return;
     e.preventDefault();e.stopImmediatePropagation();
+    if(alreadyCreated()){location.href=PORTAL;return}
     var d=draft();
     if(!d||!Array.isArray(d.items)||!d.items.length){alert(LABELS.empty);return}
     if(window.SV1_SESSION&&window.SV1_SESSION.user){createFromDraft(btn);return}
+    try{var pid=Math.random().toString(36).slice(2)+Date.now().toString(36);sessionStorage.setItem('sv1_pid',pid);localStorage.setItem('sv1_pending_quote',JSON.stringify({at:Date.now(),pid:pid,draft:d}))}catch(_){}
     try{sessionStorage.setItem('sv1_resume_quote','1')}catch(_){}
     location.href=accountUrl();
   },true);
@@ -797,7 +809,7 @@ else setCtx(state.ctx,true);
       if(window.SV1_SESSION&&window.SV1_SESSION.user){
         clearInterval(t);
         try{history.replaceState({},'',HOME+'#advisor')}catch(_){}
-        var b=document.getElementById('sv1Create');if(b)createFromDraft(b);
+        var b=document.getElementById('sv1Create');if(b)createFromDraft(b,!!pending()&&!sessionStorage.getItem('sv1_pid'));
       } else if(tries>40){clearInterval(t);location.href=accountUrl()}
     },250);
   }
