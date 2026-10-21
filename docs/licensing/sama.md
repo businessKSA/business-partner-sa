@@ -1,7 +1,7 @@
 > **سجلّ مرجعي داخلي — ليس للنشر على الموقع.** بحثٌ من المصادر الرسمية بتاريخ 2026-10-07.
 > كل حقل موسوم `VERIFIED (url)` أو `UNVERIFIED`. لا يُنقل أي `UNVERIFIED` إلى عميل
-> كحقيقة. أرقام رأس مال شركات التمويل الواردة فيه من تعديل 2023 ولم تعد سارية بعد
-> اللائحة 179/MFC (2025) — لا تُستعمل. القواعد في `README.md`. التحديث لـ`fintech-licensing` وحده.
+> كحقيقة. رأس مال شركات التمويل: **صُحّح 2026-10-21** من النص الحرفي للائحة
+> 179/MFC المادة 8 — انظر «ب-٢» أدناه. لا تُستعمل أرقام 2023 الواردة في الجدول القديم. القواعد في `README.md`. التحديث لـ`fintech-licensing` وحده.
 
 # SAMA licensing map (research date 2026-10-07)
 
@@ -42,11 +42,11 @@ Governing: Banking Control Law M/5, 11/6/1966, In-Force, VERIFIED https://rulebo
 Application channel for banks: written application with a hard copy by post to SAMA, General Department of Banking Control, Banking Licensing Division, P.O. Box 2992, Riyadh 11169, plus a soft copy to BankingLicenseApp@SAMA.GOV.SA. VERIFIED https://rulebook.sama.gov.sa/en/application-process-4. SAMA will acknowledge and name a case officer within 15 business days; there is no fixed decision deadline. VERIFIED https://rulebook.sama.gov.sa/en/licensing-guidelines-and-minimum-criteria. No online portal is named.
 
 ### B. Finance companies
-Governing: Finance Companies Control Law (Royal Decree M/51, 3/7/2012) – VERIFIED metadata https://rulebook.sama.gov.sa/en/node/1030. Implementing Regulation No. 179/MFC, dated 22/12/2025 (2/7/1447H), In-Force. It replaced the earlier regulation (No. 2/MFC, 2013, marked "no longer applicable"). VERIFIED https://rulebook.sama.gov.sa/en/implementing-regulation-finance-companies-control-law-0 and https://www.sama.gov.sa/en-US/MediaCenter/News/pages/news-1125.aspx. The Dec 2025 update repealed the Consumer Microfinance Companies rules and the Rules of Engaging in Microfinance Activity, and amended the Rules of Licensing Finance Support Activities (same news page). Licence types listed at https://rulebook.sama.gov.sa/en/types-licenses-1 – VERIFIED. Companies must be "joint stock".
+Governing: Finance Companies Control Law (Royal Decree M/51, 3/7/2012) – VERIFIED metadata https://rulebook.sama.gov.sa/en/node/1030. Implementing Regulation No. 179/MFC (page date 23/10/2025; the amending circular is dated 22/12/2025 – see ب-٢), In-Force. It replaced the earlier regulation (No. 2/MFC, 2013, marked "no longer applicable"). VERIFIED https://rulebook.sama.gov.sa/en/implementing-regulation-finance-companies-control-law-0 and https://www.sama.gov.sa/en-US/MediaCenter/News/pages/news-1125.aspx. The Dec 2025 update repealed the Consumer Microfinance Companies rules and the Rules of Engaging in Microfinance Activity, and amended the Rules of Licensing Finance Support Activities (same news page). Licence types listed at https://rulebook.sama.gov.sa/en/types-licenses-1 – VERIFIED. Companies must be "joint stock".
 
 Activities SAMA lists: real estate finance; microfinance; production asset finance; consumer microfinance activity; SME finance; consumer microfinance using financial technology; finance lease; refinance; credit card finance; debt-based crowdfunding; consumer finance; any other approved finance activity. The licence-types page does not list BNPL; BNPL has its own rules (item 14).
 
-Capital caution. The only per-activity capital tiers found come from the 2023 amendment to Art. 8 (Governor's Decision 126/M SH T, 11/1/2023). They are real estate finance SAR 200m; other finance activities SAR 100m; microfinance only SAR 10m; SME finance only SAR 50m. VERIFIED https://rulebook.sama.gov.sa/en/node/1641. That page says the amendment is "No longer applicable" because SAMA updated the Implementing Regulation in Dec 2025. The current capital figures in the Dec 2025 text could not be read, so DO NOT use those figures as current. Treat all finance-company capital as UNVERIFIED (current).
+**[صُحّح 2026-10-21 — راجع ب-٢ أعلاه]** Capital caution (superseded). The only per-activity capital tiers found come from the 2023 amendment to Art. 8 (Governor's Decision 126/M SH T, 11/1/2023). They are real estate finance SAR 200m; other finance activities SAR 100m; microfinance only SAR 10m; SME finance only SAR 50m. VERIFIED https://rulebook.sama.gov.sa/en/node/1641. That page says the amendment is "No longer applicable" because SAMA updated the Implementing Regulation in Dec 2025. The current capital figures in the Dec 2025 text could not be read, so DO NOT use those figures as current. Treat all finance-company capital as UNVERIFIED (current).
 
 | # | Arabic (UNVERIFIED) | English | Instrument | Notes |
 |---|---|---|---|---|
@@ -64,6 +64,43 @@ Capital caution. The only per-activity capital tiers found come from the 2023 am
 | 16 | شركات التمويل المستقبلة للودائع | Deposit-Taking Finance Companies (DTFC) | "DTFCs Regulations" (Parts I-III) | Listed at https://rulebook.sama.gov.sa/en/special-finance-companies. It is unclear whether this is a separate licence type. The text was not read. UNVERIFIED. |
 
 Application channel for finance companies: email the License Request Form and attachments to NBFI-LIC@SAMA.GOV.SA. No portal. No timeline on the general page. VERIFIED https://rulebook.sama.gov.sa/en/application-process-0. Licensing guidelines exist for five categories: consumer microfinance, debt-based crowdfunding, finance support, BNPL, and finance/refinance (https://rulebook.sama.gov.sa/en/licensing-guidelines, VERIFIED titles only).
+
+### ب-٢. نص اللائحة 179/MFC كما قُرئ حرفياً — تحديث 2026-10-21
+
+قُرئ النص الإنجليزي والعربي كاملاً من `rulebook.sama.gov.sa` (الصفحة `entiresection`)، لا من ملخّص. كل ما يلي **VERIFIED-VERBATIM**.
+**تنبيه تاريخ:** الصفحة تعرض اللائحة بـ`No: 179/MFC` وتاريخ **23/10/2025 (1/5/1447)** وحالة In-Force. أما 22/12/2025 فتاريخ **التعميم المعدِّل** 472038006 الذي ألغى القراران 80/م ش ت و82/م ش ت (مهلة 90 يوماً) ونقل مضمونهما إلى المواد 1 و8 و9 و13 و24 و58. وجود شرائح التمويل الاستهلاكي متناهي الصغر والتمويل الجماعي في المادة 8 يدلّ على أن النص المعروض بعد التعديل — **استنتاج لا نصّ**.
+
+**المادة 8(1) — الحد الأدنى لرأس المال المدفوع** (رهناً بنظام الشركات):
+
+| النشاط | رأس المال |
+|---|---|
+| تمويل عقاري | 200 مليون ريال |
+| نشاط أو أكثر غير العقاري (يشمل الاستهلاكي وتمويل الأصول الإنتاجية والتأجير التمويلي والبطاقات بحسب نص البند ب) | 100 مليون |
+| المنشآت الصغيرة والمتوسطة فقط | 50 مليون |
+| تمويل استهلاكي متناهي الصغر فقط | 20 مليون |
+| تمويل استهلاكي متناهي الصغر بالتقنية المالية فقط | 10 ملايين |
+| تمويل متناهي الصغر فقط | 10 ملايين |
+| تمويل جماعي بالدين فقط | 5 ملايين |
+| الشراء الآن والدفع لاحقاً فقط | 5 ملايين |
+
+- **8(2):** من جمع أنشطة الفئات (ج–ح) يستوفي **أعلاها**.
+- **8(3):** لـSAMA رفع الحد أو خفضه بحسب السوق أو نموذج العمل ونطاقه الجغرافي، ويُدفع رأس المال **كاملاً عند التأسيس**.
+- **7(8):** ضمان بنكي غير قابل للإلغاء بقيمة **20% من الحد الأدنى** يُرفق بالطلب، ويُفرج عنه عند دفع رأس المال أو سحب الطلب أو رفضه أو الموافقة المبدئية.
+- **تنبيه:** الجدول القديم أعلاه (200/100/50/10 من تعديل 2023) **ما زال موجوداً** في النص الحالي مع شرائح جديدة. أما أن 2023 «نُسخ» فكان قراءةً خاطئة من صفحة قديمة.
+
+**المادة 58 — سقف إجمالي التمويل إلى (رأس المال المدفوع + الاحتياطيات):** 4 أضعاف للاستهلاكي متناهي الصغر فقط · 8 أضعاف للأنشطة الأخرى · 20 ضعفاً لـBNPL فقط · 40 ضعفاً للتمويل الجماعي بالدين فقط — ويُتجاوز بخطاب عدم ممانعة من SAMA.
+**المادة 26:** الملاءة والسيولة «وفق ما تحدده SAMA» — **لا نسبة رقمية في النص**.
+
+**المادة 9 — سقوف المقترض:** استهلاكي متناهي الصغر 60,000 ريال (30,000 للتقنية المالية فقط)؛ متناهي الصغر: 200,000 ريال بحسب قراءة الباحث (لم يُراجَع الرقم حرفياً).
+
+**الإجراءات:** مهلة الرد على طلبات SAMA **30 يوم عمل** (14/1) · قرار أولي أو رفض مسبَّب خلال **60 يوم عمل** من إخطار اكتمال الطلب (14/4) والموافقة الأولية **ليست ترخيصاً** · التأسيس خلال **ستة أشهر** من الموافقة الأولية، وتُمدَّد ستة أخرى بخطاب عدم ممانعة قبل انتهائها (15/1) · الجاهزية خلال **12 شهراً** (15/2).
+**الرسوم (24):** 200,000 إصدار · 100,000 تجديد · 50,000 تعديل. تُخفَّض: استهلاكي متناهي الصغر 20,000 · بالتقنية المالية 10,000 · متناهي الصغر 10,000.
+**خبرة المرشح للإدارة:** 5 سنوات، وسنتان لشركات الاستهلاكي متناهي الصغر والمتناهي الصغر وBNPL والتمويل الجماعي.
+
+**القواعد الملغاة:** لم تُستبدل بقواعد مستقلة؛ مضمونها داخل اللائحة (المواد أعلاه). فبند 7 و8 في الجدول القديم محكومان بها لا بقواعد منفصلة.
+**شركات استقبال الودائع (DTFC):** لائحتها (2020) لا تذكر حداً أدنى لرأس المال — ملاءة 20% وودائع حتى 15 ضعف رأس المال وسيولة 20% من الودائع. كونها **تصنيفاً فوق ترخيص التمويل لا نوع ترخيص مستقلاً**: قراءة الباحث، **UNVERIFIED**.
+
+**لم يُقرأ بعد:** سجل تعديلات اللائحة (يؤكد أن النص هو الموحَّد)، نسبة ملكية أجنبية/سعودية لشركات التمويل العادية (مفوَّضة لـSAMA ولم يُوجد سقف رقمي)، رأس مال إعادة التمويل العقاري، أي نسبة ملاءة رقمية، المرفق النموذجي للتعميم، نصوص أنظمة التمويل العقاري والتأجير. صفحة `sama.gov.sa` (news-1125) فشل التحقق من شهادتها عبر الوكيل ولم يُتجاوز ذلك.
 
 ### C. Finance support and registration
 
