@@ -307,7 +307,8 @@ function clauses(v) {
   return list;
 }
 
-export function contractHtml({ ref, clientName, clientCr = "", clientVat = "", service, lines = [], net, vat, total, vatRate = 15, leadTime = "", executor = "", today = "", subscription = null, lang = "ar" }) {
+export function contractHtml({ ref, clientName, clientCr = "", clientVat = "", service, lines = [], net, vat, total, vatRate = 15, leadTime = "", executor = "", today = "", subscription = null, lang = "ar",
+                                mode = "docusign", signature = null, signedAt = "", stale = false }) {
   const L = LANGS.indexOf(String(lang || "ar")) >= 0 ? String(lang) : "ar";
   const cols = L === "ar" ? ["ar"] : ["ar", L];
   const sub = subscription && Number(subscription.renewsAt) > 0 ? subscription : null;
@@ -352,7 +353,85 @@ export function contractHtml({ ref, clientName, clientCr = "", clientVat = "", s
     <p>${esc(tx("sdate", l))}: ${l === "ar" ? "/date1/" : "&nbsp;"}</p>
   </div>`).join("");
 
-  return docPage({ L, cols, head, body, foot: `<div class="sign">${signBlock}</div>` });
+  const page = docPage({ L, cols, head, body, foot: `<div class="sign">${signBlock}</div>` });
+  // mode "docusign" (the default) is byte-for-byte what it always was: the
+  // anchors stay, because DocuSign places its tabs on them and because the
+  // portal stores THIS html, hashes it at signing and compares a rebuild of it
+  // against the stored copy. mode "portal" is only for what a person reads.
+  return mode === "portal" ? portalContractHtml(page, { signature, signedAt, stale }) : page;
+}
+
+// ---- the signature block as the client sees it inside the portal ----------
+//
+// `/sig1/` and `/date1/` are instructions to DocuSign, not text for a person;
+// on the portal they showed up literally, before and after signing, and the
+// drawn signature and name that were stored never appeared on the paper. This
+// rewrites ONLY the signature block of a contract made by contractHtml: before
+// signing it is a clear empty box, after signing it carries the signer's name,
+// the date, the drawn signature and a short fingerprint of the document. The
+// clauses are untouched, and the stored html (the thing that is hashed) is
+// never altered — call this on the way out, not on the way in.
+const PT_TX = {
+  pendSig:  { ar: "يوقّع العميل إلكترونياً من خانة التوقيع أسفل العقد",
+              en: "The Client signs electronically in the signature box below the contract",
+              fr: "Le Client signe électroniquement dans la zone de signature sous le contrat",
+              zh: "客户在合同下方的签名栏以电子方式签署" },
+  pendDate: { ar: "يُسجَّل تلقائياً لحظة التوقيع", en: "Recorded automatically when signed",
+              fr: "Enregistrée automatiquement à la signature", zh: "签署时自动记录" },
+  stale:    { ar: "صُحِّح العقد بعد التوقيع — يلزم توقيع جديد", en: "The contract was corrected after signing — a new signature is required",
+              fr: "Le contrat a été corrigé après la signature — une nouvelle signature est requise", zh: "合同在签署后已更正——需要重新签署" },
+  name:     { ar: "الاسم", en: "Name", fr: "Nom", zh: "姓名" },
+  print:    { ar: "بصمة المستند (SHA-256)", en: "Document fingerprint (SHA-256)", fr: "Empreinte du document (SHA-256)", zh: "文件指纹 (SHA-256)" },
+  via:      { ar: "وُقِّع إلكترونياً عبر بوابة العميل", en: "Signed electronically through the client portal",
+              fr: "Signé électroniquement via le portail client", zh: "已通过客户门户电子签署" },
+};
+const ptx = (k, l) => (PT_TX[k] && (PT_TX[k][l] || PT_TX[k].ar)) || "";
+// A drawn signature is a PNG/JPEG/WebP data URL — nothing else may reach an <img src>.
+const SIG_IMG_RE = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/;
+
+function signedDate(iso, l) {
+  const d = new Date(iso);
+  if (!iso || Number.isNaN(d.getTime())) return String(iso || "");
+  const opts = { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Riyadh" };
+  // Gregorian with Latin digits, whatever the ICU build does with the locale tag.
+  const out = d.toLocaleString(l === "ar" ? "ar-SA-u-ca-gregory-nu-latin" : "en-GB", opts)
+    .replace(/[٠-٩]/g, (c) => "٠١٢٣٤٥٦٧٨٩".indexOf(c));
+  return out + (l === "ar" ? " (توقيت الرياض)" : " (Riyadh time)");
+}
+
+export function portalContractHtml(html, { signature = null, signedAt = "", stale = false } = {}) {
+  const src = String(html || "");
+  const at = src.lastIndexOf('<div class="sign">');
+  const head = at < 0 ? "" : src.slice(0, at);
+  let tail = at < 0 ? src : src.slice(at);
+  const sig = !stale && signature && typeof signature === "object" ? signature : null;
+  const when = signedAt || (sig && sig.at) || "";
+  const box = "border:1px dashed #94a3b8;border-radius:8px;padding:10px 12px;color:#64748b;font-size:12px;line-height:1.7;margin:2px 0 8px";
+  const inkBox = "border:1px solid #dbe1ec;border-radius:8px;padding:6px 12px;background:#fbfcfe;display:inline-block;min-width:200px;margin:2px 0 8px";
+
+  for (const l of LANGS) {
+    const sigOld = `<p>${esc(tx("sign", l))}: ${l === "ar" ? "/sig1/" : "&nbsp;"}</p>`;
+    const dateOld = `<p>${esc(tx("sdate", l))}: ${l === "ar" ? "/date1/" : "&nbsp;"}</p>`;
+    if (!tail.includes(`lang="${l}"`) || !tail.includes(sigOld)) continue;
+    let sigNew, dateNew;
+    if (sig) {
+      const nm = esc(sig.name || "");
+      const img = l === "ar" && typeof sig.image === "string" && SIG_IMG_RE.test(sig.image) && sig.image.length <= 250000
+        ? `<img src="${sig.image}" alt="${esc(tx("sign", l))} — ${nm}" style="display:block;max-width:260px;max-height:100px">`
+        : `<span style="font-style:italic;font-size:17px;color:var(--nav)">${nm}</span>`;
+      sigNew = `<p style="margin:0 0 2px">${esc(tx("sign", l))}:</p><div style="${inkBox}">${img}</div>`
+        + `<p style="margin:0 0 4px">${esc(ptx("name", l))}: <b>${nm}</b></p>`;
+      const fp = sig.contract_sha256 ? `<p class="muted" style="font-size:11px;margin:0">${esc(ptx("print", l))}: <span dir="ltr" style="font-family:monospace">${esc(String(sig.contract_sha256).slice(0, 16))}</span></p>` : "";
+      dateNew = `<p style="margin:0 0 4px">${esc(tx("sdate", l))}: <b>${esc(signedDate(when, l))}</b></p>`
+        + `<p class="muted" style="font-size:11px;margin:0 0 2px">${esc(ptx("via", l))}</p>${fp}`;
+    } else {
+      sigNew = `<p style="margin:0 0 2px">${esc(tx("sign", l))}:</p><div style="${box}">${esc(ptx(stale ? "stale" : "pendSig", l))}</div>`;
+      dateNew = `<p>${esc(tx("sdate", l))}: <span class="muted">${esc(ptx("pendDate", l))}</span></p>`;
+    }
+    tail = tail.split(sigOld).join(sigNew).split(dateOld).join(dateNew);
+  }
+  // Safety net: whatever the block looked like, a person never reads an anchor.
+  return head + tail.replace(/\/sig1\//g, "").replace(/\/date1\//g, "");
 }
 
 // قشرة المستند: نفس الورقة للعرض والعقد — عمود عربي حاكم، وعمودٌ بلغة
