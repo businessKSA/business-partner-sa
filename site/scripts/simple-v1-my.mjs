@@ -126,6 +126,14 @@ const P = {
   eMany: { ar: "وصلت إلى الحدّ الأقصى لعدد الملفات في هذا الطلب.", en: "You reached the maximum number of files for this request.", fr: "Nombre maximal de fichiers atteint pour cette demande.", zh: "此申请的文件数量已达上限。" },
   eClosed: { ar: "الطلب مغلق ولا يقبل مستندات.", en: "This request is closed and takes no more documents.", fr: "Cette demande est close.", zh: "此申请已关闭，无法再上传文件。" },
   delivTitle: { ar: "مخرجات الطلب", en: "Deliverables", fr: "Livrables", zh: "交付成果" },
+  // مراحل الطلب وتحديثات الفريق — تظهر فقط لطلب له مراحل أو تحديث منشور.
+  progTitle: { ar: "مراحل عملك", en: "Your progress", fr: "Votre avancement", zh: "办理进度" },
+  stDone: { ar: "تمّت", en: "Done", fr: "Terminée", zh: "已完成" },
+  stActive: { ar: "جارية الآن", en: "In progress", fr: "En cours", zh: "进行中" },
+  stPending: { ar: "قادمة", en: "Upcoming", fr: "À venir", zh: "待办" },
+  updTitle: { ar: "آخر التحديثات", en: "Latest updates", fr: "Dernières mises à jour", zh: "最新动态" },
+  updMore: { ar: "عرض كل التحديثات", en: "Show all updates", fr: "Voir toutes les mises à jour", zh: "显示全部动态" },
+  updLess: { ar: "عرض الأحدث فقط", en: "Show latest only", fr: "Afficher les plus récentes", zh: "仅显示最新" },
   delivNone: { ar: "ستظهر هنا الملفات التي نسلّمها لك، وننبّهك بالبريد فور تسليمها.", en: "The files we hand over will appear here, and we e-mail you as soon as they are delivered.", fr: "Les fichiers que nous vous remettons apparaîtront ici ; nous vous prévenons par e-mail dès la livraison.", zh: "我们交付的文件会显示在这里，交付后会立即发邮件通知您。" },
   delivNoneDone: { ar: "اكتمل الطلب ولا توجد ملفات مسلَّمة داخله.", en: "The request is complete and has no delivered files.", fr: "La demande est terminée et ne comporte aucun fichier livré.", zh: "申请已完成，没有交付文件。" },
   delivDl: { ar: "تنزيل", en: "Download", fr: "Télécharger", zh: "下载" },
@@ -468,6 +476,23 @@ table.q{width:100%;border-collapse:collapse;font-size:.9rem}
 table.q th,table.q td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:start}
 table.q tfoot td{font-weight:700}
 .tl{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.prog ol{list-style:none;margin:6px 0 0;padding:0;display:flex}
+.prog li{flex:1 1 0;min-width:0;position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:0 4px}
+.prog li::before{content:"";position:absolute;top:14px;inset-inline-start:-50%;width:100%;height:2px;background:var(--line)}
+.prog li:first-child::before{display:none}
+.prog li.done::before,.prog li.active::before{background:#118657}
+.prog .dot{position:relative;z-index:1;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:.82rem;font-weight:800;background:#fff;border:2px solid var(--line);color:var(--mut)}
+.prog li.done .dot{background:#118657;border-color:#118657;color:#fff}
+.prog li.active .dot{background:var(--n);border-color:var(--n);color:#fff;box-shadow:0 0 0 4px #e3e9fb}
+.prog .lb{display:grid;gap:2px;min-width:0}
+.prog .lb b{font-size:.88rem;font-weight:600;color:var(--ink);overflow-wrap:anywhere}
+.prog .lb small{font-size:.74rem;color:var(--mut)}
+.prog li.active .lb small:first-of-type{color:var(--n);font-weight:700}
+.prog li.done .lb small:first-of-type{color:#118657}
+.prog .lb small.sn{font-size:.76rem;color:var(--ink);background:var(--g);border-radius:8px;padding:3px 8px;overflow-wrap:anywhere}
+.upl li{align-items:flex-start}
+.upl li span{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7}
+@media(max-width:640px){.prog ol{flex-direction:column;gap:14px}.prog li{flex-direction:row;align-items:flex-start;text-align:start;gap:12px;padding:0}.prog li::before{top:-14px;height:14px;width:2px;inset-inline-start:14px}}
 .tl li{display:flex;gap:10px;font-size:.84rem}
 .tl li time{color:var(--mut);white-space:nowrap;font-size:.76rem;min-width:110px}
 .tl li i{font-style:normal;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:.7rem;flex:none;background:#eef2ff}
@@ -1148,12 +1173,28 @@ function delivCard(r){
 // ---------- request detail
 function viewRequest(m){m.appendChild(h('a',{class:'btn ghost sm',onclick:function(){go('requests')}},['← '+TX.back]));var hd=h('h1',{style:'margin-top:10px'},['…']);m.appendChild(hd);var box=h('div');m.appendChild(box);
 api('request-get',{ref:state.ref}).then(function(o){if(!o||!o.ok){box.appendChild(h('p',{class:'err'},[TX.error]));return}state.req=o.request;state.testMode=!!o.testMode;drawRequest(hd,box)})}
+// Progress line and team updates. Drawn only when the request has them, so a
+// customer who has neither (every cart order) sees the page exactly as before.
+// The Arabic text is the source; the other languages show the English text when
+// the team wrote one, and fall back to the Arabic.
+function lt(ar,en){return LANG==='ar'?(ar||en||''):(en||ar||'')}
+function stageLine(r){var st=r.stages||[];if(!st.length)return null;
+ var ol=h('ol',{},st.map(function(s,i){var sub=s.status==='done'?TX.stDone+(s.at?' \u00b7 '+when(s.at):''):(s.status==='active'?TX.stActive:TX.stPending);
+  return h('li',{class:s.status},[h('span',{class:'dot'},[s.status==='done'?'\u2713':String(i+1)]),h('div',{class:'lb'},[h('b',{},[lt(s.title_ar,s.title_en)]),h('small',{},[sub]),s.note?h('small',{class:'sn'},[s.note]):null])])}));
+ return h('div',{class:'card prog',id:'sv1Stages'},[h('h3',{},[TX.progTitle]),ol])}
+function updatesCard(r){var up=r.updates||[];if(!up.length)return null;var all=false;var card=h('div',{class:'card',id:'sv1Updates'});
+ function draw(){card.innerHTML='';card.appendChild(h('h3',{},[TX.updTitle]));var shown=all?up:up.slice(0,3);
+  card.appendChild(h('ul',{class:'tl upl'},shown.map(function(u){return h('li',{},[h('time',{},[when(u.at)]),h('span',{},[lt(u.text_ar,u.text_en)])])})));
+  if(up.length>3)card.appendChild(h('button',{class:'btn ghost sm',onclick:function(){all=!all;draw()}},[all?TX.updLess:TX.updMore]))}
+ draw();return card}
 function drawRequest(hd,box){var r=state.req;var isTicket=r.origin==='ticket';hd.textContent=r.title;box.innerHTML='';
 var cxm=cxMode(r),cxPend=!!r.cancel_request&&r.status!=='CANCELLED';
 box.appendChild(h('div',{class:'stat'},[h('span',{},[TX.ref+': ',h('b',{},[r.ref])]),h('span',{},[TX.status+': ',pill(r.status),cxPend?h('span',{class:'pill warn',style:'margin-inline-start:6px'},[TX.cxPill]):null]),h('span',{},[isTicket?TX.ticket:(TY[r.type]||r.type)]),(r.payment&&r.payment.source==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),h('span',{},[when(r.created_at)]),
  (cxm!=='closed'&&!cxPend)?h('button',{class:'btn danger sm cxbtn',id:'sv1CancelTop',onclick:function(){cxSheet(r)}},[cxm==='now'?TX.cancelReq:TX.cancelAsk]):null]));
 var cxb=cxBanner(r);if(cxb)box.appendChild(cxb);
+var pl=stageLine(r);if(pl)box.appendChild(pl);
 var left=h('div'),right=h('div');box.appendChild(h('div',{class:'grid2'},[left,right]));
+var uc=updatesCard(r);if(uc)right.appendChild(uc);
 // conversation
 var msgs=h('div',{class:'msgs'},(r.conversation||[]).map(function(mm){return h('div',{class:'m '+mm.role},[stripScope(mm.content),h('small',{},[(mm.role==='user'?TX.you:mm.role==='bp'?TX.team:TX.assistant)+' · '+when(mm.at)])])}));
 var inp=h('input',{placeholder:TX.writeMsg}),sb=h('button',{class:'btn',onclick:function(){var v=inp.value.trim();if(!v)return;sb.disabled=true;api('request-message',{ref:r.ref,content:v}).then(function(o){sb.disabled=false;if(o&&o.ok){r.conversation=o.conversation;r.status=o.status||r.status;inp.value='';drawRequest(hd,box)}else if(!o||o.error!=='no_session')toast(failText(o))})}},[TX.send]);
