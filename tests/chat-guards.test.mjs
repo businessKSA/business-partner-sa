@@ -59,6 +59,36 @@ test("C26: من طلب مسؤولاً/رقماً يخرج برقم باهر ال
   }
 });
 
+// ‏ردّا النموذج الحقيقي على التجريبي بعد الدمج (C26): الأول بالرقم والرابط، والثاني بالرقم وحده بلا رابط.
+const C26_REAL_1 = "أعتذر لك عن التأخير وأي إزعاج حدث. يمكنك التواصل مباشرة مع فريق بيزنس بارتنر عبر واتساب أو اتصال على الرقم 0530540231 من خلال الرابط التالي: https://wa.me/966530540231\n\nهل ترغب في ترتيب طلبك الآن أو متابعة استفسارك؟";
+const C26_REAL_2 = "يمكنك الاتصال مباشرة على الرقم 0530540231، وهو رقم فريق بيزنس بارتنر لخدمة العملاء والدعم. إذا رغبت في متابعة ترتيب طلبك هنا أيضاً، أبلغني بما تحتاج.";
+
+test("C26 (رد حقيقي): رقم بلا رابط ← يُضاف الرابط ولا يُستبدل الرد؛ ورقم ورابط ← كما جاء", () => {
+  const ok = G.ensureHumanContact(C26_REAL_1, { userText: C26_U1, lang: "ar" });
+  assert.equal(ok.text, C26_REAL_1);
+  const r = G.ensureHumanContact(C26_REAL_2, { userText: C26_U2, lang: "ar" });
+  assert.ok(!r.replaced);
+  assert.ok(r.text.startsWith(C26_REAL_2), "نص النموذج باقٍ");
+  assert.match(r.text, /0530540231/);
+  assert.match(r.text, /https:\/\/wa\.me\/966530540231/);
+  // ‏الشكوى (ضعيفة) والرقم وحده: يُضاف الرابط كذلك.
+  const w = G.ensureHumanContact("نعتذر. اتصل على 0530540231.", { userText: "عندي شكوى على الخدمة", lang: "ar" });
+  assert.match(w.text, /wa\.me\/966530540231/);
+  // ‏رابط وحده بلا الرقم في طلب صريح: يُستبدل بالردّ الثابت الذي فيه الاثنان.
+  const l = G.ensureHumanContact("تفضل https://wa.me/966530540231", { userText: C26_U2, lang: "ar" });
+  assert.match(l.text, /0530540231/);
+  assert.match(l.text, /wa\.me\/966530540231/);
+});
+
+test("C26 من طرف إلى طرف بالرد الحقيقي: الرابط يصل العميل", async () => {
+  const f = stub(() => azureOk(C26_REAL_2));
+  try {
+    const r = await ask({ mode: "intake", context: "consulting", lang: "ar", messages: [turn("user", C26_U1), turn("assistant", C26_REAL_1), turn("user", C26_U2)] });
+    assert.match(r.json.reply, /0530540231/);
+    assert.match(r.json.reply, /https:\/\/wa\.me\/966530540231/);
+  } finally { f.restore(); }
+});
+
 test("الكاشف: كلمات الطلب والشكوى بأربع لغات، ولا يلتقط الكلام العادي", () => {
   for (const u of [C26_U1, C26_U2, "أبغى أكلم المدير", "عطوني رقم الجوال المباشر", "I want to speak to a manager", "Give me your phone number", "Je veux parler à un responsable", "我要人工客服", "ابغى موظف بشري"]) {
     assert.equal(G.escalationIntent(u), "strong", u);
@@ -79,8 +109,8 @@ test("شكوى (ضعيفة): الرقم يُضاف للرد دون استبدا�
   assert.doesNotMatch(r.text, /سيتم تصعيد/);
   assert.match(r.text, /0530540231/);
   // ‏وإن كان فيه الرقم أصلاً فلا تكرار.
-  const again = G.ensureHumanContact("اتصل على 0530540231", { userText: "عندي شكوى", lang: "ar" });
-  assert.equal(again.text, "اتصل على 0530540231");
+  const full = "اتصل على 0530540231 أو https://wa.me/966530540231";
+  assert.equal(G.ensureHumanContact(full, { userText: "عندي شكوى", lang: "ar" }).text, full);
 });
 
 test("طلب صريح والنموذج أعطى الرقم بلا وعد: الرد كما جاء حرفاً", () => {

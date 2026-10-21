@@ -84,7 +84,20 @@ function langOf(s0) {
   return "latin";
 }
 const sentencesOf = (t) => String(t).split(/\n+/).flatMap((ln) => ln.split(/(?<=[.!?؟؛])\s+(?=\S)/)).filter((x) => x.trim());
-const priceSegments = (t) => sentencesOf(t).filter((seg) => MONEY.test(seg) && !(GOV.test(seg) && !OURS.test(seg)));
+const MONEY_G = new RegExp(MONEY.source, "giu");
+const squash = (x) => G.fold(x).replace(/\s+/g, " ");
+/**
+ * ‏مقاطع فيها مبلغ بعملة. مبلغ كتبه العميل نفسه في رسائله (مخالفته «عشرة آلاف ريال») وردّده المستشار ليس سعراً
+ * لخدمتنا فلا يُحتسب؛ وأي مبلغ آخر يُحتسب كما كان. السياسة لم تُخفَّف: الاستثناء حرفيّ بنصّ المبلغ نفسه.
+ */
+export const priceSegments = (t, userText = "") => {
+  const mine = squash(userText);
+  return sentencesOf(t).filter((seg) => {
+    if (!MONEY.test(seg) || (GOV.test(seg) && !OURS.test(seg))) return false;
+    const hits = [...seg.matchAll(MONEY_G)].map((m) => squash(m[0]).trim());
+    return !(hits.length && hits.every((h) => mine.includes(h)));
+  });
+};
 
 /** ‏المقاطع المرفقة بالنموذج لهذا الدور — نسخة محلية من منطق api/chat.js (آخر رسالتين، ميزانية 9000). */
 export function knowledgeFor(messages, context) {
@@ -116,7 +129,7 @@ export function evaluateCase(c, turns) {
     if (v.scope && scopeAt == null) scopeAt = n;
 
     if (ex.noPrice) {
-      const hits = priceSegments(all);
+      const hits = priceSegments(all, userText);
       if (hits.length) fail("noPrice", n, hits[0]);
     }
     if (ex.singleQuestion && c.mode === "intake" && !v.scope) {

@@ -145,6 +145,7 @@ const HUMAN_LINE = {
   fr: `Pour joindre directement notre équipe : appel ou WhatsApp au ${HUMAN_PHONE} — ${HUMAN_WA_URL}`,
   zh: `如需直接联系我们的团队：电话或 WhatsApp ${HUMAN_PHONE} — ${HUMAN_WA_URL}`,
 };
+const LINK_LINE = { ar: `واتساب: ${HUMAN_WA_URL}`, en: `WhatsApp: ${HUMAN_WA_URL}`, fr: `WhatsApp : ${HUMAN_WA_URL}`, zh: `WhatsApp：${HUMAN_WA_URL}` };
 const hasHumanContact = (t) => String(t).includes(HUMAN_PHONE) || String(t).includes("wa.me/966530540231");
 
 /**
@@ -161,13 +162,20 @@ export function ensureHumanContact(reply, { userText, lang, intake = true } = {}
   // تلتقط العملاء بقاعدتها: «باهر بيتواصل معك»).
   const sp = intake || intent ? stripFalsePromises(head) : { text: head, hit: false };
   if (intent === "strong") {
-    // ‏طلب صريح: الرقم الرسمي أولاً. رد النموذج يبقى إن كان قد أعطاه ولم يَعِد بما لا يملك.
-    if (hasHumanContact(sp.text) && !sp.hit) return { text: reply, intent, replaced: false, hit: false };
+    // ‏طلب صريح: الرقم الرسمي والرابط معاً. رد النموذج يبقى إن أعطى الاثنين ولم يَعِد بما لا يملك؛
+    // وإن أعطى الرقم وحده (قِيس على نموذج حقيقي، C26) يُضاف الرابط بدل استبدال الرد.
+    const hasPhone = sp.text.includes(HUMAN_PHONE), hasLink = sp.text.includes("wa.me/966530540231");
+    if (hasPhone && hasLink && !sp.hit) return { text: reply, intent, replaced: false, hit: false };
+    if (hasPhone && !sp.hit) {
+      const fixed = head.replace(/\s+$/, "") + `\n${LINK_LINE[L]}`;
+      return { text: join(fixed, tail), intent, replaced: false, hit: true };
+    }
     const scope = /<<\s*SCOPE/i.test(tail) ? tail.slice(tail.search(/<<\s*SCOPE/i)) : "";
     return { text: join(HUMAN_CANNED[L], scope), intent, replaced: true, hit: true };
   }
   let text = sp.text;
   if (intent === "weak" && !hasHumanContact(text)) text = (text.trim() ? text.replace(/\s+$/, "") + "\n\n" : "") + HUMAN_LINE[L];
+  else if (intent === "weak" && !text.includes("wa.me/966530540231")) text = text.replace(/\s+$/, "") + `\n${LINK_LINE[L]}`;
   const changed = sp.hit || text !== head;
   return { text: changed ? join(text, tail) : reply, intent, replaced: false, hit: changed };
 }

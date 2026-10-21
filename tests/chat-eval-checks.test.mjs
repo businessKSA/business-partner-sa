@@ -136,3 +136,15 @@ test("view(): يقرأ الرد كما تقرؤه الواجهة — يُنزع 
   assert.ok(s.scope && s.scope.ready);
   assert.equal(readFileSync(new URL("../package.json", import.meta.url), "utf8").includes('"chat:eval"'), true);
 });
+
+test("noPrice: مبلغ كتبه العميل نفسه (مخالفته) لا يُحتسب، وأي سعر آخر يُحتسب (C05)", () => {
+  const c = mk({ context: "government" });
+  const turns = (reply) => [{ user: "جاتني مخالفة من بلدي بعشرة آلاف ريال على المحل، تقدرون تلغونها؟", reply: "هل معك الإشعار؟" }, { user: "نعم", reply }];
+  const echo = scopeBlock({ summary: "مراجعة أهلية الاعتراض على مخالفة مسجلة على المحل بقيمة عشرة آلاف ريال." });
+  assert.deepEqual(evaluateCase(c, turns(echo)).failures, []);
+  // ‏سعر خدمتنا ما زال يُلتقط، ولو جاء مع مبلغ العميل.
+  assert.deepEqual(evaluateCase(c, turns(scopeBlock({ summary: "المخالفة عشرة آلاف ريال وأتعابنا 3,000 ريال." }))).failures.map((f) => f.check), ["noPrice"]);
+  assert.deepEqual(evaluateCase(c, turns("التأسيس بـ 7,500 ريال. ما نشاطك؟")).failures.map((f) => f.check), ["noPrice"]);
+  // ‏مبلغ لم يكتبه العميل ولو قارب مبلغه.
+  assert.deepEqual(evaluateCase(c, turns(scopeBlock({ summary: "قيمة المخالفة خمسة عشر ألف ريال." }))).failures.map((f) => f.check), ["noPrice"]);
+});
