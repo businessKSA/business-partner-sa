@@ -182,6 +182,13 @@ function clientView(row, events, tasks) {
   // Machine bookkeeping («notify.paid», «followup.task») is for the panel: the
   // customer's timeline used to print those keys raw.
   const visible = (e) => e.actor_kind !== "internal" && !/^(notify\.|followup\.task)/.test(String(e.event || ""));
+  // Stages and published updates only. A request with neither is returned
+  // exactly as before (no new keys), so a customer who never had a progress line
+  // sees nothing new; a draft update never leaves the server.
+  delete pub.stages; delete pub.updates;
+  const stages = publicStages(row), updates = publicUpdates(row);
+  if (stages.length) pub.stages = stages;
+  if (updates.length) pub.updates = updates;
   return { ...pub, cancel_policy: cancelPolicy(row), origin: isCartRow(row) ? "cart" : isTicketRow(row) ? "ticket" : "", attachments: clientAttachments(row), events: (events || []).filter(visible), tasks: (tasks || []).filter((t) => t.assignee === "client") };
 }
 
@@ -394,6 +401,90 @@ function computeQuote(items, opts = {}) {
 // unsent DRAFT leaves it open.
 export function scopeLockedByQuote(row) {
   return !!(row.quote && !["REJECTED", "DRAFT"].includes(row.quote.status));
+}
+
+// ------------------------------------------------- stages & team updates --
+// A request can carry a progress line the team moves by hand (`stages`) and a
+// written log of dated updates (`updates`). Both live on the request row like
+// `quote` and `contract` (jsonb, db/migrations/2026-10-request-stages.sql), and
+// a request that has neither looks exactly as it did before: nothing here is
+// drawn, sent or returned to a customer who has no stages.
+//
+//   stages  [{key, title_ar, title_en?, status: pending|active|done, at, note}]
+//   updates [{id, at, by, text_ar, text_en?, published, published_at}]
+//
+// An update is a draft until the team presses «publish». A draft is never part
+// of what a customer is sent (clientView below filters it out), and publishing
+// is the one human action that also tells them. Every change is recorded in
+// the internal event log, which the customer's timeline never shows.
+export const STAGE_STATUSES = ["pending", "active", "done"];
+export const STAGE_TEMPLATES = {
+  // The sales client's road (owner, 2026-10-21): editable per request afterwards.
+  sales: [
+    { key: "sign_quote", title_ar: "توقيع العرض", title_en: "Quote signed" },
+    { key: "first_payment", title_ar: "الدفعة الأولى", title_en: "First payment" },
+    { key: "investment_license", title_ar: "ترخيص الاستثمار", title_en: "Investment license" },
+    { key: "commercial_register", title_ar: "السجل التجاري", title_en: "Commercial registration" },
+    { key: "secondary_licenses", title_ar: "التراخيص الثانوية", title_en: "Secondary licenses" },
+  ],
+};
+const MAX_STAGES = 12;
+const MAX_UPDATES = 200;
+const stageKey = (v) => String(v == null ? "" : v).toLowerCase().replace(/[^a-z0-9_]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 40);
+
+export function normStages(list) {
+  const seen = new Set();
+  const out = [];
+  for (const it of (Array.isArray(list) ? list : []).slice(0, MAX_STAGES)) {
+    if (!it || typeof it !== "object") continue;
+    const key = stageKey(it.key);
+    const title_ar = str(it.title_ar, 120);
+    if (!key || !title_ar || seen.has(key)) continue;
+    seen.add(key);
+    out.push({
+      key, title_ar, title_en: str(it.title_en, 120),
+      status: STAGE_STATUSES.includes(it.status) ? it.status : "pending",
+      at: str(it.at, 40), note: str(it.note, 300),
+    });
+  }
+  return out;
+}
+
+// The first two steps of the sales road are facts the platform already knows:
+// the contract was signed, the payment arrived. They are filled from those
+// events (and never taken back), so the team only moves what is theirs. When
+// that leaves nothing in progress, the next pending stage becomes the active
+// one: work starts after payment, and a line with no active step looks stalled.
+export function autoStages(row, over = {}) {
+  const cur = Array.isArray(row && row.stages) ? row.stages : [];
+  if (!cur.length) return null;
+  const contract = over.contract || row.contract;
+  const payment = over.payment || row.payment;
+  const stages = cur.map((x) => ({ ...x }));
+  let changed = false;
+  const fill = (key, at) => {
+    const st = stages.find((x) => x.key === key);
+    if (st && st.status !== "done") { st.status = "done"; st.at = str(at, 40) || nowIso(); changed = true; }
+  };
+  if (contract && (contract.status === "SIGNED" || contract.signed_at)) fill("sign_quote", contract.signed_at);
+  if (payment && payment.status === "PAID") fill("first_payment", payment.at);
+  if (changed && !stages.some((x) => x.status === "active")) {
+    const next = stages.find((x) => x.status === "pending");
+    if (next) { next.status = "active"; next.at = nowIso(); }
+  }
+  return changed ? { stages } : null;
+}
+
+// What a customer is allowed to see. Stages as they are; updates only once
+// published, newest first, without who wrote them or any draft flag.
+function publicStages(row) {
+  return Array.isArray(row.stages) ? normStages(row.stages) : [];
+}
+function publicUpdates(row) {
+  return (Array.isArray(row.updates) ? row.updates : [])
+    .filter((u) => u && u.published === true && (u.text_ar || u.text_en))
+    .map((u) => ({ id: str(u.id, 40), at: str(u.published_at || u.at, 40), text_ar: str(u.text_ar, 2000), text_en: str(u.text_en, 2000) }))
+    .sort((a, c) => (a.at < c.at ? 1 : -1));
 }
 
 // ------------------------------------------------------------ the handler --
@@ -828,7 +919,10 @@ async function clientAction(action, b, qs, req, res, sess) {
       mode: SIMPLE_TEST_MODE ? "test-esign" : "portal-esign",
     };
     const contract = { ...row.contract, status: "SIGNED", signed_at: signature.at, signature };
-    const upd = await patchRequest(row.id, { contract, status: "SIGNED", payment: { status: "PENDING", amount: row.quote?.total || 0, currency: "SAR", provider: null } });
+    const signedPayment = { status: "PENDING", amount: row.quote?.total || 0, currency: "SAR", provider: null };
+    const auto = autoStages(row, { contract, payment: signedPayment });
+    const upd = await patchRequest(row.id, { contract, status: "SIGNED", payment: signedPayment, ...(auto || {}) });
+    if (auto) await logEvent(row.id, "internal", "النظام", "stage.auto", { from: "contract.signed" });
     await logEvent(row.id, "customer", who, "contract.signed", { number: contract.number, mode: signature.mode, sha256: hash.slice(0, 16) });
     await audit({ organization_id: orgId, actor_user_id: sess.user.id, action: "simple.contract.sign", entity: "requests", entity_id: row.id, meta: { ref, sha256: hash } });
     await announce(upd, "signed", {
@@ -1116,7 +1210,9 @@ export async function markPaid(row, { provider, payId, amount, test, actor }) {
     // failure, tells the owner once, and completes it when the key is set.)
     else if (r.record) invoice = r.record;
   }
-  const upd = await patchRequest(row.id, { payment, status: "PAID", ...(invoice ? { invoice } : {}) });
+  const autoSt = autoStages(row, { payment });
+  const upd = await patchRequest(row.id, { payment, status: "PAID", ...(invoice ? { invoice } : {}), ...(autoSt || {}) });
+  if (autoSt) await logEvent(row.id, "internal", "النظام", "stage.auto", { from: "payment.paid" });
   await logEvent(row.id, "system", test ? "TEST MODE" : provider, "payment.paid", { provider, payId, amount: payment.amount });
   if (testIssued) await logEvent(row.id, "system", "TEST MODE", "invoice.issued", { number: invoice.number, total: invoice.total });
   const invNo = invoice && invoice.number ? invoice.number : "";
@@ -2225,6 +2321,131 @@ async function opsAction(action, b, qs, req, res, opsUser) {
     await patchRequest(row.id, { attachments: row.attachments.filter((a) => a !== att && !(a && a.id === id)) });
     if (att.path) { try { await storageDelete(att.path); } catch {} }
     await logEvent(row.id, "human", actor, "deliverable.removed", { title: att.title || att.name });
+    return json(res, 200, { ok: true });
+  }
+
+  // ---- stages & team updates -------------------------------------------------
+  // Guarded like every ops-* action (opsOk: the owner's session or the panel
+  // key). Each change is written to the INTERNAL event log. Nothing here mails
+  // or messages the customer except ops-update-publish, which is the human
+  // «publish to the customer» press; stages move silently.
+  if (/^ops-(stages-init|stage-set|update-(add|edit|publish|unpublish|delete))$/.test(action)) {
+    if (row.status === "CANCELLED") return json(res, 409, { ok: false, error: "request_closed" });
+    const curStages = Array.isArray(row.stages) ? row.stages : [];
+    const curUpdates = Array.isArray(row.updates) ? row.updates : [];
+
+    if (action === "ops-stages-init") {
+      if (curStages.length && b.replace !== true) return json(res, 409, { ok: false, error: "already_has_stages", stages: curStages });
+      const tpl = b.template == null || b.template === "" ? "sales" : str(b.template, 20);
+      let base;
+      if (Array.isArray(b.stages)) base = normStages(b.stages);
+      else if (STAGE_TEMPLATES[tpl]) base = normStages(STAGE_TEMPLATES[tpl]);
+      else if (tpl === "blank") base = [];
+      else return json(res, 400, { ok: false, error: "unknown_template", templates: Object.keys(STAGE_TEMPLATES) });
+      if (!base.length) return json(res, 400, { ok: false, error: "no_stages" });
+      const derived = autoStages({ ...row, stages: base }) || { stages: base };
+      await patchRequest(row.id, { stages: derived.stages });
+      await logEvent(row.id, "internal", actor, "stages.init", { template: Array.isArray(b.stages) ? "custom" : tpl, count: derived.stages.length });
+      return json(res, 200, { ok: true, stages: derived.stages });
+    }
+
+    if (action === "ops-stage-set") {
+      const key = stageKey(b.stage);
+      if (!key) return json(res, 400, { ok: false, error: "missing_stage" });
+      const stages = curStages.map((x) => ({ ...x }));
+      const i = stages.findIndex((x) => x.key === key);
+      if (b.remove === true) {
+        if (i < 0) return json(res, 404, { ok: false, error: "stage_not_found" });
+        stages.splice(i, 1);
+        await patchRequest(row.id, { stages });
+        await logEvent(row.id, "internal", actor, "stage.removed", { key });
+        return json(res, 200, { ok: true, stages });
+      }
+      if (b.status != null && !STAGE_STATUSES.includes(b.status)) return json(res, 400, { ok: false, error: "bad_status", statuses: STAGE_STATUSES });
+      let st;
+      if (i >= 0) st = stages[i];
+      else {
+        const title_ar = str(b.title_ar, 120);
+        if (!title_ar) return json(res, 404, { ok: false, error: "stage_not_found", message: "مرحلة جديدة تحتاج title_ar." });
+        if (stages.length >= MAX_STAGES) return json(res, 409, { ok: false, error: "too_many_stages" });
+        st = { key, title_ar, title_en: "", status: "pending", at: "", note: "" };
+        const after = stages.findIndex((x) => x.key === stageKey(b.after));
+        stages.splice(after >= 0 ? after + 1 : stages.length, 0, st);
+      }
+      const before = st.status;
+      if (b.title_ar != null && str(b.title_ar, 120)) st.title_ar = str(b.title_ar, 120);
+      if (b.title_en != null) st.title_en = str(b.title_en, 120);
+      if (b.note != null) st.note = str(b.note, 300);
+      if (b.status != null && b.status !== before) { st.status = b.status; st.at = nowIso(); }
+      await patchRequest(row.id, { stages });
+      await logEvent(row.id, "internal", actor, "stage.set", { key, from: before, to: st.status });
+      return json(res, 200, { ok: true, stages });
+    }
+
+    // ---- updates
+    const textAr = str(b.text_ar, 2000), textEn = str(b.text_en, 2000);
+    const find = () => curUpdates.findIndex((u) => u && u.id === str(b.id, 40));
+
+    // One place publishes, so «add and publish» and «publish a draft» cannot
+    // differ: flag + time, the internal log, then (unless the panel says
+    // notify:false) the same customer notice every other step uses.
+    const publish = async (updates, idx) => {
+      const u = { ...updates[idx], published: true, published_at: nowIso() };
+      updates[idx] = u;
+      const upd = await patchRequest(row.id, { updates });
+      await logEvent(row.id, "internal", actor, "update.published", { id: u.id });
+      if (b.notify !== false) {
+        const body = (row.lang === "ar" || !u.text_en ? u.text_ar : u.text_en) || u.text_ar || u.text_en;
+        await announce({ ...row, ...upd }, "update", {
+          subject: `تحديث على طلبك — ${row.ref}`,
+          clientLine: String(body).slice(0, 300),
+          cta: "افتح التحديثات", to: "client",
+        });
+      }
+      return u;
+    };
+
+    if (action === "ops-update-add") {
+      if (!textAr) return json(res, 400, { ok: false, error: "missing_text" });
+      if (curUpdates.length >= MAX_UPDATES) return json(res, 409, { ok: false, error: "too_many_updates" });
+      const u = { id: crypto.randomBytes(6).toString("hex"), at: nowIso(), by: str(actor, 80), text_ar: textAr, text_en: textEn, published: false, published_at: "" };
+      const updates = [...curUpdates, u];
+      await patchRequest(row.id, { updates });
+      await logEvent(row.id, "internal", actor, "update.added", { id: u.id });
+      const out = b.publish === true ? await publish(updates, updates.length - 1) : u;
+      return json(res, 200, { ok: true, update: out });
+    }
+
+    const idx = find();
+    if (idx < 0) return json(res, 404, { ok: false, error: "update_not_found" });
+    const updates = curUpdates.map((u) => ({ ...u }));
+
+    if (action === "ops-update-edit") {
+      if (updates[idx].published) return json(res, 409, { ok: false, error: "already_published", message: "ألغِ نشر التحديث أولاً ثم عدّله." });
+      if (b.text_ar != null) { if (!textAr) return json(res, 400, { ok: false, error: "missing_text" }); updates[idx].text_ar = textAr; }
+      if (b.text_en != null) updates[idx].text_en = textEn;
+      await patchRequest(row.id, { updates });
+      await logEvent(row.id, "internal", actor, "update.edited", { id: updates[idx].id });
+      return json(res, 200, { ok: true, update: updates[idx] });
+    }
+    if (action === "ops-update-publish") {
+      // Idempotent: a second press (double click, two panels) changes nothing and tells no one twice.
+      if (updates[idx].published) return json(res, 200, { ok: true, update: updates[idx], already: true });
+      return json(res, 200, { ok: true, update: await publish(updates, idx) });
+    }
+    if (action === "ops-update-unpublish") {
+      if (!updates[idx].published) return json(res, 200, { ok: true, update: updates[idx], already: true });
+      updates[idx] = { ...updates[idx], published: false, published_at: "" };
+      await patchRequest(row.id, { updates });
+      await logEvent(row.id, "internal", actor, "update.unpublished", { id: updates[idx].id });
+      return json(res, 200, { ok: true, update: updates[idx] });
+    }
+    // ops-update-delete: a draft only. A published update was read by the
+    // customer; withdraw it first so the history shows it was.
+    if (updates[idx].published) return json(res, 409, { ok: false, error: "unpublish_first" });
+    updates.splice(idx, 1);
+    await patchRequest(row.id, { updates });
+    await logEvent(row.id, "internal", actor, "update.deleted", { id: str(b.id, 40) });
     return json(res, 200, { ok: true });
   }
 
