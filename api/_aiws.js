@@ -392,6 +392,11 @@ export async function handleAiwsReady(body, ctx) {
   const want = ACTIVATOR_KEY || (ctx.dev ? "dev-activator" : "");
   const a = Buffer.from(key), b = Buffer.from(want);
   if (!want || a.length !== b.length || !crypto.timingSafeEqual(a, b)) return { status: 403, body: { ok: false, error: "forbidden" } };
+  return markAiwsReady(body, ctx, "nayef_ai_workspace");
+}
+
+/** يكتب حدث aiws.ready على طلب الشراء (الرابط على نطاق الموقع وحده) ويُعلم العميل داخل لوحته. */
+async function markAiwsReady(body, ctx, actor) {
   const ref = clean(body && body.ref, 40);
   let url = "";
   try {
@@ -402,9 +407,86 @@ export async function handleAiwsReady(body, ctx) {
   const rows = await ctx.sb(`requests?ref=eq.${ref}&select=id,organization_id&limit=1`);
   const r = rows && rows[0];
   if (!r) return { status: 404, body: { ok: false, error: "not_found" } };
-  await ctx.sb("request_events", { method: "POST", body: { request_id: r.id, actor_kind: "internal", actor: "nayef_ai_workspace", event: "aiws.ready", details: { url } }, prefer: "return=minimal" });
+  await ctx.sb("request_events", { method: "POST", body: { request_id: r.id, actor_kind: "internal", actor, event: "aiws.ready", details: { url } }, prefer: "return=minimal" });
   if (ctx.notify && r.organization_id) {
     await ctx.notify({ organization_id: r.organization_id, channel: "inapp", event: "aiws.ready", title: "مساحتك في Business Partner AI جاهزة", body: url, idempotency_key: `aiws.ready:${ref}:${url}` }).catch(() => {});
   }
   return { status: 200, body: { ok: true } };
+}
+
+/* ───────────── لوحة المالك /ops ───────────── */
+// ما يراه المالك عن مشتركي Business Partner AI: من اشترك وبأي باقة، والتجديد، وحالة
+// المساحة ورابطها، وعدد المستخدمين والاستخدام. **لا محتوى:** لا محادثات ولا ملفات ولا
+// شعار ولا قائمة مديرين — قرار المالك 2026-10-16: «ما يكون عندي أي صلاحية على صفحته أو
+// معلوماته». المستخدمون والاستخدام يأتيان من خادم المنصة حين يُبنى مسار الأرقام عليه
+// (AIWS_USAGE_URL)، وحتى ذلك تُعرض فارغة بسبب واضح لا بأصفار مخترعة.
+const USAGE_URL = process.env.AIWS_USAGE_URL || "";
+const USAGE_KEY = process.env.AIWS_USAGE_KEY || "";
+
+async function usageBySlug(doFetch) {
+  if (!USAGE_URL || !USAGE_KEY) return null;
+  try {
+    const r = await doFetch(USAGE_URL, { headers: { Authorization: `Bearer ${USAGE_KEY}` }, signal: AbortSignal.timeout(8000) });
+    if (!r.ok) return null;
+    const j = await r.json();
+    const out = new Map();
+    // أرقام فقط: عدد المستخدمين، والمستهلك من الرصيد بالدولار، وآخر نشاط.
+    for (const t of (j && Array.isArray(j.tenants) ? j.tenants : [])) {
+      if (!t || !t.slug) continue;
+      out.set(String(t.slug), {
+        users: Number.isFinite(Number(t.users)) ? Number(t.users) : null,
+        spent_sar: Number.isFinite(Number(t.spent_usd)) ? Math.round(Number(t.spent_usd) * 3.75 * 100) / 100 : null,
+        last_active: t.last_active ? String(t.last_active).slice(0, 40) : null,
+      });
+    }
+    return out;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * ctx = { sb, fetch, now, notify }
+ *   action "ops"        ← { ok, rows:[…], totals, usage_source }
+ *   action "ops-ready"  ← المالك يسجّل أن المساحة جهزت برابطها (حين يجهّزها الفريق يدوياً)
+ */
+export async function handleAiwsOps(action, body, ctx) {
+  if (action === "ops-ready") return markAiwsReady(body, ctx, "owner");
+  if (action !== "ops") return { status: 400, body: { ok: false, error: "unknown_action" } };
+  const now = ctx.now || Date.now();
+  const doFetch = ctx.fetch || fetch;
+  const reqs = await ctx.sb(`requests?select=id,ref,organization_id,status,payment,client_name,client_email,company_name,created_at&order=created_at.desc&limit=1000`);
+  const subs = aiwsSubscriptions(reqs, now);
+  const byId = new Map((reqs || []).map((r) => [r.id, r]));
+  const ids = [...new Set(subs.map((s) => s.request_id))];
+  const events = ids.length
+    ? await ctx.sb(`request_events?request_id=in.(${ids.join(",")})&event=in.(aiws.setup,aiws.ready)&select=request_id,event,details,created_at&order=created_at.desc&limit=2000`)
+    : [];
+  let plans = [];
+  try { plans = await getPlans("en", doFetch, now); } catch {}
+  const usage = await usageBySlug(doFetch);
+  const rows = subs.map((s) => {
+    const r = byId.get(s.request_id) || {};
+    const ws = workspaceFrom((events || []).filter((e) => e.request_id === s.request_id));
+    const p = plans.find((x) => x.code === s.plan);
+    const u = usage && ws.slug ? usage.get(ws.slug) : null;
+    return {
+      ref: s.ref, plan: s.plan, sku: s.sku, amount: s.amount, paid_at: s.paid_at, renews_at: s.renews_at, state: s.state, test: s.test,
+      company: ws.company || r.company_name || r.client_name || "", email: r.client_email || "",
+      ws_status: ws.status, slug: ws.slug, url: ws.url, submitted_at: ws.submitted_at, ready_at: ws.ready_at,
+      seats: p && p.seats != null ? p.seats : null,
+      users: u ? u.users : null, spent_sar: u ? u.spent_sar : null, last_active: u ? u.last_active : null,
+    };
+  });
+  const live = rows.filter((x) => !x.test);
+  const totals = {
+    active: live.filter((x) => x.state === "active").length,
+    renewal_due: live.filter((x) => x.state === "renewal_due").length,
+    mrr: Math.round(live.filter((x) => x.state === "active").reduce((a, x) => a + (Number(x.amount) || 0), 0) * 100) / 100,
+    needs_setup: rows.filter((x) => x.ws_status === "needs_setup").length,
+    provisioning: rows.filter((x) => x.ws_status === "provisioning").length,
+    ready: rows.filter((x) => x.ws_status === "ready").length,
+    test: rows.length - live.length,
+  };
+  return { status: 200, body: { ok: true, rows, totals, usage_source: usage ? "platform" : "pending" } };
 }

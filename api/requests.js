@@ -28,7 +28,7 @@ import { LEADS_DB as BD_LEADS_DB, matchQuery as bdMatchQuery, mapCompany as bdMa
 import { handleAgencies } from "./_agencies.js";
 import { handleJobhunt } from "./_jobhunt.js";
 import { handleEor, isBillingAction, authFromSession } from "./_eor.js";
-import { handleAiws, activateAiws, aiwsPlanOf, handleAiwsMy, sendAiwsSetup, handleAiwsReady } from "./_aiws.js";
+import { handleAiws, activateAiws, aiwsPlanOf, handleAiwsMy, sendAiwsSetup, handleAiwsReady, handleAiwsOps } from "./_aiws.js";
 import { stageChannels, announce, waSend } from "./_stage.js";
 import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
@@ -921,6 +921,19 @@ async function handleAiwsRoute(req, res) {
       res.statusCode = r.status; return res.end(JSON.stringify(r.body));
     } catch (e) {
       console.error("aiws my:", String((e && e.message) || e).slice(0, 160));
+      res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "failed" }));
+    }
+  }
+  // لوحة المالك /ops: المشتركون وحالة مساحاتهم وأرقامهم — بباب /ops نفسه (opsGate).
+  if (action === "ops" || action === "ops-ready") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    if (!(await opsGate(req, { key: body.key, ticket: body.ticket }))) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    try {
+      const r = await handleAiwsOps(action, body, { sb, notify });
+      res.statusCode = r.status; return res.end(JSON.stringify(r.body));
+    } catch (e) {
+      console.error("aiws ops:", String((e && e.message) || e).slice(0, 160));
       res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "failed" }));
     }
   }

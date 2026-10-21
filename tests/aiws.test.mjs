@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { handleAiws, sanitizePlans, validateTrial, _resetAiwsState, aiwsSubscriptions, validateSetup, handleAiwsMy, handleAiwsReady } from "../api/_aiws.js";
+import { handleAiws, sanitizePlans, validateTrial, _resetAiwsState, aiwsSubscriptions, validateSetup, handleAiwsMy, handleAiwsReady, handleAiwsOps } from "../api/_aiws.js";
 
 const upstream = { lang: "en", currency: "USD", plans: [
   { code: "trial", name: "Starter", base: 0, total: 0, amount: 0, credit_usd: 200, seats: 5, days: 30, models: ["bp-main"], features: ["chat", "files"] },
@@ -173,4 +173,28 @@ test("ready: بمفتاح المفعّل وحده، ورابط على نطاق �
   assert.equal(ok.status, 200);
   assert.equal(db.ev[0].event, "aiws.ready"); assert.equal(db.ev[0].details.url, "https://acme.businesspartner.sa");
   assert.equal(notes.length, 1); assert.equal(notes[0].organization_id, ORG);
+});
+
+test("ops: أرقام المشتركين بلا محتوى، والتجريبي خارج الإيراد، والمالك يسجّل الجاهزية", async () => {
+  const rows = [
+    { ...paidRow("r1", "BP-R-AAAA01", "2026-10-16T10:00:00Z", [{ id: "svc-bp-aiws-bus", code: "BP-AIWS-BUS", qty: 1, amount: 187.5 }]), organization_id: ORG, client_email: "ceo@acme.sa", company_name: "أكمي" },
+    { ...paidRow("r2", "BP-R-AAAA02", "2026-10-15T10:00:00Z", [{ id: "svc-bp-aiws-ent", code: "BP-AIWS-ENT", qty: 1, amount: 750 }], { test: true }), organization_id: "org-2", client_email: "t@test.local" },
+    { ...paidRow("r3", "BP-R-AAAA03", "2026-10-15T10:00:00Z", [{ id: "svc-cr-renew", qty: 1, amount: 50 }]), organization_id: "org-3" },
+  ];
+  const setup = { request_id: "r1", event: "aiws.setup", details: { company: "أكمي للتقنية", slug: "acme", color: "#112233", admins: ["it@acme.sa"], logo_key: "aiws/org-1/logo.png" }, created_at: "2026-10-16T11:00:00Z" };
+  const db = fakeDb(rows, [setup]);
+  const allReqs = async (path, opts) => path.startsWith("requests?select=") ? rows : db.sb(path, opts);
+  const f = async () => ({ ok: true, json: async () => ({ plans: [{ code: "business", seats: 5 }, { code: "enterprise", seats: 100 }] }) });
+  _resetAiwsState();
+  const r = await handleAiwsOps("ops", {}, { sb: allReqs, fetch: f, now: Date.parse("2026-10-20T00:00:00Z") });
+  assert.equal(r.status, 200);
+  assert.equal(r.body.rows.length, 2);
+  const a = r.body.rows.find((x) => x.ref === "BP-R-AAAA01");
+  assert.equal(a.company, "أكمي للتقنية"); assert.equal(a.ws_status, "provisioning"); assert.equal(a.slug, "acme"); assert.equal(a.seats, 5);
+  assert.equal(a.users, null); assert.equal(r.body.usage_source, "pending");
+  for (const k of ["admins", "logo_key", "logo_url", "color", "details"]) assert.ok(!(k in a), k);
+  assert.deepEqual({ active: r.body.totals.active, mrr: r.body.totals.mrr, test: r.body.totals.test, provisioning: r.body.totals.provisioning, needs_setup: r.body.totals.needs_setup }, { active: 1, mrr: 187.5, test: 1, provisioning: 1, needs_setup: 1 });
+  assert.equal((await handleAiwsOps("ops-ready", { ref: "BP-R-AAAA01", url: "https://evil.com" }, { sb: db.sb })).status, 400);
+  const ok = await handleAiwsOps("ops-ready", { ref: "BP-R-AAAA01", url: "https://acme.businesspartner.sa" }, { sb: db.sb });
+  assert.equal(ok.status, 200); assert.equal(db.ev[0].event, "aiws.ready"); assert.equal(db.ev[0].actor, "owner");
 });
