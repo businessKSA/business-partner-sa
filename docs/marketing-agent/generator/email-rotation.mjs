@@ -45,10 +45,20 @@ export const TRACKS = [
     subjectAr: "ما الذي نديره عنك — Business Partner",
     intentAr: "التعريف: من نحن وما الذي نتولّاه نيابةً عن منشأتك.",
     sourceOfTruth: "site/data/services.json",
-    // The audience here is an existing Saudi company, not a founder: company
-    // formation is behind them. What they still carry every month is the
-    // government file, the people file, and the books.
-    serviceCodes: ["BP-REC-03", "BP-AI-01", "REV-GROWTH"],
+    // The audience is an existing Saudi company, not a founder: company
+    // formation is behind them, which is why the homepage's own doors are the
+    // wrong five things to put in front of this list. These are the five the
+    // owner named for exactly this audience (2026-10-20), each one standing for
+    // a pillar rather than a single transaction — a company reads "من يمسك
+    // ملفي الحكومي" and not "رخصة بلدية".
+    pillars: [
+      { nameAr: "الخدمات الحكومية", code: "GR-GEN" },
+      { nameAr: "التحوّل الرقمي بالذكاء الاصطناعي", code: "AI-GEN" },
+      { nameAr: "التوظيف والتعاقد الخارجي (EOR)", code: "BP-REC-03" },
+      { nameAr: "Business Partner AI", code: "BP-AI-01" },
+      { nameAr: "تطوير الأعمال", code: "REV-GROWTH" },
+    ],
+    serviceCodes: ["GR-GEN", "AI-GEN", "BP-REC-03", "BP-AI-01", "REV-GROWTH"],
     always: true,
   },
   {
@@ -148,6 +158,7 @@ function build() {
       sourceOfTruth: t.sourceOfTruth,
       always: t.always,
       leadCode: t.leadCode || null,
+      pillars: t.pillars ? t.pillars.map((p) => ({ ...p, service: serviceSummary(p.code) })) : null,
       services: t.serviceCodes.map(serviceSummary),
     })),
   };

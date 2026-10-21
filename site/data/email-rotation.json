@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-20",
+  "generatedAt": "2026-10-21",
   "intervalDays": 14,
   "cycle": 4,
   "tracks": [
@@ -12,7 +12,78 @@
       "sourceOfTruth": "site/data/services.json",
       "always": true,
       "leadCode": null,
+      "pillars": [
+        {
+          "nameAr": "الخدمات الحكومية",
+          "code": "GR-GEN",
+          "service": {
+            "code": "GR-GEN",
+            "name": "Government Relations Representative",
+            "category": "Government Relations",
+            "slug": "gr-gen",
+            "requiresProposal": true
+          }
+        },
+        {
+          "nameAr": "التحوّل الرقمي بالذكاء الاصطناعي",
+          "code": "AI-GEN",
+          "service": {
+            "code": "AI-GEN",
+            "name": "Artificial Intelligence Automation — Bespoke Service",
+            "category": "AI Automation",
+            "slug": "ai-gen",
+            "requiresProposal": true
+          }
+        },
+        {
+          "nameAr": "التوظيف والتعاقد الخارجي (EOR)",
+          "code": "BP-REC-03",
+          "service": {
+            "code": "BP-REC-03",
+            "name": "التوظيف والتعاقد الخارجي (PEO/EOR)",
+            "category": "Recruitment",
+            "slug": "bp-rec-03",
+            "requiresProposal": true
+          }
+        },
+        {
+          "nameAr": "Business Partner AI",
+          "code": "BP-AI-01",
+          "service": {
+            "code": "BP-AI-01",
+            "name": "AI Business Partner Enterprise",
+            "category": "AI Automation",
+            "slug": "bp-ai-01",
+            "requiresProposal": true
+          }
+        },
+        {
+          "nameAr": "تطوير الأعمال",
+          "code": "REV-GROWTH",
+          "service": {
+            "code": "REV-GROWTH",
+            "name": "Business Development — Revenue Operating System — Growth Package",
+            "category": "Business Support",
+            "slug": "rev-growth",
+            "requiresProposal": false
+          }
+        }
+      ],
       "services": [
+        {
+          "code": "GR-GEN",
+          "name": "Government Relations Representative",
+          "category": "Government Relations",
+          "slug": "gr-gen",
+          "requiresProposal": true
+        },
+        {
+          "code": "AI-GEN",
+          "name": "Artificial Intelligence Automation — Bespoke Service",
+          "category": "AI Automation",
+          "slug": "ai-gen",
+          "requiresProposal": true
+        },
         {
           "code": "BP-REC-03",
           "name": "التوظيف والتعاقد الخارجي (PEO/EOR)",
@@ -45,6 +116,7 @@
       "sourceOfTruth": "docs/marketing-agent/generator/email-rotation.mjs (NEW_SERVICES)",
       "always": true,
       "leadCode": "BP-AI-01",
+      "pillars": null,
       "services": [
         {
           "code": "BP-AI-01",
@@ -85,6 +157,7 @@
       "sourceOfTruth": "docs/marketing-agent/briefs/news/<issue>.json",
       "always": false,
       "leadCode": null,
+      "pillars": null,
       "services": []
     },
     {
@@ -96,6 +169,7 @@
       "sourceOfTruth": "docs/marketing-agent/briefs/<issue>.json",
       "always": false,
       "leadCode": null,
+      "pillars": null,
       "services": []
     }
   ]
