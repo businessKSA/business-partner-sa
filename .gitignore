@@ -39,3 +39,6 @@ agents/node_modules/
 .localdb/
 .env.local
 .claude/worktrees/
+
+# chat-eval reports (local, synthetic conversations)
+.chat-eval/

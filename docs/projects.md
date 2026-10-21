@@ -43,7 +43,7 @@
 | 22 | **بيانات الشركات** | Company Data Manager | `/data` | 🔴 لا نموذج اشتراك ولا مسار |
 | 23 | **ERP** | ERP Manager | الدفترة وأدوات المال | ⚠️ `erp/` حُذف — الدفترة هي الواقع |
 | 24 | **باهر للدعم** | Baher Support Manager | ودجت الدعم | ✅ يعمل · بلا قياس |
-| 25 | **المستشار الذكي** | Advisor Manager | `api/chat.js` والمعرفة | ✅ Azure فقط |
+| 25 | **المستشار الذكي** | Advisor Manager | `api/chat.js` · `api/_chat-guards.js` (حراس الردود) · المعرفة · `tests/chat-eval/**` (القياس الدائم، `docs/chat-eval.md`) | ✅ Azure فقط |
 | 26 | **واتساب** | WhatsApp Manager | وكيل n8n ولوحة التحكم | ⚠️ يقرأ أسعاراً غير الموقع |
 | 27 | **البريد** | Email Manager | Resend والمتابعات | ⚠️ بلا قياس |
 | 28 | **التواصل الاجتماعي** | Social Media Manager | — | 🔴 لا شيء مبنيّ |

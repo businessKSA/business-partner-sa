@@ -37,17 +37,21 @@ const RAW = JSON.parse(readFileSync(join(__dirname, "knowledge.json"), "utf8"));
 //            «مبيعاتنا ضعيفة»، «باقة النمو»، «Revenue OS»…).
 const P = "\\p{L}*";
 const END = "(?![\\p{L}])";
+// ‏الخدمة باسمها (لا وجعها ولا مفردةٌ عامة): تفتح القسم المقيَّد، وتعرّف سؤالاً عن الخدمة نفسها —
+// يعتمد عليها الخادم ليجيب بالصيغة الموحّدة حين تكون الخدمة مخفية (api/chat.js، bizdevNamed).
+const BIZDEV_NAMED = [
+  /revenue\s*-?\s*os(?![a-z])/,
+  /(?:^|[^a-z])rev-[a-z]{3,}/,
+  /bizdev|biz\s+dev|business[\s-]+development|developpement\s+commercial|bdaas/,
+  new RegExp(`نظام\\s+تشغيل\\s+(?:ال)?ايرادات`, "u"),
+  new RegExp(`تطوير\\s+(?:ال)?اعمال${END}`, "u"),
+  /业务拓展|业务开发/,
+];
 const GATES = {
   bizdev: {
     door: "bizdev",
     intent: [
-      // ‏الخدمة باسمها
-      /revenue\s*-?\s*os(?![a-z])/,
-      /(?:^|[^a-z])rev-[a-z]{3,}/,
-      /bizdev|biz\s+dev|business[\s-]+development|developpement\s+commercial/,
-      new RegExp(`نظام\\s+تشغيل\\s+(?:ال)?ايرادات`, "u"),
-      new RegExp(`تطوير\\s+(?:ال)?اعمال${END}`, "u"),
-      /业务拓展|业务开发/,
+      ...BIZDEV_NAMED,
       // ‏باقاتها: اسم الباقة ملاصقاً لكلمة «باقة»، أو الباقتان متجاورتين
       new RegExp(`باقه\\s+(?:ال)?(?:نمو|انطلاق|بدايه|احترافيه|منشات\\s+(?:ال)?كبري|فريق\\s+(?:ال)?مخصص)${END}`, "u"),
       new RegExp(`(?:انطلاق|نمو|احترافيه)\\s+(?:و|او|ام)\\s*(?:ال)?(?:انطلاق|نمو|احترافيه|بدايه)${END}`, "u"),
@@ -81,6 +85,12 @@ function norm(text) {
     .replace(/[̀-ًͯ-ٰٟـ]/g, "")
     .replace(/ة/g, "ه")
     .replace(/ى/g, "ي");
+}
+
+/** ‏هل يسأل النصّ عن خدمة «تطوير الأعمال» باسمها؟ (لا عن وجعٍ يمسّه كـ«عملاء جدد»). */
+export function bizdevNamed(text) {
+  const q = norm(text);
+  return BIZDEV_NAMED.some((re) => re.test(q));
 }
 
 /** هل يدلّ نصّ السؤال أو بابُه على نيّة القسم المقيَّد؟ */

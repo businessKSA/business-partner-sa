@@ -8,6 +8,7 @@
     "dev:serve": "node site/scripts/devserver.mjs",
     "dev:reset": "rm -rf .localdb && node site/scripts/devserver.mjs",
     "test": "node --test \"tests/**/*.test.mjs\"",
+    "chat:eval": "node tests/chat-eval/run.mjs",
     "wa:menu": "node site/scripts/wa-menu.mjs",
     "wa:check": "node site/scripts/wa-menu.mjs --check",
     "verify:pages": "node site/scripts/verify-pages.mjs",
