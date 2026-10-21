@@ -3,6 +3,11 @@
 > قرار المالك 2026-10-16: «أوقف Vercel وn8n تماماً، وكل شيء على Azure».
 > هذا الملف عُدّة تجهيز **لم يُنفَّذ منها شيء**: لا اتصال بـn8n Cloud ولا بـAzure، ولا نشر، ولا لمس لواتساب الحيّ.
 > يُنفَّذ كله بأمر المالك وبيده في الخطوات التي تلمس الإنتاج.
+>
+> **تحديث 2026-10-21 (قرار المالك: n8n كله على Azure ولا شيء على Cloud، وإيقاف الاشتراكات لاحقاً):**
+> قائمة القطع المعتمدة بالترتيب والتراجع هي [`n8n-cutover-checklist-2026-10-21.md`](n8n-cutover-checklist-2026-10-21.md) —
+> **تحلّ محلّ §5 و§6 و§7 أدناه** (تبقى هنا للأسباب والتفاصيل). وأُضيف إلى الأداة: `webhooks` و`verify` و`probe-webhooks`
+> وخريطة الاعتمادات، وإلى `deploy.sh`: `adopt-check` و`adopt-pin` و`adopt-harden` لتبنّي `bp-n8n` القائم.
 
 ## 0) ما جُهِّز
 
@@ -24,12 +29,12 @@
 **لم أتحقق من Azure نفسه** (ممنوع في هذه المهمة). ما في المستودع:
 
 - **فرع العمل** (`f2412db72`، 2026-10-11): `azure/n8n/deploy.sh` و`.github/workflows/azure-n8n.yml` و`ops/n8n-migrate.mjs` — محاولة أولى لتشغيل n8n على Container Apps + PostgreSQL باسم `bp-n8n`. فروقها عمّا طلبه المالك اليوم: المنطقة `swedencentral` لا UAE North، والصورة `:latest` غير مثبّتة، وبيئة `bp-agents-env` المشتركة مع الوكلاء، وتنفيذات النجاح لا تُحفظ، والمفاتيح أسرار داخل التطبيق لا Key Vault، ولا تقرير اعتمادات ولا حماية تكرار في أداة النقل. الـworkflow يدوي (`workflow_dispatch` + كلمة تأكيد) ويحتاج السرّ `AZURE_CREDENTIALS`.
-- **لا دليل في أي ملف أنه شُغِّل**: لا عنوان `*.azurecontainerapps.io` مسجَّل، و`BP_N8N_BASE` فارغ افتراضياً في `agents/`، و`docs/azure-setup-owner.md` يقول «النظام يعمل اليوم على n8n وVercel كما هو».
+- **تأكيد المالك 2026-10-21:** التطبيق `bp-n8n` موجود فعلاً في المجموعة `bp-ai` (swedencentral) مع قاعدة `bp-n8n-pg` — أي أن محاولة 2026-10-11 نُفِّذت. (كان هذا الملف يقول «لا دليل أنه شُغِّل»؛ الدليل في الكود وحده كان ناقصاً.) ما لم يُعرف بعد: نسخته، وهل أُنشئ فيه حساب واعتمادات، وهل مفتاح التشفير سرٌّ مرجعي. يحسمها `bash deploy.sh adopt-check` (قراءة فقط).
 - **فرع `azure-migration`** (`docs/azure-only-2026-10-16.md`): صفّ n8n Cloud فيه «**حالة النقل غير مؤكَّدة** — `az containerapp list -g bp-ai`».
 - `agents/azure` (فريق الوكلاء على Container Apps Jobs) يستدعي n8n للإرسال فقط: `POST $BP_N8N_BASE/webhook/bp-agent-send`. فهو أحد من يجب أن يتبدّل عنوانه يوم القطع.
 - **الفحص الأول قبل أي شيء** (دقيقة واحدة، من Cloud Shell): `az containerapp list -g bp-ai -o table`.
   - لا يوجد `bp-n8n` ← نفّذ العُدّة الجديدة كما هي.
-  - يوجد `bp-n8n` من المحاولة الأولى ← **قرار المالك**: يُحذف ويُعاد في UAE North بالعُدّة الجديدة (الأنظف)، أو تُشغَّل الجديدة باسم آخر `BP_N8N_APP=bp-n8n-uae`. لا أنصح بتحويل الموجود في swedencentral لأن إعداده غير مثبّت النسخة ولا يُعرف إن كان حساب المالك أُنشئ فيه.
+  - يوجد `bp-n8n` من المحاولة الأولى (هذا هو الواقع المؤكَّد الآن) ← الخياران في قائمة القطع §0: **تبنٍّ** (`adopt-check` ثم `adopt-pin` و`adopt-harden`، ولا تُنفَّذ الخطوات 2–5 عليه لأنها تُنشئ مفتاح تشفير وقاعدة جديدين لا علاقة لهما بما في القاعدة) أو **إعادة بناء** في UAE North باسم جديد. التوصية بعد قراءة `adopt-check`.
 
 ## 2) جرد السيناريوهات
 
@@ -181,7 +186,7 @@ N8N_SRC_URL=https://businesspartnerai.app.n8n.cloud N8N_SRC_API_KEY=... \
 |---|---|---|
 | `ops/azure/Dockerfile` و`.github/workflows/azure-deploy.yml` (فرع `azure-migration`) | `platform-engineer` | تمرير `N8N_BASE_URL` كـbuild-arg/متغيّر بناء، وإلا بُنيت صفحات المتصفح في صورة Azure بعنوان Cloud القديم |
 | `site/scripts/n8n-guard.mjs` + حقنه في `write()` (فرع `azure-migration`) | `platform-engineer` | الحارس يمنع النداء إلى مضيفات تنتهي بـ`n8n.cloud` من `localhost`/`*.vercel.app`، ويُحقن في الصفحات التي تحوي `n8n.cloud/webhook`. بعد القطع يصير **بلا أثر** وتُطلق المعاينات إنتاجاً حقيقياً. يجب أن يطابق مضيف `N8N_BASE_URL` أيضاً |
-| `api/_eor.js` و`api/chat.js` (على فرع `claude/bpic-marketing-site-jvrnga`) | `eor` و`advisor` | فيهما عنوان n8n حرفي (`_eor.js:47` `OWNER_WA_WEBHOOK_DEFAULT`، و`chat.js:215`) ولم يصلا إلى هذا الفرع بعد. يُستبدلان عند الدمج بـ`n8nWebhookUrl(...)` من `api/_n8n.js` |
+| `api/_eor.js` و`api/chat.js` و`api/_aiws.js` | `eor` و`advisor` و`ai-workspace` | **أُنجز على هذا الفرع (azure-migration):** الثلاثة تستعمل `n8nWebhookUrl(...)` (فحصها `tests/n8n-migrate.test.mjs`). يبقى على فرع الإنتاج (فيرسل) بالعنوان الحرفي — لا قطع n8n قبل أن تصله هذه الكوميتات أو قبل أن يُقطع الموقع نفسه |
 | `azure/n8n/deploy.sh` و`.github/workflows/azure-n8n.yml` و`ops/n8n-migrate.mjs` | `platform-engineer` | **تحلّ محلّها العُدّة الجديدة** (انظر §1). يُحذف القديم أو يُوسَم «مُستبدَل» بعد قرار المالك في حالة `bp-n8n` الموجود |
 | `site/assets/data/compliance-dashboard.html` | `compliance` | مصدر خام فيه العنوان القديم حرفياً (تستبدله عملية البناء في الصفحة المولَّدة، لكن الملف نفسه يُخدَم من `/assets/data/` إن فُتح مباشرة) |
 | سير `n8n/*` و`ops/n8n/*` الأخرى (`bp-agent-send`، `doc-agent-*`، `baher-intake-v2`) | هذا الوكيل | لا عنوان Cloud فيها حرفياً؛ لا تغيير |

@@ -108,15 +108,31 @@ Supabase (روابط موقّعة قصيرة العمر)؛ هذه مرآة تش�
 
 ---
 
-## نقل n8n إلى Azure (قرار المالك 2026-10-16)
+## نقل n8n إلى Azure (قرار المالك 2026-10-16، وتحديثه 2026-10-21: n8n كله على Azure ولا شيء على Cloud)
 
-العُدّة الكاملة وترتيب القطع والتراجع: [`docs/n8n-azure-cutover-2026-10-16.md`](../../docs/n8n-azure-cutover-2026-10-16.md).
+قائمة القطع بالترتيب والتراجع: [`docs/n8n-cutover-checklist-2026-10-21.md`](../../docs/n8n-cutover-checklist-2026-10-21.md).
+الأسباب والتفاصيل: [`docs/n8n-azure-cutover-2026-10-16.md`](../../docs/n8n-azure-cutover-2026-10-16.md).
 
 | الملف | ما هو |
 |---|---|
-| `azure/deploy.sh` | نشر n8n على Container Apps (UAE North) + PostgreSQL + Key Vault، أوامر مرقّمة لـCloud Shell |
-| `migrate-workflows.mjs` | تصدير/استيراد/تفعيل السيناريوهات عبر REST بحماية من التكرار (`--dry-run`، `--apply`) |
+| `azure/deploy.sh` | n8n على Container Apps + PostgreSQL + Key Vault (أوامر مرقّمة لـCloud Shell). + `adopt-check` (قراءة فقط) و`adopt-pin` و`adopt-harden` لتبنّي `bp-n8n` القائم في swedencentral بدل إنشاء آخر |
+| `migrate-workflows.mjs` | نقل السيناريوهات عبر REST. المفاتيح من البيئة فقط: `N8N_SRC_URL` `N8N_SRC_API_KEY` `N8N_DST_URL` `N8N_DST_API_KEY` |
 | `../../api/_n8n.js` | عنوان n8n الموحّد: `N8N_BASE_URL` |
+
+أوامر `migrate-workflows.mjs` (كل ما يكتب في الإنتاج يحتاج `--apply`، وكل أمر يقبل `--dry-run` حيث يكتب):
+
+| الأمر | ما يفعله |
+|---|---|
+| `export <dir> [--dry-run]` | يقرأ كل السيناريوهات، ويحفظها، ويكتب `_report.txt` (ما لا يُنقل تلقائياً: الاعتمادات والمتغيّرات وجداول البيانات — أسماء فقط) و`_credential-map.template.json` |
+| `report <dir>` | التقرير نفسه من الملفات المحفوظة، بلا شبكة |
+| `webhooks <dir> [--base=…]` | كل ويبهوك وارد: عنوانه القديم/الجديد، من يناديه في الكود، وما يُحدَّث عند المزوّد (Meta وغيره)، وتعليم ما لا مستهلك معروف له |
+| `import <dir> [--dry-run] [--on-exists=skip\|update] [--data-table-map=…] [--credential-map=…]` | ينشئ السيناريوهات **غير مفعّلة**، ويصلح المراجع الداخلية، ويربط الاعتمادات بمعرّفات الوجهة من `credential-map.json` (يلتقطه تلقائياً من المجلد) |
+| `activate <dir> --only=webhook\|stateful\|all --apply` | يفعّل في الوجهة؛ يرفض المجدول ما دام فعّالاً في المصدر |
+| `pause-source` / `resume-source` / `pause-target` | الإيقاف والتراجع بترتيبه الصحيح |
+| `verify <dir> --phase=prep\|cutover\|rollback` | يقارن الوجهة بالتصدير ويفحص حالة التفعيل في الجهتين؛ **رمز الخروج ٢** إن وجد خطأً (أهمه مجدول فعّال في الموضعين) |
+| `probe-webhooks <dir> [--base=…]` | يتأكد أن الويبهوكات مسجَّلة في الوجهة بـGET على مسارات POST فقط، دون تشغيل شيء |
+
+الاختبارات: `tests/n8n-migrate.test.mjs` · `tests/n8n-migrate-cutover.test.mjs` · `tests/n8n-deploy-adopt.test.mjs` (بخادم n8n وهمي و`az` وهمي؛ لا شبكة ولا Azure).
 
 `catalog-sync.workflow.js` فيه الآن عقدتان لإعادة نشر الموقع: Vercel (القديمة، تبقى حتى القطع)
 وGitHub `workflow_dispatch` لسير النشر على Azure.

@@ -22,6 +22,14 @@
 #       bash deploy.sh logs             # آخر السجلّ
 #   أو الكل بالترتيب (بدون 6/7/8): bash deploy.sh all
 #
+#   تبنّي تطبيق bp-n8n القائم (محاولة 2026-10-11: swedencentral + قاعدة bp-n8n-pg، صورة latest، أسرار داخل التطبيق)
+#   بدل إنشاء آخر — لا تُنفَّذ 2–5 عليه (تُنشئ بيئة وKey Vault ومفتاح تشفير جديدين لا علاقة لهما بما في القاعدة):
+#       bash deploy.sh adopt-check              # قراءة فقط: ما هو موجود وما ينقص (لا يغيّر شيئاً)
+#       bash deploy.sh adopt-pin [نسخة]         # يثبّت الصورة على النسخة التي تعمل الآن (أو التي تحدّدها)
+#       bash deploy.sh adopt-harden             # يضيف ما ينقص من إعدادات (المنطقة الزمنية، قصّ التنفيذات، الحجب…) بعد تأكيدك
+#       bash deploy.sh 6 NAME…                  # أسرار $env — تعمل على القائم (أسرار داخل التطبيق إن لم تكن له هوية مُدارة)
+#       bash deploy.sh 7                        # النطاق — يربط بالبيئة التي فيها التطبيق فعلاً
+#
 # لماذا هذه الخيارات:
 #   • min=max=1: المؤقّتات والاستطلاع (Gmail/Notion/واتساب) تعمل داخل العملية نفسها؛ عند الصفر لا تعمل،
 #     وعند أكثر من واحد تتكرّر الرسائل. n8n بلا وضع Queue هنا نسخة واحدة عمداً.
@@ -238,24 +246,35 @@ cmd_5() {
 cmd_6() {
   [ "$#" -ge 1 ] || die "الاستعمال: bash deploy.sh 6 NAME1 NAME2 …  (أسماء متغيّرات \$env من تقرير الأداة)"
   az containerapp show -n "$APP" -g "$RG" -o none 2>/dev/null || die "نفّذ الخطوة 5 أولاً."
-  local kv uami name kvn val secrets=() envs=()
-  kv="$(kv_url)"; uami="$(uami_id)"
+  # التطبيق الذي أنشأته الخطوة 5 له هوية مُدارة تقرأ Key Vault. التطبيق المتبنّى (محاولة 2026-10-11) بلا هوية:
+  # تُحفظ الأسرار فيه أسراراً داخل التطبيق (كما حُفظ مفتاح التشفير)، وتُنقل لاحقاً إلى Key Vault إن أردت.
+  local mode kv="" uami="" name kvn val secrets=() envs=()
+  mode="$(secrets_mode)"
+  if [ "$mode" = kv ]; then kv="$(kv_url)"; uami="$(uami_id)"; else say "وضع الأسرار: داخل التطبيق (لا هوية مُدارة له). القيمة تمرّ في سطر أمر az لثوانٍ داخل Cloud Shell."; fi
   for name in "$@"; do
     case "$name" in *[!A-Za-z0-9_]*|'') die "اسم غير صالح: $name" ;; esac
     kvn="$(kv_name_for "$name")"
-    if secret_exists "$kvn"; then say "$name: موجود في Key Vault"
+    if [ "$mode" = kv ]; then
+      if secret_exists "$kvn"; then say "$name: موجود في Key Vault"
+      else
+        printf 'قيمة %s (لا تظهر أثناء الكتابة): ' "$name" >&2
+        IFS= read -rs val; echo >&2
+        [ -n "$val" ] || die "قيمة فارغة لـ$name"
+        printf '%s' "$val" | put_secret "$kvn"; unset val
+      fi
+      secrets+=("$kvn=keyvaultref:$kv/secrets/$kvn,identityref:$uami")
     else
       printf 'قيمة %s (لا تظهر أثناء الكتابة): ' "$name" >&2
       IFS= read -rs val; echo >&2
       [ -n "$val" ] || die "قيمة فارغة لـ$name"
-      printf '%s' "$val" | put_secret "$kvn"; unset val
+      secrets+=("$kvn=$val"); unset val
     fi
-    secrets+=("$kvn=keyvaultref:$kv/secrets/$kvn,identityref:$uami")
     envs+=("$name=secretref:$kvn")
   done
   az containerapp secret set -n "$APP" -g "$RG" --secrets "${secrets[@]}" -o none
+  unset secrets
   az containerapp update -n "$APP" -g "$RG" --set-env-vars "${envs[@]}" -o none
-  say "أُضيفت: $* (مراجع Key Vault — لا قيم في الإعدادات)"
+  if [ "$mode" = kv ]; then say "أُضيفت: $* (مراجع Key Vault — لا قيم في الإعدادات)"; else say "أُضيفت: $* (أسرار داخل التطبيق — لا قيم في متغيّرات البيئة)"; fi
 }
 
 cmd_7() {
@@ -271,7 +290,8 @@ cmd_7() {
 EOF
   read -r -p "تمّ الإضافة؟ (Enter للمتابعة، Ctrl+C للإلغاء) " _
   az containerapp hostname add -n "$APP" -g "$RG" --hostname "$DOMAIN" -o none 2>/dev/null || true
-  az containerapp hostname bind -n "$APP" -g "$RG" --environment "$ENVN" --hostname "$DOMAIN" --validation-method CNAME -o none
+  # البيئة التي فيها التطبيق فعلاً (للمتبنّى: bp-agents-env لا bp-n8n-env)
+  az containerapp hostname bind -n "$APP" -g "$RG" --environment "$(app_env_name)" --hostname "$DOMAIN" --validation-method CNAME -o none
   host="$DOMAIN"
   az containerapp update -n "$APP" -g "$RG" \
     --set-env-vars "N8N_HOST=$host" "WEBHOOK_URL=https://$host/" "N8N_EDITOR_BASE_URL=https://$host/" -o none
@@ -314,10 +334,116 @@ cmd_upgrade() {
 
 cmd_logs() { az containerapp logs show -n "$APP" -g "$RG" --tail 100 --format text; }
 
+# اسم بيئة Container Apps التي فيها التطبيق — يرجع إلى ENVN إن لم يوجد.
+app_env_name() {
+  local e
+  e="$(az containerapp show -n "$APP" -g "$RG" --query properties.environmentId -o tsv 2>/dev/null | sed 's#.*/##')"
+  printf '%s' "${e:-$ENVN}"
+}
+# kv: للتطبيق هوية مُدارة هي UAMI (أنشأتها الخطوة 5)؛ app: غير ذلك (تطبيق متبنّى).
+secrets_mode() {
+  if az containerapp show -n "$APP" -g "$RG" --query "identity.userAssignedIdentities" -o tsv 2>/dev/null | grep -q "$UAMI"; then echo kv; else echo app; fi
+}
+running_version() {
+  local f; f="$(app_fqdn 2>/dev/null)" || return 0
+  [ -n "$f" ] || return 0
+  curl -fsS --max-time 15 "https://$f/rest/settings" 2>/dev/null | grep -o '"versionCli":"[^"]*"' | head -1 | cut -d'"' -f4 || true
+}
+ask_yes() {
+  local a; printf '%s [اكتب yes للمتابعة] ' "$1" >&2; read -r a || a=""
+  [ "$a" = yes ] || die "أُلغي — لم يتغيّر شيء."
+}
+
+# ── تبنّي التطبيق القائم ───────────────────────────────────────────────────────────────────────
+# قراءة فقط. لا يطبع قيمة أي سرّ: أسماء الأسرار، وقيم متغيّرات غير سرّية من قائمة بيضاء.
+cmd_adopt_check() {
+  az containerapp show -n "$APP" -g "$RG" -o none 2>/dev/null || die "لا تطبيق باسم $APP في $RG — لا شيء يُتبنّى. استعمل الخطوات 1–5 لإنشاء جديد."
+  say "فحص للقراءة فقط (لا تغيير). التطبيق: $APP · المجموعة: $RG"
+  az containerapp show -n "$APP" -g "$RG" --query "{region:location, running:properties.runningStatus, environment:properties.environmentId, image:properties.template.containers[0].image, cpu:properties.template.containers[0].resources.cpu, memory:properties.template.containers[0].resources.memory, minReplicas:properties.template.scale.minReplicas, maxReplicas:properties.template.scale.maxReplicas, fqdn:properties.configuration.ingress.fqdn, identity:identity.type}" -o table
+
+  local img tag fqdn rows dbhost pgname ver n v
+  img="$(az containerapp show -n "$APP" -g "$RG" --query "properties.template.containers[0].image" -o tsv)"
+  tag="${img##*:}"
+  case "$tag" in
+    latest|next|stable|beta|"$img") say "✗ الصورة غير مثبّتة ($img): أي إعادة تشغيل قد ترقّي n8n وتغيّر قاعدته. ثبّتها: bash deploy.sh adopt-pin" ;;
+    *) say "✓ الصورة مثبّتة: $tag" ;;
+  esac
+
+  rows="$(az containerapp show -n "$APP" -g "$RG" --query "properties.template.containers[0].env[].[name, secretRef, value]" -o tsv 2>/dev/null || true)"
+  envrow() { printf '%s\n' "$rows" | awk -F'\t' -v n="$1" '$1==n {print; exit}'; }
+  envhas() { [ -n "$(envrow "$1")" ]; }
+  envval() { envrow "$1" | awk -F'\t' '{v=$3; if (v=="None") v=""; print v}'; }
+  envsec() { envrow "$1" | awk -F'\t' '{v=$2; if (v=="None") v=""; print v}'; }
+
+  say "متغيّرات البيئة (أسماء، وقيم غير سرّية فقط):"
+  if envhas N8N_ENCRYPTION_KEY; then
+    if [ -n "$(envsec N8N_ENCRYPTION_KEY)" ]; then say "  ✓ N8N_ENCRYPTION_KEY مرجع سرّ (secretref) — احتفظ بنسخة منه خارج Azure قبل أي قطع"
+    else say "  ✗ N8N_ENCRYPTION_KEY قيمة صريحة في الإعدادات (ليست سرّاً) — انقلها إلى سرّ"; fi
+  else say "  ✗ N8N_ENCRYPTION_KEY غير مضبوط: n8n يولّد مفتاحاً داخل الحاوية ويضيع مع كل إعادة إنشاء — لا تستورد اعتمادات قبل حلّ هذا"; fi
+  for n in DB_TYPE DB_POSTGRESDB_HOST WEBHOOK_URL N8N_HOST N8N_EDITOR_BASE_URL GENERIC_TIMEZONE EXECUTIONS_DATA_PRUNE EXECUTIONS_DATA_MAX_AGE EXECUTIONS_DATA_PRUNE_MAX_COUNT N8N_BLOCK_ENV_ACCESS_IN_NODE N8N_PROXY_HOPS N8N_RUNNERS_ENABLED; do
+    if envhas "$n"; then v="$(envval "$n")"; say "  ✓ $n=${v:-(من سرّ)}"; else say "  ✗ $n غير مضبوط"; fi
+  done
+  say "أسرار التطبيق (أسماء فقط):"
+  az containerapp secret list -n "$APP" -g "$RG" --query "[].name" -o tsv 2>/dev/null | sed 's/^/  - /' || true
+
+  fqdn="$(app_fqdn)"
+  if [ -n "$fqdn" ]; then
+    ver="$(running_version)"
+    say "النسخة التي تعمل: ${ver:-(تعذّرت القراءة)} — يجب ألا تكون أقدم من نسخة n8n Cloud (Help → About n8n)"
+    if curl -fsS --max-time 20 "https://$fqdn/healthz" >/dev/null 2>&1; then say "✓ /healthz يردّ"; else say "✗ /healthz لا يردّ"; fi
+    az containerapp show -n "$APP" -g "$RG" --query "properties.configuration.ingress.customDomains[].name" -o tsv 2>/dev/null | sed 's/^/  نطاق مربوط: /' || true
+  fi
+
+  dbhost="$(envval DB_POSTGRESDB_HOST)"; pgname="${dbhost%%.*}"
+  if [ -n "$pgname" ]; then
+    say "قاعدة البيانات: $pgname"
+    az postgres flexible-server show -n "$pgname" -g "$RG" --query "{region:location, state:state, version:version, sku:sku.name, tier:sku.tier, storageGb:storage.storageSizeGb, backupDays:backup.backupRetentionDays, highAvailability:highAvailability.mode}" -o table 2>/dev/null || say "  تعذّرت قراءة الخادم $pgname (اسم مختلف أو مجموعة أخرى؟)"
+  fi
+  say "بعد القراءة: قرّر (تبنٍّ أم إعادة بناء في UAE North) — docs/n8n-cutover-checklist-2026-10-21.md §0."
+}
+
+# يثبّت الصورة. بلا وسيط: على النسخة التي تعمل الآن (لا ترقية ولا خفض). يحتاج تأكيدك.
+cmd_adopt_pin() {
+  local want="${1:-}" cur
+  cur="$(running_version)"
+  [ -n "$want" ] || want="$cur"
+  [ -n "$want" ] || die "تعذّرت قراءة النسخة التي تعمل. مرّرها: bash deploy.sh adopt-pin 1.xx.x"
+  N8N_VERSION="$want"; need_version
+  if [ -n "$cur" ] && [ "$cur" != "$want" ]; then
+    say "⚠ النسخة الجارية $cur والمطلوبة $want. الخفض بعد أن رقّت n8n قاعدتها يكسر الإقلاع؛ والرفع يرقّي القاعدة ولا رجوع عنه."
+    say "  خذ نسخة احتياطية أولاً: az postgres flexible-server backup create -g $RG -n <خادم القاعدة> --backup-name pre-pin-$(date +%Y%m%d%H%M)"
+  fi
+  ask_yes "تثبيت $APP على $(image) (مراجعة جديدة، تداخل ثوانٍ)؟"
+  az containerapp update -n "$APP" -g "$RG" --image "$(image)" -o none
+  say "تمّ. تحقّق: bash deploy.sh adopt-check"
+}
+
+# يضيف ما ينقص فقط (لا يستبدل قيماً موجودة): المنطقة الزمنية، قصّ التنفيذات، السماح بـ$env، نسخة واحدة دائمة.
+cmd_adopt_harden() {
+  az containerapp show -n "$APP" -g "$RG" -o none 2>/dev/null || die "لا تطبيق باسم $APP"
+  local have want=() n mn mx
+  have="$(az containerapp show -n "$APP" -g "$RG" --query "properties.template.containers[0].env[].name" -o tsv)"
+  local defaults=(GENERIC_TIMEZONE=Asia/Riyadh TZ=Asia/Riyadh N8N_BLOCK_ENV_ACCESS_IN_NODE=false N8N_PROXY_HOPS=1 N8N_RUNNERS_ENABLED=true
+    EXECUTIONS_DATA_SAVE_ON_ERROR=all EXECUTIONS_DATA_SAVE_ON_SUCCESS=all EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS=true
+    EXECUTIONS_DATA_PRUNE=true EXECUTIONS_DATA_MAX_AGE=72 EXECUTIONS_DATA_PRUNE_MAX_COUNT=20000
+    N8N_DIAGNOSTICS_ENABLED=false N8N_VERSION_NOTIFICATIONS_ENABLED=false N8N_PERSONALIZATION_ENABLED=false)
+  for n in "${defaults[@]}"; do printf '%s\n' "$have" | grep -qx "${n%%=*}" || want+=("$n"); done
+  mn="$(az containerapp show -n "$APP" -g "$RG" --query properties.template.scale.minReplicas -o tsv)"
+  mx="$(az containerapp show -n "$APP" -g "$RG" --query properties.template.scale.maxReplicas -o tsv)"
+  say "ينقص ${#want[@]} متغيّراً: ${want[*]:-(لا شيء)}"
+  say "النسخ: min=$mn max=$mx (المطلوب 1/1 — صفر لا تعمل المؤقّتات، وأكثر من واحد تتكرّر الرسائل)"
+  if [ "${#want[@]}" -eq 0 ] && [ "$mn" = 1 ] && [ "$mx" = 1 ]; then say "✓ لا شيء يلزم."; return 0; fi
+  ask_yes "تطبيق هذه الإضافات على $APP؟ (مراجعة جديدة، لا حذف ولا استبدال لقيمة موجودة)"
+  if [ "${#want[@]}" -gt 0 ]; then az containerapp update -n "$APP" -g "$RG" --set-env-vars "${want[@]}" -o none; fi
+  if [ "$mn" != 1 ] || [ "$mx" != 1 ]; then az containerapp update -n "$APP" -g "$RG" --min-replicas 1 --max-replicas 1 -o none; fi
+  say "تمّ. تحقّق: bash deploy.sh adopt-check"
+}
+
 usage() {
   cat <<'EOF'
 export N8N_VERSION=1.xx.x   # نسخة n8n Cloud الحالية، إلزامي ومثبّت
 bash deploy.sh check | 1 | 2 | 3 | 4 | 5 | 6 NAME… | 7 | 8 lock|unlock | 9 | all | upgrade <نسخة> | logs
+bash deploy.sh adopt-check | adopt-pin [نسخة] | adopt-harden      # تبنّي bp-n8n القائم
 (الشرح الكامل في رأس الملف وفي docs/n8n-azure-cutover-2026-10-16.md)
 EOF
 }
@@ -334,5 +460,8 @@ case "${1:-help}" in
   all) cmd_1; cmd_2; cmd_3; cmd_4; cmd_5; cmd_9 ;;
   upgrade) shift; cmd_upgrade "$@" ;;
   logs) cmd_logs ;;
+  adopt-check) cmd_adopt_check ;;
+  adopt-pin) shift; cmd_adopt_pin "$@" ;;
+  adopt-harden) cmd_adopt_harden ;;
   help|-h|--help|*) usage ;;
 esac
