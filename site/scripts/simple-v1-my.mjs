@@ -401,6 +401,16 @@ const P = {
   cVDeadline: { ar: "آخر موعد للاعتراض (اختياري)", en: "Objection deadline (optional)", fr: "Délai d'objection (facultatif)", zh: "申诉截止日期（可选）" },
   cAddBtn: { ar: "سجّل المخالفة", en: "Log violation", fr: "Enregistrer", zh: "登记违规" },
   cAddDone: { ar: "سُجّلت المخالفة ✓", en: "Violation logged ✓", fr: "Infraction enregistrée ✓", zh: "违规已登记 ✓" },
+  ndaTitle: { ar: "اتفاقية حفظ السرية وحماية بياناتك", en: "Confidentiality & data-protection agreement", fr: "Accord de confidentialité et de protection des données", zh: "保密与数据保护协议" },
+  ndaIntro: { ar: "قبل رفع مستنداتك ومعلومات منشأتك، نوضّح كيف نحميها:", en: "Before you upload your documents and company information, here is how we protect them:", fr: "Avant de téléverser vos documents et les informations de votre entreprise, voici comment nous les protégeons :", zh: "在上传您的文件和企业信息之前，我们说明如何保护它们：" },
+  ndaP1: { ar: "السرية: كل معلوماتك ومستنداتك سرية، ولا تُشارك مع أي طرف ثالث دون إذنك، إلا ما يلزم قانوناً أو لإنجاز الخدمة الحكومية التي طلبتها.", en: "Confidentiality: all your information and documents are confidential and are not shared with any third party without your consent, except as required by law or to complete the government service you requested.", fr: "Confidentialité : toutes vos informations et documents sont confidentiels et ne sont partagés avec aucun tiers sans votre consentement, sauf obligation légale ou pour réaliser le service public demandé.", zh: "保密：您的所有信息和文件均属机密，未经您同意不会与任何第三方共享，除非法律要求或为完成您所申请的政府服务。" },
+  ndaP2: { ar: "الاستخدام: نستخدم بياناتك فقط لتقديم خدمة الامتثال (متابعة التزاماتك، التنبيهات، الاعتراضات).", en: "Use: we use your data only to provide the compliance service (tracking your obligations, alerts, objections).", fr: "Utilisation : nous utilisons vos données uniquement pour fournir le service de conformité (suivi de vos obligations, alertes, objections).", zh: "使用：我们仅将您的数据用于提供合规服务（跟踪义务、提醒、申诉）。" },
+  ndaP3: { ar: "الوصول: بياناتك مقيّدة بمنشأتك، ولا يصل إليها إلا الفريق المخوّل لخدمتك.", en: "Access: your data is restricted to your company, and only the team authorized to serve you can access it.", fr: "Accès : vos données sont limitées à votre entreprise et seule l'équipe autorisée à vous servir y a accès.", zh: "访问：您的数据仅限于您的企业，只有获授权为您服务的团队才能访问。" },
+  ndaP4: { ar: "الحفظ والحذف: تُخزَّن بأمان، ولك طلب حذفها عند إنهاء الخدمة.", en: "Retention & deletion: it is stored securely, and you may request its deletion when the service ends.", fr: "Conservation et suppression : elles sont stockées en toute sécurité et vous pouvez en demander la suppression à la fin du service.", zh: "保存与删除：数据安全存储，服务结束时您可请求删除。" },
+  ndaP5: { ar: "موافقتك: بالموافقة أدناه تقرّ باطّلاعك على هذه الشروط وتأذن لـBusiness Partner بمعالجة بياناتك لغرض الخدمة.", en: "Your consent: by agreeing below you acknowledge that you have read these terms and authorize Business Partner to process your data for the purpose of the service.", fr: "Votre consentement : en acceptant ci-dessous, vous reconnaissez avoir lu ces conditions et autorisez Business Partner à traiter vos données aux fins du service.", zh: "您的同意：在下方同意即表示您已阅读这些条款，并授权 Business Partner 为服务目的处理您的数据。" },
+  ndaAgree: { ar: "أوافق على اتفاقية حفظ السرية وحماية البيانات.", en: "I agree to the confidentiality & data-protection agreement.", fr: "J'accepte l'accord de confidentialité et de protection des données.", zh: "我同意保密与数据保护协议。" },
+  ndaBtn: { ar: "موافقة ومتابعة", en: "Agree & continue", fr: "Accepter et continuer", zh: "同意并继续" },
+  ndaLocked: { ar: "وافق على اتفاقية السرية لتفعيل رفع مستنداتك.", en: "Agree to the confidentiality agreement to activate your document uploads.", fr: "Acceptez l'accord de confidentialité pour activer le téléversement de vos documents.", zh: "同意保密协议以启用文件上传。" },
 };
 const STATUS = {
   NEW: { ar: "جديد", en: "New", fr: "Nouveau", zh: "新" }, REVIEWING: { ar: "قيد المراجعة", en: "Reviewing", fr: "En cours d'examen", zh: "审核中" },
@@ -1013,7 +1023,34 @@ function viewCompliance(m){
    access.appendChild(h('a',{class:'btn',style:'margin-top:8px',href:'/ar/compliance-agent'},[TX.cSubscribe]));return}
   drawComplianceBody(body);
  })}
+// بوابة NDA: تُعرض قبل أي رفع/إدخال في قسم الامتثال. الموافقة تُحفظ محلياً للعرض الآن
+// (علامة لكل متصفح). التسجيل القانوني الكامل (وقت + مستخدم + نسخة النص) يحتاج نقطة
+// نهاية في api/ يملكها client-portal — لم تُلمس هنا.
+function ndaConsented(){try{return localStorage.getItem('bp_nda_compliance')==='1'}catch(e){return false}}
 function drawComplianceBody(body){
+ body.innerHTML='';
+ if(!ndaConsented()){drawNdaGate(body);return}
+ drawComplianceSections(body);
+}
+function drawNdaGate(body){
+ var card=h('div',{class:'card'});
+ card.appendChild(h('h3',{},['🔒 '+TX.ndaTitle]));
+ card.appendChild(h('p',{class:'note'},[TX.ndaIntro]));
+ var ul=h('ol',{class:'note',style:'margin:8px 0 4px;padding-'+(LANG==='ar'?'right':'left')+':20px;line-height:1.9'});
+ [TX.ndaP1,TX.ndaP2,TX.ndaP3,TX.ndaP4,TX.ndaP5].forEach(function(t){ul.appendChild(h('li',{},[t]))});
+ card.appendChild(ul);
+ var chk=h('input',{type:'checkbox',id:'ndaAgree'});
+ var btn=h('button',{class:'btn',disabled:'disabled'},[TX.ndaBtn]);
+ chk.addEventListener('change',function(){if(chk.checked)btn.removeAttribute('disabled');else btn.setAttribute('disabled','disabled')});
+ btn.addEventListener('click',function(){if(!chk.checked)return;
+  try{localStorage.setItem('bp_nda_compliance','1')}catch(e){}
+  drawComplianceBody(body)});
+ card.appendChild(h('label',{style:'display:flex;gap:8px;align-items:flex-start;margin:10px 0;font-size:.9rem'},[chk,h('span',{},[TX.ndaAgree])]));
+ card.appendChild(h('div',{style:'margin-top:6px'},[btn]));
+ body.appendChild(card);
+ body.appendChild(h('p',{class:'note',style:'color:#b45309;margin-top:12px'},['🔒 '+TX.ndaLocked]));
+}
+function drawComplianceSections(body){
  body.innerHTML='';
  // 1) استحقاقات قريبة من مستنداتك + زر الإدارة والرفع (يعيد استعمال قسم المستندات)
  var dcard=h('div',{class:'card'});dcard.appendChild(h('h3',{},[TX.cDocsTitle]));
