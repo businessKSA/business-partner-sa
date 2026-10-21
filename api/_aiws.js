@@ -465,13 +465,20 @@ export async function handleAiwsOps(action, body, ctx) {
   let plans = [];
   try { plans = await getPlans("en", doFetch, now); } catch {}
   const usage = await usageBySlug(doFetch);
-  const rows = subs.map((s) => {
+  // منشأة واحدة = صف واحد ومساحة واحدة: آخر اشتراك لها، وحالة المساحة من أحداث كل طلباتها
+  // (كما يراها العميل في /my). التجديد أو الشراء الثاني لا يفتح صفاً ثانياً.
+  const orgOf = (s) => (byId.get(s.request_id) || {}).organization_id || "req:" + s.request_id;
+  const groups = new Map();
+  for (const s of subs) { const k = orgOf(s); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(s); }
+  const rows = [...groups.values()].map((list) => {
+    const s = list[0];
     const r = byId.get(s.request_id) || {};
-    const ws = workspaceFrom((events || []).filter((e) => e.request_id === s.request_id));
+    const reqIds = new Set(list.map((x) => x.request_id));
+    const ws = workspaceFrom((events || []).filter((e) => reqIds.has(e.request_id)));
     const p = plans.find((x) => x.code === s.plan);
     const u = usage && ws.slug ? usage.get(ws.slug) : null;
     return {
-      ref: s.ref, plan: s.plan, sku: s.sku, amount: s.amount, paid_at: s.paid_at, renews_at: s.renews_at, state: s.state, test: s.test,
+      ref: s.ref, plan: s.plan, sku: s.sku, amount: s.amount, paid_at: s.paid_at, renews_at: s.renews_at, state: s.state, test: s.test, payments: list.length,
       company: ws.company || r.company_name || r.client_name || "", email: r.client_email || "",
       ws_status: ws.status, slug: ws.slug, url: ws.url, submitted_at: ws.submitted_at, ready_at: ws.ready_at,
       seats: p && p.seats != null ? p.seats : null,

@@ -198,3 +198,18 @@ test("ops: أرقام المشتركين بلا محتوى، والتجريبي 
   const ok = await handleAiwsOps("ops-ready", { ref: "BP-R-AAAA01", url: "https://acme.businesspartner.sa" }, { sb: db.sb });
   assert.equal(ok.status, 200); assert.equal(db.ev[0].event, "aiws.ready"); assert.equal(db.ev[0].actor, "owner");
 });
+
+test("ops: شراءان لمنشأة واحدة صفٌّ واحد بمساحتها الواحدة", async () => {
+  const rows = [
+    { ...paidRow("r2", "BP-R-AAAA02", "2026-10-18T10:00:00Z", [{ id: "svc-bp-aiws-bus", qty: 1, amount: 187.5 }]), organization_id: ORG },
+    { ...paidRow("r1", "BP-R-AAAA01", "2026-10-16T10:00:00Z", [{ id: "svc-bp-aiws-bus", qty: 1, amount: 187.5 }]), organization_id: ORG },
+  ];
+  const ev = [{ request_id: "r1", event: "aiws.ready", details: { url: "https://acme.businesspartner.sa" }, created_at: "2026-10-17T00:00:00Z" }];
+  const db = fakeDb(rows, ev);
+  const sbAll = async (path, opts) => path.startsWith("requests?select=") ? rows : db.sb(path, opts);
+  _resetAiwsState();
+  const r = await handleAiwsOps("ops", {}, { sb: sbAll, fetch: async () => ({ ok: false }), now: Date.parse("2026-10-20T00:00:00Z") });
+  assert.equal(r.body.rows.length, 1);
+  assert.equal(r.body.rows[0].ref, "BP-R-AAAA02"); assert.equal(r.body.rows[0].payments, 2);
+  assert.equal(r.body.rows[0].ws_status, "ready"); assert.equal(r.body.totals.active, 1);
+});

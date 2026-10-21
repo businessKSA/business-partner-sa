@@ -30,9 +30,9 @@ function vAiws(m){m.appendChild(h('h1',{},['Business Partner AI — المشتر
   box.appendChild(h('div',{class:'list'},rows.map(aiRow)));
  }).catch(function(){box.innerHTML='';box.appendChild(h('p',{class:'err'},['تعذّر الاتصال']))})}
 function aiRow(r){var st=AIWS_ST[r.ws_status]||[r.ws_status,'mut'];
- var users=r.users==null?'—':(r.users+(r.seats!=null?' / '+r.seats:''));
+ var users=(r.users==null?'—':String(r.users))+(r.seats!=null?' من '+r.seats:'');
  var card=h('div',{class:'card ai-op'},[
-  h('div',{class:'ai-op-hd'},[h('div',{class:'tt'},[h('b',{},[r.company||'—']),h('small',{},[(r.email||'')+' · '+r.ref])]),
+  h('div',{class:'ai-op-hd'},[h('div',{class:'tt'},[h('b',{},[r.company||'—']),h('small',{},[(r.email||'')+' · '+r.ref+(r.payments>1?' · الدفعات: '+r.payments:'')])]),
    h('div',{class:'ai-op-pills'},[h('span',{class:'pill'},['باقة '+(AIPLAN[r.plan]||r.plan)]),h('span',{class:'pill '+st[1]},[st[0]]),r.state==='renewal_due'?h('span',{class:'pill bad'},['مستحق التجديد']):null,r.test?h('span',{class:'pill mut'},['تجريبي']):null])]),
   h('div',{class:'ai-op-grid'},[['الشراء',aiDayO(r.paid_at)],['التجديد',aiDayO(r.renews_at)],['المبلغ الشهري',r.amount==null?'—':money(r.amount)],['المستخدمون',users],['الاستهلاك هذا الشهر',r.spent_sar==null?'—':money(r.spent_sar)],['آخر نشاط',r.last_active?aiDayO(r.last_active):'—']].map(function(k){return h('div',{},[h('small',{},[k[0]]),h('b',{},[k[1]])])}))]);
  if(r.url)card.appendChild(h('div',{class:'ai-op-link'},[h('code',{dir:'ltr'},[r.url.replace('https://','')]),h('a',{class:'btn ghost sm',href:r.url,target:'_blank',rel:'noopener'},['فتح الرابط'])]));
