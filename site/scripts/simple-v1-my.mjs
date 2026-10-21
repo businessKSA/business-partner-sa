@@ -289,6 +289,32 @@ const P = {
   loginErr: { ar: "تعذّر إرسال الرمز.", en: "Couldn't send the code.", fr: "Impossible d'envoyer le code.", zh: "无法发送验证码。" },
   codeErr: { ar: "الرمز غير صحيح.", en: "Wrong code.", fr: "Code incorrect.", zh: "验证码错误。" },
   error: { ar: "حدث خطأ. حاول مرة أخرى.", en: "Something went wrong. Try again.", fr: "Une erreur est survenue. Réessayez.", zh: "出错了，请重试。" },
+  // D3 — who the client is: asked once, written onto the quotation, contract, invoice and the team's board.
+  pfStep: { ar: "خطوة واحدة تُطلب مرة واحدة", en: "One step, asked once", fr: "Une seule étape, demandée une fois", zh: "仅需一步，只需一次" },
+  pfTitle: { ar: "عرّفنا بنفسك", en: "Tell us who you are", fr: "Dites-nous qui vous êtes", zh: "请告诉我们您是谁" },
+  pfText: { ar: "نكتب اسمك الكامل في عرض السعر والعقد والفاتورة، ونتواصل معك على جوالك بخصوص طلبك.", en: "Your full name appears on the quotation, the contract and the invoice, and we reach you on your mobile about your request.", fr: "Votre nom complet figure sur le devis, le contrat et la facture, et nous vous joignons sur votre mobile au sujet de votre demande.", zh: "您的全名将出现在报价单、合同和发票上，我们也会通过手机与您联系。" },
+  pfName: { ar: "الاسم الكامل", en: "Full name", fr: "Nom complet", zh: "全名" },
+  pfNamePh: { ar: "الاسم الأول واسم العائلة", en: "First and family name", fr: "Prénom et nom", zh: "名和姓" },
+  pfSave: { ar: "احفظ وتابع", en: "Save and continue", fr: "Enregistrer et continuer", zh: "保存并继续" },
+  pfBadName: { ar: "اكتب اسمك الكامل (كلمتان على الأقل، بلا أرقام).", en: "Enter your full name (at least two words, no digits).", fr: "Saisissez votre nom complet (deux mots au moins, sans chiffres).", zh: "请输入全名（至少两个词，不含数字）。" },
+  pfLater: { ar: "لاحقاً", en: "Later", fr: "Plus tard", zh: "稍后" },
+  // D2 — the request started in another tab finishes here.
+  resumeNote: { ar: "طلبك الذي بدأته في المحادثة محفوظ — بعد الدخول نكمل إنشاءه تلقائياً.", en: "The request you started in the chat is saved — once you are in, we finish creating it for you.", fr: "La demande commencée dans le chat est enregistrée — une fois connecté, nous la finalisons pour vous.", zh: "您在聊天中开始的申请已保存 — 登录后我们会自动为您完成创建。" },
+  // D4 — asking for changes to a quotation: say what, confirm, and be told what happens next.
+  revTitle: { ar: "طلب تعديل على عرض السعر", en: "Request changes to the quotation", fr: "Demander des modifications du devis", zh: "要求修改报价" },
+  revText: { ar: "اكتب ما تريد تعديله (بند، كمية، شروط…). يراجعه الفريق ويصلك عرض معدَّل هنا وعلى بريدك — ولا يُعتمد العرض الحالي.", en: "Say what you want changed (an item, a quantity, terms…). The team reviews it and a revised quotation reaches you here and by e-mail. The current quotation will not be approved.", fr: "Dites ce que vous voulez modifier (une ligne, une quantité, des conditions…). L'équipe l'examine et un devis révisé vous parvient ici et par e-mail. Le devis actuel ne sera pas approuvé.", zh: "请说明需要修改的内容（项目、数量、条款…）。团队审核后，修订报价将发送到此处和您的邮箱。当前报价将不会被确认。" },
+  revNeed: { ar: "اكتب التعديل المطلوب (ثلاثة أحرف على الأقل).", en: "Write the change you need (at least three characters).", fr: "Écrivez la modification souhaitée (trois caractères au moins).", zh: "请填写需要的修改（至少三个字符）。" },
+  revGo: { ar: "أرسل طلب التعديل", en: "Send the change request", fr: "Envoyer la demande", zh: "提交修改请求" },
+  revSentTitle: { ar: "استلمنا طلب التعديل", en: "We received your change request", fr: "Demande de modification reçue", zh: "已收到您的修改请求" },
+  revSentText: { ar: "الفريق يراجعه الآن ويصلك عرض معدَّل هنا وعلى بريدك. لا حاجة لأي إجراء منك حتى ذلك الحين.", en: "The team is reviewing it now and a revised quotation will reach you here and by e-mail. Nothing is needed from you until then.", fr: "L'équipe l'examine et un devis révisé vous parviendra ici et par e-mail. Rien n'est requis de votre part d'ici là.", zh: "团队正在审核，修订报价将发送到此处和您的邮箱。在此之前您无需任何操作。" },
+  revYouAsked: { ar: "طلبك:", en: "Your request:", fr: "Votre demande :", zh: "您的请求：" },
+  // D8 — a payment that did not complete is explained, with the next step.
+  payFailedMsg: { ar: "لم تكتمل عملية الدفع. تقدر تحاول مرة أخرى أو تختار وسيلة أخرى. وإن ظهر خصم على بطاقتك فراسلنا من المحادثة ونراجعه معك.", en: "The payment did not complete. You can try again or choose another method. If you see a charge on your card, message us from the conversation and we will check it with you.", fr: "Le paiement n'a pas abouti. Vous pouvez réessayer ou choisir un autre moyen. Si un débit apparaît sur votre carte, écrivez-nous dans la conversation et nous le vérifierons avec vous.", zh: "付款未完成。您可以重试或选择其他方式。若您的卡上出现扣款，请在对话中联系我们，我们会与您核实。" },
+  payCancelledMsg: { ar: "ألغيتَ عملية الدفع قبل إتمامها. لم يتم شيء — تقدر تدفع متى جهّزت.", en: "You cancelled the payment before completing it. Nothing was done — pay whenever you are ready.", fr: "Vous avez annulé le paiement avant de le finaliser. Rien n'a été fait — payez quand vous êtes prêt.", zh: "您在完成前取消了付款。没有任何操作 — 准备好后可随时付款。" },
+  payPendingMsg: { ar: "الدفع قيد التأكيد من البوابة. نحدّث حالة طلبك تلقائياً حال وصول النتيجة.", en: "The payment is awaiting confirmation from the gateway. Your request updates automatically when the result arrives.", fr: "Le paiement attend la confirmation de la passerelle. Votre demande se met à jour automatiquement à réception du résultat.", zh: "付款正在等待支付网关确认。结果到达后您的申请会自动更新。" },
+  // D20 — cancelling something already paid: what the team does, and what we do not promise.
+  cxPaidDone: { ar: "بما أنّ الطلب كان مدفوعاً، يراجع الفريق الدفعة ويتواصل معك بشأنها. لا نَعِد بمبلغ أو بمدة قبل اكتمال المراجعة.", en: "Because this request had been paid, the team is reviewing the payment and will contact you about it. We promise no amount or timeframe before the review is complete.", fr: "Cette demande ayant été payée, l'équipe examine le paiement et vous contactera à ce sujet. Nous ne promettons ni montant ni délai avant la fin de l'examen.", zh: "由于此申请已付款，团队正在审核该笔付款并会就此联系您。在审核完成前，我们不承诺任何金额或时限。" },
+  cxPendPaid: { ar: "وبما أنّ الطلب مدفوع، تشمل المراجعة الدفعة نفسها؛ لا نَعِد بمبلغ أو بمدة قبل اكتمالها.", en: "Because the request is paid, the review includes the payment itself; we promise no amount or timeframe before it is complete.", fr: "La demande étant payée, l'examen porte aussi sur le paiement ; nous ne promettons ni montant ni délai avant la fin.", zh: "由于申请已付款，审核也包括该笔付款；在审核完成前，我们不承诺任何金额或时限。" },
   waitingTeam: { ar: "الفريق يراجع طلبك", en: "The team is reviewing your request", fr: "L'équipe examine votre demande", zh: "团队正在审核您的申请" },
   needYou: { ar: "بانتظارك", en: "Waiting for you", fr: "En attente de vous", zh: "等待您处理" },
   tasksTitle: { ar: "مطلوب منك", en: "Required from you", fr: "Requis de votre part", zh: "需要您完成" },
@@ -472,8 +498,10 @@ export function buildSimpleMy(sv1, ctx) {
 .m{max-width:85%;padding:10px 13px;border-radius:14px;font-size:.92rem;line-height:1.7;white-space:pre-wrap}
 .m.user{background:var(--n);color:#fff;align-self:flex-end}.m.assistant,.m.bp,.m.system{background:var(--g);align-self:flex-start}
 .m small{display:block;opacity:.7;font-size:.7rem;margin-top:3px}
-.msgform{display:flex;gap:8px;margin-top:10px}
-.msgform input,.inp{flex:1;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;width:100%}
+.msgform{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.msgform input,.inp{flex:1 1 150px;min-width:0;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;width:100%}
+.cx-box textarea{display:block;width:100%;box-sizing:border-box;border:1px solid #b9c3dc;border-radius:10px;padding:11px 12px;font:inherit;background:#fff;color:#1F2430;margin-top:4px;resize:vertical}
+.cx-box textarea:focus{outline:2px solid var(--n);outline-offset:1px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border-radius:10px;font-weight:700;font-size:.88rem;border:1px solid var(--n);background:var(--n);color:#fff;cursor:pointer;line-height:1.2}
 .btn.ghost{background:#fff;color:var(--ink)}.btn.danger{background:#fff;color:#b91c1c;border-color:#fecaca}.btn.sm{padding:6px 10px;font-size:.8rem}.btn[disabled]{opacity:.5}
 .items{list-style:none;margin:0;padding:0;display:grid;gap:8px}
@@ -535,6 +563,12 @@ canvas.sig{border:1px dashed #c7cfe2;border-radius:10px;background:#fff;width:10
 .cx-box .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .cx-box .acts .btn{flex:1;min-width:140px;padding:11px 14px}
 .btn.solid-danger{background:#b91c1c;border-color:#b91c1c;color:#fff}
+/* the sheet is appended to <body>, outside .my, so it has no --n: say the colour outright */
+.cx-box .btn:not(.ghost):not(.solid-danger){background:#0B1B5A;border-color:#0B1B5A;color:#fff}
+.cx-box .btn.ghost{color:#0B1B5A;border-color:#b9c3dc}
+/* D11: the floating «إتاحة» and «تواصل معنا» buttons sit above everything (z-index 2147483000) and
+   covered the signature lines of a full-size contract and the sheet's buttons — they step aside while one is open. */
+body:has(.docovl) .bps-fab,body:has(.docovl) .bpa-fab,body:has(.docovl) .sv1-wa-fab,body:has(.cx-ovl) .bps-fab,body:has(.cx-ovl) .bpa-fab,body:has(.cx-ovl) .sv1-wa-fab{display:none!important}
 .cx-state{border-radius:16px;padding:16px 18px;margin-bottom:14px;border:1px solid}
 .cx-state h3{margin:0 0 6px;font-size:1.02rem;font-weight:600}
 .cx-state p{margin:0;font-size:.88rem;line-height:1.8}
@@ -585,7 +619,7 @@ select.inp{background:#fff;color:inherit}
 .doc .meta{color:var(--mut);font-size:.78rem;margin-top:5px}
 .doc .read{font-size:.78rem;color:var(--mut);margin-top:6px;line-height:1.9}
 .doc .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-@media(max-width:620px){.dgrid{grid-template-columns:1fr}.row{flex-wrap:wrap}.row .tt{flex:1 1 100%}.items li{flex-wrap:wrap}.items li>div{flex:1 1 140px;min-width:0}.items li .btn{max-width:100%;white-space:normal;text-align:start}}
+@media(max-width:620px){.tl li{flex-wrap:wrap;gap:2px 10px}.tl li time{min-width:0;flex:1 1 100%}.tl li span{flex:1 1 0;min-width:0;overflow-wrap:anywhere}.my-main{padding:16px 14px 120px}.msgform .btn{flex:1 1 auto}.dgrid{grid-template-columns:1fr}.row{flex-wrap:wrap}.row .tt{flex:1 1 100%}.items li{flex-wrap:wrap}.items li>div{flex:1 1 140px;min-width:0}.items li .btn{max-width:100%;white-space:normal;text-align:start}}
 .mob{display:none}
 @media(max-width:900px){.my{grid-template-columns:minmax(0,1fr)}.my-side{position:static;height:auto;display:none}.my-side.open{display:block}.mob{display:flex;gap:6px;overflow:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line)}.mob a{white-space:nowrap;padding:7px 11px;border-radius:999px;border:1px solid var(--line);font-size:.82rem;font-weight:700;color:#2c3550}.mob a.on{background:var(--n);color:#fff;border-color:var(--n)}.my-kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:minmax(0,1fr)}.my-main{padding:14px}}
 </style>`;
@@ -711,8 +745,8 @@ box.appendChild(h('div',{class:'cstep'},[TX.cStep]));box.appendChild(h('h1',{},[
 // scanners open every URL they find, so only this button (a POST) spends it.
 function renderLinkConfirm(token){app.innerHTML='';var box=h('div',{class:'login'});var errEl=h('div',{class:'err',role:'alert'});
 var back=h('a',{class:'lnk',hidden:'',onclick:function(){noHash();renderLogin()}},[TX.linkNew]);
-var go1=h('button',{class:'btn',id:'linkGo',onclick:function(){go1.disabled=true;errEl.textContent='';otp({action:'link-verify',token:token}).then(function(o){if(o&&o.ok&&o.db!==false){noHash();try{localStorage.setItem('bp_session','1')}catch(x){}boot();return}go1.disabled=false;errEl.textContent=TX.linkBad;back.hidden=false}).catch(function(){go1.disabled=false;errEl.textContent=TX.loginErr})}},[TX.linkGo]);
-box.appendChild(h('h1',{},[TX.linkTitle]));box.appendChild(h('p',{},[TX.linkText]));box.appendChild(go1);box.appendChild(h('div',{class:'alt'},[back]));box.appendChild(errEl);app.appendChild(box)}
+var go1=h('button',{class:'btn',id:'linkGo',onclick:function(){go1.disabled=true;errEl.textContent='';otp({action:'link-verify',token:token}).then(function(o){if(o&&o.ok&&o.db!==false){noHash();try{if(pendingQuote())sessionStorage.setItem('sv1_link_resume','1')}catch(x){}try{localStorage.setItem('bp_session','1')}catch(x){}boot();return}go1.disabled=false;errEl.textContent=TX.linkBad;back.hidden=false}).catch(function(){go1.disabled=false;errEl.textContent=TX.loginErr})}},[TX.linkGo]);
+box.appendChild(h('h1',{},[TX.linkTitle]));box.appendChild(h('p',{},[TX.linkText]));if(pendingQuote())box.appendChild(h('p',{class:'ok',id:'resumeNote'},[TX.resumeNote]));box.appendChild(go1);box.appendChild(h('div',{class:'alt'},[back]));box.appendChild(errEl);app.appendChild(box)}
 window.addEventListener('hashchange',function(){if(hashParam('ml'))boot()});
 // ---------- shell
 var NAV=[['home',TX.navHome,'🏠'],['new',TX.navNew,'➕'],['requests',TX.navRequests,'📋'],['quotes',TX.navQuotes,'🧾'],['contracts',TX.navContracts,'📝'],['appointments',TX.navAppts,'📅'],['pay',TX.navPay,'💳'],['invoices',TX.navInvoices,'🧮'],['chats',TX.navChats,'💬'],['documents',TX.navDocs,'\ud83d\udcc1'],['compliance',TX.navCompliance,'🛡️'],['company',TX.navCompany,'🏢']];
@@ -1224,12 +1258,13 @@ function updatesCard(r){var up=r.updates||[];if(!up.length)return null;var all=f
   card.appendChild(h('ul',{class:'tl upl'},shown.map(function(u){return h('li',{},[h('time',{},[when(u.at)]),h('span',{},[lt(u.text_ar,u.text_en)])])})));
   if(up.length>3)card.appendChild(h('button',{class:'btn ghost sm',onclick:function(){all=!all;draw()}},[all?TX.updLess:TX.updMore]))}
  draw();return card}
+function tlEvents(r){var ev=r.events||[],up={};ev.forEach(function(e){if(e.event==='attachment.added'&&e.details&&e.details.doc)up[e.details.doc]=1});return ev.filter(function(e){return !(e.event==='document.received'&&e.details&&up[e.details.title])})}
 function drawRequest(hd,box){var r=state.req;var isTicket=r.origin==='ticket';hd.textContent=r.title;box.innerHTML='';
 var cxm=cxMode(r),cxPend=!!r.cancel_request&&r.status!=='CANCELLED';
 box.appendChild(h('div',{class:'stat'},[h('span',{},[TX.ref+': ',h('b',{},[r.ref])]),h('span',{},[TX.status+': ',pill(r.status),cxPend?h('span',{class:'pill warn',style:'margin-inline-start:6px'},[TX.cxPill]):null]),h('span',{},[isTicket?TX.ticket:(TY[r.type]||r.type)]),(r.payment&&r.payment.source==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),h('span',{},[when(r.created_at)]),
  (cxm!=='closed'&&!cxPend)?h('button',{class:'btn danger sm cxbtn',id:'sv1CancelTop',onclick:function(){cxSheet(r)}},[cxm==='now'?TX.cancelReq:TX.cancelAsk]):null]));
 var cxb=cxBanner(r);if(cxb)box.appendChild(cxb);
-var pl=stageLine(r);if(pl)box.appendChild(pl);
+var pl=r.status==='CANCELLED'?null:stageLine(r);if(pl)box.appendChild(pl);
 var left=h('div'),right=h('div');box.appendChild(h('div',{class:'grid2'},[left,right]));
 var uc=updatesCard(r);if(uc)right.appendChild(uc);
 // conversation
@@ -1244,7 +1279,7 @@ var dc=docsCard(r,function(){drawRequest(hd,box)});
 if(editable){var ai=h('input',{class:'inp',placeholder:TX.addItem}),msgS=h('span',{class:'ok'});
 // Confirming the scope is what moves the request on to the quotation; the
 // plain save stays for intermediate edits.
-var goBtn=h('button',{class:'btn',onclick:function(){msgS.className='ok';msgS.textContent='';goBtn.disabled=true;api('scope-confirm',{ref:r.ref,scope:r.scope}).then(function(o){goBtn.disabled=false;if(!o||!o.ok){msgS.className='err';msgS.textContent=(o&&o.message)||TX.error;return}state.flash=TX.scopePricing;api('request-get',{ref:r.ref}).then(function(g){if(g&&g.ok){state.req=g.request;drawRequest(hd,box);var q=document.getElementById('sv1Quote');if(q&&q.scrollIntoView)q.scrollIntoView({behavior:'smooth',block:'start'})}})})}},[TX.confirmScope]);
+var goBtn=h('button',{class:'btn',onclick:function(){msgS.className='ok';msgS.textContent='';goBtn.disabled=true;api('scope-confirm',{ref:r.ref,scope:r.scope}).then(function(o){goBtn.disabled=false;if(o&&o.error==='profile_required'){renderProfile(state.me,function(){refreshMe().then(function(){render()})});return}if(!o||!o.ok){msgS.className='err';msgS.textContent=(o&&o.message)||TX.error;return}state.flash=TX.scopePricing;api('request-get',{ref:r.ref}).then(function(g){if(g&&g.ok){state.req=g.request;drawRequest(hd,box);var q=document.getElementById('sv1Quote');if(q&&q.scrollIntoView)q.scrollIntoView({behavior:'smooth',block:'start'})}})})}},[TX.confirmScope]);
 sc.appendChild(h('div',{class:'msgform'},[ai,h('button',{class:'btn ghost',onclick:function(){if(!ai.value.trim())return;r.scope.push({code:'',title:ai.value.trim(),why:''});ai.value='';drawItems()}},[TX.addItem]),h('button',{class:'btn ghost',onclick:function(){api('scope-update',{ref:r.ref,scope:r.scope}).then(function(o){msgS.className='ok';msgS.textContent=o&&o.ok?TX.saved:TX.error})}},[TX.saveScope]),goBtn,msgS]));
 if(state.flash){sc.appendChild(h('p',{class:'ok'},[state.flash]));state.flash=null}}else if(r.status!=='CANCELLED')sc.appendChild(h('p',{class:'note'},[isCart?TX.directNote:TX.scopeLocked]));
 sc.appendChild(dc.firstChild?dc:document.createComment(''));
@@ -1255,20 +1290,21 @@ if(r.tasks&&r.tasks.length)left.appendChild(h('div',{class:'card'},[h('h3',{},[T
 if(!r.quote&&(r.events||[]).some(function(e){return e.event==='quote.pending'}))right.appendChild(h('div',{class:'card',id:'sv1Quote'},[h('h3',{},[TX.quote]),h('p',{class:'note'},[TX.scopePricing])]));
 if(r.quote){var qc=h('div',{class:'card',id:'sv1Quote'});qc.appendChild(h('h3',{},[TX.quote+' '+r.quote.number]));var tb=h('table',{class:'q'});tb.appendChild(h('thead',{},[h('tr',{},[h('th',{},[TX.scope]),h('th',{},[TX.qty]),h('th',{},[TX.price])])]));tb.appendChild(h('tbody',{},r.quote.items.map(function(i){return h('tr',{},[h('td',{},[i.title]),h('td',{},[String(i.qty)]),h('td',{},[money(lineOf(i))])])})));tb.appendChild(h('tfoot',{},[h('tr',{},[h('td',{colspan:'2'},[TX.net]),h('td',{},[money(r.quote.net)])]),h('tr',{},[h('td',{colspan:'2'},[TX.vat]),h('td',{},[money(r.quote.vat)])]),h('tr',{},[h('td',{colspan:'2'},[TX.total]),h('td',{},[money(r.quote.total)])])]));qc.appendChild(tb);
 qc.appendChild(h('p',{class:'note'},[TX.validUntil+': '+(r.quote.valid_until||'')+' · '+TX.terms+': '+(r.quote.payment_terms||'')]));qc.appendChild(docBtn(TX.openFull,TX.quote+' '+r.quote.number,function(){return api('quote-view',{ref:r.ref}).then(function(o){return o&&o.ok?o.html:''})}));if(r.quote.notes)qc.appendChild(h('p',{class:'note'},[r.quote.notes]));
-if(r.status==='QUOTE_SENT'){var rn=h('input',{class:'inp',placeholder:TX.rejectNote,style:'margin-top:8px'});var qerr=h('div',{class:'err'});function qfail(bt,o){bt.disabled=false;qerr.textContent=o&&o.error==='quote_expired'?TX.quoteExpired:((o&&o.message)||TX.error)}
-qc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(e){var bt=e.currentTarget;qerr.textContent='';bt.disabled=true;api('quote-approve',{ref:r.ref}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;if(o.contract)r.contract=o.contract;refreshMe();drawRequest(hd,box)}else{bt.disabled=false;toast(o&&o.error==='quote_expired'?TX.quoteExpired:failText(o))}}).catch(function(){qfail(bt)})}},[TX.approve]),h('button',{class:'btn ghost',onclick:function(e){var bt=e.currentTarget;qerr.textContent='';bt.disabled=true;api('quote-reject',{ref:r.ref,note:rn.value}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;refreshMe();drawRequest(hd,box)}else{bt.disabled=false;toast(failText(o))}}).catch(function(){qfail(bt)})}},[TX.reject])]));qc.appendChild(rn);qc.appendChild(qerr)}
+if(r.status==='QUOTE_SENT'){var qerr=h('div',{class:'err'});function qfail(bt,o){bt.disabled=false;qerr.textContent=o&&o.error==='quote_expired'?TX.quoteExpired:((o&&o.message)||TX.error)}
+qc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(e){var bt=e.currentTarget;qerr.textContent='';bt.disabled=true;api('quote-approve',{ref:r.ref}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;if(o.contract)r.contract=o.contract;refreshMe();drawRequest(hd,box)}else{bt.disabled=false;toast(o&&o.error==='quote_expired'?TX.quoteExpired:failText(o))}}).catch(function(){qfail(bt)})}},[TX.approve]),h('button',{class:'btn ghost',id:'sv1Revise',onclick:function(){qerr.textContent='';reviseSheet(r,function(o){r.status=o.status;r.quote=o.quote;state.flash2=true;refreshMe();drawRequest(hd,box)})}},[TX.reject])]));qc.appendChild(qerr)}
+else if(r.quote.status==='REJECTED'){qc.appendChild(h('div',{class:'cx-state pend',id:'sv1ReviseState'},[h('h3',{},[TX.revSentTitle]),h('p',{},[TX.revSentText]),r.quote.decision_note?h('p',{style:'margin-top:6px'},[TX.revYouAsked+' « '+r.quote.decision_note+' »']):null]))}
 else if(r.quote.status==='APPROVED')qc.appendChild(h('p',{class:'ok'},[(r.status==='QUOTE_APPROVED'||r.status==='CONTRACT_SENT')?TX.quoteApproved:TX.quoteApprovedDone]));
 right.appendChild(qc)}
 // contract
 if(r.contract){var cc=h('div',{class:'card'});cc.appendChild(h('h3',{},[TX.contract+' '+r.contract.number]));var frame=h('iframe',{class:'contract-frame',title:TX.contract});cc.appendChild(frame);cc.appendChild(docBtn(TX.openFull,TX.contract+' '+r.contract.number,function(){return api('contract-view',{ref:r.ref}).then(function(o){return o&&o.ok?o.html:''})}));api('contract-view',{ref:r.ref}).then(function(o){var ht=o&&o.ok?o.html:'';frame.srcdoc=ht;state.contractHtml=ht;if(o&&o.needsResign)cc.appendChild(h('p',{class:'note',style:'color:#B45309'},[TX.resign]))});
 if(r.status==='CONTRACT_SENT'){cc.appendChild(h('h3',{style:'margin-top:14px'},[TX.signTitle]));var nm=h('input',{class:'inp',placeholder:TX.signName,value:state.me.user.name||''});cc.appendChild(nm);cc.appendChild(h('p',{class:'note',style:'margin:8px 0 4px'},[TX.signDraw]));var cv=h('canvas',{class:'sig',width:'600',height:'150'});cc.appendChild(cv);var ctx2=cv.getContext('2d'),drawing=false,drew=false;ctx2.lineWidth=2;ctx2.lineCap='round';ctx2.strokeStyle='#0B1B5A';function pos(e){var rc=cv.getBoundingClientRect();var p=e.touches?e.touches[0]:e;return [(p.clientX-rc.left)*cv.width/rc.width,(p.clientY-rc.top)*cv.height/rc.height]}
 cv.addEventListener('pointerdown',function(e){drawing=true;var p=pos(e);ctx2.beginPath();ctx2.moveTo(p[0],p[1])});cv.addEventListener('pointermove',function(e){if(!drawing)return;var p=pos(e);ctx2.lineTo(p[0],p[1]);ctx2.stroke();drew=true});window.addEventListener('pointerup',function(){drawing=false});
-var cons=h('input',{type:'checkbox',id:'consent'});var err=h('div',{class:'err'});cc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn ghost sm',onclick:function(){ctx2.clearRect(0,0,cv.width,cv.height);drew=false}},[TX.signClear])]));cc.appendChild(h('label',{style:'display:flex;gap:8px;align-items:flex-start;margin:10px 0;font-size:.86rem'},[cons,h('span',{},[TX.signConsent])]));
+var cons=h('input',{type:'checkbox',id:'consent'});var err=h('div',{class:'err'});nm.addEventListener('input',function(){err.textContent=''});cons.addEventListener('change',function(){err.textContent=''});cv.addEventListener('pointerup',function(){err.textContent=''});cc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn ghost sm',onclick:function(){ctx2.clearRect(0,0,cv.width,cv.height);drew=false}},[TX.signClear])]));cc.appendChild(h('label',{style:'display:flex;gap:8px;align-items:flex-start;margin:10px 0;font-size:.86rem'},[cons,h('span',{},[TX.signConsent])]));
 cc.appendChild(h('button',{class:'btn',onclick:function(){err.textContent='';if(!nm.value.trim()){err.textContent=TX.signName;return}if(!cons.checked){err.textContent=TX.signConsent;return}api('contract-sign',{ref:r.ref,name:nm.value.trim(),consent:true,signature:drew?cv.toDataURL('image/png'):null}).then(function(o){if(o&&o.ok){r.status=o.status;r.contract=o.contract;r.payment={status:'PENDING',amount:r.quote.total};refreshMe();drawRequest(hd,box)}else err.textContent=(o&&o.message)||TX.error})}},[TX.signBtn]));cc.appendChild(err)}
 else if(r.contract.status==='SIGNED')cc.appendChild(h('p',{class:'ok'},['✓ '+TX.signed+' · '+when(r.contract.signed_at)]));
 right.appendChild(cc)}
 // payment
-if(['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0&&r.quote){var pc=h('div',{class:'card'});pc.appendChild(h('h3',{},[TX.payment+' · '+money(r.quote.total)]));if(r.payment&&r.payment.status&&r.payment.status!=='PENDING'&&r.payment.status!=='PAID')pc.appendChild(h('p',{class:'err'},[TX.payment+': '+r.payment.status]));
+if(['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0&&r.quote){var pc=h('div',{class:'card'});pc.appendChild(h('h3',{},[TX.payment+' · '+money(r.quote.total)]));if(r.payment&&r.payment.status&&r.payment.status!=='PENDING'&&r.payment.status!=='PAID'){var ps=String(r.payment.status).toUpperCase();pc.appendChild(h('p',{class:ps==='FAILED'?'err':'note',id:'sv1PayState'},[ps==='FAILED'?TX.payFailedMsg:ps==='CANCELLED'?TX.payCancelledMsg:TX.payPendingMsg]))}
 function gwGo(provider){var back=encodeURIComponent(location.pathname+'?view=request&ref='+encodeURIComponent(r.ref));
 location.href='/api/pay?action=mock-form&provider='+provider+'&amount='+encodeURIComponent(String((r.quote&&r.quote.total)||0))+'&label='+encodeURIComponent(r.ref)+'&back='+back}
 function payHere(provider){
@@ -1293,8 +1329,34 @@ if(r.type==='CONSULTATION'&&!isTicket){var ac=h('div',{class:'card'});ac.appendC
 var sp=slotPicker(),d=sp.day,tm=sp.time,tp2=h('input',{class:'inp',placeholder:TX.topic,value:(a&&a.topic)||r.title}),ae=h('div',{class:'err'});
 ac.appendChild(h('div',{class:'form'},[h('label',{},[TX.date]),d,h('label',{},[TX.time]),tm,h('label',{},[TX.topic]),tp2,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){ae.textContent='';if(!d.value||!tm.value){ae.textContent=TX.apptBad;return}api(a&&a.status!=='CANCELLED'?'appointment-reschedule':'appointment-book',{ref:r.ref,date:d.value,time:tm.value,topic:tp2.value}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else if(o&&o.error==='no_session'){}else ae.textContent=apptErr(o)})}},[a&&a.status!=='CANCELLED'?TX.reschedule:TX.book]),a&&a.status!=='CANCELLED'?h('button',{class:'btn danger',onclick:function(){api('appointment-cancel',{ref:r.ref}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else if(!o||o.error!=='no_session')toast(failText(o))})}},[TX.cancelAppt]):null]),ae,sp.note,h('p',{class:'note'},[TX.apptNote])]));right.appendChild(ac)}
 // timeline
-right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.timeline]),h('ul',{class:'tl'},(r.events||[]).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(actorName(e)?actorName(e)+': ':'')+(EV[e.event]||e.event)+(e.details&&e.details.number?' '+e.details.number:'')])])}))]));
+right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.timeline]),h('ul',{class:'tl'},tlEvents(r).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(actorName(e)?actorName(e)+': ':'')+(EV[e.event]||e.event)+(e.details&&e.details.number?' '+e.details.number:'')])])}))]));
 if(cxm!=='closed'&&!cxPend){right.appendChild(h('div',{class:'card',id:'sv1Cancel'},[h('h3',{},[TX.cancelTitle]),h('p',{class:'note'},[cxText(r)+((cxm==='now'&&cxApptLive(r))?' '+TX.cxAppt:'')]),h('div',{class:'msgform',style:'margin-top:8px'},[h('button',{class:'btn danger sm',onclick:function(){cxSheet(r)}},[cxm==='now'?TX.cancelReq:TX.cancelAsk])])]))}}
+// ---------- asking for changes to a quotation (D4)
+// A reason is required (the team needs something to act on), the customer
+// confirms, and is told what happens next. Ours, not window.prompt.
+function reviseSheet(r,done){
+ if(document.getElementById('sv1ReviseSheet'))return;
+ var note=h('textarea',{id:'sv1ReviseNote',rows:'4',maxlength:'500',placeholder:TX.rejectNote,'aria-label':TX.rejectNote});
+ var err=h('div',{class:'err',role:'alert',style:'margin-top:8px'});
+ var ok=h('button',{class:'btn',id:'sv1ReviseOk'},[TX.revGo]);
+ var keep=h('button',{class:'btn ghost',id:'sv1ReviseKeep'},[TX.cxKeep]);
+ var ovl=h('div',{class:'cx-ovl',id:'sv1ReviseSheet',role:'dialog','aria-modal':'true','aria-label':TX.revTitle},[
+  h('div',{class:'cx-box'},[h('h3',{},[TX.revTitle]),h('p',{},[TX.revText]),note,err,h('div',{class:'acts'},[ok,keep])])]);
+ function close(){document.removeEventListener('keydown',onKey);ovl.remove()}
+ function onKey(e){if(e.key==='Escape')close()}
+ keep.addEventListener('click',close);
+ ovl.addEventListener('click',function(e){if(e.target===ovl)close()});
+ note.addEventListener('input',function(){err.textContent=''});
+ document.addEventListener('keydown',onKey);
+ ok.addEventListener('click',function(){
+  err.textContent='';var v=note.value.trim();
+  if(v.length<3){err.textContent=TX.revNeed;note.focus();return}
+  ok.disabled=true;keep.disabled=true;
+  api('quote-reject',{ref:r.ref,note:v}).then(function(o){
+   ok.disabled=false;keep.disabled=false;
+   if(!o||!o.ok){err.textContent=(o&&o.error==='note_required')?TX.revNeed:failText(o);return}
+   close();done(o)})});
+ document.body.appendChild(ovl);try{note.focus()}catch(x){}}
 // ---------- cancellation
 // One policy, held by the server (cancel_policy on the request): 'now' when
 // nothing has been signed or paid, 'ask' when the team has to look first.
@@ -1303,10 +1365,11 @@ function cxApi(action,data){return fetch('/api/simple',{method:'POST',credential
 function cxErr(o){var e=(o&&o.error)||'';return e==='already_closed'?TX.cxErrClosed:(e==='no_session'||e==='unauthorized')?TX.cxErrSess:e==='network'?TX.cxErrNet:e==='not_found'?TX.cxErrNF:TX.cxErrGen}
 function cxMode(r){if(['CANCELLED','COMPLETED'].indexOf(r.status)>=0)return 'closed';return r.cancel_policy==='now'?'now':'ask'}
 function cxText(r){if(cxMode(r)==='now')return TX.cxNowNote;if(r.payment&&r.payment.status==='PAID')return TX.cxPaid;if(r.contract&&r.contract.status==='SIGNED')return TX.cxSigned;return TX.cancelLate}
+function paidReq(r){return !!(r.payment&&r.payment.status==='PAID')||!!(r.invoice&&r.invoice.number)}
 function cxApptLive(r){return !!(r.appointment&&r.appointment.status!=='CANCELLED')}
 function cxBanner(r){
- if(r.status==='CANCELLED'){var c=r.cancel||{};return h('div',{class:'cx-state done',id:'sv1CancelState'},[h('h3',{},[TX.cxDoneNow+(c.at?' · '+when(c.at):'')]),h('p',{},[(c.by==='ops'?'':TX.cxDoneNowT+' ')+(c.note?'« '+c.note+' »':'')]),h('a',{class:'btn ghost sm',href:HOME+'#chat'},[TX.cxNewReq])])}
- if(r.cancel_request){var q=r.cancel_request;return h('div',{class:'cx-state pend',id:'sv1CancelState'},[h('h3',{},[TX.cxPendTitle]),h('p',{},[TX.cxPendText+' '+TX.cxSentAt+' '+when(q.at)+'.'+(q.note?' « '+q.note+' »':'')])])}
+ if(r.status==='CANCELLED'){var c=r.cancel||{};return h('div',{class:'cx-state done',id:'sv1CancelState'},[h('h3',{},[TX.cxDoneNow+(c.at?' · '+when(c.at):'')]),h('p',{},[(c.by==='ops'?'':TX.cxDoneNowT+' ')+(c.note?'« '+c.note+' »':'')]),(c.was_paid||paidReq(r))?h('p',{id:'sv1CancelPaid',style:'margin-top:6px'},[TX.cxPaidDone]):null,h('a',{class:'btn ghost sm',href:HOME+'#chat'},[TX.cxNewReq])])}
+ if(r.cancel_request){var q=r.cancel_request;return h('div',{class:'cx-state pend',id:'sv1CancelState'},[h('h3',{},[TX.cxPendTitle]),h('p',{},[TX.cxPendText+' '+TX.cxSentAt+' '+when(q.at)+'.'+(q.note?' « '+q.note+' »':'')+(paidReq(r)?' '+TX.cxPendPaid:'')])])}
  return null}
 function cxSheet(r){
  if(document.getElementById('sv1CancelSheet'))return;
@@ -1341,7 +1404,7 @@ function cxSheet(r){
 // from the site's legal data, so it is never a bare list of lines.
 function openInvoice(r){var inv=r.invoice;
  if(inv.pdf_url&&/^https?:[/][/]/i.test(String(inv.pdf_url))){window.open(inv.pdf_url,'_blank','noopener');return}
- var w=window.open('','_blank');if(!w)return;var sellerName=LANG==='ar'?(SELLER.name||SELLER.nameEn):(SELLER.nameEn||SELLER.name);var sellerBlock='<p><b>'+TX.invSeller+':</b> '+esc(sellerName)+(SELLER.vat?'<br><b>'+TX.invVat+':</b> '+esc(SELLER.vat):'')+'</p>';var rows=(inv.items||[]).map(function(i){return '<tr><td>'+esc(i.title)+'</td><td>'+i.qty+'</td><td>'+money(lineOf(i))+'</td></tr>'}).join('');w.document.write('<!doctype html><html dir="'+(LANG==='ar'?'rtl':'ltr')+'"><head><meta charset="utf-8"><title>'+inv.number+'</title><style>body{font-family:"IBM Plex Sans Arabic",system-ui;padding:32px;color:#1F2430}h1{color:#0B1B5A}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #e4e8f1;text-align:start}.t{font-weight:700}.tm{background:#b45309;color:#fff;padding:6px 10px;display:inline-block;border-radius:6px}</style></head><body>'+(inv.mode==='test'?'<span class="tm">TEST MODE</span>':'')+'<h1>Business Partner — '+TX.invoice+' '+inv.number+'</h1><p>'+TX.ref+': '+r.ref+' · '+when(inv.issued_at)+'</p>'+sellerBlock+'<p><b>'+TX.invBuyer+':</b> '+esc((inv.bill_to&&(inv.bill_to.company||inv.bill_to.name))||'')+'</p><table><thead><tr><th>'+TX.scope+'</th><th>'+TX.qty+'</th><th>'+TX.price+'</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr><td colspan="2">'+TX.net+'</td><td>'+money(inv.net)+'</td></tr><tr><td colspan="2">'+TX.vat+'</td><td>'+money(inv.vat)+'</td></tr><tr class="t"><td colspan="2">'+TX.total+'</td><td>'+money(inv.total)+'</td></tr></tfoot></table><p><b>'+TX.paid+'</b></p></body></html>');w.document.close()}
+ var w=window.open('','_blank');if(!w)return;var sellerName=LANG==='ar'?(SELLER.name||SELLER.nameEn):(SELLER.nameEn||SELLER.name);var sellerBlock='<p><b>'+TX.invSeller+':</b> '+esc(sellerName)+(SELLER.vat?'<br><b>'+TX.invVat+':</b> '+esc(SELLER.vat):'')+'</p>';var rows=(inv.items||[]).map(function(i){return '<tr><td>'+esc(i.title)+'</td><td>'+i.qty+'</td><td>'+money(lineOf(i))+'</td></tr>'}).join('');w.document.write('<!doctype html><html dir="'+(LANG==='ar'?'rtl':'ltr')+'"><head><meta charset="utf-8"><title>'+inv.number+'</title><style>body{font-family:"IBM Plex Sans Arabic",system-ui;padding:32px;color:#1F2430}h1{color:#0B1B5A}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #e4e8f1;text-align:start}.t{font-weight:700}.tm{background:#b45309;color:#fff;padding:6px 10px;display:inline-block;border-radius:6px}</style></head><body>'+(inv.mode==='test'?'<span class="tm">TEST MODE</span>':'')+'<h1>Business Partner — '+TX.invoice+' '+inv.number+'</h1><p><span>'+TX.ref+':</span> <bdi dir="ltr">'+esc(r.ref)+'</bdi> · <bdi>'+esc(when(inv.issued_at))+'</bdi></p>'+sellerBlock+'<p><b>'+TX.invBuyer+':</b> '+esc((inv.bill_to&&(inv.bill_to.company||inv.bill_to.name))||'')+'</p><table><thead><tr><th>'+TX.scope+'</th><th>'+TX.qty+'</th><th>'+TX.price+'</th></tr></thead><tbody>'+rows+'</tbody><tfoot><tr><td colspan="2">'+TX.net+'</td><td>'+money(inv.net)+'</td></tr><tr><td colspan="2">'+TX.vat+'</td><td>'+money(inv.vat)+'</td></tr><tr class="t"><td colspan="2">'+TX.total+'</td><td>'+money(inv.total)+'</td></tr></tfoot></table><p><b>'+TX.paid+'</b></p></body></html>');w.document.close()}
 function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
 function refreshMe(){return api('me').then(function(o){if(o&&o.ok){state.me=o}}).catch(function(){})}
 // Coming back from a payment gateway (local or hosted): the outcome rides on
@@ -1365,7 +1428,32 @@ function settleReturn(u){
 // الشيء نفسه: مسارٌ محلي يبدأ بشرطة واحدة، ولا يبدأ بشرطتين («//host» يقرؤه
 // المتصفح موقعاً آخر).
 function nextPath(){try{var n=decodeURIComponent(new URL(location.href).searchParams.get('next')||'');return (n.charAt(0)==='/'&&n.charAt(1)!=='/')?n:''}catch(e){return ''}}
-function boot(){var ml=hashParam('ml');if(ml){renderLinkConfirm(ml);return}api('me').then(function(o){if(!o||!o.ok){renderLogin();return}if(o.user&&o.user.contactPending){renderContact();return}var nx=nextPath();if(nx){location.replace(nx);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render();if(state.view!=='documents')loadDocs().catch(function(){});if(state.view!=='compliance')opsGet('violations').then(function(o){if(o&&o.ok){state.violations=o.items||[];setComplianceBadge()}}).catch(function(){})})}).catch(function(){renderLogin()})}
+// D2 — a request built in the chat lives in that tab's sessionStorage, and an
+// e-mailed link opens a NEW tab that cannot see it. The home page therefore
+// leaves a copy in localStorage (one hour, removed when the request is created);
+// the tab the link opens picks it up after sign-in and finishes the job.
+function pendingQuote(){try{var p=JSON.parse(localStorage.getItem('sv1_pending_quote')||'null');if(p&&p.at&&Date.now()-p.at<36e5&&p.draft&&p.draft.items&&p.draft.items.length)return p}catch(e){}return null}
+function resumePath(){try{if(sessionStorage.getItem('sv1_link_resume')==='1'&&pendingQuote()){sessionStorage.removeItem('sv1_link_resume');sessionStorage.setItem('sv1_resume_quote','1');return HOME+'?resume=quote#advisor'}}catch(e){}return ''}
+// D3 — the name and mobile step. Optional only for someone who is already
+// contracted (so a client who must pay is never locked out of paying).
+function digitsOf(v){var d='',i,c;v=String(v||'');for(i=0;i<v.length;i++){c=v.charCodeAt(i);if(c>=48&&c<=57)d+=v.charAt(i);else if(c>=1632&&c<=1641)d+=String(c-1632);else if(c>=1776&&c<=1785)d+=String(c-1776)}return d}
+function phoneValid(v){var d=digitsOf(v);return d.length>=8&&d.length<=15}
+function nameValid(v){var w=String(v||'').split(' ').filter(function(x){return x.length>=2}),i,c,t=String(v||'');if(t.trim().length<5||w.length<2)return false;for(i=0;i<t.length;i++){c=t.charCodeAt(i);if((c>=48&&c<=57)||(c>=1632&&c<=1641)||(c>=1776&&c<=1785)||'@<>{}'.indexOf(t.charAt(i))>=0)return false}return true}
+function profileLater(o){try{if(sessionStorage.getItem('sv1_profile_later')==='1')return true}catch(e){}return false}
+function profileSkippable(o){return ((o&&o.requests)||[]).some(function(r){return ['CONTRACT_SENT','SIGNED','PAYMENT_PENDING','PAID','IN_PROGRESS'].indexOf(r.status)>=0})}
+function renderProfile(o,after){app.innerHTML='';var box=h('div',{class:'login',id:'sv1Profile'});var errEl=h('div',{class:'err',role:'alert'});
+var nm=h('input',{id:'pfName',type:'text',placeholder:TX.pfNamePh,autocomplete:'name','aria-label':TX.pfName,value:(o&&o.user&&o.user.name)||''});
+var ph=h('input',{id:'pfPhone',type:'tel',placeholder:TX.cPhonePh,autocomplete:'tel',inputmode:'tel','aria-label':TX.cPhone,dir:'ltr',value:(o&&o.user&&o.user.phone)||''});
+var go1=h('button',{class:'btn',id:'pfSave',onclick:function(){errEl.textContent='';if(!nameValid(nm.value)){errEl.textContent=TX.pfBadName;nm.focus();return}if(!phoneValid(ph.value)){errEl.textContent=TX.cBadPhone;ph.focus();return}go1.disabled=true;api('profile-set',{name:nm.value.trim(),phone:ph.value.trim()}).then(function(r){go1.disabled=false;if(!r||!r.ok){errEl.textContent=r&&r.error==='invalid_phone'?TX.cBadPhone:r&&r.error==='invalid_name'?TX.pfBadName:TX.error;return}if(after)after();else boot()})}},[TX.pfSave]);
+onEnter(ph,go1);
+box.appendChild(h('div',{class:'cstep'},[TX.pfStep]));box.appendChild(h('h1',{},[TX.pfTitle]));box.appendChild(h('p',{},[TX.pfText]));
+box.appendChild(h('label',{for:'pfName'},[TX.pfName]));box.appendChild(nm);box.appendChild(h('label',{for:'pfPhone'},[TX.cPhone]));box.appendChild(ph);box.appendChild(go1);
+if(profileSkippable(state.me||o)){box.appendChild(h('div',{class:'alt'},[h('a',{class:'lnk',id:'pfLater',onclick:function(){try{sessionStorage.setItem('sv1_profile_later','1')}catch(e){}if(after)after();else boot()}},[TX.pfLater])]))}
+box.appendChild(errEl);app.appendChild(box)}
+function boot(){var ml=hashParam('ml');if(ml){renderLinkConfirm(ml);return}api('me').then(function(o){if(!o||!o.ok){renderLogin();return}if(o.user&&o.user.contactPending){renderContact();return}
+if(o.user&&o.user.needsProfile&&!profileLater(o)){state.me=o;renderProfile(o);return}
+var nx=nextPath();if(nx){location.replace(nx);return}
+var rs=resumePath();if(rs){location.replace(rs);return}state.me=o;state.testMode=!!o.testMode;var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;settleReturn(u).then(function(){render();if(state.view!=='documents')loadDocs().catch(function(){});if(state.view!=='compliance')opsGet('violations').then(function(o){if(o&&o.ok){state.violations=o.items||[];setComplianceBadge()}}).catch(function(){})})}).catch(function(){renderLogin()})}
 boot();
 })();</script>`;
   return sv1.shell({ title: tx.title, desc: tx.attention, path: "/my", body: CSS + body, script, noindex: true });

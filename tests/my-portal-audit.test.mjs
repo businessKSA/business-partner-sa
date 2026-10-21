@@ -72,7 +72,8 @@ test("لا زرّ يفشل صامتاً: كل نداء فعلٍ للعميل ف�
     assert.ok(at > 0, a);
     // الفرع الفاشل يستدعي toast قبل نداء الفعل التالي
     const next = s.indexOf("api('", at + 10);
-    assert.ok(s.slice(at, next > 0 ? next : at + 900).includes("toast("), `${a} يُخبر العميل عند الفشل`);
+    const seg = s.slice(at, next > 0 ? next : at + 900);
+    assert.ok(seg.includes("toast(") || (a === "quote-reject" && seg.includes("err.textContent=")), `${a} يُخبر العميل عند الفشل`);
   }
 });
 

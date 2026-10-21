@@ -191,7 +191,7 @@ ok(r.s === 409 && r.j.error === "request_closed", "a cancelled request takes no 
 const my = fs.readFileSync(new URL("../site/scripts/simple-v1-my.mjs", import.meta.url), "utf8");
 ok(/function stageLine\(r\)\{var st=r\.stages\|\|\[\];if\(!st\.length\)return null/.test(my), "/my draws no progress line without stages");
 ok(/function updatesCard\(r\)\{var up=r\.updates\|\|\[\];if\(!up\.length\)return null/.test(my), "/my draws no updates card without published updates");
-ok(/var pl=stageLine\(r\);if\(pl\)box\.appendChild\(pl\)/.test(my) && /var uc=updatesCard\(r\);if\(uc\)right\.appendChild\(uc\)/.test(my), "/my places both only when they exist");
+ok(/var pl=(?:r\.status==='CANCELLED'\?null:)?stageLine\(r\);if\(pl\)box\.appendChild\(pl\)/.test(my) && /var uc=updatesCard\(r\);if\(uc\)right\.appendChild\(uc\)/.test(my), "/my places both only when they exist");
 
 // the JSON database flushes on a short timer; clean up after it has
 await new Promise((r) => setTimeout(r, 200));
