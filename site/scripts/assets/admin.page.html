@@ -3246,7 +3246,7 @@
       dsPost({ type:'docusign-ping' }).then(function(r){
         btn.disabled = false;
         if (r && r.ok){
-          dsNote('ok', '✅ متصل — الحساب: <b>' + esc(r.accountName || r.accountId) + '</b> · البيئة: ' + esc(r.env) +
+          dsNote('ok', '✅ متصل — الحساب: <b>' + esc(r.accountName || r.accountId) + '</b> · البيئة: ' + esc(r.env) + (r.baseHost ? ' · الخادم: ' + esc(r.baseHost) : '') +
             (r.env === 'demo' ? ' <span style="color:#b45309">(بيئة تجريبية — العقود منها ليست نافذة)</span>' : ''));
         } else if (r && r.error === 'docusign_not_configured'){
           // "Missing" is two different problems: a variable that never reached
@@ -3283,7 +3283,13 @@
             if (!r.shape.integrationKeyLooksGuid) bad.push('DOCUSIGN_INTEGRATION_KEY ليس بصيغة GUID');
             if (bad.length) extra += '<div style="margin-top:6px;font-size:12px;color:#b45309">' + esc(bad.join(' · ')) + '</div>';
           }
-          dsNote('err', 'فشل: ' + esc((r && r.error) || '؟') +
+          var where = '';
+          if (r && (r.stage || r.host)){
+            var kinds = { dns:'العنوان لا يُحلّ (DNS)', tls:'خطأ شهادة (TLS)', timeout:'انتهت المهلة', connection:'رُفض الاتصال', bad_url:'عنوان غير صالح', network:'خطأ شبكة' };
+            where = '<div style="margin-top:6px;font-size:12px;direction:ltr;text-align:left;font-family:monospace">المرحلة: ' + esc(r.stage || '؟') +
+              ' · المضيف: ' + esc(r.host || '؟') + (r.netKind ? ' · ' + esc(kinds[r.netKind] || r.netKind) : '') + '</div>';
+          }
+          dsNote('err', 'فشل: ' + esc((r && r.error) || '؟') + where +
             ((r && r.detail) ? '<br><span style="font-size:11px;direction:ltr;display:inline-block;text-align:left;color:#64748b">' + esc(r.detail) + '</span>' : '') + extra);
         }
       });

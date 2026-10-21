@@ -38,10 +38,19 @@ const OAUTH_HOST = IS_PROD ? "account.docusign.com" : "account-d.docusign.com";
 // suffix the API needs ("https://demo.docusign.net"), so a value copied
 // straight off that screen — the obvious thing to do — would 404 every call.
 // Both forms are accepted.
-const API_BASE = (() => {
-  const raw = env("DOCUSIGN_BASE_URI", IS_PROD ? "https://na1.docusign.net" : "https://demo.docusign.net").replace(/\/+$/, "");
-  return /\/restapi$/.test(raw) ? raw : `${raw}/restapi`;
-})();
+const normaliseBase = (raw) => {
+  const b = String(raw || "").trim().replace(/^["']|["']$/g, "").replace(/\/+$/, "");
+  if (!b) return "";
+  const withScheme = /^https?:\/\//i.test(b) ? b : `https://${b}`;
+  return /\/restapi$/i.test(withScheme) ? withScheme : `${withScheme}/restapi`;
+};
+// An explicit override wins. Without one the base is read from DocuSign itself
+// (/oauth/userinfo → the account's base_uri): a production account lives on a
+// numbered host (na2/na3/na4/eu…) that no default can guess, and the old
+// production default, na1.docusign.net, does not resolve at all — every call
+// died as a bare "fetch failed" before DocuSign was ever reached.
+const API_BASE_OVERRIDE = normaliseBase(env("DOCUSIGN_BASE_URI"));
+const API_BASE_DEMO = "https://demo.docusign.net/restapi";
 const SITE = env("MKT_SITE_BASE", "https://www.businesspartner.sa");
 
 export const docusignConfigured = () => !!(INTEGRATION_KEY && USER_ID && ACCOUNT_ID && PRIVATE_KEY);
@@ -85,7 +94,7 @@ export async function docusignToken() {
     throw err;
   }
 
-  const r = await fetch(`https://${OAUTH_HOST}/oauth/token`, {
+  const r = await dsNet("oauth_token", `https://${OAUTH_HOST}/oauth/token`, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
@@ -103,7 +112,11 @@ export async function docusignToken() {
       throw err;
     }
     const err = new Error("docusign_auth_failed");
-    err.detail = `${r.status}: ${JSON.stringify(data).slice(0, 300)}`;
+    err.stage = "oauth_token";
+    err.host = OAUTH_HOST;
+    // DocuSign's own words (invalid_grant, no_valid_keys_or_signatures, …) —
+    // the two fields that name the problem, not the whole body.
+    err.detail = redact(`${r.status} ${[data.error, data.error_description].filter(Boolean).join(": ")}`.trim());
     throw err;
   }
   _token = data.access_token;
@@ -120,9 +133,94 @@ export function consentUrl(redirect = `${SITE}/admin`) {
     `&client_id=${encodeURIComponent(INTEGRATION_KEY)}&redirect_uri=${encodeURIComponent(redirect)}`;
 }
 
+// ---- network -----------------------------------------------------------------
+
+// Never let a GUID (account, user, integration key) reach a log or a screen:
+// DocuSign sometimes echoes them inside an error description.
+const GUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+const redact = (t) => String(t == null ? "" : t).replace(GUID_RE, (g) => `${g.slice(0, 4)}…`).slice(0, 300);
+const maskId = (v) => (v ? `…${String(v).slice(-4)}` : "");
+
+// Node reports every transport failure as the same two words. The cause says
+// which: DNS, TLS, timeout or a refused connection are four different fixes.
+function describeNetError(e) {
+  const c = (e && e.cause) || e || {};
+  const code = String(c.code || c.name || "");
+  let kind = "network";
+  if (/ENOTFOUND|EAI_AGAIN/.test(code)) kind = "dns";
+  else if (/CERT|TLS|SSL|ERR_TLS/.test(code)) kind = "tls";
+  else if (/TIMEOUT|ETIMEDOUT|Abort/i.test(code) || (e && /Timeout|Abort/i.test(e.name || ""))) kind = "timeout";
+  else if (/ECONNREFUSED|ECONNRESET|EPIPE/.test(code)) kind = "connection";
+  else if (/ERR_INVALID_URL/.test(code)) kind = "bad_url";
+  return { kind, code, message: String(c.message || (e && e.message) || "").slice(0, 160) };
+}
+
+/**
+ * fetch with a deadline and a readable failure. The error names the stage and
+ * the host only — never the path or query, which can carry an account id.
+ */
+async function dsNet(stage, url, init = {}) {
+  let host = "";
+  try { host = new URL(url).host; } catch { host = "(invalid url)"; }
+  try {
+    return await fetch(url, { signal: AbortSignal.timeout(15_000), ...init });
+  } catch (e) {
+    const d = describeNetError(e);
+    const err = new Error("docusign_network");
+    err.stage = stage;
+    err.host = host;
+    err.netKind = d.kind;
+    err.detail = redact(`${stage} ${host}: ${d.kind}${d.code ? ` (${d.code})` : ""} ${d.message}`.trim());
+    throw err;
+  }
+}
+
+let _apiBase = null, _apiBaseSource = "";
+
+/**
+ * The REST base for this account: the explicit override if one is set, else the
+ * base_uri DocuSign reports for DOCUSIGN_ACCOUNT_ID, else (demo only) the
+ * well-known demo host. Cached for the warm instance.
+ */
+export async function docusignApiBase() {
+  if (_apiBase) return _apiBase;
+  if (API_BASE_OVERRIDE) { _apiBaseSource = "env"; return (_apiBase = API_BASE_OVERRIDE); }
+  const token = await docusignToken();
+  try {
+    const r = await dsNet("userinfo", `https://${OAUTH_HOST}/oauth/userinfo`, { headers: { Authorization: `Bearer ${token}` } });
+    const info = await r.json().catch(() => ({}));
+    const accts = Array.isArray(info.accounts) ? info.accounts : [];
+    const mine = accts.find((a) => String(a.account_id || "").toLowerCase() === ACCOUNT_ID.toLowerCase());
+    if (r.ok && mine && mine.base_uri) {
+      _apiBaseSource = "userinfo";
+      return (_apiBase = normaliseBase(mine.base_uri));
+    }
+    if (r.ok && accts.length && !mine) {
+      const err = new Error("docusign_account_not_found");
+      err.stage = "userinfo";
+      err.host = OAUTH_HOST;
+      err.detail = `هذا المستخدم لا يملك الحساب المضبوط في DOCUSIGN_ACCOUNT_ID — الحسابات المتاحة له ${accts.length} (آخر ٤ خانات: ${accts.map((a) => maskId(a.account_id)).join("، ")}).`;
+      throw err;
+    }
+    if (!r.ok) {
+      const err = new Error("docusign_userinfo_failed");
+      err.stage = "userinfo";
+      err.host = OAUTH_HOST;
+      err.detail = redact(`${r.status} ${[info.error, info.error_description].filter(Boolean).join(": ")}`.trim());
+      throw err;
+    }
+  } catch (e) {
+    if (IS_PROD) throw e;                       // production must not guess a host
+  }
+  _apiBaseSource = "default";
+  return (_apiBase = API_BASE_DEMO);
+}
+export const docusignApiBaseSource = () => _apiBaseSource;
+
 async function dsFetch(path, { method = "GET", body } = {}) {
   const token = await docusignToken();
-  const r = await fetch(`${API_BASE}/v2.1/accounts/${ACCOUNT_ID}${path}`, {
+  const base = await docusignApiBase();
+  const r = await dsNet("api", `${base}/v2.1/accounts/${ACCOUNT_ID}${path}`, {
     method,
     headers: { Authorization: `Bearer ${token}`, "content-type": "application/json" },
     ...(body ? { body: JSON.stringify(body) } : {}),
@@ -132,7 +230,9 @@ async function dsFetch(path, { method = "GET", body } = {}) {
   try { data = text ? JSON.parse(text) : null; } catch { data = null; }
   if (!r.ok) {
     const err = new Error("docusign_failed");
-    err.detail = `${r.status}: ${(data ? JSON.stringify(data) : text).slice(0, 400)}`;
+    err.stage = "api";
+    err.host = new URL(base).host;
+    err.detail = redact(`${r.status}: ${(data ? JSON.stringify(data) : text)}`);
     throw err;
   }
   return data;
@@ -534,7 +634,8 @@ export async function docusignStatus(envelopeId) {
 /** The signed document itself, so the completed contract can be filed and sent. */
 export async function docusignSignedPdf(envelopeId) {
   const token = await docusignToken();
-  const r = await fetch(`${API_BASE}/v2.1/accounts/${ACCOUNT_ID}/envelopes/${encodeURIComponent(envelopeId)}/documents/combined`, {
+  const base = await docusignApiBase();
+  const r = await fetch(`${base}/v2.1/accounts/${ACCOUNT_ID}/envelopes/${encodeURIComponent(envelopeId)}/documents/combined`, {
     headers: { Authorization: `Bearer ${token}`, accept: "application/pdf" },
   });
   if (!r.ok) return null;
@@ -635,9 +736,19 @@ export async function docusignPing() {
   try {
     await docusignToken();
     const acct = await dsFetch("");
-    return { ok: true, env: docusignEnv(), accountName: acct && acct.accountName, accountId: ACCOUNT_ID, base: API_BASE, key, shape, vars };
+    const base = await docusignApiBase();
+    return { ok: true, env: docusignEnv(), accountName: acct && acct.accountName, accountId: maskId(ACCOUNT_ID), baseHost: new URL(base).host, baseSource: _apiBaseSource, key, shape, vars };
   } catch (e) {
-    return { ok: false, error: String(e.message || e), detail: String(e.detail || "").slice(0, 400), key, shape, vars, consentUrl: e.message === "docusign_consent_required" ? consentUrl() : undefined };
+    return {
+      ok: false,
+      error: String(e.message || e),
+      stage: e.stage || undefined,
+      host: e.host || undefined,
+      netKind: e.netKind || undefined,
+      detail: redact(e.detail || ""),
+      key, shape, vars,
+      consentUrl: e.message === "docusign_consent_required" ? consentUrl() : undefined,
+    };
   }
 }
 
