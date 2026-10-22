@@ -75,7 +75,10 @@ create table if not exists shr_workers (
   id_no_hash text,                           -- بصمة لا الرقم؛ الحقيقي يُشفَّر لاحقاً
   status text not null default 'draft' check (status in ('draft','pending_docs','active','archived')),
   archived_at timestamptz,
-  created_at timestamptz not null default now()
+  created_by uuid,                           -- من أدخل المسودة
+  activated_by uuid,                         -- من اعتمد التفعيل؛ لا يكون المُدخِل نفسه
+  created_at timestamptz not null default now(),
+  check (activated_by is null or activated_by <> created_by)
 );
 
 create table if not exists shr_assignments (       -- عامل ← عميل مستفيد ← منشأة

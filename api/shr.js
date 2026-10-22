@@ -1,0 +1,250 @@
+// SHR-HR — لوحة تشغيل الفواز (المرحلة ٢). دالة واحدة بأسلوب action.
+//
+// محلية فقط: ترفض كل طلب خارج LOCAL_DB=1. بيانات وهمية. لا ربط حكومي ولا رسائل.
+// كل وصول للبيانات عبر scoped(ctxFrom(user)) من _shr.js؛ والمستأجر يُشتق من
+// الجلسة الموقَّعة لا من الطلب. الأدوار في هذه المرحلة: tenant_owner وoperator.
+//
+// POST /api/shr { action: "session", slug, email }   -> دخول تجريبي (يضع كوكي)
+// POST /api/shr { action: "session-end" }
+// GET  /api/shr?action=session|dashboard|workers|requests|expiring[&days=60]
+// POST /api/shr { action: "worker-create" | "worker-activate" | "worker-archive" | "request-state" }
+// الحذف مرفوض: action "worker-delete" -> 403 archive_only.
+import crypto from "node:crypto";
+import { ctxFrom, scoped, assertLocal, tenantBySlug, tenantById, seedDemo, hashIdNo, ROLES } from "./_shr.js";
+
+const COOKIE = "shr_session";
+const TTL_S = 8 * 3600;
+const PHASE2_ROLES = new Set(["tenant_owner", "operator"]);
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const REQUEST_STATES = ["new", "in_review", "waiting_client", "in_progress", "done", "rejected"];
+const TERMINAL = new Set(["done", "rejected"]);
+const WORKER_STATUSES = ["draft", "pending_docs", "active", "archived"];
+const ID_KINDS = ["iqama", "national_id", "border_no"];
+
+// سرّ التوقيع: محلي فقط، فلا حاجة لسرّ حقيقي. يمكن تثبيته بـSHR_SESSION_SECRET.
+const SECRET = process.env.SHR_SESSION_SECRET || "shr-local-demo-secret-not-for-production";
+const sign = (p) => crypto.createHmac("sha256", SECRET).update(p).digest("base64url");
+
+function mintSession(payload) {
+  const p = Buffer.from(JSON.stringify({ ...payload, exp: Math.floor(Date.now() / 1000) + TTL_S })).toString("base64url");
+  return `${p}.${sign(p)}`;
+}
+function readSession(req) {
+  const raw = (req.cookies && req.cookies[COOKIE]) || "";
+  const [p, sig] = String(raw).split(".");
+  if (!p || !sig) return null;
+  const want = sign(p);
+  if (sig.length !== want.length || !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(want))) return null;
+  try {
+    const o = JSON.parse(Buffer.from(p, "base64url").toString("utf8"));
+    if (!o.exp || o.exp < Date.now() / 1000) return null;
+    return o;
+  } catch { return null; }
+}
+
+class HttpError extends Error {
+  constructor(status, code, extra = {}) { super(code); this.status = status; this.code = code; this.extra = extra; }
+}
+const bad = (code, extra) => new HttpError(400, code, extra);
+const day = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
+const str = (v, max) => String(v ?? "").trim().slice(0, max);
+const needId = (v) => { if (!UUID.test(String(v || ""))) throw bad("bad_id"); return String(v); };
+
+async function audit(db, user, action, entity, entity_id) {
+  await db.post("shr_audit_log", { actor: user.sub, action, entity, entity_id });
+}
+
+// ------------------------------------------------------------- actions ----
+async function dashboard(db) {
+  const today = day(0), soon = day(60);
+  const [workers, clients, requests, docs] = await Promise.all([
+    db.get("shr_workers?select=id,status"),
+    db.get("shr_client_companies?select=id,status"),
+    db.get("shr_requests?select=id,state"),
+    db.get("shr_worker_documents?select=worker_id,kind,expires_on"),
+  ]);
+  const live = new Set(workers.filter((w) => w.status !== "archived").map((w) => w.id));
+  const d = docs.filter((x) => live.has(x.worker_id) && x.expires_on);
+  return {
+    workers: workers.filter((w) => w.status !== "archived").length,
+    workers_active: workers.filter((w) => w.status === "active").length,
+    workers_draft: workers.filter((w) => w.status === "draft" || w.status === "pending_docs").length,
+    clients: clients.filter((c) => c.status === "active").length,
+    open_requests: requests.filter((r) => !TERMINAL.has(r.state)).length,
+    docs_expiring_60d: d.filter((x) => x.expires_on >= today && x.expires_on <= soon).length,
+    docs_expired: d.filter((x) => x.expires_on < today).length,
+  };
+}
+
+async function listWorkers(db, q) {
+  const st = q.status ? String(q.status) : "";
+  if (st && !WORKER_STATUSES.includes(st)) throw bad("bad_status");
+  const rows = await db.get(`shr_workers?select=id,full_name,nationality,profession,id_kind,status,created_by,activated_by,created_at${st ? `&status=eq.${st}` : ""}&order=created_at.desc`);
+  return rows;
+}
+
+async function createWorker(db, user, b) {
+  const full_name = str(b.full_name, 120);
+  if (full_name.length < 2) throw bad("full_name_required");
+  // لا يُقبل من الجسم إلا مسودة؛ أي حالة أخرى محاولة تفعيل خلفي.
+  if (b.status !== undefined && b.status !== "draft") throw bad("draft_only");
+  const id_kind = b.id_kind ? String(b.id_kind) : null;
+  if (id_kind && !ID_KINDS.includes(id_kind)) throw bad("bad_id_kind");
+  const id_no = str(b.id_no, 40);
+  const row = {
+    full_name, nationality: str(b.nationality, 60) || null, profession: str(b.profession, 80) || null,
+    id_kind, id_no_hash: id_no ? hashIdNo(db.ctx.tenantId, id_no) : null,
+    status: "draft", created_by: user.sub, activated_by: null,
+  };
+  let est = null, cli = null;
+  if (b.establishment_id || b.client_company_id) {
+    est = (await db.get(`shr_establishments?id=eq.${needId(b.establishment_id)}&select=id`))[0];
+    cli = (await db.get(`shr_client_companies?id=eq.${needId(b.client_company_id)}&select=id`))[0];
+    if (!est || !cli) throw new HttpError(404, "not_found");
+  }
+  const w = (await db.post("shr_workers", row))[0];
+  if (est && cli) await db.post("shr_assignments", { worker_id: w.id, establishment_id: est.id, client_company_id: cli.id, profession: row.profession || "—", status: "draft" });
+  await audit(db, user, "worker.create_draft", "shr_workers", w.id);
+  return { id: w.id, status: w.status, full_name: w.full_name };
+}
+
+async function activateWorker(db, user, b) {
+  const id = needId(b.id);
+  const w = (await db.get(`shr_workers?id=eq.${id}`))[0];
+  if (!w) throw new HttpError(404, "not_found");
+  if (w.status === "archived") throw new HttpError(409, "archived");
+  if (w.status === "active") throw new HttpError(409, "already_active");
+  // من يُدخل لا يعتمد.
+  if (w.created_by && w.created_by === user.sub) throw new HttpError(403, "maker_checker");
+  const [docs, asg] = await Promise.all([
+    db.get(`shr_worker_documents?worker_id=eq.${id}&select=kind,storage_key,expires_on`),
+    db.get(`shr_assignments?worker_id=eq.${id}&select=establishment_id,client_company_id`),
+  ]);
+  const today = day(0), missing = [];
+  if (!w.id_kind || !w.id_no_hash) missing.push("identity");
+  const iq = docs.find((x) => x.kind === "iqama" && x.storage_key);
+  if (!iq) missing.push("iqama"); else if (!iq.expires_on || iq.expires_on < today) missing.push("iqama_valid");
+  if (!docs.find((x) => x.kind === "work_contract" && x.storage_key)) missing.push("work_contract");
+  if (!asg.find((x) => x.establishment_id && x.client_company_id)) missing.push("establishment");
+  if (missing.length) throw new HttpError(409, "activation_blocked", { missing });
+  await db.patch(`shr_workers?id=eq.${id}`, { status: "active", activated_by: user.sub });
+  await audit(db, user, "worker.activate", "shr_workers", id);
+  return { id, status: "active" };
+}
+
+async function archiveWorker(db, user, b) {
+  const id = needId(b.id);
+  const w = (await db.get(`shr_workers?id=eq.${id}&select=id,status`))[0];
+  if (!w) throw new HttpError(404, "not_found");
+  if (w.status === "archived") return { id, status: "archived" };
+  await db.patch(`shr_workers?id=eq.${id}`, { status: "archived", archived_at: new Date().toISOString() });
+  await audit(db, user, "worker.archive", "shr_workers", id);
+  return { id, status: "archived" };
+}
+
+async function listRequests(db, q) {
+  const st = q.state ? String(q.state) : "";
+  if (st && !REQUEST_STATES.includes(st)) throw bad("bad_state");
+  const [reqs, clients] = await Promise.all([
+    db.get(`shr_requests?select=id,client_company_id,kind,state,body,created_at${st ? `&state=eq.${st}` : ""}&order=created_at.desc`),
+    db.get("shr_client_companies?select=id,name_ar"),
+  ]);
+  const cn = Object.fromEntries(clients.map((c) => [c.id, c.name_ar]));
+  return reqs.map((r) => ({ ...r, client: cn[r.client_company_id] || null }));
+}
+
+async function setRequestState(db, user, b) {
+  const id = needId(b.id);
+  const state = String(b.state || "");
+  if (!REQUEST_STATES.includes(state)) throw bad("bad_state");
+  const r = (await db.get(`shr_requests?id=eq.${id}&select=id,state`))[0];
+  if (!r) throw new HttpError(404, "not_found");
+  if (TERMINAL.has(r.state) && r.state !== state) throw new HttpError(409, "terminal_state");
+  await db.patch(`shr_requests?id=eq.${id}`, { state });
+  await audit(db, user, `request.state.${r.state}->${state}`, "shr_requests", id);
+  return { id, state };
+}
+
+async function expiring(db, q) {
+  const days = Math.min(365, Math.max(1, parseInt(q.days, 10) || 60));
+  const today = day(0), until = day(days);
+  const [docs, workers] = await Promise.all([
+    db.get(`shr_worker_documents?select=id,worker_id,kind,expires_on&kind=in.(iqama,medical_insurance)&expires_on=lte.${until}&order=expires_on.asc`),
+    db.get("shr_workers?select=id,full_name,status"),
+  ]);
+  const w = Object.fromEntries(workers.map((x) => [x.id, x]));
+  return {
+    days,
+    items: docs.filter((d) => w[d.worker_id] && w[d.worker_id].status !== "archived").map((d) => ({
+      id: d.id, worker_id: d.worker_id, worker: w[d.worker_id].full_name, kind: d.kind, expires_on: d.expires_on,
+      expired: d.expires_on < today, days_left: Math.round((Date.parse(d.expires_on) - Date.parse(today)) / 86400000),
+    })),
+  };
+}
+
+// ----------------------------------------------------------- the handler ---
+export default async function handler(req, res) {
+  res.setHeader("cache-control", "no-store");
+  const out = (status, o) => res.status(status).json({ demo: true, ...o });
+  try {
+    assertLocal();
+    const isPost = req.method === "POST";
+    if (!isPost && req.method !== "GET") return out(405, { ok: false, error: "method_not_allowed" });
+    const b = isPost && req.body && typeof req.body === "object" ? req.body : {};
+    const q = req.query || {};
+    const src = isPost ? b : q;
+    const action = String(src.action || q.action || "");
+    // المستأجر من الجلسة وحدها.
+    if ("tenant_id" in b || "tenant_id" in q) return out(400, { ok: false, error: "tenant_id_forbidden" });
+
+    if (action === "session" && isPost) {
+      await seedDemo();
+      const t = await tenantBySlug(String(b.slug || "SHR"));
+      const email = str(b.email, 120).toLowerCase();
+      if (!t || !email) return out(401, { ok: false, error: "unauthorized" });
+      const db = scoped(ctxFrom({ tenant_id: t.id, role: "tenant_owner" }));
+      const u = (await db.get(`shr_users?email=eq.${encodeURIComponent(email)}&limit=1`))[0];
+      if (!u) return out(401, { ok: false, error: "unauthorized" });
+      if (!PHASE2_ROLES.has(u.role)) return out(403, { ok: false, error: "role_not_allowed" });
+      res.setHeader("set-cookie", `${COOKIE}=${mintSession({ sub: u.id, tenant_id: u.tenant_id, role: u.role, email: u.email })}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${TTL_S}`);
+      return out(200, { ok: true, user: { email: u.email, name: u.full_name, role: u.role }, tenant: { slug: t.slug, brand_ar: t.brand_ar } });
+    }
+    if (action === "session-end") {
+      res.setHeader("set-cookie", `${COOKIE}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0`);
+      return out(200, { ok: true });
+    }
+
+    const s = readSession(req);
+    if (!s) return out(401, { ok: false, error: "unauthorized" });
+    let ctx;
+    try { ctx = ctxFrom({ tenant_id: s.tenant_id, role: s.role }); } catch { return out(401, { ok: false, error: "unauthorized" }); }
+    if (!PHASE2_ROLES.has(ctx.role) || !ROLES.includes(ctx.role)) return out(403, { ok: false, error: "role_not_allowed" });
+    const db = scoped(ctx);
+    const user = { sub: s.sub, email: s.email, role: s.role };
+
+    switch (action) {
+      case "session": {
+        const t = await tenantById(ctx.tenantId);
+        return out(200, { ok: true, user, tenant: t ? { slug: t.slug, brand_ar: t.brand_ar } : null });
+      }
+      case "dashboard": return out(200, { ok: true, counts: await dashboard(db) });
+      case "workers": return out(200, { ok: true, workers: await listWorkers(db, q) });
+      case "requests": return out(200, { ok: true, requests: await listRequests(db, q) });
+      case "expiring": return out(200, { ok: true, ...(await expiring(db, q)) });
+    }
+    if (!isPost) return out(404, { ok: false, error: "unknown_action" });
+    switch (action) {
+      case "worker-create": return out(200, { ok: true, worker: await createWorker(db, user, b) });
+      case "worker-activate": return out(200, { ok: true, worker: await activateWorker(db, user, b) });
+      case "worker-archive": return out(200, { ok: true, worker: await archiveWorker(db, user, b) });
+      case "request-state": return out(200, { ok: true, request: await setRequestState(db, user, b) });
+      case "worker-delete": case "delete": return out(403, { ok: false, error: "archive_only" });
+      default: return out(404, { ok: false, error: "unknown_action" });
+    }
+  } catch (e) {
+    if (e instanceof HttpError) return out(e.status, { ok: false, error: e.code, ...e.extra });
+    if (e && e.code === "shr_local_only") return out(503, { ok: false, error: "shr_local_only" });
+    console.error("shr error", String(e && e.message || e).slice(0, 200));
+    return out(500, { ok: false, error: "server_error" });
+  }
+}
