@@ -41,12 +41,23 @@ nav.tabs button[aria-selected="true"]{background:var(--surface);color:var(--navy
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;min-width:0}
 .panel h2{font-size:16px;margin:0 0 4px}
 .panel p.hint{color:var(--muted);font-size:13px;margin:0 0 14px}
-.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;min-width:0}
-.field label{font-size:13px;font-weight:600}
+.field{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;min-width:0}
+.field label{font-size:12.5px;font-weight:600}
 .field small{color:var(--muted);font-size:12px}
-input,select{font:inherit;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:9px;padding:9px 11px;width:100%;min-width:0}
+input,select{font:inherit;color:var(--ink);background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:5px 9px;font-size:14px;line-height:1.35;width:100%;min-width:0}
 input[type=number]{font-family:var(--mono)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* tiles: fields as small square-ish cards in a grid */
+.grid>.panel:first-child{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:8px;align-content:start}
+.grid>.panel:first-child>*{grid-column:1/-1}
+.grid>.panel:first-child .row2{display:contents}
+.grid>.panel:first-child .field,.grid>.panel:first-child>.field{grid-column:auto;margin:0;border:1px solid var(--line);border-radius:12px;padding:7px 9px;background:var(--soft);justify-content:space-between;min-height:74px}
+.grid>.panel:first-child .field label{font-size:11.5px;line-height:1.25}
+.grid>.panel:first-child .field input,.grid>.panel:first-child .field select{border:0;background:transparent;padding:3px 0;font-size:14px;border-radius:0}
+.grid>.panel:first-child .field small{font-size:10.5px;line-height:1.25}
+.grid>.panel:first-child .stp{gap:4px}
+.grid>.panel:first-child .stp .sb{flex:0 0 22px}
+
 @media (max-width:480px){.row2{grid-template-columns:1fr}}
 .res{display:flex;flex-direction:column;gap:2px}
 .line{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed var(--line);min-width:0}
@@ -80,8 +91,8 @@ tr.tot td{font-weight:700;background:var(--soft)}
 .dd mark{background:var(--warn-bg);color:var(--warn);border-radius:3px;padding:0 1px}
 .stp{display:flex;gap:6px;align-items:stretch}
 .stp input{text-align:center;min-width:0;flex:1 1 auto}
-.stp .sb{display:flex;flex-direction:column;gap:2px;flex:0 0 28px}
-.stp .sb button{flex:1 1 0;min-height:17px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;font:inherit;font-size:13px;line-height:1;padding:0;cursor:pointer}
+.stp .sb{display:flex;flex-direction:column;gap:2px;flex:0 0 26px}
+.stp .sb button{flex:1 1 0;min-height:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;font:inherit;font-size:13px;line-height:1;padding:0;cursor:pointer}
 .stp .sb button:hover{background:var(--soft)}
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 input[type=number]{-moz-appearance:textfield}
@@ -138,7 +149,7 @@ const S={ // state
  owner:false,
  rent:{unit:'day',qty:1,nat:'IN',sal:1500},
  req:{lic:'',exp:'',lang:'',langLvl:'',edu:'',skill:'',skillName:'',skillLvl:''},
- groups:{lump:[],cost:[]}, _last:{lump:'',cost:''},
+ touched:{}, groups:{lump:[],cost:[]}, _last:{lump:'',cost:''},
  order:[{qty:1,gender:'male',nat:'IN',fam:'cons',code:'',unit:'day',n:1,trn:0}], profAll:false,
  labor:{fam:'cons',code:''}, salTable:{},
  extra:{hours:8,days:6,commOn:'No',commPct:10,otOn:'No',otHours:20},
@@ -195,7 +206,7 @@ function ctyFld(id,val,label,showCost){
   const chips=REC.map(r=>[r[0],L==='ar'?r[1]:r[4]]).map(([v,l])=>`<button type="button" data-chip-for="${id}" data-v="${v}" aria-pressed="${String(v)===String(val)}">${l}</button>`).join('');
   return fld(id,label,val,{list:o,hint:eta}).replace('<select id="'+id+'"','<select data-ph="'+tx('ابحث عن الجنسية','Search for a nationality')+'" id="'+id+'"');}
 function srcFlds(p,c){
-  return fld(p+'-src',tx('مصدر العامل','Worker source'),c.src,{list:[['inside',tx('داخل المملكة — نقل كفالة بلا استقدام','Inside the Kingdom — sponsorship transfer')],['abroad',tx('استقدام من الخارج','Recruitment from abroad')],['saudi',tx('سعودي','Saudi')]]})
+  return fld(p+'-src',tx('مصدر العامل','Worker source'),c.src,{list:[['inside',tx('من داخل المملكة — نقل كفالة','From inside the Kingdom — sponsorship transfer')],['abroad',tx('استقدام من الخارج','Recruitment from abroad')],['saudi',tx('سعودي','Saudi')]]})
   +(c.src==='saudi'?'':ctyFld(p+'-cty',c.cty,tx('الجنسية','Nationality'),c.src==='abroad'));}
 function natFld(id,val,label){
   const nm=c=>L==='ar'?c[1]:c[2];
@@ -362,11 +373,14 @@ function profCalc(c){
 
 /* ---------- ui helpers ---------- */
 function phOf(label){const s=String(label).replace(/<[^>]*>/g,'').replace(/^\d+\)\s*/,'').split(/ [—(]/)[0].trim(); return /^(هل|Any|Is |Maternity)/.test(s)?tx('اختر نعم أو لا','Choose yes or no'):tx('ابحث عن ','Search for ')+s;}
+const BLANKRE=/^(l|c|i|x|q|sb|s)-/;
+const isBlank=id=>BLANKRE.test(id)&&!S.touched[id];
 function fld(id,label,val,opt={}){
   const {type='number',hint='',step='any',min='0',list=null}=opt;
-  if(list){return `<div class="field"><label for="${id}">${label}</label><select id="${id}" data-sel="1" data-ph="${phOf(label)}">${list.map(([v,tl])=>`<option value="${v}" ${String(v)===String(val)?'selected':''}>${tl}</option>`).join('')}</select>${hint?`<small>${hint}</small>`:''}</div>`;}
-  if(type==='number'){const inc=opt.inc||(step===1?1:100); return `<div class="field"><label for="${id}">${label}</label><div class="stp"><input id="${id}" type="number" inputmode="decimal" step="${step}" min="${min}" value="${val}" data-inc="${inc}"><div class="sb"><button type="button" data-st="1" data-for="${id}" aria-label="+">+</button><button type="button" data-st="-1" data-for="${id}" aria-label="−">−</button></div></div>${hint?`<small>${hint}</small>`:''}</div>`;}
-  return `<div class="field"><label for="${id}">${label}</label><input id="${id}" type="${type}" inputmode="decimal" step="${step}" min="${min}" value="${val}">${hint?`<small>${hint}</small>`:''}</div>`;
+  const blank=isBlank(id);
+  if(list){return `<div class="field"><label for="${id}">${label}</label><select id="${id}" data-sel="1" data-ph="${phOf(label)}">${blank&&!list.some(x=>String(x[0])==='')?'<option value="" selected></option>':''}${list.map(([v,tl])=>`<option value="${v}" ${(!blank&&String(v)===String(val))||(blank&&String(v)===''&&false)?'selected':''}>${tl}</option>`).join('')}</select>${hint?`<small>${hint}</small>`:''}</div>`;}
+  if(type==='number'){const inc=opt.inc||(step===1?1:100); return `<div class="field"><label for="${id}">${label}</label><div class="stp"><input id="${id}" type="number" inputmode="decimal" step="${step}" min="${min}" value="${blank?'':val}" data-inc="${inc}"><div class="sb"><button type="button" data-st="1" data-for="${id}" aria-label="+">+</button><button type="button" data-st="-1" data-for="${id}" aria-label="−">−</button></div></div>${hint?`<small>${hint}</small>`:''}</div>`;}
+  return `<div class="field"><label for="${id}">${label}</label><input id="${id}" type="${type}" inputmode="decimal" step="${step}" min="${min}" value="${blank?'':val}">${hint?`<small>${hint}</small>`:''}</div>`;
 }
 function wireChips(){document.querySelectorAll('[data-chip-for]').forEach(b=>b.addEventListener('click',()=>{const s=document.getElementById(b.dataset.chipFor); if(!s) return; s.value=b.dataset.v; s.dispatchEvent(new Event('change',{bubbles:true}));}));}
 function wireSteppers(){document.querySelectorAll('.stp button[data-st]').forEach(b=>b.addEventListener('click',()=>{const inp=document.getElementById(b.dataset.for); if(!inp) return; const inc=parseFloat(inp.dataset.inc)||1; const mn=parseFloat(inp.min); let v=(parseFloat(inp.value)||0)+inc*parseInt(b.dataset.st,10); if(isFinite(mn)&&v<mn) v=mn; inp.value=String(Math.round(v*100)/100); inp.dispatchEvent(new Event('input',{bubbles:true}));}));}
@@ -468,7 +482,7 @@ function reqSummary(r,idx){const L2={ar:tx('العربية','Arabic'),en:tx('ا�
 function groupBtns(){return `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="btn" data-gact="save">${tx('حفظ','Save')}</button><button class="btn" data-gact="emp">+ ${tx('إضافة موظف','Add an employee')}</button><button class="btn" data-gact="grp">+ ${tx('إضافة مجموعة موظفين','Add a group of employees')}</button></div>`;}
 function groupsBox(tab){
   const list=S.groups[tab], c=tab==='cost'?S.cost:S.lump; if(!list.length) return '';
-  const cur=JSON.stringify(c)===S._last[tab]?0:groupTotal(tab,c), sub=list.reduce((s,g)=>s+g.total,0)+cur, vat=sub*0.15;
+  const cur=(JSON.stringify(c)===S._last[tab]||!readyTab(tab))?0:groupTotal(tab,c), sub=list.reduce((s,g)=>s+g.total,0)+cur, vat=sub*0.15;
   return list.map((g,i)=>`<div style="border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:10px;background:var(--surface);display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap"><div><b>${i+1}) ${groupLabel(g)}</b>${g.req&&reqSummary(g.req,g.c.prof)?`<br><small style="color:var(--muted)">${reqSummary(g.req,g.c.prof)}</small>`:''}</div><div style="display:flex;gap:8px;align-items:center"><b>${fmt(g.total)}</b><button class="btn" data-gedit="${tab}:${i}">${tx('تعديل','Edit')}</button><button class="btn" data-gdel="${tab}:${i}">${tx('حذف','Remove')}</button></div></div>`).join('')
   +`<div class="res" style="margin-bottom:12px">${cur?line(tx('المجموعة الحالية (غير محفوظة)','Current group (not saved)'),fmt(cur)):''}${line(tx('المجموع قبل الضريبة','Subtotal excl. VAT'),fmt(sub))}${line(tx('ضريبة 15%','VAT 15%'),fmt(vat))}${line(tx('الإجمالي شامل الضريبة','Total incl. VAT'),fmt(sub+vat),'total')}</div>`;}
 function simpleMode(term,fn){ if(!(typeof term==='number'&&term<12)) return fn(); const sv={ins:S.ins,extra:S.extra,sb:S.sb,hide:S.hide}; S.ins={...S.ins,cls:'basic'}; S.extra={hours:8,days:6,commOn:'No',commPct:0,otOn:'No',otHours:0}; S.sb={basic:60,housing:25,transport:10}; S.hide=true; try{return fn();}finally{S.ins=sv.ins;S.extra=sv.extra;S.sb=sv.sb;S.hide=sv.hide;} }
@@ -881,6 +895,25 @@ function wireCopy(kind,extra){
   b.addEventListener('click',()=>{const txt=summaryText(kind,extra);const done=ok=>{const e=document.getElementById('copied'); if(e) e.textContent=ok?tx('تم النسخ.','Copied.'):tx('تعذّر النسخ — حدّد النص يدوياً.','Copy failed — select the text manually.'); if(!ok&&e){e.textContent+='\n'+txt;}};
     try{navigator.clipboard.writeText(txt).then(()=>done(true),()=>done(false));}catch(e){done(false);}});
 }
+const INIT_JSON=JSON.stringify({lump:S.lump,cost:S.cost,ins:S.ins,extra:S.extra,sb:S.sb,req:S.req,sa:S.sa});
+const REQ_IDS={lump:[['l-term',()=>tx('مدة العقد','Contract term')],['l-src',()=>tx('مصدر العامل','Worker source')],['l-qty',()=>tx('عدد العمال','Headcount')],['i-gender',()=>tx('الجنس','Gender')],['l-sal',()=>tx('الراتب الإجمالي','Total salary')]],cost:[['c-term',()=>tx('مدة العقد','Contract term')],['c-src',()=>tx('مصدر العامل','Worker source')],['c-qty',()=>tx('عدد العمال','Headcount')],['i-gender',()=>tx('الجنس','Gender')],['c-sal',()=>tx('الراتب الإجمالي','Total salary')]]};
+function missingFor(tab){const c=S[tab]; const m=REQ_IDS[tab].filter(([id])=>!S.touched[id]).map(([,l])=>l());
+  if(S.touched[tab==='cost'?'c-sal':'l-sal']&&!(parseFloat(c.sal)>0)) m.push(tx('الراتب الإجمالي (أكبر من صفر)','Total salary (above zero)'));
+  if(S.touched[tab==='cost'?'c-qty':'l-qty']&&!(parseInt(c.qty)>=1)) m.push(tx('عدد العمال (1 فأكثر)','Headcount (1 or more)'));
+  const pf=tab==='cost'?'c':'l';
+  if(c.src==='inside'&&!S.touched[pf+'-trn']) m.push(tx('رقم عملية نقل الكفالة','Sponsorship transfer no.'));
+  if(c.src==='abroad'&&!S.touched[pf+'-cty']) m.push(tx('الجنسية','Nationality'));
+  return [...new Set(m)];}
+const readyTab=tab=>missingFor(tab).length===0;
+function gate(html){
+  if(!['lump','cost'].includes(S.tab)) return html; const c=S[S.tab]; if(typeof c.term!=='number') return html;
+  const miss=missingFor(S.tab); if(!miss.length) return html;
+  const i=html.indexOf('</section>'); if(i<0) return html;
+  return html.slice(0,i)+`</section><section class="panel"><h2>${tx('السعر','Price')}</h2><p class="hint">${tx('أكمل الحقول التالية ليظهر السعر:','Fill in the following fields to see the price:')}</p><ul style="margin:6px 0 0;padding-inline-start:20px">${miss.map(x=>`<li>${x}</li>`).join('')}</ul></section></div>`;}
+function resetForm(tab){const d=JSON.parse(INIT_JSON); S[tab]=d[tab]; S.ins=d.ins; S.extra=d.extra; S.sb=d.sb; S.req=d.req;
+  Object.keys(S.touched).forEach(k=>{if(BLANKRE.test(k)) delete S.touched[k];});}
+function touchAllIds(){['l-term','l-src','l-cty','l-qty','l-sal','l-trn','l-con','l-rec','l-tkt','c-term','c-src','c-cty','c-qty','c-sal','c-trn','c-con','c-rec','c-arr','c-tkt1','c-exitv','c-freq','i-gender','i-cls','i-mat','x-hours','x-days','x-commOn','x-commPct','x-otOn','x-otHours','sb-basic','sb-housing','sb-transport','q-lic','q-exp','q-lang','q-langLvl','q-edu','q-skill','q-skillName','q-skillLvl'].forEach(k=>S.touched[k]=1);}
+['input','change'].forEach(ev=>document.addEventListener(ev,e=>{const id=(e.target&&e.target.id||'').replace(/-s$/,''); if(BLANKRE.test(id)) S.touched[id]=1;},true));
 function render(focusId){
   $('#app').dir=L==='ar'?'rtl':'ltr'; $('#app').lang=L;
   $('#t-title').textContent=t('title'); $('#t-sub').textContent=t('sub'); $('#t-notice').textContent=t('notice'); $('#t-foot').textContent=t('foot');
@@ -888,8 +921,8 @@ function render(focusId){
   $('#lang-ar').setAttribute('aria-pressed',L==='ar'); $('#lang-en').setAttribute('aria-pressed',L==='en');
   $('#tabs').innerHTML=Object.keys(T.tabs).map(k=>`<button role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${T.tabs[k][L==='ar'?0:1]}</button>`).join('');
   const views={lump:viewLump,cost:viewCost,nit:viewNit,prof:viewProf,hire:viewHire,team:viewTeam,ot:viewOt,rent:viewRent,guides:viewGuides};
-  $('#main').innerHTML=(S.tab==='nit'?barHtml():['prof','hire','team','guides'].includes(S.tab)?compactBar():'')+views[S.tab]()+`<p style="margin-top:18px"><label class="hint"><input type="checkbox" id="own" ${S.owner?'checked':''}> ${tx('وضع المالك (للمعاينة فقط — على الموقع تُعدَّل الرسوم من صفحة الأدمن ولا تظهر للعميل)','Owner mode (preview only — on the live site fees are edited in Admin and never shown to the client)')}</label></p>`;
-  document.getElementById('own').addEventListener('change',e=>{S.owner=e.target.checked;render();});
+  $('#main').innerHTML=(S.tab==='nit'?barHtml():['prof','hire','team','guides'].includes(S.tab)?compactBar():'')+gate(views[S.tab]())+`<p style="margin-top:18px;text-align:center"><button class="btn" id="own" title="${tx('وضع المالك (للمعاينة فقط)','Owner mode (preview only)')}" style="font-size:11px;padding:2px 10px;opacity:${S.owner?1:.45}">⚙ ${S.owner?tx('إخفاء وضع المالك','Hide owner mode'):''}</button></p>`;
+  document.getElementById('own').addEventListener('click',()=>{S.owner=!S.owner;render();});
   const re=id=>render(id);
   document.querySelectorAll('[data-profall]').forEach(c=>c.addEventListener('change',()=>{S.profAll=c.checked;render();}));
   [['l','lump'],['c','cost']].forEach(([pp,tabk])=>{
@@ -918,13 +951,12 @@ function render(focusId){
   document.querySelectorAll('[data-odel]').forEach(b=>b.addEventListener('click',()=>{S.order.splice(parseInt(b.dataset.odel,10),1);render();}));
   document.querySelectorAll('[data-gact]').forEach(b=>b.addEventListener('click',()=>{
     const tab=S.tab==='cost'?'cost':'lump', c=S[tab]; if(typeof c.term!=='number') return;
-    const act=b.dataset.gact, isNow=JSON.stringify(c)===S._last[tab];
+    const act=b.dataset.gact, isNow=JSON.stringify(c)===S._last[tab]; if(!isNow&&!readyTab(tab)) return;
     if(!isNow){const total=simpleMode(c.term,()=>groupTotal(tab,c)); S.groups[tab].push({c:{...c},ins:{...S.ins},extra:{...S.extra},sb:{...S.sb},req:{...S.req},total});}
     S._last[tab]=JSON.stringify(c);
-    if(act==='emp'){S[tab]={...S[tab],qty:1}; S._last[tab]='';}
-    else if(act==='grp'){S[tab]={...S[tab],qty:Math.max(2,(parseInt(c.qty)||1))}; S._last[tab]='';}
+    if(act==='emp'||act==='grp'){resetForm(tab); S._last[tab]='';}
     render();}));
-  document.querySelectorAll('[data-gedit]').forEach(b=>b.addEventListener('click',()=>{const [tab,i]=b.dataset.gedit.split(':'); const g=S.groups[tab].splice(parseInt(i,10),1)[0]; S[tab]={...g.c}; S.ins=g.ins; S.extra=g.extra; S.sb=g.sb; if(g.req) S.req=g.req; S._last[tab]=''; render();}));
+  document.querySelectorAll('[data-gedit]').forEach(b=>b.addEventListener('click',()=>{const [tab,i]=b.dataset.gedit.split(':'); const g=S.groups[tab].splice(parseInt(i,10),1)[0]; S[tab]={...g.c}; S.ins=g.ins; S.extra=g.extra; S.sb=g.sb; if(g.req) S.req=g.req; S._last[tab]=''; touchAllIds(); render();}));
   document.querySelectorAll('[data-gdel]').forEach(b=>b.addEventListener('click',()=>{const [tab,i]=b.dataset.gdel.split(':'); S.groups[tab].splice(parseInt(i,10),1); render();}));
   const oa=document.getElementById('o-add'); if(oa) oa.addEventListener('click',()=>{const lr=S.order[S.order.length-1]||{}; S.order.push({qty:1,gender:lr.gender||'male',nat:lr.nat||'IN',fam:lr.fam||'cons',code:'',unit:lr.unit||'day',n:lr.n||1,trn:lr.trn||0});render();});
   if(S.tab==='rent'||(S.tab==='lump'&&typeof S.lump.term==='string')){
