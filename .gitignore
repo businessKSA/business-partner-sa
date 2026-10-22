@@ -35,3 +35,4 @@ business-partner-onefile.html
 .localdb/
 .env.local
 .claude/worktrees/
+docs/sales/services/live-calculator/src/index.html

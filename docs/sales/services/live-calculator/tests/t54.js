@@ -1,0 +1,14 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html');await p.waitForTimeout(300);
+const T=()=>p.evaluate(()=>document.querySelector('#main').innerText);
+const sel=async(id,v)=>{await p.evaluate(([id,v])=>{const s=document.getElementById(id);s.value=v;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));},[id,v]);await p.waitForTimeout(300);};
+await p.click('[data-tab=rent]');await p.waitForTimeout(300);
+await sel('o-qty-0','2');await sel('o-fam-0','rest');await sel('o-code-0','512001');
+await p.click('[data-osave="0"]');await p.waitForTimeout(300);
+console.log('after save: fields open?',!!(await p.$('#o-qty-0')),'|',(await T()).match(/1\) 2 ×[^\n]*\n[^\n]*/)?.[0]);
+await p.click('#o-add');await p.waitForTimeout(300);console.log('new row open:',!!(await p.$('#o-qty-1')),'row1 collapsed:',!(await p.$('#o-qty-0')));
+await sel('o-qty-1','5');await p.click('[data-osave="1"]');await p.waitForTimeout(300);
+await p.click('[data-oedit="0"]');await p.waitForTimeout(300);console.log('edit reopens:',!!(await p.$('#o-qty-0')),await p.evaluate(()=>document.getElementById('o-qty-0').value));
+console.log((await T()).match(/المجموع قبل الضريبة\n[\d,]+/)?.[0],errs);await b.close();})();

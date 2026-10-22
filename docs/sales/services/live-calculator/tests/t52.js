@@ -1,0 +1,16 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html');await p.waitForTimeout(300);
+const T=()=>p.evaluate(()=>document.querySelector('#main').innerText);
+const sel=async(id,v)=>{await p.evaluate(([id,v])=>{const s=document.getElementById(id);s.value=v;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));},[id,v]);await p.waitForTimeout(300);};
+await p.click('[data-tab=rent]');await p.waitForTimeout(300);
+let t=await T();console.log('1 row:',t.match(/المجموع قبل الضريبة\n[\d,]+/)?.[0]);
+await sel('o-qty-0','3');t=await T();console.log('qty3',t.match(/المجموع قبل الضريبة\n[\d,]+/)?.[0]);
+await p.click('#o-add');await p.waitForTimeout(300);
+await sel('o-gen-1','female');await sel('o-nat-1','saudi');await sel('o-unit-1','week');await sel('o-n-1','2');
+await sel('o-fam-1','rest');await sel('o-code-1','512001');
+t=await T();console.log('2 rows:',t.match(/1\) [^\n]*\n[\d,]+\n2\) [^\n]*\n[\d,]+/)?.[0].replace(/\n/g,' | '),'|',t.match(/الإجمالي شامل الضريبة\n[\d,]+/)?.[0]);
+await sel('o-gen-1','male');t=await T();console.log('row2 male:',t.match(/2\) [^\n]*\n[\d,]+/)?.[0].replace(/\n/g,' | '));
+await p.click('[data-odel="1"]');await p.waitForTimeout(300);t=await T();console.log('after delete:',t.match(/المجموع قبل الضريبة\n[\d,]+/)?.[0]);
+console.log(errs);await b.close();})();

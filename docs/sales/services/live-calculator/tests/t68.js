@@ -1,0 +1,14 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage({viewport:{width:1000,height:1400}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html');await p.waitForTimeout(300);
+const pick=async(id,text)=>{await p.click('#'+id+'-s');await p.waitForTimeout(200);await p.fill('#'+id+'-s',text);await p.waitForTimeout(250);await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');await p.waitForTimeout(400);};
+console.log('licence bar before profession:',!!(await p.$('#q-lic')),'| other req bars:',await p.$$eval('[id^=q-][id$=-s]',e=>e.map(x=>x.placeholder).join(' / ')));
+await p.click('#l-prof');await p.fill('#l-prof','سائق');await p.waitForTimeout(400);await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');await p.waitForTimeout(500);
+console.log('profession:',await p.evaluate(()=>document.getElementById('l-prof').value),'| licence bar:',!!(await p.$('#q-lic')));
+await pick('q-lic','سعودية');await pick('q-exp','3 إلى 5');await pick('q-lang','العربية والإنجليزية');await pick('q-langLvl','جيد');await pick('q-edu','ثانوي');await pick('q-skill','نعم');
+await p.fill('#q-skillName','صيانة المركبات');await pick('q-skillLvl','ممتاز');
+console.log('values:',await p.evaluate(()=>['q-lic','q-exp','q-lang','q-langLvl','q-edu','q-skill','q-skillName','q-skillLvl'].map(i=>document.getElementById(i).value).join(',')));
+await p.click('[data-gact="save"]');await p.waitForTimeout(400);
+console.log('saved card:',(await p.evaluate(()=>document.querySelector('#main').innerText)).match(/1\) [^\n]*\n[^\n]*/)?.[0].replace(/\n/g,' || '));
+console.log(errs);await b.close();})();
