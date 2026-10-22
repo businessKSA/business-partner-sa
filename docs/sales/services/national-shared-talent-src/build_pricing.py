@@ -26,7 +26,7 @@ row(2,'Role',roles[0],'الوظيفة','Choose from the list',inp=True)
 row(3,'Monthly salary, all-inclusive (SAR) — minimum 6,000',6000,'الراتب الشهري شاملاً البدلات (ريال) — الحد الأدنى 6,000','Includes transport, housing and commissions',inp=True,fmt='#,##0')
 row(4,'Share of a full-time month assigned to this client (%)',50,'نسبة الشهر الكامل المسندة لهذا العميل (%)','Or enter the hours below',inp=True,fmt='0')
 row(5,'Hours per month for this client (optional, overrides the share)',None,'ساعات هذا العميل شهرياً (اختياري، يغلب النسبة)','Leave empty to use the share',inp=True,fmt='0')
-row(6,'Hours in a full-time month',176,'ساعات الشهر الكامل','8 hours × 22 days — assumption to confirm',inp=True,fmt='0')
+row(6,'Hours in a full-time month','=5*8*52/12','ساعات الشهر الكامل','5 days × 8 hours × 52 ÷ 12 = 173.33 — owner decision',inp=True,fmt='0.00')
 row(7,'Contract term in months',12,'مدة العقد بالأشهر','',inp=True,fmt='0')
 row(8,'Employer social insurance rate (%)',11.75,'نسبة التأمينات الاجتماعية على صاحب العمل (%)','Saudi employer share — assumption to confirm with GOSI',inp=True,fmt='0.00')
 row(9,'Medical insurance per year per employee (SAR)',600,'التأمين الطبي سنوياً لكل موظف (ريال)','Current assumption — replace with the insurer quote',inp=True,fmt='#,##0')
@@ -124,7 +124,7 @@ rc.freeze_panes='B12'
 hp=wb.create_sheet('Hour packages',2); hp.sheet_view.showGridLines=False
 hp.merge_cells('A1:H1'); hp['A1']='INTERNAL — Monthly price by hours assigned   |   السعر الشهري بحسب الساعات المسندة'
 hp['A1'].font=Font(name='Arial',bold=True,size=13,color='FFFFFF'); hp['A1'].fill=HF
-for j,h in enumerate(['Role','Rate per hour','20 hours','40 hours','80 hours','120 hours','Full-time price (176 h at 100%)','Hours at which a package equals the full-time cost'],1):
+for j,h in enumerate(['Role','Rate per hour','20 hours','40 hours','80 hours','120 hours','Full-time price (173.33 h at 100%)','Hours at which a package equals the full-time cost'],1):
     c=hp.cell(3,j,h); c.font=fh; c.fill=HF; c.alignment=Alignment(wrap_text=True,horizontal='center'); c.border=box
 hp.row_dimensions[3].height=48
 for i in range(9):
