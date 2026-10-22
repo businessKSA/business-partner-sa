@@ -598,7 +598,8 @@ function viewCostInner(){
 
 
 const norm=s=>String(s).toLowerCase().replace(/[\u064B-\u0652\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/ؤ/g,'و').replace(/ئ/g,'ي');
-const ACTN=ACT.map(a=>norm(a[0]+' '+a[1])), PROFN=PROF.map(p=>norm(p[0]+' '+(p[7]||'')+' '+(PENG[p[7]]||'')));
+const ACTN=ACT.map(a=>norm(a[0]+' '+a[1])), PALIAS={'513101':'نادل جرسون ويتر ويترة سفرجي كابتن صالة','523001':'كاشير امين صندوق محاسب صندوق','541402':'سيكيورتي حارس امن حراسة','512001':'طباخ شيف كوك','931301':'عامل مقاولات عامل عمارة','832201':'سواق سايق','962101':'اوفيس بوي ساعي مراسل','911203':'عامل نظافة عامل نظافه منظف عاملة نظافة','911204':'عامل نظافة منظف','911202':'عامل نظافة عاملة نظافة خادمة','515301':'حارس عمارة حارس بواب','741101':'كهربائي فني كهرباء','712601':'سباك فني سباكة','711101':'بنّاء عامل بناء معلم بناء','711501':'نجار خشب','933402':'عامل مستودع مخزني عامل تخزين','522301':'بائع سيلز مبيعات'};
+const PROFN=PROF.map(p=>norm(p[0]+' '+(p[7]||'')+' '+(PENG[p[7]]||'')+' '+(PALIAS[p[7]]||'')));
 let DD=null, DDI=-1, DDR=[], DDPICK=null;
 function ddClose(){if(DD){DD.remove();DD=null;} DDI=-1;}
 function ddSearch(kind,q){const N=kind==='act'?ACTN:PROFN; const terms=norm(q).split(/\s+/).filter(Boolean); const out=[]; for(let i=0;i<N.length;i++){if(kind!=='act'&&!profInScope(i)) continue; let ok=true; for(const tm of terms){if(!N[i].includes(tm)){ok=false;break;}} if(ok) out.push(i);} 
