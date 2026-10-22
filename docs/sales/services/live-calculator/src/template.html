@@ -535,8 +535,6 @@ function viewCostInner(){
    ${feeFields(true)}
    <div class="row2">${fld('c-freq',tx('دورية دفع الرخصة والإقامة','Permit and iqama payment'),c.freq,{list:[['Quarterly',tx('ربعي','Quarterly')],['Half-yearly',tx('نصف سنوي','Half-yearly')],['Annual',tx('سنوي','Annual')]]})}</div>
    <div class="row2">${fld('c-tkt1',tx('تذكرة العودة سنوياً','Return ticket / year'),c.tkt1)}${fld('c-exitv',tx('تأشيرة الخروج والعودة سنوياً','Exit & re-entry / year'),c.exitv)}</div>
-   <div class="row2">${fld('c-saudi',tx('توظيف سعودي؟','Hiring a Saudi?'),c.saudi,{list:yn})}</div>
-   ${c.saudi==='Yes'?`<div class="row2">${fld('c-ssal',tx('راتب السعودي الشهري','Saudi monthly salary'),c.ssal)}${fld('c-sinv',tx('فوترة راتب السعودي (للتأكيد)','Saudi salary invoicing (to confirm)'),c.sinv,{list:[['Arrears',tx('بالتأخير شهرياً','Arrears, monthly')],['Advance',tx('مقدماً','In advance')]]})}</div>${fld('c-sgosi',tx('نسبة تأمينات السعودي % (للتأكيد)','Saudi social insurance % (to confirm)'),c.sgosi)}`:''}
    ${groupBtns()}</section>
   <section class="panel"><h2>${tx('الفاتورة الشهرية (متوسط)','Monthly invoice (average)')}</h2>${EP(c.prof)[1]==='Saudi-only'?`<p><span class="pill bad" style="font-size:14px">${tx('المهنة مقصورة على السعوديين — لا يُنقل إليها أجنبي','Saudi-only profession — no foreigner can be transferred in')}</span></p>`:''}<div class="res">
    ${r.items.map(i=>line(i[0],fmt(i[1]))).join('')}
