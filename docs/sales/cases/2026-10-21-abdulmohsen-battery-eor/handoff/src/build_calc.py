@@ -102,8 +102,8 @@ lines = [
  ('Change only the light-blue cells. Everything else is calculated.', 'غيّر الخانات الزرقاء الفاتحة فقط. كل شيء آخر يُحسب تلقائياً.'),
  ('Sheet "Lump sum": one fixed monthly price per employee (Model 2), for 6, 12 or 24 months.', 'ورقة «Lump sum»: سعر شهري ثابت لكل موظف (النموذج الثاني) لمدة 6 أو 12 أو 24 شهراً.'),
  ('Sheet "Cost plus": monthly invoice at actual cost plus our localisation fee (Model 1).', 'ورقة «Cost plus»: فاتورة شهرية بالتكلفة الفعلية زائد رسم التوطين (النموذج الأول).'),
- ('Sheet "By profession": the localisation ratio, minimum Saudi salary and our fee for each profession.', 'ورقة «By profession»: نسبة التوطين والحد الأدنى لأجر السعودي ورسمنا لكل مهنة.'),
- ('Sheet "By activity": the Nitaqat band percentages and Saudi headcount for your activity group.', 'ورقة «By activity»: نسب نطاقات وعدد السعوديين المطلوب لمجموعة نشاطك.'),
+ ('Sheet "Profession calculator": the localisation ratio, minimum Saudi salary, Saudis required and our fee for each profession.', 'ورقة «Profession calculator»: نسبة التوطين وأقل راتب للسعودي وعدد السعوديين المطلوب ورسمنا لكل مهنة.'),
+ ('Sheet "Nitaqat calculator": the four Nitaqat bands, Saudis required, foreigners the total can carry and the shortfall for your activity group.', 'ورقة «Nitaqat calculator»: النطاقات الأربعة وعدد السعوديين المطلوب والأجانب الذين يتحملهم الإجمالي والنقص لمجموعة نشاطك.'),
  *([('Sheets "Insurance" and "Recruitment": estimated medical insurance by nationality, sex, age and class, and recruitment cost by country, profession and certificates. Both feed the price sheets.', 'ورقتا «Insurance» و«Recruitment»: التأمين الطبي المتوقع بحسب الجنسية والجنس والعمر والفئة، وتكلفة الاستقدام بحسب الدولة والمهنة والشهادات. وتغذيان ورقتي الأسعار.')] if TRANSPARENT else []),
  ('Prices exclude VAT unless stated. VAT is 15%; government fees carry no VAT.', 'الأسعار قبل الضريبة ما لم يُذكر غير ذلك. الضريبة 15%، والرسوم الحكومية بلا ضريبة.'),
  ('Results are indicative. The signed proposal and agreement govern. Official amounts follow the schedules in force at the time of payment.', 'النتائج استرشادية، والعرض والعقد الموقّعان هما المرجع. والمبالغ الرسمية بحسب الجداول السارية وقت السداد.'),
@@ -179,8 +179,8 @@ for k, (n, col) in enumerate(((6, 'B'), (12, 'C'), (24, 'D'))):
     else:
         base = f'MROUND((B3+(9700+650+240)/12+600/12+(B3/30*21)/12+200/12+3000/{n}+B3/2/12+B3*2%+1500/12+1000+(B6+B7+B8)/{n})*(1+0.1),10)'
     row(ws, r0 + 1 + k, f'{n} months', f'={base}+B{o}', f'{n} أشهر' if n == 6 else f'{n} شهراً', fmt=NUM)
-note(ws, r0 + 5, 'The monthly price covers salary and allowances, work permit and levy, residency, medical and social insurance, end of service, leave pay, tickets and exit and re-entry visa, transfer, visa and recruitment costs, contracts and attestation, and our service fee. The price changes with the term because transfer and visa fees are spread over the contract months. The localisation fee is added on top of the price and follows the profession (see "By profession"); Saudi-only professions are not transferred and professions outside our approved categories are quoted on request.',
-     'السعر الشهري يشمل الراتب والبدلات، ورخصة العمل والمقابل المالي، والإقامة، والتأمين الطبي والاجتماعي، ومكافأة نهاية الخدمة، وبدل الإجازة، وتذاكر الطيران والخروج والعودة، وتكاليف النقل والتأشيرة والاستقدام، والعقود والتصديق، ورسم خدمتنا. ويتغير السعر بتغير المدة لأن رسوم النقل والتأشيرة تُقسَّم على أشهر العقد. ويُضاف رسم التوطين فوق السعر بحسب المهنة (انظر «By profession»)، والمهن المقصورة على السعوديين لا يُنقل إليها أجنبي، والمهن خارج فئاتنا المعتمدة تُحدَّد عند الطلب.', 110)
+note(ws, r0 + 5, 'The monthly price covers salary and allowances, work permit and levy, residency, medical and social insurance, end of service, leave pay, tickets and exit and re-entry visa, transfer, visa and recruitment costs, contracts and attestation, and our service fee. The price changes with the term because transfer and visa fees are spread over the contract months. The localisation fee is added on top of the price and follows the profession (see "Profession calculator"); Saudi-only professions are not transferred and professions outside our approved categories are quoted on request.',
+     'السعر الشهري يشمل الراتب والبدلات، ورخصة العمل والمقابل المالي، والإقامة، والتأمين الطبي والاجتماعي، ومكافأة نهاية الخدمة، وبدل الإجازة، وتذاكر الطيران والخروج والعودة، وتكاليف النقل والتأشيرة والاستقدام، والعقود والتصديق، ورسم خدمتنا. ويتغير السعر بتغير المدة لأن رسوم النقل والتأشيرة تُقسَّم على أشهر العقد. ويُضاف رسم التوطين فوق السعر بحسب المهنة (انظر «Profession calculator»)، والمهن المقصورة على السعوديين لا يُنقل إليها أجنبي، والمهن خارج فئاتنا المعتمدة تُحدَّد عند الطلب.', 110)
 dv = DataValidation(type='list', formula1='"6,12,24"', allow_blank=False); ws.add_data_validation(dv); dv.add('B4')
 dv2 = DataValidation(type='list', formula1='=Professions!$A$2:$A$%d' % NP_LATE, allow_blank=False); ws.add_data_validation(dv2); dv2.add('B5')
 dv3 = DataValidation(type='decimal', operator='greaterThan', formula1='0'); ws.add_data_validation(dv3); dv3.add('B3')
@@ -238,35 +238,43 @@ NP = len(rows_p) + 1
 for col, w in zip('ABCDEFGHIJK', (60, 34, 34, 28, 10, 12, 18, 16, 22, 60, 40)): wp.column_dimensions[col].width = w
 wp.freeze_panes = 'B2'
 
-# ---------- By profession ----------
-wl = wb.create_sheet('By profession', 3)
-title(wl, 'Localisation by profession', 'التوطين بحسب المهنة')
-note(wl, 2, 'Choose the profession from the list in cell B3. Change the light-blue cells only.', 'اختر المهنة من القائمة في الخانة B3. غيّر الخانات الزرقاء الفاتحة فقط.', 22)
+# ---------- Profession calculator ----------
+wl = wb.create_sheet('Profession calculator', 3)
+title(wl, 'Localisation and minimum salary by profession', 'حاسبة توطين المهن وأقل راتب')
+note(wl, 2, 'Choose the profession in B3, then enter the Saudis and foreigners in that profession. Change the light-blue cells only.', 'اختر المهنة في B3 ثم أدخل عدد السعوديين والأجانب في هذه المهنة. غيّر الخانات الزرقاء الفاتحة فقط.', 22)
 row(wl, 3, 'Profession · guide (choose from the list)', rows_p[0][0], 'المهنة · الدليل (اختر من القائمة)', inp=True)
 wl['B3'].alignment = Alignment(wrap_text=True, vertical='center', horizontal='center'); wl.column_dimensions['B'].width = 46
 wl.row_dimensions[3].height = 48
-row(wl, 4, 'Foreign employees to transfer in this profession', 1, 'عدد الموظفين الأجانب المراد نقلهم في هذه المهنة', inp=True)
-row(wl, 5, 'Total workers in this profession at your company (Saudi + foreign)', 1, 'إجمالي العاملين في هذه المهنة لدى شركتك (سعودي + أجنبي)', inp=True)
+row(wl, 4, 'Saudi employees in this profession at your company', 0, 'عدد السعوديين في هذه المهنة لدى شركتك', inp=True, fmt='0')
+row(wl, 5, 'Foreign employees in this profession (to transfer)', 1, 'عدد الأجانب في هذه المهنة (المراد نقلهم)', inp=True, fmt='0')
 row(wl, 6, 'Contract term in months', 12, 'مدة العقد بالأشهر', inp=True)
 look = lambda col: f'=INDEX(Professions!${col}$2:${col}${NP},MATCH($B$3,Professions!$A$2:$A${NP},0))'
 row(wl, 7, 'Guide', look('C'), 'الدليل')
 row(wl, 8, 'Localisation ratio', f'=INDEX(Professions!$E$2:$E${NP},MATCH($B$3,Professions!$A$2:$A${NP},0))/100', 'نسبة التوطين', fmt='0%')
 row(wl, 9, 'Minimum workers for the ratio to apply', look('F'), 'الحد الأدنى للعاملين لسريان النسبة')
-row(wl, 10, 'Minimum Saudi salary counted (SAR)', '=IF(INDEX(Professions!$G$2:$G$%d,MATCH($B$3,Professions!$A$2:$A$%d,0))=0,"None stated",INDEX(Professions!$G$2:$G$%d,MATCH($B$3,Professions!$A$2:$A$%d,0)))' % (NP,NP,NP,NP), 'الحد الأدنى لأجر السعودي المحتسب (ريال)', fmt='#,##0')
+row(wl, 10, 'Minimum salary counted for a Saudi (SAR)', '=IF(INDEX(Professions!$G$2:$G$%d,MATCH($B$3,Professions!$A$2:$A$%d,0))=0,"None stated",INDEX(Professions!$G$2:$G$%d,MATCH($B$3,Professions!$A$2:$A$%d,0)))' % (NP,NP,NP,NP), 'أقل راتب يُحتسب للسعودي (ريال)', bold=True, fmt='#,##0', shade=True)
 row(wl, 11, 'Category', look('H'), 'الفئة')
-row(wl, 12, 'Our fee per employee per month, excl. VAT (SAR)',
+row(wl, 12, 'Saudi-only profession (not transferred to foreigners)?', '=IF(B11="Saudi-only","Yes — not transferable","No")', 'مهنة للسعوديين فقط (لا تُنقل لأجنبي)؟', bold=True)
+row(wl, 13, 'Total workers in the profession (Saudi + foreign)', '=B4+B5', 'إجمالي العاملين في المهنة (سعودي + أجنبي)', fmt='0')
+row(wl, 14, 'Does the ratio apply to this total?', '=IF(B13>=B9,"Yes","No — below the minimum workers")', 'هل تسري النسبة على هذا الإجمالي؟')
+row(wl, 15, 'Saudis required by the ratio (rounded up)', '=IF(B13>=B9,ROUNDUP(ROUND(B13*B8,6),0),0)', 'عدد السعوديين المطلوب بالنسبة (تقريب للأعلى)', bold=True, fmt='0', shade=True)
+row(wl, 16, 'Foreigners this total can carry', '=B13-B15', 'عدد الأجانب الذي يتحمّله هذا الإجمالي', bold=True, fmt='0', shade=True)
+row(wl, 17, 'Additional Saudis needed (shortfall, with the total held)', '=MAX(0,B15-B4)', 'النقص بالسعوديين (والإجمالي ثابت)', bold=True, fmt='0')
+wl.cell(18, 1, '="To meet the ratio you need "&B17&" more Saudi employee(s) in this profession."').font = f_b
+wl.cell(18, 3, '="لتحقيق نسبة التوطين تحتاج "&B17&" سعودياً إضافياً في هذه المهنة."').font = f_b
+wl.cell(18, 3).alignment = rtl; wl.cell(18, 1).alignment = wrap; wl.row_dimensions[18].height = 30
+row(wl, 19, 'Our fee per employee per month, excl. VAT (SAR) — on top of Model 2',
     f'=IF(B11="Saudi-only","Not transferable",IF(B11="On request","Quoted on request",INDEX(Professions!$I$2:$I${NP},MATCH($B$3,Professions!$A$2:$A${NP},0))))',
-    'رسمنا لكل موظف شهرياً قبل الضريبة (ريال)', bold=True, fmt=NUM, shade=True)
-row(wl, 13, 'Our monthly fee for these employees, excl. VAT (SAR)', '=IF(ISNUMBER(B12),B12*B4,B12)', 'رسمنا الشهري لهؤلاء الموظفين قبل الضريبة (ريال)', bold=True, fmt=NUM)
-row(wl, 14, 'VAT 15% (SAR)', '=IF(ISNUMBER(B13),B13*0.15,"—")', 'ضريبة 15% (ريال)', fmt=NUM)
-row(wl, 15, 'Monthly fee incl. VAT (SAR)', '=IF(ISNUMBER(B13),B13+B14,"—")', 'الرسم الشهري شامل الضريبة (ريال)', bold=True, fmt=NUM, shade=True)
-row(wl, 16, 'Fee for the term excl. VAT (SAR)', '=IF(ISNUMBER(B13),B13*B6,"—")', 'الرسم للمدة قبل الضريبة (ريال)', fmt=NUM)
-row(wl, 17, 'Saudis required by the ratio (indicative, rounded up)', '=IF(B5>=B9,ROUNDUP(B5*B8,0),0)', 'عدد السعوديين المطلوب بالنسبة (استرشادي، تقريب للأعلى)')
-row(wl, 18, 'Notes from the guide', look('J'), 'ملاحظات الدليل')
-wl.row_dimensions[18].height = 90; wl['B18'].alignment = Alignment(wrap_text=True, vertical='top', horizontal='left')
+    'رسمنا لكل موظف شهرياً قبل الضريبة (ريال) — فوق النموذج الثاني', bold=True, fmt=NUM, shade=True)
+row(wl, 20, 'Our monthly fee for the foreign employees, excl. VAT (SAR)', '=IF(ISNUMBER(B19),B19*B5,B19)', 'رسمنا الشهري للموظفين الأجانب قبل الضريبة (ريال)', bold=True, fmt=NUM)
+row(wl, 21, 'VAT 15% (SAR)', '=IF(ISNUMBER(B20),B20*0.15,"—")', 'ضريبة 15% (ريال)', fmt=NUM)
+row(wl, 22, 'Monthly fee incl. VAT (SAR)', '=IF(ISNUMBER(B20),B20+B21,"—")', 'الرسم الشهري شامل الضريبة (ريال)', bold=True, fmt=NUM, shade=True)
+row(wl, 23, 'Fee for the term excl. VAT (SAR)', '=IF(ISNUMBER(B20),B20*B6,"—")', 'الرسم للمدة قبل الضريبة (ريال)', fmt=NUM)
+row(wl, 24, 'Notes from the guide', look('J'), 'ملاحظات الدليل')
+wl.row_dimensions[24].height = 90; wl['B24'].alignment = Alignment(wrap_text=True, vertical='top', horizontal='left')
 wl.row_dimensions[7].height = 34
-note(wl, 19, 'Localisation ratios and minimum salaries come from the Ministry of Human Resources procedural guides. A Saudi paid below the minimum is not counted toward the ratio. Saudi-only professions (human resources, secretarial, reception, customer service and similar) are not transferred to foreign employees. Fees for professions outside our approved categories are quoted on request. Accounting steps up in stages (40%, then 50% from 27/10/2026, 60%, 70%) and project management moves to 70% from 14/02/2027.',
-     'نسب التوطين والحد الأدنى للأجور من الأدلة الإجرائية لوزارة الموارد البشرية. والسعودي الذي يقل أجره عن الحد الأدنى لا يُحتسب ضمن النسبة. والمهن المقصورة على السعوديين (الموارد البشرية والسكرتارية والاستقبال وخدمة العملاء وما شابهها) لا يُنقل إليها أجنبي. ورسوم المهن خارج فئاتنا المعتمدة تُحدَّد عند الطلب. والمحاسبة تتدرج (40% ثم 50% من 27/10/2026 ثم 60% ثم 70%)، وإدارة المشاريع 70% من 14/02/2027.', 150)
+note(wl, 25, 'Localisation ratios and minimum salaries come from the Ministry of Human Resources procedural guides. A Saudi paid below the minimum is not counted toward the ratio. Saudi-only professions (human resources, secretarial, reception, customer service and similar) are not transferred to foreign employees. Fees for professions outside our approved categories are quoted on request. Results are indicative and not an official determination.',
+     'نسب التوطين والحد الأدنى للأجور من الأدلة الإجرائية لوزارة الموارد البشرية. والسعودي الذي يقل أجره عن الحد الأدنى لا يُحتسب ضمن النسبة. والمهن المقصورة على السعوديين (الموارد البشرية والسكرتارية والاستقبال وخدمة العملاء ونحوها) لا تُنقل لموظفين أجانب. والمهن خارج فئاتنا المعتمدة تُسعَّر بالطلب. والنتائج استرشادية وليست تحديداً رسمياً.', 110)
 dvp = DataValidation(type='list', formula1=f'=Professions!$A$2:$A${NP}', allow_blank=False); wl.add_data_validation(dvp); dvp.add('B3')
 dvm = DataValidation(type='list', formula1='"6,12,24"'); wl.add_data_validation(dvm); dvm.add('B6')
 
@@ -288,38 +296,48 @@ wg = wb.create_sheet('Groups'); wg['A1'] = 'Activity group'
 for i, g in enumerate(groups, 2): wg.cell(i, 1, g)
 hdr(wg, 1, ['Activity group']); wg.column_dimensions['A'].width = 52
 
-# ---------- By activity ----------
-wa = wb.create_sheet('By activity', 4)
-title(wa, 'Localisation by activity (Nitaqat)', 'التوطين بحسب النشاط (نطاقات)')
-note(wa, 2, 'Choose your activity group in B3. Change the light-blue cells only.', 'اختر مجموعة نشاطك في B3. غيّر الخانات الزرقاء الفاتحة فقط.', 22)
+# ---------- Nitaqat calculator ----------
+wa = wb.create_sheet('Nitaqat calculator', 4)
+title(wa, 'Nitaqat and localisation calculator', 'حاسبة النطاقات والتوطين')
+wa.column_dimensions['D'].width = 18; wa.column_dimensions['E'].width = 22; wa.column_dimensions['F'].width = 22; wa.column_dimensions['G'].width = 18; wa.column_dimensions['H'].width = 26
+note(wa, 2, 'Choose your activity group in B3 and enter your headcount. Change the light-blue cells only.', 'اختر مجموعة نشاطك في B3 وأدخل أعداد العاملين. غيّر الخانات الزرقاء الفاتحة فقط.', 22)
 row(wa, 3, 'Activity group (choose from the list)', 'الصناعات', 'مجموعة النشاط (اختر من القائمة)', inp=True)
-row(wa, 4, 'Total workforce (Saudi + foreign)', 30, 'إجمالي العاملين (سعودي + أجنبي)', inp=True)
-row(wa, 5, 'Year', 2026, 'السنة', inp=True)
-row(wa, 6, 'Current number of Saudi employees', 0, 'عدد الموظفين السعوديين الحاليين', inp=True)
-wa.cell(7, 1, 'Band').font = f_b
-for j, t in enumerate(('Minimum Saudi %', 'Saudis needed'), 2): pass
-hdr(wa, 7, ['Band', 'Minimum Saudi % (Y = M·ln X + C)', 'الحد الأدنى للسعودة %'])
-wa.cell(7, 4, 'Saudis needed'); wa.cell(7, 5, 'Gap vs current Saudis')
-for cidx in (4, 5):
-    c = wa.cell(7, cidx); c.font = Font(name='Arial', bold=True, color='FFFFFF', size=10); c.fill = fill_h; c.alignment = ctr
-wa.column_dimensions['D'].width = 18; wa.column_dimensions['E'].width = 22
+row(wa, 4, 'Year', 2026, 'السنة', inp=True)
+row(wa, 5, 'Saudi employees (full time)', 0, 'عدد السعوديين (دوام كامل)', inp=True, fmt='0')
+row(wa, 6, 'Saudi employees (part time, optional) — counted as 0.5', 0, 'عدد السعوديين بدوام جزئي (اختياري) — يُحسب 0.5', inp=True, fmt='0')
+row(wa, 7, 'Foreign employees', 30, 'عدد الأجانب', inp=True, fmt='0')
+row(wa, 8, 'Target band (choose from the list)', 'Medium green', 'النطاق المستهدف (اختر من القائمة)', inp=True)
+row(wa, 9, 'Total workforce (Saudi + foreign, headcount)', '=B5+B6+B7', 'إجمالي العاملين (سعودي + أجنبي، بالعدد)', bold=True, fmt='0', shade=True)
+row(wa, 10, 'Saudis counted (full time + 0.5 × part time)', '=B5+0.5*B6', 'السعوديون المحتسبون (كامل + 0.5 × جزئي)', fmt='0.0')
+row(wa, 11, 'Current Saudisation %', '=IF($B$9>0,ROUND($B$10/$B$9*100,2),0)', 'نسبة السعودة الحالية %', bold=True, fmt='0.00', shade=True)
+row(wa, 12, 'Current band', '=IF(B11>=B18,"Platinum",IF(B11>=B17,"High green",IF(B11>=B16,"Medium green",IF(B11>=B15,"Light green","Red"))))', 'النطاق الحالي', bold=True, shade=True)
+hdr(wa, 14, ['Band', 'Minimum Saudi % (Y = M·ln X + C)', 'الحد الأدنى للسعودة %'])
+for cidx, t in ((4, 'Saudis required'), (5, 'Foreigners this total can carry'), (6, 'Shortfall (Saudis to add, total held)'), (7, 'Surplus Saudis'), (8, 'Hires needed if each new Saudi adds to the total')):
+    c = wa.cell(14, cidx, t); c.font = Font(name='Arial', bold=True, color='FFFFFF', size=10); c.fill = fill_h; c.alignment = ctr
+wa.row_dimensions[14].height = 44
 bands = [('light_green', 'Light green', 'أخضر منخفض'), ('medium_green', 'Medium green', 'أخضر متوسط'), ('high_green', 'High green', 'أخضر مرتفع'), ('platinum', 'Platinum', 'بلاتيني')]
 rngA = f"'Activity data'!$A$2:$A${ND}"; rngB = f"'Activity data'!$B$2:$B${ND}"
-for k, (code, en, ar) in enumerate(bands, 8):
+for k, (code, en, ar) in enumerate(bands, 15):
     m = f"SUMIFS('Activity data'!$C$2:$C${ND},{rngA},$B$3,{rngB},\"{code}\")"
-    cc = f"CHOOSE($B$5-2025,SUMIFS('Activity data'!$D$2:$D${ND},{rngA},$B$3,{rngB},\"{code}\"),SUMIFS('Activity data'!$E$2:$E${ND},{rngA},$B$3,{rngB},\"{code}\"),SUMIFS('Activity data'!$F$2:$F${ND},{rngA},$B$3,{rngB},\"{code}\"))"
-    a = wa.cell(k, 1, en); a.font = f_b; a.border = box; a.alignment = wrap
-    b = wa.cell(k, 2, f'=ROUND(MIN(100,MAX(0,{m}*LN(MAX($B$4,1))+{cc})),2)'); b.number_format = '0.00'; b.alignment = ctr; b.border = box; b.font = f_b
-    c = wa.cell(k, 3, ar); c.font = f_n; c.alignment = rtl; c.border = box
-    d = wa.cell(k, 4, f'=ROUNDUP(B{k}/100*$B$4,0)'); d.alignment = ctr; d.border = box; d.font = f_b
-    e = wa.cell(k, 5, f'=MAX(0,D{k}-$B$6)'); e.alignment = ctr; e.border = box
+    cc = f"CHOOSE($B$4-2025,SUMIFS('Activity data'!$D$2:$D${ND},{rngA},$B$3,{rngB},\"{code}\"),SUMIFS('Activity data'!$E$2:$E${ND},{rngA},$B$3,{rngB},\"{code}\"),SUMIFS('Activity data'!$F$2:$F${ND},{rngA},$B$3,{rngB},\"{code}\"))"
+    a_ = wa.cell(k, 1, en); a_.font = f_b; a_.border = box; a_.alignment = wrap
+    b_ = wa.cell(k, 2, f'=ROUND(MIN(100,MAX(0,{m}*LN(MAX($B$9,1))+{cc})),2)'); b_.number_format = '0.00'; b_.alignment = ctr; b_.border = box; b_.font = f_b
+    c_ = wa.cell(k, 3, ar); c_.font = f_n; c_.alignment = rtl; c_.border = box
+    d_ = wa.cell(k, 4, f'=ROUNDUP(ROUND(B{k}/100*$B$9,6),0)'); d_.alignment = ctr; d_.border = box; d_.font = f_b
+    e_ = wa.cell(k, 5, f'=$B$9-D{k}'); e_.alignment = ctr; e_.border = box
+    f_ = wa.cell(k, 6, f'=MAX(0,D{k}-$B$10)'); f_.alignment = ctr; f_.border = box; f_.font = f_b
+    g_ = wa.cell(k, 7, f'=MAX(0,$B$10-D{k})'); g_.alignment = ctr; g_.border = box
+    h_ = wa.cell(k, 8, f'=IF(B{k}>=100,"—",MAX(0,ROUNDUP(ROUND((B{k}/100*$B$9-$B$10)/(1-B{k}/100),6),0)))'); h_.alignment = ctr; h_.border = box
     wa.row_dimensions[k].height = 26
-row(wa, 12, 'Current Saudisation %', '=IF($B$4>0,ROUND($B$6/$B$4*100,2),0)', 'نسبة السعودة الحالية %', fmt='0.00')
-row(wa, 13, 'Current band', '=IF(B12>=B11,"Platinum",IF(B12>=B10,"High green",IF(B12>=B9,"Medium green",IF(B12>=B8,"Light green","Red"))))', 'النطاق الحالي', bold=True, shade=True)
-note(wa, 14, 'Nitaqat bands follow the Ministry formula Y = M·ln(X) + C per activity group and year. The group for your commercial activity (ISIC code) must be confirmed on the Ministry tool; the group listed here is a selection, not a determination.',
-     'نطاقات تتبع معادلة الوزارة Y = M·ln(X) + C لكل مجموعة نشاط وسنة. ويجب تأكيد مجموعة نشاطك التجاري (رمز ISIC) من أداة الوزارة؛ فالمجموعة المعروضة هنا اختيار وليست تحديداً.', 90)
+TB = 'MATCH($B$8,$A$15:$A$18,0)'
+wa.cell(20, 1, f'="To reach "&$B$8&" you need "&INDEX($F$15:$F$18,{TB})&" additional Saudi employee(s), with the total held at "&$B$9&"."').font = f_b
+wa.cell(20, 3, f'="لتبلغ النطاق "&INDEX($C$15:$C$18,{TB})&" تحتاج "&INDEX($F$15:$F$18,{TB})&" سعودياً إضافياً، والإجمالي ثابت عند "&$B$9&"."').font = f_b
+wa.cell(20, 3).alignment = rtl; wa.cell(20, 1).alignment = wrap; wa.row_dimensions[20].height = 34
+note(wa, 21, 'Nitaqat bands follow the Ministry formula Y = M·ln(X) + C per activity group and year, where X is the total workforce. Part-time Saudis count as 0.5 in the Saudi count; the exact treatment of part-time staff in the total and the group for your commercial activity (ISIC code) must be confirmed on the Ministry tool. Results are indicative, not an official determination.',
+     'نطاقات تتبع معادلة الوزارة Y = M·ln(X) + C لكل مجموعة نشاط وسنة، حيث X إجمالي العاملين. والسعودي بدوام جزئي يُحسب 0.5 في عدد السعوديين؛ أما معالجة الدوام الجزئي في الإجمالي ومجموعة نشاطك التجاري (رمز ISIC) فتُؤكَّد من أداة الوزارة. والنتائج استرشادية وليست تحديداً رسمياً.', 110)
 dva = DataValidation(type='list', formula1=f'=Groups!$A$2:$A${len(groups)+1}'); wa.add_data_validation(dva); dva.add('B3')
-dvy = DataValidation(type='list', formula1='"2026,2027,2028"'); wa.add_data_validation(dvy); dvy.add('B5')
+dvy = DataValidation(type='list', formula1='"2026,2027,2028"'); wa.add_data_validation(dvy); dvy.add('B4')
+dvb = DataValidation(type='list', formula1='"Light green,Medium green,High green,Platinum"'); wa.add_data_validation(dvb); dvb.add('B8')
 
 for _n in ('Lump sum','Cost plus'):
     wb[_n].column_dimensions['B'].width = 46
@@ -471,7 +489,7 @@ if TRANSPARENT:
     ws.row_dimensions[2].height = 40
     r4(ws, 3, 'Total monthly package (SAR)', 6000, 'إجمالي الراتب الشهري (ريال)', 'The variable that drives the price', inp=True, fmt='#,##0')
     r4(ws, 4, 'Contract term in months (6, 12 or 24)', 12, 'مدة العقد بالأشهر (6 أو 12 أو 24)', 'One-off fees are spread over this term', inp=True)
-    r4(ws, 5, 'Profession (localisation fee is added on top)', rows_p[0][0], 'المهنة (رسم التوطين يُضاف فوق السعر)', 'See "By profession"', inp=True)
+    r4(ws, 5, 'Profession (localisation fee is added on top)', rows_p[0][0], 'المهنة (رسم التوطين يُضاف فوق السعر)', 'See "Profession calculator"', inp=True)
     r4(ws, 6, 'Recruited from abroad? (Yes or No)', 'No', 'مستقدَم من الخارج؟ (Yes أو No)', 'Yes uses the "Recruitment" sheet', inp=True)
     r4(ws, 7, 'Use the "Insurance" sheet estimate? (Yes or No)', 'Yes', 'استعمال تقدير ورقة «Insurance»؟ (Yes أو No)', 'No uses SAR 600 per year', inp=True)
     ws.cell(9, 1, 'Cost component per month').font = f_b; ws.cell(9, 3, 'بند التكلفة الشهري').font = f_b; ws.cell(9, 3).alignment = rtl
@@ -495,7 +513,7 @@ if TRANSPARENT:
     r4(ws, R, 'Total cost per month (SAR)', f'=SUM(B10:B{lc})', 'إجمالي التكلفة الشهرية (ريال)', 'Sum of the lines above', bold=True, fmt=NUM, shade=True)
     r4(ws, R + 1, 'Service fee 10% (SAR)', f'=B{R}*0.1', 'رسم الخدمة 10% (ريال)', 'Total cost × 10%', fmt=NUM)
     r4(ws, R + 2, 'Monthly price before localisation, excl. VAT (SAR)', f'=MROUND(B{R}+B{R+1},10)', 'السعر الشهري قبل التوطين قبل الضريبة (ريال)', 'Total cost + 10%, rounded to the nearest 10', bold=True, fmt=NUM, shade=True)
-    r4(ws, R + 3, 'Localisation fee per month, added on top (SAR)', FEE_FORMULA, 'رسم التوطين شهرياً يُضاف فوق السعر (ريال)', 'By profession', fmt=NUM)
+    r4(ws, R + 3, 'Localisation fee per month, added on top (SAR)', FEE_FORMULA, 'رسم التوطين شهرياً يُضاف فوق السعر (ريال)', 'Profession calculator', fmt=NUM)
     r4(ws, R + 4, 'Monthly price incl. localisation fee, excl. VAT (SAR)', f'=B{R+2}+B{R+3}', 'السعر الشهري شامل رسم التوطين قبل الضريبة (ريال)', '', bold=True, fmt=NUM, shade=True)
     r4(ws, R + 5, 'VAT 15% (SAR)', f'=B{R+4}*0.15', 'ضريبة القيمة المضافة 15% (ريال)', '', fmt=NUM)
     r4(ws, R + 6, 'Monthly price incl. VAT (SAR)', f'=B{R+4}+B{R+5}', 'السعر الشهري شامل الضريبة (ريال)', '', bold=True, fmt=NUM, shade=True)
@@ -518,7 +536,7 @@ if TRANSPARENT:
     r4(wc, 2, 'Change the light-blue cells only. Each item is invoiced separately at actual cost.', 'غيّر الخانات الزرقاء الفاتحة فقط. وكل بند يُفوتر منفصلاً بالتكلفة الفعلية.', 'Government fees carry no VAT; VAT applies only to our fee.')
     r4(wc, 3, 'Total monthly package (SAR)', 6000, 'إجمالي الراتب الشهري (ريال)', '', inp=True, fmt='#,##0')
     r4(wc, 4, 'Contract term in months (6, 12 or 24)', 12, 'مدة العقد بالأشهر (6 أو 12 أو 24)', '', inp=True)
-    r4(wc, 5, 'Profession (our localisation fee)', rows_p[0][0], 'المهنة (رسم التوطين لدينا)', 'See "By profession"', inp=True)
+    r4(wc, 5, 'Profession (our localisation fee)', rows_p[0][0], 'المهنة (رسم التوطين لدينا)', 'See "Profession calculator"', inp=True)
     r4(wc, 6, 'Recruited from abroad? (Yes or No)', 'No', 'مستقدَم من الخارج؟ (Yes أو No)', 'Yes uses the "Recruitment" sheet', inp=True)
     r4(wc, 7, 'Use the "Insurance" sheet estimate? (Yes or No)', 'Yes', 'استعمال تقدير ورقة «Insurance»؟ (Yes أو No)', 'No uses SAR 600 per year', inp=True)
     wc.cell(9, 1, 'Costs at actual — no VAT').font = f_b; wc.cell(9, 3, 'التكاليف بالتكلفة الفعلية — بلا ضريبة').font = f_b; wc.cell(9, 3).alignment = rtl
@@ -538,7 +556,7 @@ if TRANSPARENT:
     for i, (e, v, a, h) in enumerate(items, 10): r4(wc, i, e, v, a, h, fmt=NUM)
     lc2 = 10 + len(items) - 1
     r4(wc, lc2 + 1, 'Total costs at actual (no VAT)', f'=SUM(B10:B{lc2})', 'إجمالي التكاليف بالفعلي (بلا ضريبة)', '', bold=True, fmt=NUM, shade=True)
-    r4(wc, lc2 + 2, 'Our localisation fee, excl. VAT', FEE_FORMULA.replace('B5', 'B5'), 'رسم التوطين لدينا قبل الضريبة', 'By profession', fmt=NUM)
+    r4(wc, lc2 + 2, 'Our localisation fee, excl. VAT', FEE_FORMULA.replace('B5', 'B5'), 'رسم التوطين لدينا قبل الضريبة', 'Profession calculator', fmt=NUM)
     r4(wc, lc2 + 3, 'VAT 15% on our fee only', f'=B{lc2+2}*0.15', 'ضريبة 15% على رسمنا فقط', '', fmt=NUM)
     r4(wc, lc2 + 4, 'Total monthly invoice (SAR)', f'=B{lc2+1}+B{lc2+2}+B{lc2+3}', 'إجمالي الفاتورة الشهرية (ريال)', '', bold=True, fmt=NUM, shade=True)
     r4(wc, lc2 + 5, 'Total for the term (SAR)', f'=B{lc2+4}*B4', 'الإجمالي للمدة (ريال)', '', fmt=NUM)
@@ -642,11 +660,11 @@ if TRANSPARENT:
     wb['Rates'].sheet_state = 'hidden'
 
 # order sheets
-order = ['Start', 'Lump sum', 'Cost plus'] + (['Billing schedule'] if TRANSPARENT else []) + ['By profession', 'By activity'] + (['Insurance', 'Recruitment'] if TRANSPARENT else []) + (['Cost table'] if INTERNAL else []) + ['Professions', 'Activity data', 'Fees', 'Rates', 'Groups']
+order = ['Start', 'Lump sum', 'Cost plus'] + (['Billing schedule'] if TRANSPARENT else []) + ['Profession calculator', 'Nitaqat calculator'] + (['Insurance', 'Recruitment'] if TRANSPARENT else []) + (['Cost table'] if INTERNAL else []) + ['Professions', 'Activity data', 'Fees', 'Rates', 'Groups']
 wb._sheets = [wb[n] for n in order]
 for n in ('Professions', 'Activity data', 'Fees', 'Rates', 'Groups'):
     wb[n].sheet_properties.tabColor = '9DB4FF'
-for n in ('Start', 'Lump sum', 'Cost plus', 'By profession', 'By activity') + (('Billing schedule',) if TRANSPARENT else ()):
+for n in ('Start', 'Lump sum', 'Cost plus', 'Profession calculator', 'Nitaqat calculator') + (('Billing schedule',) if TRANSPARENT else ()):
     wb[n].sheet_properties.tabColor = NAVY
 wb.save(OUT)
 print('saved', OUT, 'professions', NP - 1, 'groups', len(groups))
