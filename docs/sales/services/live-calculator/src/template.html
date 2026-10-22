@@ -199,10 +199,14 @@ function profInScope(i){const sc=profScope(); if(!sc) return true; const p=PROF[
 const actLabel=a=>a[0]+' — '+a[1];
 function actFld(id,code){const a=ACT.find(x=>x[0]===code);return `<div class="field"><label for="${id}">${tx('النشاط الفرعي (ISIC4)','Sub-activity (ISIC4)')}</label><input id="${id}" type="search" data-combo="act" class="cmb" autocomplete="off" value="${a?actLabel(a).replace(/"/g,'&quot;'):''}" placeholder="${tx('ابحث بالرمز أو اسم النشاط','Search by code or activity name')}"><small>${tx('2,761 نشاطاً. المجموعة تُقترح من رمز النشاط وتُؤكَّد على أداة الوزارة.','2,761 activities. The group is suggested from the activity code and must be confirmed on the Ministry tool.')}</small></div>`;}
 const deriveNat=c=>c.src==='saudi'?'saudi':c.src==='inside'?'inside':(c.cty||'ZZ');
+const COLL={ar:'ar',en:'en',fr:'fr',zh:'zh-u-co-pinyin'};
+function ctyName(code,rec){const row=CTRY.find(c=>c[0]===code); const ar=row?row[1]:(rec?rec[1]:code), en=row?row[2]:(rec?rec[4]:code); if(L==='ar') return ar; if(L==='en') return en; try{const n=new Intl.DisplayNames([L],{type:'region'}).of(code); if(n&&n!==code) return n;}catch(e){} return en;}
+function ctySorted(){const codes=new Map(); CTRY.forEach(c=>codes.set(c[0],null)); REC.forEach(r=>{codes.set(r[0],r);}); let coll; try{coll=new Intl.Collator(COLL[L]||'en',{sensitivity:'base'});}catch(e){coll=new Intl.Collator();}
+  return [...codes.entries()].map(([code,rec])=>[code,ctyName(code,rec)]).sort((a,b)=>coll.compare(a[1],b[1]));}
 function ctyFld(id,val,label,showCost){
   const nm=c=>L==='ar'?c[1]:c[2];
   const priced=new Map(REC.map(r=>[r[0],r]));
-  const o=[['','']].concat(REC.map(r=>[r[0],(L==='ar'?r[1]:r[4])+''])).concat(CTRY.filter(c=>!priced.has(c[0])).map(c=>[c[0],nm(c)]));
+  const o=[['','']].concat(ctySorted());
   const rc=showCost?recOf({nat:val,abroad:'Yes',rec:0}):{}; const eta=rc.eta?tx('الوصول المتوقع: '+rc.eta+' يوماً','Expected arrival: '+rc.eta+' days'):'';
   const chips=REC.map(r=>[r[0],L==='ar'?r[1]:r[4]]).map(([v,l])=>`<button type="button" data-chip-for="${id}" data-v="${v}" aria-pressed="${String(v)===String(val)}">${l}</button>`).join('');
   return fld(id,label,val,{list:o,hint:eta}).replace('<select id="'+id+'"','<select data-ph="'+tx('ابحث عن الجنسية','Search for a nationality')+'" id="'+id+'"');}
@@ -213,8 +217,7 @@ function natFld(id,val,label){
   const nm=c=>L==='ar'?c[1]:c[2];
   const priced=new Map(REC.map(r=>[r[0],r]));
   const o=[['saudi',tx('سعودي — حاسبة مختلفة (بلا استقدام ولا رسوم إقامة)','Saudi — a different calculator (no recruitment or iqama fees)')],['inside',tx('داخل المملكة — نقل كفالة بلا استقدام','Inside the Kingdom — transfer, no recruitment')]]
-    .concat(REC.map(r=>[r[0],(L==='ar'?r[1]:r[4])+' — '+fmt(r[2])]))
-    .concat(CTRY.filter(c=>!priced.has(c[0])).map(c=>[c[0],nm(c)]));
+    .concat(ctySorted());
   const rc=recOf({nat:val,abroad:'Yes',rec:0}); const eta=rc.eta?tx('الوصول المتوقع: '+rc.eta+' يوماً','Expected arrival: '+rc.eta+' days'):(needsManual(val)?tx('دولة غير مسعّرة في الجدول: التكلفة التقريبية حسب المنطقة (أوروبا 12,000 · الخليج 6,000 · اليمن 4,000 · غيرها 12,000)، عدّلها في الخانة التالية.','Not priced in the table: approximate cost by region (Europe 12,000 · Gulf 6,000 · Yemen 4,000 · other 12,000); edit it in the next field.'):'');
   const quick=[['saudi',tx('سعودي','Saudi')],['inside',tx('داخل المملكة','Inside KSA')]].concat(REC.map(r=>[r[0],L==='ar'?r[1]:r[4]]));
   const chips=quick.map(([v,l])=>`<button type="button" data-chip-for="${id}" data-v="${v}" aria-pressed="${String(v)===String(val)}">${l}</button>`).join('');
@@ -471,7 +474,7 @@ function groupTotal(tab,c){
   if(tab==='lump'){const r=lumpCalc({...c,rec:recOf(c).cost,con:c.nat==='inside'?0:c.con,tkt:c.nat==='inside'?0:c.tkt,xfer:c.nat==='inside'?trnFee(c.trn):2000}); return r.fee==null?0:r.withFee*c.term*q;}
   const ab=(c.nat==='inside')?'No':'Yes'; const r=costCalc({...c,abroad:ab,rec:recOf(c).cost,con:ab==='Yes'?c.con:0,arr:ab==='Yes'?c.arr:0,xfer:ab==='Yes'?2000:trnFee(c.trn)}); return r.fee==null?0:(r.sum+r.ours)*c.term*q;
 }
-function groupLabel(g){const c=g.c, cn=(CTRY.find(x=>x[0]===c.cty)||[0,''])[1], nat=c.nat==='saudi'?tx('سعودي','Saudi'):(cn?cn+' — ':'')+(c.nat==='inside'?tx('داخل المملكة','Inside KSA'):tx('استقدام','Recruited')); const pr=c.prof===0?tx('مهنة غير محددة','Profession not set'):(PROF[c.prof]?profName(c.prof).replace(/ \[[ \d]+\]$/,''):''); return `${Math.max(1,parseInt(c.qty)||1)} × ${nat} — ${pr} — ${termLbl(c.term)}`;}
+function groupLabel(g){const c=g.c, cn=c.cty?ctyName(c.cty):'', nat=c.nat==='saudi'?tx('سعودي','Saudi'):(cn?cn+' — ':'')+(c.nat==='inside'?tx('داخل المملكة','Inside KSA'):tx('استقدام','Recruited')); const pr=c.prof===0?tx('مهنة غير محددة','Profession not set'):(PROF[c.prof]?profName(c.prof).replace(/ \[[ \d]+\]$/,''):''); return `${Math.max(1,parseInt(c.qty)||1)} × ${nat} — ${pr} — ${termLbl(c.term)}`;}
 const isDriver=idx=>{const p=PROF[idx]; if(!p) return false; const c=p[7]||''; return c.startsWith('83')||/سائق/.test(p[0]);};
 function reqFlds(idx){const r=S.req, o=(a)=>[['','']].concat(a);
   const lv=[['b',tx('أساسي','Basic')],['g',tx('جيد','Good')],['e',tx('ممتاز','Excellent')]];
