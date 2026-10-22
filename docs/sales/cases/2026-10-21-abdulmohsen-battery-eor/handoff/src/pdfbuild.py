@@ -1,8 +1,9 @@
 import re,os,sys,glob,base64
-os.chdir('/tmp/claude-0/-home-user-business-partner-sa/6975426c-127c-542b-a9a3-75304d972c91/scratchpad/pr2')
+HERE=os.path.dirname(os.path.abspath(__file__))
+os.chdir(HERE)
 src=open('gen_deck.py').read().split("S=[]")[0]
 exec(src)
-os.chdir('/tmp/claude-0/-home-user-business-partner-sa/6975426c-127c-542b-a9a3-75304d972c91/scratchpad/abm')
+os.chdir(HERE)
 LOGOURI='data:image/png;base64,'+LOGO
 def build(name,files,srcdir,w,h,fix=True):
     body='';extra=''
@@ -16,7 +17,6 @@ def build(name,files,srcdir,w,h,fix=True):
     if fix: html=html.replace('font-weight:700','font-weight:600')
     open(f'pdfwork/{name}.html','w',encoding='utf8').write(html)
 os.makedirs('pdfwork',exist_ok=True)
-Q='/tmp/claude-0/-home-user-business-partner-sa/6975426c-127c-542b-a9a3-75304d972c91/scratchpad/ng3/project'
 O='out/project'
 def lst(prefix):
     fs=sorted(os.path.basename(f)[:-8] for f in glob.glob(f'{O}/{prefix}-[0-9]*.dc.html'))

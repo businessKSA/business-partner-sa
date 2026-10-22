@@ -31,3 +31,6 @@
 
 ## كيف تعيد بناء الحزمة (`src/`)
 `gen_prop.py` / `gen_ct.py` / `gen_nda.py` تولّد HTML من `boards*.json` و`pairs_*.json`؛ `pdfbuild.py` + `build_all.sh` تطبع PDF بـChromium؛ `ovf.js` يفحص الفيضان؛ `build_calc.py` يبني الإكسل (`python3 build_calc.py` للعميل المعتم، و`transparent` للشفاف). عدد الصفحات المتوقع: عرض 9؛ عقد 15 عربي / 14 إنجليزي / 16 ثنائي. تحقق من الأرقام بعد أي تعديل (300 حالة عشوائية = 0 فرق عن المعادلة).
+
+## البناء الذاتي (محدَّث 2026-10-22)
+من المستودع وحده: `bash handoff/src/run_all.sh` → `pdfout/*.pdf` (يجلب الخطوط بـnpm، ويحتاج `site/assets/img/logo.png` وChromium). الحاسبة: `python3 handoff/src/build_calc.py transparent|internal|` ← `calcdata/calc/`. جُرّب البناء في نسخة نظيفة: عرض 9 صفحات؛ عقد 15 عربي/14 إنجليزي/16 ثنائي؛ NDA 4.

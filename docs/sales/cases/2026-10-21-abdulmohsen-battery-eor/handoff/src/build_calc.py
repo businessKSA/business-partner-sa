@@ -3,7 +3,8 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.utils import get_column_letter
 
-H = '/tmp/claude-0/-home-user-business-partner-sa/6975426c-127c-542b-a9a3-75304d972c91/scratchpad/'
+import os
+H = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'calcdata') + '/'
 INTERNAL = len(sys.argv) > 1 and sys.argv[1] == 'internal'
 TRANSPARENT = len(sys.argv) > 1 and sys.argv[1] == 'transparent'
 OUT = H + 'calc/' + ('BP-Calculators-INTERNAL.xlsx' if INTERNAL else ('BP-Calculators-Transparent.xlsx' if TRANSPARENT else 'BP-Calculators.xlsx'))

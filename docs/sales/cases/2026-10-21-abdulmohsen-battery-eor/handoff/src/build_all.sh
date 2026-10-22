@@ -5,7 +5,7 @@ rm -rf out; mkdir -p out/project; cp outn/project/* outm/project/* out/project/
 python3 gen_prop.py >/dev/null
 [ -f pairs_eor.json ] && [ -f gen_eor.sh ] && bash gen_eor.sh || true
 python3 pdfbuild.py >/dev/null
-CH=/opt/pw-browsers/chromium-1194/chrome-linux/chrome
+CH=${CHROME:-$(ls /opt/pw-browsers/chromium-*/chrome-linux/chrome 2>/dev/null | head -1)}
 mkdir -p pdfout
 for f in pdfwork/*.html; do n=$(basename $f .html); timeout 120 $CH --headless --no-sandbox --disable-gpu --no-pdf-header-footer --print-to-pdf=pdfout/$n.pdf file://$PWD/$f >/dev/null 2>&1; done
 ls -l pdfout
