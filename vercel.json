@@ -195,6 +195,10 @@
   ],
   "rewrites": [
     {
+      "source": "/SHR-HR",
+      "destination": "/SHR-HR.html"
+    },
+    {
       "source": "/quotes/d/:token",
       "destination": "/api/requests?__route=legacy-doc&t=:token"
     },
