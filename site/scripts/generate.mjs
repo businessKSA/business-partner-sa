@@ -6980,6 +6980,110 @@ function buildWorkerHousing() {
   });
 }
 
+// الكوادر الوطنية المشتركة — سعوديون حقيقيون بدوام جزئي ومرن تُسندهم Business Partner وتديرهم وتطوّرهم.
+// الصفحة تصف الخدمة بلا أسعار (الأسعار للمسجّلين) وبلا وعد باحتساب في نطاقات.
+function buildNationalSharedTalent() {
+  const roles = [
+    ["📊", L("Accounting", "المحاسبة"), L("Bookkeeping, monthly closing and reporting by a Saudi accountant for the hours you need.", "مسك الدفاتر والإقفال الشهري والتقارير بمحاسب سعودي للساعات التي تحتاجها.")],
+    ["🧑‍💼", L("Human resources", "الموارد البشرية"), L("Contracts, payroll files, onboarding and compliance follow-up for small and growing teams.", "العقود وملفات الرواتب والتهيئة ومتابعة الامتثال للفرق الصغيرة والنامية.")],
+    ["📣", L("Marketing", "التسويق"), L("Campaigns, content and lead follow-up delivered remotely or on site.", "حملات ومحتوى ومتابعة العملاء المحتملين، عن بُعد أو في موقعكم.")],
+    ["🤝", L("Sales", "المبيعات"), L("A sales professional with performance-linked pay on top of a guaranteed base.", "متخصص مبيعات بأجر مرتبط بالأداء فوق أساس مضمون.")],
+    ["🛒", L("Purchasing", "المشتريات"), L("Supplier sourcing, negotiation and purchase-cost control.", "الحصول على الموردين والتفاوض وضبط تكلفة المشتريات.")],
+    ["🗂️", L("Administrative support", "الدعم الإداري"), L("Coordination, records and day-to-day office tasks.", "التنسيق والسجلات ومهام المكتب اليومية.")],
+    ["📐", L("Project management", "إدارة المشاريع"), L("Plans, milestones and delivery follow-up for a defined project.", "الخطط والمعالم ومتابعة التسليم لمشروع محدد.")],
+    ["⚙️", L("Engineering", "الهندسة"), L("Engineering support for projects, by profession-qualified Saudi engineers.", "دعم هندسي للمشاريع بمهندسين سعوديين مؤهلين للمهنة.")],
+  ].map(([icon, t, d]) => `<div class="card feature"><div class="card-icon" style="font-size:1.6rem">${icon}</div><h3>${t}</h3><p>${d}</p></div>`).join("");
+
+  const forms = [
+    [L("Part-time", "دوام جزئي"), L("Fixed weekly hours with your company.", "ساعات أسبوعية ثابتة لدى شركتكم.")],
+    [L("Flexible", "عمل مرن"), L("Hours as needed between an agreed minimum and maximum, documented through the Marn platform where it applies.", "ساعات بحسب الحاجة بين حد أدنى وأقصى متفق عليهما، ويُوثَّق عبر منصة «مرن» حيثما انطبق.")],
+    [L("Remote", "عن بُعد"), L("Tasks delivered without attendance.", "مهام تُسلَّم دون حضور.")],
+    [L("By project", "بالمشروع"), L("Defined scope, deliverables, duration and milestone payments.", "نطاق ومخرجات ومدة محددة ودفعات حسب المعالم.")],
+  ].map(([t, d]) => `<div class="card"><h3 style="color:var(--navy)">${t}</h3><p>${d}</p></div>`).join("");
+
+  const steps = [
+    [L("Tell us the role and hours", "تخبرنا بالدور والساعات"), L("Fill the form with the role, monthly hours and start date — or message us on WhatsApp.", "تعبّئ النموذج بالدور والساعات الشهرية وتاريخ البدء — أو تكلمنا واتساب.")],
+    [L("We match and introduce", "نرشّح ونعرّفكم"), L("A Saudi professional matched to your role, introduced to you before the start date.", "متخصص سعودي مناسب لدوركم، نعرّفكم به قبل تاريخ البدء.")],
+    [L("Signed scope, weekly supervision", "نطاق موقّع وإشراف أسبوعي"), L("Work runs under a signed scope and a timesheet, reviewed weekly by a senior Business Partner manager.", "يسير العمل بنطاق موقّع وسجل ساعات، ويراجعه أسبوعياً مدير أول من Business Partner.")],
+    [L("Monthly report and development", "تقرير شهري وتطوير"), L("You receive a monthly report of hours, deliverables and training; replacement cover is included.", "يصلكم تقرير شهري بالساعات والمخرجات والتدريب، وتغطية الاستبدال مشمولة.")],
+  ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("");
+
+  const facts = [
+    [L("Real work", "عمل حقيقي"), L("Every assignment has a client deliverable, a timesheet and a signed scope.", "كل إسناد له مخرج للعميل وسجل ساعات ونطاق موقّع.")],
+    [L("Real contract", "عقد حقيقي"), L("Genuine employment contracts, with social and medical insurance registered.", "عقود عمل حقيقية، وتأمينات اجتماعية وطبية مسجّلة.")],
+    [L("Trained and developed", "تدريب وتطوير"), L("Mandatory training and professional development for every employee, included in the service.", "تدريب وتطوير مهني إلزاميان لكل موظف، مشمولان بالخدمة.")],
+    [L("Records you can show", "سجلات تُعرض"), L("Work and training records kept per employee and available to the competent authorities.", "سجلات العمل والتدريب لكل موظف محفوظة ويمكن عرضها على الجهات المختصة.")],
+  ].map(([b, s]) => `<div class="card"><h3 style="color:var(--navy)">${b}</h3><p>${s}</p></div>`).join("");
+
+  const reqTypes = [["Part-time", "دوام جزئي"], ["Flexible (Marn)", "عمل مرن (مرن)"], ["Remote", "عن بُعد"], ["By project", "بالمشروع"], ["Consultation / not sure", "استشارة / غير محدد"]]
+    .map((t) => `<option value="${t[1]}">${L(t[0], t[1])}</option>`).join("");
+
+  const body = `
+  <section class="hero"><div class="container hero-inner">
+    <span class="eyebrow">${L("Shared National Talent", "الكوادر الوطنية المشتركة")}</span>
+    <h1>${L("A real Saudi professional, for the hours you actually need", "متخصص سعودي حقيقي… للساعات التي تحتاجها فعلاً")}</h1>
+    <p class="lead">${L("Business Partner assigns qualified Saudi employees to your company part-time, flexibly, remotely or by project — and manages, trains and develops them. A defined role without the cost of a full-time hire.", "تُسند Business Partner إلى شركتك موظفين سعوديين مؤهلين بدوام جزئي أو مرن أو عن بُعد أو بالمشروع، وتديرهم وتدرّبهم وتطوّرهم. دور محدد دون تكلفة التوظيف بدوام كامل.")}</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="#nst-request">${I.check}<span>${L("Request a quote", "اطلب عرض سعر")}</span></a>${waBtn2("Book a consultation", "احجز استشارة", "btn-primary", true)}</div>
+    <div class="hero-badges">
+      <span class="hero-badge">${I.check}${L("Saudi employees, real contracts", "سعوديون بعقود حقيقية")}</span>
+      <span class="hero-badge">${I.check}${L("Training included", "التدريب مشمول")}</span>
+      <span class="hero-badge">${I.check}${L("Managed weekly by Business Partner", "إدارة وإشراف أسبوعي من Business Partner")}</span>
+    </div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Roles", "الوظائف")}</span><h2>${L("Roles available", "الوظائف المتاحة")}</h2><p>${L("Choose the role and monthly hours. Prices are shown to registered clients and in your quote.", "اختر الوظيفة والساعات الشهرية. الأسعار تظهر للعملاء المسجّلين وفي عرض السعر.")}</p></div>
+    <div class="grid grid-4">${roles}</div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Forms of engagement", "صيغ التعاقد")}</span><h2>${L("Part-time, flexible, remote or by project", "دوام جزئي أو مرن أو عن بُعد أو بالمشروع")}</h2></div>
+    <div class="grid grid-4">${forms}</div>
+  </div></section>
+
+  <section class="section section--gray"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("How it works", "كيف نشتغل؟")}</span><h2>${L("From request to first day", "من الطلب إلى أول يوم عمل")}</h2></div>
+    <div class="steps-grid">${steps}</div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Integrity", "النزاهة")}</span><h2>${L("Genuine localisation, not paperwork", "توطين حقيقي لا أوراق")}</h2><p>${L("How an assignment is counted in the Nitaqat programme depends on the employment structure registered for each employee. We make no commitment to any Nitaqat result, and the final structure is confirmed in writing before the contract is signed.", "يتبع احتساب الإسناد في برنامج نطاقات الهيكل المسجَّل لكل موظف. لا نلتزم بأي نتيجة في نطاقات، ويُؤكَّد الهيكل النهائي كتابةً قبل توقيع العقد.")}</p></div>
+    <div class="grid grid-4">${facts}</div>
+  </div></section>
+
+  <section class="section section--gray" id="nst-request"><div class="container">
+    <div class="section-head"><span class="eyebrow">${L("Request", "اطلب الخدمة")}</span><h2>${L("Send your request — we reply within one working day", "أرسل طلبك — نرد خلال يوم عمل")}</h2></div>
+    <form id="nst-form" novalidate style="max-width:840px;margin:0 auto">
+      <div class="join-grid">
+        <div class="field"><label for="nst-company">${L("Company name", "اسم المنشأة")} *</label><input type="text" id="nst-company" required></div>
+        <div class="field"><label for="nst-phone">${L("Mobile / WhatsApp", "الجوال / واتساب")} *</label><input type="tel" id="nst-phone" inputmode="tel" placeholder="05XXXXXXXX" required></div>
+        <div class="field"><label for="nst-role">${L("Role needed", "الوظيفة المطلوبة")} *</label><input type="text" id="nst-role" required placeholder="${Lraw("e.g. Accountant", "مثال: محاسب")}"></div>
+        <div class="field"><label for="nst-hours">${L("Hours per month", "الساعات شهرياً")} *</label><input type="number" id="nst-hours" min="1" inputmode="numeric" placeholder="${Lraw("e.g. 40", "مثال: 40")}" required></div>
+        <div class="field"><label for="nst-type">${L("Form of engagement", "صيغة التعاقد")}</label><select id="nst-type">${reqTypes}</select></div>
+        <div class="field"><label for="nst-email">${L("Email", "البريد الإلكتروني")}</label><input type="email" id="nst-email" placeholder="name@company.com"></div>
+        <div class="field field-full"><label for="nst-notes">${L("Notes (city, start date, tasks…)", "ملاحظات (المدينة، تاريخ البدء، المهام…)")}</label><textarea id="nst-notes" rows="3"></textarea></div>
+      </div>
+      <div class="join-actions">
+        <button type="submit" class="btn btn-primary btn-lg" id="nst-submit">${L("Send request", "أرسل الطلب")}</button>
+        <p class="emp-note">${L("Your data is protected and used only to prepare your quote. We never ask for passwords or OTP codes.", "بياناتك محمية وتُستخدم لتجهيز عرضك فقط. لا نطلب كلمات مرور أو رموز OTP.")}</p>
+      </div>
+      <div class="form-success" hidden id="nst-result"></div>
+    </form>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="cta-band"><h2>${L("Need a Saudi professional without a full-time hire?", "تحتاج متخصصاً سعودياً دون توظيف بدوام كامل؟")}</h2><p>${L("Our team replies quickly and sets your next step.", "فريقنا يرد عليك سريعاً ويحدد لك الخطوة التالية.")}</p>${waBtn2("Book a consultation", "احجز استشارة", "btn-white", true)}</div>
+  </div></section>`;
+
+  const script = `<script>(function(){var f=document.getElementById("nst-form");if(!f)return;f.addEventListener("submit",function(e){e.preventDefault();var g=function(id){var el=document.getElementById(id);return el?el.value.trim():""};var company=g("nst-company"),phone=g("nst-phone"),role=g("nst-role"),hours=g("nst-hours");var res=document.getElementById("nst-result");var show=function(t,ok){res.hidden=false;res.textContent=t;res.style.color=ok?"#137a3e":"#b3261e"};if(!company||!phone||!role||!hours){show("${Lraw("Please fill company, mobile, role and monthly hours.", "يرجى تعبئة اسم المنشأة والجوال والوظيفة والساعات الشهرية.")}",false);return}var fd=new FormData();fd.append("company",company);fd.append("whatsapp",phone);fd.append("role",role);fd.append("hours_per_month",hours);fd.append("request_type",g("nst-type"));fd.append("email",g("nst-email"));fd.append("notes",g("nst-notes"));fd.append("source","website-national-shared-talent");fd.append("service","national-shared-talent");var btn=document.getElementById("nst-submit");btn.disabled=true;fetch("https://businesspartnerai.app.n8n.cloud/webhook/client-intake-web",{method:"POST",body:fd}).then(function(r){if(!r.ok)throw 0;show("${Lraw("Request received! We reply with options and a quote within one working day.", "استلمنا طلبك! نرجع لك بالخيارات وعرض السعر خلال يوم عمل.")}",true);f.reset()}).catch(function(){show("${Lraw("Sending failed — try again or contact us on WhatsApp.", "تعذّر الإرسال. جرّب مرة أخرى أو تواصل معنا واتساب.")}",false)}).finally(function(){btn.disabled=false})})})();</script>`;
+
+  return page({
+    title: Lraw("Shared National Talent — part-time and flexible Saudi professionals | Business Partner", "الكوادر الوطنية المشتركة — سعوديون بدوام جزئي ومرن | Business Partner"),
+    desc: Lraw("Qualified Saudi employees assigned to your company part-time, flexibly, remotely or by project — managed, trained and developed by Business Partner.", "موظفون سعوديون مؤهلون يُسندون إلى شركتك بدوام جزئي أو مرن أو عن بُعد أو بالمشروع — تديرهم وتدرّبهم وتطوّرهم Business Partner."),
+    active: "/national-shared-talent", path: "/national-shared-talent", body, script,
+  });
+}
+
 function buildWorkspaces() {
   const cities = [["Riyadh", "الرياض"], ["Jeddah", "جدة"], ["Dammam", "الدمام"], ["Khobar", "الخبر"], ["Makkah", "مكة"], ["Madinah", "المدينة"], ["Other", "أخرى"]];
   const types = [["Office", "مكتب"], ["Co-working Space", "مساحة مشتركة"], ["Serviced Office", "مكتب مخدوم"], ["Retail Shop", "محل تجاري"], ["Showroom", "معرض"], ["Warehouse", "مستودع"], ["Commercial Villa", "فيلا تجارية"]];
@@ -11982,6 +12086,7 @@ function writeFullSite(pre) {
   write(`${pre}workspace-request.html`, buildWorkspaceRequest());
   write(`${pre}farina.html`, buildFarina());
   write(`${pre}worker-housing.html`, buildWorkerHousing());
+  write(`${pre}national-shared-talent.html`, buildNationalSharedTalent());
   write(`${pre}contact.html`, buildContact());
   if (!SIMPLE_V1) write(`${pre}cart.html`, buildCart());
   // /installments hidden at owner's request — buildInstallments() kept as dead code, not generated or linked.
@@ -12247,7 +12352,7 @@ write("ar/compliance-dashboard.html", fs.readFileSync(path.join(ROOT, "assets/da
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/smart-employee", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/knowledge-center", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/company-structure", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
+const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/smart-employee", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/knowledge-center", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/company-structure", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/national-shared-talent", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
