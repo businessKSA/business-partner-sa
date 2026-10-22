@@ -1,0 +1,422 @@
+[
+ [
+  {
+   "i": 0,
+   "ar": false,
+   "t": "MUTUAL NON-DISCLOSURE AGREEMENT (\"NDA\") is made on ……/……/2026 (the \"Effective Date\")."
+  },
+  {
+   "i": 0,
+   "ar": true,
+   "t": "أُبرمت اتفاقية عدم الإفصاح المتبادلة («الاتفاقية») بتاريخ ……/……/2026م («تاريخ السريان»)."
+  }
+ ],
+ [
+  {
+   "i": 1,
+   "ar": false,
+   "t": "BETWEEN:"
+  },
+  {
+   "i": 1,
+   "ar": true,
+   "t": "بين كلٍّ من:"
+  }
+ ],
+ [
+  {
+   "i": 2,
+   "ar": false,
+   "t": "(1) Business Partner Solutions, a limited liability company under the laws of the Kingdom of Saudi Arabia, Commercial Registration no. 1009014355 (Unified National Number 7038825860), Riyadh, represented by Mr. Baher Bakr Ali Magnas, General Manager (\"Business Partner\")."
+  },
+  {
+   "i": 2,
+   "ar": true,
+   "t": "(1) شركة بزنس بارتنر سلوشنز، شركة ذات مسؤولية محدودة وفق أنظمة المملكة العربية السعودية، سجل تجاري رقم 1009014355 (الرقم الوطني الموحد 7038825860)، الرياض، ويمثّلها السيد/ باهر بكر علي مقنص بصفته المدير العام («بزنس بارتنر»)."
+  }
+ ],
+ [
+  {
+   "i": 3,
+   "ar": false,
+   "t": "And;"
+  },
+  {
+   "i": 3,
+   "ar": true,
+   "t": "و؛"
+  }
+ ],
+ [
+  {
+   "i": 4,
+   "ar": false,
+   "t": "(2) [CLIENT NAME], a mixed Norwegian–Saudi company currently under formation in the Kingdom of Saudi Arabia, address [ADDRESS], represented by [SIGNATORY NAME], [TITLE] (the \"Company\")."
+  },
+  {
+   "i": 4,
+   "ar": true,
+   "t": "(2) شركة [اسم الشركة]، شركة مختلطة (نرويجية وسعودية) تحت التأسيس في المملكة العربية السعودية، وعنوانها [العنوان]، ويمثّلها السيد/ [اسم المفوّض] بصفته [الصفة] («الشركة»)."
+  }
+ ],
+ [
+  {
+   "i": 5,
+   "ar": false,
+   "t": "1. PURPOSE"
+  },
+  {
+   "i": 5,
+   "ar": true,
+   "t": "1. الغرض"
+  }
+ ],
+ [
+  {
+   "i": 6,
+   "ar": false,
+   "t": "1.1 The Parties wish to discuss and carry out employer-of-record services and the transfer of employees' services in the Kingdom of Saudi Arabia, and related services (the \"Purpose\"), and each may disclose confidential information to the other for that Purpose."
+  },
+  {
+   "i": 6,
+   "ar": true,
+   "t": "1-1 يرغب الطرفان في بحث وتنفيذ خدمات نظام التعاقد ونقل خدمات الموظفين في المملكة العربية السعودية والخدمات المتصلة بها («الغرض»)، وقد يُفصح كلٌّ منهما للآخر عن معلومات سرية لهذا الغرض."
+  }
+ ],
+ [
+  {
+   "i": 7,
+   "ar": false,
+   "t": "2. CONFIDENTIAL INFORMATION"
+  },
+  {
+   "i": 7,
+   "ar": true,
+   "t": "2. المعلومات السرية"
+  }
+ ],
+ [
+  {
+   "i": 8,
+   "ar": false,
+   "t": "2.1 \"Confidential Information\" means all information, in any form, disclosed by or on behalf of a Party in connection with the Purpose, including company and shareholder documents, identity and passport details, financial statements, business plans, pricing, proposals, contracts, methods and know-how, and any information a reasonable person would regard as confidential."
+  },
+  {
+   "i": 8,
+   "ar": true,
+   "t": "2-1 تعني «المعلومات السرية» كل معلومة، بأي صورة، يُفصح عنها أحد الطرفين أو من ينوب عنه فيما يتصل بالغرض، بما في ذلك مستندات الشركة والشركاء وبيانات الهوية والجوازات والقوائم المالية وخطط العمل والأسعار والعروض والعقود والأساليب والخبرات، وأي معلومة يعدّها الشخص المعتاد سرية."
+  }
+ ],
+ [
+  {
+   "i": 9,
+   "ar": false,
+   "t": "3. OBLIGATIONS"
+  },
+  {
+   "i": 9,
+   "ar": true,
+   "t": "3. الالتزامات"
+  }
+ ],
+ [
+  {
+   "i": 10,
+   "ar": false,
+   "t": "3.1 The receiving Party shall keep Confidential Information strictly confidential, use it solely for the Purpose, protect it with at least the care it applies to its own confidential information, and not disclose it to any third party except as permitted by Clause 5."
+  },
+  {
+   "i": 10,
+   "ar": true,
+   "t": "3-1 يلتزم الطرف المستلم بإبقاء المعلومات السرية في غاية السرية، واستخدامها للغرض وحده، وحمايتها بعناية لا تقل عن عنايته بمعلوماته السرية، وعدم الإفصاح عنها لأي طرف ثالث إلا وفق البند (5)."
+  }
+ ],
+ [
+  {
+   "i": 11,
+   "ar": false,
+   "t": "3.2 Personal data contained in documents (including identity and passport details) shall be handled only by persons who need it for the Purpose and shall be protected in accordance with applicable law."
+  },
+  {
+   "i": 11,
+   "ar": true,
+   "t": "3-2 تُعالَج البيانات الشخصية الواردة في المستندات (ومنها بيانات الهوية والجوازات) من الأشخاص المحتاجين إليها للغرض فقط، وتُحمى وفق الأنظمة السارية."
+  }
+ ],
+ [
+  {
+   "i": 12,
+   "ar": false,
+   "t": "4. EXCLUSIONS"
+  },
+  {
+   "i": 12,
+   "ar": true,
+   "t": "4. الاستثناءات"
+  }
+ ],
+ [
+  {
+   "i": 13,
+   "ar": false,
+   "t": "4.1 Confidential Information does not include information that the receiving Party can show (a) was public before disclosure or became public other than through its breach; (b) was lawfully known to it before disclosure; (c) was lawfully received from a third party without restriction; or (d) was independently developed without use of the Confidential Information."
+  },
+  {
+   "i": 13,
+   "ar": true,
+   "t": "4-1 لا تشمل المعلومات السرية ما يثبت الطرف المستلم أنه (أ) كان متاحاً للعموم قبل الإفصاح أو أصبح كذلك دون إخلال منه؛ أو (ب) كان معلوماً له بصورة مشروعة قبل الإفصاح؛ أو (ج) تلقّاه بصورة مشروعة من طرف ثالث دون قيد؛ أو (د) طوّره باستقلال دون استخدام المعلومات السرية."
+  }
+ ],
+ [
+  {
+   "i": 14,
+   "ar": false,
+   "t": "5. PERMITTED DISCLOSURE"
+  },
+  {
+   "i": 14,
+   "ar": true,
+   "t": "5. الإفصاح المسموح"
+  }
+ ],
+ [
+  {
+   "i": 15,
+   "ar": false,
+   "t": "5.1 A Party may disclose Confidential Information (a) to its directors, employees, and professional advisers who need to know it for the Purpose and are bound by equivalent confidentiality duties; (b) to confidential service providers engaged for the Purpose (such as translators, notaries, an interim Saudi manager, and cloud and AI processing providers) under confidentiality obligations; and (c) to the Saudi government authorities (including the Ministry of Investment, the Ministry of Commerce, and ZATCA) to the extent necessary to carry out the Purpose."
+  },
+  {
+   "i": 15,
+   "ar": true,
+   "t": "5-1 يجوز لأي طرف الإفصاح عن المعلومات السرية (أ) لأعضاء مجلس إدارته وموظفيه ومستشاريه المهنيين المحتاجين إليها للغرض والملزمين بالتزامات سرية مماثلة؛ (ب) لمقدمي الخدمة الملتزمين بالسرية والمتعاقد معهم للغرض (كالمترجمين وكتّاب العدل والمدير السعودي المؤقت ومزودي المعالجة السحابية والذكاء الآلي)؛ و(ج) للجهات الحكومية السعودية (ومنها وزارة الاستثمار ووزارة التجارة وهيئة الزكاة والضريبة والجمارك) بالقدر اللازم لتنفيذ الغرض."
+  }
+ ],
+ [
+  {
+   "i": 16,
+   "ar": false,
+   "t": "5.2 If disclosure is required by law, court order, or regulator, the receiving Party shall, where lawful, notify the disclosing Party promptly and disclose only what is required."
+  },
+  {
+   "i": 16,
+   "ar": true,
+   "t": "5-2 إذا اقتضى نظام أو حكم قضائي أو جهة رقابية الإفصاح، يُخطر الطرف المستلم الطرف المفصح فوراً متى أمكن نظاماً، ولا يُفصح إلا عن القدر المطلوب."
+  }
+ ],
+ [
+  {
+   "i": 17,
+   "ar": false,
+   "t": "6. RETURN AND DESTRUCTION"
+  },
+  {
+   "i": 17,
+   "ar": true,
+   "t": "6. الإعادة والإتلاف"
+  }
+ ],
+ [
+  {
+   "i": 18,
+   "ar": false,
+   "t": "6.1 On written request, or when the Purpose ends, the receiving Party shall return or destroy Confidential Information and confirm in writing, except copies it must keep by law or for its legitimate record of the services."
+  },
+  {
+   "i": 18,
+   "ar": true,
+   "t": "6-1 عند الطلب الكتابي أو بانتهاء الغرض، يعيد الطرف المستلم المعلومات السرية أو يتلفها ويؤكد ذلك كتابةً، عدا النسخ التي يجب عليه الاحتفاظ بها نظاماً أو لسجله المشروع عن الخدمات."
+  }
+ ],
+ [
+  {
+   "i": 19,
+   "ar": false,
+   "t": "7. TERM"
+  },
+  {
+   "i": 19,
+   "ar": true,
+   "t": "7. المدة"
+  }
+ ],
+ [
+  {
+   "i": 20,
+   "ar": false,
+   "t": "7.1 This Agreement applies from the Effective Date for two (2) years. The confidentiality obligations continue for three (3) years after the end of that period, and indefinitely for personal data and trade secrets."
+  },
+  {
+   "i": 20,
+   "ar": true,
+   "t": "7-1 تسري هذه الاتفاقية من تاريخ السريان لمدة سنتين (2). وتستمر التزامات السرية ثلاث (3) سنوات بعد انتهاء تلك المدة، وبلا حد زمني للبيانات الشخصية والأسرار التجارية."
+  }
+ ],
+ [
+  {
+   "i": 21,
+   "ar": false,
+   "t": "8. GENERAL"
+  },
+  {
+   "i": 21,
+   "ar": true,
+   "t": "8. أحكام عامة"
+  }
+ ],
+ [
+  {
+   "i": 22,
+   "ar": false,
+   "t": "8.1 No licence or right in the Confidential Information is granted except as stated. Nothing here obliges either Party to enter into any further agreement; the services and fees are governed by the separate Service Agreement."
+  },
+  {
+   "i": 22,
+   "ar": true,
+   "t": "8-1 لا يُمنح أي ترخيص أو حق في المعلومات السرية إلا بما ورد هنا. وليس في هذه الاتفاقية ما يُلزم أي طرف بإبرام اتفاق آخر؛ وتخضع الخدمات والأتعاب لعقد الخدمة المستقل."
+  }
+ ],
+ [
+  {
+   "i": 23,
+   "ar": false,
+   "t": "8.2 A breach may cause harm that damages alone cannot remedy; the injured Party may seek injunctive relief in addition to other remedies available at law."
+  },
+  {
+   "i": 23,
+   "ar": true,
+   "t": "8-2 قد يُسبب الإخلال ضرراً لا يجبره التعويض وحده؛ ويحق للطرف المتضرر طلب الإجراءات الوقتية والعاجلة إضافةً إلى سائر الحقوق المقررة نظاماً."
+  }
+ ],
+ [
+  {
+   "i": 950,
+   "ar": false,
+   "t": "8.3 Relationship with other agreements: no service agreement between the Parties supersedes or cancels this Agreement, and any \"entire agreement\" clause in such an agreement does not apply to it."
+  },
+  {
+   "i": 950,
+   "ar": true,
+   "t": "8-3 العلاقة بالاتفاقات الأخرى: لا يلغي أي عقد خدمة بين الطرفين هذه الاتفاقية ولا ينسخها، ولا ينطبق عليها أي بند «الاتفاق الكامل» في ذلك العقد."
+  }
+ ],
+ [
+  {
+   "i": 24,
+   "ar": false,
+   "t": "8.4 This Agreement is governed by the laws of the Kingdom of Saudi Arabia, and the Courts of Riyadh have exclusive jurisdiction over any dispute arising from it. It is made in Arabic and English; if they differ, the Arabic text prevails."
+  },
+  {
+   "i": 24,
+   "ar": true,
+   "t": "8-4 تخضع هذه الاتفاقية لأنظمة المملكة العربية السعودية، وتختص محاكم الرياض حصرياً بأي نزاع ينشأ عنها. وقد حُرّرت بالعربية والإنجليزية، وعند الاختلاف يُعتد بالنص العربي."
+  }
+ ],
+ [
+  {
+   "i": 25,
+   "ar": false,
+   "t": "IN WITNESS OF WHICH this Agreement has been duly executed on the Effective Date."
+  },
+  {
+   "i": 25,
+   "ar": true,
+   "t": "وإشهاداً على ما تقدم، وُقّعت هذه الاتفاقية أصولاً في تاريخ السريان."
+  }
+ ],
+ [
+  {
+   "i": 26,
+   "ar": false,
+   "t": "Signed for and on behalf of:"
+  },
+  {
+   "i": 26,
+   "ar": true,
+   "t": "وُقّع نيابةً عن:"
+  }
+ ],
+ [
+  {
+   "i": 27,
+   "ar": false,
+   "t": "Business Partner Solutions"
+  },
+  {
+   "i": 27,
+   "ar": true,
+   "t": "شركة بزنس بارتنر سلوشنز"
+  }
+ ],
+ [
+  {
+   "i": 28,
+   "ar": false,
+   "t": "Baher Bakr Ali Magnas — General Manager"
+  },
+  {
+   "i": 28,
+   "ar": true,
+   "t": "باهر بكر علي مقنص — المدير العام"
+  }
+ ],
+ [
+  {
+   "i": 29,
+   "ar": false,
+   "t": "Signature: ………………   Date: ………………"
+  },
+  {
+   "i": 29,
+   "ar": true,
+   "t": "التوقيع: ………………   التاريخ: ………………"
+  }
+ ],
+ [
+  {
+   "i": 30,
+   "ar": false,
+   "t": "Signed for and on behalf of:"
+  },
+  {
+   "i": 30,
+   "ar": true,
+   "t": "وُقّع نيابةً عن:"
+  }
+ ],
+ [
+  {
+   "i": 31,
+   "ar": false,
+   "t": "[CLIENT NAME]"
+  },
+  {
+   "i": 31,
+   "ar": true,
+   "t": "شركة [CLIENT NAME]"
+  }
+ ],
+ [
+  {
+   "i": 32,
+   "ar": false,
+   "t": "[SIGNATORY NAME] — [TITLE]"
+  },
+  {
+   "i": 32,
+   "ar": true,
+   "t": "[اسم المفوّض] — [الصفة]"
+  }
+ ],
+ [
+  {
+   "i": 33,
+   "ar": false,
+   "t": "Signature: ………………   Date: ………………"
+  },
+  {
+   "i": 33,
+   "ar": true,
+   "t": "التوقيع: ………………   التاريخ: ………………"
+  }
+ ]
+]

@@ -1,0 +1,142 @@
+import json,re,html,math,glob,os
+P=json.load(open('pairs_nda.json'))
+src='../ng3/project/'
+OUT='outn/project/'; os.makedirs(OUT,exist_ok=True)
+for f in glob.glob(src+'*'): 
+    pass
+esc=lambda s:html.escape(s,quote=False)
+LOGO='/_blob/3e3c443e48f3d61a03ccc1d0b1bf30fb'
+def head(title):
+    return f'''<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<title>{esc(title)}</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Playfair+Display:wght@700&display=swap">
+<style>
+body{{margin:0}}
+.g{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:56px;padding:6px 0}}
+.e{{direction:ltr;text-align:left;font-size:15px;line-height:1.45;color:#4A5578}}
+.a{{direction:rtl;text-align:right;font-size:17px;line-height:1.6;color:#1B2340}}
+.h .e{{font-family:'Playfair Display',serif;font-weight:700;font-size:20px;color:#0B1B5A;line-height:1.3}}
+.h .a{{font-weight:700;font-size:22px;color:#0B1B5A;line-height:1.3}}
+.h{{border-top:2px solid #DDE1EE;margin-top:6px;padding-top:12px}}
+.s .e,.s .a{{font-weight:600}}
+.t{{display:grid;grid-template-columns:minmax(0,1.2fr) 130px 130px minmax(0,1fr);column-gap:10px;align-items:center;padding:7px 10px;border-bottom:2px solid #DDE1EE}}
+.t:nth-child(even){{background:#F7F8FD}}
+.t div{{font-size:15px;line-height:1.3}}
+.ln{{border-bottom:2px solid #9DB0D8;height:34px;margin-top:10px}}
+</style>
+</helmet>
+'''
+FOOT='''<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1240,"height":1754}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
+'''
+def frame(inner,label):
+    return f'''<div style="width:1240px;height:1754px;box-sizing:border-box;padding:50px 70px 40px;display:flex;flex-direction:column;background:#F7F8FD;color:#1B2340;font-family:'IBM Plex Sans Arabic',sans-serif">
+<div style="display:flex;justify-content:space-between;align-items:center;height:62px">
+<div style="background:#fff;border-radius:14px;padding:8px 20px;display:flex;border:2px solid #DDE1EE"><img src="{LOGO}" alt="Business Partner" style="height:42px"></div>
+<div style="font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:17px;color:#6A7596;letter-spacing:.06em">{label}</div>
+</div>
+<div style="margin-top:14px">
+{inner}
+</div>
+<div style="margin-top:auto;display:flex;justify-content:space-between;font-size:14px;color:#6A7596;border-top:2px solid #0B1B5A;padding-top:10px;direction:ltr"><span>Business Partner Solutions Company · 7038825860 · VAT 312079341500003</span><span>NDA · DRAFT v1 · 21 Oct 2026</span></div>
+</div>
+</x-dc>
+'''
+def kind(e):
+    t=e['t']
+    if re.match(r'^(\d+\.\s+[A-Z ,&-]+$|WHEREAS|BETWEEN:|SCHEDULE|IN WITNESS)',t): return 'h'
+    if re.match(r'^(Phase [12] —)',t): return 's'
+    return ''
+def lines(t,w): return max(1,math.ceil(len(t)/w))
+def hrow(e,a):
+    return 38 if kind(e)=='h' else 0
+def row_h(e,a):
+    h=max(lines(e['t'],62)*22, lines(a['t'],54)*28)+12
+    if kind(e)=='h': h+=24+8
+    return h
+# pagination
+BUD=1440
+pages=[];cur=[];h=0
+BREAK_BEFORE=('IN WITNESS',)
+for e,a in P:
+    rh=row_h(e,a)
+    force=any(e['t'].startswith(b) for b in BREAK_BEFORE)
+    if cur and (force or h+rh>BUD or (kind(e)=='h' and h+rh+160>BUD)):
+        pages.append(cur);cur=[];h=0
+    cur.append((e,a));h+=rh
+if cur: pages.append(cur)
+# split signature region: rows from IN WITNESS until SCHEDULE 1 stay on one page (already forced)
+fees=[]
+lines_=open('contract.txt',encoding='utf8').read().split('\n')
+tb=[]
+for l in lines_:
+    m=re.match(r'(\d+)(B| ) (.*)',l)
+    if m and 296<=int(m.group(1))<=375: tb.append(m.group(3))
+for k in range(0,len(tb),4): fees.append(tb[k:k+4])
+# pairs list ends at row for 'The table below' (para 290/291); table is separate
+N=len(pages)+1  # cover + fees page
+total=N
+def fmt(rows,idx):
+    out=[]
+    for e,a in rows:
+        c=kind(e)
+        out.append(f'<div class="g {c}"><div class="e">{esc(e["t"])}</div><div class="a">{esc(a["t"])}</div></div>')
+    return '\n'.join(out)
+files=[]
+# cover
+cover=head('اتفاقية عدم الإفصاح (NDA)')+f'''<div style="width:1240px;height:1754px;box-sizing:border-box;padding:60px 70px 50px;display:flex;flex-direction:column;background:linear-gradient(135deg,#071442,#0B1B5A);color:#fff;font-family:'IBM Plex Sans Arabic',sans-serif">
+<div style="display:flex;justify-content:space-between;align-items:center;height:70px">
+<div style="background:#fff;border-radius:14px;padding:10px 22px;display:flex"><img src="{LOGO}" alt="Business Partner" style="height:46px"></div>
+<div style="font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:22px;color:#9DB4FF;letter-spacing:.06em">NDA · DRAFT v1 · 21 OCT 2026</div>
+</div>
+<div style="margin-top:240px;direction:rtl;text-align:right">
+<h1 style="margin:0;font-size:62px;line-height:1.25;font-weight:700">اتفاقية عدم الإفصاح (NDA)</h1>
+<p style="margin:22px 0 0;font-size:26px;line-height:1.5;color:#C9D5FF">متبادلة بين بزنس بارتنر و[اسم الشركة]</p>
+</div>
+<div style="margin-top:56px;direction:ltr;text-align:left">
+<h2 style="margin:0;font-family:'Playfair Display',serif;font-weight:700;font-size:44px;line-height:1.2">Mutual Non-Disclosure<br>Agreement (NDA)</h2>
+<p style="margin:12px 0 0;font-size:22px;line-height:1.5;color:#C9D5FF">Between Business Partner and [CLIENT NAME]</p>
+</div>
+<div style="margin-top:70px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:40px;font-size:21px;line-height:1.6;color:#C9D5FF">
+<div style="direction:ltr;text-align:left">Mutual · 2 years + 3 years survival<br>Saudi law · Riyadh courts<br>Draft for legal review</div>
+<div style="direction:rtl;text-align:right">متبادلة · سنتان + 3 سنوات بعد الانتهاء<br>نظام المملكة · محاكم الرياض<br>مسودة للمراجعة القانونية</div>
+</div>
+<div style="margin-top:auto;display:flex;justify-content:space-between;font-size:19px;color:#9DB4FF;border-top:2px solid #9DB4FF;padding-top:14px"><span>Business Partner Solutions Company · 7038825860 · VAT 312079341500003</span><span>Draft for review · not sent · subject to legal review</span></div>
+</div>
+</x-dc>
+'''+FOOT
+files.append(('NDA-01-Cover',cover,'1 · الغلاف / Cover'))
+for i,rows in enumerate(pages):
+    n=i+2
+    first=rows[0][0]['t'][:40]
+    inner=fmt(rows,i)
+    if rows[0][0]['t'].startswith('IN WITNESS') or any(r[0]['t'].startswith('IN WITNESS') for r in rows):
+        inner+='''
+<div class="g" style="padding-top:30px"><div class="e"><div class="ln"></div></div><div class="a"><div class="ln"></div></div></div>'''
+    html_=head('عقد — صفحة %d'%n)+frame(inner,f'NDA · {n:02d}/{total:02d}')+FOOT
+    ttl=f'{n} · '+re.sub(r'^\d+\.?\s*','',rows[0][0]['t'])[:34]
+    files.append((f'NDA-{n:02d}-Clauses',html_,ttl))
+# fees page
+rowsT='\n'.join(f'<div class="t"><div style="direction:ltr;text-align:left;color:#4A5578">{esc(r[0])}</div><div style="font-family:\'IBM Plex Mono\',monospace;font-weight:500;direction:ltr;text-align:center;color:#0B1B5A">{esc(r[1])}</div><div style="direction:rtl;text-align:center;color:#0B1B5A">{esc(r[2])}</div><div style="direction:rtl;text-align:right;color:#1B2340">{esc(r[3])}</div></div>' for r in fees if len(r)==4)
+inner=f'''<div class="g h" style="border-top:none"><div class="e">Schedule 2 — Estimated Government Fees (table)</div><div class="a">الملحق (2) — جدول الرسوم الحكومية المقدّرة</div></div>
+<div style="background:#fff;border:2px solid #DDE1EE;border-radius:18px;padding:4px 10px">
+{rowsT}
+</div>
+<div class="g" style="padding-top:14px"><div class="e" style="font-size:14px">Note: government fees for processing the GM visa in the country of origin or residence are not included and generally range between SAR 5,000 and 10,000 (one-off).</div><div class="a" style="font-size:16px">ملاحظة: رسوم إصدار تأشيرة المدير العام في بلد المنشأ أو الإقامة غير مشمولة وتتراوح عادة بين 5,000 و10,000 ريال (لمرة واحدة).</div></div>'''
+if False: files.append((f'NDA-{N:02d}-Fees-Table',head('عقد — جدول الرسوم')+frame(inner,f'NDA · {N:02d}/{total:02d}')+FOOT,f'{N} · الرسوم الحكومية / Gov. fees'))
+for name,content,_ in files: open(OUT+name+'.dc.html','w',encoding='utf8').write(content)
+json.dump([(n,t) for n,_,t in files],open('boards.json','w'),ensure_ascii=False)
+print(len(files),[ (n,len(p)) for n,p in zip([f[0] for f in files[1:]],pages)])
