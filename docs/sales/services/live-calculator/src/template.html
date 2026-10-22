@@ -79,6 +79,13 @@ tr.tot td{font-weight:700;background:var(--soft)}
 .band.cur{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
 .band h3{margin:0 0 6px;font-size:14px}
 .band .big{font-family:var(--mono);font-size:22px}
+.stepper{display:flex;gap:6px;margin:6px 0 14px;flex-wrap:wrap}
+.stepper button{flex:1 1 0;min-width:90px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:8px 6px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;text-align:center}
+.stepper button b{display:inline-block;width:20px;height:20px;line-height:20px;border-radius:50%;background:var(--soft);color:var(--navy);margin-inline-end:5px;font-size:12px}
+.stepper button[aria-current="step"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.stepper button.done b{background:var(--accent);color:#fff}
+.stepper button:disabled{opacity:.5;cursor:not-allowed}
+.stepnav{display:flex;justify-content:space-between;gap:10px;margin-top:14px}
 .cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
 .btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:10px 16px;font:inherit;font-weight:600;cursor:pointer}
 .btn.primary{background:var(--navy);color:var(--navy-ink);border-color:var(--navy)}
@@ -145,6 +152,7 @@ const T={
  foot:{ar:'كل المبالغ قبل ضريبة القيمة المضافة 15% ما لم يُذكر غير ذلك. الرسوم الحكومية بلا ضريبة والضريبة على رسوم شركة بزنس بارتنر فقط. لا وعد بأي نتيجة في نطاقات؛ والعقد الموقّع هو المرجع.',en:'All amounts exclude 15% VAT unless stated. Government fees carry no VAT; VAT applies only to our fee. No Nitaqat result is promised; the signed agreement governs.'},
  tabs:{lump:['المبلغ المقطوع','Lump sum'],cost:['تكلفة زائد والدفعات','Cost plus & payments'],nit:['النطاقات والتوطين','Nitaqat'],prof:['توطين المهن وأقل راتب','Professions'],hire:['تقييم موظف جديد','New-hire check'],team:['فريقك حسب المهن','Team by profession'],rent:['بالساعة واليوم والأسبوع','Hourly · daily · weekly'],ot:['الساعات الإضافية','Overtime'],guides:['الأدلة والمهن','Guides & professions']}
 };
+const CLIENT=__CLIENT__; // نسخة العميل: بلا وضع المالك ولا ملاحظات داخلية
 const S={ // state
  tab:'lump',
  owner:false,
@@ -191,11 +199,13 @@ const AGM={'681010':1,'681021':1,'681022':1,'681029':1,'681090':1,'682010':1,'68
 function guidesFor(code){code=String(code).padStart(6,'0');const s=new Set(); UNIV.forEach(id=>{const pf=SECT[id]; if(!pf||pf.some(p=>code.startsWith(p))) s.add(id);}); if(AGM[code]) s.add(AGM[code]); return s;}
 const profName=i=>{const p=PROF[i]; if(!p) return ''; if(L!=='ar'&&PENG[p[7]]) return PENG[p[7]]+' ['+p[7]+']'; return p[0];};
 const EP=i=>{const p=PROF[i]; if(!S.nit.act||p[8]===0||guidesFor(S.nit.act).has(p[8])) return p.concat([true]); return [p[0],'Standard',1000,0,0,0,tx('لا قرار توطين يسري على نشاطك','No localisation decision applies to your activity'),p[7],p[8],false];};
-const COMMON_OCC=['11','12','24','33','41','42','43','44','54','91','96'];
-const PROFILE_OCC={ag:['61','62','63','92','83'],hc:['21','31','72','74','81','83','93'],mm:['21','31','71','81','83','93'],mn:['21','31','71','81','83','93'],mb:['21','31','71','81','83','93'],en:['21','31','74','81'],ind:['21','31','72','73','75','81','82','93'],con:['21','31','71','72','74','83','93'],wh:['52','83','93'],lt:['52','83','93'],sa:['31','83'],po:['52','83'],ho:['14','34','51','94'],ca:['34','51','52','94'],bv:['51','52','94'],it:['25','26','35'],fi:['26','33'],bs:['25','26','31'],sg:['33'],he:['21','22','32','53'],so:['26','34','53'],ps:['51','52','53','96'],rs:['34','51','52','94'],rf:['51','52','94'],cl:['83','91','93','96'],tc:['25','31','35'],om:['31','72','74','75'],kg:['23','34','53'],sb:['23','34','53'],fs:['23','34','53'],un:['21','23','24'],fu:['52','83','93']};
 const GKEY=nm=>Object.keys(G).find(k=>G[k]===nm)||null;
-function profScope(){ if(S.profAll||!S.nit.act) return null; const k=GKEY(S.nit.grp); return k?COMMON_OCC.concat(PROFILE_OCC[k]||[]):null; }
-function profInScope(i){const sc=profScope(); if(!sc) return true; const p=PROF[i]; if(p[8]!==0 && p[1]!=='Standard') return true; const c=p[7]||''; return !c||sc.some(x=>c.startsWith(x));}
+const OCCIX=(()=>{const m={}; OCC.forEach((o,i)=>m[o[0]]=i); return m;})(), AOCC=D.aocc||{}, _aoccCache={};
+function actOccSet(act){ // المهن الرسمية للنشاط الفرعي (قوى list-by-activity)
+  act=String(act); const b64=AOCC[act]||AOCC[act.padStart(6,'0')]; if(!b64) return null; if(_aoccCache[act]) return _aoccCache[act];
+  const bin=atob(b64), set=new Set(); for(let i=0;i<OCC.length;i++){ if(bin.charCodeAt(i>>3)&(1<<(i&7))) set.add(OCC[i][0]); } return _aoccCache[act]=set; }
+function profScope(){ if(S.profAll||!S.nit.act) return null; return actOccSet(S.nit.act); }
+function profInScope(i){const sc=profScope(); if(!sc) return true; const p=PROF[i]; if(p[8]!==0 && p[1]!=='Standard') return true; const c=p[7]||''; return !c||sc.has(c);}
 const actLabel=a=>a[0]+' — '+a[1];
 function actFld(id,code){const a=ACT.find(x=>x[0]===code);return `<div class="field"><label for="${id}">${tx('النشاط الفرعي (ISIC4)','Sub-activity (ISIC4)')}</label><input id="${id}" type="search" data-combo="act" class="cmb" autocomplete="off" value="${a?actLabel(a).replace(/"/g,'&quot;'):''}" placeholder="${tx('ابحث بالرمز أو اسم النشاط','Search by code or activity name')}"><small>${tx('2,761 نشاطاً. المجموعة تُقترح من رمز النشاط وتُؤكَّد على أداة الوزارة.','2,761 activities. The group is suggested from the activity code and must be confirmed on the Ministry tool.')}</small></div>`;}
 const deriveNat=c=>c.src==='saudi'?'saudi':c.src==='inside'?'inside':(c.cty||'ZZ');
@@ -395,7 +405,7 @@ function wireSteppers(){document.querySelectorAll('.stp button[data-st]').forEac
 const line=(a,b,cls='')=>`<div class="line ${cls}"><span>${a}</span><b>${b}</b></div>`;
 const profOpts=()=>PROF.map((p,i)=>[i,p[0]]);
 function pfld(id,label,idx,hint){return `<div class="field"><label for="${id}">${label}</label><input id="${id}" type="search" data-combo="prof" class="cmb" autocomplete="off" value="${idx===0?'':profName(idx).replace(/"/g,'&quot;')}" placeholder="${tx('ابحث بالاسم أو رمز المهنة','Search by name or occupation code')}" data-pf="1">${hint?`<small>${hint}</small>`:''}${profScopeHtml()}</div>`;}
-function profScopeHtml(){ if(!S.nit.act||!GKEY(S.nit.grp)) return ''; const n=PROF.filter((_,i)=>profInScope(i)).length; return `<small style="display:block;margin-top:4px">${S.profAll?tx('تُعرض كل المهن.','All professions shown.'):tx('تُعرض مهن مجال نشاطك فقط ('+n+' مهنة) — '+gn(S.nit.grp),'Showing your activity’s professions only ('+n+') — '+gn(S.nit.grp))} <label style="cursor:pointer"><input type="checkbox" data-profall ${S.profAll?'checked':''}> ${tx('عرض كل المهن','Show all professions')}</label></small>`;}
+function profScopeHtml(){ if(!S.nit.act||!profScope()&&!S.profAll) return ''; const n=PROF.filter((_,i)=>profInScope(i)).length; return `<small style="display:block;margin-top:4px">${S.profAll?tx('تُعرض كل المهن.','All professions shown.'):tx('تُعرض مهن مجال نشاطك فقط ('+n+' مهنة) — '+gn(S.nit.grp),'Showing your activity’s professions only ('+n+') — '+gn(S.nit.grp))} <label style="cursor:pointer"><input type="checkbox" data-profall ${S.profAll?'checked':''}> ${tx('عرض كل المهن','Show all professions')}</label></small>`;}
 const termLbl=k=>k===1?tx('شهر واحد','1 month'):k===2?tx('شهران','2 months'):k<=10?tx(k+' أشهر',k+' months'):k%12===0&&k>=24?tx(k/12===2?'سنتان':(k/12)+' سنوات',(k/12)+' years'):tx(k+' شهراً',k+' months');
 const termOptsF=()=>[1,2,3,4,5,6,9,12,24,36].map(k=>[k,termLbl(k)]);
 const UNITSF=()=>[['hour',tx('بالساعة','By the hour')],['day',tx('باليوم','By the day')],['week',tx('بالأسبوع','By the week')],['two',tx('بالأسبوعين','Every two weeks')]];
@@ -659,16 +669,12 @@ function compactBar(){const n=S.nit; const a=ACT.find(x=>x[0]===n.act); const r=
 function viewNit(){
   const c=S.nit,r=nitCalc(c);
   const groups=Object.keys(NIT).map(g=>[g,gn(g)]);
-  const tIdx=BANDS.findIndex(b=>b[0]===c.target), tr=r.res[tIdx];
-  const curLbl=r.cur<0?tx('أحمر','Red'):tx(BANDS[r.cur][2],BANDS[r.cur][1]);
-  return `<div class="grid"><section class="panel"><h2>${tx('المدخلات','Inputs')}</h2>
-   ${fld('n-target',tx('النطاق المستهدف','Target band'),c.target,{list:BANDS.map(b=>[b[0],tx(b[2],b[1])])})}
-   <p class="hint">${tx('إجمالي العاملين يُحسب بالعدد، والسعودي الجزئي يُحسب 0.5 في عدد السعوديين فقط (يحتاج تأكيداً من أداة الوزارة).','Total workforce is a headcount; a part-time Saudi counts 0.5 in the Saudi count only (to be confirmed on the Ministry tool).')}</p></section>
+    const curLbl=r.cur<0?tx('أحمر','Red'):tx(BANDS[r.cur][2],BANDS[r.cur][1]);
+  return `<div class="grid">
   <section class="panel"><h2>${tx('الوضع الحالي','Current position')}</h2><div class="res">
    ${line(tx('إجمالي العاملين','Total workforce'),r.X)}${line(tx('السعوديون المحتسبون','Saudis counted'),r.sa.toFixed(1))}
    ${line(tx('نسبة السعودة الحالية','Current Saudisation'),fmt1(r.pct)+'%')}
    ${line(tx('النطاق الحالي','Current band'),`<span class="pill ${r.cur>=2?'ok':r.cur>=0?'warn':'bad'}">${curLbl}</span>`)}</div>
-   <p style="margin:14px 0 0;font-weight:600">${tx(`لتبلغ ${BANDS[tIdx][2]} تحتاج ${tr.short} سعودياً إضافياً والإجمالي ثابت عند ${r.X}.`,`To reach ${BANDS[tIdx][1]} you need ${tr.short} additional Saudi employee(s) with the total held at ${r.X}.`)}</p>
    <div class="bands">${r.res.map((b,i)=>`<div class="band ${r.cur===i?'cur':''}"><h3>${tx(BANDS[i][2],BANDS[i][1])}</h3><div class="big">${fmt1(b.y)}%</div>
     <div class="line"><span>${tx('السعوديون المطلوبون','Saudis required')}</span><b>${b.req}</b></div>
     <div class="line"><span>${tx('الأجانب الذين يتحملهم الإجمالي','Foreigners the total can carry')}</span><b>${b.carry}</b></div>
@@ -918,19 +924,58 @@ function gate(html){
   const miss=missingFor(S.tab); if(!miss.length) return html;
   const i=html.indexOf('</section>'); if(i<0) return html;
   return html.slice(0,i)+`</section><section class="panel"><h2>${tx('السعر','Price')}</h2><p class="hint">${tx('أكمل الحقول التالية ليظهر السعر:','Fill in the following fields to see the price:')}</p><ul style="margin:6px 0 0;padding-inline-start:20px">${miss.map(x=>`<li>${x}</li>`).join('')}</ul></section></div>`;}
-function resetForm(tab){const d=JSON.parse(INIT_JSON); S[tab]=d[tab]; S.ins=d.ins; S.extra=d.extra; S.sb=d.sb; S.req=d.req;
+function resetForm(tab){S.step=S.step||{}; S.step[tab]=1; const d=JSON.parse(INIT_JSON); S[tab]=d[tab]; S.ins=d.ins; S.extra=d.extra; S.sb=d.sb; S.req=d.req;
   Object.keys(S.touched).forEach(k=>{if(BLANKRE.test(k)) delete S.touched[k];});}
 function touchAllIds(){['l-term','l-src','l-cty','l-qty','l-sal','l-trn','l-con','l-rec','l-tkt','c-term','c-src','c-cty','c-qty','c-sal','c-trn','c-con','c-rec','c-arr','c-tkt1','c-exitv','c-freq','i-gender','i-cls','i-mat','x-hours','x-days','x-commOn','x-commPct','x-otOn','x-otHours','sb-basic','sb-housing','sb-transport','q-lic','q-exp','q-lang','q-langLvl','q-edu','q-skill','q-skillName','q-skillLvl'].forEach(k=>S.touched[k]=1);}
 ['input','change'].forEach(ev=>document.addEventListener(ev,e=>{const id=(e.target&&e.target.id||'').replace(/-s$/,''); if(BLANKRE.test(id)) S.touched[id]=1;},true));
-function render(focusId){
+
+
+const STEPS=[['العقد والمهنة','Contract & profession'],['العامل','The worker'],['العمل والتكاليف','Work & costs'],['الراتب والإضافات','Salary & extras']];
+const stepOf=id=>/^(l|c)-(term|prof)/.test(id)?1:/^(l|c)-(src|cty|qty)|^i-gender/.test(id)?2:/^(x-hours|x-days|i-cls|i-mat)|^(l|c)-(trn|con|rec|tkt|arr|exitv|freq)/.test(id)?3:/^(l|c)-sal|^sb-|^x-(comm|ot)|^o-/.test(id)?4:0;
+function stepify(){
+ if(!['lump','cost'].includes(S.tab)) return;
+ const sec=document.querySelector('#main .grid > section.panel'); if(!sec) return;
+ let cur=0; const kids=[...sec.children], st=[];
+ kids.forEach(k=>{const i=k.querySelector&&k.querySelector('input,select,textarea'); const id=(k.id||(i&&i.id)||''); const n=stepOf(id); if(n) cur=n; st.push(cur);});
+ if(new Set(st.filter(Boolean)).size<3) return;
+ const tab=S.tab; S.step=S.step||{}; let sc=S.step[tab]||1;
+ const missIds=n=>REQ_IDS[tab].filter(([id])=>stepOf(id)===n&&!S.touched[id]).length
+  +(n===2&&S[tab].src==='abroad'&&!S.touched[(tab==='cost'?'c':'l')+'-cty']?1:0)+(n===3&&S[tab].src==='inside'&&!S.touched[(tab==='cost'?'c':'l')+'-trn']?1:0);
+ const okTo=n=>{for(let i=1;i<n;i++) if(missIds(i)) return false; return true;};
+ if(!okTo(sc)) sc=[1,2,3,4].find(n=>!okTo(n+1))||1; S.step[tab]=sc;
+ kids.forEach((k,i)=>{ if(st[i]&&st[i]!==sc) k.style.display='none'; });
+ const first=kids.findIndex((k,i)=>st[i]>0), nav=document.createElement('div'); nav.className='stepper'; nav.setAttribute('role','tablist');
+ nav.innerHTML=STEPS.map((x,i)=>`<button type="button" data-st="${i+1}" ${sc===i+1?'aria-current="step"':''} class="${i+1<sc&&!missIds(i+1)?'done':''}" ${okTo(i+1)?'':'disabled'}><b>${i+1}</b>${L==='ar'?x[0]:L==='en'?x[1]:trn(x[1])}</button>`).join('');
+ sec.insertBefore(nav,kids[first]);
+ const bar=document.createElement('div'); bar.className='stepnav';
+ bar.innerHTML=`<button type="button" class="btn" data-go="-1" ${sc<=1?'disabled':''}>${tx('السابق','Back')}</button><button type="button" class="btn primary" data-go="1" ${sc>=4||missIds(sc)?'disabled':''}>${tx('التالي','Next')}</button>`;
+ const lastIdx=st.lastIndexOf(sc); sec.insertBefore(bar,lastIdx>=0?kids[lastIdx].nextSibling:null);
+ const go=n=>{S.step[tab]=Math.max(1,Math.min(4,n)); render(); const t=document.querySelector('.stepper'); if(t) t.scrollIntoView({block:'nearest'});};
+ nav.querySelectorAll('[data-st]').forEach(b=>b.addEventListener('click',()=>go(+b.dataset.st)));
+ bar.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(sc+(+b.dataset.go))));
+}
+function cleanClient(){
+ if(!CLIENT) return;
+ const n=document.getElementById('t-notice'); if(n) n.style.display='none';
+ const w=document.createTreeWalker(document.getElementById('app'),NodeFilter.SHOW_TEXT); const arr=[]; while(w.nextNode()) arr.push(w.currentNode);
+ arr.forEach(x=>{let v=x.nodeValue,o=v;
+  v=v.replace(/\s*[—-]\s*(للتأكيد|to confirm|à confirmer|待确认)/gi,'').replace(/\s*—\s*النسبة للتأكيد/g,'');
+  v=v.replace(/(رسوم شركة بزنس بارتنر|Business Partner fee|Frais Business Partner|Business Partner 服务费)\s*\([^)]*\)/g,'$1');
+  v=v.replace(/\(?\s*(النموذج الداخلي|internal model|مسودة|draft)\s*:?[^)]*\)?/gi,'');
+  v=v.replace(/(مسودة|Draft)\s*:.*$/i,'');
+  if(v!==o) x.nodeValue=v;});
+ document.querySelectorAll('.pill.warn').forEach(e=>{if(/مسودة|Draft|بانتظار|await/i.test(e.textContent)) e.remove();});
+}
+function render(focusId){ try{ __render(focusId); stepify(); }finally{ cleanClient(); } }
+function __render(focusId){
   $('#app').dir=L==='ar'?'rtl':'ltr'; $('#app').lang=L;
   $('#t-title').textContent=t('title'); $('#t-sub').textContent=t('sub'); $('#t-notice').textContent=t('notice'); $('#t-foot').textContent=t('foot');
   document.title=t('title');
   ['ar','en','fr','zh'].forEach(k=>$('#lang-'+k).setAttribute('aria-pressed',L===k));
   $('#tabs').innerHTML=Object.keys(T.tabs).map(k=>`<button role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${L==='ar'?T.tabs[k][0]:(L==='en'?T.tabs[k][1]:trn(T.tabs[k][1]))}</button>`).join('');
   const views={lump:viewLump,cost:viewCost,nit:viewNit,prof:viewProf,hire:viewHire,team:viewTeam,ot:viewOt,rent:viewRent,guides:viewGuides};
-  $('#main').innerHTML=(S.tab==='nit'?barHtml():['prof','hire','team','guides'].includes(S.tab)?compactBar():'')+gate(views[S.tab]())+`<p style="margin-top:18px;text-align:center"><button class="btn" id="own" title="${tx('وضع المالك (للمعاينة فقط)','Owner mode (preview only)')}" style="font-size:11px;padding:2px 10px;opacity:${S.owner?1:.45}">⚙ ${S.owner?tx('إخفاء وضع المالك','Hide owner mode'):''}</button></p>`;
-  document.getElementById('own').addEventListener('click',()=>{S.owner=!S.owner;render();});
+  $('#main').innerHTML=(S.tab==='nit'?barHtml():['prof','hire','team','guides'].includes(S.tab)?compactBar():'')+gate(views[S.tab]())+(CLIENT?'':`<p style="margin-top:18px;text-align:center"><button class="btn" id="own" title="${tx('وضع المالك (للمعاينة فقط)','Owner mode (preview only)')}" style="font-size:11px;padding:2px 10px;opacity:${S.owner?1:.45}">⚙ ${S.owner?tx('إخفاء وضع المالك','Hide owner mode'):''}</button></p>`);
+  if(!CLIENT) document.getElementById('own').addEventListener('click',()=>{S.owner=!S.owner;render();});
   const re=id=>render(id);
   document.querySelectorAll('[data-profall]').forEach(c=>c.addEventListener('change',()=>{S.profAll=c.checked;render();}));
   [['l','lump'],['c','cost']].forEach(([pp,tabk])=>{
