@@ -82,6 +82,7 @@ tr.tot td{font-weight:700;background:var(--soft)}
 .band.cur{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
 .band h3{margin:0 0 6px;font-size:14px}
 .band .big{font-family:var(--mono);font-size:22px}
+.req-star{color:#D92D20;font-weight:800;margin-inline-start:3px}
 .stepper{display:flex;gap:6px;margin:6px 0 14px;flex-wrap:wrap}
 .stepper button{flex:1 1 0;min-width:90px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:6px 5px;font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;text-align:center}
 .stepper button b{display:inline-block;width:20px;height:20px;line-height:20px;border-radius:50%;background:var(--soft);color:var(--navy);margin-inline-end:4px;font-size:11px}
@@ -958,6 +959,12 @@ function stepify(){
  nav.querySelectorAll('[data-st]').forEach(b=>b.addEventListener('click',()=>go(+b.dataset.st)));
  bar.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>go(sc+(+b.dataset.go))));
 }
+
+function markRequired(){
+ if(!['lump','cost'].includes(S.tab)) return; const pf=S.tab==='cost'?'c':'l';
+ [pf+'-term',pf+'-src',S[S.tab].src==='abroad'?pf+'-cty':'',pf+'-qty','i-gender',pf+'-sal',S[S.tab].src==='inside'?pf+'-trn':''].filter(Boolean).forEach(id=>{
+  [id,id+'-s'].forEach(x=>{const lb=document.querySelector(`#main label[for="${x}"]`); if(lb&&!lb.querySelector('.req-star')){const st=document.createElement('span'); st.className='req-star'; st.textContent='*'; st.setAttribute('aria-label',tx('مطلوب','required')); lb.appendChild(st);}});});
+}
 function cleanClient(){
  if(!CLIENT) return;
  const n=document.getElementById('t-notice'); if(n) n.style.display='none';
@@ -970,7 +977,7 @@ function cleanClient(){
   if(v!==o) x.nodeValue=v;});
  document.querySelectorAll('.pill.warn').forEach(e=>{if(/مسودة|Draft|بانتظار|await/i.test(e.textContent)) e.remove();});
 }
-function render(focusId){ try{ __render(focusId); stepify(); }finally{ cleanClient(); } }
+function render(focusId){ try{ __render(focusId); stepify(); markRequired(); }finally{ cleanClient(); } }
 function __render(focusId){
   $('#app').dir=L==='ar'?'rtl':'ltr'; $('#app').lang=L;
   $('#t-title').textContent=t('title'); $('#t-sub').textContent=t('sub'); $('#t-notice').textContent=t('notice'); $('#t-foot').textContent=t('foot');
