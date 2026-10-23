@@ -1,0 +1,6 @@
+{
+  "name": "bp-ai-space-api",
+  "private": true,
+  "description": "Zero-dependency proxy: browser -> n8n on Azure. No secrets in code.",
+  "engines": { "node": ">=20" }
+}
