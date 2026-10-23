@@ -1034,8 +1034,18 @@ function fillDemo(loc,abroad){
  Object.assign(c,{term:12,prof:idx,src:abroad?'abroad':'inside',nat:abroad?'PH':'inside',cty:abroad?'PH':'',qty:loc?3:1,sal:6000,trn:1}); if(tab==='cost') c.freq='Quarterly';
  S.ins.gender='male'; touchAllIds(); S.step=S.step||{}; S.step[tab]=1; render();
 }
+
+function fillCompany(){ // شركة مثال كاملة (مطعم): نشاط ومجموعة وسعوديون وأجانب وفريق حسب المهن
+ const ix=c=>PROF.findIndex(p=>p[7]===c);
+ const g=suggestGroup('561010');
+ Object.assign(S.nit,{act:'561010',sug:g?'ok':'none',grp:g||S.nit.grp,year:2026,full:6,part:2,foreign:40,pq:'',oq:''}); S.profAll=false;
+ S.team.term=12; S.team.q=''; S.team.cat='all';
+ S.team.rows=[['513101',2,16],['512001',1,8],['523001',2,4],['962101',1,5],['911203',0,4],['121101',0,1],['241101',0,2]].map(([c,sa,fo])=>({prof:ix(c),saudi:sa,foreign:fo})).filter(r=>r.prof>0);
+ render();
+}
 function quickDemo(){
- if(CLIENT||!['lump','cost'].includes(S.tab)) return; const m=document.getElementById('main'); if(!m||m.querySelector('.demo')) return;
+ if(CLIENT) return; if(S.tab==='nit'||S.tab==='team'){const m0=document.getElementById('main'); if(m0&&!m0.querySelector('.demo')){const d0=document.createElement('div'); d0.className='demo'; d0.innerHTML='<b>'+tx('جاهز للمعاينة (نسخة المالك):','Ready-made preview (owner build):')+'</b><button type="button" id="demo-co">'+tx('شركة مثال كاملة — مطعم (نشاط ومجموعة وموظفون)','Full sample company — restaurant (activity, group, staff)')+'</button>'; m0.insertBefore(d0,m0.firstChild); document.getElementById('demo-co').addEventListener('click',fillCompany);} return;}
+ if(!['lump','cost'].includes(S.tab)) return; const m=document.getElementById('main'); if(!m||m.querySelector('.demo')) return;
  const d=document.createElement('div'); d.className='demo';
  d.innerHTML='<b>'+tx('جاهز للمعاينة (نسخة المالك):','Ready-made preview (owner build):')+'</b>'+[[1,0,tx('مهنة موطّنة — نقل كفالة','Localised profession — transfer')],[1,1,tx('مهنة موطّنة — استقدام','Localised profession — recruitment')],[0,0,tx('مهنة غير موطّنة — نقل كفالة','Non-localised profession — transfer')],[0,1,tx('مهنة غير موطّنة — استقدام','Non-localised profession — recruitment')]].map(x=>`<button type="button" data-demo="${x[0]}${x[1]}">${x[2]}</button>`).join('');
  m.insertBefore(d,m.firstChild);
