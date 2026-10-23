@@ -164,6 +164,7 @@ const T={
 const CLIENT=__CLIENT__, DEMO=__DEMO__, FAWAZ=__FAWAZ__; const LOGO='__LOGO__'; // نسخة العميل: بلا وضع المالك ولا ملاحظات داخلية
 const S={ // state
  quote:{client:'',comp:'',no:'',email:''},
+ disc:{on:false,code:'',pct:10,svc:true,loc:false,ops:false},
  tab:'nit',
  owner:false,
  rent:{unit:'day',qty:1,nat:'IN',sal:1500},
@@ -299,6 +300,11 @@ function locCalc(idx,qty){ // رسوم التوطين: تكلفة السعودي
   return {fee:m10(need*one/q),need,m,er,ee,eos,lv,one,q,r,erP:g.er,eeP:g.ee,noMin:!(p[5]>0)};
 }
 const locTag=l=>(!l||l.fee==null)?'':' — '+(l.std?tx('غير مرتبطة بالمهنة (رسم ثابت)','Not profession-linked (flat fee)'):tx('مرتبطة بالمهنة (قرار توطين)','Profession-linked (localisation decision)'));
+function discAmounts(v){ // خصم الكود: رسوم بزنس بارتنر، وقد يشمل التوطين والمصاريف التشغيلية
+  const d=S.disc, k=d.on?Math.max(0,Math.min(100,+d.pct||0))/100:0, o={svc:0,ops:0,loc:0};
+  if(k){ if(d.svc) o.svc=k*(v.svc||0); if(d.ops) o.ops=k*(v.ops||0); if(d.loc) o.loc=k*(v.loc||0); }
+  o.total=o.svc+o.ops+o.loc; return o;
+}
 function lumpCalc(c){
   const X=(c.xfer==null?3000:c.xfer);
   const MF=1+S.fee.pct/100; const a=c.sal,n=c.term; const prem=k=>c.short?S.fee.pS/100:tierPrem(k), aR=k=>a*(1+prem(k));
@@ -329,7 +335,9 @@ function lumpCalc(c){
   if(otAmt>0) items.push([otLabel(),otAmt]);
   items.push([tx('المصاريف التشغيلية لشركة بزنس بارتنر الشهرية على الموظف','Business Partner monthly operating expenses per employee'),S.fee.overhead]);
   const itemsSum=items.reduce((s,i)=>s+i[1],0);
-  return {before,fee,loc,withFee,vat:withFee*0.15,incl:withFee*1.15,term:withFee*n,adv2:withFee*2,byTerm,cat:p[1],items,itemsSum,margin:before-itemsSum};
+  const margin=before-itemsSum, dd=discAmounts({svc:margin,ops:S.fee.overhead,loc:fee||0});
+  const before2=before-dd.svc-dd.ops, fee2=fee==null?null:fee-dd.loc, withFee2=before2+(fee2||0);
+  return {before:before2,fee:fee2,loc,withFee:withFee2,vat:withFee2*0.15,incl:withFee2*1.15,term:withFee2*n,adv2:withFee2*2,byTerm,cat:p[1],items,itemsSum,margin,disc:dd};
 }
 function costCalc(c){
   const n=c.term,a=c.sal;
@@ -393,9 +401,11 @@ function schedCalc(c){
   // رسوم شركة بزنس بارتنر الشهرية ثابتة (لا نسبة) وتُحمَّل على الفاتورة الشهرية فقط، ومعها رسوم التوطين، والضريبة عليها وحدها
   add('M','رسوم شركة بزنس بارتنر الشهرية على الموظف (ثابتة)','Business Partner monthly fee per employee (fixed)',tx('شهرياً','Monthly'),m=>(m>=1&&m<=n)?ov:0,'ov');
   add('M','رسوم التوطين','Localisation fees',tx('شهرياً','Monthly'),m=>(m>=1&&m<=n)?locM:0,'loc');
-  add('M','ضريبة 15% على رسوم شركة بزنس بارتنر ورسوم التوطين','VAT 15% on Business Partner and localisation fees',tx('مع الرسوم','With the fees'),m=>(m>=1&&m<=n)?(ov+locM)*0.15:0,'vat');
+  const dm=discAmounts({svc:ov,ops:0,loc:locM}), discM=dm.svc+dm.ops+dm.loc;
+  if(discM>0.5) add('M','خصم الكود','Code discount',tx('شهرياً','Monthly'),m=>(m>=1&&m<=n)?-discM:0,'disc');
+  add('M','ضريبة 15% على رسوم شركة بزنس بارتنر ورسوم التوطين','VAT 15% on Business Partner and localisation fees',tx('مع الرسوم','With the fees'),m=>(m>=1&&m<=n)?(ov+locM-discM)*0.15:0,'vat');
   const tot=M.map((m,i)=>rows.reduce((t,r)=>t+(r.kind==='opt'?0:r.v[i]),0));
-  return {rows,tot,grand:tot.reduce((t,x)=>t+x,0),n,a,gosi,ov,locM,pct,otAmt:cc.otAmt,ab,xf};
+  return {rows,tot,grand:tot.reduce((t,x)=>t+x,0),n,a,gosi,ov,locM,discM,pct,otAmt:cc.otAmt,ab,xf};
 }
 function nitCalc(c){
   const g=NIT[c.grp]; const X=c.full+c.part+c.foreign, sa=c.full+0.5*c.part;
@@ -559,7 +569,7 @@ function viewLumpInner(){
    ${r.fee==null?'':line(tx('ضريبة 15%','VAT 15%'),fmt(r.vat))}
    ${r.fee==null?'':line(tx('السعر الشهري شامل الضريبة','Monthly price incl. VAT'),fmt(r.incl),'total')}
    </div>`}
-   ${r.cat==='Saudi-only'?'':`<h2 style="margin-top:18px">${tx('ما يشمله السعر شهرياً','What the monthly price covers')}</h2><div class="res">${r.items.map(i=>line(i[0],fmt(i[1]))).join('')}${line(tx('إجمالي التكاليف','Total costs'),fmt(r.itemsSum))}${line(tx('رسوم شركة بزنس بارتنر والتقريب','Business Partner fee and rounding'),fmt(r.margin))}${line(tx('السعر الشهري قبل التوطين','Monthly price before localisation'),fmt(r.before),'total')}${r.fee==null?'':line(tx('رسوم التوطين شهرياً','Localisation fees, monthly')+locTag(r.loc),fmt(r.fee))+line(tx('السعر الشهري شامل رسوم التوطين','Monthly price incl. localisation feess'),fmt(r.withFee))+line(tx('ضريبة 15%','VAT 15%'),fmt(r.vat))+line(tx('السعر الشهري شامل الضريبة','Monthly price incl. VAT'),fmt(r.incl),'total')}</div>`}
+   ${r.cat==='Saudi-only'?'':`<h2 style="margin-top:18px">${tx('ما يشمله السعر شهرياً','What the monthly price covers')}</h2><div class="res">${r.items.map(i=>line(i[0],fmt(i[1]))).join('')}${line(tx('إجمالي التكاليف','Total costs'),fmt(r.itemsSum))}${line(tx('رسوم شركة بزنس بارتنر والتقريب','Business Partner fee and rounding'),fmt(r.margin))}${r.disc&&r.disc.svc+r.disc.ops>0.5?line(tx('خصم الكود (رسوم بزنس بارتنر والمصاريف التشغيلية)','Code discount (Business Partner fee and operating expenses)'),'−'+fmt(r.disc.svc+r.disc.ops)):''}${line(tx('السعر الشهري قبل التوطين','Monthly price before localisation'),fmt(r.before),'total')}${r.fee==null?'':line(tx('رسوم التوطين شهرياً','Localisation fees, monthly')+locTag(r.loc),fmt(r.fee))+line(tx('السعر الشهري شامل رسوم التوطين','Monthly price incl. localisation feess'),fmt(r.withFee))+line(tx('ضريبة 15%','VAT 15%'),fmt(r.vat))+line(tx('السعر الشهري شامل الضريبة','Monthly price incl. VAT'),fmt(r.incl),'total')}</div>`}
    <h2 style="margin-top:18px">${tx('نفس الراتب بحسب المدة','Same package by term')}</h2>
    <div class="tbl"><table><thead><tr><th>${tx('المدة','Term')}</th><th class="n">${tx('شهرياً قبل الضريبة','Monthly excl. VAT')}</th></tr></thead><tbody>
    ${r.byTerm.map(([k,v])=>`<tr><td>${termLbl(k)}</td><td class="n">${fmt(v)}</td></tr>`).join('')}</tbody></table></div>
@@ -613,13 +623,13 @@ function quotePages(d,meta,pageNo0){
   let priceHtml='', payHtml='';
   if(d.kind==='lump'){
     const r=d.r;
-    priceHtml=`<div class="cols"><div><h2>${T('السعر الشهري','Monthly price')}</h2><table class="t"><thead><tr><th>${T('البند','Item')}</th><th class="n">${T('المبلغ (ريال)','Amount (SAR)')}</th></tr></thead><tbody>${row(T('السعر الشهري قبل التوطين','Monthly price before localisation'),money(r.before))}${r.fee==null?'':row(T('رسوم التوطين شهرياً','Localisation fees, monthly')+locTag(r.loc),money(r.fee))}${r.fee==null?'':row(T('السعر الشهري شامل رسوم التوطين','Monthly price incl. localisation fees'),money(r.withFee))}${r.fee==null?'':row(T('ضريبة القيمة المضافة 15%','VAT 15%'),money(r.vat))}${r.fee==null?'':row(T('السعر الشهري شامل الضريبة','Monthly price incl. VAT'),money(r.incl),'tot')}</tbody></table></div><div><h2>${T('ما يشمله السعر شهرياً','What the monthly price covers')}</h2><table class="t"><tbody>${r.items.map(i=>row(i[0],money(i[1]))).join('')}${row(T('إجمالي التكاليف','Total costs'),money(r.itemsSum),'tot')}${row(T('رسوم شركة بزنس بارتنر والتقريب','Business Partner fee and rounding'),money(r.margin))}${row(T('السعر الشهري قبل التوطين','Monthly price before localisation'),money(r.before),'tot')}</tbody></table></div></div>`;
+    priceHtml=`<div class="cols"><div><h2>${T('السعر الشهري','Monthly price')}</h2><table class="t"><thead><tr><th>${T('البند','Item')}</th><th class="n">${T('المبلغ (ريال)','Amount (SAR)')}</th></tr></thead><tbody>${row(T('السعر الشهري قبل التوطين','Monthly price before localisation'),money(r.before))}${r.fee==null?'':row(T('رسوم التوطين شهرياً','Localisation fees, monthly')+locTag(r.loc),money(r.fee))}${r.fee==null?'':row(T('السعر الشهري شامل رسوم التوطين','Monthly price incl. localisation fees'),money(r.withFee))}${r.fee==null?'':row(T('ضريبة القيمة المضافة 15%','VAT 15%'),money(r.vat))}${r.fee==null?'':row(T('السعر الشهري شامل الضريبة','Monthly price incl. VAT'),money(r.incl),'tot')}</tbody></table></div><div><h2>${T('ما يشمله السعر شهرياً','What the monthly price covers')}</h2><table class="t"><tbody>${r.items.map(i=>row(i[0],money(i[1]))).join('')}${row(T('إجمالي التكاليف','Total costs'),money(r.itemsSum),'tot')}${row(T('رسوم شركة بزنس بارتنر والتقريب','Business Partner fee and rounding'),money(r.margin))}${r.disc&&r.disc.svc+r.disc.ops>0.5?row(T('خصم الكود','Code discount'),'−'+money(r.disc.svc+r.disc.ops)):''}${row(T('السعر الشهري قبل التوطين','Monthly price before localisation'),money(r.before),'tot')}</tbody></table></div></div>`;
     payHtml=`<table class="t"><thead><tr><th>${T('الدفعة','Payment')}</th><th class="n">${T('قبل الضريبة','Excl. VAT')}</th><th class="n">${T('بعد الضريبة','Incl. VAT')}</th></tr></thead><tbody><tr><td>${T('شهرين مقدماً','Two months in advance')}</td><td class="n">${money(r.adv2)}</td><td class="n">${money(r.adv2*1.15)}</td></tr><tr class="tot"><td>${T('إجمالي المدة','Total for the term')} (${term})</td><td class="n">${money(r.term)}</td><td class="n">${money(r.term*1.15)}</td></tr></tbody></table>`;
   } else {
     const st=d.st, sc=d.sc, line3=(rs)=>rs.rows.map(x=>row(x[0],money(x[1]))).join('');
     priceHtml=`<div class="cols"><div><h2>${T('الدفعة الأولى المقدمة لاستقدام أو نقل الكفالة','First advance for recruiting or transferring the worker')}</h2><table class="t"><tbody>${line3(st.s1)}${row(T('الإجمالي (بالفعلي، بلا رسوم منّا)','Total (at actual, no fee from us)'),money(st.s1.tot),'tot')}</tbody></table>
      <h2>${d.cc.abroad==='Yes'?T('المرحلة الثانية: الدخول إلى المملكة','Stage 2: entry to the Kingdom'):T('المرحلة الثانية: وجود الموظف على كفالة الشركة','Stage 2: the employee is on the company’s sponsorship')}</h2><table class="t"><tbody>${line3(st.s2)}${row(T('ضريبة 15% على التأمين الطبي','VAT 15% on medical insurance'),money(st.s2.vat))}${row(T('إجمالي المرحلة الثانية','Total stage 2'),money(st.s2.tot),'tot')}</tbody></table></div>
-     <div><h2>${T('الراتب والفاتورة الشهرية','Salary and monthly invoice')}</h2><table class="t"><tbody>${row(T('تأمين الراتب مقدماً (شهران) — بلا ضريبة','Salary security in advance (2 months) — no VAT'),money(st.dep.tot))}${st.m.rows.map(x=>row(x[0],money(x[1]))).join('')}${row(T('رسوم شركة بزنس بارتنر الشهرية (ثابتة)','Business Partner monthly fee (fixed)'),money(st.m.ov))}${st.m.loc?row(T('رسوم التوطين','Localisation fees'),money(st.m.loc)):''}${row(T('ضريبة 15% على رسوم بزنس بارتنر والتوطين','VAT 15% on Business Partner and localisation fees'),money(st.m.vat))}${row(T('إجمالي الفاتورة الشهرية','Total monthly invoice'),money(st.m.tot),'tot')}</tbody></table>
+     <div><h2>${T('الراتب والفاتورة الشهرية','Salary and monthly invoice')}</h2><table class="t"><tbody>${row(T('تأمين الراتب مقدماً (شهران) — بلا ضريبة','Salary security in advance (2 months) — no VAT'),money(st.dep.tot))}${st.m.rows.map(x=>row(x[0],money(x[1]))).join('')}${row(T('رسوم شركة بزنس بارتنر الشهرية (ثابتة)','Business Partner monthly fee (fixed)'),money(st.m.ov))}${st.m.loc?row(T('رسوم التوطين','Localisation fees'),money(st.m.loc)):''}${st.m.disc>0.5?row(T('خصم الكود','Code discount'),'−'+money(st.m.disc)):''}${row(T('ضريبة 15% على رسوم بزنس بارتنر والتوطين','VAT 15% on Business Partner and localisation fees'),money(st.m.vat))}${row(T('إجمالي الفاتورة الشهرية','Total monthly invoice'),money(st.m.tot),'tot')}</tbody></table>
      <h2>${T('نهاية العقد (فاتورة منفصلة بالفعلي)','Contract end (separate invoice, at actual)')}</h2><table class="t"><tbody>${line3(st.e)}${row(T('الإجمالي التقديري','Estimated total'),money(st.e.tot),'tot')}</tbody></table></div></div>`;
     const vatAll=sc.rows.filter(r=>r.kind==='vat').reduce((t,r)=>t+r.v.reduce((a,x)=>a+x,0),0);
     payHtml=`<table class="t"><thead><tr><th>${T('الدفعة','Payment')}</th><th class="n">${T('المبلغ (ريال)','Amount (SAR)')}</th></tr></thead><tbody>${row(T('الدفعة الأولى عند البدء (المرحلة الأولى + الثانية + تأمين الراتب)','Amount due at start (stage 1 + stage 2 + salary security)'),money(sc.tot[0]))}${row(T('الإجمالي للمدة قبل الضريبة','Total for the term, excl. VAT'),money(sc.grand-vatAll))}${row(T('الإجمالي للمدة بعد الضريبة','Total for the term, incl. VAT'),money(sc.grand),'tot')}</tbody></table>`;
@@ -643,6 +653,28 @@ function quoteHtml(kind,meta){
   return `<!doctype html><html><head><meta charset="utf-8"><title>${m.no} — ${m.comp}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"><style>${QCSS}</style></head><body>${cover}${body}${back}</body></html>`;
 }
 function tx0(kind){ return kind==='lump'?(L==='ar'?'التعاقد وتوطين العمالة — المبلغ المقطوع':'Contracting & localisation — lump sum'):(L==='ar'?'التعاقد وتوطين العمالة — تكلفة زائد ودفعات':'Contracting & localisation — cost plus & payments'); }
+
+function discBox(kind){
+  const d=S.disc; let h='';
+  if(!CLIENT){
+    h=`<h2 style="margin-top:18px">${tx('معاينة الخصم (المالك)','Discount preview (owner)')}</h2><p class="hint">${tx('الخصم يُطبَّق على رسوم بزنس بارتنر، وإن شئت يشمل أيضاً التوطين والمصاريف التشغيلية.','The discount applies to the Business Partner fee, and optionally also to localisation and operating expenses.')}</p>
+    <div class="row2"><div class="field"><label for="ds-pct">${tx('نسبة الخصم %','Discount %')}</label><input id="ds-pct" type="number" min="0" max="100" step="1" value="${d.pct}"></div><div class="field"><label for="ds-code">${tx('اسم الكود','Code name')}</label><input id="ds-code" value="${(d.code||'').replace(/"/g,'&quot;')}" dir="ltr"></div></div>
+    <p style="display:flex;gap:14px;flex-wrap:wrap;margin:4px 0 8px"><label><input type="checkbox" id="ds-svc" ${d.svc?'checked':''}> ${tx('رسوم بزنس بارتنر','Business Partner fee')}</label><label><input type="checkbox" id="ds-loc" ${d.loc?'checked':''}> ${tx('التوطين','Localisation')}</label><label><input type="checkbox" id="ds-ops" ${d.ops?'checked':''}> ${tx('المصاريف التشغيلية','Operating expenses')}</label></p>
+    <div class="cta"><button class="btn ${d.on?'':'primary'}" id="ds-toggle">${d.on?tx('إيقاف الخصم','Turn the discount off'):tx('تطبيق الخصم','Apply the discount')}</button></div>`;
+  } else {
+    h=`<h2 style="margin-top:18px">${tx('كود الخصم','Discount code')}</h2><div class="row2"><div class="field"><label for="dc-in">${tx('أدخل الكود','Enter the code')}</label><input id="dc-in" value="${(d.on?d.code:'').replace(/"/g,'&quot;')}" dir="ltr" ${DEMO?'':'disabled'}></div></div><div class="cta"><button class="btn" id="dc-apply" ${DEMO?'':'disabled'}>${tx('تطبيق','Apply')}</button></div><p class="hint" id="dc-msg">${DEMO?(d.on?tx('طُبّق الكود '+d.code+' ('+d.pct+'%).','Code '+d.code+' applied ('+d.pct+'%).'):tx('جرّب الكود DEMO10.','Try the code DEMO10.')):tx('يتحقق الخادم من الكود على الموقع.','The server validates the code on the site.')}</p>`;
+  }
+  return h;
+}
+function discWire(){
+  const tg=document.getElementById('ds-toggle');
+  if(tg){ const g=id=>document.getElementById(id);
+    const read=()=>{S.disc.pct=+g('ds-pct').value||0; S.disc.code=g('ds-code').value.trim(); S.disc.svc=g('ds-svc').checked; S.disc.loc=g('ds-loc').checked; S.disc.ops=g('ds-ops').checked;};
+    tg.addEventListener('click',()=>{read(); S.disc.on=!S.disc.on; render();});
+    ['ds-pct','ds-svc','ds-loc','ds-ops'].forEach(id=>g(id).addEventListener('change',()=>{read(); if(S.disc.on) render();}));
+  }
+  const ap=document.getElementById('dc-apply'); if(ap&&!ap.disabled){ ap.addEventListener('click',()=>{const v=document.getElementById('dc-in').value.trim().toUpperCase(); if(v==='DEMO10'){Object.assign(S.disc,{on:true,code:'DEMO10',pct:10,svc:true,loc:false,ops:false});} else {S.disc.on=false; document.getElementById('dc-msg').textContent=tx('الكود غير صحيح.','Invalid code.'); return;} render();}); }
+}
 function quoteBox(kind){
   const q=S.quote, bad=(S[kind].nat==='saudi')||(typeof S[kind].term!=='number');
   return `<h2 style="margin-top:18px">${tx('عرض السعر (PDF)','Price quotation (PDF)')}</h2><p class="hint">${tx('أدخل اسمك واسم منشأتك ليصدر العرض بغلاف أول وغلاف أخير ثم احفظه PDF للاحتفاظ به أو لعرضه على الإدارة للموافقة.','Enter your name and your establishment to issue the quotation with front and back covers, then save it as PDF to keep it or show it to management for approval.')}</p>
@@ -657,7 +689,7 @@ function quoteWire(){
   pr.addEventListener('click',()=>{const h=make(pr.dataset.kind); if(!h) return; let f=document.getElementById('qt-frame'); if(f) f.remove(); f=document.createElement('iframe'); f.id='qt-frame'; f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0'; document.body.appendChild(f); f.srcdoc=h; f.onload=()=>{setTimeout(()=>{try{f.contentWindow.focus(); f.contentWindow.print(); msg.textContent=tx('اختر «حفظ كـ PDF» من نافذة الطباعة.','Choose “Save as PDF” in the print dialog.');}catch(e){msg.textContent=tx('تعذّرت الطباعة المباشرة؛ استعمل «تنزيل ملف العرض» ثم اطبعه.','Direct print failed; use “Download quotation file” and print it.');}},600);};});
   document.getElementById('qt-dl').addEventListener('click',async()=>{const h=make(document.getElementById('qt-dl').dataset.kind); if(!h) return; const r=await saveFile(S.quote.no+'.html',h,'text/html'); msg.textContent=r==='saved'?tx('حُفظ الملف: افتحه في المتصفح ثم اطبعه PDF (طباعة ← حفظ كـ PDF).','Saved: open it in the browser and print it as PDF (Print → Save as PDF).'):r==='declined'?tx('أُلغي الحفظ.','Save cancelled.'):tx('تعذّر التنزيل.','Download failed.');});
 }
-function cta(kind,r){return (kind==='lump'||kind==='cost'?quoteBox(kind):'')+`<div class="cta"><button class="btn primary" id="copy-${kind}">${tx('نسخ ملخص العرض','Copy quote summary')}</button><button class="btn" disabled>${tx('إصدار العقد','Generate contract')}</button><button class="btn" disabled>${tx('ادفع الدفعة المقدمة','Pay the advance')}</button></div><p class="hint" style="margin-top:8px" id="copied"></p>`;}
+function cta(kind,r){return (kind==='lump'||kind==='cost'?discBox(kind)+quoteBox(kind):'')+`<div class="cta"><button class="btn primary" id="copy-${kind}">${tx('نسخ ملخص العرض','Copy quote summary')}</button><button class="btn" disabled>${tx('إصدار العقد','Generate contract')}</button><button class="btn" disabled>${tx('ادفع الدفعة المقدمة','Pay the advance')}</button></div><p class="hint" style="margin-top:8px" id="copied"></p>`;}
 
 function stagesOf(sc){
   const n=sc.n, nm=r=>L==='ar'?r.ar:(L==='en'?r.en:trn(r.en));
@@ -668,8 +700,8 @@ function stagesOf(sc){
   const dep={cost:2*sc.a,tot:2*sc.a};
   const mrows=sc.rows.filter(r=>r.st==='M'&&r.kind==='cost'&&r.v[Math.min(2,n)]>0&&!/راتب الموظف \(شهران/.test(r.ar)).map(r=>[nm(r),r.v[Math.min(2,n)]]);
   const sal=[[tx('راتب الموظف','Employee salary'),sc.a]].concat(mrows);
-  const mcost=sal.reduce((t,x)=>t+x[1],0), mvat=(sc.ov+sc.locM)*0.15;
-  const m={rows:sal,cost:mcost,ov:sc.ov,loc:sc.locM,vat:mvat,tot:mcost+sc.ov+sc.locM+mvat};
+  const mcost=sal.reduce((t,x)=>t+x[1],0), mvat=(sc.ov+sc.locM-(sc.discM||0))*0.15;
+  const m={rows:sal,cost:mcost,ov:sc.ov,loc:sc.locM,disc:sc.discM||0,vat:mvat,tot:mcost+sc.ov+sc.locM-(sc.discM||0)+mvat};
   const e=mk(sc.rows.filter(r=>r.st==='E'&&r.kind==='cost'&&r.v[n]>0),r=>r.v[n]);
   const optRow=sc.rows.find(r=>r.kind==='opt'); e.opt=optRow?[nm(optRow),optRow.v[n]]:null;
   return {s1,s2,dep,m,e};
@@ -711,7 +743,7 @@ function viewCostInner(){
    <div class="res">${line(tx('تأمين الراتب مقدماً (شهران) — بلا رسوم ولا ضريبة','Salary security in advance (2 months) — no fee, no VAT'),fmt(st.dep.tot),'total')}</div>
    <p class="hint" style="margin-top:10px">${c.abroad==='Yes'?tx('التأمينات الاجتماعية تُفوتَر بعد وصول العامل وتحديث الراتب في التأمينات.','Social insurance is invoiced after the worker arrives and the salary is updated in social insurance.'):tx('التأمينات الاجتماعية تُفوتَر بعد تحديث الراتب في التأمينات.','Social insurance is invoiced after the salary is updated in social insurance.')}</p>
    <div class="res">${st.m.rows.map(x=>line(x[0],fmt(x[1]))).join('')}
-   ${line(tx('إجمالي الراتب والتأمينات (بلا ضريبة)','Salary and insurance total (no VAT)'),fmt(st.m.cost))}${line(tx('رسوم شركة بزنس بارتنر الشهرية على الموظف (ثابتة)','Business Partner monthly fee per employee (fixed)'),fmt(st.m.ov))}${st.m.loc?line(tx('رسوم التوطين','Localisation fees')+locTag(locCalc(c.prof,c.qty)),fmt(st.m.loc)):''}${line(tx('ضريبة 15% على رسوم شركة بزنس بارتنر ورسوم التوطين','VAT 15% on Business Partner and localisation fees'),fmt(st.m.vat))}${line(tx('إجمالي الفاتورة الشهرية','Total monthly invoice'),fmt(st.m.tot),'total')}</div>
+   ${line(tx('إجمالي الراتب والتأمينات (بلا ضريبة)','Salary and insurance total (no VAT)'),fmt(st.m.cost))}${line(tx('رسوم شركة بزنس بارتنر الشهرية على الموظف (ثابتة)','Business Partner monthly fee per employee (fixed)'),fmt(st.m.ov))}${st.m.loc?line(tx('رسوم التوطين','Localisation fees')+locTag(locCalc(c.prof,c.qty)),fmt(st.m.loc)):''}${st.m.disc>0.5?line(tx('خصم الكود','Code discount'),'−'+fmt(st.m.disc)):''}${line(tx('ضريبة 15% على رسوم شركة بزنس بارتنر ورسوم التوطين','VAT 15% on Business Partner and localisation fees'),fmt(st.m.vat))}${line(tx('إجمالي الفاتورة الشهرية','Total monthly invoice'),fmt(st.m.tot),'total')}</div>
    <h2 style="margin-top:18px">${tx('نهاية العقد (فاتورة منفصلة بالفعلي)','Contract end (separate invoice, at actual)')}</h2>
    <p class="hint">${tx('نهاية الخدمة وبدل الإجازة وتذكرة العودة لا تُحسب إلا بالإجمالي الفعلي للموظف بعد نهاية العقد؛ الأرقام أدناه تقديرية.','End of service, leave pay and the return ticket are calculated only on the employee’s actual total after the contract ends; the figures below are estimates.')}</p>
    <div class="res">${st.e.rows.map(x=>line(x[0],fmt(x[1]))).join('')}
@@ -985,12 +1017,12 @@ function viewComp(){
   const stLbl=it=>it.st==='bad'?tx('مخالفة','Violation'):it.st==='warn'?tx('ناقص '+it.x.short,'Short '+it.x.short):it.st==='info'?(it.x.onReq?tx('عند الطلب','On request'):tx('لا يسري','Not applicable')):(it.x.p[1]==='Standard'?tx('بلا قرار توطين','No decision'):tx('ممتثل','Compliant'));
   const catL=k=>({'Saudi-only':tx('للسعوديين فقط','Saudi-only'),'Technical':tx('فنية','Technical'),'Administrative':tx('إدارية','Administrative'),'Engineering':tx('هندسية','Engineering'),'Standard':tx('عادية','Standard'),'On request':tx('عند الطلب','On request')}[k]||k);
   const next=r.cur<BANDS.length-1?r.res[r.cur+1]:null;
-  const plan=[]; if(A.bad) plan.push(tx('صحّح '+A.bad+' مخالفة: مهن مقصورة على السعوديين فيها أجانب.','Fix '+A.bad+' violation(s): Saudi-only professions with foreigners.'));
-  if(A.unl) plan.push(tx('راجع '+A.unl+' مهنة غير مرتبطة بنشاطك في قوى.','Review '+A.unl+' profession(s) not linked to your activity in Qiwa.'));
-  if(A.shortT) plan.push(tx('وظّف '+A.shortT+' سعودياً لسدّ نقص المهن الموطّنة (تكلفة تقريبية '+fmt(A.costShort)+' شهرياً).','Hire '+A.shortT+' Saudi(s) to close the localisation shortfall (about '+fmt(A.costShort)+' a month).'));
-  if(A.bad&&A.costBad) plan.push(tx('إحلال سعوديين مكان الأجانب في المهن المقصورة يكلّف نحو '+fmt(A.costBad)+' شهرياً.','Replacing foreigners with Saudis in the Saudi-only professions costs about '+fmt(A.costBad)+' a month.'));
-  if(next&&next.short>0) plan.push(tx('لبلوغ «'+bandL(r.cur+1)+'» تحتاج '+next.short+' سعودياً إضافياً على مستوى المنشأة (الإجمالي ثابت).','To reach “'+bandL(r.cur+1)+'” you need '+next.short+' more Saudi(s) company-wide (total held).'));
-  if(!plan.length) plan.push(tx('وضعك سليم بحسب البيانات المدخلة. استمر في المراقبة عند أي توظيف أو استقالة.','Your position is sound on the data entered. Keep monitoring on every hire or resignation.'));
+  const plan=[]; // {sev, act, n, cost}
+  if(A.bad) plan.push({sev:'bad',act:tx('صحّح المخالفات: مهن مقصورة على السعوديين فيها أجانب (توطين الوظيفة أو تعديل المهنة في قوى).','Fix the violations: Saudi-only professions with foreigners (fill the job with a Saudi or correct the profession in Qiwa).'),n:A.bad,cost:A.costBad});
+  if(A.shortT) plan.push({sev:'warn',act:tx('وظّف سعوديين لسدّ نقص المهن الموطّنة.','Hire Saudis to close the shortfall in localised professions.'),n:A.shortT,cost:A.costShort});
+  if(A.unl) plan.push({sev:'amber',act:tx('راجع المهن غير المرتبطة بنشاطك في قوى (تعديل المهنة أو إضافة النشاط المناسب).','Review professions not linked to your activity in Qiwa (change the profession or add the right activity).'),n:A.unl,cost:null});
+  if(next&&next.short>0) plan.push({sev:'info',act:tx('لبلوغ «'+bandL(r.cur+1)+'» على مستوى المنشأة (الإجمالي ثابت).','To reach “'+bandL(r.cur+1)+'” company-wide (total held).'),n:next.short,cost:null});
+  if(!plan.length) plan.push({sev:'ok',act:tx('وضعك سليم بحسب البيانات المدخلة. استمر في المراقبة عند أي توظيف أو استقالة.','Your position is sound on the data entered. Keep monitoring on every hire or resignation.'),n:null,cost:null});
   const snaps=snapLoad();
   const sev={bad:'🔴',warn:'🟠',amber:'🟡',info:'ℹ️'};
   return `<section class="panel"><h2>${tx('لوحة الامتثال','Compliance board')}</h2>
@@ -998,7 +1030,7 @@ function viewComp(){
    ${hasAct?'':`<p><span class="pill warn">${tx('لم تختر نشاطك بعد: لا يمكن فحص ارتباط المهن بالنشاط','No activity chosen: profession-to-activity linkage cannot be checked')}</span></p>`}
    ${!A.items.length?`<p class="hint">${tx('لا فريق مُدخل بعد. أضف مهن فريقك من تبويب «فريقك حسب المهن».','No team entered yet. Add your professions in “Team by profession”.')}</p>`:''}
    <div class="res" style="max-width:640px">${line(tx('نطاقك الحالي','Your current band'),`<span class="pill ${r.cur>=2?'ok':r.cur>=0?'warn':'bad'}">${bandL(r.cur)} · ${fmt1(r.pct)}%</span>`)}${line(tx('مؤشر امتثال المهن','Profession compliance score'),`<b>${A.score}%</b>`)}${line(tx('مخالفات (مهن للسعوديين فقط)','Violations (Saudi-only professions)'),A.bad?`<span class="pill bad">${A.bad}</span>`:0)}${line(tx('نقص السعوديين في المهن الموطّنة','Saudi shortfall in localised professions'),A.shortT?`<span class="pill warn">${A.shortT}</span>`:0)}${line(tx('مهن غير مرتبطة بالنشاط','Professions not linked to the activity'),A.unl?`<span class="pill warn">${A.unl}</span>`:0)}</div></section>
-  <section class="panel" style="margin-top:16px"><h2>${tx('خطة ضبط الوضع','Plan to fix your position')}</h2><ol style="margin:6px 0 0;padding-inline-start:22px;line-height:1.9">${plan.map(x=>`<li>${x}</li>`).join('')}</ol></section>
+  <section class="panel" style="margin-top:16px"><h2>${tx('خطة ضبط الوضع','Plan to fix your position')}</h2><div class="tbl"><table class="notes"><thead><tr><th class="n">#</th><th>${tx('الأولوية','Priority')}</th><th>${tx('الإجراء','Action')}</th><th class="n">${tx('العدد','Count')}</th><th class="n">${tx('التكلفة التقريبية شهرياً','Approx. monthly cost')}</th></tr></thead><tbody>${plan.map((x,i)=>`<tr><td class="n">${i+1}</td><td><span class="pill ${x.sev==='bad'?'bad':x.sev==='ok'?'ok':x.sev==='info'?'':'warn'}">${x.sev==='bad'?tx('عاجل','Urgent'):x.sev==='warn'?tx('عالية','High'):x.sev==='amber'?tx('متوسطة','Medium'):x.sev==='ok'?tx('سليم','Sound'):tx('للعلم','Info')}</span></td><td>${x.act}</td><td class="n">${x.n==null?'—':x.n}</td><td class="n">${x.cost?fmt(x.cost):'—'}</td></tr>`).join('')}</tbody></table></div></section>
   ${A.items.length?`<section class="panel" style="margin-top:16px"><h2>${tx('امتثال كل مهنة','Compliance by profession')}</h2><div class="tbl"><table><thead><tr><th>${tx('المهنة','Profession')}</th><th>${tx('بالنشاط','In activity')}</th><th>${tx('الفئة','Class')}</th><th class="n">${tx('النسبة','Ratio')}</th><th class="n">${tx('سعوديون','Saudis')}</th><th class="n">${tx('أجانب','Foreign')}</th><th class="n">${tx('المطلوب','Required')}</th><th>${tx('الحالة','Status')}</th></tr></thead><tbody>
    ${A.items.map(it=>`<tr><td>${it.name}</td><td>${!hasAct?'—':it.linked?'✓':`<span class="pill warn">${tx('غير مرتبطة','Not linked')}</span>`}</td><td>${catL(it.x.p[1])}</td><td class="n">${it.x.p[3]?Math.round(it.x.ratio*100)+'%':'—'}</td><td class="n">${it.r.saudi}</td><td class="n">${it.r.foreign}</td><td class="n">${it.x.only?'—':it.x.req}</td><td><span class="pill ${pillCls(it.st)}">${stLbl(it)}</span></td></tr>`).join('')}</tbody></table></div></section>
   <section class="panel" style="margin-top:16px"><h2>${tx('الملاحظات ('+A.notes.length+')','Notes ('+A.notes.length+')')}</h2>${A.notes.length?`<div class="tbl"><table class="notes"><thead><tr><th class="n">#</th><th>${tx('الأولوية','Priority')}</th><th>${tx('المهنة','Profession')}</th><th>${tx('المشكلة','Problem')}</th><th>${tx('الحل','Solution')}</th></tr></thead><tbody>${A.notes.map((x,i)=>`<tr><td class="n">${i+1}</td><td><span class="pill ${x.sev==='bad'?'bad':x.sev==='info'?'':'warn'}">${x.sev==='bad'?tx('عاجل','Urgent'):x.sev==='warn'?tx('عالية','High'):x.sev==='amber'?tx('متوسطة','Medium'):tx('للعلم','Info')}</span></td><td><b>${x.name}</b></td><td>${x.prob}</td><td>${x.fix}</td></tr>`).join('')}</tbody></table></div>
@@ -1296,7 +1328,7 @@ function cleanClient(){
   if(v!==o) x.nodeValue=v;});
  document.querySelectorAll('.pill.warn').forEach(e=>{if(/مسودة|Draft|بانتظار|await/i.test(e.textContent)) e.remove();});
 }
-function render(focusId){ try{ __render(focusId); stepify(); markRequired(); quickDemo(); compWire(); quoteWire(); }finally{ cleanClient(); } }
+function render(focusId){ try{ __render(focusId); stepify(); markRequired(); quickDemo(); compWire(); quoteWire(); discWire(); }finally{ cleanClient(); } }
 function __render(focusId){
   $('#app').dir=L==='ar'?'rtl':'ltr'; $('#app').lang=L;
   $('#t-title').textContent=t('title'); $('#t-sub').textContent=t('sub'); $('#t-notice').textContent=t('notice'); $('#t-foot').textContent=t('foot');
