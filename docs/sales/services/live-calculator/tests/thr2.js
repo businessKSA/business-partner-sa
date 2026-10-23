@@ -3,7 +3,7 @@ const p=await b.newPage({viewport:{width:480,height:900}});p.on('pageerror',e=>e
 await p.goto('file://'+process.cwd()+'/index-client.html?lang=ar');await p.waitForTimeout(700);
 await p.click('.chip:has-text("الموارد البشرية والتوظيف")');await p.waitForTimeout(200);
 await p.click('.chip:has-text("أبحث عن وظيفة")');await p.waitForTimeout(300);
-await p.fill('#dk-tx','محاسب في الرياض');await p.click('#dk-ok');await p.waitForTimeout(400);
+ok(/ارفع سيرتك الذاتية/.test(await p.evaluate(()=>document.getElementById('cs-dock').innerText)),'upload button says upload your CV');await p.fill('#dk-tx','محاسب في الرياض');await p.click('#dk-ok');await p.waitForTimeout(400);
 let t=await p.evaluate(()=>document.getElementById('cs-thread').innerText);ok(/ملفك الوظيفي/.test(t)&&/محاسب في الرياض/.test(t),'seeker profile card');
 await p.evaluate(()=>bpT().chHR());await p.waitForTimeout(200);
 await p.click('.chip:has-text("مكتب استقدام")');await p.waitForTimeout(300);
