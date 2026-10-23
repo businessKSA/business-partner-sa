@@ -24,7 +24,7 @@ create table if not exists shr_users (
   tenant_id uuid not null references shr_tenants(id),
   email text not null,
   full_name text,
-  role text not null check (role in ('tenant_owner','operator','client_admin','client_viewer','worker','agency')),
+  role text not null check (role in ('tenant_owner','operator','client_admin','client_viewer','worker','agency','compliance_officer')),
   client_company_id uuid,                    -- لأدوار العميل
   worker_id uuid,                            -- لدور العامل
   agency_id uuid,                            -- لدور المكتب
@@ -176,8 +176,8 @@ create table if not exists shr_recruitment_orders ( -- أمر استقدام: م
   created_at timestamptz not null default now(),
   unique (tenant_id, id),
   foreign key (tenant_id, agency_id) references shr_agencies(tenant_id, id)
-  -- المعلَّق بقرار المالك: منع الأمر إن كانت المنشأة restricted/suspected لنوع تأشيرات الأمر.
-  -- لا حقل لنوع التأشيرة في shr_establishments بعد، فالمنع غير مُنفَّذ؛ الخادم يرد بتحذير فقط.
+  -- حجب الأمر لمنشأة restricted/suspected يطبّقه الخادم من لقطات shr_establishment_compliance (409 establishment_blocked)،
+  -- لا من قيد هنا: الحالة الفعلية مشتقة من آخر لقطة متحقَّق منها.
 );
 
 create table if not exists shr_agency_candidates (   -- ما قدّمه المكتب. مواصفات فقط، بلا هوية حقيقية.
@@ -378,6 +378,299 @@ drop trigger if exists shr_events_no_change on shr_application_events;
 create trigger shr_events_no_change before update or delete on shr_application_events
   for each row execute function shr_events_immutable();
 
+-- ------------------------------------------------------------- الامتثال ----
+-- وحدة الامتثال (مسودات وبيانات وهمية). القواعد:
+--  * لا رقم نظامي هنا ولا في الشيفرة: الغرامات والمدد والنسب والنطاقات كلها من
+--    db/shr-ref/*.json (لكل صف rule_id وsource_url وverified). ما verified فيه غير
+--    confirmed لا يظهر لعميل ولا يُفعَّل في قاعدة تمنع أو تنبّه؛ يظهر للمشغّل بوسم «غير مؤكد».
+--  * المبلغ والموعد تقدير دائماً ومعه مصدره؛ ولا موعد اعتراض بلا تاريخ تبليغ مُدخَل بشرياً.
+--  * من يُدخل لا يعتمد (قيود check)، ولا حذف (مشغّل لكل جدول)، والتغييرات تُدوَّن في shr_audit_log.
+--  * لا أسماء حقيقية ولا هوية خام: بصمة id_no_hash فقط، وأسماء A33 بوسم «(وهمي)».
+
+-- ربط مركّب (tenant_id, id) يمنع ربطاً عابراً للمستأجرين.
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'shr_establishments_tenant_id_id_key') then
+    alter table shr_establishments add constraint shr_establishments_tenant_id_id_key unique (tenant_id, id);
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'shr_workers_tenant_id_id_key') then
+    alter table shr_workers add constraint shr_workers_tenant_id_id_key unique (tenant_id, id);
+  end if;
+  -- ترقية قاعدة قديمة: دور compliance_officer في قيد الأدوار.
+  if exists (select 1 from pg_constraint where conname = 'shr_users_role_check'
+             and pg_get_constraintdef(oid) not like '%compliance_officer%') then
+    alter table shr_users drop constraint shr_users_role_check;
+    alter table shr_users add constraint shr_users_role_check
+      check (role in ('tenant_owner','operator','client_admin','client_viewer','worker','agency','compliance_officer'));
+  end if;
+end $$;
+
+alter table shr_procedure_steps add column if not exists establishment_id uuid;
+alter table shr_procedure_steps add column if not exists created_by uuid;
+alter table shr_procedure_steps add column if not exists created_at timestamptz not null default now();
+
+create table if not exists shr_compliance_settings (   -- إعدادات الامتثال للمستأجر (صف واحد)
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null unique references shr_tenants(id),
+  unknown_blocks boolean not null default false,       -- unknown تحذير لا منع، ما لم يُفعَّل
+  expiry_alert_days int not null default 60 check (expiry_alert_days between 1 and 365),     -- افتراض تشغيلي لا نظامي
+  deadline_alert_days int not null default 14 check (deadline_alert_days between 1 and 180), -- افتراض تشغيلي لا نظامي
+  client_visibility boolean not null default false,    -- العميل لا يرى المخالفات ولا حالة القيد
+  a33_gate boolean not null default true,              -- حجب تفعيل العامل المرتبط بقائمة A33 غير المعتمدة
+  block_steps jsonb not null default '["visa"]',       -- خطوات الإجراء المحجوبة لمنشأة restricted/suspected
+  updated_by uuid,
+  updated_at timestamptz
+);
+
+create table if not exists shr_establishment_compliance (  -- لقطات تاريخية لحالة المنشأة
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  establishment_id uuid not null,
+  as_of date not null default current_date,
+  activity_rule_id text check (activity_rule_id is null or activity_rule_id ~ '^NIT-[0-9]+$'),   -- نشاط نطاقات من المرجع
+  declared_band text check (declared_band is null or declared_band in ('red','green_low','green_mid','green_high','platinum')),
+  declared_saudization_pct numeric(5,2) check (declared_saudization_pct is null or declared_saudization_pct between 0 and 100),
+  saudi_count int check (saudi_count is null or saudi_count >= 0),
+  non_saudi_count int check (non_saudi_count is null or non_saudi_count >= 0),
+  computed_pct numeric(5,2),                           -- تقدير بالعدّ بالرؤوس (أوزان الأجور معطّلة)
+  computed_band text check (computed_band is null or computed_band in ('red','green_low','green_mid','green_high','platinum')),
+  computed_basis jsonb,                                -- مصدر التقدير وتحفظاته
+  restriction_state text not null default 'unknown' check (restriction_state in ('unknown','clear','restricted','suspected')),
+  restriction_reason text,
+  source_note text,                                    -- من أين أُدخلت الحالة (إدخال بشري من منصة الجهة)
+  entered_by uuid not null,
+  verified_on date,
+  verified_by uuid,
+  demo boolean not null default true,
+  created_at timestamptz not null default now(),
+  unique (tenant_id, id),
+  foreign key (tenant_id, establishment_id) references shr_establishments(tenant_id, id),
+  check (verified_by is null or verified_by <> entered_by),                 -- من يُدخل لا يتحقق
+  check ((verified_by is null) = (verified_on is null)),
+  check (restriction_state not in ('restricted','suspected') or coalesce(length(trim(restriction_reason)), 0) > 0),
+  check (computed_pct is null or computed_basis is not null)                -- لا تقدير بلا مصدر
+);
+create index if not exists shr_ecomp_est on shr_establishment_compliance (tenant_id, establishment_id, as_of desc, created_at desc);
+
+create or replace function shr_ecomp_guard() returns trigger language plpgsql as
+$$ begin
+  if tg_op = 'DELETE' then raise exception 'shr_establishment_compliance is append-only'; end if;
+  if old.verified_by is not null then raise exception 'snapshot already verified'; end if;
+  if (to_jsonb(new) - 'verified_by' - 'verified_on') <> (to_jsonb(old) - 'verified_by' - 'verified_on') then
+    raise exception 'snapshot is historical: only verification may be added';
+  end if;
+  return new;
+end $$;
+drop trigger if exists shr_ecomp_no_change on shr_establishment_compliance;
+create trigger shr_ecomp_no_change before update or delete on shr_establishment_compliance
+  for each row execute function shr_ecomp_guard();
+
+create table if not exists shr_violations (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  establishment_id uuid not null,
+  authority text not null,                             -- الجهة المصدِرة
+  ref_no text,                                         -- رقم المخالفة/القرار كما في الإشعار
+  rule_id text not null check (rule_id ~ '^[A-Z]+-[0-9]+$'),   -- بند المرجع (db/shr-ref/violations_rules.json)
+  rule_verified text not null,                         -- حالة تحقق البند وقت التسجيل
+  kind_ar text not null,                               -- نوع المخالفة: نسخة من اسم البند
+  severity text,
+  persons_count int not null default 1 check (persons_count >= 1),   -- عدد الأشخاص/الحالات
+  size_tier text,                                      -- شريحة المنشأة: مفتاح من fine_sar في المرجع، يُدخلها إنسان
+  fine_estimate_sar numeric(14,2),                     -- تقدير من المرجع فقط
+  fine_source jsonb,                                   -- {rule_id, source_url, source_ref, verified, tier, unit_sar, count}
+  notification_date date,                              -- تاريخ التبليغ: إدخال بشري من الإشعار الرسمي وحده
+  notification_entered_by uuid,
+  estimated_objection_deadline date,                   -- تبليغ + مدة المرجع؛ لا يُشتق من تاريخ المخالفة
+  objection_basis jsonb,
+  status text not null default 'review' check (status in ('review','objection_eligibility_study','preparation','submission','follow_up')),
+  paid_state text not null default 'unknown' check (paid_state in ('unknown','unpaid','paid')),
+  entered_by uuid not null,
+  reviewed_by uuid,
+  reviewed_at timestamptz,
+  archived_at timestamptz,
+  demo boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz,
+  unique (tenant_id, id),
+  foreign key (tenant_id, establishment_id) references shr_establishments(tenant_id, id),
+  check (reviewed_by is null or reviewed_by <> entered_by),                       -- من يُدخل لا يراجع
+  check (status = 'review' or reviewed_by is not null),                           -- لا تقدّم بلا مراجعة ثانية
+  check (estimated_objection_deadline is null or notification_date is not null),  -- لا موعد بلا تاريخ تبليغ
+  check ((estimated_objection_deadline is null) = (objection_basis is null)),
+  check (fine_estimate_sar is null or fine_source is not null),                   -- لا مبلغ بلا مصدر
+  check (notification_date is null or notification_entered_by is not null)
+);
+create unique index if not exists shr_viol_refno on shr_violations (tenant_id, authority, ref_no) where ref_no is not null and archived_at is null;
+create index if not exists shr_viol_est on shr_violations (tenant_id, establishment_id) where archived_at is null;
+
+create table if not exists shr_compliance_checks (    -- نتائج الفحوص: سجل لا يُعدَّل
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  establishment_id uuid,
+  worker_id uuid,
+  check_key text not null,
+  result text not null check (result in ('pass','warn','fail','unknown')),
+  detail jsonb not null default '{}',
+  rule_ids jsonb not null default '[]',
+  run_by uuid,
+  run_at timestamptz not null default now(),
+  foreign key (tenant_id, establishment_id) references shr_establishments(tenant_id, id),
+  foreign key (tenant_id, worker_id) references shr_workers(tenant_id, id)
+);
+
+create table if not exists shr_checklist_templates (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  key text not null,
+  title_ar text not null,
+  audience text not null check (audience in ('staff','client','worker','agency')),   -- من يرى القائمة
+  scope text not null check (scope in ('establishment','worker','violation')),
+  version int not null default 1,                       -- التعديل نسخة جديدة لا تحرير
+  active boolean not null default true,
+  demo boolean not null default true,
+  created_by uuid,
+  created_at timestamptz not null default now(),
+  unique (tenant_id, id),
+  unique (tenant_id, key, version)
+);
+
+create table if not exists shr_checklist_items (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  template_id uuid not null,
+  position int not null,
+  text_ar text not null,
+  required boolean not null default true,
+  rule_id text check (rule_id is null or rule_id ~ '^[A-Z]+(-[A-Z]+)?-[0-9]+$'),   -- بند مرجعي؛ غير المؤكد يُعطَّل البند
+  created_at timestamptz not null default now(),
+  unique (tenant_id, id),
+  unique (tenant_id, template_id, position),
+  foreign key (tenant_id, template_id) references shr_checklist_templates(tenant_id, id)
+);
+
+create table if not exists shr_checklist_ticks (      -- إنجاز البنود: سجل لا يُعدَّل، الأحدث هو الحالة
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  item_id uuid not null,
+  subject_kind text not null check (subject_kind in ('establishment','worker','violation')),
+  subject_id uuid not null,
+  done boolean not null,
+  note text,
+  ticked_by uuid not null,
+  ticked_at timestamptz not null default now(),
+  foreign key (tenant_id, item_id) references shr_checklist_items(tenant_id, id)
+);
+
+create table if not exists shr_a33_names (            -- تصنيف أسماء قائمة م33 (سعوديون مسجّلون بلا علاقة عمل فعلية)
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  establishment_id uuid not null,
+  list_ref text not null,                              -- دفعة/قائمة واحدة
+  alias text not null,                                 -- اسم وهمي موسوم «(وهمي)»؛ لا أسماء حقيقية
+  id_no_hash text not null,                            -- بصمة الهوية فقط
+  worker_id uuid,                                      -- ربط اختياري بعامل في النظام
+  classification text check (classification in ('actual_worker','not_a_worker','works_for_other')),
+  classification_note text,
+  classified_by uuid,
+  classified_at timestamptz,
+  approved_by uuid,                                    -- مراجع ثانٍ
+  approved_at timestamptz,
+  archived_at timestamptz,
+  demo boolean not null default true,
+  created_by uuid,
+  created_at timestamptz not null default now(),
+  unique (tenant_id, id),
+  foreign key (tenant_id, establishment_id) references shr_establishments(tenant_id, id),
+  foreign key (tenant_id, worker_id) references shr_workers(tenant_id, id),
+  check ((classification is null) = (classified_by is null)),
+  check (approved_by is null or classification is not null),
+  check (approved_by is null or approved_by <> classified_by),      -- المصنِّف لا يعتمد
+  check ((approved_by is null) = (approved_at is null))
+);
+create unique index if not exists shr_a33_dup on shr_a33_names (tenant_id, establishment_id, list_ref, id_no_hash) where archived_at is null;
+
+create table if not exists shr_worker_transfers (     -- نقل عامل بين المنشآت: طلب ثم موافقة من غير الطالب
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  worker_id uuid not null,
+  from_establishment_id uuid not null,
+  to_establishment_id uuid not null,
+  reason text not null,
+  state text not null default 'requested' check (state in ('requested','approved','rejected')),
+  requested_by uuid not null,
+  decided_by uuid,
+  decided_at timestamptz,
+  decision_note text,
+  created_at timestamptz not null default now(),
+  unique (tenant_id, id),
+  foreign key (tenant_id, worker_id) references shr_workers(tenant_id, id),
+  foreign key (tenant_id, from_establishment_id) references shr_establishments(tenant_id, id),
+  foreign key (tenant_id, to_establishment_id) references shr_establishments(tenant_id, id),
+  check (from_establishment_id <> to_establishment_id),
+  check (decided_by is null or decided_by <> requested_by),          -- من يطلب لا يوافق
+  check ((state = 'requested') = (decided_by is null))
+);
+create unique index if not exists shr_transfer_open on shr_worker_transfers (tenant_id, worker_id) where state = 'requested';
+
+create table if not exists shr_import_batches (       -- دفعات تأمينات/حماية أجور: uploaded → matched → reviewed → applied
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  kind text not null check (kind in ('gosi','wps')),
+  label text,
+  state text not null default 'uploaded' check (state in ('uploaded','matched','reviewed','applied')),
+  row_count int not null default 0,
+  matched_count int not null default 0,
+  uploaded_by uuid not null,
+  matched_at timestamptz,
+  reviewed_by uuid,
+  reviewed_at timestamptz,
+  applied_by uuid,
+  applied_at timestamptz,
+  demo boolean not null default true,
+  created_at timestamptz not null default now(),
+  unique (tenant_id, id),
+  check (reviewed_by is null or reviewed_by <> uploaded_by),         -- من يرفع لا يراجع
+  check (applied_by is null or applied_by <> uploaded_by),           -- من يرفع لا يطبّق
+  check (state not in ('reviewed','applied') or reviewed_by is not null),
+  check (state <> 'applied' or applied_by is not null)
+);
+
+create table if not exists shr_import_rows (          -- صفوف مُبصَّمة فقط: لا اسم ولا هوية ولا هاتف
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  batch_id uuid not null,
+  line int not null,
+  id_no_hash text not null,
+  period text not null check (period ~ '^[0-9]{4}-[0-9]{2}$'),
+  status text not null,
+  match_state text not null default 'unmatched' check (match_state in ('unmatched','matched')),
+  worker_id uuid,
+  applied_at timestamptz,
+  created_at timestamptz not null default now(),
+  unique (tenant_id, batch_id, line),
+  foreign key (tenant_id, batch_id) references shr_import_batches(tenant_id, id),
+  foreign key (tenant_id, worker_id) references shr_workers(tenant_id, id)
+);
+
+-- لا حذف في أي جدول امتثال؛ والسجلات الحدثية لا تُعدَّل أيضاً.
+create or replace function shr_no_delete() returns trigger language plpgsql as
+$$ begin raise exception '% is archive-only (no delete)', tg_table_name; end $$;
+create or replace function shr_append_only() returns trigger language plpgsql as
+$$ begin raise exception '% is append-only', tg_table_name; end $$;
+do $$
+declare t text;
+begin
+  foreach t in array array['shr_compliance_settings','shr_violations','shr_a33_names','shr_worker_transfers',
+    'shr_import_batches','shr_import_rows','shr_checklist_templates','shr_checklist_items'] loop
+    execute format('drop trigger if exists %I on %I', t || '_no_delete', t);
+    execute format('create trigger %I before delete on %I for each row execute function shr_no_delete()', t || '_no_delete', t);
+  end loop;
+  foreach t in array array['shr_compliance_checks','shr_checklist_ticks'] loop
+    execute format('drop trigger if exists %I on %I', t || '_append_only', t);
+    execute format('create trigger %I before update or delete on %I for each row execute function shr_append_only()', t || '_append_only', t);
+  end loop;
+end $$;
+
 -- ----------------------------------------------------------------- RLS ----
 -- الجلسة تضبط: select set_config('app.tenant_id', '<uuid>', true)
 do $$
@@ -387,7 +680,10 @@ begin
     'shr_workers','shr_assignments','shr_worker_documents','shr_requests','shr_agencies',
     'shr_recruitment_orders','shr_agency_candidates','shr_procedure_steps','shr_payroll_runs',
     'shr_invoices','shr_audit_log','shr_candidates','shr_candidate_consents','shr_jobs',
-    'shr_applications','shr_application_events','shr_interviews','shr_agency_candidate_events','shr_agency_interviews'] loop
+    'shr_applications','shr_application_events','shr_interviews','shr_agency_candidate_events','shr_agency_interviews',
+    'shr_compliance_settings','shr_establishment_compliance','shr_violations','shr_compliance_checks',
+    'shr_checklist_templates','shr_checklist_items','shr_checklist_ticks','shr_a33_names',
+    'shr_worker_transfers','shr_import_batches','shr_import_rows'] loop
     execute format('alter table %I enable row level security', t);
     execute format('drop policy if exists tenant_iso on %I', t);
     execute format($p$create policy tenant_iso on %I using (tenant_id::text = current_setting('app.tenant_id', true)) with check (tenant_id::text = current_setting('app.tenant_id', true))$p$, t);

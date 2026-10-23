@@ -1,0 +1,55 @@
+{
+ "_meta": {
+  "schema": "shr-hr/compliance/case_statuses/v1",
+  "generated_on": "2026-10-23",
+  "note_ar": "الأسماء الخمس سياسة داخلية (CLAUDE.md §4 «المخالفات»)، لا نص حكومي. verified هنا تعني اعتماد المالك للتسمية لا مصدراً حكومياً."
+ },
+ "rows": [
+  {
+   "rule_id": "ST-1",
+   "key": "review",
+   "label_ar": "مراجعة",
+   "order": 1,
+   "meaning_ar": "فحص المخالفة والقرار والمستندات المتاحة"
+  },
+  {
+   "rule_id": "ST-2",
+   "key": "objection_eligibility_study",
+   "label_ar": "دراسة أهلية الاعتراض",
+   "order": 2,
+   "meaning_ar": "تقدير هل للاعتراض أساس؛ لا نتيجة مضمونة"
+  },
+  {
+   "rule_id": "ST-3",
+   "key": "preparation",
+   "label_ar": "تجهيز",
+   "order": 3,
+   "meaning_ar": "تجهيز المبررات والمرفقات"
+  },
+  {
+   "rule_id": "ST-4",
+   "key": "submission",
+   "label_ar": "تقديم",
+   "order": 4,
+   "meaning_ar": "التقديم عبر بوابة الجهة بمهمة بشرية (هوية العميل لا نملكها)",
+   "human_task": true
+  },
+  {
+   "rule_id": "ST-5",
+   "key": "follow_up",
+   "label_ar": "متابعة",
+   "order": 5,
+   "meaning_ar": "متابعة قرار الجهة"
+  }
+ ],
+ "forbidden_labels_ar": [
+  "إلغاء المخالفة",
+  "ضمان الإلغاء",
+  "مسح المخالفة"
+ ],
+ "source_url": null,
+ "source_ref": "CLAUDE.md §4 (سياسة محتوى المالك)",
+ "verified": "confirmed",
+ "verified_basis": "internal_policy",
+ "verified_on": "2026-10-23"
+}

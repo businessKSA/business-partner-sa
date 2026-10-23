@@ -14,16 +14,21 @@
 //      POST agency-create|agency-approve|agency-suspend|order-create|submission-state.
 //      دور agency وحده: GET my-orders|my-submissions|my-interviews ؛ POST submit-candidate|bulk-submit.
 //      كل دور يصل إلى ما يخصّه فقط؛ المكتب لا يصل لأي إجراء مشغّل (403) ولا المشغّل لإجراءات المكتب.
+// الامتثال (المنطق في _shr_compliance.js، قاعدته المرجعية db/shr-ref): GET compliance-* ؛ POST violation-* ·
+//      establishment-compliance-* · a33-* · transfer-* · import-* · checklist-tick · procedure-step-create · compliance-*.
+//      الطاقم (tenant_owner/operator/compliance_officer) وحده؛ دور compliance_officer لا يصل لغير الامتثال.
+//      حالة «تقديم» لا تتغير إلا بـcompliance_officer. العميل والعامل والمكتب: 403 (أو مُقنَّعاً بإعداد المستأجر).
 // الحذف مرفوض: action "worker-delete" (وأي *-delete) -> 403 archive_only.
 import crypto from "node:crypto";
 import { ctxFrom, scoped, assertLocal, tenantBySlug, tenantById, seedDemo, hashIdNo, ROLES, HttpError, audit } from "./_shr.js";
 import * as ats from "./_shr_ats.js";
 import * as agy from "./_shr_agency.js";
+import * as cmp from "./_shr_compliance.js";
 
 const COOKIE = "shr_session";
 const TTL_S = 8 * 3600;
 const PHASE2_ROLES = new Set(["tenant_owner", "operator"]);      // طاقم التشغيل
-const ALLOWED_ROLES = new Set(["tenant_owner", "operator", "agency"]);
+const ALLOWED_ROLES = new Set(["tenant_owner", "operator", "agency", "compliance_officer"]);
 // ما يصل إليه دور agency وحده، مع الطريقة. أي شيء غيره يرد 403 لهذا الدور.
 const AGENCY_GET = new Set(["my-orders", "my-submissions", "my-interviews"]);
 const AGENCY_POST = new Set(["submit-candidate", "bulk-submit"]);
@@ -121,6 +126,8 @@ async function activateWorker(db, user, b) {
   if (w.status === "active") throw new HttpError(409, "already_active");
   // من يُدخل لا يعتمد.
   if (w.created_by && w.created_by === user.sub) throw new HttpError(403, "maker_checker");
+  // عامل مرتبط بقائمة A33: محجوب حتى يُصنَّف كل اسم في قائمته ويعتمد مراجع ثانٍ (409 a33_blocked).
+  await cmp.assertA33(db, id);
   const [docs, asg] = await Promise.all([
     db.get(`shr_worker_documents?worker_id=eq.${id}&select=kind,storage_key,expires_on`),
     db.get(`shr_assignments?worker_id=eq.${id}&select=establishment_id,client_company_id`),
@@ -247,6 +254,12 @@ export default async function handler(req, res) {
     }
     // إجراءات المكتب ليست للمشغّل.
     if (agy.AGENCY_ACTIONS.has(action)) return out(403, { ok: false, error: "role_not_allowed" });
+    // دور مسؤول الامتثال: وحدة الامتثال وsession وحدهما.
+    if (ctx.role === "compliance_officer" && action !== "session" && !cmp.isComplianceAction(action)) return out(403, { ok: false, error: "role_not_allowed" });
+    if (cmp.isComplianceAction(action)) {
+      const r = await cmp.dispatch(action, { db, ctx, user, b, q, isPost });
+      return out(200, { ok: true, ...r });
+    }
 
     switch (action) {
       case "session": {
@@ -287,7 +300,9 @@ export default async function handler(req, res) {
       case "order-create": return out(200, { ok: true, order: await agy.createOrder(db, user, b) });
       case "submission-state": return out(200, { ok: true, submission: await agy.setSubmissionState(db, user, b) });
       case "worker-delete": case "job-delete": case "application-delete": case "candidate-delete": case "agency-delete": case "order-delete": case "submission-delete": case "delete": return out(403, { ok: false, error: "archive_only" });
-      default: return out(404, { ok: false, error: "unknown_action" });
+      default:
+        if (/(^|-)delete$/.test(action)) return out(403, { ok: false, error: "archive_only" });
+        return out(404, { ok: false, error: "unknown_action" });
     }
   } catch (e) {
     if (e instanceof HttpError) return out(e.status, { ok: false, error: e.code, ...e.extra });

@@ -5,14 +5,15 @@
 // على كل كتابة. من يمرّر tenant_id آخر في الجسم أو الاستعلام يُرفض بصوت عالٍ.
 // ما لا يُفهم يرمي: مرشّح مجهول يعني استعلاماً بلا شرط، أي بيانات مستأجر آخر.
 import { sb } from "./_db.js";
+import * as R from "./_shr_ref.js";
 
-const TABLE = /^shr_[a-z_]+$/;
+const TABLE = /^shr_[a-z0-9_]+$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export const ROLES = ["tenant_owner", "operator", "client_admin", "client_viewer", "worker", "agency"];
+export const ROLES = ["tenant_owner", "operator", "client_admin", "client_viewer", "worker", "agency", "compliance_officer"];
 
 // من يرى كل شيء في المستأجر، ومن يُحصر بمعرّفه.
-const STAFF = new Set(["tenant_owner", "operator"]);
+const STAFF = new Set(["tenant_owner", "operator", "compliance_officer"]);
 
 export function ctxFrom(user) {
   if (!user || !UUID.test(String(user.tenant_id || ""))) throw new Error("shr: no tenant in session");
@@ -107,7 +108,7 @@ const day = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10
 
 export async function seedDemo() {
   assertLocal();
-  if (await tenantBySlug("SHR")) { await seedAts(); await seedAgencies(); return { seeded: false }; }
+  if (await tenantBySlug("SHR")) { await seedAts(); await seedAgencies(); await seedCompliance(); return { seeded: false }; }
   const mk = async (slug, brand_ar, brand_en) => (await sb("shr_tenants", { method: "POST", body: { slug, brand_ar, brand_en, demo: true } }))[0];
   const A = await mk("SHR", "مستأجر SHR التجريبي (بيانات وهمية)", "SHR demo tenant");
   const B = await mk("OTHER", "مستأجر وهمي آخر (بيانات وهمية)", "Other demo tenant");
@@ -175,6 +176,7 @@ export async function seedDemo() {
   });
   await seedAts();
   await seedAgencies();
+  await seedCompliance();
   return { seeded: true };
 }
 
@@ -354,6 +356,133 @@ export async function seedAgencies() {
       await s.post("shr_agency_candidate_events", { submission_id: c.id, from_state: null, to_state: "submitted", actor: c.submitted_by, note: "تقديم تجريبي", at: iso(-5) });
       if (state !== "submitted") await s.post("shr_agency_candidate_events", { submission_id: c.id, from_state: "submitted", to_state: state, actor: U.ops.id, note: "بذرة تجريبية", at: iso(-2) });
       if (state === "interview") await s.post("shr_agency_interviews", { submission_id: c.id, agency_id: AG[ag].id, state: "scheduled", mode: "video", location: null, scheduled_at: iso(3), agency_note: "مقابلة مرئية تجريبية", requested_by: U.ops.id, scheduled_by: U.ops.id });
+    }
+  }
+}
+
+// -------------------------------------------------------- compliance seed --
+// وحدة الامتثال: منشآت بحالات قيد مختلفة، لقطات تاريخية، مخالفات من rule_ids حقيقية في المرجع
+// لكن ببيانات تجريبية، قوائم تحقق، قائمة A33 بأسماء «(وهمي)»، دفعة استيراد، وطلب نقل.
+// كل رقم نظامي (مبلغ، موعد، نطاق) يُحسب من db/shr-ref عبر _shr_ref.js ولا يُكتب هنا.
+// البذرة لا تُنشئ مخالفة بحالة تتجاوز «مراجعة» إلا بمراجع ثانٍ مختلف عن المُدخِل.
+const COMPLIANCE_PLAN = {
+  SHR: {
+    extraEst: [["منشأة تجريبية SHR ٣ (مقيّدة — وهمي)", "restricted"], ["منشأة تجريبية SHR ٤ (اشتباه — وهمي)", "suspected"]],
+    // [المنشأة، as_of، الحالة، السبب، المُدخِل، المتحقِّق|null، نطاق نطاقات، سعوديون، غير سعوديين، النطاق المعلن]
+    snaps: [
+      [0, -10, "unknown", null, "ops", null, null, null, null, null],
+      [1, -90, "restricted", "سبب تجريبي (وهمي): قيد سابق مرفوع", "ops", "owner", null, null, null, null],
+      [1, -30, "clear", null, "ops", "owner", "NIT-30", 14, 36, "green_mid"],
+      [2, -12, "restricted", "سبب تجريبي (وهمي): قيد على طلبات الاستقدام", "ops", "owner", "NIT-08", 4, 46, "green_low"],
+      [3, -5, "suspected", "اشتباه تجريبي (وهمي): بانتظار تأكيد من منصة الجهة", "owner", null, null, null, null, null],
+    ],
+    // [المنشأة، البند، الشريحة، العدد، تبليغ(يوم|null)، المُدخِل، المراجع|null، الحالة، السداد، رقم]
+    violations: [
+      [2, "A-33", "medium", 3, -20, "ops", "owner", "objection_eligibility_study", "unknown", "DEMO-V-1"],
+      [1, "A-34", "small", 5, null, "owner", null, "review", "unknown", "DEMO-V-2"],
+      [3, "A-40", "large", 1, -55, "owner", "ops", "preparation", "unpaid", "DEMO-V-3"],
+      [2, "A-53", "medium", 2, -70, "ops", "compliance", "submission", "unpaid", "DEMO-V-4"],
+      [0, "A-28", "small", 1, -62, "ops", "owner", "review", "unknown", "DEMO-V-5"],
+    ],
+  },
+  OTHER: {
+    extraEst: [["منشأة وهمية أخرى (مقيّدة — وهمي)", "restricted"]],
+    snaps: [[2, -8, "restricted", "سبب وهمي لمستأجر آخر", "ops", "owner", null, null, null, null]],
+    violations: [[2, "A-33", "small", 1, -10, "ops", "owner", "objection_eligibility_study", "unknown", "DEMO-V-OTHER-1"]],
+  },
+};
+
+const CHECKLISTS = [
+  { key: "est_readiness", title: "جاهزية المنشأة للاستقدام (تجريبية)", audience: "staff", scope: "establishment", items: [
+    ["تحقق من حالة القيد في منصة الجهة وسجّلها بلقطة يتحقق منها مستخدم آخر", null],
+    ["فتح ملف المنشأة وتحديث مواقعها وبياناتها", "A-28"],
+    ["رفع ملف حماية الأجور للفترة الأخيرة", "A-40"],
+    ["توثيق عقود العاملين إلكترونياً", "A-34"],
+    ["التحقق من قناة تقديم الاعتراض الحالية في واجهة الخدمة", "CH-1"],
+  ] },
+  { key: "worker_activation", title: "جاهزية العامل للتفعيل (تجريبية)", audience: "staff", scope: "worker", items: [
+    ["هوية وإقامة سارية ومستند مرفوع", null],
+    ["عقد عمل موثّق إلكترونياً", "A-34"],
+    ["عدم احتجاز جواز العامل أو إقامته", "A-31"],
+    ["تحمّل الرسوم والتكاليف الملزمة على صاحب العمل", "A-32"],
+  ] },
+  { key: "violation_prep", title: "مراجعة مخالفة قبل التقديم (تجريبية)", audience: "staff", scope: "violation", items: [
+    ["إدخال تاريخ التبليغ من الإشعار الرسمي", null],
+    ["مراجعة ثانية من مستخدم غير من أدخل المخالفة", null],
+    ["تجهيز المبررات والمرفقات", null],
+    ["التقديم عبر بوابة الجهة مهمة بشرية بهوية العميل", null],
+    ["إبلاغ العميل أنه لا ضمان لإلغاء المخالفة", null],
+  ] },
+  { key: "worker_docs_mine", title: "مستنداتي (قائمة العامل — تجريبية)", audience: "worker", scope: "worker", items: [
+    ["الإقامة سارية", null], ["عقد العمل موقّع", null],
+  ] },
+];
+
+export async function seedCompliance() {
+  assertLocal();
+  for (const slug of ["SHR", "OTHER"]) {
+    const t = await tenantBySlug(slug);
+    if (!t) continue;
+    const s = scoped(ctxFrom({ tenant_id: t.id, role: "tenant_owner" }));
+    if ((await s.get("shr_establishment_compliance?select=id&limit=1")).length) continue;      // مبذور سلفاً
+    const plan = COMPLIANCE_PLAN[slug], tag = slug.toLowerCase();
+    const users = await s.get("shr_users?select=id,email,role");
+    const U = { ops: users.find((u) => u.email.startsWith("ops@")), owner: users.find((u) => u.email.startsWith("owner@")) };
+    U.compliance = users.find((u) => u.role === "compliance_officer")
+      || (await s.post("shr_users", { email: `compliance@${tag}.invalid`, full_name: slug === "SHR" ? "مسؤول امتثال تجريبي" : "مسؤول امتثال وهمي آخر", role: "compliance_officer" }))[0];
+    let ests = await s.get("shr_establishments?select=id,name_ar&order=created_at.asc");
+    for (const [name, st] of plan.extraEst) ests.push((await s.post("shr_establishments", { name_ar: name, restriction_state: st }))[0]);
+    const year = String(new Date().getFullYear());
+    for (const [ei, d, st, reason, by, ver, act, sa, non, band] of plan.snaps) {
+      const comp = act ? R.nitaqatEstimate({ activity_rule_id: act, saudi: sa, non_saudi: non, year }) : null;
+      await s.post("shr_establishment_compliance", {
+        establishment_id: ests[ei].id, as_of: day(d), activity_rule_id: act, declared_band: band, declared_saudization_pct: sa !== null && sa !== undefined ? Math.round((sa / (sa + non)) * 10000) / 100 : null,
+        saudi_count: sa, non_saudi_count: non, computed_pct: comp && comp.ok ? comp.pct : null, computed_band: comp && comp.ok ? comp.band : null,
+        computed_basis: comp && comp.ok ? { estimate: true, rule_id: comp.rule_id, source_ref: comp.source_ref, formula_source_ref: comp.formula_source_ref, caveats: comp.caveats } : null,
+        restriction_state: st, restriction_reason: reason, source_note: "إدخال تجريبي (وهمي) من منصة الجهة", entered_by: U[by].id,
+        verified_by: ver ? U[ver].id : null, verified_on: ver ? day(d + 1) : null, demo: true,
+      });
+    }
+    for (const [ei, rule, tier, cnt, nd, by, rev, status, paid, refno] of plan.violations) {
+      const notification = nd === null ? null : day(nd);
+      const { row } = R.violationFields({ rule_id: rule, size_tier: tier, persons_count: cnt, notification_date: notification });
+      await s.post("shr_violations", {
+        establishment_id: ests[ei].id, authority: "جهة مصدِرة تجريبية (وهمي)", ref_no: refno, rule_id: rule, ...row, persons_count: cnt, size_tier: tier,
+        notification_date: notification, notification_entered_by: notification ? U[by].id : null, status, paid_state: paid,
+        entered_by: U[by].id, reviewed_by: rev ? U[rev].id : null, reviewed_at: rev ? iso(-2) : null, archived_at: null, demo: true, updated_at: null,
+      });
+    }
+    // قائمة A33 (م33: سعوديون مسجّلون بلا علاقة عمل فعلية): أسماء وهمية، بصمة فقط.
+    const workers = await s.get("shr_workers?select=id,full_name");
+    const linked = workers.find((w) => /٥/.test(w.full_name)) || null;
+    const a33Est = ests[2];
+    const A = [["ops", "owner", "actual_worker"], ["ops", "owner", "not_a_worker"], ["owner", null, "works_for_other"], [null, null, null], [null, null, null], [null, null, null]];
+    let i = 0;
+    for (const [cls, appr, c] of A) {
+      i++;
+      await s.post("shr_a33_names", {
+        establishment_id: a33Est.id, list_ref: "DEMO-A33-L1", alias: `${slug === "SHR" ? "اسم تجريبي" : "اسم وهمي آخر"} ${i} (وهمي)`, id_no_hash: hashIdNo(t.id, `DEMO-A33-${tag}-${i}`),
+        worker_id: slug === "SHR" && i === 6 && linked ? linked.id : null, classification: c, classification_note: c ? "تصنيف تجريبي" : null,
+        classified_by: cls ? U[cls].id : null, classified_at: cls ? iso(-3) : null, approved_by: appr ? U[appr].id : null, approved_at: appr ? iso(-2) : null,
+        archived_at: null, demo: true, created_by: U.ops.id,
+      });
+    }
+    for (const c of slug === "SHR" ? CHECKLISTS : CHECKLISTS.slice(0, 1)) {
+      const tp = (await s.post("shr_checklist_templates", { key: c.key, title_ar: c.title, audience: c.audience, scope: c.scope, version: 1, active: true, demo: true, created_by: U.owner.id }))[0];
+      let pos = 0;
+      for (const [text, rule] of c.items) await s.post("shr_checklist_items", { template_id: tp.id, position: ++pos, text_ar: text, required: true, rule_id: rule });
+    }
+    if (slug === "SHR") {
+      // دفعة تأمينات مرفوعة: أرقام وهمية تطابق عمال البذرة (تُخزَّن بصمةً فقط). تنتظر المطابقة والمراجعة.
+      const period = new Date().toISOString().slice(0, 7);
+      const b = (await s.post("shr_import_batches", { kind: "gosi", label: "دفعة تأمينات تجريبية (وهمي)", state: "uploaded", row_count: 6, matched_count: 0, uploaded_by: U.ops.id, matched_at: null, reviewed_by: null, reviewed_at: null, applied_by: null, applied_at: null, demo: true }))[0];
+      const ids = ["DEMO-SHR-1", "DEMO-SHR-2", "DEMO-SHR-3", "DEMO-SHR-4", "DEMO-SHR-5", "DEMO-ZZ-9"];
+      let line = 0;
+      for (const no of ids) { line++; await s.post("shr_import_rows", { batch_id: b.id, line, id_no_hash: hashIdNo(t.id, no), period, status: no === "DEMO-SHR-5" ? "not_registered" : "registered", match_state: "unmatched", worker_id: null, applied_at: null }); }
+      // طلب نقل معلّق: عامل ١ من المنشأة ١ إلى ٢، طلبه المشغّل فيوافق عليه غيره.
+      const w1 = workers.find((w) => /١$/.test(w.full_name));
+      const asg = w1 ? (await s.get(`shr_assignments?worker_id=eq.${w1.id}&select=establishment_id`))[0] : null;
+      if (w1 && asg && asg.establishment_id !== ests[1].id) await s.post("shr_worker_transfers", { worker_id: w1.id, from_establishment_id: asg.establishment_id, to_establishment_id: ests[1].id, reason: "طلب نقل تجريبي (وهمي)", state: "requested", requested_by: U.ops.id, decided_by: null, decided_at: null, decision_note: null });
     }
   }
 }

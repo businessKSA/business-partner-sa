@@ -9,11 +9,14 @@
 - `api/_shr_match.js` — محرك المطابقة (نقي، بلا استيراد).
 - `api/_shr_ats.js` — منطق ATS: وظائف، طلبات تقديم، مقابلات، مطابقة.
 - `api/_shr_agency.js` — بوابة المكاتب: مكاتب، أوامر استقدام، مرشحو المكاتب، مقابلاتهم.
-- `site/scripts/simple-v1-shr.mjs` (القشرة والعمال والطلبات) و`simple-v1-shr-ats.mjs` (شاشات ATS) و`simple-v1-shr-agency.mjs` (شاشات المكاتب: المشغّل + منظور المكتب) — الصفحة `/SHR-HR`.
-- `db/shr-schema.sql` — الجداول وRLS. الاختبارات: `tests/shr-tenant.test.mjs` · `tests/shr-api.test.mjs` · `tests/shr-match.test.mjs` · `tests/shr-ats.test.mjs`.
+- `api/_shr_ref.js` — قراءة المرجع النظامي `db/shr-ref/*.json` وحسابات نقية فوقه (غرامة، مواعيد، نطاقات). **لا رقم نظامي في أي شيفرة غيره.**
+- `api/_shr_compliance.js` — وحدة الامتثال: حجب، لقطات المنشأة، مخالفات، A33، نقل، استيراد، قوائم تحقق، تنبيهات، إعدادات المستأجر.
+- `db/shr-ref/` — سبعة ملفات JSON فقط من مشاري (لا `src/` ولا `dl/` ولا `img/`).
+- `site/scripts/simple-v1-shr.mjs` (القشرة والعمال والطلبات) و`simple-v1-shr-ats.mjs` (شاشات ATS) و`simple-v1-shr-agency.mjs` (شاشات المكاتب: المشغّل + منظور المكتب) و`simple-v1-shr-compliance.mjs` (شاشات الامتثال الست) — الصفحة `/SHR-HR`.
+- `db/shr-schema.sql` — الجداول وRLS. الاختبارات: `tests/shr-tenant.test.mjs` · `tests/shr-api.test.mjs` · `tests/shr-match.test.mjs` · `tests/shr-ats.test.mjs` · `tests/shr-agency.test.mjs` · `tests/shr-compliance-ref.test.mjs` · `tests/shr-compliance.test.mjs` · `tests/shr-compliance-ui.test.mjs`.
 
 ## الإجراءات
-الجلسة كوكي موقَّع؛ المستأجر منه لا من الطلب (`tenant_id` في الطلب يُرفض). الأدوار: `tenant_owner` و`operator` (طاقم)، و`agency` (مكتب، قائمة بيضاء ضيقة أدناه). أدوار العميل والعامل ما زالت مرفوضة.
+الجلسة كوكي موقَّع؛ المستأجر منه لا من الطلب (`tenant_id` في الطلب يُرفض). الأدوار: `tenant_owner` و`operator` (طاقم)، و`compliance_officer` (مسؤول الامتثال: وحدة الامتثال و`session` فقط)، و`agency` (مكتب، قائمة بيضاء ضيقة أدناه). أدوار العميل والعامل ما زالت مرفوضة (لا جلسة لهما).
 
 | النطاق | GET | POST |
 |---|---|---|
@@ -21,6 +24,7 @@
 | ATS | `jobs` `applications` `candidates` `candidate` | `job-create` `job-close` `application-create` `application-stage` `interview-request` `interview-set` `match` |
 | مكاتب (مشغّل) | `agencies` `orders` `order-employer-view` `agency-submissions` | `agency-create` `agency-approve` `agency-suspend` `order-create` `submission-state` |
 | مكتب (`agency` وحده) | `my-orders` `my-submissions` `my-interviews` `session` | `submit-candidate` `bulk-submit` |
+| امتثال (طاقم) | `compliance-ref` `compliance-settings` `compliance-dashboard` `compliance-establishment` `compliance-violations` `compliance-checklists` `compliance-alerts` `compliance-imports` `compliance-import` `compliance-a33` `compliance-transfers` | `establishment-compliance-record` `establishment-compliance-verify` `compliance-run-checks` `violation-create` `violation-notify` `violation-review` `violation-status` `violation-paid` `violation-archive` `a33-add` `a33-classify` `a33-approve` `transfer-request` `transfer-decide` `procedure-step-create` `import-create` `import-match` `import-review` `import-apply` `checklist-tick` `compliance-settings-update` (مالك المستأجر وحده) |
 
 لا حذف: `worker-delete` و`agency-delete` و`order-delete` و`submission-delete` وكل `*-delete` يرد `403 archive_only`؛ الوظيفة تُغلق والعامل والمرشح يُؤرشفان.
 
@@ -42,7 +46,7 @@
 - **التكرار:** داخل المكتب نفسه على الأمر نفسه يُرفض (`duplicate_candidate`، بصمة هوية أو بصمة اسم+جنسية+مهنة، وفهرس فريد في المخطط). بين المكاتب يقبل النظام ويُظهر للمشغّل وحده «تكرار بين مكاتب» (يُحسب عند القراءة)؛ المكتب لا يُبلَّغ.
 - **الاستيراد الجماعي:** `rows` حتى 60 (أكثر يُرفض كله، لا قصّ صامت). كل صف فاسد يُبلَّغ `{line, error}` ولا يوقف الباقي.
 - **مراجعة المشغّل:** `submitted → under_review → shortlisted → interview → accepted`، والرفض من أي مرحلة قبل النهاية. `accepted` و`rejected` نهائيتان. المقابلة سجل داخلي في `shr_agency_interviews` (لا رسالة تُرسل).
-- **أوامر الاستقدام:** الوجهة صريحة (`agency_id` أو الكلمة `open`؛ الغياب 400 حتى لا يُبثّ أمر بالسهو). **معلَّق بقرار المالك:** منع الأمر إن كانت المنشأة `restricted/suspected` لنوع التأشيرات. المخطط ليس فيه حقل نوع التأشيرة بعد، فالخادم **لا يمنع** ويرد `warnings: ["establishment_restricted_visa_check_pending"]` فقط.
+- **أوامر الاستقدام:** الوجهة صريحة (`agency_id` أو الكلمة `open`؛ الغياب 400 حتى لا يُبثّ أمر بالسهو). منشأة `restricted/suspected` (من لقطات الامتثال) تحجب الأمر بـ`409 establishment_blocked` مع السبب؛ و`unknown` تحذير `establishment_state_unknown` ما لم يفعّل المستأجر المنع. التفصيل في قسم الامتثال.
 - **الشاشات:** في `/SHR-HR` نفسها (لم يُضف مسار). بوابة الدخول فيها وضعان: «دخول المشغّل» و«دخول مكتب استقدام» (`/SHR-HR?as=agency` يفتح الثاني). منظور المكتب: طلباتي · تقديم مرشح · استيراد جماعي (CSV) · مقابلاتي. شاشات المشغّل: المكاتب · أوامر الاستقدام · المرشحون المقدَّمون.
 - **أدوار الإجراءات:** دور `agency` لا يصل لأي إجراء مشغّل (403)، والمشغّل لا يصل لإجراءات `my-*`/`submit-candidate`/`bulk-submit` (403).
 - **الجداول (كلها `tenant_id` وRLS ولا حذف):** `shr_agencies` · `shr_recruitment_orders` · `shr_agency_candidates` · `shr_agency_candidate_events` (append-only) · `shr_agency_interviews`، وربط `shr_users.agency_id` بمفتاح مركّب `(tenant_id, agency_id)` يمنع ربطاً عابراً للمستأجرين.
@@ -58,3 +62,51 @@
 ## الدخول التجريبي
 `SHR` → `owner@shr.invalid` / `ops@shr.invalid`؛ `OTHER` → `owner@other.invalid` / `ops@other.invalid`. شغّل `LOCAL_DB=1 npm run dev` وافتح `/SHR-HR`.
 البذرة تُرقّي قواعد `.localdb` القديمة تلقائياً (تضيف مرشحي ATS إن لم يوجدوا).
+
+## الامتثال (وحدة جديدة — محلية، بيانات وهمية)
+بُنيت على الجداول المرجعية التي تحقق منها مشاري (`db/shr-ref/*.json`، لكل صف `rule_id` و`source_url` و`verified`). لا ربط بمنصات حكومية ولا رسائل ولا تقديم آلي: **التقديم عبر بوابة الجهة مهمة بشرية** بهوية العميل.
+
+**القواعد التي لا تُكسر**
+- **لا رقم نظامي في الشيفرة.** الغرامات والمدد والنسب والنطاقات كلها من المرجع عبر `_shr_ref.js`. اختبار يمسح الشيفرة بحثاً عن أي حرفية رقمية تطابق رقماً في المرجع (ويُثبت قدرته بغرامة مزروعة).
+- **ما `verified != confirmed` لا يظهر لعميل ولا يُفعَّل** في أي حساب أو حجب أو تنبيه أو بند قائمة تحقق؛ يظهر للمشغّل بوسم «غير مؤكد من المصدر» (المقارنة حرفية `=== "confirmed"`، فنصٌّ يبدأ بكلمة confirmed لا يكفي). أوزان نطاقات `NIT-CNT-1` (`enabled:false`) تبقى معطّلة: التقدير عدّ بالرؤوس ويُذكر ذلك.
+- **تقدير دائماً:** كل مبلغ وموعد يحمل «تقديري» ومصدره. لا يُشتق الموعد من تاريخ المخالفة أو الفحص أو الرصد أو القرار (400 `forbidden_deadline_input`، والقائمة من المرجع نفسه). **لا موعد اعتراض بلا تاريخ تبليغ يُدخله إنسان** (قيد `check` في المخطط أيضاً). الاعتراض 60 يوماً من التبليغ، والتسوية 90 (رقم مختلف لا يُوحَّد معه)، والسداد 60؛ والاعتراض لا يوقف الغرامة. خصم التسوية (80%) لا يُعرض ولا يُحسب أبداً.
+- **أي رقم نظامي يأتي من الطلب يُرفض** (400 `regulatory_figure_not_allowed`): `fine_sar`، `amount`، `days`، `deadline`، `reduction_pct`، `computed_*`… وبند غير موجود في المرجع 400 `unknown_rule`، وشريحة ليست مفتاحاً في صف المرجع 400 `tier_unknown`. الشريحة (حجم المنشأة) يحدّدها إنسان لأن إجمالي عمال الرقم الموحد لا نملكه.
+- **الحالات الخمس فقط** (من المرجع): مراجعة ← دراسة أهلية الاعتراض ← تجهيز ← تقديم ← متابعة، خطوة واحدة للأمام أو للخلف. لا «ملغاة» ولا «مرفوعة بنجاح». «تقديم» (المهمة البشرية) لا تتغير دخولاً ولا خروجاً إلا بـ`compliance_officer`. والتقدّم عن «مراجعة» يلزمه مراجع ثانٍ. كل تغيير حالة يكتب `shr_audit_log`. عبارة «لا نضمن إلغاء المخالفة» ثابتة في كل شاشة وردّ.
+- **من يُدخل لا يعتمد:** المخالفة (المُدخِل ≠ المراجع)، لقطة المنشأة (المُدخِل ≠ المتحقِّق)، تصنيف A33 (المصنِّف ≠ المعتمِد)، النقل (الطالب ≠ المُقرِّر)، الاستيراد (الرافع ≠ المراجع ≠ المطبِّق)؛ كلها بقيود `check` في المخطط وفي الخادم.
+- **لا حذف:** كل `*-delete` يرد 403 `archive_only`؛ في المخطط مشغّل يمنع الحذف في جداول الامتثال، والسجلات الحدثية append-only.
+- **ما ورد في `not_found.json` يبقى فارغاً** (ثوابت `NOT_FOUND` في `_shr_compliance.js` كلها `null`/`[]` بتعليق): قيد الاشتباه ومدته ومعاييره، شروط نقل العامل، تعريف «إشعار أجير»، نسبة حماية الأجور، أساس احتساب الأيام.
+
+**الحجب (409 `establishment_blocked` مع `state` و`reason`)**
+- الحالة الفعلية للمنشأة من آخر لقطة في `shr_establishment_compliance`: `restricted`/`suspected` تحجب **أوامر الاستقدام** (`order-create`) و**خطوات الإجراء** المحجوبة (`procedure-step-create`؛ الافتراضي `visa` وحدها). حتى لو لم تُتحقَّق (اتجاه آمن).
+- لقطة `clear` غير متحقَّق منها لا تُصدَّق (تُعامل `unknown`) **ولا ترفع قيداً** متحقَّقاً سابقاً حتى يتحقق منها مستخدم آخر (`pending_clear_verification`).
+- `unknown` = تحذير (`establishment_state_unknown`) لا منع، إلا إن فعّل المستأجر `unknown_blocks`.
+- **تفعيل العامل** المرتبط بقائمة A33: 409 `a33_blocked` حتى يُصنَّف كل اسم في قائمته ويعتمد مراجع ثانٍ؛ وعامل صُنّف اسمه «ليس عاملاً» يبقى محجوباً.
+- **نقل العامل:** `transfer-request` ثم `transfer-decide` من غير الطالب، وسجل في `shr_audit_log` و`shr_assignments.transfer_approved_by`. لا فحص شروط (لم تُوجد في المرجع)؛ وجهة مقيّدة تحذير معلوماتي فقط.
+
+**الصلاحيات**
+الطاقم (`tenant_owner`/`operator`/`compliance_officer`) وحده. العميل والعامل والمكتب لا يرون مخالفات ولا حالة القيد (403)، ويرون مستنداتهم وقوائمهم فقط (`audience` في قوائم التحقق). إعداد `client_visibility` (الافتراضي لا) يتيح للعميل قائمة مخالفات **مُقنَّعة** (بند مؤكد ومراجَع فقط، بلا معرّفات داخلية) — ولا جلسة لدور العميل في هذه المرحلة أصلاً، فالدالة جاهزة ومُختبرة ولا تُستدعى.
+
+**الإعدادات (لكل مستأجر، `compliance-settings-update`، مالك المستأجر وحده، كل تغيير مدوَّن)**
+| الإعداد | الافتراضي | أثره |
+|---|---|---|
+| `unknown_blocks` | لا | حالة قيد غير معروفة تمنع بدل أن تحذّر |
+| `expiry_alert_days` | 60 (تشغيلي لا نظامي) | عتبة تنبيه انتهاء المستندات |
+| `deadline_alert_days` | 14 (تشغيلي) | عتبة تنبيه المواعيد التقديرية |
+| `client_visibility` | لا | عرض مُقنَّع للعميل (غير مفعّل فعلياً) |
+| `a33_gate` | نعم | حجب تفعيل العامل المرتبط بقائمة A33 غير المعتمدة |
+| `block_steps` | `["visa"]` | خطوات الإجراء التي تحجبها منشأة مقيّدة |
+
+**الجداول (كلها `tenant_id` وRLS ولا حذف):** `shr_compliance_settings` · `shr_establishment_compliance` (لقطات؛ التحقق وحده يُضاف لاحقاً بمشغّل) · `shr_violations` · `shr_compliance_checks` (append-only) · `shr_checklist_templates` · `shr_checklist_items` · `shr_checklist_ticks` (append-only) · `shr_a33_names` (بصمة وأسماء «(وهمي)» فقط) · `shr_worker_transfers` · `shr_import_batches` · `shr_import_rows` (بصمة + فترة + حالة؛ لا عمود لاسم أو هاتف أو هوية). وأضيف دور `compliance_officer` إلى قيد الأدوار (مع ترقية القواعد القديمة)، وأعمدة `establishment_id`/`created_by`/`created_at` إلى `shr_procedure_steps`.
+
+**الاستيراد (تأمينات/حماية أجور):** الصفوف `id_no,period,status`؛ الرقم يُحوَّل لبصمة في الخادم ولا يُخزَّن ولا يُعاد، وأي حقل آخر (اسم، هاتف، بريد…) يرفض الصف. الحد 200 صف (أكثر يُرفض كله). المسار `uploaded → matched → reviewed → applied` بلا قفز؛ التطبيق يكتب `shr_compliance_checks` لكل صف مطابَق ويضيف مستند `gosi` للتأمينات.
+
+**الشاشات** (في `/SHR-HR` نفسها): الامتثال (لوحة لكل منشأة + تفاصيلها ولقطاتها + طلبات النقل + الإعدادات) · المخالفات · قوائم التحقق · التنبيهات · استيراد الملفات · أسماء A33. وسم «بيانات تجريبية» ثابت، و«تقديري» و«غير مؤكد من المصدر» حسب الحالة. مسؤول الامتثال لا يرى غير هذه التبويبات.
+
+**البذرة (SHR):** 4 منشآت بحالات قيد مختلفة (غير معروفة، نظيفة بتاريخ مرفوع قيدها، مقيّدة، اشتباه) · 5 مخالفات من بنود حقيقية في المرجع (A-33 · A-34 · A-40 · A-53 · A-28) ببيانات تجريبية وأرقام `DEMO-V-*` · قائمة A33 من 6 أسماء «(وهمي)» · 4 قوائم تحقق (بند واحد مربوط بـ`CH-1` وهو `reader_only` فيظهر معطّلاً «غير مؤكد من المصدر») · دفعة تأمينات مرفوعة تنتظر المطابقة · طلب نقل معلّق. مستأجر `OTHER` فيه منشأة مقيّدة ومخالفة وقائمة A33 وقائمة تحقق لإثبات العزل. دخول مسؤول الامتثال: `compliance@shr.invalid` · `compliance@other.invalid`.
+
+**ما تحقق منه فعلاً:** `tests/shr-compliance-ref.test.mjs` (المرجع والحساب والتفعيل والمسح) · `tests/shr-compliance.test.mjs` (من طرف إلى طرف: الحجب، maker-checker، لا موعد بلا تبليغ، غير المؤكد، العزل لكل جدول، الأدوار) · `tests/shr-compliance-ui.test.mjs` (يشغّل سكربت الصفحة الفعلي فوق الـAPI) · `tests/shr-tenant.test.mjs` (كل جدول في المخطط يمرّ بالبوابة، مُستخرَج من الملف فلا يُنسى جدول جديد). والمخطط طُبّق على Postgres 16 مؤقت وجُرّبت قيوده (100 فحصاً: check وFK مركّب ومشغّلات ورفض عبر المستأجرين وRLS لدور غير مالك) ومسار ترقية قاعدة قديمة.
+
+**حدود معروفة**
+- قراءة `db/shr-ref/*.json` وقت التشغيل بـ`fs`: إن نُشر هذا يوماً على Vercel فيلزم `includeFiles` للمجلد (platform-engineer). المرحلة محلية فلا أثر الآن.
+- حساب النطاق تقدير بعدّ الرؤوس لا بمتوسطات العمالة المرجحة بالأجور؛ حافة الفئة تُراجَع على صورة المصدر (تحذير `band_edge_check_on_source_image`).
+- افتراضات محافظة تنتظر رأي المالك: حالة القيد `unknown` تحذّر ولا تمنع · العميل لا يرى المخالفات · الحجب لخطوة `visa` وحدها · لقطة `clear` غير المتحقَّق منها لا ترفع قيداً · تنقّل الحالات الخمس خطوة واحدة ذهاباً وإياباً · أساس احتساب الأيام تقويمي كتقدير معلَن (غير محسوم في النص).

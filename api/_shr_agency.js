@@ -12,6 +12,7 @@
 //  * الاستيراد الجماعي: تقرير لكل صف، والصف الفاسد لا يُسقط الباقي.
 import crypto from "node:crypto";
 import { HttpError, audit, hashIdNo, nameKeyOf } from "./_shr.js";
+import { getSettings, assertEstablishmentOpen } from "./_shr_compliance.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const AGENCY_ACTIONS = new Set(["my-orders", "submit-candidate", "bulk-submit", "my-submissions", "my-interviews"]);
@@ -135,13 +136,9 @@ export async function createOrder(db, user, b) {
   const establishment_id = await opt("shr_establishments", b.establishment_id);
   const dueRaw = str(b.due_on, 10);
   if (dueRaw && !/^\d{4}-\d{2}-\d{2}$/.test(dueRaw)) throw bad("bad_due_on");
-  const warnings = [];
-  if (establishment_id) {
-    const e = (await db.get(`shr_establishments?id=eq.${establishment_id}&select=restriction_state`))[0];
-    // معلَّق بقرار المالك: المنع لنوع التأشيرات يحتاج حقل نوع التأشيرة في المنشأة وهو غير موجود بعد.
-    // لذلك لا نمنع هنا؛ نرد بتحذير ليراه المشغّل.
-    if (e && (e.restriction_state === "restricted" || e.restriction_state === "suspected")) warnings.push("establishment_restricted_visa_check_pending");
-  }
+  // حجب أوامر الاستقدام لمنشأة restricted/suspected (409 establishment_blocked مع السبب)؛ وunknown تحذير
+  // ما لم يفعّل المستأجر unknown_blocks. الحالة من لقطات الامتثال المتحقَّق منها لا من حقل واحد.
+  const warnings = establishment_id ? await assertEstablishmentOpen(db, establishment_id, await getSettings(db)) : [];
   const o = (await db.post("shr_recruitment_orders", {
     ref: rid("ORD"), request_id, client_company_id, establishment_id, agency_id, profession, quantity: qn,
     nationality_pref: strList(b.nationality_pref), agency_brief: str(b.agency_brief, 300) || null,
