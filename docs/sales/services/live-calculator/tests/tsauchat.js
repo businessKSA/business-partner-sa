@@ -14,7 +14,7 @@ await p.fill('#dk-q, .dkr input, #cs-dock input[type=search], #cs-dock input','�
 const first=await p.$('#cs-dock .dkp button, #cs-dock [data-pick], #cs-dock li, #cs-dock .opt');
 if(first){await first.click();await p.waitForTimeout(300);await p.fill('[data-nk=q]','2');await p.click('#dk-ok');await p.waitForTimeout(500);
  const t=await p.evaluate(()=>document.getElementById('cs-thread').innerText.replace(/\n+/g,' | '));console.log(t.slice(-600));
- ok(/لا رسم/.test(t)&&/الإجمالي/.test(t)&&/مهني/.test(t),'saudi calc card');}
+ ok(/لا رسوم/.test(t)&&/الإجمالي/.test(t)&&/مهني/.test(t),'saudi calc card');}
 else console.log('no pick button; skipping UI flow');
 // echo: click a fn chip and make sure no duplicate user bubble
 await p.goto('file://'+process.cwd()+'/index-client.html?lang=ar');await p.waitForTimeout(600);
