@@ -151,6 +151,25 @@ export function annexTotals(lines, { net, vat, total, vatRate = 15 } = {}) {
   return { sum, net: n, vat: v, total: t, vatRate: Number(vatRate) || 15 };
 }
 
+/**
+ * A paper with no priced line is not a paper: «0.00» in every cell reads as a real offer. Both the
+ * quotation and the contract refuse it, like issueQuote (api/_simple.js) refuses to issue it.
+ * Throws on: no lines; a line that lost its name; a line whose amount is zero, negative, NaN or not
+ * a number; a total the caller supplied that is not a finite positive number.
+ */
+function assertOrder(raw, L, { net, vat, total }) {
+  const rawCount = Array.isArray(raw) ? raw.length : 0;
+  if (!rawCount || !L.length) throw new Error("bp_docs_no_items");
+  if (L.length !== rawCount) throw new Error("bp_docs_unnamed_item");
+  // a quantity that is given must be a positive number (a missing one means 1, as in every paper)
+  raw.forEach((r, i) => { if (r && r.qty != null && r.qty !== "" && !(Number(r.qty) > 0)) throw new Error(`bp_docs_bad_line:${i + 1}`); });
+  L.forEach((l, i) => { if (!(Number.isFinite(l.line) && l.line > 0) || !(Number.isFinite(l.qty) && l.qty > 0)) throw new Error(`bp_docs_bad_line:${i + 1}`); });
+  for (const [k, v] of [["net", net], ["vat", vat], ["total", total]]) {
+    if (v == null || v === "") continue;
+    if (!Number.isFinite(Number(v)) || Number(v) < 0 || (k !== "vat" && Number(v) === 0)) throw new Error(`bp_docs_bad_total:${k}`);
+  }
+}
+
 // ───────────────────────────── pagination ────────────────────────────────────
 const lines_ = (t, cpl) => Math.max(1, Math.ceil(String(t || "").length / cpl));
 function chunkBy(list, cost, budget) {
@@ -372,11 +391,60 @@ export function priceAnnexHtml(lines, totals, { last = true } = {}) {
 }
 const annexCost = (l) => 36 + 34 * Math.max(lines_(l.en, 46), lines_(l.ar, 46)) + (l.code ? 20 : 0);
 // Scope cards: the first page also holds the navy service card, so it takes fewer.
-function chunkScope(list) {
+// (The original split, kept as it was: any order it lays out without overflowing keeps this exact layout.)
+function chunkScopeFirstCut(list) {
   const cost = (l) => 74 + (l.description ? 37 * lines_(l.description, 46) : 0);
   const first = []; let h = 0, k = 0;
   while (k < list.length && (first.length === 0 || h + cost(list[k]) <= 520)) { h += cost(list[k]); first.push(list[k]); k++; }
   return [first].concat(k < list.length ? chunkBy(list.slice(k), cost, 880) : []);
+}
+// Height of what a scope page holds, measured on the rendered page (design px, 1920-wide canvas):
+// a row is 77 (57 as the first row of a card) + 12 gap between rows + 39 per extra title line, and in the Arabic column
+// 6 + 37 per description line; the navy service card is 177 + 60.75 per line of the big service name.
+// A page offers 927 for rows (less the navy card + its 22px margin on the first page); 30 is kept free.
+const SCOPE_ROOM = 927, SCOPE_SAFETY = 32;
+// Greedy word wrap at `cap` characters per line (a word longer than a line is broken), the way the title and
+// description wrap on the sheet. The caps are deliberately a little tight (36 / 44 / 52 chars) so the estimate
+// is never below what the browser lays out; measured over hundreds of random orders it was never short by more
+// than 10px, which SCOPE_SAFETY covers.
+const wrapLines = (text, cap) => {
+  let lines = 1, cur = 0;
+  for (const w of String(text).split(/\s+/)) {
+    let len = w.length;
+    while (len > cap) { if (cur) lines++; cur = 0; len -= cap; if (len > 0) { lines++; } }
+    if (cur === 0) cur = len; else if (cur + 1 + len <= cap) cur += 1 + len; else { lines++; cur = len; }
+  }
+  return lines;
+};
+const CAPS_KEEP = { en: 44, ar: 48, d: 60, safety: 12 };     // decides whether the ORIGINAL split already fits
+const CAPS_PACK = { en: 40, ar: 44, d: 56, safety: SCOPE_SAFETY }; // used to lay out a split that must change
+const scopeRowH = (l, lang, first, caps) => {
+  const tl = wrapLines(`${lang === "ar" ? l.ar : l.en}${l.qty > 1 ? " × 2" : ""}`, caps[lang]);
+  return (l.qty > 1 ? 10 : 0) + (first ? 57 : 77) + 39 * (tl - 1) + (lang === "ar" && l.description ? 6 + 37 * wrapLines(l.description, caps.d) : 0);
+};
+/** Font scale for a long service name (cover and navy card); 1 = untouched for names up to 60 / 90 characters. */
+const coverScale = (len, en) => (len > 900 ? 0.25 : len > 400 ? 0.34 : len > 200 ? 0.5 : len > (en ? 85 : 80) ? 0.7 : 1);
+const bigScale = (len) => (len > 420 ? 0.42 : len > 200 ? 0.55 : 1);
+const navyH = (name) => { const sc = bigScale(String(name).length); return 177 + Math.ceil(String(name).length / (29 / sc)) * 60.75 * sc; };
+const scopeFits = (chunk, first, svc, caps) => ["en", "ar"].every((lang) =>
+  chunk.reduce((sum, l, i) => sum + scopeRowH(l, lang, i === 0, caps), 0) + 12 * Math.max(0, chunk.length - 1) <= SCOPE_ROOM - (first ? navyH(svc[lang]) + 22 : 0) - caps.safety);
+/**
+ * Splits the scope into pages that each fit their sheet. When the original split already fits, it is
+ * returned untouched; otherwise rows are packed greedily by measured height (a first page that cannot
+ * hold even one row carries only the service card; a row taller than a sheet gets a sheet to itself).
+ */
+function chunkScope(list, svc) {
+  const cut = chunkScopeFirstCut(list);
+  if (cut.every((c, i) => scopeFits(c, i === 0, svc, CAPS_KEEP))) return cut;
+  const pages = []; let cur = [];
+  for (const l of list) {
+    const first = pages.length === 0;
+    const cand = cur.concat([l]);
+    if (scopeFits(cand, first, svc, CAPS_PACK) || (cur.length === 0 && !first)) { cur = cand; continue; }
+    pages.push(cur); cur = [l];
+  }
+  pages.push(cur);
+  return pages;
 }
 
 // ───────────────────────────── page assemblers ───────────────────────────────
@@ -429,6 +497,7 @@ const payTerms = (t, l) => { const s = String(t || "").trim(); if (!s || s === P
 export function quoteDocV2(q) {
   const c = q.company || companyFacts();
   const L = normLines(q.items);
+  assertOrder(q.items, L, q);
   const T = annexTotals(L, q);
   const service = String(q.service || (L[0] && L[0].ar) || "").trim();
   const serviceEn = String(q.serviceEn || (L.length === 1 && L[0].hasEn ? L[0].en : "") || service).trim();
@@ -444,7 +513,7 @@ export function quoteDocV2(q) {
   ]);
 
   // pages other than the cover and the back cover
-  const scopeChunks = chunkScope(L);
+  const scopeChunks = chunkScope(L, { ar: service, en: serviceEn });
   const annexChunks = chunkBy(L, annexCost, 840);
   // the totals (3 rows) need room after the last annex row
   if (annexChunks.length && annexChunks[annexChunks.length - 1].reduce((s, l) => s + annexCost(l), 0) > 640) annexChunks.push([]);
@@ -460,8 +529,8 @@ export function quoteDocV2(q) {
 
   const cover = `<section class="pg dark cv" data-page="1"><div class="hd">${logoPill()}<div class="lbl">QUOTATION · ${esc(q.number || q.ref || "")}</div></div>
 <div class="cols cvg">
- <div class="col en" lang="en" dir="ltr"><p class="eyebrow">QUOTATION</p><h1>${esc(serviceEn)}</h1><p class="sub">${esc(client)}</p><div class="meta">${meta.en}</div></div>
- <div class="col ar" lang="ar" dir="rtl"><p class="eyebrow">عرض سعر</p><h1>${esc(service)}</h1><p class="sub">${esc(client)}</p><div class="meta">${meta.ar}</div></div>
+ <div class="col en" lang="en" dir="ltr"><p class="eyebrow">QUOTATION</p><h1${h1Scale(serviceEn, 0.8)}>${esc(serviceEn)}</h1><p class="sub">${esc(client)}</p><div class="meta">${meta.en}</div></div>
+ <div class="col ar" lang="ar" dir="rtl"><p class="eyebrow">عرض سعر</p><h1${h1Scale(service, 1)}>${esc(service)}</h1><p class="sub">${esc(client)}</p><div class="meta">${meta.ar}</div></div>
 </div>
 ${footer(legalFoot(c), siteFoot(c))}</section>`;
 
@@ -470,6 +539,8 @@ ${footer(legalFoot(c), siteFoot(c))}</section>`;
   const html = shell({ kind: "quote", orient: "land", title: `عرض سعر ${q.number || q.ref || ""}`, body, lang: q.lang });
   return q.bar === false ? html : finalizeBpDoc(html);
 
+  // a long service name shrinks instead of overflowing its sheet (names up to 60 characters are untouched)
+  function h1Scale(name, base) { const k = coverScale(String(name).length, base < 1); return k === 1 ? "" : ` style="font-size:calc(var(--t1) * ${+(base * k).toFixed(3)})"`; }
   function twoCols(enHtml, arHtml) { return `<div class="cols"><div class="col en" lang="en" dir="ltr">${enHtml}</div><div class="col ar" lang="ar" dir="rtl">${arHtml}</div></div>`; }
   function scopePage(chunk, k, total) {
     const item = (l, lang) => `<div class="it"><div class="tt">${esc(lang === "ar" ? l.ar : l.en)}${l.qty > 1 ? ` <span class="mono">× ${esc(l.qty)}</span>` : ""}</div>${l.code ? `<span class="cd">${esc(l.code)}</span>` : "<span></span>"}${lang === "ar" && l.description ? `<div class="dd">${esc(l.description)}</div>` : ""}</div>`;
@@ -478,9 +549,9 @@ ${footer(legalFoot(c), siteFoot(c))}</section>`;
       const s = lang === "ar" ? service : serviceEn;
       const cnt = lang === "ar" ? `${L.length} ${L.length === 1 ? "بند" : "بنود"} · الأسعار في جدول البنود والأسعار` : `${L.length} ${L.length === 1 ? "item" : "items"} · prices in the schedule of items and prices`;
       return `<h2>${lang === "ar" ? "نطاق الخدمة" : "Scope of service"}${total > 1 ? ` (${k + 1}/${total})` : ""}</h2>`
-        + (first ? `<div class="card navy"><h3>${lang === "ar" ? "الخدمة" : "Service"}</h3><p class="big">${esc(s)}</p><p>${esc(cnt)}</p></div>` : "");
+        + (first ? `<div class="card navy"><h3>${lang === "ar" ? "الخدمة" : "Service"}</h3><p class="big"${bigScale(s.length) === 1 ? "" : ` style="font-size:calc(var(--t2) * ${+(0.9 * bigScale(s.length)).toFixed(3)}) !important"`}>${esc(s)}</p><p>${esc(cnt)}</p></div>` : "");
     };
-    const list = (lang) => `<div class="card light">${chunk.map((l) => item(l, lang)).join("") || `<p>—</p>`}</div>`;
+    const list = (lang) => (chunk.length ? `<div class="card light">${chunk.map((l) => item(l, lang)).join("")}</div>` : "");
     return twoCols(head("en") + list("en"), head("ar") + list("ar"));
   }
   function pricePage() {
@@ -610,7 +681,9 @@ const N = (sec, k, l) => (l === "ar" ? `${sec}-${k} ` : `${sec}.${k} `);
 export function contractDocV2({ ref, number = "", clientName, clientCr = "", clientVat = "", service = "", serviceEn = "", items = [], lines = null,
   net, vat, total, vatRate = 15, leadTime = "", executor = "", issuedAt = null, subscription = null, signatory = null, lang = "ar", company = null }) {
   const c = company || companyFacts();
-  const L = normLines(items && items.length ? items : (lines || []).map((x) => ({ ...x, title: x.title || x.name, titleEn: x.titleEn || x.nameEn })));
+  const rawItems = items && items.length ? items : (lines || []).map((x) => ({ ...x, title: x.title || x.name, titleEn: x.titleEn || x.nameEn }));
+  const L = normLines(rawItems);
+  assertOrder(rawItems, L, { net, vat, total });
   const T = annexTotals(L, { net, vat, total, vatRate });
   const sub = subscription && Number(subscription.renewsAt) > 0 ? subscription : null;
   const pct = sub ? Number(sub.commissionPercent) || 0 : 0;

@@ -265,10 +265,4 @@ test("user text is escaped in all three documents", () => {
     contractDocV2({ ...C, clientName: evil, service: evil, items: [{ ...items[0], title: evil }] }), ndaDocV2({ ...N, clientName: evil, service: evil })];
   for (const h of outs) { assert.ok(!h.includes("<img src=x"), "raw tag"); assert.ok(h.includes("&lt;img src=x")); }
 });
-test("an empty order still renders a complete document", () => {
-  for (const h of [quoteDocV2({ ...Q, items: [], net: 0, vat: 0, total: 0 }), contractDocV2({ ...C, items: [], net: 0, vat: 0, total: 0 })]) {
-    assert.ok(sections(h).length >= 4); assert.match(sections(h)[0], /^ dark cv"/);
-  }
-});
-
 function esc(v) { return String(v).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
