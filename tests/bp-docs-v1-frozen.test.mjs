@@ -4,7 +4,7 @@
 // stored copy; one different byte makes every existing contract "needs_resign". The hashes in
 // fixtures/v1-docs-hashes.json were taken from the code BEFORE the v2 templates existed, over
 // a set of inputs that covers every language, subscription, portal mode and a signed paper.
-// If this test fails, you changed the old paper: put the change in api/_bp-docs.js (v2) instead.
+// If this test fails, you changed the old paper: put the change in a NEW frozen template (see api/_bp-docs.js, docs/bp-docs-v2.md).
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
