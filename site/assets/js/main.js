@@ -4955,7 +4955,12 @@ var BP_EMP_BILLING = "monthly";
     var loadBtn = document.getElementById("ws-load");
     var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); };
     var cityAr = { Riyadh: "الرياض", Jeddah: "جدة", Dammam: "الدمام", Khobar: "الخبر", Makkah: "مكة", Madinah: "المدينة", Other: "أخرى" };
+    var typeAr = { "Office": "مكتب", "Co-working Space": "مساحة عمل مشتركة", "Commercial": "مبنى تجاري", "Retail": "محل تجاري", "Showroom": "معرض", "Industrial": "صناعي / مستودع", "Mixed-use": "متعدد الاستخدام", "Land": "أرض", "Other": "مساحة" };
+    var LANG = document.documentElement.lang || "ar";
+    var REQ = (LANG === "en" ? "" : "/" + LANG) + "/workspace-request";
 
+    // ‏البطاقة بلا اسم مورّد (/api/spaces يحذفه) وبلا زرّ واتساب داخل المحتوى
+    // (CLAUDE.md §4): «اطلب هذه المساحة» يفتح نموذج الطلب بمدينتها ونوعها.
     function card(s) {
       var city = isAr ? (cityAr[s.city] || s.city || "") : (s.city || "");
       var loc = [city, s.district].filter(Boolean).join(" · ");
@@ -4968,14 +4973,16 @@ var BP_EMP_BILLING = "monthly";
       if (s.nationalAddress) tags.push(T("National Address", "عنوان وطني"));
       if (s.licenseSupport) tags.push(T("License support", "دعم الترخيص"));
       var photo = s.photo ? '<div class="ws-photo" style="background-image:url(\'' + esc(s.photo) + '\')"></div>' : '<div class="ws-photo ws-noimg">🏢</div>';
-      var waMsg = encodeURIComponent((isAr ? "أرغب بالاستفسار عن مساحة: " : "Enquiry about space: ") + (s.name || "") + (loc ? " — " + loc : ""));
+      var typeTx = isAr ? (typeAr[s.type] || s.type || "مساحة") : (s.type || "Space");
+      var title = typeTx + (s.district ? " — " + s.district : "");
+      var reqHref = REQ + "?" + new URLSearchParams({ city: s.city || "", category: s.type || "", district: s.district || "" }).toString();
       return '<div class="emp-card ws-card">' + photo +
-        '<div class="ws-body"><div class="emp-card-top"><strong>' + esc(s.name) + '</strong>' + (s.type ? '<span class="emp-tag">' + esc(s.type) + '</span>' : '') + '</div>' +
+        '<div class="ws-body"><div class="emp-card-top"><strong>' + esc(title) + '</strong></div>' +
         (loc ? '<div class="emp-role">📍 ' + esc(loc) + '</div>' : '') +
         (s.description ? '<div class="emp-skills">' + esc(s.description) + '</div>' : '') +
         (meta.length ? '<div class="emp-meta">' + esc(meta.join(" · ")) + '</div>' : '') +
         (tags.length ? '<div class="ws-tags">' + tags.map(function (t) { return '<span>' + esc(t) + '</span>'; }).join("") + '</div>' : '') +
-        '<a class="btn btn-wa" style="margin-top:12px" target="_blank" rel="noopener" href="https://wa.me/966507034157?text=' + waMsg + '">' + T("Enquire", "استفسر") + '</a>' +
+        '<a class="btn btn-primary" style="margin-top:12px" href="' + esc(reqHref) + '">' + T("Request this space", "اطلب هذه المساحة") + '</a>' +
         '</div></div>';
     }
 
@@ -5012,8 +5019,20 @@ var BP_EMP_BILLING = "monthly";
     var form = document.getElementById("ws-req");
     if (!form) return;
     var T = function (en, ar) { return (window.BP && BP.t) ? BP.t(en, ar) : ar; };
-    var WA = "966507034157";
+    var LANG = document.documentElement.lang || "ar";
+    var MY = (LANG === "en" ? "" : "/" + LANG) + "/my";
+    var CAT_AR = { "Office": "مكتب", "Co-working Space": "مساحة عمل مشتركة", "Retail": "محل تجاري", "Showroom": "معرض", "Commercial": "تجاري", "Industrial": "صناعي / مستودع", "Land": "أرض", "Other": "أخرى" };
     function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+    // ‏قادمٌ من بطاقة في المعرض: المدينة والنوع والحي معبّأة مسبقاً.
+    (function prefill() {
+      var qp = new URLSearchParams(location.search);
+      [["city", "wr-city"], ["category", "wr-category"], ["district", "wr-district"]].forEach(function (x) {
+        var v = qp.get(x[0]), el = document.getElementById(x[1]);
+        if (!v || !el) return;
+        if (el.tagName === "SELECT") { if ([].some.call(el.options, function (o) { return o.value === v; })) el.value = v; }
+        else el.value = v;
+      });
+    })();
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var phone = val("wr-phone"), city = val("wr-city");
@@ -5022,20 +5041,44 @@ var BP_EMP_BILLING = "monthly";
       var payload = { purpose: val("wr-purpose"), category: val("wr-category"), city: city, district: val("wr-district"), size: val("wr-size"), seats: val("wr-seats"), budget: val("wr-budget"), contact: val("wr-contact"), phone: phone, email: val("wr-email"), notes: val("wr-notes") };
       var btn = document.getElementById("wr-submit"), lbl = btn.textContent;
       btn.disabled = true; btn.textContent = T("Sending…", "جارٍ الإرسال…");
-      function done(ref) {
+      // ‏لا زرّ واتساب داخل المحتوى (CLAUDE.md §4 — الزرّ العائم وحده). المتابعة
+      // مكانها حساب العميل: إن كان مسجّلاً يُفتح له طلبٌ في /my بالرحلة نفسها
+      // (نطاق ← عرض سعر ← عقد ← دفع)، وإلا يُدعى للدخول ليتابع منه.
+      function done(ref, myRef) {
         btn.disabled = false; btn.textContent = lbl;
         var box = document.getElementById("wr-result");
-        var waMsg = encodeURIComponent(T("New workspace request", "طلب مساحة عمل") + " " + (ref || "") + "\n" + T("City", "المدينة") + ": " + city + "\n" + T("Mobile", "الجوال") + ": " + phone);
         box.hidden = false;
         box.innerHTML = "✅ <strong>" + T("Request received", "تم استلام طلبك") + (ref ? " — " + ref : "") + "</strong><br>" +
           T("Our matching engine is finding options across the Kingdom. We'll reach out shortly.", "محرّك المطابقة يبحث عن خيارات في المملكة. سنتواصل معك قريباً.") +
-          '<a class="btn btn-wa btn-lg" style="margin-top:14px" target="_blank" rel="noopener" href="https://wa.me/' + WA + '?text=' + waMsg + '">' + T("Follow up on WhatsApp", "تابع عبر واتساب") + "</a>";
+          '<br><a class="btn btn-primary" style="margin-top:14px" href="' + MY + (myRef ? "?ref=" + encodeURIComponent(myRef) : "") + '">' +
+          (myRef ? T("Track it in your account", "تابع طلبك في حسابك") : T("Sign in to track your request", "سجّل الدخول لتتابع طلبك")) + "</a>";
         box.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      function toAccount(ref) {
+        var CITY_AR = { Riyadh: "الرياض", Jeddah: "جدة", Dammam: "الدمام", Khobar: "الخبر", Makkah: "مكة", Madinah: "المدينة", Other: "أخرى" };
+        var ar = LANG === "ar";
+        var where = [ar ? (CAT_AR[payload.category] || payload.category) : payload.category, ar ? (CITY_AR[city] || city) : city, payload.district].filter(Boolean).join(" — ");
+        var lines = [
+          "طلب مساحة عمل" + (ref ? " (" + ref + ")" : ""),
+          "الغرض: " + (payload.purpose === "buy" ? "شراء" : "إيجار"),
+          "النوع والموقع: " + where,
+          payload.size ? "المساحة: " + payload.size + " م²" : "",
+          payload.seats ? "المقاعد: " + payload.seats : "",
+          payload.budget ? "الميزانية: " + payload.budget : "",
+          payload.notes ? "ملاحظات: " + payload.notes : ""
+        ].filter(Boolean);
+        return fetch("/api/simple", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ action: "request-create", type: "CONSULTATION", source: "WEBSITE", lang: LANG,
+            title: T("Workspace request", "طلب مساحة عمل") + " — " + where, summary: lines.join("\n"),
+            name: payload.contact, phone: phone }) })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) { return d && d.ok ? d.ref : null; })
+          .catch(function () { return null; });
       }
       fetch("/api/workspace", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
         .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
-        .then(function (res) { done(res.d && res.d.ref); })
-        .catch(function () { done(null); });
+        .then(function (res) { var ref = res.d && res.d.ref; return toAccount(ref).then(function (myRef) { done(ref, myRef); }); })
+        .catch(function () { done(null, null); });
     });
   });
 })();

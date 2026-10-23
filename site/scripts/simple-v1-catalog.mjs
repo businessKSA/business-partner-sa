@@ -51,6 +51,8 @@ const T = {
               fr: "Ce navigateur n'a pas pu enregistrer le panier. Lancez plutôt une demande dans le chat.",
               zh: "此浏览器无法保存购物车。请改为在对话中发起申请。" },
   custom: { ar: "بعرض سعر مخصّص", en: "Custom quote", fr: "Devis sur mesure", zh: "定制报价" },
+  wsBrowse: { ar: "استعرض المساحات المتاحة", en: "Browse available spaces", fr: "Parcourir les espaces disponibles", zh: "浏览可用空间" },
+  wsRequest: { ar: "اطلب مساحة عمل", en: "Request a workspace", fr: "Demander un espace", zh: "申请办公空间" },
   details: { ar: "التفاصيل ←", en: "Details →", fr: "Détails →", zh: "详情 →" },
   search: { ar: "ابحث: إقامة، رخصة، توظيف، سجل تجاري…", en: "Search: visa, licence, hiring, registration…",
             fr: "Rechercher : visa, licence, recrutement…", zh: "搜索：签证、许可、招聘…" },
@@ -112,6 +114,7 @@ export function buildSimpleCatalog(SV1, ctx) {
 
   const services = (raw.services || []).map((s) => ({
     code: s.code || "",
+    key: s.category || "",
     // ‏رابط صفحة الخدمة. الصفحات الـ٢٠٠ تُبنى بنطاق عملها ومستنداتها وأسئلتها
     // ثم لا يصلها أحد: هذه الصفحة — باب الخدمات في الموقع الجديد — كانت
     // مربّعات اختيار بلا رابطٍ واحد إليها.
@@ -136,7 +139,7 @@ export function buildSimpleCatalog(SV1, ctx) {
   const groups = [];
   for (const s of services) {
     let g = groups.find((x) => x.cat === s.cat);
-    if (!g) { g = { cat: s.cat || "—", items: [] }; groups.push(g); }
+    if (!g) { g = { cat: s.cat || "—", key: s.key, items: [] }; groups.push(g); }
     g.items.push(s);
   }
 
@@ -228,6 +231,9 @@ ${SV1.footer()}`;
 .sv1-grp.open>button .chev{transform:rotate(180deg)}
 .sv1-grp .body{display:none;border-top:1px solid var(--l);padding:8px}
 .sv1-grp.open .body{display:block}
+.sv1-grp-links{display:flex;gap:8px;flex-wrap:wrap;padding:4px 11px 10px}
+.sv1-grp-links a{font-size:12.5px;font-weight:600;color:var(--ac);background:var(--acSoft);border:1px solid var(--acLine);border-radius:999px;padding:6px 12px;text-decoration:none}
+.sv1-grp-links a:hover{background:var(--ac);color:#fff}
 .sv1-pick{display:flex;gap:10px;align-items:flex-start;padding:10px 11px;border-radius:10px}
 .sv1-pick-lab{display:flex;gap:10px;align-items:flex-start;flex:1;min-width:0;cursor:pointer}
 .sv1-pick-more{flex:none;align-self:center;font-size:11.5px;color:var(--ac);text-decoration:none;border:1px solid var(--acLine);border-radius:8px;padding:4px 9px;background:var(--acSoft);white-space:nowrap}
@@ -272,7 +278,7 @@ body.sv1-tray-on .sv1-wa-fab,body.sv1-tray-on .bps-fab{bottom:78px}
   const script = `<script>
 (function(){
 var GROUPS=${JSON.stringify(groups)},PKGS=${JSON.stringify(packages)},LANG=${JSON.stringify(lang)};
-var TX=${JSON.stringify({ none: t("none"), picked: t("picked"), svcWord: t("svcWord"), openAll: t("openAll"), closeAll: t("closeAll"), pkgAsk: t("pkgAsk"), monthly: t("monthly"), details: t("details"), addCart: t("addCart"), addPicked: t("addPicked"), added: t("added"), addedToast: t("addedToast"), addedN: t("addedN"), cartFail: t("cartFail"), custom: t("custom") })};
+var TX=${JSON.stringify({ none: t("none"), picked: t("picked"), svcWord: t("svcWord"), openAll: t("openAll"), closeAll: t("closeAll"), pkgAsk: t("pkgAsk"), monthly: t("monthly"), details: t("details"), addCart: t("addCart"), addPicked: t("addPicked"), added: t("added"), addedToast: t("addedToast"), addedN: t("addedN"), cartFail: t("cartFail"), custom: t("custom"), wsBrowse: t("wsBrowse"), wsRequest: t("wsRequest") })};
 var DOORS=${JSON.stringify({ formation: SV1.t("ctxFormation"), government: SV1.t("ctxGovernment"), consulting: SV1.t("ctxConsulting") })};
 var HOME=${JSON.stringify(lang === "en" ? "/" : "/" + lang + "/")};
 var $=function(id){return document.getElementById(id)};
@@ -375,6 +381,11 @@ function draw(){
   head.appendChild(left);head.appendChild(meta);
   head.onclick=function(){box.classList.toggle('open')};
   var body=el('div','body');
+  // ‏المعرض ونموذج الطلب لا يصلهما شيء غير هذا السطر: الخدمات الستّ هنا، لكن
+  // من يريد أن يرى المساحات المتاحة أو يطلب مساحة بمواصفاته يحتاج بابهما.
+  if(g.key==='Real Estate'){var ws=el('div','sv1-grp-links');
+   [['workspaces',TX.wsBrowse],['workspace-request',TX.wsRequest]].forEach(function(x){var a=el('a',null,x[1]);a.href=HOME+x[0];ws.appendChild(a)});
+   body.appendChild(ws)}
   hits.forEach(function(s){
    var row=el('div','sv1-pick');
    var lab=document.createElement('label');lab.className='sv1-pick-lab';
