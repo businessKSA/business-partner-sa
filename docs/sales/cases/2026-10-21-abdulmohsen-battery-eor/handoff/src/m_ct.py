@@ -111,7 +111,7 @@ def row_h(e,a):
     if kind(e)=='h': h+=24+8
     return h
 # pagination
-BUD=1440
+BUD=1650
 pages=[];cur=[];h=0
 BREAK_BEFORE=('IN WITNESS','SCHEDULE 1','SCHEDULE 2','SCHEDULE 3','SCHEDULE 4','SCHEDULE 5')
 for e,a in P:

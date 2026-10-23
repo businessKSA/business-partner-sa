@@ -535,7 +535,7 @@ if TRANSPARENT:
     t4(wc, 'Foreign employee — monthly invoice (Model 1: cost plus)', 'الموظف الأجنبي — الفاتورة الشهرية (النموذج الأول: تكلفة زائد)', '', '')
     r4(wc, 2, 'Change the light-blue cells only. Each item is invoiced separately at actual cost.', 'غيّر الخانات الزرقاء الفاتحة فقط. وكل بند يُفوتر منفصلاً بالتكلفة الفعلية.', 'Government fees carry no VAT; VAT applies only to our fee.')
     r4(wc, 3, 'Total monthly package (SAR)', 6000, 'إجمالي الراتب الشهري (ريال)', '', inp=True, fmt='#,##0')
-    r4(wc, 4, 'Contract term in months (6, 12 or 24)', 12, 'مدة العقد بالأشهر (6 أو 12 أو 24)', '', inp=True)
+    r4(wc, 4, 'Contract term in months (12, 24 or 36)', 12, 'مدة العقد بالأشهر (12 أو 24 أو 36)', '', inp=True)
     r4(wc, 5, 'Profession (our localisation fee)', rows_p[0][0], 'المهنة (رسم التوطين لدينا)', 'See "Profession calculator"', inp=True)
     r4(wc, 6, 'Recruited from abroad? (Yes or No)', 'No', 'مستقدَم من الخارج؟ (Yes أو No)', 'Yes uses the "Recruitment" sheet', inp=True)
     r4(wc, 7, 'Use the "Insurance" sheet estimate? (Yes or No)', 'Yes', 'استعمال تقدير ورقة «Insurance»؟ (Yes أو No)', 'No uses SAR 600 per year', inp=True)
@@ -547,32 +547,32 @@ if TRANSPARENT:
      ('Social insurance (GOSI), foreign', '=B3*0.02', 'التأمينات الاجتماعية للأجنبي', '2% of salary'),
      ('End of service', '=B3/24', 'مكافأة نهاية الخدمة', 'Salary ÷ 24'),
      ('Leave pay', '=B3/30*21/12', 'بدل الإجازة', '21 days a year'),
-     ('Exit and re-entry visa', '=200/12', 'تأشيرة الخروج والعودة', 'SAR 200 ÷ 12'),
      ('Return flight ticket', '=1500/12', 'تذكرة الطيران (العودة)', 'SAR 1,500 ÷ 12'),
      ('Sponsorship transfer fee', "=IF(B6=\"Yes\",0,'Billing schedule'!B15)/B4", 'رسوم نقل الكفالة', 'Tiered fee from the Billing schedule sheet ÷ contract months'),
      ('Recruitment from abroad', '=IF(B6="Yes",Recruitment!B11,0)/B4', 'الاستقدام من الخارج', 'Recruitment sheet total ÷ contract months'),
-     ('Arrival ticket', '=IF(B6="Yes",Recruitment!B12,2000)/B4', 'تذكرة القدوم', 'SAR 2,000 (or the country value) ÷ contract months'),
+     ('Arrival ticket (recruitment from abroad only)', '=IF(B6="Yes",Recruitment!B12,0)/B4', 'تذكرة القدوم (للاستقدام من الخارج فقط)', 'Recruitment sheet value ÷ contract months; none when transferring inside the Kingdom'),
     ]
     for i, (e, v, a, h) in enumerate(items, 10): r4(wc, i, e, v, a, h, fmt=NUM)
     lc2 = 10 + len(items) - 1
     r4(wc, lc2 + 1, 'Total costs at actual (no VAT)', f'=SUM(B10:B{lc2})', 'إجمالي التكاليف بالفعلي (بلا ضريبة)', '', bold=True, fmt=NUM, shade=True)
     r4(wc, lc2 + 2, 'Our localisation fee, excl. VAT', FEE_FORMULA.replace('B5', 'B5'), 'رسم التوطين لدينا قبل الضريبة', 'Profession calculator', fmt=NUM)
-    r4(wc, lc2 + 3, 'VAT 15% on our fee only', f'=B{lc2+2}*0.15', 'ضريبة 15% على رسمنا فقط', '', fmt=NUM)
-    r4(wc, lc2 + 4, 'Total monthly invoice (SAR)', f'=B{lc2+1}+B{lc2+2}+B{lc2+3}', 'إجمالي الفاتورة الشهرية (ريال)', '', bold=True, fmt=NUM, shade=True)
-    r4(wc, lc2 + 5, 'Total for the term (SAR)', f'=B{lc2+4}*B4', 'الإجمالي للمدة (ريال)', '', fmt=NUM)
-    r4(wc, lc2 + 6, 'Two months in advance (SAR)', f'=B{lc2+4}*2', 'شهران مقدماً (ريال)', '', fmt=NUM)
-    for rng, lst in (('B4', '"6,12,24"'), ('B5', f'={PRO}'), ('B6', '"Yes,No"'), ('B7', '"Yes,No"')):
+    r4(wc, lc2 + 3, 'Business Partner monthly service fee, excl. VAT', "='Billing schedule'!B16", 'رسوم خدمة بزنس بارتنر الشهرية قبل الضريبة', 'Fixed per employee per month — monthly invoice only', fmt=NUM)
+    r4(wc, lc2 + 4, 'VAT 15% on our fees and on medical insurance', f'=(B{lc2+2}+B{lc2+3}+B12)*0.15', 'ضريبة 15% على رسومنا وعلى التأمين الطبي', 'Other costs follow the actual invoice', fmt=NUM)
+    r4(wc, lc2 + 5, 'Total monthly invoice (SAR)', f'=B{lc2+1}+B{lc2+2}+B{lc2+3}+B{lc2+4}', 'إجمالي الفاتورة الشهرية (ريال)', '', bold=True, fmt=NUM, shade=True)
+    r4(wc, lc2 + 6, 'Total for the term (SAR)', f'=B{lc2+5}*B4', 'الإجمالي للمدة (ريال)', '', fmt=NUM)
+    r4(wc, lc2 + 7, 'Salary invoiced two months in advance (SAR)', '=B3*2', 'الراتب المفوتر شهرين مقدماً (ريال)', 'Salary only; no fee on it', fmt=NUM)
+    for rng, lst in (('B4', '"12,24,36"'), ('B5', f'={PRO}'), ('B6', '"Yes,No"'), ('B7', '"Yes,No"')):
         dvz = DataValidation(type='list', formula1=lst); wc.add_data_validation(dvz); dvz.add(rng)
     wc['B5'].alignment = ctr; wc.row_dimensions[5].height = 48
 
-    # ---- Billing schedule (cost plus: one invoice / payment per item) ----
+    # ---- Billing schedule (cost plus: stages, one invoice / payment per item) ----
     wbs = wb.create_sheet('Billing schedule')
-    t4(wbs, 'Billing and payment schedule — Model 1 (cost plus)', 'جدول الفوترة والدفع — النموذج الأول (تكلفة زائد)', '', '')
+    t4(wbs, 'Billing and payment schedule — Model 1 (cost plus), annual contracts', 'جدول الفوترة والدفع — النموذج الأول (تكلفة زائد)، العقود السنوية', '', '')
     CP = "'Cost plus'!"
-    r4(wbs, 2, 'Each item below is a separate invoice or payment. Month 0 = start; month 1 = end of the first month. Amounts exclude VAT and are at actual cost.', '', 'كل بند أدناه فاتورة أو دفعة مستقلة. الشهر 0 = البدء؛ الشهر 1 = نهاية الشهر الأول. المبالغ قبل الضريبة وبالتكلفة الفعلية.')
-    wbs.row_dimensions[2].height = 40
+    r4(wbs, 2, 'Stages: 1 first advance (recruitment or sponsorship transfer) · 2 entry or on the Company sponsorship · monthly · after contract end. Month 0 = start; month 1 = end of the first month. Amounts exclude VAT unless stated and are at actual cost.', '', 'المراحل: 1 الدفعة الأولى المقدمة (استقدام أو نقل كفالة) · 2 الدخول أو وجود الموظف على كفالة الشركة · شهرياً · بعد نهاية العقد. الشهر 0 = البدء؛ الشهر 1 = نهاية الشهر الأول. المبالغ قبل الضريبة ما لم يُذكر وبالتكلفة الفعلية.')
+    wbs.row_dimensions[2].height = 52
     r4(wbs, 3, 'Start date (optional)', None, 'تاريخ البدء (اختياري)', 'Fills the dates row', inp=True, fmt='yyyy-mm-dd')
-    r4(wbs, 4, 'Contract term in months', f'={CP}B4', 'مدة العقد بالأشهر', 'From the Cost plus sheet', fmt='0')
+    r4(wbs, 4, 'Contract term in months (12, 24 or 36)', f'={CP}B4', 'مدة العقد بالأشهر (12 أو 24 أو 36)', 'From the Cost plus sheet', fmt='0')
     r4(wbs, 5, 'Total monthly package (SAR)', f'={CP}B3', 'إجمالي الراتب الشهري (ريال)', 'From the Cost plus sheet', fmt='#,##0')
     r4(wbs, 6, 'Recruited from abroad?', f'={CP}B6', 'مستقدَم من الخارج؟', 'From the Cost plus sheet')
     r4(wbs, 7, 'Work permit and iqama payment frequency', 'Annual', 'دورية دفع رخصة العمل والإقامة', 'Quarterly, Half-yearly or Annual — client chooses', inp=True)
@@ -584,79 +584,88 @@ if TRANSPARENT:
     r4(wbs, 13, 'Annual medical premium used (SAR)', f'=IF({CP}B7="Yes",Insurance!B12,600)', 'قسط التأمين الطبي السنوي المعتمد (ريال)', 'Insurance sheet or SAR 600', fmt=NUM)
     r4(wbs, 14, 'Permit and iqama payment period (months)', '=IF(B7="Quarterly",3,IF(B7="Half-yearly",6,12))', 'مدة دفعة الرخصة والإقامة (أشهر)', '', fmt='0')
     r4(wbs, 15, 'Sponsorship transfer fee (SAR) — paid in advance', '=IF(B6="Yes",0,IF(B8<=1,2000,IF(B8=2,4000,6000)))', 'رسوم نقل الكفالة (ريال) — تُدفع مقدماً', '2,000 first time · 4,000 second · 6,000 third and above. Our fee; actual government fees, if any, are invoiced separately [[to confirm]]', bold=True, fmt='#,##0', shade=True)
+    r4(wbs, 16, 'Business Partner monthly service fee per employee (SAR)', 500, 'رسوم خدمة بزنس بارتنر الشهرية لكل موظف (ريال)', 'Fixed, monthly invoice only — no fee on advances, stage 2, contract end or the salary advance. Subject to 15% VAT', inp=True, fmt='#,##0')
     for rng, lst in (('B7', '"Quarterly,Half-yearly,Annual"'), ('B9', '"Yes,No"'), ('B11', '"To confirm,Arrears,Advance"')):
         dvz = DataValidation(type='list', formula1=lst); wbs.add_data_validation(dvz); dvz.add(rng)
-    HR = 18; FM = 6; LM = FM + 24     # months 0..24 -> columns F..AD
+    HR = 19; FM = 6; NM = 36
     ML = lambda m: get_column_letter(FM + m)
-    for j, h in enumerate(('Item', 'البند', 'When', 'Total over the term (SAR)')):
+    for j, h in enumerate(('Item', 'البند', 'Stage · When', 'Total over the term (SAR)')):
         c = wbs.cell(HR, 1 + j, h); c.font = Font(name='Arial', bold=True, color='FFFFFF'); c.fill = fill_h; c.alignment = ctr
     wbs.cell(HR - 1, 1, 'Month →').font = f_b
-    for m in range(25):
+    for m in range(NM + 1):
         c = wbs.cell(HR, FM + m, m); c.font = Font(name='Arial', bold=True, color='FFFFFF'); c.fill = fill_h; c.alignment = ctr
         d = wbs.cell(HR - 1, FM + m, f'=IF($B$3="","",EDATE($B$3,{ML(m)}${HR}))'); d.number_format = 'yyyy-mm-dd'; d.font = f_s; d.alignment = ctr
         wbs.column_dimensions[ML(m)].width = 11
-    wbs.column_dimensions['C'].width = 30; wbs.column_dimensions['D'].width = 24
+    wbs.column_dimensions['C'].width = 34; wbs.column_dimensions['D'].width = 24
     T = '$B$4'; S = '$B$5'
     fee_row = lc2 + 2
     SA = '($B$9="Yes")'
-    def mv(m):  # month header ref
-        return f'{ML(m)}${HR}'
+    def mv(m): return f'{ML(m)}${HR}'
+    MED = lambda m: f'AND(MOD({mv(m)},12)=0,{mv(m)}<{T})'
     sched = [
-     ('Work permit, levy and iqama', 'رخصة العمل والمقابل المالي والإقامة', 'Quarterly / half-yearly / annual, in advance · دورية مقدماً',
-      lambda m: f'=IF(AND(MOD({mv(m)},$B$14)=0,{mv(m)}<{T}),(9700+650)/12*MIN($B$14,{T}-{mv(m)}),0)'),
-     ('Medical insurance — full year', 'التأمين الطبي — سنة كاملة', 'One full year in advance · سنة كاملة مقدماً',
-      lambda m: f'=IF(AND(MOD({mv(m)},12)=0,{mv(m)}<{T}),$B$13,0)'),
-     ('End of service award', 'مكافأة نهاية الخدمة', 'At the end of the contract · عند نهاية العقد',
-      lambda m: f'=IF({mv(m)}={T},{S}/24*{T},0)'),
-     ('Foreign employee salary', 'راتب الموظف الأجنبي', 'Monthly payroll · شهرياً',
-      lambda m: f'=IF(AND({mv(m)}>=1,{mv(m)}<={T}),{S},0)'),
-     ('Leave pay (actual; timing [[to confirm]])', 'بدل الإجازة (بالفعلي؛ التوقيت [[يُؤكَّد]])', 'At actual, settled at the end · بالفعلي',
-      lambda m: f'=IF({mv(m)}={T},{S}/30*21/12*{T},0)'),
-     ('Return flight ticket (actual; timing [[to confirm]])', 'تذكرة العودة (بالفعلي؛ التوقيت [[يُؤكَّد]])', 'At actual · بالفعلي',
-      lambda m: f'=IF({mv(m)}={T},1500/12*{T},0)'),
-     ('Recruitment from abroad (visa SAR 2,000 included)', 'الاستقدام من الخارج (يشمل التأشيرة 2,000)', 'In advance, separate invoice · مقدماً بفاتورة منفصلة',
+     ('Recruitment from abroad (visa SAR 2,000 included)', 'الاستقدام من الخارج (يشمل التأشيرة 2,000)', '1 · First advance, separate invoice · الدفعة الأولى بفاتورة منفصلة',
       lambda m: f'=IF(AND({mv(m)}=0,$B$6="Yes"),Recruitment!$B$11,0)'),
-     ('Sponsorship transfer', 'نقل الكفالة', 'In advance · مقدماً',
+     ('Arrival ticket (recruitment from abroad only; actual)', 'تذكرة القدوم (للاستقدام من الخارج فقط؛ بالفعلي)', '1 · First advance · الدفعة الأولى',
+      lambda m: f'=IF(AND({mv(m)}=0,$B$6="Yes"),Recruitment!$B$12,0)'),
+     ('Sponsorship transfer', 'نقل الكفالة', '1 · First advance · الدفعة الأولى',
       lambda m: f'=IF({mv(m)}=0,$B$15,0)'),
-     ('Foreign employee social insurance (2%)', 'التأمينات الاجتماعية على الأجنبي (2%)', 'Monthly, invoiced and paid month by month · شهرياً',
+     ('Medical insurance — full year', 'التأمين الطبي — سنة كاملة', '2 · One full year in advance · سنة كاملة مقدماً',
+      lambda m: f'=IF({MED(m)},$B$13,0)'),
+     ('Work permit, levy and iqama', 'رخصة العمل والمقابل المالي والإقامة', '2 · Quarterly / half-yearly / annual, in advance · دورية مقدماً',
+      lambda m: f'=IF(AND(MOD({mv(m)},$B$14)=0,{mv(m)}<{T}),(9700+650)/12*MIN($B$14,{T}-{mv(m)}),0)'),
+     ('Foreign employee salary (invoiced two months ahead)', 'راتب الموظف الأجنبي (يُفوتَر مقدماً بشهرين)', 'Monthly · شهرياً',
+      lambda m: f'=IF({mv(m)}=0,2*{S},IF(AND({mv(m)}>=1,{mv(m)}<={T}-2),{S},0))'),
+     ('Foreign employee social insurance (2%, after arrival)', 'التأمينات الاجتماعية على الأجنبي (2%، بعد وصوله)', 'Monthly, after arrival and salary update · شهرياً',
       lambda m: f'=IF(AND({mv(m)}>=1,{mv(m)}<={T}),{S}*0.02,0)'),
+     ('Business Partner monthly service fee', 'رسوم خدمة بزنس بارتنر الشهرية', 'Monthly invoice only · الفاتورة الشهرية فقط',
+      lambda m: f'=IF(AND({mv(m)}>=1,{mv(m)}<={T}),$B$16,0)'),
+     ('Our localisation fee (monthly)', 'رسم التوطين لدينا (شهرياً)', 'Monthly · شهرياً',
+      lambda m: f'=IF(AND({mv(m)}>=1,{mv(m)}<={T}),{CP}B{fee_row},0)'),
+     ('VAT 15% on our fees (service fee + localisation)', 'ضريبة 15% على رسومنا (الخدمة + التوطين)', 'Monthly · شهرياً',
+      lambda m: f'=IF(AND({mv(m)}>=1,{mv(m)}<={T}),({CP}B{fee_row}+$B$16)*0.15,0)'),
+     ('VAT 15% on medical insurance', 'ضريبة 15% على التأمين الطبي', 'With the insurance · مع التأمين',
+      lambda m: f'=IF({MED(m)},$B$13*0.15,0)'),
      ('Saudi employee salary', 'راتب الموظف السعودي', 'Per the invoicing choice above · حسب الاختيار أعلاه',
       lambda m: f'=IF(AND({SA},{mv(m)}>=IF($B$11="Advance",0,1),{mv(m)}<=IF($B$11="Advance",{T}-1,{T})),$B$10,0)'),
      ('Saudi employee medical insurance (monthly)', 'التأمين الطبي للسعودي (شهرياً)', 'Monthly · شهرياً',
       lambda m: f'=IF(AND({SA},{mv(m)}>=1,{mv(m)}<={T}),$B$13/12,0)'),
      ('Saudi employee social insurance — separate invoice', 'التأمينات الاجتماعية للسعودي — فاتورة منفصلة', 'Monthly, separate invoice · شهرياً بفاتورة منفصلة',
       lambda m: f'=IF(AND({SA},{mv(m)}>=1,{mv(m)}<={T}),$B$10*$B$12/100,0)'),
-     ('Exit and re-entry visa (estimate; actual invoiced)', 'تأشيرة الخروج والعودة (تقدير؛ تُفوتر بالفعلي)', 'At actual, when required · بالفعلي عند الحاجة',
-      lambda m: f'=IF(AND(MOD({mv(m)},12)=0,{mv(m)}<{T}),200,0)'),
-     ('Arrival ticket (estimate; actual invoiced)', 'تذكرة القدوم (تقدير؛ تُفوتر بالفعلي)', 'At actual, on arrival · بالفعلي عند الوصول',
-      lambda m: f'=IF({mv(m)}=0,IF($B$6="Yes",Recruitment!$B$12,2000),0)'),
-     ('Our localisation fee (monthly, before VAT)', 'رسم التوطين لدينا (شهرياً، قبل الضريبة)', 'Monthly · شهرياً',
-      lambda m: f'=IF(AND({mv(m)}>=1,{mv(m)}<={T}),{CP}B{fee_row},0)'),
-     ('VAT 15% on our fee only', 'ضريبة 15% على رسمنا فقط', 'With the fee · مع الرسم',
-      lambda m: f'=IF(AND({mv(m)}>=1,{mv(m)}<={T}),{CP}B{fee_row}*0.15,0)'),
+     ('End-of-service award (Labour Law arts. 84-87)', 'مكافأة نهاية الخدمة (نظام العمل م84-87)', 'After contract end, separate invoice at actual · بعد نهاية العقد',
+      lambda m: f'=IF({mv(m)}={T},{S}/24*{T},0)'),
+     ('Leave pay (actual)', 'بدل الإجازة (بالفعلي)', 'After contract end, separate invoice at actual · بعد نهاية العقد',
+      lambda m: f'=IF({mv(m)}={T},{S}/30*21/12*{T},0)'),
+     ('Return flight ticket (actual)', 'تذكرة العودة (بالفعلي)', 'After contract end, separate invoice at actual · بعد نهاية العقد',
+      lambda m: f'=IF({mv(m)}={T},1500/12*{T},0)'),
     ]
-    r0 = HR + 1
-    for i, (en, ar, when, fn) in enumerate(sched):
-        r = r0 + i
+    def put_row(r, en, ar, when, fn):
         wbs.cell(r, 1, en).font = f_n; a2 = wbs.cell(r, 2, ar); a2.font = f_n; a2.alignment = rtl
         wbs.cell(r, 3, when).font = f_s
         for cc in (1, 3): wbs.cell(r, cc).alignment = wrap
-        for m in range(25):
+        for m in range(NM + 1):
             c = wbs.cell(r, FM + m, fn(m)); c.number_format = '#,##0;-#,##0;""'; c.border = box; c.font = f_n
-        t = wbs.cell(r, 4, f'=SUM({ML(0)}{r}:{ML(24)}{r})'); t.number_format = '#,##0'; t.font = f_b; t.border = box
+        t = wbs.cell(r, 4, f'=SUM({ML(0)}{r}:{ML(NM)}{r})'); t.number_format = '#,##0'; t.font = f_b; t.border = box
         wbs.row_dimensions[r].height = 30
+    r0 = HR + 1
+    for i, (en, ar, when, fn) in enumerate(sched): put_row(r0 + i, en, ar, when, fn)
     rl = r0 + len(sched) - 1
     rt = rl + 1
-    wbs.cell(rt, 1, 'Total invoiced in the month (SAR)').font = f_b
-    wbs.cell(rt, 2, 'إجمالي ما يُفوتَر في الشهر (ريال)').font = f_b; wbs.cell(rt, 2).alignment = rtl
-    for m in range(25):
+    wbs.cell(rt, 1, 'Total invoiced (SAR)').font = f_b
+    wbs.cell(rt, 2, 'إجمالي ما يُفوتَر (ريال)').font = f_b; wbs.cell(rt, 2).alignment = rtl
+    for m in range(NM + 1):
         c = wbs.cell(rt, FM + m, f'=SUM({ML(m)}{r0}:{ML(m)}{rl})'); c.number_format = '#,##0;-#,##0;""'; c.font = f_b; c.fill = fill_p; c.border = box
     t = wbs.cell(rt, 4, f'=SUM(D{r0}:D{rl})'); t.number_format = '#,##0'; t.font = f_b; t.fill = fill_p
-    note(wbs, rt + 2, 'Items "at actual" are invoiced separately as incurred: exit and re-entry visa and any document needing attestation, transport, housing and meal allowance on arrival (amounts above are estimates only). The signed agreement governs.', 'البنود «بالفعلي» تُفوتر منفصلة عند حدوثها: تأشيرة الخروج والعودة وأي مستند يحتاج تصديقاً والمواصلات والسكن وبدل الطعام عند الوصول (المبالغ أعلاه تقديرية فقط). والعقد الموقع هو المرجع.')
+    put_row(rt + 1, 'Exit and re-entry visa — optional, at contract end (outside the total)', 'تأشيرة الخروج والعودة — اختيارية عند نهاية العقد (خارج الإجمالي)', 'At contract end if renewing · عند التجديد إن لزم',
+            lambda m: f'=IF({mv(m)}={T},200,0)')
+    wbs.cell(rt + 3, 1, 'Check: total for the term on the Cost plus sheet (SAR)').font = f_s
+    ck = wbs.cell(rt + 3, 4, f'={CP}B{lc2+6}'); ck.number_format = '#,##0'; ck.font = f_s
+    wbs.cell(rt + 4, 1, 'Difference (timing and rounding only)').font = f_s
+    dk = wbs.cell(rt + 4, 4, f'=D{rt}-D{rt+3}'); dk.number_format = '#,##0'; dk.font = f_s
+    note(wbs, rt + 6, 'VAT 15% applies to our service fee, the localisation fee and the medical insurance only; other costs follow the actual invoice (reading of the owner\'s costing decision — to be confirmed). Items "at actual" are invoiced separately as incurred: any document needing attestation, and transport, housing and meal allowance on arrival. Contract-end items are one separate invoice after the contract ends, at the actual total. The signed agreement governs.', 'الضريبة 15% على رسوم خدمتنا ورسم التوطين والتأمين الطبي فقط؛ وسائر التكاليف بحسب الفاتورة الفعلية (قراءة لقرار الكوستينج للمالك — تُؤكَّد). والبنود «بالفعلي» تُفوتر منفصلة عند حدوثها: أي مستند يحتاج تصديقاً، والمواصلات والسكن وبدل الطعام عند الوصول. وبنود نهاية العقد فاتورة واحدة منفصلة بعد نهايته بالإجمالي الفعلي. والعقد الموقع هو المرجع.', 90)
     wbs.freeze_panes = wbs.cell(HR + 1, FM)
-    wc.cell(lc2 + 8, 1, 'Actual invoices, dates and payment frequency follow the "Billing schedule" sheet. The monthly figures above are the average over the term.').font = f_s
-    wc.cell(lc2 + 8, 3, 'الفواتير والتواريخ ودورية الدفع الفعلية في ورقة «Billing schedule». والأرقام الشهرية أعلاه متوسط على مدة العقد.').font = f_s
-    wc.cell(lc2 + 8, 3).alignment = rtl
+    wc.cell(lc2 + 9, 1, 'Actual invoices, stages, dates and payment frequency follow the "Billing schedule" sheet. The monthly figures above are the average over the term.').font = f_s
+    wc.cell(lc2 + 9, 3, 'الفواتير والمراحل والتواريخ ودورية الدفع الفعلية في ورقة «Billing schedule». والأرقام الشهرية أعلاه متوسط على مدة العقد.').font = f_s
+    wc.cell(lc2 + 9, 3).alignment = rtl
     wb['Rates'].sheet_state = 'hidden'
 
 # order sheets
