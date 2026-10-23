@@ -1,6 +1,6 @@
 import json,base64,sys,pathlib
 d=pathlib.Path(__file__).parent
-s=(d/"template.html").read_text(encoding="utf-8"); j=(d/"data.json").read_text(encoding="utf-8")
+s=(d/"template.html").read_text(encoding="utf-8"); s=s.replace(">v128<",">"+__import__("datetime").datetime.utcnow().strftime("%m%d-%H%M")+"<"); j=(d/"data.json").read_text(encoding="utf-8")
 tr=json.dumps(json.loads((d/"i18n-fr-zh.json").read_text(encoding="utf-8")),ensure_ascii=False)
 logo="data:image/png;base64,"+base64.b64encode((d/"logo700.png").read_bytes()).decode()
 fz=(d/"fawaz.json").read_text(encoding="utf-8") if (d/"fawaz.json").exists() else "null"
