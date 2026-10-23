@@ -9,7 +9,7 @@ d = pathlib.Path(__file__).parent
 t = (d / "template.html").read_text(encoding="utf-8")
 j = (d / "data.json").read_text(encoding="utf-8")
 tr = json.dumps(json.loads((d / "i18n-fr-zh.json").read_text(encoding="utf-8")), ensure_ascii=False)
-logo_path = d.parents[3] / "site" / "assets" / "img" / "logo.png"
+logo_path = d.parents[4] / "site" / "assets" / "img" / "logo.png"
 logo = "data:image/png;base64," + base64.b64encode(logo_path.read_bytes()).decode()
 client = "--client" in sys.argv or "--demo" in sys.argv
 demo = "--demo" in sys.argv
