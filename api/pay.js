@@ -293,7 +293,7 @@ async function priceBasket(order) {
     names.push((sv1 ? sv1.name : cat ? cat.name : x.id) + " ×" + x.qty);
     detail.push({ id: x.id, name: sv1 ? sv1.name : cat ? cat.name : x.id, qty: x.qty, amount: a * x.qty });
   }
-  net += Number(order.surchargeFee) || 0;
+  net += Math.max(0, Number(order.surchargeFee) || 0); // لا رسوم سالبة: القيمة من المتصفح ولا تُخفض المطلوب
   const disc = await catalogDiscount(order.discountCode);
   // A scoped code cuts only from its own lines (never from the surcharge);
   // an unscoped code cuts from the whole net, exactly as the checkout showed.
@@ -1426,7 +1426,7 @@ export default async function handler(req, res) {
       lines.push({ id: x.id, line: a * x.qty });
       items.push({ id: x.id, name: sv1 ? sv1.name : cat ? cat.name : x.id, qty: x.qty, unit: a });
     }
-    net += Number(order.surchargeFee) || 0;
+    net += Math.max(0, Number(order.surchargeFee) || 0); // لا رسوم سالبة: القيمة من المتصفح ولا تُخفض المطلوب
     if (unknown || !(net > 0)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "quote_only_items" })); }
     const disc = await catalogDiscount(order.discountCode);
     const discBase = disc && disc.services.length
