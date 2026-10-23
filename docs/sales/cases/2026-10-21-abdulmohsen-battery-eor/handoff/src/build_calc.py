@@ -579,13 +579,13 @@ if TRANSPARENT:
     r4(wbs, 8, 'Sponsorship transfer number (1, 2, 3 or more)', 1, 'رقم عملية نقل الكفالة (1 أو 2 أو 3 فأكثر)', 'Enter 3 for the third transfer and above', inp=True, fmt='0')
     r4(wbs, 9, 'Hiring a Saudi national? (Yes or No)', 'No', 'توظيف سعودي؟ (Yes أو No)', 'Localisation (Saudi) lines below', inp=True)
     r4(wbs, 10, 'Saudi monthly salary (SAR)', 0, 'راتب السعودي الشهري (ريال)', 'Enter the agreed salary', inp=True, fmt='#,##0')
-    r4(wbs, 11, 'Saudi salary invoicing', 'To confirm', 'فوترة راتب السعودي', 'Arrears (after each month) or Advance. [[To confirm with the owner]]; calculated as Arrears until then', inp=True)
+    r4(wbs, 11, 'Saudi salary invoicing', 'Arrears', 'فوترة راتب السعودي', 'Arrears: invoiced after the first month of work and monthly thereafter (owner decision). Advance is available as an alternative', inp=True)
     r4(wbs, 12, 'Social insurance rate on the Saudi (employer share, %)', 0, 'نسبة التأمينات على السعودي (حصة صاحب العمل، %)', '[[To confirm]] — left at 0 until the official rate is confirmed', inp=True, fmt='0.00')
     r4(wbs, 13, 'Annual medical premium used (SAR)', f'=IF({CP}B7="Yes",Insurance!B12,600)', 'قسط التأمين الطبي السنوي المعتمد (ريال)', 'Insurance sheet or SAR 600', fmt=NUM)
     r4(wbs, 14, 'Permit and iqama payment period (months)', '=IF(B7="Quarterly",3,IF(B7="Half-yearly",6,12))', 'مدة دفعة الرخصة والإقامة (أشهر)', '', fmt='0')
-    r4(wbs, 15, 'Sponsorship transfer fee (SAR) — paid in advance', '=IF(B6="Yes",0,IF(B8<=1,2000,IF(B8=2,4000,6000)))', 'رسوم نقل الكفالة (ريال) — تُدفع مقدماً', '2,000 first time · 4,000 second · 6,000 third and above. Our fee; actual government fees, if any, are invoiced separately [[to confirm]]', bold=True, fmt='#,##0', shade=True)
+    r4(wbs, 15, 'Sponsorship transfer fee (SAR) — paid in advance', '=IF(B6="Yes",0,IF(B8<=1,2000,IF(B8=2,4000,6000)))', 'رسوم نقل الكفالة (ريال) — تُدفع مقدماً', '2,000 first time · 4,000 second · 6,000 third and above. Official government fee, paid at cost — no Business Partner mark-up', bold=True, fmt='#,##0', shade=True)
     r4(wbs, 16, 'Business Partner monthly service fee per employee (SAR)', 500, 'رسوم خدمة بزنس بارتنر الشهرية لكل موظف (ريال)', 'Fixed, monthly invoice only — no fee on advances, stage 2, contract end or the salary advance. Subject to 15% VAT', inp=True, fmt='#,##0')
-    for rng, lst in (('B7', '"Quarterly,Half-yearly,Annual"'), ('B9', '"Yes,No"'), ('B11', '"To confirm,Arrears,Advance"')):
+    for rng, lst in (('B7', '"Quarterly,Half-yearly,Annual"'), ('B9', '"Yes,No"'), ('B11', '"Arrears,Advance"')):
         dvz = DataValidation(type='list', formula1=lst); wbs.add_data_validation(dvz); dvz.add(rng)
     HR = 19; FM = 6; NM = 36
     ML = lambda m: get_column_letter(FM + m)
@@ -607,7 +607,7 @@ if TRANSPARENT:
       lambda m: f'=IF(AND({mv(m)}=0,$B$6="Yes"),Recruitment!$B$11,0)'),
      ('Arrival ticket (recruitment from abroad only; actual)', 'تذكرة القدوم (للاستقدام من الخارج فقط؛ بالفعلي)', '1 · First advance · الدفعة الأولى',
       lambda m: f'=IF(AND({mv(m)}=0,$B$6="Yes"),Recruitment!$B$12,0)'),
-     ('Sponsorship transfer', 'نقل الكفالة', '1 · First advance · الدفعة الأولى',
+     ('Sponsorship transfer (government fee)', 'نقل الكفالة (رسم حكومي)', '1 · First advance · الدفعة الأولى',
       lambda m: f'=IF({mv(m)}=0,$B$15,0)'),
      ('Medical insurance — full year', 'التأمين الطبي — سنة كاملة', '2 · One full year in advance · سنة كاملة مقدماً',
       lambda m: f'=IF({MED(m)},$B$13,0)'),
