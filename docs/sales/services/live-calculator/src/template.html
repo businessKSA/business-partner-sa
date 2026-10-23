@@ -1873,7 +1873,7 @@ function chCardProf(i){ const p=EP(i), only=p[1]==='Saudi-only', req=p[1]==='On 
   if(!only&&!req&&r>0) rows.push([tx('نسبة التوطين','Localisation ratio'),r+'%'],[tx('تسري عند','Applies from'),(p[4]||1)+' '+tx('عاملين','workers')]);
   if(p[5]>0) rows.push([tx('أقل راتب يُحتسب للسعودي','Minimum salary counted for a Saudi'),fmt(p[5])+' '+tx('ريال','SAR')]);
   if(p[6]&&!/^Standard fee/i.test(p[6])) rows.push([tx('تفصيل القرار','Decision detail'),esc(p[6])]);
-  if(p[9]==='it') rows.push([tx('المرجع الرسمي','Official reference'),`<a href="https://www.hrsd.gov.sa/en/node/841823" target="_blank" rel="noopener">${tx('صفحة قرار الاتصالات وتقنية المعلومات — وزارة الموارد البشرية','ICT localisation decision page — HRSD')}</a>`]);
+  if(p[9]==='it') rows.push([tx('المرجع الرسمي','Official reference'),`<a href="https://www.hrsd.gov.sa/media-center/news/841823" target="_blank" rel="noopener">${tx('الخبر الرسمي لقرار توطين مهن الاتصالات وتقنية المعلومات — وزارة الموارد البشرية','Official announcement of the ICT professions localisation decision — HRSD')}</a>`]);
   const gd=GUIDES.find(x=>x.id===p[8]); if(gd){ if(gd.decision) rows.push([tx('رقم القرار','Decision no.'),esc(String(gd.decision))+(gd.date?' · '+esc(String(gd.date)):'')]); if(gd.accreditation) rows.push([tx('الجهة المعتمدة','Accrediting body'),esc(String(gd.accreditation))]); }
   if(!only&&!req&&!(r>0)){ const near=chNear(i); if(near) rows.push([tx('تنبيه: مهن قريبة عليها قرار','Note: similar professions with a decision'),near]); }
   rows.push([tx('ماذا يعني لك','What it means for you'),mean]);
