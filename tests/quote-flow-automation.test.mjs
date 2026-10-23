@@ -101,7 +101,7 @@ test("من «إنشاء عرض سعر» إلى الفاتورة: كل خطوة �
   assert.equal(row.contract.status, "SENT"); assert.ok(row.contract.html.length > 500, "ورقة العقد كاملة");
 
   // التوقيع ← الدفع مفتوح
-  const sg = await call("contract-sign", { ref, consent: true, name: "أحمد العميل" });
+  const sg = await call("contract-sign", { ref, consent: true, signature: "data:image/png;base64," + "A".repeat(200), name: "أحمد العميل" });
   assert.equal(sg.ok, true); assert.equal(sg.status, "SIGNED");
   assert.equal((await rowOf(ref)).payment.status, "PENDING", "الدفع مفتوح مباشرة بعد التوقيع");
 
@@ -164,14 +164,14 @@ const HOLD_CASES = [
 ];
 for (const [code, reason, word] of HOLD_CASES) {
   test(`بند «${reason}»: لا سعر يُخترع، والسبب مكتوب بجانب البند ويراه العميل والمالك`, async () => {
-    const ref = await create([FIXED, { code, title: "بند يحتاج تسعيراً", qty: 1 }, ...SEED]);
+    // البند وحده (لا بند مسعّر معه): لا شيء يُعرَض بعد، فيبقى الطلب بسببه عند الفريق
+    const ref = await create([{ code, title: "بند يحتاج تسعيراً", qty: 1 }, ...SEED]);
     const row = await rowOf(ref);
     assert.equal(row.status, "REVIEWING", "ينتظر إنساناً");
     assert.equal(row.quote || null, null, "لم يصدر عرض ولا سعر");
     const line = row.scope.find((s) => s.title === "بند يحتاج تسعيراً");
     assert.equal(line.hold.reason, reason);
     assert.ok(line.hold.reason_ar.includes(word), line.hold.reason_ar);
-    assert.equal(row.scope.find((s) => s.title === "خدمة ثابتة").hold, undefined, "البند المسعّر لا يُوسَم");
     // العميل يرى البند وسببه (لا الأسعار الداخلية)
     const seen = (await call("request-get", { ref })).request;
     assert.equal(seen.scope.find((s) => s.title === "بند يحتاج تسعيراً").hold.reason, reason);
@@ -198,14 +198,18 @@ test("إصدار الفريق للعرض بعد التسعير يُكمل الر
   assert.equal(ap.status, "CONTRACT_SENT", "ثم العقد وحده");
 });
 
-test("بند البذرة غير الموسوم (سبب العطل) يوقف العرض، والموسوم لا يوقفه؛ وتعديل العميل لنصّ البذرة يجعله بنداً حقيقياً", async () => {
+test("بنود البذرة بلا علامة (طلبات قديمة وصفحة المحادثة قبل الإصلاح) تُعرَف بعنوانها ولا توقف العرض", async () => {
   const unflagged = SEED.map(({ seed, ...x }) => x);
-  const stuck = await create([FIXED, ...unflagged]);
-  const row = await rowOf(stuck);
-  assert.equal(row.status, "REVIEWING", "هذا ما كانت صفحة المحادثة ترسله قبل الإصلاح");
-  assert.deepEqual(row.scope.filter((s) => s.hold).map((s) => s.hold.reason), ["custom", "custom"]);
-  const fine = await create([FIXED, ...SEED]);
-  assert.equal((await rowOf(fine)).status, "QUOTE_SENT");
+  const old = await create([FIXED, ...unflagged]);
+  const row = await rowOf(old);
+  assert.equal(row.status, "QUOTE_SENT", "كان يبقى REVIEWING بسببها");
+  assert.deepEqual(row.quote.items.map((i) => i.title), ["تأسيس شركة سعودية"], "لم تُطبع في العرض");
+  assert.ok(!row.scope.some((x) => x.hold), "ولم تُعلَّق كبنود حرّة");
+  assert.equal(row.quote.pending_items, undefined, "ولا تُعدّ بنداً منتظراً");
+  // حشوٌ بعنوانٍ لا نعرفه يبقى بنداً حقيقياً، لكنه لا يعلّق باقي الطلب (يأتي في pending_items)
+  const unknown = await create([FIXED, { code: "", title: "حشو مجهول العنوان", qty: 1 }]);
+  const r2 = await rowOf(unknown);
+  assert.equal(r2.status, "QUOTE_SENT"); assert.deepEqual(r2.quote.pending_items.map((x) => x.title), ["حشو مجهول العنوان"]);
 });
 
 test("بنودٌ كلها بذرة: لا عرض ولا مهمة تسعير — العميل يختار خدمته أولاً", async () => {
@@ -221,7 +225,10 @@ test("اعتماد النطاق من اللوحة (scope-confirm) يمرّ با�
   assert.equal(c1.stage, "QUOTE");
   const b = await call("request-create", { type: "GOVERNMENT_SERVICE", title: "x", scope: [FIXED, { code: "BP-AI-02", title: "اشتراك", qty: 1 }] });
   const c2 = await call("scope-confirm", { ref: b.ref });
-  assert.equal(c2.stage, "PRICING"); assert.deepEqual(c2.unpriced, ["اشتراك"]); assert.equal(c2.holds[0].reason, "recurring");
+  assert.equal(c2.stage, "QUOTE", "المسعّر يصدر فوراً"); assert.equal(c2.quote.pending_items[0].reason, "recurring");
+  const d = await call("request-create", { type: "GOVERNMENT_SERVICE", title: "x", scope: [{ code: "BP-AI-02", title: "اشتراك", qty: 1 }] });
+  const c3 = await call("scope-confirm", { ref: d.ref });
+  assert.equal(c3.stage, "PRICING"); assert.deepEqual(c3.unpriced, ["اشتراك"]); assert.equal(c3.holds[0].reason, "recurring");
 });
 
 // ============================================== ٣) العقد لا ينتظر المالك أبداً ==
@@ -325,7 +332,7 @@ test("المالك يراه في «المحذوفة» للتدقيق فقط، و
 test("ما عليه عقد موقَّع أو دفعة لا يختفي: العقد الموقَّع يُلغى ويبقى ظاهراً، والمدفوع يُطلَب إلغاؤه من الفريق", async () => {
   // موقَّع بلا دفع: يُلغى فوراً (قرار المالك 2026-10-17) لكنه سجلّ التزام — لا يُخفى
   const signed = await create([FIXED, ...SEED]);
-  await call("quote-approve", { ref: signed }); await call("contract-sign", { ref: signed, consent: true, name: "أحمد العميل" });
+  await call("quote-approve", { ref: signed }); await call("contract-sign", { ref: signed, consent: true, signature: "data:image/png;base64," + "A".repeat(200), name: "أحمد العميل" });
   const s = await call("request-cancel", { ref: signed });
   assert.equal(s.cancelled, true); assert.equal(s.hidden, false);
   assert.ok(!(await rowOf(signed)).deleted_at);
@@ -335,7 +342,7 @@ test("ما عليه عقد موقَّع أو دفعة لا يختفي: العق�
 
   // مدفوع: لا إلغاء فوري ولا إخفاء
   const paid = await create([FIXED, ...SEED]);
-  await call("quote-approve", { ref: paid }); await call("contract-sign", { ref: paid, consent: true, name: "أحمد العميل" });
+  await call("quote-approve", { ref: paid }); await call("contract-sign", { ref: paid, consent: true, signature: "data:image/png;base64," + "A".repeat(200), name: "أحمد العميل" });
   await call("pay-test", { ref: paid, outcome: "success", provider: "card" });
   const p = await call("request-cancel", { ref: paid });
   assert.equal(p.requested, true); assert.notEqual(p.cancelled, true);
@@ -370,7 +377,7 @@ test("لا يستطيع العميل كتابة deleted_at ولا إخفاء م�
 // ====================================================== ٥) لا تجاوز للإذن ==
 test("عميلٌ آخر لا يرى طلب غيره ولا يعتمده ولا يوقّعه ولا يدفعه ولا يلغيه", async () => {
   const ref = await create([FIXED, ...SEED]);
-  for (const [action, body] of [["request-get", {}], ["quote-approve", {}], ["quote-reject", { note: "x" }], ["contract-sign", { consent: true }], ["checkout-start", {}], ["pay-test", { outcome: "success" }], ["request-cancel", {}], ["scope-confirm", {}], ["request-message", { content: "x" }], ["quote-view", {}]]) {
+  for (const [action, body] of [["request-get", {}], ["quote-approve", {}], ["quote-reject", { note: "x" }], ["contract-sign", { consent: true, signature: "data:image/png;base64," + "A".repeat(200) }], ["checkout-start", {}], ["pay-test", { outcome: "success" }], ["request-cancel", {}], ["scope-confirm", {}], ["request-message", { content: "x" }], ["quote-view", {}]]) {
     const r = await call(action, { ref, ...body }, "b");
     assert.equal(r.http, 404, `${action}: ${JSON.stringify(r)}`);
   }
@@ -399,7 +406,7 @@ test("دور المبيعات لا يبلغ «المحذوفة» ولا يصدر
 
 test("لا تخطّي للمراحل: توقيعٌ قبل الاعتماد، دفعٌ قبل التوقيع، واعتمادٌ مرتين، كلها مرفوضة", async () => {
   const ref = await create([FIXED, ...SEED]);
-  assert.equal((await call("contract-sign", { ref, consent: true, name: "أحمد" })).http, 409, "لا عقد بعد");
+  assert.equal((await call("contract-sign", { ref, consent: true, signature: "data:image/png;base64," + "A".repeat(200), name: "أحمد" })).http, 409, "لا عقد بعد");
   assert.equal((await call("pay-test", { ref, outcome: "success" })).http, 409, "لا دفع قبل التوقيع");
   assert.equal((await call("checkout-start", { ref })).http, 409);
   assert.equal((await call("quote-approve", { ref })).ok, true);
@@ -452,13 +459,22 @@ test("نصّ العميل فوق رمز كتالوج حقيقي لا يصير ب
   assert.ok(!contract.includes("ي".repeat(50)), "ولا الوصف الطويل");
 });
 
-test("نصّ حرّ بلا رمز (أو برمز مجهول) لا يصل العرض ولا العقد آلياً: بند حرّ بلا سعر يذهب للتسعير البشري", async () => {
+test("نصّ حرّ بلا رمز (أو برمز مجهول) لا يصل العرض ولا العقد: بند منتظر للتسعير البشري، والمسعّر يصدر", async () => {
   for (const code of ["", "BP-NO-SUCH"]) {
     const ref = await create([FIXED, { code, title: PHRASE, qty: 1 }, ...SEED]);
     const row = await rowOf(ref);
-    assert.equal(row.status, "REVIEWING"); assert.equal(row.quote || null, null); assert.equal(row.contract || null, null);
-    assert.equal(row.scope.find((x) => x.title === PHRASE).hold.reason, code ? "unknown_code" : "custom");
+    assert.equal(row.status, "QUOTE_SENT");
+    assert.ok(!row.quote.items.some((i) => JSON.stringify(i).includes("استرداد")), "ليس في بنود العرض");
+    assert.equal(row.quote.net, 7500, "ولا في المجموع");
+    assert.equal(row.quote.pending_items[0].title, PHRASE);
+    assert.equal(row.quote.pending_items[0].reason, code ? "unknown_code" : "custom");
+    assert.equal((await call("quote-approve", { ref })).status, "CONTRACT_SENT");
+    assert.ok(!(await rowOf(ref)).contract.html.includes("استرداد كامل"), "ولا في العقد");
   }
+  const only = await create([{ code: "", title: PHRASE, qty: 1 }, ...SEED]);
+  const r = await rowOf(only);
+  assert.equal(r.status, "REVIEWING"); assert.equal(r.quote || null, null); assert.equal(r.contract || null, null);
+  assert.equal(r.scope.find((x) => x.title === PHRASE).hold.reason, "custom");
 });
 
 test("العميل لا يفرض سعراً ولا اسماً: حقل price في بنده يُهمل", async () => {

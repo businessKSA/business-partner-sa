@@ -164,7 +164,7 @@ test("D1/D3: عقدٌ وُقِّع باسمٍ قديم (بادئة البريد)
   const ra = (await a("request-create", { type: "CONSULTATION", title: "أ", phone: "0501112233", name: "newer", scope: SCOPE })).ref;
   await a("ops-quote", { ref: ra, items: [{ code: "BP-SBC-01", title: "خدمة ثابتة", price: 500, qty: 1 }] });
   await a("quote-approve", { ref: ra });
-  await a("contract-sign", { ref: ra, name: "newer", consent: true });
+  await a("contract-sign", { ref: ra, name: "newer", consent: true, signature: "data:image/png;base64," + "A".repeat(200) });
   await a("profile-set", { name: "نورة الشمري", phone: "0501112233" });
   const va = await a("contract-view", { ref: ra });
   assert.equal(va.needsResign, false, "الاسم يُحفظ في build ويُعاد به البناء");
@@ -174,7 +174,7 @@ test("D1/D3: عقدٌ وُقِّع باسمٍ قديم (بادئة البريد)
   const rb = (await bb("request-create", { type: "CONSULTATION", title: "ب", phone: "0501112244", name: "older", scope: SCOPE })).ref;
   await bb("ops-quote", { ref: rb, items: [{ code: "BP-SBC-01", title: "خدمة ثابتة", price: 500, qty: 1 }] });
   await bb("quote-approve", { ref: rb });
-  await bb("contract-sign", { ref: rb, name: "older", consent: true });
+  await bb("contract-sign", { ref: rb, name: "older", consent: true, signature: "data:image/png;base64," + "A".repeat(200) });
   const row = await rowOf(rb);
   const legacyHtml = row.contract.html.split("older@test.local").join("older");
   const { party, ...b0 } = row.contract.build;
@@ -235,7 +235,7 @@ test("D20: المدفوع الذي يُلغى أو يُطلب إلغاؤه: رس
   const ref = c.body.ref;
   await call("ops-quote", { ref, items: [{ code: "BP-SBC-01", title: "خدمة ثابتة", price: 1000, qty: 1 }] });
   await call("quote-approve", { ref });
-  await call("contract-sign", { ref, name: "سارة العتيبي", consent: true });
+  await call("contract-sign", { ref, name: "سارة العتيبي", consent: true, signature: "data:image/png;base64," + "A".repeat(200) });
   assert.equal((await call("pay-test", { ref, outcome: "success" })).body.ok, true);
 
   const rq = await call("request-cancel", { ref, note: "غيّرت رأيي" });

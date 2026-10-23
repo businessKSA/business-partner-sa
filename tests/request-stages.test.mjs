@@ -153,7 +153,7 @@ await ops({ action: "ops-stages-init", ref: ref2 });
 await ops({ action: "ops-quote", ref: ref2, items: [{ title: "ترخيص الاستثمار", qty: 1, price: 1000 }] });
 await call({ action: "me" }, cookie);
 await call({ action: "quote-approve", ref: ref2 }, cookie);
-r = await call({ action: "contract-sign", ref: ref2, name: "AL-BIR", consent: true }, cookie);
+r = await call({ action: "contract-sign", ref: ref2, name: "AL-BIR", consent: true, signature: "data:image/png;base64," + "A".repeat(200) }, cookie);
 g = await call({ action: "request-get", ref: ref2 }, cookie);
 let st = g.j.request.stages;
 ok(r.s === 200 && st[0].status === "done" && st[0].at, "signing the contract completes «توقيع العرض»");
@@ -168,7 +168,7 @@ ok(st[2].status === "active" && st[3].status === "pending", "and the next stage 
 const ref3 = await openRequest(email, "AL-BIR late init");
 await ops({ action: "ops-quote", ref: ref3, items: [{ title: "ترخيص", qty: 1, price: 500 }] });
 await call({ action: "quote-approve", ref: ref3 }, cookie);
-await call({ action: "contract-sign", ref: ref3, name: "AL-BIR", consent: true }, cookie);
+await call({ action: "contract-sign", ref: ref3, name: "AL-BIR", consent: true, signature: "data:image/png;base64," + "A".repeat(200) }, cookie);
 await call({ action: "pay-test", ref: ref3, outcome: "success", provider: "card" }, cookie);
 r = await ops({ action: "ops-stages-init", ref: ref3 });
 ok(r.j.stages[0].status === "done" && r.j.stages[1].status === "done" && r.j.stages[2].status === "active", "initialising after payment starts from the facts already known");
@@ -177,7 +177,7 @@ ok(r.j.stages[0].status === "done" && r.j.stages[1].status === "done" && r.j.sta
 const cart = await openRequest(email, "plain order");
 await ops({ action: "ops-quote", ref: cart, items: [{ title: "خدمة", qty: 1, price: 100 }] });
 await call({ action: "quote-approve", ref: cart }, cookie);
-await call({ action: "contract-sign", ref: cart, name: "AL-BIR", consent: true }, cookie);
+await call({ action: "contract-sign", ref: cart, name: "AL-BIR", consent: true, signature: "data:image/png;base64," + "A".repeat(200) }, cookie);
 await call({ action: "pay-test", ref: cart, outcome: "success", provider: "card" }, cookie);
 g = await call({ action: "request-get", ref: cart }, cookie);
 ok(g.j.request.status === "PAID" && !("stages" in g.j.request) && !("updates" in g.j.request), "a request that never had stages gains none from signing or paying");
