@@ -1,0 +1,42 @@
+{
+ "_meta": {
+  "schema": "shr-hr/compliance/objection_estimate/v1",
+  "generated_on": "2026-10-23"
+ },
+ "rule": {
+  "rule_id": "OBJ-EST-1",
+  "name_ar": "موعد الاعتراض التقديري",
+  "formula": "estimated_objection_deadline = notification_date + 60 days",
+  "inputs": [
+   "notification_date"
+  ],
+  "forbidden_inputs": [
+   "violation_date",
+   "inspection_date",
+   "detection_date",
+   "decision_date"
+  ],
+  "forbidden_inputs_reason_ar": "النص يربط المدة بتاريخ التبليغ لا بتاريخ المخالفة أو القرار؛ احتسابها من غيره يُنتج موعداً مخترعاً.",
+  "requires_rules": [
+   "OBJ-1"
+  ],
+  "enabled_when": "all(requires_rules).verified == 'confirmed' AND notification_date entered by a human from the official notice",
+  "enabled": true,
+  "enabled_reason_ar": "OBJ-1 مؤكد من المصدر الرسمي (60 يوماً من التبليغ) — فتفعيل الصيغة جائز بشرط إدخال تاريخ التبليغ من إشعار رسمي.",
+  "output_label_ar": "موعد تقديري — يُؤكَّد من بوابة الخدمة قبل الاعتماد عليه",
+  "day_count_basis": {
+   "value": null,
+   "verified": "unverified",
+   "note_ar": "القرار لا يحدد تقويمياً/هجرياً/أيام عمل؛ يُعرض التاريخ كتقدير مع هامش أمان (يُنصح بالتقديم قبل المهلة بأسبوع) ولا يُقدَّم كمهلة قانونية مضمونة."
+  },
+  "never_do_ar": [
+   "لا يُرسل أي إشعار للعميل بصيغة «مهلتك تنتهي في كذا» دون تاريخ تبليغ مُدخل",
+   "لا يتم الاعتراض أو التقديم آلياً: دخول بهوية باهر/قوى مهمة بشرية",
+   "لا وعد بإلغاء أو بقبول الاعتراض"
+  ],
+  "source_url": "https://www.hrsd.gov.sa/sites/default/files/2026-02/qrar-wzary---112377.pdf",
+  "source_ref": "قرار 112377 ص23 البند ثالثاً",
+  "verified": "confirmed",
+  "verified_on": "2026-10-23"
+ }
+}

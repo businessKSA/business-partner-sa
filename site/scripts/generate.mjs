@@ -301,7 +301,7 @@ const FULLY_READY_LANGS = ["fr", "zh"];
 const NEVER_EXTRA_LANG_PATHS = new Set(["/connect", "/portal"]);
 // صفحاتٌ تُبنى بلغةٍ واحدة ولا نسخة لها بغيرها: بدائل اللغة فيها تشير إلى
 // عناوين غير موجودة. لوحة العمليات عربية للفريق وحده.
-const SINGLE_LANG_PATHS = new Set(["/ops"]);
+const SINGLE_LANG_PATHS = new Set(["/ops", "/SHR-HR"]);
 // لقطة قاعدة الرحلات في نوشن (site/data/trips.json). تُحدَّث بإعادة السحب
 // من نوشن، ولا تُحرَّر باليد كي لا يفترق الموقع عن مصدره.
 const TRIPS = read("data/trips.json");
@@ -318,6 +318,7 @@ import { buildSimpleEmployer } from "./simple-v1-employer.mjs";
 import { careersBody } from "./simple-v1-careers.mjs";
 import { buildSimpleBook } from "./simple-v1-book.mjs";
 import { buildSimpleOps } from "./simple-v1-ops.mjs";
+import { buildShrOps } from "./simple-v1-shr.mjs";
 import { buildSimpleGuideStructure } from "./simple-v1-guide-structure.mjs";
 import { buildSimpleGovCost } from "./simple-v1-gov-cost.mjs";
 import { buildSimpleGuideSaudiMarket } from "./simple-v1-guide-saudi-market.mjs";
@@ -12079,6 +12080,8 @@ write("admin.html", buildAdmin());
 // Simple V1 operations dashboard (Arabic-first, noindex, key-gated).
 LANG = "ar";
 write("ops.html", buildSimpleOps(SV1, { lang: () => LANG }));
+// SHR-HR (Al-Fawaz operations, local demo data only) — Arabic, noindex.
+write("SHR-HR.html", buildShrOps(SV1, { lang: () => LANG }));
 LANG = "en";
 
 // Owner/consultant panel for the AI Document Agent (noindex, standalone).
