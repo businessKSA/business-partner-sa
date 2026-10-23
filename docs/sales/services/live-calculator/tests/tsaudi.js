@@ -12,5 +12,5 @@ const r=await p.evaluate(()=>{
 });
 console.log(r);
 ok(r.t0>0,'tied: fee without Saudis');ok(r.t1===0,'tied: Saudis hired cover all → 0');ok(r.t2>0&&r.t2<r.t0,'tied: partial → less');
-ok(r.f0>0&&r.f1===r.f0-r.flatFee&&r.f3===0,'flat: waived 1:1');
+ok(r.f0>0&&r.f1===r.f0&&r.f3===r.f0,'flat: not waived 1:1 (pending the owner formula)');
 console.log('errors',errs);if(errs.length)fail++;await b.close();process.exit(fail?1:0)})();
