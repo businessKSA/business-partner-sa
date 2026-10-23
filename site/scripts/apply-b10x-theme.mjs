@@ -100,7 +100,7 @@ let changed=0;
 // ‏صفحة المحادثة الكاملة (/chat) نموذجٌ مستقلّ بقشرته وألوانه: قاعدة `body{`
 // و`.btn{` العامة هنا تكسر وضعها الداكن وأزرارها، فلا تُلمس. ومجلد
 // `site/scripts/` مصدرٌ لا ناتج: المشي فيه كان يحقن الرابط في قالب الصفحة نفسه.
-const STANDALONE=new Set([path.join(ROOT,'chat.html')]);
+const STANDALONE=new Set([path.join(ROOT,'chat.html'),path.join(ROOT,'compliance-solutions.html'),path.join(ROOT,'ar','compliance-solutions.html')]);
 for(const file of files){
   if(STANDALONE.has(file)) continue;
   let html=fs.readFileSync(file,'utf8');

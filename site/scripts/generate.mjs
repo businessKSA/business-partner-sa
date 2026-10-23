@@ -12260,6 +12260,12 @@ function buildAccountCenter(lang = "ar") {
 // مزوّد ذكاء خلفه؛ يُربط بالمحرّك الحقيقي بعد الاعتماد. صفحة واحدة
 // تبدّل لغتها بنفسها فلا تُكتب في الأشجار الأخرى.
 write("chat.html", fs.readFileSync(path.join(__dirname, 'assets', 'chat.page.html'), 'utf8'));
+// ‏Business Partner Compliance Solutions — حاسبة/محادثة الامتثال والتوظيف (صفحة واحدة مستقلة، تبدّل لغتها بنفسها).
+// بأمر المالك 2026-10-23: على مسار جديد غير مرتبط من القوائم وnoindex، ولا تستبدل أي صفحة قائمة.
+// المصدر المبني في docs/sales/services/live-calculator/release/. بيانات المرشحين فيها تجريبية موسومة، ولا استقبال في الخادم بعد.
+const complianceSolutionsPage = fs.readFileSync(path.join(__dirname, 'assets', 'compliance-solutions.page.html'), 'utf8');
+write("compliance-solutions.html", complianceSolutionsPage);
+write("ar/compliance-solutions.html", complianceSolutionsPage);
 write("account.html", buildAccountCenter("en"));
 write("ar/account.html", buildAccountCenter("ar"));
 

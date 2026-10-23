@@ -71,6 +71,7 @@
 | `/monitor` | ❌ | BP Inbox |
 | `/dashboard` | ❌ | اختبار الوكلاء |
 | `/chat` | ❌ | Chat OS — القشرة هنا، والمحتوى لـ`bp-ai-platform` |
+| `/compliance-solutions` (و`/ar/compliance-solutions`) | ❌ | Business Partner Compliance Solutions — حاسبة/محادثة الامتثال والتوظيف، صفحة مستقلة مخفية `noindex` غير مرتبطة من القوائم. المصدر المبني `docs/sales/services/live-calculator/release/`، تُنسخ من `site/scripts/assets/compliance-solutions.page.html`. مستثناة من ثيم b10x وودجت الدعم. بيانات المرشحين تجريبية ولا استقبال في الخادم بعد. قرار المالك 2026-10-23: تصير الواجهة الوحيدة وراءها hr-portal وhiring، ولا تُستبدل `/eor` قبل اكتمال الخلفية. المالك: `recruitment` (ينسّق مع `eor`) |
 | `/suppliers-admin` | 🟡 | لوحة تحكم الشركاء — القشرة هنا، والمحتوى لـ`suppliers-partners` |
 | `/agencies-admin` | 🟡 | إدارة مكاتب الاستقدام — **المالك** يدخلها (قاعدة الحسم) |
 | `/jobsearch-admin` | 🟡 | إدارة خدمة البحث عن وظيفة — كذلك |
