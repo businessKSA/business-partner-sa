@@ -1678,7 +1678,7 @@ function chClick(ev){ const b=ev.target.closest('[data-chip],[data-side],[data-c
   const k=b.dataset.chip, a=b.dataset.arg; const label=b.textContent.trim();
   if(k==='goal'){ chPush('user',{content:label}); S.goal=a; if(a==='assess') assessStart(); else hireStart(); chRender(); return; }
   if(k==='open'){ CH.cv=true; S.tab=a; if(!S.goal) S.goal=(['hire','prof','guides'].includes(a))?'hire':'assess'; render(); return; }
-  if(k==='fn'){ const f=CV.fn[a]; if(f){ chPush('user',{content:label.replace(/^[^\p{L}\p{N}]+/u,'')}); f(); chRender(); } return; }
+  if(k==='fn'){ const f=CV.fn[a]; if(f){ chPush('user',{content:label.replace(/^[^\p{L}\p{N}]+/u,'')}); CH.echo=true; try{ f(); } finally { CH.echo=false; } chRender(); } return; }
   if(k==='files'){ document.getElementById('cs-f').click(); return; }
   if(k==='eor'){ chPush('user',{content:label}); chPush('assistant',{content:tx('هذه خطة سد النقص بالتوظيف عبر التعاقد:','Here is the gap-closing plan:'),html:chCardEor(+a)}); chRender(); return; }
   if(k==='eorlink'){ window.open(CV.href||EOR_URL(0),'_blank'); return; } }
@@ -1697,7 +1697,7 @@ const CV={w:null,items:[],term:12,city:'',fn:{}};
 const NATS=()=>[['saudi',tx('سعودي','Saudi')],['inside',tx('أجنبي داخل المملكة (نقل خدمات)','Foreigner inside the Kingdom (transfer)')],['abroad',tx('أجنبي من الخارج (استقدام)','Foreigner from abroad (recruitment)')]];
 const natLbl=k=>(NATS().find(x=>x[0]===k)||['',''])[1];
 function chSay(text,o){ chPush('assistant',Object.assign({content:text},o||{})); chRender(); }
-function chUser(text){ chPush('user',{content:text}); }
+function chUser(text){ if(CH.echo) return; chPush('user',{content:text}); } // الزر يُظهر نصّه رسالةً للمستخدم بنفسه، فلا تتكرر داخل دالته
 function chFn(label,fn,cls){ const id='f'+Object.keys(CV.fn).length+'_'+Math.random().toString(36).slice(2,6); CV.fn[id]=fn; return ['fn',label,id,cls]; }
 function chDock(w){ CV.w=w; chDockDraw(); }
 function chDockDraw(){ const d=document.getElementById('cs-dock'); if(!d) return; const w=CV.w; if(!w){ d.innerHTML=''; d.style.display='none'; return; } d.style.display='block';
