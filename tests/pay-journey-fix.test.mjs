@@ -470,3 +470,44 @@ test("١٥ a profile without a mobile, a failed lookup and a guest all leave the
   assert.equal(w3.document.getElementById("coPhone").value, "");
   assert.equal(w3.fetches.some((f) => f.url === "/api/simple"), false, "a guest triggers no profile lookup");
 });
+
+// ------------------------------------------------------------------ regressions found on the re-check
+test("انحدار: «السلة والدفع» لا تنهار حين كل المعلّق قيد مراجعة الإيصال (rows فارغة وheld غير فارغة)", () => {
+  for (const l of LANGS) {
+    const s = inner(build(buildSimpleMy, l));
+    const src = s.slice(s.indexOf("function viewPay("), s.indexOf("function viewChats("));
+    assert.ok(src.length > 50, l);
+    const sandbox = {
+      TX: { navPay: "pay", reviewList: "review", empty: "empty" }, CHECKOUT: "/checkout",
+      h: (tag, attrs, kids) => {
+        const e = { tag, children: [] };
+        (kids || []).forEach((k) => { if (k && typeof k === "object") e.children.push(k); });
+        e.appendChild = (c) => { if (c == null) throw new TypeError("appendChild(null)"); e.children.push(c); return c; };
+        e.insertBefore = (c) => { e.children.unshift(c); };
+        return e;
+      },
+      reqRow: () => ({ children: [{}, {}], insertBefore() {} }), money: (n) => String(n), payAmt: (r) => r.amount || 0,
+      payReview: (r) => !!(r.payment && r.payment.review), state: { me: { requests: [] } },
+    };
+    vm.runInNewContext(src, sandbox);
+    const draw = (requests) => { sandbox.state.me.requests = requests; const m = sandbox.h("div"); sandbox.viewPay(m); return m; };
+    const held = { status: "PAYMENT_PENDING", amount: 345, payment: { review: true } }, due = { status: "SIGNED", amount: 690, payment: {} };
+    assert.doesNotThrow(() => draw([held, { ...held }]), l + ": only held");
+    assert.doesNotThrow(() => draw([due]), l + ": only due");
+    assert.doesNotThrow(() => draw([due, held]), l + ": both");
+    assert.doesNotThrow(() => draw([]), l + ": none");
+    assert.ok(!draw([held]).children.some((c) => c.tag === "p"), "no empty note when something is under review");
+    assert.equal(draw([]).children.filter((c) => c.tag === "p").length, 1, "the empty note shows when there is nothing");
+  }
+});
+
+test("انحدار: خانة الجوال في /checkout اتجاهها ltr فلا يظهر «+966…» معكوساً في الصفحة العربية", () => {
+  for (const l of LANGS) {
+    let body = "";
+    buildSimpleCheckout({ header: () => "", footer: () => "", shell: (o) => { body = String(o.body); return o.script; } }, { lang: () => l, esc: (s) => String(s) });
+    const m = /<input id="coPhone"[^>]*>/.exec(body);
+    assert.ok(m, l + ": phone input");
+    assert.match(m[0], /dir="ltr"/, l);
+    assert.match(m[0], /type="tel"/, l);
+  }
+});

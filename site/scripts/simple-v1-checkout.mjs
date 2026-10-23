@@ -364,7 +364,7 @@ export function buildSimpleCheckout(SV1, ctx) {
           <h4>${esc(t("yourData"))}</h4>
           <div class="sv1-co-fields">
             <div><label for="coName">${esc(t("name"))}</label><input id="coName" class="sv1-co-in" autocomplete="name"></div>
-            <div><label for="coPhone">${esc(t("phone"))}</label><input id="coPhone" class="sv1-co-in" inputmode="tel" autocomplete="tel"></div>
+            <div><label for="coPhone">${esc(t("phone"))}</label><input id="coPhone" class="sv1-co-in" type="tel" dir="ltr" style="text-align:end" inputmode="tel" autocomplete="tel"></div>
             <div><label for="coEmail">${esc(t("email"))}</label><input id="coEmail" class="sv1-co-in" type="email" autocomplete="email"></div>
             <div><label for="coCo">${esc(t("company"))}</label><input id="coCo" class="sv1-co-in" autocomplete="organization"></div>
           </div>
