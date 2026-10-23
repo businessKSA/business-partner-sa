@@ -1,0 +1,17 @@
+const {chromium}=require('playwright');const fs=require('fs');
+(async()=>{const b=await chromium.launch();const errs=[];const ctx=await b.newContext({viewport:{width:1300,height:3200}});
+await ctx.route('https://cdnjs.cloudflare.com/**',r=>{const u=r.request().url();const f=u.includes('xlsx')?'/tmp/xlsx.full.min.js':u.includes('worker')?'/tmp/pdf.worker.min.js':'/tmp/pdf.min.js';r.fulfill({status:200,contentType:'application/javascript',body:fs.readFileSync(f)});});
+await ctx.addInitScript(()=>{window.__calls=[];window.claude={use:async n=>{if(n!=='sample')return null;const s=async()=>({text:''});s.limits=async()=>({images:{maxCount:6,mediaTypes:['image/png']}});s.json=async(inp,opt)=>{window.__calls.push({n:String(inp).slice(0,40),img:opt&&opt.images?opt.images.length:0});if(String(inp).includes('"plan"'))return {summary:'ملخص تجريبي',plan:[{priority:1,problem:'م1',solution:'ح1',owner:'العميل',time:'أسبوع'}],target:'ممتثلة'};return {platform:'قوى',text:'مخالفة: عدم الالتزام بنسب التوطين 5000 ريال',items:[{kind:'violation',title:'عدم الالتزام بنسب التوطين',detail:'مهنة المبيعات',amount:5000,count:2,deadline:'2026-11-30'}]};};return s;}};});
+const p=await ctx.newPage();p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index-client.html');await p.waitForTimeout(500);
+await p.fill('#co-name','شركة اختبار القارئ');await p.fill('#co-foreign','1');await p.click('#co-add');await p.waitForTimeout(400);
+await p.setInputFiles('#dr-files',['tdata/labour-office.xlsx','tdata/gosi.xlsx','tdata/muqeem.xlsx']);await p.waitForTimeout(3000);
+let t=await p.evaluate(()=>{const s=[...document.querySelectorAll('#main section.panel')].find(x=>x.innerText.includes('قارئ حالة'));return s?s.innerText.replace(/\n+/g,' | ').slice(0,1900):'NO PANEL'});console.log(t);
+await p.click('#dr-apply');await p.waitForTimeout(400);
+console.log('after apply nit/team:',await p.evaluate(()=>[document.getElementById('g-full')?.value,document.getElementById('g-part')?.value,document.getElementById('g-foreign')?.value]));
+fs.writeFileSync('tdata/shot.png',Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==','base64'));
+await p.setInputFiles('#dr-files',['tdata/shot.png']);await p.waitForTimeout(900);
+await p.click('#dr-ai');await p.waitForTimeout(900);
+t=await p.evaluate(()=>{const s=[...document.querySelectorAll('#main section.panel')].find(x=>x.innerText.includes('قارئ حالة'));return s.innerText.replace(/\n+/g,' | ')});
+console.log('AI+image ok:',/ملخص تجريبي/.test(t),/عدم الالتزام بنسب التوطين/.test(t));
+console.log('calls',JSON.stringify(await p.evaluate(()=>window.__calls)));console.log(errs);await p.screenshot({path:'docr.png',fullPage:true});await b.close();})();
