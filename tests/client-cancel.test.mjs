@@ -139,8 +139,10 @@ test("NEW/REVIEWING/QUOTE_SENT/CONTRACT_SENT: إلغاء فوري، والطلب
   assert.equal(after.counts.active, before - n, "عدّاد «طلبات نشطة» يتحدّث");
   assert.equal(after.counts.quotes, 0, "عرض السعر المُلغى لا يبقى «بانتظار اعتمادك»");
   assert.equal(after.counts.contracts, 0, "العقد المُلغى لا يبقى «بانتظار توقيعك»");
-  const row = after.requests.find((r) => r.ref === "T-QUOTE");
-  assert.equal(row.status, "CANCELLED");
+  // «والعميل يقدر يلغي وتنمسح» (2026-10-23): ما لا توقيع عليه ولا دفع يختفي من قوائمه
+  // نهائياً — الصف باقٍ في القاعدة مُعلَّماً deleted_at للتدقيق في /ops، ولم يُحذف.
+  assert.equal(after.requests.find((r) => r.ref === "T-QUOTE"), undefined, "الملغى لا يظهر في قائمة العميل");
+  assert.ok((await rowOf("T-QUOTE")).deleted_at, "الصف باقٍ ومُعلَّم، لا محذوف");
 });
 
 test("PAYMENT_PENDING وSIGNED بلا دفعة ناجحة: يُلغى فوراً، ويُدوَّن أن العقد كان موقَّعاً", async () => {

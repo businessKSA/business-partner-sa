@@ -110,6 +110,24 @@ const P = {
   writeMsg: { ar: "اكتب رسالة للفريق…", en: "Write a message to the team…", fr: "Écrire un message à l'équipe…", zh: "给团队留言…" },
   send: { ar: "إرسال", en: "Send", fr: "Envoyer", zh: "发送" },
   saveScope: { ar: "حفظ التعديلات", en: "Save changes", fr: "Enregistrer", zh: "保存修改" },
+  // A line the catalogue cannot price is never given an invented price: it waits
+  // for the team, and the customer is told which line and why (api/_simple.js
+  // writes the reason beside the line: scope[i].hold).
+  quoteIssuedFlash: { ar: "تم اعتماد النطاق ✓ — صدر عرض السعر وتجده في هذه الصفحة.", en: "Scope confirmed ✓ — your quotation has been issued and is on this page.", fr: "Périmètre confirmé ✓ — votre devis a été émis, il est sur cette page.", zh: "范围已确认 ✓ — 报价已出具，就在本页面。" },
+  holdFlash: { ar: "تم اعتماد النطاق ✓ — بعض البنود يسعّرها الفريق، وسبب ذلك بجانب كل بند.", en: "Scope confirmed ✓ — our team prices some lines; the reason is beside each one.", fr: "Périmètre confirmé ✓ — l'équipe chiffre certaines lignes ; le motif figure à côté de chacune.", zh: "范围已确认 ✓ — 部分项目由团队定价，原因见各项目旁。" },
+  holdTitle: { ar: "عرض السعر بانتظار تسعير بشري", en: "Quotation waiting for a person to price it", fr: "Devis en attente d'un chiffrage humain", zh: "报价等待人工定价" },
+  holdLead:  { ar: "اعتمدنا نطاقك. لا نضع سعراً غير معتمد في الكتالوج، لذلك يسعّر الفريق البنود التالية ثم يصلك العرض هنا وعلى بريدك — لا يلزمك فعل شيء.",
+               en: "We confirmed your scope. We never put a price the catalogue does not hold, so our team prices the lines below and your quotation then arrives here and by e-mail — nothing is needed from you.",
+               fr: "Nous avons confirmé votre périmètre. Nous ne mettons jamais un prix absent du catalogue : l'équipe chiffre les lignes ci-dessous puis le devis arrive ici et par e-mail — rien à faire de votre côté.",
+               zh: "我们已确认您的服务范围。目录中没有的价格我们不会臆造，因此由团队为以下项目定价，随后报价将发送到此处和您的邮箱——您无需任何操作。" },
+  hold_custom:       { ar: "بند كتبتَه بنفسك ولا سعر له في الكتالوج", en: "A line you wrote yourself, with no catalogue price", fr: "Une ligne que vous avez saisie, sans prix au catalogue", zh: "您自行填写的项目，目录中没有价格" },
+  hold_unknown_code: { ar: "رمز الخدمة غير موجود في الكتالوج", en: "Service code not found in the catalogue", fr: "Code de service absent du catalogue", zh: "目录中找不到该服务代码" },
+  hold_proposal:     { ar: "سعرها حسب دراسة حالتك وليس رقماً ثابتاً", en: "Priced after studying your case, not a fixed figure", fr: "Chiffrée après étude de votre cas, pas un prix fixe", zh: "需根据您的情况评估后定价，并非固定价格" },
+  hold_from:         { ar: "الكتالوج يذكر لها سعراً «يبدأ من» وليس سعراً نهائياً", en: "The catalogue lists a «starting from» price, not a final one", fr: "Le catalogue indique un prix « à partir de », pas un prix final", zh: "目录仅列出“起价”，并非最终价格" },
+  hold_recurring:    { ar: "اشتراك دوري وليس دفعة واحدة", en: "A recurring subscription, not a single payment", fr: "Un abonnement récurrent, pas un paiement unique", zh: "为周期性订阅，并非一次性付款" },
+  hold_percent:      { ar: "تُحتسب بنسبة وليس بمبلغ ثابت", en: "Calculated as a percentage, not a fixed amount", fr: "Calculée en pourcentage, pas un montant fixe", zh: "按比例计算，并非固定金额" },
+  hold_no_price:     { ar: "لا سعر لها في الكتالوج", en: "No catalogue price", fr: "Pas de prix au catalogue", zh: "目录中没有价格" },
+  cxGone:     { ar: "أُلغي الطلب وأُزيل من قائمتك.", en: "The request was cancelled and removed from your list.", fr: "La demande a été annulée et retirée de votre liste.", zh: "请求已取消，并已从您的列表中移除。" },
   confirmScope: { ar: "اعتمد النطاق وتابع", en: "Confirm scope & continue", fr: "Confirmer et continuer", zh: "确认范围并继续" },
   scopePricing: { ar: "تم اعتماد النطاق ✓ — الفريق يجهّز عرض السعر ويصلك هنا وعلى بريدك.", en: "Scope confirmed ✓ — our team is preparing your quotation; it will appear here and in your inbox.", fr: "Périmètre confirmé ✓ — l'équipe prépare votre devis.", zh: "范围已确认 ✓ — 团队正在准备报价。" },
   docs: { ar: "المستندات المطلوبة", en: "Documents required", fr: "Documents requis", zh: "所需文件" },
@@ -477,6 +495,7 @@ export function buildSimpleMy(sv1, ctx) {
 /* .sv1 a{color:inherit} outranks .btn, so a link-button drew navy text on its navy fill. */
 .my a.btn:not(.ghost):not(.danger){color:#fff}
 .toast{position:fixed;inset-inline:16px;bottom:88px;max-width:460px;margin-inline:auto;background:#b91c1c;color:#fff;border-radius:12px;padding:12px 16px;z-index:95;font-size:.9rem;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.toast.good{background:#118657}
 .my-main h1{margin:0 0 16px;color:var(--ink);font-size:1.45rem;font-weight:300}
 .my-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:22px}
 .my-kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;cursor:pointer}
@@ -509,6 +528,10 @@ export function buildSimpleMy(sv1, ctx) {
 .items li .ic{width:24px;height:24px;border-radius:7px;background:#eaf7ef;color:#118657;display:grid;place-items:center;font-weight:900;flex:none;font-size:.8rem}
 .items li b[contenteditable]{outline:none;padding:1px 4px;border-radius:5px}.items li b[contenteditable]:focus{background:#fffbe6}
 .items li small{display:block;color:var(--mut);font-size:.76rem}
+.items li small.hold{color:#B45309;font-weight:700}
+.holdbox{border:1px solid #f3d9a4;background:#fffaf0;border-radius:12px;padding:12px 14px}
+.holdbox ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:6px}
+.holdbox li b{display:block}.holdbox li small{color:#92400e}
 .items li .rm{border:0;background:transparent;color:#b91c1c;font-size:.76rem;font-weight:700;cursor:pointer;margin-inline-start:auto}
 table.q{width:100%;border-collapse:collapse;font-size:.9rem}
 table.q th,table.q td{padding:8px 6px;border-bottom:1px solid var(--line);text-align:start}
@@ -637,7 +660,8 @@ function api(action,data){return fetch('/api/simple',{method:'POST',credentials:
 // A session that ends mid-visit used to leave every button doing nothing. Say so, and show the door.
 function sessionEnded(){state.me=null;try{localStorage.removeItem('bp_session')}catch(x){}renderLogin(TX.sessEnd)}
 // A failed action is never silent: the customer is told, in their language, and the page stays as it was.
-function toast(msg){var t=h('div',{class:'toast',role:'alert'},[msg]);document.body.appendChild(t);setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t)},5000)}
+function holdWhy(h){return h?(TX['hold_'+h.reason]||h.reason_ar||''):''}
+function toast(msg,ok){var t=h('div',{class:'toast'+(ok?' good':''),role:'alert'},[msg]);document.body.appendChild(t);setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t)},5000)}
 function failText(o){return (o&&o.error==='network')?TX.eNet:TX.error}
 function provName(p){p=String(p||'').toLowerCase();return p==='card'||p==='moyasar'||p==='mada'?TX.provCard:p==='tamara'?TX.provTamara:(p==='bank'||p==='bank_transfer')?TX.provBank:p}
 function actorName(e){if(LANG==='ar'||!e.actor)return e.actor||'';return e.actor_kind==='ai'?TX.actAi:e.actor_kind==='system'?TX.actSys:e.actor_kind==='human'?TX.actTeam:e.actor}
@@ -1273,13 +1297,13 @@ var inp=h('input',{placeholder:TX.writeMsg}),sb=h('button',{class:'btn',onclick:
 onEnter(inp,sb);left.appendChild(h('div',{class:'card'},[h('h3',{},[TX.conversation]),msgs,h('div',{class:'msgform'},[inp,sb])]));setTimeout(function(){msgs.scrollTop=msgs.scrollHeight},0);
 // scope
 var isCart=!!(r.payment&&r.payment.source==='cart');var editable=!isCart&&['NEW','REVIEWING','WAITING_CLIENT'].indexOf(r.status)>=0&&!(r.quote&&['REJECTED','DRAFT'].indexOf(r.quote.status)<0);var sc=h('div',{class:'card'});sc.appendChild(h('h3',{},[TX.scope]));if(r.summary)sc.appendChild(h('p',{class:'note'},[r.summary]));
-var ul=h('ul',{class:'items'});function drawItems(){ul.innerHTML='';(r.scope||[]).forEach(function(it,i){var li=h('li',{},[h('span',{class:'ic'},['✓']),h('div',{},[h('b',editable?{contenteditable:'true',oninput:function(){it.title=this.textContent.trim()}}:{},[it.title]),it.why?h('small',{},[it.why]):null]),editable?h('button',{class:'rm',onclick:function(){r.scope.splice(i,1);drawItems()}},[TX.remove]):null]);ul.appendChild(li)})}drawItems();sc.appendChild(ul);
+var ul=h('ul',{class:'items'});function drawItems(){ul.innerHTML='';(r.scope||[]).forEach(function(it,i){var li=h('li',{},[h('span',{class:'ic'},['✓']),h('div',{},[h('b',editable?{contenteditable:'true',oninput:function(){it.title=this.textContent.trim();delete it.hold}}:{},[it.title]),it.why?h('small',{},[it.why]):null,it.hold?h('small',{class:'hold'},['⏳ '+holdWhy(it.hold)]):null]),editable?h('button',{class:'rm',onclick:function(){r.scope.splice(i,1);drawItems()}},[TX.remove]):null]);ul.appendChild(li)})}drawItems();sc.appendChild(ul);
 // documents the advisor asked for — every service has its own list
 var dc=docsCard(r,function(){drawRequest(hd,box)});
 if(editable){var ai=h('input',{class:'inp',placeholder:TX.addItem}),msgS=h('span',{class:'ok'});
 // Confirming the scope is what moves the request on to the quotation; the
 // plain save stays for intermediate edits.
-var goBtn=h('button',{class:'btn',onclick:function(){msgS.className='ok';msgS.textContent='';goBtn.disabled=true;api('scope-confirm',{ref:r.ref,scope:r.scope}).then(function(o){goBtn.disabled=false;if(o&&o.error==='profile_required'){renderProfile(state.me,function(){refreshMe().then(function(){render()})});return}if(!o||!o.ok){msgS.className='err';msgS.textContent=(o&&o.message)||TX.error;return}state.flash=TX.scopePricing;api('request-get',{ref:r.ref}).then(function(g){if(g&&g.ok){state.req=g.request;drawRequest(hd,box);var q=document.getElementById('sv1Quote');if(q&&q.scrollIntoView)q.scrollIntoView({behavior:'smooth',block:'start'})}})})}},[TX.confirmScope]);
+var goBtn=h('button',{class:'btn',onclick:function(){msgS.className='ok';msgS.textContent='';goBtn.disabled=true;api('scope-confirm',{ref:r.ref,scope:r.scope}).then(function(o){goBtn.disabled=false;if(o&&o.error==='profile_required'){renderProfile(state.me,function(){refreshMe().then(function(){render()})});return}if(!o||!o.ok){msgS.className='err';msgS.textContent=(o&&o.message)||TX.error;return}state.flash=(o.stage==='QUOTE')?TX.quoteIssuedFlash:(o.holds&&o.holds.length)?TX.holdFlash:TX.scopePricing;api('request-get',{ref:r.ref}).then(function(g){if(g&&g.ok){state.req=g.request;drawRequest(hd,box);var q=document.getElementById('sv1Quote');if(q&&q.scrollIntoView)q.scrollIntoView({behavior:'smooth',block:'start'})}})})}},[TX.confirmScope]);
 sc.appendChild(h('div',{class:'msgform'},[ai,h('button',{class:'btn ghost',onclick:function(){if(!ai.value.trim())return;r.scope.push({code:'',title:ai.value.trim(),why:''});ai.value='';drawItems()}},[TX.addItem]),h('button',{class:'btn ghost',onclick:function(){api('scope-update',{ref:r.ref,scope:r.scope}).then(function(o){msgS.className='ok';msgS.textContent=o&&o.ok?TX.saved:TX.error})}},[TX.saveScope]),goBtn,msgS]));
 if(state.flash){sc.appendChild(h('p',{class:'ok'},[state.flash]));state.flash=null}}else if(r.status!=='CANCELLED')sc.appendChild(h('p',{class:'note'},[isCart?TX.directNote:TX.scopeLocked]));
 sc.appendChild(dc.firstChild?dc:document.createComment(''));
@@ -1287,7 +1311,9 @@ if(!isTicket)left.appendChild(sc);
 // tasks for client
 if(r.tasks&&r.tasks.length)left.appendChild(h('div',{class:'card'},[h('h3',{},[TX.tasksTitle]),h('ul',{class:'items'},r.tasks.map(function(t){return h('li',{},[h('span',{class:'ic'},[t.status==='DONE'?'✓':'•']),h('div',{},[h('b',{},[t.title]),t.details?h('small',{},[t.details]):null])])}))]));
 // quote — while it is being priced the customer sees the step, not silence
-if(!r.quote&&(r.events||[]).some(function(e){return e.event==='quote.pending'}))right.appendChild(h('div',{class:'card',id:'sv1Quote'},[h('h3',{},[TX.quote]),h('p',{class:'note'},[TX.scopePricing])]));
+var heldLines=(r.scope||[]).filter(function(it){return it&&it.hold});
+if(!r.quote&&heldLines.length&&['NEW','REVIEWING','WAITING_CLIENT'].indexOf(r.status)>=0)right.appendChild(h('div',{class:'card holdbox',id:'sv1Quote'},[h('h3',{},[TX.holdTitle]),h('p',{class:'note'},[TX.holdLead]),h('ul',{id:'sv1Holds'},heldLines.map(function(it){return h('li',{},[h('b',{},[it.title]),h('small',{},[holdWhy(it.hold)])])}))]));
+else if(!r.quote&&(r.events||[]).some(function(e){return e.event==='quote.pending'}))right.appendChild(h('div',{class:'card',id:'sv1Quote'},[h('h3',{},[TX.quote]),h('p',{class:'note'},[TX.scopePricing])]));
 if(r.quote){var qc=h('div',{class:'card',id:'sv1Quote'});qc.appendChild(h('h3',{},[TX.quote+' '+r.quote.number]));var tb=h('table',{class:'q'});tb.appendChild(h('thead',{},[h('tr',{},[h('th',{},[TX.scope]),h('th',{},[TX.qty]),h('th',{},[TX.price])])]));tb.appendChild(h('tbody',{},r.quote.items.map(function(i){return h('tr',{},[h('td',{},[i.title]),h('td',{},[String(i.qty)]),h('td',{},[money(lineOf(i))])])})));tb.appendChild(h('tfoot',{},[h('tr',{},[h('td',{colspan:'2'},[TX.net]),h('td',{},[money(r.quote.net)])]),h('tr',{},[h('td',{colspan:'2'},[TX.vat]),h('td',{},[money(r.quote.vat)])]),h('tr',{},[h('td',{colspan:'2'},[TX.total]),h('td',{},[money(r.quote.total)])])]));qc.appendChild(tb);
 qc.appendChild(h('p',{class:'note'},[TX.validUntil+': '+(r.quote.valid_until||'')+' · '+TX.terms+': '+(r.quote.payment_terms||'')]));qc.appendChild(docBtn(TX.openFull,TX.quote+' '+r.quote.number,function(){return api('quote-view',{ref:r.ref}).then(function(o){return o&&o.ok?o.html:''})}));if(r.quote.notes)qc.appendChild(h('p',{class:'note'},[r.quote.notes]));
 if(r.status==='QUOTE_SENT'){var qerr=h('div',{class:'err'});function qfail(bt,o){bt.disabled=false;qerr.textContent=o&&o.error==='quote_expired'?TX.quoteExpired:((o&&o.message)||TX.error)}
@@ -1394,8 +1420,10 @@ function cxSheet(r){
    // a cancelled request's line must not wait in the cart
    try{var cart=JSON.parse(localStorage.getItem('bp_cart')||'[]');localStorage.setItem('bp_cart',JSON.stringify(cart.filter(function(i){return i.id!=='sv1:'+r.ref})))}catch(x){}
    // re-read everything: the page then shows what the server holds, and the
-   // sidebar badges and counters move with it
-   refreshMe().then(function(){render();window.scrollTo(0,0)})})});
+   // sidebar badges and counters move with it. A request that was removed from
+   // the customer's list (nothing signed, nothing paid) has nothing left to show:
+   // go back to the list instead of re-reading a page that no longer exists.
+   refreshMe().then(function(){if(o.hidden){toast(TX.cxGone,true);go('requests');window.scrollTo(0,0);return}render();window.scrollTo(0,0)})})});
  document.body.appendChild(ovl);
  try{keep.focus()}catch(x){}}
 // The official invoice is the PDF the accounting system issued and the request

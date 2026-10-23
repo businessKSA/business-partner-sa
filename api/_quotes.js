@@ -127,7 +127,8 @@ async function refForToken(token) {
 
 async function requestByRef(ref) {
   const rows = await sb(`requests?ref=eq.${q(ref)}&select=*&limit=1`);
-  return rows[0] || null;
+  // a request the customer cancelled and that was hidden from him is not served
+  return rows[0] && !rows[0].deleted_at ? rows[0] : null;
 }
 
 function itemsTable(items) {
@@ -299,9 +300,12 @@ export async function clientDocuments(email) {
   const e = String(email || "").toLowerCase().trim();
   if (!e || !DB_ON) return { quotes: [], contracts: [], invoices: [] };
 
-  const rows = await sb(
-    `requests?client_email=eq.${q(e)}&select=ref,title,status,created_at,updated_at,quote,contract,invoice,payment&order=created_at.desc&limit=100`
-  );
+  // Requests the customer cancelled and that were hidden from him (`deleted_at`)
+  // are not listed. The column may not be on the database yet: read without it then.
+  const COLS = "ref,title,status,created_at,updated_at,quote,contract,invoice,payment";
+  const tail = `&order=created_at.desc&limit=100`;
+  const rows = (await sb(`requests?client_email=eq.${q(e)}&select=${COLS},deleted_at${tail}`)
+    .catch(() => sb(`requests?client_email=eq.${q(e)}&select=${COLS}${tail}`))).filter((r) => !r.deleted_at);
 
   const quotes = [], contracts = [], invoices = [];
   for (const r of rows || []) {

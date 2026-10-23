@@ -261,6 +261,19 @@ async function getByRef(ref) {
   const rows = await sb(`requests?ref=eq.${q(ref)}&select=*&limit=1`);
   return rows[0] || null;
 }
+// The cancel and the hiding travel in one PATCH. If the database refuses the
+// extra column (db/migrations/2026-10-requests-deleted-at.sql not applied yet)
+// the cancellation must still go through — the row is then cancelled and visible,
+// exactly as before this column existed, and the next cancel hides it once the
+// column is there.
+async function patchRequestHide(id, patch, deletedAt) {
+  if (!deletedAt) return patchRequest(id, patch);
+  try { return await patchRequest(id, { ...patch, deleted_at: deletedAt }); }
+  catch (e) {
+    console.error("simple: deleted_at not stored - apply db/migrations/2026-10-requests-deleted-at.sql", String(e && e.message || e).slice(0, 80));
+    return patchRequest(id, patch);
+  }
+}
 async function patchRequest(id, patch) {
   const rows = await sb(`requests?id=eq.${id}`, { method: "PATCH", body: { ...patch, updated_at: nowIso() } });
   return rows[0] || null;
@@ -423,6 +436,27 @@ function buildContract(row, opts = {}) {
   };
 }
 
+// An approved quotation with no contract yet: either the paper failed to build
+// when the customer approved, or it was approved in the days when a human had to
+// press «إصدار العقد». The customer must not wait for that — whoever opens the
+// request issues it. Claimed with a conditional PATCH so two screens opening the
+// same request issue one contract, not two.
+async function ensureContract(row) {
+  if (!row || row.status !== "QUOTE_APPROVED" || !row.quote || row.quote.status !== "APPROVED" || row.contract) return row;
+  let claimed = [];
+  try { claimed = await sb(`requests?id=eq.${row.id}&status=eq.QUOTE_APPROVED`, { method: "PATCH", body: { status: "CONTRACT_SENT", updated_at: nowIso() } }); }
+  catch { return row; }
+  if (!claimed || !claimed[0]) return (await getByRef(row.ref)) || row;   // somebody else got there first
+  try {
+    const issued = await issueContract(row, "system", "النظام", {});
+    return { ...row, status: issued.status, contract: issued.contract };
+  } catch (e) {
+    console.error("ensureContract", row.ref, String(e && e.message || e).slice(0, 140));
+    try { await patchRequest(row.id, { status: "QUOTE_APPROVED" }); } catch {}
+    return row;
+  }
+}
+
 async function issueContract(row, actorKind, actor, opts) {
   const contract = buildContract(row, opts);
   const upd = await patchRequest(row.id, { contract, status: "CONTRACT_SENT" });
@@ -448,6 +482,8 @@ async function issueQuote(row, rawItems, opts, actorKind, actor) {
   if (send) { quote.status = "SENT"; quote.sent_at = nowIso(); }
   const upd = await patchRequest(row.id, { quote, scope: quote.items.map((l) => ({ code: l.code, title: l.title, why: l.description, qty: l.qty })), status: send ? "QUOTE_SENT" : row.status });
   await logEvent(row.id, actorKind, actor, send ? "quote.sent" : "quote.drafted", { number: quote.number, total: quote.total });
+  // The quotation is out, so the «price this scope» task is done — whoever issued it.
+  if (send) { try { await sb(`tasks?request_id=eq.${row.id}&source=eq.pricing&status=in.(open,in_progress,blocked)`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: nowIso() } }); } catch { /* a task left open is only noise */ } }
   if (send) await announce(row, "quote", {
     subject: `عرض سعر ${quote.number} — ${row.title}`,
     clientLine: `عرض سعرك جاهز: ${quote.total} ر.س شامل ضريبة القيمة المضافة. راجعه واعتمده من حسابك.`,
@@ -731,8 +767,12 @@ async function clientAction(action, b, qs, req, res, sess) {
         updated++;
       }
     } catch (e) { console.error("profile requests", String(e.message || e).slice(0, 120)); }
+    // The request that asked for a quotation from the chat was waiting only for
+    // this name and mobile: issue it now (see request-create).
+    let quoted = 0;
+    try { quoted = await issueWaitingQuotes(sess); } catch (e) { console.error("profile auto quote", String(e && e.message || e).slice(0, 120)); }
     await audit({ organization_id: orgId, actor_user_id: sess.user.id, action: "simple.profile.set", entity: "users", entity_id: sess.user.id, meta: { requests: updated } });
-    return json(res, 200, { ok: true, user: { name, email, phone: ph.value, needsName: false, needsPhone: false, needsProfile: false }, updated });
+    return json(res, 200, { ok: true, user: { name, email, phone: ph.value, needsName: false, needsPhone: false, needsProfile: false }, updated, quoted });
   }
 
   if (action === "requests") {
@@ -765,23 +805,36 @@ async function clientAction(action, b, qs, req, res, sess) {
     };
     const rows = await sb("requests", { method: "POST", body: [row] });
     const created = rows[0];
-    await logEvent(created.id, "customer", who, "request.created", { type, source, items: scope.length });
+    const wantsQuote = b.auto_quote === true;
+    await logEvent(created.id, "customer", who, "request.created", { type, source, items: scope.length, ...(wantsQuote ? { auto_quote: true } : {}) });
     if (scope.length) await logEvent(created.id, "ai", "المستشار الذكي", "scope.proposed", { items: scope.map((s) => s.title) });
     if (row.documents.length) await logEvent(created.id, "ai", "المستشار الذكي", "documents.requested", { documents: row.documents.map((d) => d.title) });
     await audit({ organization_id: orgId, actor_user_id: sess.user.id, action: "simple.request.create", entity: "requests", entity_id: created.id, meta: { ref } });
     await sendEmail(OWNER_EMAIL, `طلب جديد ${ref} — ${row.title}`, `<p>${esc(row.client_name)} · ${esc(email)}</p><p>${esc(row.summary)}</p><p><a href="${SELF_BASE}/ops?ref=${ref}">فتح الطلب</a></p>`);
-    return json(res, 200, { ok: true, ref, request: clientView(created, [], []) });
+    // «إنشاء عرض سعر» من المحادثة: العميل راجع البنود بنفسه قبل أن يضغط، فإن كان
+    // اسمه وجواله على الطلب وكل بند مسعَّر في الكتالوج صدر العرض قبل أن يصل إلى
+    // لوحته. ناقصُ الاسم أو الجوال يُكمله في اللوحة (profile-set يُصدره بعدها).
+    // وبندٌ لا يسعّره الكتالوج يذهب إلى الفريق فوراً ويُكتب بجانبه سبب الانتظار.
+    if (wantsQuote && scope.some((it) => !it.seed) && fullNameOk(row.client_name) && str(row.client_phone, 40)) {
+      try {
+        await logEvent(created.id, "customer", who, "scope.confirmed", { items: scope.map((s) => s.title), auto: true });
+        await quoteOrHold(created, scope);
+      } catch (e) { console.error("auto quote at create", String(e && e.message || e).slice(0, 120)); }
+    }
+    const fresh = (await getByRef(ref)) || created;
+    return json(res, 200, { ok: true, ref, request: clientView(fresh, [], []), ...(fresh.quote ? { quote_issued: true } : {}) });
   }
 
   // Everything below is about one request the client owns.
   const ref = str(b.ref || qs.ref, 40);
   if (!ref) return json(res, 400, { ok: false, error: "missing_ref" });
   const row = await getByRef(ref);
-  if (!row || !ownedBy(row, sess)) return json(res, 404, { ok: false, error: "not_found" });
+  if (!row || !ownedBy(row, sess) || row.deleted_at) return json(res, 404, { ok: false, error: "not_found" });
 
   if (action === "request-get") {
+    const healed = await ensureContract(row);
     const [events, tasks] = await Promise.all([eventsFor(row.id), tasksFor(row.id)]);
-    return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, request: clientView(row, events, tasks) });
+    return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, request: clientView(healed, events, tasks) });
   }
 
   if (action === "request-message") {
@@ -821,10 +874,10 @@ async function clientAction(action, b, qs, req, res, sess) {
 
   // Saving the scope used to end the journey: the customer pressed a button,
   // read «تم الحفظ» and nothing else happened until someone in operations
-  // noticed. Confirming the scope now hands the request on — the customer sees
-  // the next step, operations gets a pricing task and a notification. The
-  // quotation itself is still issued by hand from /ops (owner's rule): the
-  // price on a scope is a commercial decision, not a lookup.
+  // noticed. Confirming the scope now hands the request on — and when the
+  // catalogue prices every line the quotation is issued on the spot (below);
+  // only a line the catalogue cannot price waits for a person, with the reason
+  // printed beside it.
   if (action === "scope-confirm") {
     if (isCartRow(row)) return json(res, 409, { ok: false, error: "scope_locked", message: "طلب الشراء المباشر مدفوع مسبقاً — لا عرض سعر له." });
     if (!["NEW", "REVIEWING", "WAITING_CLIENT"].includes(row.status) || scopeLockedByQuote(row)) return json(res, 409, { ok: false, error: "scope_locked", message: "النطاق مقفل بعد إصدار عرض السعر." });
@@ -847,37 +900,18 @@ async function clientAction(action, b, qs, req, res, sess) {
 
     // Lines flagged `seed` are filler: with at least one real line beside them
     // they do not block (and are not printed on) the quotation.
-    const real = scope.filter((it) => !it.seed);
-    const basis = real.length ? real : scope;
-    const priced = await priceItems(basis);
-    const unpriced = priced.filter(needsHumanPrice).map((l) => l.title);
-
+    //
     // كل بند له سعر في الكتالوج ⇒ عرض السعر يصدر فوراً. الكتالوج هو القرار
     // الذي اتُّخذ مسبقاً؛ إعادة اتخاذه يدوياً في كل طلب تأخيرٌ بلا حكم مضاف،
     // والعميل ينتظره ساعات.
     //
     // وبندٌ واحد بلا سعر يُعيد الطلب إلى اللوحة كما كان: السعر يأتي من الرمز
     // في الكتالوج أو من إنسان، ولا يُخترع بينهما. هذا هو الشرط الذي جعل
-    // الأتمتة ممكنة — «طالما في كاتالوج للأسعار والعروض واضحة».
-    if (!unpriced.length && AUTO_QUOTE) {
-      const issued = await issueQuote({ ...row, scope }, basis, {}, "system", "التسعير الآلي");
-      if (issued.ok) {
-        await logEvent(row.id, "system", "التسعير الآلي", "quote.auto", { number: issued.quote.number, total: issued.quote.total });
-        return json(res, 200, { ok: true, stage: "QUOTE", status: issued.status, scope, quote: issued.quote, auto: true });
-      }
-    }
-
-    // Lines with no catalogue price are flagged for whoever prices the quote,
-    // so /ops sees at a glance what still needs a decision.
-    const upd = await patchRequest(row.id, { status: "REVIEWING" });
-    await pricingTask(row, unpriced);
-    await logEvent(row.id, "system", "النظام", "quote.pending", { unpriced });
-    await announce({ ...row, scope }, "scope", {
-      subject: `نطاق معتمد بانتظار التسعير — ${row.ref}`,
-      clientLine: "اعتمدنا نطاق خدماتك، والفريق يجهّز عرض السعر — بندٌ أو أكثر يحتاج تسعيراً بشرياً.",
-      opsLine: `بنود بلا سعر في الكتالوج: ${unpriced.join(" · ") || "—"}`,
-    });
-    return json(res, 200, { ok: true, stage: "PRICING", status: upd.status, scope, unpriced });
+    // الأتمتة ممكنة — «طالما في كاتالوج للأسعار والعروض واضحة». لكنّ الانتظار
+    // لا يبقى صامتاً: البند وسببه يُكتبان بجانبه فيراهما العميل واللوحة.
+    const out = await quoteOrHold(row, scope);
+    if (out.issued) return json(res, 200, { ok: true, stage: "QUOTE", status: out.status, scope, quote: out.quote, auto: true });
+    return json(res, 200, { ok: true, stage: "PRICING", status: out.upd.status, scope: out.upd.scope || scope, unpriced: out.holds.map((h) => h.title), holds: out.holds });
   }
 
   // A document the customer sends inside the request. With `base64` it is a real
@@ -1036,8 +1070,18 @@ async function clientAction(action, b, qs, req, res, sess) {
     if (approve) {
       // No waiting on a human: the approved quotation already contains
       // everything the contract states.
-      const issued = await issueContract({ ...upd, quote }, "system", "النظام", {});
-      return json(res, 200, { ok: true, status: issued.status, quote, contract: { ...issued.contract, html: undefined } });
+      const after = await ensureContract({ ...upd, quote });
+      if (after.contract) return json(res, 200, { ok: true, status: after.status, quote, contract: { ...after.contract, html: undefined } });
+      // The paper could not be built right now. The approval stands; the contract
+      // is retried the next time the customer (or the panel) opens the request,
+      // and the team is told — nobody has to press anything for it to continue.
+      await alertOps({ ...row, ...upd }, "contract-failed", {
+        subject: `العقد لم يصدر آلياً — ${row.ref}`,
+        line: `اعتمد ${row.client_name || who} عرض السعر ${quote.number} لكن تعذّر إصدار العقد آلياً. يُعاد الإصدار تلقائياً عند فتح الطلب؛ وإن بقي معلّقاً فأصدره من اللوحة (ops-contract).`,
+        windowMin: 1,
+        task: { source: "contract.issue", urgency: "high", title: `العقد لم يصدر آلياً — ${row.ref}`, details: `عرض السعر ${quote.number} معتمد ولا عقد له بعد.` },
+      });
+      return json(res, 200, { ok: true, status: after.status, quote, contract_pending: true });
     }
     return json(res, 200, { ok: true, status: upd.status, quote });
   }
@@ -1250,20 +1294,28 @@ async function clientAction(action, b, qs, req, res, sess) {
           calendar = j && j.ok ? "cancelled" : "failed";
         } catch { calendar = "failed"; }
       }
-      const upd = (await patchRequest(row.id, patch)) || { ...row, ...patch };
-      await logEvent(row.id, "customer", who, "request.cancelled", { note, stage: row.status });
+      // «والعميل يقدر يلغي وتنمسح»: a request with no signature and no money is
+      // hidden from the customer at once (`deleted_at`) and listed for the owner
+      // under «المحذوفة» in /ops, for audit only. Nothing is erased from the
+      // database — final erasure is the owner's decision. A signed contract or a
+      // payment is a record of an obligation: that row stays, cancelled and visible.
+      const hide = !contractSigned && !moneyReceived(row);
+      const upd = (await patchRequestHide(row.id, patch, hide ? at : null)) || { ...row, ...patch };
+      const hidden = hide && !!upd.deleted_at;
+      await logEvent(row.id, "customer", who, "request.cancelled", { note, stage: row.status, ...(hide ? { hidden } : {}) });
       if (apptLive) await logEvent(row.id, "customer", who, "appointment.cancelled", { date: row.appointment.date, time: row.appointment.time, with_request: true });
       await closeAutoTasks(row.id);
       const opsBits = [`${row.client_name || who} ألغى الطلب بنفسه من مرحلة «${stageAr(row.status)}».`,
         contractSigned ? "العقد كان موقَّعاً ولم يُدفع شيء." : "قبل أي توقيع أو دفع."];
       if (apptLive) opsBits.push(`أُلغي موعده ${row.appointment.date} ${row.appointment.time}${calendar === "cancelled" ? " وأُلغي حدثه في التقويم." : calendar === "failed" ? " — تعذّر إلغاء حدثه في التقويم، أزله يدوياً." : " — أزله من التقويم إن وُجد."}`);
       if (note) opsBits.push(`السبب: ${note}`);
+      if (hidden) opsBits.push("أُخفي عن العميل ويظهر لك في «المحذوفة» (للتدقيق فقط).");
       await announce(upd, "cancelled", {
         subject: `أُلغي الطلب ${row.ref}`,
         clientLine: "ألغينا طلبك كما طلبت. تقدر تبدأ طلباً جديداً في أي وقت.",
         opsLine: opsBits.join(" "),
       });
-      return json(res, 200, { ok: true, status: "CANCELLED", cancelled: true, appointment_cancelled: apptLive });
+      return json(res, 200, { ok: true, status: "CANCELLED", cancelled: true, hidden, appointment_cancelled: apptLive });
     }
     // يراجعه الفريق: مرةً واحدة. التكرار لا يضاعف المهمة ولا البريد.
     if (row.cancel_request) return json(res, 200, { ok: true, status: row.status, requested: true, already: true });
@@ -1301,11 +1353,40 @@ async function closeAutoTasks(requestId) {
   } catch (e) { console.error("simple: close tasks", String(e.message || e).slice(0, 120)); }
 }
 
+// Requests opened by «إنشاء عرض سعر» (event request.created {auto_quote:true})
+// that stopped only because the client had no name or mobile yet. Fresh ones
+// only (a day): an old abandoned NEW request is not revived by a profile form.
+async function issueWaitingQuotes(sess) {
+  const mine = await myRequests(sess);
+  const since = Date.now() - 864e5;
+  let n = 0;
+  for (const r of mine) {
+    if (r.status !== "NEW" || r.quote || isCartRow(r) || isTicketRow(r)) continue;
+    if (!(Date.parse(r.created_at) >= since) || !Array.isArray(r.scope) || !r.scope.length) continue;
+    const ev = await sb(`request_events?request_id=eq.${r.id}&event=eq.request.created&select=details&limit=1`);
+    if (!(ev && ev[0] && ev[0].details && ev[0].details.auto_quote)) continue;
+    const fresh = (await getByRef(r.ref)) || r;
+    if (!fullNameOk(fresh.client_name) || !str(fresh.client_phone, 40)) continue;
+    const scope = normScope(fresh.scope);
+    if (!scope.some((it) => !it.seed)) continue;
+    await logEvent(r.id, "customer", sess.user?.full_name || r.client_email, "scope.confirmed", { auto: true });
+    const out = await quoteOrHold(fresh, scope);
+    if (out.issued) n++;
+  }
+  return n;
+}
+
 async function myRequests(sess) {
   const email = String(sess.user?.email || "").toLowerCase();
   const orgId = sess.organization?.id;
   const filter = orgId ? `or=(organization_id.eq.${orgId},client_email.eq.${q(email)})` : `client_email=eq.${q(email)}`;
-  return sb(`requests?${filter}&select=*&order=created_at.desc&limit=100`);
+  const rows = await sb(`requests?${filter}&select=*&order=created_at.desc&limit=100`);
+  // A request the customer cancelled and that carried no signature and no money
+  // is hidden from everything he reads (`deleted_at`, see request-cancel). The
+  // filter is here, in code, so it also holds while the column is not yet on the
+  // database — a row without it simply has nothing to hide.
+  const live = rows.filter((r) => !r.deleted_at);
+  return Promise.all(live.map((r) => (r.status === "QUOTE_APPROVED" ? ensureContract(r) : r)));
 }
 const summary = (r) => ({
   ref: r.ref, type: r.type, source: r.source, status: r.status, title: r.title, lang: r.lang, created_at: r.created_at, updated_at: r.updated_at,
@@ -1754,7 +1835,7 @@ async function supportAction(action, b, qs, req, res, sess) {
     const none = () => json(res, 200, { ok: true, found: false });
     if (!SUPPORT_REF_RE.test(ref)) return none();
     const row = await getByRef(ref);
-    if (!row) return none();
+    if (!row || row.deleted_at) return none();
     if (sess && ownedBy(row, sess)) return json(res, 200, { ok: true, found: true, verified: "session", item: supportTrackView(row, true) });
     if (isEmail(email) && String(row.client_email || "").toLowerCase() === email) {
       return json(res, 200, { ok: true, found: true, verified: "email", item: supportTrackView(row, false) });
@@ -1965,6 +2046,12 @@ async function runSweep({ actor = "المتابعة الذكية", limit = 400, 
   for (const row of rows) {
     const play = PLAY[row.status];
     if (!play) continue;
+    // Approved, and still without its contract: the contract is automatic now, so
+    // the sweep issues it instead of opening a «جهّز العقد» task for the owner.
+    if (row.status === "QUOTE_APPROVED" && !row.contract && !isCartRow(row)) {
+      if (!dry) { try { const full = await getByRef(row.ref); if (full && !full.deleted_at) await ensureContract(full); } catch (e) { console.error("sweep contract", String(e && e.message || e).slice(0, 100)); } }
+      continue;
+    }
     // A paid cart request held for review already has its own task; the
     // «pricing» play would tell the team to quote something already bought.
     if (row.status === "REVIEWING" && isCartRow(row)) continue;
@@ -2060,7 +2147,9 @@ async function opsAction(action, b, qs, req, res, opsUser) {
   const actor = isSales ? opsUser.email : (opsUser && (opsUser.name || opsUser.email)) || str(b.actor || qs.actor, 80) || "المالك";
 
   if (action === "ops-summary") {
-    const all = await sb("requests?select=ref,type,source,status,title,created_at,updated_at,quote,payment,invoice,appointment,client_name,company_name,assigned_to&order=created_at.desc&limit=500");
+    const SUMMARY_COLS = "ref,type,source,status,title,created_at,updated_at,quote,payment,invoice,appointment,client_name,company_name,assigned_to";
+    const all = (await sb(`requests?select=${SUMMARY_COLS},deleted_at&order=created_at.desc&limit=500`)
+      .catch(() => sb(`requests?select=${SUMMARY_COLS}&order=created_at.desc&limit=500`))).filter((r) => !r.deleted_at);
     const today = nowIso().slice(0, 10);
     const month = today.slice(0, 7);
     const paid = all.filter((r) => r.payment && r.payment.status === "PAID");
@@ -2111,8 +2200,29 @@ async function opsAction(action, b, qs, req, res, opsUser) {
     if (status && REQUEST_STATUSES.includes(status)) path += `&status=eq.${status}`;
     if (type && REQUEST_TYPES.includes(type)) path += `&type=eq.${type}`;
     if (search) path += `&or=(ref.ilike.*${q(search)}*,title.ilike.*${q(search)}*,client_name.ilike.*${q(search)}*,company_name.ilike.*${q(search)}*,client_email.ilike.*${q(search)}*)`;
-    const rows = await sb(path);
+    const rows = (await sb(path)).filter((r) => !r.deleted_at);
     return json(res, 200, { ok: true, requests: rows.map(summary) });
+  }
+
+  // «المحذوفة»: requests the customer cancelled before any signature or payment
+  // and that were hidden from him (request-cancel). For audit only — read-only,
+  // nothing is erased and nothing here can be changed; the sales role never
+  // reaches it (it is not in SALES_ACTIONS). If the column is not on the database
+  // yet there is simply nothing hidden to list.
+  if (action === "ops-deleted") {
+    let rows = [];
+    try {
+      rows = await sb("requests?select=ref,type,source,status,title,client_name,client_email,client_phone,company_name,created_at,updated_at,deleted_at,cancel,quote,contract,payment,invoice&deleted_at=gte.2000-01-01&order=deleted_at.desc&limit=300");
+    } catch { rows = []; }
+    return json(res, 200, { ok: true, deleted: rows.filter((r) => r.deleted_at).map((r) => ({
+      ref: r.ref, type: r.type, source: r.source, title: r.title, status: r.status,
+      client_name: r.client_name, company_name: r.company_name, client_email: r.client_email, client_phone: r.client_phone,
+      created_at: r.created_at, deleted_at: r.deleted_at,
+      stage: (r.cancel && r.cancel.stage) || "", by: (r.cancel && r.cancel.by) || "", note: (r.cancel && r.cancel.note) || "",
+      quote_total: r.quote ? r.quote.total : null,
+      // a row that has either of these should never be here; shown so an audit would catch it
+      signed: !!(r.contract && r.contract.status === "SIGNED"), paid: moneyReceived(r),
+    })) });
   }
 
   if (action === "ops-tasks") {
@@ -2137,7 +2247,8 @@ async function opsAction(action, b, qs, req, res, opsUser) {
 
   if (action === "ops-inbox") {
     const [reqs, tickets] = await Promise.all([
-      sb("requests?select=ref,title,status,source,type,conversation,client_name,client_email,client_phone,company_name,updated_at,assigned_to&order=updated_at.desc&limit=200"),
+      sb("requests?select=ref,title,status,source,type,conversation,client_name,client_email,client_phone,company_name,updated_at,assigned_to,deleted_at&order=updated_at.desc&limit=200")
+        .then((rows) => rows.filter((r) => !r.deleted_at), () => sb("requests?select=ref,title,status,source,type,conversation,client_name,client_email,client_phone,company_name,updated_at,assigned_to&order=updated_at.desc&limit=200")),
       sb("support_tickets?select=number,subject,status,category,created_at,organization_id,ticket_messages(body,author_kind,created_at)&order=created_at.desc&limit=60").catch(() => []),
     ]);
     const threads = reqs.map((r) => {
@@ -2414,7 +2525,11 @@ async function opsAction(action, b, qs, req, res, opsUser) {
     if (row.status !== "CANCELLED") return json(res, 409, { ok: false, error: "not_cancelled" });
     const back = REQUEST_STATUSES.includes(str(b.status, 40)) ? str(b.status, 40)
       : (row.cancel && REQUEST_STATUSES.includes(row.cancel.stage) ? row.cancel.stage : "REVIEWING");
-    const upd = await patchRequest(row.id, { status: back, cancel: null, cancel_request: null });
+    const reopen = { status: back, cancel: null, cancel_request: null };
+    let upd;
+    // a request that had been hidden from the customer comes back to him with it
+    if (row.deleted_at) { try { upd = await patchRequest(row.id, { ...reopen, deleted_at: null }); } catch { upd = null; } }
+    if (!upd) upd = await patchRequest(row.id, reopen);
     await logEvent(row.id, "ops", actor, "request.reopened", { to: back });
     await announce(upd, "reopened", {
       subject: `أُعيد فتح الطلب ${row.ref}`,
@@ -2695,7 +2810,7 @@ async function priceItems(items) {
       titleEn: str((svc && (svc.nameEn || svc.name)) || it.titleEn || "", 200),
       description: it.description || it.why || "", qty: it.qty || 1,
       price: it.price != null && it.price !== "" ? num(it.price) : catPrice,
-      model: svc ? String(svc.pricingModel || "") : "" };
+      model: svc ? String(svc.pricingModel || "") : "", found: !!svc };
   });
 }
 // A catalogue price is a decision only when it IS the price. «يبدأ من 800»
@@ -2704,6 +2819,85 @@ async function priceItems(items) {
 // number that was never the price. They go to a person.
 const AUTO_PRICE_MODELS = new Set(["", "One Time", "Per Candidate"]);
 const needsHumanPrice = (l) => !(num(l.price) > 0) || !AUTO_PRICE_MODELS.has(String(l.model || ""));
+
+// ------------------------------------------------ why a line waits for a person --
+// The rule above says WHETHER a line needs a human; this says WHY, in words the
+// customer and the panel both print. Before this a request that stopped for
+// pricing said only «بندٌ أو أكثر يحتاج تسعيراً بشرياً» — the customer could not
+// tell which line, nor why, and the owner had to open the request to find out.
+// The reason is written beside the line (`scope[i].hold`) so /my and /ops read
+// the same thing; nothing here ever invents a price.
+export const HOLD_AR = {
+  custom: "بند كتبتَه بنفسك ولا سعر له في الكتالوج",
+  unknown_code: "رمز الخدمة غير موجود في الكتالوج",
+  proposal: "سعرها حسب دراسة حالتك وليس رقماً ثابتاً",
+  from: "الكتالوج يذكر لها سعراً «يبدأ من» وليس سعراً نهائياً",
+  recurring: "اشتراك دوري وليس دفعة واحدة",
+  percent: "تُحتسب بنسبة وليس بمبلغ ثابت",
+  no_price: "لا سعر لها في الكتالوج",
+};
+export function pricingReason(l) {
+  if (!l.code) return "custom";
+  if (l.found === false) return "unknown_code";
+  const m = String(l.model || "");
+  if (m === "Requires Proposal") return "proposal";
+  if (m === "Percent") return "percent";
+  if (m === "Monthly") return "recurring";
+  if (m === "Starting From") return "from";
+  return "no_price";
+}
+// The lines a quotation is built from (filler lines flagged `seed` never block
+// it and are not printed on it) and, among them, the ones only a person can price.
+async function assessScope(scope) {
+  const real = scope.filter((it) => !it.seed);
+  const basis = real.length ? real : scope;
+  const priced = await priceItems(basis);
+  const holds = priced.filter(needsHumanPrice).map((l) => { const reason = pricingReason(l); return { title: l.title, code: l.code || "", reason, reason_ar: HOLD_AR[reason] }; });
+  return { basis, holds };
+}
+// The scope with the verdict written beside each waiting line (and any older
+// verdict removed): this is what the customer's page and the panel render.
+function markHolds(scope, holds) {
+  const by = new Map(holds.map((h) => [h.title, h]));
+  return scope.map(({ hold, ...it }) => { const h = by.get(it.title); return h ? { ...it, hold: { reason: h.reason, reason_ar: h.reason_ar } } : it; });
+}
+// A line no catalogue price can settle sends the request to the team — with the
+// line and the reason written where the customer and the panel both read them,
+// one pricing task, and one notice. Nothing waits silently.
+async function holdForPricing(row, scope, holds) {
+  const upd = await patchRequest(row.id, { status: "REVIEWING", scope: markHolds(scope, holds) });
+  await pricingTask(row, holds);
+  await logEvent(row.id, "system", "النظام", "quote.pending", { unpriced: holds.map((h) => h.title), holds });
+  await announce({ ...row, scope }, "scope", {
+    subject: `نطاق معتمد بانتظار التسعير — ${row.ref}`,
+    clientLine: holds.length
+      ? `اعتمدنا نطاق خدماتك. ${holds.length === 1 ? "بندٌ واحد" : "بعض البنود"} يحتاج تسعيراً من الفريق قبل إصدار العرض: ${holdsLine(holds)}. يصلك العرض هنا وعلى بريدك فور تسعيرها — لا يلزمك فعل شيء.`
+      : "اعتمدنا نطاق خدماتك، والفريق يجهّز عرض السعر ويصلك هنا وعلى بريدك.",
+    opsLine: holds.length ? `بنود بلا سعر نهائي في الكتالوج: ${holdsLine(holds)}` : "نطاق معتمد وكل بنوده مسعّرة، والتسعير الآلي مُطفأ — أصدر العرض من اللوحة.",
+  });
+  return upd;
+}
+// The one door a confirmed scope goes through: priced by the catalogue ⇒ the
+// quotation now; otherwise ⇒ the team, with the reason.
+async function quoteOrHold(row, scope) {
+  const auto = await tryAutoQuote(row, scope);
+  if (auto.issued) return { issued: true, quote: auto.quote, status: auto.status };
+  const holds = auto.holds.length ? auto.holds : (await assessScope(scope)).holds;
+  return { issued: false, holds, upd: await holdForPricing(row, scope, holds) };
+}
+// Everything priced by the catalogue ⇒ the quotation is issued NOW and the
+// customer finds it in his panel (owner, 2026-10-23: «عرض السعر مؤتمت فوري»).
+// Returns {issued:true,quote,status} or {issued:false,holds} — never throws a
+// half-state: when it cannot issue, the request is exactly as it was.
+async function tryAutoQuote(row, scope) {
+  if (!AUTO_QUOTE || !scope.length) return { issued: false, holds: [] };
+  const { basis, holds } = await assessScope(scope);
+  if (holds.length) return { issued: false, holds };
+  const out = await issueQuote({ ...row, scope }, basis, {}, "system", "التسعير الآلي");
+  if (!out.ok) return { issued: false, holds: [] };
+  await logEvent(row.id, "system", "التسعير الآلي", "quote.auto", { number: out.quote.number, total: out.quote.total });
+  return { issued: true, quote: out.quote, status: out.status };
+}
 function guessType(text) {
   const t = String(text || "");
   if (/تأسيس|فرع|رخصة استثمار|ريادة|MISA|سجل تجاري جديد|company|formation|branch/i.test(t)) return "COMPANY_FORMATION";
@@ -2834,14 +3028,15 @@ async function announce(row, step, { subject, clientLine, opsLine, cta, to = "bo
   return out;
 }
 
-async function pricingTask(row, unpriced) {
+const holdsLine = (holds) => (holds || []).map((h) => `${h.title} (${h.reason_ar})`).join(" · ");
+async function pricingTask(row, holds) {
   try {
     const open = await sb(`tasks?request_id=eq.${row.id}&source=eq.pricing&status=in.(open,in_progress,blocked)&select=id&limit=1`);
     if (open && open[0]) return;
     await sb("tasks", { method: "POST", body: [{
       organization_id: row.organization_id || await fallbackOrg(),
       title: `تسعير نطاق ${row.ref}`,
-      details: unpriced.length ? `بنود بلا سعر في الكتالوج: ${unpriced.join(" · ")}` : "راجع النطاق وأصدر عرض السعر.",
+      details: holds && holds.length ? `بنود تحتاج تسعيراً بشرياً: ${holdsLine(holds)}` : "راجع النطاق وأصدر عرض السعر.",
       assignee: "bp", source: "pricing", status: "open", urgency: "high", priority: "high",
       human_action: true, assigned_to: row.assigned_to || null, request_id: row.id,
     }] });
