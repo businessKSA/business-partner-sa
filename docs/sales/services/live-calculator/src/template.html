@@ -84,6 +84,9 @@ tr.tot td{font-weight:700;background:var(--soft)}
 .band h3{margin:0 0 6px;font-size:14px}
 .band .big{font-family:var(--mono);font-size:22px}
 .req-star{color:#D92D20;font-weight:800;margin-inline-start:3px}
+.demo{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 12px;padding:8px 10px;border:1px dashed var(--accent);border-radius:12px;background:var(--soft)}
+.demo b{font-size:12px;margin-inline-end:4px}
+.demo button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:5px 10px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
 .stepper{display:flex;gap:6px;margin:6px 0 14px;flex-wrap:wrap}
 .stepper button{flex:1 1 0;min-width:90px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:6px 5px;font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;text-align:center}
 .stepper button b{display:inline-block;width:20px;height:20px;line-height:20px;border-radius:50%;background:var(--soft);color:var(--navy);margin-inline-end:4px;font-size:11px}
@@ -155,11 +158,11 @@ const T={
  sub:{ar:'Business Partner · الأسعار بالريال السعودي · نسخة تجريبية للمعاينة',en:'Business Partner · prices in SAR · preview version'},
  notice:{ar:'نسخة معاينة داخلية: الأرقام من معادلات المالك، وبعض البنود موسومة «للتأكيد» حتى يعتمدها المالك.',en:'Internal preview: figures follow the owner’s formulas; items marked “to confirm” await the owner’s approval.'},
  foot:{ar:'كل المبالغ قبل ضريبة القيمة المضافة 15% ما لم يُذكر غير ذلك. الرسوم الحكومية بلا ضريبة والضريبة على رسوم شركة بزنس بارتنر فقط. لا وعد بأي نتيجة في نطاقات؛ والعقد الموقّع هو المرجع.',en:'All amounts exclude 15% VAT unless stated. Government fees carry no VAT; VAT applies only to our fee. No Nitaqat result is promised; the signed agreement governs.'},
- tabs:{lump:['المبلغ المقطوع','Lump sum'],cost:['تكلفة زائد والدفعات','Cost plus & payments'],nit:['النطاقات والتوطين','Nitaqat'],prof:['توطين المهن وأقل راتب','Professions'],hire:['تقييم موظف جديد','New-hire check'],team:['فريقك حسب المهن','Team by profession'],rent:['بالساعة واليوم والأسبوع','Hourly · daily · weekly'],ot:['الساعات الإضافية','Overtime'],guides:['الأدلة والمهن','Guides & professions']}
+ tabs:{nit:['النطاقات والتوطين','Nitaqat'],lump:['المبلغ المقطوع','Lump sum'],cost:['تكلفة زائد والدفعات','Cost plus & payments'],prof:['توطين المهن وأقل راتب','Professions'],hire:['تقييم موظف جديد','New-hire check'],team:['فريقك حسب المهن','Team by profession'],rent:['بالساعة واليوم والأسبوع','Hourly · daily · weekly'],ot:['الساعات الإضافية','Overtime'],guides:['الأدلة والمهن','Guides & professions']}
 };
 const CLIENT=__CLIENT__; // نسخة العميل: بلا وضع المالك ولا ملاحظات داخلية
 const S={ // state
- tab:'lump',
+ tab:'nit',
  owner:false,
  rent:{unit:'day',qty:1,nat:'IN',sal:1500},
  req:{lic:'',exp:'',lang:'',langLvl:'',edu:'',skill:'',skillName:'',skillLvl:''},
@@ -427,7 +430,7 @@ function wireSteppers(){document.querySelectorAll('.stp button[data-st]').forEac
 const line=(a,b,cls='')=>`<div class="line ${cls}"><span>${a}</span><b>${b}</b></div>`;
 const profOpts=()=>PROF.map((p,i)=>[i,p[0]]);
 function pfld(id,label,idx,hint){return `<div class="field"><label for="${id}">${label}</label><input id="${id}" type="search" data-combo="prof" class="cmb" autocomplete="off" value="${idx===0?'':profName(idx).replace(/"/g,'&quot;')}" placeholder="${tx('ابحث بالاسم أو رمز المهنة','Search by name or occupation code')}" data-pf="1">${hint?`<small>${hint}</small>`:''}${profScopeHtml()}</div>`;}
-function profScopeHtml(){ if(!S.nit.act||!profScope()&&!S.profAll) return ''; const n=PROF.filter((_,i)=>profInScope(i)).length; return `<small style="display:block;margin-top:4px">${S.profAll?tx('تُعرض كل المهن.','All professions shown.'):tx('تُعرض مهن مجال نشاطك فقط ('+n+' مهنة) — '+gn(S.nit.grp),'Showing your activity’s professions only ('+n+') — '+gn(S.nit.grp))} <label style="cursor:pointer"><input type="checkbox" data-profall ${S.profAll?'checked':''}> ${tx('عرض كل المهن','Show all professions')}</label></small>`;}
+function profScopeHtml(){ if(!S.nit.act) return `<small style="display:block;margin-top:4px">${tx('اختر نشاطك من «النطاقات والتوطين» لتظهر مهن نشاطك فقط.','Choose your activity in “Nitaqat” to see only your activity’s professions.')}</small>`; if(!profScope()&&!S.profAll) return ''; const n=profScope()?profScope().size:PROF.length; return `<small style="display:block;margin-top:4px">${S.profAll?tx('تُعرض كل المهن.','All professions shown.'):tx('تُعرض مهن نشاطك فقط حسب قوى ('+n+' مهنة) — '+gn(S.nit.grp),'Showing your activity’s professions only, per Qiwa ('+n+') — '+gn(S.nit.grp))}${CLIENT?'':` <label style="cursor:pointer"><input type="checkbox" data-profall ${S.profAll?'checked':''}> ${tx('عرض كل المهن','Show all professions')}</label>`}</small>`;}
 const termLbl=k=>k===1?tx('شهر واحد','1 month'):k===2?tx('شهران','2 months'):k<=10?tx(k+' أشهر',k+' months'):k%12===0&&k>=24?tx(k/12===2?'سنتان':(k/12)+' سنوات',(k/12)+' years'):tx(k+' شهراً',k+' months');
 const termOptsF=()=>[1,2,3,4,5,6,9,12,24,36].map(k=>[k,termLbl(k)]);
 const UNITSF=()=>[['hour',tx('بالساعة','By the hour')],['day',tx('باليوم','By the day')],['week',tx('بالأسبوع','By the week')],['two',tx('بالأسبوعين','Every two weeks')]];
@@ -683,6 +686,27 @@ function wireSelCombos(){document.querySelectorAll('select[data-sel]').forEach(s
     else if(e.key==='ArrowUp'){e.preventDefault();cur=Math.max(0,cur-1);show(false);}
     else if(e.key==='Enter'){e.preventDefault(); const it=res[Math.max(0,cur)]; if(it) choose(it.v);}
     else if(e.key==='Escape'){ddClose();}});});}
+
+function actOccPanel(c){
+  if(!c.act) return '';
+  const set=actOccSet(c.act); const a=ACT.find(x=>x[0]===c.act);
+  if(!set) return `<section class="panel" style="margin-top:16px"><h2>${tx('مهن نشاطك','Professions of your activity')}</h2><p class="hint">${tx('لا قائمة مهن رسمية لهذا النشاط في ملفات قوى.','No official profession list for this activity in the Qiwa files.')}</p></section>`;
+  const byCode=new Map(); PROF.forEach((p,i)=>{const k=p[7]; if(!k) return; const dec=p[8]!==0&&p[1]!=='Standard'; if(!byCode.has(k)||(dec&&!byCode.get(k).dec)) byCode.set(k,{i,dec});});
+  const catL=k=>({'Saudi-only':tx('للسعوديين فقط','Saudi-only'),'Technical':tx('فنية','Technical'),'Administrative':tx('إدارية','Administrative'),'Engineering':tx('هندسية','Engineering'),'Standard':tx('عادية','Standard'),'On request':tx('عند الطلب','On request')}[k]||k);
+  const q=norm((c.oq||'').trim());
+  let rows=[...set].map(code=>{const o=OCC[OCCIX[code]]||[code,code,'']; const b=byCode.get(code); const p=b?PROF[b.i]:null; return {code,ar:o[1],en:o[2]||'',p,dec:!!(b&&b.dec)};});
+  const total=rows.length, locN=rows.filter(r=>r.dec).length;
+  if(q) rows=rows.filter(r=>norm(r.code+' '+r.ar+' '+r.en+' '+(PALIAS[r.code]||'')).includes(q));
+  rows.sort((x,y)=>(y.dec-x.dec)||x.code.localeCompare(y.code));
+  const nm=r=>L==='ar'?r.ar:(r.en||r.ar);
+  return `<section class="panel" style="margin-top:16px"><h2>${tx('مهن نشاطك ('+total+')','Professions of your activity ('+total+')')}</h2>
+   <p class="hint">${a?actLabel(a):''}</p>
+   <div class="res"><div class="line"><span>${tx('كل مهن النشاط (قوى)','All activity professions (Qiwa)')}</span><b>${total}</b></div><div class="line"><span>${tx('منها عليها قرار توطين','of which under a localisation decision')}</span><b>${locN}</b></div><div class="line"><span>${tx('بلا قرار توطين','without a localisation decision')}</span><b>${total-locN}</b></div></div>
+   <div class="field" style="margin-top:12px"><label for="n-oq">${tx('بحث في مهن النشاط','Search the activity’s professions')}</label><input id="n-oq" type="search" value="${(c.oq||'').replace(/"/g,'&quot;')}"></div>
+   <div class="tbl"><table><thead><tr><th>${tx('الرمز','Code')}</th><th>${tx('المهنة','Profession')}</th><th>${tx('التوطين','Localisation')}</th><th class="n">${tx('النسبة','Ratio')}</th><th class="n">${tx('أقل راتب','Min salary')}</th></tr></thead><tbody>
+   ${rows.slice(0,150).map(r=>`<tr><td>${r.code}</td><td>${nm(r)}</td><td>${r.dec?(r.p[1]==='Saudi-only'?`<span class="pill bad">${catL(r.p[1])}</span>`:catL(r.p[1])):tx('غير موطّنة','Not localised')}</td><td class="n">${r.dec&&r.p[3]?r.p[3]+'%':'—'}</td><td class="n">${r.dec&&r.p[5]?fmt(r.p[5]):'—'}</td></tr>`).join('')}</tbody></table></div>
+   <p class="hint" style="margin-top:8px">${rows.length>150?tx('يُعرض أول 150 مهنة من '+rows.length+'. ضيّق البحث.','Showing the first 150 of '+rows.length+'. Narrow the search.'):tx(rows.length+' مهنة.',rows.length+' professions.')}</p></section>`;
+}
 function actProfPanel(c,pre){
   if(!c.act) return `<section class="panel" style="margin-top:16px"><h2>${tx('المهن الموطّنة في نشاطك','Localised professions for your activity')}</h2><p class="hint">${tx('اختر النشاط الفرعي أعلاه لتظهر القرارات والمهن الموطّنة التي تسري عليه.','Choose the sub-activity above to see the localisation decisions and professions that apply.')}</p></section>`;
   const a=ACT.find(x=>x[0]===c.act); const gs=guidesFor(c.act);
@@ -722,7 +746,7 @@ function viewNit(){
     <div class="line"><span>${tx('النقص (الإجمالي ثابت)','Shortfall (total held)')}</span><b>${b.short}</b></div>
     <div class="line"><span>${tx('فائض السعوديين','Surplus Saudis')}</span><b>${b.surplus}</b></div>
     <div class="line" style="border:0"><span>${tx('توظيفات جديدة إن زاد معها الإجمالي','Hires if each new Saudi adds to the total')}</span><b>${b.hires==null?'—':b.hires}</b></div></div>`).join('')}</div>
-   <p class="hint" style="margin-top:10px">${tx('المعادلة: Y = M·ln(X) + C لكل مجموعة نشاط وسنة، X إجمالي العاملين. الثوابت من وزارة الموارد البشرية.','Formula: Y = M·ln(X) + C per activity group and year, X = total workforce. Constants from the Ministry of Human Resources.')}</p></section></div>${actProfPanel(c,'n')}`;
+   <p class="hint" style="margin-top:10px">${tx('المعادلة: Y = M·ln(X) + C لكل مجموعة نشاط وسنة، X إجمالي العاملين. الثوابت من وزارة الموارد البشرية.','Formula: Y = M·ln(X) + C per activity group and year, X = total workforce. Constants from the Ministry of Human Resources.')}</p></section></div>${actProfPanel(c,'n')}${actOccPanel(c)}`;
 }
 
 function viewProf(){
@@ -1003,6 +1027,20 @@ function markRequired(){
  [pf+'-term',pf+'-prof',pf+'-src',S[S.tab].src==='abroad'?pf+'-cty':'',pf+'-qty','i-gender',pf+'-sal',S[S.tab].src==='inside'?pf+'-trn':''].filter(Boolean).forEach(id=>{
   [id,id+'-s'].forEach(x=>{const lb=document.querySelector(`#main label[for="${x}"]`); if(lb&&!lb.querySelector('.req-star')){const st=document.createElement('span'); st.className='req-star'; st.textContent='*'; st.setAttribute('aria-label',tx('مطلوب','required')); lb.appendChild(st);}});});
 }
+
+function fillDemo(loc,abroad){
+ const tab=S.tab; if(!['lump','cost'].includes(tab)) return; const c=S[tab];
+ const idx=PROF.findIndex(p=>p[7]===(loc?'214905':'513101')); if(idx<0) return;
+ Object.assign(c,{term:12,prof:idx,src:abroad?'abroad':'inside',nat:abroad?'PH':'inside',cty:abroad?'PH':'',qty:loc?3:1,sal:6000,trn:1}); if(tab==='cost') c.freq='Quarterly';
+ S.ins.gender='male'; touchAllIds(); S.step=S.step||{}; S.step[tab]=1; render();
+}
+function quickDemo(){
+ if(CLIENT||!['lump','cost'].includes(S.tab)) return; const m=document.getElementById('main'); if(!m||m.querySelector('.demo')) return;
+ const d=document.createElement('div'); d.className='demo';
+ d.innerHTML='<b>'+tx('جاهز للمعاينة (نسخة المالك):','Ready-made preview (owner build):')+'</b>'+[[1,0,tx('مهنة موطّنة — نقل كفالة','Localised profession — transfer')],[1,1,tx('مهنة موطّنة — استقدام','Localised profession — recruitment')],[0,0,tx('مهنة غير موطّنة — نقل كفالة','Non-localised profession — transfer')],[0,1,tx('مهنة غير موطّنة — استقدام','Non-localised profession — recruitment')]].map(x=>`<button type="button" data-demo="${x[0]}${x[1]}">${x[2]}</button>`).join('');
+ m.insertBefore(d,m.firstChild);
+ d.querySelectorAll('[data-demo]').forEach(b=>b.addEventListener('click',()=>fillDemo(+b.dataset.demo[0],+b.dataset.demo[1])));
+}
 function cleanClient(){
  if(!CLIENT) return;
  const n=document.getElementById('t-notice'); if(n) n.style.display='none';
@@ -1015,7 +1053,7 @@ function cleanClient(){
   if(v!==o) x.nodeValue=v;});
  document.querySelectorAll('.pill.warn').forEach(e=>{if(/مسودة|Draft|بانتظار|await/i.test(e.textContent)) e.remove();});
 }
-function render(focusId){ try{ __render(focusId); stepify(); markRequired(); }finally{ cleanClient(); } }
+function render(focusId){ try{ __render(focusId); stepify(); markRequired(); quickDemo(); }finally{ cleanClient(); } }
 function __render(focusId){
   $('#app').dir=L==='ar'?'rtl':'ltr'; $('#app').lang=L;
   $('#t-title').textContent=t('title'); $('#t-sub').textContent=t('sub'); $('#t-notice').textContent=t('notice'); $('#t-foot').textContent=t('foot');
@@ -1026,6 +1064,7 @@ function __render(focusId){
   $('#main').innerHTML=(S.tab==='nit'?barHtml():['prof','hire','team','guides'].includes(S.tab)?compactBar():'')+gate(views[S.tab]())+(CLIENT?'':`<p style="margin-top:18px;text-align:center"><button class="btn" id="own" title="${tx('وضع المالك (للمعاينة فقط)','Owner mode (preview only)')}" style="font-size:11px;padding:2px 10px;opacity:${S.owner?1:.45}">⚙ ${S.owner?tx('إخفاء وضع المالك','Hide owner mode'):''}</button></p>`);
   if(!CLIENT) document.getElementById('own').addEventListener('click',()=>{S.owner=!S.owner;render();});
   const re=id=>render(id);
+  if(CLIENT) S.profAll=false;
   document.querySelectorAll('[data-profall]').forEach(c=>c.addEventListener('change',()=>{S.profAll=c.checked;render();}));
   [['l','lump'],['c','cost']].forEach(([pp,tabk])=>{
     const g=S[tabk], sr=document.getElementById(pp+'-src'), ct=document.getElementById(pp+'-cty');
@@ -1070,7 +1109,7 @@ function __render(focusId){
   if(S.tab==='cost'){bind('cost',[['c-sal','sal','num'],['c-qty','qty','int'],['c-prof','prof','prof'],['c-med','med','num'],['c-xfer','xfer','num'],['c-tkt1','tkt1','num'],['c-exitv','exitv','num'],['c-arr','arr','num'],['c-abroad','abroad','sel'],['c-nat','nat','sel'],['c-rec','rec','num'],['c-con','con','num'],['c-freq','freq','sel'],['c-trn','trn','int'],['c-saudi','saudi','sel'],['c-ssal','ssal','num'],['c-sinv','sinv','sel'],['c-sgosi','sgosi','num']],re);
     document.querySelectorAll('input[name=mode]').forEach(x=>x.addEventListener('change',()=>{S.cost.mode=x.value;render();}));
     const sc=schedCalc(S.cost); wireCopy('cost',{advance:S.cost.mode==='start'?sc.tot[0]:sc.grand});}
-  if(S.tab==='nit') bind('nit',[['n-q','pq','txt'],['n-act','act','act'],['n-grp','grp','sel'],['n-year','year','int'],['n-target','target','sel'],['n-full','full','num'],['n-part','part','num'],['n-foreign','foreign','num']],re);
+  if(S.tab==='nit') bind('nit',[['n-q','pq','txt'],['n-oq','oq','txt'],['n-act','act','act'],['n-grp','grp','sel'],['n-year','year','int'],['n-target','target','sel'],['n-full','full','num'],['n-part','part','num'],['n-foreign','foreign','num']],re);
   if(S.tab==='hire') bind('hire',[['h-who','who','sel'],['h-nat','nat','sel'],['h-trn','trn','int'],['h-rec','rec','num'],['h-prof','prof','prof'],['h-qty','qty','num'],['h-sal','sal','num'],['h-term','term','int'],['h-psaudi','psaudi','num'],['h-pforeign','pforeign','num'],['h-q','__pq','txt'],['h-act','__act','act'],['h-grp','__grp','sel'],['h-year','__year','sel'],['h-full','__full','num'],['h-part','__part','num'],['h-foreign','__foreign','num']],re);
 
   if(S.tab==='team'){const c=S.team;
