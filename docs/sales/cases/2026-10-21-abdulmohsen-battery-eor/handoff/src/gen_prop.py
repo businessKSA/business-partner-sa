@@ -298,15 +298,15 @@ def card(c, mode, cols):
     bg = '#0B1B5A' if dark else '#fff;border:2px solid #DDE1EE'
     tcol = ('#9DB4FF', '#fff') if dark else ('#13246E', '#0B1B5A')
     bcol = ('#9DB4FF', '#C9D5FF') if dark else ('#6A7596', '#4A5578')
-    ts = (34, 42) if mode == 'bi' else (40, 44)
-    bs = (24, 29) if mode == 'bi' else (30, 32)
+    ts = (44, 52) if mode == 'bi' else (56, 60)
+    bs = (34, 40) if mode == 'bi' else (46, 50)
     if cols >= 4:
         ts = (28, 34) if mode == 'bi' else (34, 38); bs = (21, 25) if mode == 'bi' else (27, 29)
     elif cols == 3:
-        ts = (30, 36) if mode == 'bi' else (36, 40); bs = (22, 26) if mode == 'bi' else (28, 30)
+        ts = (36, 42) if mode == 'bi' else (46, 50); bs = (30, 35) if mode == 'bi' else (40, 44)
     if c.get('compact'):
         ts = (26, 32) if mode == 'bi' else (30, 36); bs = (19, 23) if mode == 'bi' else (24, 27)
-    return f'''<div style="background:{bg};border-radius:22px;padding:{22 if c.get('compact') else 30}px 34px;display:flex;flex-direction:column;gap:{8 if c.get('compact') else 12}px">
+    return f'''<div style="background:{bg};border-radius:22px;padding:{22 if c.get('compact') else 44}px 40px;display:flex;flex-direction:column;gap:{8 if c.get('compact') else 22}px">
 {txt(c['t'], mode, ts, tcol, True)}
 {txt(c['b'], mode, bs, bcol)}
 </div>'''
@@ -346,7 +346,7 @@ def render(s, mode):
     inner = hdr(s['tag'], mode) + h2(s['title'], mode)
     if k == 'cards':
         n = s['cols']
-        inner += f'<div style="display:grid;grid-template-columns:repeat({n},minmax(0,1fr));column-gap:26px;margin-top:34px;align-items:start">' + ''.join(card(c, mode, n) for c in s['cards']) + '</div>'
+        inner += f'<div style="display:grid;grid-template-columns:repeat({n},minmax(0,1fr));column-gap:30px;margin-top:70px;align-items:stretch">' + ''.join(card(c, mode, n) for c in s['cards']) + '</div>'
         if s['note'][0]: inner += note(s['note'], mode, 28)
     elif k == 'local4':
         inner += '<div style="margin-top:12px">' + note(s['intro'], mode, 4) + '</div>'
@@ -397,7 +397,7 @@ def render(s, mode):
         inner += note(s['note'], mode, 10)
     elif k == 'lump':
         inner += '<div style="margin-top:12px">' + note(s['intro'], mode, 4) + '</div>'
-        fs = 18 if mode == 'bi' else 24
+        fs = 22 if mode == 'bi' else 32
         def L(pair, size, bold=False, color='#0B1B5A', c=False):
             w = 'font-weight:700;' if bold else ''
             en = f'<div style="direction:ltr;text-align:{"center" if c else "left"};font-size:{size}px;line-height:1.25;color:{color};{w}">{esc(pair[0])}</div>'
@@ -411,7 +411,7 @@ def render(s, mode):
         for i, r in enumerate(s['rows']):
             bg = '#EEF2FF' if r[0][0] == 'SAR 6,000' else '#fff'
             val = lambda v: f'<div style="font-family:\'IBM Plex Mono\',monospace;font-weight:500;direction:ltr;text-align:center;font-size:{fs+4}px;color:#0B1B5A">{esc(v)}</div>'
-            body += f'<div style="display:grid;grid-template-columns:{cols};column-gap:14px;align-items:center;padding:4px 24px;background:{bg};border-bottom:2px solid #DDE1EE;direction:{d}">{L(r[0], fs+1, True)}{val(r[1])}{val(r[2])}{val(r[3])}</div>'
+            body += f'<div style="display:grid;grid-template-columns:{cols};column-gap:14px;align-items:center;padding:12px 24px;background:{bg};border-bottom:2px solid #DDE1EE;direction:{d}">{L(r[0], fs+1, True)}{val(r[1])}{val(r[2])}{val(r[3])}</div>'
         inner += f'<div style="margin-top:10px;flex-shrink:0;background:#fff;border:2px solid #DDE1EE;border-radius:20px;overflow:hidden">{body}</div>'
         inner += note(s['note'], mode, 10)
     elif k in ('table','table4'):
@@ -451,8 +451,8 @@ def render(s, mode):
                     lines += f'<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:18px;padding:5px 0;border-top:1px solid {"#2B3F8A" if dark else "#E6E9F3"}"><div style="direction:ltr;text-align:left;font-size:20px;color:{icol[0]}">✓ {esc(en)}</div><div style="direction:rtl;text-align:right;font-size:22px;color:{icol[1]}">{esc(ar)} ✓</div></div>'
                 else:
                     t = ar if mode == 'ar' else en
-                    lines += f'<div style="padding:7px 0;border-top:1px solid {"#2B3F8A" if dark else "#E6E9F3"};direction:{"rtl" if mode=="ar" else "ltr"};text-align:{"right" if mode=="ar" else "left"};font-size:{27 if mode=="ar" else 25}px;color:{icol[1] if mode=="ar" else icol[1]}">✓ {esc(t)}</div>'
-            return f'<div style="background:{bg};border-radius:22px;padding:24px 30px;display:flex;flex-direction:column;gap:4px">{txt(title, mode, (30, 36), tcol, True)}{lines}</div>'
+                    lines += f'<div style="padding:16px 0;border-top:1px solid {"#2B3F8A" if dark else "#E6E9F3"};direction:{"rtl" if mode=="ar" else "ltr"};text-align:{"right" if mode=="ar" else "left"};font-size:{40 if mode=="ar" else 36}px;color:{icol[1] if mode=="ar" else icol[1]}">✓ {esc(t)}</div>'
+            return f'<div style="background:{bg};border-radius:22px;padding:24px 30px;display:flex;flex-direction:column;gap:4px">{txt(title, mode, (40, 48), tcol, True)}{lines}</div>'
         inner += '<div style="display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);column-gap:28px;margin-top:22px;align-items:start">' + col(s['left'], True) + col(s['right'], False) + '</div>'
     elif k == 'stages':
         fs = 20 if mode == 'bi' else 27
@@ -503,6 +503,7 @@ def render(s, mode):
     return page(inner, mode)
 
 
+exec(open('lean_patch.py').read())
 NAMES = {  # key -> (bi, ar, en)
     'cover': ('Main', 'AR-1-Cover', 'EN-1-Cover'),
     'scope': ('Scope', 'AR-2-Scope', 'EN-2-Scope'),
@@ -517,7 +518,7 @@ NAMES = {  # key -> (bi, ar, en)
     'payment': ('Next', 'AR-8-Next', 'EN-8-Next'),
     'accept': ('Accept', 'AR-9-Accept', 'EN-9-Accept'),
 }
-ORDER = ['cover', 'scope', 'roles', 'models', 'model1', 'gov', 'model2', 'local', 'saudi', 'calc', 'payment', 'accept']
+ORDER = ['cover', 'scope', 'roles', 'models', 'model2', 'local', 'payment', 'model1', 'gov', 'saudi', 'calc', 'accept']
 S.sort(key=lambda x: ORDER.index(x['key']))
 boards = {'bi': [], 'ar': [], 'en': []}
 for s in S:
