@@ -151,7 +151,7 @@ ok(aud.some((x) => x.action === "application.stage.new->shortlist") && aud.some(
 console.log("\n6. Roles and local-only");
 ok((await call("GET", { action: "jobs" })).status === 401, "no session -> 401");
 const client = await login("SHR", "client@shr.invalid");
-ok(client.r.status === 403, "client_admin still refused");
+ok((await call("GET", { action: "jobs" }, client.cookie)).status === 403 && (await call("GET", { action: "candidates" }, client.cookie)).status === 403, "client_admin cannot reach the ATS");
 process.env.LOCAL_DB = "0";
 ok((await call("GET", { action: "jobs" }, ops.cookie)).status === 503, "refuses outside LOCAL_DB=1");
 process.env.LOCAL_DB = "1";

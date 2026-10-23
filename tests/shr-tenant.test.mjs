@@ -90,5 +90,13 @@ ok(/shr_violations[\s\S]*?check \(reviewed_by is null or reviewed_by <> entered_
 ok(/shr_a33_names[\s\S]*?approved_by <> classified_by/.test(SQL) && /shr_worker_transfers[\s\S]*?decided_by <> requested_by/.test(SQL) && /shr_import_batches[\s\S]*?reviewed_by <> uploaded_by/.test(SQL), "schema: classifier != approver; requester != decider; uploader != reviewer");
 ok(/shr_no_delete\(\)/.test(SQL) && /shr_append_only\(\)/.test(SQL), "schema: no-delete and append-only triggers present");
 
+console.log("\n9. Client roles are not staff in the gate; their tables are the same gated ones");
+for (const role of ["client_admin", "client_viewer"]) ok(ROLES.includes(role) && ctxFrom({ tenant_id: A, role }).staff === false, `${role} is known to the gate and is not staff`);
+ok(/shr_users_client_fk/.test(SQL) && /shr_client_companies_tenant_id_id_key/.test(SQL), "schema: client user -> company is a tenant-composite FK");
+for (const t of ["shr_client_companies", "shr_contracts", "shr_requests", "shr_assignments", "shr_worker_documents", "shr_invoices"]) {
+  await a.get(`${t}?select=id`);
+  ok(calls.at(-1).p === `${t}?tenant_id=eq.${A}&select=id` && throws(() => a.get(`${t}?tenant_id=eq.${B}`)), `${t}: pinned to the session tenant`);
+}
+
 console.log(fail.length ? `\n${fail.length} FAILED` : "\nall passed");
 if (fail.length) process.exit(1);

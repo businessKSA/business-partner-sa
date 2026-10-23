@@ -9,14 +9,15 @@
 - `api/_shr_match.js` — محرك المطابقة (نقي، بلا استيراد).
 - `api/_shr_ats.js` — منطق ATS: وظائف، طلبات تقديم، مقابلات، مطابقة.
 - `api/_shr_agency.js` — بوابة المكاتب: مكاتب، أوامر استقدام، مرشحو المكاتب، مقابلاتهم.
+- `api/_shr_client.js` — بوابة العميل: عمال العميل، عقوده، طلباته، فواتيره (فارغة)، بقائمة بيضاء DTO.
 - `api/_shr_ref.js` — قراءة المرجع النظامي `db/shr-ref/*.json` وحسابات نقية فوقه (غرامة، مواعيد، نطاقات). **لا رقم نظامي في أي شيفرة غيره.**
 - `api/_shr_compliance.js` — وحدة الامتثال: حجب، لقطات المنشأة، مخالفات، A33، نقل، استيراد، قوائم تحقق، تنبيهات، إعدادات المستأجر.
 - `db/shr-ref/` — سبعة ملفات JSON فقط من مشاري (لا `src/` ولا `dl/` ولا `img/`).
-- `site/scripts/simple-v1-shr.mjs` (القشرة والعمال والطلبات) و`simple-v1-shr-ats.mjs` (شاشات ATS) و`simple-v1-shr-agency.mjs` (شاشات المكاتب: المشغّل + منظور المكتب) و`simple-v1-shr-compliance.mjs` (شاشات الامتثال الست) — الصفحة `/SHR-HR`.
-- `db/shr-schema.sql` — الجداول وRLS. الاختبارات: `tests/shr-tenant.test.mjs` · `tests/shr-api.test.mjs` · `tests/shr-match.test.mjs` · `tests/shr-ats.test.mjs` · `tests/shr-agency.test.mjs` · `tests/shr-compliance-ref.test.mjs` · `tests/shr-compliance.test.mjs` · `tests/shr-compliance-ui.test.mjs`.
+- `site/scripts/simple-v1-shr.mjs` (القشرة والعمال والطلبات) و`simple-v1-shr-ats.mjs` (شاشات ATS) و`simple-v1-shr-agency.mjs` (شاشات المكاتب: المشغّل + منظور المكتب) و`simple-v1-shr-compliance.mjs` (شاشات الامتثال الست) و`simple-v1-shr-client.mjs` (منظور العميل) — الصفحة `/SHR-HR`.
+- `db/shr-schema.sql` — الجداول وRLS. الاختبارات: `tests/shr-tenant.test.mjs` · `tests/shr-api.test.mjs` · `tests/shr-match.test.mjs` · `tests/shr-ats.test.mjs` · `tests/shr-agency.test.mjs` · `tests/shr-compliance-ref.test.mjs` · `tests/shr-compliance.test.mjs` · `tests/shr-compliance-ui.test.mjs` · `tests/shr-client.test.mjs` · `tests/shr-client-ui.test.mjs`.
 
 ## الإجراءات
-الجلسة كوكي موقَّع؛ المستأجر منه لا من الطلب (`tenant_id` في الطلب يُرفض). الأدوار: `tenant_owner` و`operator` (طاقم)، و`compliance_officer` (مسؤول الامتثال: وحدة الامتثال و`session` فقط)، و`agency` (مكتب، قائمة بيضاء ضيقة أدناه). أدوار العميل والعامل ما زالت مرفوضة (لا جلسة لهما).
+الجلسة كوكي موقَّع؛ المستأجر منه لا من الطلب (`tenant_id` في الطلب يُرفض). الأدوار: `tenant_owner` و`operator` (طاقم)، و`compliance_officer` (مسؤول الامتثال: وحدة الامتثال و`session` فقط)، و`agency` (مكتب، قائمة بيضاء ضيقة أدناه)، و`client_admin`/`client_viewer` (عميل، قائمة بيضاء ضيقة في قسم بوابة العميل). دور العامل ما زال مرفوضاً (لا جلسة له).
 
 | النطاق | GET | POST |
 |---|---|---|
@@ -25,6 +26,7 @@
 | مكاتب (مشغّل) | `agencies` `orders` `order-employer-view` `agency-submissions` | `agency-create` `agency-approve` `agency-suspend` `order-create` `submission-state` |
 | مكتب (`agency` وحده) | `my-orders` `my-submissions` `my-interviews` `session` | `submit-candidate` `bulk-submit` |
 | امتثال (طاقم) | `compliance-ref` `compliance-settings` `compliance-dashboard` `compliance-establishment` `compliance-violations` `compliance-checklists` `compliance-alerts` `compliance-imports` `compliance-import` `compliance-a33` `compliance-transfers` | `establishment-compliance-record` `establishment-compliance-verify` `compliance-run-checks` `violation-create` `violation-notify` `violation-review` `violation-status` `violation-paid` `violation-archive` `a33-add` `a33-classify` `a33-approve` `transfer-request` `transfer-decide` `procedure-step-create` `import-create` `import-match` `import-review` `import-apply` `checklist-tick` `compliance-settings-update` (مالك المستأجر وحده) |
+| عميل (`client_admin`/`client_viewer` وحدهما) | `session` `client-session` `client-home` `client-workers` `client-worker` `client-contracts` `client-requests` `client-invoices` | `client-request-create` (`client_admin` وحده) |
 
 لا حذف: `worker-delete` و`agency-delete` و`order-delete` و`submission-delete` وكل `*-delete` يرد `403 archive_only`؛ الوظيفة تُغلق والعامل والمرشح يُؤرشفان.
 
@@ -51,7 +53,23 @@
 - **أدوار الإجراءات:** دور `agency` لا يصل لأي إجراء مشغّل (403)، والمشغّل لا يصل لإجراءات `my-*`/`submit-candidate`/`bulk-submit` (403).
 - **الجداول (كلها `tenant_id` وRLS ولا حذف):** `shr_agencies` · `shr_recruitment_orders` · `shr_agency_candidates` · `shr_agency_candidate_events` (append-only) · `shr_agency_interviews`، وربط `shr_users.agency_id` بمفتاح مركّب `(tenant_id, agency_id)` يمنع ربطاً عابراً للمستأجرين.
 - **البذرة (SHR):** 3 مكاتب (ج = pending) · 4 أوامر (واحد مفتوح) · 8 مرشحي مكاتب (اثنان بالبصمة نفسها من مكتبين مختلفين لإظهار التكرار للمشغّل). الأسماء «(وهمي)» والمراجع `DEMO-AG-/DEMO-ORD-/DEMO-A-`. ومستأجر `OTHER` فيه مكتب وأمر ومرشح لإثبات العزل. دخول المكاتب: `agency-a@shr.invalid` · `agency-b@shr.invalid` · `agency-c@shr.invalid` (pending، يُرفض) · `agency-x@other.invalid`.
-- الاختبار: `tests/shr-agency.test.mjs` (عزل، أدوار، pending، maker-checker، إخفاء المكتب، تكرار، استيراد، مراجعة)، و`tests/shr-tenant.test.mjs` يغطي الجداول الجديدة. القيود جُرّبت أيضاً على Postgres 16 مؤقت (الاعتماد من المنشئ، دور agency بلا agency_id، ربط مكتب مستأجر آخر، تكرار المرشح، append-only، RLS).
+- الاختبار: `tests/shr-agency.test.mjs` (عزل، أدوار، pending، maker-checker، إخفاء المكتب، تكرار، استيراد، مراجعة)، و`tests/shr-tenant.test.mjs` يغطي الجداول الجديدة (وقسم ٩ لدور العميل). القيود جُرّبت أيضاً على Postgres 16 مؤقت (الاعتماد من المنشئ، دور agency بلا agency_id، ربط مكتب مستأجر آخر، تكرار المرشح، append-only، RLS).
+
+## بوابة العميل (شركات الفواز — محلية، بيانات وهمية)
+العميل = صف في `shr_client_companies`، ومستخدموه `client_admin` (يقدّم طلبات) و`client_viewer` (يقرأ) بحقل `shr_users.client_company_id`. المنطق كله في `_shr_client.js` ويُستدعى من `api/shr.js` (لا ملف `api/` جديد: الدوال ما زالت 11 من 12). المنظور المستقل: `/SHR-HR?as=client` (وضع «دخول عميل» في البوابة نفسها).
+- **الهوية من القاعدة لا من الطلب:** `client_company_id` يُقرأ من صف `shr_users` في **كل** طلب (كالمكتب)، فخفض الدور أو فكّ الربط أو إيقاف الشركة (`status != active`) يسري على الجلسة الحيّة فوراً (403 `read_only_role` / `client_not_linked` / `client_not_active`). `tenant_id` أو `client_company_id` في الجسم أو الاستعلام يُرفض 400. الجلسة نفسها كوكي موقَّع HttpOnly وتنتهي بعد 8 ساعات.
+- **الأدوار:** دور العميل لا يصل لأي إجراء خارج القائمة أعلاه (403)، بما فيه `compliance-violations` المُقنَّعة (دالة `redactViolationForClient` ما زالت غير مستدعاة). والمشغّل والمكتب ومسؤول الامتثال لا يصلون لإجراءات `client-*` (403).
+- **العزل: 404 لا 403.** عامل أو طلب يخص عميلاً آخر في المستأجر نفسه أو مستأجراً آخر لا يُعرف وجوده.
+- **ما يراه العميل (DTO تُبنى حقلاً حقلاً):**
+  1. **عماله:** إسناد `active` لشركته، والعامل `active` أو `pending_docs` (المسودة والمؤرشف داخليان). الاسم/المهنة/الجنسية/الحالة، ومستنداته (العقد، الإقامة، الجواز، التأمين الطبي) بحالة `valid` / `expiring` (ضمن `expiry_alert_days` من إعدادات المستأجر) / `expired` / `no_expiry` / `missing` (غير مرفوعة؛ للإقامة والعقد والتأمين فقط) وتاريخ الانتهاء والمتبقي. التفصيل يضيف قوائم التحقق الموجّهة للعميل (`audience=client`, `scope=worker`) بنصوص البنود وإنجازها فقط، وبند مرجعه غير مؤكد لا يظهر له أصلاً. **لا يخرج:** بصمة الهوية، المنشأة المشغِّلة وحالة قيدها، المخالفات، أسماء م33، الأوامر والمكاتب، سجل التدقيق، مفاتيح التخزين، مستند `gosi`، أي عميل آخر.
+  2. **عقوده:** `active` وحدها (النسخة، الفترة، المتبقي، عدد العمال). لا مسودات ولا `pending_approval` ولا `ended` ولا من أنشأ أو اعتمد ولا المنشأة.
+  3. **طلباته:** النوع والحالة والوصف والمهنة والعدد واسم العامل (من عماله فقط) والتاريخ. `client-request-create` من `client_admin`: النوع (`new_hire`/`termination`/`transfer`/`document`/`other`)، الوصف 3–500 حرف، المهنة حتى 80، العدد 1–200 (للتوظيف)، والعامل (إلزامي للإنهاء والنقل، ويجب أن يكون من عماله وإلا 404). الحالة تبدأ `new` دائماً ولا تُقبل من الجسم، ويغيّرها المشغّل وحده (`request-state`). **سقف الإغراق:** 20 طلباً مفتوحاً و10 طلبات في الساعة لكل عميل (429 `too_many_open_requests` / `rate_limited`). كل طلب يكتب `shr_audit_log` (`client_request.create.<kind>`) ويُحفظ `created_by`.
+  4. **فواتيره:** الفواتير في المخطط مسودات لا تخرج إلا عبر بدر، فالإجراء `client-invoices` يرد قائمة فارغة دائماً وجملة «تصدرها فرق Business Partner بعد الاعتماد»، والوحدة **لا تقرأ `shr_invoices` أصلاً** (اختبار يمسح المصدر). لا سعر ولا هامش.
+  5. لا رقم يُخترع: ما لا بيانات له يُعرض «غير مرفوعة» أو «—».
+- **المخطط (تغييران صغيران، بلا جدول جديد):** مفتاح مركّب `shr_users(tenant_id, client_company_id) → shr_client_companies(tenant_id, id)` يمنع ربط مستخدم بعميل مستأجر آخر، وقيد `check ((role in client_*) = (client_company_id is not null))`؛ وعمود `shr_requests.created_by`.
+- **الدخول التجريبي:** `a-admin@client.invalid` (العميل أ، يقدّم) · `a-viewer@client.invalid` (العميل أ، قراءة) · `b-admin@client.invalid` (العميل ب) — تحت `SHR`؛ و`x-admin@client.invalid` تحت `OTHER`. والمستخدم القديم `client@shr.invalid` رُبط بالعميل أ.
+- **البذرة (`seedClients`، تُرقّي القواعد القديمة تلقائياً):** عقدان لكل من أ وب في SHR (أ: `active` v1 + `draft` v2؛ ب: `active` v1 + `pending_approval` v2) وعقد لعميل OTHER؛ عاملان (٣ و٤) يُنقلان إلى العميل ب فيرى كلٌّ عاملين؛ قائمة تحقق `client_worker_docs` (audience=client) وإنجازات لعامل ١؛ ومسودة فاتورة وهمية للعميل أ لإثبات أنها لا تظهر.
+- **الاختبار:** `tests/shr-client.test.mjs` (عزل عميلَي المستأجر والمستأجرين بـ404، الأدوار في الاتجاهين، viewer لا يكتب، مسح الردود كلها بحثاً عن حقول ممنوعة ومفاتيح DTO حرفية، المسودات لا تظهر، الإغراق، انتهاء الجلسة وسريان الإيقاف فوراً، التدقيق) و`tests/shr-client-ui.test.mjs` (يشغّل سكربت الصفحة الفعلي). خُرّب الكود عمداً (حذف فلتر العميل؛ إضافة `id_no_hash` للرد) فسقطت الاختبارات ثم أُعيد. والمخطط طُبّق على Postgres 16 مؤقت (جديد، مرتين، وترقية من الإصدار السابق) وجُرّبت قيوده (دور عميل بلا شركة، شركة لغير العميل، ربط عابر للمستأجرين، RLS).
 
 ## ملاحظة: طبقة المرشحين الحقيقية لم تُربط
 المرشحون هنا جدول وهمي داخل SHR. **قاعدة مرشحي BP الحقيقية لم تُربط بـSHR**، و`api/candidates.js` **لا يُستدعى من SHR أبداً**. ربطها مشروط بأمرين لم يتحققا:

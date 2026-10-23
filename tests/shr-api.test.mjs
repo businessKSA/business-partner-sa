@@ -33,14 +33,15 @@ async function login(slug, email) {
   return { r, cookie: m ? m[1] : "" };
 }
 
-console.log("\n1. Session: staff roles only, demo-tagged");
+console.log("\n1. Session: demo-tagged; the client role is confined to the client portal");
 const ops = await login("SHR", "ops@shr.invalid");
 ok(ops.r.status === 200 && ops.cookie, "operator logs in");
 ok(ops.r.body.demo === true, "every response carries demo:true");
 const owner = await login("SHR", "owner@shr.invalid");
 ok(owner.r.status === 200, "tenant_owner logs in");
 const client = await login("SHR", "client@shr.invalid");
-ok(client.r.status === 403 && !client.cookie, "client_admin refused in phase 2");
+ok(client.r.status === 200 && client.cookie && client.r.body.user.role === "client_admin", "client_admin logs into the client portal (its own actions only)");
+ok((await call("GET", { action: "dashboard" }, client.cookie)).status === 403 && (await call("GET", { action: "workers" }, client.cookie)).status === 403, "...and reaches no staff action");
 ok((await login("SHR", "nobody@shr.invalid")).r.status === 401, "unknown user refused");
 ok((await call("GET", { action: "dashboard" })).status === 401, "no cookie -> 401");
 ok((await call("GET", { action: "dashboard" }, ops.cookie + "x")).status === 401, "tampered cookie -> 401");

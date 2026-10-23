@@ -9,6 +9,7 @@
 import { shrAtsClient, ATS_CSS } from "./simple-v1-shr-ats.mjs";
 import { shrAgencyOpsClient, shrAgencyPortalClient, AGENCY_CSS, AGENCY_ERR } from "./simple-v1-shr-agency.mjs";
 import { shrComplianceClient, COMPLIANCE_CSS, COMPLIANCE_ERR } from "./simple-v1-shr-compliance.mjs";
+import { shrClientPortalClient, CLIENT_CSS, CLIENT_ERR } from "./simple-v1-shr-client.mjs";
 
 export function buildShrOps(sv1) {
   const CSS = `<style>
@@ -39,6 +40,7 @@ export function buildShrOps(sv1) {
 ${ATS_CSS}
 ${AGENCY_CSS}
 ${COMPLIANCE_CSS}
+${CLIENT_CSS}
 </style>`;
   const body = `${sv1.header("/SHR-HR", { cta: false, oneLang: true })}<div class="shr"><div class="shr-demo">بيانات تجريبية — لا عمال حقيقيون ولا ربط حكومي ولا رسائل</div><div id="app"></div></div>`;
   const script = `<script>
@@ -61,6 +63,7 @@ function flash(ok,t){state.msg=ok?t:'';state.err=ok?'':t}
 function pill(t,c){return h('span',{class:'pill '+(c||'')},[t])}
 Object.assign(ERR,${JSON.stringify(AGENCY_ERR)});
 Object.assign(ERR,${JSON.stringify(COMPLIANCE_ERR)});
+Object.assign(ERR,${JSON.stringify(CLIENT_ERR)});
 var NAV_OPS=[['dashboard','اللوحة'],['workers','العمال'],['requests','الطلبات'],['expiring','الانتهاءات'],['jobs','الوظائف'],['board','المرشحون'],['match','المطابقة'],['agencies','المكاتب'],['orders','أوامر الاستقدام'],['subs','المرشحون المقدَّمون']];
 var NAV_CMP=[['c_dash','الامتثال'],['c_viol','المخالفات'],['c_check','قوائم التحقق'],['c_alerts','التنبيهات'],['c_import','استيراد الملفات'],['c_a33','أسماء A33']];
 // مسؤول الامتثال لا يرى غير تبويبات الامتثال (الخادم يرفض ما سواها أصلاً).
@@ -73,18 +76,21 @@ function frame(title,content){app.innerHTML='';
   if(state.err)app.appendChild(h('p',{class:'err'},[state.err]));
   app.appendChild(content)}
 function gate(){app.innerHTML='';
-  var mode=(state.gateMode||(/[?&]as=agency/.test(location.search)?'agency':'staff'));
+  var mode=(state.gateMode||(/[?&]as=agency/.test(location.search)?'agency':/[?&]as=client/.test(location.search)?'client':'staff'));
   var msg=h('p',{class:'err'});
-  var modes=h('div',{class:'modes'},[['staff','دخول المشغّل'],['agency','دخول مكتب استقدام']].map(function(m){return h('button',{class:mode===m[0]?'on':'',onclick:function(){state.gateMode=m[0];gate()}},[m[1]])}));
+  var modes=h('div',{class:'modes'},[['staff','دخول المشغّل'],['agency','دخول مكتب استقدام'],['client','دخول عميل']].map(function(m){return h('button',{class:mode===m[0]?'on':'',onclick:function(){state.gateMode=m[0];gate()}},[m[1]])}));
   var slug,email;
-  if(mode==='agency'){
+  if(mode==='client'){
+    slug=h('select',{class:'inp'},[h('option',{value:'SHR'},['مستأجر SHR التجريبي']),h('option',{value:'OTHER'},['مستأجر وهمي آخر'])]);
+    email=h('select',{class:'inp'},[h('option',{value:'a-admin@client.invalid'},['العميل أ — مدير (يقدّم طلبات)']),h('option',{value:'a-viewer@client.invalid'},['العميل أ — مطّلع (قراءة فقط)']),h('option',{value:'b-admin@client.invalid'},['العميل ب — مدير']),h('option',{value:'x-admin@client.invalid'},['عميل المستأجر الآخر — مدير (اختر المستأجر الآخر)'])]);
+  } else if(mode==='agency'){
     slug=h('select',{class:'inp'},[h('option',{value:'SHR'},['مستأجر SHR التجريبي']),h('option',{value:'OTHER'},['مستأجر وهمي آخر'])]);
     email=h('select',{class:'inp'},[h('option',{value:'agency-a@shr.invalid'},['مكتب أ (معتمد)']),h('option',{value:'agency-b@shr.invalid'},['مكتب ب (معتمد)']),h('option',{value:'agency-c@shr.invalid'},['مكتب ج (قيد الاعتماد — يُرفض)']),h('option',{value:'agency-x@other.invalid'},['مكتب المستأجر الآخر (معتمد)'])]);
   } else {
     slug=h('select',{class:'inp'},[h('option',{value:'SHR'},['مستأجر SHR التجريبي']),h('option',{value:'OTHER'},['مستأجر وهمي آخر'])]);
     email=h('select',{class:'inp'},[h('option',{value:'owner@shr.invalid'},['مالك تجريبي (SHR)']),h('option',{value:'ops@shr.invalid'},['مشغّل تجريبي (SHR)']),h('option',{value:'compliance@shr.invalid'},['مسؤول امتثال تجريبي (SHR)']),h('option',{value:'owner@other.invalid'},['مالك وهمي (آخر)']),h('option',{value:'ops@other.invalid'},['مشغّل وهمي (آخر)']),h('option',{value:'compliance@other.invalid'},['مسؤول امتثال وهمي (آخر)'])]);
   }
-  app.appendChild(h('div',{class:'gate'},[h('h1',{},[mode==='agency'?'بوابة المكاتب — دخول تجريبي':'لوحة التشغيل — دخول تجريبي']),modes,h('p',{class:'note'},[mode==='agency'?'دخول محلي ببيانات وهمية بدور مكتب. المكتب لا يدخل قبل اعتماده.':'دخول محلي ببيانات وهمية. اختر مستأجراً ومستخدماً من نفس المستأجر.']),h('div',{class:'frm'},[slug,email]),h('div',{style:'margin-top:10px'},[h('button',{class:'btn',onclick:function(){call('session',{slug:slug.value,email:email.value}).then(function(o){if(o&&o.ok){state.me=o;state.view=o.user.role==='agency'?'a_orders':o.user.role==='compliance_officer'?'c_dash':'dashboard';render()}else msg.textContent=errText(o)})}},['دخول'])]),msg]))}
+  app.appendChild(h('div',{class:'gate'},[h('h1',{},[mode==='client'?'بوابة العميل — دخول تجريبي':mode==='agency'?'بوابة المكاتب — دخول تجريبي':'لوحة التشغيل — دخول تجريبي']),modes,h('p',{class:'note'},[mode==='client'?'دخول محلي ببيانات وهمية بدور عميل. العميل يرى عماله وعقوده وطلباته فقط.':mode==='agency'?'دخول محلي ببيانات وهمية بدور مكتب. المكتب لا يدخل قبل اعتماده.':'دخول محلي ببيانات وهمية. اختر مستأجراً ومستخدماً من نفس المستأجر.']),h('div',{class:'frm'},[slug,email]),h('div',{style:'margin-top:10px'},[h('button',{class:'btn',onclick:function(){call('session',{slug:slug.value,email:email.value}).then(function(o){if(o&&o.ok){state.me=o;state.view=o.user.role==='agency'?'a_orders':(o.user.role==='client_admin'||o.user.role==='client_viewer')?'cl_home':o.user.role==='compliance_officer'?'c_dash':'dashboard';render()}else msg.textContent=errText(o)})}},['دخول'])]),msg]))}
 function vDashboard(){return call('dashboard',null,true).then(function(o){var c=o.counts||{};
   var K=[['workers','عمال (غير مؤرشفين)',''],['clients','عملاء نشطون',''],['open_requests','طلبات مفتوحة',c.open_requests?'hot':''],['docs_expiring_60d','مستندات تنتهي خلال 60 يوماً',c.docs_expiring_60d?'hot':''],['docs_expired','مستندات منتهية',c.docs_expired?'hot':'']];
   frame('اللوحة',h('div',{},[h('div',{class:'shr-kpis'},K.map(function(k){return h('div',{class:'shr-kpi '+k[2]},[h('b',{},[String(c[k[0]]||0)]),h('span',{},[k[1]])])})),h('p',{class:'note'},['نشط: '+(c.workers_active||0)+' · مسودة أو بانتظار المستندات: '+(c.workers_draft||0)])]))})}
@@ -108,14 +114,17 @@ function vExpiring(){return call('expiring',{days:90},true).then(function(o){var
 var ATS=(${shrAtsClient.toString()})({h:h,call:call,frame:frame,flash:flash,pill:pill,errText:errText,state:state,render:function(){render()}});
 var AGO=(${shrAgencyOpsClient.toString()})({h:h,call:call,frame:frame,flash:flash,pill:pill,errText:errText,state:state,render:function(){render()}});
 var CMP=(${shrComplianceClient.toString()})({h:h,call:call,frame:frame,flash:flash,pill:pill,errText:errText,state:state,render:function(){render()}});
+var CLP=(${shrClientPortalClient.toString()})({h:h,call:call,flash:flash,pill:pill,errText:errText,state:state,app:app,render:function(){render()}});
 var AGP=(${shrAgencyPortalClient.toString()})({h:h,call:call,flash:flash,pill:pill,errText:errText,state:state,app:app,render:function(){render()}});
 function render(){
   if(!state.me)return gate();
   // منظور المكتب مستقل: لا يصل إلى شاشات المشغّل ولو عُدّلت state.view من الكونسول (الخادم يرفض أصلاً).
+  var isCl=state.me.user&&(state.me.user.role==='client_admin'||state.me.user.role==='client_viewer');
+  if(isCl){var cv=CLP[state.view]||CLP.cl_home;return cv().catch(function(){state.me=null;gate()})}
   var isAg=state.me.user&&state.me.user.role==='agency';
   var v=isAg?AGP[state.view]||AGP.a_orders:{dashboard:vDashboard,workers:vWorkers,requests:vRequests,expiring:vExpiring,jobs:ATS.jobs,board:ATS.board,candidate:ATS.candidate,match:ATS.match,agencies:AGO.agencies,orders:AGO.orders,order_view:AGO.order_view,subs:AGO.subs,c_dash:CMP.c_dash,c_est:CMP.c_est,c_viol:CMP.c_viol,c_check:CMP.c_check,c_alerts:CMP.c_alerts,c_import:CMP.c_import,c_a33:CMP.c_a33}[state.view];
   v().catch(function(){state.me=null;gate()})}
-call('session',null,true).then(function(o){if(o&&o.ok){state.me=o;if(o.user&&o.user.role==='compliance_officer')state.view='c_dash';render()}else gate()}).catch(function(){gate()});
+call('session',null,true).then(function(o){if(o&&o.ok){state.me=o;if(o.user&&o.user.role==='compliance_officer')state.view='c_dash';if(o.user&&(o.user.role==='client_admin'||o.user.role==='client_viewer'))state.view='cl_home';render()}else gate()}).catch(function(){gate()});
 })();</script>`;
   return sv1.shell({ title: "لوحة التشغيل التجريبية", desc: "لوحة تشغيل تجريبية ببيانات وهمية", path: "/SHR-HR", body: CSS + body, script, noindex: true, oneLang: true });
 }

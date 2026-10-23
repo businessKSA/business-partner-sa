@@ -108,7 +108,7 @@ const day = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10
 
 export async function seedDemo() {
   assertLocal();
-  if (await tenantBySlug("SHR")) { await seedAts(); await seedAgencies(); await seedCompliance(); return { seeded: false }; }
+  if (await tenantBySlug("SHR")) { await seedAts(); await seedAgencies(); await seedCompliance(); await seedClients(); return { seeded: false }; }
   const mk = async (slug, brand_ar, brand_en) => (await sb("shr_tenants", { method: "POST", body: { slug, brand_ar, brand_en, demo: true } }))[0];
   const A = await mk("SHR", "مستأجر SHR التجريبي (بيانات وهمية)", "SHR demo tenant");
   const B = await mk("OTHER", "مستأجر وهمي آخر (بيانات وهمية)", "Other demo tenant");
@@ -177,6 +177,7 @@ export async function seedDemo() {
   await seedAts();
   await seedAgencies();
   await seedCompliance();
+  await seedClients();
   return { seeded: true };
 }
 
@@ -484,5 +485,65 @@ export async function seedCompliance() {
       const asg = w1 ? (await s.get(`shr_assignments?worker_id=eq.${w1.id}&select=establishment_id`))[0] : null;
       if (w1 && asg && asg.establishment_id !== ests[1].id) await s.post("shr_worker_transfers", { worker_id: w1.id, from_establishment_id: asg.establishment_id, to_establishment_id: ests[1].id, reason: "طلب نقل تجريبي (وهمي)", state: "requested", requested_by: U.ops.id, decided_by: null, decided_at: null, decision_note: null });
     }
+  }
+}
+
+// ------------------------------------------------------------ client seed --
+// بوابة العميل: عميلان في SHR (لإثبات العزل بين العملاء) وعميل في OTHER، لكل منهم عقود
+// (active وdraft/pending_approval) وإسنادات وطلبات. مستخدمو العميل `*@client.invalid`:
+// client_admin يقدّم طلباً، وclient_viewer يقرأ. عاملان من عمال SHR يُنقلان إلى العميل «ب».
+// العقد النشط يُنشئه مستخدم ويعتمده آخر (قيد المخطط). مسودة فاتورة تُبذر عمداً لإثبات
+// أن العميل لا يراها: الفواتير مسودات ولا تخرج إلا عبر بدر.
+export async function seedClients() {
+  assertLocal();
+  for (const slug of ["SHR", "OTHER"]) {
+    const t = await tenantBySlug(slug);
+    if (!t) continue;
+    const s = scoped(ctxFrom({ tenant_id: t.id, role: "tenant_owner" }));
+    if ((await s.get("shr_contracts?select=id&limit=1")).length) continue;       // مبذور سلفاً
+    const users = await s.get("shr_users?select=id,email,role,client_company_id");
+    const U = { ops: users.find((u) => u.email.startsWith("ops@")), owner: users.find((u) => u.email.startsWith("owner@")) };
+    const clients = await s.get("shr_client_companies?select=id,name_ar&order=created_at.asc");
+    const ests = await s.get("shr_establishments?select=id&order=created_at.asc");
+    const [cA, cB] = clients;
+    const contract = async (c, version, status, from, to) => (await s.post("shr_contracts", {
+      establishment_id: ests[0].id, client_company_id: c.id, version, starts_on: day(from), ends_on: day(to), status,
+      created_by: U.ops.id, approved_by: status === "active" || status === "ended" ? U.owner.id : null,
+    }))[0];
+    const KA = await contract(cA, 1, "active", -200, 165);
+    let KB = null;
+    if (slug === "SHR") {
+      await contract(cA, 2, "draft", 166, 530);
+      KB = await contract(cB, 1, "active", -120, 245);
+      await contract(cB, 2, "pending_approval", 246, 610);
+    }
+    // عاملان من عمال العميل «أ» يُنقلان إلى «ب» (SHR فقط): عمال لكل عميل بلا إضافة عمال جدد.
+    const workers = await s.get("shr_workers?select=id,full_name");
+    const moveIds = new Set(slug === "SHR" ? workers.filter((w) => /(٣|٤)$/.test(w.full_name)).map((w) => w.id) : []);
+    for (const a of await s.get("shr_assignments?select=id,worker_id,client_company_id,status")) {
+      if (a.client_company_id !== cA.id) continue;
+      const toB = moveIds.has(a.worker_id) && KB;
+      await s.patch(`shr_assignments?id=eq.${a.id}`, { contract_id: toB ? KB.id : KA.id, client_company_id: toB ? cB.id : cA.id, starts_on: day(-150), ends_on: null });
+    }
+    // مستخدمو العميل. القديم client@shr.invalid يُربط بالعميل «أ» ليتّسق مع قيد المخطط.
+    const legacy = users.find((u) => u.role === "client_admin" && !u.client_company_id);
+    if (legacy) await s.patch(`shr_users?id=eq.${legacy.id}`, { client_company_id: cA.id });
+    const mk = (email, name, role, c) => s.post("shr_users", { email, full_name: name, role, client_company_id: c.id });
+    if (slug === "SHR") {
+      await mk("a-admin@client.invalid", "مدير العميل أ (تجريبي)", "client_admin", cA);
+      await mk("a-viewer@client.invalid", "مطّلع العميل أ (تجريبي)", "client_viewer", cA);
+      await mk("b-admin@client.invalid", "مدير العميل ب (تجريبي)", "client_admin", cB);
+    } else {
+      await mk("x-admin@client.invalid", "مدير عميل المستأجر الآخر (وهمي)", "client_admin", cA);
+    }
+    // قائمة تحقق موجّهة للعميل (audience=client)، بلا بند مرجعي نظامي: بنودها تشغيلية وصفية.
+    const tpl = (await s.post("shr_checklist_templates", { key: "client_worker_docs", title_ar: "جاهزية مستندات العامل (للعميل — تجريبية)", audience: "client", scope: "worker", version: 1, active: true, demo: true, created_by: U.owner.id }))[0];
+    const items = [];
+    let pos = 0;
+    for (const text of ["الإقامة سارية", "عقد العمل موقّع", "التأمين الطبي ساري"]) items.push((await s.post("shr_checklist_items", { template_id: tpl.id, position: ++pos, text_ar: text, required: true, rule_id: null }))[0]);
+    const w1 = workers.find((w) => /١$/.test(w.full_name));
+    if (w1 && slug === "SHR") for (const it of items.slice(0, 2)) await s.post("shr_checklist_ticks", { item_id: it.id, subject_kind: "worker", subject_id: w1.id, done: true, note: null, ticked_by: U.ops.id, ticked_at: iso(-3) });
+    // مسودة فاتورة وهمية: تُبذر لتثبت أن بوابة العميل لا تقرأها.
+    await s.post("shr_invoices", { client_company_id: cA.id, status: "draft" });
   }
 }

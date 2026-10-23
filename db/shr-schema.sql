@@ -156,6 +156,24 @@ do $$ begin
   end if;
 end $$;
 
+-- ربط مستخدم العميل بشركته: هوية العميل من client_company_id في هذا الجدول لا من الطلب.
+-- المفتاح المركّب يمنع ربط مستخدم بعميل مستأجر آخر، والقيد يلزم دور العميل بشركة ويمنعها عن غيره.
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'shr_client_companies_tenant_id_id_key') then
+    alter table shr_client_companies add constraint shr_client_companies_tenant_id_id_key unique (tenant_id, id);
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'shr_users_client_fk') then
+    alter table shr_users add constraint shr_users_client_fk
+      foreign key (tenant_id, client_company_id) references shr_client_companies(tenant_id, id);
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'shr_users_client_role') then
+    alter table shr_users add constraint shr_users_client_role
+      check ((role in ('client_admin','client_viewer')) = (client_company_id is not null));
+  end if;
+end $$;
+-- من قدّم طلب العميل (يُسجَّل أيضاً في shr_audit_log). المشغّل وحده يغيّر حالة الطلب.
+alter table shr_requests add column if not exists created_by uuid;
+
 create table if not exists shr_recruitment_orders ( -- أمر استقدام: موجّه لمكتب، أو مفتوح (agency_id فارغ)
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references shr_tenants(id),

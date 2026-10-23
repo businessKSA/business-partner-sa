@@ -385,7 +385,7 @@ await post("checklist-tick", { item_id: need[0].id, subject_kind: "establishment
 ok((await get("compliance-checklists", { subject_kind: "establishment", subject_id: estClear.id }, ops)).body.checklists[0].complete === false, "the latest tick wins (append-only log)");
 ok((await post("checklist-tick", { item_id: need[0].id, subject_kind: "worker", subject_id: w1.id, done: true }, ops)).body.error === "scope_mismatch", "an item cannot be ticked for the wrong kind of subject");
 ok((await post("checklist-tick", { item_id: crypto.randomUUID(), subject_kind: "establishment", subject_id: estClear.id, done: true }, ops)).status === 404, "unknown item -> 404");
-ok((await get("compliance-checklists", { subject_kind: "worker" }, ops)).body.checklists.map((c) => c.audience).sort().join() === "staff,worker", "staff see every audience's lists");
+ok((await get("compliance-checklists", { subject_kind: "worker" }, ops)).body.checklists.map((c) => c.audience).sort().join() === "client,staff,worker", "staff see every audience's lists (including the client-audience one)");
 
 console.log("\n12. Tenant isolation through the API, every new table");
 const vA = (await get("compliance-violations", {}, ops)).body.violations, vB = (await get("compliance-violations", {}, oOps)).body.violations;
@@ -412,7 +412,7 @@ await fx("import-match", await post("import-match", { id: foreign.batch }, oOps)
 await fx("import detail", await get("compliance-import", { id: foreign.batch }, oOps));
 await fx("checklist-tick on a foreign item", await post("checklist-tick", { item_id: foreign.item, subject_kind: "establishment", subject_id: (await dbB.get("shr_establishments?select=id"))[0].id, done: true }, oOps));
 await fx("procedure step for a foreign worker", await post("procedure-step-create", { worker_id: foreign.worker, step: "visa" }, oOps));
-ok((await get("compliance-checklists", {}, oOps)).body.checklists.length === 1 && (await get("compliance-imports", {}, oOps)).body.batches.length === 0 && (await get("compliance-transfers", {}, oOps)).body.transfers.length === 0, "checklists/imports/transfers of SHR are invisible to the other tenant");
+ok((await get("compliance-checklists", {}, oOps)).body.checklists.length === 2 && (await get("compliance-imports", {}, oOps)).body.batches.length === 0 && (await get("compliance-transfers", {}, oOps)).body.transfers.length === 0, "checklists/imports/transfers of SHR are invisible to the other tenant");
 ok((await get("compliance-a33", {}, oOps)).body.names.every((n) => !/اسم تجريبي|اسم اختبار/.test(n.alias)), "A33 names isolated");
 ok((await get("compliance-settings", {}, oOps)).body.settings.unknown_blocks === false, "settings are per tenant");
 await post("compliance-settings-update", { unknown_blocks: true }, owner);

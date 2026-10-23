@@ -2,7 +2,7 @@
 //
 // محلية فقط: ترفض كل طلب خارج LOCAL_DB=1. بيانات وهمية. لا ربط حكومي ولا رسائل.
 // كل وصول للبيانات عبر scoped(ctxFrom(user)) من _shr.js؛ والمستأجر يُشتق من
-// الجلسة الموقَّعة لا من الطلب. الأدوار في هذه المرحلة: tenant_owner وoperator.
+// الجلسة الموقَّعة لا من الطلب. الأدوار: الطاقم (tenant_owner/operator/compliance_officer) والمكتب والعميل.
 //
 // POST /api/shr { action: "session", slug, email }   -> دخول تجريبي (يضع كوكي)
 // POST /api/shr { action: "session-end" }
@@ -18,17 +18,22 @@
 //      establishment-compliance-* · a33-* · transfer-* · import-* · checklist-tick · procedure-step-create · compliance-*.
 //      الطاقم (tenant_owner/operator/compliance_officer) وحده؛ دور compliance_officer لا يصل لغير الامتثال.
 //      حالة «تقديم» لا تتغير إلا بـcompliance_officer. العميل والعامل والمكتب: 403 (أو مُقنَّعاً بإعداد المستأجر).
+// بوابة العميل (المنطق في _shr_client.js): دور client_admin/client_viewer وحده.
+//      GET client-session|client-home|client-workers|client-worker|client-contracts|client-requests|client-invoices ؛
+//      POST client-request-create (client_admin وحده). عميل الجلسة من shr_users.client_company_id لا من الطلب؛
+//      عميل آخر أو مستأجر آخر 404؛ أي إجراء آخر 403؛ والمشغّل/المكتب لا يصلون لإجراءات client-* (403).
 // الحذف مرفوض: action "worker-delete" (وأي *-delete) -> 403 archive_only.
 import crypto from "node:crypto";
 import { ctxFrom, scoped, assertLocal, tenantBySlug, tenantById, seedDemo, hashIdNo, ROLES, HttpError, audit } from "./_shr.js";
 import * as ats from "./_shr_ats.js";
 import * as agy from "./_shr_agency.js";
 import * as cmp from "./_shr_compliance.js";
+import * as cl from "./_shr_client.js";
 
 const COOKIE = "shr_session";
 const TTL_S = 8 * 3600;
 const PHASE2_ROLES = new Set(["tenant_owner", "operator"]);      // طاقم التشغيل
-const ALLOWED_ROLES = new Set(["tenant_owner", "operator", "agency", "compliance_officer"]);
+const ALLOWED_ROLES = new Set(["tenant_owner", "operator", "agency", "compliance_officer", "client_admin", "client_viewer"]);
 // ما يصل إليه دور agency وحده، مع الطريقة. أي شيء غيره يرد 403 لهذا الدور.
 const AGENCY_GET = new Set(["my-orders", "my-submissions", "my-interviews"]);
 const AGENCY_POST = new Set(["submit-candidate", "bulk-submit"]);
@@ -220,8 +225,12 @@ export default async function handler(req, res) {
       if (!ALLOWED_ROLES.has(u.role)) return out(403, { ok: false, error: "role_not_allowed" });
       // مكتب قيد الاعتماد أو موقوف لا يدخل ولا تُمنح له جلسة.
       if (u.role === "agency") await agy.agencyContext(db, { sub: u.id });
+      // عميل غير مربوط بشركة أو شركته غير نشطة لا يدخل ولا تُمنح له جلسة.
+      const cx = cl.CLIENT_ROLES.has(u.role) ? await cl.clientContext(db, { sub: u.id }) : null;
       res.setHeader("set-cookie", `${COOKIE}=${mintSession({ sub: u.id, tenant_id: u.tenant_id, role: u.role, email: u.email })}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${TTL_S}`);
       // المكتب لا يُعاد إليه مستأجر ولا علامته؛ يعرف مكتبه فقط.
+      // العميل كالمكتب: لا يُعاد إليه مستأجر ولا علامته؛ يعرف شركته فقط.
+      if (cx) return out(200, { ok: true, ...cl.session(cx) });
       return out(200, { ok: true, user: { email: u.email, name: u.full_name, role: u.role }, tenant: u.role === "agency" ? null : { slug: t.slug, brand_ar: t.brand_ar } });
     }
     if (action === "session-end") {
@@ -252,6 +261,16 @@ export default async function handler(req, res) {
       }
       return out(403, { ok: false, error: "role_not_allowed" });
     }
+    // ---- دور العميل: قائمة بيضاء ضيقة، والعميل من القاعدة لا من الطلب ----
+    if (cl.CLIENT_ROLES.has(ctx.role)) {
+      if ("client_company_id" in b || "client_company_id" in q) return out(400, { ok: false, error: "client_company_id_forbidden" });
+      const allowed = isPost ? cl.CLIENT_POST.has(action) : cl.CLIENT_GET.has(action) || action === "session";
+      if (!allowed) return out(403, { ok: false, error: "role_not_allowed" });
+      const cx = await cl.clientContext(db, s);            // عميل موقوف أو مستخدم محذوف: 403 فوراً
+      return out(200, { ok: true, ...(await cl.dispatch(action, { db, cx, b, q })) });
+    }
+    // إجراءات العميل ليست للمشغّل ولا للمكتب ولا لمسؤول الامتثال.
+    if (cl.CLIENT_ACTIONS.has(action)) return out(403, { ok: false, error: "role_not_allowed" });
     // إجراءات المكتب ليست للمشغّل.
     if (agy.AGENCY_ACTIONS.has(action)) return out(403, { ok: false, error: "role_not_allowed" });
     // دور مسؤول الامتثال: وحدة الامتثال وsession وحدهما.
