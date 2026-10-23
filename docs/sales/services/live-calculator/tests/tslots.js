@@ -1,0 +1,14 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const addEst=async(p,name)=>{await p.fill('#co-name',name);await p.fill('#co-no','1-4636772');await p.fill('#co-uno','7001234567');await p.fill('#co-tax','300123456700003');await p.fill('#co-gosi','123456');await p.fill('#co-addr','RRRD2929');await p.fill('#co-act','7110');await p.waitForTimeout(200);await p.click('.dd .it');await p.waitForTimeout(300);await p.fill('#co-foreign','1');await p.click('#co-add');await p.waitForTimeout(300);};
+(async()=>{const b=await chromium.launch();const errs=[];const ctx=await b.newContext({viewport:{width:1300,height:3600}});
+await ctx.route('https://cdnjs.cloudflare.com/**',r=>{const u=r.request().url();const f=u.includes('xlsx')?'/tmp/xlsx.full.min.js':u.includes('worker')?'/tmp/pdf.worker.min.js':'/tmp/pdf.min.js';r.fulfill({status:200,contentType:'application/javascript',body:fs.readFileSync(f)});});
+const p=await ctx.newPage();p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index-client.html');await p.waitForTimeout(500);await addEst(p,'شركة الشرائح');
+console.log('slots:',await p.evaluate(()=>document.querySelectorAll('[data-drs]').length));
+await p.setInputFiles('[data-drs=labour]','tdata/labour.pdf');await p.waitForTimeout(2500);
+let t=await p.evaluate(()=>{const s=[...document.querySelectorAll('#main section.panel')].find(x=>x.innerText.includes('قارئ ملفات العمال'));return s.innerText.replace(/\n+/g,' | ').slice(0,900)});console.log('PDF:',t);
+await p.setInputFiles('[data-drs=labour]','tdata/labour-office.xlsx');await p.waitForTimeout(1500);
+await p.setInputFiles('[data-drs=gosi]','tdata/gosi.xlsx');await p.waitForTimeout(1500);
+await p.setInputFiles('[data-drs=muqeem]','tdata/muqeem.xlsx');await p.waitForTimeout(1500);
+t=await p.evaluate(()=>{const s=[...document.querySelectorAll('#main section.panel')].find(x=>x.innerText.includes('قارئ ملفات العمال'));return s.innerText.replace(/\n+/g,' | ').slice(300,1500)});console.log('XLSX x3:',t);
+console.log(errs);await b.close();})();

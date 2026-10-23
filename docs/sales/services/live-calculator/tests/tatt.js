@@ -1,0 +1,21 @@
+const {chromium}=require('playwright');const fs=require('fs');
+(async()=>{const b=await chromium.launch();const errs=[];const ctx=await b.newContext({viewport:{width:1300,height:3600}});
+await ctx.addInitScript(()=>{window.claude={use:async n=>{if(n!=='sample')return null;const s=async()=>({text:''});s.limits=async()=>({images:{maxCount:4,mediaTypes:['image/png']}});s.json=async(inp)=>{const t=String(inp);
+ if(t.includes('السجل التجاري'))return {establishment_name:'شركة المرفقات',unified_number:'7009998887',expiry_date:'2027-05-01'};
+ if(t.includes('شهادة التوطين'))return {establishment_name:'شركة المرفقات',labour_office_number:'1-5551234',unified_number:'7009998887'};
+ if(t.includes('الزكاة'))return {establishment_name:'شركة المرفقات',tax_number:'300999888700003'};
+ if(t.includes('التأمينات'))return {establishment_name:'شركة المرفقات',gosi_number:'987654',saudi_count:4,non_saudi_count:9};
+ if(t.includes('العنوان الوطني'))return {short_address:'JJJJ1234',expiry_date:null};
+ return {};};return s;}};});
+const p=await ctx.newPage();p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index-client.html');await p.waitForTimeout(500);
+fs.writeFileSync('tdata/shot.png',Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==','base64'));
+console.log('attach buttons in form:',await p.evaluate(()=>document.querySelectorAll('[data-cdf][data-cdm=form]').length));
+for(const k of ['cr','qiwa','tax','gosi','addr']){await p.setInputFiles('[data-cdf='+k+'][data-cdm=form]','tdata/shot.png');await p.waitForTimeout(600);}
+console.log('filled:',await p.evaluate(()=>['co-name','co-no','co-uno','co-tax','co-gosi','co-addr','co-full','co-foreign'].map(i=>document.getElementById(i).value).join(' | ')));
+await p.fill('#co-act','7110');await p.waitForTimeout(200);await p.click('.dd .it');await p.waitForTimeout(300);
+console.log('add disabled:',await p.evaluate(()=>document.getElementById('co-add').disabled));
+await p.click('#co-add');await p.waitForTimeout(500);
+console.log('docs col:',await p.evaluate(()=>document.querySelector('#main tbody tr').innerText.replace(/\s+/g,' ').slice(0,200)));
+console.log('edit-mode attach buttons:',await p.evaluate(()=>document.querySelectorAll('[data-cdf][data-cdm=edit]').length));
+console.log(errs);await b.close();})();
