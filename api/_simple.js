@@ -427,6 +427,8 @@ function buildContract(row, opts = {}) {
   const party = opts.party != null ? str(opts.party, 200) : opts.legacyName ? str(row.company_name || row.client_name || row.client_email, 200) : str(partyName(row), 200);
   // Template version (api/_bp-docs.js): absent / "v1" = the original paper, forever; only a document
   // issued with "v2" (and its company snapshot) is built with the new one. Rebuilds pass the stored value.
+  // عقدٌ بلا بنود لا يصدر بأي قالب (v1 كان يسقط من تلقاء نفسه؛ v2 يجب ألا يطبع ورقة فارغة).
+  if (!row.quote || !Array.isArray(row.quote.items) || !row.quote.items.length) throw new Error("no_items");
   const v2 = isV2Version(opts.template_version);
   const build = { lead_time: str(opts.lead_time, 120), executor: str(opts.executor, 120), party, ...(v2 ? { template_version: "v2", company: opts.company || companySnapshot() } : {}) };
   const html = v2 ? contractDocV2({
