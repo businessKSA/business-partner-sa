@@ -305,6 +305,8 @@ function clientView(row, events, tasks) {
   // The invoice record carries the issuing state and the draft it was built from;
   // the customer sees it only once Daftra has numbered it, and without those.
   pub.invoice = publicInvoice(pub.invoice);
+  // حوالة رُفع إيصالها وتنتظر التحقق: الصفحة تقول «إيصالك قيد المراجعة» ولا تعرض زر دفعٍ جديد.
+  if (pub.payment && bankUnderReview(row)) pub.payment = { ...pub.payment, review: true };
   if (pub.contract && pub.contract.html) pub.contract = { ...pub.contract, html: undefined, html_signed: undefined, has_html: true };
   if (pub.nda && pub.nda.html) pub.nda = { ...pub.nda, html: undefined, has_html: true };
   // Machine bookkeeping («notify.paid», «followup.task») is for the panel: the
@@ -840,7 +842,7 @@ async function clientAction(action, b, qs, req, res, sess) {
       active: mine.filter((r) => !isTicketRow(r) && !["COMPLETED", "CANCELLED"].includes(r.status)).length,
       quotes: mine.filter((r) => r.status === "QUOTE_SENT").length,
       contracts: mine.filter((r) => r.status === "CONTRACT_SENT").length,
-      payments: mine.filter((r) => ["SIGNED", "PAYMENT_PENDING"].includes(r.status)).length,
+      payments: mine.filter((r) => ["SIGNED", "PAYMENT_PENDING"].includes(r.status) && !bankUnderReview(r)).length,
       appointments: new Set(mine.filter((r) => r.status !== "CANCELLED" && r.appointment && r.appointment.status !== "CANCELLED" && r.appointment.date >= nowIso().slice(0, 10)).map((r) => r.appointment.date + " " + r.appointment.time)).size,
     };
     // The address prefix is not the client's name (D3): /my asks for the real
@@ -1547,13 +1549,35 @@ async function myRequests(sess) {
   // database — a row without it simply has nothing to hide.
   return Promise.all(live.map((r) => (r.status === "QUOTE_APPROVED" ? ensureContract(r) : r)));
 }
+// حوالة بنكية رُفع إيصالها وينتظر التحقق: المال خرج من العميل ولم يُعتمد بعد. لا تُعرض له «بانتظار الدفع»
+// ولا زرُّ دفعٍ جديد (دفعٌ مزدوج)، ولا تُحسب «مدفوعات مستحقة» عنده. الحالتان معاً: REVIEW بإيصال، أو حجز التسوية.
+export const bankUnderReview = (r) => {
+  const p = r && r.payment;
+  if (!p || String(p.provider || "") !== "bank") return false;
+  if (String(p.status || "").toUpperCase() === "PAID") return false;
+  return ["PAYMENT_PENDING", "WAITING_INTERNAL"].includes(r.status) && !!p.receipt;
+};
+// المبلغ الذي يراه العميل والفريق: إجمالي عرض السعر إن وُجد، وإلا ما سُجّل على الدفعة (طلب السلة لا عرض سعر له،
+// ومبلغه الحقيقي محفوظ في payment.amount/total/expected_total — قراءته من r.quote وحدها كانت تعرض «0 ر.س»).
+export const paymentAmount = (r) => {
+  const p = (r && r.payment) || {};
+  for (const v of [r && r.quote && r.quote.total, p.amount, p.total, p.expected_total]) {
+    const n = Number(v);
+    if (Number.isFinite(n) && n > 0) return round2(n);
+  }
+  return 0;
+};
+const paymentView = (r) => ({
+  status: r.payment.status, amount: paymentAmount(r) || r.payment.amount, provider: r.payment.provider,
+  ...(bankUnderReview(r) ? { review: true } : {}),
+});
 const summary = (r) => ({
   ref: r.ref, type: r.type, source: r.source, status: r.status, title: r.title, lang: r.lang, created_at: r.created_at, updated_at: r.updated_at,
   scope_count: (r.scope || []).length,
   quote: r.quote ? { number: r.quote.number, total: r.quote.total, status: r.quote.status, valid_until: r.quote.valid_until } : null,
   contract: r.contract ? { number: r.contract.number, status: r.contract.status } : null,
   nda: r.nda ? { number: r.nda.number, status: r.nda.status } : null,
-  payment: r.payment ? { status: r.payment.status, amount: r.payment.amount, provider: r.payment.provider } : null,
+  payment: r.payment ? paymentView(r) : null,
   invoice: publicInvoice(r.invoice) ? { number: r.invoice.number, total: r.invoice.total } : null,
   appointment: r.appointment ? { date: r.appointment.date, time: r.appointment.time, status: r.appointment.status, topic: r.appointment.topic, ref: r.appointment.ref || null, meet: r.appointment.meet || "", minutes: r.appointment.minutes || null, mode: r.appointment.mode || "" } : null,
   last_message: (r.conversation || []).slice(-1)[0] || null,
@@ -1658,9 +1682,10 @@ async function issueRequestInvoice(row, payment) {
   return issuePaidInvoice({ key, draft, target });
 }
 
-export async function markPaid(row, { provider, payId, amount, test, actor }) {
+export async function markPaid(row, { provider, payId, amount, test, actor, extra }) {
   const suffix = row.ref.replace(/^BP-R-/, "");
-  const payment = { status: "PAID", provider, ref: payId, amount: round2(num(amount)), currency: "SAR", at: nowIso(), test: !!test };
+  // `extra`: ما يُبقى على الدفعة من قبل (إيصال الحوالة ومن اعتمدها) — الدفعة تُبنى هنا من جديد فلا يضيع.
+  const payment = { ...(extra && typeof extra === "object" ? extra : {}), status: "PAID", provider, ref: payId, amount: round2(num(amount)), currency: "SAR", at: nowIso(), test: !!test };
   const testInvoice = (why) => ({
     number: "TEST-INV-" + suffix, issued_at: nowIso(), mode: "test",
     net: row.quote?.net || 0, vat: row.quote?.vat || 0, total: row.quote?.total || 0, currency: "SAR", vat_rate: 15,
@@ -1681,6 +1706,10 @@ export async function markPaid(row, { provider, payId, amount, test, actor }) {
   const upd = await patchRequest(row.id, { payment, status: "PAID", ...(invoice ? { invoice } : {}), ...(autoSt || {}) });
   if (autoSt) await logEvent(row.id, "internal", "النظام", "stage.auto", { from: "payment.paid" });
   await logEvent(row.id, "system", test ? "TEST MODE" : provider, "payment.paid", { provider, payId, amount: payment.amount });
+  // إيصال حوالة اعتُمد (آلياً أو بإنسان): مهمة «راجع الإيصال» انتهت.
+  if (/^bank/i.test(String(provider || ""))) {
+    try { await sb(`tasks?request_id=eq.${row.id}&source=in.(bank-review,receipt.verify)&status=in.(open,in_progress,blocked)`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: nowIso() } }); } catch { /* stays open; harmless */ }
+  }
   if (testIssued) await logEvent(row.id, "system", "TEST MODE", "invoice.issued", { number: invoice.number, total: invoice.total });
   const invNo = invoice && invoice.number ? invoice.number : "";
   const sent = !!(invoice && invoice.delivery && invoice.delivery.sent_at);
@@ -1814,6 +1843,10 @@ export function createCartRequest(d) {
   return run;
 }
 
+// أول رسالة للعميل على طلب حوالة بانتظار التحقق. تُستبدل عند الاعتماد (settleBankRow) فلا تبقى فوق رسالة الاعتماد.
+const BANK_PENDING_MSG = "استلمنا إيصال حوالتك وطلبك بانتظار التحقق. حين يتطابق المبلغ والمستفيد والآيبان نعتمد الدفع ونصدر فاتورتك الضريبية ونبدأ التنفيذ؛ وإن احتاج الإيصال نظراً بشرياً فنخبرك بالسبب هنا. لا حاجة لإعادة الدفع.";
+const isBankPendingMsg = (m) => !!m && m.role === "bp" && String(m.content || "").startsWith("استلمنا إيصال حوالتك وطلبك بانتظار التحقق");
+
 async function cartRequestOnce(d, key) {
   if (!DB_ON) return { ok: false, error: "db_off" };
   const all = (Array.isArray(d.lines) ? d.lines : []).slice(0, 40).filter((l) => l && l.id);
@@ -1919,7 +1952,7 @@ async function cartRequestOnce(d, key) {
       ? `حوالة بنكية من السلة — مرجع الطلب ${orderRef} · الإجمالي ${paid} ر.س شامل الضريبة · بانتظار التحقق من الإيصال.`
       : `شراء مباشر بالسلة — رقم عملية الدفع ${payId || "—"} · الإجمالي ${paid} ر.س شامل الضريبة.`,
     conversation: [{ role: "bp", content: bankIn
-      ? "استلمنا إيصال حوالتك وطلبك بانتظار التحقق. حين يتطابق المبلغ والمستفيد والآيبان نعتمد الدفع ونصدر فاتورتك الضريبية ونبدأ التنفيذ؛ وإن احتاج الإيصال نظراً بشرياً فنخبرك بالسبب هنا. لا حاجة لإعادة الدفع."
+      ? BANK_PENDING_MSG
       : verified
       ? "تم الدفع واستُلم مبلغ طلبك. سنبدأ التنفيذ بعد استلام المستندات المطلوبة (إن وُجدت) ونبلغك بكل تحديث هنا."
       : "تم استلام دفعتك، لكن مبلغها لم يُطابَق آلياً مع الأسعار المعتمدة، فيراجعه فريقنا قبل بدء التنفيذ. لا حاجة لإعادة الدفع.", at }],
@@ -2141,6 +2174,9 @@ export async function bankReceiptVerdict(row, v) {
 export async function bankClaim(orderRef) {
   const row = await bankOrderRow(orderRef);
   if (!row) return { ok: false, error: "not_found" };
+  return bankClaimRow(row);
+}
+export async function bankClaimRow(row) {
   const p = row.payment || {};
   if (String(p.status || "").toUpperCase() === "PAID") return { ok: true, already: true, row };
   const claimed_at = nowIso();
@@ -2160,6 +2196,59 @@ export async function bankRelease(row) {
   try { await sb(`requests?id=eq.${row.id}&status=eq.WAITING_INTERNAL`, { method: "PATCH", body: { status: "PAYMENT_PENDING", updated_at: nowIso() } }); } catch (e) { console.error("simple: bank release", String((e && e.message) || e).slice(0, 80)); }
 }
 
+// ------------------------------------------------- حوالة بنكية على عرضٍ موقّع (٤) --
+// صاحب عرضٍ موقّع يدفع بحوالة من صفحة طلبه في /my بالآلية نفسها: الإيصال يُقرأ بالمدقّق نفسه (api/pay.js ←
+// verifyTransfer) وبالسقف نفسه، فإن طابق كل شيء اعتُمد الدفع على الطلب نفسه بـmarkPaid (الفاتورة TEST محلياً
+// والدفترة في الإنتاج)، وإلا يبقى «إيصالك قيد المراجعة» ويُفتح للفريق عمل بشري بالسبب. لا صفّ ثانٍ: الطلب نفسه.
+// الملكية بالبريد وحده (بريد الجلسة = بريد الطلب)، والجواب عن «ليس لك» هو جواب «غير موجود».
+export async function bankRequestPrecheck({ ref, email }) {
+  if (!DB_ON) return { ok: false, status: 503, error: "db_off" };
+  const row = await getByRef(str(ref, 40).toUpperCase());
+  const mine = !!row && !row.deleted_at && String(row.client_email || "").toLowerCase() === String(email || "").trim().toLowerCase();
+  if (!mine) return { ok: false, status: 404, error: "not_found" };
+  const p = row.payment || {};
+  if (String(p.status || "").toUpperCase() === "PAID" || ["PAID", "IN_PROGRESS", "COMPLETED"].includes(row.status)) return { ok: false, status: 409, error: "already_paid", row };
+  if (row.status === "CANCELLED") return { ok: false, status: 409, error: "request_closed", row, message: "هذا الطلب أُلغي ولم يعد يقبل إيصالات. إن كنت حوّلت المبلغ فعلاً فراسلنا وسنراجعه معك، ولن يضيع تحويلك." };
+  const total = row.quote ? round2(num(row.quote.total)) : 0;
+  if (!(total > 0)) return { ok: false, status: 409, error: "no_quote", row };
+  if (!["SIGNED", "PAYMENT_PENDING"].includes(row.status)) return { ok: false, status: 409, error: "not_payable", row };
+  return { ok: true, row, total };
+}
+
+// يحفظ ملف الإيصال على الطلب ويضعه «بانتظار التحقق» (PAYMENT_PENDING · REVIEW · bank). لا يقرّر شيئاً.
+export async function bankRequestIntake({ row, file, total }) {
+  const all = Array.isArray(row.attachments) ? row.attachments : [];
+  if (all.filter((a) => a && a.kind === "receipt").length >= 8) return { ok: false, status: 409, error: "too_many_files" };
+  const stored = await storeUpload(row, file, { kind: "receipt", by: "customer", note: "إيصال حوالة بنكية" });
+  if (!stored.ok) return { ok: false, status: stored.status, error: stored.error, max: stored.max };
+  const at = nowIso();
+  const payment = { ...(row.payment || {}), status: "REVIEW", provider: "bank", amount: total, expected_total: total, order_ref: row.ref, pay_ref: "bank_" + row.ref, at };
+  const upd = await patchRequest(row.id, { attachments: [...all, stored.rec].slice(-UPLOAD_CAP), payment, status: "PAYMENT_PENDING" });
+  return { ok: true, row: upd || row, rec: stored.rec };
+}
+
+// اعتماد الدفع على الطلب نفسه: حجزٌ ذرّي ثم markPaid (الفاتورة بمحرّك الفواتير نفسه). من ربح الحجز وحده يسوّي.
+export async function bankRequestSettle(row, by) {
+  // the row as it stands NOW (the verdict has just written the receipt reading onto it), not as the intake saw it
+  const fresh = (await getByRef(row.ref).catch(() => null)) || row;
+  const claim = await bankClaimRow(fresh);
+  if (!claim.ok) return { ok: false, error: claim.error || "claim_failed" };
+  if (claim.already) return { ok: true, already: true, row: claim.row || row };
+  const r = claim.row, p = r.payment || {};
+  const total = round2(num(r.quote && r.quote.total));
+  try {
+    const upd = await markPaid(r, {
+      provider: "bank", payId: str(p.pay_ref, 64) || ("bank_" + r.ref), amount: total, test: false, actor: by,
+      extra: { receipt: p.receipt, expected_total: total, order_ref: r.ref, pay_ref: str(p.pay_ref, 64) || ("bank_" + r.ref), confirmed_by: by },
+    });
+    return { ok: true, row: upd };
+  } catch (e) {
+    console.error("simple: bank request settle", String((e && e.message) || e).slice(0, 100));
+    await bankRelease(r);
+    return { ok: false, error: "settle_failed" };
+  }
+}
+
 // اعتماد الدفع على صفّ فُتح بانتظار التحقق (يُستدعى من createCartRequest حين تصله دفعة bank_*).
 // الانتقال إلى PAID/REVIEWING شرطيٌّ على أن الصفّ ما زال PAYMENT_PENDING أو محجوزاً (WAITING_INTERNAL):
 // ما بعد الفائز لا يرسل بريداً ولا يفتح مهمة.
@@ -2175,7 +2264,8 @@ async function settleBankRow(row, d) {
   const content = verified
     ? `اعتُمد دفع حوالتك (${paid} ر.س شامل الضريبة) ${auto ? "بعد أن طابق المستشار الذكي المبلغ والمستفيد والآيبان في الإيصال" : "من فريقنا"}. تصلك فاتورتك الضريبية على بريدك، وسنبدأ التنفيذ بعد استلام المستندات المطلوبة (إن وُجدت).${auto ? " ويطابق فريقنا الحوالة مع كشف الحساب البنكي." : ""}`
     : "اعتُمد استلام حوالتك، لكن مبلغها لم يُطابَق آلياً مع الأسعار المعتمدة، فيراجعه فريقنا قبل بدء التنفيذ. لا حاجة لإعادة التحويل.";
-  const conversation = normConversation([...(row.conversation || []), { role: "bp", content, at }]);
+  // «بانتظار التحقق» كانت أول ما قيل للعميل؛ بعد الاعتماد تبقى الحالة الأخيرة وحدها (لا رسالتان متناقضتان).
+  const conversation = normConversation([...(row.conversation || []).filter((m) => !isBankPendingMsg(m)), { role: "bp", content, at }]);
   let upd = null;
   for (const from of ["PAYMENT_PENDING", "WAITING_INTERNAL"]) {
     const rows = await sb(`requests?id=eq.${row.id}&status=eq.${from}`, { method: "PATCH", body: { payment, status: verified ? "PAID" : "REVIEWING", conversation, updated_at: nowIso() } });
@@ -2365,6 +2455,39 @@ export async function invoiceTargetFor(payId, orderRef) {
     }
   } catch { /* no row to attach to */ }
   return null;
+}
+
+// محلياً وفي وضع الاختبار بلا مفتاح الدفترة: دفعة السلة المعتمدة (حوالةً كانت أو بطاقة) تأخذ السجلّ الداخلي
+// TEST-INV- نفسه الذي يأخذه الطلب المسعَّر في markPaid، بدل أن تبقى مدفوعةً بلا فاتورة (daftra_not_configured).
+// في الإنتاج SIMPLE_TEST_MODE مطفأ فلا يُصنع رقمٌ مختلق: إما الدفترة أو لا شيء ويُنبَّه المالك (المحرّك).
+export async function testInvoiceForPayment(payId, orderRef) {
+  if (!DB_ON || !SIMPLE_TEST_MODE) return null;
+  const want = String(payId || orderRef || "");
+  if (!want) return null;
+  let hit = null;
+  try {
+    for (let salt = 0; salt < 3; salt++) {
+      const h = await getByRef(cartRequestRef(want, salt));
+      if (!h) break;
+      const hp = h.payment || {};
+      if (hp.source === "cart" && (hp.pay_ref || hp.order_ref) === want) { hit = h; break; }
+    }
+  } catch { return null; }
+  if (!hit) return null;
+  if (invoiceIsComplete(hit.invoice)) return { invoiced: true, already: true, number: hit.invoice.number, total: hit.invoice.total };
+  const p = hit.payment || {};
+  if (String(p.status || "").toUpperCase() !== "PAID") return null;
+  const total = round2(num(p.total || p.amount));
+  const invoice = {
+    number: "TEST-INV-" + hit.ref.replace(/^BP-R-/, ""), issued_at: nowIso(), mode: "test",
+    net: round2(num(p.net)), vat: round2(num(p.vat)), total, currency: "SAR", vat_rate: 15,
+    items: (Array.isArray(p.items) ? p.items : []).map((i) => ({ title: str(i.name, 140), qty: i.qty || 1, price: i.unit == null ? i.amount : i.unit, line: i.amount })),
+    bill_to: { name: hit.client_name, company: hit.company_name, email: hit.client_email },
+    daftra: { issued: false, reason: "daftra_not_configured" },
+  };
+  await patchRequest(hit.id, { invoice });
+  await logEvent(hit.id, "system", "TEST MODE", "invoice.issued", { number: invoice.number, total });
+  return { invoiced: true, test: true, number: invoice.number, total };
 }
 
 // Re-run every invoice that was left unfinished (Daftra was down, the mail was
@@ -3044,7 +3167,8 @@ async function opsAction(action, b, qs, req, res, opsUser) {
       return json(res, 200, { ok: true, status: after.status, payment: after.payment, invoice: after.invoice });
     }
     if (!row.quote) return json(res, 409, { ok: false, error: "no_quote" });
-    const upd = await markPaid(row, { provider: str(b.provider, 40) || "bank_transfer", payId: str(b.reference, 80) || ("manual_" + Date.now()), amount: row.quote.total, test: SIMPLE_TEST_MODE && b.test !== false, actor });
+    const upd = await markPaid(row, { provider: str(b.provider, 40) || (row.payment && row.payment.provider === "bank" ? "bank" : "bank_transfer"), payId: str(b.reference, 80) || ("manual_" + Date.now()), amount: row.quote.total, test: SIMPLE_TEST_MODE && b.test !== false, actor,
+      ...(row.payment && row.payment.receipt ? { extra: { receipt: row.payment.receipt, expected_total: row.payment.expected_total, confirmed_by: actor } } : {}) });
     return json(res, 200, { ok: true, status: upd.status, payment: upd.payment, invoice: upd.invoice });
   }
 

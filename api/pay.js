@@ -38,7 +38,7 @@ import { PAY_MOCK, payGuard, MODES } from "./_mode.js";
 import { contactForRef } from "./_stage.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { sb, DB_ON } from "./_db.js";
-import { markRequestPaidByRef, invoiceTargetFor, bankOrderRow, bankOrderPrecheck, bankOpenCount, bankReceiptIntake, bankReceiptSeen, bankReceiptClaimKeys, bankReceiptVerdict, bankClaim, bankRelease, readTransferReceipt, validateUpload } from "./_simple.js";
+import { markRequestPaidByRef, invoiceTargetFor, testInvoiceForPayment, bankOrderRow, bankOrderPrecheck, bankOpenCount, bankReceiptIntake, bankReceiptSeen, bankReceiptClaimKeys, bankReceiptVerdict, bankClaim, bankRelease, bankRequestPrecheck, bankRequestIntake, bankRequestSettle, readTransferReceipt, validateUpload } from "./_simple.js";
 import { bankDetails, acceptedNames, verifyTransfer, reasonText, sha256, readBankToken, throttle, trustedIp, normalizedFileHash, receiptKeys, autoApproveMaxSar } from "./_bank-transfer.js";
 import { parseEmpSku, empOffer, empPrepare, empSessionEmail, empActivate, empBasketProblem, empBnplAllowed } from "./_emp-pay.js";
 
@@ -525,7 +525,11 @@ function billTo(order) {
 // (`requests.invoice`), so a second call finds it finished, finds it being issued
 // by the other channel, or finds it unfinished and completes it. Never twice.
 async function invoicePaidOrder(order, paidHalalas, payId = "", { alreadySettled = false } = {}) {
-  if (!daftraConfigured() && !invoicingEnabled()) return { invoiced: false, reason: "daftra_not_configured" };
+  if (!daftraConfigured() && !invoicingEnabled()) {
+    // محلياً/اختبار: السجلّ الداخلي TEST-INV- نفسه الذي يأخذه الطلب المسعَّر (حوالةً كانت الدفعة أو بطاقة)؛ في الإنتاج لا رقم مختلق.
+    const t = await testInvoiceForPayment(payId, order && order.ref).catch(() => null);
+    return t || { invoiced: false, reason: "daftra_not_configured" };
+  }
   const target = payId ? await invoiceTargetFor(payId, order.ref).catch(() => null) : null;
   if (!target) {
     // No request row to hold the state (a bespoke quote, or the database is
@@ -929,10 +933,76 @@ function cartFingerprint(snap, priced) {
 }
 
 const BANK_MAX_OPEN = 5;
+// The one check both bank paths run on a receipt (a cart order and a signed quotation): independent read,
+// the three-way compare, the duplicate lookup and the auto-approval ceiling. It decides nothing by itself.
+async function checkBankReceipt({ vf, f, cfg, expectedSar, orderRef, exceptRef }) {
+  const expected = { amount: expectedSar, iban: cfg.iban, names: acceptedNames(), bank: cfg.bank, orderRef };
+  const v = await verifyTransfer({ base64: vf.base64, mime: vf.mime, name: String((f && f.name) || ""), expected }, readTransferReceipt);
+  const fileHash = normalizedFileHash(vf.buf, vf.mime);
+  const keys = receiptKeys({ fileHash, textHash: v.fingerprints && v.fingerprints.text, reference: v.read && v.read.reference });
+  const seen = await bankReceiptSeen({ keys, exceptRef });
+  const reasons = [...v.reasons];
+  if (seen.duplicate) reasons.push("duplicate_receipt");
+  else if (seen.unavailable && keys.length) reasons.push("duplicate_check_unavailable");
+  const limit = autoApproveMaxSar();
+  if (expectedSar > limit) reasons.push("above_auto_limit");
+  return { v, fileHash, keys, seen, reasons, limit };
+}
+
+// A signed quotation paid by transfer (owner's order 2026-10-23, journey QA #4): the page of the request in
+// /my posts {action:"bank-receipt", requestRef}. The amount is the quotation's total as stored on the row,
+// the owner is the session's e-mail, and the settlement is markPaid on the SAME request (no second row).
+async function handleBankRequestReceipt(req, res, b, cfg) {
+  const send = (code, obj) => { res.statusCode = code; return res.end(JSON.stringify(obj)); };
+  const ref = String(b.requestRef || "").trim().toUpperCase();
+  if (!/^BP-R-[0-9A-Z]{6}$/.test(ref)) return send(400, { ok: false, error: "bad_order" });
+  const sessionEmail = await empSessionEmail(req);
+  if (!sessionEmail) return send(401, { ok: false, error: "login_required" });
+  if (!throttle("bankrcpt-user:" + sessionEmail, 10, 3600e3) || !throttle("bankrcpt-ip:" + trustedIp(req), 40, 3600e3)) return send(429, { ok: false, error: "slow_down" });
+  const f = (b.file && typeof b.file === "object") ? b.file : {};
+  const vf = validateUpload({ base64: f.base64, name: f.name, mime: f.mime });
+  if (!vf.ok) return send(vf.status || 400, { ok: false, error: vf.error, ...(vf.max ? { max: vf.max } : {}) });
+
+  const pre = await bankRequestPrecheck({ ref, email: sessionEmail });
+  if (!pre.ok) return send(pre.status || 409, { ok: false, error: pre.error, ...(pre.message ? { message: pre.message } : {}) });
+  const expectedSar = pre.total;
+  const { v, fileHash, keys, seen, reasons, limit } = await checkBankReceipt({ vf, f, cfg, expectedSar, orderRef: ref, exceptRef: ref });
+
+  const intake = await bankRequestIntake({ row: pre.row, total: expectedSar, file: { base64: vf.base64, name: f.name, mime: vf.mime } });
+  if (!intake.ok) return send(intake.status || 502, { ok: false, error: intake.error || "intake_failed", ...(intake.error === "too_large" ? { max: intake.max } : {}) });
+  const row = intake.row;
+  if (!seen.duplicate) await bankReceiptClaimKeys({ keys, requestRef: row.ref, orderRef: ref });
+
+  const verdict = (extra, auto) => bankReceiptVerdict(row, {
+    att: intake.rec.id, hash: fileHash, textHash: v.fingerprints && v.fingerprints.text, auto, reasons: extra,
+    reasonsAr: extra.map((c) => reasonText(c, "ar", { limit })),
+    checks: v.checks, read: v.read, provider: v.provider, source: v.source, expected: { amount: expectedSar },
+  });
+  let auto = v.verdict === "match" && !reasons.length, fin = null;
+  await verdict(reasons, auto);
+  if (auto) {
+    fin = await bankRequestSettle(row, "المستشار الذكي");
+    if (!fin.ok) { auto = false; reasons.push("settle_failed"); await verdict(reasons, false); }
+  }
+  let after = row;
+  try { after = ((await sb(`requests?ref=eq.${encodeURIComponent(ref)}&select=*&limit=1`)) || [])[0] || row; } catch { /* keep the intake row */ }
+  const approved = !!(after.payment && String(after.payment.status || "").toUpperCase() === "PAID");
+  const inv = after.invoice && after.invoice.number ? { invoiced: true, number: String(after.invoice.number), test: after.invoice.mode === "test" } : null;
+  return send(200, {
+    ok: true, state: approved ? "approved" : "review", ref, orderRef: ref, amount: expectedSar, requestStatus: after.status,
+    reasons: approved ? [] : reasons, ...(reasons.includes("above_auto_limit") ? { autoLimit: limit } : {}),
+    // the reasons in words, in the page's language (the checker keeps Arabic and English only)
+    reasonsText: approved ? [] : reasons.map((c) => reasonText(c, b.lang === "ar" ? "ar" : "en", { limit })),
+    checks: Object.fromEntries(Object.entries(v.checks || {}).map(([k, c]) => [k, !!(c && (c.ok || c.matched))])),
+    ...(inv ? { invoice: inv } : {}),
+  });
+}
+
 async function handleBankReceipt(req, res, b) {
   const send = (code, obj) => { res.statusCode = code; return res.end(JSON.stringify(obj)); };
   const cfg = bankDetails();
   if (!cfg.enabled) return send(503, { ok: false, error: "bank_not_configured" });
+  if (b.requestRef) return handleBankRequestReceipt(req, res, b, cfg);
   if (!OTP_SECRET) return send(503, { ok: false, error: "not_configured" });
   const order = (b.order && typeof b.order === "object") ? b.order : {};
   const email = String(order.email || "").trim().toLowerCase();
@@ -969,16 +1039,7 @@ async function handleBankReceipt(req, res, b) {
   if (!pre.row && (await bankOpenCount(email)) >= BANK_MAX_OPEN) return send(429, { ok: false, error: "too_many_open" });
 
   // Read and check the receipt BEFORE the order exists.
-  const expected = { amount: expectedSar, iban: cfg.iban, names: acceptedNames(), bank: cfg.bank, orderRef: ref };
-  const v = await verifyTransfer({ base64: vf.base64, mime: vf.mime, name: String(f.name || ""), expected }, readTransferReceipt);
-  const fileHash = normalizedFileHash(vf.buf, vf.mime);
-  const keys = receiptKeys({ fileHash, textHash: v.fingerprints && v.fingerprints.text, reference: v.read && v.read.reference });
-  const seen = await bankReceiptSeen({ keys, exceptRef: pre.row && pre.row.ref });
-  const reasons = [...v.reasons];
-  if (seen.duplicate) reasons.push("duplicate_receipt");
-  else if (seen.unavailable && keys.length) reasons.push("duplicate_check_unavailable");
-  const limit = autoApproveMaxSar();
-  if (expectedSar > limit) reasons.push("above_auto_limit");
+  const { v, fileHash, keys, seen, reasons, limit } = await checkBankReceipt({ vf, f, cfg, expectedSar, orderRef: ref, exceptRef: pre.row && pre.row.ref });
 
   const payload = {
     ref, payId: "bank_" + ref, verified: true, total: expectedSar, net: Math.round(priced.net * 100) / 100,
