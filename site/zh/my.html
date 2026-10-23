@@ -533,7 +533,8 @@ select.inp{background:#fff;color:inherit}
 .ix-txt small{display:block;color:var(--mut);font-size:.78rem;line-height:1.7}
 .ix-card .btn{flex:0 0 auto}
 .ix-lock{overflow:hidden}
-.ix-ovl{position:fixed;inset:0;z-index:96;background:rgba(12,18,40,.55);display:flex;justify-content:center;align-items:stretch}
+/* النافذة تُضاف إلى <body> خارج .sv1 فلا ترث متغيّراته: نكتبها هنا صراحةً (وإلا اختفى زرّ كحليّ الخلفية) */
+.ix-ovl{--n:#0B1B5A;--n2:#081345;--g:#F5F7FB;--line:#E5E9F0;--ink:#0B1B5A;--mut:#5A6478;--fm:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace;font-family:inherit;color:#232A3D;position:fixed;inset:0;z-index:96;background:rgba(12,18,40,.55);display:flex;justify-content:center;align-items:stretch}
 .ix-box{background:var(--g,#f5f7fb);width:100%;max-width:920px;display:flex;flex-direction:column;min-height:0;outline:none}
 .ix-hd{flex:none;display:flex;align-items:center;gap:12px;padding:14px 18px;background:#fff;border-bottom:1px solid var(--line)}
 .ix-hd h2{margin:0;flex:1;min-width:0;font-size:1.1rem;font-weight:600;color:var(--ink)}
@@ -559,7 +560,8 @@ select.inp{background:#fff;color:inherit}
 .ix-row.reading .st,.ix-row.saving .st{border:3px solid #dbe3fb;border-top-color:var(--n);animation:ixspin .8s linear infinite}
 .ix-row.ready .st,.ix-row.done .st{background:#eaf7ef;color:#118657}
 .ix-row.failed .st{background:#fee2e2;color:#b91c1c}
-.ix-row.manual .st{background:#fff3e6;color:#b45309}
+.ix-row.manual .st,.ix-row.dup .st{background:#fff3e6;color:#b45309}
+.ix-read em.rv{color:#b45309;font-style:normal;font-size:.72rem;font-weight:700}
 @keyframes ixspin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.ix-row.reading .st,.ix-row.saving .st{animation:none}}
 .ix-row .tt{flex:1;min-width:0}
@@ -576,7 +578,8 @@ select.inp{background:#fff;color:inherit}
 .ix-fld label{display:block;font-size:.82rem;color:var(--mut);margin-bottom:4px}
 .ix-fld .inp{width:100%;box-sizing:border-box}
 .ix-fld small{display:block;margin-top:4px;font-size:.78rem;line-height:1.7;color:var(--mut)}
-.ix-fld small.warn{color:#b45309}.ix-fld small.good{color:#118657}
+.ix-fld small.warn{color:#b45309}.ix-fld small.good{color:#118657}.ix-fld small.bad{color:#b91c1c;font-weight:600}
+.ix-fld .inp.bad{border-color:#b91c1c}
 .ix-fld .alt{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;border:1px solid #f3d9a4;background:#fffaf0;border-radius:10px;padding:5px 8px;font-size:.78rem;color:#7c2d12}
 .ix-fld .alt button{border:0;background:transparent;color:var(--n);font:inherit;font-weight:700;cursor:pointer;text-decoration:underline;padding:0}
 .ix-file{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 15px;margin-bottom:12px}
@@ -912,7 +915,7 @@ function mountNafath(slot,opt){
 window.SV1Login={otp:otp,methods:methods,mountGoogle:mountGoogle,mountNafath:mountNafath,nid:nfState,inApp:INAPP,or:LX.or,orPlain:LX.orPlain,t:LX};
 })();</script><script>
 (function(){
-var LANG="zh",EV={"request.created":"created the request","request.created.manual":"request created manually","request.created.cart":"request opened from a direct cart purchase","scope.proposed":"proposed the scope","scope.edited":"edited the scope","scope.confirmed":"confirmed the scope","quote.pending":"awaiting the quotation","message.customer":"customer message","message.bp":"team reply","attachment.added":"added an attachment","quote.drafted":"quote drafted","quote.sent":"sent the quotation","quote.approved":"approved the quotation","quote.rejected":"requested changes","contract.sent":"sent the contract","contract.signed":"signed the contract","payment.paid":"payment received","payment.failed":"payment failed","payment.cancelled":"payment cancelled","payment.pending":"payment pending","invoice.issued":"invoice issued","appointment.booked":"booked an appointment","appointment.rescheduled":"rescheduled the appointment","appointment.cancelled":"cancelled the appointment","appointment.set":"set the appointment","task.created":"created a task","task.human_required":"task needs a human","task.done":"completed the task","task.in_progress":"started the task","task.waiting":"task waiting","task.todo":"reopened the task","execution.started":"execution started","request.cancelled":"cancelled the request","request.updated":"updated the request","document.received":"document received","deliverable.added":"delivered a file","deliverable.removed":"withdrew a delivered file","status.completed":"request completed","status.in_progress":"execution started","status.waiting_internal":"in progress","status.reviewing":"under review","status.waiting_client":"waiting for your reply","status.cancelled":"request cancelled","quote.auto":"issued the quotation automatically","documents.requested":"listed the required documents","payment.receipt":"received the transfer receipt","message.whatsapp":"WhatsApp message","contract.reissued":"re-issued the contract","request.reopened":"reopened the request","cancel.requested":"cancellation requested","payment.after_cancel":"payment received after cancellation","followup.reminded":"reminded you of the next step","nda.sent":"non-disclosure agreement sent for signature","nda.signed":"non-disclosure agreement signed","addendum.sent":"quotation addendum sent","addendum.approved":"quotation addendum approved","addendum.rejected":"quotation addendum declined"},TX={"title":"我的账户 — Business Partner","navHome":"首页","navNew":"新申请","navRequests":"我的申请","navQuotes":"报价","navContracts":"合同","navAppts":"预约","navPay":"购物车与付款","navInvoices":"发票","navChats":"对话","navCompany":"公司信息","logout":"退出登录","site":"网站","attention":"现在需要您关注什么？","kActive":"进行中的申请","kQuotes":"待确认的报价","kContracts":"待签署的合同","kPayments":"待付款项","kAppts":"即将到来的预约","today":"今天需要什么帮助？","empty":"这里还没有内容。","ref":"编号","status":"状态","open":"打开","back":"返回","conversation":"对话","scope":"服务范围","cancelTitle":"取消此请求","cancelAsk":"申请取消","cancelWhy":"原因（可选）","cancelEarly":"尚无任何约束 — 取消将立即生效。","cancelLate":"此请求已进入有约束的阶段（合同、付款或执行）。我们会受理并由团队审核后回复您。","cancelSent":"已收到取消申请，正在审核。","cancelDone":"请求已取消","cxNowTitle":"取消此请求？","cxAskTitle":"申请取消此请求","cxNowGo":"是，取消请求","cxAskGo":"提交取消申请","cxKeep":"不，保留","cxSigned":"合同已签署，无法一键取消：我们会记录您的申请，由团队审核后回复您。在此期间请求保持不变。","cxPaid":"款项已支付，无法一键取消：我们会记录您的申请，由团队审核（包括退款）。在此期间请求保持不变。","evNotify":"已发送通知","cxAppt":"已预约的咨询时间也将一并取消。","cxNowNote":"立即取消，且未产生任何扣款。","cxDoneNow":"请求已取消","cxDoneNowT":"您的请求已取消，并已从进行中的申请中移除。您可以随时发起新申请。","cxPendTitle":"取消申请正在由团队审核","cxPendText":"我们正在审核该请求涉及的合同、付款或执行情况并会回复您。在此期间请求保持不变。","cxSentAt":"提交于","cxPill":"取消审核中","cxNewReq":"发起新申请","cxAlready":"取消申请已登记，正在审核。","cxErrClosed":"此请求已关闭（已取消或已完成）。","cxErrSess":"登录已过期，请重新登录后再试。","cxErrNet":"无法连接服务器。请检查网络后重试。","cxErrNF":"在您的账户中找不到此请求。","cxErrGen":"暂时无法取消。请稍后重试，或在对话中联系团队。","resign":"本合同在您签署后已出具更正版本 — 我们会再次发送给您签署。","openFull":"全屏打开","docPrint":"打印 / 保存 PDF","docClose":"关闭","docWait":"正在准备文件…","attachments":"附件","quote":"报价","contract":"合同","payment":"付款","invoice":"发票","timeline":"时间线","writeMsg":"给团队留言…","send":"发送","saveScope":"保存修改","quoteIssuedFlash":"范围已确认 ✓ — 报价已出具，就在本页面。","holdFlash":"范围已确认 ✓ — 部分项目由团队定价，原因见各项目旁。","signNameErr":"请在姓名栏填写全名（至少3个字符）。","signDrawErr":"签署前请在框内手写签名。","expiredNote":"此报价已过期，无法确认。请申请按今日价格续期。","renewAsk":"已过期 — 申请续期","renewMsg":"请续期报价","renewSent":"续期申请已送达团队，更新后的报价随后发送。","pendTitle":"待定价项目（将另发补充报价）","pendLead":"这些项目不计入总额和合同。团队定价后您将收到独立的补充报价，本报价不变。","adTitle":"补充报价","adApprove":"确认补充报价","adReject":"不同意","adNote":"原因","adDone":"补充报价已确认，团队将与您跟进。","reqGone":"此申请已不可用：已被取消或从您的账户移除。您可以重新开始。","nda":"保密协议","ndaLead":"您与 Business Partner 之间的双向协议。签署不会影响您的申请，并随申请一并保存。","ndaSignBtn":"签署协议","ndaSigned":"协议已签署","ndaDone":"保密协议已签","ndaWait":"保密协议待签","clientNotes":"您的备注（仅供参考，不属于合同条款）","holdTitle":"报价等待人工定价","holdLead":"我们已确认您的服务范围。目录中没有的价格我们不会臆造，因此由团队为以下项目定价，随后报价将发送到此处和您的邮箱——您无需任何操作。","hold_custom":"您自行填写的项目，目录中没有价格","hold_unknown_code":"目录中找不到该服务代码","hold_proposal":"需根据您的情况评估后定价，并非固定价格","hold_from":"目录仅列出“起价”，并非最终价格","hold_recurring":"为周期性订阅，并非一次性付款","hold_percent":"按比例计算，并非固定金额","hold_no_price":"目录中没有价格","cxGone":"请求已取消，并已从您的列表中移除。","confirmScope":"确认范围并继续","scopePricing":"范围已确认 ✓ — 团队正在准备报价。","docs":"所需文件","docsNote":"我们需要这些文件来完成您的申请 — 用对应按钮上传，团队会立即收到。","docsNone":"暂无所需文件。您仍可上传与此申请相关的任何文件。","docUp":"上传","docUpMore":"再上传一个","docUpAny":"上传其他文件","docRecv":"已收到 ✓","docWaived":"无需提供","docAsked":"待提供","docSent":"您的文件已送达团队 ✓","fOpen":"打开","eMany":"此申请的文件数量已达上限。","eClosed":"此申请已关闭，无法再上传文件。","delivTitle":"交付成果","progTitle":"办理进度","stDone":"已完成","stActive":"进行中","stPending":"待办","updTitle":"最新动态","updMore":"显示全部动态","updLess":"仅显示最新","delivNone":"我们交付的文件会显示在这里，交付后会立即发邮件通知您。","delivNoneDone":"申请已完成，没有交付文件。","delivDl":"下载","delivErr":"无法打开文件 — 请重试。","invSeller":"卖方","invVat":"卖方税号","invBuyer":"买方","invOfficial":"正式发票 (PDF)","addItem":"添加条目","remove":"删除","scopeLocked":"报价发出后范围已锁定。","qty":"数量","price":"价格","net":"小计","vat":"增值税 15%","total":"总计","validUntil":"有效期至","terms":"付款条款","approve":"确认报价","reject":"要求修改","rejectNote":"您希望修改什么？","quoteApproved":"报价已确认，合同现已可供签署。","quoteApprovedDone":"报价已确认 ✓","quoteExpired":"此报价已过期。请在申请中留言，我们将按当日价格为您更新。","viewContract":"查看合同","signTitle":"电子签名","signName":"签署人全名","signDraw":"请手写签名","signClear":"清除","signConsent":"我同意我的电子签名根据《电子交易法》具有约束力。","signBtn":"签署合同","signed":"合同已签署","payNow":"立即付款","payCardNow":"银行卡付款","payBankNow":"银行转账付款","bkTitle":"银行转账付款","bkHow":"请将准确金额转入下方公司账户，并在转账备注中填写申请编号，然后上传回单图片或 PDF。智能顾问会核对金额、收款人和 IBAN：一致则确认付款并开具发票，否则由团队复核并告知原因。","bkBene":"收款人","bkBank":"银行","bkIban":"IBAN","bkAmt":"应转金额（含税）","bkRef":"申请编号——请填写在备注中","bkFile":"转账回单（图片或 PDF）","bkGo":"上传回单","copy":"复制","copied":"已复制","bkSending":"正在上传并核对回单…","bkNeedFile":"请先选择回单图片或 PDF。","bkBadType":"文件必须是图片（JPG、PNG 或 WebP）或 PDF。","bkTooBig":"文件过大，请使用小于 3 MB 的文件。","bkFail":"回单上传失败，未记录任何内容。请稍后重试，或使用银行卡付款。","bkLogin":"登录已过期，请重新登录后上传回单。","bkSlow":"尝试次数过多，请稍候再试。","bkClosed":"该申请不再接受回单。如已转账，请在下方对话中联系我们。","bkPaid":"该申请已付款。","bkOff":"银行转账暂不可用，请使用银行卡或 Tamara 付款。","bkApproved":"智能顾问已核对您的回单：金额、收款人和 IBAN 一致，付款已确认并开具发票。","bkInv":"发票号","bkReview":"已收到您的回单，正在复核。请勿重复转账，确认后我们会通知您。","bkWhy":"转人工复核原因：","reviewTitle":"您的回单正在复核","reviewText":"已收到您的转账回单，团队正在复核。请勿重复转账，也无需再次付款，确认后我们会通知您。如回单不清晰，请在下方对话中联系我们。","reviewList":"复核中的回单","payTamaraNow":"使用 Tamara 分期","payReturning":"正在确认您的付款…","payVia":"通过安全支付页面付款（mada、Visa、Mastercard、Apple Pay，Tamara 可用时）","testPay":"模拟付款（测试模式）","paySuccess":"成功 — 银行卡","payTamara":"成功 — Tamara","payFailed":"失败","payCancelled":"取消","payPending":"待处理","paid":"已付款","download":"查看发票","book":"预约","reschedule":"改期","cancelAppt":"取消预约","date":"日期","time":"时间","topic":"主题","confirm":"确认","apptNote":"通过 Google Meet 进行的免费视频会谈；均为利雅得时间。我们将通过邮件确认并发送日历邀请。","apptHours":"会谈时间 {a}–{b}（利雅得时间 GMT+3），每次 {n} 分钟。","apptDays":"除{d}外每天。","apptDaysAll":"每周每天。","apptLoading":"正在加载可预约时间…","apptNone":"目前没有可用时间。请通过 WhatsApp 联系我们。","apptOut":"该时间不在会谈时段内 — 请从列表中选择。","apptSoon":"预约需至少提前一小时 — 请选择更晚的时间。","apptFar":"该日期超出可预约范围。","apptTaken":"该时段刚被预订 — 请另选。","apptMany":"您已有两个即将进行的预约 — 请取消其一或等待其结束。","apptRate":"尝试次数过多 — 请稍后再试。","nextAppt":"您的下一次预约","videoFree":"视频通话 — 免费咨询","joinNow":"加入会议","joinSoon":"开始前五分钟开放加入。","meetLink":"会议链接","addCal":"添加到日历","apptPending":"时间等待团队确认 — 确认后会议链接和日历邀请将发送到您的邮箱。","apptOver":"此会谈已结束。","riyadh":"利雅得时间","cancelReq":"取消申请","company":"公司名称","cr":"商业登记号","nameEn":"英文名称","save":"保存","saved":"已保存","sessEnd":"会话已过期 — 请重新登录后继续。","apptBad":"请先选择日期和时间。","apptFri":"当天不安排会谈 — 请选择其他日期。","apptPast":"该时间已过 — 请选择之后的时间。","provCard":"银行卡","provTamara":"Tamara","provBank":"银行转账","actAi":"智能顾问","actSys":"系统","actTeam":"Business Partner 团队","you":"您","team":"团队","assistant":"助手","loginTitle":"登录","loginText":"选择登录方式——无论哪种方式都是同一个账户。","tabPw":"密码","tabNew":"新账户","tabLink":"邮件链接","forgot":"忘记密码？使用邮件链接登录","badCreds":"邮箱或密码不正确。","tooMany":"尝试次数过多，请稍等后再试。","pwNew":"设置密码","pwConfirm":"再次输入密码","pwMismatch":"两次输入的密码不一致。","pwRule":"至少 8 个字符，包含字母和数字。","pwr_short":"密码至少 8 个字符。","pwr_long":"密码过长。","pwr_no_letter":"密码至少需要一个字母。","pwr_no_digit":"密码至少需要一个数字。","pwr_repetitive":"密码字符过于重复，请换一个。","pwr_common":"密码过于常见，请换一个。","pwr_has_email":"密码中不要包含您的邮箱。","signupGo":"创建账户并发送验证码","signupNote":"我们会向您的邮箱发送验证码，确认后密码才会生效。","codeSent":"验证码已发送到 {e}。","codeOld":"验证码已过期，请重新开始。","confirmGo":"确认并登录","cStep":"仅需一步，只需一次","cTitle":"完善您的账户","cText":"您的身份已通过 Nafath 验证。我们需要您的邮箱以发送税务发票和申请进度，并需要您的手机号以便团队联系您。","cPhone":"手机号码","cPhonePh":"05XXXXXXXX","cBadPhone":"请输入有效的手机号，例如 05XXXXXXXX。","cSend":"发送验证码","cMismatch":"此邮箱已关联另一个身份。请使用其他邮箱或联系我们。","email":"邮箱","sendCode":"发送验证码","password":"密码","loginPw":"使用密码登录","usePw":"使用密码登录","useCode":"改用邮箱验证码","sendLink":"给我发送登录链接","badEmail":"请输入有效的邮箱地址。","linkSent":"登录链接已发送到 {e}——打开邮箱点击即可登录（15 分钟内有效）。","orCode":"或输入同一封邮件中的验证码：","resend":"重新发送链接","resendIn":"{n} 秒后可重发","changeEmail":"更换邮箱","openLink":"打开测试链接","linkTitle":"确认登录","linkText":"点击按钮完成登录。","linkGo":"继续进入我的账户","linkBad":"此链接已过期或已被使用，请重新获取。","linkNew":"获取新链接","pwTitle":"密码","pwNote":"设置密码即可直接登录，无需每次等待验证码。","pwSave":"保存密码","pwShort":"密码至少 8 个字符。","pwSaved":"密码已保存 ✓","code":"验证码","verify":"登录","loginErr":"无法发送验证码。","codeErr":"验证码错误。","error":"出错了，请重试。","pfStep":"仅需一步，只需一次","pfTitle":"请告诉我们您是谁","pfText":"您的全名将出现在报价单、合同和发票上，我们也会通过手机与您联系。","pfName":"全名","pfNamePh":"名和姓","pfSave":"保存并继续","pfBadName":"请输入全名（至少两个词，不含数字）。","pfLater":"稍后","resumeNote":"您在聊天中开始的申请已保存 — 登录后我们会自动为您完成创建。","revTitle":"要求修改报价","revText":"请说明需要修改的内容（项目、数量、条款…）。团队审核后，修订报价将发送到此处和您的邮箱。当前报价将不会被确认。","revNeed":"请填写需要的修改（至少三个字符）。","revGo":"提交修改请求","revSentTitle":"已收到您的修改请求","revSentText":"团队正在审核，修订报价将发送到此处和您的邮箱。在此之前您无需任何操作。","revYouAsked":"您的请求：","payFailedMsg":"付款未完成。您可以重试或选择其他方式。若您的卡上出现扣款，请在对话中联系我们，我们会与您核实。","payCancelledMsg":"您在完成前取消了付款。没有任何操作 — 准备好后可随时付款。","payPendingMsg":"付款正在等待支付网关确认。结果到达后您的申请会自动更新。","cxPaidDone":"由于此申请已付款，团队正在审核该笔付款并会就此联系您。在审核完成前，我们不承诺任何金额或时限。","cxPendPaid":"由于申请已付款，审核也包括该笔付款；在审核完成前，我们不承诺任何金额或时限。","waitingTeam":"团队正在审核您的申请","needYou":"等待您处理","tasksTitle":"需要您完成","done":"完成","requestCreated":"申请已创建","testRibbon":"测试模式 — 无真实付款","sourceLbl":"来源","direct":"直接购买","ticket":"支持工单","bought":"您购买的内容","directNote":"您直接通过购物车购买并已付款，因此没有报价和合同。您可以在此跟进进度、上传文件并接收交付成果。","cycM":"按月","cycY":"按年","unverifiedNote":"此笔付款金额无法自动与公布价格核对，团队将在开始执行前复核。无需重复付款。","navDocs":"我的文件","vaultNote":"文件只需上传一次 — 我们会在您的各项申请中使用，账户之外无人可见。","dzPick":"将文件拖到此处，或点击选择","dzHint":"PDF 或图片（JPG · PNG · WEBP）— 最大 8 MB","dName":"文件名称","dCat":"类型","dExp":"到期日（可选）","dSend":"上传文件","dOther":"选择其他文件","dUploading":"正在上传","dDone":"文件已上传 ✓","dNewVerDone":"已上传新版本 ✓","eBig":"文件超过 8 MB","eType":"不接受此格式。可用格式：PDF · JPG · PNG · WEBP。","eEmpty":"文件为空。","eName":"请先填写文件名称。","eNet":"无法连接服务器 — 请检查网络后重试。","eUp":"文件上传失败","eRead":"无法从您的设备读取该文件。","eNoOrg":"请先在“公司信息”中填写公司名称 — 文件保险库归属于公司。","dOpen":"打开","dNewVer":"新版本","dDel":"删除","dDelAsk":"确定要从保险库中永久删除此文件吗？","dVer":"版本","dExpires":"到期","dExpired":"已过期","dLeftA":"还剩","dLeftB":"天","dPending":"待核验","dReadOk":"已自动识别 ✓","dNone":"还没有文件 — 请在上方上传第一个。","dLoading":"正在加载…","dEntity":"主体","dCr":"商业登记号","dVat":"税号","dIssued":"签发","dRetry":"重试","navCompliance":"合规与违规","cIntro":"合规智能顾问“Mishari”跟踪贵公司的义务与违规并准备申诉。","cLoading":"正在加载合规信息…","cActive":"合规订阅已激活","cTrialLbl":"合规免费试用","cLockedTitle":"免费试用已结束","cLocked":"订阅合规服务以继续在此跟踪义务与违规并提交申诉。","cSubscribe":"订阅合规服务","cDocsTitle":"即将到期","cDocsNone":"60 天内没有文件需续期。","cManageDocs":"管理并上传您的文件","cViolTitle":"违规","cViolIntro":"登记任何政府违规（Baladi、Qiwa、ZATCA、民防…）并提交申诉，我们的团队将代您向主管机关跟进。","cStages":"申诉流程：审查 → 受理资格研究 → 准备 → 提交 → 跟进。我们不承诺撤销；我们研究受理资格并向主管机关跟进。","cViolNone":"尚无违规记录。如收到违规，请在下方登记。","cNew":"新","cDeadline":"申诉截止","cObjectBtn":"提交申诉","cObjectNote":"您的申诉理由——事实与证明文件…","cObjectFiled":"申诉进行中 — 团队正在处理","cAddTitle":"登记违规","cAuthority":"主管机关（Baladi、Qiwa、ZATCA…）","cVTitle":"违规描述","cVNumber":"违规编号（可选）","cVAmount":"金额（里亚尔，可选）","cVDate":"违规日期（可选）","cVDeadline":"申诉截止日期（可选）","cAddBtn":"登记违规","cAddDone":"违规已登记 ✓","ndaTitle":"保密与数据保护协议","ndaIntro":"在上传您的文件和企业信息之前，我们说明如何保护它们：","ndaP1":"保密：您的所有信息和文件均属机密，未经您同意不会与任何第三方共享，除非法律要求或为完成您所申请的政府服务。","ndaP2":"使用：我们仅将您的数据用于提供合规服务（跟踪义务、提醒、申诉）。","ndaP3":"访问：您的数据仅限于您的企业，只有获授权为您服务的团队才能访问。","ndaP4":"保存与删除：数据安全存储，服务结束时您可请求删除。","ndaP5":"您的同意：在下方同意即表示您已阅读这些条款，并授权 Business Partner 为服务目的处理您的数据。","ndaAgree":"我同意保密与数据保护协议。","ndaBtn":"同意并继续","ndaLocked":"同意保密协议以启用文件上传。","ixTitle":"一次上传公司的全部文件","ixSub":"我们读取并整理您的文件、填写公司资料，由您核对并确认。","ixHint":"商业登记 · 增值税证书 · 国家地址 · 执照 · 合同 — PDF 或图片（JPG · PNG · WEBP），单个文件最大 8 MB，一次最多 12 个。","ixDrop":"将文件拖到此处，或点击一次选择多个","ixBtn":"选择文件","ixNoSave":"在您点击“确认并整理”之前不会保存任何内容。","ixStep1":"读取","ixStep2":"核对","ixStep3":"确认","ixClose":"关闭","ixCancel":"取消","ixBack":"返回","ixReadingTitle":"正在读取您的文件…","ixReadingLead":"您可以让它继续运行——每个文件单独读取。","ixCount":"已读取 {n} / {t}","ixQueued":"等待中","ixReadingNow":"读取中…","ixReady":"已就绪","ixFailed":"失败","ixManual":"不读取直接保存","ixRetry":"重试","ixRemove":"移除","ixContinue":"继续核对","ixAddMore":"添加更多文件","ixReviewTitle":"核对读取结果","ixReviewLead":"在您点击“确认并整理”之前不会保存任何内容。可修改任何信息，或忽略任何文件。","ixSummary":"{t} 个文件：{r} 个已读取 · {u} 个无法读取 · {d} 个重复 · {f} 个失败","ixCompanyTitle":"建议的公司资料","ixCompanyLead":"取自您的文件。确认前可自由修改——仅更新您在此保留的内容。","ixFVat":"税号","ixFCity":"城市","ixCurrent":"当前已保存：{v}","ixReplaces":"将以读取到的内容替换","ixSame":"与已保存内容一致 ✓","ixFresh":"来自您文件的新信息","ixNotFound":"文件中未找到——如需可手动填写","ixFrom":"来源：{f}","ixAlt":"另一文件显示：{v}","ixUseAlt":"采用","ixType":"类型","ixCatLbl":"保险库分类","ixReadLbl":"读取到的内容","ixAddr":"地址","ixContact":"负责人","ixPhone":"手机","ixConfHigh":"高可信度","ixConfMed":"中等可信度","ixConfLow":"可信度低——请核实","ixIgnore":"忽略此文件","ixRestore":"保留此文件","ixIgnored":"将被忽略，不会保存","ixUnreadNote":"无法读取——将原样保存到保险库，请自行分类。","ixTypeUnknown":"未分类","ixT_cr":"商业登记","ixT_vat_certificate":"增值税证书","ixT_national_address":"国家地址","ixT_license":"执照","ixT_gosi":"社保证明","ixT_zakat":"天课证明","ixT_id":"身份证 / 居留证","ixT_contract":"合同","ixT_other":"其他文件","ixWExpired":"已过期","ixWExpiring":"{n} 天后到期","ixWDup":"重复——除非您保留，否则将被忽略","ixWConflict":"与另一文件冲突：{f}","ixWConflictSaved":"与您已保存的不同：{f}","ixWLow":"读取结果不确定","ixWBadVat":"税号应为 15 位数字","ixWBadCr":"商业登记号通常为 10 位数字","ixWUnread":"无法读取——原样保存","ixWNewVer":"将保存为现有文件的新版本","ixConfirm":"确认并整理","ixConfirmN":"确认并整理（{n}）","ixNothing":"请至少保留一个文件，或修改公司资料。","ixNeedName":"请先填写公司名称——保险库归属于公司。","ixCancelAsk":"放弃已读取的全部内容？不会保存任何内容。","ixCancelYes":"是，全部取消","ixCancelNo":"继续核对","ixSavingTitle":"正在保存并整理…","ixSavingLead":"请保持页面打开——正在将每个文件保存到您的保险库。","ixSavingCompany":"更新公司资料","ixSavingNow":"保存中…","ixSaved":"完成 ✓","ixStop":"停止","ixDoneTitle":"您的文件已整理完成","ixDoneFiles":"已将 {n} 个文件保存到保险库并按类型整理。","ixDoneCompany":"已更新您的公司资料：","ixDoneNoCompany":"公司资料未变化。","ixPartialTitle":"部分完成","ixPartial":"有 {n} 个文件保存失败。此前已保存的内容保持不变。","ixStopped":"您已停止保存。此前保存的内容仍在保险库中。","ixRetrySave":"重试失败的文件","ixOpenVault":"打开我的文件","ixOpenCompany":"打开公司资料","ixFieldsWord":"项","ixEBig":"超过 8 MB——请压缩或拆分后重新上传。","ixEBigRead":"超过 6 MB，无法自动读取——将原样保存，请自行分类。","ixEType":"不接受此格式。可用格式：PDF · JPG · PNG · WEBP。","ixEEmpty":"文件为空。","ixEUnread":"无法读取其内容（图片模糊或文件有密码保护）。您仍可将其保存到保险库并自行分类。","ixEService":"智能读取服务暂时不可用。我们将把文件保存到保险库，但不会自动填写——请自行分类，或稍后重试。","ixEBusy":"服务繁忙——请稍后重试。","ixENet":"无法连接服务器——请检查网络后重试。","ixENoOrg":"请先填写公司名称——保险库归属于公司。","ixEMany":"超过上限（一次 12 个文件）——仅添加了前面的文件。","ixEGeneric":"无法处理该文件——请重试；若反复失败，可不读取直接保存。","ixESave":"无法保存此文件——请重试。","ixECompany":"无法更新公司资料——请重试。"},ST={"NEW":"新","REVIEWING":"审核中","WAITING_CLIENT":"等待您回复","QUOTE_SENT":"报价待确认","QUOTE_APPROVED":"报价已确认","CONTRACT_SENT":"合同待签署","SIGNED":"已签署 — 待付款","PAYMENT_PENDING":"待付款","PAID":"已付款 — 准备执行","IN_PROGRESS":"执行中","BANK_REVIEW":"回单复核中","WAITING_INTERNAL":"执行中","COMPLETED":"已完成","CANCELLED":"已取消"},TY={"CONSULTATION":"咨询","GOVERNMENT_SERVICE":"政府服务","COMPANY_FORMATION":"公司注册","BUSINESS_DEVELOPMENT":"业务拓展"},HOME="/zh/",CHECKOUT="/zh/checkout",SELLER={"name":"شركة بزنس بارتنر سلوشنز","nameEn":"Business Partner Solutions Company","vat":"312079341500003","city":"الدرعية","cityEn":"Ad Diriyah"};
+var LANG="zh",EV={"request.created":"created the request","request.created.manual":"request created manually","request.created.cart":"request opened from a direct cart purchase","scope.proposed":"proposed the scope","scope.edited":"edited the scope","scope.confirmed":"confirmed the scope","quote.pending":"awaiting the quotation","message.customer":"customer message","message.bp":"team reply","attachment.added":"added an attachment","quote.drafted":"quote drafted","quote.sent":"sent the quotation","quote.approved":"approved the quotation","quote.rejected":"requested changes","contract.sent":"sent the contract","contract.signed":"signed the contract","payment.paid":"payment received","payment.failed":"payment failed","payment.cancelled":"payment cancelled","payment.pending":"payment pending","invoice.issued":"invoice issued","appointment.booked":"booked an appointment","appointment.rescheduled":"rescheduled the appointment","appointment.cancelled":"cancelled the appointment","appointment.set":"set the appointment","task.created":"created a task","task.human_required":"task needs a human","task.done":"completed the task","task.in_progress":"started the task","task.waiting":"task waiting","task.todo":"reopened the task","execution.started":"execution started","request.cancelled":"cancelled the request","request.updated":"updated the request","document.received":"document received","deliverable.added":"delivered a file","deliverable.removed":"withdrew a delivered file","status.completed":"request completed","status.in_progress":"execution started","status.waiting_internal":"in progress","status.reviewing":"under review","status.waiting_client":"waiting for your reply","status.cancelled":"request cancelled","quote.auto":"issued the quotation automatically","documents.requested":"listed the required documents","payment.receipt":"received the transfer receipt","message.whatsapp":"WhatsApp message","contract.reissued":"re-issued the contract","request.reopened":"reopened the request","cancel.requested":"cancellation requested","payment.after_cancel":"payment received after cancellation","followup.reminded":"reminded you of the next step","nda.sent":"non-disclosure agreement sent for signature","nda.signed":"non-disclosure agreement signed","addendum.sent":"quotation addendum sent","addendum.approved":"quotation addendum approved","addendum.rejected":"quotation addendum declined"},TX={"title":"我的账户 — Business Partner","navHome":"首页","navNew":"新申请","navRequests":"我的申请","navQuotes":"报价","navContracts":"合同","navAppts":"预约","navPay":"购物车与付款","navInvoices":"发票","navChats":"对话","navCompany":"公司信息","logout":"退出登录","site":"网站","attention":"现在需要您关注什么？","kActive":"进行中的申请","kQuotes":"待确认的报价","kContracts":"待签署的合同","kPayments":"待付款项","kAppts":"即将到来的预约","today":"今天需要什么帮助？","empty":"这里还没有内容。","ref":"编号","status":"状态","open":"打开","back":"返回","conversation":"对话","scope":"服务范围","cancelTitle":"取消此请求","cancelAsk":"申请取消","cancelWhy":"原因（可选）","cancelEarly":"尚无任何约束 — 取消将立即生效。","cancelLate":"此请求已进入有约束的阶段（合同、付款或执行）。我们会受理并由团队审核后回复您。","cancelSent":"已收到取消申请，正在审核。","cancelDone":"请求已取消","cxNowTitle":"取消此请求？","cxAskTitle":"申请取消此请求","cxNowGo":"是，取消请求","cxAskGo":"提交取消申请","cxKeep":"不，保留","cxSigned":"合同已签署，无法一键取消：我们会记录您的申请，由团队审核后回复您。在此期间请求保持不变。","cxPaid":"款项已支付，无法一键取消：我们会记录您的申请，由团队审核（包括退款）。在此期间请求保持不变。","evNotify":"已发送通知","cxAppt":"已预约的咨询时间也将一并取消。","cxNowNote":"立即取消，且未产生任何扣款。","cxDoneNow":"请求已取消","cxDoneNowT":"您的请求已取消，并已从进行中的申请中移除。您可以随时发起新申请。","cxPendTitle":"取消申请正在由团队审核","cxPendText":"我们正在审核该请求涉及的合同、付款或执行情况并会回复您。在此期间请求保持不变。","cxSentAt":"提交于","cxPill":"取消审核中","cxNewReq":"发起新申请","cxAlready":"取消申请已登记，正在审核。","cxErrClosed":"此请求已关闭（已取消或已完成）。","cxErrSess":"登录已过期，请重新登录后再试。","cxErrNet":"无法连接服务器。请检查网络后重试。","cxErrNF":"在您的账户中找不到此请求。","cxErrGen":"暂时无法取消。请稍后重试，或在对话中联系团队。","resign":"本合同在您签署后已出具更正版本 — 我们会再次发送给您签署。","openFull":"全屏打开","docPrint":"打印 / 保存 PDF","docClose":"关闭","docWait":"正在准备文件…","attachments":"附件","quote":"报价","contract":"合同","payment":"付款","invoice":"发票","timeline":"时间线","writeMsg":"给团队留言…","send":"发送","saveScope":"保存修改","quoteIssuedFlash":"范围已确认 ✓ — 报价已出具，就在本页面。","holdFlash":"范围已确认 ✓ — 部分项目由团队定价，原因见各项目旁。","signNameErr":"请在姓名栏填写全名（至少3个字符）。","signDrawErr":"签署前请在框内手写签名。","expiredNote":"此报价已过期，无法确认。请申请按今日价格续期。","renewAsk":"已过期 — 申请续期","renewMsg":"请续期报价","renewSent":"续期申请已送达团队，更新后的报价随后发送。","pendTitle":"待定价项目（将另发补充报价）","pendLead":"这些项目不计入总额和合同。团队定价后您将收到独立的补充报价，本报价不变。","adTitle":"补充报价","adApprove":"确认补充报价","adReject":"不同意","adNote":"原因","adDone":"补充报价已确认，团队将与您跟进。","reqGone":"此申请已不可用：已被取消或从您的账户移除。您可以重新开始。","nda":"保密协议","ndaLead":"您与 Business Partner 之间的双向协议。签署不会影响您的申请，并随申请一并保存。","ndaSignBtn":"签署协议","ndaSigned":"协议已签署","ndaDone":"保密协议已签","ndaWait":"保密协议待签","clientNotes":"您的备注（仅供参考，不属于合同条款）","holdTitle":"报价等待人工定价","holdLead":"我们已确认您的服务范围。目录中没有的价格我们不会臆造，因此由团队为以下项目定价，随后报价将发送到此处和您的邮箱——您无需任何操作。","hold_custom":"您自行填写的项目，目录中没有价格","hold_unknown_code":"目录中找不到该服务代码","hold_proposal":"需根据您的情况评估后定价，并非固定价格","hold_from":"目录仅列出“起价”，并非最终价格","hold_recurring":"为周期性订阅，并非一次性付款","hold_percent":"按比例计算，并非固定金额","hold_no_price":"目录中没有价格","cxGone":"请求已取消，并已从您的列表中移除。","confirmScope":"确认范围并继续","scopePricing":"范围已确认 ✓ — 团队正在准备报价。","docs":"所需文件","docsNote":"我们需要这些文件来完成您的申请 — 用对应按钮上传，团队会立即收到。","docsNone":"暂无所需文件。您仍可上传与此申请相关的任何文件。","docUp":"上传","docUpMore":"再上传一个","docUpAny":"上传其他文件","docRecv":"已收到 ✓","docWaived":"无需提供","docAsked":"待提供","docSent":"您的文件已送达团队 ✓","fOpen":"打开","eMany":"此申请的文件数量已达上限。","eClosed":"此申请已关闭，无法再上传文件。","delivTitle":"交付成果","progTitle":"办理进度","stDone":"已完成","stActive":"进行中","stPending":"待办","updTitle":"最新动态","updMore":"显示全部动态","updLess":"仅显示最新","delivNone":"我们交付的文件会显示在这里，交付后会立即发邮件通知您。","delivNoneDone":"申请已完成，没有交付文件。","delivDl":"下载","delivErr":"无法打开文件 — 请重试。","invSeller":"卖方","invVat":"卖方税号","invBuyer":"买方","invOfficial":"正式发票 (PDF)","addItem":"添加条目","remove":"删除","scopeLocked":"报价发出后范围已锁定。","qty":"数量","price":"价格","net":"小计","vat":"增值税 15%","total":"总计","validUntil":"有效期至","terms":"付款条款","approve":"确认报价","reject":"要求修改","rejectNote":"您希望修改什么？","quoteApproved":"报价已确认，合同现已可供签署。","quoteApprovedDone":"报价已确认 ✓","quoteExpired":"此报价已过期。请在申请中留言，我们将按当日价格为您更新。","viewContract":"查看合同","signTitle":"电子签名","signName":"签署人全名","signDraw":"请手写签名","signClear":"清除","signConsent":"我同意我的电子签名根据《电子交易法》具有约束力。","signBtn":"签署合同","signed":"合同已签署","payNow":"立即付款","payCardNow":"银行卡付款","payBankNow":"银行转账付款","bkTitle":"银行转账付款","bkHow":"请将准确金额转入下方公司账户，并在转账备注中填写申请编号，然后上传回单图片或 PDF。智能顾问会核对金额、收款人和 IBAN：一致则确认付款并开具发票，否则由团队复核并告知原因。","bkBene":"收款人","bkBank":"银行","bkIban":"IBAN","bkAmt":"应转金额（含税）","bkRef":"申请编号——请填写在备注中","bkFile":"转账回单（图片或 PDF）","bkGo":"上传回单","copy":"复制","copied":"已复制","bkSending":"正在上传并核对回单…","bkNeedFile":"请先选择回单图片或 PDF。","bkBadType":"文件必须是图片（JPG、PNG 或 WebP）或 PDF。","bkTooBig":"文件过大，请使用小于 3 MB 的文件。","bkFail":"回单上传失败，未记录任何内容。请稍后重试，或使用银行卡付款。","bkLogin":"登录已过期，请重新登录后上传回单。","bkSlow":"尝试次数过多，请稍候再试。","bkClosed":"该申请不再接受回单。如已转账，请在下方对话中联系我们。","bkPaid":"该申请已付款。","bkOff":"银行转账暂不可用，请使用银行卡或 Tamara 付款。","bkApproved":"智能顾问已核对您的回单：金额、收款人和 IBAN 一致，付款已确认并开具发票。","bkInv":"发票号","bkReview":"已收到您的回单，正在复核。请勿重复转账，确认后我们会通知您。","bkWhy":"转人工复核原因：","reviewTitle":"您的回单正在复核","reviewText":"已收到您的转账回单，团队正在复核。请勿重复转账，也无需再次付款，确认后我们会通知您。如回单不清晰，请在下方对话中联系我们。","reviewList":"复核中的回单","payTamaraNow":"使用 Tamara 分期","payReturning":"正在确认您的付款…","payVia":"通过安全支付页面付款（mada、Visa、Mastercard、Apple Pay，Tamara 可用时）","testPay":"模拟付款（测试模式）","paySuccess":"成功 — 银行卡","payTamara":"成功 — Tamara","payFailed":"失败","payCancelled":"取消","payPending":"待处理","paid":"已付款","download":"查看发票","book":"预约","reschedule":"改期","cancelAppt":"取消预约","date":"日期","time":"时间","topic":"主题","confirm":"确认","apptNote":"通过 Google Meet 进行的免费视频会谈；均为利雅得时间。我们将通过邮件确认并发送日历邀请。","apptHours":"会谈时间 {a}–{b}（利雅得时间 GMT+3），每次 {n} 分钟。","apptDays":"除{d}外每天。","apptDaysAll":"每周每天。","apptLoading":"正在加载可预约时间…","apptNone":"目前没有可用时间。请通过 WhatsApp 联系我们。","apptOut":"该时间不在会谈时段内 — 请从列表中选择。","apptSoon":"预约需至少提前一小时 — 请选择更晚的时间。","apptFar":"该日期超出可预约范围。","apptTaken":"该时段刚被预订 — 请另选。","apptMany":"您已有两个即将进行的预约 — 请取消其一或等待其结束。","apptRate":"尝试次数过多 — 请稍后再试。","nextAppt":"您的下一次预约","videoFree":"视频通话 — 免费咨询","joinNow":"加入会议","joinSoon":"开始前五分钟开放加入。","meetLink":"会议链接","addCal":"添加到日历","apptPending":"时间等待团队确认 — 确认后会议链接和日历邀请将发送到您的邮箱。","apptOver":"此会谈已结束。","riyadh":"利雅得时间","cancelReq":"取消申请","company":"公司名称","cr":"商业登记号","nameEn":"英文名称","save":"保存","saved":"已保存","sessEnd":"会话已过期 — 请重新登录后继续。","apptBad":"请先选择日期和时间。","apptFri":"当天不安排会谈 — 请选择其他日期。","apptPast":"该时间已过 — 请选择之后的时间。","provCard":"银行卡","provTamara":"Tamara","provBank":"银行转账","actAi":"智能顾问","actSys":"系统","actTeam":"Business Partner 团队","you":"您","team":"团队","assistant":"助手","loginTitle":"登录","loginText":"选择登录方式——无论哪种方式都是同一个账户。","tabPw":"密码","tabNew":"新账户","tabLink":"邮件链接","forgot":"忘记密码？使用邮件链接登录","badCreds":"邮箱或密码不正确。","tooMany":"尝试次数过多，请稍等后再试。","pwNew":"设置密码","pwConfirm":"再次输入密码","pwMismatch":"两次输入的密码不一致。","pwRule":"至少 8 个字符，包含字母和数字。","pwr_short":"密码至少 8 个字符。","pwr_long":"密码过长。","pwr_no_letter":"密码至少需要一个字母。","pwr_no_digit":"密码至少需要一个数字。","pwr_repetitive":"密码字符过于重复，请换一个。","pwr_common":"密码过于常见，请换一个。","pwr_has_email":"密码中不要包含您的邮箱。","signupGo":"创建账户并发送验证码","signupNote":"我们会向您的邮箱发送验证码，确认后密码才会生效。","codeSent":"验证码已发送到 {e}。","codeOld":"验证码已过期，请重新开始。","confirmGo":"确认并登录","cStep":"仅需一步，只需一次","cTitle":"完善您的账户","cText":"您的身份已通过 Nafath 验证。我们需要您的邮箱以发送税务发票和申请进度，并需要您的手机号以便团队联系您。","cPhone":"手机号码","cPhonePh":"05XXXXXXXX","cBadPhone":"请输入有效的手机号，例如 05XXXXXXXX。","cSend":"发送验证码","cMismatch":"此邮箱已关联另一个身份。请使用其他邮箱或联系我们。","email":"邮箱","sendCode":"发送验证码","password":"密码","loginPw":"使用密码登录","usePw":"使用密码登录","useCode":"改用邮箱验证码","sendLink":"给我发送登录链接","badEmail":"请输入有效的邮箱地址。","linkSent":"登录链接已发送到 {e}——打开邮箱点击即可登录（15 分钟内有效）。","orCode":"或输入同一封邮件中的验证码：","resend":"重新发送链接","resendIn":"{n} 秒后可重发","changeEmail":"更换邮箱","openLink":"打开测试链接","linkTitle":"确认登录","linkText":"点击按钮完成登录。","linkGo":"继续进入我的账户","linkBad":"此链接已过期或已被使用，请重新获取。","linkNew":"获取新链接","pwTitle":"密码","pwNote":"设置密码即可直接登录，无需每次等待验证码。","pwSave":"保存密码","pwShort":"密码至少 8 个字符。","pwSaved":"密码已保存 ✓","code":"验证码","verify":"登录","loginErr":"无法发送验证码。","codeErr":"验证码错误。","error":"出错了，请重试。","pfStep":"仅需一步，只需一次","pfTitle":"请告诉我们您是谁","pfText":"您的全名将出现在报价单、合同和发票上，我们也会通过手机与您联系。","pfName":"全名","pfNamePh":"名和姓","pfSave":"保存并继续","pfBadName":"请输入全名（至少两个词，不含数字）。","pfLater":"稍后","resumeNote":"您在聊天中开始的申请已保存 — 登录后我们会自动为您完成创建。","revTitle":"要求修改报价","revText":"请说明需要修改的内容（项目、数量、条款…）。团队审核后，修订报价将发送到此处和您的邮箱。当前报价将不会被确认。","revNeed":"请填写需要的修改（至少三个字符）。","revGo":"提交修改请求","revSentTitle":"已收到您的修改请求","revSentText":"团队正在审核，修订报价将发送到此处和您的邮箱。在此之前您无需任何操作。","revYouAsked":"您的请求：","payFailedMsg":"付款未完成。您可以重试或选择其他方式。若您的卡上出现扣款，请在对话中联系我们，我们会与您核实。","payCancelledMsg":"您在完成前取消了付款。没有任何操作 — 准备好后可随时付款。","payPendingMsg":"付款正在等待支付网关确认。结果到达后您的申请会自动更新。","cxPaidDone":"由于此申请已付款，团队正在审核该笔付款并会就此联系您。在审核完成前，我们不承诺任何金额或时限。","cxPendPaid":"由于申请已付款，审核也包括该笔付款；在审核完成前，我们不承诺任何金额或时限。","waitingTeam":"团队正在审核您的申请","needYou":"等待您处理","tasksTitle":"需要您完成","done":"完成","requestCreated":"申请已创建","testRibbon":"测试模式 — 无真实付款","sourceLbl":"来源","direct":"直接购买","ticket":"支持工单","bought":"您购买的内容","directNote":"您直接通过购物车购买并已付款，因此没有报价和合同。您可以在此跟进进度、上传文件并接收交付成果。","cycM":"按月","cycY":"按年","unverifiedNote":"此笔付款金额无法自动与公布价格核对，团队将在开始执行前复核。无需重复付款。","navDocs":"我的文件","vaultNote":"文件只需上传一次 — 我们会在您的各项申请中使用，账户之外无人可见。","dzPick":"将文件拖到此处，或点击选择","dzHint":"PDF 或图片（JPG · PNG · WEBP）— 最大 3.3 MB","dName":"文件名称","dCat":"类型","dExp":"到期日（可选）","dSend":"上传文件","dOther":"选择其他文件","dUploading":"正在上传","dDone":"文件已上传 ✓","dNewVerDone":"已上传新版本 ✓","eBig":"文件超过 3.3 MB","eType":"不接受此格式。可用格式：PDF · JPG · PNG · WEBP。","eEmpty":"文件为空。","eName":"请先填写文件名称。","eNet":"无法连接服务器 — 请检查网络后重试。","eUp":"文件上传失败","eRead":"无法从您的设备读取该文件。","eNoOrg":"请先在“公司信息”中填写公司名称 — 文件保险库归属于公司。","dOpen":"打开","dNewVer":"新版本","dDel":"删除","dDelAsk":"确定要从保险库中永久删除此文件吗？","dVer":"版本","dExpires":"到期","dExpired":"已过期","dLeftA":"还剩","dLeftB":"天","dPending":"待核验","dReadOk":"已自动识别 ✓","dNone":"还没有文件 — 请在上方上传第一个。","dLoading":"正在加载…","dEntity":"主体","dCr":"商业登记号","dVat":"税号","dIssued":"签发","dRetry":"重试","navCompliance":"合规与违规","cIntro":"合规智能顾问“Mishari”跟踪贵公司的义务与违规并准备申诉。","cLoading":"正在加载合规信息…","cActive":"合规订阅已激活","cTrialLbl":"合规免费试用","cLockedTitle":"免费试用已结束","cLocked":"订阅合规服务以继续在此跟踪义务与违规并提交申诉。","cSubscribe":"订阅合规服务","cDocsTitle":"即将到期","cDocsNone":"60 天内没有文件需续期。","cManageDocs":"管理并上传您的文件","cViolTitle":"违规","cViolIntro":"登记任何政府违规（Baladi、Qiwa、ZATCA、民防…）并提交申诉，我们的团队将代您向主管机关跟进。","cStages":"申诉流程：审查 → 受理资格研究 → 准备 → 提交 → 跟进。我们不承诺撤销；我们研究受理资格并向主管机关跟进。","cViolNone":"尚无违规记录。如收到违规，请在下方登记。","cNew":"新","cDeadline":"申诉截止","cObjectBtn":"提交申诉","cObjectNote":"您的申诉理由——事实与证明文件…","cObjectFiled":"申诉进行中 — 团队正在处理","cAddTitle":"登记违规","cAuthority":"主管机关（Baladi、Qiwa、ZATCA…）","cVTitle":"违规描述","cVNumber":"违规编号（可选）","cVAmount":"金额（里亚尔，可选）","cVDate":"违规日期（可选）","cVDeadline":"申诉截止日期（可选）","cAddBtn":"登记违规","cAddDone":"违规已登记 ✓","ndaTitle":"保密与数据保护协议","ndaIntro":"在上传您的文件和企业信息之前，我们说明如何保护它们：","ndaP1":"保密：您的所有信息和文件均属机密，未经您同意不会与任何第三方共享，除非法律要求或为完成您所申请的政府服务。","ndaP2":"使用：我们仅将您的数据用于提供合规服务（跟踪义务、提醒、申诉）。","ndaP3":"访问：您的数据仅限于您的企业，只有获授权为您服务的团队才能访问。","ndaP4":"保存与删除：数据安全存储，服务结束时您可请求删除。","ndaP5":"您的同意：在下方同意即表示您已阅读这些条款，并授权 Business Partner 为服务目的处理您的数据。","ndaAgree":"我同意保密与数据保护协议。","ndaBtn":"同意并继续","ndaLocked":"同意保密协议以启用文件上传。","ixTitle":"一次上传公司的全部文件","ixSub":"我们读取并整理您的文件、填写公司资料，由您核对并确认。","ixHint":"商业登记 · 增值税证书 · 国家地址 · 执照 · 合同 — PDF 或图片（JPG · PNG · WEBP），单个文件最大 3.3 MB，一次最多 12 个。","ixDrop":"将文件拖到此处，或点击一次选择多个","ixBtn":"选择文件","ixNoSave":"在您点击“确认并整理”之前不会保存任何内容。","ixStep1":"读取","ixStep2":"核对","ixStep3":"确认","ixClose":"关闭","ixCancel":"取消","ixBack":"返回","ixReadingTitle":"正在读取您的文件…","ixReadingLead":"您可以让它继续运行——每个文件单独读取。","ixCount":"已读取 {n} / {t}","ixQueued":"等待中","ixReadingNow":"读取中…","ixReady":"已就绪","ixFailed":"失败","ixManual":"不读取直接保存","ixRetry":"重试","ixRemove":"移除","ixContinue":"继续核对","ixAddMore":"添加更多文件","ixReviewTitle":"核对读取结果","ixReviewLead":"在您点击“确认并整理”之前不会保存任何内容。可修改任何信息，或忽略任何文件。","ixSummary":"{t} 个文件：{r} 个已读取 · {u} 个无法读取 · {d} 个重复 · {f} 个失败","ixCompanyTitle":"建议的公司资料","ixCompanyLead":"取自您的文件。确认前可自由修改——仅更新您在此保留的内容。","ixFVat":"税号","ixFCity":"城市","ixCurrent":"当前已保存：{v}","ixReplaces":"将以读取到的内容替换","ixSame":"与已保存内容一致 ✓","ixFresh":"来自您文件的新信息","ixNotFound":"文件中未找到——如需可手动填写","ixFrom":"来源：{f}","ixAlt":"另一文件显示：{v}","ixUseAlt":"采用","ixType":"类型","ixCatLbl":"保险库分类","ixReadLbl":"读取到的内容","ixAddr":"地址","ixContact":"负责人","ixPhone":"手机","ixConfHigh":"高可信度","ixConfMed":"中等可信度","ixConfLow":"可信度低——请核实","ixIgnore":"忽略此文件","ixRestore":"保留此文件","ixIgnored":"将被忽略，不会保存","ixUnreadNote":"无法读取——将原样保存到保险库，请自行分类。","ixTypeUnknown":"未分类","ixT_cr":"商业登记","ixT_vat_certificate":"增值税证书","ixT_national_address":"国家地址","ixT_license":"执照","ixT_gosi":"社保证明","ixT_zakat":"天课证明","ixT_id":"身份证 / 居留证","ixT_contract":"合同","ixT_articles":"公司章程","ixT_bank_statement":"银行对账单","ixT_chamber":"商会证书","ixT_unknown":"未分类","ixT_other":"其他文件","ixW_corrupt":"文件已损坏或与其格式不符——请重新导出或扫描。","ixW_bad_type":"不接受此格式——仅限 PDF 及 JPG/PNG/WEBP 图片。","ixW_too_large":"文件超出大小限制——请压缩后重新上传。","ixW_empty":"文件为空。","ixW_unreadable":"无法自动读取此文件——可原样保存并自行分类。","ixW_reader_not_configured":"自动读取暂不可用——文件将原样保存，请自行分类。","ixW_read_timeout":"读取超时——请重新读取。","ixW_deferred_timeout":"时间不足，未能读取此文件——请单独重新读取。","ixW_unknown_type":"无法识别文件类型——请自行选择分类。","ixW_duplicate":"重复——本批次已有相同内容，不会重复保存。","ixW_duplicate_in_vault":"此文件已在您的保险库中——不会再次保存。","ixW_expired":"已于 {d} 过期","ixW_expiring_soon":"{n} 天后到期（{d}）","ixW_expiry_hijri_only":"到期日仅以伊斯兰历显示——请自行填写公历日期。","ixW_injection_suspected":"文件含有类似给 AI 系统指令的文字——已忽略并将其全部数据标记为需核对。","ixW_low_confidence":"读取可信度低——确认前请核实该值。","ixW_invalid_value":"有一项格式不正确的值已被忽略。","ixW_date_order":"到期日早于签发日——已忽略到期日。","ixW_conflict":"与另一文件冲突：{f}","ixW_differs_from_company":"与您公司资料中已保存的不同：{f}","ixW_new_version":"将保存为现有文件的新版本","ixNeedReview":"需要您核对","ixDupNote":"不会保存——已有相同内容。","ixDupWord":"重复","ixFUnified":"统一编号","ixFActivity":"经营范围","ixRereads":"重新读取","ixSaveRaw":"不读取直接保存","ixErrCr":"商业登记号：仅数字（6 至 15 位）。","ixErrVat":"税号：15 位数字，以 3 开头并以 3 结尾。","ixFixFirst":"请更正标红的号码或将其清空。","ixSkipDup":"已在保险库中——未重复保存","ixConfirm":"确认并整理","ixConfirmN":"确认并整理（{n}）","ixNothing":"请至少保留一个文件，或修改公司资料。","ixNeedName":"请先填写公司名称——保险库归属于公司。","ixCancelAsk":"放弃已读取的全部内容？不会保存任何内容。","ixCancelYes":"是，全部取消","ixCancelNo":"继续核对","ixSavingTitle":"正在保存并整理…","ixSavingLead":"请保持页面打开——正在将每个文件保存到您的保险库。","ixSavingCompany":"更新公司资料","ixSavingNow":"保存中…","ixSaved":"完成 ✓","ixStop":"停止","ixDoneTitle":"您的文件已整理完成","ixDoneFiles":"已将 {n} 个文件保存到保险库并按类型整理。","ixDoneCompany":"已更新您的公司资料：","ixDoneNoCompany":"公司资料未变化。","ixPartialTitle":"部分完成","ixPartial":"有 {n} 个文件保存失败。此前已保存的内容保持不变。","ixStopped":"您已停止保存。此前保存的内容仍在保险库中。","ixRetrySave":"重试失败的文件","ixOpenVault":"打开我的文件","ixOpenCompany":"打开公司资料","ixEBig":"超过 3.3 MB——请压缩或拆分后重新上传。","ixEType":"不接受此格式。可用格式：PDF · JPG · PNG · WEBP。","ixEEmpty":"文件为空。","ixEUnread":"无法读取其内容（图片模糊或文件有密码保护）。您仍可将其保存到保险库并自行分类。","ixEService":"智能读取服务暂时不可用。我们将把文件保存到保险库，但不会自动填写——请自行分类，或稍后重试。","ixEBusy":"服务繁忙——请稍后重试。","ixENet":"无法连接服务器——请检查网络后重试。","ixENoOrg":"请先填写公司名称——保险库归属于公司。","ixEMany":"超过上限（一次 12 个文件）——仅添加了前面的文件。","ixEGeneric":"无法处理该文件——请重试；若反复失败，可不读取直接保存。","ixERate":"已达到此时段的文件上限（每 10 分钟 40 个）——请稍候再试。","ixEChanged":"发送的文件与读取的不一致——请重新上传。","ixECorrupt":"文件已损坏或与其格式不符。","ixEFact_invalid_cr":"商业登记号格式不正确——未保存。","ixEFact_invalid_vat":"税号格式不正确——未保存。","ixEFact_invalid_value":"有一项公司资料无效——未保存。","ixEFact_db_failed":"无法更新公司资料——请重试。","ixESave":"无法保存此文件——请重试。","ixECompany":"无法更新公司资料——请重试。"},ST={"NEW":"新","REVIEWING":"审核中","WAITING_CLIENT":"等待您回复","QUOTE_SENT":"报价待确认","QUOTE_APPROVED":"报价已确认","CONTRACT_SENT":"合同待签署","SIGNED":"已签署 — 待付款","PAYMENT_PENDING":"待付款","PAID":"已付款 — 准备执行","IN_PROGRESS":"执行中","BANK_REVIEW":"回单复核中","WAITING_INTERNAL":"执行中","COMPLETED":"已完成","CANCELLED":"已取消"},TY={"CONSULTATION":"咨询","GOVERNMENT_SERVICE":"政府服务","COMPANY_FORMATION":"公司注册","BUSINESS_DEVELOPMENT":"业务拓展"},HOME="/zh/",CHECKOUT="/zh/checkout",SELLER={"name":"شركة بزنس بارتنر سلوشنز","nameEn":"Business Partner Solutions Company","vat":"312079341500003","city":"الدرعية","cityEn":"Ad Diriyah"};
 var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null,violations:null};
 var $=function(s,r){return (r||document).querySelector(s)};
 function h(tag,attrs,kids){var e=document.createElement(tag);if(attrs)for(var k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.indexOf('on')===0)e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k])}(kids||[]).forEach(function(c){if(c==null)return;e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
@@ -1141,28 +1144,22 @@ var pf=h('div',{class:'form'},[h('p',{class:'note'},[TX.pwNote]),h('label',{},[T
 m.appendChild(h('div',{class:'card'},[h('h3',{},[TX.pwTitle]),pf]))}
 
 var IXC=(function makeIntakeCore() {
-  var MAX_BYTES = 8 * 1024 * 1024;      // حدّ الخزانة (api/requests.js DOC_VAULT_MAX_BYTES)
-  var MAX_READ = 6 * 1024 * 1024;       // حدّ القراءة الآلية (api/_docread.js MAX_DOC_BYTES)
+  // الحدّ الفعلي لجسم الطلب ٤٫٥MB (Vercel وخادم Azure معاً) وbase64 يزيده ثلثاً، فالخادم يرفض
+  // نداءً تتجاوز ملفاته الخام ٣٫٣MB (api/_doc-intake.js INTAKE_MAX_BATCH_BYTES). الواجهة تلتزم بالحدّ نفسه.
+  var MAX_BYTES = 3.3 * 1024 * 1024;
+  var PACK_BYTES = 3.0 * 1024 * 1024;   // مجموع ما يُرسل في نداء قراءة واحد (هامشٌ تحت الحدّ)
+  var PACK_FILES = 3;                   // تزامن القراءة في الخادم ٣: نداءٌ بثلاثة ملفات يستغرق وقت ملفٍ واحد
   var MAX_FILES = 12;
+  var PRIOR_MAX = 30;
   var OK_MIME = { "application/pdf": "application/pdf", "image/jpeg": "image/jpeg", "image/jpg": "image/jpeg", "image/png": "image/png", "image/webp": "image/webp" };
   var OK_EXT = { pdf: "application/pdf", jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp" };
   var COMPANY_FIELDS = ["name_ar", "name_en", "cr_number", "vat_number", "city"];
-  // نوع المستند كما يقرؤه الوكيل ← تصنيفه في الخزانة (db/schema.sql: documents.category)
-  var TYPE_CAT = { cr: "cr", vat_certificate: "vat", national_address: "national_address", license: "license", gosi: "gosi", zakat: "zakat", id: "id", contract: "contract", other: "other" };
-  var CONF_RANK = { high: 3, medium: 2, low: 1 };
-  // سلطة كل نوع مستند على كل حقل من بيانات الشركة: السجل التجاري هو الأصل للاسم
-  // ورقم السجل، والشهادة الضريبية هي الأصل للرقم الضريبي. الهوية لا تُقترح منها شركة.
-  var AUTH = {
-    name_ar: { cr: 4, vat_certificate: 3, license: 2, zakat: 2, gosi: 2, national_address: 1, contract: 0, other: 0 },
-    name_en: { cr: 4, vat_certificate: 3, license: 2, zakat: 2, gosi: 2, national_address: 1, contract: 0, other: 0 },
-    cr_number: { cr: 4, license: 2, gosi: 2, vat_certificate: 1, zakat: 1, national_address: 1, contract: 0, other: 0 },
-    vat_number: { vat_certificate: 4, zakat: 3, license: 1, cr: 1, gosi: 1, national_address: 0, contract: 0, other: 0 },
-    city: { national_address: 4, cr: 3, vat_certificate: 3, license: 2, gosi: 1, zakat: 1, contract: 0, other: 0 }
-  };
+  var CATS = ["cr", "vat", "contract", "id", "other"];   // تصنيفات الخزانة التي يقبلها الخادم عند الاعتماد
+  var LEVEL_RANK = { high: 3, medium: 2, low: 1 };
 
   function str(v) { return v == null ? "" : String(v).trim(); }
   function ext(n) { var t = str(n); var i = t.lastIndexOf("."); return i < 0 ? "" : t.slice(i + 1).toLowerCase(); }
-  // النوع من ترويسة المتصفح أولاً، ومن الامتداد حين يصمت المتصفح (أندرويد وبعض الـPDF).
+  // النوع من ترويسة المتصفح أولاً، ومن الامتداد حين يصمت المتصفح (أندرويد وبعض الـPDF). الخادم يتحقق من بصمة البايتات.
   function mimeOf(f) { return OK_MIME[str(f && f.type).toLowerCase()] || OK_EXT[ext(f && f.name)] || ""; }
   function fileCheck(f) {
     if (!f) return "bad_type";
@@ -1190,19 +1187,7 @@ var IXC=(function makeIntakeCore() {
       .replace(/ى/g, "ي").replace(/ة/g, "ه")
       .replace(/[\s.,\-_()\/\\"'،؛]+/g, "");
   }
-  function sameName(a, b) {
-    var x = nameKey(a), y = nameKey(b);
-    if (!x || !y) return false;
-    if (x === y) return true;
-    var s = x.length <= y.length ? x : y, l = x.length <= y.length ? y : x;
-    return s.length >= 5 && l.indexOf(s) >= 0;
-  }
-  function sameVal(field, a, b) {
-    if (field === "cr_number" || field === "vat_number") return digits(a) === digits(b) && !!digits(a);
-    return sameName(a, b);
-  }
   // تطابقٌ تامّ (للحفظ والعرض): الأرقام بأرقامها، والأسماء بعد إزالة الفروق الشكلية فقط.
-  // أما sameVal فتسامح بالاحتواء، وهو للكشف عن مصدرين لشيءٍ واحد لا للحكم بأن الاسم لم يتغيّر.
   function exactSame(field, a, b) {
     if (field === "cr_number" || field === "vat_number") return !!digits(a) && digits(a) === digits(b);
     return !!nameKey(a) && nameKey(a) === nameKey(b);
@@ -1216,159 +1201,114 @@ var IXC=(function makeIntakeCore() {
     return Math.round((t - n) / 86400000);
   }
   function validDate(d) { var s = str(d).slice(0, 10); return /^\d{4}-\d{2}-\d{2}$/.test(s) && isFinite(Date.parse(s + "T00:00:00Z")) ? s : ""; }
-  function categoryOf(docType, serverCategory) {
-    var c = str(serverCategory);
-    if (c) return c;
-    return TYPE_CAT[str(docType)] || "other";
-  }
 
-  // ردّ الخادم عن ملفٍ واحد ← مدخلٌ موحّد. متسامحٌ مع الحقول الناقصة: ما ليس ظاهراً يبقى فارغاً ولا يُخمَّن.
-  // يقبل docType وما معه داخل `fields` أيضاً (هكذا يعيدها readDocument اليوم).
-  function fromServer(x) {
-    x = x || {};
-    var f = x.fields && typeof x.fields === "object" ? x.fields : {};
-    var addr = f.address && typeof f.address === "object" ? f.address : {};
-    var docType = str(x.docType || f.docType) || "other";
-    var out = {
-      docType: TYPE_CAT[docType] ? docType : "other",
-      docTitle: str(x.docTitle || x.title || f.docTitle).slice(0, 200),
-      category: categoryOf(docType, x.category),
-      issueDate: validDate(x.issueDate || f.issueDate),
-      expiryDate: validDate(x.expiryDate || f.expiryDate),
-      confidence: CONF_RANK[str(x.confidence || f.confidence)] ? str(x.confidence || f.confidence) : "medium",
-      fields: {
-        companyNameAr: str(f.companyNameAr), companyNameEn: str(f.companyNameEn),
-        crNumber: digits(f.crNumber), vatNumber: digits(f.vatNumber),
-        city: str(addr.city || f.city), district: str(addr.district), street: str(addr.street),
-        buildingNo: str(addr.buildingNo), postalCode: str(addr.postalCode),
-        contactName: str(f.contactName), contactPhone: str(f.contactPhone)
-      },
-      fieldConfidence: x.fieldConfidence && typeof x.fieldConfidence === "object" ? x.fieldConfidence : {},
-      serverWarnings: []
-    };
-    var w = Array.isArray(x.warnings) ? x.warnings : [];
-    for (var i = 0; i < w.length; i++) {
-      var c = typeof w[i] === "string" ? w[i] : w[i] && w[i].code;
-      if (c) out.serverWarnings.push({ code: str(c), field: str(w[i] && w[i].field) });
+  // ----- القراءة: ما يُرسَل وما يُستلَم
+  // حزم الملفات في نداءات: كل نداء ≤ ٣ ملفات و≤ ٣MB خاماً، وملفٌّ واحد كبير (حتى ٣٫٣MB) يذهب وحده.
+  // list عناصرها {id,size}؛ يعيد مصفوفة مصفوفات من الـid بترتيب الإدخال.
+  function packBatches(list) {
+    var out = [], cur = [], bytes = 0, i, it;
+    for (i = 0; i < list.length; i++) {
+      it = list[i];
+      if (cur.length && (cur.length >= PACK_FILES || bytes + it.size > PACK_BYTES)) { out.push(cur); cur = []; bytes = 0; }
+      cur.push(it.id); bytes += it.size;
+    }
+    if (cur.length) out.push(cur);
+    return out;
+  }
+  // نتائج النداءات السابقة التي يطلب الخادم تمريرها (prior) لدمج الحقائق وكشف التكرار عبر النداءات.
+  // لا يُمرَّر ما سيُرسَل الآن (وإلا عُدّ مكرراً لنفسه).
+  function priorFrom(entries, exceptIds) {
+    var out = [], i, e;
+    for (i = entries.length - 1; i >= 0 && out.length < PRIOR_MAX; i--) {
+      e = entries[i];
+      if (!e.srv || (exceptIds && exceptIds.indexOf(e.id) >= 0)) continue;
+      out.unshift({ id: e.srv.id, fileName: e.srv.fileName, sha256: e.srv.sha256, docType: e.srv.docType, issueDate: e.srv.issueDate || null, suspicious: !!e.srv.suspicious, fields: e.srv.fields || {} });
     }
     return out;
   }
 
-  // هل في المدخل شيءٌ مقروء فعلاً؟ ملفٌّ قرأه الوكيل ولم يجد فيه حقلاً ولا تاريخاً يُعامَل «غير مقروء».
-  function hasReading(e) {
-    var f = e.fields || {};
-    return !!(f.companyNameAr || f.companyNameEn || f.crNumber || f.vatNumber || f.city || e.expiryDate || e.issueDate || (e.docType && e.docType !== "other"));
+  // ردّ الخادم عن ملفٍ واحد ← حقول المدخل. status الخادم: read · unreadable · deferred · rejected · duplicate.
+  //   read        مقروء، جاهز للمراجعة                         → ready
+  //   unreadable  لم يُقرأ (أو الخدمة معطّلة) ويُحفظ كما هو    → manual
+  //   deferred    ضاق الوقت فلم يُقرأ؛ يُعاد وحده              → manual
+  //   rejected    مرفوض (صيغة/تلف/فراغ/حجم) ولا يُحفظ           → failed
+  //   duplicate   مكرر (في الدفعة أو الخزانة) ولا يُحفظ         → dup
+  function fromServer(x) {
+    x = x || {};
+    var st = str(x.status);
+    var status = st === "read" ? "ready" : (st === "unreadable" || st === "deferred") ? "manual" : st === "duplicate" ? "dup" : "failed";
+    if (status === "manual" && x.canSave === false) status = "failed";
+    var fields = {}, k, f;
+    var src = x.fields && typeof x.fields === "object" ? x.fields : {};
+    for (k in src) {
+      f = src[k];
+      if (f && typeof f === "object" && str(f.value)) {
+        fields[k] = { value: str(f.value), confidence: Number(f.confidence) || 0, level: LEVEL_RANK[str(f.level)] ? str(f.level) : "medium", needsReview: f.needsReview === true };
+      }
+    }
+    var warnings = [], w = Array.isArray(x.warnings) ? x.warnings : [], i;
+    for (i = 0; i < w.length; i++) {
+      if (w[i] && w[i].code) warnings.push({ code: str(w[i].code), severity: str(w[i].severity) || "warn", message: str(w[i].message), field: str(w[i].field), days: w[i].days, date: str(w[i].date) });
+    }
+    var cat = str(x.category);
+    return {
+      status: status, srv: x, srvId: str(x.id), sha256: str(x.sha256),
+      docType: str(x.docType) || "unknown", category: CATS.indexOf(cat) >= 0 ? cat : "other", categoryDetail: str(x.categoryDetail),
+      title: str(x.title).slice(0, 200), fields: fields,
+      issueDate: validDate(x.issueDate), expiryDate: validDate(x.expiry || (fields.expiryDate && fields.expiryDate.value)),
+      confidence: Number(x.confidence) || 0, level: confLevel(Number(x.confidence) || 0),
+      warnings: warnings, canSave: x.canSave !== false, suspicious: x.suspicious === true,
+      mime: str(x.mime)
+    };
+  }
+  function confLevel(n) { return n >= 0.85 ? "high" : n >= 0.6 ? "medium" : "low"; }
+
+  // تحذيرات العرض: ما قاله الخادم، مع إعادة حساب «منتهٍ/ينتهي قريباً» من التاريخ الحالي في الخانة
+  // (العميل قد يصحّحه)، وملاحظة «نسخة جديدة» إن وُجد في الخزانة مستندٌ بالتصنيف والعنوان نفسيهما.
+  function displayWarnings(e, today, vaultDocs) {
+    var out = [], i, w;
+    for (i = 0; i < (e.warnings || []).length; i++) {
+      w = e.warnings[i];
+      if (w.code === "expired" || w.code === "expiring_soon") continue;
+      out.push(w);
+    }
+    var d = daysLeft(e.expiryDate, today);
+    if (d !== null && d < 0) out.push({ code: "expired", severity: "error", field: "expiryDate", date: e.expiryDate, days: d });
+    else if (d !== null && d <= 30) out.push({ code: "expiring_soon", severity: "warn", field: "expiryDate", date: e.expiryDate, days: d });
+    var t = str(e.title).toLowerCase();
+    if (t && e.status !== "dup" && e.status !== "failed") {
+      for (i = 0; i < (vaultDocs || []).length; i++) {
+        if (vaultDocs[i].category === e.category && str(vaultDocs[i].title).toLowerCase() === t) { out.push({ code: "new_version", severity: "info" }); break; }
+      }
+    }
+    return out;
   }
 
-  function idKey(e) {
-    var f = e.fields || {};
-    var id = f.crNumber || f.vatNumber || "";
-    if (id) return str(e.docType) + ":" + id;
-    return "file:" + str(e.name) + ":" + (e.size || 0);
-  }
-
-  // التحذيرات والمصادر. تُحسب من جديد عند كل تغيير (إبقاء ملفٍ أو تجاهله يغيّر التعارض).
-  // لا تُعدِّل المدخلات إلا حقلَي `warnings` و`dupOf`.
-  function reconcile(entries, org, today) {
-    today = today || todayStr();
-    org = org || {};
-    var i, j, e;
-    // 1) فحوص الملف وحده
-    for (i = 0; i < entries.length; i++) {
-      e = entries[i];
-      e.warnings = [];
-      e.dupOf = "";
-      if (e.status === "failed") continue;
-      var add = function (code, field, extra) {
-        for (var k = 0; k < e.warnings.length; k++) if (e.warnings[k].code === code && e.warnings[k].field === (field || "")) return;
-        var w = { code: code, field: field || "" };
-        if (extra) for (var p in extra) w[p] = extra[p];
-        e.warnings.push(w);
+  // ----- بيانات الشركة المقترحة
+  // الخادم يدمج الحقائق عبر كل الملفات (suggested[col] = {value,level,source,conflict,alternatives,current,same,willOverwrite,needsReview}).
+  // هنا نطبّق ما يعرفه العميل وحده: ملفٌّ تجاهله لا يُؤخذ منه اقتراح. إن كان مصدر القيمة مُتجاهَلاً
+  // رُقّي أول بديلٍ مصدره ملفٌّ مُبقى؛ فإن لم يبقَ بديلٌ سقط الاقتراح وبقي المسجَّل.
+  function adjustSuggestions(suggested, entries) {
+    var ignored = {}, i;
+    // المكرر يحمل معرّف أصله (المعرّف من بصمة المحتوى): لا يُحسب «متجاهَلاً» وإلا أسقط اقتراح الأصل.
+    for (i = 0; i < entries.length; i++) if (entries[i].srvId && entries[i].keep === false && (entries[i].status === "ready" || entries[i].status === "manual")) ignored[entries[i].srvId] = true;
+    var out = {}, col, s, cands, j, c;
+    for (col in suggested || {}) {
+      s = suggested[col];
+      if (!s || !str(s.value)) continue;
+      cands = [{ value: s.value, level: s.level, source: s.source }];
+      for (j = 0; j < (s.alternatives || []).length; j++) cands.push({ value: s.alternatives[j].value, level: confLevel(Number(s.alternatives[j].confidence) || 0), source: s.alternatives[j].source });
+      var live = [];
+      for (j = 0; j < cands.length; j++) { c = cands[j]; if (!(c.source && ignored[c.source.fileId])) live.push(c); }
+      if (!live.length) continue;
+      var best = live[0], alts = live.slice(1), cur = str(s.current);
+      var same = !!cur && exactSame(col, cur, best.value);
+      out[col] = {
+        value: best.value, level: best.level || "medium", source: best.source || null, alts: alts,
+        conflict: alts.length > 0 || (live.length === cands.length && s.conflict === true),
+        current: cur, same: same, willOverwrite: !!cur && !same,
+        needsReview: alts.length > 0 || best.level === "low" || (!!cur && !same) || (live.length === cands.length && s.needsReview === true)
       };
-      if (e.status === "manual" || (e.status === "ready" && !hasReading(e))) { add("unreadable"); }
-      var d = daysLeft(e.expiryDate, today);
-      if (d !== null && d < 0) add("expired", "expiryDate", { days: d });
-      else if (d !== null && d <= 30) add("expiring", "expiryDate", { days: d });
-      if (e.status === "ready") {
-        if (e.confidence === "low") add("low_confidence");
-        var f = e.fields || {};
-        if (f.vatNumber && !/^3\d{13}3$/.test(f.vatNumber)) add("bad_vat", "vatNumber");
-        if (f.crNumber && !/^\d{10}$/.test(f.crNumber)) add("bad_cr", "crNumber");
-        for (var s = 0; s < (e.serverWarnings || []).length; s++) {
-          var sw = e.serverWarnings[s];
-          if (sw.code === "duplicate") add("duplicate", sw.field, { server: true });
-          else if (sw.code === "expired" || sw.code === "expiring") { /* محسوبٌ هنا من التاريخ */ }
-          else add(sw.code, sw.field);
-        }
-      }
-    }
-    // 2) المكرر داخل الدفعة: الأحدث في الترتيب هو المكرر
-    var seen = {};
-    for (i = 0; i < entries.length; i++) {
-      e = entries[i];
-      if (e.status === "failed" || e.status === "queued" || e.status === "reading") continue;
-      var k2 = idKey(e);
-      if (seen[k2]) {
-        e.dupOf = seen[k2];
-        e.warnings.push({ code: "duplicate", field: "", of: seen[k2] });
-      } else seen[k2] = e.id;
-    }
-    // 3) التعارض بين الملفات المُبقاة، ومع المسجَّل
-    var keys = [["crNumber", "cr_number"], ["vatNumber", "vat_number"], ["companyNameAr", "name_ar"]];
-    for (var q = 0; q < keys.length; q++) {
-      var fk = keys[q][0], ck = keys[q][1];
-      var vals = [];
-      for (i = 0; i < entries.length; i++) {
-        e = entries[i];
-        if (e.status !== "ready" || e.keep === false || e.dupOf) continue;
-        var v = e.fields && e.fields[fk];
-        if (!v) continue;
-        var hit = false;
-        for (j = 0; j < vals.length; j++) if (sameVal(ck, vals[j].v, v)) { vals[j].ids.push(e.id); hit = true; break; }
-        if (!hit) vals.push({ v: v, ids: [e.id] });
-      }
-      if (vals.length > 1) {
-        for (j = 0; j < vals.length; j++) for (var m = 0; m < vals[j].ids.length; m++) {
-          for (i = 0; i < entries.length; i++) if (entries[i].id === vals[j].ids[m]) entries[i].warnings.push({ code: "conflict", field: ck });
-        }
-      }
-      // أرقام السجل والضريبة المسجَّلة لا تُستبدل بصمت؛ الاسم المسجَّل يحلّ محلّه المقروء (يُنبَّه في بطاقة الشركة).
-      if ((ck === "cr_number" || ck === "vat_number") && str(org[ck])) {
-        for (j = 0; j < vals.length; j++) if (!sameVal(ck, vals[j].v, org[ck])) {
-          for (var n = 0; n < vals[j].ids.length; n++) for (i = 0; i < entries.length; i++) if (entries[i].id === vals[j].ids[n]) entries[i].warnings.push({ code: "conflict_saved", field: ck });
-        }
-      }
-    }
-    return entries;
-  }
-
-  // «بيانات شركتك» المقترحة: لكل حقل أفضل مصدر (سلطة النوع ثم الثقة)، والبدائل المختلفة من ملفات أخرى.
-  // الناتج { حقل: { value, from, alts:[{value,from}], conflict } } — حقلٌ لم يُجد مصدراً لا يظهر.
-  function suggestCompany(entries) {
-    var out = {};
-    for (var c = 0; c < COMPANY_FIELDS.length; c++) {
-      var ck = COMPANY_FIELDS[c];
-      var map = { name_ar: "companyNameAr", name_en: "companyNameEn", cr_number: "crNumber", vat_number: "vatNumber", city: "city" }[ck];
-      var cands = [];
-      for (var i = 0; i < entries.length; i++) {
-        var e = entries[i];
-        if (e.status !== "ready" || e.keep === false || e.dupOf) continue;
-        if (e.docType === "id") continue;
-        var v = str(e.fields && e.fields[map]);
-        if (!v) continue;
-        var rank = (AUTH[ck][e.docType] != null ? AUTH[ck][e.docType] : 0) * 10 + (CONF_RANK[(e.fieldConfidence && e.fieldConfidence[map]) || e.confidence] || 2);
-        cands.push({ value: v, from: e.id, rank: rank, order: i });
-      }
-      if (!cands.length) continue;
-      cands.sort(function (a, b) { return b.rank - a.rank || a.order - b.order; });
-      var best = cands[0], alts = [];
-      for (var j = 1; j < cands.length; j++) {
-        if (sameVal(ck, best.value, cands[j].value)) continue;
-        var dup = false;
-        for (var k = 0; k < alts.length; k++) if (sameVal(ck, alts[k].value, cands[j].value)) dup = true;
-        if (!dup) alts.push({ value: cands[j].value, from: cands[j].from });
-      }
-      out[ck] = { value: best.value, from: best.from, alts: alts, conflict: alts.length > 0 };
     }
     return out;
   }
@@ -1386,79 +1326,90 @@ var IXC=(function makeIntakeCore() {
     }
     return out;
   }
+  // أرقام الشركة بصيغةٍ يقبلها الخادم (cleanConfirmedFacts)؛ الخطأ يُمنع قبل الإرسال لا بعده.
+  function factIssues(diff) {
+    var out = [];
+    if (diff.cr_number && !/^\d{6,15}$/.test(digits(diff.cr_number.to))) out.push({ field: "cr_number", error: "invalid_cr" });
+    if (diff.vat_number && !/^3\d{13}3$/.test(digits(diff.vat_number.to))) out.push({ field: "vat_number", error: "invalid_vat" });
+    return out;
+  }
 
-  // حمولة doc-intake-confirm لملفٍ واحد (البايتات تُضاف عند الإرسال، ولا تُحفظ في الحالة).
-  // «ما أكّده العميل فقط»: الملف المتجاهَل لا يخرج، والحقول المقروءة تخرج كما وافق عليها لا كما قرأها النموذج.
+  // ----- الاعتماد: ما أكّده العميل فقط
+  // الملف المتجاهَل والمكرر والمرفوض لا يخرج. الحقول المقروءة تخرج كما وافق عليها لا كما قرأها النموذج:
+  // الحقل الذي طلب الخادم مراجعته يخرج بعلامته (needsReview) حتى يبقى المستند «قيد التحقق»، وما سواه مؤكَّد.
+  function savable(e) { return e.keep !== false && (e.status === "ready" || e.status === "manual" || e.status === "local"); }
   function confirmFile(e) {
-    var f = e.fields || {};
-    var read = {};
-    for (var k in f) if (f[k]) read[k] = f[k];
-    var out = {
-      id: e.id, name: e.name, mime: e.mime,
-      title: str(e.title).slice(0, 200), category: str(e.category) || "other",
-      docType: e.docType || "other", expiryDate: validDate(e.expiryDate), issueDate: validDate(e.issueDate)
-    };
-    if (e.status === "ready" && hasReading(e)) out.fields = read;
-    else out.unread = true;
+    var out = { id: e.srvId, name: e.name, mime: e.mime, title: str(e.title).slice(0, 200), category: CATS.indexOf(e.category) >= 0 ? e.category : "other", docType: e.docType || "unknown", expiry: validDate(e.expiryDate) };
+    if (e.status === "ready") {
+      var f = {}, k;
+      for (k in (e.fields || {})) f[k] = { value: e.fields[k].value, needsReview: e.fields[k].needsReview === true, confirmed: e.fields[k].needsReview !== true };
+      out.fields = f;
+    }
     return out;
   }
   function confirmPlan(entries, edited, current) {
-    var files = [];
-    for (var i = 0; i < entries.length; i++) {
-      var e = entries[i];
-      if (e.keep === false || e.status === "failed" || e.status === "queued" || e.status === "reading") continue;
-      files.push(confirmFile(e));
+    var files = [], localFiles = [], i, e;
+    for (i = 0; i < entries.length; i++) {
+      e = entries[i];
+      if (!savable(e)) continue;
+      if (e.status === "local") localFiles.push({ id: e.id, name: e.name, mime: e.mime, title: str(e.title).slice(0, 200), category: CATS.indexOf(e.category) >= 0 ? e.category : "other", expiry: validDate(e.expiryDate) });
+      else files.push(confirmFile(e));
     }
-    var diff = companyDiff(current, edited), company = {};
-    for (var k in diff) company[k] = diff[k].to;
-    return { files: files, company: company, diff: diff };
+    var diff = companyDiff(current, edited), facts = {}, k;
+    for (k in diff) facts[k] = diff[k].to;
+    return { files: files, localFiles: localFiles, facts: facts, diff: diff, issues: factIssues(diff) };
   }
 
-  // رمز خطأ الخادم/الشبكة ← مفتاح نص للعميل. بلا رمزٍ ينتهي بـ«حدث خطأ» عامّ.
-  function errKey(code, httpStatus) {
+  // رمز خطأ الخادم/الشبكة ← مفتاح نص للعميل. بلا رمزٍ ينتهي بـ«تعذّرت المعالجة» العامّ.
+  function errKey(code) {
     code = str(code);
     if (code === "network") return "ixENet";
     if (code === "too_large" || code === "http_413") return "ixEBig";
     if (code === "bad_type") return "ixEType";
     if (code === "empty") return "ixEEmpty";
-    if (code === "unreadable" || code === "no_text" || code === "read_failed") return "ixEUnread";
-    if (code === "file_too_large_to_read") return "ixEBigRead";
-    if (code === "reader_unavailable" || code === "service_unavailable" || code === "ai_unavailable" || code === "ai_off" || code === "not_configured") return "ixEService";
-    if (code === "rate_limited" || code === "busy") return "ixEBusy";
+    if (code === "corrupt") return "ixECorrupt";
+    if (code === "rate_limited" || code === "http_429") return "ixERate";
+    if (code === "file_changed") return "ixEChanged";
+    if (code === "duplicate") return "ixSkipDup";
+    if (code === "store_failed") return "ixESave";
+    if (code === "invalid_fields") return "eName";
     if (code === "no_org") return "ixENoOrg";
     if (code === "too_many_files") return "ixEMany";
+    if (code === "unreadable" || code === "read_failed") return "ixEUnread";
+    if (code === "unknown_action" || code === "http_404" || code === "http_501" || code === "http_503" || code === "http_502") return "ixEService";
     return "ixEGeneric";
   }
-  // أخطاء الخدمة كلها (لا أخطاء ملفٍ بعينه): إن حدثت توقّفنا عن القراءة وحفظنا الباقي كما هو.
-  function isServiceDown(code, httpStatus) {
+  // نداءٌ فشل كله لأن الخدمة نفسها غير موجودة/معطّلة (لا لأن ملفاً بعينه فاسد).
+  function isServiceDown(code) {
     code = str(code);
-    return code === "reader_unavailable" || code === "service_unavailable" || code === "ai_unavailable" || code === "ai_off" || code === "not_configured" || code === "unknown_action" || httpStatus === 404 || httpStatus === 501 || httpStatus === 503;
+    return code === "unknown_action" || code === "http_404" || code === "http_501" || code === "http_502" || code === "http_503";
   }
 
   return {
-    MAX_BYTES: MAX_BYTES, MAX_READ: MAX_READ, MAX_FILES: MAX_FILES, COMPANY_FIELDS: COMPANY_FIELDS,
-    mimeOf: mimeOf, fileCheck: fileCheck, baseName: baseName, digits: digits, sameName: sameName, sameVal: sameVal, exactSame: exactSame,
-    daysLeft: daysLeft, categoryOf: categoryOf, fromServer: fromServer, hasReading: hasReading,
-    reconcile: reconcile, suggestCompany: suggestCompany, companyDiff: companyDiff,
-    confirmFile: confirmFile, confirmPlan: confirmPlan, errKey: errKey, isServiceDown: isServiceDown
+    MAX_BYTES: MAX_BYTES, MAX_FILES: MAX_FILES, COMPANY_FIELDS: COMPANY_FIELDS, CATS: CATS,
+    mimeOf: mimeOf, fileCheck: fileCheck, baseName: baseName, digits: digits, exactSame: exactSame,
+    daysLeft: daysLeft, packBatches: packBatches, priorFrom: priorFrom, fromServer: fromServer, confLevel: confLevel,
+    displayWarnings: displayWarnings, adjustSuggestions: adjustSuggestions, companyDiff: companyDiff, factIssues: factIssues,
+    savable: savable, confirmFile: confirmFile, confirmPlan: confirmPlan, errKey: errKey, isServiceDown: isServiceDown
   };
 })();
 
 // ---------- ارفع كل ملفات شركتك مرة واحدة (my-doc-intake.mjs)
 var IXS=null;
-function ixT(k,v){var s=TX[k]==null?k:TX[k];if(v)for(var p in v)s=s.split('{'+p+'}').join(String(v[p]));return s}
+function ixT(k,v){var s=TX[k]==null?k:TX[k];if(v)for(var p in v)s=s.split('{'+p+'}').join(String(v[p]==null?'':v[p]));return s}
 function ixToday(){return new Date().toISOString().slice(0,10)}
 function ixOrg(){var o=(state.me&&state.me.organization)||{};return {name_ar:o.name_ar||'',name_en:o.name_en||'',cr_number:o.cr_number||'',vat_number:o.vat_number||'',city:o.city||''}}
 function ixHasOrg(){return !!(state.me&&state.me.organization&&state.me.organization.id)}
 function ixTypeName(t){return TX['ixT_'+t]||TX.ixT_other}
-function ixFieldName(f){return ({name_ar:TX.company,name_en:TX.nameEn,cr_number:TX.cr,vat_number:TX.ixFVat,city:TX.ixFCity,crNumber:TX.cr,vatNumber:TX.ixFVat,companyNameAr:TX.company,expiryDate:TX.dExp})[f]||f}
+function ixFieldName(f){return ({name_ar:TX.company,name_en:TX.nameEn,cr_number:TX.cr,vat_number:TX.ixFVat,city:TX.ixFCity,crNumber:TX.cr,vatNumber:TX.ixFVat,unifiedNumber:TX.ixFUnified,activity:TX.ixFActivity,companyNameAr:TX.company,companyNameEn:TX.nameEn,expiryDate:TX.dExp,issueDate:TX.dIssued})[f]||f}
 function ixB64(f){return new Promise(function(res,rej){var fr=new FileReader();fr.onload=function(){var t=String(fr.result||'');var i=t.indexOf(',');i<0?rej(new Error('read')):res(t.slice(i+1))};fr.onerror=function(){rej(new Error('read'))};fr.readAsDataURL(f)})}
-// طلبٌ إلى /api/simple مع إمكان الإلغاء. كل نهاية لها فرع: نجاح، أو ردّ خادم برمزه، أو انقطاع شبكة، أو إلغاء.
-function ixApi(action,data,ac){
- return fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({action:action},data||{})),signal:ac?ac.signal:undefined})
-  .then(function(r){var st=r.status;return r.json().then(function(o){o=(o&&typeof o==='object')?o:{ok:false,error:'bad_response'};o._http=st;return o},function(){return {ok:false,error:'http_'+st,_http:st}})})
+// طلبٌ مع إمكان الإلغاء. كل نهاية لها فرع: نجاح، أو ردّ خادم برمزه، أو انقطاع شبكة، أو إلغاء.
+function ixPost(url,body,ac){
+ return fetch(url,{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(body),signal:ac?ac.signal:undefined})
+  .then(function(r){var st=r.status;return r.json().then(function(o){o=(o&&typeof o==='object')?o:{ok:false,error:'bad_response'};o._http=st;if(o.ok!==true&&!o.error)o.error='http_'+st;return o},function(){return {ok:false,error:'http_'+st,_http:st}})})
   .catch(function(e){var ab=!!(e&&e.name==='AbortError');return {ok:false,error:ab?'aborted':'network',_aborted:ab}})}
-function ixSize(n){n=Number(n||0);return n>=1048576?((n/1048576).toFixed(1)+' MB'):(Math.max(1,Math.round(n/1024))+' KB')}
+function ixApi(action,data,ac){return ixPost('/api/simple',Object.assign({action:action},data||{}),ac)}
+function ixSize(n){n=Number(n||0);var t=n>=1048576?((n/1048576).toFixed(1)+' MB'):(Math.max(1,Math.round(n/1024))+' KB');return '\u2066'+t+'\u2069'}
 
 // ----- بطاقة الدخول (في «مستنداتي» و«بيانات الشركة»)
 function ixEntryCard(from){
@@ -1477,7 +1428,7 @@ function ixEntryCard(from){
 // ----- الجلسة
 function ixStart(files,from){
  if(IXS){ixAdd(files);return}
- IXS={step:'reading',from:from||'documents',entries:[],seq:0,running:0,cancelled:false,aborts:[],serviceDown:false,cedit:{},ctouched:{},cancelAsk:false,org:ixOrg(),orgKnown:{},notes:[],save:null,plan:null,result:null,advance:null,msg:''};
+ IXS={step:'reading',from:from||'documents',entries:[],seq:0,inflight:false,cancelled:false,aborts:[],serviceDown:false,facts:null,cedit:{},ctouched:{},cancelAsk:false,org:ixOrg(),notes:[],save:null,plan:null,result:null,advance:null,msg:'',sugg:{}};
  document.documentElement.classList.add('ix-lock');
  ixMount();ixAdd(files)}
 function ixMount(){
@@ -1496,66 +1447,67 @@ function ixClose(refresh){
  if(refresh&&state.me)render()}
 function ixSessionEnd(){ixClose(false);sessionEnded()}
 function ixAdd(files){
- var S=IXS;clearTimeout(S.advance);
+ var S=IXS;clearTimeout(S.advance);S.notes=[];
  var room=IXC.MAX_FILES-S.entries.length;
  if(files.length>room){S.notes=[TX.ixEMany];files=files.slice(0,Math.max(room,0))}
  files.forEach(function(f){
-  var e={id:'f'+(++S.seq),file:f,name:f.name||'file',size:f.size||0,mime:IXC.mimeOf(f)||f.type||'',status:'queued',error:'',msg:'',fields:null,fieldConfidence:{},docType:'other',title:IXC.baseName(f.name),category:'other',issueDate:'',expiryDate:'',confidence:'medium',serverWarnings:[],keep:true,warnings:[],dupOf:'',dupHandled:false};
+  var e={id:'c'+(++S.seq),file:f,name:f.name||'file',size:f.size||0,mime:IXC.mimeOf(f)||f.type||'',status:'queued',error:'',msg:'',srv:null,srvId:'',sha256:'',fields:{},docType:'unknown',category:'other',categoryDetail:'',title:IXC.baseName(f.name),issueDate:'',expiryDate:'',confidence:0,level:'low',warnings:[],keep:true,svcFail:false};
   var bad=IXC.fileCheck(f);
   if(bad){e.status='failed';e.error=bad;e.msg=TX[IXC.errKey(bad)]}
-  else if(S.serviceDown){ixToManual(e,'ixEService')}
-  else if(f.size>IXC.MAX_READ){ixToManual(e,'ixEBigRead')}
   S.entries.push(e)});
  S.step='reading';ixDraw();ixPump()}
-function ixToManual(e,key){e.status='manual';e.msg=TX[key]||'';e.fields=null;e.docType='other';e.category='other';e.title=IXC.baseName(e.name)}
 function ixBusy(){return IXS.entries.some(function(e){return e.status==='queued'||e.status==='reading'})}
+function ixById(id){return IXS.entries.filter(function(e){return e.id===id})[0]}
+// نداءٌ واحد في الوقت: كل نداء يحمل نتائج ما سبقه (prior) فيدمج الخادم الحقائق ويكشف التكرار عبر النداءات.
 function ixPump(){
- var S=IXS;if(!S||S.cancelled||S.step!=='reading')return;
- for(var i=0;i<S.entries.length&&S.running<2;i++){if(S.entries[i].status==='queued')ixRead(S.entries[i])}
- if(!ixBusy()&&S.entries.length){
+ var S=IXS;if(!S||S.cancelled||S.step!=='reading'||S.inflight)return;
+ var q=S.entries.filter(function(e){return e.status==='queued'});
+ if(q.length){ixRunBatch(IXC.packBatches(q.map(function(e){return {id:e.id,size:e.size}}))[0]);return}
+ if(S.entries.length){
   var failed=S.entries.some(function(e){return e.status==='failed'});
-  var usable=S.entries.some(function(e){return e.status==='ready'||e.status==='manual'});
+  var usable=S.entries.some(function(e){return e.status==='ready'||e.status==='manual'||e.status==='local'});
   if(!failed&&usable){clearTimeout(S.advance);S.advance=setTimeout(function(){if(IXS===S&&S.step==='reading'&&!ixBusy())ixGoReview()},700)}}}
-function ixRead(e){
- var S=IXS;e.status='reading';S.running++;ixDraw();
+function ixRunBatch(ids){
+ var S=IXS,batch=ids.map(ixById);
+ batch.forEach(function(e){e.status='reading';e.msg=''});S.inflight=true;ixDraw();
  var ac=window.AbortController?new AbortController():null;if(ac)S.aborts.push(ac);
- ixB64(e.file).then(function(b64){if(S.cancelled)return {_aborted:true};return ixApi('doc-intake',{files:[{id:e.id,name:e.name,mime:e.mime,base64:b64}]},ac)})
+ Promise.all(batch.map(function(e){return ixB64(e.file).then(function(b64){return {name:e.name,mime:e.mime,base64:b64}})}))
+  .then(function(files){if(S.cancelled)return {_aborted:true};return ixApi('doc-intake',{files:files,prior:IXC.priorFrom(S.entries,ids)},ac)})
   .catch(function(){return {ok:false,error:'read_local'}})
-  .then(function(o){S.running--;if(S.cancelled||IXS!==S||S.entries.indexOf(e)<0)return;ixOnRead(e,o);ixDraw();ixPump()})}
-function ixServiceDown(){var S=IXS;S.serviceDown=true;S.entries.forEach(function(e){if(e.status==='queued')ixToManual(e,'ixEService')})}
-function ixOnRead(e,o){
+  .then(function(o){S.inflight=false;if(S.cancelled||IXS!==S)return;ixOnBatch(batch,o);ixDraw();ixPump()})}
+function ixFailWhole(batch,code,http){
+ var svc=IXC.isServiceDown(code),key=code==='read_local'?'eRead':IXC.errKey(code);
+ batch.forEach(function(e){e.status='failed';e.error=code;e.svcFail=svc||code==='network';e.msg=TX[key]||TX.ixEGeneric});
+ if(code==='rate_limited'||code==='http_429'){IXS.entries.forEach(function(e){if(e.status==='queued'){e.status='failed';e.error=code;e.msg=TX.ixERate}})}}
+function ixWarnMsg(w){var k='ixW_'+w.code;return TX[k]?ixT(k,{d:w.date,n:w.days,f:ixFieldName(w.field)}):(w.message||'')}
+function ixOnBatch(batch,o){
  if(o._aborted)return;
  if(o.error==='unauthorized'||o.error==='no_session'){ixSessionEnd();return}
- if(o.error==='read_local'){e.status='failed';e.error='read_local';e.msg=TX.eRead;return}
- if(o.company&&o.company.current){for(var k in o.company.current){IXS.org[k]=o.company.current[k]||'';IXS.orgKnown[k]=true}}
- var it=null,list=o.files||[];
- for(var i=0;i<list.length;i++)if(list[i]&&list[i].id===e.id)it=list[i];
- if(!it&&list.length===1)it=list[0];
- if(!it){
-  var code=o.error||'failed';
-  if(IXC.isServiceDown(code,o._http)){ixServiceDown();ixToManual(e,'ixEService');return}
-  e.status='failed';e.error=code;e.msg=TX[IXC.errKey(code,o._http)]||TX.ixEGeneric;return}
- if(it.ok===false){
-  var c2=it.error||'unreadable';
-  if(IXC.isServiceDown(c2)){ixServiceDown();ixToManual(e,'ixEService');return}
-  if(c2==='unreadable'||c2==='no_text'||c2==='read_failed'||c2==='file_too_large_to_read'){ixToManual(e,IXC.errKey(c2));return}
-  e.status='failed';e.error=c2;e.msg=TX[IXC.errKey(c2)]||TX.ixEGeneric;return}
- var m=IXC.fromServer(it);
- e.docType=m.docType;e.category=m.category;e.issueDate=m.issueDate;e.expiryDate=m.expiryDate;e.confidence=m.confidence;e.fields=m.fields;e.fieldConfidence=m.fieldConfidence;e.serverWarnings=m.serverWarnings;
- e.title=m.docTitle||(m.docType!=='other'?ixTypeName(m.docType):IXC.baseName(e.name));
- if(IXC.hasReading(e)){e.status='ready';e.msg=''}else ixToManual(e,'ixEUnread')}
+ if(o.ok!==true||!o.files){ixFailWhole(batch,o.error||'failed',o._http);return}
+ if(o.companyFacts)IXS.facts=o.companyFacts;
+ batch.forEach(function(e,i){
+  var it=o.files[i];
+  if(!it){e.status='failed';e.error='failed';e.msg=TX.ixEGeneric;return}
+  var m=IXC.fromServer(it);
+  e.status=m.status;e.srv=it;e.srvId=m.srvId;e.sha256=m.sha256;e.docType=m.docType;e.category=m.category;e.categoryDetail=m.categoryDetail;
+  if(m.title){e.title=m.title;e.srvTitle=m.title}
+  e.fields=m.fields;e.issueDate=m.issueDate;e.expiryDate=m.expiryDate;e.confidence=m.confidence;e.level=m.level;e.warnings=m.warnings;e.mime=m.mime||e.mime;
+  e.keep=(m.status==='ready'||m.status==='manual');e.msg='';e.svcFail=false;
+  if(m.warnings.some(function(w){return w.code==='reader_not_configured'}))IXS.serviceDown=true;
+  if(m.status==='failed'){var w0=m.warnings.filter(function(w){return w.severity==='error'})[0]||m.warnings[0];e.error=w0?w0.code:'rejected';e.msg=w0?ixWarnMsg(w0):TX.ixEGeneric}})}
 
 // ----- القراءة ← المراجعة
 function ixRecompute(){
- var S=IXS;IXC.reconcile(S.entries,S.org,ixToday());
- var changed=false;
- S.entries.forEach(function(e){if(e.dupOf&&!e.dupHandled){e.keep=false;e.dupHandled=true;changed=true}});
- if(changed)IXC.reconcile(S.entries,S.org,ixToday());
- S.entries.forEach(function(e){
-  if(e.status==='failed')return;
-  var t=String(e.title||'').trim().toLowerCase();
-  if((state.docs||[]).some(function(d){return d.category===e.category&&String(d.title||'').trim().toLowerCase()===t&&t}))e.warnings.push({code:'new_version',field:''})});
- S.sugg=IXC.suggestCompany(S.entries)}
+ var S=IXS;ixUniqTitles();S.sugg=IXC.adjustSuggestions(S.facts&&S.facts.suggested,S.entries)}
+// الخزانة تُنسِّخ بالتصنيف والعنوان: ملفان بالعنوان نفسه يصيران «إصدارين» لمستند واحد (وقد يكون الثاني سجلَّ شركةٍ أخرى).
+// الخادم يفرّق بينهما داخل النداء الواحد فقط، ونحن نرسل على نداءات، فيُفرَّق هنا: يُلحَق باسم الملف ما لم يعدّل العميل العنوان بنفسه.
+function ixUniqTitles(){
+ var seen={};
+ IXS.entries.forEach(function(e){
+  if((e.status!=='ready'&&e.status!=='manual'&&e.status!=='local')||e.keep===false)return;
+  var base=e.srvTitle||e.title;
+  if(!e.titleEdited){e.title=seen[e.category+'|'+String(base).trim().toLowerCase()]?(base+' — '+IXC.baseName(e.name)):base}
+  seen[e.category+'|'+String(e.title).trim().toLowerCase()]=1})}
 function ixGoReview(){var S=IXS;clearTimeout(S.advance);S.step='review';S.cancelAsk=false;S.msg='';ixRecompute();ixDraw()}
 
 // ----- الرسم
@@ -1564,7 +1516,7 @@ function ixDraw(){
  var S=IXS;if(!S)return;
  var box=S.box,old=box.querySelector('.ix-body'),sc=old?old.scrollTop:0;
  box.innerHTML='';
- var title=S.step==='reading'?TX.ixReadingTitle:S.step==='review'?TX.ixReviewTitle:S.step==='saving'?TX.ixSavingTitle:((S.result&&(S.result.failed.length||S.result.stopped))?TX.ixPartialTitle:TX.ixDoneTitle);
+ var title=S.step==='reading'?TX.ixReadingTitle:S.step==='review'?TX.ixReviewTitle:S.step==='saving'?TX.ixSavingTitle:((S.result&&(S.result.failed.length||S.result.stopped||S.result.companyFailed))?TX.ixPartialTitle:TX.ixDoneTitle);
  box.setAttribute('aria-label',title);
  box.appendChild(h('div',{class:'ix-hd'},[h('h2',{},[title]),h('button',{class:'ix-x',type:'button','aria-label':TX.ixCancel,'data-ix-x':'1',onclick:function(){ixCancel()}},['✕'])]));
  var cur=IXSTEP[S.step],names=[TX.ixStep1,TX.ixStep2,TX.ixStep3];
@@ -1581,8 +1533,15 @@ function ixBanners(body){
  if(S.serviceDown)body.appendChild(h('div',{class:'ix-banner',role:'status','data-ix-banner':'service'},[TX.ixEService]));
  S.notes.forEach(function(n){body.appendChild(h('div',{class:'ix-banner',role:'status'},[n]))})}
 function ixRowState(e){
- return e.status==='queued'?TX.ixQueued:e.status==='reading'?TX.ixReadingNow:e.status==='ready'?TX.ixReady:e.status==='manual'?TX.ixManual:TX.ixFailed}
-function ixRowIcon(s){return s==='ready'||s==='done'?'✓':s==='failed'?'!':s==='manual'?'↓':s==='queued'?'…':''}
+ return e.status==='queued'?TX.ixQueued:e.status==='reading'?TX.ixReadingNow:e.status==='ready'?TX.ixReady:(e.status==='manual'||e.status==='local')?TX.ixManual:e.status==='dup'?TX.ixDupWord:TX.ixFailed}
+function ixRowIcon(s){return s==='ready'||s==='done'?'✓':s==='failed'?'!':(s==='manual'||s==='local'||s==='dup')?'↓':s==='queued'?'…':''}
+// أزرار صفٍّ تعذّر: إعادة المحاولة حيث تفيد، والحفظ بلا قراءة حين تكون الخدمة نفسها هي المتعذّرة، والإزالة دائماً.
+function ixFailBtns(e){
+ var side=[],perm=(e.error==='bad_type'||e.error==='empty'||e.error==='too_large'||e.error==='corrupt'||e.error==='rejected');
+ if(!perm)side.push(h('button',{class:'btn ghost sm',type:'button','data-ix-retry-file':e.id,onclick:function(){e.status='queued';e.msg='';e.error='';ixDraw();ixPump()}},[TX.ixRetry]));
+ if(e.svcFail)side.push(h('button',{class:'btn ghost sm',type:'button','data-ix-raw':e.id,onclick:function(){e.status='local';e.keep=true;e.msg='';e.category='other';e.docType='unknown';e.fields={};e.warnings=[];ixDraw();ixPump()}},[TX.ixSaveRaw]));
+ side.push(h('button',{class:'btn danger sm',type:'button',onclick:function(){IXS.entries.splice(IXS.entries.indexOf(e),1);ixRecompute();ixDraw();if(IXS.step==='reading')ixPump()}},[TX.ixRemove]));
+ return side}
 function ixDrawReading(body,ft){
  var S=IXS,total=S.entries.length,done=S.entries.filter(function(e){return e.status!=='queued'&&e.status!=='reading'}).length;
  body.appendChild(h('p',{class:'ix-lead'},[TX.ixReadingLead]));
@@ -1590,15 +1549,10 @@ function ixDrawReading(body,ft){
  var bar=h('div',{class:'bar'},[h('i',{})]);bar.firstChild.style.width=(total?Math.round(done/total*100):0)+'%';
  body.appendChild(h('div',{class:'ix-count','aria-live':'polite','data-ix-count':'1'},[h('span',{},[ixT('ixCount',{n:done,t:total})]),bar]));
  S.entries.forEach(function(e){
-  var side=[];
-  if(e.status==='failed'){
-   if(e.error!=='bad_type'&&e.error!=='empty'&&e.error!=='too_large')side.push(h('button',{class:'btn ghost sm',type:'button',onclick:function(){e.status='queued';e.msg='';e.error='';ixDraw();ixPump()}},[TX.ixRetry]));
-   side.push(h('button',{class:'btn danger sm',type:'button',onclick:function(){S.entries.splice(S.entries.indexOf(e),1);ixDraw();ixPump()}},[TX.ixRemove]))}
   var tt=[h('b',{},[e.name]),h('small',{},[ixSize(e.size)+' · '+ixRowState(e)])];
-  if(e.msg)tt.push(h('small',{class:e.status==='failed'?'bad':'warn'},[e.msg]));
-  S.rowOf=S.rowOf||{};
-  body.appendChild(h('div',{class:'ix-row '+e.status,'data-ix-row':e.id,'data-state':e.status},[h('span',{class:'st','aria-hidden':'true'},[ixRowIcon(e.status)]),h('div',{class:'tt'},tt),h('div',{class:'side'},side)]))});
- var usable=S.entries.some(function(e){return e.status==='ready'||e.status==='manual'});
+  if(e.msg)tt.push(h('small',{class:'bad'},[e.msg]));
+  body.appendChild(h('div',{class:'ix-row '+e.status,'data-ix-row':e.id,'data-state':e.status},[h('span',{class:'st','aria-hidden':'true'},[ixRowIcon(e.status)]),h('div',{class:'tt'},tt),h('div',{class:'side'},e.status==='failed'?ixFailBtns(e):[])]))});
+ var usable=S.entries.some(function(e){return e.status==='ready'||e.status==='manual'||e.status==='local'});
  ft.appendChild(h('button',{class:'btn ghost',type:'button','data-ix-cancel':'1',onclick:function(){ixCancel()}},[TX.ixCancel]));
  ft.appendChild(ixAddBtn());ft.appendChild(h('span',{class:'grow'}));
  var go1=h('button',{class:'btn',type:'button','data-ix-continue':'1',onclick:function(){ixGoReview()}},[TX.ixContinue]);
@@ -1612,95 +1566,88 @@ function ixAddBtn(){
 
 function ixConfLbl(c){return c==='high'?TX.ixConfHigh:c==='low'?TX.ixConfLow:TX.ixConfMed}
 function ixConfCls(c){return c==='high'?'ok':c==='low'?'bad':'warn'}
-function ixWarnText(w){var c=w.code;
- if(c==='expired')return TX.ixWExpired;
- if(c==='expiring')return ixT('ixWExpiring',{n:w.days});
- if(c==='duplicate')return TX.ixWDup;
- if(c==='conflict')return ixT('ixWConflict',{f:ixFieldName(w.field)});
- if(c==='conflict_saved')return ixT('ixWConflictSaved',{f:ixFieldName(w.field)});
- if(c==='low_confidence')return TX.ixWLow;
- if(c==='bad_vat')return TX.ixWBadVat;
- if(c==='bad_cr')return TX.ixWBadCr;
- if(c==='unreadable')return TX.ixWUnread;
- if(c==='new_version')return TX.ixWNewVer;
- return ''}
-function ixWarnCls(c){return (c==='expired'||c==='conflict'||c==='conflict_saved')?'bad':c==='new_version'?'mut':'warn'}
+function ixWarnCls(w){return w.severity==='error'?'bad':w.severity==='info'?'mut':'warn'}
 function ixCatOptions(cur){var opts=DOC_CATS.map(function(c){return h('option',{value:c[0]},[c[1]])});
  if(!DOC_CATS.some(function(c){return c[0]===cur}))opts.push(h('option',{value:cur},[cur]));return opts}
-function ixAddrText(f){return [f.buildingNo,f.street,f.district,f.city,f.postalCode].filter(function(x){return x}).join('، ')}
 function ixReadRows(e){
  var f=e.fields||{},rows=[];
- function row(lbl,val,key){if(val)rows.push([lbl,val,(e.fieldConfidence&&e.fieldConfidence[key])||e.confidence])}
- row(TX.company,f.companyNameAr,'companyNameAr');row(TX.nameEn,f.companyNameEn,'companyNameEn');row(TX.cr,f.crNumber,'crNumber');row(TX.ixFVat,f.vatNumber,'vatNumber');
- row(TX.dIssued,e.issueDate,'issueDate');row(TX.ixAddr,ixAddrText(f),'address');row(TX.ixContact,f.contactName,'contactName');row(TX.ixPhone,f.contactPhone,'contactPhone');
+ [['companyNameAr',TX.company],['companyNameEn',TX.nameEn],['crNumber',TX.cr],['unifiedNumber',TX.ixFUnified],['vatNumber',TX.ixFVat],['city',TX.ixFCity],['activity',TX.ixFActivity],['issueDate',TX.dIssued]].forEach(function(d){
+  var x=f[d[0]];if(x&&x.value)rows.push([d[1],x.value,x.level,x.needsReview])});
  return rows}
 function ixFileCard(e){
- var S=IXS,off=e.keep===false;
+ var off=e.keep===false;
  var card=h('div',{class:'ix-file'+(off?' off':''),'data-ix-file':e.id,'data-keep':off?'0':'1'});
  var typeName=e.status==='ready'?ixTypeName(e.docType):TX.ixTypeUnknown;
  card.appendChild(h('div',{class:'hd'},[h('span',{class:'ico','aria-hidden':'true'},[/^image\//.test(e.mime)?'🖼️':'📄']),h('div',{class:'tt'},[h('b',{},[e.name]),h('small',{},[ixSize(e.size)])])]));
  var chips=h('div',{class:'ix-chips'});
  chips.appendChild(h('span',{class:'pill','data-ix-type':'1'},[typeName]));
- if(e.status==='ready')chips.appendChild(h('span',{class:'pill '+ixConfCls(e.confidence),'data-ix-conf':e.confidence},[ixConfLbl(e.confidence)]));
- (e.warnings||[]).forEach(function(w){var t=ixWarnText(w);if(t)chips.appendChild(h('span',{class:'pill '+ixWarnCls(w.code),'data-ix-warn':w.code},[t]))});
+ if(e.status==='ready')chips.appendChild(h('span',{class:'pill '+ixConfCls(e.level),'data-ix-conf':e.level},[ixConfLbl(e.level)]));
+ IXC.displayWarnings(e,ixToday(),state.docs).forEach(function(w){var t=ixWarnMsg(w);if(t)chips.appendChild(h('span',{class:'pill '+ixWarnCls(w),'data-ix-warn':w.code},[t]))});
  if(off)chips.appendChild(h('span',{class:'pill mut'},[TX.ixIgnored]));
  card.appendChild(chips);
- if(e.status==='manual')card.appendChild(h('p',{class:'ix-note'},[TX.ixUnreadNote+(e.msg&&e.msg!==TX.ixEUnread?' '+e.msg:'')]));
+ if(e.status==='manual'||e.status==='local')card.appendChild(h('p',{class:'ix-note'},[TX.ixUnreadNote]));
  if(!off){
-  var title=h('input',{class:'inp',maxlength:'200',dir:'auto','aria-label':TX.dName,value:e.title||''});
-  title.addEventListener('input',function(){e.title=title.value});
-  var cat=h('select',{class:'inp','aria-label':TX.ixCatLbl},ixCatOptions(e.category));cat.value=e.category||'other';
+  var title=h('input',{class:'inp',maxlength:'200',dir:'auto','aria-label':TX.dName,'data-ix-title':e.id,value:e.title||''});
+  title.addEventListener('input',function(){e.title=title.value;e.titleEdited=true});
+  var cat=h('select',{class:'inp','aria-label':TX.ixCatLbl,'data-ix-cat':e.id},ixCatOptions(e.category));cat.value=e.category||'other';
   cat.addEventListener('change',function(){e.category=cat.value;ixRecompute();ixDraw()});
-  var exp=h('input',{class:'inp',type:'date','aria-label':TX.dExp,value:e.expiryDate||''});
-  exp.addEventListener('change',function(){e.expiryDate=exp.value;ixRecompute();ixDraw()});
+  var exp=h('input',{class:'inp',type:'date','aria-label':TX.dExp,'data-ix-exp':e.id,value:e.expiryDate||''});
+  exp.addEventListener('change',function(){e.expiryDate=exp.value;ixDraw()});
   card.appendChild(h('div',{class:'ix-grid'},[h('div',{},[h('label',{},[TX.dName]),title]),h('div',{},[h('label',{},[TX.ixCatLbl]),cat]),h('div',{},[h('label',{},[TX.dExp]),exp])]));
   var rows=ixReadRows(e);
   if(rows.length){var rd=h('div',{class:'ix-read'},[h('h4',{},[TX.ixReadLbl])]);
-   rows.forEach(function(r){rd.appendChild(h('div',{},[h('span',{},[r[0]]),h('b',{dir:'auto'},[r[1]]),h('i',{class:'ix-dot '+(r[2]==='high'?'hi':r[2]==='low'?'lo':'md'),title:ixConfLbl(r[2]),role:'img','aria-label':ixConfLbl(r[2])})]))});
+   rows.forEach(function(r){rd.appendChild(h('div',{},[h('span',{},[r[0]]),h('b',{dir:'auto'},[r[1]]),r[3]?h('em',{class:'rv'},[TX.ixNeedReview]):null,h('i',{class:'ix-dot '+(r[2]==='high'?'hi':r[2]==='low'?'lo':'md'),title:ixConfLbl(r[2]),role:'img','aria-label':ixConfLbl(r[2])})]))});
    card.appendChild(rd)}}
- card.appendChild(h('div',{class:'ix-act'},[h('button',{class:'btn ghost sm',type:'button','data-ix-toggle':e.id,onclick:function(){e.keep=off;e.dupHandled=true;ixRecompute();ixDraw()}},[off?TX.ixRestore:TX.ixIgnore])]));
+ var act=h('div',{class:'ix-act'});
+ act.appendChild(h('button',{class:'btn ghost sm',type:'button','data-ix-toggle':e.id,onclick:function(){e.keep=off;ixRecompute();ixDraw()}},[off?TX.ixRestore:TX.ixIgnore]));
+ if(e.status==='manual'&&!IXS.serviceDown)act.appendChild(h('button',{class:'btn ghost sm',type:'button','data-ix-reread':e.id,onclick:function(){e.status='queued';e.warnings=[];IXS.step='reading';ixDraw();ixPump()}},[TX.ixRereads]));
+ card.appendChild(act);
  return card}
-function ixFailedRow(e){
- return h('div',{class:'ix-row failed','data-ix-row':e.id},[h('span',{class:'st'},['!']),h('div',{class:'tt'},[h('b',{},[e.name]),h('small',{class:'bad'},[e.msg||TX.ixEGeneric])]),h('div',{class:'side'},[h('button',{class:'btn danger sm',type:'button',onclick:function(){IXS.entries.splice(IXS.entries.indexOf(e),1);ixRecompute();ixDraw()}},[TX.ixRemove])])])}
+function ixSideRow(e,cls,text){
+ return h('div',{class:'ix-row '+cls,'data-ix-row':e.id},[h('span',{class:'st'},[cls==='failed'?'!':'↓']),h('div',{class:'tt'},[h('b',{},[e.name]),h('small',{class:cls==='failed'?'bad':'warn'},[text])]),h('div',{class:'side'},[h('button',{class:'btn danger sm',type:'button',onclick:function(){IXS.entries.splice(IXS.entries.indexOf(e),1);ixRecompute();ixDraw()}},[TX.ixRemove])])])}
+function ixFailedRow(e){var r=ixSideRow(e,'failed',e.msg||TX.ixEGeneric);r.querySelector('.side').innerHTML='';ixFailBtns(e).forEach(function(b){r.querySelector('.side').appendChild(b)});return r}
+function ixDupRow(e){var w=e.warnings.filter(function(x){return x.code==='duplicate'||x.code==='duplicate_in_vault'})[0];return ixSideRow(e,'dup',(w?ixWarnMsg(w):TX.ixDupNote))}
 // بطاقة «بيانات شركتك» المقترحة. القيمة المعروضة: ما عدّله العميل، وإلا المقترح من الملفات، وإلا المسجَّل.
-function ixCoValue(k){var S=IXS;if(S.ctouched[k])return S.cedit[k];var s=S.sugg&&S.sugg[k];return s?s.value:(S.org[k]||'')}
-function ixCoKnown(k){return k==='name_ar'||k==='name_en'||k==='cr_number'||!!IXS.orgKnown[k]||!!IXS.org[k]}
-function ixFileNameOf(id){var e=IXS.entries.filter(function(x){return x.id===id})[0];return e?e.name:''}
+function ixCur(k){var s=IXS.sugg[k];return s?s.current:(IXS.org[k]||'')}
+function ixCoValue(k){var S=IXS;if(S.ctouched[k])return S.cedit[k];var s=S.sugg[k];return s?s.value:(S.org[k]||'')}
+function ixCoEdited(){var o={};IXC.COMPANY_FIELDS.forEach(function(k){o[k]=ixCoValue(k)});return o}
+function ixCoCurrent(){var o={};IXC.COMPANY_FIELDS.forEach(function(k){o[k]=ixCur(k)});return o}
+function ixCoPlan(){return IXC.companyDiff(ixCoCurrent(),ixCoEdited())}
 function ixCoStatus(k,el){
- var S=IXS,v=String(ixCoValue(k)||'').trim(),cur=String(S.org[k]||'').trim(),s=S.sugg&&S.sugg[k];
+ var S=IXS,v=String(ixCoValue(k)||'').trim(),cur=String(ixCur(k)||'').trim(),s=S.sugg[k];
  el.innerHTML='';el.className='';
- if(!v){if(!s){el.className='';el.appendChild(document.createTextNode(TX.ixNotFound))}return}
+ var bad=IXC.factIssues(ixCoPlan()).filter(function(i){return i.field===k})[0];
+ var inpEl=el.previousSibling;if(inpEl&&inpEl.classList)inpEl.classList.toggle('bad',!!bad);
+ if(bad){el.className='bad';el.appendChild(document.createTextNode(k==='cr_number'?TX.ixErrCr:TX.ixErrVat));return}
+ if(!v){if(!s)el.appendChild(document.createTextNode(TX.ixNotFound));return}
  if(cur&&IXC.exactSame(k,cur,v)){el.className='good';el.appendChild(document.createTextNode(TX.ixSame));return}
- if(cur&&ixCoKnown(k)){el.className='warn';el.appendChild(document.createTextNode(ixT('ixCurrent',{v:cur})+(s&&s.value===v?' · '+TX.ixReplaces:'')));return}
- if(s&&s.value===v){el.className='good';el.appendChild(document.createTextNode((ixCoKnown(k)?TX.ixFresh+' · ':'')+ixT('ixFrom',{f:ixFileNameOf(s.from)})))}}
+ if(cur){el.className='warn';el.appendChild(document.createTextNode(ixT('ixCurrent',{v:cur})+(s&&s.value===v?' · '+TX.ixReplaces:'')));return}
+ if(s&&s.value===v){el.className=s.needsReview?'warn':'good';el.appendChild(document.createTextNode((s.source&&s.source.fileName?ixT('ixFrom',{f:s.source.fileName}):TX.ixFresh)+(s.needsReview?' · '+TX.ixNeedReview:'')))}}
 function ixCompanyCard(){
  var S=IXS,sg=S.sugg||{};
  var card=h('div',{class:'ix-co','data-ix-company':'1'});
  card.appendChild(h('h3',{},['🏢 '+TX.ixCompanyTitle]));card.appendChild(h('p',{class:'ix-lead'},[TX.ixCompanyLead]));
- var rows=[['name_ar',TX.company,'auto'],['name_en',TX.nameEn,'auto'],['cr_number',TX.cr,'auto'],['vat_number',TX.ixFVat,'auto']];
- if(sg.city||S.org.city)rows.push(['city',TX.ixFCity,'auto']);
+ var rows=[['name_ar',TX.company],['name_en',TX.nameEn],['cr_number',TX.cr],['vat_number',TX.ixFVat]];
+ if(sg.city||S.org.city)rows.push(['city',TX.ixFCity]);
  rows.forEach(function(r){
   var k=r[0],fld=h('div',{class:'ix-fld','data-ix-fld':k});
   var inp=h('input',{class:'inp',dir:'auto',value:ixCoValue(k)||'','aria-label':r[1],'data-ix-co':k,autocomplete:'off',inputmode:(k==='cr_number'||k==='vat_number')?'numeric':'text'});
   var st=h('small',{});
   inp.addEventListener('input',function(){S.cedit[k]=inp.value;S.ctouched[k]=true;ixCoStatus(k,st)});
   fld.appendChild(h('label',{},[r[1]]));fld.appendChild(inp);fld.appendChild(st);ixCoStatus(k,st);
-  var alts=(sg[k]&&sg[k].alts)||[];
-  alts.forEach(function(a){fld.appendChild(h('div',{class:'alt'},[h('span',{},[ixT('ixAlt',{v:a.value})]),h('button',{type:'button',onclick:function(){S.cedit[k]=a.value;S.ctouched[k]=true;inp.value=a.value;ixCoStatus(k,st)}},[TX.ixUseAlt])]))});
+  ((sg[k]&&sg[k].alts)||[]).forEach(function(a){fld.appendChild(h('div',{class:'alt'},[h('span',{},[ixT('ixAlt',{v:a.value})+(a.source&&a.source.fileName?' ('+a.source.fileName+')':'')]),h('button',{type:'button','data-ix-alt':k,onclick:function(){S.cedit[k]=a.value;S.ctouched[k]=true;inp.value=a.value;ixCoStatus(k,st)}},[TX.ixUseAlt])]))});
   card.appendChild(fld)});
  return card}
-function ixCompanyEdited(){var S=IXS,o={};IXC.COMPANY_FIELDS.forEach(function(k){o[k]=ixCoValue(k)});return o}
 function ixCounts(){var S=IXS,c={t:S.entries.length,r:0,u:0,d:0,f:0};
- S.entries.forEach(function(e){if(e.status==='failed')c.f++;else if(e.dupOf)c.d++;else if(e.status==='manual')c.u++;else c.r++});return c}
-function ixKept(){return IXS.entries.filter(function(e){return e.keep!==false&&e.status!=='failed'&&e.status!=='queued'&&e.status!=='reading'})}
+ S.entries.forEach(function(e){if(e.status==='failed')c.f++;else if(e.status==='dup')c.d++;else if(e.status==='manual'||e.status==='local')c.u++;else c.r++});return c}
+function ixKept(){return IXS.entries.filter(IXC.savable)}
 function ixDrawReview(body,ft){
  var S=IXS;
  body.appendChild(h('p',{class:'ix-lead'},[TX.ixReviewLead]));
  ixBanners(body);
- var c=ixCounts();
- body.appendChild(h('div',{class:'ix-sum','data-ix-sum':'1'},[ixT('ixSummary',c)]));
+ body.appendChild(h('div',{class:'ix-sum','data-ix-sum':'1'},[ixT('ixSummary',ixCounts())]));
  body.appendChild(ixCompanyCard());
- S.entries.forEach(function(e){body.appendChild(e.status==='failed'?ixFailedRow(e):ixFileCard(e))});
+ S.entries.forEach(function(e){body.appendChild(e.status==='failed'?ixFailedRow(e):e.status==='dup'?ixDupRow(e):ixFileCard(e))});
  var n=ixKept().length;
  if(S.cancelAsk){
   ft.appendChild(h('div',{class:'ask'},[h('span',{},[TX.ixCancelAsk]),h('button',{class:'btn solid-danger',type:'button','data-ix-cancel-yes':'1',onclick:function(){ixClose(false)}},[TX.ixCancelYes]),h('button',{class:'btn ghost',type:'button',onclick:function(){S.cancelAsk=false;ixDraw()}},[TX.ixCancelNo])]));return}
@@ -1714,82 +1661,114 @@ function ixCancel(){
  if(S.step==='review'){if(!S.cancelAsk){S.cancelAsk=true;ixDraw()}return}
  if(S.step==='saving'&&S.save){S.save.stopped=true;ixDraw()}}
 
-// ----- الاعتماد: حفظ ما أكّده العميل فقط، ملفاً ملفاً
+// ----- الاعتماد: حفظ ما أكّده العميل فقط، ملفاً ملفاً (جسم الطلب لا يتّسع لأكثر من ٣٫٣MB خاماً)
+// مهام الحفظ بالترتيب: ملفات الخادم (والحقائق تركب مع أولها)، ثم مهمة حقائق وحدها إن لم تكن ملفات،
+// ثم ملفات «بلا قراءة» عبر مسار الخزانة القائم (ops-doc-upload) حين تكون خدمة القراءة نفسها متعذّرة.
 function ixSave(){
- var S=IXS,plan=IXC.confirmPlan(S.entries,ixCompanyEdited(),S.org),hasCo=Object.keys(plan.company).length>0;
- if(!ixHasOrg()&&!(plan.company.name_ar||plan.company.name_en)){S.msg=TX.ixNeedName;ixDraw();return}
- if(!plan.files.length&&!hasCo){S.msg=TX.ixNothing;ixDraw();return}
- S.msg='';S.step='saving';S.plan=plan;S.save={files:{},co:hasCo?'queued':'none',stopped:false,errors:{}};
- plan.files.forEach(function(f){S.save.files[f.id]='queued'});
+ var S=IXS,plan=IXC.confirmPlan(S.entries,ixCoEdited(),ixCoCurrent()),hasCo=Object.keys(plan.facts).length>0;
+ if(plan.issues.length){S.msg=TX.ixFixFirst;ixDraw();return}
+ var all=plan.files.concat(plan.localFiles);
+ if(all.some(function(f){return !String(f.title||'').trim()})){S.msg=TX.eName;ixDraw();return}
+ if(!ixHasOrg()&&!(plan.facts.name_ar||plan.facts.name_en)){S.msg=TX.ixNeedName;ixDraw();return}
+ if(!all.length&&!hasCo){S.msg=TX.ixNothing;ixDraw();return}
+ var tasks=[];
+ plan.files.forEach(function(f){tasks.push({id:f.id,kind:'srv',state:'queued',err:''})});
+ if(!plan.files.length&&hasCo)tasks.push({id:'facts',kind:'facts',state:'queued',err:''});
+ plan.localFiles.forEach(function(f){tasks.push({id:f.id,kind:'local',state:'queued',err:''})});
+ S.msg='';S.step='saving';S.plan=plan;S.save={tasks:tasks,co:hasCo?'queued':'none',stopped:false,factErrors:[],applied:[],createdOrg:false};
  ixDraw();ixSaveNext()}
+function ixTaskFile(t){var S=IXS;return t.kind==='local'?S.plan.localFiles.filter(function(f){return f.id===t.id})[0]:S.plan.files.filter(function(f){return f.id===t.id})[0]}
+function ixEntryOfTask(t){var S=IXS;return S.entries.filter(function(e){return t.kind==='local'?e.id===t.id:e.srvId===t.id})[0]}
 function ixSaveNext(){
  var S=IXS;if(!S||S.cancelled)return;var sv=S.save;
- var f=null;for(var i=0;i<S.plan.files.length;i++)if(sv.files[S.plan.files[i].id]==='queued'){f=S.plan.files[i];break}
- var needCo=sv.co==='queued';
- if(sv.stopped||(!f&&!needCo)){ixFinish();return}
- if(f)sv.files[f.id]='saving';if(needCo)sv.co='saving';
+ var t=null;for(var i=0;i<sv.tasks.length;i++)if(sv.tasks[i].state==='queued'){t=sv.tasks[i];break}
+ if(sv.stopped||!t){ixFinish();return}
+ t.state='saving';
+ var withFacts=sv.co==='queued'&&t.kind!=='local';if(withFacts)sv.co='saving';
  ixDraw();
- var e=f?S.entries.filter(function(x){return x.id===f.id})[0]:null;
  var ac=window.AbortController?new AbortController():null;if(ac)S.aborts.push(ac);
- var prep=e?ixB64(e.file).then(function(b64){var pf={};for(var k in f)pf[k]=f[k];pf.base64=b64;return [pf]}):Promise.resolve([]);
- prep.then(function(files){var p={files:files};if(needCo)p.company=S.plan.company;return ixApi('doc-intake-confirm',p,ac)},function(){return {ok:false,error:'read_local'}})
+ var f=t.kind==='facts'?null:ixTaskFile(t),e=f?ixEntryOfTask(t):null;
+ var prep=e?ixB64(e.file):Promise.resolve('');
+ prep.then(function(b64){
+  if(t.kind==='local')return ixPost('/api/requests',{action:'ops-doc-upload',title:f.title,category:f.category,expiry:f.expiry||'',fileName:f.name,mime:f.mime,base64:b64},ac);
+  var p={files:f?[Object.assign({},f,{base64:b64})]:[]};if(withFacts)p.facts=S.plan.facts;
+  return ixApi('doc-intake-confirm',p,ac)},function(){return {ok:false,error:'read_local'}})
   .then(function(o){
    if(S.cancelled||IXS!==S)return;
    if(o.error==='unauthorized'||o.error==='no_session'){ixSessionEnd();return}
-   var failCode=null;
-   if(o.ok!==true)failCode=o.error||'failed';
-   else if(f){var errs=o.errors||[];for(var j=0;j<errs.length;j++)if(errs[j]&&errs[j].id===f.id)failCode=errs[j].error||'failed'}
-   if(f){if(failCode){sv.files[f.id]='failed';sv.errors[f.id]=failCode}else sv.files[f.id]='done'}
-   if(needCo){var coBad=(o.ok!==true)||(o.company&&o.company.saved===false);sv.co=coBad?'failed':'done';if(coBad&&!f)sv.errors.company=failCode||'failed';
-    if(!coBad&&o.company&&o.company.organization&&state.me){state.me.organization=Object.assign(state.me.organization||{},o.company.organization)}}
-   ixSaveNext()})}
+   ixOnSaved(t,f,o,withFacts);ixSaveNext()})}
+function ixOnSaved(t,f,o,withFacts){
+ var S=IXS,sv=S.save;
+ if(t.kind==='local'){if(o.ok===true)t.state='done';else{t.state='failed';t.err=o.error||'failed'}return}
+ if(o.ok!==true){
+  if(f){t.state='failed';t.err=o.error==='read_local'?'read_local':(o.error||'failed')}else t.state='failed';
+  if(withFacts){sv.co='failed';sv.factErrors.push({field:'organization',error:'db_failed'})}
+  return}
+ if(f){
+  var sk=(o.skipped||[]).filter(function(x){return x&&x.id===t.id})[0];
+  if(sk){t.state=sk.reason==='duplicate'?'dup':'failed';t.err=sk.reason}else t.state='done'}
+ else t.state='done';
+ if(withFacts){
+  var fe=o.factErrors||[],ap=o.factsApplied||[];
+  fe.forEach(function(x){sv.factErrors.push(x)});ap.forEach(function(k){sv.applied.push(k)});
+  sv.co=(ap.length||!fe.length)?'done':'failed';
+  if(o.createdOrg)sv.createdOrg=true;
+  if(o.organization&&state.me)state.me.organization=Object.assign(state.me.organization||{},o.organization)}}
 function ixFinish(){
- var S=IXS,sv=S.save,plan=S.plan,saved=[],failed=[];
- plan.files.forEach(function(f){var e=S.entries.filter(function(x){return x.id===f.id})[0];
-  if(sv.files[f.id]==='done')saved.push({id:f.id,name:f.name,title:f.title,category:f.category,docType:f.docType});
-  else if(sv.files[f.id]==='failed')failed.push({id:f.id,name:f.name,code:sv.errors[f.id]})});
+ var S=IXS,sv=S.save,plan=S.plan,saved=[],failed=[],dups=[];
+ sv.tasks.forEach(function(t){
+  var f=ixTaskFile(t);
+  if(t.kind==='facts')return;
+  if(t.state==='done')saved.push({id:t.id,name:f.name,title:f.title,category:f.category});
+  else if(t.state==='dup')dups.push({id:t.id,name:f.name});
+  else if(t.state==='failed')failed.push({id:t.id,name:f.name,code:t.err})});
  var changes=[];
- if(sv.co==='done'){for(var k in plan.diff)changes.push({field:k,from:plan.diff[k].from,to:plan.diff[k].to});
-  var org=(state.me&&(state.me.organization=state.me.organization||{}))||{};for(var k2 in plan.diff)org[k2]=plan.diff[k2].to}
- S.result={saved:saved,failed:failed,changes:changes,companyFailed:sv.co==='failed',stopped:sv.stopped&&plan.files.some(function(f){return sv.files[f.id]==='queued'})};
+ for(var k in plan.diff)if(sv.applied.indexOf(k)>=0)changes.push({field:k,from:plan.diff[k].from,to:plan.diff[k].to});
+ if(changes.length&&state.me){var org=state.me.organization=state.me.organization||{};changes.forEach(function(c){org[c.field]=c.to})}
+ S.result={saved:saved,failed:failed,dups:dups,changes:changes,factErrors:sv.factErrors,companyFailed:sv.co==='failed',stopped:sv.stopped&&sv.tasks.some(function(t){return t.state==='queued'})};
  S.step='result';ixDraw();
  refreshMe().then(function(){return loadDocs()}).then(function(){if(IXS===S)S.org=ixOrg()})}
 function ixDrawSaving(body,ft){
  var S=IXS,sv=S.save;
  body.appendChild(h('p',{class:'ix-lead'},[TX.ixSavingLead]));
- var total=S.plan.files.length+(sv.co==='none'?0:1),done=S.plan.files.filter(function(f){return sv.files[f.id]==='done'||sv.files[f.id]==='failed'}).length+((sv.co==='done'||sv.co==='failed')?1:0);
+ var total=sv.tasks.filter(function(t){return t.kind!=='facts'}).length+(sv.co==='none'?0:1),
+  done=sv.tasks.filter(function(t){return t.kind!=='facts'&&(t.state==='done'||t.state==='failed'||t.state==='dup')}).length+((sv.co==='done'||sv.co==='failed')?1:0);
  var bar=h('div',{class:'bar'},[h('i',{})]);bar.firstChild.style.width=(total?Math.round(done/total*100):0)+'%';
- body.appendChild(h('div',{class:'ix-count','aria-live':'polite'},[h('span',{},[ixT('ixCount',{n:done,t:total})]),bar]));
- if(sv.co!=='none')body.appendChild(ixSaveRow('co',TX.ixSavingCompany,sv.co,Object.keys(S.plan.company).map(function(k){return ixFieldName(k)}).join('، ')));
- S.plan.files.forEach(function(f){body.appendChild(ixSaveRow(f.id,f.name,sv.files[f.id],(f.title||'')+' · '+catName(f.category)))});
+ body.appendChild(h('div',{class:'ix-count','aria-live':'polite','data-ix-count':'1'},[h('span',{},[ixT('ixCount',{n:done,t:total})]),bar]));
+ if(sv.co!=='none')body.appendChild(ixSaveRow('co',TX.ixSavingCompany,sv.co,Object.keys(S.plan.facts).map(ixFieldName).join('، ')));
+ sv.tasks.forEach(function(t){if(t.kind==='facts')return;var f=ixTaskFile(t);body.appendChild(ixSaveRow(t.id,f.name,t.state,(f.title||'')+' · '+catName(f.category)))});
  ft.appendChild(h('span',{class:'grow'}));
  var stop=h('button',{class:'btn ghost',type:'button','data-ix-stop':'1',onclick:function(){ixCancel()}},[TX.ixStop]);
  if(sv.stopped)stop.setAttribute('disabled','disabled');ft.appendChild(stop)}
-function ixSaveRow(id,name,state2,sub){
- var label=state2==='done'?TX.ixSaved:state2==='saving'?TX.ixSavingNow:state2==='failed'?TX.ixFailed:TX.ixQueued;
- return h('div',{class:'ix-row '+(state2==='saving'?'saving':state2==='done'?'done':state2==='failed'?'failed':'queued'),'data-ix-save':id,'data-state':state2},[h('span',{class:'st','aria-hidden':'true'},[state2==='done'?'✓':state2==='failed'?'!':state2==='queued'?'…':'']),h('div',{class:'tt'},[h('b',{},[name]),h('small',{},[label+(sub?' · '+sub:'')])])])}
+function ixSaveRow(id,name,st,sub){
+ var label=st==='done'?TX.ixSaved:st==='saving'?TX.ixSavingNow:st==='failed'?TX.ixFailed:st==='dup'?TX.ixDupWord:TX.ixQueued;
+ return h('div',{class:'ix-row '+(st==='saving'?'saving':st==='done'?'done':st==='failed'?'failed':'queued'),'data-ix-save':id,'data-state':st},[h('span',{class:'st','aria-hidden':'true'},[st==='done'?'✓':st==='failed'?'!':st==='queued'?'…':st==='dup'?'↓':'']),h('div',{class:'tt'},[h('b',{},[name]),h('small',{},[label+(sub?' · '+sub:'')])])])}
 function ixDrawResult(body,ft){
  var S=IXS,r=S.result,part=r.failed.length>0||r.companyFailed||r.stopped;
  body.appendChild(h('div',{class:'ix-done','data-ix-result':part?'partial':'ok'},[h('div',{class:'big'+(part?' part':''),'aria-hidden':'true'},[part?'!':'✓']),h('h3',{},[part?TX.ixPartialTitle:TX.ixDoneTitle]),
   h('p',{},[r.saved.length?ixT('ixDoneFiles',{n:r.saved.length}):''])]));
  if(r.stopped)body.appendChild(h('div',{class:'ix-banner'},[TX.ixStopped]));
  if(r.failed.length)body.appendChild(h('div',{class:'ix-banner'},[ixT('ixPartial',{n:r.failed.length})]));
+ if(r.dups.length)body.appendChild(h('div',{class:'ix-banner'},[r.dups.map(function(d){return d.name}).join('، ')+' — '+TX.ixSkipDup]));
  if(r.saved.length){var ul=h('ul',{});r.saved.forEach(function(s){ul.appendChild(h('li',{},[h('span',{class:'pill ok'},[catName(s.category)]),h('b',{},[s.title||s.name]),h('small',{},[s.name])]))});
   body.appendChild(h('div',{class:'ix-res','data-ix-saved':'1'},[h('h4',{},['📁 '+TX.navDocs]),ul]))}
  var cb=h('div',{class:'ix-res','data-ix-changes':'1'},[h('h4',{},['🏢 '+(r.changes.length?TX.ixDoneCompany:TX.ixDoneNoCompany)])]);
  if(r.changes.length){var cu=h('ul',{});r.changes.forEach(function(c){cu.appendChild(h('li',{},[h('span',{},[ixFieldName(c.field)+':']),(c.from?h('s',{dir:'auto'},[c.from]):null),(c.from?h('span',{class:'arrow'},['←']):null),h('b',{dir:'auto'},[c.to])]))});cb.appendChild(cu)}
- if(r.companyFailed)cb.appendChild(h('p',{class:'err'},[TX.ixECompany]));
+ r.factErrors.forEach(function(x){cb.appendChild(h('p',{class:'err'},[TX['ixEFact_'+x.error]||TX.ixECompany]))});
  body.appendChild(cb);
- if(r.failed.length){var fu=h('ul',{});r.failed.forEach(function(f){fu.appendChild(h('li',{},[h('b',{},[f.name]),h('small',{class:'err'},[TX[IXC.errKey(f.code)]||TX.ixESave])]))});body.appendChild(h('div',{class:'ix-res'},[fu]))}
+ if(r.failed.length){var fu=h('ul',{});r.failed.forEach(function(f){fu.appendChild(h('li',{},[h('b',{},[f.name]),h('small',{class:'err'},[TX[f.code==='read_local'?'eRead':IXC.errKey(f.code)]||TX.ixESave])]))});body.appendChild(h('div',{class:'ix-res'},[fu]))}
  ft.appendChild(h('button',{class:'btn ghost',type:'button','data-ix-close':'1',onclick:function(){ixClose(true)}},[TX.ixClose]));
- if(r.failed.length||r.companyFailed){ft.appendChild(h('button',{class:'btn ghost',type:'button','data-ix-retry':'1',onclick:function(){ixRetrySave()}},[TX.ixRetrySave]))}
+ if(r.failed.length||r.companyFailed||r.stopped){ft.appendChild(h('button',{class:'btn ghost',type:'button','data-ix-retry':'1',onclick:function(){ixRetrySave()}},[TX.ixRetrySave]))}
  ft.appendChild(h('span',{class:'grow'}));
  var coFirst=r.changes.length>0;
  ft.appendChild(h('button',{class:'btn'+(coFirst?'':' ghost'),type:'button','data-ix-open':'company',onclick:function(){ixClose(false);go('company')}},[TX.ixOpenCompany]));
  ft.appendChild(h('button',{class:'btn'+(coFirst?' ghost':''),type:'button','data-ix-open':'documents',onclick:function(){ixClose(false);go('documents')}},[TX.ixOpenVault]))}
 function ixRetrySave(){
- var S=IXS,sv=S.save;S.plan.files.forEach(function(f){if(sv.files[f.id]==='failed'||(sv.stopped&&sv.files[f.id]==='queued'))sv.files[f.id]='queued'});
- if(sv.co==='failed')sv.co='queued';sv.stopped=false;sv.errors={};S.step='saving';ixDraw();ixSaveNext()}
+ var S=IXS,sv=S.save;
+ sv.tasks.forEach(function(t){if(t.state==='failed'||(sv.stopped&&t.state==='queued'))t.state='queued';t.err=''});
+ if(sv.co==='failed'){sv.co='queued';var ft=sv.tasks.filter(function(t){return t.kind==='facts'})[0];if(ft)ft.state='queued';
+  if(!ft&&!sv.tasks.some(function(t){return t.kind==='srv'&&t.state==='queued'})){sv.tasks.push({id:'facts',kind:'facts',state:'queued',err:''})}}
+ sv.stopped=false;sv.factErrors=[];S.step='saving';ixDraw();ixSaveNext()}
 
 // ---------- المستندات: خزانة واحدة للعميل
 // هذه هي خزانة /account نفسها — الجداول documents و document_versions
@@ -1798,8 +1777,8 @@ function ixRetrySave(){
 //
 // attachment-add في /api/simple ليست المسار: عقدها الفعلي {name,url,note} —
 // بياناتٌ عن مرفق، لا بايتات ملف. راجع تقرير المهمة.
-var DOC_CATS=[["cr","商业登记"],["vat","增值税证书"],["contract","合同"],["id","身份证 / 居留证"],["national_address","国家地址"],["license","执照"],["gosi","社会保险"],["zakat","天课"],["other","其他"]];
-var MAX_DOC=8*1024*1024;
+var DOC_CATS=[["cr","商业登记"],["vat","增值税证书"],["contract","合同"],["id","身份证 / 居留证"],["other","其他"]];
+var MAX_DOC=3.3*1024*1024;
 var OK_MIME={'application/pdf':'application/pdf','image/jpeg':'image/jpeg','image/jpg':'image/jpeg','image/png':'image/png','image/webp':'image/webp'};
 var OK_EXT={pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp'};
 function extOf(n){var t=String(n||'');var i=t.lastIndexOf('.');return i<0?'':t.slice(i+1).toLowerCase()}

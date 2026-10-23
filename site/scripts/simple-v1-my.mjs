@@ -409,10 +409,10 @@ const P = {
                zh: "文件只需上传一次 — 我们会在您的各项申请中使用，账户之外无人可见。" },
   dzPick: { ar: "اسحب الملف هنا أو اضغط للاختيار", en: "Drop a file here, or click to choose",
             fr: "Déposez un fichier ici, ou cliquez pour choisir", zh: "将文件拖到此处，或点击选择" },
-  dzHint: { ar: "PDF أو صورة (JPG · PNG · WEBP) — حتى ٨ ميجابايت",
-            en: "PDF or image (JPG · PNG · WEBP) — up to 8 MB",
-            fr: "PDF ou image (JPG · PNG · WEBP) — jusqu'à 8 Mo",
-            zh: "PDF 或图片（JPG · PNG · WEBP）— 最大 8 MB" },
+  dzHint: { ar: "PDF أو صورة (JPG · PNG · WEBP) — حتى ٣٫٣ ميجابايت",
+            en: "PDF or image (JPG · PNG · WEBP) — up to 3.3 MB",
+            fr: "PDF ou image (JPG · PNG · WEBP) — jusqu'à 3,3 Mo",
+            zh: "PDF 或图片（JPG · PNG · WEBP）— 最大 3.3 MB" },
   dName: { ar: "اسم المستند", en: "Document name", fr: "Nom du document", zh: "文件名称" },
   dCat: { ar: "نوعه", en: "Type", fr: "Type", zh: "类型" },
   dExp: { ar: "تاريخ الانتهاء (اختياري)", en: "Expiry date (optional)", fr: "Date d'expiration (facultatif)", zh: "到期日（可选）" },
@@ -421,8 +421,8 @@ const P = {
   dUploading: { ar: "جارٍ الرفع", en: "Uploading", fr: "Téléversement", zh: "正在上传" },
   dDone: { ar: "تم رفع المستند ✓", en: "Document uploaded ✓", fr: "Document téléversé ✓", zh: "文件已上传 ✓" },
   dNewVerDone: { ar: "رُفعت نسخة جديدة ✓", en: "New version uploaded ✓", fr: "Nouvelle version téléversée ✓", zh: "已上传新版本 ✓" },
-  eBig: { ar: "الملف أكبر من ٨ ميجابايت", en: "The file is larger than 8 MB",
-          fr: "Le fichier dépasse 8 Mo", zh: "文件超过 8 MB" },
+  eBig: { ar: "الملف أكبر من ٣٫٣ ميجابايت", en: "The file is larger than 3.3 MB",
+          fr: "Le fichier dépasse 3,3 Mo", zh: "文件超过 3.3 MB" },
   eType: { ar: "هذه الصيغة غير مقبولة. المقبول: PDF · JPG · PNG · WEBP.",
            en: "This format is not accepted. Accepted: PDF · JPG · PNG · WEBP.",
            fr: "Format non accepté. Acceptés : PDF · JPG · PNG · WEBP.",
@@ -524,11 +524,6 @@ const DOC_CATS = [
   ["vat",      { ar: "شهادة ضريبية", en: "VAT certificate", fr: "Certificat de TVA", zh: "增值税证书" }],
   ["contract", { ar: "عقد", en: "Contract", fr: "Contrat", zh: "合同" }],
   ["id",       { ar: "هوية / إقامة", en: "ID / Iqama", fr: "Pièce d'identité / Iqama", zh: "身份证 / 居留证" }],
-  // تصنيفات يرتّب بها وكيل المستندات ما يرفعه العميل دفعةً واحدة (db/schema.sql: documents.category)
-  ["national_address", { ar: "عنوان وطني", en: "National address", fr: "Adresse nationale", zh: "国家地址" }],
-  ["license",  { ar: "رخصة", en: "Licence", fr: "Licence", zh: "执照" }],
-  ["gosi",     { ar: "التأمينات الاجتماعية", en: "GOSI", fr: "GOSI", zh: "社会保险" }],
-  ["zakat",    { ar: "الزكاة", en: "Zakat", fr: "Zakat", zh: "天课" }],
   ["other",    { ar: "أخرى", en: "Other", fr: "Autre", zh: "其他" }],
 ];
 Object.assign(P, INTAKE_P);
@@ -949,7 +944,7 @@ ${intakeClientScript()}
 // attachment-add في /api/simple ليست المسار: عقدها الفعلي {name,url,note} —
 // بياناتٌ عن مرفق، لا بايتات ملف. راجع تقرير المهمة.
 var DOC_CATS=${JSON.stringify(cats)};
-var MAX_DOC=8*1024*1024;
+var MAX_DOC=3.3*1024*1024;
 var OK_MIME={'application/pdf':'application/pdf','image/jpeg':'image/jpeg','image/jpg':'image/jpeg','image/png':'image/png','image/webp':'image/webp'};
 var OK_EXT={pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp'};
 function extOf(n){var t=String(n||'');var i=t.lastIndexOf('.');return i<0?'':t.slice(i+1).toLowerCase()}
