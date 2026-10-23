@@ -181,7 +181,7 @@ test("بند الحشو seed لا يحجب العرض الآلي ولا يُطب
   const ref = await newRequest([{ code: "BP-SBC-01", title: "خدمة ثابتة", qty: 1 }, { code: "", title: "تحديد المسار", qty: 1, seed: true }]);
   const r = await call("scope-confirm", { ref, scope: [{ code: "BP-SBC-01", title: "خدمة ثابتة", qty: 1 }, { code: "", title: "تحديد المسار", qty: 1, seed: true }] });
   assert.equal(r.body.stage, "QUOTE");
-  assert.deepEqual(r.body.quote.items.map((i) => i.title), ["خدمة ثابتة"]);
+  assert.deepEqual(r.body.quote.items.map((i) => i.title), ["تأسيس شركة سعودية"]);
 
   const ref2 = await newRequest([{ code: "BP-SBC-01", title: "خدمة ثابتة", qty: 1 }]);
   const r2 = await call("scope-confirm", { ref: ref2, scope: [{ code: "BP-SBC-01", title: "خدمة ثابتة", qty: 1 }, { code: "", title: "ترجمة عقد خاصة", qty: 1 }] });

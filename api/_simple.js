@@ -490,7 +490,7 @@ async function issueContract(row, actorKind, actor, opts) {
 // Both must produce the same numbering, the same notification and the same
 // scope rewrite, so the whole thing lives here once.
 async function issueQuote(row, rawItems, opts, actorKind, actor) {
-  const priced = await priceItems(rawItems);
+  const priced = await priceItems(rawItems, { catalogueText: actorKind === "system" });
   // لا سطر بسعر صفر في عرضٍ صادر. «computeQuote» يُسقط السعر الناقص إلى صفر،
   // وكان «ops-quote» بلا بنودٍ مكتوبة (أو ببندٍ لا سعر له في الكتالوج: «خدمة حسب
   // الطلب»، نسبة، باقة) يُصدر ويُرسل عرضاً إجماليه «٠ ر.س» إلى العميل. السعر يأتي
@@ -503,6 +503,10 @@ async function issueQuote(row, rawItems, opts, actorKind, actor) {
   }
   const quote = { number: "Q-" + row.ref.replace(/^BP-R-/, "") + (row.quote && row.quote.status === "REJECTED" ? "-R" : ""), status: "DRAFT", created_at: nowIso(), template_version: templateForLang(row.lang), ...computeQuote(priced, opts) };
   if (!quote.items.length) return { ok: false, error: "no_items" };
+  // What the customer typed beside catalogue lines: kept apart, short, and printed
+  // as «ملاحظات العميل» — never as a line of the quotation or the contract.
+  const cn = priced.map((l) => l.clientNote).filter(Boolean).join(" · ").slice(0, 500);
+  if (cn) quote.client_notes = cn;
   const send = opts.send !== false;
   if (send) { quote.status = "SENT"; quote.sent_at = nowIso(); }
   const upd = await patchRequest(row.id, { quote, scope: quote.items.map((l) => ({ code: l.code, title: l.title, why: l.description, qty: l.qty })), status: send ? "QUOTE_SENT" : row.status });
@@ -549,6 +553,7 @@ function normConversation(msgs) {
   })).filter((m) => m.content);
 }
 
+const quoteNotes = (q) => [q.notes, q.client_notes ? `ملاحظات العميل (للعلم، وليست بنداً تعاقدياً): ${q.client_notes}` : ""].filter(Boolean).join(" | ");
 function computeQuote(items, opts = {}) {
   const lines = (Array.isArray(items) ? items : []).slice(0, 30).map((it) => {
     const qty = Math.max(1, Math.min(99, Math.round(num(it.qty) || 1)));
@@ -1109,14 +1114,14 @@ async function clientAction(action, b, qs, req, res, sess) {
     if (qtpl) return json(res, 200, { ok: true, number: row.quote.number, html: qtpl.quote({
       ref: row.ref, number: row.quote.number, clientName: partyName(row), service: row.title, items: row.quote.items || [],
       net: row.quote.net, vat: row.quote.vat, total: row.quote.total, issuedAt: row.quote.created_at, validUntil: row.quote.valid_until || "",
-      paymentTerms: row.quote.payment_terms || "", notes: row.quote.notes || "", documents: row.documents, lang: row.lang || "ar",
+      paymentTerms: row.quote.payment_terms || "", notes: quoteNotes(row.quote), documents: row.documents, lang: row.lang || "ar",
     }) });
     const html = quoteHtml({
       ref: row.ref, number: row.quote.number,
       clientName: partyName(row),
       items: row.quote.items || [], net: row.quote.net, vat: row.quote.vat, total: row.quote.total,
       validUntil: row.quote.valid_until || "", paymentTerms: row.quote.payment_terms || "",
-      notes: row.quote.notes || "", lang: row.lang || "ar",
+      notes: quoteNotes(row.quote), lang: row.lang || "ar",
       today: new Date(row.quote.created_at || Date.now()).toLocaleDateString("ar-SA-u-nu-latin", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Riyadh" }),
     });
     return json(res, 200, { ok: true, html, number: row.quote.number });
@@ -1398,16 +1403,24 @@ async function issueWaitingQuotes(sess) {
   return n;
 }
 
+// Reads requests with the hidden ones (`deleted_at`) removed IN THE QUERY, before
+// `limit` — filtered afterwards, hidden rows would eat the page. If the database
+// has no such column yet the query is retried without it and filtered in code.
+async function sbLive(path) {
+  let rows;
+  try { rows = await sb(path + "&deleted_at=is.null"); }
+  catch { rows = await sb(path.replace(",deleted_at", "")); }
+  return rows.filter((r) => !r.deleted_at);
+}
 async function myRequests(sess) {
   const email = String(sess.user?.email || "").toLowerCase();
   const orgId = sess.organization?.id;
   const filter = orgId ? `or=(organization_id.eq.${orgId},client_email.eq.${q(email)})` : `client_email=eq.${q(email)}`;
-  const rows = await sb(`requests?${filter}&select=*&order=created_at.desc&limit=100`);
+  const live = await sbLive(`requests?${filter}&select=*&order=created_at.desc&limit=100`);
   // A request the customer cancelled and that carried no signature and no money
   // is hidden from everything he reads (`deleted_at`, see request-cancel). The
   // filter is here, in code, so it also holds while the column is not yet on the
   // database — a row without it simply has nothing to hide.
-  const live = rows.filter((r) => !r.deleted_at);
   return Promise.all(live.map((r) => (r.status === "QUOTE_APPROVED" ? ensureContract(r) : r)));
 }
 const summary = (r) => ({
@@ -1870,7 +1883,7 @@ export async function bankReceiptIntake({ payload, order, file }) {
     const owner = String((row.payment && row.payment.bank_order && row.payment.bank_order.email) || row.client_email || "").toLowerCase();
     if (owner && owner !== email) return { ok: false, status: 409, error: "ref_taken" };
     if (String((row.payment || {}).status || "").toUpperCase() === "PAID") return { ok: false, status: 409, error: "already_paid", row };
-    if (row.status === "CANCELLED") return { ok: false, status: 409, error: "request_closed", row };
+    if (row.status === "CANCELLED") return { ok: false, status: 409, error: "request_closed", row, message: "هذا الطلب أُلغي ولم يعد يقبل إيصالات. إن كنت حوّلت المبلغ فعلاً فراسلنا وسنراجعه معك، ولن يضيع تحويلك." };
   } else {
     const out = await createCartRequest({ ...payload, payId: "bank_" + ref, bank: { pending: true, order } });
     if (!out || !out.ok || !out.ref) return { ok: false, status: 502, error: (out && out.error) || "create_failed" };
@@ -2359,8 +2372,7 @@ async function opsAction(action, b, qs, req, res, opsUser) {
 
   if (action === "ops-summary") {
     const SUMMARY_COLS = "ref,type,source,status,title,created_at,updated_at,quote,payment,invoice,appointment,client_name,company_name,assigned_to";
-    const all = (await sb(`requests?select=${SUMMARY_COLS},deleted_at&order=created_at.desc&limit=500`)
-      .catch(() => sb(`requests?select=${SUMMARY_COLS}&order=created_at.desc&limit=500`))).filter((r) => !r.deleted_at);
+    const all = await sbLive(`requests?select=${SUMMARY_COLS},deleted_at&order=created_at.desc&limit=500`);
     const today = nowIso().slice(0, 10);
     const month = today.slice(0, 7);
     const paid = all.filter((r) => r.payment && r.payment.status === "PAID");
@@ -2411,7 +2423,7 @@ async function opsAction(action, b, qs, req, res, opsUser) {
     if (status && REQUEST_STATUSES.includes(status)) path += `&status=eq.${status}`;
     if (type && REQUEST_TYPES.includes(type)) path += `&type=eq.${type}`;
     if (search) path += `&or=(ref.ilike.*${q(search)}*,title.ilike.*${q(search)}*,client_name.ilike.*${q(search)}*,company_name.ilike.*${q(search)}*,client_email.ilike.*${q(search)}*)`;
-    const rows = (await sb(path)).filter((r) => !r.deleted_at);
+    const rows = await sbLive(path);
     return json(res, 200, { ok: true, requests: rows.map(summary) });
   }
 
@@ -2458,8 +2470,7 @@ async function opsAction(action, b, qs, req, res, opsUser) {
 
   if (action === "ops-inbox") {
     const [reqs, tickets] = await Promise.all([
-      sb("requests?select=ref,title,status,source,type,conversation,client_name,client_email,client_phone,company_name,updated_at,assigned_to,deleted_at&order=updated_at.desc&limit=200")
-        .then((rows) => rows.filter((r) => !r.deleted_at), () => sb("requests?select=ref,title,status,source,type,conversation,client_name,client_email,client_phone,company_name,updated_at,assigned_to&order=updated_at.desc&limit=200")),
+      sbLive("requests?select=ref,title,status,source,type,conversation,client_name,client_email,client_phone,company_name,updated_at,assigned_to,deleted_at&order=updated_at.desc&limit=200"),
       sb("support_tickets?select=number,subject,status,category,created_at,organization_id,ticket_messages(body,author_kind,created_at)&order=created_at.desc&limit=60").catch(() => []),
     ]);
     const threads = reqs.map((r) => {
@@ -3026,7 +3037,7 @@ async function opsAction(action, b, qs, req, res, opsUser) {
 
 // Price scope items from the catalog by SKU; anything unknown keeps the
 // price the owner typed (or 0 so it visibly needs a decision).
-async function priceItems(items) {
+async function priceItems(items, { catalogueText = false } = {}) {
   let cat = null;
   try { cat = await loadCatalog(); } catch {}
   const byCode = new Map();
@@ -3052,11 +3063,20 @@ async function priceItems(items) {
     // الاسم الإنجليزي من الكتالوج يُحمل مع البند ليُطبع في العمود المقابل
     // بلغة العميل. ما لا اسم إنجليزي له يبقى بالعربية في العمودين — أفضل من
     // ترجمةٍ آلية لاسم خدمة حكومية داخل عقد.
-    return { code: it.code, title: it.title || (svc && (svc.nameAr || svc.name)) || "",
-      titleEn: str((svc && (svc.nameEn || svc.name)) || it.titleEn || "", 200),
-      description: it.description || it.why || "", qty: it.qty || 1,
+    // A line that issues WITHOUT a person reading it (catalogueText: the automatic
+    // quotation) takes its name and description from the catalogue by SKU — what the
+    // customer typed never becomes a contractual line, whatever code it carries
+    // («تضمن الشركة استرداد كامل المبلغ» typed over a real SKU reached the contract).
+    // His words travel apart, as a short note (`clientNote`).
+    const own = catalogueText && svc;
+    const catName = svc ? str(svc.nameAr || svc.name, 200) : "";
+    const typed = [it.title, it.why || it.description].map((x) => str(x, 400).replace(/\s+/g, " ")).filter(Boolean);
+    const clientNote = own ? typed.filter((x) => x !== catName).join(" — ").slice(0, 160) : "";
+    return { code: it.code, title: own ? catName : (it.title || (svc && (svc.nameAr || svc.name)) || ""),
+      titleEn: str((svc && (svc.nameEn || svc.name)) || (own ? "" : it.titleEn) || "", 200),
+      description: own ? str(svc.descAr || svc.description, 600) : (it.description || it.why || ""), qty: it.qty || 1,
       price: it.price != null && it.price !== "" ? num(it.price) : catPrice,
-      model: svc ? String(svc.pricingModel || "") : "", found: !!svc };
+      model: svc ? String(svc.pricingModel || "") : "", found: !!svc, clientNote };
   });
 }
 // A catalogue price is a decision only when it IS the price. «يبدأ من 800»
