@@ -21,7 +21,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { sb, DB_ON, DB_MISSING, getSession, audit, notify } from "./_db.js";
 import { contractHtml, quoteHtml, portalContractHtml } from "./_docusign.js";
-import { quoteDocV2, contractDocV2, companySnapshot, templateForLang, isV2Version } from "./_bp-docs.js";
+import { templateForVersion, templateForLang } from "./_bp-docs.js";
 import { loadCatalog } from "./_catalog.js";
 import { loadPriceBook, resolveSku, referencePrice } from "./_catalog-prices.js";
 import { daftraConfigured } from "./_daftra.js";
@@ -429,9 +429,10 @@ function buildContract(row, opts = {}) {
   // issued with "v2" (and its company snapshot) is built with the new one. Rebuilds pass the stored value.
   // عقدٌ بلا بنود لا يصدر بأي قالب (v1 كان يسقط من تلقاء نفسه؛ v2 يجب ألا يطبع ورقة فارغة).
   if (!row.quote || !Array.isArray(row.quote.items) || !row.quote.items.length) throw new Error("no_items");
-  const v2 = isV2Version(opts.template_version);
-  const build = { lead_time: str(opts.lead_time, 120), executor: str(opts.executor, 120), party, ...(v2 ? { template_version: "v2", company: opts.company || companySnapshot() } : {}) };
-  const html = v2 ? contractDocV2({
+  // The stored version names a FROZEN template (api/_bp-docs.js → templateForVersion); never "the newest".
+  const tpl = templateForVersion(opts.template_version);
+  const build = { lead_time: str(opts.lead_time, 120), executor: str(opts.executor, 120), party, ...(tpl ? { template_version: tpl.version, company: opts.company || tpl.companySnapshot() } : {}) };
+  const html = tpl ? tpl.contract({
     ref: row.ref, number: "C-" + row.ref.replace(/^BP-R-/, ""), clientName: party, service: row.title, items: row.quote.items,
     net: row.quote.net, vat: row.quote.vat, total: row.quote.total, vatRate: 15, leadTime: build.lead_time,
     executor: build.executor || "Business Partner", issuedAt: at.toISOString(), lang: row.lang || "ar", company: build.company,
@@ -444,7 +445,7 @@ function buildContract(row, opts = {}) {
     lang: row.lang || "ar",
   });
   return {
-    number: "C-" + row.ref.replace(/^BP-R-/, ""), status: "SENT", html, build, ...(v2 ? { template_version: "v2" } : {}),
+    number: "C-" + row.ref.replace(/^BP-R-/, ""), status: "SENT", html, build, ...(tpl ? { template_version: tpl.version } : {}),
     created_at: at.toISOString(), sent_at: nowIso(), quote_number: row.quote.number,
     mode: SIMPLE_TEST_MODE ? "test-esign" : "portal-esign",
   };
@@ -1104,7 +1105,8 @@ async function clientAction(action, b, qs, req, res, sess) {
   // العرض كمستند كامل بلغتين — نفس ورقة العقد، تُفتح بالحجم الكامل وتُطبع.
   if (action === "quote-view") {
     if (!row.quote) return json(res, 404, { ok: false, error: "no_quote" });
-    if (isV2Version(row.quote.template_version)) return json(res, 200, { ok: true, number: row.quote.number, html: quoteDocV2({
+    const qtpl = templateForVersion(row.quote.template_version);
+    if (qtpl) return json(res, 200, { ok: true, number: row.quote.number, html: qtpl.quote({
       ref: row.ref, number: row.quote.number, clientName: partyName(row), service: row.title, items: row.quote.items || [],
       net: row.quote.net, vat: row.quote.vat, total: row.quote.total, issuedAt: row.quote.created_at, validUntil: row.quote.valid_until || "",
       paymentTerms: row.quote.payment_terms || "", notes: row.quote.notes || "", documents: row.documents, lang: row.lang || "ar",

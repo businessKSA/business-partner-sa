@@ -532,7 +532,7 @@ export function portalContractHtml(html, { signature = null, signedAt = "", stal
     tail = tail.split(sigOld).join(sigNew).split(dateOld).join(dateNew);
   }
   // Safety net: whatever the block looked like, a person never reads an anchor.
-  // Template v2 papers (api/_bp-docs.js) also lose their company-side anchors and gain the
+  // Papers of a frozen template (api/_bp-docs.js → _bp-docs-v2.js …) also lose their company-side anchors and gain the
   // print button here; finalizeBpDoc returns anything that is not v2 untouched, so v1 is byte-identical.
   return finalizeBpDoc(head + tail.replace(/\/sig1\//g, "").replace(/\/date1\//g, ""));
 }

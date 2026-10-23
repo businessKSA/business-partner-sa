@@ -15,7 +15,7 @@ process.env.APP_ENV = "development";
 process.env.LOCAL_DB = "1";
 process.env.LOCAL_DB_DIR = fs.mkdtempSync(path.join(os.tmpdir(), "quote-contract-flow-"));
 // These cases pin the date / lead-time / signed-paper behaviour of the ORIGINAL (v1) paper, whose text
-// they edit by hand. New documents are issued with template v2 now (api/_bp-docs.js, covered by
+// they edit by hand. New documents are issued with template v2 now (api/_bp-docs.js → _bp-docs-v2.js, covered by
 // tests/bp-docs-flow.test.mjs); BP_DOCS_TEMPLATE=v1 is the kill switch that keeps issuing v1.
 process.env.BP_DOCS_TEMPLATE = "v1";
 for (const k of ["RESEND_API_KEY", "RESEND_KEY", "DAFTRA_API_KEY", "WHATSAPP_TOKEN", "SIMPLE_NOTIFY"]) delete process.env[k];

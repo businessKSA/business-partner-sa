@@ -1,13 +1,11 @@
-// Sales documents, template v2 (api/_bp-docs.js): quotation, services agreement, NDA.
+// Sales documents, template v2 (api/_bp-docs-v2.js, frozen — see bp-docs-v2-frozen.test.mjs): quotation, services agreement, NDA.
 // Pure generator tests — no database, no network. The flow (version stamping, rebuild,
 // signing) is in tests/bp-docs-flow.test.mjs; the frozen v1 paper in tests/bp-docs-v1-frozen.test.mjs.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import {
-  quoteDocV2, contractDocV2, ndaDocV2, finalizeBpDoc, isBpDocV2, normLines, annexTotals, priceAnnexHtml,
-  companyFacts, templateForLang, defaultTemplateVersion, fmtDate,
-} from "../api/_bp-docs.js";
+import { quoteDocV2, contractDocV2, ndaDocV2, normLines, annexTotals, priceAnnexHtml, companyFacts, fmtDate } from "../api/_bp-docs-v2.js";
+import { finalizeBpDoc, isBpDoc as isBpDocV2, templateForLang, defaultTemplateVersion } from "../api/_bp-docs.js";
 import { portalContractHtml, contractHtml } from "../api/_docusign.js";
 
 const catalog = JSON.parse(readFileSync(new URL("../site/assets/data/catalog.json", import.meta.url), "utf8"));
@@ -157,7 +155,7 @@ test("print button: on the quotation and on a contract on its way out; never in 
   assert.equal(finalizeBpDoc(finalizeBpDoc(stored)), finalizeBpDoc(stored), "idempotent");
 });
 test("no server-side PDF: the module imports no PDF library or browser", () => {
-  const src = readFileSync(new URL("../api/_bp-docs.js", import.meta.url), "utf8");
+  const src = readFileSync(new URL("../api/_bp-docs-v2.js", import.meta.url), "utf8");
   const imports = [...src.matchAll(/^import .* from "([^"]+)"/gm)].map((m) => m[1]);
   assert.deepEqual(imports.sort(), ["./_bp-docs-logo.js", "./_identity.js", "node:fs", "node:path", "node:url"]);
 });
