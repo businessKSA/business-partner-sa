@@ -213,8 +213,11 @@ test("بنود البذرة بلا علامة (طلبات قديمة وصفحة 
 });
 
 test("بنودٌ كلها بذرة: لا عرض ولا مهمة تسعير — العميل يختار خدمته أولاً", async () => {
-  const ref = await create([...SEED]);
-  const row = await rowOf(ref);
+  // «إنشاء عرض سعر» بحشوٍ وحده يُرفض الآن (لا شيء يُعرض)؛ والإنشاء العادي يبقى NEW بلا مهمة تسعير
+  const rej = await call("request-create", { type: "GOVERNMENT_SERVICE", title: "x", scope: [...SEED], auto_quote: true });
+  assert.equal(rej.http, 400); assert.equal(rej.error, "no_items");
+  const r = await call("request-create", { type: "GOVERNMENT_SERVICE", title: "x", scope: [...SEED] });
+  const row = await rowOf(r.ref);
   assert.equal(row.status, "NEW");
   assert.equal((await sb(`tasks?request_id=eq.${row.id}&source=eq.pricing&select=id`)).length, 0);
 });

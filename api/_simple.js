@@ -458,11 +458,11 @@ function buildContract(row, opts = {}) {
   const tpl = templateForVersion(opts.template_version);
   const build = { lead_time: str(opts.lead_time, 120), executor: str(opts.executor, 120), party, ...(tpl ? { template_version: tpl.version, company: opts.company || tpl.companySnapshot() } : {}) };
   const html = tpl ? tpl.contract({
-    ref: row.ref, number: "C-" + row.ref.replace(/^BP-R-/, ""), clientName: party, service: row.title, items: row.quote.items,
+    ref: row.ref, number: "C-" + row.ref.replace(/^BP-R-/, ""), clientName: party, service: row.quote.service || row.title, ...(row.quote.serviceEn ? { serviceEn: row.quote.serviceEn } : {}), items: row.quote.items,
     net: row.quote.net, vat: row.quote.vat, total: row.quote.total, vatRate: 15, leadTime: build.lead_time,
     executor: build.executor || "Business Partner", issuedAt: at.toISOString(), lang: row.lang || "ar", company: build.company,
   }) : contractHtml({
-    ref: row.ref, clientName: party, service: row.title,
+    ref: row.ref, clientName: party, service: row.quote.service || row.title,
     lines: row.quote.items.map((l) => ({ name: l.title, nameEn: l.titleEn, qty: l.qty, price: l.price, line: l.line })),
     net: row.quote.net, vat: row.quote.vat, total: row.quote.total, vatRate: 15,
     leadTime: build.lead_time, executor: build.executor || "Business Partner", today,
@@ -535,8 +535,21 @@ export function buildNda(row, opts = {}) {
 async function issueNda(row, actorKind, actor, opts = {}) {
   if (row.nda && row.nda.status === "SIGNED") return { ok: false, error: "nda_signed" };
   const nda = buildNda(row, opts);
+  // Pressing «إصدار» twice records ONE event and sends ONE notice: an unsigned NDA with the same party
+  // details is returned as it is; changed details replace it (same number); the very first issue is
+  // claimed with `nda is null` so two concurrent presses cannot both win.
+  if (row.nda) {
+    const same = (x) => JSON.stringify([x.clientRegNo, x.clientAddress, x.clientCountry, x.signatory, x.lang, x.service]);
+    if (row.nda.build && same(row.nda.build) === same(nda.build)) return { ok: true, nda: row.nda, unchanged: true };
+  }
   let upd;
-  try { upd = await patchRequest(row.id, { nda }); }
+  try {
+    if (!row.nda) {
+      const won = await sb(`requests?id=eq.${row.id}&nda=is.null`, { method: "PATCH", body: { nda, updated_at: nowIso() } });
+      if (!won || !won[0]) { const cur = await getByRef(row.ref); return { ok: true, nda: (cur && cur.nda) || nda, unchanged: true }; }
+      upd = won[0];
+    } else upd = await patchRequest(row.id, { nda });
+  }
   catch (e) { console.error("simple: nda not stored - apply db/migrations/2026-10-requests-nda.sql", String(e && e.message || e).slice(0, 80)); return { ok: false, error: "nda_unavailable" }; }
   await logEvent(row.id, actorKind, actor, "nda.sent", { number: nda.number, template: nda.template_version });
   await announce(row, "nda", {
@@ -616,9 +629,16 @@ async function issueQuote(row, rawItems, opts, actorKind, actor) {
   const pending = (Array.isArray(opts.pending) ? opts.pending : []).slice(0, 30).map((h) => ({
     title: str(h.title, 200), code: str(h.code, 40), qty: Math.max(1, Math.min(99, Math.round(num(h.qty) || 1))), reason: str(h.reason, 30), reason_ar: str(h.reason_ar || HOLD_AR[h.reason], 200),
   })).filter((h) => h.title);
-  if (pending.length) quote.pending_items = pending;
+  if (pending.length) {
+    quote.pending_items = pending;
+    // the cover of the quotation and the contract names the PRICED services only (the request's own
+    // title also lists the lines that are still waiting for a price)
+    quote.service = quote.items.map((l) => l.title).join(" + ").slice(0, 200);
+    const en = quote.items.map((l) => l.titleEn || l.title);
+    if (quote.items.some((l) => l.titleEn)) quote.serviceEn = en.join(" + ").slice(0, 200);
+  }
   const scopeAfter = [
-    ...quote.items.map((l) => ({ code: l.code, title: l.title, why: l.description, qty: l.qty })),
+    ...quote.items.map((l) => ({ code: l.code, title: l.title, ...(l.titleEn ? { titleEn: l.titleEn } : {}), why: l.description, qty: l.qty })),
     ...pending.map((h) => ({ code: h.code, title: h.title, why: "", qty: h.qty, hold: { reason: h.reason, reason_ar: h.reason_ar } })),
   ];
   const upd = await patchRequest(row.id, { quote, scope: scopeAfter, status: send ? "QUOTE_SENT" : row.status });
@@ -676,8 +696,27 @@ const PAY_TERMS_DEFAULT = {
   fr: "Paiement d'avance après la signature du contrat", zh: "合同签署后预付款",
 };
 export const localTerms = (q, lang) => (q && q.payment_terms === PAY_TERMS_DEFAULT.ar && PAY_TERMS_DEFAULT[lang] ? PAY_TERMS_DEFAULT[lang] : (q && q.payment_terms) || "");
-const quoteNotes = (q) => [q.notes,
-  Array.isArray(q.pending_items) && q.pending_items.length ? `بنود بانتظار التسعير (يصلك لها عرض ملحق ولا تدخل هذا العرض ولا العقد): ${q.pending_items.map((x) => `${x.title} (${x.reason_ar})`).join(" · ")}` : "", q.client_notes ? `ملاحظات العميل (للعلم، وليست بنداً تعاقدياً): ${q.client_notes}` : ""].filter(Boolean).join(" | ");
+const HOLD_EN = {
+  custom: "a line written by the customer, no catalogue price", unknown_code: "service code not in the catalogue", proposal: "priced after studying the case",
+  from: "catalogue lists a «starting from» price only", recurring: "recurring subscription", percent: "calculated as a percentage", no_price: "no catalogue price",
+};
+const NOTE_TX = {
+  ar: { pend: "بنود بانتظار التسعير (يصلك لها عرض ملحق ولا تدخل هذا العرض ولا العقد)", client: "ملاحظات العميل (للعلم، وليست بنداً تعاقدياً)" },
+  en: { pend: "Lines awaiting a price (an addendum quotation will follow; not part of this quotation or the contract)", client: "Customer notes (for information, not a contractual line)" },
+  fr: { pend: "Lignes en attente de prix (un devis complémentaire suivra ; hors de ce devis et du contrat)", client: "Remarques du client (à titre informatif, hors contrat)" },
+  zh: { pend: "待定价项目（将另发补充报价；不属于本报价和合同）", client: "客户备注（仅供参考，不属于合同条款）" },
+};
+// The printed notes in the language of the paper: the Arabic sentences used to be inserted into every
+// language's quotation. Reasons are written in English for the Latin-script and Chinese papers.
+const quoteNotes = (q, lang = "ar") => {
+  const t = NOTE_TX[lang] || NOTE_TX.en;
+  return [q.notes,
+    Array.isArray(q.pending_items) && q.pending_items.length ? `${t.pend}: ${q.pending_items.map((x) => `${x.title} (${lang === "ar" ? x.reason_ar : (HOLD_EN[x.reason] || HOLD_EN.no_price)})`).join(" · ")}` : "",
+    q.client_notes ? `${t.client}: ${q.client_notes}` : ""].filter(Boolean).join(" | ");
+};
+// The legacy paper (French, Chinese) prints an item's description in every column; the catalogue holds
+// descriptions in Arabic only, so for those languages the description is left out rather than printed in Arabic.
+const quoteItemsFor = (q, lang) => (q.items || []).map((it) => (lang === "ar" || lang === "en" ? it : { ...it, description: "" }));
 function computeQuote(items, opts = {}) {
   const lines = (Array.isArray(items) ? items : []).slice(0, 30).map((it) => {
     const qty = Math.max(1, Math.min(99, Math.round(num(it.qty) || 1)));
@@ -939,7 +978,22 @@ async function clientAction(action, b, qs, req, res, sess) {
     const source = REQUEST_SOURCES.includes(b.source) ? b.source : "WEBSITE";
     const conversation = normConversation(b.conversation);
     const scope = await resolveScope(normScope(b.scope));
-    const ref = newRef();
+    // «إنشاء عرض سعر» (auto_quote) or a resumable draft (draft_id) must carry something to quote: at least
+    // one real line, or the customer's own words. «رجوع ثم إنشاء» used to open an empty consultation.
+    const draftId = str(b.draft_id, 80);
+    if ((b.auto_quote === true || draftId) && !scope.some((it) => !it.seed) && !str(b.summary, 2000) && !normConversation(b.conversation).some((m) => m.role === "user")) {
+      return json(res, 400, { ok: false, error: "no_items", message: "أضف خدمة أو اكتب طلبك في المحادثة قبل إنشاء عرض السعر." });
+    }
+    // The same draft always yields the same request: the reference is derived from (customer, draft_id) and
+    // `ref` is UNIQUE, so a reload of the first tab after the sign-in tab already created it, a double click
+    // or a retry returns that request instead of opening a second one (and a second quotation).
+    let ref = newRef();
+    if (draftId) {
+      const derived = "BP-R-" + crypto.createHash("sha256").update(`draft|${sess.user.id}|${draftId}`).digest("hex").slice(0, 6).toUpperCase();
+      const prior = await getByRef(derived);
+      if (prior && ownedBy(prior, sess) && !prior.deleted_at) return json(res, 200, { ok: true, ref: derived, request: clientView(prior, [], []), duplicate: true, ...(prior.quote ? { quote_issued: true } : {}) });
+      if (!prior) ref = derived;
+    }
     // The person's own name and mobile (D3): what the form sent, else what the
     // account holds. The address prefix is never used as either.
     const prof = await profileOf(sess);
@@ -957,8 +1011,25 @@ async function clientAction(action, b, qs, req, res, sess) {
       client_name: cName, client_email: email, client_phone: cPhone,
       company_name: str(b.company, 200) || (orgName && !isPlaceholderName(orgName, email) ? orgName : cName),
     };
-    const rows = await sb("requests", { method: "POST", body: [row] });
-    const created = rows[0];
+    let rows;
+    try { rows = await sb("requests", { method: "POST", body: [row] }); }
+    catch (e) {
+      // two presses at once: the other one won the UNIQUE ref — answer with its request
+      const won = draftId ? await getByRef(ref) : null;
+      if (won && ownedBy(won, sess) && !won.deleted_at) return json(res, 200, { ok: true, ref, request: clientView(won, [], []), duplicate: true, ...(won.quote ? { quote_issued: true } : {}) });
+      throw e;
+    }
+    let created = rows[0];
+    // Postgres' UNIQUE(ref) already refuses the second insert; an engine without that constraint (the local
+    // JSON database) is covered here: the oldest row for this draft is THE request, a later twin is removed.
+    if (draftId) {
+      const same = await sb(`requests?ref=eq.${ref}&select=id,created_at&order=created_at.asc,id.asc`).catch(() => []);
+      if (same.length > 1 && same[0].id !== created.id) {
+        await sb(`requests?id=eq.${created.id}`, { method: "DELETE", prefer: "return=minimal" }).catch(() => {});
+        const won = await getByRef(ref);
+        return json(res, 200, { ok: true, ref, request: clientView(won, [], []), duplicate: true, ...(won.quote ? { quote_issued: true } : {}) });
+      }
+    }
     const wantsQuote = b.auto_quote === true;
     await logEvent(created.id, "customer", who, "request.created", { type, source, items: scope.length, ...(wantsQuote ? { auto_quote: true } : {}) });
     if (scope.length) await logEvent(created.id, "ai", "المستشار الذكي", "scope.proposed", { items: scope.map((s) => s.title) });
@@ -1261,16 +1332,16 @@ async function clientAction(action, b, qs, req, res, sess) {
     if (!row.quote) return json(res, 404, { ok: false, error: "no_quote" });
     const qtpl = templateForVersion(row.quote.template_version);
     if (qtpl) return json(res, 200, { ok: true, number: row.quote.number, html: qtpl.quote({
-      ref: row.ref, number: row.quote.number, clientName: partyName(row), service: row.title, items: row.quote.items || [],
+      ref: row.ref, number: row.quote.number, clientName: partyName(row), service: row.quote.service || row.title, ...(row.quote.serviceEn ? { serviceEn: row.quote.serviceEn } : {}), items: quoteItemsFor(row.quote, row.lang || "ar"),
       net: row.quote.net, vat: row.quote.vat, total: row.quote.total, issuedAt: row.quote.created_at, validUntil: row.quote.valid_until || "",
-      paymentTerms: localTerms(row.quote, row.lang), notes: quoteNotes(row.quote), documents: row.documents, lang: row.lang || "ar",
+      paymentTerms: localTerms(row.quote, row.lang), notes: quoteNotes(row.quote, row.lang || "ar"), documents: row.documents, lang: row.lang || "ar",
     }) });
     const html = quoteHtml({
       ref: row.ref, number: row.quote.number,
       clientName: partyName(row),
-      items: row.quote.items || [], net: row.quote.net, vat: row.quote.vat, total: row.quote.total,
+      items: quoteItemsFor(row.quote, row.lang || "ar"), net: row.quote.net, vat: row.quote.vat, total: row.quote.total,
       validUntil: row.quote.valid_until || "", paymentTerms: localTerms(row.quote, row.lang),
-      notes: quoteNotes(row.quote), lang: row.lang || "ar",
+      notes: quoteNotes(row.quote, row.lang || "ar"), lang: row.lang || "ar",
       today: new Date(row.quote.created_at || Date.now()).toLocaleDateString("ar-SA-u-nu-latin", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Riyadh" }),
     });
     return json(res, 200, { ok: true, html, number: row.quote.number });

@@ -67,6 +67,65 @@ export const SEED_TITLES = [
  "任命公司经理",
  "协助开立银行账户"
 ];
+
+// The advisor's own default scope lines (api/chat.js, `presets.*.items`): generic frames emitted when the
+// customer has not named a service. Same kind of line as the page's seeds — filler, never a service —
+// so they are flagged `seed` too (they never hold a request that has a priced catalogue line).
+// tests/quote-journey-fix.test.mjs fails if this list drifts from api/chat.js.
+export const ADVISOR_FILLER_TITLES = [
+ "فهم الموضوع والحالة الحالية",
+ "تحديد الجهات والمتطلبات ذات العلاقة",
+ "تحديد الخطوات والتوصيات المطلوبة",
+ "فحص الحالة الحالية في المنصة",
+ "تحديد المتطلبات والإجراء المناسب",
+ "تجهيز ومتابعة المعاملة المطلوبة",
+ "تحديد مسار التأسيس المناسب",
+ "تجهيز متطلبات ووثائق التأسيس",
+ "إجراءات التأسيس والتسجيلات الحكومية الأساسية",
+ "جلسة تشخيص السوق وملف العميل المثالي",
+ "بناء قائمة الشركات المستهدفة بالقطاع والمدينة",
+ "خطة التواصل وتأهيل الحسابات وحجز الاجتماعات",
+ "تجهيز الـCRM ومسار الفرص وتقرير شهري",
+ "Review the current situation",
+ "Identify relevant authorities and requirements",
+ "Define the recommended next steps",
+ "Review the current platform status",
+ "Identify the required procedure and requirements",
+ "Prepare and follow up the required transaction",
+ "Determine the appropriate formation route",
+ "Prepare formation requirements and documents",
+ "Complete core formation and government registrations",
+ "Diagnostic session on the market and ideal customer profile",
+ "Build the target-company list by sector and city",
+ "Outreach plan, account qualification and meeting booking",
+ "Set up the CRM, opportunity pipeline and monthly report",
+ "Analyser la situation actuelle",
+ "Identifier les autorités et exigences concernées",
+ "Définir les prochaines étapes",
+ "Vérifier la situation actuelle",
+ "Identifier la procédure et les exigences",
+ "Préparer et suivre la démarche",
+ "Déterminer le parcours adapté",
+ "Préparer les exigences et documents",
+ "Réaliser les principales formalités",
+ "Séance de diagnostic du marché et du client idéal",
+ "Constituer la liste des entreprises cibles par secteur et ville",
+ "Plan de prospection, qualification des comptes et prise de rendez-vous",
+ "Mise en place du CRM, du pipeline d’opportunités et du rapport mensuel",
+ "了解当前情况",
+ "确认相关政府部门和要求",
+ "确定建议的下一步行动",
+ "检查平台当前状态",
+ "确认所需流程和要求",
+ "准备并跟进相关事项",
+ "确定合适的设立路径",
+ "准备设立要求和文件",
+ "完成核心设立和政府登记流程",
+ "市场与理想客户画像诊断会",
+ "按行业和城市建立目标企业名单",
+ "开发计划、账户筛选与会议预约",
+ "搭建CRM、商机管道和月度报告"
+];
 const norm = (t) => String(t == null ? "" : t).replace(/\s+/g, " ").trim().toLowerCase();
-const SET = new Set(SEED_TITLES.map(norm));
+const SET = new Set([...SEED_TITLES, ...ADVISOR_FILLER_TITLES].map(norm));
 export const isSeedTitle = (t) => SET.has(norm(t));
