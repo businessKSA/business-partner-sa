@@ -210,7 +210,7 @@ function actOccSet(act){ // المهن الرسمية للنشاط الفرعي 
   act=String(act); const b64=AOCC[act]||AOCC[act.padStart(6,'0')]; if(!b64) return null; if(_aoccCache[act]) return _aoccCache[act];
   const bin=atob(b64), set=new Set(); for(let i=0;i<OCC.length;i++){ if(bin.charCodeAt(i>>3)&(1<<(i&7))) set.add(OCC[i][0]); } return _aoccCache[act]=set; }
 function profScope(){ if(S.profAll||!S.nit.act) return null; return actOccSet(S.nit.act); }
-function profInScope(i){const sc=profScope(); if(!sc) return true; const p=PROF[i]; if(p[8]!==0 && p[1]!=='Standard') return true; const c=p[7]||''; return !c||sc.has(c);}
+function profInScope(i){const sc=profScope(); if(!sc) return true; const c=PROF[i][7]||''; return !!c&&sc.has(c);}
 const actLabel=a=>a[0]+' — '+a[1];
 function actFld(id,code){const a=ACT.find(x=>x[0]===code);return `<div class="field"><label for="${id}">${tx('النشاط الفرعي (ISIC4)','Sub-activity (ISIC4)')}</label><input id="${id}" type="search" data-combo="act" class="cmb" autocomplete="off" value="${a?actLabel(a).replace(/"/g,'&quot;'):''}" placeholder="${tx('ابحث بالرمز أو اسم النشاط','Search by code or activity name')}"><small>${tx('2,761 نشاطاً. المجموعة تُقترح من رمز النشاط وتُؤكَّد على أداة الوزارة.','2,761 activities. The group is suggested from the activity code and must be confirmed on the Ministry tool.')}</small></div>`;}
 const deriveNat=c=>c.src==='saudi'?'saudi':c.src==='inside'?'inside':(c.cty||'ZZ');
@@ -639,7 +639,7 @@ const ACTN=ACT.map(a=>norm(a[0]+' '+a[1])), PALIAS={'513101':'نادل جرسو�
 const PROFN=PROF.map(p=>norm(p[0]+' '+(p[7]||'')+' '+(PENG[p[7]]||'')+' '+(PALIAS[p[7]]||'')));
 let DD=null, DDI=-1, DDR=[], DDPICK=null;
 function ddClose(){if(DD){DD.remove();DD=null;} DDI=-1;}
-function ddSearch(kind,q){const N=kind==='act'?ACTN:PROFN; const terms=norm(q).split(/\s+/).filter(Boolean); const out=[]; for(let i=0;i<N.length;i++){if(kind!=='act'&&!profInScope(i)) continue; let ok=true; for(const tm of terms){if(!N[i].includes(tm)){ok=false;break;}} if(ok) out.push(i);} 
+function ddSearch(kind,q){const N=kind==='act'?ACTN:PROFN; const terms=norm(q).split(/\s+/).filter(Boolean); const out=[]; for(let i=0;i<N.length;i++){if(kind!=='act'&&(i===0||!profInScope(i))) continue; let ok=true; for(const tm of terms){if(!N[i].includes(tm)){ok=false;break;}} if(ok) out.push(i);} 
   if(terms.length){const f=terms[0]; out.sort((a,b)=>((N[a].startsWith(f)||N[a].includes(' '+f))?0:1)-((N[b].startsWith(f)||N[b].includes(' '+f))?0:1));} return out;}
 function hl(text,q){const terms=q.trim().split(/\s+/).filter(Boolean); if(!terms.length) return text; let r=text; terms.forEach(tm=>{const e=tm.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); r=r.replace(new RegExp('('+e+')','gi'),'<mark>$1</mark>');}); return r;}
 function ddRender(inp,kind,empty){const q=empty?'':inp.value; DDR=ddSearch(kind,q); const total=DDR.length; const shown=DDR.slice(0,60);
