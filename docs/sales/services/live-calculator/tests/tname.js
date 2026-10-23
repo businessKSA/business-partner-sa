@@ -1,0 +1,10 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const er=[];let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m)}else console.log('ok',m)};
+const p=await b.newPage({viewport:{width:480,height:900}});p.on('pageerror',e=>er.push(e.message));
+await p.addInitScript(()=>{localStorage.setItem('bp_profile_v1',JSON.stringify({name:'أحمد',email:'a@b.co',phone:'0500000000',company:'شركة تجربة'}))});
+await p.goto('file://'+process.cwd()+'/index-client.html?lang=ar');await p.waitForTimeout(700);
+await p.evaluate(()=>{const q=bpT();q.S.co.list.push({name:'منشأتي',draft:true,full:0,part:0,foreign:0,rows:[]});q.S.co.cur=q.S.co.list.length-1;q.idsDock()});await p.waitForTimeout(400);
+ok(await p.evaluate(()=>!!document.querySelector('[data-fk=name]')),'establishment name field in official numbers form');
+ok((await p.inputValue('[data-fk=name]'))==='شركة تجربة','prefilled from registration');
+await p.fill('[data-fk=name]','شركة بزنس بارتنر سولوشنز');await p.click('#dk-ok');await p.waitForTimeout(400);
+ok(await p.evaluate(()=>bpT().S.co.list[bpT().S.co.cur].name)==='شركة بزنس بارتنر سولوشنز','name saved to company');
+console.log(er);if(er.length)fail++;await b.close();process.exit(fail?1:0)})();

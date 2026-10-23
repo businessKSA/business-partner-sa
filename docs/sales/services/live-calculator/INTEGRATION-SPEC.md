@@ -15,11 +15,21 @@
 { "ref": "BP-261023-AB12", "date": "ISO", "status": "draft|accepted",
   "contact": {"name":"","company":"","phone":"","email":""},
   "company": {"name":"","no":"","uno":"","tax":"","gosi":"","addr":"","act":0,"grp":""},
+  "profile": {"name":"","email":"","phone":"","company":""}, "parties": {"client":{}, "documents":["quotation","nda","contract","tax_invoice"]},
+  "attachments": [{"name":"","kind":"","type":"","status":"ok|bad|wait|info","note":"","fields":{}}], "transcript": [{"role":"user|assistant","text":""}],
   "missing": [], "files": [{"name":"","kind":"pdf|image|sheet","status":"ok|bad|run"}],
   "items": [{"sku":"","name":"","qty":1,"nat":"saudi|inside","cty":"","sal":0}],
   "term": 12 | {"u":"hour|day|week|month","n":3}, "city": "", "total": 0,
   "next": ["quote_accept","contract_sign","payment","payment_verify_finance_agent","tax_invoice"] }
 ```
+
+## ما تضيفه الحاسبة (2026-10-23، دفعة التسجيل والمرفقات)
+- **التسجيل أول المحادثة:** الاسم والبريد والجوال واسم الشركة (يُحفظ في المتصفح `bp_profile_v1`)، لتُجهَّز باسمه واسم شركته: عرض السعر والفاتورة واتفاقية عدم الإفصاح والفاتورة الضريبية. ويظهر زر «ادخل بوابتك» إلى `/my`.
+- **جدول المرفقات:** كل ملف يرفعه العميل يُسجَّل (الاسم، النوع، الحالة، ما قُرئ منه) ويظهر جدولاً في المحادثة وفي عرض السعر. القراءة بالذكاء الاصطناعي بأي لغة، وتشمل شهادة الآيبان وغيرها (تُسجَّل ولا تُهمَل).
+- **حزمة التسليم تتضمن الآن:** `profile` و`parties` (العميل والشركة والرقم الضريبي والموحد والعنوان) و`attachments` (بحقولها المستخرجة) و`transcript` (نص المحادثة)، لينعكس كل ذلك في لوحة العميل.
+
+## طرق الدخول المطلوبة لبوابة العميل (قرار المالك)
+رمز عبر البريد، النفاذ الوطني، Google، Microsoft، ومستخدم وكلمة مرور. الموجود في المستودع: رمز البريد (`api/otp.js`) والنفاذ (`api/_nafath.js`)؛ أما Google وMicrosoft والمستخدم/كلمة المرور فتحتاج تحقق `client-portal` من وجودها أو بناءها. الحاسبة تذكر في رسالتها الرمز والنفاذ فقط ولا تَعِد بغيرهما.
 
 ## المطلوب من الوكلاء (كلٌّ في نطاقه)
 | الوكيل | المطلوب |
