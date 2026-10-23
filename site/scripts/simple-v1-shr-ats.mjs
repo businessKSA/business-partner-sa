@@ -5,27 +5,25 @@
 // ES5 عمداً ليطابق بقية الصفحة.
 
 export const ATS_CSS = `
-.shr .board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(210px,1fr);gap:10px;overflow-x:auto;padding-bottom:8px}
-.shr .col{background:#f6f8fc;border:1px solid #e4e8f1;border-radius:12px;padding:8px;min-height:120px}
-.shr .col h3{margin:0 0 8px;font-size:.84rem;color:#0B1B5A;display:flex;justify-content:space-between;font-weight:700}
-.shr .col h3 span{background:#fff;border:1px solid #e4e8f1;border-radius:999px;padding:0 8px;font-weight:700;color:#5f6880}
-.shr .col.hl{outline:2px solid #f59e0b}
-.shr .kcard{background:#fff;border:1px solid #e4e8f1;border-radius:10px;padding:9px;margin-bottom:8px;font-size:.82rem}
-.shr .kcard a{color:#0B1B5A;font-weight:700;cursor:pointer;text-decoration:underline}
-.shr .kcard .sub{color:#5f6880;font-size:.76rem;margin:3px 0 6px}
-.shr .kcard select{width:100%;font-size:.78rem;padding:5px}
+.shr .board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:10px;overflow-x:auto;padding-bottom:10px;margin-bottom:14px}
+.shr .col{background:var(--soft);border:1px solid var(--l);border-radius:12px;padding:8px;min-height:120px}
+.shr .col h3{margin:0 0 8px;font-size:13.5px;color:var(--ink);display:flex;justify-content:space-between;align-items:center;font-weight:600}
+.shr .col h3 span{background:#fff;border:1px solid var(--l);border-radius:999px;padding:0 9px;font-family:var(--fm);font-size:12px;font-weight:500;color:var(--mut)}
+.shr .kcard{background:#fff;border:1px solid var(--l);border-radius:10px;padding:10px;margin-bottom:8px;font-size:13px;box-shadow:var(--sh)}
+.shr .kcard a{color:var(--ink);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.shr .kcard .sub{color:var(--mut);font-size:12.5px;margin:3px 0 6px}
+.shr .kcard select{width:100%;font-size:12.5px;padding:5px}
 .shr .kcard.busy{opacity:.55}
-.shr .score{display:inline-block;min-width:38px;text-align:center;border-radius:8px;padding:3px 8px;font-weight:800;color:#fff;background:#0B1B5A}
-.shr .score.s-strong{background:#118657}.shr .score.s-good{background:#2b56c3}.shr .score.s-review{background:#b45309}.shr .score.s-weak,.shr .score.s-unscored{background:#5f6880}
-.shr .mustbox{border:2px dashed #b91c1c;background:#fff7f7;border-radius:14px;padding:12px;margin-top:14px}
-.shr .mustbox h2{color:#b91c1c}
-.shr details{margin-top:6px}.shr summary{cursor:pointer;color:#2b56c3;font-size:.8rem;font-weight:700}
-.shr .tl{margin:6px 0 0;padding:0 16px 0 0;font-size:.8rem;color:#2c3550}
-.shr .back{margin-bottom:10px}
+.shr .score{display:inline-block;min-width:40px;text-align:center;border-radius:8px;padding:2px 9px;font-family:var(--fm);font-weight:500;color:#fff;background:var(--ac)}
+.shr .score.s-strong{background:var(--ok)}.shr .score.s-good{background:var(--ac2)}.shr .score.s-review{background:var(--warn)}.shr .score.s-weak,.shr .score.s-unscored{background:var(--mut)}
+.shr .mustbox{border:2px dashed var(--bad);background:var(--badSoft);border-radius:13px;padding:14px;margin-top:14px}
+.shr .mustbox h2{color:var(--bad)}
+.shr details{margin-top:6px}.shr summary{cursor:pointer;color:var(--ac2);font-size:13px;font-weight:600}
+.shr .back{margin-bottom:12px}
 `;
 
 export function shrAtsClient(env) {
-  var h = env.h, call = env.call, frame = env.frame, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render;
+  var h = env.h, call = env.call, frame = env.frame, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, empty = env.empty;
   var STAGE = { new: 'جديد', review: 'مراجعة', shortlist: 'قائمة قصيرة', interview: 'مقابلة', offer: 'عرض', hired: 'تعيين', rejected: 'مرفوض', future: 'للمستقبل' };
   var STAGE_ORDER = ['new', 'review', 'shortlist', 'interview', 'offer', 'hired', 'rejected', 'future'];
   var STAGE_TONE = { hired: 'ok', rejected: 'bad', offer: 'warn', future: 'mut' };
@@ -59,7 +57,7 @@ export function shrAtsClient(env) {
           h('td', {}, [j.residency_required === 'transferable' ? 'قابلة للنقل' : 'لا شرط']), h('td', {}, [String(j.applications) + (j.hired ? ' (تعيين ' + j.hired + ')' : '')]),
           h('td', {}, [pill(j.status === 'open' ? 'مفتوحة' : 'مغلقة', j.status === 'open' ? 'ok' : 'mut')]), h('td', {}, [h('div', { class: 'frm' }, acts)])]);
       }))]);
-      frame('الوظائف', h('div', {}, [add, h('div', { class: 'shr-card scroll' }, [tb])]));
+      frame('الوظائف', h('div', {}, [add, rows.length ? h('div', { class: 'shr-card scroll' }, [tb]) : empty('لا وظائف بعد', 'أنشئ أول وظيفة من النموذج أعلاه.')]));
     });
   }
 
@@ -118,7 +116,7 @@ export function shrAtsClient(env) {
           ['مدة الإشعار', c.notice_days == null ? null : c.notice_days + ' يوماً'], ['المهارات', (c.skills || []).join('، ') || null]].map(function (r) { return h('tr', {}, [h('th', {}, [r[0]]), h('td', {}, [r[1] || 'غير معروف'])]); }))])]);
       var cons = h('div', { class: 'shr-card' }, [h('h2', {}, ['سجل الموافقة']), o.consents.length ? h('table', {}, [th(['الصيغة', 'التاريخ', 'المصدر', 'السحب']), h('tbody', {}, o.consents.map(function (k) {
         return h('tr', {}, [h('td', {}, [k.text_version]), h('td', {}, [fmtDate(k.granted_at)]), h('td', {}, [k.source]), h('td', {}, [k.withdrawn_at ? pill('سُحبت ' + fmtDate(k.withdrawn_at), 'bad') : pill('سارية', 'ok')])]);
-      }))]) : h('p', { class: 'note' }, ['لا سجل موافقة — لا يدخل المطابقة ولا يُقبل له طلب تقديم.'])]);
+      }))]) : empty('لا سجل موافقة', 'لا يدخل المطابقة ولا يُقبل له طلب تقديم.')]);
       var apps = o.applications.map(function (a) {
         var when = h('input', { class: 'inp', type: 'datetime-local' }), mode = h('select', { class: 'inp' }, [h('option', { value: 'video' }, ['مرئي']), h('option', { value: 'onsite' }, ['حضوري']), h('option', { value: 'phone' }, ['هاتفي'])]);
         var ivs = a.interviews.map(function (iv) {
@@ -131,7 +129,7 @@ export function shrAtsClient(env) {
           ivs.length ? h('ul', { class: 'tl' }, ivs) : null,
           canIv ? h('button', { class: 'btn ghost', onclick: function () { call('interview-request', { application_id: a.id, mode: 'video' }).then(function (r) { flash(r.ok, r.ok ? 'سُجّل طلب المقابلة (داخلي — لا رسالة)' : errText(r)); render(); }); } }, ['طلب مقابلة']) : null]);
       });
-      frame('ملف المرشح', h('div', {}, [back, info, cons, h('h2', {}, ['طلبات التقديم'])].concat(apps.length ? apps : [h('p', { class: 'note' }, ['لا طلبات تقديم بعد.'])])));
+      frame('ملف المرشح', h('div', {}, [back, info, cons, h('h2', {}, ['طلبات التقديم'])].concat(apps.length ? apps : [empty('لا طلبات تقديم بعد', 'أضف طلباً من لوحة المرشحين.')])));
     });
   }
 

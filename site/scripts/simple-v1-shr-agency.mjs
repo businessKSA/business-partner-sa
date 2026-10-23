@@ -8,14 +8,10 @@
 // لا شعار ولا ادعاء ترخيص أو امتثال. المكتب لا يرى عميلاً ولا سعراً ولا مراحل صاحب العمل.
 
 export const AGENCY_CSS = `
-.shr .persp{display:inline-block;background:#eef2ff;color:#2b56c3;border-radius:999px;padding:3px 12px;font-size:.78rem;font-weight:800;margin-inline-start:8px;vertical-align:middle}
-.shr .modes{display:flex;gap:6px;margin-bottom:12px}
-.shr .modes button{flex:1;border:1px solid #e4e8f1;background:#fff;border-radius:10px;padding:8px;font-weight:700;cursor:pointer;color:#2c3550}
-.shr .modes button.on{background:#0B1B5A;color:#fff;border-color:#0B1B5A}
-.shr textarea.inp{width:100%;min-height:140px;font-family:ui-monospace,monospace;font-size:.82rem;box-sizing:border-box}
-.shr .dup{background:#fff3e6;border:1px solid #f59e0b;color:#92400e;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:800}
+.shr textarea.inp{width:100%;min-height:140px;font-family:var(--fm);font-size:13px;box-sizing:border-box}
+.shr .dup{background:var(--warnSoft);border:1px solid var(--warn);color:var(--warn);border-radius:8px;padding:2px 8px;font-size:12px;font-weight:600}
 .shr .rev{margin-top:6px}.shr .rev .frm{margin-top:6px}
-.shr .rpt{margin-top:10px;background:#f6f8fc;border:1px solid #e4e8f1;border-radius:12px;padding:10px}
+.shr .rpt{margin-top:10px;background:var(--soft);border:1px solid var(--l);border-radius:12px;padding:10px;overflow-x:auto}
 `;
 
 export const AGENCY_ERR = {
@@ -45,7 +41,7 @@ export const AGENCY_ERR = {
 
 // ================================================================ المشغّل ==
 export function shrAgencyOpsClient(env) {
-  var h = env.h, call = env.call, frame = env.frame, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render;
+  var h = env.h, call = env.call, frame = env.frame, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, empty = env.empty;
   var AST = { pending: ['قيد الاعتماد', 'warn'], approved: ['معتمد', 'ok'], suspended: ['موقوف', 'bad'] };
   var SST = { submitted: 'مقدَّم', under_review: 'قيد المراجعة', shortlisted: 'قائمة قصيرة', interview: 'مقابلة', accepted: 'مقبول', rejected: 'مرفوض' };
   var NEXT = { submitted: ['under_review', 'rejected'], under_review: ['shortlisted', 'rejected'], shortlisted: ['interview', 'accepted', 'rejected'], interview: ['accepted', 'rejected'], accepted: [], rejected: [] };
@@ -67,7 +63,7 @@ export function shrAgencyOpsClient(env) {
         return h('tr', {}, [h('td', {}, [a.ref || '—']), h('td', {}, [a.name_ar]), h('td', {}, [a.country || '—']), h('td', {}, [pill(st[0], st[1])]),
           h('td', {}, [(a.login_emails || []).join('، ') || '—']), h('td', {}, [String(a.orders)]), h('td', {}, [String(a.submissions)]), h('td', {}, [h('div', { class: 'frm' }, acts)])]);
       }))]);
-      frame('المكاتب', h('div', {}, [add, h('div', { class: 'shr-card scroll' }, [tb])]));
+      frame('المكاتب', h('div', {}, [add, rows.length ? h('div', { class: 'shr-card scroll' }, [tb]) : empty('لا مكاتب بعد', 'سجّل أول مكتب من النموذج أعلاه.')]));
     });
   }
 
@@ -90,7 +86,7 @@ export function shrAgencyOpsClient(env) {
           h('td', {}, [o.submissions + ' / ' + o.accepted]), h('td', {}, [pill(o.state === 'open' ? 'مفتوح' : o.state, o.state === 'open' ? 'ok' : 'mut')]),
           h('td', {}, [h('button', { class: 'btn ghost', onclick: function () { state.oid = o.id; state.view = 'order_view'; state.msg = ''; state.err = ''; render(); } }, ['ما يراه صاحب العمل'])])]);
       }))]);
-      frame('أوامر الاستقدام', h('div', {}, [add, h('div', { class: 'shr-card scroll' }, [tb])]));
+      frame('أوامر الاستقدام', h('div', {}, [add, rows.length ? h('div', { class: 'shr-card scroll' }, [tb]) : empty('لا أوامر بعد', 'أنشئ أول أمر من النموذج أعلاه.')]));
     });
   }
 
@@ -105,7 +101,7 @@ export function shrAgencyOpsClient(env) {
       frame('ما يراه صاحب العمل', h('div', {}, [
         h('button', { class: 'btn ghost back', onclick: function () { state.view = 'orders'; render(); } }, ['رجوع']),
         h('div', { class: 'shr-card' }, [h('h2', {}, [o.order.ref + ' — ' + o.order.profession + ' × ' + o.order.quantity]), h('p', { class: 'note' }, ['المصدر: ' + o.order.source + '. اسم المكتب وبلده ومعرّفه لا تظهر لصاحب العمل أبداً.'])]),
-        h('div', { class: 'shr-card scroll' }, [cs.length ? tb : h('p', { class: 'note' }, ['لا مرشحين مقدَّمين بعد.'])])]));
+        h('div', { class: 'shr-card scroll' }, [cs.length ? tb : empty('لا مرشحين مقدَّمين بعد', 'يظهر هنا من يقدّمه المكتب على هذا الأمر.')])]));
     });
   }
 
@@ -136,7 +132,7 @@ export function shrAgencyOpsClient(env) {
         return h('tr', {}, [h('td', {}, [s.ref]), h('td', {}, [s.full_name, h('div', { class: 'note' }, [(s.profession || '—') + ' · ' + (s.nationality || '—') + ' · ' + (s.years_experience == null ? '—' : s.years_experience + ' سنة')])]),
           h('td', {}, [s.agency || '—']), h('td', {}, [s.order_ref || '—']), h('td', {}, [h('div', { class: 'frm' }, tags)]), h('td', {}, [review(s)])]);
       }))]);
-      frame('المرشحون المقدَّمون من المكاتب', h('div', {}, [h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [f]), h('p', { class: 'note' }, ['مواصفات فقط: لا هوية ولا هاتف ولا بريد. مراحل المراجعة داخلية ولا يراها المكتب (يرى «مستلم / مقابلة / مقبول / غير مختار»).'])]), h('div', { class: 'shr-card scroll' }, [rows.length ? tb : h('p', { class: 'note' }, ['لا مرشحين.'])])]));
+      frame('المرشحون المقدَّمون من المكاتب', h('div', {}, [h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [f]), h('p', { class: 'note' }, ['مواصفات فقط: لا هوية ولا هاتف ولا بريد. مراحل المراجعة داخلية ولا يراها المكتب (يرى «مستلم / مقابلة / مقبول / غير مختار»).'])]), h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا مرشحين', 'تظهر هنا مرشحات المكاتب عند تقديمها.')])]));
     });
   }
   return { agencies: vAgencies, orders: vOrders, order_view: vOrderView, subs: vSubs };
@@ -145,7 +141,7 @@ export function shrAgencyOpsClient(env) {
 // ================================================================== المكتب ==
 // منظور مستقل: شريط تنقل خاص ولا شيء من لوحة المشغّل. يتكلم مع إجراءات my-* وحدها.
 export function shrAgencyPortalClient(env) {
-  var h = env.h, call = env.call, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, app = env.app;
+  var h = env.h, call = env.call, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, layout = env.layout, empty = env.empty;
   var STATUS = { received: ['مستلم', ''], interview: ['مقابلة', 'warn'], accepted: ['مقبول', 'ok'], not_selected: ['غير مختار', 'mut'] };
   var IVS = { requested: 'مطلوبة', scheduled: 'مجدولة', done: 'تمت', cancelled: 'ملغاة' };
   var MODE = { onsite: 'حضوري', video: 'مرئي', phone: 'هاتفي' };
@@ -153,16 +149,20 @@ export function shrAgencyPortalClient(env) {
   var th = function (cols) { return h('thead', {}, [h('tr', {}, cols.map(function (x) { return h('th', {}, [x]); }))]); };
   var fmt = function (s) { return s ? String(s).slice(0, 16).replace('T', ' ') : '—'; };
 
+  var GROUPS = [{ t: 'بوابة المكتب', i: NAV }];
+  var DESC = {
+    a_orders: 'الأوامر الموجّهة إليكم والمفتوحة، ومرشحوكم عليها.',
+    a_submit: 'قدّم مرشحاً على أمر مفتوح بمواصفاته فقط.',
+    a_bulk: 'ارفع قائمة مرشحين دفعة واحدة؛ يُبلَّغ كل صف فاسد برقم سطره.',
+    a_iv: 'مقابلات مرشحيكم ومواعيدها.'
+  };
+  function activeNav() { return DESC[state.view] ? state.view : 'a_orders'; }
+  function titleNow() { var a = activeNav(), t = ''; NAV.forEach(function (n) { if (n[0] === a) t = n[1]; }); return t; }
   function aframe(title, content) {
-    app.innerHTML = '';
-    var tabs = h('div', { class: 'shr-tabs' }, NAV.map(function (n) {
-      return h('button', { class: state.view === n[0] ? 'on' : '', onclick: function () { state.view = n[0]; state.msg = ''; state.err = ''; render(); } }, [n[1]]);
-    }).concat([h('button', { onclick: function () { call('session-end').then(function () { state.me = null; render(); }); } }, ['خروج'])]));
-    app.appendChild(h('h1', {}, [title, h('span', { class: 'persp' }, ['منظور المكتب — ' + (state.me && state.me.agency ? state.me.agency.name_ar : '')])]));
-    app.appendChild(tabs);
-    if (state.msg) app.appendChild(h('p', { class: 'okm' }, [state.msg]));
-    if (state.err) app.appendChild(h('p', { class: 'err' }, [state.err]));
-    app.appendChild(content);
+    layout({
+      groups: GROUPS, active: activeNav(), title: title, sub: DESC[activeNav()], crumbs: ['بوابة المكتب', titleNow()],
+      chip: 'منظور المكتب', who: [(state.me && state.me.agency ? state.me.agency.name_ar : ''), (state.me && state.me.user ? state.me.user.name || '' : '')], content: content
+    });
   }
   function orderSelect(orders, pre) {
     var sel = h('select', { class: 'inp' }, [h('option', { value: '' }, ['اختر الأمر…'])].concat(orders.filter(function (o) { return o.state === 'open'; }).map(function (o) {
@@ -188,7 +188,7 @@ export function shrAgencyPortalClient(env) {
           h('td', {}, [o.state === 'open' ? h('button', { class: 'btn', onclick: function () { state.aorder = o.id; state.view = 'a_submit'; render(); } }, ['قدّم مرشحاً']) : pill('مغلق', 'mut')])]);
       }))]);
       aframe('طلباتي', h('div', {}, [
-        h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['الأوامر الموجّهة إليكم والمفتوحة']), orders.length ? tb : h('p', { class: 'note' }, ['لا أوامر.'])]),
+        h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['الأوامر الموجّهة إليكم والمفتوحة']), orders.length ? tb : empty('لا أوامر حالياً', 'تظهر هنا الأوامر الموجّهة إليكم والمفتوحة.')]),
         h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['مرشحوكم']), subs.length ? subsTable(subs) : h('p', { class: 'note' }, ['لم تقدّموا مرشحين بعد.'])])]));
     });
   }
@@ -251,8 +251,8 @@ export function shrAgencyPortalClient(env) {
         return h('tr', {}, [h('td', {}, [i.candidate ? i.candidate.full_name : '—']), h('td', {}, [pill(IVS[i.state] || i.state, i.state === 'scheduled' ? 'warn' : i.state === 'done' ? 'ok' : 'mut')]), h('td', {}, [fmt(i.scheduled_at)]),
           h('td', {}, [MODE[i.mode] || '—']), h('td', {}, [i.location || '—']), h('td', {}, [i.note || '—'])]);
       }))]);
-      aframe('مقابلاتي', h('div', { class: 'shr-card scroll' }, [rows.length ? tb : h('p', { class: 'note' }, ['لا مقابلات بعد.'])]));
+      aframe('مقابلاتي', h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا مقابلات بعد', 'تظهر المقابلات هنا حين تُطلب.')]));
     });
   }
-  return { a_orders: vOrders, a_submit: vSubmit, a_bulk: vBulk, a_iv: vInterviews };
+  return { _paint: aframe, _title: titleNow, a_orders: vOrders, a_submit: vSubmit, a_bulk: vBulk, a_iv: vInterviews };
 }

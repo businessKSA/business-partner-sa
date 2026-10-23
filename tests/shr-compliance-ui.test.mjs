@@ -105,7 +105,7 @@ const saveBtn = byText(app, "button", "حفظ")[0];
 await click(saveBtn);
 ok(/صُنّف الاسم/.test(page()), "classifying from the screen works");
 // establishment detail
-await goto("الامتثال");
+await goto("لوحة الامتثال");
 await click(byText(app, "button", "التفاصيل")[0]); t = page();
 ok(/اللقطات التاريخية/.test(t) && /لقطة جديدة/.test(t) && /الفحوص/.test(t), "establishment detail opens");
 await click(byText(app, "button", "تشغيل الفحوص")[0]);
@@ -115,6 +115,8 @@ console.log("operator");
 await loginAs("ops@shr.invalid");
 const nav = find(app, (n) => n.tag === "div" && n.className === "shr-tabs").map(textOf).join(" ");
 ok(/اللوحة/.test(nav) && /العمال/.test(nav) && /الامتثال/.test(nav) && /أسماء A33/.test(nav), "operator sees operator + compliance tabs");
+ok(/التشغيل/.test(nav) && /التوظيف/.test(nav) && /مكاتب الاستقدام/.test(nav), "operator nav is grouped into sections");
+ok(/التشغيل ‹ اللوحة|التشغيل\s*‹\s*العمال|الامتثال\s*‹/.test(page()) || /‹/.test(page()), "breadcrumb is shown");
 await goto("المخالفات");
 // create a violation from the screen
 const selects = find(app, (n) => n.tag === "select");
@@ -123,7 +125,7 @@ inputs.find((i) => i.attrs.placeholder === "الجهة المصدِرة").value 
 await click(byText(app, "button", "تسجيل")[0]);
 ok(/سُجّلت المخالفة/.test(page()), "creating a violation from the screen works (a rule + tier are preselected from the reference)");
 // settings are owner-only
-await goto("الامتثال");
+await goto("لوحة الامتثال");
 const cb = find(app, (n) => n.tag === "input" && n.attrs.type === "checkbox")[0];
 cb.checked = true; for (const f of cb.listeners.change || []) await f({}); await tick();
 ok(/تغيير الإعدادات لمالك المستأجر وحده/.test(page()), "an operator toggling a setting gets the owner-only message");

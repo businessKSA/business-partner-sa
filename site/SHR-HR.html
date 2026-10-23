@@ -266,75 +266,131 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 </style><meta name="robots" content="noindex, nofollow"><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
 <body class="sv1-page"><div class="sv1"><style>
-.shr{max-width:1100px;margin:0 auto;padding:18px 16px 60px;color:#1F2430}
-.shr-demo{position:sticky;top:0;z-index:5;background:#fff3e6;border:1px solid #f59e0b;color:#92400e;border-radius:10px;padding:8px 12px;font-weight:800;font-size:.85rem;margin-bottom:14px;text-align:center}
-.shr h1{margin:0 0 12px;color:#0B1B5A;font-size:1.35rem;font-weight:400}
-.shr-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.shr-tabs button{border:1px solid #e4e8f1;background:#fff;border-radius:999px;padding:7px 14px;font-weight:700;font-size:.84rem;cursor:pointer;color:#2c3550}
-.shr-tabs button.on{background:#0B1B5A;color:#fff;border-color:#0B1B5A}
-.shr-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
-.shr-kpi{background:#fff;border:1px solid #e4e8f1;border-radius:14px;padding:12px}
-.shr-kpi b{display:block;font-size:1.7rem;color:#0B1B5A;line-height:1.1;font-weight:500}
-.shr-kpi span{color:#5f6880;font-size:.8rem}
-.shr-kpi.hot{border-color:#f59e0b;background:#fffbeb}
-.shr-card{background:#fff;border:1px solid #e4e8f1;border-radius:14px;padding:14px;margin-bottom:12px}
-.shr-card h2{margin:0 0 10px;color:#0B1B5A;font-size:1rem;font-weight:500}
-.shr table{width:100%;border-collapse:collapse;font-size:.86rem}
-.shr th,.shr td{padding:8px 6px;border-bottom:1px solid #e4e8f1;text-align:start;vertical-align:middle}
-.shr .pill{display:inline-block;border-radius:999px;padding:3px 9px;font-size:.72rem;font-weight:700;background:#eef2ff;color:#2b56c3;white-space:nowrap}
-.shr .pill.ok{background:#eaf7ef;color:#118657}.shr .pill.warn{background:#fff3e6;color:#b45309}.shr .pill.bad{background:#fee2e2;color:#b91c1c}.shr .pill.mut{background:#eef0f5;color:#5f6880}
-.shr .btn{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:9px;font-weight:700;font-size:.8rem;border:1px solid #0B1B5A;background:#0B1B5A;color:#fff;cursor:pointer}
-.shr .btn.ghost{background:#fff;color:#0B1B5A}.shr .btn[disabled]{opacity:.5}
-.shr .inp{border:1px solid #e4e8f1;border-radius:9px;padding:8px 10px;font:inherit;background:#fff;min-width:0}
-.shr .frm{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.shr .note{font-size:.8rem;color:#5f6880}.shr .err{color:#b91c1c;font-size:.84rem}.shr .okm{color:#118657;font-weight:700;font-size:.84rem}
-.shr .gate{max-width:420px;margin:30px auto;background:#fff;border:1px solid #e4e8f1;border-radius:16px;padding:22px}
+
+.shr{--bad:#b42318;--badSoft:#fff0ef;--warnSoft:color-mix(in srgb,var(--warn) 9%,#fff);--hdr:72px;max-width:1240px;margin:0 auto;padding:16px 22px 64px;width:100%;flex:1;color:var(--t)}
+.shr-demo{position:sticky;top:var(--hdr);z-index:6;background:var(--warnSoft);border:1px solid color-mix(in srgb,var(--warn) 45%,#fff);color:var(--warn);border-radius:10px;padding:7px 12px;font-weight:600;font-size:13px;margin-bottom:16px;text-align:center}
+.shr-lay{display:grid;grid-template-columns:236px minmax(0,1fr);gap:28px;align-items:start}
+.shr-side{position:sticky;top:calc(var(--hdr) + 64px);max-height:calc(100vh - var(--hdr) - 80px);overflow-y:auto;background:#fff;border:1px solid var(--l);border-radius:13px;box-shadow:var(--sh);padding:8px}
+.shr-navtoggle{display:none;width:100%;align-items:center;justify-content:space-between;gap:10px;border:0;background:transparent;font:inherit;font-weight:500;font-size:14px;color:var(--ink);padding:10px 12px;cursor:pointer;border-radius:9px;min-height:44px}
+.shr-navtoggle small{color:var(--mut);font-weight:400;font-size:12.5px}
+.shr-tabs{display:flex;flex-direction:column;gap:2px}
+.shr-grp-h{font-size:12px;color:var(--mut);font-weight:600;padding:10px 10px 3px}
+.shr-grp-h:first-child{padding-top:6px}
+.shr-tabs .shr-nav{display:block;width:100%;text-align:start;border:0;border-inline-start:3px solid transparent;background:transparent;border-radius:8px;padding:6px 10px;font:inherit;font-size:13.5px;color:var(--t);cursor:pointer;min-height:34px}
+.shr-tabs .shr-nav:hover{background:var(--soft)}
+.shr-tabs .shr-nav.on{background:var(--acSoft);color:var(--ink);font-weight:600;border-inline-start-color:var(--ac)}
+.shr-who{border-top:1px solid var(--line2);margin-top:8px;padding:10px 6px 4px;font-size:12px;color:var(--mut);display:grid;gap:8px}
+.shr-who b{display:block;color:var(--ink);font-weight:600;font-size:13px}
+.shr-main{min-width:0}
+.shr-crumb{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12.5px;color:var(--mut);margin-bottom:6px}
+.shr-crumb i{font-style:normal;color:var(--faint)}
+.shr h1{margin:0 0 4px;color:var(--ink);font-size:24px;font-weight:400;line-height:1.4}
+.shr-sub{margin:0 0 18px;color:var(--mut);font-size:14px}
+.shr-alert{border-radius:10px;padding:9px 12px;margin:0 0 14px;font-size:13.5px;border:1px solid}
+.shr-alert.ok{background:var(--okSoft);color:var(--ok);border-color:color-mix(in srgb,var(--ok) 30%,#fff)}
+.shr-alert.err{background:var(--badSoft);color:var(--bad);border-color:color-mix(in srgb,var(--bad) 30%,#fff)}
+.shr-loading{display:flex;align-items:center;gap:10px;padding:26px 18px;color:var(--mut);border:1px dashed var(--acLine);border-radius:13px;background:var(--soft);font-size:14px}
+.shr-spin{width:16px;height:16px;border:2px solid var(--acLine);border-top-color:var(--ac);border-radius:50%;animation:shrspin .8s linear infinite;flex:none}
+@keyframes shrspin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.shr-spin{animation:none}}
+.shr-empty{background:var(--soft);border:1px dashed var(--acLine);border-radius:13px;padding:22px 16px;text-align:center;color:var(--mut);font-size:13.5px}
+.shr-empty b{display:block;color:var(--ink);font-size:15px;font-weight:500;margin-bottom:4px}
+.shr-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.shr-kpi{background:#fff;border:1px solid var(--l);border-radius:13px;padding:14px 16px;box-shadow:var(--sh)}
+.shr-kpi b{display:block;font-family:var(--fm);font-size:27px;font-weight:400;color:var(--ink);line-height:1.3}
+.shr-kpi span{color:var(--mut);font-size:13px}
+.shr-kpi.hot{border-color:var(--warn);background:var(--warnSoft)}
+.shr-card{background:#fff;border:1px solid var(--l);border-radius:13px;box-shadow:var(--sh);padding:16px 18px;margin-bottom:14px;overflow-x:auto}
+.shr-card h2{margin:0 0 10px;color:var(--ink);font-size:15.5px;font-weight:500}
+.shr h2{color:var(--ink);font-size:15.5px;font-weight:500}
+.shr table{width:100%;border-collapse:collapse;font-size:13.5px}
+.shr th,.shr td{padding:9px 10px;border-bottom:1px solid var(--line2);text-align:start;vertical-align:middle}
+.shr th{font-size:12px;font-weight:500;color:var(--mut);background:var(--soft);white-space:nowrap}
+.shr tbody tr:hover td,.shr tbody tr:hover th{background:var(--soft)}
+.shr tbody tr:last-child td{border-bottom:0}
 .shr .scroll{overflow-x:auto}
+.shr .scroll table{min-width:680px}
+.shr .scroll td:first-child{min-width:110px}
+.shr table.wide{min-width:1120px}
+.shr table.wide td{vertical-align:top}
+.shr table.wide td:first-child{min-width:210px}
+.shr table.wide td:nth-child(3){min-width:150px}
+.shr table.wide td:nth-child(5){min-width:220px}
+.shr .pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:500;background:var(--acSoft);color:var(--ac2);white-space:nowrap;line-height:1.7}
+.shr .pill.ok{background:var(--okSoft);color:var(--ok)}.shr .pill.warn{background:var(--warnSoft);color:var(--warn)}.shr .pill.bad{background:var(--badSoft);color:var(--bad)}.shr .pill.mut{background:var(--soft);color:var(--mut)}
+.shr .persp{display:inline-block;background:var(--acSoft);color:var(--ac2);border-radius:999px;padding:2px 12px;font-size:12px;font-weight:600;line-height:1.7}
+.shr .persp.cl{background:var(--okSoft);color:var(--ok)}
+.shr .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 14px;min-height:34px;border-radius:9px;font:inherit;font-weight:500;font-size:13px;border:1px solid var(--ac);background:var(--ac);color:#fff;cursor:pointer;line-height:1.2}
+.shr .btn:hover{background:var(--ac2);border-color:var(--ac2)}
+.shr .btn.ghost{background:#fff;color:var(--ink);border-color:var(--l)}
+.shr .btn.ghost:hover{background:var(--soft)}
+.shr .btn.sm{padding:4px 10px;min-height:28px;font-size:12px}
+.shr .btn[disabled]{opacity:.5;cursor:not-allowed}
+.shr .inp{border:1px solid var(--l);border-radius:9px;padding:8px 11px;font:inherit;font-size:13.5px;background:#fff;color:var(--t);min-width:0;min-height:38px}
+.shr .inp:focus{border-color:var(--ac)}
+.shr .inp.sm{padding:4px 8px;font-size:12.5px;min-height:30px}
+.shr .frm{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.shr .frm .inp{flex:1 1 150px}
+.shr .frm .inp[style*="width"]{flex:0 0 auto}
+.shr .note{font-size:13px;color:var(--mut);margin:8px 0 0}
+.shr .err{color:var(--bad);font-size:13.5px}.shr .okm{color:var(--ok);font-weight:600;font-size:13.5px}
+.shr .gate{max-width:440px;margin:24px auto;background:#fff;border:1px solid var(--l);border-radius:15px;box-shadow:var(--sh2);padding:24px}
+.shr .gate h1{font-size:20px}
+.shr .modes{display:flex;gap:6px;margin-bottom:14px}
+.shr .modes button{flex:1;border:1px solid var(--l);background:#fff;border-radius:9px;padding:8px 6px;font:inherit;font-weight:500;font-size:13px;cursor:pointer;color:var(--t);min-height:40px}
+.shr .modes button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.shr .gate .frm .inp{flex:1 1 100%}
+@media(max-width:860px){
+.shr-side{max-height:none;overflow:visible}
+.shr{padding:12px 16px 56px;--hdr:64px}
+.shr-lay{grid-template-columns:minmax(0,1fr);gap:14px}
+.shr-side{position:static;padding:4px}
+.shr-navtoggle{display:flex}
+.shr-side .shr-navbody{display:none}
+.shr-side.open .shr-navbody{display:block}
+.shr h1{font-size:21px}
+.shr-card{padding:14px}
+.shr .btn{min-height:40px}.shr .btn.sm{min-height:34px}
+.shr .inp{min-height:42px}
+.shr .modes{flex-direction:column}
+}
+.shr-crumb .cur{color:var(--ink);font-weight:500}
+.shr .tl{margin:6px 0 0;padding:0;padding-inline-start:18px;font-size:13px;color:var(--t)}
 
-.shr .board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(210px,1fr);gap:10px;overflow-x:auto;padding-bottom:8px}
-.shr .col{background:#f6f8fc;border:1px solid #e4e8f1;border-radius:12px;padding:8px;min-height:120px}
-.shr .col h3{margin:0 0 8px;font-size:.84rem;color:#0B1B5A;display:flex;justify-content:space-between;font-weight:700}
-.shr .col h3 span{background:#fff;border:1px solid #e4e8f1;border-radius:999px;padding:0 8px;font-weight:700;color:#5f6880}
-.shr .col.hl{outline:2px solid #f59e0b}
-.shr .kcard{background:#fff;border:1px solid #e4e8f1;border-radius:10px;padding:9px;margin-bottom:8px;font-size:.82rem}
-.shr .kcard a{color:#0B1B5A;font-weight:700;cursor:pointer;text-decoration:underline}
-.shr .kcard .sub{color:#5f6880;font-size:.76rem;margin:3px 0 6px}
-.shr .kcard select{width:100%;font-size:.78rem;padding:5px}
+
+.shr .board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:10px;overflow-x:auto;padding-bottom:10px;margin-bottom:14px}
+.shr .col{background:var(--soft);border:1px solid var(--l);border-radius:12px;padding:8px;min-height:120px}
+.shr .col h3{margin:0 0 8px;font-size:13.5px;color:var(--ink);display:flex;justify-content:space-between;align-items:center;font-weight:600}
+.shr .col h3 span{background:#fff;border:1px solid var(--l);border-radius:999px;padding:0 9px;font-family:var(--fm);font-size:12px;font-weight:500;color:var(--mut)}
+.shr .kcard{background:#fff;border:1px solid var(--l);border-radius:10px;padding:10px;margin-bottom:8px;font-size:13px;box-shadow:var(--sh)}
+.shr .kcard a{color:var(--ink);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.shr .kcard .sub{color:var(--mut);font-size:12.5px;margin:3px 0 6px}
+.shr .kcard select{width:100%;font-size:12.5px;padding:5px}
 .shr .kcard.busy{opacity:.55}
-.shr .score{display:inline-block;min-width:38px;text-align:center;border-radius:8px;padding:3px 8px;font-weight:800;color:#fff;background:#0B1B5A}
-.shr .score.s-strong{background:#118657}.shr .score.s-good{background:#2b56c3}.shr .score.s-review{background:#b45309}.shr .score.s-weak,.shr .score.s-unscored{background:#5f6880}
-.shr .mustbox{border:2px dashed #b91c1c;background:#fff7f7;border-radius:14px;padding:12px;margin-top:14px}
-.shr .mustbox h2{color:#b91c1c}
-.shr details{margin-top:6px}.shr summary{cursor:pointer;color:#2b56c3;font-size:.8rem;font-weight:700}
-.shr .tl{margin:6px 0 0;padding:0 16px 0 0;font-size:.8rem;color:#2c3550}
-.shr .back{margin-bottom:10px}
+.shr .score{display:inline-block;min-width:40px;text-align:center;border-radius:8px;padding:2px 9px;font-family:var(--fm);font-weight:500;color:#fff;background:var(--ac)}
+.shr .score.s-strong{background:var(--ok)}.shr .score.s-good{background:var(--ac2)}.shr .score.s-review{background:var(--warn)}.shr .score.s-weak,.shr .score.s-unscored{background:var(--mut)}
+.shr .mustbox{border:2px dashed var(--bad);background:var(--badSoft);border-radius:13px;padding:14px;margin-top:14px}
+.shr .mustbox h2{color:var(--bad)}
+.shr details{margin-top:6px}.shr summary{cursor:pointer;color:var(--ac2);font-size:13px;font-weight:600}
+.shr .back{margin-bottom:12px}
 
 
-.shr .persp{display:inline-block;background:#eef2ff;color:#2b56c3;border-radius:999px;padding:3px 12px;font-size:.78rem;font-weight:800;margin-inline-start:8px;vertical-align:middle}
-.shr .modes{display:flex;gap:6px;margin-bottom:12px}
-.shr .modes button{flex:1;border:1px solid #e4e8f1;background:#fff;border-radius:10px;padding:8px;font-weight:700;cursor:pointer;color:#2c3550}
-.shr .modes button.on{background:#0B1B5A;color:#fff;border-color:#0B1B5A}
-.shr textarea.inp{width:100%;min-height:140px;font-family:ui-monospace,monospace;font-size:.82rem;box-sizing:border-box}
-.shr .dup{background:#fff3e6;border:1px solid #f59e0b;color:#92400e;border-radius:8px;padding:2px 8px;font-size:.72rem;font-weight:800}
+.shr textarea.inp{width:100%;min-height:140px;font-family:var(--fm);font-size:13px;box-sizing:border-box}
+.shr .dup{background:var(--warnSoft);border:1px solid var(--warn);color:var(--warn);border-radius:8px;padding:2px 8px;font-size:12px;font-weight:600}
 .shr .rev{margin-top:6px}.shr .rev .frm{margin-top:6px}
-.shr .rpt{margin-top:10px;background:#f6f8fc;border:1px solid #e4e8f1;border-radius:12px;padding:10px}
+.shr .rpt{margin-top:10px;background:var(--soft);border:1px solid var(--l);border-radius:12px;padding:10px;overflow-x:auto}
 
 
-.shr .cmp-note{background:#fff8e6;border:1px solid #f59e0b;color:#7a4a05;border-radius:10px;padding:8px 12px;font-size:.82rem;font-weight:700;margin-bottom:12px}
-.shr .pill.est{background:#e8f1ff;color:#1d4ed8}
-.shr .pill.unc{background:#fff3e6;color:#b45309;border:1px dashed #f59e0b}
-.shr .tiny{font-size:.74rem;color:#5f6880}
+.shr .cmp-note{background:var(--warnSoft);border:1px solid var(--warn);color:var(--warn);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:600;margin-bottom:14px}
+.shr .pill.est{background:var(--acSoft);color:var(--ac2)}
+.shr .pill.unc{background:var(--warnSoft);color:var(--warn);border:1px dashed var(--warn)}
+.shr .tiny{font-size:12.5px;color:var(--mut)}
 .shr .kv{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.shr .row-unc{background:#fffaf0}
-.shr .sm{padding:4px 9px;font-size:.76rem}
-.shr .inp.sm{padding:4px 8px;font-size:.8rem}
-.shr .chk{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid #e4e8f1}
+.shr tr.row-unc td{background:var(--warnSoft)}
+.shr .chk{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--l)}
 .shr .chk.off{opacity:.65}
 
 
-.shr .persp.cl{background:#eaf7ef;color:#118657}
-.shr .cl-empty{background:#f6f8fc;border:1px dashed #c9d1e4;border-radius:14px;padding:22px;text-align:center;color:#5f6880}
-.shr .cl-empty b{display:block;color:#0B1B5A;font-size:1.05rem;font-weight:500;margin-bottom:6px}
 .shr textarea.cl-note{width:100%;min-height:90px;box-sizing:border-box;font:inherit}
 .shr .cl-docs{display:flex;gap:6px;flex-wrap:wrap}
 
@@ -389,7 +445,7 @@ var S=window.SV1S={
   if(sb)sb.classList.toggle('sv1-hide',!(on&&(p.indexOf('/my')>=0||p.indexOf('/ops')>=0)));
  }};
 var h0=hint();if(h0)S.paint(true,h0);
-})();</script><div class="shr"><div class="shr-demo">بيانات تجريبية — لا عمال حقيقيون ولا ربط حكومي ولا رسائل</div><div id="app"></div></div></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
+})();</script><div class="shr"><div class="shr-demo" role="note">بيانات تجريبية — لا عمال حقيقيون ولا ربط حكومي ولا رسائل</div><div id="app"><div class="shr-loading" role="status"><span class="shr-spin"></span>جارٍ التحميل…</div></div></div></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
 fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
 var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};
 /* الرسم الفوري جرى بعد «</header>» مباشرة (SV1_SESSION_JS)؛ هنا التصحيح. */
@@ -443,21 +499,61 @@ function pill(t,c){return h('span',{class:'pill '+(c||'')},[t])}
 Object.assign(ERR,{"agency_not_approved":"المكتب غير معتمد (قيد الاعتماد أو موقوف) — لا دخول","already_approved":"المكتب معتمد أصلاً","not_approved":"المكتب غير معتمد","name_required":"الاسم مطلوب","demo_email_only":"بريد تجريبي فقط بنطاق .invalid في هذه المرحلة","email_taken":"هذا البريد مستخدم","profession_required":"المهنة مطلوبة","bad_quantity":"الكمية بين 1 و500","agency_or_open_required":"حدّد مكتباً أو «مفتوح»","bad_due_on":"تاريخ غير صالح","order_closed":"الأمر مغلق","duplicate_candidate":"مرشح مكرر على هذا الأمر","duplicate_in_file":"مكرر داخل الملف","contact_fields_not_allowed":"لا هاتف ولا بريد ولا هوية خام في هذه المرحلة","full_name_required":"الاسم مطلوب","bad_years_experience":"سنوات الخبرة غير صالحة","order_not_found":"الأمر غير موجود لهذا المكتب","no_rows":"لا صفوف","too_many_rows":"الحد الأقصى 60 صفاً في الدفعة","bad_transition":"انتقال غير مسموح بين هاتين الحالتين","same_state":"المرشح في هذه الحالة أصلاً","bad_list":"القائمة غير صالحة"});
 Object.assign(ERR,{"establishment_blocked":"المنشأة محجوبة: حالة القيد تمنع هذا الإجراء","a33_blocked":"العامل مرتبط بقائمة A33 غير مكتملة التصنيف والاعتماد","compliance_officer_required":"حالة «تقديم» لا يغيّرها إلا مسؤول الامتثال","review_required":"لا تقدّم بلا مراجعة ثانية من مستخدم آخر","already_reviewed":"روجعت أصلاً","already_verified":"تُحقِّق منها أصلاً","already_approved":"اعتُمد أصلاً","already_decided":"قُرّر في الطلب أصلاً","not_classified":"يلزم التصنيف أولاً","owner_only":"تغيير الإعدادات لمالك المستأجر وحده","unknown_rule":"بند غير موجود في المرجع","rule_unconfirmed":"البند غير مؤكد من المصدر — لا يُفعَّل","tier_unknown":"شريحة غير موجودة في المرجع","authority_required":"الجهة مطلوبة","bad_persons_count":"عدد الأشخاص أو الحالات غير صالح","bad_notification_date":"تاريخ التبليغ غير صالح","notification_in_future":"تاريخ التبليغ لا يكون في المستقبل","notification_date_required":"أدخل تاريخ التبليغ من الإشعار الرسمي","forbidden_deadline_input":"لا يُشتق الموعد من تاريخ المخالفة أو القرار — تاريخ التبليغ وحده","regulatory_figure_not_allowed":"الأرقام النظامية تأتي من المرجع وحده","duplicate_violation":"رقم المخالفة مسجّل أصلاً لهذه الجهة","bad_status":"حالة غير معروفة","bad_transition":"انتقال غير مسموح: خطوة واحدة فقط","same_status":"الحالة نفسها","bad_restriction_state":"حالة قيد غير صالحة","reason_required":"السبب مطلوب","bad_band":"نطاق غير صالح","unknown_activity":"نشاط غير موجود في المرجع","bad_declared_pct":"نسبة معلنة غير صالحة","bad_count":"عدد غير صالح","demo_alias_required":"الاسم يحمل وسم «(وهمي)» في هذه المرحلة","field_not_allowed":"حقل غير مسموح (لا أسماء حقيقية ولا هوية خام)","duplicate_name":"الاسم مكرر في القائمة","list_ref_required":"مرجع القائمة مطلوب","alias_required":"الاسم الوهمي مطلوب","id_no_required":"رقم هوية وهمي مطلوب (يُحفظ بصمةً فقط)","bad_classification":"تصنيف غير صالح","no_assignment":"للعامل لا إسناد حالي","same_establishment":"المنشأة نفسها","transfer_pending":"لدى العامل طلب نقل معلّق","bad_decision":"قرار غير صالح","bad_kind":"نوع دفعة غير صالح","no_rows":"لا صفوف","too_many_rows":"الحد الأقصى للدفعة تجاوزه الملف","no_valid_rows":"لا صف صالح في الملف","scope_mismatch":"القائمة لا تخص هذا النوع","bad_subject_kind":"نوع غير صالح","done_required":"الحالة مطلوبة","statuses_unconfirmed":"أسماء الحالات غير مؤكدة في المرجع","unknown_setting":"إعداد غير معروف","bad_setting":"قيمة إعداد غير صالحة"});
 Object.assign(ERR,{"client_not_linked":"المستخدم غير مربوط بشركة عميل — لا دخول","client_not_active":"حساب الشركة غير نشط — لا دخول","read_only_role":"هذا الحساب للقراءة فقط — لا يقدّم طلبات","client_company_id_forbidden":"لا يُقبل تحديد الشركة من الطلب","bad_kind":"نوع الطلب غير صالح","note_required":"اكتب وصف الطلب (٣ أحرف على الأقل)","bad_quantity":"العدد بين 1 و200","worker_required":"اختر العامل المعنيّ بهذا الطلب","too_many_open_requests":"بلغت الحد الأقصى للطلبات المفتوحة — انتظر معالجة بعضها","rate_limited":"طلبات كثيرة في وقت قصير — حاول لاحقاً"});
-var NAV_OPS=[['dashboard','اللوحة'],['workers','العمال'],['requests','الطلبات'],['expiring','الانتهاءات'],['jobs','الوظائف'],['board','المرشحون'],['match','المطابقة'],['agencies','المكاتب'],['orders','أوامر الاستقدام'],['subs','المرشحون المقدَّمون']];
-var NAV_CMP=[['c_dash','الامتثال'],['c_viol','المخالفات'],['c_check','قوائم التحقق'],['c_alerts','التنبيهات'],['c_import','استيراد الملفات'],['c_a33','أسماء A33']];
-// مسؤول الامتثال لا يرى غير تبويبات الامتثال (الخادم يرفض ما سواها أصلاً).
-function navFor(){return state.me&&state.me.user&&state.me.user.role==='compliance_officer'?NAV_CMP:NAV_OPS.concat(NAV_CMP)}
-function frame(title,content){app.innerHTML='';
-  var tabs=h('div',{class:'shr-tabs'},navFor().map(function(n){return h('button',{class:(state.view===n[0]||(state.view==='candidate'&&n[0]==='board')||(state.view==='order_view'&&n[0]==='orders')||(state.view==='c_est'&&n[0]==='c_dash'))?'on':'',onclick:function(){state.view=n[0];state.msg='';state.err='';render()}},[n[1]])}).concat([h('button',{onclick:function(){call('session-end').then(function(){state.me=null;render()})}},['خروج'])]));
-  app.appendChild(h('h1',{},[title+(state.me?' — '+state.me.tenant.brand_ar:'')]));
-  app.appendChild(tabs);
-  if(state.msg)app.appendChild(h('p',{class:'okm'},[state.msg]));
-  if(state.err)app.appendChild(h('p',{class:'err'},[state.err]));
-  app.appendChild(content)}
-function gate(){app.innerHTML='';
+var GROUPS_OPS=[
+ {t:'التشغيل',i:[['dashboard','اللوحة'],['workers','العمال'],['requests','الطلبات'],['expiring','الانتهاءات']]},
+ {t:'التوظيف',i:[['jobs','الوظائف'],['board','المرشحون'],['match','المطابقة']]},
+ {t:'مكاتب الاستقدام',i:[['agencies','المكاتب'],['orders','أوامر الاستقدام'],['subs','المرشحون المقدَّمون']]}];
+var GROUP_CMP={t:'الامتثال',i:[['c_dash','لوحة الامتثال'],['c_viol','المخالفات'],['c_check','قوائم التحقق'],['c_alerts','التنبيهات'],['c_import','استيراد الملفات'],['c_a33','أسماء A33']]};
+// صفحات فرعية تُضيء تبويب أمّها.
+var ALIAS={candidate:'board',order_view:'orders',c_est:'c_dash'};
+var DESC={dashboard:'أرقام سريعة عن العمال والطلبات والمستندات القريبة من الانتهاء.',
+ workers:'أنشئ مسودة عامل وفعّلها بعد اكتمال الهوية والإقامة والعقد والمنشأة. الحذف أرشفة فقط.',
+ requests:'طلبات العملاء الواردة. غيّر حالة الطلب مع تقدّم العمل عليه.',
+ expiring:'الإقامات والتأمينات التي تنتهي خلال ٩٠ يوماً أو انتهت فعلاً.',
+ jobs:'أنشئ وظيفة وحدّد شروطها الإلزامية، ثم شغّل المطابقة لها.',
+ board:'تابع المرشحين مرحلة بمرحلة، من «جديد» حتى «تعيين».',
+ candidate:'بيانات المرشح وسجل موافقته وطلبات تقديمه ومقابلاته.',
+ match:'اختر وظيفة لترى المرشحين مرتّبين بدرجة مشروحة لكل شرط.',
+ agencies:'سجّل مكاتب الاستقدام واعتمدها. لا يدخل المكتب قبل الاعتماد.',
+ orders:'أوامر استقدام لمكتب محدد أو مفتوحة لكل المكاتب المعتمدة.',
+ order_view:'هذا ما يراه صاحب العمل عن الأمر. اسم المكتب لا يظهر له.',
+ subs:'مرشحو المكاتب بالمواصفات فقط. راجعهم وحدّد مقابلاتهم.',
+ c_dash:'حالة قيد المنشآت والتنبيهات الأهم في مكان واحد.',
+ c_est:'حالة القيد واللقطات التاريخية والفحوص لهذه المنشأة.',
+ c_viol:'سجّل المخالفات وتابع مواعيد الاعتراض التقديرية.',
+ c_check:'قوائم الجاهزية بنداً بنداً، مع بيان ما لم يُؤكَّد من مصدره.',
+ c_alerts:'مواعيد تقديرية وبيانات ناقصة ومنشآت محجوبة تحتاج انتباهك.',
+ c_import:'ارفع دفعات التأمينات أو حماية الأجور؛ تُبصَّم الهوية وتُراجَع قبل التطبيق.',
+ c_a33:'صنّف الأسماء الواردة في قوائم A33 ثم يعتمدها مستخدم آخر.'};
+// مسؤول الامتثال لا يرى غير قسم الامتثال (الخادم يرفض ما سواه أصلاً).
+function navGroups(){return state.me&&state.me.user&&state.me.user.role==='compliance_officer'?[GROUP_CMP]:GROUPS_OPS.concat([GROUP_CMP])}
+// القشرة المشتركة لكل المنظورات: قائمة جانبية مجمّعة (تنطوي أعلى الصفحة في الجوال)، فتات خبز، عنوان، تعليمة، رسائل.
+function layout(o){app.innerHTML='';
+  var cur='';o.groups.forEach(function(g){g.i.forEach(function(n){if(n[0]===o.active)cur=n[1]})});
+  var side=h('div',{class:'shr-side'+(state.navOpen?' open':'')});
+  var tog=h('button',{class:'shr-navtoggle',type:'button','aria-expanded':state.navOpen?'true':'false',onclick:function(){state.navOpen=!state.navOpen;side.className='shr-side'+(state.navOpen?' open':'');tog.setAttribute('aria-expanded',state.navOpen?'true':'false')}},[h('span',{},['☰ القائمة']),h('small',{},[cur])]);
+  var items=[];
+  o.groups.forEach(function(g){items.push(h('div',{class:'shr-grp-h'},[g.t]));g.i.forEach(function(n){var on=n[0]===o.active;
+    items.push(h('button',{class:'shr-nav'+(on?' on':''),type:'button','aria-current':on?'page':null,onclick:function(){state.view=n[0];state.msg='';state.err='';state.navOpen=false;render()}},[n[1]]))})});
+  var tabs=h('div',{class:'shr-tabs',role:'navigation','aria-label':'التنقل بين الصفحات'},items);
+  var who=h('div',{class:'shr-who'},[h('div',{},[h('b',{},[(o.who&&o.who[0])||'']),(o.who&&o.who[1])||'']),h('button',{class:'btn ghost sm',type:'button',onclick:function(){call('session-end').then(function(){state.me=null;state.navOpen=false;render()})}},['خروج'])]);
+  side.appendChild(tog);side.appendChild(h('div',{class:'shr-navbody'},[tabs,who]));
+  var cr=[];(o.crumbs||[]).forEach(function(c,i,a){if(i)cr.push(h('i',{'aria-hidden':'true'},['‹']));cr.push(h('span',{class:i===a.length-1?'cur':''},[c]))});
+  if(o.chip)cr.push(h('span',{class:'persp '+(o.chipClass||''),style:'margin-inline-start:8px'},[o.chip]));
+  var main=h('div',{class:'shr-main'},[h('div',{class:'shr-crumb'},cr),h('h1',{},[o.title]),o.sub?h('p',{class:'shr-sub'},[o.sub]):null]);
+  if(state.msg)main.appendChild(h('div',{class:'shr-alert ok',role:'status'},[state.msg]));
+  if(state.err)main.appendChild(h('div',{class:'shr-alert err',role:'alert'},[state.err]));
+  main.appendChild(o.content);
+  app.appendChild(h('div',{class:'shr-lay'},[side,main]))}
+function empty(t,hint){return h('div',{class:'shr-empty'},[h('b',{},[t]),hint?hint:null])}
+function loading(){return h('div',{class:'shr-loading',role:'status'},[h('span',{class:'shr-spin'}),'جارٍ التحميل…'])}
+function opsMeta(){var a=ALIAS[state.view]||state.view,grp=null,lab='';navGroups().forEach(function(g){g.i.forEach(function(n){if(n[0]===a){grp=g;lab=n[1]}})});return {a:a,grp:grp,lab:lab}}
+function frame(title,content){var m=opsMeta(),u=(state.me&&state.me.user)||{};
+  layout({groups:navGroups(),active:m.a,title:title,sub:DESC[state.view]||'',crumbs:(m.grp?[m.grp.t,m.lab]:[]).concat(ALIAS[state.view]?[title]:[]),who:[u.name||'',(state.me&&state.me.tenant&&state.me.tenant.brand_ar)||''],content:content})}
+function gate(first){app.innerHTML='';
   var mode=(state.gateMode||(/[?&]as=agency/.test(location.search)?'agency':/[?&]as=client/.test(location.search)?'client':'staff'));
-  var msg=h('p',{class:'err'});
-  var modes=h('div',{class:'modes'},[['staff','دخول المشغّل'],['agency','دخول مكتب استقدام'],['client','دخول عميل']].map(function(m){return h('button',{class:mode===m[0]?'on':'',onclick:function(){state.gateMode=m[0];gate()}},[m[1]])}));
+  var msg=h('p',{class:'err',role:'alert'},[first||'']);
+  var modes=h('div',{class:'modes'},[['staff','دخول المشغّل'],['agency','دخول مكتب استقدام'],['client','دخول عميل']].map(function(m){return h('button',{type:'button',class:mode===m[0]?'on':'',onclick:function(){state.gateMode=m[0];gate()}},[m[1]])}));
   var slug,email;
   if(mode==='client'){
     slug=h('select',{class:'inp'},[h('option',{value:'SHR'},['مستأجر SHR التجريبي']),h('option',{value:'OTHER'},['مستأجر وهمي آخر'])]);
@@ -481,17 +577,17 @@ function vWorkers(){return call('workers',null,true).then(function(o){var rows=o
     if(w.status==='draft'||w.status==='pending_docs')acts.push(h('button',{class:'btn sm',onclick:function(){call('worker-activate',{id:w.id}).then(function(r){flash(r.ok,r.ok?'فُعّل العامل':errText(r));render()})}},['تفعيل']));
     if(w.status!=='archived')acts.push(h('button',{class:'btn ghost sm',onclick:function(){call('worker-archive',{id:w.id}).then(function(r){flash(r.ok,r.ok?'أُرشف':errText(r));render()})}},['أرشفة']));
     return h('tr',{},[h('td',{},[w.full_name]),h('td',{},[w.profession||'—']),h('td',{},[w.nationality||'—']),h('td',{},[pill(WST[w.status]||w.status,w.status==='active'?'ok':w.status==='archived'?'mut':'warn')]),h('td',{},[h('div',{class:'frm'},acts)])])}))]);
-  frame('العمال',h('div',{},[add,h('div',{class:'shr-card scroll'},[tb])]))})}
+  frame('العمال',h('div',{},[add,rows.length?h('div',{class:'shr-card scroll'},[tb]):empty('لا عمال بعد','أنشئ مسودة من النموذج أعلاه.')]))})}
 function vRequests(){return call('requests',null,true).then(function(o){var rows=o.requests||[];
   var tb=h('table',{},[h('thead',{},[h('tr',{},['العميل','النوع','الملاحظة','الحالة'].map(function(x){return h('th',{},[x])}))]),h('tbody',{},rows.map(function(r){
     var sel=h('select',{class:'inp',onchange:function(){call('request-state',{id:r.id,state:sel.value}).then(function(x){flash(x.ok,x.ok?'تغيّرت الحالة':errText(x));render()})}},Object.keys(RST).map(function(s){var op=h('option',{value:s},[RST[s]]);if(s===r.state)op.selected=true;return op}));
     return h('tr',{},[h('td',{},[r.client||'—']),h('td',{},[RKIND[r.kind]||r.kind]),h('td',{},[(r.body&&r.body.note)||'—']),h('td',{},[sel])])}))]);
-  frame('الطلبات',h('div',{class:'shr-card scroll'},[tb]))})}
+  frame('الطلبات',rows.length?h('div',{class:'shr-card scroll'},[tb]):empty('لا طلبات من العملاء بعد','تظهر هنا طلبات العملاء فور إرسالها.'))})}
 function vExpiring(){return call('expiring',{days:90},true).then(function(o){var rows=o.items||[];
   var tb=h('table',{},[h('thead',{},[h('tr',{},['العامل','المستند','ينتهي','المتبقي'].map(function(x){return h('th',{},[x])}))]),h('tbody',{},rows.map(function(i){return h('tr',{},[h('td',{},[i.worker]),h('td',{},[DOC[i.kind]||i.kind]),h('td',{},[i.expires_on]),h('td',{},[pill(i.expired?'منتهٍ':i.days_left+' يوماً',i.expired?'bad':i.days_left<=30?'warn':'')])])}))]);
-  frame('انتهاء الإقامة والتأمين (٩٠ يوماً)',h('div',{class:'shr-card scroll'},[rows.length?tb:h('p',{class:'note'},['لا شيء ينتهي في هذه المدة.'])]))})}
+  frame('انتهاء الإقامة والتأمين (٩٠ يوماً)',h('div',{class:'shr-card scroll'},[rows.length?tb:empty('لا شيء ينتهي في هذه المدة')]))})}
 var ATS=(function shrAtsClient(env) {
-  var h = env.h, call = env.call, frame = env.frame, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render;
+  var h = env.h, call = env.call, frame = env.frame, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, empty = env.empty;
   var STAGE = { new: 'جديد', review: 'مراجعة', shortlist: 'قائمة قصيرة', interview: 'مقابلة', offer: 'عرض', hired: 'تعيين', rejected: 'مرفوض', future: 'للمستقبل' };
   var STAGE_ORDER = ['new', 'review', 'shortlist', 'interview', 'offer', 'hired', 'rejected', 'future'];
   var STAGE_TONE = { hired: 'ok', rejected: 'bad', offer: 'warn', future: 'mut' };
@@ -525,7 +621,7 @@ var ATS=(function shrAtsClient(env) {
           h('td', {}, [j.residency_required === 'transferable' ? 'قابلة للنقل' : 'لا شرط']), h('td', {}, [String(j.applications) + (j.hired ? ' (تعيين ' + j.hired + ')' : '')]),
           h('td', {}, [pill(j.status === 'open' ? 'مفتوحة' : 'مغلقة', j.status === 'open' ? 'ok' : 'mut')]), h('td', {}, [h('div', { class: 'frm' }, acts)])]);
       }))]);
-      frame('الوظائف', h('div', {}, [add, h('div', { class: 'shr-card scroll' }, [tb])]));
+      frame('الوظائف', h('div', {}, [add, rows.length ? h('div', { class: 'shr-card scroll' }, [tb]) : empty('لا وظائف بعد', 'أنشئ أول وظيفة من النموذج أعلاه.')]));
     });
   }
 
@@ -584,7 +680,7 @@ var ATS=(function shrAtsClient(env) {
           ['مدة الإشعار', c.notice_days == null ? null : c.notice_days + ' يوماً'], ['المهارات', (c.skills || []).join('، ') || null]].map(function (r) { return h('tr', {}, [h('th', {}, [r[0]]), h('td', {}, [r[1] || 'غير معروف'])]); }))])]);
       var cons = h('div', { class: 'shr-card' }, [h('h2', {}, ['سجل الموافقة']), o.consents.length ? h('table', {}, [th(['الصيغة', 'التاريخ', 'المصدر', 'السحب']), h('tbody', {}, o.consents.map(function (k) {
         return h('tr', {}, [h('td', {}, [k.text_version]), h('td', {}, [fmtDate(k.granted_at)]), h('td', {}, [k.source]), h('td', {}, [k.withdrawn_at ? pill('سُحبت ' + fmtDate(k.withdrawn_at), 'bad') : pill('سارية', 'ok')])]);
-      }))]) : h('p', { class: 'note' }, ['لا سجل موافقة — لا يدخل المطابقة ولا يُقبل له طلب تقديم.'])]);
+      }))]) : empty('لا سجل موافقة', 'لا يدخل المطابقة ولا يُقبل له طلب تقديم.')]);
       var apps = o.applications.map(function (a) {
         var when = h('input', { class: 'inp', type: 'datetime-local' }), mode = h('select', { class: 'inp' }, [h('option', { value: 'video' }, ['مرئي']), h('option', { value: 'onsite' }, ['حضوري']), h('option', { value: 'phone' }, ['هاتفي'])]);
         var ivs = a.interviews.map(function (iv) {
@@ -597,7 +693,7 @@ var ATS=(function shrAtsClient(env) {
           ivs.length ? h('ul', { class: 'tl' }, ivs) : null,
           canIv ? h('button', { class: 'btn ghost', onclick: function () { call('interview-request', { application_id: a.id, mode: 'video' }).then(function (r) { flash(r.ok, r.ok ? 'سُجّل طلب المقابلة (داخلي — لا رسالة)' : errText(r)); render(); }); } }, ['طلب مقابلة']) : null]);
       });
-      frame('ملف المرشح', h('div', {}, [back, info, cons, h('h2', {}, ['طلبات التقديم'])].concat(apps.length ? apps : [h('p', { class: 'note' }, ['لا طلبات تقديم بعد.'])])));
+      frame('ملف المرشح', h('div', {}, [back, info, cons, h('h2', {}, ['طلبات التقديم'])].concat(apps.length ? apps : [empty('لا طلبات تقديم بعد', 'أضف طلباً من لوحة المرشحين.')])));
     });
   }
 
@@ -639,9 +735,9 @@ var ATS=(function shrAtsClient(env) {
   }
 
   return { jobs: vJobs, board: vBoard, candidate: vCandidate, match: vMatch };
-})({h:h,call:call,frame:frame,flash:flash,pill:pill,errText:errText,state:state,render:function(){render()}});
+})({h:h,call:call,frame:frame,flash:flash,pill:pill,errText:errText,state:state,empty:empty,render:function(){render()}});
 var AGO=(function shrAgencyOpsClient(env) {
-  var h = env.h, call = env.call, frame = env.frame, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render;
+  var h = env.h, call = env.call, frame = env.frame, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, empty = env.empty;
   var AST = { pending: ['قيد الاعتماد', 'warn'], approved: ['معتمد', 'ok'], suspended: ['موقوف', 'bad'] };
   var SST = { submitted: 'مقدَّم', under_review: 'قيد المراجعة', shortlisted: 'قائمة قصيرة', interview: 'مقابلة', accepted: 'مقبول', rejected: 'مرفوض' };
   var NEXT = { submitted: ['under_review', 'rejected'], under_review: ['shortlisted', 'rejected'], shortlisted: ['interview', 'accepted', 'rejected'], interview: ['accepted', 'rejected'], accepted: [], rejected: [] };
@@ -663,7 +759,7 @@ var AGO=(function shrAgencyOpsClient(env) {
         return h('tr', {}, [h('td', {}, [a.ref || '—']), h('td', {}, [a.name_ar]), h('td', {}, [a.country || '—']), h('td', {}, [pill(st[0], st[1])]),
           h('td', {}, [(a.login_emails || []).join('، ') || '—']), h('td', {}, [String(a.orders)]), h('td', {}, [String(a.submissions)]), h('td', {}, [h('div', { class: 'frm' }, acts)])]);
       }))]);
-      frame('المكاتب', h('div', {}, [add, h('div', { class: 'shr-card scroll' }, [tb])]));
+      frame('المكاتب', h('div', {}, [add, rows.length ? h('div', { class: 'shr-card scroll' }, [tb]) : empty('لا مكاتب بعد', 'سجّل أول مكتب من النموذج أعلاه.')]));
     });
   }
 
@@ -686,7 +782,7 @@ var AGO=(function shrAgencyOpsClient(env) {
           h('td', {}, [o.submissions + ' / ' + o.accepted]), h('td', {}, [pill(o.state === 'open' ? 'مفتوح' : o.state, o.state === 'open' ? 'ok' : 'mut')]),
           h('td', {}, [h('button', { class: 'btn ghost', onclick: function () { state.oid = o.id; state.view = 'order_view'; state.msg = ''; state.err = ''; render(); } }, ['ما يراه صاحب العمل'])])]);
       }))]);
-      frame('أوامر الاستقدام', h('div', {}, [add, h('div', { class: 'shr-card scroll' }, [tb])]));
+      frame('أوامر الاستقدام', h('div', {}, [add, rows.length ? h('div', { class: 'shr-card scroll' }, [tb]) : empty('لا أوامر بعد', 'أنشئ أول أمر من النموذج أعلاه.')]));
     });
   }
 
@@ -701,7 +797,7 @@ var AGO=(function shrAgencyOpsClient(env) {
       frame('ما يراه صاحب العمل', h('div', {}, [
         h('button', { class: 'btn ghost back', onclick: function () { state.view = 'orders'; render(); } }, ['رجوع']),
         h('div', { class: 'shr-card' }, [h('h2', {}, [o.order.ref + ' — ' + o.order.profession + ' × ' + o.order.quantity]), h('p', { class: 'note' }, ['المصدر: ' + o.order.source + '. اسم المكتب وبلده ومعرّفه لا تظهر لصاحب العمل أبداً.'])]),
-        h('div', { class: 'shr-card scroll' }, [cs.length ? tb : h('p', { class: 'note' }, ['لا مرشحين مقدَّمين بعد.'])])]));
+        h('div', { class: 'shr-card scroll' }, [cs.length ? tb : empty('لا مرشحين مقدَّمين بعد', 'يظهر هنا من يقدّمه المكتب على هذا الأمر.')])]));
     });
   }
 
@@ -732,13 +828,13 @@ var AGO=(function shrAgencyOpsClient(env) {
         return h('tr', {}, [h('td', {}, [s.ref]), h('td', {}, [s.full_name, h('div', { class: 'note' }, [(s.profession || '—') + ' · ' + (s.nationality || '—') + ' · ' + (s.years_experience == null ? '—' : s.years_experience + ' سنة')])]),
           h('td', {}, [s.agency || '—']), h('td', {}, [s.order_ref || '—']), h('td', {}, [h('div', { class: 'frm' }, tags)]), h('td', {}, [review(s)])]);
       }))]);
-      frame('المرشحون المقدَّمون من المكاتب', h('div', {}, [h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [f]), h('p', { class: 'note' }, ['مواصفات فقط: لا هوية ولا هاتف ولا بريد. مراحل المراجعة داخلية ولا يراها المكتب (يرى «مستلم / مقابلة / مقبول / غير مختار»).'])]), h('div', { class: 'shr-card scroll' }, [rows.length ? tb : h('p', { class: 'note' }, ['لا مرشحين.'])])]));
+      frame('المرشحون المقدَّمون من المكاتب', h('div', {}, [h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [f]), h('p', { class: 'note' }, ['مواصفات فقط: لا هوية ولا هاتف ولا بريد. مراحل المراجعة داخلية ولا يراها المكتب (يرى «مستلم / مقابلة / مقبول / غير مختار»).'])]), h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا مرشحين', 'تظهر هنا مرشحات المكاتب عند تقديمها.')])]));
     });
   }
   return { agencies: vAgencies, orders: vOrders, order_view: vOrderView, subs: vSubs };
-})({h:h,call:call,frame:frame,flash:flash,pill:pill,errText:errText,state:state,render:function(){render()}});
+})({h:h,call:call,frame:frame,flash:flash,pill:pill,errText:errText,state:state,empty:empty,render:function(){render()}});
 var CMP=(function shrComplianceClient(env) {
-  var h = env.h, call = env.call, frame = env.frame, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render;
+  var h = env.h, call = env.call, frame = env.frame, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, empty = env.empty;
   var STATE_AR = { unknown: 'غير معروفة', clear: 'نظيفة', restricted: 'مقيّدة', suspected: 'اشتباه' };
   var STATE_CLS = { unknown: 'warn', clear: 'ok', restricted: 'bad', suspected: 'bad' };
   var CLS_AR = { actual_worker: 'عامل فعلي', not_a_worker: 'ليس عاملاً', works_for_other: 'يعمل لدى جهة أخرى' };
@@ -795,7 +891,7 @@ var CMP=(function shrComplianceClient(env) {
       var set = h('div', { class: 'shr-card' }, [h('h2', {}, ['إعدادات الامتثال (للمستأجر)']), cb('unknown_blocks', 'حالة القيد «غير معروفة» تمنع (الافتراضي: تحذير فقط)'), cb('a33_gate', 'حجب تفعيل العامل المرتبط بقائمة A33 غير المعتمدة'), cb('client_visibility', 'السماح للعميل برؤية المخالفات المؤكدة والمراجَعة (الافتراضي: لا)'),
         num('expiry_alert_days', 'عتبة تنبيه انتهاء المستندات (أيام): '), num('deadline_alert_days', 'عتبة تنبيه المواعيد التقديرية (أيام): '), h('p', { class: 'tiny' }, ['افتراضات تشغيلية قابلة للتغيير لا أرقام نظامية. يغيّرها tenant_owner وحده.'])]);
       cframe('لوحة الامتثال', h('div', {}, [kp, h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['المنشآت']), tb]),
-        h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['طلبات نقل العمال بين المنشآت']), tr.length ? ttb : h('p', { class: 'note' }, ['لا طلبات.']), h('p', { class: 'tiny' }, ['النقل بطلب وموافقة من غير الطالب وسجل. شروط النقل الرسمية لم تُوجد في المرجع فلا يُفحص شيء منها هنا.'])]), set]));
+        h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['طلبات نقل العمال بين المنشآت']), tr.length ? ttb : empty('لا طلبات'), h('p', { class: 'tiny' }, ['النقل بطلب وموافقة من غير الطالب وسجل. شروط النقل الرسمية لم تُوجد في المرجع فلا يُفحص شيء منها هنا.'])]), set]));
     });
   }
 
@@ -850,7 +946,7 @@ var CMP=(function shrComplianceClient(env) {
         h('button', { class: 'btn', onclick: function () { act('violation-create', { establishment_id: n.est.value, authority: n.auth.value, ref_no: n.no.value, rule_id: rs.value, size_tier: tier.value || undefined, persons_count: Number(n.cnt.value), notification_date: n.nd.value || undefined }, 'سُجّلت المخالفة — تحتاج مراجعة من مستخدم آخر'); } }, ['تسجيل'])]),
         h('p', { class: 'tiny' }, ['المبلغ والمواعيد تُحسب في الخادم من بنود المرجع. لا موعد اعتراض بلا تاريخ تبليغ يُدخله إنسان من الإشعار الرسمي. الاعتراض والسداد مساران متوازيان: الاعتراض لا يوقف الغرامة، وقرار السداد للعميل.'])]);
       var wins = (rf.windows || []).map(function (w) { return h('li', { class: 'tiny' }, [w.name_ar + (w.days !== null ? ' — ' + w.days + ' يوماً ' + (w.anchor_ar || '') : '') + (w.usable ? '' : ' (غير مؤكد من المصدر)') + (w.warning_ar ? ' — ' + w.warning_ar : '')]); });
-      var tb = h('table', {}, [th(['البند / المنشأة', 'العدد', 'غرامة تقديرية', 'التبليغ', 'مواعيد تقديرية', 'الحالة', 'السداد', '']), h('tbody', {}, rows.map(function (v) {
+      var tb = h('table', { class: 'wide' }, [th(['البند / المنشأة', 'العدد', 'غرامة تقديرية', 'التبليغ', 'مواعيد تقديرية', 'الحالة', 'السداد', '']), h('tbody', {}, rows.map(function (v) {
         var rule = v.rule || {}, fe = v.fine_estimate || {};
         var fineCell = fe.estimate ? [h('div', { class: 'kv' }, [Number(fe.amount_sar).toLocaleString('en-US') + ' ر.س', est()]), h('div', { class: 'tiny' }, [fe.count + ' × ' + Number(fe.unit_sar).toLocaleString('en-US') + ' (' + fe.tier + ')']), src(fe)] : [h('span', { class: 'tiny' }, ['غير متاح: ' + (fe.unavailable || '—')]), fe.label_ar ? unc() : null];
         var nd = v.notification_date ? [v.notification_date] : [h('span', { class: 'tiny' }, ['لم يُدخل'])];
@@ -867,7 +963,7 @@ var CMP=(function shrComplianceClient(env) {
         return h('tr', { class: rule.usable ? '' : 'row-unc' }, [h('td', {}, [h('div', {}, [v.rule_id + ' — ' + v.kind_ar]), h('div', { class: 'tiny' }, [(v.establishment || '') + ' · ' + v.authority + (v.ref_no ? ' · ' + v.ref_no : '')]), rule.usable ? null : unc()]),
           h('td', {}, [String(v.persons_count)]), h('td', {}, fineCell), h('td', {}, nd), h('td', {}, [win('اعتراض', v.objection), win('تسوية', v.settlement), win('سداد', v.payment)]), h('td', {}, stc), h('td', {}, [pd]), h('td', {}, [rv])]);
       }))]);
-      cframe('سجل المخالفات', h('div', {}, [add, h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [f]), h('ul', {}, wins), h('p', { class: 'tiny' }, ['مدة التسوية تختلف عن مدة الاعتراض ولا يُوحَّدان. لا يُعرض تخفيض كحق: التسوية بشروط وتخضع لدراسة الجهة.'])]), h('div', { class: 'shr-card scroll' }, [rows.length ? tb : h('p', { class: 'note' }, ['لا مخالفات.'])])]));
+      cframe('سجل المخالفات', h('div', {}, [add, h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [f]), h('ul', {}, wins), h('p', { class: 'tiny' }, ['مدة التسوية تختلف عن مدة الاعتراض ولا يُوحَّدان. لا يُعرض تخفيض كحق: التسوية بشروط وتخضع لدراسة الجهة.'])]), h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا مخالفات', 'سجّل أول مخالفة من النموذج أعلاه.')])]));
     });
   }
 
@@ -890,7 +986,7 @@ var CMP=(function shrComplianceClient(env) {
               return h('div', { class: 'chk' + (it.active ? '' : ' off') }, [cb, h('div', {}, [h('div', {}, [it.text_ar]), h('div', { class: 'kv' }, [it.rule_id ? pill(it.rule_id, '') : null, it.active ? null : unc(), it.active ? null : h('span', { class: 'tiny' }, ['معطَّل: لا يُحتسب ولا يُنقر حتى يُؤكَّد المصدر'])])])]);
             }))]);
         });
-        cframe('قوائم التحقق', h('div', {}, [h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [k, s])]), cards.length ? h('div', {}, cards) : h('p', { class: 'note' }, ['لا قوائم لهذا النوع.'])]));
+        cframe('قوائم التحقق', h('div', {}, [h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [k, s])]), cards.length ? h('div', {}, cards) : empty('لا قوائم لهذا النوع')]));
       });
     });
   }
@@ -910,7 +1006,7 @@ var CMP=(function shrComplianceClient(env) {
         return h('tr', {}, [h('td', {}, [pill(sv[0], sv[1])]), h('td', {}, [AL[a.kind] || a.kind]), h('td', {}, [(sj.name || '—') + (sj.establishment ? ' · ' + sj.establishment : '')]), h('td', {}, [a.due || '—']),
           h('td', {}, [a.days_left === undefined ? '—' : (a.days_left < 0 ? 'مضى ' + (-a.days_left) : a.days_left) + ' يوماً']), h('td', {}, [h('div', { class: 'kv' }, extra)])]);
       }))]);
-      cframe('التنبيهات', h('div', {}, [h('div', { class: 'shr-card scroll' }, [rows.length ? tb : h('p', { class: 'note' }, ['لا تنبيهات.']),
+      cframe('التنبيهات', h('div', {}, [h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا تنبيهات'),
         h('p', { class: 'tiny' }, ['عتبة المستندات ' + st.expiry_alert_days + ' يوماً، وعتبة المواعيد التقديرية ' + st.deadline_alert_days + ' يوماً (إعدادات تشغيلية للمستأجر). التنبيهات داخلية للمشغّل: لا رسالة تُرسل لأحد، ولا تنبيه بموعد دون تاريخ تبليغ مُدخَل.'])])]));
     });
   }
@@ -953,7 +1049,7 @@ var CMP=(function shrComplianceClient(env) {
         return h('tr', {}, [h('td', {}, [b.label || '—']), h('td', {}, [KIND_AR[b.kind] || b.kind]), h('td', {}, [pill(ISTATE[b.state] || b.state, b.state === 'applied' ? 'ok' : 'warn')]), h('td', {}, [String(b.row_count)]), h('td', {}, [String(b.matched_count)]), h('td', {}, [h('div', { class: 'kv' }, btns)])]);
       }))]);
       var dt = det && det.ok ? h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['صفوف الدفعة (بلا بصمات)']), h('table', {}, [th(['السطر', 'الفترة', 'الحالة', 'المطابقة', 'العامل', 'مطبَّق']), h('tbody', {}, det.rows.map(function (r) { return h('tr', {}, [h('td', {}, [String(r.line)]), h('td', {}, [r.period]), h('td', {}, [r.status]), h('td', {}, [pill(r.match_state === 'matched' ? 'مطابق' : 'غير مطابق', r.match_state === 'matched' ? 'ok' : 'mut')]), h('td', {}, [r.worker || '—']), h('td', {}, [r.applied ? 'نعم' : '—'])]); }))])]) : null;
-      cframe('استيراد الملفات', h('div', {}, [up, h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['الدفعات']), rows.length ? tb : h('p', { class: 'note' }, ['لا دفعات.'])]), dt]));
+      cframe('استيراد الملفات', h('div', {}, [up, h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['الدفعات']), rows.length ? tb : empty('لا دفعات', 'ارفع دفعة من النموذج أعلاه.')]), dt]));
     });
   }
 
@@ -974,14 +1070,14 @@ var CMP=(function shrComplianceClient(env) {
       var f = { est: h('select', { class: 'inp' }, ests.map(function (e) { return opt(e.id, e.name_ar); })), ref: h('input', { class: 'inp', placeholder: 'مرجع القائمة' }), al: h('input', { class: 'inp', placeholder: 'اسم وهمي ينتهي بـ(وهمي)' }), no: h('input', { class: 'inp', placeholder: 'رقم هوية وهمي (بصمة فقط)' }) };
       var add = h('div', { class: 'shr-card' }, [h('h2', {}, ['إضافة اسم إلى قائمة']), h('div', { class: 'frm' }, [f.est, f.ref, f.al, f.no, h('button', { class: 'btn', onclick: function () { act('a33-add', { establishment_id: f.est.value, list_ref: f.ref.value, alias: f.al.value, id_no: f.no.value }, 'أُضيف الاسم'); } }, ['إضافة'])]),
         h('p', { class: 'tiny' }, ['م33: تسجيل عامل سعودي ضمن عمال المنشأة دون علاقة عمل فعلية (لا وافد). لا أسماء حقيقية في هذه المرحلة، والهوية بصمة فقط. المصنِّف لا يعتمد، ويُحجب تفعيل العامل المرتبط بالقائمة حتى يُصنَّف كل اسم ويعتمد مراجع ثانٍ.'])]);
-      cframe('تصنيف أسماء A33', h('div', {}, [add, h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['القوائم']), lists.length ? ls : h('p', { class: 'note' }, ['لا قوائم.'])]), h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['الأسماء']), names.length ? nt : h('p', { class: 'note' }, ['لا أسماء.'])])]));
+      cframe('تصنيف أسماء A33', h('div', {}, [add, h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['القوائم']), lists.length ? ls : empty('لا قوائم')]), h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['الأسماء']), names.length ? nt : empty('لا أسماء')])]));
     });
   }
 
   return { c_dash: vDash, c_est: vEst, c_viol: vViol, c_check: vCheck, c_alerts: vAlerts, c_import: vImport, c_a33: vA33 };
-})({h:h,call:call,frame:frame,flash:flash,pill:pill,errText:errText,state:state,render:function(){render()}});
+})({h:h,call:call,frame:frame,flash:flash,pill:pill,errText:errText,state:state,empty:empty,render:function(){render()}});
 var CLP=(function shrClientPortalClient(env) {
-  var h = env.h, call = env.call, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, app = env.app;
+  var h = env.h, call = env.call, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, layout = env.layout, empty = env.empty, loading = env.loading;
   var NAV = [['cl_home', 'اللوحة'], ['cl_workers', 'عمالي'], ['cl_contracts', 'عقودي'], ['cl_requests', 'طلباتي'], ['cl_invoices', 'الفواتير']];
   var DOCN = { work_contract: 'عقد العمل', iqama: 'الإقامة', passport: 'جواز السفر', medical_insurance: 'التأمين الطبي' };
   var DST = { valid: ['سارية', 'ok'], expiring: ['قريبة الانتهاء', 'warn'], expired: ['منتهية', 'bad'], no_expiry: ['سارٍ — بلا تاريخ انتهاء', 'ok'], missing: ['غير مرفوعة', 'mut'] };
@@ -992,16 +1088,26 @@ var CLP=(function shrClientPortalClient(env) {
   var th = function (cols) { return h('thead', {}, [h('tr', {}, cols.map(function (x) { return h('th', {}, [x]); }))]); };
   var day = function (s) { return s ? String(s).slice(0, 10) : '—'; };
 
+  // الصفحات بلا كلمات مشغّل أو امتثال: هذا المنظور يرى بيانات شركته فقط.
+  var GROUPS = [{ t: 'بوابة العميل', i: NAV }];
+  var DESC = {
+    cl_home: 'ملخص سريع لعمالكم وعقودكم وطلباتكم ومستنداتكم.',
+    cl_workers: 'العمال المُسندون إليكم وحالة مستندات كل منهم.',
+    cl_worker: 'بيانات العامل ومستنداته وقوائمه، للاطلاع فقط.',
+    cl_contracts: 'عقودكم السارية: الفترة والنسخة وعدد العمال.',
+    cl_requests: 'أرسل طلباً جديداً وتابع حالة طلباتكم السابقة.',
+    cl_invoices: 'فواتيركم تظهر هنا عند إصدارها.'
+  };
+  function activeNav() { return state.view === 'cl_worker' ? 'cl_workers' : (DESC[state.view] ? state.view : 'cl_home'); }
+  function titleNow() { var a = activeNav(), t = ''; NAV.forEach(function (n) { if (n[0] === a) t = n[1]; }); return t; }
   function cframe(title, content) {
-    app.innerHTML = '';
-    var tabs = h('div', { class: 'shr-tabs' }, NAV.map(function (n) {
-      return h('button', { class: (state.view === n[0] || (state.view === 'cl_worker' && n[0] === 'cl_workers')) ? 'on' : '', onclick: function () { state.view = n[0]; state.msg = ''; state.err = ''; render(); } }, [n[1]]);
-    }).concat([h('button', { onclick: function () { call('session-end').then(function () { state.me = null; render(); }); } }, ['خروج'])]));
-    app.appendChild(h('h1', {}, [title, h('span', { class: 'persp cl' }, ['منظور العميل — ' + (state.me && state.me.client ? state.me.client.name_ar : '') + (state.me && state.me.can_request ? '' : ' (قراءة فقط)')])]));
-    app.appendChild(tabs);
-    if (state.msg) app.appendChild(h('p', { class: 'okm' }, [state.msg]));
-    if (state.err) app.appendChild(h('p', { class: 'err' }, [state.err]));
-    app.appendChild(content);
+    var a = activeNav(), lab = titleNow();
+    layout({
+      groups: GROUPS, active: a, title: title, sub: DESC[DESC[state.view] ? state.view : 'cl_home'],
+      crumbs: ['بوابة العميل', lab].concat(state.view === 'cl_worker' ? [title] : []),
+      chip: 'منظور العميل' + (state.me && state.me.can_request ? '' : ' — قراءة فقط'), chipClass: 'cl',
+      who: [(state.me && state.me.client ? state.me.client.name_ar : ''), (state.me && state.me.user ? state.me.user.name || '' : '')], content: content
+    });
   }
   function guard(o) { if (!o || !o.ok) throw new Error((o && o.error) || 'x'); return o; }
 
@@ -1026,7 +1132,7 @@ var CLP=(function shrClientPortalClient(env) {
         return h('tr', {}, [h('td', {}, [w.full_name]), h('td', {}, [w.profession || '—']), h('td', {}, [w.nationality || '—']), h('td', {}, [pill(st[0], st[1])]), h('td', {}, [pill(at[0], at[1])]),
           h('td', {}, [h('button', { class: 'btn ghost', onclick: function () { state.cworker = w.id; state.view = 'cl_worker'; state.msg = ''; state.err = ''; render(); } }, ['التفاصيل'])])]);
       }))]);
-      cframe('عمالي', h('div', { class: 'shr-card scroll' }, [rows.length ? tb : h('div', { class: 'cl-empty' }, [h('b', {}, ['لا عمال مُسندون إليكم حالياً']), 'ستظهر هنا أسماء العمال بعد إسنادهم وتفعيلهم.'])]));
+      cframe('عمالي', h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا عمال مُسندون إليكم حالياً', 'ستظهر هنا أسماء العمال بعد إسنادهم وتفعيلهم.')]));
     });
   }
 
@@ -1057,7 +1163,7 @@ var CLP=(function shrClientPortalClient(env) {
       var tb = h('table', {}, [th(['النسخة', 'من', 'إلى', 'المتبقي', 'العمال', 'الحالة']), h('tbody', {}, rows.map(function (k) {
         return h('tr', {}, [h('td', {}, ['v' + k.version]), h('td', {}, [day(k.starts_on)]), h('td', {}, [day(k.ends_on)]), h('td', {}, [k.days_left == null ? '—' : k.days_left < 0 ? 'منتهي المدة' : k.days_left + ' يوماً']), h('td', {}, [String(k.workers)]), h('td', {}, [pill('ساري', 'ok')])]);
       }))]);
-      cframe('عقودي', h('div', { class: 'shr-card scroll' }, [rows.length ? tb : h('div', { class: 'cl-empty' }, [h('b', {}, ['لا عقود سارية']), 'تظهر هنا العقود المعتمدة السارية فقط.']), h('p', { class: 'note' }, ['ملخص العقد: الفترة والنسخة. المسودات وما قيد الاعتماد لا تظهر.'])]));
+      cframe('عقودي', h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا عقود سارية', 'تظهر هنا العقود المعتمدة السارية فقط.'), h('p', { class: 'note' }, ['ملخص العقد: الفترة والنسخة. المسودات وما قيد الاعتماد لا تظهر.'])]));
     });
   }
 
@@ -1087,20 +1193,20 @@ var CLP=(function shrClientPortalClient(env) {
         var st = RST[r.state] || [r.state, ''];
         return h('tr', {}, [h('td', {}, [RKIND[r.kind] || r.kind]), h('td', {}, [(r.note || '—') + (r.quantity ? ' · العدد ' + r.quantity : '') + (r.profession ? ' · ' + r.profession : '')]), h('td', {}, [r.worker_name || '—']), h('td', {}, [day(r.created_at)]), h('td', {}, [pill(st[0], st[1])])]);
       }))]);
-      cframe('طلباتي', h('div', {}, [form || h('p', { class: 'note' }, ['هذا الحساب للقراءة فقط: لا يقدّم طلبات.']), h('div', { class: 'shr-card scroll' }, [rows.length ? tb : h('p', { class: 'note' }, ['لا طلبات بعد.'])])]));
+      cframe('طلباتي', h('div', {}, [form || h('p', { class: 'note' }, ['هذا الحساب للقراءة فقط: لا يقدّم طلبات.']), h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا طلبات بعد', 'تظهر هنا طلبات شركتكم عند إرسالها.')])]));
     });
   }
 
   function vInvoices() {
     return call('client-invoices', null, true).then(function (o) {
       guard(o);
-      cframe('الفواتير', h('div', { class: 'shr-card' }, [h('div', { class: 'cl-empty' }, [h('b', {}, ['لا فواتير للعرض']), o.note_ar || ''])]));
+      cframe('الفواتير', h('div', { class: 'shr-card' }, [empty('لا فواتير للعرض', o.note_ar || '')]));
     });
   }
-  return { cl_home: vHome, cl_workers: vWorkers, cl_worker: vWorker, cl_contracts: vContracts, cl_requests: vRequests, cl_invoices: vInvoices };
-})({h:h,call:call,flash:flash,pill:pill,errText:errText,state:state,app:app,render:function(){render()}});
+  return { _paint: cframe, _title: titleNow, cl_home: vHome, cl_workers: vWorkers, cl_worker: vWorker, cl_contracts: vContracts, cl_requests: vRequests, cl_invoices: vInvoices };
+})({h:h,call:call,flash:flash,pill:pill,errText:errText,state:state,app:app,layout:layout,empty:empty,loading:loading,render:function(){render()}});
 var AGP=(function shrAgencyPortalClient(env) {
-  var h = env.h, call = env.call, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, app = env.app;
+  var h = env.h, call = env.call, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, layout = env.layout, empty = env.empty;
   var STATUS = { received: ['مستلم', ''], interview: ['مقابلة', 'warn'], accepted: ['مقبول', 'ok'], not_selected: ['غير مختار', 'mut'] };
   var IVS = { requested: 'مطلوبة', scheduled: 'مجدولة', done: 'تمت', cancelled: 'ملغاة' };
   var MODE = { onsite: 'حضوري', video: 'مرئي', phone: 'هاتفي' };
@@ -1108,16 +1214,20 @@ var AGP=(function shrAgencyPortalClient(env) {
   var th = function (cols) { return h('thead', {}, [h('tr', {}, cols.map(function (x) { return h('th', {}, [x]); }))]); };
   var fmt = function (s) { return s ? String(s).slice(0, 16).replace('T', ' ') : '—'; };
 
+  var GROUPS = [{ t: 'بوابة المكتب', i: NAV }];
+  var DESC = {
+    a_orders: 'الأوامر الموجّهة إليكم والمفتوحة، ومرشحوكم عليها.',
+    a_submit: 'قدّم مرشحاً على أمر مفتوح بمواصفاته فقط.',
+    a_bulk: 'ارفع قائمة مرشحين دفعة واحدة؛ يُبلَّغ كل صف فاسد برقم سطره.',
+    a_iv: 'مقابلات مرشحيكم ومواعيدها.'
+  };
+  function activeNav() { return DESC[state.view] ? state.view : 'a_orders'; }
+  function titleNow() { var a = activeNav(), t = ''; NAV.forEach(function (n) { if (n[0] === a) t = n[1]; }); return t; }
   function aframe(title, content) {
-    app.innerHTML = '';
-    var tabs = h('div', { class: 'shr-tabs' }, NAV.map(function (n) {
-      return h('button', { class: state.view === n[0] ? 'on' : '', onclick: function () { state.view = n[0]; state.msg = ''; state.err = ''; render(); } }, [n[1]]);
-    }).concat([h('button', { onclick: function () { call('session-end').then(function () { state.me = null; render(); }); } }, ['خروج'])]));
-    app.appendChild(h('h1', {}, [title, h('span', { class: 'persp' }, ['منظور المكتب — ' + (state.me && state.me.agency ? state.me.agency.name_ar : '')])]));
-    app.appendChild(tabs);
-    if (state.msg) app.appendChild(h('p', { class: 'okm' }, [state.msg]));
-    if (state.err) app.appendChild(h('p', { class: 'err' }, [state.err]));
-    app.appendChild(content);
+    layout({
+      groups: GROUPS, active: activeNav(), title: title, sub: DESC[activeNav()], crumbs: ['بوابة المكتب', titleNow()],
+      chip: 'منظور المكتب', who: [(state.me && state.me.agency ? state.me.agency.name_ar : ''), (state.me && state.me.user ? state.me.user.name || '' : '')], content: content
+    });
   }
   function orderSelect(orders, pre) {
     var sel = h('select', { class: 'inp' }, [h('option', { value: '' }, ['اختر الأمر…'])].concat(orders.filter(function (o) { return o.state === 'open'; }).map(function (o) {
@@ -1143,7 +1253,7 @@ var AGP=(function shrAgencyPortalClient(env) {
           h('td', {}, [o.state === 'open' ? h('button', { class: 'btn', onclick: function () { state.aorder = o.id; state.view = 'a_submit'; render(); } }, ['قدّم مرشحاً']) : pill('مغلق', 'mut')])]);
       }))]);
       aframe('طلباتي', h('div', {}, [
-        h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['الأوامر الموجّهة إليكم والمفتوحة']), orders.length ? tb : h('p', { class: 'note' }, ['لا أوامر.'])]),
+        h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['الأوامر الموجّهة إليكم والمفتوحة']), orders.length ? tb : empty('لا أوامر حالياً', 'تظهر هنا الأوامر الموجّهة إليكم والمفتوحة.')]),
         h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['مرشحوكم']), subs.length ? subsTable(subs) : h('p', { class: 'note' }, ['لم تقدّموا مرشحين بعد.'])])]));
     });
   }
@@ -1206,19 +1316,30 @@ var AGP=(function shrAgencyPortalClient(env) {
         return h('tr', {}, [h('td', {}, [i.candidate ? i.candidate.full_name : '—']), h('td', {}, [pill(IVS[i.state] || i.state, i.state === 'scheduled' ? 'warn' : i.state === 'done' ? 'ok' : 'mut')]), h('td', {}, [fmt(i.scheduled_at)]),
           h('td', {}, [MODE[i.mode] || '—']), h('td', {}, [i.location || '—']), h('td', {}, [i.note || '—'])]);
       }))]);
-      aframe('مقابلاتي', h('div', { class: 'shr-card scroll' }, [rows.length ? tb : h('p', { class: 'note' }, ['لا مقابلات بعد.'])]));
+      aframe('مقابلاتي', h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا مقابلات بعد', 'تظهر المقابلات هنا حين تُطلب.')]));
     });
   }
-  return { a_orders: vOrders, a_submit: vSubmit, a_bulk: vBulk, a_iv: vInterviews };
-})({h:h,call:call,flash:flash,pill:pill,errText:errText,state:state,app:app,render:function(){render()}});
+  return { _paint: aframe, _title: titleNow, a_orders: vOrders, a_submit: vSubmit, a_bulk: vBulk, a_iv: vInterviews };
+})({h:h,call:call,flash:flash,pill:pill,errText:errText,state:state,app:app,layout:layout,empty:empty,loading:loading,render:function(){render()}});
+function role(){return state.me&&state.me.user&&state.me.user.role}
+function isCl(){var r=role();return r==='client_admin'||r==='client_viewer'}
+function isAg(){return role()==='agency'}
+// يرسم الإطار بحسب منظور الجلسة (مشغّل/عميل/مكتب) لتظهر حالتا التحميل والخطأ بالهوية نفسها.
+function paint(title,content){if(isCl())CLP._paint(title,content);else if(isAg())AGP._paint(title,content);else frame(title,content)}
+function titleNow(){return isCl()?CLP._title():isAg()?AGP._title():opsMeta().lab}
+function failed(){
+  // جلسة منتهية ← الدخول. أي سبب آخر ← رسالة وزر إعادة المحاولة دون إخراج المستخدم.
+  call('session',null,true).then(function(o){
+    if(o&&o.ok){paint(titleNow(),h('div',{class:'shr-card'},[h('p',{class:'err',role:'alert'},['تعذّر تحميل هذه الصفحة. تحقق من الاتصال ثم أعد المحاولة.']),h('button',{class:'btn',type:'button',onclick:function(){render()}},['إعادة المحاولة'])]))}
+    else{state.me=null;gate('انتهت الجلسة. سجّل الدخول من جديد.')}
+  }).catch(function(){paint(titleNow(),h('div',{class:'shr-card'},[h('p',{class:'err',role:'alert'},['تعذّر الاتصال بالخادم.']),h('button',{class:'btn',type:'button',onclick:function(){render()}},['إعادة المحاولة'])]))})}
 function render(){
   if(!state.me)return gate();
-  // منظور المكتب مستقل: لا يصل إلى شاشات المشغّل ولو عُدّلت state.view من الكونسول (الخادم يرفض أصلاً).
-  var isCl=state.me.user&&(state.me.user.role==='client_admin'||state.me.user.role==='client_viewer');
-  if(isCl){var cv=CLP[state.view]||CLP.cl_home;return cv().catch(function(){state.me=null;gate()})}
-  var isAg=state.me.user&&state.me.user.role==='agency';
-  var v=isAg?AGP[state.view]||AGP.a_orders:{dashboard:vDashboard,workers:vWorkers,requests:vRequests,expiring:vExpiring,jobs:ATS.jobs,board:ATS.board,candidate:ATS.candidate,match:ATS.match,agencies:AGO.agencies,orders:AGO.orders,order_view:AGO.order_view,subs:AGO.subs,c_dash:CMP.c_dash,c_est:CMP.c_est,c_viol:CMP.c_viol,c_check:CMP.c_check,c_alerts:CMP.c_alerts,c_import:CMP.c_import,c_a33:CMP.c_a33}[state.view];
-  v().catch(function(){state.me=null;gate()})}
+  // منظور المكتب والعميل مستقلان: لا وصول إلى شاشات المشغّل ولو عُدّلت state.view من الكونسول (الخادم يرفض أصلاً).
+  var v=isCl()?(CLP[state.view]||CLP.cl_home):isAg()?(AGP[state.view]||AGP.a_orders):{dashboard:vDashboard,workers:vWorkers,requests:vRequests,expiring:vExpiring,jobs:ATS.jobs,board:ATS.board,candidate:ATS.candidate,match:ATS.match,agencies:AGO.agencies,orders:AGO.orders,order_view:AGO.order_view,subs:AGO.subs,c_dash:CMP.c_dash,c_est:CMP.c_est,c_viol:CMP.c_viol,c_check:CMP.c_check,c_alerts:CMP.c_alerts,c_import:CMP.c_import,c_a33:CMP.c_a33}[state.view]||vDashboard;
+  paint(titleNow(),loading());
+  var p;try{p=v()}catch(e){p=Promise.reject(e)}
+  p.catch(failed)}
 call('session',null,true).then(function(o){if(o&&o.ok){state.me=o;if(o.user&&o.user.role==='compliance_officer')state.view='c_dash';if(o.user&&(o.user.role==='client_admin'||o.user.role==='client_viewer'))state.view='cl_home';render()}else gate()}).catch(function(){gate()});
 })();</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}

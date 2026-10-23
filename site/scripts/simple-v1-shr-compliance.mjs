@@ -9,15 +9,13 @@
 // من المصدر» يظهران حسب الحالة، وعبارة «لا نضمن إلغاء المخالفة» ثابتة في كل شاشة. لا شعار ولا ادعاء ترخيص.
 
 export const COMPLIANCE_CSS = `
-.shr .cmp-note{background:#fff8e6;border:1px solid #f59e0b;color:#7a4a05;border-radius:10px;padding:8px 12px;font-size:.82rem;font-weight:700;margin-bottom:12px}
-.shr .pill.est{background:#e8f1ff;color:#1d4ed8}
-.shr .pill.unc{background:#fff3e6;color:#b45309;border:1px dashed #f59e0b}
-.shr .tiny{font-size:.74rem;color:#5f6880}
+.shr .cmp-note{background:var(--warnSoft);border:1px solid var(--warn);color:var(--warn);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:600;margin-bottom:14px}
+.shr .pill.est{background:var(--acSoft);color:var(--ac2)}
+.shr .pill.unc{background:var(--warnSoft);color:var(--warn);border:1px dashed var(--warn)}
+.shr .tiny{font-size:12.5px;color:var(--mut)}
 .shr .kv{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.shr .row-unc{background:#fffaf0}
-.shr .sm{padding:4px 9px;font-size:.76rem}
-.shr .inp.sm{padding:4px 8px;font-size:.8rem}
-.shr .chk{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid #e4e8f1}
+.shr tr.row-unc td{background:var(--warnSoft)}
+.shr .chk{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--l)}
 .shr .chk.off{opacity:.65}
 `;
 
@@ -76,7 +74,7 @@ export const COMPLIANCE_ERR = {
 };
 
 export function shrComplianceClient(env) {
-  var h = env.h, call = env.call, frame = env.frame, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render;
+  var h = env.h, call = env.call, frame = env.frame, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, empty = env.empty;
   var STATE_AR = { unknown: 'غير معروفة', clear: 'نظيفة', restricted: 'مقيّدة', suspected: 'اشتباه' };
   var STATE_CLS = { unknown: 'warn', clear: 'ok', restricted: 'bad', suspected: 'bad' };
   var CLS_AR = { actual_worker: 'عامل فعلي', not_a_worker: 'ليس عاملاً', works_for_other: 'يعمل لدى جهة أخرى' };
@@ -133,7 +131,7 @@ export function shrComplianceClient(env) {
       var set = h('div', { class: 'shr-card' }, [h('h2', {}, ['إعدادات الامتثال (للمستأجر)']), cb('unknown_blocks', 'حالة القيد «غير معروفة» تمنع (الافتراضي: تحذير فقط)'), cb('a33_gate', 'حجب تفعيل العامل المرتبط بقائمة A33 غير المعتمدة'), cb('client_visibility', 'السماح للعميل برؤية المخالفات المؤكدة والمراجَعة (الافتراضي: لا)'),
         num('expiry_alert_days', 'عتبة تنبيه انتهاء المستندات (أيام): '), num('deadline_alert_days', 'عتبة تنبيه المواعيد التقديرية (أيام): '), h('p', { class: 'tiny' }, ['افتراضات تشغيلية قابلة للتغيير لا أرقام نظامية. يغيّرها tenant_owner وحده.'])]);
       cframe('لوحة الامتثال', h('div', {}, [kp, h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['المنشآت']), tb]),
-        h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['طلبات نقل العمال بين المنشآت']), tr.length ? ttb : h('p', { class: 'note' }, ['لا طلبات.']), h('p', { class: 'tiny' }, ['النقل بطلب وموافقة من غير الطالب وسجل. شروط النقل الرسمية لم تُوجد في المرجع فلا يُفحص شيء منها هنا.'])]), set]));
+        h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['طلبات نقل العمال بين المنشآت']), tr.length ? ttb : empty('لا طلبات'), h('p', { class: 'tiny' }, ['النقل بطلب وموافقة من غير الطالب وسجل. شروط النقل الرسمية لم تُوجد في المرجع فلا يُفحص شيء منها هنا.'])]), set]));
     });
   }
 
@@ -188,7 +186,7 @@ export function shrComplianceClient(env) {
         h('button', { class: 'btn', onclick: function () { act('violation-create', { establishment_id: n.est.value, authority: n.auth.value, ref_no: n.no.value, rule_id: rs.value, size_tier: tier.value || undefined, persons_count: Number(n.cnt.value), notification_date: n.nd.value || undefined }, 'سُجّلت المخالفة — تحتاج مراجعة من مستخدم آخر'); } }, ['تسجيل'])]),
         h('p', { class: 'tiny' }, ['المبلغ والمواعيد تُحسب في الخادم من بنود المرجع. لا موعد اعتراض بلا تاريخ تبليغ يُدخله إنسان من الإشعار الرسمي. الاعتراض والسداد مساران متوازيان: الاعتراض لا يوقف الغرامة، وقرار السداد للعميل.'])]);
       var wins = (rf.windows || []).map(function (w) { return h('li', { class: 'tiny' }, [w.name_ar + (w.days !== null ? ' — ' + w.days + ' يوماً ' + (w.anchor_ar || '') : '') + (w.usable ? '' : ' (غير مؤكد من المصدر)') + (w.warning_ar ? ' — ' + w.warning_ar : '')]); });
-      var tb = h('table', {}, [th(['البند / المنشأة', 'العدد', 'غرامة تقديرية', 'التبليغ', 'مواعيد تقديرية', 'الحالة', 'السداد', '']), h('tbody', {}, rows.map(function (v) {
+      var tb = h('table', { class: 'wide' }, [th(['البند / المنشأة', 'العدد', 'غرامة تقديرية', 'التبليغ', 'مواعيد تقديرية', 'الحالة', 'السداد', '']), h('tbody', {}, rows.map(function (v) {
         var rule = v.rule || {}, fe = v.fine_estimate || {};
         var fineCell = fe.estimate ? [h('div', { class: 'kv' }, [Number(fe.amount_sar).toLocaleString('en-US') + ' ر.س', est()]), h('div', { class: 'tiny' }, [fe.count + ' × ' + Number(fe.unit_sar).toLocaleString('en-US') + ' (' + fe.tier + ')']), src(fe)] : [h('span', { class: 'tiny' }, ['غير متاح: ' + (fe.unavailable || '—')]), fe.label_ar ? unc() : null];
         var nd = v.notification_date ? [v.notification_date] : [h('span', { class: 'tiny' }, ['لم يُدخل'])];
@@ -205,7 +203,7 @@ export function shrComplianceClient(env) {
         return h('tr', { class: rule.usable ? '' : 'row-unc' }, [h('td', {}, [h('div', {}, [v.rule_id + ' — ' + v.kind_ar]), h('div', { class: 'tiny' }, [(v.establishment || '') + ' · ' + v.authority + (v.ref_no ? ' · ' + v.ref_no : '')]), rule.usable ? null : unc()]),
           h('td', {}, [String(v.persons_count)]), h('td', {}, fineCell), h('td', {}, nd), h('td', {}, [win('اعتراض', v.objection), win('تسوية', v.settlement), win('سداد', v.payment)]), h('td', {}, stc), h('td', {}, [pd]), h('td', {}, [rv])]);
       }))]);
-      cframe('سجل المخالفات', h('div', {}, [add, h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [f]), h('ul', {}, wins), h('p', { class: 'tiny' }, ['مدة التسوية تختلف عن مدة الاعتراض ولا يُوحَّدان. لا يُعرض تخفيض كحق: التسوية بشروط وتخضع لدراسة الجهة.'])]), h('div', { class: 'shr-card scroll' }, [rows.length ? tb : h('p', { class: 'note' }, ['لا مخالفات.'])])]));
+      cframe('سجل المخالفات', h('div', {}, [add, h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [f]), h('ul', {}, wins), h('p', { class: 'tiny' }, ['مدة التسوية تختلف عن مدة الاعتراض ولا يُوحَّدان. لا يُعرض تخفيض كحق: التسوية بشروط وتخضع لدراسة الجهة.'])]), h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا مخالفات', 'سجّل أول مخالفة من النموذج أعلاه.')])]));
     });
   }
 
@@ -228,7 +226,7 @@ export function shrComplianceClient(env) {
               return h('div', { class: 'chk' + (it.active ? '' : ' off') }, [cb, h('div', {}, [h('div', {}, [it.text_ar]), h('div', { class: 'kv' }, [it.rule_id ? pill(it.rule_id, '') : null, it.active ? null : unc(), it.active ? null : h('span', { class: 'tiny' }, ['معطَّل: لا يُحتسب ولا يُنقر حتى يُؤكَّد المصدر'])])])]);
             }))]);
         });
-        cframe('قوائم التحقق', h('div', {}, [h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [k, s])]), cards.length ? h('div', {}, cards) : h('p', { class: 'note' }, ['لا قوائم لهذا النوع.'])]));
+        cframe('قوائم التحقق', h('div', {}, [h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [k, s])]), cards.length ? h('div', {}, cards) : empty('لا قوائم لهذا النوع')]));
       });
     });
   }
@@ -248,7 +246,7 @@ export function shrComplianceClient(env) {
         return h('tr', {}, [h('td', {}, [pill(sv[0], sv[1])]), h('td', {}, [AL[a.kind] || a.kind]), h('td', {}, [(sj.name || '—') + (sj.establishment ? ' · ' + sj.establishment : '')]), h('td', {}, [a.due || '—']),
           h('td', {}, [a.days_left === undefined ? '—' : (a.days_left < 0 ? 'مضى ' + (-a.days_left) : a.days_left) + ' يوماً']), h('td', {}, [h('div', { class: 'kv' }, extra)])]);
       }))]);
-      cframe('التنبيهات', h('div', {}, [h('div', { class: 'shr-card scroll' }, [rows.length ? tb : h('p', { class: 'note' }, ['لا تنبيهات.']),
+      cframe('التنبيهات', h('div', {}, [h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا تنبيهات'),
         h('p', { class: 'tiny' }, ['عتبة المستندات ' + st.expiry_alert_days + ' يوماً، وعتبة المواعيد التقديرية ' + st.deadline_alert_days + ' يوماً (إعدادات تشغيلية للمستأجر). التنبيهات داخلية للمشغّل: لا رسالة تُرسل لأحد، ولا تنبيه بموعد دون تاريخ تبليغ مُدخَل.'])])]));
     });
   }
@@ -291,7 +289,7 @@ export function shrComplianceClient(env) {
         return h('tr', {}, [h('td', {}, [b.label || '—']), h('td', {}, [KIND_AR[b.kind] || b.kind]), h('td', {}, [pill(ISTATE[b.state] || b.state, b.state === 'applied' ? 'ok' : 'warn')]), h('td', {}, [String(b.row_count)]), h('td', {}, [String(b.matched_count)]), h('td', {}, [h('div', { class: 'kv' }, btns)])]);
       }))]);
       var dt = det && det.ok ? h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['صفوف الدفعة (بلا بصمات)']), h('table', {}, [th(['السطر', 'الفترة', 'الحالة', 'المطابقة', 'العامل', 'مطبَّق']), h('tbody', {}, det.rows.map(function (r) { return h('tr', {}, [h('td', {}, [String(r.line)]), h('td', {}, [r.period]), h('td', {}, [r.status]), h('td', {}, [pill(r.match_state === 'matched' ? 'مطابق' : 'غير مطابق', r.match_state === 'matched' ? 'ok' : 'mut')]), h('td', {}, [r.worker || '—']), h('td', {}, [r.applied ? 'نعم' : '—'])]); }))])]) : null;
-      cframe('استيراد الملفات', h('div', {}, [up, h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['الدفعات']), rows.length ? tb : h('p', { class: 'note' }, ['لا دفعات.'])]), dt]));
+      cframe('استيراد الملفات', h('div', {}, [up, h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['الدفعات']), rows.length ? tb : empty('لا دفعات', 'ارفع دفعة من النموذج أعلاه.')]), dt]));
     });
   }
 
@@ -312,7 +310,7 @@ export function shrComplianceClient(env) {
       var f = { est: h('select', { class: 'inp' }, ests.map(function (e) { return opt(e.id, e.name_ar); })), ref: h('input', { class: 'inp', placeholder: 'مرجع القائمة' }), al: h('input', { class: 'inp', placeholder: 'اسم وهمي ينتهي بـ(وهمي)' }), no: h('input', { class: 'inp', placeholder: 'رقم هوية وهمي (بصمة فقط)' }) };
       var add = h('div', { class: 'shr-card' }, [h('h2', {}, ['إضافة اسم إلى قائمة']), h('div', { class: 'frm' }, [f.est, f.ref, f.al, f.no, h('button', { class: 'btn', onclick: function () { act('a33-add', { establishment_id: f.est.value, list_ref: f.ref.value, alias: f.al.value, id_no: f.no.value }, 'أُضيف الاسم'); } }, ['إضافة'])]),
         h('p', { class: 'tiny' }, ['م33: تسجيل عامل سعودي ضمن عمال المنشأة دون علاقة عمل فعلية (لا وافد). لا أسماء حقيقية في هذه المرحلة، والهوية بصمة فقط. المصنِّف لا يعتمد، ويُحجب تفعيل العامل المرتبط بالقائمة حتى يُصنَّف كل اسم ويعتمد مراجع ثانٍ.'])]);
-      cframe('تصنيف أسماء A33', h('div', {}, [add, h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['القوائم']), lists.length ? ls : h('p', { class: 'note' }, ['لا قوائم.'])]), h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['الأسماء']), names.length ? nt : h('p', { class: 'note' }, ['لا أسماء.'])])]));
+      cframe('تصنيف أسماء A33', h('div', {}, [add, h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['القوائم']), lists.length ? ls : empty('لا قوائم')]), h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['الأسماء']), names.length ? nt : empty('لا أسماء')])]));
     });
   }
 

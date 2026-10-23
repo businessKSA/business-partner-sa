@@ -7,9 +7,6 @@
 // لا شعار «سحر الإمداد» ولا ادعاء ترخيص أو امتثال. لا سعر ولا هامش في أي شاشة.
 
 export const CLIENT_CSS = `
-.shr .persp.cl{background:#eaf7ef;color:#118657}
-.shr .cl-empty{background:#f6f8fc;border:1px dashed #c9d1e4;border-radius:14px;padding:22px;text-align:center;color:#5f6880}
-.shr .cl-empty b{display:block;color:#0B1B5A;font-size:1.05rem;font-weight:500;margin-bottom:6px}
 .shr textarea.cl-note{width:100%;min-height:90px;box-sizing:border-box;font:inherit}
 .shr .cl-docs{display:flex;gap:6px;flex-wrap:wrap}
 `;
@@ -28,7 +25,7 @@ export const CLIENT_ERR = {
 };
 
 export function shrClientPortalClient(env) {
-  var h = env.h, call = env.call, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, app = env.app;
+  var h = env.h, call = env.call, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, layout = env.layout, empty = env.empty, loading = env.loading;
   var NAV = [['cl_home', 'اللوحة'], ['cl_workers', 'عمالي'], ['cl_contracts', 'عقودي'], ['cl_requests', 'طلباتي'], ['cl_invoices', 'الفواتير']];
   var DOCN = { work_contract: 'عقد العمل', iqama: 'الإقامة', passport: 'جواز السفر', medical_insurance: 'التأمين الطبي' };
   var DST = { valid: ['سارية', 'ok'], expiring: ['قريبة الانتهاء', 'warn'], expired: ['منتهية', 'bad'], no_expiry: ['سارٍ — بلا تاريخ انتهاء', 'ok'], missing: ['غير مرفوعة', 'mut'] };
@@ -39,16 +36,26 @@ export function shrClientPortalClient(env) {
   var th = function (cols) { return h('thead', {}, [h('tr', {}, cols.map(function (x) { return h('th', {}, [x]); }))]); };
   var day = function (s) { return s ? String(s).slice(0, 10) : '—'; };
 
+  // الصفحات بلا كلمات مشغّل أو امتثال: هذا المنظور يرى بيانات شركته فقط.
+  var GROUPS = [{ t: 'بوابة العميل', i: NAV }];
+  var DESC = {
+    cl_home: 'ملخص سريع لعمالكم وعقودكم وطلباتكم ومستنداتكم.',
+    cl_workers: 'العمال المُسندون إليكم وحالة مستندات كل منهم.',
+    cl_worker: 'بيانات العامل ومستنداته وقوائمه، للاطلاع فقط.',
+    cl_contracts: 'عقودكم السارية: الفترة والنسخة وعدد العمال.',
+    cl_requests: 'أرسل طلباً جديداً وتابع حالة طلباتكم السابقة.',
+    cl_invoices: 'فواتيركم تظهر هنا عند إصدارها.'
+  };
+  function activeNav() { return state.view === 'cl_worker' ? 'cl_workers' : (DESC[state.view] ? state.view : 'cl_home'); }
+  function titleNow() { var a = activeNav(), t = ''; NAV.forEach(function (n) { if (n[0] === a) t = n[1]; }); return t; }
   function cframe(title, content) {
-    app.innerHTML = '';
-    var tabs = h('div', { class: 'shr-tabs' }, NAV.map(function (n) {
-      return h('button', { class: (state.view === n[0] || (state.view === 'cl_worker' && n[0] === 'cl_workers')) ? 'on' : '', onclick: function () { state.view = n[0]; state.msg = ''; state.err = ''; render(); } }, [n[1]]);
-    }).concat([h('button', { onclick: function () { call('session-end').then(function () { state.me = null; render(); }); } }, ['خروج'])]));
-    app.appendChild(h('h1', {}, [title, h('span', { class: 'persp cl' }, ['منظور العميل — ' + (state.me && state.me.client ? state.me.client.name_ar : '') + (state.me && state.me.can_request ? '' : ' (قراءة فقط)')])]));
-    app.appendChild(tabs);
-    if (state.msg) app.appendChild(h('p', { class: 'okm' }, [state.msg]));
-    if (state.err) app.appendChild(h('p', { class: 'err' }, [state.err]));
-    app.appendChild(content);
+    var a = activeNav(), lab = titleNow();
+    layout({
+      groups: GROUPS, active: a, title: title, sub: DESC[DESC[state.view] ? state.view : 'cl_home'],
+      crumbs: ['بوابة العميل', lab].concat(state.view === 'cl_worker' ? [title] : []),
+      chip: 'منظور العميل' + (state.me && state.me.can_request ? '' : ' — قراءة فقط'), chipClass: 'cl',
+      who: [(state.me && state.me.client ? state.me.client.name_ar : ''), (state.me && state.me.user ? state.me.user.name || '' : '')], content: content
+    });
   }
   function guard(o) { if (!o || !o.ok) throw new Error((o && o.error) || 'x'); return o; }
 
@@ -73,7 +80,7 @@ export function shrClientPortalClient(env) {
         return h('tr', {}, [h('td', {}, [w.full_name]), h('td', {}, [w.profession || '—']), h('td', {}, [w.nationality || '—']), h('td', {}, [pill(st[0], st[1])]), h('td', {}, [pill(at[0], at[1])]),
           h('td', {}, [h('button', { class: 'btn ghost', onclick: function () { state.cworker = w.id; state.view = 'cl_worker'; state.msg = ''; state.err = ''; render(); } }, ['التفاصيل'])])]);
       }))]);
-      cframe('عمالي', h('div', { class: 'shr-card scroll' }, [rows.length ? tb : h('div', { class: 'cl-empty' }, [h('b', {}, ['لا عمال مُسندون إليكم حالياً']), 'ستظهر هنا أسماء العمال بعد إسنادهم وتفعيلهم.'])]));
+      cframe('عمالي', h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا عمال مُسندون إليكم حالياً', 'ستظهر هنا أسماء العمال بعد إسنادهم وتفعيلهم.')]));
     });
   }
 
@@ -104,7 +111,7 @@ export function shrClientPortalClient(env) {
       var tb = h('table', {}, [th(['النسخة', 'من', 'إلى', 'المتبقي', 'العمال', 'الحالة']), h('tbody', {}, rows.map(function (k) {
         return h('tr', {}, [h('td', {}, ['v' + k.version]), h('td', {}, [day(k.starts_on)]), h('td', {}, [day(k.ends_on)]), h('td', {}, [k.days_left == null ? '—' : k.days_left < 0 ? 'منتهي المدة' : k.days_left + ' يوماً']), h('td', {}, [String(k.workers)]), h('td', {}, [pill('ساري', 'ok')])]);
       }))]);
-      cframe('عقودي', h('div', { class: 'shr-card scroll' }, [rows.length ? tb : h('div', { class: 'cl-empty' }, [h('b', {}, ['لا عقود سارية']), 'تظهر هنا العقود المعتمدة السارية فقط.']), h('p', { class: 'note' }, ['ملخص العقد: الفترة والنسخة. المسودات وما قيد الاعتماد لا تظهر.'])]));
+      cframe('عقودي', h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا عقود سارية', 'تظهر هنا العقود المعتمدة السارية فقط.'), h('p', { class: 'note' }, ['ملخص العقد: الفترة والنسخة. المسودات وما قيد الاعتماد لا تظهر.'])]));
     });
   }
 
@@ -134,15 +141,15 @@ export function shrClientPortalClient(env) {
         var st = RST[r.state] || [r.state, ''];
         return h('tr', {}, [h('td', {}, [RKIND[r.kind] || r.kind]), h('td', {}, [(r.note || '—') + (r.quantity ? ' · العدد ' + r.quantity : '') + (r.profession ? ' · ' + r.profession : '')]), h('td', {}, [r.worker_name || '—']), h('td', {}, [day(r.created_at)]), h('td', {}, [pill(st[0], st[1])])]);
       }))]);
-      cframe('طلباتي', h('div', {}, [form || h('p', { class: 'note' }, ['هذا الحساب للقراءة فقط: لا يقدّم طلبات.']), h('div', { class: 'shr-card scroll' }, [rows.length ? tb : h('p', { class: 'note' }, ['لا طلبات بعد.'])])]));
+      cframe('طلباتي', h('div', {}, [form || h('p', { class: 'note' }, ['هذا الحساب للقراءة فقط: لا يقدّم طلبات.']), h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا طلبات بعد', 'تظهر هنا طلبات شركتكم عند إرسالها.')])]));
     });
   }
 
   function vInvoices() {
     return call('client-invoices', null, true).then(function (o) {
       guard(o);
-      cframe('الفواتير', h('div', { class: 'shr-card' }, [h('div', { class: 'cl-empty' }, [h('b', {}, ['لا فواتير للعرض']), o.note_ar || ''])]));
+      cframe('الفواتير', h('div', { class: 'shr-card' }, [empty('لا فواتير للعرض', o.note_ar || '')]));
     });
   }
-  return { cl_home: vHome, cl_workers: vWorkers, cl_worker: vWorker, cl_contracts: vContracts, cl_requests: vRequests, cl_invoices: vInvoices };
+  return { _paint: cframe, _title: titleNow, cl_home: vHome, cl_workers: vWorkers, cl_worker: vWorker, cl_contracts: vContracts, cl_requests: vRequests, cl_invoices: vInvoices };
 }
