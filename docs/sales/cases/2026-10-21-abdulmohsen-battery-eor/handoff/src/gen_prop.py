@@ -90,7 +90,7 @@ S.append(dict(
 
 S.append(dict(
     key='local', tag='06 · LOCALISATION FEE', kind='cards', cols=3,
-    title=('Localisation fee', 'رسم التوطين'),
+    title=('Localisation fee', 'رسوم التوطين'),
     cards=[
         dict(dark=True, t=('No localisation decision', 'مهنة بلا قرار توطين'),
              b=('A flat <b>SAR 900</b> per employee per month, plus 15% VAT.',
@@ -103,7 +103,7 @@ S.append(dict(
                 'الموارد البشرية والسكرتارية والاستقبال وخدمة العملاء ونحوها لا تُنقل لموظفين أجانب.')),
     ],
     note=('Example: 3 foreign engineers (ratio 30%, minimum Saudi salary SAR 8,000) and no Saudi engineer employed. Two Saudis are required, so the fee is SAR 6,930 per engineer per month. The profession calculator gives the figure for any profession.',
-          'مثال: 3 مهندسين أجانب (نسبة 30% وأقل راتب للسعودي 8,000 ريال) ولا يوجد مهندس سعودي. يلزم سعوديان، فيكون الرسم 6,930 ريالاً لكل مهندس شهرياً. وحاسبة المهن تعطيك الرقم لأي مهنة.'),
+          'مثال: 3 مهندسين أجانب (نسبة 30% وأقل راتب للسعودي 8,000 ريال) ولا يوجد مهندس سعودي. يلزم سعوديان، فتكون الرسوم 6,930 ريالاً لكل مهندس شهرياً. وحاسبة المهن تعطيك الرقم لأي مهنة.'),
 ))
 
 S.append(dict(
@@ -120,10 +120,10 @@ S.append(dict(
         (('Subtotal', 'المجموع الفرعي'), ('Before the items below', 'قبل البنود التالية'), '7,232.50'),
         (('Medical insurance', 'التأمين الطبي'), ('Insurer quote by age, class and gender', 'حسب عرض شركة التأمين: العمر والفئة والجنس'), 'Per quote|حسب العرض'),
         (('Transfer, visa and recruitment fees', 'رسوم النقل والتأشيرة والاستقدام'), ('Paid in advance: transfer 2,000 / 4,000 / 6,000; recruitment at actual', 'تُدفع مقدماً: النقل 2,000 / 4,000 / 6,000؛ والاستقدام بالفعلي'), 'Advance|مقدماً'),
-        (('Localisation fee', 'رسم التوطين'), ('Flat SAR 900, or by localisation decision: page 7', 'ثابت 900 ريال، أو بحسب قرار التوطين: الصفحة 7'), 'SAR 900+|900+ ريال'),
+        (('Localisation fee', 'رسوم التوطين'), ('Flat SAR 900, or by localisation decision: page 7', 'ثابت 900 ريال، أو بحسب قرار التوطين: الصفحة 7'), 'SAR 900+|900+ ريال'),
     ],
     note=('Model 1 invoices each item separately at actual cost, with its own payment dates (see the Billing schedule sheet in the calculator). Model 2 includes them in one monthly price, and the localisation fee is added on top by profession. <b>Price calculators, one Excel file: both models for 6 / 12 / 24 months with the billing schedule, a Nitaqat calculator and a profession localisation calculator:</b> <a href="https://drive.google.com/file/d/1QUmP9EfoscToq1OpkenaTfFvfE0TpfI_/view" style="color:#13246E">Open the calculator</a>',
-          'النموذج الأول يفوتر كل بند منفصلاً بالتكلفة الفعلية وله مواعيد دفعه (انظر ورقة «Billing schedule» في الحاسبة). والنموذج الثاني يضمّها في سعر شهري واحد، ويُضاف رسم التوطين فوقه بحسب المهنة. <b>حاسبات الأسعار في ملف إكسل واحد: النموذجان على 6 / 12 / 24 شهراً مع جدول الفوترة، وحاسبة النطاقات، وحاسبة توطين المهن:</b> <a href="https://drive.google.com/file/d/1QUmP9EfoscToq1OpkenaTfFvfE0TpfI_/view" style="color:#13246E">افتح الحاسبة</a>'),
+          'النموذج الأول يفوتر كل بند منفصلاً بالتكلفة الفعلية وله مواعيد دفعه (انظر ورقة «Billing schedule» في الحاسبة). والنموذج الثاني يضمّها في سعر شهري واحد، وتُضاف رسوم التوطين فوقه بحسب المهنة. <b>حاسبات الأسعار في ملف إكسل واحد: النموذجان على 6 / 12 / 24 شهراً مع جدول الفوترة، وحاسبة النطاقات، وحاسبة توطين المهن:</b> <a href="https://drive.google.com/file/d/1QUmP9EfoscToq1OpkenaTfFvfE0TpfI_/view" style="color:#13246E">افتح الحاسبة</a>'),
 ))
 
 S.append(dict(
@@ -132,10 +132,10 @@ S.append(dict(
     cards=[
         dict(dark=True, t=('Model 1 · Cost plus', 'النموذج 1 · تكلفة زائد'),
              b=('You pay each real cost when it happens, plus our fixed <b>SAR 500</b> per employee per month and the localisation fee. Every item has its own invoice and date.',
-                'تدفع كل تكلفة فعلية عند حدوثها، مع رسوم خدمتنا الثابتة <b>500 ريال</b> شهرياً لكل موظف ورسم التوطين. ولكل بند فاتورته وموعده.')),
+                'تدفع كل تكلفة فعلية عند حدوثها، مع رسوم خدمتنا الثابتة <b>500 ريال</b> شهرياً لكل موظف ورسوم التوطين. ولكل بند فاتورته وموعده.')),
         dict(dark=False, t=('Model 2 · Lump sum', 'النموذج 2 · مبلغ مقطوع'),
              b=('One fixed monthly price per employee. It already includes salary, permits, insurance, end of service and the one-off fees. The localisation fee is added on top.',
-                'سعر شهري ثابت لكل موظف. يشمل الراتب والرخص والتأمين ونهاية الخدمة والرسوم لمرة واحدة. ويُضاف فوقه رسم التوطين.')),
+                'سعر شهري ثابت لكل موظف. يشمل الراتب والرخص والتأمين ونهاية الخدمة والرسوم لمرة واحدة. ويُضاف فوقه رسوم التوطين.')),
     ],
     note=('You can choose a different model for each employee. Model 1 is annual: 12, 24 or 36 months. Model 2 also offers 6 months.',
           'تستطيع اختيار نموذج مختلف لكل موظف. النموذج 1 سنوي: 12 أو 24 أو 36 شهراً. والنموذج 2 يتيح أيضاً 6 أشهر.'),
@@ -156,7 +156,7 @@ S.append(dict(
          ('In advance. Permit and residency: quarterly, half-yearly or yearly.', 'مقدماً. الرخصة والإقامة: ربع سنوي أو نصف سنوي أو سنوي.')),
         (('Every month', 'كل شهر'),
          ('<b>Salary</b>, then <b>social insurance</b> (2%) after arrival, our <b>SAR 500</b> fee and the <b>localisation fee</b>.',
-          '<b>الراتب</b>، و<b>التأمينات</b> (2%) بعد الوصول، ورسوم خدمتنا <b>500 ريال</b>، و<b>رسم التوطين</b>.'),
+          '<b>الراتب</b>، و<b>التأمينات</b> (2%) بعد الوصول، ورسوم خدمتنا <b>500 ريال</b>، و<b>رسوم التوطين</b>.'),
          ('Salary is invoiced two months ahead, then monthly. VAT 15% on our fees and on medical insurance only.', 'الراتب يُفوتَر مقدماً بشهرين ثم شهرياً. وضريبة 15% على رسومنا والتأمين الطبي فقط.')),
         (('After the contract', 'بعد انتهاء العقد'),
          ('<b>End of service</b>, <b>leave pay</b> and the <b>return ticket</b>.',
@@ -179,7 +179,7 @@ S.append(dict(
            'سعر شهري ثابت لكل موظف بحسب إجمالي الراتب الشهري ومدة العقد. يشمل الراتب ورخصة العمل والمقابل المالي والإقامة والتأمين الطبي والاجتماعي ونهاية الخدمة وبدل الإجازة والتذاكر ورسوم النقل والتأشيرة ومصاريفنا التشغيلية ورسم خدمتنا. وكلما طالت المدة انخفض السعر.'),
     rows=[((f'SAR {a:,}', f'{a:,} ريال'), f'{_lump(a,6):,}', f'{_lump(a,12):,}', f'{_lump(a,24):,}', f'{_lump(a,36):,}') for a in (3000, 4000, 5000, 6000, 7000, 8000, 10000)],
     note=('Monthly price per employee in SAR, excluding VAT (15% VAT added). The localisation fee is added on top (page 7). You pay two months of salary in advance. The Saudi human resources officer is not part of the transfer. For other salaries or terms, use the calculator.',
-          'السعر الشهري لكل موظف بالريال قبل الضريبة (تُضاف 15%). ويُضاف رسم التوطين فوقه (الصفحة 7). تدفع راتب شهرين مقدماً. وموظف الموارد البشرية السعودي ليس ضمن النقل. وللرواتب والمدد الأخرى استعمل الحاسبة.'),
+          'السعر الشهري لكل موظف بالريال قبل الضريبة (تُضاف 15%). وتُضاف رسوم التوطين فوقه (الصفحة 7). تدفع راتب شهرين مقدماً. وموظف الموارد البشرية السعودي ليس ضمن النقل. وللرواتب والمدد الأخرى استعمل الحاسبة.'),
 ))
 
 S.append(dict(

@@ -110,7 +110,7 @@ lines = [
  ('How to use', 'طريقة الاستخدام'),
  ('Change only the light-blue cells. Everything else is calculated.', 'غيّر الخانات الزرقاء الفاتحة فقط. كل شيء آخر يُحسب تلقائياً.'),
  ('Sheet "Lump sum": one fixed monthly price per employee (Model 2), for 6, 12 or 24 months.', 'ورقة «Lump sum»: سعر شهري ثابت لكل موظف (النموذج الثاني) لمدة 6 أو 12 أو 24 شهراً.'),
- ('Sheet "Cost plus": monthly invoice at actual cost plus our localisation fee (Model 1).', 'ورقة «Cost plus»: فاتورة شهرية بالتكلفة الفعلية زائد رسم التوطين (النموذج الأول).'),
+ ('Sheet "Cost plus": monthly invoice at actual cost plus our localisation fee (Model 1).', 'ورقة «Cost plus»: فاتورة شهرية بالتكلفة الفعلية زائد رسوم التوطين (النموذج الأول).'),
  ('Sheet "Profession calculator": the localisation ratio, minimum Saudi salary, Saudis required and our fee for each profession.', 'ورقة «Profession calculator»: نسبة التوطين وأقل راتب للسعودي وعدد السعوديين المطلوب ورسمنا لكل مهنة.'),
  ('Sheet "Nitaqat calculator": the four Nitaqat bands, Saudis required, foreigners the total can carry and the shortfall for your activity group.', 'ورقة «Nitaqat calculator»: النطاقات الأربعة وعدد السعوديين المطلوب والأجانب الذين يتحملهم الإجمالي والنقص لمجموعة نشاطك.'),
  *([('Sheets "Insurance" and "Recruitment": estimated medical insurance by nationality, sex, age and class, and recruitment cost by country, profession and certificates. Both feed the price sheets.', 'ورقتا «Insurance» و«Recruitment»: التأمين الطبي المتوقع بحسب الجنسية والجنس والعمر والفئة، وتكلفة الاستقدام بحسب الدولة والمهنة والشهادات. وتغذيان ورقتي الأسعار.')] if TRANSPARENT else []),
@@ -157,7 +157,7 @@ title(ws, 'Foreign employee — monthly price (Model 2: lump sum)', 'الموظ�
 note(ws, 2, 'Change the light-blue cells only.', 'غيّر الخانات الزرقاء الفاتحة فقط.', 20)
 row(ws, 3, 'Total monthly package (SAR)', 6000, 'إجمالي الراتب الشهري (ريال)', inp=True, fmt='#,##0')
 row(ws, 4, 'Contract term in months (6, 12, 24 or 36)', 12, 'مدة العقد بالأشهر (6 أو 12 أو 24 أو 36)', inp=True)
-row(ws, 5, 'Profession (localisation fee is added on top)', rows_p[0][0], 'المهنة (رسم التوطين يُضاف فوق السعر)', inp=True)
+row(ws, 5, 'Profession (localisation fee is added on top)', rows_p[0][0], 'المهنة (رسوم التوطين تُضاف فوق السعر)', inp=True)
 row(ws, 6, 'External recruitment costs, total actual (SAR) — 0 if the employee is already in the Kingdom', 0, 'تكاليف الاستقدام من الخارج الفعلية الإجمالية (ريال) — 0 إن كان الموظف داخل المملكة', inp=True, fmt=NUM)
 row(ws, 7, 'Contracts and attestation costs, total actual (SAR)', 0, 'تكاليف العقود والتصديق الفعلية الإجمالية (ريال)', inp=True, fmt=NUM)
 row(ws, 8, 'Arrival ticket, total actual (SAR)', 2000, 'تذكرة القدوم الفعلية (ريال)', inp=True, fmt=NUM)
@@ -166,15 +166,15 @@ if INTERNAL:
     ex = '(B3*(1+'+PXL+')+(9700+650+276)/12+600/12+(B3/30*21)/12+200/12+3000/B4+B3/2/12+B3*2%+1500/12+500+(B6+B7+B8)/B4)*(1+0.1)'
     row(ws, 9, 'Monthly price before localisation, excl. VAT (SAR)', '=MROUND(' + ex + ',10)', 'السعر الشهري قبل التوطين قبل الضريبة (ريال)', bold=True, fmt=NUM)
     row(ws, 10, 'Cost before the 10% (INTERNAL)', '=(B3*(1+'+PXL+')+(9700+650+276)/12+600/12+(B3/30*21)/12+200/12+3000/B4+B3/2/12+B3*2%+1500/12+500+(B6+B7+B8)/B4)', 'التكلفة قبل الـ10% (داخلي)', fmt=NUM)
-    row(ws, 11, 'Localisation fee per month, added on top (SAR)', FEE_FORMULA, 'رسم التوطين شهرياً يُضاف فوق السعر (ريال)', fmt=NUM)
+    row(ws, 11, 'Localisation fee per month, added on top (SAR)', FEE_FORMULA, 'رسوم التوطين شهرياً تُضاف فوق السعر (ريال)', fmt=NUM)
     o = 11
 else:
     row(ws, 9, 'Monthly price before localisation, excl. VAT (SAR)',
         f'=MROUND(FORECAST(B3,INDEX(Rates!$B$2:$E${RL},0,MATCH(B4,Rates!$B$1:$E$1,0)),Rates!$A$2:$A${RL})+{EXTRA},10)',
         'السعر الشهري قبل التوطين قبل الضريبة (ريال)', bold=True, fmt=NUM)
-    row(ws, 10, 'Localisation fee per month, added on top (SAR)', FEE_FORMULA, 'رسم التوطين شهرياً يُضاف فوق السعر (ريال)', fmt=NUM)
+    row(ws, 10, 'Localisation fee per month, added on top (SAR)', FEE_FORMULA, 'رسوم التوطين شهرياً تُضاف فوق السعر (ريال)', fmt=NUM)
     o = 10
-row(ws, o + 1, 'Monthly price incl. localisation fee, excl. VAT (SAR)', f'=B9+B{o}', 'السعر الشهري شامل رسم التوطين قبل الضريبة (ريال)', bold=True, fmt=NUM, shade=True)
+row(ws, o + 1, 'Monthly price incl. localisation fee, excl. VAT (SAR)', f'=B9+B{o}', 'السعر الشهري شامل رسوم التوطين قبل الضريبة (ريال)', bold=True, fmt=NUM, shade=True)
 row(ws, o + 2, 'VAT 15% (SAR)', f'=B{o+1}*0.15', 'ضريبة القيمة المضافة 15% (ريال)', fmt=NUM)
 row(ws, o + 3, 'Monthly price incl. VAT (SAR)', f'=B{o+1}+B{o+2}', 'السعر الشهري شامل الضريبة (ريال)', bold=True, fmt=NUM, shade=True)
 row(ws, o + 4, 'Total for the term excl. VAT (SAR)', f'=B{o+1}*B4', 'الإجمالي للمدة قبل الضريبة (ريال)', fmt=NUM)
@@ -189,7 +189,7 @@ for k, (n, col) in enumerate(((6, 'B'), (12, 'C'), (24, 'D'), (36, 'E'))):
         base = f'MROUND((B3*(1+{PREM(n)})+(9700+650+276)/12+600/12+(B3/30*21)/12+200/12+3000/{n}+B3/2/12+B3*2%+1500/12+500+(B6+B7+B8)/{n})*(1+0.1),10)'
     row(ws, r0 + 1 + k, f'{n} months', f'={base}+B{o}', f'{n} أشهر' if n == 6 else f'{n} شهراً', fmt=NUM)
 note(ws, r0 + 5, 'The monthly price covers salary and allowances, work permit and levy, residency, medical and social insurance, end of service, leave pay, tickets and exit and re-entry visa, transfer, visa and recruitment costs, contracts and attestation, and our service fee. The price changes with the term because transfer and visa fees are spread over the contract months. The localisation fee is added on top of the price and follows the profession (see "Profession calculator"); Saudi-only professions are not transferred and professions outside our approved categories are quoted on request.',
-     'السعر الشهري يشمل الراتب والبدلات، ورخصة العمل والمقابل المالي، والإقامة، والتأمين الطبي والاجتماعي، ومكافأة نهاية الخدمة، وبدل الإجازة، وتذاكر الطيران والخروج والعودة، وتكاليف النقل والتأشيرة والاستقدام، والعقود والتصديق، ورسم خدمتنا. ويتغير السعر بتغير المدة لأن رسوم النقل والتأشيرة تُقسَّم على أشهر العقد. ويُضاف رسم التوطين فوق السعر بحسب المهنة (انظر «Profession calculator»)، والمهن المقصورة على السعوديين لا يُنقل إليها أجنبي، والمهن خارج فئاتنا المعتمدة تُحدَّد عند الطلب.', 110)
+     'السعر الشهري يشمل الراتب والبدلات، ورخصة العمل والمقابل المالي، والإقامة، والتأمين الطبي والاجتماعي، ومكافأة نهاية الخدمة، وبدل الإجازة، وتذاكر الطيران والخروج والعودة، وتكاليف النقل والتأشيرة والاستقدام، والعقود والتصديق، ورسم خدمتنا. ويتغير السعر بتغير المدة لأن رسوم النقل والتأشيرة تُقسَّم على أشهر العقد. وتُضاف رسوم التوطين فوق السعر بحسب المهنة (انظر «Profession calculator»)، والمهن المقصورة على السعوديين لا يُنقل إليها أجنبي، والمهن خارج فئاتنا المعتمدة تُحدَّد عند الطلب.', 110)
 dv = DataValidation(type='list', formula1='"6,12,24,36"', allow_blank=False); ws.add_data_validation(dv); dv.add('B4')
 dv2 = DataValidation(type='list', formula1='=Professions!$A$2:$A$%d' % NP_LATE, allow_blank=False); ws.add_data_validation(dv2); dv2.add('B5')
 dv3 = DataValidation(type='decimal', operator='greaterThan', formula1='0'); ws.add_data_validation(dv3); dv3.add('B3')
@@ -202,7 +202,7 @@ row(wc, 3, 'Total monthly package (SAR)', 6000, 'إجمالي الراتب ال�
 row(wc, 4, 'Contract term in months (12, 24 or 36)', 12, 'مدة العقد بالأشهر (12 أو 24 أو 36)', inp=True)
 row(wc, 5, 'Medical insurance per month (SAR) — per insurer quote by age, class and gender', 0, 'التأمين الطبي شهرياً (ريال) — حسب عرض شركة التأمين: العمر والفئة والجنس', inp=True, fmt=NUM)
 row(wc, 6, 'Transfer and visa fees, total actual (SAR)', 3000, 'رسوم النقل والتأشيرة الفعلية الإجمالية (ريال)', inp=True, fmt=NUM)
-row(wc, 7, 'Profession (our localisation fee)', rows_p[0][0], 'المهنة (رسم التوطين لدينا)', inp=True)
+row(wc, 7, 'Profession (our localisation fee)', rows_p[0][0], 'المهنة (رسوم التوطين لدينا)', inp=True)
 row(wc, 8, 'Return flight ticket per year (SAR)', 1500, 'تذكرة الطيران (العودة) سنوياً (ريال)', inp=True, fmt=NUM)
 row(wc, 9, 'Exit and re-entry visa per year (SAR)', 200, 'تأشيرة الخروج والعودة سنوياً (ريال)', inp=True, fmt=NUM)
 row(wc, 10, 'External recruitment costs, total actual (SAR)', 0, 'تكاليف الاستقدام من الخارج الفعلية الإجمالية (ريال)', inp=True, fmt=NUM)
@@ -228,7 +228,7 @@ items = [
 for i, (e, v, a) in enumerate(items, 14): row(wc, i, e, v, a, fmt=NUM)
 last = 14 + len(items) - 1
 row(wc, last + 1, 'Total costs at actual (no VAT)', f'=SUM(B14:B{last})', 'إجمالي التكاليف بالفعلي (بلا ضريبة)', bold=True, fmt=NUM, shade=True)
-row(wc, last + 2, 'Our localisation fee, excl. VAT', FEE_FORMULA_C, 'رسم التوطين لدينا قبل الضريبة', fmt=NUM)
+row(wc, last + 2, 'Our localisation fee, excl. VAT', FEE_FORMULA_C, 'رسوم التوطين لدينا قبل الضريبة', fmt=NUM)
 row(wc, last + 3, 'VAT 15% on our fee only', f'=B{last+2}*0.15', 'ضريبة 15% على رسمنا فقط', fmt=NUM)
 row(wc, last + 4, 'Total monthly invoice (SAR)', f'=B{last+1}+B{last+2}+B{last+3}', 'إجمالي الفاتورة الشهرية (ريال)', bold=True, fmt=NUM, shade=True)
 row(wc, last + 5, 'Total for the term (SAR)', f'=B{last+4}*B4', 'الإجمالي للمدة (ريال)', fmt=NUM)
@@ -502,10 +502,10 @@ if TRANSPARENT:
     ws.row_dimensions[2].height = 40
     r4(ws, 3, 'Total monthly package (SAR)', 6000, 'إجمالي الراتب الشهري (ريال)', 'The variable that drives the price', inp=True, fmt='#,##0')
     r4(ws, 4, 'Contract term in months (6, 12, 24 or 36)', 12, 'مدة العقد بالأشهر (6 أو 12 أو 24 أو 36)', 'One-off fees are spread over this term', inp=True)
-    r4(ws, 5, 'Profession (localisation fee is added on top)', rows_p[0][0], 'المهنة (رسم التوطين يُضاف فوق السعر)', 'See "Profession calculator"', inp=True)
+    r4(ws, 5, 'Profession (localisation fee is added on top)', rows_p[0][0], 'المهنة (رسوم التوطين تُضاف فوق السعر)', 'See "Profession calculator"', inp=True)
     r4(ws, 6, 'Recruited from abroad? (Yes or No)', 'No', 'مستقدَم من الخارج؟ (Yes أو No)', 'Yes uses the "Recruitment" sheet', inp=True)
     r4(ws, 7, 'Use the "Insurance" sheet estimate? (Yes or No)', 'Yes', 'استعمال تقدير ورقة «Insurance»؟ (Yes أو No)', 'No uses SAR 600 per year', inp=True)
-    r4(ws, 8, 'Foreign employees in this profession (for the localisation fee)', 1, 'عدد الأجانب في هذه المهنة (لرسم التوطين)', 'Fee = cost of the Saudis the ratio requires ÷ foreigners', inp=True, fmt='0')
+    r4(ws, 8, 'Foreign employees in this profession (for the localisation fee)', 1, 'عدد الأجانب في هذه المهنة (لرسوم التوطين)', 'Fee = cost of the Saudis the ratio requires ÷ foreigners', inp=True, fmt='0')
     ws.cell(9, 1, 'Cost component per month').font = f_b; ws.cell(9, 3, 'بند التكلفة الشهري').font = f_b; ws.cell(9, 3).alignment = rtl
     comp = [
      ('Salary', '=B3', 'الراتب', 'Total monthly package'),
@@ -527,8 +527,8 @@ if TRANSPARENT:
     r4(ws, R, 'Total cost per month (SAR)', f'=SUM(B10:B{lc})', 'إجمالي التكلفة الشهرية (ريال)', 'Sum of the lines above', bold=True, fmt=NUM, shade=True)
     r4(ws, R + 1, 'Business Partner service fee (SAR)', f'=(B{R}+B3*{PXL})*0.1+B3*{PXL}', 'رسم خدمة Business Partner (ريال)', 'Service fee on the total cost', fmt=NUM)
     r4(ws, R + 2, 'Monthly price before localisation, excl. VAT (SAR)', f'=MROUND(B{R}+B{R+1},10)', 'السعر الشهري قبل التوطين قبل الضريبة (ريال)', 'Total cost + service fee, rounded to the nearest 10', bold=True, fmt=NUM, shade=True)
-    r4(ws, R + 3, 'Localisation fee per month, added on top (SAR)', locfee('B5', 'B8', '0'), 'رسم التوطين شهرياً يُضاف فوق السعر (ريال)', 'Profession calculator', fmt=NUM)
-    r4(ws, R + 4, 'Monthly price incl. localisation fee, excl. VAT (SAR)', f'=B{R+2}+B{R+3}', 'السعر الشهري شامل رسم التوطين قبل الضريبة (ريال)', '', bold=True, fmt=NUM, shade=True)
+    r4(ws, R + 3, 'Localisation fee per month, added on top (SAR)', locfee('B5', 'B8', '0'), 'رسوم التوطين شهرياً تُضاف فوق السعر (ريال)', 'Profession calculator', fmt=NUM)
+    r4(ws, R + 4, 'Monthly price incl. localisation fee, excl. VAT (SAR)', f'=B{R+2}+B{R+3}', 'السعر الشهري شامل رسوم التوطين قبل الضريبة (ريال)', '', bold=True, fmt=NUM, shade=True)
     r4(ws, R + 5, 'VAT 15% (SAR)', f'=B{R+4}*0.15', 'ضريبة القيمة المضافة 15% (ريال)', '', fmt=NUM)
     r4(ws, R + 6, 'Monthly price incl. VAT (SAR)', f'=B{R+4}+B{R+5}', 'السعر الشهري شامل الضريبة (ريال)', '', bold=True, fmt=NUM, shade=True)
     r4(ws, R + 7, 'Total for the term excl. VAT (SAR)', f'=B{R+4}*B4', 'الإجمالي للمدة قبل الضريبة (ريال)', '', fmt=NUM)
@@ -550,10 +550,10 @@ if TRANSPARENT:
     r4(wc, 2, 'Change the light-blue cells only. Each item is invoiced separately at actual cost.', 'غيّر الخانات الزرقاء الفاتحة فقط. وكل بند يُفوتر منفصلاً بالتكلفة الفعلية.', 'Government fees carry no VAT; VAT applies only to our fee.')
     r4(wc, 3, 'Total monthly package (SAR)', 6000, 'إجمالي الراتب الشهري (ريال)', '', inp=True, fmt='#,##0')
     r4(wc, 4, 'Contract term in months (12, 24 or 36)', 12, 'مدة العقد بالأشهر (12 أو 24 أو 36)', '', inp=True)
-    r4(wc, 5, 'Profession (our localisation fee)', rows_p[0][0], 'المهنة (رسم التوطين لدينا)', 'See "Profession calculator"', inp=True)
+    r4(wc, 5, 'Profession (our localisation fee)', rows_p[0][0], 'المهنة (رسوم التوطين لدينا)', 'See "Profession calculator"', inp=True)
     r4(wc, 6, 'Recruited from abroad? (Yes or No)', 'No', 'مستقدَم من الخارج؟ (Yes أو No)', 'Yes uses the "Recruitment" sheet', inp=True)
     r4(wc, 7, 'Use the "Insurance" sheet estimate? (Yes or No)', 'Yes', 'استعمال تقدير ورقة «Insurance»؟ (Yes أو No)', 'No uses SAR 600 per year', inp=True)
-    r4(wc, 8, 'Foreign employees in this profession (for the localisation fee)', 1, 'عدد الأجانب في هذه المهنة (لرسم التوطين)', 'Fee = cost of the Saudis the ratio requires ÷ foreigners', inp=True, fmt='0')
+    r4(wc, 8, 'Foreign employees in this profession (for the localisation fee)', 1, 'عدد الأجانب في هذه المهنة (لرسوم التوطين)', 'Fee = cost of the Saudis the ratio requires ÷ foreigners', inp=True, fmt='0')
     wc.cell(9, 1, 'Costs at actual — no VAT').font = f_b; wc.cell(9, 3, 'التكاليف بالتكلفة الفعلية — بلا ضريبة').font = f_b; wc.cell(9, 3).alignment = rtl
     items = [
      ('Salary', '=B3', 'الراتب', 'Total monthly package'),
@@ -570,7 +570,7 @@ if TRANSPARENT:
     for i, (e, v, a, h) in enumerate(items, 10): r4(wc, i, e, v, a, h, fmt=NUM)
     lc2 = 10 + len(items) - 1
     r4(wc, lc2 + 1, 'Total costs at actual (no VAT)', f'=SUM(B10:B{lc2})', 'إجمالي التكاليف بالفعلي (بلا ضريبة)', '', bold=True, fmt=NUM, shade=True)
-    r4(wc, lc2 + 2, 'Our localisation fee, excl. VAT', locfee('B5', 'B8', '0'), 'رسم التوطين لدينا قبل الضريبة', 'Profession calculator', fmt=NUM)
+    r4(wc, lc2 + 2, 'Our localisation fee, excl. VAT', locfee('B5', 'B8', '0'), 'رسوم التوطين لدينا قبل الضريبة', 'Profession calculator', fmt=NUM)
     r4(wc, lc2 + 3, 'Business Partner monthly service fee, excl. VAT', "='Billing schedule'!B16", 'رسوم خدمة بزنس بارتنر الشهرية قبل الضريبة', 'Fixed per employee per month — monthly invoice only', fmt=NUM)
     r4(wc, lc2 + 4, 'VAT 15% on our fees and on medical insurance', f'=(B{lc2+2}+B{lc2+3}+B12)*0.15', 'ضريبة 15% على رسومنا وعلى التأمين الطبي', 'Other costs follow the actual invoice', fmt=NUM)
     r4(wc, lc2 + 5, 'Total monthly invoice (SAR)', f'=B{lc2+1}+B{lc2+2}+B{lc2+3}+B{lc2+4}', 'إجمالي الفاتورة الشهرية (ريال)', '', bold=True, fmt=NUM, shade=True)
@@ -634,7 +634,7 @@ if TRANSPARENT:
       lambda m: f'=IF(AND({mv(m)}>=1,{mv(m)}<={T}),{S}*0.02,0)'),
      ('Business Partner monthly service fee', 'رسوم خدمة بزنس بارتنر الشهرية', 'Monthly invoice only · الفاتورة الشهرية فقط',
       lambda m: f'=IF(AND({mv(m)}>=1,{mv(m)}<={T}),$B$16,0)'),
-     ('Our localisation fee (monthly)', 'رسم التوطين لدينا (شهرياً)', 'Monthly · شهرياً',
+     ('Our localisation fee (monthly)', 'رسوم التوطين لدينا (شهرياً)', 'Monthly · شهرياً',
       lambda m: f'=IF(AND({mv(m)}>=1,{mv(m)}<={T}),{CP}B{fee_row},0)'),
      ('VAT 15% on our fees (service fee + localisation)', 'ضريبة 15% على رسومنا (الخدمة + التوطين)', 'Monthly · شهرياً',
       lambda m: f'=IF(AND({mv(m)}>=1,{mv(m)}<={T}),({CP}B{fee_row}+$B$16)*0.15,0)'),
@@ -676,7 +676,7 @@ if TRANSPARENT:
     ck = wbs.cell(rt + 3, 4, f'={CP}B{lc2+6}'); ck.number_format = '#,##0'; ck.font = f_s
     wbs.cell(rt + 4, 1, 'Difference (timing and rounding only)').font = f_s
     dk = wbs.cell(rt + 4, 4, f'=D{rt}-D{rt+3}'); dk.number_format = '#,##0'; dk.font = f_s
-    note(wbs, rt + 6, 'VAT 15% applies to our service fee, the localisation fee and the medical insurance only; other costs follow the actual invoice (reading of the owner\'s costing decision — to be confirmed). Items "at actual" are invoiced separately as incurred: any document needing attestation, and transport, housing and meal allowance on arrival. Contract-end items are one separate invoice after the contract ends, at the actual total. The signed agreement governs.', 'الضريبة 15% على رسوم خدمتنا ورسم التوطين والتأمين الطبي فقط؛ وسائر التكاليف بحسب الفاتورة الفعلية (قراءة لقرار الكوستينج للمالك — تُؤكَّد). والبنود «بالفعلي» تُفوتر منفصلة عند حدوثها: أي مستند يحتاج تصديقاً، والمواصلات والسكن وبدل الطعام عند الوصول. وبنود نهاية العقد فاتورة واحدة منفصلة بعد نهايته بالإجمالي الفعلي. والعقد الموقع هو المرجع.', 90)
+    note(wbs, rt + 6, 'VAT 15% applies to our service fee, the localisation fee and the medical insurance only; other costs follow the actual invoice (reading of the owner\'s costing decision — to be confirmed). Items "at actual" are invoiced separately as incurred: any document needing attestation, and transport, housing and meal allowance on arrival. Contract-end items are one separate invoice after the contract ends, at the actual total. The signed agreement governs.', 'الضريبة 15% على رسوم خدمتنا ورسوم التوطين والتأمين الطبي فقط؛ وسائر التكاليف بحسب الفاتورة الفعلية (قراءة لقرار الكوستينج للمالك — تُؤكَّد). والبنود «بالفعلي» تُفوتر منفصلة عند حدوثها: أي مستند يحتاج تصديقاً، والمواصلات والسكن وبدل الطعام عند الوصول. وبنود نهاية العقد فاتورة واحدة منفصلة بعد نهايته بالإجمالي الفعلي. والعقد الموقع هو المرجع.', 90)
     wbs.freeze_panes = wbs.cell(HR + 1, FM)
     wc.cell(lc2 + 9, 1, 'Actual invoices, stages, dates and payment frequency follow the "Billing schedule" sheet. The monthly figures above are the average over the term.').font = f_s
     wc.cell(lc2 + 9, 3, 'الفواتير والمراحل والتواريخ ودورية الدفع الفعلية في ورقة «Billing schedule». والأرقام الشهرية أعلاه متوسط على مدة العقد.').font = f_s
