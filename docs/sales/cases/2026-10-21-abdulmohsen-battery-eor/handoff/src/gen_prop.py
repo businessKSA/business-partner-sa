@@ -89,7 +89,7 @@ S.append(dict(
 ))
 
 S.append(dict(
-    key='local', tag='07 · LOCALISATION FEE', kind='cards', cols=3,
+    key='local', tag='07 · LOCALISATION FEE', kind='cards', cols=2,
     title=('Localisation fee', 'رسوم التوطين'),
     cards=[
         dict(dark=True, t=('No localisation decision', 'مهنة بلا قرار توطين'),
@@ -97,13 +97,16 @@ S.append(dict(
                 'رسم ثابت <b>900 ريال</b> لكل موظف شهرياً، مع ضريبة 15%.')),
         dict(dark=False, t=('With a localisation decision', 'مهنة عليها قرار توطين'),
              b=('The fee covers the cost of the Saudis the ratio still requires, shared across your foreign employees. Each Saudi you already employ in that profession lowers it.',
-                'يغطي الرسم تكلفة السعوديين الذين ما زالت النسبة تتطلبهم، موزعة على موظفيك الأجانب. وكل سعودي توظفه في المهنة يخفضه.')),
+                'يغطي الرسم تكلفة السعوديين الذين ما زالت النسبة تتطلبهم موزعة على موظفيك الأجانب، ويخفضه كل سعودي توظفه.')),
+        dict(dark=False, t=('Saudis you take through us', 'سعوديون تأخذهم عندنا'),
+             b=('If you also take Saudi employees through us, <b>no localisation fee</b> is charged on the part they cover, in a profession with a localisation decision or in an ordinary one. Each Saudi has his own cost calculation: salary (at least SAR 6,000, or the profession minimum if higher), insurance, end of service and leave.',
+                'إذا أخذتَ معنا سعوديين فلا <b>رسوم توطين</b> على الجزء الذي يغطونه، على مهنة عليها قرار أو مهنة عادية. ولكل سعودي حسبة تكلفة خاصة: الراتب (لا يقل عن 6,000 ريال أو أقل راتب للمهنة إن كان أعلى) والتأمينات ونهاية الخدمة والإجازة.')),
         dict(dark=False, t=('Saudi-only professions', 'مهن للسعوديين فقط'),
              b=('Human resources, secretarial, reception, customer service and similar are not transferred to foreign employees.',
                 'الموارد البشرية والسكرتارية والاستقبال وخدمة العملاء ونحوها لا تُنقل لموظفين أجانب.')),
     ],
-    note=('Example: 3 foreign engineers (ratio 30%, minimum Saudi salary SAR 8,000) and no Saudi engineer employed. Two Saudis are required, so the fee is SAR 6,930 per engineer per month. The profession calculator gives the figure for any profession.',
-          'مثال: 3 مهندسين أجانب (نسبة 30% وأقل راتب للسعودي 8,000 ريال) ولا يوجد مهندس سعودي. يلزم سعوديان، فتكون الرسوم 6,930 ريالاً لكل مهندس شهرياً. وحاسبة المهن تعطيك الرقم لأي مهنة.'),
+    note=('Example: 3 foreign engineers (ratio 30%, minimum Saudi salary SAR 8,000) and no Saudi engineer employed: 2 Saudis are required, so the fee is SAR 6,930 per engineer per month.',
+          'مثال: 3 مهندسين أجانب (نسبة 30% وأقل راتب للسعودي 8,000 ريال) بلا مهندس سعودي: يلزم سعوديان، فالرسوم 6,930 ريالاً لكل مهندس شهرياً.'),
 ))
 
 S.append(dict(

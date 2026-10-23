@@ -58,7 +58,7 @@ def locfee(P, Q, SD):
     otherwise cost of the Saudis still required (ratio r/(1-r) x foreigners, less Saudis already employed) / foreigners."""
     ix = lambda col: f'INDEX(Professions!${col}$2:${col}${NP_LATE},MATCH({P},Professions!$A$2:$A${NP_LATE},0))'
     q = f'MAX(1,{Q})'
-    return (f'=IFERROR(IF(OR({ix("H")}="Saudi-only",{ix("H")}="On request"),0,IF(OR({ix("H")}="Standard",{ix("M")}=0),N({ix("I")}),'
+    return (f'=IFERROR(IF(OR({ix("H")}="Saudi-only",{ix("H")}="On request"),0,IF(OR({ix("H")}="Standard",{ix("M")}=0),IF(({SD})>0,0,N({ix("I")})),'
             f'ROUND(MAX(0,ROUNDUP(ROUND({ix("M")}*{q},6),0)-({SD}))*{ix("L")}/{q}/10,0)*10)),0)')
 FEE_FORMULA = locfee('B5', '1', '0')
 FEE_FORMULA_C = FEE_FORMULA.replace('B5','B7')
@@ -258,7 +258,7 @@ note(wl, 2, 'Choose the profession in B3, then enter the Saudis and foreigners i
 row(wl, 3, 'Profession · guide (choose from the list)', rows_p[0][0], 'المهنة · الدليل (اختر من القائمة)', inp=True)
 wl['B3'].alignment = Alignment(wrap_text=True, vertical='center', horizontal='center'); wl.column_dimensions['B'].width = 46
 wl.row_dimensions[3].height = 48
-row(wl, 4, 'Saudi employees in this profession at your company', 0, 'عدد السعوديين في هذه المهنة لدى شركتك', inp=True, fmt='0')
+row(wl, 4, 'Saudi employees you take through us, in this profession or any other (part time counts 0.5)', 0, 'عدد السعوديين الذين تأخذهم عندنا، في هذه المهنة أو أي مهنة أخرى (الجزئي يُحتسب 0.5)', inp=True, fmt='0.0')
 row(wl, 5, 'Foreign employees in this profession (to transfer)', 1, 'عدد الأجانب في هذه المهنة (المراد نقلهم)', inp=True, fmt='0')
 row(wl, 6, 'Contract term in months', 12, 'مدة العقد بالأشهر', inp=True)
 look = lambda col: f'=INDEX(Professions!${col}$2:${col}${NP},MATCH($B$3,Professions!$A$2:$A${NP},0))'
@@ -286,7 +286,7 @@ row(wl, 23, 'Fee for the term excl. VAT (SAR)', '=IF(ISNUMBER(B20),B20*B6,"—")
 row(wl, 24, 'Notes from the guide', look('J'), 'ملاحظات الدليل')
 wl.row_dimensions[24].height = 90; wl['B24'].alignment = Alignment(wrap_text=True, vertical='top', horizontal='left')
 wl.row_dimensions[7].height = 34
-note(wl, 25, 'Localisation ratios and minimum salaries come from the Ministry of Human Resources procedural guides. A Saudi paid below the minimum is not counted toward the ratio. Saudi-only professions (human resources, secretarial, reception, customer service and similar) are not transferred to foreign employees. Fees for professions outside our approved categories are quoted on request. Results are indicative and not an official determination.',
+note(wl, 25, 'Localisation ratios and minimum salaries come from the Ministry of Human Resources procedural guides. A Saudi paid below the minimum is not counted toward the ratio. Saudi-only professions (human resources, secretarial, reception, customer service and similar) are not transferred to foreign employees. When you also take Saudis through us, in a profession with a localisation decision or an ordinary one, no localisation fee applies to the part they cover; each Saudi has his own cost calculation (salary not below SAR 6,000, or the profession minimum if higher, plus insurance, end of service and leave). Fees for professions outside our approved categories are quoted on request. Results are indicative and not an official determination.',
      'نسب التوطين والحد الأدنى للأجور من الأدلة الإجرائية لوزارة الموارد البشرية. والسعودي الذي يقل أجره عن الحد الأدنى لا يُحتسب ضمن النسبة. والمهن المقصورة على السعوديين (الموارد البشرية والسكرتارية والاستقبال وخدمة العملاء ونحوها) لا تُنقل لموظفين أجانب. والمهن خارج فئاتنا المعتمدة تُسعَّر بالطلب. والنتائج استرشادية وليست تحديداً رسمياً.', 110)
 dvp = DataValidation(type='list', formula1=f'=Professions!$A$2:$A${NP}', allow_blank=False); wl.add_data_validation(dvp); dvp.add('B3')
 dvm = DataValidation(type='list', formula1='"12,24,36"'); wl.add_data_validation(dvm); dvm.add('B6')
@@ -593,7 +593,7 @@ if TRANSPARENT:
     r4(wbs, 7, 'Work permit and iqama payment frequency', 'Annual', 'دورية دفع رخصة العمل والإقامة', 'Quarterly, Half-yearly or Annual — client chooses', inp=True)
     r4(wbs, 8, 'Sponsorship transfer number (1, 2, 3 or more)', 1, 'رقم عملية نقل الكفالة (1 أو 2 أو 3 فأكثر)', 'Enter 3 for the third transfer and above', inp=True, fmt='0')
     r4(wbs, 9, 'Hiring a Saudi national? (Yes or No)', 'No', 'توظيف سعودي؟ (Yes أو No)', 'Localisation (Saudi) lines below', inp=True)
-    r4(wbs, 10, 'Saudi monthly salary (SAR)', 0, 'راتب السعودي الشهري (ريال)', 'Enter the agreed salary', inp=True, fmt='#,##0')
+    r4(wbs, 10, 'Saudi monthly salary (SAR)', 0, 'راتب السعودي الشهري (ريال)', 'Enter the agreed salary: not below SAR 6,000, or the profession minimum if higher', inp=True, fmt='#,##0')
     r4(wbs, 11, 'Saudi salary invoicing', 'Arrears', 'فوترة راتب السعودي', 'Arrears: invoiced after the first month of work and monthly thereafter (owner decision). Advance is available as an alternative', inp=True)
     r4(wbs, 12, 'Social insurance rate on the Saudi (employer share, %)', 0, 'نسبة التأمينات على السعودي (حصة صاحب العمل، %)', '[[To confirm]] — left at 0 until the official rate is confirmed', inp=True, fmt='0.00')
     r4(wbs, 13, 'Annual medical premium used (SAR)', f'=IF({CP}B7="Yes",Insurance!B12,600)', 'قسط التأمين الطبي السنوي المعتمد (ريال)', 'Insurance sheet or SAR 600', fmt=NUM)
