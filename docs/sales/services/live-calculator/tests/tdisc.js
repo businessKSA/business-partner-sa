@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1100,height:3000}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.goto('file://'+process.cwd()+'/index.html');await p.waitForTimeout(400);
+await p.goto('file://'+process.cwd()+'/index-demo.html');await p.waitForTimeout(400);
 for(const tab of ['lump','cost']){
  await p.click(`[data-tab=${tab}]`);await p.click('[data-demo="00"]');await p.waitForTimeout(300);
  const rd=async()=>{const t=await p.evaluate(()=>document.querySelectorAll('#main section.panel')[1].innerText);return {tot:(t.match(tab==='lump'?/السعر الشهري شامل الضريبة\s*\n?\s*([\d,]+)/:/إجمالي الفاتورة الشهرية\s*\n?\s*([\d,]+)/)||[])[1],disc:(t.match(/خصم الكود[^\n]*\n\s*−?([\d,]+)/)||[])[1]};};

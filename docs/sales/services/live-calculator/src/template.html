@@ -142,7 +142,7 @@ input[type=number]{-moz-appearance:textfield}
 <script>
 (function(){
 const D = JSON.parse(document.getElementById('data').textContent);
-const PROF = D.prof, NIT = D.nit, ACT = D.act, GUIDES = D.guides, OCC = D.occ, CTRY = D.countries;
+const PROF = D.prof, NIT = D.nit, ACT = D.act, GUIDES = D.guides, VIOL = D.viol||[], OCC = D.occ, CTRY = D.countries;
 const OCCG={}; GUIDES.forEach(g=>g.occupations.forEach(o=>{if(o.code){(OCCG[o.code]=OCCG[o.code]||[]).push([g,o]);}}));
 const PENG={}; PROF.forEach(p=>{if(p[1]==='Standard'&&p[2]===500) p[2]=900;});
 (function(){const have=new Set(PROF.map(p=>p[7]).filter(Boolean)); OCC.forEach(o=>{PENG[o[0]]=o[2]||''; if(!have.has(o[0])){have.add(o[0]); PROF.push([o[1]+' [ '+o[0]+' ]','Standard',900,0,0,0,'لا قرار توطين على هذه المهنة',o[0],0]);}});})();
@@ -159,13 +159,17 @@ const T={
  sub:{ar:'Business Partner · الأسعار بالريال السعودي · نسخة تجريبية للمعاينة',en:'Business Partner · prices in SAR · preview version'},
  notice:{ar:'نسخة معاينة داخلية: الأرقام من معادلات المالك، وبعض البنود موسومة «للتأكيد» حتى يعتمدها المالك.',en:'Internal preview: figures follow the owner’s formulas; items marked “to confirm” await the owner’s approval.'},
  foot:{ar:'كل المبالغ قبل ضريبة القيمة المضافة 15% ما لم يُذكر غير ذلك. الرسوم الحكومية بلا ضريبة والضريبة على رسوم شركة بزنس بارتنر فقط. لا وعد بأي نتيجة في نطاقات؛ والعقد الموقّع هو المرجع.',en:'All amounts exclude 15% VAT unless stated. Government fees carry no VAT; VAT applies only to our fee. No Nitaqat result is promised; the signed agreement governs.'},
- tabs:{nit:['النطاقات والتوطين','Nitaqat'],lump:['المبلغ المقطوع','Lump sum'],cost:['تكلفة زائد والدفعات','Cost plus & payments'],prof:['توطين المهن وأقل راتب','Professions'],hire:['تقييم موظف جديد','New-hire check'],team:['فريقك حسب المهن','Team by profession'],comp:['لوحة الامتثال','Compliance board'],rent:['بالساعة واليوم والأسبوع','Hourly · daily · weekly'],ot:['الساعات الإضافية','Overtime'],guides:['الأدلة والمهن','Guides & professions']}
+ tabs:{co:['بيانات الشركات (منشآتي)','My establishments'],nit:['النطاقات والتوطين','Nitaqat'],lump:['المبلغ المقطوع','Lump sum'],cost:['تكلفة زائد والدفعات','Cost plus & payments'],prof:['توطين المهن وأقل راتب','Professions'],hire:['تقييم موظف جديد','New-hire check'],team:['فريقك حسب المهن','Team by profession'],comp:['لوحة الامتثال','Compliance board'],viol:['المخالفات والتوقعات','Violations & forecast'],eos:['مكافأة نهاية الخدمة','End of service'],rent:['بالساعة واليوم والأسبوع','Hourly · daily · weekly'],ot:['الساعات الإضافية','Overtime'],guides:['الأدلة والمهن','Guides & professions']}
 };
 const CLIENT=__CLIENT__, DEMO=__DEMO__, FAWAZ=__FAWAZ__; const LOGO='__LOGO__'; // نسخة العميل: بلا وضع المالك ولا ملاحظات داخلية
 const S={ // state
  quote:{client:'',comp:'',no:'',email:''},
  disc:{on:false,code:'',pct:10,svc:true,loc:false,ops:false},
- tab:'nit',
+ tab:'co',
+ co:{list:[],cur:-1},
+ viol:{q:'',cat:'A',sc:{}},
+ eos:{type:'fixed',sal:0,start:'',end:'',reason:'1'},
+ coform:{name:'',no:'',act:'',full:0,part:0,foreign:0},
  owner:false,
  rent:{unit:'day',qty:1,nat:'IN',sal:1500},
  req:{lic:'',exp:'',lang:'',langLvl:'',edu:'',skill:'',skillName:'',skillLvl:''},
@@ -421,11 +425,11 @@ function nitCalc(c){
 function eosAmt(w,months){ // المادة 84: نصف شهر عن كل سنة من الخمس الأولى، وشهر عن كل سنة بعدها، وبنسبة أجزاء السنة
   const y=Math.max(0,(+months||0)/12); return w*(0.5*Math.min(y,5)+Math.max(0,y-5));
 }
-function eosResign(w,months){ // المادة 85: عند الاستقالة — لا شيء قبل سنتين، ثلث (2–5)، ثلثان (5–10)، كاملة (10+)
-  const y=(+months||0)/12, f=eosAmt(w,months); return y<2?0:y<=5?f/3:y<10?f*2/3:f;
+function eosResign(w,months){ // كما تعرضه حاسبة قوى: لا شيء قبل سنتين، ثلث (Y×نصف الراتب) حتى 6 سنوات، ثلثا المكافأة من 6 إلى 10، كاملة بعد 10
+  const y=(+months||0)/12, f=eosAmt(w,months); return y<2?0:y<6?y*w/2/3:y<10?f*2/3:f;
 }
 function eosHint(w,months){ if(!(w>0&&months>0)) return '';
-  return `<p class="hint" style="margin-top:8px">${tx('مكافأة نهاية الخدمة (نظام العمل، المواد 84–87): نصف شهر عن كل سنة من الخمس الأولى وشهر عن كل سنة بعدها بالأجر الأخير، وتُحتسب أجزاء السنة بنسبتها. عند انتهاء العقد أو إنهائه من صاحب العمل تُستحق كاملة: ','End of service (Labour Law arts. 84–87): half a month per year for the first five years and a full month per year after, on the last wage, pro-rated for part years. Paid in full when the contract ends or the employer ends it: ')}<b>${fmt(eosAmt(w,months))}</b> ${tx('لهذه المدة. وعند استقالة العامل: لا شيء قبل سنتين، وثلثها بين سنتين وخمس، وثلثاها بين خمس وعشر، وكاملة بعد عشر سنوات؛ ولا تُستحق كاملة عند الاستقالة إلا لقوة قاهرة أو لعاملة أنهت عقدها خلال 6 أشهر من الزواج أو 3 أشهر من الولادة.','for this term. If the worker resigns: nothing before two years, one third from two to five, two thirds from five to ten, full after ten; a resignation pays in full only for force majeure or a woman ending her contract within 6 months of marriage or 3 months of childbirth.')}</p>`;}
+  return `<p class="hint" style="margin-top:8px">${tx('مكافأة نهاية الخدمة (نظام العمل، المواد 84–87): نصف شهر عن كل سنة من الخمس الأولى وشهر عن كل سنة بعدها بالأجر الأخير، وتُحتسب أجزاء السنة بنسبتها. عند انتهاء العقد أو إنهائه من صاحب العمل تُستحق كاملة: ','End of service (Labour Law arts. 84–87): half a month per year for the first five years and a full month per year after, on the last wage, pro-rated for part years. Paid in full when the contract ends or the employer ends it: ')}<b>${fmt(eosAmt(w,months))}</b> ${tx('لهذه المدة. وعند استقالة العامل (عقد محدد المدة): لا شيء قبل سنتين، وثلث بين سنتين وست، وثلثان بين ست وعشر، وكاملة بعد عشر سنوات (كما تعرضها حاسبة قوى؛ والمادة 85 تجعل الثلثين بعد الخمس، فتُراجع)؛ ولا تُستحق كاملة عند الاستقالة إلا لقوة قاهرة أو لعاملة أنهت عقدها خلال 6 أشهر من الزواج أو 3 أشهر من الولادة.','for this term. If the worker resigns (fixed-term contract): nothing before two years, one third from two to six, two thirds from six to ten, full after ten (as the Qiwa calculator shows; art. 85 puts two thirds after five, so confirm); a resignation pays in full only for force majeure or a woman ending her contract within 6 months of marriage or 3 months of childbirth.')}</p>`;}
 function profCalc(c){
   const p=EP(c.prof); const ratio=p[3]/100, minW=p[4], minS=p[5];
   const sp=c.spart||0, eff=c.saudi+0.5*sp; // السعودي عن بعد أو بدوام جزئي يُحتسب نصفاً
@@ -869,6 +873,145 @@ function barHtml(){const n=S.nit; const r=nitCalc(n); const curLbl=r.cur<0?tx('�
    <div class="line" style="border:0"><span>${tx('نسبة السعودة الحالية والنطاق','Current Saudisation and band')}</span><b><span class="pill ${r.cur>=2?'ok':r.cur>=0?'warn':'bad'}">${curLbl} · ${fmt1(r.pct)}%</span></b></div></section>`;}
 function compactBar(){const n=S.nit; const a=ACT.find(x=>x[0]===n.act); const r=nitCalc(n); const curLbl=r.cur<0?tx('أحمر','Red'):tx(BANDS[r.cur][2],BANDS[r.cur][1]);
   return `<section class="panel" style="margin-bottom:16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap"><div><b>${tx('شركتك','Your company')}</b><br><small style="color:var(--muted)">${a?actLabel(a):tx('لم يُحدَّد النشاط بعد','Activity not set yet')} · ${n.grp} · <span class="pill ${r.cur>=2?'ok':r.cur>=0?'warn':'bad'}">${curLbl} · ${fmt1(r.pct)}%</span></small></div><button class="btn" data-gonit="1">${tx('تعديل في «النطاقات والتوطين»','Edit in “Nitaqat”')}</button></section>`;}
+
+/* ---------- بيانات الشركات (منشآتي): أول صفحة في كل النسخ ---------- */
+const coClone=r=>r.map(x=>({...x}));
+function coSync(){ const c=S.co; if(!c||c.cur<0||!c.list[c.cur]) return; const e=c.list[c.cur], n=S.nit;
+  Object.assign(e,{act:n.act,grp:n.grp,sug:n.sug,year:n.year,full:n.full,part:n.part,foreign:n.foreign}); e.rows=coClone(S.team.rows); }
+function coLoad(i){ coSync(); const e=S.co.list[i]; if(!e) return; S.co.cur=i;
+  Object.assign(S.nit,{act:e.act||'',grp:e.grp||S.nit.grp,sug:e.sug||'',year:e.year||2026,full:e.full||0,part:e.part||0,foreign:e.foreign||0,pq:'',oq:''});
+  S.team.rows=coClone(e.rows||[]); S.team.q=''; S.team.cat='all'; S.quote.comp=e.name||''; S.profAll=false; }
+function coAdd(){ const f=S.coform; if(!f.name.trim()) return false; const g=f.act?suggestGroup(f.act):null;
+  S.co.list.push({name:f.name.trim(),no:f.no.trim(),act:f.act,grp:g||S.nit.grp,sug:g?'ok':'',year:2026,full:f.full||0,part:f.part||0,foreign:f.foreign||0,rows:[]});
+  coLoad(S.co.list.length-1); S.coform={name:'',no:'',act:'',full:0,part:0,foreign:0}; return true; }
+function coDel(i){ const c=S.co; c.list.splice(i,1); if(c.cur===i) c.cur=-1; else if(c.cur>i) c.cur--; }
+function coSeedFawaz(){ if(!FAWAZ||S.co.list.length) return; const ix=c=>PROF.findIndex(p=>p[7]===c);
+  S.co.list=FAWAZ.est.map(e=>{const dt=FAWAZ.detail[e.no], act=dt&&dt.act?dt.act:'', g=act?suggestGroup(act):null;
+   return {name:e.n,no:e.no,act:act,grp:g||S.nit.grp,sug:g?'ok':'',year:2026,full:e.sa,part:0,foreign:e.fo,rows:dt?dt.rows.map(([c,sa,fo])=>({prof:ix(c),saudi:sa,spart:0,foreign:fo})).filter(r=>r.prof>0):[]};}); }
+function coDemo(){ const ix=c=>PROF.findIndex(p=>p[7]===c);
+  const mk=(name,no,act,full,part,foreign,rows)=>{const g=suggestGroup(act); return {name,no,act,grp:g||S.nit.grp,sug:g?'ok':'',year:2026,full,part,foreign,rows:rows.map(([c,sa,fo])=>({prof:ix(c),saudi:sa,spart:0,foreign:fo})).filter(r=>r.prof>0)};};
+  S.co.list=[
+   mk(tx('مطعم المثال','Sample restaurant'),'9-1001','561010',6,2,40,[['513101',2,16],['512001',1,8],['523001',2,4],['962101',1,5],['911203',0,4],['121101',0,1],['241101',0,2]]),
+   mk(tx('مكتب هندسي المثال','Sample engineering office'),'9-1002','711013',6,0,20,[['214201',0,5],['931301',0,1],['311211',0,3],['332201',0,7],['241101',0,4]]),
+   mk(tx('شركة المثال المعقّدة','Sample complex company'),'9-1003','711013',7,0,27,[['121207',1,0],['242304',1,0],['242310',0,1],['121204',0,1],['242401',0,2],['431301',1,1],['214201',1,6],['311211',0,5],['241101',2,3],['332201',1,4],['512001',0,2],['333301',0,1],['321102',0,1]])];
+  coLoad(0); }
+function coStat(e){ const r=nitCalc({grp:e.grp,year:e.year||2026,full:e.full,part:e.part,foreign:e.foreign}), hasTeam=(e.rows||[]).some(x=>x.prof>0&&(x.saudi+x.foreign+(x.spart||0))>0);
+  const A=hasTeam?compAnalyze(e):null, V=hasTeam?violForecast(e):null; return {r,hasTeam,A,V}; }
+function viewCo(){ if(FAWAZ) coSeedFawaz(); const c=S.co, f=S.coform;
+  const st=c.list.map(coStat);
+  const sum=st.reduce((t,x,i)=>{const e=c.list[i]; t.X+=x.r.X; t.sa+=x.r.sa; if(x.r.cur<0) t.red++; if(x.r.cur>=0&&x.r.cur<2) t.low++; if(!x.hasTeam) t.noTeam++; if(x.V){t.v+=x.V.total; t.mb+=x.V.maybe; if(x.A.bad||x.A.shortT||x.A.unl) t.bad++;} return t;},{X:0,sa:0,red:0,low:0,noTeam:0,v:0,mb:0,bad:0});
+  const rows=c.list.map((e,i)=>{ const {r,hasTeam,A,V}=st[i]; const a=ACT.find(x=>x[0]===e.act);
+    const band=r.cur<0?tx('أحمر','Red'):tx(BANDS[r.cur][2],BANDS[r.cur][1]);
+    const comp=!hasTeam?`<span class="pill warn">${tx('أضف فريقك','Add your team')}</span>`:`<span class="pill ${A.score>=100?'ok':A.score>=60?'warn':'bad'}">${A.score}%</span>${A.bad?` <small>${A.bad} ${tx('مخالفة','violation')}</small>`:''}${A.shortT?` <small>${tx('ناقص','short')} ${A.shortT}</small>`:''}${A.unl?` <small>${A.unl} ${tx('خارج النشاط','outside activity')}</small>`:''}`;
+    const vio=!hasTeam?'—':`<b>${fmt(V.total)}</b>${V.rows.length?`<br><small style="color:var(--muted)">${V.rows.length} ${tx('بند','items')}</small>`:''}`;
+    return `<tr${i===c.cur?' style="background:#EEF1FB"':''}><td><b>${e.name}</b>${i===c.cur?' <span class="pill ok">'+tx('المفتوحة','Open')+'</span>':''}<br><small style="color:var(--muted)">${e.no||''}</small></td><td>${a?actLabel(a)+'<br><small style="color:var(--muted)">'+gn(e.grp)+'</small>':'<span class="pill warn">'+tx('أضف النشاط','Add activity')+'</span>'}</td><td class="n">${r.X}<br><small style="color:var(--muted)">${tx('سعودي','Saudi')} ${r.sa.toFixed(1)}</small></td><td class="n">${fmt1(r.pct)}%</td><td><span class="pill ${r.cur>=2?'ok':r.cur>=0?'warn':'bad'}">${band}</span></td><td>${comp}</td><td class="n">${vio}</td><td><button class="btn" data-co-open="${i}">${tx('فتح','Open')}</button> <button class="btn" data-co-del="${i}" aria-label="${tx('حذف','Remove')}">✕</button></td></tr>`;}).join('');
+  const demo=DEMO?`<div class="demo"><b>${tx('ديمو — أضف منشآت مثال:','Demo — add sample establishments:')}</b><button type="button" id="co-demo">${tx('3 منشآت مثال (مطعم، مكتب هندسي، شركة معقّدة)','3 sample establishments (restaurant, engineering office, complex company)')}</button></div>`:'';
+  const summary=c.list.length?`<section class="panel"><h2>${tx('ملخص منشآتك','Summary of your establishments')}</h2><div class="res" style="max-width:640px">
+   ${line(tx('عدد المنشآت','Establishments'),c.list.length)}${line(tx('إجمالي العاملين','Total workforce'),sum.X)}${line(tx('السعوديون المحتسبون','Saudis counted'),sum.sa.toFixed(1))}${line(tx('منشآت في النطاق الأحمر','Establishments in the red band'),`<span class="pill ${sum.red?'bad':'ok'}">${sum.red}</span>`)}${line(tx('منشآت فيها خلل امتثال (مخالفة أو نقص توطين)','Establishments with a compliance defect (violation or shortfall)'),`<span class="pill ${sum.bad?'warn':'ok'}">${sum.bad}</span>`)}${line(tx('منشآت لم تُدخل فريقها بعد','Establishments without a team yet'),sum.noTeam)}
+   ${line(tx('إجمالي المخالفات المتوقعة (ضبط واحد)','Expected violations total (one inspection)'),fmt(sum.v),'total')}${sum.mb>0?line(tx('مخالفات محتملة إضافية (غير محسوبة في الإجمالي)','Additional possible violations (not in the total)'),fmt(sum.mb)):''}</div></section>`:'';
+  return `${demo}${summary}<section class="panel" style="margin-top:${summary?16:0}px"><h2>${tx('منشآتي — الحالة والامتثال والمخالفات','My establishments — status, compliance, violations')}</h2>
+   <p class="hint">${tx('أضف منشآتك هنا أولاً. اضغط «فتح» على أي منشأة لتعمل بها كل التبويبات (النطاقات، الفريق، الامتثال، التسعير). وما تغيّره فيها يُحفظ تلقائياً على المنشأة المفتوحة. الامتثال والمخالفات تظهر بعد إدخال فريق المنشأة حسب المهن.','Add your establishments here first. Press “Open” on one to use it across all tabs. Changes are saved on the open establishment automatically. Compliance and violations appear once the establishment’s team by profession is entered.')}</p>
+   ${c.list.length?`<div class="tbl"><table><thead><tr><th>${tx('المنشأة','Establishment')}</th><th>${tx('النشاط الفرعي والمجموعة','Sub-activity and group')}</th><th class="n">${tx('العاملون','Workers')}</th><th class="n">${tx('السعودة','Saudisation')}</th><th>${tx('النطاق','Band')}</th><th>${tx('الامتثال','Compliance')}</th><th class="n">${tx('مخالفات متوقعة','Expected violations')}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+   <p class="hint" style="margin-top:8px">${tx('النشاط الفرعي ومجموعته يظهران عند تحديد نشاط المنشأة. بيانات قوى المرفوعة لا تتضمن النشاط الفرعي لكل منشأة، فاختر النشاط للمنشأة المفتوحة من الخانة أسفل الجدول ثم تُقترح المجموعة تلقائياً.','The sub-activity and its group appear once the establishment’s activity is set. The uploaded Qiwa data does not carry each establishment’s sub-activity, so choose it for the open establishment in the box below the table and the group is suggested automatically.')}</p>
+   <div class="cta"><button class="btn primary" id="co-next" ${c.cur<0?'disabled':''}>${tx('التالي: النطاقات والتوطين ←','Next: Nitaqat →')}</button> <button class="btn" id="co-viol" ${c.cur<0?'disabled':''}>${tx('مخالفات المنشأة المفتوحة','Open establishment’s violations')}</button></div>`:`<p class="hint">${tx('لا منشآت بعد. أضف أول منشأة من النموذج أدناه.','No establishments yet. Add the first one with the form below.')}</p>`}</section>
+  ${c.cur>=0?barHtml():''}
+  <section class="panel" style="margin-top:16px"><h2>${tx('أضف منشأة','Add an establishment')}</h2>
+   <div class="row2">${fld('co-name',tx('اسم المنشأة','Establishment name'),f.name,{type:'text'})}${fld('co-no',tx('رقم مكتب العمل (اختياري)','Labour office number (optional)'),f.no,{type:'text'})}</div>
+   ${actFld('co-act',f.act)}
+   <div class="row2" style="grid-template-columns:repeat(3,minmax(0,1fr))">${fld('co-full',tx('سعوديون (دوام كامل)','Saudis (full-time)'),f.full,{step:1})}${fld('co-part',tx('سعوديون (جزئي)','Saudis (part-time)'),f.part,{step:1})}${fld('co-foreign',tx('غير سعوديين','Non-Saudis'),f.foreign,{step:1})}</div>
+   <div class="cta"><button class="btn primary" id="co-add">${tx('+ أضف المنشأة','+ Add establishment')}</button></div></section>`;
+}
+function coWire(re){
+  bind('coform',[['co-name','name','txt'],['co-no','no','txt'],['co-full','full','num'],['co-part','part','num'],['co-foreign','foreign','num']],re);
+  const a=document.getElementById('co-act'); if(a) a.addEventListener('change',()=>{const x=ACT.find(y=>actLabel(y)===a.value); if(x){S.coform.act=x[0]; render();}});
+  const add=document.getElementById('co-add'); if(add) add.addEventListener('click',()=>{ if(coAdd()) render(); else { const n=document.getElementById('co-name'); if(n) n.focus(); } });
+  document.querySelectorAll('[data-co-open]').forEach(b=>b.addEventListener('click',()=>{coLoad(+b.dataset.coOpen); render();}));
+  document.querySelectorAll('[data-co-del]').forEach(b=>b.addEventListener('click',()=>{coDel(+b.dataset.coDel); render();}));
+  const cv=document.getElementById('co-viol'); if(cv) cv.addEventListener('click',()=>{S.tab='viol'; render();});
+  const nx=document.getElementById('co-next'); if(nx) nx.addEventListener('click',()=>{S.tab='nit'; render();});
+  const dm=document.getElementById('co-demo'); if(dm) dm.addEventListener('click',()=>{coDemo(); render();});
+}
+
+/* ---------- المخالفات والتوقعات (القرار الوزاري 112377) ---------- */
+const VBY=Object.fromEntries(VIOL.map(v=>[v[0],v]));
+const VCATS=[['A','فئة (أ) — المخالفات العامة لكل الأنشطة','Category A — general violations, all activities'],['B','فئة (ب)','Category B'],['C','فئة (ج)','Category C'],['D','فئة (د) — عقود التشغيل والصيانة','Category D — operation & maintenance contracts'],['E','فئة (هـ)','Category E'],['F','فئة (و)','Category F'],['G','فئة (ز) — المنصات التشاركية','Category G — sharing platforms'],['H','فئة (ح)','Category H'],['I','فئة (ط) — الأفراد','Category I — individuals'],['J','فئة (ي) — صاحب العمل المنزلي','Category J — domestic employers'],['K','فئة (ك)','Category K']];
+const VSIZE=[['ج','≤ 20'],['ب','21–49'],['أ','≥ 50']];
+function vSize(est){ const n=est||S.nit, X=(n.full||0)+(n.part||0)+(n.foreign||0); return {X,k:X<=20?0:X<=49?1:2}; }
+function vFine(id,k){ const v=VBY[id]; return v?v[4+k]:null; }
+const VPRESETS=[['A-20',tx('عدد العمال غير السعوديين بلا رخصة عمل','Non-Saudi workers without a work permit')],['A-33',tx('عدد السعوديين المسجلين بلا علاقة عمل فعلية','Saudis registered without a real employment relationship')],['A-39',tx('عدد العمال الذين تأخرت أجورهم','Workers whose wages were late')],['A-40',tx('عدد الأشهر دون رفع ملف حماية الأجور','Months without a wage-protection file')],['A-34',tx('عدد العقود غير الموثقة إلكترونياً','Contracts not documented electronically')],['A-1',tx('مرات الإخلال بقواعد السلامة والصحة المهنية','Occasions of breaching safety and health rules')]];
+function violForecast(est){ // est: منشأة من القائمة (بلا سيناريوهات يدوية)، وبدونها المنشأة المفتوحة مع السيناريوهات
+  const {X,k}=vSize(est), A=compAnalyze(est), rows=[];
+  A.items.forEach(it=>{ const {r,x}=it;
+    if(it.st==='bad'&&r.foreign>0) rows.push({id:'A-29',n:r.foreign,sure:1,why:tx('مهنة مقصورة على السعوديين فيها أجانب: '+it.name,'Saudi-only profession with foreigners: '+it.name)});
+    if(it.st==='warn'&&x.short>0) rows.push({id:'A-30',n:x.short,sure:1,why:tx('تجاوز نسبة التوطين في '+it.name+' (الناقص '+x.short+')','Localisation ratio exceeded in '+it.name+' (short '+x.short+')')});
+    if(!it.linked&&r.foreign>0) rows.push({id:'A-21',n:r.foreign,sure:0,why:tx('مهنة ليست من مهن نشاطك في قوى: '+it.name+' — إن عمل الأجنبي بمهنة غير المدونة في رخصته','Profession not among your activity’s in Qiwa: '+it.name+' — if the foreigner works in a profession other than his permit’s')}); });
+  if(!est) VPRESETS.forEach(([id,why])=>{ const n=+S.viol.sc[id]||0; if(n>0) rows.push({id,n,sure:2,why}); });
+  rows.forEach(w=>{ w.fine=vFine(w.id,k); w.total=(w.fine||0)*w.n; w.v=VBY[w.id]; });
+  const cnt=rows.filter(w=>w.sure!==0), total=cnt.reduce((t,w)=>t+w.total,0), maybe=rows.filter(w=>w.sure===0).reduce((t,w)=>t+w.total,0), settle=cnt.reduce((t,w)=>t+(w.total>=1000?w.total*0.8:0),0);
+  return {X,k,rows,total,maybe,settle,A};
+}
+function violLink(){ if(S.tab!=='comp') return; const m=document.getElementById('main'); if(!m||m.querySelector('#bp-vlink')) return; const F=violForecast();
+  const d=document.createElement('section'); d.className='panel'; d.id='bp-vlink'; d.style.marginTop='16px';
+  d.innerHTML=`<h2>${tx('المخالفات المتوقعة إن لم يُصحَّح الوضع','Expected violations if the position is not corrected')}</h2><div class="res" style="max-width:560px">${line(tx('عدد البنود','Items'),F.rows.length)}${line(tx('إجمالي الغرامات المتوقعة (ضبط واحد)','Expected fines total (one inspection)'),fmt(F.total),'total')}</div><div class="cta"><button class="btn primary" id="bp-vgo">${tx('افتح المخالفات والتوقعات ←','Open violations & forecast →')}</button></div>`;
+  m.appendChild(d); document.getElementById('bp-vgo').addEventListener('click',()=>{S.tab='viol'; render();}); }
+function viewViol(){
+  const F=violForecast(), v=S.viol, kk=F.k, cl=VSIZE[kk];
+  const q=v.q.trim();
+  const list=VIOL.filter(x=>x[1]===v.cat&&(!q||x[2].includes(q)||x[0].toLowerCase().includes(q.toLowerCase()))).slice(0,80);
+  const unitTxt=w=>w.v&&w.v[7]?w.v[7]:'';
+  const rowsHtml=F.rows.map(w=>`<tr><td><b>${w.id}</b> · ${w.v?w.v[2]:''}</td><td>${w.why}</td><td><span class="pill ${w.sure===1?'bad':w.sure===0?'warn':''}">${w.sure===1?tx('متوقعة من بياناتك','From your data'):w.sure===0?tx('محتملة','Possible'):tx('سيناريو أدخلته','Your scenario')}</span></td><td class="n">${w.n}</td><td class="n">${w.fine==null?tx('لا ينطبق','n/a'):fmt(w.fine)}<br><small style="color:var(--muted)">${unitTxt(w)}</small></td><td class="n"><b>${fmt(w.total)}</b></td></tr>`).join('');
+  const reps=[1,2,3,6,12];
+  return `<section class="panel"><h2>${tx('المخالفات المتوقعة على منشأتك','Expected violations on your establishment')}</h2>
+   <p class="hint">${tx('تُحسب من قرار وزير الموارد البشرية رقم 112377 (21/8/1447هـ). فئة المنشأة حسب عدد العاملين: ','Calculated from the Minister’s decision 112377 (21/8/1447 AH). Establishment class by workforce: ')}<b>${tx('الفئة '+cl[0]+' ('+cl[1]+' عاملاً)','Class '+cl[0]+' ('+cl[1]+' workers)')}</b> — ${tx('عدد عاملي منشأتك','your workforce')} ${F.X}. ${tx('عدّل أعداد العاملين من صفحة بيانات الشركات.','Change the workforce on the Company data page.')}</p>
+   ${F.rows.length?`<div class="tbl"><table><thead><tr><th>${tx('المخالفة','Violation')}</th><th>${tx('سبب توقعها','Why expected')}</th><th>${tx('الدرجة','Level')}</th><th class="n">${tx('العدد','Count')}</th><th class="n">${tx('الغرامة للوحدة','Fine per unit')}</th><th class="n">${tx('الإجمالي','Total')}</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>`:`<p class="hint">${tx('لا مخالفات متوقعة من بيانات فريقك الحالية. أضف مهن فريقك في تبويب «فريقك حسب المهن» أو أدخل سيناريو أدناه.','No violations are expected from your current team. Add your professions in the team tab or enter a scenario below.')}</p>`}
+   <div class="res" style="margin-top:12px;max-width:620px">${line(tx('إجمالي الغرامات المتوقعة (ضبط واحد)','Expected fines total (one inspection)'),fmt(F.total),'total')}
+    ${F.maybe>0?line(tx('محتملة إضافية (غير محسوبة في الإجمالي)','Additional possible (not in the total)'),fmt(F.maybe)):''}
+    ${F.total>0?line(tx('تقدير بعد التسوية (تخفيض 80% لأول مرة، بشروط القرار 93442)','Estimate after settlement (80% off, first time, under decision 93442 conditions)'),fmt(F.total-F.settle)):''}</div>
+   <p class="hint" style="margin-top:8px">${tx('التسوية: للمخالفة الأولى على المنشأة فقط، خلال 90 يوماً من التبليغ، بإزالة المخالفة، وبغرامة غير مسددة لا تقل عن 1,000 ريال. والتقدير هنا مبدئي ولا يعني قبول الطلب.','Settlement: for the establishment’s first violation only, within 90 days of notification, with the violation removed and an unpaid fine of at least SAR 1,000. The estimate here is indicative and does not mean the request is accepted.')}</p></section>
+  <section class="panel" style="margin-top:16px"><h2>${tx('لو تكررت المخالفة','If the violation repeats')}</h2>
+   <p class="hint">${tx('الجدول لا يضع زيادة تلقائية عند التكرار في الفئة (أ)؛ فكل ضبط جديد لنفس الخلل مخالفة جديدة بالقيمة نفسها، وتتعدد الغرامة بعدد العمال أو الحالات كما في كل بند. التدرج (إنذار ثم تعليق ثم سحب الترخيص) يخص شركات الاستقدام والموارد البشرية في فئتي (هـ، و). والجدول أدناه حساب بسيط لعدد مرات الضبط إن بقي الخلل دون تصحيح.','The table adds no automatic increase on repetition in Category A: each new inspection of the same defect is a new violation of the same value, multiplied by workers or cases per item. Escalation (warning, suspension, licence withdrawal) applies to recruitment and HR companies in categories E and F. The table below is a simple count of inspections if the defect stays uncorrected.')}</p>
+   <div class="tbl"><table><thead><tr><th>${tx('عدد مرات الضبط','Inspections')}</th>${reps.map(r=>`<th class="n">${r}</th>`).join('')}</tr></thead><tbody><tr><td>${tx('إجمالي الغرامات','Total fines')}</td>${reps.map(r=>`<td class="n">${fmt(F.total*r)}</td>`).join('')}</tr></tbody></table></div></section>
+  <section class="panel" style="margin-top:16px"><h2>${tx('سيناريوهات تضيفها أنت','Scenarios you add')}</h2>
+   <p class="hint">${tx('أدخل عدداً لما قد يقع، فيدخل في الحساب أعلاه.','Enter a number for what may occur and it enters the total above.')}</p>
+   <div class="row2">${VPRESETS.map(([id,lb])=>fld('v-sc-'+id,lb+' ('+id+')',+v.sc[id]||0,{step:1})).join('')}</div></section>
+  <section class="panel" style="margin-top:16px"><h2>${tx('دليل المخالفات','Violations guide')}</h2>
+   <div class="row2">${fld('v-q',tx('بحث بنص المخالفة','Search the violation text'),v.q,{type:'search'})}${fld('v-cat',tx('الفئة','Category'),v.cat,{list:VCATS.map(c=>[c[0],tx(c[1],c[2])])})}</div>
+   <div class="tbl"><table><thead><tr><th>#</th><th>${tx('وصف المخالفة','Violation')}</th><th>${tx('التصنيف','Class')}</th><th class="n">${tx('ج (≤20)','C (≤20)')}</th><th class="n">${tx('ب (21–49)','B (21–49)')}</th><th class="n">${tx('أ (≥50)','A (≥50)')}</th><th>${tx('التعدد','Multiplied by')}</th></tr></thead><tbody>
+   ${list.map(x=>`<tr><td>${x[0]}</td><td>${x[2]}</td><td>${x[3]||'—'}</td>${x[9]&&x[4]==null&&x[5]==null&&x[6]==null?`<td colspan="4">${x[9]}</td>`:[4,5,6].map(i=>`<td class="n"${(i-4)===kk?' style="background:#EEF1FB"':''}>${x[i]==null?tx('لا ينطبق','n/a'):fmt(x[i])}</td>`).join('')+`<td>${x[7]||'—'}</td>`}</tr>`).join('')}</tbody></table></div>
+   <p class="hint" style="margin-top:8px">${tx('المرجع: قرار وزير الموارد البشرية والتنمية الاجتماعية رقم 112377 (21/8/1447هـ، 9 فبراير 2026م)، يُعمل به من تاريخ نشره (25 فبراير 2026) عدا الفئات (ح، ط، ي، ك) فبعد 120 يوماً. الاعتراض خلال 60 يوماً من التبليغ ولا يوقف الغرامة. للاسترشاد، والمرجع النهائي نص القرار.','Reference: Minister of Human Resources and Social Development decision 112377 (21/8/1447 AH, 9 Feb 2026), effective from publication (25 Feb 2026) except categories H, I, J, K after 120 days. Objection within 60 days of notification and it does not suspend the fine. For guidance; the decision text is the final reference.')}${CLIENT?'':' '+tx('(داخلي: بنود 29 و30 و33 قُورنت بصورة القرار؛ باقي الصفوف منقولة آلياً وتُراجع قبل اعتمادها في عرض عميل.)','(Internal: items 29, 30 and 33 were checked against the decision image; the other rows were transcribed automatically and need review before a client proposal.)')}</p></section>`;
+}
+function violWire(re){
+  bind('viol',[['v-q','q','txt'],['v-cat','cat','sel']],re);
+  VPRESETS.forEach(([id])=>{ const e=document.getElementById('v-sc-'+id); if(e) e.addEventListener('input',()=>{const n=parseFloat(e.value); S.viol.sc[id]=isFinite(n)&&n>=0?n:0; render(e.id);}); });
+}
+
+/* ---------- مكافأة نهاية الخدمة: معادلة حاسبة قوى (مستخلصة من 47 تجربة، 2026-10-23) ---------- */
+const EOS_FIXED=[['1','استقالة الموظف','Employee resignation','resign'],['2','فسخ العقد خلال فترة التجربة (م53)','Termination during probation (art. 53)','zero'],['3','باتفاق الطرفين (م74)','By mutual agreement (art. 74)','full'],['4','فسخ من صاحب العمل (م80)','Dismissal by the employer (art. 80)','zero'],['5','انتهاء العقد بانتهاء مدته','Contract expiry','full'],['6','بلوغ سن التقاعد (م74)','Retirement age (art. 74)','full'],['7','إغلاق المنشأة نهائياً (م74)','Permanent closure (art. 74)','full'],['8','إنهاء النشاط (م74)','End of the activity (art. 74)','full'],['9','عجز العامل عن العمل (م79)','Worker incapacity (art. 79)','full'],['10','إنهاء العقد دون سبب مشروع (م77)','Termination without a valid reason (art. 77)','full'],['11','وفاة العامل (م79)','Worker’s death (art. 79)','full'],['12','عجز ناتج عن إصابة عمل (م137)','Work-injury disability (art. 137)','full'],['13','انتقال ملكية المنشأة الفردية (م18)','Transfer of a sole establishment (art. 18)','full'],['14','إنهاء المرأة العقد بسبب الوضع (م87)','Woman ends the contract after childbirth (art. 87)','full'],['15','إنهاء المرأة العقد بسبب الزواج (م87)','Woman ends the contract after marriage (art. 87)','full'],['16','وفاة صاحب العمل (م79)','Employer’s death (art. 79)','full'],['17','فسخ العقد من قبل العامل (م81)','Termination by the worker (art. 81)','full']];
+const EOS_OPEN=EOS_FIXED.filter(r=>!['1','5'].includes(r[0])).concat([['18','بإرادة أحد الطرفين المنفردة في العقود غير محددة المدة','By one party’s sole will in an open-ended contract','full']]);
+function eosYears(a,b){ // الشهر 30 يوماً والسنة 360، ويُحتسب يوم النهاية
+  const st=new Date(a+'T00:00:00Z'), en=new Date(b+'T00:00:00Z'); if(isNaN(st)||isNaN(en)||en<st) return null; const e=new Date(en.getTime()+864e5);
+  let y=e.getUTCFullYear()-st.getUTCFullYear(), m=e.getUTCMonth()-st.getUTCMonth(), d=e.getUTCDate()-st.getUTCDate();
+  if(d<0){m--; d+=30;} if(m<0){y--; m+=12;} return {y:y+m/12+d/360,yr:y,mo:m,dy:d};
+}
+function eosCalcQ(sal,Y,kind){ const R=Y<=5?Y*sal/2:5*sal/2+(Y-5)*sal;
+  const fin=kind==='zero'?0:kind==='full'?R:Y<2?0:Y<6?Y*sal/2/3:Y<10?R*2/3:R; return {R,fin,f:kind==='zero'?0:kind==='full'?1:(R?fin/R:0)}; }
+function viewEos(){ const e=S.eos, list=e.type==='open'?EOS_OPEN:EOS_FIXED; if(!list.some(r=>r[0]===e.reason)) e.reason=list[0][0];
+  const rs=list.find(r=>r[0]===e.reason), yy=(e.start&&e.end)?eosYears(e.start,e.end):null, ok=yy&&e.sal>0, c=ok?eosCalcQ(+e.sal,yy.y,rs[3]):null;
+  const nm=r=>tx(r[1],r[2]);
+  return `<div class="grid"><section class="panel"><h2>${tx('المدخلات','Inputs')}</h2>
+   <p class="hint">${tx('المعادلة مستخلصة من نتائج حاسبة مكافأة نهاية الخدمة في منصة قوى (47 حالة تطابقت)، وليست نصاً رسمياً من قوى. للمبلغ الرسمي يُعتمد ما تعرضه حاسبة قوى أو نص نظام العمل.','The formula is derived from the results of the Qiwa end-of-service calculator (47 cases matched); it is not official Qiwa text. For the official amount rely on the Qiwa calculator or the Labour Law text.')}</p>
+   ${fld('e-type',tx('نوع العقد','Contract type'),e.type,{list:[['fixed',tx('محدد المدة','Fixed term')],['open',tx('غير محدد المدة','Open-ended')]]})}
+   ${fld('e-sal',tx('الراتب الإجمالي (الأساسي والبدلات)','Total salary (basic + allowances)'),e.sal,{step:1})}
+   <div class="row2">${fld('e-start',tx('بداية العقد','Contract start'),e.start,{type:'date'})}${fld('e-end',tx('نهاية العقد','Contract end'),e.end,{type:'date'})}</div>
+   ${fld('e-reason',tx('سبب إنهاء العلاقة','Reason for ending the relationship'),e.reason,{list:list.map(r=>[r[0],nm(r)])})}</section>
+  <section class="panel"><h2>${tx('النتيجة','Result')}</h2>${ok?`<div class="res">
+   ${line(tx('مدة الخدمة','Length of service'),yy.yr+' '+tx('سنة','y')+' '+yy.mo+' '+tx('شهر','m')+' '+yy.dy+' '+tx('يوم','d')+' = '+yy.y.toFixed(4))}
+   ${line(tx('المكافأة الأساسية (R)','Base award (R)'),fmt(c.R))}
+   ${line(tx('معامل السبب','Reason factor'),c.f===1?tx('كاملة','Full'):c.f===0?'0':fmt1(c.f*100)+'%')}
+   ${line(tx('مكافأة نهاية الخدمة المستحقة','End of service due'),fmt(c.fin),'total')}</div>
+   <p class="hint" style="margin-top:10px">${tx('R = الخدمة × نصف الراتب لأول 5 سنوات، وشهر عن كل سنة بعدها. الاستقالة في العقد المحدد: لا شيء قبل سنتين، وثلث (الخدمة × نصف الراتب ÷ 3) من سنتين إلى أقل من 6، وثلثا R من 6 إلى أقل من 10، وR كاملة بعد 10. فسخ التجربة (م53) وفسخ صاحب العمل (م80): صفر. وكل ما عداها R كاملة.','R = years × half salary for the first 5 years, then a full month per year. Resignation in a fixed-term contract: nothing before 2 years; one third (years × half salary ÷ 3) from 2 to under 6; two thirds of R from 6 to under 10; full R after 10. Probation termination (art. 53) and dismissal by the employer (art. 80): zero. Every other reason pays full R.')}</p>
+   <p class="hint">${tx('تنبيه: بين 5 و6 سنوات تحسب حاسبة قوى الثلث على (الخدمة × نصف الراتب) دون رفع المعدل بعد السنة الخامسة، والمادة 85 من نظام العمل تجعل الثلثين بعد الخمس؛ فراجع النص قبل الاعتماد.','Note: between 5 and 6 years the Qiwa calculator applies the third on (years × half salary) with no rate rise after year 5, while art. 85 of the Labour Law puts two thirds after five; check the text before relying on it.')}</p>`:`<p class="hint">${tx('أدخل الراتب وتاريخي بداية ونهاية العقد لتظهر النتيجة.','Enter the salary and the contract start and end dates to see the result.')}</p>`}</section></div>`;
+}
 function viewNit(){
   const c=S.nit,r=nitCalc(c);
   const groups=Object.keys(NIT).map(g=>[g,gn(g)]);
@@ -972,8 +1115,8 @@ function teamLocPanel(rows){
 
 function profShort(i){return profName(i).replace(/ \[[^\]]*\]$/,'').split(' · ')[0];}
 function saudiCost(m){const g=gosiRates(S.sa), base=Math.min(45000,m*(S.sb.basic+S.sb.housing)/100); return m+base*g.er/100+base*g.ee/100+m/24+m/30*21/12;}
-function compAnalyze(){
-  const n=S.nit, rows=S.team.rows, sc=n.act?actOccSet(n.act):null;
+function compAnalyze(est){
+  const n=est||S.nit, rows=est?(est.rows||[]):S.team.rows, sc=n.act?actOccSet(n.act):null;
   const items=rows.filter(r=>r.prof>0&&(r.saudi+r.foreign)>0).map(r=>{
     const x=profCalc({prof:r.prof,saudi:r.saudi,spart:r.spart,foreign:r.foreign,term:S.team.term}), code=PROF[r.prof][7]||'';
     const linked=!sc||(!!code&&sc.has(code)); let st='ok';
@@ -1003,13 +1146,13 @@ function snapSave(a){try{localStorage.setItem(SNAPKEY,JSON.stringify(a.slice(-30
 
 function fzLoad(i){
   const e=FAWAZ.est[i], dt=FAWAZ.detail[e.no]; const ix=c=>PROF.findIndex(p=>p[7]===c);
-  S.fzSel=i; const act=dt&&dt.act?dt.act:'';
+  coSeedFawaz(); S.co.cur=i; S.fzSel=i; const act=dt&&dt.act?dt.act:'';
   const g=act?suggestGroup(act):null;
   Object.assign(S.nit,{act:act,sug:g?'ok':'',grp:g||S.nit.grp,year:2026,full:e.sa,part:0,foreign:e.fo,pq:'',oq:''}); S.profAll=false;
   S.team.term=12; S.team.q=''; S.team.cat='all';
   S.team.rows=dt?dt.rows.map(([c,sa,fo])=>({prof:ix(c),saudi:sa,foreign:fo})).filter(r=>r.prof>0):[];
   S.quote.client=FAWAZ.client; S.quote.comp=e.n; S.quote.no='';
-  if(S.tab!=='nit'&&S.tab!=='team'&&S.tab!=='comp') S.tab='comp';
+  if(S.tab!=='co'&&S.tab!=='nit'&&S.tab!=='team'&&S.tab!=='comp') S.tab='comp';
   render();
 }
 function fawazPanel(){
@@ -1237,6 +1380,7 @@ function wireCopy(kind,extra){
   b.addEventListener('click',()=>{const txt=summaryText(kind,extra);const done=ok=>{const e=document.getElementById('copied'); if(e) e.textContent=ok?tx('تم النسخ.','Copied.'):tx('تعذّر النسخ — حدّد النص يدوياً.','Copy failed — select the text manually.'); if(!ok&&e){e.textContent+='\n'+txt;}};
     try{navigator.clipboard.writeText(txt).then(()=>done(true),()=>done(false));}catch(e){done(false);}});
 }
+const INIT_ALL=JSON.stringify(S);
 const INIT_JSON=JSON.stringify({lump:S.lump,cost:S.cost,ins:S.ins,extra:S.extra,sb:S.sb,req:S.req,sa:S.sa});
 const REQ_IDS={lump:[['l-term',()=>tx('مدة العقد','Contract term')],['l-src',()=>tx('مصدر العامل','Worker source')],['l-qty',()=>tx('عدد العمال','Headcount')],['i-gender',()=>tx('الجنس','Gender')],['l-sal',()=>tx('الراتب الإجمالي','Total salary')]],cost:[['c-term',()=>tx('مدة العقد','Contract term')],['c-src',()=>tx('مصدر العامل','Worker source')],['c-qty',()=>tx('عدد العمال','Headcount')],['i-gender',()=>tx('الجنس','Gender')],['c-sal',()=>tx('الراتب الإجمالي','Total salary')]]};
 function missingFor(tab){const c=S[tab]; const m=REQ_IDS[tab].filter(([id])=>!S.touched[id]).map(([,l])=>l());
@@ -1298,7 +1442,7 @@ function fillDemo(loc,abroad){
  S.ins.gender='male'; touchAllIds(); S.step=S.step||{}; S.step[tab]=1; render();
 }
 
-function fillCompany(){ // شركة مثال كاملة (مطعم): نشاط ومجموعة وسعوديون وأجانب وفريق حسب المهن
+function fillCompany(){ S.co.cur=-1; // شركة مثال كاملة (مطعم): نشاط ومجموعة وسعوديون وأجانب وفريق حسب المهن
  const ix=c=>PROF.findIndex(p=>p[7]===c);
  const g=suggestGroup('561010');
  Object.assign(S.nit,{act:'561010',sug:g?'ok':'none',grp:g||S.nit.grp,year:2026,full:6,part:2,foreign:40,pq:'',oq:''}); S.profAll=false;
@@ -1307,7 +1451,7 @@ function fillCompany(){ // شركة مثال كاملة (مطعم): نشاط و�
  render();
 }
 
-function fillCompany2(){ // شركة مثال بمهن موطّنة كثيرة: هندسية وفنية ومبيعات ومحاسبة
+function fillCompany2(){ S.co.cur=-1; // شركة مثال بمهن موطّنة كثيرة: هندسية وفنية ومبيعات ومحاسبة
  const ix=c=>PROF.findIndex(p=>p[7]===c);
  const g=suggestGroup('711013');
  Object.assign(S.nit,{act:'711013',sug:g?'ok':'none',grp:g||S.nit.grp,year:2026,full:6,part:0,foreign:20,pq:'',oq:''}); S.profAll=false;
@@ -1316,7 +1460,7 @@ function fillCompany2(){ // شركة مثال بمهن موطّنة كثيرة: 
  S.tab='team'; render();
 }
 
-function fillCompany3(){ // شركة معقّدة: 6 موارد بشرية بمسميات مختلفة + مهن موطّنة + مهن غير مرتبطة بالنشاط
+function fillCompany3(){ S.co.cur=-1; // شركة معقّدة: 6 موارد بشرية بمسميات مختلفة + مهن موطّنة + مهن غير مرتبطة بالنشاط
  const ix=c=>PROF.findIndex(p=>p[7]===c);
  const g=suggestGroup('711013');
  Object.assign(S.nit,{act:'711013',sug:g?'ok':'none',grp:g||S.nit.grp,year:2026,full:7,part:0,foreign:27,pq:'',oq:''}); S.profAll=false;
@@ -1324,7 +1468,7 @@ function fillCompany3(){ // شركة معقّدة: 6 موارد بشرية بم�
  S.team.rows=[['121207',1,0],['242304',1,0],['242310',0,1],['121204',0,1],['242401',0,2],['431301',1,1],['214201',1,6],['311211',0,5],['241101',2,3],['332201',1,4],['512001',0,2],['333301',0,1],['321102',0,1]].map(([c,sa,fo])=>({prof:ix(c),saudi:sa,foreign:fo})).filter(r=>r.prof>0);
  S.tab='comp'; render();
 }
-function fillTeamCase(k){ // نماذج الفريق: سعوديون فقط (بسيط/معقد) وسعوديون وأجانب (بسيط/معقد)
+function fillTeamCase(k){ S.co.cur=-1; // نماذج الفريق: سعوديون فقط (بسيط/معقد) وسعوديون وأجانب (بسيط/معقد)
  const ix=c=>PROF.findIndex(p=>p[7]===c);
  const set=(act,full,part,foreign,rows)=>{const g=suggestGroup(act);
   Object.assign(S.nit,{act:act,sug:g?'ok':'none',grp:g||S.nit.grp,year:2026,full:full,part:part,foreign:foreign,pq:'',oq:''}); S.profAll=false;
@@ -1351,10 +1495,16 @@ function quickDemo(){
  m.insertBefore(d,m.firstChild);
  d.querySelectorAll('[data-demo]').forEach(b=>b.addEventListener('click',()=>fillDemo(+b.dataset.demo[0],+b.dataset.demo[1])));
 }
-function resetWire(){ // العميل يسعّر لنفسه: زر «ابدأ من جديد» يمسح كل المدخلات ليصحح خطأً أو يبدّل
+function resetAll(){ // يمسح كل المدخلات ويعيد الحاسبة لحالتها الأولى (بلا reload ولا confirm: الإطار المعزول يمنعهما)
+  const d=JSON.parse(INIT_ALL); Object.keys(S).forEach(k=>{ if(!(k in d)) delete S[k]; }); Object.keys(d).forEach(k=>{ S[k]=d[k]; });
+  S.touched={}; S.step={}; S.tab='co'; S.owner=false; render();
+}
+function resetWire(){ // العميل يسعّر لنفسه: «ابدأ من جديد» بضغطتين (الثانية للتأكيد) يمسح كل المدخلات ليصحح خطأً أو يبدّل
  if(!CLIENT||document.getElementById('bp-reset')) return; const m=document.getElementById('main'); if(!m) return;
- const b=document.createElement('button'); b.type='button'; b.id='bp-reset'; b.className='btn'; b.style.cssText='margin:6px 0'; b.textContent=tx('ابدأ من جديد (مسح كل المدخلات)','Start over (clear all inputs)');
- b.addEventListener('click',()=>{ if(confirm(tx('سيُمسح كل ما أدخلته. متابعة؟','Everything you entered will be cleared. Continue?'))) location.reload(); }); m.insertBefore(b,m.firstChild);
+ const b=document.createElement('button'); b.type='button'; b.id='bp-reset'; b.className='btn'; b.style.cssText='margin:6px 0'; const lbl=tx('ابدأ من جديد (مسح كل المدخلات)','Start over (clear all inputs)'); b.textContent=lbl;
+ let armed=false,tm=0;
+ b.addEventListener('click',()=>{ if(!armed){ armed=true; b.textContent=tx('اضغط مرة أخرى للتأكيد: سيُمسح كل ما أدخلته','Press again to confirm: everything you entered will be cleared'); b.classList.add('primary'); tm=setTimeout(()=>{armed=false; b.textContent=lbl; b.classList.remove('primary');},5000); return; } clearTimeout(tm); resetAll(); });
+ m.insertBefore(b,m.firstChild);
 }
 function cleanClient(){
  if(!CLIENT) return;
@@ -1368,14 +1518,14 @@ function cleanClient(){
   if(v!==o) x.nodeValue=v;});
  document.querySelectorAll('.pill.warn').forEach(e=>{if(/مسودة|Draft|بانتظار|await/i.test(e.textContent)) e.remove();});
 }
-function render(focusId){ try{ __render(focusId); stepify(); markRequired(); quickDemo(); caseBar(); compWire(); quoteWire(); discWire(); resetWire(); }finally{ cleanClient(); } }
+function render(focusId){ try{ coSync(); __render(focusId); stepify(); markRequired(); quickDemo(); caseBar(); violLink(); compWire(); quoteWire(); discWire(); resetWire(); }finally{ cleanClient(); } }
 function __render(focusId){
   $('#app').dir=L==='ar'?'rtl':'ltr'; $('#app').lang=L;
   $('#t-title').textContent=t('title'); $('#t-sub').textContent=t('sub'); $('#t-notice').textContent=t('notice'); $('#t-foot').textContent=t('foot');
   document.title=t('title');
   ['ar','en','fr','zh'].forEach(k=>$('#lang-'+k).setAttribute('aria-pressed',L===k));
   $('#tabs').innerHTML=Object.keys(T.tabs).map(k=>`<button role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${L==='ar'?T.tabs[k][0]:(L==='en'?T.tabs[k][1]:trn(T.tabs[k][1]))}</button>`).join('');
-  const views={lump:viewLump,cost:viewCost,nit:viewNit,prof:viewProf,hire:viewHire,team:viewTeam,comp:viewComp,ot:viewOt,rent:viewRent,guides:viewGuides};
+  const views={eos:viewEos,viol:viewViol,co:viewCo,lump:viewLump,cost:viewCost,nit:viewNit,prof:viewProf,hire:viewHire,team:viewTeam,comp:viewComp,ot:viewOt,rent:viewRent,guides:viewGuides};
   $('#main').innerHTML=(S.tab==='nit'?barHtml():['prof','hire','team','comp','guides'].includes(S.tab)?compactBar():'')+gate(views[S.tab]())+(CLIENT?'':`<p style="margin-top:18px;text-align:center"><button class="btn" id="own" title="${tx('وضع المالك (للمعاينة فقط)','Owner mode (preview only)')}" style="font-size:11px;padding:2px 10px;opacity:${S.owner?1:.45}">⚙ ${S.owner?tx('إخفاء وضع المالك','Hide owner mode'):''}</button></p>`);
   if(!CLIENT) document.getElementById('own').addEventListener('click',()=>{S.owner=!S.owner;render();});
   const re=id=>render(id);
@@ -1424,6 +1574,9 @@ function __render(focusId){
   if(S.tab==='cost'){bind('cost',[['c-sal','sal','num'],['c-qty','qty','int'],['c-prof','prof','prof'],['c-med','med','num'],['c-xfer','xfer','num'],['c-tkt1','tkt1','num'],['c-exitv','exitv','num'],['c-arr','arr','num'],['c-abroad','abroad','sel'],['c-nat','nat','sel'],['c-rec','rec','num'],['c-con','con','num'],['c-freq','freq','sel'],['c-trn','trn','int'],['c-saudi','saudi','sel'],['c-ssal','ssal','num'],['c-sinv','sinv','sel'],['c-sgosi','sgosi','num']],re);
     document.querySelectorAll('input[name=mode]').forEach(x=>x.addEventListener('change',()=>{S.cost.mode=x.value;render();}));
     const sc=schedCalc(S.cost); wireCopy('cost',{advance:S.cost.mode==='start'?sc.tot[0]:sc.grand});}
+  if(S.tab==='co') coWire(re);
+  if(S.tab==='viol') violWire(re);
+  if(S.tab==='eos') bind('eos',[['e-type','type','sel'],['e-sal','sal','num'],['e-start','start','txt'],['e-end','end','txt'],['e-reason','reason','sel']],re);
   if(S.tab==='nit') bind('nit',[['n-q','pq','txt'],['n-oq','oq','txt'],['n-act','act','act'],['n-grp','grp','sel'],['n-year','year','int'],['n-target','target','sel'],['n-full','full','num'],['n-part','part','num'],['n-foreign','foreign','num']],re);
   if(S.tab==='hire') bind('hire',[['h-who','who','sel'],['h-nat','nat','sel'],['h-trn','trn','int'],['h-rec','rec','num'],['h-prof','prof','prof'],['h-qty','qty','num'],['h-sal','sal','num'],['h-term','term','int'],['h-psaudi','psaudi','num'],['h-pforeign','pforeign','num'],['h-q','__pq','txt'],['h-act','__act','act'],['h-grp','__grp','sel'],['h-year','__year','sel'],['h-full','__full','num'],['h-part','__part','num'],['h-foreign','__foreign','num']],re);
 
@@ -1452,7 +1605,7 @@ $('#lang-ar').addEventListener('click',()=>{L='ar';render();});
 $('#lang-en').addEventListener('click',()=>{L='en';render();});
 $('#lang-fr').addEventListener('click',()=>{L='fr';render();});
 $('#lang-zh').addEventListener('click',()=>{L='zh';render();});
-if(FAWAZ){ S.tab='comp'; fzLoad(9); } else if(DEMO){ S.quote.client='العميل التجريبي · Demo Client'; S.quote.comp='شركة المثال للاستشارات الهندسية · Example Engineering Consultancy'; S.tab='lump'; fillDemo(1,0); S.tab='cost'; fillDemo(1,0); fillCompany3(); }
+if(FAWAZ){ S.tab='co'; fzLoad(9); } else if(DEMO){ S.quote.client='العميل التجريبي · Demo Client'; S.quote.comp='شركة المثال للاستشارات الهندسية · Example Engineering Consultancy'; S.tab='lump'; fillDemo(1,0); S.tab='cost'; fillDemo(1,0); fillCompany3(); coDemo(); coLoad(2); S.tab='co'; render(); }
 render();
 })();
 </script>
