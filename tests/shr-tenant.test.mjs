@@ -98,5 +98,13 @@ for (const t of ["shr_client_companies", "shr_contracts", "shr_requests", "shr_a
   ok(calls.at(-1).p === `${t}?tenant_id=eq.${A}&select=id` && throws(() => a.get(`${t}?tenant_id=eq.${B}`)), `${t}: pinned to the session tenant`);
 }
 
+console.log("\n10. The worker role is not staff in the gate; the tables behind the worker portal are the same gated ones");
+ok(ROLES.includes("worker") && ctxFrom({ tenant_id: A, role: "worker" }).staff === false, "worker is known to the gate and is not staff");
+ok(/shr_users_worker_fk/.test(SQL) && /shr_users_worker_role/.test(SQL) && /shr_requests_scope/.test(SQL) && /shr_requests_worker_fk/.test(SQL), "schema: worker user -> worker and request -> worker are tenant-composite FKs, with the scope check");
+for (const t of ["shr_users", "shr_workers", "shr_assignments", "shr_worker_documents", "shr_requests", "shr_payroll_runs", "shr_checklist_ticks"]) {
+  await a.get(`${t}?select=id`);
+  ok(calls.at(-1).p === `${t}?tenant_id=eq.${A}&select=id` && throws(() => a.get(`${t}?tenant_id=eq.${B}`)) && throws(() => a.post(t, { tenant_id: B })), `${t}: pinned to the session tenant`);
+}
+
 console.log(fail.length ? `\n${fail.length} FAILED` : "\nall passed");
 if (fail.length) process.exit(1);

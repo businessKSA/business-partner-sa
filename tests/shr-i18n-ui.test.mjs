@@ -151,11 +151,11 @@ console.log("dictionary");
 ok(Object.keys(DICT).length > 700, "the dictionary is loaded (" + Object.keys(DICT).length + " entries)");
 
 console.log("gates");
-for (const mode of ["", "agency", "client"]) {
+for (const mode of ["", "agency", "client", "worker"]) {
   await boot(mode);
   await sweep("gate:" + (mode || "staff"));
 }
-ok(true, "the three sign-in screens swept");
+ok(true, "the four sign-in screens swept");
 
 console.log("operator");
 await login("ops@shr.invalid"); SEED = await seedStrings();
@@ -189,6 +189,14 @@ await goto("عمالي");
 await login("a-viewer@client.invalid", "client");
 await goto("طلباتي"); await sweep("client:viewer-requests");
 
+console.log("worker");
+await login("a-worker@worker.invalid", "worker");
+for (const label of navLabels()) { await goto(label); await sweep("worker:" + label); }
+await goto("طلباتي");
+{ const k = find(app, (n) => n.tag === "select" && n.children.some((o) => o._value === "worker_update"))[0]; if (k) { k.children.forEach((o) => { o.selected = o._value === "worker_update"; }); for (const f of k.listeners.change || []) await f({}); await tick(); await sweep("worker:requests-topic"); } }
+await login("b-worker@worker.invalid", "worker");
+await goto("مستنداتي"); await sweep("worker:docs-expired");
+
 console.log("agency");
 await login("agency-a@shr.invalid", "agency");
 for (const label of navLabels()) { await goto(label); await sweep("agency:" + label); }
@@ -203,6 +211,8 @@ for (const L of LANGS) {
   for (let i = 0; i < navLabels().length; i++) { await gotoIdx(i); scan(L, "fresh-cmp#" + i); }
   await login("a-admin@client.invalid", "client"); I().setLang(L);
   for (let i = 0; i < navLabels().length; i++) { await gotoIdx(i); scan(L, "fresh-client#" + i); }
+  await login("a-worker@worker.invalid", "worker"); I().setLang(L);
+  for (let i = 0; i < navLabels().length; i++) { await gotoIdx(i); scan(L, "fresh-worker#" + i); }
   await login("agency-a@shr.invalid", "agency"); I().setLang(L);
   for (let i = 0; i < navLabels().length; i++) { await gotoIdx(i); scan(L, "fresh-agency#" + i); }
 }

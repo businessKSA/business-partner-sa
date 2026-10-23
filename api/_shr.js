@@ -108,7 +108,7 @@ const day = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10
 
 export async function seedDemo() {
   assertLocal();
-  if (await tenantBySlug("SHR")) { await seedAts(); await seedAgencies(); await seedCompliance(); await seedClients(); await seedPosts(); return { seeded: false }; }
+  if (await tenantBySlug("SHR")) { await seedAts(); await seedAgencies(); await seedCompliance(); await seedClients(); await seedPosts(); await seedWorkers(); return { seeded: false }; }
   const mk = async (slug, brand_ar, brand_en) => (await sb("shr_tenants", { method: "POST", body: { slug, brand_ar, brand_en, demo: true } }))[0];
   const A = await mk("SHR", "مستأجر SHR التجريبي (بيانات وهمية)", "SHR demo tenant");
   const B = await mk("OTHER", "مستأجر وهمي آخر (بيانات وهمية)", "Other demo tenant");
@@ -179,6 +179,7 @@ export async function seedDemo() {
   await seedCompliance();
   await seedClients();
   await seedPosts();
+  await seedWorkers();
   return { seeded: true };
 }
 
@@ -598,5 +599,33 @@ export async function seedPosts() {
     // طلبات التقديم الوهمية على وظيفة الإعلان المنشور تُنسب إليه ليظهر العدّاد.
     const pub = posts.find((p) => p.status === "published");
     if (pub) for (const a of await s.get(`shr_applications?job_id=eq.${pub.job_id}&select=id`)) await s.patch(`shr_applications?id=eq.${a.id}`, { post_id: pub.id });
+  }
+}
+
+// ------------------------------------------------------------ worker seed --
+// بوابة العامل: مستخدمو عمال `*@worker.invalid` لعاملين نشطين في عميلين مختلفين من SHR
+// (عامل ١ مع العميل أ: إقامة قريبة الانتهاء · عامل ٣ مع العميل ب: تأمين منتهٍ) وآخر في OTHER.
+// الربط بـshr_users.worker_id. طلبان وهميان لعامل ١ ليظهرا في شاشة طلبات المشغّل (worker_id بلا عميل).
+// تعمل بعد seedClients (التي تنقل العاملين ٣ و٤ إلى العميل ب) وتُرقّي القواعد القديمة تلقائياً.
+export async function seedWorkers() {
+  assertLocal();
+  for (const slug of ["SHR", "OTHER"]) {
+    const t = await tenantBySlug(slug);
+    if (!t) continue;
+    const s = scoped(ctxFrom({ tenant_id: t.id, role: "tenant_owner" }));
+    if ((await s.get("shr_users?role=eq.worker&select=id&limit=1")).length) continue;      // مبذور سلفاً
+    const workers = await s.get("shr_workers?select=id,full_name,status&order=created_at.asc");
+    const pick = (re) => workers.find((w) => w.status === "active" && re.test(w.full_name));
+    const plan = slug === "SHR"
+      ? [["a-worker@worker.invalid", "عامل تجريبي ١ — حساب العامل", pick(/١$/)], ["b-worker@worker.invalid", "عامل تجريبي ٣ — حساب العامل", pick(/٣$/)]]
+      : [["x-worker@worker.invalid", "عامل وهمي آخر ١ — حساب العامل", pick(/١$/)]];
+    const U = {};
+    for (const [email, name, w] of plan) if (w) U[email] = (await s.post("shr_users", { email, full_name: name, role: "worker", worker_id: w.id }))[0];
+    const first = U["a-worker@worker.invalid"];
+    if (first) {
+      for (const [kind, state, note, topic] of [["worker_document", "new", "طلب تجريبي: خطاب تعريف بالعمل", "employment_letter"], ["worker_inquiry", "in_review", "طلب تجريبي: استفسار عن موعد تجديد الإقامة", "documents"]]) {
+        await s.post("shr_requests", { worker_id: first.worker_id, client_company_id: null, kind, state, created_by: first.id, body: { note, topic, source: "worker_portal", demo: true } });
+      }
+    }
   }
 }

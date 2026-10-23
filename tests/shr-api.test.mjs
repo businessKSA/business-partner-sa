@@ -56,10 +56,11 @@ const idsA = new Set(wA.map((w) => w.id));
 ok(wB.every((w) => !idsA.has(w.id)), "no ids cross over");
 const rA = (await call("GET", { action: "requests" }, ops.cookie)).body.requests;
 const rB = (await call("GET", { action: "requests" }, other.cookie)).body.requests;
-ok(rA.length === 6 && rB.length === 2, "requests isolated");
+// 6 طلبات عملاء + طلبان وهميان من عامل (بوابة العامل: worker_id بلا عميل) في SHR؛ OTHER بلا طلبات عامل.
+ok(rA.length === 8 && rB.length === 2 && rA.filter((r) => r.worker).length === 2, "requests isolated");
 const dA = (await call("GET", { action: "dashboard" }, ops.cookie)).body.counts;
 const dB = (await call("GET", { action: "dashboard" }, other.cookie)).body.counts;
-ok(dA.workers !== dB.workers && dA.open_requests === 4, `dashboard counts per tenant (${dA.workers}/${dB.workers}, open ${dA.open_requests})`);
+ok(dA.workers !== dB.workers && dA.open_requests === 6, `dashboard counts per tenant (${dA.workers}/${dB.workers}, open ${dA.open_requests})`);
 ok(dA.docs_expiring_60d >= 1 && dA.docs_expired >= 1, "expiry counts present");
 // Acting on another tenant's row by id finds nothing.
 const foreign = wB[0].id;

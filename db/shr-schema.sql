@@ -103,11 +103,11 @@ create table if not exists shr_worker_documents (
   reviewed_by uuid, reviewed_at timestamptz
 );
 
-create table if not exists shr_requests (          -- طلبات العميل
+create table if not exists shr_requests (          -- طلبات العميل، وطلبات العامل (kind worker_* ولها worker_id بلا client_company_id)
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references shr_tenants(id),
-  client_company_id uuid not null references shr_client_companies(id),
-  kind text not null check (kind in ('new_hire','termination','transfer','document','other')),
+  client_company_id uuid references shr_client_companies(id),
+  kind text not null check (kind in ('new_hire','termination','transfer','document','other','worker_document','worker_update','worker_inquiry')),
   state text not null default 'new',
   body jsonb not null default '{}',
   created_at timestamptz not null default now()
@@ -173,6 +173,9 @@ do $$ begin
 end $$;
 -- من قدّم طلب العميل (يُسجَّل أيضاً في shr_audit_log). المشغّل وحده يغيّر حالة الطلب.
 alter table shr_requests add column if not exists created_by uuid;
+-- بوابة العامل: طلب العامل يحمل worker_id ولا يحمل client_company_id (فلا يدخل قائمة العميل ولا سقوفه)،
+-- وطلب العميل العكس. القيود (النطاق، المفتاح المركّب، ترقية قيد النوع) في كتلة الترقية أدناه.
+alter table shr_requests add column if not exists worker_id uuid;
 
 create table if not exists shr_recruitment_orders ( -- أمر استقدام: موجّه لمكتب، أو مفتوح (agency_id فارغ)
   id uuid primary key default gen_random_uuid(),
@@ -412,6 +415,32 @@ do $$ begin
   end if;
   if not exists (select 1 from pg_constraint where conname = 'shr_workers_tenant_id_id_key') then
     alter table shr_workers add constraint shr_workers_tenant_id_id_key unique (tenant_id, id);
+  end if;
+  -- بوابة العامل: مستخدم العامل مربوط بعامله بمفتاح مركّب (لا ربط عابر للمستأجرين) ودور worker يلزمه عامل ولغيره لا عامل.
+  if not exists (select 1 from pg_constraint where conname = 'shr_users_worker_fk') then
+    alter table shr_users add constraint shr_users_worker_fk
+      foreign key (tenant_id, worker_id) references shr_workers(tenant_id, id);
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'shr_users_worker_role') then
+    alter table shr_users add constraint shr_users_worker_role
+      check ((role = 'worker') = (worker_id is not null));
+  end if;
+  -- طلبات العامل: ترقية قاعدة قديمة (قيد النوع، وclient_company_id يصير اختيارياً)، ثم فصل صارم بين الطلبين.
+  alter table shr_requests alter column client_company_id drop not null;
+  if exists (select 1 from pg_constraint where conname = 'shr_requests_kind_check'
+             and pg_get_constraintdef(oid) not like '%worker_inquiry%') then
+    alter table shr_requests drop constraint shr_requests_kind_check;
+    alter table shr_requests add constraint shr_requests_kind_check
+      check (kind in ('new_hire','termination','transfer','document','other','worker_document','worker_update','worker_inquiry'));
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'shr_requests_worker_fk') then
+    alter table shr_requests add constraint shr_requests_worker_fk
+      foreign key (tenant_id, worker_id) references shr_workers(tenant_id, id);
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'shr_requests_scope') then
+    alter table shr_requests add constraint shr_requests_scope check (
+      (kind in ('worker_document','worker_update','worker_inquiry') and worker_id is not null and client_company_id is null)
+      or (kind not in ('worker_document','worker_update','worker_inquiry') and worker_id is null and client_company_id is not null));
   end if;
   -- ترقية قاعدة قديمة: دور compliance_officer في قيد الأدوار.
   if exists (select 1 from pg_constraint where conname = 'shr_users_role_check'

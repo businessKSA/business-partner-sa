@@ -25,6 +25,10 @@
 //      GET client-session|client-home|client-workers|client-worker|client-contracts|client-requests|client-invoices ؛
 //      POST client-request-create (client_admin وحده). عميل الجلسة من shr_users.client_company_id لا من الطلب؛
 //      عميل آخر أو مستأجر آخر 404؛ أي إجراء آخر 403؛ والمشغّل/المكتب لا يصلون لإجراءات client-* (403).
+// بوابة العامل (المنطق في _shr_worker.js): دور worker وحده. هويته من shr_users.worker_id لا من الطلب، والعامل غير active لا يدخل (403).
+//      GET worker-session|worker-profile|worker-contract|worker-documents|worker-salary|worker-requests ؛ POST worker-request-create.
+//      tenant_id أو worker_id أو client_company_id في الطلب 400؛ معرّف عامل آخر (id) 404؛ أي إجراء آخر 403؛
+//      والمشغّل/العميل/المكتب/الامتثال لا يصلون لإجراءات worker-* (403). لا قراءة لجداول الرواتب.
 // الحذف مرفوض: action "worker-delete" (وأي *-delete) -> 403 archive_only.
 import crypto from "node:crypto";
 import { ctxFrom, scoped, assertLocal, tenantBySlug, tenantById, seedDemo, hashIdNo, ROLES, HttpError, audit } from "./_shr.js";
@@ -32,12 +36,13 @@ import * as ats from "./_shr_ats.js";
 import * as agy from "./_shr_agency.js";
 import * as cmp from "./_shr_compliance.js";
 import * as cl from "./_shr_client.js";
+import * as wk from "./_shr_worker.js";
 import * as pst from "./_shr_posts.js";
 
 const COOKIE = "shr_session";
 const TTL_S = 8 * 3600;
 const PHASE2_ROLES = new Set(["tenant_owner", "operator"]);      // طاقم التشغيل
-const ALLOWED_ROLES = new Set(["tenant_owner", "operator", "agency", "compliance_officer", "client_admin", "client_viewer"]);
+const ALLOWED_ROLES = new Set(["tenant_owner", "operator", "agency", "compliance_officer", "client_admin", "client_viewer", "worker"]);
 // ما يصل إليه دور agency وحده، مع الطريقة. أي شيء غيره يرد 403 لهذا الدور.
 const AGENCY_GET = new Set(["my-orders", "my-submissions", "my-interviews"]);
 const AGENCY_POST = new Set(["submit-candidate", "bulk-submit"]);
@@ -166,12 +171,15 @@ async function archiveWorker(db, user, b) {
 async function listRequests(db, q) {
   const st = q.state ? String(q.state) : "";
   if (st && !REQUEST_STATES.includes(st)) throw bad("bad_state");
-  const [reqs, clients] = await Promise.all([
-    db.get(`shr_requests?select=id,client_company_id,kind,state,body,created_at${st ? `&state=eq.${st}` : ""}&order=created_at.desc`),
+  const [reqs, clients, workers] = await Promise.all([
+    db.get(`shr_requests?select=id,client_company_id,worker_id,kind,state,body,created_at${st ? `&state=eq.${st}` : ""}&order=created_at.desc`),
     db.get("shr_client_companies?select=id,name_ar"),
+    db.get("shr_workers?select=id,full_name"),
   ]);
   const cn = Object.fromEntries(clients.map((c) => [c.id, c.name_ar]));
-  return reqs.map((r) => ({ ...r, client: cn[r.client_company_id] || null }));
+  const wn = Object.fromEntries(workers.map((w) => [w.id, w.full_name]));
+  // طلب العامل (kind worker_*) بلا عميل: يظهر باسم العامل.
+  return reqs.map((r) => ({ ...r, client: cn[r.client_company_id] || null, worker: wn[r.worker_id] || null }));
 }
 
 async function setRequestState(db, user, b) {
@@ -231,10 +239,13 @@ export default async function handler(req, res) {
       if (u.role === "agency") await agy.agencyContext(db, { sub: u.id });
       // عميل غير مربوط بشركة أو شركته غير نشطة لا يدخل ولا تُمنح له جلسة.
       const cx = cl.CLIENT_ROLES.has(u.role) ? await cl.clientContext(db, { sub: u.id }) : null;
+      // عامل غير مربوط بسجل عامل أو ليس active (مسودة/مؤرشف) لا يدخل ولا تُمنح له جلسة.
+      const wx = wk.WORKER_ROLES.has(u.role) ? await wk.workerContext(db, { sub: u.id }) : null;
       res.setHeader("set-cookie", `${COOKIE}=${mintSession({ sub: u.id, tenant_id: u.tenant_id, role: u.role, email: u.email })}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${TTL_S}`);
       // المكتب لا يُعاد إليه مستأجر ولا علامته؛ يعرف مكتبه فقط.
       // العميل كالمكتب: لا يُعاد إليه مستأجر ولا علامته؛ يعرف شركته فقط.
       if (cx) return out(200, { ok: true, ...cl.session(cx) });
+      if (wx) return out(200, { ok: true, ...wk.session(wx) });     // والعامل كذلك: يعرف نفسه فقط
       return out(200, { ok: true, user: { email: u.email, name: u.full_name, role: u.role }, tenant: u.role === "agency" ? null : { slug: t.slug, brand_ar: t.brand_ar } });
     }
     if (action === "session-end") {
@@ -273,6 +284,17 @@ export default async function handler(req, res) {
       const cx = await cl.clientContext(db, s);            // عميل موقوف أو مستخدم محذوف: 403 فوراً
       return out(200, { ok: true, ...(await cl.dispatch(action, { db, cx, b, q })) });
     }
+    // ---- دور العامل: قائمة بيضاء ضيقة، والعامل من القاعدة لا من الطلب ----
+    if (wk.WORKER_ROLES.has(ctx.role)) {
+      if ("worker_id" in b || "worker_id" in q) return out(400, { ok: false, error: "worker_id_forbidden" });
+      if ("client_company_id" in b || "client_company_id" in q) return out(400, { ok: false, error: "client_company_id_forbidden" });
+      const allowed = isPost ? wk.WORKER_POST.has(action) : wk.WORKER_GET.has(action) || action === "session";
+      if (!allowed) return out(403, { ok: false, error: "role_not_allowed" });
+      const wx = await wk.workerContext(db, s);            // عامل موقوف أو غير مربوط أو مستخدم محذوف: 403 فوراً
+      return out(200, { ok: true, ...(await wk.dispatch(action, { db, wx, b, q })) });
+    }
+    // إجراءات العامل ليست لغيره.
+    if (wk.WORKER_ACTIONS.has(action)) return out(403, { ok: false, error: "role_not_allowed" });
     // إجراءات العميل ليست للمشغّل ولا للمكتب ولا لمسؤول الامتثال.
     if (cl.CLIENT_ACTIONS.has(action)) return out(403, { ok: false, error: "role_not_allowed" });
     // إجراءات المكتب ليست للمشغّل.
