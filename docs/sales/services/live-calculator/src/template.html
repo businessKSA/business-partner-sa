@@ -174,6 +174,16 @@ nav.tabs button.svc[aria-selected="true"]{background:#FFF6E0;color:#4a3200;box-s
 .jr button.b.on{background:#EEF2FB}.jr button.g.on{background:#FFF6E0;border-color:#B8860B;box-shadow:0 0 0 1px #B8860B inset}.jr button.g.on i{background:#B8860B}
 .jr-next{display:flex;justify-content:flex-end;margin:0 0 10px}
 @media (max-width:640px){.jr{grid-template-columns:1fr}}
+.jr{grid-template-columns:repeat(4,minmax(0,1fr)) !important}.jr li.jr-t button{background:var(--soft);border-style:dashed}.jr-help{margin:0 0 12px;padding:9px 13px;border-inline-start:3px solid #0B1B5A;background:var(--soft);border-radius:0 9px 9px 0;font-size:13.5px;color:var(--ink)}@media (max-width:820px){.jr{grid-template-columns:repeat(2,minmax(0,1fr)) !important}}
+nav.tabs button .chip{display:none !important}.svcban:not(.keep){display:none !important}
+#goalov{position:fixed;inset:0;z-index:80;background:#fff;overflow:auto;display:grid;place-items:center;padding:24px}
+.goalbox{max-width:860px;width:100%}.goalbox h1{font-weight:200;font-size:30px;margin:0 0 6px;color:var(--ink)}
+.goalcards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}@media (max-width:700px){.goalcards{grid-template-columns:1fr}}
+.gc{text-align:start;border:1px solid var(--line);border-radius:15px;padding:22px;background:#fff;cursor:pointer;font:inherit;box-shadow:var(--sh);display:flex;flex-direction:column;gap:8px;transition:.15s}
+.gc b{font-size:19px;font-weight:600;color:var(--ink)}.gc span{font-size:13.5px;color:var(--muted);line-height:1.8}
+.gc.b:hover{border-color:#0B1B5A;background:#EEF2FB}.gc.g:hover{border-color:#B8860B;background:#FFF6E0}
+.acc{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border:1px solid var(--line);border-radius:13px;padding:10px 14px;margin:0 0 12px;font-size:13.5px}
+.acc.bad{background:#FFF1D6;border-color:#E6C77A;color:#6b4a00}.acc.ok{background:#E7F4EF;border-color:#9bd0b9;color:#065f46}
 </style>
 
 <div class="wrap" id="app" dir="rtl" lang="ar">
@@ -216,6 +226,7 @@ const T={
 };
 const CLIENT=__CLIENT__, DEMO=__DEMO__, FAWAZ=__FAWAZ__; const LOGO='__LOGO__'; // نسخة العميل: بلا وضع المالك ولا ملاحظات داخلية
 const S={ // state
+ goal:null,
  quote:{client:'',comp:'',no:'',email:''},
  disc:{on:false,code:'',pct:10,svc:true,loc:false,ops:false},
  tab:'co',
@@ -230,7 +241,7 @@ const S={ // state
  order:[{qty:1,gender:'male',nat:'IN',fam:'cons',code:'',unit:'day',n:1,trn:0}], profAll:false,
  labor:{fam:'cons',code:''}, salTable:{},
  extra:{hours:8,days:6,commOn:'No',commPct:10,otOn:'No',otHours:20},
- gov:{exit:'Yes',foreign:null,saudi:null,rate:{permit:9700,iqama:650,ajeer:240,exit:200}},
+ gov:{nat:'foreign',sal:6000,exit:'Yes',rate:{permit:9700,iqama:650,exit:200}},
  ot:{sal:6000,hours:20,kind:'1.5',custom:1.5,days:30},
  lump:{qty:1,sal:6000,term:12,prof:0,trn:1,nat:'inside',src:'inside',cty:'',rec:12000,con:1000,tkt:2000},
  cost:{qty:1,sal:6000,term:12,prof:0,nat:'ZZ',src:'abroad',cty:'',med:50,xfer:3000,tkt1:1500,exitv:200,rec:12000,con:1000,arr:2000,abroad:'No',freq:'Annual',trn:1,saudi:'No',ssal:0,sinv:'Arrears',sgosi:0,mode:'start'},
@@ -371,18 +382,18 @@ function lumpCalc(c){
   const X=(c.xfer==null?3000:c.xfer);
   const MF=1+S.fee.pct/100; const a=c.sal,n=c.term; const prem=k=>c.short?S.fee.pS/100:tierPrem(k), aR=k=>a*(1+prem(k));
   const insAdj=(insAnnual()-600)/12*MF; const exI=extraItems(a), exS=exI.reduce((s,i)=>s+i[1],0);
-  const base=(aR(n)+exS+(9700+650+240)/12+600/12+(a/30*21)/12+200/12+X/n+eosAmt(a,n)/n+a*(S.sb.basic+S.sb.housing)/100*0.02+1500/12+S.fee.overhead)*MF+insAdj;
+  const base=(aR(n)+exS+(9700+650+276)/12+600/12+(a/30*21)/12+200/12+X/n+eosAmt(a,n)/n+a*(S.sb.basic+S.sb.housing)/100*0.02+1500/12+S.fee.overhead)*MF+insAdj;
   const extra=(c.rec+c.con+c.tkt)/n*MF;
   const before0=m10(base+extra);
   const p=EP(c.prof); const loc=locCalc(c.prof,c.qty); const fee=loc.fee;
   const otAmt=otOf(before0+(fee||0)); const before=before0+otAmt;
   const withFee=before+(fee||0);
-  const byTerm=[3,6,9,12,24].map(k=>{const b=(aR(k)+exS+(9700+650+240)/12+600/12+(a/30*21)/12+200/12+X/k+eosAmt(a,k)/k+a*(S.sb.basic+S.sb.housing)/100*0.02+1500/12+S.fee.overhead)*MF+insAdj;return [k,m10(b+(c.rec+c.con+c.tkt)/k*MF)+(fee||0)];});
+  const byTerm=[3,6,9,12,24].map(k=>{const b=(aR(k)+exS+(9700+650+276)/12+600/12+(a/30*21)/12+200/12+X/k+eosAmt(a,k)/k+a*(S.sb.basic+S.sb.housing)/100*0.02+1500/12+S.fee.overhead)*MF+insAdj;return [k,m10(b+(c.rec+c.con+c.tkt)/k*MF)+(fee||0)];});
   const gb=a*(S.sb.basic+S.sb.housing)/100;
   const items=[[tx('الراتب','Salary'),a],
    [tx('رخصة العمل والمقابل المالي (9,700 سنوياً ÷ 12)','Work permit and levy (9,700 / yr ÷ 12)'),9700/12],
    [tx('الإقامة (650 سنوياً ÷ 12)','Residency / iqama (650 / yr ÷ 12)'),650/12],
-   [tx('رسوم حكومية أخرى (240 سنوياً ÷ 12)','Other government fees (240 / yr ÷ 12)'),240/12],
+   [tx('رسوم أجير (23 شهرياً × 12 = 276 سنوياً ÷ 12)','Ajeer fees (23 / month × 12 = 276 / yr ÷ 12)'),276/12],
    [tx('التأمينات الاجتماعية على الأجنبي: 2% أخطار مهنية على صاحب العمل (على الأساسي والسكن)','Foreigner social insurance: 2% occupational hazards, employer (on basic + housing)'),gb*0.02],
    [tx('التأمين الطبي (حسب الفئة)','Medical insurance (by class)'),insAnnual()/12],
    [tx('استحقاق نهاية الخدمة (نصف شهر عن كل سنة من الخمس الأولى)','End of service (half a month per year for the first five)'),eosAmt(a,n)/n],
@@ -1412,17 +1423,30 @@ function ctrWire(){ if(S.tab!=='ctr') return; const m=document.getElementById('m
   m.querySelectorAll('[data-gonco]').forEach(b=>b.addEventListener('click',()=>{ S.tab='co'; render(); }));
   m.querySelectorAll('[data-ctk]').forEach(i=>i.addEventListener('change',()=>{ const e=S.co.list[S.co.cur]; let t=null; (e.contracts||[]).forEach(r=>r.list.forEach(x=>{ if(x.k===i.dataset.ctk) t=x; })); if(!t) return; t.dec[i.dataset.f]=i.value; render(); })); }
 /* ===== رحلة العميل: بيانات المنشأة ← الخدمة 1 (تقييم الوضع) ← الخدمة 2 (تسعير الحل) — مرتبطتان بنتيجة واحدة ===== */
-const JR_A=['nit','team','comp','viol','ctr','gov','eos','prof','hire','guides','ot'], JR_B=['lump','cost','rent'];
+const JR_CORE=['nit','team','comp','viol','ctr','gov'], JR_TOOLS=['eos','prof','hire','guides','ot'], JR_A=JR_CORE.concat(JR_TOOLS), JR_B=['lump','cost','rent'];
+const JR_HELP={co:['أضف منشآتك وبياناتها ومستنداتها. هذه هي الأساس لكل ما بعدها.','Add your establishments, their data and documents. Everything after builds on this.'],nit:['نطاق منشأتك الآن، وكم سعودياً يلزمك لتتحسّن.','Your Nitaqat band now, and how many Saudis you need to improve.'],team:['أدخل موظفيك حسب المهنة ليُحسب التوطين المطلوب لكل مهنة.','Enter your staff by profession to compute the localisation required for each.'],comp:['لوحة واحدة بكل ما يجب إصلاحه، مرتبةً بالأهم.','One board with everything to fix, most important first.'],viol:['المخالفات المتوقعة على منشأتك وغراماتها المحتملة.','The violations expected for your establishment and the likely fines.'],ctr:['ارفع عقود موظفيك لنفحصها ونذكّرك بمواعيد التجديد والإشعار.','Upload your staff contracts so we check them and remind you of renewal and notice dates.'],gov:['تكلفة الشخص الواحد: رسوم حكومية وتأمينات ونهاية خدمة.','The cost of one person: government fees, insurance and end of service.'],eos:['أداة: احسب مكافأة نهاية الخدمة لموظف.','Tool: calculate an employee’s end-of-service award.'],prof:['أداة: ابحث عن مهنة لترى نسبة توطينها وأقل راتب.','Tool: look up a profession for its localisation ratio and minimum salary.'],hire:['أداة: قبل أن توظّف، هل هو مسموح وما أثره على نطاقك؟','Tool: before you hire — is it allowed, and what does it do to your band?'],guides:['أداة: أدلة وزارة الموارد البشرية للمهن والقرارات.','Tool: the Ministry’s guides to professions and decisions.'],ot:['أداة: احسب الساعات الإضافية وفق نظام العمل.','Tool: calculate overtime under the Labour Law.'],rent:['سعر العامل بالساعة أو باليوم أو بالأسبوع.','Worker price by the hour, day or week.'],lump:['سعر موظف كامل بمبلغ شهري واحد شامل كل شيء.','A full employee for one all-inclusive monthly price.'],cost:['الموظف نفسه لكن كل بند بفاتورة منفصلة بالتكلفة الفعلية.','The same employee, each item invoiced separately at actual cost.']};
+const JR_HIRE2=['hire','prof','guides'], JR_HIRE3=['lump','cost','rent','ot','eos'];
+function jrGroup(t){ if(t==='co') return ['co']; if(S.goal==='hire'){ if(JR_HIRE2.includes(t)) return JR_HIRE2; return JR_HIRE3.includes(t)?JR_HIRE3:JR_HIRE2; } return JR_CORE.includes(t)?JR_CORE:JR_TOOLS.includes(t)?JR_TOOLS:JR_B; }
 const JR_NEXT={co:['nit','النطاقات والتوطين','Nitaqat'],nit:['team','فريقك حسب المهن','Team by profession'],team:['comp','لوحة الامتثال','Compliance board'],comp:['viol','المخالفات والتوقعات','Violations & forecast'],viol:['ctr','عقود الموظفين','Employee contracts'],ctr:['gov','التكاليف الحكومية','Government costs'],gov:['eos','مكافأة نهاية الخدمة','End of service'],eos:['lump','تسعير الحل (الخدمة 2)','Price the fix (Service 2)'],lump:['cost','التكلفة بشفافية','Transparent cost']};
 function bridgeCalc(){ const r=nitCalc(S.nit); const t=r.res[1]; return {need:Math.max(0,Math.ceil(t.short)),target:tx(BANDS[1][2],BANDS[1][1]),cur:r.cur,pct:r.pct}; }
 function bridgeGo(){ const b=bridgeCalc(), e=S.co.list[S.co.cur]; S.lump.qty=Math.max(1,b.need); S.cost.qty=S.lump.qty; S.bridge={need:b.need,target:b.target,name:e?e.name:''}; S.tab='lump'; render(); }
-function journeyHtml(){ const a=JR_A.includes(S.tab), b=JR_B.includes(S.tab), cur=b?3:a?2:1; const e=S.co.list[S.co.cur]; const done1=!!(e&&coStat(e)&&e.name);
-  const st=[[1,'co',tx('بيانات المنشأة','Your establishment'),tx('الأساس: كل خدمة تعتمد عليها','The base every service uses')],[2,'nit',tx('الخدمة 1: تقييم وضعك','Service 1: assess your position'),tx('النطاق والامتثال والمخالفات والعقود والتكاليف','Band, compliance, violations, contracts, costs')],[3,'lump',tx('الخدمة 2: تسعير الحل','Service 2: price the fix'),tx('تسعير ما ينقصك وتنفيذه','Price and deliver what you are missing')]];
-  const nx=JR_NEXT[S.tab]; return `<ol class="jr">${st.map(x=>`<li><button type="button" data-jr="${x[1]}" class="${x[0]===cur?'on':x[0]<cur?'done':''}${x[0]===3?' g':x[0]===2?' b':''}"><i>${x[0]<cur?'✓':x[0]}</i><span><b>${x[2]}</b><small>${x[3]}</small></span></button></li>`).join('')}</ol>${nx?`<div class="jr-next"><button type="button" class="btn primary" data-jrn="${nx[0]}">${tx('الخطوة التالية: ','Next step: ')}${tx(nx[1],nx[2])} ←</button></div>`:''}`; }
+function journeyHtml(){ const hire=S.goal==='hire'; const b=hire?JR_HIRE3.includes(S.tab):JR_B.includes(S.tab), a=hire?JR_HIRE2.includes(S.tab):JR_A.includes(S.tab), cur=b?3:a?2:1, tl=!hire&&JR_TOOLS.includes(S.tab);
+  const st=hire?[[1,'co',tx('بيانات المنشأة','Your establishment'),tx('اختيارية — تُحسّن دقة الحكم','Optional — makes the verdict more accurate')],[2,'hire',tx('هل التوظيف مسموح؟','Is the hire allowed?'),tx('المهنة والتوطين وأثره على نطاقك','Profession, localisation and the effect on your band')],[3,'lump',tx('التعاقد والتسعير','Contracting and price'),tx('تكلفة الموظف الكاملة وبنودها','The full employee cost and its items')]]
+   :[[1,'co',tx('منشأتك وعمالتك','Your establishment and staff'),tx('البيانات والمستندات وأسماء كل العمالة','Data, documents and every employee’s name')],[2,'nit',tx('تقييم وضعك','Assess your position'),tx('النطاق والامتثال والمخالفات والعقود والتكاليف','Band, compliance, violations, contracts, costs')],[3,'lump',tx('إصلاح الوضع وتسعيره','Fix the position and price it'),tx('نسدّ النقص ونعرض عليك التكلفة','We close the gap and show the cost')]];
+  const nxt=hire?{co:['hire','هل التوظيف مسموح؟','Is the hire allowed?'],hire:['lump','التعاقد والتسعير','Contracting and price'],prof:['lump','التعاقد والتسعير','Contracting and price'],guides:['lump','التعاقد والتسعير','Contracting and price'],lump:['cost','التكلفة بشفافية','Transparent cost']}:JR_NEXT; const nx=nxt[S.tab];
+  const bt=hire?'':`<li class="jr-t"><button type="button" data-jr="eos" class="${tl?'on':''}"><i>⚙</i><span><b>${tx('أدوات مساعدة','Helper tools')}</b><small>${tx('نهاية الخدمة، المهن، تقييم موظف، الأدلة، الساعات الإضافية','End of service, professions, new-hire check, guides, overtime')}</small></span></button></li>`;
+  return `<ol class="jr">${st.map(x=>`<li><button type="button" data-jr="${x[1]}" class="${x[0]===cur?'on':x[0]<cur?'done':''}${x[0]===3?' g':x[0]===2?' b':''}"><i>${x[0]<cur?'✓':x[0]}</i><span><b>${x[2]}</b><small>${x[3]}</small></span></button></li>`).join('')}${bt}</ol><p class="jr-help">${tx(JR_HELP[S.tab]?JR_HELP[S.tab][0]:'',JR_HELP[S.tab]?JR_HELP[S.tab][1]:'')} <button type="button" class="btn sm" data-goal-reset>${tx('غيّر هدفك','Change your goal')}</button></p>${nx?`<div class="jr-next"><button type="button" class="btn primary" data-jrn="${nx[0]}">${tx('الخطوة التالية: ','Next step: ')}${tx(nx[1],nx[2])} ←</button></div>`:''}`; }
+function goalHtml(){ return `<div id="goalov"><div class="goalbox"><h1>${tx('ماذا تحتاج اليوم؟','What do you need today?')}</h1><p class="hint">${tx('اختر هدفك فنعرض لك ما يتعلق به فقط.','Pick your goal and we show only what relates to it.')}</p>
+  <div class="goalcards"><button type="button" data-goal="assess" class="gc b"><b>${tx('أريد تقييم شركتي','Assess my company')}</b><span>${tx('هل منشأتي ممتثلة؟ ما نطاقي؟ ما المخالفات المتوقعة وعقود موظفيّ؟ ثم نصلح الوضع. نحتاج بياناتها ومستنداتها وأسماء كل عمالتها لنعطيك تقريراً دقيقاً.','Is my company compliant? What is my band, my expected violations and my staff contracts? Then we fix it. We need its data, documents and every employee’s name for an accurate report.')}</span></button>
+  <button type="button" data-goal="hire" class="gc g"><b>${tx('أحتاج توظيف / تعاقد','I need to hire / contract')}</b><span>${tx('هل التوظيف مسموح؟ وكم تكلفة الموظف الكاملة على شركتي؟ نعرض لك ما يخص التوظيف والتعاقد والسعر فقط.','Is the hire allowed, and what is the full employee cost? We show only hiring, contracting and price.')}</span></button></div></div></div>`; }
+function accHtml(){ if(!JR_CORE.includes(S.tab)||S.goal!=='assess') return ''; const e=S.co.list[S.co.cur]; if(!e) return '';
+  const tot=(+e.full||0)+(+e.part||0)+(+e.foreign||0), m=e.docs&&e.docs.sheets&&e.docs.sheets.filter(x=>x.cols&&x.cols.nat).sort((a,b)=>b.recs.length-a.recs.length)[0], n=m?m.recs.length:0;
+  if(m&&tot>0&&n>=tot) return `<div class="acc ok"><b>${tx('تقرير دقيق','Accurate report')}</b> ${tx('أسماء كل العمالة ('+n+') مضافة وتحليلك مبني عليها.','Every employee name ('+n+') is added and your analysis is built on them.')}</div>`;
+  return `<div class="acc bad"><b>${tx('التقرير غير دقيق بعد','The report is not accurate yet')}</b> ${n?tx('أسماء العمالة المضافة '+n+' من '+tot+'. أضف الباقي ليكون التقرير دقيقاً.','Employee names added: '+n+' of '+tot+'. Add the rest for an accurate report.'):tx('لم تُضف أسماء العمالة. ارفع ملف الموظفين (برنت مكتب العمل) لهذه المنشأة ليُبنى التقرير على أسمائهم الفعلية.','No employee names yet. Upload the employee file (Labour Office printout) for this establishment so the report is built on the real names.')} <button type="button" class="btn sm" data-jr="co">${tx('أضف العمالة','Add the staff')}</button></div>`; }
 function bridgeCard(){ if(!['nit','team','comp','viol','ctr','gov'].includes(S.tab)) return ''; const b=bridgeCalc(); const e=S.co.list[S.co.cur]; if(!e) return '';
   return `<section class="panel bridge" style="margin-top:16px"><h2>${tx('من التقييم إلى الحل — الخدمة 2','From assessment to the fix — Service 2')}</h2><p class="hint">${b.need>0?tx('تقييمك يقول: ينقصك '+b.need+' سعودي للوصول إلى النطاق '+b.target+'. اضغط ليُفتح تسعير الحل في الخدمة 2 بالعدد نفسه.','Your assessment says: you are short '+b.need+' Saudi(s) to reach the '+b.target+' band. Click to open the pricing in Service 2 with the same number.'):tx('منشأتك في النطاق '+b.target+' أو أعلى حسب الأرقام الحالية — يمكنك تسعير توظيف جديد أو تعاقد من الخدمة 2.','Your establishment is at '+b.target+' or above on the current numbers — you can still price a new hire or contract in Service 2.')}</p><div class="cta"><button type="button" class="btn primary" id="bridge-go">${tx('سعّر الحل في الخدمة 2','Price the fix in Service 2')} ←</button></div></section>`; }
-function bridgeNote(){ const x=S.bridge; if(!x||!JR_B.includes(S.tab)) return ''; return `<div class="svcban b1" style="margin-top:-4px"><span class="chip">${tx('من الخدمة 1','From Service 1')}</span><span>${x.need>0?tx('بناءً على تقييم «'+esc(x.name||'منشأتك')+'»: ينقصك '+x.need+' سعودي للوصول إلى '+x.target+'، وضبطنا العدد لك.','Based on the assessment of “'+esc(x.name||'your establishment')+'”: you are short '+x.need+' Saudi(s) to reach '+x.target+'; the headcount is preset.'):tx('بناءً على تقييم منشأتك: لا نقص حالياً.','Based on your assessment: no shortfall right now.')}</span><button type="button" class="btn" data-jrn="nit" style="margin-inline-start:auto">${tx('رجوع إلى التقييم','Back to assessment')}</button></div>`; }
-function journeyWire(){ document.querySelectorAll('[data-jr],[data-jrn]').forEach(b=>b.addEventListener('click',()=>{ const t=b.dataset.jr||b.dataset.jrn; if(t==='lump'&&b.dataset.jrn==='lump'||(t==='lump'&&b.dataset.jr==='lump'&&!S.bridge)){ bridgeGo(); return; } S.tab=t; render(); window.scrollTo({top:0}); })); const g=document.getElementById('bridge-go'); if(g) g.addEventListener('click',bridgeGo); }
+function bridgeNote(){ const x=S.bridge; if(!x||!JR_B.includes(S.tab)) return ''; return `<div class="svcban b1 keep" style="margin-top:-4px"><span class="chip">${tx('من الخدمة 1','From Service 1')}</span><span>${x.need>0?tx('بناءً على تقييم «'+esc(x.name||'منشأتك')+'»: ينقصك '+x.need+' سعودي للوصول إلى '+x.target+'، وضبطنا العدد لك.','Based on the assessment of “'+esc(x.name||'your establishment')+'”: you are short '+x.need+' Saudi(s) to reach '+x.target+'; the headcount is preset.'):tx('بناءً على تقييم منشأتك: لا نقص حالياً.','Based on your assessment: no shortfall right now.')}</span><button type="button" class="btn" data-jrn="nit" style="margin-inline-start:auto">${tx('رجوع إلى التقييم','Back to assessment')}</button></div>`; }
+function journeyWire(){ document.querySelectorAll('[data-goal]').forEach(b=>b.addEventListener('click',()=>{ S.goal=b.dataset.goal; S.tab=S.goal==='hire'?'hire':'co'; render(); window.scrollTo({top:0}); })); document.querySelectorAll('[data-goal-reset]').forEach(b=>b.addEventListener('click',()=>{ S.goal=null; render(); })); document.querySelectorAll('[data-jr],[data-jrn]').forEach(b=>b.addEventListener('click',()=>{ const t=b.dataset.jr||b.dataset.jrn; if(t==='lump'&&b.dataset.jrn==='lump'||(t==='lump'&&b.dataset.jr==='lump'&&!S.bridge)){ bridgeGo(); return; } S.tab=t; render(); window.scrollTo({top:0}); })); const g=document.getElementById('bridge-go'); if(g) g.addEventListener('click',bridgeGo); }
 function viewNit(){
   const c=S.nit,r=nitCalc(c);
   const groups=Object.keys(NIT).map(g=>[g,gn(g)]);
@@ -1665,29 +1689,25 @@ function otCalc(c){
   return {basic,hourly,mult,rate,cost,fee,vat,total:cost+fee+vat,maxCap:c.sal};
 }
 function viewGov(){
-  const g=S.gov, n=S.nit; const F=g.foreign==null?(+n.foreign||0):(+g.foreign||0), SA=g.saudi==null?((+n.full||0)+(+n.part||0)):(+g.saudi||0);
-  const R=g.rate; const per=[[tx('رخصة العمل والمقابل المالي','Work permit and levy'),+R.permit||0],[tx('رسوم الإقامة','Residency (iqama) fee'),+R.iqama||0],[tx('رسوم أجير','Ajeer fees'),+R.ajeer||0]];
-  if(g.exit==='Yes') per.push([tx('تأشيرة الخروج والعودة','Exit & re-entry visa'),+R.exit||0]);
-  const perSum=per.reduce((a,x)=>a+x[1],0), fTot=perSum*F, tot=fTot;
-  const sync=(g.foreign!=null||g.saudi!=null)?`<button type="button" class="btn" id="gv-sync">${tx('أعِد الأعداد من النطاقات','Reset counts from Nitaqat')}</button>`:'';
-  return `<div class="grid"><section class="panel"><h2>${tx('حاسبة التكاليف الحكومية السنوية','Annual government costs calculator')}</h2>
-   <p class="hint">${tx('تبدأ الأعداد من المنشأة المفتوحة (النطاقات) ويمكنك تغييرها هنا لأي سيناريو. الأرقام هي المعتمدة في حاسباتنا — تحقق منها في منصات الجهات الرسمية قبل الاعتماد.','Counts start from the open establishment (Nitaqat) and you can change them here for any scenario. The figures are those used in our calculators — verify them on the official platforms before relying on them.')}</p>
-   ${fld('gv-f',tx('عدد الأجانب','Foreign workers'),F,{step:1,min:0,inc:1})}
-   ${fld('gv-s',tx('عدد السعوديين (كامل وجزئي)','Saudi workers (full + part-time)'),SA,{step:1,min:0,inc:1})}
-   ${fld('gv-r-permit',tx('رخصة العمل والمقابل المالي (سنوياً)','Work permit and levy (yearly)'),R.permit,{step:100})}
-   ${fld('gv-r-iqama',tx('رسوم الإقامة (سنوياً)','Residency fee (yearly)'),R.iqama,{step:10})}
-   ${fld('gv-r-ajeer',tx('رسوم أجير (سنوياً)','Ajeer fees (yearly)'),R.ajeer,{step:10})}
-   ${fld('gv-r-exit',tx('تأشيرة الخروج والعودة (سنوياً)','Exit & re-entry visa (yearly)'),R.exit,{step:10})}
-   ${fld('gv-exit',tx('يحتاجون تأشيرة خروج وعودة سنوياً؟','Need an exit & re-entry visa yearly?'),g.exit,{list:[['Yes',tx('نعم','Yes')],['No',tx('لا','No')]]})}
-   <p class="hint">${sync} <button type="button" class="btn" data-gonit>${tx('النطاقات والتوطين','Open Nitaqat')}</button></p></section>
-  <section class="panel"><h2>${tx('النتيجة','Result')}</h2><div class="res">
-   ${per.map(x=>line(x[0]+' — '+tx('للعامل سنوياً','per worker / yr'),fmt(x[1]))).join('')}
-   ${line(tx('الإجمالي للعامل الأجنبي الواحد سنوياً','Total per foreign worker / yr'),fmt(perSum),'total')}
-   ${line(tx('إجمالي الأجانب ('+F+')','Foreign workers total ('+F+')'),fmt(fTot))}
-   ${line(tx('السعوديون ('+SA+') — لا رخصة عمل ولا رسوم إقامة','Saudis ('+SA+') — no work permit or iqama fees'),fmt(0))}
-   ${line(tx('إجمالي التكاليف الحكومية السنوية','Total annual government costs'),fmt(tot),'total')}
-   ${line(tx('شهرياً','Per month'),fmt(tot/12))}</div>
-   <p class="hint">${tx('لا يشمل: التأمينات الاجتماعية (تعتمد على الأجر) ولا التأمين الطبي (جهة خاصة) ولا غرامات المخالفات (تبويب المخالفات) ولا رسوم نقل الكفالة.','Excludes: social insurance (depends on wages), medical insurance (private insurer), violation fines (see Violations) and sponsorship transfer fees.')}</p></section></div>`;
+  const g=S.gov, R=g.rate, sal=+g.sal||0, fr=g.nat!=='saudi', base=Math.min(45000,sal*(S.sb.basic+S.sb.housing)/100);
+  const it=[];
+  if(fr){ it.push([tx('رخصة العمل والمقابل المالي','Work permit and levy'),(+R.permit||0)],[tx('رسوم الإقامة','Residency (iqama) fee'),(+R.iqama||0)]); if(g.exit==='Yes') it.push([tx('تأشيرة الخروج والعودة','Exit & re-entry visa'),(+R.exit||0)]); it.push([tx('التأمينات الاجتماعية: أخطار مهنية 2% على صاحب العمل (الأساسي + السكن)','Social insurance: 2% occupational hazards, employer (basic + housing)'),base*0.02*12]); }
+  else { const gr=gosiRates(S.sa); it.push([tx('التأمينات الاجتماعية على صاحب العمل ('+gr.er+'% من الأساسي + السكن)','Social insurance, employer ('+gr.er+'% of basic + housing)'),base*gr.er/100*12]); }
+  it.push([tx('التأمين الطبي (حسب الفئة)','Medical insurance (by class)'),insAnnual()]);
+  it.push([tx('استحقاق نهاية الخدمة (نصف شهر عن كل سنة من الخمس الأولى)','End of service (half a month per year for the first five)'),eosAmt(sal,12)]);
+  const sum=it.reduce((a,x)=>a+x[1],0), yearSal=sal*12;
+  const row=x=>`<tr><td>${x[0]}</td><td class="n">${fmt(x[1])}</td><td class="n">${fmt(x[1]/12)}</td></tr>`;
+  return `<div class="grid"><section class="panel"><h2>${tx('تكاليف الشخص الواحد: حكومية وتأمينات ونهاية خدمة','Per-person costs: government, insurance and end of service')}</h2>
+   <p class="hint">${tx('الحساب لشخص واحد لا للإجمالي. غيّر الجنسية والراتب والتأمين الطبي لترى تكلفته. الأرقام هي المعتمدة في حاسباتنا — تحقق منها في منصات الجهات الرسمية قبل الاعتماد.','The calculation is for one person, not a total. Change nationality, salary and medical class to see his cost. The figures are those used in our calculators — verify them on the official platforms before relying on them.')}</p>
+   ${fld('gv-nat',tx('جنسية الشخص','Person’s nationality'),g.nat,{list:[['foreign',tx('أجنبي','Foreigner')],['saudi',tx('سعودي','Saudi')]]})}
+   ${fld('gv-sal',tx('الراتب الإجمالي الشهري','Total monthly salary'),g.sal,{step:100})}
+   ${genderFld()}${insClassFld()}
+   ${fr?fld('gv-exit',tx('تأشيرة خروج وعودة سنوياً؟','Exit & re-entry visa yearly?'),g.exit,{list:[['Yes',tx('نعم','Yes')],['No',tx('لا','No')]]})+fld('gv-r-permit',tx('رخصة العمل والمقابل (سنوياً)','Work permit and levy (yearly)'),R.permit,{step:100})+fld('gv-r-iqama',tx('رسوم الإقامة (سنوياً)','Residency fee (yearly)'),R.iqama,{step:10})+fld('gv-r-exit',tx('تأشيرة الخروج والعودة (سنوياً)','Exit & re-entry visa (yearly)'),R.exit,{step:10}):''}
+   <p class="hint">${tx('أساس التأمينات الاجتماعية = الأساسي + السكن = '+fmt(sal*(S.sb.basic+S.sb.housing)/100)+' شهرياً ('+(S.sb.basic+S.sb.housing)+'% من الراتب الإجمالي).','Social insurance base = basic + housing = '+fmt(sal*(S.sb.basic+S.sb.housing)/100)+' / month ('+(S.sb.basic+S.sb.housing)+'% of the total salary).')}</p></section>
+  <section class="panel"><h2>${tx('النتيجة للشخص الواحد','Result for one person')}</h2>
+   <div class="tbl"><table><thead><tr><th>${tx('البند','Item')}</th><th class="n">${tx('سنوياً','Yearly')}</th><th class="n">${tx('شهرياً','Monthly')}</th></tr></thead><tbody>${it.map(row).join('')}<tr class="tot"><td>${tx('إجمالي الحكومي والتأمينات ونهاية الخدمة','Government + insurance + end of service total')}</td><td class="n">${fmt(sum)}</td><td class="n">${fmt(sum/12)}</td></tr>
+   <tr><td>${tx('الراتب','Salary')}</td><td class="n">${fmt(yearSal)}</td><td class="n">${fmt(sal)}</td></tr><tr class="tot"><td>${tx('التكلفة الكاملة للشخص (الراتب + ما سبق)','Full cost of the person (salary + the above)')}</td><td class="n">${fmt(yearSal+sum)}</td><td class="n">${fmt((yearSal+sum)/12)}</td></tr></tbody></table></div>
+   <p class="hint">${tx('نهاية الخدمة استحقاق (بروفيجن) يُدفع عند انتهاء العلاقة وليس رسماً حكومياً. لا يشمل: بدل الإجازة والتذكرة وغرامات المخالفات (تبويب المخالفات) ورسوم نقل الكفالة.','End of service is a provision paid when the relationship ends, not a government fee. Excludes: leave pay, tickets, violation fines (see Violations) and sponsorship transfer fees.')}</p></section></div>`;
 }
 function viewOt(){
   const c=S.lump, sv=S.extra; S.extra={...sv,otOn:'No',hours:8,days:6};
@@ -1913,7 +1933,7 @@ function fillTeamCase(k){ S.co.cur=-1; // نماذج الفريق: سعوديو�
  if(k==='m2') set('711013',5,4,13,[['214201',2,2,6],['241101',1,2,3],['332201',2,0,4]]);
 }
 function caseBar(){ // نماذج الفريق الجاهزة: في المالك والعميل والديمو، وليس في ديمو سليمان (قرار المالك)
- if(FAWAZ||S.tab!=='co') return; const m=document.getElementById('main'); if(!m||m.querySelector('#bp-cases')) return;
+ if(FAWAZ||(CLIENT&&!DEMO)||S.tab!=='co') return; const m=document.getElementById('main'); if(!m||m.querySelector('#bp-cases')) return;
  const cs=[['s1',tx('توظيف سعوديين — بسيط','Hiring Saudis — simple')],['s2',tx('توظيف سعوديين — معقّد','Hiring Saudis — complex')],['m0',tx('أجانب فقط — بلا سعوديين (للمقارنة)','Foreigners only — no Saudis (for comparison)')],['m1',tx('أجانب وسعوديون — بسيط','Foreigners + Saudis — simple')],['m2',tx('أجانب وسعوديون — معقّد (مع عن بعد/جزئي)','Foreigners + Saudis — complex (incl. remote/part-time)')]];
  const d=document.createElement('div'); d.className='demo'; d.id='bp-cases'; d.innerHTML='<b>'+tx('نماذج جاهزة للفريق:','Ready-made team examples:')+'</b>'+cs.map(([k,t])=>`<button type="button" data-case="${k}">${t}</button>`).join('');
  const ex=m.querySelector('.demo'); if(ex){ d.style.cssText='flex:1 1 100%;border:0;border-top:1px dashed var(--acLine);border-radius:0;background:transparent;padding:8px 0 0;margin:6px 0 0'; ex.appendChild(d); } else m.insertBefore(d,m.firstChild); d.querySelectorAll('[data-case]').forEach(b=>b.addEventListener('click',()=>fillTeamCase(b.dataset.case)));
@@ -1953,13 +1973,14 @@ function cleanClient(){
 function render(focusId){ try{ coSync(); __render(focusId); stepify(); markRequired(); quickDemo(); caseBar(); violLink(); compWire(); ctrWire(); journeyWire(); quoteWire(); discWire(); resetWire(); }finally{ cleanClient(); } }
 function __render(focusId){
   $('#app').dir=L==='ar'?'rtl':'ltr'; $('#app').lang=L;
-  $('#t-title').textContent=t('title'); $('#t-sub').textContent=t('sub'); $('#t-notice').textContent=t('notice'); $('#t-foot').textContent=t('foot');
+  $('#t-title').textContent=t('title'); $('#t-sub').textContent=(CLIENT&&!DEMO&&!FAWAZ)?t('sub').replace(/ · (نسخة تجريبية للمعاينة|preview version|[^·]*)$/,m=>/نسخة|preview|version|aperçu|预览|Version/i.test(m)?'':m):t('sub'); $('#t-notice').textContent=t('notice'); $('#t-foot').textContent=t('foot');
   document.title=t('title');
   ['ar','en','fr','zh'].forEach(k=>$('#lang-'+k).setAttribute('aria-pressed',L===k));
   $('#journey').innerHTML=journeyHtml();
-  $('#tabs').innerHTML=Object.keys(T.tabs).map(k=>`<button role="tab" data-tab="${k}" aria-selected="${S.tab===k}"${['rent','lump','cost'].includes(k)?' class="svc"':(['co','nit','team','comp','viol','gov','ctr','eos','prof','hire','guides','ot'].includes(k)?' class="svc1"':'')}>${['rent','lump','cost'].includes(k)?'<span class="chip">'+tx('الخدمة 2','Service 2')+'</span>':(['co','nit','team','comp','viol','gov','ctr','eos','prof','hire','guides','ot'].includes(k)?'<span class="chip">'+tx('الخدمة 1','Service 1')+'</span>':'')}${L==='ar'?T.tabs[k][0]:(L==='en'?T.tabs[k][1]:trn(T.tabs[k][1]))}</button>`).join('');
+  { let ov=document.getElementById('goalov'); if(!S.goal){ if(!ov){ const d=document.createElement('div'); d.innerHTML=goalHtml(); document.getElementById('app').appendChild(d.firstChild); } } else if(ov) ov.remove(); }
+  $('#tabs').style.display=jrGroup(S.tab).length>1?'':'none'; $('#tabs').innerHTML=Object.keys(T.tabs).filter(k=>jrGroup(S.tab).includes(k)).map(k=>`<button role="tab" data-tab="${k}" aria-selected="${S.tab===k}"${['rent','lump','cost'].includes(k)?' class="svc"':(['co','nit','team','comp','viol','gov','ctr','eos','prof','hire','guides','ot'].includes(k)?' class="svc1"':'')}>${['rent','lump','cost'].includes(k)?'<span class="chip">'+tx('الخدمة 2','Service 2')+'</span>':(['co','nit','team','comp','viol','gov','ctr','eos','prof','hire','guides','ot'].includes(k)?'<span class="chip">'+tx('الخدمة 1','Service 1')+'</span>':'')}${L==='ar'?T.tabs[k][0]:(L==='en'?T.tabs[k][1]:trn(T.tabs[k][1]))}</button>`).join('');
   const views={eos:viewEos,viol:viewViol,co:viewCo,lump:viewLump,cost:viewCost,gov:viewGov,ctr:viewCtr,nit:viewNit,prof:viewProf,hire:viewHire,team:viewTeam,comp:viewComp,ot:viewOt,rent:viewRent,guides:viewGuides};
-  $('#main').innerHTML=(S.tab==='nit'?barHtml():['prof','hire','team','comp','guides'].includes(S.tab)?compactBar():'')+(['co','nit','team','comp','viol','gov','ctr','eos','prof','hire','guides','ot'].includes(S.tab)?'<div class="svcban b1"><span class="chip">'+tx('الخدمة 1 من Business Partner','Business Partner Service 1')+'</span><span>'+tx('تقييم الوضع الحالي لشركتك: بياناتها ونطاقها وامتثالها ومخالفاتها وتكاليفها الحكومية — خدمة تقدّمها Business Partner.','Assess your company’s current position: data, Nitaqat band, compliance, violations and government costs — a service by Business Partner.')+'</span></div>':'')+(['rent','lump','cost'].includes(S.tab)?'<div class="svcban"><span class="chip">'+tx('الخدمة 2 من Business Partner','Business Partner Service 2')+'</span><span>'+tx('هذه خدمة تقدّمها Business Partner وتبيعها لك — الأسعار التالية عرض خدمتنا وليست أداة حساب مجانية.','This is a service provided and sold by Business Partner — the prices below are our service offer, not a free calculator.')+'</span></div>':'')+bridgeNote()+gate(views[S.tab]())+bridgeCard()+(CLIENT?'':`<p style="margin-top:18px;text-align:center"><button class="btn" id="own" title="${tx('وضع المالك (للمعاينة فقط)','Owner mode (preview only)')}" style="font-size:11px;padding:2px 10px;opacity:${S.owner?1:.45}">⚙ ${S.owner?tx('إخفاء وضع المالك','Hide owner mode'):''}</button></p>`);
+  $('#main').innerHTML=(S.tab==='nit'?barHtml():['prof','hire','team','comp','guides'].includes(S.tab)?compactBar():'')+(['co','nit','team','comp','viol','gov','ctr','eos','prof','hire','guides','ot'].includes(S.tab)?'<div class="svcban b1"><span class="chip">'+tx('الخدمة 1 من Business Partner','Business Partner Service 1')+'</span><span>'+tx('تقييم الوضع الحالي لشركتك: بياناتها ونطاقها وامتثالها ومخالفاتها وتكاليفها الحكومية — خدمة تقدّمها Business Partner.','Assess your company’s current position: data, Nitaqat band, compliance, violations and government costs — a service by Business Partner.')+'</span></div>':'')+(['rent','lump','cost'].includes(S.tab)?'<div class="svcban"><span class="chip">'+tx('الخدمة 2 من Business Partner','Business Partner Service 2')+'</span><span>'+tx('هذه خدمة تقدّمها Business Partner وتبيعها لك — الأسعار التالية عرض خدمتنا وليست أداة حساب مجانية.','This is a service provided and sold by Business Partner — the prices below are our service offer, not a free calculator.')+'</span></div>':'')+bridgeNote()+accHtml()+gate(views[S.tab]())+bridgeCard()+(CLIENT?'':`<p style="margin-top:18px;text-align:center"><button class="btn" id="own" title="${tx('وضع المالك (للمعاينة فقط)','Owner mode (preview only)')}" style="font-size:11px;padding:2px 10px;opacity:${S.owner?1:.45}">⚙ ${S.owner?tx('إخفاء وضع المالك','Hide owner mode'):''}</button></p>`);
   if(!CLIENT) document.getElementById('own').addEventListener('click',()=>{S.owner=!S.owner;render();});
   const re=id=>render(id);
   if(CLIENT) S.profAll=false;
@@ -2021,7 +2042,7 @@ function __render(focusId){
       document.getElementById('m-d-'+i).addEventListener('click',()=>{c.rows.splice(i,1);render();});});
     document.getElementById('m-add').addEventListener('click',()=>{c.rows.push({prof:0,saudi:0,foreign:1});render();});
     document.querySelectorAll('[data-addp]').forEach(b=>b.addEventListener('click',()=>{c.rows.push({prof:parseInt(b.dataset.addp,10),saudi:0,foreign:1});render();}));}
-  if(S.tab==='gov'){ bind('gov',[['gv-exit','exit','sel'],['gv-f','foreign','int'],['gv-s','saudi','int']],re); S.govrate=S.gov.rate; bind('govrate',[['gv-r-permit','permit','num'],['gv-r-iqama','iqama','num'],['gv-r-ajeer','ajeer','num'],['gv-r-exit','exit','num']],re); const sy=document.getElementById('gv-sync'); if(sy) sy.addEventListener('click',()=>{ S.gov.foreign=null; S.gov.saudi=null; render(); }); }
+  if(S.tab==='gov'){ bind('gov',[['gv-nat','nat','sel'],['gv-sal','sal','num'],['gv-exit','exit','sel']],re); S.govrate=S.gov.rate; bind('govrate',[['gv-r-permit','permit','num'],['gv-r-iqama','iqama','num'],['gv-r-exit','exit','num']],re); }
   if(S.tab==='ot') bind('ot',[['ot-hours','hours','num'],['ot-annual','hours','num'],['ot-sal','sal','num']],re);
   if(S.tab==='guides') bind('guides',[['g-q','q','txt'],['g-oq','oq','txt']],re);
   bind('ins',[['i-gender','gender','sel'],['i-cls','cls','sel'],['i-mat','mat','sel']],re);
@@ -2040,6 +2061,9 @@ $('#lang-en').addEventListener('click',()=>{L='en';render();});
 $('#lang-fr').addEventListener('click',()=>{L='fr';render();});
 $('#lang-zh').addEventListener('click',()=>{L='zh';render();});
 if(FAWAZ){ S.tab='co'; fzLoad(9); } else if(DEMO){ S.quote.client='العميل التجريبي · Demo Client'; S.quote.comp='شركة المثال للاستشارات الهندسية · Example Engineering Consultancy'; S.tab='lump'; fillDemo(1,0); S.tab='cost'; fillDemo(1,0); fillCompany3(); coDemo(); coLoad(2); S.tab='co'; render(); }
+if(!CLIENT||DEMO||FAWAZ) S.goal='assess';
+{ const gm=(location.search+location.hash).match(/goal=(assess|hire)/); if(gm) S.goal=gm[1]; }
+window.bpGo=t=>{ if(!S.goal) S.goal=(['lump','cost','rent'].includes(t)||t==='hire')?'hire':'assess'; S.tab=t; render(); };
 render();
 })();
 </script>

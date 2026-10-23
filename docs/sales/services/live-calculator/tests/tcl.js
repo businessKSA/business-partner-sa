@@ -1,9 +1,9 @@
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1000,height:1400}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.goto('file://'+process.cwd()+'/index-client.html');await p.waitForTimeout(300);
-await p.click('[data-tab=lump]');console.log('no activity hint:',await p.evaluate(()=>/اختر نشاطك/.test(document.querySelector('#main').innerText)));
-await p.click('[data-tab=nit]');await p.click('#g-act');await p.fill('#g-act','561010');await p.waitForTimeout(150);await p.keyboard.press('Enter');await p.waitForTimeout(300);
-await p.click('[data-tab=lump]');await p.waitForTimeout(200);
+await p.goto('file://'+process.cwd()+'/index-client.html?goal=assess');await p.waitForTimeout(300);
+await p.evaluate(()=>bpGo('lump'));console.log('no activity hint:',await p.evaluate(()=>/اختر نشاطك/.test(document.querySelector('#main').innerText)));
+await p.evaluate(()=>bpGo('nit'));await p.click('#g-act');await p.fill('#g-act','561010');await p.waitForTimeout(150);await p.keyboard.press('Enter');await p.waitForTimeout(300);
+await p.evaluate(()=>bpGo('lump'));await p.waitForTimeout(200);
 console.log('scope text:',await p.evaluate(()=>document.querySelector('#main').innerText.match(/تُعرض مهن[^\n]*/)?.[0]),'| checkbox:',await p.evaluate(()=>!!document.querySelector('[data-profall]')));
 await p.click('#l-prof');await p.fill('#l-prof','نادل');await p.waitForTimeout(250);
 console.log('waiter in list:',await p.evaluate(()=>[...document.querySelectorAll('.dd .it')].slice(0,2).map(x=>x.textContent.trim().slice(0,30)).join(' | ')));

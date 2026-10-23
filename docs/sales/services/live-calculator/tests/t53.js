@@ -1,0 +1,13 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess');await p.waitForTimeout(300);
+const T=()=>p.evaluate(()=>document.querySelector('#main').innerText);
+const sel=async(id,v)=>{await p.evaluate(([id,v])=>{const s=document.getElementById(id);s.value=v;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));},[id,v]);await p.waitForTimeout(300);};
+let t=await T();console.log('single 12m lump:',t.match(/السعر الشهري قبل التوطين\s*([\d,]+)/)?.[1]);
+await p.click('[data-toorder]');await p.waitForTimeout(400);t=await T();
+console.log('order from lump:',t.match(/1\) [^\n]*\n[\d,]+/)?.[0].replace(/\n/g,' | '),'| trn field',!!(await p.$('#o-trn-0')));
+await sel('o-trn-0','1');await sel('o-qty-0','2');t=await T();console.log('2 workers 1y:',t.match(/1\) [^\n]*\n[\d,]+/)?.[0].replace(/\n/g,' | '));
+await p.click('#o-add');await p.waitForTimeout(300);await sel('o-unit-1','month');await sel('o-n-1','6');t=await T();console.log('row2 6 months:',t.match(/2\) [^\n]*\n[\d,]+/)?.[0].replace(/\n/g,' | '),t.match(/الإجمالي شامل الضريبة\n[\d,]+/)?.[0]);
+await sel('o-nat-1','saudi');await sel('o-n-1','24');t=await T();console.log('saudi 24m:',t.match(/2\) [^\n]*\n[\d,]+/)?.[0].replace(/\n/g,' | '));
+console.log(errs);await b.close();})();

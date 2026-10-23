@@ -1,0 +1,12 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage({viewport:{width:1280,height:900}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess');await p.waitForTimeout(300);
+await p.click('#g-act');await p.waitForTimeout(150);console.log('empty',await p.evaluate(()=>document.querySelector('.dd .hd')?.innerText));
+await p.keyboard.type('زراع');await p.waitForTimeout(200);console.log('q زراع',await p.evaluate(()=>document.querySelector('.dd .hd')?.innerText), await p.evaluate(()=>document.querySelectorAll('.dd .it').length));
+await p.keyboard.type('ة قمح');await p.waitForTimeout(200);console.log(await p.evaluate(()=>[...document.querySelectorAll('.dd .it')].slice(0,2).map(x=>x.innerText)));
+await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');await p.waitForTimeout(300);
+console.log('picked',await p.inputValue('#g-act'),'|',await p.inputValue('#g-grp'));
+await p.click('#l-prof');await p.keyboard.type('محاس');await p.waitForTimeout(200);console.log('prof',await p.evaluate(()=>document.querySelector('.dd .hd')?.innerText));
+await p.click('.dd .it');await p.waitForTimeout(300);console.log(await p.inputValue('#l-prof'));
+console.log('ERR',errs);await p.screenshot({path:'shot4.png'});await b.close();})();

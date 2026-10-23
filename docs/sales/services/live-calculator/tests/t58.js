@@ -1,0 +1,16 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess');await p.waitForTimeout(300);
+const T=()=>p.evaluate(()=>document.querySelector('#main').innerText);
+const sel=async(id,v)=>{await p.evaluate(([id,v])=>{const s=document.getElementById(id);s.value=v;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));},[id,v]);await p.waitForTimeout(300);};
+await sel('l-term','1');await sel('l-qty','2');
+let t=await T();console.log('single month x2 price:',t.match(/السعر الشهري قبل التوطين\s*([\d,]+)/)?.[1]);
+await p.click('[data-toorder]');await p.waitForTimeout(400);
+console.log('stayed in lump form:',!!(await p.$('#l-sal')),'| saved card:',(await T()).match(/1\) 2 ×[^\n]*/)?.[0]);
+await sel('l-term','12');await sel('l-qty','1');await sel('l-nat','saudi');
+t=await T();console.log(t.match(/المجموعة الحالية[^\n]*\n[\d,]+/)?.[0].replace(/\n/g,' | '),'|',t.match(/الإجمالي شامل الضريبة\n[\d,]+/)?.[0].replace(/\n/g,' | '));
+await p.click('[data-toorder]');await p.waitForTimeout(400);t=await T();console.log('2 saved:',(t.match(/\d\) \d × [^\n]*/g)||[]).join(' || '));
+await p.click('[data-gedit="lump:0"]');await p.waitForTimeout(400);console.log('edit loads:',await p.evaluate(()=>document.getElementById('l-term').value+'/'+document.getElementById('l-qty').value));
+await p.click('[data-gdel="lump:0"]');await p.waitForTimeout(300);
+console.log(errs);await b.close();})();

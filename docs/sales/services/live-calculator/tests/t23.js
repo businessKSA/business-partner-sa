@@ -1,0 +1,13 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage({viewport:{width:1100,height:1000}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess');await p.waitForTimeout(300);
+const g=async re=>(await p.evaluate(()=>document.querySelector('#main').innerText)).match(re)?.[1];
+const setSel=async(id,v)=>{await p.evaluate(([id,v])=>{const s=document.getElementById(id);s.value=v;s.dispatchEvent(new Event('change',{bubbles:true}));},[id,v]);await p.waitForTimeout(250);};
+await p.evaluate(()=>bpGo('cost'));await p.waitForTimeout(300);
+const t=await p.evaluate(()=>document.querySelector('#main').innerText);
+console.log('sum',await g(/إجمالي التكاليف بالفعلي \(بلا ضريبة\)\s*([\d,]+)/),'oh',await g(/الأوفر هيد لكل موظف\s*([\d,]+)/),'15%',await g(/نسبتنا 15% فوق كل التكاليف والأوفر هيد\s*([\d,]+)/),'vat',await g(/ضريبة 15% على رسمنا \(الأوفر هيد \+ نسبتنا\)\s*([\d,]+)/),'total',await g(/إجمالي الفاتورة الشهرية\s*([\d,]+)/));
+await setSel('o-loc','Yes');console.log('with loc',await g(/رسم التوطين حسب المهنة\s*([\d,]+)/),await g(/إجمالي الفاتورة الشهرية\s*([\d,]+)/));
+await p.evaluate(()=>bpGo('lump'));await p.click('.chips button[data-v="saudi"]');await p.waitForTimeout(300);
+console.log('saudi',await g(/الأوفر هيد لكل موظف\s*([\d,]+)/),await g(/إجمالي التكلفة الشهرية \(دوام كامل\)\s*([\d,]+)/),await g(/رسمنا 15% فوق كل التكاليف\s*([\d,]+)/),await g(/السعر الشهري قبل الضريبة\s*([\d,]+)/));
+console.log('ERR',errs);await b.close();})();

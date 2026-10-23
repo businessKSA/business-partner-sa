@@ -1,0 +1,12 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage({viewport:{width:1100,height:1000}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess');await p.waitForTimeout(300);
+const setSel=async(id,v)=>{await p.evaluate(([id,v])=>{const s=document.getElementById(id);s.value=v;s.dispatchEvent(new Event('change',{bubbles:true}));},[id,v]);await p.waitForTimeout(250);};
+const g=async re=>(await p.evaluate(()=>document.querySelector('#main').innerText)).match(re)?.[1];
+console.log('lump inside',await g(/السعر الشهري قبل التوطين\s*([\d,]+)/),'tkt field',await p.evaluate(()=>!!document.getElementById('l-tkt')),'con',await p.evaluate(()=>!!document.getElementById('l-con')));
+await setSel('l-nat','IN');console.log('lump IN',await g(/السعر الشهري قبل التوطين\s*([\d,]+)/),await p.evaluate(()=>!!document.getElementById('l-tkt')),await p.evaluate(()=>!!document.getElementById('l-con')));
+await p.evaluate(()=>bpGo('cost'));await p.waitForTimeout(250);
+console.log('cost IN: arr',await p.evaluate(()=>!!document.getElementById('c-arr')),'total',await g(/إجمالي الفاتورة الشهرية\s*([\d,]+)/));
+await setSel('c-nat','inside');console.log('cost inside: arr',await p.evaluate(()=>!!document.getElementById('c-arr')),'con',await p.evaluate(()=>!!document.getElementById('c-con')),'xfer',await p.evaluate(()=>!!document.getElementById('c-xfer')),'trn',await p.evaluate(()=>!!document.getElementById('c-trn')),'total',await g(/إجمالي الفاتورة الشهرية\s*([\d,]+)/));
+console.log('ERR',errs);await b.close();})();

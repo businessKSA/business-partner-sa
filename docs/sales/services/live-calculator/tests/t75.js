@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1000,height:1500}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.goto('file://'+process.cwd()+'/index-client.html');await p.click('[data-tab=lump]');await p.waitForTimeout(300);
+await p.goto('file://'+process.cwd()+'/index-client.html?goal=assess');await p.evaluate(()=>bpGo('lump'));await p.waitForTimeout(300);
 const pick=async(id,text)=>{await p.click('#'+id+'-s');await p.waitForTimeout(200);await p.fill('#'+id+'-s',text);await p.waitForTimeout(250);await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');await p.waitForTimeout(400);};
 const dis=()=>p.evaluate(()=>document.querySelector('[data-go="1"]').disabled);
 const stars=()=>p.evaluate(()=>[...document.querySelectorAll('.req-star')].filter(e=>e.offsetParent).map(e=>e.parentElement.textContent.replace('*','').trim()));

@@ -1,0 +1,15 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage({viewport:{width:1280,height:900}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess');await p.waitForTimeout(300);
+const g=async re=>(await p.evaluate(()=>document.querySelector('#main').innerText)).match(re)?.[1];
+const setSel=async(id,v)=>{await p.evaluate(([id,v])=>{const s=document.getElementById(id);s.value=v;s.dispatchEvent(new Event('change',{bubbles:true}));},[id,v]);await p.waitForTimeout(250);};
+console.log('lump basic',await g(/السعر الشهري قبل التوطين\s*([\d,]+)/),'impact',await g(/بعد توظيف 1 أجنبي\s*([^\n]+)/));
+await setSel('i-cls','C');console.log('lump classC',await g(/السعر الشهري قبل التوطين\s*([\d,]+)/),await g(/القسط السنوي المقدَّر: ([\d,]+)/));
+await setSel('i-gender','female');await setSel('i-mat','Yes');console.log('female mat',await g(/القسط السنوي المقدَّر: ([\d,]+)/));
+await setSel('l-nat','saudi');console.log('saudi price',await g(/السعر الشهري قبل الضريبة\s*([\d,]+)/),await g(/بعد توظيف 1 سعودي\s*([^\n]+)/));
+await setSel('s-regime','old');console.log('old gosi',await g(/السعر الشهري قبل الضريبة\s*([\d,]+)/));
+await p.fill('#g-full','5');await p.fill('#g-foreign','10');await p.waitForTimeout(300);console.log('headcount ok',await g(/بعد توظيف 1 سعودي\s*([^\n]+)/));
+await p.evaluate(()=>bpGo('cost'));await p.waitForTimeout(300);await setSel('c-nat','Mexico');console.log('cost',await g(/إجمالي الفاتورة الشهرية\s*([\d,]+)/));
+await p.evaluate(()=>bpGo('hire'));await p.waitForTimeout(300);console.log('hire gender field',await p.evaluate(()=>!!document.getElementById('i-gender')));
+console.log('ERR',errs);await b.close();})();

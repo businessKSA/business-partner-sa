@@ -1,0 +1,14 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage({viewport:{width:1280,height:900}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess');await p.waitForTimeout(300);
+const g=async re=>(await p.evaluate(()=>document.querySelector('#main').innerText)).match(re)?.[1];
+console.log('foreign',await g(/السعر الشهري قبل التوطين\s*([\d,]+)/));
+await p.selectOption('#l-nat','saudi');await p.waitForTimeout(300);
+console.log('saudi cost',await g(/إجمالي التكلفة الشهرية \(دوام كامل\)\s*([\d,]+)/),'price',await g(/السعر الشهري قبل الضريبة\s*([\d,]+)/),await g(/يُحتسب في نطاقات\s*([^\n]+)/));
+await p.fill('#s-share','50');await p.waitForTimeout(300);console.log('half',await g(/السعر الشهري قبل الضريبة\s*([\d,]+)/));
+await p.evaluate(()=>bpGo('cost'));await p.waitForTimeout(300);console.log('cost nat saudi?',await p.inputValue('#c-nat').catch(()=> 'n/a'));
+await p.selectOption('#c-nat','Mexico');await p.waitForTimeout(300);console.log('cost mexico',await g(/إجمالي الفاتورة الشهرية\s*([\d,]+)/));
+await p.evaluate(()=>bpGo('hire'));await p.waitForTimeout(300);await p.selectOption('#h-nat','saudi');await p.waitForTimeout(300);
+console.log('hire saudi',await g(/السعر الشهري قبل الضريبة\s*([\d,]+)/),(await p.evaluate(()=>document.querySelector('#main').innerText)).includes('سعودي'));
+console.log('ERR',errs);await b.close();})();

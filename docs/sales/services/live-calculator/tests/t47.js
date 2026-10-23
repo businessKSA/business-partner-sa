@@ -1,0 +1,13 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess');await p.waitForTimeout(300);
+const T=()=>p.evaluate(()=>document.querySelector('#main').innerText);
+const sel=async(id,v)=>{await p.evaluate(([id,v])=>{const s=document.getElementById(id);s.value=v;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));},[id,v]);await p.waitForTimeout(300);};
+console.log(await p.evaluate(()=>[...document.querySelectorAll('#l-term option')].map(o=>o.textContent).join('|')));
+await sel('l-term','u:day');let t=await T();console.log('day view:',/الطلب/.test(t),/بطاقة الأسعار/.test(t),t.match(/قيمة إيجار/)?.[0]||'no premium label');
+console.log(t.match(/الراتب\t[^\n]*/)?.[0]);
+await sel('r-qty','3');await sel('l-term','u:hour');t=await T();console.log('hour:',t.match(/الطلب\n[^\n]*/)?.[0]);
+await sel('l-term','6');t=await T();console.log('6 months',t.match(/السعر الشهري قبل التوطين\s*([\d,]+)/)?.[1],t.match(/الراتب\n[\d,]+/)?.[0]);
+await sel('l-term','12');t=await T();console.log('12 months',t.match(/السعر الشهري قبل التوطين\s*([\d,]+)/)?.[1]);
+console.log(errs);await b.close();})();

@@ -8,7 +8,7 @@ await ctx.addInitScript(()=>{window.claude={use:async n=>{if(n!=='sample')return
  if(t.includes('العنوان الوطني'))return {short_address:'JJJJ1234',expiry_date:null};
  return {};};return s;}};});
 const p=await ctx.newPage();p.on('pageerror',e=>errs.push(e.message));
-await p.goto('file://'+process.cwd()+'/index-client.html');await p.waitForTimeout(500);
+await p.goto('file://'+process.cwd()+'/index-client.html?goal=assess');await p.waitForTimeout(500);
 fs.writeFileSync('tdata/shot.png',Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==','base64'));
 console.log('attach buttons in form:',await p.evaluate(()=>document.querySelectorAll('[data-cdf][data-cdm=form]').length));
 for(const k of ['cr','qiwa','tax','gosi','addr']){await p.setInputFiles('[data-cdf='+k+'][data-cdm=form]','tdata/shot.png');await p.waitForTimeout(600);}

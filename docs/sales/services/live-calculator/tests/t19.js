@@ -1,0 +1,12 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage({viewport:{width:1100,height:1000}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess');await p.waitForTimeout(300);
+const g=async re=>(await p.evaluate(()=>document.querySelector('#main').innerText)).match(re)?.[1];
+await p.click('.chips button[data-v="MX"]');await p.waitForTimeout(300);console.log('MX',await g(/السعر الشهري قبل التوطين\s*([\d,]+)/));
+await p.click('#l-nat-s');await p.keyboard.type('نيجيريا');await p.waitForTimeout(250);console.log(await p.evaluate(()=>[...document.querySelectorAll('.dd .it')].map(x=>x.innerText)));
+await p.click('.dd .it');await p.waitForTimeout(300);console.log('NG',await p.inputValue('#l-nat'),await p.evaluate(()=>!!document.getElementById('l-rec')),await g(/السعر الشهري قبل التوطين\s*([\d,]+)/));
+await p.fill("#l-rec","7000");await p.waitForTimeout(300);console.log('NG 7000',await g(/السعر الشهري قبل التوطين\s*([\d,]+)/));
+console.log('opts',await p.evaluate(()=>document.getElementById('l-nat').options.length));
+await p.evaluate(()=>bpGo('cost'));await p.waitForTimeout(300);console.log('cost IN',await g(/إجمالي الفاتورة الشهرية\s*([\d,]+)/));
+console.log('ERR',errs);await b.close();})();

@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1000,height:3000}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.goto('file://'+process.cwd()+'/index-client.html');await p.waitForTimeout(300);await p.click('[data-tab=cost]');
+await p.goto('file://'+process.cwd()+'/index-client.html?goal=assess');await p.waitForTimeout(300);await p.evaluate(()=>bpGo('cost'));
 const pick=async(id,text)=>{await p.click('#'+id+'-s');await p.waitForTimeout(200);await p.fill('#'+id+'-s',text);await p.waitForTimeout(250);await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');await p.waitForTimeout(400);};
 await pick('c-term','سنتان');await p.click('#c-prof');await p.fill('#c-prof','نادل');await p.waitForTimeout(250);await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');await p.waitForTimeout(400);
 await p.click('[data-go="1"]');await pick('c-src','استقدام');await pick('c-cty','فلبين');await p.fill('#c-qty','2');await pick('i-gender','ذكر');

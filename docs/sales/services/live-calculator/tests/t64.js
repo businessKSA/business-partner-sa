@@ -1,0 +1,10 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess');await p.waitForTimeout(300);
+const sel=async(id,v)=>{await p.evaluate(([id,v])=>{const s=document.getElementById(id);s.value=v;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));},[id,v]);await p.waitForTimeout(300);};
+await sel('l-src','abroad');await sel('l-cty','PH');
+console.log('options sample:',await p.evaluate(()=>[...document.querySelectorAll('#l-cty option')].slice(0,4).map(o=>o.textContent).join(' | ')));
+const t=await p.evaluate(()=>document.querySelector('#main').innerText);
+console.log('has digits in nationality options:',await p.evaluate(()=>[...document.querySelectorAll('#l-cty option')].some(o=>/\d{3,}/.test(o.textContent))));
+console.log('recruitment row below:',t.match(/الاستقدام من الخارج[^\n]*\n[\d,]+/)?.[0].replace(/\n/g,' | '));console.log(errs);await b.close();})();

@@ -1,0 +1,13 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage({viewport:{width:1280,height:900}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess');
+const g=async re=>(await p.evaluate(()=>document.querySelector('#main').innerText)).match(re)?.[1];
+console.log('inside',await g(/السعر الشهري قبل التوطين\s*([\d,]+)/));
+await p.selectOption('#l-nat','Mexico');await p.waitForTimeout(150);
+console.log('mexico',await g(/السعر الشهري قبل التوطين\s*([\d,]+)/), await g(/(الوصول المتوقع[^\n]*)/));
+await p.evaluate(()=>bpGo('cost'));await p.selectOption('#c-abroad','Yes');await p.waitForTimeout(150);
+console.log('cost',await g(/إجمالي الفاتورة الشهرية\s*([\d,]+)/));
+await p.evaluate(()=>bpGo('hire'));await p.waitForTimeout(100);await p.selectOption('#h-nat','Philippines');await p.waitForTimeout(150);
+console.log('hire',await g(/السعر الشهري قبل الضريبة[^\d]*([\d,]+)/));
+console.log('ERR',errs);await b.close();})();

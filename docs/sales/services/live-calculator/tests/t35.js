@@ -1,0 +1,12 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess');await p.waitForTimeout(300);
+const T=()=>p.evaluate(()=>document.querySelector('#main').innerText);
+const sel=async(id,v)=>{await p.evaluate(([id,v])=>{const s=document.getElementById(id);s.value=v;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));},[id,v]);await p.waitForTimeout(200);};
+const pr=async()=>(await T()).match(/السعر الشهري قبل التوطين\s*([\d,]+)/)[1];
+console.log('opts',await p.evaluate(()=>[...document.querySelectorAll('#l-trn option')].map(o=>o.textContent).join('|')));
+console.log('trn1',await pr());await sel('l-trn','0');console.log('no transfer',await pr());
+await p.evaluate(()=>bpGo('cost'));await p.waitForTimeout(250);await sel('c-trn','0');const t=await T();console.log('cost ok',/إجمالي الفاتورة الشهرية/.test(t));
+await p.evaluate(()=>bpGo('rent'));await p.waitForTimeout(250);console.log('rent hour',(await T()).match(/ساعة\t[\d.]+\t([\d,]+)/)?.[1]);
+console.log('ERR',errs);await b.close();})();
