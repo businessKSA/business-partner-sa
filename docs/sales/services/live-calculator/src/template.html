@@ -1717,7 +1717,27 @@ function chMicInit(){ const b=document.getElementById('cs-mic'); if(!b) return; 
 async function chFiles(fl){ if(CH.aiOk){ chSendFiles(fl); return; } const e=S.co.list[S.co.cur]; chPush('user',{content:'📎 '+fl.map(f=>f.name).join(SEP())}); chRender(); const rr=await agFiles(fl); chPush('assistant',{content:rr.join('\n'),chips:chNextChips(S.co.cur),html:chFilesCard()}); render(); }
 async function chSendFiles(fl){ await agSend('',fl); chAfterAi(); }
 function chAfterAi(){ const i=S.co.cur; if(i>=0&&S.co.list[i]){ const last=AG.msgs[AG.msgs.length-1]; if(last&&last.role==='assistant'&&!last.html){ if(String(last.content||'').length>180) last.content=tx('هذا وضع «'+S.co.list[i].name+'» الآن في جداول مختصرة. يمكنك التراجع عن أي تغيير بزر «تراجع».','Here is “'+S.co.list[i].name+'” right now in short tables. You can undo any change with the “Undo” button.'); last.html=chCardTables(i); last.chips=chNextChips(i); } } chRender(); }
-async function chSend(text){ if(CH.aiOk){ await agSend(text); chAfterAi(); return; } chPush('user',{content:text}); const t=norm(text);
+/* ما يكتبه العميل في شريط المحادثة وفي أسفل الصفحة يُقرأ دائماً: إن كانت هناك خانة مفتوحة (مستندات، تسجيل، نص، بحث) عُبّئت من كلامه */
+function chParseFields(text,keys){ const t=drDig(String(text)), o={}; const pick=(re)=>{ const m=t.match(re); return m?m[1]||m[0]:null; };
+  if(keys.includes('no')){ const v=pick(/(\d{1,2}-\d{3,9})/); if(v) o.no=v; }
+  if(keys.includes('uno')){ const v=pick(/(7\d{9})(?!\d)/); if(v) o.uno=v; }
+  if(keys.includes('tax')){ const v=pick(/(3\d{14})(?!\d)/); if(v) o.tax=v; }
+  if(keys.includes('addr')){ const v=pick(/\b([A-Za-z]{4}\s?\d{4})\b/); if(v) o.addr=v.replace(/\s/g,'').toUpperCase(); }
+  if(keys.includes('gosi')){ const v=pick(/(?:تأمينات|التأمينات|gosi)[^\d]{0,25}(\d{6,10})/i); if(v) o.gosi=v; }
+  if(keys.includes('email')){ const v=pick(/([^\s@،,]+@[^\s@،,]+\.[^\s@،,]+)/); if(v) o.email=v; }
+  if(keys.includes('phone')){ const v=pick(/((?:\+?966|00966|0)?5\d{8})(?!\d)/); if(v) o.phone=v; }
+  if(keys.includes('name')){ const v=pick(/(?:اسم المنشأة|اسم المنشاة|اسم الشركة|المنشأة|الشركة|my name is|اسمي)\s*[:：]?\s*([^\n،,\d]{2,60})/i); if(v) o.name=v.trim(); }
+  if(keys.includes('company')){ const v=pick(/(?:شركتي|اسم الشركة|المنشأة|company)\s*[:：]?\s*([^\n،,\d]{2,60})/i); if(v) o.company=v.trim(); }
+  return o; }
+async function chDockText(text){ const w=CV.w; if(!w) return false; const d=document.getElementById('cs-dock'); if(!d) return false;
+  if(w.kind==='text'||w.kind==='ta'){ w.onSubmit(text); return true; }
+  if(w.kind==='search'){ const q=d.querySelector('#dk-q'); if(q){ chPush('user',{content:text}); q.value=text; q.dispatchEvent(new Event('input')); chSay(tx('بحثتُ عن «'+text+'». اختر من النتائج تحت.','I searched for “'+text+'”. Pick from the results below.')); return true; } return false; }
+  if(w.kind==='numbers'){ const ins=[...d.querySelectorAll('[data-nk]')]; const n=drDig(String(text)).match(/\d+(?:\.\d+)?/g); if(!ins.length||!n){ chPush('user',{content:text}); chSay(tx('اكتب رقماً أو استعمل + و −.','Type a number or use + and −.')); return true; } chPush('user',{content:text}); ins.forEach((i,k)=>{ if(n[k]!==undefined) i.value=n[k]; }); if(ins.length===1||n.length>=ins.length){ const ok=d.querySelector('#dk-ok'); if(ok) ok.click(); } return true; }
+  if(w.kind==='form'){ const inputs=[...d.querySelectorAll('[data-fk]')], keys=inputs.map(i=>i.dataset.fk); chPush('user',{content:text}); const got=chParseFields(text,keys); const labels=[];
+    inputs.forEach(i=>{ const k=i.dataset.fk; if(got[k]){ i.value=got[k]; const f=(w.fields||[]).find(x=>x.k===k); labels.push((f&&f.label||k)+': '+got[k]); } });
+    chSay(labels.length?tx('قرأتُ من كلامك وعبّأتُ الخانات: '+labels.join('، ')+'. راجعها ثم اضغط حفظ.','I read your message and filled the fields: '+labels.join(', ')+'. Review them, then press Save.'):tx('لم أجد في كلامك أرقاماً أو بيانات تُعبّأ في الخانات. اكتبها مثل: رقم مكتب العمل 1-123456، الرقم الموحد 7001234567، أو ارفع المستند.','I found no numbers or details to fill in the fields. Write them like: labour office no. 1-123456, unified no. 7001234567, or upload the document.')); return true; }
+  return false; }
+async function chSend(text){ if(CV.w&&await chDockText(text)) return; if(CH.aiOk){ await agSend(text); chAfterAi(); return; } chPush('user',{content:text}); const t=norm(text);
   if(/تقييم|قيم|assess/.test(t)&&S.co.cur<0) chAsk(tx('ابدأ بإضافة منشأتك.','Start by adding your establishment.'),[['open','➕ '+tx('أضف منشأة','Add an establishment'),'co']]);
   else if(S.co.cur>=0&&/مخالف|violation/.test(t)) chPush('assistant',{content:tx('المخالفات المتوقعة:','Expected violations:'),html:chCardViol(S.co.cur)});
   else if(S.co.cur>=0&&/نطاق|nitaqat|band|وضع|status/.test(t)) chShowEst(S.co.cur);
