@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1000,height:2400}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.goto('file://'+process.cwd()+'/index.html');await p.waitForTimeout(300);
+await p.goto('file://'+process.cwd()+'/index-demo.html');await p.waitForTimeout(300);
 for(const tab of ['lump','cost']){await p.click(`[data-tab=${tab}]`);
  for(const d of ['10','11','00','01']){await p.click(`[data-demo="${d}"]`);await p.waitForTimeout(300);
   const t=await p.evaluate(()=>document.querySelectorAll('#main section.panel')[1].innerText);

@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1000,height:2600}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.goto('file://'+process.cwd()+'/index.html');await p.waitForTimeout(300);
+await p.goto('file://'+process.cwd()+'/index-demo.html');await p.waitForTimeout(300);
 await p.click('#demo-co');await p.waitForTimeout(500);
 let t=await p.evaluate(()=>document.querySelector('#main').innerText);
 console.log(t.replace(/\n+/g,' | ').slice(0,900));
