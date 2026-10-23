@@ -131,6 +131,40 @@ input[type=number]{-moz-appearance:textfield}
 .mode{display:flex;gap:8px;flex-wrap:wrap}
 .mode label{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;flex:1 1 220px;background:var(--soft)}
 .mode input{width:auto;margin-top:3px}
+
+/* === هوية الموقع الجديد (Simple V1 «مختبر»): أرضية بيضاء، خطوط ١px، كحلي #0B1B5A، عناوين خفيفة، أرقام أحادية === */
+:root{--bg:#FFFFFF;--surface:#FFFFFF;--ink:#0B1B5A;--muted:#5A6478;--line:#E5E9F0;--navy:#0B1B5A;--soft:#F5F7FB;--accent:#16307F;--acSoft:#EEF2FB;--acLine:#C3CDE6;--ok:#047857;--ok-bg:#E7F4EF;--warn:#B45309;--sh:0 1px 2px rgba(11,27,90,.06);--sh2:0 22px 56px -18px rgba(11,27,90,.22),0 2px 8px rgba(11,27,90,.06)}
+body{color:#232A3D;-webkit-font-smoothing:antialiased}
+.brand b{font-weight:300;letter-spacing:-.025em;color:var(--ink)}
+.panel h2,.band h3{font-weight:300;letter-spacing:-.02em;color:var(--ink)}
+.panel,.band,.tbl,.mode label{border-radius:13px;box-shadow:var(--sh)}
+.tbl,.mode label{box-shadow:none}
+th{background:var(--soft);font-weight:500;color:var(--muted);font-size:12px}
+.line{border-bottom:1px solid var(--line)}
+.line.total{background:var(--acSoft);border:1px solid var(--acLine);border-radius:10px}
+.line b,td.n,th.n,.band .big,input[type=number]{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.btn{border-radius:9px;font-weight:500;font-size:13.5px;padding:10px 18px;transition:.12s}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--navy);border-color:var(--navy);box-shadow:0 6px 18px -6px rgba(11,27,90,.45)}
+.btn.primary:hover{background:#16307F;border-color:#16307F;transform:translateY(-1px)}
+.pill,.chips button,.chip{border-radius:999px}
+.seg{border-radius:9px}
+.band.cur{border-color:var(--navy);box-shadow:0 0 0 1px var(--navy) inset}
+:focus-visible{outline:2px solid #0B1B5A;outline-offset:3px;border-radius:5px}
+nav.tabs{gap:2px;border-bottom:1px solid var(--line);padding-bottom:0}
+nav.tabs button{border-radius:0;font-weight:500;font-size:13.5px;padding:11px 14px;color:var(--muted);background:transparent;border:0;border-bottom:2px solid transparent;margin:0}
+nav.tabs button[aria-selected="true"]{background:transparent;color:var(--ink);box-shadow:none;border-bottom-color:var(--navy);font-weight:600}
+nav.tabs button .chip{font-size:9.5px;font-weight:600;letter-spacing:.02em;padding:1px 7px;border-radius:999px;margin-inline-end:6px;vertical-align:middle}
+nav.tabs button.svc1{background:transparent;border:0;border-bottom:2px solid transparent;color:var(--muted)}
+nav.tabs button.svc1 .chip{background:#EEF2FB;color:#0B1B5A;border:1px solid #C3CDE6}
+nav.tabs button.svc1[aria-selected="true"]{background:#EEF2FB;color:var(--ink);box-shadow:none;border-bottom-color:#0B1B5A}
+nav.tabs button.svc{background:transparent;border:0;border-bottom:2px solid transparent;color:var(--muted);margin-inline-start:0}
+nav.tabs button.svc .chip{background:#FFF6E0;color:#8A5A00;border:1px solid #E6C77A}
+nav.tabs button.svc[aria-selected="true"]{background:#FFF6E0;color:#4a3200;box-shadow:none;border-bottom-color:#B8860B}
+.svcban{background:#FFF6E0;border:1px solid #E6C77A;color:#5a3d00;border-radius:13px;font-weight:400;font-size:13.5px;box-shadow:none}
+.svcban .chip{background:#B8860B;color:#fff;font-weight:600;font-size:10.5px}
+.svcban.b1{background:#EEF2FB;border-color:#C3CDE6;color:#0B1B5A}.svcban.b1 .chip{background:#0B1B5A}
+.demo{border:1px dashed var(--acLine);background:var(--acSoft)}
 </style>
 
 <div class="wrap" id="app" dir="rtl" lang="ar">
@@ -1816,9 +1850,9 @@ function __render(focusId){
   $('#t-title').textContent=t('title'); $('#t-sub').textContent=t('sub'); $('#t-notice').textContent=t('notice'); $('#t-foot').textContent=t('foot');
   document.title=t('title');
   ['ar','en','fr','zh'].forEach(k=>$('#lang-'+k).setAttribute('aria-pressed',L===k));
-  $('#tabs').innerHTML=Object.keys(T.tabs).map(k=>`<button role="tab" data-tab="${k}" aria-selected="${S.tab===k}"${k==='lump'||k==='cost'?' class="svc"':(['co','nit','team','comp','viol','gov','eos'].includes(k)?' class="svc1"':'')}>${k==='lump'||k==='cost'?'<span class="chip">'+tx('الخدمة 2','Service 2')+'</span>':(['co','nit','team','comp','viol','gov','eos'].includes(k)?'<span class="chip">'+tx('الخدمة 1','Service 1')+'</span>':'')}${L==='ar'?T.tabs[k][0]:(L==='en'?T.tabs[k][1]:trn(T.tabs[k][1]))}</button>`).join('');
+  $('#tabs').innerHTML=Object.keys(T.tabs).map(k=>`<button role="tab" data-tab="${k}" aria-selected="${S.tab===k}"${['rent','lump','cost'].includes(k)?' class="svc"':(['co','nit','team','comp','viol','gov','eos','prof','hire','guides','ot'].includes(k)?' class="svc1"':'')}>${['rent','lump','cost'].includes(k)?'<span class="chip">'+tx('الخدمة 2','Service 2')+'</span>':(['co','nit','team','comp','viol','gov','eos','prof','hire','guides','ot'].includes(k)?'<span class="chip">'+tx('الخدمة 1','Service 1')+'</span>':'')}${L==='ar'?T.tabs[k][0]:(L==='en'?T.tabs[k][1]:trn(T.tabs[k][1]))}</button>`).join('');
   const views={eos:viewEos,viol:viewViol,co:viewCo,lump:viewLump,cost:viewCost,gov:viewGov,nit:viewNit,prof:viewProf,hire:viewHire,team:viewTeam,comp:viewComp,ot:viewOt,rent:viewRent,guides:viewGuides};
-  $('#main').innerHTML=(S.tab==='nit'?barHtml():['prof','hire','team','comp','guides'].includes(S.tab)?compactBar():'')+(['co','nit','team','comp','viol','gov','eos'].includes(S.tab)?'<div class="svcban b1"><span class="chip">'+tx('الخدمة 1 من Business Partner','Business Partner Service 1')+'</span><span>'+tx('تقييم الوضع الحالي لشركتك: بياناتها ونطاقها وامتثالها ومخالفاتها وتكاليفها الحكومية — خدمة تقدّمها Business Partner.','Assess your company’s current position: data, Nitaqat band, compliance, violations and government costs — a service by Business Partner.')+'</span></div>':'')+((S.tab==='lump'||S.tab==='cost')?'<div class="svcban"><span class="chip">'+tx('الخدمة 2 من Business Partner','Business Partner Service 2')+'</span><span>'+tx('هذه خدمة تقدّمها Business Partner وتبيعها لك — الأسعار التالية عرض خدمتنا وليست أداة حساب مجانية.','This is a service provided and sold by Business Partner — the prices below are our service offer, not a free calculator.')+'</span></div>':'')+gate(views[S.tab]())+(CLIENT?'':`<p style="margin-top:18px;text-align:center"><button class="btn" id="own" title="${tx('وضع المالك (للمعاينة فقط)','Owner mode (preview only)')}" style="font-size:11px;padding:2px 10px;opacity:${S.owner?1:.45}">⚙ ${S.owner?tx('إخفاء وضع المالك','Hide owner mode'):''}</button></p>`);
+  $('#main').innerHTML=(S.tab==='nit'?barHtml():['prof','hire','team','comp','guides'].includes(S.tab)?compactBar():'')+(['co','nit','team','comp','viol','gov','eos','prof','hire','guides','ot'].includes(S.tab)?'<div class="svcban b1"><span class="chip">'+tx('الخدمة 1 من Business Partner','Business Partner Service 1')+'</span><span>'+tx('تقييم الوضع الحالي لشركتك: بياناتها ونطاقها وامتثالها ومخالفاتها وتكاليفها الحكومية — خدمة تقدّمها Business Partner.','Assess your company’s current position: data, Nitaqat band, compliance, violations and government costs — a service by Business Partner.')+'</span></div>':'')+(['rent','lump','cost'].includes(S.tab)?'<div class="svcban"><span class="chip">'+tx('الخدمة 2 من Business Partner','Business Partner Service 2')+'</span><span>'+tx('هذه خدمة تقدّمها Business Partner وتبيعها لك — الأسعار التالية عرض خدمتنا وليست أداة حساب مجانية.','This is a service provided and sold by Business Partner — the prices below are our service offer, not a free calculator.')+'</span></div>':'')+gate(views[S.tab]())+(CLIENT?'':`<p style="margin-top:18px;text-align:center"><button class="btn" id="own" title="${tx('وضع المالك (للمعاينة فقط)','Owner mode (preview only)')}" style="font-size:11px;padding:2px 10px;opacity:${S.owner?1:.45}">⚙ ${S.owner?tx('إخفاء وضع المالك','Hide owner mode'):''}</button></p>`);
   if(!CLIENT) document.getElementById('own').addEventListener('click',()=>{S.owner=!S.owner;render();});
   const re=id=>render(id);
   if(CLIENT) S.profAll=false;
