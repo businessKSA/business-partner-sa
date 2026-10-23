@@ -1,0 +1,14 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const er=[];let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m)}else console.log('ok',m)};
+const p=await b.newPage({viewport:{width:480,height:900}});p.on('pageerror',e=>er.push(e.message));
+await p.goto('file://'+process.cwd()+'/index-client.html?lang=ar');await p.waitForTimeout(700);
+await p.click('.chip:has-text("الموارد البشرية والتوظيف")');await p.waitForTimeout(200);
+await p.click('.chip:has-text("أبحث عن وظيفة")');await p.waitForTimeout(300);
+await p.fill('#dk-tx','محاسب في الرياض');await p.click('#dk-ok');await p.waitForTimeout(400);
+let t=await p.evaluate(()=>document.getElementById('cs-thread').innerText);ok(/ملفك الوظيفي/.test(t)&&/محاسب في الرياض/.test(t),'seeker profile card');
+await p.evaluate(()=>bpT().chHR());await p.waitForTimeout(200);
+await p.click('.chip:has-text("مكتب استقدام")');await p.waitForTimeout(300);
+await p.fill('[data-fk=org]','مكتب تجربة');await p.fill('[data-fk=name]','أحمد');await p.fill('[data-fk=email]','a@b.co');await p.fill('[data-fk=phone]','0500000000');await p.click('#dk-ok');await p.waitForTimeout(400);
+ok(await p.evaluate(()=>JSON.parse(localStorage.getItem('bp_partners_v1')||'[]').length===1),'join request recorded');
+await p.evaluate(()=>bpT().chHR());await p.waitForTimeout(200);await p.click('.chip:has-text("موظف على بند التعاقد")');await p.waitForTimeout(200);
+t=await p.evaluate(()=>document.getElementById('cs-thread').innerText);ok(/بدعوة من صاحب العمل/.test(t),'employee portal explained honestly');
+console.log(er);if(er.length)fail++;await b.close();process.exit(fail?1:0)})();
