@@ -557,10 +557,10 @@ function profCalc(c){
   if(!only&&!req2){
     const l=locCalc(c.prof,c.foreign);
     if(l.fee==null){fee=null;feeM=null;}
-    else if(l.std){ fee=l.fee;feeM=fee*c.foreign; } // غير مرتبطة بالمهنة: رسم ثابت لكل أجنبي؛ إسقاطه بسعودي نوظّفه يتبع نطاقات النشاط وحسبة المالك (معلّق، لا 1:1)
+    else if(l.std){ const wf=Math.max(0,Math.min(1,c.wf||0)); fee=l.fee*(1-wf);feeM=fee*c.foreign; } // غير مرتبطة بالمهنة: رسم ثابت لكل أجنبي، يسقط بنسبة تغطية سعودييك الجدد لمطلوب نطاقات في نشاطك (nitWf)
     else{ one=l.one; need=c.foreign>0?l.need:0; rem=Math.max(0,Math.ceil(Math.round((need-eff)*1e6)/1e6)); full=need*one; feeM=rem*one; fee=c.foreign>0?feeM/c.foreign:0; } // رسم التوطين على النقص الفعلي فقط
   }
-  return {p,ratio,minW,minS,tot,eff,sp,sus,applies,req,carry:tot-req,short:Math.max(0,Math.ceil(Math.round((req-eff)*1e6)/1e6)),only,onReq:req2,fee,feeM,need,rem,one,full,waived:Math.max(0,full-(feeM||0))};
+  return {p,ratio,minW,minS,tot,eff,sp,sus,wf:c.wf||0,applies,req,carry:tot-req,short:Math.max(0,Math.ceil(Math.round((req-eff)*1e6)/1e6)),only,onReq:req2,fee,feeM,need,rem,one,full,waived:Math.max(0,full-(feeM||0))};
 }
 
 /* ---------- ui helpers ---------- */
@@ -1755,7 +1755,7 @@ function hireTerm(){ chDock(null); chUser(CV.items.map(it=>it.qty+' × '+profNam
 function hireCity(){ chSay(tx('وأين سيعمل الموظفون؟','Where will the staff work?'),{chips:[tx('الرياض','Riyadh'),tx('جدة','Jeddah'),tx('الدمام','Dammam'),tx('مكة','Makkah'),tx('المدينة','Madinah')].map(c=>chFn(c,()=>{ CV.city=c; chUser(c); hireVerdict(); })).concat([chFn(tx('مدينة أخرى','Another city'),()=>{ chDock({kind:'text',label:tx('اكتب المدينة','Type the city'),ph:'',onSubmit:v=>{ CV.city=v; chUser(v); chDock(null); hireVerdict(); }}); })])}); }
 /* ===== التسعير داخل المحادثة (الخدمة 2): مدة العقد بالساعة/اليوم/الأسبوع/الشهر أو 3/6/9/12/24/36 شهراً ===== */
 const PM_HR=48*52/12; // ساعات الشهر (8 ساعات × 6 أيام)
-function chPriceItem(it){ const t=CV.term, prof=it.prof, qty=Math.max(1,it.qty), sv=S.ins; const x0=profCalc({prof,saudi:0,sus:susOf(prof),spart:0,foreign:it.nat==='saudi'?0:qty,term:12});
+function chPriceItem(it){ const t=CV.term, prof=it.prof, qty=Math.max(1,it.qty), sv=S.ins; const x0=profCalc({prof,saudi:0,sus:susOf(prof),wf:nitWf().f,spart:0,foreign:it.nat==='saudi'?0:qty,term:12});
   const isU=t&&typeof t==='object'; const months=isU?(t.u==='month'?t.n:null):t; const sal=it.sal>0?it.sal:(it.nat==='saudi'?Math.max(6000,EP(prof)[5]||0):4000); const assumed=!(it.sal>0);
   S.ins={...S.ins,gender:S.ins.gender||'male',cls:'basic'}; let m,items=[],loc=0,vl=0;
   try{
@@ -1812,12 +1812,20 @@ function saudiChat(){ if(WEB) return; chUser(tx('حاسبة السعودي','Sau
        <div class="cth" style="margin-top:10px"><b>${tx('تكلفته الشهرية الكاملة','His full monthly cost')}</b></div>${T([tx('البند','Item'),tx('ريال','SAR')],r.items.map(z=>[z[0],fmt(z[1])]).concat([[`<b>${tx('شهرياً للفرد','Monthly each')}</b>`,`<b>${fmt(mo)}</b>`],[`<b>${q} × ${m} ${tx('شهراً','months')}</b>`,`<b>${fmt(tot)}</b>`],[tx('ضريبة القيمة المضافة 15%','VAT 15%'),fmt(vat)],[`<b>${tx('الإجمالي','Grand total')}</b>`,`<b>${fmt(tot+vat)}</b>`]]))}
        <p class="cp" style="margin-top:8px">${tx('تدفع راتبه وتأميناته وتكاليفه ورسوم خدمتنا. بنود نهاية الخدمة وبدل الإجازة مخصّصات تُفوتَر منفصلة عند نهاية العقد. الأرقام استرشادية.','You pay his salary, insurance, costs and our service fee. End-of-service and leave are provisions invoiced separately at contract end. Figures are indicative.')}</p></div>`;
       chSay(tx('هذه حاسبة السعودي:','Here is the Saudi hire calculation:'),{html,chips:[chFn('🔁 '+tx('احسب لمهنة أخرى','Calculate another profession'),saudiChat),chFn('🤝 '+tx('أضفه إلى طلب التوظيف عبر التعاقد','Add him to the hiring request'),()=>{ CV.items=CV.items||[]; CV.items.push({prof:i,qty:q,nat:'saudi',sal:sal,cands:[i]}); S.goal='hire'; hireBasket(tx('أضفتُه إلى قائمتك. عدّل أو أضف مهنة أخرى:','Added to your list. Adjust or add another profession:')); })]}); }}); }}); }
+/* إسقاط الرسم الثابت في المهنة غير المرتبطة بقرار توطين (قرار المالك): بحسب برنامج نطاقات لنشاط المنشأة.
+   المطلوب N0 = عدد السعوديين اللازم توظيفهم للوصول إلى الأخضر المتوسط بعد إضافة الأجانب في الطلب (nitCalc.hires).
+   نسبة الإسقاط = min(1، سعودييك الجدد عبرنا ÷ N0)، وتساوي 1 إن لم يكن هناك نقص أصلاً. تحتاج منشأة مفتوحة. */
+function nitWf(){ const e=S.co.cur>=0?S.co.list[S.co.cur]:null; if(!e||!e.grp&&!coG(e)) return {known:false,f:0};
+  const fo=CV.items.filter(i=>i.nat!=='saudi').reduce((t,i)=>t+i.qty,0), sa=CV.items.filter(i=>i.nat==='saudi'&&(!i.sal||i.sal>=(EP(i.prof)[5]||4000))).reduce((t,i)=>t+i.qty,0);
+  let n0=0; try{ n0=nitCalc({grp:coG(e),year:e.year||2026,full:e.full||0,part:e.part||0,foreign:(e.foreign||0)+fo}).res[1].hires; }catch(_){ return {known:false,f:0}; }
+  if(n0==null) return {known:true,f:0,n0:null,sa,fo,name:e.name};
+  return {known:true,f:n0<=0?1:Math.min(1,sa/n0),n0,sa,fo,name:e.name}; }
 const susOf=(prof)=>CV.items.filter(i=>i.nat==='saudi'&&i.prof===prof&&(!i.sal||i.sal>=(EP(i.prof)[5]||4000))).reduce((t,i)=>t+i.qty,0); // سعوديون نوظّفهم للعميل في المهنة نفسها
 /* متى تقع رسوم التوطين؟ (قرار المالك 2026-10-23): من وظّفنا له سعودياً فعلياً وعمل لديه يدفع راتبه وتكاليفه ورسوم خدمتنا، وسواء كانت المهنة مرتبطة بقرار توطين أو غير مرتبطة فلا رسم توطين عن ذلك السعودي */
 function locWhy(it,x){ if(it.nat==='saudi') return {k:'saudi',t:x.ratio>0?tx('سعودي في مهنة عليها قرار توطين: يُحتسب في تغطية نسبتها، ولا رسم توطين عنه.','A Saudi in a profession with a localisation decision: counts toward its quota, no localisation fee for him.'):tx('سعودي في مهنة بلا قرار توطين: يُحتسب في نطاقك العام، ولا رسم توطين عنه. ويُحدَّد أثره على الرسم الثابت عن الأجانب حسب نشاطك في نطاقات.','A Saudi in a profession with no decision: counts in your overall band; no localisation fee for him. Its effect on the flat fee for foreigners follows your activity in Nitaqat.')};
   if(x.ratio>0){ if(x.fee==null) return {k:'na',t:''}; return x.rem>0?{k:'fee',t:tx('عليك رسم توطين عن النقص ('+x.rem+' سعودي) لأن لا سعوديين كافين في هذه المهنة. وظّف سعودياً عبرنا فيسقط الرسم بقدره.','A localisation fee applies to the shortfall ('+x.rem+' Saudi): not enough Saudis in this profession. Hire a Saudi through us and the fee drops accordingly.')}:{k:'free',t:tx('لا رسم توطين: السعوديون في المهنة يغطّون المطلوب.','No localisation fee: the Saudis in the profession cover the requirement.')}; }
-  return x.fee>0?{k:'flat',t:tx('عليك رسم توطين ثابت عن كل أجنبي في مهنة بلا قرار توطين. ويُحدَّد إسقاطه بسعوديين نوظّفهم لك حسب نشاطك في نطاقات.','A flat localisation fee applies per foreigner in a profession without a decision. Its waiver by Saudis we hire for you depends on your activity in Nitaqat.')}:{k:'free',t:tx('لا رسم توطين عن هذه المهنة.','No localisation fee for this profession.')}; }
-function hireVerdict(){ chDock(null); const rows=CV.items.map(it=>{ const x=profCalc({prof:it.prof,saudi:0,sus:susOf(it.prof),spart:0,foreign:it.nat==='saudi'?0:it.qty,term:12}); const p=x.p; let st='ok',note=''; if(x.only&&it.nat!=='saudi'){ st='bad'; note=tx('مهنة مقصورة على السعوديين: لا يُنقل إليها أجنبي. الحل: موظف سعودي.','Saudi-only profession: no foreigner can be transferred to it. Solution: a Saudi employee.'); } else if(x.onReq){ st='warn'; note=tx('تُدرس حسب الحالة.','Assessed case by case.'); }
+  return (()=>{ const w=nitWf(); const why=!w.known?tx('عليك رسم توطين ثابت عن كل أجنبي في مهنة بلا قرار توطين. أضف شركتك لأحسب لك إسقاطه حسب نشاطك في نطاقات.','A flat localisation fee applies per foreigner in a profession without a decision. Add your company so I can compute its waiver by your Nitaqat activity.'):(w.n0==null?tx('رسم توطين ثابت عن كل أجنبي. لا يمكن حساب الإسقاط في نشاطك.','Flat fee per foreigner; the waiver cannot be computed for your activity.'):tx('رسم توطين ثابت عن كل أجنبي في مهنة بلا قرار. أسقطنا '+Math.round(w.f*100)+'% منه: تحتاج '+w.n0+' سعودياً للأخضر المتوسط في نشاطك بعد إضافة الأجانب، وسعودييك الجدد '+w.sa+'.','A flat fee per foreigner. '+Math.round(w.f*100)+'% waived: you need '+w.n0+' Saudis for medium green in your activity after adding the foreigners, and your new Saudis are '+w.sa+'.')); return x.fee>0||(w.known&&w.f>0)?{k:'flat',t:why}:{k:'free',t:tx('لا رسم توطين عن هذه المهنة.','No localisation fee for this profession.')}; })(); }
+function hireVerdict(){ chDock(null); const rows=CV.items.map(it=>{ const x=profCalc({prof:it.prof,saudi:0,sus:susOf(it.prof),wf:nitWf().f,spart:0,foreign:it.nat==='saudi'?0:it.qty,term:12}); const p=x.p; let st='ok',note=''; if(x.only&&it.nat!=='saudi'){ st='bad'; note=tx('مهنة مقصورة على السعوديين: لا يُنقل إليها أجنبي. الحل: موظف سعودي.','Saudi-only profession: no foreigner can be transferred to it. Solution: a Saudi employee.'); } else if(x.onReq){ st='warn'; note=tx('تُدرس حسب الحالة.','Assessed case by case.'); }
     else if(it.nat==='saudi'&&x.minS&&it.sal&&it.sal<x.minS){ st='bad'; note=tx('الراتب أقل من أقل راتب يُحتسب للسعودي في هذه المهنة ('+fmt(x.minS)+'): لن يُحتسب.','Salary is below the minimum counted for a Saudi in this profession ('+fmt(x.minS)+'): he will not count.'); }
     else if(x.ratio>0) note=tx('عليها قرار توطين بنسبة '+Math.round(x.ratio*100)+'% ويسري عند '+x.minW+' عاملين فأكثر في المهنة.','Covered by a localisation decision at '+Math.round(x.ratio*100)+'%, applying from '+x.minW+' workers in the profession.'); else note=tx('لا قرار توطين خاصاً بالمهنة.','No profession-specific localisation decision.');
     if(it.nat==='saudi'&&!it.sal) { st=st==='bad'?'bad':'warn'; note+=' '+tx('أدخل الراتب لأتحقق من الحد الأدنى.','Enter the salary so I can check the minimum.'); }
@@ -2474,7 +2482,7 @@ function modeSel(){ if(!MODESEL) return ''; return `<select class="msel" data-mo
 document.addEventListener('change',e=>{ const t=e.target; if(t&&t.matches&&t.matches('[data-mode]')) setMode(t.value); });
 { let m0='client'; try{ const v=localStorage.getItem('bp_mode'); if(MODESEL&&['client','demo','fawaz','owner'].includes(v)) m0=v; }catch(e){} if(MODESEL&&m0!=='client'){ curMode=m0; CLIENT=m0!=='owner'; DEMO=m0==='demo'||m0==='fawaz'; FAWAZ=m0==='fawaz'?FZ:null; UIC=uicCalc(); } }
 modeInit();
-window.bpT=()=>({saudiChat,saudiKind,govCost,profCheck,chCardProf,hireVerdict,chPrice,chPriceItem,hireTerm,termTxt,CH,chRender,render,S,PROF,EP,profCalc,locWhy,susOf,CV}); // مساعد اختبار
+window.bpT=()=>({nitWf,saudiChat,saudiKind,govCost,profCheck,chCardProf,hireVerdict,chPrice,chPriceItem,hireTerm,termTxt,CH,chRender,render,S,PROF,EP,profCalc,locWhy,susOf,CV}); // مساعد اختبار
 window.bpGo=t=>{ if(!S.goal) S.goal=(['lump','cost','rent'].includes(t)||t==='hire')?'hire':'assess'; S.tab=t; render(); };
 render();
 agInit(); 
