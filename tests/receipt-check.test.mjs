@@ -316,3 +316,24 @@ test("readDocumentText: بلا مفاتيح Document Intelligence يعود not_c
     for (const k of keys) { if (saved[k] === undefined) delete process.env[k]; else process.env[k] = saved[k]; }
   }
 });
+
+// ---- الوصلة مع مسار الحوالة (makeCheckReceipt) ---------------------------
+import { makeCheckReceipt } from "../api/_receipt-check.js";
+
+test("checkReceipt returns null when reading is unavailable, so the caller falls back", async () => {
+  const none = makeCheckReceipt({ readRaw: async () => ({ ok: false, error: "not_configured" }), readText: async () => ({ ok: false }) });
+  assert.equal(await none({ base64: "QUJD", mime: "image/png", expected: { amount: 100 } }), null);
+  const junk = makeCheckReceipt({ readRaw: async () => ({ ok: true, data: "not json" }), readText: async () => ({ ok: false }) });
+  assert.equal(await junk({ base64: "QUJD", mime: "image/png", expected: { amount: 100 } }), null);
+});
+
+test("checkReceipt never reports «match» for a non-receipt and passes reasons the caller knows", async () => {
+  const chk = makeCheckReceipt({
+    readRaw: async () => ({ ok: true, provider: "t", data: JSON.stringify({ amount: 100, currency: "SAR", is_receipt: false }) }),
+    readText: async () => ({ ok: false }),
+  });
+  const r = await chk({ base64: "QUJD", mime: "image/png", expected: { amount: 100, names: ["TEST CO"], iban: "SA0000000000000000000000" } });
+  assert.equal(r.verdict, "review");
+  assert.deepEqual(r.reasons, ["checker_review"]);
+  assert.ok(r.read && r.read.amount === 100);
+});

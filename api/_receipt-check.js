@@ -21,6 +21,7 @@
 // وللتوافق مع ما هو مضبوط اليوم يُقبل BP_BANK_IBAN وBP_BANK_BENEFICIARY عند غياب الأولين.
 
 import crypto from "node:crypto";
+import { readDocumentRaw, readDocumentText, parseJson } from "./_docread.js";
 
 // ---- ثوابت الحكم (مكتوبة عمداً هنا لا في الأرقام السحرية) -------------------
 
@@ -544,3 +545,42 @@ export const RECEIPT_READ_PROMPT = [
   "status executed إن ذُكر نجاح التنفيذ، pending إن كانت معلّقة/مجدولة، failed إن فشلت.",
   "is_receipt=false إن لم يكن المستند إيصال حوالة بنكية. إن لم تجد قيمة ضعها null. لا تخمّن أي رقم.",
 ].join(" ");
+
+/**
+ * الوصلة مع مسار الحوالة في السلة (api/_bank-transfer.js ← verifyTransfer):
+ * تقرأ الإيصال بالمطالبة المشتركة وبقراءة نصٍّ مستقلة (Azure Document Intelligence)،
+ * ثم تمرّرهما إلى verifyTransferReceipt. تُرجع null حين تتعذّر القراءة (لا مفاتيح،
+ * أو ردٌّ غير مفهوم)، فيعود المنادي إلى القراءة المشتركة ومقارنته الصارمة بدل أن
+ * يموت المسار. «match» هنا لا تعني أن المال وصل؛ هي إيصال سليم ومطابق فقط.
+ */
+export function makeCheckReceipt({ readRaw = readDocumentRaw, readText = readDocumentText } = {}) {
+  return async function checkReceipt({ base64, mime, expected = {}, seen = [] } = {}) {
+    let raw = null;
+    try { raw = await readRaw(base64, mime, RECEIPT_READ_PROMPT, 600); } catch { raw = null; }
+    if (!raw || !raw.ok) return null;
+    const fields = parseJson(String(raw.data || ""));
+    if (!fields || typeof fields !== "object") return null;
+    let txt = null;
+    try { txt = await readText(base64, mime); } catch { txt = null; }
+    const out = verifyTransferReceipt({
+      text: txt && txt.ok ? txt.text : "",
+      fields,
+      fileHash: receiptFileHash(base64),
+      seen,
+      expected: {
+        amount: expected.amount, currency: "SAR", iban: expected.iban,
+        beneficiaryName: expected.names, requestRef: expected.orderRef, referenceHint: expected.orderRef,
+      },
+    });
+    const match = out.verdict === "match";
+    return {
+      verdict: match ? "match" : "review",
+      read: fields,
+      reasons: match ? [] : ["checker_review"],
+      checks: out.checks,
+      provider: raw.provider || "receipt-check",
+      teamNote: out.teamNote,
+    };
+  };
+}
+export const checkReceipt = makeCheckReceipt();

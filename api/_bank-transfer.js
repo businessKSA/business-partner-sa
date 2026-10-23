@@ -123,6 +123,7 @@ export const REASONS = {
   date_future:          { ar: "تاريخ الحوالة في المستقبل", en: "The transfer date is in the future" },
   duplicate_receipt:    { ar: "هذا الإيصال سبق رفعه على طلبٍ آخر", en: "This receipt was already uploaded for another order" },
   basket_unpriced:      { ar: "بنود الطلب لا تطابق أسعار الكتالوج آلياً", en: "The order lines do not match catalogue prices automatically" },
+  checker_review:       { ar: "المدقق الآلي طلب مراجعة بشرية للإيصال", en: "The automatic checker asked for a human review of the receipt" },
   checker_unavailable:  { ar: "خدمة قراءة الإيصالات غير متاحة الآن", en: "The receipt reading service is unavailable right now" },
   settle_failed:        { ar: "تطابق الإيصال لكن تعذّر تسجيل الدفع آلياً", en: "The receipt matched but recording the payment failed" },
 };
