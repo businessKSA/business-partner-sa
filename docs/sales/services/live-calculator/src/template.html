@@ -159,7 +159,7 @@ const T={
  sub:{ar:'Business Partner · الأسعار بالريال السعودي · نسخة تجريبية للمعاينة',en:'Business Partner · prices in SAR · preview version'},
  notice:{ar:'نسخة معاينة داخلية: الأرقام من معادلات المالك، وبعض البنود موسومة «للتأكيد» حتى يعتمدها المالك.',en:'Internal preview: figures follow the owner’s formulas; items marked “to confirm” await the owner’s approval.'},
  foot:{ar:'كل المبالغ قبل ضريبة القيمة المضافة 15% ما لم يُذكر غير ذلك. الرسوم الحكومية بلا ضريبة والضريبة على رسوم شركة بزنس بارتنر فقط. لا وعد بأي نتيجة في نطاقات؛ والعقد الموقّع هو المرجع.',en:'All amounts exclude 15% VAT unless stated. Government fees carry no VAT; VAT applies only to our fee. No Nitaqat result is promised; the signed agreement governs.'},
- tabs:{co:['بيانات الشركات (منشآتي)','My establishments'],nit:['النطاقات والتوطين','Nitaqat'],team:['فريقك حسب المهن','Team by profession'],comp:['لوحة الامتثال','Compliance board'],viol:['المخالفات والتوقعات','Violations & forecast'],eos:['مكافأة نهاية الخدمة','End of service'],prof:['توطين المهن وأقل راتب','Professions'],hire:['تقييم موظف جديد','New-hire check'],guides:['الأدلة والمهن','Guides & professions'],ot:['الساعات الإضافية','Overtime'],rent:['بالساعة واليوم والأسبوع','Hourly · daily · weekly'],lump:['تكلفة الموظف الكاملة على الشركة','Full employee cost to the company'],cost:['التكلفة الفعلية','Actual cost']}
+ tabs:{co:['بيانات الشركات (منشآتي)','My establishments'],nit:['النطاقات والتوطين','Nitaqat'],team:['فريقك حسب المهن','Team by profession'],comp:['لوحة الامتثال','Compliance board'],viol:['المخالفات والتوقعات','Violations & forecast'],eos:['مكافأة نهاية الخدمة','End of service'],prof:['توطين المهن وأقل راتب','Professions'],hire:['تقييم موظف جديد','New-hire check'],guides:['الأدلة والمهن','Guides & professions'],ot:['الساعات الإضافية','Overtime'],rent:['بالساعة واليوم والأسبوع','Hourly · daily · weekly'],lump:['تكلفة الموظف الكاملة على الشركة','Full employee cost to the company'],cost:['التكلفة بشفافية','Transparent cost']}
 };
 const CLIENT=__CLIENT__, DEMO=__DEMO__, FAWAZ=__FAWAZ__; const LOGO='__LOGO__'; // نسخة العميل: بلا وضع المالك ولا ملاحظات داخلية
 const S={ // state
@@ -630,7 +630,7 @@ function quotePages(d,meta,pageNo0){
   const prof=profShort(c.prof)||'—';
   const srcLbl=c.src==='abroad'?T('استقدام من الخارج','Recruitment from abroad'):T('نقل كفالة (من داخل المملكة)','Sponsorship transfer (from inside the Kingdom)');
   const nat=c.src==='abroad'?ctyName(c.cty):'';
-  const svc=d.kind==='lump'?T('التعاقد وتوطين العمالة — تكلفة الموظف الكاملة','Contracting & localisation — full employee cost'):T('التعاقد وتوطين العمالة — التكلفة الفعلية ودفعات','Contracting & localisation — cost plus & payments');
+  const svc=d.kind==='lump'?T('التعاقد وتوطين العمالة — تكلفة الموظف الكاملة','Contracting & localisation — full employee cost'):T('التعاقد وتوطين العمالة — التكلفة بشفافية','Contracting & localisation — cost plus & payments');
   const ft=`<div class="ft"><span>${T('شركة بزنس بارتنر سلوشنز · الرقم الموحّد 7038825860 · الرقم الضريبي 312079341500003','Business Partner Solutions Company · Unified no. 7038825860 · VAT no. 312079341500003')}</span><span class="mono" dir="ltr">business@businesspartner.sa · www.businesspartner.sa · +966 53 054 0231</span></div>`;
   const hd=(t)=>`<div class="hd"><span class="t">${t}</span><span class="m">${svc} · ${meta.comp} · ${meta.no}</span></div>`;
   const pg=(inner)=>`<section class="pg" dir="${dir}" lang="${lg}">${inner}${ft}</section>`;
@@ -671,7 +671,7 @@ function quoteHtml(kind,meta){
   const back=`<section class="pg dark" dir="rtl"><div class="cv" style="justify-content:center;align-items:center;text-align:center"><span class="logo">${logo}</span><div class="bar" style="margin:8mm auto"></div><h1 style="font-size:27px">${keep==='ar'?'شكراً لثقتكم':'Thank you for your trust'}</h1><p class="sv" style="margin-bottom:6mm">Business Partner — Partnering for your success</p><div class="mono" dir="ltr" style="font-size:12.5px;line-height:2">business@businesspartner.sa · www.businesspartner.sa<br>+966 53 054 0231 · WhatsApp +966 50 703 4157<br>Business Partner Solutions Company · Unified no. 7038825860 · VAT no. 312079341500003<br>Bldg 2978 · Turki Ibn Abdullah Aal Saud St · Al Sulaimaniyah · Riyadh 12234</div></div></section>`;
   return `<!doctype html><html><head><meta charset="utf-8"><title>حاسبة امتثال التوطين للموارد البشرية</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"><style>${QCSS}</style></head><body>${cover}${body}${back}</body></html>`;
 }
-function tx0(kind){ return kind==='lump'?(L==='ar'?'التعاقد وتوطين العمالة — تكلفة الموظف الكاملة':'Contracting & localisation — full employee cost'):(L==='ar'?'التعاقد وتوطين العمالة — التكلفة الفعلية ودفعات':'Contracting & localisation — cost plus & payments'); }
+function tx0(kind){ return kind==='lump'?(L==='ar'?'التعاقد وتوطين العمالة — تكلفة الموظف الكاملة':'Contracting & localisation — full employee cost'):(L==='ar'?'التعاقد وتوطين العمالة — التكلفة بشفافية':'Contracting & localisation — cost plus & payments'); }
 
 function discBox(kind){
   const d=S.disc; let h='';
@@ -1573,7 +1573,7 @@ function viewGuides(){
 /* ---------- render ---------- */
 function summaryText(kind,extra){
   if(kind==='lump'){const r=lumpCalc(S.lump);return `${t('title')}\n${tx('تكلفة الموظف الكاملة','Full employee cost')}: ${tx('راتب','salary')} ${fmt(S.lump.sal)} / ${S.lump.term} ${tx('شهراً','months')}\n${tx('السعر الشهري قبل الضريبة','Monthly price excl. VAT')}: ${fmt(r.withFee)}\n${tx('شامل الضريبة','Incl. VAT')}: ${fmt(r.incl)}\n${tx('شهرين مقدماً (قبل الضريبة)','Two months advance (excl. VAT)')}: ${fmt(r.adv2)}`;}
-  const r=costCalc(S.cost);return `${t('title')}\n${tx('التكلفة الفعلية','Actual cost')}: ${tx('راتب','salary')} ${fmt(S.cost.sal)} / ${S.cost.term} ${tx('شهراً','months')}\n${tx('الفاتورة الشهرية (متوسط)','Monthly invoice (avg)')}: ${fmt(r.inv)}\n${tx('الدفعة المقدمة','Advance payment')}: ${fmt(extra.advance)}`;
+  const r=costCalc(S.cost);return `${t('title')}\n${tx('التكلفة بشفافية','Transparent cost')}: ${tx('راتب','salary')} ${fmt(S.cost.sal)} / ${S.cost.term} ${tx('شهراً','months')}\n${tx('الفاتورة الشهرية (متوسط)','Monthly invoice (avg)')}: ${fmt(r.inv)}\n${tx('الدفعة المقدمة','Advance payment')}: ${fmt(extra.advance)}`;
 }
 function wireCopy(kind,extra){
   const b=document.getElementById('copy-'+kind); if(!b) return;
