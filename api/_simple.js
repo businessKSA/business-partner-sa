@@ -21,6 +21,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { sb, DB_ON, DB_MISSING, getSession, audit, notify } from "./_db.js";
 import { contractHtml, quoteHtml, portalContractHtml } from "./_docusign.js";
+import { quoteDocV2, contractDocV2, companySnapshot, templateForLang, isV2Version } from "./_bp-docs.js";
 import { loadCatalog } from "./_catalog.js";
 import { loadPriceBook, resolveSku, referencePrice } from "./_catalog-prices.js";
 import { daftraConfigured } from "./_daftra.js";
@@ -408,8 +409,15 @@ function buildContract(row, opts = {}) {
   // otherwise filling in a real name would flag every signed contract «sign again».
   // Contracts issued before this was stored fall back to the old rule they were built by.
   const party = opts.party != null ? str(opts.party, 200) : opts.legacyName ? str(row.company_name || row.client_name || row.client_email, 200) : str(partyName(row), 200);
-  const build = { lead_time: str(opts.lead_time, 120), executor: str(opts.executor, 120), party };
-  const html = contractHtml({
+  // Template version (api/_bp-docs.js): absent / "v1" = the original paper, forever; only a document
+  // issued with "v2" (and its company snapshot) is built with the new one. Rebuilds pass the stored value.
+  const v2 = isV2Version(opts.template_version);
+  const build = { lead_time: str(opts.lead_time, 120), executor: str(opts.executor, 120), party, ...(v2 ? { template_version: "v2", company: opts.company || companySnapshot() } : {}) };
+  const html = v2 ? contractDocV2({
+    ref: row.ref, number: "C-" + row.ref.replace(/^BP-R-/, ""), clientName: party, service: row.title, items: row.quote.items,
+    net: row.quote.net, vat: row.quote.vat, total: row.quote.total, vatRate: 15, leadTime: build.lead_time,
+    executor: build.executor || "Business Partner", issuedAt: at.toISOString(), lang: row.lang || "ar", company: build.company,
+  }) : contractHtml({
     ref: row.ref, clientName: party, service: row.title,
     lines: row.quote.items.map((l) => ({ name: l.title, nameEn: l.titleEn, qty: l.qty, price: l.price, line: l.line })),
     net: row.quote.net, vat: row.quote.vat, total: row.quote.total, vatRate: 15,
@@ -418,14 +426,14 @@ function buildContract(row, opts = {}) {
     lang: row.lang || "ar",
   });
   return {
-    number: "C-" + row.ref.replace(/^BP-R-/, ""), status: "SENT", html, build,
+    number: "C-" + row.ref.replace(/^BP-R-/, ""), status: "SENT", html, build, ...(v2 ? { template_version: "v2" } : {}),
     created_at: at.toISOString(), sent_at: nowIso(), quote_number: row.quote.number,
     mode: SIMPLE_TEST_MODE ? "test-esign" : "portal-esign",
   };
 }
 
 async function issueContract(row, actorKind, actor, opts) {
-  const contract = buildContract(row, opts);
+  const contract = buildContract(row, { ...opts, template_version: templateForLang(row.lang) });
   const upd = await patchRequest(row.id, { contract, status: "CONTRACT_SENT" });
   await logEvent(row.id, actorKind, actor, "contract.sent", { number: contract.number });
   await announce(row, "contract", {
@@ -453,7 +461,7 @@ async function issueQuote(row, rawItems, opts, actorKind, actor) {
     return { ok: false, error: "unpriced_items", unpriced: titles,
       message: `لا يصدر عرض سعر ببند بلا سعر: ${titles.join(" · ")}. اكتب سعراً أكبر من صفر لكل بند، أو اختره بالرمز من الكتالوج.` };
   }
-  const quote = { number: "Q-" + row.ref.replace(/^BP-R-/, "") + (row.quote && row.quote.status === "REJECTED" ? "-R" : ""), status: "DRAFT", created_at: nowIso(), ...computeQuote(priced, opts) };
+  const quote = { number: "Q-" + row.ref.replace(/^BP-R-/, "") + (row.quote && row.quote.status === "REJECTED" ? "-R" : ""), status: "DRAFT", created_at: nowIso(), template_version: templateForLang(row.lang), ...computeQuote(priced, opts) };
   if (!quote.items.length) return { ok: false, error: "no_items" };
   const send = opts.send !== false;
   if (send) { quote.status = "SENT"; quote.sent_at = nowIso(); }
@@ -1056,6 +1064,11 @@ async function clientAction(action, b, qs, req, res, sess) {
   // العرض كمستند كامل بلغتين — نفس ورقة العقد، تُفتح بالحجم الكامل وتُطبع.
   if (action === "quote-view") {
     if (!row.quote) return json(res, 404, { ok: false, error: "no_quote" });
+    if (isV2Version(row.quote.template_version)) return json(res, 200, { ok: true, number: row.quote.number, html: quoteDocV2({
+      ref: row.ref, number: row.quote.number, clientName: partyName(row), service: row.title, items: row.quote.items || [],
+      net: row.quote.net, vat: row.quote.vat, total: row.quote.total, issuedAt: row.quote.created_at, validUntil: row.quote.valid_until || "",
+      paymentTerms: row.quote.payment_terms || "", notes: row.quote.notes || "", documents: row.documents, lang: row.lang || "ar",
+    }) });
     const html = quoteHtml({
       ref: row.ref, number: row.quote.number,
       clientName: partyName(row),
@@ -1090,8 +1103,8 @@ async function clientAction(action, b, qs, req, res, sess) {
         const b0 = row.contract.build || {};
         const signedNow = !!row.contract.signature;
         const rebuilt = buildContract(row, signedNow
-          ? { ...b0, at: row.contract.created_at, legacyName: b0.party == null }
-          : { lead_time: b0.lead_time, executor: b0.executor, at: row.contract.created_at });
+          ? { ...b0, at: row.contract.created_at, legacyName: b0.party == null, template_version: b0.template_version || "v1" }
+          : { lead_time: b0.lead_time, executor: b0.executor, at: row.contract.created_at, template_version: b0.template_version || "v1", company: b0.company });
         if (rebuilt.html && rebuilt.html !== row.contract.html) {
           const signed = !!row.contract.signature;
           contract = {
@@ -2448,7 +2461,7 @@ async function opsAction(action, b, qs, req, res, opsUser) {
   // النسخة الجديدة.
   if (action === "ops-contract-reissue") {
     if (!row.quote || !Array.isArray(row.quote.items) || !row.quote.items.length) return json(res, 409, { ok: false, error: "no_quote" });
-    const built = buildContract(row, { lead_time: str(b.lead_time, 120), executor: str(b.executor, 120) });
+    const built = buildContract(row, { lead_time: str(b.lead_time, 120), executor: str(b.executor, 120), template_version: (row.contract && row.contract.build && row.contract.build.template_version) || "v1", company: row.contract && row.contract.build && row.contract.build.company });
     const contract = { ...built, number: row.contract?.number || built.number, reissued_at: nowIso(), reissue_of: row.contract?.number || "" };
     const upd = await patchRequest(row.id, { contract, status: "CONTRACT_SENT" });
     await logEvent(row.id, "ops", actor, "contract.reissued", { number: contract.number });
