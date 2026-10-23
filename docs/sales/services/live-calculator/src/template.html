@@ -201,7 +201,7 @@ body.uic{padding:0 !important;background:#fff}
 body.uic #cs{display:grid;grid-template-columns:290px minmax(0,1fr);height:100vh;position:fixed;inset:0;z-index:5;background:#fff}
 #cs[dir=ltr]{direction:ltr}#cs[dir=rtl]{direction:rtl}
 #cs-side{border-inline-end:1px solid var(--line);background:var(--soft);padding:14px;overflow:auto;display:flex;flex-direction:column;gap:6px}
-#cs-side .sh{display:flex;gap:9px;align-items:center;margin-bottom:6px}#cs-side .sh img{height:30px}#cs-side .sh b{font-weight:600;font-size:14px;color:var(--ink)}
+#cs-side .sh{display:flex;flex-direction:column;gap:4px;align-items:flex-start;margin-bottom:10px}#cs-side .sh img{height:auto;max-height:34px;max-width:100%}#cs-side .sh b{font-weight:500;font-size:12px;letter-spacing:.04em;color:var(--mut,#5b6478)}
 .ss{margin-top:10px}.ss h4{margin:0 0 4px;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em}.sn{font-size:12px;color:var(--muted);margin:2px 0 4px}
 .si{display:flex;gap:8px;align-items:center;width:100%;text-align:start;border:0;background:transparent;font:inherit;font-size:13.5px;color:var(--ink);padding:7px 9px;border-radius:9px;cursor:pointer;text-decoration:none}.si:hover{background:#E9EDF7}.si.on{background:#fff;box-shadow:inset 0 0 0 1px var(--acLine)}
 .dot{width:9px;height:9px;border-radius:50%;flex:none;background:#B3261E}.dot.ok{background:#047857}.dot.warn{background:#B45309}
@@ -1804,7 +1804,7 @@ function chClick(ev){ const b=ev.target.closest('[data-chip],[data-side],[data-c
   if(k==='eor'){ chPush('user',{content:label}); chPush('assistant',{content:tx('هذه خطة سد النقص بالتوظيف عبر التعاقد:','Here is the gap-closing plan:'),html:chCardEor(+a)}); chRender(); return; }
   if(k==='eorlink'){ window.open(CV.href||EOR_URL(0),'_blank'); return; } }
 function chSide(){ const nm=(e,i)=>{ const r=coStat(e).r; return `<button type="button" class="si${i===S.co.cur?' on':''}" data-side="est" data-arg="${i}"><i class="dot ${r.cur>=2?'ok':r.cur>=0?'warn':'bad'}"></i><span>${esc(e.name)}</span></button>`; }; const it=(t,a,l)=>`<button type="button" class="si${CH.cv&&S.tab===t?' on':''}" data-side="open" data-arg="${t}"><span>${l}</span></button>`;
-  return `<div class="sh"><img src="${LOGO}" alt=""><b>Business Partner Compliance Solutions</b></div><button type="button" class="btn primary" data-side="new" style="width:100%">＋ ${tx('محادثة جديدة','New chat')}</button><div style="display:flex;gap:6px;margin-top:6px"><button type="button" class="btn sm" data-side="sv" style="flex:1">💾 ${tx('حفظ','Save')}</button><button type="button" class="btn sm" data-side="wipe" style="flex:1">🗑 ${tx('مسح الكل','Clear all')}</button></div>
+  return `<div class="sh"><img src="${LOGO}" alt="Business Partner"><b>Compliance Solutions</b></div><button type="button" class="btn primary" data-side="new" style="width:100%">＋ ${tx('محادثة جديدة','New chat')}</button><div style="display:flex;gap:6px;margin-top:6px"><button type="button" class="btn sm" data-side="sv" style="flex:1">💾 ${tx('حفظ','Save')}</button><button type="button" class="btn sm" data-side="wipe" style="flex:1">🗑 ${tx('مسح الكل','Clear all')}</button></div>
    <div class="ss"><h4>${tx('منشآتي','My establishments')}</h4>${S.co.list.map(nm).join('')||`<p class="sn">${tx('لا منشآت بعد','No establishments yet')}</p>`}${it('co','', '➕ '+tx('أضف منشأة','Add an establishment'))}</div>
    <div class="ss"><h4>${tx('التقييم','Assessment')}</h4>${it('nit','','🔎 '+tx('النطاقات','Nitaqat'))}${it('team','','👥 '+tx('الفريق','Team'))}${it('comp','','🧭 '+tx('الامتثال','Compliance'))}${it('viol','','⚖️ '+tx('المخالفات','Violations'))}${it('ctr','','📄 '+tx('العقود','Contracts'))}</div>
    <div class="ss"><h4>${tx('التوظيف عبر التعاقد','Hiring through contracting')}</h4>${it('hire','','✅ '+tx('هل التوظيف مسموح؟','Is the hire allowed?'))}<button type="button" class="si" data-side="hf"><span>🤝 ${tx('اطلب عرض التوظيف عبر التعاقد','Request a hiring-through-contracting quote')}</span></button></div>
@@ -2723,7 +2723,7 @@ function setMode(m){ curMode=m; CLIENT=m!=='owner'; DEMO=m==='demo'||m==='fawaz'
   AG.msgs=[]; AG.log=[]; AG.snap=null; CH.hist=[]; CH.booted=false; CH.cv=false; ['cs','cv-x','goalov'].forEach(i=>{ const e=document.getElementById(i); if(e) e.remove(); }); document.body.classList.remove('uic','cv');
   try{ localStorage.setItem('bp_mode',m); }catch(e){}
   modeInit(); render(); }
-function modeSel(){ if(!MODESEL) return ''; return `<select class="msel" data-mode aria-label="mode">${MODES.map(x=>`<option value="${x[0]}" ${x[0]===curMode?'selected':''}>${x[1]}</option>`).join('')}</select>`; }
+function modeSel(){ if(!MODESEL||window.BP_PUBLIC) return ''; return `<select class="msel" data-mode aria-label="mode">${MODES.map(x=>`<option value="${x[0]}" ${x[0]===curMode?'selected':''}>${x[1]}</option>`).join('')}</select>`; }
 document.addEventListener('change',e=>{ const t=e.target; if(t&&t.matches&&t.matches('[data-mode]')) setMode(t.value); });
 { let m0='client'; try{ const v=localStorage.getItem('bp_mode'); if(MODESEL&&['client','demo','fawaz','owner'].includes(v)) m0=v; }catch(e){} if(MODESEL&&m0!=='client'){ curMode=m0; CLIENT=m0!=='owner'; DEMO=m0==='demo'||m0==='fawaz'; FAWAZ=m0==='fawaz'?FZ:null; UIC=uicCalc(); } }
 modeInit();
