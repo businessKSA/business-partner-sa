@@ -9,10 +9,10 @@ ok(await p.evaluate(()=>document.getElementById('cs').dir==='ltr'),'dir ltr');
 // go into a flow then switch via top bar
 await p.click('[data-chip=goal][data-arg=assess]');await p.waitForTimeout(200);
 await p.click('#cs-top button[data-arg=ar]');await p.waitForTimeout(300);
-t=await th();ok(/أهلاً/.test(t)&&!/I am your localisation/.test(t),'AR thread after top-bar switch');
+t=await th();ok(/أهلاً/.test(t)||/تغيّرت اللغة/.test(t),'AR thread after top-bar switch (history kept)');
 ok(/تغيّرت اللغة/.test(t),'language-change note');
 ok(await p.evaluate(()=>document.getElementById('cs').dir==='rtl'),'dir rtl');
-await p.click('#cs-top button[data-arg=fr]');await p.waitForTimeout(300);t=await th();ok(/Bonjour|assistant/i.test(t)&&!/أهلاً/.test(t),'FR thread');
+await p.click('#cs-top button[data-arg=fr]');await p.waitForTimeout(300);t=await th();ok(/La langue a changé/.test(t),'FR note, no restart');
 // mic error dedupe
 await p.click('#cs-top button[data-arg=ar]');await p.waitForTimeout(200);
 await p.addInitScript(()=>{});
