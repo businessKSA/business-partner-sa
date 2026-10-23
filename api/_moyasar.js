@@ -27,8 +27,14 @@ const ALLOWED_METHODS = new Set(["creditcard", "applepay", "samsungpay", "google
 // button would fail when tapped), so this panel must not claim it either.
 const SAMSUNG_ID_SET = !!(process.env.MOYASAR_SAMSUNG_SERVICE_ID || "").trim();
 const GOOGLE_ID_SET = !!(process.env.MOYASAR_GOOGLE_MERCHANT_ID || "").trim();
-const RAW_METHODS = (process.env.MOYASAR_METHODS || "creditcard")
-  .split(",").map((m) => m.trim().toLowerCase()).filter((m) => ALLOWED_METHODS.has(m))
+// A wallet identifier implies its method (same rule as api/pay.js — 2026-10-23: a Service ID
+// set without also listing «samsungpay» used to drop the wallet silently).
+const RAW_METHODS = [...new Set([
+  ...(process.env.MOYASAR_METHODS || "creditcard")
+    .split(",").map((m) => m.trim().toLowerCase()).filter((m) => ALLOWED_METHODS.has(m)),
+  ...(SAMSUNG_ID_SET ? ["samsungpay"] : []),
+  ...(GOOGLE_ID_SET ? ["googlepay"] : []),
+])]
   .filter((m) => m !== "samsungpay" || SAMSUNG_ID_SET)
   .filter((m) => m !== "googlepay" || GOOGLE_ID_SET);
 const PAY_METHODS = RAW_METHODS.length ? RAW_METHODS : ["creditcard"];
