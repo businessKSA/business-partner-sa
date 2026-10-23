@@ -12,7 +12,7 @@ const scan=async(tag)=>{const r=await p.evaluate(()=>{const o=[];const w=documen
  r.forEach(t=>{if(/[؀-ۿ]/.test(t)) leaks.add(tag+': '+t.slice(0,110));});};
 await p.click('[data-tab=co]');await p.click('#co-demo');await p.waitForTimeout(300);
 for(const tb of tabs){await p.click('[data-tab='+tb+']');await p.waitForTimeout(250);
- if(tb==='team'){await p.click('[data-case=m2]');await p.waitForTimeout(250);}
+ if(tb==='team'){await p.click('[data-tab=co]');await p.waitForTimeout(150);if(await p.$('[data-case=m2]')){await p.click('[data-case=m2]')}else{await p.click('[data-tab=team]')};await p.waitForTimeout(250);}
  if(tb==='lump'||tb==='cost'){const d=await p.$('[data-demo="10"]');if(d){await d.click();await p.waitForTimeout(300);}}
  await scan(tb);}
 // compliance of complex company & docs panel
