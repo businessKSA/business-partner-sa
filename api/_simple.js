@@ -22,6 +22,7 @@ import { fileURLToPath } from "node:url";
 import { sb, DB_ON, DB_MISSING, getSession, audit, notify } from "./_db.js";
 import { contractHtml, quoteHtml, portalContractHtml } from "./_docusign.js";
 import { loadCatalog } from "./_catalog.js";
+import { loadPriceBook, resolveSku, referencePrice } from "./_catalog-prices.js";
 import { daftraConfigured } from "./_daftra.js";
 import { issuePaidInvoice, reportInvoiceBlocked, invoiceIsComplete, invoiceRetryDue, publicInvoice } from "./_invoicing.js";
 import { ownerTicketOk, panelRequiresNafath, isNafathPlaceholderEmail } from "./_nafath.js";
@@ -442,6 +443,16 @@ async function issueContract(row, actorKind, actor, opts) {
 // scope rewrite, so the whole thing lives here once.
 async function issueQuote(row, rawItems, opts, actorKind, actor) {
   const priced = await priceItems(rawItems);
+  // لا سطر بسعر صفر في عرضٍ صادر. «computeQuote» يُسقط السعر الناقص إلى صفر،
+  // وكان «ops-quote» بلا بنودٍ مكتوبة (أو ببندٍ لا سعر له في الكتالوج: «خدمة حسب
+  // الطلب»، نسبة، باقة) يُصدر ويُرسل عرضاً إجماليه «٠ ر.س» إلى العميل. السعر يأتي
+  // من الكتالوج بالرمز أو من إنسانٍ يكتبه — وبعدها يصدر العرض، لا قبلها.
+  const unpricedLines = priced.filter((l) => !(num(l.price) > 0));
+  if (unpricedLines.length) {
+    const titles = unpricedLines.map((l) => l.title || l.code || "—");
+    return { ok: false, error: "unpriced_items", unpriced: titles,
+      message: `لا يصدر عرض سعر ببند بلا سعر: ${titles.join(" · ")}. اكتب سعراً أكبر من صفر لكل بند، أو اختره بالرمز من الكتالوج.` };
+  }
   const quote = { number: "Q-" + row.ref.replace(/^BP-R-/, "") + (row.quote && row.quote.status === "REJECTED" ? "-R" : ""), status: "DRAFT", created_at: nowIso(), ...computeQuote(priced, opts) };
   if (!quote.items.length) return { ok: false, error: "no_items" };
   const send = opts.send !== false;
@@ -2305,10 +2316,17 @@ async function opsAction(action, b, qs, req, res, opsUser) {
       return { ...a, note: label, url: url || undefined, path: undefined };
     }));
     const rejectedItems = row.quote && row.quote.status === "REJECTED" && Array.isArray(row.quote.items) ? row.quote.items : [];
+    // سعر الكتالوج بالرمز يُعرض للفريق في حقل السعر قبل الإصدار (كان الحقل فارغاً والمجموع
+    // «٠» حتى لبندٍ سعره ثابت). هو المرجع لا القرار: يُعدَّل بيد الفريق، وبندٌ بلا سعر في
+    // الكتالوج يبقى فارغاً (لا يصدر عرضٌ به — issueQuote).
+    let priceBook = null;
+    try { priceBook = await loadPriceBook(); } catch {}
     const scope = (row.scope || []).map((it) => {
-      if (it.price != null || !rejectedItems.length) return it;
-      const was = rejectedItems.find((l) => it.code && l.code && String(l.code).toUpperCase() === String(it.code).toUpperCase()) || rejectedItems.find((l) => l.title === it.title);
-      return was && was.price != null ? { ...it, price: was.price } : it;
+      if (it.price != null) return it;
+      const was = rejectedItems.length ? (rejectedItems.find((l) => it.code && l.code && String(l.code).toUpperCase() === String(it.code).toUpperCase()) || rejectedItems.find((l) => l.title === it.title)) : null;
+      if (was && was.price != null) return { ...it, price: was.price };
+      const ref = priceBook && it.code ? referencePrice(priceBook, it.code) : null;
+      return ref != null ? { ...it, price: ref } : it;
     });
     return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, request: { ...row, scope, attachments, contract: row.contract ? { ...row.contract, html: undefined, has_html: !!row.contract.html } : null, events, tasks } });
   }
@@ -2682,8 +2700,20 @@ async function priceItems(items) {
   try { cat = await loadCatalog(); } catch {}
   const byCode = new Map();
   for (const s of (cat && cat.services) || []) if (s.code) byCode.set(String(s.code).toUpperCase(), s);
+  // الباقات وباقات الذكاء الاصطناعي ليست في `services.json`، فكان بندها بصفرٍ
+  // صامت. دفتر الأسعار (api/_catalog-prices.js) يعرفها: يملأ السعر المرجعي للبند
+  // في اللوحة، أما صدوره آلياً فيبقى لما سعره ثابتٌ ودفعةٌ واحدة فقط (نموذج التسعير
+  // أدناه يحجب الباقي) — فالسعر المعروض هنا قرارٌ يعتمده إنسان لا الآلة.
+  let book = null;
+  try { book = await loadPriceBook(); } catch {}
   return (Array.isArray(items) ? items : []).map((it) => {
-    const svc = it.code ? byCode.get(String(it.code).toUpperCase()) : null;
+    let svc = it.code ? byCode.get(String(it.code).toUpperCase()) : null;
+    if (!svc && it.code && book) {
+      const e = resolveSku(book, it.code);
+      if (e.kind === "package" || e.kind === "ai-plan") {
+        svc = { code: e.sku, nameAr: e.nameAr, nameEn: e.nameEn, pricingModel: e.model, price: e.amount };
+      }
+    }
     // loadCatalog() flattens price to a number; the raw catalogue file keeps
     // it as {amount,label}. Reading only the object shape silently priced
     // every catalogue line at zero.
