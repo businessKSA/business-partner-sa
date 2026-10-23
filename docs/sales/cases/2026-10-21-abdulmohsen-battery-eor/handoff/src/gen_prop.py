@@ -107,7 +107,7 @@ S.append(dict(
 ))
 
 S.append(dict(
-    key='calc', tag='08 · FOREIGN EMPLOYEE COST', kind='calc',
+    key='calc', tag='09 · FOREIGN EMPLOYEE COST', kind='calc',
     title=('Foreign employee cost calculation', 'حسبة تكلفة الموظف الأجنبي'),
     intro=('Illustration on an assumed total salary of SAR 6,000 per month. Actual figures follow each employee\'s confirmed salary, age and profession.',
            'مثال توضيحي على راتب إجمالي مفترض 6,000 ريال شهرياً. والأرقام الفعلية تتبع راتب كل موظف المؤكد وعمره ومهنته.'),
@@ -122,8 +122,8 @@ S.append(dict(
         (('Transfer, visa and recruitment fees', 'رسوم النقل والتأشيرة والاستقدام'), ('Paid in advance: transfer 2,000 / 4,000 / 6,000; recruitment at actual', 'تُدفع مقدماً: النقل 2,000 / 4,000 / 6,000؛ والاستقدام بالفعلي'), 'Advance|مقدماً'),
         (('Localisation fee', 'رسوم التوطين'), ('Flat SAR 900, or by localisation decision: page 8', 'ثابت 900 ريال، أو بحسب قرار التوطين: الصفحة 8'), 'SAR 900+|900+ ريال'),
     ],
-    note=('Model 1 invoices each item separately at actual cost, with its own payment dates. Model 2 includes them in one monthly price, and the localisation fee is added on top by profession. <b>The calculator is attached to this proposal:</b> open ABM-Calculator.html in your browser to price each employee, check localisation and Nitaqat, and see the Saudi cost.',
-          'النموذج الأول يفوتر كل بند منفصلاً بالتكلفة الفعلية وله مواعيد دفعه. والنموذج الثاني يضمّها في سعر شهري واحد، وتُضاف رسوم التوطين فوقه بحسب المهنة. <b>الحاسبة مرفقة مع هذا العرض:</b> افتح الملف ABM-Calculator.html في متصفحك لتسعّر كل موظف وتفحص التوطين والنطاقات وترى تكلفة السعودي.'),
+    note=('Model 1 invoices each item separately at actual cost, with its own payment dates. Model 2 includes them in one monthly price, and the localisation fee is added on top by profession. <b>The calculator:</b> <a href="https://claude.ai/artifact/YEH7Ze1xybx9Wg1qCNqXLA" style="color:#13246E">open the calculator</a> to price each employee, check localisation and Nitaqat, and see the Saudi cost. It is also attached as ABM-Calculator.html.',
+          'النموذج الأول يفوتر كل بند منفصلاً بالتكلفة الفعلية وله مواعيد دفعه. والنموذج الثاني يضمّها في سعر شهري واحد، وتُضاف رسوم التوطين فوقه بحسب المهنة. <b>الحاسبة:</b> <a href="https://claude.ai/artifact/YEH7Ze1xybx9Wg1qCNqXLA" style="color:#13246E">افتح الحاسبة</a> لتسعّر كل موظف وتفحص التوطين والنطاقات وترى تكلفة السعودي. وهي مرفقة أيضاً بالملف ABM-Calculator.html.'),
 ))
 
 S.append(dict(
@@ -192,6 +192,32 @@ S.append(dict(
 ))
 
 import math
+def _saudi(pkg):
+    er = min(45000, pkg * 0.85) * 0.1275
+    med = 600 / 12; eos = pkg / 24; lv = pkg / 30 * 21 / 12; ovh = 500
+    cost = pkg + er + med + eos + lv + ovh
+    price = int(math.floor(cost * 1.1 / 10 + 0.5) * 10)
+    other = price - (pkg + er + med + eos + lv)
+    return dict(pkg=pkg, er=er, med=med, eos=eos, lv=lv, other=other, price=price)
+_o, _e = _saudi(6000), _saudi(8000)
+_f = lambda x: f'{x:,.2f}'
+S.append(dict(
+    key='saudi', tag='08 · SAUDI EMPLOYEE COST', kind='govtable',
+    title=('Saudi employee cost', 'تكلفة الموظف السعودي'),
+    heads=(('Monthly cost item', 'بند التكلفة الشهري'), ('Basis', 'الأساس'), ('Ordinary or technical', 'عادية أو فنية'), ('Engineering', 'هندسية')),
+    rows=[
+        (('Guaranteed package', 'الباقة المضمونة'), ('At least SAR 6,000, or the profession minimum if higher', 'لا تقل عن 6,000 أو أقل راتب للمهنة إن كان أعلى'), (_f(_o['pkg']), _f(_o['pkg'])), (_f(_e['pkg']), _f(_e['pkg']))),
+        (('Social insurance, employer share', 'التأمينات الاجتماعية، حصة صاحب العمل'), ('12.75% of basic + housing (85% of the package)', '12.75% من الأساسي والسكن (85% من الباقة)'), (_f(_o['er']), _f(_o['er'])), (_f(_e['er']), _f(_e['er']))),
+        (('Medical insurance', 'التأمين الطبي'), ('Insurer quote; basic class shown (SAR 600 a year)', 'حسب عرض التأمين (الأساسية 600 سنوياً)'), (_f(_o['med']), _f(_o['med'])), (_f(_e['med']), _f(_e['med']))),
+        (('End of service', 'نهاية الخدمة'), ('Package ÷ 24', 'الباقة ÷ 24'), (_f(_o['eos']), _f(_o['eos'])), (_f(_e['eos']), _f(_e['eos']))),
+        (('Leave pay', 'بدل الإجازة'), ('21 days a year', '21 يوماً في السنة'), (_f(_o['lv']), _f(_o['lv'])), (_f(_e['lv']), _f(_e['lv']))),
+        (('Our operating costs and service fee', 'مصاريفنا التشغيلية ورسم خدمتنا'), ('Included in the price', 'مشمولة في السعر'), (_f(_o['other']), _f(_o['other'])), (_f(_e['other']), _f(_e['other']))),
+        (('Monthly price, before VAT', 'السعر الشهري قبل الضريبة'), ('Rounded to the nearest 10', 'مقرّب لأقرب 10'), (f"{_o['price']:,}", f"{_o['price']:,}"), (f"{_e['price']:,}", f"{_e['price']:,}")),
+    ],
+    note=('The Saudi\'s own share of social insurance comes out of his salary and is not a cost to you. For a Saudi taken in return for a foreigner, no localisation fee applies. Reserved professions (human resources and similar) are not offered to foreigners.',
+          'حصة السعودي من التأمينات تُخصم من راتبه وليست تكلفة عليك. والسعودي الذي تأخذه مقابل أجنبي لا رسوم توطين عليه.'),
+))
+
 def _lump(a, n):
     prem = 0 if n >= 12 else 0.2 if n >= 9 else 0.3 if n >= 6 else 0.4 if n >= 3 else 1.0
     c = (a * (1 + prem) + (9700 + 650 + 276) / 12 + 600 / 12 + (a / 30 * 21) / 12 + 200 / 12 + 3000 / n + a / 2 / 12 + a * 0.02 + 1500 / 12 + 2000 / n + 500) * 1.1
@@ -207,7 +233,7 @@ S.append(dict(
 ))
 
 S.append(dict(
-    key='payment', tag='09 · TERMS & NEXT STEPS', kind='cards', cols=2,
+    key='payment', tag='10 · TERMS & NEXT STEPS', kind='cards', cols=2,
     title=('Terms and next steps', 'الشروط والخطوات التالية'),
     cards=[
         dict(dark=True, t=('Term and payment', 'المدة والدفع'),
@@ -222,7 +248,7 @@ S.append(dict(
 ))
 
 S.append(dict(
-    key='accept', tag='10 · ACCEPTANCE', kind='accept',
+    key='accept', tag='11 · ACCEPTANCE', kind='accept',
     title=('Acceptance', 'القبول'),
 ))
 
@@ -447,11 +473,13 @@ def render(s, mode):
         cols = 'minmax(0,1.25fr) minmax(0,1.3fr) minmax(0,1.25fr) minmax(0,1.05fr)'
         def C(pair, size, color, bold=False):
             return txt(pair, mode, (size, size + 2), (color, color), bold)
+        N = lambda v: f'<div style="font-family:\'IBM Plex Mono\',monospace;font-weight:500;direction:ltr;text-align:center;font-size:{fs}px;color:#0B1B5A">{esc(v[0])}</div>'
+        if s['key'] == 'saudi': cols = 'minmax(0,1.3fr) minmax(0,1.6fr) minmax(0,0.8fr) minmax(0,0.8fr)'
         hrow = ''.join(f'<div>{C(h, fs - 3, "#9DB4FF", True)}</div>' for h in s['heads'])
         body = f'<div style="display:grid;grid-template-columns:{cols};column-gap:24px;padding:14px 26px;background:#0B1B5A;direction:{d}">{hrow}</div>'
         for i, r in enumerate(s['rows']):
             bg = '#fff' if i % 2 == 0 else '#F7F8FD'
-            body += f'<div style="display:grid;grid-template-columns:{cols};column-gap:24px;align-items:start;padding:11px 26px;background:{bg};border-bottom:2px solid #DDE1EE;direction:{d}"><div>{C(r[0], fs, "#0B1B5A", True)}</div><div>{C(r[1], fs - 1, "#0B1B5A")}</div><div>{C(r[2], fs - 2, "#1B2340")}</div><div>{C(r[3], fs - 2, "#4A5578")}</div></div>'
+            body += f'<div style="display:grid;grid-template-columns:{cols};column-gap:24px;align-items:start;padding:11px 26px;background:{bg};border-bottom:2px solid #DDE1EE;direction:{d}"><div>{C(r[0], fs, "#0B1B5A", True)}</div><div>{C(r[1], fs - 1, "#0B1B5A")}</div><div>{N(r[2]) if s['key'] == 'saudi' else C(r[2], fs - 2, "#1B2340")}</div><div>{N(r[3]) if s['key'] == 'saudi' else C(r[3], fs - 2, "#4A5578")}</div></div>'
         inner += f'<div style="margin-top:20px;background:#fff;border:2px solid #DDE1EE;border-radius:20px;overflow:hidden">{body}</div>'
         inner += note(s['note'], mode, 14)
     elif k == 'accept':
@@ -481,6 +509,7 @@ NAMES = {  # key -> (bi, ar, en)
     'roles': ('Roles', 'AR-3-Roles', 'EN-3-Roles'),
     'models': ('Models', 'AR-10-Models', 'EN-10-Models'),
     'gov': ('Gov', 'AR-11-Gov', 'EN-11-Gov'),
+    'saudi': ('Saudi', 'AR-12-Saudi', 'EN-12-Saudi'),
     'local': ('Local', 'AR-4-Local', 'EN-4-Local'),
     'calc': ('Calc', 'AR-5-Calc', 'EN-5-Calc'),
     'model1': ('Price', 'AR-6-Price', 'EN-6-Price'),
@@ -488,7 +517,7 @@ NAMES = {  # key -> (bi, ar, en)
     'payment': ('Next', 'AR-8-Next', 'EN-8-Next'),
     'accept': ('Accept', 'AR-9-Accept', 'EN-9-Accept'),
 }
-ORDER = ['cover', 'scope', 'roles', 'models', 'model1', 'gov', 'model2', 'local', 'calc', 'payment', 'accept']
+ORDER = ['cover', 'scope', 'roles', 'models', 'model1', 'gov', 'model2', 'local', 'saudi', 'calc', 'payment', 'accept']
 S.sort(key=lambda x: ORDER.index(x['key']))
 boards = {'bi': [], 'ar': [], 'en': []}
 for s in S:
