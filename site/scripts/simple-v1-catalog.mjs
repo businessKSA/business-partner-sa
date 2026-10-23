@@ -68,6 +68,7 @@ const T = {
             zh: "没有匹配项。请尝试更宽泛的词，或在对话中描述您的需求。" },
   picked: { ar: "اخترت", en: "Selected", fr: "Sélectionné", zh: "已选" },
   svcWord:{ ar: "خدمة", en: "services", fr: "services", zh: "项服务" },
+  pkgWord:{ ar: "باقة", en: "packages", fr: "forfaits", zh: "个套餐" },
   start:  { ar: "ابدأ طلبك بها", en: "Start a request", fr: "Lancer la demande", zh: "开始申请" },
   clear:  { ar: "مسح", en: "Clear", fr: "Effacer", zh: "清除" },
   openAll:{ ar: "افتح الكل", en: "Expand all", fr: "Tout ouvrir", zh: "全部展开" },
@@ -114,8 +115,11 @@ export function buildSimpleCatalog(SV1, ctx) {
   const lang = ctx.lang();
   const t = (k) => (T[k][lang] != null ? T[k][lang] : T[k].en);
   const esc = ctx.esc;
-  const catLabel = ctx.catLabel;
-  const govLabel = ctx.govLabel;
+  // ‏ctx.catLabel/govLabel تُرجعان نصاً مهرَّباً للـHTML («Recruitment &amp; Hiring»)؛ وهذه الصفحة تضعه في
+  // بياناتٍ تُرسم بـtextContent، فيظهر الرمز حرفياً. يُفكّ الهروب هنا مرة، ويبقى الهروب عند الطباعة في HTML.
+  const unesc = (x) => String(x == null ? "" : x).replace(/&(amp|lt|gt|quot|#39);/g, (_m, k) => ({ amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'" })[k]);
+  const catLabel = ctx.catLabel ? (k) => unesc(ctx.catLabel(k)) : ctx.catLabel;
+  const govLabel = ctx.govLabel ? (k) => unesc(ctx.govLabel(k)) : ctx.govLabel;
   const ar = lang === "ar";
 
   let raw = { services: [], packages: [] };
@@ -126,10 +130,14 @@ export function buildSimpleCatalog(SV1, ctx) {
   raw = { ...raw, services: visibleCatalogRows(raw.services || []), packages: visibleCatalogRows(raw.packages || []) };
 
   const book = buildPriceBook(raw);
-  const cur = "﷼";
+  const cur = ar ? "﷼" : "SAR";
   const priceOf = (row) => {
+    // ‏العقار والسياحة لا يُعرض لهما سعر: قاعدة صفحة الخدمة (generate.mjs svcPriced) وهي نفسها
+    // قاعدة السلة (NO_CART). كانت القائمة تعرض «يبدأ من 3,000 ﷼» وصفحة الخدمة تقول «السعر حسب
+    // حالتك» لنفس الخدمة — فتُوحَّد على قرار العقارات المكتوب في الكود.
+    if (NO_CART.has(row.category)) return null;
     const e = resolveSku(book, row.code);
-    return e.amount != null && (e.status === "fixed" || e.isFloor) ? { txt: priceText(e, ar ? "ar" : "en", cur), floor: !!e.isFloor } : null;
+    return e.amount != null && (e.status === "fixed" || e.isFloor) ? { txt: priceText(e, ar ? "ar" : "en", cur, { site: true }), floor: !!e.isFloor } : null;
   };
 
   const services = (raw.services || []).map((s) => ({
@@ -172,7 +180,7 @@ export function buildSimpleCatalog(SV1, ctx) {
     // ‏نصّ السعر من دفتر الأسعار: «6,000 ﷼ / شهرياً» · «يبدأ من 30,000 ﷼ / سنويًا». الباقة بلا مبلغ
     // («باقة حسب الطلب») تُكتب لافتتها وليست رقماً فلا تُخفى عن الزائر.
     price: priceOf(p),
-    label: (() => { const e = resolveSku(book, p.code); return e.amount == null ? priceText(e, ar ? "ar" : "en", cur) : ""; })(),
+    label: (() => { const e = resolveSku(book, p.code); return e.amount == null ? priceText(e, ar ? "ar" : "en", cur, { site: true }) : ""; })(),
     features: ((ar ? p.featuresAr : p.featuresEn) || p.featuresAr || []).slice(0, 8),
   })).filter((p) => p.name);
 
@@ -186,7 +194,7 @@ export function buildSimpleCatalog(SV1, ctx) {
   <main>
   <section class="sv1-sec"><div class="wrap">
     <div class="sv1-title">
-      <span class="sv1-tag">${esc(String(services.length))} ${esc(t("svcWord"))} · ${esc(String(packages.length))} ${esc(t("tabPkg"))}</span>
+      <span class="sv1-tag">${esc(String(services.length))} ${esc(t("svcWord"))} · ${esc(String(packages.length))} ${esc(t("pkgWord"))}</span>
       <h2>${esc(t("title"))}</h2>
       <p>${esc(t("desc"))}</p>
     </div>

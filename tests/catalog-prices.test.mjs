@@ -277,7 +277,7 @@ test("الباقة في اللوحة: سعر الكتالوج مرجعاً في 
   assert.equal(launch.price, 6000, "سعر الباقة المرجعي");
   assert.equal(ent.price, undefined, "باقة بلا مبلغ تبقى بلا سعر");
   // الفريق يُصدر الباقة المسعّرة: سعرها لا صفر.
-  const ok = await call("ops-quote", { ref, items: [{ code: "BP-PKG-LAUNCH", title: "باقة الانطلاق", qty: 1 }] });
+  const ok = await call("ops-quote", { ref, items: [{ code: "BP-PKG-LAUNCH", title: "باقة الانطلاق", qty: 1 }], confirm_prices: true });
   assert.equal(ok.body.ok, true, JSON.stringify(ok.body));
   noZeroLine(ok.body.quote, "الباقة");
   assert.equal(ok.body.quote.items[0].price, 6000);
@@ -350,7 +350,7 @@ test("/catalog: كل سعر خدمة يُرسَم بصنف price-amt (يخفيه
     const rows = els.get("svcList").querySelectorAll("sv1-pick");
     assert.equal(rows.length, 195, "كل الخدمات مرسومة");
     const prices = priceNodesOf(els, "sv1-pick-price");
-    const expected = catalog.services.filter((s) => s.amount > 0);
+    const expected = catalog.services.filter((s) => s.amount > 0 && !["Real Estate", "Tourism"].includes(s.category));
     assert.equal(prices.length, expected.length, "سعرٌ لكل خدمة لها مبلغ");
     for (const n of prices) assert.ok(n.cls.includes("price-amt"), "سعر بلا price-amt: " + n.textContent);
     // نصّ السعر هو نصّ الدفتر (بنصفه «﷼»).
@@ -458,4 +458,125 @@ test("live-prices.js: سعر البناء هو السعر — تُنزع data-bp
   };
   vm.runInNewContext(src, sb);
   assert.ok(nodes.every((n) => n.removed), "كل data-bp-pending نُزعت");
+});
+
+
+// ───────────────────── جولة فاحص الكتالوج (2026-10-23): بنود ٤–٨ ─────────────────────
+
+const ctxEsc = (lang) => ({ lang: () => lang, esc: (x) => String(x), catLabel: (k) => ({ Recruitment: "Recruitment &amp; Hiring", "AI Automation": "AI &amp; Automation" })[k] || k, govLabel: (g) => String(g).replace(/&/g, "&amp;") });
+
+test("٤) /catalog الإنجليزي: عناوين المجموعات بلا هروب مزدوج («&amp;» حرفياً)", () => {
+  const prev = process.cwd(); process.chdir(ROOT);
+  try {
+    const { els } = runCatalog(buildSimpleCatalog(SV1, ctxEsc("en")));
+    const heads = els.get("svcList").querySelectorAll("sv1-grp").map((g) => g.children[0].textContent);
+    const all = heads.join("|");
+    assert.match(all, /Recruitment & Hiring/);
+    assert.match(all, /AI & Automation/);
+    assert.doesNotMatch(all, /&amp;|&lt;|&gt;/);
+  } finally { process.chdir(prev); }
+  for (const f of ["site/catalog.html", "site/fr/catalog.html"]) {
+    const html = fs.readFileSync(path.join(ROOT, f), "utf8");
+    assert.doesNotMatch(html, /&amp;amp;/, f);
+    assert.doesNotMatch(html, /"cat":"[^"]*&amp;/, f + ": عنوان مجموعة مهرَّب في البيانات");
+  }
+});
+
+test("٥) شارة العدد بحسب اللغة: «195 خدمة · 11 باقة» و«195 services · 11 packages»", () => {
+  const prev = process.cwd(); process.chdir(ROOT);
+  try {
+    const tag = (lang) => /<span class="sv1-tag">([^<]+)<\/span>/.exec(String(buildSimpleCatalog(SV1, mkCtx(lang)).body))[1];
+    assert.equal(tag("ar"), "195 خدمة · 11 باقة");
+    assert.equal(tag("en"), "195 services · 11 packages");
+    assert.match(tag("fr"), /^195 services · 11 forfaits$/);
+    assert.match(tag("zh"), /^195 项服务 · 11 个套餐$/);
+    assert.doesNotMatch(tag("ar"), /الباقات/);
+    assert.doesNotMatch(tag("en"), /Packages/);
+  } finally { process.chdir(prev); }
+});
+
+test("٦) العقار والسياحة: القائمة لا تعرض سعراً، كصفحة الخدمة والسلة — لا سعر في أحدهما دون الآخر", () => {
+  const prev = process.cwd(); process.chdir(ROOT);
+  try {
+    const { els } = runCatalog(buildSimpleCatalog(SV1, mkCtx("ar")));
+    const prices = els.get("svcList").querySelectorAll("sv1-pick-price").map((n) => n.textContent);
+    const re = catalog.services.filter((s) => ["Real Estate", "Tourism"].includes(s.category));
+    assert.ok(re.length >= 7);
+    // لا نصّ سعر عقار في القائمة (3,000 / 800 / 1,500 / 5,000 «يبدأ من»).
+    for (const s of re.filter((x) => x.amount > 0)) assert.ok(!prices.includes(P.priceText(P.resolveSku(book, s.code), "ar", "﷼")) || catalog.services.some((o) => o.code !== s.code && !["Real Estate", "Tourism"].includes(o.category) && o.amount === s.amount && o.pricingModel === s.pricingModel), s.code + " سعرٌ في القائمة");
+    assert.equal(prices.length, catalog.services.filter((s) => s.amount > 0 && !["Real Estate", "Tourism"].includes(s.category)).length);
+  } finally { process.chdir(prev); }
+  // صفحة الخدمة المبنيّة: لا خانة سعر لأي عقار.
+  for (const s of catalog.services.filter((x) => x.category === "Real Estate")) {
+    const f = path.join(ROOT, "site/ar/services", s.code.toLowerCase() + ".html");
+    if (!fs.existsSync(f)) continue;
+    assert.doesNotMatch(fs.readFileSync(f, "utf8"), /sv1-svc-price price-amt/, s.code + " له سعر في صفحته");
+  }
+});
+
+test("٧) نصّ السعر في القائمة هو نصّ صفحة الخدمة حرفاً بحرف (عربي: ﷼، إنجليزي وفرنسي وصيني: SAR)", () => {
+  let checked = 0;
+  for (const [dir, lang, cur] of [["site/ar", "ar", "﷼"], ["site", "en", "SAR"], ["site/fr", "en", "SAR"], ["site/zh", "en", "SAR"]]) {
+    for (const s of catalog.services.filter((x) => x.amount > 0 && !["Real Estate", "Tourism"].includes(x.category))) {
+      const f = path.join(ROOT, dir, "services", s.code.toLowerCase() + ".html");
+      if (!fs.existsSync(f)) continue;
+      const m = /sv1-svc-price price-amt"[^>]*>([^<]*)</.exec(fs.readFileSync(f, "utf8"));
+      if (!m) continue;
+      const e = P.resolveSku(book, s.code);
+      if (e.isFloor) continue;
+      const want = P.priceText(e, lang, cur, { site: true });
+      assert.equal(m[1].trim(), want, `${dir}/${s.code}`);
+      checked++;
+    }
+  }
+  assert.ok(checked > 600, "عدد المقارنات: " + checked);
+});
+
+test("٨) الملحق يبيّن الدورة والحدّ الأدنى: BP-HR-03 «شهرياً» وBP-RE-01 «يبدأ من»", () => {
+  const hr = P.resolveSku(book, "BP-HR-03");
+  assert.match(hr.priceTextAr, /2,500 ر\.س \/ شهرياً/);
+  assert.equal(hr.statusAr, "سعر ثابت · شهري");
+  assert.equal(hr.cycleAr, "شهرياً");
+  assert.equal(hr.cycleEn, "monthly");
+  const re = P.resolveSku(book, "BP-RE-01");
+  assert.match(re.priceTextAr, /^يبدأ من 3,000/);
+  assert.match(re.statusAr, /حدّ أدنى/);
+  for (const lang of ["ar", "en", "bi"]) {
+    const html = P.annexHtml(book, { lang });
+    const row = new RegExp("BP-HR-03[^]*?</tr>").exec(html)[0];
+    assert.match(row, lang === "en" ? /monthly/ : /شهري/, lang + ": دورة BP-HR-03");
+    const row2 = new RegExp("BP-RE-01[^]*?</tr>").exec(html)[0];
+    assert.match(row2, lang === "en" ? /From|Minimum/ : /يبدأ من|حدّ أدنى/, lang + ": حدّ BP-RE-01");
+  }
+  assert.match(P.annexHtml(book, { lang: "ar" }), /السعر الشهري يتكرّر كل شهر/);
+});
+
+test("٨) ops-quote على بندٍ شهري أو «يبدأ من» بسعر الكتالوج: لا يُعتبر ثابتاً صامتاً — يطلب تأكيداً ثم يكتب النوع في السطر", async () => {
+  for (const [code, price, tag] of [["BP-HR-03", 2500, /شهري/], ["BP-RE-02", 800, /حدّ أدنى/]]) {
+    const ref = await newRequest([{ code, title: code, qty: 1 }]);
+    await call("scope-confirm", { ref });
+    const items = [{ code, title: code, qty: 1, price }];
+    const no = await call("ops-quote", { ref, items });
+    assert.equal(no.status, 400, code);
+    assert.equal(no.body.error, "needs_confirmation");
+    assert.equal(no.body.lines[0].code, code);
+    assert.match(no.body.message, /أكّد/);
+    assert.equal((await rowOf(ref)).quote || null, null, "لم يُصدر عرض");
+    // بلا اسم الرمز وبسعر الكتالوج: نفس الشيء.
+    const bare = await call("ops-quote", { ref, items: [{ code, title: code, qty: 1 }] });
+    assert.equal(bare.body.error, "needs_confirmation", code + " بلا سعر مكتوب");
+    const yes = await call("ops-quote", { ref, items, confirm_prices: true });
+    assert.equal(yes.body.ok, true, JSON.stringify(yes.body));
+    noZeroLine(yes.body.quote, code);
+    assert.match(yes.body.quote.items[0].description, tag, "نوع السعر مكتوب في السطر");
+  }
+  // سعرٌ كتبه الإنسان بخلاف الكتالوج قرارٌ منه: لا يُطلب تأكيد.
+  const ref2 = await newRequest([{ code: "BP-HR-03", title: "x", qty: 1 }]);
+  await call("scope-confirm", { ref: ref2 });
+  const own = await call("ops-quote", { ref: ref2, items: [{ code: "BP-HR-03", title: "x", qty: 1, price: 2000 }] });
+  assert.equal(own.body.ok, true, JSON.stringify(own.body));
+  // والثابت دفعة واحدة لا يطلب شيئاً.
+  const ref3 = await newRequest([{ code: "BP-CHAMBER-01", title: "x", qty: 1 }]);
+  await call("scope-confirm", { ref: ref3 });
+  assert.equal((await call("ops-quote", { ref: ref3, items: [{ code: "BP-CHAMBER-01", title: "x", qty: 1, price: 300 }] })).body.ok, true);
 });
