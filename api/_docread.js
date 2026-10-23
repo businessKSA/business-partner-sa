@@ -325,6 +325,23 @@ export async function readDocumentRaw(base64, mime, prompt, maxTokens) {
   return { ok: false, error: anyKey ? "read_failed" : "not_configured" };
 }
 
+// النص الخام للمستند كما يقرؤه Azure Document Intelligence (prebuilt-read)، صورةً كان أو PDF،
+// بلا نموذج لغوي بينه وبين الملف. يستعمله مدقّق الإيصالات (api/_receipt-check.js) مصدراً
+// مستقلاً يقارَن به ما يستخرجه نموذج الرؤية، فلا يمرّ إيصال بتوجيهٍ مكتوب داخل الصورة.
+// لا مزوّد آخر: بلا مفاتيح Document Intelligence يعود not_configured.
+export async function readDocumentText(base64, mime) {
+  if (!base64) return { ok: false, error: "no_file" };
+  if (!DOC_MIME_OK.test(String(mime || ""))) return { ok: false, error: "bad_type" };
+  if (Buffer.byteLength(base64, "base64") > MAX_DOC_BYTES) return { ok: false, error: "too_large" };
+  if (!docIntelReady()) return { ok: false, error: "not_configured" };
+  try {
+    return { ok: true, text: await azureExtractText(base64), provider: "azure-docintel" };
+  } catch (e) {
+    console.error("docread text", String(e.message || e).slice(0, 160));
+    return { ok: false, error: "read_failed" };
+  }
+}
+
 // Text-only model call over the same provider chain (no attachment) — used by
 // the doc agent for reconciliation, gap analysis and fill planning where the
 // inputs are already extracted text, not bytes.
