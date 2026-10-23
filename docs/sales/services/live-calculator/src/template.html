@@ -309,13 +309,13 @@ function lumpCalc(c){
   const X=(c.xfer==null?3000:c.xfer);
   const MF=1+S.fee.pct/100; const a=c.sal,n=c.term; const prem=k=>c.short?S.fee.pS/100:tierPrem(k), aR=k=>a*(1+prem(k));
   const insAdj=(insAnnual()-600)/12*MF; const exI=extraItems(a), exS=exI.reduce((s,i)=>s+i[1],0);
-  const base=(aR(n)+exS+(9700+650+240)/12+600/12+(a/30*21)/12+200/12+X/n+a/2/12+a*(S.sb.basic+S.sb.housing)/100*0.02+1500/12+S.fee.overhead)*MF+insAdj;
+  const base=(aR(n)+exS+(9700+650+240)/12+600/12+(a/30*21)/12+200/12+X/n+eosAmt(a,n)/n+a*(S.sb.basic+S.sb.housing)/100*0.02+1500/12+S.fee.overhead)*MF+insAdj;
   const extra=(c.rec+c.con+c.tkt)/n*MF;
   const before0=m10(base+extra);
   const p=EP(c.prof); const loc=locCalc(c.prof,c.qty); const fee=loc.fee;
   const otAmt=otOf(before0+(fee||0)); const before=before0+otAmt;
   const withFee=before+(fee||0);
-  const byTerm=[3,6,9,12,24].map(k=>{const b=(aR(k)+exS+(9700+650+240)/12+600/12+(a/30*21)/12+200/12+X/k+a/2/12+a*(S.sb.basic+S.sb.housing)/100*0.02+1500/12+S.fee.overhead)*MF+insAdj;return [k,m10(b+(c.rec+c.con+c.tkt)/k*MF)+(fee||0)];});
+  const byTerm=[3,6,9,12,24].map(k=>{const b=(aR(k)+exS+(9700+650+240)/12+600/12+(a/30*21)/12+200/12+X/k+eosAmt(a,k)/k+a*(S.sb.basic+S.sb.housing)/100*0.02+1500/12+S.fee.overhead)*MF+insAdj;return [k,m10(b+(c.rec+c.con+c.tkt)/k*MF)+(fee||0)];});
   const gb=a*(S.sb.basic+S.sb.housing)/100;
   const items=[[tx('الراتب','Salary'),a],
    [tx('رخصة العمل والمقابل المالي (9,700 سنوياً ÷ 12)','Work permit and levy (9,700 / yr ÷ 12)'),9700/12],
@@ -323,7 +323,7 @@ function lumpCalc(c){
    [tx('رسوم حكومية أخرى (240 سنوياً ÷ 12)','Other government fees (240 / yr ÷ 12)'),240/12],
    [tx('التأمينات الاجتماعية على الأجنبي: 2% أخطار مهنية على صاحب العمل (على الأساسي والسكن)','Foreigner social insurance: 2% occupational hazards, employer (on basic + housing)'),gb*0.02],
    [tx('التأمين الطبي (حسب الفئة)','Medical insurance (by class)'),insAnnual()/12],
-   [tx('استحقاق نهاية الخدمة (الأجر ÷ 24)','End of service (salary ÷ 24)'),a/24],
+   [tx('استحقاق نهاية الخدمة (نصف شهر عن كل سنة من الخمس الأولى)','End of service (half a month per year for the first five)'),eosAmt(a,n)/n],
    [tx('بدل الإجازة (21 يوماً سنوياً)','Leave pay (21 days a year)'),a/30*21/12],
    [tx('تأشيرة الخروج والعودة (200 سنوياً ÷ 12)','Exit & re-entry visa (200 / yr ÷ 12)'),200/12],
    [tx('تذكرة العودة (1,500 سنوياً ÷ 12)','Return ticket (1,500 / yr ÷ 12)'),1500/12],
@@ -346,7 +346,7 @@ function costCalc(c){
    [tx('رخصة العمل والمقابل المالي (9,700 سنوياً ÷ 12)','Work permit and levy (9,700 / yr ÷ 12)'),(9600+100)/12],
    [tx('الإقامة (650 سنوياً ÷ 12)','Residency (650 / yr ÷ 12)'),650/12],
    [tx('التأمينات الاجتماعية للأجنبي: 2% أخطار مهنية على صاحب العمل (على الأساسي والسكن)','Foreigner social insurance: 2% occupational hazards, employer only (on basic + housing)'),a*(S.sb.basic+S.sb.housing)/100*0.02],
-   [tx('استحقاق نهاية الخدمة (الأجر ÷ 24) — بروفيجن، يُدفع عند نهاية العقد','End of service (salary ÷ 24) — provision, paid at contract end'),a/24],
+   [tx('استحقاق نهاية الخدمة (نصف شهر عن كل سنة) — بروفيجن، يُدفع عند نهاية العقد','End of service (half a month per year) — provision, paid at contract end'),eosAmt(a,n)/n],
    [tx('بدل الإجازة (21 يوماً سنوياً) — بروفيجن، يُدفع عند نهاية العقد','Leave pay (21 days a year) — provision, paid at contract end'),a/30*21/12],
    [tx('التأمين الطبي (حسب الجنس والعمر والفئة)','Medical insurance (by gender, age and class)'),insAnnual()/12],
    [tx('رسوم نقل الكفالة (للمقيم) أو التأشيرة 2,000 (للمستقدَم) ÷ الأشهر','Sponsorship transfer (resident) or visa 2,000 (recruited) ÷ months'),c.xfer/n],
@@ -362,7 +362,7 @@ function costCalc(c){
   const F=S.fee, ov=F.overhead, pctFee=(sum0+ov)*F.pct/100, loc=(F.loc==='Yes'&&fee!=null)?fee:0;
   const ours=ov+pctFee+loc; const otAmt=otOf(sum0+ours); if(otAmt>0) items.push([otLabel(),otAmt]); const sum=sum0+otAmt;
   const vat=ours*0.15, inv=sum+ours+vat;
-  const prov=(a/24+a/30*21/12+c.tkt1/12)*n;
+  const prov=(eosAmt(a,n)/n+a/30*21/12+c.tkt1/12)*n;
   return {items,sum,fee,ov,pctFee,loc,ours,vat,inv,term:inv*n,adv2:inv*2,prov,otAmt};
 }
 function schedCalc(c){
@@ -392,11 +392,11 @@ function schedCalc(c){
   add('M','التأمين الطبي للسعودي','Saudi medical insurance',tx('شهرياً','Monthly'),m=>(sa&&m>=1&&m<=n)?annMed/12:0);
   add('M','التأمينات الاجتماعية للسعودي (فاتورة منفصلة)','Saudi social insurance (separate invoice)',tx('شهرياً','Monthly'),m=>(sa&&m>=1&&m<=n)?c.ssal*c.sgosi/100:0);
   // نهاية العقد: بالفعلي وبعد النهاية فقط
-  add('E','مكافأة نهاية الخدمة','End of service award',tx('بعد نهاية العقد بالإجمالي الفعلي','After contract end, at the employee’s actual total'),m=>m===n?a/24*n:0);
+  add('E','مكافأة نهاية الخدمة','End of service award',tx('بعد نهاية العقد بالإجمالي الفعلي','After contract end, at the employee’s actual total'),m=>m===n?eosAmt(a,n):0);
   add('E','بدل الإجازة','Leave pay',tx('بعد نهاية العقد بالفعلي','After contract end, at actual'),m=>m===n?a/30*21/12*n:0);
   add('E','تذكرة العودة','Return ticket',tx('بعد نهاية العقد بالفعلي','After contract end, at actual'),m=>m===n?c.tkt1/12*n:0);
   add('E','تأشيرة الخروج والعودة (اختيارية — عند تجديد العقد السنوي إن لزم)','Exit & re-entry visa (optional — on renewal of the annual contract, if needed)',tx('اختيارية، بالفعلي','Optional, at actual'),m=>m===n?c.exitv:0,'opt');
-  add('E','مكافأة نهاية الخدمة للسعودي (فاتورة منفصلة)','Saudi end of service (separate invoice)',tx('عند نهاية العقد','At contract end'),m=>(sa&&m===n)?c.ssal/24*n:0);
+  add('E','مكافأة نهاية الخدمة للسعودي (فاتورة منفصلة)','Saudi end of service (separate invoice)',tx('عند نهاية العقد','At contract end'),m=>(sa&&m===n)?eosAmt(c.ssal,n):0);
   add('E','بدل الإجازة للسعودي — 21 يوماً (فاتورة منفصلة)','Saudi leave pay — 21 days (separate invoice)',tx('عند نهاية العقد','At contract end'),m=>(sa&&m===n)?c.ssal/30*21/12*n:0);
   // رسوم شركة بزنس بارتنر الشهرية ثابتة (لا نسبة) وتُحمَّل على الفاتورة الشهرية فقط، ومعها رسوم التوطين، والضريبة عليها وحدها
   add('M','رسوم شركة بزنس بارتنر الشهرية على الموظف (ثابتة)','Business Partner monthly fee per employee (fixed)',tx('شهرياً','Monthly'),m=>(m>=1&&m<=n)?ov:0,'ov');
@@ -418,6 +418,14 @@ function nitCalc(c){
   const cur=pct>=res[3].y?3:pct>=res[2].y?2:pct>=res[1].y?1:pct>=res[0].y?0:-1;
   return {X,sa,res,pct,cur};
 }
+function eosAmt(w,months){ // المادة 84: نصف شهر عن كل سنة من الخمس الأولى، وشهر عن كل سنة بعدها، وبنسبة أجزاء السنة
+  const y=Math.max(0,(+months||0)/12); return w*(0.5*Math.min(y,5)+Math.max(0,y-5));
+}
+function eosResign(w,months){ // المادة 85: عند الاستقالة — لا شيء قبل سنتين، ثلث (2–5)، ثلثان (5–10)، كاملة (10+)
+  const y=(+months||0)/12, f=eosAmt(w,months); return y<2?0:y<=5?f/3:y<10?f*2/3:f;
+}
+function eosHint(w,months){ if(!(w>0&&months>0)) return '';
+  return `<p class="hint" style="margin-top:8px">${tx('مكافأة نهاية الخدمة (نظام العمل، المواد 84–87): نصف شهر عن كل سنة من الخمس الأولى وشهر عن كل سنة بعدها بالأجر الأخير، وتُحتسب أجزاء السنة بنسبتها. عند انتهاء العقد أو إنهائه من صاحب العمل تُستحق كاملة: ','End of service (Labour Law arts. 84–87): half a month per year for the first five years and a full month per year after, on the last wage, pro-rated for part years. Paid in full when the contract ends or the employer ends it: ')}<b>${fmt(eosAmt(w,months))}</b> ${tx('لهذه المدة. وعند استقالة العامل: لا شيء قبل سنتين، وثلثها بين سنتين وخمس، وثلثاها بين خمس وعشر، وكاملة بعد عشر سنوات؛ ولا تُستحق كاملة عند الاستقالة إلا لقوة قاهرة أو لعاملة أنهت عقدها خلال 6 أشهر من الزواج أو 3 أشهر من الولادة.','for this term. If the worker resigns: nothing before two years, one third from two to five, two thirds from five to ten, full after ten; a resignation pays in full only for force majeure or a woman ending her contract within 6 months of marriage or 3 months of childbirth.')}</p>`;}
 function profCalc(c){
   const p=EP(c.prof); const ratio=p[3]/100, minW=p[4], minS=p[5];
   const sp=c.spart||0, eff=c.saudi+0.5*sp; // السعودي عن بعد أو بدوام جزئي يُحتسب نصفاً
@@ -580,7 +588,7 @@ function viewLumpInner(){
    <h2 style="margin-top:18px">${tx('نفس الراتب بحسب المدة','Same package by term')}</h2>
    <div class="tbl"><table><thead><tr><th>${tx('المدة','Term')}</th><th class="n">${tx('شهرياً قبل الضريبة','Monthly excl. VAT')}</th></tr></thead><tbody>
    ${r.byTerm.map(([k,v])=>`<tr><td>${termLbl(k)}</td><td class="n">${fmt(v)}</td></tr>`).join('')}</tbody></table></div>
-   <p class="hint" style="margin-top:10px">${tx('المبلغ المقطوع = كل التكاليف × 1.10 مقرّباً لأقرب 10 ريالات. يشمل الراتب والرخصة والإقامة والتأمين الطبي والاجتماعي ونهاية الخدمة والإجازة والتذاكر وتأشيرة الخروج والعودة والنقل والعقود.','Lump sum = all costs × 1.10, rounded to the nearest SAR 10. It covers salary, permit, residency, medical and social insurance, end of service, leave, tickets, exit/re-entry visa, transfer and contracts.')}</p>
+   <p class="hint" style="margin-top:10px">${tx('المبلغ المقطوع = كل التكاليف × 1.10 مقرّباً لأقرب 10 ريالات. يشمل الراتب والرخصة والإقامة والتأمين الطبي والاجتماعي ونهاية الخدمة والإجازة والتذاكر وتأشيرة الخروج والعودة والنقل والعقود.','Lump sum = all costs × 1.10, rounded to the nearest SAR 10. It covers salary, permit, residency, medical and social insurance, end of service, leave, tickets, exit/re-entry visa, transfer and contracts.')}</p>${eosHint(c.sal,typeof c.term==='number'?c.term:12)}
    ${r.cat==='Saudi-only'?'':impactHtml(true,1,1)}
    ${CLIENT||!r.loc||!r.loc.need?'':`<h2 style="margin-top:18px">${tx('كيف حُسبت رسوم التوطين','How the localisation fees are calculated')}</h2><div class="res">${line(tx('عدد الأجانب','Foreigners'),r.loc.q)}${line(tx('نسبة توطين المهنة','Profession localisation ratio'),Math.round(r.loc.r*100)+'%')}${line(tx('السعوديون المطلوبون','Saudis required'),r.loc.need)}${line(tx('أقل راتب للسعودي'+(r.loc.noMin?' (لم يُحدَّد، حدّ احتساب كامل)':''),'Minimum Saudi salary'+(r.loc.noMin?' (none stated, full-count threshold)':'')),fmt(r.loc.m))}${line(tx('التأمينات — حصة صاحب العمل '+r.loc.erP+'%','Social insurance — employer '+r.loc.erP+'%'),fmt(r.loc.er))}${line(tx('التأمينات — حصة المشترك '+r.loc.eeP+'%','Social insurance — subscriber '+r.loc.eeP+'%'),fmt(r.loc.ee))}${line(tx('مكافأة نهاية الخدمة (الراتب ÷ 24)','End of service (salary ÷ 24)'),fmt(r.loc.eos))}${line(tx('بدل الإجازة (21 يوماً ÷ 12)','Leave pay (21 days ÷ 12)'),fmt(r.loc.lv))}${line(tx('تكلفة السعودي الواحد شهرياً','Monthly cost of one Saudi'),fmt(r.loc.one))}${line(tx('× السعوديون ÷ الأجانب = رسوم التوطين للعامل','× Saudis ÷ foreigners = fees per worker'),fmt(r.fee),'total')}</div>`}
    ${r.fee==null?'':`<h2 style="margin-top:18px">${tx('إجمالي المدة والدفعة المقدمة','Term total and advance')}</h2><div class="res">${line(tx('الإجمالي للمدة قبل الضريبة','Total for the term, excl. VAT'),fmt(r.term))}${line(tx('الإجمالي للمدة بعد الضريبة','Total for the term, incl. VAT'),fmt(r.term*1.15),'total')}${line(tx('شهرين مقدماً قبل الضريبة','Two months in advance, excl. VAT'),fmt(r.adv2))}${line(tx('شهرين مقدماً بعد الضريبة','Two months in advance, incl. VAT'),fmt(r.adv2*1.15),'total')}</div>`}
@@ -752,7 +760,7 @@ function viewCostInner(){
    <div class="res">${st.m.rows.map(x=>line(x[0],fmt(x[1]))).join('')}
    ${line(tx('إجمالي الراتب والتأمينات (بلا ضريبة)','Salary and insurance total (no VAT)'),fmt(st.m.cost))}${line(tx('رسوم شركة بزنس بارتنر الشهرية على الموظف (ثابتة)','Business Partner monthly fee per employee (fixed)'),fmt(st.m.ov))}${st.m.loc?line(tx('رسوم التوطين','Localisation fees')+locTag(locCalc(c.prof,c.qty)),fmt(st.m.loc)):''}${st.m.disc>0.5?line(tx('خصم الكود','Code discount'),'−'+fmt(st.m.disc)):''}${line(tx('ضريبة 15% على رسوم شركة بزنس بارتنر ورسوم التوطين','VAT 15% on Business Partner and localisation fees'),fmt(st.m.vat))}${line(tx('إجمالي الفاتورة الشهرية','Total monthly invoice'),fmt(st.m.tot),'total')}</div>
    <h2 style="margin-top:18px">${tx('نهاية العقد (فاتورة منفصلة بالفعلي)','Contract end (separate invoice, at actual)')}</h2>
-   <p class="hint">${tx('نهاية الخدمة وبدل الإجازة وتذكرة العودة لا تُحسب إلا بالإجمالي الفعلي للموظف بعد نهاية العقد؛ الأرقام أدناه تقديرية.','End of service, leave pay and the return ticket are calculated only on the employee’s actual total after the contract ends; the figures below are estimates.')}</p>
+   <p class="hint">${tx('نهاية الخدمة وبدل الإجازة وتذكرة العودة لا تُحسب إلا بالإجمالي الفعلي للموظف بعد نهاية العقد؛ الأرقام أدناه تقديرية.','End of service, leave pay and the return ticket are calculated only on the employee’s actual total after the contract ends; the figures below are estimates.')}</p>${eosHint(c.sal,typeof c.term==='number'?c.term:12)}
    <div class="res">${st.e.rows.map(x=>line(x[0],fmt(x[1]))).join('')}
    ${line(tx('الإجمالي التقديري لنهاية العقد (بالفعلي)','Estimated contract-end total (at actual)'),fmt(st.e.tot),'total')}</div>
    ${st.e.opt?`<p class="hint" style="margin-top:8px">${tx('اختيارية وقد لا تلزم، وتكون عند تجديد العقد السنوي:','Optional and may not be needed; applies when the annual contract is renewed:')} ${st.e.opt[0]} — ${fmt(st.e.opt[1])}</p>`:''}
