@@ -8,13 +8,14 @@
 - `api/shr.js` — **دالة `api/` واحدة** (action). دوال `api/` الآن **11 من 12** (المتاح واحدة)؛ SHR لا يضيف شيئاً فوق هذه الدالة، والمنطق في وحدات تبدأ بـ`_` فلا تُحتسب.
 - `api/_shr_match.js` — محرك المطابقة (نقي، بلا استيراد).
 - `api/_shr_ats.js` — منطق ATS: وظائف، طلبات تقديم، مقابلات، مطابقة.
+- `api/_shr_posts.js` — إعلانات الوظائف (بوست توظيف): الدورة، حرس المحتوى، المقترح القاعدي، مقدّمو الطلب.
 - `api/_shr_agency.js` — بوابة المكاتب: مكاتب، أوامر استقدام، مرشحو المكاتب، مقابلاتهم.
 - `api/_shr_client.js` — بوابة العميل: عمال العميل، عقوده، طلباته، فواتيره (فارغة)، بقائمة بيضاء DTO.
 - `api/_shr_ref.js` — قراءة المرجع النظامي `db/shr-ref/*.json` وحسابات نقية فوقه (غرامة، مواعيد، نطاقات). **لا رقم نظامي في أي شيفرة غيره.**
 - `api/_shr_compliance.js` — وحدة الامتثال: حجب، لقطات المنشأة، مخالفات، A33، نقل، استيراد، قوائم تحقق، تنبيهات، إعدادات المستأجر.
 - `db/shr-ref/` — سبعة ملفات JSON فقط من مشاري (لا `src/` ولا `dl/` ولا `img/`).
-- `site/scripts/simple-v1-shr.mjs` (القشرة والعمال والطلبات) و`simple-v1-shr-ats.mjs` (شاشات ATS) و`simple-v1-shr-agency.mjs` (شاشات المكاتب: المشغّل + منظور المكتب) و`simple-v1-shr-compliance.mjs` (شاشات الامتثال الست) و`simple-v1-shr-client.mjs` (منظور العميل) — الصفحة `/SHR-HR`.
-- `db/shr-schema.sql` — الجداول وRLS. الاختبارات: `tests/shr-tenant.test.mjs` · `tests/shr-api.test.mjs` · `tests/shr-match.test.mjs` · `tests/shr-ats.test.mjs` · `tests/shr-agency.test.mjs` · `tests/shr-compliance-ref.test.mjs` · `tests/shr-compliance.test.mjs` · `tests/shr-compliance-ui.test.mjs` · `tests/shr-client.test.mjs` · `tests/shr-client-ui.test.mjs`.
+- `site/scripts/simple-v1-shr.mjs` (القشرة والعمال والطلبات) و`simple-v1-shr-ats.mjs` (شاشات ATS) و`simple-v1-shr-agency.mjs` (شاشات المكاتب: المشغّل + منظور المكتب) و`simple-v1-shr-compliance.mjs` (شاشات الامتثال الست) و`simple-v1-shr-client.mjs` (منظور العميل) و`simple-v1-shr-posts.mjs` (إعلانات الوظائف) — الصفحة `/SHR-HR`.
+- `db/shr-schema.sql` — الجداول وRLS. الاختبارات: `tests/shr-tenant.test.mjs` · `tests/shr-api.test.mjs` · `tests/shr-match.test.mjs` · `tests/shr-ats.test.mjs` · `tests/shr-agency.test.mjs` · `tests/shr-compliance-ref.test.mjs` · `tests/shr-compliance.test.mjs` · `tests/shr-compliance-ui.test.mjs` · `tests/shr-client.test.mjs` · `tests/shr-client-ui.test.mjs` · `tests/shr-posts.test.mjs` · `tests/shr-posts-ui.test.mjs`.
 
 ## الإجراءات
 الجلسة كوكي موقَّع؛ المستأجر منه لا من الطلب (`tenant_id` في الطلب يُرفض). الأدوار: `tenant_owner` و`operator` (طاقم)، و`compliance_officer` (مسؤول الامتثال: وحدة الامتثال و`session` فقط)، و`agency` (مكتب، قائمة بيضاء ضيقة أدناه)، و`client_admin`/`client_viewer` (عميل، قائمة بيضاء ضيقة في قسم بوابة العميل). دور العامل ما زال مرفوضاً (لا جلسة له).
@@ -23,6 +24,7 @@
 |---|---|---|
 | تشغيل | `session` `dashboard` `workers` `requests` `expiring` | `session` `session-end` `worker-create` `worker-activate` `worker-archive` `request-state` |
 | ATS | `jobs` `applications` `candidates` `candidate` | `job-create` `job-close` `application-create` `application-stage` `interview-request` `interview-set` `match` |
+| إعلانات وظائف (`tenant_owner`/`operator`) | `posts` | `post-create` `post-update` `post-submit` `post-approve` `post-publish` `post-close` `post-suggest` `post-applicant-add` |
 | مكاتب (مشغّل) | `agencies` `orders` `order-employer-view` `agency-submissions` | `agency-create` `agency-approve` `agency-suspend` `order-create` `submission-state` |
 | مكتب (`agency` وحده) | `my-orders` `my-submissions` `my-interviews` `session` | `submit-candidate` `bulk-submit` |
 | امتثال (طاقم) | `compliance-ref` `compliance-settings` `compliance-dashboard` `compliance-establishment` `compliance-violations` `compliance-checklists` `compliance-alerts` `compliance-imports` `compliance-import` `compliance-a33` `compliance-transfers` | `establishment-compliance-record` `establishment-compliance-verify` `compliance-run-checks` `violation-create` `violation-notify` `violation-review` `violation-status` `violation-paid` `violation-archive` `a33-add` `a33-classify` `a33-approve` `transfer-request` `transfer-decide` `procedure-step-create` `import-create` `import-match` `import-review` `import-apply` `checklist-tick` `compliance-settings-update` (مالك المستأجر وحده) |
@@ -131,3 +133,22 @@
 
 ## الواجهة (هوية Business Partner)
 قائمة جانبية مجمّعة (التشغيل · التوظيف · مكاتب الاستقدام · الامتثال) تنطوي أعلى الصفحة في الجوال، وفتات خبز وتعليمة تحت كل عنوان. القشرة `layout()` واحدة للمشغّل والعميل (`?as=client`) والمكتب (`?as=agency`)، وكل منظور يمرّر قوائم قسمه وحده. الألوان من رموز `.sv1` فقط. وسم «بيانات تجريبية» ثابت أعلى كل شاشة.
+
+## إعلانات الوظائف (بوست توظيف) — داخل SHR وحده، محلية، بيانات وهمية
+قرار موضع النشر العام **ما زال معلّقاً عند المالك** (صفحة SHR خاصة / `/jobs` العامة لـBP / منصات خارجية). لذلك بُنيت الدورة كاملة داخل النظام، ولا شيء يُنشر على صفحة عامة أو منصة خارجية. المنطق في `api/_shr_posts.js` (لا ملف `api/` جديد: الدوال 11 من 12).
+- **الدورة:** `draft → pending_approval → approved → published → closed`، بلا قفز (الخادم يرد 409 `bad_transition`، ومشغّل في المخطط يمنعه أيضاً). التعديل للمسودة وحدها (409 `not_draft`)، والمحتوى مجمّد في القاعدة بعد المسودة. الإغلاق نهائي ولا حذف (`post-delete` → 403 `archive_only`). كل تغيير حالة يكتب `shr_audit_log` وحدثاً في `shr_job_post_events` (append-only).
+- **من يكتب لا يعتمد:** `post-approve` يرد 403 `maker_checker` لكاتب الإعلان، وقيد `check` في المخطط. الاعتماد والنشر لـ`tenant_owner` أو `operator`؛ مسؤول الامتثال والعميل والمكتب 403.
+- **`published` = ظاهر داخل صفحة SHR الخاصة فقط.** `channel` قيمته `shr_private` وحدها؛ `public_bp_jobs` و`external` موجودتان في `check` لكنهما معطّلتان بصف `shr_post_channels.channel_enabled=false` للمستأجر، والخادم يرد 409 `channel_not_enabled` (وحتى لو فُعّلتا يدوياً: 409 `channel_not_implemented`، وقيد في المخطط يمنع `published` على غير `shr_private`). لا إجراء لتفعيل القنوات: ينتظر قرار المالك.
+- **حرس المحتوى (400 `content_rejected` مع `reasons: [{code, field, match}]`)** على العنوان والوصف والمتطلبات والمدينة، عند الإنشاء والتعديل وإعادةً عند الإرسال والاعتماد والنشر: ادعاء ترخيص (`licence_claim`، مع استثناء «رخصة قيادة/مهنية» شرطاً على المرشح) · ادعاء امتثال/اعتماد (`compliance_claim`) · ضمان أو وعد بنتيجة (`guarantee`) · وعد بنتيجة حكومية (`gov_outcome_promise`) · رقم راتب غير مطابق لحقلي النطاق (`invented_salary`) · بيانات تواصل (`contact_info`) · اسم عميل من عملاء المستأجر (`client_name`). المطابقة على نص مطبَّع (أرقام عربية، تشكيل، ألف/تاء مربوطة). الحرس قاعدي لا يزعم شمولاً: يمسك الصيغ الشائعة وتبقى المراجعة البشرية (الاعتماد) هي الضمان.
+- **الراتب:** `salary_min/max` اختياريان ويدخلهما إنسان فقط (`salary_entered_by` إلزامي معهما في المخطط)؛ لا يُولَّد ولا يُقترح. عدد المطلوبين يؤخذ من الوظيفة لا من الطلب.
+- **الحجب:** الإرسال والاعتماد والنشر وإضافة مقدّم طلب تمرّ بـ`assertEstablishmentOpen` من `_shr_compliance.js` (لا منطق منسوخ): منشأة `restricted/suspected` → 409 `establishment_blocked`؛ `unknown` تحذير؛ وظيفة مغلقة → 409 `job_closed` (حتى لو أُغلقت بعد الإرسال). المنشأة المعلِنة إلزامية للإرسال (400 `establishment_required`). تُعرض في القائمة بوسم «محجوب».
+- **`post-suggest`:** قالب محلي قاعدي يملأ العنوان والفقرات من الوظيفة (عربي/إنجليزي). لا ذكاء اصطناعي ولا شبكة (اختبار يمسح المصدر ويحجب `fetch`)، لا يكتب شيئاً، لا راتب فيه، لا تفضيل جنسية، وسطور المهارات الحرّة التي لا تمرّ الحرس تُحذف وتُبلَّغ في `omitted`. يعدّله الإنسان قبل الحفظ.
+- **مقدّمو الطلب:** لا صفحة تقديم عامة. `post-applicant-add` (مشغّل) يضيف طلب تقديم (`shr_applications.post_id`) لإعلان `published` ولمرشح موافقته سارية فقط (409 `no_consent`، `duplicate_application`، `job_closed`)، ويرى المشغّل `applicants` لكل إعلان.
+- **الخصوصية:** ردّ الإعلان بقائمة بيضاء: بلا `client_company_id` ولا اسم عميل ولا بيانات تواصل.
+- **الجداول (tenant_id وRLS):** `shr_job_posts` (لا حذف + مشغّل انتقالات) · `shr_job_post_events` (append-only) · `shr_post_channels` (لا حذف). وعمود `shr_applications.post_id`، ومفتاح فريد مركّب `shr_jobs(tenant_id,id)`.
+- **البذرة (SHR):** 4 إعلانات (مسودة · بانتظار الاعتماد · منشور داخلياً بنطاق راتب تجريبي أدخله «ops» · معتمد لكن منشأته المقيّدة الوهمية تحجب نشره) + إعلان في OTHER للعزل؛ وصفا القناتين المعطّلتين.
+- **الشاشة:** «التوظيف ‹ إعلانات الوظائف»: ملاحظة ثابتة (النشر العام قرار المالك ولم يُفعَّل)، نموذج مع معاينة «كيف يبدو الإعلان» تتحدّث أثناء الكتابة، «اقترح صياغة»، بطاقات للإعلانات (تعمل على الجوال) بأزرار الدورة وسجل الحالات.
+- **ما تحقق منه:** `tests/shr-posts.test.mjs` (عزل، دورة بلا قفز، maker-checker، حرس بـ20 حالة رفض وحالات لا تُرفض خطأً، القناة، الحجب، الوظيفة المغلقة، مقدّمو الطلب، الأدوار، لا حذف، المقترح بلا شبكة، قيود المخطط) و`tests/shr-posts-ui.test.mjs` (سكربت الصفحة الفعلي). خُرّب الكود عمداً مرتين (حذف maker-checker؛ تعطيل حرس المحتوى) فسقطت الاختبارات ثم أُعيد. والمخطط طُبّق على Postgres 16 مؤقت (جديد، مرتين، وترقية من الإصدار السابق) وجُرّبت قيوده (maker-checker، القناة، الراتب، القفز، تجميد المحتوى، عبور المستأجرين، لا حذف، append-only، RLS).
+
+## المخالفات على الجوال
+جدول المخالفات (`table.viol`) يتحوّل على العرض الضيق (≤860px) إلى بطاقة لكل مخالفة بـCSS وحده وبلا تكرار أزرار: البند والمنشأة في الرأس ثم الغرامة التقديرية بمصدرها، فالمواعيد التقديرية (وسم «تقديري»)، فالحالة؛ كل حقل بعنوانه (`data-label`). على المكتب يبقى الجدول. والهامش السفلي لصفحة SHR على الجوال 112px ليبقى زر الدعم العائم (من القشرة المشتركة، لم يُعدَّل) فوق آخر الصفحة لا فوق محتواها.

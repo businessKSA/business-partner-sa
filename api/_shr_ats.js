@@ -156,7 +156,8 @@ export async function listApplications(db, q) {
   };
 }
 
-export async function createApplication(db, user, b) {
+// extra.post_id: الطلب أُدخل من إعلان وظيفة (api/_shr_posts.js)؛ بقية القواعد (موافقة سارية، وظيفة مفتوحة، لا تكرار) كما هي.
+export async function createApplication(db, user, b, extra = {}) {
   const job_id = needId(b.job_id), candidate_id = needId(b.candidate_id);
   const [job, cand] = await Promise.all([
     db.get(`shr_jobs?id=eq.${job_id}&select=id,status`).then((r) => r[0]),
@@ -170,6 +171,7 @@ export async function createApplication(db, user, b) {
   if ((await db.get(`shr_applications?job_id=eq.${job_id}&candidate_id=eq.${candidate_id}&select=id`))[0]) throw new HttpError(409, "duplicate_application");
   const a = (await db.post("shr_applications", {
     job_id, candidate_id, stage: "new", created_by: user.sub, offer_proposed_by: null, offer_approved_by: null, archived_at: null, updated_at: null,
+    ...(extra.post_id ? { post_id: extra.post_id } : {}),
   }))[0];
   await db.post("shr_application_events", { application_id: a.id, from_stage: null, to_stage: "new", actor: user.sub, note: str(b.note, 300) || null, at: nowIso() });
   await audit(db, user, "application.create", "shr_applications", a.id);

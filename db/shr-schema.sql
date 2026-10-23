@@ -670,6 +670,101 @@ create table if not exists shr_import_rows (          -- صفوف مُبصَّم
   foreign key (tenant_id, worker_id) references shr_workers(tenant_id, id)
 );
 
+-- ------------------------------------------------------- إعلانات الوظائف ----
+-- بوست توظيف (إعلان وظيفة) داخل SHR وحدها. قرار المالك: موضع النشر العام معلّق، فالنشر
+-- الخارجي أو على صفحة عامة ممنوع الآن. «published» تعني «ظاهر داخل صفحة SHR الخاصة» فقط.
+--  * الدورة: draft → pending_approval → approved → published → closed، بلا قفز (مشغّل أدناه).
+--  * من يكتب لا يعتمد (check). نطاق الراتب اختياري ويدخله إنسان فقط (salary_entered_by إلزامي معه).
+--  * القناة الوحيدة المفعّلة shr_private؛ غيرها موجود في check ومعطّل بـshr_post_channels.
+--  * بلا حذف (الإغلاق فقط) والأحداث append-only.
+
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'shr_jobs_tenant_id_id_key') then
+    alter table shr_jobs add constraint shr_jobs_tenant_id_id_key unique (tenant_id, id);
+  end if;
+end $$;
+
+create table if not exists shr_job_posts (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  job_id uuid not null,
+  establishment_id uuid,                       -- المنشأة المعلِنة: تخضع لحجب الامتثال
+  title text not null check (char_length(title) between 2 and 120),
+  description text check (description is null or char_length(description) <= 1500),
+  requirements text check (requirements is null or char_length(requirements) <= 1500),
+  city text,
+  headcount int not null check (headcount >= 1),   -- نسخة من الوظيفة عند الإنشاء
+  language text not null default 'ar' check (language in ('ar','en')),
+  salary_min int check (salary_min is null or (salary_min >= 0 and salary_min <= 1000000)),
+  salary_max int check (salary_max is null or (salary_max >= 0 and salary_max <= 1000000)),
+  salary_entered_by uuid,                      -- إنسان أدخل النطاق؛ لا يُولَّد ولا يُخترع
+  status text not null default 'draft' check (status in ('draft','pending_approval','approved','published','closed')),
+  channel text not null default 'shr_private' check (channel in ('shr_private','public_bp_jobs','external')),
+  created_by uuid not null,
+  submitted_by uuid, submitted_at timestamptz,
+  approved_by uuid, approved_at timestamptz,
+  published_by uuid, published_at timestamptz,
+  closed_by uuid, closed_at timestamptz, close_reason text,
+  demo boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz,
+  foreign key (tenant_id, job_id) references shr_jobs(tenant_id, id),
+  foreign key (tenant_id, establishment_id) references shr_establishments(tenant_id, id),
+  check (salary_min is null or salary_max is null or salary_min <= salary_max),
+  check ((salary_min is null and salary_max is null) or salary_entered_by is not null),
+  -- من يكتب لا يعتمد.
+  check (approved_by is null or approved_by <> created_by),
+  check (status not in ('approved','published') or approved_by is not null),
+  check (status <> 'published' or published_at is not null),
+  -- لا إرسال للاعتماد بلا منشأة معلِنة (يُفحص حجبها).
+  check (status not in ('pending_approval','approved','published') or establishment_id is not null),
+  -- «منشور» = داخل صفحة SHR الخاصة فقط في هذه المرحلة.
+  check (status <> 'published' or channel = 'shr_private')
+);
+create index if not exists shr_job_posts_job on shr_job_posts (tenant_id, job_id);
+
+alter table shr_applications add column if not exists post_id uuid references shr_job_posts(id);   -- طلب أُدخل من إعلان (اختياري)
+
+create table if not exists shr_job_post_events (   -- سجل حالات الإعلان: لا تعديل ولا حذف
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  post_id uuid not null references shr_job_posts(id),
+  from_status text, to_status text not null,
+  actor uuid, note text,
+  at timestamptz not null default now()
+);
+
+create table if not exists shr_post_channels (     -- قنوات النشر غير الخاصة: معطّلة حتى قرار المالك
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  channel text not null check (channel in ('public_bp_jobs','external')),
+  channel_enabled boolean not null default false,
+  updated_by uuid,
+  updated_at timestamptz,
+  unique (tenant_id, channel)
+);
+
+-- الحراسة الثانية في القاعدة: لا قفز بين الحالات، ولا تعديل لمحتوى إعلان خرج من المسودة.
+create or replace function shr_job_posts_guard() returns trigger language plpgsql as $$
+begin
+  if old.status = 'closed' and new.status <> 'closed' then raise exception 'shr_job_posts: closed is final'; end if;
+  if new.status <> old.status and not (
+       (old.status = 'draft' and new.status = 'pending_approval')
+    or (old.status = 'pending_approval' and new.status = 'approved')
+    or (old.status = 'approved' and new.status = 'published')
+    or (new.status = 'closed')) then
+    raise exception 'shr_job_posts: illegal transition % -> %', old.status, new.status;
+  end if;
+  if old.status <> 'draft' and (new.job_id, new.establishment_id, new.title, new.description, new.requirements, new.city, new.headcount, new.language, new.salary_min, new.salary_max, new.channel, new.created_by)
+     is distinct from (old.job_id, old.establishment_id, old.title, old.description, old.requirements, old.city, old.headcount, old.language, old.salary_min, old.salary_max, old.channel, old.created_by) then
+    raise exception 'shr_job_posts: content is frozen after draft';
+  end if;
+  return new;
+end $$;
+drop trigger if exists shr_job_posts_transition on shr_job_posts;
+create trigger shr_job_posts_transition before update on shr_job_posts
+  for each row execute function shr_job_posts_guard();
+
 -- لا حذف في أي جدول امتثال؛ والسجلات الحدثية لا تُعدَّل أيضاً.
 create or replace function shr_no_delete() returns trigger language plpgsql as
 $$ begin raise exception '% is archive-only (no delete)', tg_table_name; end $$;
@@ -679,11 +774,11 @@ do $$
 declare t text;
 begin
   foreach t in array array['shr_compliance_settings','shr_violations','shr_a33_names','shr_worker_transfers',
-    'shr_import_batches','shr_import_rows','shr_checklist_templates','shr_checklist_items'] loop
+    'shr_import_batches','shr_import_rows','shr_checklist_templates','shr_checklist_items','shr_job_posts','shr_post_channels'] loop
     execute format('drop trigger if exists %I on %I', t || '_no_delete', t);
     execute format('create trigger %I before delete on %I for each row execute function shr_no_delete()', t || '_no_delete', t);
   end loop;
-  foreach t in array array['shr_compliance_checks','shr_checklist_ticks'] loop
+  foreach t in array array['shr_compliance_checks','shr_checklist_ticks','shr_job_post_events'] loop
     execute format('drop trigger if exists %I on %I', t || '_append_only', t);
     execute format('create trigger %I before update or delete on %I for each row execute function shr_append_only()', t || '_append_only', t);
   end loop;
@@ -701,7 +796,7 @@ begin
     'shr_applications','shr_application_events','shr_interviews','shr_agency_candidate_events','shr_agency_interviews',
     'shr_compliance_settings','shr_establishment_compliance','shr_violations','shr_compliance_checks',
     'shr_checklist_templates','shr_checklist_items','shr_checklist_ticks','shr_a33_names',
-    'shr_worker_transfers','shr_import_batches','shr_import_rows'] loop
+    'shr_worker_transfers','shr_import_batches','shr_import_rows','shr_job_posts','shr_job_post_events','shr_post_channels'] loop
     execute format('alter table %I enable row level security', t);
     execute format('drop policy if exists tenant_iso on %I', t);
     execute format($p$create policy tenant_iso on %I using (tenant_id::text = current_setting('app.tenant_id', true)) with check (tenant_id::text = current_setting('app.tenant_id', true))$p$, t);

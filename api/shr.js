@@ -10,6 +10,9 @@
 // POST /api/shr { action: "worker-create" | "worker-activate" | "worker-archive" | "request-state" }
 // ATS: GET jobs|applications|candidates|candidate ؛ POST job-create|job-close|application-create|
 //      application-stage|interview-request|interview-set|match (المنطق في _shr_ats.js و_shr_match.js).
+// إعلانات الوظائف (المنطق في _shr_posts.js، داخل SHR وحدها): GET posts ؛ POST post-create|post-update|post-submit|
+//      post-approve|post-publish|post-close|post-suggest|post-applicant-add. الطاقم tenant_owner/operator فقط؛ من يكتب لا يعتمد؛
+//      قناة النشر shr_private وحدها (غيرها 409 channel_not_enabled). لا نشر عام ولا خارجي.
 // بوابة المكاتب (المنطق في _shr_agency.js): المشغّل GET agencies|orders|order-employer-view|agency-submissions ؛
 //      POST agency-create|agency-approve|agency-suspend|order-create|submission-state.
 //      دور agency وحده: GET my-orders|my-submissions|my-interviews ؛ POST submit-candidate|bulk-submit.
@@ -29,6 +32,7 @@ import * as ats from "./_shr_ats.js";
 import * as agy from "./_shr_agency.js";
 import * as cmp from "./_shr_compliance.js";
 import * as cl from "./_shr_client.js";
+import * as pst from "./_shr_posts.js";
 
 const COOKIE = "shr_session";
 const TTL_S = 8 * 3600;
@@ -280,6 +284,12 @@ export default async function handler(req, res) {
       return out(200, { ok: true, ...r });
     }
 
+    // إعلانات الوظائف: طاقم التشغيل وحده (مسؤول الامتثال محجوب أعلاه، والعميل والمكتب لهما قوائمهما البيضاء).
+    if (pst.isPostAction(action)) {
+      if (isPost !== pst.POST_POST.has(action)) return out(404, { ok: false, error: "unknown_action" });
+      return out(200, { ok: true, ...(await pst.dispatchPost(action, { db, user, b, q })) });
+    }
+
     switch (action) {
       case "session": {
         const t = await tenantById(ctx.tenantId);
@@ -318,7 +328,7 @@ export default async function handler(req, res) {
       case "agency-suspend": return out(200, { ok: true, agency: await agy.suspendAgency(db, user, b) });
       case "order-create": return out(200, { ok: true, order: await agy.createOrder(db, user, b) });
       case "submission-state": return out(200, { ok: true, submission: await agy.setSubmissionState(db, user, b) });
-      case "worker-delete": case "job-delete": case "application-delete": case "candidate-delete": case "agency-delete": case "order-delete": case "submission-delete": case "delete": return out(403, { ok: false, error: "archive_only" });
+      case "worker-delete": case "job-delete": case "post-delete": case "application-delete": case "candidate-delete": case "agency-delete": case "order-delete": case "submission-delete": case "delete": return out(403, { ok: false, error: "archive_only" });
       default:
         if (/(^|-)delete$/.test(action)) return out(403, { ok: false, error: "archive_only" });
         return out(404, { ok: false, error: "unknown_action" });

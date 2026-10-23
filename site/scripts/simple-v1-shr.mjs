@@ -10,6 +10,7 @@ import { shrAtsClient, ATS_CSS } from "./simple-v1-shr-ats.mjs";
 import { shrAgencyOpsClient, shrAgencyPortalClient, AGENCY_CSS, AGENCY_ERR } from "./simple-v1-shr-agency.mjs";
 import { shrComplianceClient, COMPLIANCE_CSS, COMPLIANCE_ERR } from "./simple-v1-shr-compliance.mjs";
 import { shrClientPortalClient, CLIENT_CSS, CLIENT_ERR } from "./simple-v1-shr-client.mjs";
+import { shrPostsClient, POSTS_CSS, POSTS_ERR } from "./simple-v1-shr-posts.mjs";
 
 const BASE_CSS = `
 .shr{--bad:#b42318;--badSoft:#fff0ef;--warnSoft:color-mix(in srgb,var(--warn) 9%,#fff);--hdr:72px;max-width:1240px;margin:0 auto;padding:16px 22px 64px;width:100%;flex:1;color:var(--t)}
@@ -87,7 +88,7 @@ const BASE_CSS = `
 .shr .gate .frm .inp{flex:1 1 100%}
 @media(max-width:860px){
 .shr-side{max-height:none;overflow:visible}
-.shr{padding:12px 16px 56px;--hdr:64px}
+.shr{padding:12px 16px 112px;--hdr:64px}  /* الهامش السفلي يترك زر الدعم العائم (من القشرة المشتركة) فوق آخر الصفحة لا فوق محتواها */
 .shr-lay{grid-template-columns:minmax(0,1fr);gap:14px}
 .shr-side{position:static;padding:4px}
 .shr-navtoggle{display:flex}
@@ -110,6 +111,7 @@ ${ATS_CSS}
 ${AGENCY_CSS}
 ${COMPLIANCE_CSS}
 ${CLIENT_CSS}
+${POSTS_CSS}
 </style>`;
   const body = `${sv1.header("/SHR-HR", { cta: false, oneLang: true })}<div class="shr"><div class="shr-demo" role="note">بيانات تجريبية — لا عمال حقيقيون ولا ربط حكومي ولا رسائل</div><div id="app"><div class="shr-loading" role="status"><span class="shr-spin"></span>جارٍ التحميل…</div></div></div>`;
   const script = `<script>
@@ -133,9 +135,10 @@ function pill(t,c){return h('span',{class:'pill '+(c||'')},[t])}
 Object.assign(ERR,${JSON.stringify(AGENCY_ERR)});
 Object.assign(ERR,${JSON.stringify(COMPLIANCE_ERR)});
 Object.assign(ERR,${JSON.stringify(CLIENT_ERR)});
+Object.assign(ERR,${JSON.stringify(POSTS_ERR)});
 var GROUPS_OPS=[
  {t:'التشغيل',i:[['dashboard','اللوحة'],['workers','العمال'],['requests','الطلبات'],['expiring','الانتهاءات']]},
- {t:'التوظيف',i:[['jobs','الوظائف'],['board','المرشحون'],['match','المطابقة']]},
+ {t:'التوظيف',i:[['jobs','الوظائف'],['posts','إعلانات الوظائف'],['board','المرشحون'],['match','المطابقة']]},
  {t:'مكاتب الاستقدام',i:[['agencies','المكاتب'],['orders','أوامر الاستقدام'],['subs','المرشحون المقدَّمون']]}];
 var GROUP_CMP={t:'الامتثال',i:[['c_dash','لوحة الامتثال'],['c_viol','المخالفات'],['c_check','قوائم التحقق'],['c_alerts','التنبيهات'],['c_import','استيراد الملفات'],['c_a33','أسماء A33']]};
 // صفحات فرعية تُضيء تبويب أمّها.
@@ -145,6 +148,7 @@ var DESC={dashboard:'أرقام سريعة عن العمال والطلبات و
  requests:'طلبات العملاء الواردة. غيّر حالة الطلب مع تقدّم العمل عليه.',
  expiring:'الإقامات والتأمينات التي تنتهي خلال ٩٠ يوماً أو انتهت فعلاً.',
  jobs:'أنشئ وظيفة وحدّد شروطها الإلزامية، ثم شغّل المطابقة لها.',
+ posts:'اكتب إعلان وظيفة وعاينه، ثم أرسله للاعتماد (يعتمده غيرك) فالنشر داخل صفحة SHR الخاصة. النشر العام قرار المالك ولم يُفعَّل.',
  board:'تابع المرشحين مرحلة بمرحلة، من «جديد» حتى «تعيين».',
  candidate:'بيانات المرشح وسجل موافقته وطلبات تقديمه ومقابلاته.',
  match:'اختر وظيفة لترى المرشحين مرتّبين بدرجة مشروحة لكل شرط.',
@@ -222,6 +226,7 @@ function vExpiring(){return call('expiring',{days:90},true).then(function(o){var
   frame('انتهاء الإقامة والتأمين (٩٠ يوماً)',h('div',{class:'shr-card scroll'},[rows.length?tb:empty('لا شيء ينتهي في هذه المدة')]))})}
 var ATS=(${shrAtsClient.toString()})({h:h,call:call,frame:frame,flash:flash,pill:pill,errText:errText,state:state,empty:empty,render:function(){render()}});
 var AGO=(${shrAgencyOpsClient.toString()})({h:h,call:call,frame:frame,flash:flash,pill:pill,errText:errText,state:state,empty:empty,render:function(){render()}});
+var POSTS=(${shrPostsClient.toString()})({h:h,call:call,frame:frame,flash:flash,pill:pill,errText:errText,state:state,empty:empty,render:function(){render()}});
 var CMP=(${shrComplianceClient.toString()})({h:h,call:call,frame:frame,flash:flash,pill:pill,errText:errText,state:state,empty:empty,render:function(){render()}});
 var CLP=(${shrClientPortalClient.toString()})({h:h,call:call,flash:flash,pill:pill,errText:errText,state:state,app:app,layout:layout,empty:empty,loading:loading,render:function(){render()}});
 var AGP=(${shrAgencyPortalClient.toString()})({h:h,call:call,flash:flash,pill:pill,errText:errText,state:state,app:app,layout:layout,empty:empty,loading:loading,render:function(){render()}});
@@ -240,7 +245,7 @@ function failed(){
 function render(){
   if(!state.me)return gate();
   // منظور المكتب والعميل مستقلان: لا وصول إلى شاشات المشغّل ولو عُدّلت state.view من الكونسول (الخادم يرفض أصلاً).
-  var v=isCl()?(CLP[state.view]||CLP.cl_home):isAg()?(AGP[state.view]||AGP.a_orders):{dashboard:vDashboard,workers:vWorkers,requests:vRequests,expiring:vExpiring,jobs:ATS.jobs,board:ATS.board,candidate:ATS.candidate,match:ATS.match,agencies:AGO.agencies,orders:AGO.orders,order_view:AGO.order_view,subs:AGO.subs,c_dash:CMP.c_dash,c_est:CMP.c_est,c_viol:CMP.c_viol,c_check:CMP.c_check,c_alerts:CMP.c_alerts,c_import:CMP.c_import,c_a33:CMP.c_a33}[state.view]||vDashboard;
+  var v=isCl()?(CLP[state.view]||CLP.cl_home):isAg()?(AGP[state.view]||AGP.a_orders):{dashboard:vDashboard,workers:vWorkers,requests:vRequests,expiring:vExpiring,jobs:ATS.jobs,posts:POSTS.posts,board:ATS.board,candidate:ATS.candidate,match:ATS.match,agencies:AGO.agencies,orders:AGO.orders,order_view:AGO.order_view,subs:AGO.subs,c_dash:CMP.c_dash,c_est:CMP.c_est,c_viol:CMP.c_viol,c_check:CMP.c_check,c_alerts:CMP.c_alerts,c_import:CMP.c_import,c_a33:CMP.c_a33}[state.view]||vDashboard;
   paint(titleNow(),loading());
   var p;try{p=v()}catch(e){p=Promise.reject(e)}
   p.catch(failed)}

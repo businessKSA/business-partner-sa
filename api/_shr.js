@@ -108,7 +108,7 @@ const day = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10
 
 export async function seedDemo() {
   assertLocal();
-  if (await tenantBySlug("SHR")) { await seedAts(); await seedAgencies(); await seedCompliance(); await seedClients(); return { seeded: false }; }
+  if (await tenantBySlug("SHR")) { await seedAts(); await seedAgencies(); await seedCompliance(); await seedClients(); await seedPosts(); return { seeded: false }; }
   const mk = async (slug, brand_ar, brand_en) => (await sb("shr_tenants", { method: "POST", body: { slug, brand_ar, brand_en, demo: true } }))[0];
   const A = await mk("SHR", "مستأجر SHR التجريبي (بيانات وهمية)", "SHR demo tenant");
   const B = await mk("OTHER", "مستأجر وهمي آخر (بيانات وهمية)", "Other demo tenant");
@@ -178,6 +178,7 @@ export async function seedDemo() {
   await seedAgencies();
   await seedCompliance();
   await seedClients();
+  await seedPosts();
   return { seeded: true };
 }
 
@@ -545,5 +546,57 @@ export async function seedClients() {
     if (w1 && slug === "SHR") for (const it of items.slice(0, 2)) await s.post("shr_checklist_ticks", { item_id: it.id, subject_kind: "worker", subject_id: w1.id, done: true, note: null, ticked_by: U.ops.id, ticked_at: iso(-3) });
     // مسودة فاتورة وهمية: تُبذر لتثبت أن بوابة العميل لا تقرأها.
     await s.post("shr_invoices", { client_company_id: cA.id, status: "draft" });
+  }
+}
+
+// ------------------------------------------------------------- posts seed --
+// إعلانات الوظائف: أربعة في SHR بحالات مختلفة، منها واحد معتمد لكن منشأته مقيّدة (وهمية) فيظهر محجوباً،
+// وواحد في OTHER لإثبات العزل. قنوات النشر غير الخاصة مسجّلة معطّلة. كل إعلان أنشأه مستخدم واعتمده آخر.
+// الأرقام «قيم تجريبية» أدخلها «إنسان وهمي» (ops) لتظهر المعاينة؛ لا شيء يُولَّد. يجب أن تعمل بعد seedCompliance.
+export async function seedPosts() {
+  assertLocal();
+  for (const slug of ["SHR", "OTHER"]) {
+    const t = await tenantBySlug(slug);
+    if (!t) continue;
+    const s = scoped(ctxFrom({ tenant_id: t.id, role: "tenant_owner" }));
+    if ((await s.get("shr_job_posts?select=id&limit=1")).length) continue;       // مبذور سلفاً
+    const users = await s.get("shr_users?select=id,email");
+    const U = { ops: users.find((u) => u.email.startsWith("ops@")), owner: users.find((u) => u.email.startsWith("owner@")) };
+    const ests = await s.get("shr_establishments?select=id,name_ar&order=created_at.asc");
+    const jobs = await s.get("shr_jobs?select=id,title,city,headcount,status&order=created_at.asc");
+    if (!U.ops || !U.owner || !jobs.length || ests.length < 2) continue;
+    const mkEvent = (post, from, to, actor, note, d) => s.post("shr_job_post_events", { post_id: post.id, from_status: from, to_status: to, actor: actor.id, note, at: iso(d) });
+    // [الحالة، الوظيفة، المنشأة، العنوان، الوصف، المتطلبات، نطاق الراتب|null]
+    const plan = slug === "SHR" ? [
+      ["draft", 0, 0, "مطلوب فني تكييف في الرياض (إعلان تجريبي)", "نبحث عن فني تكييف للعمل في الرياض. عدد المطلوبين: 3.\nتفاصيل العمل تُحدَّد عند المقابلة.", "• خبرة لا تقل عن 5 سنوات\n• إقامة قابلة لنقل الخدمات", null],
+      ["pending_approval", 1, 1, "مطلوب سائق نقل خفيف (إعلان تجريبي)", "نبحث عن سائق للعمل في الرياض. عدد المطلوبين: 2.\nتفاصيل العمل تُحدَّد عند المقابلة.", "• رخصة قيادة سارية\n• خبرة لا تقل عن 3 سنوات", null],
+      ["published", 0, 1, "فني تكييف — مشروع تجريبي (إعلان تجريبي منشور داخلياً)", "فرصة لفني تكييف في الرياض ضمن مشروع تجريبي. عدد المطلوبين: 3.\nيظهر هذا الإعلان داخل صفحة SHR الخاصة فقط.", "• خبرة لا تقل عن 5 سنوات\n• مهارة: تركيب سبليت", [2500, 3500]],
+      ["approved", 1, 2, "مطلوب سائق — منشأة مقيّدة (إعلان تجريبي محجوب)", "إعلان تجريبي اعتُمد قبل أن تُقيَّد منشأته الوهمية، لإثبات الحجب عند النشر.", "• رخصة قيادة سارية", null],
+    ] : [
+      ["draft", 0, 0, "مطلوب لحّام (إعلان وهمي لمستأجر آخر)", "إعلان وهمي لمستأجر آخر لإثبات العزل.", null, null],
+    ];
+    const posts = [];
+    for (const [status, ji, ei, title, description, requirements, sal] of plan) {
+      const job = jobs[ji] || jobs[0], est = ests[ei] || ests[0];
+      const approved = status === "approved" || status === "published";
+      const post = (await s.post("shr_job_posts", {
+        job_id: job.id, establishment_id: est.id, title, description, requirements, city: job.city || null, headcount: job.headcount,
+        language: "ar", salary_min: sal ? sal[0] : null, salary_max: sal ? sal[1] : null, salary_entered_by: sal ? U.ops.id : null,
+        status, channel: "shr_private", created_by: U.ops.id,
+        submitted_by: status === "draft" ? null : U.ops.id, submitted_at: status === "draft" ? null : iso(-4),
+        approved_by: approved ? U.owner.id : null, approved_at: approved ? iso(-3) : null,
+        published_by: status === "published" ? U.owner.id : null, published_at: status === "published" ? iso(-2) : null,
+        closed_by: null, closed_at: null, close_reason: null, demo: true, updated_at: null,
+      }))[0];
+      posts.push(post);
+      await mkEvent(post, null, "draft", U.ops, "إنشاء مسودة", -5);
+      if (status !== "draft") await mkEvent(post, "draft", "pending_approval", U.ops, null, -4);
+      if (approved) await mkEvent(post, "pending_approval", "approved", U.owner, null, -3);
+      if (status === "published") await mkEvent(post, "approved", "published", U.owner, null, -2);
+    }
+    for (const c of ["public_bp_jobs", "external"]) await s.post("shr_post_channels", { channel: c, channel_enabled: false, updated_by: null, updated_at: null });
+    // طلبات التقديم الوهمية على وظيفة الإعلان المنشور تُنسب إليه ليظهر العدّاد.
+    const pub = posts.find((p) => p.status === "published");
+    if (pub) for (const a of await s.get(`shr_applications?job_id=eq.${pub.job_id}&select=id`)) await s.patch(`shr_applications?id=eq.${a.id}`, { post_id: pub.id });
   }
 }

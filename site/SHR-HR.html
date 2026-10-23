@@ -342,7 +342,7 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .shr .gate .frm .inp{flex:1 1 100%}
 @media(max-width:860px){
 .shr-side{max-height:none;overflow:visible}
-.shr{padding:12px 16px 56px;--hdr:64px}
+.shr{padding:12px 16px 112px;--hdr:64px}  /* الهامش السفلي يترك زر الدعم العائم (من القشرة المشتركة) فوق آخر الصفحة لا فوق محتواها */
 .shr-lay{grid-template-columns:minmax(0,1fr);gap:14px}
 .shr-side{position:static;padding:4px}
 .shr-navtoggle{display:flex}
@@ -389,10 +389,63 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .shr tr.row-unc td{background:var(--warnSoft)}
 .shr .chk{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--l)}
 .shr .chk.off{opacity:.65}
+/* المخالفات على العرض الضيق: بطاقة لكل مخالفة (البند والمنشأة، الغرامة التقديرية بمصدرها، المواعيد التقديرية، الحالة)
+   بلا قطع نص ولا تمرير أفقي للصفحة. على المكتب يبقى الجدول كما هو. */
+@media(max-width:860px){
+.shr .scroll:has(table.viol){overflow-x:visible;padding:0;background:transparent;border:0;box-shadow:none}
+.shr table.viol,.shr table.viol tbody{display:block;min-width:0;width:100%}
+.shr table.viol thead{display:none}
+.shr table.viol tbody{display:grid;gap:12px}
+.shr table.viol tr,.shr table.viol tr:hover{display:flex;flex-direction:column;background:#fff;border:1px solid var(--l);border-radius:13px;box-shadow:var(--sh);padding:12px 14px;min-width:0}
+.shr table.viol tr.row-unc{border-style:dashed;border-color:var(--warn)}
+.shr table.viol td,.shr table.viol tbody tr:hover td{display:block;min-width:0;max-width:100%;border:0;border-bottom:1px dashed var(--line2);padding:7px 0;background:transparent;overflow-wrap:anywhere;white-space:normal}
+.shr table.viol td:first-child,.shr table.viol td:nth-child(3),.shr table.viol td:nth-child(5){min-width:0}
+.shr table.viol td:last-child{border-bottom:0}
+.shr table.viol td::before{content:attr(data-label);display:block;font-size:11.5px;color:var(--mut);font-weight:600;margin-bottom:2px}
+.shr table.viol td:first-child{order:-4;border-bottom:1px solid var(--l);padding-top:0}
+.shr table.viol td:first-child::before{display:none}
+.shr table.viol td:first-child .vt{font-size:15px;font-weight:600;color:var(--ink)}
+.shr table.viol td:nth-child(3){order:-3}
+.shr table.viol td:nth-child(5){order:-2}
+.shr table.viol td:nth-child(6){order:-1}
+.shr table.viol .kv{gap:4px 6px}
+}
 
 
 .shr textarea.cl-note{width:100%;min-height:90px;box-sizing:border-box;font:inherit}
 .shr .cl-docs{display:flex;gap:6px;flex-wrap:wrap}
+
+
+.shr .pnote{background:var(--warnSoft);border:1px solid color-mix(in srgb,var(--warn) 45%,#fff);color:var(--warn);border-radius:10px;padding:9px 12px;font-size:13px;font-weight:600;margin-bottom:14px}
+.shr .pgrid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px;align-items:start;margin-bottom:14px}
+.shr .pform{display:grid;gap:10px}
+.shr .pform label{display:grid;gap:4px;font-size:12.5px;color:var(--mut)}
+.shr .pform .inp,.shr .pform textarea.inp{width:100%;box-sizing:border-box}
+.shr .pform textarea.inp{min-height:92px;resize:vertical;font-family:inherit;line-height:1.7}
+.shr .prow2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.shr .pv{background:#fff;border:1px solid var(--acLine);border-radius:13px;padding:16px 18px;box-shadow:var(--sh);position:sticky;top:calc(var(--hdr) + 64px)}
+.shr .pv h3{margin:6px 0 4px;color:var(--ink);font-size:17px;font-weight:600;line-height:1.5;overflow-wrap:anywhere}
+.shr .pv .meta{color:var(--mut);font-size:13px;margin-bottom:8px;overflow-wrap:anywhere}
+.shr .pv p{margin:0 0 8px;font-size:13.5px;line-height:1.8;overflow-wrap:anywhere}
+.shr .pv .req{margin:8px 0 0;padding:0;list-style:none;font-size:13.5px;line-height:1.8}
+.shr .pv .req li{overflow-wrap:anywhere}
+.shr .pv .foot{border-top:1px dashed var(--acLine);margin-top:10px;padding-top:8px;font-size:12px;color:var(--mut)}
+.shr .pv .sal{display:inline-block;background:var(--okSoft);color:var(--ok);border-radius:8px;padding:2px 10px;font-size:12.5px;font-weight:600;margin-bottom:8px}
+.shr .pcards{display:grid;gap:12px}
+.shr .pcard{background:#fff;border:1px solid var(--l);border-radius:13px;box-shadow:var(--sh);padding:14px 16px}
+.shr .pcard.blk{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 3%,#fff)}
+.shr .pcard .top{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.shr .pcard h3{margin:0;font-size:15px;font-weight:600;color:var(--ink);overflow-wrap:anywhere;min-width:0;flex:1 1 220px}
+.shr .pcard .kv{margin:8px 0;display:flex;gap:6px 14px;flex-wrap:wrap;font-size:13px;color:var(--t)}
+.shr .pcard .kv span b{color:var(--mut);font-weight:500;margin-inline-end:4px}
+.shr .pcard .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.shr .pcard .why{font-size:12.5px;color:var(--bad);margin-top:6px}
+.shr .pcard .padd{background:var(--soft);border-radius:10px;padding:10px;margin-top:10px}
+@media(max-width:860px){
+.shr .pgrid{grid-template-columns:minmax(0,1fr)}
+.shr .pv{position:static}
+.shr .prow2{grid-template-columns:1fr}
+}
 
 </style><div class="sv1-bar"><div class="wrap">
   <div class="sv1-bar-l">
@@ -499,9 +552,10 @@ function pill(t,c){return h('span',{class:'pill '+(c||'')},[t])}
 Object.assign(ERR,{"agency_not_approved":"المكتب غير معتمد (قيد الاعتماد أو موقوف) — لا دخول","already_approved":"المكتب معتمد أصلاً","not_approved":"المكتب غير معتمد","name_required":"الاسم مطلوب","demo_email_only":"بريد تجريبي فقط بنطاق .invalid في هذه المرحلة","email_taken":"هذا البريد مستخدم","profession_required":"المهنة مطلوبة","bad_quantity":"الكمية بين 1 و500","agency_or_open_required":"حدّد مكتباً أو «مفتوح»","bad_due_on":"تاريخ غير صالح","order_closed":"الأمر مغلق","duplicate_candidate":"مرشح مكرر على هذا الأمر","duplicate_in_file":"مكرر داخل الملف","contact_fields_not_allowed":"لا هاتف ولا بريد ولا هوية خام في هذه المرحلة","full_name_required":"الاسم مطلوب","bad_years_experience":"سنوات الخبرة غير صالحة","order_not_found":"الأمر غير موجود لهذا المكتب","no_rows":"لا صفوف","too_many_rows":"الحد الأقصى 60 صفاً في الدفعة","bad_transition":"انتقال غير مسموح بين هاتين الحالتين","same_state":"المرشح في هذه الحالة أصلاً","bad_list":"القائمة غير صالحة"});
 Object.assign(ERR,{"establishment_blocked":"المنشأة محجوبة: حالة القيد تمنع هذا الإجراء","a33_blocked":"العامل مرتبط بقائمة A33 غير مكتملة التصنيف والاعتماد","compliance_officer_required":"حالة «تقديم» لا يغيّرها إلا مسؤول الامتثال","review_required":"لا تقدّم بلا مراجعة ثانية من مستخدم آخر","already_reviewed":"روجعت أصلاً","already_verified":"تُحقِّق منها أصلاً","already_approved":"اعتُمد أصلاً","already_decided":"قُرّر في الطلب أصلاً","not_classified":"يلزم التصنيف أولاً","owner_only":"تغيير الإعدادات لمالك المستأجر وحده","unknown_rule":"بند غير موجود في المرجع","rule_unconfirmed":"البند غير مؤكد من المصدر — لا يُفعَّل","tier_unknown":"شريحة غير موجودة في المرجع","authority_required":"الجهة مطلوبة","bad_persons_count":"عدد الأشخاص أو الحالات غير صالح","bad_notification_date":"تاريخ التبليغ غير صالح","notification_in_future":"تاريخ التبليغ لا يكون في المستقبل","notification_date_required":"أدخل تاريخ التبليغ من الإشعار الرسمي","forbidden_deadline_input":"لا يُشتق الموعد من تاريخ المخالفة أو القرار — تاريخ التبليغ وحده","regulatory_figure_not_allowed":"الأرقام النظامية تأتي من المرجع وحده","duplicate_violation":"رقم المخالفة مسجّل أصلاً لهذه الجهة","bad_status":"حالة غير معروفة","bad_transition":"انتقال غير مسموح: خطوة واحدة فقط","same_status":"الحالة نفسها","bad_restriction_state":"حالة قيد غير صالحة","reason_required":"السبب مطلوب","bad_band":"نطاق غير صالح","unknown_activity":"نشاط غير موجود في المرجع","bad_declared_pct":"نسبة معلنة غير صالحة","bad_count":"عدد غير صالح","demo_alias_required":"الاسم يحمل وسم «(وهمي)» في هذه المرحلة","field_not_allowed":"حقل غير مسموح (لا أسماء حقيقية ولا هوية خام)","duplicate_name":"الاسم مكرر في القائمة","list_ref_required":"مرجع القائمة مطلوب","alias_required":"الاسم الوهمي مطلوب","id_no_required":"رقم هوية وهمي مطلوب (يُحفظ بصمةً فقط)","bad_classification":"تصنيف غير صالح","no_assignment":"للعامل لا إسناد حالي","same_establishment":"المنشأة نفسها","transfer_pending":"لدى العامل طلب نقل معلّق","bad_decision":"قرار غير صالح","bad_kind":"نوع دفعة غير صالح","no_rows":"لا صفوف","too_many_rows":"الحد الأقصى للدفعة تجاوزه الملف","no_valid_rows":"لا صف صالح في الملف","scope_mismatch":"القائمة لا تخص هذا النوع","bad_subject_kind":"نوع غير صالح","done_required":"الحالة مطلوبة","statuses_unconfirmed":"أسماء الحالات غير مؤكدة في المرجع","unknown_setting":"إعداد غير معروف","bad_setting":"قيمة إعداد غير صالحة"});
 Object.assign(ERR,{"client_not_linked":"المستخدم غير مربوط بشركة عميل — لا دخول","client_not_active":"حساب الشركة غير نشط — لا دخول","read_only_role":"هذا الحساب للقراءة فقط — لا يقدّم طلبات","client_company_id_forbidden":"لا يُقبل تحديد الشركة من الطلب","bad_kind":"نوع الطلب غير صالح","note_required":"اكتب وصف الطلب (٣ أحرف على الأقل)","bad_quantity":"العدد بين 1 و200","worker_required":"اختر العامل المعنيّ بهذا الطلب","too_many_open_requests":"بلغت الحد الأقصى للطلبات المفتوحة — انتظر معالجة بعضها","rate_limited":"طلبات كثيرة في وقت قصير — حاول لاحقاً"});
+Object.assign(ERR,{"content_rejected":"نص الإعلان مرفوض","channel_not_enabled":"قناة النشر هذه معطّلة: النشر العام قرار المالك ولم يُفعَّل","channel_not_implemented":"قناة النشر الخارجية غير مُنفَّذة في هذه المرحلة","bad_channel":"قناة نشر غير معروفة","bad_transition":"انتقال غير مسموح: الدورة خطوة بخطوة (مسودة، اعتماد، نشر، إغلاق)","not_draft":"لا تعديل إلا للمسودة","post_not_published":"لا يُضاف مقدّم طلب إلا لإعلان منشور داخلياً","establishment_required":"اختر المنشأة المعلِنة قبل الإرسال للاعتماد","bad_salary":"قيمة الراتب غير صالحة","bad_salary_range":"الحد الأدنى للراتب أكبر من الأعلى","bad_language":"لغة غير صالحة","nothing_to_update":"لا تغيير لحفظه","job_not_editable":"لا يُنقل الإعلان إلى وظيفة أخرى"});
 var GROUPS_OPS=[
  {t:'التشغيل',i:[['dashboard','اللوحة'],['workers','العمال'],['requests','الطلبات'],['expiring','الانتهاءات']]},
- {t:'التوظيف',i:[['jobs','الوظائف'],['board','المرشحون'],['match','المطابقة']]},
+ {t:'التوظيف',i:[['jobs','الوظائف'],['posts','إعلانات الوظائف'],['board','المرشحون'],['match','المطابقة']]},
  {t:'مكاتب الاستقدام',i:[['agencies','المكاتب'],['orders','أوامر الاستقدام'],['subs','المرشحون المقدَّمون']]}];
 var GROUP_CMP={t:'الامتثال',i:[['c_dash','لوحة الامتثال'],['c_viol','المخالفات'],['c_check','قوائم التحقق'],['c_alerts','التنبيهات'],['c_import','استيراد الملفات'],['c_a33','أسماء A33']]};
 // صفحات فرعية تُضيء تبويب أمّها.
@@ -511,6 +565,7 @@ var DESC={dashboard:'أرقام سريعة عن العمال والطلبات و
  requests:'طلبات العملاء الواردة. غيّر حالة الطلب مع تقدّم العمل عليه.',
  expiring:'الإقامات والتأمينات التي تنتهي خلال ٩٠ يوماً أو انتهت فعلاً.',
  jobs:'أنشئ وظيفة وحدّد شروطها الإلزامية، ثم شغّل المطابقة لها.',
+ posts:'اكتب إعلان وظيفة وعاينه، ثم أرسله للاعتماد (يعتمده غيرك) فالنشر داخل صفحة SHR الخاصة. النشر العام قرار المالك ولم يُفعَّل.',
  board:'تابع المرشحين مرحلة بمرحلة، من «جديد» حتى «تعيين».',
  candidate:'بيانات المرشح وسجل موافقته وطلبات تقديمه ومقابلاته.',
  match:'اختر وظيفة لترى المرشحين مرتّبين بدرجة مشروحة لكل شرط.',
@@ -833,6 +888,143 @@ var AGO=(function shrAgencyOpsClient(env) {
   }
   return { agencies: vAgencies, orders: vOrders, order_view: vOrderView, subs: vSubs };
 })({h:h,call:call,frame:frame,flash:flash,pill:pill,errText:errText,state:state,empty:empty,render:function(){render()}});
+var POSTS=(function shrPostsClient(env) {
+  var h = env.h, call = env.call, frame = env.frame, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, empty = env.empty;
+  var ST = { draft: ['مسودة', 'mut'], pending_approval: ['بانتظار الاعتماد', 'warn'], approved: ['معتمد', 'ok'], published: ['منشور داخلياً', 'ok'], closed: ['مغلق', 'mut'] };
+  var ST_ORDER = ['draft', 'pending_approval', 'approved', 'published', 'closed'];
+  var CH = { shr_private: 'صفحة SHR الخاصة', public_bp_jobs: 'صفحة وظائف BP العامة', external: 'منصات خارجية' };
+  var WHY = { licence_claim: 'ادعاء ترخيص', compliance_claim: 'ادعاء امتثال أو اعتماد', guarantee: 'ضمان أو وعد بنتيجة', gov_outcome_promise: 'وعد بنتيجة حكومية', invented_salary: 'رقم راتب غير موجود في حقل النطاق المُدخَل', contact_info: 'بيانات تواصل', client_name: 'اسم عميل' };
+  var FIELD = { title: 'العنوان', description: 'الوصف', requirements: 'المتطلبات', city: 'المدينة' };
+  var STATE_AR = { unknown: 'غير معروفة', clear: 'نظيفة', restricted: 'مقيّدة', suspected: 'اشتباه' };
+  var CONSENT = { active: 'موافقة سارية', withdrawn: 'موافقة مسحوبة', none: 'بلا موافقة' };
+  var fmtDate = function (s) { return s ? String(s).slice(0, 10) : '—'; };
+  var opt = function (v, t, sel) { var o = h('option', { value: v }, [t]); if (sel) o.selected = true; return o; };
+  function errP(o) {
+    var t = errText(o);
+    if (o && o.reasons && o.reasons.length) t += ': ' + o.reasons.map(function (r) { return (FIELD[r.field] || r.field) + ' — «' + r.match + '» (' + (WHY[r.code] || r.code) + ')'; }).join('، ');
+    if (o && o.error === 'establishment_blocked') t += ' — ' + (STATE_AR[o.state] || o.state || '') + (o.reason ? ': ' + o.reason : '');
+    return t;
+  }
+  function act(action, data, okMsg) { return call(action, data).then(function (r) { flash(r.ok, r.ok ? okMsg : errP(r)); if (r.ok) state.pedit = null; render(); return r; }); }
+
+  function vPosts() {
+    return Promise.all([call('posts', state.pfilter ? { status: state.pfilter } : null, true), call('jobs', null, true), call('compliance-dashboard', null, true), call('candidates', null, true)]).then(function (res) {
+      var o = res[0], rows = o.posts || [], jobs = (res[1].jobs || []).filter(function (j) { return j.status === 'open'; }), ests = res[2].establishments || [], cands = res[3].candidates || [];
+      var ed = state.pedit || null;
+
+      // ---------------------------------------------------------------- النموذج + المعاينة ----
+      var f = {
+        job: h('select', { class: 'inp' }, jobs.map(function (j) { return opt(j.id, j.title + ' — ' + j.headcount + ' مطلوب', ed && ed.job.id === j.id); })),
+        est: h('select', { class: 'inp' }, [opt('', 'اختر المنشأة المعلِنة…')].concat(ests.map(function (e) { return opt(e.id, e.name_ar + ' — ' + (STATE_AR[e.state] || e.state), ed && ed.establishment && ed.establishment.id === e.id); }))),
+        lang: h('select', { class: 'inp' }, [opt('ar', 'العربية', !ed || ed.language === 'ar'), opt('en', 'English', ed && ed.language === 'en')]),
+        title: h('input', { class: 'inp', placeholder: 'عنوان الإعلان', maxlength: '120' }),
+        city: h('input', { class: 'inp', placeholder: 'المدينة', maxlength: '60' }),
+        desc: h('textarea', { class: 'inp', placeholder: 'وصف قصير للوظيفة' }),
+        req: h('textarea', { class: 'inp', placeholder: 'المتطلبات: سطر لكل شرط' }),
+        smin: h('input', { class: 'inp', type: 'number', min: '0', placeholder: 'الحد الأدنى (اختياري)' }),
+        smax: h('input', { class: 'inp', type: 'number', min: '0', placeholder: 'الحد الأعلى (اختياري)' })
+      };
+      if (ed) { f.title.value = ed.title || ''; f.city.value = ed.city || ''; f.desc.value = ed.description || ''; f.req.value = ed.requirements || ''; f.smin.value = ed.salary_min == null ? '' : String(ed.salary_min); f.smax.value = ed.salary_max == null ? '' : String(ed.salary_max); }
+      var pv = h('div', { class: 'pv', 'aria-live': 'polite' });
+      function headcountNow() { if (ed) return ed.headcount; var j = jobs.filter(function (x) { return x.id === f.job.value; })[0]; return j ? j.headcount : null; }
+      function paintPreview() {
+        pv.innerHTML = '';
+        var lines = String(f.desc.value || '').split('\n').filter(function (x) { return x.trim(); });
+        var reqs = String(f.req.value || '').split('\n').filter(function (x) { return x.trim(); });
+        var hc = headcountNow(), meta = [];
+        if (f.city.value) meta.push(f.city.value);
+        if (hc != null) meta.push((f.lang.value === 'en' ? 'Positions: ' : 'عدد المطلوبين: ') + hc);
+        var lo = f.smin.value, hi = f.smax.value, sal = null;
+        if (lo !== '' || hi !== '') sal = (f.lang.value === 'en' ? 'Salary range: ' : 'نطاق الراتب: ') + (lo !== '' ? lo : '—') + ' – ' + (hi !== '' ? hi : '—') + (f.lang.value === 'en' ? ' SAR' : ' ريال');
+        pv.appendChild(pill('كيف يبدو الإعلان — معاينة', 'mut'));
+        pv.appendChild(pill('بيانات تجريبية', 'warn'));
+        pv.appendChild(h('h3', {}, [f.title.value || 'عنوان الإعلان يظهر هنا']));
+        if (meta.length) pv.appendChild(h('div', { class: 'meta' }, [meta.join(' · ')]));
+        if (sal) pv.appendChild(h('div', { class: 'sal' }, [sal]));
+        if (lines.length) lines.forEach(function (l) { pv.appendChild(h('p', {}, [l])); }); else pv.appendChild(h('p', { class: 'meta' }, ['الوصف يظهر هنا.']));
+        if (reqs.length) pv.appendChild(h('ul', { class: 'req' }, reqs.map(function (l) { return h('li', {}, [l]); })));
+        pv.appendChild(h('div', { class: 'foot' }, ['يظهر داخل صفحة SHR الخاصة فقط. لا اسم عميل ولا بيانات تواصل. لا نشر عام ولا خارجي.']));
+      }
+      ['title', 'city', 'desc', 'req', 'smin', 'smax'].forEach(function (k) { f[k].addEventListener('input', paintPreview); });
+      f.lang.addEventListener('change', paintPreview);
+      f.job.addEventListener('change', function () { var j = jobs.filter(function (x) { return x.id === f.job.value; })[0]; if (j && !f.city.value) f.city.value = j.city || ''; paintPreview(); });
+      var local = h('p', { class: 'err', role: 'alert' });
+      function numOrNull(v) { return v === '' ? null : Number(v); }
+      var suggestBtn = h('button', { class: 'btn ghost', type: 'button', onclick: function () {
+        local.textContent = '';
+        if (!f.job.value) { local.textContent = 'اختر وظيفة مفتوحة أولاً'; return; }
+        call('post-suggest', { job_id: f.job.value, language: f.lang.value }).then(function (r) {
+          if (!r.ok) { local.textContent = errP(r); return; }
+          var s = r.suggestion; f.title.value = s.title || ''; f.desc.value = s.description || ''; f.req.value = s.requirements || ''; if (s.city && !f.city.value) f.city.value = s.city;
+          paintPreview(); state.msg = ''; state.err = '';
+          local.textContent = 'صياغة من قالب محلي (بلا ذكاء اصطناعي، بلا راتب). عدّلها كما تشاء قبل الحفظ.' + (r.omitted && r.omitted.length ? ' حُذف ' + r.omitted.length + ' سطر لا يمرّ الحرس.' : '');
+          local.className = 'note';
+        }).catch(function () { local.className = 'err'; local.textContent = 'تعذّر الاتصال'; });
+      } }, ['اقترح صياغة']);
+      var saveBtn = h('button', { class: 'btn', type: 'button', onclick: function () {
+        local.className = 'err'; local.textContent = '';
+        var d = { title: f.title.value, description: f.desc.value, requirements: f.req.value, city: f.city.value, language: f.lang.value, establishment_id: f.est.value || null, salary_min: numOrNull(f.smin.value), salary_max: numOrNull(f.smax.value) };
+        if (ed) { d.id = ed.id; act('post-update', d, 'حُفظ التعديل'); }
+        else { d.job_id = f.job.value; call('post-create', d).then(function (r) { if (!r.ok) { local.textContent = errP(r); return; } flash(true, 'أُنشئت المسودة — أرسلها للاعتماد من بطاقتها'); render(); }).catch(function () { local.textContent = 'تعذّر الاتصال'; }); }
+      } }, [ed ? 'حفظ التعديل' : 'حفظ كمسودة']);
+      var cancelBtn = ed ? h('button', { class: 'btn ghost', type: 'button', onclick: function () { state.pedit = null; render(); } }, ['إلغاء التعديل']) : null;
+      if (ed) f.job.disabled = true;
+      var form = h('div', { class: 'shr-card' }, [h('h2', {}, [ed ? 'تعديل مسودة' : 'إعلان جديد']), h('div', { class: 'pform' }, [
+        h('label', {}, ['الوظيفة', f.job]), h('label', {}, ['المنشأة المعلِنة (تُفحص حالة قيدها قبل الإرسال)', f.est]),
+        h('div', { class: 'prow2' }, [h('label', {}, ['لغة الإعلان', f.lang]), h('label', {}, ['المدينة', f.city])]),
+        h('label', {}, ['العنوان', f.title]), h('label', {}, ['الوصف', f.desc]), h('label', {}, ['المتطلبات', f.req]),
+        h('div', { class: 'prow2' }, [h('label', {}, ['أدنى راتب بالريال (يدخله موظف فقط)', f.smin]), h('label', {}, ['أعلى راتب بالريال (يدخله موظف فقط)', f.smax])]),
+        h('div', { class: 'frm' }, [suggestBtn, saveBtn, cancelBtn]), local,
+        h('p', { class: 'note' }, ['عدد المطلوبين يؤخذ من الوظيفة. النص لا يقبل ادعاء ترخيص أو امتثال أو ضمان أو وعداً بنتيجة حكومية، ولا رقم راتب خارج الحقلين، ولا بيانات تواصل أو اسم عميل. من يكتب الإعلان لا يعتمده.'])])]);
+      paintPreview();
+
+      // ------------------------------------------------------------------------ القائمة ----
+      var flt = h('select', { class: 'inp', onchange: function () { state.pfilter = flt.value; render(); } }, [opt('', 'كل الحالات', !state.pfilter)].concat(ST_ORDER.map(function (s) { return opt(s, ST[s][0], state.pfilter === s); })));
+      function card(p) {
+        var st = ST[p.status] || [p.status, ''];
+        var head = [h('h3', {}, [p.title]), h('div', { class: 'frm' }, [pill(st[0], st[1]), p.blocked ? pill('محجوب: منشأة ' + (STATE_AR[p.blocked.state] || p.blocked.state), 'bad') : null])];
+        var kv = [['الوظيفة', (p.job && p.job.title) || '—'], ['المدينة', p.city || '—'], ['المطلوبون', String(p.headcount)], ['المنشأة', (p.establishment && p.establishment.name_ar) || 'لم تُحدَّد'], ['القناة', CH[p.channel] || p.channel], ['الطلبات', String(p.applicants)]];
+        if (p.salary_min != null || p.salary_max != null) kv.push(['الراتب (مُدخَل بشرياً)', (p.salary_min == null ? '—' : p.salary_min) + ' – ' + (p.salary_max == null ? '—' : p.salary_max)]);
+        kv.push(['كتبه', p.created_by_name || '—']);
+        if (p.approved_by_name) kv.push(['اعتمده', p.approved_by_name]);
+        var acts = [];
+        if (p.status === 'draft') {
+          acts.push(h('button', { class: 'btn ghost sm', type: 'button', onclick: function () { state.pedit = p; render(); } }, ['تعديل']));
+          acts.push(h('button', { class: 'btn sm', type: 'button', onclick: function () { act('post-submit', { id: p.id }, 'أُرسل للاعتماد'); } }, ['إرسال للاعتماد']));
+        }
+        if (p.status === 'pending_approval') {
+          var ap = h('button', { class: 'btn sm', type: 'button', onclick: function () { act('post-approve', { id: p.id }, 'اعتُمد الإعلان'); } }, ['اعتماد']);
+          if (p.mine) { ap.disabled = true; ap.setAttribute('title', 'كاتب الإعلان لا يعتمده — يعتمده مستخدم آخر'); }
+          acts.push(ap);
+        }
+        if (p.status === 'approved') acts.push(h('button', { class: 'btn sm', type: 'button', onclick: function () { act('post-publish', { id: p.id }, 'نُشر داخل صفحة SHR الخاصة فقط'); } }, ['نشر داخل SHR']));
+        if (p.status === 'published') acts.push(h('button', { class: 'btn ghost sm', type: 'button', onclick: function () { state.paddFor = state.paddFor === p.id ? null : p.id; render(); } }, ['إضافة مقدّم طلب']));
+        if (p.status !== 'closed') acts.push(h('button', { class: 'btn ghost sm', type: 'button', onclick: function () { act('post-close', { id: p.id }, 'أُغلق الإعلان'); } }, ['إغلاق']));
+        var kids = [h('div', { class: 'top' }, head), h('div', { class: 'kv' }, kv.map(function (x) { return h('span', {}, [h('b', {}, [x[0]]), x[1]]); }))];
+        if (p.blocked) kids.push(h('div', { class: 'why' }, ['لا يُنشر ولا تُضاف له طلبات ما دامت المنشأة ' + (STATE_AR[p.blocked.state] || '') + (p.blocked.reason ? ' (' + p.blocked.reason + ')' : '') + '.']));
+        if (p.job && p.job.status === 'closed' && p.status !== 'closed') kids.push(h('div', { class: 'why' }, ['الوظيفة مغلقة: لا يُنشر هذا الإعلان.']));
+        if (acts.length) kids.push(h('div', { class: 'acts' }, acts));
+        if (state.paddFor === p.id && p.status === 'published') {
+          var cs = h('select', { class: 'inp' }, cands.map(function (c) { return opt(c.id, c.full_name + ' — ' + (c.profession || '') + ' (' + (CONSENT[c.consent] || c.consent) + ')'); }));
+          var perr = h('p', { class: 'err', role: 'alert' });
+          kids.push(h('div', { class: 'padd' }, [h('div', { class: 'frm' }, [cs, h('button', { class: 'btn sm', type: 'button', onclick: function () {
+            call('post-applicant-add', { post_id: p.id, candidate_id: cs.value }).then(function (r) { if (!r.ok) { perr.textContent = errP(r); return; } state.paddFor = null; flash(true, 'أُضيف طلب التقديم في «جديد» (إدخال يدوي، لا صفحة تقديم عامة)'); render(); }).catch(function () { perr.textContent = 'تعذّر الاتصال'; });
+          } }, ['إضافة'])]), perr, h('p', { class: 'note' }, ['لا يُقبل إلا مرشح موافقته سارية. لا صفحة تقديم عامة: المشغّل يدخل الطلب يدوياً.'])]));
+        }
+        if (p.history && p.history.length) kids.push(h('details', {}, [h('summary', {}, ['سجل الحالات']), h('ul', { class: 'tl' }, p.history.map(function (e) { return h('li', {}, [fmtDate(e.at) + ' — ' + (e.from ? (ST[e.from] || [e.from])[0] + ' ← ' : 'إنشاء: ') + (ST[e.to] || [e.to])[0] + (e.by ? ' (' + e.by + ')' : '') + (e.note && e.to !== 'draft' ? ' — ' + e.note : '')]); }))]));
+        return h('div', { class: 'pcard' + (p.blocked ? ' blk' : '') }, kids);
+      }
+      var chans = (o.channels || []).map(function (c) { return (CH[c.channel] || c.channel) + (c.enabled ? ' (مفعّلة)' : ' (معطّلة)'); }).join(' · ');
+      frame('إعلانات الوظائف', h('div', {}, [
+        h('div', { class: 'pnote', role: 'note' }, ['النشر العام (صفحة وظائف BP العامة أو منصات خارجية) قرار المالك ولم يُفعَّل. «منشور» هنا يعني ظاهراً داخل صفحة SHR الخاصة فقط، ولا يُرسل شيء لأحد.']),
+        h('div', { class: 'pgrid' }, [form, pv]),
+        h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [h('h2', { style: 'margin:0;flex:1 1 auto' }, ['الإعلانات (' + rows.length + ')']), flt]), h('p', { class: 'note' }, ['القنوات: ' + chans])]),
+        rows.length ? h('div', { class: 'pcards' }, rows.map(card)) : empty('لا إعلانات في هذه الحالة', 'اكتب إعلاناً من النموذج أعلاه.')]));
+    });
+  }
+
+  return { posts: vPosts };
+})({h:h,call:call,frame:frame,flash:flash,pill:pill,errText:errText,state:state,empty:empty,render:function(){render()}});
 var CMP=(function shrComplianceClient(env) {
   var h = env.h, call = env.call, frame = env.frame, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, empty = env.empty;
   var STATE_AR = { unknown: 'غير معروفة', clear: 'نظيفة', restricted: 'مقيّدة', suspected: 'اشتباه' };
@@ -946,7 +1138,8 @@ var CMP=(function shrComplianceClient(env) {
         h('button', { class: 'btn', onclick: function () { act('violation-create', { establishment_id: n.est.value, authority: n.auth.value, ref_no: n.no.value, rule_id: rs.value, size_tier: tier.value || undefined, persons_count: Number(n.cnt.value), notification_date: n.nd.value || undefined }, 'سُجّلت المخالفة — تحتاج مراجعة من مستخدم آخر'); } }, ['تسجيل'])]),
         h('p', { class: 'tiny' }, ['المبلغ والمواعيد تُحسب في الخادم من بنود المرجع. لا موعد اعتراض بلا تاريخ تبليغ يُدخله إنسان من الإشعار الرسمي. الاعتراض والسداد مساران متوازيان: الاعتراض لا يوقف الغرامة، وقرار السداد للعميل.'])]);
       var wins = (rf.windows || []).map(function (w) { return h('li', { class: 'tiny' }, [w.name_ar + (w.days !== null ? ' — ' + w.days + ' يوماً ' + (w.anchor_ar || '') : '') + (w.usable ? '' : ' (غير مؤكد من المصدر)') + (w.warning_ar ? ' — ' + w.warning_ar : '')]); });
-      var tb = h('table', { class: 'wide' }, [th(['البند / المنشأة', 'العدد', 'غرامة تقديرية', 'التبليغ', 'مواعيد تقديرية', 'الحالة', 'السداد', '']), h('tbody', {}, rows.map(function (v) {
+      var VCOLS = ['البند / المنشأة', 'العدد', 'غرامة تقديرية', 'تاريخ التبليغ', 'مواعيد تقديرية (اعتراض · تسوية · سداد)', 'الحالة', 'السداد', 'مراجعة'];
+      var tb = h('table', { class: 'wide viol' }, [th(VCOLS.slice(0, 7).concat([''])), h('tbody', {}, rows.map(function (v) {
         var rule = v.rule || {}, fe = v.fine_estimate || {};
         var fineCell = fe.estimate ? [h('div', { class: 'kv' }, [Number(fe.amount_sar).toLocaleString('en-US') + ' ر.س', est()]), h('div', { class: 'tiny' }, [fe.count + ' × ' + Number(fe.unit_sar).toLocaleString('en-US') + ' (' + fe.tier + ')']), src(fe)] : [h('span', { class: 'tiny' }, ['غير متاح: ' + (fe.unavailable || '—')]), fe.label_ar ? unc() : null];
         var nd = v.notification_date ? [v.notification_date] : [h('span', { class: 'tiny' }, ['لم يُدخل'])];
@@ -960,8 +1153,10 @@ var CMP=(function shrComplianceClient(env) {
         if (nxt.length) stc.push(h('div', { class: 'kv' }, [sel, h('button', { class: 'btn ghost sm', onclick: function () { act('violation-status', { id: v.id, status: sel.value }, 'تغيّرت الحالة'); } }, ['نقل'])]));
         var pd = h('select', { class: 'inp sm', onchange: function () { act('violation-paid', { id: v.id, paid_state: pd.value }, 'حُدّث السداد'); } }, Object.keys(PAID_AR).map(function (k) { return opt(k, PAID_AR[k], k === v.paid_state); }));
         var rv = v.reviewed_by ? '—' : h('button', { class: 'btn sm', onclick: function () { act('violation-review', { id: v.id }, 'راجعتَ المخالفة'); } }, ['مراجعة (مستخدم آخر)']);
-        return h('tr', { class: rule.usable ? '' : 'row-unc' }, [h('td', {}, [h('div', {}, [v.rule_id + ' — ' + v.kind_ar]), h('div', { class: 'tiny' }, [(v.establishment || '') + ' · ' + v.authority + (v.ref_no ? ' · ' + v.ref_no : '')]), rule.usable ? null : unc()]),
-          h('td', {}, [String(v.persons_count)]), h('td', {}, fineCell), h('td', {}, nd), h('td', {}, [win('اعتراض', v.objection), win('تسوية', v.settlement), win('سداد', v.payment)]), h('td', {}, stc), h('td', {}, [pd]), h('td', {}, [rv])]);
+        // data-label: على العرض الضيق يتحوّل الجدول إلى بطاقات (CSS)، وتُسمّي هذه الخاصية كل حقل في البطاقة.
+        var tdl = function (i, kids) { return h('td', { 'data-label': VCOLS[i] }, kids); };
+        return h('tr', { class: rule.usable ? '' : 'row-unc' }, [tdl(0, [h('div', { class: 'vt' }, [v.rule_id + ' — ' + v.kind_ar]), h('div', { class: 'tiny' }, [(v.establishment || '') + ' · ' + v.authority + (v.ref_no ? ' · ' + v.ref_no : '')]), rule.usable ? null : unc()]),
+          tdl(1, [String(v.persons_count)]), tdl(2, fineCell), tdl(3, nd), tdl(4, [win('اعتراض', v.objection), win('تسوية', v.settlement), win('سداد', v.payment)]), tdl(5, stc), tdl(6, [pd]), tdl(7, [rv])]);
       }))]);
       cframe('سجل المخالفات', h('div', {}, [add, h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [f]), h('ul', {}, wins), h('p', { class: 'tiny' }, ['مدة التسوية تختلف عن مدة الاعتراض ولا يُوحَّدان. لا يُعرض تخفيض كحق: التسوية بشروط وتخضع لدراسة الجهة.'])]), h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا مخالفات', 'سجّل أول مخالفة من النموذج أعلاه.')])]));
     });
@@ -1336,7 +1531,7 @@ function failed(){
 function render(){
   if(!state.me)return gate();
   // منظور المكتب والعميل مستقلان: لا وصول إلى شاشات المشغّل ولو عُدّلت state.view من الكونسول (الخادم يرفض أصلاً).
-  var v=isCl()?(CLP[state.view]||CLP.cl_home):isAg()?(AGP[state.view]||AGP.a_orders):{dashboard:vDashboard,workers:vWorkers,requests:vRequests,expiring:vExpiring,jobs:ATS.jobs,board:ATS.board,candidate:ATS.candidate,match:ATS.match,agencies:AGO.agencies,orders:AGO.orders,order_view:AGO.order_view,subs:AGO.subs,c_dash:CMP.c_dash,c_est:CMP.c_est,c_viol:CMP.c_viol,c_check:CMP.c_check,c_alerts:CMP.c_alerts,c_import:CMP.c_import,c_a33:CMP.c_a33}[state.view]||vDashboard;
+  var v=isCl()?(CLP[state.view]||CLP.cl_home):isAg()?(AGP[state.view]||AGP.a_orders):{dashboard:vDashboard,workers:vWorkers,requests:vRequests,expiring:vExpiring,jobs:ATS.jobs,posts:POSTS.posts,board:ATS.board,candidate:ATS.candidate,match:ATS.match,agencies:AGO.agencies,orders:AGO.orders,order_view:AGO.order_view,subs:AGO.subs,c_dash:CMP.c_dash,c_est:CMP.c_est,c_viol:CMP.c_viol,c_check:CMP.c_check,c_alerts:CMP.c_alerts,c_import:CMP.c_import,c_a33:CMP.c_a33}[state.view]||vDashboard;
   paint(titleNow(),loading());
   var p;try{p=v()}catch(e){p=Promise.reject(e)}
   p.catch(failed)}

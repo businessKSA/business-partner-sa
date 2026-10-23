@@ -17,6 +17,27 @@ export const COMPLIANCE_CSS = `
 .shr tr.row-unc td{background:var(--warnSoft)}
 .shr .chk{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--l)}
 .shr .chk.off{opacity:.65}
+/* المخالفات على العرض الضيق: بطاقة لكل مخالفة (البند والمنشأة، الغرامة التقديرية بمصدرها، المواعيد التقديرية، الحالة)
+   بلا قطع نص ولا تمرير أفقي للصفحة. على المكتب يبقى الجدول كما هو. */
+@media(max-width:860px){
+.shr .scroll:has(table.viol){overflow-x:visible;padding:0;background:transparent;border:0;box-shadow:none}
+.shr table.viol,.shr table.viol tbody{display:block;min-width:0;width:100%}
+.shr table.viol thead{display:none}
+.shr table.viol tbody{display:grid;gap:12px}
+.shr table.viol tr,.shr table.viol tr:hover{display:flex;flex-direction:column;background:#fff;border:1px solid var(--l);border-radius:13px;box-shadow:var(--sh);padding:12px 14px;min-width:0}
+.shr table.viol tr.row-unc{border-style:dashed;border-color:var(--warn)}
+.shr table.viol td,.shr table.viol tbody tr:hover td{display:block;min-width:0;max-width:100%;border:0;border-bottom:1px dashed var(--line2);padding:7px 0;background:transparent;overflow-wrap:anywhere;white-space:normal}
+.shr table.viol td:first-child,.shr table.viol td:nth-child(3),.shr table.viol td:nth-child(5){min-width:0}
+.shr table.viol td:last-child{border-bottom:0}
+.shr table.viol td::before{content:attr(data-label);display:block;font-size:11.5px;color:var(--mut);font-weight:600;margin-bottom:2px}
+.shr table.viol td:first-child{order:-4;border-bottom:1px solid var(--l);padding-top:0}
+.shr table.viol td:first-child::before{display:none}
+.shr table.viol td:first-child .vt{font-size:15px;font-weight:600;color:var(--ink)}
+.shr table.viol td:nth-child(3){order:-3}
+.shr table.viol td:nth-child(5){order:-2}
+.shr table.viol td:nth-child(6){order:-1}
+.shr table.viol .kv{gap:4px 6px}
+}
 `;
 
 export const COMPLIANCE_ERR = {
@@ -186,7 +207,8 @@ export function shrComplianceClient(env) {
         h('button', { class: 'btn', onclick: function () { act('violation-create', { establishment_id: n.est.value, authority: n.auth.value, ref_no: n.no.value, rule_id: rs.value, size_tier: tier.value || undefined, persons_count: Number(n.cnt.value), notification_date: n.nd.value || undefined }, 'سُجّلت المخالفة — تحتاج مراجعة من مستخدم آخر'); } }, ['تسجيل'])]),
         h('p', { class: 'tiny' }, ['المبلغ والمواعيد تُحسب في الخادم من بنود المرجع. لا موعد اعتراض بلا تاريخ تبليغ يُدخله إنسان من الإشعار الرسمي. الاعتراض والسداد مساران متوازيان: الاعتراض لا يوقف الغرامة، وقرار السداد للعميل.'])]);
       var wins = (rf.windows || []).map(function (w) { return h('li', { class: 'tiny' }, [w.name_ar + (w.days !== null ? ' — ' + w.days + ' يوماً ' + (w.anchor_ar || '') : '') + (w.usable ? '' : ' (غير مؤكد من المصدر)') + (w.warning_ar ? ' — ' + w.warning_ar : '')]); });
-      var tb = h('table', { class: 'wide' }, [th(['البند / المنشأة', 'العدد', 'غرامة تقديرية', 'التبليغ', 'مواعيد تقديرية', 'الحالة', 'السداد', '']), h('tbody', {}, rows.map(function (v) {
+      var VCOLS = ['البند / المنشأة', 'العدد', 'غرامة تقديرية', 'تاريخ التبليغ', 'مواعيد تقديرية (اعتراض · تسوية · سداد)', 'الحالة', 'السداد', 'مراجعة'];
+      var tb = h('table', { class: 'wide viol' }, [th(VCOLS.slice(0, 7).concat([''])), h('tbody', {}, rows.map(function (v) {
         var rule = v.rule || {}, fe = v.fine_estimate || {};
         var fineCell = fe.estimate ? [h('div', { class: 'kv' }, [Number(fe.amount_sar).toLocaleString('en-US') + ' ر.س', est()]), h('div', { class: 'tiny' }, [fe.count + ' × ' + Number(fe.unit_sar).toLocaleString('en-US') + ' (' + fe.tier + ')']), src(fe)] : [h('span', { class: 'tiny' }, ['غير متاح: ' + (fe.unavailable || '—')]), fe.label_ar ? unc() : null];
         var nd = v.notification_date ? [v.notification_date] : [h('span', { class: 'tiny' }, ['لم يُدخل'])];
@@ -200,8 +222,10 @@ export function shrComplianceClient(env) {
         if (nxt.length) stc.push(h('div', { class: 'kv' }, [sel, h('button', { class: 'btn ghost sm', onclick: function () { act('violation-status', { id: v.id, status: sel.value }, 'تغيّرت الحالة'); } }, ['نقل'])]));
         var pd = h('select', { class: 'inp sm', onchange: function () { act('violation-paid', { id: v.id, paid_state: pd.value }, 'حُدّث السداد'); } }, Object.keys(PAID_AR).map(function (k) { return opt(k, PAID_AR[k], k === v.paid_state); }));
         var rv = v.reviewed_by ? '—' : h('button', { class: 'btn sm', onclick: function () { act('violation-review', { id: v.id }, 'راجعتَ المخالفة'); } }, ['مراجعة (مستخدم آخر)']);
-        return h('tr', { class: rule.usable ? '' : 'row-unc' }, [h('td', {}, [h('div', {}, [v.rule_id + ' — ' + v.kind_ar]), h('div', { class: 'tiny' }, [(v.establishment || '') + ' · ' + v.authority + (v.ref_no ? ' · ' + v.ref_no : '')]), rule.usable ? null : unc()]),
-          h('td', {}, [String(v.persons_count)]), h('td', {}, fineCell), h('td', {}, nd), h('td', {}, [win('اعتراض', v.objection), win('تسوية', v.settlement), win('سداد', v.payment)]), h('td', {}, stc), h('td', {}, [pd]), h('td', {}, [rv])]);
+        // data-label: على العرض الضيق يتحوّل الجدول إلى بطاقات (CSS)، وتُسمّي هذه الخاصية كل حقل في البطاقة.
+        var tdl = function (i, kids) { return h('td', { 'data-label': VCOLS[i] }, kids); };
+        return h('tr', { class: rule.usable ? '' : 'row-unc' }, [tdl(0, [h('div', { class: 'vt' }, [v.rule_id + ' — ' + v.kind_ar]), h('div', { class: 'tiny' }, [(v.establishment || '') + ' · ' + v.authority + (v.ref_no ? ' · ' + v.ref_no : '')]), rule.usable ? null : unc()]),
+          tdl(1, [String(v.persons_count)]), tdl(2, fineCell), tdl(3, nd), tdl(4, [win('اعتراض', v.objection), win('تسوية', v.settlement), win('سداد', v.payment)]), tdl(5, stc), tdl(6, [pd]), tdl(7, [rv])]);
       }))]);
       cframe('سجل المخالفات', h('div', {}, [add, h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [f]), h('ul', {}, wins), h('p', { class: 'tiny' }, ['مدة التسوية تختلف عن مدة الاعتراض ولا يُوحَّدان. لا يُعرض تخفيض كحق: التسوية بشروط وتخضع لدراسة الجهة.'])]), h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا مخالفات', 'سجّل أول مخالفة من النموذج أعلاه.')])]));
     });
