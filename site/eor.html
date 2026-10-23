@@ -754,7 +754,8 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
     var out = { items: [], cityId: "", sectorId: "", startDate: "", duration: null, engagementType: "", workerType: "", provisions: {}, unresolved: [], note: "" };
     if (!sg || typeof sg !== "object") return out;
     (Array.isArray(sg.items) ? sg.items : []).slice(0, L.maxItems).forEach(function (it) {
-      if (!it || typeof it !== "object" || typeof it.occupationId !== "string" || !L.occ[it.occupationId]) return;
+      if (!it || typeof it !== "object" || typeof it.occupationId !== "string") return;
+      if (it.occupationId && !L.occ[it.occupationId]) return;     // مهنة مجهولة بلا معرّف تبقى بنداً بلا مهنة ليختارها العميل
       var nats = [];
       (Array.isArray(it.nationalities) ? it.nationalities : []).forEach(function (c) {
         c = String(c).toUpperCase();
@@ -763,7 +764,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
       var cnt = typeof it.count === "number" && it.count % 1 === 0 && it.count >= 1 && it.count <= L.maxCount ? it.count : null;
       var sal = typeof it.salary === "number" && isFinite(it.salary) && it.salary > 0 && it.salary <= L.maxSalary ? it.salary : null;
       out.items.push({
-        occupationId: it.occupationId, count: cnt, nationalities: nats,
+        occupationId: it.occupationId, occText: it.occupationId ? "" : STR(it.occupationText, 80), count: cnt, nationalities: nats,
         gender: it.gender === "male" || it.gender === "female" ? it.gender : "unspecified",
         seniority: typeof it.seniority === "string" && L.sen[it.seniority] ? it.seniority : "", salary: sal
       });
@@ -1428,7 +1429,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
     function sugLines(sg) {
       var lines = [];
       sg.items.forEach(function (d) {
-        var e = OCC_BY[d.occupationId], parts = [(d.count ? d.count + " × " : "") + (e ? e.l : d.occupationId)];
+        var e = OCC_BY[d.occupationId], parts = [(d.count ? d.count + " × " : "") + (e ? e.l : (d.occText || d.occupationId || "—"))];
         if (d.nationalities.length) parts.push(d.nationalities.map(natName).join(AR ? "، " : ", "));
         if (d.gender === "male") parts.push(TX.gM); else if (d.gender === "female") parts.push(TX.gF);
         if (d.seniority) parts.push(SEN_BY[d.seniority]);

@@ -382,7 +382,7 @@ test("assist: نصٌّ حر ⇒ حقول مقترحة موثَّقة بالقو�
   assert.equal(r.ok, true);
   assert.deepEqual(r.suggestion, {
     engagementType: null, workerType: "foreign",
-    items: [{ occupationId: "hosp.cook", occupationLabel: { ar: "طباخ", en: "Cook" }, count: 3, nationalities: ["IN", "PH"], gender: "unspecified", seniority: null, salary: null }],
+    items: [{ occupationId: "hosp.cook", occupationLabel: { ar: "طباخ", en: "Cook" }, occupationText: "", count: 3, nationalities: ["IN", "PH"], gender: "unspecified", seniority: null, salary: null }],
     cityId: "jeddah", sectorId: null, startDate: "2026-11-09", duration: { unit: "month", value: 6 }, provisions: {}, note: "فهمت أنك تريد ٣ طباخين",
   });
   assert.deepEqual(r.unresolved, []);
@@ -409,7 +409,8 @@ test("assist: كل حقل يُفحص بالقوائم البيضاء — رمو�
   assert.equal(r.ok, true);
   const s = r.suggestion;
   assert.equal(s.engagementType, null);
-  assert.equal(s.items.length, 1);
+  assert.equal(s.items.length, 2, "مهنة غير معروفة لا تُسقط البند: يبقى بلا مهنة ليختارها العميل");
+  assert.deepEqual([s.items[1].occupationId, s.items[1].occupationText, s.items[1].count], ["", "zzzz qqqq nonsense", 2]);
   assert.deepEqual([s.items[0].count, s.items[0].gender, s.items[0].seniority, s.items[0].salary], [null, null, null, null]);
   assert.deepEqual(s.items[0].nationalities, ["IN"]);
   assert.equal(s.cityId, null);
@@ -656,8 +657,8 @@ test("eorCore.sanitizeSuggestion: يُسقط كل ما خارج القوائم �
   assert.equal(out.engagementType, "");
   assert.equal(out.workerType, "");
   assert.equal(out.items.length, 2);
-  assert.deepEqual(out.items[0], { occupationId: "hosp.cook", count: null, nationalities: ["IN", "PH"], gender: "unspecified", seniority: "", salary: null });
-  assert.deepEqual(out.items[1], { occupationId: "hosp.cook", count: 4, nationalities: [], gender: "female", seniority: "senior", salary: 3000 });
+  assert.deepEqual(out.items[0], { occupationId: "hosp.cook", occText: "", count: null, nationalities: ["IN", "PH"], gender: "unspecified", seniority: "", salary: null });
+  assert.deepEqual(out.items[1], { occupationId: "hosp.cook", occText: "", count: 4, nationalities: [], gender: "female", seniority: "senior", salary: 3000 });
   assert.equal(out.cityId, "");
   assert.equal(out.sectorId, "agri-crops");
   assert.equal(out.startDate, "");
@@ -1275,4 +1276,17 @@ test("إضافة بند وحذفه: بنود متعددة بمهن وجنسيا�
   for (let i = 0; i < 25; i++) dom.click(add);
   assert.equal(dom.$("eorItems").children.length, 20);
   assert.equal(add.disabled, true);
+});
+
+/* ═════════════ المساعد: مرادفات عامية، وبند بلا مهنة معروفة يبقى ═════════════ */
+test("assist: «ويتر» و«هاوسكيبنج» تُحلّان إلى مهن الفهرس، وتبقى الأعداد والجنسيات حتى لو لم تُحلّ المهنة", async () => {
+  const model = { items: [{ occupation: "ويتر", count: 3, nationalities: ["PH"] }, { occupation: "هاوسكيبنج", count: 3, nationalities: ["IN"] }, { occupation: "مهنة غريبة جداً", count: 2, nationalities: ["PK"] }], city: "jeddah", duration: { unit: "month", value: 6 } };
+  const r = await E.handleEor({ action: "assist", text: "أبغى 3 فلبينين ويتر و3 هنود هاوسكيبنج" }, { now: NOW, ip: "", assistChat: mockChat(JSON.stringify(model)) });
+  assert.equal(r.ok, true);
+  const it = r.suggestion.items;
+  assert.equal(it.length, 3);
+  assert.deepEqual([it[0].occupationId, it[0].count, it[0].nationalities], ["hosp.waiter", 3, ["PH"]]);
+  assert.deepEqual([it[1].occupationId, it[1].count, it[1].nationalities], ["hosp.room-attendant", 3, ["IN"]]);
+  assert.deepEqual([it[2].occupationId, it[2].occupationText, it[2].count, it[2].nationalities], ["", "مهنة غريبة جداً", 2, ["PK"]]);
+  assert.ok(r.unresolved.some((u) => u.field === "occupation" && u.text === "مهنة غريبة جداً"));
 });

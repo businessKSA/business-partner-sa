@@ -985,7 +985,7 @@ async function handleAssist(body, ctx, nowMs) {
     ok: true,
     suggestion: {
       engagementType, workerType: workerTypeFromItems(sg.items),
-      items: sg.items.map((it) => ({ occupationId: it.occupationCatalogId, occupationLabel: it.occupationLabel, count: it.count, nationalities: it.nationalities, gender: it.gender, seniority: it.seniority, salary: it.salary })),
+      items: sg.items.map((it) => ({ occupationId: it.occupationCatalogId, occupationLabel: it.occupationLabel, occupationText: it.occupationText || "", count: it.count, nationalities: it.nationalities, gender: it.gender, seniority: it.seniority, salary: it.salary })),
       cityId: sg.cityId, sectorId: sg.sectorId, startDate: sg.startDate, duration, provisions: sg.provisions, note: sg.note,
     },
     unresolved: parsed.unresolved,
