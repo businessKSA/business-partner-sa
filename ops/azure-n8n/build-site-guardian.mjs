@@ -11,6 +11,8 @@ const BASE = process.env.N8N_AZURE_URL || "https://bp-n8n.delightfulhill-a9ef6e2
 const KEY = (process.env.N8N_AZURE_API_KEY || "").trim(); if (!KEY) { console.log("Set N8N_AZURE_API_KEY"); process.exit(1); }
 const API = BASE + "/api/v1", H = { "X-N8N-API-KEY": KEY, "Content-Type": "application/json" };
 const APPLY = process.argv.includes("--apply");
+const KEY_FILE = (process.argv.find((a) => a.startsWith("--key-file=")) || "").slice(11); // يُكتب فيه مفتاح الويبهوك ومساره (ملف خارج المستودع، لا يُطبع)
+import fs from "fs";
 const SITE = process.env.GUARDIAN_SITE || "https://www.businesspartner.sa";
 const uid = () => crypto.randomUUID(), hex = (n) => crypto.randomBytes(n).toString("hex");
 const WA_PHONE_ID = "1112996661901731", OWNER_WA = "966530540231";
@@ -77,9 +79,10 @@ const gate = wfs.find((w) => /بوابة الإشعارات \(Notify Gate\)/.tes
 if (!gate) { console.log("بوابة الإشعارات (build-farah-v2.mjs) غير موجودة"); process.exit(1); }
 const log = [];
 let credId = (creds.find((x) => x.name === CRED_NAME) || {}).id;
-if (!credId) { log.push("+ credential: " + CRED_NAME); if (APPLY) { const r = await api("/credentials", { method: "POST", body: JSON.stringify({ name: CRED_NAME, type: "httpHeaderAuth", data: { name: "X-BP-Guardian-Key", value: hex(32) } }) }); credId = r.body.id; } else credId = "<new>"; } else log.push("= credential exists");
+let newKey = "";
+if (!credId) { log.push("+ credential: " + CRED_NAME); newKey = hex(32); if (APPLY) { const r = await api("/credentials", { method: "POST", body: JSON.stringify({ name: CRED_NAME, type: "httpHeaderAuth", data: { name: "X-BP-Guardian-Key", value: newKey } }) }); credId = r.body.id; } else credId = "<new>"; } else log.push("= credential exists");
 const def = workflow(gate.id, credId);
 const ex = wfs.find((w) => w.name === NAME);
 if (ex) log.push(`= workflow exists (not touched): ${ex.id} active=${ex.active}`);
-else { log.push(`+ workflow (inactive): ${NAME} — ${def.nodes.length} nodes`); if (APPLY) { const r = await api("/workflows", { method: "POST", body: JSON.stringify(def) }); if (!r.ok) { console.log("failed", r.status, JSON.stringify(r.body).slice(0, 500)); process.exit(1); } log.push("  id " + r.body.id + " active=" + r.body.active); } }
+else { log.push(`+ workflow (inactive): ${NAME} — ${def.nodes.length} nodes`); if (APPLY) { const r = await api("/workflows", { method: "POST", body: JSON.stringify(def) }); if (!r.ok) { console.log("failed", r.status, JSON.stringify(r.body).slice(0, 500)); process.exit(1); } log.push("  id " + r.body.id + " active=" + r.body.active); if (KEY_FILE && newKey) { const path = def.nodes.find((n) => n.type.endsWith("webhook")).parameters.path; fs.writeFileSync(KEY_FILE, JSON.stringify({ key: newKey, webhook: BASE + "/webhook/" + path, wf: r.body.id }), { mode: 0o600 }); log.push("  (مفتاح الويبهوك في --key-file فقط)"); } } }
 console.log(APPLY ? "MODE: APPLY" : "MODE: DRY-RUN"); log.forEach((l) => console.log(l));
