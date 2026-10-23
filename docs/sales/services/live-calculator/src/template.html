@@ -158,7 +158,7 @@ const T={
  sub:{ar:'Business Partner · الأسعار بالريال السعودي · نسخة تجريبية للمعاينة',en:'Business Partner · prices in SAR · preview version'},
  notice:{ar:'نسخة معاينة داخلية: الأرقام من معادلات المالك، وبعض البنود موسومة «للتأكيد» حتى يعتمدها المالك.',en:'Internal preview: figures follow the owner’s formulas; items marked “to confirm” await the owner’s approval.'},
  foot:{ar:'كل المبالغ قبل ضريبة القيمة المضافة 15% ما لم يُذكر غير ذلك. الرسوم الحكومية بلا ضريبة والضريبة على رسوم شركة بزنس بارتنر فقط. لا وعد بأي نتيجة في نطاقات؛ والعقد الموقّع هو المرجع.',en:'All amounts exclude 15% VAT unless stated. Government fees carry no VAT; VAT applies only to our fee. No Nitaqat result is promised; the signed agreement governs.'},
- tabs:{nit:['النطاقات والتوطين','Nitaqat'],lump:['المبلغ المقطوع','Lump sum'],cost:['تكلفة زائد والدفعات','Cost plus & payments'],prof:['توطين المهن وأقل راتب','Professions'],hire:['تقييم موظف جديد','New-hire check'],team:['فريقك حسب المهن','Team by profession'],rent:['بالساعة واليوم والأسبوع','Hourly · daily · weekly'],ot:['الساعات الإضافية','Overtime'],guides:['الأدلة والمهن','Guides & professions']}
+ tabs:{nit:['النطاقات والتوطين','Nitaqat'],lump:['المبلغ المقطوع','Lump sum'],cost:['تكلفة زائد والدفعات','Cost plus & payments'],prof:['توطين المهن وأقل راتب','Professions'],hire:['تقييم موظف جديد','New-hire check'],team:['فريقك حسب المهن','Team by profession'],comp:['لوحة الامتثال','Compliance board'],rent:['بالساعة واليوم والأسبوع','Hourly · daily · weekly'],ot:['الساعات الإضافية','Overtime'],guides:['الأدلة والمهن','Guides & professions']}
 };
 const CLIENT=__CLIENT__; // نسخة العميل: بلا وضع المالك ولا ملاحظات داخلية
 const S={ // state
@@ -296,6 +296,7 @@ function locCalc(idx,qty){ // رسوم التوطين: تكلفة السعودي
   const base=Math.min(45000,m*(S.sb.basic+S.sb.housing)/100), er=base*g.er/100, ee=base*g.ee/100, eos=m/24, lv=m/30*21/12, one=m+er+ee+eos+lv;
   return {fee:m10(need*one/q),need,m,er,ee,eos,lv,one,q,r,erP:g.er,eeP:g.ee,noMin:!(p[5]>0)};
 }
+const locTag=l=>(!l||l.fee==null)?'':' — '+(l.std?tx('غير مرتبطة بالمهنة (رسم ثابت)','Not profession-linked (flat fee)'):tx('مرتبطة بالمهنة (قرار توطين)','Profession-linked (localisation decision)'));
 function lumpCalc(c){
   const X=(c.xfer==null?3000:c.xfer);
   const MF=1+S.fee.pct/100; const a=c.sal,n=c.term; const prem=k=>c.short?S.fee.pS/100:tierPrem(k), aR=k=>a*(1+prem(k));
@@ -551,12 +552,12 @@ function viewLumpInner(){
    ${S.hide?'':sbFields(c.sal)+commFlds()}${feeFields(false)}${groupBtns()}</section>
   <section class="panel"><h2>${tx('السعر','Price')}</h2><p><span class="pill ${c.term<12?'warn':'ok'}">${c.term<12?tx('عقد مؤقت — أقل من سنة','Temporary contract — under a year'):tx('عقد سنوي','Annual contract')}</span></p>${r.cat==='Saudi-only'?`<p><span class="pill bad" style="font-size:14px">${tx('لا سعر: المهنة مقصورة على السعوديين','No price: Saudi-only profession')}</span></p><p>${tx('لا يُنقل إليها أجنبي. اختر مهنة أخرى أو وظّف سعودياً (خدمة «الكوادر الوطنية المشتركة»).','No foreigner can be transferred in. Choose another profession or hire a Saudi (Shared National Talent service).')}</p>`:`<div class="res">
    ${line(tx('السعر الشهري قبل التوطين','Monthly price before localisation'),fmt(r.before))}
-   ${line(tx('رسوم التوطين شهرياً','Localisation fees, monthly'),feeTxt)}
+   ${line(tx('رسوم التوطين شهرياً','Localisation fees, monthly')+locTag(r.loc),feeTxt)}
    ${r.fee==null?'':line(tx('السعر الشهري شامل رسوم التوطين','Monthly price incl. localisation fees'),fmt(r.withFee))}
    ${r.fee==null?'':line(tx('ضريبة 15%','VAT 15%'),fmt(r.vat))}
    ${r.fee==null?'':line(tx('السعر الشهري شامل الضريبة','Monthly price incl. VAT'),fmt(r.incl),'total')}
    </div>`}
-   ${r.cat==='Saudi-only'?'':`<h2 style="margin-top:18px">${tx('ما يشمله السعر شهرياً','What the monthly price covers')}</h2><div class="res">${r.items.map(i=>line(i[0],fmt(i[1]))).join('')}${line(tx('إجمالي التكاليف','Total costs'),fmt(r.itemsSum))}${line(tx('رسوم شركة بزنس بارتنر والتقريب','Business Partner fee and rounding'),fmt(r.margin))}${line(tx('السعر الشهري قبل التوطين','Monthly price before localisation'),fmt(r.before),'total')}${r.fee==null?'':line(tx('رسوم التوطين شهرياً','Localisation fees, monthly'),fmt(r.fee))+line(tx('السعر الشهري شامل رسوم التوطين','Monthly price incl. localisation feess'),fmt(r.withFee))+line(tx('ضريبة 15%','VAT 15%'),fmt(r.vat))+line(tx('السعر الشهري شامل الضريبة','Monthly price incl. VAT'),fmt(r.incl),'total')}</div>`}
+   ${r.cat==='Saudi-only'?'':`<h2 style="margin-top:18px">${tx('ما يشمله السعر شهرياً','What the monthly price covers')}</h2><div class="res">${r.items.map(i=>line(i[0],fmt(i[1]))).join('')}${line(tx('إجمالي التكاليف','Total costs'),fmt(r.itemsSum))}${line(tx('رسوم شركة بزنس بارتنر والتقريب','Business Partner fee and rounding'),fmt(r.margin))}${line(tx('السعر الشهري قبل التوطين','Monthly price before localisation'),fmt(r.before),'total')}${r.fee==null?'':line(tx('رسوم التوطين شهرياً','Localisation fees, monthly')+locTag(r.loc),fmt(r.fee))+line(tx('السعر الشهري شامل رسوم التوطين','Monthly price incl. localisation feess'),fmt(r.withFee))+line(tx('ضريبة 15%','VAT 15%'),fmt(r.vat))+line(tx('السعر الشهري شامل الضريبة','Monthly price incl. VAT'),fmt(r.incl),'total')}</div>`}
    <h2 style="margin-top:18px">${tx('نفس الراتب بحسب المدة','Same package by term')}</h2>
    <div class="tbl"><table><thead><tr><th>${tx('المدة','Term')}</th><th class="n">${tx('شهرياً قبل الضريبة','Monthly excl. VAT')}</th></tr></thead><tbody>
    ${r.byTerm.map(([k,v])=>`<tr><td>${termLbl(k)}</td><td class="n">${fmt(v)}</td></tr>`).join('')}</tbody></table></div>
@@ -620,7 +621,7 @@ function viewCostInner(){
    <div class="res">${line(tx('تأمين الراتب مقدماً (شهران) — بلا رسوم ولا ضريبة','Salary security in advance (2 months) — no fee, no VAT'),fmt(st.dep.tot),'total')}</div>
    <p class="hint" style="margin-top:10px">${c.abroad==='Yes'?tx('التأمينات الاجتماعية تُفوتَر بعد وصول العامل وتحديث الراتب في التأمينات.','Social insurance is invoiced after the worker arrives and the salary is updated in social insurance.'):tx('التأمينات الاجتماعية تُفوتَر بعد تحديث الراتب في التأمينات.','Social insurance is invoiced after the salary is updated in social insurance.')}</p>
    <div class="res">${st.m.rows.map(x=>line(x[0],fmt(x[1]))).join('')}
-   ${line(tx('إجمالي الراتب والتأمينات (بلا ضريبة)','Salary and insurance total (no VAT)'),fmt(st.m.cost))}${line(tx('رسوم شركة بزنس بارتنر الشهرية على الموظف (ثابتة)','Business Partner monthly fee per employee (fixed)'),fmt(st.m.ov))}${st.m.loc?line(tx('رسوم التوطين','Localisation fees'),fmt(st.m.loc)):''}${line(tx('ضريبة 15% على رسوم شركة بزنس بارتنر ورسوم التوطين','VAT 15% on Business Partner and localisation fees'),fmt(st.m.vat))}${line(tx('إجمالي الفاتورة الشهرية','Total monthly invoice'),fmt(st.m.tot),'total')}</div>
+   ${line(tx('إجمالي الراتب والتأمينات (بلا ضريبة)','Salary and insurance total (no VAT)'),fmt(st.m.cost))}${line(tx('رسوم شركة بزنس بارتنر الشهرية على الموظف (ثابتة)','Business Partner monthly fee per employee (fixed)'),fmt(st.m.ov))}${st.m.loc?line(tx('رسوم التوطين','Localisation fees')+locTag(locCalc(c.prof,c.qty)),fmt(st.m.loc)):''}${line(tx('ضريبة 15% على رسوم شركة بزنس بارتنر ورسوم التوطين','VAT 15% on Business Partner and localisation fees'),fmt(st.m.vat))}${line(tx('إجمالي الفاتورة الشهرية','Total monthly invoice'),fmt(st.m.tot),'total')}</div>
    <h2 style="margin-top:18px">${tx('نهاية العقد (فاتورة منفصلة بالفعلي)','Contract end (separate invoice, at actual)')}</h2>
    <p class="hint">${tx('نهاية الخدمة وبدل الإجازة وتذكرة العودة لا تُحسب إلا بالإجمالي الفعلي للموظف بعد نهاية العقد؛ الأرقام أدناه تقديرية.','End of service, leave pay and the return ticket are calculated only on the employee’s actual total after the contract ends; the figures below are estimates.')}</p>
    <div class="res">${st.e.rows.map(x=>line(x[0],fmt(x[1]))).join('')}
@@ -819,6 +820,82 @@ function viewHire(){
 }
 
 
+
+function teamLocPanel(rows){
+  const lr=rows.filter(({r})=>r.foreign>0); if(!lr.length) return '';
+  const body=lr.map(({r,x})=>{const l=locCalc(r.prof,r.foreign);
+    if(l.fee==null) return `<tr><td>${profName(r.prof)}</td><td class="n">${r.foreign}</td><td colspan="6">${x.only?tx('مقصورة على السعوديين — لا تُنقل','Saudi-only — not transferable'):tx('تُسعَّر عند الطلب','Quoted on request')}</td></tr>`;
+    if(l.std) return `<tr><td>${profName(r.prof)}</td><td class="n">${r.foreign}</td><td>${tx('غير مرتبطة بالمهنة','Not profession-linked')}</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">${fmt(l.fee)}</td><td class="n"><b>${fmt(l.fee*r.foreign)}</b></td></tr>`;
+    return `<tr><td>${profName(r.prof)}</td><td class="n">${r.foreign}</td><td>${tx('مرتبطة بالمهنة','Profession-linked')}</td><td class="n">${Math.round(l.r*100)}% → ${l.need}</td><td class="n">${fmt(l.m)}${l.noMin?'*':''}</td><td class="n">${fmt(l.one)}</td><td class="n">${fmt(l.fee)}</td><td class="n"><b>${fmt(l.fee*r.foreign)}</b></td></tr>`;}).join('');
+  return `<section class="panel" style="margin-top:16px"><h2>${tx('كيف تُحسب رسوم التوطين لكل مهنة','How the localisation fees are calculated per profession')}</h2>
+   <p class="hint">${tx('المهنة المرتبطة بقرار توطين: رسوم العامل = (السعوديون المطلوبون × تكلفة السعودي الواحد) ÷ عدد الأجانب في المهنة، وتكلفة السعودي = أقل راتب + التأمينات (صاحب العمل + المشترك) + نهاية الخدمة + بدل الإجازة. وغير المرتبطة: رسم ثابت 900.','Profession under a localisation decision: fee per worker = (Saudis required × cost of one Saudi) ÷ foreigners in the profession; Saudi cost = minimum salary + social insurance (employer + subscriber) + end of service + leave pay. Not linked: flat fee 900.')}</p>
+   <div class="tbl"><table><thead><tr><th>${tx('المهنة','Profession')}</th><th class="n">${tx('أجانب','Foreign')}</th><th>${tx('الارتباط','Link')}</th><th class="n">${tx('النسبة → السعوديون','Ratio → Saudis')}</th><th class="n">${tx('أقل راتب','Min salary')}</th><th class="n">${tx('تكلفة السعودي','Cost of one Saudi')}</th><th class="n">${tx('رسوم العامل','Fee per worker')}</th><th class="n">${tx('إجمالي المهنة','Profession total')}</th></tr></thead><tbody>${body}</tbody></table></div>
+   <p class="hint" style="margin-top:8px">${tx('* لم يُحدَّد أقل راتب للمهنة فاستُعمل 4,000 (حد احتساب السعودي كاملاً).','* No minimum salary stated for the profession, so 4,000 (full-count threshold) was used.')}</p></section>`;
+}
+
+function profShort(i){return profName(i).replace(/ \[[^\]]*\]$/,'').split(' · ')[0];}
+function saudiCost(m){const g=gosiRates(S.sa), base=Math.min(45000,m*(S.sb.basic+S.sb.housing)/100); return m+base*g.er/100+base*g.ee/100+m/24+m/30*21/12;}
+function compAnalyze(){
+  const n=S.nit, rows=S.team.rows, sc=n.act?actOccSet(n.act):null;
+  const items=rows.filter(r=>r.prof>0&&(r.saudi+r.foreign)>0).map(r=>{
+    const x=profCalc({prof:r.prof,saudi:r.saudi,foreign:r.foreign,term:S.team.term}), code=PROF[r.prof][7]||'';
+    const linked=!sc||(!!code&&sc.has(code)); let st='ok';
+    if(x.only){ if(r.foreign>0) st='bad'; }
+    else if(x.onReq) st='info';
+    else if(x.p[1]!=='Standard'){ if(!x.applies) st='info'; else if(x.short>0) st='warn'; }
+    const m=x.minS>0?x.minS:4000;
+    return {r,x,code,linked,st,name:profShort(r.prof),m,one:saudiCost(m)};
+  });
+  const notes=[];
+  items.forEach(it=>{const {x,r}=it;
+    if(it.st==='bad') notes.push({sev:'bad',t:tx('«'+it.name+'»: مهنة مقصورة على السعوديين وعندك '+r.foreign+' أجنبي. الإجراء: توطين الوظيفة بسعودي أو تعديل مهنة العامل في قوى إلى مهنة غير مقصورة إن كان عمله فعلاً مختلفاً.','“'+it.name+'”: Saudi-only profession and you have '+r.foreign+' foreign worker(s). Action: fill the job with a Saudi, or correct the worker’s profession in Qiwa if the real job is different.')});
+    if(it.st==='warn') notes.push({sev:'warn',t:tx('«'+it.name+'»: ناقص '+x.short+' سعودي لبلوغ نسبة '+Math.round(x.ratio*100)+'% (المطلوب '+x.req+' من '+x.tot+'). الإجراء: توظيف '+x.short+' سعودي براتب لا يقل عن '+fmt(it.m)+' (تكلفة السعودي الواحد نحو '+fmt(it.one)+' شهرياً).','“'+it.name+'”: short '+x.short+' Saudi(s) to reach '+Math.round(x.ratio*100)+'% ('+x.req+' required of '+x.tot+'). Action: hire '+x.short+' Saudi(s) at a salary of at least '+fmt(it.m)+' (about '+fmt(it.one)+' a month each).')});
+    if(it.st==='info'&&x.onReq) notes.push({sev:'info',t:tx('«'+it.name+'»: تُسعَّر وتُراجَع عند الطلب حسب قرار المهنة؛ راجع شروط التوطين قبل التوظيف.','“'+it.name+'”: handled on request under the profession’s decision; check the localisation terms before hiring.')});
+    if(it.st==='info'&&!x.onReq&&!x.applies) notes.push({sev:'info',t:tx('«'+it.name+'»: عليها قرار توطين لكنه لا يسري الآن (عدد عاملي المهنة '+x.tot+' أقل من الحد '+x.minW+'). راقبها عند زيادة العدد.','“'+it.name+'”: a localisation decision exists but does not apply yet ('+x.tot+' workers, threshold '+x.minW+'). Watch it as headcount grows.')});
+    if(!it.linked) notes.push({sev:'amber',t:tx('«'+it.name+'»: ليست من مهن نشاطك حسب قوى. الإجراء: عدّل مهنة العامل في قوى إلى مهنة مرتبطة بالنشاط، أو أضف النشاط المناسب إلى سجل المنشأة.','“'+it.name+'”: not among your activity’s professions in Qiwa. Action: change the worker’s profession in Qiwa to one linked to the activity, or add the right activity to the establishment record.')});
+  });
+  const bad=items.filter(i=>i.st==='bad').length, shortT=items.reduce((t,i)=>t+(i.st==='warn'?i.x.short:0),0), unl=items.filter(i=>!i.linked).length;
+  const costShort=items.reduce((t,i)=>t+(i.st==='warn'?i.x.short*i.one:0),0), costBad=items.reduce((t,i)=>t+(i.st==='bad'?i.r.foreign*i.one:0),0);
+  const ok=items.filter(i=>i.st!=='bad'&&i.st!=='warn'&&i.linked).length, score=items.length?Math.round(ok/items.length*100):100;
+  return {items,notes,bad,shortT,unl,costShort,costBad,score,sc};
+}
+const SNAPKEY='bp.comp.snaps';
+function snapLoad(){try{return JSON.parse(localStorage.getItem(SNAPKEY)||'[]');}catch(e){return [];}}
+function snapSave(a){try{localStorage.setItem(SNAPKEY,JSON.stringify(a.slice(-30)));}catch(e){}}
+function viewComp(){
+  const n=S.nit, r=nitCalc(n), A=compAnalyze(); const hasAct=!!n.act;
+  const bandL=i=>i<0?tx('أحمر','Red'):tx(BANDS[i][2],BANDS[i][1]);
+  const pillCls=st=>st==='bad'?'bad':st==='warn'?'warn':st==='info'?'':'ok';
+  const stLbl=it=>it.st==='bad'?tx('مخالفة','Violation'):it.st==='warn'?tx('ناقص '+it.x.short,'Short '+it.x.short):it.st==='info'?(it.x.onReq?tx('عند الطلب','On request'):tx('لا يسري','Not applicable')):(it.x.p[1]==='Standard'?tx('بلا قرار توطين','No decision'):tx('ممتثل','Compliant'));
+  const catL=k=>({'Saudi-only':tx('للسعوديين فقط','Saudi-only'),'Technical':tx('فنية','Technical'),'Administrative':tx('إدارية','Administrative'),'Engineering':tx('هندسية','Engineering'),'Standard':tx('عادية','Standard'),'On request':tx('عند الطلب','On request')}[k]||k);
+  const next=r.cur<BANDS.length-1?r.res[r.cur+1]:null;
+  const plan=[]; if(A.bad) plan.push(tx('صحّح '+A.bad+' مخالفة: مهن مقصورة على السعوديين فيها أجانب.','Fix '+A.bad+' violation(s): Saudi-only professions with foreigners.'));
+  if(A.unl) plan.push(tx('راجع '+A.unl+' مهنة غير مرتبطة بنشاطك في قوى.','Review '+A.unl+' profession(s) not linked to your activity in Qiwa.'));
+  if(A.shortT) plan.push(tx('وظّف '+A.shortT+' سعودياً لسدّ نقص المهن الموطّنة (تكلفة تقريبية '+fmt(A.costShort)+' شهرياً).','Hire '+A.shortT+' Saudi(s) to close the localisation shortfall (about '+fmt(A.costShort)+' a month).'));
+  if(A.bad&&A.costBad) plan.push(tx('إحلال سعوديين مكان الأجانب في المهن المقصورة يكلّف نحو '+fmt(A.costBad)+' شهرياً.','Replacing foreigners with Saudis in the Saudi-only professions costs about '+fmt(A.costBad)+' a month.'));
+  if(next&&next.short>0) plan.push(tx('لبلوغ «'+bandL(r.cur+1)+'» تحتاج '+next.short+' سعودياً إضافياً على مستوى المنشأة (الإجمالي ثابت).','To reach “'+bandL(r.cur+1)+'” you need '+next.short+' more Saudi(s) company-wide (total held).'));
+  if(!plan.length) plan.push(tx('وضعك سليم بحسب البيانات المدخلة. استمر في المراقبة عند أي توظيف أو استقالة.','Your position is sound on the data entered. Keep monitoring on every hire or resignation.'));
+  const snaps=snapLoad();
+  const sev={bad:'🔴',warn:'🟠',amber:'🟡',info:'ℹ️'};
+  return `<section class="panel"><h2>${tx('لوحة الامتثال','Compliance board')}</h2>
+   <p class="hint">${tx('حلّل وضع منشأتك وراقب امتثالها: النطاق، ثم مهن فريقك واحدة واحدة، ثم ما تفعله لتضبط وضعك. أدخل نشاطك في «النطاقات والتوطين» وفريقك في «فريقك حسب المهن».','Analyse your establishment and monitor its compliance: the band, then each profession in your team, then what to do to fix your position. Enter your activity in “Nitaqat” and your team in “Team by profession”.')}</p>
+   ${hasAct?'':`<p><span class="pill warn">${tx('لم تختر نشاطك بعد: لا يمكن فحص ارتباط المهن بالنشاط','No activity chosen: profession-to-activity linkage cannot be checked')}</span></p>`}
+   ${!A.items.length?`<p class="hint">${tx('لا فريق مُدخل بعد. أضف مهن فريقك من تبويب «فريقك حسب المهن».','No team entered yet. Add your professions in “Team by profession”.')}</p>`:''}
+   <div class="res" style="max-width:640px">${line(tx('نطاقك الحالي','Your current band'),`<span class="pill ${r.cur>=2?'ok':r.cur>=0?'warn':'bad'}">${bandL(r.cur)} · ${fmt1(r.pct)}%</span>`)}${line(tx('مؤشر امتثال المهن','Profession compliance score'),`<b>${A.score}%</b>`)}${line(tx('مخالفات (مهن للسعوديين فقط)','Violations (Saudi-only professions)'),A.bad?`<span class="pill bad">${A.bad}</span>`:0)}${line(tx('نقص السعوديين في المهن الموطّنة','Saudi shortfall in localised professions'),A.shortT?`<span class="pill warn">${A.shortT}</span>`:0)}${line(tx('مهن غير مرتبطة بالنشاط','Professions not linked to the activity'),A.unl?`<span class="pill warn">${A.unl}</span>`:0)}</div></section>
+  <section class="panel" style="margin-top:16px"><h2>${tx('خطة ضبط الوضع','Plan to fix your position')}</h2><ol style="margin:6px 0 0;padding-inline-start:22px;line-height:1.9">${plan.map(x=>`<li>${x}</li>`).join('')}</ol></section>
+  ${A.items.length?`<section class="panel" style="margin-top:16px"><h2>${tx('امتثال كل مهنة','Compliance by profession')}</h2><div class="tbl"><table><thead><tr><th>${tx('المهنة','Profession')}</th><th>${tx('بالنشاط','In activity')}</th><th>${tx('الفئة','Class')}</th><th class="n">${tx('النسبة','Ratio')}</th><th class="n">${tx('سعوديون','Saudis')}</th><th class="n">${tx('أجانب','Foreign')}</th><th class="n">${tx('المطلوب','Required')}</th><th>${tx('الحالة','Status')}</th></tr></thead><tbody>
+   ${A.items.map(it=>`<tr><td>${it.name}</td><td>${!hasAct?'—':it.linked?'✓':`<span class="pill warn">${tx('غير مرتبطة','Not linked')}</span>`}</td><td>${catL(it.x.p[1])}</td><td class="n">${it.x.p[3]?Math.round(it.x.ratio*100)+'%':'—'}</td><td class="n">${it.r.saudi}</td><td class="n">${it.r.foreign}</td><td class="n">${it.x.only?'—':it.x.req}</td><td><span class="pill ${pillCls(it.st)}">${stLbl(it)}</span></td></tr>`).join('')}</tbody></table></div></section>
+  <section class="panel" style="margin-top:16px"><h2>${tx('الملاحظات ('+A.notes.length+')','Notes ('+A.notes.length+')')}</h2>${A.notes.length?`<ul style="margin:6px 0 0;padding-inline-start:20px;line-height:1.8">${A.notes.map(x=>`<li>${sev[x.sev]} ${x.t}</li>`).join('')}</ul>`:`<p class="hint">${tx('لا ملاحظات.','No notes.')}</p>`}</section>`:''}
+  <section class="panel" style="margin-top:16px"><h2>${tx('مراقبة الامتثال','Compliance monitoring')}</h2>
+   <p class="hint">${tx('احفظ لقطة اليوم لتقارن بها لاحقاً بعد أي توظيف أو استقالة. تُحفظ في متصفحك فقط.','Save today’s snapshot to compare after any hire or resignation. Stored in your browser only.')}</p>
+   <div class="cta"><button class="btn primary" id="snap-save">${tx('حفظ لقطة اليوم','Save today’s snapshot')}</button><button class="btn" id="snap-clear">${tx('مسح السجل','Clear history')}</button></div>
+   ${snaps.length?`<div class="tbl" style="margin-top:10px"><table><thead><tr><th>${tx('التاريخ','Date')}</th><th>${tx('النطاق','Band')}</th><th class="n">${tx('السعودة','Saudisation')}</th><th class="n">${tx('مخالفات','Violations')}</th><th class="n">${tx('نقص','Shortfall')}</th><th class="n">${tx('المؤشر','Score')}</th></tr></thead><tbody>${snaps.slice(-8).reverse().map(x=>`<tr><td>${x.d}</td><td>${x.b}</td><td class="n">${x.p}%</td><td class="n">${x.v}</td><td class="n">${x.s}</td><td class="n">${x.k}%</td></tr>`).join('')}</tbody></table></div>`:''}</section>`;
+}
+function compWire(){
+  const sv=document.getElementById('snap-save'); if(!sv) return;
+  sv.addEventListener('click',()=>{const r=nitCalc(S.nit), A=compAnalyze(); const a=snapLoad(); a.push({d:new Date().toISOString().slice(0,16).replace('T',' '),b:r.cur<0?tx('أحمر','Red'):tx(BANDS[r.cur][2],BANDS[r.cur][1]),p:fmt1(r.pct),v:A.bad,s:A.shortT,k:A.score}); snapSave(a); render();});
+  document.getElementById('snap-clear').addEventListener('click',()=>{snapSave([]); render();});
+}
 function viewTeam(){
   const c=S.team; const rows=c.rows.map(r=>({r,x:profCalc({prof:r.prof,saudi:r.saudi,foreign:r.foreign,term:c.term})}));
   let feeM=0,blocked=0,short=0; rows.forEach(({x})=>{if(x.feeM!=null)feeM+=x.feeM; if(x.only)blocked++; short+=x.short;});
@@ -827,21 +904,22 @@ function viewTeam(){
   const found=PROF.map((p,i)=>[p,i]).filter(([p])=>(c.cat==='all'||p[1]===c.cat)&&(!q||p[0].includes(q))).slice(0,40);
   return `<section class="panel"><h2>${tx('فريقك حسب المهن','Your team by profession')}</h2><p class="hint">${tx('أضف كل مهنة في فريقك مع عدد السعوديين والأجانب، فيُحسب التوطين المطلوب ورسوم شركة بزنس بارتنر لكل مهنة.','Add every profession in your team with the Saudi and foreign counts; localisation and our fee are calculated per profession.')}</p>
    <div class="row2" style="max-width:420px">${fld('m-term',tx('مدة العقد','Contract term'),c.term,{list:termOptsF()})}</div>
-   <div class="tbl"><table><thead><tr><th>${tx('المهنة','Profession')}</th><th class="n">${tx('سعوديون','Saudis')}</th><th class="n">${tx('أجانب','Foreign')}</th><th>${tx('الفئة','Class')}</th><th class="n">${tx('النسبة','Ratio')}</th><th class="n">${tx('أقل راتب','Min salary')}</th><th class="n">${tx('المطلوب','Required')}</th><th class="n">${tx('النقص','Short')}</th><th class="n">${tx('رسوم شركة بزنس بارتنر/شهر','Business Partner fee/mo')}</th><th></th></tr></thead><tbody>
+   <div class="tbl"><table><thead><tr><th>${tx('المهنة','Profession')}</th><th class="n">${tx('سعوديون','Saudis')}</th><th class="n">${tx('أجانب','Foreign')}</th><th>${tx('الفئة','Class')}</th><th class="n">${tx('النسبة','Ratio')}</th><th class="n">${tx('أقل راتب','Min salary')}</th><th class="n">${tx('المطلوب','Required')}</th><th class="n">${tx('النقص','Short')}</th><th class="n">${tx('رسوم التوطين/شهر','Localisation fees/mo')}</th><th></th></tr></thead><tbody>
    ${rows.map(({r,x},i)=>`<tr><td style="min-width:260px"><input id="m-p-${i}" type="search" data-combo="prof" class="cmb" value="${profName(r.prof).replace(/"/g,'&quot;')}" autocomplete="off"></td>
     <td class="n"><div class="stp"><input id="m-s-${i}" type="number" min="0" step="1" value="${r.saudi}" data-inc="1" style="width:64px"><div class="sb"><button type="button" data-st="1" data-for="m-s-${i}">+</button><button type="button" data-st="-1" data-for="m-s-${i}">−</button></div></div></td><td class="n"><div class="stp"><input id="m-f-${i}" type="number" min="0" step="1" value="${r.foreign}" data-inc="1" style="width:64px"><div class="sb"><button type="button" data-st="1" data-for="m-f-${i}">+</button><button type="button" data-st="-1" data-for="m-f-${i}">−</button></div></div></td>
     <td>${x.only?`<span class="pill bad">${catLbl(x.p[1])}</span>`:catLbl(x.p[1])}</td><td class="n">${x.p[3]?Math.round(x.ratio*100)+'%':'—'}</td><td class="n">${x.minS?fmt(x.minS):'—'}</td>
-    <td class="n">${x.req}</td><td class="n">${x.short?`<span class="pill warn">${x.short}</span>`:0}</td><td class="n">${x.only?tx('لا يُنقل','n/a'):x.onReq?tx('عند الطلب','on request'):fmt(x.feeM)}</td>
+    <td class="n">${x.req}</td><td class="n">${x.short?`<span class="pill warn">${x.short}</span>`:0}</td><td class="n">${x.only?tx('لا يُنقل','n/a'):x.onReq?tx('عند الطلب','on request'):fmt(x.feeM)+`<br><small style="color:var(--muted)">${x.p[1]==='Standard'?tx('غير مرتبطة بالمهنة','Not profession-linked'):tx('مرتبطة بالمهنة','Profession-linked')}</small>`}</td>
     <td><button class="btn" id="m-d-${i}" aria-label="${tx('حذف','Remove')}">✕</button></td></tr>`).join('')}</tbody></table></div>
    <div class="cta"><button class="btn primary" id="m-add">${tx('+ أضف مهنة','+ Add profession')}</button></div>
    <div class="res" style="margin-top:12px;max-width:560px">
-    ${line(tx('رسوم شركة بزنس بارتنر الشهري قبل الضريبة (مجموع المهن)','Our monthly fee excl. VAT (all professions)'),fmt(feeM))}
+    ${line(tx('رسوم التوطين الشهرية قبل الضريبة (مجموع المهن)','Localisation fees, monthly excl. VAT (all professions)'),fmt(feeM))}
     ${line(tx('ضريبة 15%','VAT 15%'),fmt(feeM*0.15))}
     ${line(tx('الرسم للمدة قبل الضريبة','Fee for the term excl. VAT'),fmt(feeM*c.term))}
     ${line(tx('الرسم الشهري شامل الضريبة','Monthly fee incl. VAT'),fmt(feeM*1.15),'total')}
     ${blocked?line(tx('مهن للسعوديين فقط (لا تُنقل)','Saudi-only professions (not transferable)'),`<span class="pill bad">${blocked}</span>`):''}
     ${line(tx('إجمالي النقص بالسعوديين عبر المهن','Total Saudi shortfall across professions'),short)}
    </div><p class="hint" style="margin-top:8px">${tx('الرسم فوق السعر الشهري (النموذج 2). والمهنة المقصورة على السعوديين لا يُنقل إليها أجنبي.','The fee is on top of the monthly price (Model 2). A Saudi-only profession cannot take a foreigner.')}</p></section>
+  ${CLIENT?'':teamLocPanel(rows)}
   <section class="panel" style="margin-top:16px"><h2>${tx('دليل المهن','Profession guide')}</h2>
    <div class="row2">${fld('m-q',tx('بحث بالاسم أو الرمز','Search by name or code'),c.q,{type:'search'})}${fld('m-cat',tx('الفئة','Class'),c.cat,{list:[['all',tx('الكل','All')],['Saudi-only',catLbl('Saudi-only')],['Administrative',catLbl('Administrative')],['Technical',catLbl('Technical')],['Engineering',catLbl('Engineering')],['On request',catLbl('On request')]]})}</div>
    <div class="tbl"><table><thead><tr><th>${tx('المهنة · الدليل','Profession · guide')}</th><th>${tx('الفئة','Class')}</th><th class="n">${tx('النسبة','Ratio')}</th><th class="n">${tx('أقل عاملين','Min workers')}</th><th class="n">${tx('أقل راتب','Min salary')}</th><th class="n">${tx('رسوم شركة بزنس بارتنر','Business Partner fee')}</th><th></th></tr></thead><tbody>
@@ -1043,8 +1121,26 @@ function fillCompany(){ // شركة مثال كاملة (مطعم): نشاط و�
  S.team.rows=[['513101',2,16],['512001',1,8],['523001',2,4],['962101',1,5],['911203',0,4],['121101',0,1],['241101',0,2]].map(([c,sa,fo])=>({prof:ix(c),saudi:sa,foreign:fo})).filter(r=>r.prof>0);
  render();
 }
+
+function fillCompany2(){ // شركة مثال بمهن موطّنة كثيرة: هندسية وفنية ومبيعات ومحاسبة
+ const ix=c=>PROF.findIndex(p=>p[7]===c);
+ const g=suggestGroup('711013');
+ Object.assign(S.nit,{act:'711013',sug:g?'ok':'none',grp:g||S.nit.grp,year:2026,full:6,part:0,foreign:20,pq:'',oq:''}); S.profAll=false;
+ S.team.term=12; S.team.q=''; S.team.cat='all';
+ S.team.rows=[['214201',0,5],['931301',0,1],['311211',0,3],['332201',0,7],['241101',0,4]].map(([c,sa,fo])=>({prof:ix(c),saudi:sa,foreign:fo})).filter(r=>r.prof>0);
+ S.tab='team'; render();
+}
+
+function fillCompany3(){ // شركة معقّدة: 6 موارد بشرية بمسميات مختلفة + مهن موطّنة + مهن غير مرتبطة بالنشاط
+ const ix=c=>PROF.findIndex(p=>p[7]===c);
+ const g=suggestGroup('711013');
+ Object.assign(S.nit,{act:'711013',sug:g?'ok':'none',grp:g||S.nit.grp,year:2026,full:7,part:0,foreign:27,pq:'',oq:''}); S.profAll=false;
+ S.team.term=12; S.team.q=''; S.team.cat='all';
+ S.team.rows=[['121207',1,0],['242304',1,0],['242310',0,1],['121204',0,1],['242401',0,2],['431301',1,1],['214201',1,6],['311211',0,5],['241101',2,3],['332201',1,4],['512001',0,2],['333301',0,1],['321102',0,1]].map(([c,sa,fo])=>({prof:ix(c),saudi:sa,foreign:fo})).filter(r=>r.prof>0);
+ S.tab='comp'; render();
+}
 function quickDemo(){
- if(CLIENT) return; if(S.tab==='nit'||S.tab==='team'){const m0=document.getElementById('main'); if(m0&&!m0.querySelector('.demo')){const d0=document.createElement('div'); d0.className='demo'; d0.innerHTML='<b>'+tx('جاهز للمعاينة (نسخة المالك):','Ready-made preview (owner build):')+'</b><button type="button" id="demo-co">'+tx('شركة مثال كاملة — مطعم (نشاط ومجموعة وموظفون)','Full sample company — restaurant (activity, group, staff)')+'</button>'; m0.insertBefore(d0,m0.firstChild); document.getElementById('demo-co').addEventListener('click',fillCompany);} return;}
+ if(CLIENT) return; if(S.tab==='nit'||S.tab==='team'||S.tab==='comp'){const m0=document.getElementById('main'); if(m0&&!m0.querySelector('.demo')){const d0=document.createElement('div'); d0.className='demo'; d0.innerHTML='<b>'+tx('جاهز للمعاينة (نسخة المالك):','Ready-made preview (owner build):')+'</b><button type="button" id="demo-co">'+tx('شركة مثال كاملة — مطعم (نشاط ومجموعة وموظفون)','Full sample company — restaurant (activity, group, staff)')+'</button>'+'<button type="button" id="demo-co2">'+tx('شركة مثال — مهن موطّنة كثيرة (هندسة وفنيون ومبيعات ومحاسبة)','Sample company — many localised professions (engineering, technicians, sales, accounting)')+'</button>'+'<button type="button" id="demo-co3">'+tx('شركة مثال معقّدة — 6 موارد بشرية بمسميات مختلفة + مهن غير مرتبطة بالنشاط + لوحة الامتثال','Complex sample company — 6 HR staff with different titles + professions outside the activity + compliance board')+'</button>'; m0.insertBefore(d0,m0.firstChild); document.getElementById('demo-co').addEventListener('click',fillCompany); document.getElementById('demo-co2').addEventListener('click',fillCompany2); document.getElementById('demo-co3').addEventListener('click',fillCompany3);} return;}
  if(!['lump','cost'].includes(S.tab)) return; const m=document.getElementById('main'); if(!m||m.querySelector('.demo')) return;
  const d=document.createElement('div'); d.className='demo';
  d.innerHTML='<b>'+tx('جاهز للمعاينة (نسخة المالك):','Ready-made preview (owner build):')+'</b>'+[[1,0,tx('مهنة موطّنة — نقل كفالة','Localised profession — transfer')],[1,1,tx('مهنة موطّنة — استقدام','Localised profession — recruitment')],[0,0,tx('مهنة غير موطّنة — نقل كفالة','Non-localised profession — transfer')],[0,1,tx('مهنة غير موطّنة — استقدام','Non-localised profession — recruitment')]].map(x=>`<button type="button" data-demo="${x[0]}${x[1]}">${x[2]}</button>`).join('');
@@ -1063,15 +1159,15 @@ function cleanClient(){
   if(v!==o) x.nodeValue=v;});
  document.querySelectorAll('.pill.warn').forEach(e=>{if(/مسودة|Draft|بانتظار|await/i.test(e.textContent)) e.remove();});
 }
-function render(focusId){ try{ __render(focusId); stepify(); markRequired(); quickDemo(); }finally{ cleanClient(); } }
+function render(focusId){ try{ __render(focusId); stepify(); markRequired(); quickDemo(); compWire(); }finally{ cleanClient(); } }
 function __render(focusId){
   $('#app').dir=L==='ar'?'rtl':'ltr'; $('#app').lang=L;
   $('#t-title').textContent=t('title'); $('#t-sub').textContent=t('sub'); $('#t-notice').textContent=t('notice'); $('#t-foot').textContent=t('foot');
   document.title=t('title');
   ['ar','en','fr','zh'].forEach(k=>$('#lang-'+k).setAttribute('aria-pressed',L===k));
   $('#tabs').innerHTML=Object.keys(T.tabs).map(k=>`<button role="tab" data-tab="${k}" aria-selected="${S.tab===k}">${L==='ar'?T.tabs[k][0]:(L==='en'?T.tabs[k][1]:trn(T.tabs[k][1]))}</button>`).join('');
-  const views={lump:viewLump,cost:viewCost,nit:viewNit,prof:viewProf,hire:viewHire,team:viewTeam,ot:viewOt,rent:viewRent,guides:viewGuides};
-  $('#main').innerHTML=(S.tab==='nit'?barHtml():['prof','hire','team','guides'].includes(S.tab)?compactBar():'')+gate(views[S.tab]())+(CLIENT?'':`<p style="margin-top:18px;text-align:center"><button class="btn" id="own" title="${tx('وضع المالك (للمعاينة فقط)','Owner mode (preview only)')}" style="font-size:11px;padding:2px 10px;opacity:${S.owner?1:.45}">⚙ ${S.owner?tx('إخفاء وضع المالك','Hide owner mode'):''}</button></p>`);
+  const views={lump:viewLump,cost:viewCost,nit:viewNit,prof:viewProf,hire:viewHire,team:viewTeam,comp:viewComp,ot:viewOt,rent:viewRent,guides:viewGuides};
+  $('#main').innerHTML=(S.tab==='nit'?barHtml():['prof','hire','team','comp','guides'].includes(S.tab)?compactBar():'')+gate(views[S.tab]())+(CLIENT?'':`<p style="margin-top:18px;text-align:center"><button class="btn" id="own" title="${tx('وضع المالك (للمعاينة فقط)','Owner mode (preview only)')}" style="font-size:11px;padding:2px 10px;opacity:${S.owner?1:.45}">⚙ ${S.owner?tx('إخفاء وضع المالك','Hide owner mode'):''}</button></p>`);
   if(!CLIENT) document.getElementById('own').addEventListener('click',()=>{S.owner=!S.owner;render();});
   const re=id=>render(id);
   if(CLIENT) S.profAll=false;
