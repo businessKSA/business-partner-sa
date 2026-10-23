@@ -1,10 +1,14 @@
 // Vercel Serverless Function — online payments (Moyasar) for Business Partner 3.0.
 // ESM module (repo package.json has "type": "module").
 //
-// Payment is online only (owner's order, 2026-09-24): mada / Visa / Mastercard /
-// Apple Pay / Samsung Pay through the Moyasar form, plus Tamara instalments.
-// The new /checkout offers no bank transfer; `receipt-upload` in api/_simple.js
-// stays only for requests that started a transfer before that decision.
+// Payment methods (owner's order, 2026-10-23, which reverses the 2026-09-24 "online
+// only" rule): mada / Visa / Mastercard / Apple Pay / Samsung Pay / Google Pay through
+// the Moyasar form, Tamara instalments, and a BANK TRANSFER with receipt upload —
+// POST {action:"bank-receipt"} opens the order «بانتظار التحقق», api/_bank-transfer.js
+// compares amount / beneficiary / IBAN on the receipt, and a full match settles and
+// invoices through the same path the card uses; anything else goes to a person
+// (POST {action:"bank-approve"}, signed, called by «تأكيد الدفع» in api/_simple.js).
+// `receipt-upload` in api/_simple.js remains for signed-quotation requests.
 //
 // Env vars:
 //   MOYASAR_PUBLISHABLE_KEY  pk_live_... / pk_test_...  → enables the checkout form
@@ -34,7 +38,8 @@ import { PAY_MOCK, payGuard, MODES } from "./_mode.js";
 import { contactForRef } from "./_stage.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { sb, DB_ON } from "./_db.js";
-import { markRequestPaidByRef, invoiceTargetFor } from "./_simple.js";
+import { markRequestPaidByRef, invoiceTargetFor, bankOrderRow, bankReceiptIntake, bankReceiptSeen, bankReceiptVerdict, readTransferReceipt } from "./_simple.js";
+import { bankDetails, acceptedNames, verifyTransfer, reasonText, sha256, readBankToken, throttle } from "./_bank-transfer.js";
 import { parseEmpSku, empOffer, empPrepare, empSessionEmail, empActivate, empBasketProblem, empBnplAllowed } from "./_emp-pay.js";
 
 // Simple V1: a cart line "sv1:BP-R-XXXXXX" is an approved, signed quotation.
@@ -101,9 +106,31 @@ const METHODS = (process.env.MOYASAR_METHODS || "creditcard")
 const SAMSUNG_PAY_SERVICE_ID = (process.env.MOYASAR_SAMSUNG_SERVICE_ID || "").trim();
 // Google Pay is only offered once its merchant ID exists, for the same reason.
 const GOOGLE_PAY_MERCHANT_ID = (process.env.MOYASAR_GOOGLE_MERCHANT_ID || "").trim();
-const PAY_METHODS = (METHODS.length ? METHODS : ["creditcard"])
+// A wallet identifier is a deliberate act (a Samsung Service ID takes an approval
+// round with Samsung; the Google merchant ID takes Google's). Having set one and
+// forgotten to also list the method in MOYASAR_METHODS used to drop the wallet
+// silently — the checkout kept saying it was not enabled. The identifier now
+// implies its method; listing a method WITHOUT its identifier is still dropped.
+const PAY_METHODS = [...new Set([
+  ...(METHODS.length ? METHODS : ["creditcard"]),
+  ...(SAMSUNG_PAY_SERVICE_ID ? ["samsungpay"] : []),
+  ...(GOOGLE_PAY_MERCHANT_ID ? ["googlepay"] : []),
+])]
   .filter((m) => m !== "samsungpay" || SAMSUNG_PAY_SERVICE_ID)
   .filter((m) => m !== "googlepay" || GOOGLE_PAY_MERCHANT_ID);
+// Why a wallet is not offered — codes only, never a value. The checkout words them
+// for the buyer, and anyone can read /api/pay to see which side of the fence the gap
+// is on: settings here, versus the Apple / Samsung / Moyasar steps code cannot do.
+function walletWhy(method, idSet) {
+  if (PAY_METHODS.includes(method)) return null;
+  if (METHODS.includes(method) && idSet === false) return "identifier_missing";
+  return "not_in_methods";
+}
+const WALLETS_STATE = () => ({
+  apple: { on: PAY_METHODS.includes("applepay"), why: walletWhy("applepay", true) },
+  samsung: { on: PAY_METHODS.includes("samsungpay"), why: walletWhy("samsungpay", !!SAMSUNG_PAY_SERVICE_ID) },
+  google: { on: PAY_METHODS.includes("googlepay"), why: walletWhy("googlepay", !!GOOGLE_PAY_MERCHANT_ID) },
+});
 // The name the buyer sees in the Apple Pay / Samsung Pay sheet — theirs is the
 // last screen before the money moves, so it says who is being paid.
 const APPLE_PAY_LABEL = process.env.MOYASAR_APPLE_PAY_LABEL || "Business Partner";
@@ -230,15 +257,14 @@ async function alertEmployerFailure(order, p, why) {
         <tr><td style="padding:4px 10px;color:#666">السبب</td><td style="padding:4px 10px"><b>${esc(why)}</b></td></tr>
       </table></div>`).catch(() => {});
 }
-async function settlePaidOrder(order, p) {
+// Prices a basket from the server's own sources — never the browser's numbers.
+// One place for it: the card/Tamara settle and the bank-transfer intake must
+// agree to the halala on what an order costs.
+async function priceBasket(order) {
   const ids = (Array.isArray(order.items) ? order.items : []).slice(0, 40)
     .map((it) => ({ id: String((it && it.id) || "").slice(0, 80), qty: Math.max(1, Math.min(99, Number(it && it.qty) || 1)) }))
     .filter((x) => x.id);
-  if (!ids.length) {
-    console.error("pay: settle skipped — no basket item carried an id; order.items was",
-      JSON.stringify((Array.isArray(order.items) ? order.items : []).slice(0, 8)));
-    return { ok: false, skipped: "no_items" };
-  }
+  if (!ids.length) return { ids };
   let priceMap = {};
   try { priceMap = await catalogPrices(); } catch { priceMap = {}; }
   let net = 0, unknown = !!empBasketProblem(ids);
@@ -276,8 +302,18 @@ async function settlePaidOrder(order, p) {
     : net;
   const cut = discountCut(Math.min(discBase, net), disc);
   net -= cut;
+  return { ids, net, unknown, names, lines, detail, emp, disc, expectedHalalas: Math.round(net * 1.15 * 100) };
+}
+async function settlePaidOrder(order, p, { by = "" } = {}) {
+  const priced = await priceBasket(order);
+  const { ids } = priced;
+  if (!ids.length) {
+    console.error("pay: settle skipped — no basket item carried an id; order.items was",
+      JSON.stringify((Array.isArray(order.items) ? order.items : []).slice(0, 8)));
+    return { ok: false, skipped: "no_items" };
+  }
+  const { net, unknown, names, detail, emp, disc, expectedHalalas } = priced;
   // Two riyals of tolerance for the rounding the cart and the form each do.
-  const expectedHalalas = Math.round(net * 1.15 * 100);
   const verified = !unknown && net > 0 && Math.abs(expectedHalalas - Number(p.amount || 0)) <= 200;
 
   // A subscription is switched on only when the charge matches the server's
@@ -307,6 +343,8 @@ async function settlePaidOrder(order, p) {
     company: String(order.company || (order.taxProfile && order.taxProfile.nameAr) || "").slice(0, 200),
     total: Math.round(Number(p.amount || 0)) / 100,
     ...(disc ? { disc: disc.code } : {}),
+    // A bank-transfer order was opened before it was paid; this says who approved it.
+    ...(String(p.id || "").startsWith("bank_") ? { bank_by: String(by || "المستشار الذكي").slice(0, 80) } : {}),
     ids: sealedIds, items: names,
     // For the request api/requests.js opens in /my and /ops from this payment.
     lines: detail, net: Math.round(net * 100) / 100,
@@ -319,7 +357,7 @@ async function settlePaidOrder(order, p) {
     });
     const j = await r.json().catch(() => ({}));
     if (!r.ok || !j.ok) return { ok: false, error: j.error || ("http_" + r.status), verified, ref: payload.ref, ...(employer ? { employer } : {}) };
-    if (verified) await sv1Settle(ids, p, String(p.id || "").startsWith("tamara_") ? "tamara" : "moyasar");
+    if (verified) await sv1Settle(ids, p, String(p.id || "").startsWith("tamara_") ? "tamara" : String(p.id || "").startsWith("bank_") ? "bank" : "moyasar");
     return { ok: true, already: !!j.already, verified, ref: payload.ref, activated: j.activated || null, request: j.request || null, ...(employer ? { employer } : {}) };
   } catch (e) {
     console.error("pay: settle call failed", String(e.message || e).slice(0, 160));
@@ -596,14 +634,14 @@ async function invoicePaidOrder(order, paidHalalas, payId = "", { alreadySettled
   if (!who.name || !isEmail(who.email)) return blocked("missing_buyer");
   const notes = [
     order.ref ? `مرجع الطلب: ${order.ref}` : "",
-    "مدفوعة إلكترونياً عبر الموقع",
+    String(payId).startsWith("bank_") ? "مدفوعة بحوالة بنكية" : "مدفوعة إلكترونياً عبر الموقع",
     who.isCompany ? `الرقم الضريبي: ${who.taxNumber}` : "",
     who.isCompany && who.address ? `العنوان الوطني: ${nationalAddressLine(who.address)}` : "",
     who.contact ? `الشخص المسؤول: ${who.contact}` : "",
   ].filter(Boolean).join("\n");
   return issuePaidInvoice({
     key: payId || order.ref,
-    draft: { ref: order.ref || "", payId, method: String(payId).startsWith("tamara_") ? "Tamara" : "Moyasar", buyer: who, items, notes },
+    draft: { ref: order.ref || "", payId, method: String(payId).startsWith("tamara_") ? "Tamara" : String(payId).startsWith("bank_") ? "Bank transfer" : "Moyasar", buyer: who, items, notes },
     target,
   });
 }
@@ -830,6 +868,128 @@ document.querySelectorAll('button[data-go]').forEach(function(b){b.onclick=funct
 </script></body></html>`);
 }
 
+// ---------------------------------------------------------------------------
+// Bank transfer from the cart (owner's order 2026-10-23 — it replaces the
+// 2026-09-24 "online only" decision). The buyer transfers to the company
+// account, uploads the receipt, and the order opens as «بانتظار التحقق». The
+// automatic agent then compares amount, beneficiary and IBAN on the receipt
+// (api/_bank-transfer.js): all three match → payment approved and the tax
+// invoice issued through the SAME settle the card uses; anything else → a person
+// reviews it, with the reason. The account details come from api/_identity.js
+// (BP_BANK_*), never from this file.
+function bankPublic() {
+  const d = bankDetails();
+  if (!d.enabled) return { enabled: false };
+  return { enabled: true, beneficiary: d.beneficiary, beneficiaryEn: d.beneficiaryEn, bank: d.bank, bankEn: d.bankEn, iban: d.iban, currency: "SAR" };
+}
+
+// Approve a bank order as paid — the one path both the automatic agent and a
+// person take. Same settle as a gateway payment (CRM row, activations, request
+// row → PAID) and the same invoice engine; nothing is invoiced unless it settled.
+async function finalizeBankOrder(order, payId, halalas, by) {
+  const p = { id: payId, amount: halalas, status: "paid", currency: "SAR" };
+  let settle = null, invoicing = null;
+  try { settle = await settlePaidOrder(order, p, { by }); }
+  catch (e) { console.error("pay: bank settle failed", String(e.message || e).slice(0, 160)); settle = { ok: false, error: "settle_failed" }; }
+  const ok = !!(settle && (settle.ok || settle.already));
+  if (ok) {
+    try { invoicing = await invoicePaidOrder(order, p.amount, p.id, { alreadySettled: !!(settle && settle.already) }); }
+    catch (e) { invoicing = { invoiced: false, reason: String(e.message || "invoice_failed") }; }
+  }
+  return { ok, settle, invoicing };
+}
+
+const BANK_ORDER_KEYS = ["ref", "name", "email", "phone", "company", "items", "surchargeFee", "discountCode", "taxProfile"];
+function bankSnapshot(order) {
+  const o = {};
+  for (const k of BANK_ORDER_KEYS) if (order[k] !== undefined) o[k] = order[k];
+  o.email = String(o.email || "").trim().toLowerCase().slice(0, 160);
+  o.items = (Array.isArray(o.items) ? o.items : []).slice(0, 40).map((it) => ({ id: String((it && it.id) || "").slice(0, 80), qty: Math.max(1, Math.min(99, Number(it && it.qty) || 1)) })).filter((x) => x.id);
+  // The tax profile can name a company; an oversized or malformed one is not stored.
+  try { if (JSON.stringify(o.taxProfile || {}).length > 3000) o.taxProfile = { kind: "personal" }; } catch { o.taxProfile = { kind: "personal" }; }
+  return o;
+}
+
+async function handleBankReceipt(req, res, b) {
+  const send = (code, obj) => { res.statusCode = code; return res.end(JSON.stringify(obj)); };
+  const cfg = bankDetails();
+  if (!cfg.enabled) return send(503, { ok: false, error: "bank_not_configured" });
+  if (!OTP_SECRET) return send(503, { ok: false, error: "not_configured" });
+  const order = (b.order && typeof b.order === "object") ? b.order : {};
+  const email = String(order.email || "").trim().toLowerCase();
+  const name = String(order.name || "").trim();
+  const ref = String(order.ref || "").trim().toUpperCase();
+  if (!isEmail(email) || name.length < 2 || !/^BP-[A-Z0-9]{4,14}$/.test(ref)) return send(400, { ok: false, error: "bad_order" });
+  const ip = String(req.headers["x-forwarded-for"] || (req.socket && req.socket.remoteAddress) || "").split(",")[0].trim() || "local";
+  if (!throttle("bankrcpt:" + ip, 12, 3600e3) || !throttle("bankrcpt-mail:" + email, 8, 24 * 3600e3)) return send(429, { ok: false, error: "slow_down" });
+
+  const f = (b.file && typeof b.file === "object") ? b.file : {};
+  const base64 = String(f.base64 || "").replace(/^data:[^;]+;base64,/, "");
+  if (!base64) return send(400, { ok: false, error: "no_file" });
+
+  // The price is the server's. The receipt is compared against THIS number.
+  const priced = await priceBasket(order);
+  if (!priced.ids.length) return send(400, { ok: false, error: "bad_order" });
+  if (priced.ids.some((x) => /^sv1:/i.test(x.id))) return send(400, { ok: false, error: "quote_payment_use_request" });
+  if (priced.ids.some((x) => parseEmpSku(x.id))) return send(400, { ok: false, error: "bank_not_for_plan" });
+  if (priced.unknown || !(priced.net > 0)) return send(400, { ok: false, error: "quote_only_items" });
+  const expectedHalalas = priced.expectedHalalas, expectedSar = expectedHalalas / 100;
+
+  const snap = bankSnapshot({ ...order, ref });
+  const payload = {
+    ref, payId: "bank_" + ref, verified: true, total: expectedSar, net: Math.round(priced.net * 100) / 100,
+    name: name.slice(0, 160), email, phone: String(order.phone || "").slice(0, 40),
+    company: String(order.company || (order.taxProfile && order.taxProfile.nameAr) || "").slice(0, 200),
+    ids: priced.ids.map((x) => ({ id: x.id, qty: x.qty })), items: priced.names, lines: priced.detail,
+    ...(priced.disc ? { disc: priced.disc.code } : {}),
+  };
+  const intake = await bankReceiptIntake({ payload, order: snap, file: { base64, name: f.name, mime: f.mime } });
+  if (!intake.ok) {
+    const e = intake.error || "intake_failed";
+    return send(intake.status || 502, { ok: false, error: e, ...(e === "too_large" ? { max: intake.max } : {}), ...(intake.row ? { ref: intake.row.ref } : {}) });
+  }
+  const row = intake.row;
+
+  const hash = sha256(Buffer.from(base64, "base64"));
+  const expected = { amount: expectedSar, iban: cfg.iban, names: acceptedNames(), bank: cfg.bank, orderRef: ref };
+  const v = await verifyTransfer({ base64, mime: String(f.mime || ""), name: String(f.name || ""), expected }, readTransferReceipt);
+  const reasons = [...v.reasons];
+  if (await bankReceiptSeen({ hash, bankRef: v.read && v.read.reference, exceptRef: row.ref })) reasons.push("duplicate_receipt");
+  const verdict = (extra, auto) => bankReceiptVerdict(row, {
+    att: intake.rec.id, hash, auto, reasons: extra, reasonsAr: extra.map((c) => reasonText(c, "ar")),
+    checks: v.checks, read: v.read, provider: v.provider, source: v.source, expected: { amount: expectedSar },
+  });
+  let auto = v.verdict === "match" && !reasons.length, fin = null;
+  await verdict(reasons, auto);
+  if (auto) {
+    fin = await finalizeBankOrder(snap, "bank_" + ref, expectedHalalas, "المستشار الذكي");
+    if (!fin.ok) { auto = false; reasons.push("settle_failed"); await verdict(reasons, false); }
+  }
+  const after = (await bankOrderRow(ref)) || row;
+  return send(200, {
+    ok: true, state: auto ? "approved" : "review",
+    ref: row.ref, orderRef: ref, amount: expectedSar, requestStatus: after.status,
+    reasons, checks: Object.fromEntries(Object.entries(v.checks || {}).map(([k, c]) => [k, !!(c && (c.ok || c.matched))])),
+    ...(fin && fin.invoicing ? { invoice: fin.invoicing } : {}),
+    ...(fin && fin.settle ? { settle: { ok: !!fin.settle.ok, ref: fin.settle.ref || "", request: fin.settle.request || null } } : {}),
+  });
+}
+
+async function handleBankApprove(res, b) {
+  const send = (code, obj) => { res.statusCode = code; return res.end(JSON.stringify(obj)); };
+  const t = readBankToken(b.t);
+  if (!t || !t.ref || !t.orderRef) return send(401, { ok: false, error: "bad_token" });
+  const row = await bankOrderRow(t.orderRef);
+  if (!row || row.ref !== t.ref) return send(404, { ok: false, error: "not_found" });
+  const pay = row.payment || {};
+  if (String(pay.status || "").toUpperCase() === "PAID") return send(200, { ok: true, already: true });
+  if (!pay.bank_order || !pay.pay_ref) return send(409, { ok: false, error: "no_order" });
+  const sar = t.amount != null && Number.isFinite(Number(t.amount)) ? Number(t.amount) : Number(pay.expected_total);
+  if (!(sar > 0)) return send(409, { ok: false, error: "no_amount" });
+  const fin = await finalizeBankOrder(pay.bank_order, pay.pay_ref, Math.round(sar * 100), String(t.actor || "فريق Business Partner").slice(0, 80));
+  return send(fin.ok ? 200 : 502, { ok: fin.ok, ...(fin.ok ? {} : { error: (fin.settle && fin.settle.error) || "settle_failed" }), ...(fin.invoicing ? { invoice: fin.invoicing } : {}) });
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   // Called cross-origin from the brand's own domains only (the compliance
@@ -865,7 +1025,7 @@ export default async function handler(req, res) {
     const guard = payGuard();
     if (!guard.ok) {
       res.statusCode = 503;
-      return res.end(JSON.stringify({ enabled: false, error: guard.error, message: guard.message }));
+      return res.end(JSON.stringify({ enabled: false, error: guard.error, message: guard.message, bank: bankPublic(), wallets: WALLETS_STATE() }));
     }
     // Local development with no Moyasar key: the checkout still opens, but on a
     // gateway served by this server. Nothing leaves the machine and no card is
@@ -876,6 +1036,7 @@ export default async function handler(req, res) {
         enabled: true, provider: "local-mock", mock: true, canVerify: true, modeMatch: true,
         publishableKey: null, formUrl: "/api/pay?action=mock-form",
         currency: "SAR", methods: ["creditcard"], applePay: null, samsungPay: null, googlePay: null,
+        wallets: WALLETS_STATE(), bank: bankPublic(),
         bnpl: { tamara: tamaraConfigured() }, modes: MODES(),
       }));
     }
@@ -913,6 +1074,10 @@ export default async function handler(req, res) {
       // Installments (BNPL): Tamara flips on the day its key lands in Vercel —
       // until then the checkout shows its button as «قريباً».
       bnpl: { tamara: tamaraConfigured() },
+      // Per-wallet switch state with the reason code (never a value) — see WALLETS_STATE.
+      wallets: WALLETS_STATE(),
+      // The company account the buyer transfers to (public by nature), or {enabled:false}.
+      bank: bankPublic(),
     }));
   }
 
@@ -921,6 +1086,13 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ error: "method_not_allowed" }));
   }
 
+  const b = await readBody(req);
+
+  // Bank transfer needs no gateway key: a deployment whose Moyasar is not set up
+  // must still be able to take a transfer, so these answer before that check.
+  if (b.action === "bank-receipt") return handleBankReceipt(req, res, b);
+  if (b.action === "bank-approve") return handleBankApprove(res, b);
+
   // The local gateway issues and verifies its own ids (see below), so the
   // secret-key check is production's alone — without this exemption the
   // buyer's return from the local gateway was a 500 and nothing settled.
@@ -928,8 +1100,6 @@ export default async function handler(req, res) {
     res.statusCode = 500;
     return res.end(JSON.stringify({ ok: false, error: "not_configured" }));
   }
-
-  const b = await readBody(req);
 
   // ---- employer plan: open the pending subscription before the money moves --
   // Its reference becomes the order reference, so the payment metadata, the

@@ -32,6 +32,7 @@ import { isOwnerEmail } from "./_trial.js";
 import { waSend, waNumber } from "./_stage.js";
 import { storagePut, storageSign, storageDelete } from "./_db.js";
 import { readDocumentRaw, parseJson, DOC_MIME_OK, MAX_DOC_BYTES } from "./_docread.js";
+import { signBankToken } from "./_bank-transfer.js";
 import { validateSlot, bookingMessage, bookingConfig, manageToken } from "./_booking.js";
 import { normalizePhone } from "./_clientauth.js";
 
@@ -76,6 +77,8 @@ const PAID_STATES = ["PAID", "AUTHORIZED", "CAPTURED", "APPROVED", "COMPLETED", 
 function moneyReceived(row) {
   const p = row && row.payment;
   if (p && (PAID_STATES.includes(String(p.status || "").toUpperCase()) || p.paid_at)) return true;
+  // حوالة بنكية رفع العميل إيصالها: المال في الغالب خرج منه، فلا يُلغى الطلب فوراً بلا نظر الفريق.
+  if (p && p.provider === "bank" && p.receipt) return true;
   return !!(row && row.invoice && row.invoice.number);
 }
 // "now" | "ask" | "closed" — the one place that decides; the portal only words it.
@@ -976,17 +979,8 @@ async function clientAction(action, b, qs, req, res, sess) {
       url = (await storageSign(path, 60 * 60 * 24 * 60)) || "";
     } catch (e) { console.error("receipt store", String(e.message || e).slice(0, 160)); }
 
-    const prompt = [
-      "هذا إيصال/إشعار تحويل بنكي. أعِد JSON فقط بلا أي نص آخر بالمفاتيح:",
-      '{"amount":number|null,"currency":string|null,"date":string|null,"sender":string|null,',
-      '"beneficiary":string|null,"bank":string|null,"reference":string|null,"is_receipt":boolean}',
-      "amount هو المبلغ المحوَّل بالأرقام بلا فواصل. إن لم تجد قيمة ضعها null. لا تخمّن.",
-    ].join(" ");
-    let read = null, provider = "";
-    try {
-      const raw = await readDocumentRaw(base64, mime, prompt, 500);
-      if (raw && raw.ok) { read = parseJson(String(raw.data || "")); provider = raw.provider || ""; }
-    } catch (e) { console.error("receipt read", String(e.message || e).slice(0, 160)); }
+    const got = await readTransferReceipt(base64, mime);
+    const read = got.ok ? got.read : null, provider = got.provider || "";
 
     const amount = read && Number.isFinite(Number(read.amount)) ? round2(Number(read.amount)) : null;
     const diff = amount == null ? null : round2(amount - total);
@@ -1358,6 +1352,31 @@ function defaultTitle(type, lang) {
 }
 const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
+// قراءة إيصال حوالة بنكية: آلةٌ واحدة يستعملها «إيصال تحويل مرفوع» على طلبٍ بعرض سعر
+// (action receipt-upload أدناه) وحوالة السلة (api/pay.js bank-receipt عبر
+// api/_bank-transfer.js). تعيد ما كتبه المصرف على الإيصال، لا أكثر؛ المقارنة بالمبلغ
+// والمستفيد والآيبان تجري عند المنادي. القراءة ليست إثباتاً لوصول المال.
+export const RECEIPT_PROMPT = [
+  "هذا إيصال/إشعار تحويل بنكي. أعِد JSON فقط بلا أي نص آخر بالمفاتيح:",
+  '{"amount":number|null,"currency":string|null,"date":string|null,"sender":string|null,',
+  '"beneficiary":string|null,"bank":string|null,"iban":string|null,"reference":string|null,"is_receipt":boolean}',
+  "amount هو المبلغ المحوَّل بالأرقام بلا فواصل. beneficiary اسم المستفيد كما كُتب. iban آيبان المستفيد كاملاً كما ظهر (لا آيبان المُرسِل).",
+  "إن لم تجد قيمة ضعها null. لا تخمّن ولا تُكمل رقماً ناقصاً.",
+].join(" ");
+export async function readTransferReceipt(base64, mime) {
+  try {
+    const raw = await readDocumentRaw(base64, mime, RECEIPT_PROMPT, 600);
+    if (raw && raw.ok) {
+      const read = parseJson(String(raw.data || ""));
+      return read ? { ok: true, read, provider: raw.provider || "" } : { ok: false, error: "unparseable", provider: raw.provider || "" };
+    }
+    return { ok: false, error: raw && raw.error === "not_configured" ? "unavailable" : (raw && raw.error) || "unavailable" };
+  } catch (e) {
+    console.error("receipt read", String((e && e.message) || e).slice(0, 160));
+    return { ok: false, error: "unavailable" };
+  }
+}
+
 // Shared by the test payment and by the real gateway settle (api/pay.js
 // calls markRequestPaidByRef after Moyasar/Tamara confirm a `sv1:<ref>` line).
 //
@@ -1379,8 +1398,9 @@ function invoiceDraftForRequest(row, payment) {
     name: str(partyName(row), 160),
     email: str(row.client_email, 160), phone: str(row.client_phone, 40),
   };
-  const notes = [`مرجع الطلب: ${row.ref}`, `عرض السعر: ${row.quote?.number || ""}`, "مدفوعة إلكترونياً عبر الموقع"].filter(Boolean).join("\n");
-  return { ref: row.ref, payId: payment.ref || "", method: payment.provider === "tamara" ? "Tamara" : "Moyasar", buyer, items, notes };
+  const bank = /^bank/i.test(String(payment.provider || ""));
+  const notes = [`مرجع الطلب: ${row.ref}`, `عرض السعر: ${row.quote?.number || ""}`, bank ? "مدفوعة بحوالة بنكية" : "مدفوعة إلكترونياً عبر الموقع"].filter(Boolean).join("\n");
+  return { ref: row.ref, payId: payment.ref || "", method: payment.provider === "tamara" ? "Tamara" : bank ? "Bank transfer" : "Moyasar", buyer, items, notes };
 }
 
 // What the invoice engine needs to know about a request row.
@@ -1580,7 +1600,10 @@ async function cartRequestOnce(d, key) {
   const payId = str(d.payId, 64), orderRef = str(d.ref, 40);
   const verified = !!d.verified;
   const email = String(d.email || "").trim().toLowerCase();
-  const provider = /^tamara_/i.test(payId) ? "tamara" : "moyasar";
+  // حوالة بنكية (2026-10-23): `d.bank.pending` = الطلب يُفتح الآن بانتظار التحقق من الإيصال ولم
+  // يُعتمد دفعه؛ و`bank_<مرجع>` بلا pending = الاعتماد (آلي أو بإنسان) على طلبٍ فُتح قبلاً.
+  const bankIn = d.bank && d.bank.pending ? d.bank : null;
+  const provider = bankIn || /^bank_/i.test(payId) ? "bank" : /^tamara_/i.test(payId) ? "tamara" : "moyasar";
 
   // Idempotency: the same payment always maps to the same reference.
   let ref = "", existing = null;
@@ -1592,7 +1615,11 @@ async function cartRequestOnce(d, key) {
     if (p.source === "cart" && (p.pay_ref || p.order_ref) === (payId || orderRef)) { existing = hit; break; }
     ref = ""; // a random BP-R- reference took this one — try the next salt
   }
-  if (existing) return { ok: true, ref: existing.ref, created: false, status: existing.status, documents: (existing.documents || []).length };
+  if (existing) {
+    // اعتماد حوالةٍ فُتح طلبها بانتظار التحقق: الصفّ نفسه يصير مدفوعاً، لا يُفتح ثانٍ.
+    if (provider === "bank" && !bankIn) return settleBankRow(existing, d);
+    return { ok: true, ref: existing.ref, created: false, status: existing.status, documents: (existing.documents || []).length };
+  }
   if (!ref) return { ok: false, error: "ref_collision" };
 
   const refs = await cartRefs();
@@ -1650,19 +1677,25 @@ async function cartRequestOnce(d, key) {
     } catch { /* unlinked rows are claimed by e-mail */ }
   }
 
-  const test = PAY_MOCK() || (provider === "tamara" && TAMARA_MOCK());
+  const test = provider === "bank" ? false : PAY_MOCK() || (provider === "tamara" && TAMARA_MOCK());
   const payment = {
-    status: "PAID", provider, ref: payId, amount: paid, currency: "SAR", at: nowIso(), test,
+    status: bankIn ? "REVIEW" : "PAID", provider, ref: payId, amount: paid, currency: "SAR", at: nowIso(), test,
     source: "cart", order_ref: orderRef, pay_ref: payId, verified,
     items: items.map(({ formation, consult, ...keep }) => keep), net, vat, total: paid, net_estimated: !(verified && d.net != null),
     ...(d.disc ? { discount_code: str(d.disc, 30) } : {}),
+    // لقطة الطلب كما أرسلتها الصفحة: بها وحدها يُعاد تسعير الطلب وتصدر الفاتورة إن اعتمده إنسان لاحقاً.
+    ...(bankIn ? { expected_total: paid, bank_order: bankIn.order } : {}),
   };
   const at = nowIso();
   const row = {
     ref, organization_id: orgId, user_id: userId, type, source: "WEBSITE",
-    status: verified ? "PAID" : "REVIEWING", lang: "ar", title,
-    summary: `شراء مباشر بالسلة — رقم عملية الدفع ${payId || "—"} · الإجمالي ${paid} ر.س شامل الضريبة.`,
-    conversation: [{ role: "bp", content: verified
+    status: bankIn ? "PAYMENT_PENDING" : verified ? "PAID" : "REVIEWING", lang: "ar", title,
+    summary: bankIn
+      ? `حوالة بنكية من السلة — مرجع الطلب ${orderRef} · الإجمالي ${paid} ر.س شامل الضريبة · بانتظار التحقق من الإيصال.`
+      : `شراء مباشر بالسلة — رقم عملية الدفع ${payId || "—"} · الإجمالي ${paid} ر.س شامل الضريبة.`,
+    conversation: [{ role: "bp", content: bankIn
+      ? "استلمنا إيصال حوالتك وطلبك بانتظار التحقق. حين يتطابق المبلغ والمستفيد والآيبان نعتمد الدفع ونصدر فاتورتك الضريبية ونبدأ التنفيذ؛ وإن احتاج الإيصال نظراً بشرياً فنخبرك بالسبب هنا. لا حاجة لإعادة الدفع."
+      : verified
       ? "تم الدفع واستُلم مبلغ طلبك. سنبدأ التنفيذ بعد استلام المستندات المطلوبة (إن وُجدت) ونبلغك بكل تحديث هنا."
       : "تم استلام دفعتك، لكن مبلغها لم يُطابَق آلياً مع الأسعار المعتمدة، فيراجعه فريقنا قبل بدء التنفيذ. لا حاجة لإعادة الدفع.", at }],
     scope, documents, payment,
@@ -1683,9 +1716,14 @@ async function cartRequestOnce(d, key) {
   if (!created) return { ok: false, error: "insert_empty" };
 
   await logEvent(created.id, "system", "السلة", "request.created.cart", { source: "cart", order_ref: orderRef, pay_ref: payId, items: items.length, verified });
-  await logEvent(created.id, "system", provider, "payment.paid", { provider, payId, amount: paid, order_ref: orderRef });
+  if (bankIn) await logEvent(created.id, "system", "حوالة بنكية", "payment.pending", { provider, payId, amount: paid, order_ref: orderRef });
+  else await logEvent(created.id, "system", provider, "payment.paid", { provider, payId, amount: paid, order_ref: orderRef });
   if (documents.length) await logEvent(created.id, "system", "النظام", "documents.requested", { documents: documents.map((x) => x.title) });
   await audit({ organization_id: orgId, actor_user_id: userId, action: "simple.request.cart", entity: "requests", entity_id: created.id, meta: { ref, order_ref: orderRef, pay_ref: payId } });
+
+  // حوالة بانتظار التحقق: لا مهمة «ابدأ التنفيذ» ولا «استلمنا دفعتك» قبل أن يُعتمد الدفع —
+  // يفتح bankReceiptVerdict المهمة البشرية بسببها إن لزم، ويعلن settleBankRow الاعتماد.
+  if (bankIn) return { ok: true, ref, created: true, status: created.status, documents: documents.length };
 
   // The team: one task, whichever way the money stands.
   try {
@@ -1712,6 +1750,148 @@ async function cartRequestOnce(d, key) {
   } catch (e) { console.error("simple: cart announce", String((e && e.message) || e).slice(0, 100)); }
 
   return { ok: true, ref, created: true, status: created.status, documents: documents.length };
+}
+
+// ------------------------------------------------- حوالة بنكية من السلة (2026-10-23) --
+// أمر المالك أعاد التحويل البنكي مع رفع الإيصال. الطلب يُفتح **بانتظار التحقق** حال رفع
+// الإيصال (PAYMENT_PENDING · payment.status REVIEW · provider bank)، ثم:
+//   • تطابق المبلغ والمستفيد والآيبان → api/pay.js يعتمد الدفع بالمسار نفسه الذي يسلكه دفع
+//     البطاقة (settlePaidOrder ثم الفاتورة)، فيصل createCartRequest بمفتاح `bank_<مرجع>`
+//     إلى الصفّ نفسه فيحوّله settleBankRow إلى مدفوع؛
+//   • أي اختلاف → يبقى الصفّ بانتظار التحقق وتُفتح مهمة بشرية بالسبب (bankReceiptVerdict)،
+//     ويعتمده الفريق من «تأكيد الدفع» في اللوحة (ops-mark-paid) فيُحوَّل إلى api/pay.js.
+// ما يكتبه المنسّق (api/pay.js) هنا يمرّ بهذه الدوال وحدها.
+export async function bankOrderRow(orderRef) {
+  if (!DB_ON) return null;
+  const want = "bank_" + str(orderRef, 40);
+  try {
+    for (let salt = 0; salt < 3; salt++) {
+      const hit = await getByRef(cartRequestRef(want, salt));
+      if (!hit) return null;
+      const p = hit.payment || {};
+      if (p.source === "cart" && p.pay_ref === want) return hit;
+    }
+  } catch { /* no row */ }
+  return null;
+}
+
+// يفتح (أو يعيد) صفّ الحوالة ويُلحق به ملف الإيصال. لا يقرأ الإيصال ولا يقرّر شيئاً.
+export async function bankReceiptIntake({ payload, order, file }) {
+  if (!DB_ON) return { ok: false, status: 503, error: "db_off" };
+  const ref = str(payload.ref, 40);
+  const email = String(payload.email || "").toLowerCase();
+  let row = await bankOrderRow(ref), created = false;
+  if (row) {
+    const owner = String((row.payment && row.payment.bank_order && row.payment.bank_order.email) || row.client_email || "").toLowerCase();
+    if (owner && owner !== email) return { ok: false, status: 409, error: "ref_taken" };
+    if (String((row.payment || {}).status || "").toUpperCase() === "PAID") return { ok: false, status: 409, error: "already_paid", row };
+    if (row.status === "CANCELLED") return { ok: false, status: 409, error: "request_closed", row };
+  } else {
+    const out = await createCartRequest({ ...payload, payId: "bank_" + ref, bank: { pending: true, order } });
+    if (!out || !out.ok || !out.ref) return { ok: false, status: 502, error: (out && out.error) || "create_failed" };
+    row = await getByRef(out.ref);
+    created = !!out.created;
+    if (!row) return { ok: false, status: 502, error: "create_failed" };
+  }
+  const all = Array.isArray(row.attachments) ? row.attachments : [];
+  if (all.filter((a) => a && a.kind === "receipt").length >= 8) return { ok: false, status: 409, error: "too_many_files", row };
+  const stored = await storeUpload(row, file, { kind: "receipt", by: "customer", note: "إيصال حوالة بنكية" });
+  if (!stored.ok) return { ok: false, status: stored.status, error: stored.error, max: stored.max, row, created };
+  const upd = await patchRequest(row.id, { attachments: [...all, stored.rec].slice(-UPLOAD_CAP) });
+  return { ok: true, row: upd || row, rec: stored.rec, created };
+}
+
+// هل رُفع هذا الإيصال (بصمة الملف أو رقم مرجع المصرف المكتوب فيه) على طلبٍ آخر؟
+export async function bankReceiptSeen({ hash, bankRef, exceptRef }) {
+  if (!DB_ON || (!hash && !bankRef)) return false;
+  try {
+    const rows = await sb("requests?payment=not.is.null&select=ref,payment&order=created_at.desc&limit=600");
+    const key = String(bankRef || "").replace(/\s/g, "").toUpperCase();
+    return (rows || []).some((r) => {
+      if (!r || r.ref === exceptRef) return false;
+      const rc = r.payment && r.payment.provider === "bank" && r.payment.receipt;
+      if (!rc) return false;
+      if (hash && rc.hash === hash) return true;
+      const k = String((rc.read && rc.read.reference) || "").replace(/\s/g, "").toUpperCase();
+      return !!(key && key.length >= 8 && k === key);
+    });
+  } catch { return false; }
+}
+
+const slimRead = (r) => (r ? {
+  amount: r.amount == null ? null : round2(num(r.amount)), currency: r.currency || null, date: r.date || null,
+  beneficiary: r.beneficiary ? str(r.beneficiary, 120) : null, bank: r.bank ? str(r.bank, 80) : null,
+  iban: r.iban ? String(r.iban).replace(/\s/g, "").slice(0, 4) + "…" + String(r.iban).replace(/\s/g, "").slice(-4) : null,
+  reference: r.reference ? str(r.reference, 60) : null, sender: r.sender ? str(r.sender, 80) : null,
+} : null);
+
+// يحفظ نتيجة التحقق على الصفّ. `auto` = الوكيل الآلي وجد كل شيء مطابقاً (الاعتماد يتمّ بعدها
+// في api/pay.js)؛ غير ذلك = يبقى بانتظار التحقق وتُفتح مهمة بشرية بالأسباب.
+export async function bankReceiptVerdict(row, v) {
+  const at = nowIso();
+  const receipt = {
+    at, att: v.att || "", hash: v.hash || "", verdict: v.auto ? "match" : "review", reasons: v.reasons || [],
+    checks: v.checks || {}, read: slimRead(v.read), provider: v.provider || "", source: v.source || "",
+    expected: v.expected || null,
+  };
+  const payment = { ...(row.payment || {}), status: "REVIEW", provider: "bank", at, receipt };
+  const upd = (await patchRequest(row.id, { payment })) || { ...row, payment };
+  await logEvent(row.id, "ai", "المستشار الذكي", "payment.receipt", { verdict: receipt.verdict, reasons: receipt.reasons, provider: receipt.provider });
+  if (v.auto) return upd;
+  const why = (v.reasonsAr || []).join(" · ") || "يحتاج نظراً بشرياً";
+  const need = receipt.expected && receipt.expected.amount != null ? receipt.expected.amount : "—";
+  await sweepTask(upd, {
+    source: "bank-review", urgency: "high", human: true,
+    title: (r) => `راجع إيصال حوالة بنكية — ${r.ref}`,
+    details: () => `الوكيل الآلي لم يعتمد الإيصال: ${why}. المبلغ المطلوب ${need} ر.س. افتح الإيصال المرفق وتأكّد من وصول المال في كشف الحساب، ثم اضغط «تأكيد الدفع» (يصدر الفاتورة آلياً) أو ألغِ الطلب.`,
+  }, "المستشار الذكي");
+  await announce(upd, "bank-review", {
+    subject: `استلمنا إيصال حوالتك — ${row.ref}`,
+    clientLine: `استلمنا إيصال حوالتك وطلبك ${row.ref} بانتظار التحقق. سبب المراجعة البشرية: ${why}. لا حاجة لإعادة التحويل، ونبلغك فور الاعتماد.`,
+    opsLine: `إيصال حوالة بنكية يحتاج مراجعة بشرية (${why}) — المبلغ المطلوب ${need} ر.س.`,
+    cta: "افتح طلبك",
+  });
+  return upd;
+}
+
+// اعتماد الدفع على صفّ فُتح بانتظار التحقق (يُستدعى من createCartRequest حين تصله دفعة bank_*).
+async function settleBankRow(row, d) {
+  const payId = str(d.payId, 64);
+  const p0 = row.payment || {};
+  if (String(p0.status || "").toUpperCase() === "PAID") return { ok: true, ref: row.ref, created: false, status: row.status, documents: (row.documents || []).length };
+  const paid = round2(num(d.total)), verified = !!d.verified, at = nowIso();
+  const by = str(d.bank_by || "المستشار الذكي", 80);
+  const auto = by === "المستشار الذكي";
+  const payment = { ...p0, status: "PAID", ref: payId, pay_ref: payId, amount: paid, total: paid, at, paid_at: at, verified, net_estimated: !(verified && d.net != null), confirmed_by: by };
+  const content = verified
+    ? `اعتُمد دفع حوالتك (${paid} ر.س شامل الضريبة) ${auto ? "بعد أن طابق المستشار الذكي المبلغ والمستفيد والآيبان في الإيصال" : "من فريقنا"}. تصلك فاتورتك الضريبية على بريدك، وسنبدأ التنفيذ بعد استلام المستندات المطلوبة (إن وُجدت).`
+    : "اعتُمد استلام حوالتك، لكن مبلغها لم يُطابَق آلياً مع الأسعار المعتمدة، فيراجعه فريقنا قبل بدء التنفيذ. لا حاجة لإعادة التحويل.";
+  const conversation = normConversation([...(row.conversation || []), { role: "bp", content, at }]);
+  const upd = (await patchRequest(row.id, { payment, status: verified ? "PAID" : "REVIEWING", conversation })) || { ...row, payment };
+  await logEvent(row.id, "system", auto ? "المستشار الذكي" : by, "payment.paid", { provider: "bank", payId, amount: paid, order_ref: p0.order_ref, by });
+  try { await sb(`tasks?request_id=eq.${row.id}&source=eq.bank-review&status=in.(open,in_progress,blocked)`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: nowIso() } }); } catch { /* stays open; harmless */ }
+  try {
+    await sweepTask(upd, verified ? PLAY.PAID : {
+      source: "cart-review", title: (r) => `راجع دفعة السلة — ${r.ref}`,
+      details: () => `حوالة بنكية معتمدة (${paid} ر.س) لكن مبلغها لم يُطابَق مع الكتالوج. راجع البنود ثم غيّر الحالة إلى «مدفوع».`,
+      human: true, urgency: "high",
+    }, "النظام");
+    // الإيصال مقروء بالذكاء الاصطناعي وليس إثباتاً لوصول المال: مهمة هادئة لمطابقتها بكشف الحساب.
+    if (auto) await sweepTask(upd, {
+      source: "bank-reconcile", urgency: "normal", human: true,
+      title: (r) => `طابق الحوالة بكشف الحساب — ${r.ref}`,
+      details: () => `اعتُمدت هذه الحوالة آلياً من قراءة الإيصال (${paid} ر.س). طابقها بكشف الحساب البنكي؛ فإن لم تصل فعلاً ألغِ الطلب وأوقف التنفيذ.`,
+    }, "المستشار الذكي");
+  } catch (e) { console.error("simple: bank settle task", String((e && e.message) || e).slice(0, 100)); }
+  try {
+    await announce(upd, "cart-paid", {
+      subject: verified ? `اعتُمد دفعك — طلبك ${row.ref}` : `استلمنا حوالتك وطلبك قيد المراجعة — ${row.ref}`,
+      clientLine: verified ? `اعتُمد دفع حوالتك (${paid} ر.س شامل الضريبة) وسجّلنا طلبك «${row.title}». نبلغك حين يبدأ التنفيذ.` : `استلمنا حوالتك (${paid} ر.س) وطلبك «${row.title}» قيد المراجعة قبل التنفيذ — لا تحوّل مرة أخرى.`,
+      opsLine: `حوالة بنكية معتمدة${auto ? " آلياً" : ` (${by})`}: ${row.title} — ${paid} ر.س${verified ? "" : " ⚠️ المبلغ لم يُطابَق مع الكتالوج — راجعه"}.`,
+      cta: "افتح طلبك", clientEmail: false, opsEmail: false,
+    });
+  } catch (e) { console.error("simple: bank announce", String((e && e.message) || e).slice(0, 100)); }
+  return { ok: true, ref: row.ref, created: false, status: upd.status, documents: (row.documents || []).length };
 }
 
 // ------------------------------------------------------- support hub (widget) --
@@ -1992,6 +2172,9 @@ async function runSweep({ actor = "المتابعة الذكية", limit = 400, 
     // A paid cart request held for review already has its own task; the
     // «pricing» play would tell the team to quote something already bought.
     if (row.status === "REVIEWING" && isCartRow(row)) continue;
+    // حوالة السلة بانتظار التحقق ليست «دفعاً لم يكتمل»: العميل حوّل ورفع الإيصال، ولها مهمتها
+    // البشرية (bank-review). التذكير «أعد المحاولة من حسابك» كان سيطلب منه التحويل مرة ثانية.
+    if (row.status === "PAYMENT_PENDING" && isCartRow(row) && row.payment && row.payment.provider === "bank") continue;
     // A support ticket is not a quotation: the «pricing» play would tell the
     // team to price a scope that does not exist, and the «new request» play
     // would open a second task beside the one the ticket opened itself.
@@ -2476,6 +2659,22 @@ async function opsAction(action, b, qs, req, res, opsUser) {
 
   if (action === "ops-mark-paid") {
     // Bank transfer or a payment confirmed outside the gateway.
+    // حوالة سلة بانتظار التحقق (لا عرض سعر لها): التسوية والفاتورة تعيشان في api/pay.js، فيُنادى
+    // بالرمز الذي لا يوقّعه إلا هذا الخادم بعد مفتاح اللوحة. تؤدي المسار نفسه الذي يسلكه الاعتماد الآلي.
+    if (!row.quote && isCartRow(row) && row.payment && row.payment.provider === "bank") {
+      if (String(row.payment.status || "").toUpperCase() === "PAID") return json(res, 409, { ok: false, error: "already_paid" });
+      const t = signBankToken({ ref: row.ref, orderRef: row.payment.order_ref, actor, amount: b.amount == null || b.amount === "" ? null : num(b.amount) });
+      if (!t) return json(res, 503, { ok: false, error: "not_configured" });
+      let j = {}, st = 0;
+      try {
+        const r = await fetch(`${SELF_BASE}/api/pay`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "bank-approve", t }) });
+        st = r.status; j = await r.json().catch(() => ({}));
+      } catch (e) { console.error("simple: bank-approve call", String((e && e.message) || e).slice(0, 120)); }
+      if (!j.ok) return json(res, st && st !== 200 ? st : 502, { ok: false, error: j.error || "approve_failed" });
+      const after = (await getByRef(row.ref)) || row;
+      await logEvent(row.id, "human", actor, "payment.confirmed.bank", { provider: "bank" });
+      return json(res, 200, { ok: true, status: after.status, payment: after.payment, invoice: after.invoice });
+    }
     if (!row.quote) return json(res, 409, { ok: false, error: "no_quote" });
     const upd = await markPaid(row, { provider: str(b.provider, 40) || "bank_transfer", payId: str(b.reference, 80) || ("manual_" + Date.now()), amount: row.quote.total, test: SIMPLE_TEST_MODE && b.test !== false, actor });
     return json(res, 200, { ok: true, status: upd.status, payment: upd.payment, invoice: upd.invoice });

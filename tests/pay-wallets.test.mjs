@@ -66,3 +66,30 @@ test("samsungpay with a service ID is offered", () => {
   assert.equal(vars.samsungPayOn, true);
   assert.equal(cfg.googlePay, null);
 });
+
+// ---------- 2026-10-23: المحفظة مع معرّفها تُعرَض، وسبب غيابها يُقرأ من الإعداد (رموز لا قيم)
+
+test("a Samsung Service ID or Google merchant ID set WITHOUT listing the method now offers the wallet (the identifier implies its method)", () => {
+  const sp = run({ MOYASAR_SAMSUNG_SERVICE_ID: "svc_unit" });
+  assert.ok(sp.cfg.methods.includes("samsungpay"));
+  assert.equal(sp.cfg.samsungPay.service_id, "svc_unit");
+  assert.equal(sp.vars.samsungPayOn, true, "the admin panel agrees with the checkout");
+  const gp = run({ MOYASAR_GOOGLE_MERCHANT_ID: "BCR2DN_unit" });
+  assert.ok(gp.cfg.methods.includes("googlepay"));
+  assert.equal(gp.vars.googlePayOn, true);
+  assert.equal(run({}).cfg.samsungPay, null, "nothing set → nothing offered");
+});
+
+test("/api/pay says why each wallet is off — a code, never a value — so a settings gap is visible from outside", () => {
+  const none = run({}).cfg.wallets;
+  for (const k of ["apple", "samsung", "google"]) assert.deepEqual(none[k], { on: false, why: "not_in_methods" }, k);
+  const listedNoId = run({ MOYASAR_METHODS: "creditcard,applepay,samsungpay,googlepay" }).cfg.wallets;
+  assert.deepEqual(listedNoId.apple, { on: true, why: null });
+  assert.deepEqual(listedNoId.samsung, { on: false, why: "identifier_missing" });
+  assert.deepEqual(listedNoId.google, { on: false, why: "identifier_missing" });
+  const all = run({ MOYASAR_METHODS: "creditcard,applepay", MOYASAR_SAMSUNG_SERVICE_ID: "svc_unit" }).cfg.wallets;
+  assert.equal(all.apple.on, true);
+  assert.equal(all.samsung.on, true);
+  const text = JSON.stringify(run({ MOYASAR_SAMSUNG_SERVICE_ID: "svc_secret_value" }).cfg.wallets);
+  assert.doesNotMatch(text, /svc_secret_value/, "the wallet state carries no identifier");
+});

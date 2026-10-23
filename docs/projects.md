@@ -39,7 +39,7 @@
 | 18 | **الخدمات المشتركة** | Shared Services Manager | الفريق التنفيذي الذكي وبوابته | ⚠️ أسعاره Draft في Notion |
 | 19 | **فريق المستشارين المتخصصين** | Smart Advisors Manager | `/ai-agents` · `/portal` | ⚠️ قديم كله |
 | 20 | **الباقات** | Packages Manager | `BP-PKG-*` و`/packages` | 🔴 سعران متضاربان (الموقع ≠ Notion) |
-| 21 | **السلة والدفع** | Cart & Checkout Manager | `/cart` · `/checkout` · Moyasar | 🟡 التحويل البنكي يُزال |
+| 21 | **السلة والدفع** | Cart & Checkout Manager | `/cart` · `/checkout` · Moyasar | ✅ الحوالة البنكية مع رفع الإيصال عادت (2026-10-23) · المحافظ بحالة صادقة · `_bank-transfer.js` |
 | 22 | **بيانات الشركات** | Company Data Manager | `/data` | 🔴 لا نموذج اشتراك ولا مسار |
 | 23 | **ERP** | ERP Manager | الدفترة وأدوات المال | ⚠️ `erp/` حُذف — الدفترة هي الواقع |
 | 24 | **باهر للدعم** | Baher Support Manager | ودجت الدعم | ✅ يعمل · بلا قياس |
