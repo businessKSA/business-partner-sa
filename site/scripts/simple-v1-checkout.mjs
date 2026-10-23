@@ -196,6 +196,8 @@ const T = {
              en: "The recruitment-platform subscription is paid by card or Tamara only, because the account is activated at payment.",
              fr: "L'abonnement se paie par carte ou Tamara uniquement, car le compte est activé au paiement.",
              zh: "招聘平台订阅仅支持银行卡或 Tamara，因为账户在付款时开通。" },
+  bankQuoteMsg:{ ar: "عرضك الموقّع يُدفع بالحوالة من صفحة طلبك: ترى فيها بيانات الحساب والمبلغ المطلوب وترفع إيصالك هناك، فنتحقق منه ونعتمد الدفع.", en: "Your signed quotation is paid by transfer from its request page: you will find the account details and the amount due there, and upload your receipt for us to verify.", fr: "Votre devis signé se règle par virement depuis la page de la demande : vous y trouverez les coordonnées du compte et le montant dû, et vous y déposez votre reçu pour vérification.", zh: "已签署的报价请在申请页面通过转账支付：页面上有收款账户和应付金额，上传回单后我们会核验并确认付款。" },
+  bankQuoteGo:{ ar: "افتح طلبك وادفع بالحوالة", en: "Open your request and pay by transfer", fr: "Ouvrir la demande et payer par virement", zh: "打开申请并转账支付" },
   bankNoQuote:{ ar: "دفع عرضٍ موقّع يتم من صفحة طلبك", en: "A signed quotation is paid from its request page", fr: "Un devis signé se paie depuis sa page", zh: "已签报价请在申请页面支付" },
   bankStep1:{ ar: "حوّل المبلغ بالضبط إلى حساب الشركة أدناه، واكتب مرجع الطلب في خانة ملاحظات الحوالة.",
              en: "Transfer the exact amount to the company account below, and write the order reference in the transfer notes.",
@@ -621,7 +623,15 @@ getMe().then(function(u){if(!u)return;
   // يُرسَل إلى خطوة الإكمال في /my ثم يعود إلى هنا.
   if(u.contactPending){location.replace(HOME+'my?next='+encodeURIComponent(HOME+'checkout'));return}
   if(!$('coEmail').value)$('coEmail').value=u.email||'';
-  if(!$('coName').value)$('coName').value=u.full_name||'';});
+  if(!$('coName').value)$('coName').value=u.full_name||'';
+  if(!$('coPhone').value)fillPhone()});
+// الجوال المحفوظ في الملف (api/simple me) لا في جلسة الدخول: يُجلب بعد الدخول ويملأ الخانة إن بقيت فارغة
+// (ما كتبه العميل أو رجع به من البوابة لا يُستبدل).
+function fillPhone(){
+ fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
+  .then(function(r){return r.json()}).then(function(o){
+   var ph=o&&o.user&&o.user.phone;
+   if(ph&&!$('coPhone').value)$('coPhone').value=String(ph)}).catch(function(){})}
 
 // اللقطة والبيانات الوصفية بنفس شكل الموقع القديم حرفياً — المرجع يبقى ثابتاً
 // بين تركيب النموذج والعودة من التحقق البنكي، وإلا صارت الدفعة بلا طلب.
@@ -775,7 +785,7 @@ $('coTamaraGo').onclick=function(){
 // بيانات الحساب من /api/pay (الحقل bank، مصدرها api/_identity.js) — لا رقم حساب في هذا الملف. الإيصال يُرفع
 // إلى POST /api/pay {action:"bank-receipt"} فيفتح الخادم الطلب «بانتظار التحقق» ثم يقارن المستشار
 // الذكي المبلغ والمستفيد والآيبان: مطابق → يُعتمد الدفع وتصدر الفاتورة، وإلا مراجعة بشرية بسبب يُقال هنا.
-var BANK=null,bankBusy=false,SESS_EMAIL='',noQuoteLine=cart.some(function(i){return /^sv1:/i.test(String(i&&i.id||''))});
+var BANK=null,bankBusy=false,SESS_EMAIL='',quoteLine=cart.filter(function(i){return /^sv1:/i.test(String(i&&i.id||''))})[0],noQuoteLine=!!quoteLine;
 var OKTYPE=/^(image\\/(jpeg|png|webp)|application\\/pdf)$/,MAXB=3*1024*1024;
 function setText(id,v){var e=$(id);if(e)e.textContent=v}
 function bankNote(m){setText('coBankNote',m||'')}
@@ -786,7 +796,15 @@ function setupBank(b){
   var o=$('coBankOff'),on=$('coBankOn');if(o){o.textContent=msg||TX.bankOff;o.classList.remove('sv1-hide')}if(on)on.classList.add('sv1-hide')}
  if(!BANK){off(TX.bankOffShort);return}
  if(hasEmp){off(TX.bankNoPlan,TX.bankNoPlanMsg);return}
- if(noQuoteLine){off(TX.bankNoQuote,TX.bankNoQuote);return}
+ // عرضٌ موقّع: الحوالة وإيصالها من صفحة الطلب (/my) بالمدقّق والسقف نفسيهما — هنا نقودُه إليها بزر لا بنصٍّ فقط.
+  if(noQuoteLine){
+   setText('coWayBankSub',TX.bankNoQuote);
+   var o2=$('coBankOff'),on2=$('coBankOn');
+   if(o2){o2.textContent='';var m2=document.createElement('span');m2.textContent=TX.bankQuoteMsg;o2.appendChild(m2);
+    var a2=document.createElement('a');a2.className='sv1-btn primary sm';a2.style.display='inline-block';a2.style.marginTop='10px';
+    a2.href=HOME+'my?view=request&ref='+encodeURIComponent(String(quoteLine.id).slice(4).toUpperCase());a2.textContent=TX.bankQuoteGo;o2.appendChild(a2);
+    o2.classList.remove('sv1-hide')}
+   if(on2)on2.classList.add('sv1-hide');return}
  setText('coBk-bene',LANG==='ar'?BANK.beneficiary:(BANK.beneficiaryEn||BANK.beneficiary));
  setText('coBk-bank',LANG==='ar'?(BANK.bank||BANK.bankEn):(BANK.bankEn||BANK.bank));
  setText('coBk-iban',fmtIban(BANK.iban));$('coBk-iban').setAttribute('data-raw',String(BANK.iban||''));

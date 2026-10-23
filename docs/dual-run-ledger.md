@@ -34,6 +34,8 @@
 
 - **الدفع: الحوالة البنكية مع رفع الإيصال + المحافظ بحالة صادقة** (الفرع `claude/pay-methods-1023`، أمر المالك 2026-10-23): `site/scripts/simple-v1-checkout.mjs` · `api/pay.js` · `api/_bank-transfer.js` (جديد) · `api/_simple.js` · `api/requests.js` (صياغة) · `api/_moyasar.js` (سطور توصيل) · اختبارات `tests/pay-bank-transfer.test.mjs` و`tests/bank-transfer.test.mjs` و`tests/checkout-wallets-row.test.mjs`. **على أزور (فرع الاختبار) فقط حتى «انشر».** يتضمن إصلاح عطل في /checkout القديم-الجديد: نمط البريد كان يرفض كل بريد فيه حرف `s` (يُصلَح في فيرسل بالدفعة نفسها). ترحيل واحد **غير مطبَّق**: `db/migrations/2026-10-bank-receipt-keys.sql` (جدول مفاتيح تكرار الإيصال؛ بدونه يذهب كل إيصال إلى مراجعة بشرية ولا يُعتمد شيء آلياً). فحص الأمان 2026-10-23 على الحوالة (`claude/pay-fix-1023`): جلسة عميل إلزامية، بصمة سلة مرتبطة بالصف، فشل مغلق بلا قراءة نص مستقلة، سقف اعتماد آلي `BANK_AUTO_APPROVE_MAX_SAR`، تسوية ذرّية.
 
+- **الدفع: إصلاحات فاحص الرحلة (٤ ٥ ٦ ٧ ١٥)** (الفرع `claude/pay-journey-fix-1023`): حوالة بنكية لعرضٍ موقّع من صفحة الطلب في `/my` (`api/pay.js` `bank-receipt` بـ`requestRef` + `bankRequest*` في `api/_simple.js`، المدقّق والسقف نفسهما)، الحوالة المعتمدة تأخذ TEST-INV- محلياً (`testInvoiceForPayment`) والرسالة الأخيرة وحدها تبقى، مبلغ طلب السلة من الدفعة في `/my` و`/ops`، «إيصالك قيد المراجعة» لا يُحسب مستحقاً، وجوال الملف يملأ `/checkout`. لا متغيّر بيئة جديد ولا ترحيل؛ نفس ما يحتاجه الفرع السابق (`bank_receipt_keys`). يلزم نقلها إلى `azure-migration` كما هي.
+
 ## قاعدة التحديث
 
 كل جلسة للمدير تبدأ بـ: `git rev-list --count A..P` و`P..A` (A=azure-migration، P=فرع الإنتاج) وتحدّث هذا الجدول إن تغيّر.

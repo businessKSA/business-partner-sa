@@ -207,6 +207,35 @@ const P = {
   signed: { ar: "تم توقيع العقد", en: "Contract signed", fr: "Contrat signé", zh: "合同已签署" },
   payNow: { ar: "ادفع الآن", en: "Pay now", fr: "Payer maintenant", zh: "立即付款" },
   payCardNow: { ar: "ادفع بالبطاقة", en: "Pay by card", fr: "Payer par carte", zh: "银行卡付款" },
+  payBankNow: { ar: "ادفع بحوالة بنكية", en: "Pay by bank transfer", fr: "Payer par virement bancaire", zh: "银行转账付款" },
+  bkTitle: { ar: "الدفع بحوالة بنكية", en: "Pay by bank transfer", fr: "Paiement par virement bancaire", zh: "银行转账付款" },
+  bkHow: { ar: "حوّل المبلغ بالضبط إلى حساب الشركة أدناه واكتب مرجع الطلب في ملاحظات الحوالة، ثم ارفع صورة الإيصال أو ملف PDF. يتحقق المستشار الذكي من المبلغ والمستفيد والآيبان؛ فإن تطابقت اعتُمد الدفع وصدرت فاتورتك، وإلا يراجعه فريقنا ونبلغك بالسبب.", en: "Transfer the exact amount to the company account below, put the request reference in the transfer notes, then upload the receipt image or PDF. The smart advisor checks the amount, the beneficiary and the IBAN: if they match the payment is approved and your invoice is issued, otherwise our team reviews it and tells you why.", fr: "Virez le montant exact sur le compte de l'entreprise ci-dessous, indiquez la référence de la demande dans les notes du virement, puis téléversez l'image ou le PDF du reçu. Le conseiller intelligent vérifie le montant, le bénéficiaire et l'IBAN : s'ils correspondent, le paiement est approuvé et votre facture émise, sinon notre équipe l'examine et vous en indique le motif.", zh: "请将准确金额转入下方公司账户，并在转账备注中填写申请编号，然后上传回单图片或 PDF。智能顾问会核对金额、收款人和 IBAN：一致则确认付款并开具发票，否则由团队复核并告知原因。" },
+  bkBene: { ar: "اسم المستفيد", en: "Beneficiary", fr: "Bénéficiaire", zh: "收款人" },
+  bkBank: { ar: "البنك", en: "Bank", fr: "Banque", zh: "银行" },
+  bkIban: { ar: "الآيبان", en: "IBAN", fr: "IBAN", zh: "IBAN" },
+  bkAmt: { ar: "المبلغ المطلوب (شامل الضريبة)", en: "Amount to transfer (incl. VAT)", fr: "Montant à virer (TTC)", zh: "应转金额（含税）" },
+  bkRef: { ar: "مرجع الطلب — اكتبه في الملاحظات", en: "Request reference — put it in the notes", fr: "Référence — à indiquer dans les notes", zh: "申请编号——请填写在备注中" },
+  bkFile: { ar: "إيصال الحوالة (صورة أو PDF)", en: "Transfer receipt (image or PDF)", fr: "Reçu du virement (image ou PDF)", zh: "转账回单（图片或 PDF）" },
+  bkGo: { ar: "رفع الإيصال", en: "Upload the receipt", fr: "Téléverser le reçu", zh: "上传回单" },
+  copy: { ar: "نسخ", en: "Copy", fr: "Copier", zh: "复制" },
+  copied: { ar: "تم النسخ", en: "Copied", fr: "Copié", zh: "已复制" },
+  bkSending: { ar: "نرفع الإيصال ونتحقق منه…", en: "Uploading and checking the receipt…", fr: "Téléversement et vérification du reçu…", zh: "正在上传并核对回单…" },
+  bkNeedFile: { ar: "اختر صورة الإيصال أو ملف PDF أولاً.", en: "Choose the receipt image or PDF first.", fr: "Choisissez d'abord l'image ou le PDF du reçu.", zh: "请先选择回单图片或 PDF。" },
+  bkBadType: { ar: "الملف يجب أن يكون صورة (JPG أو PNG أو WebP) أو PDF.", en: "The file must be an image (JPG, PNG or WebP) or a PDF.", fr: "Le fichier doit être une image (JPG, PNG ou WebP) ou un PDF.", zh: "文件必须是图片（JPG、PNG 或 WebP）或 PDF。" },
+  bkTooBig: { ar: "حجم الملف كبير. استخدم ملفاً أصغر من ٣ ميغابايت.", en: "The file is too large. Use one under 3 MB.", fr: "Fichier trop volumineux (max 3 Mo).", zh: "文件过大，请使用小于 3 MB 的文件。" },
+  bkFail: { ar: "تعذّر رفع الإيصال الآن ولم يُسجَّل شيء. أعد المحاولة بعد قليل، أو ادفع بالبطاقة.", en: "The receipt could not be uploaded and nothing was recorded. Try again shortly, or pay by card.", fr: "Le reçu n'a pas pu être téléversé et rien n'a été enregistré. Réessayez bientôt, ou payez par carte.", zh: "回单上传失败，未记录任何内容。请稍后重试，或使用银行卡付款。" },
+  bkLogin: { ar: "انتهت جلستك. سجّل دخولك من جديد ثم ارفع الإيصال.", en: "Your session ended. Sign in again, then upload the receipt.", fr: "Votre session a expiré. Reconnectez-vous puis téléversez le reçu.", zh: "登录已过期，请重新登录后上传回单。" },
+  bkSlow: { ar: "محاولات كثيرة — انتظر قليلاً ثم أعد المحاولة.", en: "Too many attempts — wait a moment and retry.", fr: "Trop de tentatives — patientez puis réessayez.", zh: "尝试次数过多，请稍候再试。" },
+  bkClosed: { ar: "هذا الطلب لم يعد يقبل إيصالات. إن كنت حوّلت المبلغ فعلاً فراسلنا من المحادثة أدناه.", en: "This request no longer accepts receipts. If you already transferred the money, message us in the conversation below.", fr: "Cette demande n'accepte plus de reçus. Si vous avez déjà viré le montant, écrivez-nous dans la conversation ci-dessous.", zh: "该申请不再接受回单。如已转账，请在下方对话中联系我们。" },
+  bkPaid: { ar: "هذا الطلب مدفوع بالفعل.", en: "This request is already paid.", fr: "Cette demande est déjà payée.", zh: "该申请已付款。" },
+  bkOff: { ar: "الحوالة البنكية غير متاحة في الوقت الحالي. ادفع بالبطاقة أو تمارا.", en: "Bank transfer is not available right now. Pay by card or Tamara.", fr: "Le virement n'est pas disponible pour le moment. Payez par carte ou Tamara.", zh: "银行转账暂不可用，请使用银行卡或 Tamara 付款。" },
+  bkApproved: { ar: "تحقق المستشار الذكي من إيصالك: المبلغ والمستفيد والآيبان مطابقة، فاعتُمد دفعك وصدرت فاتورتك.", en: "The smart advisor checked your receipt: the amount, the beneficiary and the IBAN match, so your payment is approved and your invoice issued.", fr: "Le conseiller intelligent a vérifié votre reçu : le montant, le bénéficiaire et l'IBAN correspondent, votre paiement est approuvé et votre facture émise.", zh: "智能顾问已核对您的回单：金额、收款人和 IBAN 一致，付款已确认并开具发票。" },
+  bkInv: { ar: "رقم الفاتورة", en: "Invoice no.", fr: "N° de facture", zh: "发票号" },
+  bkReview: { ar: "استلمنا إيصالك وهو قيد المراجعة. لا تحوّل المبلغ مرة أخرى؛ نبلغك فور الاعتماد.", en: "We received your receipt and it is under review. Do not transfer the amount again; we will tell you as soon as it is approved.", fr: "Nous avons reçu votre reçu, il est en cours d'examen. Ne virez pas le montant une seconde fois ; nous vous informerons dès l'approbation.", zh: "已收到您的回单，正在复核。请勿重复转账，确认后我们会通知您。" },
+  bkWhy: { ar: "سبب المراجعة البشرية: ", en: "Reason for human review: ", fr: "Motif de la vérification humaine : ", zh: "转人工复核原因：" },
+  reviewTitle: { ar: "إيصالك قيد المراجعة", en: "Your receipt is under review", fr: "Votre reçu est en cours d'examen", zh: "您的回单正在复核" },
+  reviewText: { ar: "استلمنا إيصال حوالتك ويراجعه فريقنا. لا تحوّل المبلغ مرة أخرى ولا حاجة لأي دفع جديد؛ نبلغك فور الاعتماد. إن كان الإيصال غير واضح فراسلنا من المحادثة أدناه.", en: "We received your transfer receipt and our team is reviewing it. Do not transfer again and no new payment is needed; we will tell you as soon as it is approved. If the receipt was unclear, message us in the conversation below.", fr: "Nous avons reçu votre reçu de virement et notre équipe l'examine. Ne virez pas à nouveau, aucun nouveau paiement n'est nécessaire ; nous vous informerons dès l'approbation. Si le reçu n'était pas clair, écrivez-nous dans la conversation ci-dessous.", zh: "已收到您的转账回单，团队正在复核。请勿重复转账，也无需再次付款，确认后我们会通知您。如回单不清晰，请在下方对话中联系我们。" },
+  reviewList: { ar: "إيصالات قيد المراجعة", en: "Receipts under review", fr: "Reçus en cours d'examen", zh: "复核中的回单" },
   payTamaraNow: { ar: "قسّطها مع تمارا", en: "Pay in instalments with Tamara", fr: "Payer en plusieurs fois avec Tamara", zh: "使用 Tamara 分期" },
   payReturning: { ar: "نؤكّد دفعتك…", en: "Confirming your payment…", fr: "Confirmation du paiement…", zh: "正在确认您的付款…" },
   payVia: { ar: "الدفع عبر صفحة الدفع الآمنة (مدى، فيزا، ماستركارد، Apple Pay، تمارا عند توفرها)", en: "Pay on the secure checkout page (mada, Visa, Mastercard, Apple Pay, Tamara when available)", fr: "Payer sur la page de paiement sécurisée (mada, Visa, Mastercard, Apple Pay, Tamara si disponible)", zh: "通过安全支付页面付款（mada、Visa、Mastercard、Apple Pay，Tamara 可用时）" },
@@ -483,6 +512,7 @@ const STATUS = {
   QUOTE_APPROVED: { ar: "العرض معتمد", en: "Quote approved", fr: "Devis approuvé", zh: "报价已确认" }, CONTRACT_SENT: { ar: "عقد بانتظار توقيعك", en: "Contract awaiting signature", fr: "Contrat à signer", zh: "合同待签署" },
   SIGNED: { ar: "موقّع — بانتظار الدفع", en: "Signed — payment due", fr: "Signé — paiement dû", zh: "已签署 — 待付款" }, PAYMENT_PENDING: { ar: "بانتظار الدفع", en: "Payment pending", fr: "Paiement en attente", zh: "待付款" },
   PAID: { ar: "مدفوع — جاهز للتنفيذ", en: "Paid — ready for execution", fr: "Payé — prêt pour exécution", zh: "已付款 — 准备执行" }, IN_PROGRESS: { ar: "قيد التنفيذ", en: "In progress", fr: "En cours", zh: "执行中" },
+  BANK_REVIEW: { ar: "إيصالك قيد المراجعة", en: "Receipt under review", fr: "Reçu en cours d'examen", zh: "回单复核中" },
   WAITING_INTERNAL: { ar: "قيد التنفيذ", en: "In progress", fr: "En cours", zh: "执行中" }, COMPLETED: { ar: "مكتمل", en: "Completed", fr: "Terminé", zh: "已完成" }, CANCELLED: { ar: "ملغي", en: "Cancelled", fr: "Annulé", zh: "已取消" },
 };
 const EVENTS = { ar: {"request.created": "أنشأ الطلب", "request.created.manual": "أُنشئ الطلب يدوياً", "request.created.cart": "أُنشئ الطلب من شراء مباشر بالسلة", "scope.proposed": "اقترح النطاق", "scope.edited": "عدّل النطاق", "scope.confirmed": "اعتمد النطاق", "quote.pending": "بانتظار عرض السعر", "message.customer": "رسالة من العميل", "message.bp": "رد الفريق", "attachment.added": "أضاف مرفقاً", "quote.drafted": "مسودة عرض سعر", "quote.sent": "أرسل عرض السعر", "quote.approved": "اعتمد العرض", "quote.rejected": "طلب تعديل العرض", "contract.sent": "أرسل العقد", "contract.signed": "وقّع العقد", "payment.paid": "تم الدفع", "payment.failed": "فشل الدفع", "payment.cancelled": "أُلغي الدفع", "payment.pending": "دفع معلّق", "invoice.issued": "صدرت الفاتورة", "appointment.booked": "حجز موعداً", "appointment.rescheduled": "أعاد جدولة الموعد", "appointment.cancelled": "ألغى الموعد", "appointment.set": "ثبّت الموعد", "task.created": "أنشأ مهمة", "task.human_required": "مهمة تحتاج تدخلاً بشرياً", "task.done": "أنجز المهمة", "task.in_progress": "بدأ المهمة", "task.waiting": "مهمة بانتظار", "task.todo": "أعاد فتح المهمة", "execution.started": "بدأ التنفيذ", "request.cancelled": "ألغى الطلب", "request.updated": "حدّث الطلب", "document.received": "استلمنا المستند", "deliverable.added": "سلّم مخرجاً من الطلب", "deliverable.removed": "سحب مخرجاً", "status.completed": "اكتمل الطلب", "status.in_progress": "بدأ التنفيذ", "status.waiting_internal": "قيد التنفيذ", "status.reviewing": "قيد المراجعة", "status.waiting_client": "بانتظار ردّك", "status.cancelled": "أُلغي الطلب", "quote.auto": "أصدر عرض السعر آلياً", "documents.requested": "حدّد المستندات المطلوبة", "payment.receipt": "استلم إيصال التحويل", "message.whatsapp": "رسالة واتساب", "contract.reissued": "أعاد إصدار العقد", "request.reopened": "أعاد فتح الطلب", "cancel.requested": "طلب الإلغاء", "payment.after_cancel": "وصلت دفعة بعد الإلغاء", "followup.reminded": "ذكّرك بالخطوة التالية"}, en: {"request.created": "created the request", "request.created.manual": "request created manually", "request.created.cart": "request opened from a direct cart purchase", "scope.proposed": "proposed the scope", "scope.edited": "edited the scope", "scope.confirmed": "confirmed the scope", "quote.pending": "awaiting the quotation", "message.customer": "customer message", "message.bp": "team reply", "attachment.added": "added an attachment", "quote.drafted": "quote drafted", "quote.sent": "sent the quotation", "quote.approved": "approved the quotation", "quote.rejected": "requested changes", "contract.sent": "sent the contract", "contract.signed": "signed the contract", "payment.paid": "payment received", "payment.failed": "payment failed", "payment.cancelled": "payment cancelled", "payment.pending": "payment pending", "invoice.issued": "invoice issued", "appointment.booked": "booked an appointment", "appointment.rescheduled": "rescheduled the appointment", "appointment.cancelled": "cancelled the appointment", "appointment.set": "set the appointment", "task.created": "created a task", "task.human_required": "task needs a human", "task.done": "completed the task", "task.in_progress": "started the task", "task.waiting": "task waiting", "task.todo": "reopened the task", "execution.started": "execution started", "request.cancelled": "cancelled the request", "request.updated": "updated the request", "document.received": "document received", "deliverable.added": "delivered a file", "deliverable.removed": "withdrew a delivered file", "status.completed": "request completed", "status.in_progress": "execution started", "status.waiting_internal": "in progress", "status.reviewing": "under review", "status.waiting_client": "waiting for your reply", "status.cancelled": "request cancelled", "quote.auto": "issued the quotation automatically", "documents.requested": "listed the required documents", "payment.receipt": "received the transfer receipt", "message.whatsapp": "WhatsApp message", "contract.reissued": "re-issued the contract", "request.reopened": "reopened the request", "cancel.requested": "cancellation requested", "payment.after_cancel": "payment received after cancellation", "followup.reminded": "reminded you of the next step"} };
@@ -696,10 +726,15 @@ function stripScope(t){return String(t==null?'':t).replace(/<*\\s*SCOPE\\s*>>[\\
 function lineOf(i){var l=Number(i&&i.line);if(isFinite(l)&&l>0)return l;return Math.round((Number((i&&i.qty)||1)*Number((i&&i.price)||0))*100)/100}
 function money(n){return (Math.round(Number(n||0)*100)/100).toLocaleString(LANG==='ar'?'ar-SA-u-nu-latn':'en-US')+' '+(LANG==='ar'?'ر.س':'SAR')}
 function when(s){if(!s)return '';try{return new Date(s).toLocaleString(LANG==='ar'?'ar-SA-u-ca-gregory-nu-latn':LANG==='zh'?'zh-CN':LANG,{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Riyadh'})}catch(e){return s}}
-function pillClass(s){return ['QUOTE_SENT','CONTRACT_SENT','SIGNED','PAYMENT_PENDING','WAITING_CLIENT'].indexOf(s)>=0?'warn':['PAID','COMPLETED','QUOTE_APPROVED'].indexOf(s)>=0?'ok':s==='CANCELLED'?'bad':['IN_PROGRESS','WAITING_INTERNAL'].indexOf(s)>=0?'':'mut'}
+function pillClass(s){if(s==='BANK_REVIEW')return '';return ['QUOTE_SENT','CONTRACT_SENT','SIGNED','PAYMENT_PENDING','WAITING_CLIENT'].indexOf(s)>=0?'warn':['PAID','COMPLETED','QUOTE_APPROVED'].indexOf(s)>=0?'ok':s==='CANCELLED'?'bad':['IN_PROGRESS','WAITING_INTERNAL'].indexOf(s)>=0?'':'mut'}
 // Enter does the one obvious thing in a single-field form; without it the phone keyboard's «Go» key did nothing.
 function onEnter(inp,btn){inp.addEventListener('keydown',function(ev){if(ev.key==='Enter'&&!ev.isComposing){ev.preventDefault();btn.click()}})}
 function pill(s){return h('span',{class:'pill '+pillClass(s)},[ST[s]||s])}
+// حوالة رُفع إيصالها وتنتظر التحقق (يضع الخادم payment.review): ليست «بانتظار الدفع» ولا مستحقة ولا عليها زرُّ دفعٍ جديد.
+function payReview(r){return !!(r&&r.payment&&r.payment.review)}
+function statusOf(r){return payReview(r)&&r.status==='PAYMENT_PENDING'?'BANK_REVIEW':r.status}
+// مبلغ الطلب: إجمالي عرض السعر إن وُجد، وإلا ما سُجّل على الدفعة (طلب السلة لا عرض سعر له ومبلغه الحقيقي في payment.amount).
+function payAmt(r){var q=Number(r&&r.quote&&r.quote.total),p=Number(r&&r.payment&&r.payment.amount);return q>0?q:(p>0?p:0)}
 function go(view,ref){state.view=view;state.ref=ref||null;var u=new URL(location.href);u.searchParams.set('view',view);if(ref)u.searchParams.set('ref',ref);else u.searchParams.delete('ref');history.replaceState(null,'',u.toString());render()}
 // ---------- login
 // One page, one decision. Google first (the official button, with a written
@@ -802,12 +837,12 @@ var mob=h('div',{class:'mob'},NAV.map(function(n){return h('a',{class:state.view
 var main=h('div',{class:'my-main',id:'myMain'});
 app.appendChild(mob);var wrap=h('div',{class:'my'},[side,main]);app.appendChild(wrap);
 var v=state.view;if(v==='home')viewHome(main);else if(v==='new')viewNew(main);else if(v==='request')viewRequest(main);else if(v==='requests')viewList(main,TX.navRequests,function(r){return true});else if(v==='quotes')viewList(main,TX.navQuotes,function(r){return !!r.quote});else if(v==='contracts')viewList(main,TX.navContracts,function(r){return !!(r.contract||r.nda)});else if(v==='appointments')viewAppts(main);else if(v==='pay')viewPay(main);else if(v==='invoices')viewInvoices(main);else if(v==='chats')viewChats(main);else if(v==='documents')viewDocuments(main);else if(v==='compliance')viewCompliance(main);else if(v==='company')viewCompany(main);else viewHome(main)}
-function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[r.title]),h('small',{},[r.ref+' · '+(r.origin==='ticket'?TX.ticket:(TY[r.type]||r.type))+' · '+when(r.updated_at||r.created_at)])]),(r.origin==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),pill(r.status),(r.cancel_requested&&r.status!=='CANCELLED')?h('span',{class:'pill warn'},[TX.cxPill]):null,h('span',{class:'btn ghost sm'},[TX.open])])}
+function reqRow(r){return h('div',{class:'row',onclick:function(){go('request',r.ref)}},[h('div',{class:'tt'},[h('b',{},[r.title]),h('small',{},[r.ref+' · '+(r.origin==='ticket'?TX.ticket:(TY[r.type]||r.type))+' · '+when(r.updated_at||r.created_at)])]),(r.origin==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),pill(statusOf(r)),(r.cancel_requested&&r.status!=='CANCELLED')?h('span',{class:'pill warn'},[TX.cxPill]):null,h('span',{class:'btn ghost sm'},[TX.open])])}
 function viewHome(m){var c=state.me.counts||{};m.appendChild(h('h1',{},[TX.attention]));
 var k=[['active',TX.kActive,'requests'],['quotes',TX.kQuotes,'quotes'],['contracts',TX.kContracts,'contracts'],['payments',TX.kPayments,'pay'],['appointments',TX.kAppts,'appointments']];
 m.appendChild(h('div',{class:'my-kpis'},k.map(function(x){return h('div',{class:'my-kpi'+(x[0]!=='active'&&c[x[0]]?' hot':''),onclick:function(){go(x[2])}},[h('b',{},[String(c[x[0]]||0)]),h('span',{},[x[1]])])})));
 var nca=nextApptCard();if(nca)m.appendChild(nca);
-var need=state.me.requests.filter(function(r){return ['QUOTE_SENT','CONTRACT_SENT','SIGNED','PAYMENT_PENDING','WAITING_CLIENT'].indexOf(r.status)>=0});
+var need=state.me.requests.filter(function(r){return !payReview(r)&&['QUOTE_SENT','CONTRACT_SENT','SIGNED','PAYMENT_PENDING','WAITING_CLIENT'].indexOf(r.status)>=0});
 if(need.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.needYou]),h('div',{class:'list'},need.map(reqRow))]));
 m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.today]),h('p',{class:'note'},[TX.navNew]),h('a',{class:'btn',href:HOME+'#chat'},[TX.navNew])]));
 var others=state.me.requests.filter(function(r){return need.indexOf(r)<0}).slice(0,6);
@@ -837,7 +872,10 @@ function docBtn(label,title,loader){
 
 function viewList(m,title,f){m.appendChild(h('h1',{},[title]));var rows=state.me.requests.filter(f);m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);if(r.quote&&title===TX.navQuotes)row.insertBefore(h('span',{class:'pill '+(r.quote.status==='APPROVED'?'ok':'warn')},[r.quote.number+' · '+money(r.quote.total)]),row.children[1]);if(r.contract&&title===TX.navContracts)row.insertBefore(h('span',{class:'pill '+(r.contract.status==='SIGNED'?'ok':'warn')},[r.contract.number+' · '+(r.contract.status==='SIGNED'?TX.signed:TX.contract)]),row.children[1]);if(r.nda&&title===TX.navContracts)row.insertBefore(h('span',{class:'pill '+(r.nda.status==='SIGNED'?'ok':'warn')},[r.nda.status==='SIGNED'?TX.ndaDone:TX.ndaWait]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]))}
 function viewInvoices(m){m.appendChild(h('h1',{},[TX.navInvoices]));var rows=state.me.requests.filter(function(r){return r.invoice});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill ok'},[r.invoice.number+' · '+money(r.invoice.total)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]))}
-function viewPay(m){m.appendChild(h('h1',{},[TX.navPay]));var rows=state.me.requests.filter(function(r){return ['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill warn'},[money(r.quote?r.quote.total:0)]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));m.appendChild(h('div',{class:'card'},[h('a',{class:'btn ghost',href:CHECKOUT},[TX.navPay+' →'])]))}
+function viewPay(m){m.appendChild(h('h1',{},[TX.navPay]));var all=state.me.requests.filter(function(r){return ['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0});var rows=all.filter(function(r){return !payReview(r)}),held=all.filter(payReview);
+m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill warn'},[money(payAmt(r))]),row.children[1]);return row})):(held.length?null:h('p',{class:'note'},[TX.empty])));
+if(held.length){m.appendChild(h('h2',{style:'margin:18px 0 10px'},[TX.reviewList]));m.appendChild(h('div',{class:'list'},held.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill'},[money(payAmt(r))]),row.children[1]);return row})))}
+m.appendChild(h('div',{class:'card'},[h('a',{class:'btn ghost',href:CHECKOUT},[TX.navPay+' →'])]))}
 function viewChats(m){m.appendChild(h('h1',{},[TX.navChats]));var rows=state.me.requests.filter(function(r){return r.last_message});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.querySelector('small').textContent=(r.last_message.content||'').slice(0,90);return row})):h('p',{class:'note'},[TX.empty]))}
 // ---------- الاتصال المرئي: الموعد القادم والانضمام (قبل خمس دقائق)
 function apptStart(a){return new Date(a.date+'T'+a.time+':00+03:00').getTime()}
@@ -1306,7 +1344,7 @@ function updatesCard(r){var up=r.updates||[];if(!up.length)return null;var all=f
 function tlEvents(r){var ev=r.events||[],up={};ev.forEach(function(e){if(e.event==='attachment.added'&&e.details&&e.details.doc)up[e.details.doc]=1});return ev.filter(function(e){return !(e.event==='document.received'&&e.details&&up[e.details.title])})}
 function drawRequest(hd,box){var r=state.req;var isTicket=r.origin==='ticket';hd.textContent=r.title;box.innerHTML='';
 var cxm=cxMode(r),cxPend=!!r.cancel_request&&r.status!=='CANCELLED';
-box.appendChild(h('div',{class:'stat'},[h('span',{},[TX.ref+': ',h('b',{},[r.ref])]),h('span',{},[TX.status+': ',pill(r.status),cxPend?h('span',{class:'pill warn',style:'margin-inline-start:6px'},[TX.cxPill]):null]),h('span',{},[isTicket?TX.ticket:(TY[r.type]||r.type)]),(r.payment&&r.payment.source==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),h('span',{},[when(r.created_at)]),
+box.appendChild(h('div',{class:'stat'},[h('span',{},[TX.ref+': ',h('b',{},[r.ref])]),h('span',{},[TX.status+': ',pill(statusOf(r)),cxPend?h('span',{class:'pill warn',style:'margin-inline-start:6px'},[TX.cxPill]):null]),h('span',{},[isTicket?TX.ticket:(TY[r.type]||r.type)]),(r.payment&&r.payment.source==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),h('span',{},[when(r.created_at)]),
  (cxm!=='closed'&&!cxPend)?h('button',{class:'btn danger sm cxbtn',id:'sv1CancelTop',onclick:function(){cxSheet(r)}},[cxm==='now'?TX.cancelReq:TX.cancelAsk]):null]));
 var cxb=cxBanner(r);if(cxb)box.appendChild(cxb);
 var pl=r.status==='CANCELLED'?null:stageLine(r);if(pl)box.appendChild(pl);
@@ -1369,7 +1407,8 @@ nc.appendChild(h('label',{style:'display:flex;gap:8px;align-items:flex-start;mar
 nc.appendChild(h('button',{class:'btn',id:'ndaSignBtn',onclick:function(){nerr.textContent='';if(nnm.value.replace(/\\s+/g,'').length<3){nerr.textContent=TX.signNameErr;return}if(!ndrew){nerr.textContent=TX.signDrawErr;return}if(!ncons.checked){nerr.textContent=TX.signConsent;return}api('nda-sign',{ref:r.ref,name:nnm.value.trim(),consent:true,signature:ncv.toDataURL('image/png')}).then(function(o){if(o&&o.ok){r.nda=o.nda;refreshMe();drawRequest(hd,box)}else nerr.textContent=(o&&o.error==='already_signed')?TX.ndaSigned:((o&&o.message)||TX.error)})}},[TX.ndaSignBtn]));nc.appendChild(nerr)}
 right.appendChild(nc)}
 // payment
-if(['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0&&r.quote){var pc=h('div',{class:'card'});pc.appendChild(h('h3',{},[TX.payment+' · '+money(r.quote.total)]));if(r.payment&&r.payment.status&&r.payment.status!=='PENDING'&&r.payment.status!=='PAID'){var ps=String(r.payment.status).toUpperCase();pc.appendChild(h('p',{class:ps==='FAILED'?'err':'note',id:'sv1PayState'},[ps==='FAILED'?TX.payFailedMsg:ps==='CANCELLED'?TX.payCancelledMsg:TX.payPendingMsg]))}
+if(['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0&&r.quote&&payReview(r)){var rc=h('div',{class:'card',id:'sv1PayReview'});rc.appendChild(h('h3',{},[TX.reviewTitle+' · '+money(payAmt(r))]));rc.appendChild(h('p',{class:'note'},[TX.reviewText]));right.appendChild(rc)}
+else if(['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0&&r.quote){var pc=h('div',{class:'card'});pc.appendChild(h('h3',{},[TX.payment+' · '+money(r.quote.total)]));if(r.payment&&r.payment.status&&r.payment.status!=='PENDING'&&r.payment.status!=='PAID'){var ps=String(r.payment.status).toUpperCase();pc.appendChild(h('p',{class:ps==='FAILED'?'err':'note',id:'sv1PayState'},[ps==='FAILED'?TX.payFailedMsg:ps==='CANCELLED'?TX.payCancelledMsg:TX.payPendingMsg]))}
 function gwGo(provider){var back=encodeURIComponent(location.pathname+'?view=request&ref='+encodeURIComponent(r.ref));
 location.href='/api/pay?action=mock-form&provider='+provider+'&amount='+encodeURIComponent(String((r.quote&&r.quote.total)||0))+'&label='+encodeURIComponent(r.ref)+'&back='+back}
 function payHere(provider){
@@ -1379,8 +1418,53 @@ function payHere(provider){
   api('checkout-start',{ref:r.ref}).then(function(o){if(!o||!o.ok){if(!o||o.error!=='no_session')toast(failText(o));return}try{var cart=JSON.parse(localStorage.getItem('bp_cart')||'[]');cart=cart.filter(function(i){return i.id!==o.item.id});cart.push(o.item);localStorage.setItem('bp_cart',JSON.stringify(cart))}catch(x){}location.href=CHECKOUT})}
 var payRow=h('div',{style:'display:flex;gap:7px;flex-wrap:wrap'},[
   h('button',{class:'btn',onclick:function(){payHere('card')}},[TX.payCardNow]),
-  h('button',{class:'btn ghost',onclick:function(){payHere('tamara')}},[TX.payTamaraNow])]);
+  h('button',{class:'btn ghost',onclick:function(){payHere('tamara')}},[TX.payTamaraNow]),
+  h('button',{class:'btn ghost',id:'sv1PayBank',onclick:function(){bankToggle()}},[TX.payBankNow])]);
 pc.appendChild(payRow);pc.appendChild(h('p',{class:'note'},[TX.payVia]));
+var bankBox=h('div',{id:'sv1BankPanel',hidden:true,style:'margin-top:12px'}),bankReady=false,bankBusy=false;
+function bankNote(msg,kind){var n=bankBox.querySelector('#sv1BankNote');if(n){n.textContent=msg||'';n.className=kind||'note'}}
+function bankCopy(txt,btn){function done(){btn.textContent=TX.copied;setTimeout(function(){btn.textContent=TX.copy},1500)}
+ try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,function(){});return}}catch(e){}
+ try{var ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);done()}catch(e){}}
+function bankRow(label,val,raw,ltr){return h('div',{style:'display:flex;gap:8px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding:7px 0;flex-wrap:wrap'},[h('span',{class:'note',style:'margin:0'},[label]),h('b',{style:'overflow-wrap:anywhere'+(ltr?';direction:ltr':'')},[val]),h('button',{class:'btn ghost sm',onclick:function(ev){bankCopy(raw||val,ev.currentTarget)}},[TX.copy])])}
+function bankErr(code){return code==='login_required'?TX.bkLogin:code==='slow_down'?TX.bkSlow:code==='request_closed'||code==='not_payable'||code==='not_found'?TX.bkClosed:code==='already_paid'?TX.bkPaid:code==='too_large'?TX.bkTooBig:code==='bad_type'?TX.bkBadType:code==='bank_not_configured'?TX.bkOff:TX.bkFail}
+function bankShrink(file){return new Promise(function(res){if(!/^image\\//.test(file.type)||file.size<=900*1024){res(file);return}
+ try{var img=new Image(),u=URL.createObjectURL(file);img.onload=function(){var k=Math.min(1,1800/Math.max(img.width,img.height)),c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext('2d').drawImage(img,0,0,c.width,c.height);try{URL.revokeObjectURL(u)}catch(e){}c.toBlob(function(b){res(b&&b.size<file.size?b:file)},'image/jpeg',0.82)};img.onerror=function(){res(file)};img.src=u}catch(e){res(file)}})}
+function bankB64(blob){return new Promise(function(res,rej){var fr=new FileReader();fr.onload=function(){var u=String(fr.result||'');res(u.slice(u.indexOf(',')+1))};fr.onerror=function(){rej(new Error('read'))};fr.readAsDataURL(blob)})}
+function bankSend(inp,btn){
+ if(bankBusy)return;var f=inp.files&&inp.files[0];
+ if(!f){bankNote(TX.bkNeedFile,'err');return}
+ if(!/^(image\\/(jpeg|png|webp)|application\\/pdf)$/.test(String(f.type||'').toLowerCase())){bankNote(TX.bkBadType,'err');return}
+ bankBusy=true;btn.disabled=true;bankNote(TX.bkSending);
+ bankShrink(f).then(function(g){if(g.size>3*1024*1024)throw new Error('big');return bankB64(g).then(function(b64){return {name:f.name,mime:String(g.type||f.type),base64:b64}})})
+ .then(function(file){return fetch('/api/pay',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'bank-receipt',lang:LANG,requestRef:r.ref,file:file})}).then(function(x){return x.json()})})
+ .then(function(j){bankBusy=false;btn.disabled=false;
+  if(!(j&&j.ok)){bankNote(bankErr(j&&j.error),'err');return}
+  var inv=j.invoice&&j.invoice.number?String(j.invoice.number):'';
+  if(j.state==='approved'){toast(TX.bkApproved+(inv?' · '+TX.bkInv+': '+inv:''),true)}
+  else{var why=(j.reasonsText||[]).filter(Boolean).join(' · ');toast(TX.bkReview+(why?' '+TX.bkWhy+why:''),true)}
+  api('request-get',{ref:r.ref}).then(function(o){if(o&&o.ok){state.req=o.request;refreshMe();drawRequest(hd,box)}})})
+ .catch(function(e){bankBusy=false;btn.disabled=false;bankNote(e&&e.message==='big'?TX.bkTooBig:TX.bkFail,'err')})}
+function bankBuild(bk){
+ bankBox.innerHTML='';
+ if(!bk||!bk.enabled){bankBox.appendChild(h('p',{class:'note'},[TX.bkOff]));return}
+ bankBox.appendChild(h('h3',{},[TX.bkTitle]));bankBox.appendChild(h('p',{class:'note'},[TX.bkHow]));
+ var iban=String(bk.iban||'').replace(/\\s+/g,'');
+ bankBox.appendChild(bankRow(TX.bkBene,LANG==='ar'?bk.beneficiary:(bk.beneficiaryEn||bk.beneficiary),''));
+ bankBox.appendChild(bankRow(TX.bkBank,LANG==='ar'?(bk.bank||bk.bankEn):(bk.bankEn||bk.bank),''));
+ bankBox.appendChild(bankRow(TX.bkIban,iban.replace(/(.{4})/g,'$1 ').trim(),iban,true));
+ bankBox.appendChild(bankRow(TX.bkAmt,money(r.quote.total),Number(r.quote.total).toFixed(2)));
+ bankBox.appendChild(bankRow(TX.bkRef,r.ref,r.ref,true));
+ var inp=h('input',{type:'file',id:'sv1BankFile',accept:'image/jpeg,image/png,image/webp,application/pdf','aria-label':TX.bkFile,style:'margin-top:12px;max-width:100%'});
+ var go=h('button',{class:'btn',id:'sv1BankGo',style:'margin-top:10px',onclick:function(){bankSend(inp,go)}},[TX.bkGo]);
+ bankBox.appendChild(h('p',{class:'note',style:'margin:12px 0 0'},[TX.bkFile]));bankBox.appendChild(inp);bankBox.appendChild(go);
+ bankBox.appendChild(h('p',{class:'note',id:'sv1BankNote',role:'status','aria-live':'polite'},['']))}
+function bankToggle(){
+ if(!bankReady){bankReady=true;bankBox.hidden=false;
+  fetch('/api/pay',{credentials:'same-origin',cache:'no-store'}).then(function(x){return x.json()}).then(function(o){bankBuild(o&&o.bank)}).catch(function(){bankBuild(null)});return}
+ bankBox.hidden=!bankBox.hidden}
+pc.appendChild(bankBox);
+
 if(state.testMode){
 pc.appendChild(h('h3',{style:'margin-top:12px'},[TX.testPay]));var tp=h('div',{style:'display:flex;gap:6px;flex-wrap:wrap'});[['success','card',TX.paySuccess,''],['success','tamara',TX.payTamara,''],['failed','card',TX.payFailed,'danger'],['cancelled','card',TX.payCancelled,'ghost'],['pending','card',TX.payPending,'ghost']].forEach(function(x){tp.appendChild(h('button',{class:'btn sm '+x[3],onclick:function(){api('pay-test',{ref:r.ref,outcome:x[0],provider:x[1]}).then(function(o){if(o&&o.ok){r.status=o.status;r.payment=o.payment;if(o.invoice)r.invoice=o.invoice;refreshMe();drawRequest(hd,box)}else if(!o||o.error!=='no_session')toast(failText(o))})}},[x[2]]))});pc.appendChild(tp)}
 right.appendChild(pc)}
