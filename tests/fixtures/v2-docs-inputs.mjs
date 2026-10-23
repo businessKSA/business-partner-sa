@@ -28,13 +28,25 @@ const Q = { ref: "BP-R-FRZ001", number: "Q-FRZ001", clientName: "شركة الأ
 const C = { ref: "BP-R-FRZ001", number: "C-FRZ001", clientName: "شركة الأفق المتقدم", clientCr: "1010123456", clientVat: "300000000000003", service: "خدمات تأسيس", serviceEn: "Business setup services", items: ITEMS, ...TOTALS, vatRate: 15, leadTime: "10 أيام عمل", executor: "Business Partner", issuedAt: "2026-10-23T09:00:00Z", company: COMPANY };
 const N = { ref: "BP-R-FRZ001", number: "NDA-FRZ001", clientName: "شركة الأفق المتقدم", service: "خدمات تأسيس", serviceEn: "Business setup services", issuedAt: "2026-10-23T09:00:00Z", company: COMPANY };
 
+// Orders that overflowed their sheets before the pagination fix (see docs/bp-docs-v2.md, «Fixes inside v2»):
+// literal, deterministic lines of realistic length — no catalogue read.
+const NAMES = [["تأسيس شركة سعودية", "Saudi Company Formation"], ["إصدار سجل تجاري", "Commercial Registration Issuance"], ["عضوية الغرفة التجارية", "Chamber of Commerce membership"], ["إصدار عقد تأسيس وتوثيقه (لشركة جديدة)", "AoA Issuance & Notarization (new company)"], ["تعديل عقد تأسيس / قرارات شركاء", "Amending AoA / Partners' Resolutions"], ["خدمة الإقامة المميزة (إجراءات + تقديم)", "Premium Residency service (procedures + application)"]];
+const plain = (n) => Array.from({ length: n }, (_, i) => { const [ar, en] = NAMES[i % NAMES.length]; const qty = 1 + (i % 3); const price = 100 + 25 * (i % 7); return { code: `BP-P-${String(i).padStart(2, "0")}`, title: ar, titleEn: en, qty, price, line: price * qty }; });
+const orderOf = (items) => { const net = items.reduce((a, b) => a + b.line, 0); return { items, net, vat: Math.round(net * 15) / 100, total: Math.round(net * 115) / 100 }; };
+const LONG = Array.from({ length: 120 }, (_, i) => "كلمة" + (i % 7)).join(" "), LONG_EN = Array.from({ length: 120 }, (_, i) => "word" + (i % 7)).join(" ");
+
 export const QUOTE_CASES = {
+  "quote-17-plain": { ...Q, ...orderOf(plain(17)), documents: [] },
+  "quote-18-plain": { ...Q, ...orderOf(plain(18)), documents: [] },
+  "quote-30-plain": { ...Q, ...orderOf(plain(30)), documents: [] },
+  "quote-60-plain": { ...Q, ...orderOf(plain(60)), documents: [] },
+  "quote-longname-one": { ...Q, ...orderOf([{ code: "BP-L-01", title: LONG, titleEn: LONG_EN, qty: 1, price: 500, line: 500 }]), service: LONG, serviceEn: LONG_EN, documents: [] },
+  "quote-longname-many": { ...Q, ...orderOf(Array.from({ length: 5 }, (_, i) => ({ code: `BP-L-0${i}`, title: LONG, titleEn: LONG_EN, qty: 1, price: 500, line: 500 }))), documents: [] },
   "quote-default": Q,
   "quote-nobar": { ...Q, bar: false },
   "quote-en": { ...Q, lang: "en" },
   "quote-one-item": { ...Q, items: [ITEMS[0]], net: 7500, vat: 1125, total: 8625, documents: [], notes: "" },
   "quote-many": { ...Q, items: MANY, ...MANY_T },
-  "quote-empty": { ...Q, items: [], net: 0, vat: 0, total: 0 },
   "quote-with-cr": { ...Q, company: COMPANY_WITH_CR },
 };
 export const CONTRACT_CASES = {
