@@ -764,7 +764,7 @@ var h0=hint();if(h0)S.paint(true,h0);
   </div>
   <div class="sv1-foot-end">© 2026 Business Partner · 版权所有</div>
 </div>
-</footer></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
+</footer></div><script>(function(){document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a[data-lang]');if(!a)return;try{var u=new URL(a.getAttribute('href'),location.href);if(location.search&&!u.search)u.search=location.search;if(location.hash&&!u.hash)u.hash=location.hash;a.setAttribute('href',u.pathname+u.search+u.hash)}catch(x){}},true);var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
 fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.setAttribute('role','region');d.setAttribute('aria-label','Test mode');d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
 var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();['sv1OutBtn','sv1NavOut'].forEach(function(id){var outBtn=$h(id);if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})}});
 /* الرسم الفوري جرى بعد «</header>» مباشرة (SV1_SESSION_JS)؛ هنا التصحيح. */
@@ -828,9 +828,13 @@ grid.addEventListener('click',function(e){
   add.textContent=C.tx.added;setTimeout(function(){add.textContent=C.tx.addCart},1600);
   toast(C.tx.toast,false,true);return}
  // ---- طلب عرض سعر: تسليمٌ إلى محادثة الرئيسية (يُقرأ المفتاح ويُحذف هناك في خطوة واحدة).
+ function qdAdd(it,door){var d=null;try{d=JSON.parse(localStorage.getItem('bp_quote_draft')||'null')}catch(e){}if(!d||!d.at||Date.now()-d.at>216e5||!Array.isArray(d.items))d={items:[]};var items=d.items.filter(function(x){return x&&x.title&&!(it.code&&x.code===it.code)&&x.title!==it.title});items.push(it);var nd={at:Date.now(),door:door||d.door||'government',items:items};try{localStorage.setItem('bp_quote_draft',JSON.stringify(nd))}catch(e){}return nd}
  var q=e.target.closest&&e.target.closest('.sv1-cp-quote');
  if(q){var nm=q.getAttribute('data-name')||'',cd=q.getAttribute('data-code')||'';
-  try{sessionStorage.setItem('bp_sva_request',JSON.stringify({items:[{code:cd,title:nm,why:q.getAttribute('data-gov')||''}],door:C.door,text:nm,name:nm,code:cd,at:Date.now()}))}catch(x){}}
+  // يضيف إلى مسودة الطلب بدل أن يستبدل ما سبق (bp_quote_draft)
+  var nd=qdAdd({code:cd,title:nm,why:q.getAttribute('data-gov')||''},C.door);
+  var names=nd.items.map(function(x){return x.title}).join('، ');
+  try{sessionStorage.setItem('bp_sva_request',JSON.stringify({items:nd.items,door:nd.door,text:nd.items.length>1?names:nm,name:nd.items.length>1?names:nm,code:nd.items.length>1?'':cd,at:Date.now()}))}catch(x){}}
 });
 // ---- بحث داخل التصنيف: يُخفي البطاقات ولا يحذفها (تبقى في الصفحة للفهرسة).
 var qi=$('cpQ');
