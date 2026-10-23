@@ -816,6 +816,8 @@ alter table requests add column if not exists deleted_at timestamptz;
 alter table requests add column if not exists cancel jsonb;           -- {at,by,actor,note,stage,contract_signed,was_paid}
 alter table requests add column if not exists cancel_request jsonb;   -- طلب إلغاء بانتظار مراجعة الفريق
 create index if not exists requests_deleted_idx on requests(deleted_at) where deleted_at is not null;
+-- اتفاقية عدم الإفصاح (db/migrations/2026-10-requests-nda.sql): الورقة المطبوعة بقالبها المجمَّد وتوقيع العميل.
+alter table requests add column if not exists nda jsonb;
 
 alter table tasks add column if not exists request_id uuid references requests(id) on delete set null;
 alter table tasks add column if not exists human_action boolean not null default false;  -- «يحتاج تدخل بشري»

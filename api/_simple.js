@@ -306,6 +306,7 @@ function clientView(row, events, tasks) {
   // the customer sees it only once Daftra has numbered it, and without those.
   pub.invoice = publicInvoice(pub.invoice);
   if (pub.contract && pub.contract.html) pub.contract = { ...pub.contract, html: undefined, html_signed: undefined, has_html: true };
+  if (pub.nda && pub.nda.html) pub.nda = { ...pub.nda, html: undefined, has_html: true };
   // Machine bookkeeping («notify.paid», «followup.task») is for the panel: the
   // customer's timeline used to print those keys raw.
   const visible = (e) => e.actor_kind !== "internal" && !/^(notify\.|followup\.task)/.test(String(e.event || ""));
@@ -470,6 +471,66 @@ async function ensureContract(row) {
     try { await patchRequest(row.id, { status: "QUOTE_APPROVED" }); } catch {}
     return row;
   }
+}
+
+// ------------------------------------------------ the mutual NDA (optional) --
+// api/_bp-docs-v2.js ndaDocV2 was built and never reachable. It is issued on a
+// request by the team (ops-nda) or, for the SKUs listed in NDA_REQUIRED_SERVICES
+// (empty by default: nobody's journey changes), automatically before the quotation.
+// It is NOT a gate: a request without an NDA, or with an unsigned one, moves on
+// exactly as before — whether to require it is the owner's decision.
+//
+// Same rules as the contract: the paper is printed once with a FROZEN template
+// (build.template_version + the company snapshot of that day), stored whole in
+// `requests.nda`, and signed by the customer in /my (name + drawing + explicit consent);
+// the SHA-256 of the stored bytes goes into the signature. It is never rebuilt from
+// "the newest template", so a later wording or design change cannot void a signature.
+export const NDA_TEMPLATE = "v2";
+export function ndaRequiredSkus() {
+  return new Set(String(process.env.NDA_REQUIRED_SERVICES || "").split(/[\s,;]+/).map((x) => x.trim().toUpperCase()).filter(Boolean));
+}
+export function buildNda(row, opts = {}) {
+  const at = opts.at && !Number.isNaN(Date.parse(opts.at)) ? new Date(opts.at) : new Date();
+  const tpl = templateForVersion(opts.template_version || NDA_TEMPLATE);
+  if (!tpl || typeof tpl.nda !== "function") throw new Error("no_nda_template");
+  const lang = opts.lang || (row.lang === "en" ? "en" : "ar");          // the template is Arabic + English
+  const party = opts.party != null ? str(opts.party, 200) : str(partyName(row), 200);
+  const sig = opts.signatory && opts.signatory.name ? { name: str(opts.signatory.name, 120), title: str(opts.signatory.title, 120) } : null;
+  const build = {
+    template_version: tpl.version, company: opts.company || tpl.companySnapshot(), party, lang,
+    clientRegNo: str(opts.clientRegNo, 60), clientAddress: str(opts.clientAddress, 200), clientCountry: str(opts.clientCountry, 80),
+    signatory: sig, service: str(opts.service != null ? opts.service : row.title, 200),
+  };
+  const number = "NDA-" + row.ref.replace(/^BP-R-/, "");
+  const html = tpl.nda({
+    ref: row.ref, number, clientName: party, clientRegNo: build.clientRegNo, clientAddress: build.clientAddress, clientCountry: build.clientCountry,
+    signatory: sig, service: build.service, issuedAt: at.toISOString(), lang, company: build.company,
+  });
+  return { number, status: "SENT", html, build, template_version: tpl.version, created_at: at.toISOString(), sent_at: nowIso(), mode: SIMPLE_TEST_MODE ? "test-esign" : "portal-esign" };
+}
+async function issueNda(row, actorKind, actor, opts = {}) {
+  if (row.nda && row.nda.status === "SIGNED") return { ok: false, error: "nda_signed" };
+  const nda = buildNda(row, opts);
+  let upd;
+  try { upd = await patchRequest(row.id, { nda }); }
+  catch (e) { console.error("simple: nda not stored - apply db/migrations/2026-10-requests-nda.sql", String(e && e.message || e).slice(0, 80)); return { ok: false, error: "nda_unavailable" }; }
+  await logEvent(row.id, actorKind, actor, "nda.sent", { number: nda.number, template: nda.template_version });
+  await announce(row, "nda", {
+    subject: `اتفاقية عدم إفصاح ${nda.number} بانتظار توقيعك`,
+    clientLine: "أُرسلت إليك اتفاقية عدم الإفصاح المتبادلة للتوقيع الإلكتروني من حسابك. لا يتوقف طلبك عليها.",
+    opsLine: `صدرت اتفاقية عدم الإفصاح ${nda.number} وأُرسلت للتوقيع.`,
+    cta: "افتح الاتفاقية ووقّعها",
+  });
+  return { ok: true, nda, upd };
+}
+// Before the quotation, for the services the owner listed — and only those.
+async function autoNda(row, scope) {
+  try {
+    const want = ndaRequiredSkus();
+    if (!want.size || row.nda) return;
+    if (!(scope || []).some((it) => !it.seed && it.code && want.has(String(it.code).toUpperCase()))) return;
+    await issueNda(row, "system", "النظام");
+  } catch (e) { console.error("auto nda", String(e && e.message || e).slice(0, 100)); }
 }
 
 async function issueContract(row, actorKind, actor, opts) {
@@ -1187,6 +1248,43 @@ async function clientAction(action, b, qs, req, res, sess) {
     return json(res, 200, { ok: true, html: portalContractHtml(html, { signature: contract.signature, signedAt: contract.signed_at, stale: !!contract.needs_resign }), needsResign: !!contract.needs_resign, contract: { ...contract, html: undefined, html_signed: undefined } });
   }
 
+  // The NDA: shown as it was printed (the stored bytes, never rebuilt), signed once.
+  if (action === "nda-view") {
+    if (!row.nda || !row.nda.html) return json(res, 404, { ok: false, error: "no_nda" });
+    return json(res, 200, { ok: true, html: portalContractHtml(row.nda.html, { signature: row.nda.signature, signedAt: row.nda.signed_at }), nda: { ...row.nda, html: undefined } });
+  }
+  if (action === "nda-sign") {
+    if (!row.nda || !row.nda.html) return json(res, 409, { ok: false, error: "no_open_nda" });
+    if (row.nda.status === "SIGNED") return json(res, 409, { ok: false, error: "already_signed" });
+    if (row.status === "CANCELLED") return json(res, 409, { ok: false, error: "request_closed" });
+    if (!b.consent) return json(res, 400, { ok: false, error: "consent_required", message: "يلزم الموافقة على التوقيع الإلكتروني." });
+    const signerName = str(b.name, 160) || who;
+    const hash = crypto.createHash("sha256").update(String(row.nda.html)).digest("hex");
+    const signature = {
+      name: signerName, email, ip: clientIp(req), ua: str(req.headers["user-agent"], 200), at: nowIso(),
+      doc_sha256: hash, template_version: row.nda.template_version || (row.nda.build && row.nda.build.template_version) || NDA_TEMPLATE,
+      image: typeof b.signature === "string" && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(b.signature) && b.signature.length <= 250000 ? b.signature : null,
+      mode: SIMPLE_TEST_MODE ? "test-esign" : "portal-esign",
+    };
+    const nda = { ...row.nda, status: "SIGNED", signed_at: signature.at, signature };
+    // conditional on the row not having moved: two screens signing at once record one signature
+    const won = await sb(`requests?id=eq.${row.id}&updated_at=eq.${q(row.updated_at)}`, { method: "PATCH", body: { nda, updated_at: nowIso() } }).catch(() => null);
+    if (!won || !won[0]) {
+      const again = await getByRef(ref);
+      if (again && again.nda && again.nda.status === "SIGNED") return json(res, 409, { ok: false, error: "already_signed" });
+      return json(res, 500, { ok: false, error: "server_error" });
+    }
+    await logEvent(row.id, "customer", who, "nda.signed", { number: nda.number, mode: signature.mode, sha256: hash.slice(0, 16) });
+    await audit({ organization_id: orgId, actor_user_id: sess.user.id, action: "simple.nda.sign", entity: "requests", entity_id: row.id, meta: { ref, sha256: hash } });
+    await announce(won[0], "nda-signed", {
+      subject: `تم توقيع اتفاقية عدم الإفصاح ${nda.number}`,
+      clientLine: "شكراً لك، استلمنا توقيعك على اتفاقية عدم الإفصاح وحفظناها مع طلبك.",
+      opsLine: `${signerName} وقّع اتفاقية عدم الإفصاح ${nda.number} إلكترونياً.`,
+      cta: "افتح الطلب",
+    });
+    return json(res, 200, { ok: true, nda: { ...nda, html: undefined } });
+  }
+
   if (action === "contract-sign") {
     if (row.status !== "CONTRACT_SENT" || !row.contract) return json(res, 409, { ok: false, error: "no_open_contract" });
     if (!b.consent) return json(res, 400, { ok: false, error: "consent_required", message: "يلزم الموافقة على التوقيع الإلكتروني." });
@@ -1444,6 +1542,7 @@ const summary = (r) => ({
   scope_count: (r.scope || []).length,
   quote: r.quote ? { number: r.quote.number, total: r.quote.total, status: r.quote.status, valid_until: r.quote.valid_until } : null,
   contract: r.contract ? { number: r.contract.number, status: r.contract.status } : null,
+  nda: r.nda ? { number: r.nda.number, status: r.nda.status } : null,
   payment: r.payment ? { status: r.payment.status, amount: r.payment.amount, provider: r.payment.provider } : null,
   invoice: publicInvoice(r.invoice) ? { number: r.invoice.number, total: r.invoice.total } : null,
   appointment: r.appointment ? { date: r.appointment.date, time: r.appointment.time, status: r.appointment.status, topic: r.appointment.topic, ref: r.appointment.ref || null, meet: r.appointment.meet || "", minutes: r.appointment.minutes || null, mode: r.appointment.mode || "" } : null,
@@ -2666,7 +2765,7 @@ async function opsAction(action, b, qs, req, res, opsUser) {
       const ref = priceBook && it.code ? referencePrice(priceBook, it.code) : null;
       return ref != null ? { ...it, price: ref } : it;
     });
-    return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, request: { ...row, scope, attachments, contract: row.contract ? { ...row.contract, html: undefined, has_html: !!row.contract.html } : null, events, tasks } });
+    return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, request: { ...row, scope, attachments, contract: row.contract ? { ...row.contract, html: undefined, has_html: !!row.contract.html } : null, nda: row.nda ? { ...row.nda, html: undefined, has_html: !!row.nda.html } : null, events, tasks } });
   }
 
   if (action === "ops-request-update") {
@@ -2733,6 +2832,23 @@ async function opsAction(action, b, qs, req, res, opsUser) {
     return json(res, 200, { ok: true, status: issued.status, contract: { ...issued.contract, html: undefined } });
   }
 
+
+  // «إصدار اتفاقية عدم إفصاح»: optional, one request at a time. An unsigned one is replaced
+  // (the party details may have been corrected); a signed one is final.
+  if (action === "ops-nda") {
+    if (["CANCELLED", "COMPLETED"].includes(row.status)) return json(res, 409, { ok: false, error: "request_closed" });
+    let out;
+    try {
+      out = await issueNda(row, "human", actor, { clientRegNo: b.client_reg_no, clientAddress: b.client_address, clientCountry: b.client_country, signatory: { name: b.signatory_name, title: b.signatory_title }, ...(b.lang === "en" || b.lang === "ar" ? { lang: b.lang } : {}) });
+    } catch (e) { return json(res, 500, { ok: false, error: "nda_build_failed" }); }
+    if (!out.ok) return json(res, out.error === "nda_signed" ? 409 : 503, out);
+    return json(res, 200, { ok: true, nda: { ...out.nda, html: undefined } });
+  }
+
+  if (action === "ops-nda-html") {
+    if (!row.nda || !row.nda.html) return json(res, 404, { ok: false, error: "no_nda" });
+    return json(res, 200, { ok: true, html: portalContractHtml(row.nda.html, { signature: row.nda.signature, signedAt: row.nda.signed_at }), nda: { ...row.nda, html: undefined } });
+  }
 
   if (action === "ops-contract-html") {
     if (!row.contract || !row.contract.html) return json(res, 404, { ok: false, error: "no_contract" });
@@ -3162,6 +3278,7 @@ async function holdForPricing(row, scope, holds) {
 // The one door a confirmed scope goes through: priced by the catalogue ⇒ the
 // quotation now; otherwise ⇒ the team, with the reason.
 async function quoteOrHold(row, scope) {
+  await autoNda(row, scope);
   const auto = await tryAutoQuote(row, scope);
   if (auto.issued) return { issued: true, quote: auto.quote, status: auto.status };
   const holds = auto.holds.length ? auto.holds : (await assessScope(scope)).holds;
