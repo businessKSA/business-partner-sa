@@ -279,12 +279,12 @@
   {
    "i": 47,
    "ar": false,
-   "t": "1.8 \"Pricing Model\" means either Model 1 (Cost Plus) or Model 2 (Lump Sum), as selected for each Employee in Schedule 1."
+   "t": "1.8 \"Pricing Model\" means either Model 1 (Transparent Cost) or Model 2 (Full Employee Cost), as selected for each Employee in Schedule 1."
   },
   {
    "i": 48,
    "ar": true,
-   "t": "1-8 «نموذج التسعير»: النموذج (1) تكلفة زائد أو النموذج (2) مبلغ مقطوع، بحسب ما يُحدَّد لكل موظف في الملحق (1)."
+   "t": "1-8 «نموذج التسعير»: النموذج (1) التكلفة بشفافية أو النموذج (2) تكلفة الموظف الكاملة، بحسب ما يُحدَّد لكل موظف في الملحق (1)."
   }
  ],
  [
@@ -555,24 +555,24 @@
   {
    "i": 93,
    "ar": false,
-   "t": "6.2 Model 1 (Cost Plus): the Client shall pay (a) the Localisation Fee per Employee per month according to the Employee's occupation category in Schedule 4; (b) Business Partner's fixed monthly service fee of SAR 500 per Employee, charged on the monthly invoice only, where (a) and (b) are subject to value added tax at 15%; and (c) the Actual Costs at cost without mark-up, which the Client transfers to Business Partner upon each request (for example, the fees of a service transfer request, the medical insurance on enrolling the Employees, and the work permit fees), each under a separate invoice and on the payment dates stated in Schedule 2."
+   "t": "6.2 Model 1 (Transparent Cost): the Client shall pay (a) the Localisation Fee per Employee per month according to the Employee's occupation category in Schedule 4; (b) Business Partner's fixed monthly service fee of SAR 500 per Employee, charged on the monthly invoice only, where (a) and (b) are subject to value added tax at 15%; and (c) the Actual Costs at cost without mark-up, which the Client transfers to Business Partner upon each request (for example, the fees of a service transfer request, the medical insurance on enrolling the Employees, and the work permit fees), each under a separate invoice and on the payment dates stated in Schedule 2."
   },
   {
    "i": 94,
    "ar": true,
-   "t": "6-2 النموذج (1) تكلفة زائد: يدفع العميل (أ) رسوم التوطين شهرياً لكل موظف بحسب فئة مهنته في الملحق (4)؛ و(ب) رسوم خدمة Business Partner الثابتة 500 ريال شهرياً لكل موظف، وتُحمَّل على الفاتورة الشهرية فقط، و(أ) و(ب) خاضعان لضريبة القيمة المضافة بنسبة 15%؛ و(ج) التكاليف الفعلية بالتكلفة دون هامش، يحوّلها العميل إلى Business Partner عند كل طلب (مثل رسوم طلب نقل الخدمات، ومبلغ التأمين الطبي عند إدخال الموظفين، ورسوم رخصة العمل)، وكلٌّ منها بفاتورة منفصلة وفي مواعيد الدفع المبيّنة في الملحق (2)."
+   "t": "6-2 النموذج (1) التكلفة بشفافية: يدفع العميل (أ) رسوم التوطين شهرياً لكل موظف بحسب فئة مهنته في الملحق (4)؛ و(ب) رسوم خدمة Business Partner الثابتة 500 ريال شهرياً لكل موظف، وتُحمَّل على الفاتورة الشهرية فقط، و(أ) و(ب) خاضعان لضريبة القيمة المضافة بنسبة 15%؛ و(ج) التكاليف الفعلية بالتكلفة دون هامش، يحوّلها العميل إلى Business Partner عند كل طلب (مثل رسوم طلب نقل الخدمات، ومبلغ التأمين الطبي عند إدخال الموظفين، ورسوم رخصة العمل)، وكلٌّ منها بفاتورة منفصلة وفي مواعيد الدفع المبيّنة في الملحق (2)."
   }
  ],
  [
   {
    "i": 95,
    "ar": false,
-   "t": "6.3 Model 2 (Lump Sum): the Client shall pay the Inclusive Monthly Rate per job title stated in Schedule 3. The full cost is divided over twelve (12) months, and the service transfer or visa fees are distributed over the contract term, as set out in Schedule 3. The Inclusive Monthly Rate is exclusive of value added tax at 15%, which is added to the invoice where applicable. The Localisation Fee is not included in the Inclusive Monthly Rate; it is added on top of it for each Employee according to his/her occupation under Schedule 4, before value added tax, with value added tax at 15% added. Business Partner transfers the Employees' services and renews all procedures, and renews the official fees every three (3) months."
+   "t": "6.3 Model 2 (Full Employee Cost): the Client shall pay the Inclusive Monthly Rate per job title stated in Schedule 3. The full cost is divided over twelve (12) months, and the service transfer or visa fees are distributed over the contract term, as set out in Schedule 3. The Inclusive Monthly Rate is exclusive of value added tax at 15%, which is added to the invoice where applicable. The Localisation Fee is not included in the Inclusive Monthly Rate; it is added on top of it for each Employee according to his/her occupation under Schedule 4, before value added tax, with value added tax at 15% added. Business Partner transfers the Employees' services and renews all procedures, and renews the official fees every three (3) months."
   },
   {
    "i": 96,
    "ar": true,
-   "t": "6-3 النموذج (2) مبلغ مقطوع: يدفع العميل السعر الشهري الشامل لكل مسمى وظيفي المبيّن في الملحق (3). وتُقسَّم التكلفة الكاملة على 12 شهراً، وتُوزَّع رسوم نقل الخدمات أو التأشيرة على مدة العقد، وفق الملحق (3). والسعر الشهري الشامل غير شامل لضريبة القيمة المضافة بنسبة 15% وتُضاف إلى الفاتورة حيثما تنطبق. ولا تدخل رسوم التوطين في السعر الشهري الشامل، بل تُضاف فوقه لكل موظف بحسب مهنته وفق الملحق (4)، قبل الضريبة، وتُضاف إليه ضريبة 15%. وتنقل Business Partner خدمات الموظفين وتجدد جميع الإجراءات، وتجدد الرسوم الرسمية كل 3 أشهر."
+   "t": "6-3 النموذج (2) تكلفة الموظف الكاملة: يدفع العميل السعر الشهري الشامل لكل مسمى وظيفي المبيّن في الملحق (3). وتُقسَّم التكلفة الكاملة على 12 شهراً، وتُوزَّع رسوم نقل الخدمات أو التأشيرة على مدة العقد، وفق الملحق (3). والسعر الشهري الشامل غير شامل لضريبة القيمة المضافة بنسبة 15% وتُضاف إلى الفاتورة حيثما تنطبق. ولا تدخل رسوم التوطين في السعر الشهري الشامل، بل تُضاف فوقه لكل موظف بحسب مهنته وفق الملحق (4)، قبل الضريبة، وتُضاف إليه ضريبة 15%. وتنقل Business Partner خدمات الموظفين وتجدد جميع الإجراءات، وتجدد الرسوم الرسمية كل 3 أشهر."
   }
  ],
  [
@@ -1215,12 +1215,12 @@
   {
    "i": 203,
    "ar": false,
-   "t": "SCHEDULE 2 — MODEL 1: COST PLUS"
+   "t": "SCHEDULE 2 — MODEL 1: TRANSPARENT COST"
   },
   {
    "i": 204,
    "ar": true,
-   "t": "الملحق (2) — النموذج (1): تكلفة زائد"
+   "t": "الملحق (2) — النموذج (1): التكلفة بشفافية"
   }
  ],
  [
@@ -1275,12 +1275,12 @@
   {
    "i": 213,
    "ar": false,
-   "t": "SCHEDULE 3 — MODEL 2: LUMP SUM"
+   "t": "SCHEDULE 3 — MODEL 2: FULL EMPLOYEE COST"
   },
   {
    "i": 214,
    "ar": true,
-   "t": "الملحق (3) — النموذج (2): مبلغ مقطوع"
+   "t": "الملحق (3) — النموذج (2): تكلفة الموظف الكاملة"
   }
  ],
  [
