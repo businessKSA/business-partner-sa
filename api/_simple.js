@@ -33,6 +33,7 @@ import { isOwnerEmail } from "./_trial.js";
 import { waSend, waNumber } from "./_stage.js";
 import { storagePut, storageSign, storageDelete } from "./_db.js";
 import { readDocumentRaw, parseJson, DOC_MIME_OK, MAX_DOC_BYTES } from "./_docread.js";
+import { intakeBatch, confirmIntake, loadVaultIndex, intakeThrottle } from "./_doc-intake.js";
 import { signBankToken } from "./_bank-transfer.js";
 import { validateSlot, bookingMessage, bookingConfig, manageToken } from "./_booking.js";
 import { normalizePhone } from "./_clientauth.js";
@@ -966,6 +967,26 @@ async function clientAction(action, b, qs, req, res, sess) {
     try { quoted = await issueWaitingQuotes(sess); } catch (e) { console.error("profile auto quote", String(e && e.message || e).slice(0, 120)); }
     await audit({ organization_id: orgId, actor_user_id: sess.user.id, action: "simple.profile.set", entity: "users", entity_id: sess.user.id, meta: { requests: updated } });
     return json(res, 200, { ok: true, user: { name, email, phone: ph.value, needsName: false, needsPhone: false, needsProfile: false }, updated, quoted });
+  }
+
+  // استقبال المستندات دفعةً واحدة (api/_doc-intake.js): doc-intake يقرأ ويصنّف ويقترح ولا يحفظ شيئاً؛
+  // doc-intake-confirm يحفظ في خزانة منشأة الجلسة وحدها ويحدّث «بيانات الشركة» بما أكّده العميل.
+  if (action === "doc-intake" || action === "doc-intake-confirm") {
+    const files = Array.isArray(b.files) ? b.files : [];
+    if (!intakeThrottle(`${sess.user.id}`, Math.max(1, files.length))) return json(res, 429, { ok: false, error: "rate_limited" });
+    if (action === "doc-intake") {
+      let org = null, existingDocs = [];
+      if (orgId) {
+        try { org = (await sb(`organizations?id=eq.${q(orgId)}&select=id,name_ar,name_en,cr_number,vat_number,city&limit=1`))[0] || null; }
+        catch { org = sess.organization || null; }
+        if (org && isPlaceholderName(org.name_ar, email)) org = { ...org, name_ar: "" };
+        existingDocs = await loadVaultIndex(sb, orgId);
+      }
+      const r = await intakeBatch({ files, org, existingDocs, prior: b.prior });
+      return json(res, r.ok ? 200 : (r.error === "too_large" ? 413 : 400), r);
+    }
+    const r = await confirmIntake({ files, facts: b.facts, sess, deps: { sb, storagePut, audit, notify } });
+    return json(res, r.status || (r.ok ? 200 : 400), r.ok ? { ok: true, saved: r.saved, skipped: r.skipped, organization: r.organization, factsApplied: r.factsApplied, factErrors: r.factErrors, createdOrg: r.createdOrg } : { ok: false, error: r.error, ...(r.max ? { max: r.max } : {}) });
   }
 
   if (action === "requests") {
