@@ -501,6 +501,22 @@ async function issueQuote(row, rawItems, opts, actorKind, actor) {
     return { ok: false, error: "unpriced_items", unpriced: titles,
       message: `لا يصدر عرض سعر ببند بلا سعر: ${titles.join(" · ")}. اكتب سعراً أكبر من صفر لكل بند، أو اختره بالرمز من الكتالوج.` };
   }
+  // سعر الكتالوج لبندٍ ليس «السعر»: اشتراكٌ شهري أو حدٌّ أدنى «يبدأ من». كان يدخل
+  // الإجمالي كأنه سعرٌ ثابت لدفعة واحدة، صامتاً، حين يضغط الفريق «توليد وإرسال» — فيرى
+  // العميل «2,500 ر.س» بلا «شهرياً». الإنسان يؤكّد صراحةً (confirm_prices) أو يكتب سعراً
+  // آخر بيده؛ وبعد التأكيد يُكتب نوع السعر في وصف السطر فيُطبع في العرض والعقد.
+  if (actorKind === "human") {
+    const catalogueLines = priced.filter((l) => num(l.price) > 0 && !AUTO_PRICE_MODELS.has(String(l.model || "")) && num(l.catPrice) > 0 && num(l.price) === num(l.catPrice));
+    if (catalogueLines.length && opts.confirm_prices !== true) {
+      const lines = catalogueLines.map((l) => { const reason = pricingReason(l); return { title: l.title, code: l.code || "", price: l.price, reason, reason_ar: HOLD_AR[reason] }; });
+      return { ok: false, error: "needs_confirmation", lines,
+        message: `بنود سعرها من الكتالوج ليس سعراً نهائياً لدفعة واحدة:\n${lines.map((x) => `• ${x.title} — ${x.price} ر.س: ${x.reason_ar}`).join("\n")}\nأكّد لإصدار العرض بهذا السعر مع كتابة نوعه في السطر، أو غيّر السعر.` };
+    }
+    for (const l of catalogueLines) {
+      const tag = pricingReason(l) === "recurring" ? "السعر شهري (اشتراك دوري) لا دفعة واحدة" : pricingReason(l) === "from" ? "حدّ أدنى «يبدأ من» — السعر النهائي بحسب الحالة" : "";
+      if (tag && !String(l.description || "").includes(tag)) l.description = (l.description ? l.description + " — " : "") + tag;
+    }
+  }
   const quote = { number: "Q-" + row.ref.replace(/^BP-R-/, "") + (row.quote && row.quote.status === "REJECTED" ? "-R" : ""), status: "DRAFT", created_at: nowIso(), template_version: templateForLang(row.lang), ...computeQuote(priced, opts) };
   if (!quote.items.length) return { ok: false, error: "no_items" };
   // What the customer typed beside catalogue lines: kept apart, short, and printed
@@ -3076,7 +3092,7 @@ async function priceItems(items, { catalogueText = false } = {}) {
       titleEn: str((svc && (svc.nameEn || svc.name)) || (own ? "" : it.titleEn) || "", 200),
       description: own ? str(svc.descAr || svc.description, 600) : (it.description || it.why || ""), qty: it.qty || 1,
       price: it.price != null && it.price !== "" ? num(it.price) : catPrice,
-      model: svc ? String(svc.pricingModel || "") : "", found: !!svc, clientNote };
+      model: svc ? String(svc.pricingModel || "") : "", found: !!svc, clientNote, catPrice };
   });
 }
 // A catalogue price is a decision only when it IS the price. «يبدأ من 800»

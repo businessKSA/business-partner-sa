@@ -48,11 +48,13 @@ export const ANNEX_NOTES_AR = Object.freeze([
   "الأسعار بالريال السعودي وهي غير شاملة ضريبة القيمة المضافة 15٪؛ تُضاف الضريبة سطراً مستقلاً ثم يُذكر الإجمالي شاملاً.",
   "الرسوم الحكومية مستثناة دائماً، وتُسدَّد للجهات الحكومية بالتكلفة الفعلية.",
   "الخدمات المصنّفة «حسب العرض» يُحدَّد سعرها في عرض سعر مخصّص بحسب الحالة، ولا سعر ثابتاً لها في الكتالوج.",
+  "السعر الشهري يتكرّر كل شهر وليس دفعة واحدة، وعبارة «يبدأ من» حدٌّ أدنى لا سعر نهائي.",
 ]);
 export const ANNEX_NOTES_EN = Object.freeze([
   "Prices are in Saudi Riyals and exclude 15% VAT; VAT is shown as a separate line, then the total including VAT.",
   "Government fees are always excluded and are paid to the authorities at actual cost.",
   "Services marked “By quotation” are priced in a tailored quotation; the catalogue carries no fixed price for them.",
+  "A monthly price recurs every month and is not a one-off payment; “From” is a minimum, not a final price.",
 ]);
 
 const num = (v) => { if (v == null || v === "") return null; const n = Number(v); return Number.isFinite(n) ? n : null; };
@@ -93,17 +95,23 @@ function reasonFor({ status, model, label, isFloor, noAmount }) {
 
 // نصّ السعر كما يُطبع. `cur` رمز العملة: «ر.س» في الوثائق (افتراضي) و«﷼» في صفحات الموقع.
 // الحدّ الأدنى يُكتب «يبدأ من …»، والحسب-العرض بلا مبلغ يُكتب بلافتة الكتالوج نفسها.
-export function priceText(e, lang = "ar", cur = "") {
+// `opts.site`: صياغة صفحات الموقع الإنجليزية حرفاً بحرف («300 SAR» · «1,500 SAR / monthly» ·
+// «300 SAR / per candidate» · «From 800 SAR»)، فلا تختلف القائمة عن صفحة الخدمة. الافتراضي صياغة
+// الوثائق («SAR 300»).
+const SITE_UNIT_EN = { "شهرياً": "monthly", "شهريًا": "monthly", "سنوياً": "yearly", "سنويًا": "yearly", "لكل مرشّح": "per candidate", "لكل مرشح": "per candidate" };
+export function priceText(e, lang = "ar", cur = "", opts = {}) {
   const ar = lang === "ar";
+  const site = !!opts.site && !ar;
   const sym = cur || (ar ? "ر.س" : "SAR");
-  const u = e.unit ? (ar ? e.unit : (UNIT_EN[e.unit] || e.unit)) : "";
+  const u = e.unit ? (ar ? e.unit : site ? (SITE_UNIT_EN[e.unit] || UNIT_EN[e.unit] || e.unit) : (UNIT_EN[e.unit] || e.unit)) : "";
   if (e.amount != null && (e.status === "fixed" || e.isFloor)) {
     const n = fmt(e.amount);
     let tail = "";
     if (u) tail = ` / ${u}`;
-    else if (e.period === "monthly") tail = ar ? " / شهرياً" : " / month";
-    else if (e.period === "yearly") tail = ar ? " / سنوياً" : " / year";
-    const body = ar ? `${n} ${sym}${tail}` : `${sym === "SAR" ? "SAR " : ""}${n}${sym === "SAR" ? "" : " " + sym}${tail}`;
+    else if (e.period === "monthly") tail = ar ? " / شهرياً" : site ? " / monthly" : " / month";
+    else if (e.period === "yearly") tail = ar ? " / سنوياً" : site ? " / yearly" : " / year";
+    const symFirst = !site && sym === "SAR";
+    const body = ar ? `${n} ${sym}${tail}` : symFirst ? `SAR ${n}${tail}` : `${n} ${sym}${tail}`;
     return e.isFloor ? (ar ? `يبدأ من ${body}` : `From ${body}`) : body;
   }
   if (e.status === "quote") return ar ? (e.priceLabelAr || "حسب العرض") : "By quotation";
@@ -164,6 +172,12 @@ function entryFrom(kind, row, extra = {}) {
     url: String(row.url || ""),
     ...extra,
   };
+  // الدورة والحدّ الأدنى ظاهران في عمود الحالة نفسه، فلا يُقرأ «2,500» شهريٌّ كأنه دفعة واحدة.
+  const cyc = period === "monthly" || /^شهري/.test(unit) ? "monthly" : period === "yearly" || /^سنوي/.test(unit) ? "yearly" : "";
+  base.cycleAr = cyc === "monthly" ? "شهرياً" : cyc === "yearly" ? "سنوياً" : "";
+  base.cycleEn = cyc;
+  if (base.isFloor) { base.statusAr = "حدّ أدنى (يبدأ من) · حسب العرض"; base.statusEn = "Minimum (from) · by quotation"; }
+  else if (status === PRICE_STATUS.FIXED && base.cycleAr) { base.statusAr = `سعر ثابت · ${base.cycleAr === "شهرياً" ? "شهري" : "سنوي"}`; base.statusEn = `Fixed price · ${base.cycleEn}`; }
   base.priceTextAr = priceText(base, "ar");
   base.priceTextEn = priceText(base, "en");
   base.reasonAr = reasonFor({ status, model, label, isFloor: base.isFloor, noAmount: amount == null });
