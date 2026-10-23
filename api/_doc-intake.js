@@ -367,12 +367,18 @@ export async function intakeBatch({ files, org = null, reader, now = new Date(),
   }
   const vaultBySha = new Map();
   for (const d of Array.isArray(existingDocs) ? existingDocs : []) for (const s of d.sha256s || []) if (s) vaultBySha.set(s, d);
-  const usedIds = new Set();
+  // معرّفات ما سبق (prior) محجوزة: ملف جديد لا يحمل معرّف ملف سابق أبداً، وإلا التبس على الواجهة
+  // والدمج «الأصل» بنسخته المكررة فعُدّ الأصل متجاهَلاً.
+  const priorList = Array.isArray(prior) ? prior.slice(0, 30) : [];
+  const usedIds = new Set(priorList.map((pr) => clip(pr && pr.id, 40)).filter(Boolean));
   for (const it of items) {
     if (it.error) continue;
     it.sha256 = crypto.createHash("sha256").update(it.buf).digest("hex");
-    let id = "f_" + it.sha256.slice(0, 12), n = 1;
-    while (usedIds.has(id)) id = `f_${it.sha256.slice(0, 12)}-${++n}`;
+    const sha12 = it.sha256.slice(0, 12);
+    const isDup = known.has(it.sha256) || vaultBySha.has(it.sha256);
+    // المكرر معرّفه «f_<بصمة>-dup»: ما زال يبدأ بالبصمة (التأكيد يتحقق منها) لكنه ليس معرّف أصله.
+    let id = isDup ? `f_${sha12}-dup` : "f_" + sha12, n = 1;
+    while (usedIds.has(id)) id = isDup ? `f_${sha12}-dup${++n}` : `f_${sha12}-${++n}`;
     usedIds.add(id); it.id = id;
     const sniffed = sniffMime(it.buf);
     const isDemo = demo && !!demoRead(it.name);
@@ -426,7 +432,8 @@ export async function intakeBatch({ files, org = null, reader, now = new Date(),
     if (it.dupVault) {
       const d = it.dupVault;
       return { ...base, status: "duplicate", ...meta("unknown", { category: VAULT_CATEGORIES.includes(d.category) ? d.category : "other", title: clip(d.title, 160) }),
-        fields: {}, expiry: null, confidence: 0, warnings: [W.duplicate_vault(d.documentId, clip(d.title, 160))], canSave: false, duplicateOf: { documentId: d.documentId } };
+        fields: {}, vaultFields: vaultFieldsOf(d), vaultDocType: TYPE_KEYS.includes(d.extracted && d.extracted.docType) ? d.extracted.docType : "unknown", issueDate: validIso(d.extracted && d.extracted.issueDate) || null,
+        expiry: null, confidence: 0, warnings: [W.duplicate_vault(d.documentId, clip(d.title, 160))], canSave: false, duplicateOf: { documentId: d.documentId } };
     }
     if (it.dupOf) {
       return { ...base, status: "duplicate", ...meta("unknown"), fields: {}, expiry: null, confidence: 0, warnings: [W.duplicate(it.dupOf.id)], canSave: false, duplicateOf: { fileId: it.dupOf.id } };
@@ -454,16 +461,32 @@ export async function intakeBatch({ files, org = null, reader, now = new Date(),
   });
 
   // عنوان فريد لكل ملف: ملفان من النوع نفسه ومحتوى مختلف لا يجوز أن يصيرا «إصدارين» لمستند واحد.
+  // يشمل ما سبق في النداءات السابقة (prior): العنوان الأساسي يُشتق من نوع المستند السابق كما تُشتق عناوين
+  // هذا النداء، فالسجل الثاني يُفرَّق عن الأول ولو جاء في نداء آخر.
   const titleSeen = new Map();
+  for (const pr of priorList) {
+    const t = pr && pr.docType !== "unknown" ? DOC_TYPES[pr.docType] : null;
+    if (!t || !t.title || !/^[0-9a-f]{64}$/.test(String(pr.sha256 || ""))) continue;
+    const key = `${t.category}|${t.title}`;
+    titleSeen.set(key, (titleSeen.get(key) || 0) + 1);
+  }
   for (const r of results) {
     if (!r.canSave) continue;
     const key = `${r.category}|${r.title}`;
     const c = (titleSeen.get(key) || 0) + 1; titleSeen.set(key, c);
     if (c > 1) r.title = clip(`${r.title} — ${r.fileName.replace(/\.[^.]+$/, "")}`, 200);
   }
+  // عنوانٌ وتصنيفٌ كهذا موجودان في الخزانة: الحفظ العادي يفتح مستنداً مستقلاً (انظر confirmIntake)، ولا يُضاف
+  // إصداراً جديداً إلا بتأكيد العميل الصريح (asVersion/versionOf) — فتُعرض له الفرصة هنا.
+  for (const r of results) {
+    if (!r.canSave) continue;
+    const hit = (Array.isArray(existingDocs) ? existingDocs : []).find((d) => d.category === r.category && d.title === r.title);
+    if (hit) r.sameTitleInVault = { documentId: hit.documentId, title: clip(hit.title, 200) };
+  }
 
   // ٤) الدمج عبر الملفات + حسم التعارض + مقارنة مع بيانات الشركة الحالية.
   const companyFacts = mergeCompanyFacts(results, { org, prior });
+  for (const r of results) { delete r.vaultFields; delete r.vaultDocType; }   // للدمج فقط، لا تُرسَل
   for (const c of companyFacts.conflicts) {
     for (const s of c.sources) {
       const r = results.find((x) => x.id === s.fileId);
@@ -500,12 +523,34 @@ function compatible(field, a, b) {
   return !!a && !!b && (a.includes(b) || b.includes(a));
 }
 
+// ما حُفظ لمستند في الخزانة (documents.extracted) كحقول مدمجة: تُنظَّف كما تُنظَّف قراءة جديدة، وثقتها
+// «عالية» لأن العميل أكّدها عند الحفظ.
+function vaultFieldsOf(d) {
+  const ex = d && d.extracted;
+  if (!ex || typeof ex !== "object") return {};
+  const out = {};
+  for (const f of MERGE_FIELDS) {
+    const c = cleanFieldValue(f, ex[f]);
+    if (c.value) out[f] = { value: c.value, confidence: 0.85, level: "high", needsReview: false };
+  }
+  return out;
+}
+
 // دمج الحقول من كل الملفات المقروءة: لكل حقل مجموعات قيم متوافقة؛ تُختار المجموعة بـ
 //   (١) غير منخفضة الثقة، (٢) الأحدث إصداراً، (٣) الأعلى ثقة — والتعارض يُعلَّم ويُبيَّن مصدره.
 export function mergeCompanyFacts(results, { org = null, prior = [] } = {}) {
+  // المصادر: الملفات المقروءة الآن؛ ثم المكرر في الخزانة بما حُفظ لأصله (مكررٌ لا يُسقط اقتراح الشركة)؛ ثم prior.
+  // مصدر واحد لكل محتوى: prior بمعرّف أو بصمة ملف موجود الآن يُتجاهل، فلا يُحسب الأصل ونسخته اتفاقاً بين ملفين.
   const sources = [...results.filter((r) => r.status === "read")];
+  for (const r of results) if (r.status === "duplicate" && r.vaultFields && Object.keys(r.vaultFields).length) sources.push({ id: r.id, fileName: r.fileName, docType: r.vaultDocType || "unknown", issueDate: r.issueDate || null, suspicious: false, fields: r.vaultFields, status: "read" });
+  // البصمات والمعرّفات المحجوزة هي لمصادر هذا النداء فقط. نسخة مكررة لأصلٍ في prior ليست مصدراً، فلا تُسقط أصلها.
+  const live = results.filter((r) => r.status === "read");
+  const seenSha = new Set(live.map((r) => r.sha256).filter(Boolean)), seenId = new Set(live.map((r) => r.id));
   for (const p of Array.isArray(prior) ? prior.slice(0, 30) : []) {
     if (!p || typeof p !== "object" || !p.fields || typeof p.fields !== "object") continue;
+    const psha = /^[0-9a-f]{64}$/.test(String(p.sha256 || "")) ? p.sha256 : "";
+    if ((psha && seenSha.has(psha)) || seenId.has(clip(p.id, 40))) continue;
+    if (psha) seenSha.add(psha);
     const fields = {};
     for (const f of FIELD_NAMES) {
       const pf = p.fields[f]; if (!pf || typeof pf !== "object") continue;
@@ -572,9 +617,10 @@ export function mergeCompanyFacts(results, { org = null, prior = [] } = {}) {
 export async function loadVaultIndex(sb, orgId) {
   if (!orgId) return [];
   let rows = [];
-  try { rows = await sb(`documents?organization_id=eq.${encodeURIComponent(orgId)}&select=id,category,title,expiry_date,document_versions(sha256,version_no)&limit=300`); }
-  catch { rows = []; }
-  return (rows || []).map((d) => ({ documentId: d.id, category: d.category, title: d.title, expiry_date: d.expiry_date || null, sha256s: (d.document_versions || []).map((v) => v.sha256).filter(Boolean) }));
+  const sel = (extra) => `documents?organization_id=eq.${encodeURIComponent(orgId)}&select=id,category,title,expiry_date${extra},document_versions(sha256,version_no)&limit=300`;
+  try { rows = await sb(sel(",extracted")); }
+  catch { try { rows = await sb(sel("")); } catch { rows = []; } }   // عمود extracted من ترحيل لاحق
+  return (rows || []).map((d) => ({ documentId: d.id, category: d.category, title: d.title, expiry_date: d.expiry_date || null, extracted: d.extracted && typeof d.extracted === "object" ? d.extracted : null, sha256s: (d.document_versions || []).map((v) => v.sha256).filter(Boolean) }));
 }
 
 // ================================================================= الحفظ ====
@@ -640,8 +686,8 @@ export async function confirmIntake({ files = [], facts = {}, sess, deps, now = 
     const mime = sniffMime(p.buf) || ((DEV && /demo-/i.test(p.name) && DOC_MIME_OK.test(p.declared)) ? p.declared : "");
     if (!mime || !DOC_MIME_OK.test(mime)) { skipped.push({ id, reason: mime ? "bad_type" : "corrupt" }); continue; }
     if (p.buf.length > MAX_DOC_BYTES) { skipped.push({ id, reason: "too_large" }); continue; }
-    const category = VAULT_CATEGORIES.includes(f.category) ? f.category : "other";
-    const title = clip(f.title, 200);
+    let category = VAULT_CATEGORIES.includes(f.category) ? f.category : "other";
+    let title = clip(f.title, 200);
     if (!title) { skipped.push({ id, reason: "invalid_fields" }); continue; }
     if (shaSeen.has(sha)) { skipped.push({ id, reason: "duplicate" }); continue; }
     const expiry = validIso(f.expiry) || null;
@@ -660,7 +706,29 @@ export async function confirmIntake({ files = [], facts = {}, sess, deps, now = 
     }
     if (expiry) ex.expiryDate = expiry;
     try {
-      const key0 = index.find((d) => d.category === category && d.title === title);
+      // إصدارٌ جديد لمستند قائم لا يحدث إلا بتأكيد العميل الصريح (versionOf = معرّف مستنده، أو asVersion=true
+      // لمستند بالتصنيف والعنوان نفسيهما). بدونه يُفتح مستند مستقل بعنوان فريد: سجلّ شركة أخرى، أو ملفان
+      // متشابهان وصلا على نداءين، لا يصيران «النسخة الثانية» من سجل شركتك. المحتوى نفسه يُتخطّى أعلاه كمكرر.
+      let key0 = null;
+      const wantId = f && f.versionOf != null ? clip(f.versionOf, 60) : "";
+      if (wantId) {
+        key0 = index.find((d) => String(d.documentId) === wantId) || null;
+        if (!key0) { skipped.push({ id, reason: "version_target_not_found" }); continue; }
+        category = key0.category; title = key0.title;
+      } else if (f && f.asVersion === true) {
+        key0 = index.find((d) => d.category === category && d.title === title) || null;
+      }
+      let renamed = false;
+      if (!key0) {
+        const requested = title;
+        const taken = (t) => index.some((d) => d.category === category && d.title === t);
+        if (taken(title)) {
+          const stem = clip(p.name.replace(/\.[^.]+$/, ""), 80);
+          title = clip(`${requested} — ${stem}`, 200);
+          for (let n = 2; taken(title) && n < 50; n++) title = clip(`${requested} — ${stem} (${n})`, 200);
+          renamed = true;
+        }
+      }
       let docId;
       if (key0) docId = key0.documentId;
       else {
@@ -683,7 +751,7 @@ export async function confirmIntake({ files = [], facts = {}, sess, deps, now = 
       }
       shaSeen.add(sha);
       const ix = index.find((d) => d.documentId === docId); if (ix) ix.sha256s.push(sha);
-      saved.push({ id, documentId: docId, version: vno, category, title, expiry, verifyStatus: verify });
+      saved.push({ id, documentId: docId, version: vno, category, title, expiry, verifyStatus: verify, ...(renamed ? { renamed: true } : {}), ...(key0 && vno > 1 ? { newVersion: true } : {}) });
     } catch (e) {
       console.error("doc-intake store", "failed");
       skipped.push({ id, reason: "store_failed" });

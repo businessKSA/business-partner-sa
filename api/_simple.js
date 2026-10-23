@@ -891,6 +891,18 @@ export async function handleSimple(req, res) {
   }
 }
 
+// getSession (api/_db.js) لا يختار vat_number ولا city، فبعد أن يحفظهما استقبال المستندات تختفيان من «بيانات
+// الشركة». نقرؤهما هنا وحدهما، ومن أجل `me` فقط، بدل تغيير استعلام الجلسة الذي تمرّ به كل الواجهات. عمودٌ
+// غائب في قاعدة قديمة لا يُسقط `me`: تعود المنشأة كما كانت.
+async function orgWithExtras(org) {
+  if (!org || !org.id) return org;
+  try {
+    const x = (await sb(`organizations?id=eq.${q(org.id)}&select=vat_number,city&limit=1`))[0];
+    if (x) return { ...org, vat_number: x.vat_number ?? null, city: x.city ?? null };
+  } catch { /* بلا الأعمدة الإضافية */ }
+  return org;
+}
+
 // ------------------------------------------------------------ client side --
 async function clientAction(action, b, qs, req, res, sess) {
   const email = String(sess.user?.email || "").toLowerCase();
@@ -926,7 +938,7 @@ async function clientAction(action, b, qs, req, res, sess) {
     return json(res, 200, {
       ok: true, testMode: SIMPLE_TEST_MODE,
       user: { name: prof.name, email, phone: prof.phone, needsName: prof.needsName, needsPhone: prof.needsPhone, needsProfile: prof.needsName || prof.needsPhone },
-      organization: sess.organization, counts, requests: mine.map(summary),
+      organization: await orgWithExtras(sess.organization), counts, requests: mine.map(summary),
     });
   }
 
