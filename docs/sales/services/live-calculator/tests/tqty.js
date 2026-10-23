@@ -10,6 +10,7 @@ await p.click('.chip:has-text("توظيف بالساعة")');await p.waitForTime
 await p.click('.chip:has-text("باليوم")');await p.waitForTimeout(200);
 await p.click('#dk-ok');await p.waitForTimeout(300);
 await p.fill('#dk-q','محاسب');await p.waitForTimeout(300);await p.click('#dk-sg [data-pick]');await p.waitForTimeout(300);
+ok(await p.evaluate(()=>!document.querySelector('[data-bs]')),'no salary field for short term');
 const opts=await p.$$eval('select[data-bn] option',o=>o.map(x=>x.value));ok(!opts.includes('abroad')&&opts.length===2,'no abroad for short term: '+opts);
 await p.click('[data-bqd="0"][data-dst="1"]');await p.click('[data-bqd="0"][data-dst="1"]');
 await p.fill('[data-bq="0"]','3');await p.click('#dk-ok');await p.waitForTimeout(400);
