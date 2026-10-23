@@ -115,12 +115,12 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-three .sv1-panel{padding:20px}
 .sv1-three h4{font-size:15px;margin:0 0 6px}
 .sv1-three p{margin:0;font-size:13px;line-height:1.7}
-.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-doors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .sv1-doors>:last-child:nth-child(odd){grid-column:1/-1}
 a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
 .sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
 .sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
-.sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
+.sv1-door{overflow-wrap:anywhere;background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
 .sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
 .sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
 .sv1-door h3{font-size:18px;margin:13px 0 5px}
@@ -200,7 +200,7 @@ a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
 .sv1-flow i{font-style:normal;font-family:var(--fm);width:34px;height:34px;background:var(--acSoft);color:var(--ac);border-radius:9px;display:grid;place-items:center;margin:0 auto 9px;font-weight:500;font-size:12px}
 .sv1-flow b{display:block;font-size:12.5px;color:var(--ink);font-weight:500}
 .sv1-flow small{font-size:10px;color:#656c7f}
-.sv1-tabs{text-align:center;margin-bottom:15px;display:flex;gap:8px;justify-content:center}
+.sv1-tabs{text-align:center;margin-bottom:15px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
 .sv1-tab{border:1px solid var(--l);background:#fff;border-radius:9px;padding:9px 17px;font-weight:500;color:var(--mut);cursor:pointer;font-family:inherit;font-size:13px}
 .sv1-tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
 a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
@@ -264,6 +264,7 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-wa-fab{position:fixed;inset-inline-start:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
 .sv1-navlogin{display:none}
+.sv1-navout{display:none}
 /* أهداف اللمس ≥ 44px على الجوال (قرار الإتاحة 2026-10-16). سطح المكتب لا يتغيّر. */
 @media(pointer:coarse),(max-width:760px){
  .sv1 button:not(.sv1-door):not(.sv1-lang summary),.sv1 .sv1-btn,.sv1 input:not([type=hidden]):not([type=checkbox]):not([type=radio]),.sv1 select,.sv1 textarea{min-height:44px}
@@ -293,6 +294,28 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 }
 @media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
  .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+/* الترويسة على الجوال (قرار الجودة 2026-10-23): الشعار 213px والأزرار ~200px
+   لا تتّسع في 360px، فكان زر «ابدأ طلبك» يخرج من حافة الشاشة لمن سجّل دخوله
+   (يسار الشاشة بالعربية، يمينها بغيرها) بلا شريط تمرير يدلّ عليه. السبب
+   الجذري أن الشعار والأزرار لا تنكمش: عرض الصورة الطبيعي صلب، و«.right» بلا
+   min-width. الحل هنا: الشعار ينكمش (مع حدٍّ أدنى مقروء)، والأزرار تنكمش
+   فيلتفّ نصّ «ابدأ طلبك»، و«تسجيل الخروج» ينتقل إلى قائمة ☰ (#sv1NavOut)
+   بدل أن يزاحم. (زرّ السلة مخفيّ أصلاً تحت 900px بقاعدة أعلاه.) سطح المكتب والجهاز اللوحي لا يتغيّران. */
+@media(max-width:560px){
+ .sv1-bar .wrap{gap:8px;padding-inline:14px}
+ .sv1-bar-l{flex:1 1 0;overflow:hidden}
+ .sv1-bar-l>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+ .sv1-bar-r{flex:0 0 auto}
+ .sv1-bar-langs{gap:4px}
+ .sv1-hdr .wrap{gap:8px;padding-inline:14px}
+ .sv1-hdr .logo{flex:0 1 190px;min-width:96px;max-width:190px}
+ .sv1-hdr .logo img{width:100%;height:auto;max-width:100%}
+ .sv1-hdr .right{gap:6px;flex:0 1 auto;min-width:0}
+ .sv1-hdr .right .sv1-btn{min-width:0;padding-inline:11px;line-height:1.15;text-align:center}
+ .sv1-hdr .right .sv1-btn.primary{font-size:12.5px;padding-block:7px}
+ .sv1-hdr .right #sv1OutBtn{display:none}
+ .sv1-nav .sv1-navout{display:block;width:100%;text-align:start;background:none;border:0;border-top:1px solid var(--l);margin-top:6px;padding:12px 2px;font:inherit;font-size:13px;font-weight:700;color:#b42318;cursor:pointer;min-height:44px}
+}
 </style><script>(function(){try{var s=JSON.parse(localStorage.getItem('bp_a11y')||'null');if(!s||typeof s!=='object')return;var e=document.documentElement,k=['zoom','spacing','font','contrast','theme','links','cursor','focus','motion','imgs','voice'];for(var i=0;i<k.length;i++){var v=s[k[i]];if(v&&(typeof v==='number'||v==='dark'))e.setAttribute('data-bpa-'+k[i],String(v))}}catch(x){}})();</script><link rel="stylesheet" href="/assets/css/bp-a11y.css?v=655ad8d6f8"><script defer src="/assets/js/bp-a11y.js?v=24f51302c6"></script><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
 <body class="sv1-page"><a class="bpa-skip" href="#bp-main">Skip to content</a><div class="sv1"><style id="sv1-svc-css">
@@ -357,6 +380,7 @@ a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
     <a href="/fr/my" class="sv1-navlogin" id="sv1NavLogin">Connexion</a>
     <a href="/fr/my" id="sv1AccountLink">Mon compte</a>
     <details class="sv1-lang"><summary><span aria-hidden="true">🌐</span> Français</summary><div class="menu"><a href="/ar/services/bp-zatca-04" data-lang="ar" lang="ar" hreflang="ar">العربية</a><a href="/services/bp-zatca-04" data-lang="en" lang="en" hreflang="en">English</a><a href="/fr/services/bp-zatca-04" data-lang="fr" lang="fr" hreflang="fr" class="on" aria-current="true">Français</a><a href="/zh/services/bp-zatca-04" data-lang="zh" lang="zh" hreflang="zh">中文</a></div></details>
+    <button type="button" class="sv1-navout sv1-hide" id="sv1NavOut">Déconnexion</button>
   </nav>
   <div class="right">
     <button type="button" class="sv1-burger" id="sv1Burger" aria-label="Menu" aria-controls="sv1Nav" aria-expanded="false"><span aria-hidden="true">☰</span></button>
@@ -389,6 +413,7 @@ var S=window.SV1S={
   if(lb)lb.classList.toggle('sv1-hide',!!on);
   var nl=g('sv1NavLogin');if(nl)nl.classList.toggle('sv1-hide',!!on);
   if(ob)ob.classList.toggle('sv1-hide',!on);
+  var no=g('sv1NavOut');if(no)no.classList.toggle('sv1-hide',!on);
   var p=location.pathname;
   if(sb)sb.classList.toggle('sv1-hide',!(on&&(p.indexOf('/my')>=0||p.indexOf('/ops')>=0)));
  }};
@@ -485,7 +510,7 @@ var h0=hint();if(h0)S.paint(true,h0);
 </div>
 </footer></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
 fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.setAttribute('role','region');d.setAttribute('aria-label','Test mode');d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
-var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};
+var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();['sv1OutBtn','sv1NavOut'].forEach(function(id){var outBtn=$h(id);if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})}});
 /* الرسم الفوري جرى بعد «</header>» مباشرة (SV1_SESSION_JS)؛ هنا التصحيح. */
 fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
 .then(function(r){return r.json().catch(function(){return{}})}).then(function(o){
@@ -520,7 +545,7 @@ document.addEventListener("click",function(e){
  send({kind:"click",path:location.pathname,name:n})},true);
 var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
-})();</script><script src="/assets/js/live-prices.js?v=d25b70074e" defer></script><script>
+})();</script><script src="/assets/js/live-prices.js?v=0eb5806f5c" defer></script><script>
 (function(){
 var C={"code":"BP-ZATCA-04","name":"Immatriculation à la TVA auprès de la ZATCA","gov":"ZATCA","door":"government","tx":{"added":"Ajouté ✓","addCart":"Ajouter au panier","toast":"Ajouté à votre panier","fail":"Ce navigateur n'a pas pu enregistrer le panier. Demandez plutôt un devis."}};
 var $=function(id){return document.getElementById(id)};

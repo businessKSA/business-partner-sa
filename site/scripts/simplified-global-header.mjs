@@ -71,7 +71,7 @@ function splitRules(css){
 
 // الأصناف التي تستعملها ترويسة SV1 وتذييله فعلاً، ومعها `.sv1` نفسه لأن
 // المتغيّرات تُعرَّف عليه. ما عداها (الرئيسية، اللوحات) يسقط.
-const CHROME_PART = /^(\.sv1(?=[\s:.>#[]|$)|\.sv1-(?:ribbon|bar|bar-l|bar-r|bar-langs|pulse|hdr|nav|btn|lang|burger|cart|hide|chrome|foot(?:-[a-z]+)?|wa-fab)(?=[\s:.>#[]|$))/;
+const CHROME_PART = /^(\.sv1(?=[\s:.>#[]|$)|\.sv1-(?:ribbon|bar|bar-l|bar-r|bar-langs|pulse|hdr|nav|navout|btn|lang|burger|cart|hide|chrome|foot(?:-[a-z]+)?|wa-fab)(?=[\s:.>#[]|$))/;
 const keepSel = (sel) => sel.split(',').some((s) => CHROME_PART.test(s.trim()));
 
 function chromeRules(css){
@@ -142,10 +142,10 @@ document.addEventListener('bp:cart',sync);
    ضغطة على زر شراء في الصفحة القديمة نعيد القراءة — وإلا جمد العدّاد. */
 document.addEventListener('click',function(e){
  if(e.target&&e.target.closest&&e.target.closest('.add-cart,[data-cart],.cart-remove,.cart-qty'))setTimeout(sync,0)},true);
-var ob=$('sv1OutBtn');
+['sv1OutBtn','sv1NavOut'].forEach(function(id){var ob=$(id);
 if(ob)ob.onclick=function(){ob.disabled=true;
  fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'})
- .catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.reload()})};
+ .catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.reload()})}});
 /* حالة الدخول: الرسم الفوري من التلميح جرى بعد «</header>» مباشرة
    (SV1_SESSION_JS)، وهذا هو التصحيح من الخادم — والمنطق نفسه حرفاً بحرف في
    صفحات SV1، من simple-v1.mjs لا من نسخةٍ ثانية تفترق عنها بعد شهر. */
@@ -212,6 +212,7 @@ function headerFor(file){
     <a href="${home}#how">${t('navHow')}</a>
     <a href="${href('/my')}" id="sv1AccountLink">${t('navAccount')}</a>
     <details class="sv1-lang"><summary>🌐 ${LANG_NAMES[lang]}</summary><div class="menu">${langItems}</div></details>
+    <button type="button" class="sv1-navout sv1-hide" id="sv1NavOut">${t('logout')}</button>
   </nav>
   <div class="right">
     <button class="sv1-burger" id="sv1Burger" aria-label="Menu" aria-expanded="false">☰</button>
