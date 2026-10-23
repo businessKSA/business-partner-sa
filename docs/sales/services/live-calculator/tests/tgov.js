@@ -3,7 +3,7 @@ const p=await b.newPage({viewport:{width:900,height:1300}});p.on('pageerror',e=>
 await p.goto('file://'+process.cwd()+'/index-client.html?lang=ar');await p.waitForTimeout(600);
 ok(await p.evaluate(()=>!!document.querySelector('[data-side=gov]')),'client sidebar item');
 await p.click('[data-side=gov]');await p.waitForTimeout(300);
-await p.fill('[data-nk=nw]','2');await p.fill('[data-nk=ex]','3');await p.fill('[data-nk=exam]','300');await p.click('#dk-ok');await p.waitForTimeout(400);
+await p.fill('[data-nk=nw]','2');await p.fill('[data-nk=ex]','3');await p.fill('[data-nk=exam]','300');await p.selectOption('select[data-nk=pf]','3');await p.selectOption('select[data-nk=if]','6');await p.click('#dk-ok');await p.waitForTimeout(400);
 const t=await p.evaluate(()=>document.getElementById('cs-thread').innerText.replace(/\n+/g,' | '));console.log(t.slice(-420));
 const rec=9700+650+600; // medical default from insAnnual (basic male)
 ok(/المجموع/.test(t)&&/الإجمالي السنوي/.test(t),'totals present');

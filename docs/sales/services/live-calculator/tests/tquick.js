@@ -1,0 +1,11 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const er=[];let fail=0;
+const p=await b.newPage({viewport:{width:480,height:900}});p.on('pageerror',e=>er.push(e.message));
+await p.goto('file://'+process.cwd()+'/index-client.html?lang=ar');await p.waitForTimeout(600);
+await p.evaluate(()=>bpT().hireQuick());await p.waitForTimeout(300);
+await p.click('.chip:has-text("باليوم")');await p.waitForTimeout(200);
+await p.fill('#dk-tx','3');await p.click('#dk-ok');await p.waitForTimeout(300);
+await p.fill('#dk-q','محاسب');await p.waitForTimeout(300);await p.click('#dk-sg [data-pick]');await p.waitForTimeout(300);
+await p.click('#dk-ok');await p.waitForTimeout(300);
+await p.click('.chip:has-text("الرياض")');await p.waitForTimeout(1200);
+const t=await p.evaluate(()=>document.getElementById('cs-thread').innerText);console.log(t.slice(-500).replace(/\n+/g,' | '));
+if(!/3 يوم/.test(t))fail++;console.log(er);if(er.length)fail++;await b.close();process.exit(fail?1:0)})();
