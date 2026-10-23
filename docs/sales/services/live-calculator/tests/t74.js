@@ -1,7 +1,7 @@
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();
 const p=await b.newPage({viewport:{width:1000,height:1500}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.goto('file://'+process.cwd()+(process.argv[2]||'/index-client.html?goal=assess'));await p.waitForTimeout(300);
+await p.goto('file://'+process.cwd()+(process.argv[2]||'/index-client.html?goal=assess&ui=classic'));await p.waitForTimeout(300);
 const T=()=>p.evaluate(()=>document.querySelector('#main').innerText);
 const pick=async(id,text)=>{await p.click('#'+id+'-s');await p.waitForTimeout(200);await p.fill('#'+id+'-s',text);await p.waitForTimeout(250);await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');await p.waitForTimeout(400);};
 const next=async()=>{await p.click('[data-go="1"]');await p.waitForTimeout(300);};

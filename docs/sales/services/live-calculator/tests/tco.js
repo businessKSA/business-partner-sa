@@ -7,5 +7,5 @@ console.log(t.replace(/\n+/g,' | ').slice(0,900));
 await p.screenshot({path:'co1.png',fullPage:false});
 await p.evaluate(()=>bpGo('team'));await p.waitForTimeout(400);t=await p.evaluate(()=>document.querySelector('#main').innerText);
 console.log('TEAM:',t.replace(/\n+/g,' | ').slice(0,900));
-console.log('client has it:',await (async()=>{const q=await b.newPage();await q.goto('file://'+process.cwd()+'/index-client.html?goal=assess');return q.evaluate(()=>!!document.querySelector('#demo-co'))})());
+console.log('client has it:',await (async()=>{const q=await b.newPage();await q.goto('file://'+process.cwd()+'/index-client.html?goal=assess&ui=classic');return q.evaluate(()=>!!document.querySelector('#demo-co'))})());
 console.log(errs);await b.close();})();

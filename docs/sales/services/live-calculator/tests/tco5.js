@@ -7,7 +7,7 @@ await ctx.addInitScript(()=>{window.claude={use:async n=>{if(n!=='sample')return
  if(t.includes('حماية الأجور'))return {establishment_name:'شركة اختبار التسجيل',issue_date:'2026-10-10',expiry_date:'1448-04-01',hijri_expiry:null,compliance_percent:97};
  return {};};return s;}};});
 const p=await ctx.newPage();p.on('pageerror',e=>errs.push(e.message));
-await p.goto('file://'+process.cwd()+'/index-client.html?goal=assess');await p.waitForTimeout(500);
+await p.goto('file://'+process.cwd()+'/index-client.html?goal=assess&ui=classic');await p.waitForTimeout(500);
 console.log('add disabled initially:',await p.evaluate(()=>document.getElementById('co-add').disabled));
 await p.fill('#co-name','شركة اختبار التسجيل');await p.fill('#co-no','1-4636772');await p.fill('#co-uno','7001234567');await p.fill('#co-tax','300123456700003');await p.fill('#co-gosi','123456');await p.fill('#co-addr','rrrd2929');
 await p.fill('#co-act','7110');await p.waitForTimeout(200);await p.click('.dd .it');await p.waitForTimeout(400);

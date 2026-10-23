@@ -1,7 +1,7 @@
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
 const p=await b.newPage({viewport:{width:1100,height:1200}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.goto('file://'+process.cwd()+'/index.html?goal=assess');await p.waitForTimeout(300);
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess&ui=classic');await p.waitForTimeout(300);
 await p.click('#g-act');await p.fill('#g-act','مطاعم');await p.waitForTimeout(400);
 console.log((await p.evaluate(()=>document.querySelector('.dd')?.innerText)).slice(0,250));
 await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');await p.waitForTimeout(500);

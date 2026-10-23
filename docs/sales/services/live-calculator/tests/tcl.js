@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1000,height:1400}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.goto('file://'+process.cwd()+'/index-client.html?goal=assess');await p.waitForTimeout(300);
+await p.goto('file://'+process.cwd()+'/index-client.html?goal=assess&ui=classic');await p.waitForTimeout(300);
 await p.evaluate(()=>bpGo('lump'));console.log('no activity hint:',await p.evaluate(()=>/اختر نشاطك/.test(document.querySelector('#main').innerText)));
 await p.evaluate(()=>bpGo('nit'));await p.click('#g-act');await p.fill('#g-act','561010');await p.waitForTimeout(150);await p.keyboard.press('Enter');await p.waitForTimeout(300);
 await p.evaluate(()=>bpGo('lump'));await p.waitForTimeout(200);

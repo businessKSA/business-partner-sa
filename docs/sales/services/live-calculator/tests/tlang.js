@@ -5,7 +5,7 @@ const ctx=await b.newContext({viewport:{width:1300,height:3600}});
 await ctx.addInitScript(()=>{window.claude={use:async n=>{if(n!=='sample')return null;const s=async()=>({text:''});s.limits=async()=>({images:{maxCount:4,mediaTypes:['image/png']}});s.json=async(inp)=>{const t=String(inp);if(t.includes('"plan"'))return {summary:'x',plan:[],target:''};return {platform:'q',text:'t',items:[{kind:'violation',title:'Violation',detail:'d',amount:5000,count:1,deadline:null}]}};return s;}};});
 const p=await ctx.newPage();await p.goto('file://'+process.cwd()+'/index-demo.html');await p.waitForTimeout(600);
 await p.click('#lang-'+lang);await p.waitForTimeout(300);
-const tabs=['co','nit','team','comp','viol','ctr','gov','eos','prof','hire','guides','ot','rent','lump','cost'];
+const tabs=['co','nit','team','comp','viol','ctr','eos','prof','hire','guides','ot','rent','lump','cost'];
 const leaks=new Set(), latinOnlyEn=new Set();
 const scan=async(tag)=>{const r=await p.evaluate(()=>{const o=[];const w=document.createTreeWalker(document.getElementById('app'),NodeFilter.SHOW_TEXT);while(w.nextNode()){const n=w.currentNode;const t=n.nodeValue.trim();if(!t)continue;const pe=n.parentElement;if(pe&&/SCRIPT|STYLE/.test(pe.tagName))continue;o.push(t);}
  return [...document.querySelectorAll('input,select,textarea')].map(e=>e.placeholder||'').filter(Boolean).concat(o);});

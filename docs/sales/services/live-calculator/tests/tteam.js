@@ -1,7 +1,7 @@
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();const errs=[];
 const o=await b.newPage({viewport:{width:1200,height:3000}});o.on('pageerror',e=>errs.push(e.message));
-await o.goto('file://'+process.cwd()+'/index.html?goal=assess');await o.waitForTimeout(400);await o.evaluate(()=>bpGo('team'));
+await o.goto('file://'+process.cwd()+'/index.html?goal=assess&ui=classic');await o.waitForTimeout(400);await o.evaluate(()=>bpGo('team'));
 console.log('owner demo bar present:',await o.evaluate(()=>!!document.querySelector('.demo')));
 const p=await b.newPage({viewport:{width:1200,height:3000}});p.on('pageerror',e=>errs.push(e.message));
 await p.goto('file://'+process.cwd()+'/index-demo.html');await p.waitForTimeout(400);

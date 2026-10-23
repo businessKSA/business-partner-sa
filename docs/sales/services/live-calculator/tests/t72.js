@@ -1,7 +1,7 @@
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
 const p=await b.newPage({viewport:{width:1000,height:1400}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.goto('file://'+process.cwd()+'/index.html?goal=assess');await p.evaluate(()=>bpGo('lump'));await p.waitForTimeout(300);
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess&ui=classic');await p.evaluate(()=>bpGo('lump'));await p.waitForTimeout(300);
 const opts=async(id)=>p.evaluate(id=>[...document.querySelectorAll('#'+id+' option')].map(o=>o.textContent).filter(Boolean).join(' | '),id);
 console.log('lump term:',await opts('l-term'));
 await p.evaluate(()=>bpGo('cost'));await p.waitForTimeout(300);console.log('cost term:',await opts('c-term'));

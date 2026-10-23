@@ -1,7 +1,7 @@
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
 const p=await b.newPage({viewport:{width:1000,height:1400}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.goto('file://'+process.cwd()+'/index.html?goal=assess');await p.waitForTimeout(300);
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess&ui=classic');await p.waitForTimeout(300);
 const pick=async(id,text)=>{await p.click('#'+id+'-s');await p.waitForTimeout(200);await p.fill('#'+id+'-s',text);await p.waitForTimeout(250);await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');await p.waitForTimeout(400);};
 console.log('licence bar before profession:',!!(await p.$('#q-lic')),'| other req bars:',await p.$$eval('[id^=q-][id$=-s]',e=>e.map(x=>x.placeholder).join(' / ')));
 await p.click('#l-prof');await p.fill('#l-prof','سائق');await p.waitForTimeout(400);await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');await p.waitForTimeout(500);

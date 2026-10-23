@@ -4,7 +4,7 @@ const addEst=async(p,name)=>{await p.fill('#co-name',name);await p.fill('#co-no'
 await ctx.route('https://cdnjs.cloudflare.com/**',r=>{const u=r.request().url();const f=u.includes('xlsx')?'/tmp/xlsx.full.min.js':u.includes('worker')?'/tmp/pdf.worker.min.js':'/tmp/pdf.min.js';r.fulfill({status:200,contentType:'application/javascript',body:fs.readFileSync(f)});});
 await ctx.addInitScript(()=>{window.__calls=[];window.claude={use:async n=>{if(n!=='sample')return null;const s=async()=>({text:''});s.limits=async()=>({images:{maxCount:6,mediaTypes:['image/png']}});s.json=async(inp,opt)=>{window.__calls.push({n:String(inp).slice(0,40),img:opt&&opt.images?opt.images.length:0});if(String(inp).includes('"plan"'))return {summary:'ملخص تجريبي',plan:[{priority:1,problem:'م1',solution:'ح1',owner:'العميل',time:'أسبوع'}],target:'ممتثلة'};return {platform:'قوى',text:'مخالفة: عدم الالتزام بنسب التوطين 5000 ريال',items:[{kind:'violation',title:'عدم الالتزام بنسب التوطين',detail:'مهنة المبيعات',amount:5000,count:2,deadline:'2026-11-30'}]};};return s;}};});
 const p=await ctx.newPage();p.on('pageerror',e=>errs.push(e.message));
-await p.goto('file://'+process.cwd()+'/index-client.html?goal=assess');await p.waitForTimeout(500);
+await p.goto('file://'+process.cwd()+'/index-client.html?goal=assess&ui=classic');await p.waitForTimeout(500);
 await addEst(p,'شركة اختبار القارئ');await p.waitForTimeout(400);
 await p.setInputFiles('#dr-files',['tdata/labour-office.xlsx','tdata/gosi.xlsx','tdata/muqeem.xlsx']);await p.waitForTimeout(3000);
 let t=await p.evaluate(()=>{const s=[...document.querySelectorAll('#main section.panel')].find(x=>x.innerText.includes('قارئ ملفات العمال'));return s?s.innerText.replace(/\n+/g,' | ').slice(0,1900):'NO PANEL'});console.log(t);

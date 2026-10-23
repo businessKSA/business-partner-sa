@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1000,height:2600}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.goto('file://'+process.cwd()+'/index.html?goal=assess');await p.waitForTimeout(300);
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess&ui=classic');await p.waitForTimeout(300);
 await p.click('#g-act');await p.fill('#g-act','561010');await p.waitForTimeout(150);await p.keyboard.press('Enter');await p.waitForTimeout(400);
 let t=await p.evaluate(()=>[...document.querySelectorAll('#main section.panel')].map(x=>x.querySelector('h2')?.textContent).join(' | '));console.log(t);
 console.log(await p.evaluate(()=>{const s=[...document.querySelectorAll('#main section.panel')].find(x=>/مهن نشاطك/.test(x.querySelector('h2').textContent));return s.innerText.replace(/\n+/g,' | ').slice(0,500)}));

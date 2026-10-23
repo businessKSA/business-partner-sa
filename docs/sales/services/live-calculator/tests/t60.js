@@ -1,7 +1,7 @@
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
 const p=await b.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.goto('file://'+process.cwd()+'/index.html?goal=assess');await p.waitForTimeout(300);
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess&ui=classic');await p.waitForTimeout(300);
 for(const tab of ['lump','cost','rent','ot','nit','prof','hire','team','guides']){await p.click('[data-tab='+tab+']');await p.waitForTimeout(250);
  console.log(tab,'full bar(g-act):',!!(await p.$('#g-act')),'compact:',!!(await p.$('[data-gonit]')));}
 await p.evaluate(()=>bpGo('prof'));await p.waitForTimeout(250);await p.click('[data-gonit]');await p.waitForTimeout(300);console.log('jump to nit ok:',!!(await p.$('#g-act')));

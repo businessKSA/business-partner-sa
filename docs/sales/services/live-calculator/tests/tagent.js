@@ -5,7 +5,7 @@ await p.addInitScript(()=>{ const calls=[]; window.__calls=calls; const sm=async
   const prof=await T.find_profession.execute({query:'محاسب'}); await T.set_team_rows.execute({index:r.index,rows:[{profession_id:prof[0].id,saudi:1,foreign:2}]});
   const a=await T.analyze.execute({index:r.index}); const w=await T.what_if.execute({index:r.index,add_saudis:5});
   opts.onText&&opts.onText({text:'تمّ: أضفتُ المنشأة. النطاق '+a.band+' وبعد 5 سعوديين '+w.after.band}); return {text:'تمّ: أضفتُ المنشأة. النطاق '+a.band+' وبعد 5 سعوديين '+w.after.band}; }; sm.limits=async()=>({images:{maxCount:4}}); sm.json=async()=>({}); window.claude={use:async n=>n==='sample'?sm:null}; });
-await p.goto('file://'+process.cwd()+'/index-client.html?goal=assess');await p.waitForTimeout(700);
+await p.goto('file://'+process.cwd()+'/index-client.html?goal=assess&ui=classic');await p.waitForTimeout(700);
 console.log('fab',await p.evaluate(()=>!!document.getElementById('ag-fab')));
 await p.click('#ag-fab');await p.fill('#ag-t','أضف مطعم النخيل');await p.click('#ag-s');await p.waitForTimeout(1200);
 console.log(await p.evaluate(()=>document.getElementById('ag-msgs').innerText));
