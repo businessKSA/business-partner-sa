@@ -795,6 +795,18 @@ async function findConvPage(ref, full) {
   const page = data.results && data.results[0];
   return full ? page || null : (page && page.id) || null;
 }
+// Sliding-window counter keyed by ip+bucket; entries are pruned as they age out.
+const ADVISOR_CHAT_HITS = new Map();
+function advisorChatAllow(ip, bucket, max, windowMs) {
+  const now = Date.now();
+  const key = bucket + ":" + ip;
+  const hits = (ADVISOR_CHAT_HITS.get(key) || []).filter((t) => now - t < windowMs);
+  if (hits.length >= max) { ADVISOR_CHAT_HITS.set(key, hits); return false; }
+  hits.push(now);
+  ADVISOR_CHAT_HITS.set(key, hits);
+  if (ADVISOR_CHAT_HITS.size > 5000) for (const [k, v] of ADVISOR_CHAT_HITS) if (!v.length || now - v[v.length - 1] > windowMs) ADVISOR_CHAT_HITS.delete(k);
+  return true;
+}
 // Returns { wasHot }: true when this conversation already rang the team once
 // (its row is flagged «Human Required»), so the caller doesn't notify again.
 async function upsertConversation({ sid, messages, phone, email, name, hot }) {
@@ -5947,6 +5959,12 @@ export default async function handler(req, res) {
   // (notify:true), it also emails the owner and fires the WhatsApp lead pipe so
   // they can follow up. Never blocks the chat reply (that's a separate call).
   if (b.type === "advisor-chat") {
+    // Best-effort per-instance throttle (serverless: not shared across
+    // instances). Caps sync traffic per IP and, separately, how many *new*
+    // team notifications one IP can trigger, so the endpoint can't be used
+    // to flood the team inbox / owner WhatsApp with made-up conversations.
+    const ip = String((req.headers && (req.headers["x-forwarded-for"] || req.headers["x-real-ip"])) || "").split(",")[0].trim().slice(0, 64) || "unknown";
+    if (!advisorChatAllow(ip, "sync", 40, 60 * 1000)) { res.statusCode = 429; return res.end(JSON.stringify({ ok: false, error: "rate_limited" })); }
     const sid = String(b.sid || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 40);
     const messages = (Array.isArray(b.messages) ? b.messages : [])
       .filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
@@ -5961,7 +5979,7 @@ export default async function handler(req, res) {
     const { wasHot } = await upsertConversation({ sid, messages, phone, email, name, hot: wantsNotify });
     // The widget syncs with notify:true after every reply; ring the team once
     // per conversation, not once per message.
-    const notify = wantsNotify && !wasHot;
+    const notify = wantsNotify && !wasHot && advisorChatAllow(ip, "notify", 5, 60 * 60 * 1000);
     if (notify) {
       const ref = "WEB-" + sid;
       const bookUrl = `${MKT_SITE_BASE}/consultation`;
