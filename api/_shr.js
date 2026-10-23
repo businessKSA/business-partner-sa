@@ -62,6 +62,14 @@ export function scoped(ctx, send = sb) {
   };
 }
 
+// أخطاء الـAPI والتدقيق مشتركة بين api/shr.js والوحدات api/_shr_*.js.
+export class HttpError extends Error {
+  constructor(status, code, extra = {}) { super(code); this.status = status; this.code = code; this.extra = extra; }
+}
+export async function audit(db, user, action, entity, entity_id) {
+  await db.post("shr_audit_log", { actor: user.sub, action, entity, entity_id });
+}
+
 // ------------------------------------------------------------ local only --
 // المرحلة ٢ محلية بالكامل: لا تعمل إلا مع LOCAL_DB=1 (قاعدة JSON تحت .localdb).
 // أي بيئة أخرى ترفض قبل أي لمس للبيانات.
@@ -96,7 +104,7 @@ const day = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10
 
 export async function seedDemo() {
   assertLocal();
-  if (await tenantBySlug("SHR")) return { seeded: false };
+  if (await tenantBySlug("SHR")) { await seedAts(); return { seeded: false }; }
   const mk = async (slug, brand_ar, brand_en) => (await sb("shr_tenants", { method: "POST", body: { slug, brand_ar, brand_en, demo: true } }))[0];
   const A = await mk("SHR", "مستأجر SHR التجريبي (بيانات وهمية)", "SHR demo tenant");
   const B = await mk("OTHER", "مستأجر وهمي آخر (بيانات وهمية)", "Other demo tenant");
@@ -162,5 +170,97 @@ export async function seedDemo() {
       { c: 1, kind: "other", state: "in_review", note: "طلب وهمي لمستأجر آخر" },
     ],
   });
+  await seedAts();
   return { seeded: true };
+}
+
+// ---------------------------------------------------------------- ATS seed --
+// مرشحون وهميون صريحو الوسم: «مرشح تجريبي N (وهمي)» وref يبدأ بـDEMO-C. لا هوية
+// ولا هاتف ولا بريد: الجدول بلا حقول لها. الموافقة مسجّلة لبعضهم وغير مسجّلة
+// أو مسحوبة لآخرين، لإثبات أن المطابقة تتجاهل من بلا موافقة سارية.
+const CONSENT_V = "demo-consent-v1";
+const CONSENT_TEXT = "نص موافقة تجريبي (وهمي): أوافق على معالجة بياناتي لأغراض الترشيح لوظائف بيانات تجريبية.";
+const iso = (n) => new Date(Date.now() + n * 86400000).toISOString();
+
+// [الاسم، المهنة، الجنسية، المدينة، الخبرة، نقل الإقامة، يقبل الانتقال، الإشعار، المهارات، الموافقة]
+// الموافقة: "ok" سارية · "withdrawn" مسحوبة · null لا سجل.
+const DEMO_CANDIDATES = [
+  ["فني تكييف", "الهند", "الرياض", 8, "yes", true, 15, ["تركيب سبليت", "صيانة مكيفات مركزية"], "ok"],
+  ["فني تكييف", "باكستان", "جدة", 4, "yes", true, 30, ["تركيب سبليت"], "ok"],
+  ["فني تكييف", "الهند", "الرياض", 6, "no", null, 20, ["صيانة مكيفات مركزية"], "ok"],
+  ["فني تكييف", "بنغلاديش", "الدمام", null, null, null, null, [], "ok"],
+  ["فني تكييف", "نيبال", "الرياض", 9, "yes", true, 7, ["تركيب سبليت", "تبريد تجاري"], null],
+  ["فني تكييف", "الهند", "الرياض", 7, "yes", true, 10, ["تركيب سبليت"], "withdrawn"],
+  ["سائق", "باكستان", "الرياض", 10, "yes", false, 15, [], "ok"],
+  ["سائق", "مصر", "جدة", 5, "unknown", true, 45, [], "ok"],
+  ["سائق", "الفلبين", "الرياض", 2, "yes", true, 60, [], "ok"],
+  ["كهربائي", "السودان", "الدمام", 12, "yes", true, 30, ["تمديدات منخفضة الجهد", "لوحات توزيع"], "ok"],
+  ["كهربائي", "مصر", "الرياض", 3, "no", false, 90, ["تمديدات منخفضة الجهد"], "ok"],
+  ["لحّام", "الهند", "الدمام", 11, "yes", true, 20, ["لحام أرجون", "لحام قوس"], "ok"],
+  ["سباك", "بنغلاديش", "الرياض", 6, "yes", true, 14, ["تمديدات صحية"], "ok"],
+  ["نجّار", "سريلانكا", "جدة", 5, "yes", null, null, ["أعمال خشب"], null],
+  ["عامل بناء", "نيبال", "الرياض", 2, "no", true, 5, [], "ok"],
+  ["عامل نظافة", "بنغلاديش", "الرياض", 1, "yes", true, 0, [], "ok"],
+  ["حارس أمن", "نيبال", "الرياض", 4, "yes", false, 30, [], "ok"],
+  ["طباخ", "الهند", "جدة", 9, "yes", true, 25, ["مطبخ شرقي"], "withdrawn"],
+  ["مشغّل رافعة", "الفلبين", "الدمام", 8, "yes", true, 21, ["رافعة برجية"], "ok"],
+  ["ميكانيكي سيارات", "باكستان", "مكة", 7, "unknown", true, 15, ["صيانة محركات"], "ok"],
+];
+
+const DEMO_CANDIDATES_OTHER = [
+  ["لحّام", "الهند", "الرياض", 6, "yes", true, 10, ["لحام أرجون"], "ok"],
+  ["نجّار", "مصر", "جدة", 4, "yes", true, 20, [], "ok"],
+  ["سائق", "باكستان", "الرياض", 3, "yes", true, 30, [], null],
+];
+
+export async function seedAts() {
+  assertLocal();
+  for (const [slug, tag, rows, jobs] of [
+    ["SHR", "SHR", DEMO_CANDIDATES, [
+      { title: "فني تكييف — مشروع تجريبي", profession: "فني تكييف", city: "الرياض", experience_years: 5, residency_required: "transferable", nationality_pref: [], skills: ["تركيب سبليت"], must_have: [], headcount: 3, status: "open" },
+      { title: "سائق نقل خفيف — تجريبي", profession: "سائق", city: "الرياض", experience_years: 3, residency_required: "transferable", nationality_pref: ["باكستان", "مصر"], skills: [], must_have: ["residency"], headcount: 2, status: "open" },
+      { title: "لحّام منشآت — تجريبي", profession: "لحّام", city: "الدمام", experience_years: 8, residency_required: "transferable", nationality_pref: [], skills: ["لحام أرجون"], must_have: ["لحام أرجون"], headcount: 1, status: "closed" },
+    ]],
+    ["OTHER", "OTHER", DEMO_CANDIDATES_OTHER, [
+      { title: "لحّام — وظيفة وهمية لمستأجر آخر", profession: "لحّام", city: "الرياض", experience_years: 3, residency_required: "any", nationality_pref: [], skills: [], must_have: [], headcount: 1, status: "open" },
+    ]],
+  ]) {
+    const t = await tenantBySlug(slug);
+    if (!t) continue;
+    const s = scoped(ctxFrom({ tenant_id: t.id, role: "tenant_owner" }));
+    if ((await s.get("shr_candidates?select=id&limit=1")).length) continue;   // مبذور سلفاً
+    const users = await s.get("shr_users?select=id,email");
+    const ops = users.find((u) => u.email.startsWith("ops@"));
+    const cand = [];
+    let i = 0;
+    for (const [prof, nat, city, yrs, resid, reloc, notice, skills, consent] of rows) {
+      i++;
+      const n = String(i).padStart(2, "0");
+      const c = (await s.post("shr_candidates", {
+        ref: `DEMO-C-${tag}-${n}`, full_name: `مرشح تجريبي ${i} (وهمي)`, profession: prof, nationality: nat, city,
+        years_experience: yrs, residency_transferable: resid, willing_to_relocate: reloc, notice_days: notice,
+        skills, demo: true, archived_at: null, created_by: ops ? ops.id : null,
+      }))[0];
+      cand.push(c);
+      if (consent) await s.post("shr_candidate_consents", {
+        candidate_id: c.id, text_version: CONSENT_V, text_body: CONSENT_TEXT, granted_at: iso(-30), source: "demo_seed",
+        withdrawn_at: consent === "withdrawn" ? iso(-3) : null, withdrawn_reason: consent === "withdrawn" ? "سحب تجريبي" : null,
+        recorded_by: ops ? ops.id : null,
+      });
+    }
+    const J = [];
+    for (const j of jobs) J.push((await s.post("shr_jobs", { ...j, client_company_id: null, closed_at: j.status === "closed" ? iso(-5) : null, created_by: ops ? ops.id : null }))[0]);
+    // طلبات تقديم وهمية (لمن موافقته سارية فقط) بمراحل مختلفة، أدخلها «ops».
+    const plan = slug === "SHR"
+      ? [[0, 0, "new"], [0, 1, "review"], [0, 2, "shortlist"], [0, 9, "rejected"], [1, 6, "interview"], [1, 7, "offer"], [1, 8, "future"]]
+      : [[0, 0, "new"]];
+    for (const [ji, ci, stage] of plan) {
+      const a = (await s.post("shr_applications", {
+        job_id: J[ji].id, candidate_id: cand[ci].id, stage, created_by: ops ? ops.id : null,
+        offer_proposed_by: stage === "offer" && ops ? ops.id : null, offer_approved_by: null, archived_at: null, updated_at: null,
+      }))[0];
+      await s.post("shr_application_events", { application_id: a.id, from_stage: null, to_stage: "new", actor: ops ? ops.id : null, note: "إدخال تجريبي", at: iso(-10) });
+      if (stage !== "new") await s.post("shr_application_events", { application_id: a.id, from_stage: "new", to_stage: stage, actor: ops ? ops.id : null, note: "بذرة تجريبية", at: iso(-9) });
+    }
+  }
 }

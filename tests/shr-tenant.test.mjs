@@ -41,5 +41,16 @@ ok(throws(() => ctxFrom({ tenant_id: "x", role: "operator" })), "malformed tenan
 ok(throws(() => ctxFrom({ tenant_id: A, role: "root" })), "unknown role refused");
 ok(throws(() => scoped({}, send)), "scoped() without ctx refused");
 
+console.log("\n5. ATS tables go through the same gate");
+for (const t of ["shr_candidates", "shr_candidate_consents", "shr_jobs", "shr_applications", "shr_application_events", "shr_interviews"]) {
+  await a.get(`${t}?select=id`);
+  ok(calls.at(-1).p === `${t}?tenant_id=eq.${A}&select=id`, `${t}: read pinned`);
+  ok(throws(() => a.get(`${t}?tenant_id=eq.${B}`)), `${t}: tenant_id in query refused`);
+  ok(throws(() => a.post(t, { tenant_id: B })), `${t}: tenant_id in body refused`);
+  await a.post(t, { x: 1 });
+  ok(calls.at(-1).body.tenant_id === A, `${t}: write stamped`);
+  ok(throws(() => a.patch(t, { x: 1 })), `${t}: PATCH without filter refused`);
+}
+
 console.log(fail.length ? `\n${fail.length} FAILED` : "\nall passed");
 if (fail.length) process.exit(1);

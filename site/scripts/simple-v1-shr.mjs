@@ -6,6 +6,8 @@
 //   write("SHR-HR.html", buildShrOps(SV1, { lang: () => LANG }));
 // ويضيف platform-engineer المسار /SHR-HR في vercel.json والخادم المحلي.
 
+import { shrAtsClient, ATS_CSS } from "./simple-v1-shr-ats.mjs";
+
 export function buildShrOps(sv1) {
   const CSS = `<style>
 .shr{max-width:1100px;margin:0 auto;padding:18px 16px 60px;color:#1F2430}
@@ -32,6 +34,7 @@ export function buildShrOps(sv1) {
 .shr .note{font-size:.8rem;color:#5f6880}.shr .err{color:#b91c1c;font-size:.84rem}.shr .okm{color:#118657;font-weight:700;font-size:.84rem}
 .shr .gate{max-width:420px;margin:30px auto;background:#fff;border:1px solid #e4e8f1;border-radius:16px;padding:22px}
 .shr .scroll{overflow-x:auto}
+${ATS_CSS}
 </style>`;
   const body = `${sv1.header("/SHR-HR", { cta: false, oneLang: true })}<div class="shr"><div class="shr-demo">بيانات تجريبية — لا عمال حقيقيون ولا ربط حكومي ولا رسائل</div><div id="app"></div></div>`;
   const script = `<script>
@@ -43,7 +46,7 @@ var RST={new:'جديد',in_review:'قيد المراجعة',waiting_client:'با
 var RKIND={new_hire:'توظيف جديد',termination:'إنهاء',transfer:'نقل',document:'مستند',other:'أخرى'};
 var DOC={iqama:'الإقامة',medical_insurance:'التأمين الطبي'};
 var MISS={identity:'الهوية',iqama:'مستند الإقامة',iqama_valid:'إقامة سارية',work_contract:'عقد العمل',establishment:'المنشأة والعميل'};
-var ERR={unauthorized:'غير مصرّح',role_not_allowed:'الدور غير مسموح في هذه المرحلة',maker_checker:'من أدخل المسودة لا يعتمدها — يعتمدها مستخدم آخر',activation_blocked:'التفعيل مرفوض: ناقص',archived:'العامل مؤرشف',already_active:'العامل نشط أصلاً',terminal_state:'الطلب مغلق ولا يُعاد فتحه',shr_local_only:'النظام محلي فقط (LOCAL_DB=1)',not_found:'غير موجود',archive_only:'الحذف غير متاح — الأرشفة فقط',full_name_required:'الاسم مطلوب',bad_state:'حالة غير صالحة',bad_id_kind:'نوع الهوية غير صالح'};
+var ERR={unauthorized:'غير مصرّح',role_not_allowed:'الدور غير مسموح في هذه المرحلة',maker_checker:'من أدخل أو اقترح لا يعتمد — يعتمده مستخدم آخر',activation_blocked:'التفعيل مرفوض: ناقص',archived:'العامل مؤرشف',already_active:'العامل نشط أصلاً',terminal_state:'الطلب مغلق ولا يُعاد فتحه',shr_local_only:'النظام محلي فقط (LOCAL_DB=1)',not_found:'غير موجود',archive_only:'الحذف غير متاح — الأرشفة فقط',full_name_required:'الاسم مطلوب',bad_state:'حالة غير صالحة',bad_id_kind:'نوع الهوية غير صالح',no_consent:'لا موافقة سارية من المرشح',job_closed:'الوظيفة مغلقة',candidate_archived:'المرشح مؤرشف',duplicate_application:'للمرشح طلب على هذه الوظيفة أصلاً',same_stage:'الطلب في هذه المرحلة أصلاً',terminal_stage:'الطلب في مرحلة نهائية',offer_required:'التعيين يمرّ بمرحلة العرض أولاً',application_closed:'الطلب مغلق',bad_stage:'مرحلة غير معروفة',bad_time:'موعد غير صالح',bad_mode:'نوع المقابلة غير صالح',title_required:'العنوان مطلوب',bad_weights:'أوزان غير صالحة',interview_closed:'المقابلة منتهية',bad_residency_required:'شرط الإقامة غير صالح',bad_list:'القائمة غير صالحة'};
 function h(tag,attrs,kids){var e=document.createElement(tag);if(attrs)for(var k in attrs){if(k==='class')e.className=attrs[k];else if(k.indexOf('on')===0)e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k])}(kids||[]).forEach(function(c){if(c==null)return;e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
 function call(action,data,get){
   var o=get?{credentials:'same-origin'}:{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({action:action},data||{}))};
@@ -52,9 +55,9 @@ function call(action,data,get){
 function errText(o){var t=ERR[o&&o.error]||(o&&o.error)||'تعذّر الاتصال';if(o&&o.missing)t+=' '+o.missing.map(function(m){return MISS[m]||m}).join('، ');return t}
 function flash(ok,t){state.msg=ok?t:'';state.err=ok?'':t}
 function pill(t,c){return h('span',{class:'pill '+(c||'')},[t])}
-var NAV=[['dashboard','اللوحة'],['workers','العمال'],['requests','الطلبات'],['expiring','الانتهاءات']];
+var NAV=[['dashboard','اللوحة'],['workers','العمال'],['requests','الطلبات'],['expiring','الانتهاءات'],['jobs','الوظائف'],['board','المرشحون'],['match','المطابقة']];
 function frame(title,content){app.innerHTML='';
-  var tabs=h('div',{class:'shr-tabs'},NAV.map(function(n){return h('button',{class:state.view===n[0]?'on':'',onclick:function(){state.view=n[0];state.msg='';state.err='';render()}},[n[1]])}).concat([h('button',{onclick:function(){call('session-end').then(function(){state.me=null;render()})}},['خروج'])]));
+  var tabs=h('div',{class:'shr-tabs'},NAV.map(function(n){return h('button',{class:(state.view===n[0]||(state.view==='candidate'&&n[0]==='board'))?'on':'',onclick:function(){state.view=n[0];state.msg='';state.err='';render()}},[n[1]])}).concat([h('button',{onclick:function(){call('session-end').then(function(){state.me=null;render()})}},['خروج'])]));
   app.appendChild(h('h1',{},[title+(state.me?' — '+state.me.tenant.brand_ar:'')]));
   app.appendChild(tabs);
   if(state.msg)app.appendChild(h('p',{class:'okm'},[state.msg]));
@@ -85,9 +88,10 @@ function vRequests(){return call('requests',null,true).then(function(o){var rows
 function vExpiring(){return call('expiring',{days:90},true).then(function(o){var rows=o.items||[];
   var tb=h('table',{},[h('thead',{},[h('tr',{},['العامل','المستند','ينتهي','المتبقي'].map(function(x){return h('th',{},[x])}))]),h('tbody',{},rows.map(function(i){return h('tr',{},[h('td',{},[i.worker]),h('td',{},[DOC[i.kind]||i.kind]),h('td',{},[i.expires_on]),h('td',{},[pill(i.expired?'منتهٍ':i.days_left+' يوماً',i.expired?'bad':i.days_left<=30?'warn':'')])])}))]);
   frame('انتهاء الإقامة والتأمين (٩٠ يوماً)',h('div',{class:'shr-card scroll'},[rows.length?tb:h('p',{class:'note'},['لا شيء ينتهي في هذه المدة.'])]))})}
+var ATS=(${shrAtsClient.toString()})({h:h,call:call,frame:frame,flash:flash,pill:pill,errText:errText,state:state,render:function(){render()}});
 function render(){
   if(!state.me)return gate();
-  var v={dashboard:vDashboard,workers:vWorkers,requests:vRequests,expiring:vExpiring}[state.view];
+  var v={dashboard:vDashboard,workers:vWorkers,requests:vRequests,expiring:vExpiring,jobs:ATS.jobs,board:ATS.board,candidate:ATS.candidate,match:ATS.match}[state.view];
   v().catch(function(){state.me=null;gate()})}
 call('session',null,true).then(function(o){if(o&&o.ok){state.me=o;render()}else gate()}).catch(function(){gate()});
 })();</script>`;

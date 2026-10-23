@@ -173,6 +173,107 @@ drop trigger if exists shr_audit_no_change on shr_audit_log;
 create trigger shr_audit_no_change before update or delete on shr_audit_log
   for each row execute function shr_audit_immutable();
 
+-- ------------------------------------------------------------------ ATS ----
+-- مرشحون ووظائف وطلبات تقديم ومقابلات وموافقات. بيانات وهمية فقط في هذه المرحلة.
+-- لا هوية ولا هاتف ولا بريد في shr_candidates عمداً: لا حقل لها حتى يُقرَّر
+-- التشفير ومكان التشغيل. لا حذف في أي جدول هنا: الأرشفة (archived_at) أو الإغلاق فقط.
+
+create table if not exists shr_candidates (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  ref text,                                   -- DEMO-C-01 … وسم صريح
+  full_name text not null,
+  profession text, nationality text, city text,
+  years_experience int check (years_experience is null or years_experience >= 0),
+  residency_transferable text check (residency_transferable in ('yes','no','unknown')),
+  willing_to_relocate boolean,
+  notice_days int check (notice_days is null or notice_days >= 0),
+  skills jsonb not null default '[]',
+  demo boolean not null default true,
+  archived_at timestamptz,
+  created_by uuid,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists shr_candidate_consents ( -- سجل موافقة المرشح؛ السحب يملأ withdrawn_at ولا يحذف
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  candidate_id uuid not null references shr_candidates(id),
+  text_version text not null,                 -- صيغة النص المعروض عليه (رقم الإصدار)
+  text_body text,                             -- نص الصيغة كما عُرض
+  granted_at timestamptz not null,
+  source text not null check (source in ('demo_seed','candidate_form','agency_upload','operator_entry')),
+  withdrawn_at timestamptz,
+  withdrawn_reason text,
+  recorded_by uuid,
+  created_at timestamptz not null default now(),
+  check (withdrawn_at is null or withdrawn_at >= granted_at)
+);
+
+create table if not exists shr_jobs (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  client_company_id uuid references shr_client_companies(id),
+  title text not null,
+  profession text, city text,
+  experience_years int check (experience_years is null or experience_years >= 0),
+  residency_required text not null default 'any' check (residency_required in ('transferable','any')),
+  nationality_pref jsonb not null default '[]',   -- فارغ = لا تفضيل
+  skills jsonb not null default '[]',
+  must_have jsonb not null default '[]',          -- مفاتيح مكوّنات أو مهارات
+  headcount int not null default 1 check (headcount >= 1),
+  status text not null default 'open' check (status in ('open','closed')),
+  closed_at timestamptz,
+  created_by uuid,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists shr_applications (       -- طلب تقديم: مرشح على وظيفة
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  job_id uuid not null references shr_jobs(id),
+  candidate_id uuid not null references shr_candidates(id),
+  stage text not null default 'new' check (stage in ('new','review','shortlist','interview','offer','hired','rejected','future')),
+  created_by uuid,                            -- من أدخل الطلب
+  offer_proposed_by uuid,                     -- من نقله إلى «عرض»
+  offer_approved_by uuid,                     -- من اعتمد العرض (الانتقال إلى «تعيين»)
+  archived_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz,
+  unique (tenant_id, job_id, candidate_id),
+  -- من يُدخل لا يعتمد العرض، ومن اقترحه لا يعتمده.
+  check (offer_approved_by is null or (offer_approved_by <> created_by and offer_approved_by <> offer_proposed_by))
+);
+
+create table if not exists shr_application_events ( -- سجل المراحل: لا تعديل ولا حذف
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  application_id uuid not null references shr_applications(id),
+  from_stage text, to_stage text not null,
+  actor uuid, note text,
+  at timestamptz not null default now()
+);
+
+create table if not exists shr_interviews (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  application_id uuid not null references shr_applications(id),
+  state text not null default 'requested' check (state in ('requested','scheduled','done','cancelled')),
+  mode text check (mode in ('onsite','video','phone')),
+  location text,
+  scheduled_at timestamptz,
+  note text,
+  requested_by uuid, scheduled_by uuid,
+  created_at timestamptz not null default now()
+  -- الجدولة سجل داخلي فقط؛ لا رسالة تُرسل لأحد في هذه المرحلة.
+);
+
+create or replace function shr_events_immutable() returns trigger language plpgsql as
+$$ begin raise exception 'shr_application_events is append-only'; end $$;
+drop trigger if exists shr_events_no_change on shr_application_events;
+create trigger shr_events_no_change before update or delete on shr_application_events
+  for each row execute function shr_events_immutable();
+
 -- ----------------------------------------------------------------- RLS ----
 -- الجلسة تضبط: select set_config('app.tenant_id', '<uuid>', true)
 do $$
@@ -181,7 +282,8 @@ begin
   foreach t in array array['shr_users','shr_establishments','shr_client_companies','shr_contracts',
     'shr_workers','shr_assignments','shr_worker_documents','shr_requests','shr_agencies',
     'shr_recruitment_orders','shr_agency_candidates','shr_procedure_steps','shr_payroll_runs',
-    'shr_invoices','shr_audit_log'] loop
+    'shr_invoices','shr_audit_log','shr_candidates','shr_candidate_consents','shr_jobs',
+    'shr_applications','shr_application_events','shr_interviews'] loop
     execute format('alter table %I enable row level security', t);
     execute format('drop policy if exists tenant_iso on %I', t);
     execute format($p$create policy tenant_iso on %I using (tenant_id::text = current_setting('app.tenant_id', true)) with check (tenant_id::text = current_setting('app.tenant_id', true))$p$, t);

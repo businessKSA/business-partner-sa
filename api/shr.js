@@ -8,9 +8,12 @@
 // POST /api/shr { action: "session-end" }
 // GET  /api/shr?action=session|dashboard|workers|requests|expiring[&days=60]
 // POST /api/shr { action: "worker-create" | "worker-activate" | "worker-archive" | "request-state" }
-// الحذف مرفوض: action "worker-delete" -> 403 archive_only.
+// ATS: GET jobs|applications|candidates|candidate ؛ POST job-create|job-close|application-create|
+//      application-stage|interview-request|interview-set|match (المنطق في _shr_ats.js و_shr_match.js).
+// الحذف مرفوض: action "worker-delete" (وأي *-delete) -> 403 archive_only.
 import crypto from "node:crypto";
-import { ctxFrom, scoped, assertLocal, tenantBySlug, tenantById, seedDemo, hashIdNo, ROLES } from "./_shr.js";
+import { ctxFrom, scoped, assertLocal, tenantBySlug, tenantById, seedDemo, hashIdNo, ROLES, HttpError, audit } from "./_shr.js";
+import * as ats from "./_shr_ats.js";
 
 const COOKIE = "shr_session";
 const TTL_S = 8 * 3600;
@@ -42,17 +45,10 @@ function readSession(req) {
   } catch { return null; }
 }
 
-class HttpError extends Error {
-  constructor(status, code, extra = {}) { super(code); this.status = status; this.code = code; this.extra = extra; }
-}
 const bad = (code, extra) => new HttpError(400, code, extra);
 const day = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
 const str = (v, max) => String(v ?? "").trim().slice(0, max);
 const needId = (v) => { if (!UUID.test(String(v || ""))) throw bad("bad_id"); return String(v); };
-
-async function audit(db, user, action, entity, entity_id) {
-  await db.post("shr_audit_log", { actor: user.sub, action, entity, entity_id });
-}
 
 // ------------------------------------------------------------- actions ----
 async function dashboard(db) {
@@ -231,6 +227,11 @@ export default async function handler(req, res) {
       case "workers": return out(200, { ok: true, workers: await listWorkers(db, q) });
       case "requests": return out(200, { ok: true, requests: await listRequests(db, q) });
       case "expiring": return out(200, { ok: true, ...(await expiring(db, q)) });
+      // ATS (المنطق في _shr_ats.js)
+      case "jobs": return out(200, { ok: true, jobs: await ats.listJobs(db) });
+      case "applications": return out(200, { ok: true, ...(await ats.listApplications(db, q)) });
+      case "candidates": return out(200, { ok: true, candidates: await ats.listCandidates(db) });
+      case "candidate": return out(200, { ok: true, ...(await ats.candidateDetail(db, q)) });
     }
     if (!isPost) return out(404, { ok: false, error: "unknown_action" });
     switch (action) {
@@ -238,7 +239,14 @@ export default async function handler(req, res) {
       case "worker-activate": return out(200, { ok: true, worker: await activateWorker(db, user, b) });
       case "worker-archive": return out(200, { ok: true, worker: await archiveWorker(db, user, b) });
       case "request-state": return out(200, { ok: true, request: await setRequestState(db, user, b) });
-      case "worker-delete": case "delete": return out(403, { ok: false, error: "archive_only" });
+      case "job-create": return out(200, { ok: true, job: await ats.createJob(db, user, b) });
+      case "job-close": return out(200, { ok: true, job: await ats.closeJob(db, user, b) });
+      case "application-create": return out(200, { ok: true, application: await ats.createApplication(db, user, b) });
+      case "application-stage": return out(200, { ok: true, application: await ats.setStage(db, user, b) });
+      case "interview-request": return out(200, { ok: true, interview: await ats.requestInterview(db, user, b) });
+      case "interview-set": return out(200, { ok: true, interview: await ats.setInterview(db, user, b) });
+      case "match": return out(200, { ok: true, ...(await ats.match(db, b)) });
+      case "worker-delete": case "job-delete": case "application-delete": case "candidate-delete": case "delete": return out(403, { ok: false, error: "archive_only" });
       default: return out(404, { ok: false, error: "unknown_action" });
     }
   } catch (e) {
