@@ -154,8 +154,8 @@ cover=head('اتفاقية خدمات نظام التعاقد ونقل الخد�
 <p style="margin:12px 0 0;font-size:22px;line-height:1.5;color:#C9D5FF">Employees of a mixed Norwegian–Saudi company under formation</p>
 </div>
 <div style="margin-top:70px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:40px;font-size:21px;line-height:1.6;color:#C9D5FF">
-<div style="direction:ltr;text-align:left">Between: Business Partner Solutions<br>and [CLIENT NAME]<br>Fee per employee from SAR 500 per month · excl. VAT</div>
-<div style="direction:rtl;text-align:right">بين: شركة بزنس بارتنر<br>و[اسم الشركة]<br>رسمنا من 500 ريال للفرد شهرياً · قبل الضريبة</div>
+<div style="direction:ltr;text-align:left">Between: Business Partner Solutions<br>and [CLIENT NAME]<br>Fee per employee from SAR 900 per month · excl. VAT</div>
+<div style="direction:rtl;text-align:right">بين: شركة بزنس بارتنر<br>و[اسم الشركة]<br>رسمنا من 900 ريال للفرد شهرياً · قبل الضريبة</div>
 </div>
 <div style="margin-top:auto;display:flex;justify-content:space-between;font-size:19px;color:#9DB4FF;border-top:2px solid #9DB4FF;padding-top:14px"><span>Business Partner Solutions Company · 7038825860 · VAT 312079341500003</span><span>Draft for review · not sent · subject to legal review</span></div>
 </div>

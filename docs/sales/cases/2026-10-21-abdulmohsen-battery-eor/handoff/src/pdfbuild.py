@@ -24,9 +24,12 @@ def lst(prefix):
 docs={}
 
 P='outp/project'
-docs['Proposal-Bilingual']=(['Main','Scope','Roles','Local','Calc','Price','Fees','Next','Accept'],P,1920,1080)
-docs['Proposal-AR']=(['AR-1-Cover','AR-2-Scope','AR-3-Roles','AR-4-Local','AR-5-Calc','AR-6-Price','AR-7-Fees','AR-8-Next','AR-9-Accept'],P,1920,1080)
-docs['Proposal-EN']=(['EN-1-Cover','EN-2-Scope','EN-3-Roles','EN-4-Local','EN-5-Calc','EN-6-Price','EN-7-Fees','EN-8-Next','EN-9-Accept'],P,1920,1080)
+import json as _j
+_B=_j.load(open('boards_prop.json'))
+# bilingual PDF = Arabic slides, then English slides (same order), then one stacked bilingual acceptance page to sign
+docs['Proposal-Bilingual']=(_B['ar'][:-1]+_B['en'][:-1]+[_B['bi'][-1]],P,1920,1080)
+docs['Proposal-AR']=(_B['ar'],P,1920,1080)
+docs['Proposal-EN']=(_B['en'],P,1920,1080)
 for nm,pre in (('NDA','NDA'),('Service-Agreement','CT')):
     for suf,lab in (('','Bilingual'),('AR','AR'),('EN','EN')):
         docs[f'{nm}-{lab}']=(lst(pre+suf),O,1240,1754)

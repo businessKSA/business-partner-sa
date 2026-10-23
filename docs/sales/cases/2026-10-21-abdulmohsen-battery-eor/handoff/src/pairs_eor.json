@@ -1323,12 +1323,12 @@
   {
    "i": 221,
    "ar": false,
-   "t": "Cost components: salary and allowances; work permit and expatriate levy (currently SAR 9,700 per year); residence fees from the Passports (currently SAR 650 per year); medical insurance; social insurance for the foreign Employee; end-of-service and leave; service transfer or visa fees distributed over the contract term; and Business Partner's service fee. The Localisation Fee is not a component of the Inclusive Monthly Rate; it is added on top of it according to each Employee's occupation under Schedule 4. Official amounts are according to the official schedules in force at the time of payment and are currently as stated, without the Agreement being tied to them. Housing, transport and food allowance are not included."
+   "t": "Cost components: salary and allowances; work permit and expatriate levy (currently SAR 9,700 per year); residence fees from the Passports (currently SAR 650 per year); medical insurance; social insurance for the foreign Employee; end-of-service and leave; service transfer or visa fees distributed over the contract term; and Business Partner's operating expenses (SAR 500 per Employee per month) and service fee. The Localisation Fee is not a component of the Inclusive Monthly Rate; it is added on top of it according to each Employee's occupation under Schedule 4. Official amounts are according to the official schedules in force at the time of payment and are currently as stated, without the Agreement being tied to them. Housing, transport and food allowance are not included."
   },
   {
    "i": 222,
    "ar": true,
-   "t": "مكوّنات التكلفة: الراتب والبدلات؛ رخصة العمل والمقابل المالي (حالياً 9,700 ريال سنوياً)؛ رسوم الإقامة من الجوازات (حالياً 650 ريالاً سنوياً)؛ التأمين الطبي؛ التأمينات الاجتماعية على الموظف الأجنبي؛ نهاية الخدمة والإجازة؛ رسوم نقل الخدمات أو التأشيرة موزعة على مدة العقد؛ وأتعاب خدمة Business Partner. ولا يدخل رسم التوطين ضمن مكوّنات السعر الشهري الشامل، بل يُضاف فوقه بحسب مهنة كل موظف وفق الملحق (4). وتُحمَّل المبالغ الرسمية وفق الجداول الرسمية السارية وقت السداد وهي حالياً كما ذُكر، دون ربط الاتفاقية بها. ولا يشمل السعر السكن والمواصلات وبدل الطعام."
+   "t": "مكوّنات التكلفة: الراتب والبدلات؛ رخصة العمل والمقابل المالي (حالياً 9,700 ريال سنوياً)؛ رسوم الإقامة من الجوازات (حالياً 650 ريالاً سنوياً)؛ التأمين الطبي؛ التأمينات الاجتماعية على الموظف الأجنبي؛ نهاية الخدمة والإجازة؛ رسوم نقل الخدمات أو التأشيرة موزعة على مدة العقد؛ ومصاريف Business Partner التشغيلية (500 ريال لكل موظف شهرياً) وأتعاب خدمتها. ولا يدخل رسم التوطين ضمن مكوّنات السعر الشهري الشامل، بل يُضاف فوقه بحسب مهنة كل موظف وفق الملحق (4). وتُحمَّل المبالغ الرسمية وفق الجداول الرسمية السارية وقت السداد وهي حالياً كما ذُكر، دون ربط الاتفاقية بها. ولا يشمل السعر السكن والمواصلات وبدل الطعام."
   }
  ],
  [
@@ -1371,12 +1371,12 @@
   {
    "i": 229,
    "ar": false,
-   "t": "Localisation Fee per Employee per month, before value added tax (15% is added), according to the occupation category: ordinary occupations SAR 500; administrative occupations (procurement, sales, marketing, accounting, and the like) SAR 2,000 (SAR 2,300 including value added tax); technical occupations SAR 1,500; engineering occupations SAR 3,000. The fee is charged in return for securing a Saudi counterpart according to the ratios in the procedural guide of the Ministry of Human Resources and Social Development for each occupation."
+   "t": "Localisation Fee per Employee per month, before value added tax (15% is added): (a) an occupation with no localisation decision: SAR 900; (b) an occupation with a localisation decision: the cost of the Saudis the ratio still requires, divided by the number of foreign Employees in that occupation and rounded to the nearest SAR 10. The Saudis required are the foreign Employees multiplied by the ratio divided by one minus the ratio, rounded up, less the Saudis the Client already employs in that occupation. The monthly cost of one Saudi is the occupation's minimum wage (SAR 4,000 where none is stated), plus the employer and employee social insurance contributions in force, end of service (wage divided by 24) and leave pay (21 days a year). The fee is charged in return for securing Saudi counterparts according to the ratios in the procedural guide of the Ministry of Human Resources and Social Development for each occupation."
   },
   {
    "i": 230,
    "ar": true,
-   "t": "رسم التوطين لكل موظف شهرياً، قبل الضريبة (وتُضاف 15%)، بحسب فئة المهنة: المهن العادية 500 ريال؛ المهن الإدارية (المشتريات والمبيعات والتسويق والمحاسبة وما يشبهها) 2,000 ريال (2,300 ريال شاملةً الضريبة)؛ المهن الفنية 1,500 ريال؛ المهن الهندسية 3,000 ريال. ويُستوفى الرسم مقابل تأمين مقابل سعودي بحسب نسب الدليل الإجرائي لوزارة الموارد البشرية والتنمية الاجتماعية لكل مهنة."
+   "t": "رسم التوطين لكل موظف شهرياً، قبل الضريبة (وتُضاف 15%): (أ) مهنة بلا قرار توطين: 900 ريال؛ (ب) مهنة عليها قرار توطين: تكلفة السعوديين الذين ما زالت النسبة تتطلبهم مقسومة على عدد الموظفين الأجانب في تلك المهنة ومقرّبة لأقرب 10 ريالات. والسعوديون المطلوبون هم عدد الموظفين الأجانب مضروباً في النسبة مقسوماً على (واحد ناقص النسبة) مقرّباً للأعلى، مطروحاً منه السعوديون الذين يوظفهم العميل أصلاً في تلك المهنة. وتكلفة السعودي الواحد شهرياً هي أقل أجر للمهنة (4,000 ريال إن لم يُحدَّد)، مضافاً إليه اشتراكات التأمينات الاجتماعية السارية على صاحب العمل والمشترك ونهاية الخدمة (الأجر ÷ 24) وبدل الإجازة (21 يوماً سنوياً). ويُستوفى الرسم مقابل تأمين مقابل سعودي بحسب نسب الدليل الإجرائي لوزارة الموارد البشرية والتنمية الاجتماعية لكل مهنة."
   }
  ],
  [

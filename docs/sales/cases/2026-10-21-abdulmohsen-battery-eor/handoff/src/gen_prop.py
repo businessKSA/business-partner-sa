@@ -89,25 +89,25 @@ S.append(dict(
 ))
 
 S.append(dict(
-    key='local', tag='03 · LOCALISATION', kind='local4',
-    title=('Localisation fee by profession or activity', 'رسوم التوطين بحسب المهنة أو النشاط'),
-    intro=('Each profession has its own localisation ratio and minimum Saudi salary in the Ministry\'s procedural guide. The higher the ratio, the higher our monthly fee per employee.',
-           'لكل مهنة نسبة توطين وحد أدنى لأجر السعودي في الدليل الإجرائي للوزارة. وكلما ارتفعت النسبة ارتفع رسمنا الشهري لكل موظف.'),
-    rows=[
-        (('Standard professions', 'المهن العادية'), ('No localisation decision', 'بلا قرار توطين'), ('—', '—'), 'SAR 500', 'SAR 575'),
-        (('Administrative', 'الإدارية'),
-         ('Purchasing 70% · Sales 60% · Marketing 60% · Accounting 40% rising to 70%', 'المشتريات 70% · المبيعات 60% · التسويق 60% · المحاسبة 40% وتصل إلى 70%'),
-         ('Marketing SAR 5,500 · Accounting SAR 6,000 (bachelor) or 4,500 (diploma) · Purchasing and sales: none stated', 'التسويق 5,500 · المحاسبة 6,000 (بكالوريوس) أو 4,500 (دبلوم) · المشتريات والمبيعات: لا حد منصوص'),
-         'SAR 2,000', 'SAR 2,300'),
-        (('Technical', 'الفنية'), ('30%', '30%'), ('SAR 5,000', '5,000 ريال'), 'SAR 1,500', 'SAR 1,725'),
-        (('Engineering', 'الهندسية'), ('30%', '30%'), ('SAR 8,000', '8,000 ريال'), 'SAR 3,000', 'SAR 3,450'),
+    key='local', tag='06 · LOCALISATION FEE', kind='cards', cols=3,
+    title=('Localisation fee', 'رسم التوطين'),
+    cards=[
+        dict(dark=True, t=('No localisation decision', 'مهنة بلا قرار توطين'),
+             b=('A flat <b>SAR 900</b> per employee per month, plus 15% VAT.',
+                'رسم ثابت <b>900 ريال</b> لكل موظف شهرياً، مع ضريبة 15%.')),
+        dict(dark=False, t=('With a localisation decision', 'مهنة عليها قرار توطين'),
+             b=('The fee covers the cost of the Saudis the ratio still requires, shared across your foreign employees. Each Saudi you already employ in that profession lowers it.',
+                'يغطي الرسم تكلفة السعوديين الذين ما زالت النسبة تتطلبهم، موزعة على موظفيك الأجانب. وكل سعودي توظفه في المهنة يخفضه.')),
+        dict(dark=False, t=('Saudi-only professions', 'مهن للسعوديين فقط'),
+             b=('Human resources, secretarial, reception, customer service and similar are not transferred to foreign employees.',
+                'الموارد البشرية والسكرتارية والاستقبال وخدمة العملاء ونحوها لا تُنقل لموظفين أجانب.')),
     ],
-    note=('Prices exclude VAT. A Saudi employee paid below the minimum salary is not counted toward the ratio. Professions restricted to Saudi nationals (human resources, secretarial, reception, customer service and similar) are not transferred to foreign employees. Ratios apply once the minimum number of employees in each guide is reached.',
-          'الأسعار قبل الضريبة. والسعودي الذي يقل أجره عن الحد الأدنى لا يُحتسب ضمن النسبة. والمهن المقصورة على السعوديين (الموارد البشرية والسكرتارية والاستقبال وخدمة العملاء وما شابهها) لا يُنقل إليها أجنبي. وتسري النسب عند بلوغ الحد الأدنى للعاملين في كل دليل.'),
+    note=('Example: 3 foreign engineers (ratio 30%, minimum Saudi salary SAR 8,000) and no Saudi engineer employed. Two Saudis are required, so the fee is SAR 6,930 per engineer per month. The profession calculator gives the figure for any profession.',
+          'مثال: 3 مهندسين أجانب (نسبة 30% وأقل راتب للسعودي 8,000 ريال) ولا يوجد مهندس سعودي. يلزم سعوديان، فيكون الرسم 6,930 ريالاً لكل مهندس شهرياً. وحاسبة المهن تعطيك الرقم لأي مهنة.'),
 ))
 
 S.append(dict(
-    key='calc', tag='04 · FOREIGN EMPLOYEE COST', kind='calc',
+    key='calc', tag='07 · FOREIGN EMPLOYEE COST', kind='calc',
     title=('Foreign employee cost calculation', 'حسبة تكلفة الموظف الأجنبي'),
     intro=('Illustration on an assumed total salary of SAR 6,000 per month. Actual figures follow each employee\'s confirmed salary, age and profession.',
            'مثال توضيحي على راتب إجمالي مفترض 6,000 ريال شهرياً. والأرقام الفعلية تتبع راتب كل موظف المؤكد وعمره ومهنته.'),
@@ -120,48 +120,70 @@ S.append(dict(
         (('Subtotal', 'المجموع الفرعي'), ('Before the items below', 'قبل البنود التالية'), '7,232.50'),
         (('Medical insurance', 'التأمين الطبي'), ('Insurer quote by age, class and gender', 'حسب عرض شركة التأمين: العمر والفئة والجنس'), 'Per quote|حسب العرض'),
         (('Transfer, visa and recruitment fees', 'رسوم النقل والتأشيرة والاستقدام'), ('Paid in advance: transfer 2,000 / 4,000 / 6,000; recruitment at actual', 'تُدفع مقدماً: النقل 2,000 / 4,000 / 6,000؛ والاستقدام بالفعلي'), 'Advance|مقدماً'),
-        (('Localisation fee', 'رسم التوطين'), ('By profession or activity: previous page', 'بحسب المهنة أو النشاط: الصفحة السابقة'), 'SAR 500–3,000'),
+        (('Localisation fee', 'رسم التوطين'), ('Flat SAR 900, or by localisation decision: page 7', 'ثابت 900 ريال، أو بحسب قرار التوطين: الصفحة 7'), 'SAR 900+|900+ ريال'),
     ],
     note=('Model 1 invoices each item separately at actual cost, with its own payment dates (see the Billing schedule sheet in the calculator). Model 2 includes them in one monthly price, and the localisation fee is added on top by profession. <b>Price calculators, one Excel file: both models for 6 / 12 / 24 months with the billing schedule, a Nitaqat calculator and a profession localisation calculator:</b> <a href="https://drive.google.com/file/d/1QUmP9EfoscToq1OpkenaTfFvfE0TpfI_/view" style="color:#13246E">Open the calculator</a>',
           'النموذج الأول يفوتر كل بند منفصلاً بالتكلفة الفعلية وله مواعيد دفعه (انظر ورقة «Billing schedule» في الحاسبة). والنموذج الثاني يضمّها في سعر شهري واحد، ويُضاف رسم التوطين فوقه بحسب المهنة. <b>حاسبات الأسعار في ملف إكسل واحد: النموذجان على 6 / 12 / 24 شهراً مع جدول الفوترة، وحاسبة النطاقات، وحاسبة توطين المهن:</b> <a href="https://drive.google.com/file/d/1QUmP9EfoscToq1OpkenaTfFvfE0TpfI_/view" style="color:#13246E">افتح الحاسبة</a>'),
 ))
 
 S.append(dict(
-    key='model1', tag='05 · MODEL 1 · COST PLUS', kind='cards', cols=2,
-    title=('Model 1: Cost plus', 'النموذج الأول: التكلفة زائد'),
+    key='models', tag='03 · TWO MODELS', kind='cards', cols=2,
+    title=('Two ways to pay', 'طريقتان للدفع'),
     cards=[
-        dict(compact=True, dark=True, t=('Our fees', 'رسومنا'),
-             b=('Per employee per month, plus 15% VAT, on the monthly invoice only: <b>SAR 500</b> service fee and the localisation fee (page 4). VAT also applies to medical insurance. Annual contracts: 12, 24 or 36 months.',
-                'لكل موظف شهرياً، مع ضريبة 15%، على الفاتورة الشهرية فقط: <b>500 ريال</b> رسوم خدمة، ورسم التوطين (الصفحة 4). وتسري الضريبة على التأمين الطبي أيضاً. العقود سنوية: 12 أو 24 أو 36 شهراً.')),
-        dict(compact=True, dark=False, t=('Stage 1: first advance', 'المرحلة 1: الدفعة الأولى المقدمة'),
-             b=('No salary, no work permit. <b>Sponsorship transfer (government fee):</b> SAR 2,000, then 4,000, then 6,000 from the third. <b>Recruitment from abroad:</b> per the external party\'s invoice (visa SAR 2,000, contract, attestation) plus the arrival ticket.',
-                'بلا راتب ولا رخصة. <b>نقل الكفالة (رسم حكومي):</b> 2,000 ريال ثم 4,000 ثم 6,000 من الثالثة. <b>الاستقدام من الخارج:</b> بحسب فاتورة الجهة الخارجية (التأشيرة 2,000 ريال، والعقد، والتصديق) مع تذكرة القدوم.')),
-        dict(compact=True, dark=False, t=('Stage 2 and monthly', 'المرحلة 2 والشهري'),
-             b=('<b>Entry:</b> medical insurance, one year in advance; work permit, levy and residency, in advance each quarter, half-year or year. <b>Monthly:</b> salary two months ahead, then monthly, no VAT; social insurance (2%) after arrival.',
-                '<b>الدخول:</b> التأمين الطبي سنة مقدماً؛ ورخصة العمل والمقابل المالي والإقامة مقدماً كل ربع أو نصف سنة أو سنة. <b>شهرياً:</b> الراتب مقدماً بشهرين ثم شهرياً بلا ضريبة؛ والتأمينات (2%) بعد الوصول.')),
-        dict(compact=True, dark=False, t=('Contract end and at actual', 'نهاية العقد وبالفعلي'),
-             b=('<b>One invoice after the contract ends,</b> at actual: end of service, leave pay, return ticket (exit and re-entry visa optional, outside the total). <b>At actual:</b> attested documents, and transport, housing and meals on arrival.',
-                '<b>فاتورة واحدة بعد نهاية العقد</b> بالفعلي: نهاية الخدمة، وبدل الإجازة، وتذكرة العودة (والخروج والعودة اختيارية وخارج الإجمالي). <b>بالفعلي:</b> المستندات المصدّقة، والمواصلات والسكن والطعام عند الوصول.')),
+        dict(dark=True, t=('Model 1 · Cost plus', 'النموذج 1 · تكلفة زائد'),
+             b=('You pay each real cost when it happens, plus our fixed <b>SAR 500</b> per employee per month and the localisation fee. Every item has its own invoice and date.',
+                'تدفع كل تكلفة فعلية عند حدوثها، مع رسوم خدمتنا الثابتة <b>500 ريال</b> شهرياً لكل موظف ورسم التوطين. ولكل بند فاتورته وموعده.')),
+        dict(dark=False, t=('Model 2 · Lump sum', 'النموذج 2 · مبلغ مقطوع'),
+             b=('One fixed monthly price per employee. It already includes salary, permits, insurance, end of service and the one-off fees. The localisation fee is added on top.',
+                'سعر شهري ثابت لكل موظف. يشمل الراتب والرخص والتأمين ونهاية الخدمة والرسوم لمرة واحدة. ويُضاف فوقه رسم التوطين.')),
     ],
-    note=('', ''),
+    note=('You can choose a different model for each employee. Model 1 is annual: 12, 24 or 36 months. Model 2 also offers 6 months.',
+          'تستطيع اختيار نموذج مختلف لكل موظف. النموذج 1 سنوي: 12 أو 24 أو 36 شهراً. والنموذج 2 يتيح أيضاً 6 أشهر.'),
+))
+
+S.append(dict(
+    key='model1', tag='04 · MODEL 1 · COST PLUS', kind='stages',
+    title=('Model 1: what you pay and when', 'النموذج 1: ماذا تدفع ومتى'),
+    heads=(('When', 'متى'), ('What you pay', 'ماذا تدفع'), ('How', 'كيف')),
+    rows=[
+        (('Stage 1 · First advance', 'المرحلة 1 · الدفعة الأولى'),
+         ('<b>Sponsorship transfer</b> (government fee): SAR 2,000, then 4,000, then 6,000 from the third. Or <b>recruitment from abroad</b>: the external party\'s invoice, visa SAR 2,000 and the arrival ticket.',
+          '<b>نقل الكفالة</b> (رسم حكومي): 2,000 ثم 4,000 ثم 6,000 من الثالثة. أو <b>الاستقدام من الخارج</b>: فاتورة الجهة الخارجية والتأشيرة 2,000 وتذكرة القدوم.'),
+         ('Before anything starts. No salary and no work permit yet.', 'قبل البدء. بلا راتب ولا رخصة عمل بعد.')),
+        (('Stage 2 · Entry', 'المرحلة 2 · الدخول'),
+         ('<b>Medical insurance</b> for one full year. <b>Work permit, levy and residency</b> for the period you choose.',
+          '<b>التأمين الطبي</b> لسنة كاملة. و<b>رخصة العمل والمقابل المالي والإقامة</b> للفترة التي تختارها.'),
+         ('In advance. Permit and residency: quarterly, half-yearly or yearly.', 'مقدماً. الرخصة والإقامة: ربع سنوي أو نصف سنوي أو سنوي.')),
+        (('Every month', 'كل شهر'),
+         ('<b>Salary</b>, then <b>social insurance</b> (2%) after arrival, our <b>SAR 500</b> fee and the <b>localisation fee</b>.',
+          '<b>الراتب</b>، و<b>التأمينات</b> (2%) بعد الوصول، ورسوم خدمتنا <b>500 ريال</b>، و<b>رسم التوطين</b>.'),
+         ('Salary is invoiced two months ahead, then monthly. VAT 15% on our fees and on medical insurance only.', 'الراتب يُفوتَر مقدماً بشهرين ثم شهرياً. وضريبة 15% على رسومنا والتأمين الطبي فقط.')),
+        (('After the contract', 'بعد انتهاء العقد'),
+         ('<b>End of service</b>, <b>leave pay</b> and the <b>return ticket</b>.',
+          '<b>نهاية الخدمة</b> و<b>بدل الإجازة</b> و<b>تذكرة العودة</b>.'),
+         ('One separate invoice at actual cost. The exit and re-entry visa is optional and outside the total.', 'فاتورة واحدة منفصلة بالتكلفة الفعلية. وتأشيرة الخروج والعودة اختيارية وخارج الإجمالي.')),
+    ],
+    note=('Also at actual cost when incurred: documents that need attestation. No fee of ours applies to stage 1, stage 2, the salary advance or the contract-end invoice.',
+          'وبالتكلفة الفعلية عند حدوثها: المستندات التي تحتاج تصديقاً. ولا تُحمَّل رسومنا على المرحلة 1 ولا 2 ولا مقدم الراتب ولا فاتورة نهاية العقد.'),
 ))
 
 import math
 def _lump(a, n):
-    c = (a + (9700 + 650 + 240) / 12 + 600 / 12 + (a / 30 * 21) / 12 + 200 / 12 + 3000 / n + a / 2 / 12 + a * 0.02 + 1500 / 12 + 2000 / n + 1000) * 1.1
+    prem = 0 if n >= 12 else 0.2 if n >= 9 else 0.3 if n >= 6 else 0.4 if n >= 3 else 1.0
+    c = (a * (1 + prem) + (9700 + 650 + 276) / 12 + 600 / 12 + (a / 30 * 21) / 12 + 200 / 12 + 3000 / n + a / 2 / 12 + a * 0.02 + 1500 / 12 + 2000 / n + 500) * 1.1
     return int(math.floor(c / 10 + 0.5) * 10)
 S.append(dict(
-    key='model2', tag='06 · MODEL 2 · LUMP SUM', kind='lump',
+    key='model2', tag='05 · MODEL 2 · LUMP SUM', kind='lump',
     title=('Model 2: Lump sum', 'النموذج الثاني: مبلغ مقطوع'),
-    intro=('One fixed monthly price for each employee, by total monthly package and contract term. It covers salary and allowances, work permit and levy, residency, medical and social insurance, end of service, leave pay, flight and exit and re-entry tickets, and transfer and visa fees. The longer the term, the lower the monthly price, because one-off fees are spread over more months.',
-           'سعر شهري ثابت لكل موظف بحسب إجمالي الراتب الشهري ومدة العقد. يشمل الراتب والبدلات، ورخصة العمل والمقابل المالي، والإقامة، والتأمين الطبي والاجتماعي، ونهاية الخدمة، وبدل الإجازة، وتذاكر الطيران والخروج والعودة، ورسوم النقل والتأشيرة. وكلما طالت المدة انخفض السعر الشهري لأن الرسوم لمرة واحدة تتوزع على أشهر أكثر.'),
-    rows=[((f'SAR {a:,}', f'{a:,} ريال'), f'{_lump(a,6):,}', f'{_lump(a,12):,}', f'{_lump(a,24):,}') for a in (3000, 4000, 5000, 6000, 7000, 8000, 10000)],
-    note=('Monthly price per employee in SAR, excluding VAT (15% VAT added). The localisation fee is added on top by each profession (page 4). Applies to: Engineer (Yemeni, Indian, Jordanian) and Sales (Yemeni, Indian). The Saudi human resources officer is not part of the transfer: he joins through a licensed assignment on the Ajeer platform or direct hiring by your company. You pay two months in advance. Use the calculator for any other salary or term.',
-          'السعر الشهري لكل موظف بالريال قبل الضريبة (تُضاف 15%). ويُضاف رسم التوطين فوقه بحسب كل مهنة (الصفحة 4). ينطبق على: مهندس (يمني، هندي، أردني) ومبيعات (يمني، هندي). وموظف الموارد البشرية السعودي ليس ضمن النقل: يكون بإسناد من جهة مرخّصة عبر منصة أجير أو بتوظيف مباشر لدى شركتكم. تدفع شهرين مقدماً. وللرواتب والمدد الأخرى استعمل الحاسبة.'),
+    intro=('One fixed monthly price per employee, by total monthly package and contract term. It covers salary, work permit and levy, residency, medical and social insurance, end of service, leave pay, tickets, transfer and visa fees, and our operating costs and service fee. The longer the term, the lower the price.',
+           'سعر شهري ثابت لكل موظف بحسب إجمالي الراتب الشهري ومدة العقد. يشمل الراتب ورخصة العمل والمقابل المالي والإقامة والتأمين الطبي والاجتماعي ونهاية الخدمة وبدل الإجازة والتذاكر ورسوم النقل والتأشيرة ومصاريفنا التشغيلية ورسم خدمتنا. وكلما طالت المدة انخفض السعر.'),
+    rows=[((f'SAR {a:,}', f'{a:,} ريال'), f'{_lump(a,6):,}', f'{_lump(a,12):,}', f'{_lump(a,24):,}', f'{_lump(a,36):,}') for a in (3000, 4000, 5000, 6000, 7000, 8000, 10000)],
+    note=('Monthly price per employee in SAR, excluding VAT (15% VAT added). The localisation fee is added on top (page 7). You pay two months of salary in advance. The Saudi human resources officer is not part of the transfer. For other salaries or terms, use the calculator.',
+          'السعر الشهري لكل موظف بالريال قبل الضريبة (تُضاف 15%). ويُضاف رسم التوطين فوقه (الصفحة 7). تدفع راتب شهرين مقدماً. وموظف الموارد البشرية السعودي ليس ضمن النقل. وللرواتب والمدد الأخرى استعمل الحاسبة.'),
 ))
 
 S.append(dict(
-    key='payment', tag='07 · TERMS & NEXT STEPS', kind='cards', cols=2,
+    key='payment', tag='08 · TERMS & NEXT STEPS', kind='cards', cols=2,
     title=('Terms and next steps', 'الشروط والخطوات التالية'),
     cards=[
         dict(dark=True, t=('Term and payment', 'المدة والدفع'),
@@ -176,7 +198,7 @@ S.append(dict(
 ))
 
 S.append(dict(
-    key='accept', tag='08 · ACCEPTANCE', kind='accept',
+    key='accept', tag='09 · ACCEPTANCE', kind='accept',
     title=('Acceptance', 'القبول'),
 ))
 
@@ -331,15 +353,15 @@ def render(s, mode):
             en = f'<div style="direction:ltr;text-align:{"center" if c else "left"};font-size:{size}px;line-height:1.25;color:{color};{w}">{esc(pair[0])}</div>'
             ar = f'<div style="direction:rtl;text-align:{"center" if c else "right"};font-size:{size+2}px;line-height:1.3;color:{color};{w}">{esc(pair[1])}</div>'
             return '<div>' + ((ar + en) if mode == 'bi' else (ar if mode == 'ar' else en)) + '</div>'
-        cols = 'minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)'
+        cols = 'minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)'
         d = 'rtl' if mode == 'ar' else 'ltr'
-        heads = (('Total monthly package', 'إجمالي الراتب الشهري'), ('6 months', '6 أشهر'), ('12 months', '12 شهراً'), ('24 months', '24 شهراً'))
+        heads = (('Total monthly package', 'إجمالي الراتب الشهري'), ('6 months', '6 أشهر'), ('12 months', '12 شهراً'), ('24 months', '24 شهراً'), ('36 months', '36 شهراً'))
         h = ''.join(f'<div style="{"text-align:center;" if i else ""}">{L(hp, fs, True, "#fff", c=bool(i))}</div>' for i, hp in enumerate(heads))
         body = f'<div style="display:grid;grid-template-columns:{cols};column-gap:14px;align-items:center;padding:10px 24px;background:#0B1B5A;direction:{d}">{h}</div>'
         for i, r in enumerate(s['rows']):
             bg = '#EEF2FF' if r[0][0] == 'SAR 6,000' else '#fff'
             val = lambda v: f'<div style="font-family:\'IBM Plex Mono\',monospace;font-weight:500;direction:ltr;text-align:center;font-size:{fs+4}px;color:#0B1B5A">{esc(v)}</div>'
-            body += f'<div style="display:grid;grid-template-columns:{cols};column-gap:14px;align-items:center;padding:4px 24px;background:{bg};border-bottom:2px solid #DDE1EE;direction:{d}">{L(r[0], fs+1, True)}{val(r[1])}{val(r[2])}{val(r[3])}</div>'
+            body += f'<div style="display:grid;grid-template-columns:{cols};column-gap:14px;align-items:center;padding:4px 24px;background:{bg};border-bottom:2px solid #DDE1EE;direction:{d}">{L(r[0], fs+1, True)}{val(r[1])}{val(r[2])}{val(r[3])}{val(r[4])}</div>'
         inner += f'<div style="margin-top:10px;flex-shrink:0;background:#fff;border:2px solid #DDE1EE;border-radius:20px;overflow:hidden">{body}</div>'
         inner += note(s['note'], mode, 10)
     elif k in ('table','table4'):
@@ -382,6 +404,19 @@ def render(s, mode):
                     lines += f'<div style="padding:7px 0;border-top:1px solid {"#2B3F8A" if dark else "#E6E9F3"};direction:{"rtl" if mode=="ar" else "ltr"};text-align:{"right" if mode=="ar" else "left"};font-size:{27 if mode=="ar" else 25}px;color:{icol[1] if mode=="ar" else icol[1]}">✓ {esc(t)}</div>'
             return f'<div style="background:{bg};border-radius:22px;padding:24px 30px;display:flex;flex-direction:column;gap:4px">{txt(title, mode, (30, 36), tcol, True)}{lines}</div>'
         inner += '<div style="display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);column-gap:28px;margin-top:22px;align-items:start">' + col(s['left'], True) + col(s['right'], False) + '</div>'
+    elif k == 'stages':
+        fs = 20 if mode == 'bi' else 27
+        d = 'rtl' if mode == 'ar' else 'ltr'
+        cols = 'minmax(0,0.75fr) minmax(0,1.7fr) minmax(0,1.1fr)'
+        def C(pair, size, color, bold=False):
+            return txt(pair, mode, (size, size + 2), (color, color), bold)
+        hrow = ''.join(f'<div>{C(h, fs - 4, "#9DB4FF", True)}</div>' for h in s['heads'])
+        body = f'<div style="display:grid;grid-template-columns:{cols};column-gap:26px;padding:16px 28px;background:#0B1B5A;direction:{d}">{hrow}</div>'
+        for i, (w, what, how) in enumerate(s['rows']):
+            bg = '#fff' if i % 2 == 0 else '#F7F8FD'
+            body += f'<div style="display:grid;grid-template-columns:{cols};column-gap:26px;align-items:start;padding:16px 28px;background:{bg};border-bottom:2px solid #DDE1EE;direction:{d}"><div>{C(w, fs, "#0B1B5A", True)}</div><div>{C(what, fs - 1, "#1B2340")}</div><div>{C(how, fs - 3, "#4A5578")}</div></div>'
+        inner += f'<div style="margin-top:26px;background:#fff;border:2px solid #DDE1EE;border-radius:20px;overflow:hidden">{body}</div>'
+        inner += note(s['note'], mode, 18)
     elif k == 'accept':
         L = lambda t: f'<div style="font-size:24px;color:#6A7596;margin-top:8px">{t}</div><div class="ln"></div>'
         blocks = []
@@ -407,6 +442,7 @@ NAMES = {  # key -> (bi, ar, en)
     'cover': ('Main', 'AR-1-Cover', 'EN-1-Cover'),
     'scope': ('Scope', 'AR-2-Scope', 'EN-2-Scope'),
     'roles': ('Roles', 'AR-3-Roles', 'EN-3-Roles'),
+    'models': ('Models', 'AR-10-Models', 'EN-10-Models'),
     'local': ('Local', 'AR-4-Local', 'EN-4-Local'),
     'calc': ('Calc', 'AR-5-Calc', 'EN-5-Calc'),
     'model1': ('Price', 'AR-6-Price', 'EN-6-Price'),
@@ -414,6 +450,8 @@ NAMES = {  # key -> (bi, ar, en)
     'payment': ('Next', 'AR-8-Next', 'EN-8-Next'),
     'accept': ('Accept', 'AR-9-Accept', 'EN-9-Accept'),
 }
+ORDER = ['cover', 'scope', 'roles', 'models', 'model1', 'model2', 'local', 'calc', 'payment', 'accept']
+S.sort(key=lambda x: ORDER.index(x['key']))
 boards = {'bi': [], 'ar': [], 'en': []}
 for s in S:
     for i, mode in enumerate(('bi', 'ar', 'en')):

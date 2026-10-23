@@ -38,8 +38,8 @@ def cat(c):
     if c.startswith('هندسية'): return 'Engineering'
     if c.startswith('مقصورة'): return 'Saudi-only'
     return 'On request'
-FEE_BY_CAT = {'Standard': 500, 'Administrative': 2000, 'Technical': 1500, 'Engineering': 3000}
-rows_p = [('أي مهنة أخرى بلا قرار توطين · Any other profession', 'أي مهنة أخرى', 'لا يوجد دليل', 'No localisation guide', 0, 0, 0, 'Standard', 500, 'Standard fee', '')]
+FEE_BY_CAT = {'Standard': 900, 'Administrative': 2000, 'Technical': 1500, 'Engineering': 3000}
+rows_p = [('أي مهنة أخرى بلا قرار توطين · Any other profession', 'أي مهنة أخرى', 'لا يوجد دليل', 'No localisation guide', 0, 0, 0, 'Standard', 900, 'Standard fee', '')]
 seen = set()
 guide_by_id = {g['id']: g for g in guides}
 for o in occ:
@@ -53,7 +53,14 @@ for o in occ:
     rows_p.append((key, o[3], o[1], g.get('nameEn', ''), o[4], s[6] if s else None, (s[7] if s and s[7] else 0), c, fee, (s[11] if s and s[11] else ''), (s[8] if s and s[8] else '')))
 
 NP_LATE = len(rows_p) + 1
-FEE_FORMULA = '=IFERROR(IF(ISNUMBER(INDEX(Professions!$I$2:$I$%d,MATCH(B5,Professions!$A$2:$A$%d,0))),INDEX(Professions!$I$2:$I$%d,MATCH(B5,Professions!$A$2:$A$%d,0)),0),0)' % ((NP_LATE,)*4)
+def locfee(P, Q, SD):
+    """Localisation fee per foreign employee per month: flat 900 for professions without a decision;
+    otherwise cost of the Saudis still required (ratio r/(1-r) x foreigners, less Saudis already employed) / foreigners."""
+    ix = lambda col: f'INDEX(Professions!${col}$2:${col}${NP_LATE},MATCH({P},Professions!$A$2:$A${NP_LATE},0))'
+    q = f'MAX(1,{Q})'
+    return (f'=IFERROR(IF(OR({ix("H")}="Saudi-only",{ix("H")}="On request"),0,IF(OR({ix("H")}="Standard",{ix("M")}=0),N({ix("I")}),'
+            f'ROUND(MAX(0,ROUNDUP(ROUND({ix("M")}*{q},6),0)-({SD}))*{ix("L")}/{q}/10,0)*10)),0)')
+FEE_FORMULA = locfee('B5', '1', '0')
 FEE_FORMULA_C = FEE_FORMULA.replace('B5','B7')
 nit = json.load(open(H + 'nitaqat_const.json', encoding='utf8'))
 
@@ -90,8 +97,10 @@ def note(ws, r, en, ar, h=48):
     ws.row_dimensions[r].height = h
 
 # ---------- Rates (price table, Model 2) ----------
+PXL = 'IF(B4>=12,0,IF(B4>=9,0.2,IF(B4>=6,0.3,IF(B4>=3,0.4,1))))'
+PREM = lambda n: 0 if n >= 12 else 0.2 if n >= 9 else 0.3 if n >= 6 else 0.4 if n >= 3 else 1.0
 def price(a, n):
-    return (a + (9700 + 650 + 240) / 12 + 600 / 12 + (a / 30 * 21) / 12 + 200 / 12 + 3000 / n + a / 2 / 12 + a * 0.02 + 1500 / 12 + 1000) * (1 + 0.1)
+    return (a * (1 + PREM(n)) + (9700 + 650 + 276) / 12 + 600 / 12 + (a / 30 * 21) / 12 + 200 / 12 + 3000 / n + a / 2 / 12 + a * 0.02 + 1500 / 12 + 500) * (1 + 0.1)
 
 # ---------- 0. Start ----------
 ws0 = wb.active; ws0.title = 'Start'
@@ -117,24 +126,24 @@ for i, (e, a) in enumerate(lines, 3):
 # ---------- Rates ----------
 wr = wb.create_sheet('Rates')
 wr['A1'] = 'Total monthly package (SAR)'
-for j, n in enumerate((6, 12, 24)): wr.cell(1, 2 + j, n)
+for j, n in enumerate((6, 12, 24, 36)): wr.cell(1, 2 + j, n)
 pk = list(range(1000, 20001, 1000))
 for i, a in enumerate(pk, 2):
     wr.cell(i, 1, a)
-    for j, n in enumerate((6, 12, 24)):
+    for j, n in enumerate((6, 12, 24, 36)):
         wr.cell(i, 2 + j, round(price(a, n), 8))
-hdr(wr, 1, ['Total monthly package (SAR)', 6, 12, 24])
+hdr(wr, 1, ['Total monthly package (SAR)', 6, 12, 24, 36])
 RL = len(pk) + 1
 wr.column_dimensions['A'].width = 30
-for col in 'BCD': wr.column_dimensions[col].width = 18
-wr['F1'] = 'Monthly price excl. VAT by contract term in months (reference table used by the Lump sum sheet).'
-wr['F1'].font = f_s
+for col in 'BCDE': wr.column_dimensions[col].width = 18
+wr['G1'] = 'Monthly price excl. VAT by contract term in months (reference table used by the Lump sum sheet).'
+wr['G1'].font = f_s
 wr.sheet_state = 'visible'
 
 # ---------- Fees ----------
 wf = wb.create_sheet('Fees')
 hdr(wf, 1, ['Category', 'Fee per month excl. VAT (SAR)', 'Notes', 'Professional accreditation'])
-fees_rows = [('None', 0, 'No localisation fee'), ('Standard', 500, 'Profession without a localisation decision'),
+fees_rows = [('None', 0, 'No localisation fee'), ('Standard', 900, 'Profession without a localisation decision'),
              ('Administrative', 2000, 'Purchasing, sales, marketing, accounting'),
              ('Technical', 1500, 'Technical engineering professions'),
              ('Engineering', 3000, 'Engineering professions')]
@@ -147,21 +156,21 @@ ws = wb.create_sheet('Lump sum', 1)
 title(ws, 'Foreign employee — monthly price (Model 2: lump sum)', 'الموظف الأجنبي — السعر الشهري (النموذج الثاني: مبلغ مقطوع)')
 note(ws, 2, 'Change the light-blue cells only.', 'غيّر الخانات الزرقاء الفاتحة فقط.', 20)
 row(ws, 3, 'Total monthly package (SAR)', 6000, 'إجمالي الراتب الشهري (ريال)', inp=True, fmt='#,##0')
-row(ws, 4, 'Contract term in months (6, 12 or 24)', 12, 'مدة العقد بالأشهر (6 أو 12 أو 24)', inp=True)
+row(ws, 4, 'Contract term in months (6, 12, 24 or 36)', 12, 'مدة العقد بالأشهر (6 أو 12 أو 24 أو 36)', inp=True)
 row(ws, 5, 'Profession (localisation fee is added on top)', rows_p[0][0], 'المهنة (رسم التوطين يُضاف فوق السعر)', inp=True)
 row(ws, 6, 'External recruitment costs, total actual (SAR) — 0 if the employee is already in the Kingdom', 0, 'تكاليف الاستقدام من الخارج الفعلية الإجمالية (ريال) — 0 إن كان الموظف داخل المملكة', inp=True, fmt=NUM)
 row(ws, 7, 'Contracts and attestation costs, total actual (SAR)', 0, 'تكاليف العقود والتصديق الفعلية الإجمالية (ريال)', inp=True, fmt=NUM)
 row(ws, 8, 'Arrival ticket, total actual (SAR)', 2000, 'تذكرة القدوم الفعلية (ريال)', inp=True, fmt=NUM)
 EXTRA = '(B6+B7+B8)/B4*1.1'
 if INTERNAL:
-    ex = '(B3+(9700+650+240)/12+600/12+(B3/30*21)/12+200/12+3000/B4+B3/2/12+B3*2%+1500/12+1000+(B6+B7+B8)/B4)*(1+0.1)'
+    ex = '(B3*(1+'+PXL+')+(9700+650+276)/12+600/12+(B3/30*21)/12+200/12+3000/B4+B3/2/12+B3*2%+1500/12+500+(B6+B7+B8)/B4)*(1+0.1)'
     row(ws, 9, 'Monthly price before localisation, excl. VAT (SAR)', '=MROUND(' + ex + ',10)', 'السعر الشهري قبل التوطين قبل الضريبة (ريال)', bold=True, fmt=NUM)
-    row(ws, 10, 'Cost before the 10% (INTERNAL)', '=(B3+(9700+650+240)/12+600/12+(B3/30*21)/12+200/12+3000/B4+B3/2/12+B3*2%+1500/12+1000+(B6+B7+B8)/B4)', 'التكلفة قبل الـ10% (داخلي)', fmt=NUM)
+    row(ws, 10, 'Cost before the 10% (INTERNAL)', '=(B3*(1+'+PXL+')+(9700+650+276)/12+600/12+(B3/30*21)/12+200/12+3000/B4+B3/2/12+B3*2%+1500/12+500+(B6+B7+B8)/B4)', 'التكلفة قبل الـ10% (داخلي)', fmt=NUM)
     row(ws, 11, 'Localisation fee per month, added on top (SAR)', FEE_FORMULA, 'رسم التوطين شهرياً يُضاف فوق السعر (ريال)', fmt=NUM)
     o = 11
 else:
     row(ws, 9, 'Monthly price before localisation, excl. VAT (SAR)',
-        f'=MROUND(FORECAST(B3,INDEX(Rates!$B$2:$D${RL},0,MATCH(B4,Rates!$B$1:$D$1,0)),Rates!$A$2:$A${RL})+{EXTRA},10)',
+        f'=MROUND(FORECAST(B3,INDEX(Rates!$B$2:$E${RL},0,MATCH(B4,Rates!$B$1:$E$1,0)),Rates!$A$2:$A${RL})+{EXTRA},10)',
         'السعر الشهري قبل التوطين قبل الضريبة (ريال)', bold=True, fmt=NUM)
     row(ws, 10, 'Localisation fee per month, added on top (SAR)', FEE_FORMULA, 'رسم التوطين شهرياً يُضاف فوق السعر (ريال)', fmt=NUM)
     o = 10
@@ -173,15 +182,15 @@ row(ws, o + 5, 'Two months in advance excl. VAT (SAR)', f'=B{o+1}*2', 'شهرا�
 r0 = o + 7
 ws.cell(r0, 1, 'Same package by term — monthly price excl. VAT').font = f_b
 ws.cell(r0, 3, 'نفس الراتب بحسب المدة — السعر الشهري قبل الضريبة').font = f_b; ws.cell(r0, 3).alignment = rtl
-for k, (n, col) in enumerate(((6, 'B'), (12, 'C'), (24, 'D'))):
+for k, (n, col) in enumerate(((6, 'B'), (12, 'C'), (24, 'D'), (36, 'E'))):
     if not INTERNAL:
         base = f'MROUND(FORECAST($B$3,Rates!${col}$2:${col}${RL},Rates!$A$2:$A${RL})+(B6+B7+B8)/{n}*1.1,10)'
     else:
-        base = f'MROUND((B3+(9700+650+240)/12+600/12+(B3/30*21)/12+200/12+3000/{n}+B3/2/12+B3*2%+1500/12+1000+(B6+B7+B8)/{n})*(1+0.1),10)'
+        base = f'MROUND((B3*(1+{PREM(n)})+(9700+650+276)/12+600/12+(B3/30*21)/12+200/12+3000/{n}+B3/2/12+B3*2%+1500/12+500+(B6+B7+B8)/{n})*(1+0.1),10)'
     row(ws, r0 + 1 + k, f'{n} months', f'={base}+B{o}', f'{n} أشهر' if n == 6 else f'{n} شهراً', fmt=NUM)
 note(ws, r0 + 5, 'The monthly price covers salary and allowances, work permit and levy, residency, medical and social insurance, end of service, leave pay, tickets and exit and re-entry visa, transfer, visa and recruitment costs, contracts and attestation, and our service fee. The price changes with the term because transfer and visa fees are spread over the contract months. The localisation fee is added on top of the price and follows the profession (see "Profession calculator"); Saudi-only professions are not transferred and professions outside our approved categories are quoted on request.',
      'السعر الشهري يشمل الراتب والبدلات، ورخصة العمل والمقابل المالي، والإقامة، والتأمين الطبي والاجتماعي، ومكافأة نهاية الخدمة، وبدل الإجازة، وتذاكر الطيران والخروج والعودة، وتكاليف النقل والتأشيرة والاستقدام، والعقود والتصديق، ورسم خدمتنا. ويتغير السعر بتغير المدة لأن رسوم النقل والتأشيرة تُقسَّم على أشهر العقد. ويُضاف رسم التوطين فوق السعر بحسب المهنة (انظر «Profession calculator»)، والمهن المقصورة على السعوديين لا يُنقل إليها أجنبي، والمهن خارج فئاتنا المعتمدة تُحدَّد عند الطلب.', 110)
-dv = DataValidation(type='list', formula1='"6,12,24"', allow_blank=False); ws.add_data_validation(dv); dv.add('B4')
+dv = DataValidation(type='list', formula1='"6,12,24,36"', allow_blank=False); ws.add_data_validation(dv); dv.add('B4')
 dv2 = DataValidation(type='list', formula1='=Professions!$A$2:$A$%d' % NP_LATE, allow_blank=False); ws.add_data_validation(dv2); dv2.add('B5')
 dv3 = DataValidation(type='decimal', operator='greaterThan', formula1='0'); ws.add_data_validation(dv3); dv3.add('B3')
 
@@ -190,7 +199,7 @@ wc = wb.create_sheet('Cost plus', 2)
 title(wc, 'Foreign employee — monthly invoice (Model 1: cost plus)', 'الموظف الأجنبي — الفاتورة الشهرية (النموذج الأول: تكلفة زائد)')
 note(wc, 2, 'Change the light-blue cells only. Items that do not apply (for example recruitment from abroad for an employee already in the Kingdom) stay at 0.', 'غيّر الخانات الزرقاء الفاتحة فقط. والبنود التي لا تنطبق (مثل الاستقدام من الخارج لموظف داخل المملكة) اتركها 0.', 34)
 row(wc, 3, 'Total monthly package (SAR)', 6000, 'إجمالي الراتب الشهري (ريال)', inp=True, fmt='#,##0')
-row(wc, 4, 'Contract term in months (6, 12 or 24)', 12, 'مدة العقد بالأشهر (6 أو 12 أو 24)', inp=True)
+row(wc, 4, 'Contract term in months (12, 24 or 36)', 12, 'مدة العقد بالأشهر (12 أو 24 أو 36)', inp=True)
 row(wc, 5, 'Medical insurance per month (SAR) — per insurer quote by age, class and gender', 0, 'التأمين الطبي شهرياً (ريال) — حسب عرض شركة التأمين: العمر والفئة والجنس', inp=True, fmt=NUM)
 row(wc, 6, 'Transfer and visa fees, total actual (SAR)', 3000, 'رسوم النقل والتأشيرة الفعلية الإجمالية (ريال)', inp=True, fmt=NUM)
 row(wc, 7, 'Profession (our localisation fee)', rows_p[0][0], 'المهنة (رسم التوطين لدينا)', inp=True)
@@ -226,15 +235,19 @@ row(wc, last + 5, 'Total for the term (SAR)', f'=B{last+4}*B4', 'الإجمال�
 row(wc, last + 6, 'Two months in advance (SAR)', f'=B{last+4}*2', 'شهران مقدماً (ريال)', fmt=NUM)
 note(wc, last + 7, 'Each item is invoiced separately at actual cost; government fees carry no VAT and VAT applies only to our fee. One-off items (transfer, recruitment, attestation, arrival ticket) are spread over the contract months, so the monthly share changes with the term. Medical insurance follows the insurer quote.',
      'كل بند يُفوتر منفصلاً بالتكلفة الفعلية؛ والرسوم الحكومية بلا ضريبة والضريبة على رسمنا فقط. والبنود لمرة واحدة (النقل والاستقدام والتصديق وتذكرة القدوم) تُقسَّم على أشهر العقد فتتغير حصتها الشهرية بالمدة. والتأمين الطبي حسب عرض شركة التأمين.', 80)
-dv_c = DataValidation(type='list', formula1='"6,12,24"'); wc.add_data_validation(dv_c); dv_c.add('B4')
+dv_c = DataValidation(type='list', formula1='"12,24,36"'); wc.add_data_validation(dv_c); dv_c.add('B4')
 dv_c2 = DataValidation(type='list', formula1='=Professions!$A$2:$A$%d' % NP_LATE); wc.add_data_validation(dv_c2); dv_c2.add('B7')
 
 # ---------- Professions ----------
 wp = wb.create_sheet('Professions')
-hdr(wp, 1, ['Profession · guide', 'Profession', 'Guide (Arabic)', 'Guide (English)', 'Ratio %', 'Min workers', 'Min Saudi salary (SAR)', 'Category', 'Fee per month excl. VAT (SAR)', 'Notes', 'Professional accreditation'])
+hdr(wp, 1, ['Profession · guide', 'Profession', 'Guide (Arabic)', 'Guide (English)', 'Ratio %', 'Min workers', 'Min Saudi salary (SAR)', 'Category', 'Fee per month excl. VAT (SAR)', 'Notes', 'Professional accreditation', 'Cost of one Saudi per month (SAR)', 'Saudis required per foreigner'])
 for i, r in enumerate(rows_p, 2):
     for j, v in enumerate(r, 1): wp.cell(i, j, v)
 NP = len(rows_p) + 1
+for i in range(2, NP + 1):
+    wp.cell(i, 12, f'=IF(G{i}>0,G{i},4000)+MIN(45000,IF(G{i}>0,G{i},4000)*0.85)*(0.1275+0.1075)+IF(G{i}>0,G{i},4000)/24+IF(G{i}>0,G{i},4000)/30*21/12')
+    wp.cell(i, 13, f'=IF(AND(E{i}>0,E{i}<100),(E{i}/100)/(1-E{i}/100),0)')
+    wp.cell(i, 12).number_format = '#,##0.00'; wp.cell(i, 13).number_format = '0.0000'
 for col, w in zip('ABCDEFGHIJK', (60, 34, 34, 28, 10, 12, 18, 16, 22, 60, 40)): wp.column_dimensions[col].width = w
 wp.freeze_panes = 'B2'
 
@@ -264,7 +277,7 @@ wl.cell(18, 1, '="To meet the ratio you need "&B17&" more Saudi employee(s) in t
 wl.cell(18, 3, '="لتحقيق نسبة التوطين تحتاج "&B17&" سعودياً إضافياً في هذه المهنة."').font = f_b
 wl.cell(18, 3).alignment = rtl; wl.cell(18, 1).alignment = wrap; wl.row_dimensions[18].height = 30
 row(wl, 19, 'Our fee per employee per month, excl. VAT (SAR) — on top of Model 2',
-    f'=IF(B11="Saudi-only","Not transferable",IF(B11="On request","Quoted on request",INDEX(Professions!$I$2:$I${NP},MATCH($B$3,Professions!$A$2:$A${NP},0))))',
+    f'=IF(B11="Saudi-only","Not transferable",IF(B11="On request","Quoted on request",{locfee("$B$3", "B5", "B4")[1:]}))',
     'رسمنا لكل موظف شهرياً قبل الضريبة (ريال) — فوق النموذج الثاني', bold=True, fmt=NUM, shade=True)
 row(wl, 20, 'Our monthly fee for the foreign employees, excl. VAT (SAR)', '=IF(ISNUMBER(B19),B19*B5,B19)', 'رسمنا الشهري للموظفين الأجانب قبل الضريبة (ريال)', bold=True, fmt=NUM)
 row(wl, 21, 'VAT 15% (SAR)', '=IF(ISNUMBER(B20),B20*0.15,"—")', 'ضريبة 15% (ريال)', fmt=NUM)
@@ -365,7 +378,7 @@ if INTERNAL:
     comp = [
      ('Salary', '=B2', 'Total monthly package'),
      ('Visa and joining fee', '=3000/B3', 'SAR 3,000 ÷ contract months'),
-     ('Iqamah + LL + Ajeer', '=(9700+650+240)/12', '(9,700 levy and permit + 650 iqama + 240 Ajeer) ÷ 12'),
+     ('Iqamah + LL + Ajeer', '=(9700+650+276)/12', '(9,700 levy and permit + 650 iqama + 276 Ajeer) ÷ 12'),
      ('Insurance', '=600/12', 'SAR 600 ÷ 12'),
      ('Re-entry visa', '=200/12', 'SAR 200 ÷ 12'),
      ('EOS', '=B2/24', 'Salary ÷ 24'),
@@ -373,7 +386,7 @@ if INTERNAL:
      ('Return ticket', '=1500/12', 'SAR 1,500 ÷ 12'),
      ('Arrival ticket', '=2000/B3', 'SAR 2,000 ÷ contract months'),
      ('Gosi', '=B2*2%', '2% of salary'),
-     ('Overhead', 1000, 'SAR 1,000 per employee per month'),
+     ('Overhead', 500, 'SAR 500 per employee per month'),
     ]
     for i, (a, v, c) in enumerate(comp, 5): tr(i, a, v, c)
     last = 5 + len(comp) - 1; r = last + 1
@@ -488,14 +501,15 @@ if TRANSPARENT:
     r4(ws, 2, 'Change the light-blue cells only. The calculation is shown line by line, so you can follow how the salary drives the price.', 'غيّر الخانات الزرقاء الفاتحة فقط. والحسبة معروضة سطراً بسطر لتتبع كيف يؤثر الراتب على السعر.', 'Formulas are visible in every cell.')
     ws.row_dimensions[2].height = 40
     r4(ws, 3, 'Total monthly package (SAR)', 6000, 'إجمالي الراتب الشهري (ريال)', 'The variable that drives the price', inp=True, fmt='#,##0')
-    r4(ws, 4, 'Contract term in months (6, 12 or 24)', 12, 'مدة العقد بالأشهر (6 أو 12 أو 24)', 'One-off fees are spread over this term', inp=True)
+    r4(ws, 4, 'Contract term in months (6, 12, 24 or 36)', 12, 'مدة العقد بالأشهر (6 أو 12 أو 24 أو 36)', 'One-off fees are spread over this term', inp=True)
     r4(ws, 5, 'Profession (localisation fee is added on top)', rows_p[0][0], 'المهنة (رسم التوطين يُضاف فوق السعر)', 'See "Profession calculator"', inp=True)
     r4(ws, 6, 'Recruited from abroad? (Yes or No)', 'No', 'مستقدَم من الخارج؟ (Yes أو No)', 'Yes uses the "Recruitment" sheet', inp=True)
     r4(ws, 7, 'Use the "Insurance" sheet estimate? (Yes or No)', 'Yes', 'استعمال تقدير ورقة «Insurance»؟ (Yes أو No)', 'No uses SAR 600 per year', inp=True)
+    r4(ws, 8, 'Foreign employees in this profession (for the localisation fee)', 1, 'عدد الأجانب في هذه المهنة (لرسم التوطين)', 'Fee = cost of the Saudis the ratio requires ÷ foreigners', inp=True, fmt='0')
     ws.cell(9, 1, 'Cost component per month').font = f_b; ws.cell(9, 3, 'بند التكلفة الشهري').font = f_b; ws.cell(9, 3).alignment = rtl
     comp = [
      ('Salary', '=B3', 'الراتب', 'Total monthly package'),
-     ('Iqama + work permit and levy + Ajeer', '=(9700+650+240)/12', 'الإقامة + رخصة العمل والمقابل المالي + أجير', '(9,700 levy and permit + 650 iqama + 240 Ajeer) ÷ 12'),
+     ('Iqama + work permit and levy + Ajeer', '=(9700+650+276)/12', 'الإقامة + رخصة العمل والمقابل المالي + أجير', '(9,700 levy and permit + 650 iqama + 276 Ajeer) ÷ 12'),
      ('Medical insurance', '=IF(B7="Yes",Insurance!B13,600/12)', 'التأمين الطبي', 'Insurance sheet (age, sex, nationality, class) or SAR 600 ÷ 12'),
      ('Re-entry visa', '=200/12', 'تأشيرة الخروج والعودة', 'SAR 200 ÷ 12'),
      ('End of service', '=B3/24', 'مكافأة نهاية الخدمة', 'Salary ÷ 24 (half a month a year for the first five years)'),
@@ -505,15 +519,15 @@ if TRANSPARENT:
      ('Visa and joining fee', '=3000/B4', 'رسوم التأشيرة والالتحاق', 'SAR 3,000 ÷ contract months'),
      ('Recruitment from abroad', '=IF(B6="Yes",Recruitment!B11,0)/B4', 'الاستقدام من الخارج', 'Recruitment sheet total ÷ contract months'),
      ('Arrival ticket', '=IF(B6="Yes",Recruitment!B12,2000)/B4', 'تذكرة القدوم', 'SAR 2,000 (or the country value) ÷ contract months'),
-     ('Operating and management costs', 1000, 'التكاليف التشغيلية والإدارية', 'SAR 1,000 per employee per month'),
+     ('Business Partner monthly operating expenses', 500, 'المصاريف التشغيلية الشهرية لـ Business Partner على الموظف', 'SAR 500 per employee per month'),
     ]
     for i, (e, v, a, h) in enumerate(comp, 10): r4(ws, i, e, v, a, h, fmt=NUM)
     lc = 10 + len(comp) - 1
     R = lc + 1
     r4(ws, R, 'Total cost per month (SAR)', f'=SUM(B10:B{lc})', 'إجمالي التكلفة الشهرية (ريال)', 'Sum of the lines above', bold=True, fmt=NUM, shade=True)
-    r4(ws, R + 1, 'Service fee 10% (SAR)', f'=B{R}*0.1', 'رسم الخدمة 10% (ريال)', 'Total cost × 10%', fmt=NUM)
-    r4(ws, R + 2, 'Monthly price before localisation, excl. VAT (SAR)', f'=MROUND(B{R}+B{R+1},10)', 'السعر الشهري قبل التوطين قبل الضريبة (ريال)', 'Total cost + 10%, rounded to the nearest 10', bold=True, fmt=NUM, shade=True)
-    r4(ws, R + 3, 'Localisation fee per month, added on top (SAR)', FEE_FORMULA, 'رسم التوطين شهرياً يُضاف فوق السعر (ريال)', 'Profession calculator', fmt=NUM)
+    r4(ws, R + 1, 'Business Partner service fee (SAR)', f'=(B{R}+B3*{PXL})*0.1+B3*{PXL}', 'رسم خدمة Business Partner (ريال)', 'Service fee on the total cost', fmt=NUM)
+    r4(ws, R + 2, 'Monthly price before localisation, excl. VAT (SAR)', f'=MROUND(B{R}+B{R+1},10)', 'السعر الشهري قبل التوطين قبل الضريبة (ريال)', 'Total cost + service fee, rounded to the nearest 10', bold=True, fmt=NUM, shade=True)
+    r4(ws, R + 3, 'Localisation fee per month, added on top (SAR)', locfee('B5', 'B8', '0'), 'رسم التوطين شهرياً يُضاف فوق السعر (ريال)', 'Profession calculator', fmt=NUM)
     r4(ws, R + 4, 'Monthly price incl. localisation fee, excl. VAT (SAR)', f'=B{R+2}+B{R+3}', 'السعر الشهري شامل رسم التوطين قبل الضريبة (ريال)', '', bold=True, fmt=NUM, shade=True)
     r4(ws, R + 5, 'VAT 15% (SAR)', f'=B{R+4}*0.15', 'ضريبة القيمة المضافة 15% (ريال)', '', fmt=NUM)
     r4(ws, R + 6, 'Monthly price incl. VAT (SAR)', f'=B{R+4}+B{R+5}', 'السعر الشهري شامل الضريبة (ريال)', '', bold=True, fmt=NUM, shade=True)
@@ -524,10 +538,10 @@ if TRANSPARENT:
     ws.cell(cmp0, 3, 'نفس الراتب بحسب المدة — السعر الشهري قبل الضريبة').font = f_b; ws.cell(cmp0, 3).alignment = rtl
     fixed = f'(SUM(B10:B{lc})-B18-B19-B20)'
     oneoff = '(3000+IF(B6="Yes",Recruitment!B11,0)+IF(B6="Yes",Recruitment!B12,2000))'
-    for k, n in enumerate((6, 12, 24)):
-        r4(ws, cmp0 + 1 + k, f'{n} months', f'=MROUND(({fixed}+{oneoff}/{n})*1.1,10)+B{R+3}', f'{n} أشهر' if n == 6 else f'{n} شهراً', 'Fixed monthly costs + one-off costs ÷ months, plus 10%, plus localisation', fmt=NUM)
-    note(ws, cmp0 + 5, 'Indicative. The signed proposal and agreement govern. Saudi-only professions are not transferred to foreign employees, and professions outside our approved categories are quoted on request.', 'استرشادي. والعرض والعقد الموقّعان هما المرجع. والمهن المقصورة على السعوديين لا يُنقل إليها أجنبي، والمهن خارج فئاتنا المعتمدة تُحدَّد عند الطلب.', 50)
-    for rng, lst in (('B4', '"6,12,24"'), ('B5', f'={PRO}'), ('B6', '"Yes,No"'), ('B7', '"Yes,No"')):
+    for k, n in enumerate((6, 12, 24, 36)):
+        r4(ws, cmp0 + 1 + k, f'{n} months', f'=MROUND(({fixed}+{oneoff}/{n}+B3*{PREM(n)})*1.1,10)+B{R+3}', f'{n} أشهر' if n == 6 else f'{n} شهراً', 'Fixed monthly costs + one-off costs ÷ months, plus 10%, plus localisation', fmt=NUM)
+    note(ws, cmp0 + 6, 'Indicative. The signed proposal and agreement govern. Saudi-only professions are not transferred to foreign employees, and professions outside our approved categories are quoted on request.', 'استرشادي. والعرض والعقد الموقّعان هما المرجع. والمهن المقصورة على السعوديين لا يُنقل إليها أجنبي، والمهن خارج فئاتنا المعتمدة تُحدَّد عند الطلب.', 50)
+    for rng, lst in (('B4', '"6,12,24,36"'), ('B5', f'={PRO}'), ('B6', '"Yes,No"'), ('B7', '"Yes,No"')):
         dvz = DataValidation(type='list', formula1=lst); ws.add_data_validation(dvz); dvz.add(rng)
     ws['B5'].alignment = ctr; ws.row_dimensions[5].height = 48
     # ---- Cost plus (transparent) ----
@@ -539,6 +553,7 @@ if TRANSPARENT:
     r4(wc, 5, 'Profession (our localisation fee)', rows_p[0][0], 'المهنة (رسم التوطين لدينا)', 'See "Profession calculator"', inp=True)
     r4(wc, 6, 'Recruited from abroad? (Yes or No)', 'No', 'مستقدَم من الخارج؟ (Yes أو No)', 'Yes uses the "Recruitment" sheet', inp=True)
     r4(wc, 7, 'Use the "Insurance" sheet estimate? (Yes or No)', 'Yes', 'استعمال تقدير ورقة «Insurance»؟ (Yes أو No)', 'No uses SAR 600 per year', inp=True)
+    r4(wc, 8, 'Foreign employees in this profession (for the localisation fee)', 1, 'عدد الأجانب في هذه المهنة (لرسم التوطين)', 'Fee = cost of the Saudis the ratio requires ÷ foreigners', inp=True, fmt='0')
     wc.cell(9, 1, 'Costs at actual — no VAT').font = f_b; wc.cell(9, 3, 'التكاليف بالتكلفة الفعلية — بلا ضريبة').font = f_b; wc.cell(9, 3).alignment = rtl
     items = [
      ('Salary', '=B3', 'الراتب', 'Total monthly package'),
@@ -555,7 +570,7 @@ if TRANSPARENT:
     for i, (e, v, a, h) in enumerate(items, 10): r4(wc, i, e, v, a, h, fmt=NUM)
     lc2 = 10 + len(items) - 1
     r4(wc, lc2 + 1, 'Total costs at actual (no VAT)', f'=SUM(B10:B{lc2})', 'إجمالي التكاليف بالفعلي (بلا ضريبة)', '', bold=True, fmt=NUM, shade=True)
-    r4(wc, lc2 + 2, 'Our localisation fee, excl. VAT', FEE_FORMULA.replace('B5', 'B5'), 'رسم التوطين لدينا قبل الضريبة', 'Profession calculator', fmt=NUM)
+    r4(wc, lc2 + 2, 'Our localisation fee, excl. VAT', locfee('B5', 'B8', '0'), 'رسم التوطين لدينا قبل الضريبة', 'Profession calculator', fmt=NUM)
     r4(wc, lc2 + 3, 'Business Partner monthly service fee, excl. VAT', "='Billing schedule'!B16", 'رسوم خدمة بزنس بارتنر الشهرية قبل الضريبة', 'Fixed per employee per month — monthly invoice only', fmt=NUM)
     r4(wc, lc2 + 4, 'VAT 15% on our fees and on medical insurance', f'=(B{lc2+2}+B{lc2+3}+B12)*0.15', 'ضريبة 15% على رسومنا وعلى التأمين الطبي', 'Other costs follow the actual invoice', fmt=NUM)
     r4(wc, lc2 + 5, 'Total monthly invoice (SAR)', f'=B{lc2+1}+B{lc2+2}+B{lc2+3}+B{lc2+4}', 'إجمالي الفاتورة الشهرية (ريال)', '', bold=True, fmt=NUM, shade=True)
