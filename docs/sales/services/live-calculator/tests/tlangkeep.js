@@ -5,8 +5,9 @@ await p.click('.chip:has-text("توظيف بالساعة")');await p.waitForTime
 await p.click('.chip:has-text("باليوم")');await p.waitForTimeout(200);await p.click('#dk-ok');await p.waitForTimeout(300);
 await p.fill('#cs-t','مسودة');
 await p.click('#cs-top button[data-arg=en]');await p.waitForTimeout(500);
+await p.click('#cs-top button[data-arg=fr]');await p.waitForTimeout(400);console.log((await p.evaluate(()=>document.getElementById('cs-thread').innerText)).slice(0,400).replace(/\n+/g,' | '));await p.click('#cs-top button[data-arg=en]');await p.waitForTimeout(400);
 const t=await p.evaluate(()=>document.getElementById('cs-thread').innerText);
-ok(/باليوم/.test(t),'history kept');ok(/language changed/i.test(t),'note in English');
+ok(/By the day/.test(t)&&!/أهلاً/.test(t),'history translated to English');ok(!/اكتب|ما الذي تحتاجه/.test(await p.evaluate(()=>document.getElementById('cs-dock').innerText)),'dock translated');ok(/language changed/i.test(t),'note in English');
 ok((await p.inputValue('#cs-t'))==='مسودة','draft kept');
 ok(await p.evaluate(()=>!!document.getElementById('dk-q')),'dock still open');
 console.log(er);if(er.length)fail++;await b.close();process.exit(fail?1:0)})();

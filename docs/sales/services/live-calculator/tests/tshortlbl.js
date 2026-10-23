@@ -6,4 +6,4 @@ await p.waitForTimeout(500);
 await p.click('.chip:has-text("ابدأ التسعير")');await p.waitForTimeout(1200);
 const t=await p.evaluate(()=>document.getElementById('cs-thread').innerText);
 console.log(/نقل/.test(t)?'HAS نقل':'no نقل');console.log(t.slice(-700).replace(/\n+/g,' | '));
-if(/نقل خدمات|نقل الكفالة/.test(t))fail++;console.log(er);if(er.length)fail++;await b.close();process.exit(fail?1:0)})();
+if(/نقل خدمات|نقل الكفالة|ما يشمله سعر|الراتب|بشفافية/.test(t))fail++;console.log(er);if(er.length)fail++;await b.close();process.exit(fail?1:0)})();

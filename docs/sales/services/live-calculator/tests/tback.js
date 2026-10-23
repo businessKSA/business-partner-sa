@@ -19,7 +19,7 @@ await p.evaluate(()=>{const q=bpT();q.CV.items=[{prof:q.PROF.findIndex(x=>x[7]),
 await p.evaluate(()=>[...document.querySelectorAll('#cs-thread .chip')].find(x=>x.innerText.includes('سنة')).click());await p.waitForTimeout(250);
 ok(await p.evaluate(()=>document.getElementById('cs-thread').innerText.includes('أين سيعمل')),'city question shown');
 await p.click('#cs-back');await p.waitForTimeout(250);
-ok(await p.evaluate(()=>[...document.querySelectorAll('#cs-thread .chip')].some(x=>x.innerText.includes('3 أشهر'))),'term chips back after undo');
+ok(await p.evaluate(()=>[...document.querySelectorAll('#cs-thread .chip')].some(x=>x.innerText.includes('6 أشهر'))),'term chips back after undo');
 // dock restore: assess manual -> name dock
 await p.click('#cs-back');await p.click('#cs-back').catch(()=>{});await p.waitForTimeout(250);
 console.log(er);if(er.length)fail++;await b.close();process.exit(fail?1:0)})();
