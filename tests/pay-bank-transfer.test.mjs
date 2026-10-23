@@ -38,11 +38,15 @@ const pay = (await import("../api/pay.js")).default;
 const requests = (await import("../api/requests.js")).default;
 const { handleSimple } = await import("../api/_simple.js");
 const { sb } = await import("../api/_db.js");
+const emp = await import("../api/_emp-pay.js");
+// The bank-receipt endpoint needs a signed-in customer (2026-10-23 security pass): the session is stood in
+// for by an x-test-user header carrying the e-mail the session would hold.
+emp.__setSessionForTest(async (req) => { const u = req.headers && req.headers["x-test-user"]; return u ? { user: { email: String(u) } } : null; });
 
 let ipn = 0;
-async function route(handler, method, body, query = {}, ip = "10.1." + Math.floor(++ipn / 250) + "." + (ipn % 250)) {
+async function route(handler, method, body, query = {}, ip = "10.1." + Math.floor(++ipn / 250) + "." + (ipn % 250), extra = {}) {
   const res = mkRes();
-  await handler({ method, body, query, headers: { "x-forwarded-for": ip }, socket: {}, url: "/api/x" }, res);
+  await handler({ method, body, query, headers: { "x-forwarded-for": ip, ...extra }, socket: {}, url: "/api/x" }, res);
   return { status: res.statusCode, json: JSON.parse(res.body || "{}") };
 }
 globalThis.fetch = async (url, opts = {}) => {
@@ -65,8 +69,8 @@ const order = (over = {}) => ({
   ref: "BP-" + (++seq), name: "عميل اختبار", email: `buyer${seq}@example.com`, phone: "0500000000",
   items: ITEMS, company: "", surchargeFee: 0, discountCode: "", taxProfile: { kind: "personal" }, ...over,
 });
-const upload = (o, name = "demo-match.png", buf = uniq(), mime = "image/png", ip) =>
-  route(pay, "POST", { action: "bank-receipt", lang: "ar", order: o, file: { name, mime, base64: buf.toString("base64") } }, {}, ip);
+const upload = (o, name = "demo-match.png", buf = uniq(), mime = "image/png", ip, user = o.email) =>
+  route(pay, "POST", { action: "bank-receipt", lang: "ar", order: o, file: { name, mime, base64: buf.toString("base64") } }, {}, ip, { "x-test-user": user });
 const rowOf = async (ref) => (await sb(`requests?ref=eq.${ref}&select=*&limit=1`))[0];
 const orderRow = async (orderRef) => ((await sb("requests?payment=not.is.null&select=*&limit=500")) || []).filter((r) => r.payment && r.payment.order_ref === orderRef);
 const tasksOf = async (row) => (await sb(`tasks?request_id=eq.${row.id}&select=source,status,human_action`)) || [];
@@ -176,7 +180,7 @@ test("a paid order refuses another upload; another e-mail cannot use someone's o
   assert.equal(again.json.error, "already_paid");
   const o2 = order();
   await upload(o2, "demo-short.png");
-  const thief = await upload({ ...o2, email: "someone-else@example.com" });
+  const thief = await upload({ ...o2, email: "someone-else@example.com" });   // signed in as that other address
   assert.equal(thief.status, 409);
   assert.equal(thief.json.error, "ref_taken");
 });
@@ -211,7 +215,8 @@ test("file checks: type, signature and size", async () => {
   const big = await upload(o(), "big.png", Buffer.concat([PNG, Buffer.alloc(9 * 1024 * 1024)]));
   assert.equal(big.status, 413);
   assert.equal(big.json.error, "too_large");
-  const none = await route(pay, "POST", { action: "bank-receipt", order: o(), file: {} });
+  const oo = o();
+  const none = await route(pay, "POST", { action: "bank-receipt", order: oo, file: {} }, {}, undefined, { "x-test-user": oo.email });
   assert.equal(none.json.error, "no_file");
   const pdf = await upload(order(), "demo-match.pdf", Buffer.from("%PDF-1.4\n%fake\n" + Math.random()), "application/pdf");
   assert.equal(pdf.json.state, "approved", "a PDF receipt is accepted");
@@ -268,9 +273,9 @@ test("bank-approve refuses a forged token, a missing one, and a token for anothe
 });
 
 // ---------------------------------------------------------------- ⑥ the speed bump
-test("many uploads from one address are slowed", async () => {
+test("many uploads through one proxy-appended address are slowed (the per-account limit is in pay-bank-security.test.mjs)", async () => {
   let last = null;
-  for (let i = 0; i < 14; i++) last = await upload(order(), "demo-short.png", uniq(), "image/png", "7.7.7.7");
+  for (let i = 0; i < 44; i++) last = await upload(order(), "demo-unreadable.png", uniq(), "image/png", "7.7.7.7");
   assert.equal(last.status, 429);
   assert.equal(last.json.error, "slow_down");
 });

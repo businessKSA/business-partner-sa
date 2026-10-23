@@ -21,7 +21,7 @@ const FAKE_IBAN = "SA00FAKE0000000000000000";
 const FAKE = { beneficiary: "شركة اختبار وهمية للحلول", beneficiaryEn: "Fake Test Solutions Company", bank: "بنك وهمي", bankEn: "Fake Bank", iban: FAKE_IBAN };
 const expected = { amount: 690, iban: FAKE_IBAN, names: [FAKE.beneficiary, FAKE.beneficiaryEn], bank: FAKE.bank, orderRef: "BP-123456" };
 const today = new Date().toISOString().slice(0, 10);
-const good = { amount: 690, currency: "SAR", date: today, sender: "Someone", beneficiary: FAKE.beneficiary, bank: "Fake Bank", iban: FAKE_IBAN, reference: "BP-123456", is_receipt: true };
+const good = { amount: 690, currency: "SAR", date: today, sender: "Someone", beneficiary: FAKE.beneficiary, bank: "Fake Bank", iban: FAKE_IBAN, reference: "BP-123456", status: "executed", is_receipt: true };
 
 // ---------------------------------------------------------------- ①
 test("bank details: enabled only with a beneficiary AND an IBAN; nothing is invented", () => {
@@ -108,10 +108,11 @@ test("an unreadable read is a review, not a crash", () => {
 const reader = (read, extra = {}) => async () => ({ ok: true, read, provider: "azure", ...extra });
 const none = () => Promise.reject(new Error("no module"));
 
-test("no receipt-check module yet: the shared reader + strict comparison decide", async () => {
+test("no receipt-check module: the shared reader alone never approves (fails closed), but still names every other problem", async () => {
   const input = { base64: "AAAA", mime: "image/png", name: "r.png", expected };
   const ok = await verifyTransfer(input, reader(good), { importer: none });
-  assert.equal(ok.verdict, "match");
+  assert.equal(ok.verdict, "review", "fields written by a model that read the customer's own file are not enough");
+  assert.deepEqual(ok.reasons, ["no_independent_read"]);
   assert.equal(ok.source, "reader");
   const bad = await verifyTransfer(input, reader({ ...good, amount: 100 }), { importer: none });
   assert.equal(bad.verdict, "review");
@@ -129,7 +130,8 @@ test("the document-ai hook (checkReceipt) is called first; both sides must agree
   let seen = null;
   const mod = (r) => async () => ({ checkReceipt: async (i) => { seen = i; return r; } });
   const never = async () => { throw new Error("the reader must not run when the checker answers"); };
-  const yes = await verifyTransfer(input, never, { importer: mod({ verdict: "match", read: good, provider: "doc-agent" }) });
+  const indep = { independentText: true, text: "x".repeat(80), checks: [{ name: "تنفيذ الحوالة", ok: true }] };
+  const yes = await verifyTransfer(input, never, { importer: mod({ verdict: "match", read: good, provider: "doc-agent", ...indep }) });
   assert.equal(yes.verdict, "match");
   assert.equal(yes.source, "checker");
   assert.equal(yes.provider, "doc-agent");
@@ -137,11 +139,11 @@ test("the document-ai hook (checkReceipt) is called first; both sides must agree
   assert.equal(seen.expected.amount, 690);
 
   // the checker says match but its own read is a different amount → our strict compare wins
-  const liar = await verifyTransfer(input, never, { importer: mod({ verdict: "match", read: { ...good, amount: 10 } }) });
+  const liar = await verifyTransfer(input, never, { importer: mod({ verdict: "match", read: { ...good, amount: 10 }, ...indep }) });
   assert.equal(liar.verdict, "review");
   assert.ok(liar.reasons.includes("amount_short"));
   // the checker says mismatch with a reason → a person reviews it
-  const no = await verifyTransfer(input, never, { importer: mod({ verdict: "mismatch", read: good, reasons: [{ code: "iban_mismatch" }] }) });
+  const no = await verifyTransfer(input, never, { importer: mod({ verdict: "mismatch", read: good, reasons: [{ code: "iban_mismatch" }], ...indep }) });
   assert.equal(no.verdict, "review");
   assert.ok(no.reasons.includes("iban_mismatch"));
   // unknown shape / throw → fall back to the shared reader
@@ -149,7 +151,7 @@ test("the document-ai hook (checkReceipt) is called first; both sides must agree
   assert.equal(weird.source, "reader");
   const threw = await verifyTransfer(input, reader(good), { importer: async () => ({ checkReceipt: async () => { throw new Error("down"); } }) });
   assert.equal(threw.source, "reader");
-  assert.equal(threw.verdict, "match");
+  assert.equal(threw.verdict, "review", "the fallback never approves by itself");
 });
 
 test("demo reader is inert outside development", () => {

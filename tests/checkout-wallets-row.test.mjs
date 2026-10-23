@@ -53,7 +53,7 @@ const GOOGLE = { merchant_id: "BCR2DN_unit", country: "SA", label: "Business Par
 const BANK = { enabled: true, beneficiary: "شركة اختبار وهمية للحلول", beneficiaryEn: "Fake Test Solutions Co", bank: "بنك وهمي", bankEn: "Fake Bank", iban: "SA00FAKE0000000000000000", currency: "SAR" };
 
 // device: { apple: bool|undefined(=no ApplePaySession), samsung: bool|"blocked", google: bool|"blocked" } — ما تقوله الأجهزة عن نفسها.
-async function boot(lang, { cart = PRICED, cfg, device = {}, prices = true, reply, file, protocol } = {}) {
+async function boot(lang, { cart = PRICED, cfg, device = {}, prices = true, reply, file, protocol, signedIn = true } = {}) {
   const els = new Map();
   const posts = [];
   const copied = [];
@@ -72,6 +72,7 @@ async function boot(lang, { cart = PRICED, cfg, device = {}, prices = true, repl
     Promise, JSON, Math, Number, String, Array, Object, Date, RegExp, Error, encodeURIComponent,
     fetch: async (u, init = {}) => {
       const method = init.method || "GET";
+      if (method === "POST" && JSON.parse(init.body).action === "me") return { ok: true, json: async () => ({ session: signedIn ? { user: { email: "sara@example.com", full_name: "Sara" } } : null }) };
       if (method === "POST") { const body = JSON.parse(init.body); if (/\/api\/pay/.test(String(u))) posts.push(body); return { ok: true, json: async () => (body.action === "bank-receipt" ? (reply || { ok: false, error: "x" }) : {}) }; }
       return { ok: true, json: async () => cfg };
     },
@@ -320,7 +321,7 @@ test("empty cart: the row is hidden", async () => {
 
 test("guest on a priced item (sign-in required): wallets hidden, bank and Tamara disabled", async () => {
   const hiddenPrice = [{ id: "svc-x", nameAr: "خدمة", nameEn: "Svc", amount: 500, price: "", qty: 1, kind: "service" }];
-  const w = await boot("ar", { cart: hiddenPrice, cfg: LIVE, prices: false });
+  const w = await boot("ar", { cart: hiddenPrice, cfg: LIVE, prices: false, signedIn: false });
   assert.equal(w.g("coWallets").classes.has("sv1-hide"), true);
   assert.equal(w.inits.length, 0);
   assert.equal(w.g("coWayBank").disabled, true);
@@ -479,6 +480,7 @@ test("after verification: a mismatch shows «awaiting verification» with the re
 test("server refusals are worded: slow down, reference taken, already paid, too large, not available, generic failure — and the form stays usable", async () => {
   const cases = [
     ["slow_down", /محاولات كثيرة/], ["ref_taken", /مرتبط ببريد آخر/], ["already_paid", /مدفوع بالفعل/], ["too_large", /أصغر من ٣ ميغابايت/],
+    ["email_mismatch", /يطابق بريد حسابك/], ["too_many_open", /عدّة حوالات بانتظار التحقق/], ["login_required", /سجّل دخولك أولاً/],
     ["bank_not_configured", /غير متاحة في الوقت الحالي/], ["bank_not_for_plan", /البطاقة أو تمارا/], ["quote_only_items", /تُسعّر عند المراجعة/], ["whatever", /تعذّر رفع الإيصال/],
   ];
   for (const [error, re] of cases) {
@@ -522,4 +524,69 @@ test("regression: the e-mail check in the generated script is a real pattern —
   w.g("coBankGo").onclick();
   await tick();
   assert.equal(w.posts.length, 0, "a malformed address is still refused");
+});
+
+
+// ---------- فحص الأمان (2026-10-23): جلسة، مرجع جديد، حدّ الاعتماد
+
+test("security pass: without a session the bank pane asks to sign in and posts nothing; with one it does not", async () => {
+  const out = await boot("ar", { cfg: { ...LIVE, bank: BANK }, signedIn: false });
+  out.ways[1].onclick(); fill(out); pick(out);
+  assert.equal(out.g("coBankLogin").classes.has("sv1-hide"), false, "the sign-in block is visible");
+  out.g("coBankGo").onclick();
+  await tick();
+  assert.match(out.g("coBankNote").textContent, /سجّل دخولك أولاً/);
+  assert.equal(out.posts.length, 0);
+  assert.match(String(buildSimpleCheckout(SV1, mkCtx("ar")).body), /id="coBankLogin"[\s\S]*?href="\/ar\/my\?next=%2Far%2Fcheckout"/, "the link returns here after sign-in");
+  const inn = await boot("ar", { cfg: { ...LIVE, bank: BANK }, reply: { ok: false, error: "x" } });
+  assert.equal(inn.g("coBankLogin").classes.has("sv1-hide"), true);
+});
+
+test("security pass: a reference the server refuses (other basket, cancelled order, other e-mail) is replaced by a fresh one, with a clear message", async () => {
+  for (const [error, re] of [["cart_changed", /سلة مختلفة سبق رفع إيصالها/], ["request_closed", /أُلغي/], ["ref_taken", /مرتبط ببريد آخر/]]) {
+    const w = await boot("ar", { cfg: { ...LIVE, bank: BANK }, reply: { ok: false, error } });
+    w.ways[1].onclick(); fill(w); pick(w);
+    const before = w.g("coBk-ref").textContent;
+    await new Promise((r) => setTimeout(r, 3));                       // the reference is time-based
+    w.g("coBankGo").onclick();
+    await tick();
+    assert.match(w.g("coBankNote").textContent, re, error);
+    assert.notEqual(w.g("coBk-ref").textContent, before, `${error}: a new reference is shown`);
+    assert.match(w.g("coBk-ref").textContent, /^BP-\d{6}$/);
+    assert.equal(w.g("coBankGo").disabled, false);
+  }
+});
+
+test("security pass: above the automatic-approval limit the page says the receipt is fine and the team confirms it in the bank statement", async () => {
+  const w = await boot("ar", { cfg: { ...LIVE, bank: BANK }, reply: { ok: true, state: "review", ref: "BP-R-CCCCCC", orderRef: "BP-333333", amount: 34500, reasons: ["above_auto_limit"], autoLimit: 3000 } });
+  w.ways[1].onclick(); fill(w); pick(w);
+  w.g("coBankGo").onclick();
+  await tick();
+  const r = w.g("coResult");
+  assert.equal(r.className, "sv1-co-result warn");
+  const text = JSON.stringify(r.children.map((c) => c._t));
+  assert.match(text, /وبياناته مطابقة/);
+  assert.match(text, /3000 ريال/);
+  assert.match(text, /كشف الحساب البنكي/);
+  assert.match(text, /لا تحوّل المبلغ مرة أخرى/);
+  assert.doesNotMatch(text, /سبب المراجعة البشرية/, "it is not presented as a defect");
+  // in English too
+  const en = await boot("en", { cfg: { ...LIVE, bank: BANK }, reply: { ok: true, state: "review", ref: "BP-R-DDDDDD", orderRef: "BP-444444", amount: 34500, reasons: ["above_auto_limit"], autoLimit: 3000 } });
+  en.ways[1].onclick(); fill(en); pick(en);
+  en.g("coBankGo").onclick();
+  await tick();
+  assert.match(JSON.stringify(en.g("coResult").children.map((c) => c._t)), /above the automatic-approval limit \(3000 SAR\)/);
+});
+
+test("security pass: every new review reason has a buyer-facing sentence in all four languages", async () => {
+  const codes = ["date_missing", "date_unclear", "not_executed", "reference_missing", "no_independent_read", "above_auto_limit", "duplicate_check_unavailable", "checker_review", "settle_failed", "duplicate_receipt"];
+  for (const lang of LANGS) {
+    const w = await boot(lang, { cfg: { ...LIVE, bank: BANK }, reply: { ok: true, state: "review", ref: "BP-R-EEEEEE", orderRef: "BP-555555", amount: 1150, reasons: codes.filter((c) => c !== "above_auto_limit") } });
+    w.ways[1].onclick(); fill(w); pick(w);
+    w.g("coBankGo").onclick();
+    await tick();
+    const text = JSON.stringify(w.g("coResult").children.map((c) => c._t));
+    const shown = (text.match(/ · /g) || []).length + 1;
+    assert.equal(shown, codes.length - 1, `${lang}: every reason is worded (${shown})`);
+  }
 });

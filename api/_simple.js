@@ -359,7 +359,9 @@ function sniffOk(mime, buf) {
 }
 // Validates and stores one uploaded file. Never throws; returns the record that
 // goes into `attachments`, or {ok:false,status,error}.
-async function storeUpload(row, b, { kind, by, note, doc }) {
+// Type, size and signature checks — no storage, no side effect. The bank-transfer intake runs them
+// BEFORE it opens an order, so a bad file never leaves a «waiting» order behind.
+export function validateUpload(b) {
   const base64 = typeof b.base64 === "string" ? b.base64.replace(/^data:[^;]+;base64,/, "") : "";
   if (!base64) return { ok: false, status: 400, error: "no_file" };
   const display = str(b.file_name || b.fileName || b.name, 160).replace(/[\r\n]+/g, " ") || "file";
@@ -372,10 +374,18 @@ async function storeUpload(row, b, { kind, by, note, doc }) {
   if (!bytes) return { ok: false, status: 400, error: "empty" };
   const buf = Buffer.from(base64, "base64");
   if (!sniffOk(mime, buf)) return { ok: false, status: 400, error: "bad_type" };
+  return { ok: true, base64, display, mime, bytes, buf };
+}
+let _storeForTest = null;
+export function __setStoreForTest(fn) { _storeForTest = fn || null; }
+async function storeUpload(row, b, { kind, by, note, doc }) {
+  const v = validateUpload(b);
+  if (!v.ok) return v;
+  const { display, mime, bytes, buf } = v;
   const id = crypto.randomBytes(6).toString("hex");
   const ext = (display.split(".").pop() || "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 5);
   const path = `requests/${row.ref}/${Date.now()}-${id}${ext ? "." + ext : ""}`;
-  try { await storagePut(path, buf, mime); }
+  try { await (_storeForTest || storagePut)(path, buf, mime); }
   catch (e) { console.error("simple upload store", String(e.message || e).slice(0, 160)); return { ok: false, status: 502, error: "storage_failed" }; }
   return { ok: true, rec: { id, name: display, path, size: bytes, mime, kind, note: str(note, 300), doc: str(doc, 200) || undefined, at: nowIso(), by } };
 }
@@ -1442,8 +1452,10 @@ const esc = (s = "") => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").r
 export const RECEIPT_PROMPT = [
   "هذا إيصال/إشعار تحويل بنكي. أعِد JSON فقط بلا أي نص آخر بالمفاتيح:",
   '{"amount":number|null,"currency":string|null,"date":string|null,"sender":string|null,',
-  '"beneficiary":string|null,"bank":string|null,"iban":string|null,"reference":string|null,"is_receipt":boolean}',
+  '"beneficiary":string|null,"bank":string|null,"iban":string|null,"reference":string|null,',
+  '"status":"executed"|"pending"|"failed"|"unknown","is_receipt":boolean}',
   "amount هو المبلغ المحوَّل بالأرقام بلا فواصل. beneficiary اسم المستفيد كما كُتب. iban آيبان المستفيد كاملاً كما ظهر (لا آيبان المُرسِل).",
+  "reference رقم مرجع/عملية المصرف كما كُتب. status executed إن ذُكر نجاح التنفيذ، pending إن كانت معلّقة أو مجدولة، failed إن فشلت.",
   "إن لم تجد قيمة ضعها null. لا تخمّن ولا تُكمل رقماً ناقصاً.",
 ].join(" ");
 export async function readTransferReceipt(base64, mime) {
@@ -1767,7 +1779,7 @@ async function cartRequestOnce(d, key) {
     items: items.map(({ formation, consult, ...keep }) => keep), net, vat, total: paid, net_estimated: !(verified && d.net != null),
     ...(d.disc ? { discount_code: str(d.disc, 30) } : {}),
     // لقطة الطلب كما أرسلتها الصفحة: بها وحدها يُعاد تسعير الطلب وتصدر الفاتورة إن اعتمده إنسان لاحقاً.
-    ...(bankIn ? { expected_total: paid, bank_order: bankIn.order } : {}),
+    ...(bankIn ? { expected_total: paid, bank_order: bankIn.order, cart_fp: String(bankIn.fp || "") } : {}),
   };
   const at = nowIso();
   const row = {
@@ -1858,19 +1870,47 @@ export async function bankOrderRow(orderRef) {
   return null;
 }
 
-// يفتح (أو يعيد) صفّ الحوالة ويُلحق به ملف الإيصال. لا يقرأ الإيصال ولا يقرّر شيئاً.
-export async function bankReceiptIntake({ payload, order, file }) {
+// ما يُفحص قبل أي كتابة: صفٌّ قائم بهذا المرجع يجب أن يكون لهذا البريد، غير مدفوع ولا ملغى، وأن تكون سلة
+// هذا الرفع هي السلة نفسها التي سُعِّر بها الصفّ أول مرة (البصمة: البنود والكميات والرسوم والخصم والمبلغ).
+// صفٌّ له إيصال لا تتغيّر بنوده ولا مبلغه: التبديل كان يُنتج صفّاً مدفوعاً بعنوان 30,000 ومبلغ 115.
+export async function bankOrderPrecheck({ ref, email, fp }) {
+  if (!DB_ON) return { ok: false, status: 503, error: "db_off" };
+  const row = await bankOrderRow(ref);
+  if (!row) return { ok: true, row: null };
+  const p = row.payment || {};
+  const owner = String((p.bank_order && p.bank_order.email) || row.client_email || "").toLowerCase();
+  if (owner && owner !== String(email || "").toLowerCase()) return { ok: false, status: 409, error: "ref_taken" };
+  if (String(p.status || "").toUpperCase() === "PAID") return { ok: false, status: 409, error: "already_paid", row };
+  if (row.status === "CANCELLED") return { ok: false, status: 409, error: "request_closed", row };
+  if (!p.cart_fp || p.cart_fp !== fp) return { ok: false, status: 409, error: "cart_changed", row };
+  return { ok: true, row };
+}
+
+// حدّ دائم لا يزوّره العميل: عدد حوالات الحساب الواحد المفتوحة بانتظار التحقق.
+export async function bankOpenCount(email) {
+  if (!DB_ON || !email) return 0;
+  try {
+    const rows = await sb(`requests?client_email=eq.${q(String(email).toLowerCase())}&status=in.(PAYMENT_PENDING,WAITING_INTERNAL)&select=ref,payment&limit=40`);
+    return (rows || []).filter((r) => r && r.payment && r.payment.provider === "bank" && r.payment.source === "cart" && String(r.payment.status || "").toUpperCase() !== "PAID").length;
+  } catch { return 0; }
+}
+
+// سحب طلبٍ فُتح قبل لحظات ولم يُرفق به إيصال (فشل التخزين): يُحذف إن أمكن وإلا يُلغى ويُخفى — لا يبقى
+// «بانتظار التحقق» بلا ملف بينما الصفحة تقول للعميل إن شيئاً لم يُسجَّل.
+async function bankWithdraw(row) {
+  try { await sb(`requests?id=eq.${row.id}`, { method: "DELETE", prefer: "return=minimal" }); return; }
+  catch (e) { console.error("simple: bank withdraw delete", String((e && e.message) || e).slice(0, 80)); }
+  try { await patchRequestHide(row.id, { status: "CANCELLED" }, nowIso()); } catch { /* the sweep never reminds a bank row */ }
+}
+
+// يفتح (أو يعيد) صفّ الحوالة ويُلحق به ملف الإيصال. ملف الإيصال صُدِّق عليه (validateUpload) وقُرئ وفُحص
+// قبل هذه الدالة. لا يقرّر شيئاً. فشل التخزين بعد فتح طلبٍ جديد يسحبه.
+export async function bankReceiptIntake({ payload, order, fp, file }) {
   if (!DB_ON) return { ok: false, status: 503, error: "db_off" };
   const ref = str(payload.ref, 40);
-  const email = String(payload.email || "").toLowerCase();
   let row = await bankOrderRow(ref), created = false;
-  if (row) {
-    const owner = String((row.payment && row.payment.bank_order && row.payment.bank_order.email) || row.client_email || "").toLowerCase();
-    if (owner && owner !== email) return { ok: false, status: 409, error: "ref_taken" };
-    if (String((row.payment || {}).status || "").toUpperCase() === "PAID") return { ok: false, status: 409, error: "already_paid", row };
-    if (row.status === "CANCELLED") return { ok: false, status: 409, error: "request_closed", row };
-  } else {
-    const out = await createCartRequest({ ...payload, payId: "bank_" + ref, bank: { pending: true, order } });
+  if (!row) {
+    const out = await createCartRequest({ ...payload, payId: "bank_" + ref, bank: { pending: true, order, fp } });
     if (!out || !out.ok || !out.ref) return { ok: false, status: 502, error: (out && out.error) || "create_failed" };
     row = await getByRef(out.ref);
     created = !!out.created;
@@ -1879,78 +1919,139 @@ export async function bankReceiptIntake({ payload, order, file }) {
   const all = Array.isArray(row.attachments) ? row.attachments : [];
   if (all.filter((a) => a && a.kind === "receipt").length >= 8) return { ok: false, status: 409, error: "too_many_files", row };
   const stored = await storeUpload(row, file, { kind: "receipt", by: "customer", note: "إيصال حوالة بنكية" });
-  if (!stored.ok) return { ok: false, status: stored.status, error: stored.error, max: stored.max, row, created };
+  if (!stored.ok) {
+    if (created) await bankWithdraw(row);
+    return { ok: false, status: stored.status, error: stored.error, max: stored.max, created };
+  }
   const upd = await patchRequest(row.id, { attachments: [...all, stored.rec].slice(-UPLOAD_CAP) });
   return { ok: true, row: upd || row, rec: stored.rec, created };
 }
 
-// هل رُفع هذا الإيصال (بصمة الملف أو رقم مرجع المصرف المكتوب فيه) على طلبٍ آخر؟
-export async function bankReceiptSeen({ hash, bankRef, exceptRef }) {
-  if (!DB_ON || (!hash && !bankRef)) return false;
+// مفاتيح تكرار الإيصال: جدول bank_receipt_keys (key نص أساسي: «f:» بصمة المحتوى · «t:» بصمة النص المستقل ·
+// «r:» رقم مرجع المصرف). استعلام واحد بمفتاح أساسي، لا مسح لصفوف الطلبات. إن لم يكن الجدول موجوداً
+// (الترحيل غير مطبَّق) أو فشل الاستعلام يُعاد {unavailable:true} فيفشل الفحص مغلقاً: مراجعة بشرية.
+const KEY_OK = /^[ftr]:[A-Za-z0-9]{6,80}$/;
+async function keyRows(keys) {
+  const list = (keys || []).filter((k) => KEY_OK.test(String(k)));
+  if (!list.length) return { list, rows: [] };
+  return { list, rows: (await sb(`bank_receipt_keys?key=in.(${list.join(",")})&select=key,request_ref&limit=20`)) || [] };
+}
+export async function bankReceiptSeen({ keys, exceptRef }) {
+  if (!DB_ON) return { duplicate: false, unavailable: true };
   try {
-    const rows = await sb("requests?payment=not.is.null&select=ref,payment&order=created_at.desc&limit=600");
-    const key = String(bankRef || "").replace(/\s/g, "").toUpperCase();
-    return (rows || []).some((r) => {
-      if (!r || r.ref === exceptRef) return false;
-      const rc = r.payment && r.payment.provider === "bank" && r.payment.receipt;
-      if (!rc) return false;
-      if (hash && rc.hash === hash) return true;
-      const k = String((rc.read && rc.read.reference) || "").replace(/\s/g, "").toUpperCase();
-      return !!(key && key.length >= 8 && k === key);
-    });
-  } catch { return false; }
+    const { rows } = await keyRows(keys);
+    return { duplicate: rows.some((r) => r && r.request_ref !== exceptRef) };
+  } catch { return { duplicate: false, unavailable: true }; }
+}
+export async function bankReceiptClaimKeys({ keys, requestRef, orderRef }) {
+  if (!DB_ON) return { ok: false };
+  try {
+    const { list, rows } = await keyRows(keys);
+    const have = new Set(rows.map((r) => r.key));
+    const fresh = list.filter((k) => !have.has(k)).map((key) => ({ key, kind: key[0], request_ref: requestRef, order_ref: str(orderRef, 40), created_at: nowIso() }));
+    if (fresh.length) await sb("bank_receipt_keys", { method: "POST", prefer: "return=minimal", body: fresh });
+    return { ok: true };
+  } catch (e) { console.error("simple: bank keys", String((e && e.message) || e).slice(0, 80)); return { ok: false }; }
 }
 
 const slimRead = (r) => (r ? {
   amount: r.amount == null ? null : round2(num(r.amount)), currency: r.currency || null, date: r.date || null,
   beneficiary: r.beneficiary ? str(r.beneficiary, 120) : null, bank: r.bank ? str(r.bank, 80) : null,
   iban: r.iban ? String(r.iban).replace(/\s/g, "").slice(0, 4) + "…" + String(r.iban).replace(/\s/g, "").slice(-4) : null,
-  reference: r.reference ? str(r.reference, 60) : null, sender: r.sender ? str(r.sender, 80) : null,
+  reference: r.reference ? str(r.reference, 60) : null, sender: r.sender ? str(r.sender, 80) : null, status: r.status ? str(r.status, 20) : null,
 } : null);
 
 // يحفظ نتيجة التحقق على الصفّ. `auto` = الوكيل الآلي وجد كل شيء مطابقاً (الاعتماد يتمّ بعدها
 // في api/pay.js)؛ غير ذلك = يبقى بانتظار التحقق وتُفتح مهمة بشرية بالأسباب.
+// الكتابة شرطية على أن الصفّ ما زال PAYMENT_PENDING: رفعةٌ متأخرة لا تُعيد صفّاً سُوِّي إلى REVIEW.
+// وعطلٌ في مهمة الفريق أو التنبيه يُسجَّل ولا يُسقط الاستجابة بعد أن حُفظ الإيصال.
 export async function bankReceiptVerdict(row, v) {
   const at = nowIso();
   const receipt = {
-    at, att: v.att || "", hash: v.hash || "", verdict: v.auto ? "match" : "review", reasons: v.reasons || [],
+    at, att: v.att || "", hash: v.hash || "", text_hash: v.textHash || "", verdict: v.auto ? "match" : "review", reasons: v.reasons || [],
     checks: v.checks || {}, read: slimRead(v.read), provider: v.provider || "", source: v.source || "",
     expected: v.expected || null,
   };
-  const payment = { ...(row.payment || {}), status: "REVIEW", provider: "bank", at, receipt };
-  const upd = (await patchRequest(row.id, { payment })) || { ...row, payment };
+  const fresh = (await getByRef(row.ref).catch(() => null)) || row;
+  const payment = { ...(fresh.payment || {}), status: "REVIEW", provider: "bank", at, receipt };
+  let upd = null;
+  try { upd = (await sb(`requests?id=eq.${row.id}&status=eq.PAYMENT_PENDING`, { method: "PATCH", body: { payment, updated_at: nowIso() } }))[0] || null; }
+  catch (e) { console.error("simple: bank verdict write", String((e && e.message) || e).slice(0, 100)); }
+  if (!upd) return null;                       // settled or claimed by another request meanwhile
   await logEvent(row.id, "ai", "المستشار الذكي", "payment.receipt", { verdict: receipt.verdict, reasons: receipt.reasons, provider: receipt.provider });
   if (v.auto) return upd;
   const why = (v.reasonsAr || []).join(" · ") || "يحتاج نظراً بشرياً";
   const need = receipt.expected && receipt.expected.amount != null ? receipt.expected.amount : "—";
-  await sweepTask(upd, {
-    source: "bank-review", urgency: "high", human: true,
-    title: (r) => `راجع إيصال حوالة بنكية — ${r.ref}`,
-    details: () => `الوكيل الآلي لم يعتمد الإيصال: ${why}. المبلغ المطلوب ${need} ر.س. افتح الإيصال المرفق وتأكّد من وصول المال في كشف الحساب، ثم اضغط «تأكيد الدفع» (يصدر الفاتورة آلياً) أو ألغِ الطلب.`,
-  }, "المستشار الذكي");
-  await announce(upd, "bank-review", {
-    subject: `استلمنا إيصال حوالتك — ${row.ref}`,
-    clientLine: `استلمنا إيصال حوالتك وطلبك ${row.ref} بانتظار التحقق. سبب المراجعة البشرية: ${why}. لا حاجة لإعادة التحويل، ونبلغك فور الاعتماد.`,
-    opsLine: `إيصال حوالة بنكية يحتاج مراجعة بشرية (${why}) — المبلغ المطلوب ${need} ر.س.`,
-    cta: "افتح طلبك",
-  });
+  const limitOnly = (v.reasons || []).length === 1 && v.reasons[0] === "above_auto_limit";
+  try {
+    await sweepTask(upd, {
+      source: "bank-review", urgency: "high", human: true,
+      title: (r) => `راجع إيصال حوالة بنكية — ${r.ref}`,
+      details: () => limitOnly
+        ? `الإيصال سليم وكل فحوصه نجحت، لكن المبلغ ${need} ر.س فوق حدّ الاعتماد الآلي. طابقه مع كشف الحساب البنكي، فإن وصل اضغط «تأكيد الدفع» (يصدر الفاتورة آلياً) وإلا ألغِ الطلب.`
+        : `الوكيل الآلي لم يعتمد الإيصال: ${why}. المبلغ المطلوب ${need} ر.س. افتح الإيصال المرفق وتأكّد من وصول المال في كشف الحساب، ثم اضغط «تأكيد الدفع» (يصدر الفاتورة آلياً) أو ألغِ الطلب.`,
+    }, "المستشار الذكي");
+  } catch (e) { console.error("simple: bank review task", String((e && e.message) || e).slice(0, 100)); }
+  try {
+    await announce(upd, "bank-review", {
+      subject: `استلمنا إيصال حوالتك — ${row.ref}`,
+      clientLine: limitOnly
+        ? `استلمنا إيصال حوالتك وطلبك ${row.ref} وبياناته مطابقة. ${why}. لا حاجة لإعادة التحويل، ونبلغك فور الاعتماد.`
+        : `استلمنا إيصال حوالتك وطلبك ${row.ref} بانتظار التحقق. سبب المراجعة البشرية: ${why}. لا حاجة لإعادة التحويل، ونبلغك فور الاعتماد.`,
+      opsLine: `إيصال حوالة بنكية يحتاج مراجعة بشرية (${why}) — المبلغ المطلوب ${need} ر.س.`,
+      cta: "افتح طلبك",
+    });
+  } catch (e) { console.error("simple: bank review notice", String((e && e.message) || e).slice(0, 100)); }
   return upd;
 }
 
+// حجز التسوية: انتقالٌ ذرّي PAYMENT_PENDING ← WAITING_INTERNAL (تحديث شرطي على الحالة السابقة). من ربح الحجز
+// وحده يسوّي ويرسل البريد؛ ستّ رفعات أو أربع ضغطات «تأكيد» متزامنة تنتج تسوية واحدة. حجزٌ عالق (انقطع
+// المنفّذ) يُستردّ بعد عشر دقائق بقفل متفائل على updated_at.
+export async function bankClaim(orderRef) {
+  const row = await bankOrderRow(orderRef);
+  if (!row) return { ok: false, error: "not_found" };
+  const p = row.payment || {};
+  if (String(p.status || "").toUpperCase() === "PAID") return { ok: true, already: true, row };
+  const claimed_at = nowIso();
+  const body = { status: "WAITING_INTERNAL", payment: { ...p, claimed_at }, updated_at: claimed_at };
+  let rows = [];
+  try {
+    if (row.status === "PAYMENT_PENDING") rows = await sb(`requests?id=eq.${row.id}&status=eq.PAYMENT_PENDING`, { method: "PATCH", body });
+    else if (row.status === "WAITING_INTERNAL" && p.claimed_at && Date.now() - new Date(p.claimed_at).getTime() > 10 * 60 * 1000) {
+      rows = await sb(`requests?id=eq.${row.id}&status=eq.WAITING_INTERNAL&updated_at=eq.${encodeURIComponent(String(row.updated_at))}`, { method: "PATCH", body });
+    }
+  } catch (e) { console.error("simple: bank claim", String((e && e.message) || e).slice(0, 100)); return { ok: false, error: "claim_failed" }; }
+  if (!rows || !rows[0]) return { ok: true, already: true, row };
+  return { ok: true, claimed: true, row: rows[0] };
+}
+// تعذّرت التسوية بعد الحجز: يُعاد الصفّ إلى «بانتظار التحقق» ليعالجه إنسان أو إعادة المحاولة.
+export async function bankRelease(row) {
+  try { await sb(`requests?id=eq.${row.id}&status=eq.WAITING_INTERNAL`, { method: "PATCH", body: { status: "PAYMENT_PENDING", updated_at: nowIso() } }); } catch (e) { console.error("simple: bank release", String((e && e.message) || e).slice(0, 80)); }
+}
+
 // اعتماد الدفع على صفّ فُتح بانتظار التحقق (يُستدعى من createCartRequest حين تصله دفعة bank_*).
+// الانتقال إلى PAID/REVIEWING شرطيٌّ على أن الصفّ ما زال PAYMENT_PENDING أو محجوزاً (WAITING_INTERNAL):
+// ما بعد الفائز لا يرسل بريداً ولا يفتح مهمة.
 async function settleBankRow(row, d) {
   const payId = str(d.payId, 64);
   const p0 = row.payment || {};
-  if (String(p0.status || "").toUpperCase() === "PAID") return { ok: true, ref: row.ref, created: false, status: row.status, documents: (row.documents || []).length };
+  const same = () => ({ ok: true, ref: row.ref, created: false, status: row.status, documents: (row.documents || []).length });
+  if (String(p0.status || "").toUpperCase() === "PAID") return same();
   const paid = round2(num(d.total)), verified = !!d.verified, at = nowIso();
   const by = str(d.bank_by || "المستشار الذكي", 80);
   const auto = by === "المستشار الذكي";
   const payment = { ...p0, status: "PAID", ref: payId, pay_ref: payId, amount: paid, total: paid, at, paid_at: at, verified, net_estimated: !(verified && d.net != null), confirmed_by: by };
   const content = verified
-    ? `اعتُمد دفع حوالتك (${paid} ر.س شامل الضريبة) ${auto ? "بعد أن طابق المستشار الذكي المبلغ والمستفيد والآيبان في الإيصال" : "من فريقنا"}. تصلك فاتورتك الضريبية على بريدك، وسنبدأ التنفيذ بعد استلام المستندات المطلوبة (إن وُجدت).`
+    ? `اعتُمد دفع حوالتك (${paid} ر.س شامل الضريبة) ${auto ? "بعد أن طابق المستشار الذكي المبلغ والمستفيد والآيبان في الإيصال" : "من فريقنا"}. تصلك فاتورتك الضريبية على بريدك، وسنبدأ التنفيذ بعد استلام المستندات المطلوبة (إن وُجدت).${auto ? " ويطابق فريقنا الحوالة مع كشف الحساب البنكي." : ""}`
     : "اعتُمد استلام حوالتك، لكن مبلغها لم يُطابَق آلياً مع الأسعار المعتمدة، فيراجعه فريقنا قبل بدء التنفيذ. لا حاجة لإعادة التحويل.";
   const conversation = normConversation([...(row.conversation || []), { role: "bp", content, at }]);
-  const upd = (await patchRequest(row.id, { payment, status: verified ? "PAID" : "REVIEWING", conversation })) || { ...row, payment };
+  let upd = null;
+  for (const from of ["PAYMENT_PENDING", "WAITING_INTERNAL"]) {
+    const rows = await sb(`requests?id=eq.${row.id}&status=eq.${from}`, { method: "PATCH", body: { payment, status: verified ? "PAID" : "REVIEWING", conversation, updated_at: nowIso() } });
+    if (rows && rows[0]) { upd = rows[0]; break; }
+  }
+  if (!upd) return same();                     // another request won the transition
   await logEvent(row.id, "system", auto ? "المستشار الذكي" : by, "payment.paid", { provider: "bank", payId, amount: paid, order_ref: p0.order_ref, by });
   try { await sb(`tasks?request_id=eq.${row.id}&source=eq.bank-review&status=in.(open,in_progress,blocked)`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: nowIso() } }); } catch { /* stays open; harmless */ }
   try {
@@ -2211,6 +2312,10 @@ const SWEEP_DONE = ["COMPLETED", "CANCELLED"];
 // One open task per request per kind. The second run of the day must not add a
 // second copy of yesterday's task — a queue that grows on a timer is noise,
 // and noise is how a real task gets missed.
+// db/schema.sql: tasks.urgency accepts urgent / soon / normal only, while this file's plays say «high»
+// (and tasks.priority takes high). One translation here, so a check constraint can never turn a bank
+// review into a 500 after the customer's receipt was already saved.
+const taskUrgency = (u) => (u === "high" ? "urgent" : ["urgent", "soon", "normal"].includes(u) ? u : "normal");
 async function sweepTask(row, play, actor) {
   const open = await sb(`tasks?request_id=eq.${row.id}&source=eq.${q(play.source)}&status=in.(open,in_progress,blocked)&select=id&limit=1`);
   if (open && open[0]) return false;
@@ -2218,7 +2323,7 @@ async function sweepTask(row, play, actor) {
     organization_id: row.organization_id || await fallbackOrg(),
     title: play.title(row), details: play.details(row),
     assignee: "bp", source: play.source, status: "open",
-    urgency: play.urgency || "normal", priority: play.urgency === "high" ? "high" : "normal",
+    urgency: taskUrgency(play.urgency), priority: play.urgency === "high" || play.urgency === "urgent" ? "high" : "normal",
     human_action: !!play.human, assigned_to: row.assigned_to || null, request_id: row.id,
   }] });
   await logEvent(row.id, "ai", actor, "followup.task", { stage: row.status, title: play.title(row) });
@@ -2789,6 +2894,7 @@ async function opsAction(action, b, qs, req, res, opsUser) {
       } catch (e) { console.error("simple: bank-approve call", String((e && e.message) || e).slice(0, 120)); }
       if (!j.ok) return json(res, st && st !== 200 ? st : 502, { ok: false, error: j.error || "approve_failed" });
       const after = (await getByRef(row.ref)) || row;
+      if (j.already) return json(res, 200, { ok: true, already: true, status: after.status, payment: after.payment, invoice: after.invoice });
       await logEvent(row.id, "human", actor, "payment.confirmed.bank", { provider: "bank" });
       return json(res, 200, { ok: true, status: after.status, payment: after.payment, invoice: after.invoice });
     }
@@ -3281,7 +3387,7 @@ async function pricingTask(row, holds) {
       organization_id: row.organization_id || await fallbackOrg(),
       title: `تسعير نطاق ${row.ref}`,
       details: holds && holds.length ? `بنود تحتاج تسعيراً بشرياً: ${holdsLine(holds)}` : "راجع النطاق وأصدر عرض السعر.",
-      assignee: "bp", source: "pricing", status: "open", urgency: "high", priority: "high",
+      assignee: "bp", source: "pricing", status: "open", urgency: "urgent", priority: "high",
       human_action: true, assigned_to: row.assigned_to || null, request_id: row.id,
     }] });
   } catch {}
