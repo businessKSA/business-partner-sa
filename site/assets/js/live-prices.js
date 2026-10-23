@@ -15,7 +15,15 @@
   // المصدر الوحيد للسعر المعروض والمدفوع، فلا نستبدل السعر المبني بما في لوحة
   // العروض القديمة. لإعادة القراءة الحيّة من اللوحة اجعلها true بعد مزامنة اللوحة.
   var LIVE_OVERRIDE = false;
-  if (!LIVE_OVERRIDE) return;
+  if (!LIVE_OVERRIDE) {
+    // سعر البناء هو السعر: ينزع data-bp-pending فوراً. كان الخروج هنا يترك العلامة
+    // فيبقى السعر مخفياً (visibility:hidden) ثانيتين وعُشراً في كل صفحة خدمة، يراها
+    // المسجَّل فارغاً قبل أن يظهر الرقم بمؤقّت CSS.
+    document.querySelectorAll("[data-bp-pending]").forEach(function (el) {
+      el.removeAttribute("data-bp-pending");
+    });
+    return;
+  }
 
   var nodes = document.querySelectorAll("[data-bp-price], [data-bp-code]");
   if (!nodes.length) return;

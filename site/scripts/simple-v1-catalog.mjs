@@ -23,12 +23,20 @@
 //   ?q=<كلمات>                            → يملأ مربع البحث ويرسم النتيجة.
 // البحث كلمات متعددة بـ«و» وبتطبيع خفيف للعربية (همزات، تاء مربوطة، تشكيل).
 //
-// الأسعار لا تظهر للزائر: سياسة المالك أن الكتالوج وأسعاره في الخلفية. سعر
-// الباقة يحمل صنف `price-amt` الذي تخفيه قاعدة `html[data-prices="off"]`
-// العامة، فيراه العميل المسجَّل ولا يراه الزائر — قاعدة واحدة لا استثناء لها.
+// الأسعار لا تظهر للزائر: سياسة المالك أن الكتالوج وأسعاره في الخلفية. كل رقم
+// سعر في هذه الصفحة — سعر الخدمة والباقة وملاحظة الضريبة — يحمل صنف `price-amt`
+// الذي تخفيه قاعدة `html[data-prices="off"]` العامة، فيراه العميل المسجَّل ولا
+// يراه الزائر — قاعدة واحدة لا استثناء لها. وللزائر سطرٌ بصنف `data-guest-note`
+// يقول لماذا لا يرى الأرقام وأين يسجّل.
+//
+// كانت بطاقة الخدمة تحمل `amount` في بياناتها ولا ترسمه لأحد (لا للزائر ولا للمسجَّل):
+// «الكتالوج موجود والأسعار غير موجودة» — شكوى المالك 2026-10-23. السعر الآن يُقرأ
+// من دفتر الأسعار (api/_catalog-prices.js) وهو مصدر العرض والعقد نفسه، فلا يختلف
+// ما تراه هنا عمّا يُكتب في عرض السعر.
 import fs from "node:fs";
 import path from "node:path";
 import { visibleCatalogRows } from "./hidden.mjs";
+import { buildPriceBook, resolveSku, priceText } from "../../api/_catalog-prices.js";
 
 const T = {
   title:  { ar: "الخدمات والباقات", en: "Services & packages", fr: "Services et forfaits", zh: "服务与套餐" },
@@ -76,6 +84,13 @@ const T = {
   filterLbl: { ar: "تصفية بحسب:", en: "Filtered by:", fr: "Filtré par :", zh: "筛选：" },
   showAll: { ar: "عرض كل الخدمات", en: "Show all services", fr: "Voir tous les services", zh: "显示全部服务" },
   askCta: { ar: "اشرح احتياجك في المحادثة", en: "Describe your need in the chat", fr: "Décrivez votre besoin", zh: "在对话中描述您的需求" },
+  priceNote: { ar: "الأسعار بالريال السعودي قبل ضريبة القيمة المضافة 15٪ — تُضاف الضريبة سطراً مستقلاً ثم الإجمالي شاملاً. الرسوم الحكومية مستثناة وتُسدَّد للجهات بالتكلفة الفعلية.",
+               en: "Prices are in Saudi riyals, before 15% VAT — VAT is added as a separate line, then the total including VAT. Government fees are excluded and paid to the authorities at actual cost.",
+               fr: "Prix en riyals saoudiens, hors TVA de 15 % — la TVA est ajoutée sur une ligne distincte, puis le total TTC. Les frais gouvernementaux sont exclus et réglés aux administrations au coût réel.",
+               zh: "价格以沙特里亚尔计，不含15%增值税——增值税单列一行，随后为含税总额。政府费用不包含在内，按实际成本支付给相关机构。" },
+  guestNote: { ar: "الأسعار تظهر للعملاء المسجَّلين فقط.", en: "Prices are shown to registered clients only.",
+               fr: "Les prix sont réservés aux clients inscrits.", zh: "价格仅对注册客户显示。" },
+  guestGo:   { ar: "سجّل دخولك لرؤيتها ←", en: "Sign in to see them →", fr: "Connectez-vous pour les voir →", zh: "登录查看 →" },
 };
 
 // أي باب يفتح لهذا المجال، ليبدأ المستشار في السياق الصحيح.
@@ -110,6 +125,13 @@ export function buildSimpleCatalog(SV1, ctx) {
   // يتأخر بناءٍ كاملاً عن الكتالوج.
   raw = { ...raw, services: visibleCatalogRows(raw.services || []), packages: visibleCatalogRows(raw.packages || []) };
 
+  const book = buildPriceBook(raw);
+  const cur = "﷼";
+  const priceOf = (row) => {
+    const e = resolveSku(book, row.code);
+    return e.amount != null && (e.status === "fixed" || e.isFloor) ? { txt: priceText(e, ar ? "ar" : "en", cur), floor: !!e.isFloor } : null;
+  };
+
   const services = (raw.services || []).map((s) => ({
     code: s.code || "",
     // ‏رابط صفحة الخدمة. الصفحات الـ٢٠٠ تُبنى بنطاق عملها ومستنداتها وأسئلتها
@@ -124,6 +146,9 @@ export function buildSimpleCatalog(SV1, ctx) {
     gov: s.govPlatform && s.govPlatform !== "بدون جهة حكومية"
       ? (govLabel ? govLabel(s.govPlatform) : s.govPlatform) : "",
     door: DOOR[s.categoryAr] || "consulting",
+    // ‏السعر كما يكتبه دفتر الأسعار (قبل الضريبة): مبلغ ثابت، أو «يبدأ من» حدٌّ أدنى، أو لا شيء
+    // (حسب العرض — الصفحة تكتب «بعرض سعر مخصّص» لا رقماً).
+    price: priceOf(s),
     // ‏قابل للشراء المباشر؟ الشرط نفسه في صفحة الخدمة القديمة (generate.mjs):
     // سعرٌ في الكتالوج، وليس عقاراً ولا سياحة. الحقول بصيغة عنصر السلة القديمة؛
     // `amount` هو الرقم الذي يُحسب منه كل شيء.
@@ -144,8 +169,10 @@ export function buildSimpleCatalog(SV1, ctx) {
     code: p.code || "",
     name: (ar ? p.nameAr : p.nameEn) || p.nameAr || p.nameEn || "",
     group: (ar ? p.groupNameAr : p.groupNameEn) || p.groupNameAr || "",
-    price: p.amount != null ? Number(p.amount) : null,
-    period: p.billingPeriod === "monthly" ? t("monthly") : "",
+    // ‏نصّ السعر من دفتر الأسعار: «6,000 ﷼ / شهرياً» · «يبدأ من 30,000 ﷼ / سنويًا». الباقة بلا مبلغ
+    // («باقة حسب الطلب») تُكتب لافتتها وليست رقماً فلا تُخفى عن الزائر.
+    price: priceOf(p),
+    label: (() => { const e = resolveSku(book, p.code); return e.amount == null ? priceText(e, ar ? "ar" : "en", cur) : ""; })(),
     features: ((ar ? p.featuresAr : p.featuresEn) || p.featuresAr || []).slice(0, 8),
   })).filter((p) => p.name);
 
@@ -175,6 +202,8 @@ export function buildSimpleCatalog(SV1, ctx) {
       <a class="sv1-tab" href="${(ar || lang !== "en" ? "/" + lang : "") + "/trips"}">${esc(t("tabTrip"))}</a>
       <a class="sv1-tab" href="${(ar || lang !== "en" ? "/" + lang : "") + "/hiring"}">${esc(t("tabHire"))}</a>
     </div>
+
+    <p class="sv1-cat-pricenote"><span class="price-amt">${esc(t("priceNote"))}</span><span data-guest-note>${esc(t("guestNote"))} <a href="${(ar || lang !== "en" ? "/" + lang : "") + "/my?next="}${encodeURIComponent((ar || lang !== "en" ? "/" + lang : "") + "/catalog")}">${esc(t("guestGo"))}</a></span></p>
 
     <div id="paneSvc">
       <div class="sv1-cat-filter sv1-hide" id="catFilter"><span>${esc(t("filterLbl"))} <b id="catFilterName"></b></span><a href="${(ar || lang !== "en" ? "/" + lang : "") + "/catalog"}" id="catFilterAll">${esc(t("showAll"))}</a></div>
@@ -236,6 +265,10 @@ ${SV1.footer()}`;
 .sv1-pick-add:hover{background:#16307F;border-color:#16307F}
 .sv1-pick-add.done{background:#fff;color:var(--ac)}
 .sv1-pick-custom{flex:none;align-self:center;font-size:11px;color:var(--mut);white-space:nowrap}
+.sv1-pick-price{flex:none;align-self:center;font-family:var(--fm);font-size:13.5px;font-weight:600;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums;background:var(--soft);border:1px solid var(--l);border-radius:8px;padding:3px 9px}
+.sv1-pick-price.floor{font-weight:500}
+.sv1-cat-pricenote{margin:0 0 14px;font-size:12px;line-height:1.8;color:var(--mut);text-align:center}
+.sv1-cat-pricenote a{color:var(--ac);font-weight:600;text-decoration:underline}
 .sv1-pick-acts{display:flex;gap:6px;align-items:center;flex:none;align-self:center;flex-wrap:wrap;justify-content:flex-end}
 .sv1-cat-toast{position:fixed;inset-inline:0;top:84px;margin-inline:auto;width:max-content;max-width:calc(100vw - 28px);z-index:2147483100;background:var(--ink);color:#fff;border-radius:12px;padding:11px 16px;font-size:13px;font-weight:600;box-shadow:0 10px 28px rgba(11,27,90,.3);display:flex;gap:14px;align-items:center}
 .sv1-cat-toast.sv1-hide{display:none}
@@ -386,6 +419,8 @@ function draw(){
    lab.appendChild(cb);lab.appendChild(tx);
    row.appendChild(lab);
    var acts=el('span','sv1-pick-acts');
+   // السعر قبل الضريبة: صنف price-amt يخفيه عن الزائر ويُظهره للمسجَّل (السياسة العامة).
+   if(s.price)acts.appendChild(el('span','sv1-pick-price price-amt'+(s.price.floor?' floor':''),s.price.txt));
    if(s.buy){var ab=el('button','sv1-pick-add',TX.addCart);ab.type='button';
     ab.setAttribute('data-track','أضف للسلة');
     ab.onclick=function(e){e.stopPropagation();addOne(s,ab)};acts.appendChild(ab)}
@@ -422,10 +457,10 @@ function drawPkgs(){
   PKGS.filter(function(p){return p.group===gname}).forEach(function(p){
    var c=el('div','sv1-pkg');
    c.appendChild(el('h3',null,p.name));
-   if(p.price!=null){
+   if(p.price){
     // صنف price-amt: القاعدة العامة تخفيه عن الزائر وتظهره للعميل المسجَّل.
-    var amt=el('div','amt price-amt',Number(p.price).toLocaleString('en-US')+' ﷼'+(p.period?' / '+p.period:''));
-    c.appendChild(amt)}
+    c.appendChild(el('div','amt price-amt',p.price.txt))}
+   else if(p.label)c.appendChild(el('div','amt',p.label));
    if(p.features.length){var ul=el('ul');p.features.forEach(function(x){ul.appendChild(el('li',null,x))});c.appendChild(ul)}
    var b=el('button','sv1-btn primary sm',TX.pkgAsk);b.type='button';
    b.onclick=function(){handoff([{code:p.code,title:p.name,why:p.group||''}],'consulting',p.name)};
@@ -435,6 +470,17 @@ function drawPkgs(){
 }
 $('tabSvc').onclick=function(){this.classList.add('on');$('tabPkg').classList.remove('on');$('paneSvc').classList.remove('sv1-hide');$('panePkg').classList.add('sv1-hide')};
 $('tabPkg').onclick=function(){this.classList.add('on');$('tabSvc').classList.remove('on');$('panePkg').classList.remove('sv1-hide');$('paneSvc').classList.add('sv1-hide')};
+// جلسةٌ صالحة بلا مفتاح bp_session في المتصفح (أول زيارة بعد الدخول، أو مسح بيانات الموقع)
+// كانت تُعامَل كزائر فلا ترى أسعاراً. يُسأل الخادم مرة، وللزائر الفعلي لا يتغيّر شيء.
+(function(){
+ var H=document.documentElement;
+ if(H.getAttribute('data-prices')==='on')return;
+ var fin=false;setTimeout(function(){fin=true},3000);
+ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
+  .then(function(r){return r.json()}).then(function(o){
+   if(!fin&&o&&o.session&&o.session.user){try{localStorage.setItem('bp_session','1')}catch(e){}H.setAttribute('data-prices','on')}})
+  .catch(function(){});
+})();
 if(QS.get('q'))q.value=QS.get('q');
 if(DOORF){$('catFilterName').textContent=DOORS[DOORF];$('catFilter').classList.remove('sv1-hide')}
 draw();drawPkgs();drawTray();
