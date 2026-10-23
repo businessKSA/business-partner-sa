@@ -228,10 +228,26 @@ const T = {
   bankTaken:{ ar: "هذا المرجع مرتبط ببريد آخر. أعد تحميل الصفحة وجرّب مجدداً.", en: "This reference belongs to another e-mail. Reload and try again.",
              fr: "Cette référence appartient à un autre e-mail. Rechargez et réessayez.", zh: "该编号属于另一邮箱。请刷新后重试。" },
   bankPaid:{ ar: "هذا الطلب مدفوع بالفعل.", en: "This order is already paid.", fr: "Cette commande est déjà payée.", zh: "该订单已付款。" },
-  bankApproved:{ ar: "تحقق المستشار الذكي من إيصالك: المبلغ والمستفيد والآيبان مطابقة، فاعتُمد دفعك وسُجّل طلبك.",
-             en: "The smart advisor checked your receipt: amount, beneficiary and IBAN match, so your payment is approved and your order recorded.",
-             fr: "Le conseiller a vérifié votre reçu : montant, bénéficiaire et IBAN correspondent, le paiement est approuvé et la commande enregistrée.",
-             zh: "智能顾问已核对回单：金额、收款人和 IBAN 一致，付款已确认，订单已记录。" },
+  bankApproved:{ ar: "تحقق المستشار الذكي من إيصالك: المبلغ والمستفيد والآيبان ومرجع المصرف مطابقة، فاعتُمد دفعك وسُجّل طلبك. ويطابق فريقنا الحوالة مع كشف الحساب البنكي.",
+             en: "The smart advisor checked your receipt: amount, beneficiary, IBAN and bank reference match, so your payment is approved and your order recorded. Our team also matches the transfer against the bank statement.",
+             fr: "Le conseiller a vérifié votre reçu : montant, bénéficiaire, IBAN et référence bancaire correspondent ; le paiement est approuvé et la commande enregistrée. Notre équipe rapproche aussi le virement du relevé.",
+             zh: "智能顾问已核对回单：金额、收款人、IBAN 和银行流水号一致，付款已确认，订单已记录。团队还会将转账与银行对账单核对。" },
+  bankLimit:{ ar: "استلمنا إيصالك وبياناته مطابقة. لأن المبلغ يتجاوز حدّ الاعتماد الآلي ({n} ريال)، يؤكد فريقنا وصوله من كشف الحساب البنكي ثم يُعتمد طلبك. لا تحوّل المبلغ مرة أخرى.",
+             en: "We received your receipt and its details match. Because the amount is above the automatic-approval limit ({n} SAR), our team confirms it in the bank statement and then approves your order. Do not transfer again.",
+             fr: "Reçu reçu, les informations correspondent. Le montant dépassant la limite d'approbation automatique ({n} SAR), notre équipe le confirme dans le relevé bancaire avant d'approuver. Ne virez pas à nouveau.",
+             zh: "已收到回单，信息一致。由于金额超过自动确认上限（{n} 里亚尔），团队将在银行对账单中确认到账后批准订单。请勿重复转账。" },
+  bankLogin:{ ar: "سجّل دخولك أولاً بالبريد الذي ستُفتح به الطلب، ثم ارفع الإيصال من هنا.",
+             en: "Sign in first with the e-mail the order will be opened for, then upload the receipt here.",
+             fr: "Connectez-vous d'abord avec l'e-mail de la commande, puis téléversez le reçu ici.", zh: "请先使用将创建订单的邮箱登录，然后在此上传回单。" },
+  bankMismatch:{ ar: "بريد الطلب يجب أن يطابق بريد حسابك المسجَّل دخوله.", en: "The order e-mail must match the account you are signed in with.",
+             fr: "L'e-mail de la commande doit correspondre au compte connecté.", zh: "订单邮箱必须与当前登录账户一致。" },
+  bankChanged:{ ar: "هذا المرجع مرتبط بسلة مختلفة سبق رفع إيصالها. أنشأنا لك مرجعاً جديداً: راجع سلتك ثم ارفع الإيصال من جديد.",
+             en: "This reference belongs to a different basket whose receipt was already uploaded. We created a new reference: check your cart and upload again.",
+             fr: "Cette référence correspond à un autre panier dont le reçu a déjà été envoyé. Nouvelle référence créée : vérifiez le panier puis réessayez.", zh: "该编号对应另一个已上传回单的购物车。已为您生成新编号：请核对购物车后重新上传。" },
+  bankClosed:{ ar: "هذا الطلب أُلغي. أنشأنا لك مرجعاً جديداً: ارفع الإيصال من جديد.", en: "That order was cancelled. We created a new reference: upload the receipt again.",
+             fr: "Cette commande a été annulée. Nouvelle référence créée : téléversez à nouveau le reçu.", zh: "该订单已取消。已为您生成新编号：请重新上传回单。" },
+  bankOpenMany:{ ar: "لديك عدّة حوالات بانتظار التحقق. انتظر اعتمادها أو تواصل معنا قبل أن ترفع غيرها.", en: "You already have several transfers awaiting verification. Wait for them or contact us before uploading more.",
+             fr: "Plusieurs virements sont déjà en attente de vérification. Patientez ou contactez-nous.", zh: "您已有多笔转账待核验。请等待或联系我们后再上传。" },
   bankReview:{ ar: "استلمنا إيصالك وطلبك بانتظار التحقق. لا تحوّل المبلغ مرة أخرى؛ نبلغك فور الاعتماد.",
              en: "We received your receipt and your order is awaiting verification. Do not transfer again — we tell you as soon as it is approved.",
              fr: "Reçu reçu : votre commande est en attente de vérification. Ne virez pas à nouveau — nous vous prévenons dès l'approbation.",
@@ -254,6 +270,14 @@ const T = {
   rs_date_future:{ ar: "تاريخ الحوالة في المستقبل", en: "The transfer date is in the future", fr: "Date de virement dans le futur", zh: "转账日期在未来" },
   rs_duplicate_receipt:{ ar: "هذا الإيصال سبق رفعه على طلبٍ آخر", en: "This receipt was already used for another order", fr: "Ce reçu a déjà servi pour une autre commande", zh: "该回单已用于其他订单" },
   rs_checker_unavailable:{ ar: "خدمة قراءة الإيصالات غير متاحة الآن", en: "The receipt reading service is unavailable now", fr: "Service de lecture indisponible", zh: "回单读取服务暂不可用" },
+  rs_date_missing:{ ar: "تاريخ الحوالة غير ظاهر في الإيصال", en: "The transfer date is not visible on the receipt", fr: "Date du virement non visible", zh: "回单上看不到转账日期" },
+  rs_date_unclear:{ ar: "تعذّر فهم تاريخ الحوالة في الإيصال (أو هو هجري)", en: "The transfer date could not be understood (or is Hijri)", fr: "Date de virement illisible (ou hégirienne)", zh: "无法识别转账日期（或为伊斯兰历）" },
+  rs_not_executed:{ ar: "الإيصال لا يثبت أن الحوالة نُفِّذت", en: "The receipt does not show the transfer was executed", fr: "Le reçu ne prouve pas l'exécution du virement", zh: "回单无法证明转账已执行" },
+  rs_reference_missing:{ ar: "رقم مرجع المصرف غير ظاهر في الإيصال", en: "The bank reference number is not visible", fr: "Référence bancaire non visible", zh: "回单上看不到银行流水号" },
+  rs_no_independent_read:{ ar: "تعذّرت قراءة الإيصال قراءةً مستقلة للتأكد منه", en: "The receipt could not be independently read and checked", fr: "Le reçu n'a pas pu être lu de façon indépendante", zh: "无法对回单进行独立读取核验" },
+  rs_above_auto_limit:{ ar: "المبلغ يتجاوز حدّ الاعتماد الآلي", en: "The amount is above the automatic-approval limit", fr: "Le montant dépasse la limite d'approbation automatique", zh: "金额超过自动确认上限" },
+  rs_duplicate_check_unavailable:{ ar: "تعذّر التأكد أن الإيصال لم يُستعمل من قبل", en: "We could not confirm the receipt was not used before", fr: "Impossible de confirmer que le reçu n'a pas déjà servi", zh: "无法确认该回单未被使用过" },
+  rs_checker_review:{ ar: "المدقق الآلي طلب مراجعة بشرية للإيصال", en: "The automatic checker asked for a human review", fr: "Le vérificateur automatique demande une revue humaine", zh: "自动核验器要求人工复核" },
   rs_settle_failed:{ ar: "تطابق الإيصال لكن تعذّر تسجيل الدفع آلياً", en: "The receipt matched but recording the payment failed", fr: "Le reçu correspond mais l'enregistrement a échoué", zh: "回单一致，但自动记账失败" },
 
   // ---- رسالة ما بعد الدفع: ما حدث فعلاً، ورقم يُحتفظ به، والخطوة التالية.
@@ -380,6 +404,7 @@ export function buildSimpleCheckout(SV1, ctx) {
           <div id="coPaneBank" class="sv1-co-pane sv1-hide">
             <p class="sv1-co-fine sv1-hide" id="coBankOff">${esc(t("bankOff"))}</p>
             <div id="coBankOn">
+              <div id="coBankLogin" class="sv1-co-result warn sv1-hide"><p>${esc(t("bankLogin"))}</p><a class="sv1-btn primary sm" href="${home}my?next=${encodeURIComponent(home + "checkout")}">${esc(t("signInBtn"))}</a></div>
               <ol class="sv1-co-steps">
                 <li>${esc(t("bankStep1"))}</li>
                 <li>${esc(t("bankStep2"))}</li>
@@ -750,7 +775,7 @@ $('coTamaraGo').onclick=function(){
 // بيانات الحساب من /api/pay (الحقل bank، مصدرها api/_identity.js) — لا رقم حساب في هذا الملف. الإيصال يُرفع
 // إلى POST /api/pay {action:"bank-receipt"} فيفتح الخادم الطلب «بانتظار التحقق» ثم يقارن المستشار
 // الذكي المبلغ والمستفيد والآيبان: مطابق → يُعتمد الدفع وتصدر الفاتورة، وإلا مراجعة بشرية بسبب يُقال هنا.
-var BANK=null,bankBusy=false,noQuoteLine=cart.some(function(i){return /^sv1:/i.test(String(i&&i.id||''))});
+var BANK=null,bankBusy=false,SESS_EMAIL='',noQuoteLine=cart.some(function(i){return /^sv1:/i.test(String(i&&i.id||''))});
 var OKTYPE=/^(image\\/(jpeg|png|webp)|application\\/pdf)$/,MAXB=3*1024*1024;
 function setText(id,v){var e=$(id);if(e)e.textContent=v}
 function bankNote(m){setText('coBankNote',m||'')}
@@ -765,7 +790,11 @@ function setupBank(b){
  setText('coBk-bene',LANG==='ar'?BANK.beneficiary:(BANK.beneficiaryEn||BANK.beneficiary));
  setText('coBk-bank',LANG==='ar'?(BANK.bank||BANK.bankEn):(BANK.bankEn||BANK.bank));
  setText('coBk-iban',fmtIban(BANK.iban));$('coBk-iban').setAttribute('data-raw',String(BANK.iban||''));
- fillBank()}
+ fillBank();
+ // الحوالة تُفتح باسم حسابٍ مسجَّل دخوله: بلا جلسة يُطلب الدخول بدل رفعٍ يرفضه الخادم.
+ getMe().then(function(u){SESS_EMAIL=u&&u.email?String(u.email).toLowerCase():'';
+  var lg=$('coBankLogin');if(lg)lg.classList.toggle('sv1-hide',!!SESS_EMAIL)})}
+function newRef(){try{var o=JSON.parse(sessionStorage.getItem(SNAP)||'{}')||{};o.ref='';sessionStorage.setItem(SNAP,JSON.stringify(o))}catch(e){}fillBank()}
 function fillBank(){
  if(!BANK)return;
  setText('coBk-amount',money(total));$('coBk-amount').setAttribute('data-raw',total.toFixed(2));
@@ -790,7 +819,12 @@ function shrink(file){return new Promise(function(res){
    c.toBlob(function(b){res(b&&b.size<file.size?b:file)},'image/jpeg',0.82)};
   img.onerror=function(){res(file)};img.src=u}catch(e){res(file)}})}
 function bankErr(code){
- return code==='slow_down'?TX.bankSlow:code==='ref_taken'?TX.bankTaken:code==='already_paid'?TX.bankPaid:code==='too_large'?TX.bankTooBig
+ if(code==='login_required'){SESS_EMAIL='';var lg=$('coBankLogin');if(lg)lg.classList.remove('sv1-hide');return TX.bankLogin}
+ // مرجعٌ لا يصلح لهذه السلة (سلة أخرى · طلب أُلغي · بريد آخر): يُولَّد مرجع جديد ولا يُترك العميل عالقاً.
+ if(code==='cart_changed'){newRef();return TX.bankChanged}
+ if(code==='request_closed'){newRef();return TX.bankClosed}
+ if(code==='ref_taken'){newRef();return TX.bankTaken}
+ return code==='email_mismatch'?TX.bankMismatch:code==='too_many_open'?TX.bankOpenMany:code==='slow_down'?TX.bankSlow:code==='already_paid'?TX.bankPaid:code==='too_large'?TX.bankTooBig
   :code==='bad_type'?TX.bankBadType:code==='quote_only_items'?TX.noAmount:code==='bank_not_for_plan'?TX.bankNoPlanMsg:code==='bank_not_configured'?TX.bankOff:TX.bankFail}
 // الطلب سُجّل على الخادم: لا سلة ولا نموذج يبقيان فيُرسَل مرتين.
 function closeOrder(){
@@ -806,6 +840,8 @@ function onBankReply(j){
   .filter(function(r){return r[1]});
  var link=j.ref?{href:HOME+'my?ref='+encodeURIComponent(j.ref),label:TX.openReq}:null;
  if(ok)showResult('ok',TX.bankApproved,'',link,{rows:rows,next:inv?TX.nextInv:TX.nextNoInv});
+ else if((j.reasons||[]).length===1&&j.reasons[0]==='above_auto_limit')
+  showResult('warn',TX.bankLimit.replace('{n}',String(j.autoLimit||'')),'',link,{rows:rows});
  else{var why=(j.reasons||[]).map(function(c){return TX['rs_'+c]||''}).filter(Boolean).join(' · ');
   showResult('warn',TX.bankReview,why?TX.bankWhy+why:'',link,{rows:rows})}
  closeOrder()}
@@ -813,6 +849,7 @@ $('coBankGo').onclick=function(){
  var btn=this;if(bankBusy||!BANK)return;
  if(!payable){bankNote(unpriced?TX.noAmount:TX.signIn);return}
  if(!ready()){bankNote(TX.needFill);return}
+ if(!SESS_EMAIL){var lg=$('coBankLogin');if(lg)lg.classList.remove('sv1-hide');bankNote(TX.bankLogin);return}
  var inp=$('coBankFile'),f=inp&&inp.files&&inp.files[0];
  if(!f){bankNote(TX.bankNeedFile);return}
  if(!OKTYPE.test(String(f.type||'').toLowerCase())){bankNote(TX.bankBadType);return}

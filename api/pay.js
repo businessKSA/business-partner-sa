@@ -38,8 +38,8 @@ import { PAY_MOCK, payGuard, MODES } from "./_mode.js";
 import { contactForRef } from "./_stage.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { sb, DB_ON } from "./_db.js";
-import { markRequestPaidByRef, invoiceTargetFor, bankOrderRow, bankReceiptIntake, bankReceiptSeen, bankReceiptVerdict, readTransferReceipt } from "./_simple.js";
-import { bankDetails, acceptedNames, verifyTransfer, reasonText, sha256, readBankToken, throttle } from "./_bank-transfer.js";
+import { markRequestPaidByRef, invoiceTargetFor, bankOrderRow, bankOrderPrecheck, bankOpenCount, bankReceiptIntake, bankReceiptSeen, bankReceiptClaimKeys, bankReceiptVerdict, bankClaim, bankRelease, readTransferReceipt, validateUpload } from "./_simple.js";
+import { bankDetails, acceptedNames, verifyTransfer, reasonText, sha256, readBankToken, throttle, trustedIp, normalizedFileHash, receiptKeys, autoApproveMaxSar } from "./_bank-transfer.js";
 import { parseEmpSku, empOffer, empPrepare, empSessionEmail, empActivate, empBasketProblem, empBnplAllowed } from "./_emp-pay.js";
 
 // Simple V1: a cart line "sv1:BP-R-XXXXXX" is an approved, signed quotation.
@@ -884,18 +884,28 @@ function bankPublic() {
 }
 
 // Approve a bank order as paid — the one path both the automatic agent and a
-// person take. Same settle as a gateway payment (CRM row, activations, request
-// row → PAID) and the same invoice engine; nothing is invoiced unless it settled.
-async function finalizeBankOrder(order, payId, halalas, by) {
-  const p = { id: payId, amount: halalas, status: "paid", currency: "SAR" };
+// person take. The transition is claimed first (bankClaim: one atomic status change),
+// so six concurrent uploads or four concurrent «تأكيد الدفع» presses settle ONCE and
+// send one set of mails. Same settle as a gateway payment (CRM row, activations, request
+// row → PAID) and the same invoice engine; nothing is invoiced unless it settled. The
+// basket and the amount come from the ROW (what was priced when the receipt arrived),
+// never from the request that triggers the approval.
+async function finalizeBankOrder(orderRef, by, amountSar = null) {
+  const claim = await bankClaim(orderRef);
+  if (!claim.ok) return { ok: false, settle: { ok: false, error: claim.error || "claim_failed" } };
+  if (claim.already) return { ok: true, already: true };
+  const row = claim.row, pay = row.payment || {};
+  const order = pay.bank_order, payId = pay.pay_ref;
+  const sar = amountSar != null && Number.isFinite(Number(amountSar)) ? Number(amountSar) : Number(pay.expected_total);
+  if (!order || !payId || !(sar > 0)) { await bankRelease(row); return { ok: false, settle: { ok: false, error: "no_order" } }; }
+  const p = { id: payId, amount: Math.round(sar * 100), status: "paid", currency: "SAR" };
   let settle = null, invoicing = null;
   try { settle = await settlePaidOrder(order, p, { by }); }
   catch (e) { console.error("pay: bank settle failed", String(e.message || e).slice(0, 160)); settle = { ok: false, error: "settle_failed" }; }
   const ok = !!(settle && (settle.ok || settle.already));
-  if (ok) {
-    try { invoicing = await invoicePaidOrder(order, p.amount, p.id, { alreadySettled: !!(settle && settle.already) }); }
-    catch (e) { invoicing = { invoiced: false, reason: String(e.message || "invoice_failed") }; }
-  }
+  if (!ok) { await bankRelease(row); return { ok: false, settle }; }
+  try { invoicing = await invoicePaidOrder(order, p.amount, p.id, { alreadySettled: !!(settle && settle.already) }); }
+  catch (e) { invoicing = { invoiced: false, reason: String(e.message || "invoice_failed") }; }
   return { ok, settle, invoicing };
 }
 
@@ -905,11 +915,20 @@ function bankSnapshot(order) {
   for (const k of BANK_ORDER_KEYS) if (order[k] !== undefined) o[k] = order[k];
   o.email = String(o.email || "").trim().toLowerCase().slice(0, 160);
   o.items = (Array.isArray(o.items) ? o.items : []).slice(0, 40).map((it) => ({ id: String((it && it.id) || "").slice(0, 80), qty: Math.max(1, Math.min(99, Number(it && it.qty) || 1)) })).filter((x) => x.id);
+  o.surchargeFee = Math.max(0, Number(o.surchargeFee) || 0);
   // The tax profile can name a company; an oversized or malformed one is not stored.
   try { if (JSON.stringify(o.taxProfile || {}).length > 3000) o.taxProfile = { kind: "personal" }; } catch { o.taxProfile = { kind: "personal" }; }
   return o;
 }
+// The basket's identity: items and quantities, the surcharge, the discount code and the TOTAL the server
+// priced. A row that already holds a receipt keeps this fingerprint for good — a re-upload under the same
+// reference with another basket is refused (cart_changed), so a receipt for 115 can never settle a 30,000 row.
+function cartFingerprint(snap, priced) {
+  const items = priced.ids.map((x) => `${String(x.id).toLowerCase()}:${x.qty}`).sort().join("|");
+  return sha256(Buffer.from([items, "s" + snap.surchargeFee, "d" + String(snap.discountCode || "").trim().toUpperCase(), "t" + priced.expectedHalalas].join("#"), "utf8"));
+}
 
+const BANK_MAX_OPEN = 5;
 async function handleBankReceipt(req, res, b) {
   const send = (code, obj) => { res.statusCode = code; return res.end(JSON.stringify(obj)); };
   const cfg = bankDetails();
@@ -920,12 +939,20 @@ async function handleBankReceipt(req, res, b) {
   const name = String(order.name || "").trim();
   const ref = String(order.ref || "").trim().toUpperCase();
   if (!isEmail(email) || name.length < 2 || !/^BP-[A-Z0-9]{4,14}$/.test(ref)) return send(400, { ok: false, error: "bad_order" });
-  const ip = String(req.headers["x-forwarded-for"] || (req.socket && req.socket.remoteAddress) || "").split(",")[0].trim() || "local";
-  if (!throttle("bankrcpt:" + ip, 12, 3600e3) || !throttle("bankrcpt-mail:" + email, 8, 24 * 3600e3)) return send(429, { ok: false, error: "slow_down" });
+
+  // Who is asking: a signed-in customer, and only for their own address. An order opened under a victim's
+  // e-mail would appear in the victim's account and mail the victim; nothing is created for anyone else.
+  const sessionEmail = await empSessionEmail(req);
+  if (!sessionEmail) return send(401, { ok: false, error: "login_required" });
+  if (sessionEmail !== email) return send(403, { ok: false, error: "email_mismatch" });
+  // The speed bump is keyed on the account (a session the client cannot invent) and on the address our own
+  // proxy appended (the LAST x-forwarded-for entry; the first is written by the client).
+  if (!throttle("bankrcpt-user:" + sessionEmail, 10, 3600e3) || !throttle("bankrcpt-ip:" + trustedIp(req), 40, 3600e3)) return send(429, { ok: false, error: "slow_down" });
 
   const f = (b.file && typeof b.file === "object") ? b.file : {};
-  const base64 = String(f.base64 || "").replace(/^data:[^;]+;base64,/, "");
-  if (!base64) return send(400, { ok: false, error: "no_file" });
+  // Validate the file before anything is opened: a bad type or size never leaves an order «waiting» with no receipt.
+  const vf = validateUpload({ base64: f.base64, name: f.name, mime: f.mime });
+  if (!vf.ok) return send(vf.status || 400, { ok: false, error: vf.error, ...(vf.max ? { max: vf.max } : {}) });
 
   // The price is the server's. The receipt is compared against THIS number.
   const priced = await priceBasket(order);
@@ -936,6 +963,23 @@ async function handleBankReceipt(req, res, b) {
   const expectedHalalas = priced.expectedHalalas, expectedSar = expectedHalalas / 100;
 
   const snap = bankSnapshot({ ...order, ref });
+  const fp = cartFingerprint(snap, priced);
+  const pre = await bankOrderPrecheck({ ref, email, fp });
+  if (!pre.ok) return send(pre.status || 409, { ok: false, error: pre.error, ...(pre.row ? { ref: pre.row.ref } : {}) });
+  if (!pre.row && (await bankOpenCount(email)) >= BANK_MAX_OPEN) return send(429, { ok: false, error: "too_many_open" });
+
+  // Read and check the receipt BEFORE the order exists.
+  const expected = { amount: expectedSar, iban: cfg.iban, names: acceptedNames(), bank: cfg.bank, orderRef: ref };
+  const v = await verifyTransfer({ base64: vf.base64, mime: vf.mime, name: String(f.name || ""), expected }, readTransferReceipt);
+  const fileHash = normalizedFileHash(vf.buf, vf.mime);
+  const keys = receiptKeys({ fileHash, textHash: v.fingerprints && v.fingerprints.text, reference: v.read && v.read.reference });
+  const seen = await bankReceiptSeen({ keys, exceptRef: pre.row && pre.row.ref });
+  const reasons = [...v.reasons];
+  if (seen.duplicate) reasons.push("duplicate_receipt");
+  else if (seen.unavailable && keys.length) reasons.push("duplicate_check_unavailable");
+  const limit = autoApproveMaxSar();
+  if (expectedSar > limit) reasons.push("above_auto_limit");
+
   const payload = {
     ref, payId: "bank_" + ref, verified: true, total: expectedSar, net: Math.round(priced.net * 100) / 100,
     name: name.slice(0, 160), email, phone: String(order.phone || "").slice(0, 40),
@@ -943,33 +987,32 @@ async function handleBankReceipt(req, res, b) {
     ids: priced.ids.map((x) => ({ id: x.id, qty: x.qty })), items: priced.names, lines: priced.detail,
     ...(priced.disc ? { disc: priced.disc.code } : {}),
   };
-  const intake = await bankReceiptIntake({ payload, order: snap, file: { base64, name: f.name, mime: f.mime } });
+  const intake = await bankReceiptIntake({ payload, order: snap, fp, file: { base64: vf.base64, name: f.name, mime: vf.mime } });
   if (!intake.ok) {
     const e = intake.error || "intake_failed";
     return send(intake.status || 502, { ok: false, error: e, ...(intake.message ? { message: intake.message } : {}), ...(e === "too_large" ? { max: intake.max } : {}), ...(intake.row ? { ref: intake.row.ref } : {}) });
   }
   const row = intake.row;
+  if (!seen.duplicate) await bankReceiptClaimKeys({ keys, requestRef: row.ref, orderRef: ref });
 
-  const hash = sha256(Buffer.from(base64, "base64"));
-  const expected = { amount: expectedSar, iban: cfg.iban, names: acceptedNames(), bank: cfg.bank, orderRef: ref };
-  const v = await verifyTransfer({ base64, mime: String(f.mime || ""), name: String(f.name || ""), expected }, readTransferReceipt);
-  const reasons = [...v.reasons];
-  if (await bankReceiptSeen({ hash, bankRef: v.read && v.read.reference, exceptRef: row.ref })) reasons.push("duplicate_receipt");
   const verdict = (extra, auto) => bankReceiptVerdict(row, {
-    att: intake.rec.id, hash, auto, reasons: extra, reasonsAr: extra.map((c) => reasonText(c, "ar")),
+    att: intake.rec.id, hash: fileHash, textHash: v.fingerprints && v.fingerprints.text, auto, reasons: extra,
+    reasonsAr: extra.map((c) => reasonText(c, "ar", { limit })),
     checks: v.checks, read: v.read, provider: v.provider, source: v.source, expected: { amount: expectedSar },
   });
   let auto = v.verdict === "match" && !reasons.length, fin = null;
   await verdict(reasons, auto);
   if (auto) {
-    fin = await finalizeBankOrder(snap, "bank_" + ref, expectedHalalas, "المستشار الذكي");
+    fin = await finalizeBankOrder(ref, "المستشار الذكي");
     if (!fin.ok) { auto = false; reasons.push("settle_failed"); await verdict(reasons, false); }
   }
   const after = (await bankOrderRow(ref)) || row;
+  const approved = !!(after.payment && String(after.payment.status || "").toUpperCase() === "PAID");
   return send(200, {
-    ok: true, state: auto ? "approved" : "review",
+    ok: true, state: approved ? "approved" : "review",
     ref: row.ref, orderRef: ref, amount: expectedSar, requestStatus: after.status,
-    reasons, checks: Object.fromEntries(Object.entries(v.checks || {}).map(([k, c]) => [k, !!(c && (c.ok || c.matched))])),
+    reasons: approved ? [] : reasons, ...(reasons.includes("above_auto_limit") ? { autoLimit: limit } : {}),
+    checks: Object.fromEntries(Object.entries(v.checks || {}).map(([k, c]) => [k, !!(c && (c.ok || c.matched))])),
     ...(fin && fin.invoicing ? { invoice: fin.invoicing } : {}),
     ...(fin && fin.settle ? { settle: { ok: !!fin.settle.ok, ref: fin.settle.ref || "", request: fin.settle.request || null } } : {}),
   });
@@ -986,7 +1029,8 @@ async function handleBankApprove(res, b) {
   if (!pay.bank_order || !pay.pay_ref) return send(409, { ok: false, error: "no_order" });
   const sar = t.amount != null && Number.isFinite(Number(t.amount)) ? Number(t.amount) : Number(pay.expected_total);
   if (!(sar > 0)) return send(409, { ok: false, error: "no_amount" });
-  const fin = await finalizeBankOrder(pay.bank_order, pay.pay_ref, Math.round(sar * 100), String(t.actor || "فريق Business Partner").slice(0, 80));
+  const fin = await finalizeBankOrder(t.orderRef, String(t.actor || "فريق Business Partner").slice(0, 80), sar);
+  if (fin.already) return send(200, { ok: true, already: true });
   return send(fin.ok ? 200 : 502, { ok: fin.ok, ...(fin.ok ? {} : { error: (fin.settle && fin.settle.error) || "settle_failed" }), ...(fin.invoicing ? { invoice: fin.invoicing } : {}) });
 }
 

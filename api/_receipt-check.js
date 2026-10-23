@@ -573,6 +573,9 @@ export function makeCheckReceipt({ readRaw = readDocumentRaw, readText = readDoc
       },
     });
     const match = out.verdict === "match";
+    // هل قرأ Document Intelligence نص الإيصال فعلاً؟ (2026-10-23، فحص الأمان) بدونه ما عندنا هو حقول كتبها
+    // نموذج قرأ ملف العميل نفسه؛ فيُصرَّح هنا بوجود القراءة المستقلة ولا يُعتمد المنادي «match» دونها.
+    const text = txt && txt.ok ? String(txt.text || "") : "";
     return {
       verdict: match ? "match" : "review",
       read: fields,
@@ -580,6 +583,8 @@ export function makeCheckReceipt({ readRaw = readDocumentRaw, readText = readDoc
       checks: out.checks,
       provider: raw.provider || "receipt-check",
       teamNote: out.teamNote,
+      independentText: text.trim().length >= 40,
+      text,
     };
   };
 }

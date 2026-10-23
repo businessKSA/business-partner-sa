@@ -243,7 +243,7 @@ test("دفعة تصل على طلب مُلغى لا تُحييه بصمت: تُ�
   assert.equal(r.invoice || null, null, "لا فاتورة تلقائية على طلب ملغى");
   assert.ok((await eventsOf("T-RACE")).some((e) => e.event === "payment.after_cancel"));
   const tasks = await sb("tasks?request_id=eq.id-T-RACE&select=title,urgency,status");
-  assert.equal(tasks.length, 1); assert.equal(tasks[0].urgency, "high");
+  assert.equal(tasks.length, 1); assert.equal(tasks[0].urgency, "urgent");   // db/schema.sql: tasks.urgency is urgent|soon|normal (the plays say «high»; sweepTask translates)
   // نفس الدفعة مرتين (webhook + callback) لا تضاعف شيئاً
   await markRequestPaidByRef("T-RACE", { provider: "moyasar", payId: "pay_race_1", amount: 1150, test: false, actor: "moyasar" });
   assert.equal((await sb("tasks?request_id=eq.id-T-RACE&select=id")).length, 1);
