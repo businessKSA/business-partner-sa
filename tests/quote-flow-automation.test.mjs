@@ -90,7 +90,7 @@ test("من «إنشاء عرض سعر» إلى الفاتورة: كل خطوة �
   assert.equal(row.status, "QUOTE_SENT");
   assert.equal(row.quote.status, "SENT");
   assert.equal(row.quote.net, 7500);
-  assert.deepEqual(row.quote.items.map((i) => i.title), ["خدمة ثابتة"], "بنود البذرة لا تُطبع في العرض");
+  assert.deepEqual(row.quote.items.map((i) => i.title), ["تأسيس شركة سعودية"], "بند واحد باسم الكتالوج، وبنود البذرة لا تُطبع في العرض");
   assert.equal((await call("request-get", { ref })).request.quote.number, row.quote.number, "يظهر للعميل في لوحته");
 
   // الاعتماد ← العقد فوراً
@@ -430,6 +430,74 @@ test("التسعير الآلي المُطفأ (SIMPLE_AUTO_QUOTE=0) يعيد ا
   const out = spawnSync(process.execPath, ["--input-type=module", "-e", script], { encoding: "utf8" });
   const j = JSON.parse(out.stdout.trim().split("\n").pop());
   assert.equal(j.ok, true); assert.equal(j.quote, false); assert.equal(j.status, "REVIEWING");
+});
+
+// ====== ٧) نص العميل لا يدخل العرض ولا العقد المؤتمتين (فحص الأمان ٦، 2026-10-23) ==
+const PHRASE = "تضمن الشركة استرداد كامل المبلغ";
+test("نصّ العميل فوق رمز كتالوج حقيقي لا يصير بنداً في العرض ولا العقد: الاسم والوصف من الكتالوج، ونصّه ملاحظة قصيرة منفصلة", async () => {
+  const ref = await create([{ code: "BP-SBC-01", title: PHRASE, why: PHRASE + " " + "ي".repeat(600), qty: 1 }, ...SEED]);
+  const row = await rowOf(ref);
+  assert.equal(row.status, "QUOTE_SENT");
+  const line = row.quote.items[0];
+  assert.ok(!line.title.includes("استرداد") && !line.description.includes("استرداد"), "العنوان والوصف من الكتالوج: " + line.title);
+  assert.equal(line.price, 7500, "والسعر من الكتالوج");
+  assert.ok(row.quote.client_notes.includes(PHRASE), "نصّه محفوظ كملاحظة");
+  assert.ok(row.quote.client_notes.length <= 160, "ومحدود الطول: " + row.quote.client_notes.length);
+  const view = await call("quote-view", { ref });
+  assert.ok(view.html.includes("ملاحظات العميل"), "يُطبع في خانة ملاحظات العميل");
+  const ap = await call("quote-approve", { ref });
+  assert.equal(ap.ok, true);
+  const contract = (await rowOf(ref)).contract.html;
+  assert.ok(!contract.includes("استرداد كامل"), "العقد لا يحمل نصّ العميل");
+  assert.ok(!contract.includes("ي".repeat(50)), "ولا الوصف الطويل");
+});
+
+test("نصّ حرّ بلا رمز (أو برمز مجهول) لا يصل العرض ولا العقد آلياً: بند حرّ بلا سعر يذهب للتسعير البشري", async () => {
+  for (const code of ["", "BP-NO-SUCH"]) {
+    const ref = await create([FIXED, { code, title: PHRASE, qty: 1 }, ...SEED]);
+    const row = await rowOf(ref);
+    assert.equal(row.status, "REVIEWING"); assert.equal(row.quote || null, null); assert.equal(row.contract || null, null);
+    assert.equal(row.scope.find((x) => x.title === PHRASE).hold.reason, code ? "unknown_code" : "custom");
+  }
+});
+
+test("العميل لا يفرض سعراً ولا اسماً: حقل price في بنده يُهمل", async () => {
+  const ref = await create([{ code: "BP-SBC-01", title: "x", qty: 1, price: 1 }, ...SEED]);
+  assert.equal((await rowOf(ref)).quote.net, 7500);
+});
+
+// ====== ٨) الإخفاء قبل limit: المخفية لا تأكل الحصة (فحص الأمان ٩) ==
+test("مئة طلب مخفيّ أحدث لا تُخرج طلباً ظاهراً من «طلباتي» ولا من قائمة اللوحة", async () => {
+  const mk = (i, hidden, ageMs) => ({
+    ref: `BP-R-LIM${String(i).padStart(3, "0")}`, type: "CONSULTATION", source: "WEBSITE", status: hidden ? "CANCELLED" : "NEW", lang: "ar", title: hidden ? "مخفي" : "ظاهر-قديم",
+    summary: "", conversation: [], scope: [], documents: [], client_name: "أحمد العميل", client_email: EMAIL.b, client_phone: "+966507654321", organization_id: "org-b",
+    created_at: new Date(Date.now() - ageMs).toISOString(), updated_at: new Date(Date.now() - ageMs).toISOString(), ...(hidden ? { deleted_at: new Date().toISOString() } : {}),
+  });
+  const rows = [mk(0, false, 9e8), ...Array.from({ length: 320 }, (_, i) => mk(i + 1, true, 1000 + i))];
+  await sb("requests", { method: "POST", prefer: "return=minimal", body: rows });
+  const mine = await call("requests", {}, "b");
+  assert.ok(mine.requests.some((r) => r.title === "ظاهر-قديم"), "طلب العميل الظاهر لم تأكله المخفيّات");
+  assert.ok(!mine.requests.some((r) => r.title === "مخفي"));
+  const list = await ops("ops-requests", { q: "ظاهر-قديم" });
+  assert.ok(list.requests.some((r) => r.title === "ظاهر-قديم"));
+  const all = await ops("ops-requests");
+  assert.ok(all.requests.every((r) => r.title !== "مخفي"), "ولا تدخل قائمة العمل");
+  assert.ok(all.requests.some((r) => r.title === "ظاهر-قديم"), "والظاهر القديم يدخلها رغم 320 مخفياً أحدث منه");
+  const docs = await clientDocuments(EMAIL.b);
+  assert.ok(Array.isArray(docs.quotes));
+});
+
+// ====== ٩) رفع الإيصال على طلبٍ أُلغي: رسالة مفهومة (فحص الأمان ١١) ==
+test("إعادة رفع إيصال بمرجع طلبٍ أُلغي وأُخفي تعطي رسالة عربية مفهومة لا رمزاً وحده", async () => {
+  const { bankReceiptIntake, cartRequestRef } = await import("../api/_simple.js");
+  await sb("requests", { method: "POST", prefer: "return=minimal", body: [{
+    ref: cartRequestRef("bank_ORD-CLOSED", 0), type: "CONSULTATION", source: "WEBSITE", status: "CANCELLED", lang: "ar", title: "طلب بنكي ملغى",
+    summary: "", conversation: [], scope: [], documents: [], client_name: "أحمد العميل", client_email: EMAIL.a, organization_id: "org-a",
+    payment: { source: "cart", pay_ref: "bank_ORD-CLOSED", status: "PENDING" }, deleted_at: new Date().toISOString(),
+  }] });
+  const out = await bankReceiptIntake({ payload: { ref: "ORD-CLOSED", email: EMAIL.a }, order: {}, file: { base64: "x", name: "r.pdf", mime: "application/pdf" } });
+  assert.equal(out.ok, false); assert.equal(out.error, "request_closed"); assert.equal(out.status, 409);
+  assert.ok(/أُلغي/.test(out.message) && /راسلنا/.test(out.message), out.message);
 });
 
 // ================================================== ٦) الواجهة تُرسل ما يحتاجه الخادم ==

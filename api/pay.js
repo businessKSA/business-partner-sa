@@ -946,7 +946,7 @@ async function handleBankReceipt(req, res, b) {
   const intake = await bankReceiptIntake({ payload, order: snap, file: { base64, name: f.name, mime: f.mime } });
   if (!intake.ok) {
     const e = intake.error || "intake_failed";
-    return send(intake.status || 502, { ok: false, error: e, ...(e === "too_large" ? { max: intake.max } : {}), ...(intake.row ? { ref: intake.row.ref } : {}) });
+    return send(intake.status || 502, { ok: false, error: e, ...(intake.message ? { message: intake.message } : {}), ...(e === "too_large" ? { max: intake.max } : {}), ...(intake.row ? { ref: intake.row.ref } : {}) });
   }
   const row = intake.row;
 

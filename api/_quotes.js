@@ -304,7 +304,8 @@ export async function clientDocuments(email) {
   // are not listed. The column may not be on the database yet: read without it then.
   const COLS = "ref,title,status,created_at,updated_at,quote,contract,invoice,payment";
   const tail = `&order=created_at.desc&limit=100`;
-  const rows = (await sb(`requests?client_email=eq.${q(e)}&select=${COLS},deleted_at${tail}`)
+  // the filter runs in the query, before `limit`, so hidden rows cannot eat the page
+  const rows = (await sb(`requests?client_email=eq.${q(e)}&select=${COLS},deleted_at${tail}&deleted_at=is.null`)
     .catch(() => sb(`requests?client_email=eq.${q(e)}&select=${COLS}${tail}`))).filter((r) => !r.deleted_at);
 
   const quotes = [], contracts = [], invoices = [];
