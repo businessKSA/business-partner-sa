@@ -57,7 +57,7 @@ export const POSTS_ERR = {
 };
 
 export function shrPostsClient(env) {
-  var h = env.h, call = env.call, frame = env.frame, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, empty = env.empty;
+  var h = env.h, call = env.call, frame = env.frame, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, empty = env.empty, put = env.put, attr = env.attr;
   var ST = { draft: ['مسودة', 'mut'], pending_approval: ['بانتظار الاعتماد', 'warn'], approved: ['معتمد', 'ok'], published: ['منشور داخلياً', 'ok'], closed: ['مغلق', 'mut'] };
   var ST_ORDER = ['draft', 'pending_approval', 'approved', 'published', 'closed'];
   var CH = { shr_private: 'صفحة SHR الخاصة', public_bp_jobs: 'صفحة وظائف BP العامة', external: 'منصات خارجية' };
@@ -67,6 +67,8 @@ export function shrPostsClient(env) {
   var CONSENT = { active: 'موافقة سارية', withdrawn: 'موافقة مسحوبة', none: 'بلا موافقة' };
   var fmtDate = function (s) { return s ? String(s).slice(0, 10) : '—'; };
   var opt = function (v, t, sel) { var o = h('option', { value: v }, [t]); if (sel) o.selected = true; return o; };
+  // خيار نصّه قطع متعددة (وسم + بيانات): كل قطعة تُترجَم على حدة.
+  var optp = function (v, parts, sel) { var o = h('option', { value: v }, parts); if (sel) o.selected = true; return o; };
   function errP(o) {
     var t = errText(o);
     if (o && o.reasons && o.reasons.length) t += ': ' + o.reasons.map(function (r) { return (FIELD[r.field] || r.field) + ' — «' + r.match + '» (' + (WHY[r.code] || r.code) + ')'; }).join('، ');
@@ -82,8 +84,8 @@ export function shrPostsClient(env) {
 
       // ---------------------------------------------------------------- النموذج + المعاينة ----
       var f = {
-        job: h('select', { class: 'inp' }, jobs.map(function (j) { return opt(j.id, j.title + ' — ' + j.headcount + ' مطلوب', ed && ed.job.id === j.id); })),
-        est: h('select', { class: 'inp' }, [opt('', 'اختر المنشأة المعلِنة…')].concat(ests.map(function (e) { return opt(e.id, e.name_ar + ' — ' + (STATE_AR[e.state] || e.state), ed && ed.establishment && ed.establishment.id === e.id); }))),
+        job: h('select', { class: 'inp' }, jobs.map(function (j) { return optp(j.id, [j.title, ' — ', j.headcount + ' مطلوب'], ed && ed.job.id === j.id); })),
+        est: h('select', { class: 'inp' }, [opt('', 'اختر المنشأة المعلِنة…')].concat(ests.map(function (e) { return optp(e.id, [e.name_ar, ' — ', (STATE_AR[e.state] || e.state)], ed && ed.establishment && ed.establishment.id === e.id); }))),
         lang: h('select', { class: 'inp' }, [opt('ar', 'العربية', !ed || ed.language === 'ar'), opt('en', 'English', ed && ed.language === 'en')]),
         title: h('input', { class: 'inp', placeholder: 'عنوان الإعلان', maxlength: '120' }),
         city: h('input', { class: 'inp', placeholder: 'المدينة', maxlength: '60' }),
@@ -106,11 +108,11 @@ export function shrPostsClient(env) {
         if (lo !== '' || hi !== '') sal = (f.lang.value === 'en' ? 'Salary range: ' : 'نطاق الراتب: ') + (lo !== '' ? lo : '—') + ' – ' + (hi !== '' ? hi : '—') + (f.lang.value === 'en' ? ' SAR' : ' ريال');
         pv.appendChild(pill('كيف يبدو الإعلان — معاينة', 'mut'));
         pv.appendChild(pill('بيانات تجريبية', 'warn'));
-        pv.appendChild(h('h3', {}, [f.title.value || 'عنوان الإعلان يظهر هنا']));
-        if (meta.length) pv.appendChild(h('div', { class: 'meta' }, [meta.join(' · ')]));
-        if (sal) pv.appendChild(h('div', { class: 'sal' }, [sal]));
-        if (lines.length) lines.forEach(function (l) { pv.appendChild(h('p', {}, [l])); }); else pv.appendChild(h('p', { class: 'meta' }, ['الوصف يظهر هنا.']));
-        if (reqs.length) pv.appendChild(h('ul', { class: 'req' }, reqs.map(function (l) { return h('li', {}, [l]); })));
+        pv.appendChild(f.title.value ? h('h3', { 'data-raw': '1' }, [f.title.value]) : h('h3', {}, ['عنوان الإعلان يظهر هنا']));
+        if (meta.length) pv.appendChild(h('div', { class: 'meta', 'data-raw': '1' }, [meta.join(' · ')]));
+        if (sal) pv.appendChild(h('div', { class: 'sal', 'data-raw': '1' }, [sal]));
+        if (lines.length) lines.forEach(function (l) { pv.appendChild(h('p', { 'data-raw': '1' }, [l])); }); else pv.appendChild(h('p', { class: 'meta' }, ['الوصف يظهر هنا.']));
+        if (reqs.length) pv.appendChild(h('ul', { class: 'req' }, reqs.map(function (l) { return h('li', { 'data-raw': '1' }, [l]); })));
         pv.appendChild(h('div', { class: 'foot' }, ['يظهر داخل صفحة SHR الخاصة فقط. لا اسم عميل ولا بيانات تواصل. لا نشر عام ولا خارجي.']));
       }
       ['title', 'city', 'desc', 'req', 'smin', 'smax'].forEach(function (k) { f[k].addEventListener('input', paintPreview); });
@@ -119,21 +121,21 @@ export function shrPostsClient(env) {
       var local = h('p', { class: 'err', role: 'alert' });
       function numOrNull(v) { return v === '' ? null : Number(v); }
       var suggestBtn = h('button', { class: 'btn ghost', type: 'button', onclick: function () {
-        local.textContent = '';
-        if (!f.job.value) { local.textContent = 'اختر وظيفة مفتوحة أولاً'; return; }
+        put(local, '');
+        if (!f.job.value) { put(local, 'اختر وظيفة مفتوحة أولاً'); return; }
         call('post-suggest', { job_id: f.job.value, language: f.lang.value }).then(function (r) {
-          if (!r.ok) { local.textContent = errP(r); return; }
+          if (!r.ok) { put(local, errP(r)); return; }
           var s = r.suggestion; f.title.value = s.title || ''; f.desc.value = s.description || ''; f.req.value = s.requirements || ''; if (s.city && !f.city.value) f.city.value = s.city;
           paintPreview(); state.msg = ''; state.err = '';
-          local.textContent = 'صياغة من قالب محلي (بلا ذكاء اصطناعي، بلا راتب). عدّلها كما تشاء قبل الحفظ.' + (r.omitted && r.omitted.length ? ' حُذف ' + r.omitted.length + ' سطر لا يمرّ الحرس.' : '');
+          put(local, ['صياغة من قالب محلي (بلا ذكاء اصطناعي، بلا راتب). عدّلها كما تشاء قبل الحفظ.', (r.omitted && r.omitted.length ? ' حُذف ' + r.omitted.length + ' سطر لا يمرّ الحرس.' : '')]);
           local.className = 'note';
-        }).catch(function () { local.className = 'err'; local.textContent = 'تعذّر الاتصال'; });
+        }).catch(function () { local.className = 'err'; put(local, 'تعذّر الاتصال'); });
       } }, ['اقترح صياغة']);
       var saveBtn = h('button', { class: 'btn', type: 'button', onclick: function () {
-        local.className = 'err'; local.textContent = '';
+        local.className = 'err'; put(local, '');
         var d = { title: f.title.value, description: f.desc.value, requirements: f.req.value, city: f.city.value, language: f.lang.value, establishment_id: f.est.value || null, salary_min: numOrNull(f.smin.value), salary_max: numOrNull(f.smax.value) };
         if (ed) { d.id = ed.id; act('post-update', d, 'حُفظ التعديل'); }
-        else { d.job_id = f.job.value; call('post-create', d).then(function (r) { if (!r.ok) { local.textContent = errP(r); return; } flash(true, 'أُنشئت المسودة — أرسلها للاعتماد من بطاقتها'); render(); }).catch(function () { local.textContent = 'تعذّر الاتصال'; }); }
+        else { d.job_id = f.job.value; call('post-create', d).then(function (r) { if (!r.ok) { put(local, errP(r)); return; } flash(true, 'أُنشئت المسودة — أرسلها للاعتماد من بطاقتها'); render(); }).catch(function () { put(local, 'تعذّر الاتصال'); }); }
       } }, [ed ? 'حفظ التعديل' : 'حفظ كمسودة']);
       var cancelBtn = ed ? h('button', { class: 'btn ghost', type: 'button', onclick: function () { state.pedit = null; render(); } }, ['إلغاء التعديل']) : null;
       if (ed) f.job.disabled = true;
@@ -162,31 +164,31 @@ export function shrPostsClient(env) {
         }
         if (p.status === 'pending_approval') {
           var ap = h('button', { class: 'btn sm', type: 'button', onclick: function () { act('post-approve', { id: p.id }, 'اعتُمد الإعلان'); } }, ['اعتماد']);
-          if (p.mine) { ap.disabled = true; ap.setAttribute('title', 'كاتب الإعلان لا يعتمده — يعتمده مستخدم آخر'); }
+          if (p.mine) { ap.disabled = true; attr(ap, 'title', 'كاتب الإعلان لا يعتمده — يعتمده مستخدم آخر'); }
           acts.push(ap);
         }
         if (p.status === 'approved') acts.push(h('button', { class: 'btn sm', type: 'button', onclick: function () { act('post-publish', { id: p.id }, 'نُشر داخل صفحة SHR الخاصة فقط'); } }, ['نشر داخل SHR']));
         if (p.status === 'published') acts.push(h('button', { class: 'btn ghost sm', type: 'button', onclick: function () { state.paddFor = state.paddFor === p.id ? null : p.id; render(); } }, ['إضافة مقدّم طلب']));
         if (p.status !== 'closed') acts.push(h('button', { class: 'btn ghost sm', type: 'button', onclick: function () { act('post-close', { id: p.id }, 'أُغلق الإعلان'); } }, ['إغلاق']));
         var kids = [h('div', { class: 'top' }, head), h('div', { class: 'kv' }, kv.map(function (x) { return h('span', {}, [h('b', {}, [x[0]]), x[1]]); }))];
-        if (p.blocked) kids.push(h('div', { class: 'why' }, ['لا يُنشر ولا تُضاف له طلبات ما دامت المنشأة ' + (STATE_AR[p.blocked.state] || '') + (p.blocked.reason ? ' (' + p.blocked.reason + ')' : '') + '.']));
+        if (p.blocked) kids.push(h('div', { class: 'why' }, ['لا يُنشر ولا تُضاف له طلبات ما دامت المنشأة ' + (STATE_AR[p.blocked.state] || '') + '.', p.blocked.reason ? ' (' + p.blocked.reason + ')' : null]));
         if (p.job && p.job.status === 'closed' && p.status !== 'closed') kids.push(h('div', { class: 'why' }, ['الوظيفة مغلقة: لا يُنشر هذا الإعلان.']));
         if (acts.length) kids.push(h('div', { class: 'acts' }, acts));
         if (state.paddFor === p.id && p.status === 'published') {
-          var cs = h('select', { class: 'inp' }, cands.map(function (c) { return opt(c.id, c.full_name + ' — ' + (c.profession || '') + ' (' + (CONSENT[c.consent] || c.consent) + ')'); }));
+          var cs = h('select', { class: 'inp' }, cands.map(function (c) { return optp(c.id, [c.full_name, ' — ', (c.profession || ''), ' (', (CONSENT[c.consent] || c.consent), ')']); }));
           var perr = h('p', { class: 'err', role: 'alert' });
           kids.push(h('div', { class: 'padd' }, [h('div', { class: 'frm' }, [cs, h('button', { class: 'btn sm', type: 'button', onclick: function () {
-            call('post-applicant-add', { post_id: p.id, candidate_id: cs.value }).then(function (r) { if (!r.ok) { perr.textContent = errP(r); return; } state.paddFor = null; flash(true, 'أُضيف طلب التقديم في «جديد» (إدخال يدوي، لا صفحة تقديم عامة)'); render(); }).catch(function () { perr.textContent = 'تعذّر الاتصال'; });
+            call('post-applicant-add', { post_id: p.id, candidate_id: cs.value }).then(function (r) { if (!r.ok) { put(perr, errP(r)); return; } state.paddFor = null; flash(true, 'أُضيف طلب التقديم في «جديد» (إدخال يدوي، لا صفحة تقديم عامة)'); render(); }).catch(function () { put(perr, 'تعذّر الاتصال'); });
           } }, ['إضافة'])]), perr, h('p', { class: 'note' }, ['لا يُقبل إلا مرشح موافقته سارية. لا صفحة تقديم عامة: المشغّل يدخل الطلب يدوياً.'])]));
         }
-        if (p.history && p.history.length) kids.push(h('details', {}, [h('summary', {}, ['سجل الحالات']), h('ul', { class: 'tl' }, p.history.map(function (e) { return h('li', {}, [fmtDate(e.at) + ' — ' + (e.from ? (ST[e.from] || [e.from])[0] + ' ← ' : 'إنشاء: ') + (ST[e.to] || [e.to])[0] + (e.by ? ' (' + e.by + ')' : '') + (e.note && e.to !== 'draft' ? ' — ' + e.note : '')]); }))]));
+        if (p.history && p.history.length) kids.push(h('details', {}, [h('summary', {}, ['سجل الحالات']), h('ul', { class: 'tl' }, p.history.map(function (e) { return h('li', {}, [fmtDate(e.at), ' — ', e.from ? (ST[e.from] || [e.from])[0] : 'إنشاء: ', e.from ? ' ← ' : null, (ST[e.to] || [e.to])[0], e.by ? ' (' + e.by + ')' : null, e.note && e.to !== 'draft' ? ' — ' + e.note : null]); }))]));
         return h('div', { class: 'pcard' + (p.blocked ? ' blk' : '') }, kids);
       }
-      var chans = (o.channels || []).map(function (c) { return (CH[c.channel] || c.channel) + (c.enabled ? ' (مفعّلة)' : ' (معطّلة)'); }).join(' · ');
+      var chans = []; (o.channels || []).forEach(function (c, i) { if (i) chans.push(' · '); chans.push((CH[c.channel] || c.channel), c.enabled ? ' (مفعّلة)' : ' (معطّلة)'); });
       frame('إعلانات الوظائف', h('div', {}, [
         h('div', { class: 'pnote', role: 'note' }, ['النشر العام (صفحة وظائف BP العامة أو منصات خارجية) قرار المالك ولم يُفعَّل. «منشور» هنا يعني ظاهراً داخل صفحة SHR الخاصة فقط، ولا يُرسل شيء لأحد.']),
         h('div', { class: 'pgrid' }, [form, pv]),
-        h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [h('h2', { style: 'margin:0;flex:1 1 auto' }, ['الإعلانات (' + rows.length + ')']), flt]), h('p', { class: 'note' }, ['القنوات: ' + chans])]),
+        h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [h('h2', { style: 'margin:0;flex:1 1 auto' }, ['الإعلانات (' + rows.length + ')']), flt]), h('p', { class: 'note' }, ['القنوات: '].concat(chans))]),
         rows.length ? h('div', { class: 'pcards' }, rows.map(card)) : empty('لا إعلانات في هذه الحالة', 'اكتب إعلاناً من النموذج أعلاه.')]));
     });
   }

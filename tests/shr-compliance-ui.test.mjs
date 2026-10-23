@@ -30,7 +30,9 @@ class El {
     return this._value;
   }
 }
-const textOf = (n) => (n instanceof TextNode ? n.text : n.children.map(textOf).join(" "));
+// نصوص متجاورة داخل عنصر واحد تُلصق كما في textContent الحقيقي (الشاشات تبني السطر من قطع تُترجَم كل على حدة)؛
+// وتُفصل العناصر بمسافة كما كان.
+const textOf = (n) => (n instanceof TextNode ? n.text : n.children.reduce((acc, c, i) => acc + (i && !(c instanceof TextNode && n.children[i - 1] instanceof TextNode) ? " " : "") + textOf(c), ""));
 const walk = (n, f) => { f(n); if (n.children) n.children.forEach((c) => walk(c, f)); };
 const find = (root, pred) => { const out = []; walk(root, (n) => { if (n instanceof El && pred(n)) out.push(n); }); return out; };
 const byText = (root, tag, t) => find(root, (n) => n.tag === tag && textOf(n).trim() === t);

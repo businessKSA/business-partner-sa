@@ -93,13 +93,13 @@ export function shrClientPortalClient(env) {
         return h('tr', {}, [h('td', {}, [DOCN[d.kind] || d.kind]), h('td', {}, [pill(s[0], s[1])]), h('td', {}, [day(d.expires_on)]), h('td', {}, [d.days_left == null ? '—' : (d.days_left < 0 ? 'منذ ' + (-d.days_left) + ' يوماً' : d.days_left + ' يوماً')])]);
       }))]);
       var lists = (o.checklists || []).map(function (c) {
-        return h('div', { class: 'shr-card' }, [h('h2', {}, [c.title_ar]), h('ul', {}, c.items.map(function (i) { return h('li', {}, [(i.done ? '✔ ' : '☐ ') + i.text_ar]); })),
+        return h('div', { class: 'shr-card' }, [h('h2', {}, [c.title_ar]), h('ul', {}, c.items.map(function (i) { return h('li', {}, [(i.done ? '✔ ' : '☐ '), i.text_ar]); })),
           h('p', { class: 'note' }, [c.complete ? 'اكتملت البنود المطلوبة.' : 'بنود مطلوبة لم تكتمل بعد.'])]);
       });
       cframe(w.full_name, h('div', {}, [
         h('button', { class: 'btn ghost', onclick: function () { state.view = 'cl_workers'; render(); } }, ['رجوع']),
         h('div', { class: 'shr-card' }, [h('h2', {}, ['البيانات']), h('p', {}, [(w.profession || '—') + ' · ' + (w.nationality || '—') + ' · ']), pill(st[0], st[1]),
-          h('p', { class: 'note' }, ['الإسناد: ' + (w.assignment && w.assignment.starts_on ? 'من ' + day(w.assignment.starts_on) : '—') + (w.assignment && w.assignment.ends_on ? ' إلى ' + day(w.assignment.ends_on) : '')])]),
+          h('p', { class: 'note' }, ['الإسناد: ', (w.assignment && w.assignment.starts_on ? 'من ' + day(w.assignment.starts_on) + (w.assignment.ends_on ? ' إلى ' + day(w.assignment.ends_on) : '') : '—')])]),
         h('div', { class: 'shr-card scroll' }, [h('h2', {}, ['المستندات']), docs])].concat(lists)));
     });
   }
@@ -139,7 +139,7 @@ export function shrClientPortalClient(env) {
       }
       var tb = h('table', {}, [th(['النوع', 'الوصف', 'العامل', 'التاريخ', 'الحالة']), h('tbody', {}, rows.map(function (r) {
         var st = RST[r.state] || [r.state, ''];
-        return h('tr', {}, [h('td', {}, [RKIND[r.kind] || r.kind]), h('td', {}, [(r.note || '—') + (r.quantity ? ' · العدد ' + r.quantity : '') + (r.profession ? ' · ' + r.profession : '')]), h('td', {}, [r.worker_name || '—']), h('td', {}, [day(r.created_at)]), h('td', {}, [pill(st[0], st[1])])]);
+        return h('tr', {}, [h('td', {}, [RKIND[r.kind] || r.kind]), h('td', {}, [(r.note || '—'), r.quantity ? ' · العدد ' + r.quantity : null, r.profession ? ' · ' + r.profession : null]), h('td', {}, [r.worker_name || '—']), h('td', {}, [day(r.created_at)]), h('td', {}, [pill(st[0], st[1])])]);
       }))]);
       cframe('طلباتي', h('div', {}, [form || h('p', { class: 'note' }, ['هذا الحساب للقراءة فقط: لا يقدّم طلبات.']), h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا طلبات بعد', 'تظهر هنا طلبات شركتكم عند إرسالها.')])]));
     });

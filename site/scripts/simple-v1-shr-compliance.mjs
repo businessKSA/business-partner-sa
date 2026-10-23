@@ -110,12 +110,15 @@ export function shrComplianceClient(env) {
   var DOCK = { iqama: 'الإقامة', medical_insurance: 'التأمين الطبي', work_contract: 'عقد العمل', passport: 'الجواز', gosi: 'التأمينات' };
   var th = function (cols) { return h('thead', {}, [h('tr', {}, cols.map(function (x) { return h('th', {}, [x]); }))]); };
   var opt = function (v, t, sel) { var o = h('option', { value: v }, [t]); if (sel) o.selected = true; return o; };
+  // خيار نصّه قطع متعددة (وسم + بيانات): كل قطعة تُترجَم على حدة.
+  var optp = function (v, parts, sel) { var o = h('option', { value: v }, parts); if (sel) o.selected = true; return o; };
   function act(action, data, okMsg) { return call(action, data).then(function (r) { flash(r.ok, r.ok ? okMsg : errText(r)); render(); return r; }); }
   function note() { return h('div', { class: 'cmp-note' }, ['لا نضمن إلغاء المخالفة. المبالغ والمواعيد تقديرية، تُؤكَّد من بوابة الجهة قبل الاعتماد عليها، ومصدر كل رقم ظاهر بجانبه.']); }
   function est(label) { return pill(label || 'تقديري', 'est'); }
   function unc() { return pill('غير مؤكد من المصدر', 'unc'); }
   function src(o) { return o && (o.source_ref || o.source_url) ? h('div', { class: 'tiny', title: o.source_url || '' }, ['المصدر: ' + (o.source_ref || o.source_url)]) : null; }
-  function cframe(title, content) { frame(title, h('div', {}, [note(), content])); }
+  // ملاحظة الترجمة تظهر في غير العربية فقط (CSS: html[lang=ar] .shr-trnote{display:none}): عبارات المرجع النظامي المترجمة ترجمة عمل.
+  function cframe(title, content) { frame(title, h('div', {}, [note(), h('p', { class: 'shr-trnote' }, ['عبارات المرجع النظامي المعروضة بلغة غير العربية ترجمة عمل غير رسمية؛ النص العربي هو المرجع.']), content])); }
   function ref() { if (state.cref) return Promise.resolve(state.cref); return call('compliance-ref', null, true).then(function (o) { state.cref = o; return o; }); }
   function estOpts() { return call('compliance-dashboard', null, true).then(function (o) { return o.establishments || []; }); }
 
@@ -127,7 +130,7 @@ export function shrComplianceClient(env) {
       var kp = h('div', { class: 'shr-kpis' }, K.map(function (k) { return h('div', { class: 'shr-kpi ' + k[2] }, [h('b', {}, [String(t[k[0]] || 0)]), h('span', {}, [k[1]])]); }));
       var tb = h('table', {}, [th(['المنشأة', 'حالة القيد', 'النطاق المعلن / التقدير', 'مخالفات', 'أقرب موعد تقديري', 'A33', '']), h('tbody', {}, rows.map(function (e) {
         var c = e.computed && e.computed.band_ar ? e.computed.band_ar : (e.computed && e.computed.unavailable ? '—' : null);
-        var bandCell = [h('div', {}, [(e.declared_band_ar || '—') + (e.declared_saudization_pct !== null && e.declared_saudization_pct !== undefined ? ' · ' + e.declared_saudization_pct + '%' : '')])];
+        var bandCell = [h('div', {}, [(e.declared_band_ar || '—'), e.declared_saudization_pct !== null && e.declared_saudization_pct !== undefined ? ' · ' + e.declared_saudization_pct + '%' : null])];
         if (c) bandCell.push(h('div', { class: 'kv' }, [est('تقدير: ' + c)]));
         var st = [pill(STATE_AR[e.state] || e.state, STATE_CLS[e.state] || '')];
         if (!e.verified) st.push(pill('غير متحقَّق', 'warn'));
@@ -172,10 +175,10 @@ export function shrComplianceClient(env) {
         else if (c) { cc.push(est('تقدير: ' + (c.band_ar || 'لا تصنيف') + ' · ' + c.pct + '%')); if (c.caveats && c.caveats.length) cc.push(h('div', { class: 'tiny' }, ['عدّ بالرؤوس؛ أوزان الأجور معطّلة لعدم تأكيدها'])); }
         var vb = s.verified ? pill('متحقَّق ' + (s.verified_on || ''), 'ok') : h('button', { class: 'btn sm', onclick: function () { act('establishment-compliance-verify', { snapshot_id: s.id }, 'تُحقِّق من اللقطة'); } }, ['تحقق (مستخدم آخر)']);
         return h('tr', {}, [h('td', {}, [s.as_of]), h('td', {}, [pill(STATE_AR[s.restriction_state] || s.restriction_state, STATE_CLS[s.restriction_state] || ''), s.restriction_reason ? h('div', { class: 'tiny' }, [s.restriction_reason]) : null]),
-          h('td', {}, [(s.declared_band_ar || '—') + (s.declared_saudization_pct !== null ? ' · ' + s.declared_saudization_pct + '%' : '')]), h('td', {}, [h('div', {}, cc)]), h('td', {}, [s.entered_by_name || '—']), h('td', {}, [vb])]);
+          h('td', {}, [(s.declared_band_ar || '—'), s.declared_saudization_pct !== null ? ' · ' + s.declared_saudization_pct + '%' : null]), h('td', {}, [h('div', {}, cc)]), h('td', {}, [s.entered_by_name || '—']), h('td', {}, [vb])]);
       }))]);
       var f = { st: h('select', { class: 'inp' }, ['unknown', 'clear', 'restricted', 'suspected'].map(function (k) { return opt(k, STATE_AR[k]); })), reason: h('input', { class: 'inp', placeholder: 'السبب (يلزم للمقيّدة والاشتباه)', style: 'min-width:220px' }), asof: h('input', { class: 'inp', type: 'date' }),
-        act: h('select', { class: 'inp' }, [opt('', 'نشاط نطاقات (اختياري)')].concat((rf.activities || []).map(function (a) { return opt(a.rule_id, a.rule_id + ' ' + (a.activity_ar || '') + (a.usable ? '' : ' (غير مؤكد)')); }))),
+        act: h('select', { class: 'inp' }, [opt('', 'نشاط نطاقات (اختياري)')].concat((rf.activities || []).map(function (a) { return optp(a.rule_id, [a.rule_id, ' ', (a.activity_ar || ''), a.usable ? null : ' (غير مؤكد)']); }))),
         sa: h('input', { class: 'inp', type: 'number', min: '0', placeholder: 'سعوديون', style: 'width:100px' }), non: h('input', { class: 'inp', type: 'number', min: '0', placeholder: 'غير سعوديين', style: 'width:110px' }),
         band: h('select', { class: 'inp' }, [opt('', 'النطاق المعلن')].concat((rf.band_keys || []).map(function (b) { return opt(b.key, b.label_ar || b.key); }))), pct: h('input', { class: 'inp', type: 'number', step: '0.01', placeholder: 'نسبة معلنة %', style: 'width:120px' }),
         src: h('input', { class: 'inp', placeholder: 'من أين أُخذت الحالة (إدخال بشري)', style: 'min-width:220px' }) };
@@ -197,7 +200,7 @@ export function shrComplianceClient(env) {
       var o = res[0], rf = res[1].reference, ests = res[2], rows = o.violations || [], sts = o.statuses || [];
       var keys = sts.map(function (s) { return s.key; });
       var f = h('select', { class: 'inp', onchange: function () { state.vFilter = f.value; render(); } }, [opt('', 'كل الحالات')].concat(sts.map(function (s) { return opt(s.key, s.label_ar, s.key === state.vFilter); })));
-      var rs = h('select', { class: 'inp' }, (rf.violation_rules || []).map(function (r) { return opt(r.rule_id, r.rule_id + ' — ' + r.name_ar + (r.usable ? '' : ' (غير مؤكد من المصدر)')); }));
+      var rs = h('select', { class: 'inp' }, (rf.violation_rules || []).map(function (r) { return optp(r.rule_id, [r.rule_id, ' — ', r.name_ar, r.usable ? null : ' (غير مؤكد من المصدر)']); }));
       var tier = h('select', { class: 'inp' }, []);
       function fillTier() { tier.innerHTML = ''; var r = (rf.violation_rules || []).filter(function (x) { return x.rule_id === rs.value; })[0]; tier.appendChild(opt('', 'الشريحة (يحددها الإنسان)')); ((r && r.tiers) || []).forEach(function (t) { tier.appendChild(opt(t, t)); }); }
       rs.addEventListener('change', fillTier); fillTier();
@@ -206,7 +209,7 @@ export function shrComplianceClient(env) {
       var add = h('div', { class: 'shr-card' }, [h('h2', {}, ['تسجيل مخالفة']), h('div', { class: 'frm' }, [n.est, n.auth, n.no, rs, tier, n.cnt, n.nd,
         h('button', { class: 'btn', onclick: function () { act('violation-create', { establishment_id: n.est.value, authority: n.auth.value, ref_no: n.no.value, rule_id: rs.value, size_tier: tier.value || undefined, persons_count: Number(n.cnt.value), notification_date: n.nd.value || undefined }, 'سُجّلت المخالفة — تحتاج مراجعة من مستخدم آخر'); } }, ['تسجيل'])]),
         h('p', { class: 'tiny' }, ['المبلغ والمواعيد تُحسب في الخادم من بنود المرجع. لا موعد اعتراض بلا تاريخ تبليغ يُدخله إنسان من الإشعار الرسمي. الاعتراض والسداد مساران متوازيان: الاعتراض لا يوقف الغرامة، وقرار السداد للعميل.'])]);
-      var wins = (rf.windows || []).map(function (w) { return h('li', { class: 'tiny' }, [w.name_ar + (w.days !== null ? ' — ' + w.days + ' يوماً ' + (w.anchor_ar || '') : '') + (w.usable ? '' : ' (غير مؤكد من المصدر)') + (w.warning_ar ? ' — ' + w.warning_ar : '')]); });
+      var wins = (rf.windows || []).map(function (w) { return h('li', { class: 'tiny' }, [w.name_ar, w.days !== null ? ' — ' : null, w.days !== null ? w.days + ' يوماً' : null, w.days !== null ? ' ' : null, w.days !== null ? (w.anchor_ar || '') : null, w.usable ? null : ' (غير مؤكد من المصدر)', w.warning_ar ? ' — ' : null, w.warning_ar || null]); });
       var VCOLS = ['البند / المنشأة', 'العدد', 'غرامة تقديرية', 'تاريخ التبليغ', 'مواعيد تقديرية (اعتراض · تسوية · سداد)', 'الحالة', 'السداد', 'مراجعة'];
       var tb = h('table', { class: 'wide viol' }, [th(VCOLS.slice(0, 7).concat([''])), h('tbody', {}, rows.map(function (v) {
         var rule = v.rule || {}, fe = v.fine_estimate || {};
@@ -214,17 +217,17 @@ export function shrComplianceClient(env) {
         var nd = v.notification_date ? [v.notification_date] : [h('span', { class: 'tiny' }, ['لم يُدخل'])];
         var ni = h('input', { class: 'inp sm', type: 'date', title: 'تاريخ التبليغ من الإشعار الرسمي' });
         nd.push(h('div', { class: 'kv' }, [ni, h('button', { class: 'btn ghost sm', onclick: function () { if (!ni.value) { flash(false, 'أدخل تاريخ التبليغ أولاً'); return render(); } act('violation-notify', { id: v.id, notification_date: ni.value }, 'سُجّل تاريخ التبليغ'); } }, [v.notification_date ? 'تصحيح' : 'إدخال'])]));
-        var win = function (name, w) { return w && w.deadline ? h('div', {}, [h('div', { class: 'kv' }, [name + ': ' + w.deadline, est()]), src(w)]) : h('div', { class: 'tiny' }, [name + ': ' + (w && w.unavailable === 'notification_date_required' ? 'يلزم تاريخ التبليغ' : 'غير متاح' + (w && w.label_ar ? ' — ' + w.label_ar : ''))]); };
+        var win = function (name, w) { return w && w.deadline ? h('div', {}, [h('div', { class: 'kv' }, [name + ': ', w.deadline, est()]), src(w)]) : h('div', { class: 'tiny' }, [name + ': ', (w && w.unavailable === 'notification_date_required' ? 'يلزم تاريخ التبليغ' : 'غير متاح'), (w && w.unavailable !== 'notification_date_required' && w.label_ar ? ' — ' : null), (w && w.unavailable !== 'notification_date_required' && w.label_ar ? w.label_ar : null)]); };
         var i = keys.indexOf(v.status), nxt = [];
         if (i > 0) nxt.push(keys[i - 1]); if (i >= 0 && i < keys.length - 1) nxt.push(keys[i + 1]);
-        var sel = h('select', { class: 'inp sm' }, nxt.map(function (k) { var s = sts.filter(function (x) { return x.key === k; })[0]; return opt(k, s.label_ar + (s.human_task ? ' (مهمة بشرية)' : '')); }));
+        var sel = h('select', { class: 'inp sm' }, nxt.map(function (k) { var s = sts.filter(function (x) { return x.key === k; })[0]; return optp(k, [s.label_ar, s.human_task ? ' (مهمة بشرية)' : null]); }));
         var stc = [h('div', { class: 'kv' }, [pill(v.status_label_ar || v.status, 'ok'), v.reviewed_by ? pill('روجعت', 'ok') : pill('بانتظار مراجعة', 'warn')]), v.human_task ? h('div', { class: 'tiny' }, ['التقديم عبر بوابة الجهة بهوية العميل: مهمة بشرية لا آلية.']) : null];
         if (nxt.length) stc.push(h('div', { class: 'kv' }, [sel, h('button', { class: 'btn ghost sm', onclick: function () { act('violation-status', { id: v.id, status: sel.value }, 'تغيّرت الحالة'); } }, ['نقل'])]));
         var pd = h('select', { class: 'inp sm', onchange: function () { act('violation-paid', { id: v.id, paid_state: pd.value }, 'حُدّث السداد'); } }, Object.keys(PAID_AR).map(function (k) { return opt(k, PAID_AR[k], k === v.paid_state); }));
         var rv = v.reviewed_by ? '—' : h('button', { class: 'btn sm', onclick: function () { act('violation-review', { id: v.id }, 'راجعتَ المخالفة'); } }, ['مراجعة (مستخدم آخر)']);
         // data-label: على العرض الضيق يتحوّل الجدول إلى بطاقات (CSS)، وتُسمّي هذه الخاصية كل حقل في البطاقة.
         var tdl = function (i, kids) { return h('td', { 'data-label': VCOLS[i] }, kids); };
-        return h('tr', { class: rule.usable ? '' : 'row-unc' }, [tdl(0, [h('div', { class: 'vt' }, [v.rule_id + ' — ' + v.kind_ar]), h('div', { class: 'tiny' }, [(v.establishment || '') + ' · ' + v.authority + (v.ref_no ? ' · ' + v.ref_no : '')]), rule.usable ? null : unc()]),
+        return h('tr', { class: rule.usable ? '' : 'row-unc' }, [tdl(0, [h('div', { class: 'vt' }, [v.rule_id, ' — ', v.kind_ar]), h('div', { class: 'tiny' }, [(v.establishment || '') + ' · ' + v.authority + (v.ref_no ? ' · ' + v.ref_no : '')]), rule.usable ? null : unc()]),
           tdl(1, [String(v.persons_count)]), tdl(2, fineCell), tdl(3, nd), tdl(4, [win('اعتراض', v.objection), win('تسوية', v.settlement), win('سداد', v.payment)]), tdl(5, stc), tdl(6, [pd]), tdl(7, [rv])]);
       }))]);
       cframe('سجل المخالفات', h('div', {}, [add, h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [f]), h('ul', {}, wins), h('p', { class: 'tiny' }, ['مدة التسوية تختلف عن مدة الاعتراض ولا يُوحَّدان. لا يُعرض تخفيض كحق: التسوية بشروط وتخضع لدراسة الجهة.'])]), h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا مخالفات', 'سجّل أول مخالفة من النموذج أعلاه.')])]));
@@ -264,11 +267,11 @@ export function shrComplianceClient(env) {
         var extra = [];
         if (a.estimated) extra.push(est(a.label_ar || 'تقديري'));
         if (a.kind === 'objection_deadline_near' || a.kind === 'objection_deadline_passed') extra.push(h('span', { class: 'tiny' }, [a.reviewed ? 'روجعت' : 'غير مراجَعة']));
-        if (a.kind === 'establishment_blocked') extra.push(h('span', { class: 'tiny' }, [(STATE_AR[a.state] || a.state) + (a.reason ? ': ' + a.reason : '')]));
+        if (a.kind === 'establishment_blocked') extra.push(h('span', { class: 'tiny' }, [(STATE_AR[a.state] || a.state) + (a.reason ? ': ' : ''), a.reason || null]));
         if (a.pending) extra.push(h('span', { class: 'tiny' }, [String(a.pending) + ' اسماً بلا اعتماد']));
         if (a.doc_kind) extra.push(h('span', { class: 'tiny' }, [DOCK[a.doc_kind] || a.doc_kind]));
-        return h('tr', {}, [h('td', {}, [pill(sv[0], sv[1])]), h('td', {}, [AL[a.kind] || a.kind]), h('td', {}, [(sj.name || '—') + (sj.establishment ? ' · ' + sj.establishment : '')]), h('td', {}, [a.due || '—']),
-          h('td', {}, [a.days_left === undefined ? '—' : (a.days_left < 0 ? 'مضى ' + (-a.days_left) : a.days_left) + ' يوماً']), h('td', {}, [h('div', { class: 'kv' }, extra)])]);
+        return h('tr', {}, [h('td', {}, [pill(sv[0], sv[1])]), h('td', {}, [AL[a.kind] || a.kind]), h('td', {}, [(sj.name || '—'), sj.establishment ? ' · ' : null, sj.establishment || null]), h('td', {}, [a.due || '—']),
+          h('td', {}, [a.days_left === undefined ? '—' : (a.days_left < 0 ? 'مضى ' + (-a.days_left) + ' يوماً' : a.days_left + ' يوماً')]), h('td', {}, [h('div', { class: 'kv' }, extra)])]);
       }))]);
       cframe('التنبيهات', h('div', {}, [h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا تنبيهات'),
         h('p', { class: 'tiny' }, ['عتبة المستندات ' + st.expiry_alert_days + ' يوماً، وعتبة المواعيد التقديرية ' + st.deadline_alert_days + ' يوماً (إعدادات تشغيلية للمستأجر). التنبيهات داخلية للمشغّل: لا رسالة تُرسل لأحد، ولا تنبيه بموعد دون تاريخ تبليغ مُدخَل.'])])]));
@@ -303,7 +306,7 @@ export function shrComplianceClient(env) {
           render();
         });
       } }, ['رفع']);
-      var errs = state.lastErrors ? h('div', { class: 'rpt' }, [h('p', { class: 'err' }, ['صفوف مرفوضة (لا توقف الباقي):']), h('table', {}, [th(['السطر', 'السبب']), h('tbody', {}, state.lastErrors.map(function (e) { return h('tr', {}, [h('td', {}, [String(e.line)]), h('td', {}, [errText({ error: e.error }) + (e.field ? ' (' + e.field + ')' : '')])]); }))])]) : null;
+      var errs = state.lastErrors ? h('div', { class: 'rpt' }, [h('p', { class: 'err' }, ['صفوف مرفوضة (لا توقف الباقي):']), h('table', {}, [th(['السطر', 'السبب']), h('tbody', {}, state.lastErrors.map(function (e) { return h('tr', {}, [h('td', {}, [String(e.line)]), h('td', {}, [errText({ error: e.error }), e.field ? ' (' + e.field + ')' : null])]); }))])]) : null;
       var up = h('div', { class: 'shr-card' }, [h('h2', {}, ['رفع دفعة (تأمينات أو حماية أجور)']), h('div', { class: 'frm' }, [kd, lb, fl]), h('div', { style: 'margin:10px 0' }, [ta]), go, rpt, errs,
         h('p', { class: 'tiny' }, ['الصفوف مُبصَّمة: رقم الهوية يُحوَّل إلى بصمة في الخادم ولا يُخزَّن ولا يُعاد، ولا أعمدة للاسم أو الهاتف أو البريد (تُرفض). المسار: مرفوع ← مطابَق ← روجع ← مطبَّق، ومن رفع لا يراجع ولا يطبّق. الحد الأقصى ' + o.max_rows + ' صفاً.'])]);
       var tb = h('table', {}, [th(['الدفعة', 'النوع', 'الحالة', 'صفوف', 'مطابقة', '']), h('tbody', {}, rows.map(function (b) {

@@ -129,7 +129,7 @@ export function shrAgencyOpsClient(env) {
         var tags = [pill(SST[s.state] || s.state, s.state === 'accepted' ? 'ok' : s.state === 'rejected' ? 'bad' : s.state === 'interview' ? 'warn' : '')];
         if (s.cross_agency_duplicate) tags.push(h('span', { class: 'dup' }, ['تكرار بين مكاتب: ' + s.duplicates.filter(function (d) { return !d.same_agency; }).map(function (d) { return d.agency + ' (' + d.ref + ')'; }).join('، ')]));
         if (s.interview) tags.push(pill('مقابلة ' + (s.interview.scheduled_at ? String(s.interview.scheduled_at).slice(0, 16).replace('T', ' ') : 'مطلوبة'), 'warn'));
-        return h('tr', {}, [h('td', {}, [s.ref]), h('td', {}, [s.full_name, h('div', { class: 'note' }, [(s.profession || '—') + ' · ' + (s.nationality || '—') + ' · ' + (s.years_experience == null ? '—' : s.years_experience + ' سنة')])]),
+        return h('tr', {}, [h('td', {}, [s.ref]), h('td', {}, [s.full_name, h('div', { class: 'note' }, [(s.profession || '—'), ' · ', (s.nationality || '—'), ' · ', (s.years_experience == null ? '—' : s.years_experience + ' سنة')])]),
           h('td', {}, [s.agency || '—']), h('td', {}, [s.order_ref || '—']), h('td', {}, [h('div', { class: 'frm' }, tags)]), h('td', {}, [review(s)])]);
       }))]);
       frame('المرشحون المقدَّمون من المكاتب', h('div', {}, [h('div', { class: 'shr-card' }, [h('div', { class: 'frm' }, [f]), h('p', { class: 'note' }, ['مواصفات فقط: لا هوية ولا هاتف ولا بريد. مراحل المراجعة داخلية ولا يراها المكتب (يرى «مستلم / مقابلة / مقبول / غير مختار»).'])]), h('div', { class: 'shr-card scroll' }, [rows.length ? tb : empty('لا مرشحين', 'تظهر هنا مرشحات المكاتب عند تقديمها.')])]));
@@ -174,7 +174,7 @@ export function shrAgencyPortalClient(env) {
     return h('table', {}, [th(['المرجع', 'المرشح', 'الأمر', 'الحالة', 'المقابلة']), h('tbody', {}, rows.map(function (s) {
       var st = STATUS[s.status] || [s.status, ''];
       return h('tr', {}, [h('td', {}, [s.ref]), h('td', {}, [s.full_name, h('div', { class: 'note' }, [(s.profession || '—') + ' · ' + (s.nationality || '—')])]), h('td', {}, [s.order_ref || '—']),
-        h('td', {}, [pill(st[0], st[1])]), h('td', {}, [s.interview ? (IVS[s.interview.state] || s.interview.state) + ' ' + fmt(s.interview.scheduled_at) : '—'])]);
+        h('td', {}, [pill(st[0], st[1])]), h('td', {}, [s.interview ? (IVS[s.interview.state] || s.interview.state) : '—', s.interview ? ' ' : null, s.interview ? fmt(s.interview.scheduled_at) : null])]);
     }))]);
   }
 

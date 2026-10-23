@@ -23,7 +23,7 @@ export const ATS_CSS = `
 `;
 
 export function shrAtsClient(env) {
-  var h = env.h, call = env.call, frame = env.frame, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, empty = env.empty;
+  var h = env.h, call = env.call, frame = env.frame, flash = env.flash, pill = env.pill, errText = env.errText, state = env.state, render = env.render, empty = env.empty, put = env.put;
   var STAGE = { new: 'جديد', review: 'مراجعة', shortlist: 'قائمة قصيرة', interview: 'مقابلة', offer: 'عرض', hired: 'تعيين', rejected: 'مرفوض', future: 'للمستقبل' };
   var STAGE_ORDER = ['new', 'review', 'shortlist', 'interview', 'offer', 'hired', 'rejected', 'future'];
   var STAGE_TONE = { hired: 'ok', rejected: 'bad', offer: 'warn', future: 'mut' };
@@ -54,7 +54,7 @@ export function shrAtsClient(env) {
         var acts = [h('button', { class: 'btn ghost', onclick: function () { open('match', { matchJob: j.id, autoMatch: true }); } }, ['طابق'])];
         if (j.status === 'open') acts.push(h('button', { class: 'btn ghost', onclick: function () { call('job-close', { id: j.id }).then(function (r) { flash(r.ok, r.ok ? 'أُغلقت الوظيفة' : errText(r)); render(); }); } }, ['إغلاق']));
         return h('tr', {}, [h('td', {}, [j.title]), h('td', {}, [j.profession || '—']), h('td', {}, [j.city || '—']), h('td', {}, [j.experience_years == null ? '—' : String(j.experience_years)]),
-          h('td', {}, [j.residency_required === 'transferable' ? 'قابلة للنقل' : 'لا شرط']), h('td', {}, [String(j.applications) + (j.hired ? ' (تعيين ' + j.hired + ')' : '')]),
+          h('td', {}, [j.residency_required === 'transferable' ? 'قابلة للنقل' : 'لا شرط']), h('td', {}, [String(j.applications), j.hired ? ' (تعيين ' + j.hired + ')' : null]),
           h('td', {}, [pill(j.status === 'open' ? 'مفتوحة' : 'مغلقة', j.status === 'open' ? 'ok' : 'mut')]), h('td', {}, [h('div', { class: 'frm' }, acts)])]);
       }))]);
       frame('الوظائف', h('div', {}, [add, rows.length ? h('div', { class: 'shr-card scroll' }, [tb]) : empty('لا وظائف بعد', 'أنشئ أول وظيفة من النموذج أعلاه.')]));
@@ -77,18 +77,18 @@ export function shrAtsClient(env) {
         var cur = a.stage;
         var sel = h('select', { class: 'inp' }, [h('option', { value: '' }, ['انقل إلى…'])].concat(STAGE_ORDER.map(function (s) { return h('option', { value: s }, [STAGE[s]]); })));
         var el = h('div', { class: 'kcard' }, [candLink(a.candidate), h('div', { class: 'sub' }, [[a.candidate.profession, a.candidate.nationality, a.candidate.city].filter(Boolean).join(' · ')]),
-          h('div', { class: 'sub' }, ['الوظيفة: ' + (a.job.title || '—')]), a.interview ? pill('مقابلة ' + (IVSTATE[a.interview.state] || ''), 'warn') : null, sel]);
+          h('div', { class: 'sub' }, ['الوظيفة: ', (a.job.title || '—')]), a.interview ? pill('مقابلة ' + (IVSTATE[a.interview.state] || ''), 'warn') : null, sel]);
         sel.addEventListener('change', function () {
           var to = sel.value; sel.value = '';
           if (!to || to === cur) return;
           var from = cur;
           // تحريك متفائل ثم تراجع عند الفشل.
-          el.classList.add('busy'); bodies[to].appendChild(el); cur = to; recount(); local.textContent = '';
+          el.classList.add('busy'); bodies[to].appendChild(el); cur = to; recount(); put(local, '');
           call('application-stage', { id: a.id, stage: to }).then(function (r) {
             el.classList.remove('busy');
-            if (!r || !r.ok) { bodies[from].appendChild(el); cur = from; recount(); local.textContent = 'تعذّر النقل وأُعيدت البطاقة: ' + errText(r); }
-            else { state.msg = ''; local.textContent = ''; }
-          }).catch(function () { el.classList.remove('busy'); bodies[from].appendChild(el); cur = from; recount(); local.textContent = 'تعذّر الاتصال — أُعيدت البطاقة'; });
+            if (!r || !r.ok) { bodies[from].appendChild(el); cur = from; recount(); put(local, 'تعذّر النقل وأُعيدت البطاقة: ' + errText(r)); }
+            else { state.msg = ''; put(local, ''); }
+          }).catch(function () { el.classList.remove('busy'); bodies[from].appendChild(el); cur = from; recount(); put(local, 'تعذّر الاتصال — أُعيدت البطاقة'); });
         });
         return el;
       }
@@ -97,7 +97,7 @@ export function shrAtsClient(env) {
       var jsel = h('select', { class: 'inp', onchange: function () { state.boardJob = jsel.value || ''; render(); } }, [h('option', { value: '' }, ['كل الوظائف'])].concat(jobs.map(function (j) { var o = h('option', { value: j.id }, [j.title]); if (j.id === state.boardJob) o.selected = true; return o; })));
       var openJobs = jobs.filter(function (j) { return j.status === 'open'; });
       var aj = h('select', { class: 'inp' }, openJobs.map(function (j) { return h('option', { value: j.id }, [j.title]); }));
-      var ac = h('select', { class: 'inp' }, cands.map(function (c) { return h('option', { value: c.id }, [c.full_name + ' — ' + (c.profession || '') + (c.consent === 'active' ? '' : ' (' + CONSENT[c.consent][0] + ')')]); }));
+      var ac = h('select', { class: 'inp' }, cands.map(function (c) { var nc = c.consent !== 'active'; return h('option', { value: c.id }, [c.full_name, ' — ', (c.profession || ''), nc ? ' (' : null, nc ? CONSENT[c.consent][0] : null, nc ? ')' : null]); }));
       var addApp = h('div', { class: 'shr-card' }, [h('h2', {}, ['إضافة طلب تقديم']), h('div', { class: 'frm' }, [aj, ac, h('button', { class: 'btn', onclick: function () { call('application-create', { job_id: aj.value, candidate_id: ac.value }).then(function (r) { flash(r.ok, r.ok ? 'أُضيف الطلب في «جديد»' : errText(r)); render(); }); } }, ['إضافة'])]),
         h('p', { class: 'note' }, ['لا يُقبل طلب لمرشح بلا موافقة سارية. التعيين = اعتماد العرض، ولا يعتمده من أدخل الطلب أو اقترح العرض.'])]);
       frame('مراحل المرشحين', h('div', {}, [h('div', { class: 'frm', style: 'margin-bottom:10px' }, [jsel]), local, board, addApp]));
@@ -121,11 +121,11 @@ export function shrAtsClient(env) {
         var when = h('input', { class: 'inp', type: 'datetime-local' }), mode = h('select', { class: 'inp' }, [h('option', { value: 'video' }, ['مرئي']), h('option', { value: 'onsite' }, ['حضوري']), h('option', { value: 'phone' }, ['هاتفي'])]);
         var ivs = a.interviews.map(function (iv) {
           var setter = iv.state === 'requested' || iv.state === 'scheduled' ? h('span', { class: 'frm' }, [when, h('button', { class: 'btn ghost', onclick: function () { if (!when.value) { flash(false, 'اختر الموعد'); return render(); } call('interview-set', { id: iv.id, scheduled_at: new Date(when.value).toISOString(), mode: mode.value }).then(function (r) { flash(r.ok, r.ok ? 'سُجّل الموعد (سجل داخلي، لم تُرسل رسالة)' : errText(r)); render(); }); } }, [iv.state === 'scheduled' ? 'غيّر الموعد' : 'حدّد الموعد'])]) : null;
-          return h('li', {}, ['مقابلة ' + (IVSTATE[iv.state] || iv.state) + (iv.mode ? ' · ' + MODE[iv.mode] : '') + (iv.scheduled_at ? ' · ' + fmtDate(iv.scheduled_at) : '') + ' ', mode, setter]);
+          return h('li', {}, ['مقابلة ' + (IVSTATE[iv.state] || iv.state), iv.mode ? ' · ' : null, iv.mode ? MODE[iv.mode] : null, iv.scheduled_at ? ' · ' + fmtDate(iv.scheduled_at) : null, ' ', mode, setter]);
         });
         var canIv = a.stage !== 'hired' && a.stage !== 'rejected';
-        return h('div', { class: 'shr-card' }, [h('h2', {}, [(a.job || 'وظيفة') + ' — ']), pill(STAGE[a.stage] || a.stage, STAGE_TONE[a.stage] || ''),
-          h('ul', { class: 'tl' }, a.events.map(function (e) { return h('li', {}, [fmtDate(e.at) + ' — ' + (e.from_stage ? STAGE[e.from_stage] + ' ← ' : 'إدخال: ') + STAGE[e.to_stage] + (e.note ? ' (' + e.note + ')' : '')]); })),
+        return h('div', { class: 'shr-card' }, [h('h2', {}, [(a.job || 'وظيفة'), ' — ']), pill(STAGE[a.stage] || a.stage, STAGE_TONE[a.stage] || ''),
+          h('ul', { class: 'tl' }, a.events.map(function (e) { return h('li', {}, [fmtDate(e.at), ' — ', e.from_stage ? STAGE[e.from_stage] : 'إدخال: ', e.from_stage ? ' ← ' : null, STAGE[e.to_stage], e.note ? ' (' + e.note + ')' : null]); })),
           ivs.length ? h('ul', { class: 'tl' }, ivs) : null,
           canIv ? h('button', { class: 'btn ghost', onclick: function () { call('interview-request', { application_id: a.id, mode: 'video' }).then(function (r) { flash(r.ok, r.ok ? 'سُجّل طلب المقابلة (داخلي — لا رسالة)' : errText(r)); render(); }); } }, ['طلب مقابلة']) : null]);
       });
@@ -134,6 +134,8 @@ export function shrAtsClient(env) {
   }
 
   // -------------------------------------------------------------- match --
+  // الملخص يصل مفصولاً بـ« — »: كل جزء يُترجَم على حدة.
+  function pieces(sum) { var out = [], p = String(sum || '').split(' — '); p.forEach(function (x, i) { if (i) out.push(' — '); out.push(x); }); return out; }
   function resultRow(r) {
     var ex = h('table', {}, [th(['المكوّن', 'الوزن', 'الحالة', 'الدرجة', 'المساهمة', 'الشرح']), h('tbody', {}, r.explain.map(function (x) {
       var s = STATUS[x.status] || ['', ''];
@@ -141,12 +143,12 @@ export function shrAtsClient(env) {
     }))]);
     return h('div', { class: 'kcard' }, [h('div', { class: 'frm' }, [h('span', { class: 'score s-' + r.category }, [r.overall == null ? '—' : String(r.overall)]), candLink(r.candidate),
       h('span', { class: 'sub' }, [[r.candidate.profession, r.candidate.nationality, r.candidate.city].filter(Boolean).join(' · ')])]),
-      h('div', { class: 'sub' }, [r.summary]), h('details', {}, [h('summary', {}, ['شرح الدرجة']), h('div', { class: 'scroll' }, [ex])])]);
+      h('div', { class: 'sub' }, pieces(r.summary)), h('details', {}, [h('summary', {}, ['شرح الدرجة']), h('div', { class: 'scroll' }, [ex])])]);
   }
   function vMatch() {
     return call('jobs', null, true).then(function (o) {
       var jobs = o.jobs || [];
-      var sel = h('select', { class: 'inp' }, jobs.map(function (j) { var op = h('option', { value: j.id }, [j.title + (j.status === 'open' ? '' : ' (مغلقة)')]); if (j.id === state.matchJob) op.selected = true; return op; }));
+      var sel = h('select', { class: 'inp' }, jobs.map(function (j) { var op = h('option', { value: j.id }, [j.title, j.status === 'open' ? null : ' (', j.status === 'open' ? null : 'مغلقة', j.status === 'open' ? null : ')']); if (j.id === state.matchJob) op.selected = true; return op; }));
       var out = h('div', {});
       function run() {
         out.innerHTML = ''; out.appendChild(h('p', { class: 'note' }, ['جارٍ المطابقة…']));
@@ -157,7 +159,7 @@ export function shrAtsClient(env) {
           out.appendChild(h('p', { class: 'note' }, ['طُوبق ' + m.results.length + ' مرشحاً بموافقة سارية. استُبعد من العملية: ' + m.excluded.no_consent + ' بلا سجل موافقة و' + m.excluded.withdrawn + ' سحبوا موافقتهم. الإصدار ' + m.version + ' — المجهول لا يستبعد أحداً.']));
           CAT.forEach(function (c) {
             var ids = m.buckets[c[0]]; if (!ids.length) return;
-            out.appendChild(h('div', { class: 'shr-card' }, [h('h2', {}, [c[1] + ' (' + ids.length + ')'])].concat(ids.map(function (id) { return resultRow(by[id]); }))));
+            out.appendChild(h('div', { class: 'shr-card' }, [h('h2', {}, [c[1], ' (' + ids.length + ')'])].concat(ids.map(function (id) { return resultRow(by[id]); }))));
           });
           var miss = m.buckets.must_have_miss;
           if (miss.length) out.appendChild(h('div', { class: 'mustbox' }, [h('h2', {}, ['ينقصهم شرط إلزامي (' + miss.length + ') — مفصولون عن النتائج ومعروضون للمراجعة'])].concat(miss.map(function (id) { return resultRow(by[id]); }))));
