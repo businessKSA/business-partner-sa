@@ -229,16 +229,18 @@ export function referencePrice(book, id) {
 
 const DEFAULT_KINDS = ["service", "package", "ai-plan"];
 
-// الصفوف بترتيب الكتالوج: التصنيفات حسب `categories` ثم الرمز. الباقات بعد الخدمات.
+// الصفوف بترتيب الكتالوج: التصنيفات حسب `categories` ثم ترتيب الكتالوج. الباقات بعد الخدمات.
 export function annexRows(book, { kinds = DEFAULT_KINDS, onlyStatus = null } = {}) {
   if (!book) return [];
   const want = new Set(kinds);
   const order = new Map((book.categories || []).map((c, i) => [c.key, i]));
   const rank = (e) => (e.kind === "service" ? (order.has(e.category) ? order.get(e.category) : 99) : e.kind === "package" ? 100 : e.kind === "ai-plan" ? 101 : 102);
+  // داخل التصنيف يبقى ترتيب الكتالوج نفسه (كما في الموقع)، لا ترتيب الرمز الأبجدي.
+  const pos = new Map(book.list.map((e, i) => [e, i]));
   return book.list
     .filter((e) => want.has(e.kind) && (!onlyStatus || e.status === onlyStatus))
     .slice()
-    .sort((a, b) => rank(a) - rank(b) || a.sku.localeCompare(b.sku));
+    .sort((a, b) => rank(a) - rank(b) || pos.get(a) - pos.get(b));
 }
 
 export function annexGroups(book, opts = {}) {
@@ -284,6 +286,7 @@ const CSS = `<style>
 .bp-price-annex h2{font-size:15pt;margin:0 0 4pt}
 .bp-price-annex h3{font-size:11.5pt;margin:12pt 0 4pt;break-after:avoid}
 .bp-price-annex .meta{font-size:9pt;color:#5b6272;margin:0 0 8pt}
+.bp-price-annex .scroll{overflow-x:auto}
 .bp-price-annex table{width:100%;border-collapse:collapse;font-size:9.5pt}
 .bp-price-annex th,.bp-price-annex td{border:1px solid #d9deea;padding:4pt 6pt;text-align:start;vertical-align:top}
 .bp-price-annex th{background:#f1f3f9;font-weight:700}
@@ -314,7 +317,7 @@ export function annexHtml(book, { lang = "ar", kinds = DEFAULT_KINDS, title = ""
   const price = (e) => (L === "en" ? esc(e.priceTextEn) : bi ? `${esc(e.priceTextAr)}<br><span class="en">${esc(e.priceTextEn)}</span>` : esc(e.priceTextAr));
   const stat = (e) => (L === "en" ? esc(e.statusEn) : bi ? `${esc(e.statusAr)} / ${esc(e.statusEn)}` : esc(e.statusAr));
   const body = groups.map((g) => `<h3>${esc(L === "en" ? g.titleEn : bi ? `${g.titleAr} / ${g.titleEn}` : g.titleAr)}</h3>
-<table><thead><tr>${th.map((x) => `<th>${esc(x)}</th>`).join("")}</tr></thead><tbody>${g.rows.map((e) => `<tr><td class="sku">${esc(e.sku)}</td><td>${name(e)}</td><td class="amt st-${e.status}">${price(e)}</td><td class="st-${e.status}">${stat(e)}</td></tr>`).join("")}</tbody></table>`).join("\n");
+<div class="scroll"><table><thead><tr>${th.map((x) => `<th>${esc(x)}</th>`).join("")}</tr></thead><tbody>${g.rows.map((e) => `<tr><td class="sku">${esc(e.sku)}</td><td>${name(e)}</td><td class="amt st-${e.status}">${price(e)}</td><td class="st-${e.status}">${stat(e)}</td></tr>`).join("")}</tbody></table></div>`).join("\n");
   const stamp = book && book.updatedAt ? String(book.updatedAt).slice(0, 10) : "";
   return `${withStyle ? CSS : ""}<section class="bp-price-annex" dir="${dir}" lang="${L === "en" ? "en" : "ar"}">
 <h2>${esc(heading)}</h2>
