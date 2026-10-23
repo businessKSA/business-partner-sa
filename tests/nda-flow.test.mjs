@@ -178,8 +178,8 @@ test("NDA_REQUIRED_SERVICES: تصدر آلياً قبل العرض للخدما�
     assert.ok(ev.findIndex((e) => e.event === "nda.sent") < ev.findIndex((e) => e.event === "quote.sent"), "قبل العرض");
     const miss = await create([{ code: "BP-AI-02", title: "اشتراك", qty: 1 }]);
     assert.equal((await rowOf(miss)).nda || null, null, "خدمة غير مذكورة: لا اتفاقية");
-    const seedOnly = await create([...SEED]);
-    assert.equal((await rowOf(seedOnly)).nda || null, null, "ولا لبنود الحشو");
+    const seedOnly = await call("request-create", { type: "GOVERNMENT_SERVICE", title: "حشو", scope: [...SEED] });
+    assert.equal((await rowOf(seedOnly.ref)).nda || null, null, "ولا لبنود الحشو");
     // لا تتكرر: اعتماد النطاق ثانيةً لا يصدر اتفاقية ثانية
     const n = (await eventsOf(hit)).filter((e) => e === "nda.sent").length;
     assert.equal(n, 1);

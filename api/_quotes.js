@@ -131,12 +131,12 @@ async function requestByRef(ref) {
   return rows[0] && !rows[0].deleted_at ? rows[0] : null;
 }
 
-function itemsTable(items) {
+function itemsTable(items, lang = "ar") {
   const list = Array.isArray(items) ? items : [];
   if (!list.length) return "";
   const rows = list.map((it, i) => `<tr>
       <td class="n">${i + 1}</td>
-      <td>${esc(it.title || it.nameAr || it.name || it.code || "بند")}
+      <td>${esc((lang !== "ar" && (it.titleEn || it.nameEn)) || it.title || it.nameAr || it.name || it.code || "بند")}
         ${it.code ? `<small>${esc(it.code)}</small>` : ""}</td>
       <td class="num">${esc(String(it.qty ?? 1))}</td>
       <td class="num">${esc(money(it.unitPrice ?? it.price ?? 0))}</td>
@@ -167,7 +167,7 @@ function docHtml(row, kind) {
   // العقد يُخزَّن HTML جاهزاً؛ العرض والفاتورة يُبنيان من بنودهما.
   const body = kind === "CONTRACT" && d.html
     ? `<div class="contract">${d.html}</div>`
-    : `${itemsTable(d.items)}${totalsBlock(d)}${d.notes ? `<p class="notes">${esc(d.notes)}</p>` : ""}`;
+    : `${itemsTable(d.items, String(row.lang || "ar"))}${totalsBlock(d)}${d.notes ? `<p class="notes">${esc(d.notes)}</p>` : ""}`;
 
   const sig = (d.signature && d.signature.at)
     ? `<div class="sig">وُقّع إلكترونياً باسم ${esc(d.signature.name || "")} بتاريخ ${esc(String(d.signature.at).slice(0, 10))}</div>`
