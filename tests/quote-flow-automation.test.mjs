@@ -489,13 +489,13 @@ test("مئة طلب مخفيّ أحدث لا تُخرج طلباً ظاهراً 
 
 // ====== ٩) رفع الإيصال على طلبٍ أُلغي: رسالة مفهومة (فحص الأمان ١١) ==
 test("إعادة رفع إيصال بمرجع طلبٍ أُلغي وأُخفي تعطي رسالة عربية مفهومة لا رمزاً وحده", async () => {
-  const { bankReceiptIntake, cartRequestRef } = await import("../api/_simple.js");
+  const { bankOrderPrecheck, cartRequestRef } = await import("../api/_simple.js");
   await sb("requests", { method: "POST", prefer: "return=minimal", body: [{
     ref: cartRequestRef("bank_ORD-CLOSED", 0), type: "CONSULTATION", source: "WEBSITE", status: "CANCELLED", lang: "ar", title: "طلب بنكي ملغى",
     summary: "", conversation: [], scope: [], documents: [], client_name: "أحمد العميل", client_email: EMAIL.a, organization_id: "org-a",
     payment: { source: "cart", pay_ref: "bank_ORD-CLOSED", status: "PENDING" }, deleted_at: new Date().toISOString(),
   }] });
-  const out = await bankReceiptIntake({ payload: { ref: "ORD-CLOSED", email: EMAIL.a }, order: {}, file: { base64: "x", name: "r.pdf", mime: "application/pdf" } });
+  const out = await bankOrderPrecheck({ ref: "ORD-CLOSED", email: EMAIL.a, fp: "any" });
   assert.equal(out.ok, false); assert.equal(out.error, "request_closed"); assert.equal(out.status, 409);
   assert.ok(/أُلغي/.test(out.message) && /راسلنا/.test(out.message), out.message);
 });
