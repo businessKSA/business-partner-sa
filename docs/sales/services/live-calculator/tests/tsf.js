@@ -1,11 +1,4 @@
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();const er=[];const p=await b.newPage({viewport:{width:1200,height:1000}});p.on('pageerror',e=>er.push(e.message));
-await p.addInitScript(()=>{ const sm=async()=>({text:'x'}); sm.limits=async()=>({images:{maxCount:4}}); sm.json=async(pr)=>({name:'مطعم النخيل',labour_office_no:'1-123456',unified_no:'7001234567',tax_no:null,gosi_no:null,short_address:null,activity_query:'مطاعم',full:3,part:null,foreign:12,team:[{profession_query:'محاسب',saudi:0,saudi_part:0,foreign:2}]}); window.claude={use:async n=>n==='sample'?sm:null}; });
 await p.goto('file://'+process.cwd()+'/index-client.html?goal=assess&ui=classic');await p.waitForTimeout(700);
-console.log('box',await p.evaluate(()=>!!document.getElementById('sf-t')));
-await p.fill('#sf-t','مطعم النخيل في الرياض 3 سعوديين و12 أجنبي رقم مكتب العمل 1-123456 الرقم الموحد 7001234567');await p.click('#sf-run');await p.waitForTimeout(800);
-console.log((await p.evaluate(()=>document.querySelector('.sfp').innerText)).replace(/\n+/g,' | ').slice(0,400));
-await p.click('#sf-apply');await p.waitForTimeout(400);
-console.log(await p.evaluate(()=>['co-name','co-no','co-uno','co-full','co-foreign'].map(i=>(document.getElementById(i)||{}).value).join(' | ')));
-console.log('hints visible',await p.evaluate(()=>[...document.querySelectorAll('p.hint')].filter(e=>e.offsetParent!==null).length), 'foot', await p.evaluate(()=>document.getElementById('t-foot').offsetParent!==null));
-console.log(er);await b.close()})();
+console.log('upload box',await p.evaluate(()=>!!document.getElementById('sf-f')));console.log(er);await b.close()})();

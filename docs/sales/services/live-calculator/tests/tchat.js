@@ -6,12 +6,12 @@ for(const mode of ['web','client-ai']){
  await p.goto('file://'+process.cwd()+'/'+(mode==='web'?'index-web.html':'index-client.html'));await p.waitForTimeout(800);
  console.log(mode,'shell',await p.evaluate(()=>!!document.getElementById('cs')),'chips',await p.evaluate(()=>document.querySelectorAll('#cs-thread .chip').length));
  await p.click('[data-chip=goal][data-arg=assess]');await p.waitForTimeout(300);
- await p.click('[data-chip=open][data-arg=co]');await p.waitForTimeout(400);console.log('canvas',await p.evaluate(()=>document.body.classList.contains('cv')),await p.evaluate(()=>getComputedStyle(document.getElementById('app')).display));
+ await p.click('[data-side=open][data-arg=nit]');await p.waitForTimeout(400);console.log('canvas',await p.evaluate(()=>document.body.classList.contains('cv')),await p.evaluate(()=>getComputedStyle(document.getElementById('app')).display));
  await p.click('#cv-x');await p.waitForTimeout(200);
  await p.fill('#cs-t','أضف مطعم النخيل');await p.keyboard.press('Enter');await p.waitForTimeout(1500);
  console.log(mode,'thread:',(await p.evaluate(()=>document.getElementById('cs-thread').innerText)).replace(/\n+/g,' | ').slice(-260));
  if(mode==='client-ai'){ console.log('card',await p.evaluate(()=>!!document.querySelector('.card .ccs')), 'sidebar est',await p.evaluate(()=>document.querySelectorAll('#cs-side .si .dot').length));
-   await p.click('[data-chip=eor]');await p.waitForTimeout(300);console.log('eor href',await p.evaluate(()=>document.querySelector('.card.eor a.chip').href)); await p.screenshot({path:'chat1.png'}); }
+   await p.screenshot({path:'chat1.png'}); }
  else await p.screenshot({path:'chat0.png'});
 }
 console.log(er);await b.close()})();
