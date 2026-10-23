@@ -482,6 +482,7 @@ var EV={"request.created": "أنشأ الطلب", "request.created.manual": "أ�
 var TS={TODO:'جديدة',IN_PROGRESS:'جارية',WAITING:'بانتظار',DONE:'منجزة'};
 // ما يُكتب في الخط الزمني بمفاتيح الآلة (notify.* و status.* و documents.*) كان يُطبع للمالك كما هو.
 // هنا يُترجَم، وإشعارات العميل تقول أي قناة خرجت — فالمالك يعرف هل وصل الخبر.
+Object.assign(EV,{'nda.sent':'أُرسلت اتفاقية عدم الإفصاح للتوقيع','nda.signed':'وُقّعت اتفاقية عدم الإفصاح','addendum.sent':'أُرسل ملحق عرض السعر','addendum.approved':'اعتُمد ملحق عرض السعر','addendum.rejected':'لم يُعتمد ملحق عرض السعر'});
 Object.assign(EV,{'payment.receipt':'استلم إيصال التحويل','contract.reissued':'أعاد إصدار العقد','contract.corrected':'صحّح العقد','request.reopened':'أعاد فتح الطلب','cancel.requested':'طلب الإلغاء','deliverable.added':'سلّم ملفاً للعميل','deliverable.removed':'سحب ملفاً مُسلَّماً','quote.auto':'أصدر عرض السعر آلياً','message.whatsapp':'رسالة واتساب','followup.reminded':'ذكّر العميل بالخطوة التالية','document.received':'استلمنا مستنداً'});
 // مراحل العميل وتحديثات الفريق: تُسجَّل داخلياً باسم من فعلها (البريد لدور المبيعات).
 Object.assign(EV,{'stages.init':'أنشأ مراحل العميل','stage.set':'حدّث مرحلة','stage.removed':'حذف مرحلة','stage.auto':'تقدّمت مرحلة آلياً','update.added':'كتب تحديثاً (مسوّدة)','update.edited':'عدّل مسوّدة تحديث','update.published':'نشر تحديثاً للعميل','update.unpublished':'سحب تحديثاً من العميل','update.deleted':'حذف مسوّدة تحديث'});
