@@ -24,6 +24,7 @@
 
 import { createSign, createPrivateKey } from "crypto";
 import { LEGAL_NAME, UNIFIED_NUMBER, VAT_NUMBER } from "./_identity.js";
+import { finalizeBpDoc } from "./_bp-docs.js";
 
 const env = (n, d = "") => (process.env[n] && String(process.env[n]).trim()) || d;
 const INTEGRATION_KEY = env("DOCUSIGN_INTEGRATION_KEY");
@@ -531,7 +532,9 @@ export function portalContractHtml(html, { signature = null, signedAt = "", stal
     tail = tail.split(sigOld).join(sigNew).split(dateOld).join(dateNew);
   }
   // Safety net: whatever the block looked like, a person never reads an anchor.
-  return head + tail.replace(/\/sig1\//g, "").replace(/\/date1\//g, "");
+  // Template v2 papers (api/_bp-docs.js) also lose their company-side anchors and gain the
+  // print button here; finalizeBpDoc returns anything that is not v2 untouched, so v1 is byte-identical.
+  return finalizeBpDoc(head + tail.replace(/\/sig1\//g, "").replace(/\/date1\//g, ""));
 }
 
 // قشرة المستند: نفس الورقة للعرض والعقد — عمود عربي حاكم، وعمودٌ بلغة
