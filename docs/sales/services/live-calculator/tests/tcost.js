@@ -1,0 +1,12 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1000,height:3000}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html');await p.waitForTimeout(300);await p.click('[data-tab=cost]');await p.waitForTimeout(200);
+const pick=async(id,text)=>{await p.click('#'+id+'-s');await p.waitForTimeout(200);await p.fill('#'+id+'-s',text);await p.waitForTimeout(250);await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');await p.waitForTimeout(400);};
+console.log('terms:',await p.evaluate(()=>[...document.querySelectorAll('#c-term option')].map(o=>o.textContent).join(',')));
+await pick('c-term','12 شهر');await p.click('#c-prof');await p.fill('#c-prof','نادل');await p.waitForTimeout(250);await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');await p.waitForTimeout(400);
+await p.click('[data-st="2"]');await pick('c-src','داخل');await p.fill('#c-qty','1');await pick('i-gender','ذكر');
+await p.click('[data-st="3"]');await pick('c-trn','الأولى');await pick('c-freq','ربعي');
+await p.click('[data-st="4"]');await p.fill('#c-sal','6000');await p.waitForTimeout(400);
+console.log('step4 save btn:',await p.evaluate(()=>!!document.querySelector('[data-gact]')&&[...document.querySelectorAll('[data-gact]')].some(e=>e.offsetParent)));
+const t=await p.evaluate(()=>document.querySelectorAll('#main section.panel')[1].innerText);
+console.log(t.replace(/\n\n/g,' | ').slice(0,2600));console.log(errs);await p.screenshot({path:'cost.png',fullPage:true});await b.close();})();
