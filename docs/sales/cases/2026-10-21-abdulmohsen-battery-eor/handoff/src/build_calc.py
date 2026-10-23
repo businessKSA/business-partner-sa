@@ -58,7 +58,7 @@ def locfee(P, Q, SD):
     otherwise cost of the Saudis still required (ratio r/(1-r) x foreigners, less Saudis already employed) / foreigners."""
     ix = lambda col: f'INDEX(Professions!${col}$2:${col}${NP_LATE},MATCH({P},Professions!$A$2:$A${NP_LATE},0))'
     q = f'MAX(1,{Q})'
-    return (f'=IFERROR(IF(OR({ix("H")}="Saudi-only",{ix("H")}="On request"),0,IF(OR({ix("H")}="Standard",{ix("M")}=0),IF(({SD})>0,0,N({ix("I")})),'
+    return (f'=IFERROR(IF(OR({ix("H")}="Saudi-only",{ix("H")}="On request"),0,IF(OR({ix("H")}="Standard",{ix("M")}=0),N({ix("I")})*MAX(0,{q}-({SD}))/{q},'
             f'ROUND(MAX(0,ROUNDUP(ROUND({ix("M")}*{q},6),0)-({SD}))*{ix("L")}/{q}/10,0)*10)),0)')
 FEE_FORMULA = locfee('B5', '1', '0')
 FEE_FORMULA_C = FEE_FORMULA.replace('B5','B7')
@@ -286,7 +286,7 @@ row(wl, 23, 'Fee for the term excl. VAT (SAR)', '=IF(ISNUMBER(B20),B20*B6,"—")
 row(wl, 24, 'Notes from the guide', look('J'), 'ملاحظات الدليل')
 wl.row_dimensions[24].height = 90; wl['B24'].alignment = Alignment(wrap_text=True, vertical='top', horizontal='left')
 wl.row_dimensions[7].height = 34
-note(wl, 25, 'Localisation ratios and minimum salaries come from the Ministry of Human Resources procedural guides. A Saudi paid below the minimum is not counted toward the ratio. Saudi-only professions (human resources, secretarial, reception, customer service and similar) are not transferred to foreign employees. When you also take Saudis through us, in a profession with a localisation decision or an ordinary one, no localisation fee applies to the part they cover; each Saudi has his own cost calculation (salary not below SAR 6,000, or the profession minimum if higher, plus insurance, end of service and leave). Fees for professions outside our approved categories are quoted on request. Results are indicative and not an official determination.',
+note(wl, 25, 'Localisation ratios and minimum salaries come from the Ministry of Human Resources procedural guides. A Saudi paid below the minimum is not counted toward the ratio. Saudi-only professions (human resources, secretarial, reception, customer service and similar) are not transferred to foreign employees. When you also take Saudis through us, in a profession with a localisation decision or an ordinary one, no localisation fee applies to the part they cover (one Saudi removes the flat fee for one foreigner); each Saudi has his own cost calculation (salary not below SAR 6,000, or the profession minimum if higher, plus insurance, end of service and leave). Fees for professions outside our approved categories are quoted on request. Results are indicative and not an official determination.',
      'نسب التوطين والحد الأدنى للأجور من الأدلة الإجرائية لوزارة الموارد البشرية. والسعودي الذي يقل أجره عن الحد الأدنى لا يُحتسب ضمن النسبة. والمهن المقصورة على السعوديين (الموارد البشرية والسكرتارية والاستقبال وخدمة العملاء ونحوها) لا تُنقل لموظفين أجانب. والمهن خارج فئاتنا المعتمدة تُسعَّر بالطلب. والنتائج استرشادية وليست تحديداً رسمياً.', 110)
 dvp = DataValidation(type='list', formula1=f'=Professions!$A$2:$A${NP}', allow_blank=False); wl.add_data_validation(dvp); dvp.add('B3')
 dvm = DataValidation(type='list', formula1='"12,24,36"'); wl.add_data_validation(dvm); dvm.add('B6')

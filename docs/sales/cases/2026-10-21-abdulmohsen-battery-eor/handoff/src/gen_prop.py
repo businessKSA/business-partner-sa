@@ -89,24 +89,21 @@ S.append(dict(
 ))
 
 S.append(dict(
-    key='local', tag='07 · LOCALISATION FEE', kind='cards', cols=2,
+    key='local', tag='07 · LOCALISATION FEE', kind='cards', cols=3,
     title=('Localisation fee', 'رسوم التوطين'),
     cards=[
-        dict(dark=True, t=('No localisation decision', 'مهنة بلا قرار توطين'),
-             b=('A flat <b>SAR 900</b> per employee per month, plus 15% VAT.',
-                'رسم ثابت <b>900 ريال</b> لكل موظف شهرياً، مع ضريبة 15%.')),
-        dict(dark=False, t=('With a localisation decision', 'مهنة عليها قرار توطين'),
-             b=('The fee covers the cost of the Saudis the ratio still requires, shared across your foreign employees. Each Saudi you already employ in that profession lowers it.',
-                'يغطي الرسم تكلفة السعوديين الذين ما زالت النسبة تتطلبهم موزعة على موظفيك الأجانب، ويخفضه كل سعودي توظفه.')),
-        dict(dark=False, t=('Saudis you take through us', 'سعوديون تأخذهم عندنا'),
-             b=('If you also take Saudi employees through us, <b>no localisation fee</b> is charged on the part they cover, in a profession with a localisation decision or in an ordinary one. Each Saudi has his own cost calculation: salary (at least SAR 6,000, or the profession minimum if higher), insurance, end of service and leave.',
-                'إذا أخذتَ معنا سعوديين فلا <b>رسوم توطين</b> على الجزء الذي يغطونه، على مهنة عليها قرار أو مهنة عادية. ولكل سعودي حسبة تكلفة خاصة: الراتب (لا يقل عن 6,000 ريال أو أقل راتب للمهنة إن كان أعلى) والتأمينات ونهاية الخدمة والإجازة.')),
+        dict(dark=True, t=('If you take Saudis through us', 'إذا أخذتَ معنا سعوديين'),
+             b=('You take Saudis in return for the foreigners, for example Saudi engineers for the foreign engineers. You pay the salaries of both and <b>no localisation fee</b>.',
+                'تأخذ سعوديين مقابل الأجانب، مثلاً مهندسين سعوديين مقابل المهندسين الأجانب. فتدفع رواتب الجميع و<b>لا رسوم توطين</b>.')),
+        dict(dark=False, t=('If you do not take Saudis', 'إذا لم تأخذ سعوديين'),
+             b=('We calculate the Saudi\'s cost on you. Profession with no localisation decision: a flat <b>SAR 900</b> per employee per month. Profession with a decision (engineering, technical and others in the guides): the cost of the Saudis the ratio requires, divided across your foreign employees.',
+                'نحسب عليك تكلفة السعودي. مهنة بلا قرار توطين: <b>900 ريال</b> ثابتة لكل موظف شهرياً. ومهنة عليها قرار (الهندسية والفنية وغيرها في الأدلة): تكلفة السعوديين الذين تتطلبهم النسبة مقسومة على موظفيك الأجانب.')),
         dict(dark=False, t=('Saudi-only professions', 'مهن للسعوديين فقط'),
-             b=('Human resources, secretarial, reception, customer service and similar are not transferred to foreign employees.',
-                'الموارد البشرية والسكرتارية والاستقبال وخدمة العملاء ونحوها لا تُنقل لموظفين أجانب.')),
+             b=('Human resources, administrative support, secretarial, reception, customer service and similar are reserved for Saudis by the guides. They are not transferred to foreign employees.',
+                'الموارد البشرية والمهن الإدارية المساندة والسكرتارية والاستقبال وخدمة العملاء ونحوها مقصورة على السعوديين بحسب الأدلة. ولا تُنقل لموظفين أجانب.')),
     ],
-    note=('Example: 3 foreign engineers (ratio 30%, minimum Saudi salary SAR 8,000) and no Saudi engineer employed: 2 Saudis are required, so the fee is SAR 6,930 per engineer per month.',
-          'مثال: 3 مهندسين أجانب (نسبة 30% وأقل راتب للسعودي 8,000 ريال) بلا مهندس سعودي: يلزم سعوديان، فالرسوم 6,930 ريالاً لكل مهندس شهرياً.'),
+    note=('Example: 3 foreign engineers (ratio 30%, minimum Saudi salary SAR 8,000) and no Saudi engineer: 2 Saudis are required, so the fee is SAR 6,930 per engineer per month. <b>To understand each case:</b> <a href="https://www.businesspartner.sa/calculators/profession-checker" style="color:#13246E">Profession checker</a> · <a href="https://www.businesspartner.sa/calculators/government-cost" style="color:#13246E">Government cost calculator</a>',
+          'مثال: 3 مهندسين أجانب (نسبة 30% وأقل راتب للسعودي 8,000 ريال) بلا مهندس سعودي: يلزم سعوديان، فالرسوم 6,930 ريالاً لكل مهندس شهرياً. <b>لتفهم كل حالة:</b> <a href="https://www.businesspartner.sa/ar/calculators/profession-checker" style="color:#13246E">فاحص المهن</a> · <a href="https://www.businesspartner.sa/ar/calculators/government-cost" style="color:#13246E">حاسبة التكاليف الحكومية</a>'),
 ))
 
 S.append(dict(
@@ -125,8 +122,8 @@ S.append(dict(
         (('Transfer, visa and recruitment fees', 'رسوم النقل والتأشيرة والاستقدام'), ('Paid in advance: transfer 2,000 / 4,000 / 6,000; recruitment at actual', 'تُدفع مقدماً: النقل 2,000 / 4,000 / 6,000؛ والاستقدام بالفعلي'), 'Advance|مقدماً'),
         (('Localisation fee', 'رسوم التوطين'), ('Flat SAR 900, or by localisation decision: page 8', 'ثابت 900 ريال، أو بحسب قرار التوطين: الصفحة 8'), 'SAR 900+|900+ ريال'),
     ],
-    note=('Model 1 invoices each item separately at actual cost, with its own payment dates (see the Billing schedule sheet in the calculator). Model 2 includes them in one monthly price, and the localisation fee is added on top by profession. <b>Price calculators, one Excel file: both models for 6 / 12 / 24 months with the billing schedule, a Nitaqat calculator and a profession localisation calculator:</b> <a href="https://drive.google.com/file/d/1QUmP9EfoscToq1OpkenaTfFvfE0TpfI_/view" style="color:#13246E">Open the calculator</a>',
-          'النموذج الأول يفوتر كل بند منفصلاً بالتكلفة الفعلية وله مواعيد دفعه (انظر ورقة «Billing schedule» في الحاسبة). والنموذج الثاني يضمّها في سعر شهري واحد، وتُضاف رسوم التوطين فوقه بحسب المهنة. <b>حاسبات الأسعار في ملف إكسل واحد: النموذجان على 6 / 12 / 24 شهراً مع جدول الفوترة، وحاسبة النطاقات، وحاسبة توطين المهن:</b> <a href="https://drive.google.com/file/d/1QUmP9EfoscToq1OpkenaTfFvfE0TpfI_/view" style="color:#13246E">افتح الحاسبة</a>'),
+    note=('Model 1 invoices each item separately at actual cost, with its own payment dates. Model 2 includes them in one monthly price, and the localisation fee is added on top by profession. <b>The calculator is attached to this proposal:</b> open ABM-Calculator.html in your browser to price each employee, check localisation and Nitaqat, and see the Saudi cost.',
+          'النموذج الأول يفوتر كل بند منفصلاً بالتكلفة الفعلية وله مواعيد دفعه. والنموذج الثاني يضمّها في سعر شهري واحد، وتُضاف رسوم التوطين فوقه بحسب المهنة. <b>الحاسبة مرفقة مع هذا العرض:</b> افتح الملف ABM-Calculator.html في متصفحك لتسعّر كل موظف وتفحص التوطين والنطاقات وترى تكلفة السعودي.'),
 ))
 
 S.append(dict(
