@@ -71,7 +71,7 @@ test("a new contract is v2, signs, and is never flagged needs_resign — even if
   const v0 = await call("contract-view", { ref });
   assert.equal(v0.body.needsResign, false);
   assert.ok(v0.body.html.includes('class="bpd-bar"') && !v0.body.html.includes("/sig1/"), "a person reads it without anchors, with the print button");
-  const s = await call("contract-sign", { ref, consent: true, name: "عميل تجريبي" });
+  const s = await call("contract-sign", { ref, consent: true, signature: "data:image/png;base64," + "A".repeat(200), name: "عميل تجريبي" });
   assert.equal(s.body.ok, true);
   const signed = await rowOf(ref);
   const hash = createHash("sha256").update(signed.contract.html).digest("hex");
@@ -132,7 +132,7 @@ test("an EXISTING quotation and contract (no template_version) stay on the old p
   assert.equal((await rowOf(ref)).contract.html, html, "stored paper untouched");
 
   // signed old contract: still not flagged, and still the old paper
-  assert.equal((await call("contract-sign", { ref, consent: true, name: "ع" })).body.ok, true);
+  assert.equal((await call("contract-sign", { ref, consent: true, signature: "data:image/png;base64," + "A".repeat(200), name: "عميل تجريبي" })).body.ok, true);
   const v2 = await call("contract-view", { ref });
   assert.equal(v2.body.needsResign, false, "a signed old contract is not flagged by the new templates");
   const after = await rowOf(ref);

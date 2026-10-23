@@ -1,0 +1,72 @@
+// Business Partner — the filler lines the chat page adds to a scope («سطور البذرة»).
+//
+// site/scripts/simple-v1.mjs (TX.seedConsulting / seedGovernment / seedBizdev / seedFormation) writes
+// these into a draft so the scope has a shape the customer can review. They carry no price and are
+// never a service. A request created before the page flagged them `seed:true` still holds them
+// unflagged, so the server recognises them by title (tests/quote-journey-fix.test.mjs fails if this
+// list drifts from the page).
+export const SEED_TITLES = [
+ "فهم الموضوع والحالة الحالية",
+ "تحديد الجهات والمتطلبات ذات العلاقة",
+ "تحديد الخطوات والتوصيات المطلوبة",
+ "Understand the matter and the current position",
+ "Identify the authorities and requirements involved",
+ "Define the steps and recommendations",
+ "Comprendre le sujet et la situation actuelle",
+ "Identifier les autorités et exigences concernées",
+ "Définir les étapes et recommandations",
+ "了解事项与现状",
+ "确定涉及的机关与要求",
+ "明确步骤与建议",
+ "فحص المشكلة أو المعاملة",
+ "تحديد الخدمات الحكومية المطلوبة",
+ "تنفيذ أو متابعة الخدمات المتفق عليها",
+ "Examine the problem or the transaction",
+ "Identify the government services required",
+ "Execute or follow up the agreed services",
+ "Examiner le problème ou la démarche",
+ "Identifier les services gouvernementaux requis",
+ "Exécuter ou suivre les services convenus",
+ "检查问题或事务",
+ "确定所需政府服务",
+ "执行或跟进约定的服务",
+ "فهم نشاطك وسوقك وهدفك",
+ "تحديد المسار: عملاء أو موردون أو شريك",
+ "بناء قائمة الحسابات المستهدفة وتأهيلها",
+ "التواصل وحجز الاجتماعات ومتابعة الفرص",
+ "Understand your business, market and goal",
+ "Define the route: customers, suppliers or a partner",
+ "Build and qualify the target accounts list",
+ "Outreach, booking meetings and following up opportunities",
+ "Comprendre votre activité, votre marché et votre objectif",
+ "Définir la voie : clients, fournisseurs ou partenaire",
+ "Constituer et qualifier la liste de comptes cibles",
+ "Prospection, prise de rendez-vous et suivi des opportunités",
+ "了解您的业务、市场与目标",
+ "确定路径：客户、供应商或合作伙伴",
+ "建立并筛选目标客户名单",
+ "触达、预约会议并跟进商机",
+ "تحديد مسار التأسيس",
+ "إجراءات التأسيس والسجل وعقد التأسيس",
+ "الاشتراك في المنصات الحكومية الأساسية",
+ "تعيين المدير على الشركة",
+ "دعم فتح الحساب البنكي",
+ "Define the formation route",
+ "Formation, commercial register and articles of association",
+ "Registration on the core government platforms",
+ "Appointing the company manager",
+ "Support with opening the bank account",
+ "Définir la voie de création",
+ "Création, registre de commerce et statuts",
+ "Inscription aux plateformes gouvernementales essentielles",
+ "Nomination du gérant",
+ "Accompagnement à l'ouverture du compte bancaire",
+ "确定设立路径",
+ "设立手续、商业登记与公司章程",
+ "核心政府平台注册",
+ "任命公司经理",
+ "协助开立银行账户"
+];
+const norm = (t) => String(t == null ? "" : t).replace(/\s+/g, " ").trim().toLowerCase();
+const SET = new Set(SEED_TITLES.map(norm));
+export const isSeedTitle = (t) => SET.has(norm(t));

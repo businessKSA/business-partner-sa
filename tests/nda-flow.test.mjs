@@ -98,18 +98,18 @@ test("العميل يوقّعها بآلية العقد: اسم + رسم + مو�
 test("لا توقيعان: الثاني مرفوض (حتى المتزامن)، وما وُقّع لا يُستبدل بإصدار جديد", async () => {
   const ref = await create();
   await ops("ops-nda", { ref });
-  const [x, y] = await Promise.all([call("nda-sign", { ref, consent: true, name: "أحمد العميل" }), call("nda-sign", { ref, consent: true, name: "أحمد العميل" })]);
+  const [x, y] = await Promise.all([call("nda-sign", { ref, consent: true, signature: "data:image/png;base64," + "A".repeat(200), name: "أحمد العميل" }), call("nda-sign", { ref, consent: true, name: "أحمد العميل", signature: "data:image/png;base64," + "A".repeat(200) })]);
   assert.equal([x, y].filter((r) => r.ok).length, 1, "توقيع واحد ينجح");
   assert.equal([x, y].find((r) => !r.ok).error, "already_signed");
   const hash = (await rowOf(ref)).nda.signature.doc_sha256;
-  assert.equal((await call("nda-sign", { ref, consent: true, name: "غيره" })).http, 409);
+  assert.equal((await call("nda-sign", { ref, consent: true, signature: "data:image/png;base64," + "A".repeat(200), name: "غيره" })).http, 409);
   assert.equal((await ops("ops-nda", { ref })).http, 409, "الفريق لا يعيد إصدار الموقَّعة");
   assert.equal((await rowOf(ref)).nda.signature.doc_sha256, hash, "التوقيع الأول باقٍ");
 });
 
 test("غير الموقَّعة تُستبدل بإصدار مصحَّح بنفس الرقم، ولا توقيع بلا اتفاقية", async () => {
   const ref = await create();
-  assert.equal((await call("nda-sign", { ref, consent: true, name: "أ" })).error, "no_open_nda");
+  assert.equal((await call("nda-sign", { ref, consent: true, signature: "data:image/png;base64," + "A".repeat(200), name: "أ" })).error, "no_open_nda");
   assert.equal((await call("nda-view", { ref })).http, 404);
   const a = await ops("ops-nda", { ref, client_address: "الرياض" });
   const b = await ops("ops-nda", { ref, client_address: "جدة" });
@@ -120,7 +120,7 @@ test("غير الموقَّعة تُستبدل بإصدار مصحَّح بنف�
 test("لا تظهر لعميل آخر ولا يوقّعها، ولا يصدرها إلا الفريق", async () => {
   const ref = await create();
   await ops("ops-nda", { ref });
-  for (const [action, body] of [["nda-view", {}], ["nda-sign", { consent: true, name: "x" }]]) assert.equal((await call(action, { ref, ...body }, "b")).http, 404, action);
+  for (const [action, body] of [["nda-view", {}], ["nda-sign", { consent: true, signature: "data:image/png;base64," + "A".repeat(200), name: "x" }]]) assert.equal((await call(action, { ref, ...body }, "b")).http, 404, action);
   assert.equal((await rowOf(ref)).nda.status, "SENT");
   assert.equal((await call("me", {}, "b")).requests.some((r) => r.ref === ref), false);
   assert.equal((await call("ops-nda", { ref }, "a")).http, 401, "العميل لا يصدرها بنفسه");
@@ -146,7 +146,7 @@ test("ثبات القالب: الورقة تُحفظ كما طُبعت ولا ت
     assert.equal(again.html, stored.html, "حتى لو تغيّر اليوم وبيانات الشركة الحيّة");
   } finally { delete process.env.BP_DOCS_TEMPLATE; }
   // الوقّع على ما قرأه
-  await call("nda-sign", { ref, consent: true, name: "أحمد العميل" });
+  await call("nda-sign", { ref, consent: true, signature: "data:image/png;base64," + "A".repeat(200), name: "أحمد العميل" });
   assert.equal((await rowOf(ref)).nda.signature.doc_sha256, sha(stored.html));
   // قالبٌ لا وجود له لا يُبنى بصمت بغيره
   assert.throws(() => buildNda(row0(), { template_version: "v99" }), /no_nda_template/);
@@ -161,7 +161,7 @@ test("بلا اتفاقية لا يتعطل شيء: الرحلة كاملة، و
   for (const ref of [plain, withNda]) {
     assert.equal((await rowOf(ref)).status, "QUOTE_SENT");
     assert.equal((await call("quote-approve", { ref })).status, "CONTRACT_SENT");
-    assert.equal((await call("contract-sign", { ref, consent: true, name: "أحمد العميل" })).status, "SIGNED");
+    assert.equal((await call("contract-sign", { ref, consent: true, signature: "data:image/png;base64," + "A".repeat(200), name: "أحمد العميل" })).status, "SIGNED");
     assert.equal((await call("pay-test", { ref, outcome: "success", provider: "card" })).status, "PAID");
   }
   assert.equal((await rowOf(withNda)).nda.status, "SENT", "اتفاقيتها بقيت غير موقَّعة وما عطّلت شيئاً");
@@ -196,5 +196,5 @@ test("طلب ملغى أو مغلق لا تُصدر عليه اتفاقية ول
   const ref2 = await create();
   await ops("ops-nda", { ref: ref2 });
   await sb(`requests?ref=eq.${ref2}`, { method: "PATCH", body: { status: "CANCELLED" } });
-  assert.equal((await call("nda-sign", { ref: ref2, consent: true, name: "x" })).http, 409);
+  assert.equal((await call("nda-sign", { ref: ref2, consent: true, signature: "data:image/png;base64," + "A".repeat(200), name: "x" })).http, 409);
 });

@@ -22,7 +22,8 @@ import { fileURLToPath } from "node:url";
 import { sb, DB_ON, DB_MISSING, getSession, audit, notify } from "./_db.js";
 import { contractHtml, quoteHtml, portalContractHtml } from "./_docusign.js";
 import { templateForVersion, templateForLang } from "./_bp-docs.js";
-import { loadCatalog } from "./_catalog.js";
+import { loadCatalog, normalizeText } from "./_catalog.js";
+import { isSeedTitle } from "./_scope-seeds.js";
 import { loadPriceBook, resolveSku, referencePrice } from "./_catalog-prices.js";
 import { daftraConfigured } from "./_daftra.js";
 import { issuePaidInvoice, reportInvoiceBlocked, invoiceIsComplete, invoiceRetryDue, publicInvoice } from "./_invoicing.js";
@@ -307,6 +308,7 @@ function clientView(row, events, tasks) {
   pub.invoice = publicInvoice(pub.invoice);
   if (pub.contract && pub.contract.html) pub.contract = { ...pub.contract, html: undefined, html_signed: undefined, has_html: true };
   if (pub.nda && pub.nda.html) pub.nda = { ...pub.nda, html: undefined, has_html: true };
+  if (pub.quote && pub.quote.payment_terms) pub.quote = { ...pub.quote, payment_terms: localTerms(pub.quote, row.lang) };
   // Machine bookkeeping («notify.paid», «followup.task») is for the panel: the
   // customer's timeline used to print those keys raw.
   const visible = (e) => e.actor_kind !== "internal" && !/^(notify\.|followup\.task)/.test(String(e.event || ""));
@@ -428,6 +430,16 @@ const DOC_STATES = ["requested", "received", "waived"];
 // totals — if the rebuild used today's date and no lead time, EVERY rebuild
 // differed from what was issued, so a contract signed yesterday was flagged
 // «corrected after your signature — sign again» the next time anyone opened it.
+// A signature is a name of at least three letters and a drawing — both, always.
+// It used to be accepted with a one-letter name and no drawing at all (the page
+// only warned); the server now refuses, with a sentence the customer can act on.
+const SIG_IMG_OK = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]{60,}$/;
+export function signatureProblem(name, image) {
+  if ([...String(name || "").replace(/\s+/g, "")].length < 3) return { ok: false, error: "name_too_short", message: "اكتب اسمك الكامل (٣ أحرف على الأقل) في خانة الاسم." };
+  if (typeof image !== "string" || !SIG_IMG_OK.test(image) || image.length > 250000) return { ok: false, error: "signature_required", message: "ارسم توقيعك في المربع قبل التوقيع." };
+  return null;
+}
+
 function buildContract(row, opts = {}) {
   const at = opts.at && !Number.isNaN(Date.parse(opts.at)) ? new Date(opts.at) : new Date();
   const today = at.toLocaleDateString("ar-SA-u-nu-latin", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Riyadh" });
@@ -596,14 +608,29 @@ async function issueQuote(row, rawItems, opts, actorKind, actor) {
   if (cn) quote.client_notes = cn;
   const send = opts.send !== false;
   if (send) { quote.status = "SENT"; quote.sent_at = nowIso(); }
-  const upd = await patchRequest(row.id, { quote, scope: quote.items.map((l) => ({ code: l.code, title: l.title, why: l.description, qty: l.qty })), status: send ? "QUOTE_SENT" : row.status });
+  // Lines no catalogue price can settle ride with the quotation as `pending_items`: they are NOT in
+  // its items, its total or the contract. They wait for a person, with the reason, and are priced as
+  // an addendum (ops-quote-addendum) — the approved quotation is never edited.
+  const pending = (Array.isArray(opts.pending) ? opts.pending : []).slice(0, 30).map((h) => ({
+    title: str(h.title, 200), code: str(h.code, 40), qty: Math.max(1, Math.min(99, Math.round(num(h.qty) || 1))), reason: str(h.reason, 30), reason_ar: str(h.reason_ar || HOLD_AR[h.reason], 200),
+  })).filter((h) => h.title);
+  if (pending.length) quote.pending_items = pending;
+  const scopeAfter = [
+    ...quote.items.map((l) => ({ code: l.code, title: l.title, why: l.description, qty: l.qty })),
+    ...pending.map((h) => ({ code: h.code, title: h.title, why: "", qty: h.qty, hold: { reason: h.reason, reason_ar: h.reason_ar } })),
+  ];
+  const upd = await patchRequest(row.id, { quote, scope: scopeAfter, status: send ? "QUOTE_SENT" : row.status });
   await logEvent(row.id, actorKind, actor, send ? "quote.sent" : "quote.drafted", { number: quote.number, total: quote.total });
   // The quotation is out, so the «price this scope» task is done — whoever issued it.
-  if (send) { try { await sb(`tasks?request_id=eq.${row.id}&source=eq.pricing&status=in.(open,in_progress,blocked)`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: nowIso() } }); } catch { /* a task left open is only noise */ } }
+  if (send && !pending.length) { try { await sb(`tasks?request_id=eq.${row.id}&source=eq.pricing&status=in.(open,in_progress,blocked)`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: nowIso() } }); } catch { /* a task left open is only noise */ } }
+  if (send && pending.length) {
+    await pricingTask(row, pending);
+    await logEvent(row.id, "system", "النظام", "quote.pending", { unpriced: pending.map((h) => h.title), holds: pending, partial: true });
+  }
   if (send) await announce(row, "quote", {
     subject: `عرض سعر ${quote.number} — ${row.title}`,
-    clientLine: `عرض سعرك جاهز: ${quote.total} ر.س شامل ضريبة القيمة المضافة. راجعه واعتمده من حسابك.`,
-    opsLine: `صدر عرض السعر ${quote.number} بإجمالي ${quote.total} ر.س.`,
+    clientLine: `عرض سعرك جاهز: ${quote.total} ر.س شامل ضريبة القيمة المضافة. راجعه واعتمده من حسابك.${pending.length ? ` وبنود بانتظار التسعير (يصلك لها عرض ملحق): ${holdsLine(pending)}.` : ""}`,
+    opsLine: `صدر عرض السعر ${quote.number} بإجمالي ${quote.total} ر.س.${pending.length ? ` بنود لا تدخله وتنتظر تسعيرك: ${holdsLine(pending)}` : ""}`,
     cta: "راجع العرض واعتمده",
   });
   return { ok: true, quote, status: upd.status };
@@ -640,7 +667,15 @@ function normConversation(msgs) {
   })).filter((m) => m.content);
 }
 
-const quoteNotes = (q) => [q.notes, q.client_notes ? `ملاحظات العميل (للعلم، وليست بنداً تعاقدياً): ${q.client_notes}` : ""].filter(Boolean).join(" | ");
+// The default «الدفع مقدماً بعد توقيع العقد» is stored as written; a client who reads English, French
+// or Chinese was shown it in Arabic. It is localised wherever it is shown, never in what was stored.
+const PAY_TERMS_DEFAULT = {
+  ar: "الدفع مقدماً بعد توقيع العقد", en: "Payment in advance after the contract is signed",
+  fr: "Paiement d'avance après la signature du contrat", zh: "合同签署后预付款",
+};
+export const localTerms = (q, lang) => (q && q.payment_terms === PAY_TERMS_DEFAULT.ar && PAY_TERMS_DEFAULT[lang] ? PAY_TERMS_DEFAULT[lang] : (q && q.payment_terms) || "");
+const quoteNotes = (q) => [q.notes,
+  Array.isArray(q.pending_items) && q.pending_items.length ? `بنود بانتظار التسعير (يصلك لها عرض ملحق ولا تدخل هذا العرض ولا العقد): ${q.pending_items.map((x) => `${x.title} (${x.reason_ar})`).join(" · ")}` : "", q.client_notes ? `ملاحظات العميل (للعلم، وليست بنداً تعاقدياً): ${q.client_notes}` : ""].filter(Boolean).join(" | ");
 function computeQuote(items, opts = {}) {
   const lines = (Array.isArray(items) ? items : []).slice(0, 30).map((it) => {
     const qty = Math.max(1, Math.min(99, Math.round(num(it.qty) || 1)));
@@ -654,7 +689,7 @@ function computeQuote(items, opts = {}) {
     items: lines, net, vat, total: round2(net + vat), vat_rate: 15, currency: "SAR",
     validity_days: validityDays,
     valid_until: new Date(Date.now() + validityDays * 864e5).toISOString().slice(0, 10),
-    payment_terms: str(opts.payment_terms, 600) || "الدفع مقدماً بعد توقيع العقد",
+    payment_terms: str(opts.payment_terms, 600) || PAY_TERMS_DEFAULT.ar,
     notes: str(opts.notes, 1500),
   };
 }
@@ -901,7 +936,7 @@ async function clientAction(action, b, qs, req, res, sess) {
     const type = REQUEST_TYPES.includes(b.type) ? b.type : "CONSULTATION";
     const source = REQUEST_SOURCES.includes(b.source) ? b.source : "WEBSITE";
     const conversation = normConversation(b.conversation);
-    const scope = normScope(b.scope);
+    const scope = await resolveScope(normScope(b.scope));
     const ref = newRef();
     // The person's own name and mobile (D3): what the form sent, else what the
     // account holds. The address prefix is never used as either.
@@ -983,7 +1018,7 @@ async function clientAction(action, b, qs, req, res, sess) {
   if (action === "scope-update") {
     if (isCartRow(row)) return json(res, 409, { ok: false, error: "scope_locked", message: "طلب الشراء المباشر نطاقه ما اشتريته — لا يُعدَّل." });
     if (!["NEW", "REVIEWING", "WAITING_CLIENT"].includes(row.status) || scopeLockedByQuote(row)) return json(res, 409, { ok: false, error: "scope_locked", message: "النطاق مقفل بعد إصدار عرض السعر." });
-    const scope = normScope(b.scope);
+    const scope = await resolveScope(normScope(b.scope));
     await patchRequest(row.id, { scope });
     await logEvent(row.id, "customer", who, "scope.edited", { items: scope.map((s) => s.title) });
     return json(res, 200, { ok: true, scope });
@@ -998,7 +1033,7 @@ async function clientAction(action, b, qs, req, res, sess) {
   if (action === "scope-confirm") {
     if (isCartRow(row)) return json(res, 409, { ok: false, error: "scope_locked", message: "طلب الشراء المباشر مدفوع مسبقاً — لا عرض سعر له." });
     if (!["NEW", "REVIEWING", "WAITING_CLIENT"].includes(row.status) || scopeLockedByQuote(row)) return json(res, 409, { ok: false, error: "scope_locked", message: "النطاق مقفل بعد إصدار عرض السعر." });
-    const scope = normScope(b.scope && b.scope.length ? b.scope : row.scope);
+    const scope = await resolveScope(normScope(b.scope && b.scope.length ? b.scope : row.scope));
     if (!scope.length) return json(res, 400, { ok: false, error: "no_items", message: "أضف بنداً واحداً على الأقل إلى نطاق الخدمات." });
     // The quotation, the contract and the invoice carry this person's name, and
     // the team replies to this mobile (D3): neither is a guess from the address.
@@ -1194,6 +1229,31 @@ async function clientAction(action, b, qs, req, res, sess) {
     return json(res, 200, { ok: true, status: upd.status, quote });
   }
 
+  // The addendum to an approved quotation (lines that had no fixed price): its own number,
+  // total and validity. Approving it records the customer's consent and tells the team; the
+  // approved quotation, its contract and its payment are never touched.
+  if (action === "quote-addendum-approve" || action === "quote-addendum-reject") {
+    const approve = action === "quote-addendum-approve";
+    const list = row.quote && Array.isArray(row.quote.addenda) ? row.quote.addenda : [];
+    const i = list.findIndex((a) => a.number === str(b.number, 60));
+    if (i < 0 || list[i].status !== "SENT") return json(res, 409, { ok: false, error: "no_open_addendum" });
+    if (!approve && str(b.note, 500).length < 3) return json(res, 400, { ok: false, error: "note_required" });
+    const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Riyadh" });
+    if (approve && /^\d{4}-\d{2}-\d{2}$/.test(String(list[i].valid_until || "")) && list[i].valid_until < today) {
+      return json(res, 409, { ok: false, error: "quote_expired", message: "انتهت صلاحية هذا الملحق. اكتب لنا من داخل الطلب ليُجدَّد.", valid_until: list[i].valid_until });
+    }
+    const addenda = list.map((a, k) => (k === i ? { ...a, status: approve ? "APPROVED" : "REJECTED", decided_at: nowIso(), decision_note: str(b.note, 500) } : a));
+    await patchRequest(row.id, { quote: { ...row.quote, addenda } });
+    await logEvent(row.id, "customer", who, approve ? "addendum.approved" : "addendum.rejected", { number: list[i].number, total: list[i].total });
+    await alertOps({ ...row }, approve ? "addendum-approved" : "addendum-rejected", {
+      subject: `${approve ? "اعتُمد" : "رُفض"} ملحق عرض السعر ${list[i].number} — ${row.ref}`,
+      line: `${row.client_name || who} ${approve ? "اعتمد" : "لم يعتمد"} الملحق ${list[i].number} (${list[i].total} ر.س شامل الضريبة)${approve ? "" : ": " + str(b.note, 220)}.`,
+      windowMin: 1,
+      task: { source: "quote.addendum", urgency: "high", title: approve ? `ملحق معتمد — أصدر ملحق العقد وحصّل المبلغ الإضافي — ${row.ref}` : `العميل لم يعتمد ملحق العرض — ${row.ref}`, details: approve ? `الملحق ${list[i].number} بإجمالي ${list[i].total} ر.س معتمد. العقد والدفع والفاتورة الأصلية لم تتغير: أصدر ملحق العقد وحصّل المبلغ الإضافي وفاتورته.` : (str(b.note, 500)) },
+    });
+    return json(res, 200, { ok: true, addendum: addenda[i] });
+  }
+
   // العرض كمستند كامل بلغتين — نفس ورقة العقد، تُفتح بالحجم الكامل وتُطبع.
   if (action === "quote-view") {
     if (!row.quote) return json(res, 404, { ok: false, error: "no_quote" });
@@ -1201,13 +1261,13 @@ async function clientAction(action, b, qs, req, res, sess) {
     if (qtpl) return json(res, 200, { ok: true, number: row.quote.number, html: qtpl.quote({
       ref: row.ref, number: row.quote.number, clientName: partyName(row), service: row.title, items: row.quote.items || [],
       net: row.quote.net, vat: row.quote.vat, total: row.quote.total, issuedAt: row.quote.created_at, validUntil: row.quote.valid_until || "",
-      paymentTerms: row.quote.payment_terms || "", notes: quoteNotes(row.quote), documents: row.documents, lang: row.lang || "ar",
+      paymentTerms: localTerms(row.quote, row.lang), notes: quoteNotes(row.quote), documents: row.documents, lang: row.lang || "ar",
     }) });
     const html = quoteHtml({
       ref: row.ref, number: row.quote.number,
       clientName: partyName(row),
       items: row.quote.items || [], net: row.quote.net, vat: row.quote.vat, total: row.quote.total,
-      validUntil: row.quote.valid_until || "", paymentTerms: row.quote.payment_terms || "",
+      validUntil: row.quote.valid_until || "", paymentTerms: localTerms(row.quote, row.lang),
       notes: quoteNotes(row.quote), lang: row.lang || "ar",
       today: new Date(row.quote.created_at || Date.now()).toLocaleDateString("ar-SA-u-nu-latin", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Riyadh" }),
     });
@@ -1269,6 +1329,8 @@ async function clientAction(action, b, qs, req, res, sess) {
     if (row.status === "CANCELLED") return json(res, 409, { ok: false, error: "request_closed" });
     if (!b.consent) return json(res, 400, { ok: false, error: "consent_required", message: "يلزم الموافقة على التوقيع الإلكتروني." });
     const signerName = str(b.name, 160) || who;
+    const bad = signatureProblem(signerName, b.signature);
+    if (bad) return json(res, 400, bad);
     const hash = crypto.createHash("sha256").update(String(row.nda.html)).digest("hex");
     const signature = {
       name: signerName, email, ip: clientIp(req), ua: str(req.headers["user-agent"], 200), at: nowIso(),
@@ -1278,7 +1340,7 @@ async function clientAction(action, b, qs, req, res, sess) {
     };
     const nda = { ...row.nda, status: "SIGNED", signed_at: signature.at, signature };
     // conditional on the row not having moved: two screens signing at once record one signature
-    const won = await sb(`requests?id=eq.${row.id}&updated_at=eq.${q(row.updated_at)}`, { method: "PATCH", body: { nda, updated_at: nowIso() } }).catch(() => null);
+    const won = await sb(`requests?id=eq.${row.id}&updated_at=eq.${q(row.updated_at)}`, { method: "PATCH", body: { nda, updated_at: new Date(Math.max(Date.now(), Date.parse(row.updated_at || 0) + 1)).toISOString() } }).catch(() => null);
     if (!won || !won[0]) {
       const again = await getByRef(ref);
       if (again && again.nda && again.nda.status === "SIGNED") return json(res, 409, { ok: false, error: "already_signed" });
@@ -1299,6 +1361,8 @@ async function clientAction(action, b, qs, req, res, sess) {
     if (row.status !== "CONTRACT_SENT" || !row.contract) return json(res, 409, { ok: false, error: "no_open_contract" });
     if (!b.consent) return json(res, 400, { ok: false, error: "consent_required", message: "يلزم الموافقة على التوقيع الإلكتروني." });
     const signerName = str(b.name, 160) || who;
+    const bad = signatureProblem(signerName, b.signature);
+    if (bad) return json(res, 400, bad);
     const hash = crypto.createHash("sha256").update(String(row.contract.html || "")).digest("hex");
     const signature = {
       name: signerName, email, ip: clientIp(req), ua: str(req.headers["user-agent"], 200), at: nowIso(),
@@ -1518,7 +1582,7 @@ async function issueWaitingQuotes(sess) {
     if (!(ev && ev[0] && ev[0].details && ev[0].details.auto_quote)) continue;
     const fresh = (await getByRef(r.ref)) || r;
     if (!fullNameOk(fresh.client_name) || !str(fresh.client_phone, 40)) continue;
-    const scope = normScope(fresh.scope);
+    const scope = await resolveScope(normScope(fresh.scope));
     if (!scope.some((it) => !it.seed)) continue;
     await logEvent(r.id, "customer", sess.user?.full_name || r.client_email, "scope.confirmed", { auto: true });
     const out = await quoteOrHold(fresh, scope);
@@ -2931,6 +2995,42 @@ async function opsAction(action, b, qs, req, res, opsUser) {
     return json(res, 200, { ok: true, status: out.status, quote: out.quote });
   }
 
+  // Lines that waited for a price are quoted as an ADDENDUM once the main quotation is approved:
+  // a new number (Q-…-A1), its own total and validity; the approved quotation stays as it is.
+  // While the quotation is still open (QUOTE_SENT) the team re-issues it whole with ops-quote.
+  if (action === "ops-quote-addendum") {
+    if (!row.quote || !["QUOTE_APPROVED", "CONTRACT_SENT", "SIGNED", "PAYMENT_PENDING", "PAID", "IN_PROGRESS", "WAITING_INTERNAL"].includes(row.status)) return json(res, 409, { ok: false, error: row.quote && row.status === "QUOTE_SENT" ? "use_ops_quote" : "no_approved_quote" });
+    const pend = Array.isArray(row.quote.pending_items) ? row.quote.pending_items : [];
+    if (!pend.length) return json(res, 409, { ok: false, error: "nothing_pending" });
+    const given = Array.isArray(b.items) ? b.items : [];
+    const lines = [], covered = new Set();
+    for (const g of given) {
+      const hit = pend.find((x) => !covered.has(x.title) && (x.title === str(g.pending_title || g.title, 200) || (g.code && x.code && String(x.code).toUpperCase() === String(g.code).toUpperCase())));
+      if (!hit) return json(res, 400, { ok: false, error: "not_pending", message: `«${str(g.title, 80)}» ليس من البنود المنتظرة.` });
+      if (!(num(g.price) > 0)) return json(res, 400, { ok: false, error: "unpriced_items", unpriced: [hit.title], message: `اكتب سعراً أكبر من صفر لـ«${hit.title}».` });
+      covered.add(hit.title);
+      lines.push({ code: hit.code, title: str(g.title, 200) || hit.title, description: str(g.description, 600), qty: g.qty || hit.qty, price: num(g.price) });
+    }
+    if (!lines.length) return json(res, 400, { ok: false, error: "no_items" });
+    const prior = Array.isArray(row.quote.addenda) ? row.quote.addenda : [];
+    const base = String(row.quote.number || "").replace(/-A\d+$/, "");
+    const addendum = { number: `${base}-A${prior.length + 1}`, status: "SENT", created_at: nowIso(), sent_at: nowIso(), covers: [...covered], ...computeQuote(lines, b) };
+    const left = pend.filter((x) => !covered.has(x.title));
+    const quote = { ...row.quote, addenda: [...prior, addendum] };
+    if (left.length) quote.pending_items = left; else delete quote.pending_items;
+    const scope = (row.scope || []).map((it) => (covered.has(it.title) ? (({ hold, ...r }) => r)(it) : it));
+    await patchRequest(row.id, { quote, scope });
+    await logEvent(row.id, "human", actor, "addendum.sent", { number: addendum.number, total: addendum.total });
+    if (!left.length) { try { await sb(`tasks?request_id=eq.${row.id}&source=eq.pricing&status=in.(open,in_progress,blocked)`, { method: "PATCH", prefer: "return=minimal", body: { status: "done", completed_at: nowIso() } }); } catch {} }
+    await announce(row, "addendum", {
+      subject: `ملحق عرض السعر ${addendum.number} — ${row.title}`,
+      clientLine: `سُعّرت بنودٌ كانت بانتظار التسعير. ملحق عرضك ${addendum.number}: ${addendum.total} ر.س شامل الضريبة. عرضك الأصلي وعقده لم يتغيّرا. راجع الملحق واعتمده من حسابك.`,
+      opsLine: `صدر ملحق العرض ${addendum.number} بإجمالي ${addendum.total} ر.س.`,
+      cta: "راجع الملحق واعتمده",
+    });
+    return json(res, 200, { ok: true, addendum, pending_left: left.length });
+  }
+
   if (action === "ops-contract") {
     if (!row.quote || !["QUOTE_APPROVED", "CONTRACT_SENT"].includes(row.status)) return json(res, 409, { ok: false, error: "quote_not_approved" });
     const issued = await issueContract(row, "human", actor, b);
@@ -3356,7 +3456,7 @@ async function assessScope(scope) {
   const real = scope.filter((it) => !it.seed);
   const basis = real.length ? real : scope;
   const priced = await priceItems(basis);
-  const holds = priced.filter(needsHumanPrice).map((l) => { const reason = pricingReason(l); return { title: l.title, code: l.code || "", reason, reason_ar: HOLD_AR[reason] }; });
+  const holds = priced.filter(needsHumanPrice).map((l) => { const reason = pricingReason(l); return { title: l.title, code: l.code || "", qty: l.qty, reason, reason_ar: HOLD_AR[reason] }; });
   return { basis, holds };
 }
 // The scope with the verdict written beside each waiting line (and any older
@@ -3364,6 +3464,31 @@ async function assessScope(scope) {
 function markHolds(scope, holds) {
   const by = new Map(holds.map((h) => [h.title, h]));
   return scope.map(({ hold, ...it }) => { const h = by.get(it.title); return h ? { ...it, hold: { reason: h.reason, reason_ar: h.reason_ar } } : it; });
+}
+// The advisor's scope lines reach the server without a SKU (and the chat page's filler lines
+// without the `seed` flag), so «خدمة من الكتالوج» typed by the model was read as «بند كتبتَه بنفسك»
+// and held the whole request. Resolved here, by the one rule everything shares:
+//   • a filler line of the page (by title, any language) is flagged `seed`;
+//   • a line with a known SKU keeps it;
+//   • otherwise a line whose title IS a catalogue service name (Arabic or English, one service only)
+//     takes that service's SKU — the price, name and description then come from the catalogue;
+//   • anything else stays as the customer wrote it and waits for a person as a pending item.
+async function resolveScope(scope) {
+  let cat = null;
+  try { cat = await loadCatalog(); } catch {}
+  const known = new Set(), byName = new Map();
+  for (const sv of (cat && cat.services) || []) {
+    if (!sv.code) continue;
+    known.add(String(sv.code).toUpperCase());
+    for (const n of [sv.nameAr, sv.nameEn]) { const k = normalizeText(n); if (k) { if (!byName.has(k)) byName.set(k, new Set()); byName.get(k).add(sv.code); } }
+  }
+  return (Array.isArray(scope) ? scope : []).map((it) => {
+    if (it.seed) return it;
+    if (!it.code && isSeedTitle(it.title)) return { ...it, seed: true };
+    if (it.code && known.has(String(it.code).toUpperCase())) return it;
+    const hit = byName.get(normalizeText(it.title));
+    return hit && hit.size === 1 ? { ...it, code: [...hit][0] } : it;
+  });
 }
 // A line no catalogue price can settle sends the request to the team — with the
 // line and the reason written where the customer and the panel both read them,
@@ -3383,10 +3508,11 @@ async function holdForPricing(row, scope, holds) {
 }
 // The one door a confirmed scope goes through: priced by the catalogue ⇒ the
 // quotation now; otherwise ⇒ the team, with the reason.
-async function quoteOrHold(row, scope) {
+async function quoteOrHold(row, scope0) {
+  const scope = await resolveScope(scope0);
   await autoNda(row, scope);
   const auto = await tryAutoQuote(row, scope);
-  if (auto.issued) return { issued: true, quote: auto.quote, status: auto.status };
+  if (auto.issued) return { issued: true, quote: auto.quote, status: auto.status, pending: auto.pending || [] };
   const holds = auto.holds.length ? auto.holds : (await assessScope(scope)).holds;
   return { issued: false, holds, upd: await holdForPricing(row, scope, holds) };
 }
@@ -3397,11 +3523,16 @@ async function quoteOrHold(row, scope) {
 async function tryAutoQuote(row, scope) {
   if (!AUTO_QUOTE || !scope.length) return { issued: false, holds: [] };
   const { basis, holds } = await assessScope(scope);
-  if (holds.length) return { issued: false, holds };
-  const out = await issueQuote({ ...row, scope }, basis, {}, "system", "التسعير الآلي");
+  // A line without a fixed catalogue price used to hold the WHOLE quotation back, priced lines
+  // included. Now the priced lines issue at once and the others travel as `pending_items`. Only a
+  // quotation with no priced line at all stays with the team (nothing to quote yet).
+  const waiting = new Set(holds.map((h) => h.title));
+  const priced = basis.filter((it) => !waiting.has(it.title));
+  if (holds.length && !priced.length) return { issued: false, holds };
+  const out = await issueQuote({ ...row, scope }, priced, holds.length ? { pending: holds } : {}, "system", "التسعير الآلي");
   if (!out.ok) return { issued: false, holds: [] };
-  await logEvent(row.id, "system", "التسعير الآلي", "quote.auto", { number: out.quote.number, total: out.quote.total });
-  return { issued: true, quote: out.quote, status: out.status };
+  await logEvent(row.id, "system", "التسعير الآلي", "quote.auto", { number: out.quote.number, total: out.quote.total, ...(holds.length ? { pending: holds.length } : {}) });
+  return { issued: true, quote: out.quote, status: out.status, pending: holds };
 }
 function guessType(text) {
   const t = String(text || "");

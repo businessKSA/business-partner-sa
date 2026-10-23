@@ -204,7 +204,8 @@ const noZeroLine = (quote, label) => {
 test("ops-quote يرفض عرضاً فيه بند بلا سعر: لا يُحفظ عرض، والحالة لا تتحرك، والرسالة تسمّي البند", async () => {
   const ref = await newRequest([{ code: "BP-CHAMBER-01", title: "عضوية الغرفة", qty: 1 }, { code: "CF-GEN", title: "تأسيس الشركات — خدمة حسب الطلب", qty: 1 }]);
   const conf = await call("scope-confirm", { ref });
-  assert.equal(conf.body.stage, "PRICING", "بند بلا سعر لا يصدر آلياً");
+  assert.equal(conf.body.stage, "QUOTE", "المسعّر يصدر، والبند بلا السعر لا يصدر آلياً بل ينتظر (pending_items)");
+  assert.deepEqual(conf.body.quote.pending_items.map((x) => x.title), ["تأسيس الشركات — خدمة حسب الطلب"]);
   const before = await rowOf(ref);
 
   const q = await call("ops-quote", { ref });
@@ -214,7 +215,8 @@ test("ops-quote يرفض عرضاً فيه بند بلا سعر: لا يُحفظ
   assert.deepEqual(q.body.unpriced, ["تأسيس الشركات — خدمة حسب الطلب"]);
   assert.match(q.body.message, /لا يصدر عرض سعر ببند بلا سعر/);
   const after = await rowOf(ref);
-  assert.equal(after.quote || null, null, "لم يُحفظ عرض");
+  assert.equal(after.quote.number, before.quote.number, "العرض القائم لم يُستبدل بعرضٍ فيه بند بلا سعر");
+  assert.equal(after.quote.net, before.quote.net);
   assert.equal(after.status, before.status, "الحالة لم تتحرك");
 });
 

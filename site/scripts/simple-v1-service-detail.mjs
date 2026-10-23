@@ -212,8 +212,12 @@ if(add)add.addEventListener('click',function(){
  toast(C.tx.toast,false,true)});
 // ---- طلب عرض سعر: تسليمٌ إلى محادثة الرئيسية (يُقرأ المفتاح ويُحذف هناك في خطوة واحدة).
 var q=$('svcQuote');
+// «اطلب عرض سعر» يضيف الخدمة إلى مسودة الطلب (bp_quote_draft) بدل أن يستبدل ما سبقها، فيجمع العميل أكثر من خدمة في عرضٍ واحد.
+function qdAdd(it,door){var d=null;try{d=JSON.parse(localStorage.getItem('bp_quote_draft')||'null')}catch(e){}if(!d||!d.at||Date.now()-d.at>216e5||!Array.isArray(d.items))d={items:[]};var items=d.items.filter(function(x){return x&&x.title&&!(it.code&&x.code===it.code)&&x.title!==it.title});items.push(it);var nd={at:Date.now(),door:door||d.door||'government',items:items};try{localStorage.setItem('bp_quote_draft',JSON.stringify(nd))}catch(e){}return nd}
 if(q)q.addEventListener('click',function(){
- try{sessionStorage.setItem('bp_sva_request',JSON.stringify({items:[{code:C.code,title:C.name,why:C.gov||''}],door:C.door,text:C.name,name:C.name,code:C.code,at:Date.now()}))}catch(e){}});
+ var nd=qdAdd({code:C.code,title:C.name,why:C.gov||''},C.door);
+ var names=nd.items.map(function(x){return x.title}).join('، ');
+ try{sessionStorage.setItem('bp_sva_request',JSON.stringify({items:nd.items,door:nd.door,text:nd.items.length>1?names:C.name,name:nd.items.length>1?names:C.name,code:nd.items.length>1?'':C.code,at:Date.now()}))}catch(e){}});
 })();</script>`;
 
   return SV1.shell({ title: v.title, desc: v.seoDesc, path: "/services/" + v.slug, body, script });

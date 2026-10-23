@@ -119,7 +119,7 @@ test("العقد ثابت: لا يتبدّل بتغيّر اليوم، وتبق�
   assert.ok(v1.body.html.includes("فريق الامتثال"), "الجهة المنفِّذة باقية");
   assert.ok(v1.body.html.includes(fmtDay(then)), "تاريخ الإصدار الأصلي لا تاريخ اليوم");
 
-  const s = await call("contract-sign", { ref, consent: true, name: "عميل تجريبي" });
+  const s = await call("contract-sign", { ref, consent: true, signature: "data:image/png;base64," + "A".repeat(200), name: "عميل تجريبي" });
   assert.equal(s.body.ok, true);
   const v2 = await call("contract-view", { ref });
   assert.equal(v2.body.needsResign, false, "عقدٌ موقّع لا يُوسَم «يلزم توقيع جديد» لأن اليوم تغيّر");
@@ -134,7 +134,7 @@ test("عقد موقّع قديم بلا build لا يُعاد بناؤه ولا 
   await call("ops-quote", { ref, items: [{ title: "بند", price: 1000, qty: 1 }] });
   await call("quote-approve", { ref });
   await call("ops-contract", { ref, lead_time: "١٠ أيام" });
-  await call("contract-sign", { ref, consent: true, name: "ع" });
+  await call("contract-sign", { ref, consent: true, signature: "data:image/png;base64," + "A".repeat(200), name: "عميل تجريبي" });
   const row = await rowOf(ref);
   const { build, ...legacy } = row.contract;
   await sb(`requests?id=eq.${row.id}`, { method: "PATCH", body: { contract: legacy } });
@@ -146,13 +146,20 @@ test("عقد موقّع قديم بلا build لا يُعاد بناؤه ولا 
 test("صورة التوقيع: تُحفظ كاملة أو لا تُحفظ", async () => {
   const big = "data:image/png;base64," + "A".repeat(80000);   // أطول من الحد القديم ٦٠٠٠٠ وتحت الجديد
   const huge = "data:image/png;base64," + "A".repeat(300000);
-  for (const [img, expect] of [[big, big], [huge, null], ["data:text/html;base64,PHNjcmlwdD4=", null], ["javascript:alert(1)", null]]) {
+  for (const [img, expect] of [[big, big], [huge, null], ["data:text/html;base64,PHNjcmlwdD4=", null], ["javascript:alert(1)", null], [null, null]]) {
     const ref = await newRequest();
     await call("ops-quote", { ref, items: [{ title: "بند", price: 100, qty: 1 }] });
     await call("quote-approve", { ref });
-    const s = await call("contract-sign", { ref, consent: true, name: "ع", signature: img });
-    assert.equal(s.body.ok, true);
-    assert.equal((await rowOf(ref)).contract.signature.image, expect);
+    const s = await call("contract-sign", { ref, consent: true, name: "عميل تجريبي", signature: img });
+    if (expect) {
+      assert.equal(s.body.ok, true);
+      assert.equal((await rowOf(ref)).contract.signature.image, expect);
+    } else {
+      // رسمٌ تالف أو ناقص لا يُقبل بعد الآن: لا توقيع بلا رسم صالح، والعقد يبقى بانتظار التوقيع
+      assert.equal(s.status, 400); assert.equal(s.body.error, "signature_required");
+      assert.ok(s.body.message.includes("ارسم توقيعك"));
+      assert.equal((await rowOf(ref)).contract.status, "SENT");
+    }
   }
 });
 
@@ -185,7 +192,9 @@ test("بند الحشو seed لا يحجب العرض الآلي ولا يُطب
 
   const ref2 = await newRequest([{ code: "BP-SBC-01", title: "خدمة ثابتة", qty: 1 }]);
   const r2 = await call("scope-confirm", { ref: ref2, scope: [{ code: "BP-SBC-01", title: "خدمة ثابتة", qty: 1 }, { code: "", title: "ترجمة عقد خاصة", qty: 1 }] });
-  assert.equal(r2.body.stage, "PRICING", "بندٌ كتبه العميل يحتاج سعراً بشرياً");
+  assert.equal(r2.body.stage, "QUOTE", "المسعّر يصدر، وبندٌ كتبه العميل يذهب إلى pending_items");
+  assert.deepEqual(r2.body.quote.pending_items.map((x) => x.title), ["ترجمة عقد خاصة"]);
+  assert.deepEqual(r2.body.quote.items.map((i) => i.title), ["تأسيس شركة سعودية"]);
 
   // seed بلا أي بند حقيقي لا يُصدر شيئاً
   const ref3 = await newRequest([{ code: "", title: "حشو", qty: 1, seed: true }]);

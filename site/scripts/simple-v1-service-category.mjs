@@ -199,9 +199,13 @@ grid.addEventListener('click',function(e){
   add.textContent=C.tx.added;setTimeout(function(){add.textContent=C.tx.addCart},1600);
   toast(C.tx.toast,false,true);return}
  // ---- طلب عرض سعر: تسليمٌ إلى محادثة الرئيسية (يُقرأ المفتاح ويُحذف هناك في خطوة واحدة).
+ function qdAdd(it,door){var d=null;try{d=JSON.parse(localStorage.getItem('bp_quote_draft')||'null')}catch(e){}if(!d||!d.at||Date.now()-d.at>216e5||!Array.isArray(d.items))d={items:[]};var items=d.items.filter(function(x){return x&&x.title&&!(it.code&&x.code===it.code)&&x.title!==it.title});items.push(it);var nd={at:Date.now(),door:door||d.door||'government',items:items};try{localStorage.setItem('bp_quote_draft',JSON.stringify(nd))}catch(e){}return nd}
  var q=e.target.closest&&e.target.closest('.sv1-cp-quote');
  if(q){var nm=q.getAttribute('data-name')||'',cd=q.getAttribute('data-code')||'';
-  try{sessionStorage.setItem('bp_sva_request',JSON.stringify({items:[{code:cd,title:nm,why:q.getAttribute('data-gov')||''}],door:C.door,text:nm,name:nm,code:cd,at:Date.now()}))}catch(x){}}
+  // يضيف إلى مسودة الطلب بدل أن يستبدل ما سبق (bp_quote_draft)
+  var nd=qdAdd({code:cd,title:nm,why:q.getAttribute('data-gov')||''},C.door);
+  var names=nd.items.map(function(x){return x.title}).join('، ');
+  try{sessionStorage.setItem('bp_sva_request',JSON.stringify({items:nd.items,door:nd.door,text:nd.items.length>1?names:nm,name:nd.items.length>1?names:nm,code:nd.items.length>1?'':cd,at:Date.now()}))}catch(x){}}
 });
 // ---- بحث داخل التصنيف: يُخفي البطاقات ولا يحذفها (تبقى في الصفحة للفهرسة).
 var qi=$('cpQ');
