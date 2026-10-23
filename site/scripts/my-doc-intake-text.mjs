@@ -1,0 +1,152 @@
+// نصوص رحلة «ارفع كل ملفات شركتك مرة واحدة» في /my بالأربع لغات.
+// تُدمج في P داخل simple-v1-my.mjs (مفاتيحها تبدأ بـix) فتصل الصفحة عبر TX.
+// المسميات المهنية: «المستشار الذكي» وعائلتها — لا «الوكيل». لا وعد بما لم يُحفظ بعد:
+// كل عبارة تقول «اعتمد» تقولها قبل الحفظ لا بعده.
+
+const T = (ar, en, fr, zh) => ({ ar, en, fr, zh });
+
+export const INTAKE_P = {
+  // ---- نقطة الدخول (في «مستنداتي» و«بيانات الشركة»)
+  ixTitle: T("ارفع كل ملفات شركتك مرة واحدة", "Upload all your company files at once", "Téléversez tous les fichiers de votre entreprise d'un coup", "一次上传公司的全部文件"),
+  ixSub: T("نقرأ ملفاتك ونرتّبها ونعبّئ بيانات شركتك، وأنت تراجع وتؤكد.",
+    "We read your files, sort them and fill in your company details — you review and confirm.",
+    "Nous lisons vos fichiers, les classons et remplissons les données de votre entreprise ; vous vérifiez et confirmez.",
+    "我们读取并整理您的文件、填写公司资料，由您核对并确认。"),
+  ixHint: T("سجل تجاري · شهادة ضريبية · عنوان وطني · رخص · عقود — PDF أو صور (JPG · PNG · WEBP)، حتى ٨ ميجابايت للملف وحتى ١٢ ملفاً في المرة.",
+    "Commercial registration · VAT certificate · national address · licences · contracts — PDF or images (JPG · PNG · WEBP), up to 8 MB per file and 12 files at a time.",
+    "Registre de commerce · attestation de TVA · adresse nationale · licences · contrats — PDF ou images (JPG · PNG · WEBP), 8 Mo par fichier, 12 fichiers à la fois.",
+    "商业登记 · 增值税证书 · 国家地址 · 执照 · 合同 — PDF 或图片（JPG · PNG · WEBP），单个文件最大 8 MB，一次最多 12 个。"),
+  ixDrop: T("اسحب ملفاتك هنا، أو اضغط لاختيارها دفعة واحدة", "Drop your files here, or click to choose them all at once", "Déposez vos fichiers ici, ou cliquez pour les choisir tous d'un coup", "将文件拖到此处，或点击一次选择多个"),
+  ixBtn: T("اختر الملفات", "Choose files", "Choisir les fichiers", "选择文件"),
+  ixNoSave: T("لا نحفظ شيئاً قبل أن تضغط «اعتمد ورتّب».", "Nothing is saved until you press “Confirm and organise”.", "Rien n'est enregistré avant que vous n'appuyiez sur « Valider et classer ».", "在您点击“确认并整理”之前不会保存任何内容。"),
+
+  // ---- الخطوات
+  ixStep1: T("القراءة", "Reading", "Lecture", "读取"),
+  ixStep2: T("المراجعة", "Review", "Vérification", "核对"),
+  ixStep3: T("الاعتماد", "Confirm", "Validation", "确认"),
+  ixClose: T("إغلاق", "Close", "Fermer", "关闭"),
+  ixCancel: T("إلغاء", "Cancel", "Annuler", "取消"),
+  ixBack: T("ارجع", "Go back", "Retour", "返回"),
+
+  // ---- شاشة التقدّم
+  ixReadingTitle: T("نقرأ ملفاتك…", "Reading your files…", "Lecture de vos fichiers…", "正在读取您的文件…"),
+  ixReadingLead: T("يمكنك ترك الصفحة تعمل — نقرأ كل ملف على حدة.", "You can leave this running — each file is read on its own.", "Vous pouvez laisser tourner — chaque fichier est lu séparément.", "您可以让它继续运行——每个文件单独读取。"),
+  ixCount: T("قُرئ {n} من {t}", "{n} of {t} read", "{n} sur {t} lus", "已读取 {n} / {t}"),
+  ixQueued: T("بالانتظار", "Waiting", "En attente", "等待中"),
+  ixReadingNow: T("يُقرأ…", "Reading…", "Lecture…", "读取中…"),
+  ixReady: T("جاهز", "Ready", "Prêt", "已就绪"),
+  ixFailed: T("تعذّر", "Failed", "Échec", "失败"),
+  ixManual: T("يُحفظ بلا قراءة", "Saved without reading", "Enregistré sans lecture", "不读取直接保存"),
+  ixRetry: T("أعد المحاولة", "Try again", "Réessayer", "重试"),
+  ixRemove: T("أزل", "Remove", "Retirer", "移除"),
+  ixContinue: T("تابع للمراجعة", "Continue to review", "Passer à la vérification", "继续核对"),
+  ixAddMore: T("أضف ملفات أخرى", "Add more files", "Ajouter des fichiers", "添加更多文件"),
+
+  // ---- شاشة المراجعة
+  ixReviewTitle: T("راجع ما قرأناه", "Review what we read", "Vérifiez ce que nous avons lu", "核对读取结果"),
+  ixReviewLead: T("لن يُحفظ شيء قبل أن تضغط «اعتمد ورتّب». عدّل أي بيان، أو تجاهل أي ملف.",
+    "Nothing is saved until you press “Confirm and organise”. Edit anything, or ignore any file.",
+    "Rien n'est enregistré avant « Valider et classer ». Modifiez ou ignorez ce que vous voulez.",
+    "在您点击“确认并整理”之前不会保存任何内容。可修改任何信息，或忽略任何文件。"),
+  ixSummary: T("{t} ملفات: {r} مقروء · {u} غير مقروء · {d} مكرر · {f} تعذّر",
+    "{t} files: {r} read · {u} unread · {d} duplicate · {f} failed",
+    "{t} fichiers : {r} lus · {u} illisibles · {d} doublons · {f} en échec",
+    "{t} 个文件：{r} 个已读取 · {u} 个无法读取 · {d} 个重复 · {f} 个失败"),
+  ixCompanyTitle: T("بيانات شركتك المقترحة", "Your suggested company details", "Données suggérées de votre entreprise", "建议的公司资料"),
+  ixCompanyLead: T("من ملفاتك. عدّل ما شئت قبل الاعتماد — لا يُحدَّث إلا ما تُبقيه هنا.",
+    "Taken from your files. Edit freely before confirming — only what you keep here is updated.",
+    "Tirées de vos fichiers. Modifiez avant de valider — seul ce que vous gardez ici est mis à jour.",
+    "取自您的文件。确认前可自由修改——仅更新您在此保留的内容。"),
+  ixFVat: T("الرقم الضريبي", "VAT number", "Numéro de TVA", "税号"),
+  ixFCity: T("المدينة", "City", "Ville", "城市"),
+  ixCurrent: T("المسجَّل الآن: {v}", "Currently saved: {v}", "Actuellement : {v}", "当前已保存：{v}"),
+  ixReplaces: T("سيحلّ المقروء محلّه", "The value we read will replace it", "La valeur lue le remplacera", "将以读取到的内容替换"),
+  ixSame: T("مطابق للمسجَّل ✓", "Matches what is saved ✓", "Identique à l'existant ✓", "与已保存内容一致 ✓"),
+  ixFresh: T("جديد من ملفاتك", "New, from your files", "Nouveau, tiré de vos fichiers", "来自您文件的新信息"),
+  ixNotFound: T("لم نجده في ملفاتك — اكتبه إن أردت", "Not found in your files — type it if you wish", "Introuvable dans vos fichiers — saisissez-le si vous voulez", "文件中未找到——如需可手动填写"),
+  ixFrom: T("من: {f}", "From: {f}", "Source : {f}", "来源：{f}"),
+  ixAlt: T("وجدنا في ملف آخر: {v}", "Another file says: {v}", "Un autre fichier indique : {v}", "另一文件显示：{v}"),
+  ixUseAlt: T("استعمله", "Use it", "Utiliser", "采用"),
+
+  // ---- بطاقة الملف
+  ixType: T("النوع", "Type", "Type", "类型"),
+  ixCatLbl: T("التصنيف في الخزانة", "Vault category", "Catégorie dans le coffre", "保险库分类"),
+  ixReadLbl: T("ما قرأناه", "What we read", "Ce que nous avons lu", "读取到的内容"),
+  ixAddr: T("العنوان", "Address", "Adresse", "地址"),
+  ixContact: T("المسؤول", "Contact", "Responsable", "负责人"),
+  ixPhone: T("الجوال", "Mobile", "Mobile", "手机"),
+  ixConfHigh: T("ثقة عالية", "High confidence", "Confiance élevée", "高可信度"),
+  ixConfMed: T("ثقة متوسطة", "Medium confidence", "Confiance moyenne", "中等可信度"),
+  ixConfLow: T("ثقة منخفضة — تأكّد منه", "Low confidence — please check", "Confiance faible — à vérifier", "可信度低——请核实"),
+  ixIgnore: T("تجاهل ملف", "Ignore this file", "Ignorer ce fichier", "忽略此文件"),
+  ixRestore: T("أعد الملف", "Keep this file", "Reprendre ce fichier", "保留此文件"),
+  ixIgnored: T("سيُتجاهل ولن يُحفظ", "Will be ignored and not saved", "Sera ignoré et non enregistré", "将被忽略，不会保存"),
+  ixUnreadNote: T("لم نقرأ محتواه — سيُحفظ في الخزانة كما هو، صنّفه بنفسك.", "We could not read it — it will be saved to your vault as is; classify it yourself.", "Nous n'avons pas pu le lire — il sera enregistré tel quel ; classez-le vous-même.", "无法读取——将原样保存到保险库，请自行分类。"),
+  ixTypeUnknown: T("لم يُصنَّف", "Not classified", "Non classé", "未分类"),
+
+  // ---- أنواع المستندات كما يقرؤها المستشار الذكي
+  ixT_cr: T("سجل تجاري", "Commercial registration", "Registre de commerce", "商业登记"),
+  ixT_vat_certificate: T("شهادة ضريبة القيمة المضافة", "VAT certificate", "Attestation de TVA", "增值税证书"),
+  ixT_national_address: T("العنوان الوطني", "National address", "Adresse nationale", "国家地址"),
+  ixT_license: T("رخصة", "Licence", "Licence", "执照"),
+  ixT_gosi: T("شهادة التأمينات الاجتماعية", "GOSI certificate", "Attestation GOSI", "社保证明"),
+  ixT_zakat: T("شهادة الزكاة", "Zakat certificate", "Attestation de Zakat", "天课证明"),
+  ixT_id: T("هوية / إقامة", "ID / Iqama", "Pièce d'identité / Iqama", "身份证 / 居留证"),
+  ixT_contract: T("عقد", "Contract", "Contrat", "合同"),
+  ixT_other: T("مستند آخر", "Other document", "Autre document", "其他文件"),
+
+  // ---- التحذيرات
+  ixWExpired: T("منتهي الصلاحية", "Expired", "Expiré", "已过期"),
+  ixWExpiring: T("ينتهي خلال {n} يوماً", "Expires in {n} days", "Expire dans {n} jours", "{n} 天后到期"),
+  ixWDup: T("مكرر — سيُتجاهل ما لم تُبقِه", "Duplicate — ignored unless you keep it", "Doublon — ignoré sauf si vous le gardez", "重复——除非您保留，否则将被忽略"),
+  ixWConflict: T("يتعارض مع ملف آخر في: {f}", "Conflicts with another file on: {f}", "Contradiction avec un autre fichier sur : {f}", "与另一文件冲突：{f}"),
+  ixWConflictSaved: T("يختلف عن المسجَّل لديك في: {f}", "Differs from what you have saved: {f}", "Diffère de ce qui est enregistré : {f}", "与您已保存的不同：{f}"),
+  ixWLow: T("قراءة غير مؤكدة", "Uncertain reading", "Lecture incertaine", "读取结果不确定"),
+  ixWBadVat: T("الرقم الضريبي يجب أن يكون ١٥ رقماً", "A VAT number has 15 digits", "Un numéro de TVA compte 15 chiffres", "税号应为 15 位数字"),
+  ixWBadCr: T("رقم السجل التجاري عادةً ١٠ أرقام", "A CR number usually has 10 digits", "Un numéro de RC compte en général 10 chiffres", "商业登记号通常为 10 位数字"),
+  ixWUnread: T("غير مقروء — يُحفظ كما هو", "Unreadable — saved as is", "Illisible — enregistré tel quel", "无法读取——原样保存"),
+  ixWNewVer: T("سيُحفظ نسخةً جديدة من مستند قائم", "Will be saved as a new version of an existing document", "Sera enregistré comme nouvelle version d'un document existant", "将保存为现有文件的新版本"),
+
+  // ---- الاعتماد
+  ixConfirm: T("اعتمد ورتّب", "Confirm and organise", "Valider et classer", "确认并整理"),
+  ixConfirmN: T("اعتمد ورتّب ({n})", "Confirm and organise ({n})", "Valider et classer ({n})", "确认并整理（{n}）"),
+  ixNothing: T("أبقِ ملفاً واحداً على الأقل، أو عدّل بيانات الشركة.", "Keep at least one file, or edit the company details.", "Gardez au moins un fichier, ou modifiez les données de l'entreprise.", "请至少保留一个文件，或修改公司资料。"),
+  ixNeedName: T("اكتب اسم الشركة أولاً — الخزانة مرتبطة بها.", "Enter the company name first — the vault belongs to it.", "Saisissez d'abord le nom de l'entreprise — le coffre en dépend.", "请先填写公司名称——保险库归属于公司。"),
+  ixCancelAsk: T("نتجاهل كل ما قُرئ؟ لن يُحفظ شيء.", "Discard everything we read? Nothing will be saved.", "Abandonner tout ce qui a été lu ? Rien ne sera enregistré.", "放弃已读取的全部内容？不会保存任何内容。"),
+  ixCancelYes: T("نعم، ألغِ كل شيء", "Yes, cancel everything", "Oui, tout annuler", "是，全部取消"),
+  ixCancelNo: T("تابع المراجعة", "Keep reviewing", "Continuer la vérification", "继续核对"),
+  ixSavingTitle: T("نحفظ ونرتّب…", "Saving and organising…", "Enregistrement et classement…", "正在保存并整理…"),
+  ixSavingLead: T("لا تغلق الصفحة — نحفظ كل ملف في خزانتك.", "Keep this page open — we are saving each file to your vault.", "Gardez cette page ouverte — chaque fichier est enregistré dans votre coffre.", "请保持页面打开——正在将每个文件保存到您的保险库。"),
+  ixSavingCompany: T("تحديث بيانات الشركة", "Updating company details", "Mise à jour des données de l'entreprise", "更新公司资料"),
+  ixSavingNow: T("يُحفظ…", "Saving…", "Enregistrement…", "保存中…"),
+  ixSaved: T("تم ✓", "Done ✓", "Fait ✓", "完成 ✓"),
+  ixStop: T("أوقف", "Stop", "Arrêter", "停止"),
+
+  // ---- النتيجة
+  ixDoneTitle: T("تم ترتيب ملفاتك", "Your files are organised", "Vos fichiers sont classés", "您的文件已整理完成"),
+  ixDoneFiles: T("حُفظ {n} من الملفات في خزانتك ورُتّبت حسب نوعها.", "{n} files were saved to your vault and sorted by type.", "{n} fichiers ont été enregistrés dans votre coffre et classés par type.", "已将 {n} 个文件保存到保险库并按类型整理。"),
+  ixDoneCompany: T("حُدّثت بيانات شركتك:", "Your company details were updated:", "Les données de votre entreprise ont été mises à jour :", "已更新您的公司资料："),
+  ixDoneNoCompany: T("لم تتغيّر بيانات الشركة.", "Company details did not change.", "Les données de l'entreprise n'ont pas changé.", "公司资料未变化。"),
+  ixPartialTitle: T("اكتمل جزء من العمل", "Part of the work is done", "Une partie du travail est faite", "部分完成"),
+  ixPartial: T("تعذّر حفظ {n} من الملفات. ما حُفظ قبلها بقي محفوظاً.", "{n} files could not be saved. What was saved before them stays saved.", "{n} fichiers n'ont pas pu être enregistrés. Ce qui l'était avant reste enregistré.", "有 {n} 个文件保存失败。此前已保存的内容保持不变。"),
+  ixStopped: T("أوقفتَ الحفظ. ما حُفظ قبل ذلك بقي في خزانتك.", "You stopped saving. What was saved before stays in your vault.", "Vous avez arrêté l'enregistrement. Ce qui l'était reste dans votre coffre.", "您已停止保存。此前保存的内容仍在保险库中。"),
+  ixRetrySave: T("أعد محاولة الملفات المتعذّرة", "Retry the failed files", "Réessayer les fichiers en échec", "重试失败的文件"),
+  ixOpenVault: T("افتح مستنداتي", "Open my documents", "Ouvrir mes documents", "打开我的文件"),
+  ixOpenCompany: T("افتح بيانات الشركة", "Open company details", "Ouvrir les données de l'entreprise", "打开公司资料"),
+  ixFieldsWord: T("حقول", "fields", "champs", "项"),
+
+  // ---- الأخطاء (كل رمز خطأ نصّه بلغة العميل: ما المشكلة وما الحل)
+  ixEBig: T("أكبر من ٨ ميجابايت — صغّر حجمه أو قسّمه ثم ارفعه.", "Larger than 8 MB — reduce or split it, then upload again.", "Plus de 8 Mo — réduisez-le ou découpez-le, puis téléversez à nouveau.", "超过 8 MB——请压缩或拆分后重新上传。"),
+  ixEBigRead: T("أكبر من ٦ ميجابايت فلا يُقرأ آلياً — سيُحفظ كما هو وتصنّفه بنفسك.", "Larger than 6 MB so it cannot be read automatically — it will be saved as is and you classify it.", "Plus de 6 Mo : lecture automatique impossible — enregistré tel quel, à classer vous-même.", "超过 6 MB，无法自动读取——将原样保存，请自行分类。"),
+  ixEType: T("صيغة غير مقبولة. المقبول: PDF · JPG · PNG · WEBP.", "Format not accepted. Accepted: PDF · JPG · PNG · WEBP.", "Format non accepté. Acceptés : PDF · JPG · PNG · WEBP.", "不接受此格式。可用格式：PDF · JPG · PNG · WEBP。"),
+  ixEEmpty: T("الملف فارغ.", "The file is empty.", "Le fichier est vide.", "文件为空。"),
+  ixEUnread: T("لم نتمكن من قراءة محتواه (صورة غير واضحة، أو ملف محمي بكلمة مرور). يمكنك حفظه في الخزانة وتصنيفه بنفسك.", "We could not read its content (blurry image or password-protected file). You can still save it to your vault and classify it yourself.", "Contenu illisible (image floue ou fichier protégé par mot de passe). Vous pouvez l'enregistrer dans le coffre et le classer vous-même.", "无法读取其内容（图片模糊或文件有密码保护）。您仍可将其保存到保险库并自行分类。"),
+  ixEService: T("خدمة القراءة الذكية غير متاحة الآن. سنحفظ ملفاتك في الخزانة بلا تعبئة تلقائية — صنّف كل ملف بنفسك، أو أعد المحاولة لاحقاً.", "The smart reading service is unavailable right now. We will save your files to the vault without auto-filling — classify each yourself, or try again later.", "Le service de lecture intelligente est indisponible. Vos fichiers seront enregistrés sans remplissage automatique — classez-les vous-même, ou réessayez plus tard.", "智能读取服务暂时不可用。我们将把文件保存到保险库，但不会自动填写——请自行分类，或稍后重试。"),
+  ixEBusy: T("الخدمة مشغولة — أعد المحاولة بعد لحظات.", "The service is busy — try again in a moment.", "Service occupé — réessayez dans un instant.", "服务繁忙——请稍后重试。"),
+  ixENet: T("تعذّر الوصول إلى الخادم — تحقّق من اتصالك ثم أعد المحاولة.", "Could not reach the server — check your connection and try again.", "Serveur injoignable — vérifiez votre connexion et réessayez.", "无法连接服务器——请检查网络后重试。"),
+  ixENoOrg: T("أضف اسم شركتك أولاً — الخزانة مرتبطة بالمنشأة.", "Add your company name first — the vault belongs to the company.", "Ajoutez d'abord le nom de votre entreprise — le coffre en dépend.", "请先填写公司名称——保险库归属于公司。"),
+  ixEMany: T("تجاوزت الحدّ الأقصى (١٢ ملفاً في المرة) — أضفنا الأوائل فقط.", "Over the limit (12 files at a time) — only the first ones were added.", "Limite dépassée (12 fichiers à la fois) — seuls les premiers ont été ajoutés.", "超过上限（一次 12 个文件）——仅添加了前面的文件。"),
+  ixEGeneric: T("تعذّرت معالجة الملف — أعد المحاولة، وإن تكرّر فاحفظه في الخزانة بلا قراءة.", "The file could not be processed — try again; if it repeats, save it to the vault without reading.", "Traitement impossible — réessayez ; si cela se répète, enregistrez-le sans lecture.", "无法处理该文件——请重试；若反复失败，可不读取直接保存。"),
+  ixESave: T("تعذّر حفظ هذا الملف — أعد المحاولة.", "This file could not be saved — try again.", "Ce fichier n'a pas pu être enregistré — réessayez.", "无法保存此文件——请重试。"),
+  ixECompany: T("تعذّر تحديث بيانات الشركة — أعد المحاولة.", "Company details could not be updated — try again.", "Les données de l'entreprise n'ont pas pu être mises à jour — réessayez.", "无法更新公司资料——请重试。")
+};

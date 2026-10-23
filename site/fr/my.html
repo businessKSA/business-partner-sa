@@ -521,6 +521,102 @@ select.inp{background:#fff;color:inherit}
 @media(max-width:620px){.tl li{flex-wrap:wrap;gap:2px 10px}.tl li time{min-width:0;flex:1 1 100%}.tl li span{flex:1 1 0;min-width:0;overflow-wrap:anywhere}.my-main{padding:16px 14px 120px}.msgform .btn{flex:1 1 auto}.dgrid{grid-template-columns:1fr}.row{flex-wrap:wrap}.row .tt{flex:1 1 100%}.items li{flex-wrap:wrap}.items li>div{flex:1 1 140px;min-width:0}.items li .btn{max-width:100%;white-space:normal;text-align:start}}
 .mob{display:none}
 @media(max-width:900px){.my{grid-template-columns:minmax(0,1fr)}.my-side{position:static;height:auto;display:none}.my-side.open{display:block}.mob{display:flex;gap:6px;overflow:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line)}.mob a{white-space:nowrap;padding:7px 11px;border-radius:999px;border:1px solid var(--line);font-size:.82rem;font-weight:700;color:#2c3550}.mob a.on{background:var(--n);color:#fff;border-color:var(--n)}.my-kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:minmax(0,1fr)}.my-main{padding:14px}}
+
+/* ارفع كل ملفات شركتك مرة واحدة */
+.ix-card{display:flex;gap:14px;align-items:center;flex-wrap:wrap;border:2px dashed #b7c4e8;border-radius:18px;background:linear-gradient(180deg,#f7f9ff,#fff);padding:18px 20px;margin-bottom:16px;cursor:pointer;transition:border-color .15s,background .15s}
+.ix-card:hover,.ix-card.over{border-color:var(--n);background:#f1f5ff}
+.ix-card:focus-visible{outline:2px solid var(--n);outline-offset:2px}
+.ix-ico{font-size:2rem;line-height:1;flex:none}
+.ix-txt{flex:1 1 260px;min-width:0}
+.ix-txt b{display:block;color:var(--ink);font-size:1.05rem;font-weight:600}
+.ix-txt p{margin:4px 0 6px;color:#3b4561;font-size:.9rem;line-height:1.8}
+.ix-txt small{display:block;color:var(--mut);font-size:.78rem;line-height:1.7}
+.ix-card .btn{flex:0 0 auto}
+.ix-lock{overflow:hidden}
+.ix-ovl{position:fixed;inset:0;z-index:96;background:rgba(12,18,40,.55);display:flex;justify-content:center;align-items:stretch}
+.ix-box{background:var(--g,#f5f7fb);width:100%;max-width:920px;display:flex;flex-direction:column;min-height:0;outline:none}
+.ix-hd{flex:none;display:flex;align-items:center;gap:12px;padding:14px 18px;background:#fff;border-bottom:1px solid var(--line)}
+.ix-hd h2{margin:0;flex:1;min-width:0;font-size:1.1rem;font-weight:600;color:var(--ink)}
+.ix-x{flex:none;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;width:38px;height:38px;font-size:1.05rem;cursor:pointer;line-height:1}
+.ix-steps{flex:none;display:flex;gap:6px;padding:10px 18px;background:#fff;border-bottom:1px solid var(--line);list-style:none;margin:0}
+.ix-steps li{flex:1 1 0;min-width:0;text-align:center;font-size:.78rem;font-weight:700;color:var(--mut);padding:6px 4px;border-radius:999px;background:#eef0f5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ix-steps li.done{background:#eaf7ef;color:#118657}
+.ix-steps li.on{background:var(--n);color:#fff}
+.ix-body{flex:1;min-height:0;overflow:auto;padding:16px 18px}
+.ix-ft{flex:none;display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 18px calc(12px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line)}
+.ix-ft .grow{flex:1}
+.ix-ft .btn{min-height:42px}
+.ix-ft .msg{flex:1 1 100%;font-size:.84rem;color:#b91c1c;margin:0}
+.ix-ft .ask{flex:1 1 100%;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ix-ft .ask span{flex:1 1 200px;font-size:.88rem;color:#7f1d1d;font-weight:600}
+.ix-lead{margin:0 0 12px;color:#3b4561;font-size:.9rem;line-height:1.8}
+.ix-banner{border:1px solid #f3d9a4;background:#fffaf0;color:#7c2d12;border-radius:12px;padding:11px 14px;font-size:.86rem;line-height:1.8;margin-bottom:12px}
+.ix-count{display:flex;align-items:center;gap:10px;margin:0 0 6px;font-size:.88rem;color:var(--ink);font-weight:600}
+.ix-count .bar{flex:1;margin-top:0}
+.ix-row{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:8px}
+.ix-row .st{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.85rem;font-weight:800;box-sizing:border-box}
+.ix-row.queued .st{background:#eef0f5;color:#5f6880}
+.ix-row.reading .st,.ix-row.saving .st{border:3px solid #dbe3fb;border-top-color:var(--n);animation:ixspin .8s linear infinite}
+.ix-row.ready .st,.ix-row.done .st{background:#eaf7ef;color:#118657}
+.ix-row.failed .st{background:#fee2e2;color:#b91c1c}
+.ix-row.manual .st{background:#fff3e6;color:#b45309}
+@keyframes ixspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.ix-row.reading .st,.ix-row.saving .st{animation:none}}
+.ix-row .tt{flex:1;min-width:0}
+.ix-row .tt b{display:block;color:var(--ink);font-weight:500;font-size:.92rem;overflow-wrap:anywhere}
+.ix-row .tt small{display:block;color:var(--mut);font-size:.78rem;line-height:1.7;overflow-wrap:anywhere}
+.ix-row .tt small.bad{color:#b91c1c}
+.ix-row .tt small.warn{color:#b45309}
+.ix-row .side{flex:none;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.ix-sum{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px;font-size:.84rem;color:var(--mut)}
+.ix-co{background:#fff;border:1px solid #b7c4e8;border-radius:16px;padding:16px;margin-bottom:14px}
+.ix-co h3{margin:0 0 4px;color:var(--ink);font-size:1.02rem;font-weight:600}
+.ix-co .ix-lead{margin-bottom:10px}
+.ix-fld{margin-bottom:12px}
+.ix-fld label{display:block;font-size:.82rem;color:var(--mut);margin-bottom:4px}
+.ix-fld .inp{width:100%;box-sizing:border-box}
+.ix-fld small{display:block;margin-top:4px;font-size:.78rem;line-height:1.7;color:var(--mut)}
+.ix-fld small.warn{color:#b45309}.ix-fld small.good{color:#118657}
+.ix-fld .alt{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px;border:1px solid #f3d9a4;background:#fffaf0;border-radius:10px;padding:5px 8px;font-size:.78rem;color:#7c2d12}
+.ix-fld .alt button{border:0;background:transparent;color:var(--n);font:inherit;font-weight:700;cursor:pointer;text-decoration:underline;padding:0}
+.ix-file{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 15px;margin-bottom:12px}
+.ix-file.off{opacity:.6;background:#f7f8fb}
+.ix-file .hd{display:flex;gap:10px;align-items:flex-start}
+.ix-file .hd .ico{font-size:1.4rem;line-height:1;flex:none}
+.ix-file .hd .tt{flex:1;min-width:0}
+.ix-file .hd .tt b{display:block;color:var(--ink);font-weight:500;font-size:.93rem;overflow-wrap:anywhere}
+.ix-file .hd .tt small{color:var(--mut);font-size:.76rem;font-family:var(--fm)}
+.ix-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.ix-note{margin:8px 0 0;font-size:.82rem;line-height:1.8;color:#7c2d12;background:#fff7ed;border-radius:10px;padding:8px 11px}
+.ix-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-top:10px}
+@media(min-width:760px){.ix-grid{grid-template-columns:1.4fr 1fr 1fr}}
+.ix-grid label{display:block;font-size:.78rem;color:var(--mut);margin-bottom:3px}
+.ix-grid .inp{width:100%;box-sizing:border-box}
+.ix-read{margin:10px 0 0;padding:10px 12px;border-radius:12px;background:#f7f9ff;display:grid;grid-template-columns:minmax(0,1fr);gap:5px}
+.ix-read h4{margin:0 0 2px;font-size:.78rem;color:var(--mut);font-weight:700}
+.ix-read div{display:flex;gap:8px;align-items:baseline;font-size:.84rem;min-width:0}
+.ix-read div span{color:var(--mut);flex:none;min-width:96px}
+.ix-read div b{font-weight:500;color:var(--ink);overflow-wrap:anywhere;min-width:0}
+.ix-dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex:none;margin-inline-start:auto;align-self:center}
+.ix-dot.hi{background:#118657}.ix-dot.md{background:#f59e0b}.ix-dot.lo{background:#dc2626}
+.ix-act{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.ix-done{text-align:center;padding:6px 0 14px}
+.ix-done .big{width:58px;height:58px;border-radius:50%;background:#eaf7ef;color:#118657;display:grid;place-items:center;margin:0 auto 10px;font-size:1.8rem;font-weight:800}
+.ix-done .big.part{background:#fff3e6;color:#b45309}
+.ix-done h3{margin:0 0 6px;font-size:1.2rem;font-weight:600;color:var(--ink)}
+.ix-done p{margin:0;color:#3b4561;font-size:.92rem;line-height:1.8}
+.ix-res{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 15px;margin-bottom:12px}
+.ix-res h4{margin:0 0 8px;font-size:.92rem;color:var(--ink);font-weight:600}
+.ix-res ul{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.ix-res li{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-size:.86rem;color:var(--ink);min-width:0}
+.ix-res li small{color:var(--mut);overflow-wrap:anywhere}
+.ix-res li .arrow{color:var(--mut)}
+.ix-res li s{color:#b45309;text-decoration-thickness:1px}
+.ix-res li b{font-weight:600}
+@media(min-width:760px){.ix-ovl{padding:24px}.ix-box{border-radius:20px;box-shadow:0 24px 70px rgba(12,18,40,.4);overflow:hidden}}
+@media(max-width:620px){.ix-card .btn{width:100%}.ix-ft .btn{flex:1 1 auto}.ix-row{flex-wrap:wrap}.ix-row .side{flex:1 1 100%;justify-content:flex-start}}
+body:has(.ix-ovl) .bps-fab,body:has(.ix-ovl) .bpa-fab,body:has(.ix-ovl) .sv1-wa-fab{display:none!important}
+
 </style>
 <div class="sv1-bar" role="region" aria-label="Statut et langue"><div class="wrap">
   <div class="sv1-bar-l">
@@ -816,7 +912,7 @@ function mountNafath(slot,opt){
 window.SV1Login={otp:otp,methods:methods,mountGoogle:mountGoogle,mountNafath:mountNafath,nid:nfState,inApp:INAPP,or:LX.or,orPlain:LX.orPlain,t:LX};
 })();</script><script>
 (function(){
-var LANG="fr",EV={"request.created":"created the request","request.created.manual":"request created manually","request.created.cart":"request opened from a direct cart purchase","scope.proposed":"proposed the scope","scope.edited":"edited the scope","scope.confirmed":"confirmed the scope","quote.pending":"awaiting the quotation","message.customer":"customer message","message.bp":"team reply","attachment.added":"added an attachment","quote.drafted":"quote drafted","quote.sent":"sent the quotation","quote.approved":"approved the quotation","quote.rejected":"requested changes","contract.sent":"sent the contract","contract.signed":"signed the contract","payment.paid":"payment received","payment.failed":"payment failed","payment.cancelled":"payment cancelled","payment.pending":"payment pending","invoice.issued":"invoice issued","appointment.booked":"booked an appointment","appointment.rescheduled":"rescheduled the appointment","appointment.cancelled":"cancelled the appointment","appointment.set":"set the appointment","task.created":"created a task","task.human_required":"task needs a human","task.done":"completed the task","task.in_progress":"started the task","task.waiting":"task waiting","task.todo":"reopened the task","execution.started":"execution started","request.cancelled":"cancelled the request","request.updated":"updated the request","document.received":"document received","deliverable.added":"delivered a file","deliverable.removed":"withdrew a delivered file","status.completed":"request completed","status.in_progress":"execution started","status.waiting_internal":"in progress","status.reviewing":"under review","status.waiting_client":"waiting for your reply","status.cancelled":"request cancelled","quote.auto":"issued the quotation automatically","documents.requested":"listed the required documents","payment.receipt":"received the transfer receipt","message.whatsapp":"WhatsApp message","contract.reissued":"re-issued the contract","request.reopened":"reopened the request","cancel.requested":"cancellation requested","payment.after_cancel":"payment received after cancellation","followup.reminded":"reminded you of the next step","nda.sent":"non-disclosure agreement sent for signature","nda.signed":"non-disclosure agreement signed","addendum.sent":"quotation addendum sent","addendum.approved":"quotation addendum approved","addendum.rejected":"quotation addendum declined"},TX={"title":"Mon compte — Business Partner","navHome":"Accueil","navNew":"Nouvelle demande","navRequests":"Mes demandes","navQuotes":"Devis","navContracts":"Contrats","navAppts":"Rendez-vous","navPay":"Panier et paiement","navInvoices":"Factures","navChats":"Conversations","navCompany":"Données de l'entreprise","logout":"Déconnexion","site":"Site","attention":"Qu'est-ce qui demande votre attention ?","kActive":"Demandes actives","kQuotes":"Devis à approuver","kContracts":"Contrats à signer","kPayments":"Paiements dus","kAppts":"Prochain rendez-vous","today":"De quoi avez-vous besoin aujourd'hui ?","empty":"Rien ici pour le moment.","ref":"Référence","status":"Statut","open":"Ouvrir","back":"Retour","conversation":"Conversation","scope":"Périmètre des services","cancelTitle":"Annuler la demande","cancelAsk":"Demander l'annulation","cancelWhy":"Motif (facultatif)","cancelEarly":"Rien n'est encore engage — l'annulation prend effet immediatement.","cancelLate":"Cette demande comporte des engagements (contrat, paiement ou execution). Nous enregistrons votre demande et l'equipe revient vers vous.","cancelSent":"Demande d'annulation recue et en cours d'examen.","cancelDone":"Demande annulee","cxNowTitle":"Annuler cette demande ?","cxAskTitle":"Demander l'annulation","cxNowGo":"Oui, annuler la demande","cxAskGo":"Envoyer la demande d'annulation","cxKeep":"Non, la garder","cxSigned":"Le contrat est signé : l'annulation n'est pas immédiate. Nous enregistrons votre demande, l'équipe l'examine et revient vers vous. La demande reste en l'état d'ici là.","cxPaid":"Le paiement a été effectué : l'annulation n'est pas immédiate. Nous enregistrons votre demande et l'équipe l'examine, remboursement compris. La demande reste en l'état d'ici là.","evNotify":"Notification envoyée","cxAppt":"Le rendez-vous de consultation réservé sera annulé avec elle.","cxNowNote":"L'annulation est immédiate et rien n'a été débité.","cxDoneNow":"Demande annulée","cxDoneNowT":"Votre demande est annulée et retirée de vos demandes actives. Vous pouvez en créer une nouvelle à tout moment.","cxPendTitle":"Demande d'annulation en cours d'examen","cxPendText":"Nous examinons ce que la demande implique (contrat, paiement, exécution) et revenons vers vous. La demande reste en l'état d'ici là.","cxSentAt":"Envoyée le","cxPill":"Annulation en examen","cxNewReq":"Nouvelle demande","cxAlready":"Une demande d'annulation est déjà enregistrée et en cours d'examen.","cxErrClosed":"Cette demande est déjà close (annulée ou terminée).","cxErrSess":"Votre session a expiré. Reconnectez-vous puis réessayez.","cxErrNet":"Serveur injoignable. Vérifiez votre connexion et réessayez.","cxErrNF":"Cette demande est introuvable dans votre compte.","cxErrGen":"Annulation impossible pour le moment. Réessayez ou écrivez à l'équipe depuis la conversation.","resign":"Une version corrigee de ce contrat a ete emise apres votre signature — nous vous l'enverrons a signer de nouveau.","openFull":"Ouvrir en grand","docPrint":"Imprimer / PDF","docClose":"Fermer","docWait":"Préparation du document…","attachments":"Pièces jointes","quote":"Devis","contract":"Contrat","payment":"Paiement","invoice":"Facture","timeline":"Chronologie","writeMsg":"Écrire un message à l'équipe…","send":"Envoyer","saveScope":"Enregistrer","quoteIssuedFlash":"Périmètre confirmé ✓ — votre devis a été émis, il est sur cette page.","holdFlash":"Périmètre confirmé ✓ — l'équipe chiffre certaines lignes ; le motif figure à côté de chacune.","signNameErr":"Saisissez votre nom complet (3 lettres au moins).","signDrawErr":"Dessinez votre signature dans le cadre avant de signer.","expiredNote":"Ce devis a expiré et ne peut plus être approuvé. Demandez un renouvellement au prix du jour.","renewAsk":"Expiré — demander un renouvellement","renewMsg":"Merci de renouveler le devis","renewSent":"Votre demande a été transmise ; un devis mis à jour suivra.","pendTitle":"Lignes en attente de prix (un devis complémentaire suivra)","pendLead":"Ces lignes ne figurent ni dans le total ni dans le contrat. L'équipe les chiffre et vous recevez un avenant ; ce devis ne change pas.","adTitle":"Avenant au devis","adApprove":"Approuver l'avenant","adReject":"Refuser","adNote":"Motif","adDone":"Avenant approuvé ; l'équipe vous recontacte.","reqGone":"Cette demande n'est plus disponible : annulée ou retirée de votre compte. Vous pouvez en commencer une autre.","nda":"Accord de confidentialité","ndaLead":"Accord réciproque entre vous et Business Partner. Le signer ne retarde pas votre demande ; il est conservé avec elle.","ndaSignBtn":"Signer l'accord","ndaSigned":"Accord signé","ndaDone":"NDA signé","ndaWait":"NDA à signer","clientNotes":"Vos remarques (à titre informatif, hors contrat)","holdTitle":"Devis en attente d'un chiffrage humain","holdLead":"Nous avons confirmé votre périmètre. Nous ne mettons jamais un prix absent du catalogue : l'équipe chiffre les lignes ci-dessous puis le devis arrive ici et par e-mail — rien à faire de votre côté.","hold_custom":"Une ligne que vous avez saisie, sans prix au catalogue","hold_unknown_code":"Code de service absent du catalogue","hold_proposal":"Chiffrée après étude de votre cas, pas un prix fixe","hold_from":"Le catalogue indique un prix « à partir de », pas un prix final","hold_recurring":"Un abonnement récurrent, pas un paiement unique","hold_percent":"Calculée en pourcentage, pas un montant fixe","hold_no_price":"Pas de prix au catalogue","cxGone":"La demande a été annulée et retirée de votre liste.","confirmScope":"Confirmer et continuer","scopePricing":"Périmètre confirmé ✓ — l'équipe prépare votre devis.","docs":"Documents requis","docsNote":"Ces documents sont nécessaires pour traiter votre demande — téléversez chacun avec son bouton, l'équipe le reçoit aussitôt.","docsNone":"Aucun document demandé pour l'instant. Vous pouvez tout de même téléverser un document lié à cette demande.","docUp":"Téléverser","docUpMore":"Téléverser un autre","docUpAny":"Téléverser un autre document","docRecv":"Reçu ✓","docWaived":"Non requis","docAsked":"Demandé","docSent":"Votre document est arrivé à l'équipe ✓","fOpen":"Ouvrir","eMany":"Nombre maximal de fichiers atteint pour cette demande.","eClosed":"Cette demande est close.","delivTitle":"Livrables","progTitle":"Votre avancement","stDone":"Terminée","stActive":"En cours","stPending":"À venir","updTitle":"Dernières mises à jour","updMore":"Voir toutes les mises à jour","updLess":"Afficher les plus récentes","delivNone":"Les fichiers que nous vous remettons apparaîtront ici ; nous vous prévenons par e-mail dès la livraison.","delivNoneDone":"La demande est terminée et ne comporte aucun fichier livré.","delivDl":"Télécharger","delivErr":"Impossible d'ouvrir le fichier — réessayez.","invSeller":"Vendeur","invVat":"N° de TVA du vendeur","invBuyer":"Client","invOfficial":"Facture officielle (PDF)","addItem":"Ajouter","remove":"Supprimer","scopeLocked":"Le périmètre est verrouillé après l'émission du devis.","qty":"Qté","price":"Prix","net":"Sous-total","vat":"TVA 15 %","total":"Total","validUntil":"Valable jusqu'au","terms":"Conditions de paiement","approve":"Approuver le devis","reject":"Demander des modifications","rejectNote":"Que souhaitez-vous modifier ?","quoteApproved":"Devis approuvé — votre contrat est prêt à signer.","quoteApprovedDone":"Devis approuvé ✓","quoteExpired":"Ce devis a expiré. Écrivez-nous depuis la demande et nous le renouvelons au prix du jour.","viewContract":"Voir le contrat","signTitle":"Signature électronique","signName":"Nom complet du signataire","signDraw":"Dessinez votre signature","signClear":"Effacer","signConsent":"J'accepte que ma signature électronique soit contraignante selon la loi sur les transactions électroniques.","signBtn":"Signer le contrat","signed":"Contrat signé","payNow":"Payer maintenant","payCardNow":"Payer par carte","payBankNow":"Payer par virement bancaire","bkTitle":"Paiement par virement bancaire","bkHow":"Virez le montant exact sur le compte de l'entreprise ci-dessous, indiquez la référence de la demande dans les notes du virement, puis téléversez l'image ou le PDF du reçu. Le conseiller intelligent vérifie le montant, le bénéficiaire et l'IBAN : s'ils correspondent, le paiement est approuvé et votre facture émise, sinon notre équipe l'examine et vous en indique le motif.","bkBene":"Bénéficiaire","bkBank":"Banque","bkIban":"IBAN","bkAmt":"Montant à virer (TTC)","bkRef":"Référence — à indiquer dans les notes","bkFile":"Reçu du virement (image ou PDF)","bkGo":"Téléverser le reçu","copy":"Copier","copied":"Copié","bkSending":"Téléversement et vérification du reçu…","bkNeedFile":"Choisissez d'abord l'image ou le PDF du reçu.","bkBadType":"Le fichier doit être une image (JPG, PNG ou WebP) ou un PDF.","bkTooBig":"Fichier trop volumineux (max 3 Mo).","bkFail":"Le reçu n'a pas pu être téléversé et rien n'a été enregistré. Réessayez bientôt, ou payez par carte.","bkLogin":"Votre session a expiré. Reconnectez-vous puis téléversez le reçu.","bkSlow":"Trop de tentatives — patientez puis réessayez.","bkClosed":"Cette demande n'accepte plus de reçus. Si vous avez déjà viré le montant, écrivez-nous dans la conversation ci-dessous.","bkPaid":"Cette demande est déjà payée.","bkOff":"Le virement n'est pas disponible pour le moment. Payez par carte ou Tamara.","bkApproved":"Le conseiller intelligent a vérifié votre reçu : le montant, le bénéficiaire et l'IBAN correspondent, votre paiement est approuvé et votre facture émise.","bkInv":"N° de facture","bkReview":"Nous avons reçu votre reçu, il est en cours d'examen. Ne virez pas le montant une seconde fois ; nous vous informerons dès l'approbation.","bkWhy":"Motif de la vérification humaine : ","reviewTitle":"Votre reçu est en cours d'examen","reviewText":"Nous avons reçu votre reçu de virement et notre équipe l'examine. Ne virez pas à nouveau, aucun nouveau paiement n'est nécessaire ; nous vous informerons dès l'approbation. Si le reçu n'était pas clair, écrivez-nous dans la conversation ci-dessous.","reviewList":"Reçus en cours d'examen","payTamaraNow":"Payer en plusieurs fois avec Tamara","payReturning":"Confirmation du paiement…","payVia":"Payer sur la page de paiement sécurisée (mada, Visa, Mastercard, Apple Pay, Tamara si disponible)","testPay":"Simuler le paiement (mode test)","paySuccess":"Succès — carte","payTamara":"Succès — Tamara","payFailed":"Échec","payCancelled":"Annulé","payPending":"En attente","paid":"Payé","download":"Voir la facture","book":"Prendre rendez-vous","reschedule":"Reprogrammer","cancelAppt":"Annuler le rendez-vous","date":"Date","time":"Heure","topic":"Sujet","confirm":"Confirmer","apptNote":"Séance vidéo gratuite sur Google Meet ; heures de Riyad. Confirmation par e-mail et invitation d'agenda.","apptHours":"Séances de {a} à {b}, heure de Riyad (GMT+3), {n} minutes chacune.","apptDays":"Tous les jours sauf {d}.","apptDaysAll":"Tous les jours de la semaine.","apptLoading":"Chargement des créneaux…","apptNone":"Aucun créneau disponible. Écrivez-nous sur WhatsApp.","apptOut":"Cet horaire est hors des heures de séance — choisissez dans la liste.","apptSoon":"Il faut au moins une heure avant la séance — choisissez plus tard.","apptFar":"Cette date dépasse la période de réservation.","apptTaken":"Ce créneau vient d'être pris — choisissez-en un autre.","apptMany":"Vous avez déjà deux séances à venir — annulez-en une ou attendez.","apptRate":"Trop de tentatives — patientez un peu.","nextAppt":"Votre prochain rendez-vous","videoFree":"Appel vidéo — consultation gratuite","joinNow":"Rejoindre la réunion","joinSoon":"L'accès s'ouvre cinq minutes avant le début.","meetLink":"Lien de la réunion","addCal":"Ajouter à l'agenda","apptPending":"Le créneau attend la confirmation de l'équipe — le lien et l'invitation arrivent par e-mail.","apptOver":"Cette séance est terminée.","riyadh":"heure de Riyad","cancelReq":"Annuler la demande","company":"Nom de l'entreprise","cr":"Numéro RC","nameEn":"Nom en anglais","save":"Enregistrer","saved":"Enregistré","sessEnd":"Votre session a expiré — reconnectez-vous pour continuer.","apptBad":"Choisissez d'abord une date et une heure.","apptFri":"Pas de séance ce jour-là — choisissez un autre jour.","apptPast":"Cet horaire est déjà passé — choisissez-en un autre.","provCard":"Carte","provTamara":"Tamara","provBank":"Virement bancaire","actAi":"Conseiller intelligent","actSys":"Système","actTeam":"Équipe Business Partner","you":"Vous","team":"Équipe","assistant":"Assistant","loginTitle":"Connexion","loginText":"Choisissez comment vous connecter — un seul compte, quel que soit le moyen.","tabPw":"Mot de passe","tabNew":"Nouveau compte","tabLink":"Lien par e-mail","forgot":"Oublié ? Connectez-vous par lien e-mail","badCreds":"E-mail ou mot de passe incorrect.","tooMany":"Trop de tentatives. Patientez un peu puis réessayez.","pwNew":"Choisissez un mot de passe","pwConfirm":"Répétez le mot de passe","pwMismatch":"Les mots de passe ne correspondent pas.","pwRule":"8 caractères minimum, avec une lettre et un chiffre.","pwr_short":"8 caractères minimum.","pwr_long":"Ce mot de passe est trop long.","pwr_no_letter":"Le mot de passe doit contenir au moins une lettre.","pwr_no_digit":"Le mot de passe doit contenir au moins un chiffre.","pwr_repetitive":"Ce mot de passe est trop répétitif. Choisissez-en un autre.","pwr_common":"Ce mot de passe est trop courant. Choisissez-en un autre.","pwr_has_email":"Ne mettez pas votre e-mail dans le mot de passe.","signupGo":"Créer mon compte et envoyer le code","signupNote":"Nous vous envoyons un code. Le mot de passe n'est actif qu'après confirmation.","codeSent":"Code de vérification envoyé à {e}.","codeOld":"Ce code a expiré. Recommencez.","confirmGo":"Confirmer et se connecter","cStep":"Une seule étape, demandée une fois","cTitle":"Complétez votre compte","cText":"Votre identité est vérifiée par Nafath. Nous avons besoin de votre e-mail pour la facture fiscale et le suivi, et de votre mobile pour vous joindre.","cPhone":"Numéro de mobile","cPhonePh":"05XXXXXXXX","cBadPhone":"Saisissez un numéro de mobile valide, par ex. 05XXXXXXXX.","cSend":"Envoyer le code de vérification","cMismatch":"Cet e-mail est lié à une autre identité nationale. Utilisez un autre e-mail ou contactez-nous.","email":"E-mail","sendCode":"Envoyer le code","password":"Mot de passe","loginPw":"Se connecter avec mot de passe","usePw":"Vous avez un mot de passe ?","useCode":"Utiliser un code par e-mail","sendLink":"Envoyez-moi un lien de connexion","badEmail":"Saisissez une adresse e-mail valide.","linkSent":"Lien de connexion envoyé à {e} — ouvrez votre boîte mail et cliquez dessus (valable 15 minutes).","orCode":"Ou saisissez le code du même message :","resend":"Renvoyer le lien","resendIn":"Renvoyer dans {n} s","changeEmail":"Autre e-mail","openLink":"Ouvrir le lien de test","linkTitle":"Confirmer la connexion","linkText":"Appuyez sur le bouton pour terminer la connexion.","linkGo":"Continuer vers mon compte","linkBad":"Ce lien a expiré ou a déjà été utilisé. Demandez-en un nouveau.","linkNew":"Demander un nouveau lien","pwTitle":"Mot de passe","pwNote":"Définissez un mot de passe pour vous connecter directement.","pwSave":"Enregistrer","pwShort":"8 caractères minimum.","pwSaved":"Mot de passe enregistré ✓","code":"Code","verify":"Se connecter","loginErr":"Impossible d'envoyer le code.","codeErr":"Code incorrect.","error":"Une erreur est survenue. Réessayez.","pfStep":"Une seule étape, demandée une fois","pfTitle":"Dites-nous qui vous êtes","pfText":"Votre nom complet figure sur le devis, le contrat et la facture, et nous vous joignons sur votre mobile au sujet de votre demande.","pfName":"Nom complet","pfNamePh":"Prénom et nom","pfSave":"Enregistrer et continuer","pfBadName":"Saisissez votre nom complet (deux mots au moins, sans chiffres).","pfLater":"Plus tard","resumeNote":"La demande commencée dans le chat est enregistrée — une fois connecté, nous la finalisons pour vous.","revTitle":"Demander des modifications du devis","revText":"Dites ce que vous voulez modifier (une ligne, une quantité, des conditions…). L'équipe l'examine et un devis révisé vous parvient ici et par e-mail. Le devis actuel ne sera pas approuvé.","revNeed":"Écrivez la modification souhaitée (trois caractères au moins).","revGo":"Envoyer la demande","revSentTitle":"Demande de modification reçue","revSentText":"L'équipe l'examine et un devis révisé vous parviendra ici et par e-mail. Rien n'est requis de votre part d'ici là.","revYouAsked":"Votre demande :","payFailedMsg":"Le paiement n'a pas abouti. Vous pouvez réessayer ou choisir un autre moyen. Si un débit apparaît sur votre carte, écrivez-nous dans la conversation et nous le vérifierons avec vous.","payCancelledMsg":"Vous avez annulé le paiement avant de le finaliser. Rien n'a été fait — payez quand vous êtes prêt.","payPendingMsg":"Le paiement attend la confirmation de la passerelle. Votre demande se met à jour automatiquement à réception du résultat.","cxPaidDone":"Cette demande ayant été payée, l'équipe examine le paiement et vous contactera à ce sujet. Nous ne promettons ni montant ni délai avant la fin de l'examen.","cxPendPaid":"La demande étant payée, l'examen porte aussi sur le paiement ; nous ne promettons ni montant ni délai avant la fin.","waitingTeam":"L'équipe examine votre demande","needYou":"En attente de vous","tasksTitle":"Requis de votre part","done":"Fait","requestCreated":"Demande créée","testRibbon":"MODE TEST — aucun paiement réel","sourceLbl":"Source","direct":"Achat direct","ticket":"Ticket d'assistance","bought":"Votre achat","directNote":"Vous avez acheté ceci directement depuis le panier et payé avant l'ouverture de la demande : pas de devis ni de contrat. Suivez ici les étapes, téléversez vos documents et recevez les livrables.","cycM":"mensuel","cycY":"annuel","unverifiedNote":"Le montant de ce paiement n'a pas pu être rapproché automatiquement des tarifs ; l'équipe le vérifie avant de commencer. Inutile de payer à nouveau.","navDocs":"Mes documents","vaultNote":"Téléversez un document une fois — nous l'utilisons pour toutes vos demandes, et personne d'autre ne le voit.","dzPick":"Déposez un fichier ici, ou cliquez pour choisir","dzHint":"PDF ou image (JPG · PNG · WEBP) — jusqu'à 8 Mo","dName":"Nom du document","dCat":"Type","dExp":"Date d'expiration (facultatif)","dSend":"Téléverser","dOther":"Choisir un autre fichier","dUploading":"Téléversement","dDone":"Document téléversé ✓","dNewVerDone":"Nouvelle version téléversée ✓","eBig":"Le fichier dépasse 8 Mo","eType":"Format non accepté. Acceptés : PDF · JPG · PNG · WEBP.","eEmpty":"Le fichier est vide.","eName":"Saisissez d'abord un nom de document.","eNet":"Serveur injoignable — vérifiez votre connexion et réessayez.","eUp":"Le fichier n'a pas pu être téléversé","eRead":"Impossible de lire le fichier depuis votre appareil.","eNoOrg":"Ajoutez d'abord le nom de votre entreprise dans « Données de l'entreprise » — le coffre appartient à l'entreprise.","dOpen":"Ouvrir","dNewVer":"Nouvelle version","dDel":"Supprimer","dDelAsk":"Supprimer définitivement ce document de votre coffre ?","dVer":"v","dExpires":"Expire le","dExpired":"Expiré","dLeftA":"encore","dLeftB":"jours","dPending":"En cours de vérification","dReadOk":"Lu automatiquement ✓","dNone":"Aucun document — téléversez le premier ci-dessus.","dLoading":"Chargement de votre coffre…","dEntity":"Entité","dCr":"RC","dVat":"TVA","dIssued":"Émis le","dRetry":"Réessayer","navCompliance":"Conformité et infractions","cIntro":"« Mishari », le conseiller intelligent de conformité, suit les échéances et infractions de votre entreprise et prépare les objections.","cLoading":"Chargement de la conformité…","cActive":"Abonnement conformité actif","cTrialLbl":"Essai gratuit de conformité","cLockedTitle":"Votre essai gratuit est terminé","cLocked":"Abonnez-vous au service de conformité pour continuer à suivre vos échéances et infractions et déposer vos objections ici.","cSubscribe":"S'abonner à la conformité","cDocsTitle":"Échéances à venir","cDocsNone":"Aucune échéance de document dans les 60 jours.","cManageDocs":"Gérer et téléverser vos documents","cViolTitle":"Infractions","cViolIntro":"Enregistrez toute infraction gouvernementale (Baladi, Qiwa, ZATCA, Protection civile…) et déposez une objection ; notre équipe la poursuit auprès de l'autorité en votre nom.","cStages":"Parcours de l'objection : examen → étude de recevabilité → préparation → dépôt → suivi. Nous ne promettons pas l'annulation ; nous étudions la recevabilité et assurons le suivi auprès de l'autorité.","cViolNone":"Aucune infraction enregistrée. Si vous en recevez une, enregistrez-la ci-dessous.","cNew":"Nouvelle","cDeadline":"Délai d'objection","cObjectBtn":"Déposer une objection","cObjectNote":"Vos motifs — les faits et documents à l'appui…","cObjectFiled":"Objection en cours — notre équipe s'en occupe","cAddTitle":"Enregistrer une infraction","cAuthority":"Autorité (Baladi, Qiwa, ZATCA…)","cVTitle":"Description de l'infraction","cVNumber":"Numéro d'infraction (facultatif)","cVAmount":"Montant en SAR (facultatif)","cVDate":"Date de l'infraction (facultatif)","cVDeadline":"Délai d'objection (facultatif)","cAddBtn":"Enregistrer","cAddDone":"Infraction enregistrée ✓","ndaTitle":"Accord de confidentialité et de protection des données","ndaIntro":"Avant de téléverser vos documents et les informations de votre entreprise, voici comment nous les protégeons :","ndaP1":"Confidentialité : toutes vos informations et documents sont confidentiels et ne sont partagés avec aucun tiers sans votre consentement, sauf obligation légale ou pour réaliser le service public demandé.","ndaP2":"Utilisation : nous utilisons vos données uniquement pour fournir le service de conformité (suivi de vos obligations, alertes, objections).","ndaP3":"Accès : vos données sont limitées à votre entreprise et seule l'équipe autorisée à vous servir y a accès.","ndaP4":"Conservation et suppression : elles sont stockées en toute sécurité et vous pouvez en demander la suppression à la fin du service.","ndaP5":"Votre consentement : en acceptant ci-dessous, vous reconnaissez avoir lu ces conditions et autorisez Business Partner à traiter vos données aux fins du service.","ndaAgree":"J'accepte l'accord de confidentialité et de protection des données.","ndaBtn":"Accepter et continuer","ndaLocked":"Acceptez l'accord de confidentialité pour activer le téléversement de vos documents."},ST={"NEW":"Nouveau","REVIEWING":"En cours d'examen","WAITING_CLIENT":"En attente de vous","QUOTE_SENT":"Devis à approuver","QUOTE_APPROVED":"Devis approuvé","CONTRACT_SENT":"Contrat à signer","SIGNED":"Signé — paiement dû","PAYMENT_PENDING":"Paiement en attente","PAID":"Payé — prêt pour exécution","IN_PROGRESS":"En cours","BANK_REVIEW":"Reçu en cours d'examen","WAITING_INTERNAL":"En cours","COMPLETED":"Terminé","CANCELLED":"Annulé"},TY={"CONSULTATION":"Consultation","GOVERNMENT_SERVICE":"Service gouvernemental","COMPANY_FORMATION":"Création d'entreprise","BUSINESS_DEVELOPMENT":"Développement commercial"},HOME="/fr/",CHECKOUT="/fr/checkout",SELLER={"name":"شركة بزنس بارتنر سلوشنز","nameEn":"Business Partner Solutions Company","vat":"312079341500003","city":"الدرعية","cityEn":"Ad Diriyah"};
+var LANG="fr",EV={"request.created":"created the request","request.created.manual":"request created manually","request.created.cart":"request opened from a direct cart purchase","scope.proposed":"proposed the scope","scope.edited":"edited the scope","scope.confirmed":"confirmed the scope","quote.pending":"awaiting the quotation","message.customer":"customer message","message.bp":"team reply","attachment.added":"added an attachment","quote.drafted":"quote drafted","quote.sent":"sent the quotation","quote.approved":"approved the quotation","quote.rejected":"requested changes","contract.sent":"sent the contract","contract.signed":"signed the contract","payment.paid":"payment received","payment.failed":"payment failed","payment.cancelled":"payment cancelled","payment.pending":"payment pending","invoice.issued":"invoice issued","appointment.booked":"booked an appointment","appointment.rescheduled":"rescheduled the appointment","appointment.cancelled":"cancelled the appointment","appointment.set":"set the appointment","task.created":"created a task","task.human_required":"task needs a human","task.done":"completed the task","task.in_progress":"started the task","task.waiting":"task waiting","task.todo":"reopened the task","execution.started":"execution started","request.cancelled":"cancelled the request","request.updated":"updated the request","document.received":"document received","deliverable.added":"delivered a file","deliverable.removed":"withdrew a delivered file","status.completed":"request completed","status.in_progress":"execution started","status.waiting_internal":"in progress","status.reviewing":"under review","status.waiting_client":"waiting for your reply","status.cancelled":"request cancelled","quote.auto":"issued the quotation automatically","documents.requested":"listed the required documents","payment.receipt":"received the transfer receipt","message.whatsapp":"WhatsApp message","contract.reissued":"re-issued the contract","request.reopened":"reopened the request","cancel.requested":"cancellation requested","payment.after_cancel":"payment received after cancellation","followup.reminded":"reminded you of the next step","nda.sent":"non-disclosure agreement sent for signature","nda.signed":"non-disclosure agreement signed","addendum.sent":"quotation addendum sent","addendum.approved":"quotation addendum approved","addendum.rejected":"quotation addendum declined"},TX={"title":"Mon compte — Business Partner","navHome":"Accueil","navNew":"Nouvelle demande","navRequests":"Mes demandes","navQuotes":"Devis","navContracts":"Contrats","navAppts":"Rendez-vous","navPay":"Panier et paiement","navInvoices":"Factures","navChats":"Conversations","navCompany":"Données de l'entreprise","logout":"Déconnexion","site":"Site","attention":"Qu'est-ce qui demande votre attention ?","kActive":"Demandes actives","kQuotes":"Devis à approuver","kContracts":"Contrats à signer","kPayments":"Paiements dus","kAppts":"Prochain rendez-vous","today":"De quoi avez-vous besoin aujourd'hui ?","empty":"Rien ici pour le moment.","ref":"Référence","status":"Statut","open":"Ouvrir","back":"Retour","conversation":"Conversation","scope":"Périmètre des services","cancelTitle":"Annuler la demande","cancelAsk":"Demander l'annulation","cancelWhy":"Motif (facultatif)","cancelEarly":"Rien n'est encore engage — l'annulation prend effet immediatement.","cancelLate":"Cette demande comporte des engagements (contrat, paiement ou execution). Nous enregistrons votre demande et l'equipe revient vers vous.","cancelSent":"Demande d'annulation recue et en cours d'examen.","cancelDone":"Demande annulee","cxNowTitle":"Annuler cette demande ?","cxAskTitle":"Demander l'annulation","cxNowGo":"Oui, annuler la demande","cxAskGo":"Envoyer la demande d'annulation","cxKeep":"Non, la garder","cxSigned":"Le contrat est signé : l'annulation n'est pas immédiate. Nous enregistrons votre demande, l'équipe l'examine et revient vers vous. La demande reste en l'état d'ici là.","cxPaid":"Le paiement a été effectué : l'annulation n'est pas immédiate. Nous enregistrons votre demande et l'équipe l'examine, remboursement compris. La demande reste en l'état d'ici là.","evNotify":"Notification envoyée","cxAppt":"Le rendez-vous de consultation réservé sera annulé avec elle.","cxNowNote":"L'annulation est immédiate et rien n'a été débité.","cxDoneNow":"Demande annulée","cxDoneNowT":"Votre demande est annulée et retirée de vos demandes actives. Vous pouvez en créer une nouvelle à tout moment.","cxPendTitle":"Demande d'annulation en cours d'examen","cxPendText":"Nous examinons ce que la demande implique (contrat, paiement, exécution) et revenons vers vous. La demande reste en l'état d'ici là.","cxSentAt":"Envoyée le","cxPill":"Annulation en examen","cxNewReq":"Nouvelle demande","cxAlready":"Une demande d'annulation est déjà enregistrée et en cours d'examen.","cxErrClosed":"Cette demande est déjà close (annulée ou terminée).","cxErrSess":"Votre session a expiré. Reconnectez-vous puis réessayez.","cxErrNet":"Serveur injoignable. Vérifiez votre connexion et réessayez.","cxErrNF":"Cette demande est introuvable dans votre compte.","cxErrGen":"Annulation impossible pour le moment. Réessayez ou écrivez à l'équipe depuis la conversation.","resign":"Une version corrigee de ce contrat a ete emise apres votre signature — nous vous l'enverrons a signer de nouveau.","openFull":"Ouvrir en grand","docPrint":"Imprimer / PDF","docClose":"Fermer","docWait":"Préparation du document…","attachments":"Pièces jointes","quote":"Devis","contract":"Contrat","payment":"Paiement","invoice":"Facture","timeline":"Chronologie","writeMsg":"Écrire un message à l'équipe…","send":"Envoyer","saveScope":"Enregistrer","quoteIssuedFlash":"Périmètre confirmé ✓ — votre devis a été émis, il est sur cette page.","holdFlash":"Périmètre confirmé ✓ — l'équipe chiffre certaines lignes ; le motif figure à côté de chacune.","signNameErr":"Saisissez votre nom complet (3 lettres au moins).","signDrawErr":"Dessinez votre signature dans le cadre avant de signer.","expiredNote":"Ce devis a expiré et ne peut plus être approuvé. Demandez un renouvellement au prix du jour.","renewAsk":"Expiré — demander un renouvellement","renewMsg":"Merci de renouveler le devis","renewSent":"Votre demande a été transmise ; un devis mis à jour suivra.","pendTitle":"Lignes en attente de prix (un devis complémentaire suivra)","pendLead":"Ces lignes ne figurent ni dans le total ni dans le contrat. L'équipe les chiffre et vous recevez un avenant ; ce devis ne change pas.","adTitle":"Avenant au devis","adApprove":"Approuver l'avenant","adReject":"Refuser","adNote":"Motif","adDone":"Avenant approuvé ; l'équipe vous recontacte.","reqGone":"Cette demande n'est plus disponible : annulée ou retirée de votre compte. Vous pouvez en commencer une autre.","nda":"Accord de confidentialité","ndaLead":"Accord réciproque entre vous et Business Partner. Le signer ne retarde pas votre demande ; il est conservé avec elle.","ndaSignBtn":"Signer l'accord","ndaSigned":"Accord signé","ndaDone":"NDA signé","ndaWait":"NDA à signer","clientNotes":"Vos remarques (à titre informatif, hors contrat)","holdTitle":"Devis en attente d'un chiffrage humain","holdLead":"Nous avons confirmé votre périmètre. Nous ne mettons jamais un prix absent du catalogue : l'équipe chiffre les lignes ci-dessous puis le devis arrive ici et par e-mail — rien à faire de votre côté.","hold_custom":"Une ligne que vous avez saisie, sans prix au catalogue","hold_unknown_code":"Code de service absent du catalogue","hold_proposal":"Chiffrée après étude de votre cas, pas un prix fixe","hold_from":"Le catalogue indique un prix « à partir de », pas un prix final","hold_recurring":"Un abonnement récurrent, pas un paiement unique","hold_percent":"Calculée en pourcentage, pas un montant fixe","hold_no_price":"Pas de prix au catalogue","cxGone":"La demande a été annulée et retirée de votre liste.","confirmScope":"Confirmer et continuer","scopePricing":"Périmètre confirmé ✓ — l'équipe prépare votre devis.","docs":"Documents requis","docsNote":"Ces documents sont nécessaires pour traiter votre demande — téléversez chacun avec son bouton, l'équipe le reçoit aussitôt.","docsNone":"Aucun document demandé pour l'instant. Vous pouvez tout de même téléverser un document lié à cette demande.","docUp":"Téléverser","docUpMore":"Téléverser un autre","docUpAny":"Téléverser un autre document","docRecv":"Reçu ✓","docWaived":"Non requis","docAsked":"Demandé","docSent":"Votre document est arrivé à l'équipe ✓","fOpen":"Ouvrir","eMany":"Nombre maximal de fichiers atteint pour cette demande.","eClosed":"Cette demande est close.","delivTitle":"Livrables","progTitle":"Votre avancement","stDone":"Terminée","stActive":"En cours","stPending":"À venir","updTitle":"Dernières mises à jour","updMore":"Voir toutes les mises à jour","updLess":"Afficher les plus récentes","delivNone":"Les fichiers que nous vous remettons apparaîtront ici ; nous vous prévenons par e-mail dès la livraison.","delivNoneDone":"La demande est terminée et ne comporte aucun fichier livré.","delivDl":"Télécharger","delivErr":"Impossible d'ouvrir le fichier — réessayez.","invSeller":"Vendeur","invVat":"N° de TVA du vendeur","invBuyer":"Client","invOfficial":"Facture officielle (PDF)","addItem":"Ajouter","remove":"Supprimer","scopeLocked":"Le périmètre est verrouillé après l'émission du devis.","qty":"Qté","price":"Prix","net":"Sous-total","vat":"TVA 15 %","total":"Total","validUntil":"Valable jusqu'au","terms":"Conditions de paiement","approve":"Approuver le devis","reject":"Demander des modifications","rejectNote":"Que souhaitez-vous modifier ?","quoteApproved":"Devis approuvé — votre contrat est prêt à signer.","quoteApprovedDone":"Devis approuvé ✓","quoteExpired":"Ce devis a expiré. Écrivez-nous depuis la demande et nous le renouvelons au prix du jour.","viewContract":"Voir le contrat","signTitle":"Signature électronique","signName":"Nom complet du signataire","signDraw":"Dessinez votre signature","signClear":"Effacer","signConsent":"J'accepte que ma signature électronique soit contraignante selon la loi sur les transactions électroniques.","signBtn":"Signer le contrat","signed":"Contrat signé","payNow":"Payer maintenant","payCardNow":"Payer par carte","payBankNow":"Payer par virement bancaire","bkTitle":"Paiement par virement bancaire","bkHow":"Virez le montant exact sur le compte de l'entreprise ci-dessous, indiquez la référence de la demande dans les notes du virement, puis téléversez l'image ou le PDF du reçu. Le conseiller intelligent vérifie le montant, le bénéficiaire et l'IBAN : s'ils correspondent, le paiement est approuvé et votre facture émise, sinon notre équipe l'examine et vous en indique le motif.","bkBene":"Bénéficiaire","bkBank":"Banque","bkIban":"IBAN","bkAmt":"Montant à virer (TTC)","bkRef":"Référence — à indiquer dans les notes","bkFile":"Reçu du virement (image ou PDF)","bkGo":"Téléverser le reçu","copy":"Copier","copied":"Copié","bkSending":"Téléversement et vérification du reçu…","bkNeedFile":"Choisissez d'abord l'image ou le PDF du reçu.","bkBadType":"Le fichier doit être une image (JPG, PNG ou WebP) ou un PDF.","bkTooBig":"Fichier trop volumineux (max 3 Mo).","bkFail":"Le reçu n'a pas pu être téléversé et rien n'a été enregistré. Réessayez bientôt, ou payez par carte.","bkLogin":"Votre session a expiré. Reconnectez-vous puis téléversez le reçu.","bkSlow":"Trop de tentatives — patientez puis réessayez.","bkClosed":"Cette demande n'accepte plus de reçus. Si vous avez déjà viré le montant, écrivez-nous dans la conversation ci-dessous.","bkPaid":"Cette demande est déjà payée.","bkOff":"Le virement n'est pas disponible pour le moment. Payez par carte ou Tamara.","bkApproved":"Le conseiller intelligent a vérifié votre reçu : le montant, le bénéficiaire et l'IBAN correspondent, votre paiement est approuvé et votre facture émise.","bkInv":"N° de facture","bkReview":"Nous avons reçu votre reçu, il est en cours d'examen. Ne virez pas le montant une seconde fois ; nous vous informerons dès l'approbation.","bkWhy":"Motif de la vérification humaine : ","reviewTitle":"Votre reçu est en cours d'examen","reviewText":"Nous avons reçu votre reçu de virement et notre équipe l'examine. Ne virez pas à nouveau, aucun nouveau paiement n'est nécessaire ; nous vous informerons dès l'approbation. Si le reçu n'était pas clair, écrivez-nous dans la conversation ci-dessous.","reviewList":"Reçus en cours d'examen","payTamaraNow":"Payer en plusieurs fois avec Tamara","payReturning":"Confirmation du paiement…","payVia":"Payer sur la page de paiement sécurisée (mada, Visa, Mastercard, Apple Pay, Tamara si disponible)","testPay":"Simuler le paiement (mode test)","paySuccess":"Succès — carte","payTamara":"Succès — Tamara","payFailed":"Échec","payCancelled":"Annulé","payPending":"En attente","paid":"Payé","download":"Voir la facture","book":"Prendre rendez-vous","reschedule":"Reprogrammer","cancelAppt":"Annuler le rendez-vous","date":"Date","time":"Heure","topic":"Sujet","confirm":"Confirmer","apptNote":"Séance vidéo gratuite sur Google Meet ; heures de Riyad. Confirmation par e-mail et invitation d'agenda.","apptHours":"Séances de {a} à {b}, heure de Riyad (GMT+3), {n} minutes chacune.","apptDays":"Tous les jours sauf {d}.","apptDaysAll":"Tous les jours de la semaine.","apptLoading":"Chargement des créneaux…","apptNone":"Aucun créneau disponible. Écrivez-nous sur WhatsApp.","apptOut":"Cet horaire est hors des heures de séance — choisissez dans la liste.","apptSoon":"Il faut au moins une heure avant la séance — choisissez plus tard.","apptFar":"Cette date dépasse la période de réservation.","apptTaken":"Ce créneau vient d'être pris — choisissez-en un autre.","apptMany":"Vous avez déjà deux séances à venir — annulez-en une ou attendez.","apptRate":"Trop de tentatives — patientez un peu.","nextAppt":"Votre prochain rendez-vous","videoFree":"Appel vidéo — consultation gratuite","joinNow":"Rejoindre la réunion","joinSoon":"L'accès s'ouvre cinq minutes avant le début.","meetLink":"Lien de la réunion","addCal":"Ajouter à l'agenda","apptPending":"Le créneau attend la confirmation de l'équipe — le lien et l'invitation arrivent par e-mail.","apptOver":"Cette séance est terminée.","riyadh":"heure de Riyad","cancelReq":"Annuler la demande","company":"Nom de l'entreprise","cr":"Numéro RC","nameEn":"Nom en anglais","save":"Enregistrer","saved":"Enregistré","sessEnd":"Votre session a expiré — reconnectez-vous pour continuer.","apptBad":"Choisissez d'abord une date et une heure.","apptFri":"Pas de séance ce jour-là — choisissez un autre jour.","apptPast":"Cet horaire est déjà passé — choisissez-en un autre.","provCard":"Carte","provTamara":"Tamara","provBank":"Virement bancaire","actAi":"Conseiller intelligent","actSys":"Système","actTeam":"Équipe Business Partner","you":"Vous","team":"Équipe","assistant":"Assistant","loginTitle":"Connexion","loginText":"Choisissez comment vous connecter — un seul compte, quel que soit le moyen.","tabPw":"Mot de passe","tabNew":"Nouveau compte","tabLink":"Lien par e-mail","forgot":"Oublié ? Connectez-vous par lien e-mail","badCreds":"E-mail ou mot de passe incorrect.","tooMany":"Trop de tentatives. Patientez un peu puis réessayez.","pwNew":"Choisissez un mot de passe","pwConfirm":"Répétez le mot de passe","pwMismatch":"Les mots de passe ne correspondent pas.","pwRule":"8 caractères minimum, avec une lettre et un chiffre.","pwr_short":"8 caractères minimum.","pwr_long":"Ce mot de passe est trop long.","pwr_no_letter":"Le mot de passe doit contenir au moins une lettre.","pwr_no_digit":"Le mot de passe doit contenir au moins un chiffre.","pwr_repetitive":"Ce mot de passe est trop répétitif. Choisissez-en un autre.","pwr_common":"Ce mot de passe est trop courant. Choisissez-en un autre.","pwr_has_email":"Ne mettez pas votre e-mail dans le mot de passe.","signupGo":"Créer mon compte et envoyer le code","signupNote":"Nous vous envoyons un code. Le mot de passe n'est actif qu'après confirmation.","codeSent":"Code de vérification envoyé à {e}.","codeOld":"Ce code a expiré. Recommencez.","confirmGo":"Confirmer et se connecter","cStep":"Une seule étape, demandée une fois","cTitle":"Complétez votre compte","cText":"Votre identité est vérifiée par Nafath. Nous avons besoin de votre e-mail pour la facture fiscale et le suivi, et de votre mobile pour vous joindre.","cPhone":"Numéro de mobile","cPhonePh":"05XXXXXXXX","cBadPhone":"Saisissez un numéro de mobile valide, par ex. 05XXXXXXXX.","cSend":"Envoyer le code de vérification","cMismatch":"Cet e-mail est lié à une autre identité nationale. Utilisez un autre e-mail ou contactez-nous.","email":"E-mail","sendCode":"Envoyer le code","password":"Mot de passe","loginPw":"Se connecter avec mot de passe","usePw":"Vous avez un mot de passe ?","useCode":"Utiliser un code par e-mail","sendLink":"Envoyez-moi un lien de connexion","badEmail":"Saisissez une adresse e-mail valide.","linkSent":"Lien de connexion envoyé à {e} — ouvrez votre boîte mail et cliquez dessus (valable 15 minutes).","orCode":"Ou saisissez le code du même message :","resend":"Renvoyer le lien","resendIn":"Renvoyer dans {n} s","changeEmail":"Autre e-mail","openLink":"Ouvrir le lien de test","linkTitle":"Confirmer la connexion","linkText":"Appuyez sur le bouton pour terminer la connexion.","linkGo":"Continuer vers mon compte","linkBad":"Ce lien a expiré ou a déjà été utilisé. Demandez-en un nouveau.","linkNew":"Demander un nouveau lien","pwTitle":"Mot de passe","pwNote":"Définissez un mot de passe pour vous connecter directement.","pwSave":"Enregistrer","pwShort":"8 caractères minimum.","pwSaved":"Mot de passe enregistré ✓","code":"Code","verify":"Se connecter","loginErr":"Impossible d'envoyer le code.","codeErr":"Code incorrect.","error":"Une erreur est survenue. Réessayez.","pfStep":"Une seule étape, demandée une fois","pfTitle":"Dites-nous qui vous êtes","pfText":"Votre nom complet figure sur le devis, le contrat et la facture, et nous vous joignons sur votre mobile au sujet de votre demande.","pfName":"Nom complet","pfNamePh":"Prénom et nom","pfSave":"Enregistrer et continuer","pfBadName":"Saisissez votre nom complet (deux mots au moins, sans chiffres).","pfLater":"Plus tard","resumeNote":"La demande commencée dans le chat est enregistrée — une fois connecté, nous la finalisons pour vous.","revTitle":"Demander des modifications du devis","revText":"Dites ce que vous voulez modifier (une ligne, une quantité, des conditions…). L'équipe l'examine et un devis révisé vous parvient ici et par e-mail. Le devis actuel ne sera pas approuvé.","revNeed":"Écrivez la modification souhaitée (trois caractères au moins).","revGo":"Envoyer la demande","revSentTitle":"Demande de modification reçue","revSentText":"L'équipe l'examine et un devis révisé vous parviendra ici et par e-mail. Rien n'est requis de votre part d'ici là.","revYouAsked":"Votre demande :","payFailedMsg":"Le paiement n'a pas abouti. Vous pouvez réessayer ou choisir un autre moyen. Si un débit apparaît sur votre carte, écrivez-nous dans la conversation et nous le vérifierons avec vous.","payCancelledMsg":"Vous avez annulé le paiement avant de le finaliser. Rien n'a été fait — payez quand vous êtes prêt.","payPendingMsg":"Le paiement attend la confirmation de la passerelle. Votre demande se met à jour automatiquement à réception du résultat.","cxPaidDone":"Cette demande ayant été payée, l'équipe examine le paiement et vous contactera à ce sujet. Nous ne promettons ni montant ni délai avant la fin de l'examen.","cxPendPaid":"La demande étant payée, l'examen porte aussi sur le paiement ; nous ne promettons ni montant ni délai avant la fin.","waitingTeam":"L'équipe examine votre demande","needYou":"En attente de vous","tasksTitle":"Requis de votre part","done":"Fait","requestCreated":"Demande créée","testRibbon":"MODE TEST — aucun paiement réel","sourceLbl":"Source","direct":"Achat direct","ticket":"Ticket d'assistance","bought":"Votre achat","directNote":"Vous avez acheté ceci directement depuis le panier et payé avant l'ouverture de la demande : pas de devis ni de contrat. Suivez ici les étapes, téléversez vos documents et recevez les livrables.","cycM":"mensuel","cycY":"annuel","unverifiedNote":"Le montant de ce paiement n'a pas pu être rapproché automatiquement des tarifs ; l'équipe le vérifie avant de commencer. Inutile de payer à nouveau.","navDocs":"Mes documents","vaultNote":"Téléversez un document une fois — nous l'utilisons pour toutes vos demandes, et personne d'autre ne le voit.","dzPick":"Déposez un fichier ici, ou cliquez pour choisir","dzHint":"PDF ou image (JPG · PNG · WEBP) — jusqu'à 8 Mo","dName":"Nom du document","dCat":"Type","dExp":"Date d'expiration (facultatif)","dSend":"Téléverser","dOther":"Choisir un autre fichier","dUploading":"Téléversement","dDone":"Document téléversé ✓","dNewVerDone":"Nouvelle version téléversée ✓","eBig":"Le fichier dépasse 8 Mo","eType":"Format non accepté. Acceptés : PDF · JPG · PNG · WEBP.","eEmpty":"Le fichier est vide.","eName":"Saisissez d'abord un nom de document.","eNet":"Serveur injoignable — vérifiez votre connexion et réessayez.","eUp":"Le fichier n'a pas pu être téléversé","eRead":"Impossible de lire le fichier depuis votre appareil.","eNoOrg":"Ajoutez d'abord le nom de votre entreprise dans « Données de l'entreprise » — le coffre appartient à l'entreprise.","dOpen":"Ouvrir","dNewVer":"Nouvelle version","dDel":"Supprimer","dDelAsk":"Supprimer définitivement ce document de votre coffre ?","dVer":"v","dExpires":"Expire le","dExpired":"Expiré","dLeftA":"encore","dLeftB":"jours","dPending":"En cours de vérification","dReadOk":"Lu automatiquement ✓","dNone":"Aucun document — téléversez le premier ci-dessus.","dLoading":"Chargement de votre coffre…","dEntity":"Entité","dCr":"RC","dVat":"TVA","dIssued":"Émis le","dRetry":"Réessayer","navCompliance":"Conformité et infractions","cIntro":"« Mishari », le conseiller intelligent de conformité, suit les échéances et infractions de votre entreprise et prépare les objections.","cLoading":"Chargement de la conformité…","cActive":"Abonnement conformité actif","cTrialLbl":"Essai gratuit de conformité","cLockedTitle":"Votre essai gratuit est terminé","cLocked":"Abonnez-vous au service de conformité pour continuer à suivre vos échéances et infractions et déposer vos objections ici.","cSubscribe":"S'abonner à la conformité","cDocsTitle":"Échéances à venir","cDocsNone":"Aucune échéance de document dans les 60 jours.","cManageDocs":"Gérer et téléverser vos documents","cViolTitle":"Infractions","cViolIntro":"Enregistrez toute infraction gouvernementale (Baladi, Qiwa, ZATCA, Protection civile…) et déposez une objection ; notre équipe la poursuit auprès de l'autorité en votre nom.","cStages":"Parcours de l'objection : examen → étude de recevabilité → préparation → dépôt → suivi. Nous ne promettons pas l'annulation ; nous étudions la recevabilité et assurons le suivi auprès de l'autorité.","cViolNone":"Aucune infraction enregistrée. Si vous en recevez une, enregistrez-la ci-dessous.","cNew":"Nouvelle","cDeadline":"Délai d'objection","cObjectBtn":"Déposer une objection","cObjectNote":"Vos motifs — les faits et documents à l'appui…","cObjectFiled":"Objection en cours — notre équipe s'en occupe","cAddTitle":"Enregistrer une infraction","cAuthority":"Autorité (Baladi, Qiwa, ZATCA…)","cVTitle":"Description de l'infraction","cVNumber":"Numéro d'infraction (facultatif)","cVAmount":"Montant en SAR (facultatif)","cVDate":"Date de l'infraction (facultatif)","cVDeadline":"Délai d'objection (facultatif)","cAddBtn":"Enregistrer","cAddDone":"Infraction enregistrée ✓","ndaTitle":"Accord de confidentialité et de protection des données","ndaIntro":"Avant de téléverser vos documents et les informations de votre entreprise, voici comment nous les protégeons :","ndaP1":"Confidentialité : toutes vos informations et documents sont confidentiels et ne sont partagés avec aucun tiers sans votre consentement, sauf obligation légale ou pour réaliser le service public demandé.","ndaP2":"Utilisation : nous utilisons vos données uniquement pour fournir le service de conformité (suivi de vos obligations, alertes, objections).","ndaP3":"Accès : vos données sont limitées à votre entreprise et seule l'équipe autorisée à vous servir y a accès.","ndaP4":"Conservation et suppression : elles sont stockées en toute sécurité et vous pouvez en demander la suppression à la fin du service.","ndaP5":"Votre consentement : en acceptant ci-dessous, vous reconnaissez avoir lu ces conditions et autorisez Business Partner à traiter vos données aux fins du service.","ndaAgree":"J'accepte l'accord de confidentialité et de protection des données.","ndaBtn":"Accepter et continuer","ndaLocked":"Acceptez l'accord de confidentialité pour activer le téléversement de vos documents.","ixTitle":"Téléversez tous les fichiers de votre entreprise d'un coup","ixSub":"Nous lisons vos fichiers, les classons et remplissons les données de votre entreprise ; vous vérifiez et confirmez.","ixHint":"Registre de commerce · attestation de TVA · adresse nationale · licences · contrats — PDF ou images (JPG · PNG · WEBP), 8 Mo par fichier, 12 fichiers à la fois.","ixDrop":"Déposez vos fichiers ici, ou cliquez pour les choisir tous d'un coup","ixBtn":"Choisir les fichiers","ixNoSave":"Rien n'est enregistré avant que vous n'appuyiez sur « Valider et classer ».","ixStep1":"Lecture","ixStep2":"Vérification","ixStep3":"Validation","ixClose":"Fermer","ixCancel":"Annuler","ixBack":"Retour","ixReadingTitle":"Lecture de vos fichiers…","ixReadingLead":"Vous pouvez laisser tourner — chaque fichier est lu séparément.","ixCount":"{n} sur {t} lus","ixQueued":"En attente","ixReadingNow":"Lecture…","ixReady":"Prêt","ixFailed":"Échec","ixManual":"Enregistré sans lecture","ixRetry":"Réessayer","ixRemove":"Retirer","ixContinue":"Passer à la vérification","ixAddMore":"Ajouter des fichiers","ixReviewTitle":"Vérifiez ce que nous avons lu","ixReviewLead":"Rien n'est enregistré avant « Valider et classer ». Modifiez ou ignorez ce que vous voulez.","ixSummary":"{t} fichiers : {r} lus · {u} illisibles · {d} doublons · {f} en échec","ixCompanyTitle":"Données suggérées de votre entreprise","ixCompanyLead":"Tirées de vos fichiers. Modifiez avant de valider — seul ce que vous gardez ici est mis à jour.","ixFVat":"Numéro de TVA","ixFCity":"Ville","ixCurrent":"Actuellement : {v}","ixReplaces":"La valeur lue le remplacera","ixSame":"Identique à l'existant ✓","ixFresh":"Nouveau, tiré de vos fichiers","ixNotFound":"Introuvable dans vos fichiers — saisissez-le si vous voulez","ixFrom":"Source : {f}","ixAlt":"Un autre fichier indique : {v}","ixUseAlt":"Utiliser","ixType":"Type","ixCatLbl":"Catégorie dans le coffre","ixReadLbl":"Ce que nous avons lu","ixAddr":"Adresse","ixContact":"Responsable","ixPhone":"Mobile","ixConfHigh":"Confiance élevée","ixConfMed":"Confiance moyenne","ixConfLow":"Confiance faible — à vérifier","ixIgnore":"Ignorer ce fichier","ixRestore":"Reprendre ce fichier","ixIgnored":"Sera ignoré et non enregistré","ixUnreadNote":"Nous n'avons pas pu le lire — il sera enregistré tel quel ; classez-le vous-même.","ixTypeUnknown":"Non classé","ixT_cr":"Registre de commerce","ixT_vat_certificate":"Attestation de TVA","ixT_national_address":"Adresse nationale","ixT_license":"Licence","ixT_gosi":"Attestation GOSI","ixT_zakat":"Attestation de Zakat","ixT_id":"Pièce d'identité / Iqama","ixT_contract":"Contrat","ixT_other":"Autre document","ixWExpired":"Expiré","ixWExpiring":"Expire dans {n} jours","ixWDup":"Doublon — ignoré sauf si vous le gardez","ixWConflict":"Contradiction avec un autre fichier sur : {f}","ixWConflictSaved":"Diffère de ce qui est enregistré : {f}","ixWLow":"Lecture incertaine","ixWBadVat":"Un numéro de TVA compte 15 chiffres","ixWBadCr":"Un numéro de RC compte en général 10 chiffres","ixWUnread":"Illisible — enregistré tel quel","ixWNewVer":"Sera enregistré comme nouvelle version d'un document existant","ixConfirm":"Valider et classer","ixConfirmN":"Valider et classer ({n})","ixNothing":"Gardez au moins un fichier, ou modifiez les données de l'entreprise.","ixNeedName":"Saisissez d'abord le nom de l'entreprise — le coffre en dépend.","ixCancelAsk":"Abandonner tout ce qui a été lu ? Rien ne sera enregistré.","ixCancelYes":"Oui, tout annuler","ixCancelNo":"Continuer la vérification","ixSavingTitle":"Enregistrement et classement…","ixSavingLead":"Gardez cette page ouverte — chaque fichier est enregistré dans votre coffre.","ixSavingCompany":"Mise à jour des données de l'entreprise","ixSavingNow":"Enregistrement…","ixSaved":"Fait ✓","ixStop":"Arrêter","ixDoneTitle":"Vos fichiers sont classés","ixDoneFiles":"{n} fichiers ont été enregistrés dans votre coffre et classés par type.","ixDoneCompany":"Les données de votre entreprise ont été mises à jour :","ixDoneNoCompany":"Les données de l'entreprise n'ont pas changé.","ixPartialTitle":"Une partie du travail est faite","ixPartial":"{n} fichiers n'ont pas pu être enregistrés. Ce qui l'était avant reste enregistré.","ixStopped":"Vous avez arrêté l'enregistrement. Ce qui l'était reste dans votre coffre.","ixRetrySave":"Réessayer les fichiers en échec","ixOpenVault":"Ouvrir mes documents","ixOpenCompany":"Ouvrir les données de l'entreprise","ixFieldsWord":"champs","ixEBig":"Plus de 8 Mo — réduisez-le ou découpez-le, puis téléversez à nouveau.","ixEBigRead":"Plus de 6 Mo : lecture automatique impossible — enregistré tel quel, à classer vous-même.","ixEType":"Format non accepté. Acceptés : PDF · JPG · PNG · WEBP.","ixEEmpty":"Le fichier est vide.","ixEUnread":"Contenu illisible (image floue ou fichier protégé par mot de passe). Vous pouvez l'enregistrer dans le coffre et le classer vous-même.","ixEService":"Le service de lecture intelligente est indisponible. Vos fichiers seront enregistrés sans remplissage automatique — classez-les vous-même, ou réessayez plus tard.","ixEBusy":"Service occupé — réessayez dans un instant.","ixENet":"Serveur injoignable — vérifiez votre connexion et réessayez.","ixENoOrg":"Ajoutez d'abord le nom de votre entreprise — le coffre en dépend.","ixEMany":"Limite dépassée (12 fichiers à la fois) — seuls les premiers ont été ajoutés.","ixEGeneric":"Traitement impossible — réessayez ; si cela se répète, enregistrez-le sans lecture.","ixESave":"Ce fichier n'a pas pu être enregistré — réessayez.","ixECompany":"Les données de l'entreprise n'ont pas pu être mises à jour — réessayez."},ST={"NEW":"Nouveau","REVIEWING":"En cours d'examen","WAITING_CLIENT":"En attente de vous","QUOTE_SENT":"Devis à approuver","QUOTE_APPROVED":"Devis approuvé","CONTRACT_SENT":"Contrat à signer","SIGNED":"Signé — paiement dû","PAYMENT_PENDING":"Paiement en attente","PAID":"Payé — prêt pour exécution","IN_PROGRESS":"En cours","BANK_REVIEW":"Reçu en cours d'examen","WAITING_INTERNAL":"En cours","COMPLETED":"Terminé","CANCELLED":"Annulé"},TY={"CONSULTATION":"Consultation","GOVERNMENT_SERVICE":"Service gouvernemental","COMPANY_FORMATION":"Création d'entreprise","BUSINESS_DEVELOPMENT":"Développement commercial"},HOME="/fr/",CHECKOUT="/fr/checkout",SELLER={"name":"شركة بزنس بارتنر سلوشنز","nameEn":"Business Partner Solutions Company","vat":"312079341500003","city":"الدرعية","cityEn":"Ad Diriyah"};
 var app=document.getElementById('app'),state={me:null,view:'home',ref:null,req:null,testMode:false,contractHtml:'',docs:null,violations:null};
 var $=function(s,r){return (r||document).querySelector(s)};
 function h(tag,attrs,kids){var e=document.createElement(tag);if(attrs)for(var k in attrs){if(k==='class')e.className=attrs[k];else if(k==='html')e.innerHTML=attrs[k];else if(k.indexOf('on')===0)e.addEventListener(k.slice(2),attrs[k]);else if(attrs[k]!=null)e.setAttribute(k,attrs[k])}(kids||[]).forEach(function(c){if(c==null)return;e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
@@ -1034,15 +1130,666 @@ function slotPicker(){var st={days:[]};var d=h('select',{class:'inp'}),tm=h('sel
  return {day:d,time:tm,note:note}}
 function apptErr(o){var e=o&&o.error;return e==='bad_datetime'?TX.apptBad:(e==='off_day'||e==='friday')?TX.apptFri:e==='past'?TX.apptPast:e==='out_of_hours'?TX.apptOut:e==='too_soon'?TX.apptSoon:e==='too_far'?TX.apptFar:e==='slot_taken'?TX.apptTaken:e==='too_many_active'?TX.apptMany:e==='rate_limited'?TX.apptRate:failText(o)}
 function viewAppts(m){m.appendChild(h('h1',{},[TX.navAppts]));var nc=nextApptCard();if(nc)m.appendChild(nc);var rows=state.me.requests.filter(function(r){return r.appointment&&r.appointment.status!=='CANCELLED'&&r.status!=='CANCELLED'});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill'},[r.appointment.date+' '+r.appointment.time]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));var cons=state.me.requests.filter(function(r){return r.type==='CONSULTATION'&&(!r.appointment||r.appointment.status==='CANCELLED')&&r.status!=='CANCELLED'});if(cons.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.book]),h('div',{class:'list'},cons.map(reqRow))]))}
-function viewCompany(m){m.appendChild(h('h1',{},[TX.navCompany]));var o=state.me.organization||{};var f=h('div',{class:'form'});var nAr=h('input',{class:'inp',value:o.name_ar||''}),nEn=h('input',{class:'inp',value:o.name_en||''}),cr=h('input',{class:'inp',value:o.cr_number||''}),msg=h('span',{class:'ok'});
+function viewCompany(m){m.appendChild(h('h1',{},[TX.navCompany]));var o=state.me.organization||{};m.appendChild(ixEntryCard('company'));var f=h('div',{class:'form'});var nAr=h('input',{class:'inp',value:o.name_ar||''}),nEn=h('input',{class:'inp',dir:'auto',value:o.name_en||''}),cr=h('input',{class:'inp',value:o.cr_number||''}),msg=h('span',{class:'ok'});
 f.appendChild(h('label',{},[TX.company]));f.appendChild(nAr);f.appendChild(h('label',{},[TX.nameEn]));f.appendChild(nEn);f.appendChild(h('label',{},[TX.cr]));f.appendChild(cr);
 f.appendChild(h('button',{class:'btn',onclick:function(){fetch('/api/requests',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'my-org-update',name_ar:nAr.value,name_en:nEn.value,cr:cr.value,cr_number:cr.value})}).then(function(r){return r.json()}).catch(function(){return {ok:false,error:'network'}}).then(function(o){if(o&&o.error==='unauthorized'){sessionEnded();return}msg.className=o&&o.ok?'ok':'err';msg.textContent=o&&o.ok?TX.saved:failText(o);if(o&&o.ok&&o.organization)state.me.organization=o.organization})}},[TX.save]));f.appendChild(msg);
-m.appendChild(h('div',{class:'card'},[h('div',{class:'stat'},[h('span',{},[TX.email+': ',h('b',{},[state.me.user.email])])]),f]));
+m.appendChild(h('div',{class:'card'},[h('div',{class:'stat'},[h('span',{},[TX.email+': ',h('b',{},[state.me.user.email])])].concat(o.vat_number?[h('span',{'data-co-vat':'1'},[TX.ixFVat+': ',h('b',{},[o.vat_number])])]:[]).concat(o.city?[h('span',{},[TX.ixFCity+': ',h('b',{},[o.city])])]:[])),f]));
 // Setting a password needs a live session, which is exactly where we are —
 // so the client picks one here and stops waiting for a code every visit.
 var pw=h('input',{class:'inp',type:'password',autocomplete:'new-password',placeholder:TX.password}),pmsg=h('span',{class:'ok'});
 var pf=h('div',{class:'form'},[h('p',{class:'note'},[TX.pwNote]),h('label',{},[TX.password]),pw,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){pmsg.className='ok';if((pw.value||'').length<8){pmsg.className='err';pmsg.textContent=TX.pwShort;return}otp({action:'password-set',password:pw.value}).then(function(o){if(o&&o.ok){pmsg.textContent=TX.pwSaved;pw.value=''}else{pmsg.className='err';pmsg.textContent=(o&&o.reason&&TX['pwr_'+o.reason])||(o&&o.message)||TX.error}})}},[TX.pwSave]),pmsg])]);
 m.appendChild(h('div',{class:'card'},[h('h3',{},[TX.pwTitle]),pf]))}
+
+var IXC=(function makeIntakeCore() {
+  var MAX_BYTES = 8 * 1024 * 1024;      // حدّ الخزانة (api/requests.js DOC_VAULT_MAX_BYTES)
+  var MAX_READ = 6 * 1024 * 1024;       // حدّ القراءة الآلية (api/_docread.js MAX_DOC_BYTES)
+  var MAX_FILES = 12;
+  var OK_MIME = { "application/pdf": "application/pdf", "image/jpeg": "image/jpeg", "image/jpg": "image/jpeg", "image/png": "image/png", "image/webp": "image/webp" };
+  var OK_EXT = { pdf: "application/pdf", jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp" };
+  var COMPANY_FIELDS = ["name_ar", "name_en", "cr_number", "vat_number", "city"];
+  // نوع المستند كما يقرؤه الوكيل ← تصنيفه في الخزانة (db/schema.sql: documents.category)
+  var TYPE_CAT = { cr: "cr", vat_certificate: "vat", national_address: "national_address", license: "license", gosi: "gosi", zakat: "zakat", id: "id", contract: "contract", other: "other" };
+  var CONF_RANK = { high: 3, medium: 2, low: 1 };
+  // سلطة كل نوع مستند على كل حقل من بيانات الشركة: السجل التجاري هو الأصل للاسم
+  // ورقم السجل، والشهادة الضريبية هي الأصل للرقم الضريبي. الهوية لا تُقترح منها شركة.
+  var AUTH = {
+    name_ar: { cr: 4, vat_certificate: 3, license: 2, zakat: 2, gosi: 2, national_address: 1, contract: 0, other: 0 },
+    name_en: { cr: 4, vat_certificate: 3, license: 2, zakat: 2, gosi: 2, national_address: 1, contract: 0, other: 0 },
+    cr_number: { cr: 4, license: 2, gosi: 2, vat_certificate: 1, zakat: 1, national_address: 1, contract: 0, other: 0 },
+    vat_number: { vat_certificate: 4, zakat: 3, license: 1, cr: 1, gosi: 1, national_address: 0, contract: 0, other: 0 },
+    city: { national_address: 4, cr: 3, vat_certificate: 3, license: 2, gosi: 1, zakat: 1, contract: 0, other: 0 }
+  };
+
+  function str(v) { return v == null ? "" : String(v).trim(); }
+  function ext(n) { var t = str(n); var i = t.lastIndexOf("."); return i < 0 ? "" : t.slice(i + 1).toLowerCase(); }
+  // النوع من ترويسة المتصفح أولاً، ومن الامتداد حين يصمت المتصفح (أندرويد وبعض الـPDF).
+  function mimeOf(f) { return OK_MIME[str(f && f.type).toLowerCase()] || OK_EXT[ext(f && f.name)] || ""; }
+  function fileCheck(f) {
+    if (!f) return "bad_type";
+    if (!f.size) return "empty";
+    if (!mimeOf(f)) return "bad_type";
+    if (f.size > MAX_BYTES) return "too_large";
+    return "";
+  }
+  function baseName(n) { return str(n).replace(/\.[^.]+$/, "").slice(0, 120); }
+  function digits(v) {
+    var s = str(v), out = "", i, c;
+    for (i = 0; i < s.length; i++) {
+      c = s.charCodeAt(i);
+      if (c >= 48 && c <= 57) out += s.charAt(i);
+      else if (c >= 1632 && c <= 1641) out += String(c - 1632);
+      else if (c >= 1776 && c <= 1785) out += String(c - 1776);
+    }
+    return out;
+  }
+  // اسمٌ للمقارنة لا للعرض: بلا مسافات ولا تشكيل ولا تطويل ولا علامات، وألفٌ وياءٌ وتاءٌ موحّدة.
+  function nameKey(v) {
+    return str(v).toLowerCase()
+      .replace(/[ً-ٰٟـ]/g, "")
+      .replace(/[آأإ]/g, "ا")
+      .replace(/ى/g, "ي").replace(/ة/g, "ه")
+      .replace(/[\s.,\-_()\/\\"'،؛]+/g, "");
+  }
+  function sameName(a, b) {
+    var x = nameKey(a), y = nameKey(b);
+    if (!x || !y) return false;
+    if (x === y) return true;
+    var s = x.length <= y.length ? x : y, l = x.length <= y.length ? y : x;
+    return s.length >= 5 && l.indexOf(s) >= 0;
+  }
+  function sameVal(field, a, b) {
+    if (field === "cr_number" || field === "vat_number") return digits(a) === digits(b) && !!digits(a);
+    return sameName(a, b);
+  }
+  // تطابقٌ تامّ (للحفظ والعرض): الأرقام بأرقامها، والأسماء بعد إزالة الفروق الشكلية فقط.
+  // أما sameVal فتسامح بالاحتواء، وهو للكشف عن مصدرين لشيءٍ واحد لا للحكم بأن الاسم لم يتغيّر.
+  function exactSame(field, a, b) {
+    if (field === "cr_number" || field === "vat_number") return !!digits(a) && digits(a) === digits(b);
+    return !!nameKey(a) && nameKey(a) === nameKey(b);
+  }
+  function todayStr() { return new Date().toISOString().slice(0, 10); }
+  function daysLeft(d, today) {
+    var s = str(d).slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
+    var t = Date.parse(s + "T00:00:00Z"), n = Date.parse((today || todayStr()) + "T00:00:00Z");
+    if (!isFinite(t) || !isFinite(n)) return null;
+    return Math.round((t - n) / 86400000);
+  }
+  function validDate(d) { var s = str(d).slice(0, 10); return /^\d{4}-\d{2}-\d{2}$/.test(s) && isFinite(Date.parse(s + "T00:00:00Z")) ? s : ""; }
+  function categoryOf(docType, serverCategory) {
+    var c = str(serverCategory);
+    if (c) return c;
+    return TYPE_CAT[str(docType)] || "other";
+  }
+
+  // ردّ الخادم عن ملفٍ واحد ← مدخلٌ موحّد. متسامحٌ مع الحقول الناقصة: ما ليس ظاهراً يبقى فارغاً ولا يُخمَّن.
+  // يقبل docType وما معه داخل `fields` أيضاً (هكذا يعيدها readDocument اليوم).
+  function fromServer(x) {
+    x = x || {};
+    var f = x.fields && typeof x.fields === "object" ? x.fields : {};
+    var addr = f.address && typeof f.address === "object" ? f.address : {};
+    var docType = str(x.docType || f.docType) || "other";
+    var out = {
+      docType: TYPE_CAT[docType] ? docType : "other",
+      docTitle: str(x.docTitle || x.title || f.docTitle).slice(0, 200),
+      category: categoryOf(docType, x.category),
+      issueDate: validDate(x.issueDate || f.issueDate),
+      expiryDate: validDate(x.expiryDate || f.expiryDate),
+      confidence: CONF_RANK[str(x.confidence || f.confidence)] ? str(x.confidence || f.confidence) : "medium",
+      fields: {
+        companyNameAr: str(f.companyNameAr), companyNameEn: str(f.companyNameEn),
+        crNumber: digits(f.crNumber), vatNumber: digits(f.vatNumber),
+        city: str(addr.city || f.city), district: str(addr.district), street: str(addr.street),
+        buildingNo: str(addr.buildingNo), postalCode: str(addr.postalCode),
+        contactName: str(f.contactName), contactPhone: str(f.contactPhone)
+      },
+      fieldConfidence: x.fieldConfidence && typeof x.fieldConfidence === "object" ? x.fieldConfidence : {},
+      serverWarnings: []
+    };
+    var w = Array.isArray(x.warnings) ? x.warnings : [];
+    for (var i = 0; i < w.length; i++) {
+      var c = typeof w[i] === "string" ? w[i] : w[i] && w[i].code;
+      if (c) out.serverWarnings.push({ code: str(c), field: str(w[i] && w[i].field) });
+    }
+    return out;
+  }
+
+  // هل في المدخل شيءٌ مقروء فعلاً؟ ملفٌّ قرأه الوكيل ولم يجد فيه حقلاً ولا تاريخاً يُعامَل «غير مقروء».
+  function hasReading(e) {
+    var f = e.fields || {};
+    return !!(f.companyNameAr || f.companyNameEn || f.crNumber || f.vatNumber || f.city || e.expiryDate || e.issueDate || (e.docType && e.docType !== "other"));
+  }
+
+  function idKey(e) {
+    var f = e.fields || {};
+    var id = f.crNumber || f.vatNumber || "";
+    if (id) return str(e.docType) + ":" + id;
+    return "file:" + str(e.name) + ":" + (e.size || 0);
+  }
+
+  // التحذيرات والمصادر. تُحسب من جديد عند كل تغيير (إبقاء ملفٍ أو تجاهله يغيّر التعارض).
+  // لا تُعدِّل المدخلات إلا حقلَي `warnings` و`dupOf`.
+  function reconcile(entries, org, today) {
+    today = today || todayStr();
+    org = org || {};
+    var i, j, e;
+    // 1) فحوص الملف وحده
+    for (i = 0; i < entries.length; i++) {
+      e = entries[i];
+      e.warnings = [];
+      e.dupOf = "";
+      if (e.status === "failed") continue;
+      var add = function (code, field, extra) {
+        for (var k = 0; k < e.warnings.length; k++) if (e.warnings[k].code === code && e.warnings[k].field === (field || "")) return;
+        var w = { code: code, field: field || "" };
+        if (extra) for (var p in extra) w[p] = extra[p];
+        e.warnings.push(w);
+      };
+      if (e.status === "manual" || (e.status === "ready" && !hasReading(e))) { add("unreadable"); }
+      var d = daysLeft(e.expiryDate, today);
+      if (d !== null && d < 0) add("expired", "expiryDate", { days: d });
+      else if (d !== null && d <= 30) add("expiring", "expiryDate", { days: d });
+      if (e.status === "ready") {
+        if (e.confidence === "low") add("low_confidence");
+        var f = e.fields || {};
+        if (f.vatNumber && !/^3\d{13}3$/.test(f.vatNumber)) add("bad_vat", "vatNumber");
+        if (f.crNumber && !/^\d{10}$/.test(f.crNumber)) add("bad_cr", "crNumber");
+        for (var s = 0; s < (e.serverWarnings || []).length; s++) {
+          var sw = e.serverWarnings[s];
+          if (sw.code === "duplicate") add("duplicate", sw.field, { server: true });
+          else if (sw.code === "expired" || sw.code === "expiring") { /* محسوبٌ هنا من التاريخ */ }
+          else add(sw.code, sw.field);
+        }
+      }
+    }
+    // 2) المكرر داخل الدفعة: الأحدث في الترتيب هو المكرر
+    var seen = {};
+    for (i = 0; i < entries.length; i++) {
+      e = entries[i];
+      if (e.status === "failed" || e.status === "queued" || e.status === "reading") continue;
+      var k2 = idKey(e);
+      if (seen[k2]) {
+        e.dupOf = seen[k2];
+        e.warnings.push({ code: "duplicate", field: "", of: seen[k2] });
+      } else seen[k2] = e.id;
+    }
+    // 3) التعارض بين الملفات المُبقاة، ومع المسجَّل
+    var keys = [["crNumber", "cr_number"], ["vatNumber", "vat_number"], ["companyNameAr", "name_ar"]];
+    for (var q = 0; q < keys.length; q++) {
+      var fk = keys[q][0], ck = keys[q][1];
+      var vals = [];
+      for (i = 0; i < entries.length; i++) {
+        e = entries[i];
+        if (e.status !== "ready" || e.keep === false || e.dupOf) continue;
+        var v = e.fields && e.fields[fk];
+        if (!v) continue;
+        var hit = false;
+        for (j = 0; j < vals.length; j++) if (sameVal(ck, vals[j].v, v)) { vals[j].ids.push(e.id); hit = true; break; }
+        if (!hit) vals.push({ v: v, ids: [e.id] });
+      }
+      if (vals.length > 1) {
+        for (j = 0; j < vals.length; j++) for (var m = 0; m < vals[j].ids.length; m++) {
+          for (i = 0; i < entries.length; i++) if (entries[i].id === vals[j].ids[m]) entries[i].warnings.push({ code: "conflict", field: ck });
+        }
+      }
+      // أرقام السجل والضريبة المسجَّلة لا تُستبدل بصمت؛ الاسم المسجَّل يحلّ محلّه المقروء (يُنبَّه في بطاقة الشركة).
+      if ((ck === "cr_number" || ck === "vat_number") && str(org[ck])) {
+        for (j = 0; j < vals.length; j++) if (!sameVal(ck, vals[j].v, org[ck])) {
+          for (var n = 0; n < vals[j].ids.length; n++) for (i = 0; i < entries.length; i++) if (entries[i].id === vals[j].ids[n]) entries[i].warnings.push({ code: "conflict_saved", field: ck });
+        }
+      }
+    }
+    return entries;
+  }
+
+  // «بيانات شركتك» المقترحة: لكل حقل أفضل مصدر (سلطة النوع ثم الثقة)، والبدائل المختلفة من ملفات أخرى.
+  // الناتج { حقل: { value, from, alts:[{value,from}], conflict } } — حقلٌ لم يُجد مصدراً لا يظهر.
+  function suggestCompany(entries) {
+    var out = {};
+    for (var c = 0; c < COMPANY_FIELDS.length; c++) {
+      var ck = COMPANY_FIELDS[c];
+      var map = { name_ar: "companyNameAr", name_en: "companyNameEn", cr_number: "crNumber", vat_number: "vatNumber", city: "city" }[ck];
+      var cands = [];
+      for (var i = 0; i < entries.length; i++) {
+        var e = entries[i];
+        if (e.status !== "ready" || e.keep === false || e.dupOf) continue;
+        if (e.docType === "id") continue;
+        var v = str(e.fields && e.fields[map]);
+        if (!v) continue;
+        var rank = (AUTH[ck][e.docType] != null ? AUTH[ck][e.docType] : 0) * 10 + (CONF_RANK[(e.fieldConfidence && e.fieldConfidence[map]) || e.confidence] || 2);
+        cands.push({ value: v, from: e.id, rank: rank, order: i });
+      }
+      if (!cands.length) continue;
+      cands.sort(function (a, b) { return b.rank - a.rank || a.order - b.order; });
+      var best = cands[0], alts = [];
+      for (var j = 1; j < cands.length; j++) {
+        if (sameVal(ck, best.value, cands[j].value)) continue;
+        var dup = false;
+        for (var k = 0; k < alts.length; k++) if (sameVal(ck, alts[k].value, cands[j].value)) dup = true;
+        if (!dup) alts.push({ value: cands[j].value, from: cands[j].from });
+      }
+      out[ck] = { value: best.value, from: best.from, alts: alts, conflict: alts.length > 0 };
+    }
+    return out;
+  }
+
+  // ما تغيّر فعلاً عن المسجَّل: حقلٌ فارغ لا يُرسَل، ومطابقٌ للمسجَّل لا يُرسَل.
+  function companyDiff(current, edited) {
+    var out = {};
+    current = current || {};
+    edited = edited || {};
+    for (var i = 0; i < COMPANY_FIELDS.length; i++) {
+      var k = COMPANY_FIELDS[i], to = str(edited[k]), from = str(current[k]);
+      if (!to) continue;
+      if (from && exactSame(k, from, to)) continue;
+      out[k] = { from: from, to: to };
+    }
+    return out;
+  }
+
+  // حمولة doc-intake-confirm لملفٍ واحد (البايتات تُضاف عند الإرسال، ولا تُحفظ في الحالة).
+  // «ما أكّده العميل فقط»: الملف المتجاهَل لا يخرج، والحقول المقروءة تخرج كما وافق عليها لا كما قرأها النموذج.
+  function confirmFile(e) {
+    var f = e.fields || {};
+    var read = {};
+    for (var k in f) if (f[k]) read[k] = f[k];
+    var out = {
+      id: e.id, name: e.name, mime: e.mime,
+      title: str(e.title).slice(0, 200), category: str(e.category) || "other",
+      docType: e.docType || "other", expiryDate: validDate(e.expiryDate), issueDate: validDate(e.issueDate)
+    };
+    if (e.status === "ready" && hasReading(e)) out.fields = read;
+    else out.unread = true;
+    return out;
+  }
+  function confirmPlan(entries, edited, current) {
+    var files = [];
+    for (var i = 0; i < entries.length; i++) {
+      var e = entries[i];
+      if (e.keep === false || e.status === "failed" || e.status === "queued" || e.status === "reading") continue;
+      files.push(confirmFile(e));
+    }
+    var diff = companyDiff(current, edited), company = {};
+    for (var k in diff) company[k] = diff[k].to;
+    return { files: files, company: company, diff: diff };
+  }
+
+  // رمز خطأ الخادم/الشبكة ← مفتاح نص للعميل. بلا رمزٍ ينتهي بـ«حدث خطأ» عامّ.
+  function errKey(code, httpStatus) {
+    code = str(code);
+    if (code === "network") return "ixENet";
+    if (code === "too_large" || code === "http_413") return "ixEBig";
+    if (code === "bad_type") return "ixEType";
+    if (code === "empty") return "ixEEmpty";
+    if (code === "unreadable" || code === "no_text" || code === "read_failed") return "ixEUnread";
+    if (code === "file_too_large_to_read") return "ixEBigRead";
+    if (code === "reader_unavailable" || code === "service_unavailable" || code === "ai_unavailable" || code === "ai_off" || code === "not_configured") return "ixEService";
+    if (code === "rate_limited" || code === "busy") return "ixEBusy";
+    if (code === "no_org") return "ixENoOrg";
+    if (code === "too_many_files") return "ixEMany";
+    return "ixEGeneric";
+  }
+  // أخطاء الخدمة كلها (لا أخطاء ملفٍ بعينه): إن حدثت توقّفنا عن القراءة وحفظنا الباقي كما هو.
+  function isServiceDown(code, httpStatus) {
+    code = str(code);
+    return code === "reader_unavailable" || code === "service_unavailable" || code === "ai_unavailable" || code === "ai_off" || code === "not_configured" || code === "unknown_action" || httpStatus === 404 || httpStatus === 501 || httpStatus === 503;
+  }
+
+  return {
+    MAX_BYTES: MAX_BYTES, MAX_READ: MAX_READ, MAX_FILES: MAX_FILES, COMPANY_FIELDS: COMPANY_FIELDS,
+    mimeOf: mimeOf, fileCheck: fileCheck, baseName: baseName, digits: digits, sameName: sameName, sameVal: sameVal, exactSame: exactSame,
+    daysLeft: daysLeft, categoryOf: categoryOf, fromServer: fromServer, hasReading: hasReading,
+    reconcile: reconcile, suggestCompany: suggestCompany, companyDiff: companyDiff,
+    confirmFile: confirmFile, confirmPlan: confirmPlan, errKey: errKey, isServiceDown: isServiceDown
+  };
+})();
+
+// ---------- ارفع كل ملفات شركتك مرة واحدة (my-doc-intake.mjs)
+var IXS=null;
+function ixT(k,v){var s=TX[k]==null?k:TX[k];if(v)for(var p in v)s=s.split('{'+p+'}').join(String(v[p]));return s}
+function ixToday(){return new Date().toISOString().slice(0,10)}
+function ixOrg(){var o=(state.me&&state.me.organization)||{};return {name_ar:o.name_ar||'',name_en:o.name_en||'',cr_number:o.cr_number||'',vat_number:o.vat_number||'',city:o.city||''}}
+function ixHasOrg(){return !!(state.me&&state.me.organization&&state.me.organization.id)}
+function ixTypeName(t){return TX['ixT_'+t]||TX.ixT_other}
+function ixFieldName(f){return ({name_ar:TX.company,name_en:TX.nameEn,cr_number:TX.cr,vat_number:TX.ixFVat,city:TX.ixFCity,crNumber:TX.cr,vatNumber:TX.ixFVat,companyNameAr:TX.company,expiryDate:TX.dExp})[f]||f}
+function ixB64(f){return new Promise(function(res,rej){var fr=new FileReader();fr.onload=function(){var t=String(fr.result||'');var i=t.indexOf(',');i<0?rej(new Error('read')):res(t.slice(i+1))};fr.onerror=function(){rej(new Error('read'))};fr.readAsDataURL(f)})}
+// طلبٌ إلى /api/simple مع إمكان الإلغاء. كل نهاية لها فرع: نجاح، أو ردّ خادم برمزه، أو انقطاع شبكة، أو إلغاء.
+function ixApi(action,data,ac){
+ return fetch('/api/simple',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({action:action},data||{})),signal:ac?ac.signal:undefined})
+  .then(function(r){var st=r.status;return r.json().then(function(o){o=(o&&typeof o==='object')?o:{ok:false,error:'bad_response'};o._http=st;return o},function(){return {ok:false,error:'http_'+st,_http:st}})})
+  .catch(function(e){var ab=!!(e&&e.name==='AbortError');return {ok:false,error:ab?'aborted':'network',_aborted:ab}})}
+function ixSize(n){n=Number(n||0);return n>=1048576?((n/1048576).toFixed(1)+' MB'):(Math.max(1,Math.round(n/1024))+' KB')}
+
+// ----- بطاقة الدخول (في «مستنداتي» و«بيانات الشركة»)
+function ixEntryCard(from){
+ var inp=h('input',{type:'file',multiple:'multiple',accept:'application/pdf,image/jpeg,image/png,image/webp',style:'display:none','data-ix-input':from});
+ var btn=h('button',{class:'btn',type:'button'},[TX.ixBtn]);
+ var box=h('div',{class:'ix-card','data-ix-entry':from,tabindex:'0',role:'button','aria-label':TX.ixTitle},[h('span',{class:'ix-ico','aria-hidden':'true'},['🗂️']),h('div',{class:'ix-txt'},[h('b',{},[TX.ixTitle]),h('p',{},[TX.ixSub]),h('small',{},[TX.ixHint]),h('small',{},[TX.ixNoSave])]),btn,inp]);
+ box.addEventListener('click',function(e){if(e.target===inp)return;inp.click()});
+ box.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();inp.click()}});
+ inp.addEventListener('click',function(e){e.stopPropagation()});
+ inp.addEventListener('change',function(){var fs=Array.prototype.slice.call(inp.files||[]);inp.value='';if(fs.length)ixStart(fs,from)});
+ ['dragenter','dragover'].forEach(function(n){box.addEventListener(n,function(e){e.preventDefault();box.classList.add('over')})});
+ ['dragleave','drop'].forEach(function(n){box.addEventListener(n,function(e){e.preventDefault();box.classList.remove('over')})});
+ box.addEventListener('drop',function(e){var fs=Array.prototype.slice.call((e.dataTransfer&&e.dataTransfer.files)||[]);if(fs.length)ixStart(fs,from)});
+ return box}
+
+// ----- الجلسة
+function ixStart(files,from){
+ if(IXS){ixAdd(files);return}
+ IXS={step:'reading',from:from||'documents',entries:[],seq:0,running:0,cancelled:false,aborts:[],serviceDown:false,cedit:{},ctouched:{},cancelAsk:false,org:ixOrg(),orgKnown:{},notes:[],save:null,plan:null,result:null,advance:null,msg:''};
+ document.documentElement.classList.add('ix-lock');
+ ixMount();ixAdd(files)}
+function ixMount(){
+ var root=h('div',{class:'ix-ovl','data-ix':'1'});
+ var box=h('div',{class:'ix-box',role:'dialog','aria-modal':'true',tabindex:'-1'});
+ root.appendChild(box);document.body.appendChild(root);IXS.root=root;IXS.box=box;
+ IXS.onkey=function(e){if(e.key==='Escape'){e.preventDefault();ixCancel()}};
+ document.addEventListener('keydown',IXS.onkey);
+ try{box.focus()}catch(x){}}
+function ixClose(refresh){
+ var S=IXS;if(!S)return;S.cancelled=true;clearTimeout(S.advance);
+ S.aborts.forEach(function(a){try{a.abort()}catch(x){}});
+ document.removeEventListener('keydown',S.onkey);
+ if(S.root&&S.root.parentNode)S.root.parentNode.removeChild(S.root);
+ document.documentElement.classList.remove('ix-lock');IXS=null;
+ if(refresh&&state.me)render()}
+function ixSessionEnd(){ixClose(false);sessionEnded()}
+function ixAdd(files){
+ var S=IXS;clearTimeout(S.advance);
+ var room=IXC.MAX_FILES-S.entries.length;
+ if(files.length>room){S.notes=[TX.ixEMany];files=files.slice(0,Math.max(room,0))}
+ files.forEach(function(f){
+  var e={id:'f'+(++S.seq),file:f,name:f.name||'file',size:f.size||0,mime:IXC.mimeOf(f)||f.type||'',status:'queued',error:'',msg:'',fields:null,fieldConfidence:{},docType:'other',title:IXC.baseName(f.name),category:'other',issueDate:'',expiryDate:'',confidence:'medium',serverWarnings:[],keep:true,warnings:[],dupOf:'',dupHandled:false};
+  var bad=IXC.fileCheck(f);
+  if(bad){e.status='failed';e.error=bad;e.msg=TX[IXC.errKey(bad)]}
+  else if(S.serviceDown){ixToManual(e,'ixEService')}
+  else if(f.size>IXC.MAX_READ){ixToManual(e,'ixEBigRead')}
+  S.entries.push(e)});
+ S.step='reading';ixDraw();ixPump()}
+function ixToManual(e,key){e.status='manual';e.msg=TX[key]||'';e.fields=null;e.docType='other';e.category='other';e.title=IXC.baseName(e.name)}
+function ixBusy(){return IXS.entries.some(function(e){return e.status==='queued'||e.status==='reading'})}
+function ixPump(){
+ var S=IXS;if(!S||S.cancelled||S.step!=='reading')return;
+ for(var i=0;i<S.entries.length&&S.running<2;i++){if(S.entries[i].status==='queued')ixRead(S.entries[i])}
+ if(!ixBusy()&&S.entries.length){
+  var failed=S.entries.some(function(e){return e.status==='failed'});
+  var usable=S.entries.some(function(e){return e.status==='ready'||e.status==='manual'});
+  if(!failed&&usable){clearTimeout(S.advance);S.advance=setTimeout(function(){if(IXS===S&&S.step==='reading'&&!ixBusy())ixGoReview()},700)}}}
+function ixRead(e){
+ var S=IXS;e.status='reading';S.running++;ixDraw();
+ var ac=window.AbortController?new AbortController():null;if(ac)S.aborts.push(ac);
+ ixB64(e.file).then(function(b64){if(S.cancelled)return {_aborted:true};return ixApi('doc-intake',{files:[{id:e.id,name:e.name,mime:e.mime,base64:b64}]},ac)})
+  .catch(function(){return {ok:false,error:'read_local'}})
+  .then(function(o){S.running--;if(S.cancelled||IXS!==S||S.entries.indexOf(e)<0)return;ixOnRead(e,o);ixDraw();ixPump()})}
+function ixServiceDown(){var S=IXS;S.serviceDown=true;S.entries.forEach(function(e){if(e.status==='queued')ixToManual(e,'ixEService')})}
+function ixOnRead(e,o){
+ if(o._aborted)return;
+ if(o.error==='unauthorized'||o.error==='no_session'){ixSessionEnd();return}
+ if(o.error==='read_local'){e.status='failed';e.error='read_local';e.msg=TX.eRead;return}
+ if(o.company&&o.company.current){for(var k in o.company.current){IXS.org[k]=o.company.current[k]||'';IXS.orgKnown[k]=true}}
+ var it=null,list=o.files||[];
+ for(var i=0;i<list.length;i++)if(list[i]&&list[i].id===e.id)it=list[i];
+ if(!it&&list.length===1)it=list[0];
+ if(!it){
+  var code=o.error||'failed';
+  if(IXC.isServiceDown(code,o._http)){ixServiceDown();ixToManual(e,'ixEService');return}
+  e.status='failed';e.error=code;e.msg=TX[IXC.errKey(code,o._http)]||TX.ixEGeneric;return}
+ if(it.ok===false){
+  var c2=it.error||'unreadable';
+  if(IXC.isServiceDown(c2)){ixServiceDown();ixToManual(e,'ixEService');return}
+  if(c2==='unreadable'||c2==='no_text'||c2==='read_failed'||c2==='file_too_large_to_read'){ixToManual(e,IXC.errKey(c2));return}
+  e.status='failed';e.error=c2;e.msg=TX[IXC.errKey(c2)]||TX.ixEGeneric;return}
+ var m=IXC.fromServer(it);
+ e.docType=m.docType;e.category=m.category;e.issueDate=m.issueDate;e.expiryDate=m.expiryDate;e.confidence=m.confidence;e.fields=m.fields;e.fieldConfidence=m.fieldConfidence;e.serverWarnings=m.serverWarnings;
+ e.title=m.docTitle||(m.docType!=='other'?ixTypeName(m.docType):IXC.baseName(e.name));
+ if(IXC.hasReading(e)){e.status='ready';e.msg=''}else ixToManual(e,'ixEUnread')}
+
+// ----- القراءة ← المراجعة
+function ixRecompute(){
+ var S=IXS;IXC.reconcile(S.entries,S.org,ixToday());
+ var changed=false;
+ S.entries.forEach(function(e){if(e.dupOf&&!e.dupHandled){e.keep=false;e.dupHandled=true;changed=true}});
+ if(changed)IXC.reconcile(S.entries,S.org,ixToday());
+ S.entries.forEach(function(e){
+  if(e.status==='failed')return;
+  var t=String(e.title||'').trim().toLowerCase();
+  if((state.docs||[]).some(function(d){return d.category===e.category&&String(d.title||'').trim().toLowerCase()===t&&t}))e.warnings.push({code:'new_version',field:''})});
+ S.sugg=IXC.suggestCompany(S.entries)}
+function ixGoReview(){var S=IXS;clearTimeout(S.advance);S.step='review';S.cancelAsk=false;S.msg='';ixRecompute();ixDraw()}
+
+// ----- الرسم
+var IXSTEP={reading:0,review:1,saving:2,result:2};
+function ixDraw(){
+ var S=IXS;if(!S)return;
+ var box=S.box,old=box.querySelector('.ix-body'),sc=old?old.scrollTop:0;
+ box.innerHTML='';
+ var title=S.step==='reading'?TX.ixReadingTitle:S.step==='review'?TX.ixReviewTitle:S.step==='saving'?TX.ixSavingTitle:((S.result&&(S.result.failed.length||S.result.stopped))?TX.ixPartialTitle:TX.ixDoneTitle);
+ box.setAttribute('aria-label',title);
+ box.appendChild(h('div',{class:'ix-hd'},[h('h2',{},[title]),h('button',{class:'ix-x',type:'button','aria-label':TX.ixCancel,'data-ix-x':'1',onclick:function(){ixCancel()}},['✕'])]));
+ var cur=IXSTEP[S.step],names=[TX.ixStep1,TX.ixStep2,TX.ixStep3];
+ box.appendChild(h('ol',{class:'ix-steps'},names.map(function(n,i){return h('li',{class:i<cur||(S.step==='result'&&i===2)?'done':i===cur?'on':''},[(i+1)+' · '+n])})));
+ var body=h('div',{class:'ix-body'}),ft=h('div',{class:'ix-ft'});
+ box.appendChild(body);box.appendChild(ft);
+ if(S.step==='reading')ixDrawReading(body,ft);
+ else if(S.step==='review')ixDrawReview(body,ft);
+ else if(S.step==='saving')ixDrawSaving(body,ft);
+ else ixDrawResult(body,ft);
+ body.scrollTop=sc}
+function ixBanners(body){
+ var S=IXS;
+ if(S.serviceDown)body.appendChild(h('div',{class:'ix-banner',role:'status','data-ix-banner':'service'},[TX.ixEService]));
+ S.notes.forEach(function(n){body.appendChild(h('div',{class:'ix-banner',role:'status'},[n]))})}
+function ixRowState(e){
+ return e.status==='queued'?TX.ixQueued:e.status==='reading'?TX.ixReadingNow:e.status==='ready'?TX.ixReady:e.status==='manual'?TX.ixManual:TX.ixFailed}
+function ixRowIcon(s){return s==='ready'||s==='done'?'✓':s==='failed'?'!':s==='manual'?'↓':s==='queued'?'…':''}
+function ixDrawReading(body,ft){
+ var S=IXS,total=S.entries.length,done=S.entries.filter(function(e){return e.status!=='queued'&&e.status!=='reading'}).length;
+ body.appendChild(h('p',{class:'ix-lead'},[TX.ixReadingLead]));
+ ixBanners(body);
+ var bar=h('div',{class:'bar'},[h('i',{})]);bar.firstChild.style.width=(total?Math.round(done/total*100):0)+'%';
+ body.appendChild(h('div',{class:'ix-count','aria-live':'polite','data-ix-count':'1'},[h('span',{},[ixT('ixCount',{n:done,t:total})]),bar]));
+ S.entries.forEach(function(e){
+  var side=[];
+  if(e.status==='failed'){
+   if(e.error!=='bad_type'&&e.error!=='empty'&&e.error!=='too_large')side.push(h('button',{class:'btn ghost sm',type:'button',onclick:function(){e.status='queued';e.msg='';e.error='';ixDraw();ixPump()}},[TX.ixRetry]));
+   side.push(h('button',{class:'btn danger sm',type:'button',onclick:function(){S.entries.splice(S.entries.indexOf(e),1);ixDraw();ixPump()}},[TX.ixRemove]))}
+  var tt=[h('b',{},[e.name]),h('small',{},[ixSize(e.size)+' · '+ixRowState(e)])];
+  if(e.msg)tt.push(h('small',{class:e.status==='failed'?'bad':'warn'},[e.msg]));
+  S.rowOf=S.rowOf||{};
+  body.appendChild(h('div',{class:'ix-row '+e.status,'data-ix-row':e.id,'data-state':e.status},[h('span',{class:'st','aria-hidden':'true'},[ixRowIcon(e.status)]),h('div',{class:'tt'},tt),h('div',{class:'side'},side)]))});
+ var usable=S.entries.some(function(e){return e.status==='ready'||e.status==='manual'});
+ ft.appendChild(h('button',{class:'btn ghost',type:'button','data-ix-cancel':'1',onclick:function(){ixCancel()}},[TX.ixCancel]));
+ ft.appendChild(ixAddBtn());ft.appendChild(h('span',{class:'grow'}));
+ var go1=h('button',{class:'btn',type:'button','data-ix-continue':'1',onclick:function(){ixGoReview()}},[TX.ixContinue]);
+ if(ixBusy()||!usable)go1.setAttribute('disabled','disabled');
+ ft.appendChild(go1)}
+function ixAddBtn(){
+ var inp=h('input',{type:'file',multiple:'multiple',accept:'application/pdf,image/jpeg,image/png,image/webp',style:'display:none'});
+ inp.addEventListener('change',function(){var fs=Array.prototype.slice.call(inp.files||[]);inp.value='';if(fs.length&&IXS)ixAdd(fs)});
+ var b=h('button',{class:'btn ghost',type:'button','data-ix-add':'1',onclick:function(){inp.click()}},[TX.ixAddMore,inp]);
+ inp.addEventListener('click',function(e){e.stopPropagation()});return b}
+
+function ixConfLbl(c){return c==='high'?TX.ixConfHigh:c==='low'?TX.ixConfLow:TX.ixConfMed}
+function ixConfCls(c){return c==='high'?'ok':c==='low'?'bad':'warn'}
+function ixWarnText(w){var c=w.code;
+ if(c==='expired')return TX.ixWExpired;
+ if(c==='expiring')return ixT('ixWExpiring',{n:w.days});
+ if(c==='duplicate')return TX.ixWDup;
+ if(c==='conflict')return ixT('ixWConflict',{f:ixFieldName(w.field)});
+ if(c==='conflict_saved')return ixT('ixWConflictSaved',{f:ixFieldName(w.field)});
+ if(c==='low_confidence')return TX.ixWLow;
+ if(c==='bad_vat')return TX.ixWBadVat;
+ if(c==='bad_cr')return TX.ixWBadCr;
+ if(c==='unreadable')return TX.ixWUnread;
+ if(c==='new_version')return TX.ixWNewVer;
+ return ''}
+function ixWarnCls(c){return (c==='expired'||c==='conflict'||c==='conflict_saved')?'bad':c==='new_version'?'mut':'warn'}
+function ixCatOptions(cur){var opts=DOC_CATS.map(function(c){return h('option',{value:c[0]},[c[1]])});
+ if(!DOC_CATS.some(function(c){return c[0]===cur}))opts.push(h('option',{value:cur},[cur]));return opts}
+function ixAddrText(f){return [f.buildingNo,f.street,f.district,f.city,f.postalCode].filter(function(x){return x}).join('، ')}
+function ixReadRows(e){
+ var f=e.fields||{},rows=[];
+ function row(lbl,val,key){if(val)rows.push([lbl,val,(e.fieldConfidence&&e.fieldConfidence[key])||e.confidence])}
+ row(TX.company,f.companyNameAr,'companyNameAr');row(TX.nameEn,f.companyNameEn,'companyNameEn');row(TX.cr,f.crNumber,'crNumber');row(TX.ixFVat,f.vatNumber,'vatNumber');
+ row(TX.dIssued,e.issueDate,'issueDate');row(TX.ixAddr,ixAddrText(f),'address');row(TX.ixContact,f.contactName,'contactName');row(TX.ixPhone,f.contactPhone,'contactPhone');
+ return rows}
+function ixFileCard(e){
+ var S=IXS,off=e.keep===false;
+ var card=h('div',{class:'ix-file'+(off?' off':''),'data-ix-file':e.id,'data-keep':off?'0':'1'});
+ var typeName=e.status==='ready'?ixTypeName(e.docType):TX.ixTypeUnknown;
+ card.appendChild(h('div',{class:'hd'},[h('span',{class:'ico','aria-hidden':'true'},[/^image\//.test(e.mime)?'🖼️':'📄']),h('div',{class:'tt'},[h('b',{},[e.name]),h('small',{},[ixSize(e.size)])])]));
+ var chips=h('div',{class:'ix-chips'});
+ chips.appendChild(h('span',{class:'pill','data-ix-type':'1'},[typeName]));
+ if(e.status==='ready')chips.appendChild(h('span',{class:'pill '+ixConfCls(e.confidence),'data-ix-conf':e.confidence},[ixConfLbl(e.confidence)]));
+ (e.warnings||[]).forEach(function(w){var t=ixWarnText(w);if(t)chips.appendChild(h('span',{class:'pill '+ixWarnCls(w.code),'data-ix-warn':w.code},[t]))});
+ if(off)chips.appendChild(h('span',{class:'pill mut'},[TX.ixIgnored]));
+ card.appendChild(chips);
+ if(e.status==='manual')card.appendChild(h('p',{class:'ix-note'},[TX.ixUnreadNote+(e.msg&&e.msg!==TX.ixEUnread?' '+e.msg:'')]));
+ if(!off){
+  var title=h('input',{class:'inp',maxlength:'200',dir:'auto','aria-label':TX.dName,value:e.title||''});
+  title.addEventListener('input',function(){e.title=title.value});
+  var cat=h('select',{class:'inp','aria-label':TX.ixCatLbl},ixCatOptions(e.category));cat.value=e.category||'other';
+  cat.addEventListener('change',function(){e.category=cat.value;ixRecompute();ixDraw()});
+  var exp=h('input',{class:'inp',type:'date','aria-label':TX.dExp,value:e.expiryDate||''});
+  exp.addEventListener('change',function(){e.expiryDate=exp.value;ixRecompute();ixDraw()});
+  card.appendChild(h('div',{class:'ix-grid'},[h('div',{},[h('label',{},[TX.dName]),title]),h('div',{},[h('label',{},[TX.ixCatLbl]),cat]),h('div',{},[h('label',{},[TX.dExp]),exp])]));
+  var rows=ixReadRows(e);
+  if(rows.length){var rd=h('div',{class:'ix-read'},[h('h4',{},[TX.ixReadLbl])]);
+   rows.forEach(function(r){rd.appendChild(h('div',{},[h('span',{},[r[0]]),h('b',{dir:'auto'},[r[1]]),h('i',{class:'ix-dot '+(r[2]==='high'?'hi':r[2]==='low'?'lo':'md'),title:ixConfLbl(r[2]),role:'img','aria-label':ixConfLbl(r[2])})]))});
+   card.appendChild(rd)}}
+ card.appendChild(h('div',{class:'ix-act'},[h('button',{class:'btn ghost sm',type:'button','data-ix-toggle':e.id,onclick:function(){e.keep=off;e.dupHandled=true;ixRecompute();ixDraw()}},[off?TX.ixRestore:TX.ixIgnore])]));
+ return card}
+function ixFailedRow(e){
+ return h('div',{class:'ix-row failed','data-ix-row':e.id},[h('span',{class:'st'},['!']),h('div',{class:'tt'},[h('b',{},[e.name]),h('small',{class:'bad'},[e.msg||TX.ixEGeneric])]),h('div',{class:'side'},[h('button',{class:'btn danger sm',type:'button',onclick:function(){IXS.entries.splice(IXS.entries.indexOf(e),1);ixRecompute();ixDraw()}},[TX.ixRemove])])])}
+// بطاقة «بيانات شركتك» المقترحة. القيمة المعروضة: ما عدّله العميل، وإلا المقترح من الملفات، وإلا المسجَّل.
+function ixCoValue(k){var S=IXS;if(S.ctouched[k])return S.cedit[k];var s=S.sugg&&S.sugg[k];return s?s.value:(S.org[k]||'')}
+function ixCoKnown(k){return k==='name_ar'||k==='name_en'||k==='cr_number'||!!IXS.orgKnown[k]||!!IXS.org[k]}
+function ixFileNameOf(id){var e=IXS.entries.filter(function(x){return x.id===id})[0];return e?e.name:''}
+function ixCoStatus(k,el){
+ var S=IXS,v=String(ixCoValue(k)||'').trim(),cur=String(S.org[k]||'').trim(),s=S.sugg&&S.sugg[k];
+ el.innerHTML='';el.className='';
+ if(!v){if(!s){el.className='';el.appendChild(document.createTextNode(TX.ixNotFound))}return}
+ if(cur&&IXC.exactSame(k,cur,v)){el.className='good';el.appendChild(document.createTextNode(TX.ixSame));return}
+ if(cur&&ixCoKnown(k)){el.className='warn';el.appendChild(document.createTextNode(ixT('ixCurrent',{v:cur})+(s&&s.value===v?' · '+TX.ixReplaces:'')));return}
+ if(s&&s.value===v){el.className='good';el.appendChild(document.createTextNode((ixCoKnown(k)?TX.ixFresh+' · ':'')+ixT('ixFrom',{f:ixFileNameOf(s.from)})))}}
+function ixCompanyCard(){
+ var S=IXS,sg=S.sugg||{};
+ var card=h('div',{class:'ix-co','data-ix-company':'1'});
+ card.appendChild(h('h3',{},['🏢 '+TX.ixCompanyTitle]));card.appendChild(h('p',{class:'ix-lead'},[TX.ixCompanyLead]));
+ var rows=[['name_ar',TX.company,'auto'],['name_en',TX.nameEn,'auto'],['cr_number',TX.cr,'auto'],['vat_number',TX.ixFVat,'auto']];
+ if(sg.city||S.org.city)rows.push(['city',TX.ixFCity,'auto']);
+ rows.forEach(function(r){
+  var k=r[0],fld=h('div',{class:'ix-fld','data-ix-fld':k});
+  var inp=h('input',{class:'inp',dir:'auto',value:ixCoValue(k)||'','aria-label':r[1],'data-ix-co':k,autocomplete:'off',inputmode:(k==='cr_number'||k==='vat_number')?'numeric':'text'});
+  var st=h('small',{});
+  inp.addEventListener('input',function(){S.cedit[k]=inp.value;S.ctouched[k]=true;ixCoStatus(k,st)});
+  fld.appendChild(h('label',{},[r[1]]));fld.appendChild(inp);fld.appendChild(st);ixCoStatus(k,st);
+  var alts=(sg[k]&&sg[k].alts)||[];
+  alts.forEach(function(a){fld.appendChild(h('div',{class:'alt'},[h('span',{},[ixT('ixAlt',{v:a.value})]),h('button',{type:'button',onclick:function(){S.cedit[k]=a.value;S.ctouched[k]=true;inp.value=a.value;ixCoStatus(k,st)}},[TX.ixUseAlt])]))});
+  card.appendChild(fld)});
+ return card}
+function ixCompanyEdited(){var S=IXS,o={};IXC.COMPANY_FIELDS.forEach(function(k){o[k]=ixCoValue(k)});return o}
+function ixCounts(){var S=IXS,c={t:S.entries.length,r:0,u:0,d:0,f:0};
+ S.entries.forEach(function(e){if(e.status==='failed')c.f++;else if(e.dupOf)c.d++;else if(e.status==='manual')c.u++;else c.r++});return c}
+function ixKept(){return IXS.entries.filter(function(e){return e.keep!==false&&e.status!=='failed'&&e.status!=='queued'&&e.status!=='reading'})}
+function ixDrawReview(body,ft){
+ var S=IXS;
+ body.appendChild(h('p',{class:'ix-lead'},[TX.ixReviewLead]));
+ ixBanners(body);
+ var c=ixCounts();
+ body.appendChild(h('div',{class:'ix-sum','data-ix-sum':'1'},[ixT('ixSummary',c)]));
+ body.appendChild(ixCompanyCard());
+ S.entries.forEach(function(e){body.appendChild(e.status==='failed'?ixFailedRow(e):ixFileCard(e))});
+ var n=ixKept().length;
+ if(S.cancelAsk){
+  ft.appendChild(h('div',{class:'ask'},[h('span',{},[TX.ixCancelAsk]),h('button',{class:'btn solid-danger',type:'button','data-ix-cancel-yes':'1',onclick:function(){ixClose(false)}},[TX.ixCancelYes]),h('button',{class:'btn ghost',type:'button',onclick:function(){S.cancelAsk=false;ixDraw()}},[TX.ixCancelNo])]));return}
+ if(S.msg)ft.appendChild(h('p',{class:'msg',role:'alert'},[S.msg]));
+ ft.appendChild(h('button',{class:'btn ghost',type:'button','data-ix-cancel':'1',onclick:function(){ixCancel()}},[TX.ixCancel]));
+ ft.appendChild(ixAddBtn());ft.appendChild(h('span',{class:'grow'}));
+ ft.appendChild(h('button',{class:'btn',type:'button','data-ix-confirm':'1',onclick:function(){ixSave()}},[ixT('ixConfirmN',{n:n})]))}
+function ixCancel(){
+ var S=IXS;if(!S)return;
+ if(S.step==='reading'||S.step==='result'){ixClose(S.step==='result');return}
+ if(S.step==='review'){if(!S.cancelAsk){S.cancelAsk=true;ixDraw()}return}
+ if(S.step==='saving'&&S.save){S.save.stopped=true;ixDraw()}}
+
+// ----- الاعتماد: حفظ ما أكّده العميل فقط، ملفاً ملفاً
+function ixSave(){
+ var S=IXS,plan=IXC.confirmPlan(S.entries,ixCompanyEdited(),S.org),hasCo=Object.keys(plan.company).length>0;
+ if(!ixHasOrg()&&!(plan.company.name_ar||plan.company.name_en)){S.msg=TX.ixNeedName;ixDraw();return}
+ if(!plan.files.length&&!hasCo){S.msg=TX.ixNothing;ixDraw();return}
+ S.msg='';S.step='saving';S.plan=plan;S.save={files:{},co:hasCo?'queued':'none',stopped:false,errors:{}};
+ plan.files.forEach(function(f){S.save.files[f.id]='queued'});
+ ixDraw();ixSaveNext()}
+function ixSaveNext(){
+ var S=IXS;if(!S||S.cancelled)return;var sv=S.save;
+ var f=null;for(var i=0;i<S.plan.files.length;i++)if(sv.files[S.plan.files[i].id]==='queued'){f=S.plan.files[i];break}
+ var needCo=sv.co==='queued';
+ if(sv.stopped||(!f&&!needCo)){ixFinish();return}
+ if(f)sv.files[f.id]='saving';if(needCo)sv.co='saving';
+ ixDraw();
+ var e=f?S.entries.filter(function(x){return x.id===f.id})[0]:null;
+ var ac=window.AbortController?new AbortController():null;if(ac)S.aborts.push(ac);
+ var prep=e?ixB64(e.file).then(function(b64){var pf={};for(var k in f)pf[k]=f[k];pf.base64=b64;return [pf]}):Promise.resolve([]);
+ prep.then(function(files){var p={files:files};if(needCo)p.company=S.plan.company;return ixApi('doc-intake-confirm',p,ac)},function(){return {ok:false,error:'read_local'}})
+  .then(function(o){
+   if(S.cancelled||IXS!==S)return;
+   if(o.error==='unauthorized'||o.error==='no_session'){ixSessionEnd();return}
+   var failCode=null;
+   if(o.ok!==true)failCode=o.error||'failed';
+   else if(f){var errs=o.errors||[];for(var j=0;j<errs.length;j++)if(errs[j]&&errs[j].id===f.id)failCode=errs[j].error||'failed'}
+   if(f){if(failCode){sv.files[f.id]='failed';sv.errors[f.id]=failCode}else sv.files[f.id]='done'}
+   if(needCo){var coBad=(o.ok!==true)||(o.company&&o.company.saved===false);sv.co=coBad?'failed':'done';if(coBad&&!f)sv.errors.company=failCode||'failed';
+    if(!coBad&&o.company&&o.company.organization&&state.me){state.me.organization=Object.assign(state.me.organization||{},o.company.organization)}}
+   ixSaveNext()})}
+function ixFinish(){
+ var S=IXS,sv=S.save,plan=S.plan,saved=[],failed=[];
+ plan.files.forEach(function(f){var e=S.entries.filter(function(x){return x.id===f.id})[0];
+  if(sv.files[f.id]==='done')saved.push({id:f.id,name:f.name,title:f.title,category:f.category,docType:f.docType});
+  else if(sv.files[f.id]==='failed')failed.push({id:f.id,name:f.name,code:sv.errors[f.id]})});
+ var changes=[];
+ if(sv.co==='done'){for(var k in plan.diff)changes.push({field:k,from:plan.diff[k].from,to:plan.diff[k].to});
+  var org=(state.me&&(state.me.organization=state.me.organization||{}))||{};for(var k2 in plan.diff)org[k2]=plan.diff[k2].to}
+ S.result={saved:saved,failed:failed,changes:changes,companyFailed:sv.co==='failed',stopped:sv.stopped&&plan.files.some(function(f){return sv.files[f.id]==='queued'})};
+ S.step='result';ixDraw();
+ refreshMe().then(function(){return loadDocs()}).then(function(){if(IXS===S)S.org=ixOrg()})}
+function ixDrawSaving(body,ft){
+ var S=IXS,sv=S.save;
+ body.appendChild(h('p',{class:'ix-lead'},[TX.ixSavingLead]));
+ var total=S.plan.files.length+(sv.co==='none'?0:1),done=S.plan.files.filter(function(f){return sv.files[f.id]==='done'||sv.files[f.id]==='failed'}).length+((sv.co==='done'||sv.co==='failed')?1:0);
+ var bar=h('div',{class:'bar'},[h('i',{})]);bar.firstChild.style.width=(total?Math.round(done/total*100):0)+'%';
+ body.appendChild(h('div',{class:'ix-count','aria-live':'polite'},[h('span',{},[ixT('ixCount',{n:done,t:total})]),bar]));
+ if(sv.co!=='none')body.appendChild(ixSaveRow('co',TX.ixSavingCompany,sv.co,Object.keys(S.plan.company).map(function(k){return ixFieldName(k)}).join('، ')));
+ S.plan.files.forEach(function(f){body.appendChild(ixSaveRow(f.id,f.name,sv.files[f.id],(f.title||'')+' · '+catName(f.category)))});
+ ft.appendChild(h('span',{class:'grow'}));
+ var stop=h('button',{class:'btn ghost',type:'button','data-ix-stop':'1',onclick:function(){ixCancel()}},[TX.ixStop]);
+ if(sv.stopped)stop.setAttribute('disabled','disabled');ft.appendChild(stop)}
+function ixSaveRow(id,name,state2,sub){
+ var label=state2==='done'?TX.ixSaved:state2==='saving'?TX.ixSavingNow:state2==='failed'?TX.ixFailed:TX.ixQueued;
+ return h('div',{class:'ix-row '+(state2==='saving'?'saving':state2==='done'?'done':state2==='failed'?'failed':'queued'),'data-ix-save':id,'data-state':state2},[h('span',{class:'st','aria-hidden':'true'},[state2==='done'?'✓':state2==='failed'?'!':state2==='queued'?'…':'']),h('div',{class:'tt'},[h('b',{},[name]),h('small',{},[label+(sub?' · '+sub:'')])])])}
+function ixDrawResult(body,ft){
+ var S=IXS,r=S.result,part=r.failed.length>0||r.companyFailed||r.stopped;
+ body.appendChild(h('div',{class:'ix-done','data-ix-result':part?'partial':'ok'},[h('div',{class:'big'+(part?' part':''),'aria-hidden':'true'},[part?'!':'✓']),h('h3',{},[part?TX.ixPartialTitle:TX.ixDoneTitle]),
+  h('p',{},[r.saved.length?ixT('ixDoneFiles',{n:r.saved.length}):''])]));
+ if(r.stopped)body.appendChild(h('div',{class:'ix-banner'},[TX.ixStopped]));
+ if(r.failed.length)body.appendChild(h('div',{class:'ix-banner'},[ixT('ixPartial',{n:r.failed.length})]));
+ if(r.saved.length){var ul=h('ul',{});r.saved.forEach(function(s){ul.appendChild(h('li',{},[h('span',{class:'pill ok'},[catName(s.category)]),h('b',{},[s.title||s.name]),h('small',{},[s.name])]))});
+  body.appendChild(h('div',{class:'ix-res','data-ix-saved':'1'},[h('h4',{},['📁 '+TX.navDocs]),ul]))}
+ var cb=h('div',{class:'ix-res','data-ix-changes':'1'},[h('h4',{},['🏢 '+(r.changes.length?TX.ixDoneCompany:TX.ixDoneNoCompany)])]);
+ if(r.changes.length){var cu=h('ul',{});r.changes.forEach(function(c){cu.appendChild(h('li',{},[h('span',{},[ixFieldName(c.field)+':']),(c.from?h('s',{dir:'auto'},[c.from]):null),(c.from?h('span',{class:'arrow'},['←']):null),h('b',{dir:'auto'},[c.to])]))});cb.appendChild(cu)}
+ if(r.companyFailed)cb.appendChild(h('p',{class:'err'},[TX.ixECompany]));
+ body.appendChild(cb);
+ if(r.failed.length){var fu=h('ul',{});r.failed.forEach(function(f){fu.appendChild(h('li',{},[h('b',{},[f.name]),h('small',{class:'err'},[TX[IXC.errKey(f.code)]||TX.ixESave])]))});body.appendChild(h('div',{class:'ix-res'},[fu]))}
+ ft.appendChild(h('button',{class:'btn ghost',type:'button','data-ix-close':'1',onclick:function(){ixClose(true)}},[TX.ixClose]));
+ if(r.failed.length||r.companyFailed){ft.appendChild(h('button',{class:'btn ghost',type:'button','data-ix-retry':'1',onclick:function(){ixRetrySave()}},[TX.ixRetrySave]))}
+ ft.appendChild(h('span',{class:'grow'}));
+ var coFirst=r.changes.length>0;
+ ft.appendChild(h('button',{class:'btn'+(coFirst?'':' ghost'),type:'button','data-ix-open':'company',onclick:function(){ixClose(false);go('company')}},[TX.ixOpenCompany]));
+ ft.appendChild(h('button',{class:'btn'+(coFirst?' ghost':''),type:'button','data-ix-open':'documents',onclick:function(){ixClose(false);go('documents')}},[TX.ixOpenVault]))}
+function ixRetrySave(){
+ var S=IXS,sv=S.save;S.plan.files.forEach(function(f){if(sv.files[f.id]==='failed'||(sv.stopped&&sv.files[f.id]==='queued'))sv.files[f.id]='queued'});
+ if(sv.co==='failed')sv.co='queued';sv.stopped=false;sv.errors={};S.step='saving';ixDraw();ixSaveNext()}
 
 // ---------- المستندات: خزانة واحدة للعميل
 // هذه هي خزانة /account نفسها — الجداول documents و document_versions
@@ -1051,7 +1798,7 @@ m.appendChild(h('div',{class:'card'},[h('h3',{},[TX.pwTitle]),pf]))}
 //
 // attachment-add في /api/simple ليست المسار: عقدها الفعلي {name,url,note} —
 // بياناتٌ عن مرفق، لا بايتات ملف. راجع تقرير المهمة.
-var DOC_CATS=[["cr","Registre de commerce"],["vat","Certificat de TVA"],["contract","Contrat"],["id","Pièce d'identité / Iqama"],["other","Autre"]];
+var DOC_CATS=[["cr","Registre de commerce"],["vat","Certificat de TVA"],["contract","Contrat"],["id","Pièce d'identité / Iqama"],["national_address","Adresse nationale"],["license","Licence"],["gosi","GOSI"],["zakat","Zakat"],["other","Autre"]];
 var MAX_DOC=8*1024*1024;
 var OK_MIME={'application/pdf':'application/pdf','image/jpeg':'image/jpeg','image/jpg':'image/jpeg','image/png':'image/png','image/webp':'image/webp'};
 var OK_EXT={pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp'};
@@ -1112,6 +1859,7 @@ function loadDocs(){return opsGet('documents').then(function(o){if(o&&o.ok)state
 
 function viewDocuments(m){
  m.appendChild(h('h1',{},[TX.navDocs]));
+ m.appendChild(ixEntryCard('documents'));
  var noOrg=!(state.me.organization&&state.me.organization.id);
  var card=h('div',{class:'card'});
  card.appendChild(h('p',{class:'note',style:'margin:0 0 12px'},[TX.vaultNote]));

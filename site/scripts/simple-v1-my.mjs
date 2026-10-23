@@ -5,6 +5,7 @@
 
 import fs from "node:fs";
 import { CLIENT_LOGIN_CSS, clientLoginScript } from "./client-login.mjs";
+import { INTAKE_P, INTAKE_CSS, intakeClientScript } from "./my-doc-intake.mjs";
 
 // The seller printed on the invoice page comes from the one place the company's
 // legal identity lives (site/data/site.json → legal), never typed here.
@@ -523,8 +524,14 @@ const DOC_CATS = [
   ["vat",      { ar: "شهادة ضريبية", en: "VAT certificate", fr: "Certificat de TVA", zh: "增值税证书" }],
   ["contract", { ar: "عقد", en: "Contract", fr: "Contrat", zh: "合同" }],
   ["id",       { ar: "هوية / إقامة", en: "ID / Iqama", fr: "Pièce d'identité / Iqama", zh: "身份证 / 居留证" }],
+  // تصنيفات يرتّب بها وكيل المستندات ما يرفعه العميل دفعةً واحدة (db/schema.sql: documents.category)
+  ["national_address", { ar: "عنوان وطني", en: "National address", fr: "Adresse nationale", zh: "国家地址" }],
+  ["license",  { ar: "رخصة", en: "Licence", fr: "Licence", zh: "执照" }],
+  ["gosi",     { ar: "التأمينات الاجتماعية", en: "GOSI", fr: "GOSI", zh: "社会保险" }],
+  ["zakat",    { ar: "الزكاة", en: "Zakat", fr: "Zakat", zh: "天课" }],
   ["other",    { ar: "أخرى", en: "Other", fr: "Autre", zh: "其他" }],
 ];
+Object.assign(P, INTAKE_P);
 const TYPES = { CONSULTATION: { ar: "استشارة", en: "Consultation", fr: "Consultation", zh: "咨询" }, GOVERNMENT_SERVICE: { ar: "خدمة حكومية", en: "Government service", fr: "Service gouvernemental", zh: "政府服务" }, COMPANY_FORMATION: { ar: "تأسيس شركة", en: "Company formation", fr: "Création d'entreprise", zh: "公司注册" }, BUSINESS_DEVELOPMENT: { ar: "تطوير الأعمال", en: "Business development", fr: "Développement commercial", zh: "业务拓展" } };
 
 export function buildSimpleMy(sv1, ctx) {
@@ -698,6 +705,7 @@ select.inp{background:#fff;color:inherit}
 @media(max-width:620px){.tl li{flex-wrap:wrap;gap:2px 10px}.tl li time{min-width:0;flex:1 1 100%}.tl li span{flex:1 1 0;min-width:0;overflow-wrap:anywhere}.my-main{padding:16px 14px 120px}.msgform .btn{flex:1 1 auto}.dgrid{grid-template-columns:1fr}.row{flex-wrap:wrap}.row .tt{flex:1 1 100%}.items li{flex-wrap:wrap}.items li>div{flex:1 1 140px;min-width:0}.items li .btn{max-width:100%;white-space:normal;text-align:start}}
 .mob{display:none}
 @media(max-width:900px){.my{grid-template-columns:minmax(0,1fr)}.my-side{position:static;height:auto;display:none}.my-side.open{display:block}.mob{display:flex;gap:6px;overflow:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line)}.mob a{white-space:nowrap;padding:7px 11px;border-radius:999px;border:1px solid var(--line);font-size:.82rem;font-weight:700;color:#2c3550}.mob a.on{background:var(--n);color:#fff;border-color:var(--n)}.my-kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:minmax(0,1fr)}.my-main{padding:14px}}
+${INTAKE_CSS}
 </style>`;
   const body = `
 ${sv1.header("/my", { cta: false })}
@@ -922,16 +930,17 @@ function slotPicker(){var st={days:[]};var d=h('select',{class:'inp'}),tm=h('sel
  return {day:d,time:tm,note:note}}
 function apptErr(o){var e=o&&o.error;return e==='bad_datetime'?TX.apptBad:(e==='off_day'||e==='friday')?TX.apptFri:e==='past'?TX.apptPast:e==='out_of_hours'?TX.apptOut:e==='too_soon'?TX.apptSoon:e==='too_far'?TX.apptFar:e==='slot_taken'?TX.apptTaken:e==='too_many_active'?TX.apptMany:e==='rate_limited'?TX.apptRate:failText(o)}
 function viewAppts(m){m.appendChild(h('h1',{},[TX.navAppts]));var nc=nextApptCard();if(nc)m.appendChild(nc);var rows=state.me.requests.filter(function(r){return r.appointment&&r.appointment.status!=='CANCELLED'&&r.status!=='CANCELLED'});m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){var row=reqRow(r);row.insertBefore(h('span',{class:'pill'},[r.appointment.date+' '+r.appointment.time]),row.children[1]);return row})):h('p',{class:'note'},[TX.empty]));var cons=state.me.requests.filter(function(r){return r.type==='CONSULTATION'&&(!r.appointment||r.appointment.status==='CANCELLED')&&r.status!=='CANCELLED'});if(cons.length)m.appendChild(h('div',{class:'card'},[h('h2',{},[TX.book]),h('div',{class:'list'},cons.map(reqRow))]))}
-function viewCompany(m){m.appendChild(h('h1',{},[TX.navCompany]));var o=state.me.organization||{};var f=h('div',{class:'form'});var nAr=h('input',{class:'inp',value:o.name_ar||''}),nEn=h('input',{class:'inp',value:o.name_en||''}),cr=h('input',{class:'inp',value:o.cr_number||''}),msg=h('span',{class:'ok'});
+function viewCompany(m){m.appendChild(h('h1',{},[TX.navCompany]));var o=state.me.organization||{};m.appendChild(ixEntryCard('company'));var f=h('div',{class:'form'});var nAr=h('input',{class:'inp',value:o.name_ar||''}),nEn=h('input',{class:'inp',dir:'auto',value:o.name_en||''}),cr=h('input',{class:'inp',value:o.cr_number||''}),msg=h('span',{class:'ok'});
 f.appendChild(h('label',{},[TX.company]));f.appendChild(nAr);f.appendChild(h('label',{},[TX.nameEn]));f.appendChild(nEn);f.appendChild(h('label',{},[TX.cr]));f.appendChild(cr);
 f.appendChild(h('button',{class:'btn',onclick:function(){fetch('/api/requests',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({action:'my-org-update',name_ar:nAr.value,name_en:nEn.value,cr:cr.value,cr_number:cr.value})}).then(function(r){return r.json()}).catch(function(){return {ok:false,error:'network'}}).then(function(o){if(o&&o.error==='unauthorized'){sessionEnded();return}msg.className=o&&o.ok?'ok':'err';msg.textContent=o&&o.ok?TX.saved:failText(o);if(o&&o.ok&&o.organization)state.me.organization=o.organization})}},[TX.save]));f.appendChild(msg);
-m.appendChild(h('div',{class:'card'},[h('div',{class:'stat'},[h('span',{},[TX.email+': ',h('b',{},[state.me.user.email])])]),f]));
+m.appendChild(h('div',{class:'card'},[h('div',{class:'stat'},[h('span',{},[TX.email+': ',h('b',{},[state.me.user.email])])].concat(o.vat_number?[h('span',{'data-co-vat':'1'},[TX.ixFVat+': ',h('b',{},[o.vat_number])])]:[]).concat(o.city?[h('span',{},[TX.ixFCity+': ',h('b',{},[o.city])])]:[])),f]));
 // Setting a password needs a live session, which is exactly where we are —
 // so the client picks one here and stops waiting for a code every visit.
 var pw=h('input',{class:'inp',type:'password',autocomplete:'new-password',placeholder:TX.password}),pmsg=h('span',{class:'ok'});
 var pf=h('div',{class:'form'},[h('p',{class:'note'},[TX.pwNote]),h('label',{},[TX.password]),pw,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){pmsg.className='ok';if((pw.value||'').length<8){pmsg.className='err';pmsg.textContent=TX.pwShort;return}otp({action:'password-set',password:pw.value}).then(function(o){if(o&&o.ok){pmsg.textContent=TX.pwSaved;pw.value=''}else{pmsg.className='err';pmsg.textContent=(o&&o.reason&&TX['pwr_'+o.reason])||(o&&o.message)||TX.error}})}},[TX.pwSave]),pmsg])]);
 m.appendChild(h('div',{class:'card'},[h('h3',{},[TX.pwTitle]),pf]))}
 
+${intakeClientScript()}
 // ---------- المستندات: خزانة واحدة للعميل
 // هذه هي خزانة /account نفسها — الجداول documents و document_versions
 // والمسارات my-ops الموجودة أصلاً. لا خزانة ثانية ولا دالة api جديدة: مستندٌ
@@ -1000,6 +1009,7 @@ function loadDocs(){return opsGet('documents').then(function(o){if(o&&o.ok)state
 
 function viewDocuments(m){
  m.appendChild(h('h1',{},[TX.navDocs]));
+ m.appendChild(ixEntryCard('documents'));
  var noOrg=!(state.me.organization&&state.me.organization.id);
  var card=h('div',{class:'card'});
  card.appendChild(h('p',{class:'note',style:'margin:0 0 12px'},[TX.vaultNote]));
