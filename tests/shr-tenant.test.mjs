@@ -52,5 +52,19 @@ for (const t of ["shr_candidates", "shr_candidate_consents", "shr_jobs", "shr_ap
   ok(throws(() => a.patch(t, { x: 1 })), `${t}: PATCH without filter refused`);
 }
 
+console.log("\n6. Agency tables go through the same gate");
+for (const t of ["shr_agencies", "shr_recruitment_orders", "shr_agency_candidates", "shr_agency_candidate_events", "shr_agency_interviews"]) {
+  await a.get(`${t}?select=id`);
+  ok(calls.at(-1).p === `${t}?tenant_id=eq.${A}&select=id`, `${t}: read pinned`);
+  ok(throws(() => a.get(`${t}?tenant_id=eq.${B}`)), `${t}: tenant_id in query refused`);
+  ok(throws(() => a.post(t, { tenant_id: B })), `${t}: tenant_id in body refused`);
+  await a.post(t, { x: 1 });
+  ok(calls.at(-1).body.tenant_id === A, `${t}: write stamped`);
+  ok(throws(() => a.patch(t, { x: 1 })), `${t}: PATCH without filter refused`);
+}
+ok(throws(() => ctxFrom({ tenant_id: A, role: "agency" }) && a.del()), "delete stays archive-only for the agency tables");
+const ag = ctxFrom({ tenant_id: A, role: "agency" });
+ok(ag.staff === false, "role agency is not staff in the gate");
+
 console.log(fail.length ? `\n${fail.length} FAILED` : "\nall passed");
 if (fail.length) process.exit(1);

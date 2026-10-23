@@ -8,18 +8,21 @@
 - `api/shr.js` — **دالة `api/` واحدة** (action). دوال `api/` الآن **11 من 12** (المتاح واحدة)؛ SHR لا يضيف شيئاً فوق هذه الدالة، والمنطق في وحدات تبدأ بـ`_` فلا تُحتسب.
 - `api/_shr_match.js` — محرك المطابقة (نقي، بلا استيراد).
 - `api/_shr_ats.js` — منطق ATS: وظائف، طلبات تقديم، مقابلات، مطابقة.
-- `site/scripts/simple-v1-shr.mjs` (القشرة والعمال والطلبات) و`simple-v1-shr-ats.mjs` (شاشات ATS) — الصفحة `/SHR-HR`.
+- `api/_shr_agency.js` — بوابة المكاتب: مكاتب، أوامر استقدام، مرشحو المكاتب، مقابلاتهم.
+- `site/scripts/simple-v1-shr.mjs` (القشرة والعمال والطلبات) و`simple-v1-shr-ats.mjs` (شاشات ATS) و`simple-v1-shr-agency.mjs` (شاشات المكاتب: المشغّل + منظور المكتب) — الصفحة `/SHR-HR`.
 - `db/shr-schema.sql` — الجداول وRLS. الاختبارات: `tests/shr-tenant.test.mjs` · `tests/shr-api.test.mjs` · `tests/shr-match.test.mjs` · `tests/shr-ats.test.mjs`.
 
 ## الإجراءات
-الجلسة كوكي موقَّع؛ المستأجر منه لا من الطلب (`tenant_id` في الطلب يُرفض). الأدوار: `tenant_owner` و`operator` فقط.
+الجلسة كوكي موقَّع؛ المستأجر منه لا من الطلب (`tenant_id` في الطلب يُرفض). الأدوار: `tenant_owner` و`operator` (طاقم)، و`agency` (مكتب، قائمة بيضاء ضيقة أدناه). أدوار العميل والعامل ما زالت مرفوضة.
 
 | النطاق | GET | POST |
 |---|---|---|
 | تشغيل | `session` `dashboard` `workers` `requests` `expiring` | `session` `session-end` `worker-create` `worker-activate` `worker-archive` `request-state` |
 | ATS | `jobs` `applications` `candidates` `candidate` | `job-create` `job-close` `application-create` `application-stage` `interview-request` `interview-set` `match` |
+| مكاتب (مشغّل) | `agencies` `orders` `order-employer-view` `agency-submissions` | `agency-create` `agency-approve` `agency-suspend` `order-create` `submission-state` |
+| مكتب (`agency` وحده) | `my-orders` `my-submissions` `my-interviews` `session` | `submit-candidate` `bulk-submit` |
 
-لا حذف: `worker-delete` وكل `*-delete` يرد `403 archive_only`؛ الوظيفة تُغلق والعامل والمرشح يُؤرشفان.
+لا حذف: `worker-delete` و`agency-delete` و`order-delete` و`submission-delete` وكل `*-delete` يرد `403 archive_only`؛ الوظيفة تُغلق والعامل والمرشح يُؤرشفان.
 
 ## ATS
 - **المراحل الثمانية:** `new` `review` `shortlist` `interview` `offer` `hired` `rejected` `future`. مرحلة غير معروفة تُرفض (400)؛ كل انتقال يكتب حدثاً في `shr_application_events` (لا تعديل ولا حذف) وسطراً في سجل التدقيق. `hired` نهائية.
@@ -28,6 +31,23 @@
 - **المقابلات:** `interview-request` ثم `interview-set` سجلان داخليان؛ لا رسالة ولا دعوة تُرسل لأحد.
 - **المطابقة:** سبعة مكوّنات بأوزان: المهنة 30، قابلية نقل الإقامة 20، الخبرة 15، الجنسية 10، الموقع 10، التوفر 10، المهارات 5. المكوّن المجهول (`UNKNOWN`) والمكوّن غير المطلوب (`NA`) يخرج وزنه من القسمة ولا يستبعد أحداً، ويُذكر باسمه. شروط `must_have` لا تحذف أحداً: من يفشل فيها يظهر في فئة `must_have_miss` منفصلة. كل نتيجة ترجع `explain` (وزن ودرجة ومساهمة وسبب لكل مكوّن) و`summary`.
 - **المرشحون وهميون:** `shr_candidates` بلا حقول هوية أو هاتف أو بريد أصلاً، وكل صف موسوم `demo` وrefه `DEMO-C-…` واسمه «(وهمي)».
+
+## بوابة المكاتب (مكاتب الاستقدام الخارجية)
+نُقل من مرجع المكاتب العام نموذجاً وسلوكاً لا شيفرة (`api/_agencies.js` لم يُستورد ولم يُعدَّل، و`api/candidates.js` لا يُستدعى).
+- **المكتب pending أولاً:** `agency-create` يسجّله `pending` مع مستخدم دخول (بريد `.invalid` فقط في هذه المرحلة). `agency-approve` لا ينفّذه من أنشأ المكتب (403 `maker_checker`، وقيد `check` في المخطط). pending أو suspended لا يدخل (`403 agency_not_approved`، بلا كوكي) ولا يستلم أوامر. الإيقاف يسري فوراً على الجلسة الحيّة لأن المكتب يُقرأ من القاعدة في كل طلب.
+- **الهوية من `shr_users.agency_id`** لا من اسم المكتب ولا من الطلب؛ `agency_id` في الجسم يُهمل. لا بيانات دخول في الرابط (كوكي موقَّع كبقية النظام).
+- **العزل:** المكتب يرى الأوامر الموجّهة إليه والأوامر **المفتوحة** (`agency_id` فارغ) ومرشحيه ومقابلاته فقط. ما ليس له يرد `404` لا `403`. لا يرى اسم عميل ولا سعراً ولا مراحل صاحب العمل: يرى «مستلم / مقابلة / مقبول / غير مختار» وحدها (مراجعة وقائمة قصيرة تُطويان في «مستلم»)، والملاحظة الداخلية لا تصله.
+- **صاحب العمل لا يعرف المكتب:** `order-employer-view` (معاينة للمشغّل) قائمة بيضاء ترد «عبر شريك» بلا اسم المكتب ولا معرّفه ولا بلده. لا واجهة عميل بعد؛ الدالة هي ما سيُعرض له.
+- **مرشحو المكتب** في `shr_agency_candidates` وحدها (لا `shr_candidates` ولا قاعدة BP). مواصفات فقط: لا هاتف ولا بريد ولا هوية خام (`contact_fields_not_allowed`)، ورقم الهوية إن قُدّم يُحفظ بصمةً فقط.
+- **التكرار:** داخل المكتب نفسه على الأمر نفسه يُرفض (`duplicate_candidate`، بصمة هوية أو بصمة اسم+جنسية+مهنة، وفهرس فريد في المخطط). بين المكاتب يقبل النظام ويُظهر للمشغّل وحده «تكرار بين مكاتب» (يُحسب عند القراءة)؛ المكتب لا يُبلَّغ.
+- **الاستيراد الجماعي:** `rows` حتى 60 (أكثر يُرفض كله، لا قصّ صامت). كل صف فاسد يُبلَّغ `{line, error}` ولا يوقف الباقي.
+- **مراجعة المشغّل:** `submitted → under_review → shortlisted → interview → accepted`، والرفض من أي مرحلة قبل النهاية. `accepted` و`rejected` نهائيتان. المقابلة سجل داخلي في `shr_agency_interviews` (لا رسالة تُرسل).
+- **أوامر الاستقدام:** الوجهة صريحة (`agency_id` أو الكلمة `open`؛ الغياب 400 حتى لا يُبثّ أمر بالسهو). **معلَّق بقرار المالك:** منع الأمر إن كانت المنشأة `restricted/suspected` لنوع التأشيرات. المخطط ليس فيه حقل نوع التأشيرة بعد، فالخادم **لا يمنع** ويرد `warnings: ["establishment_restricted_visa_check_pending"]` فقط.
+- **الشاشات:** في `/SHR-HR` نفسها (لم يُضف مسار). بوابة الدخول فيها وضعان: «دخول المشغّل» و«دخول مكتب استقدام» (`/SHR-HR?as=agency` يفتح الثاني). منظور المكتب: طلباتي · تقديم مرشح · استيراد جماعي (CSV) · مقابلاتي. شاشات المشغّل: المكاتب · أوامر الاستقدام · المرشحون المقدَّمون.
+- **أدوار الإجراءات:** دور `agency` لا يصل لأي إجراء مشغّل (403)، والمشغّل لا يصل لإجراءات `my-*`/`submit-candidate`/`bulk-submit` (403).
+- **الجداول (كلها `tenant_id` وRLS ولا حذف):** `shr_agencies` · `shr_recruitment_orders` · `shr_agency_candidates` · `shr_agency_candidate_events` (append-only) · `shr_agency_interviews`، وربط `shr_users.agency_id` بمفتاح مركّب `(tenant_id, agency_id)` يمنع ربطاً عابراً للمستأجرين.
+- **البذرة (SHR):** 3 مكاتب (ج = pending) · 4 أوامر (واحد مفتوح) · 8 مرشحي مكاتب (اثنان بالبصمة نفسها من مكتبين مختلفين لإظهار التكرار للمشغّل). الأسماء «(وهمي)» والمراجع `DEMO-AG-/DEMO-ORD-/DEMO-A-`. ومستأجر `OTHER` فيه مكتب وأمر ومرشح لإثبات العزل. دخول المكاتب: `agency-a@shr.invalid` · `agency-b@shr.invalid` · `agency-c@shr.invalid` (pending، يُرفض) · `agency-x@other.invalid`.
+- الاختبار: `tests/shr-agency.test.mjs` (عزل، أدوار، pending، maker-checker، إخفاء المكتب، تكرار، استيراد، مراجعة)، و`tests/shr-tenant.test.mjs` يغطي الجداول الجديدة. القيود جُرّبت أيضاً على Postgres 16 مؤقت (الاعتماد من المنشئ، دور agency بلا agency_id، ربط مكتب مستأجر آخر، تكرار المرشح، append-only، RLS).
 
 ## ملاحظة: طبقة المرشحين الحقيقية لم تُربط
 المرشحون هنا جدول وهمي داخل SHR. **قاعدة مرشحي BP الحقيقية لم تُربط بـSHR**، و`api/candidates.js` **لا يُستدعى من SHR أبداً**. ربطها مشروط بأمرين لم يتحققا:

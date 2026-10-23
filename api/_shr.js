@@ -100,11 +100,14 @@ export async function tenantById(id) {
 import crypto from "node:crypto";
 
 export const hashIdNo = (tenantId, no) => crypto.createHash("sha256").update(tenantId + ":" + no).digest("hex");
+// بصمة الاسم+الجنسية+المهنة لكشف تكرار مرشح المكتب بلا هوية: تطبيع بسيط ثم SHA-256.
+const norm = (v) => String(v ?? "").normalize("NFKC").toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g, "").replace(/[أإآ]/g, "ا").replace(/\s+/g, " ").trim();
+export const nameKeyOf = (tenantId, name, nat, prof) => crypto.createHash("sha256").update([tenantId, norm(name), norm(nat), norm(prof)].join("|")).digest("hex");
 const day = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
 
 export async function seedDemo() {
   assertLocal();
-  if (await tenantBySlug("SHR")) { await seedAts(); return { seeded: false }; }
+  if (await tenantBySlug("SHR")) { await seedAts(); await seedAgencies(); return { seeded: false }; }
   const mk = async (slug, brand_ar, brand_en) => (await sb("shr_tenants", { method: "POST", body: { slug, brand_ar, brand_en, demo: true } }))[0];
   const A = await mk("SHR", "مستأجر SHR التجريبي (بيانات وهمية)", "SHR demo tenant");
   const B = await mk("OTHER", "مستأجر وهمي آخر (بيانات وهمية)", "Other demo tenant");
@@ -171,6 +174,7 @@ export async function seedDemo() {
     ],
   });
   await seedAts();
+  await seedAgencies();
   return { seeded: true };
 }
 
@@ -261,6 +265,95 @@ export async function seedAts() {
       }))[0];
       await s.post("shr_application_events", { application_id: a.id, from_stage: null, to_stage: "new", actor: ops ? ops.id : null, note: "إدخال تجريبي", at: iso(-10) });
       if (stage !== "new") await s.post("shr_application_events", { application_id: a.id, from_stage: "new", to_stage: stage, actor: ops ? ops.id : null, note: "بذرة تجريبية", at: iso(-9) });
+    }
+  }
+}
+
+// ------------------------------------------------------------ agency seed --
+// بوابة المكاتب: ثلاثة مكاتب في SHR (واحد pending)، أربعة أوامر، ثمانية مرشحي مكاتب.
+// أسماء «(وهمي)» وref يبدأ بـDEMO-. لا هوية حقيقية: أرقام DEMO-… تُخزَّن بصمةً فقط.
+// المكتب المنشأ بيد مستخدم والمعتمد بيد آخر، فالبذرة تحترم من يُدخل لا يعتمد.
+const AGENCY_PLAN = {
+  SHR: {
+    agencies: [   // [مفتاح، الاسم، البلد، المنشئ، المعتمد (null = pending)]
+      ["a", "مكتب استقدام تجريبي أ (وهمي)", "الهند", "ops", "owner"],
+      ["b", "مكتب استقدام تجريبي ب (وهمي)", "الفلبين", "owner", "ops"],
+      ["c", "مكتب استقدام تجريبي ج — قيد الاعتماد (وهمي)", "بنغلاديش", "ops", null],
+    ],
+    // [مفتاح، المكتب (null = مفتوح)، المهنة، الكمية، تفضيل الجنسية، توجيه المكتب]
+    orders: [
+      ["o1", "a", "فني تكييف", 3, ["الهند"], "توجيه تجريبي: فنيون بخبرة تركيب سبليت"],
+      ["o2", "b", "سائق", 2, [], "توجيه تجريبي: رخصة قيادة سارية"],
+      ["o3", null, "لحّام", 1, [], "أمر مفتوح تجريبي لكل المكاتب المعتمدة"],
+      ["o4", "a", "كهربائي", 2, [], "توجيه تجريبي: تمديدات منخفضة الجهد"],
+    ],
+    // [المكتب، الأمر، الاسم، المهنة، الجنسية، الخبرة، رقم وهمي للبصمة، الحالة]
+    cands: [
+      ["a", "o1", "مرشح مكتب ١ (وهمي)", "فني تكييف", "الهند", 6, "DEMO-AGC-1", "submitted"],
+      ["a", "o1", "مرشح مكتب ٢ (وهمي)", "فني تكييف", "الهند", 4, "DEMO-AGC-2", "shortlisted"],
+      ["a", "o4", "مرشح مكتب ٣ (وهمي)", "كهربائي", "مصر", 9, "DEMO-AGC-3", "interview"],
+      ["a", "o3", "مرشح مكتب ٤ (وهمي)", "لحّام", "الهند", 8, "DEMO-DUP-1", "under_review"],
+      ["b", "o2", "مرشح مكتب ٥ (وهمي)", "سائق", "الفلبين", 5, "DEMO-AGC-5", "accepted"],
+      ["b", "o2", "مرشح مكتب ٦ (وهمي)", "سائق", "الفلبين", 2, "DEMO-AGC-6", "rejected"],
+      ["b", "o2", "مرشح مكتب ٧ (وهمي)", "سائق", "إندونيسيا", 7, "DEMO-AGC-7", "submitted"],
+      ["b", "o3", "مرشح مكتب ٨ (وهمي)", "لحّام", "الهند", 8, "DEMO-DUP-1", "submitted"],   // نفس بصمة ٤ من مكتب آخر: يراه المشغّل وحده
+    ],
+  },
+  OTHER: {
+    agencies: [["x", "مكتب وهمي لمستأجر آخر", "مصر", "ops", "owner"]],
+    orders: [["ox", "x", "نجّار", 1, [], "توجيه تجريبي لمستأجر آخر"]],
+    cands: [["x", "ox", "مرشح مكتب وهمي آخر (وهمي)", "نجّار", "مصر", 4, "DEMO-AGC-X1", "submitted"]],
+  },
+};
+
+export async function seedAgencies() {
+  assertLocal();
+  for (const slug of ["SHR", "OTHER"]) {
+    const t = await tenantBySlug(slug);
+    if (!t) continue;
+    const s = scoped(ctxFrom({ tenant_id: t.id, role: "tenant_owner" }));
+    if ((await s.get("shr_agencies?select=id&limit=1")).length) continue;     // مبذور سلفاً
+    const plan = AGENCY_PLAN[slug];
+    const users = await s.get("shr_users?select=id,email");
+    const U = { ops: users.find((u) => u.email.startsWith("ops@")), owner: users.find((u) => u.email.startsWith("owner@")) };
+    const clients = await s.get("shr_client_companies?select=id&order=created_at.asc");
+    const tag = slug.toLowerCase();
+    const AG = {}, ORD = {}, AU = {};
+    let n = 0;
+    for (const [k, name, country, by, appr] of plan.agencies) {
+      n++;
+      const a = (await s.post("shr_agencies", {
+        ref: `DEMO-AG-${slug}-${n}`, name_ar: name, country,
+        status: appr ? "approved" : "pending", created_by: U[by].id,
+        approved_by: appr ? U[appr].id : null, approved_at: appr ? iso(-20) : null,
+        suspended_by: null, suspended_at: null, suspended_reason: null, archived_at: null, demo: true,
+      }))[0];
+      AG[k] = a;
+      AU[k] = (await s.post("shr_users", { email: `agency-${k}@${tag}.invalid`, full_name: `مستخدم ${name}`, role: "agency", agency_id: a.id }))[0];
+    }
+    n = 0;
+    for (const [k, ag, prof, qty, nat, brief] of plan.orders) {
+      n++;
+      ORD[k] = (await s.post("shr_recruitment_orders", {
+        ref: `DEMO-ORD-${slug}-${n}`, request_id: null, client_company_id: clients[0] ? clients[0].id : null, establishment_id: null,
+        agency_id: ag ? AG[ag].id : null, profession: prof, quantity: qty, nationality_pref: nat, agency_brief: brief,
+        due_on: day(30), state: "open", created_by: U.ops.id, archived_at: null, demo: true,
+      }))[0];
+    }
+    n = 0;
+    for (const [ag, ord, name, prof, nat, yrs, no, state] of plan.cands) {
+      n++;
+      const c = (await s.post("shr_agency_candidates", {
+        ref: `DEMO-A-${slug}-${String(n).padStart(2, "0")}`, order_id: ORD[ord].id, agency_id: AG[ag].id, full_name: name,
+        profession: prof, nationality: nat, years_experience: yrs, skills: [],
+        id_no_hash: hashIdNo(t.id, no), name_key: nameKeyOf(t.id, name, nat, prof),
+        state, submitted_by: AU[ag].id,
+        reviewed_by: state === "submitted" ? null : U.ops.id, reviewed_at: state === "submitted" ? null : iso(-2), review_note: null,
+        archived_at: null, demo: true,
+      }))[0];
+      await s.post("shr_agency_candidate_events", { submission_id: c.id, from_state: null, to_state: "submitted", actor: c.submitted_by, note: "تقديم تجريبي", at: iso(-5) });
+      if (state !== "submitted") await s.post("shr_agency_candidate_events", { submission_id: c.id, from_state: "submitted", to_state: state, actor: U.ops.id, note: "بذرة تجريبية", at: iso(-2) });
+      if (state === "interview") await s.post("shr_agency_interviews", { submission_id: c.id, agency_id: AG[ag].id, state: "scheduled", mode: "video", location: null, scheduled_at: iso(3), agency_note: "مقابلة مرئية تجريبية", requested_by: U.ops.id, scheduled_by: U.ops.id });
     }
   }
 }

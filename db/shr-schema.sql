@@ -113,30 +113,134 @@ create table if not exists shr_requests (          -- طلبات العميل
   created_at timestamptz not null default now()
 );
 
+-- ------------------------------------------------------- بوابة المكاتب ----
+-- مكاتب الاستقدام الخارجية داخل مستأجر واحد. القواعد:
+--  * المكتب يُنشأ pending، ويعتمده مستخدم غير من أنشأه (check أدناه). لا دخول قبل approved.
+--  * المكتب يرى الأوامر الموجّهة إليه (أو المفتوحة) ومرشحيه هو فقط، لا اسم عميل ولا سعر
+--    ولا مراحل صاحب العمل. وصاحب العمل لا يرى اسم المكتب أبداً («عبر شريك»).
+--  * مرشحو المكتب يُكتبون في shr_agency_candidates وحدها، لا في shr_candidates ولا في قاعدة BP.
+--  * بلا هوية ولا هاتف ولا بريد: بصمة فقط (id_no_hash/name_key) لكشف التكرار.
+--  * لا حذف: الإيقاف suspended والأرشفة archived_at. الأحداث append-only.
+
 create table if not exists shr_agencies (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references shr_tenants(id),
+  ref text,                                   -- DEMO-AG-…
   name_ar text not null,
   country text,
-  status text not null default 'pending'
+  status text not null default 'pending' check (status in ('pending','approved','suspended')),
+  created_by uuid not null,                   -- من سجّل المكتب (shr_users.id)
+  approved_by uuid,                           -- من اعتمده؛ لا يكون من أنشأه
+  approved_at timestamptz,
+  suspended_by uuid,
+  suspended_at timestamptz,
+  suspended_reason text,
+  archived_at timestamptz,
+  demo boolean not null default true,
+  created_at timestamptz not null default now(),
+  unique (tenant_id, id),                     -- هدف مفاتيح مركّبة تمنع ربطاً عابراً للمستأجرين
+  check (approved_by is null or approved_by <> created_by),   -- من يُدخل لا يعتمد
+  check (status <> 'pending' or approved_by is null),
+  check (status <> 'approved' or (approved_by is not null and approved_at is not null))
 );
 
-create table if not exists shr_recruitment_orders ( -- أمر استقدام إلى مكتب
+-- ربط مستخدم المكتب بمكتبه: الهوية من agency_id في هذا الجدول لا من اسم المكتب نصاً.
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'shr_users_agency_fk') then
+    alter table shr_users add constraint shr_users_agency_fk
+      foreign key (tenant_id, agency_id) references shr_agencies(tenant_id, id);
+  end if;
+  if not exists (select 1 from pg_constraint where conname = 'shr_users_agency_role') then
+    alter table shr_users add constraint shr_users_agency_role
+      check ((role = 'agency') = (agency_id is not null));   -- دور agency يلزمه مكتب، ولغيره لا مكتب
+  end if;
+end $$;
+
+create table if not exists shr_recruitment_orders ( -- أمر استقدام: موجّه لمكتب، أو مفتوح (agency_id فارغ)
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references shr_tenants(id),
+  ref text,                                   -- DEMO-ORD-…
   request_id uuid references shr_requests(id),
-  agency_id uuid references shr_agencies(id),
-  profession text, quantity int,
-  state text not null default 'draft'
+  client_company_id uuid references shr_client_companies(id),   -- داخلي: لا يصل المكتب أبداً
+  establishment_id uuid references shr_establishments(id),
+  agency_id uuid,                             -- فارغ = أمر مفتوح لكل المكاتب المعتمدة
+  profession text not null,
+  quantity int not null default 1 check (quantity >= 1),
+  nationality_pref jsonb not null default '[]',
+  agency_brief text,                          -- النص الوحيد الذي يراه المكتب عن الطلب
+  due_on date,
+  state text not null default 'open' check (state in ('draft','open','closed','cancelled')),
+  created_by uuid not null,
+  archived_at timestamptz,
+  demo boolean not null default true,
+  created_at timestamptz not null default now(),
+  unique (tenant_id, id),
+  foreign key (tenant_id, agency_id) references shr_agencies(tenant_id, id)
+  -- المعلَّق بقرار المالك: منع الأمر إن كانت المنشأة restricted/suspected لنوع تأشيرات الأمر.
+  -- لا حقل لنوع التأشيرة في shr_establishments بعد، فالمنع غير مُنفَّذ؛ الخادم يرد بتحذير فقط.
 );
 
-create table if not exists shr_agency_candidates (
+create table if not exists shr_agency_candidates (   -- ما قدّمه المكتب. مواصفات فقط، بلا هوية حقيقية.
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references shr_tenants(id),
-  order_id uuid not null references shr_recruitment_orders(id),
+  ref text,                                   -- DEMO-A-…
+  order_id uuid not null,
+  agency_id uuid not null,
   full_name text not null,
+  profession text, nationality text,
+  years_experience int check (years_experience is null or years_experience >= 0),
+  skills jsonb not null default '[]',
+  id_no_hash text,                            -- بصمة الهوية إن قُدّمت؛ الرقم لا يُخزَّن
+  name_key text not null,                     -- بصمة الاسم+الجنسية+المهنة لكشف التكرار بلا هوية
   state text not null default 'submitted'
+    check (state in ('submitted','under_review','shortlisted','interview','accepted','rejected')),
+  submitted_by uuid not null,                 -- مستخدم المكتب
+  reviewed_by uuid,                           -- مشغّل الفواز
+  reviewed_at timestamptz,
+  review_note text,                           -- داخلي؛ لا يصل المكتب
+  archived_at timestamptz,
+  demo boolean not null default true,
+  created_at timestamptz not null default now(),
+  unique (tenant_id, id),
+  foreign key (tenant_id, order_id) references shr_recruitment_orders(tenant_id, id),
+  foreign key (tenant_id, agency_id) references shr_agencies(tenant_id, id),
+  check (reviewed_by is null or reviewed_by <> submitted_by)
 );
+-- تكرار المرشح داخل المكتب الواحد على الأمر الواحد ممنوع (بصمة الهوية أو بصمة الاسم).
+create unique index if not exists shr_agcand_dup_name on shr_agency_candidates (tenant_id, agency_id, order_id, name_key) where archived_at is null;
+create unique index if not exists shr_agcand_dup_id on shr_agency_candidates (tenant_id, agency_id, order_id, id_no_hash) where id_no_hash is not null and archived_at is null;
+
+create table if not exists shr_agency_candidate_events ( -- سجل حالات المرشح المقدَّم: لا تعديل ولا حذف
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  submission_id uuid not null,
+  from_state text, to_state text not null,
+  actor uuid, note text,
+  at timestamptz not null default now(),
+  foreign key (tenant_id, submission_id) references shr_agency_candidates(tenant_id, id)
+);
+
+create table if not exists shr_agency_interviews (   -- مقابلة مرشح مكتب؛ سجل داخلي، لا رسالة تُرسل
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references shr_tenants(id),
+  submission_id uuid not null,
+  agency_id uuid not null,
+  state text not null default 'requested' check (state in ('requested','scheduled','done','cancelled')),
+  mode text check (mode in ('onsite','video','phone')),
+  location text,
+  scheduled_at timestamptz,
+  agency_note text,                           -- النص الوحيد الموجَّه للمكتب
+  requested_by uuid, scheduled_by uuid,
+  created_at timestamptz not null default now(),
+  foreign key (tenant_id, submission_id) references shr_agency_candidates(tenant_id, id),
+  foreign key (tenant_id, agency_id) references shr_agencies(tenant_id, id)
+);
+
+create or replace function shr_agcand_events_immutable() returns trigger language plpgsql as
+$$ begin raise exception 'shr_agency_candidate_events is append-only'; end $$;
+drop trigger if exists shr_agcand_events_no_change on shr_agency_candidate_events;
+create trigger shr_agcand_events_no_change before update or delete on shr_agency_candidate_events
+  for each row execute function shr_agcand_events_immutable();
 
 create table if not exists shr_procedure_steps (    -- تأشيرة · إقامة · فحص · تأمين
   id uuid primary key default gen_random_uuid(),
@@ -283,7 +387,7 @@ begin
     'shr_workers','shr_assignments','shr_worker_documents','shr_requests','shr_agencies',
     'shr_recruitment_orders','shr_agency_candidates','shr_procedure_steps','shr_payroll_runs',
     'shr_invoices','shr_audit_log','shr_candidates','shr_candidate_consents','shr_jobs',
-    'shr_applications','shr_application_events','shr_interviews'] loop
+    'shr_applications','shr_application_events','shr_interviews','shr_agency_candidate_events','shr_agency_interviews'] loop
     execute format('alter table %I enable row level security', t);
     execute format('drop policy if exists tenant_iso on %I', t);
     execute format($p$create policy tenant_iso on %I using (tenant_id::text = current_setting('app.tenant_id', true)) with check (tenant_id::text = current_setting('app.tenant_id', true))$p$, t);

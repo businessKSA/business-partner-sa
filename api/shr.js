@@ -10,14 +10,23 @@
 // POST /api/shr { action: "worker-create" | "worker-activate" | "worker-archive" | "request-state" }
 // ATS: GET jobs|applications|candidates|candidate ؛ POST job-create|job-close|application-create|
 //      application-stage|interview-request|interview-set|match (المنطق في _shr_ats.js و_shr_match.js).
+// بوابة المكاتب (المنطق في _shr_agency.js): المشغّل GET agencies|orders|order-employer-view|agency-submissions ؛
+//      POST agency-create|agency-approve|agency-suspend|order-create|submission-state.
+//      دور agency وحده: GET my-orders|my-submissions|my-interviews ؛ POST submit-candidate|bulk-submit.
+//      كل دور يصل إلى ما يخصّه فقط؛ المكتب لا يصل لأي إجراء مشغّل (403) ولا المشغّل لإجراءات المكتب.
 // الحذف مرفوض: action "worker-delete" (وأي *-delete) -> 403 archive_only.
 import crypto from "node:crypto";
 import { ctxFrom, scoped, assertLocal, tenantBySlug, tenantById, seedDemo, hashIdNo, ROLES, HttpError, audit } from "./_shr.js";
 import * as ats from "./_shr_ats.js";
+import * as agy from "./_shr_agency.js";
 
 const COOKIE = "shr_session";
 const TTL_S = 8 * 3600;
-const PHASE2_ROLES = new Set(["tenant_owner", "operator"]);
+const PHASE2_ROLES = new Set(["tenant_owner", "operator"]);      // طاقم التشغيل
+const ALLOWED_ROLES = new Set(["tenant_owner", "operator", "agency"]);
+// ما يصل إليه دور agency وحده، مع الطريقة. أي شيء غيره يرد 403 لهذا الدور.
+const AGENCY_GET = new Set(["my-orders", "my-submissions", "my-interviews"]);
+const AGENCY_POST = new Set(["submit-candidate", "bulk-submit"]);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const REQUEST_STATES = ["new", "in_review", "waiting_client", "in_progress", "done", "rejected"];
 const TERMINAL = new Set(["done", "rejected"]);
@@ -201,9 +210,12 @@ export default async function handler(req, res) {
       const db = scoped(ctxFrom({ tenant_id: t.id, role: "tenant_owner" }));
       const u = (await db.get(`shr_users?email=eq.${encodeURIComponent(email)}&limit=1`))[0];
       if (!u) return out(401, { ok: false, error: "unauthorized" });
-      if (!PHASE2_ROLES.has(u.role)) return out(403, { ok: false, error: "role_not_allowed" });
+      if (!ALLOWED_ROLES.has(u.role)) return out(403, { ok: false, error: "role_not_allowed" });
+      // مكتب قيد الاعتماد أو موقوف لا يدخل ولا تُمنح له جلسة.
+      if (u.role === "agency") await agy.agencyContext(db, { sub: u.id });
       res.setHeader("set-cookie", `${COOKIE}=${mintSession({ sub: u.id, tenant_id: u.tenant_id, role: u.role, email: u.email })}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${TTL_S}`);
-      return out(200, { ok: true, user: { email: u.email, name: u.full_name, role: u.role }, tenant: { slug: t.slug, brand_ar: t.brand_ar } });
+      // المكتب لا يُعاد إليه مستأجر ولا علامته؛ يعرف مكتبه فقط.
+      return out(200, { ok: true, user: { email: u.email, name: u.full_name, role: u.role }, tenant: u.role === "agency" ? null : { slug: t.slug, brand_ar: t.brand_ar } });
     }
     if (action === "session-end") {
       res.setHeader("set-cookie", `${COOKIE}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0`);
@@ -214,9 +226,27 @@ export default async function handler(req, res) {
     if (!s) return out(401, { ok: false, error: "unauthorized" });
     let ctx;
     try { ctx = ctxFrom({ tenant_id: s.tenant_id, role: s.role }); } catch { return out(401, { ok: false, error: "unauthorized" }); }
-    if (!PHASE2_ROLES.has(ctx.role) || !ROLES.includes(ctx.role)) return out(403, { ok: false, error: "role_not_allowed" });
+    if (!ALLOWED_ROLES.has(ctx.role) || !ROLES.includes(ctx.role)) return out(403, { ok: false, error: "role_not_allowed" });
     const db = scoped(ctx);
     const user = { sub: s.sub, email: s.email, role: s.role };
+
+    // ---- دور المكتب: قائمة بيضاء ضيقة، والمكتب من القاعدة لا من الطلب ----
+    if (ctx.role === "agency") {
+      const allowed = isPost ? AGENCY_POST.has(action) : AGENCY_GET.has(action) || action === "session";
+      if (!allowed) return out(403, { ok: false, error: "role_not_allowed" });
+      const actx = await agy.agencyContext(db, s);          // مكتب موقوف أو مستخدم محذوف: 403 فوراً
+      switch (action) {
+        case "session": return out(200, { ok: true, user: { email: actx.user.email, role: "agency" }, agency: { ref: actx.agency.ref, name_ar: actx.agency.name_ar }, tenant: null });
+        case "my-orders": return out(200, { ok: true, ...(await agy.myOrders(db, actx, q)) });
+        case "my-submissions": return out(200, { ok: true, ...(await agy.mySubmissions(db, actx, q)) });
+        case "my-interviews": return out(200, { ok: true, interviews: await agy.myInterviews(db, actx) });
+        case "submit-candidate": return out(200, { ok: true, submission: await agy.submitCandidate(db, actx, b) });
+        case "bulk-submit": return out(200, { ok: true, ...(await agy.bulkSubmit(db, actx, b)) });
+      }
+      return out(403, { ok: false, error: "role_not_allowed" });
+    }
+    // إجراءات المكتب ليست للمشغّل.
+    if (agy.AGENCY_ACTIONS.has(action)) return out(403, { ok: false, error: "role_not_allowed" });
 
     switch (action) {
       case "session": {
@@ -232,6 +262,11 @@ export default async function handler(req, res) {
       case "applications": return out(200, { ok: true, ...(await ats.listApplications(db, q)) });
       case "candidates": return out(200, { ok: true, candidates: await ats.listCandidates(db) });
       case "candidate": return out(200, { ok: true, ...(await ats.candidateDetail(db, q)) });
+      // بوابة المكاتب (المشغّل)
+      case "agencies": return out(200, { ok: true, agencies: await agy.listAgencies(db) });
+      case "orders": return out(200, { ok: true, orders: await agy.listOrders(db) });
+      case "order-employer-view": return out(200, { ok: true, ...(await agy.employerOrderView(db, q)) });
+      case "agency-submissions": return out(200, { ok: true, submissions: await agy.listSubmissions(db, q) });
     }
     if (!isPost) return out(404, { ok: false, error: "unknown_action" });
     switch (action) {
@@ -246,7 +281,12 @@ export default async function handler(req, res) {
       case "interview-request": return out(200, { ok: true, interview: await ats.requestInterview(db, user, b) });
       case "interview-set": return out(200, { ok: true, interview: await ats.setInterview(db, user, b) });
       case "match": return out(200, { ok: true, ...(await ats.match(db, b)) });
-      case "worker-delete": case "job-delete": case "application-delete": case "candidate-delete": case "delete": return out(403, { ok: false, error: "archive_only" });
+      case "agency-create": return out(200, { ok: true, agency: await agy.createAgency(db, user, b) });
+      case "agency-approve": return out(200, { ok: true, agency: await agy.approveAgency(db, user, b) });
+      case "agency-suspend": return out(200, { ok: true, agency: await agy.suspendAgency(db, user, b) });
+      case "order-create": return out(200, { ok: true, order: await agy.createOrder(db, user, b) });
+      case "submission-state": return out(200, { ok: true, submission: await agy.setSubmissionState(db, user, b) });
+      case "worker-delete": case "job-delete": case "application-delete": case "candidate-delete": case "agency-delete": case "order-delete": case "submission-delete": case "delete": return out(403, { ok: false, error: "archive_only" });
       default: return out(404, { ok: false, error: "unknown_action" });
     }
   } catch (e) {
