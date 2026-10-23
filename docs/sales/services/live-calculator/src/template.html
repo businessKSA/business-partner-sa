@@ -368,7 +368,7 @@ function schedCalc(c){
   // المرحلة 2: الدخول إلى المملكة
   add(2,'التأمين الطبي — سنة كاملة','Medical insurance — full year',tx('سنة مقدماً','One year in advance'),m=>(m%12===0&&m<n)?annMed:0);
   add(2,'رخصة العمل والمقابل المالي والإقامة','Work permit, levy and iqama',tx(c.freq==='Quarterly'?'ربعي مقدماً':c.freq==='Half-yearly'?'نصف سنوي مقدماً':'سنوي مقدماً','Periodic, in advance'),m=>(m%per===0&&m<n)?(9700+650)/12*Math.min(per,n-m):0);
-  add(2,'تأشيرة الخروج والعودة (تقدير)','Exit & re-entry visa (estimate)',tx('بالفعلي عند الحاجة','Actual, when needed'),m=>(m%12===0&&m<n)?c.exitv:0);
+  add(2,'ضريبة 15% على التأمين الطبي','VAT 15% on medical insurance',tx('مع التأمين الطبي','With the medical insurance'),m=>(m%12===0&&m<n)?annMed*0.15:0,'vat');
   // الفاتورة الشهرية بعد وصول العامل
   add('M','راتب الموظف (شهران مقدماً كتأمين)','Employee salary (two months in advance as security)',tx('بلا ضريبة','No VAT'),m=>m===0?2*a:(m<=n-2?a:0));
   add('M','التأمينات الاجتماعية على الأجنبي (2% على صاحب العمل)','Foreigner social insurance (2%, employer only)',tx('شهرياً بعد وصول العامل وتحديث الراتب في التأمينات','Monthly, after the worker arrives and the salary is updated in social insurance'),m=>(m>=1&&m<=n)?gosi:0);
@@ -381,15 +381,14 @@ function schedCalc(c){
   add('E','مكافأة نهاية الخدمة','End of service award',tx('بعد نهاية العقد بالإجمالي الفعلي','After contract end, at the employee’s actual total'),m=>m===n?a/24*n:0);
   add('E','بدل الإجازة','Leave pay',tx('بعد نهاية العقد بالفعلي','After contract end, at actual'),m=>m===n?a/30*21/12*n:0);
   add('E','تذكرة العودة','Return ticket',tx('بعد نهاية العقد بالفعلي','After contract end, at actual'),m=>m===n?c.tkt1/12*n:0);
+  add('E','تأشيرة الخروج والعودة (اختيارية — عند تجديد العقد السنوي إن لزم)','Exit & re-entry visa (optional — on renewal of the annual contract, if needed)',tx('اختيارية، بالفعلي','Optional, at actual'),m=>m===n?c.exitv:0,'opt');
   add('E','مكافأة نهاية الخدمة للسعودي (فاتورة منفصلة)','Saudi end of service (separate invoice)',tx('عند نهاية العقد','At contract end'),m=>(sa&&m===n)?c.ssal/24*n:0);
   add('E','بدل الإجازة للسعودي — 21 يوماً (فاتورة منفصلة)','Saudi leave pay — 21 days (separate invoice)',tx('عند نهاية العقد','At contract end'),m=>(sa&&m===n)?c.ssal/30*21/12*n:0);
-  // رسومنا: المصاريف التشغيلية + رسوم الخدمة + التوطين، والضريبة عليها وحدها
-  const costAt=m=>rows.filter(r=>r.kind==='cost').reduce((t,r)=>t+r.v[m],0);
-  add('M','المصاريف التشغيلية لشركة بزنس بارتنر على الموظف','Business Partner operating expenses per employee',tx('شهرياً','Monthly'),m=>(m>=1&&m<=n)?ov:0,'ov');
-  add('M','رسوم شركة بزنس بارتنر ('+F.pct+'%)','Business Partner service fee ('+F.pct+'%)',tx('مع كل فاتورة','With each invoice'),m=>(costAt(m)+((m>=1&&m<=n)?ov:0))*pct,'fee');
+  // رسوم شركة بزنس بارتنر الشهرية ثابتة (لا نسبة) وتُحمَّل على الفاتورة الشهرية فقط، ومعها رسوم التوطين، والضريبة عليها وحدها
+  add('M','رسوم شركة بزنس بارتنر الشهرية على الموظف (ثابتة)','Business Partner monthly fee per employee (fixed)',tx('شهرياً','Monthly'),m=>(m>=1&&m<=n)?ov:0,'ov');
   add('M','رسوم التوطين','Localisation fees',tx('شهرياً','Monthly'),m=>(m>=1&&m<=n)?locM:0,'loc');
-  add('M','ضريبة 15% على رسوم الخدمة والمصاريف التشغيلية','VAT 15% on service fees and operating expenses',tx('مع الرسوم','With the fees'),m=>{const fee=(costAt(m)+((m>=1&&m<=n)?ov:0))*pct;return (fee+((m>=1&&m<=n)?ov+locM:0))*0.15;},'vat');
-  const tot=M.map((m,i)=>rows.reduce((t,r)=>t+r.v[i],0));
+  add('M','ضريبة 15% على رسوم شركة بزنس بارتنر ورسوم التوطين','VAT 15% on Business Partner and localisation fees',tx('مع الرسوم','With the fees'),m=>(m>=1&&m<=n)?(ov+locM)*0.15:0,'vat');
+  const tot=M.map((m,i)=>rows.reduce((t,r)=>t+(r.kind==='opt'?0:r.v[i]),0));
   return {rows,tot,grand:tot.reduce((t,x)=>t+x,0),n,a,gosi,ov,locM,pct,otAmt:cc.otAmt,ab,xf};
 }
 function nitCalc(c){
@@ -567,18 +566,18 @@ function viewLumpInner(){
 function cta(kind,r){return `<div class="cta"><button class="btn primary" id="copy-${kind}">${tx('نسخ ملخص العرض','Copy quote summary')}</button><button class="btn" disabled title="${tx('على الموقع بعد الاعتماد','On the site after approval')}">${tx('إصدار عرض السعر','Generate quote')}</button><button class="btn" disabled>${tx('إصدار العقد','Generate contract')}</button><button class="btn" disabled>${tx('ادفع الدفعة المقدمة','Pay the advance')}</button></div><p class="hint" style="margin-top:8px" id="copied"></p>`;}
 
 function stagesOf(sc){
-  const pct=sc.pct, n=sc.n, nm=r=>L==='ar'?r.ar:(L==='en'?r.en:trn(r.en));
-  const pick=(k,i)=>sc.rows.filter(r=>r.st===k&&r.kind==='cost'&&(i==null?r.v.some(Boolean):r.v[i]>0));
-  const mk=(rows,val)=>{const rs=rows.map(r=>[nm(r),val(r)]).filter(x=>x[1]>0.5); const cost=rs.reduce((t,x)=>t+x[1],0); return {rows:rs,cost};};
-  const fin=(o,fee,vat)=>{o.fee=fee; o.vat=vat; o.tot=o.cost+fee+vat; return o;};
-  const s1=mk(pick(1),r=>r.v[0]); fin(s1,s1.cost*pct,s1.cost*pct*0.15);
-  const s2=mk(pick(2),r=>r.v[0]); fin(s2,s2.cost*pct,s2.cost*pct*0.15);
-  const dep={cost:2*sc.a}; fin(dep,dep.cost*pct,dep.cost*pct*0.15);
+  const n=sc.n, nm=r=>L==='ar'?r.ar:(L==='en'?r.en:trn(r.en));
+  const pick=(k)=>sc.rows.filter(r=>r.st===k&&r.kind==='cost'&&r.v.some(Boolean));
+  const mk=(rows,val)=>{const rs=rows.map(r=>[nm(r),val(r)]).filter(x=>x[1]>0.5); const cost=rs.reduce((t,x)=>t+x[1],0); return {rows:rs,cost,tot:cost};};
+  const s1=mk(pick(1),r=>r.v[0]);
+  const s2=mk(pick(2),r=>r.v[0]); const s2v=sc.rows.find(r=>r.st===2&&r.kind==='vat'); s2.vat=s2v?s2v.v[0]:0; s2.tot=s2.cost+s2.vat;
+  const dep={cost:2*sc.a,tot:2*sc.a};
   const mrows=sc.rows.filter(r=>r.st==='M'&&r.kind==='cost'&&r.v[Math.min(2,n)]>0&&!/راتب الموظف \(شهران/.test(r.ar)).map(r=>[nm(r),r.v[Math.min(2,n)]]);
   const sal=[[tx('راتب الموظف','Employee salary'),sc.a]].concat(mrows);
-  const mcost=sal.reduce((t,x)=>t+x[1],0), mfee=(mcost+sc.ov)*pct, mvat=(mfee+sc.ov+sc.locM)*0.15;
-  const m={rows:sal,cost:mcost,ov:sc.ov,fee:mfee,loc:sc.locM,vat:mvat,tot:mcost+sc.ov+mfee+sc.locM+mvat};
-  const e=mk(sc.rows.filter(r=>r.st==='E'&&r.v[n]>0),r=>r.v[n]); fin(e,e.cost*pct,e.cost*pct*0.15);
+  const mcost=sal.reduce((t,x)=>t+x[1],0), mvat=(sc.ov+sc.locM)*0.15;
+  const m={rows:sal,cost:mcost,ov:sc.ov,loc:sc.locM,vat:mvat,tot:mcost+sc.ov+sc.locM+mvat};
+  const e=mk(sc.rows.filter(r=>r.st==='E'&&r.kind==='cost'&&r.v[n]>0),r=>r.v[n]);
+  const optRow=sc.rows.find(r=>r.kind==='opt'); e.opt=optRow?[nm(optRow),optRow.v[n]]:null;
   return {s1,s2,dep,m,e};
 }
 function viewCost(){ if(![12,24,36].includes(S.cost.term)) S.cost.term=12; return simpleMode(S.cost.term,viewCostInner);}
@@ -609,27 +608,28 @@ function viewCostInner(){
   <section class="panel"><h2>${tx('الدفعة الأولى المقدمة لاستقدام أو نقل كفالة الموظف','First advance payment for recruiting or transferring the employee')}</h2>${EP(c.prof)[1]==='Saudi-only'?`<p><span class="pill bad" style="font-size:14px">${tx('المهنة مقصورة على السعوديين — لا يُنقل إليها أجنبي','Saudi-only profession — no foreigner can be transferred in')}</span></p>`:''}
    <p class="hint">${tx('كاملة عند البدء وبلا راتب ولا رخصة عمل.','Paid in full at the start, with no salary and no work permit.')}</p>
    <div class="res">${st.s1.rows.map(x=>line(x[0],fmt(x[1]))).join('')||line(tx('لا بنود','No items'),fmt(0))}
-   ${line(tx('الإجمالي بالفعلي (بلا ضريبة)','Total at actual (no VAT)'),fmt(st.s1.cost))}${line(tx('رسوم شركة بزنس بارتنر','Business Partner service fee'),fmt(st.s1.fee))}${line(tx('ضريبة 15% على رسوم الخدمة','VAT 15% on the service fee'),fmt(st.s1.vat))}${line(tx('إجمالي الدفعة الأولى المقدمة','Total first advance payment'),fmt(st.s1.tot),'total')}</div>
-   <h2 style="margin-top:18px">${tx('المرحلة الثانية: الدخول إلى المملكة','Stage 2: entry to the Kingdom')}</h2>
+   ${line(tx('إجمالي الدفعة الأولى المقدمة (بالفعلي، بلا رسوم منّا)','Total first advance payment (at actual, no fee from us)'),fmt(st.s1.tot),'total')}</div>
+   <h2 style="margin-top:18px">${c.abroad==='Yes'?tx('المرحلة الثانية: الدخول إلى المملكة','Stage 2: entry to the Kingdom'):tx('المرحلة الثانية: مرحلة وجود الموظف على كفالة الشركة','Stage 2: the employee is on the company’s sponsorship')}</h2>
    <p class="hint">${tx('التأمين الطبي ورخصة العمل والإقامة'+(c.freq==='Quarterly'?' (الرخصة والإقامة ربعياً)':c.freq==='Half-yearly'?' (الرخصة والإقامة نصف سنوياً)':' (الرخصة والإقامة سنوياً)')+'.','Medical insurance, work permit and iqama.')}</p>
    <div class="res">${st.s2.rows.map(x=>line(x[0],fmt(x[1]))).join('')}
-   ${line(tx('الإجمالي بالفعلي (بلا ضريبة)','Total at actual (no VAT)'),fmt(st.s2.cost))}${line(tx('رسوم شركة بزنس بارتنر','Business Partner service fee'),fmt(st.s2.fee))}${line(tx('ضريبة 15% على رسوم الخدمة','VAT 15% on the service fee'),fmt(st.s2.vat))}${line(tx('إجمالي مرحلة الدخول إلى المملكة','Total entry-to-Kingdom stage'),fmt(st.s2.tot),'total')}</div>
-   <h2 style="margin-top:18px">${tx('الراتب والفاتورة الشهرية بعد وصول العامل','Salary and the monthly invoice after the worker arrives')}</h2>
-   <div class="res">${line(tx('تأمين الراتب مقدماً (شهران) — بلا ضريبة','Salary security in advance (2 months) — no VAT'),fmt(st.dep.cost))}${line(tx('رسوم الخدمة على التأمين','Service fee on the security'),fmt(st.dep.fee))}${line(tx('ضريبة 15% على رسوم الخدمة','VAT 15% on the service fee'),fmt(st.dep.vat))}${line(tx('إجمالي تأمين الراتب','Total salary security'),fmt(st.dep.tot),'total')}</div>
-   <p class="hint" style="margin-top:10px">${tx('التأمينات الاجتماعية تُفوتَر بعد وصول العامل وتحديث الراتب في التأمينات.','Social insurance is invoiced after the worker arrives and the salary is updated in social insurance.')}</p>
+   ${line(tx('إجمالي بالفعلي (بلا ضريبة)','Total at actual (no VAT)'),fmt(st.s2.cost))}${line(tx('ضريبة 15% على التأمين الطبي فقط','VAT 15% on the medical insurance only'),fmt(st.s2.vat))}${line(tx('إجمالي المرحلة الثانية (بلا رسوم منّا)','Total stage 2 (no fee from us)'),fmt(st.s2.tot),'total')}</div>
+   <h2 style="margin-top:18px">${c.abroad==='Yes'?tx('الراتب والفاتورة الشهرية بعد وصول العامل','Salary and the monthly invoice after the worker arrives'):tx('الراتب والفاتورة الشهرية في حال أن الموظف على الشركة','Salary and the monthly invoice while the employee is on the company')}</h2>
+   <div class="res">${line(tx('تأمين الراتب مقدماً (شهران) — بلا رسوم ولا ضريبة','Salary security in advance (2 months) — no fee, no VAT'),fmt(st.dep.tot),'total')}</div>
+   <p class="hint" style="margin-top:10px">${c.abroad==='Yes'?tx('التأمينات الاجتماعية تُفوتَر بعد وصول العامل وتحديث الراتب في التأمينات.','Social insurance is invoiced after the worker arrives and the salary is updated in social insurance.'):tx('التأمينات الاجتماعية تُفوتَر بعد تحديث الراتب في التأمينات.','Social insurance is invoiced after the salary is updated in social insurance.')}</p>
    <div class="res">${st.m.rows.map(x=>line(x[0],fmt(x[1]))).join('')}
-   ${line(tx('إجمالي الراتب والتأمينات (بلا ضريبة)','Salary and insurance total (no VAT)'),fmt(st.m.cost))}${line(tx('المصاريف التشغيلية لشركة بزنس بارتنر الشهرية على الموظف','Business Partner monthly operating expenses per employee'),fmt(st.m.ov))}${line(tx('رسوم شركة بزنس بارتنر','Business Partner service fee'),fmt(st.m.fee))}${st.m.loc?line(tx('رسوم التوطين','Localisation fees'),fmt(st.m.loc)):''}${line(tx('ضريبة 15% على رسوم الخدمة والمصاريف التشغيلية','VAT 15% on service fees and operating expenses'),fmt(st.m.vat))}${line(tx('إجمالي الفاتورة الشهرية','Total monthly invoice'),fmt(st.m.tot),'total')}</div>
+   ${line(tx('إجمالي الراتب والتأمينات (بلا ضريبة)','Salary and insurance total (no VAT)'),fmt(st.m.cost))}${line(tx('رسوم شركة بزنس بارتنر الشهرية على الموظف (ثابتة)','Business Partner monthly fee per employee (fixed)'),fmt(st.m.ov))}${st.m.loc?line(tx('رسوم التوطين','Localisation fees'),fmt(st.m.loc)):''}${line(tx('ضريبة 15% على رسوم شركة بزنس بارتنر ورسوم التوطين','VAT 15% on Business Partner and localisation fees'),fmt(st.m.vat))}${line(tx('إجمالي الفاتورة الشهرية','Total monthly invoice'),fmt(st.m.tot),'total')}</div>
    <h2 style="margin-top:18px">${tx('نهاية العقد (فاتورة منفصلة بالفعلي)','Contract end (separate invoice, at actual)')}</h2>
    <p class="hint">${tx('نهاية الخدمة وبدل الإجازة وتذكرة العودة لا تُحسب إلا بالإجمالي الفعلي للموظف بعد نهاية العقد؛ الأرقام أدناه تقديرية.','End of service, leave pay and the return ticket are calculated only on the employee’s actual total after the contract ends; the figures below are estimates.')}</p>
    <div class="res">${st.e.rows.map(x=>line(x[0],fmt(x[1]))).join('')}
-   ${line(tx('الإجمالي التقديري (بلا ضريبة)','Estimated total (no VAT)'),fmt(st.e.cost))}${line(tx('رسوم شركة بزنس بارتنر','Business Partner service fee'),fmt(st.e.fee))}${line(tx('ضريبة 15% على رسوم الخدمة','VAT 15% on the service fee'),fmt(st.e.vat))}${line(tx('الإجمالي التقديري لنهاية العقد','Estimated contract-end total'),fmt(st.e.tot),'total')}</div>
+   ${line(tx('الإجمالي التقديري لنهاية العقد (بالفعلي)','Estimated contract-end total (at actual)'),fmt(st.e.tot),'total')}</div>
+   ${st.e.opt?`<p class="hint" style="margin-top:8px">${tx('اختيارية وقد لا تلزم، وتكون عند تجديد العقد السنوي:','Optional and may not be needed; applies when the annual contract is renewed:')} ${st.e.opt[0]} — ${fmt(st.e.opt[1])}</p>`:''}
    <h2 style="margin-top:18px">${tx('جدول الفوترة والدفع','Billing and payment schedule')}</h2>
    <div class="tbl"><table><thead><tr><th>${tx('البند','Item')}</th>${Array.from({length:sc.n+1},(_,m)=>`<th class="n">${m}</th>`).join('')}<th class="n">${tx('الإجمالي','Total')}</th></tr></thead><tbody>
-   ${sc.rows.filter(rw=>rw.v.some(Boolean)).map(rw=>`<tr><td>${L==='ar'?rw.ar:(L==='en'?rw.en:trn(rw.en))}<br><small style="color:var(--muted)">${rw.when}</small></td>${rw.v.slice(0,sc.n+1).map(v=>`<td class="n">${v?fmt(v):''}</td>`).join('')}<td class="n"><b>${fmt(rw.v.reduce((t,x)=>t+x,0))}</b></td></tr>`).join('')}
+   ${sc.rows.filter(rw=>rw.kind!=='opt'&&rw.v.some(Boolean)).map(rw=>`<tr><td>${L==='ar'?rw.ar:(L==='en'?rw.en:trn(rw.en))}<br><small style="color:var(--muted)">${rw.when}</small></td>${rw.v.slice(0,sc.n+1).map(v=>`<td class="n">${v?fmt(v):''}</td>`).join('')}<td class="n"><b>${fmt(rw.v.reduce((t,x)=>t+x,0))}</b></td></tr>`).join('')}
    <tr class="tot"><td>${tx('إجمالي ما يُفوتَر في الشهر','Total invoiced in the month')}</td>${sc.tot.slice(0,sc.n+1).map(v=>`<td class="n">${v?fmt(v):''}</td>`).join('')}<td class="n">${fmt(sc.grand)}</td></tr></tbody></table></div>
-   <p class="hint" style="margin-top:8px">${tx('الشهر 0 = البدء. الضريبة على رسوم الخدمة والمصاريف التشغيلية فقط؛ والراتب والتكاليف الحكومية وغيرها حسب الفاتورة الفعلية. البنود «بالفعلي» تُفوتَر منفصلة عند حدوثها.','Month 0 = start. VAT applies only to service fees and operating expenses; salary, government fees and everything else follow the actual invoices. “Actual” items are invoiced separately as incurred.')}</p>
+   <p class="hint" style="margin-top:8px">${tx('الشهر 0 = البدء. رسوم شركة بزنس بارتنر ثابتة شهرياً وتُحمَّل على الفاتورة الشهرية فقط (لا رسوم على المرحلتين الأولى والثانية)، والضريبة 15% على التأمين الطبي وعلى رسوم شركة بزنس بارتنر ورسوم التوطين فقط؛ والراتب والتكاليف الحكومية وغيرها حسب الفاتورة الفعلية. البنود «بالفعلي» تُفوتَر منفصلة عند حدوثها.','Month 0 = start. Our monthly fee is fixed and charged on the monthly invoice only (no fee on stages 1 and 2); VAT applies only to the medical insurance, our fee and localisation fees; salary, government fees and everything else follow the actual invoices. “Actual” items are invoiced separately as incurred.')}</p>
    <h2 style="margin-top:18px">${tx('إجمالي المدة','Term total')}</h2>
-   <div class="res">${line(tx('الإجمالي للمدة قبل الضريبة','Total for the term, excl. VAT'),fmt(sc.grand-sc.rows.filter(rw=>rw.kind==='vat')[0].v.reduce((t,x)=>t+x,0)))}${line(tx('الإجمالي للمدة بعد الضريبة','Total for the term, incl. VAT'),fmt(sc.grand),'total')}</div>
+   <div class="res">${line(tx('الإجمالي للمدة قبل الضريبة','Total for the term, excl. VAT'),fmt(sc.grand-sc.rows.filter(rw=>rw.kind==='vat').reduce((t,rw)=>t+rw.v.reduce((a,x)=>a+x,0),0)))}${line(tx('الإجمالي للمدة بعد الضريبة','Total for the term, incl. VAT'),fmt(sc.grand),'total')}</div>
    ${cta('cost',{advance})}</section>`;
 }
 
