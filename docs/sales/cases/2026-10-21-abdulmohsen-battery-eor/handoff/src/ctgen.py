@@ -157,8 +157,8 @@ def cover():
     meta_ar = '<div style="direction:rtl;text-align:right">بين: شركة بزنس بارتنر<br>و[اسم الشركة]<br>رسمنا من 900 ريال للفرد شهرياً · قبل الضريبة</div>'
     body = (ar + en) if MODE == 'bi' else (ar if MODE == 'ar' else en)
     meta = (meta_en + meta_ar) if MODE == 'bi' else (meta_ar if MODE == 'ar' else meta_en)
-    label = 'اتفاقية · مسودة 1 · 24 أكتوبر 2026' if MODE == 'ar' else 'AGREEMENT · DRAFT v1 · 24 OCT 2026'
-    fl = ('مسودة للمراجعة · لم تُرسَل · خاضعة للمراجعة القانونية' if MODE == 'ar' else 'Draft for review · not sent · subject to legal review')
+    label = 'اتفاقية · 24 أكتوبر 2026' if MODE == 'ar' else 'AGREEMENT · 24 OCT 2026'
+    fl = ('سري' if MODE == 'ar' else 'Confidential')
     return head('Agreement') + f'''<div style="width:1240px;height:1754px;box-sizing:border-box;padding:60px 70px 50px;display:flex;flex-direction:column;background:linear-gradient(135deg,#071442,#0B1B5A);color:#fff;font-family:'IBM Plex Sans Arabic',sans-serif">
 <div style="display:flex;justify-content:space-between;align-items:center;height:70px">
 <div style="background:#fff;border-radius:14px;padding:10px 22px;display:flex"><img src="{LOGO}" alt="Business Partner" style="height:46px"></div>
