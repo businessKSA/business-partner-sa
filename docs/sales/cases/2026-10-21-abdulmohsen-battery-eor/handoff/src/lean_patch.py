@@ -20,7 +20,7 @@ r['left'] = (('We handle', 'علينا'), [
  ('Transfer or visa fees', 'رسوم النقل أو التأشيرة'), ('Work permit and residency', 'رخصة العمل والإقامة'),
  ('Medical and social insurance', 'التأمين الطبي والاجتماعي'), ('Contracts and paperwork', 'العقود والأوراق'),
  ('End of service and leave', 'نهاية الخدمة والإجازات')])
-r['right'] = (('You provide', 'عليك'), [('Housing', 'السكن'), ('Transport', 'المواصلات'), ('Food allowance', 'بدل الطعام')])
+r['right'] = (('You provide', 'عليك'), [('Housing', 'السكن'), ('Transport', 'المواصلات'), ('Food allowance', 'بدل الطعام'), ('Recruitment from abroad, embassy requirements and arrival ticket', 'الاستقدام من الخارج ومتطلبات السفارة وتذكرة القدوم')])
 
 m = _by('models'); m['title'] = ('Choose how you pay', 'اختر طريقة الدفع')
 m['cards'] = [
@@ -57,3 +57,13 @@ for k, n in (('model1', 'A1'), ('gov', 'A2'), ('saudi', 'A3'), ('calc', 'A4')):
 _by('model1')['title'] = ('Annex · Model 1: what you pay and when', 'ملحق · النموذج 1: ماذا تدفع ومتى')
 for k, t in (('scope', '01 · WHAT YOU GET'), ('roles', '02 · WHO PAYS'), ('models', '03 · TWO MODELS'), ('model2', '04 · PRICES'), ('local', '05 · LOCALISATION'), ('payment', '06 · NEXT STEPS'), ('accept', '07 · ACCEPTANCE')):
     _by(k)['tag'] = t
+
+S.append(dict(key='need', tag='06 · WHAT WE NEED', kind='checklist',
+    title=('What we need from you', 'ما نحتاجه منك'),
+    left=(('For each employee', 'لكل موظف'), [
+        ('Number of employees', 'العدد'), ('Nationalities', 'الجنسيات'), ('Salaries', 'الرواتب'), ('Professions', 'المهن'),
+        ('CV', 'السيرة الذاتية'), ('Contact number of each selected employee', 'رقم تواصل كل موظف مختار')]),
+    right=(('Tell us for each one', 'وأخبرنا عن كل واحد'), [
+        ('Already selected, or needs sourcing', 'مختار أو يحتاج استقطاب'), ('Inside or outside Saudi Arabia', 'داخل السعودية أو خارجها')])))
+_by('payment')['tag'] = '07 · NEXT STEPS'
+_by('accept')['tag'] = '08 · ACCEPTANCE'

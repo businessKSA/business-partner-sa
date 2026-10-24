@@ -515,10 +515,11 @@ NAMES = {  # key -> (bi, ar, en)
     'calc': ('Calc', 'AR-5-Calc', 'EN-5-Calc'),
     'model1': ('Price', 'AR-6-Price', 'EN-6-Price'),
     'model2': ('Fees', 'AR-7-Fees', 'EN-7-Fees'),
+    'need': ('Need', 'AR-13-Need', 'EN-13-Need'),
     'payment': ('Next', 'AR-8-Next', 'EN-8-Next'),
     'accept': ('Accept', 'AR-9-Accept', 'EN-9-Accept'),
 }
-ORDER = ['cover', 'scope', 'roles', 'models', 'model2', 'local', 'payment', 'model1', 'gov', 'saudi', 'calc', 'accept']
+ORDER = ['cover', 'scope', 'roles', 'models', 'model2', 'local', 'need', 'payment', 'model1', 'gov', 'saudi', 'calc', 'accept']
 S.sort(key=lambda x: ORDER.index(x['key']))
 boards = {'bi': [], 'ar': [], 'en': []}
 for s in S:

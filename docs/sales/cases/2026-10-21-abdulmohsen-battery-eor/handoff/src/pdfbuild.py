@@ -20,7 +20,7 @@ os.makedirs('pdfwork',exist_ok=True)
 O='out/project'
 def lst(prefix):
     fs=sorted(os.path.basename(f)[:-8] for f in glob.glob(f'{O}/{prefix}-[0-9]*.dc.html'))
-    return [f for f in fs if f!='CT-12-Fees-Table']
+    return [f for f in fs if 'Fees-Table' not in f]
 docs={}
 
 P='outp/project'
@@ -30,7 +30,7 @@ _B=_j.load(open('boards_prop.json'))
 docs['Proposal-Bilingual']=(_B['ar'][:-1]+_B['en'][:-1]+[_B['bi'][-1]],P,1920,1080)
 docs['Proposal-AR']=(_B['ar'],P,1920,1080)
 docs['Proposal-EN']=(_B['en'],P,1920,1080)
-for nm,pre in (('NDA','NDA'),('Service-Agreement','CT')):
+for nm,pre in (('NDA','NDA'),('Service-Agreement-M1-Transparent-Cost','CT1'),('Service-Agreement-M2-Full-Employee-Cost','CT2')):
     for suf,lab in (('','Bilingual'),('AR','AR'),('EN','EN')):
         docs[f'{nm}-{lab}']=(lst(pre+suf),O,1240,1754)
 for k,(fs,d,w,h) in docs.items():

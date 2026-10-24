@@ -1,5 +1,5 @@
 import json,re,html,math,glob,os
-P=json.load(open('pairs_eor.json'))
+P=json.load(open(os.environ.get('PAIRS','pairs_eor.json')))
 AR_MAP={'CLIENT_NAME':'اسم الشركة','CLIENT_ADDRESS':'العنوان','CLIENT_REG_NO':'رقم السجل','SIGNATORY_NAME':'اسم المفوّض','SIGNATORY_TITLE':'الصفة','EMPLOYER_ENTITY':'الجهة صاحبة العمل'}
 def _ph(t,ar):
     return re.sub(r'\[\[(\w+)\]\]',lambda m:'['+((AR_MAP.get(m.group(1)) or m.group(1).replace('_',' ')) if ar else m.group(1).replace('_',' '))+']',t)
@@ -108,11 +108,11 @@ cover=head('اتفاقية خدمات نظام التعاقد ونقل الخد�
 <div style="font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:22px;color:#9DB4FF;letter-spacing:.06em">AGREEMENT · DRAFT v1 · 21 OCT 2026</div>
 </div>
 <div style="margin-top:240px;direction:rtl;text-align:right">
-<h1 style="margin:0;font-size:62px;line-height:1.25;font-weight:700">اتفاقية خدمات نظام التعاقد ونقل الخدمات</h1>
+<h1 style="margin:0;font-size:62px;line-height:1.25;font-weight:700">اتفاقية خدمات نظام التعاقد ونقل الخدمات<br><span style="font-size:36px;color:#9DB4FF">{os.environ.get('VT_AR','')}</span></h1>
 <p style="margin:22px 0 0;font-size:26px;line-height:1.5;color:#C9D5FF">للموظفين العاملين لدى شركة مختلطة نرويجية سعودية تحت التأسيس</p>
 </div>
 <div style="margin-top:56px;direction:ltr;text-align:left">
-<h2 style="margin:0;font-family:'Playfair Display',serif;font-weight:700;font-size:44px;line-height:1.2">Employer of Record and<br>Service Transfer Agreement</h2>
+<h2 style="margin:0;font-family:'Playfair Display',serif;font-weight:700;font-size:44px;line-height:1.2">Employer of Record and<br>Service Transfer Agreement<br><span style="font-size:28px;color:#9DB4FF;font-family:'IBM Plex Sans Arabic',sans-serif">{os.environ.get('VT_EN','')}</span></h2>
 <p style="margin:12px 0 0;font-size:22px;line-height:1.5;color:#C9D5FF">Employees of a mixed Norwegian–Saudi company under formation</p>
 </div>
 <div style="margin-top:70px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:40px;font-size:21px;line-height:1.6;color:#C9D5FF">
