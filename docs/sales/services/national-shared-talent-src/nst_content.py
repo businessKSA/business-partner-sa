@@ -148,52 +148,69 @@ def contract(pr):
     A(('sub', 'Shared National Talent — INTERNAL DRAFT STRUCTURE', 'الكوادر الوطنية المشتركة — هيكل مسودة داخلية'))
     A(('note', 'INTERNAL DRAFT — NOT FINAL. Not for sending or signature. Structure and wording await the full legal response (BP_AI_Tasks: legal-to-badr-20261022-albir-abdulmohsen, badr-2026-10-22-legal-abdulmohsen-nat-talent). Square-bracket items are open decisions.',
          'مسودة داخلية — غير نهائية. لا تُرسل ولا يُوقَّع عليها. الهيكل والصياغة بانتظار الرد القانوني الكامل (مهمتا BP_AI_Tasks: legal-to-badr-20261022-albir-abdulmohsen وbadr-2026-10-22-legal-abdulmohsen-nat-talent). البنود بين الأقواس مفتوحة للقرار.'))
-    A(('p', 'This Agreement is made on [[DATE]] between Business Partner Solutions, a limited liability company, Commercial Registration no. 1009014355, Riyadh, holder of licence [[LICENSE_NO]] for "mediation in employing Saudis and assigning temporary national staff" ("Business Partner"), and [[CLIENT_NAME]], Commercial Registration no. [[CR_NO]], address [[ADDRESS]] (the "Client").',
-         'أُبرم هذا العقد بتاريخ [[التاريخ]] بين شركة بزنس بارتنر سلوشنز، شركة ذات مسؤولية محدودة، سجل تجاري رقم 1009014355، الرياض، المرخّصة برقم [[رقم الترخيص]] لـ«التوسط لتوظيف السعوديين وإسناد الكوادر الوطنية المؤقتة» («بزنس بارتنر»)، وشركة [[اسم العميل]]، سجل تجاري رقم [[رقم السجل]]، وعنوانها [[العنوان]] («العميل»).'))
+    A(('p', 'This Agreement is made on [[DATE]] between Business Partner Solutions, a limited liability company, Commercial Registration no. 1009014355, Riyadh, acting under the licence described in [[LICENSE_DESCRIPTION — attach the licence and confirm its scope before this wording is used]] ("Business Partner"), and [[CLIENT_NAME]], Commercial Registration no. [[CR_NO]], address [[ADDRESS]], whose signatory is authorised by [[AUTHORISATION]] (the "Client").',
+         'أُبرم هذا العقد بتاريخ [[التاريخ]] بين شركة بزنس بارتنر سلوشنز، شركة ذات مسؤولية محدودة، سجل تجاري رقم 1009014355، الرياض، العاملة بموجب الترخيص الموصوف في [[وصف الترخيص — يُرفق الترخيص ويُتحقق من نطاقه قبل استعمال هذه الصياغة]] («بزنس بارتنر»)، وشركة [[اسم العميل]]، سجل تجاري رقم [[رقم السجل]]، وعنوانها [[العنوان]]، ومفوّضها بموجب [[التفويض]] («العميل»).'))
     clauses = [
         ('1. Definitions', '1. التعريفات', [
-            ('1.1 "Assigned Employee" means a Saudi national assigned to the Client under an Assignment Schedule. "Assignment Schedule" means Schedule 1. "Hours" and "Fees" have the meanings in Schedules 1 and 2.',
-             '1-1 «الموظف المُسنَد» سعودي الجنسية يُسنَد إلى العميل بموجب ملحق إسناد. «ملحق الإسناد» هو الملحق (1). ولـ«الساعات» و«الأتعاب» المعنى الوارد في الملحقين (1) و(2).')]),
-        ('2. Services', '2. الخدمات', [
-            ('2.1 Business Partner assigns the Assigned Employee to the Client for the role, hours and period in the Assignment Schedule, manages and supervises the employee, and delivers the mandatory training and development plan.',
-             '2-1 تُسند بزنس بارتنر الموظف المُسنَد إلى العميل للدور والساعات والمدة الواردة في ملحق الإسناد، وتدير الموظف وتشرف عليه، وتنفّذ خطة التدريب والتطوير الإلزامية.'),
-            ('2.2 [[Employment structure — OPTION A (working assumption): the Client is the registered employer under a genuine part-time or flexible contract; Business Partner manages and invoices. Options B and C: text reserved for the legal response.]]',
-             '2-2 [[هيكل التوظيف — الخيار (أ) (افتراض عمل): العميل صاحب العمل المسجَّل بعقد جزئي أو مرن حقيقي، وبزنس بارتنر تدير وتفوتر. الخياران (ب) و(ج): النص محجوز لرد القانونية.]]')]),
+            ('1.1 "Assigned Employee": a Saudi national assigned to the Client under an Assignment Schedule. "Registered Employer": the entity registered with the authorities and social insurance as the employer of the Assigned Employee, being [[the Client — Option A]]. "Assignment Schedule": Schedule 1. "Timesheet": the record of hours worked, approved by the Client. "Deliverables": the work product described in the Assignment Schedule. "Scope": the tasks and limits described in the Assignment Schedule. "Hours" and "Fees": as in Schedules 1 and 2.',
+             '1-1 «الموظف المُسنَد»: سعودي الجنسية يُسنَد إلى العميل بموجب ملحق إسناد. «صاحب العمل المسجَّل»: الجهة المسجَّلة لدى الجهات المختصة والتأمينات الاجتماعية صاحب عمل للموظف المُسنَد، وهي [[العميل — الخيار (أ)]]. «ملحق الإسناد»: الملحق (1). «سجل الساعات»: سجل ساعات العمل المعتمد من العميل. «المخرجات»: نتاج العمل الموصوف في ملحق الإسناد. «النطاق»: المهام وحدودها كما في ملحق الإسناد. ولـ«الساعات» و«الأتعاب» المعنى الوارد في الملحقين (1) و(2).')]),
+        ('2. Services and roles', '2. الخدمات والأدوار', [
+            ('2.1 The Client directs the Assigned Employee\'s day-to-day work within the Scope. Business Partner selects and matches the employee, trains and develops them, follows up performance, and handles scheduling and replacement.',
+             '2-1 يوجّه العميل العمل اليومي للموظف المُسنَد ضمن النطاق. وتتولى بزنس بارتنر الاختيار والمطابقة والتدريب والتطوير ومتابعة الأداء ومعالجة الجدولة والاستبدال.'),
+            ('2.2 [[Employment structure. OPTION A (working assumption): the Client is the Registered Employer under a genuine part-time or flexible contract (form in Schedule 3); Business Partner manages and invoices its own services. OPTION B and OPTION C: text reserved until the licence scope is confirmed. Not to be written before that.]]',
+             '2-2 [[هيكل التوظيف. الخيار (أ) (افتراض عمل): العميل صاحب العمل المسجَّل بعقد جزئي أو مرن حقيقي (نموذجه في الملحق 3)، وبزنس بارتنر تدير وتفوتر خدماتها. الخياران (ب) و(ج): النص محجوز إلى أن يُؤكَّد نطاق الترخيص، ولا يُكتب قبل ذلك.]]')]),
         ('3. Genuine work and integrity', '3. العمل الحقيقي والنزاهة', [
-            ('3.1 Every assignment is genuine work with a Client deliverable, a timesheet and a signed scope. Neither party shall register or maintain an employee without actual work.',
-             '3-1 كل إسناد عمل حقيقي بمخرج للعميل وسجل ساعات ونطاق موقّع. ولا يسجّل أي طرف موظفاً أو يُبقي تسجيله بلا عمل فعلي.'),
-            ('3.2 Business Partner keeps work and training records for each Assigned Employee and the Client may inspect them; either party may present them to the competent authorities.',
-             '3-2 تحتفظ بزنس بارتنر بسجلات العمل والتدريب لكل موظف مُسنَد، ويحق للعميل الاطلاع عليها، ولكل طرف عرضها على الجهات المختصة.')]),
-        ('4. Client obligations', '4. التزامات العميل', [
-            ('4.1 The Client defines tasks within the signed scope, provides access, tools and a safe working environment, and approves timesheets within [[APPROVAL_DAYS]] days.',
-             '4-1 يحدد العميل المهام ضمن النطاق الموقّع، ويوفّر الصلاحيات والأدوات وبيئة عمل آمنة، ويعتمد سجل الساعات خلال [[أيام الاعتماد]] أيام.'),
-            ('4.2 The Client shall not assign work outside the scope or the agreed hours without a written change to the Assignment Schedule.',
-             '4-2 لا يكلّف العميل بعمل خارج النطاق أو الساعات المتفق عليها دون تعديل كتابي لملحق الإسناد.')]),
-        ('5. Fees and invoicing', '5. الأتعاب والفوترة', [
-            ('5.1 Fees are as in Schedule 2, exclude VAT (15%), and are invoiced monthly [[PAYMENT_TERMS]].',
-             '5-1 الأتعاب كما في الملحق (2)، وهي قبل ضريبة القيمة المضافة (15%)، وتُفوتَر شهرياً [[شروط الدفع]].'),
-            ('5.2 Performance-linked pay, if any, is as agreed in the Assignment Schedule and is in addition to the Fees: [[VARIABLE_PAY_TERMS]].',
-             '5-2 الأجر المرتبط بالأداء، إن وُجد، وفق ما يُتفق عليه في ملحق الإسناد، وهو إضافة إلى الأتعاب: [[شروط الأجر المتغير]].')]),
+            ('3.1 Every assignment is genuine work with a Client deliverable, a Timesheet and a signed Scope. Neither party shall register or maintain an employee without actual work, and either party may end the assignment immediately if that occurs.',
+             '3-1 كل إسناد عمل حقيقي بمخرج للعميل وسجل ساعات ونطاق موقّع. ولا يسجّل أي طرف موظفاً أو يُبقي تسجيله بلا عمل فعلي، ولكل طرف إنهاء الإسناد فوراً إن حدث ذلك.'),
+            ('3.2 Work and training records are kept for each Assigned Employee. The Client may inspect them and each party shall cooperate with the competent authorities and any inspection. Records containing personal data are shown to authorities only as required, and the employee is notified.',
+             '3-2 تُحفظ سجلات العمل والتدريب لكل موظف مُسنَد، ويحق للعميل الاطلاع عليها، ويتعاون كل طرف مع الجهات المختصة وأي تفتيش. وتُعرض السجلات المحتوية على بيانات شخصية على الجهات بالقدر المطلوب فقط، ويُخطَر الموظف.'),
+            ('3.3 No Assigned Employee is presented as counting toward more than one entity.',
+             '3-3 لا يُقدَّم أي موظف مُسنَد على أنه يُحتسب لأكثر من كيان.')]),
+        ('4. Client obligations as Registered Employer', '4. التزامات العميل بصفته صاحب العمل المسجَّل', [
+            ('4.1 The Client registers the Assigned Employee with the authorities and social insurance, pays wages on time through the wage protection system, provides medical insurance, end-of-service entitlements and leave, and keeps these records.',
+             '4-1 يسجّل العميل الموظف المُسنَد لدى الجهات المختصة والتأمينات الاجتماعية، ويدفع الأجر في موعده عبر نظام حماية الأجور، ويوفّر التأمين الطبي ومستحقات نهاية الخدمة والإجازات، ويحتفظ بسجلاتها.'),
+            ('4.2 The Client defines tasks within the Scope, provides access, tools and a safe working environment, and approves Timesheets within [[APPROVAL_DAYS]] days. It shall not assign work outside the Scope or the agreed hours without a written change to the Assignment Schedule.',
+             '4-2 يحدد العميل المهام ضمن النطاق، ويوفّر الصلاحيات والأدوات وبيئة عمل آمنة، ويعتمد سجل الساعات خلال [[أيام الاعتماد]] أيام. ولا يكلّف بعمل خارج النطاق أو الساعات المتفق عليها دون تعديل كتابي لملحق الإسناد.'),
+            ('4.3 The Client indemnifies Business Partner against labour claims and penalties arising from the Client\'s own acts or omissions as employer. [[Scope of indemnity reserved for legal review.]]',
+             '4-3 يعوّض العميل بزنس بارتنر عن مطالبات العمل والغرامات الناشئة عن تصرفه أو تقصيره بصفته صاحب عمل. [[نطاق التعويض محجوز للمراجعة القانونية.]]')]),
+        ('5. Fees, payment and suspension', '5. الأتعاب والدفع والتعليق', [
+            ('5.1 Fees are as in Schedule 2 and exclude VAT (15%). [[Invoice structure: all-inclusive or separate management fee. Legal recommends separate invoices under Option A. Owner decision pending.]] Invoices are issued monthly, payable [[PAYMENT_TERMS]]; late payment carries [[LATE_PAYMENT_TERMS]].',
+             '5-1 الأتعاب كما في الملحق (2) وهي قبل ضريبة القيمة المضافة (15%). [[هيكل الفاتورة: شاملة أو أتعاب إدارة منفصلة. توصي القانونية بفاتورتين منفصلتين في الخيار (أ). قرار المالك معلّق.]] تُصدر الفواتير شهرياً وتُسدَّد [[شروط الدفع]]؛ وللتأخر [[شروط التأخر]].'),
+            ('5.2 Performance-linked pay, if any, is agreed in the Assignment Schedule and is paid to the employee through the Registered Employer\'s payroll so that it enters the social insurance wage: [[VARIABLE_PAY_TERMS]].',
+             '5-2 الأجر المرتبط بالأداء، إن وُجد، يُتفق عليه في ملحق الإسناد ويُدفع للموظف عبر كشف صاحب العمل المسجَّل ليدخل في أجر التأمينات: [[شروط الأجر المتغير]].'),
+            ('5.3 Business Partner may suspend its services for non-payment, without affecting wages owed to the employee by the Registered Employer.',
+             '5-3 يحق لبزنس بارتنر تعليق خدماتها عند عدم الدفع، دون المساس بأجور الموظف المستحقة على صاحب العمل المسجَّل.')]),
         ('6. Replacement', '6. الاستبدال', [
-            ('6.1 If the Assigned Employee is absent for more than [[REPLACEMENT_DAYS]] days or leaves, Business Partner provides a replacement within [[REPLACEMENT_PERIOD]].',
-             '6-1 إن غاب الموظف المُسنَد أكثر من [[أيام الاستبدال]] أيام أو غادر، توفّر بزنس بارتنر بديلاً خلال [[مدة الاستبدال]].')]),
+            ('6.1 If the Assigned Employee is absent for more than [[REPLACEMENT_DAYS]] days or leaves, Business Partner proposes a replacement within [[REPLACEMENT_PERIOD]]. A replacement needs the Client\'s consent, a new contract and new registration, and does not create double counting or double fees.',
+             '6-1 إن غاب الموظف المُسنَد أكثر من [[أيام الاستبدال]] أيام أو غادر، تقترح بزنس بارتنر بديلاً خلال [[مدة الاستبدال]]. ويلزم للبديل موافقة العميل وعقد جديد وتسجيل جديد، دون ازدواج في الاحتساب أو الأتعاب.')]),
         ('7. Confidentiality and personal data', '7. السرية والبيانات الشخصية', [
-            ('7.1 The parties are bound by the Non-Disclosure Agreement signed between them, which this Agreement does not cancel. Personal data is processed in accordance with applicable law.',
-             '7-1 يلتزم الطرفان باتفاقية عدم الإفصاح الموقّعة بينهما ولا يلغيها هذا العقد. وتُعالَج البيانات الشخصية وفق الأنظمة السارية.')]),
+            ('7.1 The parties are bound by the Non-Disclosure Agreement signed between them, which this Agreement does not cancel and which is not affected by any entire-agreement clause. Confidentiality extends to the Client\'s devices and accounts used by the Assigned Employee.',
+             '7-1 يلتزم الطرفان باتفاقية عدم الإفصاح الموقّعة بينهما ولا يلغيها هذا العقد ولا يمسّها أي بند اتفاق كامل. وتمتد السرية إلى أجهزة العميل وحساباته التي يستعملها الموظف المُسنَد.'),
+            ('7.2 Each party\'s role in processing the employee\'s personal data (controller or processor) is [[DATA_ROLES]]. Transfer of personal data outside the Kingdom happens only where necessary and lawful.',
+             '7-2 دور كل طرف في معالجة البيانات الشخصية للموظف (مسؤول معالجة أو معالج) هو [[أدوار البيانات]]. ولا تُنقل البيانات الشخصية خارج المملكة إلا عند الضرورة وبوجه نظامي.')]),
         ('8. Conflicts of interest', '8. تعارض المصالح', [
-            ('8.1 An Assigned Employee may serve other clients of Business Partner. Business Partner shall disclose to the Client any assignment to a direct competitor, keep information of each client separate, and the Client may refuse the assignment of a particular employee for a reasonable ground.',
-             '8-1 يجوز أن يخدم الموظف المُسنَد عملاء آخرين لبزنس بارتنر. وتفصح بزنس بارتنر للعميل عن أي إسناد لمنافس مباشر وتفصل معلومات كل عميل، ويحق للعميل رفض إسناد موظف بعينه لسبب معقول.')]),
+            ('8.1 Business Partner shall not assign the same employee to direct competitors of the Client except with the written consent of both. It keeps each client\'s information separate, and the employee undertakes in writing not to use one client\'s information for another.',
+             '8-1 لا تُسند بزنس بارتنر الموظف نفسه إلى منافسين مباشرين للعميل إلا بموافقة كتابية من الطرفين. وتفصل معلومات كل عميل، ويتعهد الموظف كتابةً بعدم استعمال معلومات عميل لآخر.'),
+            ('8.2 The Client may refuse the assignment of a particular employee on a reasonable ground, and materials are returned when the assignment ends.',
+             '8-2 يحق للعميل رفض إسناد موظف بعينه لسبب معقول، وتُعاد المواد عند انتهاء الإسناد.')]),
         ('9. Localisation statement', '9. بيان التوطين', [
-            ('9.1 Business Partner gives no commitment as to any Nitaqat result or band, nor that one employee counts for more than one entity. Any counting follows the structure registered with the authorities.',
-             '9-1 لا تلتزم بزنس بارتنر بأي نتيجة أو نطاق في برنامج نطاقات، ولا بأن يُحتسب موظف واحد لأكثر من منشأة. ويتبع أي احتساب الهيكل المسجَّل لدى الجهات المختصة.')]),
+            ('9.1 Business Partner gives no commitment as to any Nitaqat result or band, nor that one employee counts for more than one entity. Counting follows the official conditions at the time of counting and the structure registered with the authorities. Business Partner does not register an employee with another entity to raise that entity\'s ratio.',
+             '9-1 لا تلتزم بزنس بارتنر بأي نتيجة أو نطاق في برنامج نطاقات، ولا بأن يُحتسب موظف واحد لأكثر من منشأة. ويتبع العد الشروط الرسمية وقت الاحتساب والهيكل المسجَّل لدى الجهات المختصة. ولا تسجّل بزنس بارتنر موظفاً لدى منشأة أخرى بقصد رفع نسبتها.')]),
         ('10. Term and termination', '10. المدة والإنهاء', [
-            ('10.1 Term: [[TERM_MONTHS]] months from the start date. Early termination and notice: [[EARLY_TERMINATION]], [[NOTICE_DAYS]] days. Who bears end-of-service and any remaining-term wages on early termination: [[EOS_ALLOCATION]].',
-             '10-1 المدة: [[عدد الأشهر]] شهراً من تاريخ البدء. الإنهاء المبكر والإشعار: [[الإنهاء المبكر]]، [[أيام الإشعار]] يوماً. من يتحمل مكافأة نهاية الخدمة وأجور المدة المتبقية عند الإنهاء المبكر: [[تحمّل نهاية الخدمة]].')]),
+            ('10.1 Term: [[TERM_MONTHS]] months from the start date, and not more than 12 months for a flexible engagement with one employer. Notice of termination: [[NOTICE_DAYS]] days, with Business Partner\'s fees due for the notice period.',
+             '10-1 المدة: [[عدد الأشهر]] شهراً من تاريخ البدء، ولا تتجاوز 12 شهراً للعمل المرن لدى صاحب عمل واحد. إشعار الإنهاء: [[أيام الإشعار]] يوماً، وتستحق أتعاب بزنس بارتنر عن مدة الإشعار.'),
+            ('10.2 [[Under Option A, end-of-service entitlements and wages for the remaining term on early termination without a legitimate reason fall on the Client as employer. Owner decision and legal verification pending.]]',
+             '10-2 [[في الخيار (أ) تقع مستحقات نهاية الخدمة وأجور المدة المتبقية عند الإنهاء المبكر بلا سبب مشروع على العميل بصفته صاحب العمل. قرار المالك والتحقق القانوني معلّقان.]]')]),
         ('11. Liability', '11. المسؤولية', [
-            ('11.1 [[LIABILITY_CAP — reserved for legal review]]', '11-1 [[سقف المسؤولية — محجوز للمراجعة القانونية]]')]),
-        ('12. Governing law and language', '12. النظام الواجب التطبيق واللغة', [
-            ('12.1 This Agreement is governed by the laws of the Kingdom of Saudi Arabia and the courts of Riyadh have exclusive jurisdiction. It is made in Arabic and English; if they differ, the Arabic text prevails.',
-             '12-1 يخضع هذا العقد لأنظمة المملكة العربية السعودية وتختص محاكم الرياض حصرياً. وقد حُرّر بالعربية والإنجليزية، وعند الاختلاف يُعتد بالنص العربي.')]),
+            ('11.1 Business Partner\'s liability is capped at the fees of the last 12 months, except for fraud and gross negligence. [[Cap and exceptions reserved for final legal review.]]',
+             '11-1 تُحدَّد مسؤولية بزنس بارتنر بأتعاب آخر 12 شهراً، عدا الغش والخطأ الجسيم. [[السقف والاستثناءات محجوزة للمراجعة القانونية النهائية.]]')]),
+        ('12. General', '12. أحكام عامة', [
+            ('12.1 Work product created by the Assigned Employee for the Client belongs to the Client. Leave and absence of the employee are approved by [[LEAVE_APPROVER]] and coordinated with the Timesheet.',
+             '12-1 يملك العميل نتاج العمل الذي ينشئه الموظف المُسنَد له. وتُعتمد إجازات الموظف وغيابه من [[جهة اعتماد الإجازات]] وتُنسَّق مع سجل الساعات.'),
+            ('12.2 Force majeure, assignment of the Agreement and notices: [[reserved for legal drafting]].',
+             '12-2 القوة القاهرة والتنازل عن العقد والإشعارات: [[محجوزة للصياغة القانونية]].'),
+            ('12.3 This Agreement is governed by the laws of the Kingdom of Saudi Arabia and the courts of Riyadh have exclusive jurisdiction. It is made in Arabic and English; if they differ, the Arabic text prevails.',
+             '12-3 يخضع هذا العقد لأنظمة المملكة العربية السعودية وتختص محاكم الرياض حصرياً. وقد حُرّر بالعربية والإنجليزية، وعند الاختلاف يُعتد بالنص العربي.')]),
     ]
     for he, ha, items in clauses:
         A(('h', he, ha))
@@ -212,6 +229,9 @@ def contract(pr):
     tbl = [b for b in p if b[0] == 'table'][0]
     A(tbl)
     A(('note', 'Prices are taken from the Business Partner rate card; they must match the signed proposal.', 'الأسعار من بطاقة أسعار بزنس بارتنر ويجب أن تطابق العرض الموقّع.'))
+    A(('h', 'Schedule 3 — Form of the part-time or flexible employment contract', 'الملحق (3) — نموذج عقد العمل الجزئي أو المرن'))
+    A(('p', '[[Reserved: the form of the employment contract between the Registered Employer and the Assigned Employee. It must match what these terms describe (role, hours, wage, term) and be drafted with legal counsel before use.]]',
+         '[[محجوز: نموذج عقد العمل بين صاحب العمل المسجَّل والموظف المُسنَد. يجب أن يطابق ما تصفه هذه الشروط (الدور والساعات والأجر والمدة) وأن يُصاغ مع المستشار القانوني قبل الاستعمال.]]'))
     return L
 
 
