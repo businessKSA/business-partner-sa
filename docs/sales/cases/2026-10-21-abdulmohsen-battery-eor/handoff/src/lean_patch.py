@@ -67,3 +67,17 @@ S.append(dict(key='need', tag='06 · WHAT WE NEED', kind='checklist',
         ('Already selected, or needs sourcing', 'مختار أو يحتاج استقطاب'), ('Inside or outside Saudi Arabia', 'داخل السعودية أو خارجها')])))
 _by('payment')['tag'] = '07 · NEXT STEPS'
 _by('accept')['tag'] = '08 · ACCEPTANCE'
+
+S.append(dict(key='bank', tag='08 · BANK & CONTACT', kind='bank',
+    title=('Thank you', 'شكراً لكم'),
+    left=(('Bank transfer details', 'بيانات التحويل البنكي'), [
+        (('Beneficiary', 'المستفيد'), ('Business Partner Solutions Company', 'شركة بزنس بارتنر سلوشنز')),
+        (('Bank', 'البنك'), ('Al Rajhi Bank', 'مصرف الراجحي')),
+        (('IBAN', 'الآيبان'), ('SA5380000511608016228498', 'SA5380000511608016228498')),
+        (('Account no.', 'رقم الحساب'), ('511000010006086228498', '511000010006086228498'))]),
+    right=(('Contact us', 'تواصل معنا'), [
+        (('Mobile', 'الجوال'), ('0530540231', '0530540231')),
+        (('E-mail', 'البريد'), ('business@businesspartner.sa', 'business@businesspartner.sa')),
+        (('Website', 'الموقع'), ('www.businesspartner.sa', 'www.businesspartner.sa')),
+        (('Address', 'العنوان'), ('Building 9214, King Khaled Branch Rd, Al Asemah, Ad Diriyah 13714 (RDAA9214)', 'مبنى 9214، طريق الملك خالد الفرعي، حي العاصمة، الدرعية 13714 (RDAA9214)'))])))
+_by('accept')['tag'] = '09 · ACCEPTANCE'

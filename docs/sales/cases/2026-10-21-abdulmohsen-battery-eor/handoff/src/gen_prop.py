@@ -3,7 +3,7 @@ esc = lambda s: html.escape(s, quote=False)
 LOGO = '/_blob/3e3c443e48f3d61a03ccc1d0b1bf30fb'
 OUT = 'outp/project/'
 os.makedirs(OUT, exist_ok=True)
-FOOT = '<span>Business Partner Solutions Company · 7038825860 · VAT 312079341500003</span><span>www.businesspartner.sa · Riyadh · RHSC2978</span>'
+FOOT = '<span>Business Partner Solutions Company · 7038825860 · VAT 312079341500003</span><span>www.businesspartner.sa · business@businesspartner.sa · 0530540231 · Ad Diriyah · RDAA9214</span>'
 
 HEAD = '''<!doctype html>
 <html lang="ar">
@@ -343,6 +343,24 @@ def render(s, mode):
             m = f'<div style="margin-top:80px;direction:ltr;text-align:left;font-size:30px;line-height:1.6;color:#C9D5FF">{meta[0]}</div>'
         hd = hdr(s['tag'], mode).replace('color:#6A7596', 'color:#9DB4FF').replace('border:2px solid #DDE1EE', '')
         return page(hd + body + m, mode, cover=True)
+    elif k == 'bank':
+        def box(c):
+            title, rows = c
+            body = ''.join(
+                f'<div style="display:grid;grid-template-columns:minmax(0,.42fr) minmax(0,1fr);column-gap:20px;align-items:baseline;padding:12px 0;border-top:1px solid #1E3A9E;direction:{"rtl" if mode=="ar" else "ltr"}">'
+                f'<div style="font-size:22px;color:#9DB4FF">{esc(l[1] if mode=="ar" else l[0])}</div>'
+                f'<div style="direction:ltr;text-align:{"right" if mode=="ar" else "left"};font-family:\'IBM Plex Mono\',monospace;font-weight:500;font-size:26px;line-height:1.4;color:#fff;word-break:break-all">{esc(v[0])}</div></div>'
+                if (v[0] == v[1]) else
+                f'<div style="display:grid;grid-template-columns:minmax(0,.42fr) minmax(0,1fr);column-gap:20px;align-items:baseline;padding:12px 0;border-top:1px solid #1E3A9E;direction:{"rtl" if mode=="ar" else "ltr"}">'
+                f'<div style="font-size:22px;color:#9DB4FF">{esc(l[1] if mode=="ar" else l[0])}</div>'
+                f'<div style="direction:{"rtl" if mode=="ar" else "ltr"};text-align:{"right" if mode=="ar" else "left"};font-size:28px;line-height:1.45;color:#fff">{esc(v[1] if mode=="ar" else v[0])}</div></div>'
+                for l, v in rows)
+            return f'<div style="background:rgba(255,255,255,.06);border:2px solid #1E3A9E;border-radius:22px;padding:30px 38px 22px"><div style="margin-bottom:10px;direction:{"rtl" if mode=="ar" else "ltr"};text-align:{"right" if mode=="ar" else "left"};font-weight:700;font-size:40px;color:#fff">{esc(title[1] if mode=="ar" else title[0])}</div>{body}</div>'
+        hd = hdr(s['tag'], mode).replace('color:#6A7596', 'color:#9DB4FF').replace('border:2px solid #DDE1EE', '')
+        ttl = esc(s['title'][1] if mode == 'ar' else s['title'][0])
+        inner = hd + f'<div style="margin-top:34px"><h2 style="margin:0;font-weight:700;font-size:54px;color:#fff;direction:{"rtl" if mode=="ar" else "ltr"};text-align:{"right" if mode=="ar" else "left"}">{ttl}</h2></div>'
+        inner += '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:34px;margin-top:46px;align-items:start">' + (box(s['left']) + box(s['right']) if mode != 'ar' else box(s['left']) + box(s['right'])) + '</div>'
+        return page(inner, mode, cover=True)
     inner = hdr(s['tag'], mode) + h2(s['title'], mode)
     if k == 'cards':
         n = s['cols']
@@ -515,11 +533,12 @@ NAMES = {  # key -> (bi, ar, en)
     'calc': ('Calc', 'AR-5-Calc', 'EN-5-Calc'),
     'model1': ('Price', 'AR-6-Price', 'EN-6-Price'),
     'model2': ('Fees', 'AR-7-Fees', 'EN-7-Fees'),
+    'bank': ('Bank', 'AR-14-Bank', 'EN-14-Bank'),
     'need': ('Need', 'AR-13-Need', 'EN-13-Need'),
     'payment': ('Next', 'AR-8-Next', 'EN-8-Next'),
     'accept': ('Accept', 'AR-9-Accept', 'EN-9-Accept'),
 }
-ORDER = ['cover', 'scope', 'roles', 'models', 'model2', 'local', 'need', 'payment', 'model1', 'gov', 'saudi', 'calc', 'accept']
+ORDER = ['cover', 'scope', 'roles', 'models', 'model2', 'local', 'need', 'payment', 'model1', 'gov', 'saudi', 'calc', 'bank', 'accept']
 S.sort(key=lambda x: ORDER.index(x['key']))
 boards = {'bi': [], 'ar': [], 'en': []}
 for s in S:
