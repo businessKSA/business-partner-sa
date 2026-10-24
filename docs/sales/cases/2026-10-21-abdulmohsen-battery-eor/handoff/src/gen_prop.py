@@ -147,8 +147,8 @@ S.append(dict(
     heads=(('When', 'متى'), ('What you pay', 'ماذا تدفع'), ('How', 'كيف')),
     rows=[
         (('Stage 1 · First advance', 'المرحلة 1 · الدفعة الأولى'),
-         ('<b>Sponsorship transfer</b> (government fee): SAR 2,000, then 4,000, then 6,000 from the third. Or <b>recruitment from abroad</b>: the external party\'s invoice, visa SAR 2,000 and the arrival ticket.',
-          '<b>نقل الكفالة</b> (رسم حكومي): 2,000 ثم 4,000 ثم 6,000 من الثالثة. أو <b>الاستقدام من الخارج</b>: فاتورة الجهة الخارجية والتأشيرة 2,000 وتذكرة القدوم.'),
+         ('<b>Sponsorship transfer</b> (government fee): SAR 2,000, then 4,000, then 6,000 from the third. Or <b>recruitment from abroad</b>: the visa SAR 2,000 (paid to us, we issue it); the external party\'s costs and the arrival ticket are outside our price, on a separate invoice.',
+          '<b>نقل الكفالة</b> (رسم حكومي): 2,000 ثم 4,000 ثم 6,000 من الثالثة. أو <b>الاستقدام من الخارج</b>: التأشيرة 2,000 (تدفعها لنا ونصدرها)، وتكاليف الجهة الخارجية وتذكرة القدوم خارج سعرنا بفاتورة منفصلة.'),
          ('Before anything starts. No salary and no work permit yet.', 'قبل البدء. بلا راتب ولا رخصة عمل بعد.')),
         (('Stage 2 · Entry', 'المرحلة 2 · الدخول'),
          ('<b>Medical insurance</b> for one full year. <b>Work permit, levy and residency</b> for the period you choose.',

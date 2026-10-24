@@ -183,6 +183,16 @@ def build(P, model, ph):
     rows.append([('Arranging recruitment from abroad where required: authorisations, employment contracts, embassy papers and documents', 'ترتيب الاستقدام من الخارج عند اللزوم: التفويضات وعقود العمل وأوراق السفارات والمستندات'), ('', ''), ('✓', '✓')])
     mat = _spec(('Allocation of responsibilities', 'توزيع المسؤوليات'), '3fr .8fr 1fr', [('Item', 'البند'), ('Client', 'العميل'), ('Business Partner', 'بزنس بارتنر')], rows, center=[1, 2])
     P[ia:ia + 3] = [mat, (me_, ma_)]
+    # ---- informational annex: recruitment cost reference by country (no invented figures)
+    last = max(int(m.group(1)) for e, a in P if (m := re.match(r'^SCHEDULE (\d+) ', e['t'])))
+    n = last + 1
+    P.append(({'t': f'SCHEDULE {n} — INDICATIVE REFERENCE: RECRUITMENT COSTS BY COUNTRY (INFORMATIONAL, NON-BINDING)', 'ar': False},
+              {'t': f'الملحق ({n}) — مرجع تقريبي لتكاليف الاستقدام بحسب الدولة (للعلم وغير ملزم)', 'ar': True}))
+    P.append(({'t': 'This reference is given for information only. It is not part of Business Partner\'s pricing, does not bind Business Partner or the external recruitment offices, and is updated periodically. A figure is entered only when it is documented with a named source and date; otherwise the cell is left blank.', 'ar': False},
+              {'t': 'هذا المرجع للعلم فقط، وليس جزءاً من تسعير Business Partner، ولا يُلزمها ولا يُلزم مكاتب الاستقدام الخارجية، ويُحدَّث دورياً. ولا يُدرج رقم إلا إذا وُثّق بمصدر وتاريخ مسمّيين، وإلا تُترك الخانة فارغة.', 'ar': True}))
+    ctry = [('Philippines', 'الفلبين'), ('India', 'الهند'), ('Bangladesh', 'بنغلاديش'), ('Pakistan', 'باكستان'), ('Egypt', 'مصر'), ('Sri Lanka', 'سريلانكا')]
+    P.append(_spec(None, '1.2fr 1.4fr 1.6fr 1fr', [('Country', 'الدولة'), ('Approximate recruitment cost (SAR)', 'التكلفة التقريبية (ريال)'), ('Source', 'المصدر'), ('Date', 'التاريخ')],
+                   [[c, ('', ''), ('', ''), ('', '')] for c in ctry], rowh=36))
     # placeholders
     for e, a in P:
         if e['t'] != '@@T': e['t'] = ph(e['t'], False); a['t'] = ph(a['t'], True)

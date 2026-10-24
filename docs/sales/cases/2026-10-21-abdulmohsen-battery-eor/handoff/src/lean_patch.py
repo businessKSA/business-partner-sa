@@ -20,7 +20,7 @@ r['left'] = (('We handle', 'علينا'), [
  ('Transfer or visa fees', 'رسوم النقل أو التأشيرة'), ('Work permit and residency', 'رخصة العمل والإقامة'),
  ('Medical and social insurance', 'التأمين الطبي والاجتماعي'), ('Contracts and paperwork', 'العقود والأوراق'),
  ('End of service and leave', 'نهاية الخدمة والإجازات')])
-r['right'] = (('You provide', 'عليك'), [('Housing', 'السكن'), ('Transport', 'المواصلات'), ('Food allowance', 'بدل الطعام'), ('Recruitment from abroad, embassy requirements and arrival ticket', 'الاستقدام من الخارج ومتطلبات السفارة وتذكرة القدوم')])
+r['right'] = (('You provide', 'عليك'), [('Housing', 'السكن'), ('Transport', 'المواصلات'), ('Food allowance', 'بدل الطعام'), ('Recruitment from abroad, embassy requirements and arrival ticket (separate invoice)', 'الاستقدام من الخارج ومتطلبات السفارة وتذكرة القدوم (بفاتورة منفصلة)')])
 
 m = _by('models'); m['title'] = ('Choose how you pay', 'اختر طريقة الدفع')
 m['cards'] = [
