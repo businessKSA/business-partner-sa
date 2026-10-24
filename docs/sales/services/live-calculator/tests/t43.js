@@ -1,0 +1,11 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess&ui=classic');await p.waitForTimeout(300);
+const T=()=>p.evaluate(()=>document.querySelector('#main').innerText);
+await p.evaluate(()=>bpGo('lump'));await p.waitForTimeout(250);
+await p.click('#l-prof');await p.fill('#l-prof','عامل بناء');await p.waitForTimeout(400);
+console.log(await p.evaluate(()=>document.querySelector('.dd')?.innerText.slice(0,300)));
+await p.fill('#l-prof','مضيّف');await p.waitForTimeout(400);console.log(await p.evaluate(()=>document.querySelector('.dd')?.innerText.slice(0,200)));
+await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');await p.waitForTimeout(400);
+const t=await T();console.log(t.match(/لا قرار توطين[^\n]*/)?.[0],'|',t.match(/السعر الشهري قبل التوطين\s*([\d,]+)/)?.[1],errs);await b.close();})();

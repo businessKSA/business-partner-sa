@@ -1,0 +1,10 @@
+# نواتج البناء (تُعاد بـ run_all.sh و build_calc.py)
+out/
+outm/
+outn/
+outp/
+pdfout/
+pdfwork/
+x_fontsource-*/
+calcdata/calc/
+__pycache__/

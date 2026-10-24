@@ -1,0 +1,20 @@
+const {chromium}=require('playwright');const fs=require('fs');
+(async()=>{const b=await chromium.launch();const errs=[];const ctx=await b.newContext({viewport:{width:1300,height:3600}});
+await ctx.addInitScript(()=>{window.claude={use:async n=>{if(n!=='sample')return null;const s=async()=>({text:''});s.limits=async()=>({images:{maxCount:4,mediaTypes:['image/png']}});s.json=async(inp,opt)=>{const t=String(inp);
+ if(t.includes('السجل التجاري'))return {establishment_name:'شركة اختبار التسجيل',unified_number:'7001234567',cr_number:'1010123456',issue_date:'2019-03-10',expiry_date:'2027-03-10',activities:['x']};
+ if(t.includes('شهادة التوطين'))return {establishment_name:'شركة اختبار التسجيل',labour_office_number:'1-4636772',unified_number:'7001234567',band:'أخضر منخفض',saudisation_percent:14,issue_date:'2026-09-01',expiry_date:'2026-11-20'};
+ if(t.includes('التأمينات'))return {establishment_name:'شركة أخرى تماماً',gosi_number:'555555',certificate_date:'2026-10-01',valid_until:null,saudi_count:5,non_saudi_count:20,total_count:25};
+ if(t.includes('حماية الأجور'))return {establishment_name:'شركة اختبار التسجيل',issue_date:'2026-10-10',expiry_date:'1448-04-01',hijri_expiry:null,compliance_percent:97};
+ return {};};return s;}};});
+const p=await ctx.newPage();p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index-client.html?goal=assess&ui=classic');await p.waitForTimeout(500);
+console.log('add disabled initially:',await p.evaluate(()=>document.getElementById('co-add').disabled));
+await p.fill('#co-name','شركة اختبار التسجيل');await p.fill('#co-no','1-4636772');await p.fill('#co-uno','7001234567');await p.fill('#co-tax','300123456700003');await p.fill('#co-gosi','123456');await p.fill('#co-addr','rrrd2929');
+await p.fill('#co-act','7110');await p.waitForTimeout(200);await p.click('.dd .it');await p.waitForTimeout(400);
+console.log('group after activity:',await p.evaluate(()=>document.getElementById('co-grp').selectedOptions[0].textContent),'| add disabled:',await p.evaluate(()=>document.getElementById('co-add').disabled));
+await p.click('#co-add');await p.waitForTimeout(500);
+console.log('rows:',await p.evaluate(()=>document.querySelectorAll('#main tbody tr').length),'| next disabled:',await p.evaluate(()=>document.getElementById('co-next').disabled));
+fs.writeFileSync('tdata/shot.png',Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==','base64'));
+for(const k of ['cr','qiwa','gosi','wps']){await p.setInputFiles('[data-cd='+k+']','tdata/shot.png');await p.waitForTimeout(700);}
+const t=await p.evaluate(()=>{const s=[...document.querySelectorAll('#main section.panel')].find(x=>x.innerText.includes('مستندات المنشأة'));return s.innerText.replace(/\n+/g,' | ').slice(0,2400)});console.log(t);
+console.log(errs);await p.screenshot({path:'docs-cards.png',fullPage:true});await b.close();})();

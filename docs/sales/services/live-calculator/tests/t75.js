@@ -1,0 +1,12 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1000,height:1500}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index-client.html?goal=assess&ui=classic');await p.evaluate(()=>bpGo('lump'));await p.waitForTimeout(300);
+const pick=async(id,text)=>{await p.click('#'+id+'-s');await p.waitForTimeout(200);await p.fill('#'+id+'-s',text);await p.waitForTimeout(250);await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');await p.waitForTimeout(400);};
+const dis=()=>p.evaluate(()=>document.querySelector('[data-go="1"]').disabled);
+const stars=()=>p.evaluate(()=>[...document.querySelectorAll('.req-star')].filter(e=>e.offsetParent).map(e=>e.parentElement.textContent.replace('*','').trim()));
+await pick('l-term','12 شهر');console.log('term only → next disabled:',await dis(),await stars());
+await p.click('#l-prof');await p.fill('#l-prof','نادل');await p.waitForTimeout(250);await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');await p.waitForTimeout(400);
+console.log('prof picked → next disabled:',await dis());
+await p.click('[data-go="1"]');await pick('l-src','داخل');await p.fill('#l-qty','1');await pick('i-gender','ذكر');
+await p.click('[data-go="1"]');await pick('l-trn','الأولى');await p.click('[data-go="1"]');await p.fill('#l-sal','6000');await p.waitForTimeout(300);
+console.log('price:',(await p.evaluate(()=>document.querySelector('#main').innerText)).match(/السعر الشهري قبل التوطين\s*([\d,]+)/)?.[1]);console.log(errs);await b.close();})();

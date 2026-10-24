@@ -1,0 +1,14 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage({viewport:{width:1100,height:1000}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess&ui=classic');await p.waitForTimeout(300);
+const txt=()=>p.evaluate(()=>document.querySelector('#main').innerText);
+const setSel=async(id,v)=>{await p.evaluate(([id,v])=>{const s=document.getElementById(id);s.value=v;s.dispatchEvent(new Event('change',{bubbles:true}));},[id,v]);await p.waitForTimeout(250);};
+await p.evaluate(()=>bpGo('cost'));await p.waitForTimeout(250);
+let T=await txt();console.log('client sees overhead input:',/الأوفر هيد لكل موظف شهرياً/.test(T),'| fee line:',/رسوم شركة بزنس بارتنر/.test(T));
+await setSel('c-commOn','Yes');await setSel('c-otOn','Yes');T=await txt();console.log(T.match(/العمولات[^\n]*\n[\d,]+/)?.[0],T.match(/الساعات الإضافية[^\n]*\n[\d,]+/)?.[0]);
+await setSel('c-nat','saudi');T=await txt();
+console.log('saudi train input hidden:',!/ميزانية التدريب/.test(T),'| table:',T.match(/من يتحمل ماذا[\s\S]{0,900}/)?.[0]);
+await setSel('s-trainOn','Yes');T=await txt();console.log('train shown:',/التدريب والتطوير \(سنوي/.test(T));
+await p.check('#own');await p.waitForTimeout(250);T=await txt();console.log('owner sees overhead:',/الأوفر هيد لكل موظف شهرياً/.test(T));
+console.log('ERR',errs);await b.close();})();
