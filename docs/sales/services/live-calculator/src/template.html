@@ -438,7 +438,9 @@ function discAmounts(v){ // خصم الكود: رسوم بزنس بارتنر، 
   if(k){ if(d.svc) o.svc=k*(v.svc||0); if(d.ops) o.ops=k*(v.ops||0); if(d.loc) o.loc=k*(v.loc||0); }
   o.total=o.svc+o.ops+o.loc; return o;
 }
-function lumpCalc(c){
+/* قرار المالك 2026-10-24: الاستقدام والمكاتب الخارجية (الاستقدام، العقود والتصديق، تذكرة القدوم) بفاتورة منفصلة دائمة خارج تسعيرنا. المرجع التقريبي حسب الدولة يبقى معلومةً في اختيار الدولة. رسم التأشيرة يبقى عندنا. */
+const EXT_SEP=true; const noExt=c=>EXT_SEP?Object.assign({},c,{rec:0,con:0,tkt:0}):c;
+function lumpCalc(c){ c=noExt(c);
   const X=(c.xfer==null?3000:c.xfer);
   const MF=1+S.fee.pct/100; const a=c.sal,n=c.term; const prem=k=>c.short?S.fee.pS/100:tierPrem(k), aR=k=>a*(1+prem(k));
   const insAdj=(insAnnual()-600)/12*MF; const exI=extraItems(a), exS=exI.reduce((s,i)=>s+i[1],0);
@@ -472,7 +474,7 @@ function lumpCalc(c){
   const before2=before-dd.svc-dd.ops, fee2=fee==null?null:fee-dd.loc, withFee2=before2+(fee2||0);
   return {before:before2,fee:fee2,loc,withFee:withFee2,vat:withFee2*0.15,incl:withFee2*1.15,term:withFee2*n,adv2:withFee2*2,byTerm,cat:p[1],items,itemsSum,margin,disc:dd};
 }
-function costCalc(c){
+function costCalc(c){ c=noExt(c);
   const n=c.term,a=c.sal;
   const items=[
    [tx('الراتب','Salary'),a],
@@ -498,7 +500,7 @@ function costCalc(c){
   const prov=(eosAmt(a,n)/n+a/30*21/12+c.tkt1/12)*n;
   return {items,sum,fee,ov,pctFee,loc,ours,vat,inv,term:inv*n,adv2:inv*2,prov,otAmt};
 }
-function schedCalc(c){
+function schedCalc(c){ c=noExt(c);
   const n=c.term,a=c.sal, rows=[]; const M=Array.from({length:37},(_,i)=>i);
   const per=c.freq==='Quarterly'?3:c.freq==='Half-yearly'?6:12;
   const annMed=insAnnual(), F=S.fee, pct=F.pct/100, ov=F.overhead, ab=c.abroad==='Yes';
