@@ -5,7 +5,11 @@ MODE = os.environ.get('MODE', 'bi'); PFX = os.environ.get('PFX', 'CT'); MODEL = 
 SUF = {'bi': '', 'ar': 'AR', 'en': 'EN'}[MODE]
 OUT = os.environ.get('OUTDIR', 'out/project/'); os.makedirs(OUT, exist_ok=True)
 AR_MAP = {'CLIENT_NAME': 'اسم الشركة', 'CLIENT_ADDRESS': 'العنوان', 'CLIENT_REG_NO': 'رقم السجل', 'SIGNATORY_NAME': 'اسم المفوّض', 'SIGNATORY_TITLE': 'الصفة', 'CLIENT_EMAIL': 'البريد الإلكتروني', 'EMPLOYER_ENTITY': 'الجهة صاحبة العمل', 'START_DATE': 'تاريخ البدء', 'RENEWAL_DATE': 'تاريخ التجديد', 'WORKING_HOURS': 'ساعات العمل', 'ADOPTION_DAYS': 'عدد أيام الاعتماد', 'HEADCOUNT_NOTICE_DAYS': 'عدد أيام الإخطار', 'REVIEW_DAYS': 'عدد أيام المراجعة', 'AMICABLE_DAYS': 'عدد الأيام', 'OBJECTION_DAYS': 'عدد الأيام', 'ADVANCE_REFUND_TERMS': 'شروط الاسترداد'}
+def arfix(t):
+    for a, b in (('Business Partner Solutions Company', 'بزنس بارتنر سلوشنز'), ('Business Partner Solutions', 'بزنس بارتنر سلوشنز'), ('Business Partner', 'بزنس بارتنر'), ('النموذج (1)', 'النموذج 1'), ('النموذج (2)', 'النموذج 2')): t = t.replace(a, b)
+    return t
 def ph(t, ar):
+    if ar: t = arfix(t)
     return re.sub(r'\[\[(\w+)\]\]', lambda m: '[' + ((AR_MAP.get(m.group(1)) or m.group(1).replace('_', ' ')) if ar else m.group(1).replace('_', ' ')) + ']', t)
 raw = json.load(open(os.environ.get('PAIRS', 'pairs_eor.json')))
 P = build([(e, a) if not e['ar'] else (a, e) for e, a in raw], MODEL, ph)

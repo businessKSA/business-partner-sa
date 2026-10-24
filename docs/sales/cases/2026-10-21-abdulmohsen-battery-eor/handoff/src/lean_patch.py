@@ -54,7 +54,7 @@ p['note'] = ('', '')
 # annex tags / short titles
 for k, n in (('model1', 'A1'), ('gov', 'A2'), ('saudi', 'A3'), ('calc', 'A4')):
     _by(k)['tag'] = f'ANNEX {n[1]}'
-_by('model1')['title'] = ('Annex · Model 1: what you pay and when', 'ملحق · النموذج 1: ماذا تدفع ومتى')
+_by('model1')['title'] = ('Model 1 · what you pay and when', 'النموذج 1 · ماذا تدفع ومتى')
 for k, t in (('scope', '01 · WHAT YOU GET'), ('roles', '02 · WHO PAYS'), ('models', '03 · TWO MODELS'), ('model2', '04 · PRICES'), ('local', '05 · LOCALISATION'), ('payment', '06 · NEXT STEPS'), ('accept', '07 · ACCEPTANCE')):
     _by(k)['tag'] = t
 
@@ -81,3 +81,27 @@ S.append(dict(key='bank', tag='08 · BANK & CONTACT', kind='bank',
         (('Website', 'الموقع'), ('www.businesspartner.sa', 'www.businesspartner.sa')),
         (('Address', 'العنوان'), ('Building 9214, King Khaled Branch Rd, Al Asemah, Ad Diriyah 13714 (RDAA9214)', 'مبنى 9214، طريق الملك خالد الفرعي، حي العاصمة، الدرعية 13714 (RDAA9214)'))])))
 _by('accept')['tag'] = '09 · ACCEPTANCE'
+
+S[:] = [x for x in S if x['key'] != 'need']
+_m = _by('models'); _m.clear(); _m.update(dict(key='models', tag='03 · TWO MODELS', kind='tbl', cols='1.1 1.7 1.4',
+    title=('Choose how you pay', 'اختر طريقة الدفع'),
+    head=[('Model', 'النموذج'), ('How you pay', 'طريقة الدفع'), ('Our fees', 'رسومنا')],
+    rows=[[('Model 1 · Transparent cost', 'النموذج 1 · التكلفة بشفافية'), ('You pay each real cost when it happens, one invoice per item.', 'تدفع كل تكلفة فعلية عند حدوثها، بفاتورة لكل بند.'), ('SAR 500 per employee per month, plus the localisation fee.', '500 ريال شهرياً لكل موظف، إضافةً إلى رسوم التوطين.')],
+          [('Model 2 · Full employee cost', 'النموذج 2 · تكلفة الموظف الكاملة'), ('One fixed monthly price per employee. Everything is included.', 'سعر شهري ثابت لكل موظف، وكل شيء مشمول.'), ('See the prices page, plus the localisation fee.', 'انظر صفحة الأسعار، إضافةً إلى رسوم التوطين.')],
+          [('Recruitment from abroad and arrival ticket (both models)', 'الاستقدام من الخارج وتذكرة القدوم (في النموذجين)'), ('Separate invoice, outside our price.', 'بفاتورة منفصلة وخارج سعرنا.'), ('The visa fee of SAR 2,000 is paid to us.', 'رسم التأشيرة 2,000 ريال يُدفع لنا.')]],
+    note=('Each model has its own agreement. Terms: 12, 24 or 36 months.', 'لكل نموذج اتفاقيته الخاصة. المدد: 12 أو 24 أو 36 شهراً.')))
+_l = _by('local'); _l.clear(); _l.update(dict(key='local', tag='08 · LOCALISATION', kind='tbl', cols='1.4 1.1 1.7',
+    title=('Localisation fees', 'رسوم التوطين'),
+    head=[('Case', 'الحالة'), ('Fee per foreign employee per month, before VAT', 'الرسم لكل موظف أجنبي شهرياً قبل الضريبة'), ('Notes', 'ملاحظات')],
+    rows=[[('Occupation with a localisation decision, and you employ no Saudis', 'مهنة عليها قرار توطين، ولا توظّف سعوديين'), ('Cost of the Saudis the ratio requires, divided across your foreign employees', 'تكلفة السعوديين الذين تتطلبهم النسبة موزعة على موظفيك الأجانب'), ('Example: 3 engineers (30%), no Saudi engineer: SAR 6,930 each.', 'مثال: 3 مهندسين (30%) بلا مهندس سعودي: 6,930 ريالاً لكل مهندس.')],
+          [('Occupation with a decision, and you take Saudis through us', 'مهنة عليها قرار، وتأخذ معنا سعوديين'), ('Reduced or waived after verification', 'يُخفَّض أو يسقط بعد التحقق'), ('By a separate written arrangement. Each Saudi is a real employee on a real wage.', 'بترتيب كتابي مستقل. وكل سعودي موظف فعلي بأجر فعلي.')],
+          [('Occupation with no localisation decision', 'مهنة بلا قرار توطين'), ('SAR 900', '900 ريال'), ('Flat fee per employee per month.', 'رسم ثابت لكل موظف شهرياً.')],
+          [('Saudi-only professions: HR, reception, in-person customer service, translator and similar', 'مهن للسعوديين فقط: الموارد البشرية والاستقبال وخدمة العملاء الحضورية والترجمة ونحوها'), ('Not transferred', 'لا تُنقل'), ('Reserved for Saudis by the guides.', 'مقصورة على السعوديين بحسب الأدلة.')]],
+    note=('Check any profession: <a href="https://www.businesspartner.sa/calculators/profession-checker" style="color:#13246E">Profession checker</a>', 'افحص أي مهنة: <a href="https://www.businesspartner.sa/ar/calculators/profession-checker" style="color:#13246E">فاحص المهن</a>')))
+_p = _by('payment'); _p.clear(); _p.update(dict(key='payment', tag='11 · NEXT STEPS', kind='next',
+    title=('Next steps', 'الخطوات التالية'),
+    steps=(('Four steps', 'أربع خطوات'), [('1 · Sign the NDA', '1 · توقيع اتفاقية عدم الإفصاح'), ('2 · Choose a model and sign', '2 · اختيار النموذج والتوقيع'), ('3 · Send the information we need', '3 · إرسال المعلومات المطلوبة'), ('4 · We start the transfer and recruitment', '4 · نبدأ النقل والاستقدام')]),
+    need=(('We need from you', 'نحتاج منكم'), [('Number of employees', 'عدد الموظفين'), ('Nationalities', 'الجنسيات'), ('Salaries and allowances', 'الرواتب والبدلات'), ('Occupations (job titles)', 'المهن (المسمى الوظيفي)'), ('CVs', 'السير الذاتية'), ('Contact numbers of the selected employees', 'أرقام التواصل للموظفين المختارين'), ('Per employee: selected, or needs sourcing', 'لكل موظف: هل هو مختار أم يحتاج إلى استقطاب'), ('Per employee: inside or outside Saudi Arabia', 'لكل موظف: هل هو داخل السعودية أم خارجها')]),
+    terms=[(('Advance payment', 'دفعة مقدمة'), ('Two months of salary', 'راتب شهرين')), (('Invoices', 'الفواتير'), ('Payable within 7 days', 'تُسدَّد خلال 7 أيام')), (('Recruitment costs and arrival ticket', 'رسوم الاستقدام وتذكرة القدوم'), ('Separate invoice, outside our price', 'بفاتورة منفصلة وخارج سعرنا')), (('Offer validity', 'صلاحية العرض'), ('30 days', '30 يوماً'))]))
+for _k, _t in (('cover', 'PROPOSAL · 24 OCT 2026'), ('scope', '01 · WHAT YOU GET'), ('roles', '02 · WHO PAYS'), ('models', '03 · TWO MODELS'), ('model1', '04 · MODEL 1'), ('calc', '05 · MODEL 1 · COST'), ('model2', '06 · MODEL 2'), ('gov', '07 · GOVERNMENT FEES'), ('local', '08 · LOCALISATION'), ('saudi', '09 · SAUDI COST'), ('payment', '10 · NEXT STEPS'), ('accept', '11 · ACCEPTANCE'), ('bank', '12 · BANK & CONTACT')):
+    _by(_k)['tag'] = _t

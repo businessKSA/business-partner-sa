@@ -2,6 +2,7 @@ set -e
 cd "$(dirname "$0")"
 python3 gen_nda.py >/dev/null; MODE=ar python3 m_nda.py >/dev/null; MODE=en python3 m_nda.py >/dev/null
 rm -rf out; mkdir -p out/project; cp outn/project/* outm/project/* out/project/
+python3 qm_templates.py
 python3 gen_prop.py >/dev/null
 [ -f pairs_eor.json ] && [ -f gen_eor.sh ] && bash gen_eor.sh || true
 python3 pdfbuild.py >/dev/null

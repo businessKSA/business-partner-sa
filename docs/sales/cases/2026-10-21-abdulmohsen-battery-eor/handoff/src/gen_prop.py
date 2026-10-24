@@ -348,11 +348,11 @@ def render(s, mode):
             title, rows = c
             body = ''.join(
                 f'<div style="display:grid;grid-template-columns:minmax(0,.42fr) minmax(0,1fr);column-gap:20px;align-items:baseline;padding:12px 0;border-top:1px solid #1E3A9E;direction:{"rtl" if mode=="ar" else "ltr"}">'
-                f'<div style="font-size:22px;color:#9DB4FF">{esc(l[1] if mode=="ar" else l[0])}</div>'
+                f'<div style="font-size:22px;color:#9DB4FF">{esc(l[1] + " · " + l[0] if mode=="bi" else (l[1] if mode=="ar" else l[0]))}</div>'
                 f'<div style="direction:ltr;text-align:{"right" if mode=="ar" else "left"};font-family:\'IBM Plex Mono\',monospace;font-weight:500;font-size:26px;line-height:1.4;color:#fff;word-break:break-all">{esc(v[0])}</div></div>'
                 if (v[0] == v[1]) else
                 f'<div style="display:grid;grid-template-columns:minmax(0,.42fr) minmax(0,1fr);column-gap:20px;align-items:baseline;padding:12px 0;border-top:1px solid #1E3A9E;direction:{"rtl" if mode=="ar" else "ltr"}">'
-                f'<div style="font-size:22px;color:#9DB4FF">{esc(l[1] if mode=="ar" else l[0])}</div>'
+                f'<div style="font-size:22px;color:#9DB4FF">{esc(l[1] + " · " + l[0] if mode=="bi" else (l[1] if mode=="ar" else l[0]))}</div>'
                 f'<div style="direction:{"rtl" if mode=="ar" else "ltr"};text-align:{"right" if mode=="ar" else "left"};font-size:28px;line-height:1.45;color:#fff">{esc(v[1] if mode=="ar" else v[0])}</div></div>'
                 for l, v in rows)
             return f'<div style="background:rgba(255,255,255,.06);border:2px solid #1E3A9E;border-radius:22px;padding:30px 38px 22px"><div style="margin-bottom:10px;direction:{"rtl" if mode=="ar" else "ltr"};text-align:{"right" if mode=="ar" else "left"};font-weight:700;font-size:40px;color:#fff">{esc(title[1] if mode=="ar" else title[0])}</div>{body}</div>'
@@ -366,6 +366,36 @@ def render(s, mode):
         n = s['cols']
         inner += f'<div style="display:grid;grid-template-columns:repeat({n},minmax(0,1fr));column-gap:30px;margin-top:70px;align-items:stretch">' + ''.join(card(c, mode, n) for c in s['cards']) + '</div>'
         if s['note'][0]: inner += note(s['note'], mode, 28)
+    elif k == 'tbl':
+        fr = [float(x) for x in s['cols'].split()]
+        d = 'rtl' if mode == 'ar' else 'ltr'
+        cols = ' '.join(f'minmax(0,{x}fr)' for x in fr)
+        def cell(c, size, color, bold=False):
+            w = 'font-weight:700;' if bold else ''
+            if mode == 'bi':
+                return (f'<div style="direction:rtl;text-align:right;{w}font-size:{size-3}px;line-height:1.45;color:{color}">{c[1]}</div>'
+                        f'<div style="direction:ltr;text-align:left;{w}font-size:{size-5}px;line-height:1.4;color:{color};opacity:.85">{c[0]}</div>')
+            t = c[1] if mode == 'ar' else c[0]
+            return f'<div style="direction:{d};text-align:{"right" if mode=="ar" else "left"};{w}font-size:{size}px;line-height:1.5;color:{color}">{t}</div>'
+        fs = s.get('fs', 27)
+        hr = ''.join(f'<div>{cell(h, fs-2, "#9DB4FF", True)}</div>' for h in s['head'])
+        body = f'<div style="display:grid;grid-template-columns:{cols};column-gap:24px;padding:14px 26px;background:#0B1B5A;direction:{d}">{hr}</div>'
+        for i, r in enumerate(s['rows']):
+            bg = '#fff' if i % 2 == 0 else '#F7F8FD'
+            cs = ''.join(f'<div>{cell(c, fs, "#0B1B5A" if j == 0 else "#1B2340", j == 0)}</div>' for j, c in enumerate(r))
+            body += f'<div style="display:grid;grid-template-columns:{cols};column-gap:24px;align-items:start;padding:15px 26px;background:{bg};border-bottom:2px solid #DDE1EE;direction:{d}">{cs}</div>'
+        inner += f'<div style="margin-top:34px;background:#fff;border:2px solid #DDE1EE;border-radius:20px;overflow:hidden">{body}</div>'
+        if s.get('note'): inner += note(s['note'], mode, 24)
+    elif k == 'next':
+        d = 'rtl' if mode == 'ar' else 'ltr'; al = 'right' if mode == 'ar' else 'left'; ix = 1 if mode == 'ar' else 0
+        def lst(items, col, bd):
+            return ''.join(f'<div style="padding:6px 0;border-top:1px solid {bd};direction:{d};text-align:{al};font-size:25px;color:{col}">{(it[1] if mode in ("ar","bi") else it[0]) if mode != "bi" else it[1] + " · " + it[0]}</div>' for it in items)
+        def ttl(t, col): return f'<div style="direction:{d};text-align:{al};font-weight:700;font-size:34px;line-height:1.4;color:{col}">{t[1] if mode in ("ar","bi") else t[0]}</div>'
+        left = f'<div style="background:#0B1B5A;border-radius:22px;padding:20px 30px">{ttl(s["steps"][0], "#fff")}{lst(s["steps"][1], "#C9D5FF", "#2B3F8A")}</div>'
+        right = f'<div style="background:#fff;border:2px solid #DDE1EE;border-radius:22px;padding:20px 30px">{ttl(s["need"][0], "#0B1B5A")}{lst(s["need"][1], "#1B2340", "#E6E9F3")}</div>'
+        inner += f'<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:28px;margin-top:18px;align-items:start;direction:{d}">{left}{right}</div>'
+        rows = ''.join(f'<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);column-gap:24px;padding:7px 26px;background:{"#fff" if i%2==0 else "#F7F8FD"};border-bottom:2px solid #DDE1EE;direction:{d}"><div style="direction:{d};text-align:{al};font-weight:700;font-size:22px;color:#0B1B5A">{r[0][1] if mode in ("ar","bi") else r[0][0]}</div><div style="direction:{d};text-align:{al};font-size:22px;color:#1B2340">{r[1][1] if mode in ("ar","bi") else r[1][0]}</div></div>' for i, r in enumerate(s['terms']))
+        inner += f'<div style="margin-top:16px;background:#fff;border:2px solid #DDE1EE;border-radius:18px;overflow:hidden">{rows}</div>'
     elif k == 'local4':
         inner += '<div style="margin-top:12px">' + note(s['intro'], mode, 4) + '</div>'
         fs = 19 if mode == 'bi' else 25
@@ -473,7 +503,7 @@ def render(s, mode):
             return f'<div style="background:{bg};border-radius:22px;padding:24px 30px;display:flex;flex-direction:column;gap:4px">{txt(title, mode, (40, 48), tcol, True)}{lines}</div>'
         inner += '<div style="display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);column-gap:28px;margin-top:22px;align-items:start">' + col(s['left'], True) + col(s['right'], False) + '</div>'
     elif k == 'stages':
-        fs = 20 if mode == 'bi' else 27
+        fs = 20 if mode == 'bi' else 24
         d = 'rtl' if mode == 'ar' else 'ltr'
         cols = 'minmax(0,0.75fr) minmax(0,1.7fr) minmax(0,1.1fr)'
         def C(pair, size, color, bold=False):
@@ -538,7 +568,7 @@ NAMES = {  # key -> (bi, ar, en)
     'payment': ('Next', 'AR-8-Next', 'EN-8-Next'),
     'accept': ('Accept', 'AR-9-Accept', 'EN-9-Accept'),
 }
-ORDER = ['cover', 'scope', 'roles', 'models', 'model2', 'local', 'need', 'payment', 'model1', 'gov', 'saudi', 'calc', 'bank', 'accept']
+ORDER = ['cover', 'scope', 'roles', 'models', 'model1', 'calc', 'model2', 'gov', 'local', 'saudi', 'payment', 'accept', 'bank']
 S.sort(key=lambda x: ORDER.index(x['key']))
 boards = {'bi': [], 'ar': [], 'en': []}
 for s in S:

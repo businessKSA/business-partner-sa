@@ -27,12 +27,13 @@ P='outp/project'
 import json as _j
 _B=_j.load(open('boards_prop.json'))
 # bilingual PDF = Arabic slides, then English slides (same order), then one stacked bilingual acceptance page to sign
-docs['Proposal-Bilingual']=(_B['ar'][:-1]+_B['en'][:-1]+[_B['bi'][-1]],P,1920,1080)
+docs['Proposal-Bilingual']=(_B['en'][:-2]+_B['ar'][:-2]+[_B['bi'][-2],_B['bi'][-1]],P,1920,1080)
 docs['Proposal-AR']=(_B['ar'],P,1920,1080)
 docs['Proposal-EN']=(_B['en'],P,1920,1080)
 for nm,pre in (('NDA','NDA'),('Service-Agreement-M1-Transparent-Cost','CT1'),('Service-Agreement-M2-Full-Employee-Cost','CT2')):
     for suf,lab in (('','Bilingual'),('AR','AR'),('EN','EN')):
         docs[f'{nm}-{lab}']=(lst(pre+suf),O,1240,1754)
+docs['Company-Profile']=(['PROF-1-Cover','PROF-2-AR','PROF-3-EN','PROF-4-Details'],P,1920,1080)
 for k,(fs,d,w,h) in docs.items():
     build(k,fs,d,w,h)
     print(k,len(fs))
