@@ -64,6 +64,26 @@ webhooks (تعديلات 2026-10-16 على الحقائق وديم نُسخت إ
 - **متغيّرا Vercel** (يضعهما المالك): `AIWS_ACTIVATOR_URL` = عنوان الويبهوك أعلاه، و`AIWS_ACTIVATOR_KEY`
   = القيمة نفسها التي يكتبها في اعتماد «Header Auth — مفعّل الخدمات». بدونهما يصل المالكَ بريدٌ «جهّز يدوياً».
 
+## قسم Business Partner AI في /my (2026-10-17)
+- **المحتوى والمنطق لك:** `site/scripts/simple-v1-my-ai.mjs` (الواجهة بأربع لغات) و`handleAiwsMy` و`handleAiwsReady` في
+  `api/_aiws.js`. **القشرة لـ`client-portal`:** سطر الاستيراد وزر الشريط الجانبي وتوجيه `view=ai` في `simple-v1-my.mjs`.
+- **بلا جداول جديدة:** الاشتراك = بند `svc-bp-aiws-*` في `requests.payment.items` لطلب مدفوع. بيانات المساحة وحالتها
+  أحداث على ذلك الطلب في `request_events`: `aiws.setup` (العميل: الاسم، الرابط، اللون، الشعار، المديرون) و`aiws.ready`
+  (فريق نايف: الرابط). آخر حدث من كل نوع هو الحالة. الشعار في التخزين تحت `aiws/<org>/` (PNG/JPG/WEBP، ≤300KB، لا SVG).
+- **المسارات:** `GET ?__route=ai&action=my` و`POST {action:"setup"}` بجلسة العميل ومنشأتها وحدها؛
+  `POST {action:"ready", ref, url}` خادم ← خادم بترويسة `X-BP-Activator-Key` (الرابط على `*.businesspartner.sa` وحده).
+- **«مفعّل الخدمات»** يقبل الآن `aiws.setup` أيضاً: يفتح مهمة `SET-<ref>-<بصمة>` لنايف فيها البيانات وأمر إبلاغ الموقع.
+- الرابط `اسم-العميل.businesspartner.sa` (قرار المالك 2026-10-16) لا يتغيّر بعد `aiws.ready`، ولا يُعطى لمنشأتين.
+
+## قسم Business Partner AI في /ops (2026-10-21)
+- **أرقام لا محتوى** (قرار المالك 2026-10-16): من اشترك وبأي باقة، والتجديد، والإيراد الشهري المتكرر، وحالة المساحة
+  ورابطها، والمستخدمون والاستهلاك وآخر نشاط. لا محادثات ولا ملفات ولا شعار ولا قائمة مديرين.
+- المحتوى `site/scripts/simple-v1-ops-ai.mjs` و`handleAiwsOps` في `api/_aiws.js`؛ القشرة في `simple-v1-ops.mjs` لـ`owner-ops`.
+  المسار `POST ?__route=ai {action:"ops"|"ops-ready"}` بباب /ops نفسه (`opsGate`: جلسة المالك أو مفتاح اللوحة).
+- **ops-ready:** المالك يسجّل أن مساحةً جهزت برابطها حين يجهّزها الفريق يدوياً، فيظهر الرابط للعميل في /my.
+- **المستخدمون والاستهلاك** من خادم المنصة عبر `AIWS_USAGE_URL` + `AIWS_USAGE_KEY` (Bearer)، ويُنتظر منه
+  `{tenants:[{slug, users, spent_usd, last_active}]}` — أرقام فقط. لم يُبنَ على الخادم بعد، فتظهر «—» بسبب مكتوب.
+
 ## نطاقك
 - صفحة `/ai`: `site/scripts/simple-v1-ai.mjs` و`api/_aiws.js` و`site/data/ai-plans.json` (وسطر التوجيه `__route=ai` في `api/requests.js` بإذن `owner-ops`).
 - محتوى سيناريوهَي نايف والمراقب أعلاه وموجّهاتهما.
