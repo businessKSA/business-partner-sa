@@ -298,12 +298,12 @@ def card(c, mode, cols):
     bg = '#0B1B5A' if dark else '#fff;border:2px solid #DDE1EE'
     tcol = ('#9DB4FF', '#fff') if dark else ('#13246E', '#0B1B5A')
     bcol = ('#9DB4FF', '#C9D5FF') if dark else ('#6A7596', '#4A5578')
-    ts = (44, 52) if mode == 'bi' else (56, 60)
-    bs = (34, 40) if mode == 'bi' else (46, 50)
+    ts = (34, 40) if mode == 'bi' else (40, 44)
+    bs = (26, 31) if mode == 'bi' else (32, 36)
     if cols >= 4:
         ts = (28, 34) if mode == 'bi' else (34, 38); bs = (21, 25) if mode == 'bi' else (27, 29)
     elif cols == 3:
-        ts = (36, 42) if mode == 'bi' else (46, 50); bs = (30, 35) if mode == 'bi' else (40, 44)
+        ts = (30, 36) if mode == 'bi' else (36, 40); bs = (24, 28) if mode == 'bi' else (29, 33)
     if c.get('compact'):
         ts = (26, 32) if mode == 'bi' else (30, 36); bs = (19, 23) if mode == 'bi' else (24, 27)
     return f'''<div style="background:{bg};border-radius:22px;padding:{22 if c.get('compact') else 44}px 40px;display:flex;flex-direction:column;gap:{8 if c.get('compact') else 22}px">
@@ -377,7 +377,7 @@ def render(s, mode):
                         f'<div style="direction:ltr;text-align:left;{w}font-size:{size-5}px;line-height:1.4;color:{color};opacity:.85">{c[0]}</div>')
             t = c[1] if mode == 'ar' else c[0]
             return f'<div style="direction:{d};text-align:{"right" if mode=="ar" else "left"};{w}font-size:{size}px;line-height:1.5;color:{color}">{t}</div>'
-        fs = s.get('fs', 27)
+        fs = s.get('fs', 23)
         hr = ''.join(f'<div>{cell(h, fs-2, "#9DB4FF", True)}</div>' for h in s['head'])
         body = f'<div style="display:grid;grid-template-columns:{cols};column-gap:24px;padding:14px 26px;background:#0B1B5A;direction:{d}">{hr}</div>'
         for i, r in enumerate(s['rows']):
@@ -499,8 +499,8 @@ def render(s, mode):
                     lines += f'<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:18px;padding:5px 0;border-top:1px solid {"#2B3F8A" if dark else "#E6E9F3"}"><div style="direction:ltr;text-align:left;font-size:20px;color:{icol[0]}">✓ {esc(en)}</div><div style="direction:rtl;text-align:right;font-size:22px;color:{icol[1]}">{esc(ar)} ✓</div></div>'
                 else:
                     t = ar if mode == 'ar' else en
-                    lines += f'<div style="padding:16px 0;border-top:1px solid {"#2B3F8A" if dark else "#E6E9F3"};direction:{"rtl" if mode=="ar" else "ltr"};text-align:{"right" if mode=="ar" else "left"};font-size:{40 if mode=="ar" else 36}px;color:{icol[1] if mode=="ar" else icol[1]}">✓ {esc(t)}</div>'
-            return f'<div style="background:{bg};border-radius:22px;padding:24px 30px;display:flex;flex-direction:column;gap:4px">{txt(title, mode, (40, 48), tcol, True)}{lines}</div>'
+                    lines += f'<div style="padding:16px 0;border-top:1px solid {"#2B3F8A" if dark else "#E6E9F3"};direction:{"rtl" if mode=="ar" else "ltr"};text-align:{"right" if mode=="ar" else "left"};font-size:{29 if mode=="ar" else 27}px;color:{icol[1] if mode=="ar" else icol[1]}">✓ {esc(t)}</div>'
+            return f'<div style="background:{bg};border-radius:22px;padding:24px 30px;display:flex;flex-direction:column;gap:4px">{txt(title, mode, (34, 40), tcol, True)}{lines}</div>'
         inner += '<div style="display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);column-gap:28px;margin-top:22px;align-items:start">' + col(s['left'], True) + col(s['right'], False) + '</div>'
     elif k == 'stages':
         fs = 20 if mode == 'bi' else 24
