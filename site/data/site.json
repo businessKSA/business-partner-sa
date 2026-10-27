@@ -10020,5 +10020,191 @@
   ],
   "note": "هذه الشروط مُهيّأة لتوقيع نموذج الاشتراك الورقي/الإلكتروني بين Business Partner والمشترك. باستخدامك للموقع وإتمام أي طلب شراء، فإنك تقرّ بموافقتك عليها.",
   "noteEn": "These terms are formatted for the paper/electronic subscription form signed between Business Partner and the subscriber. By using the site and completing any purchase, you acknowledge your agreement to them."
+ },
+ "privacy": {
+  "title": "سياسة الخصوصية — مساعد Farah Assistant 3 على واتساب",
+  "titleEn": "Privacy Policy — Farah Assistant 3 on WhatsApp",
+  "updated": "27 أكتوبر 2026",
+  "updatedEn": "October 27, 2026",
+  "intro": "توضح هذه السياسة كيف تعالج شركة بزنس بارتنر سلوشنز البيانات عبر المساعد الشخصي Farah Assistant 3 الذي يعمل على واتساب.",
+  "introEn": "This policy explains how Business Partner Solutions Company processes data through Farah Assistant 3, the personal assistant that runs on WhatsApp.",
+  "sections": [
+   {
+    "title": "1. من نحن (جهة التحكم)",
+    "titleEn": "1. Who we are (data controller)",
+    "body": "شركة بزنس بارتنر سلوشنز («نحن»)، الرياض، المملكة العربية السعودية، السجل التجاري 1009014355. للتواصل في شؤون الخصوصية: business@businesspartner.sa.",
+    "bodyEn": "Business Partner Solutions Company (\"we\"), Riyadh, Kingdom of Saudi Arabia, CR 1009014355. Privacy contact: business@businesspartner.sa."
+   },
+   {
+    "title": "2. ما هذه الخدمة",
+    "titleEn": "2. What this service is",
+    "body": "«Farah Assistant 3» مساعد شخصي ذكي يعمل على واتساب لخدمة مالك الشركة، ويستخدم الذكاء الاصطناعي لفهم الرسائل وتنظيم المهام والملاحظات والرد عليها. تصل الرسائل إلينا عبر واجهة واتساب السحابية من ميتا. الخدمة غير مفتوحة للجمهور، ولا نستعمل بيانات رقم واتساب لأي غرض غير تشغيلها.",
+    "bodyEn": "\"Farah Assistant 3\" is an AI personal assistant on WhatsApp serving the company's owner. It uses artificial intelligence to understand messages, organise tasks and notes, and reply. Messages reach us through Meta's WhatsApp Cloud API. The service is not open to the public, and we do not use WhatsApp number data for anything other than operating it."
+   },
+   {
+    "title": "3. البيانات التي نعالجها",
+    "titleEn": "3. Data we process",
+    "list": [
+     [
+      "رقم واتساب واسم الملف الشخصي الظاهر لنا.",
+      "WhatsApp number and the profile name visible to us."
+     ],
+     [
+      "محتوى الرسائل الواردة والصادرة (نص، وما يرسله المستخدم من ملفات أو تسجيلات صوتية) وتوقيتها.",
+      "Content of incoming and outgoing messages (text, and any files or voice notes the user sends) and their timing."
+     ],
+     [
+      "ما يستخرجه المساعد من الرسائل: مهام، وملاحظات، ومواعيد.",
+      "What the assistant extracts from messages: tasks, notes, appointments."
+     ],
+     [
+      "بيانات أشخاص آخرين قد يذكرهم المستخدم في رسائله (أسماء وأرقام وتفاصيل عمل).",
+      "Data about other people the user may mention in messages (names, numbers, work details)."
+     ],
+     [
+      "بيانات تقنية لازمة للتشغيل والأمان (سجلات الاستدعاء والأخطاء).",
+      "Technical data needed for operation and security (call and error logs)."
+     ]
+    ],
+    "bullets": true
+   },
+   {
+    "title": "4. لماذا نعالجها",
+    "titleEn": "4. Why we process it",
+    "body": "لا نبيع البيانات ولا نؤجرها ولا نستعملها للإعلان.",
+    "bodyEn": "We do not sell or rent data and do not use it for advertising.",
+    "list": [
+     [
+      "تشغيل المساعد: استقبال الرسائل وفهمها والرد عليها.",
+      "To operate the assistant: receive, understand and answer messages."
+     ],
+     [
+      "حفظ المهام والملاحظات التي يطلب المستخدم حفظها.",
+      "To keep tasks and notes the user asks us to keep."
+     ],
+     [
+      "أمن الخدمة ومنع إساءة الاستعمال وتصحيح الأعطال.",
+      "To secure the service, prevent misuse and fix faults."
+     ],
+     [
+      "الالتزام بما يوجبه النظام.",
+      "To comply with what the law requires."
+     ]
+    ]
+   },
+   {
+    "title": "5. من يعالج البيانات معنا (المعالجون الفرعيون)",
+    "titleEn": "5. Who processes data with us (sub-processors)",
+    "body": "كل جهة تعالج البيانات بالقدر اللازم للتشغيل، ونرتبط معها بالشروط التعاقدية المتاحة لنا.",
+    "bodyEn": "Each processes data only as needed to operate the service, under the contractual terms available to us.",
+    "list": [
+     [
+      "Meta Platforms (واتساب للأعمال): تنقل الرسائل بين المستخدم وخدمتنا، وتخضع لسياستها الخاصة.",
+      "Meta Platforms (WhatsApp Business): carries messages between the user and our service, under its own policy."
+     ],
+     [
+      "Microsoft Azure: استضافة منصة الأتمتة (n8n)، ومعالجة الذكاء الاصطناعي عبر Azure OpenAI.",
+      "Microsoft Azure: hosts the automation platform (n8n) and provides AI processing through Azure OpenAI."
+     ],
+     [
+      "Notion: حفظ المهام والملاحظات والسجلات الداخلية.",
+      "Notion: stores tasks, notes and internal records."
+     ]
+    ],
+    "bullets": true
+   },
+   {
+    "title": "6. نقل البيانات خارج المملكة",
+    "titleEn": "6. Transfers outside the Kingdom",
+    "body": "تتم معالجة البيانات وتخزينها لدى مزودين خارج المملكة: Meta لنقل الرسائل، وMicrosoft Azure وAzure OpenAI (المنشور في السويد) للاستضافة والذكاء الاصطناعي، وNotion لحفظ المهام والملاحظات. ننقل البيانات خارج المملكة وفق الضوابط التي يقررها النظام ولائحته.",
+    "bodyEn": "Data is processed and stored by providers outside the Kingdom: Meta for message transport, Microsoft Azure and Azure OpenAI (deployed in Sweden) for hosting and AI, and Notion for tasks and notes. We transfer data outside the Kingdom under the controls the law and its regulations set."
+   },
+   {
+    "title": "7. مدة الاحتفاظ",
+    "titleEn": "7. Retention",
+    "body": "نحتفظ بمحتوى الرسائل وسجلات الأمان والأخطاء بالقدر اللازم للغرض أو ما يوجبه النظام. أما المهام والملاحظات فتبقى حتى يطلب المستخدم حذفها أو تنتهي الحاجة إليها. بعد ذلك نحذف البيانات أو نجعلها مجهولة، إلا ما يوجب النظام حفظه.",
+    "bodyEn": "We keep message content and security and error logs to the extent needed for the purpose or as the law requires. Tasks and notes are kept until the user asks for deletion or they are no longer needed. After that we delete or anonymise the data, except where the law requires retention."
+   },
+   {
+    "title": "8. حقوقك",
+    "titleEn": "8. Your rights",
+    "body": "يمنحك النظام حقوقاً تشمل: العلم بكيفية معالجة بياناتك، والوصول إليها، والحصول على نسخة منها، وطلب تصحيحها، وطلب إتلافها، وسحب موافقتك حيث تكون الموافقة أساس المعالجة، وذلك وفق ما يحدده النظام. لممارسة أي حق راسلنا على business@businesspartner.sa، ونرد خلال المدة التي يحددها النظام. وللاطلاع على كيفية الحذف: صفحة تعليمات حذف البيانات (/data-deletion).",
+    "bodyEn": "The law gives you rights that include: to be informed how your data is processed, to access it, to obtain a copy, to request correction, to request destruction, and to withdraw consent where consent is the basis, as the law provides. To exercise a right, write to business@businesspartner.sa; we reply within the period the law sets. For deletion see the data deletion instructions page (/data-deletion)."
+   },
+   {
+    "title": "9. أمن البيانات",
+    "titleEn": "9. Security",
+    "body": "نطبّق ضوابط تقنية وتنظيمية مناسبة: تشفير النقل، وصلاحيات وصول محدودة، وسجلات دخول. لا نضمن أماناً مطلقاً لأي نظام إلكتروني. ونُخطر الجهة المختصة وأصحاب البيانات عند حوادث التسرب وفق ما يوجبه النظام.",
+    "bodyEn": "We apply appropriate technical and organisational measures: encryption in transit, limited access rights and access logs. No electronic system is absolutely secure. We notify the competent authority and data subjects of data breaches as the law requires."
+   },
+   {
+    "title": "10. بيانات الأطفال",
+    "titleEn": "10. Children",
+    "body": "الخدمة ليست موجهة لمن هم دون 18 عاماً، ولا نجمع بياناتهم عن قصد.",
+    "bodyEn": "The service is not directed at anyone under 18 and we do not knowingly collect their data."
+   },
+   {
+    "title": "11. التعديل",
+    "titleEn": "11. Changes",
+    "body": "قد نحدّث هذه السياسة، ونعرض تاريخ آخر تحديث أعلاها.",
+    "bodyEn": "We may update this policy and show the date of the latest update at the top."
+   }
+  ]
+ },
+ "dataDeletion": {
+  "title": "تعليمات حذف البيانات — مساعد Farah Assistant 3",
+  "titleEn": "Data deletion instructions — Farah Assistant 3",
+  "updated": "27 أكتوبر 2026",
+  "updatedEn": "October 27, 2026",
+  "intro": "تشرح هذه الصفحة كيف تطلب حذف بياناتك التي عالجها المساعد Farah Assistant 3 على واتساب.",
+  "introEn": "This page explains how to request deletion of your data processed by Farah Assistant 3 on WhatsApp.",
+  "sections": [
+   {
+    "title": "كيف تطلب حذف بياناتك",
+    "titleEn": "How to request deletion of your data",
+    "list": [
+     [
+      "أرسل رسالة إلى business@businesspartner.sa بعنوان «طلب حذف بيانات — Farah Assistant 3».",
+      "Send an e-mail to business@businesspartner.sa titled \"Data deletion request — Farah Assistant 3\"."
+     ],
+     [
+      "اذكر في الرسالة رقم واتساب الذي استعملته، واكتب ما تريد حذفه: كل البيانات أو بعضها (مثل رسائل بتاريخ معين أو ملاحظات بعينها).",
+      "State the WhatsApp number you used and what to delete: all data or part of it (for example messages from certain dates or specific notes)."
+     ],
+     [
+      "أرسل الطلب إن أمكن من البريد المرتبط بحسابك، أو أرفق ما يثبت أنك صاحب الرقم، فنتحقق من هويتك قبل الحذف حمايةً لبياناتك.",
+      "Where possible send the request from the e-mail linked to your account, or attach proof that you own the number; we verify your identity before deleting, to protect your data."
+     ],
+     [
+      "نؤكد لك استلام الطلب، ثم نؤكد إتمام الحذف خلال المدة التي يحددها النظام.",
+      "We confirm receipt, then confirm completion within the period the law sets."
+     ]
+    ]
+   },
+   {
+    "title": "ما نحذفه",
+    "titleEn": "What we delete",
+    "body": "محتوى الرسائل، والمهام والملاحظات المستخرجة منها، وما حُفظ منها لدى Notion وفي منصة الأتمتة، وفق ما يطلبه صاحب البيانات.",
+    "bodyEn": "Message content, the tasks and notes extracted from it, and what was kept in Notion and the automation platform, as the data subject requests."
+   },
+   {
+    "title": "ما قد نحتفظ به",
+    "titleEn": "What we may keep",
+    "body": "ما يوجب النظام حفظه، وسجلات الأمان التي لا تحتوي محتوى الرسائل، للمدة اللازمة للغرض أو ما يوجبه النظام، مع إخبارك بذلك.",
+    "bodyEn": "What the law requires us to keep, and security logs that do not contain message content, for as long as needed for the purpose or as the law requires, and we tell you so."
+   },
+   {
+    "title": "بياناتك لدى الجهات الأخرى",
+    "titleEn": "Your data at other parties",
+    "body": "حذفنا لبياناتنا لا يحذف ما تحتفظ به الجهات المستقلة مثل Meta (واتساب) وفق سياساتها، فحذف بياناتك لدى ميتا مستقل عنا. يمكنك حذف المحادثة من تطبيق واتساب نفسه، ومراجعة سياسة Meta لطلب حذف بياناتك لديها.",
+    "bodyEn": "Our deletion does not delete what independent parties such as Meta (WhatsApp) keep under their own policies; deleting your data at Meta is separate from us. You can delete the chat from the WhatsApp app and consult Meta's policy to request deletion of your data there."
+   },
+   {
+    "title": "أسئلة",
+    "titleEn": "Questions",
+    "body": "business@businesspartner.sa، والسياسة الكاملة في صفحة سياسة الخصوصية (/privacy).",
+    "bodyEn": "business@businesspartner.sa; the full policy is on the privacy policy page (/privacy)."
+   }
+  ]
  }
 }
