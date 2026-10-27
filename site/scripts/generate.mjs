@@ -342,6 +342,7 @@ import { buildSimpleGuideRunBusiness } from "./simple-v1-guide-run-your-business
 import { buildSimpleGuideLiveInSaudi } from "./simple-v1-guide-live-in-saudi.mjs";
 import { buildSimpleGuideResidency } from "./simple-v1-guide-residency.mjs";
 import { buildSimpleKnowledge } from "./simple-v1-knowledge.mjs";
+import { buildSimpleLegal } from "./simple-v1-legal-pages.mjs";
 function T(en) {
   const dict = TRANSLATIONS[LANG];
   return (dict && dict[en]) || en;
@@ -12059,6 +12060,8 @@ function writeFullSite(pre) {
     write(`${pre}consultation.html`, buildConsultation());
   }
   write(`${pre}terms.html`, buildTerms());
+  write(`${pre}privacy.html`, buildSimpleLegal(SV1, { lang: () => LANG, esc, site }, "privacy"));
+  write(`${pre}data-deletion.html`, buildSimpleLegal(SV1, { lang: () => LANG, esc, site }, "data-deletion"));
   write(`${pre}account.html`, buildAccount());
   write(`${pre}shared-services.html`, buildSharedServices());
   write(`${pre}shared-services/dashboard.html`, buildSharedServicesPortal());
@@ -12297,7 +12300,7 @@ write("pr-intake.html", fs.readFileSync(path.join(ROOT, "assets/data/pr-intake.h
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/smart-employee", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/knowledge-center", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/company-structure", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
+const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/smart-employee", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/knowledge-center", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/company-structure", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/privacy", "/data-deletion", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))

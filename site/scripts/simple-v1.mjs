@@ -202,6 +202,7 @@ const D = {
   // gives and stays inside this design.
   footClassic: { ar: "كل الخدمات", en: "All services", fr: "Tous les services", zh: "全部服务" },
   footTerms: { ar: "الشروط والأحكام", en: "Terms", fr: "Conditions", zh: "条款" },
+  footPrivacy: { ar: "سياسة الخصوصية", en: "Privacy", fr: "Confidentialité", zh: "隐私" },
   // ثلاثة عناوين في الفوتر وحده. الترويسة تبقى على بابها الواحد — «ابدأ طلبك»
   // — لأن الزائر الذي يرى عشرين رابطاً لا يضغط أياً منها.
   footExplore: { ar: "الخدمات", en: "Services", fr: "Services", zh: "服务" },
@@ -773,6 +774,7 @@ export function simpleV1(ctx) {
       <a href="${href("/careers")}">${t("navCareers")}</a>
       <a href="${href("/suppliers")}">${t("navPartners")}</a>
       <a href="${href("/terms")}">${t("footTerms")}</a>
+      <a href="${href("/privacy")}">${t("footPrivacy")}</a>
     </div>
   </div>
   <div class="sv1-foot-end">© ${year} Business Partner · ${t("footRights")}</div>
