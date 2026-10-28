@@ -37,6 +37,7 @@ import {
   HUMAN_WA_URL, ensureHumanContact, guardDurations, guardCredentials, oneQuestion, sanitizeScope,
   shouldForceScope, FORCE_SCOPE_NOTE, bizdevUnavailable, escalationIntent, focusOf, lastUserText, userTextOf, detectLang, mapHead,
 } from "./_chat-guards.js";
+import { handleComplianceAi } from "./_cs-ai.js";
 
 // The same two doors /api/requests accepts for every panel action: the owner
 // key (env-only) or a Nafath-approved ticket. mode:"admin" rides on them.
@@ -643,6 +644,13 @@ export default async function handler(req, res) {
     body = await new Promise((resolve) => {
       let d = ""; req.on("data", (c) => (d += c)); req.on("end", () => { try { resolve(JSON.parse(d)); } catch { resolve({}); } });
     });
+  }
+
+  // ‏صفحة /compliance-solutions: محادثة وقراءة ملفات على Azure OpenAI، مقفلة بمفتاح
+  // (CS_ACCESS_KEY) أو بباب المالك نفسه الذي يقبله mode:"admin" أدناه. قبل فحص مفاتيح
+  // المزوّد عمداً: القفل أولاً، ثم الباقي في api/_cs-ai.js — انظر docs/compliance-ai-gate.md.
+  if (body && body.action === "compliance-ai") {
+    return handleComplianceAi(req, res, body, { ownerOk: !!(ownerTicketOk(body.ticket) || panelKeyOk(body.key)) });
   }
 
   if (body && body.mode === "voice") {
