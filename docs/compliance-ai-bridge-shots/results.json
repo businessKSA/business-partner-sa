@@ -1,0 +1,240 @@
+{
+ "results": [
+  {
+   "name": "page loads; no \"Claude only\" text",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "free text without key shows access-code field in chat",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "no request sent before a code exists",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "field is a password input inside the thread",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "wrong code -> 401 locked -> field again with error",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "wrong code was sent in x-cs-key",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "wrong code not kept",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "correct code lets the pending free-text through (tool loop)",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "field removed after success",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "tool protocol: 2 round trips with system + tools",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "request shape {action,messages}",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "key kept in sessionStorage only",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "key not in localStorage",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "key not in URL",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "second message: no prompt, sent with stored key",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "error \"rate\" shows readable Arabic text",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "error \"rate\" is not the Claude-only text",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "error \"budget\" shows readable Arabic text",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "error \"budget\" is not the Claude-only text",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "error \"down\" shows readable Arabic text",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "error \"down\" is not the Claude-only text",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "error \"bad\" shows readable Arabic text",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "error \"bad\" is not the Claude-only text",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "error \"big\" shows readable Arabic text",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "error \"big\" is not the Claude-only text",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "error text in en",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "error text in fr",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "error text in zh",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "image upload sends files[] to the server",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "file entry {name,mime,data(base64)}",
+   "pass": true,
+   "extra": "cr-test.png image/png"
+  },
+  {
+   "name": "file read request uses json:true",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "CV image read through the server returns the parsed profile",
+   "pass": true,
+   "extra": "{\"name\":\"سلمان العتيبي\",\"title\":\"محاسب\",\"years\":5,\"city\":\"الرياض\",\"languages\":[\""
+  },
+  {
+   "name": "no pageerror (desktop)",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "declining shows locked message without \"Claude only\"",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "unlock chip offered",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "re-unlocking through the chip works",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "oversized image blocked in the page (no 7MB upload)",
+   "pass": true,
+   "extra": "reqs 2"
+  },
+  {
+   "name": "oversized image shows the size message",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "file upload without key asks for the code first (no request yet)",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "after the code, the upload continues and is read",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "file request carried the key and the image",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "mobile: reply visible after unlock",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "mobile: no horizontal overflow",
+   "pass": true,
+   "extra": ""
+  },
+  {
+   "name": "no pageerror (all)",
+   "pass": true,
+   "extra": ""
+  }
+ ],
+ "consoleErrors": [
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+  "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+  "Failed to load resource: the server responded with a status of 402 (Payment Required)",
+  "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+  "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+  "Failed to load resource: the server responded with a status of 413 (Payload Too Large)",
+  "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+  "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+  "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED",
+  "Failed to load resource: net::ERR_FAILED"
+ ],
+ "pageErrors": []
+}
