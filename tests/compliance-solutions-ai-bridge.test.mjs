@@ -8,7 +8,7 @@
 //   ② الرمز في sessionStorage فقط: لا localStorage ولا الرابط.
 //   ③ لا تظهر «متاحة داخل Claude فقط» خارج Claude: النصّ الباقي محروس بـcsInClaude().
 //   ④ كل نص جديد للعميل له ترجمة فرنسية وصينية في جدول #tr.
-//   ⑤ الحدّ يطابق الخادم: ≤6 ملفات و≤6MB.
+//   ⑤ الحدّ يطابق الخادم: ≤6 ملفات و≤3MB.
 //   ⑥ بقاء claude.use('sample') داخل Claude كما كان.
 //   ⑦ لا مفتاح مكتوب في الصفحة.
 
@@ -67,7 +67,7 @@ test('كل رسالة جديدة لها ترجمة فرنسية وصينية ف�
     'Too many requests right now. Wait a minute and try again.',
     'The smart assistant’s daily allowance is used up. It returns tomorrow; meanwhile use the buttons.',
     'The smart assistant is unavailable right now. Please try again shortly.',
-    'The file is too large. The limit is 6 files and 6 MB in total; shrink it or upload fewer pages.',
+    'The file is too large. The limit is 6 files and 3 MB in total; shrink it or upload fewer pages.',
     'The request could not be understood. Rephrase it or upload a different file.',
     'Could not connect. Check your internet and try again.',
     'I received an unreadable reply. Please try again.',
@@ -93,9 +93,9 @@ test('كل خطأ خادم له رسالة: مقفل · كثرة الطلبات 
   for (const st of ['401', '429', '402', '413', '400']) assert.ok(BRIDGE.includes('r.status===' + st), 'حالة ' + st);
 });
 
-test('حدّ الملفات يطابق الخادم: ≤6 ملفات و≤6MB', () => {
+test('حدّ الملفات يطابق الخادم: ≤6 ملفات و≤3MB', () => {
   assert.match(BRIDGE, /MAXF:6/);
-  assert.match(BRIDGE, /MAXB:6\*1024\*1024/);
+  assert.match(BRIDGE, /MAXB:3\*1024\*1024/);
   assert.match(BRIDGE, /\.slice\(0,CSAI\.MAXF\)/);
   assert.match(BRIDGE, /throw csErr\('too_large'\)/);
   assert.match(BRIDGE, /readAsDataURL/); // base64 بلا مكتبات

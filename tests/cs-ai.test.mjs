@@ -198,28 +198,29 @@ test("مفتاح اللوحة في ترويسة CS لا يفتح (المالك �
 });
 
 // ═══════════════════════════════════════════════════ ③ حدّ المعدّل ══
-test("حدّ IP: 20 ثم 429 rate — ولا نداء Azure بعد الحدّ", async () => {
+test("حدّ IP: 60 ثم 429 rate — ولا نداء Azure بعد الحدّ", async () => {
   fresh();
   const ip = "203.0.113.50";
   // مفاتيح مختلفة للاستعمال لا تفكّ حدّ الـIP: الباب نفسه، لكن حدّ المفتاح يُرفع.
   process.env.CS_AI_KEY_RATE_MAX = "1000";
-  for (let i = 0; i < 20; i++) assert.equal((await post(ask(), { headers: withKey, ip })).status, 200, "رُفض قبل الحدّ عند " + i);
-  assert.equal(azureCalls, 20);
+  for (let i = 0; i < 60; i++) assert.equal((await post(ask(), { headers: withKey, ip })).status, 200, "رُفض قبل الحدّ عند " + i);
+  assert.equal(azureCalls, 60);
   const r = await post(ask(), { headers: withKey, ip });
   assert.equal(r.status, 429);
   assert.deepEqual(r.data, { ok: false, error: "rate" });
-  assert.equal(azureCalls, 20, "نُودي Azure بعد الحدّ");
+  assert.equal(azureCalls, 60, "نُودي Azure بعد الحدّ");
   const other = await post(ask(), { headers: withKey, ip: "203.0.113.51" });
   assert.equal(other.status, 200, "الحدّ يخصّ العنوان وحده");
 });
 
-test("حدّ المفتاح: 20 من عناوين مختلفة ثم 429", async () => {
+test("حدّ المفتاح: 120 ثم 429", async () => {
   fresh();
-  for (let i = 0; i < 20; i++) assert.equal((await post(ask(), { headers: withKey })).status, 200);
+  process.env.CS_AI_RATE_MAX = "100000";
+  for (let i = 0; i < 120; i++) assert.equal((await post(ask(), { headers: withKey })).status, 200);
   const r = await post(ask(), { headers: withKey });
   assert.equal(r.status, 429);
   assert.equal(r.data.error, "rate");
-  assert.equal(azureCalls, 20);
+  assert.equal(azureCalls, 120);
 });
 
 test("الحدّ يُضبط بمتغيّر بيئة", async () => {
@@ -340,7 +341,7 @@ test("Azure يفشل (500) أو يردّ فارغاً: 503 ai_unavailable بلا
 });
 
 // ═══════════════════════════════════════════════ ⑤ الشكل والحجم والنوع ══
-test("الحجم: ملفات فوق 6MB، أكثر من 6 ملفات، رسالة فوق 8000، system فوق 12000 → 413", async () => {
+test("الحجم: ملفات فوق 3MB، أكثر من 6 ملفات، رسالة فوق 8000، system فوق 12000 → 413", async () => {
   fresh();
   const seven = Buffer.alloc(7 * 1024 * 1024, 1).toString("base64");
   const cases = {

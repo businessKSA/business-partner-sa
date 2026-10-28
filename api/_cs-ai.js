@@ -34,7 +34,7 @@ export const CS_LIMITS = {
   maxMessageChars: 8000,
   maxSystemChars: 12000,
   maxFiles: 6,
-  maxFileBytes: 6 * 1024 * 1024,     // مجموع الملفات قبل الترميز
+  maxFileBytes: 3 * 1024 * 1024,     // مجموع الملفات قبل الترميز (٣MB لأن جسم Vercel ٤٫٥MB بعد base64؛ يُرفع بعد الانتقال إلى Azure)
   maxPdfTextChars: 60000,            // لكل PDF بعد استخراج النص
   maxTokens: 2000,
 };
@@ -48,8 +48,9 @@ export const csConfig = () => ({
   enabled: !/^(0|false|no|off)$/i.test(String(process.env.CS_AI_ENABLED == null ? "1" : process.env.CS_AI_ENABLED).trim()),
   dailyCalls: posInt("CS_AI_DAILY_CALLS", 300),
   dailyFileBytes: posInt("CS_AI_DAILY_FILE_MB", 150) * 1024 * 1024,
-  ipMax: posInt("CS_AI_RATE_MAX", 20),          // لكل IP في نافذة ١٠ دقائق
-  keyMax: posInt("CS_AI_KEY_RATE_MAX", 20),     // لكل مفتاح في النافذة نفسها
+  ipMax: posInt("CS_AI_RATE_MAX", 60),          // لكل IP في نافذة ١٠ دقائق (الرسالة الواحدة قد تعني 2–5 نداءات بميثاق الأدوات)
+  keyMax: posInt("CS_AI_KEY_RATE_MAX", 120),    // لكل مفتاح في النافذة نفسها
+  failMax: posInt("CS_AI_FAIL_MAX", 20),         // محاولات مفتاح خاطئة لكل IP في النافذة (منع التخمين)
 });
 const WINDOW_MS = 10 * 60e3;
 
@@ -267,7 +268,7 @@ export async function handleComplianceAi(req, res, body, door, inj = {}) {
   else {
     // محاولات المفتاح الخاطئ لكل IP محدودة قبل المقارنة نفسها، حتى لا يُخمَّن المفتاح
     // بالتتابع. ثمنه: من يشارك العنوان مع مخمِّنٍ ينتظر النافذة.
-    if (over(FAILS, ip, cfg.ipMax, now)) return fail(res, 429, "rate");
+    if (over(FAILS, ip, cfg.failMax, now)) return fail(res, 429, "rate");
     if (!keyDoorOk(provided)) {
       push(FAILS, ip, now);
       return fail(res, 401, "locked");
