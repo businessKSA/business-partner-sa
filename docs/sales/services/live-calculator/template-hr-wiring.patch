@@ -1,8 +1,27 @@
-diff --git a/docs/sales/services/live-calculator/src/template.html b/docs/sales/services/live-calculator/src/template.html
-index dae1cb9d7..537263573 100644
 --- a/docs/sales/services/live-calculator/src/template.html
 +++ b/docs/sales/services/live-calculator/src/template.html
-@@ -1688,7 +1688,7 @@ function chMenu(){ if(CH.menu&&CH.menuL===L) return CH.menu; CH.menuL=L; CH.menu
+@@ -9,10 +9,7 @@
+   --ok:#0F7B4B; --ok-bg:#E3F5EC; --warn:#9A5B00; --warn-bg:#FFF1D6; --bad:#B3261E; --bad-bg:#FCE6E4;
+   --font:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif; --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+ }
+-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+-  --bg:#0A1230; --surface:#111B42; --ink:#E9EEFF; --muted:#9CA8D2; --line:#26325F;
+-  --navy:#2A3E93; --navy-ink:#FFFFFF; --soft:#1A2757; --accent:#7C9BFF;
+-  --ok:#5BD79B; --ok-bg:#12382B; --warn:#F2C26B; --warn-bg:#3A2C0E; --bad:#FF8A80; --bad-bg:#40191A; color-scheme:dark}}
++/* الصفحة فاتحة دائماً: كتلة الداكن التلقائي كانت تُظهر فقاعات وأزرار المحادثة بنصٍّ غير مقروء في متصفحات الوضع الداكن. */
+ :root[data-theme="dark"]{
+   --bg:#0A1230; --surface:#111B42; --ink:#E9EEFF; --muted:#9CA8D2; --line:#26325F;
+   --navy:#2A3E93; --navy-ink:#FFFFFF; --soft:#1A2757; --accent:#7C9BFF;
+@@ -45,7 +42,7 @@
+ .svcban .chip{background:#b8860b;color:#fff;border-radius:999px;padding:2px 10px;font-size:11px;white-space:nowrap}
+ nav.tabs button[aria-selected="true"]{background:var(--surface);color:var(--navy);box-shadow:inset 0 -3px 0 var(--accent)}
+ :root[data-theme="dark"] nav.tabs button[aria-selected="true"]{color:var(--ink)}
+-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) nav.tabs button[aria-selected="true"]{color:var(--ink)}}
++
+ .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+ @media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
+ .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;min-width:0}
+@@ -1688,7 +1685,7 @@
  /* حفظ المحادثة: تُحفظ تلقائياً في متصفح العميل (نصوص وبطاقات فقط) ليكمل لاحقاً بدل أن يبدأ كل مرة كأنها الأولى */
  const CHKEY='bp_chat_v1';
  function chSaved(){ try{ const j=JSON.parse(localStorage.getItem(CHKEY)||'null'); return j&&j.msgs&&j.msgs.length>2&&j.L===L?j:null; }catch(_){ return null; } }
@@ -11,7 +30,7 @@ index dae1cb9d7..537263573 100644
  function chForget(){ try{ localStorage.removeItem(CHKEY); }catch(_){} }
  function chRestore(){ const j=chSaved(); if(!j) return; AG.msgs=j.msgs.map(m=>({role:m.role,content:m.content,html:m.html})); AG.log=[]; CH.hist=[]; S.goal=j.goal||null; Object.assign(CV,{items:(j.cv&&j.cv.items)||[],term:(j.cv&&j.cv.term)||12,city:(j.cv&&j.cv.city)||'',ename:j.cv&&j.cv.ename,w:null}); chDock(null); chSay(tx('رجعتُ بك إلى محادثتك المحفوظة. أكمل من حيث توقفت أو اختر من القائمة.','Back to your saved chat. Continue where you stopped or pick from the menu.')); }
  function chWipe(){ if(!confirm(tx('سيُحذف كل شيء في هذه المحادثة والمحفوظ منها. متأكد؟','Everything in this chat and its saved copy will be deleted. Sure?'))) return; chForget(); chNew(); }
-@@ -1718,9 +1718,54 @@ function hrNeedForm(){ const nd=CV.hr.need; chSay(tx('فهمتُ '+CV.items.map(
+@@ -1718,9 +1715,54 @@
     onSubmit:o=>{ chDock(null); const nat=HR_NATS.find(n=>o.nat&&(o.nat===n[1]||o.nat.toLowerCase()===n[2].toLowerCase())); Object.assign(nd,{city:o.city,years:o.years!==''&&!isNaN(+o.years)?+o.years:null,nat:nat?nat[0]:'',maxSalary:+o.budget||0,start:o.start,housing:o.housing}); chUser(o.city); hrNeedCard(); }}); }
  function hrNeedCard(){ const nd=CV.hr.need, row=(k,v)=>`<tr><th style="width:34%">${k}</th><td>${v?esc(String(v)):'—'}</td></tr>`; const card=`<div class="card"><div class="cth"><b>${tx('طلب التوظيف','Hiring request')}</b><span>${nd.count} ${tx('موظف','staff')}</span></div><div class="tbl ctb"><table><tbody>${row(tx('المطلوب','Required'),CV.items.map(it=>it.qty+' × '+profName(it.prof).split(' · ')[0]).join('، '))}${row(tx('المدينة','City'),nd.city)}${row(tx('الخبرة','Experience'),nd.years!=null?nd.years+'+':'')}${row(tx('الجنسية','Nationality'),(HR_NATS.find(n=>n[0]===nd.nat)||['','',''])[L==='ar'?1:2])}${row(tx('أعلى راتب','Max salary'),nd.maxSalary?fmt(nd.maxSalary):'')}${row(tx('المباشرة','Start'),nd.start)}${row(tx('سكن/إعاشة/مواصلات','Housing/food/transport'),nd.housing)}</tbody></table></div></div>`;
    chSay(tx('هذا طلبك. اعرض المرشحين، أو احسب حكم التوطين والتسعير.','This is your request. See the candidates, or compute the localisation verdict and pricing.'),{html:card,chips:[chFn('👥 '+tx('اعرض المرشحين','Show candidates'),hrShowCandidates,'primary'),chFn('💰 '+tx('حكم التوطين والتسعير','Localisation verdict and pricing'),()=>{ CV.items.forEach(it=>{ if(!it.nat) it.nat='inside'; }); chUser(tx('حكم التوطين والتسعير','Localisation verdict and pricing')); hireTerm(); }),chFn('✏️ '+tx('عدّل','Edit'),hrNeedForm)]}); }
@@ -69,7 +88,7 @@ index dae1cb9d7..537263573 100644
  function hrSelected(){ const n=CV.hr.sel.length; chSay(tx('اخترتَ '+n+' مرشحاً. التالي: ترتيب المقابلات. (الوكيل يسأل كل واحد: هل أنت في '+(CV.hr.need.city||'مدينة العمل')+'؟ وهل تباشر خلال كم يوم؟ — يبدأ هذا على واتساب في المرحلة 3.)','You selected '+n+' candidates. Next: arranging the interviews. (The agent asks each one: are you in '+(CV.hr.need.city||'the work city')+' and when can you start? — this starts on WhatsApp in phase 3.)'),{chips:[chFn('📅 '+tx('رتّب المقابلات','Arrange the interviews'),hrInterview,'primary'),chFn('👥 '+tx('اختر من جديد','Select again'),hrShowCandidates)]}); }
  function hrInterview(){ chUser(tx('رتّب المقابلات','Arrange the interviews')); chSay(tx('حدّد المقابلات: النمط والتاريخ والوقت.','Set the interviews: mode, date and time.')); const tom=new Date(Date.now()+86400000*3).toISOString().slice(0,10);
    chDock({kind:'form',label:tx('المقابلات','Interviews'),fields:[{k:'mode',label:tx('النمط: أونلاين / حضوري / ووك إن','Mode: online / on-site / walk-in'),val:'حضوري',ok:v=>v.length>=2,err:tx('اكتب النمط','Enter the mode')},{k:'date',label:tx('تاريخ أول يوم (YYYY-MM-DD)','First day (YYYY-MM-DD)'),val:tom,ok:v=>/^\d{4}-\d{2}-\d{2}$/.test(v),err:tx('التاريخ مثل 2026-10-27','Date like 2026-10-27')},{k:'from',label:tx('من الساعة (HH:MM)','From (HH:MM)'),val:'10:00',ok:v=>/^\d{1,2}:\d{2}$/.test(v),err:tx('الوقت مثل 10:00','Time like 10:00')},{k:'to',label:tx('إلى الساعة (HH:MM)','To (HH:MM)'),val:'14:00',ok:v=>/^\d{1,2}:\d{2}$/.test(v),err:tx('الوقت مثل 14:00','Time like 14:00')},{k:'mins',label:tx('مدة المقابلة (دقيقة)','Interview length (min)'),val:'15'},{k:'where',label:tx('الموقع أو رابط الاجتماع','Location or meeting link'),val:'',ok:v=>v.length>=2,err:tx('اكتب الموقع أو الرابط','Enter the location or link')}],
-@@ -1730,15 +1775,24 @@ function hrSchedule(o){ const sel=CV.hr.sel, mins=Math.max(5,+o.mins||15), tm=t=
+@@ -1730,15 +1772,24 @@
    const T=`<div class="tbl ctb"><table><thead><tr><th>#</th><th>${tx('المرشح','Candidate')}</th><th>${tx('اليوم','Day')}</th><th>${tx('الوقت','Time')}</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${r.c.id}</td><td>${r.date}</td><td>${r.time}</td></tr>`).join('')}</tbody></table></div>`;
    const rec={at:Date.now(),company:co,request:CV.items.map(it=>({sku:(PROF[it.prof]||[])[7]||'',qty:it.qty})),need:CV.hr.need,mode:o.mode,where:o.where,template:msg,schedule:rows.map(r=>({id:r.c.id,date:r.date,time:r.time}))};
    chSay(tx('هذا جدول المقابلات ونص الدعوة. بعد اعتمادك يُحفظ، وتُرسل الدعوات على واتساب فور تفعيل القناة (المرحلة 3).','This is the interview schedule and the invitation text. Once you approve it is saved, and invitations are sent on WhatsApp as soon as the channel is live (phase 3).'),{html:`<div class="card">${T}<p class="cp" style="margin-top:8px"><b>${tx('نص الدعوة:','Invitation text:')}</b><br>${esc(msg)}</p></div>`,chips:[chFn('✅ '+tx('اعتمد الجدول والدعوات','Approve schedule and invitations'),()=>{ chUser(tx('اعتمد الجدول والدعوات','Approve schedule and invitations')); try{ const k='bp_interviews_v1', a=JSON.parse(localStorage.getItem(k)||'[]'); a.push(rec); localStorage.setItem(k,JSON.stringify(a.slice(-10))); }catch(_){} chSay(tx('اعتُمد وحُفظ. نزّل الجدول إن أردت.','Approved and saved. Download the schedule if you wish.'),{chips:[chFn('⬇️ '+tx('نزّل الجدول','Download the schedule'),async()=>{ const r=await saveFile('interviews.json',JSON.stringify(rec,null,1),'application/json'); chSay(r==='saved'?tx('نزّلتُ الجدول.','The schedule was downloaded.'):tx('لم يتم التنزيل.','The download did not happen.')); })]}); },'primary'),chFn('✏️ '+tx('عدّل المواعيد','Edit the times'),hrInterview)]}); }
