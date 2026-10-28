@@ -26,7 +26,7 @@ const IMG = "/assets/img/baher.jpg";
 const PRICES_PUBLIC = false;
 
 // صفحات لا نضع فيها المركز (لوحات داخلية/مضمّنة/مونيتور).
-const SKIP = [/\/portal\//, /\/admin(\.|\/)/, /\/monitor(\.|\/)/, /\/ops(\.|\/)/, /\/checkout(\.|\/)/,
+const SKIP = [/compliance-solutions\.html$/, /\/portal\//, /\/admin(\.|\/)/, /\/monitor(\.|\/)/, /\/ops(\.|\/)/, /\/checkout(\.|\/)/,
   // كل ما في assets/data هو نسخة مصدر تنسخها سلسلة البناء إلى جذر الموقع وهناك
   // يُحقن المركز. الحقن في المصدر نفسه يجمّده فيه (الحاقن يتخطّى ما فيه مركز
   // سابق) ويُبطل مُعرِّف المحتوى حين يتغيّر الملف لاحقاً.
