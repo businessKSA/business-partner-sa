@@ -361,6 +361,7 @@ import { buildSimpleGuideRunBusiness } from "./simple-v1-guide-run-your-business
 import { buildSimpleGuideLiveInSaudi } from "./simple-v1-guide-live-in-saudi.mjs";
 import { buildSimpleGuideResidency } from "./simple-v1-guide-residency.mjs";
 import { buildSimpleKnowledge } from "./simple-v1-knowledge.mjs";
+import { buildMainServices, mainServicesOn } from "./simple-v1-main-services.mjs";
 function T(en) {
   const dict = TRANSLATIONS[LANG];
   return (dict && dict[en]) || en;
@@ -2196,6 +2197,7 @@ function buildServicesIndex() {
     <h1>${L("Every service, on one page", "كل خدماتنا في صفحة واحدة")}</h1>
     <p class="lead">${L(services.length + " government and business services across " + categories.length + " categories — search, filter, and open any service for its documents, requirements and a quote for your case.", services.length + " خدمة حكومية وتجارية في " + categories.length + " تصنيفاً — ابحث، فلتر، وافتح أي خدمة لتشاهد مستنداتها ومتطلباتها وعرض سعر حسب حالتك.")}</p>
   </div></section>
+  ${mainServicesOn("services") ? (() => { const m = buildMainServices({ esc, href: u, lang: () => LANG, where: "services" }); return m.css + m.html; })() : ""}
   <section class="section svc-all"><div class="container">
     <div class="svc-toolbar" id="svcToolbar">
       <input type="search" id="svcSearch" class="svc-search" placeholder="${esc(Lraw("Search 140+ services… e.g. CR, iqama, visa, VAT", "ابحث في +140 خدمة… مثل: سجل تجاري، إقامة، تأشيرة، ضريبة"))}" autocomplete="off">

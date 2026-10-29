@@ -181,7 +181,7 @@ test("الخدمات الشائعة: كلها في الكتالوج الظاهر
   const cat = JSON.parse(read("assets/data/catalog.json"));
   const codes = new Set(cat.services.map((s) => s.code));
   const html = read("ar/index.html");
-  const slugs = [...mainOf(html).matchAll(/href="\/ar\/services\/([^"]+)"/g)].map((m) => m[1]);
+  const slugs = [...mainOf(html).matchAll(/href="\/ar\/services\/(?!category\/)([^"]+)"/g)].map((m) => m[1]);
   for (const s of slugs) {
     assert.ok(codes.has(s.toUpperCase()), `${s} ليست في الكتالوج الظاهر`);
     assert.ok(pageFile(`/ar/services/${s}`), `${s} بلا صفحة`);
