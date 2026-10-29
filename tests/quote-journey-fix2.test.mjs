@@ -139,7 +139,8 @@ test("عرض بالإنجليزية: اسم الكتالوج الإنجليزي�
   assert.ok(view.html.includes(row.quote.items[0].titleEn), "اسم الخدمة الإنجليزي في المستند");
   assert.ok(view.html.includes("Lines awaiting a price"), "قسم المنتظرة بالإنجليزية");
   assert.ok(view.html.includes("Payment in advance after the contract is signed"), "شروط الدفع بالإنجليزية");
-  assert.ok(!view.html.includes("بنود بانتظار التسعير") && !view.html.includes("الدفع مقدماً بعد توقيع العقد"), "ولا جملة نظام بالعربية");
+  // القالب v3 ثنائي اللغة دائماً (قرار المالك 2026-10-29): كل جملة نظام بلغتين في صفٍّ واحد، العربية يميناً
+  assert.ok(view.html.includes("بنود بانتظار التسعير") && view.html.includes("الدفع مقدماً بعد توقيع العقد"), "والجملة العربية في عمودها المقابل");
   const seen = (await call("request-get", { ref })).request;
   assert.equal(seen.scope.find((x) => x.code === "BP-SBC-01").titleEn, row.quote.items[0].titleEn, "والصفحة تحصل على الاسم الإنجليزي لسطر النطاق");
   const my = read("../site/scripts/simple-v1-my.mjs");
@@ -174,7 +175,7 @@ test("غلاف العرض والعقد لطلبٍ فيه بند منتظر يذ�
   const row = await rowOf(ref);
   assert.equal(row.quote.service, "تأسيس شركة سعودية", "الخدمة المسجّلة بالمسعّر");
   const view = await call("quote-view", { ref });
-  const cut = view.html.indexOf("بنود بانتظار التسعير");
+  const cut = view.html.indexOf("Lines awaiting a price");
   assert.ok(cut > 0 && !view.html.slice(0, cut).includes("الاستقطاب التنفيذي"), "لا الغلاف ولا جدول البنود يذكرانه، وهو في قسم المنتظرة فقط");
   assert.ok(view.html.slice(cut).includes("الاستقطاب التنفيذي"));
   await call("quote-approve", { ref });
