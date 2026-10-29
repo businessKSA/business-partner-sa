@@ -90,7 +90,7 @@ def parties(extra_first=''):
         rows = [('Name', 'الاسم', 'Business Partner Solutions<br><span dir="rtl">شركة بزنس بارتنر سلوشنز</span>' if fixed else '<span class="num">[●]</span>'),
                 ('Unified / CR No.', 'الرقم الموحد / السجل التجاري', '<span class="num">7038825860</span>' if fixed else '<span class="num">[●]</span>'),
                 ('VAT No.', 'الرقم الضريبي', '<span class="num">312079341500003</span>' if fixed else '<span class="num">[●]</span>'),
-                ('National Address', 'العنوان الوطني', '<span class="num">RDAA9214</span>' if fixed else '<span class="num">[●]</span>'),
+                ('National Address', 'العنوان الوطني', '<span class="num">RHSC2978</span>' if fixed else '<span class="num">[●]</span>'),
                 ('Represented by', 'يمثلها', '<span class="num">[●]</span>'), ('Title', 'الصفة', '<span class="num">[●]</span>')]
         if fixed and extra_first:
             rows.append(('Licence', 'الترخيص', extra_first))
@@ -191,8 +191,8 @@ def main():
         lead = [r for r in rows[:1] if r[0] == 'card']
         rest = rows[len(lead):]
         return lead + [('pre', 'الأطراف / Parties'), ('parties', party_html)] + rest + [('sig',)]
-    nda = [r for r in clause_rows(C.nda(), skip_first_p=False) if r[0] != 'sig']
-    build_doc('02-NDA-Bilingual', 'اتفاقية عدم إفصاح متبادلة', 'Mutual Non-Disclosure Agreement', assemble(nda, parties()))
+    nda = [r for r in clause_rows(C.nda(), skip_first_p=False) if r[0] not in ('sig', 'card')]
+    build_doc('02-NDA-Bilingual-FOR-REVIEW', 'اتفاقية عدم إفصاح متبادلة', 'Mutual Non-Disclosure Agreement', assemble(nda, parties()))
     ct = [r for r in clause_rows(C.contract(pr), skip_first_p=True) if r[0] != 'sig']
     build_doc('03-Service-Agreement-INTERNAL-DRAFT-Bilingual', 'عقد إسناد الكوادر الوطنية المشتركة', 'Shared National Talent Service Assignment Agreement', assemble(ct, parties(lic)))
 

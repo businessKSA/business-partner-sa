@@ -32,9 +32,9 @@ def css():
     return base + extra
 
 
-TOTAL = 8
-FT = ('<div class="ft"><div class="a">National Address: RDAA9214<br>9214 King Khaled Branch Rd, Al Asemah<br>Ad Diriyah 13714, Saudi Arabia</div>'
-      '<div class="c">0530540231<br>business@businesspartner.sa<br>www.businesspartner.sa<br><span class="m">%d / ' + str(TOTAL) + '</span></div>'
+TOTAL = 9
+FT = ('<div class="ft"><div class="a">Al Arid · Office 25, 5890 Rihana bint Zaid · Riyadh</div>'
+      '<div class="c"><span class="num">[●]</span><br>business@businesspartner.sa<br>www.businesspartner.sa<br><span class="m">%d / ' + str(TOTAL) + '</span></div>'
       '<div class="w"><span class="logo" role="img" aria-label="Business Partner"></span></div></div>')
 LOGO = '<span class="logo" role="img" aria-label="Business Partner"></span>'
 TITLE = ('Quotation: Shared National Talent', 'عرض سعر: الكوادر الوطنية المشتركة')
@@ -111,114 +111,126 @@ def sheet(inner, n, closing=False):
     return f'<section class="sheet land" lang="ar"><div dir="rtl">{inner}</div>{FT % n}</section>'
 
 
+def other_services():
+    bp = open(os.path.join(HERE, 'bd_other_services.html'), encoding='utf8').read()
+    return hd2() + bp + '</div>'
+
+
 def build_pages(pr):
     S = []
+    n = [0]
+
+    def num():
+        n[0] += 1
+        return n[0]
+
+    def pg(inner):
+        S.append(sheet(inner, len(S) + 1))
     # 1 cover
-    S.append(sheet(
-        f'<div class="cv"><div class="lgc">{LOGO}</div><div class="cvb"><div dir="ltr"><div class="eb">QUOTATION</div><h1 class="pf">Shared National Talent</h1>'
-        '<div class="sb">Qualified Saudi professionals, part-time and flexible, managed and developed by Business Partner.</div></div>'
-        '<div dir="rtl"><div class="eb" style="letter-spacing:0;font-family:inherit;font-size:13px">عرض سعر</div><h1>الكوادر الوطنية المشتركة</h1>'
-        '<div class="sb">كوادر سعودية مؤهلة بدوام جزئي ومرن، تديرها وتطوّرها Business Partner.</div></div></div>'
-        '<div class="pk" dir="ltr">Accounting · HR · Marketing · Sales · Purchasing · Admin · Projects · Engineering</div>'
-        '<div class="pk" dir="rtl" style="margin-top:6px;letter-spacing:0;font-family:inherit">المحاسبة · الموارد البشرية · التسويق · المبيعات · المشتريات · الدعم الإداري · المشاريع · الهندسة</div>'
-        '<div class="dn" dir="ltr">DRAFT for owner review, not for sending · مسودة لمراجعة المالك، لا تُرسل</div>'
-        '<div class="ch"><div><span>To / إلى السادة</span><span class="num">[●]</span></div><div><span>Date / التاريخ</span><span class="num">29/10/2026</span></div>'
-        '<div><span>Validity / صلاحية العرض</span><mark class="ph">[VALIDITY_DAYS]</mark> days<br><mark class="ph">[مدة الصلاحية]</mark> يوماً</div></div></div>', 1))
-    # 2 service
-    s2 = hd2() + '<div class="bp">'
-    s2 += h2(1, 'The service', 'الخدمة')
-    s2 += p('Business Partner assigns qualified Saudi employees to your company part-time, flexibly, remotely or by project, and manages them, trains them and develops their skills. A defined role without the cost of a full-time hire. Every assignment is real work with deliverables and a timesheet.',
-            'تُسند بزنس بارتنر إلى شركتكم موظفين سعوديين مؤهلين بدوام جزئي أو مرن أو عن بُعد أو بالمشروع، وتدير عملهم وتدرّبهم وتطوّر مهاراتهم. دور محدد دون تكلفة التوظيف بدوام كامل. وكل إسناد عمل فعلي له مخرجات وسجل ساعات.')
-    s2 += h2(2, 'How it works', 'آلية العمل')
-    s2 += num_table('How it works', 'آلية العمل', [
+    pg(f'<div class="cv"><div class="lgc">{LOGO}</div><div class="cvb"><div dir="ltr"><div class="eb">QUOTATION</div><h1 class="pf">Shared National Talent</h1>'
+       '<div class="sb">Qualified Saudi professionals, part-time and flexible, managed and developed by Business Partner.</div></div>'
+       '<div dir="rtl"><div class="eb" style="letter-spacing:0;font-family:inherit;font-size:13px">عرض سعر</div><h1>الكوادر الوطنية المشتركة</h1>'
+       '<div class="sb">كوادر سعودية مؤهلة بدوام جزئي ومرن، تديرها وتطوّرها Business Partner.</div></div></div>'
+       '<div class="pk" dir="ltr">Accounting · HR · Marketing · Sales · Purchasing · Admin · Projects · Engineering</div>'
+       '<div class="pk" dir="rtl" style="margin-top:6px;letter-spacing:0;font-family:inherit">المحاسبة · الموارد البشرية · التسويق · المبيعات · المشتريات · الدعم الإداري · المشاريع · الهندسة</div>'
+       '<div class="ch"><div><span>To / إلى السادة</span><span class="num">[●]</span></div><div><span>Date / التاريخ</span><span class="num">29/10/2026</span></div>'
+       '<div><span>Validity / صلاحية العرض</span><mark class="ph">[VALIDITY_DAYS]</mark> days<br><mark class="ph">[مدة الصلاحية]</mark> يوماً</div></div></div>')
+    # 2 other services (standard page, no prices)
+    pg(other_services())
+    # 3 price
+    s = hd2() + '<div class="bp">'
+    s += ('<div class="rw mt"><div class="col" dir="ltr"><div class="meta1"><b>To:</b> <span class="num">[●]</span></div><div class="meta1"><b>Date:</b> <span class="num">29/10/2026</span></div>'
+          '<div class="meta1"><b>Quote validity:</b> <mark class="ph">[VALIDITY_DAYS]</mark> days</div></div>'
+          '<div class="col" dir="rtl"><div class="meta1"><b>إلى السادة:</b> <span class="num">[●]</span></div><div class="meta1"><b>التاريخ:</b> <span class="num">29/10/2026</span></div>'
+          '<div class="meta1"><b>صلاحية العرض:</b> <mark class="ph">[مدة الصلاحية]</mark> يوماً</div></div></div>')
+    s += h2(num(), 'Price (SAR per month, excl. VAT)', 'السعر (ريال شهرياً، قبل الضريبة)')
+    s += prices_table(pr)
+    s += p('Hours between two packages are priced at the hourly rate. Field (non-administrative) roles and project-based work are quoted per assignment. VAT of 15% is added to every price.',
+           'تُسعَّر الساعات بين باقتين بسعر الساعة. الوظائف الميدانية وأعمال المشاريع تُسعَّر لكل إسناد. تُضاف ضريبة القيمة المضافة 15% على كل الأسعار.')
+    s += p('Performance-linked pay for roles such as sales, purchasing and human resources is agreed in the assignment schedule: [[VARIABLE_PAY_TERMS]].',
+           'يُتفق على الأجر المرتبط بالأداء في وظائف مثل المبيعات والمشتريات والموارد البشرية في ملحق الإسناد: [[شروط الأجر المتغير]].')
+    pg(s + '</div>')
+    # 4 scope
+    s = hd2() + '<div class="bp">'
+    s += h2(num(), 'Scope', 'النطاق')
+    s += p('Business Partner assigns qualified Saudi employees to your company part-time, flexibly, remotely or by project, and manages them, trains them and develops their skills. A defined role without the cost of a full-time hire. Every assignment is real work with deliverables and a timesheet.',
+           'تُسند بزنس بارتنر إلى شركتكم موظفين سعوديين مؤهلين بدوام جزئي أو مرن أو عن بُعد أو بالمشروع، وتدير عملهم وتدرّبهم وتطوّر مهاراتهم. دور محدد دون تكلفة التوظيف بدوام كامل. وكل إسناد عمل فعلي له مخرجات وسجل ساعات.')
+    s += h2(num(), 'How it works', 'آلية العمل')
+    s += num_table('How it works', 'آلية العمل', [
         ('You choose the role and monthly hours, or a project scope.', 'تختارون الدور والساعات الشهرية، أو نطاق مشروع.'),
         ('We match and introduce a Saudi employee to you before the start date.', 'نرشّح لكم موظفاً سعودياً مناسباً ونعرّفكم به قبل تاريخ البدء.'),
         ('Work runs under a signed scope, a weekly plan and a timesheet.', 'يسير العمل بنطاق موقّع وخطة أسبوعية وسجل ساعات.'),
         ('A senior Business Partner manager reviews the work every week.', 'يراجع مدير أول من بزنس بارتنر العمل كل أسبوع.'),
         ('You receive a monthly report of hours, deliverables and training.', 'يصلكم تقرير شهري بالساعات والمخرجات والتدريب.'),
         ('If the employee is absent for more than [[REPLACEMENT_DAYS]] days or leaves, we provide a replacement.', 'إن غاب الموظف أكثر من [[أيام الاستبدال]] أيام أو غادر، نوفّر بديلاً.')])
-    s2 += h2(3, 'Forms of engagement', 'صيغ التعاقد')
-    s2 += card('Part-time', 'Fixed weekly hours with one company.', 'دوام جزئي', 'ساعات أسبوعية ثابتة لدى شركة واحدة.')
-    s2 += card('Flexible', 'Hours as needed between an agreed minimum and maximum, registered through the Ministry of Human Resources "Marn" platform where applicable.', 'عمل مرن', 'ساعات بحسب الحاجة بين حد أدنى وأقصى متفق عليهما، ويُوثَّق عبر منصة «مرن» التابعة لوزارة الموارد البشرية حيثما انطبق.')
-    s2 += card('Remote', 'Tasks delivered without attendance (for example accounting, marketing, purchasing).', 'عن بُعد', 'مهام تُسلَّم دون حضور (مثل المحاسبة والتسويق والمشتريات).')
-    s2 += card('By project', 'Defined scope, deliverables and duration, with milestone payments.', 'بالمشروع', 'نطاق ومخرجات ومدة محددة، بدفعات حسب المعالم.')
-    S.append(sheet(s2 + '</div>', 2))
-    # 3 price
-    s3 = hd2() + '<div class="bp">'
-    s3 += ('<div class="rw mt"><div class="col" dir="ltr"><div class="meta1"><b>To:</b> <span class="num">[●]</span></div><div class="meta1"><b>Date:</b> <span class="num">29/10/2026</span></div>'
-           '<div class="meta1"><b>Quote validity:</b> <mark class="ph">[VALIDITY_DAYS]</mark> days</div></div>'
-           '<div class="col" dir="rtl"><div class="meta1"><b>إلى السادة:</b> <span class="num">[●]</span></div><div class="meta1"><b>التاريخ:</b> <span class="num">29/10/2026</span></div>'
-           '<div class="meta1"><b>صلاحية العرض:</b> <mark class="ph">[مدة الصلاحية]</mark> يوماً</div></div></div>')
-    s3 += h2(1, 'Roles and prices (SAR per month, excl. VAT)', 'الوظائف والأسعار (ريال شهرياً، قبل الضريبة)')
-    s3 += prices_table(pr)
-    s3 += p('Hours between two packages are priced at the hourly rate. Field (non-administrative) roles and project-based work are quoted per assignment. VAT of 15% is added to every price.',
-            'تُسعَّر الساعات بين باقتين بسعر الساعة. الوظائف الميدانية وأعمال المشاريع تُسعَّر لكل إسناد. تُضاف ضريبة القيمة المضافة 15% على كل الأسعار.')
-    s3 += p('Performance-linked pay for roles such as sales, purchasing and human resources is agreed in the assignment schedule: [[VARIABLE_PAY_TERMS]].',
-            'يُتفق على الأجر المرتبط بالأداء في وظائف مثل المبيعات والمشتريات والموارد البشرية في ملحق الإسناد: [[شروط الأجر المتغير]].')
-    S.append(sheet(s3 + '</div>', 3))
-    # 4 scope
-    s4 = hd2() + '<div class="bp">'
-    s4 += h2(2, 'What the price includes', 'ما يشمله السعر')
-    s4 += num_table('Included', 'المشمول', [
+    s += h2(num(), 'Forms of engagement', 'صيغ التعاقد')
+    s += card('Part-time', 'Fixed weekly hours with one company.', 'دوام جزئي', 'ساعات أسبوعية ثابتة لدى شركة واحدة.')
+    s += card('Flexible', 'Hours as needed between an agreed minimum and maximum, registered through the Ministry of Human Resources "Marn" platform where applicable.', 'عمل مرن', 'ساعات بحسب الحاجة بين حد أدنى وأقصى متفق عليهما، ويُوثَّق عبر منصة «مرن» التابعة لوزارة الموارد البشرية حيثما انطبق.')
+    s += card('Remote', 'Tasks delivered without attendance (for example accounting, marketing, purchasing).', 'عن بُعد', 'مهام تُسلَّم دون حضور (مثل المحاسبة والتسويق والمشتريات).')
+    s += card('By project', 'Defined scope, deliverables and duration, with milestone payments.', 'بالمشروع', 'نطاق ومخرجات ومدة محددة، بدفعات حسب المعالم.')
+    pg(s + '</div>')
+    # 5 what is included, exclusions, structure
+    s = hd2() + '<div class="bp">'
+    s += h2(num(), 'What the price includes', 'ما يشمله السعر')
+    s += num_table('Included', 'المشمول', [
         ('A Saudi employee with a real contract, registered social insurance and medical insurance.', 'موظف سعودي بعقد حقيقي وتأمينات اجتماعية وتأمين طبي مسجّلين.'),
         ('Management, weekly supervision and performance review.', 'الإدارة والإشراف الأسبوعي وتقييم الأداء.'),
         ('Mandatory training and professional development for every employee.', 'التدريب والتطوير المهني الإلزاميان لكل موظف.'),
         ('Timesheets, monthly reporting and replacement cover.', 'سجل الساعات والتقارير الشهرية وتغطية الاستبدال.')])
-    s4 += h2(3, 'Exclusions', 'ما لا يشمله العرض')
-    s4 += num_table('Not included', 'غير مشمول', [
+    s += h2(num(), 'Exclusions', 'ما لا يشمله العرض')
+    s += num_table('Not included', 'غير مشمول', [
         ('VAT.', 'ضريبة القيمة المضافة.'),
         ('Performance-linked pay, which is agreed separately.', 'الأجر المرتبط بالأداء، ويُتفق عليه منفصلاً.'),
         ('Field travel.', 'التنقل الميداني.'),
         ('Your own tools, licences and systems.', 'أدواتكم وتراخيصكم وأنظمتكم.')])
-    s4 += h2(4, 'Employment structure (working assumption)', 'هيكل التوظيف (افتراض عمل)')
-    s4 += p('The Saudi employee holds a genuine part-time or flexible employment contract, registered with the authorities and social insurance in accordance with the structure confirmed before signature. Business Partner manages the employee, develops them and invoices the service. The final structure is confirmed in writing before the Service Agreement is signed.',
-            'يحمل الموظف السعودي عقد عمل جزئياً أو مرناً حقيقياً، مسجّلاً لدى الجهات المختصة والتأمينات الاجتماعية وفق الهيكل المؤكَّد قبل التوقيع. تدير بزنس بارتنر الموظف وتطوّره وتفوتر الخدمة. ويُؤكَّد الهيكل النهائي كتابةً قبل توقيع عقد الخدمة.')
-    S.append(sheet(s4 + '</div>', 4))
-    # 5 integrity + client requirements
-    s5 = hd2() + '<div class="bp">'
-    s5 += h2(5, 'Integrity and compliance', 'النزاهة والامتثال')
-    s5 += num_table('Integrity and compliance', 'النزاهة والامتثال', [
+    s += h2(num(), 'Employment structure', 'هيكل التوظيف')
+    s += p('The Saudi employee holds a genuine part-time or flexible employment contract, registered with the authorities and social insurance in accordance with the structure confirmed before signature. Business Partner manages the employee, develops them and invoices the service. The final structure is confirmed in writing before the Service Agreement is signed.',
+           'يحمل الموظف السعودي عقد عمل جزئياً أو مرناً حقيقياً، مسجّلاً لدى الجهات المختصة والتأمينات الاجتماعية وفق الهيكل المؤكَّد قبل التوقيع. تدير بزنس بارتنر الموظف وتطوّره وتفوتر الخدمة. ويُؤكَّد الهيكل النهائي كتابةً قبل توقيع عقد الخدمة.')
+    pg(s + '</div>')
+    # 6 integrity + client requirements
+    s = hd2() + '<div class="bp">'
+    s += h2(num(), 'Integrity and compliance', 'النزاهة والامتثال')
+    s += num_table('Integrity and compliance', 'النزاهة والامتثال', [
         ('Every assignment is real work with a client deliverable, a timesheet and a signed scope. No employee is registered without actual work.', 'كل إسناد عمل فعلي بمخرج للعميل وسجل ساعات ونطاق موقّع. ولا يُسجَّل موظف بلا عمل فعلي.'),
         ('Work and training records are kept for each employee and can be shown to the competent authorities.', 'تُحفظ سجلات العمل والتدريب لكل موظف ويمكن عرضها على الجهات المختصة.'),
         ('How an assignment is counted in the Nitaqat programme depends on the employment structure registered for each employee. Business Partner makes no commitment to any Nitaqat result or band, and none that one employee counts for more than one entity.', 'يتبع احتساب الإسناد في برنامج نطاقات الهيكل المسجَّل لكل موظف. ولا تلتزم بزنس بارتنر بأي نتيجة أو نطاق في نطاقات، ولا بأن يُحتسب موظف واحد لأكثر من منشأة.'),
         ('Both parties sign a non-disclosure agreement before any employee or company information is shared.', 'يوقّع الطرفان اتفاقية عدم إفصاح قبل تبادل أي معلومات عن الموظفين أو الشركات.')])
-    s5 += h2(6, 'Client Requirements', 'المتطلبات من العميل')
-    s5 += num_table('Client Requirements', 'المتطلبات من العميل', [
+    s += h2(num(), 'Client Requirements', 'المتطلبات من العميل')
+    s += num_table('Client Requirements', 'المتطلبات من العميل', [
         ('Define the tasks and the scope of each assignment.', 'تحديد المهام ونطاق كل إسناد.'),
         ('Provide access, tools and a safe working environment.', 'توفير الصلاحيات والأدوات وبيئة عمل آمنة.'),
-        ('Approve timesheets on time.', 'اعتماد سجل الساعات في وقته.')])
-    S.append(sheet(s5 + '</div>', 5))
-    # 6 term, payment, T&C
-    s6 = hd2() + '<div class="bp">'
-    s6 += h2(7, 'Term', 'المدة')
-    s6 += p('The term is [[TERM_MONTHS]] months. Flexible engagements through Marn follow the term limits that the platform allows.', 'مدة العقد [[عدد الأشهر]] شهراً. وتلتزم عقود المرن بحدود المدة التي تتيحها المنصة.')
-    s6 += h2(8, 'Payment', 'طريقة الدفع')
-    s6 += pair_table(('Item', 'Method', 'الطريقة', 'البند'), [
+        ('Approve timesheets on time.', 'اعتماد سجل الساعات في وقته.'),
+        ('Copy our email business@businesspartner.sa (CC) on its correspondence about the assignment.', 'إضافة بريدنا business@businesspartner.sa في خانة النسخة (CC) في مراسلاته الخاصة بالإسناد.')])
+    pg(s + '</div>')
+    # 7 term, payment, T&C, next steps
+    s = hd2() + '<div class="bp">'
+    s += h2(num(), 'Term', 'المدة')
+    s += p('The term is [[TERM_MONTHS]] months. Flexible engagements through Marn follow the term limits that the platform allows.', 'مدة العقد [[عدد الأشهر]] شهراً. وتلتزم عقود المرن بحدود المدة التي تتيحها المنصة.')
+    s += h2(num(), 'Payment', 'طريقة الدفع')
+    s += pair_table(('Item', 'Method', 'الطريقة', 'البند'), [
         ('Invoicing', 'Monthly, [[PAYMENT_TERMS]]', 'شهرية، [[شروط الدفع]]', 'الفوترة'),
         ('Early termination', '[[EARLY_TERMINATION]], notice [[NOTICE_DAYS]] days', '[[الإنهاء المبكر]]، إشعار [[أيام الإشعار]] يوماً', 'الإنهاء المبكر'),
         ('Payment method', 'Bank transfer to the account shown on the last page', 'تحويل بنكي على الحساب المبيّن في الصفحة الأخيرة', 'وسيلة السداد')])
-    s6 += h2(9, 'Terms & Conditions', 'الشروط والأحكام')
-    s6 += num_table('Terms & Conditions', 'الشروط والأحكام', [
+    s += h2(num(), 'Terms & Conditions', 'الشروط والأحكام')
+    s += num_table('Terms & Conditions', 'الشروط والأحكام', [
         ('All prices exclude VAT of 15%.', 'جميع الأسعار قبل ضريبة القيمة المضافة 15%.'),
         ('The services and fees are governed by a separate Service Agreement, and information is shared only under the non-disclosure agreement.', 'تخضع الخدمات والأتعاب لعقد خدمة مستقل، ولا تُتبادل المعلومات إلا بموجب اتفاقية عدم الإفصاح.'),
         ('The employment structure is confirmed in writing before the Service Agreement is signed.', 'يُؤكَّد هيكل التوظيف كتابةً قبل توقيع عقد الخدمة.')])
-    h = h2(10, 'Next steps', 'الخطوات التالية')
-    s6 += h + num_table('Next steps', 'الخطوات التالية', [
+    s += h2(num(), 'Next steps', 'الخطوات التالية')
+    s += num_table('Next steps', 'الخطوات التالية', [
         ('Sign the non-disclosure agreement.', 'توقيع اتفاقية عدم الإفصاح.'),
         ('Confirm roles, hours and start date.', 'تأكيد الوظائف والساعات وتاريخ البدء.'),
         ('Sign the Service Agreement and the assignment schedule.', 'توقيع عقد الخدمة وملحق الإسناد.'),
         ('The employee starts on the agreed date.', 'يبدأ الموظف في التاريخ المتفق عليه.')])
-    S.append(sheet(s6 + '</div>', 6))
-    # 7 signatures
-    s7 = hd2() + '<div class="bp">' + h2(11, 'Signatures', 'التوقيعان') + p('By signing below, both parties accept this quotation and its terms and conditions.', 'بالتوقيع أدناه يوافق الطرفان على هذا العرض وشروطه وأحكامه.') + sig_block()
-    S.append(sheet(s7 + '</div>', 7))
-    # 8 closing cover
-    S.append(sheet(
-        f'<div class="cv"><div class="lgc">{LOGO}</div><div class="eb">CONTACT &amp; BANK TRANSFER · التواصل والتحويل البنكي</div>'
-        '<h1 class="pf">Thank you for your trust · <span style="font-family:\'IBM Plex Sans Arabic\'">شكراً لثقتكم</span></h1>'
-        '<div class="bx"><div><b>Contact · التواصل</b>National address / العنوان الوطني: RDAA9214 · 9214 King Khaled Branch Rd, Al Asemah, Ad Diriyah 13714 / طريق الملك خالد الفرعي، حي العاصمة، الدرعية 13714<br>'
-        'Mobile / الجوال: <span class="num">0530540231</span><br>Email / الإيميل: <span class="num">business@businesspartner.sa</span><br>Website / الموقع: <span class="num">www.businesspartner.sa</span></div>'
-        '<div><b>Bank transfer · التحويل البنكي</b>Beneficiary / المستفيد: Business Partner Solutions / بزنس بارتنر سلوشنز<br>Bank / البنك: Al Rajhi Bank / مصرف الراجحي<br>IBAN: <span class="num">SA5380000511608016228498</span></div></div></div>', 8))
+    pg(s + '</div>')
+    # 8 signatures
+    pg(hd2() + '<div class="bp">' + h2(num(), 'Signatures', 'التوقيعان') + p('By signing below, both parties accept this quotation and its terms and conditions.', 'بالتوقيع أدناه يوافق الطرفان على هذا العرض وشروطه وأحكامه.') + sig_block() + '</div>')
+    # 9 closing cover (bank details and mobile are [●] in repository files; the owner adds them to the client copy)
+    pg(f'<div class="cv"><div class="lgc">{LOGO}</div><div class="eb">CONTACT &amp; BANK TRANSFER · التواصل والتحويل البنكي</div>'
+       '<h1 class="pf">Thank you for your trust · <span style="font-family:\'IBM Plex Sans Arabic\'">شكراً لثقتكم</span></h1>'
+       '<div class="bx"><div><b>Contact · التواصل</b>Address / العنوان: Al Arid · Office 25, 5890 Rihana bint Zaid · Riyadh<br>'
+       'Mobile / الجوال: <span class="num">[●]</span><br>Email / الإيميل: <span class="num">business@businesspartner.sa</span><br>Website / الموقع: <span class="num">www.businesspartner.sa</span></div>'
+       '<div><b>Bank transfer · التحويل البنكي</b>Beneficiary / المستفيد: Business Partner Solutions / بزنس بارتنر سلوشنز<br>Bank / البنك: <span class="num">[●]</span><br>IBAN: <span class="num">[●]</span></div></div></div>')
     return S
 
 
@@ -228,7 +240,7 @@ def main():
             + ''.join(build_pages(pr)) + '</body></html>')
     h = os.path.join(WORK, '01-Proposal-A4-Landscape.html')
     open(h, 'w', encoding='utf8').write(html)
-    pdf = os.path.join(OUT, '01-Proposal-A4-Landscape-Bilingual.pdf')
+    pdf = os.path.join(OUT, '01-Proposal-A4-Landscape-Bilingual-FOR-REVIEW.pdf')
     subprocess.run([CHROME, '--headless', '--no-sandbox', '--disable-gpu', '--no-pdf-header-footer', '--print-to-pdf=' + pdf, 'file://' + h], check=True, capture_output=True, timeout=180)
     print('built', pdf)
 

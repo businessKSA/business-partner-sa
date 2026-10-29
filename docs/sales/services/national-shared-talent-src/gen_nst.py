@@ -53,6 +53,9 @@ PH = re.compile(r'\[\[(.+?)\]\]')
 
 
 def ph(s):
-    return PH.sub(lambda m: '<mark class="ph">[%s]</mark>' % m.group(1), esc(s))
+    out = PH.sub(lambda m: '<mark class="ph">[%s]</mark>' % m.group(1), esc(s))
+    if re.search('[\u0600-\u06FF]', s) and s.rstrip().endswith('.'):
+        out += '\u200f'   # sentence-final full stop stays at the end of the Arabic line (sales standard)
+    return out
 
 
