@@ -301,6 +301,101 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
     <h1>كل خدماتنا في صفحة واحدة</h1>
     <p class="lead">195 خدمة حكومية وتجارية في 9 تصنيفاً — ابحث، فلتر، وافتح أي خدمة لتشاهد مستنداتها ومتطلباتها وعرض سعر حسب حالتك.</p>
   </div></section>
+  <style id="msv-css">
+.msv{padding:64px 0 24px}
+.msv-in{max-width:1160px;margin:0 auto;padding:0 22px;width:100%;box-sizing:border-box}
+.msv-head{text-align:center;max-width:720px;margin:0 auto 28px}
+.msv-head h2{margin:0 0 8px;font-size:clamp(24px,3.4vw,34px);line-height:1.25;color:#0B1B5A;letter-spacing:-.02em}
+.msv-head p{margin:0;color:#5A6478;font-size:15px;line-height:1.8}
+.msv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.msv-card{display:flex;flex-direction:column;background:#fff;border:1px solid #DFE4EF;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(11,27,90,.04),0 8px 24px -16px rgba(11,27,90,.18);min-width:0;box-sizing:border-box;transition:border-color .15s,box-shadow .15s}
+.msv-card:hover{border-color:#C3CDE6;box-shadow:0 1px 2px rgba(11,27,90,.05),0 14px 30px -16px rgba(11,27,90,.28)}
+.msv-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.msv-ico{flex:none;width:42px;height:42px;border-radius:11px;background:#EEF2FB;color:#0B1B5A;display:grid;place-items:center;font-size:20px;line-height:1}
+.msv-card h3{margin:0;font-size:18px;line-height:1.35;color:#0B1B5A;font-weight:600;letter-spacing:-.01em}
+.msv-soon{display:inline-block;margin-inline-start:8px;vertical-align:middle;font-size:11px;font-weight:600;color:#7A5A00;background:#FFF4D6;border:1px solid #F0DCA0;border-radius:999px;padding:2px 9px}
+.msv-desc{margin:0 0 12px;color:#5A6478;font-size:14px;line-height:1.85}
+.msv-incl{margin:0 0 16px;padding:0;list-style:none;display:grid;gap:7px;font-size:13px;line-height:1.7;color:#232A3D}
+.msv-incl li{position:relative;padding-inline-start:20px}
+.msv-incl li::before{content:"✓";position:absolute;inset-inline-start:0;top:0;color:#1B7F4B;font-weight:700}
+.msv-incl-t{font-size:12px;font-weight:600;color:#66708a;margin:0 0 7px}
+.msv-acts{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.msv-btn{display:inline-flex;align-items:center;justify-content:center;text-align:center;gap:6px;border:1px solid #DFE4EF;background:#fff;color:#0B1B5A;padding:10px 12px;border-radius:9px;font:inherit;font-weight:500;font-size:13.5px;line-height:1.3;cursor:pointer;text-decoration:none;box-sizing:border-box;min-height:42px;transition:background .15s,border-color .15s,transform .12s}
+.msv-btn:hover{border-color:#0B1B5A}
+.msv-btn.primary{background:#0B1B5A;border-color:#0B1B5A;color:#fff}
+.msv-btn.primary:hover{background:#16307F;border-color:#16307F;transform:translateY(-1px)}
+.msv-btn:focus-visible,.msv-link:focus-visible{outline:3px solid #7C9BFF;outline-offset:2px}
+.msv-links{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;padding-top:4px;font-size:13px}
+.msv-link{color:#0B1B5A;text-decoration:underline;text-underline-offset:3px;text-decoration-color:#C3CDE6}
+.msv-link:hover{text-decoration-color:#0B1B5A}
+.msv-foot{max-width:760px;margin:18px auto 0;text-align:center;color:#66708a;font-size:12.5px;line-height:1.8}
+.msv-grid>.msv-card:last-child:nth-child(3n+1){grid-column:2}
+@media(max-width:980px){.msv-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.msv-grid>.msv-card:last-child:nth-child(3n+1){grid-column:1/-1;justify-self:center;width:calc(50% - 7px)}}
+@media(max-width:640px){
+ .msv{padding:44px 0 12px}
+ .msv-in{padding:0 16px}
+ .msv-grid{grid-template-columns:1fr}
+ .msv-grid>.msv-card:last-child:nth-child(3n+1){grid-column:auto;width:auto;justify-self:stretch}
+ .msv-card{padding:18px}
+}
+</style>
+  <section class="msv msv-services" id="main-services" data-home-extra="main-services" aria-labelledby="msv-h"><div class="msv-in">
+    <div class="msv-head"><h2 id="msv-h">خدماتنا الرئيسية</h2><p>اختر الخدمة، واقرأ ما تشمله، ثم اسأل المستشار أو ابدأ طلبك مباشرة.</p></div>
+    <div class="msv-grid"><article class="msv-card" data-msv="formation">
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🏢</span><h3>تأسيس الشركات</h3></div>
+      <p class="msv-desc">نؤسس شركتك السعودية أو فرع شركتك الأجنبية، من حجز الاسم وعقد التأسيس إلى السجل التجاري والتسجيل في الجهات، وتتابع كل خطوة من حسابك.</p>
+      <p class="msv-incl-t">تشمل</p>
+      <ul class="msv-incl"><li>حجز الاسم وإعداد عقد التأسيس وتوثيقه</li><li>إصدار السجل التجاري</li><li>التسجيل في الزكاة والضريبة والتأمينات وقوى ومدد ومقيم</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/ar/catalog?door=formation" data-track="خدماتنا الرئيسية: ابدأ الطلب — تأسيس الشركات">ابدأ الطلب</a>
+        <a class="msv-btn" href="/ar/?ask=formation#advisor" data-msv-ask="formation" data-track="خدماتنا الرئيسية: اسأل المستشار — تأسيس الشركات">اسأل المستشار</a>
+        <div class="msv-links"><a class="msv-link" href="/ar/services/category/company-formation">تفاصيل الخدمة</a><a class="msv-link" href="/ar/packages#pkg-formation">الباقات والأسعار</a></div></div>
+    </article><article class="msv-card" data-msv="government">
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🏛️</span><h3>إدارة الخدمات الحكومية</h3></div>
+      <p class="msv-desc">ندير منصاتك الحكومية ومعاملاتك نيابةً عنك، من التسجيل والتجديد إلى المتابعة والتصعيد، فلا تضيع عليك مهلة.</p>
+      <p class="msv-incl-t">تشمل</p>
+      <ul class="msv-incl"><li>تفعيل منصاتك والتسجيل فيها: قوى، مدد، التأمينات، الزكاة والضريبة</li><li>التجديدات وإصدار التصاريح والرخص</li><li>متابعة المعاملات والتصعيد على منصات الوزارة</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/ar/catalog?door=government" data-track="خدماتنا الرئيسية: ابدأ الطلب — إدارة الخدمات الحكومية">ابدأ الطلب</a>
+        <a class="msv-btn" href="/ar/?ask=government#advisor" data-msv-ask="government" data-track="خدماتنا الرئيسية: اسأل المستشار — إدارة الخدمات الحكومية">اسأل المستشار</a>
+        <div class="msv-links"><a class="msv-link" href="/ar/services/category/government-relations">تفاصيل الخدمة</a><a class="msv-link" href="/ar/packages#pkg-management">الباقات والأسعار</a></div></div>
+    </article><article class="msv-card" data-msv="eor">
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">👥</span><h3>موظفون على بند التعاقد (EOR)</h3></div>
+      <p class="msv-desc">موظفوك يعملون عندك ونحن صاحب العمل الرسمي: التعاقد والرواتب والتأمينات والإجازات والمستحقات، مع الاستقدام عند الحاجة.</p>
+      <p class="msv-incl-t">تشمل</p>
+      <ul class="msv-incl"><li>التعاقد وإدارة ملفات الموظفين، سعوديين أو أجانب</li><li>الرواتب في مواعيدها بحسب الحضور الذي تعتمده</li><li>إنهاء التعاقد وتسوية المستحقات وفق الاتفاقية</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/ar/eor#eor-form" data-track="خدماتنا الرئيسية: ابدأ الطلب — موظفون على بند التعاقد (EOR)">ابدأ الطلب</a>
+        <a class="msv-btn" href="/ar/eor#eorAssist" data-track="خدماتنا الرئيسية: اسأل المستشار — موظفون على بند التعاقد (EOR)">اسأل المستشار</a>
+        <div class="msv-links"><a class="msv-link" href="/ar/eor">تفاصيل الخدمة</a><a class="msv-link" href="/ar/eor#eor-form">الباقات والأسعار</a></div></div>
+    </article><article class="msv-card" data-msv="compliance">
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🛡️</span><h3>الامتثال وتقييم الشركات</h3></div>
+      <p class="msv-desc">نقيّم وضع شركتك قبل التفتيش ونصحّح المخالفات، ثم نراقب منصاتك الحكومية وننبّهك قبل المهل والتجديدات.</p>
+      <p class="msv-incl-t">تشمل</p>
+      <ul class="msv-incl"><li>تقييم ذاتي للامتثال وتصحيح المخالفات قبل التفتيش</li><li>مراقبة مستمرة لقوى ومقيم والتأمينات ومدد، وتنبيهات المهل والتجديدات</li><li>المخالفات: مراجعة ودراسة أهلية الاعتراض ثم التجهيز والتقديم والمتابعة</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/ar/services/bp-self-01" data-track="خدماتنا الرئيسية: ابدأ الطلب — الامتثال وتقييم الشركات">ابدأ الطلب</a>
+        <a class="msv-btn" href="/ar/?ask=compliance#advisor" data-msv-ask="compliance" data-track="خدماتنا الرئيسية: اسأل المستشار — الامتثال وتقييم الشركات">اسأل المستشار</a>
+        <div class="msv-links"><a class="msv-link" href="/ar/compliance-agent">تفاصيل الخدمة</a><a class="msv-link" href="/ar/compliance-agent#subscribe">الباقات والأسعار</a></div></div>
+    </article><article class="msv-card" data-msv="bizdev">
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">📈</span><h3>تطوير الأعمال للشركات<span class="msv-soon">قريباً</span></h3></div>
+      <p class="msv-desc">عملاء أو موردون أو شريك جديد؟ نحدّد معك مسار النمو المناسب، ونطابق شركتك مع الجهات التي تناسبها.</p>
+      <p class="msv-incl-t">تشمل</p>
+      <ul class="msv-incl"><li>ملف تطوير أعمال لشركتك</li><li>مطابقة مع شركات مناسبة: عملاء أو موردون أو شركاء</li><li>مساحة متابعة داخل حسابك</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/ar/?ask=bizdev#advisor" data-msv-ask="bizdev" data-track="خدماتنا الرئيسية: اسأل المستشار — تطوير الأعمال للشركات" style="grid-column:1/-1">اسأل المستشار</a></div>
+    </article><article class="msv-card" data-msv="shared">
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🤝</span><h3>خدمة الكوادر الوطنية المشتركة<span class="msv-soon">قريباً</span></h3></div>
+      <p class="msv-desc">تُسند Business Partner إلى شركتك موظفين سعوديين مؤهلين بدوام جزئي أو مرن أو عن بُعد أو بالمشروع، وتديرهم وتدرّبهم وتطوّرهم. دور محدد دون تكلفة التوظيف بدوام كامل.</p>
+      <p class="msv-incl-t">تشمل</p>
+      <ul class="msv-incl"><li>أدوار: المحاسبة والموارد البشرية والتسويق والمبيعات والمشتريات والدعم الإداري وإدارة المشاريع والهندسة</li><li>صيغ التعاقد: دوام جزئي، عمل مرن، عن بُعد، بالمشروع</li><li>عمل حقيقي بنطاق موقّع وسجل ساعات، وتدريب وتطوير مهني لكل موظف</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/ar/?ask=shared#advisor" data-msv-ask="shared" data-track="خدماتنا الرئيسية: اسأل المستشار — خدمة الكوادر الوطنية المشتركة" style="grid-column:1/-1">اسأل المستشار</a></div>
+    </article><article class="msv-card" data-msv="residency">
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🪪</span><h3>الإقامة المميزة</h3></div>
+      <p class="msv-desc">نقيّم أهليتك ونحدّد مسارك في الإقامة المميزة، ثم نجهّز ملفك ونقدّمه ونتابعه حتى صدور القرار، والقرار يعود إلى الجهة وحدها.</p>
+      <p class="msv-incl-t">تشمل</p>
+      <ul class="msv-incl"><li>تقييم أهلية الإقامة المميزة وتحديد مسارك</li><li>مسارات: مستثمر الأعمال، رائد الأعمال، مالك العقار، الموهبة، الكفاءة الاستثنائية، المسار المالي</li><li>ضمّ أفراد الأسرة، وتجهيز الملف وتقديمه ومتابعته</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/ar/services/bp-pr-03" data-track="خدماتنا الرئيسية: ابدأ الطلب — الإقامة المميزة">ابدأ الطلب</a>
+        <a class="msv-btn" href="/ar/?ask=residency#advisor" data-msv-ask="residency" data-track="خدماتنا الرئيسية: اسأل المستشار — الإقامة المميزة">اسأل المستشار</a>
+        <div class="msv-links"><a class="msv-link" href="/ar/guide/residency">تفاصيل الخدمة</a><a class="msv-link" href="/ar/services/category/premium-residency">الباقات والأسعار</a></div></div>
+    </article></div>
+    <p class="msv-foot">الأسعار تظهر للمسجّلين بعد الدخول وهي قبل الضريبة. الرسوم الحكومية، إن وُجدت، منفصلة وتُعلن قبل البدء.</p>
+  </div></section>
   <section class="section svc-all"><div class="container">
     <div class="svc-toolbar" id="svcToolbar">
       <input type="search" id="svcSearch" class="svc-search" placeholder="ابحث في +140 خدمة… مثل: سجل تجاري، إقامة، تأشيرة، ضريبة" autocomplete="off">

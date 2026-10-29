@@ -252,6 +252,101 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
     <h1>Every service, on one page</h1>
     <p class="lead">195 government and business services across 9 categories — search, filter, and open any service for its documents, requirements and a quote for your case.</p>
   </div></section>
+  <style id="msv-css">
+.msv{padding:64px 0 24px}
+.msv-in{max-width:1160px;margin:0 auto;padding:0 22px;width:100%;box-sizing:border-box}
+.msv-head{text-align:center;max-width:720px;margin:0 auto 28px}
+.msv-head h2{margin:0 0 8px;font-size:clamp(24px,3.4vw,34px);line-height:1.25;color:#0B1B5A;letter-spacing:-.02em}
+.msv-head p{margin:0;color:#5A6478;font-size:15px;line-height:1.8}
+.msv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.msv-card{display:flex;flex-direction:column;background:#fff;border:1px solid #DFE4EF;border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(11,27,90,.04),0 8px 24px -16px rgba(11,27,90,.18);min-width:0;box-sizing:border-box;transition:border-color .15s,box-shadow .15s}
+.msv-card:hover{border-color:#C3CDE6;box-shadow:0 1px 2px rgba(11,27,90,.05),0 14px 30px -16px rgba(11,27,90,.28)}
+.msv-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.msv-ico{flex:none;width:42px;height:42px;border-radius:11px;background:#EEF2FB;color:#0B1B5A;display:grid;place-items:center;font-size:20px;line-height:1}
+.msv-card h3{margin:0;font-size:18px;line-height:1.35;color:#0B1B5A;font-weight:600;letter-spacing:-.01em}
+.msv-soon{display:inline-block;margin-inline-start:8px;vertical-align:middle;font-size:11px;font-weight:600;color:#7A5A00;background:#FFF4D6;border:1px solid #F0DCA0;border-radius:999px;padding:2px 9px}
+.msv-desc{margin:0 0 12px;color:#5A6478;font-size:14px;line-height:1.85}
+.msv-incl{margin:0 0 16px;padding:0;list-style:none;display:grid;gap:7px;font-size:13px;line-height:1.7;color:#232A3D}
+.msv-incl li{position:relative;padding-inline-start:20px}
+.msv-incl li::before{content:"✓";position:absolute;inset-inline-start:0;top:0;color:#1B7F4B;font-weight:700}
+.msv-incl-t{font-size:12px;font-weight:600;color:#66708a;margin:0 0 7px}
+.msv-acts{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.msv-btn{display:inline-flex;align-items:center;justify-content:center;text-align:center;gap:6px;border:1px solid #DFE4EF;background:#fff;color:#0B1B5A;padding:10px 12px;border-radius:9px;font:inherit;font-weight:500;font-size:13.5px;line-height:1.3;cursor:pointer;text-decoration:none;box-sizing:border-box;min-height:42px;transition:background .15s,border-color .15s,transform .12s}
+.msv-btn:hover{border-color:#0B1B5A}
+.msv-btn.primary{background:#0B1B5A;border-color:#0B1B5A;color:#fff}
+.msv-btn.primary:hover{background:#16307F;border-color:#16307F;transform:translateY(-1px)}
+.msv-btn:focus-visible,.msv-link:focus-visible{outline:3px solid #7C9BFF;outline-offset:2px}
+.msv-links{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;padding-top:4px;font-size:13px}
+.msv-link{color:#0B1B5A;text-decoration:underline;text-underline-offset:3px;text-decoration-color:#C3CDE6}
+.msv-link:hover{text-decoration-color:#0B1B5A}
+.msv-foot{max-width:760px;margin:18px auto 0;text-align:center;color:#66708a;font-size:12.5px;line-height:1.8}
+.msv-grid>.msv-card:last-child:nth-child(3n+1){grid-column:2}
+@media(max-width:980px){.msv-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.msv-grid>.msv-card:last-child:nth-child(3n+1){grid-column:1/-1;justify-self:center;width:calc(50% - 7px)}}
+@media(max-width:640px){
+ .msv{padding:44px 0 12px}
+ .msv-in{padding:0 16px}
+ .msv-grid{grid-template-columns:1fr}
+ .msv-grid>.msv-card:last-child:nth-child(3n+1){grid-column:auto;width:auto;justify-self:stretch}
+ .msv-card{padding:18px}
+}
+</style>
+  <section class="msv msv-services" id="main-services" data-home-extra="main-services" aria-labelledby="msv-h"><div class="msv-in">
+    <div class="msv-head"><h2 id="msv-h">Our main services</h2><p>Pick a service, read what it covers, then ask the advisor or start your request directly.</p></div>
+    <div class="msv-grid"><article class="msv-card" data-msv="formation">
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🏢</span><h3>Company formation</h3></div>
+      <p class="msv-desc">We set up your Saudi company or the branch of your foreign company, from name reservation and the articles of association to the commercial registration and agency registrations, and you follow every step from your account.</p>
+      <p class="msv-incl-t">Includes</p>
+      <ul class="msv-incl"><li>Name reservation, drafting and notarizing the articles</li><li>Commercial registration issuance</li><li>Registration in Zakat/tax, GOSI, Qiwa, Mudad and Muqeem</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/catalog?door=formation" data-track="خدماتنا الرئيسية: ابدأ الطلب — Company formation">Start the request</a>
+        <a class="msv-btn" href="/ru/?ask=formation#advisor" data-msv-ask="formation" data-track="خدماتنا الرئيسية: اسأل المستشار — Company formation">Ask the advisor</a>
+        <div class="msv-links"><a class="msv-link" href="/services/category/company-formation">Service details</a><a class="msv-link" href="/ru/packages#pkg-formation">Packages &amp; pricing</a></div></div>
+    </article><article class="msv-card" data-msv="government">
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🏛️</span><h3>Government services management</h3></div>
+      <p class="msv-desc">We run your government platforms and transactions on your behalf, from registration and renewal to follow-up and escalation, so no deadline is missed.</p>
+      <p class="msv-incl-t">Includes</p>
+      <ul class="msv-incl"><li>Activating and registering on your platforms: Qiwa, Mudad, GOSI, Zakat and tax</li><li>Renewals and issuing permits and licences</li><li>Following transactions and escalating on the ministry's platforms</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/catalog?door=government" data-track="خدماتنا الرئيسية: ابدأ الطلب — Government services management">Start the request</a>
+        <a class="msv-btn" href="/ru/?ask=government#advisor" data-msv-ask="government" data-track="خدماتنا الرئيسية: اسأل المستشار — Government services management">Ask the advisor</a>
+        <div class="msv-links"><a class="msv-link" href="/services/category/government-relations">Service details</a><a class="msv-link" href="/ru/packages#pkg-management">Packages &amp; pricing</a></div></div>
+    </article><article class="msv-card" data-msv="eor">
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">👥</span><h3>Staff on our contract (EOR)</h3></div>
+      <p class="msv-desc">Your staff work for you and we are their official employer: contracts, payroll, insurance, leave and entitlements, with recruitment where needed.</p>
+      <p class="msv-incl-t">Includes</p>
+      <ul class="msv-incl"><li>Employment contracts and employee files, Saudi or foreign staff</li><li>Payroll on the agreed dates, based on the attendance you approve</li><li>Contract termination and settlement of entitlements under the agreement</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/eor#eor-form" data-track="خدماتنا الرئيسية: ابدأ الطلب — Staff on our contract (EOR)">Start the request</a>
+        <a class="msv-btn" href="/eor#eorAssist" data-track="خدماتنا الرئيسية: اسأل المستشار — Staff on our contract (EOR)">Ask the advisor</a>
+        <div class="msv-links"><a class="msv-link" href="/eor">Service details</a><a class="msv-link" href="/eor#eor-form">Packages &amp; pricing</a></div></div>
+    </article><article class="msv-card" data-msv="compliance">
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🛡️</span><h3>Compliance &amp; company assessment</h3></div>
+      <p class="msv-desc">We assess your company before inspection and correct violations, then monitor your government platforms and warn you before deadlines and renewals.</p>
+      <p class="msv-incl-t">Includes</p>
+      <ul class="msv-incl"><li>Self-assessment of compliance and correcting violations before inspection</li><li>Continuous monitoring of Qiwa, Muqeem, GOSI and Mudad, with deadline and renewal alerts</li><li>Violations: review, study of objection eligibility, then preparation, submission and follow-up</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/services/bp-self-01" data-track="خدماتنا الرئيسية: ابدأ الطلب — Compliance &amp; company assessment">Start the request</a>
+        <a class="msv-btn" href="/ru/?ask=compliance#advisor" data-msv-ask="compliance" data-track="خدماتنا الرئيسية: اسأل المستشار — Compliance &amp; company assessment">Ask the advisor</a>
+        <div class="msv-links"><a class="msv-link" href="/compliance-agent">Service details</a><a class="msv-link" href="/compliance-agent#subscribe">Packages &amp; pricing</a></div></div>
+    </article><article class="msv-card" data-msv="bizdev">
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">📈</span><h3>Business development for companies<span class="msv-soon">Coming soon</span></h3></div>
+      <p class="msv-desc">New customers, suppliers or a partner? We map the right growth route with you and match your company with suitable counterparts.</p>
+      <p class="msv-incl-t">Includes</p>
+      <ul class="msv-incl"><li>A business development profile for your company</li><li>Matching with suitable companies: customers, suppliers or partners</li><li>A follow-up workspace inside your account</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/ru/?ask=bizdev#advisor" data-msv-ask="bizdev" data-track="خدماتنا الرئيسية: اسأل المستشار — Business development for companies" style="grid-column:1/-1">Ask the advisor</a></div>
+    </article><article class="msv-card" data-msv="shared">
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🤝</span><h3>Shared National Talent service<span class="msv-soon">Coming soon</span></h3></div>
+      <p class="msv-desc">Business Partner assigns qualified Saudi employees to your company part-time, flexibly, remotely or by project, and manages, trains and develops them. A defined role without the cost of a full-time hire.</p>
+      <p class="msv-incl-t">Includes</p>
+      <ul class="msv-incl"><li>Roles: accounting, HR, marketing, sales, purchasing, administrative support, project management and engineering</li><li>Forms of engagement: part-time, flexible, remote, by project</li><li>Real work with a signed scope and a timesheet, plus training and professional development for every employee</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/ru/?ask=shared#advisor" data-msv-ask="shared" data-track="خدماتنا الرئيسية: اسأل المستشار — Shared National Talent service" style="grid-column:1/-1">Ask the advisor</a></div>
+    </article><article class="msv-card" data-msv="residency">
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🪪</span><h3>Premium Residency</h3></div>
+      <p class="msv-desc">We assess your eligibility and pick your Premium Residency route, then prepare, submit and follow your file until the decision, which rests with the authority alone.</p>
+      <p class="msv-incl-t">Includes</p>
+      <ul class="msv-incl"><li>Premium Residency eligibility and route assessment</li><li>Routes: business investor, entrepreneur, property owner, talent, exceptional competence, financial</li><li>Adding family members, and preparing, submitting and following up the file</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/services/bp-pr-03" data-track="خدماتنا الرئيسية: ابدأ الطلب — Premium Residency">Start the request</a>
+        <a class="msv-btn" href="/ru/?ask=residency#advisor" data-msv-ask="residency" data-track="خدماتنا الرئيسية: اسأل المستشار — Premium Residency">Ask the advisor</a>
+        <div class="msv-links"><a class="msv-link" href="/guide/residency">Service details</a><a class="msv-link" href="/services/category/premium-residency">Packages &amp; pricing</a></div></div>
+    </article></div>
+    <p class="msv-foot">Prices appear after you sign in and are before VAT. Government fees, where they apply, are separate and announced before work starts.</p>
+  </div></section>
   <section class="section svc-all"><div class="container">
     <div class="svc-toolbar" id="svcToolbar">
       <input type="search" id="svcSearch" class="svc-search" placeholder="Search 140+ services… e.g. CR, iqama, visa, VAT" autocomplete="off">

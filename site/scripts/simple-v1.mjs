@@ -1034,7 +1034,7 @@ ${header(path)}
     </div>
   </div></section>
 
-  ${ex.search}${ex.how}${ex.popular}
+  ${ex.mainServices}${ex.search}${ex.how}${ex.popular}
   <section class="sv1-sec" id="simple"><div class="wrap">
     <div class="sv1-title"><h2>${t("noNameTitle")}</h2><p>${t("noNameSub")}</p></div>
     <div class="sv1-three">

@@ -21,6 +21,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { visibleCatalogRows } from "./hidden.mjs";
+import { buildMainServices, mainServicesOn } from "./simple-v1-main-services.mjs";
 
 // ست خدمات شائعة بأكوادها (اختيار تحريري لا بيانات مخترعة): تُرسم من الكتالوج
 // المبني بأسمائه، وما أُخفي أو غاب عن الكتالوج يُسقَط ولا يترك فراغاً.
@@ -71,9 +72,9 @@ export const HOME_EXTRAS_TEXT = {
 export function homeExtraFlags() {
   try {
     const f = JSON.parse(fs.readFileSync(new URL("../data/features.json", import.meta.url), "utf8")).homeExtras || {};
-    return Object.fromEntries(HOME_EXTRA_KEYS.map((k) => [k, f[k] === true]));
+    return { ...Object.fromEntries(HOME_EXTRA_KEYS.map((k) => [k, f[k] === true])), mainServices: mainServicesOn("home") };
   } catch {
-    return Object.fromEntries(HOME_EXTRA_KEYS.map((k) => [k, false]));
+    return { ...Object.fromEntries(HOME_EXTRA_KEYS.map((k) => [k, false])), mainServices: false };
   }
 }
 
@@ -149,10 +150,17 @@ export function buildHomeExtras({ esc, href, lang, flags = homeExtraFlags() }) {
   </div></section>`;
   }
 
-  const any = search || how || popular || faq;
-  if (!any) return { search, how, popular, faq, css: "", script: "" };
+  // «خدماتنا الرئيسية» (2026-10-29): قسم مستقل بمفتاح features.json → mainServices.home، يأتي بعد #advisor مباشرة.
+  let mainServices = "", msCss = "", msScript = "";
+  if (flags.mainServices === true) {
+    const m = buildMainServices({ esc, href, lang, where: "home" });
+    mainServices = m.html; msCss = m.css; msScript = m.script;
+  }
 
-  const css = `<style id="sv1-extras-css">
+  const any = search || how || popular || faq || mainServices;
+  if (!any) return { search, how, popular, faq, mainServices, css: "", script: "" };
+
+  const css = msCss + `<style id="sv1-extras-css">
 .sv1-vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .sv1-hx .sv1-title{text-align:center}
 .sv1-psearch{position:relative;max-width:660px;margin:0 auto;text-align:start}
@@ -223,5 +231,5 @@ Array.prototype.forEach.call(document.querySelectorAll('[data-pop]'),function(bt
  var a=document.createElement('a');a.className='sv1-btn sm';a.href=CART;a.textContent=TXC.cart;btn.parentNode.replaceChild(a,btn)}});` : ""}
 })();</script>`;
 
-  return { search, how, popular, faq, css, script };
+  return { search, how, popular, faq, mainServices, css, script: script + msScript };
 }
