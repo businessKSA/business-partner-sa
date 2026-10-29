@@ -4,6 +4,7 @@ HERE = os.path.dirname(os.path.abspath(__file__)); os.chdir(HERE)
 BD = sys.argv[1]            # saved HTML of the BD artifact (design standard)
 OUTDIR = sys.argv[2]
 esc = lambda s: html.escape(s, quote=False)
+PHONE = os.environ.get('BP_PHONE', '[●]')   # mobile: placeholder in the repo; real number only in the private final build
 
 # ---- content: final S after gen_prop content + lean_patch (no rendering)
 src = open('gen_prop.py', encoding='utf8').read()
@@ -38,7 +39,7 @@ EXTRA = '''
 STYLE = css + EXTRA + '@page{size:1123px 794px;margin:0}.sheet{break-after:page;page-break-after:always}body{background:#fff}'
 
 FOOT = lambda n, N: ('<div class="ft"><div class="a">National Address: RDAA9214<br>9214 King Khaled Branch Rd, Al Asemah<br>Ad Diriyah 13714, Saudi Arabia</div>'
-    f'<div class="c">0530540231<br>business@businesspartner.sa<br>www.businesspartner.sa<br><span class="m">{n} / {N}</span></div>'
+    f'<div class="c">{PHONE}<br>business@businesspartner.sa<br>www.businesspartner.sa<br><span class="m">{n} / {N}</span></div>'
     '<div class="w"><span class="logo" role="img" aria-label="Business Partner"></span></div></div>')
 HD = ('<div class="hd2"><span class="logo" role="img" aria-label="Business Partner"></span>'
       '<div class="t e"><h1>Proposal: EOR and Employee Transfer</h1></div>'
@@ -178,6 +179,7 @@ if len(sys.argv) > 3:
     ff = g2['ff']
 gf = '' if ff else '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans+Arabic:wght@400;700&family=Playfair+Display:wght@700&display=swap">'
 doc = f'<!doctype html><html lang="ar"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>عرض سعر نظام التعاقد ونقل الخدمات</title>{gf}<style>{ff}{STYLE}</style></head><body>{body}</body></html>'
+doc = doc.replace('0530540231', PHONE)
 os.makedirs(OUTDIR, exist_ok=True)
 open(os.path.join(OUTDIR, 'proposal-bd.html'), 'w', encoding='utf8').write(doc)
 print('pages', total)
