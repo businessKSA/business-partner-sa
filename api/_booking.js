@@ -5,10 +5,11 @@
 // يعرف أحدهما ساعاتٍ أو أياماً لا يعرفها الآخر — هذا ما جعل نصّ /my يقول
 // «الأحد–الخميس» والخادم يقبل السبت.
 //
-// القرار (المالك 2026-10-16): الجلسات من ١٥:٠٠ إلى ٢٢:٠٠ بتوقيت الرياض، بالفيديو
-// عبر Google Meet، مجانية. المتغيّرات تتجاوز القيم دون تعديل شيفرة:
-//   BOOKING_START      بداية الجلسات: «15» أو «15:30»            (الافتراضي 15:00)
-//   BOOKING_END        نهاية آخر جلسة: «22» أو «22:00»           (الافتراضي 22:00)
+// القرار (المالك 2026-10-29، عبر بدر): الجلسات يومياً من ١٣:٠٠ (١ ظهراً) إلى ٢١:٠٠ (٩ مساءً)
+// بتوقيت الرياض عدا الجمعة، بالفيديو عبر Google Meet، مجانية؛ آخر جلسة تبدأ ٢٠:٣٠.
+// (كانت ١٥:٠٠–٢٢:٠٠ بقرار 2026-10-16.) المتغيّرات تتجاوز القيم دون تعديل شيفرة:
+//   BOOKING_START      بداية الجلسات: «13» أو «13:30»            (الافتراضي 13:00)
+//   BOOKING_END        نهاية آخر جلسة: «21» أو «21:00»           (الافتراضي 21:00)
 //   BOOKING_SLOT_MIN   مدة الجلسة بالدقائق                         (الافتراضي 30)
 //   BOOKING_DAYS       كم يوماً يُعرض للأمام                       (الافتراضي 21)
 //   BOOKING_LEAD_MIN   أقل مهلة بين الآن وبداية الجلسة بالدقائق   (الافتراضي 60)
@@ -35,8 +36,8 @@ const posInt = (v, d, lo, hi) => { const n = Math.floor(Number(v)); return Numbe
 
 /** الإعداد الفعلي — يُقرأ عند كل نداء كي لا تحتاج الاختبارات إعادة تحميل الوحدة. */
 export function bookingConfig() {
-  const fromMin = parseClock(process.env.BOOKING_START, 15 * 60);
-  let toMin = parseClock(process.env.BOOKING_END, 22 * 60);
+  const fromMin = parseClock(process.env.BOOKING_START, 13 * 60);
+  let toMin = parseClock(process.env.BOOKING_END, 21 * 60);
   const slotMin = posInt(process.env.BOOKING_SLOT_MIN, 30, 10, 240);
   if (toMin <= fromMin) toMin = Math.min(1440, fromMin + slotMin);
   const off = String(process.env.BOOKING_OFF_DAYS == null || process.env.BOOKING_OFF_DAYS === "" ? "5" : process.env.BOOKING_OFF_DAYS)

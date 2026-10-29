@@ -34,7 +34,7 @@ for (const lang of Object.keys(PRE)) {
     assert.ok(book.includes("/api/book?action=slots"), "تقرأ الفترات من الخادم");
     assert.ok(/META\.hours/.test(book) && /offDays/.test(book) && /slotMinutes/.test(book), "تعرض hours/offDays/slotMinutes من الرد");
     assert.ok(/id="bkFactHours"/.test(book) && /id="bkFactMin"/.test(book), "مواضع الساعات والمدة");
-    assert.equal(/\b15:00\b|\b22:00\b|\b21:30\b/.test(book), false, "لا ساعةٌ مكتوبة في الصفحة");
+    assert.equal(/\b15:00\b|\b22:00\b|\b21:30\b|\b13:00\b|\b21:00\b|\b20:30\b/.test(book), false, "لا ساعةٌ مكتوبة في الصفحة");
     assert.equal(/الأحد إلى الخميس|Sunday to Thursday/.test(book), false, "لا أيامَ مكتوبة");
   });
 
@@ -66,7 +66,7 @@ for (const lang of Object.keys(PRE)) {
     assert.equal(/الأحد إلى الخميس|Sunday to Thursday|du dimanche au jeudi|周日至周四/i.test(t.apptNote), false);
     assert.ok(/function slotPicker\(\)/.test(my) && my.includes("/api/book?action=slots"), "الفترات من الخادم");
     assert.equal(/type:'time'/.test(my), false, "لا حقل وقتٍ حرّ يقبل أي ساعة");
-    assert.equal(/\b15:00\b|\b22:00\b/.test(t.apptHours), false);
+    assert.equal(/\b15:00\b|\b22:00\b|\b13:00\b|\b21:00\b/.test(t.apptHours), false);
     assert.ok(/apptErr\(o\)/.test(my) && /'out_of_hours'/.test(my) && /'friday'/.test(my) && /'off_day'/.test(my));
   });
 }
