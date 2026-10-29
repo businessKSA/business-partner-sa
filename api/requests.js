@@ -1736,6 +1736,33 @@ function anaPath(p) {
   if (s.length > 1 && s.endsWith("/")) s = s.slice(0, -1);
   return s.slice(0, 120);
 }
+// زيارات الفريق والمالك لا تُحسب زواراً. المعيار الوحيد المأمون هنا: الزائر الذي
+// فتح صفحة لوحة واحدة (من هذه القائمة) في المدة يُحذف كل ما له، وصفحات اللوحات نفسها
+// تُحذف مهما كان زائرها. لا نخمّن بالجهاز ولا بالعنوان. وهذا يعني صراحةً أن زيارة
+// المالك من متصفحٍ لم يفتح فيه لوحةً قط تبقى محسوبة — والرد يذكر ذلك.
+// «/dashboard» ليس في القائمة عمداً: على مضيف التوظيف (hr.) هو لوحة أصحاب العمل الحقيقيين
+// ومساره في page_hits بلا مضيف، فحذفه قد يمحو عملاء.
+const ANA_PANEL_PATHS = ["/ops", "/admin", "/monitor", "/inbox", "/suppliers-admin", "/agencies-admin", "/jobsearch-admin", "/doc-agent-admin"];
+function anaIsPanelPath(p) {
+  const s = anaPath(p);
+  return ANA_PANEL_PATHS.some((x) => s === x || s.startsWith(x + "/"));
+}
+function anaDropStaff(rows) {
+  const staff = new Set();
+  for (const r of rows) if (r.visitor && anaIsPanelPath(r.path)) staff.add(r.visitor);
+  const keep = [];
+  const dropVisitors = new Set();
+  let dropped = 0;
+  for (const r of rows) {
+    if (anaIsPanelPath(r.path) || (r.visitor && staff.has(r.visitor))) {
+      dropped++;
+      if (r.visitor) dropVisitors.add(r.visitor);
+      continue;
+    }
+    keep.push(r);
+  }
+  return { rows: keep, excluded: { rows: dropped, visitors: dropVisitors.size, panel_paths: ANA_PANEL_PATHS } };
+}
 function anaTotals(rows) {
   const vis = new Set();
   let views = 0, clicks = 0;
@@ -2245,7 +2272,9 @@ export default async function handler(req, res) {
         sb(`site_errors?select=at,path,message,source&at=gte.${new Date(curFrom).toISOString()}&order=at.desc&limit=200`).catch(() => []),
         sb(`requests?select=ref,status,source,payment,created_at&created_at=gte.${new Date(curFrom).toISOString()}&order=created_at.desc&limit=${ANA_REQ_LIMIT}`).catch(() => []),
       ]);
-      const rows = Array.isArray(hits) ? hits : [];
+      const rawRows = Array.isArray(hits) ? hits : [];
+      const dropped = anaDropStaff(rawRows);
+      const rows = dropped.rows;
       const errs = Array.isArray(errRows) ? errRows : [];
       const cur = [], prev = [];
       for (const r of rows) {
@@ -2257,7 +2286,7 @@ export default async function handler(req, res) {
       const curViews = cur.filter((r) => r.kind === "view");
       const curClicks = cur.filter((r) => r.kind === "click");
       const journeys = anaJourneys(curViews, 40);
-      const oldest = rows.length ? rows[rows.length - 1].at : null;
+      const oldest = rawRows.length ? rawRows[rawRows.length - 1].at : null;
       res.statusCode = 200;
       return res.end(JSON.stringify({
         ok: true,
@@ -2280,7 +2309,8 @@ export default async function handler(req, res) {
         journeysTotal: journeys.total,
         errorList: errs.slice(0, 20),
         requests: anaRequests(reqRows),
-        coverage: { rows: rows.length, capped: rows.length >= ANA_CAP, oldest },
+        coverage: { rows: rawRows.length, capped: rawRows.length >= ANA_CAP, oldest },
+        excluded: dropped.excluded,
         sources: ANA_SOURCES,
       }));
     } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
