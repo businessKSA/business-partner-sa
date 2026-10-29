@@ -615,7 +615,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>
 (function(){
-var TX={"busy":"Preparing your quotation…","login":"We will take you to sign in, then continue the quotation automatically.","err":"We could not create the request right now. Please try again, or book a consultation.","done":"Ready — opening your quotation…","pricing":"Request received. This package is priced to your case; our team is preparing the quotation and will update you inside your account.","title":"Business development package request","summary":"Direct quotation request for a package from the Business Development as a Service page.","scope":"Monthly scope of work: 1) ideal customer and target accounts 2) outreach and booking meetings 3) qualifying opportunities and building the pipeline 4) preparing proposals and supporting negotiation 5) finding partners, suppliers and channels 6) measurement reports and collection follow-up. No number of deals is guaranteed.","docs":["Description of the business, its products and services","Target customers, sectors and cities","Logo and company profile (if any)"]},LANG="fr",PORTAL="/fr/my",PAGE="/fr/business-development";
+var TX={"busy":"Preparing your quotation…","login":"We will take you to sign in, then continue the quotation automatically.","err":"We could not create the request right now. Please try again, or book a consultation.","done":"Ready — opening your quotation…","pricing":"Request received. This package is priced to your case; our team is preparing the quotation and will update you inside your account.","profile":"Request received. Complete your full name and mobile number in your account so we can issue the quotation…","title":"Business development package request","summary":"Direct quotation request for a package from the Business Development as a Service page.","scope":"Monthly scope of work: 1) ideal customer and target accounts 2) outreach and booking meetings 3) qualifying opportunities and building the pipeline 4) preparing proposals and supporting negotiation 5) finding partners, suppliers and channels 6) measurement reports and collection follow-up. No number of deals is guaranteed.","docs":["Description of the business, its products and services","Target customers, sectors and cities","Logo and company profile (if any)"]},LANG="fr",PORTAL="/fr/my",PAGE="/fr/business-development";
 var $=function(id){return document.getElementById(id)};
 var msg=$('bdMsg'),busy=false;
 function say(m,err){if(!msg)return;msg.textContent=m;msg.className='sv1-bd-msg on'+(err?' err':'')}
@@ -642,6 +642,8 @@ function buy(code,name,btn){
    if(!r.o||!r.o.ok||!r.o.ref)throw new Error('create');
    var ref=r.o.ref;
    return post({action:'scope-confirm',ref:ref,scope:r.scope}).then(function(c){
+    // أزور تشترط اسماً كاملاً وجوالاً قبل العرض: الطلب أُنشئ، والحساب يُكمل الملف ثم يعتمد النطاق.
+    if(c&&c.error==='profile_required'){say(TX.profile,false);setTimeout(function(){location.href=PORTAL+'?ref='+encodeURIComponent(ref)},1800);return}
     if(!c||!c.ok)throw new Error('scope');
     say(c.stage==='QUOTE'?TX.done:TX.pricing,false);
     try{sessionStorage.removeItem('bd_pending')}catch(e){}

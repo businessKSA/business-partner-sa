@@ -615,7 +615,7 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
  send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
 })();</script><script>
 (function(){
-var TX={"busy":"نُجهّز عرض السعر…","login":"سنحوّلك لتسجيل الدخول ثم نُكمل عرض السعر تلقائياً.","err":"تعذّر إنشاء الطلب الآن. حاول مرة أخرى، أو احجز استشارة.","done":"جاهز — نفتح لك العرض…","pricing":"استلمنا طلبك. هذه الباقة تُسعَّر حسب حالتك، وفريقنا يجهّز عرض السعر وسنُبلغك داخل حسابك.","title":"طلب باقة تطوير الأعمال","summary":"طلب عرض سعر مباشر لباقة من صفحة تطوير الأعمال كخدمة.","scope":"نطاق العمل الشهري: ١) تحديد العميل المثالي والحسابات المستهدفة ٢) التواصل وحجز الاجتماعات ٣) تأهيل الفرص وبناء المسار ٤) تجهيز العروض ومساندة التفاوض ٥) البحث عن الشركاء والموردين والقنوات ٦) تقارير القياس ومتابعة التحصيل. لا ضمان لعدد صفقات.","docs":["وصف المنشأة ومنتجاتها وخدماتها","العميل المستهدف والقطاعات والمدن المطلوبة","الشعار وملف تعريفي بالمنشأة (إن وُجد)"]},LANG="ar",PORTAL="/ar/my",PAGE="/ar/business-development";
+var TX={"busy":"نُجهّز عرض السعر…","login":"سنحوّلك لتسجيل الدخول ثم نُكمل عرض السعر تلقائياً.","err":"تعذّر إنشاء الطلب الآن. حاول مرة أخرى، أو احجز استشارة.","done":"جاهز — نفتح لك العرض…","pricing":"استلمنا طلبك. هذه الباقة تُسعَّر حسب حالتك، وفريقنا يجهّز عرض السعر وسنُبلغك داخل حسابك.","profile":"استلمنا طلبك. أكمل اسمك الكامل ورقم جوالك في حسابك لنُصدر عرض السعر…","title":"طلب باقة تطوير الأعمال","summary":"طلب عرض سعر مباشر لباقة من صفحة تطوير الأعمال كخدمة.","scope":"نطاق العمل الشهري: ١) تحديد العميل المثالي والحسابات المستهدفة ٢) التواصل وحجز الاجتماعات ٣) تأهيل الفرص وبناء المسار ٤) تجهيز العروض ومساندة التفاوض ٥) البحث عن الشركاء والموردين والقنوات ٦) تقارير القياس ومتابعة التحصيل. لا ضمان لعدد صفقات.","docs":["وصف المنشأة ومنتجاتها وخدماتها","العميل المستهدف والقطاعات والمدن المطلوبة","الشعار وملف تعريفي بالمنشأة (إن وُجد)"]},LANG="ar",PORTAL="/ar/my",PAGE="/ar/business-development";
 var $=function(id){return document.getElementById(id)};
 var msg=$('bdMsg'),busy=false;
 function say(m,err){if(!msg)return;msg.textContent=m;msg.className='sv1-bd-msg on'+(err?' err':'')}
@@ -642,6 +642,8 @@ function buy(code,name,btn){
    if(!r.o||!r.o.ok||!r.o.ref)throw new Error('create');
    var ref=r.o.ref;
    return post({action:'scope-confirm',ref:ref,scope:r.scope}).then(function(c){
+    // أزور تشترط اسماً كاملاً وجوالاً قبل العرض: الطلب أُنشئ، والحساب يُكمل الملف ثم يعتمد النطاق.
+    if(c&&c.error==='profile_required'){say(TX.profile,false);setTimeout(function(){location.href=PORTAL+'?ref='+encodeURIComponent(ref)},1800);return}
     if(!c||!c.ok)throw new Error('scope');
     say(c.stage==='QUOTE'?TX.done:TX.pricing,false);
     try{sessionStorage.removeItem('bd_pending')}catch(e){}

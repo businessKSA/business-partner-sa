@@ -163,6 +163,7 @@ const T = {
   buyLogin: { ar: "سنحوّلك لتسجيل الدخول ثم نُكمل عرض السعر تلقائياً.", en: "We will take you to sign in, then continue the quotation automatically." },
   buyErr: { ar: "تعذّر إنشاء الطلب الآن. حاول مرة أخرى، أو احجز استشارة.", en: "We could not create the request right now. Please try again, or book a consultation." },
   buyDone: { ar: "جاهز — نفتح لك العرض…", en: "Ready — opening your quotation…" },
+  buyProfile: { ar: "استلمنا طلبك. أكمل اسمك الكامل ورقم جوالك في حسابك لنُصدر عرض السعر…", en: "Request received. Complete your full name and mobile number in your account so we can issue the quotation…" },
   buyPricing: { ar: "استلمنا طلبك. هذه الباقة تُسعَّر حسب حالتك، وفريقنا يجهّز عرض السعر وسنُبلغك داخل حسابك.", en: "Request received. This package is priced to your case; our team is preparing the quotation and will update you inside your account." },
   reqTitle: { ar: "طلب باقة تطوير الأعمال", en: "Business development package request" },
   reqSummary: { ar: "طلب عرض سعر مباشر لباقة من صفحة تطوير الأعمال كخدمة.", en: "Direct quotation request for a package from the Business Development as a Service page." },
@@ -361,7 +362,7 @@ ${SV1.footer()}`;
 
   // ---- الشراء المباشر: طلب ← نطاق ← عرض سعر (كله بإجراءات /api/simple القائمة).
   const TX = {
-    busy: t("buyBusy"), login: t("buyLogin"), err: t("buyErr"), done: t("buyDone"), pricing: t("buyPricing"),
+    busy: t("buyBusy"), login: t("buyLogin"), err: t("buyErr"), done: t("buyDone"), pricing: t("buyPricing"), profile: t("buyProfile"),
     title: t("reqTitle"), summary: t("reqSummary"), scope: t("scopeLine"), docs: tl("docs"),
   };
   const script = `<script>
@@ -393,6 +394,8 @@ function buy(code,name,btn){
    if(!r.o||!r.o.ok||!r.o.ref)throw new Error('create');
    var ref=r.o.ref;
    return post({action:'scope-confirm',ref:ref,scope:r.scope}).then(function(c){
+    // أزور تشترط اسماً كاملاً وجوالاً قبل العرض: الطلب أُنشئ، والحساب يُكمل الملف ثم يعتمد النطاق.
+    if(c&&c.error==='profile_required'){say(TX.profile,false);setTimeout(function(){location.href=PORTAL+'?ref='+encodeURIComponent(ref)},1800);return}
     if(!c||!c.ok)throw new Error('scope');
     say(c.stage==='QUOTE'?TX.done:TX.pricing,false);
     try{sessionStorage.removeItem('bd_pending')}catch(e){}
