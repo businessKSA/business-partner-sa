@@ -2,7 +2,7 @@
 // على قاعدة محلية مؤقتة وبلا شبكة:
 //   ١) اعتماد النطاق (أو الإنشاء بعرض فوري) يصدر العرض فوراً بالقالب v3 ويخزّن لقطة ما تحتاجه الورقة.
 //   ٢) الرابط العام الموقَّع: قراءة فقط، مقيَّد برقم العرض، يموت بالتجديد والإلغاء والانتهاء، 404 موحّد، ومفتاح إيقاف.
-//   ٣) باقات REV: لا تصدر آلياً (اشتراك شهري)؛ يصدرها إنسان وتحمل صفحات الباقات من الكتالوج.
+//   ٣) باقات REV: تصدر آلياً بسعر الكتالوج الشهري (استثناء تطوير الأعمال)، ويصدرها الفريق بيده أيضاً، وتحمل صفحات الباقات من الكتالوج.
 //   ٤) الملحق يُعرض بورقته، والعقد وNDA لم يتغيّرا (ما زالا v2)، والعرض القديم يبقى بورقته.
 //   ٥) مفاتيح الإيقاف: BP_DOCS_QUOTE_TEMPLATE=v2 و BP_DOCS_TEMPLATE=v1 والفرنسية/الصينية.
 import os from "node:os";
@@ -174,19 +174,26 @@ test("الرابط العام: حدّ سرعة لكل عنوان (٣٠ فتحة 
   _resetQuoteLinkThrottle();
 });
 
-test("باقة REV: لا تصدر آلياً (اشتراك شهري) فتنتظر إنساناً كما اليوم؛ وحين يصدرها يحمل العرض صفحات الباقات من سعر الكتالوج", async () => {
+test("باقة REV (تطوير الأعمال): تصدر آلياً بسعر الكتالوج الشهري (استثناء المالك 2026-10-29) وتحمل صفحات الباقات؛ وبلا سعر في الكتالوج تنتظر إنساناً", async () => {
   const ref = await create([{ code: "REV-GROWTH", title: "تطوير الأعمال — باقة النمو", qty: 1 }], { auto_quote: false });
   const c = await call("scope-confirm", { ref, scope: [{ code: "REV-GROWTH", title: "تطوير الأعمال — باقة النمو", qty: 1 }] });
-  assert.equal(c.ok, true); assert.equal(c.stage, "PRICING", "ما سعره اشتراك شهري يبقى على التسعير البشري");
-  assert.equal((await rowOf(ref)).quote, undefined);
-  const q = await ops("ops-quote", { ref, items: [{ code: "REV-GROWTH", price: 5000, qty: 3 }], confirm_prices: true });
-  assert.equal(q.ok, true, JSON.stringify(q));
+  assert.equal(c.ok, true); assert.equal(c.stage, "QUOTE", "باقة REV بسعر ثابت في الكتالوج تصدر آلياً"); assert.equal(c.auto, true);
   const row = await rowOf(ref);
-  assert.equal(row.quote.template_version, "v3"); assert.equal(row.quote.net, 15000); assert.equal(row.quote.total, 17250);
+  assert.equal(row.quote.template_version, "v3"); assert.equal(row.quote.net, 5000); assert.equal(row.quote.total, 5750);
   assert.equal(row.quote.doc.rev.selected, "REV-GROWTH");
   assert.deepEqual(row.quote.doc.rev.packages.map((p) => p.monthly), [2500, 5000, 9500]);
   const html = (await call("quote-view", { ref })).html;
-  for (const x of ["Revenue model (hybrid)", "نموذج الإيراد (هجين)", "Business Development as a Service", "17,250.00", "Qualified leads per month"]) assert.ok(html.includes(x), x);
+  for (const x of ["Revenue model (hybrid)", "نموذج الإيراد (هجين)", "Business Development as a Service", "5,750.00", "Qualified leads per month"]) assert.ok(html.includes(x), x);
+  // الفريق ما زال يستطيع إصدارها بيده بكمية أخرى (طلب آخر لم يُعتمد نطاقه آلياً)
+  const ref2 = await create([{ code: "REV-GROWTH", title: "تطوير الأعمال — باقة النمو", qty: 1 }], { auto_quote: false });
+  const q = await ops("ops-quote", { ref: ref2, items: [{ code: "REV-GROWTH", price: 5000, qty: 3 }], confirm_prices: true });
+  assert.equal(q.ok, true, JSON.stringify(q));
+  const row2 = await rowOf(ref2);
+  assert.equal(row2.quote.net, 15000); assert.equal(row2.quote.total, 17250);
+  // باقة بلا سعر في الكتالوج (REV-START): لا عرض ولا سعر مخترع
+  const ref3 = await create([{ code: "REV-START", title: "تطوير الأعمال — باقة البداية", qty: 1 }], { auto_quote: false });
+  const c3 = await call("scope-confirm", { ref: ref3, scope: [{ code: "REV-START", title: "تطوير الأعمال — باقة البداية", qty: 1 }] });
+  assert.equal(c3.stage, "PRICING"); assert.equal((await rowOf(ref3)).quote, undefined);
 });
 
 test("ملحق العرض يُعرض بورقته: برقمه، ويسمّي العرض الأصلي، ولا يُغيّر العرض الأصلي ولا عقده", async () => {

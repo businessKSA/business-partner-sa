@@ -35,13 +35,13 @@ const book = P.buildPriceBook(catalog);
 
 // ───────────────────────────── ١) دفتر الأسعار ─────────────────────────────
 
-test("الكتالوج: ١٩٥ خدمة بتسعة تصنيفات و١١ باقة و٤ باقات ذكاء — وكلها في الدفتر", () => {
-  assert.equal(catalog.services.length, 195);
+test("الكتالوج: ٢٠١ خدمة (منها ٦ باقات تطوير الأعمال REV-*) بتسعة تصنيفات و١٧ باقة في catalog.json (١١ في الدفتر + ٦ REV مكرّرة خدمةً) و٤ باقات ذكاء — وكلها في الدفتر", () => {
+  assert.equal(catalog.services.length, 201);
   assert.equal(new Set(catalog.services.map((s) => s.category)).size, 9);
-  assert.equal(catalog.packages.length, 11);
+  assert.equal(catalog.packages.length, 17);
   assert.equal(catalog.aiPlans.length, 4);
   const svc = book.list.filter((e) => e.kind === "service");
-  assert.equal(svc.length, 195);
+  assert.equal(svc.length, 201);
   assert.equal(book.list.filter((e) => e.kind === "package").length, 11);
   assert.equal(book.list.filter((e) => e.kind === "ai-plan").length, 4);
   assert.equal(book.list.filter((e) => e.kind === "trip").length, catalog.trips.length);
@@ -70,7 +70,7 @@ test("تقسيم الحالات يطابق بيانات الكتالوج: ١٧٤
   const svc = book.list.filter((e) => e.kind === "service");
   const fixed = svc.filter((e) => e.status === "fixed");
   const quote = svc.filter((e) => e.status === "quote");
-  assert.equal(fixed.length + quote.length, 195);
+  assert.equal(fixed.length + quote.length, 201);
   assert.equal(svc.filter((e) => e.status === "unavailable").length, 0);
   // المستقل: مبلغٌ موجب ونموذجه ليس «يبدأ من».
   const expectFixed = catalog.services.filter((s) => s.amount > 0 && s.pricingModel !== "Starting From").length;
@@ -155,7 +155,7 @@ test("جدول الملحق: صفوف الخدمات الثابتة تحمل ر�
     if (e.status === "quote" && e.amount == null) assert.doesNotMatch(e.priceTextAr, /\d/, e.sku + " رقمٌ في خدمة بلا مبلغ");
   }
   const rows = P.annexRows(book);
-  assert.equal(rows.length, 195 + 11 + 4);
+  assert.equal(rows.length, 201 + 11 + 4);
 });
 
 test("جدول بلا سعر ثابت لوكيل التسعير: كل خدمة بلا مبلغ في الكتالوج مدرجة بسببها", () => {
@@ -165,8 +165,8 @@ test("جدول بلا سعر ثابت لوكيل التسعير: كل خدمة �
   for (const r of t) { assert.ok(r.reasonAr, r.sku); assert.ok(["quote", "unavailable"].includes(r.status)); }
   assert.ok(!t.some((r) => r.sku === "BP-CHAMBER-01"), "ثابتة لا تُدرج");
   const st = P.priceStats(book);
-  assert.equal(st.total, 210);
-  assert.equal(st.fixed + st.quote + st.unavailable, 210);
+  assert.equal(st.total, 216);
+  assert.equal(st.fixed + st.quote + st.unavailable, 216);
 });
 
 // ───────────────────── ٣) لا سطر بسعر صفر في عرضٍ صادر ─────────────────────
@@ -350,7 +350,7 @@ test("/catalog: كل سعر خدمة يُرسَم بصنف price-amt (يخفيه
   try {
     const { els } = runCatalog(buildSimpleCatalog(SV1, mkCtx("ar")));
     const rows = els.get("svcList").querySelectorAll("sv1-pick");
-    assert.equal(rows.length, 195, "كل الخدمات مرسومة");
+    assert.equal(rows.length, 201, "كل الخدمات مرسومة");
     const prices = priceNodesOf(els, "sv1-pick-price");
     const expected = catalog.services.filter((s) => s.amount > 0 && !["Real Estate", "Tourism"].includes(s.category));
     assert.equal(prices.length, expected.length, "سعرٌ لكل خدمة لها مبلغ");
@@ -373,7 +373,7 @@ test("/catalog: الباقات — سعر بصنف price-amt و«يبدأ من»
   try {
     const { els } = runCatalog(buildSimpleCatalog(SV1, mkCtx("ar")));
     const cards = els.get("pkgList").querySelectorAll("sv1-pkg");
-    assert.equal(cards.length, 11);
+    assert.equal(cards.length, 17);
     const byName = Object.fromEntries(cards.map((c) => [c.children[0].textContent, c]));
     const foreign = byName["باقة تأسيس الشركات الأجنبية"];
     const amt = foreign.querySelectorAll("amt")[0];
@@ -484,14 +484,14 @@ test("٤) /catalog الإنجليزي: عناوين المجموعات بلا ه
   }
 });
 
-test("٥) شارة العدد بحسب اللغة: «195 خدمة · 11 باقة» و«195 services · 11 packages»", () => {
+test("٥) شارة العدد بحسب اللغة: «201 خدمة · 17 باقة» و«201 services · 17 packages»", () => {
   const prev = process.cwd(); process.chdir(ROOT);
   try {
     const tag = (lang) => /<span class="sv1-tag">([^<]+)<\/span>/.exec(String(buildSimpleCatalog(SV1, mkCtx(lang)).body))[1];
-    assert.equal(tag("ar"), "195 خدمة · 11 باقة");
-    assert.equal(tag("en"), "195 services · 11 packages");
-    assert.match(tag("fr"), /^195 services · 11 forfaits$/);
-    assert.match(tag("zh"), /^195 项服务 · 11 个套餐$/);
+    assert.equal(tag("ar"), "201 خدمة · 17 باقة");
+    assert.equal(tag("en"), "201 services · 17 packages");
+    assert.match(tag("fr"), /^201 services · 17 forfaits$/);
+    assert.match(tag("zh"), /^201 项服务 · 17 个套餐$/);
     assert.doesNotMatch(tag("ar"), /الباقات/);
     assert.doesNotMatch(tag("en"), /Packages/);
   } finally { process.chdir(prev); }

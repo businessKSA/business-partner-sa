@@ -39,6 +39,8 @@
 // ترتيب الباقات ثابت هنا (الست المعتمدة) ويُقرأ كلٌّ منها من الكتالوج؛ باقة غير
 // موجودة في services.json لا تُعرض، فإن أُخفيت REV-* مركزياً سقطت بطاقاتها وحدها.
 
+import { BD_SCOPE } from "../../api/_bd-scope.js";
+
 const ORDER = ["REV-START", "REV-LAUNCH", "REV-GROWTH", "REV-PRO", "REV-TEAM", "REV-ENT"];
 
 const T = {
@@ -152,10 +154,7 @@ const T = {
   // ما يُكتب في عرض السعر تحت اسم الباقة («ما سنعمل عليه»). نصٌّ واحد لكل الباقات
   // — الفروق بينها (حجم الفريق ومن يُغلق) تُكتب في العرض بعد التسعير — وهو أقل
   // من 400 حرفٍ لأن الخادم يقصّ وصف البند عندها (normScope: why ≤ 400).
-  scopeLine: {
-    ar: "نطاق العمل الشهري: ١) تحديد العميل المثالي والحسابات المستهدفة ٢) التواصل وحجز الاجتماعات ٣) تأهيل الفرص وبناء المسار ٤) تجهيز العروض ومساندة التفاوض ٥) البحث عن الشركاء والموردين والقنوات ٦) تقارير القياس ومتابعة التحصيل. لا ضمان لعدد صفقات.",
-    en: "Monthly scope of work: 1) ideal customer and target accounts 2) outreach and booking meetings 3) qualifying opportunities and building the pipeline 4) preparing proposals and supporting negotiation 5) finding partners, suppliers and channels 6) measurement reports and collection follow-up. No number of deals is guaranteed.",
-  },
+  scopeLine: BD_SCOPE,
   docs: {
     ar: ["وصف المنشأة ومنتجاتها وخدماتها", "العميل المستهدف والقطاعات والمدن المطلوبة", "الشعار وملف تعريفي بالمنشأة (إن وُجد)"],
     en: ["Description of the business, its products and services", "Target customers, sectors and cities", "Logo and company profile (if any)"],

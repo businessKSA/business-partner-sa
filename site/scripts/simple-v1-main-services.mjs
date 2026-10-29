@@ -15,8 +15,8 @@
 //     أو من صفحة الخدمة نفسها.
 //   • «المستشار الذكي» لا «الوكيل». لا واتساب في المحتوى. الاسم «Business Partner».
 //   • المخالفات: مراجعة / دراسة أهلية الاعتراض / تجهيز / تقديم / متابعة — لا وعد بالإلغاء.
-//   • تطوير الأعمال صفحته مخفية في site/data/hidden.json: بطاقته تظهر بلا روابط إلى صفحة
-//     مخفية (زر المستشار وحده + وسم «قريباً») إلى أن يرفع المالك الإخفاء.
+//   • تطوير الأعمال: بعد رفع إخفاء صفحته (hidden.json) تعرض بطاقته الأزرار الأربعة تلقائياً؛ وإن أُعيد إخفاؤها
+//     عادت بزر المستشار وحده + وسم «قريباً».
 //
 // لا يمسّ هذا الملف المحادثة ولا أبوابها: زر «اسأل المستشار» ينقر الباب الموجود أصلاً
 // (#door-consulting / #door-formation / #door-government) فتعمل آلية الرئيسية كما هي.
@@ -163,7 +163,7 @@ const SERVICES = {
     ],
     ask: { door: "bizdev", fallbackDoor: "consulting", seed: "seedBizdev" },
     details: "/business-development",
-    plans: "/business-development#pricing",
+    plans: "/business-development#packages",
     start: "/business-development",
     page: "business-development",
   },

@@ -123,7 +123,8 @@ for (const [lang, file] of Object.entries(HOMES)) {
     assert.ok(hrefs.length > 10);
     for (const h of hrefs) assert.equal(isHiddenHref(h), false, `رابط مخفي: ${h}`);
     assert.ok(!html.includes('data-door="bizdev"'));
-    assert.ok(!/business-development/.test(main));
+    // رابط تطوير الأعمال لا يظهر إلا في بطاقتها بقسم «خدماتنا الرئيسية» (حين تكون صفحتها ظاهرة)، لا في الإضافات ولا بباب.
+    assert.ok(!/business-development/.test(main.replace(/<article class="msv-card"[\s\S]*?<\/article>/g, "")));
   });
 
   test(`الرئيسية ${lang}: وجهات الإضافات موجودة وبتصميم SV1`, () => {

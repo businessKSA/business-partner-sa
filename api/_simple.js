@@ -25,6 +25,7 @@ import { templateForVersion, templateForLang, templateForQuoteLang } from "./_bp
 import { quoteDocSnapshot, quoteDocInput, quotePublicUrl, quoteLinkOk, quoteLinkThrottle } from "./_quote-doc.js";
 import { loadCatalog, normalizeText } from "./_catalog.js";
 import { isSeedTitle } from "./_scope-seeds.js";
+import { BD_SCOPE, BD_SKU } from "./_bd-scope.js";
 import { loadPriceBook, resolveSku, referencePrice } from "./_catalog-prices.js";
 import { daftraConfigured } from "./_daftra.js";
 import { issuePaidInvoice, reportInvoiceBlocked, invoiceIsComplete, invoiceRetryDue, publicInvoice } from "./_invoicing.js";
@@ -3735,11 +3736,16 @@ async function priceItems(items, { catalogueText = false } = {}) {
     // His words travel apart, as a short note (`clientNote`).
     const own = catalogueText && svc;
     const catName = svc ? str(svc.nameAr || svc.name, 200) : "";
-    const typed = [it.title, it.why || it.description].map((x) => str(x, 400).replace(/\s+/g, " ")).filter(Boolean);
+    // باقات تطوير الأعمال (REV-*): السطر يحمل «نطاق العمل الشهري» الذي أرسلته صفحة /business-development
+    // — لا وصف services.json (يذكر الرسوم والعمولات نصّاً) ولا ما كتبه العميل. يُقبل نصّ الصفحة حرفاً
+    // (api/_bd-scope.js) وإلا يحلّ نصّ النطاق المعتمد (عربي) محلّه.
+    const bdScope = own && BD_SKU.test(String(it.code || ""))
+      ? (Object.values(BD_SCOPE).includes(str(it.why || it.description, 400)) ? str(it.why || it.description, 400) : BD_SCOPE.ar) : "";
+    const typed = [it.title, it.why || it.description].map((x) => str(x, 400).replace(/\s+/g, " ")).filter((x) => x && x !== bdScope);
     const clientNote = own ? typed.filter((x) => x !== catName).join(" — ").slice(0, 160) : "";
     return { code: it.code, title: own ? catName : (it.title || (svc && (svc.nameAr || svc.name)) || ""),
       titleEn: str((svc && (svc.nameEn || svc.name)) || (own ? "" : it.titleEn) || "", 200),
-      description: own ? str(svc.descAr || svc.description, 600) : (it.description || it.why || ""), qty: it.qty || 1,
+      description: own ? (bdScope || str(svc.descAr || svc.description, 600)) : (it.description || it.why || ""), qty: it.qty || 1,
       price: it.price != null && it.price !== "" ? num(it.price) : catPrice,
       model: svc ? String(svc.pricingModel || "") : "", found: !!svc, clientNote, catPrice };
   });
@@ -3749,7 +3755,10 @@ async function priceItems(items, { catalogueText = false } = {}) {
 // quoting those automatically at the listed number put a binding figure on a
 // number that was never the price. They go to a person.
 const AUTO_PRICE_MODELS = new Set(["", "One Time", "Per Candidate"]);
-const needsHumanPrice = (l) => !(num(l.price) > 0) || !AUTO_PRICE_MODELS.has(String(l.model || ""));
+// باقات تطوير الأعمال (REV-*) استثناءٌ بقرار المالك 2026-10-29: اشتراكٌ شهري يصدر عرضه آلياً بسعر الكتالوج
+// ونطاق العمل مكتوب في السطر (والعرض يطبع أنه شهري)، فلا تنتظر إنساناً ما دام لها سعر ثابت في الكتالوج.
+const autoPriced = (l) => AUTO_PRICE_MODELS.has(String(l.model || "")) || (String(l.model || "") === "Monthly" && BD_SKU.test(String(l.code || "")));
+const needsHumanPrice = (l) => !(num(l.price) > 0) || !autoPriced(l);
 
 // ------------------------------------------------ why a line waits for a person --
 // The rule above says WHETHER a line needs a human; this says WHY, in words the

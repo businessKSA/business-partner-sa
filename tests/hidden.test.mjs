@@ -229,7 +229,7 @@ test("صفحة تطوير الأعمال: الباقات بالـSKU، لا سع
   assert.ok(!/عمولات|10%|2\.5%/.test(sku.replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/g, "")), "الوصف العام بلا عمولة");
   // الكتالوج: لا «أضف للسلة» لـREV-*
   const cat = b.page("ar/catalog.html");
-  const rev = /"code":"REV-LAUNCH"[^}]*?"buy":(null|\{)/.exec(cat);
+  const rev = /"code":"REV-LAUNCH"[\s\S]*?"buy":(null|\{)/.exec(cat);
   assert.ok(rev && rev[1] === "null", "REV-LAUNCH في /catalog بلا buy");
 });
 

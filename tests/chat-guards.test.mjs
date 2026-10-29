@@ -17,6 +17,8 @@ import { pickKnowledge } from "../api/_knowledge.js";
 
 const CATALOG = JSON.parse(readFileSync(new URL("../site/assets/data/catalog.json", import.meta.url), "utf8"));
 const SERVICES = CATALOG.services;
+// حالات «تطوير الأعمال مخفية» لا تُختبر إلا حين تكون صفحتها مخفية في site/data/hidden.json (يتبعه المستشار: api/chat.js).
+const BD_HIDDEN = (() => { try { return (JSON.parse(readFileSync(new URL("../site/data/hidden.json", import.meta.url), "utf8")).pages || []).includes("business-development"); } catch { return true; } })();
 const AZ = "https://bp-ai.openai.azure.com/openai/v1/chat/completions";
 const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
 const azureOk = (text) => json({ choices: [{ message: { content: text } }] });
@@ -388,7 +390,7 @@ test("BP-BS-01 (التسويق الرقمي والإعلان) موجود في ا
     const sys = f.az()[0].body.messages[0].content;
     assert.match(sys, /BP-BS-01/);
     assert.match(sys, /لا تنفِ خدمة موجودة/);
-    assert.match(sys, /خدمة تطوير الأعمال غير متاحة حالياً، ويسعدنا خدمتك/, "الصياغة الموحدة للباب الرابع المخفي");
+    if (BD_HIDDEN) assert.match(sys, /خدمة تطوير الأعمال غير متاحة حالياً، ويسعدنا خدمتك/, "الصياغة الموحدة للباب الرابع المخفي");
   } finally { f.restore(); }
 });
 
@@ -482,7 +484,7 @@ test("تعليمات الاستقبال: القواعد الجديدة موجو�
 
 const C14_REPLY = "نحن نقدّم خدمات تطوير الأعمال والاستشارات، ويمكننا مساعدتك بوضع خطة لتطوير المبيعات.\n\nهل تفضّل جلسة استشارية مباشرة؟\n<<OPTS>>[\"أرغب بجلسة\",\"تحليل مكتوب\"]<<END>>";
 
-test("سؤال عن «تطوير الأعمال» باسمها: الصيغة الموحّدة في الاستقبال والعامة، لا «نقدّمها» ولا باقات (C14 وX03 وX04)", async () => {
+test("سؤال عن «تطوير الأعمال» باسمها: الصيغة الموحّدة في الاستقبال والعامة، لا «نقدّمها» ولا باقات (C14 وX03 وX04)", { skip: !BD_HIDDEN && "تطوير الأعمال ظاهرة (hidden.json)" }, async () => {
   const f = stub(() => azureOk(C14_REPLY));
   try {
     const a = await ask({ mode: "intake", context: "consulting", lang: "ar", messages: [turn("user", "هل عندكم خدمة تطوير أعمال ومبيعات وتجيبون لي عملاء؟ وش اسمها وكم باقاتها؟")] });

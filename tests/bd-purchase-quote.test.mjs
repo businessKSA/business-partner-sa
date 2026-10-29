@@ -39,6 +39,9 @@ const svc = (code) => SERVICES.find((s) => s.code === code);
 const CLIENT = { email: "client@test.local", org: "2fcd5b83-144c-4434-be82-aac28b9e19c6", user: "7b2db20a-2404-41ce-b7af-8db1d3fabc95", token: "tok-client-bd-purchase-aaaaaa" };
 await sb("user_sessions", { method: "POST", prefer: "return=minimal", body: [{ id: crypto.randomUUID(), token_hash: sha256(CLIENT.token), user_id: CLIENT.user, organization_id: CLIENT.org, expires_at: new Date(Date.now() + 36e5).toISOString() }] });
 
+// أزور تشترط اسماً كاملاً وجوالاً في الملف الشخصي قبل إصدار العرض (profile_required): حساب الاختبار يكمل ملفه.
+await sb(`users?id=eq.${CLIENT.user}`, { method: "PATCH", prefer: "return=minimal", body: { full_name: "عميل الاختبار", phone: "+966501234500" } });
+
 async function call(action, body = {}) {
   const out = { status: 200, body: null };
   const res = { statusCode: 200, setHeader() {}, end(b) { out.status = this.statusCode; try { out.body = JSON.parse(b); } catch { out.body = b; } } };
@@ -91,7 +94,9 @@ test("باقة لها سعر: عرض سعر آلي من الكتالوج بال�
 
   const view = await call("quote-view", { ref });
   assert.equal(view.status, 200);
-  assert.ok(view.body.html.includes("نطاق العمل الشهري"), "مستند العرض يطبع النطاق تحت البند");
+  // ورقة العرض بالهوية الدائمة (v3) تطبع لباقات REV صفحات الباقة ونموذج الإيراد من الكتالوج (الورقة المعتمدة
+  // من فريق المبيعات) بدل سطر النطاق الحرّ؛ ونصّ النطاق يبقى في بند العرض المحفوظ (q.items[0].description أعلاه).
+  assert.ok(view.body.html.includes("Revenue model"), "ورقة العرض v3 تحمل صفحات باقة تطوير الأعمال");
 });
 
 test("باقة بلا سعر في الكتالوج: لا عرض ولا سعر مخترع — تسعير بشري", async () => {
@@ -137,7 +142,7 @@ test("السلسلة كاملة: عرض ← اعتماد ← عقد ← توقي
   const ap = await call("quote-approve", { ref });
   assert.equal(ap.body.status, "CONTRACT_SENT");
 
-  const sg = await call("contract-sign", { ref, consent: true, name: "عميل تجريبي" });
+  const sg = await call("contract-sign", { ref, consent: true, signature: "data:image/png;base64," + "A".repeat(200), name: "عميل تجريبي" });
   assert.equal(sg.body.status, "SIGNED");
   const pay = await call("pay-test", { ref, outcome: "success" });
   assert.equal(pay.body.status, "PAID");

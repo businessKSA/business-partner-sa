@@ -11,6 +11,8 @@ import path from "node:path";
 import crypto from "node:crypto";
 
 const DBDIR = fs.mkdtempSync(path.join(os.tmpdir(), "bp-advisor-prices-"));
+// حالات «تطوير الأعمال مخفية» لا تُختبر إلا حين تكون صفحتها مخفية في site/data/hidden.json (يتبعه المستشار: api/chat.js).
+const BD_HIDDEN = (() => { try { return (JSON.parse(fs.readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), "..", "site/data/hidden.json"), "utf8")).pages || []).includes("business-development"); } catch { return true; } })();
 const sha = (s) => crypto.createHash("sha256").update(s).digest("hex");
 const future = new Date(Date.now() + 86400000).toISOString();
 fs.writeFileSync(path.join(DBDIR, "db.json"), JSON.stringify({
@@ -217,7 +219,7 @@ test("وكيل n8n الاحتياطي: يُرسَل له قيد الأسعار �
 const BIZ_Q = [turn("user", "أبغى عملاء جدد ومبيعاتنا ضعيفة، تعرضون Revenue OS؟")];
 const REV = /REV-(?:START|LAUNCH|GROWTH|PRO|TEAM|ENT)/;
 
-test("تطوير الأعمال مخفية: المحادثة العامة لا تحمل قسمها ولا أكواده لا للضيف ولا للمسجّل", async () => {
+test("تطوير الأعمال مخفية: المحادثة العامة لا تحمل قسمها ولا أكواده لا للضيف ولا للمسجّل", { skip: !BD_HIDDEN && "تطوير الأعمال ظاهرة (hidden.json)" }, async () => {
   for (const cookie of [GUEST, CLIENT]) {
     const f = azureStub("حالياً غير متاحة.");
     try {
@@ -230,7 +232,7 @@ test("تطوير الأعمال مخفية: المحادثة العامة لا �
   }
 });
 
-test("تطوير الأعمال مخفية: الباب الرابع يُعامَل كباب الاستشارات، فلا تعليمات ولا نوع ولا نطاق للخدمة", async () => {
+test("تطوير الأعمال مخفية: الباب الرابع يُعامَل كباب الاستشارات، فلا تعليمات ولا نوع ولا نطاق للخدمة", { skip: !BD_HIDDEN && "تطوير الأعمال ظاهرة (hidden.json)" }, async () => {
   const f = azureStub("تمام.");
   try {
     await ask({ mode: "intake", context: "bizdev", lang: "ar", messages: [turn("user", "أبغى عملاء")] }, GUEST);
@@ -251,7 +253,7 @@ test("تطوير الأعمال مخفية: الباب الرابع يُعامَ
   } finally { g.restore(); }
 });
 
-test("تطوير الأعمال مخفية: خدمة REV-* لا تُحفظ بنداً ولو طابق اسمها الرسالة الأولى", async () => {
+test("تطوير الأعمال مخفية: خدمة REV-* لا تُحفظ بنداً ولو طابق اسمها الرسالة الأولى", { skip: !BD_HIDDEN && "تطوير الأعمال ظاهرة (hidden.json)" }, async () => {
   const cat = await catalog();
   const rev = cat.services.find((s) => s.code === "REV-GROWTH");
   assert.ok(rev, "الخدمة ما زالت في الكتالوج المصدري (الإخفاء عند القراءة لا بالحذف)");
@@ -263,7 +265,7 @@ test("تطوير الأعمال مخفية: خدمة REV-* لا تُحفظ بن�
   } finally { g.restore(); }
 });
 
-test("تطوير الأعمال مخفية: قائمة المسجّل خالية من REV-*، وما سواها كما هي", async () => {
+test("تطوير الأعمال مخفية: قائمة المسجّل خالية من REV-*، وما سواها كما هي", { skip: !BD_HIDDEN && "تطوير الأعمال ظاهرة (hidden.json)" }, async () => {
   const f = azureStub("تمام");
   try {
     await ask({ messages: [turn("user", "ما أسعار خدمات تطوير الأعمال والمبيعات وتأسيس الشركات؟")] }, CLIENT);
@@ -273,7 +275,7 @@ test("تطوير الأعمال مخفية: قائمة المسجّل خالية
   } finally { f.restore(); }
 });
 
-test("تطوير الأعمال مخفية: كلام النموذج عنها يُحذف، وكتلة النطاق تُنقّى", async () => {
+test("تطوير الأعمال مخفية: كلام النموذج عنها يُحذف، وكتلة النطاق تُنقّى", { skip: !BD_HIDDEN && "تطوير الأعمال ظاهرة (hidden.json)" }, async () => {
   const f = azureStub("ممكن ننظر في باقة REV-GROWTH لك.\nوعندنا أيضاً تأسيس الشركات.\nنظام تشغيل الإيرادات يناسبك.");
   try {
     const r = await ask({ messages: BIZ_Q }, CLIENT);

@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-16T12:44:40.341Z",
+  "updatedAt": "2026-10-29T20:41:54.893Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -3174,6 +3174,90 @@
       "url": "https://businesspartner.sa/services/qw-est"
     },
     {
+      "code": "REV-LAUNCH",
+      "nameAr": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة الانطلاق",
+      "nameEn": "Business Development — Revenue Operating System — Launch Package",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "Monthly",
+      "amount": 2500,
+      "priceLabel": "2,500 ﷼ / شهرياً",
+      "govFeesSeparate": false,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/rev-launch"
+    },
+    {
+      "code": "REV-START",
+      "nameAr": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة البداية",
+      "nameEn": "Business Development — Revenue Operating System — Starter Package",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "Monthly",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "govFeesSeparate": false,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/rev-start"
+    },
+    {
+      "code": "REV-GROWTH",
+      "nameAr": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة النمو",
+      "nameEn": "Business Development — Revenue Operating System — Growth Package",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "Monthly",
+      "amount": 5000,
+      "priceLabel": "5,000 ﷼ / شهرياً",
+      "govFeesSeparate": false,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/rev-growth"
+    },
+    {
+      "code": "REV-PRO",
+      "nameAr": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة الاحترافية",
+      "nameEn": "Business Development — Revenue Operating System — Professional Package",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "Monthly",
+      "amount": 9500,
+      "priceLabel": "9,500 ﷼ / شهرياً",
+      "govFeesSeparate": false,
+      "requiresProposal": false,
+      "url": "https://businesspartner.sa/services/rev-pro"
+    },
+    {
+      "code": "REV-TEAM",
+      "nameAr": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة الفريق المخصص",
+      "nameEn": "Business Development — Revenue Operating System — Dedicated Team Package",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "Monthly",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/rev-team"
+    },
+    {
+      "code": "REV-ENT",
+      "nameAr": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة المنشآت الكبرى",
+      "nameEn": "Business Development — Revenue Operating System — Enterprise Package",
+      "category": "Business Support",
+      "categoryAr": "دعم الأعمال",
+      "govPlatform": "بدون جهة حكومية",
+      "pricingModel": "Monthly",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "govFeesSeparate": false,
+      "requiresProposal": true,
+      "url": "https://businesspartner.sa/services/rev-ent"
+    },
+    {
       "code": "BP-REF-01",
       "nameAr": "خدمة التقديم على استرداد الرسوم الحكومية",
       "nameEn": "Government Fee Refund Application",
@@ -4069,7 +4153,7 @@
       "key": "Business Support",
       "nameAr": "دعم الأعمال",
       "nameEn": "Business Support",
-      "count": 39
+      "count": 45
     },
     {
       "key": "Real Estate",
@@ -4444,6 +4528,144 @@
         "Compliance monitoring across every government platform — warned before a breach, so no fines reach you"
       ],
       "url": "https://businesspartner.sa/packages"
+    },
+    {
+      "group": "revenue-os",
+      "groupNameAr": "تطوير الأعمال كخدمة",
+      "groupNameEn": "Business Development as a Service",
+      "code": "REV-LAUNCH",
+      "key": "REV-LAUNCH",
+      "nameAr": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة الانطلاق",
+      "nameEn": "Business Development — Revenue Operating System — Launch Package",
+      "amount": 2500,
+      "priceLabel": "2,500 ﷼ / شهريًا",
+      "billingPeriod": "monthly",
+      "featuresAr": [
+        "تحديد العميل المثالي والحسابات المستهدفة",
+        "التواصل وحجز الاجتماعات وتأهيل الفرص",
+        "عروض ومتابعة تحصيل وتقارير قياس"
+      ],
+      "featuresEn": [
+        "Ideal customer and target accounts",
+        "Outreach, meetings and qualification",
+        "Proposals, collection follow-up and reporting"
+      ],
+      "url": "https://businesspartner.sa/business-development"
+    },
+    {
+      "group": "revenue-os",
+      "groupNameAr": "تطوير الأعمال كخدمة",
+      "groupNameEn": "Business Development as a Service",
+      "code": "REV-START",
+      "key": "REV-START",
+      "nameAr": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة البداية",
+      "nameEn": "Business Development — Revenue Operating System — Starter Package",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "billingPeriod": "monthly",
+      "featuresAr": [
+        "تحديد العميل المثالي والحسابات المستهدفة",
+        "التواصل وحجز الاجتماعات وتأهيل الفرص",
+        "عروض ومتابعة تحصيل وتقارير قياس"
+      ],
+      "featuresEn": [
+        "Ideal customer and target accounts",
+        "Outreach, meetings and qualification",
+        "Proposals, collection follow-up and reporting"
+      ],
+      "url": "https://businesspartner.sa/business-development"
+    },
+    {
+      "group": "revenue-os",
+      "groupNameAr": "تطوير الأعمال كخدمة",
+      "groupNameEn": "Business Development as a Service",
+      "code": "REV-GROWTH",
+      "key": "REV-GROWTH",
+      "nameAr": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة النمو",
+      "nameEn": "Business Development — Revenue Operating System — Growth Package",
+      "amount": 5000,
+      "priceLabel": "5,000 ﷼ / شهريًا",
+      "billingPeriod": "monthly",
+      "featuresAr": [
+        "تحديد العميل المثالي والحسابات المستهدفة",
+        "التواصل وحجز الاجتماعات وتأهيل الفرص",
+        "عروض ومتابعة تحصيل وتقارير قياس"
+      ],
+      "featuresEn": [
+        "Ideal customer and target accounts",
+        "Outreach, meetings and qualification",
+        "Proposals, collection follow-up and reporting"
+      ],
+      "url": "https://businesspartner.sa/business-development"
+    },
+    {
+      "group": "revenue-os",
+      "groupNameAr": "تطوير الأعمال كخدمة",
+      "groupNameEn": "Business Development as a Service",
+      "code": "REV-PRO",
+      "key": "REV-PRO",
+      "nameAr": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة الاحترافية",
+      "nameEn": "Business Development — Revenue Operating System — Professional Package",
+      "amount": 9500,
+      "priceLabel": "9,500 ﷼ / شهريًا",
+      "billingPeriod": "monthly",
+      "featuresAr": [
+        "تحديد العميل المثالي والحسابات المستهدفة",
+        "التواصل وحجز الاجتماعات وتأهيل الفرص",
+        "عروض ومتابعة تحصيل وتقارير قياس"
+      ],
+      "featuresEn": [
+        "Ideal customer and target accounts",
+        "Outreach, meetings and qualification",
+        "Proposals, collection follow-up and reporting"
+      ],
+      "url": "https://businesspartner.sa/business-development"
+    },
+    {
+      "group": "revenue-os",
+      "groupNameAr": "تطوير الأعمال كخدمة",
+      "groupNameEn": "Business Development as a Service",
+      "code": "REV-TEAM",
+      "key": "REV-TEAM",
+      "nameAr": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة الفريق المخصص",
+      "nameEn": "Business Development — Revenue Operating System — Dedicated Team Package",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "billingPeriod": "monthly",
+      "featuresAr": [
+        "تحديد العميل المثالي والحسابات المستهدفة",
+        "التواصل وحجز الاجتماعات وتأهيل الفرص",
+        "عروض ومتابعة تحصيل وتقارير قياس"
+      ],
+      "featuresEn": [
+        "Ideal customer and target accounts",
+        "Outreach, meetings and qualification",
+        "Proposals, collection follow-up and reporting"
+      ],
+      "url": "https://businesspartner.sa/business-development"
+    },
+    {
+      "group": "revenue-os",
+      "groupNameAr": "تطوير الأعمال كخدمة",
+      "groupNameEn": "Business Development as a Service",
+      "code": "REV-ENT",
+      "key": "REV-ENT",
+      "nameAr": "تطوير الأعمال — نظام تشغيل الإيرادات — باقة المنشآت الكبرى",
+      "nameEn": "Business Development — Revenue Operating System — Enterprise Package",
+      "amount": null,
+      "priceLabel": "سعر حسب حالتك",
+      "billingPeriod": "monthly",
+      "featuresAr": [
+        "تحديد العميل المثالي والحسابات المستهدفة",
+        "التواصل وحجز الاجتماعات وتأهيل الفرص",
+        "عروض ومتابعة تحصيل وتقارير قياس"
+      ],
+      "featuresEn": [
+        "Ideal customer and target accounts",
+        "Outreach, meetings and qualification",
+        "Proposals, collection follow-up and reporting"
+      ],
+      "url": "https://businesspartner.sa/business-development"
     }
   ]
 }

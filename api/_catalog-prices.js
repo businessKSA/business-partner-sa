@@ -197,7 +197,12 @@ export function buildPriceBook(catalog) {
     if (key) byKey.set(String(key).toUpperCase(), e);
   };
   for (const s of Array.isArray(c.services) ? c.services : []) add(entryFrom("service", s));
-  for (const p of Array.isArray(c.packages) ? c.packages : []) add(entryFrom("package", p, { groupAr: String(p.groupNameAr || ""), groupEn: String(p.groupNameEn || "") }), p.key);
+  // باقاتُ تطوير الأعمال (REV-*) تظهر في catalog.json خدمةً وباقةً بالكود نفسه (صفحة /business-development
+  // وتبويب الباقات في /catalog)؛ في الدفتر تُحسب مرة واحدة، خدمةً، فلا يتكرّر صفّها في الملحق.
+  for (const p of Array.isArray(c.packages) ? c.packages : []) {
+    if (p && p.code && bySku.has(String(p.code).toUpperCase())) continue;
+    add(entryFrom("package", p, { groupAr: String(p.groupNameAr || ""), groupEn: String(p.groupNameEn || "") }), p.key);
+  }
   for (const a of Array.isArray(c.aiPlans) ? c.aiPlans : []) add(entryFrom("ai-plan", { ...a, category: "AI Automation", categoryAr: "الأتمتة والذكاء الاصطناعي", requiresProposal: false, govFeesSeparate: false }));
   for (const t of Array.isArray(c.trips) ? c.trips : []) add(entryFrom("trip", t));
   const categories = (Array.isArray(c.categories) ? c.categories : []).map((x) => ({ key: x.key, nameAr: x.nameAr, nameEn: x.nameEn }));

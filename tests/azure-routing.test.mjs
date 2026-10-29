@@ -118,10 +118,14 @@ test("semantics verified live: permanent→308, temporary→307, query appended,
 });
 
 test("hidden-service redirects (managed by hidden.mjs) keep their language split", () => {
-  assert.deepEqual(pick(findRedirect(routing, at("/business-development"))), { status: 302, location: "/catalog" });
-  assert.deepEqual(pick(findRedirect(routing, at("/fr/business-development"))), { status: 302, location: "/fr/catalog" });
-  assert.deepEqual(pick(findRedirect(routing, at("/es/business-development"))), { status: 302, location: "/catalog" });
-  assert.deepEqual(pick(findRedirect(routing, at("/ar/services/rev-pro"))), { status: 302, location: "/ar/catalog" });
+  // حالة الإخفاء من site/data/hidden.json نفسه: صفحة مخفية ⇒ 302 إلى /catalog بتقسيم اللغات؛ ظاهرة ⇒ لا تحويل.
+  const hidden = JSON.parse(fs.readFileSync(path.join(ROOT, "site/data/hidden.json"), "utf8"));
+  const bdHidden = (hidden.pages || []).includes("business-development");
+  const want = (loc) => (bdHidden ? { status: 302, location: loc } : null);
+  assert.deepEqual(pick(findRedirect(routing, at("/business-development"))), want("/catalog"));
+  assert.deepEqual(pick(findRedirect(routing, at("/fr/business-development"))), want("/fr/catalog"));
+  assert.deepEqual(pick(findRedirect(routing, at("/es/business-development"))), want("/catalog"));
+  assert.deepEqual(pick(findRedirect(routing, at("/ar/services/rev-pro"))), want("/ar/catalog"));
 });
 
 test("rewrites: query merge — destination wins, original extras are kept", () => {

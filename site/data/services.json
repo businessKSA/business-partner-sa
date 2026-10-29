@@ -2521,7 +2521,7 @@
     "govFeesSeparate": false,
     "requiresProposal": false,
     "price": {
-      "label": "2,500 ﷼ / شهر",
+      "label": "2,500 ﷼ / شهرياً",
       "amount": 2500
     }
   },
@@ -2557,7 +2557,7 @@
     "govFeesSeparate": false,
     "requiresProposal": false,
     "price": {
-      "label": "5,000 ﷼ / شهر",
+      "label": "5,000 ﷼ / شهرياً",
       "amount": 5000
     }
   },
@@ -2575,7 +2575,7 @@
     "govFeesSeparate": false,
     "requiresProposal": false,
     "price": {
-      "label": "9,500 ﷼ / شهر",
+      "label": "9,500 ﷼ / شهرياً",
       "amount": 9500
     }
   },
