@@ -146,8 +146,8 @@ def contract(pr):
     A = L.append
     A(('title', 'Service Assignment Agreement', 'عقد إسناد الكوادر الوطنية المشتركة'))
     A(('sub', 'Shared National Talent — INTERNAL DRAFT STRUCTURE', 'الكوادر الوطنية المشتركة — هيكل مسودة داخلية'))
-    A(('note', 'INTERNAL DRAFT — NOT FINAL. Not for sending or signature. Structure and wording await the full legal response (BP_AI_Tasks: legal-to-badr-20261022-albir-abdulmohsen, badr-2026-10-22-legal-abdulmohsen-nat-talent). Square-bracket items are open decisions.',
-         'مسودة داخلية — غير نهائية. لا تُرسل ولا يُوقَّع عليها. الهيكل والصياغة بانتظار الرد القانوني الكامل (مهمتا BP_AI_Tasks: legal-to-badr-20261022-albir-abdulmohsen وbadr-2026-10-22-legal-abdulmohsen-nat-talent). البنود بين الأقواس مفتوحة للقرار.'))
+    A(('note', 'INTERNAL DRAFT, NOT FINAL. Not for sending or signature. Structure and wording await the full legal response and human legal review. Square-bracket items are open decisions.',
+         'مسودة داخلية غير نهائية. لا تُرسل ولا يُوقَّع عليها. الهيكل والصياغة بانتظار الرد القانوني الكامل والمراجعة القانونية البشرية. البنود بين الأقواس مفتوحة للقرار.'))
     A(('p', 'This Agreement is made on [[DATE]] between Business Partner Solutions, a limited liability company, Commercial Registration no. 1009014355, Riyadh, acting under the licence described in [[LICENSE_DESCRIPTION — attach the licence and confirm its scope before this wording is used]] ("Business Partner"), and [[CLIENT_NAME]], Commercial Registration no. [[CR_NO]], address [[ADDRESS]], whose signatory is authorised by [[AUTHORISATION]] (the "Client").',
          'أُبرم هذا العقد بتاريخ [[التاريخ]] بين شركة بزنس بارتنر سلوشنز، شركة ذات مسؤولية محدودة، سجل تجاري رقم 1009014355، الرياض، العاملة بموجب الترخيص الموصوف في [[وصف الترخيص — يُرفق الترخيص ويُتحقق من نطاقه قبل استعمال هذه الصياغة]] («بزنس بارتنر»)، وشركة [[اسم العميل]]، سجل تجاري رقم [[رقم السجل]]، وعنوانها [[العنوان]]، ومفوّضها بموجب [[التفويض]] («العميل»).'))
     clauses = [

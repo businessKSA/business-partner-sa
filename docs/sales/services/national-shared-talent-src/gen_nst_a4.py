@@ -26,7 +26,7 @@ def css():
     sprite = open(os.path.join(HERE, 'bd_logo_sprite.txt')).read().strip()
     base = open(os.path.join(HERE, 'bd_standard.css'), encoding='utf8').read().replace('__LOGO__', sprite)
     extra = ("@page{size:1123px 794px;margin:0}body{margin:0;background:#fff}.sheet{break-after:page;page-break-after:always}"
-             "mark.ph{background:#EEF1FB;color:#1E3A9E;border-bottom:1.5px solid #1E3A9E;padding:0 2px;border-radius:2px;font-family:'IBM Plex Mono',monospace}"
+             "mark.ph{background:#EEF1FB;color:#1E3A9E;border-bottom:1.5px solid #1E3A9E;padding:0 2px;border-radius:2px;font-family:'IBM Plex Mono','IBM Plex Sans Arabic',monospace}"
              ".cv mark.ph{background:rgba(255,255,255,.14);color:#fff;border-bottom-color:#9DB4FF}"
              ".dn{display:inline-block;margin-top:18px;border:1px solid #9DB4FF;color:#9DB4FF;padding:5px 12px;font-size:11px}")
     return base + extra
