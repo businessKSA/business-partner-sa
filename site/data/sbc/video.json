@@ -1,7 +1,7 @@
 {
   "_note": "ساعات الجلسات الافتراضية من api/_booking.js (BOOKING_START وBOOKING_END) بتوقيت الرياض؛ صفحة /consultation تقرأ الإعداد الفعلي وتعرض الأيام والأوقات المتاحة.",
-  "from": "15:00",
-  "to": "22:00",
+  "from": "13:00",
+  "to": "21:00",
   "tz": "Asia/Riyadh",
   "platform": "Google Meet",
   "free": true,

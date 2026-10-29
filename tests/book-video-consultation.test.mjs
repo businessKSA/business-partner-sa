@@ -1,4 +1,4 @@
-// «الاتصال المرئي — استشارة مجانية»: ساعات الجلسات ١٥:٠٠–٢٢:٠٠ بتوقيت الرياض،
+// «الاتصال المرئي — استشارة مجانية»: ساعات الجلسات ١٣:٠٠–٢١:٠٠ بتوقيت الرياض،
 // المدعوّون (العميل والمالك) في حدث التقويم، رفض ما خارج الساعات، حماية الحجز.
 //
 // بلا شبكة ولا تقويم حقيقي: CALENDAR_MODE=test يجعل api/_gcal.js يسجّل الأحداث
@@ -72,16 +72,16 @@ const mailTo = async (to, subjPart) => (await mails()).find((m) => m.to === to &
 
 // ───────────────────────────── ١) الساعات الافتراضية ─────────────────────────────
 
-test("الساعات الافتراضية ١٥:٠٠–٢٢:٠٠: أول جلسة ١٥:٠٠ وآخر جلسة ٢١:٣٠ (تنتهي ٢٢:٠٠)، نصف ساعة", () => {
+test("الساعات الافتراضية ١٣:٠٠–٢١:٠٠ (قرار المالك 2026-10-29): أول جلسة ١٣:٠٠ وآخر جلسة ٢٠:٣٠ (تنتهي ٢١:٠٠)، نصف ساعة", () => {
   const c = B.bookingConfig();
-  assert.equal(B.hhmm(c.fromMin), "15:00");
-  assert.equal(B.hhmm(c.toMin), "22:00");
+  assert.equal(B.hhmm(c.fromMin), "13:00");
+  assert.equal(B.hhmm(c.toMin), "21:00");
   assert.equal(c.slotMin, 30);
   const s = B.slotsOfDay();
-  assert.equal(s[0], "15:00");
-  assert.equal(s[s.length - 1], "21:30");
-  assert.equal(s.length, 14);
-  assert.ok(!s.includes("22:00") && !s.includes("14:30") && !s.includes("10:00"));
+  assert.equal(s[0], "13:00");
+  assert.equal(s[s.length - 1], "20:30");
+  assert.equal(s.length, 16);
+  assert.ok(!s.includes("12:30") && !s.includes("21:00") && !s.includes("21:30") && !s.includes("22:00") && !s.includes("10:00"));
   assert.deepEqual(c.offDays, [5], "الجمعة وحدها عطلة — كما كان الكود القائم يحجب");
   assert.equal(c.leadMin, 60, "لا حجز بأقل من ساعة");
 });
@@ -94,13 +94,16 @@ test("المتغيّرات تتجاوز الافتراضي: BOOKING_START/END/SL
     assert.deepEqual(B.bookingConfig().offDays, [5, 6]);
     process.env.BOOKING_START = "15:30"; process.env.BOOKING_END = "17"; process.env.BOOKING_SLOT_MIN = "45";
     assert.deepEqual(B.slotsOfDay(), ["15:30", "16:15"]);
+    process.env.BOOKING_START = "15"; process.env.BOOKING_END = "22"; delete process.env.BOOKING_SLOT_MIN; delete process.env.BOOKING_OFF_DAYS;
+    assert.equal(B.slotsOfDay()[0], "15:00", "المتغيّرات ما زالت تتجاوز الافتراضي الجديد (الجدول القديم)");
+    assert.equal(B.slotsOfDay().at(-1), "21:30");
     process.env.BOOKING_START = "قيمة فاسدة"; delete process.env.BOOKING_END; delete process.env.BOOKING_SLOT_MIN;
-    assert.equal(B.slotsOfDay()[0], "15:00", "قيمة فاسدة ترجع إلى الافتراضي لا إلى NaN");
+    assert.equal(B.slotsOfDay()[0], "13:00", "قيمة فاسدة ترجع إلى الافتراضي لا إلى NaN");
   } finally {
     for (const k of ["BOOKING_START", "BOOKING_END", "BOOKING_SLOT_MIN", "BOOKING_OFF_DAYS"]) delete process.env[k];
     Object.assign(process.env, { BOOKING_EMAIL: keep.BOOKING_EMAIL });
   }
-  assert.equal(B.slotsOfDay().length, 14);
+  assert.equal(B.slotsOfDay().length, 16);
 });
 
 // ───────────────────────────── ٢) فحص الموعد في الخادم ─────────────────────────────
@@ -109,10 +112,13 @@ test("validateSlot: يقبل ضمن الساعات ويرفض خارجها وا�
   assert.equal(B.dayOfWeek("2026-10-23"), 5, "٢٣ أكتوبر ٢٠٢٦ جمعة");
   const now = Date.parse("2026-10-18T10:00:00+03:00");
   const err = (d, t, n = now) => { const v = B.validateSlot(d, t, n); return v.ok ? "ok" : v.error; };
+  assert.equal(err("2026-10-19", "13:00"), "ok", "أول جلسة");
   assert.equal(err("2026-10-19", "15:00"), "ok");
-  assert.equal(err("2026-10-19", "21:30"), "ok");
-  for (const t of ["10:00", "14:30", "22:00", "21:45", "15:10", "00:00"]) assert.equal(err("2026-10-19", t), "out_of_hours", t);
+  assert.equal(err("2026-10-19", "20:30"), "ok", "آخر جلسة");
+  for (const t of ["10:00", "12:30", "12:59", "21:00", "21:30", "22:00", "20:45", "13:10", "00:00"]) assert.equal(err("2026-10-19", t), "out_of_hours", t);
   assert.equal(err("2026-10-23", "15:00"), "off_day");
+  assert.equal(err("2026-10-23", "13:00"), "off_day", "الجمعة عطلة حتى في أول ساعة");
+  assert.equal(err("2026-10-23", "20:30"), "off_day", "الجمعة عطلة حتى في آخر ساعة");
   assert.equal(err("2026-02-31", "15:00"), "bad_datetime");
   assert.equal(err("2026-10-19", "3pm"), "bad_datetime");
   assert.equal(err("", ""), "bad_datetime");
@@ -127,11 +133,11 @@ test("validateSlot: يقبل ضمن الساعات ويرفض خارجها وا�
 
 // ───────────────────────────── ٣) ما تعرضه الصفحة: ?action=slots ─────────────────────────────
 
-test("?action=slots: كل الفترات ضمن ١٥:٠٠–٢١:٣٠، بلا جمعة، والساعات الفعلية في الرد", async () => {
+test("?action=slots: كل الفترات ضمن ١٣:٠٠–٢٠:٣٠، بلا جمعة، والساعات الفعلية في الرد", async () => {
   const r = await get("/api/book?action=slots");
   assert.equal(r.status, 200);
   assert.equal(r.json.ok, true);
-  assert.deepEqual(r.json.hours, { from: "15:00", to: "22:00", lastStart: "21:30" });
+  assert.deepEqual(r.json.hours, { from: "13:00", to: "21:00", lastStart: "20:30" });
   assert.equal(r.json.slotMinutes, 30);
   assert.equal(r.json.tz, "Asia/Riyadh");
   assert.deepEqual(r.json.offDays, [5]);
@@ -140,10 +146,11 @@ test("?action=slots: كل الفترات ضمن ١٥:٠٠–٢١:٣٠، بلا �
   const all = new Set();
   for (const d of r.json.days) {
     assert.notEqual(B.dayOfWeek(d.date), 5, d.date + " ليس جمعة");
-    for (const t of d.slots) { all.add(t); assert.ok(t >= "15:00" && t <= "21:30", t); }
+    for (const t of d.slots) { all.add(t); assert.ok(t >= "13:00" && t <= "20:30", t); }
   }
-  assert.ok(all.has("15:00") && all.has("21:30"));
-  assert.ok(![...all].some((t) => t < "15:00" || t >= "22:00"));
+  assert.ok(all.has("13:00") && all.has("20:30"));
+  assert.ok(![...all].some((t) => t < "13:00" || t >= "21:00"), "لا 12:30 ولا 21:00");
+  assert.ok(!all.has("12:30") && !all.has("21:00"));
 });
 
 // ───────────────────────────── ٤) الحجز: التقويم والمدعوّون ─────────────────────────────
@@ -227,10 +234,10 @@ test("بريد التأكيد بالإنجليزية: Riyadh time وروابط �
 
 // ───────────────────────────── ٥) الرفض: خارج الساعات والماضي ─────────────────────────────
 
-test("الخادم يرفض الحجز خارج ١٥:٠٠–٢٢:٠٠ برسالة عربية وإنجليزية، ولا ينشئ حدثاً", async () => {
+test("الخادم يرفض الحجز خارج ١٣:٠٠–٢١:٠٠ برسالة عربية وإنجليزية، ولا ينشئ حدثاً", async () => {
   const before = G.testEvents.length;
   const date = workDay(5);
-  for (const time of ["10:00", "14:30", "22:00", "15:10", "23:30"]) {
+  for (const time of ["10:00", "12:30", "21:00", "22:00", "13:10", "23:30"]) {
     const r = await post({ ...person(10), date, time });
     assert.equal(r.status, 400, time);
     assert.equal(r.json.error, "out_of_hours", time);
@@ -313,7 +320,7 @@ test("حدّ الإكثار لكل مصدر (IP): بعد ست محاولات ف�
     const r = await post({ ...person(40 + i), date: d, time: B.slotsOfDay()[i] }, { ip });
     assert.equal(r.status, 200, "محاولة " + i + ": " + JSON.stringify(r.json));
   }
-  const r7 = await post({ ...person(49), date: d, time: "21:30" }, { ip });
+  const r7 = await post({ ...person(49), date: d, time: B.slotsOfDay().at(-1) }, { ip });
   assert.equal(r7.status, 429);
   assert.equal(r7.json.error, "rate_limited");
 });

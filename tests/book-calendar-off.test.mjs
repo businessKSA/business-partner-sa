@@ -95,6 +95,27 @@ test("بلا تقويم: الفترة المحجوزة تبقى محجوزةً �
   assert.equal(dup.json.error, "slot_taken");
 });
 
+test("الساعات الافتراضية ١٣:٠٠–٢١:٠٠ (قرار المالك 2026-10-29) تسري والتقويم غير مضبوط: أول فترة ١٣:٠٠ وآخر ٢٠:٣٠ والجمعة عطلة", async () => {
+  const s = await call("GET", { url: "/api/book?action=slots" });
+  assert.deepEqual(s.json.hours, { from: "13:00", to: "21:00", lastStart: "20:30" });
+  for (const d of s.json.days) {
+    assert.notEqual(B.dayOfWeek(d.date), 5, d.date + " ليس جمعة");
+    for (const t of d.slots) assert.ok(t >= "13:00" && t <= "20:30", t);
+    assert.ok(!d.slots.includes("12:30") && !d.slots.includes("21:00"), d.date);
+  }
+  const all = new Set(s.json.days.flatMap((d) => d.slots));
+  assert.ok(all.has("13:00") && all.has("20:30"), "أول فترة ١٣:٠٠ وآخر ٢٠:٣٠");
+  const date = workDay(6);
+  for (const time of ["12:30", "21:00"]) {
+    const r = await call("POST", { body: { name: "عميل", phone: "0561234510", email: "off9@example.org", date, time, lang: "ar" } });
+    assert.equal(r.status, 400, time); assert.equal(r.json.error, "out_of_hours", time);
+  }
+  let fri = B.riyadhToday(Date.now() + 2 * 86400000);
+  while (B.dayOfWeek(fri) !== 5) fri = B.riyadhToday(new Date(`${fri}T12:00:00+03:00`).getTime() + 86400000);
+  const f = await call("POST", { body: { name: "عميل", phone: "0561234510", email: "off9@example.org", date: fri, time: "13:00", lang: "ar" } });
+  assert.equal(f.json.error, "off_day");
+});
+
 test("لم يخرج أي نداءٍ إلى الشبكة (لا جوجل ولا Resend ولا n8n ولا Notion)", () => {
   assert.deepEqual(netCalls, []);
 });

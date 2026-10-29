@@ -159,7 +159,7 @@ export const GUIDE_TEXT = {
   // — الاتصال المرئي
   videoH: { ar: "الاتصال المرئي: استشارة مجانية", en: "Video call: free consultation", fr: "Appel vidéo : consultation gratuite", zh: "视频通话：免费咨询" },
   videoP: { ar: "جلسة بالفيديو مع مختص: تشرح حالتك وتخرج بخطوات واضحة.", en: "A video session with a specialist: explain your case and leave with clear steps.", fr: "Une séance vidéo avec un spécialiste : exposez votre cas et repartez avec des étapes claires.", zh: "与专员视频会谈：说明您的情况，获得清晰的后续步骤。" },
-  videoHours: { ar: "من ٣ عصراً إلى ١٠ مساءً بتوقيت الرياض (GMT+3). الأيام والأوقات المتاحة تظهر عند الحجز.", en: "3 PM to 10 PM Riyadh time (GMT+3). Available days and times appear when you book.", fr: "De 15 h à 22 h, heure de Riyad (GMT+3). Les jours et horaires disponibles s'affichent à la réservation.", zh: "利雅得时间下午 3 点至晚上 10 点（GMT+3）。可预约的日期与时间在预约时显示。" },
+  videoHours: { ar: "من ١ ظهراً إلى ٩ مساءً بتوقيت الرياض (GMT+3). الأيام والأوقات المتاحة تظهر عند الحجز.", en: "1 PM to 9 PM Riyadh time (GMT+3). Available days and times appear when you book.", fr: "De 13 h à 21 h, heure de Riyad (GMT+3). Les jours et horaires disponibles s'affichent à la réservation.", zh: "利雅得时间下午 1 点至晚上 9 点（GMT+3）。可预约的日期与时间在预约时显示。" },
   videoFree: { ar: "مجانية بالكامل — بلا التزام", en: "Completely free — no commitment", fr: "Entièrement gratuite — sans engagement", zh: "完全免费 — 无任何义务" },
   videoMeet: { ar: "اجتماع بالفيديو عبر Google Meet", en: "Video meeting on Google Meet", fr: "Réunion vidéo sur Google Meet", zh: "通过 Google Meet 进行视频会议" },
   videoLink: { ar: "الرابط يصلك على بريدك وبدعوة في تقويمك", en: "The link reaches you by e-mail and as a calendar invitation", fr: "Le lien vous parvient par e-mail et en invitation d'agenda", zh: "会议链接将通过邮件和日历邀请发送给您" },
