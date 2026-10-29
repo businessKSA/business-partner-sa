@@ -2842,6 +2842,19 @@ export default async function handler(req, res) {
     } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
   }
 
+  // باقة تطوير الأعمال المشتراة بمسار عرض السعر (/business-development ← عرض ← عقد ← دفع)
+  // تعيش في جدول requests لا في نوشن، فكان my-orders لا يراها: العميل الذي دفع
+  // يبقى «تجريبياً» ثم «منتهياً» في مساحة العمل. الدفع المؤكَّد (PAID فما بعد) على
+  // طلبٍ من النوع BUSINESS_DEVELOPMENT، أو ببند REV-*، يعدّ اشتراكاً.
+  async function hasPaidBdRequest(sess) {
+    try {
+      const orgId = sess && sess.organization && sess.organization.id;
+      if (!DB_ON || !orgId) return false;
+      const rows = await sb(`requests?organization_id=eq.${orgId}&status=in.(PAID,IN_PROGRESS,WAITING_INTERNAL,COMPLETED)&select=type,scope&limit=50`);
+      return (rows || []).some((r) => r.type === "BUSINESS_DEVELOPMENT" || (Array.isArray(r.scope) && r.scope.some((i) => /^REV-/i.test(String((i && i.code) || "")))));
+    } catch { return false; }
+  }
+
   // P4 — orders belong to the ACCOUNT, not the browser: list the session
   // email's CRM orders so cart purchases show up in the client ops center
   // from any device (localStorage stays only as a legacy-refs fallback).
@@ -2897,7 +2910,7 @@ export default async function handler(req, res) {
       return res.end(JSON.stringify({
         ok: true,
         orders,
-        bd: bdTrial(sess.organization, orders.some(isPaidBdOrder), new Date(), openFor(sess)),
+        bd: bdTrial(sess.organization, orders.some(isPaidBdOrder) || (await hasPaidBdRequest(sess)), new Date(), openFor(sess)),
       }));
     } catch {
       res.statusCode = 502;

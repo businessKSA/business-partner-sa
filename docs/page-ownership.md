@@ -134,7 +134,7 @@
 
 | الوكيل | المسار | التصميم | ملاحظة |
 |---|---|---|---|
-| `business-development` | `/business-development` · `assets/data/revenue-*.html` (٣) · قسم Revenue OS داخل `/account` | 🟡 / ❌ | الباب الرابع في الرئيسية يُنسَّق مع `public-site` |
+| `business-development` | `/business-development` · `assets/data/revenue-*.html` (٣) · قسم Revenue OS داخل `/account` | ✅ / ❌ | `/business-development` على SV1 منذ 2026-10-29 (`simple-v1-business-development.mjs`): الباقات REV-* بالـSKU، والشراء عرض سعر مباشر بنطاق العمل لا سلة. شبكة الخدمات الرئيسية في الرئيسية لـ`public-site`؛ الباب الرابع في الهيرو (`bizdevDoor`) مطفأ |
 | `worker-housing` | `/worker-housing` | 🟡 | `#wh-request` قسم بلا نموذج |
 | `farina` | `/farina` | 🟡 | لا نموذج ولا بند كتالوج |
 | `document-ai` | `/ai-document-agent` | 🟡 | `/doc-agent-admin` تبقى لـ`owner-ops` قشرةً |

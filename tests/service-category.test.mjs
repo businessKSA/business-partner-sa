@@ -61,7 +61,11 @@ for (const lang of LANGS) {
         if (isPriced(s)) {
           assert.ok(card.includes(`data-bp-price="${s.code.toUpperCase()}"`), s.code + ": سعر حيّ");
           assert.match(card, /class="sv1-cp-amt price-amt"/, s.code + ": السعر بصنف price-amt (للمسجَّل وحده)");
-          assert.ok(card.includes(`data-id="svc-${slug}"`) && card.includes(`data-amount="${s.amount}"`), s.code + ": زرّ السلة بالمبلغ نفسه");
+          if (/^REV-/.test(s.code)) {
+            // باقات تطوير الأعمال: عرض سعر مباشر بنطاق العمل من /business-development، لا سلة (2026-10-29).
+            assert.ok(!card.includes("add-cart") && !card.includes(`data-id="svc-${slug}"`), s.code + ": بلا زرّ سلة");
+            assert.ok(card.includes(`${prefix}/business-development#pkg-${slug}"`), s.code + ": رابط الشراء إلى صفحة الخدمة");
+          } else assert.ok(card.includes(`data-id="svc-${slug}"`) && card.includes(`data-amount="${s.amount}"`), s.code + ": زرّ السلة بالمبلغ نفسه");
           assert.ok(!card.includes("sv1-cp-need"), s.code + ": مسعّرة فلا «تحتاج عرض سعر»");
           // الرقم المعروض هو رقم الكتالوج
           const shown = card.match(/data-bp-pending>([^<]*)</)[1].replace(/[^\d]/g, "");

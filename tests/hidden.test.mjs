@@ -163,35 +163,81 @@ test("إضافة كود إلى hidden.json تُخفيه من catalog.json و/cat
   assert.ok(!b.vercel.includes("business-development)"), "لا تحويل لصفحةٍ لم تُخفَ");
 });
 
-test("الإعداد الحقيقي: صفحة تطوير الأعمال وخدمات REV وباقات revos مخفية في كل مكان", () => {
+test("الإعداد الحقيقي: باقات revos-* القديمة مخفية، وصفحة تطوير الأعمال وباقات REV-* ظاهرة", () => {
+  // 2026-10-29: أُعيد إطلاق تطوير الأعمال بطلب المالك. المخفي الآن revos-* وحدها (سلّم قديم
+  // بأسعار مكتوبة يدوياً تخالف REV-* في services.json).
   const b = build(REAL_HIDDEN);
 
+  assert.ok(REAL_HIDDEN.services.length > 0 && REAL_HIDDEN.services.every((c) => /^revos-/i.test(c)), "المخفي revos-* فقط");
+  assert.ok(!REAL_HIDDEN.pages.includes("business-development"), "الصفحة غير مخفية");
   for (const c of REAL_HIDDEN.services) {
     assert.ok(!b.codes.has(c.toLowerCase()) && !b.pkgs.has(c.toLowerCase()), `catalog.json بلا ${c}`);
   }
   for (const lang of ["", "ar/", "fr/", "zh/"]) {
-    assert.ok(!b.has(`${lang}business-development.html`), `${lang}business-development.html لم تُنتَج`);
-    assert.ok(!b.has(`${lang}services/rev-launch.html`), `${lang}services/rev-launch.html لم تُنتَج`);
+    assert.ok(b.has(`${lang}business-development.html`), `${lang}business-development.html أُنتجت`);
+    assert.ok(b.has(`${lang}services/rev-launch.html`), `${lang}services/rev-launch.html أُنتجت`);
   }
-  // ‏(صفحة /business-development لم تكن في sitemap أصلاً؛ خدماتها كانت.)
-  assert.ok(!b.sitemap.includes("business-development"), "sitemap بلا الصفحة");
-  assert.ok(!/\/services\/rev-/.test(b.sitemap), "sitemap بلا خدمات REV");
-  for (const rel of ["catalog.html", "ar/catalog.html", "packages.html", "ar/packages.html", "index.html", "ar/index.html", "services.html", "ar/services.html"]) {
+  assert.ok(/\/services\/rev-launch</.test(b.sitemap), "sitemap فيه خدمات REV");
+  // باقات REV-* في الكتالوج مشتقّة من services.json بالـSKU: السعر يطابقه حرفاً، وما بلا سعر بلا رقم.
+  const src = readJson(path.join(REPO, "site/data/services.json")).filter((x) => /^REV-/.test(x.code));
+  assert.equal(src.length, 6);
+  for (const r of src) {
+    const p = b.catalog.packages.find((x) => x.code === r.code);
+    assert.ok(p, `${r.code} باقة في catalog.json`);
+    assert.equal(p.amount, r.price && r.price.amount != null ? r.price.amount : null, `${r.code}: السعر من الكتالوج لا من المولّد`);
+    assert.equal(p.group, "revenue-os");
+  }
+  // لا سلّم ثانٍ: لا كود revos- في أي صفحة مبنية رئيسية.
+  for (const rel of ["catalog.html", "ar/catalog.html", "packages.html", "ar/packages.html", "index.html", "ar/index.html", "services.html", "ar/services.html", "ar/business-development.html"]) {
     const html = b.page(rel);
     assert.ok(html, rel);
-    assert.ok(!/href="[^"]*business-development(?:["#?])/.test(html), `${rel}: لا رابط إلى الصفحة المخفية`);
-    assert.ok(!/REV-(?:START|LAUNCH|GROWTH|PRO|TEAM|ENT)|revos-/i.test(html), `${rel}: لا كود مخفي`);
+    assert.ok(!/revos-/i.test(html), `${rel}: لا كود revos-`);
   }
-  assert.ok(b.vercel.includes('"source":"/(business-development)"'), "تحويل الصفحة");
-  assert.ok(/\/services\/\(rev-ent\|rev-growth\|rev-launch\|rev-pro\|rev-start\|rev-team\)/.test(b.vercel), "تحويل الخدمات");
+  // لا تحويل 302 لصفحة تطوير الأعمال ولا لـREV-*؛ ولوحة Revenue OS القائمة تبقى.
+  assert.ok(!b.vercel.includes('"source":"/(business-development)"'), "لا تحويل للصفحة");
+  assert.ok(!/\/services\/\(rev-/.test(b.vercel), "لا تحويل لخدمات REV");
   assert.ok(b.vercel.includes("/business-development-dashboard"), "لوحة Revenue OS القائمة تبقى (rewrite)");
+});
+
+test("صفحة تطوير الأعمال: الباقات بالـSKU، لا سعر ولا عمولة للزائر، والشراء عرض سعر لا سلة", () => {
+  const b = build(REAL_HIDDEN);
+  const prices = Object.fromEntries(readJson(path.join(REPO, "site/data/services.json")).filter((x) => /^REV-/.test(x.code)).map((x) => [x.code, x.price && x.price.amount]));
+  for (const lang of ["", "ar/", "fr/", "zh/"]) {
+    const html = b.page(`${lang}business-development.html`);
+    for (const code of Object.keys(prices)) assert.ok(html.includes(`data-bd-buy="${code}"`), `${lang}: زرّ ${code}`);
+    assert.ok(!/class="[^"]*add-cart|localStorage\.setItem\(.bp_cart/.test(html), `${lang}: لا سلة في صفحة الباقات (الشراء = عرض سعر بنطاق عمل)`);
+    // كل رقم سعر داخل عنصر price-amt وحده (يخفيه data-prices=off عن الزائر).
+    const body = html.slice(html.indexOf('id="packages"'), html.indexOf('class="sv1-bd-faq"'));
+    const outside = body.replace(/<div class="sv1-bd-price price-amt">[\s\S]*?<\/small><\/div>/g, "");
+    for (const amt of Object.values(prices).filter(Boolean)) {
+      assert.ok(!outside.includes(Number(amt).toLocaleString("en-US")), `${lang}: السعر ${amt} خارج price-amt`);
+    }
+    assert.ok(/data-prices="off"/.test(html), `${lang}: SHOW_PRICES=false`);
+    assert.ok(!/\d\s*%(?![0-9A-Fa-f]{2})|عمولات|commission/i.test(body), `${lang}: لا نسبة عمولة في الصفحة العامة`);
+    assert.ok(!/30 يوم|30 days|ابدأ.{0,12}مجان/i.test(html), `${lang}: لا «30 يوماً مجاناً»`);
+    assert.ok(!/بيزنس بارتنر|شريك الأعمال/.test(html), `${lang}: اسم العلامة`);
+    assert.ok(!/الوكيل/.test(body), `${lang}: «المستشار الذكي» لا «الوكيل»`);
+  }
+  // نطاق العمل المكتوب في عرض السعر يقلّ عن حدّ الخادم (normScope: why ≤ 400)
+  const ar = b.page("ar/business-development.html");
+  const m = /"scope":"([^"]+)"/.exec(ar);
+  assert.ok(m && m[1].length <= 400, "وصف البند ≤ 400 حرفاً: " + (m && m[1].length));
+  // صفحة SKU للباقة لا تضع الباقة في السلة ولا تكشف الرسوم نصّاً
+  const sku = b.page("ar/services/rev-launch.html");
+  assert.ok(!/id="svcAdd"|class="[^"]*add-cart/.test(sku.slice(0, sku.indexOf("</main>"))), "صفحة REV-LAUNCH بلا زرّ سلة");
+  assert.ok(sku.includes("/business-development#pkg-rev-launch"), "تحوّل إلى صفحة الخدمة");
+  assert.ok(!/عمولات|10%|2\.5%/.test(sku.replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/g, "")), "الوصف العام بلا عمولة");
+  // الكتالوج: لا «أضف للسلة» لـREV-*
+  const cat = b.page("ar/catalog.html");
+  const rev = /"code":"REV-LAUNCH"[^}]*?"buy":(null|\{)/.exec(cat);
+  assert.ok(rev && rev[1] === "null", "REV-LAUNCH في /catalog بلا buy");
 });
 
 test("حذف الإدخال من hidden.json يُعيد كل شيء", () => {
   const b = build({ services: [], pages: [] });
 
   assert.equal(b.catalog.services.length, TOTAL, "كل خدمات المصدر عادت");
-  for (const c of [...REAL_HIDDEN.services, CODE, PKG]) {
+  for (const c of [CODE, PKG, "REV-LAUNCH", "REV-START", "REV-PRO"]) {
     assert.ok(b.codes.has(c.toLowerCase()) || b.pkgs.has(c.toLowerCase()), `catalog.json فيه ${c}`);
   }
   assert.ok(b.has("business-development.html") && b.has("ar/business-development.html"), "الصفحة عادت");

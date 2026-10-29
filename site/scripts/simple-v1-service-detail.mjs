@@ -47,6 +47,7 @@ const T = {
                fr: "Ce navigateur n'a pas pu enregistrer le panier. Demandez plutôt un devis.",
                zh: "此浏览器无法保存购物车。请改为申请报价。" },
   quote:     { ar: "اطلب عرض سعر", en: "Request a quotation", fr: "Demander un devis", zh: "申请报价" },
+  bizdev:    { ar: "اطلب عرض السعر بنطاق العمل", en: "Get the quotation with the scope of work", fr: "Obtenir le devis avec le périmètre", zh: "获取含工作范围的报价" },
   consult:   { ar: "احجز استشارة", en: "Book a consultation", fr: "Réserver une consultation", zh: "预约咨询" },
   workspace: { ar: "اطلب مساحة عمل", en: "Request a workspace", fr: "Demander un espace de travail", zh: "申请办公空间" },
   tourism:   { ar: "استعرض خدمات السياحة", en: "Explore tourism services", fr: "Découvrir les services de tourisme", zh: "浏览旅游服务" },
@@ -89,12 +90,14 @@ export function buildSimpleServiceDetail(SV1, ctx, v) {
       <div class="sv1-svc-price price-amt" data-bp-price="${esc(v.code.toUpperCase())}" data-bp-pending>${esc(v.priceLabel)}</div>
       <p class="sv1-svc-note price-amt">${esc(note)}</p>
       <p class="sv1-svc-note" data-guest-note>${esc(t("guest"))}</p>`;
-    primary = `<button type="button" class="sv1-btn primary add-cart" id="svcAdd" data-id="${esc(v.cartId)}" data-name-en="${esc(v.nameEn)}" data-name-ar="${esc(v.nameAr)}" data-amount="${esc(String(v.amount))}" data-price="" data-kind="service" data-bp-code="${esc(v.code.toUpperCase())}">${esc(t("addCart"))}</button>`;
-    if (v.requiresProposal) secondary = quoteBtn("");
+    if (v.special === "bizdev") primary = `<a class="sv1-btn primary" id="svcQuote" href="${esc(v.hrefs.bizdev)}" data-track="باقة تطوير الأعمال: ${esc(v.code)}">${esc(t("bizdev"))}</a>`;
+    else primary = `<button type="button" class="sv1-btn primary add-cart" id="svcAdd" data-id="${esc(v.cartId)}" data-name-en="${esc(v.nameEn)}" data-name-ar="${esc(v.nameAr)}" data-amount="${esc(String(v.amount))}" data-price="" data-kind="service" data-bp-code="${esc(v.code.toUpperCase())}">${esc(t("addCart"))}</button>`;
+    if (v.requiresProposal && v.special !== "bizdev") secondary = quoteBtn("");
   } else {
     price = `<div class="sv1-svc-price sv1-svc-custom">${esc(t("custom"))}</div>`;
     if (v.special === "workspace") primary = `<a class="sv1-btn primary" href="${esc(v.hrefs.workspace)}">${esc(t("workspace"))}</a>`;
     else if (v.special === "tourism") primary = `<a class="sv1-btn primary" href="${esc(v.hrefs.tourism)}">${esc(t("tourism"))}</a>`;
+    else if (v.special === "bizdev") primary = `<a class="sv1-btn primary" id="svcQuote" href="${esc(v.hrefs.bizdev)}" data-track="باقة تطوير الأعمال: ${esc(v.code)}">${esc(t("bizdev"))}</a>`;
     else primary = quoteBtn("primary");
     if (!v.special) secondary = `<a class="sv1-btn" href="${esc(v.hrefs.consult)}">${esc(t("consult"))}</a>`;
   }

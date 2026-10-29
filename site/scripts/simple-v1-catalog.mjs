@@ -111,6 +111,12 @@ const DOOR = {
 // ‏فئات الكتالوج (بالإنجليزية كما في catalog.json) التي لا تُباع بالسلة.
 const NO_CART = new Set(["Real Estate", "Tourism"]);
 
+// ‏باقات تطوير الأعمال (REV-*) لا تدخل السلة (طلب المالك 2026-10-29): السلة تدفع أولاً
+// ثم تفتح طلباً بلا عرض سعر ولا نطاق عمل، والاشتراك الشهري الذي نديره يحتاج نطاقاً
+// مكتوباً في عرض السعر قبل الدفع. فتفتح من صفحتها /business-development التي تُنشئ
+// الطلب وتصدر العرض بنطاق العمل مباشرةً.
+const BD_SKU = /^REV-/i;
+
 export function buildSimpleCatalog(SV1, ctx) {
   const lang = ctx.lang();
   const t = (k) => (T[k][lang] != null ? T[k][lang] : T[k].en);
@@ -160,7 +166,7 @@ export function buildSimpleCatalog(SV1, ctx) {
     // ‏قابل للشراء المباشر؟ الشرط نفسه في صفحة الخدمة القديمة (generate.mjs):
     // سعرٌ في الكتالوج، وليس عقاراً ولا سياحة. الحقول بصيغة عنصر السلة القديمة؛
     // `amount` هو الرقم الذي يُحسب منه كل شيء.
-    buy: s.amount != null && Number(s.amount) > 0 && !NO_CART.has(s.category)
+    buy: s.amount != null && Number(s.amount) > 0 && !NO_CART.has(s.category) && !BD_SKU.test(s.code || "")
       ? { id: "svc-" + (s.code || "").toLowerCase(), nameAr: s.nameAr || s.nameEn || "",
           nameEn: s.nameEn || s.nameAr || "", amount: Number(s.amount) }
       : null,
@@ -181,6 +187,7 @@ export function buildSimpleCatalog(SV1, ctx) {
     // («باقة حسب الطلب») تُكتب لافتتها وليست رقماً فلا تُخفى عن الزائر.
     price: priceOf(p),
     label: (() => { const e = resolveSku(book, p.code); return e.amount == null ? priceText(e, ar ? "ar" : "en", cur, { site: true }) : ""; })(),
+    bd: BD_SKU.test(p.code || "") ? ((ar || lang !== "en" ? "/" + lang : "") + "/business-development#pkg-" + String(p.code).toLowerCase()) : "",
     features: ((ar ? p.featuresAr : p.featuresEn) || p.featuresAr || []).slice(0, 8),
   })).filter((p) => p.name);
 
@@ -470,9 +477,10 @@ function drawPkgs(){
     c.appendChild(el('div','amt price-amt',p.price.txt))}
    else if(p.label)c.appendChild(el('div','amt',p.label));
    if(p.features.length){var ul=el('ul');p.features.forEach(function(x){ul.appendChild(el('li',null,x))});c.appendChild(ul)}
-   var b=el('button','sv1-btn primary sm',TX.pkgAsk);b.type='button';
+   if(p.bd){var ba=el('a','sv1-btn primary sm',TX.pkgAsk);ba.href=p.bd;ba.setAttribute('data-track','باقة تطوير الأعمال: '+p.code);c.appendChild(ba)}
+   else{var b=el('button','sv1-btn primary sm',TX.pkgAsk);b.type='button';
    b.onclick=function(){handoff([{code:p.code,title:p.name,why:p.group||''}],'consulting',p.name)};
-   c.appendChild(b);
+   c.appendChild(b)}
    grid.appendChild(c)});
   pkgBox.appendChild(grid)});
 }

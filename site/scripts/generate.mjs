@@ -362,6 +362,7 @@ import { buildSimpleGuideLiveInSaudi } from "./simple-v1-guide-live-in-saudi.mjs
 import { buildSimpleGuideResidency } from "./simple-v1-guide-residency.mjs";
 import { buildSimpleKnowledge } from "./simple-v1-knowledge.mjs";
 import { buildMainServices, mainServicesOn } from "./simple-v1-main-services.mjs";
+import { buildSimpleBizDev } from "./simple-v1-business-development.mjs";
 function T(en) {
   const dict = TRANSLATIONS[LANG];
   return (dict && dict[en]) || en;
@@ -2259,7 +2260,9 @@ const SHOW_PACKAGE_PRICES = true;
 // صفحتَها: مسعّرة = سعرٌ في الكتالوج وليست عقاراً ولا سياحة؛ وخدمات المساحات
 // (العقار بلا استشارة) وجهتها نموذج مساحة العمل لا السلة.
 const svcPriced = (s) => !!(s.price && s.price.amount != null && s.category !== "Real Estate" && s.category !== "Tourism");
-const svcSpecial = (s) => (s.category === "Real Estate" && !s.ctaConsultation ? "workspace" : s.category === "Tourism" ? "tourism" : "");
+// REV-* (باقات تطوير الأعمال) تُشترى من /business-development بعرض سعر مباشر لا بالسلة.
+const isBdSku = (s) => /^REV-/i.test(String((s && s.code) || ""));
+const svcSpecial = (s) => (isBdSku(s) ? "bizdev" : s.category === "Real Estate" && !s.ctaConsultation ? "workspace" : s.category === "Tourism" ? "tourism" : "");
 
 // صفحة التصنيف على الموقع الجديد (ملاحظة الأسعار أعلاه: SHOW_PRICES=false تعني
 // أن الرقم يراه المسجَّل وحده — يتكفّل به صنف price-amt في صفحة التصنيف).
@@ -2279,6 +2282,7 @@ function buildServiceCategory(cat) {
       priceLabel: priced ? localizeLabel(s.price.label || s.price.amount + " ﷼") : "",
       requiresProposal: !!s.requiresProposal,
       special: svcSpecial(s), cartId: "svc-" + s.slug, workspaceHref: u("/workspace-request"),
+      bizdevHref: u("/business-development") + "#pkg-" + String(s.code || "").toLowerCase(),
     };
   });
   const others = categories
@@ -2332,11 +2336,15 @@ function buildServiceDetail(s) {
 
   const priceLabelTx = priced ? localizeLabel(s.price.label || s.price.amount + " ﷼") : "";
   const notePart = s.price && (LANG === "ar" ? s.price.note : s.price.noteEn);
-  const seoDesc = sDesc(s).slice(0, 155);
+  const bdNeutral = isBdSku(s) ? L("A monthly business-development subscription: ideal customer, target accounts, outreach, meetings, proposals and collection follow-up — with the scope of work written into the quotation.", "اشتراك شهري في تطوير الأعمال: العميل المثالي والحسابات المستهدفة والتواصل والاجتماعات والعروض ومتابعة التحصيل — ونطاق العمل مكتوب في عرض السعر.") : "";
+  const seoDesc = (bdNeutral || sDesc(s)).slice(0, 155);
   const view = {
     code: s.code, slug: s.slug, name: sName(s),
     nameEn: (svcI18n[s.code] && svcI18n[s.code].en) || (ov && ov.nameEn) || s.name, nameAr: sNameArOf(s),
-    cartId: "svc-" + s.slug, desc: sDesc(s),
+    cartId: "svc-" + s.slug,
+    // وصف REV-* في services.json يذكر الرسوم ونسب العمولة نصّاً — يسرّب السعر تحت
+    // SHOW_PRICES=false. فيُستبدل بوصفٍ محايد؛ والأرقام تظهر للمسجَّل في .price-amt.
+    desc: bdNeutral || sDesc(s),
     category: s.category, catLabel: catLabel(s.category), catHref: catUrl(s.category),
     gov: s.govPlatform && !/بدون جهة/.test(s.govPlatform) ? govLabel(s.govPlatform) : "",
     duration: ov && ov.duration ? Lraw(ov.durationEn || ov.duration, ov.duration) : "",
@@ -2348,6 +2356,7 @@ function buildServiceDetail(s) {
     hrefs: {
       workspace: u("/workspace-request"), tourism: u("/tourism"),
       consult: `${u("/consultation")}?about=${encodeURIComponent(sName(s))}`,
+      bizdev: `${u("/business-development")}#pkg-${String(s.code || "").toLowerCase()}`,
     },
     title: `${sName(s)} — Business Partner`,
     seoDesc, liveV: LIVE_V,
@@ -11996,7 +12005,14 @@ function writeFullSite(pre) {
   if (SIMPLE_V1) write(`${pre}catalog.html`, buildSimpleCatalog(SV1, { lang: () => LANG, esc, catLabel: (k) => L(catEn(k), catAr(k)), govLabel }));
   write(`${pre}about.html`, buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
-  if (pageVisible("business-development")) write(`${pre}business-development.html`, buildBdaas());
+  // تطوير الأعمال كخدمة: على الموقع الجديد (SV1.shell) تطبيقاً لـCLAUDE.md §2.6،
+  // وأسعار باقاتها وأسماؤها من services.json بالـSKU (REV-*). buildBdaas() القديمة
+  // تبقى لوضع SIMPLE_V1=0 وحده: أرقامها مكتوبة يدوياً بكودَي revos-* لا REV-*.
+  if (pageVisible("business-development")) {
+    write(`${pre}business-development.html`, SIMPLE_V1
+      ? buildSimpleBizDev(SV1, { lang: () => LANG, esc, services, svcI18n })
+      : buildBdaas());
+  }
   write(`${pre}b10x.html`, buildB10X());
   write(`${pre}ai-agents.html`, buildAiAgents());
   write(`${pre}smart-employee.html`, buildSmartEmployeePage());
@@ -12423,35 +12439,30 @@ const catalogJson = {
         url: `${base}/packages`,
       }))
     ),
-    // BD-as-a-Service subscriptions (sold from /business-development). Owner-approved ladder
-    // (2026-08): ONE success-fee number, charged on collected revenue only, and
-    // the rate buys our closing team — pay a monthly fee alone and the client
-    // closes; pay a commission and we close with them. Codes match the cart item
-    // ids so the order API's server-side re-pricing can find them.
-    ...visibleCatalogRows([
-      { code: "revos-connect", nameAr: "تطوير الأعمال كخدمة — باقة Connect (شهري)", nameEn: "BD as a Service — Connect (monthly)", amount: 499, commission: 12, closedByUs: false,
-        featuresAr: ["قائمة شركات مستهدفة بالقطاع والمدينة", "التقاط عملاء وحجز مواعيد على موقعك", "لوحة عميل وتقرير شهري"] },
-      { code: "revos-launch", nameAr: "تطوير الأعمال كخدمة — باقة Launch (شهري)", nameEn: "BD as a Service — Launch (monthly)", amount: 2500, commission: 8, closedByUs: false,
-        featuresAr: ["Pipeline مستهدف حتى 1M", "قاعدة بيانات محددة", "تأهيل وتقرير شهري"] },
-      { code: "revos-growth", nameAr: "تطوير الأعمال كخدمة — باقة Growth (شهري)", nameEn: "BD as a Service — Growth (monthly)", amount: 5000, commission: 0, closedByUs: false,
-        featuresAr: ["Pipeline مستهدف حتى 3M", "CRM وتقارير أسبوعية", "حملات متعددة القنوات", "سعر ثابت بدون أي عمولة"] },
-      { code: "revos-professional", nameAr: "تطوير الأعمال كخدمة — باقة Professional (شهري)", nameEn: "BD as a Service — Professional (monthly)", amount: 9500, commission: 5, closedByUs: true,
-        featuresAr: ["Pipeline مستهدف حتى 10M", "Forecast وإدارة عروض", "دعم التفاوض والإغلاق"] },
-    ]).map((p) => ({
-      group: "revenue-os", groupNameAr: "تطوير الأعمال كخدمة", groupNameEn: "Business Development as a Service",
-      code: p.code, key: p.code, nameAr: p.nameAr, nameEn: p.nameEn, amount: p.amount,
-      priceLabel: `${p.amount.toLocaleString("en-US")} ﷼ / شهريًا`,
-      billingPeriod: "monthly",
-      // Commercial terms travel with the price so the order, the invoice and the
-      // admin panel all read the same number the pricing page printed.
-      commissionPercent: p.commission,
-      commissionBasisAr: p.commission
-        ? "على الإيراد المحصّل فعليًا من الفرص التي ولّدها Business Partner وموثّقة في CRM"
-        : "بدون عمولة — سعر شهري ثابت",
-      closingByBusinessPartner: p.closedByUs,
-      featuresAr: p.featuresAr,
-      url: `${base}/business-development`,
-    })),
+    // BD-as-a-Service packages (sold from /business-development). الأسماء والأسعار
+    // من services.json بالـSKU (REV-*) وحده — كان هنا سلّم ثانٍ مكتوب يدوياً بكودَي
+    // revos-* وأسعار وعمولات تخالف REV-* (فبقي الكتالوج بسلّمين لخدمة واحدة)، وهو
+    // يخالف قاعدة «الأسعار من الكتالوج بالـSKU فقط». الباقة التي بلا سعر في
+    // الكتالوج (START/TEAM/ENT) تظهر بلا رقم: amount = null وتمرّ بالتسعير البشري.
+    // نسب العمولة لا تُنسخ إلى هنا: وصف REV-* في services.json يذكرها نصّاً، وقرار
+    // السلّم الواحد معلّق عند المالك (انظر تقرير 2026-10-29).
+    ...services
+      .filter((s) => /^REV-/i.test(String(s.code || "")))
+      .map((s) => {
+        const amount = s.price && s.price.amount != null && Number(s.price.amount) > 0 ? Number(s.price.amount) : null;
+        const i18n = svcI18n[s.code] || {};
+        return {
+          group: "revenue-os", groupNameAr: "تطوير الأعمال كخدمة", groupNameEn: "Business Development as a Service",
+          code: s.code, key: s.code,
+          nameAr: i18n.ar || s.name, nameEn: i18n.en || s.name,
+          amount,
+          priceLabel: amount != null ? `${amount.toLocaleString("en-US")} ﷼ / شهريًا` : "سعر حسب حالتك",
+          billingPeriod: "monthly",
+          featuresAr: ["تحديد العميل المثالي والحسابات المستهدفة", "التواصل وحجز الاجتماعات وتأهيل الفرص", "عروض ومتابعة تحصيل وتقارير قياس"],
+          featuresEn: ["Ideal customer and target accounts", "Outreach, meetings and qualification", "Proposals, collection follow-up and reporting"],
+          url: `${base}/business-development`,
+        };
+      }),
   ],
 };
 // The stamp moves only when the catalogue really moved. It used to be

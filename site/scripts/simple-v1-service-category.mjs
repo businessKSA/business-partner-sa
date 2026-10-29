@@ -64,7 +64,7 @@ const DOOR = {
 
 // view = { key, label, slug, count, items: [...], others: [{label, href, count}] }
 // item = { code, slug, href, name, nameEn, nameAr, gov, priced, amount, priceLabel,
-//          requiresProposal, special: ""|"workspace"|"tourism", cartId, workspaceHref }
+//          requiresProposal, special: ""|"workspace"|"tourism"|"bizdev", cartId, workspaceHref, bizdevHref }
 export function buildSimpleServiceCategory(SV1, ctx, v) {
   const lang = ctx.lang();
   const esc = ctx.esc;
@@ -79,7 +79,13 @@ export function buildSimpleServiceCategory(SV1, ctx, v) {
 
   const card = (s) => {
     let price, acts = "";
-    if (s.priced) {
+    if (s.special === "bizdev") {
+      // باقات تطوير الأعمال: عرض سعر مباشر بنطاق العمل من صفحة الخدمة، لا سلة (طلب المالك 2026-10-29).
+      price = s.priced
+        ? `<span class="sv1-cp-lbl">${esc(t("fee"))}</span><span class="sv1-cp-amt price-amt" data-bp-price="${esc(s.code.toUpperCase())}" data-bp-pending>${esc(s.priceLabel)}</span><span class="sv1-cp-guest" data-guest-note>${esc(t("guest"))}</span>`
+        : `<span class="sv1-cp-need">${esc(t("needQuote"))}</span>`;
+      acts += `<a class="sv1-btn primary sm" href="${esc(s.bizdevHref)}" data-track="باقة تطوير الأعمال: ${esc(s.code)}">${esc(t("quote"))}</a>`;
+    } else if (s.priced) {
       price = `<span class="sv1-cp-lbl">${esc(t("fee"))}</span>
         <span class="sv1-cp-amt price-amt" data-bp-price="${esc(s.code.toUpperCase())}" data-bp-pending>${esc(s.priceLabel)}</span>
         <span class="sv1-cp-guest" data-guest-note>${esc(t("guest"))}</span>`;
