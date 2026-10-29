@@ -1,12 +1,12 @@
 # نصوص عقود الفئات وعدم الإفصاح العام — النسخة 2 بعد ملاحظات القانونية (2026-10-29)
 
-الحالة: داخلية للمراجعة. **لا تُستعمل ولا تُرسل قبل: مراجعة عبدالعزيز للنسخة، ثم محامٍ سعودي، ثم «أرسلي» من المالك.** `[●]` = قرار المالك أو بيان العميل. الأسعار من الكتالوج وليست في العقد.
+الحالة: داخلية للمراجعة. **لا تُستعمل ولا تُرسل قبل: اعتماد عبدالعزيز، ثم محامٍ سعودي، ثم «أرسلي» من المالك.** `[●]` = قرار المالك أو بيان العميل. الأسعار من الكتالوج وليست في العقد.
 
-## ما طُبّق من ملاحظات عبدالعزيز
-سقف المسؤولية إجمالي للعقد كله؛ «يحل العقد وعرض السعر محل العروض ولا يلغي NDA»؛ الإلغاء بمراحل العرض + رسم أدنى غير مسترد [●] + الرسوم الحكومية لا تُسترد إلا بقدر ما تردّه الجهة؛ الرسوم الحكومية يودعها العميل مقدماً؛ حماية البيانات (إقرار العميل بتخويله + الاستضافة والنقل + الإعادة/الإتلاف)؛ الاعتذار عند نقص التعرّف على العميل في النواة؛ الرشوة (استثناء الرسوم الرسمية + إنهاء فوري)؛ عدم ممارسة المحاماة؛ قبول المخرجات [5] أيام؛ إقرارات الأهلية؛ التفويض وقرارات الجهات في النواة مرة واحدة (حُذف التكرار)؛ بنود الفئات الحساسة والعلاقات الحكومية وتأسيس الشركات والمكاتب والذكاء الاصطناعي؛ وNDA: تعريف المفصح/المتلقي وعدم منح ترخيص أو ملكية.
+## ما طُبّق
+كل ملاحظات عبدالعزيز الأولى + الثانية: «نفوذاً أو وسطاء بقصد التأثير غير المشروع»؛ بند تعطّل العميل (30/90 يوماً)؛ حقل استضافة البيانات والنقل في قالب عرض السعر؛ تصحيح لغوي للمكاتب والذكاء الاصطناعي.
 
-## ما بقي قراراً أو ملحقاً
-حد أدنى للسقف؛ رسم أدنى غير مسترد؛ جداول الاسترداد (الإقامة المميزة والتوظيف)؛ ملكية الحل في الذكاء الاصطناعي؛ من يتحمل تكاليف الاستعمال؛ فترة الصيانة. ملاحق لم تُكتب بعد: نموذج التفويض لكل فئة، جدول البيانات، جدول الاسترداد. ويبقى تحقق عبدالعزيز: التستر، الوساطة العقارية (الهيئة العقارية/إيجار)، ضوابط نقل البيانات، حظر العمولة من العامل، نص الترخيص وأنشطة السجل.
+## ما بقي
+قرارات المالك: حد أدنى للسقف، رسم أدنى غير مسترد، جداول الاسترداد، ملكية حل الذكاء الاصطناعي، تكاليف الاستعمال، فترة الصيانة، مدة العقد، مهلة الإلغاء. ملاحق لم تُكتب: نموذج التفويض، جدول البيانات، جدول الاسترداد. شرط قبل أي عقد استقدام أو مكاتب: نص الترخيص وأنشطة السجل. أسئلة المحامي السعودي (9) عند عبدالعزيز.
 
 
 ## اتفاقية عدم الإفصاح المتبادلة العامة
@@ -66,51 +66,55 @@
 - EN: The Client may cancel by written notice of [●] days. Fees are due for the work performed up to the cancellation date, measured by the stages stated in the quotation, and for fees already paid to third parties; a non-refundable minimum fee of [●] applies on engagement. Government and third-party fees actually paid are not refundable except to the extent the entity refunds them. Any balance paid in advance beyond that is refunded or deducted. The First Party may terminate or suspend the service for non-payment or material breach after 10 days’ written warning.
 - AR: للعميل الإلغاء بإشعار كتابي مدته [●] يوماً. تُستحق الرسوم عن العمل المنجز حتى تاريخ الإلغاء، ويُقاس بالمراحل المذكورة في عرض السعر، وعن أي رسوم دُفعت فعلاً للغير؛ ويسري عند التعاقد رسم أدنى غير مسترد قدره [●]. ولا تُسترد الرسوم الحكومية ورسوم الغير المدفوعة فعلاً إلا بقدر ما تردّه الجهة. ويُرد أو يُخصم ما دُفع مقدماً زائداً على ذلك. للطرف الأول إنهاء العقد أو إيقاف الخدمة عند عدم السداد أو الإخلال الجسيم بعد إنذار كتابي مدته 10 أيام.
 
-### 6. Exclusions / خارج نطاق السعر
+### 6. Client Inactivity / تعطّل العميل
+- EN: If the Client does not respond or provide the required documents within [30] days, the service is suspended; after [90] days it is closed and the work performed is charged by the stages stated in the quotation, in accordance with the Cancellation & Refund clause.
+- AR: إن لم يرد العميل أو يوفّر المستندات المطلوبة خلال [30] يوماً توقفت الخدمة، وبعد [90] يوماً تُغلق ويُحتسب المنجز بالمراحل المذكورة في عرض السعر وفق بند الإلغاء والاسترداد.
+
+### 7. Exclusions / خارج نطاق السعر
 - EN: The price does not include government fees, platform subscriptions, third-party charges, or any item not expressly listed in the quotation. Additional work is performed only under a written change request priced separately. The First Party’s services are administrative and advisory and do not constitute the practice of law or licensed legal advice unless expressly agreed in writing.
 - AR: لا يشمل السعر الرسوم الحكومية ولا اشتراكات المنصات ولا رسوم الأطراف الثالثة ولا أي بند غير مذكور صراحةً في عرض السعر. لا يُنفَّذ عمل إضافي إلا بطلب تغيير كتابي يُسعَّر على حدة. وخدمات الطرف الأول إدارية واستشارية، ولا تُعدّ ممارسة للمحاماة ولا رأياً قانونياً مرخصاً ما لم يُنص على خلاف ذلك كتابةً.
 
-### 7. Client Obligations & Representations / التزامات العميل وإقراراته
+### 8. Client Obligations & Representations / التزامات العميل وإقراراته
 - EN: Provide the required information and documents complete and on time and bear responsibility for their accuracy; give the written authorisation required for the services; respond to requests within [●] business days; and not hand over account passwords (delegated access is used where available). The Client represents that it has the legal capacity, that its signatory is authorised, and that it is authorised to give the First Party any third-party personal data (employees, partners, heirs, family members) and has notified their owners. The First Party may decline or suspend a service, without liability for the resulting delay, if the Client’s or beneficial owner’s identification data is incomplete or the information appears inconsistent with the regulations.
 - AR: تزويد الطرف الأول بالمعلومات والمستندات المطلوبة كاملة وفي الوقت المناسب وتحمّل صحتها؛ ومنح التفويض الكتابي اللازم للخدمات؛ والرد على الطلبات خلال [●] أيام عمل؛ وعدم تسليم كلمات مرور الحسابات (يُعتمد الوصول المفوَّض حيثما توفر). ويقرّ العميل بأهليته النظامية وبصلاحية موقّعه، وبأنه مخوَّل بتزويدنا ببيانات أطراف ثالثة (موظفون، شركاء، ورثة، أفراد عائلة) وأنه أشعر أصحابها. وللطرف الأول الاعتذار عن الخدمة أو إيقافها، دون مسؤولية عن التأخير الناتج، إذا لم تكتمل بيانات التعرّف على العميل أو المستفيد الحقيقي أو بدت المعلومات مخالفة للأنظمة.
 
-### 8. Authority & Competent Entities / التفويض وقرارات الجهات المختصة
-- EN: Where the services involve government or other competent entities, the First Party acts only as a service provider within the written authorisation or delegation the Client gives for the selected services, limited in scope and time, revocable by the Client at any time by notice, and with no sub-delegation except to the First Party's named staff. The First Party follows up through the official channels only, never asks for or holds the Client's login credentials or verification codes, and does not use influence or intermediaries. Decisions, timelines, requirements and fees of the entities are outside the First Party's control; it does not guarantee approval, a specific outcome or a timeline, and delay or rejection by an entity is not its default where it has performed its undertaking. Fines resulting from the Client's information or late documents are borne by the Client.
-- AR: حيث تتضمن الخدمات التعامل مع جهات حكومية أو مختصة، يعمل الطرف الأول مقدّم خدمة فقط ضمن التفويض الكتابي الذي يمنحه العميل للخدمات المختارة، محدد النطاق والمدة، وللعميل إلغاؤه في أي وقت بإشعار، ولا تفويض من الباطن إلا لموظفي الطرف الأول المسمّين. ويتابع الطرف الأول عبر القنوات الرسمية وحدها، ولا يطلب ولا يحتفظ ببيانات دخول العميل ولا برموز التحقق، ولا يستعمل نفوذاً أو وسطاء. قرارات الجهات ومددها واشتراطاتها ورسومها خارج سيطرة الطرف الأول؛ فلا يضمن القبول ولا نتيجة معينة ولا مدة محددة، ولا يُعدّ تأخر الجهة أو رفضها تقصيراً منه متى أدّى التزامه. وتقع على العميل الغرامات الناتجة عن معلوماته أو تأخر مستنداته.
+### 9. Authority & Competent Entities / التفويض وقرارات الجهات المختصة
+- EN: Where the services involve government or other competent entities, the First Party acts only as a service provider within the written authorisation or delegation the Client gives for the selected services, limited in scope and time, revocable by the Client at any time by notice, and with no sub-delegation except to the First Party's named staff. The First Party follows up through the official channels only, never asks for or holds the Client's login credentials or verification codes, and does not use influence or intermediaries with the intent of improper influence. Decisions, timelines, requirements and fees of the entities are outside the First Party's control; it does not guarantee approval, a specific outcome or a timeline, and delay or rejection by an entity is not its default where it has performed its undertaking. Fines resulting from the Client's information or late documents are borne by the Client.
+- AR: حيث تتضمن الخدمات التعامل مع جهات حكومية أو مختصة، يعمل الطرف الأول مقدّم خدمة فقط ضمن التفويض الكتابي الذي يمنحه العميل للخدمات المختارة، محدد النطاق والمدة، وللعميل إلغاؤه في أي وقت بإشعار، ولا تفويض من الباطن إلا لموظفي الطرف الأول المسمّين. ويتابع الطرف الأول عبر القنوات الرسمية وحدها، ولا يطلب ولا يحتفظ ببيانات دخول العميل ولا برموز التحقق، ولا يستعمل نفوذاً أو وسطاء بقصد التأثير غير المشروع. قرارات الجهات ومددها واشتراطاتها ورسومها خارج سيطرة الطرف الأول؛ فلا يضمن القبول ولا نتيجة معينة ولا مدة محددة، ولا يُعدّ تأخر الجهة أو رفضها تقصيراً منه متى أدّى التزامه. وتقع على العميل الغرامات الناتجة عن معلوماته أو تأخر مستنداته.
 
-### 9. No Guarantee of Outcome / عدم ضمان النتيجة
+### 10. No Guarantee of Outcome / عدم ضمان النتيجة
 - EN: The First Party’s obligation is to perform the services with professional care; it does not guarantee a particular outcome where the outcome depends on a third party’s decision.
 - AR: التزام الطرف الأول أداء الخدمات بعناية مهنية؛ ولا يضمن نتيجة معيّنة حيث تعتمد النتيجة على قرار طرف ثالث.
 
-### 10. Data Protection / حماية البيانات
+### 11. Data Protection / حماية البيانات
 - EN: Each party complies with the Personal Data Protection Law. The First Party processes the Client’s documents and data only to perform this contract, applies reasonable security measures, and notifies the Client within 48 hours of becoming aware of any breach affecting them. Hosting, processing and any transfer outside the Kingdom are stated in the quotation and acknowledged by the Client. On termination the First Party returns or destroys the data, keeping only what the law requires.
 - AR: يلتزم كل طرف بنظام حماية البيانات الشخصية. يعالج الطرف الأول مستندات العميل وبياناته لتنفيذ هذا العقد فقط، ويتخذ تدابير أمنية معقولة، ويُشعر العميل خلال 48 ساعة من علمه بأي تسرّب يمسّها. ويُذكر موقع الاستضافة والمعالجة وأي نقل خارج المملكة في عرض السعر ويقرّ به العميل. وعند انتهاء العقد يعيد الطرف الأول البيانات أو يتلفها مع الاحتفاظ بما يلزم نظاماً.
 
-### 11. Confidentiality / السرية
+### 12. Confidentiality / السرية
 - EN: Both parties are bound by the attached Non-Disclosure Agreement, which does not prevent the Client from using the outputs delivered to it under this contract in accordance with its terms.
 - AR: يلتزم الطرفان بسرية المعلومات وفق اتفاقية عدم الإفصاح المرفقة، ولا يمنع ذلك استعمال العميل للمخرجات المسلَّمة له بموجب هذا العقد وفق شروطه.
 
-### 12. Intellectual Property / الملكية الفكرية
+### 13. Intellectual Property / الملكية الفكرية
 - EN: Documents, forms, templates and tools the First Party uses remain its property. The Client may use the final deliverables for its own business purpose, with no resale or sub-licensing.
 - AR: المستندات والنماذج والقوالب والأدوات التي يستعملها الطرف الأول ملكه. وللعميل استعمال المخرجات النهائية لغرضه التجاري، دون إعادة بيعها أو ترخيصها من الباطن.
 
-### 13. Subcontractors / الاستعانة بالغير
+### 14. Subcontractors / الاستعانة بالغير
 - EN: The First Party may use contractors, processors and tool providers (including artificial intelligence and cloud hosting) under similar confidentiality obligations, and remains liable to the Client.
 - AR: للطرف الأول الاستعانة بمقاولين ومعالجين ومزودي أدوات (ومنها الذكاء الاصطناعي والاستضافة السحابية) بالتزامات سرية مماثلة، ويبقى مسؤولاً أمام العميل.
 
-### 14. Anti-Bribery / مكافحة الرشوة
+### 15. Anti-Bribery / مكافحة الرشوة
 - EN: Neither party, nor its agents or subcontractors, shall pay or offer any unlawful advantage to any public official or other person to obtain or speed up any service. This does not cover official fees paid through the official channels against a receipt. Breach entitles the other party to terminate immediately.
 - AR: لا يدفع أي طرف أو وكلاؤه أو مقاولوه من الباطن أو يعرض أي مزية غير مشروعة لأي موظف عام أو غيره للحصول على أي خدمة أو تسريعها. ولا يشمل ذلك الرسوم الرسمية المدفوعة بالقنوات الرسمية بإيصال. ويحق للطرف الآخر الإنهاء الفوري عند الإخلال.
 
-### 15. Liability / المسؤولية
+### 16. Liability / المسؤولية
 - EN: The First Party’s total aggregate liability for all claims arising out of this contract taken together does not exceed the total fees paid or due under this contract. The First Party is not liable for indirect damages or loss of profit or opportunity. Neither this cap nor this exclusion applies to fraud, wilful misconduct or gross negligence, nor to breach of confidentiality or the Personal Data Protection Law, and neither limits the Client’s financial obligations.
 - AR: لا تتجاوز مسؤولية الطرف الأول الإجمالية عن جميع المطالبات الناشئة عن هذا العقد مجتمعةً مجموع الرسوم المدفوعة أو المستحقة بموجب هذا العقد. ولا يُسأل الطرف الأول عن الأضرار غير المباشرة أو فوات الربح أو الفرص. ولا يسري هذا السقف ولا هذا الاستبعاد على الغش أو التعمد أو الخطأ الجسيم، ولا على الإخلال بالسرية أو بنظام حماية البيانات الشخصية، ولا يُحدّ من التزامات العميل المالية.
 
-### 16. Governing Law & Disputes / القانون وحل النزاعات
+### 17. Governing Law & Disputes / القانون وحل النزاعات
 - EN: Governed by the laws of the Kingdom of Saudi Arabia; disputes are resolved amicably within 30 days of written notice, then before the Commercial Court in Riyadh. The contract documents rank in this order: the contract, then the quotation, then any addendum. Electronic signature is valid.
 - AR: يخضع العقد لأنظمة المملكة العربية السعودية، وتُحل النزاعات ودياً خلال 30 يوماً من الإخطار الخطي، ثم أمام المحكمة التجارية في الرياض. تُقدَّم وثائق العقد بالترتيب: العقد ثم عرض السعر ثم أي ملحق. ويُعتدّ بالتوقيع الإلكتروني.
 
-### 17. General / أحكام عامة
+### 18. General / أحكام عامة
 - EN: The Arabic version prevails in case of discrepancy. Amendments only in writing signed by both parties. The contract may not be assigned or transferred without consent. This contract and the accepted quotation replace any prior offers or correspondence, and do not cancel the attached Non-Disclosure Agreement. The remainder stays valid if a part is void, and neither party is liable for delay caused by force majeure. Notices to the addresses stated: [●].
 - AR: النسخة العربية هي المرجع عند الاختلاف. لا يُعدَّل العقد إلا كتابةً بموافقة الطرفين. لا يُنقل العقد أو يُتنازل عنه دون موافقة. يحل هذا العقد وعرض السعر المقبول محل أي عروض أو مراسلات سابقة، ولا يلغي اتفاقية عدم الإفصاح المرفقة. ويبقى باقيه نافذاً إن بطل جزء منه، ولا يُسأل أي طرف عن تأخر ناتج عن القوة القاهرة. الإشعارات على العناوين المذكورة: [●].
 
@@ -185,7 +189,7 @@
 
 ### Lease, Booking & Provider Relationship / الإيجار والحجز والعلاقة بالمزوّد
 - EN: The First Party assists in searching and arranging only; any lease or booking is a separate contract between the Client and the owner or provider, concluded through the channels the law requires, and the First Party is not a party to it nor liable for the owner's performance or the property's condition. The First Party discloses any commission or relationship it has with the provider. It does not receive deposits or rent; the Client pays them directly. No availability, price or condition is guaranteed.
-- AR: يقتصر دور الطرف الأول على المساعدة في البحث والترتيب؛ وأي إيجار أو حجز عقد مستقل بين العميل والمالك أو المزوّد يُبرم عبر القنوات التي يشترطها النظام، ولا يكون الطرف الأول طرفاً فيه ولا مسؤولاً عن أداء المالك أو حالة العقار. ويفصح الطرف الأول عن أي عمولة أو علاقة له بالمزوّد. ولا يستلم ودائع ولا إيجارات؛ يدفعها العميل مباشرة. ولا يُضمن توفر أو سعر أو حالة.
+- AR: يقتصر دور الطرف الأول على المساعدة في البحث والترتيب؛ وأي إيجار أو حجز عقد مستقل بين العميل والمالك أو المزوّد يُبرم عبر القنوات التي يشترطها النظام، ولا يكون الطرف الأول طرفاً فيه ولا مسؤولاً عن أداء المالك أو حالة العقار. ويفصح الطرف الأول عن أي عمولة أو علاقة له بالمزوّد. ولا يستلم ودائع ولا إيجارات؛ يدفعها العميل مباشرة. ولا يضمن الطرف الأول توفراً أو سعراً أو حالة.
 
 
 ## بنود خاصة بفئة الأتمتة والذكاء الاصطناعي / AI & Automation
@@ -196,4 +200,4 @@
 
 ### Solution, Data & AI Outputs / الحل والبيانات ومخرجات الذكاء الاصطناعي
 - EN: The Client owns its data. The First Party does not use the Client's data to train its own or others' models. The hosting, processing and any transfer outside the Kingdom are stated in the quotation and acknowledged by the Client. Third-party model and tool providers' terms apply and are not guaranteed by the First Party; usage costs (tokens, hosting) are borne by: [●]. Ownership and licence of the delivered solution: [●]. A testing and acceptance period applies, followed by a maintenance warranty period of [●]. AI-generated outputs may contain errors and must be reviewed by the Client before reliance. The Client is responsible for the lawfulness of the data it provides and for automated decisions affecting individuals.
-- AR: يملك العميل بياناته، ولا يستعمل الطرف الأول بيانات العميل في تدريب نماذج له أو لغيره. ويُذكر موقع الاستضافة والمعالجة وأي نقل خارج المملكة في عرض السعر ويقرّ به العميل. وتنطبق شروط مزوّدي النماذج والأدوات من الغير ولا يضمنها الطرف الأول؛ وتتحمل تكاليف الاستعمال (الرموز، الاستضافة): [●]. ملكية الحل المسلَّم وترخيصه: [●]. وتسري فترة اختبار وقبول تليها فترة ضمان صيانة مدتها [●]. وقد تحتوي مخرجات الذكاء الاصطناعي على أخطاء ويجب على العميل مراجعتها قبل الاعتماد عليها. ويتحمل العميل مشروعية البيانات التي يقدمها والقرارات المؤتمتة التي تمسّ الأفراد.
+- AR: يملك العميل بياناته، ولا يستعمل الطرف الأول بيانات العميل في تدريب نماذج له أو لغيره. ويُذكر موقع الاستضافة والمعالجة وأي نقل خارج المملكة في عرض السعر ويقرّ به العميل. وتنطبق شروط مزوّدي النماذج والأدوات من الغير ولا يضمنها الطرف الأول؛ ويتحمل تكاليف الاستعمال (الرموز، الاستضافة): [●]. ملكية الحل المسلَّم وترخيصه: [●]. وتسري فترة اختبار وقبول تليها فترة ضمان صيانة مدتها [●]. وقد تحتوي مخرجات الذكاء الاصطناعي على أخطاء ويجب على العميل مراجعتها قبل الاعتماد عليها. ويتحمل العميل مشروعية البيانات التي يقدمها والقرارات المؤتمتة التي تمسّ الأفراد.
