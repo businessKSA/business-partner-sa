@@ -2915,6 +2915,49 @@ async function opsAction(action, b, qs, req, res, opsUser) {
     return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, counts, revenue, integrations: integrationStatus(), recent: all.slice(0, 12).map(summary) });
   }
 
+  // «حسابات عملاء جديدة» — جواب واحد من ثلاثة لسؤال «كم عميل دخل؟» (الزوّار والطلبات
+  // يأتيان من ops-analytics). المصدر جدول users وحده (created_at): حسابٌ سُجّل، لا
+  // زيارة ولا طلب. يُستبعد الموظفون (is_bp_staff) وبريد المالك وحسابات @test.local، حتى
+  // لا يعدّ المالك نفسه عميلاً جديداً كلما جرّب. للقراءة فقط — لا يكتب ولا يُرسل شيئاً.
+  // النوافذ هي نوافذ ops-analytics نفسها (يوم = آخر ٢٤ ساعة بالساعات، أسبوع = ٧ أيام
+  // و شهر = ٣٠ يوماً مقصوصة على منتصف الليل بتوقيت الرياض) فيتجاوران بلا فرق في الحدود.
+  if (action === "ops-new-accounts") {
+    const TZ = 3 * 3600e3, now = Date.now();
+    const align = (ms) => { const step = ms >= 86400e3 ? 86400e3 : ms; return Math.floor((now + TZ) / step) * step - TZ; };
+    const spec = { day: { ms: 3600e3, n: 24 }, week: { ms: 86400e3, n: 7 }, month: { ms: 86400e3, n: 30 } };
+    const win = {};
+    for (const [k, w] of Object.entries(spec)) { const from = align(w.ms) - (w.n - 1) * w.ms; win[k] = { from, prevFrom: from - w.n * w.ms }; }
+    const since = new Date(win.month.prevFrom).toISOString();
+    const PAGE = 1000, MAX_PAGES = 10;
+    let rows = [], capped = false;
+    for (let i = 0; i < MAX_PAGES; i++) {
+      let part = [];
+      try { part = await sb(`users?select=email,is_bp_staff,created_at&created_at=gte.${since}&order=created_at.desc&limit=${PAGE}&offset=${i * PAGE}`); }
+      catch { return json(res, 502, { ok: false, error: "db_failed" }); }
+      if (!Array.isArray(part) || !part.length) break;
+      rows = rows.concat(part);
+      if (part.length < PAGE) break;
+      if (i === MAX_PAGES - 1) capped = true;
+    }
+    let excluded = 0;
+    const real = [];
+    for (const u of rows) {
+      const mail = String(u.email || "").toLowerCase();
+      if (u.is_bp_staff === true || isOwnerEmail(mail) || /@test\.local$/.test(mail)) { excluded++; continue; }
+      const t = Date.parse(u.created_at);
+      if (t) real.push(t);
+    }
+    const windows = {};
+    for (const [k, w] of Object.entries(win)) {
+      windows[k] = {
+        from: new Date(w.from).toISOString(),
+        count: real.filter((t) => t >= w.from).length,
+        prev: real.filter((t) => t >= w.prevFrom && t < w.from).length,
+      };
+    }
+    return json(res, 200, { ok: true, windows, excluded, capped, source: "users.created_at" });
+  }
+
   // Development only: what would have been emailed / sent on WhatsApp.
   if (action === "ops-outbox") {
     return json(res, 200, { ok: true, modes: MODES(), outbox: DEV ? await outboxList(60) : [] });
