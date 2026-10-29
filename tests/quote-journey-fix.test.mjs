@@ -187,7 +187,8 @@ test("شروط الدفع الافتراضية تظهر بلغة العميل (�
   assert.equal(row.lang, "en"); assert.equal(row.quote.payment_terms, "الدفع مقدماً بعد توقيع العقد", "المخزَّن كما كُتب");
   const view = await call("quote-view", { ref });
   assert.ok(view.html.includes("Payment in advance after the contract is signed"), "بالإنجليزية في مستند العرض");
-  assert.ok(!view.html.includes("الدفع مقدماً بعد توقيع العقد"));
+  // مستند العرض (القالب v3) ثنائي اللغة دائماً: الجملتان فيه، العربية يميناً والإنجليزية يساراً (قرار المالك 2026-10-29)
+  assert.ok(view.html.includes("الدفع مقدماً بعد توقيع العقد"), "والعربية في عمودها المقابل");
   assert.equal((await call("request-get", { ref })).request.quote.payment_terms, "Payment in advance after the contract is signed");
   const ar = await create([PRICED]);
   assert.equal((await call("request-get", { ref: ar })).request.quote.payment_terms, "الدفع مقدماً بعد توقيع العقد");

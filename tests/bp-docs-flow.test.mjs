@@ -44,16 +44,17 @@ const issue = async (ref) => {
   assert.equal((await call("quote-approve", { ref })).body.ok, true);
 };
 
-test("a new quotation is v2: stored with the version, and quote-view serves the new paper", async () => {
+test("a new quotation is v3 (the permanent identity): stored with the version and its snapshot, and quote-view serves the new paper", async () => {
   const ref = await newRequest();
   await call("ops-quote", { ref, items: [{ code: "BP-SBC-01", title: "تأسيس شركة سعودية", price: 7500, qty: 1 }, { title: "بند إضافي", price: 100, qty: 2 }] });
   const row = await rowOf(ref);
-  assert.equal(row.quote.template_version, "v2");
+  assert.equal(row.quote.template_version, "v3");
+  assert.ok(row.quote.doc && row.quote.doc.company && row.quote.doc.company.unified, "what the paper needs is written once, at issue");
   const v = await call("quote-view", { ref });
   assert.equal(v.body.ok, true);
-  assert.match(v.body.html, /data-bp-doc="v2" data-kind="quote"/);
-  assert.ok(v.body.html.includes("BP-SBC-01") && v.body.html.includes("7,500.00") && v.body.html.includes("200.00"), "schedule from the quote lines");
-  assert.ok(v.body.html.includes("Schedule of items and prices"));
+  assert.match(v.body.html, /data-bp-doc="v3" data-kind="quote"/);
+  assert.ok(v.body.html.includes("BP-SBC-01") && v.body.html.includes("7,500.00") && v.body.html.includes("200.00"), "price table from the quote lines");
+  assert.ok(v.body.html.includes("Quote validity") && v.body.html.includes("Other Business Partner services"));
   assert.ok(v.body.html.includes(`${(7700 * 1.15).toLocaleString("en-US", { minimumFractionDigits: 2 })}`), "total incl. 15% VAT");
 });
 

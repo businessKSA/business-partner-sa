@@ -21,7 +21,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { sb, DB_ON, DB_MISSING, getSession, audit, notify } from "./_db.js";
 import { contractHtml, quoteHtml, portalContractHtml } from "./_docusign.js";
-import { templateForVersion, templateForLang } from "./_bp-docs.js";
+import { templateForVersion, templateForLang, templateForQuoteLang } from "./_bp-docs.js";
+import { quoteDocSnapshot, quoteDocInput, quotePublicUrl, quoteLinkOk, quoteLinkThrottle } from "./_quote-doc.js";
 import { loadCatalog, normalizeText } from "./_catalog.js";
 import { isSeedTitle } from "./_scope-seeds.js";
 import { loadPriceBook, resolveSku, referencePrice } from "./_catalog-prices.js";
@@ -312,6 +313,9 @@ function clientView(row, events, tasks) {
   if (pub.contract && pub.contract.html) pub.contract = { ...pub.contract, html: undefined, html_signed: undefined, has_html: true };
   if (pub.nda && pub.nda.html) pub.nda = { ...pub.nda, html: undefined, has_html: true };
   if (pub.quote && pub.quote.payment_terms) pub.quote = { ...pub.quote, payment_terms: localTerms(pub.quote, row.lang) };
+  // the read-only public link of the quotation paper (api/_quote-doc.js): handed to the signed-in client only, relative so it
+  // opens on whichever host the client is on
+  if (pub.quote && pub.quote.template_version === "v3") { const u = quotePublicUrl(row, ""); if (u) pub.quote = { ...pub.quote, public_url: u }; }
   // Machine bookkeeping («notify.paid», «followup.task») is for the panel: the
   // customer's timeline used to print those keys raw.
   const visible = (e) => e.actor_kind !== "internal" && !/^(notify\.|followup\.task)/.test(String(e.event || ""));
@@ -616,7 +620,7 @@ async function issueQuote(row, rawItems, opts, actorKind, actor) {
       if (tag && !String(l.description || "").includes(tag)) l.description = (l.description ? l.description + " — " : "") + tag;
     }
   }
-  const quote = { number: "Q-" + row.ref.replace(/^BP-R-/, "") + (row.quote && row.quote.status === "REJECTED" ? "-R" : ""), status: "DRAFT", created_at: nowIso(), template_version: templateForLang(row.lang), ...computeQuote(priced, opts) };
+  const quote = { number: "Q-" + row.ref.replace(/^BP-R-/, "") + (row.quote && row.quote.status === "REJECTED" ? "-R" : ""), status: "DRAFT", created_at: nowIso(), template_version: templateForQuoteLang(row.lang), ...computeQuote(priced, opts) };
   if (!quote.items.length) return { ok: false, error: "no_items" };
   // What the customer typed beside catalogue lines: kept apart, short, and printed
   // as «ملاحظات العميل» — never as a line of the quotation or the contract.
@@ -637,6 +641,14 @@ async function issueQuote(row, rawItems, opts, actorKind, actor) {
     quote.service = quote.items.map((l) => l.title).join(" + ").slice(0, 200);
     const en = quote.items.map((l) => l.titleEn || l.title);
     if (quote.items.some((l) => l.titleEn)) quote.serviceEn = en.join(" + ").slice(0, 200);
+  }
+  // The paper of the permanent identity (template v3) is drawn from the lines plus what its pages need
+  // (each service's scope and documents, the REV package figures, the company, the lines still waiting for
+  // a price): written once, here, so a later change of a service page, of the catalogue, of the request's
+  // document list or the arrival of an addendum never rewrites a quotation the client already holds.
+  if (quote.template_version === "v3") {
+    try { quote.doc = quoteDocSnapshot(quote.items, { documents: row.documents, pending, hasNda: !!row.nda }); }
+    catch (e) { console.error("quote doc snapshot", String(e && e.message || e).slice(0, 120)); quote.doc = {}; }
   }
   const scopeAfter = [
     ...quote.items.map((l) => ({ code: l.code, title: l.title, ...(l.titleEn ? { titleEn: l.titleEn } : {}), why: l.description, qty: l.qty })),
@@ -707,6 +719,18 @@ const NOTE_TX = {
   fr: { pend: "Lignes en attente de prix (un devis complémentaire suivra ; hors de ce devis et du contrat)", client: "Remarques du client (à titre informatif, hors contrat)" },
   zh: { pend: "待定价项目（将另发补充报价；不属于本报价和合同）", client: "客户备注（仅供参考，不属于合同条款）" },
 };
+// The quotation (or one of its addenda) as the paper of template v3, or null when this quotation was issued
+// with an older paper (its own, frozen path renders it). api/_quote-doc.js decides what goes into it.
+function quotePaper(row, number) {
+  const q = row && row.quote;
+  if (!q) return null;
+  const ad = number && number !== q.number && Array.isArray(q.addenda) ? q.addenda.find((a) => a.number === number) : null;
+  if (!ad && q.template_version !== "v3") return null;
+  if (number && !ad && number !== q.number) return null;
+  const tpl = templateForVersion("v3");
+  if (!tpl) return null;
+  return { number: (ad || q).number, html: tpl.quote(quoteDocInput(row, partyName(row), ad ? { addendum: ad } : {})) };
+}
 // The printed notes in the language of the paper: the Arabic sentences used to be inserted into every
 // language's quotation. Reasons are written in English for the Latin-script and Chinese papers.
 const quoteNotes = (q, lang = "ar") => {
@@ -874,6 +898,8 @@ export async function handleSimple(req, res) {
       }
       return opsAction(action, body, qs, req, res, opsUser);
     }
+    // The quotation paper by its signed link (GET): reading only, no session — see api/_quote-doc.js.
+    if (action === "quote-public") return quotePublic(req, res, qs);
     // مركز التواصل (ودجت الدعم): التتبّع والتذكرة يعملان بلا جلسة أيضاً —
     // الزائر الذي لم يدخل بعد هو أكثر من يحتاجهما. الجلسة إن وُجدت ترفع
     // ما يراه؛ وبلا جلسة لا يخرج شيء إلا بمرجعٍ + بريدٍ مطابقين (supportAction).
@@ -889,6 +915,29 @@ export async function handleSimple(req, res) {
     console.error("simple:", action, e && e.message);
     return json(res, 500, { ok: false, error: "server_error" });
   }
+}
+
+// The quotation paper by its signed link. Every failure — a malformed reference, an unknown request, a wrong or
+// retired token, an expired link, a quotation issued with an older paper — answers the same bare 404.
+async function quotePublic(req, res, qs) {
+  const plain = (code, text) => { res.statusCode = code; res.setHeader("content-type", "text/plain; charset=utf-8"); res.setHeader("cache-control", "no-store"); res.end(text); };
+  if (req.method !== "GET") return plain(404, "Not found");
+  if (!quoteLinkThrottle(clientIp(req) || "?")) return plain(429, "Too many requests");
+  const ref = str(qs.ref, 40), token = str(qs.t, 80);
+  if (!/^BP-R-[A-Z0-9-]{3,24}$/i.test(ref) || !token) return plain(404, "Not found");
+  let row = null;
+  try { row = await getByRef(ref.toUpperCase()); } catch { row = null; }
+  if (!row || !quoteLinkOk(row, token)) return plain(404, "Not found");
+  const paper = row.quote.template_version === "v3" ? quotePaper(row, "") : null;
+  if (!paper) return plain(404, "Not found");
+  res.statusCode = 200;
+  res.setHeader("content-type", "text/html; charset=utf-8");
+  res.setHeader("cache-control", "private, no-store");
+  res.setHeader("x-robots-tag", "noindex, nofollow, noarchive");
+  res.setHeader("referrer-policy", "no-referrer");
+  res.setHeader("x-content-type-options", "nosniff");
+  res.setHeader("content-security-policy", "default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'");
+  res.end(paper.html);
 }
 
 // getSession (api/_db.js) لا يختار vat_number ولا city، فبعد أن يحفظهما استقبال المستندات تختفيان من «بيانات
@@ -1363,6 +1412,11 @@ async function clientAction(action, b, qs, req, res, sess) {
   // العرض كمستند كامل بلغتين — نفس ورقة العقد، تُفتح بالحجم الكامل وتُطبع.
   if (action === "quote-view") {
     if (!row.quote) return json(res, 404, { ok: false, error: "no_quote" });
+    // template v3 (the permanent identity): drawn from the stored lines + the snapshot written at issue.
+    // `number` may name an addendum (Q-…-A1); an addendum always uses the current paper.
+    const v3 = quotePaper(row, str(b.number, 60));
+    if (v3) return json(res, 200, { ok: true, number: v3.number, html: v3.html });
+    if (str(b.number, 60) && str(b.number, 60) !== row.quote.number) return json(res, 404, { ok: false, error: "no_quote" });
     const qtpl = templateForVersion(row.quote.template_version);
     if (qtpl) return json(res, 200, { ok: true, number: row.quote.number, html: qtpl.quote({
       ref: row.ref, number: row.quote.number, clientName: partyName(row), service: row.quote.service || row.title, ...(row.quote.serviceEn ? { serviceEn: row.quote.serviceEn } : {}), items: quoteItemsFor(row.quote, row.lang || "ar"),
@@ -3242,6 +3296,8 @@ async function opsAction(action, b, qs, req, res, opsUser) {
     const prior = Array.isArray(row.quote.addenda) ? row.quote.addenda : [];
     const base = String(row.quote.number || "").replace(/-A\d+$/, "");
     const addendum = { number: `${base}-A${prior.length + 1}`, status: "SENT", created_at: nowIso(), sent_at: nowIso(), covers: [...covered], ...computeQuote(lines, b) };
+    // the addendum's own paper (template v3) needs the scope of the lines it prices, written now like at issue
+    try { addendum.doc = quoteDocSnapshot(addendum.items, {}); } catch (e) { console.error("addendum doc snapshot", String(e && e.message || e).slice(0, 120)); }
     const left = pend.filter((x) => !covered.has(x.title));
     const quote = { ...row.quote, addenda: [...prior, addendum] };
     if (left.length) quote.pending_items = left; else delete quote.pending_items;
