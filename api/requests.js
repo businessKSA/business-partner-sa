@@ -40,7 +40,8 @@ import { azureBlobReady, blobMissing } from "./_azblob.js";
 import { azureSendEmail, azureEmailReady } from "./_azure_notify.js";
 import { graphReady, graphMissing } from "./_msgraph.js";
 import { handleDocAgent } from "./_docagent.js";
-import { handleSimple, createCartRequest } from "./_simple.js";
+import { handleSimple, createCartRequest, setOpsExtra } from "./_simple.js";
+import { toolUsage, OPS_DONE, OPS_TOOLS_UNMEASURED } from "./_ops-dynamic.js";
 import { handlePrIntake } from "./_printake.js";
 import spacesHandler from "./_spaces.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
@@ -100,6 +101,9 @@ async function opsGate(req, src) {
   if (panelOk(src)) return true;
   const key = String((src && src.key) || "").trim();
   if (OPS_TEST_MODE && key && key === SIMPLE_OPS_KEY && !panelRequiresNafath()) return true;
+  // PANEL_REQUIRE_NAFATH يغلق باب جلسة البريد كما يغلقه api/_simple.js: الجلسة تثبت صندوق بريد
+  // لا شخصاً واقفاً عند الهاتف. بلا هذا السطر كانت الإحصائيات تُفتح ببريد المالك والباب مغلق.
+  if (panelRequiresNafath()) return false;
   let sess = null;
   try { sess = await getSession(req); } catch { return false; }
   return isOwnerEmail(sess && sess.user && sess.user.email);
@@ -658,6 +662,17 @@ async function collectFollowups(limit) {
   });
   return (data.results || []).map(followupRow);
 }
+
+// مزوّد «متابعات اليوم» لإحاطة /ops (api/_simple.js ops-today): يُحقن من هنا لأن collectFollowups هنا.
+// مخزَّن خمس دقائق حتى لا يُسأل نوشن عند كل تحديث تلقائي للوحة. بلا رمز نوشن = غير مقيس، لا صفر.
+let _fuCache = { at: 0, due: null };
+setOpsExtra("followups", async () => {
+  if (!NOTION_TOKEN) return { due: null, why: "نوشن غير مضبوط (لا رمز تكامل)" };
+  if (_fuCache.due != null && Date.now() - _fuCache.at < 5 * 60e3) return { due: _fuCache.due };
+  const list = await Promise.race([collectFollowups(60), new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 6000))]);
+  _fuCache = { at: Date.now(), due: list.length };
+  return { due: list.length };
+});
 
 // The full live board: every recent pipeline row (most recently edited
 // first), bucketed so the panel can lane them — «due» needs contact now,
@@ -1879,6 +1894,53 @@ function anaRequests(rows) {
   const total = (rows || []).length;
   return { total, capped: total >= ANA_REQ_LIMIT, bySource, byStatus, paid, revenue: Math.round(revenue * 100) / 100 };
 }
+// عدّادات الإنجاز لمدّتين من قاعدتنا (جدولٌ غائب أو قراءة فاشلة = measured:false بسببها، لا صفر).
+// كل عدّاد يقرأ عمود الوقت وحده بسقف ٢٠٠٠ صفّ ثم يُوزَّع على المدّتين هنا.
+async function anaDone(prevFrom, curFrom) {
+  const sinceIso = new Date(prevFrom).toISOString();
+  const out = await Promise.all(OPS_DONE.map(async (d) => {
+    try {
+      const rows = await sb(`${d.table}?select=${d.col}&${d.col}=gte.${sinceIso}${d.filter ? "&" + d.filter : ""}&order=${d.col}.desc&limit=2000`);
+      if (!Array.isArray(rows)) throw new Error("bad");
+      let cur = 0, prev = 0;
+      for (const r of rows) { const t = Date.parse(r[d.col]); if (!t) continue; if (t >= curFrom) cur++; else prev++; }
+      return { key: d.key, label: d.label, measured: true, cur, prev, capped: rows.length >= 2000 };
+    } catch { return { key: d.key, label: d.label, measured: false, why: "الجدول غير متاح في هذه القاعدة" }; }
+  }));
+  return out;
+}
+// «الآن»: آخر نصف ساعة فقط — قراءة صغيرة تحتمل التحديث كل عشرين ثانية، بخلاف ops-analytics التي تقرأ المدّة كاملة.
+const LIVE_MIN = 30;
+async function anaLive(now) {
+  const since = now - LIVE_MIN * 60e3;
+  const [hits, errs, reqs] = await Promise.all([
+    anaHits(new Date(since).toISOString()),
+    sb(`site_errors?select=at,path,message&at=gte.${new Date(now - 3600e3).toISOString()}&order=at.desc&limit=50`).catch(() => null),
+    sb(`requests?select=ref,created_at&created_at=gte.${new Date(now - 3600e3).toISOString()}&order=created_at.desc&limit=200`).catch(() => null),
+  ]);
+  const rows = anaDropStaff(Array.isArray(hits) ? hits : []).rows;
+  const views = rows.filter((r) => r.kind === "view");
+  const perMin = new Array(LIVE_MIN).fill(0);
+  for (const r of views) {
+    const t = Date.parse(r.at);
+    if (!t) continue;
+    const i = LIVE_MIN - 1 - Math.floor((now - t) / 60e3);
+    if (i >= 0 && i < LIVE_MIN) perMin[i]++;
+  }
+  const act = (mins) => new Set(views.filter((r) => r.visitor && Date.parse(r.at) >= now - mins * 60e3).map((r) => r.visitor)).size;
+  return {
+    now: new Date(now).toISOString(),
+    active_5m: act(5),
+    active_30m: act(30),
+    views_30m: views.length,
+    per_minute: perMin,
+    recent: views.slice(0, 8).map((r) => ({ at: r.at, path: anaPath(r.path), device: r.device || "", ref: r.ref || "" })),
+    errors_1h: errs == null ? null : errs.length,
+    error_last: errs && errs[0] ? { at: errs[0].at, path: errs[0].path, message: String(errs[0].message || "").slice(0, 120) } : null,
+    requests_1h: reqs == null ? null : reqs.length,
+  };
+}
+
 // ما لا يُقاس اليوم — يُقال بصراحة بدل أن يُعرض صفرٌ يبدو قياساً.
 const ANA_SOURCES = [
   { key: "email", label: "البريد", measured: false, note: "الرسائل تخرج عبر Resend ولا تُكتب في قاعدتنا: لا عدّاد إرسال ولا فتح ولا نقر. يلزم سجلّ إرسال (جدول) أو webhook من Resend." },
@@ -2255,9 +2317,21 @@ export default async function handler(req, res) {
   // إحصائيات لوحة /ops: مدّة واحدة من الست، ومعها المدّة التي قبلها للمقارنة،
   // ورحلات الزوّار. كل رقم هنا محسوب من page_hits/site_errors/requests —
   // وما لا يُقاس يُعاد في `sources` مكتوباً أنه غير مقيس، لا صفراً.
+  // «الآن» لحركة الموقع: زوّار نشطون، زيارات آخر نصف ساعة بالدقيقة، آخر الصفحات، أخطاء الساعة.
+  // المفتاح من الترويسة x-ops-key أو جلسة المالك — لا من الرابط.
+  if ((q.action || "") === "ops-live") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!(await opsGate(req, { key: req.headers && req.headers["x-ops-key"] }))) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    try {
+      res.statusCode = 200;
+      return res.end(JSON.stringify({ ok: true, ...(await anaLive(Date.now())) }));
+    } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+  }
+
   if ((q.action || "") === "ops-analytics") {
     res.setHeader("Cache-Control", "no-store");
-    if (!(await opsGate(req, q))) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    if (!(await opsGate(req, { ...q, key: q.key || (req.headers && req.headers["x-ops-key"]) }))) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
     if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
     const period = ANA_BUCKETS[String(q.period || "")] ? String(q.period) : "week";
     const b = ANA_BUCKETS[period];
@@ -2267,11 +2341,15 @@ export default async function handler(req, res) {
     const curFrom = anaAlign(now, b.ms) - (b.n - 1) * b.ms;
     const prevFrom = curFrom - span;
     try {
-      const [hits, errRows, reqRows] = await Promise.all([
+      const [hits, errRowsAll, reqRows, done] = await Promise.all([
         anaHits(new Date(prevFrom).toISOString()),
-        sb(`site_errors?select=at,path,message,source&at=gte.${new Date(curFrom).toISOString()}&order=at.desc&limit=200`).catch(() => []),
+        sb(`site_errors?select=at,path,message,source&at=gte.${new Date(prevFrom).toISOString()}&order=at.desc&limit=400`).catch(() => []),
         sb(`requests?select=ref,status,source,payment,created_at&created_at=gte.${new Date(curFrom).toISOString()}&order=created_at.desc&limit=${ANA_REQ_LIMIT}`).catch(() => []),
+        anaDone(prevFrom, curFrom),
       ]);
+      const errAll = Array.isArray(errRowsAll) ? errRowsAll : [];
+      const errRows = errAll.filter((e) => Date.parse(e.at) >= curFrom);
+      const prevErrors = errAll.length - errRows.length;
       const rawRows = Array.isArray(hits) ? hits : [];
       const dropped = anaDropStaff(rawRows);
       const rows = dropped.rows;
@@ -2295,9 +2373,16 @@ export default async function handler(req, res) {
         from: new Date(curFrom).toISOString(),
         to: new Date(now).toISOString(),
         totals: { ...anaTotals(cur), errors: errs.length },
-        prev: anaTotals(prev),
+        prev: { ...anaTotals(prev), errors: prevErrors },
         series: anaSeries(cur, curFrom, b),
-        pages: anaTopPages(curViews, 15),
+        prevSeries: anaSeries(prev, prevFrom, b),
+        pages: (() => {
+          const before = new Map(anaTopPages(prev.filter((r) => r.kind === "view"), 500).map((x) => [x.path, x.views]));
+          return anaTopPages(curViews, 15).map((x) => ({ ...x, prev_views: before.get(x.path) || 0 }));
+        })(),
+        tools: toolUsage(curViews, prev.filter((r) => r.kind === "view"), anaPath),
+        done,
+        toolsUnmeasured: OPS_TOOLS_UNMEASURED,
         clicks: anaCount(curClicks, (r) => r.name || "؟", 15),
         refs: anaCount(curViews, (r) => String(r.ref || "").trim() || "مباشر", 12),
         devices: anaCount(curViews, (r) => r.device || "؟", 6),

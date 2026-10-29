@@ -160,7 +160,7 @@ test("api/requests.js panelOk: with the switch on, the key is shut and the ticke
   } finally { delete process.env.PANEL_REQUIRE_NAFATH; }
 });
 
-test("api/requests.js opsGate: the owner's e-mail session must be shut when Nafath is required", { todo: "owner-ops: opsGate() in api/requests.js falls back to isOwnerEmail(session) without checking panelRequiresNafath()" }, async () => {
+test("api/requests.js opsGate: the owner's e-mail session must be shut when Nafath is required", async () => {
   const { default: requests } = await import("../api/requests.js");
   const s = await otp({ action: "start", email: "owner.mail2@example.com" });
   const v = await otp({ action: "verify", email: "owner.mail2@example.com", code: s.json.devCode, challenge: s.json.challenge });
