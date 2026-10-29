@@ -182,15 +182,15 @@ def cover(title_en, title_ar, kicker_en, kicker_ar, sub_en, sub_ar):
             '<div><span>Date / التاريخ</span><span class="num">[●]</span></div><div><span>Ref / المرجع</span><span class="num">[●]</span></div></div></div></div>')
 
 
-def build_doc(name, title_ar, title_en, items, cover_html):
-    fonts, cssx = A.fonts(), css()
+def sections(items, title_ar, title_en, cover_html, fonts, cssx):
+    """Fixed A4 sheets (cover, measured content pages, closing page) as HTML strings."""
     heights = measure(items, fonts, cssx)
     pages = paginate(items, heights)
     n = len(pages) + 2
     hd = (f'<div class="hd" dir="ltr">{A.LOGO}<div dir="rtl" style="flex:1;text-align:right"><h1 class="sm">{title_ar}</h1>'
           f'<div class="sub" dir="ltr" style="font-family:\'Playfair Display\',serif;font-size:13px;text-align:right">{title_en}</div></div></div>')
     ft = lambda i: (A.FT % i).replace(f'/ {A.TOTAL}', f'/ {n}')
-    secs = f'<section class="sheet port" lang="ar">{cover_html}{ft(1)}</section>'
+    out = [f'<section class="sheet port" lang="ar">{cover_html}{ft(1)}</section>']
     for i, pg in enumerate(pages, 2):
         inner, buf = '', ''
         for it in pg:
@@ -200,11 +200,23 @@ def build_doc(name, title_ar, title_en, items, cover_html):
                 if buf: inner += f'<table class="cl">{buf}</table>'; buf = ''
                 inner += render_item(it)
         if buf: inner += f'<table class="cl">{buf}</table>'
-        secs += f'<section class="sheet port" lang="ar"><div dir="rtl">{hd}{inner}</div>{ft(i)}</section>'
+        out.append(f'<section class="sheet port" lang="ar"><div dir="rtl">{hd}{inner}</div>{ft(i)}</section>')
     closing = T.inner(T.sheets(T.CONTRACT)[-1])
-    secs += f'<section class="sheet port" lang="ar">{closing}{ft(n)}</section>'
-    doc = f'<!doctype html><html><head><meta charset="utf-8"><title>{title_en}</title><style>{fonts}{cssx}</style></head><body>{secs}</body></html>'
-    return doc, n
+    out.append(f'<section class="sheet port" lang="ar">{closing}{ft(n)}</section>')
+    return out
+
+
+def build_doc(name, title_ar, title_en, items, cover_html):
+    fonts, cssx = A.fonts(), css()
+    secs = sections(items, title_ar, title_en, cover_html, fonts, cssx)
+    doc = f'<!doctype html><html><head><meta charset="utf-8"><title>{title_en}</title><style>{fonts}{cssx}</style></head><body>{"".join(secs)}</body></html>'
+    return doc, len(secs)
+
+
+def contract_cover():
+    return cover('Shared National Talent Service Assignment Agreement', 'عقد إسناد الكوادر الوطنية المشتركة', 'SERVICE AGREEMENT', 'عقد خدمة',
+                 'Saudi professionals assigned part-time or flexibly, managed and developed by Business Partner.',
+                 'كوادر سعودية تُسند بدوام جزئي أو مرن، تديرها وتطوّرها Business Partner.')
 
 
 def print_pdf(name, doc):
@@ -228,10 +240,7 @@ def main():
     pr = G.prices()
     build_nda()
     items = contract_items(pr)
-    doc, n = build_doc('03-Service-Agreement-INTERNAL-DRAFT-Bilingual', 'عقد إسناد الكوادر الوطنية المشتركة', 'Shared National Talent Service Assignment Agreement', items,
-                       cover('Shared National Talent Service Assignment Agreement', 'عقد إسناد الكوادر الوطنية المشتركة', 'SERVICE AGREEMENT', 'عقد خدمة',
-                             'Saudi professionals assigned part-time or flexibly, managed and developed by Business Partner.',
-                             'كوادر سعودية تُسند بدوام جزئي أو مرن، تديرها وتطوّرها Business Partner.'))
+    doc, n = build_doc('03-Service-Agreement-INTERNAL-DRAFT-Bilingual', 'عقد إسناد الكوادر الوطنية المشتركة', 'Shared National Talent Service Assignment Agreement', items, contract_cover())
     print_pdf('03-Service-Agreement-INTERNAL-DRAFT-Bilingual', doc)
     print('built contract', n, 'pages')
 
