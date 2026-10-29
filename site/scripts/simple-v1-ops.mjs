@@ -106,10 +106,10 @@ app.appendChild(h('div',{class:'gate'},[
   h('div',{style:'margin-top:8px'},[h('button',{class:'btn ghost',onclick:function(){state.key=k.value.trim();try{localStorage.setItem('bp_ops_key',state.key)}catch(x){}load()}},['دخول بالمفتاح'])]),
   e]))}
 
-var NAV=[['home','الرئيسية','🏠'],['analytics','الإحصائيات','📈'],['requests','الطلبات','📋'],['clients','العملاء','👥'],['inbox','المحادثات','💬'],['quotes','عروض الأسعار','🧾'],['contracts','العقود','📝'],['appointments','المواعيد','📅'],['payments','المدفوعات','💳'],['invoices','الفواتير','🧮'],['whatsapp','واتساب','📱'],['email','البريد','✉️'],['tasks','المهام','✅'],['human','يحتاج تدخل بشري','🙋'],['follow','المتابعة الذكية','🤖'],['catalog','الخدمات والأسعار','📦'],['settings','الإعدادات','⚙️']];
-function load(){api('ops-summary').then(function(o){if(!o||!o.ok){gate(o&&o.error==='unauthorized'?'لا صلاحية: ادخل بحساب الشركة، أو أدخل مفتاح اللوحة الصحيح.':'تعذّر الاتصال');return}state.sum=o;return Promise.all([api('ops-requests'),api('ops-tasks')])}).then(function(r){if(!r)return;state.reqs=(r[0]&&r[0].requests)||[];state.tasks=(r[1]&&r[1].tasks)||[];var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;render()}).catch(function(){gate('تعذّر الاتصال')})}
-function counts(){var c=(state.sum&&state.sum.counts)||{};return {requests:c.new,inbox:c.unread_conversations,quotes:c.quotes_waiting_customer,contracts:c.contracts_waiting_signature,payments:c.payments_due,tasks:c.open_tasks,human:c.human_actions,appointments:c.appointments_today}}
-function render(){app.innerHTML='';var bd=counts();
+var NAV=[['home','الرئيسية','🏠'],['analytics','الإحصائيات','📈'],['requests','الطلبات','📋'],['clients','العملاء','👥'],['inbox','الوارد','💬'],['quotes','عروض الأسعار','🧾'],['contracts','العقود','📝'],['appointments','المواعيد','📅'],['payments','المدفوعات','💳'],['invoices','الفواتير','🧮'],['whatsapp','واتساب','📱'],['email','البريد','✉️'],['tasks','المهام','✅'],['human','يحتاج تدخل بشري','🙋'],['follow','المتابعة الذكية','🤖'],['catalog','الخدمات والأسعار','📦'],['settings','الإعدادات','⚙️']];
+function load(){api('ops-summary').then(function(o){if(!o||!o.ok){gate(o&&o.error==='unauthorized'?(state.key?'لا صلاحية: ادخل بحساب الشركة، أو أدخل مفتاح اللوحة الصحيح.':''):'تعذّر الاتصال');return}state.sum=o;return Promise.all([api('ops-requests'),api('ops-tasks')])}).then(function(r){if(!r)return;state.reqs=(r[0]&&r[0].requests)||[];state.tasks=(r[1]&&r[1].tasks)||[];var u=new URL(location.href);var v=u.searchParams.get('view'),ref=u.searchParams.get('ref');if(ref){state.view='request';state.ref=ref}else if(v)state.view=v;render()}).catch(function(){gate('تعذّر الاتصال')})}
+function counts(){var c=(state.sum&&state.sum.counts)||{};return {requests:c.new,inbox:state.inboxUnread!=null?state.inboxUnread:c.unread_conversations,quotes:c.quotes_waiting_customer,contracts:c.contracts_waiting_signature,payments:c.payments_due,tasks:c.open_tasks,human:c.human_actions,appointments:c.appointments_today}}
+function render(){if(inboxTimer){clearInterval(inboxTimer);inboxTimer=null}app.innerHTML='';var bd=counts();
 var side=h('nav',{class:'ops-side'},NAV.map(function(n,i){var a=h('a',{class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1],bd[n[0]]?h('span',{class:'b'},[String(bd[n[0]])]):null]);return a}));
 var mob=h('div',{class:'mob'},NAV.map(function(n){return h('a',{class:state.view===n[0]?'on':'',onclick:function(){go(n[0])}},[n[2]+' '+n[1]])}));
 var main=h('div',{class:'ops-main'});app.appendChild(mob);app.appendChild(h('div',{class:'ops'},[side,main]));if(state.flash){main.appendChild(h('div',{class:'card',style:'border-color:#86efac;background:#f0fdf4;color:#118657;font-weight:700'},[state.flash]));state.flash=''}
@@ -233,7 +233,135 @@ function draw(){box.innerHTML='';var f=state.filter.toLowerCase();var rows=state
 m.appendChild(tabs);m.appendChild(box);draw()}
 function vFiltered(m,title,f,extra){m.appendChild(h('h1',{},[title]));var rows=state.reqs.filter(f);m.appendChild(rows.length?h('div',{class:'list'},rows.map(function(r){return reqRow(r,extra(r))})):h('p',{class:'note'},['لا شيء.']))}
 function vClients(m){m.appendChild(h('h1',{},['العملاء']));var map={};state.reqs.forEach(function(r){var k=(r.client_email||r.client_phone||r.client_name||r.ref).toLowerCase();if(!map[k])map[k]={name:r.client_name,email:r.client_email,phone:r.client_phone,company:r.company_name,reqs:[],paid:0};map[k].reqs.push(r);if(r.payment&&r.payment.status==='PAID')map[k].paid+=Number(r.payment.amount||0)});var list=Object.keys(map).map(function(k){return map[k]});m.appendChild(list.length?h('div',{class:'list'},list.map(function(c){return h('div',{class:'row',onclick:function(){state.filter=c.email||c.name||'';go('requests')}},[h('div',{class:'tt'},[h('b',{},[c.name||c.email||'—']),h('small',{},[(c.company||'')+' · '+(c.email||'')+' · '+(c.phone||'')])]),h('span',{class:'pill'},[c.reqs.length+' طلب']),h('span',{class:'pill ok'},[money(c.paid)])])})):h('p',{class:'note'},['لا عملاء بعد.']))}
-function vInbox(m){m.appendChild(h('h1',{},['المحادثات — صندوق موحّد']));m.appendChild(intakeCard());var box=h('div',{class:'list'},[h('p',{class:'note'},['…'])]);m.appendChild(h('div',{class:'card'},[h('h2',{},['كل القنوات']),box]));api('ops-inbox').then(function(o){box.innerHTML='';if(!o||!o.ok||!o.threads.length){box.appendChild(h('p',{class:'note'},['لا محادثات.']));return}o.threads.forEach(function(t){box.appendChild(h('div',{class:'row',onclick:function(){if(t.kind==='request')go('request',t.ref);else location.href='/admin'}},[h('div',{class:'tt'},[h('b',{},[(t.unread?'● ':'')+(t.title||t.ref)]),h('small',{},[(t.name||t.email||'')+' · '+(t.last?((t.last.role==='bp'?'أنت: ':t.last.role==='user'?'العميل: ':'')+t.last.content):'')+' · '+when(t.at)])]),h('span',{class:'pill src'},[SRC[t.channel]||t.channel]),pill(t.status)]))})})}
+// ---------- الوارد
+// One list for every conversation the company has: the site's advisor chats
+// (even from visitors who left no number), WhatsApp, and requests/tickets.
+// It replaces /monitor. The key is never put in a URL — api() sends it in the
+// body, and an owner signed in with the company e-mail sends none at all.
+var inboxTab='all',inboxQ='',inboxSel='',inboxData={threads:[],reqs:[],problems:{},can:{}},inboxTimer=null,inboxList=null,inboxDetail=null;
+function inboxNormReq(t){return Object.assign({},t,{id:t.ref,hot:false})}
+function inboxItems(){var a=inboxData.threads.concat(inboxData.reqs);a.sort(function(x,y){return (x.at<y.at)?1:(x.at>y.at?-1:0)});return a}
+function inboxPass(t){
+ var isReq=t.kind==='request'||t.kind==='ticket';
+ if(inboxTab==='unread'&&!t.unread)return false;
+ if(inboxTab==='hot'&&!t.hot)return false;
+ if(inboxTab==='web'&&t.kind!=='web')return false;
+ if(inboxTab==='wa'&&t.kind!=='wa')return false;
+ if(inboxTab==='req'&&!isReq)return false;
+ if(inboxQ){var hay=[t.name,t.phone,t.email,t.title,t.ref,t.last&&t.last.content].join(' ').toLowerCase();if(hay.indexOf(inboxQ.toLowerCase())<0)return false}
+ return true}
+function inboxWho(t){return (t.kind==='request'||t.kind==='ticket')?(t.title||t.ref):(t.name||t.phone||t.email||'زائر الموقع')}
+function inboxRow(t){
+ var isReq=t.kind==='request'||t.kind==='ticket';
+ var sub=[isReq?(t.name||t.email||''):[t.phone,t.email].filter(Boolean).join(' · '),t.last?((t.last.role==='bp'?'أنت: ':t.last.role==='user'?'العميل: ':t.last.role==='assistant'?'الذكي: ':'')+t.last.content):'',when(t.at)].filter(Boolean).join(' · ');
+ return h('div',{class:'row'+(inboxSel===t.kind+':'+t.id?' on':''),style:inboxSel===t.kind+':'+t.id?'border-color:#0B1B5A':null,onclick:function(){inboxOpen(t)}},[
+  h('div',{class:'tt'},[h('b',{},[(t.unread?'● ':'')+inboxWho(t)]),h('small',{},[sub])]),
+  t.hot?h('span',{class:'pill warn'},['ساخن']):null,
+  t.unread&&!isReq?h('span',{class:'pill'},['غير مقروء']):null,
+  h('span',{class:'pill src'},[SRC[t.channel]||t.channel]),
+  t.kind==='request'?pill(t.status):null])}
+function inboxDrawList(){
+ if(!inboxList)return;inboxList.innerHTML='';
+ var all=inboxItems();
+ var rows=all.filter(inboxPass);
+ if(!rows.length){inboxList.appendChild(h('p',{class:'note'},[all.length?'لا نتائج لهذا الفلتر.':'لا محادثات.']));return}
+ rows.slice(0,150).forEach(function(t){inboxList.appendChild(inboxRow(t))})}
+function inboxTabs(box){
+ box.innerHTML='';
+ var all=inboxItems();
+ var defs=[['all','الكل',all.length],['unread','غير مقروء',all.filter(function(t){return t.unread}).length],['hot','ساخن',all.filter(function(t){return t.hot}).length],['web','الموقع',all.filter(function(t){return t.kind==='web'}).length],['wa','واتساب',all.filter(function(t){return t.kind==='wa'}).length],['req','طلبات وتذاكر',all.filter(function(t){return t.kind==='request'||t.kind==='ticket'}).length]];
+ defs.forEach(function(d){box.appendChild(h('button',{class:inboxTab===d[0]?'on':'',onclick:function(){inboxTab=d[0];inboxTabs(box);inboxDrawList()}},[d[1]+(d[2]?' ('+d[2]+')':'')]))})}
+function inboxLoad(box,tabs,quiet){
+ return Promise.all([api('ops-inbox-feed'),api('ops-inbox')]).then(function(r){
+  var f=r[0],q2=r[1];
+  if(!f||!f.ok){if(!quiet){box.innerHTML='';box.appendChild(h('p',{class:'err'},[f&&f.error==='unauthorized'?'انتهت الجلسة — أعد الدخول.':'تعذّر تحميل الوارد.']))}return}
+  inboxData.threads=f.threads||[];inboxData.problems=f.problems||{};inboxData.can=f.canSend||{};
+  inboxData.reqs=((q2&&q2.ok&&q2.threads)||[]).map(inboxNormReq);
+  state.inboxUnread=inboxItems().filter(function(t){return t.unread}).length;
+  inboxTabs(tabs);inboxDrawList();inboxProblems()})}
+function inboxProblems(){
+ var P=inboxData.problems||{},msgs=[];
+ if(P.web==='notion_not_configured')msgs.push('محادثات الموقع: Notion غير مربوط في هذه البيئة (NOTION_TOKEN) فلا تظهر.');
+ else if(P.web)msgs.push('محادثات الموقع لا تصل ('+P.web+').');
+ if(P.wa==='wa_mock_mode')msgs.push('واتساب: وضع المحاكاة — لا قراءة من n8n الحقيقي هنا.');
+ else if(P.wa)msgs.push('واتساب لا يصل ('+P.wa+') — صندوق /monitor ما زال يعمل احتياطاً.');
+ var old=document.getElementById('inbox-problems');if(old)old.remove();
+ if(msgs.length&&inboxList)inboxList.parentNode.insertBefore(h('p',{class:'warn-t',id:'inbox-problems'},[msgs.join(' · ')]),inboxList)}
+function inboxOpen(t){
+ var isReq=t.kind==='request'||t.kind==='ticket';
+ if(t.kind==='request'){go('request',t.ref);return}
+ inboxSel=t.kind+':'+t.id;inboxDrawList();
+ if(t.kind==='web'){
+  inboxDetail.innerHTML='';inboxDetail.appendChild(h('p',{class:'note'},['…']));
+  api('ops-inbox-thread',{id:t.id}).then(function(o){
+   if(!o||!o.ok){inboxDetail.innerHTML='';inboxDetail.appendChild(h('p',{class:'err'},['تعذّر فتح المحادثة.']));return}
+   t.unread=false;state.inboxUnread=inboxItems().filter(function(x){return x.unread}).length;
+   inboxDrawList();inboxShow(o.thread)})}
+ else if(t.kind==='wa'){
+  if(t.unread){api('ops-inbox-read',{id:t.id});t.unread=false;inboxDrawList()}
+  var ms=(t.messages||[]).slice(),extra=(t.reply_items||[]);
+  extra.forEach(function(r){ms.push({role:'bp',content:r.content,at:r.at,note:r.delivered===false?'سُجّل في وضع الاختبار — لم يصل':''})});
+  ms.sort(function(a,b2){return (a.at<b2.at)?-1:(a.at>b2.at?1:0)});
+  inboxShow(Object.assign({},t,{messages:ms,replies:[]}))}
+ else inboxShow(t)}
+function inboxShow(t){
+ var box=inboxDetail;box.innerHTML='';
+ var isTicket=t.kind==='ticket';
+ box.appendChild(h('h2',{},[inboxWho(t)]));
+ var meta=h('div',{class:'stat'},[]);
+ [['القناة',SRC[t.channel]||t.channel],['الجوال',t.phone?waFmt(t.phone):''],['البريد',t.email],['آخر نشاط',when(t.at)]].forEach(function(p){if(p[1])meta.appendChild(h('span',{},[p[0]+': ',h('b',{},[p[1]])]))});
+ if(t.hot)meta.appendChild(h('span',{class:'pill warn'},['ساخن — ترك وسيلة تواصل']));
+ box.appendChild(meta);
+ if(t.crm)box.appendChild(h('p',{class:'note'},[h('a',{href:t.crm,target:'_blank',rel:'noopener'},['فتح السجل في Notion'])]));
+ var msgs=h('div',{class:'msgs',style:'max-height:360px'});
+ var list=(t.messages||[]).slice();
+ (t.replies&&t.replies.length?t.replies:[]).forEach(function(r){list.push({role:'bp',content:r.content,at:r.at,note:r.delivered===false?'سُجّل في وضع الاختبار — لم يصل':''})});
+ if(!list.length)msgs.appendChild(h('p',{class:'note'},['لا رسائل.']));
+ list.forEach(function(m){
+  var cls=m.role==='bp'?'bp':m.role==='user'||m.role==='customer'?'user':m.role==='assistant'?'assistant':'system';
+  var who=m.role==='bp'?'أنت':m.role==='user'||m.role==='customer'?'العميل':m.role==='assistant'?'المستشار الذكي':(m.role||'');
+  msgs.appendChild(h('div',{class:'m '+cls},[m.content,h('small',{},[who+(m.at?' · '+when(m.at):'')+(m.note?' · '+m.note:'')])]))});
+ box.appendChild(msgs);
+ setTimeout(function(){msgs.scrollTop=msgs.scrollHeight},0);
+ if(isTicket){box.appendChild(h('p',{class:'note',style:'margin-top:10px'},['الردّ على تذاكر الدعم لم يُنقل بعد إلى هذه اللوحة — يبقى من /admin حتى يُنقل.']));return}
+ // The reply form. The destination is the contact the visitor gave, resolved
+ // again on the server: the browser only says which channel.
+ var chans=[];
+ if(t.phone)chans.push(['whatsapp','واتساب ← '+waFmt(t.phone)]);
+ if(t.email&&t.kind==='web')chans.push(['email','بريد ← '+t.email]);
+ if(!chans.length){box.appendChild(h('p',{class:'warn-t'},['الزائر لم يترك رقماً ولا بريداً، فلا يمكن الرد عليه من هنا. المحادثة محفوظة للعلم ولتحسين الردود.']));return}
+ var ch=h('select',{class:'inp'},chans.map(function(c){return h('option',{value:c[0]},[c[1]])}));
+ var ta=h('textarea',{class:'inp',rows:'4',placeholder:'اكتب الرد… (لا أسعار ولا وعود — الأسعار من الكتالوج بالرمز فقط)'});
+ var ins=h('input',{class:'inp',placeholder:'توجيه للمساعد (اختياري): مثال — اسأله عن نوع النشاط'});
+ var st=h('div',{class:'note'},[]);
+ var sug=h('button',{class:'btn ghost sm',onclick:function(){var b2=this;b2.disabled=true;st.className='note';st.textContent='المساعد يكتب مسودة…';
+  api('ops-inbox-suggest',{id:t.id,instruction:ins.value}).then(function(o){b2.disabled=false;
+   if(o&&o.ok){ta.value=o.reply;st.className=o.warning?'warn-t':'ok-t';st.textContent=o.warning||'مسودة جاهزة — راجعها وعدّلها ثم أرسل. لم يُرسل شيء.'}
+   else{st.className='err';st.textContent=(o&&o.message)||'تعذّر توليد مسودة.'}}).catch(function(){b2.disabled=false;st.className='err';st.textContent='تعذّر الاتصال.'})}},['اقتراح رد بالذكاء']);
+ function send(btn,force){btn.disabled=true;st.className='note';st.textContent='جارٍ الإرسال…';
+  api('ops-inbox-reply',{id:t.id,channel:ch.value,text:ta.value,confirm_commitment:force===true}).then(function(o){btn.disabled=false;
+   if(o&&o.ok){var sent=o.delivered!==false;ta.value='';st.className=sent?'ok-t':'warn-t';st.textContent=sent?'أُرسل الرد.':'سُجّل الرد في وضع الاختبار ولم يصل العميل (لا واتساب/بريد حقيقي هنا).';
+    var item=inboxData.threads.filter(function(x){return x.id===t.id})[0];if(item)item.unread=false;
+    if(t.kind==='web'){api('ops-inbox-thread',{id:t.id}).then(function(r2){if(r2&&r2.ok){inboxShow(r2.thread);var s2=document.getElementById('inbox-st');if(s2)s2.textContent=sent?'أُرسل الرد.':'سُجّل في وضع الاختبار — لم يصل العميل.'}})}
+    else inboxLoad(inboxList,document.getElementById('inbox-tabs'),true)}
+   else if(o&&o.error==='commitment'){if(window.confirm(o.message))send(btn,true);else{st.className='warn-t';st.textContent='لم يُرسل.'}}
+   else{st.className='err';st.textContent=(o&&o.message)||'تعذّر الإرسال.'}}).catch(function(){btn.disabled=false;st.className='err';st.textContent='تعذّر الاتصال.'})}
+ var go2=h('button',{class:'btn sm',onclick:function(){if(!ta.value.trim()){st.className='err';st.textContent='اكتب الرد أولاً.';return}send(this,false)}},['إرسال']);
+ st.id='inbox-st';
+ box.appendChild(h('div',{class:'frm',style:'margin-top:10px'},[h('label',{},['قناة الرد']),ch,ta,ins,h('div',{class:'rowf'},[sug,go2]),st]))}
+function vInbox(m){
+ m.appendChild(h('h1',{},['الوارد — كل المحادثات']));
+ var tabs=h('div',{class:'tabs',id:'inbox-tabs'}),q2=h('input',{class:'inp',placeholder:'بحث بالاسم أو الجوال أو البريد أو نص الرسالة',value:inboxQ,oninput:function(){inboxQ=this.value;inboxDrawList()}});
+ inboxList=h('div',{class:'list'},[h('p',{class:'note'},['…'])]);
+ inboxDetail=h('div',{},[h('p',{class:'note'},['اختر محادثة من القائمة.'])]);
+ var left=h('div',{class:'card'},[tabs,q2,h('div',{style:'height:8px'}),inboxList]);
+ var right=h('div',{class:'card'},[inboxDetail]);
+ m.appendChild(h('div',{class:'grid2'},[left,right]));
+ m.appendChild(intakeCard());
+ inboxLoad(inboxList,tabs,false);
+ // The list refreshes by itself; the open conversation and anything being
+ // typed are left alone.
+ inboxTimer=setInterval(function(){if(state.view!=='inbox'||document.hidden)return;inboxLoad(inboxList,tabs,true)},20000)}
 // Same normalisation as api/_stage.js waNumber(): a Saudi mobile is typed half
 // a dozen ways, and showing «+0555…» beside a message that will actually go
 // to 9665… is a lie the operator only discovers afterwards.
@@ -281,7 +409,7 @@ draw()}
 function vWhatsapp(m){m.appendChild(h('h1',{},['واتساب']));
 waGateCard(m);
 var rows=state.reqs.filter(function(r){return r.source==='WHATSAPP'});
-m.appendChild(h('div',{class:'card'},[h('h2',{},['الربط']),h('p',{class:'note'},['الاستقبال يمرّ عبر n8n والرد عبر WhatsApp Cloud API (api/_stage.js). المحادثات الحيّة في صندوق /monitor. حوّل أي محادثة إلى طلب من الإدخال السريع أدناه مع مصدر «واتساب».']),h('a',{class:'btn ghost sm',href:'/monitor',target:'_blank'},['فتح صندوق واتساب الحي'])]));
+m.appendChild(h('div',{class:'card'},[h('h2',{},['الربط']),h('p',{class:'note'},['الاستقبال يمرّ عبر n8n والرد عبر WhatsApp Cloud API (api/_stage.js). المحادثات الحيّة في «الوارد». حوّل أي محادثة إلى طلب من الإدخال السريع أدناه مع مصدر «واتساب».']),h('button',{class:'btn ghost sm',onclick:function(){inboxTab='wa';go('inbox')}},['فتح واتساب في الوارد']),h('a',{class:'btn ghost sm',href:'/monitor',target:'_blank',style:'margin-inline-start:6px'},['/monitor (احتياطي)'])]));
 var card=intakeCard();card.querySelector('select').value='WHATSAPP';m.appendChild(card);
 m.appendChild(h('div',{class:'card'},[h('h2',{},['طلبات من واتساب']),rows.length?h('div',{class:'list'},rows.map(function(r){return reqRow(r)})):h('p',{class:'note'},['لا طلبات من واتساب بعد.'])]))}
 function vEmail(m){m.appendChild(h('h1',{},['البريد']));var rows=state.reqs.filter(function(r){return r.source==='EMAIL'});m.appendChild(h('div',{class:'card'},[h('p',{class:'note'},['لا يوجد ربط وارد للبريد بعد؛ الرسائل الصادرة عبر Resend. أدخل أي بريد مهم كطلب بمصدر «بريد» ليُربط بالعميل والشركة والمهام.'])]));var card=intakeCard();card.querySelector('select').value='EMAIL';m.appendChild(card);m.appendChild(h('div',{class:'card'},[h('h2',{},['طلبات من البريد']),rows.length?h('div',{class:'list'},rows.map(function(r){return reqRow(r)})):h('p',{class:'note'},['لا شيء بعد.'])]))}
@@ -355,7 +483,7 @@ L.appendChild(line('قاعدة البيانات',ig.database&&ig.database.ready,
 ic.appendChild(L);
 ic.appendChild(h('p',{class:'note',style:'margin-top:10px'},['ما ينقص يُضبط من Vercel ← Settings ← Environment Variables، ثم إعادة نشر.']));
 m.appendChild(ic)}
-m.appendChild(h('div',{class:'card'},[h('div',{class:'stat'},[h('span',{},['الوضع: ',h('b',{},[state.sum.testMode?'اختبار (لا مدفوعات حقيقية)':'إنتاج'])])]),h('div',{class:'rowf'},[h('a',{class:'btn ghost sm',href:'/admin',target:'_blank'},['لوحة /admin القديمة']),h('a',{class:'btn ghost sm',href:'/monitor',target:'_blank'},['صندوق /monitor']),h('a',{class:'btn ghost sm',href:'/ar/my',target:'_blank'},['بوابة العميل']),h('button',{class:'btn danger sm',onclick:function(){try{localStorage.removeItem('bp_ops_key')}catch(x){}state.key='';gate()}},['تسجيل الخروج من اللوحة'])])]))}
+m.appendChild(h('div',{class:'card'},[h('div',{class:'stat'},[h('span',{},['الوضع: ',h('b',{},[state.sum.testMode?'اختبار (لا مدفوعات حقيقية)':'إنتاج'])])]),h('div',{class:'rowf'},[h('a',{class:'btn ghost sm',href:'/admin',target:'_blank'},['لوحة /admin القديمة']),h('a',{class:'btn ghost sm',href:'/monitor',target:'_blank'},['صندوق /monitor (احتياطي)']),h('a',{class:'btn ghost sm',href:'/ar/my',target:'_blank'},['بوابة العميل']),h('button',{class:'btn danger sm',onclick:function(){try{localStorage.removeItem('bp_ops_key')}catch(x){}state.key='';gate()}},['تسجيل الخروج من اللوحة'])])]))}
 // ---------- request page
 function vRequest(m){m.appendChild(h('a',{class:'btn ghost sm',onclick:function(){go('requests')}},['← الطلبات']));var hd=h('h1',{style:'margin-top:10px'},['…']);m.appendChild(hd);var box=h('div');m.appendChild(box);api('ops-request',{ref:state.ref}).then(function(o){if(!o||!o.ok){box.appendChild(h('p',{class:'err'},['تعذّر التحميل']));return}state.req=o.request;draw(hd,box)})}
 function draw(hd,box){var r=state.req;hd.innerHTML='';hd.appendChild(document.createTextNode(r.title+' '));hd.appendChild(pill(r.status));box.innerHTML='';
@@ -465,7 +593,9 @@ var nt=h('textarea',{class:'inp',placeholder:'ملاحظات داخلية (لا 
 right.appendChild(h('div',{class:'card'},[h('h3',{},['ملاحظات داخلية']),nt,h('div',{class:'rowf'},[h('button',{class:'btn sm',onclick:function(){api('ops-request-update',{ref:r.ref,internal_notes:nt.value}).then(function(o){nmsg.textContent=o&&o.ok?'حُفظ':'خطأ'})}},['حفظ']),nmsg])]));
 right.appendChild(h('div',{class:'card'},[h('h3',{},['الخط الزمني']),h('ul',{class:'tl'},(r.events||[]).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(e.actor?e.actor+': ':'')+(EV[e.event]||e.event)+(e.details&&e.details.number?' '+e.details.number:'')+(e.details&&e.details.title?' — '+e.details.title:'')])])}))]))}
 function reload(hd,box){Promise.all([api('ops-request',{ref:state.ref}),api('ops-summary'),api('ops-requests'),api('ops-tasks')]).then(function(r){if(r[0]&&r[0].ok)state.req=r[0].request;if(r[1]&&r[1].ok)state.sum=r[1];state.reqs=(r[2]&&r[2].requests)||state.reqs;state.tasks=(r[3]&&r[3].tasks)||state.tasks;render()})}
-if(state.key)load();else gate();
+// Try the session first even with no stored key: the owner signed in with his
+// company e-mail has no key to store, and the gate was hiding that door.
+load();
 })();</script>`;
   return sv1.shell({ title: "لوحة العمليات — Business Partner", desc: "Business Partner operations dashboard", path: "/ops", body: CSS + body, script, noindex: true });
 }

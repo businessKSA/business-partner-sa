@@ -1,0 +1,54 @@
+/* وحدة جارفس داخل اللوحة الموحّدة — نفس متغيّرات app.css (سماوي/ذهبي)، لا خطوط خارجية. */
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);border-radius:999px;
+  padding:3px 10px;font-size:10.5px;color:var(--dim);background:rgba(6,18,38,.72);white-space:nowrap}
+.pill .dot{width:8px;height:8px;border-radius:50%;background:var(--dim)}
+.pill.ok .dot{background:var(--mint);box-shadow:0 0 8px var(--mint)}
+.pill.bad .dot{background:var(--rose)}
+.pill.busy .dot{background:var(--gold);animation:jvblink 1s infinite}
+@keyframes jvblink{50%{opacity:.25}}
+
+.viewsw{display:flex;gap:4px}
+.viewsw button{font:inherit;font-size:11px;padding:4px 10px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--line2);background:rgba(8,24,46,.9);color:var(--dim)}
+.viewsw button.on{color:var(--cyan);border-color:var(--cyan)}
+
+.webview{flex:1;min-height:0;display:flex;flex-direction:column;position:relative}
+.webview[hidden]{display:none}
+.webview svg{flex:1;min-height:0;width:100%}
+.whocard{padding:8px 12px;border-top:1px solid var(--line);font-size:11.5px;color:var(--dim);line-height:1.7}
+.whocard h3{margin:0 0 2px;font-size:13px;color:var(--ink)}
+.whocard .team span{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:0 7px;margin:1px;font-size:10.5px;color:var(--ink)}
+
+.jv-node{cursor:pointer}
+.jv-node circle.jv-core{fill:#0a1f3a;stroke:var(--line2);stroke-width:1.5;transition:stroke .2s}
+.jv-node:hover circle.jv-core,.jv-node.sel circle.jv-core{stroke:var(--cyan);filter:drop-shadow(0 0 6px rgba(47,208,255,.6))}
+.jv-node.busy circle.jv-core{stroke:var(--gold);filter:drop-shadow(0 0 10px rgba(242,192,90,.7))}
+.jv-node.paused circle.jv-core{stroke:var(--rose);opacity:.6}
+.jv-node text{fill:var(--ink);font-size:13px;font-weight:600;text-anchor:middle;pointer-events:none}
+.jv-node text.init{font-size:17px;font-weight:800}
+.jv-node text.sub{fill:var(--dim);font-size:10px;font-weight:400}
+.jv-node .cnt{fill:var(--gold);font-size:10px;font-weight:700}
+.jv-node .sat{fill:var(--line2)}.jv-node.busy .sat{fill:var(--gold)}.jv-node.sel .sat{fill:var(--cyan)}
+.jv-web{stroke:#0c2a47;stroke-width:.8;fill:none}
+.jv-chord{stroke:#0e2c4a;stroke-width:.7;fill:none;opacity:.6}
+.jv-chord.hot{stroke:var(--cyan);stroke-width:1.6;opacity:.9;stroke-dasharray:3 5;animation:jvflow 1s linear infinite}
+.jv-link{stroke:var(--line);stroke-width:1.2;fill:none}
+.jv-link.busy{stroke:var(--gold);stroke-width:1.8;stroke-dasharray:4 6;animation:jvflow 1.2s linear infinite}
+.jv-link.sel{stroke:var(--cyan)}
+@keyframes jvflow{to{stroke-dashoffset:-20}}
+.jv-center circle{fill:#07243a;stroke:var(--cyan);stroke-width:2}
+.jv-center text{fill:var(--cyan);font-weight:800;font-size:16px;text-anchor:middle;pointer-events:none}
+.jv-center text.sub{fill:var(--dim);font-weight:400;font-size:10px}
+
+.needs-panel{max-height:46%}
+.need{border:1px solid #4a3a12;background:rgba(40,30,8,.6);border-radius:10px;padding:8px 10px;margin:6px}
+.need b{display:block;font-size:12px}
+.need p{margin:3px 0 5px;font-size:11px;color:#d9c48f}
+.need small{color:var(--dim);font-size:10px}
+.need .act{display:flex;gap:6px;margin-top:5px}
+.need .act button{font:inherit;font-size:11px;padding:4px 9px;border-radius:8px;cursor:pointer;
+  border:1px solid var(--line2);background:rgba(8,24,46,.9);color:var(--ink)}
+.need .act button:hover{border-color:var(--gold)}
+.farahbar{display:flex;gap:6px;align-items:center;padding:6px 10px;flex-wrap:wrap}
+.farahbar .chip{font-size:11px}
+.orbit[hidden],.valuechain[hidden],.webview[hidden]{display:none!important}
