@@ -4,6 +4,7 @@ HERE = os.path.dirname(os.path.abspath(__file__)); os.chdir(HERE)
 BD = sys.argv[1]            # saved HTML of the BD artifact (design standard)
 OUTDIR = sys.argv[2]
 esc = lambda s: html.escape(s, quote=False)
+IBAN = os.environ.get('BP_IBAN', '[●]')
 PHONE = os.environ.get('BP_PHONE', '[●]')   # mobile: placeholder in the repo; real number only in the private final build
 
 # ---- content: final S after gen_prop content + lean_patch (no rendering)
@@ -167,7 +168,7 @@ page(h2(N(), s['title']) +
 # 13 closing
 b = by['bank']
 def bx(c):
-    return f'<div><b>{c[0][0]} · {c[0][1]}</b>' + '<br>'.join(f'{l[0]} / {l[1]}: ' + (f'<span class="num">{v[0]}</span>' if v[0] == v[1] else f'{v[0]} / {v[1]}') for l, v in c[1]) + '</div>'
+    return f'<div><b>{c[0][0]} · {c[0][1]}</b>' + '<br>'.join(f'{l[0]} / {l[1]}: ' + (f'<span class="num">{v[0]}</span>' if v[0] == v[1] else f'{v[0]} / {v[1]}') for l, v in c[1] if l[0] != 'Account no.') + '</div>'
 closing = f'''<section class="sheet land" lang="ar"><div dir="rtl"><div class="cv"><div class="lgc"><span class="logo" role="img" aria-label="Business Partner"></span></div><div class="eb">CONTACT &amp; BANK TRANSFER · التواصل والتحويل البنكي</div><h1 class="pf">Thank you for your trust · <span style="font-family:'IBM Plex Sans Arabic'">شكراً لثقتكم</span></h1><div class="bx">{bx(b['right'])}{bx(b['left'])}</div></div></div>@@FT@@</section>'''
 PAGES.append(closing)
 
@@ -179,7 +180,7 @@ if len(sys.argv) > 3:
     ff = g2['ff']
 gf = '' if ff else '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans+Arabic:wght@400;700&family=Playfair+Display:wght@700&display=swap">'
 doc = f'<!doctype html><html lang="ar"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>عرض سعر نظام التعاقد ونقل الخدمات</title>{gf}<style>{ff}{STYLE}</style></head><body>{body}</body></html>'
-doc = doc.replace('0530540231', PHONE)
+doc = doc.replace('0530540231', PHONE).replace('SA5380000511608016228498', IBAN).replace('Business Partner Solutions Company / شركة بزنس بارتنر سلوشنز', 'Business Partner Solutions / بزنس بارتنر سلوشنز')
 os.makedirs(OUTDIR, exist_ok=True)
 open(os.path.join(OUTDIR, 'proposal-bd.html'), 'w', encoding='utf8').write(doc)
 print('pages', total)
