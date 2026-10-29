@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Texts of the Shared National Talent package (proposal, NDA, internal contract draft).
+"""Texts of the Shared National Talent package (proposal tables and internal contract draft; the NDA is the approved template).
 Each block is (kind, en, ar). kinds: title, sub, h, p, li, note, table, sig, gap.
 Open items are [[PLACEHOLDERS]]. Prices come in through `prices` (read from the pricing workbook)."""
-import json, os
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-NDA_PAIRS = os.path.join(HERE, '..', '..', 'cases', '2026-10-21-abdulmohsen-battery-eor', 'handoff', 'src', 'pairs_nda.json')
 
 
 def n(x):
@@ -93,52 +90,6 @@ def proposal(pr):
         ('sig', [('Business Partner Solutions', 'شركة بزنس بارتنر سلوشنز', 'Baher Bakr Ali Magnas — General Manager', 'باهر بكر علي مقنص — المدير العام'),
                  ('[[CLIENT_NAME]]', 'شركة [[اسم العميل]]', '[[SIGNATORY_NAME]] — [[TITLE]]', '[[اسم المفوّض]] — [[الصفة]]')], None),
     ]
-
-
-def nda():
-    p = json.load(open(NDA_PAIRS, encoding='utf8'))
-    en = [e['t'] for e, a in p]
-    ar = [a['t'] for e, a in p]
-
-    def put(i, e, a):
-        en[i], ar[i] = e, a
-    put(4, '(2) [[CLIENT_NAME]], a company established under the laws of [[JURISDICTION]], address [[ADDRESS]], Commercial Registration no. [[CR_NO]], represented by [[SIGNATORY_NAME]], [[TITLE]] (the "Company").',
-        '(2) شركة [[اسم العميل]]، شركة مؤسَّسة وفق أنظمة [[الجهة النظامية]]، وعنوانها [[العنوان]]، سجل تجاري رقم [[رقم السجل]]، ويمثّلها السيد/ [[اسم المفوّض]] بصفته [[الصفة]] («الشركة»).')
-    put(6, '1.1 The Parties wish to discuss and carry out the "Shared National Talent" service — the assignment, management and development of Saudi employees working part-time or flexibly for the Company — and related services (the "Purpose"), and each may disclose confidential information to the other for that Purpose.',
-        '1-1 يرغب الطرفان في بحث وتنفيذ خدمة «الكوادر الوطنية المشتركة» — إسناد موظفين سعوديين يعملون بدوام جزئي أو مرن لدى الشركة وإدارتهم وتطويرهم — والخدمات المتصلة بها («الغرض»)، وقد يُفصح كلٌّ منهما للآخر عن معلومات سرية لهذا الغرض.')
-    put(8, '2.1 "Confidential Information" means all information, in any form, disclosed by or on behalf of a Party in connection with the Purpose, including company documents, employee and candidate information, identity details, salaries and contracts, work plans and client information, pricing, proposals, methods and know-how, and any information a reasonable person would regard as confidential.',
-        '2-1 تعني «المعلومات السرية» كل معلومة، بأي صورة، يُفصح عنها أحد الطرفين أو من ينوب عنه فيما يتصل بالغرض، بما في ذلك مستندات الشركة وبيانات الموظفين والمرشحين وبيانات الهوية والرواتب والعقود وخطط العمل ومعلومات العملاء والأسعار والعروض والأساليب والخبرات، وأي معلومة يعدّها الشخص المعتاد سرية.')
-    put(11, '3.2 Personal data of employees and candidates (including identity details, salaries and performance records) shall be handled only by persons who need it for the Purpose and shall be protected in accordance with applicable law, including the Personal Data Protection Law.',
-        '3-2 تُعالَج البيانات الشخصية للموظفين والمرشحين (ومنها بيانات الهوية والرواتب وسجلات الأداء) من الأشخاص المحتاجين إليها للغرض فقط، وتُحمى وفق الأنظمة السارية ومنها نظام حماية البيانات الشخصية.')
-    put(15, '5.1 A Party may disclose Confidential Information (a) to its directors, employees, and professional advisers who need to know it for the Purpose and are bound by equivalent confidentiality duties; (b) to confidential service providers engaged for the Purpose (such as payroll, insurance, training, and cloud and AI processing providers) under confidentiality obligations; and (c) to the Saudi government authorities (including the Ministry of Human Resources and Social Development, the General Organization for Social Insurance and ZATCA) to the extent necessary to carry out the Purpose.',
-        '5-1 يجوز لأي طرف الإفصاح عن المعلومات السرية (أ) لأعضاء مجلس إدارته وموظفيه ومستشاريه المهنيين المحتاجين إليها للغرض والملزمين بالتزامات سرية مماثلة؛ (ب) لمقدمي الخدمة الملتزمين بالسرية والمتعاقد معهم للغرض (كمعالجة الرواتب والتأمين والتدريب ومزودي المعالجة السحابية والذكاء الآلي)؛ و(ج) للجهات الحكومية السعودية (ومنها وزارة الموارد البشرية والتنمية الاجتماعية والمؤسسة العامة للتأمينات الاجتماعية وهيئة الزكاة والضريبة والجمارك) بالقدر اللازم لتنفيذ الغرض.')
-    extra = {
-        '3.3': ('3.3 Employees assigned to several companies: information of one company is not shared with another company served by the same employee, and the employee is bound in writing by the same duties.',
-                '3-3 الموظفون المُسنَدون إلى أكثر من شركة: لا تُنقل معلومات شركة إلى شركة أخرى يخدمها الموظف نفسه، ويلتزم الموظف كتابةً بالالتزامات نفسها.'),
-    }
-    pairs = list(zip(en, ar))
-    out = []
-    for i, (e, a) in enumerate(pairs):
-        out.append(('h' if _is_head(e) else 'p', e, a))
-        if i == 11:
-            out.append(('p',) + extra['3.3'])
-    # signature blocks (replace the last 8 pairs with structured block)
-    sig_start = 28
-    body = out[:sig_start]
-    body.append(('sig', [(en[28], ar[28], en[29], ar[29]),
-                         ('[[CLIENT_NAME]]', 'شركة [[اسم العميل]]', '[[SIGNATORY_NAME]] — [[TITLE]]', '[[اسم المفوّض]] — [[الصفة]]')], None))
-    first = body[0]
-    # opening paragraph becomes the title block
-    head = [('title', 'Mutual Non-Disclosure Agreement', 'اتفاقية عدم الإفصاح المتبادلة'),
-            ('sub', 'Shared National Talent service', 'خدمة الكوادر الوطنية المشتركة'),
-            ('note', 'DRAFT — requires human legal review before use. Based on the Business Partner NDA template; the client details are placeholders.',
-             'مسودة — تحتاج مراجعة قانونية بشرية قبل الاستعمال. مبنية على قالب الـNDA المعتمد لدى بزنس بارتنر؛ وبيانات العميل حقول فارغة.')]
-    return head + body
-
-
-def _is_head(e):
-    import re
-    return bool(re.match(r'^(\d+\.\s+[A-Z ,&-]+$|BETWEEN:|IN WITNESS|And;)', e))
 
 
 def contract(pr):
