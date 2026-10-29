@@ -1,7 +1,7 @@
 // Business Partner — «خدماتنا الرئيسية» (طلب المالك 2026-10-29).
 //
-// ست بطاقات: تأسيس الشركات · إدارة الخدمات الحكومية · EOR · الامتثال وتقييم الشركات ·
-// تطوير الأعمال · الخدمات المشتركة. لكل بطاقة شرح قصير وثلاثة بنود «تشمل» وأربعة أزرار:
+// سبع بطاقات: تأسيس الشركات · إدارة الخدمات الحكومية · EOR · الامتثال وتقييم الشركات ·
+// تطوير الأعمال · خدمة الكوادر الوطنية المشتركة · الإقامة المميزة (السابعة، 2026-10-29). لكل بطاقة شرح قصير وثلاثة بنود «تشمل» وأربعة أزرار:
 //   «اسأل المستشار» (يفتح محادثة الرئيسية بالباب المناسب) · «تفاصيل الخدمة» ·
 //   «الباقات والأسعار» · «ابدأ الطلب».
 //
@@ -24,7 +24,7 @@ import fs from "node:fs";
 import { pageVisible } from "./hidden.mjs";
 import { EOR_PAGE_TEXT } from "./simple-v1-eor.mjs";
 
-export const MAIN_SERVICE_KEYS = ["formation", "government", "eor", "compliance", "bizdev", "shared"];
+export const MAIN_SERVICE_KEYS = ["formation", "government", "eor", "compliance", "bizdev", "shared", "residency"];
 
 const T = {
   title: { ar: "خدماتنا الرئيسية", en: "Our main services", fr: "Nos services principaux", zh: "我们的主要服务" },
@@ -54,10 +54,16 @@ const T = {
     zh: "我想了解合规与公司评估服务。",
   },
   seedShared: {
-    ar: "أريد معرفة خدمة الخدمات المشتركة (فريقي التنفيذي الذكي).",
-    en: "I would like to know about the Shared Services team (my smart executive team).",
-    fr: "Je souhaite en savoir plus sur l'équipe de services partagés (mon équipe exécutive intelligente).",
-    zh: "我想了解共享服务团队（我的智能执行团队）。",
+    ar: "أريد معرفة خدمة الكوادر الوطنية المشتركة: موظفون سعوديون بدوام جزئي أو مرن.",
+    en: "I would like to know about the Shared National Talent service: Saudi employees part-time or flexibly.",
+    fr: "Je souhaite en savoir plus sur le service de talents nationaux partagés : employés saoudiens à temps partiel ou flexible.",
+    zh: "我想了解共享沙特人才服务：兼职或灵活用工的沙特员工。",
+  },
+  seedResidency: {
+    ar: "أريد معرفة الإقامة المميزة وتحديد المسار المناسب لي.",
+    en: "I would like to know about Premium Residency and which route suits me.",
+    fr: "Je souhaite en savoir plus sur la Résidence Premium et la voie qui me convient.",
+    zh: "我想了解高端居留，以及哪条路径适合我。",
   },
   seedBizdev: {
     ar: "أريد تطوير أعمال شركتي: عملاء أو موردين أو شريك جديد.",
@@ -162,23 +168,48 @@ const SERVICES = {
     page: "business-development",
   },
   shared: {
-    icon: "🧩",
-    title: { ar: "الخدمات المشتركة", en: "Shared services", fr: "Services partagés", zh: "共享服务" },
+    // «خدمة الكوادر الوطنية المشتركة» (تصحيح المالك 2026-10-29: «إدارة الخدمات المشتركة هي نفسها خدمات الكوادر
+    // الوطنية المشتركة»، والاسم المعتمد «خدمة الكوادر الوطنية المشتركة»). ليست «فريق الخدمات المشتركة» للمستشارين
+    // الأذكياء (BP-AI-04) ولا صفحة /shared-services. النص من docs/sales/services/national-shared-talent.md
+    // وصفحتها المسودة (origin/claude/sales-team-under-badr): بلا سعر، وبلا وعد في «نطاقات»، وبلا نقل كفالات.
+    // لا صفحة لها في هذا الفرع بعد ⇒ soon: بطاقة بزر المستشار وحده. عند اعتماد الصفحة: soon=false وحدّد details/plans/start.
+    icon: "🤝",
+    soon: true,
+    title: { ar: "خدمة الكوادر الوطنية المشتركة", en: "Shared National Talent service", fr: "Service des talents nationaux partagés", zh: "共享沙特人才服务" },
     desc: {
-      ar: "فريقك التنفيذي الذكي: محادثة واحدة وخلفها فريق متخصص في الشؤون الحكومية والامتثال والموارد البشرية والمالية والقانونية والتسويق والمشتريات.",
-      en: "Your smart executive team: one conversation with a specialist team behind it across government affairs, compliance, HR, finance, legal, marketing and procurement.",
-      fr: "Votre équipe exécutive intelligente : une seule conversation, avec derrière elle une équipe spécialisée en affaires gouvernementales, conformité, RH, finance, juridique, marketing et achats.",
-      zh: "您的智能执行团队：一次对话，背后是涵盖政府事务、合规、人力资源、财务、法务、营销与采购的专业团队。",
+      ar: "تُسند Business Partner إلى شركتك موظفين سعوديين مؤهلين بدوام جزئي أو مرن أو عن بُعد أو بالمشروع، وتديرهم وتدرّبهم وتطوّرهم. دور محدد دون تكلفة التوظيف بدوام كامل.",
+      en: "Business Partner assigns qualified Saudi employees to your company part-time, flexibly, remotely or by project, and manages, trains and develops them. A defined role without the cost of a full-time hire.",
+      fr: "Business Partner met à disposition de votre entreprise des employés saoudiens qualifiés à temps partiel, de façon flexible, à distance ou par projet, et les encadre, les forme et les développe. Un rôle défini sans le coût d'une embauche à temps plein.",
+      zh: "Business Partner 为您的公司派遣合格的沙特员工，可兼职、灵活用工、远程或按项目，并负责管理、培训和发展他们。无需承担全职雇用的成本，即可拥有明确的岗位。",
     },
     inc: [
-      { ar: "محادثة واحدة مع فريق تنفيذي متخصص", en: "One conversation with a specialist executive team", fr: "Une seule conversation avec une équipe exécutive spécialisée", zh: "与专业执行团队的统一对话" },
-      { ar: "بوابة خاصة لمتابعة عمل الفريق", en: "A dedicated portal to follow the team's work", fr: "Un portail dédié pour suivre le travail de l'équipe", zh: "专属门户，跟进团队工作" },
-      { ar: "اشتراك واحد بدل توظيف كل تخصص", en: "One subscription instead of hiring for each specialty", fr: "Un seul abonnement au lieu d'embaucher pour chaque spécialité", zh: "一份订阅，无需为每个专业单独招聘" },
+      { ar: "أدوار: المحاسبة والموارد البشرية والتسويق والمبيعات والمشتريات والدعم الإداري وإدارة المشاريع والهندسة", en: "Roles: accounting, HR, marketing, sales, purchasing, administrative support, project management and engineering", fr: "Rôles : comptabilité, RH, marketing, ventes, achats, support administratif, gestion de projet et ingénierie", zh: "岗位：会计、人力资源、营销、销售、采购、行政支持、项目管理与工程" },
+      { ar: "صيغ التعاقد: دوام جزئي، عمل مرن، عن بُعد، بالمشروع", en: "Forms of engagement: part-time, flexible, remote, by project", fr: "Formes d'engagement : temps partiel, flexible, à distance, par projet", zh: "用工形式：兼职、灵活用工、远程、按项目" },
+      { ar: "عمل حقيقي بنطاق موقّع وسجل ساعات، وتدريب وتطوير مهني لكل موظف", en: "Real work with a signed scope and a timesheet, plus training and professional development for every employee", fr: "Un travail réel avec périmètre signé et relevé d'heures, et formation et développement professionnel pour chaque employé", zh: "真实工作，附已签署的范围与工时记录，并为每位员工提供培训与职业发展" },
     ],
     ask: { door: "consulting", seed: "seedShared" },
-    details: "/shared-services",
-    plans: "/shared-services#ss-subscribe",
-    start: "/shared-services#ss-subscribe",
+    details: "",
+    plans: "",
+    start: "",
+  },
+  residency: {
+    icon: "🪪",
+    title: { ar: "الإقامة المميزة", en: "Premium Residency", fr: "Résidence Premium", zh: "高端居留" },
+    desc: {
+      ar: "نقيّم أهليتك ونحدّد مسارك في الإقامة المميزة، ثم نجهّز ملفك ونقدّمه ونتابعه حتى صدور القرار، والقرار يعود إلى الجهة وحدها.",
+      en: "We assess your eligibility and pick your Premium Residency route, then prepare, submit and follow your file until the decision, which rests with the authority alone.",
+      fr: "Nous évaluons votre éligibilité et choisissons votre voie de Résidence Premium, puis préparons, déposons et suivons votre dossier jusqu'à la décision, qui relève de l'autorité seule.",
+      zh: "我们评估您的资格并确定高端居留路径，随后准备、提交并跟进您的申请直至作出决定，决定权完全属于主管机构。",
+    },
+    inc: [
+      { ar: "تقييم أهلية الإقامة المميزة وتحديد مسارك", en: "Premium Residency eligibility and route assessment", fr: "Évaluation d'éligibilité et choix de la voie de Résidence Premium", zh: "高端居留资格评估与路径确定" },
+      { ar: "مسارات: مستثمر الأعمال، رائد الأعمال، مالك العقار، الموهبة، الكفاءة الاستثنائية، المسار المالي", en: "Routes: business investor, entrepreneur, property owner, talent, exceptional competence, financial", fr: "Voies : investisseur, entrepreneur, propriétaire immobilier, talent, compétence exceptionnelle, financière", zh: "路径：商业投资者、创业者、房产所有者、人才、卓越能力、财务路径" },
+      { ar: "ضمّ أفراد الأسرة، وتجهيز الملف وتقديمه ومتابعته", en: "Adding family members, and preparing, submitting and following up the file", fr: "Ajout des membres de la famille, préparation, dépôt et suivi du dossier", zh: "添加家庭成员，并准备、提交及跟进申请" },
+    ],
+    ask: { door: "government", seed: "seedResidency" },
+    details: "/guide/residency",
+    plans: "/services/category/premium-residency",
+    start: "/services/bp-pr-03",
   },
 };
 
@@ -236,11 +267,13 @@ const CSS = `<style id="msv-css">
 .msv-link{color:#0B1B5A;text-decoration:underline;text-underline-offset:3px;text-decoration-color:#C3CDE6}
 .msv-link:hover{text-decoration-color:#0B1B5A}
 .msv-foot{max-width:760px;margin:18px auto 0;text-align:center;color:#66708a;font-size:12.5px;line-height:1.8}
-@media(max-width:980px){.msv-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.msv-grid>.msv-card:last-child:nth-child(3n+1){grid-column:2}
+@media(max-width:980px){.msv-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.msv-grid>.msv-card:last-child:nth-child(3n+1){grid-column:1/-1;justify-self:center;width:calc(50% - 7px)}}
 @media(max-width:640px){
  .msv{padding:44px 0 12px}
  .msv-in{padding:0 16px}
  .msv-grid{grid-template-columns:1fr}
+ .msv-grid>.msv-card:last-child:nth-child(3n+1){grid-column:auto;width:auto;justify-self:stretch}
  .msv-card{padding:18px}
 }
 </style>`;
@@ -261,7 +294,7 @@ export function buildMainServices({ esc, href, lang, where = "home" }) {
 
   const cards = MAIN_SERVICE_KEYS.map((k) => {
     const s = SERVICES[k];
-    const hidden = s.page && !pageVisible(s.page);
+    const hidden = !!s.soon || !!(s.page && !pageVisible(s.page));
     const title = k === "eor" ? eor.title : tx(s.title);
     const desc = k === "eor" ? eor.desc : tx(s.desc);
     // «اسأل المستشار»: على الرئيسية يُنقر الباب فتعمل المحادثة كما هي؛ في غيرها رابطٌ إلى الرئيسية بمعامل ask.

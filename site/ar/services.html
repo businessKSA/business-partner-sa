@@ -329,11 +329,13 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
 .msv-link{color:#0B1B5A;text-decoration:underline;text-underline-offset:3px;text-decoration-color:#C3CDE6}
 .msv-link:hover{text-decoration-color:#0B1B5A}
 .msv-foot{max-width:760px;margin:18px auto 0;text-align:center;color:#66708a;font-size:12.5px;line-height:1.8}
-@media(max-width:980px){.msv-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.msv-grid>.msv-card:last-child:nth-child(3n+1){grid-column:2}
+@media(max-width:980px){.msv-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.msv-grid>.msv-card:last-child:nth-child(3n+1){grid-column:1/-1;justify-self:center;width:calc(50% - 7px)}}
 @media(max-width:640px){
  .msv{padding:44px 0 12px}
  .msv-in{padding:0 16px}
  .msv-grid{grid-template-columns:1fr}
+ .msv-grid>.msv-card:last-child:nth-child(3n+1){grid-column:auto;width:auto;justify-self:stretch}
  .msv-card{padding:18px}
 }
 </style>
@@ -378,13 +380,19 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
       <ul class="msv-incl"><li>ملف تطوير أعمال لشركتك</li><li>مطابقة مع شركات مناسبة: عملاء أو موردون أو شركاء</li><li>مساحة متابعة داخل حسابك</li></ul>
       <div class="msv-acts"><a class="msv-btn primary" href="/ar/?ask=bizdev#advisor" data-msv-ask="bizdev" data-track="خدماتنا الرئيسية: اسأل المستشار — تطوير الأعمال للشركات" style="grid-column:1/-1">اسأل المستشار</a></div>
     </article><article class="msv-card" data-msv="shared">
-      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🧩</span><h3>الخدمات المشتركة</h3></div>
-      <p class="msv-desc">فريقك التنفيذي الذكي: محادثة واحدة وخلفها فريق متخصص في الشؤون الحكومية والامتثال والموارد البشرية والمالية والقانونية والتسويق والمشتريات.</p>
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🤝</span><h3>خدمة الكوادر الوطنية المشتركة<span class="msv-soon">قريباً</span></h3></div>
+      <p class="msv-desc">تُسند Business Partner إلى شركتك موظفين سعوديين مؤهلين بدوام جزئي أو مرن أو عن بُعد أو بالمشروع، وتديرهم وتدرّبهم وتطوّرهم. دور محدد دون تكلفة التوظيف بدوام كامل.</p>
       <p class="msv-incl-t">تشمل</p>
-      <ul class="msv-incl"><li>محادثة واحدة مع فريق تنفيذي متخصص</li><li>بوابة خاصة لمتابعة عمل الفريق</li><li>اشتراك واحد بدل توظيف كل تخصص</li></ul>
-      <div class="msv-acts"><a class="msv-btn primary" href="/ar/shared-services#ss-subscribe" data-track="خدماتنا الرئيسية: ابدأ الطلب — الخدمات المشتركة">ابدأ الطلب</a>
-        <a class="msv-btn" href="/ar/?ask=shared#advisor" data-msv-ask="shared" data-track="خدماتنا الرئيسية: اسأل المستشار — الخدمات المشتركة">اسأل المستشار</a>
-        <div class="msv-links"><a class="msv-link" href="/ar/shared-services">تفاصيل الخدمة</a><a class="msv-link" href="/ar/shared-services#ss-subscribe">الباقات والأسعار</a></div></div>
+      <ul class="msv-incl"><li>أدوار: المحاسبة والموارد البشرية والتسويق والمبيعات والمشتريات والدعم الإداري وإدارة المشاريع والهندسة</li><li>صيغ التعاقد: دوام جزئي، عمل مرن، عن بُعد، بالمشروع</li><li>عمل حقيقي بنطاق موقّع وسجل ساعات، وتدريب وتطوير مهني لكل موظف</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/ar/?ask=shared#advisor" data-msv-ask="shared" data-track="خدماتنا الرئيسية: اسأل المستشار — خدمة الكوادر الوطنية المشتركة" style="grid-column:1/-1">اسأل المستشار</a></div>
+    </article><article class="msv-card" data-msv="residency">
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🪪</span><h3>الإقامة المميزة</h3></div>
+      <p class="msv-desc">نقيّم أهليتك ونحدّد مسارك في الإقامة المميزة، ثم نجهّز ملفك ونقدّمه ونتابعه حتى صدور القرار، والقرار يعود إلى الجهة وحدها.</p>
+      <p class="msv-incl-t">تشمل</p>
+      <ul class="msv-incl"><li>تقييم أهلية الإقامة المميزة وتحديد مسارك</li><li>مسارات: مستثمر الأعمال، رائد الأعمال، مالك العقار، الموهبة، الكفاءة الاستثنائية، المسار المالي</li><li>ضمّ أفراد الأسرة، وتجهيز الملف وتقديمه ومتابعته</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/ar/services/bp-pr-03" data-track="خدماتنا الرئيسية: ابدأ الطلب — الإقامة المميزة">ابدأ الطلب</a>
+        <a class="msv-btn" href="/ar/?ask=residency#advisor" data-msv-ask="residency" data-track="خدماتنا الرئيسية: اسأل المستشار — الإقامة المميزة">اسأل المستشار</a>
+        <div class="msv-links"><a class="msv-link" href="/ar/guide/residency">تفاصيل الخدمة</a><a class="msv-link" href="/ar/services/category/premium-residency">الباقات والأسعار</a></div></div>
     </article></div>
     <p class="msv-foot">الأسعار تظهر للمسجّلين بعد الدخول وهي قبل الضريبة. الرسوم الحكومية، إن وُجدت، منفصلة وتُعلن قبل البدء.</p>
   </div></section>

@@ -302,11 +302,13 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
 .msv-link{color:#0B1B5A;text-decoration:underline;text-underline-offset:3px;text-decoration-color:#C3CDE6}
 .msv-link:hover{text-decoration-color:#0B1B5A}
 .msv-foot{max-width:760px;margin:18px auto 0;text-align:center;color:#66708a;font-size:12.5px;line-height:1.8}
-@media(max-width:980px){.msv-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.msv-grid>.msv-card:last-child:nth-child(3n+1){grid-column:2}
+@media(max-width:980px){.msv-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.msv-grid>.msv-card:last-child:nth-child(3n+1){grid-column:1/-1;justify-self:center;width:calc(50% - 7px)}}
 @media(max-width:640px){
  .msv{padding:44px 0 12px}
  .msv-in{padding:0 16px}
  .msv-grid{grid-template-columns:1fr}
+ .msv-grid>.msv-card:last-child:nth-child(3n+1){grid-column:auto;width:auto;justify-self:stretch}
  .msv-card{padding:18px}
 }
 </style>
@@ -351,13 +353,19 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
       <ul class="msv-incl"><li>为您公司建立业务拓展档案</li><li>匹配合适的公司：客户、供应商或合作伙伴</li><li>账户内的跟进工作区</li></ul>
       <div class="msv-acts"><a class="msv-btn primary" href="/zh/?ask=bizdev#advisor" data-msv-ask="bizdev" data-track="خدماتنا الرئيسية: اسأل المستشار — 企业业务拓展" style="grid-column:1/-1">咨询顾问</a></div>
     </article><article class="msv-card" data-msv="shared">
-      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🧩</span><h3>共享服务</h3></div>
-      <p class="msv-desc">您的智能执行团队：一次对话，背后是涵盖政府事务、合规、人力资源、财务、法务、营销与采购的专业团队。</p>
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🤝</span><h3>共享沙特人才服务<span class="msv-soon">即将推出</span></h3></div>
+      <p class="msv-desc">Business Partner 为您的公司派遣合格的沙特员工，可兼职、灵活用工、远程或按项目，并负责管理、培训和发展他们。无需承担全职雇用的成本，即可拥有明确的岗位。</p>
       <p class="msv-incl-t">包含</p>
-      <ul class="msv-incl"><li>与专业执行团队的统一对话</li><li>专属门户，跟进团队工作</li><li>一份订阅，无需为每个专业单独招聘</li></ul>
-      <div class="msv-acts"><a class="msv-btn primary" href="/zh/shared-services#ss-subscribe" data-track="خدماتنا الرئيسية: ابدأ الطلب — 共享服务">开始申请</a>
-        <a class="msv-btn" href="/zh/?ask=shared#advisor" data-msv-ask="shared" data-track="خدماتنا الرئيسية: اسأل المستشار — 共享服务">咨询顾问</a>
-        <div class="msv-links"><a class="msv-link" href="/zh/shared-services">服务详情</a><a class="msv-link" href="/zh/shared-services#ss-subscribe">套餐与价格</a></div></div>
+      <ul class="msv-incl"><li>岗位：会计、人力资源、营销、销售、采购、行政支持、项目管理与工程</li><li>用工形式：兼职、灵活用工、远程、按项目</li><li>真实工作，附已签署的范围与工时记录，并为每位员工提供培训与职业发展</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/zh/?ask=shared#advisor" data-msv-ask="shared" data-track="خدماتنا الرئيسية: اسأل المستشار — 共享沙特人才服务" style="grid-column:1/-1">咨询顾问</a></div>
+    </article><article class="msv-card" data-msv="residency">
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🪪</span><h3>高端居留</h3></div>
+      <p class="msv-desc">我们评估您的资格并确定高端居留路径，随后准备、提交并跟进您的申请直至作出决定，决定权完全属于主管机构。</p>
+      <p class="msv-incl-t">包含</p>
+      <ul class="msv-incl"><li>高端居留资格评估与路径确定</li><li>路径：商业投资者、创业者、房产所有者、人才、卓越能力、财务路径</li><li>添加家庭成员，并准备、提交及跟进申请</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/zh/services/bp-pr-03" data-track="خدماتنا الرئيسية: ابدأ الطلب — 高端居留">开始申请</a>
+        <a class="msv-btn" href="/zh/?ask=residency#advisor" data-msv-ask="residency" data-track="خدماتنا الرئيسية: اسأل المستشار — 高端居留">咨询顾问</a>
+        <div class="msv-links"><a class="msv-link" href="/zh/guide/residency">服务详情</a><a class="msv-link" href="/zh/services/category/premium-residency">套餐与价格</a></div></div>
     </article></div>
     <p class="msv-foot">登录后显示价格，且不含增值税。政府规费（如有）单独列示，并在开始前告知。</p>
   </div></section>

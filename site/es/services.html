@@ -280,11 +280,13 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
 .msv-link{color:#0B1B5A;text-decoration:underline;text-underline-offset:3px;text-decoration-color:#C3CDE6}
 .msv-link:hover{text-decoration-color:#0B1B5A}
 .msv-foot{max-width:760px;margin:18px auto 0;text-align:center;color:#66708a;font-size:12.5px;line-height:1.8}
-@media(max-width:980px){.msv-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.msv-grid>.msv-card:last-child:nth-child(3n+1){grid-column:2}
+@media(max-width:980px){.msv-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.msv-grid>.msv-card:last-child:nth-child(3n+1){grid-column:1/-1;justify-self:center;width:calc(50% - 7px)}}
 @media(max-width:640px){
  .msv{padding:44px 0 12px}
  .msv-in{padding:0 16px}
  .msv-grid{grid-template-columns:1fr}
+ .msv-grid>.msv-card:last-child:nth-child(3n+1){grid-column:auto;width:auto;justify-self:stretch}
  .msv-card{padding:18px}
 }
 </style>
@@ -329,13 +331,19 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
       <ul class="msv-incl"><li>A business development profile for your company</li><li>Matching with suitable companies: customers, suppliers or partners</li><li>A follow-up workspace inside your account</li></ul>
       <div class="msv-acts"><a class="msv-btn primary" href="/es/?ask=bizdev#advisor" data-msv-ask="bizdev" data-track="خدماتنا الرئيسية: اسأل المستشار — Business development for companies" style="grid-column:1/-1">Ask the advisor</a></div>
     </article><article class="msv-card" data-msv="shared">
-      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🧩</span><h3>Shared services</h3></div>
-      <p class="msv-desc">Your smart executive team: one conversation with a specialist team behind it across government affairs, compliance, HR, finance, legal, marketing and procurement.</p>
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🤝</span><h3>Shared National Talent service<span class="msv-soon">Coming soon</span></h3></div>
+      <p class="msv-desc">Business Partner assigns qualified Saudi employees to your company part-time, flexibly, remotely or by project, and manages, trains and develops them. A defined role without the cost of a full-time hire.</p>
       <p class="msv-incl-t">Includes</p>
-      <ul class="msv-incl"><li>One conversation with a specialist executive team</li><li>A dedicated portal to follow the team's work</li><li>One subscription instead of hiring for each specialty</li></ul>
-      <div class="msv-acts"><a class="msv-btn primary" href="/shared-services#ss-subscribe" data-track="خدماتنا الرئيسية: ابدأ الطلب — Shared services">Start the request</a>
-        <a class="msv-btn" href="/es/?ask=shared#advisor" data-msv-ask="shared" data-track="خدماتنا الرئيسية: اسأل المستشار — Shared services">Ask the advisor</a>
-        <div class="msv-links"><a class="msv-link" href="/shared-services">Service details</a><a class="msv-link" href="/shared-services#ss-subscribe">Packages &amp; pricing</a></div></div>
+      <ul class="msv-incl"><li>Roles: accounting, HR, marketing, sales, purchasing, administrative support, project management and engineering</li><li>Forms of engagement: part-time, flexible, remote, by project</li><li>Real work with a signed scope and a timesheet, plus training and professional development for every employee</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/es/?ask=shared#advisor" data-msv-ask="shared" data-track="خدماتنا الرئيسية: اسأل المستشار — Shared National Talent service" style="grid-column:1/-1">Ask the advisor</a></div>
+    </article><article class="msv-card" data-msv="residency">
+      <div class="msv-top"><span class="msv-ico" aria-hidden="true">🪪</span><h3>Premium Residency</h3></div>
+      <p class="msv-desc">We assess your eligibility and pick your Premium Residency route, then prepare, submit and follow your file until the decision, which rests with the authority alone.</p>
+      <p class="msv-incl-t">Includes</p>
+      <ul class="msv-incl"><li>Premium Residency eligibility and route assessment</li><li>Routes: business investor, entrepreneur, property owner, talent, exceptional competence, financial</li><li>Adding family members, and preparing, submitting and following up the file</li></ul>
+      <div class="msv-acts"><a class="msv-btn primary" href="/services/bp-pr-03" data-track="خدماتنا الرئيسية: ابدأ الطلب — Premium Residency">Start the request</a>
+        <a class="msv-btn" href="/es/?ask=residency#advisor" data-msv-ask="residency" data-track="خدماتنا الرئيسية: اسأل المستشار — Premium Residency">Ask the advisor</a>
+        <div class="msv-links"><a class="msv-link" href="/guide/residency">Service details</a><a class="msv-link" href="/services/category/premium-residency">Packages &amp; pricing</a></div></div>
     </article></div>
     <p class="msv-foot">Prices appear after you sign in and are before VAT. Government fees, where they apply, are separate and announced before work starts.</p>
   </div></section>

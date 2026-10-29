@@ -4,7 +4,7 @@
 // ما يُثبَت:
 //  ١) الرئيسية: القسم بعد #advisor مباشرةً (قبل أي إضافة أخرى)، والأبواب والمحادثة فوقه كما كانت
 //     (أربع بطاقات في الهيرو + باب EOR). وصفحة /services فيها القسم نفسه بالأربع لغات.
-//  ٢) ست بطاقات بترتيبها، لكل بطاقة (غير المخفية) أربعة أزرار: ابدأ الطلب · اسأل المستشار ·
+//  ٢) سبع بطاقات بترتيبها، لكل بطاقة (غير المخفية) أربعة أزرار: ابدأ الطلب · اسأل المستشار ·
 //     تفاصيل الخدمة · الباقات والأسعار.
 //  ٣) كل رابط في القسم يصل إلى صفحة مبنيّة؛ ولا رابط إلى صفحة مخفية (تطوير الأعمال).
 //  ٤) لا سعر، لا واتساب، لا «شريك الأعمال»، لا «الوكيل»، ولا وعد بإلغاء مخالفة.
@@ -47,7 +47,7 @@ for (const where of ["home", "services"]) {
     const html = read(FILES[where][lang]);
     const sec = sectionOf(html);
 
-    test(`خدماتنا الرئيسية ${where} ${lang}: ست بطاقات بترتيبها`, () => {
+    test(`خدماتنا الرئيسية ${where} ${lang}: سبع بطاقات بترتيبها`, () => {
       assert.ok(sec, "القسم غير موجود");
       const keys = [...sec.matchAll(/data-msv="([a-z]+)"/g)].map((m) => m[1]);
       assert.deepEqual(keys, MAIN_SERVICE_KEYS);
@@ -56,7 +56,7 @@ for (const where of ["home", "services"]) {
 
     test(`خدماتنا الرئيسية ${where} ${lang}: أزرار كل بطاقة وروابطها تصل إلى صفحات مبنيّة`, () => {
       const cards = sec.split('<article class="msv-card"').slice(1);
-      assert.equal(cards.length, 6);
+      assert.equal(cards.length, 7);
       for (const c of cards) {
         const key = /data-msv="([a-z]+)"/.exec(c)[1];
         const hrefs = [...c.matchAll(/<a\b[^>]*\shref="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, "&"));
@@ -133,4 +133,20 @@ test("المفتاح: إطفاء mainServices يُسقط القسم", () => {
   assert.ok(on.mainServices.includes('id="main-services"') && on.css.includes("msv-css") && on.script.includes("data-msv-ask"));
   const f = JSON.parse(read("data/features.json"));
   assert.ok(f.mainServices && typeof f.mainServices === "object");
+});
+
+test("خدمة الكوادر الوطنية المشتركة: اسم المالك، «قريباً» بزر المستشار وحده، بلا رابط إلى /shared-services القديمة", () => {
+  const names = { ar: "خدمة الكوادر الوطنية المشتركة", en: "Shared National Talent service", fr: "Service des talents nationaux partagés", zh: "共享沙特人才服务" };
+  for (const where of ["home", "services"]) {
+    for (const lang of LANGS) {
+      const sec = sectionOf(read(FILES[where][lang]));
+      assert.ok(sec.includes(names[lang]), `${where} ${lang}: الاسم`);
+      const card = sec.split('data-msv="shared"')[1].split("</article>")[0];
+      assert.ok(card.includes("msv-soon"), "وسم قريباً");
+      assert.equal((card.match(/<a\b/g) || []).length, 1, "زر المستشار وحده");
+      assert.ok(!/shared-services/.test(sec), "رابط إلى /shared-services القديمة (فيها سعر)");
+      assert.ok(!/الخدمات المشتركة|فريقك التنفيذي|BP-AI-04/.test(stripStyle(card)), "خلط مع فريق المستشارين الأذكياء");
+      assert.ok(!/نطاقات|Nitaqat|كفالة|sponsorship/i.test(stripStyle(card)), "وعد أو ادّعاء نظامي في البطاقة");
+    }
+  }
 });
