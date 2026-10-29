@@ -39,6 +39,8 @@ import { intakeBatch, confirmIntake, loadVaultIndex, intakeThrottle } from "./_d
 import { signBankToken } from "./_bank-transfer.js";
 import { validateSlot, bookingMessage, bookingConfig, manageToken } from "./_booking.js";
 import { normalizePhone } from "./_clientauth.js";
+import { azureChat, azureConfigured } from "./_azure.js";
+import { buildTodayFacts, makeBrief, buildReview } from "./_ops-dynamic.js";
 
 export const SIMPLE_TEST_MODE = process.env.SIMPLE_TEST_MODE === "1" || process.env.VERCEL_ENV === "preview" || DEV;
 // Live since 2026-09-04: a customer who approves a quotation must be told the
@@ -2924,6 +2926,11 @@ async function waGateSet(phone, { paused, minutes, reason, actor }) {
   return (Array.isArray(out) ? out[0] : out) || row;
 }
 
+// مزوّدات اختيارية تحقنها وحدات أخرى (api/requests.js تسجّل «followups» من نوشن) فلا يستورد هذا الملف
+// ما يستورده هو — حلقة استيراد. غياب المزوّد يعني «غير مقيس» في اللوحة، لا صفراً.
+const OPS_EXTRAS = {};
+export function setOpsExtra(name, fn) { OPS_EXTRAS[name] = typeof fn === "function" ? fn : undefined; }
+
 // --------------------------------------------------------------- ops side --
 async function opsAction(action, b, qs, req, res, opsUser) {
   // Who did this, in the audit trail. A named owner beats the generic
@@ -3011,6 +3018,65 @@ async function opsAction(action, b, qs, req, res, opsUser) {
       };
     }
     return json(res, 200, { ok: true, windows, excluded, capped, source: "users.created_at" });
+  }
+
+  // ---------------------------------------------------------- /ops «اليوم» --
+  // إحاطة الصباح: حقائق حيّة من القاعدة (طلبات، عروض، عقود، مدفوعات، مهام، مواعيد، ما تحرّك
+  // منذ أمس) + متابعات نوشن إن وُجد مزوّدها. النص العربي يصوغه Azure OpenAI وحده (azureChat)
+  // بحارس أرقام، ويعود إلى قالب ثابت إن لم يتوفر Azure. للقراءة فقط، وللمالك وحده (ليس في
+  // SALES_ACTIONS). `force:true` يطلب إعادة الصياغة (مرة في الدقيقة).
+  if (action === "ops-today") {
+    const now = Date.now();
+    const since = new Date(now - 24 * 3600e3).toISOString();
+    let rows, tasks, events;
+    try {
+      [rows, tasks, events] = await Promise.all([
+        sbLive("requests?select=ref,type,source,status,title,created_at,updated_at,quote,contract,payment,appointment,client_name,assigned_to,deleted_at&order=updated_at.desc&limit=500"),
+        sb("tasks?assignee=eq.bp&status=in.(open,in_progress,blocked)&select=id,title,status,urgency,human_action,due_at,created_at,request_id&order=created_at.desc&limit=500"),
+        sb(`request_events?created_at=gte.${since}&select=event,created_at&order=created_at.desc&limit=1500`).catch(() => []),
+      ]);
+    } catch { return json(res, 502, { ok: false, error: "db_failed" }); }
+    let followups = null, followupsWhy = "";
+    const provider = OPS_EXTRAS.followups;
+    if (!provider) followupsWhy = "مزوّد نوشن غير مسجّل";
+    else {
+      try { const f = await provider(); if (f && f.due != null && Number.isFinite(Number(f.due))) followups = Number(f.due); else followupsWhy = (f && f.why) || "نوشن غير مضبوط"; }
+      catch { followupsWhy = "تعذّر الاتصال بنوشن"; }
+    }
+    const facts = buildTodayFacts({ requests: rows, tasks, events, followups, followupsWhy, now, capped: rows.length >= 500 });
+    const brief = await makeBrief({
+      facts, now, force: b.force === true,
+      configured: azureConfigured(),
+      chat: (system, user) => azureChat({ system, messages: [{ role: "user", content: user }], maxTokens: 450, temperature: 0.3, timeoutMs: 20000 }),
+    });
+    return json(res, 200, { ok: true, generated_at: new Date(now).toISOString(), facts, brief, azure: azureConfigured() });
+  }
+
+  // ---------------------------------------------------------- /ops «المراجعة» --
+  // ما أُنجز وما تعثّر من بيانات حيّة، وبطاقة صحة المصدر قبل الأرقام. تُحسب عند الفتح (لا مخزَّن
+  // يشيخ)؛ وتجهيز جولة ليلية تختم نتيجتها في audit_logs مؤجَّل لموافقة المالك على الكتابة.
+  if (action === "ops-review") {
+    const now = Date.now();
+    const since = new Date(now - 14 * 864e5).toISOString();
+    const staleDays = Math.min(30, Math.max(1, Math.round(Number(b.stale_days || qs.stale_days)) || 3));
+    let rows, tasks, events;
+    try {
+      [rows, tasks, events] = await Promise.all([
+        sbLive("requests?select=ref,type,source,status,title,created_at,updated_at,quote,contract,payment,client_name,deleted_at&order=updated_at.desc&limit=500"),
+        sb("tasks?assignee=eq.bp&status=in.(open,in_progress,blocked)&select=id,title,status,human_action,due_at,created_at,request_id&order=created_at.desc&limit=500"),
+        sb(`request_events?created_at=gte.${since}&select=event,created_at&order=created_at.desc&limit=3000`).catch(() => []),
+      ]);
+    } catch { return json(res, 502, { ok: false, error: "db_failed" }); }
+    const lastOf = async (path) => { try { const r = await sb(path); return (r && r[0] && r[0].created_at) || null; } catch { return null; } };
+    const [followupLast, digestLast] = await Promise.all([
+      lastOf("request_events?event=in.(followup.task,followup.reminded)&select=created_at&order=created_at.desc&limit=1"),
+      lastOf("audit_logs?action=eq.crm.digest&select=created_at&order=created_at.desc&limit=1"),
+    ]);
+    const review = buildReview({
+      requests: rows, tasks, events, now, staleDays, capped: rows.length >= 500 || events.length >= 3000,
+      health: { followup_last_at: followupLast, digest_last_at: digestLast },
+    });
+    return json(res, 200, { ok: true, review });
   }
 
   // Development only: what would have been emailed / sent on WhatsApp.
