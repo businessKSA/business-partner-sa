@@ -2667,7 +2667,11 @@ export default async function handler(req, res) {
       return res.end(JSON.stringify({ ok: false, error: "crm_failed", synced, syncError }));
     }
     let digestSent = false, waNotified = false, waError = null;
-    if (due.length) {
+    // Owner order 2026-10-31: the daily digest (e-mail + WhatsApp) is OFF until
+    // it is rebuilt around Badr's real new matters. The lead sync above still
+    // runs; set CRM_DIGEST=on in Vercel to bring the digest back.
+    const digestOn = String(process.env.CRM_DIGEST || "").toLowerCase() === "on";
+    if (due.length && digestOn) {
       const day = new Date().toISOString().slice(0, 10);
       // Once-per-day stamp. If today's stamp says the WhatsApp leg failed, a
       // rerun retries ONLY WhatsApp (never the e-mail) and re-stamps on
