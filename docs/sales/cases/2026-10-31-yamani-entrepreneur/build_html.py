@@ -35,6 +35,7 @@ EXTRA = """
 .nt>div{flex:1;min-width:0}.nt .ar{direction:rtl;text-align:right}.nt b{color:#0B1B5A}
 .cv .ch .nm{font-family:'IBM Plex Sans Arabic',sans-serif;font-size:12px}
 .sg h3 .cn2{font-size:10px}
+.sheet.cover{padding:0!important}.sheet.cover>div{height:100%}.sheet.cover .cv{margin:0!important;height:100%!important;width:100%}
 """
 
 def footer(i, n):
@@ -108,7 +109,7 @@ def build_quote():
     sheets = []
     # 1 الغلاف
     def cover(i, n):
-        return ('<section class="sheet land" lang="ar"><div dir="rtl"><div class="cv lt"><div class="lgband"><span class="logo big" role="img" aria-label="Business Partner"></span></div>'
+        return ('<section class="sheet land cover" lang="ar"><div dir="rtl"><div class="cv lt"><div class="lgband"><span class="logo big" role="img" aria-label="Business Partner"></span></div>'
                 '<div class="cvb"><div dir="ltr"><div class="eb">QUOTATION</div><h1 class="pf">Entrepreneurship-Licence Company Formation</h1>'
                 '<div class="sb">Registering your investment under the entrepreneurship category with the Ministry of Investment, then establishing your company and registering it with the competent authorities.</div></div>'
                 '<div dir="rtl"><div class="eb" style="letter-spacing:0;font-family:inherit;font-size:13px">عرض سعر</div><h1>تأسيس شركة برخصة ريادة الأعمال</h1>'
@@ -117,7 +118,7 @@ def build_quote():
                 '<div class="ch"><div><span>To / إلى السادة</span><span class="nm">%s · <span dir="rtl">%s</span></span></div><div><span>Date / التاريخ</span>%s<br><span dir="rtl">%s</span></div>'
                 '<div><span>Validity / صلاحية العرض</span>14 days<br><span dir="rtl">14 يوماً</span></div></div></div></div>%s</section>') % (
             esc(ar("تسجيل استثمارك في فئة ريادة الأعمال لدى وزارة الاستثمار، ثم تأسيس شركتك وتسجيلها لدى الجهات المختصة.")),
-            esc(CLIENT_EN), esc(CLIENT_AR), esc(DATE_EN), esc(DATE_AR), footer(i, n))
+            esc(CLIENT_EN), esc(CLIENT_AR), esc(DATE_EN), esc(DATE_AR), "")
     sheets.append(cover)
 
     def page(inner):
@@ -206,13 +207,13 @@ def build_quote():
 
     # 8 الغلاف الختامي
     def closing(i, n):
-        return ('<section class="sheet land" lang="ar"><div dir="rtl"><div class="cv"><div class="lgc"><span class="logo" role="img" aria-label="Business Partner"></span></div>'
+        return ('<section class="sheet land cover" lang="ar"><div dir="rtl"><div class="cv"><div class="lgc"><span class="logo" role="img" aria-label="Business Partner"></span></div>'
                 '<div class="eb">CONTACT &amp; BANK TRANSFER · التواصل والتحويل البنكي</div>'
                 '<h1 class="pf">Thank you for your trust · <span style="font-family:\'IBM Plex Sans Arabic\'">شكراً لثقتكم</span></h1>'
                 '<div class="bx"><div><b>Contact · التواصل</b>National address / العنوان الوطني: RDAA9214 · 9214 King Khaled Branch Rd, Al Asemah, Ad Diriyah 13714 / طريق الملك خالد الفرعي، حي العاصمة، الدرعية 13714<br>'
                 'Mobile / الجوال: %s<br>Email / الإيميل: %s<br>Website / الموقع: %s</div>'
                 '<div><b>Bank transfer · التحويل البنكي</b>Beneficiary / المستفيد: Business Partner Solutions / بزنس بارتنر سلوشنز<br>Bank / البنك: %s<br>IBAN: %s</div></div></div></div>%s</section>') % (
-            num(PHONE), num("business@businesspartner.sa"), num("www.businesspartner.sa"), esc(BANK), num(IBAN), footer(i, n))
+            num(PHONE), num("business@businesspartner.sa"), num("www.businesspartner.sa"), esc(BANK), num(IBAN), "")
     sheets.append(closing)
     return doc("عرض سعر — تأسيس شركة برخصة ريادة الأعمال", css, sheets)
 
@@ -259,17 +260,17 @@ def sig_port():
 
 def cover_port(kind_en, kind_ar, t_en, t_ar, s_en, s_ar, ref_label=True):
     def f(i, n):
-        return ('<section class="sheet port" lang="ar"><div dir="ltr"><div class="cv"><div class="lgc"><span class="logo" role="img" aria-label="Business Partner"></span></div>'
+        return ('<section class="sheet port cover" lang="ar"><div dir="ltr"><div class="cv"><div class="lgc"><span class="logo" role="img" aria-label="Business Partner"></span></div>'
                 '<div class="cvb"><div dir="ltr"><div class="eb">%s</div><h1 class="pf">%s</h1><div class="sb">%s</div></div>'
                 '<div dir="rtl"><div class="eb" style="letter-spacing:0;font-family:inherit;font-size:13px">%s</div><h1>%s</h1><div class="sb">%s</div></div></div>'
                 '<div class="ch"><div><span>Parties / الأطراف</span>Business Partner Solutions<br>%s</div><div><span>Date / التاريخ</span>%s<br>%s</div><div><span>Ref / المرجع</span>BP-FI-05</div></div></div></div>%s</section>') % (
             esc(kind_en), esc(t_en), esc(s_en), esc(kind_ar), esc(t_ar), esc(ar(s_ar)),
-            esc(CLIENT_EN) + ' · <span dir="rtl">' + esc(CLIENT_AR) + '</span>', esc(DATE_EN), '<span dir="rtl">' + esc(DATE_AR) + '</span>', footer(i, n))
+            esc(CLIENT_EN) + ' · <span dir="rtl">' + esc(CLIENT_AR) + '</span>', esc(DATE_EN), '<span dir="rtl">' + esc(DATE_AR) + '</span>', "")
     return f
 
 def closing_port():
     def f(i, n):
-        return ('<section class="sheet port" lang="ar"><div dir="ltr"><div class="cv"><div class="lgc"><span class="logo" role="img" aria-label="Business Partner"></span></div>'
+        return ('<section class="sheet port cover" lang="ar"><div dir="ltr"><div class="cv"><div class="lgc"><span class="logo" role="img" aria-label="Business Partner"></span></div>'
                 '<div class="eb">PARTNERING FOR YOUR SUCCESS</div><h1 class="pf" style="font-size:34px">Business Partner Solutions</h1>'
                 '<div class="sb" style="direction:rtl;text-align:right;margin-top:6px">بزنس بارتنر سلوشنز</div>'
                 '<div class="bx" style="flex-direction:column;gap:22px"><div><b>Company · المنشأة</b>'
@@ -279,7 +280,7 @@ def closing_port():
                 '<div><b>Contact · التواصل</b><div class="kv"><span>Mobile</span><span class="kvv">%s</span><span dir="rtl">الجوال</span></div>'
                 '<div class="kv"><span>Email</span><span class="kvv">%s</span><span dir="rtl">الإيميل</span></div>'
                 '<div class="kv"><span>Website</span><span class="kvv">%s</span><span dir="rtl">الموقع</span></div></div></div></div></div>%s</section>') % (
-            num("7038825860"), num("312079341500003"), num("RDAA9214"), num(PHONE), num("business@businesspartner.sa"), num("www.businesspartner.sa"), footer(i, n))
+            num("7038825860"), num("312079341500003"), num("RDAA9214"), num(PHONE), num("business@businesspartner.sa"), num("www.businesspartner.sa"), "")
     return f
 
 def measure(rows_html, extra_blocks, css, path):
