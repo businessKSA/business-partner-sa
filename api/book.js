@@ -12,6 +12,8 @@
 import { gcalConfigured, busy as gcalBusy, createEvent as gcalCreate } from "./_gcal.js";
 import { sb, DB_ON } from "./_db.js";
 import { WHATSAPP_LIVE, outbox } from "./_mode.js";
+// قواعد الساعات والأيام والمهلة والمدى في ملفٍّ واحد يقرؤه الحجز و«مواعيدي» معاً.
+import { TZ, bookingConfig, slotsOfDay, validateSlot, iso, riyadhToday, isOffDay, hhmm, bookingMessage } from "./_booking.js";
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY || "";
 const FROM = process.env.OTP_FROM_EMAIL || "Business Partner <onboarding@resend.dev>";
@@ -80,7 +82,7 @@ function gcalUrl({ topic, date, time, notes }) {
   const [h, m] = time.split(":").map(Number);
   const d = date.replace(/-/g, "");
   const pad = (n) => String(n).padStart(2, "0");
-  const endMin = h * 60 + m + SLOT_MIN;
+  const endMin = h * 60 + m + bookingConfig().slotMin;
   const start = `${d}T${pad(h)}${pad(m)}00`;
   const end = `${d}T${pad(Math.floor(endMin / 60))}${pad(endMin % 60)}00`;
   const params = new URLSearchParams({
@@ -117,26 +119,9 @@ async function readBody(req) {
 }
 
 // ---- المواعيد المتاحة ------------------------------------------------------
-// أوقات العمل بتوقيت الرياض، والجمعة عطلة. القيم قابلة للضبط من المتغيّرات
-// دون تعديل شيفرة: BOOKING_START, BOOKING_END, BOOKING_SLOT_MIN, BOOKING_DAYS.
-const TZ_OFFSET = "+03:00";                        // الرياض بلا توقيت صيفي
-const WORK_FROM = Number(process.env.BOOKING_START || 10);      // ١٠ صباحاً
-const WORK_TO   = Number(process.env.BOOKING_END || 18);        // ٦ مساءً
-const SLOT_MIN  = Number(process.env.BOOKING_SLOT_MIN || 30);   // نصف ساعة
-const HORIZON   = Number(process.env.BOOKING_DAYS || 21);       // ثلاثة أسابيع
-const LEAD_MIN  = Number(process.env.BOOKING_LEAD_MIN || 120);  // ساعتان مهلة
-
-const iso = (date, hhmm) => `${date}T${hhmm}:00${TZ_OFFSET}`;
-const pad = (n) => String(n).padStart(2, "0");
-const dayOf = (date) => new Date(`${date}T12:00:00${TZ_OFFSET}`).getUTCDay();   // 5 = الجمعة
-
-function slotsOfDay(date) {
-  const out = [];
-  for (let m = WORK_FROM * 60; m + SLOT_MIN <= WORK_TO * 60; m += SLOT_MIN) {
-    out.push(`${pad(Math.floor(m / 60))}:${pad(m % 60)}`);
-  }
-  return out;
-}
+// الساعات والعطلة والمهلة والمدى كلها في `_booking.js` (القرار 2026-10-29:
+// ١٣:٠٠–٢١:٠٠ بتوقيت الرياض عدا الجمعة) وتُضبط من BOOKING_START/END/OFF_DAYS/
+// SLOT_MIN/DAYS/LEAD_MIN دون تعديل شيفرة. هنا لا ثوابت ساعات.
 
 // ‏سجلّ ما حُجز عندنا. تقويم جوجل ليس المصدر الوحيد: قبل ربطه — وهو غير
 // مربوط حتى تُضبط مفاتيح حساب الخدمة — لا شيء يمنع أن يحجز اثنان الفترة
@@ -190,19 +175,24 @@ async function saveBooking({ ref, name, phone, email, topic, date, time, notes, 
  * الأيام المتاحة وفتراتها. تُحجب الجمعة، وما مضى، وما هو دون مهلة الحجز،
  * وما هو مشغول في تقويم الشركة حين يكون التقويم مربوطاً.
  */
-async function availability(days) {
-  const today = new Date();
+async function availability(days, now = Date.now()) {
+  const c = bookingConfig();
   const list = [];
-  for (let i = 0; i < Math.min(Math.max(days || HORIZON, 1), 60); i++) {
-    const d = new Date(today.getTime() + i * 86400000);
-    const date = d.toISOString().slice(0, 10);
-    if (dayOf(date) === 5) continue;                      // الجمعة
-    list.push({ date, slots: slotsOfDay(date) });
+  const n = Math.min(Math.max(days || c.horizon, 1), 60);
+  for (let i = 0; i < n; i++) {
+    const date = riyadhToday(now + i * 86400000);   // تاريخ الرياض لا UTC
+    if (isOffDay(date)) continue;                    // العطلة (الجمعة افتراضياً)
+    list.push({ date, slots: slotsOfDay() });
   }
-  if (!list.length) return { days: [], calendar: gcalConfigured() ? "linked" : "off" };
+  const meta = {
+    slotMinutes: c.slotMin, tz: TZ,
+    hours: { from: hhmm(c.fromMin), to: hhmm(c.toMin), lastStart: hhmm(c.toMin - c.slotMin) },
+    offDays: c.offDays, leadMinutes: c.leadMin,
+  };
+  if (!list.length) return { days: [], calendar: gcalConfigured() ? "linked" : "off", ...meta };
 
   // حجب ما مضى وما هو دون المهلة، ثم ما حُجز عندنا
-  const earliest = Date.now() + LEAD_MIN * 60000;
+  const earliest = now + c.leadMin * 60000;
   for (const d of list) d.slots = d.slots.filter((t) => new Date(iso(d.date, t)).getTime() >= earliest);
   const mine = await bookedSet();
   if (mine.size) for (const d of list) d.slots = d.slots.filter((t) => !mine.has(d.date + " " + t));
@@ -210,13 +200,13 @@ async function availability(days) {
   let calendar = "off";
   if (gcalConfigured()) {
     try {
-      const from = iso(list[0].date, `${pad(WORK_FROM)}:00`);
-      const to = iso(list[list.length - 1].date, `${pad(WORK_TO)}:00`);
+      const from = iso(list[0].date, hhmm(c.fromMin));
+      const to = iso(list[list.length - 1].date, hhmm(c.toMin));
       const taken = await gcalBusy(from, to);
       for (const d of list) {
         d.slots = d.slots.filter((t) => {
           const s = new Date(iso(d.date, t)).getTime();
-          const e = s + SLOT_MIN * 60000;
+          const e = s + c.slotMin * 60000;
           return !taken.some((b) => s < new Date(b.end).getTime() && e > new Date(b.start).getTime());
         });
       }
@@ -228,7 +218,7 @@ async function availability(days) {
       calendar = "error";
     }
   }
-  return { days: list.filter((d) => d.slots.length), calendar, slotMinutes: SLOT_MIN, tz: "Asia/Riyadh" };
+  return { days: list.filter((d) => d.slots.length), calendar, ...meta };
 }
 
 export default async function handler(req, res) {
@@ -239,17 +229,18 @@ export default async function handler(req, res) {
     const u = new URL(req.url, "http://x");
     if (u.searchParams.get("action") === "slots") {
       try {
-        const a = await availability(Number(u.searchParams.get("days")) || HORIZON);
+        const a = await availability(Number(u.searchParams.get("days")) || bookingConfig().horizon);
         return res.end(JSON.stringify({ ok: true, ...a }));
       } catch (e) {
         res.statusCode = 500;
         return res.end(JSON.stringify({ ok: false, error: "slots_failed", detail: String(e.message || e).slice(0, 160) }));
       }
     }
+    const c = bookingConfig();
     return res.end(JSON.stringify({
       status: "ok", emailConfigured: !!RESEND_API_KEY, teamEmail: !!TEAM_EMAIL,
       calendar: gcalConfigured() ? "linked" : "off",
-      hours: { from: WORK_FROM, to: WORK_TO, slotMinutes: SLOT_MIN, tz: "Asia/Riyadh", horizonDays: HORIZON },
+      hours: { from: hhmm(c.fromMin), to: hhmm(c.toMin), slotMinutes: c.slotMin, tz: TZ, horizonDays: c.horizon, offDays: c.offDays, leadMinutes: c.leadMin },
     }));
   }
   if (req.method !== "POST") { res.statusCode = 405; return res.end(JSON.stringify({ error: "method_not_allowed" })); }
@@ -268,6 +259,16 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ ok: false, error: "invalid_fields" }));
   }
 
+  // الموعد يُفحص في الخادم: ساعات الجلسات، يوم العطلة، الماضي، المهلة، المدى.
+  // الواجهة تعرض الفترات الصالحة فقط، لكن طلباً مرسلاً مباشرةً لا تحرسه الواجهة.
+  const lang = ["ar", "en", "fr", "zh"].includes(b.lang) ? b.lang : "ar";
+  const v = validateSlot(date, time);
+  if (!v.ok) {
+    res.statusCode = 400;
+    return res.end(JSON.stringify({ ok: false, error: v.error, message: bookingMessage(v.error, lang) }));
+  }
+  const slotMin = bookingConfig().slotMin;
+
   const ref = "BC-" + Date.now().toString().slice(-6);
   const cal = gcalUrl({ topic, date, time, notes });
 
@@ -283,8 +284,8 @@ export default async function handler(req, res) {
   // ويُعاد التحقق من خلوّ الفترة قبل الإنشاء: بين عرض المواعيد على شاشة
   // العميل وضغطه قد يكون آخرُ حجزها، فالفحص عند العرض وحده يسمح بحجزين
   // على فترة واحدة.
-  const startIso = `${date}T${time}:00${TZ_OFFSET}`;
-  const endIso = new Date(new Date(startIso).getTime() + SLOT_MIN * 60000).toISOString();
+  const startIso = iso(date, time);
+  const endIso = new Date(v.endMs).toISOString();
   let event = null, calendarState = gcalConfigured() ? "linked" : "off";
   if (gcalConfigured()) {
     try {
@@ -350,6 +351,6 @@ export default async function handler(req, res) {
     calendar: calendarState,
     meet: (event && event.meet) || "",
     eventId: (event && event.id) || "",
-    when: { date, time, tz: "Asia/Riyadh", minutes: SLOT_MIN },
+    when: { date, time, tz: "Asia/Riyadh", minutes: slotMin },
   }));
 }

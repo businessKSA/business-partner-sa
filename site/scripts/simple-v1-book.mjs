@@ -224,8 +224,14 @@ $('bkGo').onclick=function(){
   self.disabled=false;
   if(!o||!o.ok){
    msg.className='sv1-bk-msg err';
-   msg.textContent=(o&&o.error==='slot_taken')?TX.taken:TX.failed;
-   if(o&&o.error==='slot_taken')load();
+   // الخادم يرفض موعداً لا يقبله (يوم عطلة، خارج الساعات، مضى، دون المهلة،
+   // أبعد من المدى): تُعاد قراءة الفترات الصالحة ويُمسح الاختيار الفاسد،
+   // ويُعرض نصّ الخادم نفسه بدل رسالة عامة.
+   var er=o&&o.error;
+   if(er==='slot_taken'){msg.textContent=TX.taken;load();return}
+   if(er&&/^(off_day|out_of_hours|past|too_soon|too_far|bad_datetime)$/.test(er)){
+    msg.textContent=o.message||TX.failed;pick.time='';load();return}
+   msg.textContent=TX.failed;
    return}
   done(o)})
  .catch(function(){self.disabled=false;msg.className='sv1-bk-msg err';msg.textContent=TX.failed})};
