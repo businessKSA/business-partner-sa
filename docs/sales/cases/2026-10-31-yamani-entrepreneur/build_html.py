@@ -238,10 +238,15 @@ def parties_html():
         esc(CLIENT_EN), esc(CLIENT_AR), "full name as in ID: " + num("[●]"), num("[●]"), num("[●]"), num("[●]"))
     return me + cl
 
+NUMBERED = True
+PARTIES = True
+START = 2
+
 def clause_tr(no, r):
     t_en, t_ar, b_en, b_ar = r
-    return '<tr data-m="r%d"><td class="en"><b>%d. %s</b><br>%s</td><td class="ar"><b>%d. %s</b><br>%s</td></tr>' % (
-        no, no, esc(t_en), b_en.replace("&", "&amp;") if "&amp;" not in b_en else b_en, no, esc(t_ar), ar(b_ar))
+    pre = "%d. " % no if NUMBERED else ""
+    return '<tr data-m="r%d"><td class="en"><b>%s%s</b><br>%s</td><td class="ar"><b>%s%s</b><br>%s</td></tr>' % (
+        no, pre, esc(t_en), b_en if "&amp;" in b_en or b_en.startswith("<") else b_en.replace("&", "&amp;"), pre, esc(t_ar), ar(b_ar) if not b_ar.startswith("<") else b_ar)
 
 def sig_port():
     return ('<div class="sg" data-m="sig" style="direction:ltr"><div><h3><span>First Party</span><span dir="rtl">الطرف الأول</span></h3>'
@@ -289,7 +294,7 @@ def measure(rows_html, extra_blocks, css, path):
 
 def paginate_port(rows, title_en, title_ar, kind_en, kind_ar, cover_args, with_sig=True, tmp="/tmp"):
     css = css_of("REV-contract-bilingual.html")
-    nums = list(range(2, 2 + len(rows)))
+    nums = list(range(START, START + len(rows)))
     trs = [clause_tr(no, r) for no, r in zip(nums, rows)]
     pa = '<div data-m="parties"><div class="pre"><b>1. الأطراف / Parties</b></div>%s</div>' % parties_html()
     ms = measure("".join(trs), pa + sig_port(), css, os.path.join(tmp, "yamani-measure.html"))
@@ -300,7 +305,7 @@ def paginate_port(rows, title_en, title_ar, kind_en, kind_ar, cover_args, with_s
     def new_page():
         nonlocal cur, used, first
         pages.append((cur, first)); cur = []; used = 0; first = False
-    used = ms["parties"] + 6
+    used = (ms["parties"] + 6) if PARTIES else 0
     for k, tr in enumerate(trs):
         h = ms["r%d" % nums[k]]
         if used + h > avail and cur:
@@ -317,7 +322,7 @@ def paginate_port(rows, title_en, title_ar, kind_en, kind_ar, cover_args, with_s
     for pi, (rs, is_first) in enumerate(pages):
         def f(i, n, rs=rs, is_first=is_first, pi=pi):
             body = ""
-            if is_first:
+            if is_first and PARTIES:
                 body += '<div class="pre"><b>1. الأطراف / Parties</b></div>' + parties_html()
             body += '<table class="cl">%s</table>' % "".join(re.sub(r' data-m="r\d+"', "", x) for x in rs) if rs else ""
             if with_sig and pi == last:
@@ -335,6 +340,14 @@ def build_contract():
     h, _ = paginate_port(rows, C_TITLE_EN, C_TITLE_AR, None, None, cover)
     return h, rows
 
+def build_info(rows, t_en, t_ar, kind_en, kind_ar, s_en, s_ar, numbered=True):
+    global NUMBERED, PARTIES, START
+    NUMBERED, PARTIES, START = numbered, False, 1
+    cover = (kind_en, kind_ar, t_en, t_ar, s_en, s_ar)
+    h, _ = paginate_port(rows, t_en, t_ar, None, None, cover, with_sig=False)
+    NUMBERED, PARTIES, START = True, True, 2
+    return h
+
 def build_nda():
     rows = nda_rows()
     cover = ("CONFIDENTIALITY", "سرية", N_TITLE_EN, N_TITLE_AR,
@@ -350,4 +363,7 @@ if __name__ == "__main__":
     open(os.path.join(out, "01-Quotation.html"), "w", encoding="utf-8").write(build_quote())
     h, _ = build_contract(); open(os.path.join(out, "02-Agreement.html"), "w", encoding="utf-8").write(h)
     h, _ = build_nda(); open(os.path.join(out, "03-NDA.html"), "w", encoding="utf-8").write(h)
+    from info_docs import INFO
+    for fname, spec in INFO.items():
+        open(os.path.join(out, fname + ".html"), "w", encoding="utf-8").write(build_info(*spec))
     print("ok", out, "FINAL" if FINAL else "scrubbed")

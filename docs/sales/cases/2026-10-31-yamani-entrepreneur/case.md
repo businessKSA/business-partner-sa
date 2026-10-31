@@ -19,6 +19,8 @@
 | عرض السعر | `01-Quotation.pdf` (A4 أفقي، 9 صفحات) · `01-Quotation-slides.pptx` (5 شرائح 16:9) · `01-Quotation.html` |
 | العقد | `02-Agreement.docx` · `02-Agreement.pdf` (7 صفحات) |
 | NDA | `03-NDA.docx` · `03-NDA.pdf` (4 صفحات) |
+| مساندة | `04-Client-Documents-Checklist` · `05-Client-Data-Form` · `06-Service-Guide` (DOCX + PDF) |
+| بريف ملاك | `malak-email-brief.md` |
 
 النسخ النهائية الخاصة (الجوال مطبوع) تُولَّد ولا تُحفظ هنا:
 `BP_PHONE=<الجوال> BP_IBAN=<الآيبان> BP_BANK=<البنك> ./build_all.sh /مسار/خارج/المستودع --final`

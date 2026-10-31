@@ -12,3 +12,4 @@ python3 build_office.py "$OUT" "$@"
 node render.cjs pdf "$OUT/01-Quotation.html" "$OUT/01-Quotation.pdf" landscape
 node render.cjs pdf "$OUT/02-Agreement.html" "$OUT/02-Agreement.pdf" portrait
 node render.cjs pdf "$OUT/03-NDA.html" "$OUT/03-NDA.pdf" portrait
+for f in 04-Client-Documents-Checklist 05-Client-Data-Form 06-Service-Guide; do node render.cjs pdf "$OUT/$f.html" "$OUT/$f.pdf" portrait; done
