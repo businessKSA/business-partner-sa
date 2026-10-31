@@ -8232,6 +8232,51 @@ const SUPPLIER_CATS = [
   { en: "Other", ar: "أخرى" },
 ];
 
+// تصميم /suppliers (قرار المالك 2026-10-31): قشرة الموقع الجديد عبر sv1LegacyApp()
+// كصفحة مكاتب الاستقدام والوظائف، والجسم بمكوّنات `.sup-*` محصورة تحت
+// `.sv1-legacy` فلا يتسرّب شيء لصفحة أخرى. لا نص جديداً: كل نص مرئي هنا هو
+// نفسه الذي كان في الصفحة، فمفتاحه موجود في قاموس الترجمة (fr/zh).
+const SUP_CSS = `<style id="sup-css">
+.sv1-legacy .sup-hero .hero-inner{padding-bottom:6px!important}
+.sv1-legacy .sup-trust{list-style:none;margin:22px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px 26px}
+.sv1-legacy .sup-trust li{display:inline-flex;align-items:center;gap:8px;font-size:13px;line-height:1.6;color:var(--s)}
+.sv1-legacy .sup-trust svg,.sv1-legacy .sup-list svg{width:17px;height:17px;flex:none;color:var(--ok)}
+.sv1-legacy .sup-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
+.sv1-legacy .sup-step{display:flex;flex-direction:column;gap:10px;background:#fff;border:1px solid var(--l);border-radius:14px;box-shadow:var(--sh);padding:22px}
+.sv1-legacy .sup-n{width:38px;height:38px;border-radius:50%;background:var(--ac);color:#fff;display:grid;place-items:center;font-size:16px;font-weight:500;line-height:1;flex:none}
+.sv1-legacy .sup-step h3{margin:2px 0 0;font-size:16px}
+.sv1-legacy .sup-step p{margin:0;font-size:13.5px;color:var(--s)}
+.sv1-legacy .sup-panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch}
+.sv1-legacy .sup-panel{background:#fff;border:1px solid var(--l);border-radius:14px;box-shadow:var(--sh);padding:24px 26px}
+.sv1-legacy .sup-panel h3{margin:0 0 8px;font-size:17px}
+.sv1-legacy .sup-list{list-style:none;margin:0;padding:0}
+.sv1-legacy .sup-list li{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-top:1px solid var(--line2);font-size:14px;line-height:1.7;color:var(--t)}
+.sv1-legacy .sup-list li:first-child{border-top:0}
+.sv1-legacy .sup-list svg{margin-top:5px}
+.sv1-legacy .sup-cats{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:10px}
+.sv1-legacy .sup-cats li{display:flex;align-items:center;justify-content:center;text-align:center;min-height:46px;padding:6px 12px;background:#fff;border:1px solid var(--acLine);border-radius:999px;font-size:13px;line-height:1.4;color:var(--ink)}
+.sv1-legacy .sup-cta{background:var(--n);border-radius:16px;padding:38px 28px;text-align:center}
+.sv1-legacy .sup-cta h2{margin:0 0 20px;color:#fff!important}
+.sv1-legacy .sup-cta-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.sv1-legacy .sup-cta .btn-ghost{background:transparent!important;border-color:rgba(255,255,255,.5)!important;color:#fff!important}
+.sv1-legacy .sup-cta .btn-ghost:hover{background:rgba(255,255,255,.1)!important;border-color:#fff!important}
+/* سطر وصف الشركة في التذييل: قاعدة p العامة في styles.css تعطيه رمادياً على الكحلي (~2.4:1)؛ يُصلح في هذه الصفحة وحدها */
+.sv1-foot-col>p:not(.sv1-foot-note){color:#ccd4ed}
+@media(max-width:860px){
+  .sv1-legacy .sup-steps,.sv1-legacy .sup-panels{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .sv1-legacy .sup-hero .hero-actions{flex-direction:column;align-items:stretch}
+  .sv1-legacy .sup-hero .hero-actions .btn,.sv1-legacy .sup-cta-actions .btn{width:100%}
+  .sv1-legacy .sup-cta-actions{flex-direction:column;align-items:stretch}
+  .sv1-legacy .sup-panel{padding:20px 18px}
+  .sv1-legacy .sup-cats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sv1-legacy .sup-cta{padding:30px 20px}
+  /* مسافة سفلية: زرّا الدعم وواتساب العائمان لا يغطّيان شريط الدعوة */
+  .sv1-legacy .sup-end{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))!important}
+}
+</style>`;
+
 function buildSuppliers() {
   const cats = SUPPLIER_CATS;
   // One registration, not two. The sign-up that actually works lives on the
@@ -8240,8 +8285,11 @@ function buildSuppliers() {
   // its own that posted without a password and so could never register anyone.
   const joinHref = `${u("/partner-dashboard")}#signup`;
   const loginHref = `${u("/partner-dashboard")}#login`;
-  const body = `
-  <section class="hero hero--sm"><div class="container hero-inner">
+  const step = (n, h, p) => `<div class="sup-step"><span class="sup-n" aria-hidden="true">${n}</span><h3>${h}</h3><p>${p}</p></div>`;
+  const li = (t) => `<li>${I.check}<span>${t}</span></li>`;
+  const body = SUP_CSS + `
+  <div class="sup-page">
+  <section class="hero hero--sm sup-hero"><div class="container hero-inner">
     <span class="eyebrow">${L("Partners", "الشركاء")}</span>
     <h1>${L("Join the Business Partner network", "انضم كشريك لدى Business Partner")}</h1>
     <p class="lead">${L("We send our clients' service and event requests to registered partners and collect competing offers. Register once — matching requests reach you, and your dashboard opens straight away.", "نرسل طلبات عملائنا (خدمات وفعاليات) للشركاء المسجّلين ونجمع العروض المنافسة. سجّل مرة واحدة — تصلك الطلبات المناسبة لنشاطك وتفتح لوحتك فوراً.")}</p>
@@ -8249,59 +8297,62 @@ function buildSuppliers() {
       <a class="btn btn-primary btn-lg" href="${joinHref}">${L("Create your partner account", "أنشئ حسابك كشريك")}</a>
       <a class="btn btn-ghost btn-lg" href="${loginHref}">${L("Already a partner? Sign in", "شريك بالفعل؟ سجّل الدخول")}</a>
     </div>
+    <ul class="sup-trust">
+      ${li(L("Ready corporate demand from our clients", "طلبات جاهزة من عملائنا (شركات)"))}
+      ${li(L("No registration fees", "بدون رسوم تسجيل"))}
+      ${li(L("Direct WhatsApp and e-mail coordination", "تنسيق مباشر عبر واتساب والبريد"))}
+    </ul>
   </div></section>
 
   <section class="section"><div class="container">
     <div class="section-head"><h2>${L("Three steps, no fees", "ثلاث خطوات، وبدون رسوم")}</h2>
       <p>${L("Registration takes a couple of minutes and costs nothing.", "التسجيل يأخذ دقيقتين ولا يكلّفك شيئاً.")}</p></div>
-    <div class="grid grid-3">
-      <div class="step"><div class="step-n">1</div><div>
-        <h3>${L("Create your account", "أنشئ حسابك")}</h3>
-        <p class="text-soft">${L("Company name, contact person, mobile, e-mail, a password and your service category.", "اسم الشركة، الشخص المسؤول، الجوال، البريد، كلمة مرور، وتصنيف خدمتك.")}</p></div></div>
-      <div class="step"><div class="step-n">2</div><div>
-        <h3>${L("Verify your e-mail", "أكّد بريدك")}</h3>
-        <p class="text-soft">${L("A six-digit code reaches your inbox and is valid for fifteen minutes.", "يصلك رمز من ستة أرقام على بريدك، صالح لخمس عشرة دقيقة.")}</p></div></div>
-      <div class="step"><div class="step-n">3</div><div>
-        <h3>${L("Your dashboard opens", "تفتح لوحتك")}</h3>
-        <p class="text-soft">${L("You see every service you can execute and what each pays you. Approval by our team is what lets us assign you work.", "تشوف كل خدمة تقدر تنفّذها وكم تكسب منها. واعتماد فريقنا هو ما يسمح لنا بإسناد العمل إليك.")}</p></div></div>
+    <div class="sup-steps">
+      ${step(1, L("Create your account", "أنشئ حسابك"), L("Company name, contact person, mobile, e-mail, a password and your service category.", "اسم الشركة، الشخص المسؤول، الجوال، البريد، كلمة مرور، وتصنيف خدمتك."))}
+      ${step(2, L("Verify your e-mail", "أكّد بريدك"), L("A six-digit code reaches your inbox and is valid for fifteen minutes.", "يصلك رمز من ستة أرقام على بريدك، صالح لخمس عشرة دقيقة."))}
+      ${step(3, L("Your dashboard opens", "تفتح لوحتك"), L("You see every service you can execute and what each pays you. Approval by our team is what lets us assign you work.", "تشوف كل خدمة تقدر تنفّذها وكم تكسب منها. واعتماد فريقنا هو ما يسمح لنا بإسناد العمل إليك."))}
     </div>
   </div></section>
 
   <section class="section section--gray"><div class="container">
-    <div class="grid grid-2" style="gap:28px;align-items:start">
-      <div class="order-box">
+    <div class="sup-panels">
+      <div class="sup-panel">
         <h3>${L("Why join?", "ليش تنضم؟")}</h3>
-        <ul class="feat-list" style="grid-template-columns:1fr">
-          <li>${I.check}<span>${L("Ready corporate demand from our clients", "طلبات جاهزة من عملائنا (شركات)")}</span></li>
-          <li>${I.check}<span>${L("You compete on clear, scoped requests", "تنافس على طلبات واضحة ومحددة")}</span></li>
-          <li>${I.check}<span>${L("No registration fees", "بدون رسوم تسجيل")}</span></li>
-          <li>${I.check}<span>${L("Direct WhatsApp and e-mail coordination", "تنسيق مباشر عبر واتساب والبريد")}</span></li>
-          <li>${I.check}<span>${L("Your own referral link — you earn on what you bring in", "رابط إحالة خاص بك — تكسب على ما تجلبه")}</span></li>
+        <ul class="sup-list">
+          ${li(L("Ready corporate demand from our clients", "طلبات جاهزة من عملائنا (شركات)"))}
+          ${li(L("You compete on clear, scoped requests", "تنافس على طلبات واضحة ومحددة"))}
+          ${li(L("No registration fees", "بدون رسوم تسجيل"))}
+          ${li(L("Direct WhatsApp and e-mail coordination", "تنسيق مباشر عبر واتساب والبريد"))}
+          ${li(L("Your own referral link — you earn on what you bring in", "رابط إحالة خاص بك — تكسب على ما تجلبه"))}
         </ul>
       </div>
-      <div class="order-box">
+      <div class="sup-panel">
         <h3>${L("What your dashboard gives you", "وش تلقى في لوحتك")}</h3>
-        <ul class="feat-list" style="grid-template-columns:1fr">
-          <li>${I.check}<span>${L("Work orders assigned to you, with their status", "أوامر العمل المُسنَدة إليك وحالاتها")}</span></li>
-          <li>${I.check}<span>${L("Your own services and prices", "خدماتك وأسعارك")}</span></li>
-          <li>${I.check}<span>${L("Every catalogue service and your share of it", "كل خدمات الكتالوج وعمولتك من كل واحدة")}</span></li>
-          <li>${I.check}<span>${L("Propose a service we do not offer yet", "اقترح خدمة غير موجودة عندنا")}</span></li>
-          <li>${I.check}<span>${L("Your wallet: what is held for you and what is released", "محفظتك: المحتجز لك والمُفرَج عنه")}</span></li>
+        <ul class="sup-list">
+          ${li(L("Work orders assigned to you, with their status", "أوامر العمل المُسنَدة إليك وحالاتها"))}
+          ${li(L("Your own services and prices", "خدماتك وأسعارك"))}
+          ${li(L("Every catalogue service and your share of it", "كل خدمات الكتالوج وعمولتك من كل واحدة"))}
+          ${li(L("Propose a service we do not offer yet", "اقترح خدمة غير موجودة عندنا"))}
+          ${li(L("Your wallet: what is held for you and what is released", "محفظتك: المحتجز لك والمُفرَج عنه"))}
         </ul>
       </div>
     </div>
   </div></section>
 
-  <section class="section"><div class="container">
+  <section class="section sup-end"><div class="container">
     <div class="section-head"><h2>${L("Categories we register", "التصنيفات التي نسجّلها")}</h2>
       <p>${L("Pick yours while creating the account.", "تختار تصنيفك أثناء إنشاء الحساب.")}</p></div>
-    <div class="chip-row" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center">${cats.map((c2) => `<span class="chip">${L(c2.en, c2.ar)}</span>`).join("")}</div>
-    <div class="cta-band" style="margin-top:36px">
+    <ul class="sup-cats">${cats.map((c2) => `<li>${L(c2.en, c2.ar)}</li>`).join("")}</ul>
+    <div class="sup-cta" style="margin-top:36px">
       <h2>${L("Register once — the requests come to you", "سجّل مرة واحدة — والطلبات تجيك")}</h2>
-      <a class="btn btn-white btn-lg" href="${joinHref}">${L("Create your partner account", "أنشئ حسابك كشريك")}</a>
+      <div class="sup-cta-actions">
+        <a class="btn btn-white btn-lg" href="${joinHref}">${L("Create your partner account", "أنشئ حسابك كشريك")}</a>
+        <a class="btn btn-ghost btn-lg" href="${loginHref}">${L("Already a partner? Sign in", "شريك بالفعل؟ سجّل الدخول")}</a>
+      </div>
     </div>
-  </div></section>`;
-  return page({ title: Lraw("Partner registration — Business Partner", "تسجيل الشركاء — Business Partner"), desc: Lraw("Register as a Business Partner partner and receive matching client requests.", "سجّل كشريك لدى Business Partner وتصلك طلبات العملاء المناسبة لنشاطك."), active: "/suppliers", path: "/suppliers", body });
+  </div></section>
+  </div>`;
+  return sv1LegacyApp({ title: Lraw("Partner registration — Business Partner", "تسجيل الشركاء — Business Partner"), desc: Lraw("Register as a Business Partner partner and receive matching client requests.", "سجّل كشريك لدى Business Partner وتصلك طلبات العملاء المناسبة لنشاطك."), active: "/suppliers", path: "/suppliers", body });
 }
 
 // Partner dashboard — the operational side of the partners portal, wired to the
