@@ -19,7 +19,7 @@ QMOVE · عبدالمحسن (العرض 22 أكتوبر تقريباً) · AL-BI
 
 بخصوص قائمة المستندات التي طلبناها في 30 سبتمبر لمعالجة القيد على المنشأة: ما الذي لديكم منها حتى الآن؟ وهل يوجد ما يعيق توفير بعضها (مثل شهادة الامتثال أو سجل الحضور أو تعهد المنشأة)؟ يسعدنا أن نناقش ذلك معكم في اجتماع قصير ونرتّب الأولويات حسب الأهم.
 
-يمكنكم حجز موعد من هنا: https://businesspartner.sa/ar/consultation
+يمكنكم [حجز استشارة](https://businesspartner.sa/ar/consultation) من الموقع.
 المواعيد يومياً من 1 ظهراً حتى 9 مساءً عدا الجمعة.
 
 مع التحية، Business Partner
@@ -31,12 +31,12 @@ QMOVE · عبدالمحسن (العرض 22 أكتوبر تقريباً) · AL-BI
 
 نتابع معكم بخصوص [الخدمة/العرض] الذي أرسلناه في [التاريخ]. هل لديكم أي أسئلة أو ملاحظات؟ وإن كان هناك ما يمنع المضي قدماً (توقيت، ميزانية، مستندات) فنحب أن نفهمه لنساعدكم.
 
-إن رغبتم بمناقشة التفاصيل في اجتماع قصير فيمكنكم الحجز من: https://businesspartner.sa/ar/consultation (يومياً 1 ظهراً – 9 مساءً عدا الجمعة).
+إن رغبتم بمناقشة التفاصيل في اجتماع قصير فيمكنكم [حجز استشارة](https://businesspartner.sa/ar/consultation) (يومياً 1 ظهراً – 9 مساءً عدا الجمعة).
 
 مع التحية، Business Partner
 
 English version:
-Dear [Name], we are following up on [service/proposal] we sent on [date]. Do you have any questions, or is anything holding you back (timing, budget, documents)? We would be glad to discuss it in a short call. You can book here: https://businesspartner.sa/consultation — daily 1 pm to 9 pm (Riyadh time), except Fridays.
+Dear [Name], we are following up on [service/proposal] we sent on [date]. Do you have any questions, or is anything holding you back (timing, budget, documents)? We would be glad to discuss it in a short call. You can [book a consultation](https://businesspartner.sa/consultation) — daily 1 pm to 9 pm (Riyadh time), except Fridays.
 
 ## ج) تُترك الآن (لم يحن موعدها أو محادثة نشطة)
 | العميل | آخر أثر | السبب | الموعد |
@@ -47,3 +47,8 @@ Dear [Name], we are following up on [service/proposal] we sent on [date]. Do you
 
 ## ملاحظة / Note
 تنبيه من فحصي: خيط AL-BIR فيه اعتراف العميل في 17 أغسطس («الوثائق ستتوفر قريباً») ثم مراسلة 21 أكتوبر بمستندات التوقيع وتفاصيل الرسوم من دون ردّ منذ 8 أيام؛ مسودة بدر تغطي ذلك. وتم إرفاق شهادة الآيبان في ذلك الإيميل الأصلي، ولا تُنسخ الآيبان إلى المستودع.
+
+## تطبيق المعيار الموحّد (2026-10-31) / Standard applied
+- الروابط صارت رابطاً واحداً نصه اسم الخدمة بلغة الإيميل («حجز استشارة» / «book a consultation»)، بلا رابط خام.
+- كل مسودة تُنشأ في Gmail بلغة العميل؛ إن كانت ثنائية فالعربي يميناً والإنجليزي يسار، وبتوقيع الشركة من Gmail.
+- لم أُعدّ ملفات عروض أو عقود أحتاج رفعها للدرايف؛ نصوصي مسودات رد فقط.

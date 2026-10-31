@@ -35,6 +35,6 @@
 
 ## مسودة رد: طلب مدفوع إلكترونياً (قالب، تُملأ الخدمة)
 واتساب/إيميل — عربي:
-السلام عليكم ورحمة الله وبركاته، معك Business Partner. وصلنا طلبكم [الخدمة] رقم [المرجع] وتأكدنا من الدفع، ونشكر ثقتكم. لنبدأ التنفيذ نحتاج: [قائمة المستندات من الكتالوج]. هل يناسبكم موعد اتصال قصير اليوم أو غداً؟ يمكنكم أيضاً حجز موعد من https://businesspartner.sa/ar/consultation (يومياً 1 ظهراً – 9 مساءً عدا الجمعة).
+السلام عليكم ورحمة الله وبركاته، معك Business Partner. وصلنا طلبكم [الخدمة] رقم [المرجع] وتأكدنا من الدفع، ونشكر ثقتكم. لنبدأ التنفيذ نحتاج: [قائمة المستندات من الكتالوج]. هل يناسبكم موعد اتصال قصير اليوم أو غداً؟ يمكنكم أيضاً [حجز استشارة](https://businesspartner.sa/ar/consultation) (يومياً 1 ظهراً – 9 مساءً عدا الجمعة).
 
-English: Hello, this is Business Partner. We received your order [service] (ref [ref]) and confirmed your payment, thank you. To start we need: [documents from the catalogue]. Would a short call today or tomorrow suit you? You can also book at https://businesspartner.sa/consultation (daily 1–9 pm Riyadh time, except Fridays).
+English: Hello, this is Business Partner. We received your order [service] (ref [ref]) and confirmed your payment, thank you. To start we need: [documents from the catalogue]. Would a short call today or tomorrow suit you? You can also [book a consultation](https://businesspartner.sa/consultation) (daily 1–9 pm Riyadh time, except Fridays).
