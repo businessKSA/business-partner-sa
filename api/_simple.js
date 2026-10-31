@@ -923,9 +923,57 @@ export async function markPaid(row, { provider, payId, amount, test, actor }) {
   });
   return upd;
 }
+// A second payment landing on a request that is already paid used to vanish:
+// the early return below handed back the row and nobody — not the owner, not
+// the books — learned that the customer had been charged twice. It is now
+// recorded on the request (payment.duplicates), opened as a human task for the
+// owner and mailed to him, so the refund is a decision he takes, not a thing
+// found at month end.
+//
+// The SAME payment arriving over its second channel (Moyasar webhook, then the
+// buyer's browser return — or the other way round) is not a duplicate: it
+// carries the payment id already stored on the request, and passes silently.
+async function flagDuplicatePayment(row, info) {
+  const payId = str(info && info.payId, 80);
+  if (!payId) return { duplicate: false, reason: "no_pay_id" };
+  const pay = row.payment || {};
+  if (pay.ref === payId || pay.pay_ref === payId) return { duplicate: false, reason: "same_payment" };
+  const prior = Array.isArray(pay.duplicates) ? pay.duplicates : [];
+  // Moyasar retries a webhook; the browser callback can fire twice. One
+  // duplicate payment is reported once, however many times it is announced.
+  if (prior.some((d) => d && d.payId === payId)) return { duplicate: true, already: true };
+  const entry = { provider: str(info.provider, 40), payId, amount: round2(num(info.amount)), at: nowIso(), test: !!info.test };
+  const upd = await patchRequest(row.id, { payment: { ...pay, duplicates: [...prior, entry].slice(-20) } });
+  await logEvent(row.id, "system", entry.provider || "payment", "payment.duplicate", { payId, amount: entry.amount, paid_with: pay.ref || pay.pay_ref || "" });
+  try {
+    await sweepTask(row, {
+      source: "payment.duplicate", human: true, urgency: "high",
+      title: () => `دفعة مكرّرة على طلب مدفوع — ${row.ref}`,
+      details: () => `وصلت دفعة ثانية (${payId}، ${entry.amount} ر.س عبر ${entry.provider || "—"}) على طلب مدفوع أصلاً بالدفعة ${pay.ref || pay.pay_ref || "—"}. راجع مُيسّر واسترجع المبلغ للعميل أو أسنده لطلب آخر.`,
+    }, "النظام");
+  } catch (e) { console.error("duplicate payment task", String(e.message || e).slice(0, 100)); }
+  try {
+    await announce({ ...row, ...(upd || {}) }, "payment-duplicate", {
+      subject: `⚠️ دفعة مكرّرة على الطلب ${row.ref}`,
+      clientLine: `وصلت دفعة ثانية ${entry.amount} ر.س (${payId}) على طلب مدفوع أصلاً.`,
+      opsLine: `⚠️ دفعة مكرّرة: ${entry.amount} ر.س عبر ${entry.provider || "—"} (${payId}) على الطلب ${row.ref} المدفوع أصلاً بالدفعة ${pay.ref || pay.pay_ref || "—"}. المبلغ زائد — استرجعه للعميل من لوحة البوابة.`,
+      to: "ops",
+    });
+  } catch (e) { console.error("duplicate payment mail", String(e.message || e).slice(0, 100)); }
+  return { duplicate: true, already: false };
+}
+
+const PAID_STATUSES = ["PAID", "IN_PROGRESS", "WAITING_INTERNAL", "COMPLETED"];
 export async function markRequestPaidByRef(ref, info) {
   const row = await getByRef(ref);
-  if (!row || row.status === "PAID" || ["IN_PROGRESS", "COMPLETED"].includes(row.status)) return row;
+  if (!row) return row;
+  if (PAID_STATUSES.includes(row.status)) {
+    await flagDuplicatePayment(row, info || {});
+    return row;
+  }
+  // A cancelled request is not paid by a late payment: it stays cancelled and
+  // the caller (api/pay.js) sees a status that is not "paid" and alerts.
+  if (row.status === "CANCELLED") return row;
   return markPaid(row, info);
 }
 

@@ -39,23 +39,69 @@ import { parseEmpSku, empOffer, empPrepare, empSessionEmail, empActivate, empBas
 // Simple V1: a cart line "sv1:BP-R-XXXXXX" is an approved, signed quotation.
 // Its amount is the quote's net as stored on the request row — never the
 // browser's number — and it is only payable once the contract is signed.
-async function sv1Line(rawId) {
+//
+// Two different questions, two status lists. OPENING a payment (a new Tamara
+// session) is allowed only while the quote still waits for money: SIGNED /
+// PAYMENT_PENDING. SETTLING a payment that has already moved must still be able
+// to price the request after the other channel got there first — Moyasar's
+// webhook and the buyer's browser return both settle the same payment, and
+// whichever is second finds the request PAID. A cancelled request is never
+// priced in either case.
+const SV1_PAYABLE = ["SIGNED", "PAYMENT_PENDING"];
+const SV1_SETTLEABLE = [...SV1_PAYABLE, "PAID", "IN_PROGRESS", "WAITING_INTERNAL", "COMPLETED"];
+async function sv1Line(rawId, { settling = false } = {}) {
   const id = String(rawId || "");
   if (!/^sv1:/i.test(id) || !DB_ON) return null;
   const ref = id.slice(4).toUpperCase().slice(0, 40);
   try {
     const rows = await sb(`requests?ref=eq.${encodeURIComponent(ref)}&select=ref,title,status,quote&limit=1`);
     const r = rows[0];
-    if (!r || !r.quote || !["SIGNED", "PAYMENT_PENDING"].includes(r.status)) return null;
+    if (!r || !r.quote || !(settling ? SV1_SETTLEABLE : SV1_PAYABLE).includes(r.status)) return null;
     return { ref: r.ref, amount: Number(r.quote.net) || 0, name: `${r.title} — ${r.quote.number}` };
   } catch { return null; }
 }
+// The quote references (sv1:BP-R-…) in a list of cart ids / payment items, as a
+// sorted list: two lists name the same quotes exactly when these are equal.
+const SV1_RE = /^sv1:/i;
+const sv1Refs = (ids) => (Array.isArray(ids) ? ids : [])
+  .map((x) => String((x && typeof x === "object" ? x.id : x) || "").trim())
+  .filter((x) => SV1_RE.test(x)).map((x) => x.slice(4).toUpperCase()).sort();
+const sameRefs = (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);
+// Does the PAYMENT itself — Moyasar's own record, not the browser's request —
+// name exactly the quotes the order claims to settle? Without this, a payment
+// made for quote A could be presented with an order that lists quote B (same
+// price), and A's money would mark B paid; a payment of one price naming two
+// quotes would settle both. `metadata.items` is written when the payment is
+// created ("id~qty,id~qty"), before any money moves, so it is the one list the
+// browser cannot choose after the fact. The local test gateway (mock_) carries
+// no such record, and Tamara payments are bound at bnpl-verify from Tamara's
+// own order lines instead.
+function paymentNamesQuotes(p, orderIds) {
+  const pid = String((p && p.id) || "");
+  if (/^mock_/.test(pid) || /^tamara_/.test(pid)) return true;
+  const named = sv1Refs(String(((p && p.metadata) || {}).items || "").split(",").map((s) => s.split("~")[0]));
+  return sameRefs(named, sv1Refs(orderIds));
+}
+// What the quote settle did. `ok` is false when any quote line did not end up
+// paid — the payment has already been taken by then, so a failure here must be
+// loud, never swallowed.
+const PAID_AFTER = ["PAID", "IN_PROGRESS", "WAITING_INTERNAL", "COMPLETED"];
 async function sv1Settle(ids, p, provider) {
+  const out = { ok: true, failed: [] };
   for (const x of ids) {
-    if (!/^sv1:/i.test(String(x.id))) continue;
-    try { await markRequestPaidByRef(String(x.id).slice(4).toUpperCase(), { provider, payId: String(p.id || ""), amount: Math.round(Number(p.amount || 0)) / 100, test: false, actor: provider }); }
-    catch (e) { console.error("sv1 settle", String(e.message || e).slice(0, 120)); }
+    if (!SV1_RE.test(String(x.id))) continue;
+    const ref = String(x.id).slice(4).toUpperCase();
+    try {
+      const row = await markRequestPaidByRef(ref, { provider, payId: String(p.id || ""), amount: Math.round(Number(p.amount || 0)) / 100, test: false, actor: provider });
+      if (!row) out.failed.push({ ref, error: "request_not_found" });
+      else if (!PAID_AFTER.includes(row.status)) out.failed.push({ ref, error: "request_not_payable:" + row.status });
+    } catch (e) {
+      console.error("sv1 settle", String(e.message || e).slice(0, 120));
+      out.failed.push({ ref, error: String(e.message || "settle_failed").slice(0, 80) });
+    }
   }
+  out.ok = out.failed.length === 0;
+  return out;
 }
 
 // Trimmed, like every other secret this project reads. A newline pasted into
@@ -229,6 +275,31 @@ async function alertEmployerFailure(order, p, why) {
         <tr><td style="padding:4px 10px;color:#666">السبب</td><td style="padding:4px 10px"><b>${esc(why)}</b></td></tr>
       </table></div>`).catch(() => {});
 }
+// A payment tied to a signed quotation that could not be applied to it — the
+// charge went through, the request did not turn PAID. One mail per payment and
+// reason per instance: the webhook and the browser return both reach here for
+// the same payment, and Moyasar retries.
+const alertedQuote = (globalThis.__bpQuoteAlerted ||= new Set());
+async function alertQuoteSettleFailure(order, p, why, failed) {
+  const key = String((p && p.id) || "") + "|" + why;
+  if (alertedQuote.has(key)) return;
+  alertedQuote.add(key);
+  const refs = (failed || []).map((f) => `${f.ref} (${f.error})`).join(" · ");
+  await sendMail(OWNER_EMAIL, `${why === "payment_quote_mismatch" ? "⚠️ دفعة لا تطابق العرض المنسوب إليها" : "⚠️ دفعة عرض سعر لم تُقيَّد على الطلب"} — ${String((p && p.id) || "")}`,
+    `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right;max-width:560px">
+      <h2 style="color:#b91c1c">${why === "payment_quote_mismatch" ? "دفعة لا تطابق العرض المنسوب إليها" : "الدفعة وصلت ولم يُقيَّد الطلب"}</h2>
+      <p>${why === "payment_quote_mismatch"
+        ? "الدفعة تسمّي عروضاً غير التي يدّعي الطلب تسويتها، فلم يُسوَّ أي عرض. راجع الدفعة في لوحة مُيسّر وقيّدها يدوياً على العرض الصحيح إن كانت سليمة."
+        : "المال وصل فعلاً، لكن العرض لم يتحوّل إلى «مدفوع». افتح الطلب في /ops وقيّد الدفع يدوياً."}</p>
+      <table>
+        <tr><td style="padding:4px 10px;color:#666">رقم الدفعة</td><td style="padding:4px 10px"><b style="direction:ltr;display:inline-block">${esc(String((p && p.id) || ""))}</b></td></tr>
+        <tr><td style="padding:4px 10px;color:#666">المبلغ</td><td style="padding:4px 10px"><b>${Math.round(Number((p && p.amount) || 0)) / 100} ﷼</b></td></tr>
+        <tr><td style="padding:4px 10px;color:#666">مرجع الطلب</td><td style="padding:4px 10px"><b style="direction:ltr;display:inline-block">${esc(String((order && order.ref) || "—"))}</b></td></tr>
+        <tr><td style="padding:4px 10px;color:#666">العميل</td><td style="padding:4px 10px">${esc(String((order && order.email) || "—"))}</td></tr>
+        ${refs ? `<tr><td style="padding:4px 10px;color:#666">العروض</td><td style="padding:4px 10px"><b style="direction:ltr;display:inline-block">${esc(refs)}</b></td></tr>` : ""}
+        <tr><td style="padding:4px 10px;color:#666">السبب</td><td style="padding:4px 10px"><b>${esc(why)}</b></td></tr>
+      </table></div>`).catch(() => {});
+}
 async function settlePaidOrder(order, p) {
   const ids = (Array.isArray(order.items) ? order.items : []).slice(0, 40)
     .map((it) => ({ id: String((it && it.id) || "").slice(0, 80), qty: Math.max(1, Math.min(99, Number(it && it.qty) || 1)) }))
@@ -257,8 +328,10 @@ async function settlePaidOrder(order, p) {
       detail.push({ id: x.id, name: o.name.ar, qty: x.qty, amount: o.offer.amountSar * x.qty, cycle: o.offer.billing });
       continue;
     }
-    const sv1 = await sv1Line(x.id);
-    const a = sv1 ? sv1.amount : skuAmount(x.id, priceMap);
+    const sv1 = await sv1Line(x.id, { settling: true });
+    // A quote line the server cannot price (cancelled, unknown, not signed) must
+    // not fall through to the catalogue lookup — "sv1:…" is not a SKU.
+    const a = sv1 ? sv1.amount : SV1_RE.test(x.id) ? null : skuAmount(x.id, priceMap);
     if (a == null) { unknown = true; names.push(x.id + " ×" + x.qty); detail.push({ id: x.id, name: x.id, qty: x.qty, amount: null }); continue; }
     net += a * x.qty;
     lines.push({ id: x.id, line: a * x.qty });
@@ -275,9 +348,27 @@ async function settlePaidOrder(order, p) {
     : net;
   const cut = discountCut(Math.min(discBase, net), disc);
   net -= cut;
-  // Two riyals of tolerance for the rounding the cart and the form each do.
-  const expectedHalalas = Math.round(net * 1.15 * 100);
-  const verified = !unknown && net > 0 && Math.abs(expectedHalalas - Number(p.amount || 0)) <= 200;
+  // A cart made only of signed quotations (sv1:), with no surcharge and no
+  // discount, has an exact price: the quote's own net plus 15% VAT rounded the
+  // way computeQuote (api/_simple.js) rounds it. The two-riyal slack below was
+  // built for catalogue carts, where the cart and the form each round on their
+  // own; on a quote it let a payment 1.50 ﷼ short — or one quote's money
+  // spread over two quotes — pass as paid in full. So a quote cart is compared
+  // to the halala (two of slack for float noise), a catalogue cart keeps the
+  // two riyals, and the employer-plan gate below (one riyal) is untouched.
+  const sv1Only = ids.length > 0 && ids.every((x) => SV1_RE.test(x.id)) && !(Number(order.surchargeFee) > 0) && !disc && !(cut > 0);
+  const r2 = (n) => Math.round(n * 100) / 100;
+  const expectedHalalas = sv1Only
+    ? Math.round(r2(r2(net) + r2(r2(net) * 0.15)) * 100)
+    : Math.round(net * 1.15 * 100);
+  const slack = sv1Only ? 2 : 200;
+  // …and the payment record must name exactly the quotes this order settles.
+  const bound = paymentNamesQuotes(p, ids);
+  const verified = !unknown && net > 0 && bound && Math.abs(expectedHalalas - Number(p.amount || 0)) <= slack;
+  if (!bound) {
+    console.error("pay: payment does not name the quotes the order claims", String(p.id || ""));
+    await alertQuoteSettleFailure(order, p, "payment_quote_mismatch");
+  }
 
   // A subscription is switched on only when the charge matches the server's
   // price for the whole basket to within one riyal — tighter than the CRM's
@@ -318,7 +409,16 @@ async function settlePaidOrder(order, p) {
     });
     const j = await r.json().catch(() => ({}));
     if (!r.ok || !j.ok) return { ok: false, error: j.error || ("http_" + r.status), verified, ref: payload.ref, ...(employer ? { employer } : {}) };
-    if (verified) await sv1Settle(ids, p, String(p.id || "").startsWith("tamara_") ? "tamara" : "moyasar");
+    if (verified) {
+      const qs = await sv1Settle(ids, p, String(p.id || "").startsWith("tamara_") ? "tamara" : "moyasar");
+      if (!qs.ok) {
+        // The money is already with the gateway and the request is not marked
+        // paid. This is reported as a failure — never as a settled order — and
+        // the owner is told once, with the references to mark by hand.
+        await alertQuoteSettleFailure(order, p, "quote_settle_failed", qs.failed);
+        return { ok: false, error: "quote_settle_failed", failed: qs.failed, already: !!j.already, verified, ref: payload.ref, activated: j.activated || null, request: j.request || null, ...(employer ? { employer } : {}) };
+      }
+    }
     return { ok: true, already: !!j.already, verified, ref: payload.ref, activated: j.activated || null, request: j.request || null, ...(employer ? { employer } : {}) };
   } catch (e) {
     console.error("pay: settle call failed", String(e.message || e).slice(0, 160));
@@ -941,6 +1041,16 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({ error: "method_not_allowed" }));
   }
 
+  // A live key on a preview deployment: refuse to settle anything (the GET
+  // above already withholds the publishable key). See payGuard in api/_mode.js.
+  {
+    const pg = payGuard();
+    if (!pg.ok && pg.error === "live_keys_in_preview") {
+      res.statusCode = 503;
+      return res.end(JSON.stringify({ ok: false, enabled: false, error: pg.error, message: pg.message }));
+    }
+  }
+
   // The local gateway issues and verifies its own ids (see below), so the
   // secret-key check is production's alone — without this exemption the
   // buyer's return from the local gateway was a 500 and nothing settled.
@@ -1323,6 +1433,21 @@ export default async function handler(req, res) {
     const p = { id: `${provider}_${v.id}`, amount: Math.round(v.amountSar * 100) };
     let settle = null, invoicing = null;
     const order = (b.order && typeof b.order === "object") ? b.order : null;
+    // Tamara's own order lines against the browser's claim. The id in this
+    // request names a Tamara order; the `order` beside it is whatever the page
+    // chose to send. If the quotes Tamara was paid for are not exactly the
+    // quotes the page asks us to settle, nothing is settled — an order paid for
+    // quote A must not be presented as the payment of quote B. The owner is told
+    // (the capture has already happened by now, so the money is real).
+    if (order && Array.isArray(order.items) && !/^mock_/.test(String(v.id))) {
+      const tamaraQuotes = sv1Refs(v.items), claimedQuotes = sv1Refs(order.items);
+      if (!sameRefs(tamaraQuotes, claimedQuotes)) {
+        console.error("pay: tamara order does not match the claimed quotes", String(v.id));
+        await alertQuoteSettleFailure(order, p, "payment_quote_mismatch");
+        res.statusCode = 409;
+        return res.end(JSON.stringify({ ok: false, error: "order_mismatch" }));
+      }
+    }
     if (order && Array.isArray(order.items) && order.items.length) {
       try { settle = await settlePaidOrder(order, p); }
       catch (e) { console.error("bnpl settle failed", String(e.message || e).slice(0, 160)); }
@@ -1342,7 +1467,7 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({
       ok: true, provider, amount: p.amount, captured: !!v.captured,
       ...(invoicing ? { invoice: invoicing } : {}),
-      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null, ref: settle.ref || "", request: settle.request || null } } : {}),
+      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null, ref: settle.ref || "", request: settle.request || null, ...(settle.error ? { error: settle.error } : {}) } } : {}),
       ...(settle && settle.employer ? { employer: { activated: !!settle.employer.activated } } : {}),
     }));
   }
@@ -1472,7 +1597,10 @@ export default async function handler(req, res) {
     if (paid) {
       const settleMissing = !b.order || !settle || (!settle.ok && !settle.already);
       const invoiceMissing = !invoicing || (invoicing.invoiced === false && invoicing.reason !== "already_settled");
-      if (settleMissing || invoiceMissing) {
+      // A quote that could not be marked paid has its own, once-per-payment
+      // alert (alertQuoteSettleFailure) — a second, generic mail would be noise.
+      const quoteAlerted = !!(settle && settle.error === "quote_settle_failed");
+      if ((settleMissing || invoiceMissing) && !quoteAlerted) {
         const why = [
           settleMissing ? `التسجيل في CRM: ${settle ? (settle.error || settle.skipped || "لم يكتمل") : "لم يُستدعَ"}` : "",
           invoiceMissing ? `الفاتورة: ${(invoicing && (invoicing.reason || invoicing.error)) || "لم تُصدر"}` : "",
@@ -1507,7 +1635,7 @@ export default async function handler(req, res) {
       ...(b.context === "compliance" ? { activated: activation.activated } : {}),
       ...(invoicing ? { invoice: invoicing } : {}),
       ...(announced ? { announced } : {}),
-      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null, ref: settle.ref || "", request: settle.request || null } } : {}),
+      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null, ref: settle.ref || "", request: settle.request || null, ...(settle.error ? { error: settle.error } : {}) } } : {}),
       ...(settle && settle.employer ? { employer: { activated: !!settle.employer.activated } } : {}),
     }));
   } catch (e) {

@@ -65,9 +65,21 @@ export async function outboxList(limit = 50) {
 //      the whole path — cart → payment → invoice — is still walkable offline.
 const isLive = (k) => /^(pk|sk)_live_/.test(String(k || "").trim());
 export function payGuard() {
-  if (!DEV) return { ok: true };
   const pk = process.env.MOYASAR_PUBLISHABLE_KEY || "";
   const sk = process.env.MOYASAR_SECRET_KEY || "";
+  // A Vercel preview is a throwaway deployment on a throwaway URL, yet it
+  // inherits the project's environment variables. With live Moyasar keys in
+  // them, anyone who opens a preview link charges a real card and settles a
+  // real order against whichever database that preview points at. So a live
+  // key on a preview is refused unless PAYMENTS_MODE=live was set on purpose.
+  // Read at call time (not at import) and before the DEV branch: it is a
+  // property of the deployment the request landed on.
+  if (process.env.VERCEL_ENV === "preview" && (isLive(pk) || isLive(sk))
+      && String(process.env.PAYMENTS_MODE || "").trim().toLowerCase() !== "live") {
+    return { ok: false, error: "live_keys_in_preview",
+      message: "مفتاح مُيسّر مباشر (live) على نشرة معاينة — الدفع موقوف. استعمل مفاتيح الاختبار للمعاينة، أو اضبط PAYMENTS_MODE=live عمداً." };
+  }
+  if (!DEV) return { ok: true };
   if (isLive(pk) || isLive(sk)) {
     return { ok: false, error: "live_keys_in_development",
       message: "مفتاح مُيسّر مباشر (live) داخل بيئة تطوير — الدفع موقوف. استعمل مفاتيح pk_test_/sk_test_ في .env.local." };

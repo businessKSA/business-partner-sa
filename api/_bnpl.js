@@ -160,14 +160,22 @@ export async function verifyTamaraOrder(orderId) {
   const o = await call(`${TAMARA_BASE}/orders/${id}`, TAMARA_TOKEN, undefined, "GET");
   const status = String(o.status || "").toLowerCase().replace(/\s+/g, "_");
   const amountSar = Number((o.total_amount || {}).amount) || 0;
+  // What Tamara itself holds as the order's lines. The checkout session was
+  // opened with `reference_id` = the cart id (createTamaraSession), so this is
+  // the provider's record of WHICH lines were paid for — the caller compares
+  // it with what the browser claims to be settling (api/pay.js bnpl-verify).
+  const items = (Array.isArray(o.items) ? o.items : []).slice(0, 60).map((it) => ({
+    id: String((it && (it.reference_id || it.sku)) || "").slice(0, 80),
+    qty: Math.max(1, Number(it && it.quantity) || 1),
+  })).filter((it) => it.id);
   if (status === "fully_captured" || status === "captured") {
-    return { paid: true, amountSar, id, captured: true };
+    return { paid: true, amountSar, id, captured: true, items };
   }
   if (status === "approved") {
     try { await call(`${TAMARA_BASE}/orders/${id}/authorise`, TAMARA_TOKEN, {}); }
     catch (e) { /* auto-authorisation or already authorised */ }
   } else if (status !== "authorised") {
-    return { paid: false, status, id };
+    return { paid: false, status, id, items };
   }
   try {
     await call(`${TAMARA_BASE}/payments/capture`, TAMARA_TOKEN, {
@@ -178,8 +186,8 @@ export async function verifyTamaraOrder(orderId) {
       discount_amount: money(Number((o.discount_amount || {}).amount) || 0),
       ...(Array.isArray(o.items) && o.items.length ? { items: o.items } : {}),
     });
-    return { paid: true, amountSar, id, captured: true };
+    return { paid: true, amountSar, id, captured: true, items };
   } catch (e) {
-    return { paid: true, amountSar, id, captured: false, captureError: String(e.detail || e.message || "").slice(0, 300) };
+    return { paid: true, amountSar, id, captured: false, items, captureError: String(e.detail || e.message || "").slice(0, 300) };
   }
 }
