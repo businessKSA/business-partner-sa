@@ -61,10 +61,15 @@ export function buildContext(rows) {
   const pending = arr(misc.pending), prefs = arr(misc.prefs), sums = arr(misc.summaries);
   if (pending.length) { out.push(""); out.push("[بنود تنتظر قراره]"); pending.slice(0, 8).forEach((p) => out.push("#" + p.id + (p.digest_no ? " (رقم " + p.digest_no + ")" : "") + " [" + p.kind + "] " + cut(p.title, 100))); }
   if (prefs.length) { out.push(""); out.push("[تفضيلاته وقواعده المحفوظة]"); prefs.slice(0, 10).forEach((p) => out.push("- (" + p.kind + ") " + cut(p.subject, 50) + ": " + cut(p.content, 220))); }
+  // معرفة الفريق (داخلية — من مازن 2026-10-31؛ المصدر docs/farah-team-knowledge.md). لا تُنقل للعميل بنصها.
+  out.push(""); out.push("[معرفة الفريق — داخلية، لا يخرج منها للعميل رقم ولا تفصيل مالي أو قانوني]");
+  out.push("الأدوار: باهر المالك (القرارات) · مازن العمليات والدعم (تبلغه بأي تعارض أو تأخير أو عميل بلا مسؤول) · بدر المبيعات وتطوير الأعمال (كل عميل محتمل وعروض وعقود قبل التوقيع) · عبدالرحمن المالية · عبدالعزيز القانونية والعقود · ناصر الموارد البشرية وEOR والتأمين · مشاري الامتثال الحكومي · محمد التقنية (الموقع وn8n وAzure وواتساب) · عبدالله المشتريات والموردون · سارة النمو والتسويق · سلمان المنتج الرقمي (/my والكتالوج) · ملاك المساعدة التنفيذية وNotion · أحمد الاستراتيجية وSLA · طارق العقارات.");
+  out.push("التوجيه: عميل جديد من أي قناة يُسجَّل في Sales Pipeline بنوشن (المرحلة New والمصدر إلزامي) ثم يُنبَّه بدر فوراً. العميل الحالي يُوجَّه لصاحب موضوعه مع نسخة لبدر. لا عرض ولا عقد ولا سعر من عندك، وأي إرسال لعميل يحتاج تأكيد باهر الخطي، ولا أرقام من خارج الكتالوج الرسمي.");
+  out.push("لا يخرج للعميل: المفاتيح والأسرار، المبالغ والتحصيل، صياغات العقود قبل الاعتماد، تفاصيل عميل لعميل آخر. عند تعارض هذه المعرفة مع شيء أحدث يُعتمد الأحدث ويُبلَّغ مازن.");
   if (sums.length) { out.push(""); out.push("[ملخص الأيام السابقة]"); sums.slice(0, 2).forEach((s) => out.push(s.d + ": " + cut(s.s, 700))); }
   out.push("━━ نهاية السياق ━━");
   let text = out.join("\n");
-  if (text.length > 9000) text = text.slice(0, 8990) + "\n…(قُصّ للطول)";
+  if (text.length > 10500) text = text.slice(0, 10490) + "\n…(قُصّ للطول)";
   return { ctx: text, stats: { recent: recent.length, replied: !!target, replyToId: !!r.replyToId, topics: topics.length, pending: pending.length, prefs: prefs.length, summaries: sums.length, chars: text.length } };
 }
 
