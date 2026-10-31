@@ -253,6 +253,16 @@
           "ar": "الشروط والأحكام"
         },
         {
+          "href": "/privacy",
+          "en": "Privacy Policy",
+          "ar": "سياسة الخصوصية"
+        },
+        {
+          "href": "/data-deletion",
+          "en": "Data deletion",
+          "ar": "حذف البيانات"
+        },
+        {
           "href": "/contact",
           "en": "Contact us",
           "ar": "اتصل بنا"

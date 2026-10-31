@@ -172,7 +172,7 @@ export function assistSystemPrompt(today) {
     `Today's date (Riyadh) is ${today}. Resolve relative dates ("after a month", "next week", "بعد شهر") to an absolute YYYY-MM-DD from today.`,
     "JSON shape:",
     '{"engagementType":"contract"|"casual"|null,',
-    ' "items":[{"occupation":"<job title as the user wrote it or its plain English name>","count":<integer or null>,"nationalities":["<ISO 3166-1 alpha-2 code, e.g. IN, PH, SA>"],"gender":"male"|"female"|"any"|null,"seniority":"<one of the seniority ids or null>","salary":<monthly SAR number or null>}],',
+    ' "items":[{"occupation":"<the standard plain English job title, e.g. waiter, housekeeper, cook, driver; if unsure, the user own words>","count":<integer or null>,"nationalities":["<ISO 3166-1 alpha-2 code, e.g. IN, PH, SA>"],"gender":"male"|"female"|"any"|null,"seniority":"<one of the seniority ids or null>","salary":<monthly SAR number or null>}],',
     ' "city":"<one of the city ids or null>","sector":"<one of the sector ids or null>","startDate":"YYYY-MM-DD"|null,',
     ' "duration":{"unit":"hour"|"day"|"month"|"year","value":<integer>}|null,',
     ' "housing":"us"|"client"|null,"meals":"us"|"client"|null,"transport":"us"|"client"|null,',
@@ -197,6 +197,28 @@ function parseJsonLoose(text) {
   return null;
 }
 
+// مرادفات عامية ومعرَّبة شائعة في الطلبات تُترجَم إلى استعلام بحث قبل البحث في الفهرس (لا تُظهَر للمستخدم).
+const OCC_ALIASES = {
+  "ويتر": "waiter", "وايتر": "waiter", "ويترس": "waitress", "نادل": "waiter", "نادله": "waitress", "جرسون": "waiter",
+  "هاوسكيبنج": "room attendant", "هاوس كيبنج": "room attendant", "هاوسكيبر": "room attendant", "هاوس كيبر": "room attendant",
+  "housekeeping": "room attendant", "housekeeper": "room attendant", "house keeping": "room attendant", "house keeper": "room attendant",
+  "كوك": "cook", "شيف": "chef", "طباخ": "cook", "كاشير": "cashier", "بارستا": "barista", "باريستا": "barista",
+  "سواق": "driver", "سائق": "driver", "ديليفري": "delivery driver", "حارس": "security guard", "سكيورتي": "security guard",
+  "عامل نظافه": "cleaner", "كلينر": "cleaner", "ريسبشنست": "receptionist", "استقبال": "receptionist",
+  "اكاونتنت": "accountant", "محاسب": "accountant", "سيلز": "sales", "ميكانيكي": "mechanic", "كهربائي": "electrician",
+  "نجار": "carpenter", "سباك": "plumber", "لحام": "welder", "بنّاء": "mason", "عامل": "laborer", "ماسون": "mason",
+};
+export function resolveOccupationText(name) {
+  const n = normText(name);
+  const keys = [n, OCC_ALIASES[n], ...(n.split(" ").length > 1 ? [n.split(" ")[0]] : [])].filter(Boolean);
+  for (const k of keys) {
+    const q = OCC_ALIASES[normText(k)] || k;
+    const hit = searchCatalogOccupations(q, 1)[0];
+    if (hit) return hit;
+  }
+  return null;
+}
+
 // يحوّل رد النموذج الخام إلى اقتراح موثَّق بالقوائم البيضاء. { ok:true, suggestion, unresolved:[…] } | { ok:false, error:"bad_model_output" }
 // المدة تُمرَّر خاماً { unit, value } أو null (يتحقق منها _eor.js بـnormalizeDuration). لا حقل يخرج إلا بعد فحصه.
 export function parseAssistOutput(rawText, opts = {}) {
@@ -210,13 +232,9 @@ export function parseAssistOutput(rawText, opts = {}) {
     if (!it || typeof it !== "object") continue;
     const name = cleanAssistText(it.occupation).slice(0, 80);
     if (!name) continue;
-    let hit = searchCatalogOccupations(name, 1)[0];
-    if (!hit) {
-      // احتياط: بحث الكلمة الأولى فقط (مثلاً «طباخ ماهر»).
-      const first = normText(name).split(" ")[0];
-      if (first && first.length >= 2) hit = searchCatalogOccupations(first, 1)[0];
-    }
-    if (!hit) { unresolved.push({ field: "occupation", text: safeOut(name, 80) }); continue; }
+    // مهنة غير معروفة لا تُسقط البند: العدد والجنسيات يبقيان، والمهنة تُترك للعميل ليختارها (تُسجَّل في unresolved).
+    const hit = resolveOccupationText(name);
+    if (!hit) unresolved.push({ field: "occupation", text: safeOut(name, 80) });
     const nats = [];
     for (const raw of Array.isArray(it.nationalities) ? it.nationalities.slice(0, 20) : []) {
       const code = String(raw == null ? "" : raw).trim().toUpperCase();
@@ -229,7 +247,7 @@ export function parseAssistOutput(rawText, opts = {}) {
     const cnt = typeof it.count === "number" ? it.count : typeof it.count === "string" && /^\d{1,3}$/.test(it.count.trim()) ? Number(it.count.trim()) : null;
     const sal = typeof it.salary === "number" && Number.isFinite(it.salary) && it.salary > 0 && it.salary <= 100000 ? Math.round(it.salary * 100) / 100 : null;
     items.push({
-      occupationCatalogId: hit.id, occupationLabel: { ar: hit.nameAr, en: hit.nameEn },
+      occupationCatalogId: hit ? hit.id : "", occupationLabel: hit ? { ar: hit.nameAr, en: hit.nameEn } : null, occupationText: hit ? "" : safeOut(name, 80),
       count: Number.isInteger(cnt) && cnt >= 1 && cnt <= 500 ? cnt : null,
       nationalities: nats.slice(0, 10),
       gender: GENDER_MAP[String(it.gender == null ? "" : it.gender).trim().toLowerCase()] || null,

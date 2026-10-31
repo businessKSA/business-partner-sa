@@ -7805,18 +7805,18 @@ function buildCheckout() {
   return page({ title: Lraw("Checkout — Business Partner", "إتمام الطلب — Business Partner"), desc: Lraw("Pay online by card and your order activates instantly with a tax invoice — or pay by bank transfer and upload the receipt.", "ادفع إلكترونياً بالبطاقة ويتفعّل طلبك فوراً مع فاتورتك الضريبية — أو حوّل بنكياً وارفع الإيصال."), active: "/cart", path: "/checkout", body: bodyWithCodes });
 }
 
-function buildTerms() {
-  const tm = site.terms;
+function buildLegalPage(tm, { path: pagePath, titleEn: pageTitleEn, titleAr: pageTitleAr, descEn, descAr }) {
   const sections = tm.sections
     .map((s) => {
       let inner = "";
       if (s.body || s.bodyEn) inner = `<p>${L(s.bodyEn || s.body, s.body)}</p>`;
-      else if (s.items) {
-        inner = `<dl class="terms-defs">${s.items
+      if (s.items) {
+        inner += `<dl class="terms-defs">${s.items
           .map(([ar, arDesc, en, enDesc]) => `<div><dt>${L(en, ar)}</dt><dd>${L(enDesc, arDesc)}</dd></div>`)
           .join("")}</dl>`;
       } else if (s.list) {
-        inner = `<ol class="terms-list">${s.list.map(([ar, en]) => `<li>${L(en, ar)}</li>`).join("")}</ol>`;
+        const tag = s.bullets ? "ul" : "ol";
+        inner += `<${tag} class="terms-list">${s.list.map(([ar, en]) => `<li>${L(en, ar)}</li>`).join("")}</${tag}>`;
       }
       return `<div class="terms-section"><h2>${L(s.titleEn, s.title)}</h2>${inner}</div>`;
     })
@@ -7830,7 +7830,7 @@ function buildTerms() {
   </div></section>
   <section class="section"><div class="container" style="max-width:860px">
     ${sections}
-    <div class="callout" style="margin-top:20px"><span class="ico">💡</span><p>${L(tm.noteEn, tm.note)}</p></div>
+    ${tm.note ? `<div class="callout" style="margin-top:20px"><span class="ico">💡</span><p>${L(tm.noteEn, tm.note)}</p></div>` : ""}
   </div></section>
   <style>
     .terms-section{margin-bottom:32px}
@@ -7842,11 +7842,41 @@ function buildTerms() {
     .terms-list li::marker{color:var(--navy);font-weight:700}
   </style>`;
   return page({
-    title: Lraw("Terms & Conditions — Business Partner", "الشروط والأحكام — Business Partner"),
-    desc: Lraw("The terms and conditions governing subscriptions and purchases with Business Partner.", "الشروط والأحكام التي تحكم الاشتراكات والمشتريات مع Business Partner."),
-    active: "/terms",
-    path: "/terms",
+    title: Lraw(pageTitleEn, pageTitleAr),
+    desc: Lraw(descEn, descAr),
+    active: pagePath,
+    path: pagePath,
     body,
+  });
+}
+
+function buildTerms() {
+  return buildLegalPage(site.terms, {
+    path: "/terms",
+    titleEn: "Terms & Conditions — Business Partner",
+    titleAr: "الشروط والأحكام — Business Partner",
+    descEn: "The terms and conditions governing subscriptions and purchases with Business Partner.",
+    descAr: "الشروط والأحكام التي تحكم الاشتراكات والمشتريات مع Business Partner.",
+  });
+}
+
+function buildPrivacy() {
+  return buildLegalPage(site.privacy, {
+    path: "/privacy",
+    titleEn: "Privacy Policy — Business Partner",
+    titleAr: "سياسة الخصوصية — Business Partner",
+    descEn: "How Business Partner Solutions processes data through the Farah Assistant 3 WhatsApp assistant.",
+    descAr: "كيف تعالج بزنس بارتنر سلوشنز البيانات عبر مساعد Farah Assistant 3 على واتساب.",
+  });
+}
+
+function buildDataDeletion() {
+  return buildLegalPage(site.dataDeletion, {
+    path: "/data-deletion",
+    titleEn: "Data Deletion — Business Partner",
+    titleAr: "حذف البيانات — Business Partner",
+    descEn: "How to request deletion of your data processed by the Farah Assistant 3 WhatsApp assistant.",
+    descAr: "كيف تطلب حذف بياناتك التي عالجها مساعد Farah Assistant 3 على واتساب.",
   });
 }
 
@@ -12111,6 +12141,8 @@ function writeFullSite(pre) {
   write(`${pre}terms.html`, buildTerms());
   // بيان الإتاحة (2026-10-16): ما نوفّره وكيف يبلّغ المستخدم عن عائق. بلا ادّعاء شهادة امتثال.
   write(`${pre}accessibility.html`, buildSimpleAccessibility(SV1, { lang: () => LANG, esc, site }));
+  write(`${pre}privacy.html`, buildPrivacy());
+  write(`${pre}data-deletion.html`, buildDataDeletion());
   write(`${pre}account.html`, buildAccount());
   write(`${pre}shared-services.html`, buildSharedServices());
   write(`${pre}shared-services/dashboard.html`, buildSharedServicesPortal());
@@ -12318,8 +12350,11 @@ function buildAccountCenter(lang = "ar") {
 // تبدّل لغتها بنفسها فلا تُكتب في الأشجار الأخرى.
 write("chat.html", fs.readFileSync(path.join(__dirname, 'assets', 'chat.page.html'), 'utf8'));
 // ‏Business Partner Compliance Solutions — حاسبة/محادثة الامتثال والتوظيف (صفحة واحدة مستقلة، تبدّل لغتها بنفسها).
-// أُعيد تفعيلها بأمر المالك 2026-10-28 («فعّل الرابط… خليه أونلاين»)؛ غير مرتبطة من القوائم وnoindex.
+// بأمر المالك 2026-10-23: على مسار جديد غير مرتبط من القوائم وnoindex، ولا تستبدل أي صفحة قائمة.
+// المصدر المبني في docs/sales/services/live-calculator/release/. بيانات المرشحين فيها تجريبية موسومة، ولا استقبال في الخادم بعد.
 const complianceSolutionsPage = fs.readFileSync(path.join(__dirname, 'assets', 'compliance-solutions.page.html'), 'utf8');
+// أُعيد تفعيلها بأمر المالك 2026-10-28 («فعّل الرابط… خليه أونلاين») بعد سحبها في 2026-10-23.
+// تبقى غير مرتبطة من القوائم وnoindex كما نُشرت أول مرة.
 write("compliance-solutions.html", complianceSolutionsPage);
 write("ar/compliance-solutions.html", complianceSolutionsPage);
 write("account.html", buildAccountCenter("en"));
@@ -12354,7 +12389,7 @@ write("pr-intake.html", fs.readFileSync(path.join(ROOT, "assets/data/pr-intake.h
 
 // sitemap.xml — both language trees
 const base = "https://businesspartner.sa";
-const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/smart-employee", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/knowledge-center", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/company-structure", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/accessibility", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
+const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/smart-employee", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/knowledge-center", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/company-structure", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/accessibility", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal", "/privacy", "/data-deletion"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
   .concat(services.map((s) => `/services/${s.slug}`))
