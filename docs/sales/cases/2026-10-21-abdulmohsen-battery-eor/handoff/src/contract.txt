@@ -5,8 +5,8 @@
 5B التمهيد: أُبرم عقد خدمات تأسيس كيان استثمار أجنبي («العقد») بتاريخ ……/……/2026م («تاريخ التعاقد»).
 6B BETWEEN:
 7B بين كلٍّ من:
-8B (1) Business Partner Solutions, a limited liability company incorporated and existing under the laws of the Kingdom of Saudi Arabia, registered under Commercial Registration no. 1009014355 dated 16/04/2024 (Unified National Number 7038825860), whose registered office is at Al Arid, Office 25, 5890 Rihana bint Zaid, Riyadh, Kingdom of Saudi Arabia; E-mail: Business@businesspartnerksa.com ("Business Partner" and "First Party"); represented by Mr. Baher Bakr Ali Magnas in his capacity as General Manager.
-9B (1) شركة بزنس بارتنر، شركة ذات مسؤولية محدودة مؤسسة وقائمة وفق أنظمة المملكة العربية السعودية، مقيدة بالسجل التجاري رقم 1009014355 بتاريخ 16/04/2024م (الرقم الوطني الموحد 7038825860)، ومركزها المسجّل: العارض، مكتب 25، 5890 ريحانة بنت زيد، الرياض، المملكة العربية السعودية، بريد إلكتروني: Business@businesspartnerksa.com («بزنس بارتنر» و«الطرف الأول»)؛ ويمثّلها السيد/ باهر بكر علي مقنص بصفته المدير العام.
+8B (1) Business Partner Solutions, a limited liability company incorporated and existing under the laws of the Kingdom of Saudi Arabia, registered under Commercial Registration no. 1009014355 dated 16/04/2024 (Unified National Number 7038825860), whose registered office is at Al Arid, Office 25, 5890 Rihana bint Zaid, Riyadh, Kingdom of Saudi Arabia; E-mail: Business@businesspartnerksa.com ("Business Partner" and "First Party"); represented by Mr. Baher Bakr Ali Magnas in his capacity as Chief Executive Officer.
+9B (1) شركة بزنس بارتنر، شركة ذات مسؤولية محدودة مؤسسة وقائمة وفق أنظمة المملكة العربية السعودية، مقيدة بالسجل التجاري رقم 1009014355 بتاريخ 16/04/2024م (الرقم الوطني الموحد 7038825860)، ومركزها المسجّل: العارض، مكتب 25، 5890 ريحانة بنت زيد، الرياض، المملكة العربية السعودية، بريد إلكتروني: Business@businesspartnerksa.com («بزنس بارتنر» و«الطرف الأول»)؛ ويمثّلها السيد/ باهر بكر علي مقنص بصفته المدير التنفيذي.
 10B And;
 11B و؛
 12B (2) AL-BIR INVESTMENT LIMITED, a private company limited by shares incorporated and existing under the laws of the Federal Republic of Nigeria, registered under companies' register no. RC 8027321, whose registered office is at Suit 109B, The Capital Hub, Ahmadu Bello Way, Mabushi FCT, Abuja, Nigeria; E-mail: Officialabba2@gmail.com (the "Company" and "Second Party"); represented by Mr. Abdullahi Abubakar in his capacity as Director.
@@ -169,11 +169,11 @@
 247B وإشهاداً على ما تقدم، وُقّع هذا العقد أصولاً في تاريخ التعاقد.
 248B Signed for and on behalf of:
 249B Business Partner Solutions
-250B Baher Bakr Ali Magnas — General Manager
+250B Baher Bakr Ali Magnas — Chief Executive Officer
 251B Signature: ………………   Date: ………………
 252B وُقّع نيابةً عن:
 253B شركة بزنس بارتنر
-254B باهر بكر علي مقنص — المدير العام
+254B باهر بكر علي مقنص — المدير التنفيذي
 255B التوقيع: ………………   التاريخ: ………………
 256B Signed for and on behalf of:
 257B Al-Bir Investment Limited

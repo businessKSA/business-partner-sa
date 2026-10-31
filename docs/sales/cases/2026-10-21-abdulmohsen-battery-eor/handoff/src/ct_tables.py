@@ -36,7 +36,7 @@ def build(P, model, ph):
         (('VAT registration no.', 'الرقم الضريبي'), ('312079341500003', '312079341500003')),
         (('National address', 'العنوان الوطني'), ('King Khaled Branch Road, Al Asemah District, Building 9214, Secondary No. 5076, Ad Diriyah 13714, Kingdom of Saudi Arabia (short address RDAA9214)', 'طريق الملك خالد الفرعي، حي العاصمة، مبنى 9214، الرقم الفرعي 5076، الدرعية 13714، المملكة العربية السعودية (العنوان المختصر RDAA9214)')),
         (('E-mail', 'البريد الإلكتروني'), ('business@businesspartner.sa', 'business@businesspartner.sa')),
-        (('Represented by', 'يمثّلها'), ('Mr. Baher Bakr Ali Magnas, General Manager', 'السيد باهر بكر علي مقنص، المدير العام')),
+        (('Represented by', 'يمثّلها'), ('Mr. Baher Bakr Ali Magnas, Chief Executive Officer', 'السيد باهر بكر علي مقنص، المدير التنفيذي')),
     ]), keep=True)
     rep(i, 1, [bp])
     j = _find(P, '(2) [[CLIENT_NAME]]')
@@ -115,7 +115,7 @@ def build(P, model, ph):
     while not P[end][0]['t'].startswith('Signature:') or end < w + 5: end += 1
     sig = _spec(('Signed for and on behalf of', 'وُقّع نيابةً عن'), '1.3fr 1.2fr 1fr 1fr .8fr',
                 [('Party', 'الجهة'), ('Name', 'الاسم'), ('Title', 'الصفة'), ('Signature and stamp', 'التوقيع والختم'), ('Date', 'التاريخ')],
-                [[('Business Partner Solutions Company', 'شركة بزنس بارتنر سلوشنز'), ('Baher Bakr Ali Magnas', 'باهر بكر علي مقنص'), ('General Manager', 'المدير العام'), ('', ''), ('', '')],
+                [[('Business Partner Solutions Company', 'شركة بزنس بارتنر سلوشنز'), ('Baher Bakr Ali Magnas', 'باهر بكر علي مقنص'), ('General Manager', 'المدير التنفيذي'), ('', ''), ('', '')],
                  [('[[CLIENT_NAME]]', '[[CLIENT_NAME]]'), ('[[SIGNATORY_NAME]]', '[[SIGNATORY_NAME]]'), ('[[SIGNATORY_TITLE]]', '[[SIGNATORY_TITLE]]'), ('', ''), ('', '')]], rowh=90)
     rep(w + 1, end - w, [sig])
     # ---- schedule 1 employee rows
