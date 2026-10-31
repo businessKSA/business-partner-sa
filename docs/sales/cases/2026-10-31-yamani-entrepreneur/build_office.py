@@ -186,8 +186,9 @@ def clauses_table(d, rows, start=2):
     d.add_paragraph().paragraph_format.space_after = Pt(2)
 
 def sign_table(d):
+    first_vals = {"Name": "%s · %s" % (REP_EN, REP_AR), "Title": "%s · %s" % (REP_TITLE_EN, REP_TITLE_AR)}
     t = d.add_table(1, 2); col_widths(t, [8.6, 8.6])
-    for c, (te, ta) in zip(t.rows[0].cells, (("First Party", "الطرف الأول"), ("Second Party", "الطرف الثاني"))):
+    for side, (c, (te, ta)) in enumerate(zip(t.rows[0].cells, (("First Party", "الطرف الأول"), ("Second Party", "الطرف الثاني")))):
         borders(c, NAVY, 8); cell_margins(c, 0, 80, 0, 0)
         inner = c.add_table(5, 3); col_widths(inner, [2.4, 3.8, 2.2])
         h = inner.rows[0].cells; m = h[0].merge(h[2]); shade(m, NAVY)
@@ -195,7 +196,7 @@ def sign_table(d):
         for i, (le, la) in enumerate((("Name", "الاسم"), ("Title", "الصفة"), ("Date", "التاريخ")), 1):
             cs = inner.rows[i].cells
             para(cs[0], le, 9, False, TXT2, first=True, space_after=0)
-            para(cs[1], "[●]", 9.5, False, TXT, align=WD_ALIGN_PARAGRAPH.CENTER, first=True, space_after=0)
+            para(cs[1], first_vals.get(le, "[●]") if side == 0 else "[●]", 9.5, False, TXT, align=WD_ALIGN_PARAGRAPH.CENTER, first=True, space_after=0)
             para(cs[2], la, 9, False, TXT2, rtl=True, first=True, space_after=0)
             for x in cs: borders(x, LINE, 4, ("bottom",)); cell_margins(x)
         sg = inner.rows[4].cells; mm = sg[0].merge(sg[2])
@@ -228,7 +229,7 @@ def build_docx(kind, rows, t_en, t_ar, cover, out):
         ("Unified / CR No.", "7038825860", "الرقم الموحد / السجل التجاري"),
         ("VAT No.", "312079341500003", "الرقم الضريبي"),
         ("National Address", "RDAA9214", "العنوان الوطني"),
-        ("Represented by", "[●]", "يمثلها"), ("Title", "[●]", "الصفة")])
+        ("Represented by", "%s · %s" % (REP_EN, REP_AR), "يمثلها"), ("Title", "%s · %s" % (REP_TITLE_EN, REP_TITLE_AR), "الصفة")])
     kv_table(d, "Second Party (Client)", "الطرف الثاني (العميل)", [
         ("Name", "%s · %s — full name as in ID: [●]" % (CLIENT_EN, CLIENT_AR), "الاسم"),
         ("ID / Iqama / Passport No.", "[●]", "رقم الهوية / الإقامة / الجواز"),

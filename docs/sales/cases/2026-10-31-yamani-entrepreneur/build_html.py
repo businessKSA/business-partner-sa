@@ -89,16 +89,18 @@ def numbered(rows, le="Item", la="البند"):
 
 def sig_boxes(left_title=("Business Partner Solutions", "بزنس بارتنر سلوشنز"), right_title=("Client", "العميل"),
               left_co=("Business Partner Solutions · بزنس بارتنر سلوشنز"), right_co=None):
-    def box(t, co):
+    def box(t, co, nm=None, tt=None):
         return ('<div><h3><span>%s</span><span dir="rtl">%s</span></h3>'
                 '<div class="f2"><span>Company / Party</span><span class="v cn">%s</span><span dir="rtl">الشركة / الطرف</span></div>'
                 '<div class="f2"><span>Name</span><span class="v">%s</span><span dir="rtl">الاسم</span></div>'
                 '<div class="f2"><span>Title</span><span class="v">%s</span><span dir="rtl">الصفة</span></div>'
                 '<div class="f2"><span>Date</span><span class="v">%s</span><span dir="rtl">التاريخ</span></div>'
                 '<div class="bx2"><div style="text-align:center">Signature &amp; Stamp · التوقيع والختم</div></div></div>') % (
-            esc(t[0]), esc(t[1]), co, num("[●]"), num("[●]"), num("[●]"))
+            esc(t[0]), esc(t[1]), co, nm or num("[●]"), tt or num("[●]"), num("[●]"))
     return '<div class="sg" style="direction:ltr">%s%s</div>' % (
-        box(left_title, esc(left_co)), box(right_title, right_co or num("[●]")))
+        box(left_title, esc(left_co), esc(REP_EN) + ' · <span dir="rtl">' + esc(REP_AR) + '</span>',
+            esc(REP_TITLE_EN) + ' · <span dir="rtl">' + esc(REP_TITLE_AR) + '</span>'),
+        box(right_title, right_co or num("[●]")))
 
 # ------------------------------------------------------------------ عرض السعر
 def build_quote():
@@ -225,8 +227,8 @@ def parties_html():
           '<tr><td>Unified / CR No.</td><td class="v">%s</td><td>الرقم الموحد / السجل التجاري</td></tr>'
           '<tr><td>VAT No.</td><td class="v">%s</td><td>الرقم الضريبي</td></tr>'
           '<tr><td>National Address</td><td class="v">%s</td><td>العنوان الوطني</td></tr>'
-          '<tr><td>Represented by</td><td class="v">%s</td><td>يمثلها</td></tr>'
-          '<tr><td>Title</td><td class="v">%s</td><td>الصفة</td></tr></table>') % (num("7038825860"), num("312079341500003"), num("RDAA9214"), num("[●]"), num("[●]"))
+          '<tr><td>Represented by</td><td class="v">%s<br><span dir="rtl">%s</span></td><td>يمثلها</td></tr>'
+          '<tr><td>Title</td><td class="v">%s<br><span dir="rtl">%s</span></td><td>الصفة</td></tr></table>') % (num("7038825860"), num("312079341500003"), num("RDAA9214"), esc(REP_EN), esc(REP_AR), esc(REP_TITLE_EN), esc(REP_TITLE_AR))
     cl = ('<table class="pty2"><tr><th colspan="3"><span>Second Party (Client)</span><span dir="rtl">الطرف الثاني (العميل)</span></th></tr>'
           '<tr><td>Name</td><td class="v">%s<br><span dir="rtl">%s</span><br>%s</td><td>الاسم</td></tr>'
           '<tr><td>ID / Iqama / Passport No.</td><td class="v">%s</td><td>رقم الهوية / الإقامة / الجواز</td></tr>'
@@ -248,7 +250,7 @@ def sig_port():
             '<div><h3><span>Second Party</span><span dir="rtl">الطرف الثاني</span></h3>'
             '<div class="f2"><span>Name</span><span class="v">%s</span><span dir="rtl">الاسم</span></div><div class="f2"><span>Title</span><span class="v">%s</span><span dir="rtl">الصفة</span></div>'
             '<div class="f2"><span>Date</span><span class="v">%s</span><span dir="rtl">التاريخ</span></div><div class="bx2"><div style="text-align:center">Signature &amp; Stamp · التوقيع والختم</div></div></div></div>') % (
-        ("[●]",) * 6)
+        ("%s · %s" % (esc(REP_EN), esc(REP_AR)), "%s · %s" % (esc(REP_TITLE_EN), esc(REP_TITLE_AR)), "[●]", "[●]", "[●]", "[●]"))
 
 def cover_port(kind_en, kind_ar, t_en, t_ar, s_en, s_ar, ref_label=True):
     def f(i, n):
