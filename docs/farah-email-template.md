@@ -7,7 +7,7 @@
 3. **المستندات:** You will find the Quotation, the Service Agreement and the Non-Disclosure Agreement (NDA) in this folder: <اسم العميل> (رابط) — «تجدون عرض السعر وعقد الخدمة واتفاقية عدم الإفصاح في هذا المجلد: <الرابط>»
 4. **الخطوة التالية:** حجز استشارة قصيرة — Please let us know a time that works for you. / يُرجى إفادتنا بالوقت المناسب لكم.
 5. **الختام:** Kind regards, / مع التقدير،
-6. **التوقيع:** الشعار (Business Partner · Partnering for your success) ثم Baher Magnas ثم BUSINESS PARTNER | Business Development Manager ثم 00966530540231
+6. **التوقيع (مصحَّح 2026-10-31):** الشعار (Business Partner · Partnering for your success) ثم الاسم المعتمد «Dr. Baher Magnas · د. باهر مقنص» ثم الجوال 00966530540231. **لا مسمى وظيفي إطلاقاً** ولا يُستبدل بآخر.
 
 قواعد: نبرة مهنية قصيرة · لا أرقام ولا أسعار في المتن (الأسعار في المرفقات فقط) · العربي RTL والإنجليزي LTR.
 الربط: `buildComposePrompt` (قناة البريد) في `ops/azure-n8n/farah-draft.mjs` وكتلة السياق في `farah-context.mjs`.
