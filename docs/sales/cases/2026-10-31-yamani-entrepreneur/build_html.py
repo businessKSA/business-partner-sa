@@ -11,7 +11,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 TPL = os.path.join(ROOT, "docs/sales/templates")
 LOGO = os.path.join(TPL, "assets/business-partner-logo-clean.png")
 FINAL = "--final" in sys.argv
-PHONE = os.environ.get("BP_PHONE", "[●]")
+PHONE = os.environ.get("BP_PHONE", "0530540231")
 IBAN = os.environ.get("BP_IBAN", "[IBAN]") if FINAL else "[IBAN]"
 BANK = os.environ.get("BP_BANK", "[●]") if FINAL else "[●]"
 

@@ -260,7 +260,7 @@ def strip_numbers(rows):
     return rows
 
 # ممثل بزنس بارتنر — أمر المالك (عبر بدر) 2026-10-31: يُكتب في العروض والعقود وNDA
-REP_EN = "Baher Bakr Ali Magnas"
-REP_AR = "باهر بكر علي مقنص"
+REP_EN = "Dr. Baher Magnas"
+REP_AR = "د. باهر مقنص"
 REP_TITLE_EN = "Chief Executive Officer"
 REP_TITLE_AR = "المدير التنفيذي"
