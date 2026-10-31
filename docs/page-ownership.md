@@ -128,6 +128,7 @@
 | `business-development` | `/business-development` · `assets/data/revenue-*.html` (٣) · قسم Revenue OS داخل `/account` | 🟡 / ❌ | الباب الرابع في الرئيسية يُنسَّق مع `public-site` |
 | `worker-housing` | `/worker-housing` | 🟡 | `#wh-request` قسم بلا نموذج |
 | `farina` | `/farina` | 🟡 | لا نموذج ولا بند كتالوج |
+| `sales-eor-outsourcing` (محتوى، تحت بدر) | `/national-shared-talent` | 🟡 | الكوادر الوطنية المشتركة: صفحة بلا أسعار + نموذج طلب (مسودة 2026-10-22). لا بند كتالوج ولا SKU بعد، والنموذج يستعمل `client-intake-web` نفسه بـ`service=national-shared-talent` ولم يُختبر مع n8n |
 | `document-ai` | `/ai-document-agent` | 🟡 | `/doc-agent-admin` تبقى لـ`owner-ops` قشرةً |
 | `compliance` | `/compliance-agent` · محتوى `/compliance-dashboard` · `assets/data/compliance-dashboard.html` | 🟡 / ❌ | القشرة لـ`client-portal` |
 

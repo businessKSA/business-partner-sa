@@ -1,0 +1,292 @@
+1  Al Arid, Office 25, 5890 Rihana bint Zaid, Riyadh, Saudi Arabia  ·  +966 503793356  ·  Business@businesspartnerksa.com  ·  www.businesspartner.sa
+2B Foreign Investment Entity Setup Service Agreement
+3B عقد خدمات تأسيس كيان استثمار أجنبي
+4B The preamble: FOREIGN INVESTMENT ENTITY SETUP SERVICE AGREEMENT ("Agreement") is made on ……/……/2026 ("Contract Date").
+5B التمهيد: أُبرم عقد خدمات تأسيس كيان استثمار أجنبي («العقد») بتاريخ ……/……/2026م («تاريخ التعاقد»).
+6B BETWEEN:
+7B بين كلٍّ من:
+8B (1) Business Partner Solutions, a limited liability company incorporated and existing under the laws of the Kingdom of Saudi Arabia, registered under Commercial Registration no. 1009014355 dated 16/04/2024 (Unified National Number 7038825860), whose registered office is at Al Arid, Office 25, 5890 Rihana bint Zaid, Riyadh, Kingdom of Saudi Arabia; E-mail: Business@businesspartnerksa.com ("Business Partner" and "First Party"); represented by Mr. Baher Bakr Ali Magnas in his capacity as General Manager.
+9B (1) شركة بزنس بارتنر، شركة ذات مسؤولية محدودة مؤسسة وقائمة وفق أنظمة المملكة العربية السعودية، مقيدة بالسجل التجاري رقم 1009014355 بتاريخ 16/04/2024م (الرقم الوطني الموحد 7038825860)، ومركزها المسجّل: العارض، مكتب 25، 5890 ريحانة بنت زيد، الرياض، المملكة العربية السعودية، بريد إلكتروني: Business@businesspartnerksa.com («بزنس بارتنر» و«الطرف الأول»)؛ ويمثّلها السيد/ باهر بكر علي مقنص بصفته المدير العام.
+10B And;
+11B و؛
+12B (2) AL-BIR INVESTMENT LIMITED, a private company limited by shares incorporated and existing under the laws of the Federal Republic of Nigeria, registered under companies' register no. RC 8027321, whose registered office is at Suit 109B, The Capital Hub, Ahmadu Bello Way, Mabushi FCT, Abuja, Nigeria; E-mail: Officialabba2@gmail.com (the "Company" and "Second Party"); represented by Mr. Abdullahi Abubakar in his capacity as Director.
+13B (2) شركة Al-Bir Investment Limited («الشركة» و«الطرف الثاني»)، شركة مؤسسة وقائمة وفق أنظمة جمهورية نيجيريا الاتحادية، مقيدة بسجل الشركات برقم RC 8027321، ومركزها المسجّل: Suit 109B, The Capital Hub, Ahmadu Bello Way, Mabushi FCT, Abuja, Nigeria، بريد إلكتروني: Officialabba2@gmail.com؛ ويمثّلها السيد/ عبدالله أبو بكر (Abdullahi Abubakar) بصفته مديراً (Director).
+14B For the purposes of this Agreement, the above parties shall be referred to collectively as "the Parties" and each separately as a "Party". They agreed as follows:
+15B ولأغراض هذا العقد، يُشار إلى الطرفين أعلاه مجتمعَين بـ«الطرفين» وإلى كلٍّ منهما منفرداً بـ«الطرف»، وقد اتفقا على ما يلي:
+16B WHEREAS
+17B حيثيات
+18B (a) Whereas Business Partner specializes in providing market-entry services into Saudi Arabia and facilitating the establishment of foreign entities in the Kingdom, including obtaining Ministry of Investment licenses, commercial registrations, and secondary operational licensing;
+20B (b) Whereas the Second Party desires to establish an entity in the Kingdom and to benefit from the First Party's services for this purpose;
+22B (c) Accordingly, the Parties — being fully qualified under the law — agreed on all the Articles contained in this Agreement. The preamble and whereas are an integral part of this Agreement, read as one unit complementing and interpreting it, and any appendices, minutes, documents, or declarations related to this Agreement after its conclusion, of any kind, are considered an integral, complementary, and interpretive part of it.
+23B (أ) حيث إن بزنس بارتنر متخصصة في تقديم خدمات دخول السوق السعودي، وتيسير تأسيس الكيانات الأجنبية في المملكة العربية السعودية، بما في ذلك استصدار تراخيص وزارة الاستثمار والسجلات التجارية والتراخيص الثانوية التشغيلية؛
+25B (ب) وحيث إن الطرف الثاني يرغب في تأسيس كيان له في المملكة والاستفادة من خدمات الطرف الأول لهذا الغرض؛
+27B (ج) فقد اتفق الطرفان — وهما بكامل الأهلية المعتبرة نظاماً — على جميع البنود الواردة في هذا العقد. ويُعدّ التمهيد والحيثيات جزءاً لا يتجزأ من هذا العقد يُقرأ معه كوحدة واحدة مكمّلة ومفسّرة له، وتُعدّ أي ملاحق أو محاضر أو مستندات أو إقرارات تتصل بهذا العقد بعد إبرامه — أياً كان نوعها — جزءاً لا يتجزأ منه ومكمّلاً ومفسّراً له.
+28B 1. APPOINTMENT OF BUSINESS PARTNER AND TERM
+29B 1. تعيين بزنس بارتنر ومدة العقد
+30B 1.1 The Company appoints Business Partner to provide, or procure the provision of, the services outlined in Clause 2.
+32B 1.2 The Company agrees to provide Business Partner with an attested Power of Attorney ("PoA") and a declaration appointing representatives of Business Partner to complete the services outlined in Clause 2. This PoA delegates the authority to act on behalf of the Company to complete those services. The PoA shall be issued in the name of Mr. Baher Bakr Ali Magnas personally and/or through Business Partner Solutions Company. Business Partner may appoint, at any time and at its discretion, the manager of the Saudi entity, whether Mr. Baher Bakr Ali Magnas himself or a manager designated by Business Partner on a temporary basis, subject to applicable law and the approval of the competent authority.
+34B 1.3 This Agreement shall commence on the date of its signature and receipt of the first installment ("Start Date") and shall continue until completion of the services outlined in Clause 2 and delivery of their outputs, unless terminated in accordance with Clause 4. The estimated durations of Phase 1 and Phase 2 are counted after all applications are submitted to the Ministry of Investment and approved, and depend on complete documents and the official authorities.
+35B 1-1 تعيّن الشركة بزنس بارتنر لتقديم — أو تدبير تقديم — الخدمات المبيّنة في البند (2).
+37B 1-2 توافق الشركة على تزويد بزنس بارتنر بوكالة شرعية مصدّقة («الوكالة») وإقرار بتعيين ممثلي بزنس بارتنر لاستكمال الخدمات المبيّنة في البند (2)، وتخوّل هذه الوكالة صلاحية التصرف نيابة عن الشركة لاستكمال تلك الخدمات. وتصدر الوكالة باسم السيد/ باهر بكر علي مقنص بصفته الشخصية و/أو من خلال شركة بزنس بارتنر سلوشنز. ولبزنس بارتنر أن تعيّن في أي وقت وبتقديرها مدير الكيان السعودي، سواء السيد/ باهر بكر علي مقنص نفسه أو مديراً مؤقتاً تحدده بزنس بارتنر، وذلك في حدود الأنظمة وموافقة الجهة المختصة.
+39B 1-3 يبدأ سريان هذا العقد من تاريخ توقيعه وسداد الدفعة الأولى («تاريخ البدء»)، ويستمر حتى استكمال الخدمات المبيّنة في البند (2) وتسليم مخرجاتها، ما لم يُنهَ وفق البند (4). وتُحتسب المدد التقديرية للمرحلتين بعد تقديم جميع الطلبات لوزارة الاستثمار واعتمادها، وهي تعتمد على اكتمال المستندات والجهات الرسمية.
+40B 2. SERVICES
+41B 2. الخدمات
+42B 2.1 The scope of this Agreement is the establishment of one entity under one licensing path only, selected by the Company from the following paths (and not all of them); the fees set out in Schedule 1 are for the selected path alone:
+44B ☒ Foreign investor license — 100% foreign-owned company
+45B ☐ Branch of a foreign company
+46B ☐ Entrepreneur (Riyadah) license company
+47B ☐ Joint venture with a Saudi/foreign partner
+48B ☐ Branch registration of an existing foreign company
+50B Selected path: (Foreign investor license — 100% foreign-owned company)
+52B Within the selected path, Business Partner will use reasonable endeavours to assist the Company in obtaining the following, excluding all Government Fees:
+54B Phase 1 — Investment License & Commercial Registration (estimated 4 to 6 weeks):
+55B 2.1.1 Obtaining the Investment License from the Ministry of Investment (MISA).
+56B 2.1.2 Trade-name reservation and drafting of the required shareholders' resolution, Articles of Association, and Power of Attorney.
+57B 2.1.3 Issuance of the Commercial Registration (CR) from the Ministry of Commerce.
+58B 2.1.4 Issuance of the Chamber of Commerce membership.
+59B 2.1.5 Registration with ZATCA and activation of the VAT number.
+61B Phase 2 — Secondary Licensing (estimated 4 to 6 weeks, depending on the presence of the General Manager in the Kingdom):
+62B 2.1.6 General Manager visa, formal appointment, and Iqama issuance.
+63B 2.1.7 Opening the establishment file with the Ministry of Human Resources and Social Development.
+64B 2.1.8 Registration with GOSI.
+65B 2.1.9 Issuance of the Municipality Certificate.
+66B 2.1.10 National Address registration with Saudi Post.
+67B 2.1.11 Registration on the portals: Muqeem, Qiwa, Mudad, Najiz.
+68B 2.1.12 Support with medical insurance and with opening the Company's bank account (interaction with the bank and completion of due-diligence forms shall be led by the Company).
+69B 2-1 نطاق هذا العقد هو تأسيس كيان واحد بموجب مسار ترخيص واحد فقط تختاره الشركة من المسارات التالية (وليس جميعها)، وتكون الأتعاب المبيّنة في الملحق (1) مقابل المسار المختار وحده:
+71B ☒ ترخيص مستثمر أجنبي — شركة مملوكة بالكامل (100%)
+72B ☐ فرع لشركة أجنبية
+73B ☐ شركة برخصة ريادة الأعمال
+74B ☐ شراكة مع شريك سعودي/أجنبي (كيان مشترك)
+75B ☐ تسجيل فرع لشركة أجنبية قائمة
+77B المسار المختار: (ترخيص مستثمر أجنبي — شركة مملوكة بالكامل 100%)
+79B وتبذل بزنس بارتنر المساعي المعقولة لمساعدة الشركة — ضمن المسار المختار — في الحصول على ما يلي، باستثناء جميع الرسوم الحكومية:
+81B المرحلة الأولى — ترخيص الاستثمار والسجل التجاري (من 4 إلى 6 أسابيع تقريباً):
+82B 2-1-1 استصدار ترخيص الاستثمار من وزارة الاستثمار.
+83B 2-1-2 حجز الاسم التجاري وإعداد مسودات قرار الشركاء وعقد التأسيس والوكالة اللازمة.
+84B 2-1-3 استصدار السجل التجاري من وزارة التجارة.
+85B 2-1-4 استصدار عضوية الغرفة التجارية.
+86B 2-1-5 التسجيل لدى هيئة الزكاة والضريبة والجمارك وتفعيل الرقم الضريبي.
+88B المرحلة الثانية — التراخيص الثانوية (من 4 إلى 6 أسابيع تقريباً، وتعتمد على وجود المدير العام في المملكة):
+89B 2-1-6 تأشيرة المدير العام وتعيينه النظامي وإصدار إقامته.
+90B 2-1-7 فتح ملف المنشأة لدى وزارة الموارد البشرية والتنمية الاجتماعية.
+91B 2-1-8 التسجيل لدى التأمينات الاجتماعية.
+92B 2-1-9 استصدار شهادة البلدية.
+93B 2-1-10 تسجيل العنوان الوطني لدى البريد السعودي.
+94B 2-1-11 التسجيل في منصات: مقيم، قوى، مدد، ناجز.
+95B 2-1-12 المساندة في التأمين الطبي وفي فتح الحساب البنكي للشركة (تكون مخاطبة البنك واستكمال نماذج العناية الواجبة بقيادة الشركة).
+96B 2.2 While Business Partner will use reasonable endeavours to manage the applications and registrations set out in Clause 2.1, it cannot guarantee the issuance of the relevant approvals or registrations; the decision to approve or reject an application will be made at the relevant government authority's absolute discretion and in accordance with its rules and regulations, and the authority may request documents and information over and above what is required by the application form.
+98B 2.3 Business Partner will inform the Company once it has obtained any registration on its behalf as outlined in Clause 2.1, and will require written confirmation from the Company before undertaking any other activities under the PoA.
+100B 2.4 Business Partner will share the Government Fees invoices and/or SADAD bills for the services listed in Clause 2.1 with the Company; the Company shall settle the amounts and share proof of payment for submission to the relevant authority, or Business Partner may pay them from an agreed float to be reimbursed at actual cost.
+102B 2.5 The services do not include: legal or accounting advice or auditor's fees, procedures to be completed outside the Kingdom (such as attestation of origin-country documents), or GM visa fees in the country of origin or residence.
+103B 2-2 مع بذل بزنس بارتنر المساعي المعقولة لإدارة الطلبات والتسجيلات المبيّنة في البند (2-1)، فإنها لا تضمن صدور الموافقات أو التسجيلات؛ ويعود قرار قبول الطلب أو رفضه إلى الجهة الحكومية المختصة وفق سلطتها التقديرية المطلقة وأنظمتها، وقد تطلب الجهة مستندات ومعلومات إضافية تتجاوز متطلبات نموذج الطلب.
+105B 2-3 تُخطر بزنس بارتنر الشركة عند حصولها على أي تسجيل نيابة عنها وفق البند (2-1)، وتحتاج إلى تأكيد كتابي من الشركة قبل مباشرة أي أعمال أخرى بموجب الوكالة.
+107B 2-4 تُشارك بزنس بارتنر الشركة فواتير الرسوم الحكومية وفواتير السداد الخاصة بالخدمات المبيّنة في البند (2-1)، وتتولى الشركة سداد المبالغ ومشاركة إثبات السداد لتقديمه للجهة المختصة، أو تسدّدها بزنس بارتنر من عهدة متفق عليها وتُستَرد بقيمتها الفعلية.
+109B 2-5 لا تشمل الخدمات: الاستشارات القانونية أو المحاسبية أو أتعاب مدقق الحسابات، ولا الإجراءات المطلوب استكمالها خارج المملكة (كتصديق مستندات بلد المنشأ)، ولا رسوم إصدار تأشيرة المدير العام في بلد المنشأ أو الإقامة.
+110B 3. REMUNERATION
+111B 3. الأتعاب
+112B 3.1 The Company shall pay Business Partner the fees set out in Schedule 1 as consideration for the services provided.
+114B 3.2 The fees are paid in two equal installments: fifty percent (50%) — SAR 15,000 plus VAT (SAR 17,250 in total) — upon signing the accepted proposal and sending proof of transfer, and prior to the Start Date, and fifty percent (50%) — SAR 15,000 plus VAT (SAR 17,250 in total) — upon issuance of the Investment License; services will not commence before receipt and clearance of the first installment.
+116B 3.3 All amounts and fees stated or referred to in this Agreement are non-cancellable and non-refundable — subject to Clause 3.6 — and are exclusive of VAT, which will be applied at the prevailing rate in the Kingdom (currently 15%). The tax invoice will be issued once the company papers are completed and the Company's Saudi entity holds its VAT registration number; the first installment is payable inclusive of VAT against proof of transfer.
+118B 3.4 Business Partner reserves the right to suspend the provision of services and/or terminate this Agreement in the event that any fees due are not received by their due date. Suspension or termination shall be at Business Partner's sole discretion and may be effected without further notice, without prejudice to its right to claim any amounts due.
+120B 3.5 For the avoidance of doubt, all government fees — those set out in Schedule 2 and any others — charged by MISA, the Ministry of Commerce, or any other government agency in connection with the services shall be borne solely by the Company.
+122B 3.6 Refund policy: if the Company terminates the registration process during Phase 1, any sums paid as a government-fees float that have not been consumed will be refunded; Business Partner fees for work performed will not be refunded. If MISA rejects the Company's application despite fulfilment of the requirements and correctness of the documents, the unconsumed float and the first installment (SAR 15,000 plus VAT) will be refunded; no refund applies where the cause is incorrect information, lack of cooperation, or a decision not to proceed, and Government Fees are non-refundable once paid. If the Company terminates during Phase 2, termination dues will be agreed by the Parties on a case-by-case basis.
+124B 3.7 The First Party shall not be responsible for any delay, denial, or failure caused by factors beyond its control, including the actions or requirements of government agencies or changes in laws and regulations.
+125B 3-1 تدفع الشركة لبزنس بارتنر الأتعاب المبيّنة في الملحق (1) مقابل الخدمات المقدمة.
+127B 3-2 تُسدَّد الأتعاب على دفعتين متساويتين: (50%) — 15,000 ريال زائد ضريبة القيمة المضافة (17,250 ريالاً إجمالاً) — عند توقيع العرض المقبول وإرسال إثبات التحويل وقبل تاريخ البدء، و(50%) — 15,000 ريال زائد الضريبة (17,250 ريالاً إجمالاً) — عند إصدار رخصة الاستثمار؛ ولا تبدأ الخدمات قبل استلام الدفعة الأولى وتحصيلها.
+129B 3-3 جميع المبالغ والأتعاب المشار إليها في هذا العقد غير قابلة للإلغاء وغير مستردة — مع مراعاة البند (3-6) — وغير شاملة لضريبة القيمة المضافة التي تُضاف بالنسبة السارية في المملكة (حالياً 15%). وتصدر الفاتورة الضريبية بعد إنجاز أوراق الشركة وحصول كيان الشركة في المملكة على رقمه الضريبي، وتُسدَّد الدفعة الأولى شاملة الضريبة مقابل إثبات التحويل.
+131B 3-4 يحق لبزنس بارتنر تعليق تقديم الخدمات و/أو إنهاء هذا العقد في حال عدم استلام أي أتعاب مستحقة في موعدها، ويكون التعليق أو الإنهاء وفق تقديرها المطلق ودون إشعار إضافي، ودون إخلال بحقها في المطالبة بأي مبالغ مستحقة.
+133B 3-5 لتفادي الشك، تتحمّل الشركة وحدها جميع الرسوم الحكومية — الواردة في الملحق (2) وغيرها — التي تفرضها وزارة الاستثمار أو وزارة التجارة أو أي جهة حكومية أخرى فيما يتصل بالخدمات.
+135B 3-6 سياسة الاسترداد: إذا أنهت الشركة إجراءات التأسيس أثناء المرحلة الأولى، تُستَرد أي مبالغ مدفوعة كعهدة رسوم حكومية لم تُستهلك، ولا تُستَرد أتعاب بزنس بارتنر عن الأعمال المنفّذة. وإذا رفضت وزارة الاستثمار طلب الشركة رغم استيفاء المتطلبات وصحة المستندات، تُستَرد عهدة الرسوم غير المستهلكة والدفعة الأولى (15,000 ريال مع الضريبة)؛ ولا استرداد عند معلومات غير صحيحة أو عدم تعاون أو العدول عن المتابعة، ولا تُسترد الرسوم الحكومية بعد سدادها. وإذا أنهت الشركة أثناء المرحلة الثانية، تُحدَّد مستحقات الإنهاء باتفاق الطرفين حالةً بحالة.
+137B 3-7 لا يُسأل الطرف الأول عن أي تأخير أو رفض أو تعثّر ناجم عن عوامل خارجة عن إرادته، بما في ذلك تصرفات الجهات الحكومية أو متطلباتها أو تغيّر الأنظمة واللوائح.
+138B 4. TERMINATION
+139B 4. الإنهاء
+140B 4.1 This Agreement may be terminated by the Company with one (1) month's written notice if: (a) Business Partner breaches a material term and (if remediable) fails to remedy it within ten (10) business days of written notice; or (b) commits a series of persistent minor breaches which, taken together, amount to a material breach; or (c) a Force Majeure Event occurs pursuant to Clause 8.6.
+142B 4.2 This Agreement may be terminated by Business Partner with one (1) month's written notice if: (a) the Company breaches a material term and fails to remedy it within ten (10) business days of written notice; or (b) commits a series of persistent minor breaches which, taken together, amount to a material breach; or (c) the Company becomes insolvent or suspends, or threatens to suspend, payment of its debts; or (d) the Company ceases, or threatens to cease, to carry on all or substantially the whole of its business; or (e) a Force Majeure Event occurs pursuant to Clause 8.6.
+144B 4.3 This Agreement may be terminated by Business Partner with immediate effect and without prior notice if the Company: (a) engages in fraudulent, illegal, or unethical activities in connection with the services; or (b) provides false or misleading information to Business Partner or any government agency; or (c) interferes with or obstructs Business Partner's ability to perform its obligations or hinders the process in any way; or (d) breaches applicable laws, regulations, or government requirements; or (e) fails to cooperate or to provide timely and accurate documentation, information, or approvals.
+145B 4-1 يجوز للشركة إنهاء هذا العقد بإشعار كتابي مدته شهر واحد إذا: (أ) أخلّت بزنس بارتنر ببند جوهري ولم تعالج الإخلال — إن كان قابلاً للمعالجة — خلال عشرة (10) أيام عمل من استلام إشعار كتابي بذلك؛ أو (ب) ارتكبت سلسلة إخلالات بسيطة متكررة تشكّل بمجموعها إخلالاً جوهرياً؛ أو (ج) وقع حدث قوة قاهرة وفق البند (8-6).
+147B 4-2 يجوز لبزنس بارتنر إنهاء هذا العقد بإشعار كتابي مدته شهر واحد إذا: (أ) أخلّت الشركة ببند جوهري ولم تعالجه خلال عشرة (10) أيام عمل من إشعارها كتابياً؛ أو (ب) ارتكبت سلسلة إخلالات بسيطة متكررة تشكّل بمجموعها إخلالاً جوهرياً؛ أو (ج) أصبحت الشركة معسرة أو توقفت أو هدّدت بالتوقف عن سداد ديونها؛ أو (د) توقفت الشركة أو هدّدت بالتوقف عن مزاولة كل نشاطها أو جوهره؛ أو (هـ) وقع حدث قوة قاهرة وفق البند (8-6).
+149B 4-3 يجوز لبزنس بارتنر إنهاء هذا العقد بأثر فوري ودون إشعار مسبق إذا: (أ) مارست الشركة أنشطة احتيالية أو غير نظامية أو غير أخلاقية تتصل بالخدمات؛ أو (ب) قدّمت معلومات كاذبة أو مضللة لبزنس بارتنر أو لأي جهة حكومية؛ أو (ج) أعاقت قدرة بزنس بارتنر على أداء التزاماتها أو عرقلت الإجراءات بأي شكل؛ أو (د) خالفت الأنظمة أو اللوائح أو المتطلبات الحكومية ذات الصلة؛ أو (هـ) تخلّفت عن التعاون أو عن تقديم المستندات والمعلومات والموافقات الدقيقة في وقتها.
+150B 5. EFFECTS OF TERMINATION
+151B 5. آثار الإنهاء
+152B 5.1 Upon termination of this Agreement, Business Partner shall be entitled to retain any fees or payments made by the Company for the services rendered up to the date of termination or through any upfront payments, and the Company shall not be entitled to any refund or compensation for such fees, subject to Clause 3.6.
+154B 5.2 Termination of this Agreement shall not prejudice any other rights or remedies that Business Partner may have at law, including seeking damages for any losses incurred as a result of the termination.
+156B 5.3 In the event of termination, the Company shall promptly return to Business Partner any confidential information, documents, or materials provided for the purpose of the services, and shall remove any references to Business Partner from its website, promotional materials, or any other public platforms.
+158B 5.4 Termination shall not relieve the Company from any outstanding payment or indemnification obligations arising prior to its effective date, and the Company shall be liable for any fees, costs, or expenses incurred by Business Partner up to the date of termination.
+160B 5.5 The provisions regarding indemnification, limitation of liability, and confidentiality shall survive any termination of this Agreement.
+161B 5-1 عند إنهاء هذا العقد، يحق لبزنس بارتنر الاحتفاظ بأي أتعاب أو مدفوعات سدّدتها الشركة عن الخدمات المؤداة حتى تاريخ الإنهاء أو عبر أي مدفوعات مقدمة، ولا يحق للشركة أي استرداد أو تعويض عنها، مع مراعاة البند (3-6).
+163B 5-2 لا يُخلّ إنهاء هذا العقد بأي حقوق أو تدابير أخرى مقررة لبزنس بارتنر نظاماً، بما في ذلك المطالبة بالتعويض عن أي خسائر ناتجة عن الإنهاء.
+165B 5-3 عند الإنهاء، تُعيد الشركة فوراً لبزنس بارتنر أي معلومات سرية أو مستندات أو مواد قُدمت لها لغرض الخدمات، وتزيل أي إشارات لبزنس بارتنر من موقعها أو موادها الترويجية أو أي منصات عامة.
+167B 5-4 لا يعفي الإنهاء الشركة من أي التزامات سداد أو تعويض نشأت قبل تاريخ نفاذه، وتتحمّل الشركة أي أتعاب أو تكاليف أو مصروفات تكبدتها بزنس بارتنر حتى تاريخ الإنهاء.
+169B 5-5 تظل أحكام التعويض وحدود المسؤولية والسرية سارية ونافذة بعد أي إنهاء لهذا العقد.
+170B 6. CONFIDENTIALITY
+171B 6. السرية
+172B 6.1 Confidential Information, whether written or oral, and documents obtained, viewed, accessed, or received directly or indirectly and related to each Party or its affiliates, resulting from any previous, current, or future dealings of whatever type between the Parties, cannot be used for any purpose other than the purposes for which it was shared.
+174B 6.2 Confidential information includes, but is not limited to: trade secrets, ideas, drawings, analyses, inventions, processes, methods, business plans, technical know-how, test reports, operating procedures, manuals, recipes, formulas, client and investor lists, information and data recorded in any medium, financial information, assets, liabilities, transactions, clients, suppliers, and any information expressly referred to as confidential orally or in writing.
+176B 6.3 Confidential information does not include any information that the Receiving Party can prove was available to the public prior to the date of this Agreement or the time of its disclosure, or became so afterwards other than in breach of this Agreement, or information required to be disclosed by virtue of a law, a financial market, a competent governmental or regulatory body, or an order of a competent court, provided the other Party is informed thereof.
+177B 6-1 لا يجوز استخدام المعلومات السرية — كتابيةً كانت أو شفهية — التي حُصل عليها أو اطُّلع عليها أو استُلمت بشكل مباشر أو غير مباشر وتتعلق بأي طرف أو بشركاته التابعة، والناشئة عن أي تعاملات سابقة أو حالية أو مستقبلية بين الطرفين، لأي غرض غير الأغراض التي شوركت من أجلها.
+179B 6-2 تشمل المعلومات السرية — دون حصر — الأسرار التجارية والأفكار والرسومات والتحليلات والابتكارات والعمليات والأساليب وخطط الأعمال والمعرفة الفنية وتقارير الاختبارات وإجراءات التشغيل والأدلة والوصفات والمعادلات وقوائم العملاء والمستثمرين والمعلومات والبيانات المسجلة بأي وسيط والمعلومات المالية والأصول والالتزامات والمعاملات والعملاء والموردين، وأي معلومات وُصفت صراحةً بأنها سرية شفهياً أو كتابياً.
+181B 6-3 لا تشمل المعلومات السرية ما يثبت الطرف المستلم أنه كان متاحاً للعموم قبل تاريخ هذا العقد أو وقت الإفصاح، أو أصبح كذلك بعده دون مخالفة لأحكامه، أو ما يُطلب الإفصاح عنه بموجب نظام أو سوق مالية أو جهة حكومية أو رقابية مختصة أو أمر من محكمة مختصة، شريطة إخطار الطرف الآخر بذلك.
+182B 7. INDEMNITY AND LIMITATION OF LIABILITY
+183B 7. التعويض وحدود المسؤولية
+184B 7.1 In all cases, Business Partner shall exercise due diligence to achieve the results specified in this Agreement; however, it shall not be held liable for incomplete performance if such failure is caused by government entities, operators of government services, or reasons attributable to the Company.
+186B 7.2 If negligence or errors are committed by Business Partner, the Parties agree that any compensation owed to the Company shall be determined by mutual agreement; under all circumstances, such compensation shall not exceed the total payments received by Business Partner from the Company under this Agreement.
+188B 7.3 In the event Business Partner becomes obligated to pay compensation to the Company pursuant to a judicial ruling or decision, such compensation shall be assessed based on the value of the damages, provided that the agreed maximum cap shall not exceed the amount Business Partner has received from the Company.
+190B 7.4 Business Partner shall be exempt from liability for minor errors that do not result in the impossibility of performing the services, and for errors it has addressed or corrected; in such circumstances the Company shall not be entitled to demand compensation nor to withhold any payments due.
+192B 7.5 In all cases, if any negligence, error, or breach arises on the part of the Company, Business Partner shall be exempt from any liability or compensation therefor and shall not be responsible for any resulting damages.
+194B 7.6 The Company agrees not to collaborate with, hire, or contract, directly or indirectly, any member of the Business Partner team involved in the services for a period of one (1) year following completion of the services; upon breach, Business Partner may claim compensation of no less than the value of the services performed for the Company by that employee, based on Business Partner's applicable rates.
+195B 7-1 في جميع الأحوال، تبذل بزنس بارتنر العناية الواجبة لتحقيق النتائج المحددة في هذا العقد، غير أنها لا تُسأل عن عدم اكتمال الأداء إذا كان راجعاً إلى الجهات الحكومية أو مشغّلي خدماتها أو إلى أسباب تُعزى إلى الشركة.
+197B 7-2 في حال ثبوت إهمال أو أخطاء من بزنس بارتنر، يتفق الطرفان على أن أي تعويض مستحق للشركة يُحدَّد بالاتفاق المتبادل، وفي جميع الأحوال لا يتجاوز إجمالي التعويض إجمالي المبالغ التي استلمتها بزنس بارتنر فعلاً من الشركة بموجب هذا العقد.
+199B 7-3 إذا أصبحت بزنس بارتنر ملزمة بدفع تعويض للشركة بموجب حكم أو قرار قضائي، يُقدَّر التعويض على أساس قيمة الأضرار، على أن سقفه الأقصى المتفق عليه لا يتجاوز ما استلمته بزنس بارتنر من الشركة.
+201B 7-4 تُعفى بزنس بارتنر من المسؤولية عن الأخطاء اليسيرة التي لا تؤدي إلى استحالة أداء الخدمات، وعن الأخطاء التي عالجتها أو صححتها؛ ولا يحق للشركة في هذه الأحوال المطالبة بتعويض أو حجب أي مدفوعات مستحقة.
+203B 7-5 في جميع الأحوال، إذا نشأ إهمال أو خطأ أو إخلال من جانب الشركة، تُعفى بزنس بارتنر من أي مسؤولية أو تعويض عن ذلك ولا تُسأل عن أي أضرار ناتجة عنه.
+205B 7-6 توافق الشركة على عدم التعاون مع أي من أعضاء فريق بزنس بارتنر المشاركين في تقديم الخدمات أو توظيفهم أو التعاقد معهم — مباشرةً أو بواسطة — لمدة سنة واحدة من اكتمال الخدمات؛ وعند الإخلال يحق لبزنس بارتنر المطالبة بتعويض لا يقل عن قيمة الخدمات التي أداها الموظف للشركة وفق أسعار بزنس بارتنر السارية.
+206B 8. GENERAL
+207B 8. أحكام عامة
+208B 8.1 No assignment: The Company may not assign, transfer, charge, or otherwise deal with all or any of its rights under this Agreement; Business Partner may assign the benefit of this Agreement, in whole or in part, to any of its affiliates.
+210B 8.2 Successors-in-interest: This Agreement shall be binding upon and inure to the benefit of the Parties and their respective successors and permitted assigns; all rights and obligations shall automatically transfer to any successor-in-interest, including any entity that acquires or merges with either Party, without requiring further consent.
+212B 8.3 No partnership: Nothing in this Agreement establishes any partnership or joint venture between the Parties, constitutes either Party the agent of the other, or authorizes either Party to make commitments on behalf of the other.
+214B 8.4 Invalidity/severance: Where any provision is or becomes illegal, invalid, or unenforceable in any jurisdiction, it shall be deemed severed and, if possible, replaced with a lawful provision that gives effect to the Parties' intention as closely as possible, without affecting the validity of the remaining provisions.
+216B 8.5 Variation and whole agreement: No variation shall be valid unless in writing and executed by both Parties; this Agreement contains the whole agreement between the Parties on its subject matter, supersedes any previous written or oral agreement, and each Party acknowledges it is not relying on any representation or warranty not expressly incorporated herein.
+218B 8.6 Force majeure: If either Party becomes wholly or partly unable to fulfil its obligations because of a sudden general event beyond its control that is impossible to avoid, unpredictable, and makes performance impossible or exhaustive, the injured Party shall be exempted to the extent affected until the event ends, provided it immediately notifies the other Party of the event's nature, start date, expected end, and the extent of its impairment.
+220B 8.7 Counterparts: This Agreement or any amendment may be executed in any number of counterparts, each deemed an original and together constituting one instrument.
+222B 8.8 Notices: Any communication in connection with this Agreement shall be in writing with confirmed receipt and, if relating to a dispute, delivered to a Party's address set out at the beginning of this Agreement (or such other address as it may notify for this purpose).
+223B 8-1 عدم التنازل: لا يجوز للشركة التنازل عن هذا العقد أو أيٍّ من حقوقها بموجبه أو نقلها أو رهنها أو التصرف فيها؛ ويجوز لبزنس بارتنر التنازل عن منفعة هذا العقد كلياً أو جزئياً لأيٍّ من شركاتها التابعة.
+225B 8-2 الخلف العام والخاص: يكون هذا العقد ملزماً للطرفين ولخلفهما ومن تؤول إليهم حقوقهما نظاماً، وتنتقل الحقوق والالتزامات تلقائياً إلى أي خلف — بما في ذلك أي كيان يستحوذ على أحد الطرفين أو يندمج معه — دون حاجة لموافقة إضافية.
+227B 8-3 لا شراكة: ليس في هذا العقد ما يُنشئ شراكة أو مشروعاً مشتركاً بين الطرفين، أو يجعل أحدهما وكيلاً عن الآخر، أو يخوّله الالتزام نيابة عنه.
+229B 8-4 استقلال البنود: إذا أصبح أي بند غير نظامي أو باطلاً أو غير نافذ في أي اختصاص، يُعدّ مفصولاً عن العقد ويُستبدل به — إن أمكن — بند نظامي يحقق مقصود الطرفين بأقرب صورة، دون المساس بصحة باقي البنود.
+231B 8-5 التعديل والاتفاق الكامل: لا يُعتدّ بأي تعديل ما لم يكن كتابياً وموقعاً من الطرفين؛ ويتضمن هذا العقد كامل الاتفاق بين الطرفين بشأن موضوعه ويحلّ محل أي اتفاق سابق كتابي أو شفهي، ويقرّ كل طرف أنه لم يعتمد عند إبرامه على أي إقرار أو ضمان غير منصوص عليه فيه.
+233B 8-6 القوة القاهرة: إذا أصبح أي طرف عاجزاً كلياً أو جزئياً عن الوفاء بالتزاماته بسبب حدث عام مفاجئ خارج عن إرادته يتعذّر توقّعه أو دفعه ويجعل التنفيذ مستحيلاً أو مرهقاً، يُعفى الطرف المتضرر بقدر تأثّره وللمدة الممتدة حتى زوال الحدث، على أن يُخطر الطرف الآخر فوراً بطبيعة الحدث وتاريخ بدئه ونهايته المتوقعة ومدى تأثيره.
+235B 8-7 النسخ: يجوز توقيع هذا العقد أو أي تعديل له من عدة نسخ متطابقة، تُعدّ كل منها أصلاً وتشكّل مجتمعةً مستنداً واحداً.
+237B 8-8 الإشعارات: تكون أي مراسلات متعلقة بهذا العقد كتابيةً وبإفادة استلام، وإذا تعلقت بنزاع تُسلَّم على عنوان الطرف المبيّن في صدر هذا العقد أو أي عنوان آخر يُخطر به الطرف الآخر لهذا الغرض.
+238B 9. GOVERNING LAW AND JURISDICTION
+239B 9. القانون الواجب التطبيق والاختصاص
+240B 9.1 This Agreement and any non-contractual rights or obligations arising out of or in connection with it shall be governed by and construed in accordance with the laws of the Kingdom of Saudi Arabia.
+242B 9.2 Any dispute arising out of or in connection with this Agreement, including any question regarding its existence, validity, or termination, shall be subject to the exclusive jurisdiction of the Courts of Riyadh.
+243B 9-1 يخضع هذا العقد وأي حقوق أو التزامات غير تعاقدية ناشئة عنه أو متصلة به لأنظمة المملكة العربية السعودية ويُفسَّر وفقها.
+245B 9-2 يختص قضاء مدينة الرياض حصرياً بنظر أي نزاع ينشأ عن هذا العقد أو يتصل به، بما في ذلك أي مسألة تتعلق بوجوده أو صحته أو إنهائه.
+246B IN WITNESS OF WHICH this Agreement has been duly executed on the Contract Date.
+247B وإشهاداً على ما تقدم، وُقّع هذا العقد أصولاً في تاريخ التعاقد.
+248B Signed for and on behalf of:
+249B Business Partner Solutions
+250B Baher Bakr Ali Magnas — General Manager
+251B Signature: ………………   Date: ………………
+252B وُقّع نيابةً عن:
+253B شركة بزنس بارتنر
+254B باهر بكر علي مقنص — المدير العام
+255B التوقيع: ………………   التاريخ: ………………
+256B Signed for and on behalf of:
+257B Al-Bir Investment Limited
+258B Abdullahi Abubakar — Director
+259B Signature: ………………   Date: ………………
+260B وُقّع نيابةً عن:
+261B شركة Al-Bir Investment Limited
+262B عبدالله أبو بكر — مدير
+263B التوقيع: ………………   التاريخ: ………………
+264B SCHEDULE 1 — FEES
+265B الملحق (1) — الأتعاب
+266B The fees below are for the single path selected in Clause 2.1 only — one licensing path — and not for all paths.
+268B Fee type: Phase 1 fees — the selected path's license, Commercial Registration, Chamber of Commerce, and tax registration.
+269B Amount: SAR 15,000.
+271B Fee type: Phase 2 fees — Secondary Licensing (MHRSD, GOSI, Municipality, National Address, Muqeem, Qiwa, Mudad, Najiz, medical insurance, bank-account support).
+272B Amount: SAR 15,000.
+274B Total fees: SAR 30,000 (thirty thousand Saudi Riyals) — exclusive of VAT and Government Fees.
+276B Payment terms: two equal installments — first installment SAR 15,000 plus VAT (SAR 17,250 in total) upon signing the accepted proposal and with proof of transfer, prior to the Start Date, and second installment SAR 15,000 plus VAT (SAR 17,250 in total) upon issuance of the Investment License. All fees are exclusive of VAT.
+277B الأتعاب أدناه مقابل المسار المختار في البند (2-1) وحده — مسار ترخيص واحد فقط — وليست مقابل جميع المسارات.
+279B نوع الأتعاب: أتعاب المرحلة الأولى — ترخيص المسار المختار والسجل التجاري والغرفة والتسجيل الضريبي.
+280B المبلغ: 15,000 ريال سعودي.
+282B نوع الأتعاب: أتعاب المرحلة الثانية — التراخيص الثانوية (الموارد البشرية، التأمينات، البلدية، العنوان الوطني، مقيم، قوى، مدد، ناجز، التأمين الطبي، مساندة الحساب البنكي).
+283B المبلغ: 15,000 ريال سعودي.
+285B إجمالي الأتعاب: 30,000 ريال سعودي (ثلاثون ألف ريال) — غير شامل ضريبة القيمة المضافة والرسوم الحكومية.
+287B شروط السداد: دفعتان متساويتان — الدفعة الأولى 15,000 ريال زائد الضريبة (17,250 ريالاً إجمالاً) عند توقيع العرض المقبول ومع إثبات التحويل وقبل تاريخ البدء، والدفعة الثانية 15,000 ريال زائد الضريبة (17,250 ريالاً إجمالاً) عند إصدار رخصة الاستثمار. جميع الأتعاب غير شاملة لضريبة القيمة المضافة.
+288B SCHEDULE 2 — ESTIMATED GOVERNMENT FEES (EXCLUDED)
+289B الملحق (2) — الرسوم الحكومية المقدّرة (غير شاملة)
+290B The table below shows current estimated government fees; they vary from time to time, are borne solely by the Company, are paid directly to the authorities or reimbursed at actual cost, and are not subject to VAT:
+291B الجدول أدناه يوضح الرسوم الحكومية الحالية المقدّرة، وهي متغيرة من وقت لآخر وتتحملها الشركة وحدها وتُسدَّد للجهات مباشرة أو تُستَرد بقيمتها الفعلية، ولا تخضع لضريبة القيمة المضافة:
+292B Certificate / License
+293B Estimated Fee
+294B الرسوم المقدّرة
+295B الشهادة / الترخيص
+296  Trade-name reservation
+297  SAR 500
+298  500 ريال
+299  حجز الاسم التجاري
+300  Notarization of the CR and Articles of Association
+301  SAR 1,825
+302  1,825 ريال
+303  توثيق السجل التجاري وعقد التأسيس
+304  MOFA attestation
+305  SAR 30 / doc
+306  30 ريال / وثيقة
+307  تصديق وزارة الخارجية
+308  MISA Certificate
+309  SAR 2,000 (1 yr)
+310  2,000 ريال (سنة)
+311  شهادة وزارة الاستثمار
+312  MISA Investment License
+313  SAR 10,000 first year, then SAR 60,000 / yr
+314  10,000 ريال السنة الأولى، ثم 60,000 ريال سنوياً
+315  رخصة الاستثمار — وزارة الاستثمار
+316  Entrepreneur license fee (first year, subsidised)
+317  From c. SAR 2,000
+318  من نحو 2,000 ريال
+319  رسوم رخصة ريادة الأعمال (السنة الأولى، مدعومة)
+320  Publication in the Official Gazette
+321  SAR 650
+322  650 ريال
+323  النشر في الجريدة الرسمية
+324  Commercial Registration Certificate
+325  SAR 2,000 (1 yr)
+326  2,000 ريال (سنة)
+327  شهادة السجل التجاري
+328  Chamber of Commerce Membership (capital < SAR 5m)
+329  SAR 2,000 (1 yr)
+330  2,000 ريال (سنة)
+331  عضوية الغرفة التجارية (رأس مال أقل من 5 ملايين)
+332  General Manager Visa (MHRSD fee only)
+333  SAR 2,000
+334  2,000 ريال
+335  تأشيرة المدير العام (رسوم وزارة الموارد البشرية فقط)
+336  General Manager Iqama issuance
+337  c. SAR 12,000 / yr
+338  نحو 12,000 ريال سنوياً
+339  إصدار إقامة المدير العام
+340  Municipality Certificate (office 60–100 sq. m)
+341  c. SAR 1,200 / yr
+342  نحو 1,200 ريال سنوياً
+343  شهادة البلدية (مكتب 60–100 م²)
+344  National Address (Saudi Post)
+345  SAR 1,000 / yr
+346  1,000 ريال سنوياً
+347  العنوان الوطني (البريد السعودي)
+348  Muqeem registration
+349  SAR 1,750 / yr
+350  1,750 ريال سنوياً
+351  تسجيل مقيم
+352  Muqeem balance
+353  SAR 1,150
+354  1,150 ريال
+355  رصيد مقيم
+356  MHRSD establishment file
+357  No fee
+358  بدون رسوم
+359  ملف وزارة الموارد البشرية
+360  Qiwa registration
+361  From SAR 1,200
+362  تبدأ من 1,200 ريال
+363  تسجيل منصة قوى
+364  Mudad registration
+365  SAR 575 / yr
+366  575 ريال سنوياً
+367  تسجيل منصة مدد
+368  GOSI registration
+369  No fee
+370  بدون رسوم
+371  تسجيل التأمينات الاجتماعية
+372  ZATCA & VAT registration
+373  No fee
+374  بدون رسوم
+375  تسجيل الزكاة وضريبة القيمة المضافة
+376B Note: government fees for processing the GM visa in the country of origin or residence are not included and generally range between SAR 5,000 and 10,000 (one-off).
+377B ملاحظة: رسوم إصدار تأشيرة المدير العام في بلد المنشأ أو الإقامة غير مشمولة وتتراوح عادة بين 5,000 و10,000 ريال (لمرة واحدة).
+378  ملاحظة: هذه مسودة استرشادية تحتاج إلى مراجعة محامٍ مرخّص قبل الاستخدام. / Note: this is a draft template requiring review by a licensed lawyer before use.
