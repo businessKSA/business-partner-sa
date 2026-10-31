@@ -26,6 +26,7 @@ import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftra
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { DEV, EMAIL_LIVE, MODES, outbox, outboxList, PAY_MOCK, TAMARA_MOCK } from "./_mode.js";
 import { isOwnerEmail } from "./_trial.js";
+import { validateSlot, bookingMessage } from "./_booking.js";
 import { waSend, waNumber } from "./_stage.js";
 import { storagePut, storageSign, storageDelete } from "./_db.js";
 import { readDocumentRaw, parseJson, DOC_MIME_OK, MAX_DOC_BYTES } from "./_docread.js";
@@ -754,9 +755,11 @@ async function clientAction(action, b, qs, req, res, sess) {
 
   if (action === "appointment-book" || action === "appointment-reschedule") {
     const date = str(b.date, 10), time = str(b.time, 5);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time)) return json(res, 400, { ok: false, error: "bad_datetime" });
-    if (new Date(date + "T" + time + ":00+03:00") < new Date()) return json(res, 400, { ok: false, error: "past" });
-    if (new Date(date + "T12:00:00+03:00").getUTCDay() === 5) return json(res, 400, { ok: false, error: "friday" });
+    // نفس قواعد /api/book (ساعات الجلسات، العطلة، المهلة، المدى) من ملفٍّ واحد:
+    // كان هنا «أي وقت عدا الجمعة» فيُقبل الثالثة فجراً، ثم يرفضه /api/book
+    // والخطأ يُبتلع في الـcatch أدناه فيُحفظ موعدٌ لن يؤكّده أحد.
+    const v = validateSlot(date, time);
+    if (!v.ok) return json(res, 400, { ok: false, error: v.error, message: bookingMessage(v.error, row.lang) });
     const prev = row.appointment;
     const appointment = {
       date, time, tz: "Asia/Riyadh", topic: str(b.topic, 200) || row.title, note: str(b.note, 500),
