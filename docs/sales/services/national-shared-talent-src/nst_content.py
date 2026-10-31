@@ -87,7 +87,7 @@ def proposal(pr):
         ('li', 'Sign the Service Agreement and the assignment schedule.', 'توقيع عقد الخدمة وملحق الإسناد.'),
         ('li', 'The employee starts on the agreed date.', 'يبدأ الموظف في التاريخ المتفق عليه.'),
         ('h', 'Acceptance', 'القبول'),
-        ('sig', [('Business Partner Solutions', 'شركة بزنس بارتنر سلوشنز', 'Baher Bakr Ali Magnas — General Manager', 'باهر بكر علي مقنص — المدير العام'),
+        ('sig', [('Business Partner Solutions', 'شركة بزنس بارتنر سلوشنز', 'Baher Bakr Ali Magnas — Chief Executive Officer', 'باهر بكر علي مقنص — المدير التنفيذي (Chief Executive Officer)'),
                  ('[[CLIENT_NAME]]', 'شركة [[اسم العميل]]', '[[SIGNATORY_NAME]] — [[TITLE]]', '[[اسم المفوّض]] — [[الصفة]]')], None),
     ]
 
@@ -167,7 +167,7 @@ def contract(pr):
         A(('h', he, ha))
         for e, a in items:
             A(('p', e, a))
-    A(('sig', [('Business Partner Solutions', 'شركة بزنس بارتنر سلوشنز', 'Baher Bakr Ali Magnas — General Manager', 'باهر بكر علي مقنص — المدير العام'),
+    A(('sig', [('Business Partner Solutions', 'شركة بزنس بارتنر سلوشنز', 'Baher Bakr Ali Magnas — Chief Executive Officer', 'باهر بكر علي مقنص — المدير التنفيذي (Chief Executive Officer)'),
                ('[[CLIENT_NAME]]', 'شركة [[اسم العميل]]', '[[SIGNATORY_NAME]] — [[TITLE]]', '[[اسم المفوّض]] — [[الصفة]]')], None))
     A(('h', 'Schedule 1 — Assignment Schedule (one per employee)', 'الملحق (1) — ملحق الإسناد (واحد لكل موظف)'))
     A(('table', [('Item', 'البند'), ('Detail', 'التفصيل')],
