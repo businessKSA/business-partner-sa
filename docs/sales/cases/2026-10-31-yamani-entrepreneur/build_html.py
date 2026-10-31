@@ -247,7 +247,7 @@ def clause_tr(no, r):
     t_en, t_ar, b_en, b_ar = r
     pre = "%d. " % no if NUMBERED else ""
     return '<tr data-m="r%d"><td class="en"><b>%s%s</b><br>%s</td><td class="ar"><b>%s%s</b><br>%s</td></tr>' % (
-        no, pre, esc(t_en), b_en if "&amp;" in b_en or b_en.startswith("<") else b_en.replace("&", "&amp;"), pre, esc(t_ar), ar(b_ar) if not b_ar.startswith("<") else b_ar)
+        no, pre, esc(t_en), b_en if "&amp;" in b_en or b_en.startswith("<") else b_en.replace("&", "&amp;"), pre, esc(t_ar), ar(b_ar))
 
 def sig_port():
     return ('<div class="sg" data-m="sig" style="direction:ltr"><div><h3><span>First Party</span><span dir="rtl">الطرف الأول</span></h3>'
@@ -349,6 +349,14 @@ def build_info(rows, t_en, t_ar, kind_en, kind_ar, s_en, s_ar, numbered=True):
     NUMBERED, PARTIES, START = True, True, 2
     return h
 
+def build_authz():
+    global NUMBERED
+    from authz import rows, INFO_COVER, T_EN, T_AR
+    NUMBERED = False
+    h, _ = paginate_port(rows(), T_EN, T_AR, None, None, INFO_COVER)
+    NUMBERED = True
+    return h
+
 def build_nda():
     rows = nda_rows()
     cover = ("CONFIDENTIALITY", "سرية", N_TITLE_EN, N_TITLE_AR,
@@ -364,6 +372,7 @@ if __name__ == "__main__":
     open(os.path.join(out, "01-Quotation.html"), "w", encoding="utf-8").write(build_quote())
     h, _ = build_contract(); open(os.path.join(out, "02-Agreement.html"), "w", encoding="utf-8").write(h)
     h, _ = build_nda(); open(os.path.join(out, "03-NDA.html"), "w", encoding="utf-8").write(h)
+    open(os.path.join(out, "07-Authorization-Letter.html"), "w", encoding="utf-8").write(build_authz())
     from info_docs import INFO
     for fname, spec in INFO.items():
         open(os.path.join(out, fname + ".html"), "w", encoding="utf-8").write(build_info(*spec))

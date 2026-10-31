@@ -170,6 +170,10 @@ def kv_table(d, head_en, head_ar, rows):
         para(cs[2], la, 9, False, TXT2, rtl=True, first=True, space_after=0)
     d.add_paragraph().paragraph_format.space_after = Pt(2)
 
+def md_(s):
+    s = re.sub(r"</?b>", "**", s.replace("&amp;", "&"))
+    return s.replace("<br>", "\n")
+
 def clauses_table(d, rows, start=2, numbered=True):
     t = d.add_table(len(rows), 2); col_widths(t, [8.6, 8.6])
     for i, r in enumerate(rows):
@@ -180,9 +184,9 @@ def clauses_table(d, rows, start=2, numbered=True):
         if no % 2 == 1:
             for c in (en, a): shade(c, BG)
         para(en, ("%d. %s" % (no, t_en)) if numbered else t_en, 9.5, True, NAVY, first=True, space_after=2)
-        para(en, b_en.replace("&amp;", "&"), 9, False, TXT, space_after=0, line=1.3)
+        para(en, md_(b_en), 9, False, TXT, space_after=0, line=1.3)
         para(a, ("%d. %s" % (no, t_ar)) if numbered else t_ar, 9.5, True, NAVY, rtl=True, first=True, space_after=2)
-        para(a, ar(b_ar), 9.5, False, TXT, rtl=True, space_after=0, line=1.3)
+        para(a, md_(ar(b_ar)), 9.5, False, TXT, rtl=True, space_after=0, line=1.3)
     d.add_paragraph().paragraph_format.space_after = Pt(2)
 
 def sign_table(d):
@@ -219,7 +223,7 @@ def closing_block(d):
                       ("Mobile", PHONE, "الجوال"), ("Email", "business@businesspartner.sa", "الإيميل"), ("Website", "www.businesspartner.sa", "الموقع")):
         para(c, "%s  ·  %s  ·  %s" % (le, v, la), 10, False, "FFFFFF", space_after=4)
 
-def build_docx(kind, rows, t_en, t_ar, cover, out):
+def build_docx(kind, rows, t_en, t_ar, cover, out, numbered=True):
     d = doc_setup(t_en, t_ar)
     cover_block(d, *cover)
     page_break(d)
@@ -236,7 +240,7 @@ def build_docx(kind, rows, t_en, t_ar, cover, out):
         ("Nationality", "[●]", "الجنسية"),
         ("National / residence address", "[●]", "العنوان الوطني / السكن"),
         ("Capacity", "Founder of the company to be established · مؤسس الشركة المراد تأسيسها", "الصفة")])
-    clauses_table(d, rows)
+    clauses_table(d, rows, numbered=numbered)
     sign_table(d)
     closing_block(d)
     d.save(out)
@@ -410,6 +414,8 @@ if __name__ == "__main__":
     build_docx("agreement", contract_clauses(), C_TITLE_EN, C_TITLE_AR, cover_of("agreement"), os.path.join(out, "02-Agreement.docx"))
     build_docx("nda", nda_rows(), N_TITLE_EN, N_TITLE_AR, cover_of("nda"), os.path.join(out, "03-NDA.docx"))
     build_pptx(os.path.join(out, "01-Quotation-slides.pptx"))
+    from authz import rows as authz_rows, INFO_COVER, T_EN as AT_EN, T_AR as AT_AR
+    build_docx("authz", authz_rows(), AT_EN, AT_AR, INFO_COVER, os.path.join(out, "07-Authorization-Letter.docx"), numbered=False)
     from info_docs import INFO
     for fname, spec_ in INFO.items():
         build_docx_info(*spec_, os.path.join(out, fname + ".docx"))

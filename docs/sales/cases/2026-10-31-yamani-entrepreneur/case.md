@@ -19,6 +19,7 @@
 | عرض السعر | `01-Quotation.pdf` (A4 أفقي، 9 صفحات) · `01-Quotation-slides.pptx` (5 شرائح 16:9) · `01-Quotation.html` |
 | العقد | `02-Agreement.docx` · `02-Agreement.pdf` (7 صفحات) |
 | NDA | `03-NDA.docx` · `03-NDA.pdf` (4 صفحات) |
+| تفويض | `07-Authorization-Letter` (DOCX + PDF): خطاب تفويض بخانات اختيار (§3.3)، غير المحدّد غير مفوَّض؛ مدته [●] شهراً قرار المالك |
 | مساندة | `04-Client-Documents-Checklist` · `05-Client-Data-Form` · `06-Service-Guide` (DOCX + PDF) |
 | بريف ملاك | `malak-email-brief.md` |
 
