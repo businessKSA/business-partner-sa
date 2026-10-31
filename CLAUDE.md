@@ -135,6 +135,7 @@
 | الوكيل | يملك |
 |---|---|
 | `platform-engineer` | البناء والنشر والتصميم الموحّد وAzure |
+| `cyber-security` | الأمن السيبراني: مراجعات الدخول والدفع والأسرار والتبعيات وAzure وn8n — تقارير وإصلاحات مقترحة، وحادثة الاختراق (`docs/security/**` · `tests/security-*.test.mjs` · `ops/security/**`) |
 | `client-portal` | كل صفحة يدخلها **عميل** بحساب، والدفع |
 | `owner-ops` | كل لوحة يدخلها **المالك** أو الفريق |
 | `recruitment` | **مدير التوظيف** — يوزّع على أربعة: `recruitment-employer` (لوحة صاحب العمل والإعلانات) · `recruitment-candidate` (السيرة والإيجنت الباحث) · `recruitment-agencies` (مكاتب الاستقدام) · `recruitment-jobs` (صفحة الوظائف) |
