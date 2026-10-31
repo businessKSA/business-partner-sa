@@ -15,7 +15,7 @@ test("understanding is parsed defensively", () => {
 test("compose prompt includes style, real samples first, and the 'wait for Baher' rule for risks", () => {
   const p = buildComposePrompt({ style: "STYLE-BLOCK", samples: [{ content: "قبل: أ | بعد: ب" }], understanding: { asked: "كم السعر", intent: "quote", language: "ar", urgency: "normal", missing: ["النشاط"], risks: ["سعر"], plan: "p" }, who: "WEB-1", name: "سعد", channel: "whatsapp" });
   assert.match(p, /STYLE-BLOCK/); assert.match(p, /قلّديها أكثر/); assert.match(p, /بانتظار تأكيد باهر/); assert.match(p, /بلا توقيع/);
-  assert.match(buildComposePrompt({ understanding: {}, channel: "email" }), /اختمي بتوقيع/);
+  assert.match(buildComposePrompt({ understanding: {}, channel: "email" }), /قالب البريد المعتمد/);
 });
 test("draft guard: price/discount/guarantee/government/legal are hard flags; placeholder keeps the draft safe from the price rule but still needs approval", () => {
   assert.ok(draftGuard("السعر 5000 ريال", "whatsapp").hard.includes("فيها سعر أو مبلغ"));
