@@ -15,6 +15,8 @@ PHONE = os.environ.get("BP_PHONE", "0530540231")
 IBAN = os.environ.get("BP_IBAN", "[IBAN]") if FINAL else "[IBAN]"
 BANK = os.environ.get("BP_BANK", "[●]") if FINAL else "[●]"
 
+NBRE = re.compile(r"(BP-[A-Z]+-\d+)")
+def nb(h): return NBRE.sub(r'<span class="nb">\1</span>', h)
 def esc(s): return html.escape(s, quote=False)
 BLANK = "<span class=\"num\">________________</span>"
 def num(s): return '<span class="num">%s</span>' % esc(str(s))
@@ -36,7 +38,7 @@ EXTRA = """
 .nt>div{flex:1;min-width:0}.nt .ar{direction:rtl;text-align:right}.nt b{color:#0B1B5A}
 .cv .ch .nm{font-family:'IBM Plex Sans Arabic',sans-serif;font-size:12px}
 .sg h3 .cn2{font-size:10px}
-.pp{margin-top:3px}.pp .pk{font-family:'IBM Plex Mono',monospace;color:#1E3A9E;font-weight:700;margin-inline-end:4px}
+.nb{white-space:nowrap}.pp{margin-top:3px}.pp .pk{font-family:'IBM Plex Mono',monospace;color:#1E3A9E;font-weight:700;margin-inline-end:4px}
 .pt2{width:100%;table-layout:fixed;border-collapse:collapse;margin:5px 0;font-size:9.6px}.pt2 th:first-child,.pt2 td:first-child{width:7%;text-align:center}.pt2 th:nth-child(2){width:37%}.pt2 th{background:#0B1B5A;color:#fff;padding:3px 5px}.pt2 td{border:1px solid #DDE1EE;padding:3px 5px}.pt2 td.v{font-family:'IBM Plex Mono',monospace;color:#1E3A9E;text-align:center}.pt2 tr.tt td{font-weight:700;background:#EEF1FB}
 .sheet.cover{padding:0!important}.sheet.cover>div{height:100%}.sheet.cover .cv{margin:0!important;height:100%!important;width:100%}
 """
@@ -48,7 +50,7 @@ def footer(i, n):
 
 def doc(title, css, sheets, lang_dir="rtl"):
     n = len(sheets)
-    body = "".join(s(i + 1, n) if callable(s) else s for i, s in enumerate(sheets))
+    body = nb("".join(s(i + 1, n) if callable(s) else s for i, s in enumerate(sheets)))
     return ('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             '<title>%s</title>%s<style>%s%s</style></head><body>%s</body></html>') % (esc(title), FONTS, css, EXTRA, body)
 
@@ -162,7 +164,7 @@ def build_quote():
         {"cls": "tot", "cells": [("Total service fees before VAT", "إجمالي الأتعاب قبل الضريبة", ""), (num(n(FEE)), num(n(FEE)), "c")]},
         [("VAT 15% (added according to the regulations)", "ضريبة القيمة المضافة 15% (تُضاف وفق النظام)", ""), (num(n(VAT)), num(n(VAT)), "c")],
         {"cls": "tot", "cells": [("Total including VAT", "الإجمالي شامل الضريبة", ""), (num(n(TOTAL)), num(n(TOTAL)), "c")]},
-        [("<b>Government fees</b> — paid by the Client directly to the entities (see below)", "<b>الرسوم الحكومية</b> — تسدّدها العميلة مباشرة للجهات (انظر أدناه)", ""),
+        [("<b>Government fees</b> — paid by the Client directly to the entities (see below)", "<b>الرسوم الحكومية</b> — تسدّدها العميل مباشرة للجهات (انظر أدناه)", ""),
          ("<b>Not included</b>", "<b>غير شامل</b>", "c")],
     ]
     price = bi_table([("Item", "البند", False), ("SAR", "ريال", True)], price_rows, [40, 8])
@@ -254,10 +256,13 @@ def norm_en(t):
     t = re.sub(r"\bThe Client\b", "The Second Party", t)
     t = t.replace("Client’s", "Second Party’s").replace("Client's", "Second Party's")
     t = re.sub(r"\bClient\b", "Second Party", t)
+    t = t.replace("Second Party Inactivity", "Second Party Non-Responsiveness")
     return t
 
 def norm_ar(t):
-    return t.replace("العميلة", "الطرف الثاني").replace("العميل", "الطرف الثاني")
+    t = t.replace("مخوَّل بتزويدنا ببيانات", "مخوَّل بتزويد الطرف الأول ببيانات")
+    t = t.replace("تعطّل العميل", "عدم تجاوب الطرف الثاني")
+    return t.replace("العميل", "الطرف الثاني")
 
 ABBR = ("No.", "no.", "e.g.", "i.e.", "etc.", "Ltd.", "Art.")
 def split_pts(t, lang):
@@ -299,7 +304,7 @@ def clause_tr(no, r):
     b_en, b_ar = norm_en(b_en), norm_ar(b_ar)
     t_en, t_ar = norm_en(t_en), norm_ar(t_ar)
     if t_en.startswith("Second Party Obligations"):
-        t_ar = "التزامات الطرف الثاني (العميلة) وإقراراته"
+        t_ar = "التزامات الطرف الثاني (العميل) وإقراراته"
     x_en = x_ar = ""
     if "{{PAYTABLE}}" in b_en:
         x_en, x_ar = paytable()
@@ -348,7 +353,7 @@ def measure(rows_html, extra_blocks, css, path):
     """يقيس ارتفاع كل صف/كتلة في الصفحة الفعلية ويعيد dict."""
     meas = ('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">%s<style>%s%s</style></head><body>'
             '<section class="sheet port" lang="ar"><div dir="rtl">%s<table class="cl" style="margin:0">%s</table>%s</div></section></body></html>') % (
-        FONTS, css, EXTRA, hd_port("x", "x", ""), rows_html, extra_blocks)
+        FONTS, css, EXTRA, hd_port("x", "x", ""), nb(rows_html), nb(extra_blocks))
     open(path, "w", encoding="utf-8").write(meas)
     out = subprocess.check_output(["node", os.path.join(HERE, "render.cjs"), "measure", path],
                                   env=dict(os.environ, NODE_PATH=subprocess.check_output(["npm", "root", "-g"]).decode().strip()))

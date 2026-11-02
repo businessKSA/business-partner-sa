@@ -39,8 +39,8 @@ HALF_TOTAL = HALF + HALF_VAT
 PREV_QUOTE = 40000                  # BP-2026-001 المنتهي — للمقارنة الداخلية فقط
 def n(x): return "{:,}".format(int(x)) if float(x).is_integer() else "{:,.2f}".format(x)
 
-CLIENT_AR = "السيدة سارة محفوظ — Nyra Collective"
-CLIENT_EN = "Ms. Sarah Mahfooz — Nyra Collective"
+CLIENT_AR = "سارة محفوظ — Nyra Collective"
+CLIENT_EN = "Sarah Mahfooz — Nyra Collective"
 DATE_EN = "1 November 2026"
 DATE_AR = "1 نوفمبر 2026"
 
@@ -74,7 +74,7 @@ SCOPE = [  # (title_en, title_ar, text_en, text_ar)
      "تعيين المدير وتجهيز التفويضات اللازمة لتشغيل الشركة."),
     ("E-store documentation", "توثيق المتجر الإلكتروني",
      "Once the commercial registration is issued, documenting the Client’s online store in the e-commerce register through the Saudi Business Center (service BP-SBC-26), using the store details provided by the Client.",
-     "بعد صدور السجل التجاري، توثيق المتجر الإلكتروني للعميلة في سجل التجارة الإلكترونية عبر المركز السعودي للأعمال (الخدمة BP-SBC-26)، اعتماداً على بيانات المتجر التي تقدّمها العميلة."),
+     "بعد صدور السجل التجاري، توثيق المتجر الإلكتروني للعميلة في سجل التجارة الإلكترونية عبر المركز السعودي للأعمال (الخدمة BP-SBC-26)، اعتماداً على بيانات المتجر التي تقدّمها العميل."),
     ("Updates & handover", "المتابعة والتسليم",
      "Keeping the Client informed of the application status step by step, and handing over the complete final file.",
      "إبلاغ العميل بحالة الطلب أولاً بأول، وتسليم الملف النهائي كاملاً."),

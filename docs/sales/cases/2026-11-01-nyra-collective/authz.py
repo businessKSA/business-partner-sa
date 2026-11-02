@@ -41,7 +41,7 @@ DELEG = [  # (title_en, title_ar, entity_en, entity_ar, scope_en, scope_ar)
     ("Documenting the online store in the e-commerce register", "توثيق المتجر الإلكتروني في سجل التجارة الإلكترونية",
      "Saudi Business Center", "المركز السعودي للأعمال",
      "Preparing, submitting and following up the documentation of the Client’s online store, using the store details the Client provides.",
-     "إعداد طلب توثيق المتجر الإلكتروني وتقديمه ومتابعته، اعتماداً على بيانات المتجر التي تقدّمها العميلة."),
+     "إعداد طلب توثيق المتجر الإلكتروني وتقديمه ومتابعته، اعتماداً على بيانات المتجر التي تقدّمها العميل."),
     ("Paying official fees on the Client’s behalf", "دفع الرسوم الرسمية نيابةً عن العميل",
      "The entities named in the items above", "الجهات المسماة في البنود أعلاه",
      "Only from funds the Client has deposited for that purpose, against the entity’s receipt; the unused balance is returned.",
