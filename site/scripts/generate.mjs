@@ -696,7 +696,7 @@ function header(active, path) {
   <nav class="nav" aria-label="Main navigation">${links}</nav>
   <div class="header-cta">
     ${langMenu(path)}
-    <a class="hdr-btn" data-account-link href="${u("/account")}" aria-label="${Lraw("Sign in", "تسجيل الدخول")}">${I.user}<span class="hdr-btn-t" data-account-label>${L("Sign in", "تسجيل الدخول")}</span></a>
+    <a class="hdr-btn" data-account-link href="${u("/my")}" aria-label="${Lraw("Sign in", "تسجيل الدخول")}">${I.user}<span class="hdr-btn-t" data-account-label>${L("Sign in", "تسجيل الدخول")}</span></a>
     <a class="hdr-btn hdr-btn--partners" href="${u("/suppliers")}" aria-label="${Lraw("Partners registration", "تسجيل الشركاء")}">${I.users}<span class="hdr-btn-t">${L("Partners", "تسجيل الشركاء")}</span></a>
     <a class="icon-btn cart-link" href="${u("/cart")}" aria-label="${Lraw("Cart", "السلة")}">${I.cart}<span class="cart-badge" id="cart-badge" hidden>0</span></a>
     <button class="nav-toggle" aria-label="${Lraw("Menu", "القائمة")}" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
@@ -1684,7 +1684,7 @@ function buildHome() {
     </div>
     <div class="bph-steps">${steps}</div>
     <div class="bph-how-actions">
-      <a class="bph-btn primary" href="${u("/account")}">${L("Open your account", "افتح حسابك")}</a>
+      <a class="bph-btn primary" href="${u("/my")}">${L("Open your account", "افتح حسابك")}</a>
       <a class="bph-btn" href="#bp-consultant">${L("Not sure? Ask the smart advisor", "لست متأكداً؟ اسأل المستشار الذكي")}</a>
     </div>
   </div></section>`;
@@ -1874,13 +1874,13 @@ function buildHome() {
         <div class="bph-mini"><span>${L("Quotes", "عروض الأسعار")}</span><span>3</span></div>
         <div class="bph-mini"><span>${L("Documents", "المستندات")}</span><span>12</span></div>
         <div class="bph-mini"><span>${L("Payments & invoices", "المدفوعات والفواتير")}</span><span>${L("Up to date", "محدّثة")}</span></div>
-        <a class="bph-btn" href="${u("/account")}">${L("Open the client portal", "فتح لوحة العميل")}</a></div>
+        <a class="bph-btn" href="${u("/my")}">${L("Open the client portal", "فتح لوحة العميل")}</a></div>
       <div class="bph-proof-card dark"><h3>Business Partner Workspace</h3>
         <div class="bph-mini"><span>B10X</span><span class="bph-status">Active</span></div>
         <div class="bph-mini"><span>Compliance</span><span>${L("Monitoring", "قيد المراقبة")}</span></div>
         <div class="bph-mini"><span>${L("Multi-company", "شركات متعددة")}</span><span>${L("Switch anytime", "تنقّل بين شركاتك")}</span></div>
         <div class="bph-mini"><span>Documents & SLA</span><span>${L("Connected", "مرتبطة")}</span></div>
-        <a class="bph-btn white" href="${u("/account")}">${L("See your experience after sign-in", "شاهد تجربتك بعد الدخول")}</a></div>
+        <a class="bph-btn white" href="${u("/my")}">${L("See your experience after sign-in", "شاهد تجربتك بعد الدخول")}</a></div>
     </div>
   </div></section>`;
 
@@ -2493,7 +2493,7 @@ function buildBdaas() {
     <h1>${L("We build the customer and supplier base your business grows on", "نبني لك قاعدة العملاء والموردين التي ينمو عليها عملك")}</h1>
     <p class="lead">${L("A platform and a business-development team that bring research, qualification, outreach, meetings, proposals, contracts and collection into one measurable pipeline — without hiring a full team.", "منصة وفريق تطوير أعمال يجمعان البحث والتأهيل والتواصل والاجتماعات والعروض والعقود والتحصيل في مسار مبيعات واحد قابل للقياس، من دون أن توظّف فريقًا كاملًا.")}</p>
     <div class="hero-actions">
-      <a class="btn btn-primary btn-lg" href="${u("/account")}?redirect=revenue">${L("Start 30 days free", "ابدأ 30 يومًا مجانًا")}</a>
+      <a class="btn btn-primary btn-lg" href="${u("/my")}">${L("Start 30 days free", "ابدأ 30 يومًا مجانًا")}</a>
       <a class="btn btn-ghost btn-lg" href="#pricing">${L("See the packages", "استعرض الباقات")}</a>
     </div>
     <div class="hero-badges">
@@ -2505,7 +2505,7 @@ function buildBdaas() {
 
   <section class="section"><div class="container">
     <div class="section-head"><span class="eyebrow">${L("Included with your account", "مشمولة مع حسابك")}</span><h2>${L("Thirty days, free, the moment you register", "ثلاثون يومًا مجانًا بمجرد تسجيلك")}</h2><p>${L("Every client who registers in the portal gets the full workspace for 30 days — the pipeline, the meetings, the tasks, the documents and the reports, with their own data. Nothing to buy first.", "كل عميل يسجّل في المنصّة يحصل على المساحة كاملة لمدة 30 يومًا — الـPipeline والاجتماعات والمهام والمستندات والتقارير، ببياناته هو. بلا شراء مسبق.")}</p></div>
-    <div class="callout" style="max-width:820px;margin:0 auto"><span class="ico">🎁</span><p>${L("Already have an account? The trial is waiting in your client portal — open the dashboard and it starts showing your data.", "عندك حساب؟ التجربة بانتظارك في منصّة العملاء — افتح اللوحة وتبدأ بعرض بياناتك.")} <a href="${u("/account?redirect=revenue")}">${L("Open the dashboard", "افتح اللوحة")}</a></p></div>
+    <div class="callout" style="max-width:820px;margin:0 auto"><span class="ico">🎁</span><p>${L("Already have an account? The trial is waiting in your client portal — open the dashboard and it starts showing your data.", "عندك حساب؟ التجربة بانتظارك في منصّة العملاء — افتح اللوحة وتبدأ بعرض بياناتك.")} <a href="${u("/my")}">${L("Open the dashboard", "افتح اللوحة")}</a></p></div>
   </div></section>
 
   <section class="section section--gray" id="paths"><div class="container">
@@ -2697,7 +2697,7 @@ function advisorPage(cfg) {
     subBody = `
       <ul>${includes}</ul>
       <div class="buy-row" style="gap:9px;flex-wrap:wrap">
-        <a class="btn btn-primary" href="${u("/account")}?view=docagent">${L("Open it from your client portal", "افتحه من لوحة العميل")}</a>
+        <a class="btn btn-primary" href="${u("/my")}?view=documents">${L("Open it from your client portal", "افتحه من لوحة العميل")}</a>
         <a class="btn btn-ghost" href="${u("/consultation")}">${L("Book a consultation", "احجز استشارة")}</a>
       </div>
       <p class="adv-note">${L("Included with your client portal account — signing in with a one-time email code creates one.", "متاح مع حسابك في لوحة العميل — تسجيل الدخول برمز البريد لمرة واحدة ينشئه تلقائياً.")}</p>`;
@@ -2785,7 +2785,7 @@ function buildAiAgents() {
       tag: "AI", name: L("Document Advisor", "مستشار المستندات"),
       tg: L("Reads your documents once, then fills any form — Word, Excel and PDF, in place, traceable to the source.", "يقرأ مستنداتك مرة واحدة ثم يعبّئ أي نموذج — Word وExcel وPDF في مكانها، وكل قيمة بمصدرها."),
       feats: [L("Extraction with provenance", "استخراج بمصدر لكل قيمة"), L("Fills forms in place", "يعبّئ النماذج في مكانها"), L("Private to your company vault", "خاص بخزنة شركتك")],
-      price: "", acts: `<a class="btn btn-primary" href="${u("/account")}?view=docagent">${L("Open from your portal", "افتحه من لوحتك")}</a><a class="adv-more" href="${u("/ai-document-agent")}">${L("Details", "التفاصيل")}</a>`,
+      price: "", acts: `<a class="btn btn-primary" href="${u("/my")}?view=documents">${L("Open from your portal", "افتحه من لوحتك")}</a><a class="adv-more" href="${u("/ai-document-agent")}">${L("Details", "التفاصيل")}</a>`,
     },
     {
       tag: "AI", name: L("Business Development Advisor", "مستشار تطوير الأعمال"),
@@ -3263,7 +3263,7 @@ function buildPackages() {
     <span class="eyebrow">${L("Packages", "الباقات")}</span>
     <h1>${L("Choose the package that fits your establishment", "اختر الباقة التي تناسب منشأتك")}</h1>
     <p class="lead">${L("Four annual service packages, plus one-time company-formation and investment services — all from our official catalog.", "أربع باقات خدمات سنوية، وخدمات تأسيس شركات واستثمار لمرة واحدة — كلها من الكتالوج الرسمي.")}</p>
-    <p style="margin-top:14px"><a class="btn btn-ghost" href="${u("/calculator")}">🧮 ${L("Or design your own basket from the full catalog →", "أو صمّم سلّتك الخاصة من الكتالوج الكامل ←")}</a></p>
+    <p style="margin-top:14px"><a class="btn btn-ghost" href="${u("/catalog")}">🧮 ${L("Or design your own basket from the full catalog →", "أو صمّم سلّتك الخاصة من الكتالوج الكامل ←")}</a></p>
   </div></section>
   <section class="section"><div class="container">
     <div class="pk-tabs" role="tablist">${tabs}</div>
@@ -3279,8 +3279,8 @@ function buildPackages() {
       [L("We start managing your account", "نبدأ إدارة حسابك"), L("Your dedicated team starts work on the platforms covered by your package.", "فريقك المخصّص يبدأ العمل على المنصات المشمولة بباقتك.")],
     ].map(([t, d], i) => `<div class="step"><div class="step-n">${i + 1}</div><div><h3>${t}</h3><p>${d}</p></div></div>`).join("")}</div>
     <div class="hero-actions" style="margin-top:1.4rem">
-      <a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Register / log in", "سجّل أو سجّل دخولك")}</a>
-      <a class="btn btn-ghost btn-lg" href="${u("/account")}">🔐 ${L("Already subscribed? Open your dashboard", "مشترك بالفعل؟ افتح لوحتك")}</a>
+      <a class="btn btn-primary btn-lg" href="${u("/my")}">${L("Register / log in", "سجّل أو سجّل دخولك")}</a>
+      <a class="btn btn-ghost btn-lg" href="${u("/my")}">🔐 ${L("Already subscribed? Open your dashboard", "مشترك بالفعل؟ افتح لوحتك")}</a>
     </div>
   </div></section>
   <section class="section"><div class="container">
@@ -3374,7 +3374,7 @@ function buildCalculator() {
           <div class="calc2-selected" id="calc2-selected">
             <p class="calc2-empty" id="calc2-empty">${L("No services selected yet. Tap a service to add it.", "لم تختر أي خدمة بعد. اضغط على أي خدمة لإضافتها.")}</p>
           </div>
-          <a class="btn btn-primary btn-lg" id="calc2-quote" href="${u("/account")}?redirect=quote" style="width:100%" hidden>${L("Request an official quote by email", "اطلب عرضاً رسمياً بالبريد")}</a>
+          <a class="btn btn-primary btn-lg" id="calc2-quote" href="${u("/my")}?view=quotes" style="width:100%" hidden>${L("Request an official quote by email", "اطلب عرضاً رسمياً بالبريد")}</a>
           <a class="btn btn-ghost btn-lg" href="${u("/consultation")}" style="width:100%">${I.calendar}<span>${L("Book a free consultation", "احجز استشارة مجانية")}</span></a>
           <p class="calc-note">${L("No prices shown — each service is quoted to your case. Pick what you need and we'll send you an official quote. Government fees are always separate.", "بدون أسعار معروضة — كل خدمة تُسعّر حسب حالتك. اختر ما تحتاجه ونرسل لك عرضاً رسمياً. الرسوم الحكومية منفصلة دائماً.")}</p>
         </div>
@@ -3812,7 +3812,7 @@ function buildLeadGen() {
     <h1>${L("We find your next clients across Saudi Arabia — and bring you the meetings", "نجيب لك عملاءك القادمين من كل المملكة — ونوصّلك المواعيد")}</h1>
     <p class="lead">${L("Subscribe and get a done-for-you sales engine: we build a live database of the right Saudi companies, reach the decision-makers on your behalf through LinkedIn, email and WhatsApp, and hand you qualified leads and booked meetings — so you just close.", "اشترك واحصل على محرّك مبيعات جاهز: نبني قاعدة بيانات حيّة للشركات السعودية المناسبة، نوصل صنّاع القرار نيابةً عنك عبر لنكدإن والإيميل والواتساب، ونسلّمك عملاء مؤهّلين ومواعيد محجوزة — وأنت تركّز على الإغلاق فقط.")}</p>
     <div class="hero-actions">
-      <a class="btn btn-primary btn-lg" href="${u("/account")}">${L("Subscribe now", "اشترك الآن")}</a>
+      <a class="btn btn-primary btn-lg" href="${u("/my")}">${L("Subscribe now", "اشترك الآن")}</a>
       <a class="btn btn-ghost btn-lg" href="${u("/connect")}">${L("Talk to us first", "كلّمنا أولاً")}</a>
     </div>
     <div class="hero-badges">${chips}</div>
@@ -5687,7 +5687,7 @@ function buildEmployerLogin() {
       <p class="emp-note" id="el-code-error" style="color:#B91C1C;text-align:center;min-height:18px;margin-top:10px"></p>
       <p class="emp-note" style="text-align:center;margin-top:2px"><a href="#" id="el-code-mail">📧 ${L("Don't have your code? Email it to me", "ما عندك الرمز؟ أرسله إلى بريدي")}</a></p>
     </form>
-    <a class="btn btn-ghost" style="width:100%;margin-top:14px" href="${u("/account")}?redirect=employer">🔐 ${L("Sign in with an email code — Business Partner account", "الدخول برمز الإيميل — عبر حساب Business Partner")}</a>
+    <a class="btn btn-ghost" style="width:100%;margin-top:14px" href="${u("/my")}?next=${u("/employer-dashboard")}">🔐 ${L("Sign in with an email code — Business Partner account", "الدخول برمز الإيميل — عبر حساب Business Partner")}</a>
     <p class="emp-note" style="text-align:center;margin-top:18px">${L("Don't have an account?", "ما عندك حساب؟")} <a href="${u("/employer-join")}">${L("Subscribe from our plans", "اشترك من باقاتنا")}</a></p>
     </div>
     <div id="el-otp-step" hidden>
@@ -6223,7 +6223,7 @@ function buildEmployerDashboard() {
         <p class="emp-note" style="margin:0 0 18px">${L("Your posted jobs, AI-matched candidates and hiring pipeline — all in one place.", "وظائفك المنشورة، والمرشّحون المطابقون بالذكاء، ومسار التوظيف — كلها في مكان واحد.")}</p>
         <a class="btn btn-primary" style="width:100%" href="${u("/employer-login")}">${L("Log in", "تسجيل الدخول")}</a>
         <a class="btn btn-ghost" style="width:100%;margin-top:10px" href="${u("/employer-join")}">${L("New here? Subscribe", "جديد؟ اشترك الآن")}</a>
-        <p class="emp-note" style="margin:14px 0 0">${L("A Business Partner client? Log in to your client portal and the dashboard opens by itself — free for your first 30 days.", "عميل Business Partner؟ سجّل دخولك في لوحة العميل وتنفتح اللوحة من نفسها — مجاناً طوال أول 30 يوماً.")} <a href="${u("/account")}">${L("Open the client portal", "افتح لوحة العميل")}</a></p>
+        <p class="emp-note" style="margin:14px 0 0">${L("A Business Partner client? Log in to your client portal and the dashboard opens by itself — free for your first 30 days.", "عميل Business Partner؟ سجّل دخولك في لوحة العميل وتنفتح اللوحة من نفسها — مجاناً طوال أول 30 يوماً.")} <a href="${u("/my")}">${L("Open the client portal", "افتح لوحة العميل")}</a></p>
         <p class="emp-note" style="margin:14px 0 0"><button type="button" class="linkbtn" id="empd-demo">${L("Try a demo", "جرّب نسخة تجريبية")}</button></p>
         <p id="empd-gate-msg" class="emp-note" style="min-height:18px;margin:6px 0 0"></p>
       </div>
@@ -7281,7 +7281,7 @@ function buildEstrdad() {
     [L("Continuous compliance watch", "مراقبة امتثال مستمرة"), L("The Compliance Agent tracks your CR, certificates, licenses and Nitaqat daily and alerts you BEFORE anything expires — so your refund never stops.", "مستشار الامتثال يراقب سجلك وشهاداتك وتراخيصك ونطاقاتك يومياً وينبهك قبل أي انتهاء — فلا تتوقف دفعاتك أبداً."), "/compliance-agent"],
     [L("Nitaqat before it hurts", "نطاقاتك قبل ما تتأثر"), L("HR management (Qiwa, GOSI, Mudad) and recruitment that keep your Saudization inside the eligible band.", "إدارة الموارد البشرية (قوى، التأمينات، مدد) والتوظيف بما يُبقي توطينك ضمن النطاق المؤهل."), "/hr"],
     [L("File preparation & submission", "تجهيز الملف والتقديم"), L("Size certificate, IBAN certificate, activity licenses, accurate data — we prepare the full Estrdad file and follow your request to disbursement, including objections within the 60-day window.", "شهادة حجم المنشأة، شهادة الآيبان، التراخيص، ودقة البيانات — نجهّز ملف استرداد كاملاً ونتابع طلبك حتى الصرف، بما فيه الاعتراض خلال مهلة الـ60 يوماً."), "/consultation"],
-    [L("Renewals paid on time — from your wallet", "تجديداتك تُسدد في وقتها — من محفظتك"), L("Chamber, municipal and license renewals paid from your Business Partner wallet before they lapse — the same fees Estrdad refunds you.", "تجديدات الغرفة والبلدية والتراخيص تُسدد من محفظتك في Business Partner قبل انتهائها — وهي نفسها الرسوم التي تستردها من المبادرة."), "/account"],
+    [L("Renewals paid on time — from your wallet", "تجديداتك تُسدد في وقتها — من محفظتك"), L("Chamber, municipal and license renewals paid from your Business Partner wallet before they lapse — the same fees Estrdad refunds you.", "تجديدات الغرفة والبلدية والتراخيص تُسدد من محفظتك في Business Partner قبل انتهائها — وهي نفسها الرسوم التي تستردها من المبادرة."), "/my"],
   ].map((h) => `<div class="card"><h3>${h[0]}</h3><p>${h[1]}</p><a class="card-link" href="${u(h[3] || h[2])}">${L("Learn more", "اعرف أكثر")} ${I.arrow}</a></div>`).join("");
   const body = `
   <section class="hero"><div class="container hero-inner">
@@ -7382,7 +7382,7 @@ function buildBankAccount() {
 
   <section class="section" id="bank-form"><div class="container" style="max-width:920px">
     <div class="section-head"><h2>${L("Request bank-account opening", "اطلب فتح الحساب البنكي")}</h2><p>${L("Sign in first — the request pulls your company profile from your dashboard.", "سجّل دخولك أولاً — الطلب يسحب بيانات منشأتك من لوحتك.")}</p></div>
-    <div class="callout" id="bank-profile-gate" hidden style="margin-bottom:16px"><span class="ico">📋</span><p>${L("Company profile incomplete: fill in your establishment name and CR in the dashboard first — it's the bank-file prerequisite.", "بيانات المنشأة غير مكتملة: أكمل اسم المنشأة والسجل التجاري في لوحتك أولاً — فهي اشتراط ملف البنك.")} <a href="${u("/account")}">${L("Complete company profile ←", "أكمل بيانات المنشأة ←")}</a></p></div>
+    <div class="callout" id="bank-profile-gate" hidden style="margin-bottom:16px"><span class="ico">📋</span><p>${L("Company profile incomplete: fill in your establishment name and CR in the dashboard first — it's the bank-file prerequisite.", "بيانات المنشأة غير مكتملة: أكمل اسم المنشأة والسجل التجاري في لوحتك أولاً — فهي اشتراط ملف البنك.")} <a href="${u("/my")}">${L("Complete company profile ←", "أكمل بيانات المنشأة ←")}</a></p></div>
     <div class="order-box">
       <form id="bank-form-el" novalidate>
         <div class="cc-grid">
@@ -7511,7 +7511,7 @@ function buildFormationContract() {
 
   <section class="section" id="fc-form"><div class="container" style="max-width:980px">
     <div class="section-head"><h2>${L("Start your company formation", "ابدأ تأسيس شركتكم")}</h2><p>${L("The full formation form: every partner's identity, documents and share, plus the managers' powers exactly as in the Ministry of Commerce articles of association.", "نموذج التأسيس الكامل: هوية كل شريك ومستنداته ونسبته، وصلاحيات المديرين كما في نظام الأساس المعتمد من وزارة التجارة.")}</p></div>
-    <div class="callout" id="fc-gate" style="margin-bottom:16px"><span class="ico">🔒</span><p><strong>${L("This form is available after signing in.", "هذا النموذج متاح بعد تسجيل الدخول.")}</strong> ${L("Formation data is sensitive (IDs, passports, powers) so it's collected inside your client dashboard only — sign in or create a free account and you'll return here automatically.", "بيانات التأسيس حسّاسة (هويات، جوازات، صلاحيات) لذلك تُعبأ عبر لوحة العميل فقط — سجّل الدخول أو أنشئ حساباً مجانياً وسنعيدك لهذه الصفحة تلقائياً.")} <a href="${u("/account")}?redirect=formation">${L("Sign in / create account ←", "سجّل الدخول / أنشئ حساباً ←")}</a></p></div>
+    <div class="callout" id="fc-gate" style="margin-bottom:16px"><span class="ico">🔒</span><p><strong>${L("This form is available after signing in.", "هذا النموذج متاح بعد تسجيل الدخول.")}</strong> ${L("Formation data is sensitive (IDs, passports, powers) so it's collected inside your client dashboard only — sign in or create a free account and you'll return here automatically.", "بيانات التأسيس حسّاسة (هويات، جوازات، صلاحيات) لذلك تُعبأ عبر لوحة العميل فقط — سجّل الدخول أو أنشئ حساباً مجانياً وسنعيدك لهذه الصفحة تلقائياً.")} <a href="${u("/my")}?next=${u("/formation-contract")}">${L("Sign in / create account ←", "سجّل الدخول / أنشئ حساباً ←")}</a></p></div>
     <div id="fc-form-wrap" hidden>
     <div class="order-box">
       <form id="fc-form-el" novalidate>
@@ -7577,7 +7577,7 @@ function buildCart() {
           <a class="btn btn-primary btn-lg" id="cart-checkout" href="${u("/checkout")}" style="width:100%">${L("Checkout", "إتمام الطلب")}</a>
           <p class="mini" id="cart-signin-note" hidden style="color:var(--navy)">${L("You'll create a free account (or sign in) to complete your purchase — every order is saved to your dashboard under \"My orders\".", "ستنشئ حساباً مجانياً (أو تسجّل الدخول) لإكمال الشراء — ويُحفظ كل طلب في لوحتك ضمن «طلباتي».")}</p>
           <p class="mini">${L("Pay online (mada / Visa / Mastercard) and your order activates automatically — or pay by bank transfer and we activate it right after verifying the receipt.", "ادفع إلكترونياً (مدى / فيزا / ماستركارد) ويتفعّل طلبك تلقائياً — أو حوّل بنكياً ونفعّله فور التحقق من الإيصال.")}</p>
-          <p class="mini">💳 <a href="${u("/account")}">${L("Pay from your wallet", "اسدد من محفظتك")}</a></p>
+          <p class="mini">💳 <a href="${u("/my")}">${L("Pay from your wallet", "اسدد من محفظتك")}</a></p>
           <p class="mini">${L("Some items are quoted on review; the team confirms the final amount.", "بعض البنود تُسعّر عند المراجعة؛ يؤكد الفريق المبلغ النهائي.")}</p>
           <p class="calc-note">${L(cm.vatNoteEn || cm.vatNote, cm.vatNote)}</p>
         </div>
@@ -9771,7 +9771,7 @@ function buildPortal(pre = "/") {
       <div class="field"><label>كود التفعيل</label><input id="code" type="text" placeholder="رقم طلبك (مثال BP-506275) أو كود التفعيل" style="text-align:center;letter-spacing:1px" /></div>
       <button class="bigbtn" id="loginBtn">دخول</button>
       <div class="err" id="loginErr"></div>
-      <a class="linkbtn" style="display:block;text-align:center;margin-top:10px;text-decoration:none" href="/ar/account?redirect=employees">🔐 بدون كود — ادخل برمز يوصلك على الإيميل عبر حساب Business Partner</a>
+      <a class="linkbtn" style="display:block;text-align:center;margin-top:10px;text-decoration:none" href="/ar/my">🔐 بدون كود — ادخل برمز يوصلك على الإيميل عبر حساب Business Partner</a>
       <button type="button" class="bigbtn trial" id="trialBtn">🎁 جرّب الفريق كامل مجاناً (3 رسائل لكل موظف)</button>
       <div class="hint-code">💡 بعد ما نتأكد من الدفع، رقم طلبك نفسه يصير كود التفعيل ويفتح فقط الموظفين اللي اشتركت فيهم — على نفس البريد اللي اشتريت فيه.</div>
       <button class="linkbtn" id="noCodeBtn">ما اشتريت بعد؟ اختر موظفيك وابدأ الطلب</button>
@@ -10479,7 +10479,7 @@ function buildSharedServices() {
       </div>
       <div class="ss-cta" style="justify-content:center;margin-top:26px">
         <a class="btn btn-ghost" href="${u("/consultation")}?topic=other&about=${encodeURIComponent(Lraw("Shared services team subscription", "اشتراك فريق الخدمات المشتركة"))}">${L("Prefer a tailored offer? Book a consultation", "تفضّل عرضاً مخصصاً؟ احجز استشارة")}</a>
-        <a class="btn btn-ghost" href="${u("/account")}">${L("Client portal", "بوابة العميل")}</a>
+        <a class="btn btn-ghost" href="${u("/my")}">${L("Client portal", "بوابة العميل")}</a>
       </div>
 
       <div class="ss-portal-entry">
@@ -10834,7 +10834,7 @@ function buildSharedServicesPortal() {
         <h2>${L("Sign in to the service", "دخول الخدمة")}</h2>
         <p id="ss-gate-lead">${L("Your team portal opens straight from your Business Partner account — no access code needed.", "بوابة فريقك تفتح مباشرة من حساب العميل في Business Partner — بدون أي رمز دخول.")}</p>
         <div class="ss-note-box" id="unl-result" hidden></div>
-        <a class="btn btn-primary" id="ss-account-btn" style="width:100%" href="${u("/account")}">🔐 ${L("Sign in with my client account", "ادخل بحساب العميل")}</a>
+        <a class="btn btn-primary" id="ss-account-btn" style="width:100%" href="${u("/my")}">🔐 ${L("Sign in with my client account", "ادخل بحساب العميل")}</a>
         <div class="ss-trust">
           <span><b>12</b>${L("specialists in one chat", "متخصصاً في محادثة واحدة")}</span>
           <span><b>24/7</b>${L("always on", "بلا توقف")}</span>
@@ -10932,7 +10932,7 @@ function buildSharedServicesPortal() {
           <a href="${u("/tourism")}"><span class="e">🧳</span><b>${L("Tourism & events", "السياحة والفعاليات")}</b><span>${L("Business tourism, trips and event logistics.", "سياحة أعمال ورحلات وتنظيم فعاليات.")}</span></a>
           <a href="${u("/connect")}"><span class="e">🧑‍💼</span><b>${L("Individual smart employee", "الموظف الذكي الفردي")}</b><span>${L("Hire one specialist agent on its own.", "وظّف متخصصاً ذكياً واحداً لحاله.")}</span></a>
           <a href="${u("/saudi-arabia")}"><span class="e">🇸🇦</span><b>${L("Invest in Saudi", "الاستثمار في السعودية")}</b><span>${L("Investor data, guides and sector insights.", "بيانات وأدلة المستثمر ورؤى القطاعات.")}</span></a>
-          <a href="${u("/account")}"><span class="e">🧾</span><b>${L("My orders & account", "طلباتي وحسابي")}</b><span>${L("Track your orders, documents and payments.", "تابع طلباتك ومستنداتك ومدفوعاتك.")}</span></a>
+          <a href="${u("/my")}"><span class="e">🧾</span><b>${L("My orders & account", "طلباتي وحسابي")}</b><span>${L("Track your orders, documents and payments.", "تابع طلباتك ومستنداتك ومدفوعاتك.")}</span></a>
         </div>
         <p class="ss-secure">💡 ${L("Tip: anything here can also be requested through Baher — he prepares it and anything binding waits for your approval.", "تلميح: أي خدمة هنا تقدر تطلبها عبر باهر مباشرة — يجهّزها لك وأي إجراء ملزم ينتظر موافقتك.")}</p>
       </div>

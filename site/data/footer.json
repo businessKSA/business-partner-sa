@@ -105,12 +105,12 @@
       "titleAr": "المنصات والبوابات",
       "links": [
         {
-          "href": "/account",
+          "href": "/my",
           "en": "Client portal",
           "ar": "منصّة العملاء"
         },
         {
-          "href": "/account?redirect=revenue",
+          "href": "/business-development-dashboard",
           "en": "BD as a Service dashboard",
           "ar": "لوحة تطوير الأعمال كخدمة"
         },

@@ -36,6 +36,12 @@ function build(src, out, isAr){
   let html=fs.readFileSync(src,'utf8');
   html=html.replace(/<title>[\s\S]*?<\/title>/, isAr?'<title>B10X — Business Partner</title>':'<title>B10X — Business Partner</title>');
   html=html.replace(/<main>[\s\S]*?<\/main>/, isAr?arMain:enMain);
+  // الصفحة مشتقّة من ai-agents.html، فتحمل روابط hreflang إليه. ai-agents مخفيّة
+  // (site/data/hidden.json) وتُحوَّل إلى /services، وسكربت تبديل اللغة في رأس
+  // الصفحة يقفز إلى هذه الروابط — فكان زائرٌ لغته المحفوظة غير لغة الصفحة يُرمى
+  // من /b10x إلى /services، ومبدّل اللغات في الترويسة يُحذف. تُوجَّه كلها (hreflang
+  // ومبدّل اللغات) إلى b10x نفسها.
+  html=html.replace(/(href="(?:\/(?:ar|fr|zh))?)\/ai-agents(")/g,"$1/b10x$2");
   html=html.replace('</head>',css+'\n</head>');
   fs.writeFileSync(out,html);
 }

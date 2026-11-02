@@ -15,6 +15,7 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { loadRedirects, matchRedirect } from "./vercel-redirects.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const SITE = path.join(ROOT, "site");
@@ -72,6 +73,9 @@ const vercel = JSON.parse(fs.readFileSync(path.join(ROOT, "vercel.json"), "utf8"
 const API_REWRITES = (vercel.rewrites || [])
   .filter((r) => r.source.startsWith("/api/") && r.destination.startsWith("/api/") && !r.has)
   .map((r) => ({ source: r.source, destination: r.destination }));
+
+// تحويلات vercel.json (الصفحات المخفية، /account → /my…) تُطبَّق محلياً كما في Vercel.
+const REDIRECTS = loadRedirects(path.join(ROOT, "vercel.json"));
 
 const MIME = {
   ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8",
@@ -184,6 +188,14 @@ const server = http.createServer(async (req, res) => {
       await handler(req, res);
       if (!res.writableEnded) res.end();
       return done(res.statusCode);
+    }
+
+    const rd = matchRedirect(REDIRECTS, url.pathname, url.search);
+    if (rd) {
+      res.statusCode = rd.status;
+      res.setHeader("location", rd.location);
+      res.end();
+      return done(rd.status);
     }
 
     const file = staticFile(url.pathname);

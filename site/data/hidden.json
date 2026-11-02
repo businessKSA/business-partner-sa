@@ -1,5 +1,5 @@
 {
-  "_note": "إخفاء مركزي (قرار المالك 2026-10-06). services: أكواد خدمات من services.json أو باقات (مثل revos-launch أو BP-PKG-LAUNCH). pages: أسماء صفحات عامة بلا شرطة بادئة (مثل business-development). أضف الكود أو الاسم هنا ثم شغّل npm run build — لا تعديل في مكان آخر؛ احذفه وابنِ فيعود. الإخفاء للصفحات العامة فقط: لا يُمسّ services.json ولا لوحات العملاء (/my وRevenue OS) ولا /ops ولا api/. الصفحة أو الخدمة المخفية لا تُبنى، ويحوّلها vercel.json بـ302 إلى /catalog (أسطر statusCode:302 في vercel.json يولّدها البناء — لا تكتب بها يدوياً). التفاصيل في رأس site/scripts/hidden.mjs.",
+  "_note": "إخفاء مركزي (قرار المالك 2026-10-06). services: أكواد خدمات من services.json أو باقات (مثل revos-launch أو BP-PKG-LAUNCH). pages: أسماء صفحات عامة بلا شرطة بادئة (مثل business-development). أضف الكود أو الاسم هنا ثم شغّل npm run build — لا تعديل في مكان آخر؛ احذفه وابنِ فيعود. الإخفاء للصفحات العامة فقط: لا يُمسّ services.json ولا لوحات العملاء (/my وRevenue OS) ولا /ops ولا api/. الصفحة أو الخدمة المخفية لا تُبنى، ويحوّلها vercel.json بـ302 إلى /catalog (أسطر statusCode:302 في vercel.json يولّدها البناء — لا تكتب بها يدوياً). التفاصيل في رأس site/scripts/hidden.mjs. ── 2026-11-02 (طلبات المالك 9/12/13/14): pages أُضيف إليها privacy وdata-deletion وai-agents وcalculator، وmoved جديد: account→/my (الصفحة تُبنى أثناء البناء ثم يحذفها hide-scrub.mjs، وروابطها تُعاد كتابتها لا تُحذف). redirects: وجهة وحالة كل صفحة (308 = permanent، يعيد المتصفح التحقق فتُستردّ الصفحة بحذف السطر). التفاصيل: docs/hidden-pages-2026-11-02.md.",
   "services": [
     "REV-START",
     "REV-LAUNCH",
@@ -13,6 +13,35 @@
     "revos-professional"
   ],
   "pages": [
-    "business-development"
-  ]
+    "business-development",
+    "privacy",
+    "data-deletion",
+    "ai-agents",
+    "calculator"
+  ],
+  "moved": {
+    "account": "/my"
+  },
+  "redirects": {
+    "privacy": {
+      "to": "/",
+      "status": 308
+    },
+    "data-deletion": {
+      "to": "/",
+      "status": 308
+    },
+    "ai-agents": {
+      "to": "/services",
+      "status": 308
+    },
+    "calculator": {
+      "to": "/catalog",
+      "status": 308
+    },
+    "account": {
+      "to": "/my",
+      "status": 308
+    }
+  }
 }

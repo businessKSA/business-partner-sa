@@ -180,7 +180,7 @@
 | `/knowledge-center` — مركز المعرفة | ٤ | ✅ **جديد** — الباب الوحيد إلى المعرفة: رابطٌ واحد في تذييل SV1 (2026-09-24) |
 | `/calculators/government-cost` | ٤ | ✅ **جديد** (`simple-v1-gov-cost.mjs`، 2026-09-24) |
 | كل صفحات مركز المعرفة: `/saudi-arabia` · `/directory` · `/opportunities` · `/news` · `/newsletter` · `/magazine` · `/tools-and-calculators` · `/calculators/{profession-checker,end-of-service,annual-leave,overtime,gosi}` | — | ✅ **جديد** — `sv1Page()` في generate.mjs: SV1.shell() + طبقة `SV1_LEGACY_CSS`، بلا main.js (النشرة والمجلة تحمّلان `assets/js/sv1-knowledge.js`) (2026-09-24) |
-| `/calculator` · `/calculators/nitaqat` · `/magazine/print` | — | ❌ قديم — خارج مركز المعرفة (`/calculator` حلّ محلّه `/catalog` في القائمة) |
+| `/calculator` · `/calculators/nitaqat` · `/magazine/print` | — | ❌ قديم — خارج مركز المعرفة. **`/calculator` مخفية منذ 2026-11-02** (308 → `/catalog`) — انظر `docs/hidden-pages-2026-11-02.md` |
 | `/guide/*` · `/saudi-arabia` · `/news` · `/magazine` | ٢٠+ | ❌ قديم — KEEP (محتوى) |
 | محفول مكفول (٤ صفحات × ٤ لغات) | ١٦ | مختلط — **انظر أدناه** |
 | `/about` · `/contact` · `/terms` · `/newsletter` | — | مختلط |
@@ -618,3 +618,10 @@ Simple V1. وكيل المنتج لا يلمسها.
 ## صفحة Business Partner Compliance Solutions — 2026-10-23 (أمر المالك المباشر)
 
 `/compliance-solutions`: حاسبة/محادثة الامتثال والتوظيف كصفحة مستقلة (مخفية، `noindex`)، مصدرها `docs/sales/services/live-calculator/` على فرع المبيعات. هدفها أن تصير الواجهة الوحيدة لـ`/eor` و`/hr-portal` و`/hiring` بخلفية موحدة؛ لا تُستبدل الصفحات الثلاث قبل أن تعمل وظائفها داخلها (استقبال الحزمة في الخادم، المرشحون الحقيقيون، الواتساب). بياناتها التجريبية موسومة. القرار القادم لاستبدال `/eor` للمالك.
+
+## صفحات مخفية ومُنهاة — 2026-11-02 (أمر المالك)
+
+**مخفية** (لا تُبنى، لا تُدرَج، تُحوَّل 308، `noindex`): `/privacy` · `/data-deletion` · `/ai-agents` · `/calculator` — بكل اللغات.
+**مُنهاة:** `/account` → `/my` (308، المعاملات محفوظة). الآلية `site/data/hidden.json` (`pages` و`moved` و`redirects`)،
+والتفصيل والإعادة والاقتراح القانوني في `docs/hidden-pages-2026-11-02.md`. من يضيف رابطاً إلى أيٍّ منها يُحذف رابطه عند البناء
+(`hide-scrub.mjs`) ويُسقط `verify-pages.mjs` البناء إن نجا رابط.

@@ -16,6 +16,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => fs.readFileSync(p, "utf8");
 const readJson = (p) => JSON.parse(read(p));
+// أسطر vercel.json التي يملكها hidden.mjs: redirects بـ statusCode (30x) وheaders بـ X-Robots-Tag.
+const isManagedLine = (l) => /"source"/.test(l) && (/"statusCode"\s*:\s*30[0-9]/.test(l) || /"X-Robots-Tag"/.test(l));
 const hiddenModule = pathToFileURL(path.join(REPO, "site/scripts/hidden.mjs")).href;
 
 async function loadHidden(config, tag) {
@@ -80,9 +82,9 @@ test("hidden.mjs: stripHiddenLinks يحذف الرابط المخفي وحده �
 
 test("hidden.mjs: syncVercelRedirects يكتب أسطر 302 ويحذفها ولا يلمس غيرها", async () => {
   const base = readJson(path.join(REPO, "vercel.json"));
-  const manual = base.redirects.filter((r) => r.statusCode !== 302);
+  const manual = base.redirects.filter((r) => !r.statusCode);
   const file = path.join(os.tmpdir(), `bp-vercel-${process.pid}.json`);
-  const original = read(path.join(REPO, "vercel.json")).split("\n").filter((l) => !/"statusCode"\s*:\s*302/.test(l)).join("\n");
+  const original = read(path.join(REPO, "vercel.json")).split("\n").filter((l) => !isManagedLine(l)).join("\n");
   fs.writeFileSync(file, original);
 
   const on = await loadHidden({ services: ["REV-LAUNCH"], pages: ["business-development"] }, "unit5");
@@ -90,7 +92,9 @@ test("hidden.mjs: syncVercelRedirects يكتب أسطر 302 ويحذفها ول�
   const withRules = readJson(file);
   const managed = withRules.redirects.filter((r) => r.statusCode === 302);
   assert.ok(managed.length >= 3 && managed.every((r) => r.destination.endsWith("/catalog")));
-  assert.deepEqual(withRules.redirects.filter((r) => r.statusCode !== 302), manual, "الأسطر اليدوية كما هي");
+  assert.deepEqual(withRules.redirects.filter((r) => !r.statusCode), manual, "الأسطر اليدوية كما هي");
+  assert.deepEqual(withRules.headers.filter((r) => !r.headers.some((h) => h.key === "X-Robots-Tag")), base.headers.filter((r) => !r.headers.some((h) => h.key === "X-Robots-Tag")), "ترويسات الملف اليدوية كما هي");
+  assert.ok(withRules.headers.some((r) => r.headers.some((h) => h.key === "X-Robots-Tag" && /noindex/.test(h.value))), "noindex للمصدر المخفي");
   assert.equal(on.syncVercelRedirects(file), false, "إعادة التشغيل لا تغيّر شيئاً");
 
   const off = await loadHidden({ services: [], pages: [] }, "unit6");
@@ -200,8 +204,8 @@ test("حذف الإدخال من hidden.json يُعيد كل شيء", () => {
   assert.ok(b.page("ar/catalog.html").toLowerCase().includes(`"code":"${CODE.toLowerCase()}"`), "/catalog يحويها");
   assert.ok(b.page("packages.html").includes(PKG), "/packages يحوي الباقة");
   assert.ok(/href="[^"]*business-development"/.test(b.page("ar/index.html")), "رابط الترويسة عاد");
-  assert.ok(!/"statusCode"\s*:\s*302/.test(b.vercel), "لا أسطر 302 مُدارة");
-  assert.equal(b.vercel, ORIGINAL_VERCEL.split("\n").filter((l) => !/"statusCode"\s*:\s*302/.test(l)).join("\n"), "vercel.json كما كان بلا الأسطر المُدارة");
+  assert.ok(!b.vercel.split("\n").some(isManagedLine), "لا أسطر مُدارة");
+  assert.equal(b.vercel, ORIGINAL_VERCEL.split("\n").filter((l) => !isManagedLine(l)).join("\n"), "vercel.json كما كان بلا الأسطر المُدارة");
 });
 
 // ------------------------------------------- شجرة المستودع المبنيّة (ما سيُنشر)
@@ -217,15 +221,16 @@ test("المستودع: البناء المُلتزَم متوافق مع hidden
   const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   assert.deepEqual(urls.filter((u) => h.isHiddenHref(u)), [], "sitemap يحوي مسارات مخفية");
 
-  for (const p of cfg.pages) for (const lang of ["", "ar/", "fr/", "zh/", "es/", "ru/", "ko/", "ja/", "hi/"]) {
+  for (const p of [...cfg.pages, ...Object.keys(cfg.moved || {})]) for (const lang of ["", "ar/", "fr/", "zh/", "es/", "ru/", "ko/", "ja/", "hi/"]) {
     assert.ok(!fs.existsSync(path.join(REPO, "site", `${lang}${p}.html`)), `${lang}${p}.html ما زالت موجودة`);
   }
 
-  // أسطر 302 المُدارة في vercel.json = ما يولّده hidden.mjs الآن.
+  // الأسطر المُدارة في vercel.json (redirects وheaders) = ما يولّده hidden.mjs الآن.
   const vj = readJson(path.join(REPO, "vercel.json"));
-  const managed = vj.redirects.filter((r) => r.statusCode === 302);
+  const managed = vj.redirects.filter((r) => r.statusCode);
   assert.deepEqual(managed, h.redirectRules(), "vercel.json غير متزامن مع hidden.json — شغّل npm run build");
-  for (const r of managed) assert.ok(r.destination === "/catalog" || r.destination === "/:lang/catalog");
+  const hdrs = vj.headers.filter((r) => r.headers.some((x) => x.key === "X-Robots-Tag"));
+  assert.deepEqual(hdrs, h.headerRules(), "ترويسات noindex غير متزامنة مع hidden.json — شغّل npm run build");
 });
 
 test("المستودع: لا صفحة عامة مبنيّة تربط بصفحةٍ أو خدمةٍ مخفية", async () => {

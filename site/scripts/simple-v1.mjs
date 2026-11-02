@@ -771,7 +771,7 @@ export function simpleV1(ctx) {
       <h5>${t("footExplore")}</h5>
       <a href="${href("/catalog")}">${t("footClassic")}</a>
       <a href="${href("/packages")}">${t("navPackages")}</a>
-      <a href="${href("/ai-agents")}">${t("navAdvisors")}</a>
+      ${pageVisible("ai-agents") ? `<a href="${href("/ai-agents")}">${t("navAdvisors")}</a>` : ""}
       <a href="${href("/ai")}" data-track="تذييل: Business Partner AI">Business Partner AI</a>
       ${pageVisible("business-development") ? `<a href="${href("/business-development")}">${t("navBizDev")}</a>` : ""}
     </div>
@@ -788,8 +788,8 @@ export function simpleV1(ctx) {
       <a href="${href("/careers")}">${t("navCareers")}</a>
       <a href="${href("/suppliers")}">${t("navPartners")}</a>
       <a href="${href("/terms")}">${t("footTerms")}</a>
-      <a href="${href("/privacy")}">${t("footPrivacy")}</a>
-      <a href="${href("/data-deletion")}">${t("footDeletion")}</a>
+      ${pageVisible("privacy") ? `<a href="${href("/privacy")}">${t("footPrivacy")}</a>` : ""}
+      ${pageVisible("data-deletion") ? `<a href="${href("/data-deletion")}">${t("footDeletion")}</a>` : ""}
     </div>
   </div>
   <div class="sv1-foot-end">© ${year} Business Partner · ${t("footRights")}</div>
