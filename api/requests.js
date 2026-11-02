@@ -42,6 +42,7 @@ import { graphReady, graphMissing } from "./_msgraph.js";
 import { handleDocAgent } from "./_docagent.js";
 import { handleSimple, createCartRequest } from "./_simple.js";
 import { handlePrIntake } from "./_printake.js";
+import { handleTripsIntake } from "./_tripsintake.js";
 import spacesHandler from "./_spaces.js";
 import { daftraPing, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraPublicInvoiceLink, daftraConfigured, daftraVatRate, nationalAddressLine, daftraInspectInvoice, daftraSyncCatalog, daftraResetProductCache, daftraCreateEstimate, daftraDocPdf, daftraListClients, daftraPdfProbe, daftraUpdateClient, daftraFindInvoice, daftraSetInvoiceClient, daftraCreateCreditNote, daftraProbeEndpoints, daftraPayLink, daftraPayLinkProbe, daftraSendProbe} from "./_daftra.js";
 // خزنة مستندات العميل (`ops-doc-upload`): الصيغ المقبولة والحدّ الأعلى.
@@ -1891,6 +1892,8 @@ export default async function handler(req, res) {
   // موظفون على بند التعاقد (EOR) — المنطق كله في ./_eor.js؛ هنا توصيلٌ فقط.
   if ((q.__route || "") === "eor") return handleEorRoute(req, res);
   if ((q.__route || "") === "ai") return handleAiwsRoute(req, res);
+  // محفول مكفول — نموذج /trips بخطوطه الثلاثة؛ المنطق في ./_tripsintake.js (mahfol).
+  if ((q.__route || "") === "trips-intake") return handleTripsIntake(req, res, { sendEmail, teamEmail: TEAM_EMAIL });
   if ((q.action || "") === "approve") {
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     if (!OTP_SECRET) { res.statusCode = 503; return res.end("<h3>الخدمة غير مُفعّلة (OTP_SECRET).</h3>"); }
