@@ -21,6 +21,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { sb, DB_ON, DB_MISSING, getSession, audit, notify } from "./_db.js";
 import { contractHtml, quoteHtml } from "./_docusign.js";
+// ورقة عرض السعر بتصميم بدر المعتمد (قالب v3: أفقي، غلاف، صفحات، غلاف خلفي — docs/bp-docs-v3.md).
+// العقد وNDA بلا تغيير هنا: ما زالا على ورقتهما الحالية حتى يُنقل قالباهما.
+import { templateForVersion, templateForQuoteLang } from "./_bp-docs.js";
+import { quoteDocSnapshot, quoteDocInput } from "./_quote-doc.js";
 import { loadCatalog } from "./_catalog.js";
 import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate } from "./_daftra.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
@@ -277,8 +281,14 @@ async function issueContract(row, actorKind, actor, opts) {
 // scope rewrite, so the whole thing lives here once.
 async function issueQuote(row, rawItems, opts, actorKind, actor) {
   const priced = await priceItems(rawItems);
-  const quote = { number: "Q-" + row.ref.replace(/^BP-R-/, "") + (row.quote && row.quote.status === "REJECTED" ? "-R" : ""), status: "DRAFT", created_at: nowIso(), ...computeQuote(priced, opts) };
+  const quote = { number: "Q-" + row.ref.replace(/^BP-R-/, "") + (row.quote && row.quote.status === "REJECTED" ? "-R" : ""), status: "DRAFT", created_at: nowIso(), template_version: templateForQuoteLang(row.lang), ...computeQuote(priced, opts) };
   if (!quote.items.length) return { ok: false, error: "no_items" };
+  // ورقة بدر (v3) تُرسم من البنود + لقطة تُكتب مرةً واحدة عند الإصدار (نطاق كل خدمة ومستنداتها والشركة)،
+  // فتغيّر صفحة خدمة أو عنوان الشركة بعد الإصدار لا يعيد كتابة عرضٍ في يد العميل.
+  if (quote.template_version === "v3") {
+    try { quote.doc = quoteDocSnapshot(quote.items, { documents: row.documents, hasNda: !!row.nda }); }
+    catch (e) { console.error("quote doc snapshot", String(e && e.message || e).slice(0, 120)); quote.doc = {}; }
+  }
   const send = opts.send !== false;
   if (send) { quote.status = "SENT"; quote.sent_at = nowIso(); }
   const upd = await patchRequest(row.id, { quote, scope: quote.items.map((l) => ({ code: l.code, title: l.title, why: l.description, qty: l.qty })), status: send ? "QUOTE_SENT" : row.status });
@@ -438,6 +448,21 @@ async function clientAction(action, b, qs, req, res, sess) {
   if (action === "request-get") {
     const [events, tasks] = await Promise.all([eventsFor(row.id), tasksFor(row.id)]);
     return json(res, 200, { ok: true, testMode: SIMPLE_TEST_MODE, request: clientView(row, events, tasks) });
+  }
+
+  // نقطة التتبّع الخفيفة (بند المالك 17): الحالة وأرقام المستندات فقط — بلا
+  // محادثة ولا خط زمني ولا مرفقات. صفحة الطلب في /my تسألها كل ثوانٍ ما دام
+  // الطلب ينتظرنا (تسعير بشري، بناء العقد، تأكيد الدفع)، وتجلب العرض الكامل
+  // `request-get` فقط حين تتغيّر البصمة. للقراءة وحدها؛ لا تغيّر شيئاً.
+  if (action === "request-status") {
+    res.setHeader("cache-control", "no-store");
+    return json(res, 200, {
+      ok: true, ref: row.ref, status: row.status, updated_at: row.updated_at || null,
+      quote: row.quote ? { number: row.quote.number, status: row.quote.status } : null,
+      contract: row.contract ? { number: row.contract.number, status: row.contract.status } : null,
+      payment: row.payment ? { status: row.payment.status } : null,
+      invoice: row.invoice ? { number: row.invoice.number } : null,
+    });
   }
 
   if (action === "request-message") {
@@ -661,6 +686,11 @@ async function clientAction(action, b, qs, req, res, sess) {
   // العرض كمستند كامل بلغتين — نفس ورقة العقد، تُفتح بالحجم الكامل وتُطبع.
   if (action === "quote-view") {
     if (!row.quote) return json(res, 404, { ok: false, error: "no_quote" });
+    // العرض الصادر بقالب v3 يُرسم بورقة بدر (أفقي بغلاف وغلاف خلفي)؛ ما صدر قبلها يبقى بورقته (مجمَّدة).
+    if (row.quote.template_version === "v3") {
+      const tpl = templateForVersion("v3");
+      if (tpl) return json(res, 200, { ok: true, number: row.quote.number, html: tpl.quote(quoteDocInput(row, row.company_name || row.client_name || row.client_email)) });
+    }
     const html = quoteHtml({
       ref: row.ref, number: row.quote.number,
       clientName: row.company_name || row.client_name || row.client_email,
