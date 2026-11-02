@@ -6702,7 +6702,9 @@ function buildPostingPage() {
       ${seekerFormHtml(f, { id: "", title: "", note: `${L("Applying for", "التقديم على")}: <strong>${L("Loading job…", "جارٍ تحميل الوظيفة…")}</strong>` })}
     </div>
   </div></section>`;
-  return sv1LegacyApp({ title: Lraw("Job posting — Business Partner", "إعلان وظيفي — Business Partner"), desc: Lraw("Open job posted through the Business Partner platform — view the details and apply.", "وظيفة منشورة عبر منصة Business Partner — اطّلع على التفاصيل وقدّم."), active: "/careers", path: "/job", body });
+  return sv1LegacyApp({ title: Lraw("Job posting — Business Partner", "إعلان وظيفي — Business Partner"), desc: Lraw("Open job posted through the Business Partner platform — view the details and apply.", "وظيفة منشورة عبر منصة Business Partner — اطّلع على التفاصيل وقدّم."), active: "/careers", path: "/job", body,
+    // قوائم التقديم الكاملة (دول/مدن/جنسيات/مهن) — site/assets/js/apply-lists.js، تُحمَّل كسولاً. يملكها job-apply.
+    script: `<script src="/assets/js/apply-lists.js?v=${assetV("assets/js/apply-lists.js")}" defer></script>` });
 }
 
 function buildWorkshopCampaign() {
