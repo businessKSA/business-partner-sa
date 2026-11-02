@@ -11,6 +11,7 @@
 
 import { gcalConfigured, busy as gcalBusy, createEvent as gcalCreate } from "./_gcal.js";
 import { sb, DB_ON } from "./_db.js";
+import { normalizeCrmPhone } from "./_phone.js";
 import { WHATSAPP_LIVE, outbox } from "./_mode.js";
 // قواعد الساعات والأيام والمهلة والمدى في ملفٍّ واحد يقرؤه الحجز و«مواعيدي» معاً.
 import { TZ, bookingConfig, slotsOfDay, validateSlot, iso, riyadhToday, isOffDay, hhmm, bookingMessage } from "./_booking.js";
@@ -50,6 +51,9 @@ async function crmLead({ name, phone, email, topic, date, notes, ref }) {
     // lookupable by its BC- reference (and by ?action=refs=) like any order.
     "رقم المرجع": { rich_text: [{ text: { content: String(ref || "").slice(0, 60) } }] },
   };
+  // Dedicated columns, not only the Notes text — the pipeline must show who to call.
+  if (normalizeCrmPhone(phone)) props["Phone"] = { phone_number: normalizeCrmPhone(phone) };
+  if (isEmail(email)) props["Email"] = { email: String(email).slice(0, 160) };
   if (/^\d{4}-\d{2}-\d{2}$/.test(date || "")) props["Meeting Date"] = { date: { start: date } };
   try {
     const r = await fetch("https://api.notion.com/v1/pages", {

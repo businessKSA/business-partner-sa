@@ -26,6 +26,7 @@ import {
 } from "./_bdprofile.js";
 import { LEADS_DB as BD_LEADS_DB, matchQuery as bdMatchQuery, mapCompany as bdMapCompany, explainMatch as bdExplainMatch } from "./_bdmatch.js";
 import { handleAgencies } from "./_agencies.js";
+import { normalizeCrmPhone } from "./_phone.js";
 import { handleJobhunt } from "./_jobhunt.js";
 import { handleEor, isBillingAction, authFromSession } from "./_eor.js";
 import { handleAiws, activateAiws, aiwsPlanOf } from "./_aiws.js";
@@ -474,7 +475,7 @@ async function crmLead({ title, phone, email, notes, ref, orderStatus, agents, t
   if (orderStatus) props["حالة الطلب"] = { select: { name: orderStatus } };
   // The pipeline has dedicated Phone/Email columns; burying contact info only
   // inside Notes made every row unreadable at a glance and unfilterable.
-  if (phone) props["Phone"] = { phone_number: String(phone).slice(0, 40) };
+  if (normalizeCrmPhone(phone)) props["Phone"] = { phone_number: normalizeCrmPhone(phone) };
   if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email))) props["Email"] = { email: String(email).slice(0, 160) };
   if (typeof total === "number" && !Number.isNaN(total)) {
     props["إجمالي الطلب"] = { number: total };
@@ -811,6 +812,12 @@ async function upsertConversation({ sid, messages, phone, email, name, hot }) {
     "رقم المرجع": { rich_text: [{ text: { content: ref } }] },
     "حالة الطلب": { select: { name: "محادثة موقع" } },
   };
+  // The contact the visitor gave lived only inside Notes («الجوال: …»), so the
+  // pipeline's Phone/Email columns stayed empty for every advisor row. Written
+  // only when present: a later turn without contact must not blank an earlier one.
+  const crmPhone = normalizeCrmPhone(phone);
+  if (crmPhone) props["Phone"] = { phone_number: crmPhone };
+  if (isEmail(email)) props["Email"] = { email: String(email).slice(0, 160) };
   try {
     const existing = await findConvPage(ref);
     const url = existing ? `https://api.notion.com/v1/pages/${existing}` : "https://api.notion.com/v1/pages";
