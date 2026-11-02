@@ -41,6 +41,47 @@ const D = {
   visitDate:{ ar: "تاريخ الزيارة المتوقّع", en: "Expected visit date", fr: "Date de visite prévue", zh: "预计出行日期" },
   reqMiss: { ar: "أكمل: ", en: "Still needed: ", fr: "Il manque : ", zh: "尚需：" },
   sep:     { ar: "\u060C ", en: ", ", fr: ", ", zh: "\u3001" },
+  fTitleCorp: { ar: "اطلب فعاليتك", en: "Request your event", fr: "Demandez votre événement", zh: "申请您的活动" },
+  fTitleInv: { ar: "أرسل طلب زيارتك", en: "Send your visit request", fr: "Envoyez votre demande de visite", zh: "提交您的考察申请" },
+  fTitleTour: { ar: "اطلب رحلة مخصّصة", en: "Ask for a custom trip", fr: "Demander un voyage sur mesure", zh: "申请定制行程" },
+  fLead: { ar: "اترك بياناتك ويصلك عرضٌ مخصّص من فريق محفول مكفول خلال يوم عمل. لا دفع الآن ولا التزام.", en: "Leave your details and the Mahmool Makfol team sends you a tailored quotation within one working day. No payment now, no commitment.", fr: "Laissez vos coordonnées : l’équipe Mahmool Makfol vous envoie un devis sur mesure sous un jour ouvré. Aucun paiement maintenant.", zh: "留下您的信息，Mahmool Makfol 团队将在一个工作日内发送定制报价。现在无需付款，也无任何承诺。" },
+  fName: { ar: "الاسم الكامل", en: "Full name", fr: "Nom complet", zh: "姓名" },
+  fCompany: { ar: "اسم الشركة / الجهة", en: "Company / organisation", fr: "Société / organisation", zh: "公司 / 机构名称" },
+  fCompanyOpt: { ar: "اسم الشركة / الجهة (اختياري)", en: "Company / organisation (optional)", fr: "Société / organisation (facultatif)", zh: "公司 / 机构名称（选填）" },
+  fPhone: { ar: "الجوال (مع رمز الدولة)", en: "Mobile (with country code)", fr: "Mobile (avec indicatif pays)", zh: "手机（含国家区号）" },
+  fEmail: { ar: "البريد الإلكتروني", en: "Email", fr: "E-mail", zh: "电子邮箱" },
+  fCountry: { ar: "الدولة", en: "Country", fr: "Pays", zh: "国家" },
+  fCity: { ar: "المدينة (اختياري)", en: "City (optional)", fr: "Ville (facultatif)", zh: "城市（选填）" },
+  fPeople: { ar: "عدد الأفراد", en: "Number of people", fr: "Nombre de personnes", zh: "人数" },
+  fDate: { ar: "التاريخ التقريبي", en: "Approximate date", fr: "Date approximative", zh: "大致日期" },
+  fBudget: { ar: "الميزانية التقريبية بالريال (اختياري)", en: "Approximate budget in SAR (optional)", fr: "Budget approximatif en SAR (facultatif)", zh: "大致预算（沙特里亚尔，选填）" },
+  fNotes: { ar: "ملاحظات (اختياري)", en: "Notes (optional)", fr: "Remarques (facultatif)", zh: "备注（选填）" },
+  fDest: { ar: "الوجهة المفضّلة (اختياري)", en: "Preferred destination (optional)", fr: "Destination souhaitée (facultatif)", zh: "期望目的地（选填）" },
+  fDays: { ar: "عدد الأيام", en: "Number of days", fr: "Nombre de jours", zh: "天数" },
+  fConsent1: { ar: "أوافق على ", en: "I agree to the ", fr: "J’accepte la ", zh: "我同意" },
+  fPrivacy: { ar: "سياسة الخصوصية", en: "privacy policy", fr: "politique de confidentialité", zh: "隐私政策" },
+  fConsent2: { ar: " واستخدام بياناتي للتواصل معي بشأن هذا الطلب.", en: " and to my data being used to contact me about this request.", fr: " et l’utilisation de mes données pour me contacter à propos de cette demande.", zh: "，并同意使用我的数据就此申请与我联系。" },
+  fSend: { ar: "أرسل الطلب", en: "Send request", fr: "Envoyer la demande", zh: "提交申请" },
+  fSending: { ar: "جارٍ الإرسال…", en: "Sending…", fr: "Envoi en cours…", zh: "发送中…" },
+  eName: { ar: "اكتب اسمك الكامل.", en: "Enter your full name.", fr: "Saisissez votre nom complet.", zh: "请填写您的姓名。" },
+  ePhone: { ar: "رقم جوال غير صالح — من ٨ إلى ١٥ رقماً مع رمز الدولة.", en: "Invalid mobile number — 8 to 15 digits with country code.", fr: "Numéro invalide — 8 à 15 chiffres avec indicatif.", zh: "手机号无效 — 含区号 8 至 15 位数字。" },
+  eEmail: { ar: "بريد إلكتروني غير صالح.", en: "Invalid email address.", fr: "Adresse e-mail invalide.", zh: "电子邮箱无效。" },
+  eCountry: { ar: "اكتب الدولة.", en: "Enter the country.", fr: "Saisissez le pays.", zh: "请填写国家。" },
+  eCompany: { ar: "اكتب اسم الشركة أو الجهة.", en: "Enter the company or organisation.", fr: "Saisissez la société ou l’organisation.", zh: "请填写公司或机构名称。" },
+  ePeople: { ar: "عدد صحيح من ١ إلى ٥٠٠٠.", en: "A whole number from 1 to 5000.", fr: "Un entier de 1 à 5000.", zh: "请输入 1 至 5000 的整数。" },
+  eDate: { ar: "اختر تاريخاً قادماً خلال ثلاث سنوات.", en: "Pick a coming date within three years.", fr: "Choisissez une date à venir sous trois ans.", zh: "请选择未来三年内的日期。" },
+  eBudget: { ar: "أرقام فقط، بحدٍّ معقول.", en: "Digits only, within a sensible range.", fr: "Chiffres uniquement, dans une limite raisonnable.", zh: "仅限数字，且在合理范围内。" },
+  eConsent: { ar: "الموافقة على سياسة الخصوصية مطلوبة.", en: "Agreeing to the privacy policy is required.", fr: "L’acceptation de la politique de confidentialité est requise.", zh: "必须同意隐私政策。" },
+  eFix: { ar: "راجع الحقول المعلَّمة ثم أعد الإرسال.", en: "Check the marked fields and send again.", fr: "Vérifiez les champs signalés puis renvoyez.", zh: "请检查标记的字段后重新提交。" },
+  eNet: { ar: "تعذّر الإرسال الآن. حاول بعد قليل أو راسلنا على business@businesspartner.sa.", en: "Could not send right now. Try again shortly or write to business@businesspartner.sa.", fr: "Envoi impossible pour le moment. Réessayez ou écrivez à business@businesspartner.sa.", zh: "暂时无法发送。请稍后重试，或写信至 business@businesspartner.sa。" },
+  eRate: { ar: "طلبات كثيرة في وقت قصير. حاول بعد دقائق.", en: "Too many requests in a short time. Try again in a few minutes.", fr: "Trop de demandes en peu de temps. Réessayez dans quelques minutes.", zh: "短时间内请求过多，请几分钟后再试。" },
+  okTitle: { ar: "استلمنا طلبك", en: "We received your request", fr: "Nous avons reçu votre demande", zh: "我们已收到您的申请" },
+  okRef: { ar: "رقم المرجع", en: "Reference", fr: "Référence", zh: "参考编号" },
+  okBody: { ar: "يراجعه فريق محفول مكفول ويعود إليك بعرضٍ مخصّص خلال يوم عمل. أرسلنا رسالة تأكيد إلى بريدك.", en: "The Mahmool Makfol team reviews it and comes back with a tailored quotation within one working day. A confirmation was sent to your email.", fr: "L’équipe Mahmool Makfol l’examine et revient avec un devis sur mesure sous un jour ouvré. Une confirmation a été envoyée à votre e-mail.", zh: "Mahmool Makfol 团队将审核并在一个工作日内回复定制报价。确认邮件已发送至您的邮箱。" },
+  okPreview: { ar: "وضع الاختبار: لم يُرسَل بريد فعلي.", en: "Test mode: no real email was sent.", fr: "Mode test : aucun e-mail réel envoyé.", zh: "测试模式：未发送真实邮件。" },
+  okAgain: { ar: "أرسل طلباً آخر", en: "Send another request", fr: "Envoyer une autre demande", zh: "再提交一个申请" },
+  stillNeeded: { ar: "أكمل الحقول المطلوبة أدناه ثم أرسل.", en: "Complete the required fields below, then send.", fr: "Complétez les champs requis ci-dessous, puis envoyez.", zh: "请先填写下方必填项再提交。" },
+  goForm: { ar: "أكمل بياناتك وأرسل", en: "Add your details and send", fr: "Ajoutez vos coordonnées et envoyez", zh: "填写信息并提交" },
   bespoke: { ar: "يُسعَّر بعرضٍ مخصّص", en: "Quoted bespoke", fr: "Devis sur mesure", zh: "定制报价" },
   sendReq: { ar: "أرسل طلبي", en: "Send my request", fr: "Envoyer ma demande", zh: "发送请求" },
   pickedN: { ar: "مختار", en: "selected", fr: "sélectionné", zh: "已选" },
@@ -202,8 +243,8 @@ const INV_FORM = [
     o: ["شقق مخدومة","فندق ٣ نجوم","فندق ٤ نجوم","فندق ٥ نجوم","فندق فاخر"] },
   { k: "food", t: "المطاعم", o: ["سعودية محلية","عالمية","مزيج من الاثنين"] },
 ];
+// عدد الأشخاص والتاريخ في نموذج التواصل أسفل المُهيّئ (مصدرٌ واحد لا اثنان).
 const INV_NUM = [
-  { k: "people", t: "عدد الأشخاص", min: 1, max: 60, def: 2 },
   { k: "days", t: "عدد الأيام", min: 1, max: 30, def: 5 },
 ];
 
@@ -358,9 +399,38 @@ export function buildSimpleTrips(sv1, ctx, data) {
 .sv1-cfg-note{font-size:11.5px;color:var(--warn);margin-top:9px;line-height:1.7}
 .sv1-cfg-fine{font-size:11px;color:var(--faint);line-height:1.75;margin:10px 0 0}
 @media(max-width:900px){.sv1-cfg{grid-template-columns:1fr}.sv1-cfg-sum{position:static}}
+.sv1-tr-form{border:1px solid var(--l);border-radius:13px;background:#fff;padding:20px 22px;box-shadow:var(--sh)}
+.sv1-tr-form h3{margin:0 0 6px;font-size:17px;font-weight:500;color:var(--ink)}
+.sv1-tr-form .lead{margin:0 0 16px;font-size:12.5px;line-height:1.85;color:var(--mut)}
+.sv1-tr-fg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 14px}
+.sv1-tr-fg .wide{grid-column:1/-1}
+.sv1-tr-f label{display:block;font-size:12px;color:var(--mut);margin-bottom:5px}
+.sv1-tr-f label i{font-style:normal;color:var(--warn);margin-inline-start:3px}
+.sv1-tr-f input,.sv1-tr-f textarea{width:100%;box-sizing:border-box;border:1px solid var(--l);border-radius:10px;padding:11px 12px;font:inherit;font-size:14px;color:var(--ink);background:#fff;outline:none}
+.sv1-tr-f textarea{min-height:92px;resize:vertical;line-height:1.7}
+.sv1-tr-f input:focus,.sv1-tr-f textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px var(--acSoft)}
+.sv1-tr-f.bad input,.sv1-tr-f.bad textarea{border-color:var(--warn);background:#FFFBF5}
+.sv1-tr-f .err{display:none;font-size:11.5px;color:var(--warn);margin-top:5px;line-height:1.6}
+.sv1-tr-f.bad .err{display:block}
+.sv1-tr-hp{position:absolute!important;inset-inline-start:-9999px;width:1px;height:1px;overflow:hidden}
+.sv1-tr-f label.sv1-tr-consent{display:flex;margin:0}
+.sv1-tr-consent{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;line-height:1.8;color:var(--mut)}
+.sv1-tr-consent input{width:17px;height:17px;margin:3px 0 0;accent-color:var(--ac);flex:none}
+.sv1-tr-consent a{color:var(--ac)}
+.sv1-tr-f.bad.consent .err{display:block}
+.sv1-tr-fmsg{font-size:12.5px;color:var(--warn);min-height:18px;margin-top:12px;line-height:1.7}
+.sv1-tr-form .sv1-btn.primary{width:100%;margin-top:6px;padding:13px 19px}
+.sv1-tr-form .sv1-btn[disabled]{opacity:.7;cursor:progress}
+.sv1-tr-ok{text-align:center;padding:34px 18px;border:1px solid var(--l);border-radius:13px;background:#fff;box-shadow:var(--sh)}
+.sv1-tr-ok h3{font-size:20px;margin:0 0 8px;color:var(--ok)}
+.sv1-tr-ok .ref{display:inline-block;font-family:var(--fm);font-size:17px;letter-spacing:.04em;background:var(--okSoft);color:var(--ok);border-radius:9px;padding:8px 16px;margin:8px 0 12px;direction:ltr}
+.sv1-tr-ok p{margin:0 auto 12px;max-width:52ch;font-size:13.5px;line-height:1.9;color:var(--mut)}
+.sv1-tr-ok small{display:block;font-size:11.5px;color:var(--faint);margin-bottom:12px}
+.sv1-tr-formwrap{margin-top:26px}
+@media(max-width:600px){.sv1-tr-fg{grid-template-columns:1fr}.sv1-tr-form{padding:16px}}
 .sv1-tr-send{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:22px;flex-wrap:wrap}
 .sv1-tr-sendn{font-size:12.5px;color:var(--mut)}
-@media(max-width:600px){.sv1-tr-bar{top:72px}.sv1-tr-grid{grid-template-columns:1fr}.sv1-tr-picks{grid-template-columns:1fr}}
+@media(max-width:600px){.sv1-tr-bar{position:static}.sv1-tr-grid{grid-template-columns:1fr}.sv1-tr-picks{grid-template-columns:1fr}}
 </style>`;
 
   const body = `${sv1.header("/trips", { cta: false })}
@@ -387,12 +457,12 @@ export function buildSimpleTrips(sv1, ctx, data) {
 
   <section class="sv1-sec sv1-hide" id="trPanelInv" style="padding-top:0"><div class="wrap">
     <p class="sv1-lead" style="max-width:70ch;margin:0 auto 24px;text-align:center">${esc(t("invLead"))}</p>
-    <div class="sv1-cfg"><div class="sv1-cfg-main" id="trInvForm"></div>
+    <div class="sv1-cfg"><div class="sv1-cfg-main"><div class="sv1-cfg-main" id="trInvForm"></div><div id="trFormInv"></div></div>
       <aside class="sv1-cfg-side"><div class="sv1-panel sv1-cfg-sum">
         <h4>${esc(t("yourVisit"))}</h4>
         <div id="trInvSum"></div>
         <div class="sv1-cfg-note" id="trInvErr"></div>
-        <button type="button" class="sv1-btn primary" id="trInvGo" style="width:100%;margin-top:12px">${esc(t("sendReq"))}</button>
+        <button type="button" class="sv1-btn primary" id="trInvGo" style="width:100%;margin-top:12px">${esc(t("goForm"))}</button>
         <p class="sv1-cfg-fine">${esc(t("bespokeNote"))}</p>
       </div></aside>
     </div>
@@ -401,11 +471,12 @@ export function buildSimpleTrips(sv1, ctx, data) {
   <section class="sv1-sec sv1-hide" id="trPanelCorp" style="padding-top:0"><div class="wrap">
     <p class="sv1-lead" style="max-width:70ch;margin:0 auto 22px;text-align:center">${esc(t("corpLead"))}</p>
     <div class="sv1-tr-picks" id="trCorpList"></div>
-    <div class="sv1-tr-send"><span id="trCorpN" class="sv1-tr-sendn"></span>
-      <button type="button" class="sv1-btn primary" id="trCorpGo">${esc(t("sendReq"))}</button></div>
+    <div class="sv1-tr-send"><span id="trCorpN" class="sv1-tr-sendn" role="status" aria-live="polite"></span></div>
+    <div class="sv1-tr-formwrap" id="trFormCorp"></div>
   </div></section>
 
   <div id="trPanelTour">
+  <div class="sv1-tr-browse">
   <div class="sv1-tr-bar"><div class="wrap">
     <input class="sv1-tr-q" id="trQ" placeholder="${esc(t("search"))}" aria-label="${esc(t("search"))}">
     <div class="sv1-tr-rows">
@@ -421,10 +492,15 @@ export function buildSimpleTrips(sv1, ctx, data) {
   <section class="sv1-sec" style="padding-top:0"><div class="wrap">
     <div class="sv1-tr-grid" id="trGrid"></div>
     <div class="sv1-tr-empty sv1-hide" id="trEmpty">${esc(t("none"))}</div>
-    <div class="sv1-tr-custom">
+  </div></section>
+  </div>
+
+  <section class="sv1-sec" style="padding-top:0"><div class="wrap">
+    <div class="sv1-tr-custom" id="trCustom">
       <p>${esc(t("custom"))}</p>
-      <a class="sv1-btn primary" href="${pre}/#advisor">${esc(t("customB"))}</a>
+      <button type="button" class="sv1-btn primary" id="trCustomGo">${esc(t("customB"))}</button>
     </div>
+    <div class="sv1-tr-formwrap" id="trFormTour"></div>
     <p class="sv1-tr-note">${esc(t("note"))}</p>
   </div></section>
   </div>
@@ -444,7 +520,16 @@ export function buildSimpleTrips(sv1, ctx, data) {
     inclVat: t("inclVat"), details: t("details"),
     lineInv: t("lineInv"), lineCorp: t("lineCorp"), pickMore: t("pickMore"),
     pickedN: t("pickedN"), needPick: t("needPick"),
-    yourVisit: t("yourVisit"), visitDate: t("visitDate"), reqMiss: t("reqMiss"),
+    yourVisit: t("yourVisit"), visitDate: t("visitDate"), reqMiss: t("reqMiss"), sep: t("sep"),
+    fTitleCorp: t("fTitleCorp"), fTitleInv: t("fTitleInv"), fTitleTour: t("fTitleTour"), fLead: t("fLead"),
+    fName: t("fName"), fCompany: t("fCompany"), fCompanyOpt: t("fCompanyOpt"), fPhone: t("fPhone"), fEmail: t("fEmail"),
+    fCountry: t("fCountry"), fCity: t("fCity"), fPeople: t("fPeople"), fDate: t("fDate"), fBudget: t("fBudget"),
+    fNotes: t("fNotes"), fDest: t("fDest"), fConsent1: t("fConsent1"), fPrivacy: t("fPrivacy"), fConsent2: t("fConsent2"),
+    fSend: t("fSend"), fSending: t("fSending"), eName: t("eName"), ePhone: t("ePhone"), eEmail: t("eEmail"),
+    eCountry: t("eCountry"), eCompany: t("eCompany"), ePeople: t("ePeople"), eDate: t("eDate"), eBudget: t("eBudget"),
+    eConsent: t("eConsent"), eFix: t("eFix"), eNet: t("eNet"), eRate: t("eRate"), okTitle: t("okTitle"), okRef: t("okRef"),
+    okBody: t("okBody"), okPreview: t("okPreview"), okAgain: t("okAgain"), stillNeeded: t("stillNeeded"), fDays: t("fDays"),
+    lineTour: t("lineTour"),
   };
 
   const script = `<script>
@@ -566,14 +651,6 @@ function pickList(host,key,countEl){
   lab.appendChild(cb);lab.appendChild(tx);el.appendChild(lab)});
  $(countEl).textContent=TX.pickMore}
 
-// البنود بلا أسعار، فلا تدخل السلة: تُسلَّم للمستشار نطاقاً مبدئياً فيبني
-// عليه الطلب ويصدر عرضاً مخصّصاً — نفس المسار، بلا سعرٍ مخترع.
-function sendPicks(key,countEl,label){
- if(!picked[key].length){$(countEl).textContent=TX.needPick;return}
- try{sessionStorage.setItem('sv1_handoff',JSON.stringify({
-   ctx:'consulting',name:label,platform:'محفول مكفول',
-   items:picked[key].map(function(x){return {title:x,why:label}})}))}catch(e){}
- location.href=HOME+'#advisor'}
 
 var lines={inv:$('trPanelInv'),tour:$('trPanelTour'),corp:$('trPanelCorp')};
 Array.prototype.forEach.call(document.querySelectorAll('#trLines .sv1-tab'),function(b){
@@ -584,7 +661,7 @@ Array.prototype.forEach.call(document.querySelectorAll('#trLines .sv1-tab'),func
   try{history.replaceState(null,'','?line='+k)}catch(e){}}});
 // ---- مُهيّئ زيارة المستثمر
 var FORM=${JSON.stringify(INV_FORM.map((f) => trField(lang(), f)))},NUMS=${JSON.stringify(INV_NUM.map((f) => trField(lang(), f)))};
-var cfg={};NUMS.forEach(function(n){cfg[n.k]=n.def});cfg.date='';
+var cfg={};NUMS.forEach(function(n){cfg[n.k]=n.def});
 function visible(f){if(!f.dep)return true;return (cfg[f.dep[0]]||'')===f.dep[1]}
 function drawInv(){
  var host=$('trInvForm');host.innerHTML='';
@@ -620,12 +697,6 @@ function drawInv(){
   mi.onclick=function(){if(cfg[n.k]>n.min){cfg[n.k]--;v.textContent=String(cfg[n.k]);drawInvSum()}};
   pl.onclick=function(){if(cfg[n.k]<n.max){cfg[n.k]++;v.textContent=String(cfg[n.k]);drawInvSum()}};
   st.appendChild(mi);st.appendChild(v);st.appendChild(pl);w.appendChild(st);nums.appendChild(w)});
- var dw=document.createElement('div');dw.className='sv1-cfg-date';
- var dl=document.createElement('label');dl.textContent=TX.visitDate;dw.appendChild(dl);
- var di=document.createElement('input');di.type='date';di.value=cfg.date||'';
- di.min=new Date(Date.now()+864e5).toISOString().slice(0,10);
- di.onchange=function(){cfg.date=di.value;drawInvSum()};
- dw.appendChild(di);nums.appendChild(dw);
  g2.appendChild(nums);host.appendChild(g2)}
 
 function invPairs(){
@@ -636,7 +707,6 @@ function invPairs(){
   if(f.multi){if(v&&v.length)out.push([f.t,v.join('\u060C ')])}
   else if(v)out.push([f.t,v])});
  NUMS.forEach(function(n){out.push([n.t,String(cfg[n.k])])});
- if(cfg.date)out.push([TX.visitDate,cfg.date]);
  return out}
 
 function invMissing(){
@@ -656,17 +726,146 @@ function drawInvSum(){
  var miss=invMissing();
  $('trInvErr').textContent=miss.length?TX.reqMiss+miss.join(TX.sep):''}
 
-$('trInvGo').onclick=function(){
- var miss=invMissing();
- if(miss.length){$('trInvErr').textContent=TX.reqMiss+miss.join(TX.sep);return}
- var p=invPairs();
- try{sessionStorage.setItem('sv1_handoff',JSON.stringify({
-   ctx:'consulting',name:TX.lineInv,platform:'محفول مكفول',
-   items:p.map(function(kv){return {title:kv[0]+': '+kv[1],why:TX.lineInv}})}))}catch(e){}
- location.href=HOME+'#advisor'};
+
+
+// ---- نموذج الطلب: يُرسَل إلى /api/requests?__route=trips-intake (بريدٌ لفريق التصنيف + تسجيلٌ في الطلبات)
+var API='/api/requests?__route=trips-intake',LANGC=${JSON.stringify(lang())},PRIV=${JSON.stringify(pre + "/privacy")};
+var el=function(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e};
+function dg(s){return String(s==null?'':s).replace(/[\\u0660-\\u0669]/g,function(d){return String(d.charCodeAt(0)-1632)}).replace(/[\\u06F0-\\u06F9]/g,function(d){return String(d.charCodeAt(0)-1776)})}
+function squash(s,n){return String(s==null?'':s).replace(/[\\u0000-\\u001f\\u007f\\u200b-\\u200f\\u202a-\\u202e\\u2066-\\u2069]/g,' ').replace(/\\s+/g,' ').trim().slice(0,n)}
+function checkContact(line,v){
+ var e={};
+ if(v.name.length<2||/^[\\d\\s+\\-().]+$/.test(v.name))e.name=TX.eName;
+ var ph=dg(v.phone),d=ph.replace(/\\D/g,'');
+ if(!/^\\+?[0-9\\s\\-().]+$/.test(ph)||d.length<8||d.length>15)e.phone=TX.ePhone;
+ if(!/^[^@\\s]{1,64}@[^@\\s]+\\.[^@\\s]{2,}$/.test(v.email)||v.email.length>160)e.email=TX.eEmail;
+ if(v.country.length<2)e.country=TX.eCountry;
+ if(line==='corp'&&v.company.length<2)e.company=TX.eCompany;
+ var pn=Number(dg(v.people));
+ if(!(Math.floor(pn)===pn)||pn<1||pn>5000)e.people=TX.ePeople;
+ var today=new Date().toISOString().slice(0,10),far=new Date(Date.now()+3*366*864e5).toISOString().slice(0,10);
+ if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(v.date)||v.date<today||v.date>far)e.date=TX.eDate;
+ if(v.budget!==''){var b=Number(dg(v.budget).replace(/[,\\s]/g,''));if(!isFinite(b)||b<0||b>1e9)e.budget=TX.eBudget}
+ if(!v.consent)e.consent=TX.eConsent;
+ return e}
+
+// o: {line,title,companyReq,showCompany,dest,collect()->{selections,details,miss:msg}, focusExtra()}
+function makeForm(host,o){
+ host.innerHTML='';
+ var f=el('form','sv1-tr-form');f.setAttribute('novalidate','');
+ f.appendChild(el('h3','',o.title));f.appendChild(el('p','lead',TX.fLead));
+ var g=el('div','sv1-tr-fg');f.appendChild(g);
+ var ctl={};
+ function field(k,label,opt){
+  opt=opt||{};
+  var w=el('div','sv1-tr-f'+(opt.wide?' wide':''));
+  var l=el('label','',label);var id='trf_'+o.line+'_'+k;l.setAttribute('for',id);
+  if(opt.req){var i=el('i','','*');l.appendChild(i)}
+  var c=opt.area?el('textarea'):el('input');c.id=id;c.name=k;
+  if(!opt.area)c.type=opt.type||'text';
+  if(opt.ac)c.setAttribute('autocomplete',opt.ac);
+  if(opt.dir)c.setAttribute('dir',opt.dir);
+  if(opt.im)c.setAttribute('inputmode',opt.im);
+  if(opt.max)c.setAttribute('maxlength',String(opt.max));
+  if(opt.min!=null)c.setAttribute('min',String(opt.min));
+  if(opt.maxv!=null)c.setAttribute('max',String(opt.maxv));
+  if(opt.req)c.setAttribute('aria-required','true');
+  var er=el('div','err');er.id=id+'_e';er.setAttribute('role','alert');c.setAttribute('aria-describedby',er.id);
+  c.addEventListener('input',function(){w.classList.remove('bad');c.removeAttribute('aria-invalid')});
+  w.appendChild(l);w.appendChild(c);w.appendChild(er);g.appendChild(w);
+  ctl[k]={w:w,c:c,er:er};return c}
+ field('name',TX.fName,{req:1,ac:'name',max:120});
+ if(o.showCompany)field('company',o.companyReq?TX.fCompany:TX.fCompanyOpt,{req:o.companyReq,ac:'organization',max:160});
+ field('phone',TX.fPhone,{req:1,type:'tel',ac:'tel',dir:'ltr',im:'tel',max:30});
+ field('email',TX.fEmail,{req:1,type:'email',ac:'email',dir:'ltr',im:'email',max:160});
+ field('country',TX.fCountry,{req:1,ac:'country-name',max:80});
+ field('city',TX.fCity,{ac:'address-level2',max:80});
+ field('people',TX.fPeople,{req:1,type:'number',im:'numeric',min:1,maxv:5000});
+ var today=new Date().toISOString().slice(0,10);
+ field('date',TX.fDate,{req:1,type:'date',min:today});
+ if(o.dest)field('dest',TX.fDest,{max:140});
+ field('budget',TX.fBudget,{type:'number',im:'numeric',min:0,maxv:1000000000});
+ field('notes',TX.fNotes,{area:1,wide:1,max:1500});
+ var cw=el('div','sv1-tr-f wide consent');
+ var cl=el('label','sv1-tr-consent');
+ var cb=el('input');cb.type='checkbox';cb.id='trf_'+o.line+'_consent';cb.setAttribute('aria-required','true');
+ var tx=el('span');tx.appendChild(document.createTextNode(TX.fConsent1));
+ var a=el('a','',TX.fPrivacy);a.href=PRIV;a.target='_blank';a.rel='noopener';tx.appendChild(a);
+ tx.appendChild(document.createTextNode(TX.fConsent2));
+ cl.appendChild(cb);cl.appendChild(tx);
+ var ce=el('div','err');ce.setAttribute('role','alert');
+ cb.addEventListener('change',function(){cw.classList.remove('bad')});
+ cw.appendChild(cl);cw.appendChild(ce);g.appendChild(cw);ctl.consent={w:cw,c:cb,er:ce};
+ var hp=el('div','sv1-tr-hp');hp.setAttribute('aria-hidden','true');
+ var hi=el('input');hi.type='text';hi.name='website';hi.tabIndex=-1;hi.setAttribute('autocomplete','off');hp.appendChild(hi);f.appendChild(hp);
+ var msg=el('div','sv1-tr-fmsg');msg.setAttribute('role','alert');f.appendChild(msg);
+ var go=el('button','sv1-btn primary',TX.fSend);go.type='submit';f.appendChild(go);
+ host.appendChild(f);
+
+ function val(){return {
+  name:squash(ctl.name.c.value,120),company:ctl.company?squash(ctl.company.c.value,160):'',phone:squash(ctl.phone.c.value,30),
+  email:squash(ctl.email.c.value,160).toLowerCase(),country:squash(ctl.country.c.value,80),city:squash(ctl.city.c.value,80),
+  people:squash(ctl.people.c.value,6),date:squash(ctl.date.c.value,12),budget:squash(ctl.budget.c.value,14),
+  notes:squash(ctl.notes.c.value,1500),consent:!!cb.checked}}
+ function mark(errs){
+  var first=null;
+  Object.keys(ctl).forEach(function(k){
+   var w=ctl[k].w;
+   if(errs[k]){w.classList.add('bad');ctl[k].er.textContent=errs[k];if(k!=='consent')ctl[k].c.setAttribute('aria-invalid','true');if(!first)first=ctl[k].c}
+   else{w.classList.remove('bad');ctl[k].c.removeAttribute('aria-invalid')}});
+  return first}
+ function done(ref,res){
+  var ok=el('div','sv1-tr-ok');ok.setAttribute('role','status');
+  ok.appendChild(el('h3','',TX.okTitle));
+  ok.appendChild(el('div','',TX.okRef));
+  ok.appendChild(el('div','ref',ref));
+  ok.appendChild(el('p','',TX.okBody));
+  if(res&&res.mode&&res.mode!=='live')ok.appendChild(el('small','',TX.okPreview));
+  var again=el('button','sv1-btn',TX.okAgain);again.type='button';
+  again.onclick=function(){makeForm(host,o)};ok.appendChild(again);
+  host.innerHTML='';host.appendChild(ok);
+  try{ok.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}}
+ f.addEventListener('submit',function(ev){
+  ev.preventDefault();
+  var v=val(),errs=checkContact(o.line,v),x=o.collect();
+  var extra=x.miss||'';
+  var first=mark(errs);
+  if(first||extra){msg.textContent=extra||TX.eFix;if(extra&&o.focusExtra)o.focusExtra();else if(first)first.focus();return}
+  msg.textContent='';go.disabled=true;go.textContent=TX.fSending;
+  var dt=x.details.slice();
+  if(o.dest&&squash(ctl.dest.c.value,140))dt.push([TX.fDest.replace(/\\s*[(\\uFF08].*$/,''),squash(ctl.dest.c.value,140)]);
+  var body={line:o.line,lang:LANGC,name:v.name,company:v.company,phone:v.phone,email:v.email,country:v.country,city:v.city,
+   people:Number(dg(v.people)),date:v.date,budget:v.budget===''?'':dg(v.budget).replace(/[,\\s]/g,''),notes:v.notes,
+   selections:x.selections,details:dt,consent:true,website:hi.value};
+  fetch(API,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})
+   .then(function(r){return r.json().catch(function(){return {}}).then(function(j){return {s:r.status,j:j||{}}})})
+   .then(function(r){
+    if(r.s===200&&r.j.ok&&r.j.ref){done(r.j.ref,r.j);return}
+    go.disabled=false;go.textContent=TX.fSend;
+    if(r.s===400&&r.j.fields){
+     var map={name:TX.eName,phone:TX.ePhone,email:TX.eEmail,country:TX.eCountry,company:TX.eCompany,people:TX.ePeople,date:TX.eDate,budget:TX.eBudget,consent:TX.eConsent},m={};
+     Object.keys(r.j.fields).forEach(function(k){if(map[k])m[k]=map[k]});
+     var fc=mark(m);msg.textContent=TX.eFix;if(fc)fc.focus();return}
+    msg.textContent=r.s===429?TX.eRate:TX.eNet})
+   .catch(function(){go.disabled=false;go.textContent=TX.fSend;msg.textContent=TX.eNet})});
+ return {form:f,clearMsg:function(){msg.textContent=''},focus:function(){f.scrollIntoView({behavior:'smooth',block:'start'})}}}
 
 pickList('trCorpList','corp','trCorpN');
-$('trCorpGo').onclick=function(){sendPicks('corp','trCorpN',TX.lineCorp)};
+var corpForm=makeForm($('trFormCorp'),{line:'corp',title:TX.fTitleCorp,showCompany:true,companyReq:true,
+ collect:function(){return {selections:picked.corp.slice(),details:[],miss:picked.corp.length?'':TX.needPick}},
+ focusExtra:function(){$('trCorpList').scrollIntoView({behavior:'smooth',block:'center'})}});
+$('trCorpList').addEventListener('change',function(){corpForm.clearMsg()});
+var tourForm=makeForm($('trFormTour'),{line:'tour',title:TX.fTitleTour,showCompany:true,companyReq:false,dest:true,
+ collect:function(){return {selections:[],details:[]}}});
+var invForm=makeForm($('trFormInv'),{line:'inv',title:TX.fTitleInv,showCompany:true,companyReq:false,
+ collect:function(){var m=invMissing();return {selections:[],details:invPairs(),miss:m.length?TX.reqMiss+m.join(TX.sep):''}},
+ focusExtra:function(){$('trInvForm').scrollIntoView({behavior:'smooth',block:'start'})}});
+$('trInvGo').onclick=function(){
+ var m=invMissing();
+ if(m.length){$('trInvErr').textContent=TX.reqMiss+m.join(TX.sep);$('trInvForm').scrollIntoView({behavior:'smooth',block:'start'});return}
+ invForm.focus()};
+$('trCustomGo').onclick=function(){tourForm.focus()};
+
 drawInv();drawInvSum();
 (function(){try{var k=new URL(location.href).searchParams.get('line');
  if(k&&lines[k]){var b=document.querySelector('#trLines [data-line="'+k+'"]');if(b)b.click()}}catch(e){}})();
