@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh" dir="ltr" data-prices="off">
+<html data-sv1-test="测试模式 — 无真实付款，不向客户发送消息" lang="zh" dir="ltr" data-prices="off">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>合作伙伴仪表板 — Business Partner</title>
-<meta name="description" content="Partners portal: the services you can execute, the work orders assigned to you, and your invoices.">
+<meta name="description" content="Sign in or register as a Business Partner partner: work orders, your services and prices, your share of every catalogue service, and your wallet.">
 <meta property="og:title" content="合作伙伴仪表板 — Business Partner">
-<meta property="og:description" content="Partners portal: the services you can execute, the work orders assigned to you, and your invoices.">
+<meta property="og:description" content="Sign in or register as a Business Partner partner: work orders, your services and prices, your share of every catalogue service, and your wallet.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="zh_CN">
@@ -36,8 +36,12 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
 <script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
 <style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
-<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
-<style id="sv1-chrome-css">
+<style id="sv1-css">
+/* اتجاه «مختبر» بألوان الهوية (قرار المالك 2026-09-05): بنية «مختبر» —
+   أرضية بيضاء، شبكة ١px، حروفٌ أحادية للأرقام وحدها، عناوين خفيفة الوزن —
+   لكن اللون كحلي العلامة #0B1B5A لا الأسود ولا البنفسجي. الأسطح الداكنة
+   (شريط الحالة، الفوتر، جانب لوحة العمليات) كحليٌّ عميق #081345.
+   الرماديات مائلةٌ إلى الكحلي لا محايدة، فتقرأ كأنها من العلامة. */
 .sv1{--n:#0B1B5A;--ac:#0B1B5A;--ac2:#16307F;--acSoft:#EEF2FB;--acLine:#C3CDE6;
  --n2:#081345;--g:#F5F7FB;--l:#E5E9F0;--line:#E5E9F0;--line2:#EBEFF7;
  --t:#232A3D;--ink:#0B1B5A;--s:#5A6478;--mut:#5A6478;--faint:#8D97AE;--soft:#F5F7FB;
@@ -88,10 +92,141 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-lang .menu a.on{background:var(--g);font-weight:700}
 .sv1-burger{display:none;border:1px solid var(--l);background:#fff;border-radius:10px;width:40px;height:40px;align-items:center;justify-content:center;cursor:pointer;font-size:18px}
 .sv1 h1,.sv1 h2,.sv1 h3{color:var(--ink);margin-top:0;letter-spacing:-.025em;text-wrap:balance}
-.sv1 h1{font-weight:200}
-.sv1 h2{font-weight:300}
+.sv1 h1{font-weight:200}.sv1 h2{font-weight:300}
+.sv1-hero{background:#fff;padding:78px 0;position:relative;overflow:hidden;border-bottom:1px solid var(--l)}
+.sv1-hero::before{content:"";position:absolute;inset:0;pointer-events:none;
+ background-image:linear-gradient(var(--line2) 1px,transparent 1px),linear-gradient(90deg,var(--line2) 1px,transparent 1px);
+ background-size:56px 56px;
+ -webkit-mask-image:radial-gradient(120% 90% at 78% 0%,#000 0%,transparent 72%);
+ mask-image:radial-gradient(120% 90% at 78% 0%,#000 0%,transparent 72%)}
+.sv1-hero::after{content:"";position:absolute;inset-inline-end:-6%;top:-46%;width:760px;height:760px;pointer-events:none;
+ background:radial-gradient(circle,rgba(11,27,90,.13) 0%,rgba(11,27,90,.04) 38%,transparent 66%)}
+.sv1-hero .wrap{position:relative;z-index:1}
+.sv1-hero .grid{display:grid;grid-template-columns:1fr 1fr;gap:42px;align-items:center}
+.sv1-tag{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--l);color:var(--mut);padding:6px 13px;border-radius:999px;font-size:11.5px;font-weight:400;box-shadow:var(--sh)}
+.sv1-tag::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ok);flex:none}
+.sv1-hero h1{font-size:clamp(36px,5.2vw,64px);line-height:1.13;margin:18px 0 18px;letter-spacing:-.035em;font-weight:200}
+.sv1-hero h1 b,.sv1-hero h1 strong{font-weight:500}
+.sv1-lead{font-size:16.5px;font-weight:300;line-height:1.95;color:var(--mut);margin:0;max-width:46ch}
+.sv1-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.sv1-trust{display:flex;gap:8px 18px;flex-wrap:wrap;margin:18px 0 0;padding:0;list-style:none;font-size:12.5px;color:#667085}
+.sv1-trust li::before{content:"✓";color:var(--ok);font-weight:700;margin-inline-end:6px}
+.sv1-three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sv1-three .sv1-panel{padding:20px}
+.sv1-three h4{font-size:15px;margin:0 0 6px}
+.sv1-three p{margin:0;font-size:13px;line-height:1.7}
+.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-doors>:last-child:nth-child(odd){grid-column:1/-1}
+a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
+.sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+.sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
+.sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
+.sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
+.sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
+.sv1-door h3{font-size:18px;margin:13px 0 5px}
+.sv1-door p{font-size:12.5px;color:var(--s);margin:0 0 10px;line-height:1.65}
+.sv1-door span{font-size:12px;color:var(--ac);font-weight:500}
+.sv1-sec{padding:64px 0}
+.sv1-gray{background:var(--g)}
+.sv1-title{text-align:center;max-width:720px;margin:0 auto 30px}
+.sv1-title h2{font-size:clamp(25px,3.4vw,38px);margin-bottom:10px;font-weight:200}
+.sv1-title p{color:var(--mut);margin:0;font-weight:300;line-height:1.9}
+.sv1-app{border:1px solid var(--l);border-radius:15px;overflow:hidden;box-shadow:var(--sh2);background:#fff}
+.sv1-appbar{min-height:56px;border-bottom:1px solid var(--l);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sv1-appbar b{color:var(--ink)}
+.sv1-steps{display:flex;gap:5px;flex-wrap:wrap}
+.sv1-steps span{font-size:10.5px;padding:5px 9px;background:#f1f2f5;border-radius:999px;color:var(--mut);font-weight:500;white-space:nowrap}
+.sv1-steps .active{background:var(--ac);color:#fff}
+.sv1-appgrid{display:grid;grid-template-columns:1.05fr .95fr;min-height:540px}
+.sv1-chat{display:flex;flex-direction:column;border-inline-end:1px solid var(--l)}
+.sv1-chathead{padding:16px;border-bottom:1px solid var(--l)}
+.sv1-chathead h3{font-size:18px;margin:0 0 1px}
+.sv1-chathead p{font-size:11.5px;color:#777;margin:0}
+.sv1-msgs{padding:16px;background:#fbfcfe;flex:1;overflow:auto;max-height:420px}
+.sv1-msg{max-width:85%;padding:10px 13px;border-radius:13px;font-size:13px;margin-bottom:9px;white-space:pre-wrap;line-height:1.75}
+.sv1-msg.a{background:#fff;border:1px solid var(--l)}
+.sv1-msg.u{background:var(--ac);color:#fff;margin-inline-start:auto}
+.sv1-msg.s{background:#fff3e6;color:#8a4b00;font-size:12px;text-align:center;max-width:100%}
+.sv1-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sv1-chips button{border:1px solid var(--l);background:#fff;border-radius:999px;padding:7px 12px;font-size:11.5px;cursor:pointer;font-family:inherit;color:var(--mut)}
+.sv1-chips button:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-compose{border-top:1px solid var(--l);padding:10px;display:flex;gap:6px}
+.sv1-composehint{margin:0;padding:0 12px 11px;font-size:11.5px;color:var(--faint);line-height:1.6}
+.sv1-compose textarea{height:46px;resize:none;flex:1;border:1px solid var(--l);border-radius:11px;padding:10px;font:inherit;font-size:13px;outline:none}
+.sv1-compose textarea:focus{border-color:var(--ac)}
+.sv1-compose .send{width:46px;border:0;border-radius:9px;background:var(--ac);color:#fff;font-size:17px;cursor:pointer}
+.sv1-mic{width:46px;flex:none;border:1px solid var(--l);border-radius:9px;background:#fff;color:var(--ink);cursor:pointer;display:grid;place-items:center;font-family:inherit;transition:.15s}
+.sv1-mic:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-mic[disabled]{opacity:.5;cursor:default}
+.sv1-mic.rec{background:#b42318;border-color:#b42318;color:#fff;animation:sv1mic 1.4s ease-in-out infinite}
+@keyframes sv1mic{50%{box-shadow:0 0 0 6px rgba(180,35,24,.16)}}
+.sv1-mic.busy{opacity:.6;cursor:default}
+.sv1-voice{display:none;align-items:center;gap:9px;padding:7px 11px;margin:0 10px 8px;border:1px solid var(--l);border-radius:9px;background:var(--soft);font-size:11.5px;color:var(--mut)}
+.sv1-voice.on{display:flex}
+.sv1-voice.err{border-color:#f0c8c4;background:#fdf3f2;color:#b42318}
+.sv1-voice .dot{width:7px;height:7px;border-radius:50%;background:#b42318;flex:none;animation:sv1mic 1.4s ease-in-out infinite}
+.sv1-voice .t{font-family:var(--fm);margin-inline-start:auto;font-size:11px;color:var(--faint)}
+.sv1-scope{padding:19px;display:flex;flex-direction:column}
+.sv1-scope h3{font-size:19px;margin:9px 0 2px}
+.sv1-scope>p{font-size:11.5px;color:#777;margin:0 0 12px}
+.sv1-item{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--l);border-radius:11px;padding:10px;margin-bottom:7px}
+.sv1-item b{font-size:12.5px;display:block;color:#32394a;outline:none;font-weight:600}
+.sv1-item b:focus{background:#fffbe6;border-radius:4px}
+.sv1-item small{font-size:10.5px;color:#888;display:block;margin-top:2px}
+.sv1-item .del{border:0;width:27px;height:27px;border-radius:7px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:14px}
+.sv1-addrow{display:flex;gap:6px;margin-top:2px}
+.sv1-addrow input{flex:1;border:1px solid var(--l);border-radius:9px;padding:9px;font:inherit;font-size:12.5px;outline:none}
+.sv1-docs{margin-top:16px;padding-top:14px;border-top:1px dashed #cfd6e6}
+.sv1-docs h4{margin:0 0 2px;color:var(--ink);font-size:15px}
+.sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#777}
+.sv1-doc{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.sv1-doc span{font-size:12.5px;color:#32394a;display:flex;gap:7px;align-items:center}
+.sv1-doc span::before{content:"📄";font-size:13px}
+.sv1-doc .del{border:0;width:24px;height:24px;border-radius:6px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:13px}
+.sv1-docs .empty{font-size:11.5px;color:#9aa0b0;padding:6px 2px;margin-bottom:6px}
+.sv1-summary{background:var(--acSoft);border:1px solid var(--acLine);border-radius:10px;padding:11px 13px;margin:14px 0;font-size:12px}
+.sv1-summary div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sv1-summary strong{font-size:16px;color:var(--ac)}
+.sv1-login{border-top:1px solid var(--l);padding:16px 19px;background:#fff}
+.sv1-login h4{margin:0 0 4px;color:var(--ink);font-size:15px}
+.sv1-login p{margin:0 0 10px;color:#777;font-size:12px}
+.sv1-login .g{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sv1-login input{border:1px solid var(--l);border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;width:100%;outline:none}
+.sv1-login .full{grid-column:1/-1}
+.sv1-err{color:#b42318;font-size:12px;margin-top:6px}
+.sv1-ok{color:var(--ok);font-weight:700;font-size:13px;margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sv1-flow{display:grid;grid-template-columns:repeat(6,1fr);gap:9px}
+.sv1-flow div{background:#fff;border:1px solid var(--l);border-radius:11px;padding:16px;text-align:center}
+.sv1-flow i{font-style:normal;font-family:var(--fm);width:34px;height:34px;background:var(--acSoft);color:var(--ac);border-radius:9px;display:grid;place-items:center;margin:0 auto 9px;font-weight:500;font-size:12px}
+.sv1-flow b{display:block;font-size:12.5px;color:var(--ink);font-weight:500}
+.sv1-flow small{font-size:10px;color:#888}
+.sv1-tabs{text-align:center;margin-bottom:15px;display:flex;gap:8px;justify-content:center}
+.sv1-tab{border:1px solid var(--l);background:#fff;border-radius:9px;padding:9px 17px;font-weight:500;color:var(--mut);cursor:pointer;font-family:inherit;font-size:13px}
+.sv1-tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-cart{display:inline-flex;align-items:center;gap:6px}
 .sv1-cart b{background:var(--ac);color:#fff;border-radius:99px;min-width:18px;height:18px;display:inline-grid;place-items:center;font-size:11px;font-weight:600;padding:0 5px}
+.sv1-portal{border:1px solid var(--l);border-radius:15px;overflow:hidden;box-shadow:var(--sh2);background:#fff}
+.sv1-pgrid{display:grid;grid-template-columns:205px 1fr;min-height:430px}
+.sv1-side{background:var(--n2);color:#dce3fa;padding:17px}
+.sv1-side strong{color:#fff;display:block;font-size:14px}
+.sv1-side small{display:block;font-size:9px;opacity:.6;letter-spacing:.12em;margin-bottom:10px}
+.sv1-mi{padding:8px 10px;border-radius:8px;font-size:11.5px;margin:3px 0}
+.sv1-mi.on{background:#fff;color:var(--ink);font-weight:500}
+.sv1-pmain{padding:22px;background:#fbfcfe}
+.sv1-pmain h3{font-size:21px;margin:0 0 2px}
+.sv1-muted{color:#777;font-size:11.5px}
+.sv1-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:15px 0}
+.sv1-stat,.sv1-panel{background:#fff;border:1px solid var(--l);border-radius:11px;padding:14px}
+.sv1-stat span{font-size:9.5px;color:#777;display:block}
+.sv1-stat b{font-size:21px;color:var(--ink);font-family:var(--fm);font-weight:500}
+.sv1-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-panel h4{color:var(--ink);margin:0 0 8px;font-size:13px;font-weight:500}
+.sv1-prow{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #eee;font-size:11px}
+.sv1-prow:last-child{border-bottom:0}
+.sv1-status{font-size:9.5px;border-radius:999px;padding:3px 9px;background:var(--acSoft);color:var(--ac);white-space:nowrap}
+.sv1-status.done{background:var(--okSoft);color:var(--ok)}
+.sv1-pnote{text-align:center;color:#8b90a0;font-size:11px;margin-top:12px}
 .sv1-foot{margin-top:auto;padding:38px 0 22px;background:var(--n2);color:#ccd4ed;font-size:12px}
 .sv1-foot b{color:#fff}
 .sv1-foot a{color:#fff;text-decoration:underline;text-underline-offset:2px}
@@ -113,6 +248,8 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-foot-row bdi{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:#fff}
 .sv1-foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
 .sv1-foot-end{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
+/* روابط الصفحات التي لا تظهر في الترويسة: فاصلٌ خفيف ثم ثلاثة أعمدة صغيرة.
+   حجمها أصغر من باقي الفوتر عمداً — هي مسلكٌ لمن يبحث، لا دعوةٌ للضغط. */
 .sv1-foot-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 34px;
  margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1)}
 .sv1-foot-navcol{display:flex;flex-direction:column;gap:7px;min-width:0}
@@ -123,24 +260,136 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-foot-navcol a:hover{color:#fff}
 @media(max-width:900px){.sv1-foot-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}
-.sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
+ .sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
 .sv1-wa-fab{position:fixed;inset-inline-start:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
-@media(max-width:900px){.sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
-.sv1-nav.open{display:flex}
-.sv1-burger{display:flex}
-.sv1-hdr .right .sv1-btn:not(.primary):not(#sv1OutBtn):not(#sv1SiteBtn){display:none}
-.sv1-hdr .right #sv1SiteBtn{display:none}}
-/* الفرق الوحيد عن صفحات SV1: هناك «.sv1» غلافُ الصفحة كلها، وهنا غلافُ
-   الترويسة وحدها. «display:contents» يلغي صندوقه فيبقى «sticky» مسنداً إلى
-   الصفحة، وتبقى المتغيّرات و«.sv1 .wrap» نافذةً في الداخل. */
-.sv1.sv1-chrome{display:contents}
-@media print{.sv1-bar,.sv1-hdr,.sv1-wa-fab{display:none!important}}
-/* وضع التضمين (?embed=1) كان يخفي .site-header و.wa-fab؛ لم يعودا موجودين. */
-html.bp-embed .sv1-bar,html.bp-embed .sv1-hdr,html.bp-embed .sv1-wa-fab{display:none!important}
-</style>
+@media(max-width:900px){
+ .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
+ .sv1-nav.open{display:flex}
+ .sv1-burger{display:flex}
+ .sv1-hdr .right .sv1-btn:not(.primary):not(#sv1OutBtn):not(#sv1SiteBtn){display:none}
+ .sv1-hdr .right #sv1SiteBtn{display:none}
+ .sv1-hero .grid,.sv1-appgrid,.sv1-pgrid,.sv1-cols{grid-template-columns:1fr}
+ .sv1-chat{border-inline-end:0;border-bottom:1px solid var(--l)}
+ .sv1-flow{grid-template-columns:repeat(3,1fr)}
+ .sv1-three{grid-template-columns:1fr}
+ .sv1-side{display:none}
+ .sv1-stats{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
+ .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+</style><meta name="robots" content="noindex, nofollow"><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
-<body><div class="sv1 sv1-chrome"><div class="sv1-bar"><div class="wrap">
+<body class="sv1-page"><div class="sv1"><style id="sv1-prt-css">
+.sv1-prt-hero{padding:48px 0 26px;text-align:center}
+.sv1-prt-hero h1{font-size:clamp(26px,4vw,40px);margin:14px 0 10px}
+.sv1-prt-hero .lead{max-width:700px;margin:0 auto;color:var(--mut);line-height:1.95}
+.sv1-prt-acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:22px 0 0}
+.sv1-prt-trust{list-style:none;margin:20px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px 26px;justify-content:center}
+.sv1-prt-trust li{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--mut)}
+.sv1-prt-trust li::before,.sv1-prt-list li::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ok);flex:none}
+.sv1-prt-h{max-width:760px;margin:0 auto 22px;text-align:center}
+.sv1-prt-h h2{font-size:clamp(20px,2.6vw,26px);margin:0 0 6px}
+.sv1-prt-h p{margin:0;color:var(--mut);font-size:14px;line-height:1.85}
+.sv1-prt-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;padding:0;margin:0;list-style:none}
+.sv1-prt-step{display:flex;flex-direction:column;gap:8px;background:#fff;border:1px solid var(--l);border-radius:14px;box-shadow:var(--sh);padding:20px}
+.sv1-prt-n{width:34px;height:34px;border-radius:50%;background:var(--ac);color:#fff;display:grid;place-items:center;font-size:15px;font-weight:500;flex:none}
+.sv1-prt-step h3{margin:2px 0 0;font-size:15.5px;font-weight:500}
+.sv1-prt-step p{margin:0;font-size:13px;color:var(--mut);line-height:1.85}
+.sv1-prt-panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.sv1-prt-panel{background:#fff;border:1px solid var(--l);border-radius:14px;box-shadow:var(--sh);padding:22px 24px}
+.sv1-prt-panel h3{margin:0 0 6px;font-size:16.5px;font-weight:500}
+.sv1-prt-list{list-style:none;margin:0;padding:0}
+.sv1-prt-list li{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-top:1px solid var(--l);font-size:13.5px;line-height:1.8;color:var(--t)}
+.sv1-prt-list li:first-child{border-top:0}
+.sv1-prt-list li::before{margin-top:9px}
+.sv1-prt-cats{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.sv1-prt-cats li{display:flex;align-items:center;justify-content:center;text-align:center;min-height:44px;padding:6px 12px;background:#fff;border:1px solid var(--acLine);border-radius:999px;font-size:13px;line-height:1.4;color:var(--ink)}
+.sv1-prt-cta{background:var(--n);border-radius:16px;padding:36px 26px;text-align:center;margin-top:34px}
+.sv1-prt-cta h2{margin:0 0 18px;color:#fff;font-size:clamp(19px,2.4vw,24px)}
+.sv1-prt-cta .sv1-prt-acts{margin:0}
+.sv1-prt-cta .sv1-btn:not(.primary){background:transparent;border-color:rgba(255,255,255,.5);color:#fff}
+.sv1-prt-cta .sv1-btn:not(.primary):hover{border-color:#fff}
+.sv1-prt-cta .sv1-btn.primary{background:#fff;border-color:#fff;color:var(--n);box-shadow:none}
+.sv1-prt-help{margin:18px 0 0;text-align:center;font-size:13px;color:var(--mut)}
+.sv1-prt-help a{color:var(--ac);text-decoration:underline}
+/* سطر وصف الشركة في التذييل: قاعدة p العامة تعطيه رمادياً خافتاً على الكحلي (تباين ~2.4:1)؛ يُصلح في صفحتَي الشركاء وحدهما */
+.sv1-foot-col>p:not(.sv1-foot-note){color:#ccd4ed}
+/* بوابة الشريك */
+.sv1-prt-box{max-width:1000px;margin:0 auto;border:1px solid var(--l);border-radius:15px;padding:24px;box-shadow:var(--sh2);background:#fff}
+.sv1-prt-auth{max-width:520px}
+.sv1-prt-tabs{display:flex;gap:6px;border-bottom:1px solid var(--l);margin:0 0 18px;flex-wrap:wrap}
+.sv1-prt-tabs button{border:0;background:none;font:inherit;font-size:14px;padding:10px 14px;cursor:pointer;color:var(--mut);border-bottom:2px solid transparent;margin-bottom:-1px}
+.sv1-prt-tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--ac)}
+.sv1-prt-form label{display:block;font-size:11.5px;color:var(--mut);margin:0 0 5px}
+.sv1-prt-in{width:100%;border:1px solid var(--l);border-radius:10px;padding:11px 13px;font:inherit;font-size:13.5px;outline:none;background:transparent;color:var(--t)}
+.sv1-prt-in:focus{border-color:var(--ac)}
+.sv1-prt-in[aria-invalid=true]{border-color:var(--warn)}
+textarea.sv1-prt-in{min-height:76px;resize:vertical;line-height:1.7}
+.sv1-prt-f{margin-bottom:13px}
+.sv1-prt-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sv1-prt-cols>*,.sv1-prt-cols3>*{min-width:0}
+.sv1-prt-msg{font-size:12.5px;line-height:1.8;margin-top:10px;min-height:1em}
+.sv1-prt-msg.ok{color:var(--ok)}
+.sv1-prt-note{font-size:11.5px;color:var(--faint);line-height:1.85;margin:12px 0 0}
+.sv1-prt-link{background:none;border:0;padding:0;font:inherit;color:var(--ac);text-decoration:underline;cursor:pointer;font-size:12.5px}
+.sv1-prt-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.sv1-prt-bar h2{margin:0;font-size:19px;font-weight:500}
+.sv1-prt-bar p{margin:2px 0 0;color:var(--mut);font-size:12.5px}
+.sv1-prt-qual{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;list-style:none;padding:0;margin:0 0 6px}
+.sv1-prt-qual li{border:1px solid var(--l);border-radius:11px;padding:11px 13px;font-size:12.5px;color:var(--mut);display:flex;gap:9px;align-items:flex-start;line-height:1.6;background:var(--soft)}
+.sv1-prt-qual li b{display:block;font-weight:500;color:var(--ink);font-size:13px}
+.sv1-prt-qual li i{font-style:normal;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;flex:none;background:#fff;border:1px solid var(--l);color:var(--faint)}
+.sv1-prt-qual li.done{background:var(--okSoft);border-color:transparent}
+.sv1-prt-qual li.done i{background:var(--ok);border-color:var(--ok);color:#fff}
+.sv1-prt-qual li.wait i{border-color:var(--warn);color:var(--warn)}
+.sv1-prt-qualnote{margin:0 0 16px;font-size:12.5px;color:var(--mut);line-height:1.85}
+.sv1-prt-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 14px}
+.sv1-prt-stat{border:1px solid var(--l);border-radius:12px;padding:13px 15px;background:var(--soft)}
+.sv1-prt-stat b{display:block;font-size:22px;font-weight:500;color:var(--ink);line-height:1.3}
+.sv1-prt-stat span{font-size:11.5px;color:var(--mut)}
+.sv1-prt-ref{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--mut);margin:0 0 16px}
+.sv1-prt-ref code{direction:ltr;unicode-bidi:isolate;background:var(--soft);border:1px solid var(--l);padding:3px 9px;border-radius:7px;font-size:12px;overflow-wrap:anywhere}
+.sv1-prt-pane h3{font-size:16.5px;font-weight:500;margin:0 0 6px}
+.sv1-prt-pane>p{margin:0 0 14px;color:var(--mut);font-size:13px;line-height:1.85}
+.sv1-prt-list2{display:grid;gap:11px;padding:0;margin:0;list-style:none}
+.sv1-prt-card{border:1px solid var(--l);border-radius:12px;padding:15px 16px;background:var(--soft)}
+.sv1-prt-card-h{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.sv1-prt-card-h b{font-weight:500;color:var(--ink);font-size:14.5px}
+.sv1-prt-sub{font-size:12px;color:var(--mut);line-height:1.8;overflow-wrap:anywhere}
+.sv1-prt-chip{display:inline-block;border-radius:999px;background:var(--acSoft);color:var(--ac);padding:3px 10px;font-size:11.5px}
+.sv1-prt-chip.ok{background:var(--okSoft);color:var(--ok)}
+.sv1-prt-trail{margin:10px 0 0;padding:9px 12px;border-radius:10px;background:#fff;border:1px solid var(--l)}
+.sv1-prt-trail div{display:flex;gap:8px;font-size:12px;line-height:1.8;color:var(--mut)}
+.sv1-prt-trail div.mine{color:var(--ok);font-weight:500}
+.sv1-prt-trail div span:nth-child(2){flex:1}
+.sv1-prt-frm{border:1px solid var(--acLine);border-radius:11px;padding:14px;margin:12px 0 0;background:#fff}
+.sv1-prt-acts2{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.sv1-prt-line{display:grid;grid-template-columns:2fr 64px 1fr auto;gap:6px;margin-bottom:6px;align-items:center}
+.sv1-prt-row3{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:center}
+.sv1-prt-tbl{overflow-x:auto;border:1px solid var(--l);border-radius:12px}
+.sv1-prt-tbl table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:520px}
+.sv1-prt-tbl th,.sv1-prt-tbl td{padding:9px 12px;text-align:start;border-top:1px solid var(--l);vertical-align:top}
+.sv1-prt-tbl th{background:var(--soft);font-weight:500;color:var(--mut);border-top:0}
+.sv1-prt-tbl td.n{direction:ltr;unicode-bidi:isolate;white-space:nowrap}
+.sv1-prt-tx{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--l);font-size:13px}
+.sv1-prt-tx:first-child{border-top:0}
+.sv1-prt-tx .pos{color:var(--ok)}.sv1-prt-tx .neg{color:#b42318}
+.sv1-prt-sec{margin:0 0 16px;border:1px solid var(--l);border-radius:12px;padding:16px;background:#fff}
+.sv1-prt-sec h4{margin:0 0 6px;font-size:14.5px;font-weight:500}
+@media(max-width:860px){.sv1-prt-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.sv1-prt-panels{grid-template-columns:1fr}}
+@media(max-width:640px){
+ .sv1-prt-cols,.sv1-prt-qual{grid-template-columns:1fr}
+ .sv1-prt-stat{padding:11px 12px}.sv1-prt-stat b{font-size:19px}.sv1-prt-stat span{font-size:11px;line-height:1.5;display:block}
+ .sv1-prt-steps{grid-template-columns:1fr}
+ .sv1-prt-box{padding:18px}
+ .sv1-prt-line{grid-template-columns:1fr 64px 1fr auto}.sv1-prt-line .nm{grid-column:1/-1}
+ .sv1-prt-row3{grid-template-columns:1fr 1fr}.sv1-prt-row3 .nm{grid-column:1/-1}
+ .sv1-prt-acts .sv1-btn{width:100%}
+ .sv1-prt-end{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))!important}
+ .sv1-prt-tabs{overflow-x:auto;flex-wrap:nowrap}.sv1-prt-tabs button{white-space:nowrap}
+}
+</style><div class="sv1-bar"><div class="wrap">
   <div class="sv1-bar-l">
     <span><span class="sv1-pulse"></span><b>所有系统运行正常</b></span>
     <span class="hide-s">利雅得 · 沙特阿拉伯王国</span>
@@ -163,8 +412,9 @@ html.bp-embed .sv1-bar,html.bp-embed .sv1-hdr,html.bp-embed .sv1-wa-fab{display:
     <a class="sv1-btn sm sv1-cart sv1-hide" id="sv1CartBtn" href="/zh/cart" aria-label="购物车">
       <span>购物车</span><b id="sv1CartN">0</b></a>
     <a class="sv1-btn" id="sv1LoginBtn" href="/zh/my">登录</a>
+    <a class="sv1-btn sm sv1-hide" id="sv1SiteBtn" href="/zh/">返回网站</a>
     <button type="button" class="sv1-btn sm sv1-hide" id="sv1OutBtn">退出登录</button>
-    <a class="sv1-btn primary" href="/zh/#advisor">开始申请</a>
+    
   </div>
 </div></header><script>(function(){"use strict";
 var K='bp_session';
@@ -191,242 +441,158 @@ var S=window.SV1S={
   if(sb)sb.classList.toggle('sv1-hide',!(on&&(p.indexOf('/my')>=0||p.indexOf('/ops')>=0)));
  }};
 var h0=hint();if(h0)S.paint(true,h0);
-})();</script><script>(function(){"use strict";
-var $=function(id){return document.getElementById(id)};
-var b=$('sv1Burger'),n=$('sv1Nav');
-if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
-var cb=$('sv1CartBtn'),cn=$('sv1CartN');
-function sync(){var c=[];try{c=JSON.parse(localStorage.getItem('bp_cart'))||[]}catch(e){}
- var k=c.reduce(function(a,i){return a+(Number(i&&i.qty)||1)},0);
- if(cn)cn.textContent=String(k);
- if(cb)cb.classList.toggle('sv1-hide',!k)}
-sync();
-addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);
-document.addEventListener('bp:cart',sync);
-/* main.js يكتب bp_cart ثم يحدّث #cart-badge وحده، ولا يطلق حدثاً. فبعد كل
-   ضغطة على زر شراء في الصفحة القديمة نعيد القراءة — وإلا جمد العدّاد. */
-document.addEventListener('click',function(e){
- if(e.target&&e.target.closest&&e.target.closest('.add-cart,[data-cart],.cart-remove,.cart-qty'))setTimeout(sync,0)},true);
-var ob=$('sv1OutBtn');
-if(ob)ob.onclick=function(){ob.disabled=true;
- fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'})
- .catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.reload()})};
-/* حالة الدخول: الرسم الفوري من التلميح جرى بعد «</header>» مباشرة
-   (SV1_SESSION_JS)، وهذا هو التصحيح من الخادم — والمنطق نفسه حرفاً بحرف في
-   صفحات SV1، من simple-v1.mjs لا من نسخةٍ ثانية تفترق عنها بعد شهر. */
-fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
-.then(function(r){return r.json().catch(function(){return{}})}).then(function(o){
- var S=window.SV1S,u=o&&o.session&&o.session.user;
- if(u){window.SV1_SESSION=o.session;if(S){S.save(u);S.paint(true,{name:u.full_name||'',email:u.email||''})}}
- else if(S){S.clear();S.paint(false,null)}
-}).catch(function(){});
-})();</script></div><main>
-  <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">合作伙伴门户</span>
+})();</script>
+<main>
+  <section class="sv1-prt-hero"><div class="wrap">
+    <span class="sv1-tag">合作伙伴门户</span>
     <h1>合作伙伴仪表板</h1>
-    <p class="lead">Every service you can execute and what it pays you, the work orders assigned to you, and your invoices — one portal.</p>
+    <p class="lead">Your work orders, your services and prices, your share of every catalogue service and your wallet — in one place.</p>
   </div></section>
-  <section class="section"><div class="container" style="max-width:1000px">
 
-    <!-- Sign-in / sign-up gate -->
-    <div id="partner-gate">
-      <div class="dash-card" style="max-width:520px;margin:0 auto">
-        <div class="sup-tabs">
-          <button type="button" class="sup-tab active" data-tab="login">登录</button>
-          <button type="button" class="sup-tab" data-tab="signup">Create an account</button>
-        </div>
-
-        <div id="sup-google-wrap" hidden>
-          <div id="sup-google" style="display:flex;justify-content:center;margin:16px 0"></div>
-          <div class="sup-or"><span>或</span></div>
-        </div>
-
-        <form id="partner-login-form" class="calc-form sup-pane" data-pane="login">
-          <div class="field"><label for="pl-email">邮箱</label><input id="pl-email" type="email" autocomplete="email" required></div>
-          <div class="field"><label for="pl-pw">密码</label><input id="pl-pw" type="password" autocomplete="current-password" required></div>
-          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">登录</button>
-          <p class="emp-note" style="text-align:center;margin-top:10px">忘记密码？
-            <a href="#" id="pl-forgot">Type your email and a new password, then get a code</a></p>
-        </form>
-
-        <form id="partner-signup-form" class="calc-form sup-pane" data-pane="signup" hidden>
-          <div class="grid grid-2" style="gap:0 16px">
-            <div class="field"><label for="ps-company">公司名称 *</label><input id="ps-company" type="text"></div>
-            <div class="field"><label for="ps-person">联系人 *</label><input id="ps-person" type="text"></div>
-            <div class="field"><label for="ps-email">邮箱 *</label><input id="ps-email" type="email" autocomplete="email"></div>
-            <div class="field"><label for="ps-phone">手机号 *</label><input id="ps-phone" type="tel" autocomplete="tel"></div>
-            <div class="field"><label for="ps-pw">Password (8+ characters) *</label><input id="ps-pw" type="password" autocomplete="new-password"></div>
-            <div class="field"><label for="ps-city">城市</label><input id="ps-city" type="text"></div>
-          </div>
-          <div class="field"><label for="ps-cat">服务类别</label><select id="ps-cat"></select></div>
-          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">Create account</button>
-        </form>
-
-        <form id="partner-verify-form" class="calc-form sup-pane" data-pane="verify" hidden>
-          <p class="text-soft" id="sup-verify-note" style="margin-bottom:12px"></p>
-          <div class="field"><label for="pv-code">验证码</label><input id="pv-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000"></div>
-          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">验证并打开门户</button>
-          <button type="button" class="btn btn-ghost btn-sm" id="pv-resend" style="width:100%;margin-top:8px">Resend the code</button>
-        </form>
-
-        <p class="form-error" id="pl-error" hidden></p>
+  <section class="sv1-sec sv1-prt-end" style="padding-top:8px"><div class="wrap">
+    <div class="sv1-prt-box sv1-prt-auth" id="pAuth">
+      <div class="sv1-prt-tabs" role="tablist" id="pAuthTabs">
+        <button type="button" role="tab" id="pTabLogin" aria-selected="true">登录</button>
+        <button type="button" role="tab" id="pTabSignup" aria-selected="false">Create an account</button>
       </div>
+
+      <form class="sv1-prt-form" id="pLogin" novalidate>
+        <div class="sv1-prt-f"><label for="plEmail">E-mail</label><input class="sv1-prt-in" id="plEmail" type="email" maxlength="160" autocomplete="email" dir="ltr"></div>
+        <div class="sv1-prt-f"><label for="plPass">密码</label><input class="sv1-prt-in" id="plPass" type="password" maxlength="200" autocomplete="current-password" dir="ltr"></div>
+        <button type="submit" class="sv1-btn primary" style="width:100%" id="plGo">登录</button>
+        <p class="sv1-prt-note" style="text-align:center">忘记密码？ <button type="button" class="sv1-prt-link" id="plForgot">Type your e-mail and a new password, then get a code</button></p>
+      </form>
+
+      <form class="sv1-prt-form sv1-hide" id="pSignup" novalidate autocomplete="off">
+        <div class="sv1-prt-cols sv1-prt-f">
+          <div><label for="psCompany">公司名称 *</label><input class="sv1-prt-in" id="psCompany" maxlength="200" autocomplete="organization"></div>
+          <div><label for="psPerson">联系人 *</label><input class="sv1-prt-in" id="psPerson" maxlength="160" autocomplete="name"></div>
+        </div>
+        <div class="sv1-prt-cols sv1-prt-f">
+          <div><label for="psEmail">E-mail *</label><input class="sv1-prt-in" id="psEmail" type="email" maxlength="160" autocomplete="email" dir="ltr"></div>
+          <div><label for="psPhone">手机号 *</label><input class="sv1-prt-in" id="psPhone" type="tel" maxlength="40" autocomplete="tel" dir="ltr"></div>
+        </div>
+        <div class="sv1-prt-cols sv1-prt-f">
+          <div><label for="psPass">Password (8+ characters) *</label><input class="sv1-prt-in" id="psPass" type="password" maxlength="200" autocomplete="new-password" dir="ltr"></div>
+          <div><label for="psCity">城市</label><input class="sv1-prt-in" id="psCity" maxlength="80" autocomplete="address-level2"></div>
+        </div>
+        <div class="sv1-prt-f"><label for="psCat">服务类别</label><select class="sv1-prt-in" id="psCat"></select></div>
+        <button type="submit" class="sv1-btn primary" style="width:100%" id="psGo">Create account</button>
+        <p class="sv1-prt-note">Registration is free. After you verify your e-mail your dashboard opens, and our team then approves the account.</p>
+      </form>
+
+      <form class="sv1-prt-form sv1-hide" id="pVerify" novalidate autocomplete="off">
+        <p class="sv1-prt-note" id="pvNote" style="margin:0 0 12px;font-size:13px"></p>
+        <div class="sv1-prt-f"><label for="pvCode">验证码</label><input class="sv1-prt-in" id="pvCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" dir="ltr"></div>
+        <button type="submit" class="sv1-btn primary" style="width:100%" id="pvGo">Verify &amp; open the dashboard</button>
+        <button type="button" class="sv1-btn sm" style="width:100%;margin-top:8px" id="pvResend">Resend the code</button>
+      </form>
+
+      <div class="sv1-prt-msg" id="pAuthMsg" role="status" aria-live="polite"></div>
     </div>
 
-    <!-- Dashboard -->
-    <div id="partner-app" hidden>
-      <div class="dash-stats" style="margin-bottom:20px">
-        <div class="dash-stat"><div class="ds-ico">📦</div><div class="num" id="pt-stat-open">0</div><div class="lbl">Active work orders</div></div>
-        <div class="dash-stat"><div class="ds-ico">✅</div><div class="num" id="pt-stat-done">0</div><div class="lbl">Delivered</div></div>
-        <div class="dash-stat"><div class="ds-ico">🧾</div><div class="num" id="pt-stat-due" style="font-size:1.05rem">0</div><div class="lbl">Awaiting your invoice</div></div>
+    <div class="sv1-prt-box sv1-hide" id="pDash">
+      <div class="sv1-prt-bar">
+        <div><h2 id="pdName">—</h2><p id="pdMeta"></p></div>
+        <button type="button" class="sv1-btn sm" id="pdOut">退出登录</button>
+      </div>
+      <ul class="sv1-prt-qual" id="pdQual"></ul>
+      <p class="sv1-prt-qualnote" id="pdQualNote"></p>
+      <div class="sv1-prt-stats">
+        <div class="sv1-prt-stat"><b id="pdOpen">0</b><span>Active work orders</span></div>
+        <div class="sv1-prt-stat"><b id="pdDone">0</b><span>Delivered</span></div>
+        <div class="sv1-prt-stat"><b id="pdDue">0</b><span>Awaiting your invoice</span></div>
+      </div>
+      <p class="sv1-prt-sub" id="pdRate" style="margin:0 0 8px"></p>
+      <div class="sv1-prt-ref">Your referral link: <code id="pdRef">—</code>
+        <button type="button" class="sv1-btn sm" id="pdRefCopy">复制</button></div>
+
+      <div class="sv1-prt-tabs" role="tablist" id="pdTabs">
+        <button type="button" role="tab" data-tab="orders" aria-selected="true">Your work orders</button>
+        <button type="button" role="tab" data-tab="mine" aria-selected="false">My services &amp; prices</button>
+        <button type="button" role="tab" data-tab="catalog" aria-selected="false">Services &amp; your share</button>
+        <button type="button" role="tab" data-tab="propose" aria-selected="false">Propose a service</button>
+        <button type="button" role="tab" data-tab="wallet" aria-selected="false">我的钱包</button>
       </div>
 
-      <div class="dash-card" style="margin-bottom:18px">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-          <div>
-            <h3 style="margin:0" id="pt-company">—</h3>
-            <p class="text-soft" style="margin:0" id="pt-contact">—</p>
-            <p style="margin:8px 0 0"><span class="pt-share" id="pt-rate">—</span></p>
-            <p style="margin:8px 0 0;font-size:.84rem" class="text-soft">Your referral link:
-              <code id="pt-reflink" style="direction:ltr;display:inline-block;background:#f1f5f9;padding:3px 8px;border-radius:6px">—</code>
-              <button type="button" class="btn btn-ghost btn-sm" id="pt-refcopy">复制</button></p>
-          </div>
-          <button class="btn btn-ghost btn-sm" id="pt-logout">退出登录</button>
-        </div>
+      <div class="sv1-prt-pane" data-pane="orders">
+        <h3>Your work orders</h3>
+        <p>Assigned to you by the Business Partner team. Update the status as you go, and upload your invoice once delivered.</p>
+        <ul class="sv1-prt-list2" id="pdOrders"></ul>
       </div>
 
-      <nav class="pt-tabs" role="tablist" aria-label="Partner sections">
-        <button type="button" role="tab" data-pt-tab="orders" aria-selected="true">📦 Your work orders</button>
-        <button type="button" role="tab" data-pt-tab="mine" aria-selected="false">🧰 My services &amp; prices</button>
-        <button type="button" role="tab" data-pt-tab="catalog" aria-selected="false">🗂️ Services &amp; your share</button>
-        <button type="button" role="tab" data-pt-tab="propose" aria-selected="false">➕ Propose a service</button>
-        <button type="button" role="tab" data-pt-tab="wallet" aria-selected="false">💰 我的钱包</button>
-      </nav>
-
-      <section data-pt-pane="orders">
-        <div class="dash-panel-head"><h2>Your work orders</h2><p>Assigned to you by the Business Partner team. Update the status as you go, and upload your invoice once delivered.</p></div>
-        <div id="pt-feed"><p class="dash-empty">No work orders yet — new assignments appear here and reach you by email.</p></div>
-      </section>
-
-      <section data-pt-pane="mine" hidden>
-        <div class="dash-panel-head"><h2>My services &amp; prices</h2><p>Build each service once with your price and delivery time. Every quote is then assembled by picking from this list — you never retype a price you already decided.</p></div>
-        <div class="dash-card" style="margin-bottom:14px">
-          <p class="text-soft" style="font-size:.86rem;margin:0 0 10px">This is your price list with us — what you charge Business Partner. It is not published on the site; publishing is a separate proposal.</p>
-          <div id="pm-list"></div>
-          <button type="button" class="btn btn-ghost btn-sm" id="pm-add">＋ Add a service</button>
-          <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-            <button type="button" class="btn btn-primary" id="pm-save">Save my list</button>
-            <span id="pm-msg" style="font-size:.88rem"></span>
-          </div>
+      <div class="sv1-prt-pane sv1-hide" data-pane="mine">
+        <h3>My services &amp; prices</h3>
+        <p>Build each service once with your price and delivery time. Every quote is then assembled by picking from this list. This is your price list with us — what you charge Business Partner. It is not published on the site.</p>
+        <div id="pmList"></div>
+        <div class="sv1-prt-acts2">
+          <button type="button" class="sv1-btn sm" id="pmAdd">＋ Add a service</button>
+          <button type="button" class="sv1-btn primary sm" id="pmSave">Save my list</button>
         </div>
-      </section>
+        <div class="sv1-prt-msg" id="pmMsg" role="status" aria-live="polite"></div>
+      </div>
 
-      <section data-pt-pane="catalog" hidden>
-        <div class="dash-panel-head" id="pt-cat-head"><h2>Services you can execute</h2><p>Business Partner's published catalogue. The price is what the client pays before VAT; your share is what reaches you after our commission.</p></div>
-        <div class="calc-form" style="margin-bottom:14px">
-          <div class="grid grid-2" style="gap:0 20px">
-            <div class="field"><label for="pt-cat-search">Search a service</label><input id="pt-cat-search" type="search" placeholder="Service name…"></div>
-            <div class="field"><label for="pt-cat-filter">类别</label><select id="pt-cat-filter"><option value="">全部类别</option></select></div>
-          </div>
+      <div class="sv1-prt-pane sv1-hide" data-pane="catalog">
+        <h3>Services you can execute</h3>
+        <p>Business Partner's published catalogue. The price is what the client pays before VAT; your share is that less our commission.</p>
+        <div class="sv1-prt-cols sv1-prt-f">
+          <div><label for="pcSearch" style="display:block;font-size:11.5px;color:var(--mut);margin:0 0 5px">Search a service</label><input class="sv1-prt-in" id="pcSearch" type="search" maxlength="80"></div>
+          <div><label for="pcCat" style="display:block;font-size:11.5px;color:var(--mut);margin:0 0 5px">类别</label><select class="sv1-prt-in" id="pcCat"><option value="">全部类别</option></select></div>
         </div>
-        <div id="pt-catalog"><p class="dash-empty">Loading the catalogue…</p></div>
-      </section>
+        <div id="pcBox"></div>
+      </div>
 
-      <section data-pt-pane="propose" hidden>
-        <div class="dash-panel-head"><h2>Propose a service we don't offer yet</h2><p>Something you execute that is not in the catalogue. It reaches the team for pricing and review — nothing is published until we approve it.</p></div>
-        <form id="pt-propose-form" class="calc-form">
-          <div class="grid grid-2" style="gap:0 20px">
-            <div class="field"><label for="pp-name">Service name</label><input id="pp-name" type="text" required maxlength="140" placeholder="e.g. Trademark registration"></div>
-            <div class="field"><label for="pp-cat">类别</label><input id="pp-cat" type="text" maxlength="80" placeholder="e.g. Company formation"></div>
-            <div class="field"><label for="pp-price">Your price before VAT (SAR)</label><input id="pp-price" type="number" min="0" step="0.01" required></div>
-            <div class="field"><label for="pp-days">Delivery time</label><input id="pp-days" type="text" maxlength="60" placeholder="e.g. 5 working days"></div>
+      <div class="sv1-prt-pane sv1-hide" data-pane="propose">
+        <h3>Propose a service we don't offer yet</h3>
+        <p>Something you execute that is not in the catalogue. It reaches the team for pricing and review — nothing is published until we agree.</p>
+        <form class="sv1-prt-form" id="ppForm" novalidate>
+          <div class="sv1-prt-cols sv1-prt-f">
+            <div><label for="ppName">Service name</label><input class="sv1-prt-in" id="ppName" maxlength="140"></div>
+            <div><label for="ppCat">类别</label><input class="sv1-prt-in" id="ppCat" maxlength="80"></div>
           </div>
-          <div class="field"><label for="pp-notes">What it covers, and what you need from the client</label><textarea id="pp-notes" rows="4" maxlength="1200" placeholder="Scope, required documents, government fees if any…"></textarea></div>
-          <button type="submit" class="btn btn-primary btn-lg" style="width:100%">Send the proposal</button>
-          <p class="form-success" id="pp-sent" hidden></p>
-          <p class="form-error" id="pp-err" hidden></p>
+          <div class="sv1-prt-cols sv1-prt-f">
+            <div><label for="ppPrice">Your price before VAT (SAR)</label><input class="sv1-prt-in" id="ppPrice" type="number" min="0" step="0.01" dir="ltr"></div>
+            <div><label for="ppDays">Delivery time</label><input class="sv1-prt-in" id="ppDays" maxlength="60"></div>
+          </div>
+          <div class="sv1-prt-f"><label for="ppNotes">What it covers, and what you need from the client</label><textarea class="sv1-prt-in" id="ppNotes" rows="4" maxlength="1200"></textarea></div>
+          <button type="submit" class="sv1-btn primary" id="ppGo">Send the proposal</button>
+          <div class="sv1-prt-msg" id="ppMsg" role="status" aria-live="polite"></div>
         </form>
-      </section>
+      </div>
 
-      <section data-pt-pane="wallet" hidden>
-        <div class="dash-panel-head"><h2>💰 我的钱包</h2><p>Escrow amounts clients are holding for you release here the moment the client approves delivery — then you request a bank withdrawal.</p></div>
-        <div class="dash-stats" style="margin-bottom:16px">
-          <div class="dash-stat"><div class="ds-ico">🔒</div><div class="num" id="pw-held">—</div><div class="lbl">Held in escrow for you (SAR)</div></div>
-          <div class="dash-stat"><div class="ds-ico">✅</div><div class="num" id="pw-balance">—</div><div class="lbl">Available balance (SAR)</div></div>
+      <div class="sv1-prt-pane sv1-hide" data-pane="wallet">
+        <h3>我的钱包</h3>
+        <p>Escrow amounts clients are holding for you release here the moment the client approves delivery — then you request a bank withdrawal.</p>
+        <div class="sv1-prt-stats" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+          <div class="sv1-prt-stat"><b id="pwHeld">—</b><span>Held in escrow for you (SAR)</span></div>
+          <div class="sv1-prt-stat"><b id="pwBal">—</b><span>Available balance (SAR)</span></div>
         </div>
-        <div class="dash-card" style="margin-bottom:14px">
-          <h3 style="margin:0 0 8px">Escrows held for you</h3>
-          <p class="text-soft" style="font-size:.84rem;margin:0 0 10px">The client funded these with Business Partner as the guarantor. Each releases to your balance when the client approves delivery.</p>
-          <div id="pw-escrows"><p class="dash-empty">Sign in to see your escrows.</p></div>
+        <div class="sv1-prt-sec">
+          <h4>Escrows held for you</h4>
+          <p class="sv1-prt-sub" style="margin:0 0 10px">The client funded these with Business Partner as the guarantor. Each releases to your balance when the client approves delivery.</p>
+          <div id="pwEsc"></div>
         </div>
-        <div class="dash-card" style="margin-bottom:14px">
-          <h3 style="margin:0 0 8px">Request a withdrawal</h3>
-          <p class="text-soft" style="font-size:.84rem;margin:0 0 10px">We transfer your available balance to your bank and confirm by email.</p>
-          <form id="pw-withdraw-form" class="calc-form" style="margin:0">
-            <div class="grid grid-2" style="gap:0 20px">
-              <div class="field"><label for="pw-amount">金额（里亚尔）</label><input id="pw-amount" type="number" min="1" step="0.01" required></div>
-              <div class="field"><label for="pw-iban">IBAN</label><input id="pw-iban" type="text" dir="ltr" maxlength="34" placeholder="SA.............................."></div>
+        <div class="sv1-prt-sec">
+          <h4>Request a withdrawal</h4>
+          <p class="sv1-prt-sub" style="margin:0 0 10px">We transfer your available balance to your bank and confirm by e-mail.</p>
+          <form class="sv1-prt-form" id="pwForm" novalidate autocomplete="off">
+            <div class="sv1-prt-cols sv1-prt-f">
+              <div><label for="pwAmount">金额（里亚尔）</label><input class="sv1-prt-in" id="pwAmount" type="number" min="1" step="0.01" dir="ltr"></div>
+              <div><label for="pwIban">IBAN</label><input class="sv1-prt-in" id="pwIban" maxlength="34" dir="ltr" placeholder="SA…"></div>
             </div>
-            <button type="submit" class="btn btn-primary">Request withdrawal</button>
-            <p class="form-success" id="pw-sent" hidden></p>
-            <p class="form-error" id="pw-err" hidden></p>
+            <button type="submit" class="sv1-btn primary" id="pwGo">Request withdrawal</button>
+            <div class="sv1-prt-msg" id="pwMsg" role="status" aria-live="polite"></div>
           </form>
         </div>
-        <div class="dash-card">
-          <h3 style="margin:0 0 8px">Wallet movements</h3>
-          <div id="pw-tx"><p class="dash-empty">—</p></div>
+        <div class="sv1-prt-sec">
+          <h4>Wallet movements</h4>
+          <div id="pwTx"></div>
         </div>
-      </section>
+      </div>
     </div>
   </div></section>
-
-  <!-- Work-order modal -->
-  <div class="empd-modal" id="pt-modal" hidden><div class="empd-modal-in">
-    <button class="empd-modal-x" id="pt-modal-x">✕</button>
-    <h3 id="pt-modal-title">Update work order</h3>
-    <div class="empd-modal-body">
-      <form id="pt-offer-form" class="calc-form">
-        <input type="hidden" id="pt-order-id">
-        <div class="field"><label id="pt-offer-for" style="font-weight:600"></label></div>
-        <div class="field" id="pt-quote-wrap" hidden>
-          <label style="font-weight:600">Your quote</label>
-          <p class="text-soft" style="font-size:.84rem;margin:2px 0 8px">Line items, not one number — the owner sees what the price is made of, and the invoice that follows is these same lines.</p>
-          <div id="pt-lines"></div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0">
-            <select id="pt-pick" style="flex:1;min-width:180px;padding:8px 10px;border:1px solid var(--gray-line);border-radius:8px;font-family:inherit"><option value="">Add from my services…</option></select>
-            <button type="button" class="btn btn-ghost btn-sm" id="pt-line-add">＋ Blank line</button>
-          </div>
-          <div id="pt-lines-total" style="font-weight:700;color:var(--navy);text-align:end;margin:6px 0 12px">—</div>
-          <label for="pt-lead">Proposed lead time</label><input id="pt-lead" type="text" placeholder="e.g. 5 working days">
-          <input id="pt-quote" type="hidden">
-        </div>
-        <div class="field" id="pt-status-wrap"><label for="pt-status">状态</label>
-          <select id="pt-status">
-            <option value="قبله المورّد">I accept this work order</option>
-            <option value="قيد التنفيذ">进行中</option>
-            <option value="تم التسليم">Delivered</option>
-          </select></div>
-        <div class="field" id="pt-inv-wrap"><label for="pt-invoice">Your invoice (PDF or image) — optional</label>
-          <p class="text-soft" style="font-size:.84rem;margin:2px 0 6px" id="pt-inv-hint">Invoice us for the approved quote once you deliver.</p>
-          <input id="pt-invoice" type="file" accept=".pdf,image/*"></div>
-        <div class="field"><label for="pt-progress">Progress update the client sees</label>
-          <input id="pt-progress" type="text" maxlength="400" placeholder="e.g. Name reservation submitted to the Ministry">
-          <p class="text-soft" style="font-size:.82rem;margin:4px 0 0">Dated and added to the client's tracking page. Earlier updates stay.</p>
-        </div>
-        <div class="field"><label for="pt-offer-notes">Internal notes</label><textarea id="pt-offer-notes" rows="3" placeholder="Workflow, delivery details, anything the team should know…"></textarea></div>
-        <div class="field" id="pt-qlink-wrap" hidden>
-          <label>Client link for this quote</label>
-          <p class="text-soft" style="font-size:.82rem;margin:2px 0 6px">Send it to the client. They open it without an account, review the quote and accept it — and both of us are told.</p>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <input id="pt-qlink" type="text" readonly dir="ltr" style="flex:1;min-width:200px">
-            <button type="button" class="btn btn-ghost btn-sm" id="pt-qlink-copy">复制</button>
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary btn-lg" style="width:100%">Save update</button>
-        <div class="form-success" id="pt-offer-sent" hidden></div>
-      </form>
-    </div>
-  </div></div></main><div class="sv1 sv1-chrome"><footer class="sv1-foot"><div class="wrap">
+</main>
+<footer class="sv1-foot"><div class="wrap">
   <div class="sv1-foot-grid">
     <div class="sv1-foot-col">
       <b class="sv1-foot-brand">Business Partner</b>
@@ -485,7 +651,540 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
   </div>
   <div class="sv1-foot-end">© 2026 Business Partner · 版权所有</div>
 </div></footer>
-<a class="sv1-wa-fab" href="https://wa.me/966530540231" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></div><script src="/assets/js/main.js?v=ed369abdab"></script><script src="/assets/js/live-prices.js?v=3b0920ab7a" defer></script><script src="https://accounts.google.com/gsi/client" async defer></script><script>window.BP_SUP_CATS=["تأسيس الشركات","الاستثمار الأجنبي","العلاقات الحكومية","خدمات الموارد البشرية","الاستقدام والتوظيف","دعم الأعمال","العقارات والمساحات","الإقامة المميزة","الذكاء الاصطناعي والأتمتة","فعاليات وضيافة","إعاشة وتغذية","نقل ومواصلات","إسكان عمالة","تشغيل وصيانة","تسويق وإعلان","أخرى"];window.BP_GOOGLE_CLIENT_ID="";</script><style>
+<a class="sv1-wa-fab" href="https://wa.me/966530540231" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
+fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
+var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};
+/* الرسم الفوري جرى بعد «</header>» مباشرة (SV1_SESSION_JS)؛ هنا التصحيح. */
+fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
+.then(function(r){return r.json().catch(function(){return{}})}).then(function(o){
+ var S=window.SV1S,u=o&&o.session&&o.session.user;
+ if(u){window.SV1_SESSION=o.session;if(S){S.save(u);S.paint(true,{name:u.full_name||'',email:u.email||''})}}
+ else if(S){S.clear();S.paint(false,null)}
+}).catch(function(){});
+})();</script><script>(function(){"use strict";
+if(navigator.webdriver)return;
+var vid="";try{vid=localStorage.getItem("bp_vid")||"";if(!vid){vid=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("bp_vid",vid)}}catch(e){}
+function send(p){p.action="hit";p.visitor=vid;try{var b=JSON.stringify(p);
+if(navigator.sendBeacon)navigator.sendBeacon("/api/requests",new Blob([b],{type:"application/json"}));
+else fetch("/api/requests",{method:"POST",headers:{"content-type":"application/json"},body:b,keepalive:true}).catch(function(){})}catch(e){}}
+var rh="";try{if(document.referrer){var u=new URL(document.referrer);if(u.host!==location.host)rh=u.host}}catch(e){}
+// وسوم UTM تسبق المُحيل: واتساب وتيك توك لا يرسلان Referer، فزياراتهما تظهر
+// «مباشرة» في اللوحة. الشكل utm:<source>/<medium>/<campaign>/<content>، والقصّ
+// إلى 120 حرفاً لأن عمود ref في api/requests.js يقصّه إلى 120.
+try{var q=new URLSearchParams(location.search);if(q.get("utm_source")){rh=("utm:"+[q.get("utm_source"),q.get("utm_medium"),q.get("utm_campaign"),q.get("utm_content")].map(function(v){return v||""}).join("/")).slice(0,120)}}catch(e){}
+send({kind:"view",path:location.pathname,ref:rh,lang:document.documentElement.lang||"",device:window.innerWidth<768?"mobile":"desktop"});
+// أزرار الموقع الجديد بأسمائها العربية كما تظهر في اللوحة، ومعها محدّدات
+// الموقع القديم حتى تُحسب الصفحتان بالمسمّى نفسه.
+document.addEventListener("click",function(e){
+ var t=e.target.closest&&e.target.closest("[data-track],.add-cart,#cartGo,#cart-checkout,#coPay,#co-submit,a[href*='wa.me'],a[href*='whatsapp'],.sv1-door,#sv1CartBtn,#sv1LoginBtn");
+ if(!t)return;
+ var n=t.getAttribute("data-track")||
+  (t.id==="cartGo"||t.id==="cart-checkout"?"إتمام الطلب":
+   t.id==="coPay"||t.id==="co-submit"?"إرسال الطلب":
+   t.id==="sv1CartBtn"?"فتح السلة":
+   t.id==="sv1LoginBtn"?"تسجيل الدخول":
+   t.classList&&t.classList.contains("sv1-door")?("باب: "+(t.getAttribute("data-door")||"")):
+   t.classList&&t.classList.contains("add-cart")?"أضف للسلة":"واتساب");
+ send({kind:"click",path:location.pathname,name:n})},true);
+var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
+ send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
+})();</script><script>(function partnerClient(C) {
+    var TX = C.tx, ST = C.st, AR = C.ar;
+    var API = "/api/suppliers", KEY = "bp_partner_sess";
+    var ACTIVE = ["أُرسل للمورّد", "قبله المورّد", "قيد التنفيذ"];
+    var $ = function (id) { return document.getElementById(id); };
+    var el = function (tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+    var show = function (n, on) { n.classList[on ? "remove" : "add"]("sv1-hide"); };
+    var say = function (id, cls, text) { var m = $(id); m.className = "sv1-prt-msg" + (cls === "err" ? " sv1-err" : cls ? " " + cls : ""); m.textContent = text || ""; };
+    var fill = function (s, o) { return String(s).replace(/\{(\w+)\}/g, function (m, k) { return o[k] != null ? o[k] : m; }); };
+    var money = function (n) { return Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 }); };
+
+    // أثر قديم: الصفحة القديمة كانت تحفظ كلمة المرور في localStorage بنصٍّ صريح.
+    try { localStorage.removeItem("bp_supplier"); } catch (e) {}
+
+    var sess = null, state = { supplier: null, orders: [] }, pending = null, myList = [], CATALOG = null, openOrder = "", walletLoaded = false;
+    function readSess() { try { var v = sessionStorage.getItem(KEY); var o = v ? JSON.parse(v) : null; return o && o.email && o.pw ? o : null; } catch (e) { return null; } }
+    function writeSess(o) { try { sessionStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }
+    function dropSess() { try { sessionStorage.removeItem(KEY); } catch (e) {} }
+
+    function call(body) {
+      return fetch(API, { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify(body) })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (o) { return { s: r.status, o: o || {} }; }); });
+    }
+    function authed(type, extra) {
+      var b = { type: type, email: sess.email, password: sess.pw, pw: sess.pw };
+      for (var k in extra) if (Object.prototype.hasOwnProperty.call(extra, k)) b[k] = extra[k];
+      return call(b).then(function (x) { if (x.s === 401) signOut(TX.eSession); return x; });
+    }
+    function errText(x) {
+      var e = x.o && x.o.error;
+      if (x.s === 429) return TX.eNet;
+      if (e === "weak_password") return TX.ePass;
+      if (e === "invalid_code") return TX.eCode;
+      if (e === "invalid_fields") return TX.eFields;
+      if (e === "not_configured") return TX.eCfg;
+      if (e === "email_unverified") return TX.eUnverified;
+      if (e === "bad_credentials" || e === "unauthorized") return TX.eCreds;
+      return TX.eNet;
+    }
+
+    /* ───── الدخول والتسجيل والتفعيل ───── */
+    var pane = "login";
+    function paneTo(p) {
+      pane = p;
+      show($("pLogin"), p === "login"); show($("pSignup"), p === "signup"); show($("pVerify"), p === "verify");
+      show($("pAuthTabs"), p !== "verify");
+      $("pTabLogin").setAttribute("aria-selected", p === "login" ? "true" : "false");
+      $("pTabSignup").setAttribute("aria-selected", p === "signup" ? "true" : "false");
+      say("pAuthMsg", "", "");
+    }
+    $("pTabLogin").addEventListener("click", function () { paneTo("login"); });
+    $("pTabSignup").addEventListener("click", function () { paneTo("signup"); });
+    (function () {
+      var sel = $("psCat");
+      C.cats.forEach(function (c) { var o = el("option", "", c[1]); o.value = c[0]; sel.appendChild(o); });
+    })();
+    function validEmail(s) { return /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]{2,}$/.test(s); }
+
+    $("pLogin").addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var email = $("plEmail").value.trim().toLowerCase(), pw = $("plPass").value;
+      if (!validEmail(email) || !pw) return say("pAuthMsg", "err", TX.eCreds);
+      var btn = $("plGo"); btn.disabled = true; say("pAuthMsg", "", TX.wait);
+      call({ type: "portal", email: email, password: pw }).then(function (x) {
+        btn.disabled = false;
+        if (x.o.ok) { $("plPass").value = ""; sess = { email: email, pw: pw }; writeSess(sess); apply(x.o); return; }
+        if (x.o.error === "email_unverified") {
+          // الحساب موجود ولم يُوثَّق بريده: الرمز الجديد يُرسَل ويُفتح مربع التفعيل.
+          call({ type: "resend-code", email: email }).then(function (y) {
+            if (y.o.ok) { pending = { email: email, pw: pw, token: y.o.token, exp: y.o.exp }; $("pvNote").textContent = TX.codeSent + email; paneTo("verify"); }
+            else say("pAuthMsg", "err", errText(x));
+          });
+          return;
+        }
+        say("pAuthMsg", "err", errText(x));
+      }).catch(function () { btn.disabled = false; say("pAuthMsg", "err", TX.eNet); });
+    });
+
+    $("pSignup").addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var v = function (id) { return $(id).value.trim(); };
+      var email = v("psEmail").toLowerCase(), pw = $("psPass").value;
+      if (!v("psCompany") || !v("psPerson") || !v("psPhone") || !validEmail(email)) return say("pAuthMsg", "err", TX.eFields);
+      if (pw.length < 8) return say("pAuthMsg", "err", TX.ePass);
+      var btn = $("psGo"); btn.disabled = true; say("pAuthMsg", "", TX.wait);
+      call({ type: "signup", company: v("psCompany"), person: v("psPerson"), phone: v("psPhone"), email: email, password: pw, city: v("psCity"), categories: [$("psCat").value].filter(Boolean) })
+        .then(function (x) {
+          btn.disabled = false;
+          if (!x.o.ok) return say("pAuthMsg", "err", errText(x));
+          pending = { email: email, pw: pw, token: x.o.token, exp: x.o.exp };
+          $("pvNote").textContent = TX.codeSent + email;
+          paneTo("verify");
+        }).catch(function () { btn.disabled = false; say("pAuthMsg", "err", TX.eNet); });
+    });
+
+    $("pVerify").addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      if (!pending) return paneTo("login");
+      var code = $("pvCode").value.trim();
+      if (!code) return;
+      var btn = $("pvGo"); btn.disabled = true; say("pAuthMsg", "", TX.wait);
+      call({ type: "verify-email", email: pending.email, code: code, token: pending.token, exp: pending.exp, password: pending.pw }).then(function (x) {
+        if (!x.o.ok) { btn.disabled = false; return say("pAuthMsg", "err", errText(x)); }
+        // وُثّق البريد: ندخل بكلمة المرور التي اختارها الشريك للتوّ.
+        call({ type: "portal", email: pending.email, password: pending.pw }).then(function (y) {
+          btn.disabled = false;
+          if (!y.o.ok) return say("pAuthMsg", "err", errText(y));
+          sess = { email: pending.email, pw: pending.pw }; writeSess(sess); pending = null; $("pvCode").value = ""; apply(y.o);
+        });
+      }).catch(function () { btn.disabled = false; say("pAuthMsg", "err", TX.eNet); });
+    });
+    $("pvResend").addEventListener("click", function () {
+      if (!pending) return;
+      var b = $("pvResend"); b.disabled = true;
+      call({ type: "resend-code", email: pending.email }).then(function (x) {
+        b.disabled = false;
+        if (x.o.ok) { pending.token = x.o.token; pending.exp = x.o.exp; say("pAuthMsg", "ok", TX.resent); }
+      }).catch(function () { b.disabled = false; });
+    });
+    // نسيان كلمة المرور: الرمز المُرسَل للبريد يثبت ملكيته، فيؤكّد البريد وكلمة المرور الجديدة معاً.
+    $("plForgot").addEventListener("click", function () {
+      var email = $("plEmail").value.trim().toLowerCase(), pw = $("plPass").value;
+      if (!validEmail(email) || pw.length < 8) return say("pAuthMsg", "err", TX.forgotNeed);
+      call({ type: "resend-code", email: email }).then(function (x) {
+        if (!x.o.ok) return say("pAuthMsg", "err", errText(x));
+        pending = { email: email, pw: pw, token: x.o.token, exp: x.o.exp };
+        $("pvNote").textContent = TX.resetSent;
+        paneTo("verify");
+      }).catch(function () { say("pAuthMsg", "err", TX.eNet); });
+    });
+
+    /* ───── اللوحة ───── */
+    function apply(o) {
+      state.supplier = o.supplier; state.orders = o.orders || [];
+      if (state.supplier && state.supplier.priceList && state.supplier.priceList.length && !myList.length) myList = state.supplier.priceList.slice();
+      show($("pAuth"), false); show($("pDash"), true);
+      walletLoaded = false; openOrder = "";
+      render();
+    }
+    function signOut(msg) {
+      dropSess(); sess = null; state = { supplier: null, orders: [] }; pending = null; myList = [];
+      show($("pDash"), false); show($("pAuth"), true);
+      paneTo("login"); say("pAuthMsg", msg ? "err" : "", msg || "");
+    }
+    $("pdOut").addEventListener("click", function () { signOut(""); });
+    function reload() {
+      return call({ type: "portal", email: sess.email, password: sess.pw }).then(function (x) {
+        if (x.o.ok) { state.supplier = x.o.supplier; state.orders = x.o.orders || []; render(); }
+        else if (x.s === 401) signOut(TX.eSession);
+      });
+    }
+
+    function copyText(txt, btn) {
+      var done = function () { var o = btn.textContent; btn.textContent = TX.copied; setTimeout(function () { btn.textContent = o; }, 1500); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, done);
+      else { var ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch (e) {} ta.remove(); done(); }
+    }
+    $("pdRefCopy").addEventListener("click", function () { copyText($("pdRef").textContent, $("pdRefCopy")); });
+
+    function render() {
+      var s = state.supplier || {}, orders = state.orders || [];
+      $("pdName").textContent = s.name || "—";
+      $("pdMeta").textContent = [s.person, s.code, s.city, (s.categories || []).join("، ")].filter(Boolean).join(" · ");
+
+      // التأهيل: ثلاث محطات، آخرها اعتماد الفريق. حالة الخادم: جديد ← معتمد، أو موقوف/مرفوض.
+      var approved = s.status === "معتمد", blocked = s.status === "موقوف" || s.status === "مرفوض";
+      var q = $("pdQual"); q.textContent = "";
+      [[TX.qRegistered, "done", "✓"], [TX.qVerified, "done", "✓"],
+       [TX.qApproval, approved ? "done" : "wait", approved ? "✓" : "…"]].forEach(function (it) {
+        var li = el("li", it[1]); li.appendChild(el("i", "", it[2]));
+        var d = el("div"); d.appendChild(el("b", "", it[0]));
+        d.appendChild(document.createTextNode(it[0] === TX.qApproval ? (approved ? TX.qApproved.split(" — ")[0] : blocked ? TX.qBlocked : TX.qPending) : ""));
+        li.appendChild(d); q.appendChild(li);
+      });
+      $("pdQualNote").textContent = approved ? TX.qApproved : blocked ? TX.qBlockedNote : TX.qPendingNote;
+
+      var pct = Number(s.commission);
+      $("pdRate").textContent = isFinite(pct) && s.commission != null ? fill(TX.commission, { c: pct, n: 100 - pct }) : TX.commissionPer;
+      var done = orders.filter(function (o) { return o.status === "تم التسليم" || o.status === "معتمد"; });
+      $("pdOpen").textContent = orders.filter(function (o) { return ACTIVE.indexOf(o.status) !== -1; }).length;
+      $("pdDone").textContent = done.length;
+      $("pdDue").textContent = done.filter(function (o) { return o.supplierInvoiceStatus === "لم تُرفع"; }).length;
+      // رابط واحد يشاركه الشريك: من يشتري عبره يُنسَب إليه فتقوم العمولة على دليل.
+      $("pdRef").textContent = s.code ? location.origin + (C.lang === "en" ? "" : "/" + C.lang) + "/services?p=" + s.code : "—";
+      drawOrders(); drawMine(); drawCatalog();
+    }
+
+    function tab(which) {
+      [].forEach.call(document.querySelectorAll("#pdTabs button"), function (b) { b.setAttribute("aria-selected", b.getAttribute("data-tab") === which ? "true" : "false"); });
+      [].forEach.call(document.querySelectorAll("[data-pane]"), function (p) { show(p, p.getAttribute("data-pane") === which); });
+      if (which === "wallet" && !walletLoaded) { walletLoaded = true; loadWallet(); }
+    }
+    [].forEach.call(document.querySelectorAll("#pdTabs button"), function (b) { b.addEventListener("click", function () { tab(b.getAttribute("data-tab")); }); });
+
+    /* أوامر العمل */
+    function inputEl(cls, type, val, ph) {
+      var i = el("input", "sv1-prt-in " + cls); i.type = type || "text"; if (val != null) i.value = val; if (ph) i.placeholder = ph; return i;
+    }
+    function drawOrders() {
+      var ul = $("pdOrders"); ul.textContent = "";
+      var orders = state.orders || [];
+      if (!orders.length) { ul.appendChild(el("li", "sv1-prt-sub", TX.oNone)); return; }
+      orders.forEach(function (o) {
+        var li = el("li", "sv1-prt-card");
+        var head = el("div", "sv1-prt-card-h");
+        var l = el("div");
+        l.appendChild(el("b", "", o.service || o.ref));
+        var meta = [o.ref, o.city, o.due, o.clientRef].filter(Boolean).join(" · ");
+        l.appendChild(el("div", "sv1-prt-sub", meta));
+        if (o.details) l.appendChild(el("div", "sv1-prt-sub", o.details));
+        var money2 = [];
+        if (o.amount != null) money2.push(TX.oValue + ": " + money(o.amount) + " " + TX.sar);
+        if (o.commission != null && o.commission > 0) money2.push(TX.oComm + ": " + money(o.commission) + " " + TX.sar);
+        if (money2.length) l.appendChild(el("div", "sv1-prt-sub", money2.join(" · ")));
+        head.appendChild(l);
+        var r = el("div"); r.style.textAlign = "end";
+        r.appendChild(el("span", "sv1-prt-chip" + (o.status === "تم التسليم" || o.status === "معتمد" ? " ok" : ""), ST[o.status] || o.status || "—"));
+        r.appendChild(el("div", "sv1-prt-sub", TX.oInvoice + ": " + (ST[o.supplierInvoiceStatus] || o.supplierInvoiceStatus || "—")));
+        head.appendChild(r);
+        li.appendChild(head);
+        var log = (o.log || []).slice(-4);
+        if (log.length) {
+          var tr = el("div", "sv1-prt-trail"); tr.appendChild(el("div", "sv1-prt-sub", TX.oClient));
+          log.forEach(function (g) {
+            var text = String(g.text || ""), mine = /قَبِل عرض السعر|وقّع العميل|استلمنا المبلغ|رفض عرض السعر/.test(text);
+            var d = el("div", mine ? "mine" : ""); d.appendChild(el("span", "", mine ? "●" : "·")); d.appendChild(el("span", "", text)); d.appendChild(el("span", "", String(g.at || "").slice(0, 10)));
+            tr.appendChild(d);
+          });
+          li.appendChild(tr);
+        }
+        var isRfq = o.status === "طلب عرض سعر";
+        var acts = el("div", "sv1-prt-acts2");
+        var b = el("button", "sv1-btn primary sm", isRfq ? TX.oQuoteBtn : TX.oUpdBtn); b.type = "button";
+        b.addEventListener("click", function () { openOrder = openOrder === o.id ? "" : o.id; drawOrders(); });
+        acts.appendChild(b); li.appendChild(acts);
+        if (openOrder === o.id) li.appendChild(orderForm(o, isRfq));
+        ul.appendChild(li);
+      });
+    }
+
+    function orderForm(o, isRfq) {
+      var f = el("form", "sv1-prt-frm sv1-prt-form"); f.noValidate = true;
+      var lines = el("div"), totalEl = el("div", "sv1-prt-sub"), sel = null, lead = null, status = null, file = null;
+      var ctl = function (labelText, node) { var d = el("div", "sv1-prt-f"); d.appendChild(el("label", "", labelText)); d.appendChild(node); return d; };
+      function readLines() {
+        return [].map.call(lines.querySelectorAll(".sv1-prt-line"), function (r) {
+          return { name: r.querySelector(".pl-n").value.trim(), qty: Number(r.querySelector(".pl-q").value) || 1, price: Number(r.querySelector(".pl-p").value) || 0 };
+        });
+      }
+      function total() {
+        var t = Math.round(readLines().reduce(function (a, l) { return a + l.price * l.qty; }, 0) * 100) / 100;
+        totalEl.textContent = TX.oTotal + money(t) + " " + TX.sar; return t;
+      }
+      function drawLines(arr) {
+        lines.textContent = "";
+        arr.forEach(function (l) {
+          var r = el("div", "sv1-prt-line");
+          var n = inputEl("pl-n nm", "text", l.name || "", TX.oItem), q = inputEl("pl-q", "number", l.qty || 1), p = inputEl("pl-p", "number", l.price == null ? "" : l.price, TX.oPrice);
+          q.min = 1; p.min = 0; p.step = "0.01"; q.setAttribute("dir", "ltr"); p.setAttribute("dir", "ltr");
+          var x = el("button", "sv1-btn sm", "✕"); x.type = "button"; x.addEventListener("click", function () { r.remove(); total(); });
+          [n, q, p].forEach(function (i) { i.addEventListener("input", total); });
+          r.appendChild(n); r.appendChild(q); r.appendChild(p); r.appendChild(x); lines.appendChild(r);
+        });
+        total();
+      }
+      if (isRfq) {
+        var qb = el("div", "sv1-prt-f"); qb.appendChild(el("label", "", TX.oLabelQuote)); qb.appendChild(el("p", "sv1-prt-sub", TX.oLabelQuoteHint)); qb.appendChild(lines);
+        var tools = el("div", "sv1-prt-acts2");
+        sel = el("select", "sv1-prt-in"); sel.style.flex = "1"; sel.style.minWidth = "180px";
+        var o0 = el("option", "", TX.oPick); o0.value = ""; sel.appendChild(o0);
+        myList.forEach(function (it, i) { var op = el("option", "", it.name + " — " + it.price + " " + TX.sar); op.value = i; sel.appendChild(op); });
+        sel.addEventListener("change", function () {
+          var it = myList[Number(sel.value)]; if (sel.value === "" || !it) return;
+          drawLines(readLines().filter(function (l) { return l.name || l.price > 0; }).concat([{ name: it.name, qty: 1, price: it.price }])); sel.value = "";
+        });
+        var blank = el("button", "sv1-btn sm", "＋ " + TX.oBlank); blank.type = "button";
+        blank.addEventListener("click", function () { drawLines(readLines().concat([{ name: "", qty: 1, price: "" }])); });
+        tools.appendChild(sel); tools.appendChild(blank); qb.appendChild(tools); qb.appendChild(totalEl);
+        f.appendChild(qb);
+        lead = inputEl("", "text", o.leadTime || "", TX.oLeadPh); f.appendChild(ctl(TX.oLead, lead));
+        drawLines((o.lines && o.lines.length) ? o.lines : [{ name: "", qty: 1, price: "" }]);
+      } else {
+        status = el("select", "sv1-prt-in");
+        [["قبله المورّد", TX.oAccept], ["قيد التنفيذ", TX.oProg], ["تم التسليم", TX.oDeliv]].forEach(function (p) {
+          var op = el("option", "", p[1]); op.value = p[0]; if (o.status === p[0]) op.selected = true; status.appendChild(op);
+        });
+        f.appendChild(ctl(TX.oStatus, status));
+        file = el("input", "sv1-prt-in"); file.type = "file"; file.accept = ".pdf,image/*";
+        var fd = ctl(TX.oInv, file);
+        fd.insertBefore(el("p", "sv1-prt-sub", o.quote != null ? fill(TX.oInvQuote, { q: money(o.quote) }) : TX.oInvHint), file);
+        f.appendChild(fd);
+      }
+      var prog = inputEl("", "text", "", TX.oProgressPh); prog.maxLength = 400;
+      var pd = ctl(TX.oProgress, prog); pd.appendChild(el("p", "sv1-prt-sub", TX.oProgressHint)); f.appendChild(pd);
+      var notes = el("textarea", "sv1-prt-in"); notes.rows = 3; notes.value = o.notes || ""; f.appendChild(ctl(TX.oNotes, notes));
+      var link = null;
+      if (o.quote != null || (o.lines && o.lines.length)) {
+        link = el("div", "sv1-prt-f sv1-hide"); link.appendChild(el("label", "", TX.oQLink)); link.appendChild(el("p", "sv1-prt-sub", TX.oQLinkHint));
+        var lr = el("div", "sv1-prt-acts2"), li2 = inputEl("", "text", ""); li2.readOnly = true; li2.setAttribute("dir", "ltr"); li2.style.flex = "1";
+        var cb = el("button", "sv1-btn sm", TX.copy); cb.type = "button"; cb.addEventListener("click", function () { copyText(li2.value, cb); });
+        lr.appendChild(li2); lr.appendChild(cb); link.appendChild(lr); f.appendChild(link);
+        authed("quote-link", { orderId: o.id }).then(function (x) { if (x.o && x.o.ok && x.o.url) { li2.value = x.o.url; show(link, true); } });
+      }
+      var acts = el("div", "sv1-prt-acts2");
+      var save = el("button", "sv1-btn primary", TX.save); save.type = "submit";
+      var cancel = el("button", "sv1-btn", TX.cancel); cancel.type = "button"; cancel.addEventListener("click", function () { openOrder = ""; drawOrders(); });
+      acts.appendChild(save); acts.appendChild(cancel); f.appendChild(acts);
+      var msg = el("div", "sv1-prt-msg"); f.appendChild(msg);
+      var flash = function (cls, text) { msg.className = "sv1-prt-msg" + (cls === "err" ? " sv1-err" : cls ? " " + cls : ""); msg.textContent = text; };
+
+      f.addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        var payload = { orderId: o.id, notes: notes.value.trim(), progress: prog.value.trim() };
+        if (isRfq) {
+          var ls = readLines().filter(function (l) { return l.name && l.price > 0; });
+          if (!ls.length) return flash("err", TX.oNeedLine);
+          payload.lines = ls; payload.leadTime = lead.value.trim();
+        } else payload.status = status.value;
+        var f0 = file && file.files && file.files[0];
+        if (f0 && f0.size > 4 * 1024 * 1024) return flash("err", TX.oInvBig);
+        save.disabled = true; flash("", TX.saving);
+        var go = function () {
+          authed("order-update", payload).then(function (x) {
+            save.disabled = false;
+            if (x.o.ok) { flash("ok", TX.saved); setTimeout(function () { openOrder = ""; reload(); }, 900); }
+            else flash("err", TX.eSave);
+          }).catch(function () { save.disabled = false; flash("err", TX.eSave); });
+        };
+        if (f0) {
+          var fr = new FileReader();
+          fr.onload = function () { payload.invoiceBase64 = String(fr.result).split(",")[1] || ""; payload.invoiceName = f0.name; payload.invoiceType = f0.type; go(); };
+          fr.onerror = function () { save.disabled = false; flash("err", TX.eSave); };
+          fr.readAsDataURL(f0);
+        } else go();
+      });
+      return f;
+    }
+
+    /* خدماتي وأسعاري */
+    function readMine() {
+      return [].map.call($("pmList").querySelectorAll(".sv1-prt-row3"), function (r) {
+        return { name: r.querySelector(".pm-n").value.trim(), price: Number(r.querySelector(".pm-p").value), lead: r.querySelector(".pm-l").value.trim() };
+      });
+    }
+    function drawMine() {
+      var box = $("pmList"); box.textContent = "";
+      if (!myList.length) { box.appendChild(el("p", "sv1-prt-sub", TX.mNone)); return; }
+      myList.forEach(function (it, i) {
+        var r = el("div", "sv1-prt-row3");
+        var n = inputEl("pm-n nm", "text", it.name || "", TX.mSvc), p = inputEl("pm-p", "number", it.price == null ? "" : it.price, TX.oPrice), l = inputEl("pm-l", "text", it.lead || "", TX.mDelivery);
+        p.min = 0; p.step = "0.01"; p.setAttribute("dir", "ltr");
+        var x = el("button", "sv1-btn sm", "✕"); x.type = "button";
+        x.addEventListener("click", function () { myList = readMine().filter(function (_, j) { return j !== i; }); drawMine(); });
+        r.appendChild(n); r.appendChild(p); r.appendChild(l); r.appendChild(x); box.appendChild(r);
+      });
+    }
+    $("pmAdd").addEventListener("click", function () { myList = readMine().concat([{ name: "", price: "", lead: "" }]); drawMine(); });
+    $("pmSave").addEventListener("click", function () {
+      var list = readMine().filter(function (it) { return it.name && isFinite(it.price) && it.price >= 0; });
+      var b = $("pmSave"); b.disabled = true; say("pmMsg", "", TX.saving);
+      authed("my-services", { services: list }).then(function (x) {
+        b.disabled = false;
+        if (x.o.ok) { myList = x.o.priceList || list; drawMine(); say("pmMsg", "ok", TX.mSaved); }
+        else say("pmMsg", "err", TX.eSave);
+      }).catch(function () { b.disabled = false; say("pmMsg", "err", TX.eNet); });
+    });
+
+    /* الكتالوج ونصيب الشريك */
+    function drawCatalog() {
+      var box = $("pcBox");
+      if (!CATALOG) {
+        fetch("/assets/data/catalog.json", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : { services: [] }; })
+          .then(function (d) {
+            CATALOG = (d && d.services) || [];
+            var seen = {}, sel = $("pcCat");
+            CATALOG.forEach(function (x) {
+              var c = AR ? (x.categoryAr || x.category) : (x.category || x.categoryAr); if (!c || seen[c]) return; seen[c] = 1;
+              var o = el("option", "", c); o.value = c; sel.appendChild(o);
+            });
+            sel.addEventListener("change", drawCatalog); $("pcSearch").addEventListener("input", drawCatalog);
+            drawCatalog();
+          }).catch(function () { box.textContent = TX.cErr; });
+        return;
+      }
+      var s = state.supplier || {}, pct = s.commission != null ? Number(s.commission) : 20;
+      var q = $("pcSearch").value.trim().toLowerCase(), cat = $("pcCat").value;
+      var rows = CATALOG.filter(function (x) {
+        if (cat && (AR ? (x.categoryAr || x.category) : (x.category || x.categoryAr)) !== cat) return false;
+        if (!q) return true;
+        return ((x.nameAr || "") + " " + (x.nameEn || "") + " " + (x.code || "")).toLowerCase().indexOf(q) !== -1;
+      });
+      box.textContent = "";
+      if (!rows.length) { box.appendChild(el("p", "sv1-prt-sub", TX.cNone)); return; }
+      box.appendChild(el("p", "sv1-prt-sub", TX.cRate + pct + "% · " + TX.cVat));
+      var wrap = el("div", "sv1-prt-tbl"), tb = el("table"), th = el("thead"), hr = el("tr");
+      [TX.cCode, TX.cSvc, TX.cSite, TX.cFee, TX.cShare].forEach(function (h) { hr.appendChild(el("th", "", h)); });
+      th.appendChild(hr); tb.appendChild(th);
+      var body = el("tbody");
+      rows.forEach(function (x) {
+        var p = Number(x.amount) || 0, fee = Math.round(p * pct) / 100, net = Math.round((p - fee) * 100) / 100;
+        var tr = el("tr");
+        tr.appendChild(el("td", "n", x.code || "—"));
+        var td = el("td", "", AR ? (x.nameAr || x.nameEn || "—") : (x.nameEn || x.nameAr || "—"));
+        td.appendChild(el("div", "sv1-prt-sub", (AR ? (x.categoryAr || x.category) : (x.category || x.categoryAr)) || "")); tr.appendChild(td);
+        tr.appendChild(el("td", "n", p ? money(p) + " " + TX.sar : TX.cReq));
+        tr.appendChild(el("td", "n", p ? money(fee) + " " + TX.sar : "—"));
+        var sh = el("td", "n"); sh.appendChild(el("b", "", p ? money(net) + " " + TX.sar : TX.cQuoted)); tr.appendChild(sh);
+        body.appendChild(tr);
+      });
+      tb.appendChild(body); wrap.appendChild(tb); box.appendChild(wrap);
+    }
+
+    /* اقتراح خدمة */
+    $("ppForm").addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var v = function (id) { return $(id).value.trim(); }, price = Number(v("ppPrice"));
+      if (!v("ppName") || !(price > 0)) return say("ppMsg", "err", TX.pNeed);
+      var b = $("ppGo"); b.disabled = true; say("ppMsg", "", TX.wait);
+      authed("propose-service", { name: v("ppName"), category: v("ppCat"), price: price, lead: v("ppDays"), notes: v("ppNotes") }).then(function (x) {
+        b.disabled = false;
+        if (x.o.ok) { say("ppMsg", "ok", TX.pOk); $("ppForm").reset(); } else say("ppMsg", "err", TX.pErr);
+      }).catch(function () { b.disabled = false; say("ppMsg", "err", TX.pErr); });
+    });
+
+    /* المحفظة: القراءة والإعلان بالتسليم والموافقة على الاسترجاع وطلب السحب. المنطق في الخادم لا هنا. */
+    function loadWallet() {
+      authed("wallet", {}).then(function (x) {
+        var d = x.o;
+        if (!d || !d.ok) { walletLoaded = false; return; }
+        if (d.enabled === false) { $("pwEsc").textContent = TX.wOff; return; }
+        $("pwHeld").textContent = money(d.heldTotal || 0); $("pwBal").textContent = money(d.balance || 0);
+        var box = $("pwEsc"); box.textContent = "";
+        var held = d.held || [];
+        if (!held.length) box.appendChild(el("p", "sv1-prt-sub", TX.wNone));
+        held.forEach(function (e) {
+          var row = el("div", "sv1-prt-card"); row.style.marginBottom = "10px";
+          var h = el("div", "sv1-prt-card-h"), l = el("div");
+          l.appendChild(el("b", "", e.title || e.ref)); l.appendChild(el("div", "sv1-prt-sub", e.ref + " · " + String(e.created_at || "").slice(0, 10)));
+          var r = el("div"); r.style.textAlign = "end";
+          r.appendChild(el("b", "", money(e.amount) + " " + TX.sar));
+          r.appendChild(el("div", "sv1-prt-sub", e.status === "refund_requested" ? TX.wRefund : e.status === "delivered" ? TX.wDelivered : TX.wHeld));
+          h.appendChild(l); h.appendChild(r); row.appendChild(h);
+          var area = el("div", "sv1-prt-acts2");
+          // خطوة تأكيد صريحة قبل أي إجراء يمسّ المال: زرّ يفتح لوحة تأكيد، ولا تنفيذ من النقرة الأولى.
+          function confirmer(label, ask, withNote, type) {
+            var b = el("button", "sv1-btn sm", label); b.type = "button";
+            b.addEventListener("click", function () {
+              area.textContent = "";
+              var p = el("div", "sv1-prt-f"); p.style.width = "100%"; p.appendChild(el("label", "", ask));
+              var note = null; if (withNote) { note = el("textarea", "sv1-prt-in"); note.rows = 2; note.maxLength = 400; p.appendChild(note); }
+              var go = el("button", "sv1-btn primary sm", TX.wConfirm); go.type = "button";
+              var no = el("button", "sv1-btn sm", TX.cancel); no.type = "button"; no.addEventListener("click", loadWallet);
+              var bar = el("div", "sv1-prt-acts2"); bar.appendChild(go); bar.appendChild(no); p.appendChild(bar);
+              var m = el("div", "sv1-prt-msg"); p.appendChild(m); area.appendChild(p);
+              go.addEventListener("click", function () {
+                go.disabled = true;
+                authed(type, { ref: e.ref, note: note ? note.value.trim() : "" }).then(function (y) {
+                  if (y.o && y.o.ok) loadWallet(); else { go.disabled = false; m.className = "sv1-prt-msg sv1-err"; m.textContent = TX.wErr; }
+                }).catch(function () { go.disabled = false; m.className = "sv1-prt-msg sv1-err"; m.textContent = TX.eNet; });
+              });
+            });
+            area.appendChild(b);
+          }
+          if (e.status === "held") confirmer(TX.wDeliverBtn, TX.wDeliverAsk, true, "escrow-deliver");
+          if (e.status === "refund_requested") { confirmer(TX.wAgreeBtn, TX.wAgreeAsk, false, "escrow-agree-refund"); area.appendChild(el("span", "sv1-prt-sub", TX.wRefundHint)); }
+          if (area.childNodes.length) row.appendChild(area);
+          box.appendChild(row);
+        });
+        var tx = $("pwTx"); tx.textContent = "";
+        var rows = d.transactions || [];
+        if (!rows.length) tx.appendChild(el("p", "sv1-prt-sub", TX.wNoTx));
+        rows.forEach(function (t2) {
+          var amt = Number(t2.amount) || 0, r = el("div", "sv1-prt-tx"), l = el("span", "", t2.note || t2.type);
+          l.appendChild(el("div", "sv1-prt-sub", String(t2.created_at || "").slice(0, 10)));
+          r.appendChild(l); r.appendChild(el("b", amt >= 0 ? "pos" : "neg", (amt >= 0 ? "+" : "") + money(amt) + " " + TX.sar)); tx.appendChild(r);
+        });
+      }).catch(function () { walletLoaded = false; });
+    }
+    $("pwForm").addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var amount = Number($("pwAmount").value);
+      if (!(amount > 0)) return say("pwMsg", "err", TX.wAmt);
+      var b = $("pwGo"); b.disabled = true; say("pwMsg", "", TX.wait);
+      authed("withdraw", { amount: amount, iban: $("pwIban").value.trim() }).then(function (x) {
+        b.disabled = false;
+        if (x.o.ok) { say("pwMsg", "ok", TX.wSent); $("pwForm").reset(); loadWallet(); }
+        else say("pwMsg", "err", x.o.error === "insufficient_funds" ? fill(TX.wOver, { b: money(x.o.balance || 0) }) : TX.wErrW);
+      }).catch(function () { b.disabled = false; say("pwMsg", "err", TX.wErrW); });
+    });
+
+    /* ───── الإقلاع ───── */
+    function hashPane() { paneTo(/^#signup$/i.test(location.hash) ? "signup" : "login"); }
+    hashPane();
+    window.addEventListener("hashchange", function () { if (!sess && pane !== "verify") hashPane(); });
+    sess = readSess();
+    if (sess) reload().then(function () { if (state.supplier) { show($("pAuth"), false); show($("pDash"), true); } });
+  })({"lang":"zh","ar":false,"tx":{"wait":"One moment…","eCreds":"Email or password is incorrect.","eFields":"Fill in every required field with a valid e-mail.","ePass":"Password must be at least 8 characters.","eCode":"The code is wrong or has expired.","eCfg":"Sign-up is not available right now — contact us.","eNet":"连接出现问题——请重试。","eSession":"Your session ended. Sign in again.","eUnverified":"Verify your email first — enter the code we sent you.","codeSent":"We sent a 6-digit code to ","resetSent":"We sent a 6-digit code — enter it to set your new password and sign in.","resent":"Code sent","forgotNeed":"Type your e-mail and a new password above, then press the link again.","hello":"欢迎","commission":"Our commission {c}% · your share {n}% of the catalogue price","commissionPer":"Commission is set per order","sar":"SAR","qRegistered":"Account created","qVerified":"E-mail verified","qApproval":"Team approval","qApproved":"Approved — work orders can be assigned to you.","qPending":"Under review","qPendingNote":"Our team is reviewing your account. You can explore the catalogue and your share now; work orders are assigned only after approval, and we e-mail you when it happens.","qBlocked":"Not active","qBlockedNote":"This account is not active. Contact us to review it.","stOpen":"Active work orders","stDone":"Delivered","stDue":"Awaiting your invoice","oNone":"No work orders yet — new assignments appear here and reach you by e-mail.","oValue":"Order value","oComm":"Commission invoiced to you","oInvoice":"Invoice","oQuoteBtn":"Submit your quote","oUpdBtn":"Update / upload invoice","oClient":"Client activity","oLabelQuote":"Your quote","oLabelQuoteHint":"Line items, not one number — the invoice that follows is these same lines.","oPick":"Add from my services…","oBlank":"Blank line","oItem":"Item","oPrice":"Price","oTotal":"Quote total: ","oLead":"Proposed lead time","oLeadPh":"e.g. 5 working days","oNeedLine":"Add at least one line with a price above zero.","oStatus":"状态","oAccept":"I accept this work order","oProg":"进行中","oDeliv":"Delivered","oInv":"Your invoice (PDF or image) — optional","oInvHint":"Invoice us for the approved quote once you deliver.","oInvQuote":"Invoice us for the approved quote: {q} SAR — the same lines you quoted.","oInvBig":"Invoice must be under 4MB.","oProgress":"Progress update the client sees","oProgressPh":"e.g. Name reservation submitted to the Ministry","oProgressHint":"Dated and added to the client's tracking page. Earlier updates stay.","oNotes":"Internal notes","oQLink":"Client link for this quote","oQLinkHint":"Send it to the client. They open it without an account, review the quote and accept it — and both of us are told.","copy":"复制","copied":"Copied","save":"Save update","cancel":"Cancel","saving":"Saving…","saved":"Saved — the team has been notified.","eSave":"Could not save — please try again.","mNone":"No services yet — add your first one below.","mSvc":"Service","mDelivery":"交付","mSaved":"Saved — these now appear when you build a quote.","cNone":"No matching service.","cErr":"Could not load the catalogue.","cRate":"Your commission rate: ","cVat":"prices exclude VAT","cCode":"服务代码","cSvc":"Service","cSite":"Site price","cFee":"Commission","cShare":"Your share","cReq":"On request","cQuoted":"Quoted","cAll":"全部类别","pOk":"Sent — the team reviews and prices it, and we come back to you. It is not published yet.","pNeed":"Enter the service name and a price above zero.","pErr":"Could not send it — try again.","wNone":"No escrows held for you yet.","wHeld":"Held — declare delivery when the work is done","wDelivered":"You declared delivery — awaiting the client's approval","wRefund":"The client asked for a refund — your consent or the platform's decision settles it","wDeliverBtn":"I delivered the work","wDeliverAsk":"Confirm delivery — add a note the client will see (what was delivered, links…)","wConfirm":"Confirm","wAgreeBtn":"I agree to refund the client","wAgreeAsk":"Confirm: return the full amount to the client's wallet? This cannot be undone.","wRefundHint":"Delivered and you object? Do nothing — the platform arbitrates. Not delivered? Declare delivery now or the money returns to the client automatically.","wDone":"Done","wErr":"Could not complete — refresh and try again.","wNoTx":"No movements yet.","wOff":"The wallet is not available yet.","wAmt":"Enter an amount above zero.","wSent":"Request received — we transfer to your bank and confirm by e-mail.","wOver":"Amount exceeds your available balance ({b} SAR).","wErrW":"Could not send the request — try again."},"st":{"طلب عرض سعر":"Quote requested","عرض مُقدَّم":"Quote submitted","أُرسل للمورّد":"Assigned to you","قبله المورّد":"Accepted","قيد التنفيذ":"进行中","تم التسليم":"Delivered","معتمد":"Approved","لم تُرفع":"Not uploaded"},"cats":[["تأسيس الشركات","Company formation"],["الاستثمار الأجنبي","Foreign investment"],["العلاقات الحكومية","Government relations"],["خدمات الموارد البشرية","HR services"],["الاستقدام والتوظيف","Recruitment"],["دعم الأعمال","Business support"],["العقارات والمساحات","Real estate & workspaces"],["الإقامة المميزة","Premium residency"],["الذكاء الاصطناعي والأتمتة","AI & automation"],["فعاليات وضيافة","Events & hospitality"],["إعاشة وتغذية","Catering"],["نقل ومواصلات","Transport"],["إسكان عمالة","Worker housing"],["تشغيل وصيانة","Operations & maintenance"],["تسويق وإعلان","Marketing & advertising"],["أخرى","Other"]]});</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}
 [dir=rtl] .bps-fab{padding:7px 7px 7px 16px}
 .bps-fab img{width:38px;height:38px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}

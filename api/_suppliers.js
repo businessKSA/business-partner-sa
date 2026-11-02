@@ -721,8 +721,21 @@ export async function handleSuppliers(req, res) {
 
   if (!NOTION_TOKEN) return bad("not_configured", 503);
 
+  // The partner dashboard reads its work orders and wallet with POST, so the
+  // password never sits in a URL (access logs, browser history, referrers). The
+  // GET form below stays for the classic page. Both run the same code: a POST
+  // {type:"portal"|"wallet"} is mapped onto the GET query and falls into it.
+  let b = null;
+  if (req.method === "POST") {
+    b = req.body;
+    if (typeof b === "string") { try { b = JSON.parse(b); } catch { b = {}; } }
+    if (!b) b = await new Promise((resolve) => { let d = ""; req.on("data", (c) => (d += c)); req.on("end", () => { try { resolve(JSON.parse(d)); } catch { resolve({}); } }); });
+  }
+  const postRead = !!b && (b.type === "portal" || b.type === "wallet");
+  if (postRead) { q.action = b.type === "portal" ? "orders" : "wallet"; q.email = b.email; q.pw = b.password || b.pw; }
+
   // ---------------- GET ----------------
-  if (req.method === "GET") {
+  if (req.method === "GET" || postRead) {
     // Supplier: my work orders
     if (q.action === "orders") {
       const s = await authSupplier(q.email, q.pw);
@@ -853,10 +866,6 @@ export async function handleSuppliers(req, res) {
   }
 
   if (req.method !== "POST") return bad("method_not_allowed", 405);
-
-  let b = req.body;
-  if (typeof b === "string") { try { b = JSON.parse(b); } catch { b = {}; } }
-  if (!b) b = await new Promise((resolve) => { let d = ""; req.on("data", (c) => (d += c)); req.on("end", () => { try { resolve(JSON.parse(d)); } catch { resolve({}); } }); });
 
   // ---------------- sign up: e-mail + password, code to the inbox ----------------
   if (b.type === "register" || b.type === "signup") {
@@ -1206,7 +1215,7 @@ export async function handleSuppliers(req, res) {
         `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px"><h2 style="color:#0B1B5A">تم اعتمادكم ✅</h2>
         <p>مرحباً ${esc(s.person || s.name)}، اعتمدنا <b>${esc(s.name)}</b> في شبكة موردي بيزنس بارتنر.</p>
         <table>${row("كود المورّد", s.code) + row("البريد", s.email)}</table>
-        <p style="margin:18px 0"><a href="${SITE}/partner-dashboard" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">افتح بوابة الموردين</a></p>
+        <p style="margin:18px 0"><a href="${SITE}/ar/partner-dashboard" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">افتح بوابة الموردين</a></p>
         <p>ادخل ببريدك وكلمة المرور التي أنشأتها عند التسجيل. من البوابة تستقبل طلبات عروض الأسعار، تتابع أوامر العمل، وترفع فواتيرك.</p>
         <p style="color:#666">بيزنس بارتنر · الرياض</p></div>`);
     }
@@ -1253,7 +1262,7 @@ export async function handleSuppliers(req, res) {
     await sendEmail(s.email, `📦 أمر عمل جديد ${ref} — ${service}`,
       `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px"><h2 style="color:#0B1B5A">أمر عمل جديد — ${esc(ref)}</h2>
       <table>${row("الخدمة", service) + row("المدينة", str(b.city, 80)) + row("موعد التسليم", due) + row("قيمة أمر العمل", amount != null ? amount + " ﷼" : "—") + row("التفاصيل", str(b.details, 600))}</table>
-      <p style="margin:18px 0"><a href="${SITE}/partner-dashboard" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">افتح البوابة وأكّد الاستلام</a></p>
+      <p style="margin:18px 0"><a href="${SITE}/ar/partner-dashboard" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">افتح البوابة وأكّد الاستلام</a></p>
       <p>من البوابة تقبل أمر العمل، تحدّث حالته أثناء التنفيذ، وترفع فاتورتك بعد التسليم.</p></div>`);
     return ok({ ref, id: created.json && created.json.id });
   }
@@ -1291,7 +1300,7 @@ export async function handleSuppliers(req, res) {
       await sendEmail(s.email, `📝 طلب عرض سعر ${ref} — ${service}`,
         `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px"><h2 style="color:#0B1B5A">طلب عرض سعر — ${esc(ref)}</h2>
         <table>${row("الخدمة", service) + row("المدينة", str(b.city, 80)) + row("مطلوب التسليم", due) + row("التفاصيل", str(b.details, 600))}</table>
-        <p style="margin:18px 0"><a href="${SITE}/partner-dashboard" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">قدّم عرض سعرك</a></p>
+        <p style="margin:18px 0"><a href="${SITE}/ar/partner-dashboard" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">قدّم عرض سعرك</a></p>
         <p>ادخل البوابة وأدخل سعرك ومدة التنفيذ. نراجع العروض ونبلغك بالنتيجة.</p></div>`);
     }
     if (!made.length) return bad("no_approved_suppliers", 409);
@@ -1335,7 +1344,7 @@ export async function handleSuppliers(req, res) {
       await sendEmail(email, `✅ تم ترسية أمر العمل ${o.ref}`,
         `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px"><h2 style="color:#0B1B5A">تمت الترسية عليكم ✅</h2>
         <table>${row("أمر العمل", o.ref) + row("الخدمة", o.service) + row("القيمة المعتمدة", amount != null ? amount + " ﷼" : "—")}</table>
-        <p style="margin:18px 0"><a href="${SITE}/partner-dashboard" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">افتح البوابة وابدأ التنفيذ</a></p></div>`);
+        <p style="margin:18px 0"><a href="${SITE}/ar/partner-dashboard" style="background:#0B1B5A;color:#fff;padding:12px 22px;border-radius:8px;text-decoration:none;display:inline-block">افتح البوابة وابدأ التنفيذ</a></p></div>`);
     }
     return ok({ amount, closedOthers: closed });
   }
@@ -1368,7 +1377,7 @@ export async function handleSuppliers(req, res) {
       await sendEmail(supplierEmail, `فاتورة ${invRef} — ${o.ref}`,
         `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px"><h2 style="color:#0B1B5A">فاتورة من بيزنس بارتنر</h2>
         <table>${row("رقم الفاتورة", invRef) + row("أمر العمل", o.ref) + row("الخدمة", o.service) + row("المبلغ", amount + " ﷼")}</table>
-        <p>تفاصيل الفاتورة وسدادها متاحة في <a href="${SITE}/partner-dashboard">بوابة الموردين</a>.</p></div>`);
+        <p>تفاصيل الفاتورة وسدادها متاحة في <a href="${SITE}/ar/partner-dashboard">بوابة الموردين</a>.</p></div>`);
     }
     return ok({ invoiceRef: invRef, amount });
   }
@@ -1721,7 +1730,7 @@ export async function handleSuppliers(req, res) {
           `<div dir="rtl" style="font-family:Arial,sans-serif;max-width:560px"><h2 style="color:#0B1B5A">${title} من بيزنس بارتنر</h2>
           <table>${row("الرقم", String(doc.number)) + row("أمر العمل", o.ref) + row("الخدمة", o.service) + row("المبلغ قبل الضريبة", doc.net + " ﷼") + row("الضريبة", doc.vat + " ﷼") + row("الإجمالي", doc.total + " ﷼")}</table>
           ${pdf ? "<p>نسخة PDF مرفقة مع هذه الرسالة.</p>" : `<p><a href="${doc.url}" style="background:#0B1B5A;color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-weight:bold">افتح المستند</a></p>`}
-          <p>التفاصيل متاحة أيضاً في <a href="${SITE}/partner-dashboard">بوابة الموردين</a>.</p></div>`,
+          <p>التفاصيل متاحة أيضاً في <a href="${SITE}/ar/partner-dashboard">بوابة الموردين</a>.</p></div>`,
           pdf ? [{ filename: `${isPo ? "PO" : "Commission"}-${String(doc.number).replace(/[^\w-]/g, "")}.pdf`, content: pdf.base64 }] : undefined);
         emailed = !!(r && r.ok);
       }
