@@ -419,9 +419,27 @@ var h0=hint();if(h0)S.paint(true,h0);
     </div>
   </div></section>
 
+  <style id="sv1-how-css">
+#how{scroll-margin-top:96px}
+.sv1-hows{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;counter-reset:hw}
+.sv1-hows li{display:flex}
+.sv1-hw{display:flex;flex-direction:column;gap:6px;width:100%;background:#fff;border:1px solid var(--l);border-radius:14px;padding:20px 18px 16px;box-shadow:var(--sh);transition:transform .15s ease,border-color .2s ease,box-shadow .2s ease;color:inherit;text-decoration:none}
+.sv1-hw:hover,.sv1-hw:focus-visible{transform:translateY(-2px);border-color:var(--acLine);box-shadow:var(--sh2)}
+.sv1-hw i{font-style:normal;font-family:var(--fm);width:38px;height:38px;background:var(--acSoft);color:var(--ac);border-radius:11px;display:grid;place-items:center;font-weight:600;font-size:15px;margin-bottom:6px}
+.sv1-hw b{font-size:16.5px;color:var(--ink);font-weight:600;line-height:1.4}
+.sv1-hw p{margin:0;font-size:13.5px;color:var(--mut);line-height:1.8}
+.sv1-hw .go{margin-top:auto;padding-top:10px;font-size:13px;font-weight:600;color:var(--ac)}
+.sv1-how-cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+@media(max-width:1000px){.sv1-hows{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.sv1-hows{grid-template-columns:1fr}.sv1-hw{padding:16px}.sv1-hw p{font-size:13px}#how{scroll-margin-top:84px}}
+</style>
   <section class="sv1-sec sv1-gray" id="how"><div class="wrap">
-    <div class="sv1-title"><h2>رحلة واحدة لكل الخدمات</h2><p>ما يحتاج العميل يتعلم نظام جديد لكل خدمة.</p></div>
-    <div class="sv1-flow"><div><i>1</i><b>محادثة</b><small>نفهم المطلوب</small></div><div><i>2</i><b>نطاق الخدمات</b><small>إضافة وحذف</small></div><div><i>3</i><b>عرض السعر</b><small>موافقة العميل</small></div><div><i>4</i><b>العقد</b><small>توقيع إلكتروني</small></div><div><i>5</i><b>الدفع</b><small>دفع إلكتروني</small></div><div><i>6</i><b>الفاتورة</b><small>داخل الحساب</small></div></div>
+    <div class="sv1-title"><h2>كيف نعمل معك</h2><p>أربع خطوات من أول سؤال إلى استلام عملك — وكل خطوة لها رابط يوصلك إليها.</p></div>
+    <ol class="sv1-hows"><li><a class="sv1-hw" href="/ar/catalog" data-track="كيف نعمل: 1"><i>1</i><b>اختر الخدمة</b><p>تصفّح الخدمات والباقات، أو اشرح احتياجك للمستشار الذكي ليحدد لك الأنسب.</p><span class="go">تصفّح الخدمات →</span></a></li><li><a class="sv1-hw" href="#advisor" data-track="كيف نعمل: 2"><i>2</i><b>اطلب عرضاً أو اشترِ</b><p>ما يحتاج نطاقاً يصلك فيه عرض سعر تعدّله وتوافق عليه، والجاهز تضيفه إلى السلة.</p><span class="go">ابدأ المحادثة →</span></a></li><li><a class="sv1-hw" href="/ar/cart" data-track="كيف نعمل: 3"><i>3</i><b>وقّع وادفع</b><p>توقيع العقد إلكترونياً ثم الدفع أونلاين — وتصلك الفاتورة بعدها.</p><span class="go">افتح السلة →</span></a></li><li><a class="sv1-hw" href="/ar/my" data-track="كيف نعمل: 4"><i>4</i><b>تابع من لوحتك</b><p>حالة الطلب والمستندات والفواتير في مكان واحد، حتى يكتمل العمل.</p><span class="go">افتح لوحتي →</span></a></li></ol>
+    <div class="sv1-how-cta">
+      <a class="sv1-btn primary" href="#advisor" data-track="كيف نعمل: ابدأ">ابدأ طلبك</a>
+      <a class="sv1-btn" href="/ar/catalog" data-track="كيف نعمل: الخدمات">تصفّح الخدمات</a>
+    </div>
   </div></section>
 
   <section class="sv1-sec" id="portal"><div class="wrap">
