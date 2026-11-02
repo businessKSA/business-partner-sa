@@ -56,7 +56,7 @@ const EMP_SKU = {
   basic: { monthly: "BP-EMP-BASIC-M", yearly: "BP-EMP-BASIC-Y" },
   pro: { monthly: "BP-EMP-PRO-M", yearly: "BP-EMP-PRO-Y" },
 };
-function loadEmployerPlans() {
+export function loadEmployerPlans() {
   const cfg = JSON.parse(readFileSync(new URL("../data/site.json", import.meta.url), "utf8")).employerPlans;
   if (!cfg || !Array.isArray(cfg.tiers)) throw new Error("simple-v1-employer: site.json has no employerPlans.tiers");
   const disc = Number(cfg.yearlyDiscount || 0);
@@ -79,7 +79,7 @@ function loadEmployerPlans() {
   return { plans: out, savePct: Math.round(disc * 100) };
 }
 
-const T = {
+export const T = {
   title:   { ar: "بوابة صاحب العمل", en: "Employer portal", fr: "Espace employeur", zh: "雇主门户" },
   desc:    { ar: "انشر وظيفة، واستقبل المتقدمين، وتابعهم من الفرز إلى العرض الوظيفي — في صفحة واحدة.",
              en: "Post a vacancy, receive applicants, and track them from screening to offer — in one page.",
