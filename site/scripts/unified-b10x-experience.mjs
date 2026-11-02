@@ -41,6 +41,9 @@ const TOGGLE_JS = `<script id="bp-detail-toggle-js">(function(){document.querySe
 for (const [rel,lang,type] of targets){
   const file=path.join(ROOT,rel); if(!fs.existsSync(file)) continue;
   let html=fs.readFileSync(file,'utf8');
+  // صفحة على قشرة الموقع الجديد (SV1.shell): هيرو B10X القديم و«B10X FLEX» وطبقة الأزرار
+  // ليست لها — الحقن فوق ترويسة SV1 يضع هيرو ثانياً (كما فعلت /packages قبل 2026-11-02).
+  if(html.includes('<body class="sv1-page">')) continue;
   if(!html.includes('bp-unified-experience-css')) html=html.replace('</head>',CSS+'\n</head>');
   const tx=lang==='ar'?ar:en;
   html=html.replace(/<body([^>]*)>/,`<body$1 class="${type==='services'?'bp-ux-services':type==='packages'?'bp-ux-packages':'bp-ux-home'}">`);
