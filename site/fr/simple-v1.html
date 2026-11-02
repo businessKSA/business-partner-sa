@@ -419,9 +419,27 @@ var h0=hint();if(h0)S.paint(true,h0);
     </div>
   </div></section>
 
+  <style id="sv1-how-css">
+#how{scroll-margin-top:96px}
+.sv1-hows{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;counter-reset:hw}
+.sv1-hows li{display:flex}
+.sv1-hw{display:flex;flex-direction:column;gap:6px;width:100%;background:#fff;border:1px solid var(--l);border-radius:14px;padding:20px 18px 16px;box-shadow:var(--sh);transition:transform .15s ease,border-color .2s ease,box-shadow .2s ease;color:inherit;text-decoration:none}
+.sv1-hw:hover,.sv1-hw:focus-visible{transform:translateY(-2px);border-color:var(--acLine);box-shadow:var(--sh2)}
+.sv1-hw i{font-style:normal;font-family:var(--fm);width:38px;height:38px;background:var(--acSoft);color:var(--ac);border-radius:11px;display:grid;place-items:center;font-weight:600;font-size:15px;margin-bottom:6px}
+.sv1-hw b{font-size:16.5px;color:var(--ink);font-weight:600;line-height:1.4}
+.sv1-hw p{margin:0;font-size:13.5px;color:var(--mut);line-height:1.8}
+.sv1-hw .go{margin-top:auto;padding-top:10px;font-size:13px;font-weight:600;color:var(--ac)}
+.sv1-how-cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+@media(max-width:1000px){.sv1-hows{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.sv1-hows{grid-template-columns:1fr}.sv1-hw{padding:16px}.sv1-hw p{font-size:13px}#how{scroll-margin-top:84px}}
+</style>
   <section class="sv1-sec sv1-gray" id="how"><div class="wrap">
-    <div class="sv1-title"><h2>Un seul parcours pour tous les services</h2><p>Aucun client n'a à apprendre un nouveau système par service.</p></div>
-    <div class="sv1-flow"><div><i>1</i><b>Conversation</b><small>Nous comprenons le besoin</small></div><div><i>2</i><b>Périmètre des services</b><small>Ajouter et supprimer</small></div><div><i>3</i><b>Devis</b><small>Accord du client</small></div><div><i>4</i><b>Contrat</b><small>Signature électronique</small></div><div><i>5</i><b>Paiement</b><small>Paiement en ligne</small></div><div><i>6</i><b>Facture</b><small>Dans le compte</small></div></div>
+    <div class="sv1-title"><h2>Comment nous travaillons avec vous</h2><p>Quatre étapes de la première question à la livraison — chaque étape renvoie directement à sa page.</p></div>
+    <ol class="sv1-hows"><li><a class="sv1-hw" href="/fr/catalog" data-track="كيف نعمل: 1"><i>1</i><b>Choisissez le service</b><p>Parcourez services et forfaits, ou décrivez votre besoin au conseiller intelligent qui choisira pour vous.</p><span class="go">Parcourir les services →</span></a></li><li><a class="sv1-hw" href="#advisor" data-track="كيف نعمل: 2"><i>2</i><b>Demandez un devis ou achetez</b><p>Ce qui demande un périmètre reçoit un devis que vous ajustez et validez ; le prêt à l'emploi va au panier.</p><span class="go">Démarrer la conversation →</span></a></li><li><a class="sv1-hw" href="/fr/cart" data-track="كيف نعمل: 3"><i>3</i><b>Signez et payez</b><p>Signez le contrat électroniquement, puis payez en ligne — la facture suit.</p><span class="go">Ouvrir le panier →</span></a></li><li><a class="sv1-hw" href="/fr/my" data-track="كيف نعمل: 4"><i>4</i><b>Suivez depuis votre compte</b><p>Statut, documents et factures au même endroit jusqu'à la fin du travail.</p><span class="go">Ouvrir mon compte →</span></a></li></ol>
+    <div class="sv1-how-cta">
+      <a class="sv1-btn primary" href="#advisor" data-track="كيف نعمل: ابدأ">Démarrer une demande</a>
+      <a class="sv1-btn" href="/fr/catalog" data-track="كيف نعمل: الخدمات">Parcourir les services</a>
+    </div>
   </div></section>
 
   <section class="sv1-sec" id="portal"><div class="wrap">

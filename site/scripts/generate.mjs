@@ -351,6 +351,7 @@ import { buildSimpleGuideRunBusiness } from "./simple-v1-guide-run-your-business
 import { buildSimpleGuideLiveInSaudi } from "./simple-v1-guide-live-in-saudi.mjs";
 import { buildSimpleGuideResidency } from "./simple-v1-guide-residency.mjs";
 import { buildSimpleKnowledge } from "./simple-v1-knowledge.mjs";
+import { buildSimpleAbout, buildSimpleContact } from "./simple-v1-public.mjs";
 function T(en) {
   const dict = TRANSLATIONS[LANG];
   return (dict && dict[en]) || en;
@@ -12053,7 +12054,9 @@ function writeFullSite(pre) {
   // «كل الخدمات» in this site's own design — where the footer link used to
   // send people to the classic homepage.
   if (SIMPLE_V1) write(`${pre}catalog.html`, buildSimpleCatalog(SV1, { lang: () => LANG, esc, catLabel: (k) => L(catEn(k), catAr(k)), govLabel }));
-  write(`${pre}about.html`, buildAbout());
+  // «من نحن» و«تواصل» بقشرة Simple V1 (2026-11-02). اللغات الخمس غير الجاهزة
+  // (es hi ja ko ru) تبقى على القالب القديم أدناه حتى يقرّر المالك مصيرها.
+  write(`${pre}about.html`, SIMPLE_V1 ? buildSimpleAbout(SV1, { lang: () => LANG, esc }, site) : buildAbout());
   write(`${pre}services.html`, buildServicesIndex());
   if (pageVisible("business-development")) write(`${pre}business-development.html`, buildBdaas());
   write(`${pre}b10x.html`, buildB10X());
@@ -12114,7 +12117,7 @@ function writeFullSite(pre) {
   write(`${pre}workspace-request.html`, buildWorkspaceRequest());
   write(`${pre}farina.html`, buildFarina());
   write(`${pre}worker-housing.html`, buildWorkerHousing());
-  write(`${pre}contact.html`, buildContact());
+  write(`${pre}contact.html`, SIMPLE_V1 ? buildSimpleContact(SV1, { lang: () => LANG, esc }, site) : buildContact());
   if (!SIMPLE_V1) write(`${pre}cart.html`, buildCart());
   // /installments hidden at owner's request — buildInstallments() kept as dead code, not generated or linked.
   write(`${pre}estrdad.html`, buildEstrdad());

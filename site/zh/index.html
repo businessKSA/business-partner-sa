@@ -419,9 +419,27 @@ var h0=hint();if(h0)S.paint(true,h0);
     </div>
   </div></section>
 
+  <style id="sv1-how-css">
+#how{scroll-margin-top:96px}
+.sv1-hows{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;counter-reset:hw}
+.sv1-hows li{display:flex}
+.sv1-hw{display:flex;flex-direction:column;gap:6px;width:100%;background:#fff;border:1px solid var(--l);border-radius:14px;padding:20px 18px 16px;box-shadow:var(--sh);transition:transform .15s ease,border-color .2s ease,box-shadow .2s ease;color:inherit;text-decoration:none}
+.sv1-hw:hover,.sv1-hw:focus-visible{transform:translateY(-2px);border-color:var(--acLine);box-shadow:var(--sh2)}
+.sv1-hw i{font-style:normal;font-family:var(--fm);width:38px;height:38px;background:var(--acSoft);color:var(--ac);border-radius:11px;display:grid;place-items:center;font-weight:600;font-size:15px;margin-bottom:6px}
+.sv1-hw b{font-size:16.5px;color:var(--ink);font-weight:600;line-height:1.4}
+.sv1-hw p{margin:0;font-size:13.5px;color:var(--mut);line-height:1.8}
+.sv1-hw .go{margin-top:auto;padding-top:10px;font-size:13px;font-weight:600;color:var(--ac)}
+.sv1-how-cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+@media(max-width:1000px){.sv1-hows{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.sv1-hows{grid-template-columns:1fr}.sv1-hw{padding:16px}.sv1-hw p{font-size:13px}#how{scroll-margin-top:84px}}
+</style>
   <section class="sv1-sec sv1-gray" id="how"><div class="wrap">
-    <div class="sv1-title"><h2>所有服务，同一条流程</h2><p>客户无需为每项服务学习新系统。</p></div>
-    <div class="sv1-flow"><div><i>1</i><b>对话</b><small>了解需求</small></div><div><i>2</i><b>服务范围</b><small>增删条目</small></div><div><i>3</i><b>报价</b><small>客户确认</small></div><div><i>4</i><b>合同</b><small>电子签署</small></div><div><i>5</i><b>付款</b><small>在线支付</small></div><div><i>6</i><b>发票</b><small>在账户中</small></div></div>
+    <div class="sv1-title"><h2>我们如何与您合作</h2><p>从第一个问题到收到成果，共四步——每一步都可直接点击前往。</p></div>
+    <ol class="sv1-hows"><li><a class="sv1-hw" href="/zh/catalog" data-track="كيف نعمل: 1"><i>1</i><b>选择服务</b><p>浏览服务与套餐，或向智能顾问说明需求，由它为您选出最合适的。</p><span class="go">浏览服务 →</span></a></li><li><a class="sv1-hw" href="#advisor" data-track="كيف نعمل: 2"><i>2</i><b>申请报价或直接购买</b><p>需确定范围的服务会收到可调整并确认的报价；现成服务直接加入购物车。</p><span class="go">开始对话 →</span></a></li><li><a class="sv1-hw" href="/zh/cart" data-track="كيف نعمل: 3"><i>3</i><b>签署并付款</b><p>电子签署合同后在线支付，随后收到发票。</p><span class="go">打开购物车 →</span></a></li><li><a class="sv1-hw" href="/zh/my" data-track="كيف نعمل: 4"><i>4</i><b>在账户中跟进</b><p>订单状态、文件与发票集中在一处，直至工作完成。</p><span class="go">打开我的账户 →</span></a></li></ol>
+    <div class="sv1-how-cta">
+      <a class="sv1-btn primary" href="#advisor" data-track="كيف نعمل: ابدأ">开始申请</a>
+      <a class="sv1-btn" href="/zh/catalog" data-track="كيف نعمل: الخدمات">浏览服务</a>
+    </div>
   </div></section>
 
   <section class="sv1-sec" id="portal"><div class="wrap">

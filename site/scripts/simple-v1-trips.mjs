@@ -14,6 +14,10 @@ const D = {
              en: "Three lines: the investor visit to Saudi Arabia, domestic tourism with its packages, and corporate events and offsites.",
              fr: "Trois lignes : la visite investisseur, le tourisme intérieur et ses forfaits, et les événements d'entreprise.",
              zh: "三条产品线：投资者考察、境内旅游套餐、企业活动与团建。" },
+  tabSvc:  { ar: "الخدمات", en: "Services", fr: "Services", zh: "服务" },
+  tabPkg:  { ar: "الباقات", en: "Packages", fr: "Forfaits", zh: "套餐" },
+  tabTrip: { ar: "الرحلات", en: "Trips", fr: "Voyages", zh: "行程" },
+  tabHire: { ar: "التوظيف", en: "Hiring", fr: "Recrutement", zh: "招聘" },
   lineInv: { ar: "زيارة المستثمر", en: "Investor visit", fr: "Visite investisseur", zh: "投资者考察" },
   lineTour:{ ar: "الرحلات السياحية", en: "Tourism trips", fr: "Voyages touristiques", zh: "旅游行程" },
   lineCorp:{ ar: "فعاليات الشركات", en: "Corporate events", fr: "Événements d'entreprise", zh: "企业活动" },
@@ -362,7 +366,14 @@ export function buildSimpleTrips(sv1, ctx, data) {
   const body = `${sv1.header("/trips", { cta: false })}
 <main>
   <section class="sv1-sec" style="padding-bottom:0">
-    <div class="wrap"><div class="sv1-title">
+    <div class="wrap">
+    <div class="sv1-tabs sv1-hubtabs" style="margin-bottom:30px;flex-wrap:wrap" aria-label="${esc(t("tabSvc"))} · ${esc(t("tabPkg"))} · ${esc(t("tabTrip"))} · ${esc(t("tabHire"))}">
+      <a class="sv1-tab" href="${pre}/catalog">${esc(t("tabSvc"))}</a>
+      <a class="sv1-tab" href="${pre}/catalog?tab=packages">${esc(t("tabPkg"))}</a>
+      <span class="sv1-tab on" aria-current="page">${esc(t("tabTrip"))}</span>
+      <a class="sv1-tab" href="${pre}/hiring">${esc(t("tabHire"))}</a>
+    </div>
+    <div class="sv1-title">
       <span class="sv1-tag">${esc(t("hTitle"))}</span>
       <h2>${esc(t("hTitle"))}</h2>
       <p>${esc(t("hLead"))}</p>

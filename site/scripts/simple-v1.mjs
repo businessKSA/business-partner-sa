@@ -145,6 +145,21 @@ const D = {
   j6: { ar: "الفاتورة", en: "Invoice", fr: "Facture", zh: "发票" },
   j6s: { ar: "داخل الحساب", en: "Inside the account", fr: "Dans le compte", zh: "在账户中" },
 
+  howTitle: { ar: "كيف نعمل معك", en: "How we work with you", fr: "Comment nous travaillons avec vous", zh: "我们如何与您合作" },
+  howSub: { ar: "أربع خطوات من أول سؤال إلى استلام عملك — وكل خطوة لها رابط يوصلك إليها.", en: "Four steps from your first question to receiving your work — each step links straight to where it happens.", fr: "Quatre étapes de la première question à la livraison — chaque étape renvoie directement à sa page.", zh: "从第一个问题到收到成果，共四步——每一步都可直接点击前往。" },
+  hw1: { ar: "اختر الخدمة", en: "Choose the service", fr: "Choisissez le service", zh: "选择服务" },
+  hw1d: { ar: "تصفّح الخدمات والباقات، أو اشرح احتياجك للمستشار الذكي ليحدد لك الأنسب.", en: "Browse services and packages, or describe your need to the smart advisor and let it pick the right one.", fr: "Parcourez services et forfaits, ou décrivez votre besoin au conseiller intelligent qui choisira pour vous.", zh: "浏览服务与套餐，或向智能顾问说明需求，由它为您选出最合适的。" },
+  hw1g: { ar: "تصفّح الخدمات", en: "Browse services", fr: "Parcourir les services", zh: "浏览服务" },
+  hw2: { ar: "اطلب عرضاً أو اشترِ", en: "Request a quote or buy", fr: "Demandez un devis ou achetez", zh: "申请报价或直接购买" },
+  hw2d: { ar: "ما يحتاج نطاقاً يصلك فيه عرض سعر تعدّله وتوافق عليه، والجاهز تضيفه إلى السلة.", en: "Work that needs a scope gets a quotation you can adjust and approve; ready services go into your cart.", fr: "Ce qui demande un périmètre reçoit un devis que vous ajustez et validez ; le prêt à l'emploi va au panier.", zh: "需确定范围的服务会收到可调整并确认的报价；现成服务直接加入购物车。" },
+  hw2g: { ar: "ابدأ المحادثة", en: "Start the chat", fr: "Démarrer la conversation", zh: "开始对话" },
+  hw3: { ar: "وقّع وادفع", en: "Sign and pay", fr: "Signez et payez", zh: "签署并付款" },
+  hw3d: { ar: "توقيع العقد إلكترونياً ثم الدفع أونلاين — وتصلك الفاتورة بعدها.", en: "Sign the contract electronically, then pay online — your invoice follows.", fr: "Signez le contrat électroniquement, puis payez en ligne — la facture suit.", zh: "电子签署合同后在线支付，随后收到发票。" },
+  hw3g: { ar: "افتح السلة", en: "Open the cart", fr: "Ouvrir le panier", zh: "打开购物车" },
+  hw4: { ar: "تابع من لوحتك", en: "Follow from your account", fr: "Suivez depuis votre compte", zh: "在账户中跟进" },
+  hw4d: { ar: "حالة الطلب والمستندات والفواتير في مكان واحد، حتى يكتمل العمل.", en: "Request status, documents and invoices in one place until the work is complete.", fr: "Statut, documents et factures au même endroit jusqu'à la fin du travail.", zh: "订单状态、文件与发票集中在一处，直至工作完成。" },
+  hw4g: { ar: "افتح لوحتي", en: "Open my account", fr: "Ouvrir mon compte", zh: "打开我的账户" },
+
   portalTitle: { ar: "حسابك: كل شيء في مكان واحد", en: "Your account: everything in one place", fr: "Votre compte : tout au même endroit", zh: "您的账户：一处掌握全部" },
   portalSub: { ar: "طلباتك وعروض أسعارك وعقودك ومواعيدك ومدفوعاتك وفواتيرك — تتابعها بنفسك في أي وقت.", en: "Your requests, quotations, contracts, appointments, payments and invoices — all followed by you, any time.", fr: "Vos demandes, devis, contrats, rendez-vous, paiements et factures — suivis par vous, à tout moment.", zh: "您的申请、报价、合同、预约、付款与发票 — 随时自行跟进。" },
   tabClient: { ar: "لوحة العميل", en: "Client portal", fr: "Espace client", zh: "客户面板" },
@@ -864,7 +879,13 @@ var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
     const ex = buildHomeExtras({ esc, href, lang });
     const eorDoor = `<a class="sv1-door" id="door-eor" href="${href("/eor")}" data-track="باب: eor"><div class="ico">👥</div><h3>${eorTx.title}</h3><p>${eorTx.desc}</p><span>${t("ctaEor")}</span></a>`;
 
-    const flow = [1, 2, 3, 4, 5, 6].map((n) => `<div><i>${n}</i><b>${t("j" + n)}</b><small>${t("j" + n + "s")}</small></div>`).join("");
+    // «كيف نعمل»: أربع خطوات حقيقية لرحلة العميل، لكلٍّ رابطٌ إلى صفحتها الجديدة.
+    const howSteps = [
+      [1, "hw1", href("/catalog")],
+      [2, "hw2", "#advisor"],
+      [3, "hw3", href("/cart")],
+      [4, "hw4", href("/my")],
+    ].map(([n, k, to]) => `<li><a class="sv1-hw" href="${to}" data-track="كيف نعمل: ${n}"><i>${n}</i><b>${t(k)}</b><p>${t(k + "d")}</p><span class="go">${t(k + "g")} ${lang === "ar" ? "←" : "→"}</span></a></li>`).join("");
 
     const clientMenu = ["pClientHome", "pClientNew", "pClientReqs", "pClientQuotes", "pClientContracts", "pClientAppts", "pClientPay", "pClientInv", "pClientChats"]
       .map((k, i) => `<div class="sv1-mi${i === 0 ? " on" : ""}">${t(k)}</div>`).join("");
@@ -973,9 +994,27 @@ ${header(path)}
     </div>
   </div></section>
 
+  <style id="sv1-how-css">
+#how{scroll-margin-top:96px}
+.sv1-hows{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;counter-reset:hw}
+.sv1-hows li{display:flex}
+.sv1-hw{display:flex;flex-direction:column;gap:6px;width:100%;background:#fff;border:1px solid var(--l);border-radius:14px;padding:20px 18px 16px;box-shadow:var(--sh);transition:transform .15s ease,border-color .2s ease,box-shadow .2s ease;color:inherit;text-decoration:none}
+.sv1-hw:hover,.sv1-hw:focus-visible{transform:translateY(-2px);border-color:var(--acLine);box-shadow:var(--sh2)}
+.sv1-hw i{font-style:normal;font-family:var(--fm);width:38px;height:38px;background:var(--acSoft);color:var(--ac);border-radius:11px;display:grid;place-items:center;font-weight:600;font-size:15px;margin-bottom:6px}
+.sv1-hw b{font-size:16.5px;color:var(--ink);font-weight:600;line-height:1.4}
+.sv1-hw p{margin:0;font-size:13.5px;color:var(--mut);line-height:1.8}
+.sv1-hw .go{margin-top:auto;padding-top:10px;font-size:13px;font-weight:600;color:var(--ac)}
+.sv1-how-cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+@media(max-width:1000px){.sv1-hows{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.sv1-hows{grid-template-columns:1fr}.sv1-hw{padding:16px}.sv1-hw p{font-size:13px}#how{scroll-margin-top:84px}}
+</style>
   <section class="sv1-sec sv1-gray" id="how"><div class="wrap">
-    <div class="sv1-title"><h2>${t("journeyTitle")}</h2><p>${t("journeySub")}</p></div>
-    <div class="sv1-flow">${flow}</div>
+    <div class="sv1-title"><h2>${t("howTitle")}</h2><p>${t("howSub")}</p></div>
+    <ol class="sv1-hows">${howSteps}</ol>
+    <div class="sv1-how-cta">
+      <a class="sv1-btn primary" href="#advisor" data-track="كيف نعمل: ابدأ">${t("navStart")}</a>
+      <a class="sv1-btn" href="${href("/catalog")}" data-track="كيف نعمل: الخدمات">${t("hw1g")}</a>
+    </div>
   </div></section>
 
   <section class="sv1-sec" id="portal"><div class="wrap">
