@@ -32,6 +32,7 @@
 // نطلب `CRYPTOGRAM_3DS` وحده (توثيق مُيسّر): `PAN_ONLY` يعني رقم بطاقة خام بلا 3DS.
 
 import { recurringMap } from "./simple-v1-cart.mjs";
+import { termsData, GET_TERMS_FOR_SRC } from "./simple-v1-terms.mjs";
 
 const T = {
   title:   { ar: "إتمام الدفع", en: "Checkout", fr: "Paiement", zh: "结账" },
@@ -177,6 +178,40 @@ const T = {
   invSent: { ar: "وتصلك فاتورتك الضريبية على بريدك.", en: "Your tax invoice reaches your e-mail.", fr: "Votre facture fiscale arrive par e-mail.", zh: "税务发票将发送到您的邮箱。" },
   invSoon: { ar: "ويجهّز الفريق فاتورتك الضريبية وتصلك على البريد نفسه.", en: "The team prepares your tax invoice and sends it to the same e-mail.", fr: "L'équipe prépare votre facture fiscale et vous l'enverra à la même adresse.", zh: "团队正在准备税务发票，并发送到同一邮箱。" },
   signInGo:{ ar: "سجّل الدخول", en: "Sign in", fr: "Se connecter", zh: "登录" },
+
+  // ---- المحافظ الرقمية: كلٌّ منها طريقة مستقلة، وتظهر فقط حيث يدعمها الجهاز.
+  apple:   { ar: "Apple Pay", en: "Apple Pay", fr: "Apple Pay", zh: "Apple Pay" },
+  samsung: { ar: "Samsung Pay", en: "Samsung Pay", fr: "Samsung Pay", zh: "Samsung Pay" },
+  google:  { ar: "Google Pay", en: "Google Pay", fr: "Google Pay", zh: "Google Pay" },
+  walletS: { ar: "ادفع بلمسة واحدة", en: "Pay in one tap", fr: "Payez en un geste", zh: "一键支付" },
+  walletNote:{ ar: "المحافظ الرقمية (Apple Pay · Samsung Pay) تظهر تلقائياً على الأجهزة التي تدعمها — إن لم تجدها فادفع بالبطاقة أو تمارا.",
+             en: "Apple Pay and Samsung Pay appear automatically on devices that support them — if you do not see them, pay by card or Tamara.",
+             fr: "Apple Pay et Samsung Pay apparaissent automatiquement sur les appareils compatibles — sinon, payez par carte ou avec Tamara.",
+             zh: "Apple Pay 和 Samsung Pay 会在支持的设备上自动显示——若未看到，请用银行卡或 Tamara 支付。" },
+  walletMock:{ ar: "بوابة محلية — اختبار المحفظة بلا خصم", en: "Local gateway — wallet test, no charge", fr: "Passerelle locale — test du portefeuille, aucun débit", zh: "本地网关——钱包测试，不扣款" },
+
+  // ---- الشروط: موافقة إجبارية على شروط كل بند قبل الدفع، وتُوثَّق بوقتها ونسختها.
+  termsHd: { ar: "الشروط والموافقة", en: "Terms and consent", fr: "Conditions et accord", zh: "条款与确认" },
+  termsIn: { ar: "لكل خدمة في طلبك شروطها الخاصة. اقرأها قبل الدفع:", en: "Each service in your order has its own terms. Read them before paying:",
+             fr: "Chaque service de votre commande a ses propres conditions. Lisez-les avant de payer :", zh: "订单中的每项服务都有各自的条款，请在付款前阅读：" },
+  termsOf: { ar: "شروط", en: "Terms", fr: "Conditions", zh: "条款" },
+  termsOk: { ar: "قرأتُ الشروط الخاصة بكل بند في طلبي وأوافق عليها.", en: "I have read the terms for every item in my order and I agree to them.",
+             fr: "J'ai lu les conditions de chaque article de ma commande et je les accepte.", zh: "我已阅读订单中每个项目的条款并表示同意。" },
+  termsNeed:{ ar: "وافق على الشروط أولاً لتفعيل الدفع.", en: "Accept the terms first to enable payment.", fr: "Acceptez d'abord les conditions pour activer le paiement.", zh: "请先同意条款以启用付款。" },
+  termsFine:{ ar: "تُسجَّل موافقتك بوقتها ونسخة الشروط مع طلبك.", en: "Your consent is recorded with its time and the terms version on your order.",
+             fr: "Votre accord est enregistré avec sa date et la version des conditions.", zh: "您的同意将连同时间和条款版本一并记录在订单中。" },
+
+  // ---- الدخول من صفحة الدفع نفسها: الأسعار للمسجّلين، فلا يُرسَل الضيف إلى صفحة أخرى ويضيع.
+  liHd:    { ar: "ادخل لإكمال الشراء", en: "Sign in to complete your purchase", fr: "Connectez-vous pour finaliser", zh: "登录以完成购买" },
+  liP:     { ar: "الأسعار تظهر للمسجّلين. اكتب بريدك ونرسل لك رمز دخول — وتبقى في هذه الصفحة وسلتك كما هي.",
+             en: "Prices are shown to signed-in customers. Enter your e-mail and we send a sign-in code — you stay on this page with your cart intact.",
+             fr: "Les prix sont affichés aux clients connectés. Saisissez votre e-mail, nous envoyons un code — vous restez sur cette page, panier intact.",
+             zh: "价格仅对已登录客户显示。输入邮箱，我们发送登录验证码——您将留在本页，购物车保持不变。" },
+  liSend:  { ar: "أرسل الرمز", en: "Send code", fr: "Envoyer le code", zh: "发送验证码" },
+  liCode:  { ar: "رمز الدخول", en: "Sign-in code", fr: "Code de connexion", zh: "登录验证码" },
+  liGo:    { ar: "ادخل وأكمل الدفع", en: "Sign in and continue", fr: "Se connecter et continuer", zh: "登录并继续" },
+  liErr:   { ar: "تعذّر إرسال الرمز. تأكد من البريد وحاول مجدداً.", en: "Could not send the code. Check the e-mail and try again.", fr: "Envoi impossible. Vérifiez l'e-mail et réessayez.", zh: "无法发送验证码，请检查邮箱后重试。" },
+  liBad:   { ar: "الرمز غير صحيح.", en: "That code is not right.", fr: "Code incorrect.", zh: "验证码不正确。" },
 };
 
 export function buildSimpleCheckout(SV1, ctx) {
@@ -207,19 +242,43 @@ export function buildSimpleCheckout(SV1, ctx) {
           </div>
         </div>
 
-        <div class="sv1-panel" style="margin-top:14px;">
+        <div class="sv1-panel sv1-hide" id="coTermsBox" style="margin-top:14px;">
+          <h4>${esc(t("termsHd"))}</h4>
+          <p class="sv1-co-fine" style="margin:0 0 8px">${esc(t("termsIn"))}</p>
+          <ul class="sv1-co-tlist" id="coTermsList"></ul>
+          <label class="sv1-co-agree" for="coAgree"><input type="checkbox" id="coAgree"><span>${esc(t("termsOk"))}</span></label>
+          <p class="sv1-co-fine" id="coAgreeNote">${esc(t("termsFine"))}</p>
+        </div>
+
+        <div class="sv1-panel" style="margin-top:14px;" id="coPayPanel">
           <h4>${esc(t("how"))}</h4>
           <div id="coResult" class="sv1-co-result sv1-hide" role="status" aria-live="polite"></div>
+          <div id="coBlock" class="sv1-hide"></div>
+          <div id="coPayArea" class="sv1-co-lock locked">
+          <p class="sv1-co-lockmsg" id="coLockMsg">${esc(t("termsNeed"))}</p>
           <div class="sv1-co-ways" id="coWays">
+            <button type="button" class="sv1-co-way sv1-hide" data-way="applepay" id="coWayApple">
+              <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg></span>
+              <span class="tx"><b>${esc(t("apple"))}</b><small>${esc(t("walletS"))}</small></span>
+            </button>
+            <button type="button" class="sv1-co-way sv1-hide" data-way="samsungpay" id="coWaySamsung">
+              <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M9.5 9.5c1.5-1.4 3.5-1.4 5 0M8 12.5c2.2-2.2 5.8-2.2 8 0"/></svg></span>
+              <span class="tx"><b>${esc(t("samsung"))}</b><small>${esc(t("walletS"))}</small></span>
+            </button>
+            <button type="button" class="sv1-co-way sv1-hide" data-way="googlepay" id="coWayGoogle">
+              <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><circle cx="12" cy="12" r="2.6"/></svg></span>
+              <span class="tx"><b>${esc(t("google"))}</b><small>${esc(t("walletS"))}</small></span>
+            </button>
             <button type="button" class="sv1-co-way on" data-way="card">
               <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/></svg></span>
-              <span class="tx"><b id="coWayCardLabel">${esc(t("card"))}</b><small>${esc(t("cardSub"))}</small></span>
+              <span class="tx"><b>${esc(t("card"))}</b><small>${esc(t("cardSub"))}</small></span>
             </button>
             <button type="button" class="sv1-co-way" data-way="tamara" id="coWayTamara">
               <span class="ico"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 12h18"/><path d="M7 7h10"/><path d="M7 17h10"/></svg></span>
               <span class="tx"><b>${esc(t("tamara"))}</b><small>${esc(t("tamaraS"))}</small></span>
             </button>
           </div>
+          <p class="sv1-co-fine sv1-hide" id="coWalletNote">${esc(t("walletNote"))}</p>
 
           <div id="coPaneCard" class="sv1-co-pane">
             <div id="coPayMount" class="sv1-co-mount"><div class="sv1-co-wait">${esc(t("loading"))}</div></div>
@@ -229,6 +288,7 @@ export function buildSimpleCheckout(SV1, ctx) {
           <div id="coPaneTamara" class="sv1-co-pane sv1-hide">
             <button type="button" class="sv1-btn primary" style="width:100%" id="coTamaraGo">${esc(t("tamara"))}</button>
             <p class="sv1-co-fine" id="coTamaraNote">${esc(t("tamaraS"))}</p>
+          </div>
           </div>
         </div>
       </div>
@@ -296,10 +356,28 @@ ${SV1.footer()}`;
 .sv1-co-result.ok{border-color:#bfe3d2;background:#f0f9f5}
 .sv1-co-result.warn{border-color:#f0d9b8;background:#fdf7ef}
 .sv1-co-mock{display:inline-block;background:#b45309;color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;margin-bottom:10px}
+.sv1-co-tlist{list-style:none;margin:0 0 12px;padding:0;border:1px solid var(--l);border-radius:11px;overflow:hidden}
+.sv1-co-tlist li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px;font-size:12.5px;border-bottom:1px solid #eef1f8;background:#fff}
+.sv1-co-tlist li:last-child{border-bottom:0}
+.sv1-co-tlist li .n{min-width:0;overflow-wrap:anywhere;color:var(--ink)}
+.sv1-co-tlist li a{flex:none;font-size:11.5px;color:var(--n);text-decoration:underline;text-underline-offset:3px;max-width:48%;text-align:end}
+.sv1-co-agree{display:flex;gap:10px;align-items:flex-start;padding:12px 13px;border:1px solid var(--l);border-radius:11px;background:var(--soft);font-size:13px;line-height:1.7;cursor:pointer;color:var(--ink)}
+.sv1-co-agree input{width:20px;height:20px;margin:2px 0 0;flex:none;accent-color:var(--n);cursor:pointer}
+.sv1-co-agree:has(input:checked){border-color:#bfe3d2;background:#f0f9f5}
+.sv1-co-lockmsg{margin:0 0 12px;padding:9px 12px;border-radius:10px;background:#fdf7ef;border:1px solid #f0d9b8;color:#8a5a14;font-size:12.5px}
+.sv1-co-lock:not(.locked) .sv1-co-lockmsg{display:none}
+.sv1-co-lock.locked #coWays,.sv1-co-lock.locked .sv1-co-pane{opacity:.42;pointer-events:none;user-select:none}
+.sv1-co-way .tx b{unicode-bidi:plaintext}
+.sv1-co-li{display:grid;gap:10px}
+.sv1-co-li h5{margin:0;font-size:14.5px;color:var(--ink);font-weight:600}
+.sv1-co-li p{margin:0;font-size:12.5px;line-height:1.8;color:var(--s)}
+.sv1-co-li .row{display:grid;grid-template-columns:1fr auto;gap:8px}
+.sv1-co-li .err{font-size:12px;color:#b42318;min-height:1em}
 @media(max-width:900px){.sv1-co-grid{grid-template-columns:1fr}.sv1-co-sum{position:static}}
 @media(max-width:600px){.sv1-co-fields{grid-template-columns:1fr}}
 </style>`;
 
+  const terms = termsData();
   const script = `<script>
 (function(){
 var LANG=${JSON.stringify(lang)},HOME=${JSON.stringify(home)};
@@ -307,8 +385,13 @@ var TX=${JSON.stringify({ empty: t("empty"), browse: t("browse"), needFill: t("n
   onceHd: t("onceHd"), recHd: t("recHd"), billM: t("billM"), billY: t("billY"), recNote: t("recNote"), tamaraSub: t("tamaraSub"),
   lblOrder: t("lblOrder"), lblPay: t("lblPay"), lblAmt: t("lblAmt"), lblInv: t("lblInv"), okDone: t("okDone"),
   nextInv: t("nextInv"), nextNoInv: t("nextNoInv"), reviewT: t("reviewT"), reviewN: t("reviewN"), signInGo: t("signInGo"),
-  lblReq: t("lblReq"), openReq: t("openReq"), nextReqDocs: t("nextReqDocs"), nextReq: t("nextReq"), invSent: t("invSent"), invSoon: t("invSoon") })};
+  lblReq: t("lblReq"), openReq: t("openReq"), nextReqDocs: t("nextReqDocs"), nextReq: t("nextReq"), invSent: t("invSent"), invSoon: t("invSoon"),
+  termsOf: t("termsOf"), termsNeed: t("termsNeed"), walletMock: t("walletMock"), apple: t("apple"), samsung: t("samsung"), google: t("google"),
+  liHd: t("liHd"), liP: t("liP"), liSend: t("liSend"), liCode: t("liCode"), liGo: t("liGo"), liErr: t("liErr"), liBad: t("liBad"), email: t("email") })};
 var CART="bp_cart",SNAP="bp_pay_order",VAT=0.15;
+// شروط كل بند: خريطة الفئات من الكتالوج (أو من terms.json حين يصل) ودالة getTermsFor.
+var TERMS=${JSON.stringify(terms)};
+${GET_TERMS_FOR_SRC}
 var REC=${JSON.stringify(recurringMap())};
 var $=function(id){return document.getElementById(id)};
 function money(n){return (Math.round(Number(n||0)*100)/100).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ﷼'}
@@ -396,19 +479,23 @@ getMe().then(function(u){if(!u)return;
 
 // اللقطة والبيانات الوصفية بنفس شكل الموقع القديم حرفياً — المرجع يبقى ثابتاً
 // بين تركيب النموذج والعودة من التحقق البنكي، وإلا صارت الدفعة بلا طلب.
+var termsOk=false,termsAt='';
 function snapshot(){
  var prev='',pe='',pk='';try{var ps=JSON.parse(sessionStorage.getItem(SNAP)||'{}')||{};prev=ps.ref||'';pe=ps.empRef||'';pk=ps.empKey||''}catch(e){}
  var o={ref:prev||'BP-'+Date.now().toString().slice(-6),empRef:pe,empKey:pk,
    name:$('coName').value.trim(),email:$('coEmail').value.trim().toLowerCase(),phone:$('coPhone').value.trim(),
    items:cart.map(function(i){return {id:i.id||'',qty:i.qty||1}}),company:$('coCo').value.trim(),
-   surchargeFee:0,discountCode:'',taxProfile:{kind:'personal'}};
+   surchargeFee:0,discountCode:'',taxProfile:{kind:'personal'},
+   terms:termsOk?{accepted:true,version:TERMS.version,at:termsAt}:null};
  try{sessionStorage.setItem(SNAP,JSON.stringify(o))}catch(e){}
  return o}
 function meta(){
  var s=snapshot(),items='';
  try{items=(s.items||[]).map(function(i){return i.id+'~'+(i.qty||1)}).join(',');if(items.length>400)items=''}catch(e){items=''}
  return {ref:String(s.ref||''),email:String(s.email||'').slice(0,120),name:String(s.name||'').slice(0,60),
-   phone:String(s.phone||'').slice(0,30),co:String(s.company||'').slice(0,80),items:items,disc:'',tax:'personal'}}
+   phone:String(s.phone||'').slice(0,30),co:String(s.company||'').slice(0,80),items:items,disc:'',tax:'personal',
+   // موافقة الشروط تسافر في سجلّ مُيسّر نفسه: الخادم يقرؤها منه لا من المتصفح.
+   tv:termsOk?String(TERMS.version).slice(0,40):'',ta:termsOk?termsAt:''}}
 function ready(){return $('coName').value.trim()&&$('coPhone').value.trim()&&$('coEmail').value.trim().indexOf('@')>0}
 // الاشتراك يُفتح باسم منشأة: الحقل الاختياري يصير مطلوباً هنا فقط.
 function readyEmp(){return !hasEmp||!!$('coCo').value.trim()}
@@ -432,6 +519,7 @@ function prepareEmp(){
 // ---- اختيار الطريقة
 var panes={card:$('coPaneCard'),tamara:$('coPaneTamara')};
 var PAYCFG=null; // إعداد /api/pay بعد وصوله — يحتاجه زر تمارا في الوضع المحلي
+var inited=false,RET=false; // RET: الصفحة فُتحت عائدةً من البوابة بدفعةٍ تُسوّى الآن — لا يُركَّب نموذج دفع فوقها
 
 // ---- العودة من البوابة
 // مُيسّر يعيد ?id&status، وتمارا ?bnpl=tamara&bnpl_status&orderId، والبوابة
@@ -463,6 +551,7 @@ function showResult(kind,txt,extra,link,det){RESULT.className='sv1-co-result '+k
  else if(bn&&(bs||'success')==='success'&&bid)body={action:'bnpl-verify',provider:'tamara',id:bid};
  else if(bn&&bs&&bs!=='success')failed=true;
  if(!body&&!failed)return;
+ if(body){RET=true;$('coPayArea').classList.add('sv1-hide')}
  ['id','status','message','payment','amount','provider','bnpl','bnpl_status','payment_id','paymentId','orderId','order_id'].forEach(function(k){q.delete(k)});
  try{history.replaceState({},'',u.pathname+(q.toString()?'?'+q.toString():''))}catch(e){}
  if(failed){showResult('warn',bn?TX.bnplFail:TX.paidFail);return}
@@ -498,22 +587,46 @@ function showResult(kind,txt,extra,link,det){RESULT.className='sv1-co-result '+k
     // «already_settled»: القناة الأخرى (خطّاف مُيسّر) سبقت وأصدرت الفاتورة، فهي في طريقها لا قيد التجهيز.
     else showResult('ok',TX.okDone,'',rqLink,{rows:rows,next:rqRef?((rq.documents?TX.nextReqDocs:TX.nextReq)+' '+(invSettled?TX.invSent:TX.invSoon)):(invSettled?TX.nextInv:TX.nextNoInv)});
     $('coWays').classList.add('sv1-hide');for(var k in panes)panes[k].classList.add('sv1-hide');
+    $('coPayArea').classList.add('sv1-hide');$('coTermsBox').classList.add('sv1-hide');
     try{localStorage.removeItem(CART)}catch(e){}try{sessionStorage.removeItem(SNAP)}catch(e){}
     try{dispatchEvent(new Event('bp:cart'))}catch(e){}return}
    // بطاقة مرفوضة تُعاد؛ ودفعة لم نستطع قراءتها لا تُعاد — وإلا دفع مرتين.
    if(v&&v.error==='verify_unavailable'){showResult('warn',TX.paidHold,v.paymentId||'');return}
-   showResult('warn',TX.paidFail)})
+   showResult('warn',TX.paidFail);initPay()})
   .catch(function(){showResult('warn',TX.paidHold)});
 })();
 
 // البوابة المحلية (لا مفتاح مُيسّر و APP_ENV=development): صفحة يخدمها الخادم
 // نفسه، تختار فيها النتيجة ثم تعود إلى هنا وتُسوّى بالمسار الحقيقي.
+// provider: card | applepay | samsungpay | googlepay | tamara.
 function mockUrl(provider){snapshot();var u=PAYCFG.formUrl;
  return u+(u.indexOf('?')<0?'?':'&')+'back='+encodeURIComponent(location.pathname)+'&amount='+encodeURIComponent(String(total))+'&label='+encodeURIComponent('Business Partner order')+'&provider='+provider}
-Array.prototype.forEach.call(document.querySelectorAll('.sv1-co-way'),function(b){
- b.onclick=function(){if(b.disabled)return;
-  Array.prototype.forEach.call(document.querySelectorAll('.sv1-co-way'),function(x){x.classList.toggle('on',x===b)});
-  for(var k in panes)panes[k].classList.toggle('sv1-hide',k!==b.getAttribute('data-way'))}});
+
+// ---- الموافقة على الشروط: إجبارية قبل أي زر دفع، وتُوثَّق بوقتها ونسخة الشروط.
+// الواجهة تقفل الدفع (inert + ظلّ) وكلُّ معالج دفع يتحقّق ثانيةً؛ والخادم يتحقّق من
+// أثرها في سجلّ مُيسّر/الطلب (api/pay.js) ولا يفتح جلسة تمارا بدونها.
+function termsUI(){
+ var box=$('coTermsBox'),list=$('coTermsList'),cbx=$('coAgree');
+ box.classList.remove('sv1-hide');list.innerHTML='';
+ cart.forEach(function(i){
+  var g=getTermsFor(i),li=document.createElement('li');
+  var n=document.createElement('span');n.className='n';n.textContent=nameOf(i);
+  var a=document.createElement('a');a.href=g.href;a.target='_blank';a.rel='noopener';a.textContent=TX.termsOf+' '+g.title;
+  li.appendChild(n);li.appendChild(a);list.appendChild(li)});
+ cbx.checked=false;   // لا تُورَّث موافقةٌ من جلسةٍ سابقة ولا من استعادة المتصفح للنموذج
+ cbx.onchange=function(){setTerms(cbx.checked)}}
+function setTerms(on){
+ termsOk=!!on;termsAt=on?new Date().toISOString():'';
+ $('coPayArea').classList.toggle('locked',!termsOk);
+ ['coWays','coPaneCard','coPaneTamara'].forEach(function(id){var e=$(id);if(!e)return;if(termsOk)e.removeAttribute('inert');else e.setAttribute('inert','')});
+ snapshot();
+ // نموذج مُيسّر يأخذ البيانات الوصفية عند التركيب (والمحافظ لا تنادي on_initiating دائماً)،
+ // فيُعاد تركيبه حين تتغيّر الموافقة ليحمل نسختها ووقتها في سجلّ الدفعة نفسه.
+ if(inited&&PAYCFG&&!(PAYCFG.mock&&PAYCFG.formUrl)&&MOY==='ready'&&curWay!=='tamara')mountWay(curWay)}
+function termsGuard(note){
+ if(termsOk)return true;
+ if(note)note.textContent=TX.termsNeed;else showResult('warn',TX.termsNeed);
+ return false}
 
 // ---- تمارا
 // الاشتراك الشهري لا يُقسَّط (تمارا للسنوي وحده) — الخادم يرفضه أيضاً.
@@ -526,6 +639,7 @@ $('coTamaraGo').onclick=function(){
  var n=$('coTamaraNote');
  if(monthlyPkg){n.textContent=TX.tamaraSub;return}
  if(!payable){n.textContent=unpriced?TX.noAmount:TX.signIn;return}
+ if(!termsGuard(n))return;
  if(!ready()){n.textContent=TX.needFill;return}
  if(!readyEmp()){n.textContent=TX.needCo;return}
  if(hasEmp&&!empBnplOk){n.textContent=TX.tamaraYr;return}
@@ -538,112 +652,173 @@ $('coTamaraGo').onclick=function(){
    body:JSON.stringify({action:'bnpl-checkout',provider:'tamara',lang:LANG,order:snapshot()})})
   .then(function(r){return r.json()}).then(function(o){
    if(o&&o.ok&&o.url){location.href=o.url;return}
-   self.disabled=false;n.textContent=(o&&o.message)||TX.payDown})})
+   self.disabled=false;n.textContent=o&&o.error==='terms_required'?TX.termsNeed:((o&&o.message)||TX.payDown)})})
  .catch(function(){self.disabled=false;n.textContent=TX.payDown})};
 
-// ---- البطاقة والمحافظ (مُيسّر) — نفس نداء التركيب في الموقع القديم
-var mount=$('coPayMount');
+// ---- طرق الدفع: بطاقة · Apple Pay · Samsung Pay · Google Pay · تمارا
+// المحافظ الثلاث مخفيّة حتى يثبت أن الجهاز جاهز لها فعلاً (انظر detectWallets) — زرٌّ يفشل
+// عند لمسه أسوأ من زرٍّ لم يُعرض. وكل محفظة تُركَّب بنموذج مُيسّر مستقلّ (methods بها وحدها)
+// فيرسم زرّها الرسمي كما تشترط Apple وSamsung وGoogle.
+var mount=$('coPayMount'),MOY='',curWay='card',WCFG={};
 function payFailed(){mount.innerHTML='';var p=document.createElement('p');p.className='sv1-co-fine';p.style.color='#b42318';p.textContent=TX.payDown;mount.appendChild(p)}
-// مُيسّر يرفض مبلغ الصفر برسالة إنجليزية عامة «Form configuration issue»؛
-// لا نصل إليها أصلاً: نقول للمشتري لماذا لا يوجد مبلغ وماذا يفعل.
-function payBlocked(msg,href,label){
+function allWays(){return Array.prototype.slice.call(document.querySelectorAll('.sv1-co-way'))}
+function selectWay(w){
+ curWay=w;
+ allWays().forEach(function(x){x.classList.toggle('on',x.getAttribute('data-way')===w)});
+ var isT=w==='tamara';
+ panes.card.classList.toggle('sv1-hide',isT);panes.tamara.classList.toggle('sv1-hide',!isT);
+ if(!isT)mountWay(w)}
+allWays().forEach(function(b){b.onclick=function(){if(b.disabled)return;selectWay(b.getAttribute('data-way'))}});
+function wayName(w){return w==='applepay'?TX.apple:w==='samsungpay'?TX.samsung:w==='googlepay'?TX.google:TX.card}
+function mountWay(w){
+ if(!PAYCFG)return;   // يُستدعى ثانيةً حين يصل الإعداد
+ if(PAYCFG.mock&&PAYCFG.formUrl){mountMock(w);return}
+ if(MOY==='ready')boot(w)}
+function mountMock(w){
  mount.innerHTML='';
- var p=document.createElement('p');p.className='sv1-co-fine';p.textContent=msg;mount.appendChild(p);
- if(href){var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=href;a.textContent=label;a.style.marginTop='10px';mount.appendChild(a)}
- var tg=$('coTamaraGo');if(tg)tg.disabled=true}
-if(!cart.length){mount.innerHTML='';}
-else if(empLines.length>1){payBlocked(TX.onePlan,HOME+'cart',TX.toCart);}
-else if(unpriced){payBlocked(TX.noAmount,HOME+'my',TX.signInBtn);}
-// الدخول يرجع إلى هذه الصفحة (next) لا إلى لوحة العميل، فتبقى السلة أمامه.
-else if(hidden){payBlocked(TX.signIn,HOME+'my?next='+encodeURIComponent(HOME+'checkout'),TX.signInBtn);}
-else if(!(total>0)){payBlocked(TX.noAmount,HOME+'catalog',TX.browse);}
-else fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
- PAYCFG=cfg||null;
- if(cfg&&cfg.bnpl&&cfg.bnpl.tamara===false){var tb=$('coWayTamara');if(tb)tb.disabled=true}
- if(cfg&&cfg.enabled&&cfg.mock&&cfg.formUrl){
-  mount.innerHTML='';
-  var tg=document.createElement('span');tg.className='sv1-co-mock';tg.textContent=TX.mockTag;mount.appendChild(tg);
-  var bt=document.createElement('button');bt.type='button';bt.className='sv1-btn primary';bt.style.width='100%';bt.id='coMockPay';bt.textContent=TX.payBtn;
-  var nt=document.createElement('p');nt.className='sv1-co-fine';
-  bt.onclick=function(){if(!ready()){nt.textContent=TX.needFill;return}if(!readyEmp()){nt.textContent=TX.needCo;return}
-   bt.disabled=true;prepareEmp().then(function(ok){if(ok){location.href=mockUrl('card');return}bt.disabled=false;nt.textContent=empMsg()})};
-  mount.appendChild(bt);mount.appendChild(nt);return}
- if(!cfg||!cfg.enabled||!cfg.publishableKey||!cfg.scriptUrl){payFailed();return}
- if(cfg.cssUrl){var l=document.createElement('link');l.rel='stylesheet';l.href=cfg.cssUrl;document.head.appendChild(l)}
- var s=document.createElement('script');s.src=cfg.scriptUrl;
- s.onerror=payFailed;
- s.onload=function(){
-  if(!(window.Moyasar&&typeof window.Moyasar.init==='function')){payFailed();return}
-  var wanted=(cfg.methods||['creditcard']).slice();
-  // Apple Pay: جاهزيته معروفة بنداءٍ متزامن من المتصفح نفسه.
-  var canAP=false;try{canAP=!!(window.ApplePaySession&&window.ApplePaySession.canMakePayments&&window.ApplePaySession.canMakePayments())}catch(e){}
-  var ap=cfg.applePay&&canAP?cfg.applePay:null;
-  if(!ap)wanted=wanted.filter(function(m){return m!=='applepay'});
-  // Samsung Pay: قيمة «samsungpay» في methods مع كائن samsung_pay (service_id
-  // من حساب سامسونج للمطوّرين، والمرجع رقمَ طلب). الخادم لا يعيدها إلا مكتملة.
-  var sp0=cfg.samsungPay&&cfg.samsungPay.service_id?cfg.samsungPay:null;
-  // Google Pay: كائن google_pay (merchant_id من لوحة Google Pay & Wallet).
-  var gp0=cfg.googlePay&&cfg.googlePay.merchant_id?cfg.googlePay:null;
-  // سؤال المحفظة نفسها «هل جهازي جاهز؟» — نفس السؤال الذي يطرحه النموذج قبل أن
-  // يرسم زرّه، لكن هنا قبل أن نسمّي المحفظة في العنوان أو نمرّرها. أي فشل
-  // (SDK محجوب، مهلة، رفض) = غير جاهزة، فلا يظهر شيء ولا يُوعَد بشيء.
-  function probe(src,have,ask,done){
-   var fin=false;function end(ok){if(!fin){fin=true;done(!!ok)}}
-   setTimeout(function(){end(false)},3000);
-   function run(){try{ask(end)}catch(e){end(false)}}
-   if(have()){run();return}
-   var sc=document.createElement('script');sc.src=src;sc.onload=run;sc.onerror=function(){end(false)};document.head.appendChild(sc)}
-  function askSamsung(end){
-   var c=new window.SamsungPay.PaymentClient({environment:sp0.environment||'PRODUCTION'});
-   c.isReadyToPay({version:'2',serviceId:sp0.service_id,protocol:'PROTOCOL_3DS',allowedBrands:['visa','mastercard','mada']})
-    .then(function(r){end(r&&r.result)},function(){end(false)})}
-  function askGoogle(end){
-   var c=new window.google.payments.api.PaymentsClient({environment:gp0.environment||'PRODUCTION'});
-   c.isReadyToPay({apiVersion:2,apiVersionMinor:0,allowedPaymentMethods:[{type:'CARD',parameters:{allowedAuthMethods:['CRYPTOGRAM_3DS'],allowedCardNetworks:['VISA','MASTERCARD']}}]})
-    .then(function(r){end(r&&r.result)},function(){end(false)})}
-  var pending=(sp0?1:0)+(gp0?1:0),spOk=false,gpOk=false,started=false;
-  function oneDone(){if(--pending<=0&&!started){started=true;go()}}
-  function go(){
-   var sp=sp0&&spOk?sp0:null,gp=gp0&&gpOk?gp0:null;
-   wanted=wanted.filter(function(m){return m!=='samsungpay'&&m!=='googlepay'});
-   if(sp)wanted.push('samsungpay');
-   if(gp)wanted.push('googlepay');
-   if(!wanted.length)wanted=['creditcard'];
-   // عنوان الطريقة يسمّي ما سيظهر فعلاً على هذا الجهاز، لا ما هو مكتوب في الإعداد.
-   var names=[];if(ap)names.push('Apple Pay');if(gp)names.push('Google Pay');if(sp)names.push('Samsung Pay');
-   var lb=$('coWayCardLabel');if(lb)lb.textContent=TX.card+(names.length?' · '+names.join(' · '):'');
-   try{boot(wanted,ap,sp,gp)}
-   catch(e){try{boot(['creditcard'],null,null,null)}catch(e2){payFailed()}}}
-  function boot(methods,applePay,samsungPay,googlePay){
-   mount.innerHTML='<div id="epay-form"></div>';
-   var m=meta();
-   var opt={element:'#epay-form',amount:Math.round(total*100),currency:cfg.currency||'SAR',
-    description:'Business Partner order',publishable_api_key:cfg.publishableKey,
-    callback_url:location.origin+location.pathname,metadata:m,
-    on_initiating:async function(){
-     // اشتراك منصة التوظيف: لا يتحرّك المال قبل أن يُفتح الصفّ المعلّق ويُلبس مرجعه الطلب.
-     if(hasEmp){
-      if(!ready()||!readyEmp()){showResult('warn',ready()?TX.needCo:TX.needFill);return false}
-      if(!(await prepareEmp())){showResult('warn',empMsg());return false}}
-     return {metadata:meta()}},
-    methods:methods,apple_pay:applePay||undefined,
-    samsung_pay:samsungPay?{service_id:samsungPay.service_id,order_number:m.ref,country:samsungPay.country||'SA',
-      label:samsungPay.label||'Business Partner',environment:samsungPay.environment||'PRODUCTION'}:undefined};
-   if(googlePay){
-    opt.google_pay={merchant_id:googlePay.merchant_id,country:googlePay.country||'SA',
-     label:googlePay.label||'Business Partner',environment:googlePay.environment||'PRODUCTION',auth_methods:['CRYPTOGRAM_3DS']};
-    // زرّ Google Pay يُسمّي الشبكات بأسماء Google (VISA · MASTERCARD)؛ القيمة
-    // الافتراضية للنموذج تضيف UNIONPAY وليست من أسمائها فتُسقط الزرّ.
-    opt.supported_networks=['mada','visa','mastercard']}
-   window.Moyasar.init(opt);
-   // نداءٌ لم يرمِ خطأً ليس نموذجاً على الشاشة: الصندوق الفارغ هو ما يترك
-   // المشتري بلا وسيلة دفع ولا رسالة.
-   setTimeout(function(){if(mount.querySelector('#epay-form')&&!mount.querySelector('#epay-form').children.length)payFailed()},2500)}
-  if(!pending){started=true;go()}
-  else{
-   if(sp0)probe('https://img.mpay.samsung.com/gsmpi/sdk/samsungpay_web_sdk.js',function(){return !!window.SamsungPay},askSamsung,function(ok){spOk=ok;oneDone()});
-   if(gp0)probe('https://pay.google.com/gp/p/js/pay.js',function(){return !!(window.google&&window.google.payments&&window.google.payments.api)},askGoogle,function(ok){gpOk=ok;oneDone()})}};
- document.head.appendChild(s)}).catch(payFailed);
+ var tg=document.createElement('span');tg.className='sv1-co-mock';tg.textContent=w==='card'?TX.mockTag:TX.walletMock;mount.appendChild(tg);
+ var bt=document.createElement('button');bt.type='button';bt.className='sv1-btn primary';bt.style.width='100%';bt.id='coMockPay';
+ bt.textContent=w==='card'?TX.payBtn:wayName(w)+' — '+TX.payBtn;
+ var nt=document.createElement('p');nt.className='sv1-co-fine';
+ bt.onclick=function(){if(!termsGuard(nt))return;if(!ready()){nt.textContent=TX.needFill;return}if(!readyEmp()){nt.textContent=TX.needCo;return}
+  bt.disabled=true;prepareEmp().then(function(ok){if(ok){location.href=mockUrl(w);return}bt.disabled=false;nt.textContent=empMsg()})};
+ mount.appendChild(bt);mount.appendChild(nt)}
+function boot(w){
+ var cfg=PAYCFG,methods=['creditcard'],ap=null,sp=null,gp=null;
+ if(w==='applepay'&&WCFG.applepay){methods=['applepay'];ap=WCFG.applepay}
+ else if(w==='samsungpay'&&WCFG.samsungpay){methods=['samsungpay'];sp=WCFG.samsungpay}
+ else if(w==='googlepay'&&WCFG.googlepay){methods=['googlepay'];gp=WCFG.googlepay}
+ mount.innerHTML='<div id="epay-form"></div>';
+ var m=meta();
+ var opt={element:'#epay-form',amount:Math.round(total*100),currency:cfg.currency||'SAR',
+  description:'Business Partner order',publishable_api_key:cfg.publishableKey,
+  callback_url:location.origin+location.pathname,metadata:m,
+  on_initiating:async function(){
+   // لا يتحرّك المال بلا موافقة على الشروط (الواجهة مقفلة أصلاً؛ هذا خطّ الدفاع الثاني).
+   if(!termsOk){showResult('warn',TX.termsNeed);return false}
+   // اشتراك منصة التوظيف: لا يتحرّك المال قبل أن يُفتح الصفّ المعلّق ويُلبس مرجعه الطلب.
+   if(hasEmp){
+    if(!ready()||!readyEmp()){showResult('warn',ready()?TX.needCo:TX.needFill);return false}
+    if(!(await prepareEmp())){showResult('warn',empMsg());return false}}
+   return {metadata:meta()}},
+  methods:methods,apple_pay:ap||undefined,
+  // Samsung Pay: قيمة «samsungpay» في methods مع كائن samsung_pay (service_id من حساب
+  // سامسونج للمطوّرين، والمرجع رقمَ طلب).
+  samsung_pay:sp?{service_id:sp.service_id,order_number:m.ref,country:sp.country||'SA',
+   label:sp.label||'Business Partner',environment:sp.environment||'PRODUCTION'}:undefined};
+ if(gp){
+  opt.google_pay={merchant_id:gp.merchant_id,country:gp.country||'SA',
+   label:gp.label||'Business Partner',environment:gp.environment||'PRODUCTION',auth_methods:['CRYPTOGRAM_3DS']};
+  // زرّ Google Pay يُسمّي الشبكات بأسماء Google (VISA · MASTERCARD)؛ القيمة
+  // الافتراضية للنموذج تضيف UNIONPAY وليست من أسمائها فتُسقط الزرّ.
+  opt.supported_networks=['mada','visa','mastercard']}
+ try{window.Moyasar.init(opt)}catch(e){payFailed();return}
+ // نداءٌ لم يرمِ خطأً ليس نموذجاً على الشاشة: الصندوق الفارغ هو ما يترك
+ // المشتري بلا وسيلة دفع ولا رسالة.
+ setTimeout(function(){var f=mount.querySelector('#epay-form');if(f&&!f.children.length)payFailed()},2500)}
+
+// ---- كشف دعم الجهاز للمحافظ: التفعيل عند المالك (يعيده /api/pay) + جاهزية الجهاز.
+function revealWay(w){var id=w==='applepay'?'coWayApple':w==='samsungpay'?'coWaySamsung':'coWayGoogle',b=$(id);if(b)b.classList.remove('sv1-hide')}
+function walletNote(configured,anyReady){if(configured&&!anyReady)$('coWalletNote').classList.remove('sv1-hide')}
+function canApplePay(){try{return !!(window.ApplePaySession&&window.ApplePaySession.canMakePayments&&window.ApplePaySession.canMakePayments())}catch(e){return false}}
+// الوضع المحلي: لا SDK ولا مفاتيح، فالجاهزية من المتصفح وحده (Apple: الواجهة نفسها؛
+// Samsung: متصفح سامسونج/جهازها). يُعاد من الخادم المحلي قائمة mockWallets.
+function detectMockWallets(cfg){
+ var list=cfg.mockWallets||[],any=false;
+ if(list.indexOf('applepay')>=0&&canApplePay()){WCFG.applepay={mock:true};revealWay('applepay');any=true}
+ if(list.indexOf('samsungpay')>=0&&/SamsungBrowser|SM-[A-Z0-9]+/.test(navigator.userAgent||'')){WCFG.samsungpay={mock:true};revealWay('samsungpay');any=true}
+ walletNote(list.length>0,any)}
+function detectWallets(cfg){
+ var ap=cfg.applePay&&canApplePay()?cfg.applePay:null;
+ var sp0=cfg.samsungPay&&cfg.samsungPay.service_id?cfg.samsungPay:null;
+ var gp0=cfg.googlePay&&cfg.googlePay.merchant_id?cfg.googlePay:null;
+ var configured=!!(cfg.applePay||sp0||gp0),any=false;
+ if(ap){WCFG.applepay=ap;revealWay('applepay');any=true}
+ // سؤال المحفظة نفسها «هل جهازي جاهز؟» — أي فشل (SDK محجوب، مهلة، رفض) = غير جاهزة.
+ function probe(src,have,ask,done){
+  var fin=false;function end(ok){if(!fin){fin=true;done(!!ok)}}
+  setTimeout(function(){end(false)},3000);
+  function run(){try{ask(end)}catch(e){end(false)}}
+  if(have()){run();return}
+  var sc=document.createElement('script');sc.src=src;sc.onload=run;sc.onerror=function(){end(false)};document.head.appendChild(sc)}
+ function askSamsung(end){
+  var c=new window.SamsungPay.PaymentClient({environment:sp0.environment||'PRODUCTION'});
+  c.isReadyToPay({version:'2',serviceId:sp0.service_id,protocol:'PROTOCOL_3DS',allowedBrands:['visa','mastercard','mada']})
+   .then(function(r){end(r&&r.result)},function(){end(false)})}
+ function askGoogle(end){
+  var c=new window.google.payments.api.PaymentsClient({environment:gp0.environment||'PRODUCTION'});
+  c.isReadyToPay({apiVersion:2,apiVersionMinor:0,allowedPaymentMethods:[{type:'CARD',parameters:{allowedAuthMethods:['CRYPTOGRAM_3DS'],allowedCardNetworks:['VISA','MASTERCARD']}}]})
+   .then(function(r){end(r&&r.result)},function(){end(false)})}
+ var pending=(sp0?1:0)+(gp0?1:0);
+ function oneDone(){if(--pending<=0)walletNote(configured,any)}
+ if(!pending){walletNote(configured,any);return}
+ if(sp0)probe('https://img.mpay.samsung.com/gsmpi/sdk/samsungpay_web_sdk.js',function(){return !!window.SamsungPay},askSamsung,function(ok){if(ok){WCFG.samsungpay=sp0;revealWay('samsungpay');any=true}oneDone()});
+ if(gp0)probe('https://pay.google.com/gp/p/js/pay.js',function(){return !!(window.google&&window.google.payments&&window.google.payments.api)},askGoogle,function(ok){if(ok){WCFG.googlepay=gp0;revealWay('googlepay');any=true}oneDone()})}
+
+// ---- حالة «لا يمكن الدفع الآن»: سلة فارغة · بند يُسعَّر عند المراجعة · أسعار للمسجّلين · اشتراكان.
+// الضيف لا يُرسَل إلى صفحة أخرى ويضيع: يدخل من هنا برمزٍ على بريده ثم تُعاد الصفحة بسلّته.
+function loginBox(box){
+ var w=document.createElement('div');w.className='sv1-co-li';
+ var h=document.createElement('h5');h.textContent=TX.liHd;
+ var p=document.createElement('p');p.textContent=TX.liP;
+ var r1=document.createElement('div');r1.className='row';
+ var em=document.createElement('input');em.className='sv1-co-in';em.type='email';em.autocomplete='email';em.placeholder=TX.email;em.id='coLiEmail';
+ em.value=$('coEmail').value||'';
+ var send=document.createElement('button');send.type='button';send.className='sv1-btn primary sm';send.textContent=TX.liSend;
+ r1.appendChild(em);r1.appendChild(send);
+ var r2=document.createElement('div');r2.className='row sv1-hide';
+ var cd=document.createElement('input');cd.className='sv1-co-in';cd.inputMode='numeric';cd.maxLength=6;cd.placeholder=TX.liCode;cd.id='coLiCode';cd.autocomplete='one-time-code';
+ var go=document.createElement('button');go.type='button';go.className='sv1-btn primary sm';go.textContent=TX.liGo;
+ r2.appendChild(cd);r2.appendChild(go);
+ var err=document.createElement('div');err.className='err';err.setAttribute('role','alert');
+ var email='',challenge='';
+ function otp(b){return fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify(b)}).then(function(r){return r.json()})}
+ send.onclick=function(){
+  email=em.value.trim().toLowerCase();err.textContent='';
+  if(email.indexOf('@')<1){err.textContent=TX.liErr;return}
+  send.disabled=true;
+  otp({action:'start',email:email}).then(function(o){send.disabled=false;
+   if(!o||!o.ok){err.textContent=(o&&o.message)||TX.liErr;return}
+   challenge=o.challenge;r1.classList.add('sv1-hide');r2.classList.remove('sv1-hide');
+   if(o.testLogin)cd.placeholder='TEST: 123456';cd.focus()}).catch(function(){send.disabled=false;err.textContent=TX.liErr})};
+ go.onclick=function(){
+  err.textContent='';go.disabled=true;
+  otp({action:'verify',email:email,code:cd.value.trim(),challenge:challenge}).then(function(o){go.disabled=false;
+   if(!o||!o.ok){err.textContent=TX.liBad;return}
+   try{localStorage.setItem('bp_session','1')}catch(e){}
+   location.reload()}).catch(function(){go.disabled=false;err.textContent=TX.liBad})};
+ w.appendChild(h);w.appendChild(p);w.appendChild(r1);w.appendChild(r2);w.appendChild(err);box.appendChild(w)}
+function showBlock(b){
+ $('coPayArea').classList.add('sv1-hide');
+ if(b.empty){$('coPayPanel').classList.add('sv1-hide');return}
+ var box=$('coBlock');box.classList.remove('sv1-hide');box.innerHTML='';
+ if(b.login){loginBox(box);return}
+ var p=document.createElement('p');p.className='sv1-co-fine';p.style.margin='0 0 10px';p.textContent=b.msg;box.appendChild(p);
+ if(b.href){var a=document.createElement('a');a.className='sv1-btn primary sm';a.href=b.href;a.textContent=b.label;box.appendChild(a)}}
+
+// ---- تشغيل الدفع (مرة واحدة): يُستدعى عند الفتح، وبعد عودةٍ فاشلة من البوابة للمحاولة ثانيةً.
+function initPay(){
+ if(inited)return;inited=true;
+ if(!cart.length)return showBlock({empty:true});
+ if(empLines.length>1)return showBlock({msg:TX.onePlan,href:HOME+'cart',label:TX.toCart});
+ if(unpriced)return showBlock({msg:TX.noAmount,href:HOME+'my',label:TX.signInBtn});
+ if(hidden)return showBlock({login:true});
+ if(!(total>0))return showBlock({msg:TX.noAmount,href:HOME+'catalog',label:TX.browse});
+ $('coPayArea').classList.remove('sv1-hide');
+ termsUI();setTerms(false);
+ fetch('/api/pay').then(function(r){return r.json()}).then(function(cfg){
+  PAYCFG=cfg||null;
+  if(cfg&&cfg.bnpl&&cfg.bnpl.tamara===false){var tb=$('coWayTamara');if(tb)tb.disabled=true}
+  if(cfg&&cfg.enabled&&cfg.mock&&cfg.formUrl){mountWay(curWay);detectMockWallets(cfg);return}
+  if(!cfg||!cfg.enabled||!cfg.publishableKey||!cfg.scriptUrl){payFailed();return}
+  if(cfg.cssUrl){var l=document.createElement('link');l.rel='stylesheet';l.href=cfg.cssUrl;document.head.appendChild(l)}
+  var s=document.createElement('script');s.src=cfg.scriptUrl;
+  s.onerror=payFailed;
+  s.onload=function(){
+   if(!(window.Moyasar&&typeof window.Moyasar.init==='function')){payFailed();return}
+   MOY='ready';mountWay(curWay);detectWallets(cfg)};
+  document.head.appendChild(s)}).catch(payFailed)}
+if(!RET)initPay();
 }
 // جلسةٌ صالحة بلا مفتاح bp_session في المتصفح (أول زيارة بعد الدخول) كانت تُعامَل كضيف
 // فتظهر «سجّل دخولك لعرض السعر وإتمام الدفع» لعميلٍ داخلٍ فعلاً. إن كان في السلة بندٌ

@@ -88,7 +88,9 @@ function api(extra = {}) {
   };
 }
 const staleCart = (id) => [{ id, nameAr: "اشتراك", nameEn: "Plan", amount: 1, price: "1 ر.س", qty: 3, kind: "employer-plan", pricePublic: true }];
-const fill = (w, co = "") => { w.document.getElementById("coName").value = "Ali"; w.document.getElementById("coPhone").value = "0500000000"; w.document.getElementById("coEmail").value = "HR@Acme.test"; w.document.getElementById("coCo").value = co; };
+const fill = (w, co = "") => { w.document.getElementById("coName").value = "Ali"; w.document.getElementById("coPhone").value = "0500000000"; w.document.getElementById("coEmail").value = "HR@Acme.test"; w.document.getElementById("coCo").value = co;
+  // الموافقة على الشروط إجبارية قبل أي دفع (قرار المالك 2026-11-02): يُنقَر مربعها كما يفعل العميل.
+  const a = w.document.getElementById("coAgree"); a.checked = true; if (a.onchange) a.onchange(); };
 const mockPayBtn = (w) => w.document.getElementById("coPayMount").children.find((c) => c.id === "coMockPay") || w.document.getElementById("coPayMount").children.find((c) => c.tag === "button");
 const settle = async () => { for (let i = 0; i < 12; i++) await new Promise((r) => setImmediate(r)); };
 
@@ -163,7 +165,7 @@ test("checkout: two plans in one cart cannot be paid", async () => {
   const cart = [...staleCart("BP-EMP-PRO-Y"), ...staleCart("BP-EMP-PRO-M")];
   const w = await boot(scriptOf(checkoutPage), { cart, api: api() });
   assert.equal(w.document.getElementById("coPayMount").children.some((c) => c.id === "coMockPay"), false);
-  assert.equal(w.document.getElementById("coPayMount").children[0].textContent, TXT("onePlan"));
+  assert.equal(w.document.getElementById("coBlock").children[0].textContent, TXT("onePlan"));
 });
 
 test("return from the gateway: an activated subscription says so and links to /employer", async () => {
@@ -270,4 +272,23 @@ test("cart: the subscription line has no quantity buttons and is corrected to th
   const row = rows[rows.length - 1];
   const qty = row.children.find((c) => c.className === "sv1-qty");
   assert.equal(qty.children.length, 0, "no −/+ for a subscription");
+});
+
+test("checkout: no payment without accepting the terms — the mock pay button and Tamara both stop with the reason", async () => {
+  const w = await boot(scriptOf(checkoutPage), { cart: staleCart("BP-EMP-PRO-Y"), api: api() });
+  const btn = mockPayBtn(w), note = w.document.getElementById("coPayMount").children.find((c) => c.className === "sv1-co-fine");
+  w.document.getElementById("coName").value = "Ali"; w.document.getElementById("coPhone").value = "0500000000"; w.document.getElementById("coEmail").value = "HR@Acme.test"; w.document.getElementById("coCo").value = "Acme";
+  btn.onclick(); await settle();
+  assert.equal(note.textContent, TXT("termsNeed"));
+  assert.equal(w.location.href.includes("mock-form"), false, "no money moves");
+  assert.equal(w.fetches.filter((f) => f.body && f.body.action === "emp-prepare").length, 0);
+  const tn = w.document.getElementById("coTamaraNote");
+  w.document.getElementById("coTamaraGo").onclick(); await settle();
+  assert.equal(tn.textContent, TXT("termsNeed"));
+  // وبعد الموافقة تحمل لقطة الطلب النسخة والوقت.
+  const a = w.document.getElementById("coAgree"); a.checked = true; a.onchange(); await settle();
+  const snap = JSON.parse(w.session.getItem("bp_pay_order"));
+  assert.equal(snap.terms.accepted, true);
+  assert.match(snap.terms.version, /^[A-Za-z0-9._:-]{3,40}$/);
+  assert.ok(Number.isFinite(Date.parse(snap.terms.at)));
 });

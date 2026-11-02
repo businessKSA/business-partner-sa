@@ -300,6 +300,53 @@ async function alertQuoteSettleFailure(order, p, why, failed) {
         <tr><td style="padding:4px 10px;color:#666">السبب</td><td style="padding:4px 10px"><b>${esc(why)}</b></td></tr>
       </table></div>`).catch(() => {});
 }
+// ---- Terms consent (owner decision 2026-11-02) --------------------------------
+// A cart is paid only after the buyer accepted the terms of every item in it.
+// The checkout page records the acceptance as a version + an ISO time, and sends
+// it two ways: inside the Moyasar payment's own metadata (`tv` / `ta` - read
+// back from Moyasar by this server, never taken from the browser) and inside
+// the order snapshot (`order.terms`). The gateway's record wins; the snapshot
+// covers Tamara and the local gateway, where there is no Moyasar metadata.
+//
+// What the server can and cannot do: Tamara's session is opened here, so it is
+// refused without consent (see bnpl-checkout). A card is charged by the browser
+// talking to Moyasar directly, so by the time this server sees it the money has
+// moved - there the acceptance is verified, recorded on the order, and a payment
+// without it is reported to the owner. Set TERMS_ENFORCE=1 to also hold such an
+// order for human review instead of activating it (off by default: the frozen
+// classic checkout and quote payments carry no terms box).
+const TERMS_VER_RE = /^[A-Za-z0-9._:-]{3,40}$/;
+function termsConsent(p, order) {
+  const pick = (version, at, source) => {
+    const v = String(version || "").trim();
+    const t = Date.parse(String(at || ""));
+    if (!TERMS_VER_RE.test(v) || !Number.isFinite(t)) return null;
+    const now = Date.now();
+    if (t > now + 60e3 || now - t > 48 * 3600e3) return null; // not future, not stale
+    return { version: v, at: new Date(t).toISOString(), source };
+  };
+  const m = (p && p.metadata) || {};
+  const o = order && order.terms;
+  return pick(m.tv, m.ta, "gateway_metadata")
+    || (o && o.accepted === true ? pick(o.version, o.at, "order_snapshot") : null);
+}
+const alertedTerms = (globalThis.__bpTermsAlerted ||= new Set());
+async function alertTermsMissing(order, p) {
+  const key = String((p && p.id) || "");
+  if (!key || alertedTerms.has(key)) return;
+  alertedTerms.add(key);
+  await sendMail(OWNER_EMAIL, `⚠️ دفعة بلا موافقة موثّقة على الشروط — ${key}`,
+    `<div dir="rtl" style="font-family:Arial,sans-serif;text-align:right;max-width:560px">
+      <h2 style="color:#b45309">دفعة سلة وصلت دون سجلّ موافقة على الشروط</h2>
+      <p>صفحة الدفع الجديدة لا تفتح الدفع قبل الموافقة، فالأرجح أن العميل دفع من صفحة قديمة محفوظة أو من مسار لا يحمل مربع الشروط. الدفعة سُوّيت كالمعتاد (المال وصل).</p>
+      <table>
+        <tr><td style="padding:4px 10px;color:#666">رقم الدفعة</td><td style="padding:4px 10px"><b style="direction:ltr;display:inline-block">${esc(key)}</b></td></tr>
+        <tr><td style="padding:4px 10px;color:#666">مرجع الطلب</td><td style="padding:4px 10px"><b style="direction:ltr;display:inline-block">${esc(String((order && order.ref) || "—"))}</b></td></tr>
+        <tr><td style="padding:4px 10px;color:#666">العميل</td><td style="padding:4px 10px">${esc(String((order && order.email) || "—"))}</td></tr>
+      </table>
+      <p style="color:#64748b;font-size:12px">لتحويل هذه الحالة إلى حجزٍ للمراجعة البشرية بدل التفعيل الآلي: اضبط TERMS_ENFORCE=1.</p>
+    </div>`).catch(() => {});
+}
 async function settlePaidOrder(order, p) {
   const ids = (Array.isArray(order.items) ? order.items : []).slice(0, 40)
     .map((it) => ({ id: String((it && it.id) || "").slice(0, 80), qty: Math.max(1, Math.min(99, Number(it && it.qty) || 1)) }))
@@ -364,7 +411,13 @@ async function settlePaidOrder(order, p) {
   const slack = sv1Only ? 2 : 200;
   // …and the payment record must name exactly the quotes this order settles.
   const bound = paymentNamesQuotes(p, ids);
-  const verified = !unknown && net > 0 && bound && Math.abs(expectedHalalas - Number(p.amount || 0)) <= slack;
+  // Terms consent applies to catalogue carts; a signed-quote cart carries the
+  // quotation's own acceptance.
+  const needsTerms = ids.some((x) => !SV1_RE.test(x.id));
+  const consent = needsTerms ? termsConsent(p, order) : null;
+  const termsHeld = needsTerms && !consent && process.env.TERMS_ENFORCE === "1";
+  if (needsTerms && !consent) await alertTermsMissing(order, p);
+  const verified = !unknown && net > 0 && bound && !termsHeld && Math.abs(expectedHalalas - Number(p.amount || 0)) <= slack;
   if (!bound) {
     console.error("pay: payment does not name the quotes the order claims", String(p.id || ""));
     await alertQuoteSettleFailure(order, p, "payment_quote_mismatch");
@@ -400,6 +453,8 @@ async function settlePaidOrder(order, p) {
     ids: sealedIds, items: names,
     // For the request api/requests.js opens in /my and /ops from this payment.
     lines: detail, net: Math.round(net * 100) / 100,
+    // Acceptance of the terms: version, time, and where it was read from.
+    ...(consent ? { terms: { v: consent.version, at: consent.at, src: consent.source } } : {}),
   };
   try {
     const r = await fetch(SELF_BASE + "/api/requests", {
@@ -419,7 +474,7 @@ async function settlePaidOrder(order, p) {
         return { ok: false, error: "quote_settle_failed", failed: qs.failed, already: !!j.already, verified, ref: payload.ref, activated: j.activated || null, request: j.request || null, ...(employer ? { employer } : {}) };
       }
     }
-    return { ok: true, already: !!j.already, verified, ref: payload.ref, activated: j.activated || null, request: j.request || null, ...(employer ? { employer } : {}) };
+    return { ok: true, already: !!j.already, verified, ref: payload.ref, activated: j.activated || null, request: j.request || null, termsRecorded: !!consent, ...(employer ? { employer } : {}) };
   } catch (e) {
     console.error("pay: settle call failed", String(e.message || e).slice(0, 160));
     return { ok: false, error: "settle_unreachable", verified, ref: payload.ref, ...(employer ? { employer } : {}) };
@@ -913,10 +968,12 @@ function mockGatewayPage(req, res, q) {
   const safeBack = /^\/[^\r\n"'<>]*$/.test(back) ? back : "/ar/my";
   const amount = Number(q.amount || 0) || 0;
   const label = String(q.label || "").slice(0, 120);
-  const provider = q.provider === "tamara" ? "tamara" : "card";
-  const id = (provider === "tamara" ? "mock_tamara_" : "mock_card_") + crypto.randomBytes(6).toString("hex");
+  // card | applepay | samsungpay | googlepay | tamara. The wallets exist here so the
+  // checkout's wallet buttons can be exercised end to end without a device or a key.
+  const provider = ["tamara", "applepay", "samsungpay", "googlepay"].includes(q.provider) ? q.provider : "card";
+  const id = (provider === "tamara" ? "mock_tamara_" : provider === "card" ? "mock_card_" : "mock_wallet_") + crypto.randomBytes(6).toString("hex");
   const money = amount ? amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—";
-  const brand = provider === "tamara" ? "تمارا — بيئة رملية" : "مدى / فيزا — بطاقة اختبار";
+  const brand = { tamara: "تمارا — بيئة رملية", applepay: "Apple Pay — محفظة اختبار", samsungpay: "Samsung Pay — محفظة اختبار", googlepay: "Google Pay — محفظة اختبار" }[provider] || "مدى / فيزا — بطاقة اختبار";
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.statusCode = 200;
   return res.end(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
@@ -995,6 +1052,9 @@ export default async function handler(req, res) {
       return res.end(JSON.stringify({
         enabled: true, provider: "local-mock", mock: true, canVerify: true, modeMatch: true,
         publishableKey: null, formUrl: "/api/pay?action=mock-form",
+        // Wallets the local gateway can simulate. The checkout still shows each
+        // only where the visitor's own browser/device says it supports it.
+        mockWallets: ["applepay", "samsungpay"],
         currency: "SAR", methods: ["creditcard"], applePay: null, samsungPay: null, googlePay: null,
         bnpl: { tamara: tamaraConfigured() }, modes: MODES(),
       }));
@@ -1348,6 +1408,12 @@ export default async function handler(req, res) {
     if (!rawItems.length || !isEmail(String(order.email || ""))) {
       res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "bad_order" }));
     }
+    // No instalment session without the buyer's recorded acceptance of the terms
+    // (owner decision 2026-11-02). The session is opened here, so this is the one
+    // payment path the server can refuse before money moves.
+    if (rawItems.some((x) => !SV1_RE.test(x.id)) && !termsConsent(null, order)) {
+      res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "terms_required", message: "terms_required" }));
+    }
     // An employer plan is one plan, quantity one, and instalments only for the
     // yearly one (the monthly amount is too small to split). Whether Tamara
     // approves the amount is Tamara's decision, made when the session opens.
@@ -1467,7 +1533,7 @@ export default async function handler(req, res) {
     return res.end(JSON.stringify({
       ok: true, provider, amount: p.amount, captured: !!v.captured,
       ...(invoicing ? { invoice: invoicing } : {}),
-      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null, ref: settle.ref || "", request: settle.request || null, ...(settle.error ? { error: settle.error } : {}) } } : {}),
+      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null, ref: settle.ref || "", request: settle.request || null, ...(settle.termsRecorded != null ? { termsRecorded: settle.termsRecorded } : {}), ...(settle.error ? { error: settle.error } : {}) } } : {}),
       ...(settle && settle.employer ? { employer: { activated: !!settle.employer.activated } } : {}),
     }));
   }
@@ -1635,7 +1701,7 @@ export default async function handler(req, res) {
       ...(b.context === "compliance" ? { activated: activation.activated } : {}),
       ...(invoicing ? { invoice: invoicing } : {}),
       ...(announced ? { announced } : {}),
-      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null, ref: settle.ref || "", request: settle.request || null, ...(settle.error ? { error: settle.error } : {}) } } : {}),
+      ...(settle ? { settle: { ok: settle.ok, already: !!settle.already, verified: !!settle.verified, activated: settle.activated || null, ref: settle.ref || "", request: settle.request || null, ...(settle.termsRecorded != null ? { termsRecorded: settle.termsRecorded } : {}), ...(settle.error ? { error: settle.error } : {}) } } : {}),
       ...(settle && settle.employer ? { employer: { activated: !!settle.employer.activated } } : {}),
     }));
   } catch (e) {
