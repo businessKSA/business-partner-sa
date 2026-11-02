@@ -337,6 +337,7 @@ import { buildSimpleTrips } from "./simple-v1-trips.mjs";
 import { buildSimpleHiring } from "./simple-v1-hiring.mjs";
 import { buildSimpleEor } from "./simple-v1-eor.mjs";
 import { buildSimpleVendor } from "./simple-v1-vendor.mjs";
+import { buildSimplePartners, buildSimplePartnerDashboard } from "./simple-v1-partner.mjs";
 import { buildSimpleAi } from "./simple-v1-ai.mjs";
 import { buildSimpleHr } from "./simple-v1-hr.mjs";
 import { buildSimpleEmployer } from "./simple-v1-employer.mjs";
@@ -12135,6 +12136,10 @@ function writeFullSite(pre) {
     write(`${pre}hiring.html`, buildSimpleHiring(SV1, { lang: () => LANG, esc }));
     write(`${pre}eor.html`, buildSimpleEor(SV1, { lang: () => LANG, esc }));
     write(`${pre}vendor.html`, buildSimpleVendor(SV1, { lang: () => LANG, esc }));
+    // الشركاء والموردون (تنفيذ الخدمات): التعريف والدخول والتسجيل واللوحة على SV1 كاملةً بلا main.js.
+    // القديمتان تبقيان في else فقط لمن يبني بـSIMPLE_V1=0.
+    write(`${pre}suppliers.html`, buildSimplePartners(SV1, { esc, Lraw, u, cats: SUPPLIER_CATS }));
+    write(`${pre}partner-dashboard.html`, buildSimplePartnerDashboard(SV1, { lang: () => LANG, esc, Lraw, cats: SUPPLIER_CATS }));
     // Business Partner AI — صفحة المنتج. المنصة نفسها على ai.businesspartner.sa (خادم Azure).
     write(`${pre}ai.html`, buildSimpleAi(SV1, { lang: () => LANG, esc }));
     write(`${pre}hr-portal.html`, buildSimpleHr(SV1, { lang: () => LANG, esc }));
@@ -12149,6 +12154,8 @@ function writeFullSite(pre) {
   } else {
     write(`${pre}checkout.html`, buildCheckout());
     write(`${pre}consultation.html`, buildConsultation());
+    write(`${pre}suppliers.html`, buildSuppliers());
+    write(`${pre}partner-dashboard.html`, buildPartnerDashboard());
   }
   write(`${pre}terms.html`, buildTerms());
   write(`${pre}privacy.html`, buildPrivacy());
@@ -12156,8 +12163,6 @@ function writeFullSite(pre) {
   write(`${pre}account.html`, buildAccount());
   write(`${pre}shared-services.html`, buildSharedServices());
   write(`${pre}shared-services/dashboard.html`, buildSharedServicesPortal());
-  write(`${pre}suppliers.html`, buildSuppliers());
-  write(`${pre}partner-dashboard.html`, buildPartnerDashboard());
   write(`${pre}quote.html`, buildQuotePage());
   write(`${pre}contract.html`, buildContractPage());
   write(`${pre}suppliers-admin.html`, buildSuppliersAdmin());
