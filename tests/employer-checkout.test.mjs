@@ -324,20 +324,31 @@ test("a basket with no subscription is untouched: same sealed ids, no employer k
 // ---------------------------------------------------------------- تمارا --
 test("tamara: monthly plans are refused, yearly ones are priced from the server", async () => {
   reset();
-  const monthly = await call("POST", { body: { action: "bnpl-checkout", order: { ref: "BP-EMP-AAAAAAAAAA", email: "hr@acme.test", name: "Ali", phone: "0500000000", items: [{ id: "BP-EMP-PRO-M", qty: 1 }] } } });
+  const monthly = await call("POST", { body: { action: "bnpl-checkout", order: { ref: "BP-EMP-AAAAAAAAAA", email: "hr@acme.test", name: "Ali", phone: "0500000000", terms: { accepted: true, version: "bp-terms-test", at: new Date().toISOString() }, items: [{ id: "BP-EMP-PRO-M", qty: 1 }] } } });
   assert.equal(monthly.status, 400); assert.equal(monthly.body.error, "bnpl_yearly_only");
   assert.equal(net.tamaraSessions.length, 0);
 
-  const yearly = await call("POST", { body: { action: "bnpl-checkout", order: { ref: "BP-EMP-AAAAAAAAAA", email: "hr@acme.test", name: "Ali", phone: "0500000000", items: [{ id: "BP-EMP-PRO-Y", qty: 1 }] } } });
+  const yearly = await call("POST", { body: { action: "bnpl-checkout", order: { ref: "BP-EMP-AAAAAAAAAA", email: "hr@acme.test", name: "Ali", phone: "0500000000", terms: { accepted: true, version: "bp-terms-test", at: new Date().toISOString() }, items: [{ id: "BP-EMP-PRO-Y", qty: 1 }] } } });
   assert.equal(yearly.status, 200);
   assert.equal(yearly.body.total, 9660);
   assert.equal(net.tamaraSessions[0].total_amount.amount, "9660.00");
   assert.equal(net.tamaraSessions[0].items[0].unit_price.amount, "8400.00");
 
-  const ent = await call("POST", { body: { action: "bnpl-checkout", order: { ref: "x", email: "hr@acme.test", items: [{ id: "BP-EMP-ENTERPRISE-Y", qty: 1 }] } } });
+  const ent = await call("POST", { body: { action: "bnpl-checkout", order: { ref: "x", email: "hr@acme.test", terms: { accepted: true, version: "bp-terms-test", at: new Date().toISOString() }, items: [{ id: "BP-EMP-ENTERPRISE-Y", qty: 1 }] } } });
   assert.equal(ent.status, 400);
-  const two = await call("POST", { body: { action: "bnpl-checkout", order: { ref: "x", email: "hr@acme.test", items: [{ id: "BP-EMP-PRO-Y", qty: 1 }, { id: "BP-EMP-BASIC-Y", qty: 1 }] } } });
+  const two = await call("POST", { body: { action: "bnpl-checkout", order: { ref: "x", email: "hr@acme.test", terms: { accepted: true, version: "bp-terms-test", at: new Date().toISOString() }, items: [{ id: "BP-EMP-PRO-Y", qty: 1 }, { id: "BP-EMP-BASIC-Y", qty: 1 }] } } });
   assert.equal(two.body.error, "one_plan_per_order");
+});
+
+test("tamara: no instalment session without a recorded acceptance of the terms (stale or malformed ones too)", async () => {
+  reset();
+  const base = { ref: "BP-EMP-AAAAAAAAAA", email: "hr@acme.test", name: "Ali", phone: "0500000000", items: [{ id: "BP-EMP-PRO-Y", qty: 1 }] };
+  for (const terms of [undefined, { accepted: false, version: "bp-terms-test", at: new Date().toISOString() }, { accepted: true, version: "x", at: new Date().toISOString() },
+    { accepted: true, version: "bp-terms-test", at: "not-a-date" }, { accepted: true, version: "bp-terms-test", at: new Date(Date.now() - 72 * 3600e3).toISOString() }]) {
+    const r = await call("POST", { body: { action: "bnpl-checkout", order: { ...base, terms } } });
+    assert.equal(r.status, 400); assert.equal(r.body.error, "terms_required");
+  }
+  assert.equal(net.tamaraSessions.length, 0, "no session was opened");
 });
 
 test("tamara return: a captured yearly order activates once, under the tamara_ payment ref", async () => {

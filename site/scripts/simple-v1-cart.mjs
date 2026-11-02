@@ -49,6 +49,10 @@ const T = {
   signIn:  { ar: "سجّل الدخول لرؤية الأسعار وإكمال الطلب", en: "Sign in to see prices and complete your order",
              fr: "Connectez-vous pour voir les prix et finaliser", zh: "登录以查看价格并完成订单" },
   signInGo:{ ar: "سجّل الدخول", en: "Sign in", fr: "Se connecter", zh: "登录" },
+  // موافقة الشروط تُؤخذ في صفحة الدفع لكل بند على حدة (simple-v1-checkout.mjs)؛ السلة تنبّه قبلها.
+  termsNote:{ ar: "قبل الدفع ستقرأ شروط كل بند في سلتك وتوافق عليها.", en: "Before paying you will read and accept the terms of every item in your cart.",
+             fr: "Avant de payer, vous lirez et accepterez les conditions de chaque article.", zh: "付款前，您需阅读并同意购物车中每个项目的条款。" },
+  termsLink:{ ar: "الشروط والأحكام", en: "Terms and conditions", fr: "Conditions générales", zh: "条款与条件" },
   // الدفعة الواحدة والاشتراك لا يُعرضان كأنهما شيء واحد: الاشتراك يتكرر، والعميل
   // يجب أن يرى ذلك قبل الدفع لا بعده.
   onceHd:  { ar: "دفعة واحدة", en: "One-time", fr: "Paiement unique", zh: "一次性付款" },
@@ -160,6 +164,7 @@ export function buildSimpleCart(SV1, ctx) {
            style="width:100%;margin-top:16px;justify-content:center">${esc(t("checkout"))}</a>
         <p class="sv1-muted" id="cartHint" style="font-size:11.5px;margin:10px 0 0;line-height:1.7"></p>
         <p class="sv1-muted" id="cartRecNote" style="font-size:11.5px;margin:8px 0 0;line-height:1.7"></p>
+        <p class="sv1-muted" style="font-size:11.5px;margin:8px 0 0;line-height:1.7">${esc(t("termsNote"))} <a href="${home}terms" target="_blank" rel="noopener" style="text-decoration:underline;text-underline-offset:3px">${esc(t("termsLink"))}</a></p>
         <p class="sv1-muted" style="font-size:11px;margin:10px 0 0;line-height:1.7">${esc(vatNote || t("note"))}</p>
       </aside>
     </div>

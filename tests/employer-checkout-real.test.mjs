@@ -196,7 +196,7 @@ test("real module: the same plan prepared twice reuses one pending reference", a
 
 test("real module: tamara — monthly refused, a captured yearly order activates", async () => {
   reset();
-  const m = await call("POST", { body: { action: "bnpl-checkout", order: { ref: "BP-EMPSUB-AAAAAAAAAAAA", email: "hr@acme.test", items: [{ id: "BP-EMP-BASIC-M", qty: 1 }] } } });
+  const m = await call("POST", { body: { action: "bnpl-checkout", order: { ref: "BP-EMPSUB-AAAAAAAAAAAA", email: "hr@acme.test", terms: { accepted: true, version: "bp-terms-test", at: new Date().toISOString() }, items: [{ id: "BP-EMP-BASIC-M", qty: 1 }] } } });
   assert.equal(m.body.error, "bnpl_yearly_only");
   const p = await prepare("BP-EMP-BASIC-Y");
   gw.tamara.set("t-real-1", { status: "fully_captured", total_amount: { amount: String(vat(4200) / 100) } });
