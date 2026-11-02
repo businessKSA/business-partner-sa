@@ -45,6 +45,8 @@ let changed=0;
 for(const [rel,lang] of targets.map(x=>[x,x.startsWith('ar/')?'ar':'en'])){
   const file=path.join(ROOT,rel); if(!fs.existsSync(file)) continue;
   let html=fs.readFileSync(file,'utf8');
+  // صفحة مبنيّة على SV1.shell() (فهرس الخدمات الجديد): هذه طبقة القديم ولا تلمسها.
+  if(html.includes('<body class="sv1-page">')) continue;
   html=replaceAdvisorLanguage(html,lang);
   if(!html.includes('bp-b10x-catalog-v2-css')) html=html.replace('</head>',CSS+'\n</head>');
   const isServices=/^ar\/services\.html$|^services\.html$/.test(rel);

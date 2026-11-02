@@ -41,6 +41,8 @@ const TOGGLE_JS = `<script id="bp-detail-toggle-js">(function(){document.querySe
 for (const [rel,lang,type] of targets){
   const file=path.join(ROOT,rel); if(!fs.existsSync(file)) continue;
   let html=fs.readFileSync(file,'utf8');
+  // صفحة مبنيّة على SV1.shell() (فهرس الخدمات): هذه طبقة القديم ولا تلمسها.
+  if(html.includes('<body class="sv1-page">')) continue;
   if(!html.includes('bp-unified-experience-css')) html=html.replace('</head>',CSS+'\n</head>');
   const tx=lang==='ar'?ar:en;
   html=html.replace(/<body([^>]*)>/,`<body$1 class="${type==='services'?'bp-ux-services':type==='packages'?'bp-ux-packages':'bp-ux-home'}">`);

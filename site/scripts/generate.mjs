@@ -330,6 +330,7 @@ import { buildSimpleMy } from "./simple-v1-my.mjs";
 import { buildSimpleCatalog } from "./simple-v1-catalog.mjs";
 import { buildSimpleServiceDetail } from "./simple-v1-service-detail.mjs";
 import { buildSimpleServiceCategory } from "./simple-v1-service-category.mjs";
+import { buildSimpleServicesHub } from "./simple-v1-services-hub.mjs";
 import { injectN8nGuard } from "./n8n-guard.mjs";
 import { buildSimpleCheckout } from "./simple-v1-checkout.mjs";
 import { buildSimpleCart } from "./simple-v1-cart.mjs";
@@ -2284,6 +2285,43 @@ function buildServiceCategory(cat) {
     liveV: LIVE_V,
   };
   return buildSimpleServiceCategory(SV1, { lang: () => LANG, esc }, view);
+}
+
+// فهرس الخدمات /services على الموقع الجديد: كل الخدمات في صفحة واحدة مرقّمة
+// ومصفّاة بالتصنيف والنوع. المعطيات نفسها وقواعد التسعير نفسها لبطاقة التصنيف
+// (`svcPriced` و`svcSpecial`)، فلا تخالف بطاقةُ الفهرس بطاقةَ تصنيفها ولا
+// صفحتَها. البناء في `simple-v1-services-hub.mjs`.
+function buildServicesHub() {
+  const items = [];
+  const cats = [];
+  for (const cat of categories) {
+    const list = services.filter((s) => s.category === cat.key);
+    if (!list.length) continue;
+    cats.push({ key: cat.key, slug: catSlugUrl(cat.key), label: catLabel(cat.key), href: catUrl(cat.key), count: list.length });
+    for (const s of list) {
+      const priced = svcPriced(s);
+      const ov = site.overrides[s.slug];
+      items.push({
+        code: s.code, slug: s.slug, href: u("/services/" + s.slug),
+        name: sName(s),
+        nameEn: (svcI18n[s.code] && svcI18n[s.code].en) || (ov && ov.nameEn) || s.name, nameAr: sNameArOf(s),
+        gov: s.govPlatform && !/بدون جهة/.test(s.govPlatform) ? govLabel(s.govPlatform) : "",
+        catKey: cat.key, catSlug: catSlugUrl(cat.key), catLabel: catLabel(cat.key),
+        priced, amount: priced ? s.price.amount : null,
+        priceLabel: priced ? localizeLabel(s.price.label || s.price.amount + " ﷼") : "",
+        requiresProposal: !!s.requiresProposal,
+        special: svcSpecial(s), cartId: "svc-" + s.slug, workspaceHref: u("/workspace-request"),
+      });
+    }
+  }
+  const n = items.length;
+  return buildSimpleServicesHub(SV1, { lang: () => LANG, esc }, {
+    cats, items, liveV: LIVE_V,
+    seoDesc: Lraw(
+      `${n} government and business services in ${cats.length} categories — add priced services to your cart or request a quotation.`,
+      `${n} خدمة حكومية وتجارية في ${cats.length} تصنيفات — أضف المسعّر منها إلى السلة أو اطلب عرض سعر.`
+    ),
+  });
 }
 
 // صفحة تفاصيل الخدمة على الموقع الجديد: المولّد يجهّز المعطيات وحدها
@@ -12054,7 +12092,8 @@ function writeFullSite(pre) {
   // send people to the classic homepage.
   if (SIMPLE_V1) write(`${pre}catalog.html`, buildSimpleCatalog(SV1, { lang: () => LANG, esc, catLabel: (k) => L(catEn(k), catAr(k)), govLabel }));
   write(`${pre}about.html`, buildAbout());
-  write(`${pre}services.html`, buildServicesIndex());
+  // الفهرس على الموقع الجديد (SV1)؛ القديم يبقى لما قبل تفعيل SIMPLE_V1 وللّغات الخمس الناقصة (EXTRA_LANGS).
+  write(`${pre}services.html`, SIMPLE_V1 ? buildServicesHub() : buildServicesIndex());
   if (pageVisible("business-development")) write(`${pre}business-development.html`, buildBdaas());
   write(`${pre}b10x.html`, buildB10X());
   write(`${pre}ai-agents.html`, buildAiAgents());
