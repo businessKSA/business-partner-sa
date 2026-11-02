@@ -157,15 +157,10 @@ a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
 .sv1-compose .send{width:46px;border:0;border-radius:9px;background:var(--ac);color:#fff;font-size:17px;cursor:pointer}
 .sv1-mic{width:46px;flex:none;border:1px solid var(--l);border-radius:9px;background:#fff;color:var(--ink);cursor:pointer;display:grid;place-items:center;font-family:inherit;transition:.15s}
 .sv1-mic:hover{border-color:var(--ac);color:var(--ac)}
-.sv1-mic[disabled]{opacity:.5;cursor:default}
-.sv1-mic.rec{background:#b42318;border-color:#b42318;color:#fff;animation:sv1mic 1.4s ease-in-out infinite}
-@keyframes sv1mic{50%{box-shadow:0 0 0 6px rgba(180,35,24,.16)}}
-.sv1-mic.busy{opacity:.6;cursor:default}
-.sv1-voice{display:none;align-items:center;gap:9px;padding:7px 11px;margin:0 10px 8px;border:1px solid var(--l);border-radius:9px;background:var(--soft);font-size:11.5px;color:var(--mut)}
+.sv1-voice{display:none;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 11px;margin:0 10px 8px;border:1px solid var(--l);border-radius:9px;background:var(--soft);font-size:12px;color:var(--mut)}
 .sv1-voice.on{display:flex}
-.sv1-voice.err{border-color:#f0c8c4;background:#fdf3f2;color:#b42318}
-.sv1-voice .dot{width:7px;height:7px;border-radius:50%;background:#b42318;flex:none;animation:sv1mic 1.4s ease-in-out infinite}
-.sv1-voice .t{font-family:var(--fm);margin-inline-start:auto;font-size:11px;color:var(--faint)}
+.sv1-voice.wa{border-color:#bfe6cb;background:#f1faf4;color:#1d4a2b}
+.sv1-voice .msg{flex:1;min-width:150px;line-height:1.5}
 .sv1-scope{padding:19px;display:flex;flex-direction:column}
 .sv1-scope h3{font-size:19px;margin:9px 0 2px}
 .sv1-scope>p{font-size:11.5px;color:#777;margin:0 0 12px}
@@ -412,7 +407,7 @@ var h0=hint();if(h0)S.paint(true,h0);
 
   <section class="sv1-sec sv1-gray"><div class="wrap">
     <div class="sv1-pub-sh"><h2>What we offer</h2><p>Each door takes you straight to its page.</p></div>
-    <div class="sv1-pub-grid sv1-pub-g3"><a class="sv1-pub-card" href="/catalog" data-track="من نحن: /catalog"><h3>Government and company services</h3><p>Pick from the catalogue and request a quotation, or buy ready services directly.</p><span class="sv1-pub-go">Open →</span></a><a class="sv1-pub-card" href="/packages" data-track="من نحن: /packages"><h3>Packages</h3><p>Ready packages that bundle recurring services into one request.</p><span class="sv1-pub-go">Open →</span></a><a class="sv1-pub-card" href="/eor" data-track="من نحن: /eor"><h3>Employer of Record (EOR)</h3><p>Your staff work for you and we are the official employer: contracting, payroll, insurance and leave.</p><span class="sv1-pub-go">Open →</span></a><a class="sv1-pub-card" href="/hiring" data-track="من نحن: /hiring"><h3>Hiring</h3><p>Search candidates, post your jobs and follow applications in one place.</p><span class="sv1-pub-go">Open →</span></a><a class="sv1-pub-card" href="/ai-agents" data-track="من نحن: /ai-agents"><h3>Smart advisors</h3><p>Specialised advisors serving you around the clock.</p><span class="sv1-pub-go">Open →</span></a><a class="sv1-pub-card" href="/trips" data-track="من نحن: /trips"><h3>Mahmool Makfol</h3><p>The investor visit, domestic tourism trips and corporate events.</p><span class="sv1-pub-go">Open →</span></a></div>
+    <div class="sv1-pub-grid sv1-pub-g3"><a class="sv1-pub-card" href="/catalog" data-track="من نحن: /catalog"><h3>Government and company services</h3><p>Pick from the catalogue and request a quotation, or buy ready services directly.</p><span class="sv1-pub-go">Open →</span></a><a class="sv1-pub-card" href="/packages" data-track="من نحن: /packages"><h3>Packages</h3><p>Ready packages that bundle recurring services into one request.</p><span class="sv1-pub-go">Open →</span></a><a class="sv1-pub-card" href="/eor" data-track="من نحن: /eor"><h3>Employer of Record (EOR)</h3><p>Your staff work for you and we are the official employer: contracting, payroll, insurance and leave.</p><span class="sv1-pub-go">Open →</span></a><a class="sv1-pub-card" href="/hiring" data-track="من نحن: /hiring"><h3>Hiring</h3><p>Search candidates, post your jobs and follow applications in one place.</p><span class="sv1-pub-go">Open →</span></a><a class="sv1-pub-card" href="/trips" data-track="من نحن: /trips"><h3>Mahmool Makfol</h3><p>The investor visit, domestic tourism trips and corporate events.</p><span class="sv1-pub-go">Open →</span></a></div>
   </div></section>
 
   <section class="sv1-sec"><div class="wrap">
