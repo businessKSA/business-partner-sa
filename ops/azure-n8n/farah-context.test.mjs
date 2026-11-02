@@ -39,7 +39,7 @@ test("not a reply: no reply section; empty db still yields a valid block", () =>
 });
 test("the block is capped", () => {
   const big = Array.from({ length: 40 }, (_, i) => ({ id: i, t: "x", direction: "in", source: "conversation", body: "ن".repeat(2000) }));
-  assert.ok(buildContext({ recent: big }).ctx.length <= 9100);
+  assert.ok(buildContext({ recent: big }).ctx.length <= 12100);
 });
 test("topic updates: reuse existing titles, bound statuses, drop secrets/empties", () => {
   const raw = '```json\n{"topics":[{"title":"عرض شركة (س)","status":"done","party":"شركة (س)","summary":"وافقوا","next":""},{"title":"x","summary":"s"},{"title":"مفتاح","summary":"كلمة المرور هي 1234"},{"title":"موضوع جديد","status":"weird","summary":"دفعة 5000 ريال متأخرة"}]}\n```';

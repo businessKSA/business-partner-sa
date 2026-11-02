@@ -73,7 +73,7 @@ export function buildContext(rows) {
   if (sums.length) { out.push(""); out.push("[ملخص الأيام السابقة]"); sums.slice(0, 2).forEach((s) => out.push(s.d + ": " + cut(s.s, 700))); }
   out.push("━━ نهاية السياق ━━");
   let text = out.join("\n");
-  if (text.length > 10500) text = text.slice(0, 10490) + "\n…(قُصّ للطول)";
+  if (text.length > 12000) text = text.slice(0, 11990) + "\n…(قُصّ للطول)";
   return { ctx: text, stats: { recent: recent.length, replied: !!target, replyToId: !!r.replyToId, topics: topics.length, pending: pending.length, prefs: prefs.length, summaries: sums.length, chars: text.length } };
 }
 
