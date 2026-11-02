@@ -334,6 +334,7 @@ import { buildSimpleServicesHub } from "./simple-v1-services-hub.mjs";
 import { injectN8nGuard } from "./n8n-guard.mjs";
 import { buildSimpleCheckout } from "./simple-v1-checkout.mjs";
 import { buildSimpleCart } from "./simple-v1-cart.mjs";
+import { buildSimplePackages } from "./simple-v1-packages.mjs";
 import { buildSimpleTrips } from "./simple-v1-trips.mjs";
 import { buildSimpleHiring } from "./simple-v1-hiring.mjs";
 import { buildSimpleEor } from "./simple-v1-eor.mjs";
@@ -12140,7 +12141,9 @@ function writeFullSite(pre) {
   write(`${pre}task-force.html`, buildTaskForce());
   write(`${pre}deals.html`, buildDeals());
   write(`${pre}opportunities.html`, buildOpportunities());
-  write(`${pre}packages.html`, buildPackages());
+  // الباقات بلغة الموقع الجديد (محتواها من صفوف BP-PKG-* وحدها). buildPackages() القديمة تبقى
+  // للغات غير الجاهزة بالكامل وللمسار بلا SIMPLE_V1.
+  write(`${pre}packages.html`, SIMPLE_V1 ? buildSimplePackages(SV1, { lang: () => LANG, esc, site }) : buildPackages());
   write(`${pre}calculator.html`, buildCalculator());
   write(`${pre}tools-and-calculators.html`, buildToolsHub());
   // /calculators/nitaqat removed at owner's request (2026-07-16) — kept as
