@@ -341,6 +341,7 @@ import { buildSimpleVendor } from "./simple-v1-vendor.mjs";
 import { buildSimpleAi } from "./simple-v1-ai.mjs";
 import { buildSimpleHr } from "./simple-v1-hr.mjs";
 import { buildSimpleEmployer } from "./simple-v1-employer.mjs";
+import { buildSimpleEmployerJoin } from "./simple-v1-employer-join.mjs";
 import { careersBody } from "./simple-v1-careers.mjs";
 import { buildSimpleBook } from "./simple-v1-book.mjs";
 import { buildSimpleOps } from "./simple-v1-ops.mjs";
@@ -5674,6 +5675,22 @@ function employerPlanCards({ selectable, standalone }) {
     </div>`;
   }).join("");
   return toggle + `<div class="grid grid-3 emp-plans">${cards}</div>`;
+}
+
+// خدمات التوظيف عند الطلب في /employer-join — من الكتالوج بكودها (CV-10 · BP-REC-06 تدخل السلة، و BP-REC-05 · BP-REC-04 عرض سعر).
+// لا سعر هنا مكتوب بيد: priceLabel وamount من site/data/services.json نفسه الذي تقرؤه صفحة الخدمة.
+const EMP_JOIN_CODES = ["CV-10", "BP-REC-06", "BP-REC-05", "BP-REC-04"];
+function empJoinServices() {
+  return EMP_JOIN_CODES.map((code) => services.find((s) => s.code === code)).filter(Boolean).map((s) => {
+    const ov = site.overrides[s.slug];
+    const priced = svcPriced(s);
+    return {
+      code: s.code, slug: s.slug, name: sName(s), nameAr: sNameArOf(s),
+      nameEn: (svcI18n[s.code] && svcI18n[s.code].en) || (ov && ov.nameEn) || s.name,
+      cartId: "svc-" + s.slug, desc: sDesc(s), priced, amount: priced ? s.price.amount : null,
+      priceLabel: s.price && s.price.label ? localizeLabel(s.price.label) : "", href: u("/services/" + s.slug),
+    };
+  });
 }
 
 function buildEmployerJoin() {
@@ -12140,7 +12157,8 @@ function writeFullSite(pre) {
   write(`${pre}hr.html`, buildHR());
   write(`${pre}employers.html`, buildEmployers());
   write(`${pre}newsletter.html`, buildNewsletter());
-  write(`${pre}employer-join.html`, buildEmployerJoin());
+  // /employer-join على الموقع الجديد (SV1.shell): شرح وباقات بالـSKU وخدمات الكتالوج. القديمة تبقى للبناء غير SV1.
+  write(`${pre}employer-join.html`, SIMPLE_V1 ? buildSimpleEmployerJoin(SV1, { lang: () => LANG, esc, services: empJoinServices(), liveV: LIVE_V }) : buildEmployerJoin());
   write(`${pre}employer-login.html`, buildEmployerLogin());
   write(`${pre}candidate-profile.html`, buildCandidateProfile());
   write(`${pre}recruitment-agencies.html`, buildRecruitmentAgencies());
