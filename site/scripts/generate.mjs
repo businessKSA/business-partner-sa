@@ -355,6 +355,8 @@ import { buildSimpleGuideLiveInSaudi } from "./simple-v1-guide-live-in-saudi.mjs
 import { buildSimpleGuideResidency } from "./simple-v1-guide-residency.mjs";
 import { buildSimpleKnowledge } from "./simple-v1-knowledge.mjs";
 import { buildSimpleAbout, buildSimpleContact } from "./simple-v1-public.mjs";
+import { buildSimpleTerms } from "./simple-v1-terms.mjs";
+import { buildTermsIndex } from "./terms-gate.mjs";
 function T(en) {
   const dict = TRANSLATIONS[LANG];
   return (dict && dict[en]) || en;
@@ -12098,6 +12100,17 @@ let pageCount = 0;
 // takes over "/" (the classic homepage moves to /classic-home); without the
 // flag it is previewed at /simple-v1 and production is unchanged.
 const SV1 = simpleV1({ lang: () => LANG, esc, site, head, pathInLang, assetV, knowledge: NAV_GROUPS.find((g) => g.en === "Knowledge Center") });
+// الشروط والأحكام (أمر المالك 2026-11-02، البند 8): المحتوى من assets/data/terms.json،
+// وهذه الصفوف هي الخدمات والباقات والرحلات المرئية في هذا البناء (المخفي لا يظهر في الفهرس).
+const TERMS_DATA = read("assets/data/terms.json");
+function termsCatalogRows() {
+  const rows = [];
+  for (const sv of services) rows.push({ code: sv.code, nameAr: sNameArOf(sv), nameEn: (svcI18n[sv.code] && svcI18n[sv.code].en) || (site.overrides[sv.slug] && site.overrides[sv.slug].nameEn) || sv.name });
+  for (const g of site.packages.groups || []) for (const t of g.tiers || []) if (t.code) rows.push({ code: t.code, nameAr: t.nameAr, nameEn: t.nameEn || t.name });
+  for (const t of TRIPS.trips) rows.push({ code: t.code, nameAr: t.nameAr, nameEn: t.nameEn });
+  for (const p of AI_PLANS.plans) rows.push({ code: p.code, nameAr: p.nameAr, nameEn: p.nameEn });
+  return rows;
+}
 // The full page set for one language tree — shared by en/ar (always full)
 // and by any extra language once it's in FULLY_READY_LANGS.
 function writeFullSite(pre) {
@@ -12219,7 +12232,9 @@ function writeFullSite(pre) {
     write(`${pre}suppliers.html`, buildSuppliers());
     write(`${pre}partner-dashboard.html`, buildPartnerDashboard());
   }
-  write(`${pre}terms.html`, buildTerms());
+  write(`${pre}terms.html`, SIMPLE_V1
+    ? buildSimpleTerms(SV1, { lang: () => LANG, esc, nameOf: (r) => Lraw(r.nameEn, r.nameAr) }, TERMS_DATA, termsCatalogRows())
+    : buildTerms());
   write(`${pre}privacy.html`, buildPrivacy());
   write(`${pre}data-deletion.html`, buildDataDeletion());
   write(`${pre}account.html`, buildAccount());
@@ -12594,6 +12609,10 @@ const catalogJson = {
   catalogJson.updatedAt = sameData ? previous.updatedAt : new Date().toISOString();
   write("assets/data/catalog.json", JSON.stringify(catalogJson, null, 2));
 }
+
+// فهرس الشروط الخفيف (ربط SKU → فئة + عناوين + جمل الموافقة) الذي يحمّله المتصفح من
+// السلة والدفع عبر terms-gate.mjs. يُشتق من terms.json ولا يُحرَّر باليد.
+write("assets/data/terms-index.json", JSON.stringify(buildTermsIndex(TERMS_DATA)) + "\n");
 
 // الصفحات والخدمات المخفية (site/data/hidden.json): سطور 302 مُدارة في
 // vercel.json تحوّلها إلى /catalog بدل 404. لا يُلمس بقية الملف.

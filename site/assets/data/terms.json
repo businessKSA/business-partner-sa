@@ -1,0 +1,2206 @@
+{
+ "_note": "مصدر شروط وأحكام Business Partner: الشروط العامة + شروط كل فئة خدمة + ربط كل SKU بفئته. يقرؤه بناء صفحة /terms (site/scripts/simple-v1-terms.mjs) وتقرؤه دالة الموافقة (site/scripts/terms-gate.mjs). لا تُكتب هنا أرقام رسوم حكومية ولا مواد نظامية. أي SKU جديد يُضاف في skus ثم يُشغَّل tests/terms-coverage.test.mjs. قرارات المالك المعلّقة في docs/terms-coverage-2026-11-02.md لا هنا (هذا الملف عام).",
+ "version": "2026-11-02",
+ "reviewStatus": "draft-pending-legal-review",
+ "updated": {
+  "ar": "2 نوفمبر 2026",
+  "en": "2 November 2026",
+  "fr": "2 novembre 2026",
+  "zh": "2026年11月2日"
+ },
+ "langs": [
+  "ar",
+  "en",
+  "fr",
+  "zh"
+ ],
+ "intro": {
+  "ar": "تحكم هذه الشروط كل خدمة تطلبها من Business Partner. تجد هنا الشروط العامة، ثم شروطاً خاصة بكل فئة خدمة. ابحث عن خدمتك بالاسم أو الرمز لتصل إلى شروطها مباشرة.",
+  "en": "These terms govern every service you request from Business Partner. Below are the General Terms, followed by terms specific to each service category. Search for your service by name or code to go straight to its terms.",
+  "fr": "Ces conditions régissent chaque service que vous demandez à Business Partner. Vous trouverez ci-dessous les Conditions générales, puis des conditions propres à chaque catégorie de services. Recherchez votre service par nom ou code pour accéder directement à ses conditions.",
+  "zh": "本条款适用于您向 Business Partner 申请的每一项服务。以下先列通用条款，再列各服务类别的专属条款。按名称或代码搜索您的服务，即可直达其条款。"
+ },
+ "consent": {
+  "general": {
+   "ar": "أقرّ بأنني اطّلعت على الشروط العامة وأوافق عليها.",
+   "en": "I confirm that I have read and agree to the General Terms.",
+   "fr": "Je confirme avoir lu et accepter les Conditions générales.",
+   "zh": "我确认已阅读并同意通用条款。"
+  },
+  "single": {
+   "ar": "أقرّ بأنني اطّلعت على الشروط العامة وشروط فئة «{category}» وأوافق عليها.",
+   "en": "I confirm that I have read and agree to the General Terms and the Category Terms for “{category}”.",
+   "fr": "Je confirme avoir lu et accepter les Conditions générales et les Conditions de la catégorie « {category} ».",
+   "zh": "我确认已阅读并同意通用条款以及“{category}”类别条款。"
+  },
+  "multi": {
+   "ar": "أقرّ بأنني اطّلعت على الشروط العامة وشروط الفئات: {categories}، وأوافق عليها.",
+   "en": "I confirm that I have read and agree to the General Terms and the Category Terms for: {categories}.",
+   "fr": "Je confirme avoir lu et accepter les Conditions générales et les Conditions des catégories : {categories}.",
+   "zh": "我确认已阅读并同意通用条款以及以下类别条款：{categories}。"
+  },
+  "joiner": {
+   "ar": "، ",
+   "en": ", ",
+   "fr": ", ",
+   "zh": "、"
+  }
+ },
+ "general": {
+  "id": "general",
+  "title": {
+   "ar": "الشروط العامة",
+   "en": "General Terms",
+   "fr": "Conditions générales",
+   "zh": "通用条款"
+  },
+  "sections": [
+   {
+    "id": "g-definitions",
+    "title": {
+     "ar": "التعريفات",
+     "en": "Definitions",
+     "fr": "Définitions",
+     "zh": "定义"
+    },
+    "items": [
+     {
+      "ar": "«Business Partner»: الجهة التي تقدّم الخدمات عبر هذا الموقع ومنصاتها، وتظهر بياناتها النظامية (الاسم الكامل ورقم السجل التجاري والرقم الضريبي) في عرض السعر والفاتورة الضريبية.",
+      "en": "“Business Partner”: the provider of the services offered through this website and its platforms. Its full legal name, commercial registration number and tax number appear on the quotation and the tax invoice.",
+      "fr": "« Business Partner » : le prestataire des services proposés via ce site et ses plateformes. Sa dénomination légale complète, son numéro de registre du commerce et son numéro fiscal figurent sur le devis et la facture fiscale.",
+      "zh": "“Business Partner”：通过本网站及其平台提供服务的主体，其法定全称、商业登记号和税号载于报价单和税务发票。"
+     },
+     {
+      "ar": "«العميل»: كل شخص طبيعي أو اعتباري يطلب خدمة أو يشتري باقة أو اشتراكاً من Business Partner، ويشمل من يتصرف نيابةً عن منشأة.",
+      "en": "“Client”: any natural or legal person who requests a service or buys a package or subscription from Business Partner, including anyone acting on behalf of an establishment.",
+      "fr": "« Client » : toute personne physique ou morale qui demande un service ou achète un forfait ou un abonnement auprès de Business Partner, y compris toute personne agissant pour le compte d'un établissement.",
+      "zh": "“客户”：向 Business Partner 申请服务或购买套餐、订阅的任何自然人或法人，包括代表企业行事的人。"
+     },
+     {
+      "ar": "«الخدمة»: أي خدمة أو باقة أو اشتراك أو رحلة أو منتج رقمي معروض في كتالوج Business Partner أو متفق عليه في عرض سعر.",
+      "en": "“Service”: any service, package, subscription, trip or digital product listed in the Business Partner catalogue or agreed in a quotation.",
+      "fr": "« Service » : tout service, forfait, abonnement, voyage ou produit numérique figurant au catalogue de Business Partner ou convenu dans un devis.",
+      "zh": "“服务”：Business Partner 目录中列出或报价单中约定的任何服务、套餐、订阅、行程或数字产品。"
+     },
+     {
+      "ar": "«الجهة المختصة»: كل جهة حكومية أو شبه حكومية أو رقابية أو مصرفية أو تأمينية أو غيرها، لها قرار في طلب العميل أو في إجراء من إجراءات الخدمة.",
+      "en": "“Competent Authority”: any government, semi-government, regulatory, banking, insurance or other body that has a decision over the Client's application or over a step of the Service.",
+      "fr": "« Autorité compétente » : tout organisme public, para-public, de régulation, bancaire, d'assurance ou autre qui décide de la demande du Client ou d'une étape du Service.",
+      "zh": "“主管机构”：对客户的申请或服务中的某一程序拥有决定权的政府、半官方、监管、银行、保险或其他机构。"
+     },
+     {
+      "ar": "«الرسوم الحكومية»: كل رسم أو مقابل مالي أو غرامة أو اشتراك أو ضريبة تفرضها جهة مختصة، وتشمل رسوم التصديق والترجمة المعتمدة والرسوم البنكية.",
+      "en": "“Government Fees”: every fee, charge, fine, subscription or tax imposed by a Competent Authority, including attestation, certified-translation and bank charges.",
+      "fr": "« Frais officiels » : tous les frais, redevances, amendes, abonnements ou taxes imposés par une autorité compétente, y compris les frais de légalisation, de traduction certifiée et les frais bancaires.",
+      "zh": "“政府费用”：主管机构收取的任何费用、对价、罚款、订阅费或税款，包括认证、官方翻译和银行手续费。"
+     },
+     {
+      "ar": "«شروط الفئة»: الأحكام الخاصة بفئة الخدمة، المنشورة في هذه الصفحة تحت عنوان الفئة، وهي تكمّل الشروط العامة ولا تلغيها.",
+      "en": "“Category Terms”: the provisions specific to a service category, published on this page under the category heading. They supplement the General Terms and do not replace them.",
+      "fr": "« Conditions de catégorie » : les dispositions propres à une catégorie de services, publiées sur cette page sous le titre de la catégorie. Elles complètent les Conditions générales sans les remplacer.",
+      "zh": "“类别条款”：本页面各服务类别标题下发布的专属条款，用于补充而非取代通用条款。"
+     },
+     {
+      "ar": "«عرض السعر»: وثيقة مكتوبة تصدرها Business Partner تحدد نطاق الخدمة وأتعابها ومدة صلاحيتها.",
+      "en": "“Quotation”: a written document issued by Business Partner that sets the scope, the fees and the validity period of the Service.",
+      "fr": "« Devis » : document écrit émis par Business Partner qui fixe le périmètre, les honoraires et la durée de validité du Service.",
+      "zh": "“报价单”：Business Partner 出具的书面文件，载明服务范围、费用及有效期。"
+     }
+    ]
+   },
+   {
+    "id": "g-application",
+    "title": {
+     "ar": "سريان الشروط والأولوية",
+     "en": "Application and order of precedence",
+     "fr": "Application et ordre de priorité",
+     "zh": "适用范围与优先顺序"
+    },
+    "items": [
+     {
+      "ar": "تسري على كل طلب هذه الشروط العامة وشروط فئة الخدمة المطلوبة. ويعرض الموقع لكل خدمة في السلة فئتها ورابط شروطها قبل الدفع.",
+      "en": "Every order is governed by these General Terms and the Category Terms of the requested service. The site shows each service's category and a link to its terms in the cart before payment.",
+      "fr": "Chaque commande est régie par les présentes Conditions générales et par les Conditions de catégorie du service demandé. Le site affiche, dans le panier et avant le paiement, la catégorie de chaque service et le lien vers ses conditions.",
+      "zh": "每一笔订单均适用本通用条款及所申请服务的类别条款。付款前，网站会在购物车中显示每项服务的类别及其条款链接。"
+     },
+     {
+      "ar": "عند الاختلاف يُقدَّم العقد أو عرض السعر المقبول، ثم شروط الفئة، ثم الشروط العامة.",
+      "en": "In case of conflict, the accepted contract or quotation prevails, then the Category Terms, then the General Terms.",
+      "fr": "En cas de conflit, le contrat ou le devis accepté prévaut, puis les Conditions de catégorie, puis les Conditions générales.",
+      "zh": "如有冲突，以已接受的合同或报价单为先，其次为类别条款，最后为通用条款。"
+     },
+     {
+      "ar": "تتحقق الموافقة بتأشير خانة الإقرار أو بإتمام الطلب أو الدفع أو بتوقيع عرض السعر أو العقد، ولها أثر التوقيع الخطي متى أجاز النظام ذلك.",
+      "en": "Acceptance is given by ticking the acknowledgement box, completing the order or payment, or signing the quotation or contract, and has the effect of a handwritten signature where the law allows.",
+      "fr": "L'acceptation résulte de la case de reconnaissance cochée, de la finalisation de la commande ou du paiement, ou de la signature du devis ou du contrat, avec l'effet d'une signature manuscrite lorsque la loi le permet.",
+      "zh": "勾选确认框、完成订单或付款、签署报价单或合同，均视为接受；在法律允许的范围内，具有手写签名的效力。"
+     },
+     {
+      "ar": "من يتعاقد باسم منشأة يقرّ بأنه مفوَّض نظاماً بذلك، ويتحمل المسؤولية عن عدم صحة هذا الإقرار.",
+      "en": "Anyone contracting on behalf of an establishment confirms that they are legally authorised to do so and is responsible if that confirmation is untrue.",
+      "fr": "Toute personne contractant au nom d'un établissement déclare y être légalement habilitée et assume la responsabilité de l'inexactitude de cette déclaration.",
+      "zh": "代表企业签约的人确认其已获合法授权，并对该确认不属实承担责任。"
+     },
+     {
+      "ar": "يبقى الإصدار السارٍ وقت الطلب هو الحاكم لذلك الطلب، ولو عُدّلت الشروط بعده.",
+      "en": "The version in force at the time of the order governs that order, even if the terms are amended afterwards.",
+      "fr": "La version en vigueur au moment de la commande régit cette commande, même si les conditions sont modifiées ensuite.",
+      "zh": "下单时有效的版本适用于该订单，即使条款之后被修改。"
+     }
+    ]
+   },
+   {
+    "id": "g-nature",
+    "title": {
+     "ar": "طبيعة الخدمات وحدودها",
+     "en": "Nature and limits of the services",
+     "fr": "Nature et limites des services",
+     "zh": "服务的性质与边界"
+    },
+    "items": [
+     {
+      "ar": "Business Partner مزوّد خدمات أعمال: إعداد الطلبات الإلكترونية وتقديمها ومتابعتها، واستشارات تشغيلية، وتنسيق مع الجهات والمزوّدين، وأدوات رقمية.",
+      "en": "Business Partner is a business-services provider: preparing, submitting and following up electronic applications, operational advice, coordination with authorities and suppliers, and digital tools.",
+      "fr": "Business Partner est un prestataire de services aux entreprises : préparation, dépôt et suivi de demandes électroniques, conseil opérationnel, coordination avec les autorités et fournisseurs, et outils numériques.",
+      "zh": "Business Partner 是商务服务提供商：负责电子申请的准备、提交和跟进、运营咨询、与主管机构和供应商的协调以及数字工具。"
+     },
+     {
+      "ar": "Business Partner ليست جهة حكومية، ولا تنوب عن جهة حكومية، ولا تتصرف باسمها، ولا تدّعي ذلك.",
+      "en": "Business Partner is not a government body, does not act for or in the name of one, and does not claim to.",
+      "fr": "Business Partner n'est pas un organisme public, n'agit ni pour ni au nom d'un tel organisme et ne prétend pas le faire.",
+      "zh": "Business Partner 不是政府机构，不代表任何政府机构或以其名义行事，也不作此主张。"
+     },
+     {
+      "ar": "الخدمات التي يشترط النظام لها ترخيصاً مهنياً (كالمحاماة والمراجعة والمحاسبة القانونية والترجمة المعتمدة) لا تُقدَّم إلا عبر مرخَّص له وبعقد أو عرض يبيّن النطاق. ولا يحلّ محلها محتوى الموقع ولا أدواته الآلية.",
+      "en": "Services for which the law requires a professional licence (such as legal practice, auditing, certified accounting and certified translation) are provided only through a licensed professional and under a contract or quotation that states the scope. Website content and automated tools do not replace them.",
+      "fr": "Les services pour lesquels la loi exige une licence professionnelle (avocat, audit, expertise comptable, traduction certifiée) ne sont fournis que par un professionnel agréé et dans le cadre d'un contrat ou devis précisant le périmètre. Le contenu du site et ses outils automatisés ne s'y substituent pas.",
+      "zh": "法律要求专业执照的服务（如律师业务、审计、注册会计和官方翻译）仅通过持证专业人士提供，并以载明范围的合同或报价单为准。网站内容和自动化工具不能替代这些服务。"
+     },
+     {
+      "ar": "نرفض أي طلب نعلم أنه يخالف النظام أو يقوم على بيانات غير صحيحة، ولنا إيقاف الخدمة في هذه الحالة دون أن يُعدّ ذلك إخلالاً منا.",
+      "en": "We decline any request we know to be unlawful or based on untrue information, and may suspend the Service in that case without being in breach.",
+      "fr": "Nous refusons toute demande que nous savons contraire à la loi ou fondée sur des informations inexactes, et pouvons suspendre le Service dans ce cas sans manquement de notre part.",
+      "zh": "对于我们明知违法或基于不实信息的申请，我们将予以拒绝，并可中止服务，此举不构成我方违约。"
+     }
+    ]
+   },
+   {
+    "id": "g-no-guarantee",
+    "title": {
+     "ar": "لا ضمان لنتيجة جهة مختصة",
+     "en": "No guarantee of an authority's decision",
+     "fr": "Aucune garantie de la décision d'une autorité",
+     "zh": "不保证主管机构的决定"
+    },
+    "items": [
+     {
+      "ar": "لا تضمن Business Partner قراراً أو موافقة أو إصداراً أو تجديداً أو مدة تنفيذ أو إلغاء مخالفة أو أي نتيجة تصدر عن جهة مختصة؛ فالقرار للجهة المختصة وحدها.",
+      "en": "Business Partner does not guarantee any decision, approval, issuance, renewal, processing time, cancellation of a violation or any other outcome from a Competent Authority. The decision belongs to the Competent Authority alone.",
+      "fr": "Business Partner ne garantit aucune décision, approbation, délivrance, renouvellement, délai de traitement, annulation d'une infraction ni aucun autre résultat émanant d'une autorité compétente. La décision appartient à l'autorité seule.",
+      "zh": "Business Partner 不保证主管机构作出任何决定、批准、签发、续期、办理时限、撤销违规或其他结果；决定权仅属于主管机构。"
+     },
+     {
+      "ar": "التزام Business Partner هو بذل العناية المهنية المعتادة في إعداد الطلب وتقديمه ومتابعته وإبلاغ العميل بالمستجدات، لا تحقيق نتيجة بعينها.",
+      "en": "Business Partner's undertaking is to exercise customary professional care in preparing, submitting and following up the application and keeping the Client informed — not to achieve a particular result.",
+      "fr": "L'engagement de Business Partner est d'exercer la diligence professionnelle habituelle pour préparer, déposer et suivre la demande et tenir le Client informé, et non d'atteindre un résultat déterminé.",
+      "zh": "Business Partner 的义务是在准备、提交和跟进申请并告知客户进展时尽到通常的专业审慎义务，而非实现特定结果。"
+     },
+     {
+      "ar": "ما يرد في الموقع من خطوات ومدد ومتطلبات هو إرشاد عام وقت النشر؛ والأنظمة والمنصات تتغير، وتبقى الجهة المختصة هي المرجع.",
+      "en": "Steps, timelines and requirements shown on the site are general guidance at the time of publication. Rules and platforms change, and the Competent Authority remains the reference.",
+      "fr": "Les étapes, délais et exigences affichés sur le site sont des indications générales à la date de publication. Les règles et plateformes évoluent ; l'autorité compétente demeure la référence.",
+      "zh": "网站所示的步骤、时限和要求仅为发布时的一般性指引；法规和平台会变化，仍以主管机构为准。"
+     }
+    ]
+   },
+   {
+    "id": "g-fees",
+    "title": {
+     "ar": "الأتعاب والرسوم الحكومية",
+     "en": "Fees and government fees",
+     "fr": "Honoraires et frais officiels",
+     "zh": "服务费与政府费用"
+    },
+    "items": [
+     {
+      "ar": "أسعار الخدمات تؤخذ من الكتالوج أو من عرض السعر المقبول، بالريال السعودي. وهي أتعاب Business Partner قبل ضريبة القيمة المضافة، وتُضاف الضريبة بالنسبة النظامية السارية عند إصدار الفاتورة.",
+      "en": "Service prices are taken from the catalogue or from the accepted quotation, in Saudi riyals. They are Business Partner's fees before value-added tax, which is added at the statutory rate in force when the invoice is issued.",
+      "fr": "Les prix des services proviennent du catalogue ou du devis accepté, en riyals saoudiens. Ce sont les honoraires de Business Partner hors TVA, ajoutée au taux légal en vigueur à la date de la facture.",
+      "zh": "服务价格以目录或已接受的报价单为准，以沙特里亚尔计价。该价格为 Business Partner 的服务费，不含增值税；增值税按开具发票时的法定税率另行加收。"
+     },
+     {
+      "ar": "الرسوم الحكومية ورسوم الجهات الأخرى غير داخلة في الأتعاب ما لم ينص عرض السعر صراحةً على غير ذلك؛ وتحدّدها الجهة المختصة وتتغير بقرارها. وحيث تصاحب الخدمةَ رسومٌ حكومية يبيّن الكتالوج ذلك بعبارة «الرسوم الحكومية منفصلة».",
+      "en": "Government fees and other bodies' fees are not included in our fees unless the quotation expressly says otherwise; they are set by the Competent Authority and change at its decision. Where a service carries government fees, the catalogue says so with the words “Government fees separate”.",
+      "fr": "Les frais officiels et ceux des autres organismes ne sont pas inclus dans nos honoraires, sauf mention expresse contraire dans le devis ; ils sont fixés par l'autorité compétente et évoluent selon sa décision. Lorsqu'un service comporte des frais officiels, le catalogue l'indique par la mention « Frais officiels en sus ».",
+      "zh": "除非报价单明确另有说明，政府费用及其他机构收取的费用不含在我们的服务费内；其金额由主管机构决定并随其决定变化。凡涉及政府费用的服务，目录中会标注“政府费用另计”。"
+     },
+     {
+      "ar": "لا تقدّر Business Partner رسماً حكومياً من عندها؛ وما نذكره منها منقول من المصدر الرسمي وقت الإعداد، والمعتمد هو ما تصدره الجهة عند التقديم. وإن زاد الرسم عمّا أُبلغ به العميل أُبلغ بذلك قبل المتابعة.",
+      "en": "Business Partner does not invent government fees; any we mention are taken from the official source at the time of preparation, and what counts is what the authority charges at filing. If a fee turns out higher than the Client was told, the Client is informed before we proceed.",
+      "fr": "Business Partner n'invente aucun frais officiel ; ceux que nous citons proviennent de la source officielle au moment de la préparation, et seul compte le montant appliqué par l'autorité au dépôt. Si un frais s'avère supérieur à celui annoncé, le Client en est informé avant la suite.",
+      "zh": "Business Partner 不自行估算政府费用；我们提及的金额均摘自编制时的官方来源，实际以主管机构申报时收取的为准。如费用高于已告知客户的金额，我们将在继续办理前通知客户。"
+     },
+     {
+      "ar": "لا تُحمَّل على العميل مبالغ إضافية بعد الاتفاق إلا بموافقته المسبقة. وتصدر Business Partner فاتورة ضريبية إلكترونية عن المبالغ المدفوعة وفق الأنظمة.",
+      "en": "No additional amounts are charged to the Client after agreement without prior consent. Business Partner issues an electronic tax invoice for amounts paid, as required by regulations.",
+      "fr": "Aucun montant supplémentaire n'est facturé au Client après accord sans son consentement préalable. Business Partner émet une facture fiscale électronique pour les sommes payées, conformément à la réglementation.",
+      "zh": "协议达成后，未经客户事先同意不会另行收费。Business Partner 依法就已付款项开具电子税务发票。"
+     }
+    ]
+   },
+   {
+    "id": "g-payment",
+    "title": {
+     "ar": "الدفع وبدء التنفيذ",
+     "en": "Payment and start of work",
+     "fr": "Paiement et démarrage",
+     "zh": "付款与开始办理"
+    },
+    "items": [
+     {
+      "ar": "وسائل الدفع المتاحة: البطاقات (مدى وفيزا وماستركارد) عبر بوابة الدفع، والتقسيط عبر تمارا، والحوالة البنكية مع رفع الإيصال؛ وقد تُتاح وسائل أخرى.",
+      "en": "Available payment methods: cards (mada, Visa, Mastercard) through the payment gateway, instalments through Tamara, and bank transfer with the receipt uploaded; other methods may be offered.",
+      "fr": "Moyens de paiement disponibles : cartes (mada, Visa, Mastercard) via la passerelle de paiement, paiement échelonné via Tamara, et virement bancaire avec dépôt du reçu ; d'autres moyens peuvent être proposés.",
+      "zh": "可用付款方式：通过支付网关使用银行卡（mada、Visa、Mastercard）、通过 Tamara 分期、银行转账并上传回单；也可能提供其他方式。"
+     },
+     {
+      "ar": "التقسيط خدمة تقدّمها تمارا وفق شروطها، والموافقة قرارها. وBusiness Partner لا تُقرض ولا تحتفظ بودائع ولا تصرف رواتب نيابةً عن العميل.",
+      "en": "Instalments are a service provided by Tamara under its own terms, and approval is Tamara's decision. Business Partner does not lend, hold deposits or disburse payroll on the Client's behalf.",
+      "fr": "Le paiement échelonné est un service fourni par Tamara selon ses propres conditions, et l'approbation relève de sa décision. Business Partner ne prête pas, ne détient pas de dépôts et ne verse pas de salaires pour le compte du Client.",
+      "zh": "分期由 Tamara 按其自身条款提供，是否批准由其决定。Business Partner 不放贷、不持有存款，也不代客户发放工资。"
+     },
+     {
+      "ar": "لا تبدأ الخدمة إلا بعد تأكيد السداد، أو قبول عرض السعر أو العقد حيث يقتضيه، واستلام المعلومات والمستندات اللازمة للبدء.",
+      "en": "Work starts only after payment is confirmed (or the quotation or contract is accepted, where required) and the information and documents needed to start have been received.",
+      "fr": "Le travail ne démarre qu'après confirmation du paiement (ou acceptation du devis ou du contrat, le cas échéant) et réception des informations et documents nécessaires.",
+      "zh": "仅在付款确认（或在需要时接受报价单/合同）并收到开始办理所需的信息和文件后，才开始办理。"
+     },
+     {
+      "ar": "تُعالَج بيانات البطاقة لدى مزوّد الدفع المرخّص وفق ما تتيحه بوابته، ولا تطّلع عليها Business Partner.",
+      "en": "Card data is processed by the licensed payment provider through its gateway; Business Partner does not see it.",
+      "fr": "Les données de carte sont traitées par le prestataire de paiement agréé via sa passerelle ; Business Partner n'y a pas accès.",
+      "zh": "银行卡数据由持牌支付服务商通过其网关处理，Business Partner 无法查看。"
+     }
+    ]
+   },
+   {
+    "id": "g-refund",
+    "title": {
+     "ar": "الإلغاء والاسترجاع",
+     "en": "Cancellation and refunds",
+     "fr": "Annulation et remboursement",
+     "zh": "取消与退款"
+    },
+    "items": [
+     {
+      "ar": "للعميل طلب الإلغاء كتابةً من حسابه أو عبر قنوات التواصل، ويُحتسب المستحق بحسب مرحلة التنفيذ وقت وصول الطلب.",
+      "en": "The Client may request cancellation in writing from their account or through our contact channels; what is owed depends on the stage of work when the request arrives.",
+      "fr": "Le Client peut demander l'annulation par écrit depuis son compte ou nos canaux de contact ; le montant dû dépend de l'avancement à la réception de la demande.",
+      "zh": "客户可通过账户或联系渠道书面申请取消；应付金额取决于收到申请时的办理进度。"
+     },
+     {
+      "ar": "قبل بدء التنفيذ: يُسترد للعميل ما سدّده.",
+      "en": "Before work starts: the Client is refunded what was paid.",
+      "fr": "Avant le démarrage : le Client est remboursé de ce qu'il a payé.",
+      "zh": "开始办理之前：退还客户已付款项。"
+     },
+     {
+      "ar": "بعد بدء التنفيذ: تُستحق أتعاب ما أُنجز فعلاً من مراحل الخدمة وما سُدّد فعلاً لجهات حكومية أو أطراف ثالثة لحساب العميل، ويُردّ ما زاد.",
+      "en": "After work has started: fees for the stages actually completed, and amounts actually paid to authorities or third parties for the Client, are due; the remainder is refunded.",
+      "fr": "Après le démarrage : les honoraires des étapes réellement accomplies et les sommes réellement payées aux autorités ou à des tiers pour le compte du Client sont dus ; le reste est remboursé.",
+      "zh": "开始办理之后：已实际完成阶段的服务费，以及已为客户实际支付给主管机构或第三方的款项，均属应付；其余部分退还。"
+     },
+     {
+      "ar": "الرسوم الحكومية والمبالغ المدفوعة للغير لا تُسترد من Business Partner إلا بقدر ما تردّه الجهة أو الطرف الآخر، وتُحال للعميل عند استلامها.",
+      "en": "Government fees and amounts paid to third parties are refundable by Business Partner only to the extent the authority or third party returns them, and are passed to the Client on receipt.",
+      "fr": "Les frais officiels et sommes versées à des tiers ne sont remboursables par Business Partner que dans la mesure où l'autorité ou le tiers les restitue, et sont reversés au Client dès réception.",
+      "zh": "政府费用及支付给第三方的款项，仅在主管机构或第三方退还的范围内由 Business Partner 退还，并在收到后转交客户。"
+     },
+     {
+      "ar": "إن تعذّر علينا تنفيذ الخدمة لسبب لا يعود للعميل رددنا ما لم يُنفَّذ منها. وتُردّ المبالغ بالوسيلة نفسها التي دُفعت بها متى أمكن، وبحسب مدة مزوّد الدفع أو البنك.",
+      "en": "If we cannot perform the Service for a reason not attributable to the Client, we refund the part not performed. Refunds go back by the original payment method where possible, subject to the payment provider's or bank's processing time.",
+      "fr": "Si nous ne pouvons pas exécuter le Service pour une raison non imputable au Client, nous remboursons la part non exécutée. Les remboursements s'effectuent, si possible, par le moyen de paiement d'origine, selon les délais du prestataire de paiement ou de la banque.",
+      "zh": "如因非客户原因导致我们无法提供服务，我们退还未履行部分。退款尽可能原路退回，具体到账时间取决于支付服务商或银行。"
+     },
+     {
+      "ar": "للمنتجات الرقمية المسلَّمة والاشتراكات والرحلات أحكام إضافية في شروط فئتها. ولا يخلّ ما سبق بأي حق للعميل يقرره النظام ولا يجوز التنازل عنه.",
+      "en": "Delivered digital products, subscriptions and trips have additional rules in their category terms. Nothing above limits any right the law gives the Client that cannot be waived.",
+      "fr": "Les produits numériques livrés, abonnements et voyages obéissent à des règles supplémentaires dans leurs conditions de catégorie. Rien de ce qui précède ne restreint un droit que la loi reconnaît au Client et auquel il ne peut renoncer.",
+      "zh": "已交付的数字产品、订阅和行程在其类别条款中另有规定。以上内容不影响法律赋予客户且不可放弃的任何权利。"
+     }
+    ]
+   },
+   {
+    "id": "g-client",
+    "title": {
+     "ar": "التزامات العميل",
+     "en": "Client obligations",
+     "fr": "Obligations du Client",
+     "zh": "客户义务"
+    },
+    "items": [
+     {
+      "ar": "تقديم معلومات ومستندات صحيحة وكاملة ومحدَّثة، وأن يملك حق تقديمها (ومنها بيانات الأفراد وموافقاتهم)، وإبلاغنا فور تغيّرها. ويتحمل العميل أثر عدم صحتها.",
+      "en": "Provide correct, complete and current information and documents, hold the right to provide them (including individuals' data and consents), and tell us as soon as they change. The Client bears the consequences of inaccuracy.",
+      "fr": "Fournir des informations et documents exacts, complets et à jour, avoir le droit de les fournir (y compris les données et consentements des personnes) et nous informer dès qu'ils changent. Le Client supporte les conséquences de toute inexactitude.",
+      "zh": "提供真实、完整、最新的信息和文件，拥有提供这些资料的权利（包括个人数据及其同意），并在变更时及时告知我们。资料不实的后果由客户承担。"
+     },
+     {
+      "ar": "التعاون والرد على استفساراتنا في مدة معقولة؛ وتُعلَّق مدد التنفيذ طوال تأخره، ولا يُعدّ ذلك إخلالاً من Business Partner.",
+      "en": "Cooperate and answer our queries within a reasonable time; delivery periods are suspended while the Client delays, and that is not a breach by Business Partner.",
+      "fr": "Coopérer et répondre à nos demandes dans un délai raisonnable ; les délais d'exécution sont suspendus pendant tout retard du Client, ce qui ne constitue pas un manquement de Business Partner.",
+      "zh": "配合并在合理时间内回复我们的询问；客户延迟期间办理时限相应中止，此情形不构成 Business Partner 违约。"
+     },
+     {
+      "ar": "استيفاء متطلباته النظامية من تراخيص وتأمينات وتوطين وأجور والتزامات دورية؛ فإن شمل اشتراكٌ مُدار متابعتها فبحدود ذلك الاشتراك.",
+      "en": "Meet its own legal requirements — licences, insurance, localisation, wages and recurring obligations; where a managed subscription includes following them up, that is limited to the subscription's scope.",
+      "fr": "Satisfaire ses propres obligations légales — licences, assurances, localisation, salaires et obligations récurrentes ; lorsqu'un abonnement géré en inclut le suivi, cela se limite au périmètre de l'abonnement.",
+      "zh": "自行履行其法定要求，包括许可证、保险、本地化用工、工资及各类周期性义务；如托管订阅包含对这些事项的跟进，则以该订阅范围为限。"
+     },
+     {
+      "ar": "عدم استعمال الخدمة في نشاط غير مشروع أو غسل أموال أو تحايل على الأنظمة، والإفصاح عن المستفيد الحقيقي ومصدر الأموال متى طُلب منه.",
+      "en": "Not use the Service for unlawful activity, money laundering or evasion of regulations, and disclose the beneficial owner and source of funds when asked.",
+      "fr": "Ne pas utiliser le Service pour une activité illicite, le blanchiment d'argent ou le contournement de la réglementation, et déclarer le bénéficiaire effectif et l'origine des fonds sur demande.",
+      "zh": "不得将服务用于非法活动、洗钱或规避法规，并应要求披露受益所有人及资金来源。"
+     },
+     {
+      "ar": "احترام موظفي Business Partner وعدم الإساءة إليهم أو إلى سمعتها، وسلوك القنوات النظامية عند الشكوى.",
+      "en": "Treat Business Partner staff respectfully, refrain from abusing them or damaging the company's reputation, and use proper channels for complaints.",
+      "fr": "Respecter le personnel de Business Partner, ne pas l'injurier ni nuire à la réputation de la société, et recourir aux voies appropriées pour toute réclamation.",
+      "zh": "尊重 Business Partner 员工，不得侮辱员工或损害公司声誉，投诉时应通过正当渠道。"
+     }
+    ]
+   },
+   {
+    "id": "g-delegation",
+    "title": {
+     "ar": "التفويض والوصول إلى حسابات الجهات",
+     "en": "Authorisation and access to authority accounts",
+     "fr": "Délégation et accès aux comptes des autorités",
+     "zh": "授权与访问主管机构账户"
+    },
+    "items": [
+     {
+      "ar": "تُنفَّذ الإجراءات على حسابات العميل لدى الجهات بالتفويض الذي يمنحه عبر آليات المنصة الرسمية حيثما توفرت، وفي حدود الخدمة المطلوبة المكتوبة فقط؛ وله سحبه في أي وقت من حسابه على المنصة.",
+      "en": "Actions on the Client's accounts with authorities are carried out under the authorisation the Client grants through the platform's official mechanisms where available, within the written scope of the requested service only; the Client may withdraw it at any time from their account on that platform.",
+      "fr": "Les actes sur les comptes du Client auprès des autorités sont accomplis en vertu de la délégation accordée via les mécanismes officiels de la plateforme lorsqu'ils existent, dans le seul périmètre écrit du service demandé ; le Client peut la retirer à tout moment depuis son compte sur cette plateforme.",
+      "zh": "对客户在各主管机构的账户所作的操作，仅依据客户通过平台官方机制（如有）授予的授权，并严格限于书面约定的服务范围；客户可随时在该平台账户中撤销授权。"
+     },
+     {
+      "ar": "لا تطلب Business Partner كلمات المرور الشخصية لمنصات النفاذ الوطني ولا رموز التحقق لمرة واحدة بغير القنوات الرسمية للموقع، وعلى العميل ألا يرسلها في محادثة أو بريد.",
+      "en": "Business Partner does not ask for personal passwords to national-access platforms or one-time verification codes outside the site's official channels, and the Client should not send them in a chat or email.",
+      "fr": "Business Partner ne demande pas les mots de passe personnels des plateformes d'accès national ni les codes de vérification à usage unique en dehors des canaux officiels du site, et le Client ne doit pas les envoyer par messagerie ou courriel.",
+      "zh": "Business Partner 不会在网站官方渠道之外索取国家统一登录平台的个人密码或一次性验证码，客户也不应通过聊天或邮件发送这些信息。"
+     },
+     {
+      "ar": "يبقى العميل مسؤولاً عن حساباته وصلاحياتها وعن التعليمات الصادرة منه أو من مفوَّضه المعتمد لدينا. ولا تتصرف Business Partner خارج نطاق التفويض ولا تقبل تعليمات من غير المفوَّضين.",
+      "en": "The Client remains responsible for their accounts, their permissions and instructions given by them or by their delegate registered with us. Business Partner does not act outside the scope of the authorisation and does not accept instructions from non-authorised persons.",
+      "fr": "Le Client reste responsable de ses comptes, de leurs habilitations et des instructions données par lui ou par son délégué enregistré chez nous. Business Partner n'agit pas hors du périmètre de la délégation et n'accepte aucune instruction de personnes non habilitées.",
+      "zh": "客户仍对其账户、权限以及由本人或在我们处登记的授权代表发出的指令负责。Business Partner 不超出授权范围行事，也不接受未获授权者的指令。"
+     }
+    ]
+   },
+   {
+    "id": "g-timelines",
+    "title": {
+     "ar": "المدد",
+     "en": "Timelines",
+     "fr": "Délais",
+     "zh": "办理时限"
+    },
+    "items": [
+     {
+      "ar": "المدد المعروضة تقديرية؛ تبدأ من اكتمال الدفع والمستندات، ولا تشمل زمن الجهة المختصة ولا العطل الرسمية.",
+      "en": "Stated timelines are estimates; they run from complete payment and documents and exclude the authority's processing time and public holidays.",
+      "fr": "Les délais annoncés sont des estimations ; ils courent à compter du paiement et des documents complets et excluent le temps de traitement de l'autorité et les jours fériés.",
+      "zh": "所示时限为估计值，自付款和文件齐备后起算，不含主管机构办理时间及法定假日。"
+     },
+     {
+      "ar": "نُطلع العميل على المستجدات الجوهرية في حالة طلبه عبر حسابه أو بريده.",
+      "en": "We inform the Client of material developments in their order through their account or email.",
+      "fr": "Nous informons le Client des évolutions importantes de sa commande via son compte ou par courriel.",
+      "zh": "订单出现重要进展时，我们会通过客户账户或邮件告知。"
+     }
+    ]
+   },
+   {
+    "id": "g-liability",
+    "title": {
+     "ar": "حدود المسؤولية",
+     "en": "Limits of liability",
+     "fr": "Limites de responsabilité",
+     "zh": "责任限制"
+    },
+    "items": [
+     {
+      "ar": "تسأل Business Partner عن الضرر المباشر الثابت الناتج عن إخلالها بالتزاماتها أو عن خطئها في تنفيذ الخدمة، وتتحدد مسؤوليتها بما دفعه العميل من أتعاب عن الخدمة محل المطالبة.",
+      "en": "Business Partner is liable for proven direct damage caused by its breach or by its error in performing the Service, and its liability is limited to the fees the Client paid for the Service in question.",
+      "fr": "Business Partner répond du dommage direct établi résultant de son manquement ou de son erreur dans l'exécution du Service, et sa responsabilité est limitée aux honoraires payés par le Client pour le Service concerné.",
+      "zh": "Business Partner 对因其违约或服务执行失误造成的、经证实的直接损失承担责任，且责任以客户就相关服务已付的服务费为限。"
+     },
+     {
+      "ar": "لا تسأل عن الخسائر غير المباشرة أو فوات الربح أو الفرص أو السمعة، ولا عن غرامات تفرضها الجهات على العميل بسبب فعله أو بسبب مدد نظامية سبقت الخدمة.",
+      "en": "It is not liable for indirect loss, lost profit, opportunity or reputation, nor for penalties imposed on the Client by authorities because of the Client's own acts or statutory deadlines that expired before the Service.",
+      "fr": "Elle ne répond pas des pertes indirectes, du manque à gagner, de la perte d'opportunité ou de réputation, ni des pénalités infligées au Client par les autorités du fait de ses propres actes ou de délais légaux échus avant le Service.",
+      "zh": "对间接损失、利润、商机或声誉损失，以及因客户自身行为或服务开始前已届满的法定期限而被主管机构处以的罚款，不承担责任。"
+     },
+     {
+      "ar": "لا تسأل عن عدم صحة المعلومات والمستندات المقدَّمة من العميل أو من الجهات عبر أنظمتها، ولا عن أعطال المنصات الحكومية والاتصالات ومزوّدي الخدمة الخارجيين.",
+      "en": "It is not liable for inaccurate information or documents supplied by the Client or by authorities through their systems, nor for outages of government platforms, telecoms or external providers.",
+      "fr": "Elle ne répond pas des informations ou documents inexacts fournis par le Client ou par les autorités via leurs systèmes, ni des pannes des plateformes publiques, des télécommunications ou des prestataires externes.",
+      "zh": "对客户或主管机构通过其系统提供的不实信息或文件，以及政府平台、电信网络或外部服务商的故障，不承担责任。"
+     },
+     {
+      "ar": "لا يسري هذا القيد في حالات الغش أو الخطأ الجسيم، ولا فيما لا يجيز النظام تقييد المسؤولية عنه.",
+      "en": "This limit does not apply to fraud or gross negligence, or where the law does not allow liability to be limited.",
+      "fr": "Cette limite ne s'applique pas en cas de fraude ou de faute lourde, ni lorsque la loi n'autorise pas de limiter la responsabilité.",
+      "zh": "上述限制不适用于欺诈或重大过失，也不适用于法律不允许限制责任的情形。"
+     }
+    ]
+   },
+   {
+    "id": "g-force",
+    "title": {
+     "ar": "القوة القاهرة",
+     "en": "Force majeure",
+     "fr": "Force majeure",
+     "zh": "不可抗力"
+    },
+    "items": [
+     {
+      "ar": "لا مسؤولية عن تأخر أو تعذر ناشئ عن قوة قاهرة أو ظرف خارج السيطرة المعقولة، ومنه الكوارث والحوادث والأوبئة وقرارات الجهات وتعطل المنصات الحكومية أو الاتصالات والاشتراطات النظامية المستجدة.",
+      "en": "There is no liability for delay or failure caused by force majeure or circumstances beyond reasonable control, including disasters, accidents, epidemics, authority decisions, outages of government platforms or telecoms, and new regulatory requirements.",
+      "fr": "Aucune responsabilité n'est encourue pour un retard ou une défaillance causés par la force majeure ou des circonstances hors de notre contrôle raisonnable, notamment catastrophes, accidents, épidémies, décisions des autorités, pannes de plateformes publiques ou de télécommunications et nouvelles exigences réglementaires.",
+      "zh": "因不可抗力或合理控制范围之外的情形（包括灾害、事故、疫情、主管机构决定、政府平台或通信中断及新出台的监管要求）造成的延误或无法履行，不承担责任。"
+     },
+     {
+      "ar": "نُبلغ العميل بالأثر المتوقع وتُعلَّق المدد؛ وإن استمر الظرف مدة تجعل التنفيذ غير مجدٍ فلكل طرف إنهاء الطلب مع تطبيق أحكام الاسترجاع على ما لم يُنفَّذ.",
+      "en": "We tell the Client the expected impact and timelines are suspended; if the circumstance lasts so long that performance becomes pointless, either party may end the order, with the refund rules applying to the part not performed.",
+      "fr": "Nous informons le Client de l'impact prévu et les délais sont suspendus ; si la situation dure au point de rendre l'exécution sans intérêt, chaque partie peut mettre fin à la commande, les règles de remboursement s'appliquant à la part non exécutée.",
+      "zh": "我们会告知客户预计影响，办理时限相应中止；如情形持续过久导致履行已无意义，任何一方均可终止订单，对未履行部分适用退款规则。"
+     }
+    ]
+   },
+   {
+    "id": "g-data",
+    "title": {
+     "ar": "حماية البيانات الشخصية (PDPL)",
+     "en": "Personal data protection (PDPL)",
+     "fr": "Protection des données personnelles (PDPL)",
+     "zh": "个人数据保护（PDPL）"
+    },
+    "items": [
+     {
+      "ar": "نعالج البيانات الشخصية وفق نظام حماية البيانات الشخصية في المملكة ولوائحه، وبحسب سياسة الخصوصية المنشورة في صفحة الخصوصية.",
+      "en": "We process personal data in accordance with the Kingdom's Personal Data Protection Law (PDPL) and its regulations, and our Privacy Policy published on the privacy page.",
+      "fr": "Nous traitons les données personnelles conformément à la loi saoudienne sur la protection des données personnelles (PDPL) et à ses règlements, ainsi qu'à notre politique de confidentialité publiée sur la page dédiée.",
+      "zh": "我们依据沙特《个人数据保护法》（PDPL）及其实施细则，并按隐私页面发布的隐私政策处理个人数据。"
+     },
+     {
+      "ar": "نجمع ما يلزم لتنفيذ الخدمة والفوترة والتواصل والامتثال النظامي فقط، ونشارك البيانات مع الجهات المختصة ومزوّدي الخدمة (كالدفع والتقسيط والبريد والاستضافة) بالقدر اللازم للتنفيذ.",
+      "en": "We collect only what is needed to perform the Service, invoice, communicate and comply with the law, and share data with Competent Authorities and service providers (such as payment, instalments, email and hosting) only as needed for performance.",
+      "fr": "Nous ne collectons que ce qui est nécessaire pour exécuter le Service, facturer, communiquer et respecter la loi, et ne partageons les données avec les autorités compétentes et les prestataires (paiement, paiement échelonné, courriel, hébergement) que dans la mesure nécessaire.",
+      "zh": "我们仅收集履行服务、开具发票、沟通和遵守法律所必需的数据，并仅在履行所需范围内与主管机构及服务商（如支付、分期、邮件和托管）共享。"
+     },
+     {
+      "ar": "للعميل الحقوق التي يقررها النظام، ومنها الاطلاع على بياناته وتصحيحها وطلب إتلافها وسحب موافقته حيث تقوم المعالجة عليها، ويمارسها عبر صفحة حذف البيانات أو قنوات التواصل. ويخضع الإتلاف لما يوجب النظام الاحتفاظ به (كالفواتير والسجلات).",
+      "en": "The Client has the rights the law provides, including access to and correction of their data, a request for its destruction and withdrawal of consent where processing relies on it, exercised through the data-deletion page or our contact channels. Destruction is subject to what the law requires us to keep (such as invoices and records).",
+      "fr": "Le Client dispose des droits que la loi prévoit, notamment l'accès à ses données et leur rectification, la demande de leur destruction et le retrait de son consentement lorsque le traitement en dépend, exercés via la page de suppression des données ou nos canaux de contact. La destruction est limitée par ce que la loi nous oblige à conserver (factures, registres).",
+      "zh": "客户享有法律规定的权利，包括查阅和更正其数据、申请销毁数据以及在处理以同意为基础时撤回同意，可通过数据删除页面或联系渠道行使。销毁受法律要求我们保留的内容（如发票和记录）限制。"
+     },
+     {
+      "ar": "يقرّ العميل بأنه حصل على موافقات أصحاب البيانات الشخصية (كموظفيه وشركائه ومرشحيه) وبأن له حقاً نظامياً في تزويدنا ببياناتهم.",
+      "en": "The Client confirms that they have obtained the consent of the individuals whose personal data they give us (such as employees, partners and candidates) and are entitled by law to provide it.",
+      "fr": "Le Client déclare avoir obtenu le consentement des personnes dont il nous transmet les données (salariés, associés, candidats) et être en droit de les fournir.",
+      "zh": "客户确认已取得其向我们提供个人数据的相关人员（如员工、合伙人和候选人）的同意，并依法有权提供。"
+     },
+     {
+      "ar": "نتخذ إجراءات تقنية وتنظيمية معقولة لحماية البيانات، ونبلّغ الجهات والمتأثرين عند وقوع حادث يوجب النظام الإبلاغ عنه. وقد تُعالَج بعض البيانات لدى مزوّدين خارج المملكة بالضوابط التي يقرّها النظام لنقل البيانات.",
+      "en": "We take reasonable technical and organisational measures to protect data, and notify authorities and affected persons where the law requires reporting of an incident. Some data may be processed by providers outside the Kingdom under the data-transfer controls the law sets.",
+      "fr": "Nous prenons des mesures techniques et organisationnelles raisonnables pour protéger les données et notifions les autorités et les personnes concernées lorsque la loi impose de signaler un incident. Certaines données peuvent être traitées par des prestataires hors du Royaume dans le respect des garanties légales de transfert.",
+      "zh": "我们采取合理的技术和组织措施保护数据，并在法律要求报告安全事件时通知主管机构及受影响者。部分数据可能由境外服务商处理，但须符合法律规定的数据跨境传输要求。"
+     }
+    ]
+   },
+   {
+    "id": "g-confidentiality",
+    "title": {
+     "ar": "السرية والملكية الفكرية",
+     "en": "Confidentiality and intellectual property",
+     "fr": "Confidentialité et propriété intellectuelle",
+     "zh": "保密与知识产权"
+    },
+    "items": [
+     {
+      "ar": "نحافظ على سرية معلومات العميل ومستنداته ولا نفصح عنها إلا للجهات والمزوّدين اللازمين للتنفيذ، أو بحكم النظام أو قرار جهة مختصة.",
+      "en": "We keep the Client's information and documents confidential and disclose them only to the authorities and providers needed for performance, or as required by law or a competent authority's decision.",
+      "fr": "Nous gardons confidentiels les informations et documents du Client et ne les divulguons qu'aux autorités et prestataires nécessaires à l'exécution, ou lorsque la loi ou une autorité compétente l'exige.",
+      "zh": "我们对客户的信息和文件保密，仅向履行所需的主管机构和服务商披露，或依法律或主管机构决定披露。"
+     },
+     {
+      "ar": "محتوى الموقع وتصميمه ونصوصه وشعاراته وأدواته وقوالبه وبرمجياته ملك Business Partner أو مرخَّص لها؛ ولا يجوز نسخه أو إعادة بيعه أو الهندسة العكسية له دون إذن كتابي. وما يقدمه العميل من مستندات وشعارات وعلامات يبقى ملكه ويمنحنا حق استعماله لأداء الخدمة فقط.",
+      "en": "The site's content, design, texts, logos, tools, templates and software belong to or are licensed to Business Partner and may not be copied, resold or reverse-engineered without written permission. Documents, logos and marks the Client provides remain the Client's, and give us the right to use them only to perform the Service.",
+      "fr": "Le contenu, la conception, les textes, logos, outils, modèles et logiciels du site appartiennent à Business Partner ou lui sont concédés et ne peuvent être copiés, revendus ou soumis à l'ingénierie inverse sans autorisation écrite. Les documents, logos et marques fournis par le Client restent siens et ne nous donnent le droit de les utiliser que pour exécuter le Service.",
+      "zh": "网站的内容、设计、文字、标识、工具、模板和软件归 Business Partner 所有或经其获许可，未经书面许可不得复制、转售或反向工程。客户提供的文件、标识和商标仍归客户所有，我们仅在履行服务所需范围内使用。"
+     }
+    ]
+   },
+   {
+    "id": "g-ai",
+    "title": {
+     "ar": "المستشار الذكي والأدوات الآلية",
+     "en": "The smart advisor and automated tools",
+     "fr": "Le conseiller intelligent et les outils automatisés",
+     "zh": "智能顾问与自动化工具"
+    },
+    "items": [
+     {
+      "ar": "يتيح الموقع «المستشار الذكي» وأدوات آلية (حاسبات ومولّدات ووكلاء). ومخرجاتها إرشاد عام قد يتضمن أخطاء أو معلومات غير محدثة، ولا تُعدّ رأياً قانونياً أو ضريبياً أو محاسبياً، ولا التزاماً ولا عرض سعر.",
+      "en": "The site offers the “Smart Advisor” and automated tools (calculators, generators, agents). Their output is general guidance that may contain errors or outdated information, and is not legal, tax or accounting advice, a commitment or a quotation.",
+      "fr": "Le site propose le « Conseiller intelligent » et des outils automatisés (calculateurs, générateurs, agents). Leurs résultats sont des indications générales pouvant contenir des erreurs ou des informations périmées ; ils ne constituent ni un avis juridique, fiscal ou comptable, ni un engagement, ni un devis.",
+      "zh": "网站提供“智能顾问”及自动化工具（计算器、生成器、代理）。其输出仅为一般性指引，可能含有错误或过时信息，不构成法律、税务或会计意见，也不构成承诺或报价。"
+     },
+     {
+      "ar": "لا يلزم Business Partner ما يقوله المستشار الذكي من سعر أو وعد أو مدة؛ والمعتمد هو الكتالوج وعرض السعر المكتوب والعقد. والحاسبات والتقديرات تقديرية وتُبنى على مدخلات المستخدم وعلى الأنظمة وقت النشر.",
+      "en": "Business Partner is not bound by any price, promise or timeline stated by the Smart Advisor; what counts is the catalogue, the written quotation and the contract. Calculators and estimates are indicative, based on the user's inputs and the rules at publication.",
+      "fr": "Business Partner n'est pas lié par un prix, une promesse ou un délai énoncé par le Conseiller intelligent ; font foi le catalogue, le devis écrit et le contrat. Les calculateurs et estimations sont indicatifs, fondés sur les données saisies et la réglementation à la date de publication.",
+      "zh": "智能顾问所述的价格、承诺或时限对 Business Partner 无约束力，以目录、书面报价单和合同为准。计算器和估算仅供参考，基于用户输入及发布时的规则。"
+     },
+     {
+      "ar": "يتحمل العميل مراجعة أي مخرج قبل تقديمه لجهة أو الاعتماد عليه في قرار.",
+      "en": "The Client is responsible for reviewing any output before submitting it to an authority or relying on it for a decision.",
+      "fr": "Il appartient au Client de relire tout résultat avant de le soumettre à une autorité ou de s'y fier pour une décision.",
+      "zh": "客户应在向主管机构提交或据以决策之前，自行审核任何输出内容。"
+     }
+    ]
+   },
+   {
+    "id": "g-notices-law",
+    "title": {
+     "ar": "الإشعارات والشكاوى والنظام الواجب التطبيق",
+     "en": "Notices, complaints and governing law",
+     "fr": "Notifications, réclamations et droit applicable",
+     "zh": "通知、投诉与适用法律"
+    },
+    "items": [
+     {
+      "ar": "نتواصل مع العميل عبر حسابه وبريده ورقم جواله المسجّل (بما فيه واتساب حيث وافق)، وتُعدّ الإشعارات المرسلة إلى هذه القنوات واصلة؛ وعلى العميل تحديث بياناته. ولا نرسل رسائل تسويقية إلا بموافقته، وله إيقافها في أي وقت.",
+      "en": "We contact the Client through their account, email and registered mobile number (including WhatsApp where they agreed); notices sent to these channels are deemed received, and the Client must keep their details current. We send marketing messages only with consent, and the Client may stop them at any time.",
+      "fr": "Nous contactons le Client via son compte, son courriel et son numéro de mobile enregistré (y compris WhatsApp s'il y a consenti) ; les notifications envoyées à ces canaux sont réputées reçues et le Client doit tenir ses coordonnées à jour. Nous n'envoyons de messages marketing qu'avec son consentement, et il peut les arrêter à tout moment.",
+      "zh": "我们通过客户账户、邮箱和登记手机号（客户同意时包括 WhatsApp）与其联系，发送至这些渠道的通知视为已送达，客户应及时更新资料。我们仅在客户同意后发送营销信息，客户可随时停止接收。"
+     },
+     {
+      "ar": "للشكاوى والملاحظات: صفحة التواصل أو حساب العميل، ونرد في مدة معقولة. وللعميل كذلك مراجعة الجهة المختصة بحماية المستهلك وفق النظام.",
+      "en": "Complaints and comments: through the contact page or the Client's account, and we reply within a reasonable time. The Client may also approach the authority competent for consumer protection as the law provides.",
+      "fr": "Réclamations et remarques : via la page de contact ou le compte du Client ; nous répondons dans un délai raisonnable. Le Client peut aussi saisir l'autorité compétente en matière de protection des consommateurs, conformément à la loi.",
+      "zh": "投诉与意见：通过联系页面或客户账户提出，我们将在合理时间内答复。客户亦可依法向负责消费者保护的主管机构投诉。"
+     },
+     {
+      "ar": "تُحلّ الخلافات وديّاً أولاً، فإن تعذّر ذلك فتخضع لاختصاص الجهة القضائية المختصة في المملكة العربية السعودية. وتخضع هذه الشروط وكل طلب لأنظمة المملكة ويُفسَّران وفقها.",
+      "en": "Disputes are first settled amicably; failing that, they are subject to the competent judicial authority in the Kingdom of Saudi Arabia. These terms and every order are governed by the laws of the Kingdom and interpreted accordingly.",
+      "fr": "Les différends sont d'abord réglés à l'amiable ; à défaut, ils relèvent de l'autorité judiciaire compétente du Royaume d'Arabie saoudite. Les présentes conditions et chaque commande sont régies par les lois du Royaume et interprétées en conséquence.",
+      "zh": "争议首先友好协商解决；协商不成的，由沙特阿拉伯王国有管辖权的司法机关处理。本条款及每一订单受沙特法律管辖并据其解释。"
+     }
+    ]
+   },
+   {
+    "id": "g-misc",
+    "title": {
+     "ar": "التعديل واللغة وأحكام ختامية",
+     "en": "Amendments, language and final provisions",
+     "fr": "Modifications, langue et dispositions finales",
+     "zh": "修订、语言与最终条款"
+    },
+    "items": [
+     {
+      "ar": "قد نعدّل هذه الشروط؛ ويسري التعديل على الطلبات التي تُنشأ بعد نشره، وتبقى الطلبات القائمة على الإصدار الذي قبله العميل عند الطلب ما لم يوافق على الجديد أو يوجب النظام غير ذلك. ونذكر تاريخ آخر تحديث أعلى الصفحة.",
+      "en": "We may amend these terms; an amendment applies to orders created after it is published, and existing orders stay on the version the Client accepted when ordering unless the Client accepts the new one or the law requires otherwise. The date of the latest update is shown at the top of the page.",
+      "fr": "Nous pouvons modifier les présentes conditions ; la modification s'applique aux commandes passées après sa publication, et les commandes en cours restent soumises à la version acceptée par le Client lors de la commande, sauf acceptation de la nouvelle version ou exigence légale contraire. La date de dernière mise à jour figure en haut de la page.",
+      "zh": "我们可能修订本条款；修订仅适用于发布后创建的订单，既有订单仍适用客户下单时接受的版本，除非客户接受新版本或法律另有要求。最近更新日期显示在页面顶部。"
+     },
+     {
+      "ar": "نُشرت هذه الشروط بالعربية والإنجليزية والفرنسية والصينية؛ وعند الاختلاف تُقدَّم النسخة العربية.",
+      "en": "These terms are published in Arabic, English, French and Chinese; if they differ, the Arabic version prevails.",
+      "fr": "Les présentes conditions sont publiées en arabe, anglais, français et chinois ; en cas de divergence, la version arabe prévaut.",
+      "zh": "本条款以阿拉伯语、英语、法语和中文发布；如有差异，以阿拉伯语版本为准。"
+     },
+     {
+      "ar": "بطلان أي بند لا يبطل بقية الشروط، وتبقى سارية بالقدر الجائز نظاماً؛ وعدم مطالبة أحد الطرفين بحق لا يُعدّ تنازلاً عنه.",
+      "en": "If any provision is invalid, the rest remain in force to the extent the law allows; a party's failure to claim a right is not a waiver of it.",
+      "fr": "L'invalidité d'une disposition n'affecte pas les autres, qui restent applicables dans la mesure permise par la loi ; le fait pour une partie de ne pas réclamer un droit n'emporte pas renonciation.",
+      "zh": "任何条款无效不影响其余条款在法律允许范围内继续有效；一方未主张某项权利不视为放弃该权利。"
+     }
+    ]
+   }
+  ]
+ },
+ "clauses": {
+  "govFees": {
+   "ar": "الرسوم الحكومية ورسوم الجهات المختصة (ومنها رسوم الخدمة والترخيص والتصديق والترجمة المعتمدة والرسوم البنكية) غير مشمولة بأتعاب هذه الخدمة. تُسدَّد من العميل مباشرةً أو بتفويضه، وتُوثَّق بإيصال أو إشعار سداد. وتحدّدها الجهة المختصة وقد تتغير قبل السداد أو بعده.",
+   "en": "Government fees and Competent Authorities' charges (including service, licensing, attestation, certified-translation and bank fees) are not included in the fees for this service. They are paid by the Client directly or under the Client's authorisation and evidenced by a receipt or payment notice. The Competent Authority sets them and they may change before or after payment.",
+   "fr": "Les frais officiels et redevances des autorités compétentes (y compris frais de service, de licence, de légalisation, de traduction certifiée et frais bancaires) ne sont pas inclus dans les honoraires de ce service. Ils sont réglés par le Client directement ou sur son autorisation, et justifiés par un reçu ou un avis de paiement. L'autorité compétente les fixe et ils peuvent évoluer avant ou après le paiement.",
+   "zh": "政府费用及主管机构收取的费用（包括服务费、许可费、认证费、官方翻译费和银行费用）不含在本服务的服务费内，由客户直接支付或经客户授权支付，并以收据或付款通知为凭。其金额由主管机构决定，付款前后均可能变动。"
+  },
+  "outcomeAuthority": {
+   "ar": "قبول الطلب أو إصداره أو تجديده أو إلغاؤه قرارٌ تنفرد به الجهة المختصة وفق أنظمتها وشروطها. وتقتصر مسؤولية Business Partner على إعداد الطلب وتقديمه ومتابعته ببذل العناية المهنية المعتادة، دون وعد بنتيجة أو بمدة.",
+   "en": "Acceptance, issuance, renewal or cancellation of an application is a decision made solely by the Competent Authority under its own rules and conditions. Business Partner's responsibility is limited to preparing, submitting and following up the application with customary professional care, without any promise of result or timing.",
+   "fr": "L'acceptation, la délivrance, le renouvellement ou l'annulation d'une demande est une décision qui appartient exclusivement à l'autorité compétente selon ses règles et conditions. La responsabilité de Business Partner se limite à préparer, déposer et suivre la demande avec la diligence professionnelle habituelle, sans promesse de résultat ni de délai.",
+   "zh": "申请的受理、签发、续期或撤销，由主管机构依其规则和条件独自决定。Business Partner 的责任仅限于以通常的专业审慎态度准备、提交和跟进申请，不对结果或时限作任何承诺。"
+  },
+  "eligibility": {
+   "ar": "قد يشترط النظام استيفاء العميل شروط أهلية أو نشاط أو رأس مال أو توطين أو غيرها. ولا يُعدّ قبولنا للطلب أو تحصيلنا الأتعاب تأكيداً لاستيفاء هذه الشروط؛ فإن تبيّن عدم الاستيفاء فيُطبَّق الاسترجاع على ما لم يُنفَّذ بحسب الشروط العامة.",
+   "en": "The law may require the Client to meet eligibility, activity, capital, localisation or other conditions. Our acceptance of the request or collection of fees is not confirmation that these are met; if they are not, the refund rules in the General Terms apply to the part not performed.",
+   "fr": "La loi peut exiger que le Client remplisse des conditions d'éligibilité, d'activité, de capital, de localisation ou autres. Notre acceptation de la demande ou l'encaissement des honoraires ne confirme pas qu'elles sont remplies ; à défaut, les règles de remboursement des Conditions générales s'appliquent à la part non exécutée.",
+   "zh": "法律可能要求客户满足资格、活动范围、资本、本地化或其他条件。我们受理申请或收取服务费并不表示确认这些条件已满足；如不满足，对未履行部分适用通用条款中的退款规则。"
+  },
+  "docsFromClient": {
+   "ar": "يلتزم العميل بتقديم المستندات الصحيحة المحدَّثة المطلوبة (كالسجل التجاري والهويات والتفويضات والعقود) في الوقت المناسب؛ وتُعلَّق المدد إلى حين اكتمالها ولا يُعدّ ذلك إخلالاً منا، ويتحمل العميل أثر عدم صحتها.",
+   "en": "The Client must provide the correct, current documents required (such as the commercial registration, IDs, authorisations and contracts) in good time; timelines are suspended until complete and that is not a breach by us, and the Client bears the consequences of any inaccuracy.",
+   "fr": "Le Client doit fournir en temps utile les documents exacts et à jour requis (registre du commerce, pièces d'identité, délégations, contrats) ; les délais sont suspendus jusqu'à leur complétude sans manquement de notre part, et le Client supporte les conséquences de toute inexactitude.",
+   "zh": "客户须及时提供所需的真实、最新文件（如商业登记、身份证件、授权书和合同）；文件齐备前办理时限中止，不构成我方违约，文件不实的后果由客户承担。"
+  },
+  "quoteBased": {
+   "ar": "تتطلب بعض الخدمات عرض سعر: فيحدد العرض المكتوب النطاق النهائي والأتعاب ومدة الصلاحية، ويسري العرض المقبول على السعر الإرشادي المعروض في الكتالوج عند الاختلاف. وما لم يرد في النطاق خدمةٌ مستقلة تُطلب وتُسعَّر على حدة.",
+   "en": "Some services require a quotation: the written quotation fixes the final scope, fees and validity, and the accepted quotation prevails over the indicative catalogue price where they differ. Anything outside the scope is a separate service, requested and priced separately.",
+   "fr": "Certains services nécessitent un devis : le devis écrit fixe le périmètre final, les honoraires et la validité, et le devis accepté prévaut sur le prix indicatif du catalogue en cas de différence. Ce qui sort du périmètre constitue un service distinct, demandé et chiffré séparément.",
+   "zh": "部分服务需要报价单：书面报价单确定最终范围、费用和有效期，如与目录参考价不一致，以已接受的报价单为准。范围之外的事项属于另行申请并另行报价的独立服务。"
+  },
+  "monthlyRenewal": {
+   "ar": "الاشتراك الشهري يستمر فترةً بعد فترة ما لم يُخطر العميل Business Partner بإنهائه قبل نهاية الفترة المدفوعة؛ ويسري الإنهاء من نهايتها، ولا يُسترد ما دُفع عن فترة بدأت إلا وفق الشروط العامة. ولا نُحمّل العميل مبلغاً عن فترة جديدة دون فاتورة أو وسيلة دفع وافق عليها.",
+   "en": "A monthly subscription continues period after period unless the Client tells Business Partner to end it before the end of the paid period; ending takes effect at the end of that period, and amounts paid for a period already begun are refunded only as the General Terms provide. We do not charge a new period without an invoice or a payment method the Client agreed to.",
+   "fr": "Un abonnement mensuel se poursuit période après période sauf si le Client demande à Business Partner d'y mettre fin avant la fin de la période payée ; la fin prend effet à l'issue de cette période, et les sommes payées pour une période entamée ne sont remboursées que selon les Conditions générales. Nous ne facturons pas une nouvelle période sans facture ou moyen de paiement accepté par le Client.",
+   "zh": "月度订阅按期顺延，除非客户在已付费期间结束前通知 Business Partner 终止；终止自该期间届满时生效，已开始期间已付款项仅依通用条款退还。未经发票或客户同意的付款方式，我们不会对新的期间收费。"
+  },
+  "priceChange": {
+   "ar": "يجوز تعديل أسعار الاشتراك عند التجديد أو عند إضافة خدمات جديدة بإشعار مسبق للعميل، ويُعدّ استمراره في الاشتراك بعد الإشعار قبولاً بالسعر الجديد؛ وللعميل الإنهاء قبل سريان التعديل.",
+   "en": "Subscription prices may be changed at renewal or when new services are added, with prior notice to the Client; continuing after the notice is acceptance of the new price, and the Client may end the subscription before the change takes effect.",
+   "fr": "Les prix de l'abonnement peuvent être modifiés au renouvellement ou lors de l'ajout de nouveaux services, moyennant préavis au Client ; la poursuite après préavis vaut acceptation du nouveau prix, et le Client peut résilier avant l'entrée en vigueur du changement.",
+   "zh": "订阅价格可在续期或新增服务时调整，但须提前通知客户；收到通知后继续订阅即视为接受新价格，客户可在调整生效前终止订阅。"
+  },
+  "fairUse": {
+   "ar": "للاشتراك حدٌّ أقصى للاستعمال أو للطلبات بحسب ما تذكره الباقة المشترَك بها؛ وما زاد عليه يكون بأتعاب إضافية يُتفق عليها مسبقاً.",
+   "en": "The subscription has a usage or request ceiling as stated in the package subscribed to; anything beyond it is charged additional fees agreed in advance.",
+   "fr": "L'abonnement comporte un plafond d'usage ou de demandes selon le forfait souscrit ; tout dépassement donne lieu à des honoraires supplémentaires convenus à l'avance.",
+   "zh": "订阅设有使用量或申请量上限，以所订套餐所列为准；超出部分须另行收费，并事先协商一致。"
+  },
+  "licensedPro": {
+   "ar": "الأعمال التي يشترط النظام لها ترخيصاً مهنياً تُنجَز عبر مرخَّص له، ويُحدَّد في العرض أو العقد من يتولاها. ولا يحلّ ما يقدمه الموقع من محتوى أو أدوات آلية محلّ رأيه المهني.",
+   "en": "Work for which the law requires a professional licence is performed through a licensed professional, identified in the quotation or contract. Website content and automated tools do not replace that professional's opinion.",
+   "fr": "Les travaux pour lesquels la loi exige une licence professionnelle sont réalisés par un professionnel agréé, identifié dans le devis ou le contrat. Le contenu du site et les outils automatisés ne remplacent pas son avis professionnel.",
+   "zh": "法律要求专业执照的工作须通过持证专业人士完成，并在报价单或合同中注明承办人。网站内容和自动化工具不能替代其专业意见。"
+  },
+  "thirdParty": {
+   "ar": "تعتمد هذه الخدمة على أطراف ثالثة (كالبنوك وشركات التأمين ومزوّدي الدفع والتقسيط والملاك والناقلين ومكاتب الاستقدام) تخضع لشروطها وقراراتها؛ ولا تتحمل Business Partner تقصيرها خارج نطاق مسؤوليتها النظامية.",
+   "en": "This service depends on third parties (such as banks, insurers, payment and instalment providers, landlords, carriers and recruitment offices) that act under their own terms and decisions; Business Partner is not liable for their failings beyond its own legal responsibility.",
+   "fr": "Ce service dépend de tiers (banques, assureurs, prestataires de paiement et d'échelonnement, bailleurs, transporteurs, bureaux de recrutement) qui agissent selon leurs propres conditions et décisions ; Business Partner n'est pas responsable de leurs manquements au-delà de sa propre responsabilité légale.",
+   "zh": "本服务依赖第三方（如银行、保险公司、支付和分期服务商、业主、承运商和招聘机构），其行为受各自条款和决定约束；对其过失，Business Partner 仅在自身法定责任范围内负责。"
+  },
+  "adSpend": {
+   "ar": "ميزانيات الإعلانات على المنصات الإعلانية ورسومها على حساب العميل مباشرةً ولا تدخل في الأتعاب.",
+   "en": "Advertising budgets and platform charges are paid by the Client directly and are not part of the fees.",
+   "fr": "Les budgets publicitaires et frais des plateformes sont réglés directement par le Client et ne font pas partie des honoraires.",
+   "zh": "广告预算及广告平台费用由客户直接支付，不含在服务费内。"
+  },
+  "successFee": {
+   "ar": "إن نصّ عرض السعر على أتعاب نسبية أو مرتبطة بنجاح، فتُحتسب على الأساس والنسبة وحدث الاستحقاق المنصوص عليها فيه وحدها.",
+   "en": "If the quotation provides for percentage-based or success-linked fees, they are calculated only on the basis, rate and triggering event stated in it.",
+   "fr": "Si le devis prévoit des honoraires proportionnels ou liés au succès, ils sont calculés uniquement sur la base, au taux et selon le fait générateur qui y sont indiqués.",
+   "zh": "如报价单约定按比例或与成功挂钩的费用，仅依其中所列的计算基数、比例和触发事件计收。"
+  }
+ },
+ "categories": [
+  {
+   "id": "formation",
+   "order": 1,
+   "title": {
+    "ar": "تأسيس الشركات والسجلات التجارية",
+    "en": "Company formation and commercial registers",
+    "fr": "Création de sociétés et registres du commerce",
+    "zh": "公司设立与商业登记"
+   },
+   "summary": {
+    "ar": "تأسيس الشركات السعودية، والسجل التجاري، وعقد التأسيس، وحجز الأسماء، والتعديل والتحويل والتصفية، والإفصاحات والإيداعات لدى المركز السعودي للأعمال.",
+    "en": "Saudi company formation, commercial registers, articles of association, name reservation, amendments, conversion and liquidation, and filings with the Saudi Business Center.",
+    "fr": "Création de sociétés saoudiennes, registres du commerce, statuts, réservation de noms, modifications, transformation et liquidation, et dépôts auprès du Centre saoudien des affaires.",
+    "zh": "沙特公司设立、商业登记、公司章程、名称预留、变更、转换与清算，以及在沙特商业中心办理的申报与备案。"
+   },
+   "uses": [
+    "quoteBased",
+    "govFees",
+    "outcomeAuthority",
+    "eligibility",
+    "docsFromClient"
+   ],
+   "items": [
+    {
+     "ar": "النطاق: إعداد الطلبات الإلكترونية وتقديمها ومتابعتها لدى الجهات المختصة بحسب نوع الخدمة المذكور في صفحتها. وما لم يرد فيها (كفتح الحساب البنكي أو تراخيص النشاط) خدمة مستقلة.",
+     "en": "Scope: preparing, submitting and following up electronic applications with the Competent Authorities according to the type of service stated on its page. Anything not stated there (such as opening a bank account or activity licences) is a separate service.",
+     "fr": "Périmètre : préparation, dépôt et suivi des demandes électroniques auprès des autorités compétentes selon le type de service indiqué sur sa page. Ce qui n'y figure pas (ouverture de compte bancaire, licences d'activité) constitue un service distinct.",
+     "zh": "范围：按服务页面所述类型，向主管机构准备、提交并跟进电子申请。页面未列明的事项（如银行开户、行业许可）属于独立服务。"
+    },
+    {
+     "ar": "عقد التأسيس والنظام الأساسي: نعدّ المسودات بحسب بيانات العميل، ويعتمد العميل وشركاؤه نصّها النهائي وهم المسؤولون عن مضمونه. ولا يغني الإعداد عن مراجعة قانونية متخصصة يطلبها العميل (انظر فئة «الخدمات المهنية»).",
+     "en": "Articles of association: we prepare drafts from the Client's data; the Client and its partners approve the final text and are responsible for its content. Preparation is not a substitute for a specialist legal review the Client may request (see “Professional services”).",
+     "fr": "Statuts : nous préparons les projets à partir des données du Client ; le Client et ses associés approuvent le texte final et en sont responsables. La préparation ne remplace pas un examen juridique spécialisé que le Client peut demander (voir « Services professionnels »).",
+     "zh": "公司章程：我们根据客户提供的资料起草，最终文本由客户及其合伙人确认并对内容负责。起草不能替代客户可另行委托的专业法律审阅（见“专业服务”类别）。"
+    },
+    {
+     "ar": "التوقيع والتصديق والإيداع: يوقّع أصحاب الصفة بأنفسهم أو بوكيلهم النظامي عبر القنوات المعتمدة (إلكترونياً أو أمام الموثِّق). ولا توقّع Business Partner نيابةً عن أي شخص دون تفويض نظامي موثَّق.",
+     "en": "Signing, attestation and filing: the persons entitled sign themselves or through their legal agent via approved channels (electronically or before a notary). Business Partner does not sign on anyone's behalf without a documented legal authorisation.",
+     "fr": "Signature, authentification et dépôt : les personnes habilitées signent elles-mêmes ou par leur mandataire légal par les canaux agréés (électroniquement ou devant notaire). Business Partner ne signe pour personne sans délégation légale documentée.",
+     "zh": "签署、认证与备案：有权签署的人应亲自或通过合法代理人经认可渠道（电子方式或公证人面前）签署。未经有据可查的合法授权，Business Partner 不代任何人签署。"
+    },
+    {
+     "ar": "حجز الاسم التجاري: توافره وقبوله يخضعان لضوابط الجهة وقد يُرفض، والحجز مؤقت بمدة تحددها الجهة.",
+     "en": "Name reservation: availability and acceptance depend on the authority's rules and may be refused; the reservation is valid for a period the authority sets.",
+     "fr": "Réservation de nom : la disponibilité et l'acceptation dépendent des règles de l'autorité et peuvent être refusées ; la réservation est valable pour la durée fixée par l'autorité.",
+     "zh": "名称预留：名称是否可用及是否获准取决于主管机构规则，可能被拒绝；预留期限由主管机构规定。"
+    },
+    {
+     "ar": "التعديل والتحويل والدمج والاستحواذ والتصفية وإلغاء السجل: تترتب عليها آثار نظامية ومالية (كالالتزامات والزكاة والضريبة وعقود العمل). ننفّذ الإجراء المطلوب فقط، ويتحقق العميل وشركاؤه من خلو الذمم والالتزامات وسلامة القرار قبل التنفيذ.",
+     "en": "Amendment, conversion, merger, acquisition, liquidation and register cancellation have legal and financial consequences (such as obligations, zakat, tax and employment contracts). We carry out the requested procedure only; the Client and its partners check that liabilities are settled and the decision is sound before execution.",
+     "fr": "Modification, transformation, fusion, acquisition, liquidation et radiation du registre entraînent des conséquences juridiques et financières (obligations, zakat, impôts, contrats de travail). Nous exécutons uniquement la procédure demandée ; le Client et ses associés vérifient l'apurement des dettes et le bien-fondé de la décision avant l'exécution.",
+     "zh": "变更、转换、合并、收购、清算和注销登记会产生法律和财务后果（如债务、天课、税款和劳动合同）。我们仅办理所委托的程序；执行前，客户及其合伙人应自行核实债务已清偿及决定妥当。"
+    },
+    {
+     "ar": "بعد التأسيس: الالتزامات الدورية (كتجديد السجل والتأكيد السنوي والإفصاح عن المستفيد الحقيقي والقوائم المالية) على العميل ما لم يطلبها منا صراحةً أو يشملها اشتراك مُدار.",
+     "en": "After formation: recurring obligations (such as register renewal, annual confirmation, beneficial-owner disclosure and financial statements) remain the Client's unless expressly requested from us or covered by a managed subscription.",
+     "fr": "Après la création : les obligations récurrentes (renouvellement du registre, confirmation annuelle, déclaration du bénéficiaire effectif, états financiers) incombent au Client sauf demande expresse ou couverture par un abonnement géré.",
+     "zh": "设立之后：周期性义务（如登记续期、年度确认、受益所有人披露和财务报表）仍由客户负责，除非客户明确委托我们或已包含在托管订阅内。"
+    }
+   ]
+  },
+  {
+   "id": "foreign",
+   "order": 2,
+   "title": {
+    "ar": "الاستثمار الأجنبي",
+    "en": "Foreign investment",
+    "fr": "Investissement étranger",
+    "zh": "外商投资"
+   },
+   "summary": {
+    "ar": "تراخيص الاستثمار الأجنبي، وتأسيس فروع وشركات المستثمر الأجنبي، والمقر الإقليمي، والمكاتب التمثيلية، وتجديد الترخيص وتعديله وإلغاؤه.",
+    "en": "Foreign-investment licences, foreign-investor companies and branches, regional headquarters, representative offices, and licence renewal, amendment and cancellation.",
+    "fr": "Licences d'investissement étranger, sociétés et succursales d'investisseurs étrangers, sièges régionaux, bureaux de représentation, renouvellement, modification et annulation de licence.",
+    "zh": "外商投资许可、外国投资者公司与分支机构、地区总部、代表处，以及许可的续期、变更和注销。"
+   },
+   "uses": [
+    "quoteBased",
+    "govFees",
+    "outcomeAuthority",
+    "eligibility",
+    "docsFromClient"
+   ],
+   "items": [
+    {
+     "ar": "الترخيص الاستثماري يخضع لتقدير الجهة المختصة وشروطها (النشاط والملكية ورأس المال وغيرها). ولا تضمن Business Partner منحه ولا مدة منحه ولا استمرار سريانه.",
+     "en": "The investment licence is subject to the Competent Authority's discretion and conditions (activity, ownership, capital and others). Business Partner does not guarantee that it will be granted, how long it takes, or that it stays in force.",
+     "fr": "La licence d'investissement relève du pouvoir d'appréciation de l'autorité compétente et de ses conditions (activité, détention, capital, etc.). Business Partner ne garantit ni son octroi, ni son délai, ni son maintien en vigueur.",
+     "zh": "投资许可取决于主管机构的裁量及其条件（如行业、持股、资本等）。Business Partner 不保证其获批、办理时限或持续有效。"
+    },
+    {
+     "ar": "مستندات الشركة الأجنبية تحتاج غالباً إلى تصديق وترجمة معتمدة على نفقة العميل وبحسب قواعد الجهة، وتتأخر الخدمة بتأخرها.",
+     "en": "The foreign company's documents often need attestation and certified translation at the Client's cost and under the authority's rules; the service is delayed if they are.",
+     "fr": "Les documents de la société étrangère nécessitent souvent légalisation et traduction certifiée aux frais du Client et selon les règles de l'autorité ; le service est retardé d'autant.",
+     "zh": "外国公司的文件通常需要认证和官方翻译，费用由客户承担并按主管机构规则办理，文件延误会导致服务延期。"
+    },
+    {
+     "ar": "التزامات ما بعد الترخيص (كالتقارير الدورية والتجديد والاشتراطات المستمرة) على العميل متابعتها، ما لم يشملها طلب مدفوع أو اشتراك مُدار.",
+     "en": "Post-licence obligations (such as periodic reports, renewal and continuing conditions) are the Client's to monitor unless covered by a paid request or a managed subscription.",
+     "fr": "Les obligations postérieures à la licence (rapports périodiques, renouvellement, conditions continues) incombent au Client, sauf demande payante ou abonnement géré les couvrant.",
+     "zh": "获得许可后的义务（如定期报告、续期和持续性条件）由客户自行跟进，除非已包含在付费申请或托管订阅内。"
+    },
+    {
+     "ar": "برامج المقر الإقليمي والمكاتب التمثيلية وغيرها لها شروطها ومزاياها التي تحددها الجهة؛ ولا نعد بميزة أو إعفاء بعينه.",
+     "en": "Regional-headquarters, representative-office and similar programmes have conditions and benefits set by the authority; we promise no particular benefit or exemption.",
+     "fr": "Les programmes de siège régional, bureau de représentation et autres ont des conditions et avantages fixés par l'autorité ; nous ne promettons aucun avantage ou exonération particulier.",
+     "zh": "地区总部、代表处等计划的条件和优惠由主管机构规定；我们不承诺任何特定优惠或豁免。"
+    },
+    {
+     "ar": "لسنا مستشاراً ضريبياً أو قانونياً في بلد العميل الأصلي؛ والآثار الضريبية والنظامية خارج المملكة على العميل ومستشاريه.",
+     "en": "We are not tax or legal advisers in the Client's home country; tax and legal effects outside the Kingdom are for the Client and its advisers.",
+     "fr": "Nous ne sommes pas conseillers fiscaux ou juridiques dans le pays d'origine du Client ; les effets fiscaux et juridiques hors du Royaume incombent au Client et à ses conseils.",
+     "zh": "我们不是客户所在国的税务或法律顾问；沙特境外的税务和法律后果由客户及其顾问负责。"
+    }
+   ]
+  },
+  {
+   "id": "premium",
+   "order": 3,
+   "title": {
+    "ar": "الإقامة المميزة",
+    "en": "Premium Residency",
+    "fr": "Résidence premium",
+    "zh": "高级居留"
+   },
+   "summary": {
+    "ar": "تقييم الأهلية واختيار المسار وتجهيز طلبات الإقامة المميزة (مستثمر، رائد أعمال، عقار، موهبة، كفاءة، مالي) وإضافة أفراد الأسرة.",
+    "en": "Eligibility assessment, route selection and preparation of Premium Residency applications (investor, entrepreneur, property owner, talent, exceptional competence, financial) and adding family members.",
+    "fr": "Évaluation d'éligibilité, choix de la voie et préparation des demandes de résidence premium (investisseur, entrepreneur, propriétaire, talent, compétence exceptionnelle, financier) et ajout de membres de la famille.",
+    "zh": "资格评估、路径选择和高级居留申请准备（投资者、创业者、房产所有者、人才、卓越能力、金融），以及添加家属。"
+   },
+   "uses": [
+    "govFees",
+    "outcomeAuthority",
+    "eligibility",
+    "docsFromClient"
+   ],
+   "items": [
+    {
+     "ar": "تحدد الجهة المختصة أهلية المتقدّم وفئة الإقامة وشروطها المالية والمستندية. والتقييم الذي نجريه استرشادي ولا يُعدّ قراراً ولا وعداً بالقبول.",
+     "en": "The Competent Authority determines the applicant's eligibility, the residency category and its financial and documentary conditions. Our assessment is indicative and is neither a decision nor a promise of acceptance.",
+     "fr": "L'autorité compétente détermine l'éligibilité du demandeur, la catégorie de résidence et ses conditions financières et documentaires. Notre évaluation est indicative et ne constitue ni une décision ni une promesse d'acceptation.",
+     "zh": "主管机构决定申请人是否符合资格、居留类别及其财务和文件条件。我们的评估仅供参考，既非决定，也不承诺获批。"
+    },
+    {
+     "ar": "يقرّ المتقدم بصحة بياناته وسلامة سجله النظامي؛ وقد تُرفض الطلبات لأسباب لا تفصح عنها الجهة.",
+     "en": "The applicant confirms that their data is correct and their legal record is clean; applications may be refused for reasons the authority does not disclose.",
+     "fr": "Le demandeur atteste l'exactitude de ses données et la régularité de son dossier légal ; les demandes peuvent être refusées pour des motifs que l'autorité ne divulgue pas.",
+     "zh": "申请人确认其资料属实且无不良记录；申请可能因主管机构不予披露的原因被拒。"
+    },
+    {
+     "ar": "تقتصر الخدمة على الإجراءات الإلكترونية والتنسيق، ولا تتضمن تمثيلاً أمام الجهات ولا استشارة هجرة قانونية بالمعنى المهني.",
+     "en": "The service is limited to electronic procedures and coordination, and does not include representation before authorities or immigration legal advice in the professional sense.",
+     "fr": "Le service se limite aux démarches électroniques et à la coordination ; il n'inclut ni représentation devant les autorités ni conseil juridique en immigration au sens professionnel.",
+     "zh": "本服务仅限于电子程序和协调，不包括在主管机构面前的代理，也不包括职业意义上的移民法律咨询。"
+    },
+    {
+     "ar": "إضافة أفراد الأسرة: لكل فرد طلبه وشروطه، وتتبع قرار الجهة.",
+     "en": "Adding family members: each member has their own application and conditions, which follow the authority's decision.",
+     "fr": "Ajout de membres de la famille : chaque membre a sa propre demande et ses conditions, qui suivent la décision de l'autorité.",
+     "zh": "添加家属：每位家属有各自的申请和条件，并取决于主管机构的决定。"
+    }
+   ]
+  },
+  {
+   "id": "gov",
+   "order": 4,
+   "title": {
+    "ar": "المعاملات الحكومية والمنصات الإلكترونية",
+    "en": "Government transactions and e-platforms",
+    "fr": "Démarches administratives et plateformes électroniques",
+    "zh": "政府事务与电子平台"
+   },
+   "summary": {
+    "ar": "خدمات على منصات قوى ومقيم ومدد وأجير وأبشر أعمال وبلدي والتأمينات والدفاع المدني والملكية الفكرية والتراخيص الصناعية وغيرها.",
+    "en": "Services on platforms such as Qiwa, Muqeem, Mudad, Ajeer, Absher Business, Balady, GOSI, Civil Defense, IP and industrial licensing.",
+    "fr": "Services sur des plateformes telles que Qiwa, Muqeem, Mudad, Ajeer, Absher Business, Balady, GOSI, la Défense civile, la propriété intellectuelle et les licences industrielles.",
+    "zh": "在 Qiwa、Muqeem、Mudad、Ajeer、Absher Business、Balady、社保（GOSI）、民防、知识产权和工业许可等平台办理的服务。"
+   },
+   "uses": [
+    "quoteBased",
+    "govFees",
+    "outcomeAuthority",
+    "eligibility",
+    "docsFromClient"
+   ],
+   "items": [
+    {
+     "ar": "الخدمة إلكترونية: تقتصر على ما تتيحه المنصة الحكومية المعنية للمنشأة عبر حسابها، ولا تشمل مراجعة الجهات حضورياً (ما لم يرد ذلك صراحةً)، ولا إجراء معاملة لا تتيحها المنصة أو تخالف النظام.",
+     "en": "The service is electronic: it is limited to what the relevant government platform makes available to the establishment through its account, and does not include attending authorities in person (unless expressly stated) or any transaction the platform does not offer or that breaches the law.",
+     "fr": "Le service est électronique : il se limite à ce que la plateforme publique concernée offre à l'établissement via son compte, et n'inclut ni déplacement en personne auprès des autorités (sauf mention expresse) ni opération que la plateforme n'offre pas ou qui enfreint la loi.",
+     "zh": "本服务为电子服务：仅限于相关政府平台通过企业账户提供的功能，不包括到主管机构现场办理（另有明确约定的除外），也不包括平台未提供或违反法律的事项。"
+    },
+    {
+     "ar": "تغيّر الجهات خدماتها واشتراطاتها دون إشعار لنا؛ وإن تغيّر ما يؤثر في نطاق الخدمة أو أتعابها أبلغنا العميل قبل المتابعة.",
+     "en": "Authorities change their services and requirements without notice to us; if a change affects the scope or fees of the service we inform the Client before proceeding.",
+     "fr": "Les autorités modifient leurs services et exigences sans nous en aviser ; si un changement affecte le périmètre ou les honoraires du service, nous en informons le Client avant de poursuivre.",
+     "zh": "主管机构会在不通知我们的情况下变更其服务和要求；如变更影响服务范围或费用，我们将在继续办理前告知客户。"
+    },
+    {
+     "ar": "آثار المعاملة (كنقل الخدمات وتغيير المهنة وإلغاء التصريح والشطب) على حقوق العامل والمنشأة والتزاماتها مسؤولية العميل، وننفذ الإجراء بتعليماته المكتوبة بعد أن يراجع أثره.",
+     "en": "The effects of a transaction (such as transfer of services, profession change, permit cancellation or deregistration) on the worker's and establishment's rights and obligations are the Client's responsibility; we carry out the procedure on the Client's written instruction after the Client has reviewed its effect.",
+     "fr": "Les effets d'une opération (transfert de services, changement de profession, annulation de permis, radiation) sur les droits et obligations du travailleur et de l'établissement relèvent de la responsabilité du Client ; nous exécutons la démarche sur instruction écrite du Client, après qu'il en a examiné l'effet.",
+     "zh": "办理事项（如转移服务、更换职业、取消许可证和注销）对劳动者及企业权利义务的影响由客户负责；客户审阅其影响后，我们依其书面指示办理。"
+    },
+    {
+     "ar": "الغرامات والتأخير الناشئة عن مدد نظامية فاتت قبل بدء الخدمة أو بسبب تأخر العميل يتحملها العميل، ولا تتحمل Business Partner مخالفات سبقت الخدمة أو لا تتعلق بإجراءاتها، ما لم يثبت أنها نتجت عن خطأ في تنفيذنا للخدمة المتفق عليها.",
+     "en": "Fines and delays caused by statutory deadlines that expired before the Service began, or by the Client's delay, are borne by the Client; Business Partner does not bear violations that pre-date the Service or are unrelated to its procedures, unless shown to result from an error in our performance of the agreed Service.",
+     "fr": "Les amendes et retards dus à des délais légaux échus avant le début du Service ou au retard du Client sont à la charge du Client ; Business Partner ne supporte pas les infractions antérieures au Service ou étrangères à ses démarches, sauf s'il est établi qu'elles résultent d'une erreur dans notre exécution du Service convenu.",
+     "zh": "因服务开始前已届满的法定期限或客户延误产生的罚款和迟延由客户承担；Business Partner 不承担服务开始前已发生或与其办理程序无关的违规，除非证明系我方在履行约定服务时的错误所致。"
+    }
+   ]
+  },
+  {
+   "id": "violations",
+   "order": 5,
+   "title": {
+    "ar": "المخالفات والاعتراضات والتسويات",
+    "en": "Violations, objections and settlements",
+    "fr": "Infractions, contestations et règlements",
+    "zh": "违规、异议与和解"
+   },
+   "summary": {
+    "ar": "مراجعة المخالفات والطلبات، ودراسة أهلية الاعتراض، والتجهيز والتقديم والمتابعة لدى وزارة الموارد البشرية ومنصاتها، وتسويات المنشآت والخلافات العمالية.",
+    "en": "Reviewing violations and requests, studying eligibility to object, preparing, filing and following up with the human-resources ministry and its platforms, establishment settlements and labour disputes.",
+    "fr": "Examen des infractions et demandes, étude de l'éligibilité à la contestation, préparation, dépôt et suivi auprès du ministère des Ressources humaines et de ses plateformes, règlements d'établissements et litiges du travail.",
+    "zh": "违规与申请审查、异议资格研判、材料准备、提交与跟进（人力资源主管部门及其平台）、企业和解与劳动争议。"
+   },
+   "uses": [
+    "govFees",
+    "docsFromClient"
+   ],
+   "items": [
+    {
+     "ar": "مراحل الخدمة: مراجعة المخالفة أو الطلب، ثم دراسة أهلية الاعتراض، ثم التجهيز، ثم التقديم، ثم المتابعة. وقد تنتهي الدراسة بأن الاعتراض غير ممكن أو غير مجدٍ، فنُبلغ العميل قبل التقديم، ويُطبَّق الاسترجاع على المراحل غير المنفَّذة.",
+     "en": "Service stages: review of the violation or request, then study of eligibility to object, then preparation, filing and follow-up. The study may conclude that an objection is not possible or not worthwhile, in which case we tell the Client before filing and the refund rules apply to the stages not performed.",
+     "fr": "Étapes du service : examen de l'infraction ou de la demande, étude de l'éligibilité à la contestation, puis préparation, dépôt et suivi. L'étude peut conclure que la contestation est impossible ou inopportune ; nous en informons alors le Client avant le dépôt et le remboursement s'applique aux étapes non exécutées.",
+     "zh": "服务阶段：审查违规或申请，研判异议资格，随后准备、提交和跟进。研判可能得出无法或不宜提出异议的结论，此时我们在提交前告知客户，并对未履行阶段适用退款规则。"
+    },
+    {
+     "ar": "لا نعد بإلغاء مخالفة أو تخفيضها أو إسقاطها أو تقسيطها أو بنتيجة نزاع؛ فالقرار للجهة المختصة أو الجهة القضائية أو العمالية، والأتعاب مقابل الجهد المهني لا مقابل النتيجة.",
+     "en": "We do not promise that a violation will be cancelled, reduced, waived or paid in instalments, or any outcome in a dispute; the decision belongs to the Competent Authority or the judicial or labour body, and fees are for professional effort, not for a result.",
+     "fr": "Nous ne promettons ni l'annulation, ni la réduction, ni la remise, ni l'échelonnement d'une infraction, ni aucun résultat dans un litige ; la décision appartient à l'autorité compétente ou à l'instance judiciaire ou du travail, et les honoraires rémunèrent l'effort professionnel, non un résultat.",
+     "zh": "我们不承诺违规会被撤销、减轻、免除或分期，也不承诺任何争议结果；决定权属于主管机构或司法、劳动裁决机构，服务费对应的是专业工作投入而非结果。"
+    },
+    {
+     "ar": "مدد الاعتراض والتظلم نظامية وتبدأ وفق النظام من تاريخ العلم أو الإشعار؛ وعلى العميل إبلاغنا فور علمه. ومن تفوته المدة قبل اكتمال طلبه ومستنداته فلا مسؤولية علينا بسبب فواتها.",
+     "en": "Deadlines to object or appeal are statutory and run as the law provides from the date of knowledge or notice; the Client must tell us as soon as they know. If the deadline passes before the Client's request and documents are complete, we are not responsible for its lapse.",
+     "fr": "Les délais de contestation ou de recours sont légaux et courent selon la loi à compter de la connaissance ou de la notification ; le Client doit nous en informer dès qu'il en a connaissance. Si le délai expire avant que sa demande et ses documents ne soient complets, nous ne sommes pas responsables de cette forclusion.",
+     "zh": "异议和申诉的期限由法律规定，依法自知悉或收到通知之日起算；客户应在知悉后立即告知我们。如申请和文件尚未齐备而期限已过，我们对逾期不承担责任。"
+    },
+    {
+     "ar": "غرامات المخالفات والمبالغ المقررة والتسويات والأقساط تُدفع للجهة المعنية وليست من أتعابنا، ولا نسدّدها من عندنا.",
+     "en": "Fines for violations, assessed amounts, settlements and instalments are paid to the body concerned, are not part of our fees, and we do not pay them from our own funds.",
+     "fr": "Les amendes, montants fixés, règlements et échéances sont payés à l'organisme concerné, ne font pas partie de nos honoraires, et nous ne les réglons pas sur nos fonds propres.",
+     "zh": "违规罚款、核定金额、和解款和分期款应支付给相关机构，不含在我们的服务费内，我们也不会垫付。"
+    },
+    {
+     "ar": "الترافع والتمثيل أمام اللجان والمحاكم والتقاضي خارج هذه الخدمة، ويتطلب وكالة نظامية ومحامياً مرخّصاً بعقد مستقل (انظر «الخدمات المهنية»).",
+     "en": "Pleading and representation before committees and courts, and litigation, are outside this service and require a legal power of attorney and a licensed lawyer under a separate contract (see “Professional services”).",
+     "fr": "La plaidoirie, la représentation devant les comités et tribunaux et le contentieux sont hors de ce service et exigent une procuration légale et un avocat agréé par contrat distinct (voir « Services professionnels »).",
+     "zh": "在委员会和法院出庭代理及诉讼不属于本服务，须另行签订合同、办理合法委托并由持证律师承办（见“专业服务”）。"
+    },
+    {
+     "ar": "نمتنع عن تقديم بيان غير صحيح أو إخفاء مخالفة؛ ويقرّ العميل بصحة الوقائع والمستندات التي يقدّمها، ولنا الامتناع عن التقديم إن ظهر لنا عدم صحتها.",
+     "en": "We do not submit an untrue statement or conceal a violation; the Client confirms the facts and documents supplied are true, and we may decline to file if they appear untrue.",
+     "fr": "Nous ne déposons aucune déclaration inexacte et ne dissimulons aucune infraction ; le Client atteste la véracité des faits et documents fournis, et nous pouvons refuser de déposer s'ils paraissent inexacts.",
+     "zh": "我们不提交不实陈述，也不隐瞒违规；客户确认所提供的事实和文件真实，如发现不实，我们有权拒绝提交。"
+    }
+   ]
+  },
+  {
+   "id": "tax",
+   "order": 6,
+   "title": {
+    "ar": "الزكاة والضريبة",
+    "en": "Zakat and tax",
+    "fr": "Zakat et fiscalité",
+    "zh": "天课与税务"
+   },
+   "summary": {
+    "ar": "التسجيل في ضريبة القيمة المضافة والزكاة، وتقديم الإقرارات، وشهادات الهيئة، وإلغاء التسجيل.",
+    "en": "VAT and zakat registration, filing returns, authority certificates and deregistration.",
+    "fr": "Immatriculation à la TVA et à la zakat, dépôt des déclarations, attestations de l'autorité et radiation.",
+    "zh": "增值税和天课登记、申报、主管机构证书及注销登记。"
+   },
+   "uses": [
+    "docsFromClient",
+    "outcomeAuthority"
+   ],
+   "items": [
+    {
+     "ar": "الإقرارات تُعدّ وتُقدَّم على أساس البيانات والدفاتر والمستندات التي يقدمها العميل؛ ويقرّ بصحتها وكمالها، وهو المسؤول عن مضمون الإقرار والمبالغ المستحقة.",
+     "en": "Returns are prepared and filed on the basis of the data, books and documents the Client provides; the Client confirms they are true and complete and is responsible for the content of the return and the amounts due.",
+     "fr": "Les déclarations sont préparées et déposées sur la base des données, livres et documents fournis par le Client ; il en atteste l'exactitude et l'exhaustivité et demeure responsable du contenu de la déclaration et des sommes dues.",
+     "zh": "申报表依据客户提供的数据、账簿和文件编制并提交；客户确认其真实完整，并对申报内容及应纳税款负责。"
+    },
+    {
+     "ar": "التسجيل في الضريبة والزكاة يخضع لضوابط الهيئة وحدود التسجيل والأنشطة، والقرار للهيئة.",
+     "en": "VAT and zakat registration is subject to the authority's rules, registration thresholds and activities, and the decision is the authority's.",
+     "fr": "L'immatriculation à la TVA et à la zakat est soumise aux règles de l'autorité, aux seuils et aux activités concernées, et la décision lui appartient.",
+     "zh": "增值税和天课登记受主管机构规则、登记门槛及业务范围限制，决定权属于主管机构。"
+    },
+    {
+     "ar": "المبالغ المستحقة للهيئة (ضريبة أو زكاة أو غرامات تأخير) يدفعها العميل مباشرة، ولا نتحمل غرامات التأخير الناتجة عن تأخر تزويدنا بمستنداته عن المدة النظامية.",
+     "en": "Amounts due to the authority (tax, zakat or late penalties) are paid by the Client directly, and we do not bear late penalties resulting from the Client supplying documents after the statutory deadline.",
+     "fr": "Les sommes dues à l'autorité (impôt, zakat ou pénalités de retard) sont payées directement par le Client, et nous ne supportons pas les pénalités résultant de la remise tardive de ses documents après le délai légal.",
+     "zh": "应付主管机构的款项（税款、天课或滞纳金）由客户直接支付；因客户在法定期限后才提供文件而产生的滞纳金，我们不承担。"
+    },
+    {
+     "ar": "المراجعة الضريبية أو الزكوية المعمَّقة والتدقيق المحاسبي خارج هذه الخدمات (انظر «الخدمات المهنية»). والإقرار المقدَّم لا يُعدَّل إلا بقدر ما يتيحه النظام وبطلب جديد.",
+     "en": "In-depth tax or zakat review and accounting audit are outside these services (see “Professional services”). A filed return is amended only as far as the law allows and on a new request.",
+     "fr": "L'examen fiscal ou zakat approfondi et l'audit comptable sont hors de ces services (voir « Services professionnels »). Une déclaration déposée n'est modifiée que dans la mesure permise par la loi et sur nouvelle demande.",
+     "zh": "深入的税务/天课审查和会计审计不属于这些服务（见“专业服务”）。已提交的申报表仅在法律允许范围内并经新的申请才能更正。"
+    }
+   ]
+  },
+  {
+   "id": "managed",
+   "order": 7,
+   "title": {
+    "ar": "الخدمات المُدارة والباقات الشهرية",
+    "en": "Managed services and monthly packages",
+    "fr": "Services gérés et forfaits mensuels",
+    "zh": "托管服务与月度套餐"
+   },
+   "summary": {
+    "ar": "باقات إدارة الخدمات الإلكترونية للمنشأة (الصغيرة والانطلاق والنمو والتوسع والمؤسسية) وخدمات الإدارة الشهرية المماثلة.",
+    "en": "Packages that manage the establishment's electronic services (Small, Launch, Growth, Scale, Enterprise) and similar monthly managed services.",
+    "fr": "Forfaits de gestion des services électroniques de l'établissement (Petite entreprise, Lancement, Croissance, Expansion, Entreprise) et services gérés mensuels similaires.",
+    "zh": "管理企业电子服务的套餐（小微、启动、成长、扩展、企业）及类似的月度托管服务。"
+   },
+   "uses": [
+    "monthlyRenewal",
+    "priceChange",
+    "fairUse",
+    "govFees",
+    "outcomeAuthority",
+    "docsFromClient"
+   ],
+   "items": [
+    {
+     "ar": "النطاق: إدارة الخدمات الإلكترونية للمنشأة على منصات الجهات الحكومية بحسب مزايا الباقة، ولا تشمل مراجعة الجهات حضورياً؛ ويتولّى العميل توفير من يقوم بالمراجعات الحضورية عند الحاجة.",
+     "en": "Scope: managing the establishment's electronic services on government platforms according to the package benefits; it does not include attending authorities in person, which the Client arranges when needed.",
+     "fr": "Périmètre : gestion des services électroniques de l'établissement sur les plateformes publiques selon les avantages du forfait ; elle n'inclut pas les déplacements auprès des autorités, que le Client organise au besoin.",
+     "zh": "范围：按套餐权益管理企业在政府平台上的电子服务，不包括到主管机构现场办理，客户需要时自行安排人员办理。"
+    },
+    {
+     "ar": "حدود كل جهة: تنحصر الإدارة في الخدمات الإلكترونية المتاحة نظاماً في حساب المنشأة؛ ولا يحق للعميل مطالبتنا بمعاملة غير نظامية أو غير متاحة. ومن ذلك على سبيل المثال: وزارة الموارد البشرية (الخدمة الإلكترونية في حساب المنشأة)، ووزارة التجارة (تجديد السجل وشطبه وتعديله وحجز الأسماء)، والتأمينات الاجتماعية، وهيئة الزكاة والضريبة والجمارك (الإقرارات والتسجيل)، وأبشر أعمال ومقيم، وبلدي (الرخص البلدية)، والدفاع المدني (سلامة)، والتأمين الطبي (إصدار الوثائق وتجديدها).",
+     "en": "Limits per authority: management is confined to the electronic services lawfully available in the establishment's account; the Client may not ask us for an unlawful or unavailable transaction. For example: Ministry of Human Resources (the e-service in the establishment account), Ministry of Commerce (renewing, cancelling and amending registers and reserving names), social insurance, the tax and customs authority (returns and registration), Absher Business and Muqeem, Balady (municipal licences), Civil Defense (Salamah), and medical insurance (issuing and renewing policies).",
+     "fr": "Limites par autorité : la gestion se limite aux services électroniques légalement disponibles dans le compte de l'établissement ; le Client ne peut exiger de nous une opération illégale ou indisponible. Par exemple : ministère des Ressources humaines (service électronique du compte), ministère du Commerce (renouvellement, radiation, modification des registres, réservation de noms), assurances sociales, autorité fiscale et douanière (déclarations, immatriculation), Absher Business et Muqeem, Balady (licences municipales), Défense civile (Salamah), assurance maladie (émission et renouvellement des polices).",
+     "zh": "各机构的边界：托管仅限于企业账户中依法可用的电子服务；客户不得要求我们办理违法或平台未提供的事项。例如：人力资源部（企业账户中的电子服务）、商务部（登记续期、注销、变更及名称预留）、社会保险、税务和海关机构（申报与登记）、Absher Business 和 Muqeem、Balady（市政许可）、民防（Salamah）、医疗保险（保单签发与续期）。"
+    },
+    {
+     "ar": "حماية الأجور: ترفع الملفات وتدقّق وتُصحَّح الأخطاء بحسب ما تشمله الباقة. والاستشارات والخدمات الإضافية (كموقع تعريفي بصفحات محدودة، وحسابات تواصل اجتماعي، وتأهيل عدد محدود من الموظفين، واللوائح الداخلية وعقد عمل لكل موظف مرة في السنة) تنحصر فيما وُصف في الباقة، وما زاد عليه بعقد أو رسوم إضافية.",
+     "en": "Wage protection: files are uploaded, checked and errors corrected as the package includes. Consultations and additional services (such as a brochure website of limited pages, social-media accounts, training for a limited number of staff, internal regulations and one employment contract per employee per year) are limited to what the package describes; anything more requires a separate contract or additional fees.",
+     "fr": "Protection des salaires : les fichiers sont déposés, vérifiés et les erreurs corrigées selon le forfait. Les consultations et services additionnels (site vitrine à pages limitées, comptes de réseaux sociaux, formation d'un nombre limité de salariés, règlement intérieur et un contrat de travail par salarié et par an) se limitent à ce que décrit le forfait ; tout le reste exige un contrat distinct ou des frais supplémentaires.",
+     "zh": "工资保护：按套餐内容上传、核对文件并更正错误。咨询和附加服务（如页数有限的展示网站、社交媒体账号、限定人数的员工培训、内部规章以及每名员工每年一份劳动合同）仅限于套餐所述内容，超出部分需另行签订合同或另行收费。"
+    },
+    {
+     "ar": "«المتابعة والتنبيه» جهد وقائي نبذله على المنصات المشمولة بالباقة، ولا يضمن عدم وقوع مخالفة أو غرامة ولا اكتشاف كل استحقاق؛ وتبقى مسؤولية الالتزام النظامي على المنشأة. والمخالفات والاعتراضات والتقاضي ليست من الباقة وتُطلب بخدمات مستقلة.",
+     "en": "“Monitoring and alerts” is preventive effort we make on the platforms the package covers; it does not guarantee that no violation or fine will occur or that every due date is detected, and legal compliance remains the establishment's responsibility. Violations, objections and litigation are not part of the package and are requested as separate services.",
+     "fr": "Le « suivi et les alertes » est un effort préventif sur les plateformes couvertes par le forfait ; il ne garantit ni l'absence d'infraction ou d'amende ni la détection de toutes les échéances, et la conformité légale demeure de la responsabilité de l'établissement. Infractions, contestations et contentieux ne font pas partie du forfait et sont demandés comme services distincts.",
+     "zh": "“监测与提醒”是我们在套餐所涵盖平台上开展的预防性工作，不保证不发生违规或罚款，也不保证发现所有到期事项；合规责任仍由企业承担。违规、异议和诉讼不属于套餐，须作为独立服务另行申请。"
+    },
+    {
+     "ar": "الباقة المؤسسية تُسعَّر بعرض سعر خاص يحدد نطاقها ومدتها.",
+     "en": "The enterprise package is priced by a dedicated quotation that fixes its scope and term.",
+     "fr": "Le forfait Entreprise est chiffré par un devis dédié qui fixe son périmètre et sa durée.",
+     "zh": "企业套餐通过专属报价单定价，并载明其范围和期限。"
+    }
+   ]
+  },
+  {
+   "id": "recruitment",
+   "order": 8,
+   "title": {
+    "ar": "الاستقدام والتوظيف",
+    "en": "Recruitment and hiring",
+    "fr": "Recrutement et embauche",
+    "zh": "招聘与用工引进"
+   },
+   "summary": {
+    "ar": "تأشيرات العمل والاستقدام، والتوظيف المحلي والجماعي، والبحث التنفيذي، والتعريف بالسير الذاتية.",
+    "en": "Work visas and sourcing from abroad, local and bulk recruitment, executive search and candidate CV sourcing.",
+    "fr": "Visas de travail et recrutement à l'étranger, recrutement local et en volume, recherche de cadres et fourniture de CV.",
+    "zh": "工作签证与海外引进、本地及批量招聘、高管猎聘以及候选人简历提供。"
+   },
+   "uses": [
+    "quoteBased",
+    "govFees",
+    "outcomeAuthority",
+    "thirdParty",
+    "successFee"
+   ],
+   "items": [
+    {
+     "ar": "الخدمة تنسيق وإعداد وتقديم طلبات تأشيرات وتصاريح عمل ووساطة توظيف؛ وتصدر التأشيرة والتصريح عن الجهات المختصة، وتتم إجراءات الاستقدام من الخارج عبر مكاتب أو جهات مرخّصة حيث يشترط النظام.",
+     "en": "The service is coordination, preparation and filing of visa and work-permit applications and hiring mediation; visas and permits are issued by the Competent Authorities, and sourcing from abroad is carried out through licensed offices or bodies where the law requires.",
+     "fr": "Le service consiste en la coordination, la préparation et le dépôt des demandes de visas et permis de travail et en l'intermédiation d'embauche ; visas et permis sont délivrés par les autorités compétentes, et le recrutement à l'étranger passe par des bureaux ou organismes agréés lorsque la loi l'exige.",
+     "zh": "本服务包括签证和工作许可申请的协调、准备与提交以及招聘居间；签证和许可由主管机构签发，海外引进在法律要求时通过持牌机构办理。"
+    },
+    {
+     "ar": "لا نضمن قبول مرشح أو حصوله على تأشيرة أو وصوله أو موعد وصوله أو استمراره في العمل أو نتيجة فحوصه؛ فكلها بحسب أنظمة الاستقدام وقرارات الجهات.",
+     "en": "We do not guarantee that a candidate will be accepted, obtain a visa, arrive, arrive by a given date, stay in the job or pass medical checks; all depend on the recruitment rules and the authorities' decisions.",
+     "fr": "Nous ne garantissons ni l'acceptation d'un candidat, ni l'obtention d'un visa, ni son arrivée, ni sa date d'arrivée, ni son maintien en poste, ni le résultat de ses examens ; tout dépend de la réglementation et des décisions des autorités.",
+     "zh": "我们不保证候选人被录用、获得签证、抵达、按时抵达、持续任职或通过体检；这些均取决于招聘法规和主管机构的决定。"
+    },
+    {
+     "ar": "الأتعاب النسبية أو لكل مرشح تُحتسب على الأساس المنصوص عليه في عرض السعر وتستحق بحدث الاستحقاق المحدد فيه. ولا تنشأ فترة استبدال أو ضمان إلا إذا نصّ عليها عرض السعر.",
+     "en": "Percentage or per-candidate fees are calculated on the basis stated in the quotation and fall due on the triggering event it specifies. No replacement or guarantee period arises unless the quotation provides for one.",
+     "fr": "Les honoraires proportionnels ou par candidat sont calculés sur la base indiquée au devis et exigibles au fait générateur qu'il précise. Aucune période de remplacement ou de garantie n'existe sauf si le devis la prévoit.",
+     "zh": "按比例或按人头计收的费用，依报价单所列基数计算，并在其规定的触发事件发生时到期。除非报价单有规定，否则不存在替换或保证期。"
+    },
+    {
+     "ar": "يلتزم صاحب العمل بالنظام في العقد والأجر والتأمين والسكن والتوطين؛ والعلاقة العمالية بينه وبين العامل مباشرة، ويبقى مسؤولاً عنها ما لم تكن الخدمة «توظيفاً على عقدنا» (انظر فئة ذلك).",
+     "en": "The employer must comply with the law on the contract, pay, insurance, housing and localisation; the employment relationship is directly between employer and worker and remains the employer's responsibility unless the service is “staff on our contract” (see that category).",
+     "fr": "L'employeur respecte la loi en matière de contrat, salaire, assurance, logement et localisation ; la relation de travail lie directement l'employeur et le travailleur et demeure sous sa responsabilité sauf si le service est « personnel sous notre contrat » (voir cette catégorie).",
+     "zh": "雇主须遵守有关合同、工资、保险、住宿和本地化的法律；劳动关系直接存在于雇主与劳动者之间，由雇主负责，除非该服务属于“由我方合同聘用”（见该类别）。"
+    },
+    {
+     "ar": "بيانات المرشحين تُستعمل للغرض الوظيفي المحدد وحده، ولا تُنسخ ولا تُسلَّم لغير العميل ولا تُستعمل في تسويق، ويلتزم العميل بسرية السير الذاتية وفق نظام حماية البيانات الشخصية.",
+     "en": "Candidate data is used for the specified hiring purpose only and is not copied, passed to anyone other than the Client or used for marketing; the Client keeps CVs confidential in line with the Personal Data Protection Law.",
+     "fr": "Les données des candidats ne sont utilisées que pour la finalité d'embauche indiquée et ne sont ni copiées, ni transmises à d'autres que le Client, ni utilisées à des fins marketing ; le Client garde les CV confidentiels conformément à la loi sur la protection des données personnelles.",
+     "zh": "候选人数据仅用于约定的招聘目的，不得复制、转交客户以外的人或用于营销；客户须依《个人数据保护法》对简历保密。"
+    }
+   ]
+  },
+  {
+   "id": "eor",
+   "order": 9,
+   "title": {
+    "ar": "التوظيف على عقدنا (EOR)",
+    "en": "Staff on our contract (EOR)",
+    "fr": "Personnel sous notre contrat (EOR)",
+    "zh": "由我方合同聘用（EOR）"
+   },
+   "summary": {
+    "ar": "توظيف عاملين لدى جهة مرخَّصة ضمن ترتيبات Business Partner بينما يوجّه العميل عملهم يومياً.",
+    "en": "Employing workers through a licensed entity under Business Partner arrangements while the Client directs their day-to-day work.",
+    "fr": "Emploi de travailleurs via une entité agréée dans le cadre des dispositifs de Business Partner, le Client dirigeant leur travail au quotidien.",
+    "zh": "通过持牌主体在 Business Partner 安排下聘用员工，由客户日常指挥其工作。"
+   },
+   "uses": [
+    "quoteBased",
+    "govFees",
+    "outcomeAuthority",
+    "docsFromClient"
+   ],
+   "items": [
+    {
+     "ar": "في هذه الخدمة يكون صاحب العمل النظامي للعامل الجهةَ المحددة في عقد الخدمة، بينما يوجّه العميل عمل العامل ويشرف عليه يومياً. تُفصَّل في العقد العلاقة بين الأطراف وحدود كل منها.",
+     "en": "In this service the worker's legal employer is the entity named in the service contract, while the Client directs and supervises the worker's day-to-day work. The contract sets out the relationship between the parties and each party's limits.",
+     "fr": "Dans ce service, l'employeur légal du travailleur est l'entité désignée au contrat de service, tandis que le Client dirige et supervise son travail quotidien. Le contrat détaille la relation entre les parties et les limites de chacune.",
+     "zh": "在本服务中，劳动者的法定雇主为服务合同中载明的主体，客户则日常指挥和监督其工作。合同载明各方关系及各自界限。"
+    },
+    {
+     "ar": "تفصّل الأتعاب في عرض السعر وقد تشمل: الأجر والتأمينات الاجتماعية والتأمين الطبي والإقامة ورخصة العمل والتكاليف التشغيلية والعمولة؛ وما يتحمله العميل من كل بند يُبيَّن في العرض.",
+     "en": "Fees are itemised in the quotation and may include pay, social insurance, medical insurance, residency and work permit, operating costs and commission; what the Client bears under each item is stated in the quotation.",
+     "fr": "Les honoraires sont détaillés au devis et peuvent comprendre salaire, assurances sociales, assurance maladie, résidence et permis de travail, frais d'exploitation et commission ; ce que le Client supporte pour chaque poste est précisé au devis.",
+     "zh": "费用在报价单中逐项列明，可能包括工资、社会保险、医疗保险、居留和工作许可、运营成本及佣金；客户承担各项的具体范围在报价单中说明。"
+    },
+    {
+     "ar": "يلتزم العميل بتوجيه العمل في حدود العقد ونظام العمل، وبألا يكلّف العامل بما يخالف عقده أو مهنته أو النظام، وبتأمين بيئة عمل آمنة، وبإبلاغنا فوراً بأي حادث أو نزاع أو رغبة في إنهاء الحاجة.",
+     "en": "The Client must direct work within the contract and the Labour Law, not assign the worker duties contrary to their contract, profession or the law, provide a safe workplace, and tell us at once of any accident, dispute or wish to end the need.",
+     "fr": "Le Client dirige le travail dans les limites du contrat et du droit du travail, n'assigne pas au travailleur des tâches contraires à son contrat, sa profession ou la loi, assure un lieu de travail sûr et nous informe immédiatement de tout accident, litige ou souhait de mettre fin au besoin.",
+     "zh": "客户须在合同和劳动法范围内指挥工作，不得安排违反劳动者合同、职业或法律的工作，须提供安全的工作环境，并在发生事故、争议或不再需要该员工时立即通知我们。"
+    },
+    {
+     "ar": "إنهاء العلاقة يتم وفق نظام العمل وعقد الخدمة ومدة الإشعار فيه؛ وما يستحق للعامل نظاماً (كمكافأة نهاية الخدمة والإجازات والتأمينات) يتحمله العميل بحسب ما يبيّنه عرض السعر أو العقد.",
+     "en": "Ending the relationship follows the Labour Law, the service contract and its notice period; amounts legally due to the worker (such as end-of-service award, leave and insurance) are borne by the Client as the quotation or contract states.",
+     "fr": "La fin de la relation suit le droit du travail, le contrat de service et son préavis ; les sommes légalement dues au travailleur (indemnité de fin de service, congés, assurances) sont supportées par le Client selon le devis ou le contrat.",
+     "zh": "终止关系依劳动法、服务合同及其通知期办理；依法应付劳动者的款项（如服务终结奖金、休假和保险）由客户按报价单或合同的约定承担。"
+    },
+    {
+     "ar": "أثر الترتيب على نسب التوطين وبرامج الجهات يخضع لأنظمتها وقراراتها؛ ولا نضمن احتساب العامل لدى العميل في أي برنامج.",
+     "en": "The effect of this arrangement on localisation ratios and authority programmes is governed by their rules and decisions; we do not guarantee the worker will be counted for the Client in any programme.",
+     "fr": "L'effet de ce dispositif sur les ratios de localisation et les programmes des autorités relève de leurs règles et décisions ; nous ne garantissons pas que le travailleur sera compté pour le Client dans un programme.",
+     "zh": "该安排对本地化比例及主管机构各类计划的影响，取决于其规则和决定；我们不保证该员工在任何计划中被计入客户名下。"
+    }
+   ]
+  },
+  {
+   "id": "realestate",
+   "order": 10,
+   "title": {
+    "ar": "المكاتب ومساحات العمل والعقار",
+    "en": "Offices, workspaces and real estate",
+    "fr": "Bureaux, espaces de travail et immobilier",
+    "zh": "办公室、共享空间与房地产"
+   },
+   "summary": {
+    "ar": "المكاتب الخاصة والمشتركة والمكتب الافتراضي بعنوان وطني، وخدمة البحث عن مكتب، وتملك غير السعوديين للعقار.",
+    "en": "Private offices, coworking, virtual offices with a National Address, the office-search service and property ownership by non-Saudis.",
+    "fr": "Bureaux privés, coworking, bureaux virtuels avec adresse nationale, service de recherche de bureaux et acquisition immobilière par des non-Saoudiens.",
+    "zh": "独立办公室、共享办公、带国家地址的虚拟办公室、办公室寻找服务以及非沙特人购置房产。"
+   },
+   "uses": [
+    "quoteBased",
+    "govFees",
+    "outcomeAuthority",
+    "thirdParty"
+   ],
+   "items": [
+    {
+     "ar": "السعر المعلن بعبارة «ابتداءً من» حدٌّ أدنى إرشادي؛ ويتحدد السعر النهائي بحسب الموقع والمساحة والمدة في عرض السعر أو العقد.",
+     "en": "A price shown as “from” is an indicative minimum; the final price depends on location, area and term and is stated in the quotation or contract.",
+     "fr": "Un prix annoncé « à partir de » est un minimum indicatif ; le prix final dépend de l'emplacement, de la surface et de la durée et figure au devis ou au contrat.",
+     "zh": "标有“起”的价格为参考下限；最终价格依地点、面积和期限而定，以报价单或合同为准。"
+    },
+    {
+     "ar": "عقد الإيجار أو الإشغال يُبرم على النموذج أو العرض المعتمد، ويُوثَّق عبر المنصات الرسمية حيث يشترط النظام. وتقع التأمينات والرسوم والخدمات المشمولة وفق ما يحدده العقد.",
+     "en": "The lease or occupancy agreement is concluded on the approved form or quotation and registered through official platforms where the law requires. Deposits, charges and included services are as the agreement states.",
+     "fr": "Le bail ou contrat d'occupation est conclu sur le modèle ou le devis approuvé et enregistré via les plateformes officielles lorsque la loi l'exige. Dépôts, charges et services inclus sont ceux du contrat.",
+     "zh": "租赁或使用合同按批准的格式或报价单订立，并在法律要求时通过官方平台登记。押金、费用及包含的服务以合同约定为准。"
+    },
+    {
+     "ar": "المكتب الافتراضي والعنوان الوطني: عنوان وخدمات بريد فقط، ولا يعني حيازة مكان فعلي؛ وقبول الجهات له لأغراض السجل والتراخيص بحسب ضوابطها، وللجهة التحقق.",
+     "en": "Virtual office and National Address: an address and mail services only, which does not mean holding a physical space; whether authorities accept it for register and licensing purposes depends on their rules, and they may verify.",
+     "fr": "Bureau virtuel et adresse nationale : une adresse et des services de courrier uniquement, sans occupation d'un lieu physique ; son acceptation par les autorités pour le registre et les licences dépend de leurs règles, et elles peuvent vérifier.",
+     "zh": "虚拟办公室与国家地址：仅提供地址和邮件服务，并不意味着占用实体场所；主管机构是否接受其用于登记和许可取决于其规则，且可能核查。"
+    },
+    {
+     "ar": "يستعمل العميل المكان للنشاط المرخَّص فقط ويحافظ عليه ويتحمل ما يلحقه من أضرار بسببه؛ ولمالك المكان أو مشغّله منع المخالفة.",
+     "en": "The Client uses the space only for the licensed activity, takes care of it and bears damage caused by the Client; the owner or operator may stop any breach.",
+     "fr": "Le Client n'utilise le lieu que pour l'activité licenciée, en prend soin et supporte les dommages qu'il cause ; le propriétaire ou l'exploitant peut faire cesser toute infraction.",
+     "zh": "客户仅可将场所用于获批的业务，妥善使用并对其造成的损坏负责；场所所有人或运营方可制止违规使用。"
+    },
+    {
+     "ar": "خدمة البحث عن مكتب وساطة: لا نضمن توفر مكتب بشروط محددة، والعقد النهائي بين العميل والمالك وفق شروطه. أما تملك غير السعوديين للعقار فيخضع لأنظمته وقرارات الجهة، ولا نضمن الموافقة.",
+     "en": "The office-search service is mediation: we do not guarantee an office on particular terms, and the final contract is between the Client and the owner on the owner's terms. Property ownership by non-Saudis is subject to its regulations and the authority's decisions, and approval is not guaranteed.",
+     "fr": "Le service de recherche de bureau est une intermédiation : nous ne garantissons pas un bureau à des conditions déterminées, et le contrat final lie le Client et le propriétaire selon les conditions de ce dernier. L'acquisition immobilière par des non-Saoudiens est soumise à sa réglementation et aux décisions de l'autorité, sans garantie d'approbation.",
+     "zh": "办公室寻找服务属居间性质：我们不保证提供符合特定条件的办公室，最终合同由客户与业主按业主条件订立。非沙特人购置房产受相关法规及主管机构决定约束，不保证获批。"
+    }
+   ]
+  },
+  {
+   "id": "housing",
+   "order": 11,
+   "title": {
+    "ar": "تسكين العمالة ونقلها",
+    "en": "Worker housing and transport",
+    "fr": "Logement et transport des travailleurs",
+    "zh": "员工住宿与交通"
+   },
+   "summary": {
+    "ar": "السكن الجماعي المرخَّص للعمالة ونقلهم إلى مواقع العمل.",
+    "en": "Licensed collective housing for workers and transport to work sites.",
+    "fr": "Logement collectif agréé des travailleurs et transport vers les sites de travail.",
+    "zh": "为员工提供持牌集体住宿并接送至工作地点。"
+   },
+   "uses": [
+    "quoteBased",
+    "outcomeAuthority",
+    "thirdParty"
+   ],
+   "items": [
+    {
+     "ar": "يُوفَّر السكن عبر مزوّدين مرخّصين وفق اشتراطات الجهات؛ ويحدد عرض السعر عدد الأسرّة والموقع والمدة والخدمات المشمولة. ولا نضمن السعة أو الموقع قبل تأكيد المزوّد.",
+     "en": "Housing is provided through licensed providers under the authorities' requirements; the quotation sets the number of beds, location, term and included services. We do not guarantee capacity or location before the provider confirms.",
+     "fr": "Le logement est fourni par des prestataires agréés selon les exigences des autorités ; le devis fixe le nombre de lits, l'emplacement, la durée et les services inclus. Nous ne garantissons ni la capacité ni l'emplacement avant confirmation du prestataire.",
+     "zh": "住宿由持牌服务商按主管机构要求提供；报价单载明床位数、地点、期限及包含的服务。在服务商确认前，我们不保证床位或地点。"
+    },
+    {
+     "ar": "عقد الإشغال مع مزوّد السكن أو معنا بحسب العرض، وتلزم الساكنين لائحة السكن التي يضعها المزوّد.",
+     "en": "The occupancy contract is with the housing provider or with us as the quotation states, and residents are bound by the housing rules the provider sets.",
+     "fr": "Le contrat d'occupation est conclu avec le prestataire de logement ou avec nous selon le devis, et les occupants sont tenus par le règlement du logement fixé par le prestataire.",
+     "zh": "入住合同依报价单与住宿服务商或与我们订立，入住人员须遵守服务商制定的住宿规则。"
+    },
+    {
+     "ar": "يتحمل العميل مسؤولية عماله عن الانضباط والأضرار والإخلاء وإبلاغنا بتغيّر العدد، وعن توفر الإقامات النظامية للمسكَّنين.",
+     "en": "The Client is responsible for its workers' conduct, damage and vacating, for telling us of changes in numbers, and for the workers housed holding valid residency.",
+     "fr": "Le Client répond de la conduite de ses travailleurs, des dégradations et de l'évacuation, de nous informer de tout changement d'effectif et de la régularité de séjour des personnes logées.",
+     "zh": "客户须对其员工的行为、损坏和退宿负责，及时告知人数变化，并保证入住人员持有合法居留。"
+    },
+    {
+     "ar": "النقل وفق جدول يُحدَّد في العرض، ومسؤولية المسارات والسائقين على مزوّد النقل المرخَّص؛ والتأخر لأسباب مرورية أو خارجة عن الإرادة لا يرتب تعويضاً.",
+     "en": "Transport follows a schedule set in the quotation, with routes and drivers the responsibility of the licensed transport provider; delay for traffic or other reasons beyond control gives rise to no compensation.",
+     "fr": "Le transport suit un horaire fixé au devis, les itinéraires et conducteurs relevant du transporteur agréé ; un retard dû à la circulation ou à d'autres causes indépendantes de notre volonté n'ouvre droit à aucune indemnité.",
+     "zh": "交通接送按报价单中的时刻表进行，路线和司机由持牌运输服务商负责；因交通或其他不可控原因造成的延误不产生赔偿。"
+    },
+    {
+     "ar": "يخضع السكن لاشتراطات الصحة والسلامة، وللجهات الرقابية التفتيش والإغلاق، ولا نتحمل قرارها.",
+     "en": "Housing is subject to health and safety requirements, and regulators may inspect and close it; we are not responsible for their decision.",
+     "fr": "Le logement est soumis aux exigences de santé et de sécurité, et les autorités de contrôle peuvent l'inspecter et le fermer ; nous ne répondons pas de leur décision.",
+     "zh": "住宿须符合卫生和安全要求，监管机构可检查并责令关闭，我们不对其决定负责。"
+    }
+   ]
+  },
+  {
+   "id": "trips",
+   "order": 12,
+   "title": {
+    "ar": "الرحلات والسياحة (محفول مكفول)",
+    "en": "Trips and tourism (Mahfol Makfol)",
+    "fr": "Voyages et tourisme (Mahfol Makfol)",
+    "zh": "旅行与旅游（Mahfol Makfol）"
+   },
+   "summary": {
+    "ar": "رحلات محفول مكفول المعروضة والمباعة عبر Business Partner، ورحلات الشركات والمستثمرين بعرض سعر خاص.",
+    "en": "Mahfol Makfol trips listed and sold through Business Partner, and corporate and investor trips by dedicated quotation.",
+    "fr": "Voyages Mahfol Makfol proposés et vendus via Business Partner, et voyages d'entreprise et d'investisseurs sur devis dédié.",
+    "zh": "通过 Business Partner 展示和销售的 Mahfol Makfol 行程，以及以专属报价单提供的企业和投资者行程。"
+   },
+   "uses": [
+    "thirdParty"
+   ],
+   "items": [
+    {
+     "ar": "لكل رحلة صفحة تبيّن برنامجها وموعدها ونقطة انطلاقها وما يشمله السعر وما لا يشمله، وهي جزء من هذه الشروط. والسعر المعلن للرحلة شامل ضريبة القيمة المضافة.",
+     "en": "Each trip has a page stating its programme, date, departure point and what the price includes and excludes, and that page forms part of these terms. The advertised trip price includes value-added tax.",
+     "fr": "Chaque voyage a une page indiquant son programme, sa date, son point de départ et ce que le prix inclut ou exclut ; cette page fait partie des présentes conditions. Le prix annoncé du voyage inclut la TVA.",
+     "zh": "每个行程都有一个页面，说明行程安排、日期、出发地点以及价格包含和不包含的内容，该页面构成本条款的一部分。行程标价含增值税。"
+    },
+    {
+     "ar": "الإلغاء والتغيير يخضعان لسياسة الرحلة المعلنة في صفحتها وقت الحجز ولمهل الموردين (فنادق ونقل وتذاكر). وما تعذّر استرداده من الموردين لا يُسترد. وإن ألغينا نحن الرحلة أو غيّرنا موعدها فللعميل قبول البديل أو استرداد ما دفعه عن الرحلة.",
+     "en": "Cancellation and changes follow the trip policy shown on its page at booking and the suppliers' deadlines (hotels, transport, tickets). Amounts that suppliers will not refund cannot be refunded. If we cancel the trip or change its date, the Client may accept the alternative or recover what they paid for the trip.",
+     "fr": "Annulation et modification suivent la politique du voyage affichée sur sa page lors de la réservation et les délais des fournisseurs (hôtels, transport, billets). Les sommes que les fournisseurs ne remboursent pas ne sont pas remboursables. Si nous annulons le voyage ou changeons sa date, le Client peut accepter l'alternative ou récupérer ce qu'il a payé pour le voyage.",
+     "zh": "取消和变更依预订时行程页面所示的政策及供应商（酒店、交通、票务）的期限办理；供应商不予退还的款项无法退还。如我方取消行程或更改日期，客户可接受替代方案或取回该行程已付款项。"
+    },
+    {
+     "ar": "قد تُعدَّل الرحلة أو تُؤجَّل أو تُلغى لدواعي السلامة أو الطقس أو قرارات الجهات. ويلتزم المشاركون بتعليمات المرشد، وللمشغّل منع من يعرّض نفسه أو غيره للخطر.",
+     "en": "A trip may be modified, postponed or cancelled for safety, weather or authority decisions. Participants follow the guide's instructions, and the operator may stop anyone who endangers themselves or others.",
+     "fr": "Un voyage peut être modifié, reporté ou annulé pour des raisons de sécurité, de météo ou de décisions des autorités. Les participants suivent les instructions du guide, et l'opérateur peut écarter toute personne qui se met ou met autrui en danger.",
+     "zh": "行程可能因安全、天气或主管机构决定而被调整、推迟或取消。参与者须听从领队指示，运营方可制止危及自身或他人安全者参加。"
+    },
+    {
+     "ar": "بعض الرحلات تتضمن أنشطة بدنية أو مخاطرة (كالتسلق والطيران الشراعي وركوب الخيل). يقرّ المشارك بلياقته الصحية ويفصح عمّا يلزم، وتأمينه الشخصي مسؤوليته ما لم تذكر صفحة الرحلة شموله.",
+     "en": "Some trips include physical or risky activities (such as climbing, paragliding and horse riding). The participant confirms their fitness and discloses what is needed, and personal insurance is their own responsibility unless the trip page says it is included.",
+     "fr": "Certains voyages comportent des activités physiques ou à risque (escalade, parapente, équitation). Le participant atteste son aptitude et déclare ce qui est nécessaire ; son assurance personnelle relève de sa responsabilité sauf mention contraire sur la page du voyage.",
+     "zh": "部分行程包含体力或高风险活动（如攀岩、滑翔伞和骑马）。参与者确认自身身体条件并如实告知必要信息；个人保险由参与者自行负责，除非行程页面注明已包含。"
+    },
+    {
+     "ar": "رحلات الشركات والمستثمرين تُسعَّر وتُتعاقد عليها بعرض سعر خاص يحدد برنامجها وشروط إلغائها.",
+     "en": "Corporate and investor trips are priced and contracted by a dedicated quotation that sets their programme and cancellation terms.",
+     "fr": "Les voyages d'entreprise et d'investisseurs sont chiffrés et contractés par un devis dédié qui fixe leur programme et leurs conditions d'annulation.",
+     "zh": "企业和投资者行程通过专属报价单定价和签约，报价单载明其行程安排和取消条件。"
+    }
+   ]
+  },
+  {
+   "id": "farina",
+   "order": 13,
+   "title": {
+    "ar": "فارينا (التموين والضيافة)",
+    "en": "Farina (catering and hospitality)",
+    "fr": "Farina (restauration et hôtellerie)",
+    "zh": "Farina（餐饮与接待）"
+   },
+   "summary": {
+    "ar": "طلبات التموين والضيافة المرسلة عبر نموذج فارينا.",
+    "en": "Catering and hospitality requests sent through the Farina form.",
+    "fr": "Demandes de restauration et d'accueil envoyées via le formulaire Farina.",
+    "zh": "通过 Farina 表单提交的餐饮和接待需求。"
+   },
+   "uses": [
+    "thirdParty"
+   ],
+   "items": [
+    {
+     "ar": "إرسال نموذج الطلب ليس عقداً؛ يُراجَع الطلب ويُؤكَّد بردٍّ مكتوب (عرض أو تأكيد) يحدد الأصناف والكميات والموعد والسعر، ويبدأ الالتزام بالتأكيد.",
+     "en": "Sending the order form is not a contract; the request is reviewed and confirmed by a written reply (quotation or confirmation) stating items, quantities, date and price, and the commitment starts with that confirmation.",
+     "fr": "L'envoi du formulaire n'est pas un contrat ; la demande est examinée et confirmée par une réponse écrite (devis ou confirmation) précisant articles, quantités, date et prix, et l'engagement naît de cette confirmation.",
+     "zh": "提交订单表单并不构成合同；订单经审核后以书面答复（报价或确认）确认，答复中载明品项、数量、日期和价格，自确认起产生约束。"
+    },
+    {
+     "ar": "الحد الأدنى للطلب ومهلة الطلب المسبق وشروط التسليم تُحدَّد في التأكيد.",
+     "en": "Minimum order, advance-order notice and delivery terms are set in the confirmation.",
+     "fr": "Le minimum de commande, le délai de commande à l'avance et les conditions de livraison sont fixés dans la confirmation.",
+     "zh": "最低订购量、提前下单时限和交付条件在确认中载明。"
+    },
+    {
+     "ar": "على العميل الإفصاح كتابةً عن الحساسية الغذائية والتعليمات الخاصة عند الطلب؛ ولا نتحمل ما لم يُفصَح عنه. ويخضع إعداد الأغذية وتقديمها لاشتراطات الجهات الصحية والبلدية بحسب النظام.",
+     "en": "The Client must disclose food allergies and special instructions in writing when ordering; we are not responsible for what is not disclosed. Food preparation and service are subject to health and municipal requirements as the law provides.",
+     "fr": "Le Client doit déclarer par écrit les allergies alimentaires et instructions particulières lors de la commande ; nous ne répondons pas de ce qui n'a pas été déclaré. La préparation et le service des aliments sont soumis aux exigences sanitaires et municipales prévues par la loi.",
+     "zh": "客户下单时须以书面形式说明食物过敏及特殊要求，未说明的情形我们不承担责任。食品制作与供应依法须符合卫生和市政部门的要求。"
+    },
+    {
+     "ar": "الإلغاء والتعديل قبل بدء الإعداد دون رسوم؛ وبعد البدء يُحتسب ما جُهّز أو اشتُري للطلب، وتُحدَّد مهلة التعديل في التأكيد.",
+     "en": "Cancellation and amendment before preparation starts carry no charge; once it has started, what was prepared or bought for the order is charged, and the amendment deadline is set in the confirmation.",
+     "fr": "L'annulation et la modification avant le début de la préparation sont sans frais ; après son début, ce qui a été préparé ou acheté pour la commande est facturé, et le délai de modification est fixé dans la confirmation.",
+     "zh": "备餐开始前取消和修改不收费；开始后，已为该订单准备或采购的部分须计费，修改期限在确认中载明。"
+    },
+    {
+     "ar": "يفحص العميل الطلب عند الاستلام ويبلغنا بملاحظاته فوراً؛ وسلامة الحفظ بعد التسليم على عاتقه.",
+     "en": "The Client checks the order on receipt and tells us of any issue at once; safe storage after delivery is the Client's responsibility.",
+     "fr": "Le Client vérifie la commande à la réception et nous signale immédiatement toute remarque ; la bonne conservation après livraison lui incombe.",
+     "zh": "客户应在收货时检查订单并立即告知问题；交付后的妥善保存由客户负责。"
+    }
+   ]
+  },
+  {
+   "id": "bizdev",
+   "order": 14,
+   "title": {
+    "ar": "تطوير الأعمال كخدمة",
+    "en": "Business Development as a Service",
+    "fr": "Développement commercial en tant que service",
+    "zh": "业务拓展即服务"
+   },
+   "summary": {
+    "ar": "بناء قوائم الشركات المستهدفة والتواصل وحجز الاجتماعات ومتابعة الفرص، بباقات شهرية (REV-*) قد تتضمن عمولة على الإيراد المحصَّل.",
+    "en": "Building target-company lists, outreach, booking meetings and following up opportunities, in monthly packages (REV-*) that may include a commission on collected revenue.",
+    "fr": "Constitution de listes d'entreprises cibles, prospection, prise de rendez-vous et suivi des opportunités, en forfaits mensuels (REV-*) pouvant inclure une commission sur le chiffre d'affaires encaissé.",
+    "zh": "建立目标企业名单、外联、预约会议和跟进商机，采用月度套餐（REV-*），部分可包含对已回款收入的佣金。"
+   },
+   "uses": [
+    "monthlyRenewal",
+    "priceChange",
+    "successFee",
+    "thirdParty"
+   ],
+   "items": [
+    {
+     "ar": "الخدمة جهد مبيعات وتطوير أعمال؛ ولا تضمن Business Partner عدد عملاء أو إيراداً أو صفقات أو مواعيد أو نسبة تحويل. وما يُعرض من أهداف لخط الفرص (Pipeline) تخطيطي لا التزام.",
+     "en": "The service is sales and business-development effort; Business Partner does not guarantee a number of clients, revenue, deals, meetings or conversion rate. Pipeline targets shown are for planning, not commitments.",
+     "fr": "Le service est un effort de vente et de développement commercial ; Business Partner ne garantit ni nombre de clients, ni chiffre d'affaires, ni affaires, ni rendez-vous, ni taux de conversion. Les objectifs de pipeline affichés sont indicatifs et non des engagements.",
+     "zh": "本服务是销售和业务拓展方面的工作投入；Business Partner 不保证客户数量、收入、成交、会议或转化率。所展示的商机管道目标仅供规划，并非承诺。"
+    },
+    {
+     "ar": "العمولة حيث تنص الباقة عليها تُحتسب على الإيراد المحصَّل فعلياً من الفرص التي ولّدتها Business Partner ووثّقتها في نظام إدارة العملاء (CRM) بالنسبة المذكورة في الباقة. ويفصح العميل بصدق عن الصفقات ويمكّننا من التحقق منها.",
+     "en": "Where the package provides for a commission, it is calculated on revenue actually collected from opportunities Business Partner generated and recorded in the customer-relationship system (CRM), at the rate stated in the package. The Client discloses deals truthfully and lets us verify them.",
+     "fr": "Lorsque le forfait prévoit une commission, elle est calculée sur le chiffre d'affaires effectivement encaissé sur les opportunités générées par Business Partner et consignées dans le CRM, au taux indiqué dans le forfait. Le Client déclare sincèrement ses affaires et nous permet de les vérifier.",
+     "zh": "如套餐约定佣金，则按套餐所列比例，对 Business Partner 创造并记录于客户关系管理系统（CRM）的商机实际回款收入计收。客户应如实披露成交情况并允许我们核验。"
+    },
+    {
+     "ar": "نستعمل مصادر مشروعة، ونلتزم بقواعد الاتصال التسويقي ونظام حماية البيانات الشخصية. والخدمة «مُدارة» ولا تتضمن بيع قوائم بيانات شخصية خام للعميل.",
+     "en": "We use lawful sources and comply with marketing-contact rules and the Personal Data Protection Law. The service is “managed” and does not involve selling raw personal-data lists to the Client.",
+     "fr": "Nous utilisons des sources licites et respectons les règles de prospection et la loi sur la protection des données personnelles. Le service est « géré » et n'implique pas la vente de listes brutes de données personnelles au Client.",
+     "zh": "我们使用合法来源，遵守营销联络规则和《个人数据保护法》。本服务为“托管式”，不向客户出售原始个人数据名单。"
+    },
+    {
+     "ar": "يتحمل العميل صحة ما يقدمه من ادعاءات عن منتجاته وخدماته وملكية ما يزوّدنا به من مواد؛ ولنا الامتناع عن إرسال ما نراه مخالفاً للنظام.",
+     "en": "The Client is responsible for the accuracy of claims about its products and services and for owning the materials it gives us; we may decline to send anything we consider unlawful.",
+     "fr": "Le Client répond de l'exactitude de ses allégations sur ses produits et services et de la propriété des supports qu'il nous remet ; nous pouvons refuser d'envoyer ce que nous jugeons contraire à la loi.",
+     "zh": "客户对其产品和服务宣称的准确性以及所提供素材的权属负责；我们有权拒绝发送我们认为违法的内容。"
+    },
+    {
+     "ar": "إن أُتيحت فترة تجريبية فتنتهي بانتهاء مدتها المعلنة، ولا تتحول إلى اشتراك مدفوع دون سداد العميل أو موافقته الصريحة.",
+     "en": "If a trial period is offered, it ends when its stated period ends and does not turn into a paid subscription without the Client's payment or express consent.",
+     "fr": "Si une période d'essai est proposée, elle prend fin à l'issue de sa durée annoncée et ne se transforme pas en abonnement payant sans paiement ou accord exprès du Client.",
+     "zh": "如提供试用期，则于公布的期限届满时结束，未经客户付款或明确同意，不会转为付费订阅。"
+    }
+   ]
+  },
+  {
+   "id": "digital",
+   "order": 15,
+   "title": {
+    "ar": "الاشتراكات الرقمية والمستشار الذكي",
+    "en": "Digital subscriptions and the smart advisor",
+    "fr": "Abonnements numériques et conseiller intelligent",
+    "zh": "数字订阅与智能顾问"
+   },
+   "summary": {
+    "ar": "باقات Business Partner AI، ووكلاء الذكاء الاصطناعي (الامتثال والموظف الذكي)، واشتراكات أصحاب العمل لنشر الوظائف، واشتراك بيانات الشركات، واشتراك التحديثات.",
+    "en": "Business Partner AI plans, AI agents (compliance and smart employee), employer job-posting subscriptions, company-data access and the updates subscription.",
+    "fr": "Forfaits Business Partner AI, agents d'IA (conformité et employé intelligent), abonnements employeurs de publication d'offres, accès aux données d'entreprises et abonnement aux mises à jour.",
+    "zh": "Business Partner AI 套餐、AI 代理（合规与智能员工）、雇主职位发布订阅、企业数据访问及更新订阅。"
+   },
+   "uses": [
+    "monthlyRenewal",
+    "priceChange",
+    "fairUse",
+    "quoteBased"
+   ],
+   "items": [
+    {
+     "ar": "الاشتراك الرقمي ترخيص استخدام شخصي غير قابل للتنازل للمشترك أو منشأته خلال الفترة المدفوعة؛ ولا ينقل ملكية البرمجيات أو النماذج أو المحتوى، ولا تجوز مشاركة الحساب خارج المنشأة أو إعادة بيع المخرجات.",
+     "en": "A digital subscription is a personal, non-transferable licence for the subscriber or its establishment during the paid period; it does not transfer ownership of software, models or content, and the account may not be shared outside the establishment or outputs resold.",
+     "fr": "Un abonnement numérique est une licence d'usage personnelle et incessible pour l'abonné ou son établissement pendant la période payée ; il ne transfère pas la propriété des logiciels, modèles ou contenus, et le compte ne peut être partagé hors de l'établissement ni les résultats revendus.",
+     "zh": "数字订阅是在已付费期间授予订阅者或其企业的、不可转让的个人使用许可；不转移软件、模型或内容的所有权，账户不得在企业之外共享，输出内容不得转售。"
+    },
+    {
+     "ar": "المخرجات الذكية يُنتجها نظام ذكاء اصطناعي وقد تتضمن أخطاء أو معلومات غير محدثة؛ وهي إرشادية لا رأياً مهنياً ملزماً، ويراجعها العميل قبل أي قرار أو تقديم لجهة. وتبقى مراجعة مختص بشري متاحة بخدمات مهنية مستقلة.",
+     "en": "Smart outputs are produced by an artificial-intelligence system and may contain errors or outdated information; they are guidance, not binding professional advice, and the Client reviews them before any decision or filing. Review by a human specialist remains available as a separate professional service.",
+     "fr": "Les résultats intelligents sont produits par un système d'intelligence artificielle et peuvent contenir des erreurs ou des informations périmées ; ce sont des indications, non un avis professionnel contraignant, et le Client les relit avant toute décision ou dépôt. Une revue par un spécialiste humain reste disponible comme service professionnel distinct.",
+     "zh": "智能输出由人工智能系统生成，可能含有错误或过时信息；仅为指引而非有约束力的专业意见，客户应在任何决策或向机构提交之前审核。人工专业复核可作为独立的专业服务另行获得。"
+    },
+    {
+     "ar": "وكيل الامتثال والتنبيهات: تنبيهات إرشادية مبنية على البيانات المتاحة له؛ ولا تضمن اكتشاف كل مخالفة أو استحقاق أو منع الغرامات، وتبقى مسؤولية الالتزام على المنشأة.",
+     "en": "Compliance agent and alerts: indicative alerts based on the data available to it; they do not guarantee that every violation or due date is detected or that fines are prevented, and compliance remains the establishment's responsibility.",
+     "fr": "Agent de conformité et alertes : alertes indicatives fondées sur les données dont il dispose ; elles ne garantissent ni la détection de toute infraction ou échéance ni l'absence d'amendes, et la conformité demeure de la responsabilité de l'établissement.",
+     "zh": "合规代理与提醒：基于其可获得数据的参考性提醒；不保证发现所有违规或到期事项，也不保证避免罚款，合规责任仍由企业承担。"
+    },
+    {
+     "ar": "البيانات التي يدخلها العميل (محادثات وملفات وبيانات منشأة) تُعالَج لتشغيل الاشتراك وفق سياسة الخصوصية. يمتنع العميل عن إدخال بيانات شخصية حساسة غير لازمة، ويتحمل مسؤولية أحقيته في رفع ما يرفعه من بيانات الغير.",
+     "en": "Data the Client enters (chats, files, establishment data) is processed to run the subscription under the privacy policy. The Client refrains from entering unnecessary sensitive personal data and is responsible for being entitled to upload third parties' data.",
+     "fr": "Les données saisies par le Client (conversations, fichiers, données d'établissement) sont traitées pour faire fonctionner l'abonnement selon la politique de confidentialité. Le Client s'abstient de saisir des données personnelles sensibles inutiles et répond de son droit à téléverser des données de tiers.",
+     "zh": "客户输入的数据（对话、文件、企业数据）依隐私政策用于运行订阅。客户不得输入不必要的敏感个人数据，并须对其上传第三方数据的权利负责。"
+    },
+    {
+     "ar": "نسعى لإتاحة الخدمة باستمرار دون ضمان عدم انقطاعها؛ وقد نعلّقها للصيانة أو لدواعي الأمن، وتعتمد بعض المزايا على مزوّدين خارجيين.",
+     "en": "We aim to keep the service available but do not guarantee it will not be interrupted; we may suspend it for maintenance or security, and some features depend on external providers.",
+     "fr": "Nous nous efforçons de maintenir le service disponible sans garantir l'absence d'interruption ; nous pouvons le suspendre pour maintenance ou sécurité, et certaines fonctions dépendent de prestataires externes.",
+     "zh": "我们力求持续提供服务，但不保证不会中断；可能因维护或安全原因暂停服务，部分功能依赖外部服务商。"
+    },
+    {
+     "ar": "اشتراكات أصحاب العمل (نشر الوظائف والاطلاع على المرشحين): تُستعمل بيانات المرشحين للغرض الوظيفي وحده، فلا تُنسخ ولا تُسوَّق ولا تُرسل لهم رسائل غير مرغوبة. وللمنصة تقييد الدخول عند إساءة الاستعمال، ولا نضمن عدد المتقدمين أو جودتهم أو نتائج التوظيف.",
+     "en": "Employer subscriptions (posting jobs and viewing candidates): candidate data is used for the hiring purpose only — it is not copied, marketed or used to send unwanted messages. The platform may restrict access on misuse, and we do not guarantee the number or quality of applicants or hiring results.",
+     "fr": "Abonnements employeurs (publication d'offres et consultation des candidats) : les données des candidats ne servent qu'à l'embauche ; elles ne sont ni copiées, ni exploitées commercialement, ni utilisées pour envoyer des messages non sollicités. La plateforme peut restreindre l'accès en cas d'abus, et nous ne garantissons ni le nombre ou la qualité des candidats ni les résultats d'embauche.",
+     "zh": "雇主订阅（发布职位与查看候选人）：候选人数据仅用于招聘目的，不得复制、营销或用于发送骚扰信息。平台可在滥用时限制访问；我们不保证申请人的数量或质量，也不保证招聘结果。"
+    },
+    {
+     "ar": "اشتراك بيانات الشركات: مصدر البيانات سجلات متاحة ومزوّدون، ولا نضمن دقتها أو حداثتها الكاملة؛ وتُستعمل لأغراض تجارية مشروعة وفق نظام حماية البيانات الشخصية ولا تُستعمل في حملات مخالفة للنظام.",
+     "en": "Company-data access: data comes from available registers and providers, and we do not guarantee it is fully accurate or current; it is used for lawful business purposes in line with the Personal Data Protection Law and not for campaigns that breach the law.",
+     "fr": "Accès aux données d'entreprises : les données proviennent de registres disponibles et de fournisseurs, sans garantie d'exactitude ou d'actualité complète ; elles servent à des fins commerciales licites conformément à la loi sur la protection des données personnelles, non à des campagnes contraires à la loi.",
+     "zh": "企业数据访问：数据来自可获得的登记信息和供应商，我们不保证其完全准确或最新；使用须符合《个人数据保护法》且用于合法商业目的，不得用于违法的营销活动。"
+    },
+    {
+     "ar": "للعميل إنهاء الاشتراك من حسابه أو بإشعار كتابي، ولنا إيقافه عند مخالفة الشروط أو إساءة الاستعمال أو عدم السداد، مع إتاحة تصدير بيانات العميل مدةً معقولة قبل إتلافها حيث أمكن. والمشاريع الخاصة (كإعداد وكيل أو خدمة ذكاء اصطناعي حسب الطلب) تُتعاقد بعرض سعر.",
+     "en": "The Client may end the subscription from its account or by written notice; we may suspend it for breach of terms, misuse or non-payment, allowing the Client to export its data for a reasonable period before destruction where possible. Bespoke projects (such as setting up an agent or a custom AI service) are contracted by quotation.",
+     "fr": "Le Client peut résilier l'abonnement depuis son compte ou par écrit ; nous pouvons le suspendre en cas de violation des conditions, d'usage abusif ou de non-paiement, en permettant au Client d'exporter ses données pendant un délai raisonnable avant destruction lorsque c'est possible. Les projets sur mesure (mise en place d'un agent ou service d'IA personnalisé) sont contractés sur devis.",
+     "zh": "客户可通过账户或书面通知终止订阅；如违反条款、滥用或未付款，我们可暂停订阅，并尽可能在销毁前给予客户合理期限导出其数据。定制项目（如搭建代理或定制 AI 服务）以报价单签约。"
+    }
+   ]
+  },
+  {
+   "id": "professional",
+   "order": 16,
+   "title": {
+    "ar": "الخدمات المهنية (قانونية ومحاسبية)",
+    "en": "Professional services (legal and accounting)",
+    "fr": "Services professionnels (juridiques et comptables)",
+    "zh": "专业服务（法律与会计）"
+   },
+   "summary": {
+    "ar": "الاستشارات والصياغة والتمثيل القانوني، والمحاسبة والمراجعة الضريبية، التي يشترط النظام لها ترخيصاً مهنياً.",
+    "en": "Legal advice, drafting and representation, and accounting and tax review, for which the law requires a professional licence.",
+    "fr": "Conseil juridique, rédaction et représentation, comptabilité et revue fiscale, pour lesquels la loi exige une licence professionnelle.",
+    "zh": "法律咨询、文书起草与代理，以及会计和税务审查，法律对此要求专业执照。"
+   },
+   "uses": [
+    "quoteBased",
+    "licensedPro",
+    "docsFromClient"
+   ],
+   "items": [
+    {
+     "ar": "الخدمات القانونية تُنجَز عبر محامين مرخّصين في المملكة بعقد أو عرض يحدد النطاق. ولا يُنشئ استعمال الموقع أو المستشار الذكي علاقة موكّل ومحامٍ، ولا يصدر رأي قانوني مكتوب إلا من مرخَّص موقِّع.",
+     "en": "Legal services are performed by lawyers licensed in the Kingdom under a contract or quotation that states the scope. Using the site or the Smart Advisor does not create a lawyer–client relationship, and a written legal opinion is issued only by a licensed, signing professional.",
+     "fr": "Les services juridiques sont assurés par des avocats agréés dans le Royaume sur contrat ou devis précisant le périmètre. L'utilisation du site ou du Conseiller intelligent ne crée pas de relation avocat-client, et un avis juridique écrit n'émane que d'un professionnel agréé et signataire.",
+     "zh": "法律服务由在沙特获执业许可的律师依合同或报价单约定的范围提供。使用网站或智能顾问不构成律师与客户关系，书面法律意见只能由持证并署名的专业人士出具。"
+    },
+    {
+     "ar": "التمثيل أمام المحاكم واللجان والتحكيم يتطلب وكالة نظامية وعقد أتعاب مستقلاً أو قبولاً صريحاً من المحامي المكلف لكل قضية، ولا يبدأ قبل ذلك. وعدد القضايا في الباقات سقف لا التزام بقبول أي قضية.",
+     "en": "Representation before courts, committees and arbitration requires a legal power of attorney and a separate fee agreement or the assigned lawyer's express acceptance of each case, and does not start before. The number of cases in a package is a ceiling, not an obligation to accept any case.",
+     "fr": "La représentation devant les tribunaux, comités et l'arbitrage exige une procuration légale et une convention d'honoraires distincte ou l'acceptation expresse de l'avocat désigné pour chaque affaire, et ne commence pas avant. Le nombre d'affaires d'un forfait est un plafond, non une obligation d'accepter une affaire.",
+     "zh": "在法院、委员会和仲裁中的代理，需要合法委托及另行签订的费用协议或指定律师对每个案件的明确接受，且在此之前不得开始。套餐中的案件数量是上限，并非必须接受任何案件的义务。"
+    },
+    {
+     "ar": "المحاسبة ومسك الدفاتر والمراجعة الضريبية تعتمد على الدفاتر والبيانات التي يقدمها العميل. وأعمال المراجعة والتدقيق التي يشترط النظام لها محاسباً قانونياً مرخّصاً تصدر عنه وحده.",
+     "en": "Accounting, bookkeeping and tax review rely on the books and data the Client provides. Audit and assurance work for which the law requires a licensed certified accountant is issued by that accountant alone.",
+     "fr": "La comptabilité, la tenue de livres et la revue fiscale reposent sur les livres et données fournis par le Client. Les travaux d'audit pour lesquels la loi exige un expert-comptable agréé émanent de lui seul.",
+     "zh": "会计、记账和税务审查依赖客户提供的账簿和数据。法律要求由持证注册会计师承办的审计和鉴证工作，仅由该会计师出具。"
+    },
+    {
+     "ar": "نحافظ على سرية معلومات العميل وفق أنظمة المهنة، ولا نفصح إلا بقدر ما يلزمه نظام أو جهة قضائية. ونعتذر عن أي طلب يتعارض مع مصلحة عميل آخر نمثّله ونبلغ العميل بذلك فوراً.",
+     "en": "We keep the Client's information confidential under professional rules and disclose only as far as a law or a court requires. We decline any request that conflicts with the interest of another client we represent and tell the Client at once.",
+     "fr": "Nous gardons confidentielles les informations du Client selon les règles professionnelles et ne les divulguons que dans la mesure exigée par la loi ou une juridiction. Nous déclinons toute demande en conflit avec l'intérêt d'un autre client que nous représentons et en informons aussitôt le Client.",
+     "zh": "我们依职业规则对客户信息保密，仅在法律或法院要求的范围内披露。如某项委托与我们所代理的其他客户的利益冲突，我们将谢绝并立即告知客户。"
+    },
+    {
+     "ar": "العقود واللوائح المصاغة تُبنى على معطيات العميل ويعتمد الأطراف نصّها النهائي؛ ولا نضمن قبولها لدى الغير ولا تفسير القضاء لها.",
+     "en": "Contracts and regulations drafted are based on the Client's data and the parties approve the final text; we do not guarantee that third parties will accept them or how a court will interpret them.",
+     "fr": "Les contrats et règlements rédigés reposent sur les données du Client et les parties approuvent le texte final ; nous ne garantissons ni leur acceptation par des tiers ni leur interprétation par un tribunal.",
+     "zh": "起草的合同和规章基于客户提供的资料，由各方确认最终文本；我们不保证第三方会接受，也不保证法院的解释。"
+    }
+   ]
+  },
+  {
+   "id": "advisory",
+   "order": 17,
+   "title": {
+    "ar": "الاستشارات والدراسات والأدلة",
+    "en": "Advisory, studies and guides",
+    "fr": "Conseil, études et guides",
+    "zh": "咨询、研究与指南"
+   },
+   "summary": {
+    "ar": "الاستشارات التشغيلية والاستثمارية، ودراسات الجدوى وخطط الأعمال، والتقارير التشخيصية، والأدلة، وتأهيل الموردين ومتابعتهم، والوساطة في الاندماج والاستحواذ.",
+    "en": "Operational and investment advice, feasibility studies and business plans, diagnostic reports, guides, supplier qualification and follow-up, and M&A brokerage.",
+    "fr": "Conseil opérationnel et d'investissement, études de faisabilité et plans d'affaires, rapports de diagnostic, guides, qualification et suivi de fournisseurs, et intermédiation en fusions-acquisitions.",
+    "zh": "运营和投资咨询、可行性研究与商业计划、诊断报告、指南、供应商资质办理与跟进以及并购居间。"
+   },
+   "uses": [
+    "quoteBased",
+    "successFee",
+    "docsFromClient",
+    "monthlyRenewal"
+   ],
+   "items": [
+    {
+     "ar": "الاستشارة رأي مهني استرشادي مبني على المعلومات التي قدّمها العميل وقت إعدادها وعلى الأنظمة والإجراءات السارية حينها؛ وتتغير الأنظمة ولا نحدّث ما سلّمناه إلا باتفاق أو باشتراك تحديثات.",
+     "en": "Advice is guidance based on the information the Client gave when it was prepared and on the rules and procedures then in force; rules change and we do not update what we delivered except by agreement or an updates subscription.",
+     "fr": "Le conseil est une orientation fondée sur les informations fournies par le Client lors de son élaboration et sur les règles et procédures alors en vigueur ; elles évoluent et nous ne mettons pas à jour ce que nous avons livré, sauf accord ou abonnement aux mises à jour.",
+     "zh": "咨询意见是基于客户在编制时提供的信息及当时有效的规则和程序所作的参考性意见；规则会变化，除非另有约定或订阅更新服务，我们不会更新已交付的内容。"
+    },
+    {
+     "ar": "لا تضمن الاستشارة أو الدراسة أو الخطة نتيجة مالية أو تجارية أو تمويلية أو قبول جهة بها؛ والتوقعات والأرقام تقديرية تقوم على افتراضات مذكورة، ويتحمل العميل قراره الاستثماري.",
+     "en": "Advice, studies or plans do not guarantee a financial, commercial or financing result or acceptance by any body; forecasts and figures are estimates based on stated assumptions, and the Client bears its investment decision.",
+     "fr": "Conseils, études et plans ne garantissent aucun résultat financier, commercial ou de financement ni leur acceptation par un organisme ; prévisions et chiffres sont des estimations fondées sur des hypothèses indiquées, et le Client assume sa décision d'investissement.",
+     "zh": "咨询、研究或计划不保证任何财务、商业或融资结果，也不保证被任何机构接受；预测和数字是基于所述假设的估算，投资决策由客户自行承担。"
+    },
+    {
+     "ar": "بعد السداد الكامل يحق للعميل استعمال المخرجات النهائية لغرضه الداخلي. وتحتفظ Business Partner بمنهجيتها وقوالبها وأدواتها، ولا يُنسب التقرير إليها أو يُقدَّم للغير بوصفه رأياً معتمداً منها دون موافقتها.",
+     "en": "After full payment the Client may use the final deliverables for its internal purposes. Business Partner keeps its methodology, templates and tools, and the report may not be attributed to it or given to third parties as its endorsed opinion without its consent.",
+     "fr": "Après paiement intégral, le Client peut utiliser les livrables finaux pour ses besoins internes. Business Partner conserve sa méthodologie, ses modèles et ses outils, et le rapport ne peut lui être attribué ni être remis à des tiers comme son avis validé sans son accord.",
+     "zh": "全额付款后，客户可将最终成果用于其内部目的。Business Partner 保留其方法论、模板和工具，未经其同意，不得将报告归于其名下或作为其认可的意见提供给第三方。"
+    },
+    {
+     "ar": "الأدلة والتقارير الجاهزة منتج معرفي يُسلَّم رقمياً؛ وبعد تسليمه لا يُسترد ثمنه إلا لعيب جوهري فيه.",
+     "en": "Ready-made guides and reports are knowledge products delivered digitally; once delivered, the price is refundable only for a material defect.",
+     "fr": "Les guides et rapports prêts à l'emploi sont des produits de connaissance livrés numériquement ; une fois livrés, leur prix n'est remboursable qu'en cas de défaut substantiel.",
+     "zh": "现成的指南和报告是以数字方式交付的知识产品；交付后，仅在存在重大缺陷时方可退款。"
+    },
+    {
+     "ar": "تأهيل الموردين ومتابعتهم: نُعدّ ملف التأهيل ونتابعه لدى الجهة الطالبة، والقبول قرارها؛ ولا نضمن تأهيلاً أو ترسية أو حجم أعمال.",
+     "en": "Supplier qualification and follow-up: we prepare and follow the qualification file with the requesting body, whose acceptance is its decision; we do not guarantee qualification, award or business volume.",
+     "fr": "Qualification et suivi des fournisseurs : nous préparons et suivons le dossier de qualification auprès de l'organisme demandeur, dont l'acceptation est la décision ; nous ne garantissons ni qualification, ni attribution, ni volume d'affaires.",
+     "zh": "供应商资质办理与跟进：我们编制并向需求方跟进资质文件，是否通过由其决定；我们不保证资质通过、中标或业务量。"
+    },
+    {
+     "ar": "الوساطة في الاندماج والاستحواذ: نقرّب الأطراف ونتفاوض في حدود النطاق؛ ولا نضمن إتمام صفقة أو سعراً أو مشترياً، وتخضع الصفقة للأنظمة والجهات الرقابية. وأتعاب النجاح، إن وُجدت، كما في عرض السعر.",
+     "en": "M&A brokerage: we introduce the parties and negotiate within the agreed scope; we do not guarantee that a deal closes, a price or a buyer, and the deal is subject to the regulations and regulators. Success fees, if any, are as stated in the quotation.",
+     "fr": "Intermédiation en fusions-acquisitions : nous rapprochons les parties et négocions dans le périmètre convenu ; nous ne garantissons ni la conclusion d'une opération, ni un prix, ni un acquéreur, et l'opération est soumise à la réglementation et aux régulateurs. Les honoraires de succès, le cas échéant, sont ceux du devis.",
+     "zh": "并购居间：我们在约定范围内撮合各方并参与谈判；不保证交易达成、价格或买家，交易受法规及监管机构约束。成功费（如有）以报价单为准。"
+    }
+   ]
+  },
+  {
+   "id": "marketing",
+   "order": 18,
+   "title": {
+    "ar": "التسويق والعلاقات العامة",
+    "en": "Marketing and public relations",
+    "fr": "Marketing et relations publiques",
+    "zh": "营销与公共关系"
+   },
+   "summary": {
+    "ar": "التسويق الرقمي والإعلان، والعلاقات العامة والاتصال المؤسسي.",
+    "en": "Digital marketing and advertising, public relations and corporate communications.",
+    "fr": "Marketing numérique et publicité, relations publiques et communication institutionnelle.",
+    "zh": "数字营销与广告、公共关系及企业传播。"
+   },
+   "uses": [
+    "quoteBased",
+    "adSpend"
+   ],
+   "items": [
+    {
+     "ar": "لا نضمن نتائج تسويقية (مبيعات أو متابعين أو ترتيب في البحث أو تغطية إعلامية أو تفاعل)؛ فهي تتأثر بعوامل خارجة عن إرادتنا.",
+     "en": "We do not guarantee marketing results (sales, followers, search ranking, media coverage or engagement), which are affected by factors beyond our control.",
+     "fr": "Nous ne garantissons aucun résultat marketing (ventes, abonnés, classement de recherche, couverture médiatique ou engagement), influencés par des facteurs hors de notre contrôle.",
+     "zh": "我们不保证营销结果（销售、粉丝、搜索排名、媒体报道或互动），这些受我们无法控制的因素影响。"
+    },
+    {
+     "ar": "يتحمل العميل صحة ما يطلب الترويج له وملكية ما يزوّدنا به (شعارات وصور وأسماء) وعدم مخالفة الإعلان لأنظمة الإعلان والمنافسة؛ ولنا الامتناع عن نشر ما نراه مخالفاً.",
+     "en": "The Client is responsible for the accuracy of what it asks us to promote, for owning what it gives us (logos, images, names) and for the advertising not breaching advertising and competition rules; we may decline to publish anything we consider unlawful.",
+     "fr": "Le Client répond de l'exactitude de ce qu'il demande de promouvoir, de la propriété de ce qu'il nous fournit (logos, images, noms) et de la conformité de la publicité aux règles de publicité et de concurrence ; nous pouvons refuser de publier ce que nous jugeons illicite.",
+     "zh": "客户须对其要求推广内容的真实性、所提供素材（标识、图片、名称）的权属以及广告不违反广告和竞争法规负责；我们有权拒绝发布我们认为违法的内容。"
+    },
+    {
+     "ar": "حسابات المنصات تُنشأ باسم العميل أو بحسابات يملكها، ويُسلَّم الوصول إليها عند انتهاء الخدمة بعد سداد المستحق.",
+     "en": "Platform accounts are created in the Client's name or are accounts the Client owns, and access is handed over when the service ends once amounts due are paid.",
+     "fr": "Les comptes de plateformes sont créés au nom du Client ou sont des comptes qu'il possède, et l'accès lui est remis à la fin du service après paiement des sommes dues.",
+     "zh": "平台账号以客户名义创建或为客户所有的账号，服务结束并结清应付款项后移交访问权限。"
+    },
+    {
+     "ar": "النشر في وسائل إعلام الغير خاضع لسياستها التحريرية وقرارها، ولا نضمن النشر.",
+     "en": "Publication in third-party media is subject to their editorial policy and decision, and we do not guarantee publication.",
+     "fr": "La publication dans des médias tiers dépend de leur politique éditoriale et de leur décision, et nous ne la garantissons pas.",
+     "zh": "在第三方媒体上的发布取决于其编辑政策和决定，我们不保证一定发布。"
+    }
+   ]
+  },
+  {
+   "id": "bank",
+   "order": 19,
+   "title": {
+    "ar": "فتح الحساب البنكي للمنشآت",
+    "en": "Corporate bank account opening",
+    "fr": "Ouverture de compte bancaire d'entreprise",
+    "zh": "企业银行开户"
+   },
+   "summary": {
+    "ar": "تهيئة الملف والتنسيق مع البنوك لفتح حساب بنكي للمنشأة.",
+    "en": "Preparing the file and coordinating with banks to open a business bank account.",
+    "fr": "Préparation du dossier et coordination avec les banques pour l'ouverture d'un compte bancaire d'entreprise.",
+    "zh": "准备材料并与银行协调为企业开立银行账户。"
+   },
+   "uses": [
+    "quoteBased",
+    "docsFromClient",
+    "thirdParty"
+   ],
+   "items": [
+    {
+     "ar": "فتح الحساب وقبوله ونوعه وحدوده وشروطه قرار ينفرد به البنك وفق سياساته ومتطلبات النظام. وخدمتنا تهيئة الملف والتنسيق وحجز الموعد؛ ولا نضمن فتح الحساب أو مدته أو ألا يطلب البنك مستندات إضافية.",
+     "en": "Opening, accepting, the type, limits and terms of the account are decided solely by the bank under its policies and legal requirements. Our service is preparing the file, coordinating and booking the appointment; we do not guarantee that the account is opened, how long it takes, or that the bank will not ask for further documents.",
+     "fr": "L'ouverture, l'acceptation, le type, les plafonds et les conditions du compte relèvent de la seule décision de la banque selon ses politiques et les exigences légales. Notre service consiste à préparer le dossier, coordonner et fixer le rendez-vous ; nous ne garantissons ni l'ouverture, ni son délai, ni que la banque ne demandera pas d'autres documents.",
+     "zh": "账户是否开立、类型、限额和条件由银行依其政策和法律要求独自决定。我们的服务是准备材料、协调并预约；不保证开户成功、办理时长，也不保证银行不会要求补充文件。"
+    },
+    {
+     "ar": "قد يشترط البنك حضور أصحاب الصلاحية أو توقيعهم؛ ولا نوقّع ولا نمثّلهم في اتفاقيات البنك.",
+     "en": "The bank may require authorised persons to attend or sign; we do not sign or represent them in bank agreements.",
+     "fr": "La banque peut exiger la présence ou la signature des personnes habilitées ; nous ne signons pas et ne les représentons pas dans les conventions bancaires.",
+     "zh": "银行可能要求授权人员亲自到场或签署；我们不代其签署银行协议，也不代表他们。"
+    },
+    {
+     "ar": "رسوم البنك وأي مبلغ إيداع أدنى على العميل للبنك مباشرة. ولا نطلب ولا نحتفظ ببيانات دخولك إلى حسابك البنكي أو رموز التحقق أو بطاقاتك.",
+     "en": "Bank charges and any minimum deposit are owed by the Client to the bank directly. We do not ask for or keep your online-banking credentials, verification codes or cards.",
+     "fr": "Les frais bancaires et tout dépôt minimum sont dus par le Client directement à la banque. Nous ne demandons ni ne conservons vos identifiants bancaires en ligne, codes de vérification ou cartes.",
+     "zh": "银行费用及任何最低存款由客户直接支付给银行。我们不会索取或保存您的网银登录信息、验证码或银行卡。"
+    },
+    {
+     "ar": "العلاقة المصرفية بعد الفتح بين العميل والبنك وحدهما.",
+     "en": "After opening, the banking relationship is between the Client and the bank alone.",
+     "fr": "Après l'ouverture, la relation bancaire lie uniquement le Client et la banque.",
+     "zh": "开户后，银行业务关系仅存在于客户与银行之间。"
+    }
+   ]
+  },
+  {
+   "id": "pkgformation",
+   "order": 20,
+   "title": {
+    "ar": "باقات التأسيس",
+    "en": "Formation packages",
+    "fr": "Forfaits de création",
+    "zh": "设立套餐"
+   },
+   "summary": {
+    "ar": "باقات تأسيس الشركات السعودية والخليجية والأجنبية بسعر موحَّد لنطاق محدد.",
+    "en": "Packages for forming Saudi, Gulf and foreign companies at a single price for a defined scope.",
+    "fr": "Forfaits de création de sociétés saoudiennes, du Golfe et étrangères à prix unique pour un périmètre défini.",
+    "zh": "以统一价格、限定范围设立沙特、海湾及外国公司的套餐。"
+   },
+   "uses": [
+    "govFees",
+    "outcomeAuthority",
+    "eligibility",
+    "docsFromClient"
+   ],
+   "items": [
+    {
+     "ar": "تسري على الباقة شروط فئة «تأسيس الشركات والسجلات التجارية»، وللباقة الأجنبية شروط فئة «الاستثمار الأجنبي» كذلك.",
+     "en": "The Category Terms for “Company formation and commercial registers” apply to the package, and for the foreign package those for “Foreign investment” also apply.",
+     "fr": "Les conditions de la catégorie « Création de sociétés et registres du commerce » s'appliquent au forfait, et pour le forfait étranger celles de « Investissement étranger » également.",
+     "zh": "本套餐适用“公司设立与商业登记”类别条款；外国公司套餐同时适用“外商投资”类别条款。"
+    },
+    {
+     "ar": "الباقة مجموعة خدمات بسعر موحَّد لنطاق محدد في صفحتها؛ وما لم يرد فيها يُطلب منفصلاً. والرسوم الحكومية ليست من سعر الباقة.",
+     "en": "A package is a set of services at one price for the scope defined on its page; anything not listed is requested separately. Government fees are not part of the package price.",
+     "fr": "Un forfait est un ensemble de services à prix unique pour le périmètre défini sur sa page ; ce qui n'y figure pas est demandé séparément. Les frais officiels ne font pas partie du prix du forfait.",
+     "zh": "套餐是以统一价格提供、范围以其页面所列为准的一组服务；未列入的事项须另行申请。政府费用不含在套餐价格内。"
+    },
+    {
+     "ar": "إن أُلغيت الباقة بعد البدء يُحتسب ما نُفِّذ من مراحلها بأتعاب الخدمات المنفصلة المقابلة، ويُردّ الباقي وفق الشروط العامة.",
+     "en": "If a package is cancelled after work has started, completed stages are charged at the fees of the equivalent separate services and the remainder is refunded under the General Terms.",
+     "fr": "Si le forfait est annulé après le démarrage, les étapes accomplies sont facturées aux honoraires des services distincts équivalents et le solde est remboursé selon les Conditions générales.",
+     "zh": "套餐开始办理后被取消的，已完成的阶段按相应单项服务的收费计算，余款依通用条款退还。"
+    },
+    {
+     "ar": "لا تضمن الباقة قبول الجهات للطلبات ولا موعد صدور السجل أو الترخيص أو التأشيرات المذكورة فيها.",
+     "en": "The package does not guarantee the authorities' acceptance of the applications, or the date the register, licence or visas it mentions will be issued.",
+     "fr": "Le forfait ne garantit ni l'acceptation des demandes par les autorités ni la date de délivrance du registre, de la licence ou des visas qu'il mentionne.",
+     "zh": "套餐不保证主管机构受理申请，也不保证其中提到的登记、许可或签证的签发日期。"
+    }
+   ]
+  },
+  {
+   "id": "pkglegal",
+   "order": 21,
+   "title": {
+    "ar": "باقات الخدمات القانونية",
+    "en": "Legal services packages",
+    "fr": "Forfaits de services juridiques",
+    "zh": "法律服务套餐"
+   },
+   "summary": {
+    "ar": "باقات اشتراك شهرية للاستشارات القانونية وصياغة العقود والخدمات المرتبطة (الأساسية والمتقدمة والشاملة والاستراتيجية).",
+    "en": "Monthly subscription packages for legal consultations, contract drafting and related services (Basic, Advanced, Comprehensive, Strategic).",
+    "fr": "Forfaits d'abonnement mensuels pour consultations juridiques, rédaction de contrats et services connexes (Essentiel, Avancé, Complet, Stratégique).",
+    "zh": "按月订阅的法律咨询、合同起草及相关服务套餐（基础、进阶、综合、战略）。"
+   },
+   "uses": [
+    "monthlyRenewal",
+    "priceChange",
+    "fairUse",
+    "licensedPro",
+    "govFees"
+   ],
+   "items": [
+    {
+     "ar": "تسري على الباقة شروط فئة «الخدمات المهنية». ويبيّن وصف الباقة عدد الاستشارات والعقود والمذكرات وغيرها؛ وما زاد على ذلك أو خرج عن نطاقه يُتفق عليه بعقد أو عرض مستقل.",
+     "en": "The Category Terms for “Professional services” apply to the package. The package description states the number of consultations, contracts, memoranda and so on; anything beyond that or outside its scope is agreed in a separate contract or quotation.",
+     "fr": "Les conditions de la catégorie « Services professionnels » s'appliquent au forfait. La description du forfait indique le nombre de consultations, contrats, mémoires, etc. ; tout ce qui dépasse ou sort de ce cadre est convenu par contrat ou devis distinct.",
+     "zh": "本套餐适用“专业服务”类别条款。套餐说明列明咨询、合同、法律文书等的数量；超出该数量或范围的事项另行以合同或报价单约定。"
+    },
+    {
+     "ar": "التمثيل في القضايا العمالية المذكور في الباقة يتطلب وكالة نظامية وقبول المحامي المكلف لكل قضية؛ والعدد المذكور سقفٌ لا التزام بقبول أي قضية. والرسوم القضائية وما تحدده الجهات خارج الأتعاب.",
+     "en": "Representation in labour cases mentioned in the package requires a legal power of attorney and the assigned lawyer's acceptance of each case; the stated number is a ceiling, not an obligation to accept any case. Court fees and charges set by authorities are outside the fees.",
+     "fr": "La représentation dans les affaires de travail mentionnée au forfait exige une procuration légale et l'acceptation de l'avocat désigné pour chaque affaire ; le nombre indiqué est un plafond, non une obligation d'accepter une affaire. Les frais de justice et redevances fixées par les autorités sont hors honoraires.",
+     "zh": "套餐中提到的劳动案件代理，须办理合法委托并经指定律师对每个案件接受；所列数量为上限，并非必须接受任何案件的义务。诉讼费用及主管机构规定的费用不含在服务费内。"
+    },
+    {
+     "ar": "خصومات خدمات التوثيق المذكورة تسري على أتعابنا فقط، ولا تشمل الرسوم الحكومية أو رسوم الموثِّقين.",
+     "en": "The notarisation discounts mentioned apply to our fees only and do not cover government fees or notaries' charges.",
+     "fr": "Les remises sur les services de notarisation mentionnées s'appliquent à nos honoraires uniquement et ne couvrent ni les frais officiels ni les frais des notaires.",
+     "zh": "所述公证服务折扣仅适用于我们的服务费，不涵盖政府费用或公证人收费。"
+    },
+    {
+     "ar": "«المتابعة والتنبيه» المذكورة جهد وقائي ولا تضمن عدم وقوع مخالفة أو غرامة؛ والمسؤولية النظامية على العميل.",
+     "en": "The “monitoring and alerts” mentioned is preventive effort and does not guarantee that no violation or fine occurs; legal responsibility remains with the Client.",
+     "fr": "Le « suivi et les alertes » mentionnés sont un effort préventif et ne garantissent pas l'absence d'infraction ou d'amende ; la responsabilité légale demeure celle du Client.",
+     "zh": "所述“监测与提醒”是预防性工作，不保证不发生违规或罚款；法定责任仍由客户承担。"
+    }
+   ]
+  }
+ ],
+ "skus": {
+  "AI-GEN": "digital",
+  "BP-ABSHER-01": "gov",
+  "BP-AI-01": "digital",
+  "BP-AI-02": "digital",
+  "BP-AI-03": "digital",
+  "BP-AI-04": "digital",
+  "BP-AI-SMART-EMPLOYEE": "digital",
+  "BP-AIWS-BPLUS": "digital",
+  "BP-AIWS-BUS": "digital",
+  "BP-AIWS-ENT": "digital",
+  "BP-AIWS-IND": "digital",
+  "BP-AJEER-01": "gov",
+  "BP-AJEER-02": "gov",
+  "BP-AJEER-03": "gov",
+  "BP-AJEER-04": "gov",
+  "BP-AJEER-05": "gov",
+  "BP-AJEER-06": "gov",
+  "BP-AJEER-07": "gov",
+  "BP-AJEER-08": "gov",
+  "BP-AJEER-10": "managed",
+  "BP-AJEER-CS": "gov",
+  "BP-BALADY-01": "gov",
+  "BP-BALADY-02": "gov",
+  "BP-BS-01": "marketing",
+  "BP-CHAMBER-01": "formation",
+  "BP-CSR-01": "gov",
+  "BP-DIAG-01": "advisory",
+  "BP-EMP-BASIC-M": "digital",
+  "BP-EMP-BASIC-Y": "digital",
+  "BP-EMP-ENTERPRISE-M": "digital",
+  "BP-EMP-ENTERPRISE-Y": "digital",
+  "BP-EMP-PRO-M": "digital",
+  "BP-EMP-PRO-Y": "digital",
+  "BP-FI-01": "foreign",
+  "BP-FI-02": "foreign",
+  "BP-FI-03": "foreign",
+  "BP-FI-04": "foreign",
+  "BP-FI-05": "foreign",
+  "BP-FI-06": "foreign",
+  "BP-FI-07": "foreign",
+  "BP-FI-08": "foreign",
+  "BP-FI-09": "foreign",
+  "BP-FI-10": "foreign",
+  "BP-FI-11": "foreign",
+  "BP-FI-12": "foreign",
+  "BP-FI-13": "foreign",
+  "BP-FLEX-01": "gov",
+  "BP-GOSI-01": "gov",
+  "BP-GOSI-02": "gov",
+  "BP-GOSI-03": "gov",
+  "BP-GR-01": "gov",
+  "BP-GUIDE-01": "advisory",
+  "BP-GUIDE-02": "advisory",
+  "BP-HOUSING-01": "housing",
+  "BP-HOUSING-02": "housing",
+  "BP-HR-01": "gov",
+  "BP-HR-02": "gov",
+  "BP-HR-03": "managed",
+  "BP-HRSD-01": "violations",
+  "BP-HRSD-02": "violations",
+  "BP-HRSD-03": "violations",
+  "BP-HRSD-04": "violations",
+  "BP-HRSD-05": "violations",
+  "BP-HRSD-06": "violations",
+  "BP-HRSD-07": "gov",
+  "BP-HRSD-08": "violations",
+  "BP-HRSD-09": "gov",
+  "BP-HRSD-10": "violations",
+  "BP-HRSD-11": "gov",
+  "BP-HRSD-12": "violations",
+  "BP-HRSD-CS": "violations",
+  "BP-LABOR-01": "gov",
+  "BP-MOD-01": "gov",
+  "BP-MOD-02": "gov",
+  "BP-MOWA-01": "gov",
+  "BP-MUDAD-01": "gov",
+  "BP-MUDAD-02": "gov",
+  "BP-MUDAD-03": "gov",
+  "BP-MUQEEM-01": "gov",
+  "BP-MUQEEM-02": "gov",
+  "BP-MUQEEM-03": "gov",
+  "BP-MUQEEM-04": "gov",
+  "BP-PKG-ENTERPRISE": "managed",
+  "BP-PKG-FORM-FOREIGN": "pkgformation",
+  "BP-PKG-FORM-SAUDI": "pkgformation",
+  "BP-PKG-GROWTH": "managed",
+  "BP-PKG-LAUNCH": "managed",
+  "BP-PKG-LEGAL-ADV": "pkglegal",
+  "BP-PKG-LEGAL-BASIC": "pkglegal",
+  "BP-PKG-LEGAL-COMP": "pkglegal",
+  "BP-PKG-LEGAL-STRAT": "pkglegal",
+  "BP-PKG-SCALE": "managed",
+  "BP-PKG-SVC-STARTER": "managed",
+  "BP-PL-0019": "gov",
+  "BP-PL-0035": "gov",
+  "BP-PL-0050": "gov",
+  "BP-PL-0051": "bank",
+  "BP-PL-0052": "professional",
+  "BP-PL-0053": "advisory",
+  "BP-PL-0054": "professional",
+  "BP-PL-0055": "professional",
+  "BP-PL-0056": "advisory",
+  "BP-PL-0057": "advisory",
+  "BP-PL-0058": "advisory",
+  "BP-PL-0059": "professional",
+  "BP-PL-0060": "professional",
+  "BP-PL-0063": "marketing",
+  "BP-PL-0066": "advisory",
+  "BP-PL-0076": "gov",
+  "BP-PL-0077": "gov",
+  "BP-PL-0078": "gov",
+  "BP-PL-0079": "gov",
+  "BP-PL-0080": "gov",
+  "BP-PL-0081": "gov",
+  "BP-PL-0082": "gov",
+  "BP-PL-0083": "gov",
+  "BP-PL-0084": "gov",
+  "BP-PL-0085": "gov",
+  "BP-PL-0086": "gov",
+  "BP-PL-0087": "gov",
+  "BP-PL-0088": "gov",
+  "BP-PL-0089": "gov",
+  "BP-PL-0090": "gov",
+  "BP-PL-0091": "gov",
+  "BP-PL-0092": "gov",
+  "BP-PL-0093": "gov",
+  "BP-PR-01": "premium",
+  "BP-PR-02": "premium",
+  "BP-PR-03": "premium",
+  "BP-PR-04": "premium",
+  "BP-PR-05": "premium",
+  "BP-PR-06": "premium",
+  "BP-PR-07": "premium",
+  "BP-PR-08": "premium",
+  "BP-PR-09": "premium",
+  "BP-PR-10": "premium",
+  "BP-QIWA-01": "gov",
+  "BP-QIWA-02": "gov",
+  "BP-QIWA-03": "gov",
+  "BP-QIWA-04": "gov",
+  "BP-QIWA-05": "gov",
+  "BP-QIWA-06": "gov",
+  "BP-QIWA-07": "gov",
+  "BP-QIWA-08": "gov",
+  "BP-QIWA-09": "gov",
+  "BP-RE-01": "realestate",
+  "BP-RE-02": "realestate",
+  "BP-RE-03": "realestate",
+  "BP-RE-04": "realestate",
+  "BP-RE-05": "realestate",
+  "BP-RE-06": "realestate",
+  "BP-REC-01": "recruitment",
+  "BP-REC-02": "recruitment",
+  "BP-REC-03": "eor",
+  "BP-REC-04": "recruitment",
+  "BP-REC-05": "recruitment",
+  "BP-REC-06": "recruitment",
+  "BP-REF-01": "gov",
+  "BP-REMOTE-01": "gov",
+  "BP-SAIP-01": "gov",
+  "BP-SBC-01": "formation",
+  "BP-SBC-02": "formation",
+  "BP-SBC-03": "formation",
+  "BP-SBC-04": "formation",
+  "BP-SBC-05": "formation",
+  "BP-SBC-06": "formation",
+  "BP-SBC-07": "formation",
+  "BP-SBC-08": "formation",
+  "BP-SBC-09": "formation",
+  "BP-SBC-10": "formation",
+  "BP-SBC-11": "formation",
+  "BP-SBC-12": "formation",
+  "BP-SBC-13": "formation",
+  "BP-SBC-14": "formation",
+  "BP-SBC-15": "formation",
+  "BP-SBC-16": "formation",
+  "BP-SBC-17": "formation",
+  "BP-SBC-18": "formation",
+  "BP-SBC-19": "formation",
+  "BP-SBC-20": "formation",
+  "BP-SBC-21": "formation",
+  "BP-SBC-22": "formation",
+  "BP-SBC-23": "formation",
+  "BP-SBC-24": "formation",
+  "BP-SBC-25": "formation",
+  "BP-SBC-26": "formation",
+  "BP-SBC-27": "formation",
+  "BP-SBC-28": "formation",
+  "BP-SBC-29": "formation",
+  "BP-SBC-30": "formation",
+  "BP-SBC-31": "formation",
+  "BP-SELF-01": "gov",
+  "BP-SUB-01": "digital",
+  "BP-SUBL-01": "gov",
+  "BP-TAQAT-01": "gov",
+  "BP-TRIP-AL-AHSA-3-DAYS": "trips",
+  "BP-TRIP-AL-BAHA-3-DAYS": "trips",
+  "BP-TRIP-AL-BRAYED-ISLANDS-YANBU-ONE-DAY": "trips",
+  "BP-TRIP-AL-GHARAMEEL-IN-ALULA": "trips",
+  "BP-TRIP-AL-TOUQI-HIKING-CAMPING-PRIVATE": "trips",
+  "BP-TRIP-AL-TOUQI-HIKING-PRIVATE": "trips",
+  "BP-TRIP-AL-TOUQI-HIKING-TOUR": "trips",
+  "BP-TRIP-ALULA-3-DAYS": "trips",
+  "BP-TRIP-ANYONA-WRECKAGE-SHIP-YANBU": "trips",
+  "BP-TRIP-ASSER-3-DAYS": "trips",
+  "BP-TRIP-BAYADAH-ISLANDS-2-HOURS": "trips",
+  "BP-TRIP-BAYADAH-ISLANDS-4-HOURS": "trips",
+  "BP-TRIP-BAYADAH-ISLANDS-6-HOURS": "trips",
+  "BP-TRIP-BAYADAH-ISLANDS-8-HOURS": "trips",
+  "BP-TRIP-DISCOVER-RED-SEA-BY-YACHT": "trips",
+  "BP-TRIP-DISCOVER-SAUDI-IN-10-DAYS": "trips",
+  "BP-TRIP-EDGE-OF-THE-WORLD-PRIVATE": "trips",
+  "BP-TRIP-EDGE-OF-THE-WORLD-PRIVATE-CAMPING": "trips",
+  "BP-TRIP-EDGE-OF-THE-WORLD-TOUR": "trips",
+  "BP-TRIP-EDGE-OF-THE-WORLD-TOUR-2": "trips",
+  "BP-TRIP-EID-AL-ADHA-TRIP": "trips",
+  "BP-TRIP-EID-AL-FITR-TRIP": "trips",
+  "BP-TRIP-ELEPHANT-ROCK-IN-ALULA": "trips",
+  "BP-TRIP-FARASAN-ISLANDS-3-DAYS": "trips",
+  "BP-TRIP-FARASAN-ISLANDS-ONE-DAY": "trips",
+  "BP-TRIP-FIFA-MOUNTAINS": "trips",
+  "BP-TRIP-HAIL-3-DAYS": "trips",
+  "BP-TRIP-HERITAGE-AND-CULTURE-OF-THE-KINGDO": "trips",
+  "BP-TRIP-HIKE-AND-BIKE": "trips",
+  "BP-TRIP-HISTORICAL-YANBU-ONE-DAY": "trips",
+  "BP-TRIP-HORSE-TRACK": "trips",
+  "BP-TRIP-JAZAN-3-DAYS": "trips",
+  "BP-TRIP-JAZAN-ISLANDS": "trips",
+  "BP-TRIP-JEDDAH-3-DAYS": "trips",
+  "BP-TRIP-JEDDAH-5-DAYS": "trips",
+  "BP-TRIP-JEDDAH-CULTURAL-CENTER-MARINE-FACA": "trips",
+  "BP-TRIP-JEDDAH-FARM-EXPERIENCE": "trips",
+  "BP-TRIP-KAEC-3-DAYS": "trips",
+  "BP-TRIP-KAEC-ONE-DAY": "trips",
+  "BP-TRIP-NEOM-3-DAYS": "trips",
+  "BP-TRIP-OLD-TOWN-IN-ALULA": "trips",
+  "BP-TRIP-PARAGLIDING-YANBU-ONE-DAY": "trips",
+  "BP-TRIP-REJAL-ALMAA": "trips",
+  "BP-TRIP-RIYADH-1-DAY-SAFARI-CAMPING": "trips",
+  "BP-TRIP-RIYADH-FARM-EXPERIENCE-1": "trips",
+  "BP-TRIP-RIYADH-FARM-EXPERIENCE-2": "trips",
+  "BP-TRIP-SAFARI-TOUR": "trips",
+  "BP-TRIP-SAFARI-TOUR-PRIVATE": "trips",
+  "BP-TRIP-SHAQRA-USHAIQER": "trips",
+  "BP-TRIP-TAIF-3-DAYS": "trips",
+  "BP-TRIP-THE-GRAND-CANYON-AL-HABALA": "trips",
+  "BP-TRIP-THE-NATURE-OF-NEOM-3-DAYS": "trips",
+  "BP-TRIP-WADI-LAJAB": "trips",
+  "BP-TRIP-YANBU-3-DAYS": "trips",
+  "BP-VENDOR-01": "advisory",
+  "BP-VENDOR-02": "managed",
+  "BP-ZATCA-01": "tax",
+  "BP-ZATCA-02": "tax",
+  "BP-ZATCA-03": "tax",
+  "BP-ZATCA-04": "tax",
+  "BP-ZATCA-05": "tax",
+  "CF-GEN": "formation",
+  "CV-10": "recruitment",
+  "FI-100": "foreign",
+  "GOV-GEN": "gov",
+  "GR-GEN": "gov",
+  "HR-GEN": "gov",
+  "MA-BRK": "advisory",
+  "PR-GEN": "premium",
+  "QW-EST": "gov",
+  "RE-GEN": "realestate",
+  "REC-GEN": "recruitment",
+  "REV-ENT": "bizdev",
+  "REV-GROWTH": "bizdev",
+  "REV-LAUNCH": "bizdev",
+  "REV-PRO": "bizdev",
+  "REV-START": "bizdev",
+  "REV-TEAM": "bizdev",
+  "SBC-GEN": "managed",
+  "SUP-GEN": "advisory",
+  "TR-GEN": "trips",
+  "revos-connect": "bizdev",
+  "revos-growth": "bizdev",
+  "revos-launch": "bizdev",
+  "revos-professional": "bizdev"
+ },
+ "keys": {
+  "starter-4": "BP-PKG-SVC-STARTER",
+  "silver": "BP-PKG-LAUNCH",
+  "gold": "BP-PKG-GROWTH",
+  "platinum": "BP-PKG-SCALE",
+  "diamond": "BP-PKG-ENTERPRISE",
+  "foreign-formation": "BP-PKG-FORM-FOREIGN",
+  "saudi-gulf-formation": "BP-PKG-FORM-SAUDI",
+  "basic-legal": "BP-PKG-LEGAL-BASIC",
+  "advanced": "BP-PKG-LEGAL-ADV",
+  "comprehensive": "BP-PKG-LEGAL-COMP",
+  "strategic": "BP-PKG-LEGAL-STRAT"
+ },
+ "aliases": [
+  {
+   "prefix": "employee-",
+   "sku": "BP-AI-SMART-EMPLOYEE"
+  },
+  {
+   "prefix": "employer-plan-",
+   "category": "digital"
+  },
+  {
+   "exact": "agent-compliance",
+   "sku": "BP-AI-03"
+  },
+  {
+   "exact": "agent-shared-services",
+   "sku": "BP-AI-04"
+  },
+  {
+   "exact": "companies-data-access",
+   "category": "digital"
+  },
+  {
+   "prefix": "revos-",
+   "category": "bizdev"
+  }
+ ],
+ "prefixRules": [
+  [
+   "BP-TRIP-",
+   "trips"
+  ],
+  [
+   "BP-AIWS-",
+   "digital"
+  ],
+  [
+   "BP-EMP-",
+   "digital"
+  ],
+  [
+   "REV-",
+   "bizdev"
+  ],
+  [
+   "BP-WS",
+   "realestate"
+  ],
+  [
+   "BP-PKG-FORM-",
+   "pkgformation"
+  ],
+  [
+   "BP-PKG-LEGAL-",
+   "pkglegal"
+  ],
+  [
+   "BP-PKG-",
+   "managed"
+  ]
+ ],
+ "pages": {
+  "/farina": "farina",
+  "/worker-housing": "housing",
+  "/workspace-request": "realestate",
+  "/workspaces": "realestate",
+  "/bank-account": "bank",
+  "/tourism": "trips",
+  "/mahfol-makfol": "trips",
+  "/trips": "trips",
+  "/eor": "eor",
+  "/ai": "digital",
+  "/employers": "digital",
+  "/recruitment-agencies": "recruitment",
+  "/estrdad": "violations",
+  "/formation-contract": "formation",
+  "/premium-residency": "premium",
+  "/packages": "managed"
+ }
+}

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh" dir="ltr" data-prices="off">
+<html data-sv1-test="测试模式 — 无真实付款，不向客户发送消息" lang="zh" dir="ltr" data-prices="off">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>条款与条件 — Business Partner</title>
-<meta name="description" content="适用于 Business Partner 订阅与购买的条款与条件。">
+<meta name="description" content="本条款适用于您向 Business Partner 申请的每一项服务。以下先列通用条款，再列各服务类别的专属条款。按名称或代码搜索您的服务，即可直达其条款。">
 <meta property="og:title" content="条款与条件 — Business Partner">
-<meta property="og:description" content="适用于 Business Partner 订阅与购买的条款与条件。">
+<meta property="og:description" content="本条款适用于您向 Business Partner 申请的每一项服务。以下先列通用条款，再列各服务类别的专属条款。按名称或代码搜索您的服务，即可直达其条款。">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/assets/img/cover.png">
 <meta property="og:locale" content="zh_CN">
@@ -36,8 +36,12 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 <style>/* Owner policy: prices are hidden from visitors and shown only to signed-in clients (html[data-prices] flips to "on" below when a session exists). */html[data-prices="off"] .tr-price,html[data-prices="off"] .price-amt,html[data-prices="off"] .emp-price,html[data-prices="off"] .emp-price-m,html[data-prices="off"] .emp-price-y,html[data-prices="off"] .pk-per,html[data-prices="off"] .emp-billing-toggle,html[data-prices="off"] .cart-totals-block{display:none!important}html[data-prices="on"] [data-guest-note]{display:none!important}</style><script>/* Signed-in clients see prices: flip the flag before main.js reads it. */(function(){try{if(localStorage.getItem("bp_session"))document.documentElement.setAttribute("data-prices","on");}catch(e){}})();</script>
 <script>if(/[?&]embed=1(?:&|$)/.test(location.search))document.documentElement.classList.add('bp-embed');</script>
 <style>html.bp-embed .site-header,html.bp-embed .site-footer,html.bp-embed footer,html.bp-embed .wa-fab,html.bp-embed .advisor-fab,html.bp-embed .bp-lang-fab,html.bp-embed main>.hero{display:none!important}html.bp-embed body{padding-top:0!important}html.bp-embed main{padding-top:0!important}</style>
-<link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
-<style id="sv1-chrome-css">
+<style id="sv1-css">
+/* اتجاه «مختبر» بألوان الهوية (قرار المالك 2026-09-05): بنية «مختبر» —
+   أرضية بيضاء، شبكة ١px، حروفٌ أحادية للأرقام وحدها، عناوين خفيفة الوزن —
+   لكن اللون كحلي العلامة #0B1B5A لا الأسود ولا البنفسجي. الأسطح الداكنة
+   (شريط الحالة، الفوتر، جانب لوحة العمليات) كحليٌّ عميق #081345.
+   الرماديات مائلةٌ إلى الكحلي لا محايدة، فتقرأ كأنها من العلامة. */
 .sv1{--n:#0B1B5A;--ac:#0B1B5A;--ac2:#16307F;--acSoft:#EEF2FB;--acLine:#C3CDE6;
  --n2:#081345;--g:#F5F7FB;--l:#E5E9F0;--line:#E5E9F0;--line2:#EBEFF7;
  --t:#232A3D;--ink:#0B1B5A;--s:#5A6478;--mut:#5A6478;--faint:#8D97AE;--soft:#F5F7FB;
@@ -88,10 +92,141 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-lang .menu a.on{background:var(--g);font-weight:700}
 .sv1-burger{display:none;border:1px solid var(--l);background:#fff;border-radius:10px;width:40px;height:40px;align-items:center;justify-content:center;cursor:pointer;font-size:18px}
 .sv1 h1,.sv1 h2,.sv1 h3{color:var(--ink);margin-top:0;letter-spacing:-.025em;text-wrap:balance}
-.sv1 h1{font-weight:200}
-.sv1 h2{font-weight:300}
+.sv1 h1{font-weight:200}.sv1 h2{font-weight:300}
+.sv1-hero{background:#fff;padding:78px 0;position:relative;overflow:hidden;border-bottom:1px solid var(--l)}
+.sv1-hero::before{content:"";position:absolute;inset:0;pointer-events:none;
+ background-image:linear-gradient(var(--line2) 1px,transparent 1px),linear-gradient(90deg,var(--line2) 1px,transparent 1px);
+ background-size:56px 56px;
+ -webkit-mask-image:radial-gradient(120% 90% at 78% 0%,#000 0%,transparent 72%);
+ mask-image:radial-gradient(120% 90% at 78% 0%,#000 0%,transparent 72%)}
+.sv1-hero::after{content:"";position:absolute;inset-inline-end:-6%;top:-46%;width:760px;height:760px;pointer-events:none;
+ background:radial-gradient(circle,rgba(11,27,90,.13) 0%,rgba(11,27,90,.04) 38%,transparent 66%)}
+.sv1-hero .wrap{position:relative;z-index:1}
+.sv1-hero .grid{display:grid;grid-template-columns:1fr 1fr;gap:42px;align-items:center}
+.sv1-tag{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--l);color:var(--mut);padding:6px 13px;border-radius:999px;font-size:11.5px;font-weight:400;box-shadow:var(--sh)}
+.sv1-tag::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ok);flex:none}
+.sv1-hero h1{font-size:clamp(36px,5.2vw,64px);line-height:1.13;margin:18px 0 18px;letter-spacing:-.035em;font-weight:200}
+.sv1-hero h1 b,.sv1-hero h1 strong{font-weight:500}
+.sv1-lead{font-size:16.5px;font-weight:300;line-height:1.95;color:var(--mut);margin:0;max-width:46ch}
+.sv1-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.sv1-trust{display:flex;gap:8px 18px;flex-wrap:wrap;margin:18px 0 0;padding:0;list-style:none;font-size:12.5px;color:#667085}
+.sv1-trust li::before{content:"✓";color:var(--ok);font-weight:700;margin-inline-end:6px}
+.sv1-three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sv1-three .sv1-panel{padding:20px}
+.sv1-three h4{font-size:15px;margin:0 0 6px}
+.sv1-three p{margin:0;font-size:13px;line-height:1.7}
+.sv1-doors{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-doors>:last-child:nth-child(odd){grid-column:1/-1}
+a.sv1-door{text-decoration:none;color:inherit;box-sizing:border-box}
+.sv1-browse{display:inline-block;margin-top:14px;font-size:13px;color:var(--mut);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px}
+.sv1-browse:hover{color:var(--ac);border-color:var(--ac)}
+.sv1-door{background:#fff;border:1px solid var(--l);border-radius:13px;padding:19px;text-align:start;box-shadow:var(--sh);cursor:pointer;font-family:inherit;transition:.15s;display:block;width:100%}
+.sv1-door:hover,.sv1-door.on{border-color:var(--ac);box-shadow:var(--sh2);transform:translateY(-2px)}
+.sv1-door .ico{width:40px;height:40px;border-radius:10px;background:var(--acSoft);color:var(--ac);display:grid;place-items:center;font-size:18px}
+.sv1-door h3{font-size:18px;margin:13px 0 5px}
+.sv1-door p{font-size:12.5px;color:var(--s);margin:0 0 10px;line-height:1.65}
+.sv1-door span{font-size:12px;color:var(--ac);font-weight:500}
+.sv1-sec{padding:64px 0}
+.sv1-gray{background:var(--g)}
+.sv1-title{text-align:center;max-width:720px;margin:0 auto 30px}
+.sv1-title h2{font-size:clamp(25px,3.4vw,38px);margin-bottom:10px;font-weight:200}
+.sv1-title p{color:var(--mut);margin:0;font-weight:300;line-height:1.9}
+.sv1-app{border:1px solid var(--l);border-radius:15px;overflow:hidden;box-shadow:var(--sh2);background:#fff}
+.sv1-appbar{min-height:56px;border-bottom:1px solid var(--l);padding:8px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sv1-appbar b{color:var(--ink)}
+.sv1-steps{display:flex;gap:5px;flex-wrap:wrap}
+.sv1-steps span{font-size:10.5px;padding:5px 9px;background:#f1f2f5;border-radius:999px;color:var(--mut);font-weight:500;white-space:nowrap}
+.sv1-steps .active{background:var(--ac);color:#fff}
+.sv1-appgrid{display:grid;grid-template-columns:1.05fr .95fr;min-height:540px}
+.sv1-chat{display:flex;flex-direction:column;border-inline-end:1px solid var(--l)}
+.sv1-chathead{padding:16px;border-bottom:1px solid var(--l)}
+.sv1-chathead h3{font-size:18px;margin:0 0 1px}
+.sv1-chathead p{font-size:11.5px;color:#777;margin:0}
+.sv1-msgs{padding:16px;background:#fbfcfe;flex:1;overflow:auto;max-height:420px}
+.sv1-msg{max-width:85%;padding:10px 13px;border-radius:13px;font-size:13px;margin-bottom:9px;white-space:pre-wrap;line-height:1.75}
+.sv1-msg.a{background:#fff;border:1px solid var(--l)}
+.sv1-msg.u{background:var(--ac);color:#fff;margin-inline-start:auto}
+.sv1-msg.s{background:#fff3e6;color:#8a4b00;font-size:12px;text-align:center;max-width:100%}
+.sv1-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sv1-chips button{border:1px solid var(--l);background:#fff;border-radius:999px;padding:7px 12px;font-size:11.5px;cursor:pointer;font-family:inherit;color:var(--mut)}
+.sv1-chips button:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-compose{border-top:1px solid var(--l);padding:10px;display:flex;gap:6px}
+.sv1-composehint{margin:0;padding:0 12px 11px;font-size:11.5px;color:var(--faint);line-height:1.6}
+.sv1-compose textarea{height:46px;resize:none;flex:1;border:1px solid var(--l);border-radius:11px;padding:10px;font:inherit;font-size:13px;outline:none}
+.sv1-compose textarea:focus{border-color:var(--ac)}
+.sv1-compose .send{width:46px;border:0;border-radius:9px;background:var(--ac);color:#fff;font-size:17px;cursor:pointer}
+.sv1-mic{width:46px;flex:none;border:1px solid var(--l);border-radius:9px;background:#fff;color:var(--ink);cursor:pointer;display:grid;place-items:center;font-family:inherit;transition:.15s}
+.sv1-mic:hover{border-color:var(--ac);color:var(--ac)}
+.sv1-mic[disabled]{opacity:.5;cursor:default}
+.sv1-mic.rec{background:#b42318;border-color:#b42318;color:#fff;animation:sv1mic 1.4s ease-in-out infinite}
+@keyframes sv1mic{50%{box-shadow:0 0 0 6px rgba(180,35,24,.16)}}
+.sv1-mic.busy{opacity:.6;cursor:default}
+.sv1-voice{display:none;align-items:center;gap:9px;padding:7px 11px;margin:0 10px 8px;border:1px solid var(--l);border-radius:9px;background:var(--soft);font-size:11.5px;color:var(--mut)}
+.sv1-voice.on{display:flex}
+.sv1-voice.err{border-color:#f0c8c4;background:#fdf3f2;color:#b42318}
+.sv1-voice .dot{width:7px;height:7px;border-radius:50%;background:#b42318;flex:none;animation:sv1mic 1.4s ease-in-out infinite}
+.sv1-voice .t{font-family:var(--fm);margin-inline-start:auto;font-size:11px;color:var(--faint)}
+.sv1-scope{padding:19px;display:flex;flex-direction:column}
+.sv1-scope h3{font-size:19px;margin:9px 0 2px}
+.sv1-scope>p{font-size:11.5px;color:#777;margin:0 0 12px}
+.sv1-item{display:flex;justify-content:space-between;gap:8px;border:1px solid var(--l);border-radius:11px;padding:10px;margin-bottom:7px}
+.sv1-item b{font-size:12.5px;display:block;color:#32394a;outline:none;font-weight:600}
+.sv1-item b:focus{background:#fffbe6;border-radius:4px}
+.sv1-item small{font-size:10.5px;color:#888;display:block;margin-top:2px}
+.sv1-item .del{border:0;width:27px;height:27px;border-radius:7px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:14px}
+.sv1-addrow{display:flex;gap:6px;margin-top:2px}
+.sv1-addrow input{flex:1;border:1px solid var(--l);border-radius:9px;padding:9px;font:inherit;font-size:12.5px;outline:none}
+.sv1-docs{margin-top:16px;padding-top:14px;border-top:1px dashed #cfd6e6}
+.sv1-docs h4{margin:0 0 2px;color:var(--ink);font-size:15px}
+.sv1-docs>p{margin:0 0 10px;font-size:11.5px;color:#777}
+.sv1-doc{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.sv1-doc span{font-size:12.5px;color:#32394a;display:flex;gap:7px;align-items:center}
+.sv1-doc span::before{content:"📄";font-size:13px}
+.sv1-doc .del{border:0;width:24px;height:24px;border-radius:6px;background:#fff0ef;color:#b42318;cursor:pointer;flex:none;font-size:13px}
+.sv1-docs .empty{font-size:11.5px;color:#9aa0b0;padding:6px 2px;margin-bottom:6px}
+.sv1-summary{background:var(--acSoft);border:1px solid var(--acLine);border-radius:10px;padding:11px 13px;margin:14px 0;font-size:12px}
+.sv1-summary div{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sv1-summary strong{font-size:16px;color:var(--ac)}
+.sv1-login{border-top:1px solid var(--l);padding:16px 19px;background:#fff}
+.sv1-login h4{margin:0 0 4px;color:var(--ink);font-size:15px}
+.sv1-login p{margin:0 0 10px;color:#777;font-size:12px}
+.sv1-login .g{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sv1-login input{border:1px solid var(--l);border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;width:100%;outline:none}
+.sv1-login .full{grid-column:1/-1}
+.sv1-err{color:#b42318;font-size:12px;margin-top:6px}
+.sv1-ok{color:var(--ok);font-weight:700;font-size:13px;margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sv1-flow{display:grid;grid-template-columns:repeat(6,1fr);gap:9px}
+.sv1-flow div{background:#fff;border:1px solid var(--l);border-radius:11px;padding:16px;text-align:center}
+.sv1-flow i{font-style:normal;font-family:var(--fm);width:34px;height:34px;background:var(--acSoft);color:var(--ac);border-radius:9px;display:grid;place-items:center;margin:0 auto 9px;font-weight:500;font-size:12px}
+.sv1-flow b{display:block;font-size:12.5px;color:var(--ink);font-weight:500}
+.sv1-flow small{font-size:10px;color:#888}
+.sv1-tabs{text-align:center;margin-bottom:15px;display:flex;gap:8px;justify-content:center}
+.sv1-tab{border:1px solid var(--l);background:#fff;border-radius:9px;padding:9px 17px;font-weight:500;color:var(--mut);cursor:pointer;font-family:inherit;font-size:13px}
+.sv1-tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+a.sv1-tab{text-decoration:none;display:inline-flex;align-items:center}
 .sv1-cart{display:inline-flex;align-items:center;gap:6px}
 .sv1-cart b{background:var(--ac);color:#fff;border-radius:99px;min-width:18px;height:18px;display:inline-grid;place-items:center;font-size:11px;font-weight:600;padding:0 5px}
+.sv1-portal{border:1px solid var(--l);border-radius:15px;overflow:hidden;box-shadow:var(--sh2);background:#fff}
+.sv1-pgrid{display:grid;grid-template-columns:205px 1fr;min-height:430px}
+.sv1-side{background:var(--n2);color:#dce3fa;padding:17px}
+.sv1-side strong{color:#fff;display:block;font-size:14px}
+.sv1-side small{display:block;font-size:9px;opacity:.6;letter-spacing:.12em;margin-bottom:10px}
+.sv1-mi{padding:8px 10px;border-radius:8px;font-size:11.5px;margin:3px 0}
+.sv1-mi.on{background:#fff;color:var(--ink);font-weight:500}
+.sv1-pmain{padding:22px;background:#fbfcfe}
+.sv1-pmain h3{font-size:21px;margin:0 0 2px}
+.sv1-muted{color:#777;font-size:11.5px}
+.sv1-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:15px 0}
+.sv1-stat,.sv1-panel{background:#fff;border:1px solid var(--l);border-radius:11px;padding:14px}
+.sv1-stat span{font-size:9.5px;color:#777;display:block}
+.sv1-stat b{font-size:21px;color:var(--ink);font-family:var(--fm);font-weight:500}
+.sv1-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sv1-panel h4{color:var(--ink);margin:0 0 8px;font-size:13px;font-weight:500}
+.sv1-prow{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #eee;font-size:11px}
+.sv1-prow:last-child{border-bottom:0}
+.sv1-status{font-size:9.5px;border-radius:999px;padding:3px 9px;background:var(--acSoft);color:var(--ac);white-space:nowrap}
+.sv1-status.done{background:var(--okSoft);color:var(--ok)}
+.sv1-pnote{text-align:center;color:#8b90a0;font-size:11px;margin-top:12px}
 .sv1-foot{margin-top:auto;padding:38px 0 22px;background:var(--n2);color:#ccd4ed;font-size:12px}
 .sv1-foot b{color:#fff}
 .sv1-foot a{color:#fff;text-decoration:underline;text-underline-offset:2px}
@@ -113,6 +248,8 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-foot-row bdi{font-variant-numeric:tabular-nums;letter-spacing:.02em;color:#fff}
 .sv1-foot-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}
 .sv1-foot-end{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.55)}
+/* روابط الصفحات التي لا تظهر في الترويسة: فاصلٌ خفيف ثم ثلاثة أعمدة صغيرة.
+   حجمها أصغر من باقي الفوتر عمداً — هي مسلكٌ لمن يبحث، لا دعوةٌ للضغط. */
 .sv1-foot-nav{display:grid;grid-template-columns:repeat(3,1fr);gap:20px 34px;
  margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1)}
 .sv1-foot-navcol{display:flex;flex-direction:column;gap:7px;min-width:0}
@@ -123,46 +260,78 @@ if(s===c)return;var a=document.querySelector('link[rel="alternate"][hreflang="'+
 .sv1-foot-navcol a:hover{color:#fff}
 @media(max-width:900px){.sv1-foot-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.sv1-foot-grid{grid-template-columns:1fr;gap:22px}
-.sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
+ .sv1-foot-nav{grid-template-columns:1fr 1fr;gap:18px 20px}}
 .sv1-wa-fab{position:fixed;inset-inline-start:18px;bottom:18px;z-index:30;width:52px;height:52px;border-radius:50%;background:var(--wa);color:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(37,211,102,.4)}
 .sv1-hide{display:none!important}
-@media(max-width:900px){.sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
-.sv1-nav.open{display:flex}
-.sv1-burger{display:flex}
-.sv1-hdr .right .sv1-btn:not(.primary):not(#sv1OutBtn):not(#sv1SiteBtn){display:none}
-.sv1-hdr .right #sv1SiteBtn{display:none}}
-/* الفرق الوحيد عن صفحات SV1: هناك «.sv1» غلافُ الصفحة كلها، وهنا غلافُ
-   الترويسة وحدها. «display:contents» يلغي صندوقه فيبقى «sticky» مسنداً إلى
-   الصفحة، وتبقى المتغيّرات و«.sv1 .wrap» نافذةً في الداخل. */
-.sv1.sv1-chrome{display:contents}
-@media print{.sv1-bar,.sv1-hdr,.sv1-wa-fab{display:none!important}}
-/* وضع التضمين (?embed=1) كان يخفي .site-header و.wa-fab؛ لم يعودا موجودين. */
-html.bp-embed .sv1-bar,html.bp-embed .sv1-hdr,html.bp-embed .sv1-wa-fab{display:none!important}
-</style>
-<style id="bp-public-brand-v5-css">
-body.bp-public-brand-v5{--bp-navy:#0B1B5A;--bp-blue:#3159d8;--bp-cyan:#43d6f4;--bp-mint:#16b875;--bp-ink:#111b36;--bp-muted:#6b7690;--bp-line:#e4e9f2;--bp-soft:#f7f9fd;background:#fff;color:var(--bp-ink)}
-body.bp-public-brand-v5 .site-header{background:rgba(255,255,255,.96)!important;border-bottom:1px solid #e8ecf3!important;backdrop-filter:blur(16px)}
-body.bp-public-brand-v5 .site-header .logo img{max-height:32px!important;width:auto!important}
-body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .svc-hero,body.bp-public-brand-v5 .cat-hero,body.bp-public-brand-v5 .page-hero{background:radial-gradient(circle at 84% 4%,rgba(49,89,216,.10),transparent 24%),radial-gradient(circle at 12% 2%,rgba(67,214,244,.08),transparent 20%),#fff!important;border-bottom:1px solid #edf0f5!important}
-body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .page-hero{padding-top:64px!important;padding-bottom:52px!important}
-body.bp-public-brand-v5 main>.hero h1,body.bp-public-brand-v5 .svc-hero h1,body.bp-public-brand-v5 .cat-hero h1,body.bp-public-brand-v5 .page-hero h1{color:var(--bp-navy)!important;letter-spacing:-.045em!important;line-height:1.06!important}
-body.bp-public-brand-v5 main>.hero .lead,body.bp-public-brand-v5 main>.hero p,body.bp-public-brand-v5 .svc-hero p,body.bp-public-brand-v5 .cat-hero p,body.bp-public-brand-v5 .page-hero p{color:var(--bp-muted)!important;line-height:1.8!important}
-body.bp-public-brand-v5 .eyebrow{display:inline-flex!important;padding:6px 9px!important;border:1px solid #dfe6f3!important;border-radius:999px!important;background:#f8faff!important;color:#3156ad!important;font-size:.68rem!important;font-weight:850!important}
-body.bp-public-brand-v5 .btn-primary,body.bp-public-brand-v5 .btn.btn-primary{background:linear-gradient(135deg,var(--bp-navy),var(--bp-blue))!important;border-color:transparent!important;box-shadow:0 11px 28px rgba(36,75,184,.16)!important}
-body.bp-public-brand-v5 .btn,body.bp-public-brand-v5 button,body.bp-public-brand-v5 .order-box,body.bp-public-brand-v5 .card,body.bp-public-brand-v5 .service-card,body.bp-public-brand-v5 .pkg-card,body.bp-public-brand-v5 .panel{border-radius:16px}
-body.bp-public-brand-v5 .card,body.bp-public-brand-v5 .service-card,body.bp-public-brand-v5 .pkg-card,body.bp-public-brand-v5 .panel,body.bp-public-brand-v5 .order-box{border-color:var(--bp-line)!important;box-shadow:0 8px 28px rgba(10,29,80,.045)!important}
-body.bp-public-brand-v5 .card:hover,body.bp-public-brand-v5 .service-card:hover,body.bp-public-brand-v5 .pkg-card:hover{box-shadow:0 14px 36px rgba(10,29,80,.08)!important}
-body.bp-public-brand-v5 .svc-main,body.bp-public-brand-v5 .svc-layout{gap:24px!important}
-body.bp-public-brand-v5 .svc-body,body.bp-public-brand-v5 .svc-content{line-height:1.85!important;color:#3c4964!important}
-body.bp-public-brand-v5 .svc-body h2,body.bp-public-brand-v5 .svc-body h3,body.bp-public-brand-v5 .svc-content h2,body.bp-public-brand-v5 .svc-content h3{color:var(--bp-navy)!important}
-body.bp-public-brand-v5 .svc-aside .order-box{position:sticky;top:92px;background:linear-gradient(180deg,#fff,#f8faff)!important}
-body.bp-public-brand-v5 .site-footer{background:#07143b!important;color:rgba(255,255,255,.7)!important}
-body.bp-public-brand-v5 .site-footer a{color:rgba(255,255,255,.72)!important}
-body.bp-public-brand-v5 .wa-fab{display:none!important}
-@media(max-width:760px){body.bp-public-brand-v5 main>.hero,body.bp-public-brand-v5 .page-hero{padding-top:42px!important;padding-bottom:34px!important}body.bp-public-brand-v5 .svc-aside .order-box{position:static}}
-</style>
+@media(max-width:900px){
+ .sv1-nav{display:none;position:absolute;inset-inline:0;top:72px;background:#fff;border-bottom:1px solid var(--l);flex-direction:column;padding:10px 22px 14px;gap:4px}
+ .sv1-nav.open{display:flex}
+ .sv1-burger{display:flex}
+ .sv1-hdr .right .sv1-btn:not(.primary):not(#sv1OutBtn):not(#sv1SiteBtn){display:none}
+ .sv1-hdr .right #sv1SiteBtn{display:none}
+ .sv1-hero .grid,.sv1-appgrid,.sv1-pgrid,.sv1-cols{grid-template-columns:1fr}
+ .sv1-chat{border-inline-end:0;border-bottom:1px solid var(--l)}
+ .sv1-flow{grid-template-columns:repeat(3,1fr)}
+ .sv1-three{grid-template-columns:1fr}
+ .sv1-side{display:none}
+ .sv1-stats{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){.sv1-doors{gap:8px}.sv1-door{padding:14px 13px}.sv1-door .ico{width:34px;height:34px;font-size:16px}.sv1-door h3{font-size:15.5px;margin:10px 0 4px}.sv1-door p{font-size:11.5px;line-height:1.55;margin:0 0 8px}.sv1-door span{font-size:11.5px}
+ .sv1-hero{padding:44px 0}.sv1-sec{padding:44px 0}.sv1-flow{grid-template-columns:1fr 1fr}.sv1-steps{display:none}.sv1-login .g{grid-template-columns:1fr}}
+</style><link rel="stylesheet" href="/assets/css/b10x-theme.css?v=79201fe7e6">
 </head>
-<body class="bp-public-brand-v5"><div class="sv1 sv1-chrome"><div class="sv1-bar"><div class="wrap">
+<body class="sv1-page"><div class="sv1"><style id="sv1-terms-css">
+html{scroll-behavior:auto}
+.tm-head{max-width:860px;margin:0 0 26px}
+.tm-head h1{font-size:clamp(30px,4.4vw,50px);line-height:1.12;margin:16px 0 12px;letter-spacing:-.035em;font-weight:200;color:var(--ink)}
+.tm-meta{display:flex;gap:6px 16px;flex-wrap:wrap;margin:12px 0 0;font-size:12.5px;color:var(--mut)}
+.tm-find{margin:0 0 20px;padding:18px;border:1px solid var(--l);border-radius:14px;background:#fff;box-shadow:var(--sh)}
+.tm-find label{display:block;font-size:13px;font-weight:500;color:var(--ink);margin:0 0 8px}
+.tm-find input{width:100%;box-sizing:border-box;font:inherit;font-size:15px;padding:12px 14px;border:1px solid var(--l);border-radius:10px;background:#fff;color:var(--ink)}
+.tm-find input:focus{outline:2px solid var(--ac);outline-offset:1px;border-color:var(--ac)}
+.tm-res{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:6px}
+.tm-res li a{display:flex;gap:6px 12px;flex-wrap:wrap;align-items:baseline;padding:10px 12px;border:1px solid var(--line2);border-radius:10px;color:var(--ink);text-decoration:none}
+.tm-res li a:hover,.tm-res li a:focus{border-color:var(--ac);background:#f7f9ff}
+.tm-res b{font-weight:500}
+.tm-res .c{font-size:12px;color:var(--ac);margin-inline-start:auto}
+.tm-res .sv1-mono,.tm-cov .sv1-mono{font-size:11px;color:var(--faint)}
+.tm-empty{font-size:13.5px;color:var(--mut);margin:12px 0 0}
+.tm-toc{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 30px;padding:14px 0;border-top:1px solid var(--line2);border-bottom:1px solid var(--line2)}
+.tm-toc h2{flex:0 0 100%;font-size:13px;font-weight:500;color:var(--mut);margin:0 0 2px}
+.tm-toc a{font-size:12.5px;padding:6px 12px;border:1px solid var(--l);border-radius:999px;color:var(--ink);background:#fff;text-decoration:none}
+.tm-toc a:hover{border-color:var(--ink)}
+.tm-toc a.hit,.tm-toc a:target{border-color:var(--ac);background:#f2f6ff}
+.tm-toc small{color:var(--faint);margin-inline-start:4px}
+.tm-gen,.tm-cat{margin:0 0 18px;border:1px solid var(--l);border-radius:14px;background:#fff;scroll-margin-top:96px;box-shadow:var(--sh)}
+.tm-gen{padding:0}
+.tm-cat>summary,.tm-gen>summary{list-style:none;cursor:pointer;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.tm-cat>summary::-webkit-details-marker,.tm-gen>summary::-webkit-details-marker{display:none}
+.tm-cat>summary h2,.tm-gen>summary h2{display:flex;gap:12px;align-items:baseline;margin:0;font-size:clamp(18px,2.2vw,24px);font-weight:300;letter-spacing:-.02em;color:var(--ink)}
+.tm-cat>summary::after,.tm-gen>summary::after{content:"+";flex:none;font-size:22px;line-height:1;color:var(--mut)}
+.tm-cat[open]>summary::after,.tm-gen[open]>summary::after{content:"\2212"}
+.tm-cat:target,.tm-gen:target{border-color:var(--ac);box-shadow:0 0 0 3px rgba(40,70,190,.12)}
+.tm-n{font-size:12px;color:var(--faint);font-weight:400}
+.tm-body{padding:0 20px 18px}
+.tm-sum{color:var(--mut);font-size:14px;line-height:1.8;margin:0 0 12px}
+.tm-gnote{color:var(--mut);font-size:13.5px;margin:0 0 6px}
+.tm-gs{margin:0 0 20px;scroll-margin-top:96px}
+.tm-gs h3{display:flex;gap:10px;align-items:baseline;font-size:16px;font-weight:500;color:var(--ink);margin:0 0 8px}
+.tm-ol{margin:0;padding-inline-start:22px;display:grid;gap:10px;color:var(--ink);font-size:14.5px;line-height:1.95}
+.tm-ol li::marker{color:var(--ac);font-weight:600}
+.tm-cov{margin:0 0 14px;border:1px dashed var(--l);border-radius:10px;padding:8px 12px;background:#fafbfd}
+.tm-cov summary{cursor:pointer;font-size:13px;color:var(--ac);font-weight:500}
+.tm-cov ul{list-style:none;margin:10px 0 2px;padding:0;display:grid;grid-template-columns:repeat(2,1fr);gap:4px 18px;font-size:12.5px;color:var(--mut);max-height:260px;overflow:auto}
+.tm-covp{margin:0 0 14px;font-size:13px;color:var(--mut)}
+.tm-also{display:flex;gap:8px 18px;flex-wrap:wrap;justify-content:space-between;margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line2);font-size:12.5px}
+.tm-also a{color:var(--ac)}
+.tm-end{text-align:center;border-top:1px solid var(--line2);padding-top:30px;margin-top:30px}
+.tm-end h2{font-size:21px;font-weight:300;color:var(--ink);margin:0 0 6px}
+.tm-end p{color:var(--mut);margin:0 0 16px}
+.tm-end .sv1-btn{margin:0 4px 6px}
+mark.tm-m{background:#fff3c4;color:inherit;padding:0 1px;border-radius:2px}
+@media(max-width:640px){.tm-cov ul{grid-template-columns:1fr}.tm-cat>summary,.tm-gen>summary{padding:16px}.tm-body{padding:0 16px 16px}.tm-find{padding:14px}.tm-res .c{margin-inline-start:0;flex-basis:100%}}
+@media print{.tm-find,.tm-toc,.tm-top,.tm-end{display:none}.tm-cat,.tm-gen{box-shadow:none;break-inside:auto}}
+</style><div class="sv1-bar"><div class="wrap">
   <div class="sv1-bar-l">
     <span><span class="sv1-pulse"></span><b>所有系统运行正常</b></span>
     <span class="hide-s">利雅得 · 沙特阿拉伯王国</span>
@@ -185,6 +354,7 @@ body.bp-public-brand-v5 .wa-fab{display:none!important}
     <a class="sv1-btn sm sv1-cart sv1-hide" id="sv1CartBtn" href="/zh/cart" aria-label="购物车">
       <span>购物车</span><b id="sv1CartN">0</b></a>
     <a class="sv1-btn" id="sv1LoginBtn" href="/zh/my">登录</a>
+    <a class="sv1-btn sm sv1-hide" id="sv1SiteBtn" href="/zh/">返回网站</a>
     <button type="button" class="sv1-btn sm sv1-hide" id="sv1OutBtn">退出登录</button>
     <a class="sv1-btn primary" href="/zh/#advisor">开始申请</a>
   </div>
@@ -213,55 +383,325 @@ var S=window.SV1S={
   if(sb)sb.classList.toggle('sv1-hide',!(on&&(p.indexOf('/my')>=0||p.indexOf('/ops')>=0)));
  }};
 var h0=hint();if(h0)S.paint(true,h0);
-})();</script><script>(function(){"use strict";
-var $=function(id){return document.getElementById(id)};
-var b=$('sv1Burger'),n=$('sv1Nav');
-if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
-var cb=$('sv1CartBtn'),cn=$('sv1CartN');
-function sync(){var c=[];try{c=JSON.parse(localStorage.getItem('bp_cart'))||[]}catch(e){}
- var k=c.reduce(function(a,i){return a+(Number(i&&i.qty)||1)},0);
- if(cn)cn.textContent=String(k);
- if(cb)cb.classList.toggle('sv1-hide',!k)}
-sync();
-addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);
-document.addEventListener('bp:cart',sync);
-/* main.js يكتب bp_cart ثم يحدّث #cart-badge وحده، ولا يطلق حدثاً. فبعد كل
-   ضغطة على زر شراء في الصفحة القديمة نعيد القراءة — وإلا جمد العدّاد. */
-document.addEventListener('click',function(e){
- if(e.target&&e.target.closest&&e.target.closest('.add-cart,[data-cart],.cart-remove,.cart-qty'))setTimeout(sync,0)},true);
-var ob=$('sv1OutBtn');
-if(ob)ob.onclick=function(){ob.disabled=true;
- fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'})
- .catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.reload()})};
-/* حالة الدخول: الرسم الفوري من التلميح جرى بعد «</header>» مباشرة
-   (SV1_SESSION_JS)، وهذا هو التصحيح من الخادم — والمنطق نفسه حرفاً بحرف في
-   صفحات SV1، من simple-v1.mjs لا من نسخةٍ ثانية تفترق عنها بعد شهر. */
-fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
-.then(function(r){return r.json().catch(function(){return{}})}).then(function(o){
- var S=window.SV1S,u=o&&o.session&&o.session.user;
- if(u){window.SV1_SESSION=o.session;if(S){S.save(u);S.paint(true,{name:u.full_name||'',email:u.email||''})}}
- else if(S){S.clear();S.paint(false,null)}
-}).catch(function(){});
-})();</script></div><main>
-  <section class="hero hero--sm"><div class="container hero-inner">
-    <span class="eyebrow">法律条款</span>
-    <h1>条款与条件</h1>
-    <p class="lead">These Terms &amp; Conditions govern your subscription to Business Partner's packages and platform. By signing the subscription form or completing a purchase through the site, you agree to be fully bound by them.</p>
-    <p class="mini text-soft">最后更新: July 16, 2026</p>
+})();</script>
+  <main>
+  <section class="sv1-sec"><div class="wrap">
+    <div class="tm-head" id="tm-index">
+      <span class="sv1-tag">法律</span>
+      <h1>条款与条件</h1>
+      <p class="sv1-lead" style="max-width:none">本条款适用于您向 Business Partner 申请的每一项服务。以下先列通用条款，再列各服务类别的专属条款。按名称或代码搜索您的服务，即可直达其条款。</p>
+      <div class="tm-meta"><span>最近更新: 2026年11月2日</span><span>版本: <span class="sv1-mono" dir="ltr">2026-11-02</span></span><span>如各语言版本有差异，以阿拉伯语版本为准。</span></div>
+    </div>
+
+    <div class="tm-find" role="search">
+      <label for="tmQ">查找您的服务</label>
+      <input id="tmQ" type="search" autocomplete="off" inputmode="search" placeholder="服务名称或代码，如 BP-SBC-01" aria-controls="tmRes">
+      <ul class="tm-res" id="tmRes" aria-live="polite"></ul>
+      <p class="tm-empty" id="tmEmpty" hidden>没有匹配项。请换一部分名称，或浏览下方类别——通用条款适用于所有服务。</p>
+    </div>
+
+    <nav class="tm-toc" aria-label="类别索引">
+      <h2>类别索引</h2>
+      <a href="#general"><b>通用条款</b></a>
+      <a href="#cat-formation" data-cat="formation">公司设立与商业登记 <small>33</small></a><a href="#cat-foreign" data-cat="foreign">外商投资 <small>14</small></a><a href="#cat-premium" data-cat="premium">高级居留 <small>11</small></a><a href="#cat-gov" data-cat="gov">政府事务与电子平台 <small>74</small></a><a href="#cat-violations" data-cat="violations">违规、异议与和解 <small>10</small></a><a href="#cat-tax" data-cat="tax">天课与税务 <small>5</small></a><a href="#cat-managed" data-cat="managed">托管服务与月度套餐 <small>9</small></a><a href="#cat-recruitment" data-cat="recruitment">招聘与用工引进 <small>7</small></a><a href="#cat-eor" data-cat="eor">由我方合同聘用（EOR） <small>1</small></a><a href="#cat-realestate" data-cat="realestate">办公室、共享空间与房地产 <small>7</small></a><a href="#cat-housing" data-cat="housing">员工住宿与交通 <small>2</small></a><a href="#cat-trips" data-cat="trips">旅行与旅游（Mahfol Makfol） <small>55</small></a><a href="#cat-farina" data-cat="farina">Farina（餐饮与接待）</a><a href="#cat-bizdev" data-cat="bizdev">业务拓展即服务</a><a href="#cat-digital" data-cat="digital">数字订阅与智能顾问 <small>11</small></a><a href="#cat-professional" data-cat="professional">专业服务（法律与会计） <small>5</small></a><a href="#cat-advisory" data-cat="advisory">咨询、研究与指南 <small>11</small></a><a href="#cat-marketing" data-cat="marketing">营销与公共关系 <small>2</small></a><a href="#cat-bank" data-cat="bank">企业银行开户 <small>1</small></a><a href="#cat-pkgformation" data-cat="pkgformation">设立套餐 <small>2</small></a><a href="#cat-pkglegal" data-cat="pkglegal">法律服务套餐 <small>4</small></a>
+    </nav>
+
+    <details class="tm-gen" id="general" open>
+      <summary><h2><span class="tm-n sv1-mono">00</span>通用条款</h2></summary>
+      <div class="tm-body">
+        <p class="tm-gnote">适用于所有服务，无一例外。</p>
+        
+    <div class="tm-gs" id="g-definitions">
+      <h3><span class="tm-n sv1-mono">01</span>定义</h3>
+      <ol class="tm-ol"><li>“Business Partner”：通过本网站及其平台提供服务的主体，其法定全称、商业登记号和税号载于报价单和税务发票。</li><li>“客户”：向 Business Partner 申请服务或购买套餐、订阅的任何自然人或法人，包括代表企业行事的人。</li><li>“服务”：Business Partner 目录中列出或报价单中约定的任何服务、套餐、订阅、行程或数字产品。</li><li>“主管机构”：对客户的申请或服务中的某一程序拥有决定权的政府、半官方、监管、银行、保险或其他机构。</li><li>“政府费用”：主管机构收取的任何费用、对价、罚款、订阅费或税款，包括认证、官方翻译和银行手续费。</li><li>“类别条款”：本页面各服务类别标题下发布的专属条款，用于补充而非取代通用条款。</li><li>“报价单”：Business Partner 出具的书面文件，载明服务范围、费用及有效期。</li></ol>
+    </div>
+    <div class="tm-gs" id="g-application">
+      <h3><span class="tm-n sv1-mono">02</span>适用范围与优先顺序</h3>
+      <ol class="tm-ol"><li>每一笔订单均适用本通用条款及所申请服务的类别条款。付款前，网站会在购物车中显示每项服务的类别及其条款链接。</li><li>如有冲突，以已接受的合同或报价单为先，其次为类别条款，最后为通用条款。</li><li>勾选确认框、完成订单或付款、签署报价单或合同，均视为接受；在法律允许的范围内，具有手写签名的效力。</li><li>代表企业签约的人确认其已获合法授权，并对该确认不属实承担责任。</li><li>下单时有效的版本适用于该订单，即使条款之后被修改。</li></ol>
+    </div>
+    <div class="tm-gs" id="g-nature">
+      <h3><span class="tm-n sv1-mono">03</span>服务的性质与边界</h3>
+      <ol class="tm-ol"><li>Business Partner 是商务服务提供商：负责电子申请的准备、提交和跟进、运营咨询、与主管机构和供应商的协调以及数字工具。</li><li>Business Partner 不是政府机构，不代表任何政府机构或以其名义行事，也不作此主张。</li><li>法律要求专业执照的服务（如律师业务、审计、注册会计和官方翻译）仅通过持证专业人士提供，并以载明范围的合同或报价单为准。网站内容和自动化工具不能替代这些服务。</li><li>对于我们明知违法或基于不实信息的申请，我们将予以拒绝，并可中止服务，此举不构成我方违约。</li></ol>
+    </div>
+    <div class="tm-gs" id="g-no-guarantee">
+      <h3><span class="tm-n sv1-mono">04</span>不保证主管机构的决定</h3>
+      <ol class="tm-ol"><li>Business Partner 不保证主管机构作出任何决定、批准、签发、续期、办理时限、撤销违规或其他结果；决定权仅属于主管机构。</li><li>Business Partner 的义务是在准备、提交和跟进申请并告知客户进展时尽到通常的专业审慎义务，而非实现特定结果。</li><li>网站所示的步骤、时限和要求仅为发布时的一般性指引；法规和平台会变化，仍以主管机构为准。</li></ol>
+    </div>
+    <div class="tm-gs" id="g-fees">
+      <h3><span class="tm-n sv1-mono">05</span>服务费与政府费用</h3>
+      <ol class="tm-ol"><li>服务价格以目录或已接受的报价单为准，以沙特里亚尔计价。该价格为 Business Partner 的服务费，不含增值税；增值税按开具发票时的法定税率另行加收。</li><li>除非报价单明确另有说明，政府费用及其他机构收取的费用不含在我们的服务费内；其金额由主管机构决定并随其决定变化。凡涉及政府费用的服务，目录中会标注“政府费用另计”。</li><li>Business Partner 不自行估算政府费用；我们提及的金额均摘自编制时的官方来源，实际以主管机构申报时收取的为准。如费用高于已告知客户的金额，我们将在继续办理前通知客户。</li><li>协议达成后，未经客户事先同意不会另行收费。Business Partner 依法就已付款项开具电子税务发票。</li></ol>
+    </div>
+    <div class="tm-gs" id="g-payment">
+      <h3><span class="tm-n sv1-mono">06</span>付款与开始办理</h3>
+      <ol class="tm-ol"><li>可用付款方式：通过支付网关使用银行卡（mada、Visa、Mastercard）、通过 Tamara 分期、银行转账并上传回单；也可能提供其他方式。</li><li>分期由 Tamara 按其自身条款提供，是否批准由其决定。Business Partner 不放贷、不持有存款，也不代客户发放工资。</li><li>仅在付款确认（或在需要时接受报价单/合同）并收到开始办理所需的信息和文件后，才开始办理。</li><li>银行卡数据由持牌支付服务商通过其网关处理，Business Partner 无法查看。</li></ol>
+    </div>
+    <div class="tm-gs" id="g-refund">
+      <h3><span class="tm-n sv1-mono">07</span>取消与退款</h3>
+      <ol class="tm-ol"><li>客户可通过账户或联系渠道书面申请取消；应付金额取决于收到申请时的办理进度。</li><li>开始办理之前：退还客户已付款项。</li><li>开始办理之后：已实际完成阶段的服务费，以及已为客户实际支付给主管机构或第三方的款项，均属应付；其余部分退还。</li><li>政府费用及支付给第三方的款项，仅在主管机构或第三方退还的范围内由 Business Partner 退还，并在收到后转交客户。</li><li>如因非客户原因导致我们无法提供服务，我们退还未履行部分。退款尽可能原路退回，具体到账时间取决于支付服务商或银行。</li><li>已交付的数字产品、订阅和行程在其类别条款中另有规定。以上内容不影响法律赋予客户且不可放弃的任何权利。</li></ol>
+    </div>
+    <div class="tm-gs" id="g-client">
+      <h3><span class="tm-n sv1-mono">08</span>客户义务</h3>
+      <ol class="tm-ol"><li>提供真实、完整、最新的信息和文件，拥有提供这些资料的权利（包括个人数据及其同意），并在变更时及时告知我们。资料不实的后果由客户承担。</li><li>配合并在合理时间内回复我们的询问；客户延迟期间办理时限相应中止，此情形不构成 Business Partner 违约。</li><li>自行履行其法定要求，包括许可证、保险、本地化用工、工资及各类周期性义务；如托管订阅包含对这些事项的跟进，则以该订阅范围为限。</li><li>不得将服务用于非法活动、洗钱或规避法规，并应要求披露受益所有人及资金来源。</li><li>尊重 Business Partner 员工，不得侮辱员工或损害公司声誉，投诉时应通过正当渠道。</li></ol>
+    </div>
+    <div class="tm-gs" id="g-delegation">
+      <h3><span class="tm-n sv1-mono">09</span>授权与访问主管机构账户</h3>
+      <ol class="tm-ol"><li>对客户在各主管机构的账户所作的操作，仅依据客户通过平台官方机制（如有）授予的授权，并严格限于书面约定的服务范围；客户可随时在该平台账户中撤销授权。</li><li>Business Partner 不会在网站官方渠道之外索取国家统一登录平台的个人密码或一次性验证码，客户也不应通过聊天或邮件发送这些信息。</li><li>客户仍对其账户、权限以及由本人或在我们处登记的授权代表发出的指令负责。Business Partner 不超出授权范围行事，也不接受未获授权者的指令。</li></ol>
+    </div>
+    <div class="tm-gs" id="g-timelines">
+      <h3><span class="tm-n sv1-mono">10</span>办理时限</h3>
+      <ol class="tm-ol"><li>所示时限为估计值，自付款和文件齐备后起算，不含主管机构办理时间及法定假日。</li><li>订单出现重要进展时，我们会通过客户账户或邮件告知。</li></ol>
+    </div>
+    <div class="tm-gs" id="g-liability">
+      <h3><span class="tm-n sv1-mono">11</span>责任限制</h3>
+      <ol class="tm-ol"><li>Business Partner 对因其违约或服务执行失误造成的、经证实的直接损失承担责任，且责任以客户就相关服务已付的服务费为限。</li><li>对间接损失、利润、商机或声誉损失，以及因客户自身行为或服务开始前已届满的法定期限而被主管机构处以的罚款，不承担责任。</li><li>对客户或主管机构通过其系统提供的不实信息或文件，以及政府平台、电信网络或外部服务商的故障，不承担责任。</li><li>上述限制不适用于欺诈或重大过失，也不适用于法律不允许限制责任的情形。</li></ol>
+    </div>
+    <div class="tm-gs" id="g-force">
+      <h3><span class="tm-n sv1-mono">12</span>不可抗力</h3>
+      <ol class="tm-ol"><li>因不可抗力或合理控制范围之外的情形（包括灾害、事故、疫情、主管机构决定、政府平台或通信中断及新出台的监管要求）造成的延误或无法履行，不承担责任。</li><li>我们会告知客户预计影响，办理时限相应中止；如情形持续过久导致履行已无意义，任何一方均可终止订单，对未履行部分适用退款规则。</li></ol>
+    </div>
+    <div class="tm-gs" id="g-data">
+      <h3><span class="tm-n sv1-mono">13</span>个人数据保护（PDPL）</h3>
+      <ol class="tm-ol"><li>我们依据沙特《个人数据保护法》（PDPL）及其实施细则，并按隐私页面发布的隐私政策处理个人数据。</li><li>我们仅收集履行服务、开具发票、沟通和遵守法律所必需的数据，并仅在履行所需范围内与主管机构及服务商（如支付、分期、邮件和托管）共享。</li><li>客户享有法律规定的权利，包括查阅和更正其数据、申请销毁数据以及在处理以同意为基础时撤回同意，可通过数据删除页面或联系渠道行使。销毁受法律要求我们保留的内容（如发票和记录）限制。</li><li>客户确认已取得其向我们提供个人数据的相关人员（如员工、合伙人和候选人）的同意，并依法有权提供。</li><li>我们采取合理的技术和组织措施保护数据，并在法律要求报告安全事件时通知主管机构及受影响者。部分数据可能由境外服务商处理，但须符合法律规定的数据跨境传输要求。</li></ol>
+    </div>
+    <div class="tm-gs" id="g-confidentiality">
+      <h3><span class="tm-n sv1-mono">14</span>保密与知识产权</h3>
+      <ol class="tm-ol"><li>我们对客户的信息和文件保密，仅向履行所需的主管机构和服务商披露，或依法律或主管机构决定披露。</li><li>网站的内容、设计、文字、标识、工具、模板和软件归 Business Partner 所有或经其获许可，未经书面许可不得复制、转售或反向工程。客户提供的文件、标识和商标仍归客户所有，我们仅在履行服务所需范围内使用。</li></ol>
+    </div>
+    <div class="tm-gs" id="g-ai">
+      <h3><span class="tm-n sv1-mono">15</span>智能顾问与自动化工具</h3>
+      <ol class="tm-ol"><li>网站提供“智能顾问”及自动化工具（计算器、生成器、代理）。其输出仅为一般性指引，可能含有错误或过时信息，不构成法律、税务或会计意见，也不构成承诺或报价。</li><li>智能顾问所述的价格、承诺或时限对 Business Partner 无约束力，以目录、书面报价单和合同为准。计算器和估算仅供参考，基于用户输入及发布时的规则。</li><li>客户应在向主管机构提交或据以决策之前，自行审核任何输出内容。</li></ol>
+    </div>
+    <div class="tm-gs" id="g-notices-law">
+      <h3><span class="tm-n sv1-mono">16</span>通知、投诉与适用法律</h3>
+      <ol class="tm-ol"><li>我们通过客户账户、邮箱和登记手机号（客户同意时包括 WhatsApp）与其联系，发送至这些渠道的通知视为已送达，客户应及时更新资料。我们仅在客户同意后发送营销信息，客户可随时停止接收。</li><li>投诉与意见：通过联系页面或客户账户提出，我们将在合理时间内答复。客户亦可依法向负责消费者保护的主管机构投诉。</li><li>争议首先友好协商解决；协商不成的，由沙特阿拉伯王国有管辖权的司法机关处理。本条款及每一订单受沙特法律管辖并据其解释。</li></ol>
+    </div>
+    <div class="tm-gs" id="g-misc">
+      <h3><span class="tm-n sv1-mono">17</span>修订、语言与最终条款</h3>
+      <ol class="tm-ol"><li>我们可能修订本条款；修订仅适用于发布后创建的订单，既有订单仍适用客户下单时接受的版本，除非客户接受新版本或法律另有要求。最近更新日期显示在页面顶部。</li><li>本条款以阿拉伯语、英语、法语和中文发布；如有差异，以阿拉伯语版本为准。</li><li>任何条款无效不影响其余条款在法律允许范围内继续有效；一方未主张某项权利不视为放弃该权利。</li></ol>
+    </div>
+        <p class="tm-also"><span></span><a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+
+    
+    <details class="tm-cat" id="cat-formation" open>
+      <summary><h2><span class="tm-n sv1-mono">01</span>公司设立与商业登记</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">沙特公司设立、商业登记、公司章程、名称预留、变更、转换与清算，以及在沙特商业中心办理的申报与备案。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (33)</summary>
+          <ul><li><span class="sv1-mono">BP-CHAMBER-01</span> Chamber of Commerce membership</li><li><span class="sv1-mono">BP-SBC-01</span> Saudi Company Formation</li><li><span class="sv1-mono">BP-SBC-02</span> New Commercial Registration Issuance</li><li><span class="sv1-mono">BP-SBC-03</span> AoA Issuance &amp; Notarization (new company)</li><li><span class="sv1-mono">BP-SBC-04</span> Commercial Registration Issuance</li><li><span class="sv1-mono">BP-SBC-05</span> Company Name Reservation</li><li><span class="sv1-mono">BP-SBC-06</span> Company Account on Absher Business</li><li><span class="sv1-mono">BP-SBC-07</span> Opening a Branch for an Existing Company</li><li><span class="sv1-mono">BP-SBC-08</span> Company Liquidation (CR cancellation &amp; closure)</li><li><span class="sv1-mono">BP-SBC-09</span> CR Cancellation Certificate Issuance</li><li><span class="sv1-mono">BP-SBC-10</span> Amending AoA / Partners' Resolutions</li><li><span class="sv1-mono">BP-SBC-11</span> Commercial Registration Amendment</li><li><span class="sv1-mono">BP-SBC-12</span> Trade Name Reservation</li><li><span class="sv1-mono">BP-SBC-13</span> Commercial Registration Cancellation</li><li><span class="sv1-mono">BP-SBC-14</span> Legal Form Transformation</li><li><span class="sv1-mono">BP-SBC-15</span> AoA Drafting &amp; Notarization Support</li><li><span class="sv1-mono">BP-SBC-16</span> Factory setup &amp; industrial licensing services</li><li><span class="sv1-mono">BP-SBC-17</span> Commercial Statement Request</li><li><span class="sv1-mono">BP-SBC-18</span> Converting an Establishment into a Company</li><li><span class="sv1-mono">BP-SBC-19</span> Commercial Registration Renewal</li><li><span class="sv1-mono">BP-SBC-20</span> Detailed CR Extract Issuance</li><li><span class="sv1-mono">CF-GEN</span> Company Formation — Bespoke Service</li><li><span class="sv1-mono">BP-SBC-21</span> Beneficial owner disclosure</li><li><span class="sv1-mono">BP-SBC-22</span> Annual commercial-register confirmation</li><li><span class="sv1-mono">BP-SBC-23</span> Transferring ownership of a commercial register</li><li><span class="sv1-mono">BP-SBC-24</span> Publishing general-assembly resolutions</li><li><span class="sv1-mono">BP-SBC-25</span> Merger or acquisition</li><li><span class="sv1-mono">BP-SBC-26</span> E-store documentation (e-commerce register)</li><li><span class="sv1-mono">BP-SBC-27</span> Registering a security interest</li><li><span class="sv1-mono">BP-SBC-28</span> Filing financial statements with the Ministry of Commerce</li><li><span class="sv1-mono">BP-SBC-29</span> Commercial register translation &amp; attestation</li><li><span class="sv1-mono">BP-SBC-30</span> Document attestation &amp; apostille via MOFA</li><li><span class="sv1-mono">BP-SBC-31</span> 新设个人独资企业：设立与注册</li></ul></details>
+        <ol class="tm-ol"><li>范围：按服务页面所述类型，向主管机构准备、提交并跟进电子申请。页面未列明的事项（如银行开户、行业许可）属于独立服务。</li><li>公司章程：我们根据客户提供的资料起草，最终文本由客户及其合伙人确认并对内容负责。起草不能替代客户可另行委托的专业法律审阅（见“专业服务”类别）。</li><li>签署、认证与备案：有权签署的人应亲自或通过合法代理人经认可渠道（电子方式或公证人面前）签署。未经有据可查的合法授权，Business Partner 不代任何人签署。</li><li>名称预留：名称是否可用及是否获准取决于主管机构规则，可能被拒绝；预留期限由主管机构规定。</li><li>变更、转换、合并、收购、清算和注销登记会产生法律和财务后果（如债务、天课、税款和劳动合同）。我们仅办理所委托的程序；执行前，客户及其合伙人应自行核实债务已清偿及决定妥当。</li><li>设立之后：周期性义务（如登记续期、年度确认、受益所有人披露和财务报表）仍由客户负责，除非客户明确委托我们或已包含在托管订阅内。</li><li>部分服务需要报价单：书面报价单确定最终范围、费用和有效期，如与目录参考价不一致，以已接受的报价单为准。范围之外的事项属于另行申请并另行报价的独立服务。</li><li>政府费用及主管机构收取的费用（包括服务费、许可费、认证费、官方翻译费和银行费用）不含在本服务的服务费内，由客户直接支付或经客户授权支付，并以收据或付款通知为凭。其金额由主管机构决定，付款前后均可能变动。</li><li>申请的受理、签发、续期或撤销，由主管机构依其规则和条件独自决定。Business Partner 的责任仅限于以通常的专业审慎态度准备、提交和跟进申请，不对结果或时限作任何承诺。</li><li>法律可能要求客户满足资格、活动范围、资本、本地化或其他条件。我们受理申请或收取服务费并不表示确认这些条件已满足；如不满足，对未履行部分适用通用条款中的退款规则。</li><li>客户须及时提供所需的真实、最新文件（如商业登记、身份证件、授权书和合同）；文件齐备前办理时限中止，不构成我方违约，文件不实的后果由客户承担。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-foreign" open>
+      <summary><h2><span class="tm-n sv1-mono">02</span>外商投资</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">外商投资许可、外国投资者公司与分支机构、地区总部、代表处，以及许可的续期、变更和注销。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (14)</summary>
+          <ul><li><span class="sv1-mono">BP-FI-01</span> Foreign Investor Company Formation</li><li><span class="sv1-mono">BP-FI-02</span> Foreign Investment License Issuance</li><li><span class="sv1-mono">BP-FI-03</span> 100%-owned foreign company formation (foreign branch)</li><li><span class="sv1-mono">BP-FI-04</span> Joint-Venture Company Formation</li><li><span class="sv1-mono">BP-FI-05</span> Entrepreneur-License Company Formation</li><li><span class="sv1-mono">BP-FI-06</span> Foreign Company Branch Registration</li><li><span class="sv1-mono">BP-FI-07</span> Foreign Investor Entry</li><li><span class="sv1-mono">FI-100</span> Foreign Investment Setup — 100% Foreign Owned Company</li><li><span class="sv1-mono">BP-FI-08</span> Regional Headquarters (RHQ) — qualification &amp; filing</li><li><span class="sv1-mono">BP-FI-09</span> Representative office for a foreign company</li><li><span class="sv1-mono">BP-FI-10</span> Investment licence renewal</li><li><span class="sv1-mono">BP-FI-11</span> Amending an investment licence</li><li><span class="sv1-mono">BP-FI-12</span> Cancelling an investment licence and closing the entity</li><li><span class="sv1-mono">BP-FI-13</span> Market-entry advisory: which investment licence fits</li></ul></details>
+        <ol class="tm-ol"><li>投资许可取决于主管机构的裁量及其条件（如行业、持股、资本等）。Business Partner 不保证其获批、办理时限或持续有效。</li><li>外国公司的文件通常需要认证和官方翻译，费用由客户承担并按主管机构规则办理，文件延误会导致服务延期。</li><li>获得许可后的义务（如定期报告、续期和持续性条件）由客户自行跟进，除非已包含在付费申请或托管订阅内。</li><li>地区总部、代表处等计划的条件和优惠由主管机构规定；我们不承诺任何特定优惠或豁免。</li><li>我们不是客户所在国的税务或法律顾问；沙特境外的税务和法律后果由客户及其顾问负责。</li><li>部分服务需要报价单：书面报价单确定最终范围、费用和有效期，如与目录参考价不一致，以已接受的报价单为准。范围之外的事项属于另行申请并另行报价的独立服务。</li><li>政府费用及主管机构收取的费用（包括服务费、许可费、认证费、官方翻译费和银行费用）不含在本服务的服务费内，由客户直接支付或经客户授权支付，并以收据或付款通知为凭。其金额由主管机构决定，付款前后均可能变动。</li><li>申请的受理、签发、续期或撤销，由主管机构依其规则和条件独自决定。Business Partner 的责任仅限于以通常的专业审慎态度准备、提交和跟进申请，不对结果或时限作任何承诺。</li><li>法律可能要求客户满足资格、活动范围、资本、本地化或其他条件。我们受理申请或收取服务费并不表示确认这些条件已满足；如不满足，对未履行部分适用通用条款中的退款规则。</li><li>客户须及时提供所需的真实、最新文件（如商业登记、身份证件、授权书和合同）；文件齐备前办理时限中止，不构成我方违约，文件不实的后果由客户承担。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-premium" open>
+      <summary><h2><span class="tm-n sv1-mono">03</span>高级居留</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">资格评估、路径选择和高级居留申请准备（投资者、创业者、房产所有者、人才、卓越能力、金融），以及添加家属。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (11)</summary>
+          <ul><li><span class="sv1-mono">BP-PR-01</span> Premium Residency service (procedures + application)</li><li><span class="sv1-mono">BP-PR-02</span> Premium Residency Consultation</li><li><span class="sv1-mono">PR-GEN</span> Premium Residency — Bespoke Service</li><li><span class="sv1-mono">BP-PR-03</span> Premium Residency eligibility &amp; route assessment</li><li><span class="sv1-mono">BP-PR-04</span> Premium Residency — Business Investor route</li><li><span class="sv1-mono">BP-PR-05</span> Premium Residency — Entrepreneur route</li><li><span class="sv1-mono">BP-PR-06</span> Premium Residency — Property Owner route</li><li><span class="sv1-mono">BP-PR-07</span> Premium Residency — Talent route</li><li><span class="sv1-mono">BP-PR-08</span> Premium Residency — Exceptional Competence route</li><li><span class="sv1-mono">BP-PR-09</span> Premium Residency — Financial route (permanent or annual)</li><li><span class="sv1-mono">BP-PR-10</span> Adding family members under Premium Residency</li></ul></details>
+        <ol class="tm-ol"><li>主管机构决定申请人是否符合资格、居留类别及其财务和文件条件。我们的评估仅供参考，既非决定，也不承诺获批。</li><li>申请人确认其资料属实且无不良记录；申请可能因主管机构不予披露的原因被拒。</li><li>本服务仅限于电子程序和协调，不包括在主管机构面前的代理，也不包括职业意义上的移民法律咨询。</li><li>添加家属：每位家属有各自的申请和条件，并取决于主管机构的决定。</li><li>政府费用及主管机构收取的费用（包括服务费、许可费、认证费、官方翻译费和银行费用）不含在本服务的服务费内，由客户直接支付或经客户授权支付，并以收据或付款通知为凭。其金额由主管机构决定，付款前后均可能变动。</li><li>申请的受理、签发、续期或撤销，由主管机构依其规则和条件独自决定。Business Partner 的责任仅限于以通常的专业审慎态度准备、提交和跟进申请，不对结果或时限作任何承诺。</li><li>法律可能要求客户满足资格、活动范围、资本、本地化或其他条件。我们受理申请或收取服务费并不表示确认这些条件已满足；如不满足，对未履行部分适用通用条款中的退款规则。</li><li>客户须及时提供所需的真实、最新文件（如商业登记、身份证件、授权书和合同）；文件齐备前办理时限中止，不构成我方违约，文件不实的后果由客户承担。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-gov" open>
+      <summary><h2><span class="tm-n sv1-mono">04</span>政府事务与电子平台</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">在 Qiwa、Muqeem、Mudad、Ajeer、Absher Business、Balady、社保（GOSI）、民防、知识产权和工业许可等平台办理的服务。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (74)</summary>
+          <ul><li><span class="sv1-mono">BP-ABSHER-01</span> Absher Business Setup</li><li><span class="sv1-mono">BP-BALADY-01</span> Municipal License Issuance</li><li><span class="sv1-mono">BP-BALADY-02</span> E-cleaning contract (municipal requirement)</li><li><span class="sv1-mono">BP-GOSI-01</span> GOSI Registration</li><li><span class="sv1-mono">BP-GOSI-02</span> Add a Saudi Employee in GOSI</li><li><span class="sv1-mono">BP-GOSI-03</span> GOSI Certificate Issuance</li><li><span class="sv1-mono">BP-GR-01</span> Contractor Classification Certificate</li><li><span class="sv1-mono">BP-MOD-01</span> Civil Defense Permit &amp; Safety Certificate</li><li><span class="sv1-mono">BP-MOD-02</span> Technical Safety Report</li><li><span class="sv1-mono">BP-MUDAD-01</span> Mudad WPS Setup</li><li><span class="sv1-mono">BP-MUQEEM-01</span> Exit &amp; Re-entry Visa Issuance</li><li><span class="sv1-mono">BP-QIWA-01</span> Qiwa Setup &amp; Onboarding</li><li><span class="sv1-mono">BP-QIWA-02</span> Employee Sponsorship Transfer</li><li><span class="sv1-mono">BP-QIWA-03</span> Employee Profession Change</li><li><span class="sv1-mono">BP-QIWA-04</span> Adding an Authorized Representative</li><li><span class="sv1-mono">BP-SAIP-01</span> New trademark registration</li><li><span class="sv1-mono">BP-SUBL-01</span> National Address Registration</li><li><span class="sv1-mono">BP-HR-01</span> Employee Health Certificate Issuance</li><li><span class="sv1-mono">BP-HR-02</span> Establishment File Opening at MHRSD</li><li><span class="sv1-mono">BP-MUDAD-02</span> Mudad Wage Protection File Upload</li><li><span class="sv1-mono">BP-MUDAD-03</span> Wage Protection System Notes Resolution</li><li><span class="sv1-mono">BP-MUQEEM-02</span> New Iqama Issuance</li><li><span class="sv1-mono">BP-MUQEEM-03</span> Iqama Renewal</li><li><span class="sv1-mono">BP-MUQEEM-04</span> Family Visit Visa Issuance</li><li><span class="sv1-mono">BP-PL-0019</span> Franchise Law compliance &amp; registration</li><li><span class="sv1-mono">BP-PL-0035</span> Muqeem Account Management</li><li><span class="sv1-mono">BP-PL-0050</span> VIP Transaction Processing</li><li><span class="sv1-mono">BP-PL-0088</span> Commercial Agency Registration</li><li><span class="sv1-mono">BP-PL-0089</span> Commercial Agency Registration Amendment</li><li><span class="sv1-mono">BP-PL-0090</span> Commercial Agency Registration Renewal</li><li><span class="sv1-mono">BP-PL-0091</span> Commercial Agency Registration Cancellation</li><li><span class="sv1-mono">BP-PL-0092</span> Discount License Issuance</li><li><span class="sv1-mono">BP-PL-0093</span> Precious Stones and Precious Metals Licenses</li><li><span class="sv1-mono">BP-PL-0076</span> Industrial License Issuance for Establishment</li><li><span class="sv1-mono">BP-PL-0077</span> Industrial License Renewal</li><li><span class="sv1-mono">BP-PL-0078</span> Industrial License Amendment</li><li><span class="sv1-mono">BP-PL-0079</span> Industrial License Ownership Transfer</li><li><span class="sv1-mono">BP-PL-0080</span> Labor Endorsement Request</li><li><span class="sv1-mono">BP-PL-0081</span> Customs Exemption for Materials, Machinery, and Spare Parts</li><li><span class="sv1-mono">BP-PL-0082</span> Certificate of Origin Issuance</li><li><span class="sv1-mono">BP-PL-0083</span> Chemical Clearance Request</li><li><span class="sv1-mono">BP-PL-0084</span> Customs Tariff Items Upgrade</li><li><span class="sv1-mono">BP-PL-0085</span> Mining Reconnaissance License</li><li><span class="sv1-mono">BP-PL-0086</span> Industrial Survey</li><li><span class="sv1-mono">BP-PL-0087</span> Security Consulting Permit</li><li><span class="sv1-mono">GOV-GEN</span> Government Transactions — Bespoke Service</li><li><span class="sv1-mono">GR-GEN</span> Government Relations Representative</li><li><span class="sv1-mono">HR-GEN</span> Human Resources — Bespoke Service</li><li><span class="sv1-mono">QW-EST</span> Qiwa Platform Task and Establishment File with the Ministry of Human Resources and Social Development</li><li><span class="sv1-mono">BP-REF-01</span> Government Fee Refund Application</li><li><span class="sv1-mono">BP-AJEER-01</span> Ajeer platform registration &amp; activation</li><li><span class="sv1-mono">BP-AJEER-02</span> Ajeer contracting permit (Taaqud)</li><li><span class="sv1-mono">BP-AJEER-03</span> Ajeer secondment permit (Iara)</li><li><span class="sv1-mono">BP-AJEER-04</span> Saudi assignment permit (Isnad)</li><li><span class="sv1-mono">BP-AJEER-05</span> Ajeer companions permit (education &amp; health)</li><li><span class="sv1-mono">BP-AJEER-06</span> Ajeer seasonal permits (Hajj &amp; Umrah)</li><li><span class="sv1-mono">BP-AJEER-07</span> Ajeer permit renewal or termination</li><li><span class="sv1-mono">BP-AJEER-08</span> Ajeer inter-establishment contract documentation</li><li><span class="sv1-mono">BP-AJEER-CS</span> Ajeer advisory: choosing the right permit</li><li><span class="sv1-mono">BP-HRSD-07</span> Correcting establishment data with the ministry</li><li><span class="sv1-mono">BP-HRSD-09</span> Work-regulation bylaw approval</li><li><span class="sv1-mono">BP-HRSD-11</span> Final exit request</li><li><span class="sv1-mono">BP-QIWA-05</span> Employment contract documentation on Qiwa</li><li><span class="sv1-mono">BP-QIWA-06</span> Issuing or renewing an expatriate work permit</li><li><span class="sv1-mono">BP-QIWA-07</span> Cancelling a work permit</li><li><span class="sv1-mono">BP-QIWA-08</span> Saudisation compliance certificate</li><li><span class="sv1-mono">BP-QIWA-09</span> Managing establishment branches on Qiwa</li><li><span class="sv1-mono">BP-FLEX-01</span> Flexible Work registration &amp; contract documentation</li><li><span class="sv1-mono">BP-REMOTE-01</span> Remote Work registration &amp; contract documentation</li><li><span class="sv1-mono">BP-TAQAT-01</span> Taqat registration &amp; employment-support programmes</li><li><span class="sv1-mono">BP-LABOR-01</span> Opening the establishment file on the Labour Sector portal</li><li><span class="sv1-mono">BP-SELF-01</span> Compliance self-assessment before inspection</li><li><span class="sv1-mono">BP-MOWA-01</span> Mowaamah certificate: an accessible workplace</li><li><span class="sv1-mono">BP-CSR-01</span> Social Responsibility registration &amp; initiative documentation</li></ul></details>
+        <ol class="tm-ol"><li>本服务为电子服务：仅限于相关政府平台通过企业账户提供的功能，不包括到主管机构现场办理（另有明确约定的除外），也不包括平台未提供或违反法律的事项。</li><li>主管机构会在不通知我们的情况下变更其服务和要求；如变更影响服务范围或费用，我们将在继续办理前告知客户。</li><li>办理事项（如转移服务、更换职业、取消许可证和注销）对劳动者及企业权利义务的影响由客户负责；客户审阅其影响后，我们依其书面指示办理。</li><li>因服务开始前已届满的法定期限或客户延误产生的罚款和迟延由客户承担；Business Partner 不承担服务开始前已发生或与其办理程序无关的违规，除非证明系我方在履行约定服务时的错误所致。</li><li>部分服务需要报价单：书面报价单确定最终范围、费用和有效期，如与目录参考价不一致，以已接受的报价单为准。范围之外的事项属于另行申请并另行报价的独立服务。</li><li>政府费用及主管机构收取的费用（包括服务费、许可费、认证费、官方翻译费和银行费用）不含在本服务的服务费内，由客户直接支付或经客户授权支付，并以收据或付款通知为凭。其金额由主管机构决定，付款前后均可能变动。</li><li>申请的受理、签发、续期或撤销，由主管机构依其规则和条件独自决定。Business Partner 的责任仅限于以通常的专业审慎态度准备、提交和跟进申请，不对结果或时限作任何承诺。</li><li>法律可能要求客户满足资格、活动范围、资本、本地化或其他条件。我们受理申请或收取服务费并不表示确认这些条件已满足；如不满足，对未履行部分适用通用条款中的退款规则。</li><li>客户须及时提供所需的真实、最新文件（如商业登记、身份证件、授权书和合同）；文件齐备前办理时限中止，不构成我方违约，文件不实的后果由客户承担。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-violations" open>
+      <summary><h2><span class="tm-n sv1-mono">05</span>违规、异议与和解</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">违规与申请审查、异议资格研判、材料准备、提交与跟进（人力资源主管部门及其平台）、企业和解与劳动争议。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (10)</summary>
+          <ul><li><span class="sv1-mono">BP-HRSD-01</span> Escalation on the ministry's platforms</li><li><span class="sv1-mono">BP-HRSD-02</span> Filing a complaint with the ministry</li><li><span class="sv1-mono">BP-HRSD-03</span> Filing a request with the ministry</li><li><span class="sv1-mono">BP-HRSD-04</span> Objection to a labour-law violation</li><li><span class="sv1-mono">BP-HRSD-05</span> Establishment owner settlement (labour violations)</li><li><span class="sv1-mono">BP-HRSD-06</span> Work-permit debt exemption or instalment</li><li><span class="sv1-mono">BP-HRSD-08</span> Lifting an establishment account freeze</li><li><span class="sv1-mono">BP-HRSD-10</span> Absence report and its cancellation</li><li><span class="sv1-mono">BP-HRSD-12</span> Labour dispute settlement — file and follow-up</li><li><span class="sv1-mono">BP-HRSD-CS</span> Beneficiary-portal advisory: complaint, request or escalation</li></ul></details>
+        <ol class="tm-ol"><li>服务阶段：审查违规或申请，研判异议资格，随后准备、提交和跟进。研判可能得出无法或不宜提出异议的结论，此时我们在提交前告知客户，并对未履行阶段适用退款规则。</li><li>我们不承诺违规会被撤销、减轻、免除或分期，也不承诺任何争议结果；决定权属于主管机构或司法、劳动裁决机构，服务费对应的是专业工作投入而非结果。</li><li>异议和申诉的期限由法律规定，依法自知悉或收到通知之日起算；客户应在知悉后立即告知我们。如申请和文件尚未齐备而期限已过，我们对逾期不承担责任。</li><li>违规罚款、核定金额、和解款和分期款应支付给相关机构，不含在我们的服务费内，我们也不会垫付。</li><li>在委员会和法院出庭代理及诉讼不属于本服务，须另行签订合同、办理合法委托并由持证律师承办（见“专业服务”）。</li><li>我们不提交不实陈述，也不隐瞒违规；客户确认所提供的事实和文件真实，如发现不实，我们有权拒绝提交。</li><li>政府费用及主管机构收取的费用（包括服务费、许可费、认证费、官方翻译费和银行费用）不含在本服务的服务费内，由客户直接支付或经客户授权支付，并以收据或付款通知为凭。其金额由主管机构决定，付款前后均可能变动。</li><li>客户须及时提供所需的真实、最新文件（如商业登记、身份证件、授权书和合同）；文件齐备前办理时限中止，不构成我方违约，文件不实的后果由客户承担。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-tax" open>
+      <summary><h2><span class="tm-n sv1-mono">06</span>天课与税务</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">增值税和天课登记、申报、主管机构证书及注销登记。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (5)</summary>
+          <ul><li><span class="sv1-mono">BP-ZATCA-01</span> VAT &amp; Zakat Registration</li><li><span class="sv1-mono">BP-ZATCA-02</span> VAT Number Issuance</li><li><span class="sv1-mono">BP-ZATCA-03</span> Annual Zakat Return Filing</li><li><span class="sv1-mono">BP-ZATCA-04</span> ZATCA VAT Registration</li><li><span class="sv1-mono">BP-ZATCA-05</span> VAT Return Filing</li></ul></details>
+        <ol class="tm-ol"><li>申报表依据客户提供的数据、账簿和文件编制并提交；客户确认其真实完整，并对申报内容及应纳税款负责。</li><li>增值税和天课登记受主管机构规则、登记门槛及业务范围限制，决定权属于主管机构。</li><li>应付主管机构的款项（税款、天课或滞纳金）由客户直接支付；因客户在法定期限后才提供文件而产生的滞纳金，我们不承担。</li><li>深入的税务/天课审查和会计审计不属于这些服务（见“专业服务”）。已提交的申报表仅在法律允许范围内并经新的申请才能更正。</li><li>客户须及时提供所需的真实、最新文件（如商业登记、身份证件、授权书和合同）；文件齐备前办理时限中止，不构成我方违约，文件不实的后果由客户承担。</li><li>申请的受理、签发、续期或撤销，由主管机构依其规则和条件独自决定。Business Partner 的责任仅限于以通常的专业审慎态度准备、提交和跟进申请，不对结果或时限作任何承诺。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-managed" open>
+      <summary><h2><span class="tm-n sv1-mono">07</span>托管服务与月度套餐</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">管理企业电子服务的套餐（小微、启动、成长、扩展、企业）及类似的月度托管服务。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (9)</summary>
+          <ul><li><span class="sv1-mono">BP-HR-03</span> HR &amp; Employee Management Services</li><li><span class="sv1-mono">BP-VENDOR-02</span> Vendor Follow-up</li><li><span class="sv1-mono">SBC-GEN</span> Shared Services — Bespoke Service</li><li><span class="sv1-mono">BP-AJEER-10</span> Ajeer permits management — monthly operation</li><li><span class="sv1-mono">BP-PKG-SVC-STARTER</span> Small Establishment Package</li><li><span class="sv1-mono">BP-PKG-LAUNCH</span> Launch 套餐</li><li><span class="sv1-mono">BP-PKG-GROWTH</span> Growth 套餐</li><li><span class="sv1-mono">BP-PKG-SCALE</span> Scale 套餐</li><li><span class="sv1-mono">BP-PKG-ENTERPRISE</span> Enterprise Package</li></ul></details>
+        <ol class="tm-ol"><li>范围：按套餐权益管理企业在政府平台上的电子服务，不包括到主管机构现场办理，客户需要时自行安排人员办理。</li><li>各机构的边界：托管仅限于企业账户中依法可用的电子服务；客户不得要求我们办理违法或平台未提供的事项。例如：人力资源部（企业账户中的电子服务）、商务部（登记续期、注销、变更及名称预留）、社会保险、税务和海关机构（申报与登记）、Absher Business 和 Muqeem、Balady（市政许可）、民防（Salamah）、医疗保险（保单签发与续期）。</li><li>工资保护：按套餐内容上传、核对文件并更正错误。咨询和附加服务（如页数有限的展示网站、社交媒体账号、限定人数的员工培训、内部规章以及每名员工每年一份劳动合同）仅限于套餐所述内容，超出部分需另行签订合同或另行收费。</li><li>“监测与提醒”是我们在套餐所涵盖平台上开展的预防性工作，不保证不发生违规或罚款，也不保证发现所有到期事项；合规责任仍由企业承担。违规、异议和诉讼不属于套餐，须作为独立服务另行申请。</li><li>企业套餐通过专属报价单定价，并载明其范围和期限。</li><li>月度订阅按期顺延，除非客户在已付费期间结束前通知 Business Partner 终止；终止自该期间届满时生效，已开始期间已付款项仅依通用条款退还。未经发票或客户同意的付款方式，我们不会对新的期间收费。</li><li>订阅价格可在续期或新增服务时调整，但须提前通知客户；收到通知后继续订阅即视为接受新价格，客户可在调整生效前终止订阅。</li><li>订阅设有使用量或申请量上限，以所订套餐所列为准；超出部分须另行收费，并事先协商一致。</li><li>政府费用及主管机构收取的费用（包括服务费、许可费、认证费、官方翻译费和银行费用）不含在本服务的服务费内，由客户直接支付或经客户授权支付，并以收据或付款通知为凭。其金额由主管机构决定，付款前后均可能变动。</li><li>申请的受理、签发、续期或撤销，由主管机构依其规则和条件独自决定。Business Partner 的责任仅限于以通常的专业审慎态度准备、提交和跟进申请，不对结果或时限作任何承诺。</li><li>客户须及时提供所需的真实、最新文件（如商业登记、身份证件、授权书和合同）；文件齐备前办理时限中止，不构成我方违约，文件不实的后果由客户承担。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-recruitment" open>
+      <summary><h2><span class="tm-n sv1-mono">08</span>招聘与用工引进</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">工作签证与海外引进、本地及批量招聘、高管猎聘以及候选人简历提供。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (7)</summary>
+          <ul><li><span class="sv1-mono">BP-REC-01</span> Recruitment Services &amp; Work Visa Issuance</li><li><span class="sv1-mono">BP-REC-02</span> Work Visa Issuance</li><li><span class="sv1-mono">BP-REC-04</span> Executive Search</li><li><span class="sv1-mono">BP-REC-05</span> Local Recruitment</li><li><span class="sv1-mono">BP-REC-06</span> Bulk Recruitment</li><li><span class="sv1-mono">REC-GEN</span> Recruitment and Manpower — Bespoke Service</li><li><span class="sv1-mono">CV-10</span> Candidate CV Sourcing</li></ul></details>
+        <ol class="tm-ol"><li>本服务包括签证和工作许可申请的协调、准备与提交以及招聘居间；签证和许可由主管机构签发，海外引进在法律要求时通过持牌机构办理。</li><li>我们不保证候选人被录用、获得签证、抵达、按时抵达、持续任职或通过体检；这些均取决于招聘法规和主管机构的决定。</li><li>按比例或按人头计收的费用，依报价单所列基数计算，并在其规定的触发事件发生时到期。除非报价单有规定，否则不存在替换或保证期。</li><li>雇主须遵守有关合同、工资、保险、住宿和本地化的法律；劳动关系直接存在于雇主与劳动者之间，由雇主负责，除非该服务属于“由我方合同聘用”（见该类别）。</li><li>候选人数据仅用于约定的招聘目的，不得复制、转交客户以外的人或用于营销；客户须依《个人数据保护法》对简历保密。</li><li>部分服务需要报价单：书面报价单确定最终范围、费用和有效期，如与目录参考价不一致，以已接受的报价单为准。范围之外的事项属于另行申请并另行报价的独立服务。</li><li>政府费用及主管机构收取的费用（包括服务费、许可费、认证费、官方翻译费和银行费用）不含在本服务的服务费内，由客户直接支付或经客户授权支付，并以收据或付款通知为凭。其金额由主管机构决定，付款前后均可能变动。</li><li>申请的受理、签发、续期或撤销，由主管机构依其规则和条件独自决定。Business Partner 的责任仅限于以通常的专业审慎态度准备、提交和跟进申请，不对结果或时限作任何承诺。</li><li>本服务依赖第三方（如银行、保险公司、支付和分期服务商、业主、承运商和招聘机构），其行为受各自条款和决定约束；对其过失，Business Partner 仅在自身法定责任范围内负责。</li><li>如报价单约定按比例或与成功挂钩的费用，仅依其中所列的计算基数、比例和触发事件计收。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-eor" open>
+      <summary><h2><span class="tm-n sv1-mono">09</span>由我方合同聘用（EOR）</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">通过持牌主体在 Business Partner 安排下聘用员工，由客户日常指挥其工作。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (1)</summary>
+          <ul><li><span class="sv1-mono">BP-REC-03</span> Staff on our contract (EOR)</li></ul></details>
+        <ol class="tm-ol"><li>在本服务中，劳动者的法定雇主为服务合同中载明的主体，客户则日常指挥和监督其工作。合同载明各方关系及各自界限。</li><li>费用在报价单中逐项列明，可能包括工资、社会保险、医疗保险、居留和工作许可、运营成本及佣金；客户承担各项的具体范围在报价单中说明。</li><li>客户须在合同和劳动法范围内指挥工作，不得安排违反劳动者合同、职业或法律的工作，须提供安全的工作环境，并在发生事故、争议或不再需要该员工时立即通知我们。</li><li>终止关系依劳动法、服务合同及其通知期办理；依法应付劳动者的款项（如服务终结奖金、休假和保险）由客户按报价单或合同的约定承担。</li><li>该安排对本地化比例及主管机构各类计划的影响，取决于其规则和决定；我们不保证该员工在任何计划中被计入客户名下。</li><li>部分服务需要报价单：书面报价单确定最终范围、费用和有效期，如与目录参考价不一致，以已接受的报价单为准。范围之外的事项属于另行申请并另行报价的独立服务。</li><li>政府费用及主管机构收取的费用（包括服务费、许可费、认证费、官方翻译费和银行费用）不含在本服务的服务费内，由客户直接支付或经客户授权支付，并以收据或付款通知为凭。其金额由主管机构决定，付款前后均可能变动。</li><li>申请的受理、签发、续期或撤销，由主管机构依其规则和条件独自决定。Business Partner 的责任仅限于以通常的专业审慎态度准备、提交和跟进申请，不对结果或时限作任何承诺。</li><li>客户须及时提供所需的真实、最新文件（如商业登记、身份证件、授权书和合同）；文件齐备前办理时限中止，不构成我方违约，文件不实的后果由客户承担。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-realestate" open>
+      <summary><h2><span class="tm-n sv1-mono">10</span>办公室、共享空间与房地产</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">独立办公室、共享办公、带国家地址的虚拟办公室、办公室寻找服务以及非沙特人购置房产。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (7)</summary>
+          <ul><li><span class="sv1-mono">BP-RE-01</span> Private Office</li><li><span class="sv1-mono">BP-RE-02</span> Coworking Space</li><li><span class="sv1-mono">BP-RE-03</span> Virtual Office with National Address</li><li><span class="sv1-mono">BP-RE-04</span> Dedicated Desk</li><li><span class="sv1-mono">BP-RE-05</span> Office Search Service</li><li><span class="sv1-mono">BP-RE-06</span> Foreign Property Ownership</li><li><span class="sv1-mono">RE-GEN</span> Real Estate — Bespoke Service</li></ul></details>
+        <ol class="tm-ol"><li>标有“起”的价格为参考下限；最终价格依地点、面积和期限而定，以报价单或合同为准。</li><li>租赁或使用合同按批准的格式或报价单订立，并在法律要求时通过官方平台登记。押金、费用及包含的服务以合同约定为准。</li><li>虚拟办公室与国家地址：仅提供地址和邮件服务，并不意味着占用实体场所；主管机构是否接受其用于登记和许可取决于其规则，且可能核查。</li><li>客户仅可将场所用于获批的业务，妥善使用并对其造成的损坏负责；场所所有人或运营方可制止违规使用。</li><li>办公室寻找服务属居间性质：我们不保证提供符合特定条件的办公室，最终合同由客户与业主按业主条件订立。非沙特人购置房产受相关法规及主管机构决定约束，不保证获批。</li><li>部分服务需要报价单：书面报价单确定最终范围、费用和有效期，如与目录参考价不一致，以已接受的报价单为准。范围之外的事项属于另行申请并另行报价的独立服务。</li><li>政府费用及主管机构收取的费用（包括服务费、许可费、认证费、官方翻译费和银行费用）不含在本服务的服务费内，由客户直接支付或经客户授权支付，并以收据或付款通知为凭。其金额由主管机构决定，付款前后均可能变动。</li><li>申请的受理、签发、续期或撤销，由主管机构依其规则和条件独自决定。Business Partner 的责任仅限于以通常的专业审慎态度准备、提交和跟进申请，不对结果或时限作任何承诺。</li><li>本服务依赖第三方（如银行、保险公司、支付和分期服务商、业主、承运商和招聘机构），其行为受各自条款和决定约束；对其过失，Business Partner 仅在自身法定责任范围内负责。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-housing" open>
+      <summary><h2><span class="tm-n sv1-mono">11</span>员工住宿与交通</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">为员工提供持牌集体住宿并接送至工作地点。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (2)</summary>
+          <ul><li><span class="sv1-mono">BP-HOUSING-01</span> Worker housing — licensed collective housing</li><li><span class="sv1-mono">BP-HOUSING-02</span> Worker transport — housing to work sites</li></ul></details>
+        <ol class="tm-ol"><li>住宿由持牌服务商按主管机构要求提供；报价单载明床位数、地点、期限及包含的服务。在服务商确认前，我们不保证床位或地点。</li><li>入住合同依报价单与住宿服务商或与我们订立，入住人员须遵守服务商制定的住宿规则。</li><li>客户须对其员工的行为、损坏和退宿负责，及时告知人数变化，并保证入住人员持有合法居留。</li><li>交通接送按报价单中的时刻表进行，路线和司机由持牌运输服务商负责；因交通或其他不可控原因造成的延误不产生赔偿。</li><li>住宿须符合卫生和安全要求，监管机构可检查并责令关闭，我们不对其决定负责。</li><li>部分服务需要报价单：书面报价单确定最终范围、费用和有效期，如与目录参考价不一致，以已接受的报价单为准。范围之外的事项属于另行申请并另行报价的独立服务。</li><li>申请的受理、签发、续期或撤销，由主管机构依其规则和条件独自决定。Business Partner 的责任仅限于以通常的专业审慎态度准备、提交和跟进申请，不对结果或时限作任何承诺。</li><li>本服务依赖第三方（如银行、保险公司、支付和分期服务商、业主、承运商和招聘机构），其行为受各自条款和决定约束；对其过失，Business Partner 仅在自身法定责任范围内负责。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-trips" open>
+      <summary><h2><span class="tm-n sv1-mono">12</span>旅行与旅游（Mahfol Makfol）</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">通过 Business Partner 展示和销售的 Mahfol Makfol 行程，以及以专属报价单提供的企业和投资者行程。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (55)</summary>
+          <ul><li><span class="sv1-mono">TR-GEN</span> Tourism — Bespoke Service</li><li><span class="sv1-mono">BP-TRIP-HISTORICAL-YANBU-ONE-DAY</span> Historical Yanbu One Day</li><li><span class="sv1-mono">BP-TRIP-HORSE-TRACK</span> Horse track</li><li><span class="sv1-mono">BP-TRIP-PARAGLIDING-YANBU-ONE-DAY</span> Paragliding Yanbu One Day</li><li><span class="sv1-mono">BP-TRIP-RIYADH-1-DAY-SAFARI-CAMPING</span> Riyadh 1 Day Safari &amp; Camping</li><li><span class="sv1-mono">BP-TRIP-HIKE-AND-BIKE</span> Hike and Bike</li><li><span class="sv1-mono">BP-TRIP-AL-BRAYED-ISLANDS-YANBU-ONE-DAY</span> Al Brayed Islands Yanbu One Day</li><li><span class="sv1-mono">BP-TRIP-BAYADAH-ISLANDS-2-HOURS</span> Bayadah Islands 2 Hours</li><li><span class="sv1-mono">BP-TRIP-FIFA-MOUNTAINS</span> Fifa Mountains</li><li><span class="sv1-mono">BP-TRIP-SHAQRA-USHAIQER</span> Shaqra &amp; Ushaiqer</li><li><span class="sv1-mono">BP-TRIP-JAZAN-ISLANDS</span> Jazan Islands</li><li><span class="sv1-mono">BP-TRIP-AL-TOUQI-HIKING-TOUR</span> Al Touqi Hiking Tour</li><li><span class="sv1-mono">BP-TRIP-RIYADH-FARM-EXPERIENCE-2</span> Riyadh Farm Experience 2</li><li><span class="sv1-mono">BP-TRIP-JEDDAH-FARM-EXPERIENCE</span> Jeddah Farm Experience</li><li><span class="sv1-mono">BP-TRIP-JEDDAH-CULTURAL-CENTER-MARINE-FACA</span> Jeddah Cultural Center &amp; Marine Facade</li><li><span class="sv1-mono">BP-TRIP-ANYONA-WRECKAGE-SHIP-YANBU</span> Anyona Wreckage Ship Yanbu</li><li><span class="sv1-mono">BP-TRIP-REJAL-ALMAA</span> Rejal Almaa</li><li><span class="sv1-mono">BP-TRIP-THE-GRAND-CANYON-AL-HABALA</span> The Grand Canyon Al Habala</li><li><span class="sv1-mono">BP-TRIP-HERITAGE-AND-CULTURE-OF-THE-KINGDO</span> Heritage and Culture of the Kingdom</li><li><span class="sv1-mono">BP-TRIP-ELEPHANT-ROCK-IN-ALULA</span> Elephant Rock in AlUla</li><li><span class="sv1-mono">BP-TRIP-EDGE-OF-THE-WORLD-TOUR-2</span> Edge of the World Tour 2</li><li><span class="sv1-mono">BP-TRIP-SAFARI-TOUR</span> Safari Tour</li><li><span class="sv1-mono">BP-TRIP-RIYADH-FARM-EXPERIENCE-1</span> Riyadh Farm Experience 1</li><li><span class="sv1-mono">BP-TRIP-BAYADAH-ISLANDS-4-HOURS</span> Bayadah Islands 4 Hours</li><li><span class="sv1-mono">BP-TRIP-OLD-TOWN-IN-ALULA</span> Old Town in AlUla</li><li><span class="sv1-mono">BP-TRIP-EID-AL-ADHA-TRIP</span> Eid Al Adha Trip</li><li><span class="sv1-mono">BP-TRIP-EID-AL-FITR-TRIP</span> Eid Al Fitr Trip</li><li><span class="sv1-mono">BP-TRIP-AL-GHARAMEEL-IN-ALULA</span> Al Gharameel in AlUla</li><li><span class="sv1-mono">BP-TRIP-KAEC-ONE-DAY</span> KAEC One Day</li><li><span class="sv1-mono">BP-TRIP-BAYADAH-ISLANDS-6-HOURS</span> Bayadah Islands 6 Hours</li><li><span class="sv1-mono">BP-TRIP-BAYADAH-ISLANDS-8-HOURS</span> Bayadah Islands 8 Hours</li><li><span class="sv1-mono">BP-TRIP-WADI-LAJAB</span> Wadi Lajab</li><li><span class="sv1-mono">BP-TRIP-FARASAN-ISLANDS-ONE-DAY</span> Farasan Islands One Day</li><li><span class="sv1-mono">BP-TRIP-AL-TOUQI-HIKING-PRIVATE</span> Al Touqi Hiking Private</li><li><span class="sv1-mono">BP-TRIP-EDGE-OF-THE-WORLD-PRIVATE</span> Edge of The World Private</li><li><span class="sv1-mono">BP-TRIP-SAFARI-TOUR-PRIVATE</span> Safari Tour Private</li><li><span class="sv1-mono">BP-TRIP-EDGE-OF-THE-WORLD-TOUR</span> Edge of the World Tour</li><li><span class="sv1-mono">BP-TRIP-TAIF-3-DAYS</span> Taif 3 Days</li><li><span class="sv1-mono">BP-TRIP-JAZAN-3-DAYS</span> Jazan 3 Days</li><li><span class="sv1-mono">BP-TRIP-ASSER-3-DAYS</span> Asser 3 Days</li><li><span class="sv1-mono">BP-TRIP-AL-AHSA-3-DAYS</span> Al Ahsa 3 Days</li><li><span class="sv1-mono">BP-TRIP-HAIL-3-DAYS</span> Hail 3 Days</li><li><span class="sv1-mono">BP-TRIP-FARASAN-ISLANDS-3-DAYS</span> Farasan Islands 3 Days</li><li><span class="sv1-mono">BP-TRIP-THE-NATURE-OF-NEOM-3-DAYS</span> The Nature of NEOM 3 Days</li><li><span class="sv1-mono">BP-TRIP-NEOM-3-DAYS</span> NEOM 3 Days</li><li><span class="sv1-mono">BP-TRIP-YANBU-3-DAYS</span> Yanbu 3 Days</li><li><span class="sv1-mono">BP-TRIP-KAEC-3-DAYS</span> KAEC 3 Days</li><li><span class="sv1-mono">BP-TRIP-ALULA-3-DAYS</span> AlUla 3 Days</li><li><span class="sv1-mono">BP-TRIP-JEDDAH-3-DAYS</span> Jeddah 3 Days</li><li><span class="sv1-mono">BP-TRIP-AL-BAHA-3-DAYS</span> Al Baha 3 Days</li><li><span class="sv1-mono">BP-TRIP-AL-TOUQI-HIKING-CAMPING-PRIVATE</span> Al Touqi Hiking &amp; Camping Private</li><li><span class="sv1-mono">BP-TRIP-EDGE-OF-THE-WORLD-PRIVATE-CAMPING</span> Edge of The World &amp; Private Camping</li><li><span class="sv1-mono">BP-TRIP-JEDDAH-5-DAYS</span> Jeddah 5 Days</li><li><span class="sv1-mono">BP-TRIP-DISCOVER-RED-SEA-BY-YACHT</span> Discover Red Sea by Yacht</li><li><span class="sv1-mono">BP-TRIP-DISCOVER-SAUDI-IN-10-DAYS</span> Discover Saudi in 10 Days</li></ul></details>
+        <ol class="tm-ol"><li>每个行程都有一个页面，说明行程安排、日期、出发地点以及价格包含和不包含的内容，该页面构成本条款的一部分。行程标价含增值税。</li><li>取消和变更依预订时行程页面所示的政策及供应商（酒店、交通、票务）的期限办理；供应商不予退还的款项无法退还。如我方取消行程或更改日期，客户可接受替代方案或取回该行程已付款项。</li><li>行程可能因安全、天气或主管机构决定而被调整、推迟或取消。参与者须听从领队指示，运营方可制止危及自身或他人安全者参加。</li><li>部分行程包含体力或高风险活动（如攀岩、滑翔伞和骑马）。参与者确认自身身体条件并如实告知必要信息；个人保险由参与者自行负责，除非行程页面注明已包含。</li><li>企业和投资者行程通过专属报价单定价和签约，报价单载明其行程安排和取消条件。</li><li>本服务依赖第三方（如银行、保险公司、支付和分期服务商、业主、承运商和招聘机构），其行为受各自条款和决定约束；对其过失，Business Partner 仅在自身法定责任范围内负责。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-farina" open>
+      <summary><h2><span class="tm-n sv1-mono">13</span>Farina（餐饮与接待）</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">通过 Farina 表单提交的餐饮和接待需求。</p>
+        <p class="tm-covp">涵盖的服务: <a href="/zh/farina">/farina</a> — 通过其专属页面申请，而非目录</p>
+        <ol class="tm-ol"><li>提交订单表单并不构成合同；订单经审核后以书面答复（报价或确认）确认，答复中载明品项、数量、日期和价格，自确认起产生约束。</li><li>最低订购量、提前下单时限和交付条件在确认中载明。</li><li>客户下单时须以书面形式说明食物过敏及特殊要求，未说明的情形我们不承担责任。食品制作与供应依法须符合卫生和市政部门的要求。</li><li>备餐开始前取消和修改不收费；开始后，已为该订单准备或采购的部分须计费，修改期限在确认中载明。</li><li>客户应在收货时检查订单并立即告知问题；交付后的妥善保存由客户负责。</li><li>本服务依赖第三方（如银行、保险公司、支付和分期服务商、业主、承运商和招聘机构），其行为受各自条款和决定约束；对其过失，Business Partner 仅在自身法定责任范围内负责。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-bizdev" open>
+      <summary><h2><span class="tm-n sv1-mono">14</span>业务拓展即服务</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">建立目标企业名单、外联、预约会议和跟进商机，采用月度套餐（REV-*），部分可包含对已回款收入的佣金。</p>
+        
+        <ol class="tm-ol"><li>本服务是销售和业务拓展方面的工作投入；Business Partner 不保证客户数量、收入、成交、会议或转化率。所展示的商机管道目标仅供规划，并非承诺。</li><li>如套餐约定佣金，则按套餐所列比例，对 Business Partner 创造并记录于客户关系管理系统（CRM）的商机实际回款收入计收。客户应如实披露成交情况并允许我们核验。</li><li>我们使用合法来源，遵守营销联络规则和《个人数据保护法》。本服务为“托管式”，不向客户出售原始个人数据名单。</li><li>客户对其产品和服务宣称的准确性以及所提供素材的权属负责；我们有权拒绝发送我们认为违法的内容。</li><li>如提供试用期，则于公布的期限届满时结束，未经客户付款或明确同意，不会转为付费订阅。</li><li>月度订阅按期顺延，除非客户在已付费期间结束前通知 Business Partner 终止；终止自该期间届满时生效，已开始期间已付款项仅依通用条款退还。未经发票或客户同意的付款方式，我们不会对新的期间收费。</li><li>订阅价格可在续期或新增服务时调整，但须提前通知客户；收到通知后继续订阅即视为接受新价格，客户可在调整生效前终止订阅。</li><li>如报价单约定按比例或与成功挂钩的费用，仅依其中所列的计算基数、比例和触发事件计收。</li><li>本服务依赖第三方（如银行、保险公司、支付和分期服务商、业主、承运商和招聘机构），其行为受各自条款和决定约束；对其过失，Business Partner 仅在自身法定责任范围内负责。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-digital" open>
+      <summary><h2><span class="tm-n sv1-mono">15</span>数字订阅与智能顾问</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">Business Partner AI 套餐、AI 代理（合规与智能员工）、雇主职位发布订阅、企业数据访问及更新订阅。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (11)</summary>
+          <ul><li><span class="sv1-mono">BP-AI-01</span> AI Business Partner Enterprise</li><li><span class="sv1-mono">BP-AI-02</span> AI Agent Setup</li><li><span class="sv1-mono">BP-SUB-01</span> Updates Subscription</li><li><span class="sv1-mono">BP-AI-03</span> Compliance &amp; obligations agent</li><li><span class="sv1-mono">BP-AI-SMART-EMPLOYEE</span> Specialist smart employee</li><li><span class="sv1-mono">BP-AI-04</span> Shared services team</li><li><span class="sv1-mono">AI-GEN</span> Artificial Intelligence Automation — Bespoke Service</li><li><span class="sv1-mono">BP-AIWS-IND</span> Business Partner AI — Individual</li><li><span class="sv1-mono">BP-AIWS-BUS</span> Business Partner AI — Business</li><li><span class="sv1-mono">BP-AIWS-BPLUS</span> Business Partner AI — Business Plus</li><li><span class="sv1-mono">BP-AIWS-ENT</span> Business Partner AI — Enterprise</li></ul></details>
+        <ol class="tm-ol"><li>数字订阅是在已付费期间授予订阅者或其企业的、不可转让的个人使用许可；不转移软件、模型或内容的所有权，账户不得在企业之外共享，输出内容不得转售。</li><li>智能输出由人工智能系统生成，可能含有错误或过时信息；仅为指引而非有约束力的专业意见，客户应在任何决策或向机构提交之前审核。人工专业复核可作为独立的专业服务另行获得。</li><li>合规代理与提醒：基于其可获得数据的参考性提醒；不保证发现所有违规或到期事项，也不保证避免罚款，合规责任仍由企业承担。</li><li>客户输入的数据（对话、文件、企业数据）依隐私政策用于运行订阅。客户不得输入不必要的敏感个人数据，并须对其上传第三方数据的权利负责。</li><li>我们力求持续提供服务，但不保证不会中断；可能因维护或安全原因暂停服务，部分功能依赖外部服务商。</li><li>雇主订阅（发布职位与查看候选人）：候选人数据仅用于招聘目的，不得复制、营销或用于发送骚扰信息。平台可在滥用时限制访问；我们不保证申请人的数量或质量，也不保证招聘结果。</li><li>企业数据访问：数据来自可获得的登记信息和供应商，我们不保证其完全准确或最新；使用须符合《个人数据保护法》且用于合法商业目的，不得用于违法的营销活动。</li><li>客户可通过账户或书面通知终止订阅；如违反条款、滥用或未付款，我们可暂停订阅，并尽可能在销毁前给予客户合理期限导出其数据。定制项目（如搭建代理或定制 AI 服务）以报价单签约。</li><li>月度订阅按期顺延，除非客户在已付费期间结束前通知 Business Partner 终止；终止自该期间届满时生效，已开始期间已付款项仅依通用条款退还。未经发票或客户同意的付款方式，我们不会对新的期间收费。</li><li>订阅价格可在续期或新增服务时调整，但须提前通知客户；收到通知后继续订阅即视为接受新价格，客户可在调整生效前终止订阅。</li><li>订阅设有使用量或申请量上限，以所订套餐所列为准；超出部分须另行收费，并事先协商一致。</li><li>部分服务需要报价单：书面报价单确定最终范围、费用和有效期，如与目录参考价不一致，以已接受的报价单为准。范围之外的事项属于另行申请并另行报价的独立服务。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-professional" open>
+      <summary><h2><span class="tm-n sv1-mono">16</span>专业服务（法律与会计）</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">法律咨询、文书起草与代理，以及会计和税务审查，法律对此要求专业执照。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (5)</summary>
+          <ul><li><span class="sv1-mono">BP-PL-0052</span> Internal Company Regulations (Governance)</li><li><span class="sv1-mono">BP-PL-0054</span> Corporate Legal Representation</li><li><span class="sv1-mono">BP-PL-0055</span> Corporate Law Consultation</li><li><span class="sv1-mono">BP-PL-0059</span> Financial Advisor (Accounting &amp; Bookkeeping)</li><li><span class="sv1-mono">BP-PL-0060</span> Audit &amp; Tax Review</li></ul></details>
+        <ol class="tm-ol"><li>法律服务由在沙特获执业许可的律师依合同或报价单约定的范围提供。使用网站或智能顾问不构成律师与客户关系，书面法律意见只能由持证并署名的专业人士出具。</li><li>在法院、委员会和仲裁中的代理，需要合法委托及另行签订的费用协议或指定律师对每个案件的明确接受，且在此之前不得开始。套餐中的案件数量是上限，并非必须接受任何案件的义务。</li><li>会计、记账和税务审查依赖客户提供的账簿和数据。法律要求由持证注册会计师承办的审计和鉴证工作，仅由该会计师出具。</li><li>我们依职业规则对客户信息保密，仅在法律或法院要求的范围内披露。如某项委托与我们所代理的其他客户的利益冲突，我们将谢绝并立即告知客户。</li><li>起草的合同和规章基于客户提供的资料，由各方确认最终文本；我们不保证第三方会接受，也不保证法院的解释。</li><li>部分服务需要报价单：书面报价单确定最终范围、费用和有效期，如与目录参考价不一致，以已接受的报价单为准。范围之外的事项属于另行申请并另行报价的独立服务。</li><li>法律要求专业执照的工作须通过持证专业人士完成，并在报价单或合同中注明承办人。网站内容和自动化工具不能替代其专业意见。</li><li>客户须及时提供所需的真实、最新文件（如商业登记、身份证件、授权书和合同）；文件齐备前办理时限中止，不构成我方违约，文件不实的后果由客户承担。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-advisory" open>
+      <summary><h2><span class="tm-n sv1-mono">17</span>咨询、研究与指南</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">运营和投资咨询、可行性研究与商业计划、诊断报告、指南、供应商资质办理与跟进以及并购居间。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (11)</summary>
+          <ul><li><span class="sv1-mono">BP-PL-0066</span> Pre-incorporation consultation</li><li><span class="sv1-mono">BP-PL-0053</span> Company Restructuring &amp; Organization</li><li><span class="sv1-mono">BP-PL-0056</span> General Business &amp; Investment Consultation</li><li><span class="sv1-mono">BP-PL-0057</span> Economic feasibility study preparation</li><li><span class="sv1-mono">BP-PL-0058</span> Business Plan &amp; Strategy Development</li><li><span class="sv1-mono">BP-DIAG-01</span> Diagnostic Report</li><li><span class="sv1-mono">BP-GUIDE-01</span> General Industry Guide</li><li><span class="sv1-mono">BP-GUIDE-02</span> Custom Guide</li><li><span class="sv1-mono">BP-VENDOR-01</span> Vendor Qualification</li><li><span class="sv1-mono">SUP-GEN</span> Support and Advisory — Bespoke Service</li><li><span class="sv1-mono">MA-BRK</span> Mergers and Acquisitions Brokerage</li></ul></details>
+        <ol class="tm-ol"><li>咨询意见是基于客户在编制时提供的信息及当时有效的规则和程序所作的参考性意见；规则会变化，除非另有约定或订阅更新服务，我们不会更新已交付的内容。</li><li>咨询、研究或计划不保证任何财务、商业或融资结果，也不保证被任何机构接受；预测和数字是基于所述假设的估算，投资决策由客户自行承担。</li><li>全额付款后，客户可将最终成果用于其内部目的。Business Partner 保留其方法论、模板和工具，未经其同意，不得将报告归于其名下或作为其认可的意见提供给第三方。</li><li>现成的指南和报告是以数字方式交付的知识产品；交付后，仅在存在重大缺陷时方可退款。</li><li>供应商资质办理与跟进：我们编制并向需求方跟进资质文件，是否通过由其决定；我们不保证资质通过、中标或业务量。</li><li>并购居间：我们在约定范围内撮合各方并参与谈判；不保证交易达成、价格或买家，交易受法规及监管机构约束。成功费（如有）以报价单为准。</li><li>部分服务需要报价单：书面报价单确定最终范围、费用和有效期，如与目录参考价不一致，以已接受的报价单为准。范围之外的事项属于另行申请并另行报价的独立服务。</li><li>如报价单约定按比例或与成功挂钩的费用，仅依其中所列的计算基数、比例和触发事件计收。</li><li>客户须及时提供所需的真实、最新文件（如商业登记、身份证件、授权书和合同）；文件齐备前办理时限中止，不构成我方违约，文件不实的后果由客户承担。</li><li>月度订阅按期顺延，除非客户在已付费期间结束前通知 Business Partner 终止；终止自该期间届满时生效，已开始期间已付款项仅依通用条款退还。未经发票或客户同意的付款方式，我们不会对新的期间收费。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-marketing" open>
+      <summary><h2><span class="tm-n sv1-mono">18</span>营销与公共关系</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">数字营销与广告、公共关系及企业传播。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (2)</summary>
+          <ul><li><span class="sv1-mono">BP-BS-01</span> Digital Marketing &amp; Advertising</li><li><span class="sv1-mono">BP-PL-0063</span> Public Relations &amp; Corporate Communications</li></ul></details>
+        <ol class="tm-ol"><li>我们不保证营销结果（销售、粉丝、搜索排名、媒体报道或互动），这些受我们无法控制的因素影响。</li><li>客户须对其要求推广内容的真实性、所提供素材（标识、图片、名称）的权属以及广告不违反广告和竞争法规负责；我们有权拒绝发布我们认为违法的内容。</li><li>平台账号以客户名义创建或为客户所有的账号，服务结束并结清应付款项后移交访问权限。</li><li>在第三方媒体上的发布取决于其编辑政策和决定，我们不保证一定发布。</li><li>部分服务需要报价单：书面报价单确定最终范围、费用和有效期，如与目录参考价不一致，以已接受的报价单为准。范围之外的事项属于另行申请并另行报价的独立服务。</li><li>广告预算及广告平台费用由客户直接支付，不含在服务费内。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-bank" open>
+      <summary><h2><span class="tm-n sv1-mono">19</span>企业银行开户</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">准备材料并与银行协调为企业开立银行账户。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (1)</summary>
+          <ul><li><span class="sv1-mono">BP-PL-0051</span> Corporate Bank Account Opening</li></ul></details>
+        <ol class="tm-ol"><li>账户是否开立、类型、限额和条件由银行依其政策和法律要求独自决定。我们的服务是准备材料、协调并预约；不保证开户成功、办理时长，也不保证银行不会要求补充文件。</li><li>银行可能要求授权人员亲自到场或签署；我们不代其签署银行协议，也不代表他们。</li><li>银行费用及任何最低存款由客户直接支付给银行。我们不会索取或保存您的网银登录信息、验证码或银行卡。</li><li>开户后，银行业务关系仅存在于客户与银行之间。</li><li>部分服务需要报价单：书面报价单确定最终范围、费用和有效期，如与目录参考价不一致，以已接受的报价单为准。范围之外的事项属于另行申请并另行报价的独立服务。</li><li>客户须及时提供所需的真实、最新文件（如商业登记、身份证件、授权书和合同）；文件齐备前办理时限中止，不构成我方违约，文件不实的后果由客户承担。</li><li>本服务依赖第三方（如银行、保险公司、支付和分期服务商、业主、承运商和招聘机构），其行为受各自条款和决定约束；对其过失，Business Partner 仅在自身法定责任范围内负责。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-pkgformation" open>
+      <summary><h2><span class="tm-n sv1-mono">20</span>设立套餐</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">以统一价格、限定范围设立沙特、海湾及外国公司的套餐。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (2)</summary>
+          <ul><li><span class="sv1-mono">BP-PKG-FORM-FOREIGN</span> 外商公司设立套餐</li><li><span class="sv1-mono">BP-PKG-FORM-SAUDI</span> 沙特与海湾国家公司设立套餐</li></ul></details>
+        <ol class="tm-ol"><li>本套餐适用“公司设立与商业登记”类别条款；外国公司套餐同时适用“外商投资”类别条款。</li><li>套餐是以统一价格提供、范围以其页面所列为准的一组服务；未列入的事项须另行申请。政府费用不含在套餐价格内。</li><li>套餐开始办理后被取消的，已完成的阶段按相应单项服务的收费计算，余款依通用条款退还。</li><li>套餐不保证主管机构受理申请，也不保证其中提到的登记、许可或签证的签发日期。</li><li>政府费用及主管机构收取的费用（包括服务费、许可费、认证费、官方翻译费和银行费用）不含在本服务的服务费内，由客户直接支付或经客户授权支付，并以收据或付款通知为凭。其金额由主管机构决定，付款前后均可能变动。</li><li>申请的受理、签发、续期或撤销，由主管机构依其规则和条件独自决定。Business Partner 的责任仅限于以通常的专业审慎态度准备、提交和跟进申请，不对结果或时限作任何承诺。</li><li>法律可能要求客户满足资格、活动范围、资本、本地化或其他条件。我们受理申请或收取服务费并不表示确认这些条件已满足；如不满足，对未履行部分适用通用条款中的退款规则。</li><li>客户须及时提供所需的真实、最新文件（如商业登记、身份证件、授权书和合同）；文件齐备前办理时限中止，不构成我方违约，文件不实的后果由客户承担。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+    <details class="tm-cat" id="cat-pkglegal" open>
+      <summary><h2><span class="tm-n sv1-mono">21</span>法律服务套餐</h2></summary>
+      <div class="tm-body">
+        <p class="tm-sum">按月订阅的法律咨询、合同起草及相关服务套餐（基础、进阶、综合、战略）。</p>
+        <details class="tm-cov"><summary>涵盖的服务 (4)</summary>
+          <ul><li><span class="sv1-mono">BP-PKG-LEGAL-BASIC</span> Basic 套餐</li><li><span class="sv1-mono">BP-PKG-LEGAL-ADV</span> Advanced 套餐</li><li><span class="sv1-mono">BP-PKG-LEGAL-COMP</span> Comprehensive 套餐</li><li><span class="sv1-mono">BP-PKG-LEGAL-STRAT</span> Strategic 套餐</li></ul></details>
+        <ol class="tm-ol"><li>本套餐适用“专业服务”类别条款。套餐说明列明咨询、合同、法律文书等的数量；超出该数量或范围的事项另行以合同或报价单约定。</li><li>套餐中提到的劳动案件代理，须办理合法委托并经指定律师对每个案件接受；所列数量为上限，并非必须接受任何案件的义务。诉讼费用及主管机构规定的费用不含在服务费内。</li><li>所述公证服务折扣仅适用于我们的服务费，不涵盖政府费用或公证人收费。</li><li>所述“监测与提醒”是预防性工作，不保证不发生违规或罚款；法定责任仍由客户承担。</li><li>月度订阅按期顺延，除非客户在已付费期间结束前通知 Business Partner 终止；终止自该期间届满时生效，已开始期间已付款项仅依通用条款退还。未经发票或客户同意的付款方式，我们不会对新的期间收费。</li><li>订阅价格可在续期或新增服务时调整，但须提前通知客户；收到通知后继续订阅即视为接受新价格，客户可在调整生效前终止订阅。</li><li>订阅设有使用量或申请量上限，以所订套餐所列为准；超出部分须另行收费，并事先协商一致。</li><li>法律要求专业执照的工作须通过持证专业人士完成，并在报价单或合同中注明承办人。网站内容和自动化工具不能替代其专业意见。</li><li>政府费用及主管机构收取的费用（包括服务费、许可费、认证费、官方翻译费和银行费用）不含在本服务的服务费内，由客户直接支付或经客户授权支付，并以收据或付款通知为凭。其金额由主管机构决定，付款前后均可能变动。</li></ol>
+        <p class="tm-also"><a href="#general">上述通用条款同样适用。</a> <a class="tm-top" href="#tm-index">→ 返回索引</a></p>
+      </div>
+    </details>
+
+    <div class="tm-end">
+      <h2>对条款有疑问？</h2>
+      <p>下单前先咨询顾问——解释条款不收费。</p>
+      <a class="sv1-btn primary" href="/zh/contact">联系我们</a>
+      <a class="sv1-btn" href="/zh/privacy">隐私政策</a>
+    </div>
   </div></section>
-  <section class="section"><div class="container" style="max-width:860px">
-    <div class="terms-section"><h2>First: Definitions</h2><dl class="terms-defs"><div><dt>&quot;Business Partner&quot; — the service provider</dt><dd>The Business Partner platform providing operational and advisory services to business establishments in Saudi Arabia.</dd></div><div><dt>&quot;Business Partner Packages&quot;</dt><dd>The service of managing establishments' electronic government-platform services — the service covers electronic services only, not in-person visits to government entities.</dd></div><div><dt>&quot;Subscriber&quot;</dt><dd>The beneficiary of Business Partner's package services.</dd></div><div><dt>&quot;Force Majeure&quot;</dt><dd>Causes beyond reasonable control, including but not limited to: fires, accidents, or new government requirements.</dd></div><div><dt>&quot;Launch Package&quot;</dt><dd>Covers Commercial Registration management, Qiwa platform registration &amp; follow-up, GOSI management, medical insurance management, and basic Zakat &amp; tax compliance.</dd></div><div><dt>&quot;Growth Package&quot;</dt><dd>Everything in Launch plus: employee affairs &amp; contracts management, wage management &amp; wage protection, periodic follow-up on regulatory obligations, and extended operational support.</dd></div><div><dt>&quot;Scale Package&quot;</dt><dd>Everything in Growth plus: advanced HR management, filings management &amp; comprehensive follow-up, periodic operational &amp; regulatory reports, and ongoing legal &amp; operational consultations.</dd></div><div><dt>&quot;Enterprise Package&quot;</dt><dd>Everything in Scale plus: a dedicated account manager, priority execution &amp; instant follow-up, custom solutions, and comprehensive proactive support. A custom package, priced after reviewing the establishment's needs.</dd></div></dl></div><div class="terms-section"><h2>Second: Subscription Category</h2><p>The subscriber must choose their subscription tier: Launch, Growth, Scale, or Enterprise Partnership, as detailed on the Business Partner packages page.</p></div><div class="terms-section"><h2>Third: Subscription Term</h2><p>The subscription is valid for one full Gregorian year from the date the subscription form is signed, and renews automatically unless the subscriber notifies Business Partner of their wish not to renew at least one month before the subscription end date, via the non-renewal form available on the site, or unless the subscription is terminated under Section Nine.</p></div><div class="terms-section"><h2>Fourth: Service Availability</h2><p>Business Partner makes its best effort to provide the service around the clock, including official holidays, and bears no liability if the service is unavailable for any reason.</p></div><div class="terms-section"><h2>Fifth: Subscriber Obligations</h2><ol class="terms-list"><li>The subscriber undertakes not to obstruct the service and to cooperate with Business Partner so the service reaches their establishment as quickly as possible; failing to cooperate entitles the provider to terminate the subscription.</li><li>The subscriber undertakes not to abuse Business Partner's staff or the company itself, and to follow proper channels for any complaints; breaching this obligates the subscriber to pay compensation for any resulting damage or loss per applicable Saudi regulations, and to bear any fines issued against them by the relevant authorities.</li><li>The subscriber bears full responsibility for requests made by the employee or representative authorized to deal with Business Partner as named in the subscription form.</li><li>The subscriber may not request the service be provided to any establishment other than the one named in the signed subscription form.</li><li>The subscriber may not claim compensation for service delays caused by technical faults or other causes beyond Business Partner's control.</li><li>The subscriber undertakes to provide Business Partner with all usernames and passwords for the establishment's government-entity accounts, and to notify the company immediately if they change.</li></ol></div><div class="terms-section"><h2>Sixth: Service Activation</h2><p>The service begins after the subscription fee is paid. Should the subscriber wish to change their package or add new services after signing the subscription form, this is accommodated provided the required documents are available and the difference for added services is paid.</p></div><div class="terms-section"><h2>Seventh: Service Cost</h2><p>The subscriber pays the subscription amount stated in the subscription form and bears no other amounts during the subscription term. This amount does not include any government fees or similar charges — it covers the service fee only.</p></div><div class="terms-section"><h2>Eighth: Dispute Resolution</h2><p>This subscription is governed by, executed and interpreted under the regulations in force in Saudi Arabia. Any dispute arising from this subscription that is not resolved amicably shall be settled in accordance with the regulations of the Kingdom of Saudi Arabia.</p></div><div class="terms-section"><h2>Ninth: General Provisions</h2><ol class="terms-list"><li>Business Partner bears no responsibility for problems arising from inaccurate or outdated information provided by the subscriber or by the relevant authorities via the establishment's system.</li><li>Business Partner bears no responsibility for violations issued against the establishment for any reason, and the subscriber may not hold it liable for them.</li><li>Business Partner bears no liability for any losses (direct or indirect) incurred by the subscriber arising from performance of this subscription.</li><li>Business Partner reserves the right to limit the use of the service by capping the services provided.</li><li>The subscriber agrees to release Business Partner from liability for errors by telecom providers or government-entity websites, such as connectivity failures.</li><li>The subscriber agrees that Business Partner has the right to dispose of or not produce original documents, and that copies provided by Business Partner bearing its logo and seal are considered valid evidence before the relevant authorities and courts.</li><li>Business Partner may terminate the subscription at will without restriction, or if the subscriber uses the system for purposes other than intended, breaches any of the service's terms, or if the relevant authorities request the service be stopped for the subscriber. Only in this case are amounts paid for the remaining subscription period refunded, without any further claim for compensation; the subscription also ends in the event of force majeure.</li><li>The subscriber may not request in-person visits to government or quasi-government entities, as the service is limited to managing electronic services; the subscriber is responsible for arranging any needed in-person visits.</li></ol></div><div class="terms-section"><h2>第十条：Business Partner 套餐专项条款</h2><ol class="terms-list"><li>All preceding terms from Section One through Section Nine apply to the Business Partner packages subscription service.</li><li>The provider may change the package subscription pricing upon renewal or when new services are added; the subscriber (or their representative) continuing the subscription after being notified of the change is considered acceptance of the new price and an undertaking to pay the resulting amounts and fees.</li><li>Management of Ministry of Human Resources services is limited to the electronic service available in the establishment's account per applicable regulations; the subscriber may not request Business Partner to carry out any non-regulatory transaction.</li><li>Management of Ministry of Commerce services is limited to the following electronic services only: CR renewal, CR cancellation, CR amendment, and trade name reservation.</li><li>Management of GOSI services is limited to the electronic service available in the establishment's account per applicable regulations; the subscriber may not request any transaction not available in that account.</li><li>Management of Zakat, Tax and Customs Authority services is limited to the following electronic services only: filing Zakat returns, filing tax returns, establishment registration, and de-registration.</li><li>Management of Ministry of Interior services is limited to the electronic service available via the Absher Business account or Muqeem service only; the subscriber may not request any transaction not available in those accounts.</li><li>Management of Balady services is limited to the following electronic services only: municipal license issuance, renewal, cancellation, and amendment.</li><li>Management of Civil Defense (Salamah) services is limited to the following electronic services only: submitting a Civil Defense license application and renewing the license.</li><li>Management of insurance-company services is limited to the following electronic services only: issuing employee medical-insurance policies and renewing them.</li><li>The wage-protection subscription service is limited to: uploading payroll files, auditing files, and correcting errors and violations — as covered by the subscriber's chosen package.</li><li>Where included in the package, consultation services are provided per the number and scope detailed for the subscriber's chosen package on the packages page.</li><li>Where included in the package, the burden-reduction service is limited to registering the subscriber's establishment in available government initiatives, or a general review of the establishment's status, assisting decision-makers with a report where possible.</li><li>Where included in the package, the website-design service is limited to building a basic informational site with a limited number of pages. A professional site or online store, if desired, is a separate contract outside this subscription.</li><li>Where included in the package, social-media marketing is limited to creating establishment accounts and linking them to its website; paid advertising fees on those platforms, if desired, are the subscriber's responsibility.</li><li>Where included in the package, employee qualification &amp; training is limited to a set number of employees per the package; increasing that number, if desired, incurs an additional fee on a separate invoice.</li><li>The internal-regulations preparation service is limited to the Ministry of Human Resources aspect; each employee's contract is prepared once per year, and the subscriber may not request contracts be redrafted more than once a year unless otherwise agreed.</li></ol></div>
-    <div class="callout" style="margin-top:20px"><span class="ico">💡</span><p>These terms are formatted for the paper/electronic subscription form signed between Business Partner and the subscriber. By using the site and completing any purchase, you acknowledge your agreement to them.</p></div>
-  </div></section>
-  <style>
-    .terms-section{margin-bottom:32px}
-    .terms-section h2{color:var(--navy);font-size:1.25rem;margin-bottom:14px}
-    .terms-defs{display:grid;gap:16px}
-    .terms-defs dt{font-weight:700;color:var(--navy);margin-bottom:4px}
-    .terms-defs dd{margin:0;color:var(--text);line-height:1.8}
-    .terms-list{padding-inline-start:22px;display:grid;gap:12px;color:var(--text);line-height:1.8}
-    .terms-list li::marker{color:var(--navy);font-weight:700}
-  </style></main><div class="sv1 sv1-chrome"><footer class="sv1-foot"><div class="wrap">
+  </main>
+<footer class="sv1-foot"><div class="wrap">
   <div class="sv1-foot-grid">
     <div class="sv1-foot-col">
       <b class="sv1-foot-brand">Business Partner</b>
@@ -320,7 +760,76 @@ fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type
   </div>
   <div class="sv1-foot-end">© 2026 Business Partner · 版权所有</div>
 </div></footer>
-<a class="sv1-wa-fab" href="https://wa.me/966530540231" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></div><script src="/assets/js/main.js?v=ed369abdab"></script><script src="/assets/js/live-prices.js?v=3b0920ab7a" defer></script><style>
+<a class="sv1-wa-fab" href="https://wa.me/966530540231" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M.057 24l1.687-6.163a11.867 11.867 0 0 1-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.82 11.82 0 0 1 8.413 3.488 11.82 11.82 0 0 1 3.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 0 1-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 0 0 1.51 5.26l-.999 3.648 3.477-.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.767.967-.94 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg></a></div><script>(function(){var b=document.getElementById('sv1Burger'),n=document.getElementById('sv1Nav');if(b&&n)b.onclick=function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false')};
+fetch('/api/simple?action=config').then(function(r){return r.json()}).then(function(c){if(c&&c.testMode){var d=document.createElement('div');d.className='sv1-ribbon';d.textContent=document.documentElement.getAttribute('data-sv1-test')||'TEST MODE';var w=document.querySelector('.sv1');if(w)w.insertBefore(d,w.firstChild)}}).catch(function(){});
+var $h=function(id){return document.getElementById(id)};(function(){var cb=$h('sv1CartBtn'),cn=$h('sv1CartN');if(!cb)return;function sync(){var n=0;try{var c=JSON.parse(localStorage.getItem('bp_cart'))||[];n=c.reduce(function(a,i){return a+(Number(i.qty)||1)},0)}catch(e){}if(cn)cn.textContent=String(n);cb.classList.toggle('sv1-hide',!n)}sync();addEventListener('storage',sync);addEventListener('pageshow',sync);addEventListener('bp:cart',sync);})();var outBtn=$h('sv1OutBtn');if(outBtn)outBtn.onclick=function(){outBtn.disabled=true;fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"logout"}'}).catch(function(){}).then(function(){try{localStorage.removeItem('bp_session')}catch(e){}location.href=document.documentElement.lang==='en'?'/':'/'+document.documentElement.lang+'/'})};
+/* الرسم الفوري جرى بعد «</header>» مباشرة (SV1_SESSION_JS)؛ هنا التصحيح. */
+fetch('/api/otp',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:'{"action":"me"}'})
+.then(function(r){return r.json().catch(function(){return{}})}).then(function(o){
+ var S=window.SV1S,u=o&&o.session&&o.session.user;
+ if(u){window.SV1_SESSION=o.session;if(S){S.save(u);S.paint(true,{name:u.full_name||'',email:u.email||''})}}
+ else if(S){S.clear();S.paint(false,null)}
+}).catch(function(){});
+})();</script><script>(function(){"use strict";
+if(navigator.webdriver)return;
+var vid="";try{vid=localStorage.getItem("bp_vid")||"";if(!vid){vid=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("bp_vid",vid)}}catch(e){}
+function send(p){p.action="hit";p.visitor=vid;try{var b=JSON.stringify(p);
+if(navigator.sendBeacon)navigator.sendBeacon("/api/requests",new Blob([b],{type:"application/json"}));
+else fetch("/api/requests",{method:"POST",headers:{"content-type":"application/json"},body:b,keepalive:true}).catch(function(){})}catch(e){}}
+var rh="";try{if(document.referrer){var u=new URL(document.referrer);if(u.host!==location.host)rh=u.host}}catch(e){}
+// وسوم UTM تسبق المُحيل: واتساب وتيك توك لا يرسلان Referer، فزياراتهما تظهر
+// «مباشرة» في اللوحة. الشكل utm:<source>/<medium>/<campaign>/<content>، والقصّ
+// إلى 120 حرفاً لأن عمود ref في api/requests.js يقصّه إلى 120.
+try{var q=new URLSearchParams(location.search);if(q.get("utm_source")){rh=("utm:"+[q.get("utm_source"),q.get("utm_medium"),q.get("utm_campaign"),q.get("utm_content")].map(function(v){return v||""}).join("/")).slice(0,120)}}catch(e){}
+send({kind:"view",path:location.pathname,ref:rh,lang:document.documentElement.lang||"",device:window.innerWidth<768?"mobile":"desktop"});
+// أزرار الموقع الجديد بأسمائها العربية كما تظهر في اللوحة، ومعها محدّدات
+// الموقع القديم حتى تُحسب الصفحتان بالمسمّى نفسه.
+document.addEventListener("click",function(e){
+ var t=e.target.closest&&e.target.closest("[data-track],.add-cart,#cartGo,#cart-checkout,#coPay,#co-submit,a[href*='wa.me'],a[href*='whatsapp'],.sv1-door,#sv1CartBtn,#sv1LoginBtn");
+ if(!t)return;
+ var n=t.getAttribute("data-track")||
+  (t.id==="cartGo"||t.id==="cart-checkout"?"إتمام الطلب":
+   t.id==="coPay"||t.id==="co-submit"?"إرسال الطلب":
+   t.id==="sv1CartBtn"?"فتح السلة":
+   t.id==="sv1LoginBtn"?"تسجيل الدخول":
+   t.classList&&t.classList.contains("sv1-door")?("باب: "+(t.getAttribute("data-door")||"")):
+   t.classList&&t.classList.contains("add-cart")?"أضف للسلة":"واتساب");
+ send({kind:"click",path:location.pathname,name:n})},true);
+var ec=0;addEventListener("error",function(ev){if(ec++>=3)return;
+ send({kind:"err",path:location.pathname,name:String(ev.message||"").slice(0,200),source:String((ev.filename||"")+":"+(ev.lineno||0)).slice(0,120)})});
+})();</script><script>(function(){
+var IDX={"s":[["BP-CHAMBER-01","Chamber of Commerce membership","عضوية الغرفة التجارية","formation"],["BP-PL-0066","Pre-incorporation consultation","استشارة ما قبل التأسيس","advisory"],["BP-SBC-01","Saudi Company Formation","تأسيس شركة سعودية","formation"],["BP-SBC-02","New Commercial Registration Issuance","إصدار سجل تجاري جديد","formation"],["BP-SBC-03","AoA Issuance & Notarization (new company)","إصدار عقد تأسيس وتوثيقه (لشركة جديدة)","formation"],["BP-SBC-04","Commercial Registration Issuance","إصدار سجل تجاري","formation"],["BP-SBC-05","Company Name Reservation","حجز اسم شركة","formation"],["BP-SBC-06","Company Account on Absher Business","فتح حساب شركة على منصة أبشر أعمال","formation"],["BP-SBC-07","Opening a Branch for an Existing Company","فتح فرع لشركة قائمة (محلية أو أجنبية)","formation"],["BP-SBC-08","Company Liquidation (CR cancellation & closure)","تصفية شركة (شطب السجل وإنهاء الكيان)","formation"],["BP-SBC-09","CR Cancellation Certificate Issuance","إصدار شهادة شطب سجل تجاري","formation"],["BP-SBC-10","Amending AoA / Partners' Resolutions","تعديل عقد تأسيس / قرارات شركاء","formation"],["BP-SBC-11","Commercial Registration Amendment","تعديل سجل تجاري","formation"],["BP-SBC-12","Trade Name Reservation","حجز اسم تجاري","formation"],["BP-SBC-13","Commercial Registration Cancellation","شطب سجل تجاري (إلغاء السجل)","formation"],["BP-SBC-14","Legal Form Transformation","تحويل الشكل القانوني للمنشأة","formation"],["BP-SBC-15","AoA Drafting & Notarization Support","صياغة عقد التأسيس ودعم التوثيق","formation"],["BP-SBC-16","Factory setup & industrial licensing services","خدمات تأسيس مصانع وإصدار تراخيص صناعية","formation"],["BP-SBC-17","Commercial Statement Request","طلب إفادة تجارية (خطاب من وزارة التجارة)","formation"],["BP-SBC-18","Converting an Establishment into a Company","تحويل مؤسسة إلى شركة (أو العكس)","formation"],["BP-SBC-19","Commercial Registration Renewal","تجديد سجل تجاري","formation"],["BP-SBC-20","Detailed CR Extract Issuance","استخراج مستخرج سجل تجاري تفصيلي","formation"],["BP-FI-01","Foreign Investor Company Formation","تأسيس شركة لمستثمر أجنبي","foreign"],["BP-FI-02","Foreign Investment License Issuance","استخراج ترخيص استثمار أجنبي (مستثمر أجنبي)","foreign"],["BP-FI-03","100%-owned foreign company formation (foreign branch)","تأسيس شركة أجنبية 100% ملكية (فرع أجنبي)","foreign"],["BP-FI-04","Joint-Venture Company Formation","تأسيس شركة بشراكة أجنبية (مشتركة)","foreign"],["BP-FI-05","Entrepreneur-License Company Formation","تأسيس شركة برخصة ريادة الأعمال (رائد أعمال)","foreign"],["BP-FI-06","Foreign Company Branch Registration","تسجيل فرع لشركة أجنبية","foreign"],["BP-PR-01","Premium Residency service (procedures + application)","خدمة الإقامة المميزة (إجراءات + تقديم)","premium"],["BP-PR-02","Premium Residency Consultation","استشارة الإقامة المميزة","premium"],["BP-ABSHER-01","Absher Business Setup","تفعيل أبشر أعمال","gov"],["BP-BALADY-01","Municipal License Issuance","إصدار رخصة بلدية (مقر تجاري)","gov"],["BP-BALADY-02","E-cleaning contract (municipal requirement)","عقد نظافة إلكتروني (متطلب بلدي)","gov"],["BP-GOSI-01","GOSI Registration","التسجيل في التأمينات الاجتماعية (GOSI)","gov"],["BP-GOSI-02","Add a Saudi Employee in GOSI","إضافة موظف سعودي في التأمينات","gov"],["BP-GOSI-03","GOSI Certificate Issuance","استخراج شهادة التأمينات الاجتماعية","gov"],["BP-GR-01","Contractor Classification Certificate","تصنيف المقاولين (شهادة تصنيف)","gov"],["BP-MOD-01","Civil Defense Permit & Safety Certificate","إصدار تصريح الدفاع المدني (شهادة سلامة)","gov"],["BP-MOD-02","Technical Safety Report","تقرير فني سلامة (متطلب الدفاع المدني)","gov"],["BP-MUDAD-01","Mudad WPS Setup","إعداد منصة مدد لنظام حماية الأجور","gov"],["BP-MUQEEM-01","Exit & Re-entry Visa Issuance","إصدار تأشيرة خروج وعودة","gov"],["BP-QIWA-01","Qiwa Setup & Onboarding","إعداد وتفعيل منصة قوى","gov"],["BP-QIWA-02","Employee Sponsorship Transfer","نقل كفالة عامل (نقل خدمة)","gov"],["BP-QIWA-03","Employee Profession Change","تغيير مهنة عامل","gov"],["BP-QIWA-04","Adding an Authorized Representative","إضافة مفوض لمنشأة","gov"],["BP-SAIP-01","New trademark registration","تسجيل علامة تجارية جديدة","gov"],["BP-SUBL-01","National Address Registration","التسجيل في العنوان الوطني","gov"],["BP-ZATCA-01","VAT & Zakat Registration","التسجيل في الزكاة والضريبة (VAT & Zakat)","tax"],["BP-ZATCA-02","VAT Number Issuance","استخراج رقم ضريبي (VAT)","tax"],["BP-ZATCA-03","Annual Zakat Return Filing","تقديم إقرار الزكاة السنوي","tax"],["BP-ZATCA-04","ZATCA VAT Registration","التسجيل في ضريبة القيمة المضافة (زاتكا)","tax"],["BP-ZATCA-05","VAT Return Filing","تقديم إقرار ضريبة قيمة مضافة","tax"],["BP-HR-01","Employee Health Certificate Issuance","إصدار شهادة صحية للموظفين","gov"],["BP-HR-02","Establishment File Opening at MHRSD","فتح ملف منشأة في وزارة الموارد البشرية","gov"],["BP-HR-03","HR & Employee Management Services","خدمات الموارد البشرية وإدارة الموظفين","managed"],["BP-MUDAD-02","Mudad Wage Protection File Upload","رفع ملف حماية الأجور (نظام مُدد)","gov"],["BP-MUDAD-03","Wage Protection System Notes Resolution","معالجة ملاحظات نظام حماية الأجور","gov"],["BP-MUQEEM-02","New Iqama Issuance","إصدار إقامة جديدة (لموظف أجنبي)","gov"],["BP-MUQEEM-03","Iqama Renewal","تجديد إقامة (هوية مقيم)","gov"],["BP-MUQEEM-04","Family Visit Visa Issuance","إصدار تأشيرة زيارة عائلية","gov"],["BP-REC-01","Recruitment Services & Work Visa Issuance","خدمات الاستقدام واستخراج تأشيرات العمل","recruitment"],["BP-REC-02","Work Visa Issuance","إصدار تأشيرة عمل (تأشيرة استقدام)","recruitment"],["BP-REC-03","Staff on our contract (EOR)","موظفون على بند التعاقد (EOR)","eor"],["BP-REC-04","Executive Search","الاستقطاب التنفيذي","recruitment"],["BP-REC-05","Local Recruitment","التوظيف المحلي","recruitment"],["BP-REC-06","Bulk Recruitment","التوظيف الجماعي","recruitment"],["BP-BS-01","Digital Marketing & Advertising","خدمات التسويق الرقمي والإعلان","marketing"],["BP-PL-0019","Franchise Law compliance & registration","الامتثال والقيد بنظام الامتياز التجاري (فرنشايز)","gov"],["BP-PL-0035","Muqeem Account Management","إدارة حساب مقيم (إضافة وتحديث البيانات)","gov"],["BP-PL-0050","VIP Transaction Processing","خدمة كبار الشخصيات (إنهاء المعاملات VIP)","gov"],["BP-PL-0051","Corporate Bank Account Opening","فتح حساب بنكي تجاري للشركة","bank"],["BP-PL-0052","Internal Company Regulations (Governance)","إعداد لوائح الشركة الداخلية (حوكمة)","professional"],["BP-PL-0053","Company Restructuring & Organization","هيكلة وتنظيم الشركة (إعادة هيكلة)","advisory"],["BP-PL-0054","Corporate Legal Representation","التمثيل القانوني للشركات (محاماة)","professional"],["BP-PL-0055","Corporate Law Consultation","استشارات قانونية لنظام الشركات","professional"],["BP-PL-0056","General Business & Investment Consultation","استشارات أعمال واستثمار عامة","advisory"],["BP-PL-0057","Economic feasibility study preparation","إعداد دراسة جدوى اقتصادية","advisory"],["BP-PL-0058","Business Plan & Strategy Development","إعداد خطة عمل وتطوير استراتيجيات","advisory"],["BP-PL-0059","Financial Advisor (Accounting & Bookkeeping)","خدمة المستشار المالي (محاسبة ودفاتر)","professional"],["BP-PL-0060","Audit & Tax Review","مراجعة حسابات وضريبة (تدقيق مالي)","professional"],["BP-PL-0063","Public Relations & Corporate Communications","خدمة العلاقات العامة والاتصال المؤسسي","marketing"],["BP-RE-01","Private Office","مكتب خاص (لعدد محدد من الأشخاص)","realestate"],["BP-RE-02","Coworking Space","مساحة عمل مشتركة (Coworking)","realestate"],["BP-RE-03","Virtual Office with National Address","مكتب افتراضي مع عنوان وطني","realestate"],["BP-RE-04","Dedicated Desk","مكتب ثابت في مساحة مشتركة (Dedicated Desk)","realestate"],["BP-RE-05","Office Search Service","خدمة البحث عن مكتب","realestate"],["BP-RE-06","Foreign Property Ownership","تملّك العقار للأجانب","realestate"],["BP-HOUSING-01","Worker housing — licensed collective housing","تسكين العمالة — سكن جماعي مرخّص","housing"],["BP-HOUSING-02","Worker transport — housing to work sites","نقل العمالة — من السكن إلى مواقع العمل","housing"],["BP-AI-01","AI Business Partner Enterprise","منظومة الأعمال بالذكاء الاصطناعي (Enterprise)","digital"],["BP-AI-02","AI Agent Setup","إعداد المستشار الذكي","digital"],["BP-FI-07","Foreign Investor Entry","دخول مستثمر أجنبي","foreign"],["BP-DIAG-01","Diagnostic Report","تقرير تشخيص","advisory"],["BP-GUIDE-01","General Industry Guide","دليل قطاعي عام","advisory"],["BP-GUIDE-02","Custom Guide","دليل مخصص","advisory"],["BP-PL-0088","Commercial Agency Registration","تسجيل قيد وكالة تجارية","gov"],["BP-PL-0089","Commercial Agency Registration Amendment","تعديل قيد وكالة تجارية","gov"],["BP-PL-0090","Commercial Agency Registration Renewal","تجديد قيد وكالة تجارية","gov"],["BP-PL-0091","Commercial Agency Registration Cancellation","شطب قيد وكالة تجارية","gov"],["BP-PL-0092","Discount License Issuance","تراخيص التخفيضات","gov"],["BP-PL-0093","Precious Stones and Precious Metals Licenses","تراخيص الأحجار الكريمة والمعادن الثمينة","gov"],["BP-PL-0076","Industrial License Issuance for Establishment","إصدار الترخيص الصناعي (تأسيس)","gov"],["BP-PL-0077","Industrial License Renewal","تجديد الترخيص الصناعي","gov"],["BP-PL-0078","Industrial License Amendment","تعديل الترخيص الصناعي","gov"],["BP-PL-0079","Industrial License Ownership Transfer","نقل ملكية الترخيص الصناعي","gov"],["BP-PL-0080","Labor Endorsement Request","طلب تأييد العمالة","gov"],["BP-PL-0081","Customs Exemption for Materials, Machinery, and Spare Parts","إعفاء جمركي (مواد/آلات/قطع غيار)","gov"],["BP-PL-0082","Certificate of Origin Issuance","إصدار شهادة المنشأ","gov"],["BP-PL-0083","Chemical Clearance Request","طلب الفسح الكيميائي","gov"],["BP-PL-0084","Customs Tariff Items Upgrade","ترقية البنود الجمركية","gov"],["BP-PL-0085","Mining Reconnaissance License","رخصة الاستطلاع (تعدين)","gov"],["BP-PL-0086","Industrial Survey","المسح الصناعي","gov"],["BP-PL-0087","Security Consulting Permit","تصريح الاستشارات الأمنية","gov"],["BP-SUB-01","Updates Subscription","اشتراك تحديثات","digital"],["BP-VENDOR-01","Vendor Qualification","تأهيل مورد","advisory"],["BP-VENDOR-02","Vendor Follow-up","متابعة مورد","managed"],["BP-AI-03","Compliance & obligations agent","مستشار الامتثال والالتزام","digital"],["BP-AI-SMART-EMPLOYEE","Specialist smart employee","الموظف الذكي المتخصص","digital"],["BP-AI-04","Shared services team","فريق الخدمات المشتركة","digital"],["AI-GEN","Artificial Intelligence Automation — Bespoke Service","الأتمتة بالذكاء الاصطناعي — خدمة حسب الطلب","digital"],["CF-GEN","Company Formation — Bespoke Service","تأسيس الشركات — خدمة حسب الطلب","formation"],["GOV-GEN","Government Transactions — Bespoke Service","المعاملات الحكومية — خدمة حسب الطلب","gov"],["GR-GEN","Government Relations Representative","مندوب العلاقات الحكومية","gov"],["HR-GEN","Human Resources — Bespoke Service","الموارد البشرية — خدمة حسب الطلب","gov"],["PR-GEN","Premium Residency — Bespoke Service","الإقامة المميزة — خدمة حسب الطلب","premium"],["RE-GEN","Real Estate — Bespoke Service","العقارات — خدمة حسب الطلب","realestate"],["REC-GEN","Recruitment and Manpower — Bespoke Service","التوظيف والاستقدام — خدمة حسب الطلب","recruitment"],["SBC-GEN","Shared Services — Bespoke Service","الخدمات المشتركة — خدمة حسب الطلب","managed"],["SUP-GEN","Support and Advisory — Bespoke Service","الدعم والاستشارات — خدمة حسب الطلب","advisory"],["TR-GEN","Tourism — Bespoke Service","السياحة — خدمة حسب الطلب","trips"],["CV-10","Candidate CV Sourcing","توفير سير ذاتية لمرشحين","recruitment"],["MA-BRK","Mergers and Acquisitions Brokerage","وساطة اندماج واستحواذ","advisory"],["FI-100","Foreign Investment Setup — 100% Foreign Owned Company","تأسيس كيان استثمار أجنبي — شركة مملوكة ⁦100%⁩ لمستثمر أجنبي","foreign"],["QW-EST","Qiwa Platform Task and Establishment File with the Ministry of Human Resources and Social Development","مهمة منصة قوى وفتح ملف المنشأة لدى وزارة الموارد البشرية والتنمية الاجتماعية","gov"],["BP-REF-01","Government Fee Refund Application","خدمة التقديم على استرداد الرسوم الحكومية","gov"],["BP-AJEER-01","Ajeer platform registration & activation","تسجيل المنشأة في منصة أجير وتفعيل الخدمة","gov"],["BP-AJEER-02","Ajeer contracting permit (Taaqud)","إصدار تصريح تعاقد أجير","gov"],["BP-AJEER-03","Ajeer secondment permit (Iara)","إصدار تصريح إعارة أجير بين منشأتين","gov"],["BP-AJEER-04","Saudi assignment permit (Isnad)","إصدار تصريح إسناد السعوديين","gov"],["BP-AJEER-05","Ajeer companions permit (education & health)","إصدار تصريح مرافقين أجير (التعليم والصحة)","gov"],["BP-AJEER-06","Ajeer seasonal permits (Hajj & Umrah)","إصدار تصاريح أجير المواسم (الحج والعمرة)","gov"],["BP-AJEER-07","Ajeer permit renewal or termination","تجديد تصريح أجير أو إنهاؤه","gov"],["BP-AJEER-08","Ajeer inter-establishment contract documentation","توثيق عقد أجير بين المنشأتين ومتابعته","gov"],["BP-AJEER-10","Ajeer permits management — monthly operation","إدارة تصاريح أجير — تشغيل شهري","managed"],["BP-AJEER-CS","Ajeer advisory: choosing the right permit","استشارة أجير: التصريح المناسب لحالتك","gov"],["BP-HRSD-01","Escalation on the ministry's platforms","التصعيد على منصات الوزارة (قوى وأجير ومدد ومساند)","violations"],["BP-HRSD-02","Filing a complaint with the ministry","تقديم شكوى لدى وزارة الموارد البشرية ومتابعتها","violations"],["BP-HRSD-03","Filing a request with the ministry","تقديم طلب لدى وزارة الموارد البشرية ومتابعته","violations"],["BP-HRSD-04","Objection to a labour-law violation","الاعتراض على مخالفة نظام العمل","violations"],["BP-HRSD-05","Establishment owner settlement (labour violations)","التسوية الخاصة بصاحب المنشأة (مخالفات نظام العمل)","violations"],["BP-HRSD-06","Work-permit debt exemption or instalment","إعفاء أو تقسيط مديونية رخص العمل والمقابل المالي","violations"],["BP-HRSD-07","Correcting establishment data with the ministry","تصحيح بيانات المنشأة لدى الوزارة","gov"],["BP-HRSD-08","Lifting an establishment account freeze","رفع تجميد حساب المنشأة ومعالجة الاشتباه","violations"],["BP-HRSD-09","Work-regulation bylaw approval","اعتماد لائحة تنظيم العمل","gov"],["BP-HRSD-10","Absence report and its cancellation","بلاغ التغيب وإلغاؤه","violations"],["BP-HRSD-11","Final exit request","طلب الخروج النهائي","gov"],["BP-HRSD-12","Labour dispute settlement — file and follow-up","تسوية خلاف عمالي — تجهيز الملف والمتابعة","violations"],["BP-HRSD-CS","Beneficiary-portal advisory: complaint, request or escalation","استشارة بوابة المستفيد: شكوى أم طلب أم تصعيد؟","violations"],["BP-QIWA-05","Employment contract documentation on Qiwa","توثيق عقد العمل في قوى","gov"],["BP-QIWA-06","Issuing or renewing an expatriate work permit","إصدار أو تجديد رخصة عمل للوافد","gov"],["BP-QIWA-07","Cancelling a work permit","إلغاء رخصة عمل","gov"],["BP-QIWA-08","Saudisation compliance certificate","إصدار شهادة الالتزام بالتوطين (السعودة)","gov"],["BP-QIWA-09","Managing establishment branches on Qiwa","إدارة فروع المنشأة في قوى","gov"],["BP-FLEX-01","Flexible Work registration & contract documentation","تسجيل المنشأة في العمل المرن وتوثيق عقوده","gov"],["BP-REMOTE-01","Remote Work registration & contract documentation","تسجيل المنشأة في العمل عن بُعد وتوثيق عقوده","gov"],["BP-TAQAT-01","Taqat registration & employment-support programmes","تسجيل المنشأة في طاقات والاستفادة من برامج دعم التوظيف","gov"],["BP-LABOR-01","Opening the establishment file on the Labour Sector portal","فتح ملف المنشأة في بوابة قطاع العمل","gov"],["BP-SELF-01","Compliance self-assessment before inspection","التقييم الذاتي للامتثال وتصحيح المخالفات قبل التفتيش","gov"],["BP-MOWA-01","Mowaamah certificate: an accessible workplace","شهادة مواءمة: تهيئة بيئة العمل لذوي الإعاقة","gov"],["BP-CSR-01","Social Responsibility registration & initiative documentation","تسجيل المنشأة في المسؤولية الاجتماعية وتوثيق مبادراتها","gov"],["BP-PR-03","Premium Residency eligibility & route assessment","تقييم أهلية الإقامة المميزة وتحديد مسارك","premium"],["BP-PR-04","Premium Residency — Business Investor route","الإقامة المميزة — مسار مستثمر الأعمال","premium"],["BP-PR-05","Premium Residency — Entrepreneur route","الإقامة المميزة — مسار رائد الأعمال","premium"],["BP-PR-06","Premium Residency — Property Owner route","الإقامة المميزة — مسار مالك العقار","premium"],["BP-PR-07","Premium Residency — Talent route","الإقامة المميزة — مسار الموهبة","premium"],["BP-PR-08","Premium Residency — Exceptional Competence route","الإقامة المميزة — مسار الكفاءة الاستثنائية","premium"],["BP-PR-09","Premium Residency — Financial route (permanent or annual)","الإقامة المميزة — المسار المالي (دائمة أو سنوية)","premium"],["BP-PR-10","Adding family members under Premium Residency","ضمّ أفراد الأسرة تحت الإقامة المميزة","premium"],["BP-SBC-21","Beneficial owner disclosure","الإبلاغ عن المستفيد الحقيقي","formation"],["BP-SBC-22","Annual commercial-register confirmation","التأكيد السنوي لبيانات السجل التجاري","formation"],["BP-SBC-23","Transferring ownership of a commercial register","نقل ملكية السجل التجاري","formation"],["BP-SBC-24","Publishing general-assembly resolutions","نشر قرارات الجمعية العامة","formation"],["BP-SBC-25","Merger or acquisition","اندماج شركتين أو استحواذ","formation"],["BP-SBC-26","E-store documentation (e-commerce register)","توثيق متجر إلكتروني (سجل التجارة الإلكترونية)","formation"],["BP-SBC-27","Registering a security interest","تسجيل ضمان في السجل العيني للحقوق","formation"],["BP-SBC-28","Filing financial statements with the Ministry of Commerce","إيداع القوائم المالية لدى وزارة التجارة","formation"],["BP-SBC-29","Commercial register translation & attestation","ترجمة السجل التجاري وتوثيقها","formation"],["BP-SBC-30","Document attestation & apostille via MOFA","تصديق المستندات وأبوستيل عبر الخارجية","formation"],["BP-SBC-31","新设个人独资企业：设立与注册","تأسيس / قيد مؤسسة فردية جديدة","formation"],["BP-FI-08","Regional Headquarters (RHQ) — qualification & filing","المقر الإقليمي RHQ — التأهيل والتقديم","foreign"],["BP-FI-09","Representative office for a foreign company","مكتب تمثيل لشركة أجنبية","foreign"],["BP-FI-10","Investment licence renewal","تجديد ترخيص الاستثمار","foreign"],["BP-FI-11","Amending an investment licence","تعديل ترخيص الاستثمار (نشاط أو ملكية أو كيان)","foreign"],["BP-FI-12","Cancelling an investment licence and closing the entity","إلغاء ترخيص الاستثمار وإنهاء الكيان","foreign"],["BP-FI-13","Market-entry advisory: which investment licence fits","استشارة دخول السوق: أي ترخيص استثمار يناسبك","foreign"],["BP-PKG-SVC-STARTER","Small Establishment Package","باقة المنشآت الصغيرة","managed"],["BP-PKG-LAUNCH","Launch 套餐","باقة الانطلاق","managed"],["BP-PKG-GROWTH","Growth 套餐","باقة النمو","managed"],["BP-PKG-SCALE","Scale 套餐","باقة التوسّع","managed"],["BP-PKG-ENTERPRISE","Enterprise Package","باقة الشراكة المؤسسية","managed"],["BP-PKG-FORM-FOREIGN","外商公司设立套餐","باقة تأسيس الشركات الأجنبية","pkgformation"],["BP-PKG-FORM-SAUDI","沙特与海湾国家公司设立套餐","باقة تأسيس الشركات السعودية والخليجية","pkgformation"],["BP-PKG-LEGAL-BASIC","Basic 套餐","الباقة الأساسية","pkglegal"],["BP-PKG-LEGAL-ADV","Advanced 套餐","الباقة المتقدمة","pkglegal"],["BP-PKG-LEGAL-COMP","Comprehensive 套餐","الباقة الشاملة","pkglegal"],["BP-PKG-LEGAL-STRAT","Strategic 套餐","الباقة الاستراتيجية","pkglegal"],["BP-TRIP-HISTORICAL-YANBU-ONE-DAY","Historical Yanbu One Day","ينبع التاريخية يوم واحد","trips"],["BP-TRIP-HORSE-TRACK","Horse track","تجربة مسار الخيل يوم واحد","trips"],["BP-TRIP-PARAGLIDING-YANBU-ONE-DAY","Paragliding Yanbu One Day","طيران شراعي في ينبع يوم واحد","trips"],["BP-TRIP-RIYADH-1-DAY-SAFARI-CAMPING","Riyadh 1 Day Safari & Camping","سفاري وتخييم يوم واحد","trips"],["BP-TRIP-HIKE-AND-BIKE","Hike and Bike","رحلة هايك وبايك يوم واحد","trips"],["BP-TRIP-AL-BRAYED-ISLANDS-YANBU-ONE-DAY","Al Brayed Islands Yanbu One Day","جزيرة البريدي في ينبع يوم واحد","trips"],["BP-TRIP-BAYADAH-ISLANDS-2-HOURS","Bayadah Islands 2 Hours","جزيرة بياضا ساعتان","trips"],["BP-TRIP-FIFA-MOUNTAINS","Fifa Mountains","جبال فيفا يوم واحد","trips"],["BP-TRIP-SHAQRA-USHAIQER","Shaqra & Ushaiqer","رحلة شقراء وأشيقر يوم واحد","trips"],["BP-TRIP-JAZAN-ISLANDS","Jazan Islands","جزر جازان يوم واحد","trips"],["BP-TRIP-AL-TOUQI-HIKING-TOUR","Al Touqi Hiking Tour","رحلة الهايك — الطوقي يوم واحد","trips"],["BP-TRIP-RIYADH-FARM-EXPERIENCE-2","Riyadh Farm Experience 2","تجربة ريف الرياض ٢ يوم واحد","trips"],["BP-TRIP-JEDDAH-FARM-EXPERIENCE","Jeddah Farm Experience","تجربة المزرعة في جدة يوم واحد","trips"],["BP-TRIP-JEDDAH-CULTURAL-CENTER-MARINE-FACA","Jeddah Cultural Center & Marine Facade","جدة الثقافية وواجهة جدة البحرية","trips"],["BP-TRIP-ANYONA-WRECKAGE-SHIP-YANBU","Anyona Wreckage Ship Yanbu","سفينة أيونة الغارقة في ينبع يوم واحد","trips"],["BP-TRIP-REJAL-ALMAA","Rejal Almaa","رجال ألمع يوم واحد","trips"],["BP-TRIP-THE-GRAND-CANYON-AL-HABALA","The Grand Canyon Al Habala","الوادي العميق — الحبلة يوم واحد","trips"],["BP-TRIP-HERITAGE-AND-CULTURE-OF-THE-KINGDO","Heritage and Culture of the Kingdom","رحلة تراث وثقافة المملكة يوم واحد","trips"],["BP-TRIP-ELEPHANT-ROCK-IN-ALULA","Elephant Rock in AlUla","جبل الفيل في العلا يوم واحد","trips"],["BP-TRIP-EDGE-OF-THE-WORLD-TOUR-2","Edge of the World Tour 2","رحلة حافة نهاية العالم ٢ يوم واحد","trips"],["BP-TRIP-SAFARI-TOUR","Safari Tour","جولة سفاري يوم واحد","trips"],["BP-TRIP-RIYADH-FARM-EXPERIENCE-1","Riyadh Farm Experience 1","تجربة ريف الرياض ١ يوم واحد","trips"],["BP-TRIP-BAYADAH-ISLANDS-4-HOURS","Bayadah Islands 4 Hours","جزيرة بياضا ٤ ساعات","trips"],["BP-TRIP-OLD-TOWN-IN-ALULA","Old Town in AlUla","المدينة القديمة في العلا يوم واحد","trips"],["BP-TRIP-EID-AL-ADHA-TRIP","Eid Al Adha Trip","رحلة عيد الأضحى","trips"],["BP-TRIP-EID-AL-FITR-TRIP","Eid Al Fitr Trip","رحلة عيد الفطر","trips"],["BP-TRIP-AL-GHARAMEEL-IN-ALULA","Al Gharameel in AlUla","الغراميل في العلا يوم واحد","trips"],["BP-TRIP-KAEC-ONE-DAY","KAEC One Day","مدينة الملك عبدالله الاقتصادية يوم واحد","trips"],["BP-TRIP-BAYADAH-ISLANDS-6-HOURS","Bayadah Islands 6 Hours","جزيرة بياضا ٦ ساعات","trips"],["BP-TRIP-BAYADAH-ISLANDS-8-HOURS","Bayadah Islands 8 Hours","جزيرة بياضا ٨ ساعات","trips"],["BP-TRIP-WADI-LAJAB","Wadi Lajab","وادي لجب يوم واحد","trips"],["BP-TRIP-FARASAN-ISLANDS-ONE-DAY","Farasan Islands One Day","جزر فرسان يوم واحد","trips"],["BP-TRIP-AL-TOUQI-HIKING-PRIVATE","Al Touqi Hiking Private","هايك جبال الطوقي — خاصة","trips"],["BP-TRIP-EDGE-OF-THE-WORLD-PRIVATE","Edge of The World Private","حافة نهاية العالم — خاصة","trips"],["BP-TRIP-SAFARI-TOUR-PRIVATE","Safari Tour Private","رحلة سفاري — خاصة","trips"],["BP-TRIP-EDGE-OF-THE-WORLD-TOUR","Edge of the World Tour","رحلة حافة نهاية العالم يوم واحد","trips"],["BP-TRIP-TAIF-3-DAYS","Taif 3 Days","الطائف ٣ أيام","trips"],["BP-TRIP-JAZAN-3-DAYS","Jazan 3 Days","جازان ٣ أيام","trips"],["BP-TRIP-ASSER-3-DAYS","Asser 3 Days","عسير ٣ أيام","trips"],["BP-TRIP-AL-AHSA-3-DAYS","Al Ahsa 3 Days","الأحساء ٣ أيام","trips"],["BP-TRIP-HAIL-3-DAYS","Hail 3 Days","حائل ٣ أيام","trips"],["BP-TRIP-FARASAN-ISLANDS-3-DAYS","Farasan Islands 3 Days","جزر فرسان ٣ أيام","trips"],["BP-TRIP-THE-NATURE-OF-NEOM-3-DAYS","The Nature of NEOM 3 Days","طبيعة نيوم ٣ أيام","trips"],["BP-TRIP-NEOM-3-DAYS","NEOM 3 Days","نيوم ٣ أيام","trips"],["BP-TRIP-YANBU-3-DAYS","Yanbu 3 Days","ينبع ٣ أيام","trips"],["BP-TRIP-KAEC-3-DAYS","KAEC 3 Days","مدينة الملك عبدالله الاقتصادية ٣ أيام","trips"],["BP-TRIP-ALULA-3-DAYS","AlUla 3 Days","العلا ٣ أيام","trips"],["BP-TRIP-JEDDAH-3-DAYS","Jeddah 3 Days","جدة ٣ أيام","trips"],["BP-TRIP-AL-BAHA-3-DAYS","Al Baha 3 Days","الباحة ٣ أيام","trips"],["BP-TRIP-AL-TOUQI-HIKING-CAMPING-PRIVATE","Al Touqi Hiking & Camping Private","هايك جبال الطوقي وتخييم — خاصة","trips"],["BP-TRIP-EDGE-OF-THE-WORLD-PRIVATE-CAMPING","Edge of The World & Private Camping","حافة نهاية العالم وتخييم — خاصة","trips"],["BP-TRIP-JEDDAH-5-DAYS","Jeddah 5 Days","جدة ٥ أيام","trips"],["BP-TRIP-DISCOVER-RED-SEA-BY-YACHT","Discover Red Sea by Yacht","استكشف البحر الأحمر باليخت","trips"],["BP-TRIP-DISCOVER-SAUDI-IN-10-DAYS","Discover Saudi in 10 Days","استكشف السعودية في ١٠ أيام","trips"],["BP-AIWS-IND","Business Partner AI — Individual","Business Partner AI — باقة فرد","digital"],["BP-AIWS-BUS","Business Partner AI — Business","Business Partner AI — باقة أعمال","digital"],["BP-AIWS-BPLUS","Business Partner AI — Business Plus","Business Partner AI — باقة أعمال بلس","digital"],["BP-AIWS-ENT","Business Partner AI — Enterprise","Business Partner AI — باقة مؤسسات","digital"]],"c":{"formation":"公司设立与商业登记","foreign":"外商投资","premium":"高级居留","gov":"政府事务与电子平台","violations":"违规、异议与和解","tax":"天课与税务","managed":"托管服务与月度套餐","recruitment":"招聘与用工引进","eor":"由我方合同聘用（EOR）","realestate":"办公室、共享空间与房地产","housing":"员工住宿与交通","trips":"旅行与旅游（Mahfol Makfol）","farina":"Farina（餐饮与接待）","bizdev":"业务拓展即服务","digital":"数字订阅与智能顾问","professional":"专业服务（法律与会计）","advisory":"咨询、研究与指南","marketing":"营销与公共关系","bank":"企业银行开户","pkgformation":"设立套餐","pkglegal":"法律服务套餐"}},TX={"noResult":"没有匹配项。请换一部分名称，或浏览下方类别——通用条款适用于所有服务。","open":"该类别条款","of":"条结果"};
+var q=document.getElementById('tmQ'),res=document.getElementById('tmRes'),empty=document.getElementById('tmEmpty');
+function norm(s){return String(s||'').toLowerCase().replace(/[\u064B-\u0652\u0640]/g,'').replace(/[\u0623\u0625\u0622]/g,'\u0627').replace(/\u0649/g,'\u064A').replace(/\u0629/g,'\u0647').replace(/[^\w\u0600-\u06FF\u3400-\u9FFF\u00C0-\u024F ]+/g,' ').replace(/\s+/g,' ').trim()}
+var N=IDX.s.map(function(r){return norm(r[0]+' '+r[1]+' '+r[2]+' '+IDX.c[r[3]])});
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function openFor(id){var d=document.getElementById(id);if(d&&d.tagName==='DETAILS')d.open=true}
+function openHash(){var h=location.hash.slice(1);if(h){openFor(h);var el=document.getElementById(h);if(el&&el.closest){var p=el.closest('details');if(p)p.open=true}}}
+addEventListener('hashchange',openHash);openHash();
+// بعد تحميل الخطوط يتغيّر ارتفاع الصفحة الطويلة فيفلت الهدف: أعد المحاذاة مرة واحدة ما لم يتحرك المستخدم.
+(function(){var moved=false;['wheel','touchstart','keydown','mousedown'].forEach(function(ev){addEventListener(ev,function(){moved=true},{once:true,passive:true})});
+function realign(){if(moved||!location.hash)return;var el=document.getElementById(location.hash.slice(1));if(el)el.scrollIntoView({block:'start'})}
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(realign);addEventListener('load',function(){setTimeout(realign,150)})})();
+function run(){
+  var v=norm(q.value);res.innerHTML='';empty.hidden=true;
+  if(v.length<2)return;
+  var parts=v.split(' '),out=[],i,j,ok;
+  for(i=0;i<N.length&&out.length<30;i++){ok=true;for(j=0;j<parts.length;j++){if(N[i].indexOf(parts[j])<0){ok=false;break}}if(ok)out.push(IDX.s[i])}
+  if(!out.length){
+    // لا خدمة بهذا الاسم: جرّب عناوين الفئات نفسها.
+    Object.keys(IDX.c).forEach(function(id){var n=norm(IDX.c[id]);var all=parts.every(function(p){return n.indexOf(p)>=0});if(all)out.push([ '',IDX.c[id],'',id])});
+  }
+  if(!out.length){empty.hidden=false;return}
+  res.innerHTML=out.slice(0,15).map(function(r){
+    return '<li><a href="#cat-'+esc(r[3])+'" data-cat="'+esc(r[3])+'">'+(r[0]?'<span class="sv1-mono">'+esc(r[0])+'</span>':'')+'<b>'+esc(r[1])+'</b><span class="c">'+esc(IDX.c[r[3]])+'</span></a></li>'
+  }).join('');
+}
+q.addEventListener('input',run);
+q.addEventListener('keydown',function(e){if(e.key==='Enter'){var a=res.querySelector('a');if(a){location.hash=a.getAttribute('href');openHash()}}});
+res.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a');if(a){openFor(a.getAttribute('href').slice(1))}});
+// رابط عميق: ?q=BP-SBC-01 يملأ البحث.
+try{var m=/[?&]q=([^&]+)/.exec(location.search);if(m){q.value=decodeURIComponent(m[1].replace(/\+/g,' '));run()}}catch(e){}
+})();</script><style>
 .bps-fab{position:fixed;inset-inline-end:18px;bottom:18px;z-index:2147483000;display:flex;align-items:center;gap:9px;padding:7px 16px 7px 7px;background:var(--ink,#0B1B5A);color:#fff;border:0;border-radius:999px;box-shadow:0 12px 30px rgba(11,27,90,.32);cursor:pointer;font-family:inherit;font-weight:700;font-size:.95rem}
 [dir=rtl] .bps-fab{padding:7px 7px 7px 16px}
 .bps-fab img{width:38px;height:38px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.85)}
