@@ -77,6 +77,40 @@ const P = {
   send: { ar: "إرسال", en: "Send", fr: "Envoyer", zh: "发送" },
   saveScope: { ar: "حفظ التعديلات", en: "Save changes", fr: "Enregistrer", zh: "保存修改" },
   confirmScope: { ar: "اعتمد النطاق وتابع", en: "Confirm scope & continue", fr: "Confirmer et continuer", zh: "确认范围并继续" },
+  // الخطوة التالية — شريط التوجيه أعلى صفحة الطلب (بند المالك 17، 2026-11-02)
+  nxStepScope: { ar: "النطاق", en: "Scope", fr: "Périmètre", zh: "范围" },
+  nxStepQuote: { ar: "العرض", en: "Quote", fr: "Devis", zh: "报价" },
+  nxStepSign: { ar: "الموافقة والتوقيع", en: "Approve & sign", fr: "Accord et signature", zh: "确认与签署" },
+  nxStepPay: { ar: "الدفع", en: "Payment", fr: "Paiement", zh: "付款" },
+  nxKicker: { ar: "الخطوة التالية", en: "Next step", fr: "Étape suivante", zh: "下一步" },
+  nxScopeT: { ar: "حدّد نطاق خدماتك ثم اطلب العرض", en: "Settle your scope, then request the quote", fr: "Validez votre périmètre puis demandez le devis", zh: "确认服务范围，然后申请报价" },
+  nxScopeB: { ar: "راجع البنود أدناه وأضف أو احذف ما يلزم، ثم اضغط «اعتمد النطاق وتابع» ليصلك عرض السعر.", en: "Review the items below, add or remove what you need, then press “Confirm scope & continue” to get your quotation.", fr: "Vérifiez les éléments ci-dessous puis appuyez sur « Confirmer et continuer » pour recevoir votre devis.", zh: "请检查下方条目，然后点击“确认范围并继续”获取报价。" },
+  nxScopeC: { ar: "راجع النطاق واعتمده", en: "Review & confirm scope", fr: "Vérifier le périmètre", zh: "检查并确认范围" },
+  nxPriceT: { ar: "جاري إعداد عرضك", en: "Your quotation is being prepared", fr: "Votre devis est en préparation", zh: "正在为您准备报价" },
+  nxPriceB: { ar: "اعتمدنا نطاقك، والفريق يسعّر البنود التي تحتاج تسعيراً بشرياً. سيظهر عرضك هنا تلقائياً ونرسل لك بريداً فور جاهزيته — لا حاجة لإعادة تحميل الصفحة.", en: "Your scope is confirmed and our team is pricing the lines that need a human decision. Your quotation will appear here automatically and we will email you the moment it is ready — no need to reload.", fr: "Votre périmètre est confirmé et l'équipe chiffre les lignes concernées. Votre devis apparaîtra ici automatiquement.", zh: "范围已确认，团队正在为需要人工报价的条目定价。报价将自动显示在此处，无需刷新页面。" },
+  nxPriceWait: { ar: "بنود تنتظر التسعير", en: "Lines awaiting pricing", fr: "Lignes en attente de chiffrage", zh: "等待定价的条目" },
+  nxLive: { ar: "يتحدّث تلقائياً", en: "Updates automatically", fr: "Mise à jour automatique", zh: "自动更新" },
+  nxChecked: { ar: "آخر فحص", en: "Last checked", fr: "Dernière vérification", zh: "上次检查" },
+  nxTalk: { ar: "اكتب للفريق", en: "Message the team", fr: "Écrire à l'équipe", zh: "联系团队" },
+  nxQuoteT: { ar: "عرضك جاهز — راجع ووقّع", en: "Your quotation is ready — review & sign", fr: "Votre devis est prêt — vérifiez et signez", zh: "报价已就绪 — 请查看并签署" },
+  nxQuoteB: { ar: "عرض السعر {n} بإجمالي {t} شامل ضريبة القيمة المضافة{v}. راجعه، ثم اعتمده لينتقل مباشرةً إلى العقد والتوقيع ثم الدفع.", en: "Quotation {n}, total {t} including VAT{v}. Review it, then approve it to move straight to the contract, signature and payment.", fr: "Devis {n}, total {t} TVA comprise{v}. Vérifiez-le puis approuvez-le pour passer au contrat, à la signature et au paiement.", zh: "报价 {n}，含增值税合计 {t}{v}。请查看并确认，随后进入合同、签署与付款。" },
+  nxValid: { ar: "، صالح حتى {d}", en: ", valid until {d}", fr: ", valable jusqu'au {d}", zh: "，有效期至 {d}" },
+  nxQuoteC: { ar: "مراجعة العرض", en: "Review the quotation", fr: "Voir le devis", zh: "查看报价" },
+  nxQuoteC2: { ar: "الموافقة على العرض", en: "Approve the quotation", fr: "Approuver le devis", zh: "确认报价" },
+  nxContractingT: { ar: "جاري إعداد عقدك", en: "Your contract is being prepared", fr: "Votre contrat est en préparation", zh: "正在准备您的合同" },
+  nxContractingB: { ar: "اعتمدت العرض. العقد يُبنى من بنوده نفسها ويظهر هنا خلال لحظات.", en: "You approved the quotation. The contract is built from the same lines and appears here in a moment.", fr: "Devis approuvé. Le contrat apparaît ici dans un instant.", zh: "您已确认报价，合同将在片刻后显示在此处。" },
+  nxContractT: { ar: "عقدك جاهز — راجع ووقّع", en: "Your contract is ready — review & sign", fr: "Votre contrat est prêt — signez", zh: "合同已就绪 — 请签署" },
+  nxContractB: { ar: "اقرأ العقد ثم وقّع بإصبعك أو الماوس. بعد التوقيع تنتقل مباشرة إلى الدفع.", en: "Read the contract, then sign with your finger or mouse. Payment follows straight after.", fr: "Lisez le contrat puis signez. Le paiement suit.", zh: "请阅读合同并签名，签署后直接进入付款。" },
+  nxContractC: { ar: "اذهب إلى العقد والتوقيع", en: "Go to contract & signature", fr: "Aller au contrat", zh: "前往合同签署" },
+  nxPayT: { ar: "وقّعت العقد — بقيت خطوة الدفع", en: "Signed — only payment remains", fr: "Signé — il reste le paiement", zh: "已签署 — 仅剩付款" },
+  nxPayB: { ar: "ادفع {t} إلكترونياً ليبدأ التنفيذ. تصدر فاتورتك الضريبية تلقائياً بعد الدفع.", en: "Pay {t} online and work begins. Your tax invoice is issued automatically once paid.", fr: "Payez {t} en ligne pour démarrer. La facture est émise automatiquement.", zh: "在线支付 {t} 即可开始执行，付款后自动开具税务发票。" },
+  nxPayC: { ar: "ادفع الآن", en: "Pay now", fr: "Payer maintenant", zh: "立即付款" },
+  nxPaidT: { ar: "تم الدفع — نبدأ التنفيذ", en: "Paid — we are starting", fr: "Payé — nous démarrons", zh: "已付款 — 开始执行" },
+  nxPaidB: { ar: "استلمنا دفعتك. تابع تقدّم الطلب من الخط الزمني أدناه، وفاتورتك في قسم الفواتير.", en: "We received your payment. Follow progress in the timeline below; your invoice is in Invoices.", fr: "Paiement reçu. Suivez l'avancement ci-dessous.", zh: "已收到付款，请在下方时间线查看进度。" },
+  nxDoneT: { ar: "اكتمل طلبك", en: "Your request is complete", fr: "Votre demande est terminée", zh: "您的请求已完成" },
+  nxRejT: { ar: "طلبت تعديل العرض — نجهّز نسخة جديدة", en: "You asked for changes — a new quotation is on its way", fr: "Modification demandée — nouveau devis en préparation", zh: "您已要求修改 — 正在准备新报价" },
+  nxRejB: { ar: "سيظهر العرض المعدّل هنا تلقائياً ونرسل لك بريداً.", en: "The revised quotation will appear here automatically and we will email you.", fr: "Le devis révisé apparaîtra ici automatiquement.", zh: "修改后的报价将自动显示在此处。" },
+  nxUpdated: { ar: "وصلك تحديث جديد على طلبك ✓", en: "Your request just moved to the next step ✓", fr: "Votre demande vient d'avancer ✓", zh: "您的请求已进入下一步 ✓" },
   scopePricing: { ar: "تم اعتماد النطاق ✓ — الفريق يجهّز عرض السعر ويصلك هنا وعلى بريدك.", en: "Scope confirmed ✓ — our team is preparing your quotation; it will appear here and in your inbox.", fr: "Périmètre confirmé ✓ — l'équipe prépare votre devis.", zh: "范围已确认 ✓ — 团队正在准备报价。" },
   docs: { ar: "المستندات المطلوبة", en: "Documents required", fr: "Documents requis", zh: "所需文件" },
   docsNote: { ar: "نطلب هذه المستندات لإتمام طلبك — ارفع كل مستند من زره هنا، ويصل الفريق مباشرة.", en: "We need these documents to complete your request — upload each one with its button and our team receives it right away.", fr: "Ces documents sont nécessaires pour traiter votre demande — téléversez chacun avec son bouton, l'équipe le reçoit aussitôt.", zh: "我们需要这些文件来完成您的申请 — 用对应按钮上传，团队会立即收到。" },
@@ -369,6 +403,33 @@ table.q tfoot td{font-weight:700}
 .tl li i.ai{background:#efe7ff}.tl li i.human{background:#e6f4ea}.tl li i.customer{background:#eef2ff}.tl li i.system{background:#fff3e6}
 .stat{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:.86rem;color:var(--mut);margin-bottom:12px}
 .stat b{color:var(--ink)}
+.nx{background:linear-gradient(135deg,#0B1B5A,#16307F);color:#fff;border-radius:16px;padding:18px 20px 16px;margin:0 0 16px;box-shadow:0 8px 24px rgba(11,27,90,.18)}
+.nx.ok{background:linear-gradient(135deg,#0f5132,#15803d)}
+.nx .stp{display:flex;align-items:center;gap:0;margin:0 0 14px;padding:0;list-style:none}
+.nx .stp li{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;font-size:.74rem;font-weight:700;color:rgba(255,255,255,.6);text-align:center}
+.nx .stp li:not(:last-child)::after{content:"";position:absolute;top:13px;inset-inline-start:calc(50% + 17px);width:calc(100% - 34px);height:2px;background:rgba(255,255,255,.25)}
+.nx .stp li.done:not(:last-child)::after{background:#facc15}
+.nx .stp i{font-style:normal;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.78rem;background:rgba(255,255,255,.18);color:#fff}
+.nx .stp li.done{color:#fde68a}.nx .stp li.done i{background:#facc15;color:#0B1B5A}
+.nx .stp li.on{color:#fff}.nx .stp li.on i{background:#fff;color:#0B1B5A;box-shadow:0 0 0 4px rgba(255,255,255,.25)}
+.nx .stp li.on.busy i{animation:nxp 1.4s ease-in-out infinite}
+@keyframes nxp{0%,100%{box-shadow:0 0 0 3px rgba(255,255,255,.2)}50%{box-shadow:0 0 0 8px rgba(255,255,255,.05)}}
+.nx .k{font-size:.72rem;font-weight:800;letter-spacing:.04em;color:#fde68a;margin:0 0 3px}
+.nx h2{margin:0 0 6px;font-size:1.18rem;line-height:1.4;color:#fff}
+.nx p{margin:0 0 12px;font-size:.9rem;line-height:1.75;color:rgba(255,255,255,.88)}
+.nx .acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.nx .nxb{appearance:none;border:0;border-radius:12px;padding:12px 22px;font:inherit;font-weight:800;font-size:.98rem;cursor:pointer;background:#facc15;color:#0B1B5A;box-shadow:0 4px 14px rgba(0,0,0,.22)}
+.nx .nxb:hover{background:#fde047}
+.nx .nxb.sec{background:rgba(255,255,255,.14);color:#fff;box-shadow:none;border:1px solid rgba(255,255,255,.4);font-weight:700}
+.nx .live{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:.78rem;color:rgba(255,255,255,.78);margin-top:2px}
+.nx .live i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4ade80;margin-inline-end:5px;animation:nxd 1.2s ease-in-out infinite}
+@keyframes nxd{0%,100%{opacity:1}50%{opacity:.25}}
+.nx .wl{margin:0 0 10px;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.1);font-size:.82rem;color:#fff}
+.nxflash{background:#ecfdf3;color:#166534;border:1px solid #86efac;border-radius:12px;padding:10px 14px;margin:0 0 12px;font-weight:700;font-size:.9rem}
+.hl{animation:hlp 1.8s ease-out 1}
+@keyframes hlp{0%{box-shadow:0 0 0 0 rgba(250,204,21,.9)}100%{box-shadow:0 0 0 18px rgba(250,204,21,0)}}
+@media(max-width:620px){.nx{padding:14px 14px 14px}.nx .stp li{font-size:.66rem}.nx .nxb{width:100%;text-align:center}.nx .acts{flex-direction:column;align-items:stretch}}
+@media(prefers-reduced-motion:reduce){.nx *,.hl{animation:none!important}}
 .contract-frame{display:block;width:100%;height:420px;border:1px solid var(--line);border-radius:12px;background:#fff}
 .doc-open{display:inline-flex;align-items:center;gap:6px;margin-top:10px}
 .docovl{position:fixed;inset:0;z-index:90;background:rgba(12,18,40,.55);display:flex;flex-direction:column}
@@ -446,7 +507,7 @@ function money(n){return (Math.round(Number(n||0)*100)/100).toLocaleString(LANG=
 function when(s){if(!s)return '';try{return new Date(s).toLocaleString(LANG==='ar'?'ar-SA-u-ca-gregory-nu-latn':LANG==='zh'?'zh-CN':LANG,{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Riyadh'})}catch(e){return s}}
 function pillClass(s){return ['QUOTE_SENT','CONTRACT_SENT','SIGNED','PAYMENT_PENDING','WAITING_CLIENT'].indexOf(s)>=0?'warn':['PAID','COMPLETED','QUOTE_APPROVED'].indexOf(s)>=0?'ok':s==='CANCELLED'?'bad':['IN_PROGRESS','WAITING_INTERNAL'].indexOf(s)>=0?'':'mut'}
 function pill(s){return h('span',{class:'pill '+pillClass(s)},[ST[s]||s])}
-function go(view,ref){state.view=view;state.ref=ref||null;var u=new URL(location.href);u.searchParams.set('view',view);if(ref)u.searchParams.set('ref',ref);else u.searchParams.delete('ref');history.replaceState(null,'',u.toString());render()}
+function go(view,ref){stopPoll();state.view=view;state.ref=ref||null;var u=new URL(location.href);u.searchParams.set('view',view);if(ref)u.searchParams.set('ref',ref);else u.searchParams.delete('ref');history.replaceState(null,'',u.toString());render()}
 // ---------- login
 function renderLogin(){app.innerHTML='';var email='',challenge='';var box=h('div',{class:'login'});var errEl=h('div',{class:'err'});
 var e1=h('input',{type:'email',placeholder:TX.email,autocomplete:'email'}),b1=h('button',{class:'btn',onclick:function(){email=e1.value.trim().toLowerCase();errEl.textContent='';b1.disabled=true;otp({action:'start',email:email}).then(function(o){b1.disabled=false;if(!o||!o.ok){errEl.textContent=(o&&o.message)||TX.loginErr;return}challenge=o.challenge;s1.hidden=true;s2.hidden=false;if(o.testLogin)e2.placeholder='TEST: 123456';e2.focus()}).catch(function(){b1.disabled=false;errEl.textContent=TX.loginErr})}},[TX.sendCode]);
@@ -921,25 +982,90 @@ function delivCard(r){
   var b=h('button',{class:'btn sm',onclick:function(){openFile(a,b)}},[TX.delivDl]);
   ul.appendChild(h('li',{},[h('span',{class:'ic'},['📦']),h('div',{},[h('b',{},[a.title||a.name]),h('small',{},[(a.note?a.note+' · ':'')+a.name+' · '+kb(a.size)+' · '+when(a.at)])]),b]))});
  c.appendChild(ul);return c}
+// ---------- الخطوة التالية + التتبّع التلقائي (بند المالك 17، 2026-11-02)
+// العميل بعد «اطلب العرض» لا يجد ما يدلّه: شريط واحد بأعلى الصفحة يقول أين هو
+// وما الخطوة التالية بزرٍّ واحد بارز، وما دام الطلب ينتظرنا (تسعير بشري، بناء
+// العقد، تأكيد الدفع) تسأل الصفحة الخادم بخفّة كل ثوانٍ عن حالته فقط
+// (request-status — بلا محادثة ولا خط زمني) وتُعيد الرسم حين تتغيّر.
+var POLL_FAST=8000,POLL_SLOW=30000,POLL_FAST_N=40,pollT=null,pollN=0,pollRef=null;
+function stopPoll(){if(pollT){clearTimeout(pollT);pollT=null}}
+function scrollToId(id,focus){setTimeout(function(){var e=document.getElementById(id);if(!e)return;if(e.scrollIntoView)e.scrollIntoView({behavior:'smooth',block:'center'});e.classList.remove('hl');void e.offsetWidth;e.classList.add('hl');if(focus&&e.focus)try{e.focus({preventScroll:true})}catch(x){}},60)}
+function pendingEv(r){var l=(r.events||[]).filter(function(e){return e.event==='quote.pending'});return l.length?l[l.length-1]:null}
+function nxStage(r){
+ if(!r||r.status==='CANCELLED')return null;
+ if(r.payment&&r.payment.source==='cart')return null;
+ var s=r.status;
+ if(s==='COMPLETED')return 'done';
+ if(['PAID','IN_PROGRESS','WAITING_INTERNAL'].indexOf(s)>=0)return 'paid';
+ if(s==='SIGNED'||s==='PAYMENT_PENDING')return r.quote?'pay':null;
+ if(s==='CONTRACT_SENT')return 'contract';
+ if(s==='QUOTE_APPROVED')return 'contracting';
+ if(s==='QUOTE_SENT')return r.quote?'quote':null;
+ if(r.quote&&r.quote.status==='REJECTED')return 'rejected';
+ if(['NEW','REVIEWING','WAITING_CLIENT'].indexOf(s)>=0){if(!r.quote&&pendingEv(r))return 'pricing';return (r.scope&&r.scope.length)?'scope':null}
+ return null}
+function sigOf(o){o=o||{};return [o.status,o.quote&&o.quote.number,o.quote&&o.quote.status,o.contract&&o.contract.status,o.payment&&o.payment.status,o.invoice&&o.invoice.number].join('|')}
+function stamp(){var e=document.getElementById('sv1Chk');if(e)e.textContent=TX.nxChecked+' '+new Date().toLocaleTimeString(LANG==='ar'?'ar-SA-u-nu-latn':LANG==='zh'?'zh-CN':LANG,{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
+function schedulePoll(hd,box){stopPoll();var r=state.req,st=nxStage(r);if(!st||['pricing','contracting','rejected','pay'].indexOf(st)<0)return;
+ var ref=r.ref;if(pollRef!==ref){pollRef=ref;pollN=0}pollN++;
+ pollT=setTimeout(function(){pollT=null;
+  if(state.view!=='request'||state.ref!==ref)return;
+  if(document.hidden){schedulePoll(hd,box);return}
+  api('request-status',{ref:ref}).then(function(o){
+   if(state.view!=='request'||state.ref!==ref)return;
+   stamp();
+   if(o&&o.ok&&sigOf(o)!==sigOf(state.req)){
+    api('request-get',{ref:ref}).then(function(g){
+     if(state.view!=='request'||state.ref!==ref)return;
+     if(g&&g.ok){var typing=document.activeElement&&/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);state.req=g.request;state.nxFlash=true;refreshMe();drawRequest(hd,box);if(!typing)scrollToId('sv1Next')}else schedulePoll(hd,box)}).catch(function(){schedulePoll(hd,box)})
+   }else schedulePoll(hd,box)}).catch(function(){schedulePoll(hd,box)})
+ },pollN>POLL_FAST_N?POLL_SLOW:POLL_FAST)}
+function nextBanner(r,c){
+ var st=nxStage(r);if(!st)return null;
+ var idx={scope:0,pricing:1,quote:1,rejected:1,contracting:2,contract:2,pay:3,paid:4,done:4}[st];
+ var busy=st==='pricing'||st==='contracting'||st==='rejected';
+ var names=[TX.nxStepScope,TX.nxStepQuote,TX.nxStepSign,TX.nxStepPay];
+ var stp=h('ol',{class:'stp'},names.map(function(n,i){var cls=i<idx?'done':i===idx?('on'+(busy?' busy':'')):'';return h('li',{class:cls},[h('i',{},[i<idx?'✓':String(i+1)]),n])}));
+ var money_=r.quote?money(r.quote.total):'';
+ var T,B,acts=[],extra=[],ok=false;
+ function btn(label,fn,sec){return h('button',{class:'nxb'+(sec?' sec':''),onclick:fn},[label])}
+ if(st==='scope'){T=TX.nxScopeT;B=TX.nxScopeB;acts.push(btn(TX.nxScopeC,function(){scrollToId('sv1Scope')}))}
+ else if(st==='pricing'){T=TX.nxPriceT;B=TX.nxPriceB;var pe=pendingEv(r),un=pe&&pe.details&&pe.details.unpriced;if(un&&un.length)extra.push(h('div',{class:'wl'},[TX.nxPriceWait+': '+un.join(' · ')]));acts.push(btn(TX.nxTalk,function(){scrollToId('sv1Msg',true)},true))}
+ else if(st==='rejected'){T=TX.nxRejT;B=TX.nxRejB;acts.push(btn(TX.nxTalk,function(){scrollToId('sv1Msg',true)},true))}
+ else if(st==='quote'){T=TX.nxQuoteT;var v=r.quote.valid_until?TX.nxValid.replace('{d}',r.quote.valid_until):'';B=TX.nxQuoteB.replace('{n}',r.quote.number).replace('{t}',money_).replace('{v}',v);
+  acts.push(btn(TX.nxQuoteC,function(){docOverlay(TX.quote+' '+r.quote.number,function(){return api('quote-view',{ref:r.ref}).then(function(o){return o&&o.ok?o.html:''})})}));
+  acts.push(btn(TX.nxQuoteC2,c.approve,true))}
+ else if(st==='contracting'){T=TX.nxContractingT;B=TX.nxContractingB}
+ else if(st==='contract'){T=TX.nxContractT;B=TX.nxContractB;acts.push(btn(TX.nxContractC,function(){scrollToId('sv1Contract')}))}
+ else if(st==='pay'){T=TX.nxPayT;B=TX.nxPayB.replace('{t}',money_);acts.push(btn(TX.nxPayC,function(){scrollToId('sv1Pay')}))}
+ else if(st==='paid'){T=TX.nxPaidT;B=TX.nxPaidB;ok=true}
+ else{T=TX.nxDoneT;B='';ok=true}
+ var kids=[stp,h('div',{class:'k'},[TX.nxKicker]),h('h2',{},[T])];
+ if(B)kids.push(h('p',{},[B]));
+ extra.forEach(function(e){kids.push(e)});
+ if(acts.length)kids.push(h('div',{class:'acts'},acts));
+ if(busy||st==='pay')kids.push(h('div',{class:'live'},[h('span',{},[h('i'),TX.nxLive]),h('span',{id:'sv1Chk'},[])]));
+ return h('section',{class:'nx'+(ok?' ok':''),id:'sv1Next','aria-live':'polite'},kids)}
 // ---------- request detail
 function viewRequest(m){m.appendChild(h('a',{class:'btn ghost sm',onclick:function(){go('requests')}},['← '+TX.back]));var hd=h('h1',{style:'margin-top:10px'},['…']);m.appendChild(hd);var box=h('div');m.appendChild(box);
 api('request-get',{ref:state.ref}).then(function(o){if(!o||!o.ok){box.appendChild(h('p',{class:'err'},[TX.error]));return}state.req=o.request;state.testMode=!!o.testMode;drawRequest(hd,box)})}
 function drawRequest(hd,box){var r=state.req;hd.textContent=r.title;box.innerHTML='';
 box.appendChild(h('div',{class:'stat'},[h('span',{},[TX.ref+': ',h('b',{},[r.ref])]),h('span',{},[TX.status+': ',pill(r.status)]),h('span',{},[(TY[r.type]||r.type)]),(r.payment&&r.payment.source==='cart'?h('span',{class:'pill mut'},[TX.direct]):null),h('span',{},[when(r.created_at)])]));
-var left=h('div'),right=h('div');box.appendChild(h('div',{class:'grid2'},[left,right]));
+var left=h('div'),right=h('div');var grid=h('div',{class:'grid2'},[left,right]);box.appendChild(grid);
+function approveQuote(ev){var bt=ev&&ev.currentTarget;if(bt)bt.disabled=true;api('quote-approve',{ref:r.ref}).then(function(o){if(bt)bt.disabled=false;if(o&&o.ok){r.status=o.status;r.quote=o.quote;if(o.contract)r.contract=o.contract;refreshMe();drawRequest(hd,box);scrollToId('sv1Contract')}})}
 // conversation
 var msgs=h('div',{class:'msgs'},(r.conversation||[]).map(function(mm){return h('div',{class:'m '+mm.role},[stripScope(mm.content),h('small',{},[(mm.role==='user'?TX.you:mm.role==='bp'?TX.team:TX.assistant)+' · '+when(mm.at)])])}));
-var inp=h('input',{placeholder:TX.writeMsg}),sb=h('button',{class:'btn',onclick:function(){var v=inp.value.trim();if(!v)return;sb.disabled=true;api('request-message',{ref:r.ref,content:v}).then(function(o){sb.disabled=false;if(o&&o.ok){r.conversation=o.conversation;r.status=o.status||r.status;inp.value='';drawRequest(hd,box)}})}},[TX.send]);
+var inp=h('input',{id:'sv1Msg',placeholder:TX.writeMsg}),sb=h('button',{class:'btn',onclick:function(){var v=inp.value.trim();if(!v)return;sb.disabled=true;api('request-message',{ref:r.ref,content:v}).then(function(o){sb.disabled=false;if(o&&o.ok){r.conversation=o.conversation;r.status=o.status||r.status;inp.value='';drawRequest(hd,box)}})}},[TX.send]);
 left.appendChild(h('div',{class:'card'},[h('h3',{},[TX.conversation]),msgs,h('div',{class:'msgform'},[inp,sb])]));setTimeout(function(){msgs.scrollTop=msgs.scrollHeight},0);
 // scope
-var isCart=!!(r.payment&&r.payment.source==='cart');var editable=!isCart&&['NEW','REVIEWING','WAITING_CLIENT'].indexOf(r.status)>=0;var sc=h('div',{class:'card'});sc.appendChild(h('h3',{},[TX.scope]));if(r.summary)sc.appendChild(h('p',{class:'note'},[r.summary]));
+var isCart=!!(r.payment&&r.payment.source==='cart');var editable=!isCart&&['NEW','REVIEWING','WAITING_CLIENT'].indexOf(r.status)>=0;var sc=h('div',{class:'card',id:'sv1Scope'});sc.appendChild(h('h3',{},[TX.scope]));if(r.summary)sc.appendChild(h('p',{class:'note'},[r.summary]));
 var ul=h('ul',{class:'items'});function drawItems(){ul.innerHTML='';(r.scope||[]).forEach(function(it,i){var li=h('li',{},[h('span',{class:'ic'},['✓']),h('div',{},[h('b',editable?{contenteditable:'true',oninput:function(){it.title=this.textContent.trim()}}:{},[it.title]),it.why?h('small',{},[it.why]):null]),editable?h('button',{class:'rm',onclick:function(){r.scope.splice(i,1);drawItems()}},[TX.remove]):null]);ul.appendChild(li)})}drawItems();sc.appendChild(ul);
 // documents the advisor asked for — every service has its own list
 var dc=docsCard(r,function(){drawRequest(hd,box)});
 if(editable){var ai=h('input',{class:'inp',placeholder:TX.addItem}),msgS=h('span',{class:'ok'});
 // Confirming the scope is what moves the request on to the quotation; the
 // plain save stays for intermediate edits.
-var goBtn=h('button',{class:'btn',onclick:function(){msgS.className='ok';msgS.textContent='';goBtn.disabled=true;api('scope-confirm',{ref:r.ref,scope:r.scope}).then(function(o){goBtn.disabled=false;if(!o||!o.ok){msgS.className='err';msgS.textContent=(o&&o.message)||TX.error;return}state.flash=TX.scopePricing;api('request-get',{ref:r.ref}).then(function(g){if(g&&g.ok){state.req=g.request;drawRequest(hd,box);var q=document.getElementById('sv1Quote');if(q&&q.scrollIntoView)q.scrollIntoView({behavior:'smooth',block:'start'})}})})}},[TX.confirmScope]);
+var goBtn=h('button',{class:'btn',onclick:function(){msgS.className='ok';msgS.textContent='';goBtn.disabled=true;api('scope-confirm',{ref:r.ref,scope:r.scope}).then(function(o){goBtn.disabled=false;if(!o||!o.ok){msgS.className='err';msgS.textContent=(o&&o.message)||TX.error;return}state.flash=TX.scopePricing;api('request-get',{ref:r.ref}).then(function(g){if(g&&g.ok){state.req=g.request;drawRequest(hd,box);scrollToId('sv1Next')}})})}},[TX.confirmScope]);
 sc.appendChild(h('div',{class:'msgform'},[ai,h('button',{class:'btn ghost',onclick:function(){if(!ai.value.trim())return;r.scope.push({code:'',title:ai.value.trim(),why:''});ai.value='';drawItems()}},[TX.addItem]),h('button',{class:'btn ghost',onclick:function(){api('scope-update',{ref:r.ref,scope:r.scope}).then(function(o){msgS.className='ok';msgS.textContent=o&&o.ok?TX.saved:TX.error})}},[TX.saveScope]),goBtn,msgS]));
 if(state.flash){sc.appendChild(h('p',{class:'ok'},[state.flash]));state.flash=null}}else sc.appendChild(h('p',{class:'note'},[isCart?TX.directNote:TX.scopeLocked]));
 sc.appendChild(dc.firstChild?dc:document.createComment(''));
@@ -950,11 +1076,11 @@ if(r.tasks&&r.tasks.length)left.appendChild(h('div',{class:'card'},[h('h3',{},[T
 if(!r.quote&&(r.events||[]).some(function(e){return e.event==='quote.pending'}))right.appendChild(h('div',{class:'card',id:'sv1Quote'},[h('h3',{},[TX.quote]),h('p',{class:'note'},[TX.scopePricing])]));
 if(r.quote){var qc=h('div',{class:'card',id:'sv1Quote'});qc.appendChild(h('h3',{},[TX.quote+' '+r.quote.number]));var tb=h('table',{class:'q'});tb.appendChild(h('thead',{},[h('tr',{},[h('th',{},[TX.scope]),h('th',{},[TX.qty]),h('th',{},[TX.price])])]));tb.appendChild(h('tbody',{},r.quote.items.map(function(i){return h('tr',{},[h('td',{},[i.title]),h('td',{},[String(i.qty)]),h('td',{},[money(lineOf(i))])])})));tb.appendChild(h('tfoot',{},[h('tr',{},[h('td',{colspan:'2'},[TX.net]),h('td',{},[money(r.quote.net)])]),h('tr',{},[h('td',{colspan:'2'},[TX.vat]),h('td',{},[money(r.quote.vat)])]),h('tr',{},[h('td',{colspan:'2'},[TX.total]),h('td',{},[money(r.quote.total)])])]));qc.appendChild(tb);
 qc.appendChild(h('p',{class:'note'},[TX.validUntil+': '+(r.quote.valid_until||'')+' · '+TX.terms+': '+(r.quote.payment_terms||'')]));qc.appendChild(docBtn(TX.openFull,TX.quote+' '+r.quote.number,function(){return api('quote-view',{ref:r.ref}).then(function(o){return o&&o.ok?o.html:''})}));if(r.quote.notes)qc.appendChild(h('p',{class:'note'},[r.quote.notes]));
-if(r.status==='QUOTE_SENT'){var rn=h('input',{class:'inp',placeholder:TX.rejectNote,style:'margin-top:8px'});qc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){api('quote-approve',{ref:r.ref}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;if(o.contract)r.contract=o.contract;refreshMe();drawRequest(hd,box)}})}},[TX.approve]),h('button',{class:'btn ghost',onclick:function(){api('quote-reject',{ref:r.ref,note:rn.value}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;refreshMe();drawRequest(hd,box)}})}},[TX.reject])]));qc.appendChild(rn)}
+if(r.status==='QUOTE_SENT'){var rn=h('input',{class:'inp',placeholder:TX.rejectNote,style:'margin-top:8px'});qc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn',onclick:approveQuote},[TX.approve]),h('button',{class:'btn ghost',onclick:function(){api('quote-reject',{ref:r.ref,note:rn.value}).then(function(o){if(o&&o.ok){r.status=o.status;r.quote=o.quote;refreshMe();drawRequest(hd,box)}})}},[TX.reject])]));qc.appendChild(rn)}
 else if(r.quote.status==='APPROVED')qc.appendChild(h('p',{class:'ok'},[TX.quoteApproved]));
 right.appendChild(qc)}
 // contract
-if(r.contract){var cc=h('div',{class:'card'});cc.appendChild(h('h3',{},[TX.contract+' '+r.contract.number]));var frame=h('iframe',{class:'contract-frame',title:TX.contract});cc.appendChild(frame);cc.appendChild(docBtn(TX.openFull,TX.contract+' '+r.contract.number,function(){return api('contract-view',{ref:r.ref}).then(function(o){return o&&o.ok?o.html:''})}));api('contract-view',{ref:r.ref}).then(function(o){var ht=o&&o.ok?o.html:'';frame.srcdoc=ht;state.contractHtml=ht;if(o&&o.needsResign)cc.appendChild(h('p',{class:'note',style:'color:#B45309'},[TX.resign]))});
+if(r.contract){var cc=h('div',{class:'card',id:'sv1Contract'});cc.appendChild(h('h3',{},[TX.contract+' '+r.contract.number]));var frame=h('iframe',{class:'contract-frame',title:TX.contract});cc.appendChild(frame);cc.appendChild(docBtn(TX.openFull,TX.contract+' '+r.contract.number,function(){return api('contract-view',{ref:r.ref}).then(function(o){return o&&o.ok?o.html:''})}));api('contract-view',{ref:r.ref}).then(function(o){var ht=o&&o.ok?o.html:'';frame.srcdoc=ht;state.contractHtml=ht;if(o&&o.needsResign)cc.appendChild(h('p',{class:'note',style:'color:#B45309'},[TX.resign]))});
 if(r.status==='CONTRACT_SENT'){cc.appendChild(h('h3',{style:'margin-top:14px'},[TX.signTitle]));var nm=h('input',{class:'inp',placeholder:TX.signName,value:state.me.user.name||''});cc.appendChild(nm);cc.appendChild(h('p',{class:'note',style:'margin:8px 0 4px'},[TX.signDraw]));var cv=h('canvas',{class:'sig',width:'600',height:'150'});cc.appendChild(cv);var ctx2=cv.getContext('2d'),drawing=false,drew=false;ctx2.lineWidth=2;ctx2.lineCap='round';ctx2.strokeStyle='#0B1B5A';function pos(e){var rc=cv.getBoundingClientRect();var p=e.touches?e.touches[0]:e;return [(p.clientX-rc.left)*cv.width/rc.width,(p.clientY-rc.top)*cv.height/rc.height]}
 cv.addEventListener('pointerdown',function(e){drawing=true;var p=pos(e);ctx2.beginPath();ctx2.moveTo(p[0],p[1])});cv.addEventListener('pointermove',function(e){if(!drawing)return;var p=pos(e);ctx2.lineTo(p[0],p[1]);ctx2.stroke();drew=true});window.addEventListener('pointerup',function(){drawing=false});
 var cons=h('input',{type:'checkbox',id:'consent'});var err=h('div',{class:'err'});cc.appendChild(h('div',{class:'msgform'},[h('button',{class:'btn ghost sm',onclick:function(){ctx2.clearRect(0,0,cv.width,cv.height);drew=false}},[TX.signClear])]));cc.appendChild(h('label',{style:'display:flex;gap:8px;align-items:flex-start;margin:10px 0;font-size:.86rem'},[cons,h('span',{},[TX.signConsent])]));
@@ -962,7 +1088,7 @@ cc.appendChild(h('button',{class:'btn',onclick:function(){err.textContent='';if(
 else if(r.contract.status==='SIGNED')cc.appendChild(h('p',{class:'ok'},['✓ '+TX.signed+' · '+when(r.contract.signed_at)]));
 right.appendChild(cc)}
 // payment
-if(['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0&&r.quote){var pc=h('div',{class:'card'});pc.appendChild(h('h3',{},[TX.payment+' · '+money(r.quote.total)]));if(r.payment&&r.payment.status&&r.payment.status!=='PENDING'&&r.payment.status!=='PAID')pc.appendChild(h('p',{class:'err'},[TX.payment+': '+r.payment.status]));
+if(['SIGNED','PAYMENT_PENDING'].indexOf(r.status)>=0&&r.quote){var pc=h('div',{class:'card',id:'sv1Pay'});pc.appendChild(h('h3',{},[TX.payment+' · '+money(r.quote.total)]));if(r.payment&&r.payment.status&&r.payment.status!=='PENDING'&&r.payment.status!=='PAID')pc.appendChild(h('p',{class:'err'},[TX.payment+': '+r.payment.status]));
 function gwGo(provider){var back=encodeURIComponent(location.pathname+'?view=request&ref='+encodeURIComponent(r.ref));
 location.href='/api/pay?action=mock-form&provider='+provider+'&amount='+encodeURIComponent(String((r.quote&&r.quote.total)||0))+'&label='+encodeURIComponent(r.ref)+'&back='+back}
 function payHere(provider){
@@ -988,7 +1114,10 @@ var d=h('input',{class:'inp',type:'date',min:new Date().toISOString().slice(0,10
 ac.appendChild(h('div',{class:'form'},[h('label',{},[TX.date]),d,h('label',{},[TX.time]),tm,h('label',{},[TX.topic]),tp2,h('div',{class:'msgform'},[h('button',{class:'btn',onclick:function(){api(a&&a.status!=='CANCELLED'?'appointment-reschedule':'appointment-book',{ref:r.ref,date:d.value,time:tm.value,topic:tp2.value}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}else ae.textContent=(o&&(o.message||o.error))||TX.error})}},[a&&a.status!=='CANCELLED'?TX.reschedule:TX.book]),a&&a.status!=='CANCELLED'?h('button',{class:'btn danger',onclick:function(){api('appointment-cancel',{ref:r.ref}).then(function(o){if(o&&o.ok){r.appointment=o.appointment;refreshMe();drawRequest(hd,box)}})}},[TX.cancelAppt]):null]),ae,h('p',{class:'note'},[TX.apptNote])]));right.appendChild(ac)}
 // timeline
 right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.timeline]),h('ul',{class:'tl'},(r.events||[]).slice().reverse().map(function(e){return h('li',{},[h('time',{},[when(e.created_at)]),h('i',{class:e.actor_kind},[e.actor_kind==='ai'?'AI':e.actor_kind==='human'?'👤':e.actor_kind==='customer'?'🙂':'⚙']),h('span',{},[(e.actor?e.actor+': ':'')+(EV[e.event]||e.event)+(e.details&&e.details.number?' '+e.details.number:'')])])}))]));
-if(['CANCELLED','COMPLETED'].indexOf(r.status)<0){var early=['NEW','REVIEWING','WAITING_CLIENT','QUOTE_SENT','PRICING'].indexOf(r.status)>=0;var cnote=h('input',{class:'inp',placeholder:TX.cancelWhy,style:'margin-top:10px'});var cmsg=h('div',{class:'note'},[early?TX.cancelEarly:TX.cancelLate]);var cbtn=h('button',{class:'btn danger sm',onclick:function(){if(!confirm((early?TX.cancelReq:TX.cancelAsk)+'?'))return;var b2=this;b2.disabled=true;api('request-cancel',{ref:r.ref,note:cnote.value.trim()}).then(function(o){b2.disabled=false;if(!o||!o.ok){cmsg.className='err';cmsg.textContent=(o&&o.message)||TX.error;return}if(o.cancelled){r.status='CANCELLED';refreshMe();drawRequest(hd,box);return}cmsg.className='ok';cmsg.textContent=TX.cancelSent;cbtn.disabled=true})}},[early?TX.cancelReq:TX.cancelAsk]);right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),cmsg,cnote,h('div',{class:'msgform',style:'margin-top:8px'},[cbtn])]))}if(r.cancel)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),h('p',{class:'note'},[TX.cancelDone+' · '+when(r.cancel.at)+(r.cancel.note?' · '+r.cancel.note:'')])]))}
+if(['CANCELLED','COMPLETED'].indexOf(r.status)<0){var early=['NEW','REVIEWING','WAITING_CLIENT','QUOTE_SENT','PRICING'].indexOf(r.status)>=0;var cnote=h('input',{class:'inp',placeholder:TX.cancelWhy,style:'margin-top:10px'});var cmsg=h('div',{class:'note'},[early?TX.cancelEarly:TX.cancelLate]);var cbtn=h('button',{class:'btn danger sm',onclick:function(){if(!confirm((early?TX.cancelReq:TX.cancelAsk)+'?'))return;var b2=this;b2.disabled=true;api('request-cancel',{ref:r.ref,note:cnote.value.trim()}).then(function(o){b2.disabled=false;if(!o||!o.ok){cmsg.className='err';cmsg.textContent=(o&&o.message)||TX.error;return}if(o.cancelled){r.status='CANCELLED';refreshMe();drawRequest(hd,box);return}cmsg.className='ok';cmsg.textContent=TX.cancelSent;cbtn.disabled=true})}},[early?TX.cancelReq:TX.cancelAsk]);right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),cmsg,cnote,h('div',{class:'msgform',style:'margin-top:8px'},[cbtn])]))}if(r.cancel)right.appendChild(h('div',{class:'card'},[h('h3',{},[TX.cancelTitle]),h('p',{class:'note'},[TX.cancelDone+' · '+when(r.cancel.at)+(r.cancel.note?' · '+r.cancel.note:'')])]))
+var nxb=nextBanner(r,{approve:approveQuote,hd:hd,box:box});if(nxb)box.insertBefore(nxb,grid);
+if(state.nxFlash){box.insertBefore(h('div',{class:'nxflash',role:'status'},[TX.nxUpdated]),box.firstChild.nextSibling);state.nxFlash=false}
+schedulePoll(hd,box)}
 // The official invoice is the PDF the accounting system issued and the request
 // kept (invoice.pdf_url): that is what opens when it exists. Only when it does
 // not does the page below stand in — it carries the seller's tax number, taken
