@@ -75,8 +75,8 @@ def rows():
             b_en = b_en.replace("Within the covered services only, the Authorised Party may:", "Within the services the Second Party has ticked in section 3 only, the First Party may:")
             b_ar = b_ar.replace("ضمن الخدمات المشمولة وحدها، للمفوَّض:", "ضمن البنود التي حدّدها الطرف الثاني في البند 3 وحدها، للطرف الأول:")
         if num == 7:
-            b_en = "The First Party acts only through its named staff: Dr. Baher Magnas, Chief Executive Officer; other named staff: [●] (identification details are kept in the executed copy)."
-            b_ar = "يعمل الطرف الأول عبر موظفيه المسمّين وحدهم: د. باهر مقنص، المدير التنفيذي؛ وموظفون آخرون مسمّون: [●] (وبيانات الهوية في النسخة الموقّعة)."
+            b_en = "The First Party acts only through its named staff: Baher Bakr Ali Magnas, Chief Executive Officer; other named staff: [●] (identification details are kept in the executed copy)."
+            b_ar = "يعمل الطرف الأول عبر موظفيه المسمّين وحدهم: باهر بكر علي مقنص، المدير التنفيذي؛ وموظفون آخرون مسمّون: [●] (وبيانات الهوية في النسخة الموقّعة)."
         b_en = b_en.replace("the Category Annex", "section 3").replace("The Authorised Party", "The First Party").replace("the Authorised Party", "the First Party").replace("The Principal", "The Second Party").replace("the Principal", "the Second Party").replace("Principal’s", "Second Party’s")
         b_ar = b_ar.replace("ملحق الفئة", "البند 3").replace("المفوَّض", "الطرف الأول").replace("المفوِّض", "الطرف الثاني")
         t_en = t_en.replace("Principal’s", "Second Party’s").replace("Authorised Party’s", "First Party’s")

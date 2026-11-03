@@ -99,8 +99,8 @@ def sig_boxes(left_title=("Business Partner Solutions", "بزنس بارتنر �
                 '<div class="bx2"><div style="text-align:center">Signature &amp; Stamp · التوقيع والختم</div></div></div>') % (
             esc(t[0]), esc(t[1]), co, nm or num("[●]"), tt or num("[●]"), num("[●]"))
     return '<div class="sg" style="direction:ltr">%s%s</div>' % (
-        box(left_title, esc(left_co), esc(REP_EN) + ' · <span dir="rtl">' + esc(REP_AR) + '</span>',
-            esc(REP_TITLE_EN) + ' · <span dir="rtl">' + esc(REP_TITLE_AR) + '</span>'),
+        box(left_title, esc(left_co), esc(QREP_EN) + ' · <span dir="rtl">' + esc(QREP_AR) + '</span>',
+            esc(QREP_TITLE_EN) + ' · <span dir="rtl">' + esc(QREP_TITLE_AR) + '</span>'),
         box(right_title, right_co or num("[●]")))
 
 # ------------------------------------------------------------------ عرض السعر
