@@ -1,0 +1,18 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const er=[];let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m)}else console.log('ok',m)};
+const p=await b.newPage({viewport:{width:480,height:900}});p.on('pageerror',e=>er.push(e.message));
+await p.addInitScript(()=>{window.claude={use:async n=>n==='sample'?Object.assign(async()=>({text:''}),{limits:async()=>({}),json:async()=>({description:'نبحث عن محاسب للعمل في الرياض.'})}):null}});
+await p.goto('file://'+process.cwd()+'/index-client.html?lang=ar');await p.waitForTimeout(700);
+ok(/Business Partner Compliance Solutions/.test(await p.title()),'title is the new name');
+ok(/Business Partner Compliance Solutions/.test(await p.evaluate(()=>document.getElementById('cs-side').innerText)),'sidebar shows the new name');
+await p.click('.chip:has-text("الموارد البشرية والتوظيف")');await p.waitForTimeout(300);
+let t=await p.evaluate(()=>document.getElementById('cs-thread').innerText);ok(/صاحب عمل/.test(t)&&/مكتب استقدام/.test(t)&&/ريكروتر مستقل/.test(t)&&/منصة توظيف/.test(t)&&/موظف على بند التعاقد/.test(t)&&/أبحث عن وظيفة/.test(t),'six roles');
+await p.click('.chip:has-text("صاحب عمل")');await p.waitForTimeout(200);await p.click('.chip:has-text("انشر وظيفة")');await p.waitForTimeout(300);
+await p.fill('#dk-ta','محاسب خبرة 3 سنوات في الرياض دوام كامل');await p.click('#dk-ok');await p.waitForTimeout(900);
+ok(await p.evaluate(()=>!!document.querySelector('[data-fk=title]')),'draft form');
+ok((await p.inputValue('[data-fk=city]'))==='الرياض'&&(await p.inputValue('[data-fk=years]'))==='3','city and years parsed');
+await p.click('#dk-ok');await p.waitForTimeout(500);
+t=await p.evaluate(()=>document.getElementById('cs-thread').innerText);ok(/لم يُنشر بعد/.test(t)&&/لا شيء يُنشر قبل تأكيدك/.test(t),'preview before publish');
+ok(await p.evaluate(()=>!localStorage.getItem('bp_postings_v1')),'nothing saved before confirmation');
+await p.click('.chip:has-text("أؤكد النشر")');await p.waitForTimeout(400);
+ok(await p.evaluate(()=>JSON.parse(localStorage.getItem('bp_postings_v1')||'[]').length===1),'posting saved only after confirmation');
+console.log(er);if(er.length)fail++;await b.close();process.exit(fail?1:0)})();

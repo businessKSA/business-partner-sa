@@ -1,0 +1,13 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const er=[];let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m)}else console.log('ok',m)};
+const p=await b.newPage({viewport:{width:480,height:1800}});p.on('pageerror',e=>er.push(e.message));await p.goto('file://'+process.cwd()+'/index-client.html?lang=ar');await p.waitForTimeout(500);
+const r=await p.evaluate(()=>{const q=bpT();const ix=c=>q.PROF.findIndex(x=>x[7]===c);
+ q.CV.term=24;q.CV.city='الرياض';q.CV.items=[{prof:ix('216102'),qty:1,nat:'saudi',sal:6000},{prof:ix('214910'),qty:1,nat:'abroad',sal:8000},{prof:ix('2211051'),qty:1,nat:'inside',sal:3000}];
+ q.hireVerdict();const verdict=document.getElementById('cs-thread').innerText;q.chPrice();const th=document.getElementById('cs-thread').innerText;
+ const cards=[...document.querySelectorAll('#cs-thread .card')].pop().innerText;return {verdict:verdict.slice(-900),th:th.slice(-2400),cards}});
+console.log(r.th.slice(0,1500));
+ok(/لا أسعّر ما لا يجوز نظاماً/.test(r.th),'blocked notice');
+ok(/مقصورة على السعوديين: لا يُنقل/.test(r.th),'saudi-only foreigner blocked');
+ok(!/مقيم معتمد[\s\S]{0,60}\d{1,2},\d{3}/.test(r.cards),'blocked item not in price table');
+ok(/25%/.test(r.verdict)||/7,000/.test(r.verdict),'IT engineer shows decision');
+ok(/رُفع من 6,000/.test(r.cards)||/6,000/.test(r.cards)===false||/رُفع/.test(r.cards),'saudi civil engineer salary raised and shown');
+console.log(er);if(er.length)fail++;await b.close();process.exit(fail?1:0)})();

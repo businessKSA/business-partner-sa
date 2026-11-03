@@ -1,0 +1,18 @@
+const {chromium}=require('playwright');const fs=require('fs');(async()=>{const b=await chromium.launch();const er=[];let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m)}else console.log('ok',m)};
+const ctx=await b.newContext({viewport:{width:480,height:900}});
+await ctx.route('https://cdnjs.cloudflare.com/**',r=>{const u=r.request().url();const f=u.includes('xlsx')?'/tmp/xlsx.full.min.js':u.includes('worker')?'/tmp/pdf.worker.min.js':'/tmp/pdf.min.js';r.fulfill({status:200,contentType:'application/javascript',body:fs.existsSync(f)?fs.readFileSync(f,'utf8'):''});});
+await ctx.addInitScript(()=>{ const sm=async()=>({text:'تمّ'}); sm.limits=async()=>({images:{maxCount:4,mediaTypes:['image/png']}}); sm.json=async(prompt)=>{ if(String(prompt).includes('صنّف')) return {kind:'iban'}; if(String(prompt).includes('اقرأ هذا المستند بأي لغة')) return {document_type:'شهادة آيبان',entity_name:'شركة تجربة',summary:'حساب بنكي للشركة',fields:{IBAN:'SA0380000000608010167519',البنك:'الراجحي'}}; return {document_type_matches:true}; }; window.claude={use:async n=>n==='sample'?sm:null}; });
+const p=await ctx.newPage();p.on('pageerror',e=>er.push(e.message));
+await p.goto('file://'+process.cwd()+'/index-all.html?lang=ar');await p.waitForTimeout(900);
+let t=await p.evaluate(()=>document.getElementById('cs-thread').innerText);
+ok(/لنبدأ بتسجيل بياناتك/.test(t)||/تسجيل بياناتك/.test(t),'registration first');
+ok(await p.evaluate(()=>!!document.querySelector('[data-fk=email]')&&!!document.querySelector('[data-fk=phone]')&&!!document.querySelector('[data-fk=company]')),'form fields');
+await p.fill('[data-fk=name]','أحمد');await p.fill('[data-fk=email]','a@b.co');await p.fill('[data-fk=phone]','0500000000');await p.fill('[data-fk=company]','شركة تجربة');await p.click('#dk-ok');await p.waitForTimeout(500);
+t=await p.evaluate(()=>document.getElementById('cs-thread').innerText);
+ok(/ادخل بوابتك/.test(t)&&/ماذا تريد اليوم/.test(t),'portal chip + welcome menu after');if(!/ادخل بوابتك/.test(t)) console.log(t.slice(-300));
+ok(await p.evaluate(()=>!!localStorage.getItem('bp_profile_v1')),'profile saved');
+await p.setInputFiles('#cs-f',['tdata/shot.png']);await p.waitForTimeout(3500);
+t=await p.evaluate(()=>document.getElementById('cs-thread').innerText);console.log(t.slice(-500).replace(/\n+/g,' | '));
+ok(await p.evaluate(()=>{const a=bpT().S.attach;return Array.isArray(a)&&a.length>=1}),'attachments registered');
+const kwOk=await p.evaluate(()=>{const q=bpT();return [q.kw(/السجل التجاري/,'ﺍﻟﺴﺠﻞ ﺍﻟﺘﺠﺎﺭﻱ'),q.kw(/السجل التجاري/,[...'السجل التجاري'].reverse().join('')),q.kw(/commercial registration/i,'Commercial Registration Certificate')]});ok(kwOk.every(Boolean),'keywords match presentation forms, reversed text, English '+kwOk);
+console.log(er);if(er.length)fail++;await b.close();process.exit(fail?1:0)})();

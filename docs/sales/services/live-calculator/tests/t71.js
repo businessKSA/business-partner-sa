@@ -1,0 +1,15 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage({viewport:{width:1000,height:1400}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess&ui=classic');await p.waitForTimeout(300);
+const T=()=>p.evaluate(()=>document.querySelector('#main').innerText);
+const pick=async(id,text)=>{await p.click('#'+id+'-s');await p.waitForTimeout(200);await p.fill('#'+id+'-s',text);await p.waitForTimeout(250);await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');await p.waitForTimeout(400);};
+const vals=()=>p.evaluate(()=>[...document.querySelectorAll('#main .panel:first-of-type input:not([type=checkbox])')].filter(i=>i.offsetParent&&!i.id.endsWith('-s')?true:true).map(i=>i.value).filter(v=>v!=='').length);
+let t=await T();console.log('1) initial: price hidden:',!/السعر الشهري/.test(t),'| missing list:',(t.match(/أكمل الحقول[\s\S]*?(?=\n\n|$)/)?.[0]||'').replace(/\n/g,' | '));
+console.log('   filled inputs at start:',await p.evaluate(()=>[...document.querySelectorAll('.grid>.panel:first-child input')].filter(i=>i.value!==''&&i.type!=='hidden').map(i=>i.id+'='+i.value).join(',')||'none'));
+await pick('l-term','12 شهر');await pick('l-src','داخل');
+await p.fill('#l-qty','1');await pick('i-gender','ذكر');await p.fill('#l-sal','6000');await p.waitForTimeout(300);
+t=await T();console.log('2) after term/source/qty/gender/salary, still missing:',(t.match(/أكمل الحقول[\s\S]*/)?.[0]||'none').replace(/\n/g,' | ').slice(0,140));
+await pick('l-trn','الأولى');t=await T();console.log('3) after transfer: price',t.match(/السعر الشهري قبل التوطين\s*([\d,]+)/)?.[1]);
+await p.click('[data-gact="emp"]');await p.waitForTimeout(400);t=await T();console.log('4) after +employee: form blank again:',!/السعر الشهري قبل/.test(t),'| saved:',(t.match(/\d\) [^\n]* — [^\n]*/g)||[]).length);
+console.log(errs);await b.close();})();

@@ -1,0 +1,13 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const er=[];let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m)}else console.log('ok',m)};
+const ctx=await b.newContext({viewport:{width:900,height:900}});const p=await ctx.newPage();p.on('pageerror',e=>er.push(e.message));p.on('dialog',d=>d.accept());
+await p.goto('file://'+process.cwd()+'/index-client.html?lang=ar');await p.waitForTimeout(600);
+await p.evaluate(()=>bpT().govCost());await p.waitForTimeout(300);await p.fill('[data-nk=nw]','2');await p.click('#dk-ok');await p.waitForTimeout(400);
+ok(await p.evaluate(()=>!!localStorage.getItem('bp_chat_v1')),'autosaved');
+await p.reload();await p.waitForTimeout(800);
+let t=await p.evaluate(()=>document.getElementById('cs-thread').innerText);ok(/تابع محادثتك المحفوظة/.test(t),'offer continue');
+await p.click('.chip:has-text("تابع محادثتك")');await p.waitForTimeout(300);
+t=await p.evaluate(()=>document.getElementById('cs-thread').innerText);ok(/لعمالك/.test(t)&&/رجعتُ بك/.test(t),'restored');
+await p.click('[data-side=wipe]');await p.waitForTimeout(500);
+ok(await p.evaluate(()=>!localStorage.getItem('bp_chat_v1')),'wiped');
+t=await p.evaluate(()=>document.getElementById('cs-thread').innerText);ok(!/لعمالك/.test(t),'thread cleared');
+console.log(er);if(er.length)fail++;await b.close();process.exit(fail?1:0)})();

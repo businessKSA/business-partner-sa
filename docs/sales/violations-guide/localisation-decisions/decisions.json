@@ -1,0 +1,1384 @@
+[
+ {
+  "id": "dental",
+  "kind": "profession_group",
+  "title_ar": "توطين مهنة طب الأسنان",
+  "decision_no": "103107",
+  "issued_hijri": "27/07/1446",
+  "issued_gregorian": "2025-01-27 (الدليل منشور 2026-01-27 بعد تحديثه؛ نص الدليل يذكر 2025/01/26)",
+  "effective_date": "المرحلة 1: 2025-07-27؛ المرحلة 2: 2026-01-27",
+  "rate_percent_by_class": {
+   "المرحلة الأولى": 45,
+   "المرحلة الثانية": 55
+  },
+  "min_workers": 3,
+  "min_salary": "9,000 ريال (أجر خاضع للاشتراك في التأمينات) + اعتماد مهني ساري من الهيئة السعودية للتخصصات الصحية (حسب خبر الوزارة 2026-01-27)",
+  "scope_summary_ar": "منشآت القطاع الخاص التي يعمل بها 3 عاملين فأكثر في مهن طب الأسنان؛ الاحتساب على مستوى الكيان.",
+  "penalty_clause_ar": "الدليل (البند 3.8/الأسئلة الشائعة) يحيل إلى القرار الوزاري 75913 وتاريخ 1445/05/19هـ مع مراعاة تعديلاته؛ ثم يسري الجدول الأحدث 112377.",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%87%D9%86%D8%A9-%D8%B7%D8%A8-%D8%A7%D9%84%D8%A3%D8%B3%D9%86%D8%A7%D9%86",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2025-01/%D9%82%D8%B1%D8%A7%D8%B1%20%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D9%85%D9%87%D9%86%D8%A9%20%D8%B7%D8%A8%20%D8%A7%D9%84%D8%A3%D8%B3%D9%86%D8%A7%D9%86%20103107.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-twtyn-mhn-tb-alasnan-45-w-55.pdf"
+  ],
+  "in_repo_guides": 16,
+  "discrepancies_vs_repo": "لا فرق جوهري (رقم 103107، 45%→55%، 3، 9000). التاريخ في المستودع 26/01/2025م وفي صفحة الوزارة 27-رجب-1446 / 27-يناير-2025 (الدليل نفسه يكتب 2025/01/26).",
+  "confidence": "high"
+ },
+ {
+  "id": "pharmacy",
+  "kind": "profession_group",
+  "title_ar": "توطين مهنة الصيدلة",
+  "decision_no": "103111",
+  "issued_hijri": "26/07/1446",
+  "issued_gregorian": "2025-01-26",
+  "effective_date": "2025-07-27",
+  "rate_percent_by_class": {
+   "صيدليات مجتمعية ومجمعات طبية": 35,
+   "صيدلة المستشفيات": 65,
+   "أنشطة الصيدلة الأخرى": 55
+  },
+  "min_workers": 5,
+  "min_salary": "7,000 ريال",
+  "scope_summary_ar": "المنشآت التي يعمل بها 5 عاملين فأكثر في مهن الصيدلة؛ على مستوى الكيان.",
+  "penalty_clause_ar": "الدليل يحيل إلى القرارين 75913 (1445/05/19هـ) و44558 (1446/4/3هـ) مع مراعاة تعديلاتهما.",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%87%D9%86%D8%A9-%D8%A7%D9%84%D8%B5%D9%8A%D8%AF%D9%84%D8%A9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2025-01/%D9%82%D8%B1%D8%A7%D8%B1%20%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D9%85%D9%87%D9%86%D8%A9%20%D8%A7%D9%84%D8%B5%D9%8A%D8%AF%D9%84%D8%A9%20103111.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-twtyn-mhn-alsydlt.pdf"
+  ],
+  "in_repo_guides": 14,
+  "discrepancies_vs_repo": "المستودع يسجّل 35% فقط؛ الرسمي ثلاث نسب (35/65/55 حسب نوع النشاط).",
+  "confidence": "high"
+ },
+ {
+  "id": "accounting",
+  "kind": "profession_group",
+  "title_ar": "توطين المهن المحاسبية (44 مهنة)",
+  "decision_no": "103108",
+  "issued_hijri": "26/07/1446",
+  "issued_gregorian": "2025-01-26",
+  "effective_date": "المراحل: 2025-10-27 (40%)، 2026-10-27 (50%)، 2027-10-27 (60%)، 2028-10-27 (70%)، 2029-10-27 (30% لمنشآت 3-4 محاسبين)",
+  "rate_percent_by_class": {
+   "م1": 40,
+   "م2": 50,
+   "م3": 60,
+   "م4": 70,
+   "م5 (منشآت 3-4 عاملين)": 30
+  },
+  "min_workers": 5,
+  "min_salary": "6,000 ريال بكالوريوس أو ما يعادله؛ 4,500 ريال دبلوم أو ما يعادله",
+  "scope_summary_ar": "5 عاملين فأكثر (3 فأكثر في المرحلة الخامسة بنسبة 30%)؛ الاحتساب وفق لائحة نظام مهنة المحاسبة والمراجعة (قرار 658 في 1442/11/14هـ).",
+  "penalty_clause_ar": "الدليل يحيل إلى 75913 و44558 مع مراعاة تعديلاتهما.",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D8%A7%D9%84%D9%85%D9%87%D9%86-%D8%A7%D9%84%D9%85%D8%AD%D8%A7%D8%B3%D8%A8%D9%8A%D8%A9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2025-01/%D9%82%D8%B1%D8%A7%D8%B1%20%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D8%A7%D9%84%D9%85%D9%87%D9%86%20%D8%A7%D9%84%D9%85%D8%AD%D8%A7%D8%B3%D8%A8%D9%8A%D8%A9%20103108.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2026-04/aldlyl-alajrayy-lqrar-twtyn-almhn-almhasbyt.pdf"
+  ],
+  "in_repo_guides": 21,
+  "discrepancies_vs_repo": "المستودع يضع تاريخ القرار 27/10/2025م وهو تاريخ بدء المرحلة الأولى؛ تاريخ القرار الرسمي 26/01/2025م (26-رجب-1446). المستودع يذكر 40% فقط وسلّم 6000؛ الرسمي تدرّج إلى 70% وحدّان للأجر (6000/4500).",
+  "confidence": "high"
+ },
+ {
+  "id": "tech_eng",
+  "kind": "profession_group",
+  "title_ar": "توطين المهن الفنية الهندسية",
+  "decision_no": "103105",
+  "issued_hijri": "26/07/1446",
+  "issued_gregorian": "2025-01-26",
+  "effective_date": "2025-07-27",
+  "rate_percent_by_class": {
+   "الكل": 30
+  },
+  "min_workers": 5,
+  "min_salary": "5,000 ريال",
+  "scope_summary_ar": "المنشآت التي يعمل بها 5 عاملين فأكثر من المهن المستهدفة؛ على مستوى الكيان.",
+  "penalty_clause_ar": "الدليل يحيل إلى 75913 و44558.",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D8%A7%D9%84%D9%85%D9%87%D9%86-%D8%A7%D9%84%D9%81%D9%86%D9%8A%D8%A9-%D8%A7%D9%84%D9%87%D9%86%D8%AF%D8%B3%D9%8A%D8%A9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2025-01/%D9%82%D8%B1%D8%A7%D8%B1%20%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D8%A7%D9%84%D9%85%D9%87%D9%86%20%D8%A7%D9%84%D9%81%D9%86%D9%8A%D8%A9%20%D8%A7%D9%84%D9%87%D9%86%D8%AF%D8%B3%D9%8A%D8%A9%20103105.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-twtyn-mhn-alfnyt-alhndsyt.pdf"
+  ],
+  "in_repo_guides": 12,
+  "discrepancies_vs_repo": null,
+  "confidence": "high"
+ },
+ {
+  "id": "eng",
+  "kind": "profession_group",
+  "title_ar": "توطين المهن الهندسية (46 مهنة)",
+  "decision_no": "93483",
+  "issued_hijri": "11/07/1447",
+  "issued_gregorian": "2025-12-31",
+  "effective_date": "2026-06-30 (مهلة 6 أشهر)",
+  "rate_percent_by_class": {
+   "الكل": 30
+  },
+  "min_workers": 5,
+  "min_salary": "8,000 ريال (القطاعان الخاص وغير الربحي) + اعتماد مهني من الهيئة السعودية للمهندسين",
+  "scope_summary_ar": "المنشآت التي يعمل بها 5 عاملين فأكثر في 46 مهنة هندسية؛ بالشراكة مع وزارة البلديات والإسكان.",
+  "penalty_clause_ar": "الدليل يحيل إلى 75913 و44558 مع مراعاة تعديلاتهما.",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D8%A7%D9%84%D9%85%D9%87%D9%86-%D8%A7%D9%84%D9%87%D9%86%D8%AF%D8%B3%D9%8A%D8%A9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-almhn-alhndsyt.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/qrar-twtyn-almhn-alhndsyt_6.pdf"
+  ],
+  "in_repo_guides": 5,
+  "discrepancies_vs_repo": null,
+  "confidence": "high"
+ },
+ {
+  "id": "purchasing",
+  "kind": "profession_group",
+  "title_ar": "توطين مهن المشتريات (12 مهنة)",
+  "decision_no": "77050",
+  "issued_hijri": "09/06/1447",
+  "issued_gregorian": "2025-11-30",
+  "effective_date": "2026-05-31 (خبر الوزارة 2026-05-31)",
+  "rate_percent_by_class": {
+   "الكل": 70
+  },
+  "min_workers": 3,
+  "min_salary": "لم يرد حد أدنى للأجر في الدليل المقروء",
+  "scope_summary_ar": "المنشآت التي يعمل بها 3 عاملين فأكثر من المهن المشمولة؛ على مستوى الكيان.",
+  "penalty_clause_ar": "الدليل يحيل إلى 75913 و44558.",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%87%D9%86-%D8%A7%D9%84%D9%85%D8%B4%D8%AA%D8%B1%D9%8A%D8%A7%D8%AA",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-twtyn-mhn-almshtryat.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/qrar-twtyn-mhn-almshtryat_0.pdf"
+  ],
+  "in_repo_guides": 32,
+  "discrepancies_vs_repo": "خبر 2026-01-04 يقول اعتباراً من 2025/11/30 وخبر 2026-05-31 يقول بدء التطبيق 31 مايو 2026 (انتهاء المهلة).",
+  "confidence": "medium"
+ },
+ {
+  "id": "marketing",
+  "kind": "profession_group",
+  "title_ar": "توطين مهن التسويق",
+  "decision_no": "101319",
+  "issued_hijri": "30/07/1447",
+  "issued_gregorian": "2026-01-19",
+  "effective_date": "2026-04-19 (مهلة 3 أشهر)",
+  "rate_percent_by_class": {
+   "الكل": 60
+  },
+  "min_workers": 3,
+  "min_salary": "5,500 ريال",
+  "scope_summary_ar": "3 عاملين فأكثر في مهن التسويق (10 مهن).",
+  "penalty_clause_ar": "في حالة عدم تقيد المنشأة بنسبة التوطين المطلوبة، أو إسناد أي من مهام تلك المهن الموطنة إلى عامل غير سعودي \"بطريقة مباشرة أو غير مباشرة\" تحت أي مسمى وظيفي آخر، سيتم تطبيق العقوبات الخاصة بمخالفات التوطين المنصوص عليها في القرار الوزاري رقم 75913 وتاريخ 1445/05/19هـ والقرار الوزاري رقم 44558 وتاريخ 1446/04/03هـ مع مراعاة ما يطرأ عليه من تعديلات. (البند 5 «آلية تنفيذ العقوبات والإجراءات النظامية» في الدليل)",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A7%D9%95%D8%AC%D8%B1%D8%A7%D9%8A%D9%94%D9%8A-%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%87%D9%86-%D8%A7%D9%84%D8%AA%D8%B3%D9%88%D9%8A%D9%82",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/101319---qrar-wzary----thdyth-aldlyl-alajrayy-ltwtyn-mhn-altswyq.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2026-04/aldlyl-ala-jray-y-lqrar-twtyn-mhn-altswyq-v5.pdf"
+  ],
+  "in_repo_guides": 4,
+  "discrepancies_vs_repo": null,
+  "confidence": "high"
+ },
+ {
+  "id": "sales",
+  "kind": "profession_group",
+  "title_ar": "توطين مهن المبيعات",
+  "decision_no": "101278",
+  "issued_hijri": "30/07/1447",
+  "issued_gregorian": "2026-01-19",
+  "effective_date": "2026-04-19 (مهلة 3 أشهر)",
+  "rate_percent_by_class": {
+   "الكل": 60
+  },
+  "min_workers": 3,
+  "min_salary": "لا حد أدنى في الدليل",
+  "scope_summary_ar": "3 عاملين فأكثر في مهن المبيعات (مدير مبيعات، مندوب مبيعات، أخصائي مبيعات، وسيط سلع...).",
+  "penalty_clause_ar": "في حالة عدم تقيد المنشأة بنسبة التوطين المطلوبة، أو إسناد أي من مهام تلك المهن الموطنة إلى عامل غير سعودي \"بطريقة مباشرة أو غير مباشرة\" تحت أي مسمى وظيفي آخر، سيتم تطبيق العقوبات الخاصة بمخالفات التوطين المنصوص عليها في القرار الوزاري رقم 75913 وتاريخ 1445/05/19هـ والقرار الوزاري رقم 44558 وتاريخ 1446/04/03هـ مع مراعاة ما يطرأ عليه من تعديلات. (البند 5 «آلية تنفيذ العقوبات والإجراءات النظامية» في الدليل)",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%87%D9%86-%D8%A7%D9%84%D9%85%D8%A8%D9%8A%D8%B9%D8%A7%D8%AA",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/101278---qrar-wzary---thdyth-aldlyl-alajrayy-ltwtyn-mhn-almby-at.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-ala-jray-y-lqrar-twtyn-mhn-almby-at.pdf"
+  ],
+  "in_repo_guides": 3,
+  "discrepancies_vs_repo": null,
+  "confidence": "high"
+ },
+ {
+  "id": "pm",
+  "kind": "profession_group",
+  "title_ar": "توطين مهن إدارة المشاريع (121314، 214909، 242108)",
+  "decision_no": "41454",
+  "issued_hijri": "01/03/1448",
+  "issued_gregorian": "2026-08-13",
+  "effective_date": "2027-02-14 (مهلة 6 أشهر)",
+  "rate_percent_by_class": {
+   "الكل": 70
+  },
+  "min_workers": 3,
+  "min_salary": "لا بند حد أدنى للأجر في الدليل (صفحات 4-6 مقروءة بصرياً)",
+  "scope_summary_ar": "3 عاملين فأكثر في المهن الثلاث؛ على مستوى الكيان؛ بالشراكة مع وزارة البلديات والإسكان.",
+  "penalty_clause_ar": "تتخذ الوزارة كافة الإجراءات اللازمة لضمان التزام المنشآت بتنفيذ هذا القرار، كما سيتم تطبيق العقوبات الواردة بجداول المخالفات والعقوبات الصادرة بالقرار الوزاري رقم (112377) وتاريخ 1447/8/21هـ، في حالة عدم تقيد المنشأة بنسبة التوطين المطلوبة، أو إسناد أي من مهام تلك المهن الموطنة إلى عامل غير سعودي -بطريقة مباشرة أو غير مباشرة- تحت أي مسمى وظيفي آخر، مع مراعاة أي تعديلات تطرأ على القرار. (البند 5 في الدليل؛ نُقل من صورة الصفحة لأن طبقة النص في ملف PDF مفقودة)",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%87%D9%86-%D8%A5%D8%AF%D8%A7%D8%B1%D8%A9-%D8%A7%D9%84%D9%85%D8%B4%D8%A7%D8%B1%D9%8A%D8%B9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-08/aldlyl-alajrayy-lqrar-almhn-adart-almshary--alnhayy-v.1.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2026-08/rqm-alqrar-41454.pdf"
+  ],
+  "in_repo_guides": 20,
+  "discrepancies_vs_repo": "المستودع: 40% وحد أدنى 6000؛ الرسمي: 70% من 2027-02-14 ولا حد أدنى في الدليل.",
+  "confidence": "high"
+ },
+ {
+  "id": "admin_support",
+  "kind": "profession_group",
+  "title_ar": "توطين المهن الإدارية المساندة (69 مهنة)",
+  "decision_no": "132249",
+  "issued_hijri": "17/10/1447",
+  "issued_gregorian": "2026-04-05",
+  "effective_date": "الجدول 2 (مهن مثل مترجم، سكرتير، أمين صندوق...): من 2026-04-05؛ الجدول 3 (بقية المهن): 2026-10-04 (مهلة 6 أشهر؛ خبر دخول التنفيذ 2026-10-04)",
+  "rate_percent_by_class": {
+   "الكل": 100
+  },
+  "min_workers": 1,
+  "min_salary": "لا حد أدنى",
+  "scope_summary_ar": "منشآت القطاع الخاص التي فيها عامل واحد فأكثر في المهن؛ قصر على السعوديين على مستوى الكيان؛ إن تعارضت قرارات تُطبَّق النسبة الأعلى؛ نطاقات لا تؤثر في الاحتساب.",
+  "penalty_clause_ar": "في حالة عدم تقيد المنشأة بنسبة التوطين المطلوبة، أو إسناد أي من مهام تلك المهن الموطنة إلى عامل غير سعودي \"بطريقة مباشرة أو غير مباشرة\" تحت أي مسمى وظيفي آخر، سيتم تطبيق العقوبات الخاصة بمخالفات التوطين المنصوص عليها في القرار الوزاري رقم 75913 وتاريخ 1445/05/19هـ والقرار الوزاري رقم 44558 وتاريخ 1446/04/03هـ مع مراعاة ما يطرأ عليه من تعديلات. (البند 5 «آلية تنفيذ العقوبات والإجراءات النظامية» في الدليل)",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة) ؛ وعند توظيف غير سعودي في مهنة مقصورة (بنص المادة 11 من اللائحة) ينطبق البند 29",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D8%A7%D9%84%D9%85%D9%87%D9%86-%D8%A7%D9%84%D8%A5%D8%AF%D8%A7%D8%B1%D9%8A%D8%A9-%D8%A7%D9%84%D9%85%D8%B3%D8%A7%D9%86%D8%AF%D8%A9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-04/aldlyl-alajrayy-lqrar-twtyn-almhn-aladaryt-almsandt--2-.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2026-04/qrar-twtyn-almhn-aladaryt-almsandt.pdf"
+  ],
+  "in_repo_guides": 25,
+  "discrepancies_vs_repo": null,
+  "confidence": "high"
+ },
+ {
+  "id": "sports",
+  "kind": "profession_group",
+  "title_ar": "توطين المهن في المراكز والصالات الرياضية (12 مهنة)",
+  "decision_no": "72002",
+  "issued_hijri": "27/05/1447",
+  "issued_gregorian": "2025-11-18",
+  "effective_date": "2026-11-18 (1448/6/8هـ) - لم يبدأ بعد",
+  "rate_percent_by_class": {
+   "الكل": 15
+  },
+  "min_workers": 4,
+  "min_salary": "لم يُقرأ حد أدنى",
+  "scope_summary_ar": "المنشآت التي فيها 4 عاملين فأكثر في المهنة الرياضية؛ بالشراكة مع وزارة الرياضة.",
+  "penalty_clause_ar": "في حالة عدم تقيد المنشأة بنسبة التوطين المطلوبة، أو إسناد أي من مهام تلك المهن الموطنة إلى عامل غير سعودي \"بطريقة مباشرة أو غير مباشرة\" تحت أي مسمى وظيفي آخر، سيتم تطبيق العقوبات الخاصة بمخالفات التوطين المنصوص عليها في القرار الوزاري رقم 75913 وتاريخ 1445/05/19هـ والقرار الوزاري رقم 44558 وتاريخ 1446/04/03هـ مع مراعاة ما يطرأ عليه من تعديلات. (البند 5 «آلية تنفيذ العقوبات والإجراءات النظامية» في الدليل)",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D8%A7%D9%84%D9%85%D9%87%D9%86-%D9%81%D9%8A-%D8%A7%D9%84%D9%85%D8%B1%D8%A7%D9%83%D8%B2-%D9%88%D8%A7%D9%84%D8%B5%D8%A7%D9%84%D8%A7%D8%AA",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2025-11/72002.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2025-11/aldlyl-alajrayy-lqrar-almhn-fy-almrakz-walsalat-alryadyt.pdf"
+  ],
+  "in_repo_guides": 6,
+  "discrepancies_vs_repo": null,
+  "confidence": "medium"
+ },
+ {
+  "id": "housing_sup",
+  "kind": "profession_group",
+  "title_ar": "توطين مهنة مشرف مسكن (515102)",
+  "decision_no": "62298",
+  "issued_hijri": "09/05/1447",
+  "issued_gregorian": "2025-10-31",
+  "effective_date": "2026-02-01 (مهلة 3 أشهر)",
+  "rate_percent_by_class": {
+   "الكل": 100
+  },
+  "min_workers": 1,
+  "min_salary": "5,000 ريال",
+  "scope_summary_ar": "مساكن (سكن جماعي) تدار لـ20 مستفيداً فأكثر ومنها المجمعات السكنية والمباني السكنية.",
+  "penalty_clause_ar": "في حالة عدم تقيد المنشأة بنسبة التوطين المطلوبة، أو إسناد أي من مهام تلك المهن الموطنة إلى عامل غير سعودي \"بصورة مباشرة أو غير مباشرة\" تحت أي مسمى وظيفي آخر، ستطبق العقوبات الخاصة بمخالفات التوطين المنصوص عليها في القرار الوزاري رقم 75913 وتاريخ 1445/05/19هـ والقرار الوزاري رقم 44558 وتاريخ 1446/4/3هـ مع مراعاة ما يطرأ عليه من تعديلات. (نُقل من صورة الصفحة 5 من الدليل)",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%87%D9%86%D8%A9-%D9%85%D8%B4%D8%B1%D9%81-%D9%85%D8%B3%D9%83%D9%86",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2025-11/aldlyl-alajrayy-lqrar-twtyn-mhnt-mshrf-mskn_0.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2025-11/alqrar-alwzary---62298--1-.pdf"
+  ],
+  "in_repo_guides": 17,
+  "discrepancies_vs_repo": "المستودع: حد أدنى 0؛ الرسمي: 5,000 ريال.",
+  "confidence": "high"
+ },
+ {
+  "id": "relax",
+  "kind": "profession_group",
+  "title_ar": "المهن الإدارية والمساندة في مراكز الاسترخاء والعناية الشخصية",
+  "decision_no": "68098",
+  "issued_hijri": "20/05/1447",
+  "issued_gregorian": "2025-11-11",
+  "effective_date": "2026-05-11 (مهلة 6 أشهر)",
+  "rate_percent_by_class": {
+   "الإدارية والمساندة (جدول 2)": 100
+  },
+  "min_workers": 1,
+  "min_salary": "لا حد أدنى في النص المقروء",
+  "scope_summary_ar": "قصر العمل على السعوديين في المهن الإدارية والمساندة بمنفذ تقديم الخدمة؛ بالشراكة مع وزارة البلديات والإسكان.",
+  "penalty_clause_ar": "في حالة عدم تقيد المنشأة بنسبة التوطين المطلوبة، أو إسناد أي من مهام تلك المهن الموطنة إلى عامل غير سعودي \"بطريقة مباشرة أو غير مباشرة\" تحت أي مسمى وظيفي آخر، سيتم تطبيق العقوبات الخاصة بمخالفات التوطين المنصوص عليها في القرار الوزاري رقم 75913 وتاريخ 1445/05/19هـ والقرار الوزاري رقم 44558 وتاريخ 1446/04/03هـ مع مراعاة ما يطرأ عليه من تعديلات. (البند 5 «آلية تنفيذ العقوبات والإجراءات النظامية» في الدليل)",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D8%A7%D9%84%D9%85%D9%87%D9%86-%D8%A7%D9%84%D8%A5%D8%AF%D8%A7%D8%B1%D9%8A%D8%A9-%D9%88%D8%A7%D9%84%D9%85%D8%B3%D8%A7%D9%86%D8%AF%D8%A9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2025-11/alqrar-alwzary-rqm-68098.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2025-11/mswdt-aldlyl-alajray-y-lqrar-twtyn-nshat-mrakz-alastrkha-wal-nayt-alshkhsyt_v11.pdf"
+  ],
+  "in_repo_guides": 22,
+  "discrepancies_vs_repo": null,
+  "confidence": "medium"
+ },
+ {
+  "id": "tourism",
+  "kind": "activity",
+  "title_ar": "توطين المهن في القطاع السياحي (41 مهنة)",
+  "decision_no": "137440",
+  "issued_hijri": "23/10/1446",
+  "issued_gregorian": "2025-04-21",
+  "effective_date": "م1: 2026-04-22؛ م2: 2027-01-03؛ م3: 2028-01-02",
+  "rate_percent_by_class": {
+   "جدول1": 100,
+   "جدول2": 70,
+   "جدول3": 50,
+   "جدول4 (طاهي)": 30,
+   "جدول5 (مجموعة المدراء)": 50
+  },
+  "min_workers": 1,
+  "min_salary": "لم يُقرأ",
+  "scope_summary_ar": "جميع المنشآت السياحية بالقطاع الخاص التي فيها عامل فأكثر؛ بالشراكة مع وزارة السياحة؛ 3 مراحل.",
+  "penalty_clause_ar": "في حالة عدم تقيد المنشأة بنسبة التوطين المطلوبة، أو إسناد أي من مهام تلك المهن الموطنة إلى عامل غير سعودي \"بطريقة مباشرة أو غير مباشرة\" تحت أي مسمى وظيفي آخر، سيتم تطبيق العقوبات الخاصة بمخالفات التوطين المنصوص عليها في القرار الوزاري رقم 75913 وتاريخ 1445/05/19هـ والقرار الوزاري رقم 44558 وتاريخ 1446/04/03هـ مع مراعاة ما يطرأ عليه من تعديلات. (البند 5 «آلية تنفيذ العقوبات والإجراءات النظامية» في الدليل)",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A7%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D8%A7%D9%84%D9%82%D8%B7%D8%A7%D8%B9-%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D9%8A",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2025-04/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D8%A7%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A%20%D9%84%D9%82%D8%B1%D8%A7%D8%B1%20%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D8%A7%D9%84%D9%82%D8%B7%D8%A7%D8%B9%20%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D9%8A_1.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2025-04/%D9%82%D8%B1%D8%A7%D8%B1%20%D8%A7%D8%B9%D8%AA%D9%85%D8%A7%D8%AF%20%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D8%A7%D9%84%D9%82%D8%B7%D8%A7%D8%B9%20%D8%A7%D9%84%D8%B3%D9%8A%D8%A7%D8%AD%D9%8A.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع (القرار والدليل منشوران رسمياً).",
+  "confidence": "medium"
+ },
+ {
+  "id": "health_51270",
+  "kind": "profession_group",
+  "title_ar": "توطين مهنة العلاج الطبيعي",
+  "decision_no": "51270",
+  "issued_hijri": "13/04/1446",
+  "issued_gregorian": "2024-10-16",
+  "effective_date": "م1: 2025-04-17 (المدن الرئيسية الست + المنشآت الكبرى والعملاقة)؛ م2: 2025-10-17 (بقية المنشآت)",
+  "rate_percent_by_class": {
+   "الكل": 80
+  },
+  "min_workers": 1,
+  "min_salary": "7,000 ريال للأخصائي (بكالوريوس)؛ 5,000 ريال للفني (دبلوم)",
+  "scope_summary_ar": "منشآت بها عامل فأكثر؛ بالشراكة مع وزارة الصحة؛ شرط الاعتماد المهني.",
+  "penalty_clause_ar": "الدليل يحيل إلى القرار 75913 وتاريخ 1445/5/19هـ مع مراعاة ما يطرأ عليه من تعديلات.",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%87%D9%86-%D8%A7%D9%84%D8%B9%D9%84%D8%A7%D8%AC-%D8%A7%D9%84%D8%B7%D8%A8%D9%8A%D8%B9%D9%8A",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-twtyn-mhn-al-laj-altby-y.pdf"
+  ],
+  "in_repo_guides": 9,
+  "discrepancies_vs_repo": "المستودع: تاريخ 13/04/1447هـ خطأ؛ الرسمي 13-ربيع الآخر-1446 (2024-10-16).",
+  "confidence": "high"
+ },
+ {
+  "id": "health_51273",
+  "kind": "profession_group",
+  "title_ar": "توطين مهنة الأشعة",
+  "decision_no": "51273",
+  "issued_hijri": "13/04/1446",
+  "issued_gregorian": "2024-10-16",
+  "effective_date": "م1: 2025-04-17 (المدن الرئيسية الست + المنشآت الكبرى والعملاقة)؛ م2: 2025-10-17 (بقية المنشآت)",
+  "rate_percent_by_class": {
+   "الكل": 65
+  },
+  "min_workers": 1,
+  "min_salary": "7,000 ريال للأخصائي (بكالوريوس)؛ 5,000 ريال للفني (دبلوم)",
+  "scope_summary_ar": "منشآت بها عامل فأكثر؛ بالشراكة مع وزارة الصحة؛ شرط الاعتماد المهني.",
+  "penalty_clause_ar": "الدليل يحيل إلى القرار 75913 وتاريخ 1445/5/19هـ مع مراعاة ما يطرأ عليه من تعديلات.",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%87%D9%86-%D8%A7%D9%84%D8%A3%D8%B4%D8%B9%D8%A9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-twtyn-mhn-alash-t.pdf"
+  ],
+  "in_repo_guides": 10,
+  "discrepancies_vs_repo": null,
+  "confidence": "high"
+ },
+ {
+  "id": "health_51267",
+  "kind": "profession_group",
+  "title_ar": "توطين مهنة المختبرات الطبية",
+  "decision_no": "51267",
+  "issued_hijri": "13/04/1446",
+  "issued_gregorian": "2024-10-16",
+  "effective_date": "م1: 2025-04-17 (المدن الرئيسية الست + المنشآت الكبرى والعملاقة)؛ م2: 2025-10-17 (بقية المنشآت)",
+  "rate_percent_by_class": {
+   "الكل": 70
+  },
+  "min_workers": 1,
+  "min_salary": "7,000 ريال للأخصائي (بكالوريوس)؛ 5,000 ريال للفني (دبلوم)",
+  "scope_summary_ar": "منشآت بها عامل فأكثر؛ بالشراكة مع وزارة الصحة؛ شرط الاعتماد المهني.",
+  "penalty_clause_ar": "الدليل يحيل إلى القرار 75913 وتاريخ 1445/5/19هـ مع مراعاة ما يطرأ عليه من تعديلات.",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%87%D9%86-%D8%A7%D9%84%D9%85%D8%AE%D8%AA%D8%A8%D8%B1%D8%A7%D8%AA-%D8%A7%D9%84%D8%B7%D8%A8%D9%8A%D8%A9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-twtyn-mhn-almkhtbrat-altbyt.pdf"
+  ],
+  "in_repo_guides": 13,
+  "discrepancies_vs_repo": null,
+  "confidence": "high"
+ },
+ {
+  "id": "health_51277",
+  "kind": "profession_group",
+  "title_ar": "توطين مهنة التغذية العلاجية",
+  "decision_no": "51277",
+  "issued_hijri": "13/04/1446",
+  "issued_gregorian": "2024-10-16",
+  "effective_date": "م1: 2025-04-17 (المدن الرئيسية الست + المنشآت الكبرى والعملاقة)؛ م2: 2025-10-17 (بقية المنشآت)",
+  "rate_percent_by_class": {
+   "الكل": 80
+  },
+  "min_workers": 1,
+  "min_salary": "7,000 ريال للأخصائي (بكالوريوس)؛ 5,000 ريال للفني (دبلوم)",
+  "scope_summary_ar": "منشآت بها عامل فأكثر؛ بالشراكة مع وزارة الصحة؛ شرط الاعتماد المهني.",
+  "penalty_clause_ar": "الدليل يحيل إلى القرار 75913 وتاريخ 1445/5/19هـ مع مراعاة ما يطرأ عليه من تعديلات.",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%87%D9%86-%D8%A7%D9%84%D8%AA%D8%BA%D8%B0%D9%8A%D8%A9-%D8%A7%D9%84%D8%B9%D9%84%D8%A7%D8%AC%D9%8A%D8%A9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-twtyn-mhn-altghdhyt-al-lajyt.pdf"
+  ],
+  "in_repo_guides": 15,
+  "discrepancies_vs_repo": null,
+  "confidence": "high"
+ },
+ {
+  "id": "consulting",
+  "kind": "activity",
+  "title_ar": "توطين كيانات ومنشآت نشاط الخدمات الاستشارية",
+  "decision_no": "46968",
+  "issued_hijri": "15/03/1444",
+  "issued_gregorian": null,
+  "effective_date": "م1: 1444/09/15هـ؛ م2: 1445/09/15هـ",
+  "rate_percent_by_class": {
+   "الإجمالي": "35% ثم 40% (النص مشوّه؛ يلزم التحقق)"
+  },
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "دليل إجرائي لقرار 46968.",
+  "penalty_clause_ar": null,
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/1170120",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2023-03/11102022.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع",
+  "confidence": "low"
+ },
+ {
+  "id": "ict",
+  "kind": "activity",
+  "title_ar": "توطين مهن الاتصالات وتقنية المعلومات",
+  "decision_no": "28889",
+  "issued_hijri": "18/02/1442",
+  "issued_gregorian": "2020-10-05",
+  "effective_date": "لم يُحدَّد في النص المقروء",
+  "rate_percent_by_class": {
+   "هندسة الاتصالات وتقنية المعلومات": 25,
+   "تطوير التطبيقات والبرمجة والتحليل": 25,
+   "الدعم الفني والمساندة": 25
+  },
+  "min_workers": 5,
+  "min_salary": "7,000 / 7,000 / 5,000 ريال للفئات الثلاث",
+  "scope_summary_ar": "5 عاملين فأكثر.",
+  "penalty_clause_ar": "الدليل (محدّث) يحيل إلى 75913 و44558.",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%87%D9%86-%D8%A7%D9%84%D8%A7%D8%AA%D8%B5%D8%A7%D9%84%D8%A7%D8%AA-%D9%88%D8%AA%D9%82%D9%86%D9%8A%D8%A9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-twtyn-mhn-alatsalat-wtqnyt-alm-lwmat.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/qrar-twtyn-mhn-alatsalat.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع.",
+  "confidence": "high"
+ },
+ {
+  "id": "meddev",
+  "kind": "activity",
+  "title_ar": "توطين قطاع الأجهزة والمستلزمات الطبية",
+  "decision_no": "48081",
+  "issued_hijri": "05/03/1443",
+  "issued_gregorian": "2021-10-11",
+  "effective_date": "م1: 1443/09/10هـ (2022-04-11)؛ م2: 1444/09/10هـ (2023-04-01)",
+  "rate_percent_by_class": {
+   "المبيعات والدعاية": "40% ثم 80%",
+   "المهندسون والفنيون": "30% ثم 50%"
+  },
+  "min_workers": 1,
+  "min_salary": "7,000 ريال للأخصائي؛ 5,000 ريال للفني",
+  "scope_summary_ar": "على مستوى الكيان.",
+  "penalty_clause_ar": "الدليل يحيل إلى 75913.",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%82%D8%B7%D8%A7%D8%B9-%D8%A7%D9%84%D8%A3%D8%AC%D9%87%D8%B2%D8%A9-%D8%A7%D9%84%D8%B7%D8%A8%D9%8A%D8%A9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-twtyn-alajhzt-altbyt.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/qrar-twtyn-almstlzmat-altbyt.pdf"
+  ],
+  "in_repo_guides": 8,
+  "discrepancies_vs_repo": "المستودع: 80% فقط (المرحلة 2)؛ الرسمي مرحلتان وفئتان.",
+  "confidence": "high"
+ },
+ {
+  "id": "driving",
+  "kind": "activity",
+  "title_ar": "توطين مدارس تعليم قيادة المركبات",
+  "decision_no": "212519",
+  "issued_hijri": "24/11/1442",
+  "issued_gregorian": "2021-07-04",
+  "effective_date": "غير محدد في النص المقروء",
+  "rate_percent_by_class": {
+   "الكل": 100
+  },
+  "min_workers": 1,
+  "min_salary": "5,000 ريال (مدرب القيادة)",
+  "scope_summary_ar": "قصر على السعوديين مع استثناء عامل النظافة والشحن والتفريغ (والسائق) بما لا يتجاوز 10% من العاملين وبزي موحد.",
+  "penalty_clause_ar": "الدليل يحيل إلى 75913.",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D8%AF%D8%A7%D8%B1%D8%B3-%D9%82%D9%8A%D8%A7%D8%AF%D8%A9-%D8%A7%D9%84%D9%85%D8%B1%D9%83%D8%A8%D8%A7%D8%AA",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-twtyn-nshat-mdars-t-lym-qyadt-almrkbat.pdf"
+  ],
+  "in_repo_guides": 18,
+  "discrepancies_vs_repo": null,
+  "confidence": "high"
+ },
+ {
+  "id": "customs",
+  "kind": "activity",
+  "title_ar": "توطين نشاط ومهن التخليص الجمركي",
+  "decision_no": "212497",
+  "issued_hijri": "24/11/1442",
+  "issued_gregorian": "2021-07-04",
+  "effective_date": "غير محدد في النص المقروء",
+  "rate_percent_by_class": {
+   "إجمالي العاملين في النشاط": 70,
+   "مخلص ومبند جمركي": 100
+  },
+  "min_workers": 1,
+  "min_salary": "5,000 ريال",
+  "scope_summary_ar": "جميع مناطق المملكة.",
+  "penalty_clause_ar": "الدليل يحيل إلى 75913 و44558.",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%86%D8%B4%D8%A7%D8%B7-%D8%A7%D9%84%D8%AA%D8%AE%D9%84%D9%8A%D8%B5-%D8%A7%D9%84%D8%AC%D9%85%D8%B1%D9%83%D9%8A",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-twtyn-nshat-wmhn-altkhlys-aljmrky.pdf"
+  ],
+  "in_repo_guides": 19,
+  "discrepancies_vs_repo": "المستودع 100 فقط؛ الرسمي: 70% على إجمالي النشاط + 100% على مهنتين.",
+  "confidence": "high"
+ },
+ {
+  "id": "realestate",
+  "kind": "activity",
+  "title_ar": "توطين الأنشطة والمهن العقارية",
+  "decision_no": "212535",
+  "issued_hijri": "24/11/1442",
+  "issued_gregorian": "2021-07-04",
+  "effective_date": "1443/02/24هـ تقريباً (نص الجدول مشوّه الأرقام؛ مهلة 90 يوماً من النشر)",
+  "rate_percent_by_class": {
+   "إجمالي العاملين في الأنشطة العقارية": 70,
+   "مهن محددة": 100
+  },
+  "min_workers": 1,
+  "min_salary": null,
+  "scope_summary_ar": "جميع المناطق.",
+  "penalty_clause_ar": "«ضبط مخالفة المادة 36 من نظام العمل وفق جدول المخالفات والعقوبات الصادر بالقرار الوزاري (178743) وتاريخ 1440/09/27هـ، مع مراعاة أي تعديلات تطرأ عليه.» (نص الدليل بعد إصلاح ترميز الحروف)",
+  "violations_table_row_ref": "جدول 178743 (1440/9/27هـ) ثم تعديلاته إلى 112377؛ المقابل الحالي البند 30/29",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/843853",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2021-07/04112023.pdf"
+  ],
+  "in_repo_guides": 1,
+  "discrepancies_vs_repo": "المستودع 100% فقط؛ الرسمي 70% للنشاط + 100% لمهن محددة.",
+  "confidence": "medium"
+ },
+ {
+  "id": "cinema",
+  "kind": "activity",
+  "title_ar": "توطين قطاع السينما",
+  "decision_no": "212560",
+  "issued_hijri": "24/11/1442",
+  "issued_gregorian": "2021-07-04",
+  "effective_date": "2021-10-02 (1443/2/24هـ)",
+  "rate_percent_by_class": {
+   "مرحلة 1 (أنشطة ودور العرض)": 100,
+   "مرحلة 2 (المهن الفنية)": 50
+  },
+  "min_workers": 1,
+  "min_salary": null,
+  "scope_summary_ar": "ألا تتجاوز العمالة الوافدة 15% من العاملين.",
+  "penalty_clause_ar": "الدليل يحيل إلى 178743 وتاريخ 1440/9/27هـ.",
+  "violations_table_row_ref": "178743 ثم 112377",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A7%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%82%D8%B7%D8%A7%D8%B9-%D8%A7%D9%84%D8%B3%D9%8A%D9%86%D9%85%D8%A7",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2021-07/05112023.pdf"
+  ],
+  "in_repo_guides": 2,
+  "discrepancies_vs_repo": "المستودع 100 فقط.",
+  "confidence": "high"
+ },
+ {
+  "id": "legal",
+  "kind": "profession_group",
+  "title_ar": "توطين المهن القانونية",
+  "decision_no": "212607",
+  "issued_hijri": "24/11/1442",
+  "issued_gregorian": "2021-07-04",
+  "effective_date": "غير محدد في النص",
+  "rate_percent_by_class": {
+   "الكل": 70
+  },
+  "min_workers": 1,
+  "min_salary": "5,500 ريال",
+  "scope_summary_ar": "على مستوى الكيان.",
+  "penalty_clause_ar": "الدليل يحيل إلى 178743 وتاريخ 1440/9/27هـ.",
+  "violations_table_row_ref": "178743 ثم 112377",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A7%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D8%A7%D9%84%D9%85%D9%87%D9%86-%D8%A7%D9%84%D9%82%D8%A7%D9%86%D9%88%D9%86%D9%8A%D8%A9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-mhn-alqanwnyt.pdf"
+  ],
+  "in_repo_guides": 7,
+  "discrepancies_vs_repo": null,
+  "confidence": "high"
+ },
+ {
+  "id": "cs_remote",
+  "kind": "profession_group",
+  "title_ar": "توطين مهن خدمة العملاء عن بعد",
+  "decision_no": "112203",
+  "issued_hijri": "18/06/1442",
+  "issued_gregorian": "2021-01-31",
+  "effective_date": "غير محدد",
+  "rate_percent_by_class": {
+   "الكل": 100
+  },
+  "min_workers": 1,
+  "min_salary": null,
+  "scope_summary_ar": "قصر مهن خدمة العملاء عن بعد على السعوديين؛ الاحتساب في نطاقات وفق القرار 61706 (1442/4/3هـ).",
+  "penalty_clause_ar": "الدليل يحيل إلى 178743.",
+  "violations_table_row_ref": "178743 ثم 112377",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%87%D9%86-%D8%AE%D8%AF%D9%85%D8%A9-%D8%A7%D9%84%D8%B9%D9%85%D9%84%D8%A7%D8%A1-%D8%B9%D9%86-%D8%A8%D8%B9%D8%AF",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2021-08/19082021.pdf"
+  ],
+  "in_repo_guides": 23,
+  "discrepancies_vs_repo": null,
+  "confidence": "medium"
+ },
+ {
+  "id": "cs",
+  "kind": "profession_group",
+  "title_ar": "توطين مهن خدمة العملاء",
+  "decision_no": "208892",
+  "issued_hijri": "23/11/1443",
+  "issued_gregorian": "2022-06-22",
+  "effective_date": "غير محدد في النص",
+  "rate_percent_by_class": {
+   "الكل": 100
+  },
+  "min_workers": 1,
+  "min_salary": null,
+  "scope_summary_ar": "خدمة العملاء بالعربية والإنجليزية ومديرو العمليات وقادة الفرق.",
+  "penalty_clause_ar": "الدليل يحيل إلى 92768 وتاريخ 1443/5/5هـ.",
+  "violations_table_row_ref": "92768 ثم 112377",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%87%D9%86-%D8%AE%D8%AF%D9%85%D8%A9-%D8%A7%D9%84%D8%B9%D9%85%D9%84%D8%A7%D8%A1-%D8%B9%D9%86-%D8%A8%D8%B9%D8%AF",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2021-08/19082021.pdf"
+  ],
+  "in_repo_guides": 24,
+  "discrepancies_vs_repo": null,
+  "confidence": "medium"
+ },
+ {
+  "id": "aviation",
+  "kind": "profession_group",
+  "title_ar": "توطين مهن الطيران المرخصة",
+  "decision_no": "208818",
+  "issued_hijri": "23/11/1443",
+  "issued_gregorian": "2022-06-22",
+  "effective_date": "م1: 1444/08/23هـ؛ م2: 1445/08/23هـ",
+  "rate_percent_by_class": {
+   "مراقب/ملاح جوي/منسق/مساعد طيار": 100,
+   "مضيف: م1 50 ثم م2 60": "50→60",
+   "طيار جناح ثابت: م1 60 ثم م2 70": "60→70"
+  },
+  "min_workers": 5,
+  "min_salary": null,
+  "scope_summary_ar": "اعتماد مهني من الهيئة العامة للطيران المدني.",
+  "penalty_clause_ar": "الدليل يحيل إلى 92768.",
+  "violations_table_row_ref": "92768 ثم 112377",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%87%D9%86-%D8%A7%D9%84%D8%B7%D9%8A%D8%B1%D8%A7%D9%86-%D8%A7%D9%84%D9%85%D8%B1%D8%AE%D8%B5%D8%A9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2022-06/22112022.pdf"
+  ],
+  "in_repo_guides": 26,
+  "discrepancies_vs_repo": "المستودع 70% فقط؛ الرسمي متعدد الفئات.",
+  "confidence": "high"
+ },
+ {
+  "id": "optics",
+  "kind": "profession_group",
+  "title_ar": "توطين قطاع البصريات",
+  "decision_no": "208837",
+  "issued_hijri": "23/11/1443",
+  "issued_gregorian": "2022-06-22",
+  "effective_date": "1444/08/26هـ (مهلة 6 أشهر؛ النص يذكر 2023)",
+  "rate_percent_by_class": {
+   "الكل": 50
+  },
+  "min_workers": 4,
+  "min_salary": "5,500 ريال",
+  "scope_summary_ar": "4 عاملين فأكثر.",
+  "penalty_clause_ar": "الدليل يحيل إلى 75913 و44558.",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%82%D8%B7%D8%A7%D8%B9-%D8%A7%D9%84%D8%A8%D8%B5%D8%B1%D9%8A%D8%A7%D8%AA",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/aldlyl-alajrayy-lqrar-twtyn-mhn-albsryat.pdf"
+  ],
+  "in_repo_guides": 11,
+  "discrepancies_vs_repo": null,
+  "confidence": "high"
+ },
+ {
+  "id": "seven_outlets",
+  "kind": "activity",
+  "title_ar": "توطين منافذ بيع 7 أنشطة اقتصادية",
+  "decision_no": "208819",
+  "issued_hijri": "23/11/1443",
+  "issued_gregorian": "2022-06-22",
+  "effective_date": "غير محدد",
+  "rate_percent_by_class": {
+   "الكل": 70
+  },
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "منافذ مساحة 200 م² فأكثر؛ مدير المنفذ سعودي؛ ألا تتجاوز غير السعوديين 30%.",
+  "penalty_clause_ar": "الدليل يحيل إلى 92768.",
+  "violations_table_row_ref": "92768 ثم 112377",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%86%D8%A7%D9%81%D8%B0-%D8%A8%D9%8A%D8%B9-7-%D8%A3%D9%86%D8%B4%D8%B7%D8%A9-%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF%D9%8A%D8%A9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2023-09/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D8%A7%D9%95%D8%AC%D8%B1%D8%A7%D9%8A%D9%94%D9%8A%20%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86%207%20%D8%A7%D9%94%D9%86%D8%B4%D8%B7%D8%A9%20%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF%D9%8A%D8%A9%2004-09-2023%20%281%29.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع.",
+  "confidence": "medium"
+ },
+ {
+  "id": "postal",
+  "kind": "activity",
+  "title_ar": "توطين منافذ تقديم خدمات البريد ونقل الطرود",
+  "decision_no": "208849",
+  "issued_hijri": "23/11/1443",
+  "issued_gregorian": "2022-06-22",
+  "effective_date": "1444/09/10هـ (2023-04-01) للرؤساء التنفيذيين و60%؛ 1445/03/16هـ (2023-10-01) للمستوى الثاني",
+  "rate_percent_by_class": {
+   "الرؤساء التنفيذيون": 100,
+   "المستوى الأول للإدارة العليا": 60,
+   "المستوى الثاني": 70
+  },
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "منافذ الخدمة.",
+  "penalty_clause_ar": "الدليل يحيل إلى 92768.",
+  "violations_table_row_ref": "92768 ثم 112377",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D8%A3%D9%86%D8%B4%D8%B7%D8%A9-%D8%A7%D9%84%D8%A8%D8%B1%D9%8A%D8%AF-%D9%88%D9%86%D9%82%D9%84-%D8%A7%D9%84%D8%B7%D8%B1%D9%88%D8%AF",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2022-06/20112022.pdf"
+  ],
+  "in_repo_guides": 34,
+  "discrepancies_vs_repo": "المستودع: 100% عامة؛ الرسمي متدرج. صفحة الوزارة تذكر تاريخ إصدار 1441/11/01 (22/6/2020) وهو غير متسق مع 23/11/1443.",
+  "confidence": "medium"
+ },
+ {
+  "id": "amusement",
+  "kind": "activity",
+  "title_ar": "توطين مدن الملاهي والمراكز الترفيهية",
+  "decision_no": "165575",
+  "issued_hijri": "28/08/1443",
+  "issued_gregorian": "2022-03-31",
+  "effective_date": "1444/02/10هـ (بعد 180 يوماً)",
+  "rate_percent_by_class": {
+   "مستقلة وموسمية": 70,
+   "داخل المولات": 100
+  },
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "مرتبط بقرار المجمعات التجارية المغلقة 160045.",
+  "penalty_clause_ar": "الدليل يحيل إلى 178743 و92768.",
+  "violations_table_row_ref": "ثم 112377",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D8%AF%D9%86-%D8%A7%D9%84%D9%85%D9%84%D8%A7%D9%87%D9%8A-%D9%88%D8%A7%D9%84%D9%85%D8%B1%D8%A7%D9%83%D8%B2",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2022-03/31032022-1670419840.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع.",
+  "confidence": "medium"
+ },
+ {
+  "id": "madinah",
+  "kind": "activity",
+  "title_ar": "توطين منطقة المدينة المنورة",
+  "decision_no": "92412",
+  "issued_hijri": "05/06/1444",
+  "issued_gregorian": "2022-12-29",
+  "effective_date": "1444/12/20هـ بعد مهلة",
+  "rate_percent_by_class": {
+   "أنشطة": "40% إلى 100% حسب النشاط"
+  },
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "منطقة المدينة المنورة.",
+  "penalty_clause_ar": "الدليل يحيل إلى 92768.",
+  "violations_table_row_ref": "92768 ثم 112377",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A7%D9%95%D8%AC%D8%B1%D8%A7%D9%8A%D9%94%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%A7%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%81%D9%8A-%D9%85%D9%86%D8%B7%D9%82%D8%A9-%D8%A7%D9%84%D9%85%D8%AF%D9%8A%D9%86%D8%A9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2023-02/92412%20%281%29.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2023-07/09012023.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع.",
+  "confidence": "medium"
+ },
+ {
+  "id": "jazan",
+  "kind": "activity",
+  "title_ar": "توطين منطقة جازان",
+  "decision_no": "92421",
+  "issued_hijri": "05/06/1444",
+  "issued_gregorian": "2022-12-29",
+  "effective_date": "1444/12/07هـ",
+  "rate_percent_by_class": {
+   "منافذ خدمة": 70,
+   "مكاتب الحجوزات والمهن الإشرافية": 100
+  },
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "منطقة جازان.",
+  "penalty_clause_ar": "الدليل يحيل إلى 92768.",
+  "violations_table_row_ref": "92768 ثم 112377",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A7%D9%95%D8%AC%D8%B1%D8%A7%D9%8A%D9%94%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%86%D8%B7%D9%82%D8%A9-%D8%AC%D8%A7%D8%B2%D8%A7%D9%86",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2023-02/%D9%82%D8%B1%D8%A7%D8%B1%20%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D9%85%D9%86%D8%B7%D9%82%D8%A9%20%D8%AC%D8%A7%D8%B2%D8%A7%D9%86.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2023-07/18012023.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع.",
+  "confidence": "medium"
+ },
+ {
+  "id": "shipping",
+  "kind": "activity",
+  "title_ar": "توطين منافذ خدمات أنشطة الشحن ووسطاء الشحن",
+  "decision_no": "141722",
+  "issued_hijri": "11/09/1444",
+  "issued_gregorian": "2023-04-02",
+  "effective_date": "1445/03/11هـ (2023-09-26)",
+  "rate_percent_by_class": null,
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "14 نشاطاً؛ بالتعاون مع وزارة النقل والهيئة العامة للنقل؛ غير السعوديين بحد أقصى 20% في الوردية.",
+  "penalty_clause_ar": "الدليل يحيل إلى 92768.",
+  "violations_table_row_ref": "92768 ثم 112377",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%86%D8%A7%D9%81%D8%B0-%D8%AE%D8%AF%D9%85%D8%A7%D8%AA-%D8%A3%D9%86%D8%B4%D8%B7%D8%A9-%D8%A7%D9%84%D8%B4%D8%AD%D9%86",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2023-04/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A%20%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D9%85%D9%86%D8%A7%D9%81%D8%B0%20%D8%AE%D8%AF%D9%85%D8%A7%D8%AA%20%D8%A3%D9%86%D8%B4%D8%B7%D8%A9%20%D8%A7%D9%84%D8%B4%D8%AD%D9%86%20%D9%88%D9%88%D8%B3%D8%B7%D8%A7%D8%A1%20%D8%A7%D9%84%D8%B4%D8%AD%D9%86.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2025-05/%D9%82%D8%B1%D8%A7%D8%B1%20%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D9%85%D9%86%D8%A7%D9%81%D8%B0%20%D8%AE%D8%AF%D9%85%D8%A7%D8%AA%20%D8%A3%D9%86%D8%B4%D8%B7%D8%A9%20%D8%A7%D9%84%D8%B4%D8%AD%D9%86%20%D9%88%D9%88%D8%B3%D8%B7%D8%A7%D8%A1%20%D8%A7%D9%84%D8%B4%D8%AD%D9%86.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع.",
+  "confidence": "medium"
+ },
+ {
+  "id": "tailoring",
+  "kind": "activity",
+  "title_ar": "توطين منافذ التزيين والخياطة النسائية",
+  "decision_no": "141602",
+  "issued_hijri": "11/09/1444",
+  "issued_gregorian": "2023-04-02",
+  "effective_date": "1445/06/11هـ",
+  "rate_percent_by_class": null,
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "الوظائف الإدارية كاملة + عاملة سعودية على الأقل؛ منشآت بها 10 عاملات غير سعوديات فأكثر.",
+  "penalty_clause_ar": "الدليل يحيل إلى 92768.",
+  "violations_table_row_ref": "92768 ثم 112377",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%85%D9%86%D8%A7%D9%81%D8%B0-%D8%A7%D9%84%D8%AA%D8%B2%D9%8A%D9%8A%D9%86-%D9%88%D8%A7%D9%84%D8%AE%D9%8A%D8%A7%D8%B7%D8%A9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2023-04/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A%20%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D9%85%D9%86%D8%A7%D9%81%D8%B0%20%D8%A7%D9%84%D8%AA%D8%B2%D9%8A%D9%8A%D9%86%20%D9%88%D8%A7%D9%84%D8%AE%D9%8A%D8%A7%D8%B7%D8%A9%20%D8%A7%D9%84%D9%86%D8%B3%D8%A7%D8%A6%D9%8A%D8%A9.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع.",
+  "confidence": "medium"
+ },
+ {
+  "id": "gen_edu",
+  "kind": "activity",
+  "title_ar": "توطين قطاع التعليم العام الأهلي والمدارس العالمية",
+  "decision_no": "312028",
+  "issued_hijri": "09/12/1444",
+  "issued_gregorian": "2023-06-27",
+  "effective_date": "بداية العام الدراسي 1445هـ",
+  "rate_percent_by_class": {
+   "التعليم الأهلي (المنهج الوطني)": 50
+  },
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "مهن مستهدفة في مدارس التعليم العام الأهلي.",
+  "penalty_clause_ar": "الدليل يحيل إلى 178743 مع تعديلاته.",
+  "violations_table_row_ref": "178743 ثم 112377",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/14441221",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2023-09/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A%20%D9%84%D9%82%D8%B1%D8%A7%D8%B1%20%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D9%82%D8%B7%D8%A7%D8%B9%20%D8%A7%D9%84%D8%AA%D8%B9%D9%84%D9%8A%D9%85%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%20%D8%A7%D9%84%D8%A3%D9%87%D9%84%D9%8A.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2023-09/312028.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع.",
+  "confidence": "medium"
+ },
+ {
+  "id": "retail",
+  "kind": "activity",
+  "title_ar": "توطين منافذ بيع الجملة والتجزئة في الأنشطة التجارية (محدّث)",
+  "decision_no": "16655",
+  "issued_hijri": "07/02/1446",
+  "issued_gregorian": "2024-08-11",
+  "effective_date": "1446/2/7هـ",
+  "rate_percent_by_class": {
+   "الكل": 70
+  },
+  "min_workers": 4,
+  "min_salary": null,
+  "scope_summary_ar": "منافذ بيع بـ4 عاملين فأكثر خلال الوردية؛ غير السعوديين المستثنون بحد أقصى 20%.",
+  "penalty_clause_ar": "الدليل يحيل إلى 75913.",
+  "violations_table_row_ref": "جدول المخالفات والعقوبات بالقرار 112377 (21/8/1447هـ)، فئة المخالفات العامة لكافة الأنشطة، البند 30: «عدم التزام صاحب العمل بنسب التوطين للمهن والأنشطة الصادر لها قرارات وزارية» (جسيمة؛ ج 2,000 / ب 4,000 / أ 6,000 ريال عن كل عامل غير سعودي متجاوز للنسبة المقررة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/181120241",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2024-11/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A%20%28%D8%A7%D9%84%D9%85%D8%AD%D8%AF%D8%AB%29%20%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D9%85%D9%86%D8%A7%D9%81%D8%B0%20%D8%A8%D9%8A%D8%B9%20%D8%A7%D9%84%D8%AC%D9%85%D9%84%D8%A9%20%D9%88%D8%A7%D9%84%D8%AA%D8%AC%D8%B2%D8%A6%D8%A9%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%A3%D9%86%D8%B4%D8%B7%D8%A9%20%D8%A7%D9%84%D8%AA%D8%AC%D8%A7%D8%B1%D9%8A%D8%A9.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2024-11/%D9%82%D8%B1%D8%A7%D8%B1%20%D8%A7%D8%B9%D8%AA%D9%85%D8%A7%D8%AF%20%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A%20%28%D8%A7%D9%84%D9%85%D8%AD%D8%AF%D8%AB%29%20%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D9%85%D9%86%D8%A7%D9%81%D8%B0%20%D8%A8%D9%8A%D8%B9%20%D8%A7%D9%84%D8%AC%D9%85%D9%84%D8%A9%20%D9%88%D8%A7%D9%84%D8%AA%D8%AC%D8%B2%D8%A6%D8%A9%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%A3%D9%86%D8%B4%D8%B7%D8%A9%20%D8%A7%D9%84%D8%AA%D8%AC%D8%A7%D8%B1%D9%8A%D8%A9%2016655.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع.",
+  "confidence": "high"
+ },
+ {
+  "id": "groceries_markets",
+  "kind": "activity",
+  "title_ar": "توطين التموينات والأسواق المركزية (ثلاثة أدلة: 160008، 160045، 159986)",
+  "decision_no": "160008 (1442/8/25هـ) + 160045 (1442/8/25هـ) + 159986 (1442/12/25هـ)",
+  "issued_hijri": "25/08/1442",
+  "issued_gregorian": null,
+  "effective_date": "بعد 180 يوماً من الصدور (1443/2/25هـ)",
+  "rate_percent_by_class": {
+   "مهن 100%": 100,
+   "نسب 50%/40%/30%/20% حسب النشاط": "متعدد"
+  },
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "ثلاثة أدلة؛ نسبة النشاط تختلف (مطاعم 40%، مقاهٍ 50%، مولات 100%).",
+  "penalty_clause_ar": "الدليل يحيل إلى 178743.",
+  "violations_table_row_ref": "178743 ثم 112377",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/813564",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2021-04/07042021.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2021-04/08042021.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2021-04/09042021.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع؛ ربط الأرقام بالأنشطة بين الأدلة متضارب في النص المقروء.",
+  "confidence": "low"
+ },
+ {
+  "id": "baha",
+  "kind": "activity",
+  "title_ar": "توطين عدد من الأنشطة في منطقة الباحة",
+  "decision_no": "52076",
+  "issued_hijri": "11/03/1442",
+  "issued_gregorian": "2020-10-28",
+  "effective_date": "1443/03/12هـ (بعد 90 يوماً)",
+  "rate_percent_by_class": {
+   "مطاعم": 40,
+   "مقاهٍ": 50,
+   "سجاد (بما لا يتجاوز 10%)": 100
+  },
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "منطقة الباحة.",
+  "penalty_clause_ar": "الدليل يحيل إلى 178743.",
+  "violations_table_row_ref": "178743 ثم 112377",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A7%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D8%B9%D8%AF%D8%AF-%D9%85%D9%86-%D8%A7%D9%84%D8%A3%D9%86%D8%B4%D8%B7%D8%A9-%D9%81%D9%8A-%D9%85%D9%86%D8%B7%D9%82%D8%A9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2021-10/17102021.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع.",
+  "confidence": "medium"
+ },
+ {
+  "id": "hail",
+  "kind": "activity",
+  "title_ar": "توطين بعض الأنشطة والمهن في منطقة حائل",
+  "decision_no": "92803 (حسب عنوان صفحة الوزارة؛ نص الدليل يذكر قراراً بتاريخ 1441/05/12هـ دون رقم مقروء)",
+  "issued_hijri": "12/05/1441 (حسب نص الدليل)",
+  "issued_gregorian": "2021-01-07 (تاريخ صفحة الوزارة)",
+  "effective_date": "1441/08/12هـ بعد 90 يوماً",
+  "rate_percent_by_class": {
+   "مراكز تجارية": 70
+  },
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "منطقة حائل.",
+  "penalty_clause_ar": "الدليل يحيل إلى 178743.",
+  "violations_table_row_ref": "178743 ثم 112377",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%B1%D8%B4%D8%A7%D8%AF%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%A7%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D8%A7%D9%84%D8%AE%D8%A7%D8%B5-%D8%A8%D9%85%D9%86%D8%B7%D9%82%D8%A9-%D8%AD%D8%A7%D8%A6%D9%84",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2020-01/92803.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2020-04/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84%20%D8%A7%D9%84%D8%A5%D8%B1%D8%B4%D8%A7%D8%AF%D9%8A%20%D9%84%D9%82%D8%B1%D8%A7%D8%B1%20%D8%A7%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D8%A7%D9%84%D8%AE%D8%A7%D8%B5%20%D8%A8%D9%85%D9%86%D8%B7%D9%82%D8%A9%20%D8%AD%D8%A7%D8%A6%D9%84_0.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع؛ تعارض في تاريخ الصفحة مقابل نص الدليل.",
+  "confidence": "low"
+ },
+ {
+  "id": "jawf",
+  "kind": "activity",
+  "title_ar": "توطين الجوف: السطحات 50%، مندوب مبيعات/مشتريات/أخصائي تسويق 70%، المولات ومكاتب العقار والتأمين 100%",
+  "decision_no": "27561",
+  "issued_hijri": "17/02/1442",
+  "issued_gregorian": "2020-10-04",
+  "effective_date": "غير محدد",
+  "rate_percent_by_class": {
+   "السطحات": 50,
+   "مندوب مبيعات/مشتريات/أخصائي تسويق": 70,
+   "مولات ومكاتب": 100
+  },
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "منطقة الجوف.",
+  "penalty_clause_ar": "الدليل يحيل إلى 178743.",
+  "violations_table_row_ref": "178743 ثم 112377",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D9%82%D8%B1%D8%A7%D8%B1-%D8%A7%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D8%A7%D9%84%D8%AE%D8%A7%D8%B5-%D8%A8%D9%85%D9%86%D8%B7%D9%82%D8%A9-%D8%A7%D9%84%D8%AC%D9%80%D9%88%D9%81",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2020-10/13102020.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2023-06/27561.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع.",
+  "confidence": "medium"
+ },
+ {
+  "id": "om_gov",
+  "kind": "activity",
+  "title_ar": "توطين عقود التشغيل والصيانة في الجهات العامة (القرار 35490 + دليل 83956 + تعميم 94175)",
+  "decision_no": "35490 (قرار 2019-10-21)، 83956 (دليل 2019-12-24)، 94175 (تعميم 2020-01-21)",
+  "issued_hijri": "22/02/1441",
+  "issued_gregorian": "2019-10-21",
+  "effective_date": null,
+  "rate_percent_by_class": null,
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "نسب توطين لكل فئة مهنية (إداري، هندسي، إشرافي، فني، تشغيلي، منخفض المهارة) في عقود الجهات الحكومية.",
+  "penalty_clause_ar": null,
+  "violations_table_row_ref": null,
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%AF%D9%84%D9%8A%D9%84-%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D8%B9%D9%82%D9%88%D8%AF-%D8%A7%D9%84%D8%AA%D8%B4%D8%BA%D9%8A%D9%84-%D9%88%D8%A7%D9%84%D8%B5%D9%8A%D8%A7%D9%86%D8%A9-%D9%81%D9%8A-%D8%A7%D9%84%D8%AC%D9%87%D8%A7%D8%AA-%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D8%A9",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2021-06/83956.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2024-12/%D8%AF%D9%84%D9%8A%D9%84%20%D8%AA%D9%88%D8%B7%D9%8A%D9%86%20%D8%B9%D9%82%D9%88%D8%AF%20%D8%A7%D9%84%D8%AA%D8%B4%D8%BA%D9%8A%D9%84%20%D9%88%D8%A7%D9%84%D8%B5%D9%8A%D8%A7%D9%86%D8%A9%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%AC%D9%87%D8%A7%D8%AA%20%D8%A7%D9%84%D8%B9%D8%A7%D9%85%D8%A9.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع.",
+  "confidence": "medium"
+ },
+ {
+  "id": "saudi_only_89527",
+  "kind": "saudi_only",
+  "title_ar": "قرار قصر العمل: منافذ البيع بمنطقة الحدود الشمالية",
+  "decision_no": "89527",
+  "issued_hijri": null,
+  "issued_gregorian": "2019-08-05 (تاريخ نشر الصفحة؛ 04-ذو الحجة-1440)",
+  "effective_date": null,
+  "rate_percent_by_class": null,
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "قصر العمل على السعوديين في أنشطة منطقة بعينها (ملخص الصفحة الرسمية؛ نص القرار PDF مصوّر لم يُقرأ).",
+  "penalty_clause_ar": null,
+  "violations_table_row_ref": "جدول 112377 البند 29 (توظيف عمالة غير سعودية في مهن/أنشطة مقصورة على السعوديين: جسيمة؛ ج 3,000 / ب 5,000 / أ 10,000 ريال عن كل عامل)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/ministerial-decisions/312202",
+  "pdf_urls": [],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع.",
+  "confidence": "medium"
+ },
+ {
+  "id": "saudi_only_1013",
+  "kind": "saudi_only",
+  "title_ar": "قرار قصر العمل: منافذ البيع بمنطقة القصيم",
+  "decision_no": "1013",
+  "issued_hijri": null,
+  "issued_gregorian": "2019-08-05 (تاريخ نشر الصفحة؛ 04-ذو الحجة-1440)",
+  "effective_date": null,
+  "rate_percent_by_class": null,
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "قصر العمل على السعوديين في أنشطة منطقة بعينها (ملخص الصفحة الرسمية؛ نص القرار PDF مصوّر لم يُقرأ).",
+  "penalty_clause_ar": null,
+  "violations_table_row_ref": "جدول 112377 البند 29 (توظيف عمالة غير سعودية في مهن/أنشطة مقصورة على السعوديين: جسيمة؛ ج 3,000 / ب 5,000 / أ 10,000 ريال عن كل عامل)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/ministerial-decisions/312208",
+  "pdf_urls": [],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع.",
+  "confidence": "medium"
+ },
+ {
+  "id": "saudi_only_89525",
+  "kind": "saudi_only",
+  "title_ar": "قرار قصر العمل: عدد من المهن والأنشطة بمنطقة نجران",
+  "decision_no": "89525",
+  "issued_hijri": null,
+  "issued_gregorian": "2019-08-05 (تاريخ نشر الصفحة؛ 04-ذو الحجة-1440)",
+  "effective_date": null,
+  "rate_percent_by_class": null,
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "قصر العمل على السعوديين في أنشطة منطقة بعينها (ملخص الصفحة الرسمية؛ نص القرار PDF مصوّر لم يُقرأ).",
+  "penalty_clause_ar": null,
+  "violations_table_row_ref": "جدول 112377 البند 29 (توظيف عمالة غير سعودية في مهن/أنشطة مقصورة على السعوديين: جسيمة؛ ج 3,000 / ب 5,000 / أ 10,000 ريال عن كل عامل)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/ministerial-decisions/312214",
+  "pdf_urls": [],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع.",
+  "confidence": "medium"
+ },
+ {
+  "id": "saudi_only_69408",
+  "kind": "saudi_only",
+  "title_ar": "قرار قصر العمل: أنشطة السطحات والمركبات بمنطقة عسير",
+  "decision_no": "69408",
+  "issued_hijri": null,
+  "issued_gregorian": "2019-08-05 (تاريخ نشر الصفحة؛ 04-ذو الحجة-1440)",
+  "effective_date": null,
+  "rate_percent_by_class": null,
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "قصر العمل على السعوديين في أنشطة منطقة بعينها (ملخص الصفحة الرسمية؛ نص القرار PDF مصوّر لم يُقرأ).",
+  "penalty_clause_ar": null,
+  "violations_table_row_ref": "جدول 112377 البند 29 (توظيف عمالة غير سعودية في مهن/أنشطة مقصورة على السعوديين: جسيمة؛ ج 3,000 / ب 5,000 / أ 10,000 ريال عن كل عامل)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/ministerial-decisions/312220",
+  "pdf_urls": [],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع.",
+  "confidence": "medium"
+ },
+ {
+  "id": "saudi_only_feminisation",
+  "kind": "saudi_only",
+  "title_ar": "قرار التأنيث والتوطين في الأسواق المفتوحة والمغلقة والمحل القائم بذاته",
+  "decision_no": "215738",
+  "issued_hijri": null,
+  "issued_gregorian": "2019-08-06 (نشر الصفحة؛ 05-ذو الحجة-1440)",
+  "effective_date": null,
+  "rate_percent_by_class": null,
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "قصر العمل في أقسام الملابس النسائية الداخلية وأدوات التجميل على العاملات السعوديات؛ ومستلزمات نسائية (فساتين سهرة، عرائس، عباءات، إكسسوارات، رعاية أمومة، جلابيات، أحذية، حقائب، جوارب، ملابس جاهزة) على السعوديين/السعوديات.",
+  "penalty_clause_ar": null,
+  "violations_table_row_ref": "جدول 112377 البند 19 (تشغيل العاملين السعوديين في الأنشطة المقصورة على العاملات السعوديات: غير جسيمة، 1,000 ريال) والبند 29",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/ministerial-decisions/312685",
+  "pdf_urls": [],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "غير موجود في المستودع.",
+  "confidence": "medium"
+ },
+ {
+  "id": "art11",
+  "kind": "saudi_only",
+  "title_ar": "المادة (11) من اللائحة التنفيذية لنظام العمل (تنفيذاً للمادة 36 من النظام): 18 مهنة محظورة على غير السعودي",
+  "decision_no": "115921 (قرار اعتماد اللائحة)",
+  "issued_hijri": "19/08/1446",
+  "issued_gregorian": "2025-02 (اليوم غير مقروء في الصورة؛ ملف اللائحة 2025-04)",
+  "effective_date": "غير مدوّن",
+  "rate_percent_by_class": {
+   "الكل": 100
+  },
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "18 مهنة: كبير إداريي موارد بشرية، مدير شؤون موظفين، مدير شؤون عمل وعمال، مدير علاقات أفراد، اختصاصي شؤون أفراد، كاتب شؤون أفراد، كاتب توظيف، كاتب شؤون موظفين، كاتب دوام، كاتب استقبال عام، كاتب استقبال فندقي، كاتب استقبال مرضى، كاتب شكاوى، أمين صندوق، حارس أمن خاص، معقب، ناسخ أو مصلح مفاتيح، مخلص جمركي. ويقصر العمل على السعوديين في أي نشاط أو مهن تقرّرها الوزارة (ثانياً).",
+  "penalty_clause_ar": "«أولاً: لا يجوز توظيف العامل غير السعودي في أي من المهن التالية ... كما لا يجوز إسناد أي من مهام تلك المهن والوظائف إلى عامل غير سعودي بطريقة مباشرة أو غير مباشرة تحت أي مسمى وظيفي آخر. ثانيًا: يقصر العمل في أي نشاط أو مهن أو أعمال على السعوديين وفق ما تقرره الوزارة.» (المادة 11). وأيضاً «لا يجوز استقدام عمالة في مهن مقصورة على السعوديين» و«لا يجوز تغيير المهنة إلى مهنة مقصورة على السعوديين».",
+  "violations_table_row_ref": "جدول 112377 البند 29 (توظيف عمالة غير سعودية في مهن أو أنشطة مقصورة على السعوديين: جسيمة؛ ج 3,000 / ب 5,000 / أ 10,000 ريال عن كل عامل) والبند 24 (توظيف عامل دون رخصة عمل مهنية في الأنشطة المقصورة على السعوديين: جسيمة؛ 10,000 لكل فئة)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D9%84%D8%A7%D8%A6%D8%AD%D8%A9-%D8%A7%D9%84%D8%AA%D9%86%D9%81%D9%8A%D8%B0%D9%8A%D8%A9-%D9%84%D9%86%D8%B8%D8%A7%D9%85-%D8%A7%D9%84%D8%B9%D9%85%D9%84-%D9%88%D9%85%D9%84%D8%AD%D9%82%D8%A7%D8%AA%D9%87%D8%A7",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2025-02/%D9%82%D8%B1%D8%A7%D8%B1%20%D8%A7%D8%B9%D8%AA%D9%85%D8%A7%D8%AF%20%D8%A7%D9%84%D9%84%D8%A7%D8%A6%D8%AD%D8%A9%20%D8%A7%D9%84%D8%AA%D9%86%D9%81%D9%8A%D8%B0%D9%8A%D8%A9%20%D9%84%D9%86%D8%B8%D8%A7%D9%85%20%D8%A7%D9%84%D8%B9%D9%85%D9%84%20%D9%88%D9%85%D9%84%D8%AD%D9%82%D8%A7%D8%AA%D9%87%D8%A7%20%D8%B1%D9%82%D9%85%20115921.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2025-04/%D8%A7%D9%84%D9%84%D8%A7%D8%A6%D8%AD%D8%A9%20%D8%A7%D9%84%D8%AA%D9%86%D9%81%D9%8A%D8%B0%D9%8A%D8%A9%20%D9%84%D9%86%D8%B8%D8%A7%D9%85%20%D8%A7%D9%84%D8%B9%D9%85%D9%84%20%D9%88%D9%85%D9%84%D8%AD%D9%82%D8%A7%D8%AA%D9%87%D8%A7.pdf"
+  ],
+  "in_repo_guides": 33,
+  "discrepancies_vs_repo": "متسق مع المستودع (المادة 11)؛ المستودع لا يحمل رقم القرار.",
+  "confidence": "high"
+ },
+ {
+  "id": "viol_table",
+  "kind": "violations_table",
+  "title_ar": "جدول المخالفات والعقوبات لنظام العمل ولائحته التنفيذية (24 صفحة؛ بنود التوطين 19, 20, 24, 29, 30, 33, 51)",
+  "decision_no": "112377",
+  "issued_hijri": "21/08/1447",
+  "issued_gregorian": "2026-02-09",
+  "effective_date": "من تاريخ النشر 2026-02-25 (البند سابعاً؛ النشر 08-رمضان-1447)",
+  "rate_percent_by_class": null,
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "يعتمد جدولاً بفئات أ/ب/ج حسب عدد العمال (50 فأعلى / 21-49 / 20 فأقل). فئة ج = 20 عاملاً فأقل، ب = 21-49، أ = 50 فأعلى.",
+  "penalty_clause_ar": "«أولاً: مع عدم الإخلال بأي عقوبات أشد ينص عليها أي نظام آخر، يعتمد جدول المخالفات والعقوبات وفق الآتي» ... «تاسعاً: يلغى هذا القرار كل ما يتعارض معه».",
+  "violations_table_row_ref": "البند 30: عدم الالتزام بنسب التوطين (جسيمة؛ ج 2,000/ب 4,000/أ 6,000 لكل غير سعودي متجاوز)؛ البند 29: توظيف غير سعودي في مهن مقصورة (3,000/5,000/10,000)؛ البند 33: تسجيل سعودي دون علاقة فعلية (5,000/8,000/15,000)؛ البند 51: عدم الالتزام بتدريب العاملين السعوديين وفق النسب والآليات التي يحددها الوزير (غير جسيمة)؛ البند 49: ممارسة نشاط توظيف السعوديين دون ترخيص من الوزارة (ج 200,000 / ب 220,000 / أ 250,000 ريال)",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%AC%D8%AF%D9%88%D9%84-%D8%A7%D9%84%D9%85%D8%AE%D8%A7%D9%84%D9%81%D8%A7%D8%AA-%D9%88%D8%A7%D9%84%D8%B9%D9%82%D9%88%D8%A8%D8%A7%D8%AA",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-02/qrar-wzary---112377.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": null,
+  "confidence": "high"
+ },
+ {
+  "id": "fake_row33",
+  "kind": "fake_saudisation",
+  "title_ar": "التوطين الوهمي: «قيام صاحب العمل بتسجيل عامل سعودي ضمن عمال منشأته دون وجود علاقة عمالية فعلية»",
+  "decision_no": "112377 (البند 33)",
+  "issued_hijri": "21/08/1447",
+  "issued_gregorian": "2026-02-09",
+  "effective_date": null,
+  "rate_percent_by_class": null,
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "رقم البند من قراءة بصرية للصفحة 4 من PDF (طبقة النص تالفة). الوكيل الشقيق يغطي تفاصيل العقوبة.",
+  "penalty_clause_ar": "«قيام صاحب العمل بتسجيل عامل سعودي ضمن عمال منشأته دون وجود علاقة عمالية فعلية» - جسيمة؛ ج 5,000 / ب 8,000 / أ 15,000 ريال «تتعدد بتعدد الأشخاص المسجلين»",
+  "violations_table_row_ref": "جدول 112377 فئة المخالفات العامة لكافة الأنشطة، البند 33",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%AC%D8%AF%D9%88%D9%84-%D8%A7%D9%84%D9%85%D8%AE%D8%A7%D9%84%D9%81%D8%A7%D8%AA-%D9%88%D8%A7%D9%84%D8%B9%D9%82%D9%88%D8%A8%D8%A7%D8%AA",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-02/qrar-wzary---112377.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": null,
+  "confidence": "high"
+ },
+ {
+  "id": "settlement_93442",
+  "kind": "violations_table",
+  "title_ar": "اعتماد شروط تسوية مخالفات نظام العمل الواردة بالجدول",
+  "decision_no": "93442",
+  "issued_hijri": "01/07/1447",
+  "issued_gregorian": "2025-12-21",
+  "effective_date": "من نشر القرار (2026-01-25)",
+  "rate_percent_by_class": null,
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "شروط التسوية: طلب خلال 90 يوماً من التبليغ، إزالة المخالفة، غرامة غير مسددة، حد أدنى 1,000 ريال؛ تخفيض قيمة الغرامة بنسبة 80% لأول مرة على كل ملف؛ وفق نص البند «ثالثاً» يلغي القرار الصادر برقم 75907 وتاريخ 1445/05/19هـ (الرقم كما يظهر في الصورة؛ الأدلة الإجرائية تذكر 75913 لنفس التاريخ، يلزم التحقق).",
+  "penalty_clause_ar": null,
+  "violations_table_row_ref": "ينطبق على كل بنود الجدول",
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%AA%D8%B3%D9%88%D9%8A%D8%A9-%D9%85%D8%AE%D8%A7%D9%84%D9%81%D8%A7%D8%AA-%D9%86%D8%B8%D8%A7%D9%85-%D8%A7%D9%84%D8%B9%D9%85%D9%84",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/qrar-wzary.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": null,
+  "confidence": "medium"
+ },
+ {
+  "id": "nitaqat_dev",
+  "kind": "nitaqat",
+  "title_ar": "برنامج نطاقات المطور (إعادة هيكلة نطاقات: دمج الأنشطة، جدول القيم الموزونة الثابتة، آلية احتساب مدى النطاق)",
+  "decision_no": "182495",
+  "issued_hijri": null,
+  "issued_gregorian": "2026-01-22 (نشر الدليل المحدّث؛ المرحلة الجديدة 2026-2028)",
+  "effective_date": "القرار الأصلي: 1443/4/26هـ = 2021-12-01 (الفقرة رابعاً)؛ المرحلة الجديدة: من 2026 لثلاث سنوات (خبر 2026-01-22)",
+  "rate_percent_by_class": null,
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "معادلة: ص = م × لوغ(س) + ث؛ نطاقات: أحمر، أخضر منخفض/متوسط/مرتفع، بلاتيني. تفاصيل في nitaqat.json.",
+  "penalty_clause_ar": "لا غرامة في الدليل؛ القيود على الخدمات حسب النطاق (انظر nitaqat.json).",
+  "violations_table_row_ref": null,
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D8%A7%D9%84%D8%AF%D9%84%D9%8A%D9%84-%D8%A7%D9%84%D8%A5%D8%AC%D8%B1%D8%A7%D8%A6%D9%8A-%D9%84%D8%A8%D8%B1%D9%86%D8%A7%D9%85%D8%AC-%D9%86%D8%B7%D8%A7%D9%82%D8%A7%D8%AA-%D8%A7%D9%84%D9%85%D8%B7%D9%88%D8%B1",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2026-01/182495.pdf",
+   "https://www.hrsd.gov.sa/sites/default/files/2026-03/ntaqat-almtwr.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": "خارج نطاق ملف المستودع.",
+  "confidence": "medium"
+ },
+ {
+  "id": "nitaqat_faq",
+  "kind": "procedural_guide",
+  "title_ar": "الأسئلة الشائعة لبرنامج نطاقات المطور",
+  "decision_no": null,
+  "issued_hijri": null,
+  "issued_gregorian": "2022-01-09",
+  "effective_date": null,
+  "rate_percent_by_class": null,
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "نزول النطاق مع ثبات العمالة بسبب تغيّر نسب النشاط؛ الاحتساب الفوري عند الإضافة؛ يُحتسب على الكيان لا المنشأة؛ بدء التطبيق 1 ديسمبر 2021.",
+  "penalty_clause_ar": null,
+  "violations_table_row_ref": null,
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/975211",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2022-01/06012022.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": null,
+  "confidence": "high"
+ },
+ {
+  "id": "nitaqat_old_annex",
+  "kind": "nitaqat",
+  "title_ar": "ملحق نسب التوطين على الأنشطة الرئيسية المستحدثة لقطاع الاتصالات وتقنية المعلومات (نطاقات القديم: حدود لكل حجم)",
+  "decision_no": null,
+  "issued_hijri": null,
+  "issued_gregorian": "2021-02-21",
+  "effective_date": null,
+  "rate_percent_by_class": null,
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "جدول نسب لكل حجم منشأة (6-49 ... 3000+) في برنامج نطاقات السابق؛ قبل إعادة الهيكلة.",
+  "penalty_clause_ar": null,
+  "violations_table_row_ref": null,
+  "url": "https://www.hrsd.gov.sa/knowledge-centre/decisions-and-regulations/regulation-and-procedures/%D9%85%D9%84%D8%AD%D9%82-%D9%86%D8%B3%D8%A8-%D8%A7%D9%84%D8%AA%D9%88%D8%B7%D9%8A%D9%86-%D9%84%D8%A7%D9%86%D8%B4%D8%B7%D8%A9-%D8%A7%D9%84%D8%A7%D8%AA%D8%B5%D8%A7%D9%84%D8%A7%D8%AA-%D9%88%D8%AA%D9%82%D9%86%D9%8A%D8%A9-%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%88%D9%85%D8%A7%D8%AA",
+  "pdf_urls": [
+   "https://www.hrsd.gov.sa/sites/default/files/2021-02/21022021.pdf"
+  ],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": null,
+  "confidence": "medium"
+ },
+ {
+  "id": "nitaqat_min_wage",
+  "kind": "nitaqat",
+  "title_ar": "رفع الحد الأدنى لاحتساب أجور السعوديين في نطاقات من 3,000 إلى 4,000 ريال",
+  "decision_no": "61706 (يُذكر في دليل خدمة العملاء عن بعد: وتاريخ 1442/4/3هـ)",
+  "issued_hijri": "03/04/1442",
+  "issued_gregorian": "2020-11-18 (خبر الوزارة)",
+  "effective_date": null,
+  "rate_percent_by_class": null,
+  "min_workers": null,
+  "min_salary": null,
+  "scope_summary_ar": "4,000 فأكثر = عامل كامل؛ 3,000 إلى أقل من 4,000 = نصف؛ أقل من 3,000 = لا يُحتسب؛ دوام جزئي = نصف (حد أدنى 3,000 واشتراكات، وألا يحتسب لدى أكثر من كيانين)؛ عمل مرن = ثلث (168 ساعة).",
+  "penalty_clause_ar": null,
+  "violations_table_row_ref": null,
+  "url": "https://hrsd.gov.sa/ar/news/م-الراجحي-يصدر-قرارًا-وزاريًا-يقضي-برفع-الحد-الأدنى-لاحتساب-أجور-السعوديين-في-نطاقات",
+  "pdf_urls": [],
+  "in_repo_guides": null,
+  "discrepancies_vs_repo": null,
+  "confidence": "medium"
+ }
+]

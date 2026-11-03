@@ -1,0 +1,14 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess&ui=classic');await p.waitForTimeout(300);
+const T=()=>p.evaluate(()=>document.querySelector('#main').innerText);
+const sel=async(id,v)=>{await p.evaluate(([id,v])=>{const s=document.getElementById(id);s.value=v;s.dispatchEvent(new Event('change',{bubbles:true}));},[id,v]);await p.waitForTimeout(200);};
+console.log('terms',await p.evaluate(()=>[...document.querySelectorAll('#l-term option')].map(o=>o.textContent).join('|')));
+let t=await T();console.log('base',t.match(/السعر الشهري قبل التوطين\s*([\d,]+)/)[1]);
+await sel('x-commOn','Yes');t=await T();console.log('comm10%',t.match(/السعر الشهري قبل التوطين\s*([\d,]+)/)[1],t.match(/العمولات \(10[^\n]*\n[\d,]+/)?.[0]);
+await sel('x-otOn','Yes');t=await T();console.log('+ot20',t.match(/السعر الشهري قبل التوطين\s*([\d,]+)/)[1],t.match(/الساعات الإضافية[^\n]*\n[\d,]+/)?.[0]);
+await p.fill('#x-hours','10');await p.waitForTimeout(300);t=await T();console.log('10h',t.match(/الساعات الإضافية[^\n]*\n[\d,]+/)?.[0]);
+await sel('l-term','36');t=await T();console.log('36m',t.match(/السعر الشهري قبل التوطين\s*([\d,]+)/)[1]);
+await p.evaluate(()=>bpGo('cost'));await p.waitForTimeout(300);await sel('c-term','36');t=await T();console.log('cost ok',/إجمالي الفاتورة الشهرية/.test(t),/ساعات العمل يومياً/.test(t));
+console.log('ERR',errs);await b.close();})();

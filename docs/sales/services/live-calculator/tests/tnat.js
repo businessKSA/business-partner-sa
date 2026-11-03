@@ -1,0 +1,11 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const er=[];let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m)}else console.log('ok',m)};
+const p=await b.newPage({viewport:{width:480,height:900}});p.on('pageerror',e=>er.push(e.message));
+await p.goto('file://'+process.cwd()+'/index-client.html?lang=ar');await p.waitForTimeout(700);
+await p.evaluate(()=>{const q=bpT();const i=+Object.keys(q.PROF).find(k=>String(q.EP(+k)[7]).endsWith('241101'));q.CV.items=[{prof:i,qty:1,nat:'abroad',sal:4000,cands:[i]}];q.CV.term=12;q.S.goal='hire';q.hireBasket('x')});await p.waitForTimeout(300);
+ok(!!(await p.$('#bk-nat')),'suggest button in the basket');ok(await p.evaluate(()=>/الجنسية: غير مهم/.test(document.getElementById('cs-dock').innerText)),'nationality select visible');
+await p.fill('#cs-t','اقترح لي جنسيات');await p.press('#cs-t','Enter');await p.waitForTimeout(800);
+let t=await p.evaluate(()=>document.getElementById('cs-thread').innerText);ok(/تكلفة الاستقدام/.test(t)&&/مدة الوصول/.test(t),'suggestion table from typed request');
+const chips=await p.$$eval('#cs-thread .chip',c=>c.map(x=>x.innerText));const pick=chips.find(c=>c.startsWith('✅'));ok(!!pick,'pick chips: '+chips.slice(0,4).join('|'));
+await p.click('.chip:has-text("'+pick.replace('✅ ','')+'")');await p.waitForTimeout(400);
+ok(await p.evaluate(()=>!!bpT().CV.items[0].cty),'nationality applied: '+await p.evaluate(()=>bpT().CV.items[0].cty));
+console.log(er);if(er.length)fail++;await b.close();process.exit(fail?1:0)})();

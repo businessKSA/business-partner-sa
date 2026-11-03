@@ -1,0 +1,10 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch();const er=[];const p=await b.newPage({viewport:{width:1200,height:900}});p.on('pageerror',e=>er.push(e.message));
+await p.addInitScript(()=>{ const sm=async(input,opts)=>{ const T=Object.fromEntries(opts.tools.map(t=>[t.name,t])); const out={};
+  const act=await T.find_activity.execute({query:'مطاعم'}); const r=await T.add_establishment.execute({name:'مطعم النخيل',labour_office_no:'1-123456',unified_no:'7001234567',tax_no:'300123456789003',gosi_no:'123456789',short_address:'RRRD2929',activity_code:act[0].code,full:3,part:0,foreign:12});
+  const prof=await T.find_profession.execute({query:'محاسب'}); await T.set_team_rows.execute({index:r.index,rows:[{profession_id:prof[0].id,saudi:0,foreign:3}]});
+  out.pi=await T.profession_info.execute({id:prof[0].id,index:r.index}); out.ai=await T.activity_info.execute({code:act[0].code}); out.nr=await T.nitaqat_requirements.execute({index:r.index}); out.vs=await T.violations_search.execute({query:'رخصة عمل',index:r.index}); out.vf=await T.violations_forecast.execute({index:r.index});
+  out.eos=await T.eos_calc.execute({salary:6000,months:48}); out.ot=await T.overtime_calc.execute({total_salary:6000,monthly_overtime_hours:20}); out.cr=await T.contract_rules.execute({}); out.ns=await T.next_steps.execute({index:r.index});
+  window.__out=out; return {text:'ok'}; }; sm.limits=async()=>({images:{maxCount:4}}); sm.json=async()=>({}); window.claude={use:async n=>n==='sample'?sm:null}; });
+await p.goto('file://'+process.cwd()+'/index-client.html?goal=assess&ui=classic');await p.waitForTimeout(600);await p.click('#ag-fab');await p.fill('#ag-t','x');await p.click('#ag-s');await p.waitForTimeout(1500);
+const o=await p.evaluate(()=>window.__out);for(const k in o) console.log(k, JSON.stringify(o[k]).slice(0,330));console.log(er);await b.close()})();

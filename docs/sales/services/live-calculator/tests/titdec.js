@@ -1,0 +1,12 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const er=[];let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m)}else console.log('ok',m)};
+const p=await b.newPage({viewport:{width:480,height:1400}});p.on('pageerror',e=>er.push(e.message));await p.goto('file://'+process.cwd()+'/index-client.html?lang=ar');await p.waitForTimeout(500);
+const r=await p.evaluate(()=>{const q=bpT();const t=c=>c.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ');const i=q.PROF.findIndex(x=>x[7]==='214910'),j=q.PROF.findIndex(x=>x[7]==='351201'),c=q.PROF.findIndex(x=>x[7]==='214201');
+ const out={chk:t(q.chCardProf(i)),tech:t(q.chCardProf(j))};
+ q.CV.term=12;q.CV.city='الرياض';q.CV.items=[{prof:i,qty:1,nat:'saudi',sal:6000}];q.hireVerdict();out.v6=document.getElementById('cs-thread').innerText.replace(/\n+/g,' | ');
+ q.CV.items=[{prof:i,qty:1,nat:'saudi',sal:7000}];q.hireVerdict();out.v7=document.getElementById('cs-thread').innerText.replace(/\n+/g,' | ').slice(-420);
+ out.civil=t(q.chCardProf(c));return out});
+ok(/25%/.test(r.chk)&&/7,000/.test(r.chk),'IT engineer: 25% and 7,000');ok(/5,000/.test(r.tech),'IT technician: 5,000');
+ok(/لن يُحتسب/.test(r.v6)&&/دون الحد الأدنى/.test(r.v6),'6,000 warned: will not count');
+ok(!/لن يُحتسب: /.test(r.v7.split('حكم طلبك').pop()||'')||/✅/.test(r.v7),'7,000 passes');
+ok(/30%/.test(r.civil)&&/8,000/.test(r.civil),'civil engineer unchanged 30%/8,000');
+console.log(er);if(er.length)fail++;await b.close();process.exit(fail?1:0)})();

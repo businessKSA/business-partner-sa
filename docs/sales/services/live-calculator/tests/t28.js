@@ -1,0 +1,11 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage({viewport:{width:1100,height:1000}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess&ui=classic');await p.waitForTimeout(300);
+const g=async re=>(await p.evaluate(()=>document.querySelector('#main').innerText)).match(re)?.[1];
+const setSel=async(id,v)=>{await p.evaluate(([id,v])=>{const s=document.getElementById(id);s.value=v;s.dispatchEvent(new Event('change',{bubbles:true}));},[id,v]);await p.waitForTimeout(250);};
+console.log('inside',await g(/السعر الشهري قبل التوطين\s*([\d,]+)/),await g(/ضريبة 15%\s*([\d,]+)/),await g(/السعر الشهري شامل الضريبة\s*([\d,]+)/));
+await setSel('l-trn','2');console.log('2nd transfer',await g(/السعر الشهري قبل التوطين\s*([\d,]+)/));
+await setSel('l-nat','IN');console.log('IN',await g(/السعر الشهري قبل التوطين\s*([\d,]+)/));
+const t=await p.evaluate(()=>document.querySelector('#main').innerText);console.log(t.includes('6 أشهر'));
+console.log('ERR',errs);await b.close();})();

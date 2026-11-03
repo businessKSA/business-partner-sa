@@ -1,0 +1,17 @@
+/* Layout: sticky tab bar over a desk surface; each document page is a fixed A4 sheet (landscape for the quote, portrait for the contract and NDA), scaled to fit the screen width */
+:root{--bg:#F2F4FB;--fg:#1B2340;--bar:#ffffff;--line:#DDE1EE;--tabfg:#4A5578;--sel:#0B1B5A;--hl:#EEF1FB;--hlfg:#1E3A9E;--hlbd:#1E3A9E;--shadow:rgba(11,27,90,.18)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#071442;--fg:#EEF1FB;--bar:#0B1B5A;--line:#13246E;--tabfg:#9DB4FF;--sel:#9DB4FF;--shadow:rgba(0,0,0,.4);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#071442;--fg:#EEF1FB;--bar:#0B1B5A;--line:#13246E;--tabfg:#9DB4FF;--sel:#9DB4FF;--shadow:rgba(0,0,0,.4);color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;margin:0}
+.wrap{padding-block:0 32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bar);border-bottom:1px solid var(--line);margin-inline:calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:10px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bar)}
+.bar h1{font:700 1.05rem 'IBM Plex Sans Arabic',sans-serif;margin:0 0 8px;color:var(--fg)}
+[role=tablist]{display:flex;gap:4px;flex-wrap:wrap}
+[role=tab]{font:inherit;background:none;border:0;border-bottom:3px solid transparent;padding:8px 14px;color:var(--tabfg);cursor:pointer;display:flex;flex-direction:column;align-items:center;line-height:1.3}
+[role=tab] small{font:11px 'IBM Plex Mono',monospace;letter-spacing:.04em}
+[role=tab][aria-selected=true]{color:var(--fg);border-bottom-color:var(--sel);font-weight:700}
+[role=tab]:focus-visible{outline:2px solid var(--sel);outline-offset:2px}
+.scroller{padding-block:20px;display:flex;flex-direction:column;gap:22px;align-items:center}
+.fit{flex:none;box-shadow:0 2px 14px var(--shadow);overflow:hidden}
+

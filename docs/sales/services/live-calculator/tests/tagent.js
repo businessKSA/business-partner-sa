@@ -1,0 +1,14 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch();const er=[];const p=await b.newPage({viewport:{width:1200,height:900}});p.on('pageerror',e=>er.push(e.message));
+await p.addInitScript(()=>{ const calls=[]; window.__calls=calls; const sm=async(input,opts)=>{ const T=Object.fromEntries(opts.tools.map(t=>[t.name,t])); const last=input[input.length-1].content; calls.push(last.slice(-60));
+  const act=await T.find_activity.execute({query:'مطاعم'}); const r=await T.add_establishment.execute({name:'مطعم النخيل',labour_office_no:'1-123456',unified_no:'7001234567',tax_no:'300123456789003',gosi_no:'123456789',short_address:'RRRD2929',activity_code:act[0].code,full:3,part:0,foreign:12});
+  const prof=await T.find_profession.execute({query:'محاسب'}); await T.set_team_rows.execute({index:r.index,rows:[{profession_id:prof[0].id,saudi:1,foreign:2}]});
+  const a=await T.analyze.execute({index:r.index}); const w=await T.what_if.execute({index:r.index,add_saudis:5});
+  opts.onText&&opts.onText({text:'تمّ: أضفتُ المنشأة. النطاق '+a.band+' وبعد 5 سعوديين '+w.after.band}); return {text:'تمّ: أضفتُ المنشأة. النطاق '+a.band+' وبعد 5 سعوديين '+w.after.band}; }; sm.limits=async()=>({images:{maxCount:4}}); sm.json=async()=>({}); window.claude={use:async n=>n==='sample'?sm:null}; });
+await p.goto('file://'+process.cwd()+'/index-client.html?goal=assess&ui=classic');await p.waitForTimeout(700);
+console.log('fab',await p.evaluate(()=>!!document.getElementById('ag-fab')));
+await p.click('#ag-fab');await p.fill('#ag-t','أضف مطعم النخيل');await p.click('#ag-s');await p.waitForTimeout(1200);
+console.log(await p.evaluate(()=>document.getElementById('ag-msgs').innerText));
+console.log(await p.evaluate(()=>[...document.querySelectorAll('#main table tbody tr')].map(r=>r.innerText.replace(/\s+/g,' ').slice(0,90)).slice(0,3)));
+await p.click('#ag-undo');await p.waitForTimeout(400);console.log('after undo rows',await p.evaluate(()=>document.querySelectorAll('#main table tbody tr').length));
+console.log(er);await b.close()})();

@@ -1,0 +1,11 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const er=[];let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m)}else console.log('ok',m)};
+const p=await b.newPage({viewport:{width:900,height:1200}});p.on('pageerror',e=>er.push(e.message));
+await p.goto('file://'+process.cwd()+'/index-client.html?lang=ar');await p.waitForTimeout(600);
+ok(await p.evaluate(()=>[...document.querySelectorAll('#cs-thread .chip')].some(x=>x.innerText.includes('فاحص المهن'))),'welcome chip');
+ok(await p.evaluate(()=>!!document.querySelector('[data-side=chk]')),'sidebar item');
+await p.click('[data-side=chk]');await p.waitForTimeout(300);
+await p.fill('#dk-tx, .dk input[type=search], #dock input',' ').catch(()=>{});
+const r=await p.evaluate(()=>{const q=bpT();const P=q.PROF;const so=P.findIndex(x=>x[1]==='Saudi-only'),li=P.findIndex(x=>x[3]>0&&x[3]<100),st=P.findIndex(x=>x[1]==='Standard');return {so:q.chCardProf(so).replace(/<[^>]+>/g,' ').replace(/\s+/g,' '),li:q.chCardProf(li).replace(/<[^>]+>/g,' ').replace(/\s+/g,' '),st:q.chCardProf(st).replace(/<[^>]+>/g,' ').replace(/\s+/g,' ')}});
+console.log(r.so.slice(0,200));console.log(r.li.slice(0,260));console.log(r.st.slice(0,200));
+ok(r.so.includes('مقصورة على السعوديين'),'saudi-only');ok(r.li.includes('نسبة التوطين')&&r.li.includes('%'),'ratio');ok(r.st.includes('لا قرار توطين'),'standard');
+console.log(er);if(er.length)fail++;await b.close();process.exit(fail?1:0)})();

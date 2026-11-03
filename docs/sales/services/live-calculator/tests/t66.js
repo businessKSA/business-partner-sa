@@ -1,0 +1,12 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+const p=await b.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index.html?goal=assess&ui=classic');await p.waitForTimeout(300);
+const T=()=>p.evaluate(()=>document.querySelector('#main').innerText);
+const sel=async(id,v)=>{await p.evaluate(([id,v])=>{const s=document.getElementById(id);s.value=v;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));},[id,v]);await p.waitForTimeout(300);};
+const price=async()=>(await T()).match(/السعر الشهري قبل التوطين\s*([\d,]+)/)?.[1];
+console.log('nationality box value:',JSON.stringify(await p.evaluate(()=>document.getElementById('l-cty-s').value)),'placeholder:',await p.evaluate(()=>document.getElementById('l-cty-s').placeholder));
+await sel('l-src','abroad');console.log('abroad no nationality:',await price(),'| box:',JSON.stringify(await p.evaluate(()=>document.getElementById('l-cty-s').value)));
+await p.click('#l-cty-s');await p.fill('#l-cty-s','هند');await p.waitForTimeout(350);console.log('search "هند":',(await p.evaluate(()=>document.querySelector('.dd')?.innerText.split('\n').slice(0,3).join(' | '))));
+await p.keyboard.press('ArrowDown');await p.keyboard.press('Enter');await p.waitForTimeout(400);console.log('picked:',await p.evaluate(()=>document.getElementById('l-cty-s').value),await price());
+console.log(errs);await b.close();})();

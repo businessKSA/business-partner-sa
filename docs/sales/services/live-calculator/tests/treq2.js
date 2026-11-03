@@ -1,0 +1,11 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const er=[];let fail=0;const ok=(c,m)=>{if(!c){fail++;console.log('FAIL',m)}else console.log('ok',m)};
+const p=await b.newPage({viewport:{width:480,height:900}});p.on('pageerror',e=>er.push(e.message));
+await p.goto('file://'+process.cwd()+'/index-client.html?lang=ar');await p.waitForTimeout(700);
+await p.evaluate(()=>{const q=bpT();q.CV.items=[{prof:+Object.keys(q.PROF).find(k=>String(q.EP(+k)[7]).endsWith('241101')),qty:2,nat:'inside',sal:0,cands:[]}];q.CV.term={u:'day',n:3};q.chRequestForm(()=>[{it:q.CV.items[0],total:1000,per:1000,qty:2,items:[],salUsed:0}],'',false)});await p.waitForTimeout(300);
+await p.fill('[data-fk=name]','أحمد');await p.fill('[data-fk=phone]','0500000000');await p.fill('[data-fk=email]','a@b.co');await p.fill('[data-fk=company]','شركة');await p.click('#dk-ok');await p.waitForTimeout(500);
+ok(!!(await p.$('.chip:has-text("أوافق")')),'accept chip');
+await p.click('.chip:has-text("أوافق")');await p.waitForTimeout(400);
+const t=await p.evaluate(()=>document.getElementById('cs-thread').innerText);
+ok(/وافقتَ على عرض السعر/.test(t)&&/حزمة التسليم/.test(t)&&/افتح حسابك/.test(t),'accepted -> handoff + account link');
+const href=await p.$eval('a.chip',a=>a.href);ok(/\/my$/.test(href),'account link '+href);
+console.log(er);if(er.length)fail++;await b.close();process.exit(fail?1:0)})();

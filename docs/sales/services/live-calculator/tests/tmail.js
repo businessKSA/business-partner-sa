@@ -1,0 +1,10 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch();const ctx=await b.newContext({acceptDownloads:true});const p=await ctx.newPage({viewport:{width:1100,height:2600}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('file://'+process.cwd()+'/index-demo.html');await p.waitForTimeout(500);
+await p.evaluate(()=>bpGo('comp'));await p.waitForTimeout(300);
+await p.fill('#nt-email','client@example.com');
+const [dl]=await Promise.all([p.waitForEvent('download'),p.click('#nt-dl')]);await dl.saveAs('notes.txt');
+console.log(require('fs').readFileSync('notes.txt','utf8').slice(0,700));
+let nav=null;p.on('framenavigated',f=>{nav=f.url()});
+await p.click('#nt-mail').catch(()=>{});await p.waitForTimeout(300);console.log('msg:',await p.evaluate(()=>document.getElementById('nt-msg').textContent));
+await p.screenshot({path:'notes.png',fullPage:true});console.log(errs);await b.close();})();
