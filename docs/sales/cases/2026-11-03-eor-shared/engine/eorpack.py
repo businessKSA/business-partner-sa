@@ -30,6 +30,7 @@ def esc(s): return html.escape(s, quote=False)
 def num(s): return '<span class="num">%s</span>' % esc(str(s))
 def ar(s): return re.sub(r"\.(?=\s|$)", "." + RLM, s)
 def n(x): return "{:,}".format(x)
+def n2(x): return "{:,.2f}".format(x) if x != int(x) else "{:,}".format(int(x))
 def B(): return num("[●]")
 
 # ------------------------------------------------------------------ القوالب والـCSS
@@ -147,9 +148,12 @@ def build_quote():
     for i, r in enumerate(C["roles"], 1):
         prow.append([(str(i), str(i), "nx"), ("<b>%s</b>" % esc(r["en"]), "<b>%s</b>" % esc(r["ar"]), "t"),
                      (esc(r["nat_en"]), esc(r["nat_ar"]), "c"), (str(r["count"]), str(r["count"]), "c"),
-                     (B(), B(), "c"), (B(), B(), "c")])
+                     (num(n2(r["price"])) if r.get("price") is not None else B(), num(n2(r["price"])) if r.get("price") is not None else B(), "c"),
+                     (num(n2(r["price"] * r["count"])) if r.get("price") is not None else B(), num(n2(r["price"] * r["count"])) if r.get("price") is not None else B(), "c")])
+    known = all(r.get("price") is not None for r in C["roles"])
+    gtot = num(n2(sum(r["price"] * r["count"] for r in C["roles"]))) if known else B()
     prow.append({"cls": "tot", "cells": [("", "", ""), ("Total — all workers, per month", "الإجمالي — كل العمال، شهرياً", ""), ("", "", ""),
-                 (str(workers) + (q.get("workers_suffix_en", "")), str(workers) + (q.get("workers_suffix_ar", "")), "c"), ("", "", ""), (B(), B(), "c")]})
+                 (str(workers) + (q.get("workers_suffix_en", "")), str(workers) + (q.get("workers_suffix_ar", "")), "c"), ("", "", ""), (gtot, gtot, "c")]})
     price = bi_table([("#", "#", True), ("Role", "الوظيفة", False), ("Nationality", "الجنسية", True), ("Workers", "العدد", True),
                       ("Monthly price per worker (SAR)", "السعر الشهري للعامل (ريال)", True), ("Monthly total (SAR)", "الإجمالي الشهري (ريال)", True)],
                      prow, [3, 17, 11, 5, 9, 9])
