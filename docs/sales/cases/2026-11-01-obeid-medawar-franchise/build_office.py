@@ -22,7 +22,7 @@ LOGO = os.path.join(ROOT, "docs/sales/templates/assets/business-partner-logo-cle
 FINAL = "--final" in sys.argv
 PHONE = os.environ.get("BP_PHONE", "0530540231")
 IBAN = os.environ.get("BP_IBAN", "[IBAN]") if FINAL else "[IBAN]"
-BANK = os.environ.get("BP_BANK", "[●]") if FINAL else "[●]"
+BANK = "Al Rajhi Bank · مصرف الراجحي"
 
 NAVY, NAVY2, ACC, ACCD, TXT, TXT2, BG, LINE = "0B1B5A", "13246E", "1E3A9E", "9DB4FF", "1B2340", "4A5578", "F7F8FD", "DDE1EE"
 F_AR, F_EN, F_H, F_M = "IBM Plex Sans Arabic", "IBM Plex Sans Arabic", "Playfair Display", "IBM Plex Mono"

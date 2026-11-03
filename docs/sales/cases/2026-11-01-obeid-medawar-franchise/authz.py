@@ -79,6 +79,8 @@ def rows():
             b_ar = "يعمل الطرف الأول عبر موظفيه المسمّين وحدهم: باهر بكر علي مقنص، المدير التنفيذي؛ وموظفون آخرون مسمّون: يُستكمل بعد الاتفاق (وبيانات الهوية في النسخة الموقّعة)."
         b_en = b_en.replace("the Category Annex", "section 3").replace("The Authorised Party", "The First Party").replace("the Authorised Party", "the First Party").replace("The Principal", "The Second Party").replace("the Principal", "the Second Party").replace("Principal’s", "Second Party’s")
         b_ar = b_ar.replace("ملحق الفئة", "البند 3").replace("المفوَّض", "الطرف الأول").replace("المفوِّض", "الطرف الثاني")
+        b_en = b_en.replace("starts on [●] and ends", "starts on the day the service agreement is signed and ends").replace("or [●] months [recommended maximum 12]", "or 12 months after that date")
+        b_ar = b_ar.replace("يبدأ هذا الخطاب في [●] وينتهي", "يبدأ هذا الخطاب يوم توقيع عقد الخدمة وينتهي").replace("أو بعد [●] شهراً [الحد الأقصى المقترح 12]", "أو بعد 12 شهراً من ذلك التاريخ")
         t_en = t_en.replace("Principal’s", "Second Party’s").replace("Authorised Party’s", "First Party’s")
         t_ar = t_ar.replace("المفوَّض", "الطرف الأول").replace("المفوِّض", "الطرف الثاني")
         add("%s. %s" % (label, t_en), "%s. %s" % (label, t_ar), b_en, b_ar)
