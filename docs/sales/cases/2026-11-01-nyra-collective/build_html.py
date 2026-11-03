@@ -12,6 +12,7 @@ TPL = os.path.join(ROOT, "docs/sales/templates")
 LOGO = os.path.join(TPL, "assets/business-partner-logo-clean.png")
 FINAL = "--final" in sys.argv
 PHONE = os.environ.get("BP_PHONE", "0530540231")
+CR_ADDR = os.environ.get("BP_CR_ADDR", "[●]") if FINAL else "[●]"   # عنوان السجل التجاري (الرياض): يُحقن في النسخة النهائية فقط
 IBAN = os.environ.get("BP_IBAN", "[IBAN]") if FINAL else "[IBAN]"
 BANK = os.environ.get("BP_BANK", "[●]") if FINAL else "[●]"
 
@@ -44,13 +45,13 @@ EXTRA = """
 """
 
 def footer(i, n):
-    return ('<div class="ft"><div class="a">National Address: RDAA9214<br>9214 King Khaled Branch Rd, Al Asemah<br>Ad Diriyah 13714, Saudi Arabia</div>'
+    return ('<div class="ft"><div class="a">National Address: RDAA9214<br>9214 King Khaled Branch Rd, Al Asemah<br>Ad Diriyah 13714, Saudi Arabia<br>CR Address (Riyadh): @@CR@@</div>'
             '<div class="c">%s<br>business@businesspartner.sa<br>www.businesspartner.sa<br><span class="m">%d / %d</span></div>'
             '<div class="w"><span class="logo" role="img" aria-label="Business Partner"></span></div></div>') % (esc(PHONE), i, n)
 
 def doc(title, css, sheets, lang_dir="rtl"):
     n = len(sheets)
-    body = nb("".join(s(i + 1, n) if callable(s) else s for i, s in enumerate(sheets)))
+    body = nb("".join(s(i + 1, n) if callable(s) else s for i, s in enumerate(sheets))).replace("@@CR@@", esc(CR_ADDR))
     return ('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             '<title>%s</title>%s<style>%s%s</style></head><body>%s</body></html>') % (esc(title), FONTS, css, EXTRA, body)
 
@@ -218,7 +219,7 @@ def build_quote():
         return ('<section class="sheet land cover" lang="ar"><div dir="rtl"><div class="cv"><div class="lgc"><span class="logo" role="img" aria-label="Business Partner"></span></div>'
                 '<div class="eb">CONTACT &amp; BANK TRANSFER · التواصل والتحويل البنكي</div>'
                 '<h1 class="pf">Thank you for your trust · <span style="font-family:\'IBM Plex Sans Arabic\'">شكراً لثقتكم</span></h1>'
-                '<div class="bx"><div><b>Contact · التواصل</b>National address / العنوان الوطني: RDAA9214 · 9214 King Khaled Branch Rd, Al Asemah, Ad Diriyah 13714 / طريق الملك خالد الفرعي، حي العاصمة، الدرعية 13714<br>'
+                '<div class="bx"><div><b>Contact · التواصل</b>National address / العنوان الوطني: RDAA9214 · 9214 King Khaled Branch Rd, Al Asemah, Ad Diriyah 13714 / طريق الملك خالد الفرعي، حي العاصمة، الدرعية 13714<br>CR address (Riyadh) / عنوان السجل التجاري (الرياض): @@CR@@<br>'
                 'Mobile / الجوال: %s<br>Email / الإيميل: %s<br>Website / الموقع: %s</div>'
                 '<div><b>Bank transfer · التحويل البنكي</b>Beneficiary / المستفيد: Business Partner Solutions / بزنس بارتنر سلوشنز<br>Bank / البنك: %s<br>IBAN: %s</div></div></div></div>%s</section>') % (
             num(PHONE), num("business@businesspartner.sa"), num("www.businesspartner.sa"), esc(BANK), num(IBAN), "")
@@ -236,6 +237,7 @@ def parties_html():
           '<tr><td>Unified / CR No.</td><td class="v">%s</td><td>الرقم الموحد / السجل التجاري</td></tr>'
           '<tr><td>VAT No.</td><td class="v">%s</td><td>الرقم الضريبي</td></tr>'
           '<tr><td>National Address</td><td class="v">%s</td><td>العنوان الوطني</td></tr>'
+          '<tr><td>CR Address (Riyadh)</td><td class="v">@@CR@@</td><td>عنوان السجل التجاري (الرياض)</td></tr>'
           '<tr><td>Represented by</td><td class="v">%s<br><span dir="rtl">%s</span></td><td>يمثلها</td></tr>'
           '<tr><td>Title</td><td class="v">%s<br><span dir="rtl">%s</span></td><td>الصفة</td></tr></table>') % (num("7038825860"), num("312079341500003"), num("RDAA9214"), esc(REP_EN), esc(REP_AR), esc(REP_TITLE_EN), esc(REP_TITLE_AR))
     cl = ('<table class="pty2"><tr><th colspan="3"><span>Second Party (Client)</span><span dir="rtl">الطرف الثاني (العميل)</span></th></tr>'
@@ -342,7 +344,8 @@ def closing_port():
                 '<div class="bx" style="flex-direction:column;gap:22px"><div><b>Company · المنشأة</b>'
                 '<div class="kv"><span>Unified No.</span><span class="kvv">%s</span><span dir="rtl">الرقم الموحد</span></div>'
                 '<div class="kv"><span>VAT No.</span><span class="kvv">%s</span><span dir="rtl">الرقم الضريبي</span></div>'
-                '<div class="kv"><span>National Address</span><span class="kvv">%s · 9214 King Khaled Branch Rd, Al Asemah, Ad Diriyah 13714</span><span dir="rtl">العنوان الوطني</span></div></div>'
+                '<div class="kv"><span>National Address</span><span class="kvv">%s · 9214 King Khaled Branch Rd, Al Asemah, Ad Diriyah 13714</span><span dir="rtl">العنوان الوطني</span></div>'
+                '<div class="kv"><span>CR Address (Riyadh)</span><span class="kvv">@@CR@@</span><span dir="rtl">عنوان السجل التجاري (الرياض)</span></div></div>'
                 '<div><b>Contact · التواصل</b><div class="kv"><span>Mobile</span><span class="kvv">%s</span><span dir="rtl">الجوال</span></div>'
                 '<div class="kv"><span>Email</span><span class="kvv">%s</span><span dir="rtl">الإيميل</span></div>'
                 '<div class="kv"><span>Website</span><span class="kvv">%s</span><span dir="rtl">الموقع</span></div></div></div></div></div>%s</section>') % (
@@ -353,7 +356,7 @@ def measure(rows_html, extra_blocks, css, path):
     """يقيس ارتفاع كل صف/كتلة في الصفحة الفعلية ويعيد dict."""
     meas = ('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">%s<style>%s%s</style></head><body>'
             '<section class="sheet port" lang="ar"><div dir="rtl">%s<table class="cl" style="margin:0">%s</table>%s</div></section></body></html>') % (
-        FONTS, css, EXTRA, hd_port("x", "x", ""), nb(rows_html), nb(extra_blocks))
+        FONTS, css, EXTRA, hd_port("x", "x", ""), nb(rows_html).replace("@@CR@@", "[●]"), nb(extra_blocks).replace("@@CR@@", "[●]"))
     open(path, "w", encoding="utf-8").write(meas)
     out = subprocess.check_output(["node", os.path.join(HERE, "render.cjs"), "measure", path],
                                   env=dict(os.environ, NODE_PATH=subprocess.check_output(["npm", "root", "-g"]).decode().strip()))

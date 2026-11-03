@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # يولّد حزمة Nyra Collective (PDF): عرض السعر · العقد · عدم الإفصاح · التفويض · المستندات الداعمة.
 # ./build_all.sh <outdir> [--final]  — بلا --final: نسخة المستودع (الآيبان [IBAN]).
-# --final: يحقن BP_IBAN وBP_BANK من البيئة (من بدر فقط)؛ لا تُحفظ مخرجاته في المستودع.
+# --final: يحقن BP_IBAN وBP_BANK وBP_CR_ADDR (عنوان السجل، الرياض) من البيئة (من بدر فقط)؛ لا تُحفظ مخرجاته في المستودع.
 set -euo pipefail
 cd "$(dirname "$0")"
 OUT="${1:?outdir}"; shift || true
