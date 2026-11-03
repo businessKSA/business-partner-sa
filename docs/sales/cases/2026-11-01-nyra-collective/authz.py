@@ -86,6 +86,9 @@ def rows():
         b_ar = b_ar.replace("ملحق الفئة", "البند 3").replace("المفوَّض", "الطرف الأول").replace("المفوِّض", "الطرف الثاني")
         t_en = t_en.replace("Principal’s", "Second Party’s").replace("Authorised Party’s", "First Party’s")
         t_ar = t_ar.replace("المفوَّض", "الطرف الأول").replace("المفوِّض", "الطرف الثاني")
+        # قرار المالك 2026-11-03: مدة التفويض سنة
+        b_en = b_en.replace("starts on [●]", "starts on the date the Second Party signs it").replace("or [●] months [recommended maximum 12]", "or 12 months from that date")
+        b_ar = b_ar.replace("يبدأ هذا الخطاب في [●]", "يبدأ هذا الخطاب في تاريخ توقيع الطرف الثاني عليه").replace("أو بعد [●] شهراً [الحد الأقصى المقترح 12]", "أو بعد 12 شهراً من ذلك التاريخ")
         add("%s. %s" % (label, t_en), "%s. %s" % (label, t_ar), b_en, b_ar)
     return R
 
