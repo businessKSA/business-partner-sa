@@ -14,6 +14,7 @@
     "verify:pages": "node site/scripts/verify-pages.mjs",
     "azure:serve": "node ops/azure/server.mjs",
     "azure:parity": "node ops/azure/parity.mjs",
+    "azure:parity-check": "node ops/parity-check.mjs",
     "azure:cron": "node ops/azure/cron.mjs --list",
     "azure:migrate-db": "node ops/azure/migrate-db.mjs"
   },
