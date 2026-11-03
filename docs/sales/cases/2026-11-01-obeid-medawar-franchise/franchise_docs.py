@@ -52,9 +52,9 @@ DOCS = {
   "A letter template for the franchise registration file; the legal counsel confirms the form and the attachments required.", "نموذج خطاب لملف قيد الامتياز؛ ويؤكد المحامي الصيغة والمرفقات المطلوبة.",
   [["Addressee", "الجهة", "To the Ministry of Commerce, Franchise registration. Date: [●]. Reference: [●].", "إلى وزارة التجارة، قيد الامتياز. التاريخ: [●]. المرجع: [●]."],
    ["Subject", "الموضوع", "Request to register the franchise agreements of [franchisor: ●] in the Kingdom.", "طلب قيد اتفاقيات الامتياز الخاصة بـ[مانح الامتياز: ●] في المملكة."],
-   ["Body", "المتن", "We submit, on behalf of the franchisor and under its written authorisation, the franchise registration file for the franchise agreements listed in the attached schedule, with the disclosure document and the supporting documents.", "نتقدم، نيابةً عن مانح الامتياز وبتفويض كتابي منه، بملف قيد الامتياز لاتفاقيات الامتياز المدرجة في الجدول المرفق، مع وثيقة الإفصاح والمستندات المؤيدة."],
+   ["Body", "المتن", "The Saudi legal counsel submits, under the franchisor’s written authorisation, the franchise registration file for the franchise agreements listed in the attached schedule, with the disclosure document and the supporting documents.", "يقدّم المحامي السعودي، بتفويض كتابي من مانح الامتياز، ملف قيد الامتياز لاتفاقيات الامتياز المدرجة في الجدول المرفق، مع وثيقة الإفصاح والمستندات المؤيدة."],
    ["Attachments", "المرفقات", "Schedule of agreements; disclosure document; certified Arabic translations; authorisation letter; corporate and trademark documents. [exact list: legal counsel]", "جدول الاتفاقيات؛ وثيقة الإفصاح؛ الترجمات العربية المعتمدة؛ خطاب التفويض؛ مستندات الشركة والعلامة. [القائمة الدقيقة: المحامي]"],
-   ["Signature", "التوقيع", "Signed by the authorised representative of the franchisor or its authorised legal counsel: [●].", "يوقّعه الممثل المفوَّض لمانح الامتياز أو محاميه المفوَّض: [●]."]]),
+   ["Signature", "التوقيع", "Signed by the Saudi legal counsel authorised by the franchisor.", "يوقّعه المحامي السعودي المفوَّض من مانح الامتياز."]]),
 "14-Trademark-Review-Checklist": (
   "Trademark Review Checklist", "قائمة مراجعة العلامة التجارية", "CHECKLIST", "قائمة",
   "The trademark points to confirm before registration.", "نقاط العلامة التجارية المراد تأكيدها قبل القيد.",

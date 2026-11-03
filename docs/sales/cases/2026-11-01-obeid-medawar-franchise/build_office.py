@@ -354,7 +354,7 @@ def build_pptx(out):
     txt(sl, 0.8, 1.9, 4.0, 0.3, "BP-PL-0019 · Business Partner fee (special price)", 11, False, ACCD, font=F_M)
     txt(sl, 0.8, 2.3, 4.0, 1.0, "SAR %s" % n(FEE), 44, True, "FFFFFF", font=F_H)
     txt(sl, 0.8, 3.35, 4.0, 0.6, "%s ريال" % n(FEE), 28, True, "FFFFFF", rtl=True)
-    txt(sl, 0.8, 4.2, 4.0, 1.2, ["Special price approved by the owner · Phase 1: %s · Phase 2: %s" % (n(P1), n(P2)), "With Saudi legal counsel (%s) and certified translation est. (%s): total SAR %s before 15%% VAT" % (n(COUNSEL), n(TRANS), n(ALL_NET)), ar("سعر خاص باعتماد المالك · المرحلة الأولى %s · الثانية %s · الإجمالي مع المحامي والترجمة %s ريال قبل الضريبة" % (n(P1), n(P2), n(ALL_NET)))], 10, False, "EEF1FB", line=1.2)
+    txt(sl, 0.8, 4.2, 4.0, 1.2, ["Special price approved by the owner · Phase 1: %s · Phase 2: %s" % (n(P1), n(P2)), "Project estimate incl. counsel (%s) and translation (%s), paid by the Client directly: SAR %s before 15%% VAT" % (n(COUNSEL), n(TRANS), n(ALL_NET)), ar("سعر خاص باعتماد المالك · المرحلة الأولى %s · الثانية %s · الإجمالي التقديري مع المحامي والترجمة (يدفعهما العميل مباشرة) %s ريال قبل الضريبة" % (n(P1), n(P2), n(ALL_NET)))], 10, False, "EEF1FB", line=1.2)
     txt(sl, 0.8, 5.5, 4.0, 0.9, ["Government fees: **Not included**", "الرسوم الحكومية: **غير شامل**"], 12, False, ACCD, line=1.3)
     # ما يشمله
     box(sl, 5.3, 1.7, 7.43, 2.45, BG, LINE)

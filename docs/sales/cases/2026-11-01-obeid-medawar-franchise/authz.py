@@ -29,14 +29,14 @@ def get(d, num):
 
 BOX = "☐"
 DELEG = [  # (title_en, title_ar, entity_en, entity_ar, scope_en, scope_ar)
-    ("Filing and following up with the Ministry of Commerce", "التقديم والمتابعة لدى وزارة التجارة",
+    ("Coordinating the registration file with the Ministry of Commerce", "تنسيق ملف القيد لدى وزارة التجارة",
      "Ministry of Commerce (franchise registration)", "وزارة التجارة (قيد الامتياز)",
-     "Preparing, submitting and following up the franchise registration file for the four franchise agreements. Signing the franchise agreements or any corporate decision on the Client’s behalf is excluded.",
-     "إعداد ملف قيد الامتياز لاتفاقيات الامتياز الأربع وتقديمه ومتابعته. ويُستثنى توقيع اتفاقيات الامتياز أو أي قرار للشركة باسم العميل."),
-    ("Appointing and instructing the Saudi legal counsel and the certified translation office", "تعيين المحامي السعودي ومكتب الترجمة المعتمد وتوجيههما",
-     "The Saudi legal counsel and the certified translation provider approved by the Client", "المحامي السعودي ومزوّد الترجمة المعتمدة اللذان يوافق عليهما العميل",
-     "Engaging them for the approved scope and amounts only, and coordinating their work. No external cost beyond the approved amounts without the Client’s prior written approval.",
-     "التعاقد معهما لنطاق ومبالغ معتمدة فقط وتنسيق عملهما. ولا تكلفة خارجية تتجاوز المبالغ المعتمدة دون موافقة العميل الكتابية المسبقة."),
+     "Coordinating and following up the franchise registration file. The Saudi legal counsel, engaged directly by the Client, submits the file under the Client’s authorisation; the First Party does not submit it as an agent.",
+     "تنسيق ملف قيد الامتياز ومتابعته. ويقدّم المحامي السعودي الذي يتعاقد معه العميل مباشرة الملف بتفويض من العميل؛ ولا يقدّمه الطرف الأول بصفة وكيل."),
+    ("Coordinating with the Saudi legal counsel and the certified translation provider", "التنسيق مع المحامي السعودي ومزوّد الترجمة المعتمدة",
+     "The Saudi legal counsel and the certified translation provider engaged directly by the Client", "المحامي السعودي ومزوّد الترجمة المعتمدة اللذان يتعاقد معهما العميل مباشرة",
+     "Coordinating their work and exchanging documents with them. The First Party does not engage, instruct or pay them on the Client’s behalf.",
+     "تنسيق عملهما وتبادل المستندات معهما. ولا يتعاقد الطرف الأول معهما ولا يوجّههما ولا يدفع لهما نيابةً عن العميل."),
     ("Paying official fees on the Client’s behalf", "دفع الرسوم الرسمية نيابةً عن العميل",
      "The Ministry of Commerce and the other entities involved", "وزارة التجارة والجهات الأخرى ذات الصلة",
      "Only from funds the Client has deposited for that purpose, against the entity’s receipt; the unused balance is returned. Payment is executed by a human officer of the First Party, approved by Baher Bakr Ali Magnas, never by an artificial-intelligence system.",

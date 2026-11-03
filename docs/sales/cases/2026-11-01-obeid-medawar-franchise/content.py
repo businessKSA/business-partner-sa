@@ -42,8 +42,8 @@ SCOPE = [  # (title_en, title_ar, text_en, text_ar)
      "Agreement-by-agreement assessment of the four franchise agreements against the Franchise Law and its Implementing Regulations, and a gap report with recommendations. SAR %s. The Client confirms in writing before Phase 2 starts." % n(P1),
      "تقييم اتفاقيات الامتياز الأربع واحدة واحدة مقابل نظام الامتياز التجاري ولائحته التنفيذية، وتقرير فجوات بالتوصيات. %s ريال. ويؤكد العميل كتابةً قبل بدء المرحلة الثانية." % n(P1)),
     ("Phase 2 — Saudi disclosure document", "المرحلة الثانية — وثيقة الإفصاح السعودية",
-     "Coordinating and managing the preparation of the Saudi franchise disclosure document with the Saudi legal counsel. Phase 2 total SAR %s." % n(P2),
-     "تنسيق وإدارة إعداد وثيقة الإفصاح السعودية للامتياز مع المحامي السعودي. إجمالي المرحلة الثانية %s ريال." % n(P2)),
+     "Coordinating the preparation of the Saudi franchise disclosure document with the Saudi legal counsel engaged directly by the Client. Phase 2 total SAR %s." % n(P2),
+     "تنسيق إعداد وثيقة الإفصاح السعودية للامتياز مع المحامي السعودي الذي يتعاقد معه العميل مباشرة. إجمالي المرحلة الثانية %s ريال." % n(P2)),
     ("Phase 2 — Franchise agreement review & Saudi localisation", "المرحلة الثانية — مراجعة اتفاقية الامتياز وتوطينها",
      "Coordinating the legal review and Saudi localisation of the franchise agreement template.",
      "تنسيق المراجعة القانونية لنموذج اتفاقية الامتياز وتوطينه سعودياً."),
@@ -51,11 +51,11 @@ SCOPE = [  # (title_en, title_ar, text_en, text_ar)
      "Coordinating the corrective documentation for the existing franchise relationships.",
      "تنسيق مستندات التصحيح لعلاقات الامتياز القائمة."),
     ("Phase 2 — Certified Arabic translation", "المرحلة الثانية — الترجمة العربية المعتمدة",
-     "Selecting and managing the certified translation provider; the scope of documents to translate is confirmed by the Saudi legal counsel.",
-     "اختيار مزوّد الترجمة المعتمدة وإدارته؛ ويؤكد المحامي السعودي نطاق المستندات المطلوب ترجمتها."),
+     "Coordinating with the certified translation provider engaged directly by the Client; the scope of documents to translate is confirmed by the Saudi legal counsel.",
+     "التنسيق مع مزوّد الترجمة المعتمدة الذي يتعاقد معه العميل مباشرة؛ ويؤكد المحامي السعودي نطاق المستندات المطلوب ترجمتها."),
     ("Phase 2 — Ministry of Commerce registration", "المرحلة الثانية — القيد لدى وزارة التجارة",
-     "Preparing and managing the registration process with the Ministry of Commerce, with legal filing support from the Saudi legal counsel.",
-     "إعداد وإدارة إجراءات القيد لدى وزارة التجارة بدعم قانوني للتقديم من المحامي السعودي."),
+     "Coordinating the registration process with the Ministry of Commerce; the Saudi legal counsel submits the file under the Client’s authorisation.",
+     "تنسيق إجراءات القيد لدى وزارة التجارة؛ ويقدّم المحامي السعودي الملف بتفويض من العميل."),
     ("Phase 2 — Operational readiness & training", "المرحلة الثانية — الجاهزية التشغيلية والتدريب",
      "Reviewing operational readiness, preparing a future Saudi franchise compliance framework, training and post-completion clarification support.",
      "مراجعة الجاهزية التشغيلية، وإعداد إطار امتثال مستقبلي للامتياز في السعودية، والتدريب، ودعم التوضيح بعد الإنجاز."),
@@ -68,8 +68,8 @@ DELIVERABLES = [
      "وثيقة الإفصاح السعودية واتفاقية الامتياز بعد التوطين (بإعداد مع المحامي السعودي)."),
     ("Remediation documentation for the existing franchise relationships, and certified Arabic translations of the agreed documents.",
      "مستندات التصحيح لعلاقات الامتياز القائمة، والترجمات العربية المعتمدة للمستندات المتفق عليها."),
-    ("Ministry of Commerce registration file prepared and submitted; compliance framework and training.",
-     "ملف القيد لدى وزارة التجارة معدّاً ومقدَّماً؛ وإطار الامتثال والتدريب."),
+    ("Ministry of Commerce registration file prepared and submitted by the Saudi legal counsel; compliance framework and training.",
+     "ملف القيد لدى وزارة التجارة معدّاً ومقدَّماً من المحامي السعودي؛ وإطار الامتثال والتدريب."),
 ]
 
 GOV_FEES = [  # fee_en, fee_ar, entity_en, entity_ar, how_en, how_ar
@@ -99,6 +99,8 @@ REQUIREMENTS = [
 EXCLUSIONS = [
     ("Government and filing fees, notarisation, authentication and legalisation: not included; charged at actual cost with the Client’s prior approval.",
      "الرسوم الحكومية ورسوم القيد والتوثيق والتصديق والتعميد: غير مشمولة وتُحتسب بالتكلفة الفعلية بموافقة العميل المسبقة."),
+    ("The Saudi legal counsel’s and the certified translation provider’s fees: the Client contracts them directly and pays them directly; the amounts shown are estimates.",
+     "أتعاب المحامي السعودي ومزوّد الترجمة المعتمدة: يتعاقد العميل معهما مباشرة ويدفع لهما مباشرة؛ والمبالغ المذكورة تقديرية."),
     ("Anything beyond the Saudi legal counsel’s agreed scope (including more than two rounds of Ministry comments) and extra translation volume beyond the estimate.",
      "ما يتجاوز نطاق المحامي السعودي المتفق عليه (ومنه أكثر من جولتي ملاحظات من الوزارة) وحجم الترجمة الزائد عن التقدير."),
     ("The Ministry of Commerce’s processing time and its decisions: we do not guarantee an outcome that depends on them.",
@@ -122,17 +124,19 @@ DURATION = [
 ]
 
 PAYMENT = [  # (no, label_en, label_ar, pct, net, vat, total, due_en, due_ar)
-    ("1", "Business Partner — Phase 1 (minimum fee, non-refundable)", "بزنس بارتنر — المرحلة الأولى (الرسم الأدنى غير المسترد)", "33%", P1, vat(P1), P1 + vat(P1),
+    ("1", "Business Partner — Phase 1 (minimum fee)", "بزنس بارتنر — المرحلة الأولى (الرسم الأدنى)", "33%", P1, vat(P1), P1 + vat(P1),
      "On signing the contract", "عند توقيع العقد"),
     ("2", "Business Partner — Phase 2", "بزنس بارتنر — المرحلة الثانية", "67%", P2, vat(P2), P2 + vat(P2),
-     "On the Second Party’s written confirmation of Phase 2", "عند تأكيد الطرف الثاني الكتابي للمرحلة الثانية"),
-    ("3", "Saudi legal counsel — first instalment", "المحامي السعودي — الدفعة الأولى", "50%", COUNSEL // 2, vat(COUNSEL // 2), COUNSEL // 2 + vat(COUNSEL // 2),
-     "On appointment and start of the legal work", "عند التعيين وبدء العمل القانوني"),
-    ("4", "Saudi legal counsel — second instalment", "المحامي السعودي — الدفعة الثانية", "50%", COUNSEL // 2, vat(COUNSEL // 2), COUNSEL // 2 + vat(COUNSEL // 2),
-     "On completion of the agreed legal deliverables", "عند إنجاز المخرجات القانونية المتفق عليها"),
-    ("5", "Certified Arabic translation (estimate)", "الترجمة العربية المعتمدة (تقدير)", "100%", TRANS, vat(TRANS), TRANS + vat(TRANS),
+     "On written confirmation of Phase 2", "عند التأكيد الكتابي للمرحلة الثانية"),
+    ("3", "Saudi counsel (est., paid directly) — 1st", "المحامي (تقدير، دفع مباشر) — الأولى", "50%", COUNSEL // 2, vat(COUNSEL // 2), COUNSEL // 2 + vat(COUNSEL // 2),
+     "On start of the legal work", "عند بدء العمل القانوني"),
+    ("4", "Saudi counsel (est., paid directly) — 2nd", "المحامي (تقدير، دفع مباشر) — الثانية", "50%", COUNSEL // 2, vat(COUNSEL // 2), COUNSEL // 2 + vat(COUNSEL // 2),
+     "On completion of the legal deliverables", "عند إنجاز المخرجات القانونية"),
+    ("5", "Translation (est., paid directly)", "الترجمة (تقدير، دفع مباشر)", "100%", TRANS, vat(TRANS), TRANS + vat(TRANS),
      "In advance, on engagement", "مقدماً عند التعاقد"),
 ]
+BP_UP = P1; BP_UP_TOTAL = P1 + vat(P1)
+TP_UP = COUNSEL // 2 + TRANS
 UPFRONT_NET = P1 + COUNSEL // 2 + TRANS
 UPFRONT_TOTAL = UPFRONT_NET + vat(P1) + vat(COUNSEL // 2) + vat(TRANS)
 
@@ -142,10 +146,10 @@ TERMS = [
      "الأسعار بالريال السعودي قبل ضريبة القيمة المضافة 15% وتُضاف وفق النظام."),
     ("The Business Partner fee is a special price for this engagement only, approved by the owner.",
      "أتعاب بزنس بارتنر سعر خاص بهذا الارتباط وحده باعتماد المالك."),
-    ("Total before VAT: SAR %s; initial payment on engagement: SAR %s before VAT (SAR %s including VAT); the balance follows the completion milestones above." % (n(ALL_NET), n(UPFRONT_NET), n(UPFRONT_TOTAL)),
-     "الإجمالي قبل الضريبة: %s ريال؛ والدفعة الأولية عند التعاقد: %s ريال قبل الضريبة (%s شاملة الضريبة)؛ والباقي وفق مراحل الإنجاز أعلاه." % (n(ALL_NET), n(UPFRONT_NET), n(UPFRONT_TOTAL))),
-    ("The Saudi legal counsel’s fee and the certified translation estimate are third-party costs; no external cost beyond the approved amounts is incurred without the Client’s prior written approval.",
-     "أتعاب المحامي السعودي وتقدير الترجمة المعتمدة تكاليف خارجية؛ ولا تُتحمَّل تكلفة خارجية تتجاوز المبالغ المعتمدة دون موافقة العميل الكتابية المسبقة."),
+    ("Business Partner invoices only its own fee of SAR %s before VAT: SAR %s (SAR %s including VAT) on signing the contract and SAR %s on the Second Party’s written confirmation of Phase 2." % (n(FEE), n(P1), n(BP_UP_TOTAL), n(P2)),
+     "تُفوتر بزنس بارتنر أتعابها وحدها %s ريال قبل الضريبة: %s ريال (%s شاملة الضريبة) عند توقيع العقد و%s ريال عند تأكيد الطرف الثاني الكتابي للمرحلة الثانية." % (n(FEE), n(P1), n(BP_UP_TOTAL), n(P2))),
+    ("The Client contracts directly with the Saudi legal counsel and the certified translation provider and pays them directly. Their amounts (SAR %s and SAR %s) are estimates; the total project estimate is SAR %s before VAT. The Saudi legal counsel submits the filing to the Ministry of Commerce under the Client’s authorisation; Business Partner does not contract or file on the Client’s behalf as an agent. No external cost beyond the approved amounts is incurred without the Client’s prior written approval." % (n(COUNSEL), n(TRANS), n(ALL_NET)),
+     "يتعاقد العميل مباشرة مع المحامي السعودي ومزوّد الترجمة المعتمدة ويدفع لهما مباشرة. ومبلغاهما (%s و%s ريال) تقديريان؛ والإجمالي التقديري للمشروع %s ريال قبل الضريبة. ويقدّم المحامي السعودي الملف إلى وزارة التجارة بتفويض من العميل؛ ولا تتعاقد بزنس بارتنر ولا تقدّم الملف نيابةً عن العميل بصفة وكيل. ولا تُتحمَّل تكلفة خارجية تتجاوز المبالغ المعتمدة دون موافقة العميل الكتابية المسبقة." % (n(COUNSEL), n(TRANS), n(ALL_NET))),
     ("Acceptance is by signing the quotation and the contract and paying the initial payments; work starts after both. Phase 2 starts only on the Second Party’s written confirmation.",
      "القبول بتوقيع العرض والعقد وسداد الدفعات الأولية، ويبدأ العمل بعد الأمرين. ولا تبدأ المرحلة الثانية إلا بتأكيد الطرف الثاني الكتابي."),
     ("Our services are administrative, coordination and advisory and are not the practice of law or licensed legal advice; legal work is performed by the Saudi legal counsel.",
@@ -210,10 +214,10 @@ def contract_clauses():
     t_en, t_ar, b_en, b_ar = _clause(core, "3.")
     b_en = b_en.replace(
         "The fees are those stated in the accepted quotation, before 15% VAT, which is added. Payment terms: [●].",
-        "The First Party’s fee is SAR %s (thirty thousand Saudi riyals) before 15%% VAT, a special price for this engagement approved by the owner, payable as follows: SAR %s on signing this contract (the Phase 1 fee, which is the minimum fee and is non-refundable) and SAR %s on the Second Party’s written confirmation of Phase 2. The Saudi legal counsel’s fee (SAR %s before VAT) and the certified translation estimate (SAR %s before VAT) are third-party costs paid as set out in the accepted quotation; the total before VAT is SAR %s. No external cost beyond the approved amounts is incurred without the Second Party’s prior written approval." % (n(FEE), n(P1), n(P2), n(COUNSEL), n(TRANS), n(ALL_NET)))
+        "The First Party’s fee is SAR %s (thirty thousand Saudi riyals) before 15%% VAT, a special price for this engagement approved by the owner, invoiced by the First Party and payable as follows: SAR %s on signing this contract (the Phase 1 fee, which is the minimum fee and is non-refundable) and SAR %s on the Second Party’s written confirmation of Phase 2. The Second Party contracts directly with the Saudi legal counsel and the certified translation provider and pays them directly; their amounts (SAR %s and SAR %s before VAT) are estimates, and the total project estimate is SAR %s before VAT. No external cost beyond the approved amounts is incurred without the Second Party’s prior written approval." % (n(FEE), n(P1), n(P2), n(COUNSEL), n(TRANS), n(ALL_NET)))
     b_ar = b_ar.replace(
         "الرسوم هي المذكورة في عرض السعر المقبول، قبل ضريبة القيمة المضافة 15% التي تُضاف عليها. شروط السداد: [●].",
-        "أتعاب الطرف الأول %s ريال (ثلاثون ألف ريال) قبل ضريبة القيمة المضافة 15%%، وهي سعر خاص بهذا الارتباط باعتماد المالك، تُسدَّد كما يلي: %s ريال عند توقيع هذا العقد (أتعاب المرحلة الأولى وهي الرسم الأدنى غير المسترد) و%s ريال عند تأكيد الطرف الثاني الكتابي للمرحلة الثانية. وأتعاب المحامي السعودي (%s ريال قبل الضريبة) وتقدير الترجمة المعتمدة (%s ريال قبل الضريبة) تكاليف خارجية تُسدَّد وفق عرض السعر المقبول؛ والإجمالي قبل الضريبة %s ريال. ولا تُتحمَّل تكلفة خارجية تتجاوز المبالغ المعتمدة دون موافقة الطرف الثاني الكتابية المسبقة." % (n(FEE), n(P1), n(P2), n(COUNSEL), n(TRANS), n(ALL_NET)))
+        "أتعاب الطرف الأول %s ريال (ثلاثون ألف ريال) قبل ضريبة القيمة المضافة 15%%، وهي سعر خاص بهذا الارتباط باعتماد المالك، يُفوترها الطرف الأول وتُسدَّد كما يلي: %s ريال عند توقيع هذا العقد (أتعاب المرحلة الأولى وهي الرسم الأدنى غير المسترد) و%s ريال عند تأكيد الطرف الثاني الكتابي للمرحلة الثانية. ويتعاقد الطرف الثاني مباشرة مع المحامي السعودي ومزوّد الترجمة المعتمدة ويدفع لهما مباشرة؛ ومبلغاهما (%s و%s ريال قبل الضريبة) تقديريان، والإجمالي التقديري للمشروع %s ريال قبل الضريبة. ولا تُتحمَّل تكلفة خارجية تتجاوز المبالغ المعتمدة دون موافقة الطرف الثاني الكتابية المسبقة." % (n(FEE), n(P1), n(P2), n(COUNSEL), n(TRANS), n(ALL_NET)))
     assert "[●]. Payment" not in b_en
     b_en = b_en.replace("IBAN [●]", "IBAN [IBAN]")
     b_ar = b_ar.replace("آيبان [●]", "آيبان [IBAN]")
@@ -229,8 +233,8 @@ def contract_clauses():
     add(*_clause(core, "8."))
 
     add("Scope Limits, Phases & Client Responsibility", "حدود النطاق والمراحل ومسؤولية العميل",
-        "The engagement runs in two phases: Phase 1 (compliance assessment and gap analysis) and Phase 2 (the remaining workstreams), which starts on the Second Party’s written confirmation after the Phase 1 report. The Second Party is responsible for the truth and completeness of the franchise documents and information, for the franchisor’s decisions and for franchisee cooperation. The First Party does not represent the franchisor before courts or in disputes with franchisees, and does not guarantee the Ministry of Commerce’s decision or processing time.",
-        "يسير الارتباط على مرحلتين: المرحلة الأولى (تقييم الامتثال وتحليل الفجوات) والمرحلة الثانية (باقي مسارات العمل) وتبدأ بتأكيد كتابي من الطرف الثاني بعد تقرير المرحلة الأولى. ويتحمل الطرف الثاني صحة المستندات والمعلومات الخاصة بالامتياز واكتمالها وقرارات مانح الامتياز وتعاون الممنوح لهم. ولا يمثل الطرف الأول مانح الامتياز أمام المحاكم أو في نزاعاته مع الممنوح لهم، ولا يضمن قرار وزارة التجارة ولا مدة معالجتها.")
+        "The engagement runs in two phases: Phase 1 (compliance assessment and gap analysis) and Phase 2 (the remaining workstreams), which starts on the Second Party’s written confirmation after the Phase 1 report. The Second Party is responsible for the truth and completeness of the franchise documents and information, for the franchisor’s decisions and for franchisee cooperation. The Second Party contracts directly with the Saudi legal counsel and the certified translation provider; the First Party does not contract or pay on the Second Party’s behalf, does not act as its agent, and does not submit the file to the Ministry of Commerce, which the Saudi legal counsel submits under the Second Party’s authorisation. The First Party does not represent the franchisor before courts or in disputes with franchisees, and does not guarantee the Ministry of Commerce’s decision or processing time.",
+        "يسير الارتباط على مرحلتين: المرحلة الأولى (تقييم الامتثال وتحليل الفجوات) والمرحلة الثانية (باقي مسارات العمل) وتبدأ بتأكيد كتابي من الطرف الثاني بعد تقرير المرحلة الأولى. ويتحمل الطرف الثاني صحة المستندات والمعلومات الخاصة بالامتياز واكتمالها وقرارات مانح الامتياز وتعاون الممنوح لهم. ويتعاقد الطرف الثاني مباشرة مع المحامي السعودي ومزوّد الترجمة المعتمدة؛ ولا يتعاقد الطرف الأول ولا يدفع نيابةً عن الطرف الثاني ولا يعمل وكيلاً عنه، ولا يقدّم الملف إلى وزارة التجارة بل يقدّمه المحامي السعودي بتفويض من الطرف الثاني. ولا يمثل الطرف الأول مانح الامتياز أمام المحاكم أو في نزاعاته مع الممنوح لهم، ولا يضمن قرار وزارة التجارة ولا مدة معالجتها.")
     for p in ("9.", "10.", "11.", "12.", "13.", "14.", "15.", "16.", "17.", "18."):
         add(*_clause(core, p))
     # قرارات المالك 2026-11-03 عبر بدر: ملء القيم المحسومة
@@ -248,8 +252,8 @@ def contract_clauses():
         b_en = b_en.replace("Notices to the addresses stated: [●].", "Notices to the addresses to be completed after agreement.")
         b_ar = b_ar.replace("الإشعارات على العناوين المذكورة: [●].", "الإشعارات على العناوين التي تُستكمل بعد الاتفاق.")
         if t_en.startswith("Cancellation"):
-            b_en = ("Either party may terminate this contract by 30 days’ written notice. On termination or cancellation, the work performed up to that date is due and remains payable, measured by the stages stated in the quotation; the Phase 1 fee (SAR %s before VAT) is the minimum fee, is due on signing and is not refundable. Phase 2 is due only on the Second Party’s written confirmation. The Saudi legal counsel’s and the translation provider’s costs already incurred are due; any amount paid in advance and not spent is refunded within [●] days to be determined. Government fees actually paid are not refundable except to the extent the entity refunds them. The First Party may terminate or suspend the service for non-payment or material breach after 10 days’ written warning." % n(P1))
-            b_ar = ("لأي من الطرفين إنهاء هذا العقد بإشعار كتابي مدته 30 يوماً. وعند الإنهاء أو الإلغاء يُستحق العمل المنجز حتى ذلك التاريخ، ويُقاس بالمراحل المذكورة في عرض السعر؛ وأتعاب المرحلة الأولى (%s ريال قبل الضريبة) هي الرسم الأدنى، وتُستحق عند التوقيع ولا تُسترد. ولا تُستحق المرحلة الثانية إلا بتأكيد الطرف الثاني الكتابي. وتُستحق تكاليف المحامي السعودي ومزوّد الترجمة المتكبَّدة فعلاً؛ وما دُفع مقدماً ولم يُنفق يُرد خلال [●] يوماً تُحدَّد. ولا تُسترد الرسوم الحكومية المدفوعة فعلاً إلا بقدر ما تردّه الجهة. وللطرف الأول إنهاء العقد أو إيقاف الخدمة عند عدم السداد أو الإخلال الجسيم بعد إنذار كتابي مدته 10 أيام." % n(P1))
+            b_en = ("Either party may terminate this contract by 30 days’ written notice. On termination or cancellation, the work performed up to that date is due and remains payable, measured by the stages stated in the quotation; the Phase 1 fee (SAR %s before VAT) is the minimum fee, is due on signing and is not refundable. Phase 2 is due only on the Second Party’s written confirmation. The Saudi legal counsel’s and the translation provider’s fees are governed by the Second Party’s direct contracts with them; any amount the First Party holds in advance for third parties and has not spent is refunded within 14 days. Government fees actually paid are not refundable except to the extent the entity refunds them. The First Party may terminate or suspend the service for non-payment or material breach after 10 days’ written warning." % n(P1))
+            b_ar = ("لأي من الطرفين إنهاء هذا العقد بإشعار كتابي مدته 30 يوماً. وعند الإنهاء أو الإلغاء يُستحق العمل المنجز حتى ذلك التاريخ، ويُقاس بالمراحل المذكورة في عرض السعر؛ وأتعاب المرحلة الأولى (%s ريال قبل الضريبة) هي الرسم الأدنى، وتُستحق عند التوقيع ولا تُسترد. ولا تُستحق المرحلة الثانية إلا بتأكيد الطرف الثاني الكتابي. وتخضع أتعاب المحامي السعودي ومزوّد الترجمة لعقدَي الطرف الثاني المباشرين معهما؛ وما يحتفظ به الطرف الأول مقدماً لحساب الغير ولم يُنفق يُرد خلال 14 يوماً. ولا تُسترد الرسوم الحكومية المدفوعة فعلاً إلا بقدر ما تردّه الجهة. وللطرف الأول إنهاء العقد أو إيقاف الخدمة عند عدم السداد أو الإخلال الجسيم بعد إنذار كتابي مدته 10 أيام." % n(P1))
         fixed.append([t_en, t_ar, b_en, b_ar])
     rows[:] = fixed
     return rows

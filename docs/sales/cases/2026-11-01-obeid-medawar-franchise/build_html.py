@@ -154,9 +154,9 @@ def build_quote():
     # 3 السعر
     price_rows = [
         {"cls": "tot", "cells": [("<b>BP-PL-0019</b> · Business Partner — project management, coordination &amp; implementation: special price approved by the owner (Phase 1: %s · Phase 2: %s)" % (n(P1), n(P2)), "<b>BP-PL-0019</b> · بزنس بارتنر — إدارة المشروع والتنسيق ودعم التنفيذ: سعر خاص باعتماد المالك (المرحلة الأولى: %s · المرحلة الثانية: %s)" % (n(P1), n(P2)), ""), (num(n(FEE)), num(n(FEE)), "c")]},
-        [("Saudi legal counsel — legal review, disclosure, remediation documentation &amp; filing support", "المحامي السعودي — المراجعة القانونية والإفصاح ومستندات التصحيح ودعم التقديم", ""), (num(n(COUNSEL)), num(n(COUNSEL)), "c")],
-        [("Certified Arabic translation (estimate; confirmed once the documents to translate are fixed)", "الترجمة العربية المعتمدة (تقدير؛ يُؤكَّد بعد تحديد المستندات المطلوب ترجمتها)", ""), (num(n(TRANS)), num(n(TRANS)), "c")],
-        {"cls": "tot", "cells": [("Total before VAT (15% VAT added according to the regulations)", "الإجمالي قبل الضريبة (وتُضاف ضريبة القيمة المضافة 15% وفق النظام)", ""), (num(n(ALL_NET)), num(n(ALL_NET)), "c")]},
+        [("Saudi legal counsel (estimate; the Client contracts and pays directly) — legal review, disclosure, remediation documentation &amp; filing", "المحامي السعودي (تقدير؛ يتعاقد معه العميل ويدفع له مباشرة) — المراجعة القانونية والإفصاح ومستندات التصحيح والتقديم", ""), (num(n(COUNSEL)), num(n(COUNSEL)), "c")],
+        [("Certified Arabic translation (estimate; the Client contracts and pays directly; confirmed once the documents are fixed)", "الترجمة العربية المعتمدة (تقدير؛ يتعاقد معها العميل ويدفع لها مباشرة؛ يُؤكَّد بعد تحديد المستندات)", ""), (num(n(TRANS)), num(n(TRANS)), "c")],
+        {"cls": "tot", "cells": [("Total project estimate before VAT — Business Partner invoices only SAR 30,000 (15% VAT added according to the regulations)", "الإجمالي التقديري للمشروع قبل الضريبة — تُفوتر بزنس بارتنر 30,000 ريال فقط (وتُضاف ضريبة القيمة المضافة 15% وفق النظام)", ""), (num(n(ALL_NET)), num(n(ALL_NET)), "c")]},
         [("<b>Government and filing fees</b> — at actual cost, with the Client’s prior approval (see below)", "<b>الرسوم الحكومية ورسوم القيد</b> — بالتكلفة الفعلية وبموافقة العميل المسبقة (انظر أدناه)", ""),
          ("<b>Not included</b>", "<b>غير شامل</b>", "c")],
     ]
@@ -190,10 +190,10 @@ def build_quote():
     dur = bi_table([("#", "#", True), ("Stage", "المرحلة", False)], dur_rows, [4, 46])
     pay_rows = [[(p[0], p[0], "nx"), (p[1], p[2], ""), (p[3], p[3], "c"), (num(n(p[4])), num(n(p[4])), "c"), (num(n(p[5])), num(n(p[5])), "c"), (num(n(p[6])), num(n(p[6])), "c"), (p[7], p[8], "")]
                 for p in PAYMENT]
-    pay_rows.append({"cls": "tot", "cells": [("", "", ""), ("Total", "الإجمالي", ""), ("100%", "100%", "c"), (num(n(ALL_NET)), num(n(ALL_NET)), "c"), (num(n(ALL_VAT)), num(n(ALL_VAT)), "c"), (num(n(ALL_TOTAL)), num(n(ALL_TOTAL)), "c"), ("", "", "")]})
+    pay_rows.append({"cls": "tot", "cells": [("", "", ""), ("Total project estimate", "الإجمالي التقديري للمشروع", ""), ("100%", "100%", "c"), (num(n(ALL_NET)), num(n(ALL_NET)), "c"), (num(n(ALL_VAT)), num(n(ALL_VAT)), "c"), (num(n(ALL_TOTAL)), num(n(ALL_TOTAL)), "c"), ("", "", "")]})
     pay = bi_table([("#", "#", True), ("Instalment", "الدفعة", False), ("%", "النسبة", True), ("SAR excl. VAT", "ريال قبل الضريبة", True),
                     ("VAT 15%", "الضريبة 15%", True), ("SAR incl. VAT", "ريال شامل الضريبة", True), ("Due", "الاستحقاق", False)],
-                   pay_rows, [3, 9, 5, 7, 6, 7, 13])
+                   pay_rows, [3, 15, 5, 7, 6, 7, 11])
     terms = numbered([(esc(e), esc(a)) for e, a in TERMS], "Term", "الشرط")
     inner = h2(5, "Duration", "المدة") + dur + h2(6, "Payment terms", "طريقة الدفع") + pay
     sheets.append(page(inner))
