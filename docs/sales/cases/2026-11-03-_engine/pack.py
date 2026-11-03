@@ -248,7 +248,8 @@ def build_quote():
         for it in g["items"]:
             a_ = it["amt"]; shown = a_ if isinstance(a_, str) else n(a_)
             price_rows.append([("<b>%s</b> · %s" % (it["sku"], it["en"]), "<b>%s</b> · %s" % (it["sku"], it["ar"]), ""), (num(shown), num(shown), "c")])
-        price_rows.append({"cls": "tot", "cells": [("Total service fees before VAT", "إجمالي الأتعاب قبل الضريبة", ""), (num(n(g["fee"])), num(n(g["fee"])), "c")]})
+        tl = S.get("total_label", ("Total service fees before VAT", "إجمالي الأتعاب قبل الضريبة"))
+        price_rows.append({"cls": "tot", "cells": [(tl[0], tl[1], ""), (num(n(g["fee"])), num(n(g["fee"])), "c")]})
         price_rows.append([("VAT 15% (added according to the regulations)", "ضريبة القيمة المضافة 15% (تُضاف وفق النظام)", ""), (num(n(g["vat"])), num(n(g["vat"])), "c")])
         price_rows.append({"cls": "tot", "cells": [("Total including VAT", "الإجمالي شامل الضريبة", ""), (num(n(g["total"])), num(n(g["total"])), "c")]})
     price_rows.append([("<b>Government fees</b> — paid by the Client directly to the entities (see below)", "<b>الرسوم الحكومية</b> — يسدّدها العميل مباشرة للجهات (انظر أدناه)", ""), ("<b>Not included</b>", "<b>غير شامل</b>", "c")])
