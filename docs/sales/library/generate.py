@@ -22,6 +22,7 @@ import argparse
 import csv
 import html
 import json
+import os
 import math
 import re
 import shutil
@@ -47,6 +48,9 @@ LADDER = (0, 10, 20, 30)
 # ---------------------------------------------------------------- هوية الأطراف (من brand-and-presentation-standard §3 و§6)
 CO_EN, CO_AR = "Business Partner Solutions", "شركة بزنس بارتنر سلوشنز"
 CO_UNIFIED, CO_VAT = "7038825860", "312079341500003"
+# العنوان الوطني المعتمد (قرار المالك 2026-11-03: الأول RDAA9214) لا يُكتب في المستودع؛
+# يُحقن عند بناء النسخة النهائية للعميل: BP_ADDRESS=... python generate.py
+ADDRESS = os.environ.get("BP_ADDRESS", "[●]")
 CEO_EN, CEO_AR = "Baher Bakr Ali Magnas", "باهر بكر علي مقنص"
 CEO_TITLE_EN, CEO_TITLE_AR = "Chief Executive Officer", "المدير التنفيذي"
 BADR_EN, BADR_AR = "Badr", "بدر"
@@ -296,7 +300,7 @@ def paginate(blocks, budget):
 
 
 def footer(n, total):
-    return ('<div class="ft"><div class="a">National Address / العنوان الوطني: [●]</div>'
+    return ('<div class="ft"><div class="a">National Address / العنوان الوطني: '+ADDRESS+'</div>'
             '<div class="c">[●]<br>business@businesspartner.sa<br>www.businesspartner.sa<br>'
             f'<span class="m">{n} / {total}</span></div>'
             '<div class="w"><span class="logo" role="img" aria-label="Business Partner"></span></div></div>')
@@ -386,7 +390,7 @@ def closing_port():
             f'<h1 class="pf" style="font-size:34px">{CO_EN}</h1><div class="sb" style="direction:rtl;text-align:right;margin-top:6px">بزنس بارتنر سلوشنز</div>'
             '<div class="bx" style="flex-direction:column;gap:22px"><div><b>Company · المنشأة</b>'
             + kvl("Unified No.", num(CO_UNIFIED), "الرقم الموحد") + kvl("VAT No.", num(CO_VAT), "الرقم الضريبي")
-            + kvl("National Address", num("[●]"), "العنوان الوطني")
+            + kvl("National Address", num(ADDRESS), "العنوان الوطني")
             + '</div><div><b>Contact · التواصل</b>'
             + kvl("Mobile", num("[●]"), "الجوال") + kvl("Email", num("business@businesspartner.sa"), "الإيميل")
             + kvl("Website", num("www.businesspartner.sa"), "الموقع") + '</div></div></div></div>')
