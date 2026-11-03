@@ -231,7 +231,24 @@ def contract_clauses():
         "يسير الارتباط على مرحلتين: المرحلة الأولى (تقييم الامتثال وتحليل الفجوات) والمرحلة الثانية (باقي مسارات العمل) وتبدأ بتأكيد كتابي من الطرف الثاني بعد تقرير المرحلة الأولى. ويتحمل الطرف الثاني صحة المستندات والمعلومات الخاصة بالامتياز واكتمالها وقرارات مانح الامتياز وتعاون الممنوح لهم. ولا يمثل الطرف الأول مانح الامتياز أمام المحاكم أو في نزاعاته مع الممنوح لهم، ولا يضمن قرار وزارة التجارة ولا مدة معالجتها.")
     for p in ("9.", "10.", "11.", "12.", "13.", "14.", "15.", "16.", "17.", "18."):
         add(*_clause(core, p))
+    # قرارات المالك 2026-11-03 عبر بدر: ملء القيم المحسومة
+    fixed = []
+    for r in rows:
+        t_en, t_ar, b_en, b_ar = r
+        b_en = b_en.replace("account at [●], IBAN [IBAN]", "account at the bank stated on the tax invoice, IBAN [IBAN]")
+        b_ar = b_ar.replace("لدى [●]، آيبان [IBAN]", "لدى البنك المذكور في الفاتورة الضريبية، آيبان [IBAN]")
+        b_en = b_en.replace("written notice of [●] days", "written notice of 30 days")
+        b_ar = b_ar.replace("بإشعار كتابي مدته [●] يوماً", "بإشعار كتابي مدته 30 يوماً")
+        b_en = b_en.replace("a non-refundable minimum fee of [●] applies on engagement", "a non-refundable minimum fee equal to the Phase 1 fee (SAR %s before VAT) applies on engagement, and the minimum fee paid is not refundable" % n(P1))
+        b_ar = b_ar.replace("رسم أدنى غير مسترد قدره [●]", "رسم أدنى غير مسترد يعادل أتعاب المرحلة الأولى (%s ريال قبل الضريبة)، والرسم الأدنى المدفوع لا يُسترد" % n(P1))
+        b_en = b_en.replace("within [●] business days", "within 5 business days")
+        b_ar = b_ar.replace("خلال [●] أيام عمل", "خلال 5 أيام عمل")
+        b_en = b_en.replace("Notices to the addresses stated: [●].", "Notices to the addresses to be completed after agreement.")
+        b_ar = b_ar.replace("الإشعارات على العناوين المذكورة: [●].", "الإشعارات على العناوين التي تُستكمل بعد الاتفاق.")
+        fixed.append([t_en, t_ar, b_en, b_ar])
+    rows[:] = fixed
     return rows
+
 
 def nda_rows():
     nda = _find("اتفاقية عدم الإفصاح المتبادلة العامة")
@@ -253,3 +270,5 @@ REP_TITLE_AR = "المدير التنفيذي"
 # عرض السعر باسم بدر (المعيار §6، قرار المالك 2026-11-03)
 QREP_EN, QREP_AR = "Badr", "بدر"
 QREP_TITLE_EN, QREP_TITLE_AR = "Sales & Business Development Manager", "مدير المبيعات وتطوير الأعمال"
+
+TBC_EN, TBC_AR = "To be completed after agreement", "يُستكمل بعد الاتفاق"

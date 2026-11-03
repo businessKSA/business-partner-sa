@@ -16,6 +16,7 @@ IBAN = os.environ.get("BP_IBAN", "[IBAN]") if FINAL else "[IBAN]"
 BANK = os.environ.get("BP_BANK", "[●]") if FINAL else "[●]"
 
 def esc(s): return html.escape(s, quote=False)
+TBC_H = '<span class="num">To be completed after agreement · <span dir="rtl">يُستكمل بعد الاتفاق</span></span>'
 def num(s): return '<span class="num">%s</span>' % esc(str(s))
 
 def css_of(tpl):
@@ -97,11 +98,11 @@ def sig_boxes(left_title=("Business Partner Solutions", "بزنس بارتنر �
                 '<div class="f2"><span>Title</span><span class="v">%s</span><span dir="rtl">الصفة</span></div>'
                 '<div class="f2"><span>Date</span><span class="v">%s</span><span dir="rtl">التاريخ</span></div>'
                 '<div class="bx2"><div style="text-align:center">Signature &amp; Stamp · التوقيع والختم</div></div></div>') % (
-            esc(t[0]), esc(t[1]), co, nm or num("[●]"), tt or num("[●]"), num("[●]"))
+            esc(t[0]), esc(t[1]), co, nm or TBC_H, tt or TBC_H, TBC_H)
     return '<div class="sg" style="direction:ltr">%s%s</div>' % (
         box(left_title, esc(left_co), esc(QREP_EN) + ' · <span dir="rtl">' + esc(QREP_AR) + '</span>',
             esc(QREP_TITLE_EN) + ' · <span dir="rtl">' + esc(QREP_TITLE_AR) + '</span>'),
-        box(right_title, right_co or num("[●]")))
+        box(right_title, right_co or TBC_H))
 
 # ------------------------------------------------------------------ عرض السعر
 def build_quote():
@@ -238,7 +239,7 @@ def parties_html():
           '<tr><td>Country of registration</td><td class="v">%s</td><td>بلد التسجيل</td></tr>'
           '<tr><td>Registered address</td><td class="v">%s</td><td>العنوان المسجَّل</td></tr>'
           '<tr><td>Capacity</td><td class="v">Law firm acting for the franchisor client<br><span dir="rtl">مكتب محاماة يمثل عميله مانح الامتياز</span></td><td>الصفة</td></tr></table>') % (
-        esc(CLIENT_EN), esc(CLIENT_AR), "registered name: " + num("Obeid and Medawar Law Firm (O&amp;M)"), num("[●]"), num("[●]"), num("[●]"))
+        esc(CLIENT_EN), esc(CLIENT_AR), "registered name: " + num("Obeid and Medawar Law Firm (O&amp;M)"), TBC_H, TBC_H, TBC_H)
     return me + cl
 
 NUMBERED = True
@@ -258,7 +259,7 @@ def sig_port():
             '<div><h3><span>Second Party</span><span dir="rtl">الطرف الثاني</span></h3>'
             '<div class="f2"><span>Name</span><span class="v">%s</span><span dir="rtl">الاسم</span></div><div class="f2"><span>Title</span><span class="v">%s</span><span dir="rtl">الصفة</span></div>'
             '<div class="f2"><span>Date</span><span class="v">%s</span><span dir="rtl">التاريخ</span></div><div class="bx2"><div style="text-align:center">Signature &amp; Stamp · التوقيع والختم</div></div></div></div>') % (
-        ("%s · %s" % (esc(REP_EN), esc(REP_AR)), "%s · %s" % (esc(REP_TITLE_EN), esc(REP_TITLE_AR)), "[●]", "[●]", "[●]", "[●]"))
+        ("%s · %s" % (esc(REP_EN), esc(REP_AR)), "%s · %s" % (esc(REP_TITLE_EN), esc(REP_TITLE_AR)), TBC_H, TBC_H, TBC_H, TBC_H))
 
 def cover_port(kind_en, kind_ar, t_en, t_ar, s_en, s_ar, ref_label=True):
     def f(i, n):
