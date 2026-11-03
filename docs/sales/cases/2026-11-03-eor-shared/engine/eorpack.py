@@ -16,13 +16,17 @@ LOGO = os.path.join(TPL, "assets/business-partner-logo-clean.png")
 LEGAL_MD = os.path.join(TPL, "categories/contract-core-and-category-clauses-FOR-LEGAL-REVIEW.md")
 AUTH_MD = os.path.join(TPL, "categories/authorization-letter-template-DRAFT.md")
 RLM = "‏"
-PHONE = os.environ.get("BP_PHONE", "00966530540231")
+PHONE = os.environ.get("BP_PHONE", "0530540231")
 IBAN = "[IBAN]"
 BANK = "[●]"
 BOX = "☐"
 
-REP_EN, REP_AR = "Dr. Baher Magnas", "د. باهر مقنص"
+# عقد وNDA وتفويض: المالك (قرار 2026-11-03، معيار الهوية §6)
+REP_EN, REP_AR = "Baher Bakr Ali Magnas", "باهر بكر علي مقنص"
 REP_TITLE_EN, REP_TITLE_AR = "Chief Executive Officer", "المدير التنفيذي"
+# عرض السعر: بدر
+QREP_EN, QREP_AR = "Badr", "بدر"
+QREP_TITLE_EN, QREP_TITLE_AR = "Sales & Business Development Manager", "مدير المبيعات وتطوير الأعمال"
 
 C = {}   # إعداد العميل الحالي (يُحمَّل في main)
 
@@ -109,7 +113,7 @@ def sig_boxes():
             esc(t[0]), esc(t[1]), co, nm or B(), tt or B(), B())
     return '<div class="sg" style="direction:ltr">%s%s</div>' % (
         box(("Business Partner Solutions", "بزنس بارتنر سلوشنز"), esc("Business Partner Solutions · بزنس بارتنر سلوشنز"),
-            esc(REP_EN) + ' · <span dir="rtl">' + esc(REP_AR) + '</span>', esc(REP_TITLE_EN) + ' · <span dir="rtl">' + esc(REP_TITLE_AR) + '</span>'),
+            esc(QREP_EN) + ' · <span dir="rtl">' + esc(QREP_AR) + '</span>', esc(QREP_TITLE_EN) + ' · <span dir="rtl">' + esc(QREP_TITLE_AR) + '</span>'),
         box(("Client", "العميل"), esc(C["client_ar"])))
 
 # ------------------------------------------------------------------ عرض السعر
@@ -489,8 +493,8 @@ def authz_rows():
             b_en = b_en.replace("Within the covered services only, the Authorised Party may:", "Within the services the Second Party has ticked in section 3 only, the First Party may:")
             b_ar = b_ar.replace("ضمن الخدمات المشمولة وحدها، للمفوَّض:", "ضمن البنود التي حدّدها الطرف الثاني في البند 3 وحدها، للطرف الأول:")
         if num_ == 7:
-            b_en = "The First Party acts only through its named staff: Dr. Baher Magnas, Chief Executive Officer; other named staff: [●] (identification details are kept in the executed copy)."
-            b_ar = "يعمل الطرف الأول عبر موظفيه المسمّين وحدهم: د. باهر مقنص، المدير التنفيذي؛ وموظفون آخرون مسمّون: [●] (وبيانات الهوية في النسخة الموقّعة)."
+            b_en = "The First Party acts only through its named staff: Baher Bakr Ali Magnas, Chief Executive Officer; other named staff: [●] (identification details are kept in the executed copy)."
+            b_ar = "يعمل الطرف الأول عبر موظفيه المسمّين وحدهم: باهر بكر علي مقنص، المدير التنفيذي؛ وموظفون آخرون مسمّون: [●] (وبيانات الهوية في النسخة الموقّعة)."
         b_en = b_en.replace("the Category Annex", "section 3").replace("The Authorised Party", "The First Party").replace("the Authorised Party", "the First Party").replace("The Principal", "The Second Party").replace("the Principal", "the Second Party").replace("Principal’s", "Second Party’s")
         b_ar = b_ar.replace("ملحق الفئة", "البند 3").replace("المفوَّض", "الطرف الأول").replace("المفوِّض", "الطرف الثاني")
         t_en = t_en.replace("Principal’s", "Second Party’s").replace("Authorised Party’s", "First Party’s")

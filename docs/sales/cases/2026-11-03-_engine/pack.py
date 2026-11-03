@@ -15,9 +15,13 @@ LOGO = os.path.join(TPL, "assets/business-partner-logo-clean.png")
 sys.path.insert(0, HERE)
 
 RLM = "‏"
-PHONE = "00966530540231"          # جوال المنشأة المعتمد للتوقيع (أمر المالك)
+PHONE = "0530540231"              # جوال الشركة المعتمد (المالك 2026-11-03)
 IBAN, BANK = "[IBAN]", "[●]"      # يُحقنان من بدر في النسخة النهائية فقط
-REP_EN, REP_AR = "Dr. Baher Magnas", "د. باهر مقنص"   # بلا مسمى وظيفي
+# المعيار §6 (قرار المالك 2026-11-03): العرض باسم بدر؛ العقد وNDA والتفويض باسم المالك بصفة المدير التنفيذي
+Q_EN, Q_AR = "Badr", "بدر"
+Q_TITLE_EN, Q_TITLE_AR = "Sales & Business Development Manager", "مدير المبيعات وتطوير الأعمال"
+REP_EN, REP_AR = "Baher Bakr Ali Magnas", "باهر بكر علي مقنص"
+REP_TITLE_EN, REP_TITLE_AR = "Chief Executive Officer", "المدير التنفيذي"
 VAT_RATE = 15
 
 # ------------------------------------------------------------------ المواصفة
@@ -139,7 +143,8 @@ def numbered(rows, le="Item", la="البند"):
     body = [[(str(i), str(i), "nx"), (e, ar(a), "t")] for i, (e, a) in enumerate(rows, 1)]
     return bi_table(head, body, [4, 46])
 
-REP_CELL = esc(REP_EN) + ' · <span dir="rtl">' + esc(REP_AR) + '</span>'
+REP_CELL = esc(Q_EN) + ' · <span dir="rtl">' + esc(Q_AR) + '</span>'
+Q_TITLE_CELL = esc(Q_TITLE_EN) + ' · <span dir="rtl">' + esc(Q_TITLE_AR) + '</span>'
 def sig_boxes(right_co):
     def box(t, co, nm, extra_label, extra_val):
         return ('<div><h3><span>%s</span><span dir="rtl">%s</span></h3>'
@@ -150,7 +155,7 @@ def sig_boxes(right_co):
                 '<div class="bx2"><div style="text-align:center">Signature &amp; Stamp · التوقيع والختم</div></div></div>') % (
             t[0], t[1], co, nm, extra_label[0], extra_val, extra_label[1], BLANK)
     return '<div class="sg" style="direction:ltr">%s%s</div>' % (
-        box(("Business Partner Solutions", "بزنس بارتنر سلوشنز"), esc("Business Partner Solutions · بزنس بارتنر سلوشنز"), REP_CELL, ("Mobile", "الجوال"), num(PHONE)),
+        box(("Business Partner Solutions", "بزنس بارتنر سلوشنز"), esc("Business Partner Solutions · بزنس بارتنر سلوشنز"), REP_CELL, ("Title", "الصفة"), Q_TITLE_CELL),
         box(("Client", "العميل"), right_co, BLANK, ("Title", "الصفة"), BLANK))
 
 # ------------------------------------------------------------------ عرض السعر (A4 أفقي)
@@ -312,7 +317,7 @@ def parties_html():
           '<tr><td>VAT No.</td><td class="v">%s</td><td>الرقم الضريبي</td></tr>'
           '<tr><td>National Address</td><td class="v">%s</td><td>العنوان الوطني</td></tr>'
           '<tr><td>Represented by</td><td class="v">%s<br><span dir="rtl">%s</span></td><td>يمثلها</td></tr>'
-          '<tr><td>Mobile</td><td class="v">%s</td><td>الجوال</td></tr></table>') % (num("7038825860"), num("312079341500003"), num("RDAA9214"), esc(REP_EN), esc(REP_AR), num(PHONE))
+          '<tr><td>Title</td><td class="v">%s<br><span dir="rtl">%s</span></td><td>الصفة</td></tr></table>') % (num("7038825860"), num("312079341500003"), num("RDAA9214"), esc(REP_EN), esc(REP_AR), esc(REP_TITLE_EN), esc(REP_TITLE_AR))
     cl = ('<table class="pty2"><tr><th colspan="3"><span>Second Party (Client)</span><span dir="rtl">الطرف الثاني (العميل)</span></th></tr>'
           '<tr><td>Name</td><td class="v">%s<br><span dir="rtl">%s</span><br>%s</td><td>الاسم</td></tr>'
           '<tr><td>ID / Iqama / Passport / CR No.</td><td class="v">%s</td><td>رقم الهوية / الإقامة / الجواز / السجل</td></tr>'
@@ -381,12 +386,12 @@ def clause_tr(no, r):
 def sig_port():
     ph = "________________"
     return ('<div class="sg" data-m="sig" style="direction:ltr"><div><h3><span>First Party</span><span dir="rtl">الطرف الأول</span></h3>'
-            '<div class="f2"><span>Name</span><span class="v">%s · %s</span><span dir="rtl">الاسم</span></div><div class="f2"><span>Mobile</span><span class="v">%s</span><span dir="rtl">الجوال</span></div>'
+            '<div class="f2"><span>Name</span><span class="v">%s · %s</span><span dir="rtl">الاسم</span></div><div class="f2"><span>Title</span><span class="v">%s · %s</span><span dir="rtl">الصفة</span></div>'
             '<div class="f2"><span>Date</span><span class="v">%s</span><span dir="rtl">التاريخ</span></div><div class="bx2"><div style="text-align:center">Signature &amp; Stamp · التوقيع والختم</div></div></div>'
             '<div><h3><span>Second Party</span><span dir="rtl">الطرف الثاني</span></h3>'
             '<div class="f2"><span>Name</span><span class="v">%s</span><span dir="rtl">الاسم</span></div><div class="f2"><span>Title</span><span class="v">%s</span><span dir="rtl">الصفة</span></div>'
             '<div class="f2"><span>Date</span><span class="v">%s</span><span dir="rtl">التاريخ</span></div><div class="bx2"><div style="text-align:center">Signature &amp; Stamp · التوقيع والختم</div></div></div></div>') % (
-        esc(REP_EN), esc(REP_AR), PHONE, ph, ph, ph, ph)
+        esc(REP_EN), esc(REP_AR), esc(REP_TITLE_EN), esc(REP_TITLE_AR), ph, ph, ph, ph)
 
 def refs_label():
     return S["cover"]["refs_en"].split(" · ")[0]
@@ -600,8 +605,8 @@ def authz_rows():
             b_en = b_en.replace(" [recommended maximum 12]", "")
             b_ar = re.sub(r"\s*\[الحد الأقصى المقترح 12\]", "", b_ar)
         if k == 7:
-            b_en = "The First Party acts only through its named staff: %s; any other staff member only with the Second Party’s prior written approval (identification details are kept in the executed copy)." % REP_EN
-            b_ar = "يعمل الطرف الأول عبر موظفيه المسمّين وحدهم: %s؛ ولا يعمل أي موظف آخر إلا بموافقة كتابية مسبقة من الطرف الثاني (وبيانات الهوية في النسخة الموقّعة)." % REP_AR
+            b_en = "The First Party acts only through its named staff: %s; any other staff member only with the Second Party’s prior written approval (identification details are kept in the executed copy)." % (REP_EN + ", " + REP_TITLE_EN)
+            b_ar = "يعمل الطرف الأول عبر موظفيه المسمّين وحدهم: %s؛ ولا يعمل أي موظف آخر إلا بموافقة كتابية مسبقة من الطرف الثاني (وبيانات الهوية في النسخة الموقّعة)." % (REP_AR + "، " + REP_TITLE_AR)
         b_en = b_en.replace("the Category Annex", "section 3").replace("The Authorised Party", "The First Party").replace("the Authorised Party", "the First Party").replace("The Principal", "The Second Party").replace("the Principal", "the Second Party").replace("Principal’s", "Second Party’s")
         b_ar = b_ar.replace("ملحق الفئة", "البند 3").replace("المفوَّض", "الطرف الأول").replace("المفوِّض", "الطرف الثاني")
         t_en = t_en.replace("Principal’s", "Second Party’s").replace("Authorised Party’s", "First Party’s")
