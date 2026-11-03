@@ -1,0 +1,9 @@
+client_ref,role,nationality,count,salary_and_allowances,source_office,quote_date,notes
+CL-0014 ATYX,Site manager — construction,India,1,[●],[●],[●],ATYX request EOR-137189; male; age 40–49
+CL-0014 ATYX,Mechanical assembly technician,Morocco,[●],[●],[●],[●],2 workers across Morocco and South Africa; split not yet confirmed
+CL-0014 ATYX,Mechanical assembly technician,South Africa,[●],[●],[●],[●],
+CL-0014 ATYX,Electrical and electronic assembly technician,India,1,[●],[●],[●],
+CL-0013 QMOVE,[●] role,[●],[●],[●],[●],[●],20 initially then up to 50 in total; roles not yet provided
+CL-0011 Abdulmohsen,Engineer,[●],3,[●],[●],[●],selects the fee tier only; nationalities known to the client only
+CL-0011 Abdulmohsen,Sales,[●],2,[●],[●],[●],
+BC/BPT requests,[●] role,[●],[●],[●],[●],[●],fill only after each request's real need is read

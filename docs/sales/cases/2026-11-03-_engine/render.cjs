@@ -15,6 +15,7 @@ const { chromium } = require('playwright');
       const o = {};
       document.querySelectorAll('[data-m]').forEach(e => { const cs = getComputedStyle(e); o[e.dataset.m] = e.getBoundingClientRect().height + (parseFloat(cs.marginTop)||0) + (parseFloat(cs.marginBottom)||0); });
       const hd = document.querySelector('.hd'); o.__hdBottom = hd ? hd.getBoundingClientRect().bottom - hd.closest('.sheet').getBoundingClientRect().top : 0;
+      const bp = document.querySelector('.bp'); o.__bpTop = bp ? bp.getBoundingClientRect().top - bp.closest('.sheet').getBoundingClientRect().top : 0;
       return o;
     });
     console.log(JSON.stringify(r));
