@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<title>مكتب د. أسامة الرقمي — تجربة حيّة</title>
+<meta name="description" content="تجربة حيّة لرحلة الطلب: من طلب يصل، إلى نطاق عمل وعرض سعر وعقد وتوقيع ودفع وفاتورة.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap">
+<style>
+:root{
+  --paper:#F5F6F3; --paper2:#EAEEE8; --card:#FFFFFF; --edge:#DCE2DA;
+  --ink:#0F3D3E; --ink2:#14504F; --txt:#4B5A57; --mut:#7E8F8B;
+  --deep:#0A1D1D; --deep2:#113030; --deepEdge:#1F4443;
+  --sand:#B4763A; --sandL:#D8A56B; --sandD:#8E5C2B;
+  --ok:#2F6F4F;
+  --disp:'Noto Kufi Arabic',Tahoma,sans-serif;
+  --body:'IBM Plex Sans Arabic',Tahoma,sans-serif;
+  --w:980px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--txt);font-family:var(--body);font-size:16.5px;line-height:1.85;-webkit-font-smoothing:antialiased}
+.wrap{width:100%;max-width:var(--w);margin:0 auto;padding-inline:clamp(16px,4vw,32px)}
+h1,h2,h3{font-family:var(--disp);color:var(--ink);margin:0;font-weight:700}
+h1{font-size:clamp(25px,4.4vw,40px);line-height:1.3}
+h2{font-size:clamp(20px,3vw,27px);line-height:1.38}
+h3{font-size:clamp(16px,2vw,18.5px);line-height:1.5;font-weight:600}
+p{margin:0}
+a{color:var(--sandD)}
+
+.proto{background:var(--sandD);color:#F6ECDF;font-size:11.5px;font-weight:500;text-align:center;padding:7px 16px;line-height:1.6}
+.proto b{color:#fff;font-weight:600}
+
+header.hd{background:var(--deep);color:#CFDAD8;padding:34px 0 30px}
+header.hd .eyebrow{font-size:11px;font-weight:600;letter-spacing:.2em;color:var(--sandL);margin-bottom:10px}
+header.hd h1{color:#fff}
+header.hd p{margin-top:12px;max-width:62ch;color:#A9BCB9;font-size:15.5px}
+
+.steps{display:flex;gap:6px;overflow-x:auto;padding:14px 0;scrollbar-width:none}
+.steps::-webkit-scrollbar{display:none}
+.steps b{flex:none;font-family:var(--body);font-size:12px;font-weight:600;color:var(--mut);background:var(--paper2);border:1px solid var(--edge);border-radius:999px;padding:5px 13px;white-space:nowrap}
+.steps b.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.steps b.done{background:#E6EFE9;border-color:#C6DDCE;color:var(--ok)}
+
+main{padding:4px 0 70px}
+.card{background:var(--card);border:1px solid var(--edge);border-radius:14px;padding:clamp(20px,3.5vw,32px);margin:16px 0}
+.card.deep{background:var(--deep2);border-color:var(--deepEdge);color:#B9CBC8}
+.card.deep h2,.card.deep h3{color:#fff}
+.hint{font-size:13.5px;color:var(--mut);line-height:1.75;margin-top:10px}
+.card.deep .hint{color:#8FA6A3}
+
+label{display:block;font-size:13.5px;font-weight:600;color:var(--ink);margin:14px 0 6px}
+input,textarea,select{width:100%;font-family:var(--body);font-size:16px;color:var(--ink);background:var(--paper);border:1px solid var(--edge);border-radius:9px;padding:11px 13px;line-height:1.7}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--sandL);outline-offset:1px}
+textarea{min-height:104px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:620px){.row{grid-template-columns:1fr}}
+
+button{font-family:var(--body);font-size:15.5px;font-weight:600;cursor:pointer;border-radius:10px;padding:12px 22px;border:1px solid transparent;transition:filter .15s}
+button:hover:not(:disabled){filter:brightness(1.08)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.go{background:var(--sand);color:#fff;margin-top:20px}
+.ghost{background:transparent;color:var(--ink);border-color:var(--edge)}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:20px}
+
+.kv{display:flex;justify-content:space-between;gap:16px;border-bottom:1px dashed var(--edge);padding:9px 0;font-size:15px}
+.kv:last-child{border-bottom:0}
+.kv span{color:var(--mut)}
+.kv b{color:var(--ink);font-weight:600;text-align:left;font-variant-numeric:tabular-nums}
+.card.deep .kv{border-color:var(--deepEdge)}
+.card.deep .kv span{color:#8FA6A3}
+.card.deep .kv b{color:#fff}
+
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14.5px}
+th,td{text-align:right;padding:9px 10px;border-bottom:1px solid var(--edge)}
+th{font-family:var(--disp);font-size:13px;color:var(--ink);background:var(--paper2)}
+td.n{text-align:left;font-variant-numeric:tabular-nums}
+tr.sum td{font-weight:700;color:var(--ink);border-bottom:0}
+
+.pill{display:inline-block;font-size:11.5px;font-weight:600;letter-spacing:.04em;border-radius:999px;padding:3px 11px;border:1px solid}
+.pill.live{color:var(--ok);border-color:#C6DDCE;background:#E6EFE9}
+.pill.test{color:var(--sandD);border-color:#EBD9C3;background:#F8EFE3}
+
+.ref{font-family:var(--disp);font-size:clamp(21px,3.6vw,30px);color:var(--sand);letter-spacing:.04em;font-variant-numeric:tabular-nums}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;word-break:break-all;color:var(--ink2)}
+
+.tracks{display:grid;gap:12px;margin-top:16px}
+.tracks button{text-align:right;background:var(--paper);border:1px solid var(--edge);color:var(--ink);padding:16px 18px;line-height:1.6}
+.tracks button.sel{border-color:var(--sand);background:#FBF5EE}
+.tracks small{display:block;color:var(--mut);font-weight:400;font-size:13px;margin-top:3px}
+
+.terms{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:10px}
+.terms li{font-size:14.5px;line-height:1.8;padding-inline-start:20px;position:relative;color:#B9CBC8}
+.terms li::before{content:"";position:absolute;inset-inline-start:0;top:12px;width:7px;height:7px;border-radius:50%;background:var(--sandL)}
+
+.lock{text-align:center;padding:14px 0}
+.lock input{max-width:190px;margin:0 auto;text-align:center;letter-spacing:.5em;font-size:22px;font-family:var(--disp)}
+.err{color:#A6412F;font-size:13.5px;margin-top:10px;min-height:20px}
+
+.qr{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-top:16px}
+.qr>div:first-child{background:#fff;padding:10px;border-radius:10px;border:1px solid var(--edge);line-height:0}
+footer{border-top:1px solid var(--edge);padding:22px 0 40px;font-size:13px;color:var(--mut);text-align:center}
+.hide{display:none}
+</style>
+</head>
+<body>
+
+<div class="proto">تجربة حيّة · <b>د. أسامة الملا</b> · الأرقام والأسماء عيّنة للتجربة، والدفع في وضع الاختبار — لا بطاقة تُخصم</div>
+
+<header class="hd"><div class="wrap">
+  <p class="eyebrow">مكتب د. أسامة الرقمي</p>
+  <h1>من طلبٍ يصل، إلى فاتورةٍ تُسلَّم</h1>
+  <p>جرّبها بنفسك الآن. ستمرّ بالرحلة كلها كما سيمرّ بها عميلك: ترسل طلباً، ثم تدخل مكتبك المغلق فتجده، فتُخرج نطاق عمل وعرض سعر وعقداً وتوقيعاً ودفعاً وفاتورة — كل محطة تعمل فعلاً.</p>
+</div></header>
+
+<div class="wrap">
+  <div class="steps" id="steps">
+    <b data-s="1">١ · الطلب</b><b data-s="2">٢ · مكتبك</b><b data-s="3">٣ · نطاق وعرض</b><b data-s="4">٤ · العقد والتوقيع</b><b data-s="5">٥ · الدفع</b><b data-s="6">٦ · الفاتورة</b>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <!-- ١ -->
+  <section class="card" id="s1">
+    <h2>١ · طلبٌ يصل إليك</h2>
+    <p class="hint">هذا ما يراه من يدخل موقعك ويريد العمل معك. املأه كما لو كنت عميلاً.</p>
+    <div class="row">
+      <div><label for="f-name">الاسم</label><input id="f-name" value="فهد العتيبي" autocomplete="off"></div>
+      <div><label for="f-role">الصفة</label><input id="f-role" value="أمين سر المجلس" autocomplete="off"></div>
+    </div>
+    <label for="f-org">الجهة</label><input id="f-org" value="مجموعة الراجحي الصناعية" autocomplete="off">
+    <label for="f-need">ما الذي تحتاجه؟</label>
+    <textarea id="f-need">مجلسنا مكوَّن من سبعة أعضاء، ولم يخضع لتقييم فاعلية منذ تأسيسه قبل أربع سنوات. نريد قراءة مستقلة لأداء المجلس ولجانه، ومخرجاً نعرضه على الجمعية العمومية.</textarea>
+    <div class="bar"><button class="go" id="b-send">أرسل الطلب</button><span class="pill live">يعمل فعلاً</span></div>
+    <p class="err" id="e1"></p>
+  </section>
+
+  <!-- ٢ -->
+  <section class="card deep hide" id="s2">
+    <h2>٢ · مكتبك الخاص</h2>
+    <p class="hint">لا يدخله أحد سواك. ولا يخرج منه شيء إلى عميل قبل أن تعتمده أنت.</p>
+    <div class="lock" id="lock">
+      <label for="f-code" style="color:#fff">رمز الدخول</label>
+      <input id="f-code" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">
+      <p class="hint">رمز التجربة: <b style="color:#fff">2026</b></p>
+      <button class="go" id="b-open">ادخل</button>
+      <p class="err" id="e2"></p>
+    </div>
+    <div class="hide" id="inbox">
+      <div class="kv"><span>الرقم المرجعي</span><b class="ref" id="o-ref">—</b></div>
+      <div class="kv"><span>من</span><b id="o-who">—</b></div>
+      <div class="kv"><span>وصل</span><b id="o-at">—</b></div>
+      <div class="kv"><span>الحالة</span><b id="o-st">جديد — بانتظار نطاق العمل</b></div>
+      <p class="hint" id="o-need" style="margin-top:14px"></p>
+      <div class="bar"><button class="go" id="b-scope">جهّز نطاق العمل</button></div>
+    </div>
+  </section>
+
+  <!-- ٣ -->
+  <section class="card hide" id="s3">
+    <h2>٣ · نطاق العمل وعرض السعر</h2>
+    <p class="hint">اختر المسار، فيخرج العرض بحسابه وضريبته — الحساب حقيقي، والأرقام عيّنة.</p>
+    <div class="tracks" id="tracks"></div>
+    <div class="hide" id="quote">
+      <div class="kv"><span>رقم العرض</span><b id="q-no">—</b></div>
+      <div class="kv"><span>المدة</span><b id="q-wk">—</b></div>
+      <div class="kv"><span>صلاحية العرض</span><b>30 يوماً</b></div>
+      <table><thead><tr><th>البند</th><th>العدد</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody id="q-rows"></tbody>
+      <tfoot>
+        <tr><td colspan="3">الإجمالي قبل الضريبة</td><td class="n" id="q-net"></td></tr>
+        <tr><td colspan="3">ضريبة القيمة المضافة 15%</td><td class="n" id="q-vat"></td></tr>
+        <tr class="sum"><td colspan="3">الإجمالي المستحق</td><td class="n" id="q-gross"></td></tr>
+      </tfoot></table>
+      <div class="bar"><button class="go" id="b-contract">اعتمد وجهّز العقد</button></div>
+    </div>
+    <p class="err" id="e3"></p>
+  </section>
+
+  <!-- ٤ -->
+  <section class="card deep hide" id="s4">
+    <h2>٤ · العقد والتوقيع</h2>
+    <ul class="terms" id="c-terms"></ul>
+    <div class="kv" style="margin-top:18px"><span>رقم العقد</span><b id="c-no">—</b></div>
+    <div class="kv"><span>بصمة نص العقد</span><b class="mono" id="c-hash">—</b></div>
+    <label for="f-signer" style="color:#fff">اسم الموقّع</label>
+    <input id="f-signer" value="فهد العتيبي" autocomplete="off">
+    <div class="bar"><button class="go" id="b-sign">وقّع</button><span class="pill live">بصمة حقيقية</span></div>
+    <div class="hide" id="signed">
+      <div class="kv"><span>بصمة التوقيع</span><b class="mono" id="g-stamp">—</b></div>
+      <div class="kv"><span>وقت التوقيع</span><b id="g-at">—</b></div>
+      <p class="hint" id="g-note"></p>
+      <div class="bar"><button class="go" id="b-pay">انتقل للدفع</button></div>
+    </div>
+    <p class="err" id="e4"></p>
+  </section>
+
+  <!-- ٥ -->
+  <section class="card hide" id="s5">
+    <h2>٥ · الدفع</h2>
+    <p class="hint">الدفعة الأولى 50% عند التوقيع، كما في العقد.</p>
+    <div class="kv"><span>المستحق الآن</span><b id="p-amt">—</b></div>
+    <div class="bar"><button class="go" id="b-paynow">ادفع الآن</button><span class="pill test">وضع اختبار — لا بطاقة تُخصم</span></div>
+    <div class="hide" id="paid">
+      <div class="kv"><span>رقم العملية</span><b class="mono" id="p-id">—</b></div>
+      <div class="kv"><span>الحالة</span><b style="color:var(--ok)">مدفوعة</b></div>
+      <div class="bar"><button class="go" id="b-inv">أصدر الفاتورة</button></div>
+    </div>
+    <p class="err" id="e5"></p>
+  </section>
+
+  <!-- ٦ -->
+  <section class="card hide" id="s6">
+    <h2>٦ · الفاتورة</h2>
+    <div class="kv"><span>رقم الفاتورة</span><b id="i-no">—</b></div>
+    <div class="kv"><span>البائع</span><b id="i-seller">—</b></div>
+    <div class="kv"><span>الرقم الضريبي</span><b id="i-vatno">—</b></div>
+    <div class="kv"><span>قبل الضريبة</span><b id="i-net">—</b></div>
+    <div class="kv"><span>الضريبة</span><b id="i-vat">—</b></div>
+    <div class="kv"><span>الإجمالي</span><b id="i-gross">—</b></div>
+    <div class="qr"><div id="i-qr"></div><div><span class="pill live">رمز بمواصفة هيئة الزكاة والضريبة</span><p class="hint" id="i-note"></p></div></div>
+    <div class="bar"><button class="ghost" id="b-reset">أعد التجربة من البداية</button></div>
+  </section>
+
+  <section class="card" id="closing">
+    <h3>ما الذي رأيته للتو</h3>
+    <p class="hint">طلبٌ وصل بلا بريد ولا واتساب، ودخل مكتباً لا يفتحه غيرك. ومنه خرج نطاق عمل وعرض سعر محسوب، وعقد بشروطك، وتوقيع له بصمة تُبطَل إن مُسّ نص العقد، ودفعة، وفاتورة نظامية. هذه رحلة واحدة من رحلات كثيرة — والباقي يُبنى على المنوال نفسه.</p>
+  </section>
+
+</main>
+
+<footer><div class="wrap">مكتب د. أسامة الرقمي · تجربة خاصة · لا تُنشر ولا تُفهرس</div></footer>
+
+<script>
+(function () {
+  "use strict";
+  var API = "/api/osamh";
+  var CODE = "2026";
+  var S = {};
+  try { S = JSON.parse(sessionStorage.getItem("osamh_poc") || "{}") || {}; } catch (e) { S = {}; }
+  var save = function () { try { sessionStorage.setItem("osamh_poc", JSON.stringify(S)); } catch (e) {} };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var show = function (id) { $(id).classList.remove("hide"); };
+  var sar = function (n) { return Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ريال"; };
+  var when = function (iso) {
+    var d = new Date(iso);
+    return d.toLocaleString("ar-SA", { dateStyle: "medium", timeStyle: "short" });
+  };
+
+  function mark(step) {
+    var all = document.querySelectorAll("#steps b");
+    for (var i = 0; i < all.length; i++) {
+      var n = Number(all[i].getAttribute("data-s"));
+      all[i].className = n < step ? "done" : (n === step ? "on" : "");
+    }
+  }
+  function go(id, step) {
+    show(id); mark(step);
+    $(id).scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function busy(btn, on, label) {
+    btn.disabled = on;
+    if (on) { btn.dataset.t = btn.textContent; btn.textContent = "لحظة…"; }
+    else { btn.textContent = label || btn.dataset.t || btn.textContent; }
+  }
+  function post(action, payload, errEl, btn, done) {
+    $(errEl).textContent = "";
+    busy(btn, true);
+    fetch(API + "?action=" + action, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload)
+    }).then(function (r) { return r.json().catch(function () { return { ok: false, error: "تعذّرت قراءة الرد" }; }); })
+      .then(function (d) {
+        busy(btn, false);
+        if (!d || !d.ok) { $(errEl).textContent = (d && d.error) || "تعذّر الاتصال، حاول مرة أخرى."; return; }
+        done(d);
+      })
+      .catch(function () { busy(btn, false); $(errEl).textContent = "تعذّر الاتصال بالخادم."; });
+  }
+
+  mark(1);
+
+  // ١ — الطلب
+  $("b-send").addEventListener("click", function () {
+    post("intake", {
+      name: $("f-name").value, role: $("f-role").value,
+      org: $("f-org").value, need: $("f-need").value
+    }, "e1", this, function (d) {
+      S.intake = d; save();
+      $("o-ref").textContent = d.ref;
+      $("o-who").textContent = d.summary.who;
+      $("o-at").textContent = when(d.receivedAt);
+      $("o-need").textContent = "«" + d.summary.need + "»";
+      go("s2", 2);
+    });
+  });
+
+  // ٢ — المكتب
+  $("b-open").addEventListener("click", function () {
+    if ($("f-code").value.trim() !== CODE) { $("e2").textContent = "رمز غير صحيح."; return; }
+    $("e2").textContent = "";
+    $("lock").classList.add("hide");
+    show("inbox");
+  });
+  $("f-code").addEventListener("keydown", function (e) { if (e.key === "Enter") $("b-open").click(); });
+
+  $("b-scope").addEventListener("click", function () {
+    var box = $("tracks");
+    if (!box.childElementCount) {
+      (S.intake.tracks || []).forEach(function (t) {
+        var b = document.createElement("button");
+        b.innerHTML = t.label + "<small>" + t.weeks + " أسابيع</small>";
+        b.addEventListener("click", function () {
+          var sel = box.querySelectorAll("button");
+          for (var i = 0; i < sel.length; i++) sel[i].classList.remove("sel");
+          b.classList.add("sel");
+          quote(t.key);
+        });
+        box.appendChild(b);
+      });
+    }
+    go("s3", 3);
+  });
+
+  // ٣ — العرض
+  function quote(track) {
+    post("quote", { ref: S.intake.ref, track: track }, "e3", $("b-scope"), function (d) {
+      S.quote = d; save();
+      $("q-no").textContent = d.number;
+      $("q-wk").textContent = d.weeks + " أسابيع";
+      var tb = $("q-rows"); tb.innerHTML = "";
+      d.lines.forEach(function (l) {
+        var tr = document.createElement("tr");
+        tr.innerHTML = "<td>" + l.name + "</td><td class='n'>" + l.qty + "</td><td class='n'>" +
+          Number(l.unit).toLocaleString("en-US") + "</td><td class='n'>" + Number(l.total).toLocaleString("en-US") + "</td>";
+        tb.appendChild(tr);
+      });
+      $("q-net").textContent = sar(d.net);
+      $("q-vat").textContent = sar(d.vat);
+      $("q-gross").textContent = sar(d.gross);
+      show("quote");
+      $("o-st").textContent = "عرض سعر جاهز — بانتظار اعتمادك";
+    });
+  }
+
+  // ٤ — العقد
+  $("b-contract").addEventListener("click", function () {
+    post("contract", {
+      ref: S.intake.ref, number: S.quote.number,
+      track: S.quote.key, client: $("f-org").value
+    }, "e3", this, function (d) {
+      S.contract = d; save();
+      var ul = $("c-terms"); ul.innerHTML = "";
+      d.terms.forEach(function (t) { var li = document.createElement("li"); li.textContent = t; ul.appendChild(li); });
+      $("c-no").textContent = d.number;
+      $("c-hash").textContent = d.hash;
+      go("s4", 4);
+    });
+  });
+
+  $("b-sign").addEventListener("click", function () {
+    post("sign", {
+      contract: S.contract.number, hash: S.contract.hash, signer: $("f-signer").value
+    }, "e4", this, function (d) {
+      S.sign = d; save();
+      $("g-stamp").textContent = d.stamp;
+      $("g-at").textContent = when(d.at);
+      $("g-note").textContent = d.note;
+      show("signed");
+      $("p-amt").textContent = sar(S.quote.gross / 2);
+    });
+  });
+
+  // ٥ — الدفع
+  $("b-pay").addEventListener("click", function () { go("s5", 5); });
+  $("b-paynow").addEventListener("click", function () {
+    post("pay", { ref: S.intake.ref, amount: S.quote.gross / 2 }, "e5", this, function (d) {
+      S.pay = d; save();
+      $("p-id").textContent = d.payId;
+      show("paid");
+    });
+  });
+
+  // ٦ — الفاتورة
+  $("b-inv").addEventListener("click", function () {
+    post("invoice", { ref: S.intake.ref, net: S.quote.net / 2 }, "e5", this, function (d) {
+      $("i-no").textContent = d.number;
+      $("i-seller").textContent = d.seller.name;
+      $("i-vatno").textContent = d.seller.vatNumber;
+      $("i-net").textContent = sar(d.net);
+      $("i-vat").textContent = sar(d.vat);
+      $("i-gross").textContent = sar(d.gross);
+      $("i-qr").innerHTML = d.qrSvg;
+      $("i-note").textContent = d.note;
+      go("s6", 6);
+      $("o-st").textContent = "مكتمل — مدفوع ومفوتر";
+    });
+  });
+
+  $("b-reset").addEventListener("click", function () {
+    try { sessionStorage.removeItem("osamh_poc"); } catch (e) {}
+    location.reload();
+  });
+})();
+</script>
+
+</body>
+</html>
