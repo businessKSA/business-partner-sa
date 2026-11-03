@@ -112,10 +112,18 @@ test("النطاق الاحتياطي: اختيار متعدد من الكتال
   try {
     const multi = await ask({
       mode: "intake", context: "formation", lang: "ar",
-      messages: [turn("user", "حجز اسم شركة، إصدار سجل تجاري جديد"), turn("assistant", "؟"), turn("user", "مستثمر سعودي")],
+      messages: [turn("user", "حجز اسم شركة، إصدار سجل تجاري"), turn("assistant", "؟"), turn("user", "مستثمر سعودي")],
     });
     const sc = JSON.parse(/<<SCOPE>>([\s\S]*?)<<END>>/.exec(multi.json.reply)[1]);
-    assert.deepEqual(sc.items.slice(0, 2).map((i) => i.code), ["BP-SBC-05", "BP-SBC-02"]);
+    // ‏BP-SBC-02 مخفية منذ 2026-11-03 وبديلها BP-SBC-04: الاسم الجديد يُحفظ بنداً بكوده.
+    assert.deepEqual(sc.items.slice(0, 2).map((i) => i.code), ["BP-SBC-05", "BP-SBC-04"]);
+
+    const old = await ask({
+      mode: "intake", context: "formation", lang: "ar",
+      messages: [turn("user", "حجز اسم شركة، إصدار سجل تجاري جديد"), turn("assistant", "؟"), turn("user", "مستثمر سعودي")],
+    });
+    const so = JSON.parse(/<<SCOPE>>([\s\S]*?)<<END>>/.exec(old.json.reply)[1]);
+    assert.ok(!so.items.some((i) => i.code === "BP-SBC-02"), "الخدمة المخفية لا تُحفظ بنداً");
 
     const free = await ask({
       mode: "intake", context: "formation", lang: "ar",

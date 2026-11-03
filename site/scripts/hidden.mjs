@@ -51,10 +51,23 @@ function load(file) {
   // slug ← code للخدمات المخفية، من services.json المصدري (لا يُعدَّل).
   const list = readJson(path.join(DATA, "services.json"), []);
   const slugs = new Set();
-  for (const s of Array.isArray(list) ? list : (list.services || [])) {
-    if (s && services.has(lc(s.code))) slugs.add(lc(s.slug || s.code));
+  const slugOf = new Map();
+  const all = Array.isArray(list) ? list : (list.services || []);
+  for (const s of all) {
+    if (!s) continue;
+    slugOf.set(lc(s.code), lc(s.slug || s.code));
+    if (services.has(lc(s.code))) slugs.add(lc(s.slug || s.code));
   }
-  return { services, pages, slugs };
+  // «redirects»: كود مخفي ← كود بديل ظاهر (قرار المالك 2026-11-03: BP-SBC-02 → BP-SBC-04).
+  // يذهب /services/<slug القديم> إلى /services/<slug البديل> بدل /catalog. لا يعمل إلا لخدمةٍ
+  // مخفية فعلاً وبديلها موجود وظاهر في services.json؛ وما سواه يبقى على /catalog.
+  const moved = new Map();
+  const mapRaw = raw.redirects && typeof raw.redirects === "object" ? raw.redirects : {};
+  for (const [from, to] of Object.entries(mapRaw)) {
+    const f = lc(from), t = lc(to);
+    if (services.has(f) && slugOf.has(t) && !services.has(t)) moved.set(slugOf.get(f), slugOf.get(t));
+  }
+  return { services, pages, slugs, moved };
 }
 
 const H = load();
@@ -142,8 +155,15 @@ export function redirectRules({ fullLangs = ["ar", "fr", "zh"], otherLangs = ["e
   // كبرت القائمة: ثلاثة أسطر لكل صنف (إنجليزي، لغات مبنيّة كاملةً، لغات بلا كتالوج).
   const sources = [];
   if (H.pages.size) sources.push(`/(${[...H.pages].sort().join("|")})`);
-  if (H.slugs.size) sources.push(`/services/(${[...H.slugs].sort().join("|")})`);
+  const catalogSlugs = [...H.slugs].filter((x) => !H.moved.has(x)).sort();
+  if (catalogSlugs.length) sources.push(`/services/(${catalogSlugs.join("|")})`);
   const rules = [];
+  // خدماتٌ مخفية لها بديل: سطرٌ لكل خدمة (302 المُدار) قبل مجموعات /catalog.
+  for (const [from, to] of [...H.moved].sort()) {
+    rules.push({ source: `/services/${from}`, destination: `/services/${to}`, statusCode: 302 });
+    if (fullLangs.length) rules.push({ source: `/:lang(${fullLangs.join("|")})/services/${from}`, destination: `/:lang/services/${to}`, statusCode: 302 });
+    if (otherLangs.length) rules.push({ source: `/:lang(${otherLangs.join("|")})/services/${from}`, destination: `/services/${to}`, statusCode: 302 });
+  }
   for (const src of sources) {
     rules.push({ source: src, destination: "/catalog", statusCode: 302 });
     if (fullLangs.length) rules.push({ source: `/:lang(${fullLangs.join("|")})${src}`, destination: "/:lang/catalog", statusCode: 302 });

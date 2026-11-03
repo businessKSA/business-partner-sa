@@ -118,7 +118,136 @@ const DOOR = {
   "HR Services": "government", "Premium Residency": "government",
 };
 
+// ‏كود السلة المشترك بين صفحة الخدمة وصفحة المجموعة (نص واحد حتى لا ينحرفا).
+const CART_JS = `// ---- السلة: عقد bp_cart نفسه (انظر simple-v1-catalog.mjs: cartItem/cartAdd). amount يُقرأ
+// من الزرّ وقت الضغط، فيحمل الرقم الحيّ إن بدّله live-prices.js (data-bp-code).
+function cartItem(b){var a=b.getAttribute('data-amount');
+ return {id:b.getAttribute('data-id'),nameEn:b.getAttribute('data-name-en')||'',nameAr:b.getAttribute('data-name-ar')||'',amount:a?Number(a):null,price:'',kind:'service',qty:1,
+  surchargeAmount:null,surchargeFreeCount:null,pricePublic:0,billingPeriod:'',renewsAt:null,commissionPercent:0}}
+function cartAdd(b){var c;
+ try{c=JSON.parse(localStorage.getItem('bp_cart'))||[];if(!Array.isArray(c))c=[]}catch(e){c=[]}
+ var it=cartItem(b),ex=c.filter(function(x){return x.id===it.id})[0];
+ if(ex)ex.qty=(ex.qty||1)+1;else c.push(it);
+ try{localStorage.setItem('bp_cart',JSON.stringify(c))}catch(e){return false}
+ try{document.dispatchEvent(new CustomEvent('bp:cart',{bubbles:true}))}catch(e){}
+ return true}
+var tt=0;
+function toast(msg,err,link){var bx=$('svcToast');$('svcToastTx').textContent=msg;$('svcToastCart').style.display=link?'':'none';
+ bx.classList.toggle('err',!!err);bx.classList.remove('sv1-hide');clearTimeout(tt);tt=setTimeout(function(){bx.classList.add('sv1-hide')},4200)}
+`;
+
+// ---- صفحة المجموعة: عدة خدمات بأكوادٍ وأسعارٍ منفصلة في صفحةٍ واحدة (site/data/service-journeys/_groups.json).
+// كل عملية سطرٌ بسعرها الحيّ وزرّ سلتها (SKU لكلٍّ منها)، ومستنداتها ومدتها كما في الكتالوج.
+// شراءٌ مباشر بقرار المالك: لا زرّ «اطلب عرض سعر».
+function buildGroupPage(SV1, ctx, v) {
+  const lang = ctx.lang();
+  const esc = ctx.esc;
+  const t = (k) => (T[k][lang] != null ? T[k][lang] : T[k].en);
+  const G = v.group;
+  const title = G.title[lang] || G.title.en;
+  const lead = G.lead[lang] || G.lead.en;
+  const crumbs = `<nav class="sv1-crumb" aria-label="breadcrumb">
+      <a href="${SV1.href("/")}">${esc(t("home"))}</a><i>/</i><a href="${SV1.href("/catalog")}">${esc(t("services"))}</a><i>/</i><a href="${esc(v.catHref)}">${esc(v.catLabel)}</a>
+    </nav>`;
+  const opCard = (o) => {
+    const note = o.priceNote || (o.govFeesSeparate ? t("noteGov") : t("noteVat"));
+    const docs = o.docs.length ? `<h4>${esc(t("docs"))}</h4><ul class="sv1-svc-docs">${o.docs.map((d) => `<li>${esc(d)}</li>`).join("")}</ul>${o.docsGeneric ? `<p class="sv1-svc-hint">${esc(t("docsGen"))}</p>` : ""}` : "";
+    return `<article class="sv1-op" id="op-${esc(o.slug)}">
+      <div class="sv1-op-head"><h3>${esc(o.name)}</h3><span class="sv1-mono sv1-op-code">${esc(o.code)}</span></div>
+      <div class="sv1-op-buy">
+        <div class="sv1-op-price"><div class="sv1-svc-lbl">${esc(t("fee"))}</div>
+          <div class="sv1-svc-price price-amt" data-bp-price="${esc(o.code.toUpperCase())}" data-bp-pending>${esc(o.priceLabel)}</div>
+          <p class="sv1-svc-note price-amt">${esc(note)}</p>
+          <p class="sv1-svc-note" data-guest-note>${esc(t("guest"))}</p></div>
+        <button type="button" class="sv1-btn primary add-cart sv1-op-add" data-id="${esc(o.cartId)}" data-name-en="${esc(o.nameEn)}" data-name-ar="${esc(o.nameAr)}" data-amount="${esc(String(o.amount))}" data-price="" data-kind="service" data-bp-code="${esc(o.code.toUpperCase())}">${esc(t("addCart"))}</button>
+      </div>
+      ${o.duration ? `<dl class="sv1-svc-facts"><div><dt>${esc(t("fDuration"))}</dt><dd>${esc(o.duration)}</dd></div></dl>` : ""}
+      ${docs}
+    </article>`;
+  };
+  const allSpecific = G.ops.every((o) => !o.docsGeneric);
+  const afterSec = `<section class="sv1-svc-sec sv1-svc-after"><h2>${esc(t("after"))}</h2>
+      <ol class="sv1-svc-steplist">
+        <li class="sv1-svc-step" data-actor="bp"><span class="sv1-svc-actor">${esc(ACTOR.bp[lang] || ACTOR.bp.en)}</span><span class="sv1-svc-stx">${esc(t("a1"))}</span></li>
+        <li class="sv1-svc-step" data-actor="client"><span class="sv1-svc-actor">${esc(ACTOR.client[lang] || ACTOR.client.en)}</span><span class="sv1-svc-stx">${esc(allSpecific ? t("a2doc") : t("a2gen"))}</span></li>
+        <li class="sv1-svc-step" data-actor="bp"><span class="sv1-svc-actor">${esc(ACTOR.bp[lang] || ACTOR.bp.en)}</span><span class="sv1-svc-stx">${esc(t("a3"))}</span></li>
+      </ol></section>`;
+  const body = `<style id="sv1-svc-css">
+.sv1-svc-hero{padding:34px 0 30px}
+.sv1-svc-hero .sv1-tag{margin-top:14px}
+.sv1-svc-hero h1{font-size:clamp(28px,4.2vw,46px);line-height:1.2;margin:16px 0 14px;max-width:22ch;font-weight:200}
+.sv1-svc-hero .sv1-lead{max-width:62ch}
+.sv1-crumb{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;color:var(--mut)}
+.sv1-crumb a:hover{color:var(--ac)}
+.sv1-crumb i{font-style:normal;color:var(--faint)}
+.sv1 .sv1-grp{padding:38px 22px 64px;max-width:880px}
+.sv1-svc-sec{margin-bottom:34px}
+.sv1-svc-sec h2{font-size:21px;margin:0 0 14px;font-weight:300}
+.sv1-ops{display:grid;gap:14px}
+.sv1-op{border:1px solid var(--l);border-radius:15px;background:#fff;padding:20px 22px;scroll-margin-top:96px}
+.sv1-op:target{border-color:var(--acLine);box-shadow:var(--sh2)}
+.sv1-op-head{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;justify-content:space-between}
+.sv1-op-head h3{margin:0;font-size:18px;font-weight:400;color:var(--ink)}
+.sv1-op-code{font-size:11.5px;color:var(--mut)}
+.sv1-op-buy{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:flex-end;justify-content:space-between;margin-top:12px}
+.sv1-op-price{min-width:0;flex:1 1 260px}
+.sv1-op .sv1-btn.sv1-op-add{flex:0 0 auto;padding:12px 24px;font-size:14px}
+.sv1-op h4{margin:16px 0 8px;font-size:13px;font-weight:500;color:var(--mut)}
+.sv1-svc-docs{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.sv1-svc-docs li{display:flex;gap:10px;align-items:center;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:10px 13px;font-size:14px;color:var(--t)}
+.sv1-svc-docs li::before{content:"\\1F4C4";font-size:14px;flex:none}
+.sv1-svc-hint{margin:10px 2px 0;font-size:12.5px;color:var(--mut)}
+.sv1-svc-lbl{font-size:11.5px;color:var(--mut);font-weight:500}
+.sv1-svc-price{font-family:var(--fm);font-size:30px;font-weight:500;color:var(--ink);line-height:1.25;margin:2px 0 8px;font-variant-numeric:tabular-nums}
+.sv1-svc-price[data-bp-pending]{visibility:hidden;animation:sv1svcshow .01s linear 2.2s forwards}
+@keyframes sv1svcshow{to{visibility:visible}}
+.sv1-svc-note{margin:0 0 8px;font-size:12px;line-height:1.75;color:var(--mut)}
+.sv1-svc-facts{margin:12px 0 0;padding-top:12px;border-top:1px solid var(--l);display:grid;gap:9px}
+.sv1-svc-facts div{display:flex;justify-content:space-between;gap:14px;align-items:baseline}
+.sv1-svc-facts dt{font-size:11.5px;color:var(--mut);flex:none}
+.sv1-svc-facts dd{margin:0;font-size:12.5px;color:var(--ink);text-align:end;font-weight:500}
+.sv1-grp-gov{margin:0 0 22px;padding:0 0 12px;border-top:0;border-bottom:1px solid var(--l)}
+.sv1-svc-steplist{list-style:none;margin:0;padding:0;display:grid;gap:8px;counter-reset:sv1step}
+.sv1-svc-step{counter-increment:sv1step;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;background:#fbfcfe;border:1px solid var(--l);border-radius:10px;padding:10px 13px;font-size:14px;color:var(--t)}
+.sv1-svc-step::before{content:counter(sv1step);font-family:var(--fm);color:var(--ac);font-weight:600;flex:none}
+.sv1-svc-actor{font-size:11.5px;color:var(--mut);font-weight:500}
+.sv1-svc-toast{position:fixed;inset-inline:0;top:84px;margin-inline:auto;width:max-content;max-width:calc(100vw - 28px);z-index:2147483100;background:var(--ink);color:#fff;border-radius:12px;padding:11px 16px;font-size:13px;font-weight:600;box-shadow:0 10px 28px rgba(11,27,90,.3)}
+.sv1-svc-toast a{color:#fff;text-decoration:underline;white-space:nowrap;margin-inline-start:10px}
+.sv1-svc-toast.err{background:#8a1c1c}
+@media(max-width:600px){.sv1-svc-hero{padding:24px 0 22px}.sv1 .sv1-grp{padding-top:24px}.sv1-op{padding:16px}.sv1-op .sv1-btn.sv1-op-add{width:100%}}
+</style>
+${SV1.header("/services/" + G.primarySlug)}
+<main>
+  <section class="sv1-hero sv1-svc-hero"><div class="wrap">
+    ${crumbs}
+    <span class="sv1-tag">${esc(v.catLabel)}</span>
+    <h1>${esc(title)}</h1>
+    <p class="sv1-lead">${esc(lead)}</p>
+  </div></section>
+  <div class="wrap sv1-grp">
+    ${v.gov ? `<dl class="sv1-svc-facts sv1-grp-gov"><div><dt>${esc(t("fAuthority"))}</dt><dd>${esc(v.gov)}</dd></div></dl>` : ""}
+    <section class="sv1-svc-sec"><div class="sv1-ops">${G.ops.map(opCard).join("")}</div></section>
+    ${afterSec}
+  </div>
+</main>
+<div class="sv1-svc-toast sv1-hide" id="svcToast" role="status" aria-live="polite"><span id="svcToastTx"></span><a id="svcToastCart" href="${SV1.href("/cart")}">${esc(t("viewCart"))}</a></div>
+${SV1.footer()}`;
+  const cfg = { tx: { added: t("added"), addCart: t("addCart"), toast: t("addedToast"), fail: t("cartFail") } };
+  const script = `<script src="/assets/js/live-prices.js?v=${v.liveV}" defer></script><script>
+(function(){
+var C=${JSON.stringify(cfg).replace(/</g, "\\u003c")};
+var $=function(id){return document.getElementById(id)};
+${CART_JS}document.addEventListener('click',function(e){
+ var add=e.target.closest&&e.target.closest('.sv1-op-add');if(!add)return;
+ if(!cartAdd(add)){toast(C.tx.fail,true,false);return}
+ add.textContent=C.tx.added;setTimeout(function(){add.textContent=C.tx.addCart},1600);
+ toast(C.tx.toast,false,true)});
+})();</script>`;
+  return SV1.shell({ title: `${title} — Business Partner`, desc: v.seoDesc, path: "/services/" + G.primarySlug, body, script });
+}
+
 export function buildSimpleServiceDetail(SV1, ctx, v) {
+  if (v.group) return buildGroupPage(SV1, ctx, v);
   const lang = ctx.lang();
   const esc = ctx.esc;
   const t = (k) => (T[k][lang] != null ? T[k][lang] : T[k].en);
@@ -278,22 +407,7 @@ ${SV1.footer()}`;
 (function(){
 var C=${JSON.stringify(cfg).replace(/</g, "\\u003c")};
 var $=function(id){return document.getElementById(id)};
-// ---- السلة: عقد bp_cart نفسه (انظر simple-v1-catalog.mjs: cartItem/cartAdd). amount يُقرأ
-// من الزرّ وقت الضغط، فيحمل الرقم الحيّ إن بدّله live-prices.js (data-bp-code).
-function cartItem(b){var a=b.getAttribute('data-amount');
- return {id:b.getAttribute('data-id'),nameEn:b.getAttribute('data-name-en')||'',nameAr:b.getAttribute('data-name-ar')||'',amount:a?Number(a):null,price:'',kind:'service',qty:1,
-  surchargeAmount:null,surchargeFreeCount:null,pricePublic:0,billingPeriod:'',renewsAt:null,commissionPercent:0}}
-function cartAdd(b){var c;
- try{c=JSON.parse(localStorage.getItem('bp_cart'))||[];if(!Array.isArray(c))c=[]}catch(e){c=[]}
- var it=cartItem(b),ex=c.filter(function(x){return x.id===it.id})[0];
- if(ex)ex.qty=(ex.qty||1)+1;else c.push(it);
- try{localStorage.setItem('bp_cart',JSON.stringify(c))}catch(e){return false}
- try{document.dispatchEvent(new CustomEvent('bp:cart',{bubbles:true}))}catch(e){}
- return true}
-var tt=0;
-function toast(msg,err,link){var bx=$('svcToast');$('svcToastTx').textContent=msg;$('svcToastCart').style.display=link?'':'none';
- bx.classList.toggle('err',!!err);bx.classList.remove('sv1-hide');clearTimeout(tt);tt=setTimeout(function(){bx.classList.add('sv1-hide')},4200)}
-var add=$('svcAdd');
+${CART_JS}var add=$('svcAdd');
 if(add)add.addEventListener('click',function(){
  if(!cartAdd(add)){toast(C.tx.fail,true,false);return}
  add.textContent=C.tx.added;setTimeout(function(){add.textContent=C.tx.addCart},1600);

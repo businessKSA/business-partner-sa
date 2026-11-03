@@ -12,7 +12,7 @@ const STATUS = ["needs_verification", "verified", "not_applicable"];
 const claimsOf = (j) => ["authority", "duration", "documents", "gov_fees"].map((k) => [k, j[k]]);
 
 test("لكل خدمة في الكتالوج ملف رحلة، ولا ملف بلا خدمة", () => {
-  const files = fs.readdirSync(DIR).filter((f) => f.endsWith(".json")).map((f) => f.replace(".json", ""));
+  const files = fs.readdirSync(DIR).filter((f) => f.endsWith(".json") && !f.startsWith("_")).map((f) => f.replace(".json", ""));
   const codes = catalog.services.map((s) => s.code.toLowerCase());
   assert.deepEqual(files.sort(), codes.sort());
 });
@@ -52,7 +52,7 @@ test("لا اختراع: الجهة والمدة والمستندات منقول
 });
 
 test("لا يحمل ملف رحلة سعراً ولا مبلغاً حكومياً (الأسعار من الكتالوج وحده)", () => {
-  for (const f of fs.readdirSync(DIR)) {
+  for (const f of fs.readdirSync(DIR).filter((x) => !x.startsWith("_"))) {
     const txt = fs.readFileSync(path.join(DIR, f), "utf8");
     assert.doesNotMatch(txt, /"(price|amount|fee_amount|gov_fee_amount)"/, f);
   }

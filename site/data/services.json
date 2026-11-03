@@ -2499,12 +2499,12 @@
     "description": "فتح وتفعيل ملف المنشأة لدى وزارة الموارد البشرية والتنمية الاجتماعية، وربطه بمنصة قوى، وضبط بيانات المنشأة والنطاق ومتطلبات التوطين.",
     "deliverables": [],
     "targetClient": "",
-    "pricingModel": "One Time",
+    "pricingModel": "Requires Proposal",
     "govFeesSeparate": false,
-    "requiresProposal": false,
+    "requiresProposal": true,
     "price": {
-      "label": "70,000 ﷼ / منشأة",
-      "amount": 70000
+      "label": "حسب العرض",
+      "amount": null
     }
   },
   {

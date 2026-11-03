@@ -86,3 +86,29 @@ test("خدمة مسعّرة: سؤال يَعِد بعرض مخصّص يسقط، 
   assert.match(unpriced, /عرض مخصّص/);
   assert.doesNotMatch(build("ar", view({ priced: false, amount: null })), /sv1-svc-after/);
 });
+
+// ---- صفحة الوكالة التجارية الموحّدة (قرار المالك 2026-11-03)
+const op = (code, name, amount) => ({
+  code, slug: code.toLowerCase(), name, nameEn: name, nameAr: name, cartId: "svc-" + code.toLowerCase(),
+  priced: true, amount, priceLabel: amount + " ﷼", docs: ["القيد الحالي"], docsGeneric: false, duration: "يوم", govFeesSeparate: true, priceNote: "",
+});
+const gview = () => view({
+  code: "BP-PL-0088", slug: "bp-pl-0088",
+  group: { id: "commercial-agency", primarySlug: "bp-pl-0088", title: { ar: "الوكالة التجارية", en: "Commercial Agency", fr: "Agence commerciale", zh: "商业代理" }, lead: { ar: "لـ", en: "L", fr: "L", zh: "L" }, opsLine: {},
+    ops: [op("BP-PL-0088", "تسجيل", 4000), op("BP-PL-0089", "تعديل", 4000), op("BP-PL-0090", "تجديد", 1200), op("BP-PL-0091", "شطب", 4000)] },
+});
+
+test("صفحة المجموعة: كل عملية بسعرها وزرّ سلتها (SKU لكلٍّ)، بلا زرّ عرض سعر، ومع «بعد الدفع»", () => {
+  for (const lang of ["ar", "en", "fr", "zh"]) {
+    const h = build(lang, gview());
+    for (const [c, a] of [["bp-pl-0088", 4000], ["bp-pl-0089", 4000], ["bp-pl-0090", 1200], ["bp-pl-0091", 4000]]) {
+      assert.match(h, new RegExp(`data-id="svc-${c}"[^>]*data-amount="${a}"`), `${lang} ${c}`);
+      assert.match(h, new RegExp(`id="op-${c}"`), `${lang} مرساة ${c}`);
+      assert.match(h, new RegExp(`data-bp-price="${c.toUpperCase()}"`), `${lang} سعر حيّ ${c}`);
+    }
+    assert.doesNotMatch(h, /svcQuote|sv1-cp-quote/, lang);
+    assert.match(h, /sv1-svc-after/, lang);
+  }
+  assert.match(build("ar", gview()), /<h1>الوكالة التجارية<\/h1>/);
+  assert.match(build("fr", gview()), /<h1>Agence commerciale<\/h1>/);
+});

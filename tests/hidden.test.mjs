@@ -134,7 +134,7 @@ before(() => {
 });
 after(() => fs.rmSync(SB, { recursive: true, force: true }));
 
-const CODE = "BP-SBC-02";      // خدمة عادية تماماً — لا علاقة لها بتطوير الأعمال
+const CODE = "BP-SBC-03";      // خدمة عادية تماماً — لا علاقة لها بتطوير الأعمال (BP-SBC-02 صارت مخفية فعلاً 2026-11-03)
 const PKG = "BP-PKG-LAUNCH";   // باقة من site.json
 
 test("إضافة كود إلى hidden.json تُخفيه من catalog.json و/catalog و/packages وsitemap وتولّد 302", () => {
@@ -154,12 +154,12 @@ test("إضافة كود إلى hidden.json تُخفيه من catalog.json و/cat
   for (const rel of ["packages.html", "ar/packages.html"]) {
     assert.ok(!b.page(rel).includes(PKG), `${rel}: الباقة غائبة عن /packages`);
   }
-  assert.ok(!b.has("services/bp-sbc-02.html") && !b.has("ar/services/bp-sbc-02.html"), "لا تُنتَج صفحة الخدمة");
-  assert.ok(!b.sitemap.includes("/services/bp-sbc-02<"), "sitemap بلا الخدمة");
+  assert.ok(!b.has("services/bp-sbc-03.html") && !b.has("ar/services/bp-sbc-03.html"), "لا تُنتَج صفحة الخدمة");
+  assert.ok(!b.sitemap.includes("/services/bp-sbc-03<"), "sitemap بلا الخدمة");
   assert.ok(b.sitemap.includes("/services/bp-sbc-01<") || b.sitemap.includes("/services/bp-fi-02<"), "sitemap يحوي غيرها");
 
   const managed = b.vercel.split("\n").filter((l) => /"statusCode"\s*:\s*302/.test(l));
-  assert.ok(managed.some((l) => l.includes("bp-sbc-02") && l.includes('"/catalog"')), "تحويل 302 إلى /catalog");
+  assert.ok(managed.some((l) => l.includes("bp-sbc-03") && l.includes('"/catalog"')), "تحويل 302 إلى /catalog");
   assert.ok(!b.vercel.includes("business-development)"), "لا تحويل لصفحةٍ لم تُخفَ");
 });
 
@@ -183,6 +183,11 @@ test("الإعداد الحقيقي: صفحة تطوير الأعمال وخدم
     assert.ok(!/REV-(?:START|LAUNCH|GROWTH|PRO|TEAM|ENT)|revos-/i.test(html), `${rel}: لا كود مخفي`);
   }
   assert.ok(b.vercel.includes('"source":"/(business-development)"'), "تحويل الصفحة");
+  // BP-SBC-02 مخفية وبديلها BP-SBC-04: تحويل خدمتها إلى صفحة البديل لا إلى /catalog (قرار المالك 2026-11-03).
+  assert.ok(b.vercel.includes('"source":"/services/bp-sbc-02","destination":"/services/bp-sbc-04","statusCode":302'), "BP-SBC-02 → BP-SBC-04");
+  assert.ok(b.vercel.includes('"source":"/:lang(ar|fr|zh)/services/bp-sbc-02","destination":"/:lang/services/bp-sbc-04"'), "اللغات المبنيّة");
+  assert.ok(!b.has("services/bp-sbc-02.html") && !b.has("ar/services/bp-sbc-02.html"), "صفحة BP-SBC-02 لم تُنتَج");
+  assert.ok(b.codes.has("bp-sbc-04"), "BP-SBC-04 باقية في الكتالوج");
   assert.ok(/\/services\/\(rev-ent\|rev-growth\|rev-launch\|rev-pro\|rev-start\|rev-team\)/.test(b.vercel), "تحويل الخدمات");
   assert.ok(b.vercel.includes("/business-development-dashboard"), "لوحة Revenue OS القائمة تبقى (rewrite)");
 });
@@ -195,8 +200,8 @@ test("حذف الإدخال من hidden.json يُعيد كل شيء", () => {
     assert.ok(b.codes.has(c.toLowerCase()) || b.pkgs.has(c.toLowerCase()), `catalog.json فيه ${c}`);
   }
   assert.ok(b.has("business-development.html") && b.has("ar/business-development.html"), "الصفحة عادت");
-  assert.ok(b.has("services/rev-launch.html") && b.has("services/bp-sbc-02.html"), "صفحات الخدمات عادت");
-  assert.ok(b.sitemap.includes("/services/rev-launch<") && b.sitemap.includes("/services/bp-sbc-02<"), "sitemap يحويها");
+  assert.ok(b.has("services/rev-launch.html") && b.has("services/bp-sbc-03.html"), "صفحات الخدمات عادت");
+  assert.ok(b.sitemap.includes("/services/rev-launch<") && b.sitemap.includes("/services/bp-sbc-03<"), "sitemap يحويها");
   assert.ok(b.page("ar/catalog.html").toLowerCase().includes(`"code":"${CODE.toLowerCase()}"`), "/catalog يحويها");
   assert.ok(b.page("packages.html").includes(PKG), "/packages يحوي الباقة");
   assert.ok(/href="[^"]*business-development"/.test(b.page("ar/index.html")), "رابط الترويسة عاد");
@@ -225,7 +230,14 @@ test("المستودع: البناء المُلتزَم متوافق مع hidden
   const vj = readJson(path.join(REPO, "vercel.json"));
   const managed = vj.redirects.filter((r) => r.statusCode === 302);
   assert.deepEqual(managed, h.redirectRules(), "vercel.json غير متزامن مع hidden.json — شغّل npm run build");
-  for (const r of managed) assert.ok(r.destination === "/catalog" || r.destination === "/:lang/catalog");
+  // الوجهة /catalog إلا لخدمةٍ مخفية لها بديل في hidden.json «redirects» فوجهتها صفحة بديلها.
+  const moved = new Set(Object.keys(cfg.redirects || {}).map((c) => c.toLowerCase()));
+  for (const r of managed) {
+    if (r.destination === "/catalog" || r.destination === "/:lang/catalog") continue;
+    const m = /\/services\/([a-z0-9-]+)$/.exec(r.source);
+    assert.ok(m && /^\/(:lang\/)?services\/[a-z0-9-]+$/.test(r.destination), `وجهة غير متوقعة: ${r.source} → ${r.destination}`);
+    assert.ok([...moved].some((c) => c.toLowerCase() === m[1].toLowerCase()), `تحويل إلى بديل لخدمةٍ بلا إدخال redirects: ${m[1]}`);
+  }
 });
 
 test("المستودع: لا صفحة عامة مبنيّة تربط بصفحةٍ أو خدمةٍ مخفية", async () => {

@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-06T16:03:57.979Z",
+  "updatedAt": "2026-11-03T02:51:23.071Z",
   "currency": "SAR",
   "discounts": [
     {
@@ -1304,20 +1304,6 @@
       "govFeesSeparate": true,
       "requiresProposal": false,
       "url": "https://businesspartner.sa/services/bp-sbc-01"
-    },
-    {
-      "code": "BP-SBC-02",
-      "nameAr": "إصدار سجل تجاري جديد",
-      "nameEn": "New Commercial Registration Issuance",
-      "category": "Company Formation",
-      "categoryAr": "تأسيس الشركات",
-      "govPlatform": "المركز السعودي للأعمال",
-      "pricingModel": "One Time",
-      "amount": 250,
-      "priceLabel": "250 ﷼",
-      "govFeesSeparate": true,
-      "requiresProposal": true,
-      "url": "https://businesspartner.sa/services/bp-sbc-02"
     },
     {
       "code": "BP-SBC-03",
@@ -3132,11 +3118,11 @@
       "category": "HR Services",
       "categoryAr": "الموارد البشرية",
       "govPlatform": "بدون جهة حكومية",
-      "pricingModel": "One Time",
-      "amount": 70000,
-      "priceLabel": "70,000 ﷼ / منشأة",
+      "pricingModel": "Requires Proposal",
+      "amount": null,
+      "priceLabel": "حسب العرض",
       "govFeesSeparate": false,
-      "requiresProposal": false,
+      "requiresProposal": true,
       "url": "https://businesspartner.sa/services/qw-est"
     },
     {
@@ -3999,7 +3985,7 @@
       "key": "Company Formation",
       "nameAr": "تأسيس الشركات",
       "nameEn": "Company Formation",
-      "count": 29
+      "count": 28
     },
     {
       "key": "Foreign Investment",

@@ -64,6 +64,13 @@ if (site.packages && Array.isArray(site.packages.groups)) {
 const ifPage = (name, html) => (pageVisible(name) ? html : "");
 // الخدمات المخفية (site/data/hidden.json) تسقط هنا قبل أي استعمال — راجع hidden.mjs.
 const services = visibleServices(read("data/services.json"));
+// صفحات الخدمات الموحّدة (قرار المالك 2026-11-03): خدماتٌ بأكوادٍ وأسعارٍ منفصلة تُعرض في صفحةٍ
+// واحدة (الأولى في codes هي الصفحة، والباقيات تُحوَّل إليها من vercel.json ولا تُكتب ولا تدخل sitemap).
+// الإعداد في site/data/service-journeys/_groups.json (service-journey).
+let JOURNEY_GROUPS = [];
+try { JOURNEY_GROUPS = (read("data/service-journeys/_groups.json").groups || []).filter((g) => Array.isArray(g.codes) && g.codes.length > 1); } catch { JOURNEY_GROUPS = []; }
+const journeyGroupOf = (code) => JOURNEY_GROUPS.find((g) => g.codes.indexOf(code) >= 0) || null;
+const isGroupSecondary = (s) => { const g = journeyGroupOf(s.code); return !!g && g.codes[0] !== s.code; };
 const categories = read("data/categories.json");
 const svcI18n = read("data/service-i18n.json");
 // Saudi entrepreneurship-ecosystem directory (incubators, accelerators, VCs,
@@ -1137,7 +1144,7 @@ function serviceQuickFacts(s, ov) {
 // The six codes are real catalog entries (site/data/services.json); their
 // prices come from the same source every other page reads, so nothing here can
 // drift from what checkout charges.
-const HOME_QUICK_CODES = ["BP-SBC-02", "BP-FI-02", "BP-QIWA-02", "BP-ZATCA-01", "BP-MUQEEM-03", "BP-BALADY-01"];
+const HOME_QUICK_CODES = ["BP-SBC-04", "BP-FI-02", "BP-QIWA-02", "BP-ZATCA-01", "BP-MUQEEM-03", "BP-BALADY-01"];
 
 /* ============================================================================
    Homepage — single source.
@@ -2294,7 +2301,7 @@ function buildServiceCategory(cat) {
 //  • سؤال «هل الرسوم الحكومية ضمن الأتعاب؟» وجوابه «نعم… منفصلة»: السؤال يُجاب
 //    بنعم ثم يُثبت العكس. الحقيقة نفسها في ملاحظة السعر.
 const SVC_GOVFEE_Q = [/الرسوم الحكومية ضمن الأتعاب/, /Are government fees included/i];
-function buildServiceDetail(s) {
+function serviceView(s) {
   const ov = site.overrides[s.slug];
   const docs = documentsOf(s, ov);
   const priced = svcPriced(s);
@@ -2336,6 +2343,16 @@ function buildServiceDetail(s) {
     title: `${sName(s)} — Business Partner`,
     seoDesc, liveV: LIVE_V,
   };
+  return view;
+}
+function buildServiceDetail(s) {
+  const view = serviceView(s);
+  const g = journeyGroupOf(s.code);
+  if (g) {
+    // أعضاء المجموعة الظاهرون فقط، بالترتيب المعلَن: كل واحدٍ بمعطياته الكاملة (سعر، مستندات، مدة).
+    const ops = g.codes.map((c) => services.find((x) => x.code === c)).filter(Boolean).map(serviceView);
+    view.group = { id: g.id, title: g.title, lead: g.lead, opsLine: g.opsLine, ops: ops.map((o, i) => Object.assign(o, { opLabel: (g.ops && g.ops[o.code]) || {} })), primarySlug: services.find((x) => x.code === g.codes[0]).slug };
+  }
   return buildSimpleServiceDetail(SV1, { lang: () => LANG, esc }, view);
 }
 
@@ -12085,7 +12102,7 @@ function writeFullSite(pre) {
   write(`${pre}suppliers-admin.html`, buildSuppliersAdmin());
   write(`${pre}agencies-admin.html`, buildAgenciesAdmin());
   write(`${pre}jobsearch-admin.html`, buildJobSearchAdmin());
-  services.forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
+  services.filter((s) => !isGroupSecondary(s)).forEach((s) => write(`${pre}services/${s.slug}.html`, buildServiceDetail(s)));
   categories.forEach((cat) => write(`${pre}services/category/${catSlugUrl(cat.key)}.html`, buildServiceCategory(cat)));
   JOBS.forEach((j) => write(`${pre}jobs/${j.slug}.html`, buildJobPage(j)));
   write(`${pre}jobs/${WORKSHOP_CAMPAIGN.slug}.html`, buildWorkshopCampaign());
@@ -12316,7 +12333,7 @@ const base = "https://businesspartner.sa";
 const paths = ["/", "/about", "/services", "/b10x", "/ai-agents", "/smart-employee", "/tourism", "/mahfol-makfol", "/mahfol-makfol/trips", "/trips", "/task-force", "/magazine", "/magazine/print", "/packages", "/calculator", "/tools-and-calculators", "/knowledge-center", "/calculators/government-cost", "/calculators/profession-checker", "/calculators/end-of-service", "/calculators/annual-leave", "/calculators/overtime", "/calculators/gosi", "/compliance-agent", "/ai-document-agent", "/saudi-arabia", "/opportunities", "/directory", "/guide/saudi-market", "/guide/business-setup", "/guide/run-your-business", "/guide/company-structure", "/guide/live-in-saudi", "/guide/residency", "/news", "/newsletter", "/careers", "/hr", "/employers", "/employer-join", "/employer-login", "/employer-dashboard", "/workspaces", "/workspace-request", "/farina", "/worker-housing", "/estrdad", "/bank-account", "/formation-contract", "/contact", "/cart", "/checkout", "/terms", "/accessibility", "/account", "/shared-services", "/consultation", "/suppliers", "/partner-dashboard", "/recruitment-agencies", "/agency-portal"]
   .concat(TEAM_AGENTS.map((a) => `/team/${a.slug}`))
   .concat(categories.map((cat) => `/services/category/${catSlugUrl(cat.key)}`))
-  .concat(services.map((s) => `/services/${s.slug}`))
+  .concat(services.filter((s) => !isGroupSecondary(s)).map((s) => `/services/${s.slug}`))
   .concat(JOBS.map((j) => `/jobs/${j.slug}`))
   .concat([`/jobs/${WORKSHOP_CAMPAIGN.slug}`])
   .concat(WORKSHOP_JOBS.map((j) => `/jobs/${j.slug}`));

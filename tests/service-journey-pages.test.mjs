@@ -11,7 +11,7 @@ const out = JSON.parse(execFileSync("node", [path.join(ROOT, "docs/service-journ
 
 test("كل صفحات الخدمات (٤ لغات) على SV1 كاملاً ومربوطة بالسلة/العرض", () => {
   const s = out.summary.service;
-  assert.equal(s.pages, out.services * 4);
+  assert.equal(s.pages, (out.services - out.groupSecondaries) * 4);
   assert.equal(s.c1.fail, 0, JSON.stringify(out.failing.service.c1));
   assert.equal(s.c2.fail, 0, JSON.stringify(out.failing.service.c2));
 });

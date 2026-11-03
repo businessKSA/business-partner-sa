@@ -22,6 +22,19 @@
 //  • الخدمات المخفية (site/data/hidden.json) لا تصل إلى هنا أصلاً: المولّد يمرّر
 //    قائمة `services` بعد التصفية، وهذا الملف لا يقرأ الكتالوج بنفسه.
 
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+// ‏صفحات الخدمات الموحّدة (site/data/service-journeys/_groups.json): أعضاء المجموعة يظهرون
+// ببطاقةٍ واحدة تحمل اسم المجموعة وتفتح صفحتها (انظر simple-v1-service-detail.mjs: buildGroupPage).
+const GROUPS_FILE = process.env.BP_JOURNEYS_DIR
+  ? path.join(process.env.BP_JOURNEYS_DIR, "_groups.json")
+  : path.join(path.dirname(fileURLToPath(import.meta.url)), "../data/service-journeys/_groups.json");
+function loadGroups() {
+  try { return (JSON.parse(fs.readFileSync(GROUPS_FILE, "utf8")).groups || []).filter((g) => Array.isArray(g.codes) && g.codes.length > 1); } catch (e) { return []; }
+}
+
 const T = {
   home:      { ar: "الرئيسية", en: "Home", fr: "Accueil", zh: "首页" },
   services:  { ar: "الخدمات", en: "Services", fr: "Services", zh: "服务" },
@@ -71,20 +84,43 @@ export function buildSimpleServiceCategory(SV1, ctx, v) {
   const t = (k) => (T[k][lang] != null ? T[k][lang] : T[k].en);
   const home = lang === "en" ? "/" : "/" + lang + "/";
   const door = DOOR[v.key] || "consulting";
-  const n = v.items.length;
+  const lister = [];
+  const groups = loadGroups();
+  const seenG = new Set();
+  for (const it of v.items) {
+    const g = groups.find((x) => x.codes.indexOf(it.code) >= 0);
+    if (!g) { lister.push(it); continue; }
+    if (seenG.has(g.id)) continue;
+    seenG.add(g.id);
+    const members = v.items.filter((x) => g.codes.indexOf(x.code) >= 0);
+    lister.push({ group: g, members, primary: members.find((x) => x.code === g.codes[0]) || members[0] });
+  }
+  const n = lister.length;
 
   const crumbs = `<nav class="sv1-crumb" aria-label="breadcrumb">
       <a href="${SV1.href("/")}">${esc(t("home"))}</a><i>/</i><a href="${SV1.href("/catalog")}">${esc(t("services"))}</a><i>/</i><span>${esc(v.label)}</span>
     </nav>`;
 
+  const groupCard = (it) => {
+    const g = it.group, p = it.primary;
+    const name = g.title[lang] || g.title.en;
+    const hay = (name + " " + it.members.map((m) => m.name + " " + m.code).join(" ")).toLowerCase();
+    return `<article class="sv1-cp-card" data-q="${esc(hay)}">
+      <a class="sv1-cp-name" href="${esc(p.href)}">${esc(name)}</a>
+      ${p.gov ? `<div class="sv1-cp-gov">${esc(p.gov)}</div>` : ""}
+      <div class="sv1-cp-price"><span class="sv1-cp-need">${esc(g.opsLine[lang] || g.opsLine.en)}</span></div>
+      <div class="sv1-cp-acts"><a class="sv1-btn primary sm" href="${esc(p.href)}">${esc(t("details"))}</a></div>
+    </article>`;
+  };
   const card = (s) => {
+    if (s.group) return groupCard(s);
     let price, acts = "";
     if (s.priced) {
       price = `<span class="sv1-cp-lbl">${esc(t("fee"))}</span>
         <span class="sv1-cp-amt price-amt" data-bp-price="${esc(s.code.toUpperCase())}" data-bp-pending>${esc(s.priceLabel)}</span>
         <span class="sv1-cp-guest" data-guest-note>${esc(t("guest"))}</span>`;
       acts += `<button type="button" class="sv1-btn primary sm add-cart sv1-cp-add" data-id="${esc(s.cartId)}" data-name-en="${esc(s.nameEn)}" data-name-ar="${esc(s.nameAr)}" data-amount="${esc(String(s.amount))}" data-price="" data-kind="service" data-bp-code="${esc(s.code.toUpperCase())}">${esc(t("addCart"))}</button>`;
-      if (s.requiresProposal) acts += `<a class="sv1-btn sm sv1-cp-quote" href="${home}#advisor" data-track="طلب عرض سعر" data-code="${esc(s.code)}" data-name="${esc(s.name)}" data-gov="${esc(s.gov)}">${esc(t("quote"))}</a>`;
+      // قرار المالك 2026-10-16: المسعّرة شراء مباشر بالسلة ولو requiresProposal — لا زرّ عرض سعر يزاحمه.
     } else {
       price = `<span class="sv1-cp-need">${esc(t("needQuote"))}</span>`;
       if (s.special === "workspace") acts += `<a class="sv1-btn primary sm" href="${esc(s.workspaceHref)}">${esc(t("workspace"))}</a>`;
@@ -153,7 +189,7 @@ ${SV1.header("/services/category/" + v.slug)}
   </div></section>
   <div class="wrap sv1-cp-body">
     <input id="cpQ" class="sv1-cp-q" type="search" placeholder="${esc(t("search"))}" aria-label="${esc(t("search"))}">
-    <div class="sv1-cp-grid" id="cpGrid">${v.items.map(card).join("")}</div>
+    <div class="sv1-cp-grid" id="cpGrid">${lister.map(card).join("")}</div>
     <p class="sv1-cp-none sv1-hide" id="cpNone">${esc(t("none"))}</p>
     <section class="sv1-cp-others">
       <h2>${esc(t("others"))}</h2>

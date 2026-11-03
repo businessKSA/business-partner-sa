@@ -21,6 +21,9 @@ const journeyOf = (code) => {
 };
 const pageFile = (lang, rel) => path.join(SITE, lang === "en" ? "" : lang, rel + ".html");
 const slugOf = (s) => s.code.toLowerCase();
+const GROUPS = (() => { try { return JSON.parse(read(path.join(JDIR, "_groups.json"))).groups || []; } catch { return []; } })();
+const groupOf = (code) => GROUPS.find((g) => g.codes.includes(code));
+const isSecondary = (s) => { const g = groupOf(s.code); return !!g && g.codes[0] !== s.code; };
 const priced = (s) => s.amount != null && s.category !== "Real Estate" && s.category !== "Tourism";
 
 function mainOf(html) {
@@ -51,8 +54,20 @@ function checkService(s, lang) {
   if (/href="(\/[a-z]{2})?\/(account|admin)(["/?#])/.test(main)) fail("c1", "رابط للموقع القديم داخل المحتوى");
   if (/wa\.me|api\.whatsapp\.com/.test(main)) fail("c1", "واتساب داخل المحتوى");
   // c2
+  const grp = groupOf(s.code);
+  if (grp) {
+    // صفحة مجموعة: كل عملية بزرّ سلتها (SKU لكلٍّ) ومبلغها، بلا زرّ عرض سعر ولا نص يَعِد به.
+    for (const c of grp.codes) {
+      const sv = catalog.services.find((x) => x.code === c);
+      if (!sv) { fail("c2", "عضو المجموعة غائب عن الكتالوج: " + c); continue; }
+      if (!html.includes(`data-id="svc-${c.toLowerCase()}"`) || !html.includes(`data-amount="${sv.amount}"`)) fail("c2", "زرّ سلة العملية ناقص أو بمبلغٍ مختلف: " + c);
+    }
+    if (/id="svcQuote"|sv1-cp-quote/.test(main)) fail("c2", "زرّ عرض سعر في صفحة مجموعة مسعّرة");
+    if (!/sv1-svc-after/.test(main)) fail("c3", "لا قسم «بعد الدفع» للمسعّرة");
+    if (!/sv1-svc-steps/.test(main)) fail("c3", "لا قسم خطوات الرحلة موثّقة");
+  }
   const hasAdd = /id="svcAdd"/.test(main), hasQuote = /id="svcQuote"/.test(main);
-  if (priced(s)) {
+  if (grp) { /* فُحصت أعلاه */ } else if (priced(s)) {
     if (!hasAdd) fail("c2", "مسعّرة بلا زر سلة");
     else {
       if (!html.includes(`data-id="svc-${slugOf(s)}"`)) fail("c2", "معرّف عنصر السلة ≠ svc-<slug>");
@@ -127,7 +142,7 @@ function checkPackages(lang) {
 }
 
 const rows = [];
-for (const lang of LANGS) for (const s of catalog.services) rows.push(checkService(s, lang));
+for (const lang of LANGS) for (const s of catalog.services) { if (!isSecondary(s)) rows.push(checkService(s, lang)); }
 const cats = [...new Set(fs.readdirSync(path.join(SITE, "services/category")).map((f) => f.replace(/\.html$/, "")))].map((slug) => ({ slug }));
 for (const lang of LANGS) for (const c of cats) rows.push(checkCategory(c, lang));
 for (const lang of LANGS) rows.push(checkPackages(lang));
@@ -143,7 +158,7 @@ const commercial = {
   withCuratedDocuments: svcs.filter((s) => { const o = siteJson.overrides[s.code.toLowerCase()]; return o && (o.documents || o.documentsEn); }).length,
   withDuration: svcs.filter((s) => { const o = siteJson.overrides[s.code.toLowerCase()]; return o && o.duration; }).length,
 };
-const out = { commercial, generatedAt: new Date().toISOString().slice(0, 10), services: catalog.services.length, packagesInCatalog: catalog.packages.length, summary: {}, failing: {} };
+const out = { commercial, generatedAt: new Date().toISOString().slice(0, 10), services: catalog.services.length, groupSecondaries: catalog.services.filter(isSecondary).length, packagesInCatalog: catalog.packages.length, summary: {}, failing: {} };
 for (const [k, f] of Object.entries(kinds)) {
   const set = rows.filter(f);
   const sum = { pages: set.length };

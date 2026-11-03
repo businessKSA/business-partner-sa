@@ -22,6 +22,9 @@
     }
   },
   "redirects": [
+    {"source":"/services/bp-sbc-02","destination":"/services/bp-sbc-04","statusCode":302},
+    {"source":"/:lang(ar|fr|zh)/services/bp-sbc-02","destination":"/:lang/services/bp-sbc-04","statusCode":302},
+    {"source":"/:lang(es|hi|ja|ko|ru)/services/bp-sbc-02","destination":"/services/bp-sbc-04","statusCode":302},
     {"source":"/(business-development)","destination":"/catalog","statusCode":302},
     {"source":"/:lang(ar|fr|zh)/(business-development)","destination":"/:lang/catalog","statusCode":302},
     {"source":"/:lang(es|hi|ja|ko|ru)/(business-development)","destination":"/catalog","statusCode":302},
@@ -86,6 +89,12 @@
     {"source":"/ar/compliance-portal","destination":"/ar/compliance-agent","permanent":true},
     {"source":"/installments","destination":"/","permanent":true},
     {"source":"/ar/installments","destination":"/ar","permanent":true},
+    {"source":"/services/bp-pl-0089","destination":"/services/bp-pl-0088#op-bp-pl-0089","permanent":true},
+    {"source":"/:lang(ar|fr|zh)/services/bp-pl-0089","destination":"/:lang/services/bp-pl-0088#op-bp-pl-0089","permanent":true},
+    {"source":"/services/bp-pl-0090","destination":"/services/bp-pl-0088#op-bp-pl-0090","permanent":true},
+    {"source":"/:lang(ar|fr|zh)/services/bp-pl-0090","destination":"/:lang/services/bp-pl-0088#op-bp-pl-0090","permanent":true},
+    {"source":"/services/bp-pl-0091","destination":"/services/bp-pl-0088#op-bp-pl-0091","permanent":true},
+    {"source":"/:lang(ar|fr|zh)/services/bp-pl-0091","destination":"/:lang/services/bp-pl-0088#op-bp-pl-0091","permanent":true},
     {"source":"/services/bp-pl-0001","destination":"/services/bp-sbc-01","permanent":true},
     {"source":"/ar/services/bp-pl-0001","destination":"/ar/services/bp-sbc-01","permanent":true},
     {"source":"/services/bp-pl-0067","destination":"/services/bp-fi-02","permanent":true},

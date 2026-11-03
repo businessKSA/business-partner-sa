@@ -24,7 +24,7 @@ import { visibleCatalogRows } from "./hidden.mjs";
 
 // ست خدمات شائعة بأكوادها (اختيار تحريري لا بيانات مخترعة): تُرسم من الكتالوج
 // المبني بأسمائه، وما أُخفي أو غاب عن الكتالوج يُسقَط ولا يترك فراغاً.
-const POPULAR = ["BP-SBC-02", "BP-SBC-19", "BP-ZATCA-04", "BP-GOSI-01", "BP-MUQEEM-03", "BP-SAIP-01"];
+const POPULAR = ["BP-SBC-04", "BP-SBC-19", "BP-ZATCA-04", "BP-GOSI-01", "BP-MUQEEM-03", "BP-SAIP-01"];
 const NO_CART = new Set(["Real Estate", "Tourism"]);
 
 export const HOME_EXTRA_KEYS = ["search", "how", "popular", "faq"];

@@ -27,7 +27,7 @@ const SERVICE_CODES = new Set(
 // «مدد» و«مقيم» وحدهما كلمتان عاديتان أيضاً (جمع مدّة، ومقيم ضريبياً) فلا
 // تُطابقان عاريتين؛ «منصة مقيم» و«حماية الأجور» لا لبس فيهما.
 const TERMS = [
-  { sku: "bp-sbc-02", ar: ["السجل التجاري"], en: ["Commercial Registration", "commercial registration"] },
+  { sku: "bp-sbc-04", ar: ["السجل التجاري"], en: ["Commercial Registration", "commercial registration"] },
   { sku: "bp-fi-02", ar: ["ترخيص الاستثمار", "ترخيص استثمار", "رخصة استثمار", "رخصة الاستثمار"], en: ["MISA license", "MISA licence", "investment license"] },
   { sku: "bp-fi-08", ar: ["المقر الإقليمي"], en: ["Regional Headquarters", "RHQ"] },
   { sku: "bp-pr-01", ar: ["الإقامة المميزة"], en: ["Premium Residency"] },

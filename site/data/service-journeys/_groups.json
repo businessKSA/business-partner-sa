@@ -1,0 +1,22 @@
+{
+  "_note": "صفحات خدمات موحّدة (قرار المالك 2026-11-03): خدمات بأكوادٍ وأسعارٍ منفصلة في صفحةٍ واحدة. الأولى في codes هي الصفحة؛ الباقيات لا تُكتب ويحوّلها vercel.json (301) إليها. السلة تبقى بـ SKU لكل عملية. لا أسعار هنا: من الكتالوج.",
+  "groups": [
+    {
+      "id": "commercial-agency",
+      "codes": ["BP-PL-0088", "BP-PL-0089", "BP-PL-0090", "BP-PL-0091"],
+      "title": { "ar": "الوكالة التجارية", "en": "Commercial Agency", "fr": "Agence commerciale", "zh": "商业代理" },
+      "lead": {
+        "ar": "أربع عمليات على قيد الوكالة التجارية: تسجيل وتعديل وتجديد وشطب. لكل عملية سعرها ومستنداتها ومدتها، وتضيفها إلى السلة منفصلةً.",
+        "en": "Four operations on a commercial agency registration: registration, amendment, renewal and cancellation. Each has its own price, documents and duration, and goes to the cart separately.",
+        "fr": "Quatre opérations sur l’inscription d’une agence commerciale : enregistrement, modification, renouvellement et radiation. Chacune a son tarif, ses documents et son délai, et s’ajoute séparément au panier.",
+        "zh": "商业代理备案的四项办理：注册、变更、续期和注销。每项都有独立的价格、所需文件和办理时长，可分别加入购物车。"
+      },
+      "opsLine": {
+        "ar": "٤ عمليات: تسجيل · تعديل · تجديد · شطب",
+        "en": "4 operations: registration · amendment · renewal · cancellation",
+        "fr": "4 opérations : enregistrement · modification · renouvellement · radiation",
+        "zh": "4项办理：注册 · 变更 · 续期 · 注销"
+      }
+    }
+  ]
+}

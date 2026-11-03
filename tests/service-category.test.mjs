@@ -27,6 +27,9 @@ const NO_CART = new Set(["Real Estate", "Tourism"]);
 const isPriced = (s) => s.amount != null && Number(s.amount) > 0 && !NO_CART.has(s.category);
 
 const cats = [...new Set(catalog.services.map((s) => s.category))];
+// ‏صفحات الخدمات الموحّدة (service-journeys/_groups.json): أعضاؤها ببطاقةٍ واحدة تفتح صفحة المجموعة.
+const GROUPS = JSON.parse(fs.readFileSync(path.join(SITE, "data/service-journeys/_groups.json"), "utf8")).groups;
+const groupOf = (code) => GROUPS.find((g) => g.codes.includes(code));
 
 test("الكتالوج يحوي تسعة تصنيفات ولا خدمة مخفية فيه", () => {
   assert.equal(cats.length, 9);
@@ -50,10 +53,19 @@ for (const lang of LANGS) {
       assert.match(html, /<h1>[^<]+<\/h1>/);
 
       // البطاقات = خدمات التصنيف الظاهرة بالضبط
-      const want = catalog.services.filter((s) => s.category === key);
+      const inCat = catalog.services.filter((s) => s.category === key);
+      const want = inCat.filter((s) => !groupOf(s.code));
+      const groupsHere = GROUPS.filter((g) => inCat.some((s) => g.codes.includes(s.code)));
       const cards = [...html.matchAll(/<article class="sv1-cp-card"[\s\S]*?<\/article>/g)].map((m) => m[0]);
-      assert.equal(cards.length, want.length, "عدد البطاقات");
+      assert.equal(cards.length, want.length + groupsHere.length, "عدد البطاقات");
       const prefix = lang === "en" ? "" : "/" + lang;
+      for (const g of groupsHere) {
+        const card = cards.find((c) => c.includes(`href="${prefix}/services/${g.codes[0].toLowerCase()}"`));
+        assert.ok(card, "بطاقة المجموعة " + g.id);
+        assert.ok(card.includes(g.title[lang] || g.title.en), g.id + ": عنوان المجموعة");
+        assert.ok(!card.includes("sv1-cp-add") && !card.includes("data-bp-price"), g.id + ": لا سلة في بطاقة المجموعة (السلة في صفحتها)");
+        for (const c of g.codes.slice(1)) assert.ok(!html.includes("/services/" + c.toLowerCase() + '"'), c + ": لا بطاقة لعضو المجموعة");
+      }
       for (const s of want) {
         const slug = s.code.toLowerCase();
         const card = cards.find((c) => c.includes(`href="${prefix}/services/${slug}"`));
@@ -66,7 +78,8 @@ for (const lang of LANGS) {
           // الرقم المعروض هو رقم الكتالوج
           const shown = card.match(/data-bp-pending>([^<]*)</)[1].replace(/[^\d]/g, "");
           assert.equal(shown.slice(0, String(s.amount).length), String(s.amount).replace(/,/g, ""), s.code + ": " + shown);
-          if (s.requiresProposal) assert.ok(card.includes("sv1-cp-quote"), s.code + ": تتطلب عرضاً فيظهر زرّه");
+          // قرار المالك 2026-10-16: المسعّرة شراء مباشر ولو requiresProposal — لا زرّ عرض سعر.
+          assert.ok(!card.includes("sv1-cp-quote"), s.code + ": لا زرّ عرض سعر على خدمة مسعّرة");
         } else {
           assert.ok(card.includes("sv1-cp-need"), s.code + ": «تحتاج عرض سعر»");
           assert.ok(!card.includes("data-bp-price") && !card.includes("sv1-cp-add") && !card.includes("price-amt"), s.code + ": لا سعر ولا سلة");
@@ -81,7 +94,7 @@ for (const lang of LANGS) {
 test("بطاقة التصنيف تطابق صفحة خدمتها: المسعّرة هناك مسعّرة هنا (ar)", () => {
   for (const key of cats) {
     const html = read(path.join(dir("ar"), slugOf(key) + ".html"));
-    for (const s of catalog.services.filter((x) => x.category === key)) {
+    for (const s of catalog.services.filter((x) => x.category === key && !groupOf(x.code))) {
       const detail = read(path.join(SITE, "ar/services", s.code.toLowerCase() + ".html"));
       const detailHasCart = detail.includes('id="svcAdd"');
       const cardHasCart = new RegExp(`data-id="svc-${s.code.toLowerCase()}"`).test(html);
