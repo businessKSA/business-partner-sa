@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """محتوى حزمة أبو محمد اليمني — مصدر واحد للـHTML والـDOCX والـPPTX.
-تأسيس شركة برخصة ريادة الأعمال (BP-FI-05). لا بيانات شخصية هنا؛ [●] لكل مجهول.
-الأسعار من الكتالوج بالـSKU: site/assets/data/catalog.json → BP-FI-05 = 30,000 (غير شامل الرسوم الحكومية).
+الامتثال والقيد بنظام الامتياز التجاري (BP-PL-0019 باستثناء سعري بقرار المالك). لا بيانات شخصية هنا؛ [●] لكل مجهول.
+السعر استثناء خاص بهذا العميل بقرار المالك 2026-11-03 (الكتالوج `BP-PL-0019` لا يطابق نطاق المشروع).
 """
 import json, os, re
 
@@ -90,6 +90,8 @@ REQUIREMENTS = [
      "مستندات الشركتين السعوديتين الممنوح لهما والمستندات المتعلقة بالمواقع التشغيلية الثلاثة؛ وأي مراسلات أو قيود سابقة لدى وزارة التجارة."),
     ("Any powers of attorney, authorisations or declarations, and a written authorisation letter ticking the actions the Client authorises us to take (section 3.3 of our policy).",
      "أي وكالات أو تفويضات أو إقرارات، وخطاب تفويض مكتوب يحدّد فيه العميل ما يفوّضنا بتنفيذه."),
+    ("A document evidencing the law firm’s authority to act for the franchisor (a written authorisation from the franchisor), and confirmation of who bears the payments before signing.",
+     "مستند يثبت تمثيل المكتب لمانح الامتياز (تفويض كتابي من المانح)، وتحديد من يتحمل السداد قبل التوقيع."),
     ("Written approval of every external cost before it is incurred; timely responses and franchisee cooperation.",
      "موافقة كتابية على كل تكلفة خارجية قبل تحمّلها؛ وسرعة الاستجابة وتعاون الممنوح لهم."),
 ]
@@ -120,10 +122,10 @@ DURATION = [
 ]
 
 PAYMENT = [  # (no, label_en, label_ar, pct, net, vat, total, due_en, due_ar)
-    ("1", "Business Partner — first instalment", "بزنس بارتنر — الدفعة الأولى", "50%", HALF, HALF_VAT, HALF_TOTAL,
+    ("1", "Business Partner — Phase 1 (minimum fee, non-refundable)", "بزنس بارتنر — المرحلة الأولى (الرسم الأدنى غير المسترد)", "33%", P1, vat(P1), P1 + vat(P1),
      "On signing the contract", "عند توقيع العقد"),
-    ("2", "Business Partner — second instalment", "بزنس بارتنر — الدفعة الثانية", "50%", HALF, HALF_VAT, HALF_TOTAL,
-     "On completion of the Business Partner scope", "عند إنجاز نطاق بزنس بارتنر"),
+    ("2", "Business Partner — Phase 2", "بزنس بارتنر — المرحلة الثانية", "67%", P2, vat(P2), P2 + vat(P2),
+     "On the Second Party’s written confirmation of Phase 2", "عند تأكيد الطرف الثاني الكتابي للمرحلة الثانية"),
     ("3", "Saudi legal counsel — first instalment", "المحامي السعودي — الدفعة الأولى", "50%", COUNSEL // 2, vat(COUNSEL // 2), COUNSEL // 2 + vat(COUNSEL // 2),
      "On appointment and start of the legal work", "عند التعيين وبدء العمل القانوني"),
     ("4", "Saudi legal counsel — second instalment", "المحامي السعودي — الدفعة الثانية", "50%", COUNSEL // 2, vat(COUNSEL // 2), COUNSEL // 2 + vat(COUNSEL // 2),
@@ -131,21 +133,21 @@ PAYMENT = [  # (no, label_en, label_ar, pct, net, vat, total, due_en, due_ar)
     ("5", "Certified Arabic translation (estimate)", "الترجمة العربية المعتمدة (تقدير)", "100%", TRANS, vat(TRANS), TRANS + vat(TRANS),
      "In advance, on engagement", "مقدماً عند التعاقد"),
 ]
-UPFRONT_NET = HALF + COUNSEL // 2 + TRANS
-UPFRONT_TOTAL = UPFRONT_NET + vat(HALF) + vat(COUNSEL // 2) + vat(TRANS)
+UPFRONT_NET = P1 + COUNSEL // 2 + TRANS
+UPFRONT_TOTAL = UPFRONT_NET + vat(P1) + vat(COUNSEL // 2) + vat(TRANS)
 
 TERMS = [
     ("This quotation is valid for 14 days from its date.", "هذا العرض سارٍ لمدة 14 يوماً من تاريخه."),
     ("Prices are in Saudi riyals, before 15% VAT, which is added according to the regulations.",
      "الأسعار بالريال السعودي قبل ضريبة القيمة المضافة 15% وتُضاف وفق النظام."),
-    ("The Business Partner fee is a special price for this engagement only, reflecting a 50% discount on our standard fee for the Business Partner scope.",
-     "أتعاب بزنس بارتنر سعر خاص بهذا الارتباط وحده، ويعكس خصماً 50% على أتعابنا المعتادة لنطاق بزنس بارتنر."),
+    ("The Business Partner fee is a special price for this engagement only, approved by the owner.",
+     "أتعاب بزنس بارتنر سعر خاص بهذا الارتباط وحده باعتماد المالك."),
     ("Total before VAT: SAR %s; initial payment on engagement: SAR %s before VAT (SAR %s including VAT); the balance follows the completion milestones above." % (n(ALL_NET), n(UPFRONT_NET), n(UPFRONT_TOTAL)),
      "الإجمالي قبل الضريبة: %s ريال؛ والدفعة الأولية عند التعاقد: %s ريال قبل الضريبة (%s شاملة الضريبة)؛ والباقي وفق مراحل الإنجاز أعلاه." % (n(ALL_NET), n(UPFRONT_NET), n(UPFRONT_TOTAL))),
     ("The Saudi legal counsel’s fee and the certified translation estimate are third-party costs; no external cost beyond the approved amounts is incurred without the Client’s prior written approval.",
      "أتعاب المحامي السعودي وتقدير الترجمة المعتمدة تكاليف خارجية؛ ولا تُتحمَّل تكلفة خارجية تتجاوز المبالغ المعتمدة دون موافقة العميل الكتابية المسبقة."),
-    ("Acceptance is by signing the quotation and the contract and paying the first instalments; work starts after both.",
-     "القبول بتوقيع العرض والعقد وسداد الدفعات الأولى، ويبدأ العمل بعد الأمرين."),
+    ("Acceptance is by signing the quotation and the contract and paying the initial payments; work starts after both. Phase 2 starts only on the Second Party’s written confirmation.",
+     "القبول بتوقيع العرض والعقد وسداد الدفعات الأولية، ويبدأ العمل بعد الأمرين. ولا تبدأ المرحلة الثانية إلا بتأكيد الطرف الثاني الكتابي."),
     ("Our services are administrative, coordination and advisory and are not the practice of law or licensed legal advice; legal work is performed by the Saudi legal counsel.",
      "خدماتنا إدارية وتنسيقية واستشارية ولا تُعدّ ممارسة للمحاماة ولا رأياً قانونياً مرخصاً؛ ويتولى العمل القانوني المحامي السعودي."),
     ("The Client’s documents are used only to perform the service. Hosting and any transfer outside the Kingdom: only as authorised in the authorisation letter.",
@@ -208,10 +210,10 @@ def contract_clauses():
     t_en, t_ar, b_en, b_ar = _clause(core, "3.")
     b_en = b_en.replace(
         "The fees are those stated in the accepted quotation, before 15% VAT, which is added. Payment terms: [●].",
-        "The First Party’s fee is SAR %s (thirty thousand Saudi riyals) before 15%% VAT, a special price for this engagement reflecting a 50%% discount on its standard fee, payable 50%% (SAR %s) on signing this contract and 50%% (SAR %s) on completion of the First Party’s scope. The Saudi legal counsel’s fee (SAR %s before VAT) and the certified translation estimate (SAR %s before VAT) are third-party costs paid as set out in the accepted quotation; the total before VAT is SAR %s. No external cost beyond the approved amounts is incurred without the Second Party’s prior written approval." % (n(FEE), n(HALF), n(HALF), n(COUNSEL), n(TRANS), n(ALL_NET)))
+        "The First Party’s fee is SAR %s (thirty thousand Saudi riyals) before 15%% VAT, a special price for this engagement approved by the owner, payable as follows: SAR %s on signing this contract (the Phase 1 fee, which is the minimum fee and is non-refundable) and SAR %s on the Second Party’s written confirmation of Phase 2. The Saudi legal counsel’s fee (SAR %s before VAT) and the certified translation estimate (SAR %s before VAT) are third-party costs paid as set out in the accepted quotation; the total before VAT is SAR %s. No external cost beyond the approved amounts is incurred without the Second Party’s prior written approval." % (n(FEE), n(P1), n(P2), n(COUNSEL), n(TRANS), n(ALL_NET)))
     b_ar = b_ar.replace(
         "الرسوم هي المذكورة في عرض السعر المقبول، قبل ضريبة القيمة المضافة 15% التي تُضاف عليها. شروط السداد: [●].",
-        "أتعاب الطرف الأول %s ريال (ثلاثون ألف ريال) قبل ضريبة القيمة المضافة 15%%، وهي سعر خاص بهذا الارتباط يعكس خصماً 50%% على أتعابه المعتادة، تُسدَّد 50%% (%s ريال) عند توقيع هذا العقد و50%% (%s ريال) عند إنجاز نطاق الطرف الأول. وأتعاب المحامي السعودي (%s ريال قبل الضريبة) وتقدير الترجمة المعتمدة (%s ريال قبل الضريبة) تكاليف خارجية تُسدَّد وفق عرض السعر المقبول؛ والإجمالي قبل الضريبة %s ريال. ولا تُتحمَّل تكلفة خارجية تتجاوز المبالغ المعتمدة دون موافقة الطرف الثاني الكتابية المسبقة." % (n(FEE), n(HALF), n(HALF), n(COUNSEL), n(TRANS), n(ALL_NET)))
+        "أتعاب الطرف الأول %s ريال (ثلاثون ألف ريال) قبل ضريبة القيمة المضافة 15%%، وهي سعر خاص بهذا الارتباط باعتماد المالك، تُسدَّد كما يلي: %s ريال عند توقيع هذا العقد (أتعاب المرحلة الأولى وهي الرسم الأدنى غير المسترد) و%s ريال عند تأكيد الطرف الثاني الكتابي للمرحلة الثانية. وأتعاب المحامي السعودي (%s ريال قبل الضريبة) وتقدير الترجمة المعتمدة (%s ريال قبل الضريبة) تكاليف خارجية تُسدَّد وفق عرض السعر المقبول؛ والإجمالي قبل الضريبة %s ريال. ولا تُتحمَّل تكلفة خارجية تتجاوز المبالغ المعتمدة دون موافقة الطرف الثاني الكتابية المسبقة." % (n(FEE), n(P1), n(P2), n(COUNSEL), n(TRANS), n(ALL_NET)))
     assert "[●]. Payment" not in b_en
     b_en = b_en.replace("IBAN [●]", "IBAN [IBAN]")
     b_ar = b_ar.replace("آيبان [●]", "آيبان [IBAN]")
@@ -245,6 +247,9 @@ def contract_clauses():
         b_ar = b_ar.replace("خلال [●] أيام عمل", "خلال 5 أيام عمل")
         b_en = b_en.replace("Notices to the addresses stated: [●].", "Notices to the addresses to be completed after agreement.")
         b_ar = b_ar.replace("الإشعارات على العناوين المذكورة: [●].", "الإشعارات على العناوين التي تُستكمل بعد الاتفاق.")
+        if t_en.startswith("Cancellation"):
+            b_en = ("Either party may terminate this contract by 30 days’ written notice. On termination or cancellation, the work performed up to that date is due and remains payable, measured by the stages stated in the quotation; the Phase 1 fee (SAR %s before VAT) is the minimum fee, is due on signing and is not refundable. Phase 2 is due only on the Second Party’s written confirmation. The Saudi legal counsel’s and the translation provider’s costs already incurred are due; any amount paid in advance and not spent is refunded within [●] days to be determined. Government fees actually paid are not refundable except to the extent the entity refunds them. The First Party may terminate or suspend the service for non-payment or material breach after 10 days’ written warning." % n(P1))
+            b_ar = ("لأي من الطرفين إنهاء هذا العقد بإشعار كتابي مدته 30 يوماً. وعند الإنهاء أو الإلغاء يُستحق العمل المنجز حتى ذلك التاريخ، ويُقاس بالمراحل المذكورة في عرض السعر؛ وأتعاب المرحلة الأولى (%s ريال قبل الضريبة) هي الرسم الأدنى، وتُستحق عند التوقيع ولا تُسترد. ولا تُستحق المرحلة الثانية إلا بتأكيد الطرف الثاني الكتابي. وتُستحق تكاليف المحامي السعودي ومزوّد الترجمة المتكبَّدة فعلاً؛ وما دُفع مقدماً ولم يُنفق يُرد خلال [●] يوماً تُحدَّد. ولا تُسترد الرسوم الحكومية المدفوعة فعلاً إلا بقدر ما تردّه الجهة. وللطرف الأول إنهاء العقد أو إيقاف الخدمة عند عدم السداد أو الإخلال الجسيم بعد إنذار كتابي مدته 10 أيام." % n(P1))
         fixed.append([t_en, t_ar, b_en, b_ar])
     rows[:] = fixed
     return rows

@@ -351,10 +351,10 @@ def build_pptx(out):
     # 3 السعر والشمول
     sl = slide(prs, "FFFFFF"); title_bar(sl, "Price & what is included", "السعر وما يشمله")
     box(sl, 0.6, 1.7, 4.4, 4.9, NAVY)
-    txt(sl, 0.8, 1.9, 4.0, 0.3, "BP-PL-0019 · Business Partner fee (after 50% special discount)", 11, False, ACCD, font=F_M)
+    txt(sl, 0.8, 1.9, 4.0, 0.3, "BP-PL-0019 · Business Partner fee (special price)", 11, False, ACCD, font=F_M)
     txt(sl, 0.8, 2.3, 4.0, 1.0, "SAR %s" % n(FEE), 44, True, "FFFFFF", font=F_H)
     txt(sl, 0.8, 3.35, 4.0, 0.6, "%s ريال" % n(FEE), 28, True, "FFFFFF", rtl=True)
-    txt(sl, 0.8, 4.2, 4.0, 1.2, ["Standard fee SAR %s · Phase 1: %s · Phase 2: %s" % (n(STD_FEE), n(P1), n(P2)), "With Saudi legal counsel (%s) and certified translation est. (%s): total SAR %s before 15%% VAT" % (n(COUNSEL), n(TRANS), n(ALL_NET)), ar("الأتعاب المعتادة %s ريال · المرحلة الأولى %s · الثانية %s · الإجمالي مع المحامي والترجمة %s ريال قبل الضريبة" % (n(STD_FEE), n(P1), n(P2), n(ALL_NET)))], 10, False, "EEF1FB", line=1.2)
+    txt(sl, 0.8, 4.2, 4.0, 1.2, ["Special price approved by the owner · Phase 1: %s · Phase 2: %s" % (n(P1), n(P2)), "With Saudi legal counsel (%s) and certified translation est. (%s): total SAR %s before 15%% VAT" % (n(COUNSEL), n(TRANS), n(ALL_NET)), ar("سعر خاص باعتماد المالك · المرحلة الأولى %s · الثانية %s · الإجمالي مع المحامي والترجمة %s ريال قبل الضريبة" % (n(P1), n(P2), n(ALL_NET)))], 10, False, "EEF1FB", line=1.2)
     txt(sl, 0.8, 5.5, 4.0, 0.9, ["Government fees: **Not included**", "الرسوم الحكومية: **غير شامل**"], 12, False, ACCD, line=1.3)
     # ما يشمله
     box(sl, 5.3, 1.7, 7.43, 2.45, BG, LINE)
@@ -386,11 +386,11 @@ def build_pptx(out):
         txt(sl, x + 0.15, 3.25, 3.6, 0.35, ta, 12.5, True, NAVY, rtl=True)
         txt(sl, x + 0.15, 3.58, 3.6, 0.3, ar(da), 9.5, False, TXT, rtl=True, line=1.1)
     txt(sl, 0.6, 4.15, 6, 0.4, "Payment · الدفع", 14, True, NAVY)
-    for k, (pe, pa, de, da) in enumerate((("50%", "50%", "Business Partner fee: on signing the contract", "أتعابنا: عند توقيع العقد"), ("50%", "50%", "Business Partner fee: on completion of our scope", "أتعابنا: عند إنجاز نطاقنا"))):
+    for k, (pe, pa, am, de, da) in enumerate((("Phase 1", "المرحلة الأولى", P1, "On signing the contract (minimum fee, non-refundable)", "عند توقيع العقد (الرسم الأدنى غير المسترد)"), ("Phase 2", "المرحلة الثانية", P2, "On the Second Party’s written confirmation", "عند تأكيد الطرف الثاني الكتابي"))):
         x = 0.6 + k * 6.15
         box(sl, x, 4.65, 5.98, 1.95, NAVY)
-        txt(sl, x + 0.2, 4.75, 1.8, 0.8, pe, 34, True, "FFFFFF", font=F_H)
-        txt(sl, x + 0.2, 5.55, 5.6, 0.3, "SAR %s before VAT · %s ريال قبل الضريبة" % (n(HALF), n(HALF)), 11, False, ACCD)
+        txt(sl, x + 0.2, 4.75, 3.2, 0.8, pe + " · " + pa, 20, True, "FFFFFF", font=F_H)
+        txt(sl, x + 0.2, 5.55, 5.6, 0.3, "SAR %s before VAT · %s ريال قبل الضريبة" % (n(am), n(am)), 11, False, ACCD)
         txt(sl, x + 0.2, 5.9, 5.6, 0.3, de, 11, False, "FFFFFF")
         txt(sl, x + 0.2, 6.22, 5.6, 0.3, da, 12, False, "FFFFFF", rtl=True)
     footer_strip(sl, 4, N)

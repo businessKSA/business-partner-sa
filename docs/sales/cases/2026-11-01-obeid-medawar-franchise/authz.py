@@ -39,12 +39,12 @@ DELEG = [  # (title_en, title_ar, entity_en, entity_ar, scope_en, scope_ar)
      "التعاقد معهما لنطاق ومبالغ معتمدة فقط وتنسيق عملهما. ولا تكلفة خارجية تتجاوز المبالغ المعتمدة دون موافقة العميل الكتابية المسبقة."),
     ("Paying official fees on the Client’s behalf", "دفع الرسوم الرسمية نيابةً عن العميل",
      "The Ministry of Commerce and the other entities involved", "وزارة التجارة والجهات الأخرى ذات الصلة",
-     "Only from funds the Client has deposited for that purpose, against the entity’s receipt; the unused balance is returned.",
-     "من مبالغ أودعها العميل لهذا الغرض فقط وبإيصال الجهة، ويُرد الرصيد غير المستعمل."),
+     "Only from funds the Client has deposited for that purpose, against the entity’s receipt; the unused balance is returned. Payment is executed by a human officer of the First Party, approved by Baher Bakr Ali Magnas, never by an artificial-intelligence system.",
+     "من مبالغ أودعها العميل لهذا الغرض فقط وبإيصال الجهة، ويُرد الرصيد غير المستعمل. ويُنفَّذ الدفع موظف بشري لدى الطرف الأول بتعميد باهر بكر علي مقنص، ولا ينفّذه نظام ذكاء اصطناعي."),
     ("Receiving notifications and official correspondence", "استلام الإشعارات والمراسلات الرسمية",
      "The Ministry of Commerce and the other entities involved", "وزارة التجارة والجهات الأخرى ذات الصلة",
-     "Receiving notifications and official documents relating to the authorised transactions only, and notifying the Client within [2] business days.",
-     "استلام الإشعارات والمستندات الرسمية المتعلقة بالمعاملات المفوَّض بها وحدها، وإبلاغ العميل خلال [2] يوم عمل."),
+     "Receiving notifications and official documents relating to the authorised transactions only, and notifying the Client within 5 business days.",
+     "استلام الإشعارات والمستندات الرسمية المتعلقة بالمعاملات المفوَّض بها وحدها، وإبلاغ العميل خلال 5 أيام عمل."),
     ("Viewing the Client’s accounts on the platforms", "الاطلاع على حسابات العميل في المنصات",
      "The Ministry of Commerce platform", "منصة وزارة التجارة",
      "View-only access through the platforms’ official delegation features, never through passwords or verification codes, limited to the authorised transactions.",
@@ -79,7 +79,7 @@ def rows():
             b_ar = "يعمل الطرف الأول عبر موظفيه المسمّين وحدهم: باهر بكر علي مقنص، المدير التنفيذي؛ وموظفون آخرون مسمّون: يُستكمل بعد الاتفاق (وبيانات الهوية في النسخة الموقّعة)."
         b_en = b_en.replace("the Category Annex", "section 3").replace("The Authorised Party", "The First Party").replace("the Authorised Party", "the First Party").replace("The Principal", "The Second Party").replace("the Principal", "the Second Party").replace("Principal’s", "Second Party’s")
         b_ar = b_ar.replace("ملحق الفئة", "البند 3").replace("المفوَّض", "الطرف الأول").replace("المفوِّض", "الطرف الثاني")
-        b_en = b_en.replace("starts on [●] and ends", "starts on the day the service agreement is signed and ends").replace("or [●] months [recommended maximum 12]", "or 12 months after that date")
+        b_en = b_en.replace("starts on [●] and ends", "starts on the day the service agreement is signed and ends").replace("or [●] months [recommended maximum 12]", "or 12 months after that date, whichever is earliest").replace("[2] business days", "5 business days")
         b_ar = b_ar.replace("يبدأ هذا الخطاب في [●] وينتهي", "يبدأ هذا الخطاب يوم توقيع عقد الخدمة وينتهي").replace("أو بعد [●] شهراً [الحد الأقصى المقترح 12]", "أو بعد 12 شهراً من ذلك التاريخ")
         t_en = t_en.replace("Principal’s", "Second Party’s").replace("Authorised Party’s", "First Party’s")
         t_ar = t_ar.replace("المفوَّض", "الطرف الأول").replace("المفوِّض", "الطرف الثاني")

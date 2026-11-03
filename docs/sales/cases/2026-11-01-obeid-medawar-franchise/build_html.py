@@ -153,9 +153,7 @@ def build_quote():
 
     # 3 السعر
     price_rows = [
-        [("<b>BP-PL-0019</b> · Business Partner — project management, coordination &amp; implementation (standard fee)", "<b>BP-PL-0019</b> · بزنس بارتنر — إدارة المشروع والتنسيق ودعم التنفيذ (الأتعاب المعتادة)", ""), (num(n(STD_FEE)), num(n(STD_FEE)), "c")],
-        [("Special discount for this engagement (50%)", "خصم خاص بهذا الارتباط (50%)", ""), (num("(" + n(DISC) + ")"), num("(" + n(DISC) + ")"), "c")],
-        {"cls": "tot", "cells": [("Business Partner fee after discount (Phase 1: %s · Phase 2: %s)" % (n(P1), n(P2)), "أتعاب بزنس بارتنر بعد الخصم (المرحلة الأولى: %s · المرحلة الثانية: %s)" % (n(P1), n(P2)), ""), (num(n(FEE)), num(n(FEE)), "c")]},
+        {"cls": "tot", "cells": [("<b>BP-PL-0019</b> · Business Partner — project management, coordination &amp; implementation: special price approved by the owner (Phase 1: %s · Phase 2: %s)" % (n(P1), n(P2)), "<b>BP-PL-0019</b> · بزنس بارتنر — إدارة المشروع والتنسيق ودعم التنفيذ: سعر خاص باعتماد المالك (المرحلة الأولى: %s · المرحلة الثانية: %s)" % (n(P1), n(P2)), ""), (num(n(FEE)), num(n(FEE)), "c")]},
         [("Saudi legal counsel — legal review, disclosure, remediation documentation &amp; filing support", "المحامي السعودي — المراجعة القانونية والإفصاح ومستندات التصحيح ودعم التقديم", ""), (num(n(COUNSEL)), num(n(COUNSEL)), "c")],
         [("Certified Arabic translation (estimate; confirmed once the documents to translate are fixed)", "الترجمة العربية المعتمدة (تقدير؛ يُؤكَّد بعد تحديد المستندات المطلوب ترجمتها)", ""), (num(n(TRANS)), num(n(TRANS)), "c")],
         {"cls": "tot", "cells": [("Total before VAT (15% VAT added according to the regulations)", "الإجمالي قبل الضريبة (وتُضاف ضريبة القيمة المضافة 15% وفق النظام)", ""), (num(n(ALL_NET)), num(n(ALL_NET)), "c")]},

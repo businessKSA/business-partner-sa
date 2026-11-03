@@ -18,6 +18,7 @@ DOCS = {
    ["Saudi franchisees and locations", "الممنوح لهم والمواقع في السعودية", "Corporate documents of the two franchisees; documents of the three operating locations; the commercial registrations and licences in force.", "مستندات الشركتين الممنوح لهما؛ ومستندات المواقع التشغيلية الثلاثة؛ والسجلات والتراخيص السارية."],
    ["Manuals", "الأدلة", "Operations, training and brand manuals, or at least their tables of contents.", "أدلة التشغيل والتدريب والعلامة، أو فهارسها على الأقل."],
    ["Previous filings", "المراسلات والقيود السابقة", "Any previous correspondence or filings with the Ministry of Commerce; any powers of attorney, authorisations or declarations.", "أي مراسلات أو قيود سابقة لدى وزارة التجارة؛ وأي وكالات أو تفويضات أو إقرارات."],
+   ["Representation and payment", "التمثيل والسداد", "A document evidencing the law firm’s authority to act for the franchisor (written authorisation from the franchisor), and confirmation of who bears the payments before signing.", "مستند يثبت تمثيل المكتب لمانح الامتياز (تفويض كتابي من المانح)، وتحديد من يتحمل السداد قبل التوقيع."],
    ["Authorisation and decisions", "التفويض والقرارات", "The signed authorisation letter (ticking what the Client authorises) and written approval of each external cost before it is incurred.", "خطاب التفويض الموقّع (بتحديد ما يفوّض به العميل) والموافقة الكتابية على كل تكلفة خارجية قبل تحمّلها."]]),
 "10-Disclosure-Document-Outline": (
   "Saudi Disclosure Document: Outline", "وثيقة الإفصاح السعودية: الهيكل", "OUTLINE", "هيكل",
