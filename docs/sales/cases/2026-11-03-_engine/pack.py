@@ -278,7 +278,7 @@ def build_quote():
         dict(id="dur", pre="", h2=h2(5, "Duration", "المدة"), head=[("#", "#", True), ("Stage", "المرحلة", False)], rows=dur_rows, widths=[4, 46]),
         dict(id="pay", pre="", h2=h2(6, "Payment terms", "طريقة الدفع"),
              head=[("#", "#", True), ("Instalment", "الدفعة", False), ("%", "النسبة", True), ("SAR excl. VAT", "ريال قبل الضريبة", True), ("VAT 15%", "الضريبة 15%", True), ("SAR incl. VAT", "ريال شامل الضريبة", True), ("Due", "الاستحقاق", False)],
-             rows=pay_rows, widths=[3, 9, 5, 7, 6, 7, 13]),
+             rows=pay_rows, widths=([3, 13, 5, 7, 6, 7, 9] if MULTI else [3, 9, 5, 7, 6, 7, 13])),
         dict(id="terms", pre="", h2=h2(7, "Terms and conditions", "الشروط والأحكام"), head=[("#", "#", True), ("Term", "الشرط", False)], rows=nrow([(esc(e), esc(a_)) for e, a_ in S["terms"]]), widths=[4, 46]),
     ]
     for pg in flow_land(secs):
@@ -596,6 +596,9 @@ def authz_rows():
         if k == 3:
             b_en = b_en.replace("Within the covered services only, the Authorised Party may:", "Within the services the Second Party has ticked in section 3 only, the First Party may:")
             b_ar = b_ar.replace("ضمن الخدمات المشمولة وحدها، للمفوَّض:", "ضمن البنود التي حدّدها الطرف الثاني في البند 3 وحدها، للطرف الأول:")
+        if k == 8:
+            b_en = b_en.replace(" [recommended maximum 12]", "")
+            b_ar = re.sub(r"\s*\[الحد الأقصى المقترح 12\]", "", b_ar)
         if k == 7:
             b_en = "The First Party acts only through its named staff: %s; any other staff member only with the Second Party’s prior written approval (identification details are kept in the executed copy)." % REP_EN
             b_ar = "يعمل الطرف الأول عبر موظفيه المسمّين وحدهم: %s؛ ولا يعمل أي موظف آخر إلا بموافقة كتابية مسبقة من الطرف الثاني (وبيانات الهوية في النسخة الموقّعة)." % REP_AR
