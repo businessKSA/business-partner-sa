@@ -3,7 +3,6 @@
  * كل ما يولّده يُحفَظ **كمسودة إلزامياً** ولا يُرسَل إلا بعد الاعتماد البشري.
  * القوالب المعتمدة موضوعة كأمثلة few-shot في templates/agent-prompt.md
  */
-import Anthropic from '@anthropic-ai/sdk';
 import { prisma } from './db';
 import { loadText } from './templates';
 import { checkContent, sanitizeDeep } from './content-guard';
@@ -58,12 +57,25 @@ export class AgentUnavailable extends Error {
   }
 }
 
+/** إصدار واجهة Azure OpenAI المعتمد في المنظومة (CLAUDE.md، 2026-09-19). */
+const AZURE_API_VERSION = '2025-03-01-preview';
+
+/**
+ * الوكيل يعمل عبر Azure OpenAI (قرار المالك 2026-10-16). المتغيرات الثلاثة
+ * تُقرأ من البيئة ولا قيمة لها في الملفات. إن نقص أحدها تُعطَّل الميزة
+ * (AgentUnavailable) ويبقى بقية النظام يعمل.
+ */
 export function agentReady(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY);
+  return Boolean(
+    process.env.AZURE_OPENAI_ENDPOINT &&
+      process.env.AZURE_OPENAI_API_KEY &&
+      process.env.AZURE_OPENAI_DEPLOYMENT,
+  );
 }
 
+/** اسم النشر (deployment) لا اسم الموديل — مثلاً bp-main. */
 export function agentModel(): string {
-  return process.env.AGENT_MODEL || 'claude-opus-5';
+  return process.env.AZURE_OPENAI_DEPLOYMENT || '';
 }
 
 function userMessage(i: AgentInput): string {
@@ -106,32 +118,48 @@ function extractJson(text: string): AgentOutput {
 export async function generateServiceContent(input: AgentInput): Promise<AgentOutput> {
   if (!agentReady()) {
     throw new AgentUnavailable(
-      'ANTHROPIC_API_KEY غير معرّف — الوكيل الذكي غير مفعّل. أضف المفتاح في ملف .env ثم أعد المحاولة.',
+      'AZURE_OPENAI_ENDPOINT / AZURE_OPENAI_API_KEY / AZURE_OPENAI_DEPLOYMENT غير معرّفة كلها — الوكيل الذكي غير مفعّل. اضبطها في بيئة التشغيل ثم أعد المحاولة.',
     );
   }
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const endpoint = (process.env.AZURE_OPENAI_ENDPOINT as string).replace(/\/+$/, '');
+  const url =
+    `${endpoint}/openai/deployments/${encodeURIComponent(agentModel())}` +
+    `/chat/completions?api-version=${AZURE_API_VERSION}`;
   const system = loadText('agent-prompt.md');
 
-  const res = await client.messages.create({
-    model: agentModel(),
+  const http = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'api-key': process.env.AZURE_OPENAI_API_KEY as string,
+    },
+    body: JSON.stringify({
     // العرض والعقد بالعربية والإنجليزية معاً يتجاوزان أربعة آلاف رمز بسهولة،
     // والنص العربي مكلف بالرموز. السقف المنخفض كان يقطع الرد في منتصف الكائن
     // فيظهر للمستخدم خطأ تحليل JSON بدل السبب الحقيقي.
     max_tokens: 16000,
-    system,
-    messages: [{ role: 'user', content: userMessage(input) }],
+    messages: [
+      { role: 'system', content: system },
+      { role: 'user', content: userMessage(input) },
+    ],
+    }),
   });
+  if (!http.ok) {
+    const detail = (await http.text().catch(() => '')).slice(0, 300);
+    throw new Error(`فشل نداء Azure OpenAI (HTTP ${http.status}): ${detail}`);
+  }
+  const res = (await http.json()) as {
+    choices?: { finish_reason?: string; message?: { content?: string | null } }[];
+  };
+  const choice = res.choices?.[0];
 
-  if (res.stop_reason === 'max_tokens') {
+  if (choice?.finish_reason === 'length') {
     throw new Error(
       'رد الوكيل قُطع قبل اكتماله لبلوغه حد الطول. اختصر الوصف الموجز ثم أعد المحاولة.',
     );
   }
 
-  const text = res.content
-    .filter((b): b is Anthropic.TextBlock => b.type === 'text')
-    .map((b) => b.text)
-    .join('\n');
+  const text = choice?.message?.content ?? '';
 
   const parsed = extractJson(text);
   // حارس المحتوى: إزالة أي إيموجي وتوسيع أي اختصار حكومي

@@ -1,0 +1,85 @@
+# لوحة bp-quotes على Azure Container Apps + PostgreSQL.
+# يدوي عمداً (workflow_dispatch وحده، لا push): ينشئ موارد تُحتسب من المنحة.
+# المصادقة كما في azure-n8n.yml: سرّ AZURE_CREDENTIALS (لا OIDC في هذا المستودع).
+# الأسرار المطلوبة: AZURE_CREDENTIALS.
+# اختيارية تُمرَّر إلى التطبيق (ما لم يُضبط يُتخطّى بتحذير): PANEL_BRIDGE_TOKEN ·
+#   MOYASAR_SECRET_KEY · MOYASAR_PUBLISHABLE_KEY · MOYASAR_WEBHOOK_SECRET ·
+#   TAMARA_API_TOKEN · RESEND_API_KEY · DOCUSIGN_* · CATALOG_SYNC_TOKEN ·
+#   CATALOG_WEBHOOK_TOKEN · INNGEST_EVENT_KEY · INNGEST_SIGNING_KEY
+# مدخل apply=false (الافتراضي) يطبع الخطة فقط.
+name: Deploy bp-quotes to Azure
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'اكتب deploy-quotes للتأكيد'
+        required: true
+        default: ''
+      apply:
+        description: 'true = تنفيذ حقيقي؛ false = تجربة تطبع الخطة فقط'
+        required: true
+        default: 'false'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: azure-quotes
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: تأكيد النية
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "deploy-quotes" ]; then
+            echo "::error::اكتب deploy-quotes في خانة التأكيد."
+            exit 1
+          fi
+
+      - id: gate
+        name: فحص الأسرار
+        if: github.event.inputs.apply == 'true'
+        env:
+          AZ: ${{ secrets.AZURE_CREDENTIALS }}
+        run: |
+          [ -n "$AZ" ] || { echo "::error::ينقص AZURE_CREDENTIALS."; exit 1; }
+
+      - uses: azure/login@v2
+        if: github.event.inputs.apply == 'true'
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: نشر bp-quotes
+        env:
+          BP_AZ_RG: bp-ai
+          BP_AZ_LOCATION: swedencentral
+          APPLY_FLAG: ${{ github.event.inputs.apply == 'true' && '--apply' || '' }}
+          PANEL_BRIDGE_TOKEN: ${{ secrets.PANEL_BRIDGE_TOKEN }}
+          MOYASAR_SECRET_KEY: ${{ secrets.MOYASAR_SECRET_KEY }}
+          MOYASAR_PUBLISHABLE_KEY: ${{ secrets.MOYASAR_PUBLISHABLE_KEY }}
+          MOYASAR_WEBHOOK_SECRET: ${{ secrets.MOYASAR_WEBHOOK_SECRET }}
+          TAMARA_API_TOKEN: ${{ secrets.TAMARA_API_TOKEN }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          DOCUSIGN_INTEGRATION_KEY: ${{ secrets.DOCUSIGN_INTEGRATION_KEY }}
+          DOCUSIGN_USER_ID: ${{ secrets.DOCUSIGN_USER_ID }}
+          DOCUSIGN_ACCOUNT_ID: ${{ secrets.DOCUSIGN_ACCOUNT_ID }}
+          DOCUSIGN_PRIVATE_KEY: ${{ secrets.DOCUSIGN_PRIVATE_KEY }}
+          DOCUSIGN_CONNECT_HMAC_KEY: ${{ secrets.DOCUSIGN_CONNECT_HMAC_KEY }}
+          CATALOG_SYNC_TOKEN: ${{ secrets.CATALOG_SYNC_TOKEN }}
+          CATALOG_WEBHOOK_TOKEN: ${{ secrets.CATALOG_WEBHOOK_TOKEN }}
+          INNGEST_EVENT_KEY: ${{ secrets.INNGEST_EVENT_KEY }}
+          INNGEST_SIGNING_KEY: ${{ secrets.INNGEST_SIGNING_KEY }}
+        run: bash azure/quotes/deploy.sh $APPLY_FLAG
+
+      - name: العنوان
+        if: github.event.inputs.apply == 'true'
+        run: |
+          F=$(az containerapp show -n bp-quotes -g bp-ai --query properties.configuration.ingress.fqdn -o tsv)
+          echo "### bp-quotes على Azure" >> "$GITHUB_STEP_SUMMARY"
+          echo "https://$F/quotes" >> "$GITHUB_STEP_SUMMARY"
+          echo "لا تحوّل رسالتي /quotes في vercel.json قبل نقل القاعدة والفحص (azure/quotes/README.md)." >> "$GITHUB_STEP_SUMMARY"

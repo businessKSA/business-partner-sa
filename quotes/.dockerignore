@@ -1,0 +1,28 @@
+node_modules
+.next
+out
+build
+*.tsbuildinfo
+next-env.d.ts
+
+# أسرار وبيئة — لا تدخل الصورة أبداً
+.env
+.env.*
+!.env.example
+secrets/
+
+# بيانات محلية وملفات عملاء
+storage/
+.migrate/
+*.db
+*.db-journal
+prisma/*.db*
+*.log
+sample*.pdf
+
+# تحكّم بالإصدارات والمحرر
+.git
+.gitignore
+.vscode
+Dockerfile
+.dockerignore

@@ -1,7 +1,7 @@
 /**
  * فحص الأجزاء الحتمية في الوكيل الذكي بلا استدعاء الشبكة:
  * استخراج JSON من الرد، وحارس المحتوى (الإيموجي والاختصارات الحكومية).
- * الاستدعاء الحي للنموذج يحتاج ANTHROPIC_API_KEY ويُختبر بـ npm run agent:live
+ * الاستدعاء الحي للنموذج يحتاج AZURE_OPENAI_API_KEY ويُختبر بـ npm run agent:live
  */
 import { checkContent, sanitizeDeep, hasEmoji, expandGovAbbreviations } from '../src/lib/content-guard';
 import { loadText } from '../src/lib/templates';

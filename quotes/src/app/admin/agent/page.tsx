@@ -18,7 +18,7 @@ export default async function AgentPage({ searchParams }: { searchParams: Promis
       </p>
       {!agentReady() ? (
         <div className="notice bad">
-          ANTHROPIC_API_KEY غير معرّف في ملف .env — الوكيل غير مفعّل. أضف المفتاح ثم أعد المحاولة.
+          متغيرات AZURE_OPENAI_ENDPOINT وAZURE_OPENAI_API_KEY وAZURE_OPENAI_DEPLOYMENT غير مضبوطة — الوكيل غير مفعّل. اضبطها في بيئة التشغيل ثم أعد المحاولة.
           بقية النظام يعمل بشكل طبيعي.
         </div>
       ) : (
