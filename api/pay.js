@@ -29,7 +29,7 @@ import { LEGAL_NAME } from "./_identity.js";
 import { daftraConfigured, daftraFindOrCreateClient, daftraCreateInvoice, daftraRecordPayment, daftraDocPdf, daftraVatRate, nationalAddressLine, daftraPayLink, daftraPublicInvoiceLink} from "./_daftra.js";
 import { markOrderPaid, quotePriced } from "./_suppliers.js";
 import { tamaraConfigured, createTamaraSession, verifyTamaraOrder } from "./_bnpl.js";
-import { PAY_MOCK, payGuard, MODES } from "./_mode.js";
+import { PAY_MOCK, payGuard, MODES, paymentsDisabled, PAYMENTS_DISABLED_MESSAGE } from "./_mode.js";
 import { contactForRef } from "./_stage.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 import { sb, DB_ON } from "./_db.js";
@@ -746,6 +746,23 @@ export default async function handler(req, res) {
   // Companies data portal endpoint (see handleLeads above).
   if ((req.query && (req.query.resource === "leads" || req.query.leads))) {
     return handleLeads(req, res);
+  }
+
+  // Payments off (staging): every payment action — create, verify, webhook,
+  // reconcile, BNPL — stops here, before the body is read, before any call to
+  // Moyasar or Tamara and before any database write. The config GET reports no
+  // key and modeMatch:false so the checkout cannot draw a live form.
+  if (paymentsDisabled()) {
+    if (req.method === "GET") {
+      res.statusCode = 503;
+      return res.end(JSON.stringify({
+        enabled: false, provider: "moyasar", canVerify: false, modeMatch: false,
+        publishableKey: null, applePay: null, samsungPay: null, bnpl: { tamara: false },
+        error: "payments_disabled", message: PAYMENTS_DISABLED_MESSAGE,
+      }));
+    }
+    res.statusCode = 403;
+    return res.end(JSON.stringify({ ok: false, error: "payments_disabled", message: PAYMENTS_DISABLED_MESSAGE }));
   }
 
   if (req.method === "GET") {

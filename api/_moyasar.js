@@ -10,6 +10,8 @@
 //
 // Underscore-prefixed: a shared module, not a 13th serverless function.
 
+import { paymentsDisabled } from "./_mode.js";
+
 const PK_RAW = process.env.MOYASAR_PUBLISHABLE_KEY || "";
 const SK_RAW = process.env.MOYASAR_SECRET_KEY || "";
 const PK = PK_RAW.trim();
@@ -70,6 +72,7 @@ export function moyasarVars() {
 // This runs on the server, where the network is open — the one question the
 // browser genuinely cannot answer for us.
 export async function mpfCheck() {
+  if (paymentsDisabled()) return { ok: false, error: "payments_disabled" };
   const url = MPF_JS;
   const version = (String(url).match(/mpf\/([^/]+)\//) || [])[1] || "?";
   const one = async (u) => {
@@ -115,6 +118,8 @@ export async function mpfCheck() {
 // away — only the status code is the answer.
 export async function moyasarPing() {
   const vars = moyasarVars();
+  // Payments switched off (staging): no outbound call to Moyasar at all.
+  if (paymentsDisabled()) return { ok: false, error: "payments_disabled", vars };
   if (!SK) return { ok: false, error: "secret_key_missing", vars };
   try {
     const r = await fetch(`${API}/payments?limit=1`, {

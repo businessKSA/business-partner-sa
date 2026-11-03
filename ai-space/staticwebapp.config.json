@@ -15,8 +15,16 @@
       "redirect": "/.auth/logout"
     },
     {
+      "route": "/api/*",
+      "allowedRoles": [
+        "owner"
+      ]
+    },
+    {
       "route": "/*",
-      "allowedRoles": ["owner"]
+      "allowedRoles": [
+        "owner"
+      ]
     }
   ],
   "responseOverrides": {
@@ -27,7 +35,12 @@
   },
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/.auth/*", "/*.js", "/*.css"]
+    "exclude": [
+      "/.auth/*",
+      "/api/*",
+      "/*.js",
+      "/*.css"
+    ]
   },
   "globalHeaders": {
     "X-Robots-Tag": "noindex, nofollow",
@@ -35,5 +48,8 @@
     "X-Content-Type-Options": "nosniff",
     "Permissions-Policy": "microphone=(self), camera=(self), geolocation=()",
     "Cache-Control": "no-store, must-revalidate"
+  },
+  "platform": {
+    "apiRuntime": "node:20"
   }
 }

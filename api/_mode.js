@@ -64,7 +64,24 @@ export async function outboxList(limit = 50) {
 //   2. with no keys at all, the checkout falls back to a local mock gateway so
 //      the whole path — cart → payment → invoice — is still walkable offline.
 const isLive = (k) => /^(pk|sk)_live_/.test(String(k || "").trim());
+
+// Payments switched off outright. Read at call time (not at import) so it can
+// be flipped without a reload and tested. True when PAYMENTS_DISABLED is 1/true
+// or APP_ENV is "staging". Production sets neither, so nothing changes there.
+// Staging holds the real pk_live_/sk_live_ keys, and payGuard's DEV check
+// below never fires on it — so this is the only thing between a visitor to
+// the staging URL and a real card charge.
+export function paymentsDisabled() {
+  const f = String(process.env.PAYMENTS_DISABLED || "").trim().toLowerCase();
+  if (f === "1" || f === "true" || f === "yes") return true;
+  return String(process.env.APP_ENV || "").trim().toLowerCase() === "staging";
+}
+export const PAYMENTS_DISABLED_MESSAGE = "الدفع معطّل على النسخة التجريبية";
+
 export function payGuard() {
+  if (paymentsDisabled()) {
+    return { ok: false, error: "payments_disabled", message: PAYMENTS_DISABLED_MESSAGE };
+  }
   if (!DEV) return { ok: true };
   const pk = process.env.MOYASAR_PUBLISHABLE_KEY || "";
   const sk = process.env.MOYASAR_SECRET_KEY || "";
