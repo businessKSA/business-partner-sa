@@ -128,8 +128,8 @@ SCOPE = [
 
 PRICE_BASIS = [  # (component_en, component_ar, basis_en, basis_ar)
     ("What the monthly price includes", "ما يشمله السعر الشهري",
-     "All-inclusive per worker: salary and allowances, residence permit, work permit, health and social insurance, end-of-service and leave provision, return ticket, and the management fee.",
-     "شامل للعامل الواحد: الراتب والبدلات، الإقامة ورخصة العمل، التأمين الصحي والتأمينات الاجتماعية، مخصص نهاية الخدمة والإجازة، تذكرة العودة، ورسم الإدارة."),
+     "Per worker: the salary, residence permit, work permit, health and social insurance, end-of-service and leave provision, return ticket, and the management fee. It does not include allowances (accommodation, food, transport).",
+     "للعامل الواحد: الراتب، الإقامة ورخصة العمل، التأمين الصحي والتأمينات الاجتماعية، مخصص نهاية الخدمة والإجازة، تذكرة العودة، ورسم الإدارة. ولا يشمل البدلات (السكن والإعاشة والمواصلات)."),
     ("What it does not include", "ما لا يشمله السعر الشهري",
      "Accommodation, transport and food (see the choice below), overtime, and government fees outside the items above, which are invoiced at actual cost.",
      "السكن والنقل والإعاشة (انظر الخيار أدناه)، والعمل الإضافي، والرسوم الحكومية خارج البنود أعلاه فتُفوتَر بالتكلفة الفعلية."),
@@ -276,8 +276,8 @@ def contract_clauses():
     fee = _mini_table(["Nationality · الجنسية", "Recruitment · الاستقدام", "Attestation · التصديق", "Arrival ticket · تذكرة القدوم", "Total at cost, SAR · الإجمالي بالتكلفة"],
         [[ne + " · " + na, n(r), n(t), n(k), n(r + t + k)] for ne, na, r, t, k, de, da in REC_COUNTRY], [28, 18, 18, 18, 18])
     items3 = [
-        ("The Second Party pays the First Party: (a) the monthly price per worker, being the sum of the salary and allowances by trade, level and nationality, the residence permit, work permit and insurance cost, and the management fee, as set in the rate table of the quotation; and (b) for workers recruited from abroad only, the recruitment costs by nationality in the table below, at actual cost, on a separate invoice. For a worker transferred from inside the Kingdom (sponsorship transfer), no recruitment-from-abroad fee applies: neither the costs below, nor external recruitment, contract attestation or arrival ticket.",
-         "يسدّد الطرف الثاني للطرف الأول: (أ) السعر الشهري للعامل، وهو مجموع الراتب والبدلات بحسب المهنة والمستوى والجنسية، وتكلفة الإقامة ورخصة العمل والتأمين، ورسم الإدارة، كما في جدول الأسعار في عرض السعر؛ و(ب) للعمال المستقدَمين من الخارج فقط، تكاليف الاستقدام بحسب الجنسية في الجدول أدناه، بالتكلفة الفعلية وبفاتورة منفصلة. أما العامل المنقول من داخل المملكة (نقل كفالة) فلا تُطبَّق عليه أي رسوم استقدام من الخارج، لا التكاليف أدناه ولا الاستقدام الخارجي ولا تصديق العقود ولا تذكرة القدوم."),
+        ("The Second Party pays the First Party: (a) the monthly price per worker, being the sum of the salary by trade, level and nationality, the residence permit, work permit and insurance cost, and the management fee, as set in the rate table of the quotation; and (b) for workers recruited from abroad only, the recruitment costs by nationality in the table below, at actual cost, on a separate invoice. For a worker transferred from inside the Kingdom (sponsorship transfer), no recruitment-from-abroad fee applies: neither the costs below, nor external recruitment, contract attestation or arrival ticket.",
+         "يسدّد الطرف الثاني للطرف الأول: (أ) السعر الشهري للعامل، وهو مجموع الراتب بحسب المهنة والمستوى والجنسية، وتكلفة الإقامة ورخصة العمل والتأمين، ورسم الإدارة، كما في جدول الأسعار في عرض السعر؛ و(ب) للعمال المستقدَمين من الخارج فقط، تكاليف الاستقدام بحسب الجنسية في الجدول أدناه، بالتكلفة الفعلية وبفاتورة منفصلة. أما العامل المنقول من داخل المملكة (نقل كفالة) فلا تُطبَّق عليه أي رسوم استقدام من الخارج، لا التكاليف أدناه ولا الاستقدام الخارجي ولا تصديق العقود ولا تذكرة القدوم."),
         ("The monthly price is invoiced on the number of workers actually on duty in the month. Overtime is invoiced separately at the actual hours.",
          "يُفوتر السعر الشهري على عدد العمال الفعلي على رأس العمل في الشهر، ويُفوتر العمل الإضافي على حدة بالساعات الفعلية."),
         ("Government fees, embassy and attestation charges and travel tickets are invoiced at actual cost with the supporting receipts, unless the quotation states that they are included.",
