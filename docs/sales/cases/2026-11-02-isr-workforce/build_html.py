@@ -146,7 +146,7 @@ def build_quote():
         rr.append([(str(k), str(k), "nx"), ("<b>Helper (all seven teams)</b>", "<b>العامل المساعد (الفرق السبعة)</b>", "t"), (he, ha, "c"), pc(hs), (str(hn), str(hn), "c"),
                    nat_all + ("c",), pc(prices["helper"]), pc(hn * prices["helper"])])
         rr.append({"cls": "tot", "cells": [("", "", ""), ("Total", "الإجمالي", ""), ("", "", ""), ("", "", ""), (str(WORKERS), str(WORKERS), "c"), ("", "", ""), ("", "", ""), pc(tot)]})
-        return bi_table([("#", "#", True), ("Trade", "المهنة", False), ("Level", "المستوى", True), ("Minimum salary", "الحد الأدنى للراتب", True), ("Workers", "العدد", True),
+        return bi_table([("#", "#", True), ("Trade", "المهنة", False), ("Level", "المستوى", True), ("Salary", "الراتب", True), ("Workers", "العدد", True),
                          ("Nationalities", "الجنسيات", True), ("Monthly price per worker (SAR)", "السعر الشهري للعامل (ريال)", True), ("Monthly total (SAR)", "الإجمالي الشهري (ريال)", True)],
                         rr, [3, 16, 8, 7, 6, 15, 9, 9])
     def totals_table(tot, vat, grand):
@@ -158,27 +158,27 @@ def build_quote():
     rates24 = rate_table(PRICE, TOTAL_MONTHLY) + totals_table(TOTAL_MONTHLY, MONTHLY_VAT, MONTHLY_GRAND)
     hours = ('<div class="nt"><div dir="ltr"><b>Working hours:</b> %d hours a day &nbsp;·&nbsp; <b>Working days:</b> %d days a month</div>'
              '<div class="ar" dir="rtl"><b>ساعات العمل:</b> %d ساعات يومياً &nbsp;·&nbsp; <b>أيام العمل:</b> %d يوماً في الشهر</div></div>') % (WORK_HOURS, WORK_DAYS, WORK_HOURS, WORK_DAYS)
-    note = ('<div class="nt"><div dir="ltr"><b>Minimum salary:</b> technical 3,000, skilled 2,500, helper 1,500. Prices are before 15% VAT and are for trades with no localisation decision; technical and engineering trades under a decision cost more (section A7). Recruitment from abroad is separate (section A6).</div>'
-            '<div class="ar" dir="rtl"><b>الحد الأدنى للراتب:</b> الفنية 3,000، والماهرة 2,500، والمساعد 1,500. الأسعار قبل ضريبة 15% ولمهن لا قرار توطين عليها؛ والفنية والهندسية التي عليها قرار تكلفتها أعلى (البند أ7). والاستقدام من الخارج منفصل (البند أ6).</div></div>')
+    note = ('<div class="nt"><div dir="ltr"><b>Salary in this offer:</b> technical 2,500, skilled 1,800, helper 1,200; you may raise or lower it and the price is recalculated in the calculator. Prices are before 15% VAT and are for trades with no localisation decision; technical and engineering trades under a decision cost more (section A7). Recruitment from abroad is separate (section A6).</div>'
+            '<div class="ar" dir="rtl"><b>الراتب في هذا العرض:</b> الفنية 2,500، والماهرة 1,800، والمساعد 1,200؛ ولك أن تزيده أو تنقصه ويُعاد حساب السعر في الآلة الحاسبة. الأسعار قبل ضريبة 15% ولمهن لا قرار توطين عليها؛ والفنية والهندسية التي عليها قرار تكلفتها أعلى (البند أ7). والاستقدام من الخارج منفصل (البند أ6).</div></div>')
     basis_rows = [[(str(i), str(i), "nx"), ("<b>%s</b> — %s" % (esc(ce), esc(be)), "<b>%s</b> — %s" % (esc(ca), esc(ar(ba))), "t")]
                   for i, (ce, ca, be, ba) in enumerate(PRICE_BASIS, 1)]
     basis = bi_table([("#", "#", True), ("How the monthly price per worker is built", "كيف يُبنى السعر الشهري للعامل", False)], basis_rows, [4, 46])
     def fac_table(pp, ppf, tot, totf):
         fr = [[(le, la, "t"), pc(sal), pc(pp[k2]), pc(ppf[k2]), pc(pp[k2] - ppf[k2])] for k2, (le, la, sal, lf) in LEVELS.items()]
         fr.append({"cls": "tot", "cells": [("Seven teams, per month (before VAT)", "الفرق السبعة شهرياً (قبل الضريبة)", ""), ("", "", ""), pc(tot), pc(totf), pc(tot - totf)]})
-        return bi_table([("If the worker is employed at a factory", "إذا كان العامل على مصنع", False), ("Minimum salary", "الحد الأدنى للراتب", True), ("Standard price", "السعر العادي", True), ("Factory price", "سعر المصنع", True), ("Saving", "الفرق", True)], fr, [18, 8, 8, 8, 8])
+        return bi_table([("If the worker is employed at a factory", "إذا كان العامل على مصنع", False), ("Salary", "الراتب", True), ("Standard price", "السعر العادي", True), ("Factory price", "سعر المصنع", True), ("Saving", "الفرق", True)], fr, [18, 8, 8, 8, 8])
     fac12 = fac_table(PRICE12, PRICE12_F, TOTAL_MONTHLY12, TOTAL_MONTHLY12_F)
     fac24 = fac_table(PRICE, PRICE_F, TOTAL_MONTHLY, TOTAL_MONTHLY_F)
     facnote = ('<div class="nt"><div dir="ltr">At a licensed factory the work-permit levy (SAR 9,600 a year) is exempt: the price is the standard price less SAR 800 a month.</div>'
                '<div class="ar" dir="rtl">في مصنع مرخَّص يُعفى المقابل المالي لرخصة العمل (9,600 ريال سنوياً): السعر هو السعر العادي ناقص 800 ريال شهرياً.</div></div>')
     def diff_table():
         dr = [[(le, la, "t"), pc(sal), pc(PRICE12[k2]), pc(PRICE[k2]), pc(PRICE12[k2] - PRICE[k2])] for k2, (le, la, sal, lf) in LEVELS.items()]
-        dr.append([("Technical engineering (under a decision)", "فنية هندسية (عليها قرار توطين)", "t"), pc(3000), pc(PRICE_TECHDEC), pc(PRICE_TECHDEC24), pc(PRICE_TECHDEC - PRICE_TECHDEC24)])
+        dr.append([("Technical engineering (under a decision)", "فنية هندسية (عليها قرار توطين)", "t"), pc(LEVELS['tech'][2]), pc(PRICE_TECHDEC), pc(PRICE_TECHDEC24), pc(PRICE_TECHDEC - PRICE_TECHDEC24)])
         dr.append([("Engineering (under a decision)", "هندسية (عليها قرار توطين)", "t"), pc(ENG_SALARY), pc(PRICE_ENG), pc(PRICE_ENG24), pc(PRICE_ENG - PRICE_ENG24)])
         dr.append({"cls": "tot", "cells": [("Seven teams, per month (before VAT)", "الفرق السبعة شهرياً (قبل الضريبة)", ""), ("", "", ""), pc(TOTAL_MONTHLY12), pc(TOTAL_MONTHLY), pc(TOTAL_MONTHLY12 - TOTAL_MONTHLY)]})
-        return bi_table([("Monthly price per worker (SAR)", "السعر الشهري للعامل (ريال)", False), ("Minimum salary", "الحد الأدنى للراتب", True), ("12-month contract (our offer)", "عقد 12 شهراً (عرضنا)", True), ("24-month contract", "عقد 24 شهراً", True), ("Difference per month", "الفرق شهرياً", True)], dr, [18, 8, 9, 9, 8])
-    diffnote = ('<div class="nt"><div dir="ltr">In a 24-month contract the visa or transfer fee (SAR 2,000) is spread over 24 months, so the price falls by SAR 83 per worker per month.</div>'
-                '<div class="ar" dir="rtl">في عقد 24 شهراً تُوزَّع رسوم التأشيرة أو النقل (2,000 ريال) على 24 شهراً، فينخفض السعر 83 ريالاً للعامل شهرياً.</div></div>')
+        return bi_table([("Monthly price per worker (SAR)", "السعر الشهري للعامل (ريال)", False), ("Salary", "الراتب", True), ("12-month contract (our offer)", "عقد 12 شهراً (عرضنا)", True), ("24-month contract", "عقد 24 شهراً", True), ("Difference per month", "الفرق شهرياً", True)], dr, [18, 8, 9, 9, 8])
+    diffnote = ('<div class="nt"><div dir="ltr">In a 24-month contract the visa or transfer fee (SAR 2,000) is spread over 24 months, so the price falls by about SAR 90 per worker per month.</div>'
+                '<div class="ar" dir="rtl">في عقد 24 شهراً تُوزَّع رسوم التأشيرة أو النقل (2,000 ريال) على 24 شهراً، فينخفض السعر نحو 90 ريالاً للعامل شهرياً.</div></div>')
     sheets.append(page(h2(1, "Trades, salaries and price: 12-month contract (SAR, before VAT)", "المهن والرواتب والسعر الشهري: عقد 12 شهراً (ريال، قبل الضريبة)") + hours + rates12))
     sheets.append(page(h2(2, "Calculation if the worker is employed at a factory (12-month contract)", "الحسبة إذا كان العامل على مصنع (عقد 12 شهراً)") + fac12 + facnote + h2(3, "If the contract is 24 months: the difference", "إذا كان العقد 24 شهراً: الفرق") + diff_table() + diffnote + note))
 
@@ -197,7 +197,11 @@ def build_quote():
         cr = [[(num(n(a)), num(n(a)), "c"), pc(worker_price(a, 900, months=12)), pc(worker_price(a, 900, months=12) - FACTORY_DISCOUNT), pc(worker_price(a, 900, months=24)), pc(worker_price(a, 900, months=24) - FACTORY_DISCOUNT)] for a in CALC_SALARIES]
         return bi_table([("Monthly salary (SAR)", "الراتب الشهري (ريال)", True), ("12 months, standard", "12 شهراً، عادي", True), ("12 months, factory", "12 شهراً، مصنع", True), ("24 months, standard", "24 شهراً، عادي", True), ("24 months, factory", "24 شهراً، مصنع", True)], cr, [12, 12, 12, 12, 12])
     calc_page = h2("A2", "Salary-based cost calculator", "الآلة الحاسبة للتكاليف بناءً على الرواتب") + calc_table() + calc_box
-    sheets.append(page(h2(4, "Not included in the price", "ما لا يشمله السعر") + excl + h2("4A", "Two models and the calculator", "النموذجان والآلة الحاسبة") + model_short + calc_box))
+    incl_box = ('<div class="nt"><div dir="ltr"><b>The monthly price includes</b> per worker: the salary, residence permit, work permit, health and social insurance, end-of-service and leave provision, return ticket, administrative and operating costs, and our fees. It does not include allowances (accommodation, food, transport).</div>'
+                '<div class="ar" dir="rtl"><b>يشمل السعر الشهري</b> للعامل الواحد: الراتب، الإقامة ورخصة العمل، التأمين الصحي والتأمينات الاجتماعية، مخصص نهاية الخدمة والإجازة، تذكرة العودة، التكاليف الإدارية والتشغيلية، ورسومنا. ولا يشمل البدلات (السكن والإعاشة والمواصلات).</div></div>')
+    opt_box = ('<div class="nt"><div dir="ltr"><b>Your options.</b> (1) <b>Salary:</b> you may raise or lower the salary of any worker; the price is recalculated in the calculator. (2) <b>Recruitment from abroad:</b> &#9744; by Business Partner, at cost &nbsp; &#9744; by the Client directly. (3) <b>Direct payment:</b> any item you think would cost you more (accommodation, transport, food, medical insurance upgrade, government fees, tickets) you may pay directly to its provider, and it is taken off our invoice.</div>'
+               '<div class="ar" dir="rtl"><b>خياراتك.</b> (1) <b>الراتب:</b> لك أن تزيد راتب أي عامل أو تنقصه، ويُعاد حساب السعر في الآلة الحاسبة. (2) <b>الاستقدام من الخارج:</b> &#9744; من طرفنا بالتكلفة &nbsp; &#9744; من طرف العميل مباشرة. (3) <b>الدفع المباشر:</b> أي بند ترى أنه سيكلفك أكثر (السكن، المواصلات، الإعاشة، رفع فئة التأمين الطبي، الرسوم الحكومية، التذاكر) لك أن تدفعه مباشرة لجهته، ويُحذف من فاتورتنا.</div></div>')
+    sheets.append(page(h2(4, "What the price includes and does not include", "ما يشمله السعر وما لا يشمله") + incl_box + excl + model_short + calc_box))
     gov_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(fe), "<b>%s</b>" % esc(fa), "t"), (ae, aa, "t"), (ie, ia, "t")]
                 for i, (fe, fa, ae, aa, ie, ia) in enumerate(GOV_FEES, 1)]
     gov = bi_table([("#", "#", True), ("Government fee", "الرسوم الحكومية", False), ("Official amount", "المبلغ الرسمي", False), ("In this offer", "في هذا العرض", False)], gov_rows, [3, 14, 18, 18])
@@ -249,12 +253,12 @@ def build_quote():
         for k2, (le, la, sal, loc) in ks:
             full, rec, ann = split(sal, loc)
             mr.append([(le, la, "t"), pc(sal), pc(round(full)), pc(round(rec)), pc(round(ann)), pc(round(full * 12))])
-        return bi_table([("Level", "المستوى", False), ("Minimum salary", "الحد الأدنى للراتب", True), ("Full cost: monthly, fixed", "التكلفة الكاملة: شهرياً ثابتة", True), ("Transparent cost: monthly invoice", "التكلفة بشفافية: الفاتورة الشهرية", True), ("Transparent cost: government items at actual, per year", "التكلفة بشفافية: البنود الحكومية بالفعلي سنوياً", True), ("Total for 12 months (both)", "الإجمالي لـ12 شهراً (للنموذجين)", True)], mr, [14, 9, 11, 13, 16, 12])
+        return bi_table([("Level", "المستوى", False), ("Salary", "الراتب", True), ("Full cost: monthly, fixed", "التكلفة الكاملة: شهرياً ثابتة", True), ("Transparent cost: monthly invoice", "التكلفة بشفافية: الفاتورة الشهرية", True), ("Transparent cost: government items at actual, per year", "التكلفة بشفافية: البنود الحكومية بالفعلي سنوياً", True), ("Total for 12 months (both)", "الإجمالي لـ12 شهراً (للنموذجين)", True)], mr, [14, 9, 11, 13, 16, 12])
     model_note = ('<div class="nt"><div dir="ltr"><b>Two models, same total.</b> <b>Full cost:</b> one fixed monthly amount that includes the government costs, spread over the contract. <b>Transparent cost:</b> a monthly invoice plus the government costs (permit and levy, residence, medical insurance, exit and re-entry, visa or transfer, return ticket) at their actual amount when they fall due, with our fees fixed. Only the timing of payment differs.</div>'
                   '<div class="ar" dir="rtl"><b>نموذجان بإجمالي واحد.</b> <b>التكلفة الكاملة:</b> مبلغ شهري ثابت واحد يشمل التكاليف الحكومية موزَّعة على مدة العقد. <b>التكلفة بشفافية:</b> فاتورة شهرية، والتكاليف الحكومية (رخصة العمل والمقابل، الإقامة، التأمين الطبي، الخروج والعودة، التأشيرة أو النقل، تذكرة العودة) بمبلغها الفعلي عند استحقاقها، ورسومنا ثابتة. والفرق في توقيت الدفع فقط.</div></div>')
     model_pick = ('<div class="nt"><div dir="ltr">Choose the model: &nbsp; \u2610 Full cost &nbsp;&nbsp; \u2610 Transparent cost</div>'
                   '<div class="ar" dir="rtl">اختر النموذج: &nbsp; \u2610 التكلفة الكاملة &nbsp;&nbsp; \u2610 التكلفة بشفافية</div></div>')
-    sheets_model_page = h2("A5", "Two models: full cost or transparent cost", "نموذجان: التكلفة الكاملة أو التكلفة بشفافية") + model_table() + model_note + model_pick
+    sheets_model_page = h2("A5", "Two models: full cost or transparent cost", "نموذجان: التكلفة الكاملة أو التكلفة بشفافية") + model_table() + model_note + model_pick + opt_box
     sheetsA.insert(0, pageA(scope_page + calc_page))
     sheetsA.append(pageA(saudi_page))
     sheetsA.insert(1, pageA(sheets_model_page))
@@ -265,7 +269,7 @@ def build_quote():
     # 6 التوقيعان
     sg = ('<div class="rw"><div class="col" dir="ltr"><p>By signing below, both parties accept this quotation and its terms and conditions.</p></div>'
           '<div class="col" dir="rtl"><p>%s</p></div></div>') % esc(ar("بالتوقيع أدناه يوافق الطرفان على هذا العرض وشروطه وأحكامه."))
-    inner = h2(5, "Payment terms", "طريقة الدفع") + pay + h2(6, "Signatures", "التوقيعان") + sg + sig_boxes(right_co=esc(CLIENT_AR))
+    inner = h2(5, "Your options and payment", "خياراتك وطريقة الدفع") + opt_box + pay + h2(6, "Signatures", "التوقيعان") + sg + sig_boxes(right_co=esc(CLIENT_AR))
     sheets.append(page(inner))
 
     def closing(i, n):
