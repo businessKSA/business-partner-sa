@@ -27,7 +27,7 @@ import generate as G  # noqa: E402
 RLM = G.RLM
 ASSETS_REL = "../../../library/assets"          # من v2/ إلى docs/sales/library/assets
 FONT_DIR = Path(os.environ.get("BP_FONT_DIR", "/tmp/bp-fonts"))
-PDF_DIR = HERE / "pdf"
+PDF_DIR = Path(os.environ["BP_PDF_DIR"]) if os.environ.get("BP_PDF_DIR") else HERE / "pdf"
 
 # ------------------------------------------------------------------ الأرقام (مصدر واحد للحقيقة)
 VAT_RATE = 0.15
@@ -800,9 +800,27 @@ def write_html():
     return out
 
 
+# --- بيانات الشركة تُحقن وقت البناء النهائي فقط (قرار المالك 2026-11-04): BP_BANK, BP_IBAN, BP_PHONE, BP_ADDRESS
+BANK = os.environ.get("BP_BANK", "")
+IBAN = os.environ.get("BP_IBAN", "")
+PHONE = os.environ.get("BP_PHONE", "")
+
+
+def inject_company(h):
+    if PHONE:
+        h = h.replace('Mobile / الجوال: <span class="num">[●]</span>', 'Mobile / الجوال: <span class="num">' + PHONE + '</span>')
+    if BANK:
+        h = h.replace('Bank / البنك: [●]', 'Bank / البنك: ' + BANK)
+        h = h.replace('account at [●], IBAN [IBAN]', 'account at ' + BANK + ', IBAN [IBAN]')
+        h = h.replace('لدى [●]، آيبان [IBAN]', 'لدى ' + BANK + '، آيبان [IBAN]')
+    if IBAN:
+        h = h.replace('[IBAN]', IBAN)
+    return h
+
+
 def pdf_input(path):
     """نسخة للتحويل: الخطوط مضمّنة محلياً ومسار الشعار مطلق، تُكتب خارج المستودع."""
-    h = path.read_text(encoding="utf8")
+    h = inject_company(path.read_text(encoding="utf8"))
     h = re.sub(r'<link rel="stylesheet" href="https://fonts\.googleapis\.com[^>]*>', "", h)
     h = h.replace("<style>", "<style>" + font_css(), 1)
     h = h.replace(ASSETS_REL, str((LIB / "assets")))
