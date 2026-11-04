@@ -610,9 +610,9 @@ def _items(x, en):
     return [q for q in (p.strip() for p in parts) if q]
 
 
-def _render_items(items, num, en):
+def _render_items(items, num, en, k0=0):
     out = ['<div class="sl">']
-    k = 0
+    k = k0
     for it in items:
         if isinstance(it, tuple) and it[0] == "TABLE":
             out.append(it[1])
@@ -620,19 +620,48 @@ def _render_items(items, num, en):
         k += 1
         out.append(f'<p class="si"><b class="sn">{num}.{k}</b>{it}</p>')
     out.append("</div>")
-    return "".join(out)
+    return "".join(out), k
+
+
+BLOCK_SCALE = float(os.environ.get("BP_BLOCK_SCALE", "0.96"))   # معايرة تقدير ارتفاع البنود حتى تمتلئ الصفحات بلا تجاوز
+MAXL = int(os.environ.get("BP_MAXL", "9"))   # أقصى عدد أسطر تقديرية في الكتلة الواحدة قبل التجزئة
+
+
+def _lines(it):
+    if isinstance(it, tuple) and it[0] == "TABLE":
+        return 2 + it[1].count("<tr>") * 1.7
+    return max(1, -(-len(re.sub(r"<[^>]+>", "", it)) // 50)) + 0.3
 
 
 def numbered_clause_blocks(items, start=1):
+    """كل بند يُجزَّأ إلى كتل صغيرة (العنوان مع أول كتلة) لتتدفق الفقرات على الصفحات بلا فراغات."""
     out = []
     for i, (t_en, t_ar, x_en, x_ar) in enumerate(items, start):
         ie, ia = _items(x_en, True), _items(x_ar, False)
-        if len([q for q in ie if not isinstance(q, tuple)]) != len([q for q in ia if not isinstance(q, tuple)]):
-            print(f"  تنبيه عدد الفقرات يختلف في البند {i} ({t_en}): EN={len(ie)} AR={len(ia)}")
-        he, ha = _render_items(ie, i, True), _render_items(ia, i, False)
-        est = G.est_row(re.sub(r"<[^>]+>", "", he), re.sub(r"<[^>]+>", "", ha), G.PORT_CPL, G.PORT_LH)
-        tb = (he + ha).count("<tr>")
-        out.append(G.blk(G.row(i, t_en, he, t_ar, ha, alt=i % 2 == 0), int(est * 1.12) + tb * 10 + (len(ie) + len(ia)) * 3))
+        N = max(len(ie), len(ia))
+        chunks, cur, acc = [], [], 0.0
+        for j in range(N):
+            le = _lines(ie[j]) if j < len(ie) else 0
+            la = _lines(ia[j]) if j < len(ia) else 0
+            h = max(le, la)
+            if cur and acc + h > MAXL:
+                chunks.append(cur); cur, acc = [], 0.0
+            cur.append(j); acc += h
+        if cur:
+            chunks.append(cur)
+        ke = ka = 0
+        for ci, ch in enumerate(chunks):
+            ce = [ie[j] for j in ch if j < len(ie)]
+            ca = [ia[j] for j in ch if j < len(ia)]
+            he, ke = _render_items(ce, i, True, ke)
+            ha, ka = _render_items(ca, i, False, ka)
+            lines = max(sum(_lines(x) for x in ce), sum(_lines(x) for x in ca))
+            if ci == 0:
+                html_ = G.row(i, t_en, he, t_ar, ha, alt=i % 2 == 0)
+                lines += 1.4
+            else:
+                html_ = f'<table class="cl{" alt" if i % 2 == 0 else ""}"><tr><td class="en">{he}</td><td class="ar">{ha}</td></tr></table>'
+            out.append(G.blk(html_, int((lines * G.PORT_LH + 10) * BLOCK_SCALE)))
     return out
 
 
