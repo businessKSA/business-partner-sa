@@ -53,7 +53,12 @@ def worker_price(a, loc, factory=False, months=24):
     direct = a + gov + 50 + prov
     fee = max(0.10 * (direct + 500), 500.0)      # رسمنا 10% فوق (التكلفة + الأوفر هيد) وبحد أدنى 500 ريال (قرار المالك 4/11)
     return int(round(direct + 500 + fee + loc))   # + الأوفر هيد 500 + رسوم التوطين 900
-# ---- رسم التوطين بقرار (المهن الفنية والهندسية): السعوديون المطلوبون = ceil(ن ÷ (1 − ن) × عدد الأجانب)، تكلفة السعودي الواحد = الراتب × 1.29975 + راتب÷24 + راتب÷30×21÷12
+def breakdown(a, months=24):
+    gov = 9700/12.0 + 650/12.0 + 23 + a*0.85*0.02 + 200/12.0 + 2000.0/months
+    prov = a/24.0 + a/30.0*21/12.0 + 1500/12.0
+    direct = a + gov + 50 + prov
+    return dict(salary=a, gov=gov, med=50, prov=prov, direct=direct, fee=max(0.10*(direct+500), 500.0))
+# ---- رسوم التوطين بقرار (المهن الفنية والهندسية): السعوديون المطلوبون = ceil(ن ÷ (1 − ن) × عدد الأجانب)، تكلفة السعودي الواحد = الراتب × 1.29975 + راتب÷24 + راتب÷30×21÷12
 def saudi_one(m): return m + m * 0.85 * (0.1275 + 0.1075) + m / 24.0 + m / 30.0 * 21 / 12.0
 def loc_by_decision(ratio, m, q):
     need = int(math.ceil(round(ratio / (1 - ratio) * q, 6)))
@@ -451,18 +456,23 @@ TRANSFER_NOTE = ("A worker already inside the Kingdom is moved to Business Partn
                  "العامل الموجود داخل المملكة تُنقل خدماته إلى Business Partner عبر المنصات الرسمية دون استقدام من الخارج. والرسوم حكومية بالتكلفة دون هامش. ويفترض السعر نقلاً أول (2,000 ريال موزَّعة على المدة)، وأي نقل إضافي يُفوتَر بالتكلفة.")
 
 nt = lambda x: "{:,}".format(int(round(x)))
+_b = breakdown(ENG_SALARY)
+def _r(en, ar_, v1, v2): return (en, ar_, "SAR %s" % nt(v1), "%s ريال" % nt(v1), "SAR %s" % nt(v2), "%s ريال" % nt(v2))
 LOCCALC = [  # (item_en, item_ar, tech_en, tech_ar, eng_en, eng_ar)
-    ("Localisation decision", "قرار التوطين", "Technical engineering professions: 30% Saudis", "المهن الفنية الهندسية: 30% سعوديين", "Engineering professions: 30% Saudis", "المهن الهندسية: 30% سعوديين"),
-    ("Applies from", "يسري من", "5 workers in the profession", "5 عاملين في المهنة", "5 workers in the profession", "5 عاملين في المهنة"),
+    ("Localisation decision", "قرار التوطين", "30% Saudis, from 5 workers in the profession", "30% سعوديين، من 5 عاملين في المهنة", "30% Saudis, from 5 workers (Saudi Council of Engineers)", "30% سعوديين، من 5 عاملين (الهيئة السعودية للمهندسين)"),
     ("Minimum Saudi salary counted", "أقل راتب محتسب للسعودي", "SAR 5,500", "5,500 ريال", "SAR 8,000", "8,000 ريال"),
-    ("Professional accreditation", "الاعتماد المهني", "Saudi Council of Engineers", "الهيئة السعودية للمهندسين", "Saudi Council of Engineers", "الهيئة السعودية للمهندسين"),
     ("Foreign workers in the calculation", "العمال الأجانب في الحسبة", "%d (the steel-hangar and HVAC teams)" % LOC_TECH["q"], "%d (فريقا الهياكل المعدنية والتكييف)" % LOC_TECH["q"], "%d (example, none requested yet)" % LOC_ENG["q"], "%d (مثال، لا يوجد مطلوب حالياً)" % LOC_ENG["q"]),
-    ("Saudis required = ratio ÷ (1 − ratio) × workers, rounded up", "السعوديون المطلوبون = النسبة ÷ (1 − النسبة) × العمال، مقرَّبة لأعلى", str(TECH_NEED), str(TECH_NEED), str(ENG_NEED), str(ENG_NEED)),
+    ("Saudis required = 30% ÷ 70% × workers, rounded up", "السعوديون المطلوبون = 30% ÷ 70% × العمال، مقرَّبة لأعلى", str(TECH_NEED), str(TECH_NEED), str(ENG_NEED), str(ENG_NEED)),
     ("Cost of one Saudi per month (salary, employer and employee insurance, end of service, leave)", "تكلفة السعودي الواحد شهرياً (الراتب والتأمينات على صاحب العمل والموظف ونهاية الخدمة والإجازة)", "SAR %s" % nt(TECH_ONE), "%s ريال" % nt(TECH_ONE), "SAR %s" % nt(ENG_ONE), "%s ريال" % nt(ENG_ONE)),
-    ("Localisation fee per month for the group", "رسوم التوطين شهرياً للمجموعة", "SAR %s" % nt(TECH_NEED * TECH_ONE), "%s ريال" % nt(TECH_NEED * TECH_ONE), "SAR %s" % nt(ENG_NEED * ENG_ONE), "%s ريال" % nt(ENG_NEED * ENG_ONE)),
-    ("Per worker per month (instead of the flat SAR 900)", "للعامل شهرياً (بدل 900 الثابتة)", "SAR %s" % nt(TECH_FEE), "%s ريال" % nt(TECH_FEE), "SAR %s" % nt(ENG_FEE), "%s ريال" % nt(ENG_FEE)),
+    ("Localisation fees per worker per month at 30%", "رسوم التوطين على العامل الواحد شهرياً بنسبة 30%", "SAR %s" % nt(TECH_FEE), "%s ريال" % nt(TECH_FEE), "SAR %s" % nt(ENG_FEE), "%s ريال" % nt(ENG_FEE)),
+    _r("Costing: salary (minimum SAR 3,000)", "الكوستنج: الراتب (الحد الأدنى 3,000 ريال)", _b["salary"], _b["salary"]),
+    _r("Government costs: work permit, residence, Ajeer, insurance, exit and re-entry, visa or transfer", "التكاليف الحكومية: رخصة العمل والإقامة وأجير والتأمينات والخروج والعودة والتأشيرة أو النقل", _b["gov"], _b["gov"]),
+    _r("Health insurance, end of service, leave and return ticket", "التأمين الصحي ونهاية الخدمة والإجازة وتذكرة العودة", _b["prov"] + _b["med"], _b["prov"] + _b["med"]),
+    _r("Overhead", "التكاليف الإدارية (الأوفر هيد)", 500, 500),
+    _r("Our fees: 10% of (cost + overhead), minimum SAR 500", "رسومنا: 10% من (التكلفة + الأوفر هيد) وبحد أدنى 500 ريال", _b["fee"], _b["fee"]),
+    _r("Localisation fees per worker (above)", "رسوم التوطين على العامل (أعلاه)", TECH_FEE, ENG_FEE),
     ("Monthly price per worker, standard (minimum salary SAR 3,000)", "السعر الشهري للعامل، العادي (أقل راتب 3,000)", "SAR %s" % nt(PRICE_TECHDEC), "%s ريال" % nt(PRICE_TECHDEC), "SAR %s" % nt(PRICE_ENG), "%s ريال" % nt(PRICE_ENG)),
     ("Monthly price per worker, at a factory (less SAR 800)", "السعر الشهري للعامل، في مصنع (ناقص 800)", "SAR %s" % nt(PRICE_TECHDEC_F), "%s ريال" % nt(PRICE_TECHDEC_F), "SAR %s" % nt(PRICE_ENG_F), "%s ريال" % nt(PRICE_ENG_F)),
 ]
-LOCCALC_NOTE = ("Fee per worker = Saudis required × cost of one Saudi ÷ number of foreign workers. It replaces the flat SAR 900 for that profession and is added to its monthly price. The two columns show the higher cost, in the standard calculation and at a factory. The engineer column is an example for when engineers are requested (salary assumed SAR 3,000). It is recalculated on your actual numbers, and does not mean the Saudis count in your own band.",
-                "رسوم التوطين للعامل = السعوديون المطلوبون × تكلفة السعودي الواحد ÷ عدد العمال الأجانب. ويحلّ محل الـ900 الثابتة لتلك المهنة ويُضاف إلى سعرها الشهري. والعمودان يبيّنان التكلفة الأعلى في الحسبة العادية وفي المصنع. وعمود المهندس مثال لحين طلب مهندسين (الراتب مفترض 3,000 ريال). ويُعاد حسابه على أعدادك الفعلية، ولا يعني أن السعوديين يُحتسبون في نطاق منشأتك.")
+LOCCALC_NOTE = ("Fees per worker = Saudis required × cost of one Saudi ÷ foreign workers; they replace the SAR 900 counted for other professions. The engineer column is an example (salary assumed SAR 3,000), recalculated on your actual numbers.",
+                "رسوم التوطين للعامل = السعوديون المطلوبون × تكلفة السعودي الواحد ÷ العمال الأجانب، وتحل محل الـ900 ريال المحتسبة للمهن الأخرى. وعمود المهندس مثال (الراتب مفترض 3,000 ريال) ويُعاد حسابه على أعدادك الفعلية.")
