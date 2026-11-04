@@ -53,7 +53,8 @@ def worker_price(a, loc, factory=False, months=24):
     fee = max(0.10 * (direct + 500), 500.0)      # رسمنا 10% فوق (التكلفة + الأوفر هيد) وبحد أدنى 500 ريال (قرار المالك 4/11)
     return int(round(direct + 500 + fee + loc))   # + الأوفر هيد 500 + رسم التوطين 900
 PRICE = {k: worker_price(v[2], v[3]) for k, v in LEVELS.items()}
-PRICE_F = {k: worker_price(v[2], v[3], True) for k, v in LEVELS.items()}
+FACTORY_DISCOUNT = 800    # إعفاء المقابل المالي لرخصة العمل في المصنع: 9,600 ÷ 12 (قرار المالك 4/11)
+PRICE_F = {k: PRICE[k] - FACTORY_DISCOUNT for k in LEVELS}
 STD_MIN = PER_TEAM - SKILLED_MIN               # 7 عمال مساعدين
 def team_monthly(prices): return sum(SKILLED_MIN * prices[lv] + STD_MIN * prices["helper"] for lv in TEAM_LEVEL)
 TOTAL_MONTHLY = team_monthly(PRICE)
@@ -393,3 +394,23 @@ LOCALISATION = [  # (case_en, case_ar, what_en, what_ar)
 ]
 LOC_NOTE = ("The prices in this quotation include the flat SAR 900 localisation fee. A trade that falls under a localisation decision is priced separately before the order is placed. The First Party does not guarantee any effect on the Second Party’s localisation count or band.",
             "الأسعار في هذا العرض تشمل رسم التوطين الثابت 900 ريال. والمهنة التي عليها قرار توطين تُسعَّر على حدة قبل الطلب. ولا يضمن الطرف الأول أي أثر على نسبة التوطين أو نطاق الطرف الثاني.")
+
+NST = [  # (topic_en, topic_ar, text_en, text_ar)
+    ("What it is", "ما هي الخدمة",
+     "Registered Saudi employees, employed by Business Partner, whom we manage and operate for your establishment: part-time, flexible, project-based or remote. Real localisation, not paper localisation.",
+     "موظفون سعوديون مسجَّلون على Business Partner، نديرهم ونشغّلهم لمنشأتك: دوام جزئي أو مرن أو بمشاريع أو عن بُعد. توطين حقيقي لا سعودة وهمية."),
+    ("How the cost is shared", "كيف تُقسَّم التكلفة",
+     "You pay a share of the Saudi employee’s salary, because we employ, manage and operate him. The rest of the cost and the management are ours. The share is set per role in a separate quotation; no figure is assumed here.",
+     "تدفع جزءاً من راتب الموظف السعودي، على أساس أننا نوظّفه وندير شؤونه ونشغّله. وباقي التكلفة والإدارة علينا. وتُحدَّد حصتك لكل دور في عرض مستقل، ولا يُفترض هنا أي رقم."),
+    ("What we manage", "ما ندير",
+     "Contract and registration, payroll, social insurance, end of service and leave, attendance and performance follow-up, and the mandatory training and professional development.",
+     "العقد والتسجيل، والرواتب، والتأمينات الاجتماعية، ونهاية الخدمة والإجازات، ومتابعة الحضور والأداء، والتدريب والتطوير المهني الإلزامي."),
+    ("What stays with you", "ما يبقى عليك",
+     "Directing the daily work within the agreed scope, providing the tools and workplace, and giving access to what the role needs.",
+     "توجيه العمل اليومي ضمن النطاق المتفق عليه، وتوفير الأدوات ومكان العمل، وإتاحة ما يحتاجه الدور."),
+    ("What we do not promise", "ما لا نعد به",
+     "No promise that a shared employee counts in your localisation band, and no counting of one employee for more than one establishment. No reduction of the levy on foreign workers. Reserved professions stay with Saudis only.",
+     "لا نعد بأن يُحتسب الموظف المشترك في نطاق منشأتك، ولا باحتساب موظف واحد لأكثر من منشأة، ولا بخفض المقابل المالي للعمالة الأجنبية. وتبقى المهن المقصورة على السعوديين لهم."),
+]
+NST_NOTE = ("The service starts with part-time and flexible work. The share of the salary, the working hours and the roles are agreed in writing before any employee is assigned.",
+            "تبدأ الخدمة بالدوام الجزئي والمرن. وتُتفق حصة الراتب وساعات العمل والأدوار كتابةً قبل إسناد أي موظف.")

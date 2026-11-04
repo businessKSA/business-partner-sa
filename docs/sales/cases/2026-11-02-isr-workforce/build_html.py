@@ -157,8 +157,8 @@ def build_quote():
                 for k2, (le, la, sal, lf) in LEVELS.items()]
     fac_rows.append({"cls": "tot", "cells": [("Seven teams, per month (before VAT)", "الفرق السبعة شهرياً (قبل الضريبة)", ""), ("", "", ""), (num(n(TOTAL_MONTHLY)), num(n(TOTAL_MONTHLY)), "c"), (num(n(TOTAL_MONTHLY_F)), num(n(TOTAL_MONTHLY_F)), "c"), (num(n(TOTAL_MONTHLY - TOTAL_MONTHLY_F)), num(n(TOTAL_MONTHLY - TOTAL_MONTHLY_F)), "c")]})
     fac = bi_table([("If the worker is employed at a factory", "إذا كان العامل على مصنع", False), ("Minimum salary", "الحد الأدنى للراتب", True), ("Standard price", "السعر العادي", True), ("Factory price", "سعر المصنع", True), ("Saving", "الفرق", True)], fac_rows, [18, 8, 8, 8, 8])
-    facnote = ('<div class="nt"><div dir="ltr">For a worker at a licensed factory the work-permit levy of SAR 9,600 a year is exempt, and only the SAR 100 permit fee is paid. The factory price is the same calculation with this single change.</div>'
-               '<div class="ar" dir="rtl">للعامل على مصنع مرخَّص يُعفى من المقابل المالي لرخصة العمل (9,600 ريال سنوياً)، ويُدفع رسم الرخصة 100 ريال فقط. وسعر المصنع هو الحسبة نفسها مع هذا التغيير وحده.</div></div>')
+    facnote = ('<div class="nt"><div dir="ltr">For a worker at a licensed factory the work-permit levy of SAR 9,600 a year is exempt, and only the SAR 100 permit fee is paid. The factory price is the standard price less SAR 800 a month (the levy exemption, SAR 9,600 ÷ 12).</div>'
+               '<div class="ar" dir="rtl">للعامل على مصنع مرخَّص يُعفى من المقابل المالي لرخصة العمل (9,600 ريال سنوياً)، ويُدفع رسم الرخصة 100 ريال فقط. وسعر المصنع هو السعر العادي مطروحاً منه 800 ريال شهرياً (إعفاء المقابل المالي: 9,600 ÷ 12).</div></div>')
     inner = h2(1, "Trades, minimum salaries and monthly price (SAR, before VAT)", "المهن والحد الأدنى للراتب والسعر الشهري (ريال، قبل الضريبة)") + rates + totals
     sheets.append(page(inner))
     inner = h2(2, "Calculation if the worker is employed at a factory", "الحسبة إذا كان العامل على مصنع") + fac + facnote + note
@@ -185,6 +185,10 @@ def build_quote():
     recnote = ('<div class="nt"><div dir="ltr">Recruitment from abroad is at actual cost, with no mark-up, on a separate invoice, and applies only to workers recruited from abroad. For a worker transferred from inside the Kingdom there are no recruitment-from-abroad costs. The amounts are the same for every trade.</div>'
                '<div class="ar" dir="rtl">الاستقدام من الخارج بالتكلفة الفعلية دون هامش، بفاتورة منفصلة، ويخص العمال المستقدَمين من الخارج فقط. أما العامل المنقول من داخل المملكة فلا توجد عليه تكاليف استقدام من الخارج. والمبالغ نفسها لكل المهن.</div></div>')
     sheets.append(page(h2(7, "Localisation fee", "رسوم التوطين") + loc + locnote + h2(8, "Recruitment from the country, by nationality", "الاستقدام من الدولة بحسب الجنسية") + rec + recnote))
+    nst_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(te), "<b>%s</b>" % esc(ta), "t"), (we, wa, "t")] for i, (te, ta, we, wa) in enumerate(NST, 1)]
+    nst = bi_table([("#", "#", True), ("Topic", "البند", False), ("What it means", "ماذا يعني", False)], nst_rows, [3, 14, 38])
+    nstnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(NST_NOTE[0]), esc(ar(NST_NOTE[1])))
+    sheets.append(page(h2(9, "National Shared Talent service", "خدمة الكوادر الوطنية المشتركة") + nst + nstnote))
 
     # 5 المراحل والدفع والشروط
     stg_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(te), "<b>%s</b>" % esc(ta), "t"), (we, wa, "t"), (he, ha, "t")]
@@ -193,13 +197,13 @@ def build_quote():
     pay_rows = [[("1", "1", "nx"), ("Advance", "الدفعة المقدمة", ""), ("Two months of the monthly price", "شهران من السعر الشهري", "c"), ("On signing", "عند التوقيع", "")],
                 [("2", "2", "nx"), ("Monthly invoice — workers on duty", "فاتورة شهرية — العمال على رأس العمل", ""), ("100%", "100%", "c"), ("Within 7 days of the invoice", "خلال 7 أيام من الفاتورة", "")]]
     pay = bi_table([("#", "#", True), ("Payment", "الدفعة", False), ("Amount", "المقدار", True), ("Due", "الاستحقاق", False)], pay_rows, [4, 20, 14, 16])
-    sheets.append(page(h2(9, "What you pay and when", "ماذا تدفع ومتى") + stg + h2(10, "Payment terms", "طريقة الدفع") + pay))
-    sheets.append(page(h2(11, "Terms and conditions", "الشروط والأحكام") + numbered([(esc(e), esc(a)) for e, a in TERMS], "Term", "الشرط")))
+    sheets.append(page(h2(10, "What you pay and when", "ماذا تدفع ومتى") + stg + h2(11, "Payment terms", "طريقة الدفع") + pay))
+    sheets.append(page(h2(12, "Terms and conditions", "الشروط والأحكام") + numbered([(esc(e), esc(a)) for e, a in TERMS], "Term", "الشرط")))
 
     # 6 التوقيعان
     sg = ('<div class="rw"><div class="col" dir="ltr"><p>By signing below, both parties accept this quotation and its terms and conditions.</p></div>'
           '<div class="col" dir="rtl"><p>%s</p></div></div>') % esc(ar("بالتوقيع أدناه يوافق الطرفان على هذا العرض وشروطه وأحكامه."))
-    inner = h2(12, "Signatures", "التوقيعان") + sg + sig_boxes(right_co=esc(CLIENT_AR))
+    inner = h2(13, "Signatures", "التوقيعان") + sg + sig_boxes(right_co=esc(CLIENT_AR))
     sheets.append(page(inner))
 
     def closing(i, n):

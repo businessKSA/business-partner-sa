@@ -3,15 +3,18 @@
 from content import *
 f = lambda x: "{:,.2f}".format(x)
 def detail(a, loc, factory=False, months=24):
-    permit = (100 if factory else 9700) / 12.0
-    rows = [("الراتب (الحد الأدنى)", a), ("رخصة العمل والمقابل المالي" + (" (مصنع: 100÷12)" if factory else " (9,700÷12)"), permit), ("الإقامة (650÷12)", 650/12.0), ("أجير (23 شهرياً)", 23),
+    permit = 9700 / 12.0
+    rows = [("الراتب (الحد الأدنى)", a), ("رخصة العمل والمقابل المالي (9,700÷12)", permit), ("الإقامة (650÷12)", 650/12.0), ("أجير (23 شهرياً)", 23),
             ("التأمينات 2% على 85% من الراتب", a*0.85*0.02), ("التأمين الطبي (فئة أساسية)", 50), ("نهاية الخدمة (الراتب÷24)", a/24.0),
             ("بدل الإجازة (الراتب÷30×21÷12)", a/30.0*21/12.0), ("خروج وعودة (200÷12)", 200/12.0), ("تذكرة العودة (1,500÷12)", 125.0), ("تأشيرة العامل المستقدَم أو نقل الكفالة (2,000÷%d)" % months, 2000.0/months)]
     direct = sum(v for _, v in rows); fee10 = 0.10*(direct+500); fee = max(fee10, 500.0); price = direct+500+fee+loc
     t = '<table><tr><th>البند</th><th>ريال/شهر</th></tr>' + ''.join('<tr><td>%s</td><td>%s</td></tr>' % (k, f(v)) for k, v in rows)
     t += '<tr class=s><td>التكلفة المباشرة</td><td>%s</td></tr><tr><td>الأوفر هيد على الموظف</td><td>500.00</td></tr>' % f(direct)
     t += '<tr><td>رسمنا: 10%% على (التكلفة + الأوفر هيد) = %s، وبحد أدنى 500</td><td>%s</td></tr>' % (f(fee10), f(fee))
-    t += '<tr><td>رسم التوطين (سعودة) داخل السعر</td><td>%s</td></tr><tr class=t><td>السعر قبل الضريبة</td><td>%s ≈ %s</td></tr></table>' % (f(loc), f(price), "{:,}".format(int(round(price))))
+    t += '<tr><td>رسم التوطين (سعودة) داخل السعر</td><td>%s</td></tr>' % f(loc)
+    if factory:
+        price -= 800; t += '<tr><td>خصم المصنع: إعفاء المقابل المالي (9,600÷12)</td><td>−800.00</td></tr>'
+    t += '<tr class=t><td>السعر قبل الضريبة</td><td>%s ≈ %s</td></tr></table>' % (f(price), "{:,}".format(int(round(price))))
     return t
 h = '''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>تكلفة ISR</title><style>
 body{font:13px/1.6 "Noto Naskh Arabic","Noto Sans Arabic",Arial,sans-serif;margin:24px;color:#111}h1{font-size:20px}h2{font-size:15px;margin:18px 0 6px;color:#0b3d6b}
