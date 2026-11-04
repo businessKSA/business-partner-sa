@@ -386,8 +386,11 @@ LOCALISATION = [  # (case_en, case_ar, what_en, what_ar)
      "You take Saudis in return for the foreigners. You pay the salaries of both and <b>no localisation fee</b>.",
      "تأخذ سعوديين مقابل الأجانب. فتدفع رواتب الجميع و<b>لا رسوم توطين</b>."),
     ("If you do not take Saudis", "إذا لم تأخذ سعوديين",
-     "A profession with no localisation decision: a flat <b>SAR 900</b> per worker per month, <b>already included</b> in the monthly price. A profession with a decision (technical, engineering and others in the guides): the cost of the Saudis the ratio requires, divided across your foreign workers, added to the price of that profession.",
-     "مهنة بلا قرار توطين: <b>900 ريال</b> ثابتة لكل عامل شهرياً، <b>مشمولة</b> في السعر الشهري. ومهنة عليها قرار (الفنية والهندسية وغيرها في الأدلة): تكلفة السعوديين الذين تتطلبهم النسبة مقسومة على عمالك الأجانب، وتُضاف إلى سعر تلك المهنة."),
+     "A profession with no localisation decision: a flat <b>SAR 900</b> per worker per month, <b>already included</b> in the monthly price.",
+     "مهنة بلا قرار توطين: <b>900 ريال</b> ثابتة لكل عامل شهرياً، <b>مشمولة</b> في السعر الشهري."),
+    ("Technical and engineering workers", "العمالة الفنية والهندسية",
+     "Technical and engineering professions follow <b>other procedures and other pricing</b>: they may fall under a localisation decision (a required ratio of Saudis and a minimum Saudi salary), and engineering roles are also subject to professional accreditation. They are priced separately, case by case, <b>before the order is placed</b>. The prices in section 1 apply only to a trade with no localisation decision.",
+     "العمالة الفنية والهندسية لها <b>إجراءات أخرى وتسعيرات أخرى</b>: فقد تقع تحت قرار توطين (نسبة سعوديين مطلوبة وحد أدنى لراتب السعودي)، وتخضع الأدوار الهندسية كذلك للاعتماد المهني. وتُسعَّر على حدة، حالة بحالة، <b>قبل الطلب</b>. وأسعار البند 1 تنطبق فقط على مهنة لا يوجد عليها قرار توطين."),
     ("Saudi-only professions", "مهن للسعوديين فقط",
      "Human resources, administrative support, secretarial, reception, customer service and similar are reserved for Saudis by the guides. They are not offered as foreign workers.",
      "الموارد البشرية والمهن الإدارية المساندة والسكرتارية والاستقبال وخدمة العملاء ونحوها مقصورة على السعوديين بحسب الأدلة. ولا تُعرض كعمالة أجنبية."),
@@ -414,3 +417,24 @@ NST = [  # (topic_en, topic_ar, text_en, text_ar)
 ]
 NST_NOTE = ("The service starts with part-time and flexible work. The share of the salary, the working hours and the roles are agreed in writing before any employee is assigned.",
             "تبدأ الخدمة بالدوام الجزئي والمرن. وتُتفق حصة الراتب وساعات العمل والأدوار كتابةً قبل إسناد أي موظف.")
+
+# ---- نقل الكفالة (رسم حكومي) وحسبة التوطين للمهن الفنية الهندسية والهندسية — من حاسبة التعاقد والتوطين ودليل قرارات التوطين
+TRANSFER = [  # (case_en, case_ar, fee, per_month_en, per_month_ar)
+    ("First sponsorship transfer of the worker", "نقل الكفالة للمرة الأولى", 2000, "2,000 ÷ 24 = 83.33", "2,000 ÷ 24 = 83.33"),
+    ("Second transfer", "النقل للمرة الثانية", 4000, "Extra 2,000 at cost", "الزيادة 2,000 بالتكلفة"),
+    ("Third transfer and later", "النقل للمرة الثالثة فأكثر", 6000, "Extra 4,000 at cost", "الزيادة 4,000 بالتكلفة"),
+]
+TRANSFER_NOTE = ("A worker already inside the Kingdom is moved to Business Partner through the Qiwa platform with no recruitment from abroad. The transfer is a government fee, paid at cost without mark-up. The monthly price assumes a first transfer (SAR 2,000, spread over 24 months). For a worker who was transferred before, the difference is invoiced at cost. For 105 workers, all first transfers: SAR 210,000 in total, already spread inside the monthly price.",
+                 "العامل الموجود داخل المملكة تُنقل خدماته إلى Business Partner عبر منصة قوى دون أي استقدام من الخارج. والنقل رسم حكومي يُسدَّد بالتكلفة دون هامش. ويفترض السعر الشهري نقلاً أول (2,000 ريال موزَّعة على 24 شهراً). وللعامل الذي نُقل من قبل تُفوتَر الزيادة بالتكلفة. ولـ105 عمال كلهم نقل أول: 210,000 ريال، موزَّعة داخل السعر الشهري.")
+LOCCALC = [  # (item_en, item_ar, tech_en, tech_ar, eng_en, eng_ar)
+    ("Localisation decision", "قرار التوطين", "Technical engineering professions: 30% Saudis", "المهن الفنية الهندسية: 30% سعوديين", "Engineering professions: 30% Saudis", "المهن الهندسية: 30% سعوديين"),
+    ("Applies from", "يسري من", "5 workers in the profession", "5 عاملين في المهنة", "5 workers in the profession", "5 عاملين في المهنة"),
+    ("Minimum Saudi salary counted", "أقل راتب محتسب للسعودي", "SAR 5,000", "5,000 ريال", "SAR 8,000", "8,000 ريال"),
+    ("Professional accreditation", "الاعتماد المهني", "Saudi Council of Engineers", "الهيئة السعودية للمهندسين", "Saudi Council of Engineers", "الهيئة السعودية للمهندسين"),
+    ("Example: 8 foreign workers, Saudis required", "مثال: 8 عمال أجانب، السعوديون المطلوبون", "4 (8 × 30% ÷ 70%, rounded up)", "4 (8 × 30% ÷ 70% مقرَّبة لأعلى)", "4 (8 × 30% ÷ 70%, rounded up)", "4 (8 × 30% ÷ 70% مقرَّبة لأعلى)"),
+    ("Cost of one Saudi per month (salary, employer and employee insurance, end of service, leave)", "تكلفة السعودي الواحد شهرياً (الراتب والتأمينات على صاحب العمل والموظف ونهاية الخدمة والإجازة)", "SAR 6,499", "6,499 ريال", "SAR 10,398", "10,398 ريال"),
+    ("Localisation fee per month for the 8 workers", "رسم التوطين شهرياً للعمال الثمانية", "SAR 25,995", "25,995 ريال", "SAR 41,592", "41,592 ريال"),
+    ("Per worker per month (instead of the flat SAR 900)", "للعامل شهرياً (بدل 900 الثابتة)", "SAR 3,249", "3,249 ريال", "SAR 5,199", "5,199 ريال"),
+]
+LOCCALC_NOTE = ("Fee per worker = Saudis required × cost of one Saudi ÷ number of foreign workers. It replaces the flat SAR 900 for that profession and is added to its monthly price. It is calculated for your actual numbers before the order is placed. The example uses the calculator’s default figures, is not a quotation, and does not mean the Saudis count in your own band.",
+                "رسم التوطين للعامل = السعوديون المطلوبون × تكلفة السعودي الواحد ÷ عدد العمال الأجانب. ويحلّ محل الـ900 الثابتة لتلك المهنة ويُضاف إلى سعرها الشهري. ويُحسب على أعدادك الفعلية قبل الطلب. والمثال بأرقام الحاسبة الافتراضية، وليس عرض سعر، ولا يعني أن السعوديين يُحتسبون في نطاق منشأتك.")
