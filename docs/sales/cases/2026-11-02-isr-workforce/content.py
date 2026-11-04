@@ -53,7 +53,7 @@ def worker_price(a, loc, factory=False, months=24):
     direct = a + gov + 50 + prov
     fee = max(0.10 * (direct + 500), 500.0)      # رسمنا 10% فوق (التكلفة + الأوفر هيد) وبحد أدنى 500 ريال (قرار المالك 4/11)
     return int(round(direct + 500 + fee + loc))   # + الأوفر هيد 500 + رسوم التوطين 900
-def breakdown(a, months=24):
+def breakdown(a, months=12):
     gov = 9700/12.0 + 650/12.0 + 23 + a*0.85*0.02 + 200/12.0 + 2000.0/months
     prov = a/24.0 + a/30.0*21/12.0 + 1500/12.0
     direct = a + gov + 50 + prov
@@ -69,8 +69,8 @@ TECH_NEED, TECH_ONE, TECH_FEE = loc_by_decision(LOC_TECH["ratio"], LOC_TECH["m"]
 ENG_NEED, ENG_ONE, ENG_FEE = loc_by_decision(LOC_ENG["ratio"], LOC_ENG["m"], LOC_ENG["q"])
 ENG_SALARY = 3000      # افتراض: راتب المهندس الأجنبي الأدنى 3,000 كالفني (يُؤكَّد)
 PRICE = {k: worker_price(v[2], v[3]) for k, v in LEVELS.items()}
-PRICE_TECHDEC = worker_price(3000, TECH_FEE); PRICE_TECHDEC_F = PRICE_TECHDEC - 800   # فني عليه قرار توطين (تكلفة أعلى)
-PRICE_ENG = worker_price(ENG_SALARY, ENG_FEE); PRICE_ENG_F = PRICE_ENG - 800
+PRICE_TECHDEC = worker_price(3000, TECH_FEE, months=12); PRICE_TECHDEC24 = worker_price(3000, TECH_FEE); PRICE_TECHDEC_F = PRICE_TECHDEC - 800   # فني عليه قرار توطين (تكلفة أعلى)
+PRICE_ENG = worker_price(ENG_SALARY, ENG_FEE, months=12); PRICE_ENG24 = worker_price(ENG_SALARY, ENG_FEE); PRICE_ENG_F = PRICE_ENG - 800
 FACTORY_DISCOUNT = 800    # إعفاء المقابل المالي لرخصة العمل في المصنع: 9,600 ÷ 12 (قرار المالك 4/11)
 PRICE_F = {k: PRICE[k] - FACTORY_DISCOUNT for k in LEVELS}
 STD_MIN = PER_TEAM - SKILLED_MIN               # 7 عمال مساعدين
@@ -139,8 +139,8 @@ PRICE_BASIS = [  # (component_en, component_ar, basis_en, basis_ar)
      "Accommodation, transport and food (see the choice below), overtime, and government fees outside the items above, which are invoiced at actual cost.",
      "السكن والنقل والإعاشة (انظر الخيار أدناه)، والعمل الإضافي، والرسوم الحكومية خارج البنود أعلاه فتُفوتَر بالتكلفة الفعلية."),
     ("Monthly price per worker", "السعر الشهري للعامل",
-     "By trade level, per the table in section 1: before 15% VAT, based on a 24-month contract, the same for the three nationalities.",
-     "بحسب مستوى المهنة في جدول البند 1: قبل ضريبة القيمة المضافة 15%، على أساس عقد 24 شهراً، وهو نفسه للجنسيات الثلاث."),
+     "By trade level, per the table in section 1: before 15% VAT, based on a 12-month contract (the difference for 24 months is in section 3), the same for the three nationalities.",
+     "بحسب مستوى المهنة في جدول البند 1: قبل ضريبة القيمة المضافة 15%، على أساس عقد 12 شهراً (والفرق لعقد 24 شهراً في البند 3)، وهو نفسه للجنسيات الثلاث."),
 ]
 
 EXCLUSIONS = [

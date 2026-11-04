@@ -152,10 +152,8 @@ def build_quote():
     rates24 = rate_table(PRICE, TOTAL_MONTHLY) + totals_table(TOTAL_MONTHLY, MONTHLY_VAT, MONTHLY_GRAND)
     hours = ('<div class="nt"><div dir="ltr"><b>Working hours:</b> %d hours a day &nbsp;·&nbsp; <b>Working days:</b> %d days a month</div>'
              '<div class="ar" dir="rtl"><b>ساعات العمل:</b> %d ساعات يومياً &nbsp;·&nbsp; <b>أيام العمل:</b> %d يوماً في الشهر</div></div>') % (WORK_HOURS, WORK_DAYS, WORK_HOURS, WORK_DAYS)
-    note = ('<div class="nt"><div dir="ltr"><b>Minimum salary</b> by level: technical 3,000, skilled 2,500, helper 1,500. One calculation per worker, 12 and 24 months, before 15% VAT, including salary, government fees, insurance, end of service, leave, return ticket, management and localisation. '
-            '<b>These prices are for trades with no localisation decision</b>, which is why they are lower; technical and engineering trades under a decision cost more (section 10). Recruitment from abroad is by nationality, separate (section 9); workers transferred from inside the Kingdom have none.</div>'
-            '<div class="ar" dir="rtl"><b>الحد الأدنى للراتب</b> بحسب المستوى: الفنية 3,000، والماهرة 2,500، والمساعد 1,500. حسبة واحدة للعامل، لعقد 12 وعقد 24 شهراً، قبل ضريبة 15%، وتشمل الراتب والرسوم الحكومية والتأمين ونهاية الخدمة والإجازة وتذكرة العودة والإدارة والتوطين. '
-            '<b>هذه الأسعار لمهن لا قرار توطين عليها</b>، ولذلك هي أقل؛ والمهن الفنية والهندسية التي عليها قرار تكلفتها أعلى (البند 10). والاستقدام من الخارج بحسب الجنسية ومنفصل (البند 9)؛ والمنقولون من داخل المملكة لا يتحملونه.</div></div>')
+    note = ('<div class="nt"><div dir="ltr"><b>Minimum salary:</b> technical 3,000, skilled 2,500, helper 1,500. Prices are before 15% VAT and are for trades with no localisation decision; technical and engineering trades under a decision cost more (section 10). Recruitment from abroad is separate (section 9).</div>'
+            '<div class="ar" dir="rtl"><b>الحد الأدنى للراتب:</b> الفنية 3,000، والماهرة 2,500، والمساعد 1,500. الأسعار قبل ضريبة 15% ولمهن لا قرار توطين عليها؛ والفنية والهندسية التي عليها قرار تكلفتها أعلى (البند 10). والاستقدام من الخارج منفصل (البند 9).</div></div>')
     basis_rows = [[(str(i), str(i), "nx"), ("<b>%s</b> — %s" % (esc(ce), esc(be)), "<b>%s</b> — %s" % (esc(ca), esc(ar(ba))), "t")]
                   for i, (ce, ca, be, ba) in enumerate(PRICE_BASIS, 1)]
     basis = bi_table([("#", "#", True), ("How the monthly price per worker is built", "كيف يُبنى السعر الشهري للعامل", False)], basis_rows, [4, 46])
@@ -165,11 +163,45 @@ def build_quote():
         return bi_table([("If the worker is employed at a factory", "إذا كان العامل على مصنع", False), ("Minimum salary", "الحد الأدنى للراتب", True), ("Standard price", "السعر العادي", True), ("Factory price", "سعر المصنع", True), ("Saving", "الفرق", True)], fr, [18, 8, 8, 8, 8])
     fac12 = fac_table(PRICE12, PRICE12_F, TOTAL_MONTHLY12, TOTAL_MONTHLY12_F)
     fac24 = fac_table(PRICE, PRICE_F, TOTAL_MONTHLY, TOTAL_MONTHLY_F)
-    facnote = ('<div class="nt"><div dir="ltr">For a worker at a licensed factory the work-permit levy of SAR 9,600 a year is exempt, and only the SAR 100 permit fee is paid. The factory price is the standard price less SAR 800 a month (the levy exemption, SAR 9,600 ÷ 12).</div>'
-               '<div class="ar" dir="rtl">للعامل على مصنع مرخَّص يُعفى من المقابل المالي لرخصة العمل (9,600 ريال سنوياً)، وتُدفع رسوم الرخصة 100 ريال فقط. وسعر المصنع هو السعر العادي مطروحاً منه 800 ريال شهرياً (إعفاء المقابل المالي: 9,600 ÷ 12).</div></div>')
-    sheets.append(page(h2("1A", "Trades, salaries and price: 12-month contract (SAR, before VAT)", "المهن والرواتب والسعر الشهري: عقد 12 شهراً (ريال، قبل الضريبة)") + hours + rates12))
-    sheets.append(page(h2("1B", "Trades, salaries and price: 24-month contract (SAR, before VAT)", "المهن والرواتب والسعر الشهري: عقد 24 شهراً (ريال، قبل الضريبة)") + rates24))
-    sheets.append(page(h2(2, "Calculation if the worker is employed at a factory", "الحسبة إذا كان العامل على مصنع") + h2("2A", "12-month contract", "عقد 12 شهراً") + fac12 + h2("2B", "24-month contract", "عقد 24 شهراً") + fac24 + facnote + note))
+    facnote = ('<div class="nt"><div dir="ltr">At a licensed factory the work-permit levy (SAR 9,600 a year) is exempt: the price is the standard price less SAR 800 a month.</div>'
+               '<div class="ar" dir="rtl">في مصنع مرخَّص يُعفى المقابل المالي لرخصة العمل (9,600 ريال سنوياً): السعر هو السعر العادي ناقص 800 ريال شهرياً.</div></div>')
+    def diff_table():
+        dr = [[(le, la, "t"), pc(sal), pc(PRICE12[k2]), pc(PRICE[k2]), pc(PRICE12[k2] - PRICE[k2])] for k2, (le, la, sal, lf) in LEVELS.items()]
+        dr.append([("Technical engineering (under a decision)", "فنية هندسية (عليها قرار توطين)", "t"), pc(3000), pc(PRICE_TECHDEC), pc(PRICE_TECHDEC24), pc(PRICE_TECHDEC - PRICE_TECHDEC24)])
+        dr.append([("Engineering (under a decision)", "هندسية (عليها قرار توطين)", "t"), pc(ENG_SALARY), pc(PRICE_ENG), pc(PRICE_ENG24), pc(PRICE_ENG - PRICE_ENG24)])
+        dr.append({"cls": "tot", "cells": [("Seven teams, per month (before VAT)", "الفرق السبعة شهرياً (قبل الضريبة)", ""), ("", "", ""), pc(TOTAL_MONTHLY12), pc(TOTAL_MONTHLY), pc(TOTAL_MONTHLY12 - TOTAL_MONTHLY)]})
+        return bi_table([("Monthly price per worker (SAR)", "السعر الشهري للعامل (ريال)", False), ("Minimum salary", "الحد الأدنى للراتب", True), ("12-month contract (our offer)", "عقد 12 شهراً (عرضنا)", True), ("24-month contract", "عقد 24 شهراً", True), ("Difference per month", "الفرق شهرياً", True)], dr, [18, 8, 9, 9, 8])
+    diffnote = ('<div class="nt"><div dir="ltr">In a 24-month contract the visa or transfer fee (SAR 2,000) is spread over 24 months, so the price falls by SAR 83 per worker per month.</div>'
+                '<div class="ar" dir="rtl">في عقد 24 شهراً تُوزَّع رسوم التأشيرة أو النقل (2,000 ريال) على 24 شهراً، فينخفض السعر 83 ريالاً للعامل شهرياً.</div></div>')
+    sheets.append(page(h2(1, "Trades, salaries and price: 12-month contract (SAR, before VAT)", "المهن والرواتب والسعر الشهري: عقد 12 شهراً (ريال، قبل الضريبة)") + hours + rates12))
+    def cost_table():
+        ks = list(LEVELS.items())
+        def comp(a, loc):
+            permit = 9700/12.0; other = 650/12.0 + 23 + a*0.85*0.02 + 200/12.0; visa = 2000/12.0
+            prov = a/24.0 + a/30.0*21/12.0 + 1500/12.0
+            direct = a + permit + other + visa + 50 + prov
+            fee = max(0.10*(direct + 500), 500.0)
+            return {k: int(round(v)) for k, v in dict(sal=a, permit=permit, other=other, visa=visa, med=50, prov=prov, direct=direct, oh=500, fee=fee, loc=loc).items()}
+        cs = [comp(v[2], v[3]) for k2, v in ks]
+        def row(en, ar_, key, bold=False):
+            cells = [pc(c[key]) for c in cs]
+            lab = ("<b>%s</b>" % en, "<b>%s</b>" % ar_, "t") if bold else (en, ar_, "t")
+            return [lab] + cells
+        rows_ = [row("Salary (minimum)", "الراتب (الحد الأدنى)", "sal"),
+                 row("Work permit and levy (9,700 ÷ 12)", "رخصة العمل والمقابل المالي (9,700 ÷ 12)", "permit"),
+                 row("Residence, Ajeer, insurance, exit and re-entry", "الإقامة وأجير والتأمينات والخروج والعودة", "other"),
+                 row("Visa or sponsorship transfer (2,000 ÷ 12)", "التأشيرة أو نقل الكفالة (2,000 ÷ 12)", "visa"),
+                 row("Health insurance", "التأمين الصحي", "med"),
+                 row("End of service, leave and return ticket", "نهاية الخدمة والإجازة وتذكرة العودة", "prov"),
+                 row("Direct cost", "التكلفة المباشرة", "direct", True),
+                 row("Overhead", "التكاليف الإدارية (الأوفر هيد)", "oh"),
+                 row("Our fees: 10% of (cost + overhead), minimum SAR 500", "رسومنا: 10% من (التكلفة + الأوفر هيد) وبحد أدنى 500 ريال", "fee"),
+                 row("Localisation fees", "رسوم التوطين", "loc"),
+                 {"cls": "tot", "cells": [("Monthly price per worker", "السعر الشهري للعامل", "")] + [pc(PRICE12[k2]) for k2, v in ks]},
+                 [("At a factory (less SAR 800)", "في مصنع (ناقص 800 ريال)", "t")] + [pc(PRICE12_F[k2]) for k2, v in ks]]
+        return bi_table([("Cost item, per worker per month (SAR)", "بند التكلفة للعامل شهرياً (ريال)", False)] + [(v[0], v[1], True) for k2, v in ks], rows_, [30, 10, 10, 10])
+    sheets.append(page(h2("1B", "Costing of the monthly price per worker (12-month contract)", "كوستنج السعر الشهري للعامل (عقد 12 شهراً)") + cost_table()))
+    sheets.append(page(h2(2, "Calculation if the worker is employed at a factory (12-month contract)", "الحسبة إذا كان العامل على مصنع (عقد 12 شهراً)") + fac12 + facnote + h2(3, "If the contract is 24 months: the difference", "إذا كان العقد 24 شهراً: الفرق") + diff_table() + diffnote + note))
 
 
     # 4 النطاق والمستثنيات
