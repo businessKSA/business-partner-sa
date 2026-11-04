@@ -121,10 +121,15 @@ PRICE_BASIS = [  # (component_en, component_ar, basis_en, basis_ar)
 ]
 
 EXCLUSIONS = [
-    ("Government fees (visa, iqama, work permit, Qiwa and the like), embassy and attestation charges, and travel tickets are not part of the service fee and are invoiced at actual cost, unless stated otherwise in the rate table.",
-     "الرسوم الحكومية (التأشيرة والإقامة ورخصة العمل وقوى وما شابه)، ورسوم السفارات والتصديق، وتذاكر السفر ليست ضمن أتعاب الخدمة وتُفوتر بالتكلفة الفعلية، ما لم يُذكر خلاف ذلك في جدول الأسعار."),
-    ("Accommodation, transport and food: the Client chooses below who provides them. ☐ Provided by the Client   ☐ Provided by the First Party and added to the monthly price.",
-     "السكن والنقل والإعاشة: يحدّد العميل أدناه من يوفّرها. ☐ يوفّرها العميل   ☐ يوفّرها الطرف الأول وتُضاف إلى السعر الشهري."),
+    ("Government fees (iqama, work permit, Qiwa and the like), <b>sponsorship transfer fees</b>, embassy and attestation charges, and travel tickets are not part of the service fee and are invoiced at actual cost, unless stated otherwise in the rate table. The visa is included in the monthly price. The price assumes a first sponsorship transfer of SAR 2,000; a further transfer is invoiced at cost.",
+     "الرسوم الحكومية (الإقامة ورخصة العمل وقوى وما شابه)، و<b>رسوم نقل الكفالة</b>، ورسوم السفارات والتصديق، وتذاكر السفر ليست ضمن أتعاب الخدمة وتُفوتر بالتكلفة الفعلية، ما لم يُذكر خلاف ذلك في جدول الأسعار. والتأشيرة مشمولة في السعر الشهري. ويفترض السعر نقل كفالة أول بمبلغ 2,000 ريال، وأي نقل إضافي يُفوتَر بالتكلفة."),
+    ("<b>Recruitment from abroad</b> (by nationality, section 8) is not included in the price. It is invoiced separately at actual cost, and does not apply to workers transferred from inside the Kingdom.",
+     "<b>الاستقدام من الخارج</b> (بحسب الجنسية، البند 8) لا يدخل في السعر. ويُفوتَر منفصلاً بالتكلفة الفعلية، ولا ينطبق على العمال المنقولة كفالتهم من داخل المملكة."),
+    ("<b>Accommodation, transport and food</b> are on the Client. Tick each item you want the First Party to provide: SAR 300 per item, per worker, per month, before VAT. This applies only to workers whose salary is below SAR 3,000 (the skilled and regular levels).",
+     "<b>السكن والنقل والإعاشة</b> على العميل. ضع علامة أمام كل بند تريد أن يوفّره الطرف الأول: 300 ريال لكل بند، للعامل الواحد، شهرياً، قبل الضريبة. وهذا للعمال الذين يقل راتبهم عن 3,000 ريال فقط (المستويان الماهر والعادي)."),
+    ("☐ Accommodation — provided by the First Party at SAR 300 per worker per month", "☐ السكن — يوفّره الطرف الأول بمبلغ 300 ريال للعامل شهرياً"),
+    ("☐ Transport — provided by the First Party at SAR 300 per worker per month", "☐ المواصلات — يوفّرها الطرف الأول بمبلغ 300 ريال للعامل شهرياً"),
+    ("☐ Food — provided by the First Party at SAR 300 per worker per month", "☐ الإعاشة — يوفّرها الطرف الأول بمبلغ 300 ريال للعامل شهرياً"),
     ("Tools, equipment, materials and personal protective equipment for the work, unless agreed otherwise in writing.",
      "الأدوات والمعدات والمواد ومعدات الحماية الشخصية للعمل، ما لم يُتفق على غير ذلك كتابةً."),
     ("Overtime, invoiced at the actual hours worked under the regulations.", "العمل الإضافي، ويُفوتر بالساعات الفعلية وفق الأنظمة."),
@@ -285,7 +290,7 @@ def contract_clauses():
          "العامل الذي لا يجتاز الفحص لا يُحتسب ماهراً، ويُستبدل أو يُعاد تصنيفه عادياً مع تعديل السعر إلى المستوى العادي.")])
 
     pts("Accommodation, transport and working conditions", "السكن والنقل وظروف العمل", 6, [
-        ("Accommodation, transport and food are provided by the party the Second Party ticked in the quotation. Where the First Party provides them, they are added to the monthly price.",
+        ("Accommodation, transport and food are provided by the party the Second Party ticked in the quotation. Where the First Party provides them, SAR 300 per item, per worker, per month is added to the monthly price, for workers whose salary is below SAR 3,000 only.",
          "يوفّر السكن والنقل والإعاشة الطرف الذي حدّده الطرف الثاني بعلامة في عرض السعر. وإن وفّرها الطرف الأول أُضيفت إلى السعر الشهري."),
         ("The Second Party provides a safe site, the tools, equipment, materials and personal protective equipment for the work, unless agreed otherwise in writing.",
          "يوفّر الطرف الثاني موقعاً آمناً والأدوات والمعدات والمواد ومعدات الحماية الشخصية للعمل، ما لم يُتفق على غير ذلك كتابةً."),

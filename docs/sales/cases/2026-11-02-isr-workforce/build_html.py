@@ -167,7 +167,8 @@ def build_quote():
     # 4 النطاق والمستثنيات
     scope_rows = [[(str(i), str(i), "nx"), ("<b>%s</b> — %s" % (esc(te), esc(de)), "<b>%s</b> — %s" % (esc(ta), esc(ar(da))), "t")] for i, (te, ta, de, da) in enumerate(SCOPE, 1)]
     scope = bi_table([("#", "#", True), ("What is included", "ما يشمله العرض", False)], scope_rows, [4, 46])
-    excl = numbered([(esc(e), esc(a)) for e, a in EXCLUSIONS], "Not included / on the Client", "غير مشمول / على العميل")
+    _b = lambda s: esc(s).replace("&lt;b&gt;", "<b>").replace("&lt;/b&gt;", "</b>")
+    excl = numbered([(_b(e), _b(a)) for e, a in EXCLUSIONS], "Not included / on the Client", "غير مشمول / على العميل")
     sheets.append(page(h2(3, "Price basis", "أساس السعر") + basis + h2(4, "Scope", "النطاق") + scope))
     sheets.append(page(h2(5, "Not included in the price", "ما لا يشمله السعر") + excl))
     gov_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(fe), "<b>%s</b>" % esc(fa), "t"), (ae, aa, "t"), (ie, ia, "t")]
