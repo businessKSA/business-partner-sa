@@ -248,21 +248,19 @@ def build_quote():
     p2 += sec(2, "Rates for additions (before VAT)", "أسعار الإضافات (قبل الضريبة)")
     p2 += mirrored([
         ("Additional employee above 49", f"{n(EXTRA_EMP)} per year<br><span class=\"sm\">({n(EXTRA_EMP_Q)} on each quarterly invoice)</span>",
-         "موظف إضافي فوق 49", f"{n(EXTRA_EMP)} ريال في السنة<br><span class=\"sm\">({n(EXTRA_EMP_Q)} على كل فاتورة ربع سنوية)</span>"),
+         "موظف إضافي فوق 49 موظفاً", f"{n(EXTRA_EMP)} ريال سنوياً<br><span class=\"sm\">({n(EXTRA_EMP_Q)} ريالاً في كل فاتورة ربع سنوية)</span>"),
         ("Additional branch (the first branch, Riyadh, is included)", f"{n(EXTRA_BRANCH)} per year<br><span class=\"sm\">from receipt of its documents and authorisation</span>",
-         "فرع إضافي (الفرع الأول، الرياض، مشمول)", f"{n(EXTRA_BRANCH)} ريال في السنة<br><span class=\"sm\">من استلام وثائقه وتفويضه</span>"),
+         "فرع إضافي (الفرع الأول، الرياض، مشمول)", f"{n(EXTRA_BRANCH)} ريال سنوياً<br><span class=\"sm\">تبدأ باستلام وثائق الفرع وتفويضه</span>"),
         ("Additional operation above the monthly limit", f"{n(OVERAGE)} per operation<br><span class=\"sm\">invoiced monthly</span>",
-         "عملية إضافية فوق الحد الشهري", f"{n(OVERAGE)} ريال للعملية<br><span class=\"sm\">تُفوتَر شهرياً</span>"),
-    ], ("Addition", "Rate (SAR)"), ("الإضافة", "السعر (ريال)"))
+         "عملية إضافية فوق الحد الشهري", f"{n(OVERAGE)} ريالاً للعملية<br><span class=\"sm\">تُفوتَر شهرياً</span>"),
+    ], ("Addition", "Rate (SAR)"), ("الإضافة", "السعر (قبل الضريبة)"))
     pages.append(p2)
 
     # ص3: الشمول + التصحيح والتأسيس
     scope = [
-        ("The commercial registration and its renewal.", "السجل التجاري وتجديده."),
         ("Qiwa: work permits and employment contracts.", "قوى: رخص العمل وعقود العمل."),
         ("Social insurance (GOSI): subscription, invoices and certificate.", "التأمينات الاجتماعية: الاشتراك والفواتير والشهادة."),
         ("Organising the employees’ medical insurance and an alert before any violation, through the Smart Advisor.", "تنظيم التأمين الطبي للموظفين والتنبيه قبل أي مخالفة عبر «المستشار الذكي»."),
-        ("Basic zakat and tax follow-up: due dates and notices (filing and calculation are outside the price, section 7).", "متابعة الزكاة والضريبة الأساسية: المواعيد والإشعارات (ويخرج عن السعر الإعداد والإقرار، البند 7)."),
         ("Mudad: the monthly wage-protection file and handling of notes.", "مدد: ملف حماية الأجور شهرياً ومعالجة الملاحظات."),
         ("Nitaqat and localisation: a monthly calculation and an alert before any drop.", "نطاقات والتوطين: حساب شهري وتنبيه قبل أي هبوط."),
         ("Muqeem and Absher Business: residencies.", "مقيم وأبشر أعمال: الإقامات."),
@@ -320,7 +318,7 @@ def build_quote():
         ("The cost of hiring Saudi nationals and their salaries. We manage compliance; we do not register anyone nominally.", "تكلفة توظيف السعوديين ورواتبهم. نحن ندير الامتثال ولا نسجّل أحداً شكلياً."),
         ("Litigation, representation before courts and legal practice.", "التمثيل القضائي والمحاماة."),
         ("Large new services (establishing a new entity or branch, a new industrial licence, recruitment, transfer of services): quoted separately.", "الخدمات الكبيرة الجديدة (تأسيس منشأة أو فرع، ترخيص صناعي جديد، استقدام، نقل خدمات): بعرض مستقل."),
-        ("Zakat, tax and customs matters (filing, calculation and representation): with an independent accountant or for a separate fee.", "الزكاة والضريبة والجمارك (الإعداد والإقرار والتمثيل): مع محاسب مستقل أو برسوم منفصلة."),
+        ("The commercial registration and its renewal, and zakat, tax and customs matters: not included; zakat and tax are handled with an independent accountant or for a separate fee.", "السجل التجاري وتجديده، والزكاة والضريبة والجمارك: غير مشمولة؛ والزكاة والضريبة مع محاسب مستقل أو برسوم منفصلة."),
         ("Any service not listed in section 3 is performed only under a written change request, priced separately.", "أي خدمة غير مذكورة في البند 3 لا تُنفَّذ إلا بطلب تغيير كتابي يُسعَّر على حدة."),
         ("No guarantee of an outcome: we do not promise the lifting of a hold, the cancellation or reduction of a violation, a Nitaqat band, or the acceptance of any request by an entity.",
          "لا ضمان بنتيجة: لا نعد برفع تجميد ولا بإلغاء مخالفة أو تخفيضها ولا بنطاق معيّن ولا بقبول أي جهة لأي طلب."),
@@ -380,13 +378,13 @@ def clause_subject():
 
 def clause_services():
     return C("Included Services", "الخدمات المشمولة",
-             "The package covers: the commercial registration and its renewal; Qiwa (work permits and employment contracts); social insurance (subscription, invoices and certificate); "
-             "organising the employees’ medical insurance with an alert before any violation (through the Smart Advisor); basic zakat and tax follow-up of due dates and notices; "
+             "The package covers: Qiwa (work permits and employment contracts); social insurance (subscription, invoices and certificate); "
+             "organising the employees’ medical insurance with an alert before any violation (through the Smart Advisor); "
              "Mudad (the monthly wage-protection file and handling of notes); Nitaqat and localisation (a monthly calculation and an alert before any drop); Muqeem and Absher Business (residencies); "
              "a unified renewals calendar, a monthly report and a single point of contact; and monitoring of violations and deadlines on Tamm. "
              "Anything not listed is outside the package and is performed only under a written change request, priced separately.",
-             "تشمل الباقة: السجل التجاري وتجديده؛ قوى (رخص العمل وعقود العمل)؛ التأمينات الاجتماعية (الاشتراك والفواتير والشهادة)؛ تنظيم التأمين الطبي للموظفين والتنبيه قبل أي مخالفة (عبر «المستشار الذكي»)؛ "
-             "متابعة الزكاة والضريبة الأساسية من مواعيد وإشعارات؛ مدد (ملف حماية الأجور شهرياً ومعالجة الملاحظات)؛ نطاقات والتوطين (حساب شهري وتنبيه قبل أي هبوط)؛ مقيم وأبشر أعمال (الإقامات)؛ "
+             "تشمل الباقة: قوى (رخص العمل وعقود العمل)؛ التأمينات الاجتماعية (الاشتراك والفواتير والشهادة)؛ تنظيم التأمين الطبي للموظفين والتنبيه قبل أي مخالفة (عبر «المستشار الذكي»)؛ "
+             "مدد (ملف حماية الأجور شهرياً ومعالجة الملاحظات)؛ نطاقات والتوطين (حساب شهري وتنبيه قبل أي هبوط)؛ مقيم وأبشر أعمال (الإقامات)؛ "
              "تقويم موحّد للتجديدات وتقرير شهري ونقطة اتصال واحدة؛ ورصد المخالفات والمهل على «تمام». وما لم يُذكر فهو خارج الباقة ولا يُنفَّذ إلا بطلب تغيير كتابي يُسعَّر على حدة.")
 
 
@@ -486,10 +484,10 @@ def clause_local():
 def clause_excl():
     return C("Exclusions", "خارج نطاق السعر",
              "The price does not include: government fees, fines and platform subscriptions; the cost of hiring Saudi nationals and their salaries; litigation, representation before courts and the practice of law; "
-             "large new services (establishing a new entity or branch, a new industrial licence, recruitment, transfer of services); government relations services (investment licensing, municipality, environmental and industrial licensing and renewals), which are quoted separately on request; zakat, tax and customs matters (filing, calculation and representation), "
+             "large new services (establishing a new entity or branch, a new industrial licence, recruitment, transfer of services); the commercial registration and its renewal; government relations services (investment licensing, municipality, environmental and industrial licensing and renewals), which are quoted separately on request; zakat, tax and customs matters (filing, calculation and representation), "
              "which are handled with an independent accountant or for a separate fee; and any item not expressly listed in the quotation. Additional work is performed only under a written change request priced separately.",
              "لا يشمل السعر: الرسوم الحكومية والغرامات واشتراكات المنصات؛ وتكلفة توظيف السعوديين ورواتبهم؛ والتمثيل القضائي والمحاماة؛ "
-             "والخدمات الكبيرة الجديدة (تأسيس منشأة أو فرع، ترخيص صناعي جديد، استقدام، نقل خدمات)؛ وخدمات العلاقات الحكومية (الاستثمار والبلدية والتراخيص البيئية والصناعية وتجديدها) وتُسعَّر منفصلة عند الطلب؛ والزكاة والضريبة والجمارك (الإعداد والإقرار والتمثيل) التي تُدار مع محاسب مستقل أو برسوم منفصلة؛ "
+             "والخدمات الكبيرة الجديدة (تأسيس منشأة أو فرع، ترخيص صناعي جديد، استقدام، نقل خدمات)؛ والسجل التجاري وتجديده؛ وخدمات العلاقات الحكومية (الاستثمار والبلدية والتراخيص البيئية والصناعية وتجديدها) وتُسعَّر منفصلة عند الطلب؛ والزكاة والضريبة والجمارك (الإعداد والإقرار والتمثيل) التي تُدار مع محاسب مستقل أو برسوم منفصلة؛ "
              "وأي بند غير مذكور صراحةً في عرض السعر. ولا يُنفَّذ عمل إضافي إلا بطلب تغيير كتابي يُسعَّر على حدة.")
 
 
@@ -655,8 +653,6 @@ def build_auth():
         ("Muqeem", "مقيم"),
         ("Absher Business", "أبشر أعمال"),
         ("Tamm (violations)", "تمام (المخالفات)"),
-        ("Commercial registration (Saudi Business Center)", "السجل التجاري (المركز السعودي للأعمال)"),
-        ("Zakat, Tax and Customs Authority (dates and notices follow-up only)", "هيئة الزكاة والضريبة والجمارك (متابعة المواعيد والإشعارات فقط)"),
         ("Medical-insurance provider portal: [●]", "بوابة مزوّد التأمين الطبي: [●]"),
         ("Other entity named in writing: [●]", "جهة أخرى تُسمّى كتابةً: [●]"),
     ]
