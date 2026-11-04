@@ -43,7 +43,8 @@ LEVELS = {  # key: (label_en, label_ar, min_salary, localisation_fee)
     "skilled": ("Skilled", "ماهرة", 1800, 900),
     "helper":  ("Regular (helper)", "عادية (عامل مساعد)", 1200, 900),
 }
-TEAM_LEVEL = ["tech", "skilled", "skilled", "skilled", "skilled", "skilled", "tech"]   # بحسب ترتيب TEAMS
+TEAM_LEVEL = ["skilled"] * 7   # الفنية تُعدّ هندسية (قرار توطين): تُسعَّر في بند خاص، ولا تدخل جدول الأسعار العادي
+PRICE_LEVELS = ("skilled", "helper")   # بحسب ترتيب TEAMS
 OVERHEAD = 250      # التكاليف الإدارية والتشغيلية للموظف شهرياً (كانت 500)
 FEE_MIN = 250       # الحد الأدنى لرسومنا (كان 500)
 def worker_price(a, loc, factory=False, months=24):

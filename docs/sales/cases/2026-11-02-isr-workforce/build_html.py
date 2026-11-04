@@ -158,13 +158,13 @@ def build_quote():
     rates24 = rate_table(PRICE, TOTAL_MONTHLY) + totals_table(TOTAL_MONTHLY, MONTHLY_VAT, MONTHLY_GRAND)
     hours = ('<div class="nt"><div dir="ltr"><b>Working hours:</b> %d hours a day &nbsp;·&nbsp; <b>Working days:</b> %d days a month</div>'
              '<div class="ar" dir="rtl"><b>ساعات العمل:</b> %d ساعات يومياً &nbsp;·&nbsp; <b>أيام العمل:</b> %d يوماً في الشهر</div></div>') % (WORK_HOURS, WORK_DAYS, WORK_HOURS, WORK_DAYS)
-    note = ('<div class="nt"><div dir="ltr"><b>Salary in this offer:</b> technical 2,500, skilled 1,800, helper 1,200; you may raise or lower it and the price is recalculated in the calculator. Prices are before 15% VAT and are for trades with no localisation decision; technical and engineering trades under a decision cost more (section A7). Recruitment from abroad is separate (section A6).</div>'
-            '<div class="ar" dir="rtl"><b>الراتب في هذا العرض:</b> الفنية 2,500، والماهرة 1,800، والمساعد 1,200؛ ولك أن تزيده أو تنقصه ويُعاد حساب السعر في الآلة الحاسبة. الأسعار قبل ضريبة 15% ولمهن لا قرار توطين عليها؛ والفنية والهندسية التي عليها قرار تكلفتها أعلى (البند أ7). والاستقدام من الخارج منفصل (البند أ6).</div></div>')
+    note = ('<div class="nt"><div dir="ltr"><b>Salary in this offer:</b> skilled 1,800, helper 1,200; you may raise or lower it and the price is recalculated in the calculator. Prices are before 15% VAT and are for trades with no localisation decision; technical and engineering trades under a decision cost more (section A7). Recruitment from abroad is separate (section A6).</div>'
+            '<div class="ar" dir="rtl"><b>الراتب في هذا العرض:</b> الماهرة 1,800، والمساعد 1,200؛ ولك أن تزيده أو تنقصه ويُعاد حساب السعر في الآلة الحاسبة. الأسعار قبل ضريبة 15% ولمهن لا قرار توطين عليها؛ والفنية والهندسية التي عليها قرار تكلفتها أعلى (البند أ7). والاستقدام من الخارج منفصل (البند أ6).</div></div>')
     basis_rows = [[(str(i), str(i), "nx"), ("<b>%s</b> — %s" % (esc(ce), esc(be)), "<b>%s</b> — %s" % (esc(ca), esc(ar(ba))), "t")]
                   for i, (ce, ca, be, ba) in enumerate(PRICE_BASIS, 1)]
     basis = bi_table([("#", "#", True), ("How the monthly price per worker is built", "كيف يُبنى السعر الشهري للعامل", False)], basis_rows, [4, 46])
     def fac_table(pp, ppf, tot, totf):
-        fr = [[(le, la, "t"), pc(sal), pc(pp[k2]), pc(ppf[k2]), pc(pp[k2] - ppf[k2])] for k2, (le, la, sal, lf) in LEVELS.items()]
+        fr = [[(le, la, "t"), pc(sal), pc(pp[k2]), pc(ppf[k2]), pc(pp[k2] - ppf[k2])] for k2, (le, la, sal, lf) in LEVELS.items() if k2 in PRICE_LEVELS]
         fr.append({"cls": "tot", "cells": [("Seven teams, per month (before VAT)", "الفرق السبعة شهرياً (قبل الضريبة)", ""), ("", "", ""), pc(tot), pc(totf), pc(tot - totf)]})
         return bi_table([("If the worker is employed at a factory", "إذا كان العامل على مصنع", False), ("Salary", "الراتب", True), ("Standard price", "السعر العادي", True), ("Factory price", "سعر المصنع", True), ("Saving", "الفرق", True)], fr, [18, 8, 8, 8, 8])
     fac12 = fac_table(PRICE12, PRICE12_F, TOTAL_MONTHLY12, TOTAL_MONTHLY12_F)
@@ -172,7 +172,7 @@ def build_quote():
     facnote = ('<div class="nt"><div dir="ltr">At a licensed factory the work-permit levy (SAR 9,600 a year) is exempt: the price is the standard price less SAR 800 a month.</div>'
                '<div class="ar" dir="rtl">في مصنع مرخَّص يُعفى المقابل المالي لرخصة العمل (9,600 ريال سنوياً): السعر هو السعر العادي ناقص 800 ريال شهرياً.</div></div>')
     def diff_table():
-        dr = [[(le, la, "t"), pc(sal), pc(PRICE12[k2]), pc(PRICE[k2]), pc(PRICE12[k2] - PRICE[k2])] for k2, (le, la, sal, lf) in LEVELS.items()]
+        dr = [[(le, la, "t"), pc(sal), pc(PRICE12[k2]), pc(PRICE[k2]), pc(PRICE12[k2] - PRICE[k2])] for k2, (le, la, sal, lf) in LEVELS.items() if k2 in PRICE_LEVELS]
         dr.append([("Technical engineering (under a decision)", "فنية هندسية (عليها قرار توطين)", "t"), pc(LEVELS['tech'][2]), pc(PRICE_TECHDEC), pc(PRICE_TECHDEC24), pc(PRICE_TECHDEC - PRICE_TECHDEC24)])
         dr.append([("Engineering (under a decision)", "هندسية (عليها قرار توطين)", "t"), pc(ENG_SALARY), pc(PRICE_ENG), pc(PRICE_ENG24), pc(PRICE_ENG - PRICE_ENG24)])
         dr.append({"cls": "tot", "cells": [("Seven teams, per month (before VAT)", "الفرق السبعة شهرياً (قبل الضريبة)", ""), ("", "", ""), pc(TOTAL_MONTHLY12), pc(TOTAL_MONTHLY), pc(TOTAL_MONTHLY12 - TOTAL_MONTHLY)]})
@@ -199,8 +199,8 @@ def build_quote():
     calc_page = h2("A2", "Salary-based cost calculator", "الآلة الحاسبة للتكاليف بناءً على الرواتب") + calc_table() + calc_box
     incl_box = ('<div class="nt"><div dir="ltr"><b>The monthly price includes</b> per worker: the salary, residence permit, work permit, health and social insurance, end-of-service and leave provision, return ticket, administrative and operating costs, and our fees. It does not include allowances (accommodation, food, transport).</div>'
                 '<div class="ar" dir="rtl"><b>يشمل السعر الشهري</b> للعامل الواحد: الراتب، الإقامة ورخصة العمل، التأمين الصحي والتأمينات الاجتماعية، مخصص نهاية الخدمة والإجازة، تذكرة العودة، التكاليف الإدارية والتشغيلية، ورسومنا. ولا يشمل البدلات (السكن والإعاشة والمواصلات).</div></div>')
-    opt_box = ('<div class="nt"><div dir="ltr"><b>Your options.</b> (1) <b>Salary:</b> you may raise or lower the salary of any worker; the price is recalculated in the calculator. (2) <b>Recruitment from abroad:</b> &#9744; by Business Partner, at cost &nbsp; &#9744; by the Client directly. (3) <b>Direct payment:</b> any item you think would cost you more (accommodation, transport, food, medical insurance upgrade, government fees, tickets) you may pay directly to its provider, and it is taken off our invoice.</div>'
-               '<div class="ar" dir="rtl"><b>خياراتك.</b> (1) <b>الراتب:</b> لك أن تزيد راتب أي عامل أو تنقصه، ويُعاد حساب السعر في الآلة الحاسبة. (2) <b>الاستقدام من الخارج:</b> &#9744; من طرفنا بالتكلفة &nbsp; &#9744; من طرف العميل مباشرة. (3) <b>الدفع المباشر:</b> أي بند ترى أنه سيكلفك أكثر (السكن، المواصلات، الإعاشة، رفع فئة التأمين الطبي، الرسوم الحكومية، التذاكر) لك أن تدفعه مباشرة لجهته، ويُحذف من فاتورتنا.</div></div>')
+    opt_box = ('<div class="nt"><div dir="ltr"><b>Your options.</b> (1) <b>Salary:</b> you may raise or lower the salary of any worker; the price is recalculated in the calculator. (2) <b>Recruitment from abroad:</b> &#9744; by Business Partner, at cost &nbsp; &#9744; by the Client directly. (3) <b>Professions:</b> you may register the professions in the residence permits and in the contracts on Qiwa under skilled professions, so that they do not fall under technical professions, which carry localisation costs. (4) <b>Direct payment:</b> any item you think would cost you more (accommodation, transport, food, medical insurance upgrade, government fees, tickets) you may pay directly to its provider, and it is taken off our invoice.</div>'
+               '<div class="ar" dir="rtl"><b>خياراتك.</b> (1) <b>الراتب:</b> لك أن تزيد راتب أي عامل أو تنقصه، ويُعاد حساب السعر في الآلة الحاسبة. (2) <b>الاستقدام من الخارج:</b> &#9744; من طرفنا بالتكلفة &nbsp; &#9744; من طرف العميل مباشرة. (3) <b>المهن:</b> لك أن تسجّل المهن في الإقامات والمسمّيات في الإقامات والعقود في قوى على المهن الماهرة، بحيث لا تدخل ضمن المهن الفنية التي عليها تكاليف توطين. (4) <b>الدفع المباشر:</b> أي بند ترى أنه سيكلفك أكثر (السكن، المواصلات، الإعاشة، رفع فئة التأمين الطبي، الرسوم الحكومية، التذاكر) لك أن تدفعه مباشرة لجهته، ويُحذف من فاتورتنا.</div></div>')
     sheets.append(page(h2(4, "What the price includes and does not include", "ما يشمله السعر وما لا يشمله") + incl_box + excl + model_short + calc_box))
     gov_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(fe), "<b>%s</b>" % esc(fa), "t"), (ae, aa, "t"), (ie, ia, "t")]
                 for i, (fe, fa, ae, aa, ie, ia) in enumerate(GOV_FEES, 1)]
@@ -244,7 +244,7 @@ def build_quote():
                  '<div class="ar" dir="rtl"><b>الآلة الحاسبة لتكلفة الموظف السعودي</b> (المهني وغير المهني):<br><b dir="ltr">%s</b></div></div>') % (CALC_SAUDI_URL, CALC_SAUDI_URL)
     saudi_page = h2("A4", "Cost of a Saudi employee, by role and salary", "تكلفة الموظف السعودي بحسب الوظيفة والراتب") + roles_t + saudi_table() + saudi_box
     def model_table():
-        ks = list(LEVELS.items())
+        ks = [(k_, v_) for k_, v_ in LEVELS.items() if k_ in PRICE_LEVELS]
         def split(a, loc):
             fixed = 9700/12.0 + 650/12.0 + 200/12.0 + 2000/12.0 + 50 + 125   # بنود حكومية وتذكرة تُفوتَر بالفعلي عند استحقاقها
             full = worker_price(a, loc, months=12)
