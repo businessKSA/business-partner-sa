@@ -271,6 +271,43 @@ def build_quote():
                   '<div class="ar" dir="rtl">اختر النموذج: &nbsp; \u2610 التكلفة الكاملة &nbsp;&nbsp; \u2610 التكلفة بشفافية</div></div>')
     sheets_model_page = h2("A5", "Two models: full cost or transparent cost", "نموذجان: التكلفة الكاملة أو التكلفة بشفافية") + model_table() + h2("A6", "If the contract is 24 months: the difference", "إذا كان العقد 24 شهراً: الفرق") + diff_table() + diffnote + opt_box
     sheetsA.insert(0, pageA(scope_page + calc_page))
+    # ---- صفحة لكل نموذج + جدول الفروقات (للعرض المفصل)، بمثال عامل ماهر
+    _sal = LEVELS["skilled"][2]; _p = worker_price(_sal, 900, months=12); _pf = _p - FACTORY_DISCOUNT
+    _gov_items = [("Work permit and levy", "رخصة العمل والمقابل المالي", 9700, "yearly", "سنوياً"), ("Residence permit", "الإقامة", 650, "yearly", "سنوياً"), ("Medical insurance", "التأمين الطبي", 600, "yearly", "سنوياً"),
+                  ("Exit and re-entry", "الخروج والعودة", 200, "yearly", "سنوياً"), ("Visa or transfer of services (sponsorship transfer)", "التأشيرة أو نقل الخدمات (نقل الكفالة)", 2000, "once", "مرة واحدة"), ("Return ticket", "تذكرة العودة", 1500, "at the end", "عند نهاية العقد")]
+    _fixed_m = sum(x[2] for x in _gov_items) / 12.0
+    _inv = _p - _fixed_m
+    def kv(rows_): return bi_table([("Item", "البند", False), ("Amount (SAR)", "المبلغ (ريال)", True)], [[(e, a_, "t"), (num(n(v)) if isinstance(v, int) else v, num(n(v)) if isinstance(v, int) else v, "c")] for e, a_, v in rows_], [30, 12])
+    def note_(en, ar_): return '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (en, ar_)
+    m1 = (h2("M1", "Model 1 — Full cost", "النموذج الأول — التكلفة الكاملة") +
+          note_("<b>How it works.</b> You pay one fixed monthly amount per worker. It already includes every government cost (work permit and levy, residence, medical insurance, exit and re-entry, visa or transfer of services, return ticket), spread over the contract. You receive no other government invoice. <b>Example</b> below: a skilled worker, salary SAR %s, 12-month contract." % n(_sal),
+                "<b>كيف يعمل.</b> تدفع مبلغاً شهرياً ثابتاً واحداً للعامل. وهو يشمل مسبقاً كل التكاليف الحكومية (رخصة العمل والمقابل، الإقامة، التأمين الطبي، الخروج والعودة، التأشيرة أو نقل الخدمات، تذكرة العودة) موزَّعة على العقد. ولا تصلك فاتورة حكومية أخرى. <b>المثال</b> أدناه: عامل ماهر راتبه %s ريال، عقد 12 شهراً." % n(_sal)) +
+          kv([("On signing: two months in advance", "عند التوقيع: شهران مقدماً", _p * 2), ("Every month", "كل شهر", _p), ("Government costs on top", "تكاليف حكومية إضافية", 0)]) +
+          note_("<b>Best for you if</b> you want a fixed, predictable amount every month and no separate invoices.", "<b>الأنسب لك إن</b> أردت مبلغاً ثابتاً متوقعاً كل شهر دون فواتير منفصلة."))
+    m2 = (h2("M2", "Model 2 — Transparent cost", "النموذج الثاني — التكلفة بشفافية") +
+          note_("<b>How it works.</b> You pay a lower monthly invoice (salary, insurance, provisions, administrative and operating costs, our fees). The government costs below are invoiced at their <b>actual amount, without mark-up, when each falls due</b>. <b>Example</b>: a skilled worker, salary SAR %s, 12 months." % n(_sal),
+                "<b>كيف يعمل.</b> تدفع فاتورة شهرية أقل (الراتب، التأمينات، المخصصات، التكاليف الإدارية والتشغيلية، رسومنا). أما التكاليف الحكومية أدناه فتُفوتَر <b>بمبلغها الفعلي دون هامش عند استحقاق كل بند</b>. <b>المثال</b>: عامل ماهر راتبه %s ريال، 12 شهراً." % n(_sal)) +
+          kv([("On signing: two months of the invoice in advance", "عند التوقيع: شهران من الفاتورة مقدماً", round(_inv * 2)), ("Every month: the monthly invoice", "كل شهر: الفاتورة الشهرية", round(_inv))]) +
+          bi_table([("Government cost, at actual when due", "تكلفة حكومية بالفعلي عند الاستحقاق", False), ("Amount (SAR)", "المبلغ (ريال)", True), ("When", "متى", True)], [[(e, a_, "t"), (num(n(v)), num(n(v)), "c"), (we, wa, "c")] for e, a_, v, we, wa in _gov_items], [30, 12, 12]) +
+          note_("<b>Best for you if</b> you want to see and pay the actual costs as they come. The total over the contract is the same as Model 1.", "<b>الأنسب لك إن</b> أردت أن ترى التكاليف الفعلية وتدفعها حين تقع. والإجمالي على العقد هو نفسه في النموذج الأول."))
+    m3 = (h2("M3", "Model 3 — Factory", "النموذج الثالث — المصنع") +
+          note_("<b>How it works.</b> If the worker is employed at a licensed factory, the work-permit levy (SAR 9,600 a year) is exempt and only the SAR 100 permit fee is paid. The price is the standard price <b>less SAR 800 every month</b>. It works together with Model 1 or Model 2. <b>Example</b>: a skilled worker, salary SAR %s, 12 months." % n(_sal),
+                "<b>كيف يعمل.</b> إذا كان العامل على مصنع مرخَّص يُعفى المقابل المالي لرخصة العمل (9,600 ريال سنوياً) وتُدفع رسوم الرخصة 100 ريال فقط. والسعر هو السعر العادي <b>ناقص 800 ريال كل شهر</b>. ويعمل مع النموذج الأول أو الثاني. <b>المثال</b>: عامل ماهر راتبه %s ريال، 12 شهراً." % n(_sal)) +
+          kv([("Standard monthly price (Model 1)", "السعر الشهري العادي (النموذج الأول)", _p), ("Monthly price at a factory", "السعر الشهري في مصنع", _pf), ("Saving every month", "الوفر كل شهر", FACTORY_DISCOUNT), ("Monthly invoice at a factory (Model 2)", "الفاتورة الشهرية في مصنع (النموذج الثاني)", round(_inv)),
+                  ("Work-permit item at actual, per year (Model 2)", "بند رخصة العمل بالفعلي سنوياً (النموذج الثاني)", 100)]) +
+          note_("<b>Best for you if</b> the workers will be employed at a licensed factory.", "<b>الأنسب لك إن</b> كان العمال سيعملون في مصنع مرخَّص."))
+    _cmp = [
+        (("Monthly amount", "المبلغ الشهري"), ("Fixed: %s" % n(_p), "ثابت: %s" % n(_p)), ("Invoice: %s" % n(round(_inv)), "الفاتورة: %s" % n(round(_inv))), ("Less 800: %s / %s" % (n(_pf), n(round(_inv))), "ناقص 800: %s / %s" % (n(_pf), n(round(_inv))))),
+        (("On signing", "عند التوقيع"), ("2 months of the price", "شهران من السعر"), ("2 months of the invoice", "شهران من الفاتورة"), ("As Model 1 or 2", "كالنموذج الأول أو الثاني")),
+        (("Government costs", "التكاليف الحكومية"), ("Inside the price", "داخل السعر"), ("Actual amount, when due", "بالفعلي عند الاستحقاق"), ("Levy exempt; SAR 100 permit fee", "المقابل معفى؛ 100 ريال رسوم رخصة")),
+        (("Total over the contract", "الإجمالي على العقد"), ("Same as Model 2", "مثل النموذج الثاني"), ("Same as Model 1", "مثل النموذج الأول"), ("Lower by 800 each month", "أقل 800 كل شهر")),
+        (("Who it suits", "لمن يناسب"), ("A fixed monthly amount", "مبلغ شهري ثابت"), ("Seeing the actual costs", "رؤية التكاليف الفعلية"), ("Workers at a licensed factory", "عمال على مصنع مرخَّص"))]
+    m4 = (h2("M4", "Differences between the three models", "الفروقات بين النماذج الثلاثة") +
+          bi_table([("", "", False), ("Model 1 — Full cost", "النموذج الأول — التكلفة الكاملة", False), ("Model 2 — Transparent cost", "النموذج الثاني — التكلفة بشفافية", False), ("Model 3 — Factory", "النموذج الثالث — المصنع", False)],
+                   [[("<b>%s</b>" % esc(r[0][0]), "<b>%s</b>" % esc(r[0][1]), "t")] + [(esc(c[0]), esc(c[1]), "t") for c in r[1:]] for r in _cmp], [12, 18, 18, 18]) +
+          note_("Example: a skilled worker, salary SAR %s, 12-month contract, before VAT. Prices follow the salary you choose; the calculator recomputes them." % n(_sal), "المثال: عامل ماهر راتبه %s ريال، عقد 12 شهراً، قبل الضريبة. وتتبع الأسعار الراتب الذي تختاره؛ والآلة الحاسبة تعيد حسابها." % n(_sal)))
+    _model_pages = [pageA(_pg) for _pg in (m1, m2, m3, m4)]
+
     sheetsA.append(pageA(saudi_page))
     sheetsA.insert(1, pageA(sheets_model_page))
     sheetsA.insert(1, pageA(nst_page))
@@ -291,6 +328,7 @@ def build_quote():
                 'Mobile / الجوال: %s<br>Email / الإيميل: %s<br>Website / الموقع: %s</div>'
                 '<div><b>Bank transfer · التحويل البنكي</b>Beneficiary / المستفيد: Business Partner Solutions / بزنس بارتنر سلوشنز<br>Bank / البنك: %s<br>IBAN: %s</div></div></div></div></section>') % (
             num(PHONE), num("business@businesspartner.sa"), num("www.businesspartner.sa"), esc(BANK), num(IBAN))
+    sheetsA = _model_pages + sheetsA
     sheetsA.append(closing)
     return doc("Quotation (simple) — ISR Trading (Workforce)", css, sheets), doc("Quotation (detailed) — ISR Trading (Workforce)", css, sheets[:-1] + sheetsA[:-1] + [sheets[-1]] + [sheetsA[-1]])
 
