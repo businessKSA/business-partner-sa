@@ -141,8 +141,8 @@ PRICE_BASIS = [  # (component_en, component_ar, basis_en, basis_ar)
 EXCLUSIONS = [
     ("<b>Not included:</b> embassy and attestation charges, and travel tickets are not part of the service fee and are invoiced at actual cost. <b>Included in the monthly price:</b> the residence permit (iqama), the work permit and the visa. <b>Sponsorship transfer:</b> SAR 2,000 is included in the price, the same as the visa; any increase above that (a second transfer SAR 4,000, a third SAR 6,000) is invoiced at cost.",
      "<b>غير مشمول:</b> رسوم السفارات والتصديق، وتذاكر السفر، وليست ضمن أتعاب الخدمة وتُفوتر بالتكلفة الفعلية. <b>مشمول في السعر الشهري:</b> الإقامة ورخصة العمل والتأشيرة. <b>نقل الكفالة:</b> 2,000 ريال مشمولة في السعر، مثل التأشيرة، وأي زيادة عنها (النقل الثاني 4,000 والثالث 6,000) تُفوتَر بالتكلفة."),
-    ("<b>Recruitment from abroad</b> (by nationality, section 8) is not included in the price. It is invoiced separately at actual cost, and does not apply to workers transferred from inside the Kingdom.",
-     "<b>الاستقدام من الخارج</b> (بحسب الجنسية، البند 8) لا يدخل في السعر. ويُفوتَر منفصلاً بالتكلفة الفعلية، ولا ينطبق على العمال المنقولة كفالتهم من داخل المملكة."),
+    ("<b>Recruitment from abroad</b> (by nationality, section 9) is not included in the price. It is invoiced separately at actual cost, and does not apply to workers transferred from inside the Kingdom.",
+     "<b>الاستقدام من الخارج</b> (بحسب الجنسية، البند 9) لا يدخل في السعر. ويُفوتَر منفصلاً بالتكلفة الفعلية، ولا ينطبق على العمال المنقولة كفالتهم من داخل المملكة."),
     ("<b>Accommodation, transport and food</b> are on the Client. Tick each item you want the First Party to provide: SAR 300 per item, per worker, per month, before VAT. This applies only to workers whose salary is below SAR 3,000 (the skilled and regular levels).",
      "<b>السكن والنقل والإعاشة</b> على العميل. ضع علامة أمام كل بند تريد أن يوفّره الطرف الأول: 300 ريال لكل بند، للعامل الواحد، شهرياً، قبل الضريبة. وهذا للعمال الذين يقل راتبهم عن 3,000 ريال فقط (المستويان الماهر والعادي)."),
     ("☐ Accommodation — provided by the First Party at SAR 300 per worker per month", "☐ السكن — يوفّره الطرف الأول بمبلغ 300 ريال للعامل شهرياً"),
@@ -380,8 +380,8 @@ STAGES2 = [  # (when_en, when_ar, what_en, what_ar, how_en, how_ar)
      "<b>الدفعة المقدمة</b> شهران من السعر الشهري.",
      "Before anything starts. Visa, recruitment and the first permits are arranged after the advance.", "قبل البدء. وتُرتَّب التأشيرة والاستقدام والرخص الأولى بعد الدفعة المقدمة."),
     ("Workers recruited from abroad", "العمال المستقدَمون من الخارج",
-     "Recruitment from the country by nationality, contract attestation and the arrival ticket, at actual cost (section 8).",
-     "الاستقدام من الدولة بحسب الجنسية، وتصديق العقود، وتذكرة القدوم، بالتكلفة الفعلية (البند 8).",
+     "Recruitment from the country by nationality, contract attestation and the arrival ticket, at actual cost (section 9).",
+     "الاستقدام من الدولة بحسب الجنسية، وتصديق العقود، وتذكرة القدوم، بالتكلفة الفعلية (البند 9).",
      "A separate invoice, outside the monthly price. Typical duration: Filipino 60–90 days, Indian 21 days, Nepali 30 days. Not applicable to workers transferred from inside the Kingdom.",
      "بفاتورة منفصلة خارج السعر الشهري. المدة المعتادة: الفلبيني 60–90 يوماً، والهندي 21 يوماً، والنيبالي 30 يوماً. ولا تنطبق على العمال المنقولة كفالتهم من داخل المملكة."),
     ("Every month", "كل شهر",
@@ -447,8 +447,9 @@ TRANSFER = [  # (case_en, case_ar, fee, per_month_en, per_month_ar)
     ("Second transfer", "النقل للمرة الثانية", 4000, "Extra 2,000 at cost", "الزيادة 2,000 بالتكلفة"),
     ("Third transfer and later", "النقل للمرة الثالثة فأكثر", 6000, "Extra 4,000 at cost", "الزيادة 4,000 بالتكلفة"),
 ]
-TRANSFER_NOTE = ("A worker already inside the Kingdom is moved to Business Partner through the official government platforms with no recruitment from abroad. The transfer is a government fee, paid at cost without mark-up. The monthly price assumes a first transfer (SAR 2,000, spread over 24 months). For a worker who was transferred before, the difference is invoiced at cost. For 105 workers, all first transfers: SAR 210,000 in total, already spread inside the monthly price.",
-                 "العامل الموجود داخل المملكة تُنقل خدماته إلى Business Partner عبر المنصات الحكومية الرسمية دون أي استقدام من الخارج. والنقل رسم حكومي يُسدَّد بالتكلفة دون هامش. ويفترض السعر الشهري نقلاً أول (2,000 ريال موزَّعة على 24 شهراً). وللعامل الذي نُقل من قبل تُفوتَر الزيادة بالتكلفة. ولـ105 عمال كلهم نقل أول: 210,000 ريال، موزَّعة داخل السعر الشهري.")
+TRANSFER_NOTE = ("A worker already inside the Kingdom is moved to Business Partner through the official platforms, with no recruitment from abroad. The fee is government, paid at cost without mark-up. The price assumes a first transfer (SAR 2,000, spread over the term); a further transfer is invoiced at cost.",
+                 "العامل الموجود داخل المملكة تُنقل خدماته إلى Business Partner عبر المنصات الرسمية دون استقدام من الخارج. والرسم حكومي بالتكلفة دون هامش. ويفترض السعر نقلاً أول (2,000 ريال موزَّعة على المدة)، وأي نقل إضافي يُفوتَر بالتكلفة.")
+
 nt = lambda x: "{:,}".format(int(round(x)))
 LOCCALC = [  # (item_en, item_ar, tech_en, tech_ar, eng_en, eng_ar)
     ("Localisation decision", "قرار التوطين", "Technical engineering professions: 30% Saudis", "المهن الفنية الهندسية: 30% سعوديين", "Engineering professions: 30% Saudis", "المهن الهندسية: 30% سعوديين"),

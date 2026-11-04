@@ -152,10 +152,10 @@ def build_quote():
     rates24 = rate_table(PRICE, TOTAL_MONTHLY) + totals_table(TOTAL_MONTHLY, MONTHLY_VAT, MONTHLY_GRAND)
     hours = ('<div class="nt"><div dir="ltr"><b>Working hours:</b> %d hours a day &nbsp;·&nbsp; <b>Working days:</b> %d days a month</div>'
              '<div class="ar" dir="rtl"><b>ساعات العمل:</b> %d ساعات يومياً &nbsp;·&nbsp; <b>أيام العمل:</b> %d يوماً في الشهر</div></div>') % (WORK_HOURS, WORK_DAYS, WORK_HOURS, WORK_DAYS)
-    note = ('<div class="nt"><div dir="ltr"><b>Minimum salary</b> by trade level: technical SAR 3,000, skilled SAR 2,500, regular (helper) SAR 1,500. One calculation per worker, shown for 12-month and 24-month contracts, before 15%% VAT. Prices include the salary, government fees, insurance, end of service, leave, the return ticket, the management fee and the localisation fee. '
-            '<b>Recruitment from abroad</b> is by nationality, at actual cost, on a separate invoice (section 8). <b>Workers transferred from inside the Kingdom (sponsorship transfer): no recruitment-from-abroad costs at all.</b> The monthly price is the same, as the transfer fee is included in it. <b>These prices are for workers on trades that have no relation to localisation (no localisation decision), which is why the costs are lower. A technical or engineering profession under a localisation decision follows other procedures and other pricing, at a higher cost (section 10).</b></div>'
-            '<div class="ar" dir="rtl"><b>الحد الأدنى للراتب</b> بحسب مستوى المهنة: الفنية 3,000 ريال، والماهرة 2,500 ريال، والعادية (العامل المساعد) 1,500 ريال. حسبة واحدة للعامل، لعقد 12 شهراً وعقد 24 شهراً، قبل ضريبة 15%%. تشمل الأسعار الراتب والرسوم الحكومية والتأمين ونهاية الخدمة والإجازة وتذكرة العودة ورسم الإدارة ورسم التوطين. '
-            '<b>الاستقدام من الخارج</b> بحسب الجنسية، بالتكلفة الفعلية، بفاتورة منفصلة (البند 8). <b>العمال المنقولة كفالتهم من داخل المملكة: لا توجد أي تكاليف استقدام من الخارج.</b> والسعر الشهري نفسه لأن رسم النقل داخل فيه. <b>هذه الأسعار لعمالة على مهن ليس لها علاقة بالتوطين (لا قرار توطين عليها)، ولذلك التكاليف أقل. والمهنة الفنية أو الهندسية التي عليها قرار توطين لها إجراءات أخرى وتسعيرات أخرى بتكلفة أعلى (البند 10).</b></div></div>').replace('%%', '%')
+    note = ('<div class="nt"><div dir="ltr"><b>Minimum salary</b> by level: technical 3,000, skilled 2,500, helper 1,500. One calculation per worker, 12 and 24 months, before 15% VAT, including salary, government fees, insurance, end of service, leave, return ticket, management and localisation. '
+            '<b>These prices are for trades with no localisation decision</b>, which is why they are lower; technical and engineering trades under a decision cost more (section 10). Recruitment from abroad is by nationality, separate (section 9); workers transferred from inside the Kingdom have none.</div>'
+            '<div class="ar" dir="rtl"><b>الحد الأدنى للراتب</b> بحسب المستوى: الفنية 3,000، والماهرة 2,500، والمساعد 1,500. حسبة واحدة للعامل، لعقد 12 وعقد 24 شهراً، قبل ضريبة 15%، وتشمل الراتب والرسوم الحكومية والتأمين ونهاية الخدمة والإجازة وتذكرة العودة والإدارة والتوطين. '
+            '<b>هذه الأسعار لمهن لا قرار توطين عليها</b>، ولذلك هي أقل؛ والمهن الفنية والهندسية التي عليها قرار تكلفتها أعلى (البند 10). والاستقدام من الخارج بحسب الجنسية ومنفصل (البند 9)؛ والمنقولون من داخل المملكة لا يتحملونه.</div></div>')
     basis_rows = [[(str(i), str(i), "nx"), ("<b>%s</b> — %s" % (esc(ce), esc(be)), "<b>%s</b> — %s" % (esc(ca), esc(ar(ba))), "t")]
                   for i, (ce, ca, be, ba) in enumerate(PRICE_BASIS, 1)]
     basis = bi_table([("#", "#", True), ("How the monthly price per worker is built", "كيف يُبنى السعر الشهري للعامل", False)], basis_rows, [4, 46])
@@ -169,8 +169,7 @@ def build_quote():
                '<div class="ar" dir="rtl">للعامل على مصنع مرخَّص يُعفى من المقابل المالي لرخصة العمل (9,600 ريال سنوياً)، ويُدفع رسم الرخصة 100 ريال فقط. وسعر المصنع هو السعر العادي مطروحاً منه 800 ريال شهرياً (إعفاء المقابل المالي: 9,600 ÷ 12).</div></div>')
     sheets.append(page(h2("1A", "Trades, salaries and price: 12-month contract (SAR, before VAT)", "المهن والرواتب والسعر الشهري: عقد 12 شهراً (ريال، قبل الضريبة)") + hours + rates12))
     sheets.append(page(h2("1B", "Trades, salaries and price: 24-month contract (SAR, before VAT)", "المهن والرواتب والسعر الشهري: عقد 24 شهراً (ريال، قبل الضريبة)") + rates24))
-    sheets.append(page(h2(2, "Calculation if the worker is employed at a factory", "الحسبة إذا كان العامل على مصنع") + h2("2A", "12-month contract", "عقد 12 شهراً") + fac12 + h2("2B", "24-month contract", "عقد 24 شهراً") + fac24 + facnote))
-    sheets.append(page(h2("", "Notes on the prices", "ملاحظات على الأسعار") + note))
+    sheets.append(page(h2(2, "Calculation if the worker is employed at a factory", "الحسبة إذا كان العامل على مصنع") + h2("2A", "12-month contract", "عقد 12 شهراً") + fac12 + h2("2B", "24-month contract", "عقد 24 شهراً") + fac24 + facnote + note))
 
 
     # 4 النطاق والمستثنيات
@@ -188,20 +187,19 @@ def build_quote():
                 for i, (te, ta, we, wa) in enumerate(LOCALISATION, 1)]
     loc = bi_table([("#", "#", True), ("Case", "الحالة", False), ("Localisation fee", "رسوم التوطين", False)], loc_rows, [3, 16, 36])
     locnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(LOC_NOTE[0]), esc(ar(LOC_NOTE[1])))
-    sheets.append(page(h2(6, "Government fees explained", "توضيح الرسوم الحكومية") + gov + govnote))
+    tr_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(te), "<b>%s</b>" % esc(ta), "t"), (num(n(fee)), num(n(fee)), "c"), (pe, pa, "c")] for i, (te, ta, fee, pe, pa) in enumerate(TRANSFER, 1)]
+    trf = bi_table([("#", "#", True), ("Government fee", "الرسم الحكومي", False), ("SAR per worker", "ريال للعامل", True), ("In the monthly price", "في السعر الشهري", True)], tr_rows, [3, 22, 9, 16])
+    trfnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(TRANSFER_NOTE[0]), esc(ar(TRANSFER_NOTE[1])))
+    sheets.append(page(h2(6, "Government fees explained", "توضيح الرسوم الحكومية") + gov + govnote + h2(7, "Sponsorship transfer costs (workers inside the Kingdom)", "تكاليف نقل الكفالة (عمال من داخل المملكة)") + trf + trfnote))
     rec_rows = [[("<b>%s</b>" % esc(ne), "<b>%s</b>" % esc(na), "t"), (num(n(r)), num(n(r)), "c"), (num(n(t)), num(n(t)), "c"), (num(n(k3)), num(n(k3)), "c"), (num(n(r + t + k3)), num(n(r + t + k3)), "c"), (de, da, "c")]
                 for ne, na, r, t, k3, de, da in REC_COUNTRY]
     rec = bi_table([("Nationality", "الجنسية", False), ("Recruitment from the country", "الاستقدام من الدولة", True), ("Contracts and attestation", "العقود والتصديق", True), ("Arrival ticket", "تذكرة القدوم", True), ("Total per worker, at cost", "الإجمالي للعامل بالتكلفة", True), ("Typical duration", "المدة المعتادة", True)], rec_rows, [12, 10, 10, 8, 10, 8])
     recnote = ('<div class="nt"><div dir="ltr">Recruitment from abroad is at actual cost, with no mark-up, on a separate invoice, and applies only to workers recruited from abroad. For a worker transferred from inside the Kingdom there are no recruitment-from-abroad costs. The amounts are the same for every trade.</div>'
                '<div class="ar" dir="rtl">الاستقدام من الخارج بالتكلفة الفعلية دون هامش، بفاتورة منفصلة، ويخص العمال المستقدَمين من الخارج فقط. أما العامل المنقول من داخل المملكة فلا توجد عليه تكاليف استقدام من الخارج. والمبالغ نفسها لكل المهن.</div></div>')
-    sheets.append(page(h2(7, "Localisation fee", "رسوم التوطين") + loc + locnote + h2(8, "Recruitment from the country, by nationality", "الاستقدام من الدولة بحسب الجنسية") + rec + recnote))
-    tr_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(te), "<b>%s</b>" % esc(ta), "t"), (num(n(fee)), num(n(fee)), "c"), (pe, pa, "c")] for i, (te, ta, fee, pe, pa) in enumerate(TRANSFER, 1)]
-    trf = bi_table([("#", "#", True), ("Government fee", "الرسم الحكومي", False), ("SAR per worker", "ريال للعامل", True), ("In the monthly price", "في السعر الشهري", True)], tr_rows, [3, 22, 9, 16])
-    trfnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(TRANSFER_NOTE[0]), esc(ar(TRANSFER_NOTE[1])))
+    sheets.append(page(h2(8, "Localisation fee", "رسوم التوطين") + loc + locnote + h2(9, "Recruitment from the country, by nationality", "الاستقدام من الدولة بحسب الجنسية") + rec + recnote))
     lc_rows = [[("<b>%s</b>" % esc(ie), "<b>%s</b>" % esc(ia), "t"), (te_, ta_, "c"), (ee_, ea_, "c")] for ie, ia, te_, ta_, ee_, ea_ in LOCCALC]
     lcalc = bi_table([("Item", "البند", False), ("Technical engineering (e.g. steel-structure fitter)", "فنية هندسية (مثل فني هياكل معدنية)", True), ("Engineering (engineer)", "هندسية (مهندس)", True)], lc_rows, [26, 14, 14])
     lcnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(LOCCALC_NOTE[0]), esc(ar(LOCCALC_NOTE[1])))
-    sheets.append(page(h2(9, "Sponsorship transfer costs (workers inside the Kingdom)", "تكاليف نقل الكفالة (عمال من داخل المملكة)") + trf + trfnote))
     sheets.append(page(h2(10, "Technical and engineering workers: how the localisation fee is calculated", "العمالة الفنية والهندسية: كيف يُحسب رسم التوطين") + lcalc + lcnote))
     nst_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(te), "<b>%s</b>" % esc(ta), "t"), (we, wa, "t")] for i, (te, ta, we, wa) in enumerate(NST, 1)]
     nst = bi_table([("#", "#", True), ("Topic", "البند", False), ("What it means", "ماذا يعني", False)], nst_rows, [3, 14, 38])
