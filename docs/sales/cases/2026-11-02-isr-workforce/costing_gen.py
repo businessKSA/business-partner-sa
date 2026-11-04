@@ -27,7 +27,12 @@ for k, (le, la, a, loc) in LEVELS.items():
 rows = ''
 for k, (le, la, a, loc) in LEVELS.items():
     rows += '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (la, "{:,}".format(a), "{:,}".format(PRICE[k]), "{:,}".format(PRICE_F[k]), "{:,}".format(PRICE[k]-PRICE_F[k]))
-h += '<h2>ملخص الأسعار</h2><table><tr><th>المستوى</th><th>الحد الأدنى للراتب</th><th>السعر العادي</th><th>سعر المصنع</th><th>الفرق</th></tr>%s</table>' % rows
+rows12 = ''
+for k, (le, la, a, loc) in LEVELS.items():
+    rows12 += '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (la, "{:,}".format(a), "{:,}".format(PRICE12[k]), "{:,}".format(PRICE12_F[k]))
+h += '<h2>ملخص الأسعار (عقد 24 شهراً)</h2><table><tr><th>المستوى</th><th>الحد الأدنى للراتب</th><th>السعر العادي</th><th>سعر المصنع</th><th>الفرق</th></tr>%s</table>' % rows
+h += '<h2>ملخص الأسعار (عقد 12 شهراً: تأشيرة العامل ÷ 12)</h2><table><tr><th>المستوى</th><th>الحد الأدنى للراتب</th><th>السعر العادي</th><th>سعر المصنع</th></tr>%s</table>' % rows12
+h += '<p>الإجمالي الشهري للفرق السبعة (قبل الضريبة): 24 شهراً %s عادي و%s مصنع · 12 شهراً %s عادي و%s مصنع. ساعات العمل 8 يومياً، وأيام العمل 26 في الشهر، والحسبة دائماً على 30 يوماً.</p>' % ("{:,}".format(TOTAL_MONTHLY), "{:,}".format(TOTAL_MONTHLY_F), "{:,}".format(TOTAL_MONTHLY12), "{:,}".format(TOTAL_MONTHLY12_F))
 h += '<h2>الفرق السبعة (105 عمال: 8 محترفين + 7 عمال مساعدين في كل فريق)</h2><table><tr><th>الحالة</th><th>شهرياً قبل الضريبة</th><th>الضريبة 15%</th><th>الإجمالي شهرياً</th><th>مدة 24 شهراً قبل الضريبة</th></tr>'
 h += '<tr><td>سعر عادي</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % ("{:,}".format(TOTAL_MONTHLY), f(MONTHLY_VAT), f(MONTHLY_GRAND), "{:,}".format(TOTAL_MONTHLY*24))
 h += '<tr><td>كل العمال على مصنع</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr></table>' % ("{:,}".format(TOTAL_MONTHLY_F), f(MONTHLY_VAT_F), f(MONTHLY_GRAND_F), "{:,}".format(TOTAL_MONTHLY_F*24))

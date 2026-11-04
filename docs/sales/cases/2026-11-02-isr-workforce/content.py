@@ -70,6 +70,11 @@ FACTORY_DISCOUNT = 800    # إعفاء المقابل المالي لرخصة ا
 PRICE_F = {k: PRICE[k] - FACTORY_DISCOUNT for k in LEVELS}
 STD_MIN = PER_TEAM - SKILLED_MIN               # 7 عمال مساعدين
 def team_monthly(prices): return sum(SKILLED_MIN * prices[lv] + STD_MIN * prices["helper"] for lv in TEAM_LEVEL)
+PRICE12 = {k: worker_price(v[2], v[3], months=12) for k, v in LEVELS.items()}      # عقد 12 شهراً
+PRICE12_F = {k: PRICE12[k] - FACTORY_DISCOUNT for k in LEVELS}
+TOTAL_MONTHLY12 = team_monthly(PRICE12); VAT12 = TOTAL_MONTHLY12 * 15 / 100; GRAND12 = TOTAL_MONTHLY12 + VAT12
+TOTAL_MONTHLY12_F = team_monthly(PRICE12_F); VAT12_F = TOTAL_MONTHLY12_F * 15 / 100; GRAND12_F = TOTAL_MONTHLY12_F + VAT12_F
+WORK_HOURS = 8; WORK_DAYS = 26; CALC_DAYS = 30      # ساعات العمل اليومية، وأيام العمل في الشهر، وأيام الحسبة (دائماً 30)
 TOTAL_MONTHLY = team_monthly(PRICE)
 MONTHLY_VAT = TOTAL_MONTHLY * 15 / 100
 MONTHLY_GRAND = TOTAL_MONTHLY + MONTHLY_VAT
