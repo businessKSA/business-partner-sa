@@ -126,7 +126,7 @@ def build_quote():
         return f
 
     B = "[●]"
-    nat_all = ("All three", "الثلاث")
+    nat_all = ("Filipino · Indian · Nepali", "فلبينية · هندية · نيبالية")
     rrows = []; k = 0
     for ti, (te, ta) in enumerate(TEAMS):
         lv = TEAM_LEVEL[ti]; le, la, sal, loc_fee = LEVELS[lv]; short_e = te.split(" — ")[0]; short_a = ta.split(" — ")[0]
@@ -141,7 +141,7 @@ def build_quote():
                   (num(n(TOTAL_MONTHLY)), num(n(TOTAL_MONTHLY)), "c")]})
     rates = bi_table([("#", "#", True), ("Trade", "المهنة", False), ("Level", "المستوى", True), ("Minimum salary", "الحد الأدنى للراتب", True), ("Workers", "العدد", True),
                       ("Nationalities", "الجنسيات", True), ("Monthly price per worker (SAR)", "السعر الشهري للعامل (ريال)", True), ("Monthly total (SAR)", "الإجمالي الشهري (ريال)", True)],
-                     rrows, [3, 13, 8, 7, 5, 9, 8, 8])
+                     rrows, [3, 11, 7, 7, 5, 17, 7, 8])
     note = ('<div class="nt"><div dir="ltr"><b>Minimum salary</b> by trade level: technical SAR 3,000, skilled SAR 2,500, regular (helper) SAR 1,500. One calculation per worker, 24-month contract, before 15%% VAT. Prices include the salary, government fees, insurance, end of service, leave, the return ticket, the management fee and the localisation fee. '
             '<b>Recruitment from abroad</b> is by nationality, at actual cost, on a separate invoice (section 8). <b>Workers transferred from inside the Kingdom (sponsorship transfer): no recruitment-from-abroad costs at all.</b> The monthly price is the same, as the transfer fee is included in it.</div>'
             '<div class="ar" dir="rtl"><b>الحد الأدنى للراتب</b> بحسب مستوى المهنة: الفنية 3,000 ريال، والماهرة 2,500 ريال، والعادية (العامل المساعد) 1,500 ريال. حسبة واحدة للعامل، عقد 24 شهراً، قبل ضريبة 15%%. تشمل الأسعار الراتب والرسوم الحكومية والتأمين ونهاية الخدمة والإجازة وتذكرة العودة ورسم الإدارة ورسم التوطين. '
