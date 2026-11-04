@@ -30,7 +30,7 @@ for k, (got, want) in exp.items():
     bad += not ok
     print(f"  {'OK ' if ok else 'XX '} {k}: {fmt(got)}")
 
-client = ["quote", "contract", "nda", "terms", "authorization-letter", "assessment-summary"]
+client = ["quote", "contract", "nda", "terms", "authorization-letter", "assessment-summary", "assessment-full"]
 text = {}
 for n in client:
     html = (HERE / f"{n}.html").read_text(encoding="utf8")
@@ -44,7 +44,8 @@ for n in client:
 print("== 2) الأرقام داخل المستندات (HTML / PDF)")
 need = {"quote": ["24,000", "6,000", "12,000", "18,000", "20,700", "36,000", "41,400", "6,900", "3,000", "300", "40", "75"],
         "contract": ["24,000", "6,000", "12,000", "18,000", "20,700", "6,900", "3,000", "300", "40", "75"],
-        "terms": ["24,000", "6,000", "12,000", "20,700", "6,900", "3,000", "300", "40", "75"]}
+        "terms": ["24,000", "6,000", "12,000", "20,700", "6,900", "3,000", "300", "40", "75"],
+        "assessment-full": ["32,200", "24,000", "7,000", "1,200", "33,200", "34,000", "84,659.45", "68,066.32", "16,593.13", "2,919.29", "2,248.25", "38,367.54", "87,578.74", "16,225.10", "4,148.28", "7.14"]}
 for n, nums in need.items():
     for nm in nums:
         h = nm in text[n][0].replace(" ", "")
@@ -85,8 +86,8 @@ bad += bool(dh)
 print(f"  {'OK ' if not dh else 'XX '} كلمة draft في نصوص العميل وجسم الإيميل: {dh or 'لا شيء'}")
 ib = {n: len(re.findall(r"\[IBAN\]", text[n][0])) for n in client}
 print("  عدد [IBAN] (نائب فقط):", {k: v for k, v in ib.items() if v})
-print("== 4) مرجع الأسماء: توقيع العقد/عدم الإفصاح/التفويض باسم المالك؛ العرض باسم بدر")
-for n, w in [("quote", "Badr"), ("contract", "Baher Bakr Ali Magnas"), ("nda", "Baher Bakr Ali Magnas"), ("authorization-letter", "Baher Bakr Ali Magnas")]:
+print("== 4) مرجع الأسماء: كل المستندات باسم المالك (قرار 2026-11-04)")
+for n, w in [("quote", "Baher Bakr Ali Magnas"), ("assessment-full", "Baher Bakr Ali Magnas"), ("contract", "Baher Bakr Ali Magnas"), ("nda", "Baher Bakr Ali Magnas"), ("authorization-letter", "Baher Bakr Ali Magnas")]:
     ok = w in text[n][0]
     bad += not ok
     print(f"  {'OK ' if ok else 'XX '} {n}: {w}")

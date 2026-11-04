@@ -915,6 +915,515 @@ def build_assessment():
     return G.port_doc("ملخص تقييم الامتثال", "Compliance Assessment Summary", blocks, doc_title="ملخص تقييم الامتثال · Compliance Assessment Summary")
 
 
+# ------------------------------------------------------------------ التقييم الشامل (للعميل؛ أرقام مجمّعة من لقطات العميل وبياناته، بلا هويات)
+FULL_CSS = """
+table.mt{direction:ltr;table-layout:fixed;margin:4px 0 6px;font-size:9.8px}
+table.mt th,table.mt td{padding:3px 6px;line-height:1.45}
+table.mt td.en{direction:ltr;text-align:left}table.mt td.ar{direction:rtl;text-align:right}
+table.mt th.en{text-align:left}table.mt th.ar{direction:rtl;text-align:right}
+table.mt td.c,table.mt th.c{text-align:center}
+table.mt tr.tot td{background:#EEF1FB;font-weight:700;color:#0B1B5A}
+table.mt td.gp,table.mt th.gp{border:0;background:none;padding:0}
+.kp{display:flex;gap:6px;direction:ltr;margin:6px 0 4px}
+.kp>div{flex:1;background:#F2F4FB;border:1px solid #DDE1EE;border-top:3px solid #0B1B5A;padding:5px 7px;text-align:center;line-height:1.35}
+.kp .v{display:block;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:15px;color:#0B1B5A;direction:ltr}
+.kp .l{display:block;font-size:8.6px;color:#4A5578}
+.ph{margin:7px 0 2px;direction:ltr;display:flex;justify-content:space-between;background:#EEF1FB;border-inline-start:3px solid #1E3A9E;padding:3px 9px;color:#0B1B5A;font-size:11.2px}
+.mt0{font-size:9.4px;color:#4A5578;display:block;margin-top:3px}
+"""
+
+
+def _plain(s):
+    return re.sub(r"<[^>]+>", "", s).replace("&amp;", "&").replace("&nbsp;", " ")
+
+
+def _seg_lines(s, cpl):
+    return sum(max(1, -(-len(_plain(p)) // cpl)) for p in re.split(r"<br\s*/?>|<span class=\"mt0\">", s))
+
+
+FULL_CPL_EN, FULL_CPL_AR, FULL_LH, FULL_PAD = 68, 58, 16.4, 11
+FULL_SCALE = float(os.environ.get("BP_FULL_SCALE", "1.0"))
+
+
+def _pt_h(en, ar):
+    return int((max(_seg_lines(en, FULL_CPL_EN), _seg_lines(ar, FULL_CPL_AR)) * FULL_LH + FULL_PAD) * FULL_SCALE)
+
+
+def _bk(html_, h, keep=False):
+    return G.blk(f'<div class="bk" data-e="{h}">{html_}</div>', h, keep=keep)
+
+
+def f_head(num_, en, ar):
+    return _bk('<div class="bp">' + sec(num_, en, ar) + "</div>", 54 if len(en) > 48 else 40, keep=True)
+
+
+def f_point(num_, en, ar, alt=False, keep=False):
+    return _bk(bl(num_, en, ar, alt=alt), _pt_h(en, ar), keep=keep)
+
+
+def f_phase(en, ar):
+    return _bk(f'<div class="ph"><b>{en}</b><b dir="rtl">{ar}</b></div>', 28, keep=True)
+
+
+def f_kpis(items):
+    tiles = "".join(f'<div><span class="v">{v}</span><span class="l">{le}<br><span dir="rtl">{la}</span></span></div>' for v, le, la in items)
+    return _bk(f'<div class="kp">{tiles}</div>', 70)
+
+
+def mt(head, widths, rows, tot=()):
+    """جدول ثنائي اللغة بعرض الصفحة: أعمدة الإنجليزي يساراً ثم فاصل ثم أعمدة العربي معكوسة يميناً.
+    head = (heads_en, heads_ar)؛ rows = [(cells_en, cells_ar)] بترتيب منطقي (العمود الأول هو الأقرب للهامش الخارجي)؛ widths لجانب واحد (مجموعها 49)."""
+    he, ha = head
+    cg = "".join(f'<col style="width:{w}%">' for w in widths)
+    h = f'<table class="pt mt"><colgroup>{cg}<col style="width:2%">{"".join(f"<col style=\"width:{w}%\">" for w in reversed(widths))}</colgroup>'
+    h += "<tr>" + "".join(f'<th class="en{" c" if i else ""}">{x}</th>' for i, x in enumerate(he)) + '<th class="gp"></th>'
+    h += "".join(f'<th class="ar{" c" if i else ""}">{x}</th>' for i, x in reversed(list(enumerate(ha)))) + "</tr>"
+    est = 22
+    for ri, (ce, ca) in enumerate(rows):
+        cls = ' class="tot"' if ri in tot else ""
+        h += f"<tr{cls}>" + "".join(f'<td class="en{" c" if i else ""}">{x}</td>' for i, x in enumerate(ce)) + '<td class="gp"></td>'
+        h += "".join(f'<td class="ar{" c" if i else ""}">{A(x)}</td>' for i, x in reversed(list(enumerate(ca)))) + "</tr>"
+        lines = 1
+        for i, (x, y) in enumerate(zip(ce, ca)):
+            lines = max(lines, _seg_lines(x, max(6, int(FULL_CPL_EN * 1.0 * widths[i] / 49 * 0.93))), _seg_lines(y, max(6, int(FULL_CPL_AR * widths[i] / 49 * 0.93))))
+        est += lines * 14.4 + 7
+    return _bk(h + "</table>", int((est * 1.08 + 10) * FULL_SCALE))
+
+
+def _measure_blocks(blocks):
+    """يقيس الارتفاع الفعلي لكل كتلة في Chromium (يستبدل التقدير)؛ عند تعذّر القياس يبقى التقدير."""
+    if os.environ.get("BP_NOMEASURE"):
+        return blocks
+    try:
+        fetch_fonts()
+        tmp = Path(os.environ.get("BP_TMP", "/tmp/bp-v2-build"))
+        tmp.mkdir(parents=True, exist_ok=True)
+        inner = "".join(b["html"] for b in blocks)
+        h = G.document("m", "port", [f'<section class="sheet port" lang="ar" style="height:auto"><div dir="rtl">{inner}</div></section>'])
+        h = re.sub(r'<link rel="stylesheet" href="https://fonts\.googleapis\.com[^>]*>', "", h)
+        h = h.replace("<style>", "<style>" + font_css(), 1).replace("</style>", FULL_CSS + EXTRA + ".sheet.port{height:auto!important;overflow:visible!important}</style>", 1)
+        h = h.replace("{{ASSETS}}", str(LIB / "assets"))
+        src, out = tmp / "measure.html", tmp / "measure.json"
+        src.write_text(h, encoding="utf8")
+        r = subprocess.run(["node", str(HERE / "measure_blocks.mjs"), str(src), str(out)], capture_output=True, text=True, timeout=120)
+        if r.returncode:
+            return blocks
+        import json
+        hs = json.loads(out.read_text())
+        if len(hs) != len(blocks):
+            return blocks
+        for b, x in zip(blocks, hs):
+            b["h"] = x
+    except Exception:
+        pass
+    return blocks
+
+
+def build_assessment_full():
+    k = G.num
+    ar_pc = lambda x: k(f"{x}٪")
+    assert 17 + 1 + 4 == 22 and 24000 + 7000 + 1200 == 32200 and 32200 + 1000 == 33200
+    assert 10000 + 10000 + 10000 + 4000 == 34000 and 6 * 4000 == 24000 and 7 * 1000 == 7000 and 4 * 300 == 1200
+    assert round(68066.32 + 16593.13, 2) == 84659.45 and round(16593.13 * 0.25, 2) == 4148.28
+    assert round(33200 + 2248.25 + 2919.29, 2) == 38367.54
+    assert 27 + 19 + 2 + 1 + 1 == 50
+    assert round(5 / 31 * 100, 1) == 16.1 and round(2 / 28 * 100, 2) == 7.14
+    # عدد السعوديين المحتسبين اللازم لبلوغ 21٪ و28٪ مع 26 غير سعودي محتسباً (تقريبي)
+    import math
+    need21 = math.ceil(0.21 * 26 / 0.79)
+    need28 = math.ceil(0.28 * 26 / 0.72)
+    assert (need21, need28) == (7, 11) and (need21 - 2, need28 - 2) == (5, 9)
+
+    B = []
+    meta = ('<table class="cl"><tr><td class="en"><b>Prepared for:</b> ' + CLIENT_EN + '<br><b>Date:</b> <span class="num">[●]</span><br>'
+            '<b>Data as of:</b> 28 October 2026 · aggregate figures from the Client’s own data and screenshots</td>'
+            '<td class="ar"><b>أُعدّ لـ:</b> ' + CLIENT_AR + '<br><b>التاريخ:</b> <span class="num">[●]</span><br>'
+            '<b>البيانات حتى:</b> 28 أكتوبر 2026 · أرقام مجمّعة من بيانات العميل ولقطاته' + RLM + '</td></tr></table>')
+    B.append(_bk(meta, 76))
+
+    # ---------------------------------------------------------------- 1
+    B.append(f_head(1, "Executive summary and priorities", "الملخص التنفيذي والأولويات"))
+    B.append(f_kpis([
+        (k("7.14%"), "Nitaqat: red band", "نطاقات: النطاق الأحمر"),
+        (k("57%"), "Qiwa compliance", "الالتزام في قوى"),
+        (k("32,200"), "17 unpaid violations (SAR)", "17 مخالفة غير مسددة (ريال)"),
+        (k("84,659.45"), "Unpaid social insurance (SAR)", "التأمينات غير المسددة (ريال)"),
+        (k("38,367.54"), "Near-term amounts due (SAR)", "المستحق القريب (ريال)"),
+    ]))
+    s1 = [
+        ("This report sets out the position of the Client’s establishment before the government platforms, as it appears from the data and screenshots the Client provided on 28 October 2026. It ranks the risks and proposes a corrective plan in phases.",
+         "يعرض هذا التقرير وضع منشأة العميل أمام المنصات الحكومية كما يظهر من البيانات واللقطات التي قدّمها العميل في 28 أكتوبر 2026، ويرتّب المخاطر، ويقترح خطة تصحيحية على مراحل."),
+        (f"The establishment is in the red Nitaqat band at {k('7.14%')} (the red band covers {k('0–21%')}). Qiwa shows overall compliance of {k('57%')}, which is not compliant. Tamm shows {k(17)} unpaid violations totalling {k('32,200')} SAR, plus one violation of {k('1,000')} SAR transferred to the enforcement platform.",
+         f"المنشأة في النطاق الأحمر في نطاقات بنسبة {ar_pc('7.14')} (النطاق الأحمر من {k('0–21٪')}). وتُظهر قوى التزاماً عاماً بنسبة {ar_pc(57)}، أي غير ملتزمة. وتُظهر «تمام» {k(17)} مخالفة غير مسددة بمجموع {k('32,200')} ريال، إضافة إلى مخالفة واحدة بقيمة {k('1,000')} ريال مرحّلة إلى منصة التنفيذ."),
+        (f"The largest group of violations ({k(6)} violations, {k('24,000')} SAR, about three quarters of the unpaid total) concerns localisation of sales professions, where {k(2)} Saudi employees are required and {k(0)} are counted. The same position stands today, so further violations may be issued until it is corrected.",
+         f"أكبر مجموعة مخالفات ({k(6)} مخالفات بمبلغ {k('24,000')} ريال، أي نحو ثلاثة أرباع غير المسدد) تتعلق بتوطين مهن المبيعات، المطلوب فيها {k(2)} سعوديان والمحتسب {k(0)}. والوضع نفسه قائم اليوم، فقد تصدر مخالفات أخرى إلى أن يُصحَّح."),
+        (f"Social insurance shows an unpaid balance of {k('84,659.45')} SAR (contributions {k('68,066.32')} and penalties {k('16,593.13')}) under an instalment plan of {k(30)} instalments, of which one is paid.",
+         f"تُظهر التأمينات الاجتماعية رصيداً غير مسدد قدره {k('84,659.45')} ريال (اشتراكات {k('68,066.32')} وغرامات {k('16,593.13')}) ضمن خطة تقسيط من {k(30)} قسطاً سُدد منها قسط واحد."),
+        (f"Dated items: the Qiwa group subscription ({k('2,248.25')} SAR) before 11 November 2026, the social-insurance instalment ({k('2,919.29')} SAR) on 17 November 2026, and the instalment certificate, valid until 16/06/1448H (about 27 November 2026). With the violations, the near-term amounts due to entities total {k('38,367.54')} SAR; they are paid to the entities and are not part of our fees.",
+         f"بنود لها مواعيد: اشتراك المجموعة في قوى ({k('2,248.25')} ريال) قبل 11 نوفمبر 2026، وقسط التأمينات ({k('2,919.29')} ريال) في 17 نوفمبر 2026، وشهادة التقسيط السارية حتى 16/06/1448هـ (نحو 27 نوفمبر 2026). وبإضافة المخالفات يبلغ المستحق القريب للجهات {k('38,367.54')} ريال؛ وهي تُدفع للجهات وليست من أتعابنا."),
+        ("The Client’s screenshots show a note on the establishment-stability support programme. We have not seen its text, issuer or date. The official procedure for lifting it, and what the Ministry requires, are to be confirmed with the Ministry.",
+         "تُظهر لقطات العميل ملاحظة على برنامج دعم استقرار المنشآت. ولم نطّلع على نصها ولا على جهتها وتاريخها. والإجراء الرسمي لرفعها وما تطلبه الوزارة لذلك يُؤكَّدان مع الوزارة."),
+        ("Items marked “to be confirmed” were not verifiable from the data provided. They are confirmed on the platform or with the entity before any action, and are never assumed.",
+         "البنود الموسومة «يُؤكَّد» لم يمكن التحقق منها من البيانات المقدّمة. وتُؤكَّد على المنصة أو مع الجهة قبل أي إجراء، ولا تُفترض."),
+    ]
+    for i, (en, ar) in enumerate(s1, 1):
+        if i == 2:
+            B.append(f_phase("Recommended order of priorities", "ترتيب الأولويات المقترح"))
+            B.append(mt((["#", "Priority", "Who"], ["#", "الأولوية", "الجهة"]), [4, 29, 16], [
+                (["1", "Stop new violations: settle the position of the sales professions", "Client; Business Partner"],
+                 ["1", "إيقاف المخالفات الجديدة: حسم وضع مهن المبيعات", "العميل؛ Business Partner"]),
+                (["2", "Meet the dated payments on Qiwa and social insurance", "Client"],
+                 ["2", "الوفاء بالمدفوعات ذات المواعيد في قوى والتأمينات", "العميل"]),
+                (["3", "Study, violation by violation, the route available (payment, objection or settlement) against its notification date", "Business Partner; Client approves"],
+                 ["3", "دراسة المسار المتاح لكل مخالفة (سداد أو اعتراض أو تسوية) على ضوء تاريخ تبليغها", "Business Partner؛ والعميل يوافق"]),
+                (["4", "Correct work permits, contracts and wage-protection notes", "Client; Business Partner"],
+                 ["4", "تصحيح رخص العمل والعقود وملاحظات حماية الأجور", "العميل؛ Business Partner"]),
+                (["5", "Plan the exit from the red band through genuine Saudi hiring", "Client; Business Partner"],
+                 ["5", "تخطيط الخروج من النطاق الأحمر بتوظيف سعودي فعلي", "العميل؛ Business Partner"]),
+                (["6", "Extract residency data and set a renewals calendar", "Business Partner"],
+                 ["6", "استخراج بيانات الإقامات ووضع تقويم تجديدات", "Business Partner"]),
+            ]))
+        B.append(f_point(f"1.{i}", en, ar, alt=i % 2 == 0))
+
+    # ---------------------------------------------------------------- 2
+    B.append(f_head(2, "Establishment snapshot", "لمحة عن المنشأة"))
+    B.append(mt((["Item", "Reading"], ["البند", "القراءة"]), [17, 32], [
+        (["Type and size", "Company; small establishment, category B (21–49 workers), Riyadh"], ["النوع والحجم", "شركة؛ منشأة صغيرة (فئة ب: من 21 إلى 49 عاملاً)، الرياض"]),
+        (["Activity (as on Qiwa)", "Manufacture of organic solvents, thinners and paint-removal preparations"], ["النشاط (كما في قوى)", "صناعة المذيبات والمخففات العضوية ومحضرات إزالة الدهانات"]),
+        (["Stage on Qiwa", f"“Expansion”; recruitment balance {k(26)} used / {k(0)} current; no visas"], ["المرحلة في قوى", f"«توسع»؛ رصيد الاستقطاب {k(26)} مستخدم / {k(0)} حالي؛ لا تأشيرات"]),
+        (["Workforce on the employment statement", f"{k(31)} workers: {k(5)} Saudi ({k('16.1%')}) and {k(26)} non-Saudi"], ["العمالة في بيان العمالة", f"{k(31)} عاملاً: {k(5)} سعوديون ({k('16.1٪')}) و{k(26)} غير سعوديين"]),
+        (["Active social-insurance subscriptions", f"{k(29)}: {k(3)} Saudi and {k(26)} non-Saudi"], ["الاشتراكات النشطة في التأمينات", f"{k(29)}: {k(3)} سعوديون و{k(26)} غير سعوديين"]),
+        (["Counted in Nitaqat", f"{k(28)}: {k(2)} Saudi and {k(26)} non-Saudi"], ["المحتسبون في نطاقات", f"{k(28)}: {k(2)} سعوديان و{k(26)} غير سعوديين"]),
+        (["Nitaqat band and rate", f"Red; {k('7.14%')} (red band {k('0–21%')}); the portal also shows a period of {k(8)} weeks, whose meaning is to be confirmed"], ["النطاق والنسبة", f"أحمر؛ {k('7.14٪')} (النطاق الأحمر {k('0–21٪')})؛ وتُظهر البوابة أيضاً مدة {k(8)} أسابيع يُؤكَّد معناها"]),
+        (["Branches stated in the documents provided", "Riyadh, Al-Zulfi, Sakaka and Arar"], ["الفروع المذكورة في المستندات المقدّمة", "الرياض والزلفي وسكاكا وعرعر"]),
+    ]))
+    s2 = [
+        ("The Launch Package covers one branch (Riyadh); additional branches are added under the terms of the Agreement. The distribution of workers across the four branches, and their registration on Qiwa and social insurance, are to be confirmed; they may also explain the difference in sales roles noted in section 5.",
+         "تشمل باقة الانطلاق فرعاً واحداً (الرياض)، وتُضاف الفروع الأخرى وفق شروط العقد. وتوزيع العمالة على الفروع الأربعة وتسجيلها في قوى والتأمينات يُؤكَّدان؛ وقد يفسّران كذلك الفرق في وظائف المبيعات المذكور في البند 5."),
+        (f"The group subscription on Qiwa suggests that more than one establishment may be covered. The number of establishments, and who is authorised on each, are to be confirmed.",
+         "يوحي «اشتراك المجموعة» في قوى بأن أكثر من منشأة قد تكون مشمولة. وعدد المنشآت ومن هو المفوّض على كل منها يُؤكَّدان."),
+        (f"Data quality: the employment statement has {k(36)} rows for {k(31)} distinct identities (some repeated), {k(22)} of the {k(36)} rows lack a birth date, and {k(3)} identities are in a non-standard format. The statement is cleaned before any upload or submission.",
+         f"جودة البيانات: يضم بيان العمالة {k(36)} صفاً لـ{k(31)} هوية مختلفة (بعضها مكرر)، ويفتقر {k(22)} من الصفوف الـ{k(36)} إلى تاريخ الميلاد، و{k(3)} هويات بصيغة غير قياسية. وينظَّف البيان قبل أي رفع أو تقديم."),
+        (f"The employment statement lists {k(5)} Saudi employees, {k(3)} of them with an active social-insurance subscription and {k(2)} counted in Nitaqat. The reason for each difference is to be confirmed with the entity.",
+         f"يُدرج بيان العمالة {k(5)} موظفين سعوديين، منهم {k(3)} باشتراك نشط في التأمينات و{k(2)} محتسبان في نطاقات. وسبب كل فرق يُؤكَّد مع الجهة."),
+    ]
+    for i, (en, ar) in enumerate(s2, 1):
+        B.append(f_point(f"2.{i}", en, ar, alt=i % 2 == 0))
+
+    # ---------------------------------------------------------------- 3
+    B.append(f_head(3, "Status by entity and platform", "الحالة أمام الجهات والمنصات"))
+    B.append(f_phase("3.1 Qiwa — indicators on the Client’s screenshots", "3.1 قوى — المؤشرات في لقطات العميل"))
+    ok_e, no_e, at_e = "Met", "Not met", "Attention"
+    ok_a, no_a, at_a = "مستوفٍ", "غير مستوفٍ", "يحتاج متابعة"
+    B.append(mt((["Indicator", "Reading", "Status"], ["المؤشر", "القراءة", "الحالة"]), [15, 22, 12], [
+        (["Overall compliance", f"{k('57%')}, not compliant", no_e], ["الالتزام العام", f"{ar_pc(57)}، غير ملتزمة", no_a]),
+        (["Work-permit validity", f"{k('92%')}; {k(2)} expired; {k(1)} worker without a contract", no_e], ["صلاحية رخص العمل", f"{ar_pc(92)}؛ {k(2)} منتهية؛ عامل واحد بلا عقد", no_a]),
+        (["Contract documentation", k("93%"), ok_e], ["توثيق العقود", ar_pc(93), ok_a]),
+        (["Location assignment", k("100%"), ok_e], ["تعيين المواقع", ar_pc(100), ok_a]),
+        (["Wage-protection notes", f"not compliant; {k(7)} violations", no_e], ["ملاحظات حماية الأجور", f"غير ملتزمة؛ {k(7)} مخالفات", no_a]),
+        (["Nitaqat", f"{k('7.14%')}, red band", no_e], ["نطاقات", f"{ar_pc('7.14')}، النطاق الأحمر", no_a]),
+        (["Localisation of sales professions", f"required {k(2)}, actual {k(0)}", no_e], ["توطين مهن المبيعات", f"مطلوب {k(2)}، فعلي {k(0)}", no_a]),
+        (["Group subscription", f"ends soon; renewal {k('2,248.25')} SAR", at_e], ["اشتراك المجموعة", f"ينتهي قريباً؛ التجديد {k('2,248.25')} ريال", at_a]),
+    ]))
+    s31 = [
+        ("Qiwa subscription: the screenshot gives 11 November 2026 as the date up to which the renewal amount is valid, while the text on the same screen (“12 days”) points to about 9 November. We recommend paying by 9 November, and the correct date is confirmed on the platform.",
+         "اشتراك قوى: تذكر اللقطة 11 نوفمبر 2026 تاريخاً لصلاحية مبلغ التجديد، بينما يشير النص على الشاشة نفسها («12 يوماً») إلى نحو 9 نوفمبر. ونوصي بالسداد قبل 9 نوفمبر، ويُؤكَّد التاريخ الصحيح على المنصة."),
+        (f"Employment contracts on Qiwa: {k(50)} rows covering {k(47)} identities, all full-time. Valid: {k(27)}; ended by termination: {k(19)}; cancelled by the establishment: {k(2)}; expired: {k(1)}; cancelled automatically: {k(1)}.",
+         f"عقود العمل في قوى: {k(50)} صفاً تغطي {k(47)} هوية، جميعها دوام كامل. الساري {k(27)}؛ والمنتهي بإنهاء {k(19)}؛ والملغي من المنشأة {k(2)}؛ والمنتهي {k(1)}؛ والملغي تلقائياً {k(1)}."),
+        (f"Matching with the employment statement: {k(26)} of the {k(27)} valid contracts match the statement and one valid contract is outside it (to be confirmed). {k(5)} workers on the statement have no valid contract: {k(2)} Saudi and {k(3)} non-Saudi. Valid contracts cover {k(3)} of the {k(5)} Saudi employees, and {k(8)} valid contracts were last updated before January 2026 (to be confirmed).",
+         f"المطابقة مع بيان العمالة: {k(26)} من العقود السارية الـ{k(27)} تطابق البيان، وعقد ساري واحد خارج البيان (يُؤكَّد). و{k(5)} عمال في البيان بلا عقد ساري: سعوديان و{k(3)} غير سعوديين. وتغطي العقود السارية {k(3)} من الموظفين السعوديين الخمسة، وآخر تحديث لـ{k(8)} عقود سارية قبل يناير 2026 (يُؤكَّد). "),
+        ("Where a worker without a valid contract is in fact working, the contract is documented; where the worker has left, the statement is updated through the lawful route.",
+         "حيث يعمل فعلاً عامل بلا عقد ساري يُوثَّق عقده؛ وحيث غادر العامل يُحدَّث البيان بالطريق النظامي."),
+    ]
+    for i, (en, ar) in enumerate(s31, 1):
+        B.append(f_point(f"3.1.{i}", en, ar, alt=i % 2 == 0))
+
+    B.append(f_phase("3.2 Social insurance (GOSI)", "3.2 التأمينات الاجتماعية"))
+    B.append(mt((["Item", "Reading (SAR where an amount)"], ["البند", "القراءة (بالريال حيث يوجد مبلغ)"]), [19, 30], [
+        (["Active subscriptions", f"{k(29)}: {k(3)} Saudi and {k(26)} non-Saudi"], ["الاشتراكات النشطة", f"{k(29)}: {k(3)} سعوديون و{k(26)} غير سعوديين"]),
+        (["Unpaid balance (28 Oct 2026)", f"{k('84,659.45')} = contributions {k('68,066.32')} + penalties {k('16,593.13')}"], ["غير المسدد (28 أكتوبر 2026)", f"{k('84,659.45')} = اشتراكات {k('68,066.32')} + غرامات {k('16,593.13')}"]),
+        (["Current instalment plan", f"{k(30)} instalments of {k('2,919.29')}; one paid; next on 17 Nov 2026; plan value as shown {k('87,578.74')}"], ["خطة التقسيط الحالية", f"{k(30)} قسطاً بقيمة {k('2,919.29')}؛ سُدد قسط واحد؛ والتالي في 17 نوفمبر 2026؛ وقيمة الخطة كما تظهر {k('87,578.74')}"]),
+    ]))
+    B.append(mt((["Item", "Reading (SAR where an amount)"], ["البند", "القراءة (بالريال حيث يوجد مبلغ)"]), [19, 30], [
+        (["Earlier plan (Aug 2024 – Jan 2027)", f"paid {k(0)}; remaining {k('16,225.10')}; status to be confirmed"], ["خطة سابقة (أغسطس 2024 – يناير 2027)", f"المسدد {k(0)}؛ المتبقي {k('16,225.10')}؛ وحالتها تُؤكَّد"]),
+        (["Penalty waiver", f"{k('25%')} of penalties shown as eligible = {k('4,148.28')}; status of any request to be confirmed"], ["إعفاء الغرامات", f"{ar_pc(25)} من الغرامات ظاهرة كمؤهلة = {k('4,148.28')}؛ وحالة أي طلب تُؤكَّد"]),
+        (["Instalment certificate", "dated 28 Oct 2026; valid until 16/06/1448H (about 27 Nov 2026)"], ["شهادة التقسيط", "بتاريخ 28 أكتوبر 2026؛ سارية حتى 16/06/1448هـ (نحو 27 نوفمبر 2026)"]),
+        (["Earlier social-insurance violations", f"{k(4)}, all paid; no action"], ["مخالفات التأمينات السابقة", f"{k(4)}، جميعها مسددة؛ لا إجراء"]),
+    ]))
+    s32 = [
+        (f"The certificate states that the establishment pays its debt in instalments and that the plan is regular; it covers the {k(29)} active subscribers and not suspended subscribers, and the employer-name field on it is blank. It is renewed before it expires. The effect of a missed instalment on the certificate is to be confirmed with social insurance.",
+         f"تفيد الشهادة بأن المنشأة تسدد مديونيتها بالتقسيط وأن الخطة منتظمة؛ وهي تشمل {k(29)} مشتركاً نشطاً دون المشتركين المعلّقين، وحقل اسم صاحب العمل فيها فارغ. وتُجدَّد قبل انتهائها. وأثر التأخر عن قسط على الشهادة يُؤكَّد مع التأمينات."),
+        (f"Thirteen invoices still appear unpaid although a plan exists, and the September 2026 invoice includes one extra subscriber with a wage of {k(800)}. The relationship between the invoices and the plan, and the reason for the extra subscriber, are to be confirmed.",
+         f"ما زالت {k(13)} فاتورة تظهر غير مسددة رغم وجود خطة، وتتضمن فاتورة سبتمبر 2026 مشتركاً زائداً بأجر {k(800)}. والعلاقة بين الفواتير والخطة وسبب المشترك الزائد يُؤكَّدان."),
+    ]
+    for i, (en, ar) in enumerate(s32, 1):
+        B.append(f_point(f"3.2.{i}", en, ar, alt=i % 2 == 0))
+
+    s33 = [
+        ("3.3 Mudad (wage protection). ", "3.3 مدد (حماية الأجور). ",
+         f"No Mudad data was provided. Qiwa shows the wage-protection indicator as not compliant, and Tamm shows {k(7)} wage-protection violations for the months September 2025 to August 2026 and {k(4)} violations for late payment of wages (13 October 2025). Whether Mudad is activated and the monthly file is uploaded at the required compliance rate is to be confirmed.",
+         f"لم تُقدَّم بيانات من مدد. وتُظهر قوى مؤشر حماية الأجور غير ملتزم، وتُظهر «تمام» {k(7)} مخالفات حماية أجور عن الأشهر من سبتمبر 2025 إلى أغسطس 2026 و{k(4)} مخالفات تأخر في دفع الأجور (13 أكتوبر 2025). وهل مدد مفعّلة والملف الشهري مرفوع بنسبة الامتثال المطلوبة يُؤكَّد."),
+        ("3.4 Muqeem and Absher Business (residencies). ", "3.4 مقيم وأبشر أعمال (الإقامات). ",
+         "The sources provided contain no residency dates, so the residencies cannot be assessed and no conclusion is drawn about any of them. The residency report is extracted from Muqeem or Qiwa after authorisation, and those ending soon are listed with a renewals calendar.",
+         "لا تتضمن المصادر المقدّمة تواريخ إقامات، فلا يمكن تقييم الإقامات ولا نستخلص حكماً عن أي منها. ويُستخرج تقرير الإقامات من مقيم أو قوى بعد التفويض، وتُدرج المنتهية قريباً في تقويم تجديدات."),
+        ("3.5 Medical insurance. ", "3.5 التأمين الطبي. ",
+         "No medical-insurance data appears in the data provided, so the current position is to be confirmed: provider, number of insured workers and expiry. The Client’s work regulations (Article 33) refer to medical insurance for all workers, and the package includes organising the employees’ medical insurance.",
+         "لا تظهر بيانات للتأمين الطبي في البيانات المقدّمة، فيُؤكَّد الوضع الحالي: المزوّد وعدد المؤمَّن عليهم وتاريخ الانتهاء. وتشير لائحة تنظيم العمل لدى العميل (المادة 33) إلى التأمين الطبي لجميع العاملين، وتشمل الباقة تنظيم التأمين الطبي للموظفين."),
+        ("3.6 Work regulations. ", "3.6 لائحة تنظيم العمل. ",
+         "The regulations provided (31 pages, 55 articles) were approved by the Ministry on 13/05/1444H. Several fields are blank: number of workers, activity, national address, establishment file number and the definitions of “establishment” and “authorised person”. Whether this is the latest approved version is to be confirmed. The regulations should match the real position, including wages through banks and wage protection (Article 14).",
+         "اللائحة المقدّمة (31 صفحة و55 مادة) معتمدة من الوزارة بتاريخ 13/05/1444هـ. وفيها حقول فارغة: عدد العاملين والنشاط والعنوان الوطني ورقم ملف المنشأة وتعريف «المنشأة» و«صاحب الصلاحية». وهل هذه آخر نسخة معتمدة يُؤكَّد. وينبغي أن توافق اللائحة الواقع، ومنه دفع الأجور عبر البنوك وحماية الأجور (المادة 14)."),
+    ]
+    for i, (te, ta, en, ar) in enumerate(s33):
+        B.append(f_point(te.split()[0], f"<b>{te.split(' ', 1)[1]}</b>{en}", f"<b>{ta.split(' ', 1)[1]}</b>{ar}", alt=i % 2 == 1))
+
+    B.append(f_phase("3.7 Nitaqat and localisation", "3.7 نطاقات والتوطين"))
+    B.append(mt((["Profession group", "Required", "Actual", "Required rate"], ["مجموعة المهن", "المطلوب", "الفعلي", "النسبة المطلوبة"]), [21, 9, 9, 10], [
+        (["Sales professions", k(2), k(0), k("60%")], ["مهن المبيعات", k(2), k(0), ar_pc(60)]),
+    ]))
+    s37 = [
+        (f"Band limits as shown on the portal: low green {k('21–28%')}, medium green {k('28–31%')}, high green {k('31–37%')}, platinum above {k('37%')}. They are checked against the official calculator, together with the establishment’s activity group (most likely “industries”) and the minimum wage at which a Saudi employee is counted, before any figure is adopted.",
+         f"حدود النطاق كما تظهر في البوابة: أخضر منخفض {k('21–28٪')}، وأخضر متوسط {k('28–31٪')}، وأخضر مرتفع {k('31–37٪')}، وبلاتيني فوق {k('37٪')}. وتُراجع بالحاسبة الرسمية، ومعها مجموعة نشاط المنشأة (الأرجح «الصناعات») وحدّ الأجر الذي يُحتسب عنده الموظف السعودي، قبل اعتماد أي رقم."),
+        (f"Sales professions: {k(2)} Saudi employees are required and {k(0)} are counted. The employment statement lists {k(6)} workers in sales professions while Qiwa shows {k(3)}; the reason is to be confirmed.",
+         f"مهن المبيعات: المطلوب {k(2)} سعوديان والمحتسب {k(0)}. ويُدرج بيان العمالة {k(6)} عمال في مهن بيع بينما تُظهر قوى {k(3)}؛ والسبب يُؤكَّد."),
+        ("Options for the sales professions, each decided by the Client and checked with the Ministry before use: (a) employ Saudi nationals genuinely working in those roles; (b) where a worker’s real work differs from the registered job title, correct the title to match the real work; (c) any other option the Ministry confirms for the profession. We do not register anyone nominally.",
+         "خيارات مهن المبيعات، ويقرّر العميل كلاً منها وتُراجَع مع الوزارة قبل اعتمادها: (أ) توظيف سعوديين يعملون فعلاً في هذه الوظائف؛ (ب) حيث يختلف عمل العامل الفعلي عن المسمى الوظيفي المسجّل يُصحَّح المسمى ليطابق العمل الحقيقي؛ (ج) أي خيار آخر تؤكده الوزارة للمهنة. ولا نسجّل أحداً شكلياً."),
+        (f"Approximate climb out of the red band, counting {k(26)} non-Saudi workers: about {k(7)} counted Saudi employees are needed to reach {k('21%')} (currently {k(2)}, so about {k(5)} more) and about {k(11)} to reach {k('28%')} (about {k(9)} more). This changes with the counting rules and wages, and is confirmed with the official calculator.",
+         f"الارتقاء التقريبي من النطاق الأحمر مع {k(26)} عاملاً غير سعودي: يلزم نحو {k(7)} سعوديين محتسبين لبلوغ {ar_pc(21)} (الآن {k(2)}، أي نحو {k(5)} إضافيين) ونحو {k(11)} لبلوغ {ar_pc(28)} (نحو {k(9)} إضافيين). ويتغير ذلك بقواعد الاحتساب والأجور، ويُؤكَّد بالحاسبة الرسمية."),
+        ("The effect of the red band on the establishment’s services is to be confirmed with the Ministry.",
+         "وأثر النطاق الأحمر على خدمات المنشأة يُؤكَّد مع الوزارة."),
+    ]
+    for i, (en, ar) in enumerate(s37, 1):
+        B.append(f_point(f"3.7.{i}", en, ar, alt=i % 2 == 0))
+    B.append(f_point("3.8", "<b>Tamm (violations). </b>The violations, their types and amounts are set out in section 4.",
+                     "<b>تمام (المخالفات). </b>تفصيل المخالفات وأنواعها ومبالغها في البند 4.", alt=True))
+    B.append(f_point("3.9", "<b>Stability-support note. </b>The Client’s screenshots show a note on the establishment-stability support programme. The text, issuer and date are to be obtained, and the official procedure to lift it is to be confirmed with the Ministry. Every document submitted to any entity must match the real facts.",
+                     "<b>ملاحظة دعم الاستقرار. </b>تُظهر لقطات العميل ملاحظة على برنامج دعم استقرار المنشآت. ويُحصَل على نصها وجهتها وتاريخها، ويُؤكَّد مع الوزارة الإجراء الرسمي لرفعها. وكل مستند يُقدَّم إلى أي جهة يجب أن يطابق الوقائع."))
+
+    # ---------------------------------------------------------------- 4
+    B.append(f_head(4, "Violations on Tamm", "المخالفات في «تمام»"))
+    B.append(mt((["Type", "No.", "Amount (SAR)", "Notes"], ["النوع", "العدد", "المبلغ (ريال)", "ملاحظات"]), [14, 5, 9, 21], [
+        (["Localisation", k(6), k("24,000"), f"July, September and October 2026; linked to two non-Saudi workers in sales professions ({k('4,000')} each)"],
+         ["التوطين", k(6), k("24,000"), f"يوليو وسبتمبر وأكتوبر 2026؛ مرتبطة بعاملين غير سعوديين اثنين في مهن البيع ({k('4,000')} لكل مخالفة)"]),
+        (["Wage-protection file", k(7), k("7,000"), f"September 2025 to August 2026 ({k('1,000')} each)"],
+         ["ملف حماية الأجور", k(7), k("7,000"), f"من سبتمبر 2025 إلى أغسطس 2026 ({k('1,000')} لكل مخالفة)"]),
+        (["Late payment of wages", k(4), k("1,200"), f"13 October 2025 ({k(300)} each)"],
+         ["عدم دفع الأجور في موعدها", k(4), k("1,200"), f"13 أكتوبر 2025 ({k(300)} لكل مخالفة)"]),
+        (["Total unpaid", k(17), k("32,200"), ""], ["إجمالي غير المسدد", k(17), k("32,200"), ""]),
+    ], tot=(3,)))
+    B.append(f_phase("Other violation records", "سجلات المخالفات الأخرى"))
+    B.append(mt((["Type", "No.", "Amount (SAR)", "Notes"], ["النوع", "العدد", "المبلغ (ريال)", "ملاحظات"]), [14, 5, 9, 21], [
+        (["Transferred to the enforcement platform", k(1), k("1,000"), "18 January 2026"], ["المرحّلة إلى منصة التنفيذ", k(1), k("1,000"), "18 يناير 2026"]),
+        (["Unpaid and in enforcement", k(18), k("33,200"), ""], ["غير المسدد والمرحّل", k(18), k("33,200"), ""]),
+        (["Cancelled earlier", k(4), k("34,000"), f"health care ×2 ({k('10,000')} each, 2019); work without a work permit ({k('10,000')}, 2024); localisation ({k('4,000')}, 2024)"],
+         ["الملغاة سابقاً", k(4), k("34,000"), f"رعاية صحية ×2 ({k('10,000')} لكل مخالفة، 2019)؛ تشغيل بلا رخصة عمل ({k('10,000')}، 2024)؛ توطين ({k('4,000')}، 2024)"]),
+        (["All violations recorded", k(22), "", f"{k(17)} + {k(1)} + {k(4)}; one violation has an objection filed"],
+         ["إجمالي المخالفات المسجّلة", k(22), "", f"{k(17)} + {k(1)} + {k(4)}؛ وعلى واحدة منها اعتراض مقدَّم"]),
+    ], tot=(1, 3)))
+    s4 = [
+        ("The amounts above are those shown on the Client’s screens. We have not added, estimated or calculated any penalty of our own. The amounts of the cancelled violations are not part of the amounts due.",
+         "المبالغ أعلاه هي ما يظهر في شاشات العميل. ولم نضف أو نقدّر أو نحسب أي غرامة من عندنا. ومبالغ المخالفات الملغاة ليست من المستحق."),
+        ("Time limits for payment, objection and settlement run from the notification date and differ by case; some may already have passed, particularly for the July localisation violations. The notification date of each violation is obtained first, and each limit is confirmed on Tamm.",
+         "مهل السداد والاعتراض والتسوية تبدأ من تاريخ التبليغ وتختلف بحسب الحالة؛ وقد يكون بعضها انقضى، خصوصاً مخالفات التوطين عن يوليو. ويُحصَل أولاً على تاريخ تبليغ كل مخالفة، وتُؤكَّد كل مهلة على «تمام»."),
+        ("For each violation we review the file, study the eligibility of the route available (payment, objection or settlement), prepare it, submit it only with the Client’s separate written approval, and follow it up. Earlier cancellations show that the objection route has been used, but they do not mean the same result for any violation now due, and we promise no cancellation or reduction.",
+         "نراجع ملف كل مخالفة، وندرس أهلية المسار المتاح لها (سداد أو اعتراض أو تسوية)، ونجهّزه، ولا نقدّمه إلا بموافقة العميل الخطية المنفصلة، ثم نتابعه. وتدل الإلغاءات السابقة على أن مسار الاعتراض سبق سلوكه، لكنها لا تعني النتيجة نفسها لأي مخالفة مستحقة الآن، ولا نعد بإلغاء ولا بتخفيض."),
+        ("Localisation violations were issued for three separate months while the position of the sales professions has not changed. Unless it is corrected, further violations may be issued; this is confirmed against the notification dates.",
+         "صدرت مخالفات التوطين عن ثلاثة أشهر منفصلة ووضع مهن المبيعات لم يتغير. وما لم يُصحَّح قد تصدر مخالفات أخرى؛ ويُؤكَّد ذلك بتواريخ التبليغ."),
+        ("Priority order for the study: localisation first, then wage protection (after proof of the file upload), then late payment of wages.",
+         "ترتيب الأولوية في الدراسة: التوطين أولاً، ثم حماية الأجور (بعد إثبات رفع الملف)، ثم تأخر الأجور."),
+    ]
+    for i, (en, ar) in enumerate(s4, 1):
+        B.append(f_point(f"4.{i}", en, ar, alt=i % 2 == 0))
+
+    # ---------------------------------------------------------------- 5
+    B.append(f_head(5, "Risks ranked by impact", "المخاطر مرتبة بالأثر"))
+    lab = lambda e, a: (f"<b>{e}</b> ", f"<b>{a}</b> ")
+
+    def risk(n_, impact, t_en, t_ar, eff, rec, own, dl):
+        en = (f'<b>{t_en}</b> <span class="mt0">Impact: <b>{impact[0]}</b></span>'
+              f'<b>Likely effect:</b> {eff[0]}<br><b>We recommend:</b> {rec[0]}<br><b>Owner:</b> {own[0]} · <b>Deadline:</b> {dl[0]}')
+        ar = (f'<b>{t_ar}</b> <span class="mt0">الأثر: <b>{impact[1]}</b></span>'
+              f'<b>الأثر المحتمل:</b> {eff[1]}<br><b>نوصي بـ:</b> {rec[1]}<br><b>المسؤول:</b> {own[1]} · <b>الموعد:</b> {dl[1]}')
+        return f_point(f"5.{n_}", en, ar, alt=n_ % 2 == 0)
+
+    C_, BP_ = ("Client", "العميل"), ("Business Partner", "Business Partner")
+    risks = [
+        risk(1, ("Very high", "عالٍ جداً"), "Red Nitaqat band with unpaid localisation violations", "النطاق الأحمر مع مخالفات توطين غير مسددة",
+             (f"{k('24,000')} SAR of unpaid violations, about three quarters of the total, relate to localisation; the effect of the red band on services is to be confirmed with the Ministry.",
+              f"{k('24,000')} ريال من المخالفات غير المسددة، أي نحو ثلاثة أرباعها، من التوطين؛ وأثر النطاق الأحمر على الخدمات يُؤكَّد مع الوزارة."),
+             ("settle the sales-professions position, then plan the climb with the official calculator.", "حسم وضع مهن المبيعات ثم تخطيط الارتقاء بالحاسبة الرسمية."),
+             ("Client decides and hires; Business Partner calculates and follows up", "العميل يقرّر ويوظّف؛ وBusiness Partner يحسب ويتابع"),
+             ("position within 7 days; climb plan within 30–90 days", "الوضع خلال 7 أيام؛ وخطة الارتقاء خلال 30 إلى 90 يوماً")),
+        risk(2, ("High", "عالٍ"), "Social-insurance balance and a long instalment plan", "رصيد التأمينات وخطة تقسيط طويلة",
+             (f"{k('84,659.45')} SAR is unpaid and the plan runs for {k(30)} instalments; the instalment certificate depends on the plan staying regular, and the effect of non-payment is to be confirmed with social insurance.",
+              f"رصيد {k('84,659.45')} ريال غير مسدد والخطة من {k(30)} قسطاً؛ وتعتمد الشهادة على انتظام الخطة، وأثر عدم السداد يُؤكَّد مع التأمينات."),
+             (f"pay the {k('2,919.29')} SAR instalment, renew the certificate before it expires, and follow up the penalty-waiver request.",
+              f"سداد قسط {k('2,919.29')} ريال، وتجديد الشهادة قبل انتهائها، ومتابعة طلب إعفاء الغرامات."),
+             ("Client pays; Business Partner follows up", "العميل يسدد؛ وBusiness Partner يتابع"),
+             ("17 November 2026; certificate before about 27 November 2026", "17 نوفمبر 2026؛ والشهادة قبل نحو 27 نوفمبر 2026")),
+        risk(3, ("High", "عالٍ"), "Unpaid violations on Tamm", "مخالفات غير مسددة في «تمام»",
+             (f"{k(17)} violations ({k('32,200')} SAR) plus one in enforcement ({k('1,000')} SAR); limits for objection or settlement may already have passed for some.",
+              f"{k(17)} مخالفة ({k('32,200')} ريال) ومخالفة في التنفيذ ({k('1,000')} ريال)؛ وقد تكون مهل الاعتراض أو التسوية انقضت لبعضها."),
+             ("obtain the notification dates, then study each violation, localisation first.", "الحصول على تواريخ التبليغ ثم دراسة كل مخالفة، والتوطين أولاً."),
+             ("Business Partner studies; Client approves and pays", "Business Partner يدرس؛ والعميل يوافق ويسدد"),
+             ("study within 3 weeks of authorisation", "الدراسة خلال 3 أسابيع من التفويض")),
+        risk(4, ("High", "عالٍ"), "Difference in sales roles between the employment statement and Qiwa", "فرق وظائف المبيعات بين بيان العمالة وقوى",
+             (f"The statement lists {k(6)} workers in sales professions against {k(3)} on Qiwa; any mismatch between job titles and real work weakens every submission.",
+              f"يُدرج البيان {k(6)} عمال في مهن البيع مقابل {k(3)} في قوى؛ وأي عدم تطابق بين المسميات والعمل الفعلي يُضعف كل تقديم."),
+             ("confirm who actually works in each sales role and make job titles match the real work.", "تأكيد من يعمل فعلاً في كل وظيفة مبيعات وجعل المسميات تطابق العمل الحقيقي."),
+             ("Client", "العميل"), ("7 days", "7 أيام")),
+        risk(5, ("High, time-bound", "عالٍ زمنياً"), "Qiwa group subscription ending", "قرب انتهاء اشتراك المجموعة في قوى",
+             ("The effect of the subscription ending is to be confirmed with Qiwa.", "أثر انتهاء الاشتراك يُؤكَّد مع قوى."),
+             (f"confirm the date and pay {k('2,248.25')} SAR.", f"تأكيد التاريخ وسداد {k('2,248.25')} ريال."),
+             ("Client", "العميل"), ("by 9 November 2026 (recommended), and no later than 11 November 2026", "قبل 9 نوفمبر 2026 (الأحوط)، وبما لا يتجاوز 11 نوفمبر 2026")),
+        risk(6, ("Medium to high", "متوسط إلى عالٍ"), "Qiwa compliance at 57%, two expired work permits and one missing contract", "التزام قوى 57٪ ورخصتا عمل منتهيتان وعقد مفقود",
+             ("Compliance stays below target until permits and the contract are corrected.", "يبقى الالتزام دون المستهدف إلى أن تُصحَّح الرخص والعقد."),
+             ("renew the two work permits and document the contract (government fees are paid by the Client).", "تجديد رخصتي العمل وتوثيق العقد (والرسوم الحكومية يدفعها العميل)."),
+             ("Client with Business Partner", "العميل مع Business Partner"), ("2 weeks", "أسبوعان")),
+        risk(7, ("Medium to high", "متوسط إلى عالٍ"), "Stability-support note", "ملاحظة دعم استقرار المنشآت",
+             ("Its scope and effect are to be confirmed with the Ministry; we have not seen its text.", "يُؤكَّد نطاقها وأثرها مع الوزارة؛ ولم نطّلع على نصها."),
+             ("obtain the note’s text, issuer and date, and ask the Ministry for the official procedure and requirements.", "الحصول على نص الملاحظة وجهتها وتاريخها، وسؤال الوزارة عن الإجراء الرسمي والمتطلبات."),
+             ("Client with Business Partner", "العميل مع Business Partner"), ("7 days", "7 أيام")),
+        risk(8, ("Medium", "متوسط"), "Saudi employees without an active subscription or valid contract", "موظفان سعوديان بلا اشتراك نشط وبلا عقد ساري",
+             (f"{k(2)} Saudi employees on the statement have no active subscription and {k(2)} have no valid contract (whether they are the same employees is to be confirmed); employees without an active subscription may not be counted in Nitaqat.", f"موظفان سعوديان في البيان بلا اشتراك نشط وموظفان بلا عقد ساري (وهل هما أنفسهما يُؤكَّد)؛ وقد لا يُحتسب في نطاقات من لا اشتراك نشط له."),
+             ("find the reason; document their contracts if they work, or update the statement through the lawful route.", "معرفة السبب؛ وتوثيق عقديهما إن كانا يعملان، أو تحديث البيان بالطريق النظامي."),
+             ("Client", "العميل"), ("2 weeks", "أسبوعان")),
+        risk(9, ("Medium (unknown)", "متوسط (مجهول)"), "Residencies with unknown expiry dates", "إقامات مجهولة تواريخ الانتهاء",
+             ("No dates were provided, so no judgement is possible.", "لا تواريخ مقدّمة، فلا حكم ممكناً."),
+             ("extract the report from Muqeem or Qiwa and list those ending soon.", "استخراج التقرير من مقيم أو قوى وإدراج المنتهية قريباً."),
+             ("Business Partner, after authorisation", "Business Partner بعد التفويض"), ("within 2 weeks of authorisation", "خلال أسبوعين من التفويض")),
+        risk(10, ("Medium (unknown)", "متوسط (مجهول)"), "Medical insurance not shown", "التأمين الطبي غير ظاهر",
+             ("Its current position is unknown.", "وضعه الحالي مجهول."),
+             ("provide the policy details; we organise the employees’ medical insurance under the package.", "تزويدنا بتفاصيل الوثيقة؛ وننظّم التأمين الطبي للموظفين ضمن الباقة."),
+             ("Client with Business Partner", "العميل مع Business Partner"), ("30 days", "30 يوماً")),
+        risk(11, ("Low to medium", "منخفض إلى متوسط"), "Data quality and the extra subscriber on the invoice", "جودة البيانات والمشترك الزائد في الفاتورة",
+             ("Repeated rows, missing birth dates and an extra subscriber can distort figures and submissions.", "تكرار الصفوف ونقص تواريخ الميلاد والمشترك الزائد قد تشوّه الأرقام والتقديمات."),
+             ("clean the statement before any upload and confirm the reason for the extra subscriber.", "تنظيف البيان قبل أي رفع وتأكيد سبب المشترك الزائد."),
+             ("Business Partner with Client", "Business Partner مع العميل"), ("1 week", "أسبوع")),
+    ]
+    B += risks
+
+    # ---------------------------------------------------------------- 6
+    B.append(f_head(6, "Corrective action plan", "خطة العمل التصحيحية"))
+    B.append(f_point("6.1",
+                     f"The plan is carried out through two services under the Agreement: <b>{SETUP_EN}</b> (one-time): the assessment, setting up the file on the platforms, cleaning and organising it, a corrective plan, and follow-up until stability; and the <b>{PKG_EN}</b> (ongoing): Qiwa, social insurance, Mudad, Muqeem and Absher Business, medical insurance, Nitaqat and localisation, a unified renewals calendar, a monthly report, and the Tamm process for each violation. Payments, hiring decisions and approvals stay with the Client; government fees, fines and platform subscriptions are paid directly to the entity.",
+                     f"تُنفَّذ الخطة عبر خدمتين في العقد: <b>{SETUP_AR}</b> (مرة واحدة): التقييم وتأسيس الملف على المنصات وتنظيفه وترتيبه وخطة تصحيحية والمتابعة حتى الاستقرار؛ و<b>{PKG_AR}</b> (مستمرة): قوى والتأمينات الاجتماعية ومدد ومقيم وأبشر أعمال والتأمين الطبي ونطاقات والتوطين وتقويم موحّد للتجديدات وتقرير شهري ومسار «تمام» لكل مخالفة. وتبقى المدفوعات وقرارات التوظيف والموافقات على العميل؛ والرسوم الحكومية والغرامات واشتراكات المنصات تُدفع مباشرةً للجهة."))
+
+    def act(n_, en, ar, own, scope):
+        e = f'{en}<span class="mt0">Owner: {own[0]} · Under: {scope[0]}</span>'
+        a = f'{ar}<span class="mt0">المسؤول: {own[1]} · ضمن: {scope[1]}</span>'
+        return f_point(f"6.{n_}", e, a, alt=n_ % 2 == 0)
+
+    SU = (SETUP_EN, SETUP_AR)
+    LA = (PKG_EN, PKG_AR)
+    CL = ("Client", "العميل")
+    CB = ("Client with Business Partner", "العميل مع Business Partner")
+    BPo = ("Business Partner", "Business Partner")
+    PRE = ("Prerequisite to both services", "شرط مسبق للخدمتين")
+    B.append(f_phase("Phase 1 — Immediate (first 7 days)", "المرحلة 1 — فورية (أول 7 أيام)"))
+    B.append(act(2, "Sign the authorisation letter attested by the Chamber of Commerce and delegate access on Qiwa, social insurance, Mudad and Muqeem. Never passwords or verification codes.",
+                 "توقيع خطاب التفويض المصدَّق من الغرفة التجارية وتفويض الوصول على قوى والتأمينات ومدد ومقيم. ولا كلمات مرور ولا رموز تحقق إطلاقاً.", CL, PRE))
+    B.append(act(3, "List the notification date of every violation and sort out those still within an objection or settlement limit.",
+                 "جرد تاريخ تبليغ كل مخالفة وفرز ما بقي منها ضمن مهلة اعتراض أو تسوية.", BPo, SU))
+    B.append(act(4, "Settle the position of the sales professions: who actually works in each role, job titles that match the real work, and genuine Saudi hiring where required.",
+                 "حسم وضع مهن المبيعات: من يعمل فعلاً في كل وظيفة، ومسميات تطابق العمل الحقيقي، وتوظيف سعودي فعلي حيث يلزم.", CB, SU))
+    B.append(act(5, f"Confirm the date and pay the Qiwa group subscription ({k('2,248.25')} SAR), by 9 November 2026 if possible.",
+                 f"تأكيد التاريخ وسداد اشتراك المجموعة في قوى ({k('2,248.25')} ريال)، قبل 9 نوفمبر 2026 إن أمكن.", CB, SU))
+    B.append(act(6, "Obtain the text, issuer and date of the stability-support note, and confirm with the Ministry the official procedure to lift it and its requirements.",
+                 "الحصول على نص ملاحظة دعم الاستقرار وجهتها وتاريخها، وتأكيد الإجراء الرسمي لرفعها ومتطلباتها مع الوزارة.", CB, SU))
+    B.append(act(7, "Submit nothing new to any entity until it has been reviewed against the real facts.",
+                 "عدم تقديم أي مستند جديد لأي جهة قبل مراجعته بالوقائع.", CB, SU))
+    B.append(f_phase("Phase 2 — Within 30 days", "المرحلة 2 — خلال 30 يوماً"))
+    B.append(act(8, f"Pay the social-insurance instalment of {k('2,919.29')} SAR due on 17 November 2026, renew the instalment certificate before it expires, and follow up the penalty-waiver request.",
+                 f"سداد قسط التأمينات {k('2,919.29')} ريال المستحق في 17 نوفمبر 2026، وتجديد شهادة التقسيط قبل انتهائها، ومتابعة طلب إعفاء الغرامات.", CB, SU))
+    B.append(act(9, "Study each unpaid violation (localisation first, then wage protection), prepare the chosen route and submit it only with the Client’s separate written approval.",
+                 "دراسة كل مخالفة غير مسددة (التوطين أولاً ثم حماية الأجور) وتجهيز المسار المختار وتقديمه بموافقة العميل الخطية المنفصلة فقط.", BPo, LA))
+    B.append(act(10, "Activate Mudad and file the wage-protection file monthly at the required compliance rate; handle the notes.",
+                 "تفعيل مدد ورفع ملف حماية الأجور شهرياً بنسبة الامتثال المطلوبة، ومعالجة الملاحظات.", BPo, (f"{SETUP_EN}, then {PKG_EN}", f"{SETUP_AR} ثم {PKG_AR}")))
+    B.append(act(11, "Renew the two expired work permits and document the missing contract.",
+                 "تجديد رخصتي العمل المنتهيتين وتوثيق العقد المفقود.", CB, LA))
+    B.append(act(12, "Verify the social-insurance status and contract of every Saudi employee, and reconcile the statement with Qiwa and social insurance (duplicates, birth dates, professions).",
+                 "التحقق من وضع كل موظف سعودي في التأمينات وعقده، ومطابقة البيان مع قوى والتأمينات (المكررات وتواريخ الميلاد والمهن).", CB, SU))
+    B.append(act(13, "Provide the medical-insurance details; organise the employees’ medical insurance and an alert before expiry.",
+                 "تزويدنا بتفاصيل التأمين الطبي؛ وتنظيم التأمين الطبي للموظفين مع تنبيه قبل الانتهاء.", CB, LA))
+    B.append(act(14, "Complete the blank fields of the work regulations, update them, and apply them in practice (wages through banks, medical insurance).",
+                 "استكمال الحقول الفارغة في لائحة تنظيم العمل وتحديثها وتطبيقها فعلياً (الأجور عبر البنوك والتأمين الطبي).", CL, SU))
+    B.append(f_phase("Phase 3 — 30 to 90 days", "المرحلة 3 — من 30 إلى 90 يوماً"))
+    B.append(act(15, "Calculate the climb out of the red band with the official calculator and the counting rules, and set a monthly Nitaqat calculation with an alert before any drop.",
+                 "حساب الارتقاء من النطاق الأحمر بالحاسبة الرسمية وقواعد الاحتساب، وضبط حساب شهري لنطاقات مع تنبيه قبل أي هبوط.", BPo, LA))
+    B.append(act(16, "Set a genuine Saudi hiring plan: jobs, wages and schedule. The cost of hiring and the salaries are the Client’s.",
+                 "وضع خطة توظيف سعودي فعلي: المهن والأجور والجدول. وتكلفة التوظيف والرواتب على العميل.", CL, ("outside our fees", "خارج أتعابنا")))
+    B.append(act(17, "Extract the residency report from Muqeem or Qiwa, list those ending, and renew them on a renewals calendar.",
+                 "استخراج تقرير الإقامات من مقيم أو قوى، وإدراج المنتهية منها، وتجديدها وفق تقويم التجديدات.", BPo, LA))
+    B.append(act(18, "Pay the social-insurance instalments on schedule.", "سداد أقساط التأمينات في موعدها.", CL, ("Client’s obligation", "التزام على العميل")))
+    B.append(act(19, "Move to monthly management: a monthly report, a unified renewals calendar, alerts before any violation, and a single point of contact.",
+                 "الانتقال إلى الإدارة الشهرية: تقرير شهري وتقويم موحّد للتجديدات وتنبيه قبل أي مخالفة ونقطة اتصال واحدة.", BPo, LA))
+    B.append(act(20, f"Review at 90 days against these aims, which are aims of the plan and not guarantees: no new violations for three months; localisation at {k('21%')} or more; permits and contracts at {k('100%')}; no wage-protection notes. They depend on the Client’s decisions and the entities’ response.",
+                 f"المراجعة بعد 90 يوماً على هذه الأهداف، وهي أهداف للخطة لا ضمانات: لا مخالفات جديدة لثلاثة أشهر؛ وتوطين {ar_pc(21)} فأكثر؛ والرخص والعقود {ar_pc(100)}؛ ولا ملاحظات حماية أجور. وتعتمد على قرارات العميل واستجابة الجهات.", BPo, LA))
+
+    # ---------------------------------------------------------------- 7
+    B.append(f_head(7, "Information and documents we need from the Client", "المعلومات والمستندات التي نحتاجها من العميل"))
+    s7 = [
+        ("The authorisation letter attested by the Chamber of Commerce, and the type of access delegated on Qiwa, social insurance, Mudad and Muqeem (never passwords or verification codes).",
+         "خطاب التفويض مصدَّقاً من الغرفة التجارية، ونوع الوصول المفوَّض على قوى والتأمينات ومدد ومقيم (لا كلمات مرور ولا رموز تحقق)."),
+        ("The correct renewal date of the Qiwa group subscription, the number of establishments it covers, and who is authorised on each.",
+         "تاريخ تجديد اشتراك المجموعة في قوى الصحيح، وعدد المنشآت التي يشملها، ومن هو المفوَّض على كل منها."),
+        ("From social insurance: the status of the penalty-waiver request, the status of the earlier instalment plan, and why thirteen invoices appear unpaid; the official report of all social-insurance violations.",
+         "من التأمينات: حالة طلب إعفاء الغرامات، وحالة خطة التقسيط السابقة، وسبب ظهور 13 فاتورة غير مسددة؛ والتقرير الرسمي بكل مخالفات التأمينات."),
+        ("From Tamm: the official report of all violations (paid and unpaid) and the notification date of each.",
+         "من «تمام»: التقرير الرسمي بكل المخالفات (المسددة وغير المسددة) وتاريخ تبليغ كل منها."),
+        ("The stability-support note: a screenshot of it, its issuer and date, and the Ministry’s requirements when known.",
+         "ملاحظة دعم الاستقرار: صورتها وجهتها وتاريخها، ومتطلبات الوزارة عند معرفتها."),
+        ("The residency and work-permit report for each worker (from Muqeem or Qiwa), and the wages on the employment statement, which has none.",
+         "تقرير الإقامات ورخص العمل لكل عامل (من مقيم أو قوى)، والأجور في بيان العمالة الذي لا يتضمنها."),
+        ("An explanation of the difference in sales roles between the statement and Qiwa, of the extra subscriber on the September invoice, and of the Saudi employees without an active subscription or valid contract.",
+         "تفسير الفرق في وظائف المبيعات بين البيان وقوى، والمشترك الزائد في فاتورة سبتمبر، والموظفين السعوديين بلا اشتراك نشط أو عقد ساري."),
+        ("The distribution of workers across the four branches and their registration on each platform.",
+         "توزيع العمالة على الفروع الأربعة وتسجيلهم في كل منصة."),
+        ("The Client’s hiring plan for Saudi employees (jobs, wages and schedule).", "خطة العميل لتوظيف السعوديين (المهن والأجور والجدول)."),
+        ("The medical-insurance policy: provider, number of insured workers, coverage and expiry.", "وثيقة التأمين الطبي: المزوّد وعدد المؤمَّن عليهم والتغطية وتاريخ الانتهاء."),
+        ("The establishment’s activity group in Nitaqat and the establishment file number at the labour office.", "مجموعة نشاط المنشأة في نطاقات ورقم ملف المنشأة في مكتب العمل."),
+        ("The current national-address proof (the one provided shows an expiry on 22 October 2026), and the latest approved work regulations with their blank fields completed.",
+         "إثبات العنوان الوطني الحالي (الذي قُدّم ينتهي في 22 أكتوبر 2026)، وآخر نسخة معتمدة من لائحة تنظيم العمل بعد استكمال حقولها الفارغة."),
+        ("Please send documents through the approved channel only. Screenshots that show identity numbers or phone numbers are shared only with those authorised.",
+         "نرجو إرسال المستندات عبر القناة المعتمدة فقط. واللقطات التي تُظهر أرقام هوية أو جوالات لا تُشارَك إلا مع المخوَّلين."),
+    ]
+    for i, (en, ar) in enumerate(s7, 1):
+        B.append(f_point(f"7.{i}", en, ar, alt=i % 2 == 0))
+
+    # ---------------------------------------------------------------- 8
+    B.append(f_head(8, "Limits of this assessment", "حدود هذا التقييم"))
+    s8 = [
+        ("This assessment is built from the data and screenshots the Client provided on 28 October 2026: the lists of social-insurance subscribers, the employment statement, the September 2026 invoice, the work regulations, and screenshots of Qiwa, social insurance and Tamm.",
+         "بُني هذا التقييم من البيانات واللقطات التي قدّمها العميل في 28 أكتوبر 2026: قوائم المشتركين في التأمينات وبيان العمالة وفاتورة سبتمبر 2026 ولائحة تنظيم العمل ولقطات من قوى والتأمينات و«تمام»."),
+        ("No platform was accessed and nothing was submitted to any entity.", "لم يُدخل أي منصة ولم يُقدَّم شيء لأي جهة."),
+        ("Figures may change as the entities update their records. Each figure is confirmed on the platform before any action, and items marked “to be confirmed” are not verified.",
+         "قد تتغير الأرقام بتحديث الجهات لسجلاتها. ويُؤكَّد كل رقم على المنصة قبل أي إجراء، والبنود الموسومة «يُؤكَّد» لم يُتحقق منها."),
+        ("The amounts of fines, subscriptions and fees are those shown on the Client’s screens. They are paid by the Client directly to the entity or supplier and are not part of our fees.",
+         "مبالغ الغرامات والاشتراكات والرسوم هي ما يظهر في شاشات العميل. ويدفعها العميل مباشرةً للجهة أو المورّد، وليست من أتعابنا."),
+        ("The estimate of Saudi employees needed to leave the red band is approximate and depends on the counting rules and wages.",
+         "تقدير عدد السعوديين اللازم للخروج من النطاق الأحمر تقريبي ويعتمد على قواعد الاحتساب والأجور."),
+        ("This assessment covers human-resources matters only: Qiwa, Mudad, Muqeem and Absher Business, social insurance, medical insurance, Nitaqat and localisation, and Tamm. Other areas are not assessed.",
+         "يغطي هذا التقييم شؤون الموارد البشرية فقط: قوى ومدد ومقيم وأبشر أعمال والتأمينات الاجتماعية والتأمين الطبي ونطاقات والتوطين و«تمام». ولم تُقيَّم مجالات أخرى."),
+        ("This is not a legal opinion. We promise no outcome: not the lifting of any hold or note, not the cancellation or reduction of any violation, not any Nitaqat band, and not the acceptance of any request by an entity.",
+         "هذا التقييم ليس رأياً قانونياً. ولا نعد بأي نتيجة: لا برفع تجميد أو ملاحظة، ولا بإلغاء مخالفة أو تخفيضها، ولا بنطاق معيّن، ولا بقبول أي جهة لأي طلب."),
+    ]
+    for i, (en, ar) in enumerate(s8, 1):
+        B.append(f_point(f"8.{i}", en, ar, alt=i % 2 == 0))
+    B.append(_bk('<div class="bp" style="margin-top:14px"><div class="rw"><div class="col" dir="ltr"><b>Issued by</b><br>' + G.CEO_EN + ' · ' + G.CEO_TITLE_EN + '<br>' + G.CO_EN + '</div>'
+                 '<div class="col" dir="rtl"><b>صادر عن</b><br>' + G.CEO_AR + ' · ' + G.CEO_TITLE_AR + '<br>' + G.CO_AR + '</div></div></div>', 64))
+
+    strip = [("Prepared for / أُعدّ لـ", CLIENT_EN), ("Date / التاريخ", G.num("[●]")), ("Data as of / البيانات حتى", "28 Oct 2026 · 28 أكتوبر 2026"),
+             ("Issued by / صادر عن", f"{G.CEO_EN}<br><span dir=\"rtl\">{G.CEO_AR}</span>")]
+    cover = G.cover_port("COMPREHENSIVE ASSESSMENT", "التقييم الشامل", "Comprehensive Compliance Assessment", "تقييم الامتثال الشامل",
+                         "Government platforms · Nitaqat and localisation · Tamm", "المنصات الحكومية · نطاقات والتوطين · تمام", strip)
+    B = _measure_blocks(B)
+    G.PORT_BUDGET = int(os.environ.get("BP_FULL_BUDGET", "888"))
+    h = G.port_doc("تقييم الامتثال الشامل", "Comprehensive Compliance Assessment", B, cover, G.closing_port(),
+                   "تقييم الامتثال الشامل · Comprehensive Compliance Assessment")
+    return h.replace("</style>", FULL_CSS + "</style>", 1)
+
+
+
 # ------------------------------------------------------------------ الكتابة والتحويل إلى PDF
 DOCS = {
     "quote": ("quote", build_quote, "land"),
@@ -923,6 +1432,7 @@ DOCS = {
     "terms": ("terms", build_terms, "port"),
     "authorization": ("authorization-letter", build_auth, "port"),
     "assessment": ("assessment-summary", build_assessment, "port"),
+    "assessment_full": ("assessment-full", build_assessment_full, "port"),
 }
 
 
@@ -960,7 +1470,7 @@ def inject_company(h):
 
 # ------------------------------------------------------------------ النسخة النهائية: تاريخ الإرسال والمراجع والحقول القابلة للتعبئة
 SEND_DATE = os.environ.get("BP_DATE", "")            # مثال: 2026-11-04
-DOC_REF = {"quote": "Q", "contract": "C", "nda": "NDA", "terms": "TC", "authorization-letter": "AUTH", "assessment-summary": "ASM"}
+DOC_REF = {"quote": "Q", "contract": "C", "nda": "NDA", "terms": "TC", "authorization-letter": "AUTH", "assessment-summary": "ASM", "assessment-full": "ASF"}
 _AR_MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"]
 _EN_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
