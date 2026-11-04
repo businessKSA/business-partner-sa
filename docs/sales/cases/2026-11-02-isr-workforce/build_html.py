@@ -141,8 +141,6 @@ def build_quote():
     note = ('<div class="nt"><div dir="ltr"><b>Recruitment fee</b> = service BP-REC-01 (recruitment and work-visa issuance), SAR %s per worker, one time, before VAT. Total SAR %s + VAT %s = SAR %s. Government fees are separate. <b>Workers transferred from inside the Kingdom (sponsorship transfer): no recruitment-from-abroad fees at all.</b> The monthly price is the same, as the transfer fee is included in it.</div>'
             '<div class="ar" dir="rtl"><b>رسم الاستقدام</b> = الخدمة BP-REC-01 (الاستقدام واستخراج تأشيرات العمل)، %s ريال للعامل، مرة واحدة، قبل الضريبة. الإجمالي %s ريال + ضريبة %s = %s ريال. والرسوم الحكومية منفصلة. <b>العمال المنقولة كفالتهم من داخل المملكة: لا توجد أي رسوم استقدام من الخارج.</b> والسعر الشهري نفسه لأن رسم النقل داخل فيه.</div></div>') % (
         n(REC_FEE), n(REC_TOTAL), n2(REC_VAT), n2(REC_GRAND), n(REC_FEE), n(REC_TOTAL), n2(REC_VAT), n2(REC_GRAND))
-    inner = meta_row() + h2(1, "The seven teams", "الفرق السبعة") + teams + note
-    sheets.append(page(inner))
 
     # 3 جدول الأسعار الشهرية + أساس الحساب
     rrows = []
@@ -161,15 +159,15 @@ def build_quote():
                 [("VAT 15%", "ضريبة القيمة المضافة 15%", "t"), (num(n2(MONTHLY_VAT)), num(n2(MONTHLY_VAT)), "c")],
                 [("<b>Total per month</b> (SAR)", "<b>الإجمالي شهرياً</b> (ريال)", "t"), (num(n2(MONTHLY_GRAND)), num(n2(MONTHLY_GRAND)), "c")]]
     totals = bi_table([("At the minimum skilled share (8 of 15)", "عند الحد الأدنى للمهرة (8 من 15)", False), ("SAR", "ريال", True)], tot_rows, [40, 10])
-    inner = h2(2, "Monthly rate per worker (SAR, before VAT)", "السعر الشهري للعامل (ريال، قبل الضريبة)") + rates + totals + h2(3, "Price basis", "أساس السعر") + basis
+    inner = meta_row() + h2(1, "Monthly rate per worker (SAR, before VAT)", "السعر الشهري للعامل (ريال، قبل الضريبة)") + rates + totals + note
     sheets.append(page(inner))
 
     # 4 النطاق والمستثنيات
     scope_rows = [[(str(i), str(i), "nx"), ("<b>%s</b> — %s" % (esc(te), esc(de)), "<b>%s</b> — %s" % (esc(ta), esc(ar(da))), "t")] for i, (te, ta, de, da) in enumerate(SCOPE, 1)]
     scope = bi_table([("#", "#", True), ("What is included", "ما يشمله العرض", False)], scope_rows, [4, 46])
     excl = numbered([(esc(e), esc(a)) for e, a in EXCLUSIONS], "Not included / on the Client", "غير مشمول / على العميل")
-    sheets.append(page(h2(4, "Scope", "النطاق") + scope))
-    sheets.append(page(h2(5, "Not included in the price", "ما لا يشمله السعر") + excl))
+    sheets.append(page(h2(2, "Price basis", "أساس السعر") + basis + h2(3, "Scope", "النطاق") + scope))
+    sheets.append(page(h2(4, "Not included in the price", "ما لا يشمله السعر") + excl))
 
     # 5 المراحل والدفع والشروط
     srows = [[(str(i), str(i), "nx"), ("<b>%s</b> — %s" % (esc(se), esc(we)), "<b>%s</b> — %s" % (esc(sa), esc(ar(wa))), "t"), (num(d), num(d), "c")]
@@ -178,13 +176,13 @@ def build_quote():
     pay_rows = [[("1", "1", "nx"), ("Advance", "الدفعة المقدمة", ""), (num(B), num(B), "c"), ("On signing", "عند التوقيع", "")],
                 [("2", "2", "nx"), ("Monthly invoice — workers on duty", "فاتورة شهرية — العمال على رأس العمل", ""), ("100%", "100%", "c"), ("Within [●] days of the invoice", "خلال [●] يوماً من الفاتورة", "")]]
     pay = bi_table([("#", "#", True), ("Payment", "الدفعة", False), ("Share", "النسبة", True), ("Due", "الاستحقاق", False)], pay_rows, [4, 22, 8, 16])
-    sheets.append(page(h2(6, "Stages and indicative duration", "المراحل والمدة التقريبية") + stg + h2(7, "Payment terms", "طريقة الدفع") + pay))
-    sheets.append(page(h2(8, "Terms and conditions", "الشروط والأحكام") + numbered([(esc(e), esc(a)) for e, a in TERMS], "Term", "الشرط")))
+    sheets.append(page(h2(5, "Stages and indicative duration", "المراحل والمدة التقريبية") + stg + h2(6, "Payment terms", "طريقة الدفع") + pay))
+    sheets.append(page(h2(7, "Terms and conditions", "الشروط والأحكام") + numbered([(esc(e), esc(a)) for e, a in TERMS], "Term", "الشرط")))
 
     # 6 التوقيعان
     sg = ('<div class="rw"><div class="col" dir="ltr"><p>By signing below, both parties accept this quotation and its terms and conditions.</p></div>'
           '<div class="col" dir="rtl"><p>%s</p></div></div>') % esc(ar("بالتوقيع أدناه يوافق الطرفان على هذا العرض وشروطه وأحكامه."))
-    inner = h2(9, "Signatures", "التوقيعان") + sg + sig_boxes(right_co=esc(CLIENT_AR))
+    inner = h2(8, "Signatures", "التوقيعان") + sg + sig_boxes(right_co=esc(CLIENT_AR))
     sheets.append(page(inner))
 
     def closing(i, n):
