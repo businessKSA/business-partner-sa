@@ -162,10 +162,9 @@ def build_quote():
         dr.append([("Technical engineering (under a decision)", "فنية هندسية (عليها قرار توطين)", "t"), pc(LEVELS['tech'][2]), pc(PRICE_TECHDEC), pc(PRICE_TECHDEC24), pc(PRICE_TECHDEC - PRICE_TECHDEC24)])
         dr.append([("Engineering (under a decision)", "هندسية (عليها قرار توطين)", "t"), pc(ENG_SALARY), pc(PRICE_ENG), pc(PRICE_ENG24), pc(PRICE_ENG - PRICE_ENG24)])
         return bi_table([("Monthly price per worker (SAR)", "السعر الشهري للعامل (ريال)", False), ("Salary", "الراتب", True), ("12-month contract (our offer)", "عقد 12 شهراً (عرضنا)", True), ("24-month contract", "عقد 24 شهراً", True), ("Difference per month", "الفرق شهرياً", True)], dr, [18, 8, 9, 9, 8])
-    diffnote = ('<div class="nt"><div dir="ltr">In a 24-month contract the visa or transfer fee (SAR 2,000) is spread over 24 months, so the price falls by about SAR 90 per worker per month.</div>'
-                '<div class="ar" dir="rtl">في عقد 24 شهراً تُوزَّع رسوم التأشيرة أو النقل (2,000 ريال) على 24 شهراً، فينخفض السعر نحو 90 ريالاً للعامل شهرياً.</div></div>')
+    diffnote = ('<div class="nt"><div dir="ltr">In a 24-month contract the visa or transfer of services (sponsorship transfer) fee (SAR 2,000) is spread over 24 months, so the price falls by about SAR 90 per worker per month.</div>'
+                '<div class="ar" dir="rtl">في عقد 24 شهراً تُوزَّع رسوم التأشيرة أو نقل الخدمات (نقل الكفالة) (2,000 ريال) على 24 شهراً، فينخفض السعر نحو 90 ريالاً للعامل شهرياً.</div></div>')
     sheets.append(page(h2(1, "Trades, salaries and price: 12-month contract (SAR, before VAT)", "المهن والرواتب والسعر الشهري: عقد 12 شهراً (ريال، قبل الضريبة)") + hours + rates12))
-    sheets.append(page(h2(2, "Calculation if the worker is employed at a factory (12-month contract)", "الحسبة إذا كان العامل على مصنع (عقد 12 شهراً)") + fac12 + facnote + h2(3, "If the contract is 24 months: the difference", "إذا كان العقد 24 شهراً: الفرق") + diff_table() + diffnote + note))
 
 
     # 4 النطاق والمستثنيات
@@ -176,6 +175,15 @@ def build_quote():
     scope_page = h2("A1", "Scope", "النطاق") + scope
     calc_box = '' if not CALC_URL else ('<div class="nt"><div dir="ltr"><b>Salary-based cost calculator.</b> Enter the salary, nationality and contract length to see the actual monthly cost per worker: <b>%s</b></div>'
                 '<div class="ar" dir="rtl"><b>الآلة الحاسبة للتكاليف بناءً على الرواتب.</b> أدخل الراتب والجنسية ومدة العقد لتعرف التكلفة الفعلية الشهرية للعامل: <b dir="ltr">%s</b></div></div>') % (CALC_URL, CALC_URL)
+    def model_how():
+        rows_ = [
+          [("<b>How it works</b>", "<b>كيف يعمل</b>", "t"), ("One fixed monthly amount that includes every government cost, spread over the contract.", "مبلغ شهري ثابت يشمل كل التكاليف الحكومية موزَّعة على العقد.", "t"), ("A lower monthly invoice; government costs are invoiced at their actual amount, no mark-up, when due.", "فاتورة شهرية أقل؛ والتكاليف الحكومية بمبلغها الفعلي دون هامش عند استحقاقها.", "t")],
+          [("<b>You pay</b>", "<b>تدفع</b>", "t"), ("Two months in advance, then the same amount monthly.", "شهرين مقدماً ثم المبلغ نفسه شهرياً.", "t"), ("Two months of the invoice in advance, then the invoice monthly, plus each government cost when due.", "شهرين من الفاتورة مقدماً ثم الفاتورة شهرياً، وكل تكلفة حكومية عند استحقاقها.", "t")],
+          [("<b>Total over the contract</b>", "<b>الإجمالي على العقد</b>", "t"), ("The same in both models.", "هو نفسه في النموذجين.", "t"), ("The same in both models.", "هو نفسه في النموذجين.", "t")]]
+        return bi_table([("", "", False), ("Model 1 — Full cost", "النموذج الأول — التكلفة الكاملة", False), ("Model 2 — Transparent cost", "النموذج الثاني — التكلفة بشفافية", False)], rows_, [14, 26, 30])
+    model_tick = ('<div class="nt"><div dir="ltr">Choose the model: &nbsp; &#9744; Model 1 — Full cost &nbsp;&nbsp; &#9744; Model 2 — Transparent cost</div>'
+                  '<div class="ar" dir="rtl">اختر النموذج: &nbsp; &#9744; النموذج الأول — التكلفة الكاملة &nbsp;&nbsp; &#9744; النموذج الثاني — التكلفة بشفافية</div></div>')
+    sheets.append(page(h2(2, "Calculation if the worker is employed at a factory (12-month contract)", "الحسبة إذا كان العامل على مصنع (عقد 12 شهراً)") + fac12 + facnote + h2(3, "Two ways to contract", "طريقتان للتعاقد") + model_how() + model_tick + note))
     model_short = ('<div class="nt"><div dir="ltr"><b>Two models, same total:</b> full cost (one fixed monthly amount) or transparent cost (a monthly invoice, with government costs at actual when due). Choose: &nbsp; \u2610 Full cost &nbsp; \u2610 Transparent cost. Details in the detailed quotation.</div>'
                    '<div class="ar" dir="rtl"><b>نموذجان بإجمالي واحد:</b> التكلفة الكاملة (مبلغ شهري ثابت) أو التكلفة بشفافية (فاتورة شهرية والتكاليف الحكومية بالفعلي عند استحقاقها). اختر: &nbsp; \u2610 التكلفة الكاملة &nbsp; \u2610 التكلفة بشفافية. والتفصيل في العرض المفصل.</div></div>')
     def calc_table():
@@ -186,7 +194,7 @@ def build_quote():
                 '<div class="ar" dir="rtl"><b>يشمل السعر الشهري</b> للعامل الواحد: الراتب، الإقامة ورخصة العمل، التأمين الصحي والتأمينات الاجتماعية، مخصص نهاية الخدمة والإجازة، تذكرة العودة، التكاليف الإدارية والتشغيلية، ورسومنا. ولا يشمل البدلات (السكن والإعاشة والمواصلات).</div></div>')
     opt_box = ('<div class="nt"><div dir="ltr"><b>Your options.</b> (1) <b>Salary:</b> you may raise or lower the salary of any worker; the price is recalculated in the calculator. (2) <b>Recruitment from abroad:</b> &#9744; by Business Partner, at cost &nbsp; &#9744; by the Client directly. (3) <b>Professions:</b> you may register the professions in the residence permits and in the contracts on Qiwa under skilled professions, so that they do not fall under technical professions, which carry localisation costs. (4) <b>Direct payment:</b> any item you think would cost you more (accommodation, transport, food, medical insurance upgrade, government fees, tickets) you may pay directly to its provider, and it is taken off our invoice.</div>'
                '<div class="ar" dir="rtl"><b>خياراتك.</b> (1) <b>الراتب:</b> لك أن تزيد راتب أي عامل أو تنقصه، ويُعاد حساب السعر في الآلة الحاسبة. (2) <b>الاستقدام من الخارج:</b> &#9744; من طرفنا بالتكلفة &nbsp; &#9744; من طرف العميل مباشرة. (3) <b>المهن:</b> لك أن تسجّل المهن في الإقامات والمسمّيات في الإقامات والعقود في قوى على المهن الماهرة، بحيث لا تدخل ضمن المهن الفنية التي عليها تكاليف توطين. (4) <b>الدفع المباشر:</b> أي بند ترى أنه سيكلفك أكثر (السكن، المواصلات، الإعاشة، رفع فئة التأمين الطبي، الرسوم الحكومية، التذاكر) لك أن تدفعه مباشرة لجهته، ويُحذف من فاتورتنا.</div></div>')
-    sheets.append(page(h2(4, "What the price includes and does not include", "ما يشمله السعر وما لا يشمله") + incl_box + excl + model_short + calc_box))
+    sheets.append(page(h2(4, "What the price includes and does not include", "ما يشمله السعر وما لا يشمله") + incl_box + excl + calc_box))
     gov_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(fe), "<b>%s</b>" % esc(fa), "t"), (ae, aa, "t"), (ie, ia, "t")]
                 for i, (fe, fa, ae, aa, ie, ia) in enumerate(GOV_FEES, 1)]
     gov = bi_table([("#", "#", True), ("Government fee", "الرسوم الحكومية", False), ("Official amount", "المبلغ الرسمي", False), ("In this offer", "في هذا العرض", False)], gov_rows, [3, 14, 18, 18])
@@ -222,12 +230,15 @@ def build_quote():
                 [("2", "2", "nx"), ("Monthly invoice — workers on duty", "فاتورة شهرية — العمال على رأس العمل", ""), ("100%", "100%", "c"), ("Within 7 days of the invoice", "خلال 7 أيام من الفاتورة", "")]]
     pay = bi_table([("#", "#", True), ("Payment", "الدفعة", False), ("Amount", "المقدار", True), ("Due", "الاستحقاق", False)], pay_rows, [4, 20, 14, 16])
     def saudi_table():
-        sr = [[(num(n(m)), num(n(m)), "c"), pc(round(m * 0.85 * 0.235)), pc(round(m / 24.0)), pc(round(m / 30.0 * 21 / 12.0)), pc(round(saudi_one(m)))] for m in SAUDI_SALARIES]
-        return bi_table([("Monthly salary (SAR)", "الراتب الشهري (ريال)", True), ("Insurance, employer and employee", "التأمينات على صاحب العمل والموظف", True), ("End of service", "نهاية الخدمة", True), ("Leave", "الإجازة", True), ("Monthly cost of one Saudi (SAR)", "التكلفة الشهرية للسعودي الواحد (ريال)", True)], sr, [12, 14, 12, 12, 16])
+        sr = [[(num(n(m)), num(n(m)), "c")] + [pc(round(m * 0.85 * (a_ + 0.0275 + a_ + 0.0075))) for _, _, a_ in GOSI_PERIODS[:1]] + [pc(round(saudi_one(m, a_))) for _, _, a_ in GOSI_PERIODS] for m in SAUDI_SALARIES]
+        return bi_table([("Monthly salary (SAR)", "الراتب الشهري (ريال)", True), ("Social insurance, employer and employee (" + GOSI_PERIODS[0][0] + ")", "التأمينات على صاحب العمل والمشترك (" + GOSI_PERIODS[0][1] + ")", True)]
+                        + [("Monthly cost: " + e_, "التكلفة الشهرية: " + a_s, True) for e_, a_s, _ in GOSI_PERIODS], sr, [10, 16, 14, 14, 14])
+    gosi_note = ('<div class="nt"><div dir="ltr">Social insurance on the subscriber (the employee) and the employer follows the GOSI decision, which raises the annuities rate by 0.5 point each July from 2025 to 2028 (9.5%, 10%, 10.5%, 11% on each side), plus 2% occupational hazards (employer) and 0.75% SANED (each side), on 85% of the salary. The cost therefore rises every July; end of service and leave are included in the cost.</div>'
+                 '<div class="ar" dir="rtl">التأمينات الاجتماعية على المشترك (الموظف) وعلى صاحب العمل بحسب قرار التأمينات الاجتماعية، وترتفع نسبة المعاشات نصف نقطة كل يوليو من 2025 إلى 2028 (9.5% ثم 10% ثم 10.5% ثم 11% على كل طرف)، مع 2% أخطار مهنية (صاحب العمل) و0.75% ساند (على كل طرف)، على 85% من الأجر. فتزداد التكلفة كل يوليو؛ وتشمل التكلفة نهاية الخدمة والإجازة.</div></div>')
     roles_t = bi_table([("Role", "الوظيفة", False), ("Salary used", "الراتب المعتمد", True)], [[(re_, ra_, "t"), (se_, sa_, "c")] for re_, ra_, se_, sa_ in SAUDI_ROLES], [30, 16])
     saudi_box = '' if not CALC_SAUDI_URL else ('<div class="nt"><div dir="ltr"><b>Saudi employee cost calculator</b> (professional and non-professional roles): <b>%s</b></div>'
                  '<div class="ar" dir="rtl"><b>الآلة الحاسبة لتكلفة الموظف السعودي</b> (المهني وغير المهني):<br><b dir="ltr">%s</b></div></div>') % (CALC_SAUDI_URL, CALC_SAUDI_URL)
-    saudi_page = h2("A4", "Cost of a Saudi employee, by role and salary", "تكلفة الموظف السعودي بحسب الوظيفة والراتب") + roles_t + saudi_table() + saudi_box
+    saudi_page = h2("A4", "Cost of a Saudi employee, by role and salary", "تكلفة الموظف السعودي بحسب الوظيفة والراتب") + roles_t + saudi_table() + gosi_note + saudi_box
     def model_table():
         ks = [(k_, v_) for k_, v_ in LEVELS.items() if k_ in PRICE_LEVELS]
         def split(a, loc):
@@ -239,11 +250,11 @@ def build_quote():
             full, rec, ann = split(sal, loc)
             mr.append([(le, la, "t"), pc(sal), pc(round(full)), pc(round(rec)), pc(round(ann))])
         return bi_table([("Level", "المستوى", False), ("Salary", "الراتب", True), ("Full cost: monthly, fixed", "التكلفة الكاملة: شهرياً ثابتة", True), ("Transparent cost: monthly invoice", "التكلفة بشفافية: الفاتورة الشهرية", True), ("Transparent cost: government items at actual, per year", "التكلفة بشفافية: البنود الحكومية بالفعلي سنوياً", True)], mr, [14, 9, 12, 14, 18])
-    model_note = ('<div class="nt"><div dir="ltr"><b>Two models, same total.</b> <b>Full cost:</b> one fixed monthly amount that includes the government costs, spread over the contract. <b>Transparent cost:</b> a monthly invoice plus the government costs (permit and levy, residence, medical insurance, exit and re-entry, visa or transfer, return ticket) at their actual amount when they fall due, with our fees fixed. Only the timing of payment differs.</div>'
-                  '<div class="ar" dir="rtl"><b>نموذجان بإجمالي واحد.</b> <b>التكلفة الكاملة:</b> مبلغ شهري ثابت واحد يشمل التكاليف الحكومية موزَّعة على مدة العقد. <b>التكلفة بشفافية:</b> فاتورة شهرية، والتكاليف الحكومية (رخصة العمل والمقابل، الإقامة، التأمين الطبي، الخروج والعودة، التأشيرة أو النقل، تذكرة العودة) بمبلغها الفعلي عند استحقاقها، ورسومنا ثابتة. والفرق في توقيت الدفع فقط.</div></div>')
+    model_note = ('<div class="nt"><div dir="ltr"><b>Two models, same total.</b> <b>Full cost:</b> one fixed monthly amount that includes the government costs, spread over the contract. <b>Transparent cost:</b> a monthly invoice plus the government costs (permit and levy, residence, medical insurance, exit and re-entry, visa or transfer of services (sponsorship transfer), return ticket) at their actual amount when they fall due, with our fees fixed. Only the timing of payment differs.</div>'
+                  '<div class="ar" dir="rtl"><b>نموذجان بإجمالي واحد.</b> <b>التكلفة الكاملة:</b> مبلغ شهري ثابت واحد يشمل التكاليف الحكومية موزَّعة على مدة العقد. <b>التكلفة بشفافية:</b> فاتورة شهرية، والتكاليف الحكومية (رخصة العمل والمقابل، الإقامة، التأمين الطبي، الخروج والعودة، التأشيرة أو نقل الخدمات (نقل الكفالة)، تذكرة العودة) بمبلغها الفعلي عند استحقاقها، ورسومنا ثابتة. والفرق في توقيت الدفع فقط.</div></div>')
     model_pick = ('<div class="nt"><div dir="ltr">Choose the model: &nbsp; \u2610 Full cost &nbsp;&nbsp; \u2610 Transparent cost</div>'
                   '<div class="ar" dir="rtl">اختر النموذج: &nbsp; \u2610 التكلفة الكاملة &nbsp;&nbsp; \u2610 التكلفة بشفافية</div></div>')
-    sheets_model_page = h2("A5", "Two models: full cost or transparent cost", "نموذجان: التكلفة الكاملة أو التكلفة بشفافية") + model_table() + model_note + model_pick + opt_box
+    sheets_model_page = h2("A5", "Two models: full cost or transparent cost", "نموذجان: التكلفة الكاملة أو التكلفة بشفافية") + model_table() + h2("A6", "If the contract is 24 months: the difference", "إذا كان العقد 24 شهراً: الفرق") + diff_table() + diffnote + opt_box
     sheetsA.insert(0, pageA(scope_page + calc_page))
     sheetsA.append(pageA(saudi_page))
     sheetsA.insert(1, pageA(sheets_model_page))
