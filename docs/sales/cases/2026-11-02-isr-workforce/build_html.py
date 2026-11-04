@@ -194,8 +194,8 @@ def build_quote():
                  row("Health insurance", "التأمين الصحي", "med"),
                  row("End of service, leave and return ticket", "نهاية الخدمة والإجازة وتذكرة العودة", "prov"),
                  row("Direct cost", "التكلفة المباشرة", "direct", True),
-                 row("Overhead", "التكاليف الإدارية (الأوفر هيد)", "oh"),
-                 row("Our fees: 10% of (cost + overhead), minimum SAR 500", "رسومنا: 10% من (التكلفة + الأوفر هيد) وبحد أدنى 500 ريال", "fee"),
+                 row("Administrative and operating costs", "التكاليف الإدارية والتشغيلية", "oh"),
+                 row("Our fees: 10% of (cost + administrative and operating costs), minimum SAR 500", "رسومنا: 10% من (التكلفة + التكاليف الإدارية والتشغيلية) وبحد أدنى 500 ريال", "fee"),
                  row("Localisation fees", "رسوم التوطين", "loc"),
                  {"cls": "tot", "cells": [("Monthly price per worker", "السعر الشهري للعامل", "")] + [pc(PRICE12[k2]) for k2, v in ks]},
                  [("At a factory (less SAR 800)", "في مصنع (ناقص 800 ريال)", "t")] + [pc(PRICE12_F[k2]) for k2, v in ks]]
