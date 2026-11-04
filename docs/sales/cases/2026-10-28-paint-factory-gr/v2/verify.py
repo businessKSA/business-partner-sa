@@ -64,10 +64,10 @@ print("== 3) المحظورات في كل ملفات v2 عدا السكربتا�
 files = [p for p in HERE.glob("*") if p.is_file() and p.suffix in (".html", ".md")]
 pats = {
     "IBAN فعلي (SA + أرقام)": r"\bSA\d{2}[\s\d]{16,}",
-    "رقم جوال (05xxxxxxxx / 966 / 00966)": r"(\b05\d{8}\b|\+?966\s?-?5\d{8}|00966)",
+    "أرقام هواتف (أنماط الجوال السعودي)": r"(\b05\d{8}\b|\+?966\s?-?5\d{8}|00966)",
     "كلمة محظورة رقم 1 (معيار العرض)": r"مسودة",
     "كلمة محظورة رقم 2 (التسمية: المستشار الذكي)": r"الوكيل",
-    "عنوان شارع (Al Arid / Rihana)": r"Al Arid|Rihana|العريد|ريحانة",
+    "عنوان شارع من ورق الشركة القديم": r"Al Arid|Rihana|العريد|ريحانة",
 }
 for lab, pat in pats.items():
     hits = [f"{f.name}:{i}" for f in files for i, l in enumerate(f.read_text(encoding='utf8').splitlines(), 1) if re.search(pat, l)]
