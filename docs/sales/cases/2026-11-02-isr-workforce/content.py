@@ -415,7 +415,7 @@ STAGES2 = [  # (when_en, when_ar, what_en, what_ar, how_en, how_ar)
      "Provisioned inside the monthly price. No separate invoice. The exit and re-entry visa is optional.", "مخصَّصة داخل السعر الشهري، فلا فاتورة منفصلة. وتأشيرة الخروج والعودة اختيارية."),
 ]
 GOV_FEES = [  # (fee_en, fee_ar, amount_en, amount_ar, in_offer_en, in_offer_ar)
-    ("Work permit and expatriate levy", "رخصة العمل والمقابل المالي", "SAR 9,700 per year (levy 9,600 + permit 100). Under the National Shared Talent item: SAR 100 only, the levy being exempt", "9,700 ريال سنوياً (المقابل 9,600 + الرخصة 100). وعلى بند الكوادر الوطنية المشتركة: 100 ريال فقط لإعفائه من المقابل المالي", "Included in the monthly price", "مشمول في السعر الشهري"),
+    ("Work permit and expatriate levy", "رخصة العمل والمقابل المالي", "SAR 9,700 per year (levy 9,600 + permit 100). Under the National and Non-National Shared Talent item: SAR 100 only, the levy being exempt", "9,700 ريال سنوياً (المقابل 9,600 + الرخصة 100). وعلى بند الكوادر الوطنية وغير الوطنية المشتركة: 100 ريال فقط لإعفائه من المقابل المالي", "Included in the monthly price", "مشمول في السعر الشهري"),
     ("Residency (Iqama), Passports", "الإقامة (الجوازات)", "SAR 650 per year", "650 ريالاً سنوياً", "Included in the monthly price", "مشمولة في السعر الشهري"),
     ("Ajeer platform", "منصة أجير", "SAR 276 per year (23 per month)", "276 ريالاً سنوياً (23 شهرياً)", "Included in the monthly price", "مشمولة في السعر الشهري"),
     ("Sponsorship transfer (workers inside the Kingdom)", "نقل الكفالة (عمال من داخل المملكة)", "SAR 2,000 first time, 4,000 second, 6,000 from the third", "2,000 ريال للمرة الأولى، و4,000 للثانية، و6,000 من الثالثة", "Included, spread over the term (SAR 2,000 assumed)", "مشمول موزّعاً على مدة العقد (على أساس 2,000 ريال)"),
@@ -482,13 +482,13 @@ LOCCALC = [  # (item_en, item_ar, tech_en, tech_ar, eng_en, eng_ar)
     ("Cost of one Saudi per month (salary, employer and employee insurance, end of service, leave)", "تكلفة السعودي الواحد شهرياً (الراتب والتأمينات على صاحب العمل والموظف ونهاية الخدمة والإجازة)", "SAR %s" % nt(TECH_ONE), "%s ريال" % nt(TECH_ONE), "SAR %s" % nt(ENG_ONE), "%s ريال" % nt(ENG_ONE)),
     ("Localisation fees per worker per month at 30%", "رسوم التوطين على العامل الواحد شهرياً بنسبة 30%", "SAR %s" % nt(TECH_FEE), "%s ريال" % nt(TECH_FEE), "SAR %s" % nt(ENG_FEE), "%s ريال" % nt(ENG_FEE)),
     ("Monthly price per worker, standard (salary SAR 2,500)", "السعر الشهري للعامل، العادي (الراتب 2,500)", "SAR %s" % nt(PRICE_TECHDEC), "%s ريال" % nt(PRICE_TECHDEC), "SAR %s" % nt(PRICE_ENG), "%s ريال" % nt(PRICE_ENG)),
-    ("Monthly price per worker, under the National Shared Talent item (less SAR 800)", "السعر الشهري للعامل، على بند الكوادر الوطنية المشتركة (ناقص 800)", "SAR %s" % nt(PRICE_TECHDEC_F), "%s ريال" % nt(PRICE_TECHDEC_F), "SAR %s" % nt(PRICE_ENG_F), "%s ريال" % nt(PRICE_ENG_F)),
+    ("Monthly price per worker, under the National and Non-National Shared Talent item (less SAR 800)", "السعر الشهري للعامل، على بند الكوادر الوطنية وغير الوطنية المشتركة (ناقص 800)", "SAR %s" % nt(PRICE_TECHDEC_F), "%s ريال" % nt(PRICE_TECHDEC_F), "SAR %s" % nt(PRICE_ENG_F), "%s ريال" % nt(PRICE_ENG_F)),
 ]
 LOCCALC_NOTE = ("Fees per worker = Saudis required × cost of one Saudi ÷ foreign workers; they replace the SAR 900 counted for other professions. The engineer column is an example (salary assumed SAR 2,500), recalculated on your actual numbers.",
                 "رسوم التوطين للعامل = السعوديون المطلوبون × تكلفة السعودي الواحد ÷ العمال الأجانب، وتحل محل الـ900 ريال المحتسبة للمهن الأخرى. وعمود المهندس مثال (الراتب مفترض 2,500 ريال) ويُعاد حسابه على أعدادك الفعلية.")
 # ---- الآلة الحاسبة للتكاليف بناءً على الرواتب (صفحة خاصة في موقعنا؛ المسار مقترح ويُبنى قبل الإرسال)
 CALC_URL = _CFG.get("calc_url", "")          # رابط الآلة الحاسبة (Azure)؛ فارغ = لا يُكتب رابط في العرض
-CALC_SALARIES = [1200, 1500, 1800, 2000, 2500, 3000, 3500, 4000]
+CALC_SALARIES = [800, 1000, 1200, 1500, 1800, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
 
 CALC_SAUDI_URL = _CFG.get("calc_saudi_url", CALC_URL)
 SAUDI_SALARIES = [4000, 5500, 6000, 8000, 10000, 12000]

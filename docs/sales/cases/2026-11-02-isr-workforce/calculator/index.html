@@ -17,7 +17,7 @@ label{display:block;font-size:14px;color:var(--mut);margin:8px 0 3px}input,selec
 <section id="p1" class="on"><div class="card">
 <div class="row"><div><label>الراتب الشهري (ريال)</label><input id="sal" type="number" min="1000" step="50" value="1800"></div>
 <div><label>مدة العقد</label><select id="mon"><option value="12">12 شهراً</option><option value="24">24 شهراً</option></select></div></div>
-<div class="row"><div><label>بند التعاقد</label><select id="fac"><option value="0">عادي</option><option value="1">بند الكوادر الوطنية المشتركة (إعفاء المقابل المالي)</option></select></div>
+<div class="row"><div><label>بند التعاقد</label><select id="fac"><option value="0">عادي</option><option value="1">بند الكوادر الوطنية وغير الوطنية المشتركة (إعفاء المقابل المالي)</option></select></div>
 <div><label>المهنة</label><select id="loc"><option value="900">مهنة لا قرار توطين عليها (900 ريال توطين)</option><option value="tech">فنية هندسية — قرار توطين 30%</option><option value="eng">هندسية — قرار توطين 30%</option></select></div></div>
 <div class="row" id="lrow" style="display:none"><div><label>عدد العمال الأجانب في المهنة</label><input id="q" type="number" min="1" value="16"></div><div><label>أقل راتب للسعودي (ريال)</label><input id="sm" type="number" min="1" value="5500"></div></div>
 </div>
@@ -39,7 +39,7 @@ function calc(){var a=+$("sal").value||0,m=+$("mon").value,fac=+$("fac").value,l
  $("lrow").style.display=lv==="900"?"none":"flex";$("lrow").style.display=lv==="900"?"none":"grid";
  if(lv!=="900"){var ratio=.3,q=+$("q").value||1,sm=+$("sm").value||0;if(lv==="eng"&&this&&0){}var need=Math.ceil(Math.round(ratio/(1-ratio)*q*1e6)/1e6),one=saudi(sm).t;loc=need*one/q}
  var r=price(a,loc,fac,m);$("price").textContent=f(r.p)+" ريال";
- var fp=r.p-800;$("alt").textContent=fac?"":"على بند الكوادر الوطنية المشتركة: "+f(fp)+" ريال";
+ var fp=r.p-800;$("alt").textContent=fac?"":"على بند الكوادر الوطنية وغير الوطنية المشتركة: "+f(fp)+" ريال";
  var h=row("الراتب",f(a))+row("التكاليف الحكومية (رخصة العمل والإقامة وأجير والتأمينات والخروج والعودة والتأشيرة أو النقل)",f(r.gov_all))+row("التأمين الطبي ونهاية الخدمة والإجازة وتذكرة العودة",f(50+r.prov))+row("التكاليف الإدارية والتشغيلية ورسومنا","شامل")+row("رسوم التوطين",f(loc));
  $("det").innerHTML=h;
  var fixed=r.fixed,rec=r.p-fixed;$("mod").innerHTML=row("التكلفة الكاملة: مبلغ شهري ثابت",f(r.p)+" ريال")+row("التكلفة بشفافية: فاتورة شهرية",f(rec)+" ريال")+row("+ بنود حكومية بالفعلي عند الاستحقاق (سنوياً)",f(fixed*12)+" ريال")}
