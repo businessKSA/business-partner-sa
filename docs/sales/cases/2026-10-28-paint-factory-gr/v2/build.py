@@ -486,10 +486,10 @@ def clause_local():
 def clause_excl():
     return C("Exclusions", "خارج نطاق السعر",
              "The price does not include: government fees, fines and platform subscriptions; the cost of hiring Saudi nationals and their salaries; litigation, representation before courts and the practice of law; "
-             "large new services (establishing a new entity or branch, a new industrial licence, recruitment, transfer of services); zakat, tax and customs matters (filing, calculation and representation), "
+             "large new services (establishing a new entity or branch, a new industrial licence, recruitment, transfer of services); government relations services (investment licensing, municipality, environmental and industrial licensing and renewals), which are quoted separately on request; zakat, tax and customs matters (filing, calculation and representation), "
              "which are handled with an independent accountant or for a separate fee; and any item not expressly listed in the quotation. Additional work is performed only under a written change request priced separately.",
              "لا يشمل السعر: الرسوم الحكومية والغرامات واشتراكات المنصات؛ وتكلفة توظيف السعوديين ورواتبهم؛ والتمثيل القضائي والمحاماة؛ "
-             "والخدمات الكبيرة الجديدة (تأسيس منشأة أو فرع، ترخيص صناعي جديد، استقدام، نقل خدمات)؛ والزكاة والضريبة والجمارك (الإعداد والإقرار والتمثيل) التي تُدار مع محاسب مستقل أو برسوم منفصلة؛ "
+             "والخدمات الكبيرة الجديدة (تأسيس منشأة أو فرع، ترخيص صناعي جديد، استقدام، نقل خدمات)؛ وخدمات العلاقات الحكومية (الاستثمار والبلدية والتراخيص البيئية والصناعية وتجديدها) وتُسعَّر منفصلة عند الطلب؛ والزكاة والضريبة والجمارك (الإعداد والإقرار والتمثيل) التي تُدار مع محاسب مستقل أو برسوم منفصلة؛ "
              "وأي بند غير مذكور صراحةً في عرض السعر. ولا يُنفَّذ عمل إضافي إلا بطلب تغيير كتابي يُسعَّر على حدة.")
 
 
