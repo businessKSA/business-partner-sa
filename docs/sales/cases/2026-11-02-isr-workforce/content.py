@@ -15,9 +15,10 @@ def _sku(code):
             return s
     raise AssertionError("SKU %s not in catalog" % code)
 
-REC = _sku("BP-REC-01")                       # استقدام واستخراج تأشيرات العمل — 500 مرة واحدة، رسوم حكومية منفصلة
-assert REC["amount"] == 500 and REC["govFeesSeparate"] is True
-REC_FEE = int(REC["amount"])
+# (رسم BP-REC-01 الثابت 500 أُلغي بقرار المالك 4/11: الاستقدام بتكلفة كل دولة)
+#REC = _sku("BP-REC-01")                       # استقدام واستخراج تأشيرات العمل — 500 مرة واحدة، رسوم حكومية منفصلة
+
+
 def n(x): return "{:,}".format(x)
 def n2(x): return "{:,.2f}".format(x) if x != int(x) else "{:,}".format(int(x))
 
@@ -35,18 +36,38 @@ TEAMS = [  # (en, ar)
 NTEAMS = len(TEAMS)
 WORKERS = NTEAMS * PER_TEAM                    # 105
 SKILLED_TOTAL = NTEAMS * SKILLED_MIN           # 56
-REC_TEAM = REC_FEE * PER_TEAM                  # 7,500
-REC_TOTAL = REC_FEE * WORKERS                  # 52,500
-REC_VAT = REC_TOTAL * 15 / 100                 # 7,875
-REC_GRAND = REC_TOTAL + REC_VAT                # 60,375
-# أسعار شهرية شاملة للعامل من «حاسبة التعاقد والتوطين» برواتب المالك 2,000 (مهني) و1,500 (عادي)، عقد 24 شهراً. تفصيلها في costing.html. بانتظار اعتماد المالك.
-PRICE_SKILLED = 5184   # حاسبة التعاقد والتوطين: راتب 2,000 · عقد 24 شهراً · قبل الاستقدام الخارجي (فاتورة منفصلة)
-PRICE_STD = 4570       # راتب 1,500 — انظر costing.html
-STD_MIN = PER_TEAM - SKILLED_MIN               # 7
-TEAM_MONTHLY = SKILLED_MIN * PRICE_SKILLED + STD_MIN * PRICE_STD          # 63,500
-TOTAL_MONTHLY = TEAM_MONTHLY * NTEAMS                                      # 444,500
-MONTHLY_VAT = TOTAL_MONTHLY * 15 / 100                                     # 66,675
-MONTHLY_GRAND = TOTAL_MONTHLY + MONTHLY_VAT                                # 511,175
+# ---- التسعير بحسب المهنة والراتب الأدنى (قرار المالك 4/11): فنية 3,000 · ماهرة 2,500 · عادية (عامل مساعد) 1,500
+LEVELS = {  # key: (label_en, label_ar, min_salary, localisation_fee)
+    "tech":    ("Technical", "فنية", 3000, 900),
+    "skilled": ("Skilled", "ماهرة", 2500, 900),
+    "helper":  ("Regular (helper)", "عادية (عامل مساعد)", 1500, 900),
+}
+TEAM_LEVEL = ["tech", "skilled", "skilled", "skilled", "skilled", "skilled", "tech"]   # بحسب ترتيب TEAMS
+def worker_price(a, loc, factory=False, months=24):
+    """حاسبة التعاقد والتوطين: التكلفة المباشرة (الراتب + الحكومية + الطبي + المخصصات) + الأوفر هيد 500 + رسمنا (10% بحد أدنى 500) + رسم التوطين 900.
+    التكاليف الحكومية: رخصة العمل والمقابل 9,700/12 (مصنع: 100/12) + إقامة 650/12 + أجير 23 + 2% على 85% من الراتب + خروج وعودة 200/12 + تأشيرة 2,000/المدة."""
+    permit = (100 if factory else 9700) / 12.0
+    gov = permit + 650 / 12.0 + 23 + a * 0.85 * 0.02 + 200 / 12.0 + 2000.0 / months
+    prov = a / 24.0 + a / 30.0 * 21 / 12.0 + 1500 / 12.0
+    direct = a + gov + 50 + prov
+    fee = max(0.10 * (direct + 500), 500.0)      # رسمنا 10% فوق (التكلفة + الأوفر هيد) وبحد أدنى 500 ريال (قرار المالك 4/11)
+    return int(round(direct + 500 + fee + loc))   # + الأوفر هيد 500 + رسم التوطين 900
+PRICE = {k: worker_price(v[2], v[3]) for k, v in LEVELS.items()}
+PRICE_F = {k: worker_price(v[2], v[3], True) for k, v in LEVELS.items()}
+STD_MIN = PER_TEAM - SKILLED_MIN               # 7 عمال مساعدين
+def team_monthly(prices): return sum(SKILLED_MIN * prices[lv] + STD_MIN * prices["helper"] for lv in TEAM_LEVEL)
+TOTAL_MONTHLY = team_monthly(PRICE)
+MONTHLY_VAT = TOTAL_MONTHLY * 15 / 100
+MONTHLY_GRAND = TOTAL_MONTHLY + MONTHLY_VAT
+TOTAL_MONTHLY_F = team_monthly(PRICE_F)
+MONTHLY_VAT_F = TOTAL_MONTHLY_F * 15 / 100
+MONTHLY_GRAND_F = TOTAL_MONTHLY_F + MONTHLY_VAT_F
+# الاستقدام من الدولة بحسب الجنسية (جدول «حاسبة التعاقد والتوطين»؛ العقود والتصديق 1,000 وتذكرة القدوم 2,000 افتراضات الحاسبة) — بالتكلفة، فاتورة منفصلة
+REC_COUNTRY = [  # (nat_en, nat_ar, recruitment, attestation, ticket, days_en, days_ar)
+    ("Filipino", "فلبينية", 6500, 1000, 2000, "60–90 days", "60–90 يوماً"),
+    ("Indian", "هندية", 4500, 1000, 2000, "21 days", "21 يوماً"),
+    ("Nepali", "نيبالية", 5000, 1000, 2000, "30 days", "30 يوماً"),
+]
 NATS = [("Filipino", "فلبينية"), ("Indian", "هندية"), ("Nepali", "نيبالية")]
 
 CLIENT_AR = "آي إس آر للتجارة · ISR Trading"
@@ -94,8 +115,8 @@ PRICE_BASIS = [  # (component_en, component_ar, basis_en, basis_ar)
      "Accommodation, transport and food (see the choice below), overtime, and government fees outside the items above, which are invoiced at actual cost.",
      "السكن والنقل والإعاشة (انظر الخيار أدناه)، والعمل الإضافي، والرسوم الحكومية خارج البنود أعلاه فتُفوتَر بالتكلفة الفعلية."),
     ("Monthly price per worker", "السعر الشهري للعامل",
-     "Skilled SAR %s · Standard SAR %s, before 15%% VAT, based on a 24-month contract, the same for the three nationalities." % (n(PRICE_SKILLED), n(PRICE_STD)),
-     "ماهر %s ريال · عادي %s ريال، قبل ضريبة القيمة المضافة 15%%، على أساس عقد 24 شهراً، وهو نفسه للجنسيات الثلاث." % (n(PRICE_SKILLED), n(PRICE_STD))),
+     "By trade level, per the table in section 1: before 15% VAT, based on a 24-month contract, the same for the three nationalities.",
+     "بحسب مستوى المهنة في جدول البند 1: قبل ضريبة القيمة المضافة 15%، على أساس عقد 24 شهراً، وهو نفسه للجنسيات الثلاث."),
 ]
 
 EXCLUSIONS = [
@@ -228,14 +249,11 @@ def contract_clauses():
         ("The workers remain employed by the First Party, or by a licensed partner where the regulations so require. The First Party remains responsible to the Second Party for performance.",
          "يبقى العمال على عمل الطرف الأول، أو شريك مرخّص حيث تقتضي الأنظمة ذلك. ويبقى الطرف الأول مسؤولاً أمام الطرف الثاني عن التنفيذ.")])
 
-    fee = _mini_table(["Item · البند", "SAR · ريال"], [
-        ["BP-REC-01 · Recruitment and work-visa issuance, per worker, one time · الاستقدام واستخراج التأشيرة للعامل، مرة واحدة", n(REC_FEE)],
-        ["Recruitment, %d workers · الاستقدام لـ%d عاملاً" % (WORKERS, WORKERS), n(REC_TOTAL)],
-        ["VAT 15% · ضريبة القيمة المضافة", n2(REC_VAT)],
-        ["Total recruitment fee including VAT · إجمالي رسم الاستقدام شاملاً الضريبة", n2(REC_GRAND)]], [80, 20])
+    fee = _mini_table(["Nationality · الجنسية", "Recruitment · الاستقدام", "Attestation · التصديق", "Arrival ticket · تذكرة القدوم", "Total at cost, SAR · الإجمالي بالتكلفة"],
+        [[ne + " · " + na, n(r), n(t), n(k), n(r + t + k)] for ne, na, r, t, k, de, da in REC_COUNTRY], [28, 18, 18, 18, 18])
     items3 = [
-        ("The Second Party pays the First Party: (a) the monthly price per worker, being the sum of the salary and allowances by trade, level and nationality, the residence permit, work permit and insurance cost, and the management fee, as set in the rate table of the quotation; and (b) the recruitment fee per worker in the table below, for workers recruited from abroad only. For a worker transferred from inside the Kingdom (sponsorship transfer), no recruitment-from-abroad fee applies: neither the fee below, nor external recruitment, contract attestation or arrival ticket.",
-         "يسدّد الطرف الثاني للطرف الأول: (أ) السعر الشهري للعامل، وهو مجموع الراتب والبدلات بحسب المهنة والمستوى والجنسية، وتكلفة الإقامة ورخصة العمل والتأمين، ورسم الإدارة، كما في جدول الأسعار في عرض السعر؛ و(ب) رسم الاستقدام للعامل في الجدول أدناه، للعمال المستقدَمين من الخارج فقط. أما العامل المنقول من داخل المملكة (نقل كفالة) فلا تُطبَّق عليه أي رسوم استقدام من الخارج، لا الرسم أدناه ولا الاستقدام الخارجي ولا تصديق العقود ولا تذكرة القدوم."),
+        ("The Second Party pays the First Party: (a) the monthly price per worker, being the sum of the salary and allowances by trade, level and nationality, the residence permit, work permit and insurance cost, and the management fee, as set in the rate table of the quotation; and (b) for workers recruited from abroad only, the recruitment costs by nationality in the table below, at actual cost, on a separate invoice. For a worker transferred from inside the Kingdom (sponsorship transfer), no recruitment-from-abroad fee applies: neither the costs below, nor external recruitment, contract attestation or arrival ticket.",
+         "يسدّد الطرف الثاني للطرف الأول: (أ) السعر الشهري للعامل، وهو مجموع الراتب والبدلات بحسب المهنة والمستوى والجنسية، وتكلفة الإقامة ورخصة العمل والتأمين، ورسم الإدارة، كما في جدول الأسعار في عرض السعر؛ و(ب) للعمال المستقدَمين من الخارج فقط، تكاليف الاستقدام بحسب الجنسية في الجدول أدناه، بالتكلفة الفعلية وبفاتورة منفصلة. أما العامل المنقول من داخل المملكة (نقل كفالة) فلا تُطبَّق عليه أي رسوم استقدام من الخارج، لا التكاليف أدناه ولا الاستقدام الخارجي ولا تصديق العقود ولا تذكرة القدوم."),
         ("The monthly price is invoiced on the number of workers actually on duty in the month. Overtime is invoiced separately at the actual hours.",
          "يُفوتر السعر الشهري على عدد العمال الفعلي على رأس العمل في الشهر، ويُفوتر العمل الإضافي على حدة بالساعات الفعلية."),
         ("Government fees, embassy and attestation charges and travel tickets are invoiced at actual cost with the supporting receipts, unless the quotation states that they are included.",
@@ -334,13 +352,14 @@ def contract_clauses():
 # ---- جداول مأخوذة من عرض عبدالمحسن المعتمد (EOR): ماذا تدفع ومتى · الرسوم الحكومية · التوطين
 STAGES2 = [  # (when_en, when_ar, what_en, what_ar, how_en, how_ar)
     ("On signing", "عند التوقيع",
-     "<b>Advance</b> of two months of the monthly price. <b>Recruitment fee</b> BP-REC-01, SAR 500 per worker, one time, for workers recruited from abroad only.",
-     "<b>الدفعة المقدمة</b> شهران من السعر الشهري. و<b>رسم الاستقدام</b> BP-REC-01 بمبلغ 500 ريال للعامل مرة واحدة، للمستقدَمين من الخارج فقط.",
+     "<b>Advance</b> of two months of the monthly price.",
+     "<b>الدفعة المقدمة</b> شهران من السعر الشهري.",
      "Before anything starts. Visa, recruitment and the first permits are arranged after the advance.", "قبل البدء. وتُرتَّب التأشيرة والاستقدام والرخص الأولى بعد الدفعة المقدمة."),
     ("Workers recruited from abroad", "العمال المستقدَمون من الخارج",
-     "External recruitment, contract attestation and the arrival ticket, at actual cost.",
-     "الاستقدام الخارجي وتصديق العقود وتذكرة القدوم، بالتكلفة الفعلية.",
-     "A separate invoice, outside the monthly price. Not applicable to workers transferred from inside the Kingdom.", "بفاتورة منفصلة خارج السعر الشهري. ولا تنطبق على العمال المنقولة كفالتهم من داخل المملكة."),
+     "Recruitment from the country by nationality, contract attestation and the arrival ticket, at actual cost (section 8).",
+     "الاستقدام من الدولة بحسب الجنسية، وتصديق العقود، وتذكرة القدوم، بالتكلفة الفعلية (البند 8).",
+     "A separate invoice, outside the monthly price. Typical duration: Filipino 60–90 days, Indian 21 days, Nepali 30 days. Not applicable to workers transferred from inside the Kingdom.",
+     "بفاتورة منفصلة خارج السعر الشهري. المدة المعتادة: الفلبيني 60–90 يوماً، والهندي 21 يوماً، والنيبالي 30 يوماً. ولا تنطبق على العمال المنقولة كفالتهم من داخل المملكة."),
     ("Every month", "كل شهر",
      "The <b>monthly price</b> for the workers on duty: salary, work permit, residency, health and social insurance, and the management fee.",
      "<b>السعر الشهري</b> للعمال على رأس العمل: الراتب والرخصة والإقامة والتأمين الصحي والتأمينات ورسم الإدارة.",
@@ -351,7 +370,7 @@ STAGES2 = [  # (when_en, when_ar, what_en, what_ar, how_en, how_ar)
      "Provisioned inside the monthly price. No separate invoice. The exit and re-entry visa is optional.", "مخصَّصة داخل السعر الشهري، فلا فاتورة منفصلة. وتأشيرة الخروج والعودة اختيارية."),
 ]
 GOV_FEES = [  # (fee_en, fee_ar, amount_en, amount_ar, in_offer_en, in_offer_ar)
-    ("Work permit and expatriate levy", "رخصة العمل والمقابل المالي", "SAR 9,700 per year (levy 9,600 + permit 100)", "9,700 ريال سنوياً (المقابل 9,600 + الرخصة 100)", "Included in the monthly price", "مشمول في السعر الشهري"),
+    ("Work permit and expatriate levy", "رخصة العمل والمقابل المالي", "SAR 9,700 per year (levy 9,600 + permit 100). For a worker at a factory: SAR 100 only, the levy being exempt", "9,700 ريال سنوياً (المقابل 9,600 + الرخصة 100). وللعامل في مصنع: 100 ريال فقط لإعفائه من المقابل المالي", "Included in the monthly price", "مشمول في السعر الشهري"),
     ("Residency (Iqama), Passports", "الإقامة (الجوازات)", "SAR 650 per year", "650 ريالاً سنوياً", "Included in the monthly price", "مشمولة في السعر الشهري"),
     ("Ajeer platform", "منصة أجير", "SAR 276 per year (23 per month)", "276 ريالاً سنوياً (23 شهرياً)", "Included in the monthly price", "مشمولة في السعر الشهري"),
     ("Sponsorship transfer (workers inside the Kingdom)", "نقل الكفالة (عمال من داخل المملكة)", "SAR 2,000 first time, 4,000 second, 6,000 from the third", "2,000 ريال للمرة الأولى، و4,000 للثانية، و6,000 من الثالثة", "Included, spread over the term (SAR 2,000 assumed)", "مشمول موزّعاً على مدة العقد (على أساس 2,000 ريال)"),
