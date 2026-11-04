@@ -138,8 +138,8 @@ def build_quote():
     teams = bi_table([("#", "#", True), ("Team (trade)", "الفريق (المهنة)", False), ("Workers", "العمال", True), ("Skilled", "المهرة", True),
                       ("Nationalities", "الجنسيات", True), ("Recruitment per worker", "الاستقدام للعامل", True), ("Recruitment per team", "الاستقدام للفريق", True)],
                      trows, [3, 15, 4, 4, 8, 6, 6])
-    note = ('<div class="nt"><div dir="ltr"><b>Recruitment fee</b> = service BP-REC-01 (recruitment and work-visa issuance), SAR %s per worker, one time, before VAT. Total SAR %s + VAT %s = SAR %s. Government fees are separate.</div>'
-            '<div class="ar" dir="rtl"><b>رسم الاستقدام</b> = الخدمة BP-REC-01 (الاستقدام واستخراج تأشيرات العمل)، %s ريال للعامل، مرة واحدة، قبل الضريبة. الإجمالي %s ريال + ضريبة %s = %s ريال. والرسوم الحكومية منفصلة.</div></div>') % (
+    note = ('<div class="nt"><div dir="ltr"><b>Recruitment fee</b> = service BP-REC-01 (recruitment and work-visa issuance), SAR %s per worker, one time, before VAT. Total SAR %s + VAT %s = SAR %s. Government fees are separate. <b>Workers transferred from inside the Kingdom (sponsorship transfer): no recruitment-from-abroad fees at all.</b> The monthly price is the same, as the transfer fee is included in it.</div>'
+            '<div class="ar" dir="rtl"><b>رسم الاستقدام</b> = الخدمة BP-REC-01 (الاستقدام واستخراج تأشيرات العمل)، %s ريال للعامل، مرة واحدة، قبل الضريبة. الإجمالي %s ريال + ضريبة %s = %s ريال. والرسوم الحكومية منفصلة. <b>العمال المنقولة كفالتهم من داخل المملكة: لا توجد أي رسوم استقدام من الخارج.</b> والسعر الشهري نفسه لأن رسم النقل داخل فيه.</div></div>') % (
         n(REC_FEE), n(REC_TOTAL), n2(REC_VAT), n2(REC_GRAND), n(REC_FEE), n(REC_TOTAL), n2(REC_VAT), n2(REC_GRAND))
     inner = meta_row() + h2(1, "The seven teams", "الفرق السبعة") + teams + note
     sheets.append(page(inner))
