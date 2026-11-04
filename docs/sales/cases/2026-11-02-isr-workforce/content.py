@@ -107,6 +107,8 @@ def ar(s):
 # ---------------------------------------------------------------- عرض السعر
 Q_TITLE_EN = "Quotation: Workforce Supply — 7 Trade Teams"
 Q_TITLE_AR = "عرض سعر: توفير العمالة — 7 فرق مهنية"
+Q_ANNEX_EN = "Quotation: Workforce Supply — details"
+Q_ANNEX_AR = "عرض سعر: توفير العمالة — التفصيل"
 Q_COVER_EN = "Seven trade teams of fifteen workers each — Filipino, Indian and Nepali nationals only — supplied and managed by Business Partner."
 Q_COVER_AR = "سبعة فرق مهنية، كل فريق خمسة عشر عاملاً، من الجنسيات الفلبينية والهندية والنيبالية فقط، توفّرها Business Partner وتديرها."
 
@@ -146,8 +148,8 @@ PRICE_BASIS = [  # (component_en, component_ar, basis_en, basis_ar)
 EXCLUSIONS = [
     ("<b>Not included:</b> embassy and attestation charges, and travel tickets are not part of the service fee and are invoiced at actual cost. <b>Included in the monthly price:</b> the residence permit (iqama), the work permit and the visa. <b>Sponsorship transfer:</b> SAR 2,000 is included in the price, the same as the visa; any increase above that (a second transfer SAR 4,000, a third SAR 6,000) is invoiced at cost.",
      "<b>غير مشمول:</b> رسوم السفارات والتصديق، وتذاكر السفر، وليست ضمن أتعاب الخدمة وتُفوتر بالتكلفة الفعلية. <b>مشمول في السعر الشهري:</b> الإقامة ورخصة العمل والتأشيرة. <b>نقل الكفالة:</b> 2,000 ريال مشمولة في السعر، مثل التأشيرة، وأي زيادة عنها (النقل الثاني 4,000 والثالث 6,000) تُفوتَر بالتكلفة."),
-    ("<b>Recruitment from abroad</b> (by nationality, section 9) is not included in the price. It is invoiced separately at actual cost, and does not apply to workers transferred from inside the Kingdom.",
-     "<b>الاستقدام من الخارج</b> (بحسب الجنسية، البند 9) لا يدخل في السعر. ويُفوتَر منفصلاً بالتكلفة الفعلية، ولا ينطبق على العمال المنقولة كفالتهم من داخل المملكة."),
+    ("<b>Recruitment from abroad</b> (by nationality, section A6) is not included in the price. It is invoiced separately at actual cost, and does not apply to workers transferred from inside the Kingdom.",
+     "<b>الاستقدام من الخارج</b> (بحسب الجنسية، البند أ6) لا يدخل في السعر. ويُفوتَر منفصلاً بالتكلفة الفعلية، ولا ينطبق على العمال المنقولة كفالتهم من داخل المملكة."),
     ("<b>Accommodation, transport and food</b> are on the Client. Tick each item you want the First Party to provide: SAR 300 per item, per worker, per month, before VAT. This applies only to workers whose salary is below SAR 3,000 (the skilled and regular levels).",
      "<b>السكن والنقل والإعاشة</b> على العميل. ضع علامة أمام كل بند تريد أن يوفّره الطرف الأول: 300 ريال لكل بند، للعامل الواحد، شهرياً، قبل الضريبة. وهذا للعمال الذين يقل راتبهم عن 3,000 ريال فقط (المستويان الماهر والعادي)."),
     ("☐ Accommodation — provided by the First Party at SAR 300 per worker per month", "☐ السكن — يوفّره الطرف الأول بمبلغ 300 ريال للعامل شهرياً"),
@@ -385,8 +387,8 @@ STAGES2 = [  # (when_en, when_ar, what_en, what_ar, how_en, how_ar)
      "<b>الدفعة المقدمة</b> شهران من السعر الشهري.",
      "Before anything starts. Visa, recruitment and the first permits are arranged after the advance.", "قبل البدء. وتُرتَّب التأشيرة والاستقدام والرخص الأولى بعد الدفعة المقدمة."),
     ("Workers recruited from abroad", "العمال المستقدَمون من الخارج",
-     "Recruitment from the country by nationality, contract attestation and the arrival ticket, at actual cost (section 9).",
-     "الاستقدام من الدولة بحسب الجنسية، وتصديق العقود، وتذكرة القدوم، بالتكلفة الفعلية (البند 9).",
+     "Recruitment from the country by nationality, contract attestation and the arrival ticket, at actual cost (section A6).",
+     "الاستقدام من الدولة بحسب الجنسية، وتصديق العقود، وتذكرة القدوم، بالتكلفة الفعلية (البند أ6).",
      "A separate invoice, outside the monthly price. Typical duration: Filipino 60–90 days, Indian 21 days, Nepali 30 days. Not applicable to workers transferred from inside the Kingdom.",
      "بفاتورة منفصلة خارج السعر الشهري. المدة المعتادة: الفلبيني 60–90 يوماً، والهندي 21 يوماً، والنيبالي 30 يوماً. ولا تنطبق على العمال المنقولة كفالتهم من داخل المملكة."),
     ("Every month", "كل شهر",
@@ -417,14 +419,14 @@ LOCALISATION = [  # (case_en, case_ar, what_en, what_ar)
      "A profession with no localisation decision: a flat <b>SAR 900</b> per worker per month, <b>already included</b> in the monthly price.",
      "مهنة بلا قرار توطين: <b>900 ريال</b> ثابتة لكل عامل شهرياً، <b>مشمولة</b> في السعر الشهري."),
     ("Technical and engineering workers", "العمالة الفنية والهندسية",
-     "Technical and engineering professions follow <b>other procedures and other pricing</b>: they may fall under a localisation decision (a required ratio of Saudis and a minimum Saudi salary), and engineering roles are also subject to professional accreditation. Their cost is <b>higher</b> (section 10). <b>The workers in this quotation are on trades that have no relation to localisation</b>, which is why the prices in section 1 are lower.",
-     "العمالة الفنية والهندسية لها <b>إجراءات أخرى وتسعيرات أخرى</b>: فقد تقع تحت قرار توطين (نسبة سعوديين مطلوبة وحد أدنى لراتب السعودي)، وتخضع الأدوار الهندسية كذلك للاعتماد المهني. وتكلفتها <b>أعلى</b> (البند 10). و<b>العمالة في هذا العرض على مهن ليس لها علاقة بالتوطين</b>، ولذلك أسعار البند 1 أقل."),
+     "Technical and engineering professions follow <b>other procedures and other pricing</b>: they may fall under a localisation decision (a required ratio of Saudis and a minimum Saudi salary), and engineering roles are also subject to professional accreditation. Their cost is <b>higher</b> (section A7). <b>The workers in this quotation are on trades that have no relation to localisation</b>, which is why the prices in section 1 are lower.",
+     "العمالة الفنية والهندسية لها <b>إجراءات أخرى وتسعيرات أخرى</b>: فقد تقع تحت قرار توطين (نسبة سعوديين مطلوبة وحد أدنى لراتب السعودي)، وتخضع الأدوار الهندسية كذلك للاعتماد المهني. وتكلفتها <b>أعلى</b> (البند أ7). و<b>العمالة في هذا العرض على مهن ليس لها علاقة بالتوطين</b>، ولذلك أسعار البند 1 أقل."),
     ("Saudi-only professions", "مهن للسعوديين فقط",
      "Human resources, administrative support, secretarial, reception, customer service and similar are reserved for Saudis by the guides. They are not offered as foreign workers.",
      "الموارد البشرية والمهن الإدارية المساندة والسكرتارية والاستقبال وخدمة العملاء ونحوها مقصورة على السعوديين بحسب الأدلة. ولا تُعرض كعمالة أجنبية."),
 ]
-LOC_NOTE = ("The prices in this quotation are for trades with no localisation decision and include the flat SAR 900 localisation fee. A technical or engineering profession under a localisation decision costs more (section 10). The First Party does not guarantee any effect on the Second Party’s localisation count or band.",
-            "الأسعار في هذا العرض لمهن لا يوجد عليها قرار توطين وتشمل رسوم التوطين الثابت 900 ريال. والمهنة الفنية أو الهندسية التي عليها قرار توطين تكلفتها أعلى (البند 10). ولا يضمن الطرف الأول أي أثر على نسبة التوطين أو نطاق الطرف الثاني.")
+LOC_NOTE = ("The prices in this quotation are for trades with no localisation decision and include the flat SAR 900 localisation fee. A technical or engineering profession under a localisation decision costs more (section A7). The First Party does not guarantee any effect on the Second Party’s localisation count or band.",
+            "الأسعار في هذا العرض لمهن لا يوجد عليها قرار توطين وتشمل رسوم التوطين الثابت 900 ريال. والمهنة الفنية أو الهندسية التي عليها قرار توطين تكلفتها أعلى (البند أ7). ولا يضمن الطرف الأول أي أثر على نسبة التوطين أو نطاق الطرف الثاني.")
 
 NST = [  # (topic_en, topic_ar, text_en, text_ar)
     ("What it is", "ما هي الخدمة",
@@ -443,8 +445,8 @@ NST = [  # (topic_en, topic_ar, text_en, text_ar)
      "No promise that a shared employee counts in your localisation band, and no counting of one employee for more than one establishment. No reduction of the levy on foreign workers. Reserved professions stay with Saudis only.",
      "لا نعد بأن يُحتسب الموظف المشترك في نطاق منشأتك، ولا باحتساب موظف واحد لأكثر من منشأة، ولا بخفض المقابل المالي للعمالة الأجنبية. وتبقى المهن المقصورة على السعوديين لهم."),
 ]
-NST_NOTE = ("The service starts with part-time and flexible work. The share of the salary, the working hours and the roles are agreed in writing before any employee is assigned.",
-            "تبدأ الخدمة بالدوام الجزئي والمرن. وتُتفق حصة الراتب وساعات العمل والأدوار كتابةً قبل إسناد أي موظف.")
+NST_NOTE = ("Part-time and flexible work first; the share of salary, hours and roles are agreed in writing before any assignment.",
+            "تبدأ الخدمة بالدوام الجزئي والمرن، وتُتفق حصة الراتب والساعات والأدوار كتابةً قبل أي إسناد.")
 
 # ---- نقل الكفالة (رسم حكومي) وحسبة التوطين للمهن الفنية الهندسية والهندسية — من حاسبة التعاقد والتوطين ودليل قرارات التوطين
 TRANSFER = [  # (case_en, case_ar, fee, per_month_en, per_month_ar)

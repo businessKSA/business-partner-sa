@@ -124,6 +124,12 @@ def build_quote():
             return '<section class="sheet land" lang="ar"><div dir="rtl">%s<div class="bp">%s</div></div>%s</section>' % (
                 hd2(Q_TITLE_EN, Q_TITLE_AR), inner, footer(i, n))
         return f
+    sheetsA = []
+    def pageA(inner):
+        def f(i, n):
+            return '<section class="sheet land" lang="ar"><div dir="rtl">%s<div class="bp">%s</div></div>%s</section>' % (
+                hd2(Q_ANNEX_EN, Q_ANNEX_AR), inner, footer(i, n))
+        return f
 
     B = "[●]"
     nat_all = ("Filipino · Indian · Nepali", "فلبينية · هندية · نيبالية")
@@ -152,8 +158,8 @@ def build_quote():
     rates24 = rate_table(PRICE, TOTAL_MONTHLY) + totals_table(TOTAL_MONTHLY, MONTHLY_VAT, MONTHLY_GRAND)
     hours = ('<div class="nt"><div dir="ltr"><b>Working hours:</b> %d hours a day &nbsp;·&nbsp; <b>Working days:</b> %d days a month</div>'
              '<div class="ar" dir="rtl"><b>ساعات العمل:</b> %d ساعات يومياً &nbsp;·&nbsp; <b>أيام العمل:</b> %d يوماً في الشهر</div></div>') % (WORK_HOURS, WORK_DAYS, WORK_HOURS, WORK_DAYS)
-    note = ('<div class="nt"><div dir="ltr"><b>Minimum salary:</b> technical 3,000, skilled 2,500, helper 1,500. Prices are before 15% VAT and are for trades with no localisation decision; technical and engineering trades under a decision cost more (section 10). Recruitment from abroad is separate (section 9).</div>'
-            '<div class="ar" dir="rtl"><b>الحد الأدنى للراتب:</b> الفنية 3,000، والماهرة 2,500، والمساعد 1,500. الأسعار قبل ضريبة 15% ولمهن لا قرار توطين عليها؛ والفنية والهندسية التي عليها قرار تكلفتها أعلى (البند 10). والاستقدام من الخارج منفصل (البند 9).</div></div>')
+    note = ('<div class="nt"><div dir="ltr"><b>Minimum salary:</b> technical 3,000, skilled 2,500, helper 1,500. Prices are before 15% VAT and are for trades with no localisation decision; technical and engineering trades under a decision cost more (section A7). Recruitment from abroad is separate (section A6).</div>'
+            '<div class="ar" dir="rtl"><b>الحد الأدنى للراتب:</b> الفنية 3,000، والماهرة 2,500، والمساعد 1,500. الأسعار قبل ضريبة 15% ولمهن لا قرار توطين عليها؛ والفنية والهندسية التي عليها قرار تكلفتها أعلى (البند أ7). والاستقدام من الخارج منفصل (البند أ6).</div></div>')
     basis_rows = [[(str(i), str(i), "nx"), ("<b>%s</b> — %s" % (esc(ce), esc(be)), "<b>%s</b> — %s" % (esc(ca), esc(ar(ba))), "t")]
                   for i, (ce, ca, be, ba) in enumerate(PRICE_BASIS, 1)]
     basis = bi_table([("#", "#", True), ("How the monthly price per worker is built", "كيف يُبنى السعر الشهري للعامل", False)], basis_rows, [4, 46])
@@ -174,32 +180,6 @@ def build_quote():
     diffnote = ('<div class="nt"><div dir="ltr">In a 24-month contract the visa or transfer fee (SAR 2,000) is spread over 24 months, so the price falls by SAR 83 per worker per month.</div>'
                 '<div class="ar" dir="rtl">في عقد 24 شهراً تُوزَّع رسوم التأشيرة أو النقل (2,000 ريال) على 24 شهراً، فينخفض السعر 83 ريالاً للعامل شهرياً.</div></div>')
     sheets.append(page(h2(1, "Trades, salaries and price: 12-month contract (SAR, before VAT)", "المهن والرواتب والسعر الشهري: عقد 12 شهراً (ريال، قبل الضريبة)") + hours + rates12))
-    def cost_table():
-        ks = list(LEVELS.items())
-        def comp(a, loc):
-            permit = 9700/12.0; other = 650/12.0 + 23 + a*0.85*0.02 + 200/12.0; visa = 2000/12.0
-            prov = a/24.0 + a/30.0*21/12.0 + 1500/12.0
-            direct = a + permit + other + visa + 50 + prov
-            fee = max(0.10*(direct + 500), 500.0)
-            return {k: int(round(v)) for k, v in dict(sal=a, permit=permit, other=other, visa=visa, med=50, prov=prov, direct=direct, oh=500, fee=fee, loc=loc).items()}
-        cs = [comp(v[2], v[3]) for k2, v in ks]
-        def row(en, ar_, key, bold=False):
-            cells = [pc(c[key]) for c in cs]
-            lab = ("<b>%s</b>" % en, "<b>%s</b>" % ar_, "t") if bold else (en, ar_, "t")
-            return [lab] + cells
-        rows_ = [row("Salary (minimum)", "الراتب (الحد الأدنى)", "sal"),
-                 row("Work permit and levy (9,700 ÷ 12)", "رخصة العمل والمقابل المالي (9,700 ÷ 12)", "permit"),
-                 row("Residence, Ajeer, insurance, exit and re-entry", "الإقامة وأجير والتأمينات والخروج والعودة", "other"),
-                 row("Visa or sponsorship transfer (2,000 ÷ 12)", "التأشيرة أو نقل الكفالة (2,000 ÷ 12)", "visa"),
-                 row("Health insurance", "التأمين الصحي", "med"),
-                 row("End of service, leave and return ticket", "نهاية الخدمة والإجازة وتذكرة العودة", "prov"),
-                 row("Direct cost", "التكلفة المباشرة", "direct", True),
-                 row("Administrative and operating costs", "التكاليف الإدارية والتشغيلية", "oh"),
-                 row("Our fees: 10% of (cost + administrative and operating costs), minimum SAR 500", "رسومنا: 10% من (التكلفة + التكاليف الإدارية والتشغيلية) وبحد أدنى 500 ريال", "fee"),
-                 row("Localisation fees", "رسوم التوطين", "loc"),
-                 {"cls": "tot", "cells": [("Monthly price per worker", "السعر الشهري للعامل", "")] + [pc(PRICE12[k2]) for k2, v in ks]},
-                 [("At a factory (less SAR 800)", "في مصنع (ناقص 800 ريال)", "t")] + [pc(PRICE12_F[k2]) for k2, v in ks]]
-        return bi_table([("Cost item, per worker per month (SAR)", "بند التكلفة للعامل شهرياً (ريال)", False)] + [(v[0], v[1], True) for k2, v in ks], rows_, [30, 10, 10, 10])
     sheets.append(page(h2(2, "Calculation if the worker is employed at a factory (12-month contract)", "الحسبة إذا كان العامل على مصنع (عقد 12 شهراً)") + fac12 + facnote + h2(3, "If the contract is 24 months: the difference", "إذا كان العقد 24 شهراً: الفرق") + diff_table() + diffnote + note))
 
 
@@ -208,8 +188,8 @@ def build_quote():
     scope = bi_table([("#", "#", True), ("What is included", "ما يشمله العرض", False)], scope_rows, [4, 46])
     _b = lambda s: esc(s).replace("&lt;b&gt;", "<b>").replace("&lt;/b&gt;", "</b>")
     excl = numbered([(_b(e), _b(a)) for e, a in EXCLUSIONS], "Not included / on the Client", "غير مشمول / على العميل")
-    sheets.append(page(h2(3, "Price basis", "أساس السعر") + basis + h2(4, "Scope", "النطاق") + scope))
-    sheets.append(page(h2(5, "Not included in the price", "ما لا يشمله السعر") + excl))
+    scope_page = h2("A1", "Scope", "النطاق") + scope
+    sheets.append(page(h2(4, "Not included in the price", "ما لا يشمله السعر") + excl))
     gov_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(fe), "<b>%s</b>" % esc(fa), "t"), (ae, aa, "t"), (ie, ia, "t")]
                 for i, (fe, fa, ae, aa, ie, ia) in enumerate(GOV_FEES, 1)]
     gov = bi_table([("#", "#", True), ("Government fee", "الرسوم الحكومية", False), ("Official amount", "المبلغ الرسمي", False), ("In this offer", "في هذا العرض", False)], gov_rows, [3, 14, 18, 18])
@@ -221,21 +201,21 @@ def build_quote():
     tr_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(te), "<b>%s</b>" % esc(ta), "t"), (num(n(fee)), num(n(fee)), "c"), (pe, pa, "c")] for i, (te, ta, fee, pe, pa) in enumerate(TRANSFER, 1)]
     trf = bi_table([("#", "#", True), ("Government fee", "الرسوم الحكومية", False), ("SAR per worker", "ريال للعامل", True), ("In the monthly price", "في السعر الشهري", True)], tr_rows, [3, 22, 9, 16])
     trfnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(TRANSFER_NOTE[0]), esc(ar(TRANSFER_NOTE[1])))
-    sheets.append(page(h2(6, "Government fees explained", "توضيح الرسوم الحكومية") + gov + govnote + h2(7, "Sponsorship transfer costs (workers inside the Kingdom)", "تكاليف نقل الكفالة (عمال من داخل المملكة)") + trf + trfnote))
+    sheetsA.append(pageA(h2("A3", "Government fees explained", "توضيح الرسوم الحكومية") + gov + govnote + h2("A4", "Sponsorship transfer costs (workers inside the Kingdom)", "تكاليف نقل الكفالة (عمال من داخل المملكة)") + trf + trfnote))
     rec_rows = [[("<b>%s</b>" % esc(ne), "<b>%s</b>" % esc(na), "t"), (num(n(r)), num(n(r)), "c"), (num(n(t)), num(n(t)), "c"), (num(n(k3)), num(n(k3)), "c"), (num(n(r + t + k3)), num(n(r + t + k3)), "c"), (de, da, "c")]
                 for ne, na, r, t, k3, de, da in REC_COUNTRY]
     rec = bi_table([("Nationality", "الجنسية", False), ("Recruitment from the country", "الاستقدام من الدولة", True), ("Contracts and attestation", "العقود والتصديق", True), ("Arrival ticket", "تذكرة القدوم", True), ("Total per worker, at cost", "الإجمالي للعامل بالتكلفة", True), ("Typical duration", "المدة المعتادة", True)], rec_rows, [12, 10, 10, 8, 10, 8])
     recnote = ('<div class="nt"><div dir="ltr">Recruitment from abroad is at actual cost, with no mark-up, on a separate invoice, and applies only to workers recruited from abroad. For a worker transferred from inside the Kingdom there are no recruitment-from-abroad costs. The amounts are the same for every trade.</div>'
                '<div class="ar" dir="rtl">الاستقدام من الخارج بالتكلفة الفعلية دون هامش، بفاتورة منفصلة، ويخص العمال المستقدَمين من الخارج فقط. أما العامل المنقول من داخل المملكة فلا توجد عليه تكاليف استقدام من الخارج. والمبالغ نفسها لكل المهن.</div></div>')
-    sheets.append(page(h2(8, "Localisation fee", "رسوم التوطين") + loc + locnote + h2(9, "Recruitment from the country, by nationality", "الاستقدام من الدولة بحسب الجنسية") + rec + recnote))
+    sheetsA.append(pageA(h2("A5", "Localisation fee", "رسوم التوطين") + loc + locnote + h2("A6", "Recruitment from the country, by nationality", "الاستقدام من الدولة بحسب الجنسية") + rec + recnote))
     lc_rows = [[("<b>%s</b>" % esc(ie), "<b>%s</b>" % esc(ia), "t"), (te_, ta_, "c"), (ee_, ea_, "c")] for ie, ia, te_, ta_, ee_, ea_ in LOCCALC]
     lcalc = bi_table([("Item", "البند", False), ("Technical engineering (e.g. steel-structure fitter)", "فنية هندسية (مثل فني هياكل معدنية)", True), ("Engineering (engineer)", "هندسية (مهندس)", True)], lc_rows, [26, 14, 14])
     lcnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(LOCCALC_NOTE[0]), esc(ar(LOCCALC_NOTE[1])))
-    sheets.append(page(h2(10, "Technical and engineering workers: how the localisation fees and the worker price are calculated", "العمالة الفنية والهندسية: كيف تُحسب رسوم التوطين وسعر العامل") + lcalc + lcnote))
+    sheetsA.append(pageA(h2("A7", "Technical and engineering workers: how the localisation fees and the worker price are calculated", "العمالة الفنية والهندسية: كيف تُحسب رسوم التوطين وسعر العامل") + lcalc + lcnote))
     nst_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(te), "<b>%s</b>" % esc(ta), "t"), (we, wa, "t")] for i, (te, ta, we, wa) in enumerate(NST, 1)]
     nst = bi_table([("#", "#", True), ("Topic", "البند", False), ("What it means", "ماذا يعني", False)], nst_rows, [3, 14, 38])
     nstnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(NST_NOTE[0]), esc(ar(NST_NOTE[1])))
-    sheets.append(page(h2(11, "National Shared Talent service", "خدمة الكوادر الوطنية المشتركة") + nst + nstnote))
+    nst_page = h2("A2", "National Shared Talent service", "خدمة الكوادر الوطنية المشتركة") + nst + nstnote
 
     # 5 المراحل والدفع والشروط
     stg_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(te), "<b>%s</b>" % esc(ta), "t"), (we, wa, "t"), (he, ha, "t")]
@@ -244,13 +224,15 @@ def build_quote():
     pay_rows = [[("1", "1", "nx"), ("Advance", "الدفعة المقدمة", ""), ("Two months of the monthly price", "شهران من السعر الشهري", "c"), ("On signing", "عند التوقيع", "")],
                 [("2", "2", "nx"), ("Monthly invoice — workers on duty", "فاتورة شهرية — العمال على رأس العمل", ""), ("100%", "100%", "c"), ("Within 7 days of the invoice", "خلال 7 أيام من الفاتورة", "")]]
     pay = bi_table([("#", "#", True), ("Payment", "الدفعة", False), ("Amount", "المقدار", True), ("Due", "الاستحقاق", False)], pay_rows, [4, 20, 14, 16])
-    sheets.append(page(h2(12, "What you pay and when", "ماذا تدفع ومتى") + stg + h2(13, "Payment terms", "طريقة الدفع") + pay))
-    sheets.append(page(h2(14, "Terms and conditions", "الشروط والأحكام") + numbered([(esc(e), esc(a)) for e, a in TERMS], "Term", "الشرط")))
+    sheetsA.insert(0, pageA(scope_page))
+    sheetsA.insert(1, pageA(nst_page))
+    sheetsA.append(pageA(h2("A8", "What you pay and when", "ماذا تدفع ومتى") + stg))
+    sheetsA.append(pageA(h2("A9", "Terms and conditions", "الشروط والأحكام") + numbered([(esc(e), esc(a)) for e, a in TERMS], "Term", "الشرط")))
 
     # 6 التوقيعان
     sg = ('<div class="rw"><div class="col" dir="ltr"><p>By signing below, both parties accept this quotation and its terms and conditions.</p></div>'
           '<div class="col" dir="rtl"><p>%s</p></div></div>') % esc(ar("بالتوقيع أدناه يوافق الطرفان على هذا العرض وشروطه وأحكامه."))
-    inner = h2(15, "Signatures", "التوقيعان") + sg + sig_boxes(right_co=esc(CLIENT_AR))
+    inner = h2(5, "Payment terms", "طريقة الدفع") + pay + h2(6, "Signatures", "التوقيعان") + sg + sig_boxes(right_co=esc(CLIENT_AR))
     sheets.append(page(inner))
 
     def closing(i, n):
@@ -261,8 +243,8 @@ def build_quote():
                 'Mobile / الجوال: %s<br>Email / الإيميل: %s<br>Website / الموقع: %s</div>'
                 '<div><b>Bank transfer · التحويل البنكي</b>Beneficiary / المستفيد: Business Partner Solutions / بزنس بارتنر سلوشنز<br>Bank / البنك: %s<br>IBAN: %s</div></div></div></div></section>') % (
             num(PHONE), num("business@businesspartner.sa"), num("www.businesspartner.sa"), esc(BANK), num(IBAN))
-    sheets.append(closing)
-    return doc("Quotation — ISR Trading (Workforce)", css, sheets)
+    sheetsA.append(closing)
+    return doc("Quotation (simple) — ISR Trading (Workforce)", css, sheets), doc("Quotation (detailed) — ISR Trading (Workforce)", css, sheets[:-1] + sheetsA[:-1] + [sheets[-1]] + [sheetsA[-1]])
 
 # ------------------------------------------------------------------ العقد وNDA (A4 عمودي)
 def hd_port(en, a, sub_en):
@@ -417,7 +399,9 @@ if __name__ == "__main__":
     out = sys.argv[1]
     os.makedirs(out, exist_ok=True)
     suffix = ""
-    open(os.path.join(out, "01-Quotation.html"), "w", encoding="utf-8").write(build_quote())
+    qm, qa = build_quote()
+    open(os.path.join(out, "01-Quotation-Simple.html"), "w", encoding="utf-8").write(qm)
+    open(os.path.join(out, "01B-Quotation-Detailed.html"), "w", encoding="utf-8").write(qa)
     h, _ = build_contract(); open(os.path.join(out, "02-Agreement.html"), "w", encoding="utf-8").write(h)
     h, _ = build_nda(); open(os.path.join(out, "03-NDA.html"), "w", encoding="utf-8").write(h)
     open(os.path.join(out, "07-Authorization-Letter.html"), "w", encoding="utf-8").write(build_authz())

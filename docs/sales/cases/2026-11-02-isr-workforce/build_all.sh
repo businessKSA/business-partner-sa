@@ -17,6 +17,7 @@ if [ "$FIELDS" = 1 ]; then
 else
   render() { node render.cjs pdf "$1" "$2" "$3"; }
 fi
-render "$OUT/01-Quotation.html" "$OUT/01-Quotation.pdf" landscape
+render "$OUT/01-Quotation-Simple.html" "$OUT/01-Quotation-Simple.pdf" landscape
+render "$OUT/01B-Quotation-Detailed.html" "$OUT/01B-Quotation-Detailed.pdf" landscape
 for f in 02-Agreement 03-NDA 07-Authorization-Letter 04-Required-Documents; do render "$OUT/$f.html" "$OUT/$f.pdf" portrait; done
 rm -rf __pycache__ ../2026-10-28-paint-factory-gr/v2/__pycache__
