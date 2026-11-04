@@ -472,3 +472,16 @@ LOCCALC = [  # (item_en, item_ar, tech_en, tech_ar, eng_en, eng_ar)
 ]
 LOCCALC_NOTE = ("Fees per worker = Saudis required × cost of one Saudi ÷ foreign workers; they replace the SAR 900 counted for other professions. The engineer column is an example (salary assumed SAR 3,000), recalculated on your actual numbers.",
                 "رسوم التوطين للعامل = السعوديون المطلوبون × تكلفة السعودي الواحد ÷ العمال الأجانب، وتحل محل الـ900 ريال المحتسبة للمهن الأخرى. وعمود المهندس مثال (الراتب مفترض 3,000 ريال) ويُعاد حسابه على أعدادك الفعلية.")
+# ---- الآلة الحاسبة للتكاليف بناءً على الرواتب (صفحة خاصة في موقعنا؛ المسار مقترح ويُبنى قبل الإرسال)
+CALC_URL = "www.businesspartner.sa/calculators/workforce-cost"
+CALC_SALARIES = [1500, 2000, 2500, 3000, 3500, 4000, 5000]
+
+CALC_SAUDI_URL = "www.businesspartner.sa/calculators/saudi-employee-cost"
+SAUDI_SALARIES = [4000, 5500, 6000, 8000, 10000, 12000]
+SAUDI_ROLES = [  # (en, ar, salary note en, ar) — الرواتب الدنيا من قرارات التوطين فقط؛ والباقي بحسب راتب العميل
+    ("Technical (under a localisation decision)", "فني (عليه قرار توطين)", "5,500 minimum", "5,500 حداً أدنى"),
+    ("Engineer (under a localisation decision)", "مهندس (عليه قرار توطين)", "8,000 minimum", "8,000 حداً أدنى"),
+    ("Sales", "مبيعات", "your salary", "بحسب راتبك"),
+    ("Marketing", "تسويق", "your salary", "بحسب راتبك"),
+    ("Other non-professional roles", "وظائف أخرى غير مهنية", "your salary", "بحسب راتبك"),
+]
