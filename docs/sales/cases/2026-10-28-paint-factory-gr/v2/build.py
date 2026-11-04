@@ -79,8 +79,8 @@ PKG_EN, PKG_AR = "Launch Package", "باقة الانطلاق"
 FAM_EN, FAM_AR = "Corporate Compliance &amp; Localization Packages", "باقات الامتثال والتوطين للشركات"
 SETUP_EN, SETUP_AR = "Platform Setup &amp; Remediation", "تصحيح المنصات والتأسيس"
 SKU = "BP-PKG-LAUNCH"
-BADR = G.BADR_NAME
-BADR_T = G.BADR_TITLE
+BADR = G.CEO_NAME          # قرار المالك 2026-11-04: العرض باسم د. باهر لا باسم بدر
+BADR_T = G.CEO_TITLE
 
 # ------------------------------------------------------------------ CSS إضافي
 EXTRA = """
@@ -96,6 +96,9 @@ table.kv3 td.k{width:27%;color:#4A5578}table.kv3 td.k.a{direction:rtl;text-align
 table.kv3 td.v{text-align:center;width:46%}
 .cardx{background:#F2F4FB;border:1px solid #DDE1EE;padding:6px 11px;margin:6px 0;font-size:10.4px}
 .cardx b{color:#0B1B5A}
+.fld{display:inline-block;min-width:92px;height:14px;border-bottom:1px solid #8A93B5;vertical-align:-2px}
+.sl p.si{margin:0 0 4px 0}.sl .sn{display:inline-block;min-width:30px;color:#0B1B5A;font-weight:700}
+.sl table.ct{width:100%;border-collapse:collapse;margin:4px 0 6px;font-size:10px}.sl table.ct th{background:#0B1B5A;color:#fff;padding:3px 6px;font-weight:700}.sl table.ct td{border:1px solid #DDE1EE;padding:3px 6px}.sl table.ct td.l{text-align:start}.sl table.ct td.c{text-align:center}
 .att{border:1px dashed #0B1B5A;background:#fff;margin:8px 0;padding:6px 10px}
 .rw.mt>.col{display:flex;gap:6px}.rw.mt .meta1{margin:2px 0}
 .bp .cl td{padding:2px 9px}
@@ -188,7 +191,7 @@ def land_page(inner, n_, total):
 def cover_land():
     strip = [("To / إلى السادة", CLIENT_EN), ("Date / التاريخ", G.num("[●]")),
              ("Validity / صلاحية العرض", "14 days<br>14 يوماً"),
-             ("Issued by / صادر عن", f"{G.BADR_EN} · <bdi dir=\"rtl\">{G.BADR_AR}</bdi>")]
+             ("Issued by / صادر عن", f"{G.CEO_EN} · <bdi dir=\"rtl\">{G.CEO_AR}</bdi>")]
     ch = "".join(f"<div><span>{a}</span>{b}</div>" for a, b in strip)
     return ('<div class="cv lt"><div class="lgband"><span class="logo big" role="img" aria-label="Business Partner"></span></div>'
             '<div class="cvb"><div dir="ltr"><div class="eb">QUOTATION</div><h1 class="pf">Launch Package</h1>'
@@ -260,7 +263,7 @@ def build_quote():
     scope = [
         ("Qiwa: work permits and employment contracts.", "قوى: رخص العمل وعقود العمل."),
         ("Social insurance (GOSI): subscription, invoices and certificate.", "التأمينات الاجتماعية: الاشتراك والفواتير والشهادة."),
-        ("Organising the employees’ medical insurance and an alert before any violation, through the Smart Advisor.", "تنظيم التأمين الطبي للموظفين والتنبيه قبل أي مخالفة عبر «المستشار الذكي»."),
+        ("Organising the employees’ medical insurance and an alert before any violation.", "تنظيم التأمين الطبي للموظفين والتنبيه قبل أي مخالفة."),
         ("Mudad: the monthly wage-protection file and handling of notes.", "مدد: ملف حماية الأجور شهرياً ومعالجة الملاحظات."),
         ("Nitaqat and localisation: a monthly calculation and an alert before any drop.", "نطاقات والتوطين: حساب شهري وتنبيه قبل أي هبوط."),
         ("Muqeem and Absher Business: residencies.", "مقيم وأبشر أعمال: الإقامات."),
@@ -337,14 +340,14 @@ def build_quote():
         (f"Quarterly in advance by tax invoice: on signature {n(DUE_SIGN)} before VAT (first quarter {n(QUARTER)} + {SETUP_EN} {n(SETUP)}), VAT {n(vat(DUE_SIGN))}, total {n(inc(DUE_SIGN))}; then {n(inc(QUARTER))} including VAT at the start of each of the next 3 quarters.",
          f"ربع سنوياً مقدماً بفاتورة ضريبية: عند التوقيع {n(DUE_SIGN)} قبل الضريبة (الربع الأول {n(QUARTER)} + {SETUP_AR} {n(SETUP)})، والضريبة {n(vat(DUE_SIGN))}، فالإجمالي {n(inc(DUE_SIGN))}؛ ثم {n(inc(QUARTER))} شاملة الضريبة في بداية كل ربع من الأرباع الثلاثة التالية."),
         ("Payment is by bank transfer to the account on the last page. Additions (section 2) are invoiced as stated there.", "السداد بالتحويل البنكي إلى الحساب في الصفحة الأخيرة. وتُفوتَر الإضافات (البند 2) كما هو مبيّن فيه."),
-        ("If a payment is late, the service stops [●] days after written notice, and we hand the Client the platforms and documents we hold for it.", "عند التأخر في السداد تتوقف الخدمة بعد [●] أيام من الإشعار الكتابي، ونسلّم العميل المنصات والمستندات التي بحوزتنا له."),
+        ("If a payment is late, the service stops 5 business days after written notice, and we hand the Client the platforms and documents we hold for it.", "عند التأخر في السداد تتوقف الخدمة بعد 5 أيام عمل من الإشعار الكتابي، ونسلّم العميل المنصات والمستندات التي بحوزتنا له."),
     ]
     terms = [
         ("This quotation is an updated offer and replaces in full our earlier offer of 1 November 2026.", "هذا العرض محدَّث ويحلّ بالكامل محل عرضنا السابق بتاريخ 1 نوفمبر 2026."),
         ("Valid for 14 days from its date; accepted by the Client’s signature; electronic signature is valid.", "ساري 14 يوماً من تاريخه، ويُقبل بتوقيع العميل، ويُعتدّ بالتوقيع الإلكتروني."),
         ("The service agreement, the Terms &amp; Conditions and the authorisation letter are attached; a signed service agreement prevails over this quotation.", "عقد الخدمة والشروط والأحكام وخطاب التفويض مرفقة؛ وعقد الخدمة الموقّع يسبق هذا العرض."),
         ("Confidentiality is under the Non-Disclosure Agreement; governed by the laws of the Kingdom of Saudi Arabia.", "السرية وفق اتفاقية عدم الإفصاح؛ ويخضع العرض لأنظمة المملكة العربية السعودية."),
-        ("Data hosting and processing location, and any transfer outside the Kingdom: [●].", "موقع استضافة البيانات ومعالجتها وأي نقل خارج المملكة: [●]."),
+        ("Data hosting and processing are on Microsoft Azure; any transfer of the Client’s data outside the Kingdom is made only with the Client’s written consent.", "استضافة البيانات ومعالجتها على Microsoft Azure؛ ولا يُنقل أي من بيانات العميل خارج المملكة إلا بموافقة العميل الكتابية."),
     ]
     p6 = sec(8, "Duration", "المدة") + bullets(dur) + sec(9, "Payment", "طريقة الدفع") + bullets(pay) + sec(10, "Terms", "الشروط") + bullets(terms)
     pages.append(p6)
@@ -369,66 +372,123 @@ def C(t_en, t_ar, x_en, x_ar):
 
 
 def clause_subject():
-    return C("Subject", "موضوع العقد",
-             f'The First Party provides the Client with the {PKG_EN} (<span class="num">{SKU}</span>) of the {FAM_EN}, for one branch of the Client’s establishment (Riyadh) and up to 49 employees, '
-             f'together with the one-time {SETUP_EN} service, as detailed in the accepted quotation, which forms an integral part of this contract.',
-             f'يقدّم الطرف الأول للعميل {PKG_AR} (<span class="num">{SKU}</span>) من {FAM_AR}، لفرع واحد من منشأة العميل (الرياض) وبحد أقصى 49 موظفاً، '
-             f'إضافةً إلى خدمة «{SETUP_AR}» لمرة واحدة، وفق ما هو مفصّل في عرض السعر المقبول الذي يُعدّ جزءاً لا يتجزأ من هذا العقد.')
+    return ("Subject", "موضوع العقد",
+            ("STRUCT", [
+                f'The First Party provides the Client with the {PKG_EN} (<span class="num">{SKU}</span>) of the {FAM_EN}, for one branch of the Client’s establishment (Riyadh) and up to 49 employees.',
+                f'The First Party also provides the one-time {SETUP_EN} service.',
+                "The services are detailed in the accepted quotation, which forms an integral part of this contract."]),
+            ("STRUCT", [
+                f'يقدّم الطرف الأول للعميل {PKG_AR} (<span class="num">{SKU}</span>) من {FAM_AR}، لفرع واحد من منشأة العميل (الرياض) وبحد أقصى 49 موظفاً.',
+                f'ويقدّم الطرف الأول كذلك خدمة «{SETUP_AR}» لمرة واحدة.',
+                "وتُفصَّل الخدمات في عرض السعر المقبول الذي يُعدّ جزءاً لا يتجزأ من هذا العقد."]))
 
 
 def clause_services():
-    return C("Included Services", "الخدمات المشمولة",
-             "The package covers: Qiwa (work permits and employment contracts); social insurance (subscription, invoices and certificate); "
-             "organising the employees’ medical insurance with an alert before any violation (through the Smart Advisor); "
-             "Mudad (the monthly wage-protection file and handling of notes); Nitaqat and localisation (a monthly calculation and an alert before any drop); Muqeem and Absher Business (residencies); "
-             "a unified renewals calendar, a monthly report and a single point of contact; and monitoring of violations and deadlines on Tamm. "
-             "Anything not listed is outside the package and is performed only under a written change request, priced separately.",
-             "تشمل الباقة: قوى (رخص العمل وعقود العمل)؛ التأمينات الاجتماعية (الاشتراك والفواتير والشهادة)؛ تنظيم التأمين الطبي للموظفين والتنبيه قبل أي مخالفة (عبر «المستشار الذكي»)؛ "
-             "مدد (ملف حماية الأجور شهرياً ومعالجة الملاحظات)؛ نطاقات والتوطين (حساب شهري وتنبيه قبل أي هبوط)؛ مقيم وأبشر أعمال (الإقامات)؛ "
-             "تقويم موحّد للتجديدات وتقرير شهري ونقطة اتصال واحدة؛ ورصد المخالفات والمهل على «تمام». وما لم يُذكر فهو خارج الباقة ولا يُنفَّذ إلا بطلب تغيير كتابي يُسعَّر على حدة.")
+    return ("Included Services", "الخدمات المشمولة",
+            ("STRUCT", [
+                "The package covers Qiwa: work permits and employment contracts.",
+                "Social insurance: subscription, invoices and certificate.",
+                "Organising the employees’ medical insurance, with an alert before any violation.",
+                "Mudad: the monthly wage-protection file and handling of notes.",
+                "Nitaqat and localisation: a monthly calculation and an alert before any drop.",
+                "Muqeem and Absher Business: residencies.",
+                "A unified renewals calendar, a monthly report and a single point of contact.",
+                "Monitoring of violations and deadlines on Tamm.",
+                "Anything not listed is outside the package and is performed only under a written change request, priced separately."]),
+            ("STRUCT", [
+                "تشمل الباقة قوى: رخص العمل وعقود العمل.",
+                "التأمينات الاجتماعية: الاشتراك والفواتير والشهادة.",
+                "تنظيم التأمين الطبي للموظفين، والتنبيه قبل أي مخالفة.",
+                "مدد: ملف حماية الأجور شهرياً ومعالجة الملاحظات.",
+                "نطاقات والتوطين: حساب شهري وتنبيه قبل أي هبوط.",
+                "مقيم وأبشر أعمال: الإقامات.",
+                "تقويم موحّد للتجديدات وتقرير شهري ونقطة اتصال واحدة.",
+                "رصد المخالفات والمهل على «تمام».",
+                "وما لم يُذكر فهو خارج الباقة ولا يُنفَّذ إلا بطلب تغيير كتابي يُسعَّر على حدة."]))
 
 
 def clause_limits():
-    return C("Operation Limits &amp; Additional Operations".replace("&amp;", "&"), "حدود العمليات والعمليات الإضافية",
-             f"The package includes up to {n(LIM['ops_m'])} operations per month and {n(LIM['ops_y'])} per year, and up to {n(LIM['req_m'])} requests per month and {n(LIM['req_d'])} requests per day. "
-             "An operation is a transaction or action on a government platform (issue, renewal, amendment, attestation, file upload, or handling of a note or violation), counted once for each action, entity and worker or entity concerned. "
-             "A request is what the Client submits to the First Party through the approved channel; enquiring about the status of an existing request is not an operation. "
-             f"Automatic alerts, the monthly report, actions covered by the {SETUP_EN} fee and updates to the Client’s own data held by the First Party are not counted. "
-             "Each operation is logged with a reference number and the Client is told the remaining limits. The Client is alerted at 80% of the monthly limit; beyond the limit, "
-             "the price of an additional operation is shown before execution and the First Party proceeds only after the Client confirms. "
-             f"An additional operation is SAR {n(OVERAGE)} before VAT, invoiced monthly with a statement of the operations. "
-             "Requests above the daily maximum are scheduled for the next day unless an entity’s deadline requires otherwise.",
-             f"تشمل الباقة حتى {n(LIM['ops_m'])} عملية شهرياً و{n(LIM['ops_y'])} عملية سنوياً، وحتى {n(LIM['req_m'])} طلباً شهرياً و{n(LIM['req_d'])} طلبات يومياً. "
-             "والعملية هي معاملة أو إجراء على منصة حكومية (إصدار أو تجديد أو تعديل أو توثيق أو رفع ملف أو معالجة ملاحظة أو مخالفة)، وتُحتسب مرة لكل إجراء وجهة وعامل أو كيان معني. "
-             "والطلب هو ما يرفعه العميل إلى الطرف الأول عبر القناة المعتمدة، ولا يُعدّ الاستفسار عن حالة طلب قائم عملية. "
-             f"ولا تُحتسب التنبيهات الآلية ولا التقرير الشهري ولا الإجراءات المشمولة في رسم «{SETUP_AR}» ولا تحديث بيانات العميل لدى الطرف الأول. "
-             "تُسجَّل كل عملية برقم مرجعي ويُبلَّغ العميل بالحدود المتبقية. وينبَّه العميل عند 80٪ من الحد الشهري؛ وما زاد على الحد يُعرض سعر العملية الإضافية قبل تنفيذها "
-             "ولا يمضي الطرف الأول إلا بعد تأكيد العميل. "
-             f"وسعر العملية الإضافية {n(OVERAGE)} ريالاً قبل الضريبة، وتُفوتَر شهرياً مع كشف بالعمليات. "
-             "والطلبات الزائدة على الحد اليومي تُجدول لليوم التالي ما لم تقتضِ مهلة جهة غير ذلك.")
+    tl_en = _tbl(("Limit", "Package"), None, [
+        ("Operations per month", "", [n(LIM["ops_m"])]), ("Operations per year", "", [n(LIM["ops_y"])]),
+        ("Requests per month", "", [n(LIM["req_m"])]), ("Requests per day (maximum)", "", [n(LIM["req_d"])]),
+        ("Alert to the Client", "", [f"at 80% of the monthly limit ({n(int(LIM['ops_m'] * LIM['alert']))} operations)"]),
+        ("Price of an additional operation", "", [f"SAR {n(OVERAGE)}, before VAT"])])
+    tl_ar = _tbl(("الحد", "الباقة"), None, [
+        ("عمليات شهرياً", "", [n(LIM["ops_m"])]), ("عمليات سنوياً", "", [n(LIM["ops_y"])]),
+        ("طلبات شهرياً", "", [n(LIM["req_m"])]), ("طلبات يومياً (حد أقصى)", "", [n(LIM["req_d"])]),
+        ("تنبيه العميل", "", [f"عند 80٪ من الحد الشهري ({n(int(LIM['ops_m'] * LIM['alert']))} عملية)"]),
+        ("سعر العملية الإضافية", "", [f"{n(OVERAGE)} ريالاً قبل الضريبة"])])
+    en = [
+        "The limits of the package are as follows:",
+        ("TABLE", tl_en),
+        "An operation is a transaction or action on a government platform (issue, renewal, amendment, attestation, file upload, or handling of a note or violation), counted once for each action, entity and worker or entity concerned.",
+        "A request is what the Client submits to the First Party through the approved channel; enquiring about the status of an existing request is not an operation.",
+        f"Automatic alerts, the monthly report, actions covered by the {SETUP_EN} fee and updates to the Client’s own data held by the First Party are not counted.",
+        "Each operation is logged with a reference number and the Client is told the remaining limits.",
+        "The Client is alerted at 80% of the monthly limit; beyond the limit, the price of an additional operation is shown before execution and the First Party proceeds only after the Client confirms.",
+        f"An additional operation is SAR {n(OVERAGE)} before VAT, invoiced monthly with a statement of the operations.",
+        "Requests above the daily maximum are scheduled for the next day unless an entity’s deadline requires otherwise.",
+    ]
+    ar = [
+        "حدود الباقة كما يلي:",
+        ("TABLE", tl_ar),
+        "والعملية هي معاملة أو إجراء على منصة حكومية (إصدار أو تجديد أو تعديل أو توثيق أو رفع ملف أو معالجة ملاحظة أو مخالفة)، وتُحتسب مرة لكل إجراء وجهة وعامل أو كيان معني.",
+        "والطلب هو ما يرفعه العميل إلى الطرف الأول عبر القناة المعتمدة، ولا يُعدّ الاستفسار عن حالة طلب قائم عملية.",
+        f"ولا تُحتسب التنبيهات الآلية ولا التقرير الشهري ولا الإجراءات المشمولة في رسم «{SETUP_AR}» ولا تحديث بيانات العميل لدى الطرف الأول.",
+        "وتُسجَّل كل عملية برقم مرجعي ويُبلَّغ العميل بالحدود المتبقية.",
+        "وينبَّه العميل عند 80٪ من الحد الشهري؛ وما زاد على الحد يُعرض سعر العملية الإضافية قبل تنفيذها ولا يمضي الطرف الأول إلا بعد تأكيد العميل.",
+        f"وسعر العملية الإضافية {n(OVERAGE)} ريالاً قبل الضريبة، وتُفوتَر شهرياً مع كشف بالعمليات.",
+        "والطلبات الزائدة على الحد اليومي تُجدول لليوم التالي ما لم تقتضِ مهلة جهة غير ذلك.",
+    ]
+    return ("Operation Limits & Additional Operations", "حدود العمليات والعمليات الإضافية", ("STRUCT", en), ("STRUCT", ar))
+
+
+def _tbl(head_en, head_ar, rows):
+    """جدول صغير داخل البند: rows = [(label_en, label_ar, [cells])]."""
+    h = '<table class="ct"><tr>' + "".join(f"<th>{x}</th>" for x in head_en) + "</tr>"
+    for le, la, cells in rows:
+        h += f'<tr><td class="l">{le}</td>' + "".join(f'<td class="c">{c}</td>' for c in cells) + "</tr>"
+    return h + "</table>"
 
 
 def clause_fees():
-    return C("Fees &amp; Payment".replace("&amp;", "&"), "الأتعاب والدفع",
-             f"The annual fee of the package is SAR {n(ANNUAL)}, paid quarterly in advance in four instalments of SAR {n(QUARTER)}: the first on signature and the others at the start of each following quarter. "
-             f"The one-time {SETUP_EN} fee is SAR {n(SETUP)}, payable on signature. All amounts are before 15% VAT, which is added: the amount due on signature is SAR {n(DUE_SIGN)} plus VAT of SAR {n(vat(DUE_SIGN))}, a total of SAR {n(inc(DUE_SIGN))}; "
-             f"and each of the three following quarterly invoices is SAR {n(QUARTER)} plus VAT of SAR {n(vat(QUARTER))}, a total of SAR {n(inc(QUARTER))}. "
-             f"An employee above 49 is SAR {n(EXTRA_EMP)} per year (SAR {n(EXTRA_EMP_Q)} on each quarterly invoice), and each additional branch is SAR {n(EXTRA_BRANCH)} per year from the date its documents and authorisation are received. "
-             "Payment is by bank transfer to the First Party’s account at [●], IBAN [IBAN], against a tax invoice. Government fees, fines and platform subscriptions are not included: "
-             "they are invoiced separately and paid directly to the entity or supplier when the invoice is issued, with no percentage or fee to the First Party.",
-             f"الرسم السنوي للباقة {n(ANNUAL)} ريال، يُدفع ربع سنوياً مقدماً على أربع دفعات قيمة كل منها {n(QUARTER)} ريال: الأولى عند التوقيع والباقي في بداية كل ربع تالٍ. "
-             f"ورسم «{SETUP_AR}» لمرة واحدة {n(SETUP)} ريال يُدفع عند التوقيع. وكل المبالغ قبل ضريبة القيمة المضافة 15٪ التي تُضاف عليها: فالمستحق عند التوقيع {n(DUE_SIGN)} ريال والضريبة {n(vat(DUE_SIGN))} ريال، فالإجمالي {n(inc(DUE_SIGN))} ريال؛ "
-             f"وكل فاتورة من الفواتير الربع سنوية الثلاث التالية {n(QUARTER)} ريال والضريبة {n(vat(QUARTER))} ريال، فالإجمالي {n(inc(QUARTER))} ريال. "
-             f"والموظف فوق 49 بمبلغ {n(EXTRA_EMP)} ريال في السنة ({n(EXTRA_EMP_Q)} ريالاً على كل فاتورة ربع سنوية)، وكل فرع إضافي {n(EXTRA_BRANCH)} ريال في السنة من تاريخ استلام وثائقه وتفويضه. "
-             "ويتم السداد بتحويل بنكي إلى حساب الطرف الأول لدى [●]، آيبان [IBAN]، مقابل فاتورة ضريبية. ولا تشمل الرسوم الحكومية ولا الغرامات ولا اشتراكات المنصات: "
-             "تُفوتَر على حدة وتُدفع مباشرةً للجهة أو المورّد عند إصدار الفاتورة، دون أي نسبة أو أتعاب للطرف الأول.")
+    rowsd = [
+        ("Platform Setup & Remediation fee (one-time, on signature)", "رسم تصحيح المنصات والتأسيس (مرة واحدة، عند التوقيع)", SETUP),
+        ("First quarterly instalment (on signature)", "الدفعة الربع سنوية الأولى (عند التوقيع)", QUARTER),
+        ("Amount due on signature", "المستحق عند التوقيع", DUE_SIGN),
+        ("Each of the three following quarterly instalments", "كل دفعة من الدفعات الربع سنوية الثلاث التالية", QUARTER),
+        ("Total of the first year", "إجمالي السنة الأولى", FIRST_YEAR),
+    ]
+    te = _tbl(("Item", "Before VAT (SAR)", "VAT 15% (SAR)", "Total (SAR)"), None,
+              [(a, b, [n(x), n(vat(x)), n(inc(x))]) for a, b, x in rowsd])
+    ta = _tbl(("البند", "قبل الضريبة (ريال)", "الضريبة 15٪ (ريال)", "الإجمالي (ريال)"), None,
+              [(b, a, [n(x), n(vat(x)), n(inc(x))]) for a, b, x in rowsd])
+    en = [
+        f"The annual fee of the package is SAR {n(ANNUAL)}, paid quarterly in advance in four instalments of SAR {n(QUARTER)}: the first on signature and the others at the start of each following quarter.",
+        f"The one-time {SETUP_EN} fee is SAR {n(SETUP)}, payable on signature.",
+        "All amounts are before 15% VAT, which is added. The fees and the amounts due are as follows:",
+        ("TABLE", te),
+        f"An employee above 49 is SAR {n(EXTRA_EMP)} per year (SAR {n(EXTRA_EMP_Q)} on each quarterly invoice), and each additional branch is SAR {n(EXTRA_BRANCH)} per year from the date its documents and authorisation are received.",
+        "Payment is by bank transfer to the First Party’s account at [●], IBAN [IBAN], against a tax invoice.",
+        "Government fees, fines and platform subscriptions are not included: they are invoiced separately and paid directly to the entity or supplier when the invoice is issued, with no percentage or fee to the First Party.",
+    ]
+    ar = [
+        f"الرسم السنوي للباقة {n(ANNUAL)} ريال، يُدفع ربع سنوياً مقدماً على أربع دفعات قيمة كل منها {n(QUARTER)} ريال: الأولى عند التوقيع والباقي في بداية كل ربع تالٍ.",
+        f"ورسم «{SETUP_AR}» لمرة واحدة {n(SETUP)} ريال يُدفع عند التوقيع.",
+        "وكل المبالغ قبل ضريبة القيمة المضافة 15٪ التي تُضاف عليها. والرسوم والمبالغ المستحقة كما يلي:",
+        ("TABLE", ta),
+        f"والموظف فوق 49 بمبلغ {n(EXTRA_EMP)} ريال في السنة ({n(EXTRA_EMP_Q)} ريالاً على كل فاتورة ربع سنوية)، وكل فرع إضافي {n(EXTRA_BRANCH)} ريال في السنة من تاريخ استلام وثائقه وتفويضه.",
+        "ويتم السداد بتحويل بنكي إلى حساب الطرف الأول لدى [●]، آيبان [IBAN]، مقابل فاتورة ضريبية.",
+        "ولا تشمل الرسوم الحكومية ولا الغرامات ولا اشتراكات المنصات: تُفوتَر على حدة وتُدفع مباشرةً للجهة أو المورّد عند إصدار الفاتورة، دون أي نسبة أو أتعاب للطرف الأول.",
+    ]
+    return ("Prices, Payment & VAT", "الأسعار والدفع والضريبة", ("STRUCT", en), ("STRUCT", ar))
 
 
 def clause_late():
     return C("Late Payment", "التأخر في السداد",
-             "If a payment is not made when due, the First Party notifies the Client in writing. If the amount is still unpaid [●] days after the notice, the service stops, and the First Party hands over to the Client "
+             "If a payment is not made when due, the First Party notifies the Client in writing. If the amount is still unpaid 5 business days after the notice, the service stops, and the First Party hands over to the Client "
              "the platforms it manages for the Client and the documents it holds, and removes any delegation it was given. Stopping the service does not cancel amounts already due. No late-payment interest applies.",
-             "إن لم يُسدَّد مبلغ في موعده أشعر الطرف الأول العميل كتابةً. فإن بقي المبلغ غير مسدَّد بعد [●] أيام من الإشعار توقفت الخدمة، وسلّم الطرف الأول للعميل المنصات التي يديرها له والمستندات التي بحوزته، "
+             "إن لم يُسدَّد مبلغ في موعده أشعر الطرف الأول العميل كتابةً. فإن بقي المبلغ غير مسدَّد بعد 5 أيام عمل من الإشعار توقفت الخدمة، وسلّم الطرف الأول للعميل المنصات التي يديرها له والمستندات التي بحوزته، "
              "وأزال أي تفويض مُنح له. ولا يُسقط إيقاف الخدمة المبالغ المستحقة. ولا تُحتسب فوائد تأخير.")
 
 
@@ -535,6 +595,47 @@ def cover_strip(extra=None):
     return [("Parties / الأطراف", f"{G.CO_EN} · {CLIENT_EN}"), ("Date / التاريخ", G.num("[●]")), ("Ref / المرجع", G.num("[●]"))]
 
 
+
+# ------------------------------------------------------------------ بنود مرقّمة (بند/فقرة) للعقد والشروط وعدم الإفصاح
+_SPLIT_EN = re.compile(r'(?<=[.;])\s+(?=[A-Z“"(\u2018\u2019]|<span)')
+_SPLIT_AR = re.compile(r'(?<=\.)[\u200f\u200e]*\s+')
+
+
+def _items(x, en):
+    """نص البند → قائمة فقرات: إمّا من قائمة جاهزة (STRUCT) أو بتقسيم الجمل."""
+    if isinstance(x, tuple) and x and x[0] == "STRUCT":
+        return list(x[1])
+    x = x.strip()
+    parts = _SPLIT_EN.split(x) if en else _SPLIT_AR.split(x)
+    return [q for q in (p.strip() for p in parts) if q]
+
+
+def _render_items(items, num, en):
+    out = ['<div class="sl">']
+    k = 0
+    for it in items:
+        if isinstance(it, tuple) and it[0] == "TABLE":
+            out.append(it[1])
+            continue
+        k += 1
+        out.append(f'<p class="si"><b class="sn">{num}.{k}</b>{it}</p>')
+    out.append("</div>")
+    return "".join(out)
+
+
+def numbered_clause_blocks(items, start=1):
+    out = []
+    for i, (t_en, t_ar, x_en, x_ar) in enumerate(items, start):
+        ie, ia = _items(x_en, True), _items(x_ar, False)
+        if len([q for q in ie if not isinstance(q, tuple)]) != len([q for q in ia if not isinstance(q, tuple)]):
+            print(f"  تنبيه عدد الفقرات يختلف في البند {i} ({t_en}): EN={len(ie)} AR={len(ia)}")
+        he, ha = _render_items(ie, i, True), _render_items(ia, i, False)
+        est = G.est_row(re.sub(r"<[^>]+>", "", he), re.sub(r"<[^>]+>", "", ha), G.PORT_CPL, G.PORT_LH)
+        tb = (he + ha).count("<tr>")
+        out.append(G.blk(G.row(i, t_en, he, t_ar, ha, alt=i % 2 == 0), int(est * 1.12) + tb * 10 + (len(ie) + len(ia)) * 3))
+    return out
+
+
 # ------------------------------------------------------------------ العقد
 def build_contract():
     seq = [clause_subject(), clause_services(), clause_limits(), clause_fees(), clause_late(), clause_term(), clause_setup()]
@@ -543,7 +644,7 @@ def build_contract():
     seq += core_items([10], EXT)
     seq += core_items([11, 12, 13, 14, 15, 16, 17, 18], EXT)
     blocks = parties_blocks("Second Party (Client)", "الطرف الثاني (العميل)")
-    blocks += G.clause_blocks(seq, start=2)
+    blocks += numbered_clause_blocks(seq, start=2)
     blocks.append(G.blk(G.sig_pair(G.sig_box("First Party", "الطرف الأول", G.CEO_NAME, G.CEO_TITLE),
                                    sig_client("Second Party", "الطرف الثاني")), G.sig_h()))
     cover = G.cover_port("SERVICE AGREEMENT", "عقد خدمة", "Launch Package", "باقة الانطلاق",
@@ -556,7 +657,7 @@ def build_contract():
 def build_nda():
     nda, core, cats = G.legal_core()
     blocks = parties_blocks("Second Party", "الطرف الثاني")
-    blocks += G.clause_blocks([G.lc(x) for x in nda], start=2)
+    blocks += numbered_clause_blocks([G.lc(x) for x in nda], start=2)
     blocks.append(G.blk(G.sig_pair(G.sig_box("First Party", "الطرف الأول", G.CEO_NAME, G.CEO_TITLE),
                                    sig_client("Second Party", "الطرف الثاني")), G.sig_h()))
     cover = G.cover_port("MUTUAL NON-DISCLOSURE AGREEMENT", "اتفاقية عدم إفصاح متبادلة", "Mutual Non-Disclosure Agreement",
@@ -568,23 +669,31 @@ def build_nda():
 # ------------------------------------------------------------------ الشروط والأحكام
 def build_terms():
     seq = [
-        C("Scope &amp; Precedence".replace("&amp;", "&"), "النطاق وأسبقية الوثائق",
-          f"These terms apply to the {PKG_EN} ({FAM_EN}) quoted by Business Partner Solutions (the “First Party”) to the Client and form part of the accepted quotation. If a service agreement is signed, it prevails over these terms.",
-          f"تسري هذه الشروط على {PKG_AR} ({FAM_AR}) التي تعرضها شركة بزنس بارتنر سلوشنز («الطرف الأول») على العميل، وتُعدّ جزءاً من عرض السعر المقبول. وإن وُقّع عقد خدمة فهو يسبق هذه الشروط."),
-        C("Quotation &amp; Acceptance".replace("&amp;", "&"), "عرض السعر والقبول",
-          "A quotation is valid for 14 days from its date. It is accepted by the Client’s signature on it; electronic signature is valid. Work starts when the Client has provided the complete documents and the authorisation, and paid the amount due.",
-          "يسري عرض السعر 14 يوماً من تاريخه، ويُقبل بتوقيع العميل عليه، ويُعتدّ بالتوقيع الإلكتروني. ويبدأ العمل عند تقديم العميل المستندات كاملة والتفويض وسداد المستحق."),
+        ("Scope & Precedence", "النطاق وأسبقية الوثائق",
+         ("STRUCT", [f"These terms apply to the {PKG_EN} ({FAM_EN}) quoted by Business Partner Solutions (the “First Party”) to the Client.",
+                     "These terms form part of the accepted quotation.",
+                     "If a service agreement is signed, it prevails over these terms."]),
+         ("STRUCT", [f"تسري هذه الشروط على {PKG_AR} ({FAM_AR}) التي تعرضها شركة بزنس بارتنر سلوشنز («الطرف الأول») على العميل.",
+                     "وتُعدّ هذه الشروط جزءاً من عرض السعر المقبول.",
+                     "وإن وُقّع عقد خدمة فهو يسبق هذه الشروط."])),
+        ("Quotation & Acceptance", "عرض السعر والقبول",
+         ("STRUCT", ["A quotation is valid for 14 days from its date.",
+                     "It is accepted by the Client’s signature on it; electronic signature is valid.",
+                     "Work starts when the Client has provided the complete documents and the authorisation, and paid the amount due."]),
+         ("STRUCT", ["يسري عرض السعر 14 يوماً من تاريخه.",
+                     "ويُقبل بتوقيع العميل عليه، ويُعتدّ بالتوقيع الإلكتروني.",
+                     "ويبدأ العمل عند تقديم العميل المستندات كاملة والتفويض وسداد المستحق."])),
     ]
-    f = clause_fees()
-    seq += [("Prices, Payment & VAT", "الأسعار والدفع والضريبة", f[2], f[3])]
+    seq += [clause_fees()]
     seq += [clause_late(), clause_term(), clause_limits(), clause_setup()]
     seq += core_items([8, 9], EXT)
     seq += [clause_violations(), clause_local(), clause_excl()]
     seq += core_items([10, 11, 12, 13, 16, 17], EXT)
     seq += [C("Entire Terms", "كامل الشروط",
-              "The Arabic version prevails in case of discrepancy. Amendments only in writing signed by both parties. Notices to the addresses stated in the quotation: [●].",
-              "النسخة العربية هي المرجع عند الاختلاف. لا تُعدَّل هذه الشروط إلا كتابةً بموافقة الطرفين. الإشعارات على العناوين المذكورة في عرض السعر: [●].")]
-    blocks = G.clause_blocks(seq)
+              "The Arabic version prevails in case of discrepancy. Amendments only in writing signed by both parties. Notices are sent to the addresses and e-mail addresses stated in the quotation and in this document.",
+              "النسخة العربية هي المرجع عند الاختلاف. لا تُعدَّل هذه الشروط إلا كتابةً بموافقة الطرفين. وتُرسل الإشعارات إلى العناوين والبريد الإلكتروني المذكورة في عرض السعر وفي هذه الوثيقة.")]
+    blocks = [G.blk('<table class="cl"><tr><td class="en"><b>Date:</b> <span class="num">[●]</span></td><td class="ar"><b>التاريخ:</b> <span class="num">[●]</span></td></tr></table>', 26)]
+    blocks += numbered_clause_blocks(seq)
     blocks.append(G.blk('<div class="sg one" style="direction:ltr">' + sig_client("Client acknowledgement", "إقرار العميل") + "</div>", 190))
     return G.port_doc("الشروط والأحكام: باقة الانطلاق", "Terms &amp; Conditions: Launch Package", blocks,
                       doc_title="الشروط والأحكام · Terms &amp; Conditions · باقة الانطلاق")
@@ -759,8 +868,8 @@ def build_assessment():
             out.append(G.blk(bl(i, en, ar, alt=i % 2 == 0), G.est_row(en, ar, 56, 16, title=False, pad=10), keep=(i == 1)))
         return out
 
-    blocks = [G.blk('<table class="cl"><tr><td class="en"><b>Prepared for:</b> ' + CLIENT_EN + '<br><b>Data as of:</b> 28 October 2026 · aggregate figures only</td>'
-                    '<td class="ar"><b>أُعدّ لـ:</b> ' + CLIENT_AR + '<br><b>البيانات حتى:</b> 28 أكتوبر 2026 · أرقام مجمّعة فقط' + RLM + '</td></tr></table>', 60)]
+    blocks = [G.blk('<table class="cl"><tr><td class="en"><b>Prepared for:</b> ' + CLIENT_EN + '<br><b>Date:</b> <span class="num">[●]</span><br><b>Data as of:</b> 28 October 2026 · aggregate figures only</td>'
+                    '<td class="ar"><b>أُعدّ لـ:</b> ' + CLIENT_AR + '<br><b>التاريخ:</b> <span class="num">[●]</span><br><b>البيانات حتى:</b> 28 أكتوبر 2026 · أرقام مجمّعة فقط' + RLM + '</td></tr></table>', 60)]
     blocks += fact_blocks("Establishment snapshot", "لمحة عن المنشأة", facts)
     blocks += fact_blocks("Status by entity", "الحالة أمام الجهات", status)
     blocks += fact_blocks("Violations (Tamm)", "المخالفات (تمام)", viol)
@@ -804,6 +913,7 @@ PHONE = os.environ.get("BP_PHONE", "")
 
 def inject_company(h):
     if PHONE:
+        h = h.replace('<div class="c">[●]<br>', '<div class="c">' + PHONE + '<br>')
         h = h.replace('Mobile / الجوال: <span class="num">[●]</span>', 'Mobile / الجوال: <span class="num">' + PHONE + '</span>')
     if BANK:
         h = h.replace('Bank / البنك: [●]', 'Bank / البنك: ' + BANK)
@@ -814,9 +924,55 @@ def inject_company(h):
     return h
 
 
+# ------------------------------------------------------------------ النسخة النهائية: تاريخ الإرسال والمراجع والحقول القابلة للتعبئة
+SEND_DATE = os.environ.get("BP_DATE", "")            # مثال: 2026-11-04
+DOC_REF = {"quote": "Q", "contract": "C", "nda": "NDA", "terms": "TC", "authorization-letter": "AUTH", "assessment-summary": "ASM"}
+_AR_MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"]
+_EN_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+
+
+def _fld(name):
+    return f'<span class="fld" data-f="{name}"></span>'
+
+
+def finalize_html(h, docname):
+    """يُستعمل في البناء النهائي فقط (BP_DATE): يملأ التاريخ والمراجع، ويحوّل كل [●] متبقٍّ إلى حقل تعبئة."""
+    if not SEND_DATE:
+        return h
+    y, m, d = (int(x) for x in SEND_DATE.split("-"))
+    date_s = f"{d} {_EN_MONTHS[m-1]} {y} · {d} {_AR_MONTHS[m-1]} {y}"
+    ymd = SEND_DATE.replace("-", "")
+    ref = f"BP-{DOC_REF[docname]}-{ymd}-GLF"
+    q_no, c_no = f"BP-Q-{ymd}-GLF", f"BP-C-{ymd}-GLF"
+    # أرقام المرجع
+    h = re.sub(r"(Service Agreement No\.) \[●\]", lambda mm: f"{mm.group(1)} {c_no}", h)
+    h = re.sub(r"(عقد الخدمة رقم) \[●\]", lambda mm: f"{mm.group(1)} {c_no}", h)
+    h = re.sub(r"(quotation no\.) \[●\]", lambda mm: f"{mm.group(1)} {q_no}", h)
+    h = re.sub(r"(عرض السعر المقبول رقم) \[●\]", lambda mm: f"{mm.group(1)} {q_no}", h)
+    out, pos, k = [], 0, 0
+    for mm in re.finditer(r"\[●\]", h):
+        pre = re.sub(r"<[^>]+>", "", h[max(0, mm.start() - 400):mm.start()])
+        tail = pre[-30:]
+        if re.search(r"(Ref / المرجع|Ref)\W*$", tail):
+            rep = ref
+        elif re.search(r"(Date|التاريخ)[^A-Za-z\u0600-\u06FF]*$", tail):
+            client_sig = (CLIENT_AR in pre[-260:]) and ("Title" in pre[-120:] or "الصفة" in pre[-120:])
+            if client_sig:
+                k += 1
+                rep = _fld(f"{docname}_client_date_{k}")
+            else:
+                rep = date_s
+        else:
+            k += 1
+            rep = _fld(f"{docname}_f{k}")
+        out.append(h[pos:mm.start()]); out.append(rep); pos = mm.end()
+    out.append(h[pos:])
+    return "".join(out)
+
+
 def pdf_input(path):
     """نسخة للتحويل: الخطوط مضمّنة محلياً ومسار الشعار مطلق، تُكتب خارج المستودع."""
-    h = inject_company(path.read_text(encoding="utf8"))
+    h = finalize_html(inject_company(path.read_text(encoding="utf8")), path.stem)
     h = re.sub(r'<link rel="stylesheet" href="https://fonts\.googleapis\.com[^>]*>', "", h)
     h = h.replace("<style>", "<style>" + font_css(), 1)
     h = h.replace(ASSETS_REL, str((LIB / "assets")))
@@ -841,6 +997,10 @@ def render_pdfs(paths):
     if r.returncode:
         print(r.stderr, file=sys.stderr)
         sys.exit(r.returncode)
+    if SEND_DATE:
+        import fillable
+        for _, outp in jobs:
+            print("  حقول قابلة للتعبئة:", Path(outp).name, fillable.add_fields(outp))
 
 
 def main():

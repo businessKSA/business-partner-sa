@@ -26,6 +26,15 @@ for (const [inp, out] of jobs) {
     return res;
   });
   const fonts = await page.evaluate(() => [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family + ' ' + f.weight));
+  const flds = await page.evaluate(() => {
+    const res = [];
+    document.querySelectorAll('.sheet').forEach((sh, i) => {
+      const sr = sh.getBoundingClientRect();
+      sh.querySelectorAll('.fld').forEach(f => { const r = f.getBoundingClientRect(); res.push({ name: f.dataset.f, page: i, x: r.left - sr.left, y: r.top - sr.top, w: r.width, h: r.height, pw: sr.width, ph: sr.height }); });
+    });
+    return res;
+  });
+  (await import('fs')).writeFileSync(out.replace(/\.pdf$/, '.fields.json'), JSON.stringify(flds));
   await page.pdf({ path: out, preferCSSPageSize: true, printBackground: true });
   const name = inp.split('/').pop();
   let line = `${name}: ${rep.length} sheets; fonts loaded: ${[...new Set(fonts)].length}`;
