@@ -1,0 +1,65 @@
+{
+  "client_ar": "آي إس آر للتجارة · ISR Trading",
+  "client_en": "ISR Trading",
+  "date_en": "2 November 2026",
+  "date_ar": "2 نوفمبر 2026",
+  "nationalities": [
+    "Filipino",
+    "Indian",
+    "Nepali"
+  ],
+  "hours": 8,
+  "days": 26,
+  "trades": [
+    {
+      "en": "Pre-engineered steel (Kirby-type) hangar erection team",
+      "ar": "فريق تركيب هناجر معدنية (نوع كيربي)",
+      "level": "skilled",
+      "count": 8
+    },
+    {
+      "en": "Civil works team",
+      "ar": "فريق الأعمال المدنية",
+      "level": "skilled",
+      "count": 8
+    },
+    {
+      "en": "Block installation team",
+      "ar": "فريق تركيب البلوك",
+      "level": "skilled",
+      "count": 8
+    },
+    {
+      "en": "Tile-fixing team",
+      "ar": "فريق تركيب البلاط",
+      "level": "skilled",
+      "count": 8
+    },
+    {
+      "en": "Gypsum team",
+      "ar": "فريق الجبس",
+      "level": "skilled",
+      "count": 8
+    },
+    {
+      "en": "Painting team",
+      "ar": "فريق الدهان",
+      "level": "skilled",
+      "count": 8
+    },
+    {
+      "en": "HVAC team",
+      "ar": "فريق التكييف والتهوية",
+      "level": "skilled",
+      "count": 8
+    },
+    {
+      "en": "Helper (all trades)",
+      "ar": "العامل المساعد (كل المهن)",
+      "level": "helper",
+      "count": 49
+    }
+  ],
+  "calc_url": "",
+  "calc_saudi_url": ""
+}

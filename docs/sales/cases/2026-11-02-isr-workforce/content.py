@@ -97,10 +97,18 @@ REC_COUNTRY = [  # (nat_en, nat_ar, recruitment, attestation, ticket, days_en, d
 ]
 NATS = [("Filipino", "فلبينية"), ("Indian", "هندية"), ("Nepali", "نيبالية")]
 
-CLIENT_AR = "آي إس آر للتجارة · ISR Trading"
-CLIENT_EN = "ISR Trading"
-DATE_EN = "2 November 2026"
-DATE_AR = "2 نوفمبر 2026"
+# ---- إعداد العرض (المهنة والجنسية والعدد وساعات وأيام العمل): ملف JSON في quote-config/ يُمرَّر بـ QUOTE_CFG
+_CFG = json.load(open(os.environ.get("QUOTE_CFG") or os.path.join(os.path.dirname(os.path.abspath(__file__)), "quote-config", "isr.json"), encoding="utf-8"))
+CLIENT_AR = _CFG["client_ar"]
+CLIENT_EN = _CFG["client_en"]
+DATE_EN = _CFG["date_en"]
+DATE_AR = _CFG["date_ar"]
+WORK_HOURS = _CFG["hours"]; WORK_DAYS = _CFG["days"]
+TRADES = _CFG["trades"]                                   # كل مهنة: الاسم، المستوى (skilled|helper|tech|eng)، العدد
+NATS = [x for x in NATS if x[0] in _CFG["nationalities"]]
+REC_COUNTRY = [x for x in REC_COUNTRY if x[0] in _CFG["nationalities"]]
+NAT_EN = " · ".join(x[0] for x in NATS); NAT_AR = " · ".join(x[1] for x in NATS)
+TOTAL_WORKERS = sum(t["count"] for t in TRADES)
 REF = "Workforce Supply"
 REF_AR = "توفير العمالة"
 
@@ -108,12 +116,12 @@ def ar(s):
     return re.sub(r"\.(?=\s|$)", "." + RLM, s)
 
 # ---------------------------------------------------------------- عرض السعر
-Q_TITLE_EN = "Quotation: Workforce Supply — 7 Trade Teams"
-Q_TITLE_AR = "عرض سعر: توفير العمالة — 7 فرق مهنية"
+Q_TITLE_EN = "Quotation: Workforce Supply"
+Q_TITLE_AR = "عرض سعر: توفير العمالة"
 Q_ANNEX_EN = "Quotation: Workforce Supply — details"
 Q_ANNEX_AR = "عرض سعر: توفير العمالة — التفصيل"
-Q_COVER_EN = "Seven trade teams of fifteen workers each — Filipino, Indian and Nepali nationals only — supplied and managed by Business Partner."
-Q_COVER_AR = "سبعة فرق مهنية، كل فريق خمسة عشر عاملاً، من الجنسيات الفلبينية والهندية والنيبالية فقط، توفّرها Business Partner وتديرها."
+Q_COVER_EN = "Workforce supply of %d workers — %s nationals only — supplied and managed by Business Partner." % (TOTAL_WORKERS, NAT_EN)
+Q_COVER_AR = "توفير %d عاملاً من الجنسيات: %s فقط، يوفّرهم Business Partner ويديرهم." % (TOTAL_WORKERS, NAT_AR)
 
 SCOPE = [
     ("Workforce supply", "توفير العمالة",
@@ -476,15 +484,15 @@ LOCCALC = [  # (item_en, item_ar, tech_en, tech_ar, eng_en, eng_ar)
 LOCCALC_NOTE = ("Fees per worker = Saudis required × cost of one Saudi ÷ foreign workers; they replace the SAR 900 counted for other professions. The engineer column is an example (salary assumed SAR 2,500), recalculated on your actual numbers.",
                 "رسوم التوطين للعامل = السعوديون المطلوبون × تكلفة السعودي الواحد ÷ العمال الأجانب، وتحل محل الـ900 ريال المحتسبة للمهن الأخرى. وعمود المهندس مثال (الراتب مفترض 2,500 ريال) ويُعاد حسابه على أعدادك الفعلية.")
 # ---- الآلة الحاسبة للتكاليف بناءً على الرواتب (صفحة خاصة في موقعنا؛ المسار مقترح ويُبنى قبل الإرسال)
-CALC_URL = "www.businesspartner.sa/calculators/workforce-cost"
+CALC_URL = _CFG.get("calc_url", "")          # رابط الآلة الحاسبة (Azure)؛ فارغ = لا يُكتب رابط في العرض
 CALC_SALARIES = [1200, 1500, 1800, 2000, 2500, 3000, 3500, 4000]
 
-CALC_SAUDI_URL = "www.businesspartner.sa/calculators/saudi-employee-cost"
+CALC_SAUDI_URL = _CFG.get("calc_saudi_url", CALC_URL)
 SAUDI_SALARIES = [4000, 5500, 6000, 8000, 10000, 12000]
 SAUDI_ROLES = [  # (en, ar, salary note en, ar) — الرواتب الدنيا من قرارات التوطين فقط؛ والباقي بحسب راتب العميل
     ("Technical (under a localisation decision)", "فني (عليه قرار توطين)", "5,500 minimum", "5,500 حداً أدنى"),
     ("Engineer (under a localisation decision)", "مهندس (عليه قرار توطين)", "8,000 minimum", "8,000 حداً أدنى"),
-    ("Sales", "مبيعات", "your salary", "بحسب راتبك"),
-    ("Marketing", "تسويق", "your salary", "بحسب راتبك"),
+    ("Sales (60% decision, 3+ workers)", "مبيعات (قرار 60% لـ3 عاملين فأكثر)", "your salary", "بحسب راتبك"),
+    ("Marketing (60% decision, 3+ workers)", "تسويق (قرار 60% لـ3 عاملين فأكثر)", "5,500 minimum", "5,500 حداً أدنى"),
     ("Other non-professional roles", "وظائف أخرى غير مهنية", "your salary", "بحسب راتبك"),
 ]

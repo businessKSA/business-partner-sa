@@ -1,0 +1,52 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>الآلة الحاسبة للتكاليف بناءً على الرواتب — Business Partner</title>
+<style>
+:root{--bg:#f6f7fb;--fg:#10173a;--card:#fff;--ac:#0B1B5A;--mut:#5b6385;--line:#d9ddea}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1226;--fg:#eef0fb;--card:#181c38;--ac:#9db0ff;--mut:#a3aad0;--line:#2b3160}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,"Segoe UI",Tahoma,sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px}h1{font-size:20px;margin:8px 0 2px;color:var(--ac)}p.s{margin:0 0 14px;color:var(--mut);font-size:14px}
+.tabs{display:flex;gap:6px;margin-bottom:12px}.tabs button{flex:1;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ac);border-radius:8px;font:inherit;cursor:pointer}.tabs button.on{background:var(--ac);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
+label{display:block;font-size:14px;color:var(--mut);margin:8px 0 3px}input,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);font:inherit}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:520px){.row{grid-template-columns:1fr}}
+.big{font-size:30px;font-weight:700;color:var(--ac);direction:ltr;text-align:right}table{width:100%;border-collapse:collapse;font-size:14px}td{padding:6px 4px;border-bottom:1px solid var(--line)}td.v{text-align:left;direction:ltr;font-variant-numeric:tabular-nums}
+.n{font-size:13px;color:var(--mut)}section{display:none}section.on{display:block}
+</style></head><body><main>
+<h1>الآلة الحاسبة للتكاليف بناءً على الرواتب</h1><p class="s">التكلفة الشهرية للشخص الواحد، قبل ضريبة القيمة المضافة 15%.</p>
+<div class="tabs"><button id="t1" class="on">عامل متعاقد</button><button id="t2">موظف سعودي</button></div>
+
+<section id="p1" class="on"><div class="card">
+<div class="row"><div><label>الراتب الشهري (ريال)</label><input id="sal" type="number" min="1000" step="50" value="1800"></div>
+<div><label>مدة العقد</label><select id="mon"><option value="12">12 شهراً</option><option value="24">24 شهراً</option></select></div></div>
+<div class="row"><div><label>مكان العمل</label><select id="fac"><option value="0">عادي</option><option value="1">مصنع مرخَّص (إعفاء المقابل المالي)</option></select></div>
+<div><label>المهنة</label><select id="loc"><option value="900">مهنة لا قرار توطين عليها (900 ريال توطين)</option><option value="tech">فنية هندسية — قرار توطين 30%</option><option value="eng">هندسية — قرار توطين 30%</option></select></div></div>
+<div class="row" id="lrow" style="display:none"><div><label>عدد العمال الأجانب في المهنة</label><input id="q" type="number" min="1" value="16"></div><div><label>أقل راتب للسعودي (ريال)</label><input id="sm" type="number" min="1" value="5500"></div></div>
+</div>
+<div class="card"><div class="n">السعر الشهري للعامل الواحد</div><div class="big" id="price">—</div><div class="n" id="alt"></div>
+<table id="det"></table>
+<p class="n">لا يشمل البدلات (السكن والإعاشة والمواصلات) ولا تكاليف الاستقدام من الخارج (بحسب الجنسية)، ولك أن تدفع أي بند مباشرة لجهته. العمل الإضافي بساعة ونصف على سعر الساعة.</p></div>
+<div class="card"><div class="n">نموذجا التعاقد بإجمالي واحد</div><table id="mod"></table></div>
+</section>
+
+<section id="p2"><div class="card"><div class="row"><div><label>الوظيفة</label><select id="role"><option value="0">مبيعات / وظيفة غير مهنية (راتب بحسب اتفاقك)</option><option value="5500m">تسويق (حد أدنى 5,500)</option><option value="5500">فني (حد أدنى 5,500)</option><option value="8000">مهندس (حد أدنى 8,000)</option></select></div>
+<div><label>الراتب الشهري (ريال)</label><input id="ssal" type="number" min="1000" step="100" value="5500"></div></div></div>
+<div class="card"><div class="n">التكلفة الشهرية للسعودي الواحد</div><div class="big" id="sprice">—</div><table id="sdet"></table></div></section>
+</main><script>
+var $=function(i){return document.getElementById(i)},f=function(x){return Math.round(x).toLocaleString("en-US")};
+function price(a,loc,fac,m){var permit=(fac?100:9700)/12,gov=permit+650/12+23+a*.85*.02+200/12+2000/m,prov=a/24+a/30*21/12+125,direct=a+gov+50+prov,fee=Math.max(.1*(direct+250),250),p=Math.round(direct+250+fee+loc);return{p:p,fixed:(fac?100:9700)/12+650/12+200/12+2000/m+50+125,gov:gov+prov+50-125-(2000/m)+0,direct:direct,a:a,prov:prov,gov_all:gov}}
+function saudi(m){return{ins:m*.85*.235,eos:m/24,lv:m/30*21/12,t:m+m*.85*.235+m/24+m/30*21/12}}
+function row(a,b){return "<tr><td>"+a+"</td><td class='v'>"+b+"</td></tr>"}
+function calc(){var a=+$("sal").value||0,m=+$("mon").value,fac=+$("fac").value,lv=$("loc").value,loc=900;
+ $("lrow").style.display=lv==="900"?"none":"flex";$("lrow").style.display=lv==="900"?"none":"grid";
+ if(lv!=="900"){var ratio=.3,q=+$("q").value||1,sm=+$("sm").value||0;if(lv==="eng"&&this&&0){}var need=Math.ceil(Math.round(ratio/(1-ratio)*q*1e6)/1e6),one=saudi(sm).t;loc=need*one/q}
+ var r=price(a,loc,fac,m);$("price").textContent=f(r.p)+" ريال";
+ var fp=r.p-800;$("alt").textContent=fac?"":"في مصنع مرخَّص: "+f(fp)+" ريال";
+ var h=row("الراتب",f(a))+row("التكاليف الحكومية (رخصة العمل والإقامة وأجير والتأمينات والخروج والعودة والتأشيرة أو النقل)",f(r.gov_all))+row("التأمين الطبي ونهاية الخدمة والإجازة وتذكرة العودة",f(50+r.prov))+row("التكاليف الإدارية والتشغيلية ورسومنا","شامل")+row("رسوم التوطين",f(loc));
+ $("det").innerHTML=h;
+ var fixed=r.fixed,rec=r.p-fixed;$("mod").innerHTML=row("التكلفة الكاملة: مبلغ شهري ثابت",f(r.p)+" ريال")+row("التكلفة بشفافية: فاتورة شهرية",f(rec)+" ريال")+row("+ بنود حكومية بالفعلي عند الاستحقاق (سنوياً)",f(fixed*12)+" ريال")}
+function sc(){var m=+$("ssal").value||0,s=saudi(m);$("sprice").textContent=f(s.t)+" ريال";$("sdet").innerHTML=row("الراتب",f(m))+row("التأمينات على صاحب العمل والموظف",f(s.ins))+row("نهاية الخدمة",f(s.eos))+row("الإجازة",f(s.lv))}
+["sal","mon","fac","loc","q","sm"].forEach(function(i){$(i).addEventListener("input",calc);$(i).addEventListener("change",calc)});
+$("role").addEventListener("change",function(){var v=parseInt($("role").value);if(v)$("ssal").value=v;sc()});$("ssal").addEventListener("input",sc);
+$("t1").onclick=function(){$("p1").className="on";$("p2").className="";$("t1").className="on";$("t2").className=""};
+$("t2").onclick=function(){$("p2").className="on";$("p1").className="";$("t2").className="on";$("t1").className=""};
+calc();sc();
+</script></body></html>
