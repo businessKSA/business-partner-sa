@@ -200,7 +200,6 @@ def build_quote():
                  {"cls": "tot", "cells": [("Monthly price per worker", "السعر الشهري للعامل", "")] + [pc(PRICE12[k2]) for k2, v in ks]},
                  [("At a factory (less SAR 800)", "في مصنع (ناقص 800 ريال)", "t")] + [pc(PRICE12_F[k2]) for k2, v in ks]]
         return bi_table([("Cost item, per worker per month (SAR)", "بند التكلفة للعامل شهرياً (ريال)", False)] + [(v[0], v[1], True) for k2, v in ks], rows_, [30, 10, 10, 10])
-    sheets.append(page(h2("1B", "Costing of the monthly price per worker (12-month contract)", "كوستنج السعر الشهري للعامل (عقد 12 شهراً)") + cost_table()))
     sheets.append(page(h2(2, "Calculation if the worker is employed at a factory (12-month contract)", "الحسبة إذا كان العامل على مصنع (عقد 12 شهراً)") + fac12 + facnote + h2(3, "If the contract is 24 months: the difference", "إذا كان العقد 24 شهراً: الفرق") + diff_table() + diffnote + note))
 
 

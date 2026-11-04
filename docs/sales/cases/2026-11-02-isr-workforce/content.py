@@ -465,12 +465,6 @@ LOCCALC = [  # (item_en, item_ar, tech_en, tech_ar, eng_en, eng_ar)
     ("Saudis required = 30% ÷ 70% × workers, rounded up", "السعوديون المطلوبون = 30% ÷ 70% × العمال، مقرَّبة لأعلى", str(TECH_NEED), str(TECH_NEED), str(ENG_NEED), str(ENG_NEED)),
     ("Cost of one Saudi per month (salary, employer and employee insurance, end of service, leave)", "تكلفة السعودي الواحد شهرياً (الراتب والتأمينات على صاحب العمل والموظف ونهاية الخدمة والإجازة)", "SAR %s" % nt(TECH_ONE), "%s ريال" % nt(TECH_ONE), "SAR %s" % nt(ENG_ONE), "%s ريال" % nt(ENG_ONE)),
     ("Localisation fees per worker per month at 30%", "رسوم التوطين على العامل الواحد شهرياً بنسبة 30%", "SAR %s" % nt(TECH_FEE), "%s ريال" % nt(TECH_FEE), "SAR %s" % nt(ENG_FEE), "%s ريال" % nt(ENG_FEE)),
-    _r("Costing: salary (minimum SAR 3,000)", "الكوستنج: الراتب (الحد الأدنى 3,000 ريال)", _b["salary"], _b["salary"]),
-    _r("Government costs: work permit, residence, Ajeer, insurance, exit and re-entry, visa or transfer", "التكاليف الحكومية: رخصة العمل والإقامة وأجير والتأمينات والخروج والعودة والتأشيرة أو النقل", _b["gov"], _b["gov"]),
-    _r("Health insurance, end of service, leave and return ticket", "التأمين الصحي ونهاية الخدمة والإجازة وتذكرة العودة", _b["prov"] + _b["med"], _b["prov"] + _b["med"]),
-    _r("Overhead", "التكاليف الإدارية (الأوفر هيد)", 500, 500),
-    _r("Our fees: 10% of (cost + overhead), minimum SAR 500", "رسومنا: 10% من (التكلفة + الأوفر هيد) وبحد أدنى 500 ريال", _b["fee"], _b["fee"]),
-    _r("Localisation fees per worker (above)", "رسوم التوطين على العامل (أعلاه)", TECH_FEE, ENG_FEE),
     ("Monthly price per worker, standard (minimum salary SAR 3,000)", "السعر الشهري للعامل، العادي (أقل راتب 3,000)", "SAR %s" % nt(PRICE_TECHDEC), "%s ريال" % nt(PRICE_TECHDEC), "SAR %s" % nt(PRICE_ENG), "%s ريال" % nt(PRICE_ENG)),
     ("Monthly price per worker, at a factory (less SAR 800)", "السعر الشهري للعامل، في مصنع (ناقص 800)", "SAR %s" % nt(PRICE_TECHDEC_F), "%s ريال" % nt(PRICE_TECHDEC_F), "SAR %s" % nt(PRICE_ENG_F), "%s ريال" % nt(PRICE_ENG_F)),
 ]
