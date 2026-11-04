@@ -39,6 +39,14 @@ REC_TEAM = REC_FEE * PER_TEAM                  # 7,500
 REC_TOTAL = REC_FEE * WORKERS                  # 52,500
 REC_VAT = REC_TOTAL * 15 / 100                 # 7,875
 REC_GRAND = REC_TOTAL + REC_VAT                # 60,375
+# أسعار شهرية شاملة للعامل — شرائح بترومنت الموقّعة (تسعيرة المالك 2026-09-30): عمالية 4,100 · فنية 4,350. مقترح لـISR بانتظار اعتماد المالك.
+PRICE_SKILLED = 4350
+PRICE_STD = 4100
+STD_MIN = PER_TEAM - SKILLED_MIN               # 7
+TEAM_MONTHLY = SKILLED_MIN * PRICE_SKILLED + STD_MIN * PRICE_STD          # 63,500
+TOTAL_MONTHLY = TEAM_MONTHLY * NTEAMS                                      # 444,500
+MONTHLY_VAT = TOTAL_MONTHLY * 15 / 100                                     # 66,675
+MONTHLY_GRAND = TOTAL_MONTHLY + MONTHLY_VAT                                # 511,175
 NATS = [("Filipino", "فلبينية"), ("Indian", "هندية"), ("Nepali", "نيبالية")]
 
 CLIENT_AR = "آي إس آر للتجارة · ISR Trading"
@@ -79,18 +87,15 @@ SCOPE = [
 ]
 
 PRICE_BASIS = [  # (component_en, component_ar, basis_en, basis_ar)
-    ("Basic salary and allowances", "الراتب الأساسي والبدلات",
-     "By trade, level (skilled / standard) and nationality — see the rate table.", "بحسب المهنة والمستوى (ماهر / عادي) والجنسية — انظر جدول الأسعار."),
-    ("Residence permit, work permit and health insurance", "الإقامة ورخصة العمل والتأمين الطبي",
-     "Monthly, per worker: [●]", "شهرياً للعامل: [●]"),
-    ("Social insurance", "التأمينات الاجتماعية",
-     "As the regulations require, on salary and allowances.", "بحسب الأنظمة، على الراتب والبدلات."),
-    ("End-of-service, annual leave and return ticket", "نهاية الخدمة والإجازة وتذكرة العودة",
-     "Provisioned monthly: [●]", "تُحتسب شهرياً: [●]"),
-    ("Management fee", "رسم الإدارة",
-     "Monthly, per worker: [●]", "شهرياً للعامل: [●]"),
+    ("What the monthly price includes", "ما يشمله السعر الشهري",
+     "All-inclusive per worker: salary and allowances, residence permit, work permit, health and social insurance, end-of-service and leave provision, return ticket, and the management fee.",
+     "شامل للعامل الواحد: الراتب والبدلات، الإقامة ورخصة العمل، التأمين الصحي والتأمينات الاجتماعية، مخصص نهاية الخدمة والإجازة، تذكرة العودة، ورسم الإدارة."),
+    ("What it does not include", "ما لا يشمله السعر الشهري",
+     "Accommodation, transport and food (see the choice below), overtime, and government fees outside the items above, which are invoiced at actual cost.",
+     "السكن والنقل والإعاشة (انظر الخيار أدناه)، والعمل الإضافي، والرسوم الحكومية خارج البنود أعلاه فتُفوتَر بالتكلفة الفعلية."),
     ("Monthly price per worker", "السعر الشهري للعامل",
-     "Sum of the items above, before 15% VAT.", "مجموع البنود أعلاه، قبل ضريبة القيمة المضافة 15%."),
+     "Skilled SAR %s · Standard SAR %s, before 15%% VAT, the same for the three nationalities." % (n(PRICE_SKILLED), n(PRICE_STD)),
+     "ماهر %s ريال · عادي %s ريال، قبل ضريبة القيمة المضافة 15%%، وهو نفسه للجنسيات الثلاث." % (n(PRICE_SKILLED), n(PRICE_STD))),
 ]
 
 EXCLUSIONS = [

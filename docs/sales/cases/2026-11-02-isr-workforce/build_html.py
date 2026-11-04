@@ -148,7 +148,7 @@ def build_quote():
     rrows = []
     for i, (te, ta) in enumerate(TEAMS, 1):
         cells = [("<b>%d. %s</b>" % (i, esc(te.split(" — ")[0])), "<b>%d. %s</b>" % (i, esc(ta.split(" — ")[0])), "t")]
-        cells += [(num(B), num(B), "c")] * 6
+        cells += [(num(n(PRICE_SKILLED)), num(n(PRICE_SKILLED)), "c")] * 3 + [(num(n(PRICE_STD)), num(n(PRICE_STD)), "c")] * 3
         rrows.append(cells)
     rates = bi_table([("Team", "الفريق", False), ("Skilled · Filipino", "ماهر · فلبيني", True), ("Skilled · Indian", "ماهر · هندي", True), ("Skilled · Nepali", "ماهر · نيبالي", True),
                       ("Standard · Filipino", "عادي · فلبيني", True), ("Standard · Indian", "عادي · هندي", True), ("Standard · Nepali", "عادي · نيبالي", True)],
@@ -156,7 +156,12 @@ def build_quote():
     basis_rows = [[(str(i), str(i), "nx"), ("<b>%s</b> — %s" % (esc(ce), esc(be)), "<b>%s</b> — %s" % (esc(ca), esc(ar(ba))), "t")]
                   for i, (ce, ca, be, ba) in enumerate(PRICE_BASIS, 1)]
     basis = bi_table([("#", "#", True), ("How the monthly price per worker is built", "كيف يُبنى السعر الشهري للعامل", False)], basis_rows, [4, 46])
-    inner = h2(2, "Monthly rate per worker (SAR, before VAT)", "السعر الشهري للعامل (ريال، قبل الضريبة)") + rates + h2(3, "Price basis", "أساس السعر") + basis
+    tot_rows = [[("<b>One team</b> (%d skilled × %s + %d standard × %s)" % (SKILLED_MIN, n(PRICE_SKILLED), STD_MIN, n(PRICE_STD)), "<b>الفريق الواحد</b> (%d ماهراً × %s + %d عادياً × %s)" % (SKILLED_MIN, n(PRICE_SKILLED), STD_MIN, n(PRICE_STD)), "t"), (num(n(TEAM_MONTHLY)), num(n(TEAM_MONTHLY)), "c")],
+                [("<b>Seven teams, per month</b> (before VAT)", "<b>الفرق السبعة شهرياً</b> (قبل الضريبة)", "t"), (num(n(TOTAL_MONTHLY)), num(n(TOTAL_MONTHLY)), "c")],
+                [("VAT 15%", "ضريبة القيمة المضافة 15%", "t"), (num(n2(MONTHLY_VAT)), num(n2(MONTHLY_VAT)), "c")],
+                [("<b>Total per month</b> (SAR)", "<b>الإجمالي شهرياً</b> (ريال)", "t"), (num(n2(MONTHLY_GRAND)), num(n2(MONTHLY_GRAND)), "c")]]
+    totals = bi_table([("At the minimum skilled share (8 of 15)", "عند الحد الأدنى للمهرة (8 من 15)", False), ("SAR", "ريال", True)], tot_rows, [40, 10])
+    inner = h2(2, "Monthly rate per worker (SAR, before VAT)", "السعر الشهري للعامل (ريال، قبل الضريبة)") + rates + totals + h2(3, "Price basis", "أساس السعر") + basis
     sheets.append(page(inner))
 
     # 4 النطاق والمستثنيات
