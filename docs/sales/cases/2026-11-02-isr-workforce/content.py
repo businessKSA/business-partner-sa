@@ -240,8 +240,8 @@ def contract_clauses():
          "يُفوتر السعر الشهري على عدد العمال الفعلي على رأس العمل في الشهر، ويُفوتر العمل الإضافي على حدة بالساعات الفعلية."),
         ("Government fees, embassy and attestation charges and travel tickets are invoiced at actual cost with the supporting receipts, unless the quotation states that they are included.",
          "تُفوتر الرسوم الحكومية ورسوم السفارات والتصديق وتذاكر السفر بالتكلفة الفعلية مع الإيصالات المؤيدة، ما لم يذكر عرض السعر أنها شاملة."),
-        ("Prices are before 15% VAT, which is added. Payment terms: advance of [●] months, then monthly, within [●] days of the invoice.",
-         "الأسعار قبل ضريبة القيمة المضافة 15% التي تُضاف عليها. شروط السداد: دفعة مقدمة قدرها [●] أشهر، ثم شهرياً خلال [●] يوماً من الفاتورة."),
+        ("Prices are before 15% VAT, which is added. Payment terms: advance of two (2) months, then monthly, within seven (7) days of the invoice.",
+         "الأسعار قبل ضريبة القيمة المضافة 15% التي تُضاف عليها. شروط السداد: دفعة مقدمة قدرها شهران، ثم شهرياً خلال 7 أيام من الفاتورة."),
         ("Bank transfer to the First Party’s account: Bank [●], IBAN [IBAN].", "التحويل البنكي إلى حساب الطرف الأول: البنك [●]، الآيبان [IBAN].")]
     e, a = _pts(3, items3)
     add("Fees and payment", "الرسوم والسداد", e + "<br>" + fee, a + "<br>" + fee)
@@ -329,3 +329,48 @@ def contract_clauses():
     for p in ("12.", "14.", "15.", "16.", "17.", "18."):
         add(*_clause(core, p))
     return rows
+
+
+# ---- جداول مأخوذة من عرض عبدالمحسن المعتمد (EOR): ماذا تدفع ومتى · الرسوم الحكومية · التوطين
+STAGES2 = [  # (when_en, when_ar, what_en, what_ar, how_en, how_ar)
+    ("On signing", "عند التوقيع",
+     "<b>Advance</b> of two months of the monthly price. <b>Recruitment fee</b> BP-REC-01, SAR 500 per worker, one time, for workers recruited from abroad only.",
+     "<b>الدفعة المقدمة</b> شهران من السعر الشهري. و<b>رسم الاستقدام</b> BP-REC-01 بمبلغ 500 ريال للعامل مرة واحدة، للمستقدَمين من الخارج فقط.",
+     "Before anything starts. Visa, recruitment and the first permits are arranged after the advance.", "قبل البدء. وتُرتَّب التأشيرة والاستقدام والرخص الأولى بعد الدفعة المقدمة."),
+    ("Workers recruited from abroad", "العمال المستقدَمون من الخارج",
+     "External recruitment, contract attestation and the arrival ticket, at actual cost.",
+     "الاستقدام الخارجي وتصديق العقود وتذكرة القدوم، بالتكلفة الفعلية.",
+     "A separate invoice, outside the monthly price. Not applicable to workers transferred from inside the Kingdom.", "بفاتورة منفصلة خارج السعر الشهري. ولا تنطبق على العمال المنقولة كفالتهم من داخل المملكة."),
+    ("Every month", "كل شهر",
+     "The <b>monthly price</b> for the workers on duty: salary, work permit, residency, health and social insurance, and the management fee.",
+     "<b>السعر الشهري</b> للعمال على رأس العمل: الراتب والرخصة والإقامة والتأمين الصحي والتأمينات ورسم الإدارة.",
+     "Invoiced monthly and payable within 7 days. Overtime is invoiced at the actual hours. VAT 15% on the invoice.", "يُفوتَر شهرياً ويُسدَّد خلال 7 أيام. والعمل الإضافي بالساعات الفعلية. وتُضاف ضريبة 15%."),
+    ("After the contract", "بعد انتهاء العقد",
+     "End of service, leave pay and the return ticket.",
+     "نهاية الخدمة وبدل الإجازة وتذكرة العودة.",
+     "Provisioned inside the monthly price. No separate invoice. The exit and re-entry visa is optional.", "مخصَّصة داخل السعر الشهري، فلا فاتورة منفصلة. وتأشيرة الخروج والعودة اختيارية."),
+]
+GOV_FEES = [  # (fee_en, fee_ar, amount_en, amount_ar, in_offer_en, in_offer_ar)
+    ("Work permit and expatriate levy", "رخصة العمل والمقابل المالي", "SAR 9,700 per year (levy 9,600 + permit 100)", "9,700 ريال سنوياً (المقابل 9,600 + الرخصة 100)", "Included in the monthly price", "مشمول في السعر الشهري"),
+    ("Residency (Iqama), Passports", "الإقامة (الجوازات)", "SAR 650 per year", "650 ريالاً سنوياً", "Included in the monthly price", "مشمولة في السعر الشهري"),
+    ("Ajeer platform", "منصة أجير", "SAR 276 per year (23 per month)", "276 ريالاً سنوياً (23 شهرياً)", "Included in the monthly price", "مشمولة في السعر الشهري"),
+    ("Sponsorship transfer (workers inside the Kingdom)", "نقل الكفالة (عمال من داخل المملكة)", "SAR 2,000 first time, 4,000 second, 6,000 from the third", "2,000 ريال للمرة الأولى، و4,000 للثانية، و6,000 من الثالثة", "Included, spread over the term (SAR 2,000 assumed)", "مشمول موزّعاً على مدة العقد (على أساس 2,000 ريال)"),
+    ("Visa, recruitment from abroad", "تأشيرة الاستقدام من الخارج", "SAR 2,000", "2,000 ريال", "Included, spread over the term", "مشمولة موزّعة على مدة العقد"),
+    ("Exit and re-entry visa", "تأشيرة الخروج والعودة", "SAR 200 per year", "200 ريال سنوياً", "Included in the monthly price", "مشمولة في السعر الشهري"),
+    ("Social insurance, foreign employee", "التأمينات الاجتماعية على الموظف الأجنبي", "2% of basic salary plus housing", "2% من الراتب الأساسي والسكن", "Included in the monthly price", "مشمولة في السعر الشهري"),
+]
+GOV_NOTE = ("Government fees are paid at cost with no mark-up and carry no VAT. Amounts follow the official schedules in force at the time of payment.",
+            "الرسوم الحكومية تُسدَّد بالتكلفة دون هامش وبلا ضريبة قيمة مضافة. والمبالغ بحسب الجداول الرسمية السارية وقت السداد.")
+LOCALISATION = [  # (case_en, case_ar, what_en, what_ar)
+    ("If you take Saudis through us", "إذا أخذتَ معنا سعوديين",
+     "You take Saudis in return for the foreigners. You pay the salaries of both and <b>no localisation fee</b>.",
+     "تأخذ سعوديين مقابل الأجانب. فتدفع رواتب الجميع و<b>لا رسوم توطين</b>."),
+    ("If you do not take Saudis", "إذا لم تأخذ سعوديين",
+     "A profession with no localisation decision: a flat <b>SAR 900</b> per worker per month, <b>already included</b> in the monthly price. A profession with a decision (technical, engineering and others in the guides): the cost of the Saudis the ratio requires, divided across your foreign workers, added to the price of that profession.",
+     "مهنة بلا قرار توطين: <b>900 ريال</b> ثابتة لكل عامل شهرياً، <b>مشمولة</b> في السعر الشهري. ومهنة عليها قرار (الفنية والهندسية وغيرها في الأدلة): تكلفة السعوديين الذين تتطلبهم النسبة مقسومة على عمالك الأجانب، وتُضاف إلى سعر تلك المهنة."),
+    ("Saudi-only professions", "مهن للسعوديين فقط",
+     "Human resources, administrative support, secretarial, reception, customer service and similar are reserved for Saudis by the guides. They are not offered as foreign workers.",
+     "الموارد البشرية والمهن الإدارية المساندة والسكرتارية والاستقبال وخدمة العملاء ونحوها مقصورة على السعوديين بحسب الأدلة. ولا تُعرض كعمالة أجنبية."),
+]
+LOC_NOTE = ("The prices in this quotation include the flat SAR 900 localisation fee. A trade that falls under a localisation decision is priced separately before the order is placed. The First Party does not guarantee any effect on the Second Party’s localisation count or band.",
+            "الأسعار في هذا العرض تشمل رسم التوطين الثابت 900 ريال. والمهنة التي عليها قرار توطين تُسعَّر على حدة قبل الطلب. ولا يضمن الطرف الأول أي أثر على نسبة التوطين أو نطاق الطرف الثاني.")

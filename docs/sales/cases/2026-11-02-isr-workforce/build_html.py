@@ -168,21 +168,31 @@ def build_quote():
     excl = numbered([(esc(e), esc(a)) for e, a in EXCLUSIONS], "Not included / on the Client", "غير مشمول / على العميل")
     sheets.append(page(h2(2, "Price basis", "أساس السعر") + basis + h2(3, "Scope", "النطاق") + scope))
     sheets.append(page(h2(4, "Not included in the price", "ما لا يشمله السعر") + excl))
+    gov_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(fe), "<b>%s</b>" % esc(fa), "t"), (ae, aa, "t"), (ie, ia, "t")]
+                for i, (fe, fa, ae, aa, ie, ia) in enumerate(GOV_FEES, 1)]
+    gov = bi_table([("#", "#", True), ("Government fee", "الرسم الحكومي", False), ("Official amount", "المبلغ الرسمي", False), ("In this offer", "في هذا العرض", False)], gov_rows, [3, 14, 18, 18])
+    govnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(GOV_NOTE[0]), esc(ar(GOV_NOTE[1])))
+    loc_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(te), "<b>%s</b>" % esc(ta), "t"), (we, wa, "t")]
+                for i, (te, ta, we, wa) in enumerate(LOCALISATION, 1)]
+    loc = bi_table([("#", "#", True), ("Case", "الحالة", False), ("Localisation fee", "رسوم التوطين", False)], loc_rows, [3, 16, 36])
+    locnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(LOC_NOTE[0]), esc(ar(LOC_NOTE[1])))
+    sheets.append(page(h2(5, "Government fees explained", "توضيح الرسوم الحكومية") + gov + govnote))
+    sheets.append(page(h2(6, "Localisation fee", "رسوم التوطين") + loc + locnote))
 
     # 5 المراحل والدفع والشروط
-    srows = [[(str(i), str(i), "nx"), ("<b>%s</b> — %s" % (esc(se), esc(we)), "<b>%s</b> — %s" % (esc(sa), esc(ar(wa))), "t"), (num(d), num(d), "c")]
-             for i, (se, sa, we, wa, d) in enumerate(STAGES, 1)]
-    stg = bi_table([("#", "#", True), ("Stage", "المرحلة", False), ("Days", "الأيام", True)], srows, [4, 40, 6])
-    pay_rows = [[("1", "1", "nx"), ("Advance", "الدفعة المقدمة", ""), (num(B), num(B), "c"), ("On signing", "عند التوقيع", "")],
-                [("2", "2", "nx"), ("Monthly invoice — workers on duty", "فاتورة شهرية — العمال على رأس العمل", ""), ("100%", "100%", "c"), ("Within [●] days of the invoice", "خلال [●] يوماً من الفاتورة", "")]]
-    pay = bi_table([("#", "#", True), ("Payment", "الدفعة", False), ("Share", "النسبة", True), ("Due", "الاستحقاق", False)], pay_rows, [4, 22, 8, 16])
-    sheets.append(page(h2(5, "Stages and indicative duration", "المراحل والمدة التقريبية") + stg + h2(6, "Payment terms", "طريقة الدفع") + pay))
-    sheets.append(page(h2(7, "Terms and conditions", "الشروط والأحكام") + numbered([(esc(e), esc(a)) for e, a in TERMS], "Term", "الشرط")))
+    stg_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(te), "<b>%s</b>" % esc(ta), "t"), (we, wa, "t"), (he, ha, "t")]
+                for i, (te, ta, we, wa, he, ha) in enumerate(STAGES2, 1)]
+    stg = bi_table([("#", "#", True), ("When", "متى", False), ("What you pay", "ماذا تدفع", False), ("How", "كيف", False)], stg_rows, [3, 11, 22, 14])
+    pay_rows = [[("1", "1", "nx"), ("Advance", "الدفعة المقدمة", ""), ("Two months of the monthly price", "شهران من السعر الشهري", "c"), ("On signing", "عند التوقيع", "")],
+                [("2", "2", "nx"), ("Monthly invoice — workers on duty", "فاتورة شهرية — العمال على رأس العمل", ""), ("100%", "100%", "c"), ("Within 7 days of the invoice", "خلال 7 أيام من الفاتورة", "")]]
+    pay = bi_table([("#", "#", True), ("Payment", "الدفعة", False), ("Amount", "المقدار", True), ("Due", "الاستحقاق", False)], pay_rows, [4, 20, 14, 16])
+    sheets.append(page(h2(7, "What you pay and when", "ماذا تدفع ومتى") + stg + h2(8, "Payment terms", "طريقة الدفع") + pay))
+    sheets.append(page(h2(9, "Terms and conditions", "الشروط والأحكام") + numbered([(esc(e), esc(a)) for e, a in TERMS], "Term", "الشرط")))
 
     # 6 التوقيعان
     sg = ('<div class="rw"><div class="col" dir="ltr"><p>By signing below, both parties accept this quotation and its terms and conditions.</p></div>'
           '<div class="col" dir="rtl"><p>%s</p></div></div>') % esc(ar("بالتوقيع أدناه يوافق الطرفان على هذا العرض وشروطه وأحكامه."))
-    inner = h2(8, "Signatures", "التوقيعان") + sg + sig_boxes(right_co=esc(CLIENT_AR))
+    inner = h2(10, "Signatures", "التوقيعان") + sg + sig_boxes(right_co=esc(CLIENT_AR))
     sheets.append(page(inner))
 
     def closing(i, n):
