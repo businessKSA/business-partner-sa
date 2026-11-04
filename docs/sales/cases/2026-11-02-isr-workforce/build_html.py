@@ -127,22 +127,29 @@ def build_quote():
 
     B = "[●]"
     nat_all = ("Filipino · Indian · Nepali", "فلبينية · هندية · نيبالية")
-    rrows = []; k = 0
     def pc(v): return (num(n(v)), num(n(v)), "c")
-    for ti, (te, ta) in enumerate(TEAMS):
-        lv = TEAM_LEVEL[ti]; le, la, sal, loc_fee = LEVELS[lv]; short_e = te.split(" — ")[0]; short_a = ta.split(" — ")[0]
+    def rate_table(prices, tot):
+        rr = []; k = 0
+        for ti, (te, ta) in enumerate(TEAMS):
+            lv = TEAM_LEVEL[ti]; le, la, sal, loc_fee = LEVELS[lv]; short_e = te.split(" — ")[0]; short_a = ta.split(" — ")[0]
+            k += 1
+            rr.append([(str(k), str(k), "nx"), ("<b>%s</b>" % esc(short_e), "<b>%s</b>" % esc(short_a), "t"), (le, la, "c"), pc(sal), (str(SKILLED_MIN), str(SKILLED_MIN), "c"),
+                       nat_all + ("c",), pc(prices[lv]), pc(SKILLED_MIN * prices[lv])])
+        he, ha, hs, hl = LEVELS["helper"]; hn = STD_MIN * NTEAMS
         k += 1
-        rrows.append([(str(k), str(k), "nx"), ("<b>%s</b>" % esc(short_e), "<b>%s</b>" % esc(short_a), "t"), (le, la, "c"), pc(sal), (str(SKILLED_MIN), str(SKILLED_MIN), "c"),
-                      nat_all + ("c",), pc(PRICE12[lv]), pc(PRICE[lv]), pc(SKILLED_MIN * PRICE12[lv]), pc(SKILLED_MIN * PRICE[lv])])
-    he, ha, hs, hl = LEVELS["helper"]; hn = STD_MIN * NTEAMS
-    k += 1
-    rrows.append([(str(k), str(k), "nx"), ("<b>Helper (all seven teams)</b>", "<b>العامل المساعد (الفرق السبعة)</b>", "t"), (he, ha, "c"), pc(hs), (str(hn), str(hn), "c"),
-                  nat_all + ("c",), pc(PRICE12["helper"]), pc(PRICE["helper"]), pc(hn * PRICE12["helper"]), pc(hn * PRICE["helper"])])
-    rrows.append({"cls": "tot", "cells": [("", "", ""), ("Total", "الإجمالي", ""), ("", "", ""), ("", "", ""), (str(WORKERS), str(WORKERS), "c"), ("", "", ""), ("", "", ""), ("", "", ""), pc(TOTAL_MONTHLY12), pc(TOTAL_MONTHLY)]})
-    rates = bi_table([("#", "#", True), ("Trade", "المهنة", False), ("Level", "المستوى", True), ("Minimum salary", "الحد الأدنى للراتب", True), ("Workers", "العدد", True),
-                      ("Nationalities", "الجنسيات", True), ("Per worker 12 mo.", "للعامل 12 شهراً", True), ("Per worker 24 mo.", "للعامل 24 شهراً", True),
-                      ("Total 12 mo.", "الإجمالي 12 شهراً", True), ("Total 24 mo.", "الإجمالي 24 شهراً", True)],
-                     rrows, [3, 16, 7, 6, 5, 12, 6, 6, 7, 7])
+        rr.append([(str(k), str(k), "nx"), ("<b>Helper (all seven teams)</b>", "<b>العامل المساعد (الفرق السبعة)</b>", "t"), (he, ha, "c"), pc(hs), (str(hn), str(hn), "c"),
+                   nat_all + ("c",), pc(prices["helper"]), pc(hn * prices["helper"])])
+        rr.append({"cls": "tot", "cells": [("", "", ""), ("Total", "الإجمالي", ""), ("", "", ""), ("", "", ""), (str(WORKERS), str(WORKERS), "c"), ("", "", ""), ("", "", ""), pc(tot)]})
+        return bi_table([("#", "#", True), ("Trade", "المهنة", False), ("Level", "المستوى", True), ("Minimum salary", "الحد الأدنى للراتب", True), ("Workers", "العدد", True),
+                         ("Nationalities", "الجنسيات", True), ("Monthly price per worker (SAR)", "السعر الشهري للعامل (ريال)", True), ("Monthly total (SAR)", "الإجمالي الشهري (ريال)", True)],
+                        rr, [3, 16, 8, 7, 6, 15, 9, 9])
+    def totals_table(tot, vat, grand):
+        rows_ = [[("<b>Seven teams, per month</b> (before VAT)", "<b>الفرق السبعة شهرياً</b> (قبل الضريبة)", "t"), pc(tot)],
+                 [("VAT 15%", "ضريبة القيمة المضافة 15%", "t"), (num(n2(vat)), num(n2(vat)), "c")],
+                 [("<b>Total per month</b> (SAR)", "<b>الإجمالي شهرياً</b> (ريال)", "t"), (num(n2(grand)), num(n2(grand)), "c")]]
+        return bi_table([("At the minimum skilled share (8 of 15 per team)", "عند الحد الأدنى للمهرة (8 من 15 في الفريق)", False), ("SAR", "ريال", True)], rows_, [40, 10])
+    rates12 = rate_table(PRICE12, TOTAL_MONTHLY12) + totals_table(TOTAL_MONTHLY12, VAT12, GRAND12)
+    rates24 = rate_table(PRICE, TOTAL_MONTHLY) + totals_table(TOTAL_MONTHLY, MONTHLY_VAT, MONTHLY_GRAND)
     hours = ('<div class="nt"><div dir="ltr"><b>Working hours:</b> %d hours a day &nbsp;·&nbsp; <b>Working days:</b> %d days a month &nbsp;·&nbsp; <b>The monthly price is always calculated on %d days a month.</b></div>'
              '<div class="ar" dir="rtl"><b>ساعات العمل:</b> %d ساعات يومياً &nbsp;·&nbsp; <b>أيام العمل:</b> %d يوماً في الشهر &nbsp;·&nbsp; <b>والحسبة دائماً على %d يوماً في الشهر.</b></div></div>') % (WORK_HOURS, WORK_DAYS, CALC_DAYS, WORK_HOURS, WORK_DAYS, CALC_DAYS)
     note = ('<div class="nt"><div dir="ltr"><b>Minimum salary</b> by trade level: technical SAR 3,000, skilled SAR 2,500, regular (helper) SAR 1,500. One calculation per worker, shown for 12-month and 24-month contracts, before 15%% VAT. Prices include the salary, government fees, insurance, end of service, leave, the return ticket, the management fee and the localisation fee. '
@@ -152,19 +159,19 @@ def build_quote():
     basis_rows = [[(str(i), str(i), "nx"), ("<b>%s</b> — %s" % (esc(ce), esc(be)), "<b>%s</b> — %s" % (esc(ca), esc(ar(ba))), "t")]
                   for i, (ce, ca, be, ba) in enumerate(PRICE_BASIS, 1)]
     basis = bi_table([("#", "#", True), ("How the monthly price per worker is built", "كيف يُبنى السعر الشهري للعامل", False)], basis_rows, [4, 46])
-    tot_rows = [[("<b>Seven teams, per month</b> (before VAT)", "<b>الفرق السبعة شهرياً</b> (قبل الضريبة)", "t"), pc(TOTAL_MONTHLY12), pc(TOTAL_MONTHLY)],
-                [("VAT 15%", "ضريبة القيمة المضافة 15%", "t"), (num(n2(VAT12)), num(n2(VAT12)), "c"), (num(n2(MONTHLY_VAT)), num(n2(MONTHLY_VAT)), "c")],
-                [("<b>Total per month</b> (SAR)", "<b>الإجمالي شهرياً</b> (ريال)", "t"), (num(n2(GRAND12)), num(n2(GRAND12)), "c"), (num(n2(MONTHLY_GRAND)), num(n2(MONTHLY_GRAND)), "c")]]
-    totals = bi_table([("At the minimum skilled share (8 of 15 per team)", "عند الحد الأدنى للمهرة (8 من 15 في الفريق)", False), ("12 months", "12 شهراً", True), ("24 months", "24 شهراً", True)], tot_rows, [34, 8, 8])
-    fac_rows = [[(le, la, "t"), pc(sal), pc(PRICE12[k2]), pc(PRICE12_F[k2]), pc(PRICE[k2]), pc(PRICE_F[k2])] for k2, (le, la, sal, lf) in LEVELS.items()]
-    fac_rows.append({"cls": "tot", "cells": [("Seven teams, per month (before VAT)", "الفرق السبعة شهرياً (قبل الضريبة)", ""), ("", "", ""), pc(TOTAL_MONTHLY12), pc(TOTAL_MONTHLY12_F), pc(TOTAL_MONTHLY), pc(TOTAL_MONTHLY_F)]})
-    fac = bi_table([("If the worker is employed at a factory", "إذا كان العامل على مصنع", False), ("Minimum salary", "الحد الأدنى للراتب", True), ("12 months, standard", "12 شهراً، عادي", True), ("12 months, factory", "12 شهراً، مصنع", True), ("24 months, standard", "24 شهراً، عادي", True), ("24 months, factory", "24 شهراً، مصنع", True)], fac_rows, [18, 8, 8, 8, 8, 8])
+    def fac_table(pp, ppf, tot, totf):
+        fr = [[(le, la, "t"), pc(sal), pc(pp[k2]), pc(ppf[k2]), pc(pp[k2] - ppf[k2])] for k2, (le, la, sal, lf) in LEVELS.items()]
+        fr.append({"cls": "tot", "cells": [("Seven teams, per month (before VAT)", "الفرق السبعة شهرياً (قبل الضريبة)", ""), ("", "", ""), pc(tot), pc(totf), pc(tot - totf)]})
+        return bi_table([("If the worker is employed at a factory", "إذا كان العامل على مصنع", False), ("Minimum salary", "الحد الأدنى للراتب", True), ("Standard price", "السعر العادي", True), ("Factory price", "سعر المصنع", True), ("Saving", "الفرق", True)], fr, [18, 8, 8, 8, 8])
+    fac12 = fac_table(PRICE12, PRICE12_F, TOTAL_MONTHLY12, TOTAL_MONTHLY12_F)
+    fac24 = fac_table(PRICE, PRICE_F, TOTAL_MONTHLY, TOTAL_MONTHLY_F)
     facnote = ('<div class="nt"><div dir="ltr">For a worker at a licensed factory the work-permit levy of SAR 9,600 a year is exempt, and only the SAR 100 permit fee is paid. The factory price is the standard price less SAR 800 a month (the levy exemption, SAR 9,600 ÷ 12).</div>'
                '<div class="ar" dir="rtl">للعامل على مصنع مرخَّص يُعفى من المقابل المالي لرخصة العمل (9,600 ريال سنوياً)، ويُدفع رسم الرخصة 100 ريال فقط. وسعر المصنع هو السعر العادي مطروحاً منه 800 ريال شهرياً (إعفاء المقابل المالي: 9,600 ÷ 12).</div></div>')
-    inner = h2(1, "Trades, minimum salaries and monthly price (SAR, before VAT)", "المهن والحد الأدنى للراتب والسعر الشهري (ريال، قبل الضريبة)") + hours + rates + totals
-    sheets.append(page(inner))
-    inner = h2(2, "Calculation if the worker is employed at a factory", "الحسبة إذا كان العامل على مصنع") + fac + facnote + note
-    sheets.append(page(inner))
+    sheets.append(page(h2("1A", "Trades, salaries and price: 12-month contract (SAR, before VAT)", "المهن والرواتب والسعر الشهري: عقد 12 شهراً (ريال، قبل الضريبة)") + hours + rates12))
+    sheets.append(page(h2("1B", "Trades, salaries and price: 24-month contract (SAR, before VAT)", "المهن والرواتب والسعر الشهري: عقد 24 شهراً (ريال، قبل الضريبة)") + rates24))
+    sheets.append(page(h2(2, "Calculation if the worker is employed at a factory", "الحسبة إذا كان العامل على مصنع") + h2("2A", "12-month contract", "عقد 12 شهراً") + fac12 + h2("2B", "24-month contract", "عقد 24 شهراً") + fac24 + facnote))
+    sheets.append(page(h2("", "Notes on the prices", "ملاحظات على الأسعار") + note))
+
 
     # 4 النطاق والمستثنيات
     scope_rows = [[(str(i), str(i), "nx"), ("<b>%s</b> — %s" % (esc(te), esc(de)), "<b>%s</b> — %s" % (esc(ta), esc(ar(da))), "t")] for i, (te, ta, de, da) in enumerate(SCOPE, 1)]
