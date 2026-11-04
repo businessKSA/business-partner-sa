@@ -39,9 +39,9 @@ REC_TEAM = REC_FEE * PER_TEAM                  # 7,500
 REC_TOTAL = REC_FEE * WORKERS                  # 52,500
 REC_VAT = REC_TOTAL * 15 / 100                 # 7,875
 REC_GRAND = REC_TOTAL + REC_VAT                # 60,375
-# أسعار شهرية شاملة للعامل — شرائح بترومنت الموقّعة (تسعيرة المالك 2026-09-30): عمالية 4,100 · فنية 4,350. مقترح لـISR بانتظار اعتماد المالك.
-PRICE_SKILLED = 4350
-PRICE_STD = 4100
+# أسعار شهرية شاملة للعامل من «حاسبة التعاقد والتوطين» برواتب المالك 2,000 (مهني) و1,500 (عادي)، عقد 24 شهراً. تفصيلها في costing.html. بانتظار اعتماد المالك.
+PRICE_SKILLED = 5184   # حاسبة التعاقد والتوطين: راتب 2,000 · عقد 24 شهراً · قبل الاستقدام الخارجي (فاتورة منفصلة)
+PRICE_STD = 4570       # راتب 1,500 — انظر costing.html
 STD_MIN = PER_TEAM - SKILLED_MIN               # 7
 TEAM_MONTHLY = SKILLED_MIN * PRICE_SKILLED + STD_MIN * PRICE_STD          # 63,500
 TOTAL_MONTHLY = TEAM_MONTHLY * NTEAMS                                      # 444,500
@@ -94,8 +94,8 @@ PRICE_BASIS = [  # (component_en, component_ar, basis_en, basis_ar)
      "Accommodation, transport and food (see the choice below), overtime, and government fees outside the items above, which are invoiced at actual cost.",
      "السكن والنقل والإعاشة (انظر الخيار أدناه)، والعمل الإضافي، والرسوم الحكومية خارج البنود أعلاه فتُفوتَر بالتكلفة الفعلية."),
     ("Monthly price per worker", "السعر الشهري للعامل",
-     "Skilled SAR %s · Standard SAR %s, before 15%% VAT, the same for the three nationalities." % (n(PRICE_SKILLED), n(PRICE_STD)),
-     "ماهر %s ريال · عادي %s ريال، قبل ضريبة القيمة المضافة 15%%، وهو نفسه للجنسيات الثلاث." % (n(PRICE_SKILLED), n(PRICE_STD))),
+     "Skilled SAR %s · Standard SAR %s, before 15%% VAT, based on a 24-month contract, the same for the three nationalities." % (n(PRICE_SKILLED), n(PRICE_STD)),
+     "ماهر %s ريال · عادي %s ريال، قبل ضريبة القيمة المضافة 15%%، على أساس عقد 24 شهراً، وهو نفسه للجنسيات الثلاث." % (n(PRICE_SKILLED), n(PRICE_STD))),
 ]
 
 EXCLUSIONS = [
