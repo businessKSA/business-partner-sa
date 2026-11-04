@@ -65,8 +65,8 @@ files = [p for p in HERE.glob("*") if p.is_file() and p.suffix in (".html", ".md
 pats = {
     "IBAN فعلي (SA + أرقام)": r"\bSA\d{2}[\s\d]{16,}",
     "رقم جوال (05xxxxxxxx / 966 / 00966)": r"(\b05\d{8}\b|\+?966\s?-?5\d{8}|00966)",
-    "كلمة «مسودة»": r"مسودة",
-    "كلمة «الوكيل»": r"الوكيل",
+    "كلمة محظورة رقم 1 (معيار العرض)": r"مسودة",
+    "كلمة محظورة رقم 2 (التسمية: المستشار الذكي)": r"الوكيل",
     "عنوان شارع (Al Arid / Rihana)": r"Al Arid|Rihana|العريد|ريحانة",
 }
 for lab, pat in pats.items():
@@ -90,5 +90,15 @@ for n, w in [("quote", "Badr"), ("contract", "Baher Bakr Ali Magnas"), ("nda", "
     ok = w in text[n][0]
     bad += not ok
     print(f"  {'OK ' if ok else 'XX '} {n}: {w}")
+print("== 5) الفرق عن العرض المرسل 2026-11-01 (7,500 شهرياً + إعداد 15,000؛ قرارات المالك 2026-10-30)")
+old_rec, old_setup = D(7500) * 12, D(15000)
+old_first = old_rec + old_setup
+old_sign_net = D(7500) * 3 + old_setup
+pc = lambda a, b: f"{(a - b) / b * 100:.1f}%"
+print(f"  السنة الأولى قبل الضريبة: {fmt(old_first)} ← {fmt(first_net)}  ({pc(first_net, old_first)}؛ فرق {fmt(old_first - first_net)})")
+print(f"  المتكرر السنوي: {fmt(old_rec)} ← {fmt(annual)}  ({pc(annual, old_rec)})")
+print(f"  رسم الإعداد/التصحيح: {fmt(old_setup)} ← {fmt(setup)}  ({pc(setup, old_setup)})")
+print(f"  المستحق عند التوقيع قبل الضريبة: {fmt(old_sign_net)} ← {fmt(due_net)}؛ شاملة الضريبة: {fmt(old_sign_net * (1 + VAT))} ← {fmt(due_net * (1 + VAT))}")
+print(f"  الفرع الإضافي سنوياً: {fmt(D(2500) * 12)} ← 3,000؛ الموظف الإضافي 300 سنوياً (بلا تغيير)؛ حد الموظفين 30 ← 49")
 print("== النتيجة:", "كل الفحوص سليمة" if not bad else f"{bad} فحصاً فاشلاً")
 sys.exit(1 if bad else 0)
