@@ -45,14 +45,14 @@ LEVELS = {  # key: (label_en, label_ar, min_salary, localisation_fee)
 }
 TEAM_LEVEL = ["tech", "skilled", "skilled", "skilled", "skilled", "skilled", "tech"]   # بحسب ترتيب TEAMS
 def worker_price(a, loc, factory=False, months=24):
-    """حاسبة التعاقد والتوطين: التكلفة المباشرة (الراتب + الحكومية + الطبي + المخصصات) + الأوفر هيد 500 + رسمنا (10% بحد أدنى 500) + رسم التوطين 900.
+    """حاسبة التعاقد والتوطين: التكلفة المباشرة (الراتب + الحكومية + الطبي + المخصصات) + الأوفر هيد 500 + رسمنا (10% بحد أدنى 500) + رسوم التوطين 900.
     التكاليف الحكومية: رخصة العمل والمقابل 9,700/12 (مصنع: 100/12) + إقامة 650/12 + أجير 23 + 2% على 85% من الراتب + خروج وعودة 200/12 + تأشيرة 2,000/المدة."""
     permit = (100 if factory else 9700) / 12.0
     gov = permit + 650 / 12.0 + 23 + a * 0.85 * 0.02 + 200 / 12.0 + 2000.0 / months
     prov = a / 24.0 + a / 30.0 * 21 / 12.0 + 1500 / 12.0
     direct = a + gov + 50 + prov
     fee = max(0.10 * (direct + 500), 500.0)      # رسمنا 10% فوق (التكلفة + الأوفر هيد) وبحد أدنى 500 ريال (قرار المالك 4/11)
-    return int(round(direct + 500 + fee + loc))   # + الأوفر هيد 500 + رسم التوطين 900
+    return int(round(direct + 500 + fee + loc))   # + الأوفر هيد 500 + رسوم التوطين 900
 # ---- رسم التوطين بقرار (المهن الفنية والهندسية): السعوديون المطلوبون = ceil(ن ÷ (1 − ن) × عدد الأجانب)، تكلفة السعودي الواحد = الراتب × 1.29975 + راتب÷24 + راتب÷30×21÷12
 def saudi_one(m): return m + m * 0.85 * (0.1275 + 0.1075) + m / 24.0 + m / 30.0 * 21 / 12.0
 def loc_by_decision(ratio, m, q):
@@ -129,7 +129,7 @@ SCOPE = [
 PRICE_BASIS = [  # (component_en, component_ar, basis_en, basis_ar)
     ("What the monthly price includes", "ما يشمله السعر الشهري",
      "Per worker: the salary, residence permit, work permit, health and social insurance, end-of-service and leave provision, return ticket, and the management fee. It does not include allowances (accommodation, food, transport).",
-     "للعامل الواحد: الراتب، الإقامة ورخصة العمل، التأمين الصحي والتأمينات الاجتماعية، مخصص نهاية الخدمة والإجازة، تذكرة العودة، ورسم الإدارة. ولا يشمل البدلات (السكن والإعاشة والمواصلات)."),
+     "للعامل الواحد: الراتب، الإقامة ورخصة العمل، التأمين الصحي والتأمينات الاجتماعية، مخصص نهاية الخدمة والإجازة، تذكرة العودة، ورسوم الإدارة. ولا يشمل البدلات (السكن والإعاشة والمواصلات)."),
     ("What it does not include", "ما لا يشمله السعر الشهري",
      "Accommodation, transport and food (see the choice below), overtime, and government fees outside the items above, which are invoiced at actual cost.",
      "السكن والنقل والإعاشة (انظر الخيار أدناه)، والعمل الإضافي، والرسوم الحكومية خارج البنود أعلاه فتُفوتَر بالتكلفة الفعلية."),
@@ -150,7 +150,7 @@ EXCLUSIONS = [
     ("☐ Food — provided by the First Party at SAR 300 per worker per month", "☐ الإعاشة — يوفّرها الطرف الأول بمبلغ 300 ريال للعامل شهرياً"),
     ("Tools, equipment, materials and personal protective equipment for the work, unless agreed otherwise in writing.",
      "الأدوات والمعدات والمواد ومعدات الحماية الشخصية للعمل، ما لم يُتفق على غير ذلك كتابةً."),
-    ("Overtime, invoiced at the actual hours worked under the regulations.", "العمل الإضافي، ويُفوتر بالساعات الفعلية وفق الأنظمة."),
+    ("Overtime, invoiced per hour at 1.5 times the hourly rate of the monthly fees, under the Labour Law. The hourly rate is the monthly fees divided by 30 days and 8 hours.", "العمل الإضافي، ويُفوتر بالساعة بمعدل ساعة ونصف عن كل ساعة من الرسوم الشهرية وفق نظام العمل. وسعر الساعة هو الرسوم الشهرية مقسومة على 30 يوماً و8 ساعات."),
     ("Any nationality other than Filipino, Indian and Nepali, and any trade not listed in the table, are outside this quotation and need a written change request priced separately.",
      "أي جنسية غير الفلبينية والهندية والنيبالية، وأي مهنة غير واردة في الجدول، خارج هذا العرض وتحتاج طلب تغيير كتابياً يُسعَّر على حدة."),
 ]
@@ -277,9 +277,9 @@ def contract_clauses():
         [[ne + " · " + na, n(r), n(t), n(k), n(r + t + k)] for ne, na, r, t, k, de, da in REC_COUNTRY], [28, 18, 18, 18, 18])
     items3 = [
         ("The Second Party pays the First Party: (a) the monthly price per worker, being the sum of the salary by trade, level and nationality, the residence permit, work permit and insurance cost, and the management fee, as set in the rate table of the quotation; and (b) for workers recruited from abroad only, the recruitment costs by nationality in the table below, at actual cost, on a separate invoice. For a worker transferred from inside the Kingdom (sponsorship transfer), no recruitment-from-abroad fee applies: neither the costs below, nor external recruitment, contract attestation or arrival ticket.",
-         "يسدّد الطرف الثاني للطرف الأول: (أ) السعر الشهري للعامل، وهو مجموع الراتب بحسب المهنة والمستوى والجنسية، وتكلفة الإقامة ورخصة العمل والتأمين، ورسم الإدارة، كما في جدول الأسعار في عرض السعر؛ و(ب) للعمال المستقدَمين من الخارج فقط، تكاليف الاستقدام بحسب الجنسية في الجدول أدناه، بالتكلفة الفعلية وبفاتورة منفصلة. أما العامل المنقول من داخل المملكة (نقل كفالة) فلا تُطبَّق عليه أي رسوم استقدام من الخارج، لا التكاليف أدناه ولا الاستقدام الخارجي ولا تصديق العقود ولا تذكرة القدوم."),
-        ("The monthly price is invoiced on the number of workers actually on duty in the month. Overtime is invoiced separately at the actual hours.",
-         "يُفوتر السعر الشهري على عدد العمال الفعلي على رأس العمل في الشهر، ويُفوتر العمل الإضافي على حدة بالساعات الفعلية."),
+         "يسدّد الطرف الثاني للطرف الأول: (أ) السعر الشهري للعامل، وهو مجموع الراتب بحسب المهنة والمستوى والجنسية، وتكلفة الإقامة ورخصة العمل والتأمين، ورسوم الإدارة، كما في جدول الأسعار في عرض السعر؛ و(ب) للعمال المستقدَمين من الخارج فقط، تكاليف الاستقدام بحسب الجنسية في الجدول أدناه، بالتكلفة الفعلية وبفاتورة منفصلة. أما العامل المنقول من داخل المملكة (نقل كفالة) فلا تُطبَّق عليه أي رسوم استقدام من الخارج، لا التكاليف أدناه ولا الاستقدام الخارجي ولا تصديق العقود ولا تذكرة القدوم."),
+        ("The monthly price is invoiced on the number of workers actually on duty in the month. Overtime is invoiced separately, per hour at 1.5 times the hourly rate of the monthly fees, under the Labour Law.",
+         "يُفوتر السعر الشهري على عدد العمال الفعلي على رأس العمل في الشهر، ويُفوتر العمل الإضافي على حدة بالساعة بمعدل ساعة ونصف من الرسوم الشهرية وفق نظام العمل."),
         ("Government fees, embassy and attestation charges and travel tickets are invoiced at actual cost with the supporting receipts, unless the quotation states that they are included.",
          "تُفوتر الرسوم الحكومية ورسوم السفارات والتصديق وتذاكر السفر بالتكلفة الفعلية مع الإيصالات المؤيدة، ما لم يذكر عرض السعر أنها شاملة."),
         ("Prices are before 15% VAT, which is added. Payment terms: advance of two (2) months, then monthly, within seven (7) days of the invoice.",
@@ -365,7 +365,7 @@ def contract_clauses():
         ("Cancellation after submission: amounts spent or committed to third parties are not refundable, except where the First Party is at fault.",
          "الإلغاء بعد التقديم: لا تُسترد المبالغ المنفقة أو الملتزَم بها للغير، إلا لخطأ من الطرف الأول."),
         ("Where a visa is rejected or a worker does not travel, the First Party replaces the worker or refunds the recruitment fee for that worker.",
-         "عند رفض تأشيرة أو عدم سفر العامل يستبدله الطرف الأول أو يرد رسم الاستقدام عن ذلك العامل.")])
+         "عند رفض تأشيرة أو عدم سفر العامل يستبدله الطرف الأول أو يرد رسوم الاستقدام عن ذلك العامل.")])
 
     # بنود النواة المعتمدة من القانونية: السرية · الاستعانة بالغير · الرشوة · المسؤولية · القانون · أحكام عامة
     for p in ("12.", "14.", "15.", "16.", "17.", "18."):
@@ -386,8 +386,8 @@ STAGES2 = [  # (when_en, when_ar, what_en, what_ar, how_en, how_ar)
      "بفاتورة منفصلة خارج السعر الشهري. المدة المعتادة: الفلبيني 60–90 يوماً، والهندي 21 يوماً، والنيبالي 30 يوماً. ولا تنطبق على العمال المنقولة كفالتهم من داخل المملكة."),
     ("Every month", "كل شهر",
      "The <b>monthly price</b> for the workers on duty: salary, work permit, residency, health and social insurance, and the management fee.",
-     "<b>السعر الشهري</b> للعمال على رأس العمل: الراتب والرخصة والإقامة والتأمين الصحي والتأمينات ورسم الإدارة.",
-     "Invoiced monthly and payable within 7 days. Overtime is invoiced at the actual hours. VAT 15% on the invoice.", "يُفوتَر شهرياً ويُسدَّد خلال 7 أيام. والعمل الإضافي بالساعات الفعلية. وتُضاف ضريبة 15%."),
+     "<b>السعر الشهري</b> للعمال على رأس العمل: الراتب والرخصة والإقامة والتأمين الصحي والتأمينات ورسوم الإدارة.",
+     "Invoiced monthly and payable within 7 days. Overtime is invoiced per hour at 1.5 times the hourly rate under the Labour Law. VAT 15% on the invoice.", "يُفوتَر شهرياً ويُسدَّد خلال 7 أيام. والعمل الإضافي بالساعة بمعدل ساعة ونصف وفق نظام العمل. وتُضاف ضريبة 15%."),
     ("After the contract", "بعد انتهاء العقد",
      "End of service, leave pay and the return ticket.",
      "نهاية الخدمة وبدل الإجازة وتذكرة العودة.",
@@ -419,7 +419,7 @@ LOCALISATION = [  # (case_en, case_ar, what_en, what_ar)
      "الموارد البشرية والمهن الإدارية المساندة والسكرتارية والاستقبال وخدمة العملاء ونحوها مقصورة على السعوديين بحسب الأدلة. ولا تُعرض كعمالة أجنبية."),
 ]
 LOC_NOTE = ("The prices in this quotation are for trades with no localisation decision and include the flat SAR 900 localisation fee. A technical or engineering profession under a localisation decision costs more (section 10). The First Party does not guarantee any effect on the Second Party’s localisation count or band.",
-            "الأسعار في هذا العرض لمهن لا يوجد عليها قرار توطين وتشمل رسم التوطين الثابت 900 ريال. والمهنة الفنية أو الهندسية التي عليها قرار توطين تكلفتها أعلى (البند 10). ولا يضمن الطرف الأول أي أثر على نسبة التوطين أو نطاق الطرف الثاني.")
+            "الأسعار في هذا العرض لمهن لا يوجد عليها قرار توطين وتشمل رسوم التوطين الثابت 900 ريال. والمهنة الفنية أو الهندسية التي عليها قرار توطين تكلفتها أعلى (البند 10). ولا يضمن الطرف الأول أي أثر على نسبة التوطين أو نطاق الطرف الثاني.")
 
 NST = [  # (topic_en, topic_ar, text_en, text_ar)
     ("What it is", "ما هي الخدمة",
@@ -448,7 +448,7 @@ TRANSFER = [  # (case_en, case_ar, fee, per_month_en, per_month_ar)
     ("Third transfer and later", "النقل للمرة الثالثة فأكثر", 6000, "Extra 4,000 at cost", "الزيادة 4,000 بالتكلفة"),
 ]
 TRANSFER_NOTE = ("A worker already inside the Kingdom is moved to Business Partner through the official platforms, with no recruitment from abroad. The fee is government, paid at cost without mark-up. The price assumes a first transfer (SAR 2,000, spread over the term); a further transfer is invoiced at cost.",
-                 "العامل الموجود داخل المملكة تُنقل خدماته إلى Business Partner عبر المنصات الرسمية دون استقدام من الخارج. والرسم حكومي بالتكلفة دون هامش. ويفترض السعر نقلاً أول (2,000 ريال موزَّعة على المدة)، وأي نقل إضافي يُفوتَر بالتكلفة.")
+                 "العامل الموجود داخل المملكة تُنقل خدماته إلى Business Partner عبر المنصات الرسمية دون استقدام من الخارج. والرسوم حكومية بالتكلفة دون هامش. ويفترض السعر نقلاً أول (2,000 ريال موزَّعة على المدة)، وأي نقل إضافي يُفوتَر بالتكلفة.")
 
 nt = lambda x: "{:,}".format(int(round(x)))
 LOCCALC = [  # (item_en, item_ar, tech_en, tech_ar, eng_en, eng_ar)
@@ -459,10 +459,10 @@ LOCCALC = [  # (item_en, item_ar, tech_en, tech_ar, eng_en, eng_ar)
     ("Foreign workers in the calculation", "العمال الأجانب في الحسبة", "%d (the steel-hangar and HVAC teams)" % LOC_TECH["q"], "%d (فريقا الهياكل المعدنية والتكييف)" % LOC_TECH["q"], "%d (example, none requested yet)" % LOC_ENG["q"], "%d (مثال، لا يوجد مطلوب حالياً)" % LOC_ENG["q"]),
     ("Saudis required = ratio ÷ (1 − ratio) × workers, rounded up", "السعوديون المطلوبون = النسبة ÷ (1 − النسبة) × العمال، مقرَّبة لأعلى", str(TECH_NEED), str(TECH_NEED), str(ENG_NEED), str(ENG_NEED)),
     ("Cost of one Saudi per month (salary, employer and employee insurance, end of service, leave)", "تكلفة السعودي الواحد شهرياً (الراتب والتأمينات على صاحب العمل والموظف ونهاية الخدمة والإجازة)", "SAR %s" % nt(TECH_ONE), "%s ريال" % nt(TECH_ONE), "SAR %s" % nt(ENG_ONE), "%s ريال" % nt(ENG_ONE)),
-    ("Localisation fee per month for the group", "رسم التوطين شهرياً للمجموعة", "SAR %s" % nt(TECH_NEED * TECH_ONE), "%s ريال" % nt(TECH_NEED * TECH_ONE), "SAR %s" % nt(ENG_NEED * ENG_ONE), "%s ريال" % nt(ENG_NEED * ENG_ONE)),
+    ("Localisation fee per month for the group", "رسوم التوطين شهرياً للمجموعة", "SAR %s" % nt(TECH_NEED * TECH_ONE), "%s ريال" % nt(TECH_NEED * TECH_ONE), "SAR %s" % nt(ENG_NEED * ENG_ONE), "%s ريال" % nt(ENG_NEED * ENG_ONE)),
     ("Per worker per month (instead of the flat SAR 900)", "للعامل شهرياً (بدل 900 الثابتة)", "SAR %s" % nt(TECH_FEE), "%s ريال" % nt(TECH_FEE), "SAR %s" % nt(ENG_FEE), "%s ريال" % nt(ENG_FEE)),
     ("Monthly price per worker, standard (minimum salary SAR 3,000)", "السعر الشهري للعامل، العادي (أقل راتب 3,000)", "SAR %s" % nt(PRICE_TECHDEC), "%s ريال" % nt(PRICE_TECHDEC), "SAR %s" % nt(PRICE_ENG), "%s ريال" % nt(PRICE_ENG)),
     ("Monthly price per worker, at a factory (less SAR 800)", "السعر الشهري للعامل، في مصنع (ناقص 800)", "SAR %s" % nt(PRICE_TECHDEC_F), "%s ريال" % nt(PRICE_TECHDEC_F), "SAR %s" % nt(PRICE_ENG_F), "%s ريال" % nt(PRICE_ENG_F)),
 ]
 LOCCALC_NOTE = ("Fee per worker = Saudis required × cost of one Saudi ÷ number of foreign workers. It replaces the flat SAR 900 for that profession and is added to its monthly price. The two columns show the higher cost, in the standard calculation and at a factory. The engineer column is an example for when engineers are requested (salary assumed SAR 3,000). It is recalculated on your actual numbers, and does not mean the Saudis count in your own band.",
-                "رسم التوطين للعامل = السعوديون المطلوبون × تكلفة السعودي الواحد ÷ عدد العمال الأجانب. ويحلّ محل الـ900 الثابتة لتلك المهنة ويُضاف إلى سعرها الشهري. والعمودان يبيّنان التكلفة الأعلى في الحسبة العادية وفي المصنع. وعمود المهندس مثال لحين طلب مهندسين (الراتب مفترض 3,000 ريال). ويُعاد حسابه على أعدادك الفعلية، ولا يعني أن السعوديين يُحتسبون في نطاق منشأتك.")
+                "رسوم التوطين للعامل = السعوديون المطلوبون × تكلفة السعودي الواحد ÷ عدد العمال الأجانب. ويحلّ محل الـ900 الثابتة لتلك المهنة ويُضاف إلى سعرها الشهري. والعمودان يبيّنان التكلفة الأعلى في الحسبة العادية وفي المصنع. وعمود المهندس مثال لحين طلب مهندسين (الراتب مفترض 3,000 ريال). ويُعاد حسابه على أعدادك الفعلية، ولا يعني أن السعوديين يُحتسبون في نطاق منشأتك.")

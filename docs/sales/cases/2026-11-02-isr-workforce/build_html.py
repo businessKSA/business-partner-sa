@@ -166,7 +166,7 @@ def build_quote():
     fac12 = fac_table(PRICE12, PRICE12_F, TOTAL_MONTHLY12, TOTAL_MONTHLY12_F)
     fac24 = fac_table(PRICE, PRICE_F, TOTAL_MONTHLY, TOTAL_MONTHLY_F)
     facnote = ('<div class="nt"><div dir="ltr">For a worker at a licensed factory the work-permit levy of SAR 9,600 a year is exempt, and only the SAR 100 permit fee is paid. The factory price is the standard price less SAR 800 a month (the levy exemption, SAR 9,600 ÷ 12).</div>'
-               '<div class="ar" dir="rtl">للعامل على مصنع مرخَّص يُعفى من المقابل المالي لرخصة العمل (9,600 ريال سنوياً)، ويُدفع رسم الرخصة 100 ريال فقط. وسعر المصنع هو السعر العادي مطروحاً منه 800 ريال شهرياً (إعفاء المقابل المالي: 9,600 ÷ 12).</div></div>')
+               '<div class="ar" dir="rtl">للعامل على مصنع مرخَّص يُعفى من المقابل المالي لرخصة العمل (9,600 ريال سنوياً)، وتُدفع رسوم الرخصة 100 ريال فقط. وسعر المصنع هو السعر العادي مطروحاً منه 800 ريال شهرياً (إعفاء المقابل المالي: 9,600 ÷ 12).</div></div>')
     sheets.append(page(h2("1A", "Trades, salaries and price: 12-month contract (SAR, before VAT)", "المهن والرواتب والسعر الشهري: عقد 12 شهراً (ريال، قبل الضريبة)") + hours + rates12))
     sheets.append(page(h2("1B", "Trades, salaries and price: 24-month contract (SAR, before VAT)", "المهن والرواتب والسعر الشهري: عقد 24 شهراً (ريال، قبل الضريبة)") + rates24))
     sheets.append(page(h2(2, "Calculation if the worker is employed at a factory", "الحسبة إذا كان العامل على مصنع") + h2("2A", "12-month contract", "عقد 12 شهراً") + fac12 + h2("2B", "24-month contract", "عقد 24 شهراً") + fac24 + facnote + note))
@@ -181,14 +181,14 @@ def build_quote():
     sheets.append(page(h2(5, "Not included in the price", "ما لا يشمله السعر") + excl))
     gov_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(fe), "<b>%s</b>" % esc(fa), "t"), (ae, aa, "t"), (ie, ia, "t")]
                 for i, (fe, fa, ae, aa, ie, ia) in enumerate(GOV_FEES, 1)]
-    gov = bi_table([("#", "#", True), ("Government fee", "الرسم الحكومي", False), ("Official amount", "المبلغ الرسمي", False), ("In this offer", "في هذا العرض", False)], gov_rows, [3, 14, 18, 18])
+    gov = bi_table([("#", "#", True), ("Government fee", "الرسوم الحكومية", False), ("Official amount", "المبلغ الرسمي", False), ("In this offer", "في هذا العرض", False)], gov_rows, [3, 14, 18, 18])
     govnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(GOV_NOTE[0]), esc(ar(GOV_NOTE[1])))
     loc_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(te), "<b>%s</b>" % esc(ta), "t"), (we, wa, "t")]
                 for i, (te, ta, we, wa) in enumerate(LOCALISATION, 1)]
     loc = bi_table([("#", "#", True), ("Case", "الحالة", False), ("Localisation fee", "رسوم التوطين", False)], loc_rows, [3, 16, 36])
     locnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(LOC_NOTE[0]), esc(ar(LOC_NOTE[1])))
     tr_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(te), "<b>%s</b>" % esc(ta), "t"), (num(n(fee)), num(n(fee)), "c"), (pe, pa, "c")] for i, (te, ta, fee, pe, pa) in enumerate(TRANSFER, 1)]
-    trf = bi_table([("#", "#", True), ("Government fee", "الرسم الحكومي", False), ("SAR per worker", "ريال للعامل", True), ("In the monthly price", "في السعر الشهري", True)], tr_rows, [3, 22, 9, 16])
+    trf = bi_table([("#", "#", True), ("Government fee", "الرسوم الحكومية", False), ("SAR per worker", "ريال للعامل", True), ("In the monthly price", "في السعر الشهري", True)], tr_rows, [3, 22, 9, 16])
     trfnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(TRANSFER_NOTE[0]), esc(ar(TRANSFER_NOTE[1])))
     sheets.append(page(h2(6, "Government fees explained", "توضيح الرسوم الحكومية") + gov + govnote + h2(7, "Sponsorship transfer costs (workers inside the Kingdom)", "تكاليف نقل الكفالة (عمال من داخل المملكة)") + trf + trfnote))
     rec_rows = [[("<b>%s</b>" % esc(ne), "<b>%s</b>" % esc(na), "t"), (num(n(r)), num(n(r)), "c"), (num(n(t)), num(n(t)), "c"), (num(n(k3)), num(n(k3)), "c"), (num(n(r + t + k3)), num(n(r + t + k3)), "c"), (de, da, "c")]
@@ -200,7 +200,7 @@ def build_quote():
     lc_rows = [[("<b>%s</b>" % esc(ie), "<b>%s</b>" % esc(ia), "t"), (te_, ta_, "c"), (ee_, ea_, "c")] for ie, ia, te_, ta_, ee_, ea_ in LOCCALC]
     lcalc = bi_table([("Item", "البند", False), ("Technical engineering (e.g. steel-structure fitter)", "فنية هندسية (مثل فني هياكل معدنية)", True), ("Engineering (engineer)", "هندسية (مهندس)", True)], lc_rows, [26, 14, 14])
     lcnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(LOCCALC_NOTE[0]), esc(ar(LOCCALC_NOTE[1])))
-    sheets.append(page(h2(10, "Technical and engineering workers: how the localisation fee is calculated", "العمالة الفنية والهندسية: كيف يُحسب رسم التوطين") + lcalc + lcnote))
+    sheets.append(page(h2(10, "Technical and engineering workers: how the localisation fee is calculated", "العمالة الفنية والهندسية: كيف يُحسب رسوم التوطين") + lcalc + lcnote))
     nst_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(te), "<b>%s</b>" % esc(ta), "t"), (we, wa, "t")] for i, (te, ta, we, wa) in enumerate(NST, 1)]
     nst = bi_table([("#", "#", True), ("Topic", "البند", False), ("What it means", "ماذا يعني", False)], nst_rows, [3, 14, 38])
     nstnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(NST_NOTE[0]), esc(ar(NST_NOTE[1])))
