@@ -1456,6 +1456,12 @@ PHONE = os.environ.get("BP_PHONE", "")
 
 
 def inject_company(h):
+    if G.ADDRESS and G.ADDRESS != "[●]":
+        h = h.replace('<span>National Address</span><span class="kvv"><span class="num">[●]</span></span>',
+                      '<span>National Address</span><span class="kvv"><span class="num">' + G.ADDRESS + '</span></span>')
+    if PHONE:
+        h = h.replace('<span>Mobile</span><span class="kvv"><span class="num">[●]</span></span>',
+                      '<span>Mobile</span><span class="kvv"><span class="num">' + PHONE + '</span></span>')
     if PHONE:
         h = h.replace('<div class="c">[●]<br>', '<div class="c">' + PHONE + '<br>')
         h = h.replace('Mobile / الجوال: <span class="num">[●]</span>', 'Mobile / الجوال: <span class="num">' + PHONE + '</span>')

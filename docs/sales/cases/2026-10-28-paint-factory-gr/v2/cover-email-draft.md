@@ -2,7 +2,7 @@
 
 > **داخلي، لملاك:** حوِّلي هذا النص إلى رسالة محفوظة في Gmail **بلا إرسال**. لا تُرسل قبل «أرسلي» من الدكتور باهر. نصّ الرسالة يبدأ من «الموضوع» (بعد الخط الفاصل الأول)؛ وما قبل الخط الفاصل تعليمات داخلية لا تُنسخ.
 > - **إلى:** [●] (بريد الشركة الرسمي كما في ملف العميل) · **نسخة (CC):** business@businesspartner.sa
-> - **المرفقات (PDF فقط، بهذا الترتيب):** 1) `quote.pdf` · 2) `contract.pdf` · 3) `nda.pdf` · 4) `terms.pdf` · 5) `authorization-letter.pdf` · 6) `assessment-summary.pdf` · 7) ملف تعريف الشركة PDF (ثنائي اللغة، اعتماد سارة) **يُضاف يدوياً من مجلد Drive المعتمد؛ لا ملف له في المستودع**.
+> - **المرفقات (PDF فقط، بهذا الترتيب):** 1) `quote.pdf` · 2) `contract.pdf` · 3) `nda.pdf` · 4) `terms.pdf` · 5) `authorization-letter.pdf` · 6) `assessment-full.pdf` · 7) ملف تعريف الشركة PDF (ثنائي اللغة، اعتماد سارة) **يُضاف يدوياً من مجلد Drive المعتمد؛ لا ملف له في المستودع**.
 > - **التوقيع:** توقيع Gmail المعتمد للمالك (يُضاف من Gmail، لا يُكتب هنا).
 > - لا روابط ولا ملفات مفتوحة (HTML/DOCX) في الرسالة؛ والهويات تأتي بالرد على الإيميل لا بروابط.
 
@@ -50,7 +50,7 @@ It is based on the "Launch" package for the Riyadh branch (up to 49 employees), 
 3. Mutual non-disclosure agreement
 4. Terms & conditions
 5. Authorization letter (to be attested by the Chamber of Commerce, with a tick box for each action)
-6. Compliance assessment summary
+6. Comprehensive compliance assessment
 7. Business Partner company profile
 
 To start: signing the agreement and the non-disclosure agreement, paying the amount due on signature as set out in the quotation, and issuing the authorization letter attested by the Chamber of Commerce. Please send identity documents and files by replying to this email, not through links; we never ask for passwords or verification codes.
