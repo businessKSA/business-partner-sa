@@ -346,13 +346,12 @@ def build_quote():
                   sr_(2, "Stage 2: arrival and preparation", "المرحلة 2: الوصول والتجهيز", "Work permit and levy 9,700, residence 650, medical insurance (category C) 600, Ajeer 276 and exit and re-entry 200, for the year. Paid over the period you choose (below).", "رخصة العمل والمقابل 9,700، والإقامة 650، والتأمين الطبي (فئة C) 600، وأجير 276، والخروج والعودة 200، للسنة. وتُسدَّد على المدة التي تختارها (أدناه).", int(_stage2_year)),
                   sr_(3, "Stage 3: monthly invoice", "المرحلة 3: الفاتورة الشهرية", "Salary and social insurance (no VAT) + localisation fees, administrative and operating costs and our fees, with 15% VAT on these three. Payable within 7 days.", "الراتب والتأمينات الاجتماعية (بلا ضريبة) + رسوم التوطين والتكاليف الإدارية والتشغيلية ورسومنا، وعلى هذه الثلاثة ضريبة 15%. يُسدَّد خلال 7 أيام.", int(_m3 + _fx * 1.15)),
                   sr_(4, "End of the contract", "نهاية العقد", "End of service, leave pay and the return ticket, at actual cost.", "نهاية الخدمة وبدل الإجازة وتذكرة العودة بالتكلفة الفعلية.", int(_end_year))]))
-    m2b = (_inst_tbl + bi_table([("Monthly invoice (stage 3), per worker (example: skilled worker, salary SAR %s)" % n(_sal), "الفاتورة الشهرية (المرحلة 3) للعامل (مثال: عامل ماهر راتبه %s ريال)" % n(_sal), False), ("Amount (SAR)", "المبلغ (ريال)", True), ("VAT", "الضريبة", True)],
-                    [[("Salary", "الراتب", "t"), (num(n(_sal)), num(n(_sal)), "c"), ("No", "لا", "c")],
-                     [("Social insurance (2% of 85% of the salary)", "التأمينات الاجتماعية (2% من 85% من الراتب)", "t"), (num(n(round(_sal * 0.85 * 0.02))), num(n(round(_sal * 0.85 * 0.02))), "c"), ("No", "لا", "c")],
-                     [("Localisation fees", "رسوم التوطين", "t"), (num("900"), num("900"), "c"), ("15%", "15%", "c")],
-                     [("Administrative and operating costs", "التكاليف الإدارية والتشغيلية", "t"), (num(n(OVERHEAD)), num(n(OVERHEAD)), "c"), ("15%", "15%", "c")],
-                     [("Our fees (10% of the costs)", "رسومنا (10% من التكاليف)", "t"), (num(n(round(_bd["fee"]))), num(n(round(_bd["fee"]))), "c"), ("15%", "15%", "c")],
-                     {"cls": "tot", "cells": [("Monthly invoice (before VAT)", "الفاتورة الشهرية (قبل الضريبة)", ""), (num(n(round(_m3 + _fx))), num(n(round(_m3 + _fx))), "c"), ("", "", "")]}], [30, 12, 8]) + same_note)
+    _paid = ["Stage 3", "Stage 2", "Stage 3", "End", "End", "Stage 2", "Stage 2", "Stage 2", "Stage 2", "Stage 1", "End", "Stage 3", "Stage 3", "Stage 3"]
+    _paid_ar = ["م3", "م2", "م3", "النهاية", "النهاية", "م2", "م2", "م2", "م2", "م1", "النهاية", "م3", "م3", "م3"]
+    _m2rows = [[(e, a_, "t"), (num(n(round(v))), num(n(round(v))), "c"), (("15%", "15%") if k >= 10 else ("No", "لا")) + ("c",), (_paid[k], _paid_ar[k], "c")] for k, (e, a_, v) in enumerate(_full_rows)]
+    m2b = (_inst_tbl + bi_table([("Monthly cost, per worker: the same as Model 1 (example: skilled worker, salary SAR %s)" % n(_sal), "التكلفة الشهرية للعامل: هي نفسها في النموذج الأول (مثال: عامل ماهر راتبه %s ريال)" % n(_sal), False), ("Amount (SAR)", "المبلغ (ريال)", True), ("VAT", "الضريبة", True), ("Paid in", "تُدفع في", True)],
+                    _m2rows + [{"cls": "tot", "cells": [("Monthly cost (before VAT)", "التكلفة الشهرية (قبل الضريبة)", ""), (num(n(int(_p))), num(n(int(_p))), "c"), ("", "", "c"), ("", "", "c")]},
+                               [("VAT 15% on the fees only", "ضريبة 15% على الرسوم فقط", "t"), (num(n(round(_vat_m))), num(n(round(_vat_m))), "c"), ("", "", "c"), ("", "", "c")]], [30, 12, 8, 8]) + same_note)
     m3 = (h2("M3", "Model 3 — National and Non-National Shared Talent services", "النموذج الثالث — خدمات الكوادر الوطنية وغير الوطنية المشتركة") +
           exp_table([("How it works", "كيف تعمل", "Saudi and non-Saudi employees employed by Business Partner work with you, part-time or flexibly, so Saudis count in your Saudization without you hiring them full-time.", "موظفون سعوديون وغير سعوديين يوظّفهم Business Partner يعملون لديك بدوام جزئي أو مرن، فيُحتسب السعوديون في توطينك دون أن توظّفهم بدوام كامل."),
                      ("Cost", "التكلفة", "The cost of each Saudi is shared with you.", "تُقسَّم تكلفة كل سعودي معك."),
@@ -360,7 +359,7 @@ def build_quote():
           nst +
           kv([("Monthly price under this item", "السعر الشهري على هذا البند", _pf)]))
     _cmp = [
-        (("Monthly amount", "المبلغ الشهري"), ("Fixed: %s" % n(_p), "ثابت: %s" % n(_p)), ("Invoice: %s" % n(round(_inv)), "الفاتورة: %s" % n(round(_inv))), ("Shared Talent price: %s" % n(_pf), "سعر الكوادر المشتركة: %s" % n(_pf))),
+        (("Monthly amount", "المبلغ الشهري"), ("Fixed: %s" % n(_p), "ثابت: %s" % n(_p)), ("Same: %s" % n(_p), "نفسه: %s" % n(_p)), ("Shared Talent price: %s" % n(_pf), "سعر الكوادر المشتركة: %s" % n(_pf))),
         (("On signing", "عند التوقيع"), ("2 months of the price", "شهران من السعر"), ("2 months of basic salary + the monthly fees", "راتب شهرين + الرسوم الشهرية"), ("As Model 1 or 2", "كالنموذج الأول أو الثاني")),
         (("Government costs", "التكاليف الحكومية"), ("Inside the price", "داخل السعر"), ("Actual amount, when due", "بالفعلي عند الاستحقاق"), ("As in Model 1 or 2", "كما في النموذج الأول أو الثاني")),
         (("Total over the contract", "الإجمالي على العقد"), ("Same as Model 2", "مثل النموذج الثاني"), ("Same as Model 1", "مثل النموذج الأول"), ("At the Shared Talent price", "بسعر الكوادر المشتركة")),
