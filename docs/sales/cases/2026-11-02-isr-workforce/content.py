@@ -52,13 +52,13 @@ def worker_price(a, loc, factory=False, months=24):
     """حاسبة التعاقد والتوطين: التكلفة المباشرة (الراتب + الحكومية + الطبي + المخصصات) + الأوفر هيد 500 + رسمنا (10% بحد أدنى 500) + رسوم التوطين 900.
     التكاليف الحكومية: رخصة العمل والمقابل 9,700/12 (مصنع: 100/12) + إقامة 650/12 + أجير 23 + 2% على 85% من الراتب + خروج وعودة 200/12 + تأشيرة 2,000/المدة."""
     permit = (100 if factory else 9700) / 12.0
-    gov = permit + 650 / 12.0 + 23 + a * 0.85 * 0.02 + 200 / 12.0 + 2000.0 / months
+    gov = permit + 650 / 12.0 + 23 + a * 0.85 * 0.02 + 200 / 12.0 + 2500.0 / months
     prov = a / 24.0 + a / 30.0 * 21 / 12.0 + 1500 / 12.0
     direct = a + gov + 50 + prov
     fee = max(0.10 * (direct + OVERHEAD), FEE_MIN)   # رسومنا 10% فوق (التكلفة + التكاليف الإدارية والتشغيلية) وبحد أدنى 250 ريال (قرار المالك 4/11 مساءً)
     return int(round(direct + OVERHEAD + fee + loc))   # + التكاليف الإدارية والتشغيلية 250 + رسوم التوطين 900
 def breakdown(a, months=12):
-    gov = 9700/12.0 + 650/12.0 + 23 + a*0.85*0.02 + 200/12.0 + 2000.0/months
+    gov = 9700/12.0 + 650/12.0 + 23 + a*0.85*0.02 + 200/12.0 + 2500.0/months
     prov = a/24.0 + a/30.0*21/12.0 + 1500/12.0
     direct = a + gov + 50 + prov
     return dict(salary=a, gov=gov, med=50, prov=prov, direct=direct, fee=max(0.10*(direct+OVERHEAD), FEE_MIN))
@@ -307,8 +307,8 @@ def contract_clauses():
         ("The workers remain employed by the First Party, or by a licensed partner where the regulations so require. The First Party remains responsible to the Second Party for performance.",
          "يبقى العمال على عمل الطرف الأول، أو شريك مرخّص حيث تقتضي الأنظمة ذلك. ويبقى الطرف الأول مسؤولاً أمام الطرف الثاني عن التنفيذ.")])
 
-    fee = _mini_table(["Nationality · الجنسية", "Recruitment · الاستقدام", "Attestation · التصديق", "Arrival ticket · تذكرة القدوم", "Total at cost, SAR · الإجمالي بالتكلفة"],
-        [[ne + " · " + na, n(r), n(t), n(k), n(r + t + k)] for ne, na, r, t, k, de, da in REC_COUNTRY], [28, 18, 18, 18, 18])
+    fee = _mini_table(["Nationality · الجنسية", "Recruitment and embassy · الاستقدام والسفارات", "Arrival ticket · تذكرة القدوم", "Total at cost, SAR · الإجمالي بالتكلفة"],
+        [[ne + " · " + na, n(r), n(k), n(r + k)] for ne, na, r, t, k, de, da in REC_COUNTRY], [28, 24, 24, 24])
     items3 = [
         ("The Second Party pays the First Party: (a) the monthly price per worker, being the sum of the salary by trade, level and nationality, the residence permit, work permit and insurance cost, and the management fee, as set in the rate table of the quotation; and (b) for workers recruited from abroad only, the recruitment costs by nationality in the table below, at actual cost, on a separate invoice. For a worker transferred from inside the Kingdom (sponsorship transfer), no recruitment-from-abroad fee applies: neither the costs below, nor external recruitment, contract attestation or arrival ticket.",
          "يسدّد الطرف الثاني للطرف الأول: (أ) السعر الشهري للعامل، وهو مجموع الراتب بحسب المهنة والمستوى والجنسية، وتكلفة الإقامة ورخصة العمل والتأمين، ورسوم الإدارة، كما في جدول الأسعار في عرض السعر؛ و(ب) للعمال المستقدَمين من الخارج فقط، تكاليف الاستقدام بحسب الجنسية في الجدول أدناه، بالتكلفة الفعلية وبفاتورة منفصلة. أما العامل المنقول من داخل المملكة (نقل كفالة) فلا تُطبَّق عليه أي رسوم استقدام من الخارج، لا التكاليف أدناه ولا الاستقدام الخارجي ولا تصديق العقود ولا تذكرة القدوم."),
