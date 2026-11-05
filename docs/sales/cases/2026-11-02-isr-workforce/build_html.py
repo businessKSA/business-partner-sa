@@ -186,7 +186,7 @@ def build_quote():
     def model_how():
         rows_ = [
           [("<b>How it works</b>", "<b>كيف يعمل</b>", "t"), ("One fixed monthly amount that includes every government cost, spread over the contract.", "مبلغ شهري ثابت يشمل كل التكاليف الحكومية موزَّعة على العقد.", "t"), ("A lower monthly invoice; government costs are invoiced at their actual amount, no mark-up, when due.", "فاتورة شهرية أقل؛ والتكاليف الحكومية بمبلغها الفعلي دون هامش عند استحقاقها.", "t"), ("The contract is under the National and Non-National Shared Talent item, with its own price per worker (see the price table).", "التعاقد على بند الكوادر الوطنية وغير الوطنية المشتركة بسعر خاص للعامل (انظر جدول الأسعار).", "t")],
-          [("<b>You pay</b>", "<b>تدفع</b>", "t"), ("Two months in advance, then the same amount monthly.", "شهرين مقدماً ثم المبلغ نفسه شهرياً.", "t"), ("On signing: two months of basic salary + the monthly fees. Monthly: salary (no VAT) + fees (15% VAT). Government costs at actual when due.", "عند التوقيع: راتب شهرين أساسي + الرسوم الشهرية. شهرياً: الراتب (بلا ضريبة) + الرسوم (ضريبة 15%). والحكومي بالفعلي عند استحقاقه.", "t"), ("As in Model 1 or Model 2, at the Shared Talent price.", "كما في النموذج الأول أو الثاني، بسعر الكوادر المشتركة.", "t")],
+          [("<b>You pay</b>", "<b>تدفع</b>", "t"), ("Two months in advance, then the same amount monthly.", "شهرين مقدماً ثم المبلغ نفسه شهرياً.", "t"), ("On signing: two months of basic salary + the monthly fees. Monthly: salary and other items (no VAT) + fees (15% VAT). Government costs at actual when due.", "عند التوقيع: راتب شهرين أساسي + الرسوم الشهرية. شهرياً: الراتب والبنود الأخرى (بلا ضريبة) + الرسوم (ضريبة 15%). والحكومي بالفعلي عند استحقاقه.", "t"), ("As in Model 1 or Model 2, at the Shared Talent price.", "كما في النموذج الأول أو الثاني، بسعر الكوادر المشتركة.", "t")],
           [("<b>Total over the contract</b>", "<b>الإجمالي على العقد</b>", "t"), ("The same as Model 2.", "هو نفسه في النموذج الثاني.", "t"), ("The same as Model 1.", "هو نفسه في النموذج الأول.", "t"), ("At the Shared Talent price in the price table.", "بسعر الكوادر المشتركة في جدول الأسعار.", "t")]]
         return bi_table([("", "", False), ("Model 1 — Full cost", "النموذج الأول — التكلفة الكاملة", False), ("Model 2 — Transparent cost", "النموذج الثاني — التكلفة بشفافية", False), ("Model 3 — Shared Talent services", "النموذج الثالث — خدمات الكوادر الوطنية وغير الوطنية المشتركة", False)], rows_, [10, 18, 20, 18])
     model_tick = ('<div class="nt"><div dir="ltr">Choose the model: &nbsp; &#9744; Model 1 — Full cost &nbsp; &#9744; Model 2 — Transparent cost &nbsp; &#9744; Model 3</div>'
@@ -301,11 +301,11 @@ def build_quote():
     _bd = breakdown(_sal, 12)
     _inv_rows = [("Salary", "الراتب", _sal), ("Ajeer platform", "منصة أجير", 23), ("Social insurance (2% of 85% of the salary)", "التأمينات الاجتماعية (2% من 85% من الراتب)", _sal * 0.85 * 0.02),
                  ("End-of-service provision (salary ÷ 24)", "مخصص نهاية الخدمة (الراتب ÷ 24)", _sal / 24.0), ("Leave provision (salary ÷ 30 × 21 ÷ 12)", "مخصص الإجازة (الراتب ÷ 30 × 21 ÷ 12)", _sal / 30.0 * 21 / 12.0),
-                 ("Administrative and operating costs", "التكاليف الإدارية والتشغيلية", OVERHEAD), ("Our fees (10% of the costs, minimum SAR 250)", "رسومنا (10% من التكاليف وبحد أدنى 250 ريال)", _bd["fee"]),
+                 ("Administrative and operating costs", "التكاليف الإدارية والتشغيلية", OVERHEAD), ("Our fees (10% of the costs)", "رسومنا (10% من التكاليف)", _bd["fee"]),
                  ("Localisation fees", "رسوم التوطين", 900)]
-    _fees_m = _inv - _sal
+    _fees_m = OVERHEAD + _bd["fee"] + 900     # الرسوم الشهرية: التكاليف الإدارية والتشغيلية + رسومنا + التوطين (عليها الضريبة وحدها)
     _inv_tbl = bi_table([("Monthly invoice, per worker (example: skilled worker, salary SAR %s)" % n(_sal), "الفاتورة الشهرية للعامل (مثال: عامل ماهر راتبه %s ريال)" % n(_sal), False), ("Amount (SAR)", "المبلغ (ريال)", True), ("VAT", "الضريبة", True)],
-                        [[(e, a_, "t"), (num(n(round(v))), num(n(round(v))), "c"), (("No", "لا") if k == 0 else ("15%", "15%")) + ("c",)] for k, (e, a_, v) in enumerate(_inv_rows)]
+                        [[(e, a_, "t"), (num(n(round(v))), num(n(round(v))), "c"), (("No", "لا") if k < 5 else ("15%", "15%")) + ("c",)] for k, (e, a_, v) in enumerate(_inv_rows)]
                         + [{"cls": "tot", "cells": [("Monthly invoice (before VAT)", "الفاتورة الشهرية (قبل الضريبة)", ""), (num(n(round(_inv))), num(n(round(_inv))), "c"), ("", "", "")]}], [30, 12, 8])
 
     _tot12 = _p * 12
@@ -313,17 +313,25 @@ def build_quote():
     def sr_(k, en1, ar1, en2, ar2, v): return [(str(k), str(k), "nx"), ("<b>%s</b>" % en1, "<b>%s</b>" % ar1, "t"), (en2, ar2, "t"), ((num(n(v)), num(n(v)), "c") if isinstance(v, int) else (v, v, "c"))]
     same_note = note_("The total over the contract is the same in Model 1 and Model 2: SAR %s per worker for 12 months (skilled worker, salary SAR %s). Only the way it is divided and paid differs." % (n(_tot12), n(_sal)),
                       "الإجمالي على مدة العقد هو نفسه في النموذجين الأول والثاني: %s ريال للعامل عن 12 شهراً (عامل ماهر راتبه %s ريال). والذي يختلف هو طريقة التقسيم والدفع فقط." % (n(_tot12), n(_sal)))
+    _full_rows = [("Salary", "الراتب", _sal), ("Ajeer platform", "منصة أجير", 23), ("Social insurance (2% of 85% of the salary)", "التأمينات الاجتماعية (2% من 85% من الراتب)", _sal * 0.85 * 0.02),
+                  ("End-of-service provision (salary ÷ 24)", "مخصص نهاية الخدمة (الراتب ÷ 24)", _sal / 24.0), ("Leave provision (salary ÷ 30 × 21 ÷ 12)", "مخصص الإجازة (الراتب ÷ 30 × 21 ÷ 12)", _sal / 30.0 * 21 / 12.0),
+                  ("Work permit and levy (9,700 ÷ 12)", "رخصة العمل والمقابل المالي (9,700 ÷ 12)", 9700 / 12.0), ("Residence permit (650 ÷ 12)", "الإقامة (650 ÷ 12)", 650 / 12.0), ("Medical insurance, category C (600 ÷ 12)", "التأمين الطبي فئة C (600 ÷ 12)", 50),
+                  ("Exit and re-entry (200 ÷ 12)", "الخروج والعودة (200 ÷ 12)", 200 / 12.0), ("Visa or transfer of services (2,000 ÷ 12)", "التأشيرة أو نقل الخدمات (2,000 ÷ 12)", 2000 / 12.0), ("Return ticket (1,500 ÷ 12)", "تذكرة العودة (1,500 ÷ 12)", 125),
+                  ("Administrative and operating costs", "التكاليف الإدارية والتشغيلية", OVERHEAD), ("Our fees (10% of the costs)", "رسومنا (10% من التكاليف)", _bd["fee"]), ("Localisation fees", "رسوم التوطين", 900)]
+    _full_tbl = bi_table([("Fixed monthly price, per worker (example: skilled worker, salary SAR %s)" % n(_sal), "السعر الشهري الثابت للعامل (مثال: عامل ماهر راتبه %s ريال)" % n(_sal), False), ("Amount (SAR)", "المبلغ (ريال)", True)],
+                         [[(e, a_, "t"), (num(n(round(v))), num(n(round(v))), "c")] for e, a_, v in _full_rows] + [{"cls": "tot", "cells": [("Fixed monthly price (before VAT)", "السعر الشهري الثابت (قبل الضريبة)", ""), (num(n(int(_p))), num(n(int(_p))), "c")]}], [30, 12])
     m1 = (h2("M1", "Model 1 — Full cost", "النموذج الأول — التكلفة الكاملة") +
           exp_table([("How it works", "كيف يعمل", "One fixed monthly amount per worker that already includes every government cost (work permit and levy, residence, medical insurance, exit and re-entry, visa or transfer of services, return ticket), spread over the contract.", "مبلغ شهري ثابت واحد للعامل يشمل مسبقاً كل التكاليف الحكومية (رخصة العمل والمقابل، الإقامة، التأمين الطبي، الخروج والعودة، التأشيرة أو نقل الخدمات، تذكرة العودة) موزَّعة على العقد."),
                      ("Other invoices", "فواتير أخرى", "None: no separate government invoice.", "لا شيء: لا فاتورة حكومية منفصلة.")]) +
+          _full_tbl +
           stages([sr_(1, "On signing", "عند التوقيع", "Advance of two months of the monthly price.", "دفعة مقدمة شهران من السعر الشهري.", int(_p * 2)),
                   sr_(2, "Every month", "كل شهر", "The fixed monthly price, invoiced for the workers on duty. Payable within 7 days.", "السعر الشهري الثابت للعمال على رأس العمل. يُسدَّد خلال 7 أيام.", int(_p)),
                   sr_(3, "Government costs", "التكاليف الحكومية", "Inside the monthly price. Nothing more to pay.", "داخل السعر الشهري. لا شيء إضافي.", 0)]) +
           same_note)
     m2 = (h2("M2", "Model 2 — Transparent cost", "النموذج الثاني — التكلفة بشفافية") +
-          exp_table([("How it works", "كيف يعمل", "You pay two months of basic salary plus the monthly fees on signing; then every month the salary (without VAT) and the monthly fees (with 15% VAT); and each government cost at its actual amount, without mark-up, when it falls due.", "تدفع راتب شهرين أساسياً مع الرسوم الشهرية عند التوقيع؛ ثم كل شهر الراتب (بلا ضريبة) والرسوم الشهرية (عليها ضريبة 15%)؛ وكل تكلفة حكومية بمبلغها الفعلي دون هامش عند استحقاقها.")]) +
+          exp_table([("How it works", "كيف يعمل", "You pay two months of basic salary plus the monthly fees on signing; then every month the salary and the other monthly items (without VAT) and the monthly fees (with 15% VAT: administrative and operating costs, our fees and localisation fees); and each government cost at its actual amount, without mark-up, when it falls due.", "تدفع راتب شهرين أساسياً مع الرسوم الشهرية عند التوقيع؛ ثم كل شهر الراتب وبقية البنود الشهرية (بلا ضريبة) والرسوم الشهرية (عليها ضريبة 15%: التكاليف الإدارية والتشغيلية ورسومنا ورسوم التوطين)؛ وكل تكلفة حكومية بمبلغها الفعلي دون هامش عند استحقاقها.")]) +
           stages([sr_(1, "On signing", "عند التوقيع", "Two months of basic salary (no VAT) + the monthly fees + 15% VAT on the fees.", "راتب أساسي لشهرين (بلا ضريبة) + الرسوم الشهرية + ضريبة 15% على الرسوم.", int(_sal * 2 + _fees_m * 1.15)),
-                  sr_(2, "Every month", "كل شهر", "The salary (no VAT) + the monthly fees + 15% VAT on the fees. Payable within 7 days.", "الراتب (بلا ضريبة) + الرسوم الشهرية + ضريبة 15% على الرسوم. يُسدَّد خلال 7 أيام.", int(_sal + _fees_m * 1.15)),
+                  sr_(2, "Every month", "كل شهر", "The salary, Ajeer, social insurance and provisions (no VAT) + the monthly fees + 15% VAT on the fees. Payable within 7 days.", "الراتب وأجير والتأمينات والمخصصات (بلا ضريبة) + الرسوم الشهرية + ضريبة 15% على الرسوم. يُسدَّد خلال 7 أيام.", int(_inv - _fees_m + _fees_m * 1.15)),
                   sr_(3, "Government costs, at actual when due", "التكاليف الحكومية بالفعلي عند الاستحقاق", "; ".join("%s %s (%s)" % (e, n(v), we) for e, a_, v, we, wa in _gov_items), "; ".join("%s %s (%s)" % (a_, n(v), wa) for e, a_, v, we, wa in _gov_items), int(sum(x[2] for x in _gov_items)))]) +
           _inv_tbl + same_note)
     m3 = (h2("M3", "Model 3 — National and Non-National Shared Talent services", "النموذج الثالث — خدمات الكوادر الوطنية وغير الوطنية المشتركة") +
@@ -388,7 +396,7 @@ def build_quote():
                   [("<b>Beneficiary</b>", "<b>المستفيد</b>", "t"), ("Business Partner Solutions", "بزنس بارتنر سلوشنز", "t")],
                   [("<b>Bank</b>", "<b>البنك</b>", "t"), (esc(BANK), esc(BANK), "t")],
                   [("<b>IBAN</b>", "<b>الآيبان</b>", "t"), (num(IBAN), num(IBAN), "t")],
-                  [("<b>National address</b>", "<b>العنوان الوطني</b>", "t"), ("RDAA9214 · 9214 King Khaled Branch Rd, Al Asemah, Ad Diriyah 13714", "RDAA9214 · 9214 طريق الملك خالد الفرعي، حي العاصمة، الدرعية 13714", "t")]], [14, 44]))
+                  [("<b>National address</b>", "<b>العنوان الوطني</b>", "t"), ("RDAA9214 · Building 9214, King Khaled Branch Rd, Al Asemah, Ad Diriyah 13714 · Secondary no. 5076", "RDAA9214 · مبنى 9214، طريق الملك خالد الفرعي، حي العاصمة، الدرعية 13714 · الرقم الفرعي 5076", "t")]], [14, 44]))
     page(m_bank)
     m_prices = find(REC_MAIN, "Trades, salaries and price"); m_nst = find(REC_MAIN, "Calculation under the Shared Talent"); m_models = find(REC_MAIN, "Three models"); m_incl = find(REC_MAIN, "What the price includes")
     m_opts = find(REC_MAIN, "Your options"); m_sign = find(REC_MAIN, "Signatures")
@@ -564,6 +572,47 @@ def build_nda():
     h, _ = paginate_port(rows, N_TITLE_EN, N_TITLE_AR, None, None, cover)
     return h, rows
 
+# ------------------------------------------------------------------ المهن وقرارات التوطين (من بيانات أداة الامتثال)
+def build_professions():
+    data = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "services", "live-calculator", "src", "data.json"), encoding="utf-8"))
+    css = css_of("REV-quote-template-bilingual.html") + ".pfx{width:100%;border-collapse:collapse;font-size:8.6px;direction:rtl}.pfx th{background:#0B1B5A;color:#fff;padding:3px 5px;text-align:center;font-weight:600}.pfx td{border-bottom:1px solid #DDE1EE;padding:2px 5px;text-align:center}.pfx td.n{text-align:right}.pfx tr.g td{background:#EEF1FB;font-weight:700;color:#0B1B5A;text-align:right;padding:4px 6px}.sar{height:.95em;width:.85em;vertical-align:-.12em;fill:currentColor}"
+    rows = []   # (kind, html)
+    k = 0
+    for g in data["guides"]:
+        if not g["occupations"]:
+            continue
+        acc = g.get("accreditation") or "—"
+        rows.append(("g", '<tr class="g"><td colspan="8">%s · %s &nbsp;|&nbsp; %s %s · %s%% · %s · %s · %s</td></tr>' % (
+            esc(g["nameAr"]), esc(g["nameEn"]), esc(g["decision"]), esc(g.get("date", "")), g["rate"],
+            ("من %d عاملين فأكثر / from %d workers" % (g["minWorkers"], g["minWorkers"])),
+            ("أقل أجر للسعودي %s / Saudi minimum %s" % (n(g["minSalary"]), n(g["minSalary"])) if g["minSalary"] else "لا حد أدنى منشور / no published minimum"), esc(acc))))
+        for o in g["occupations"]:
+            k += 1
+            cost = n(round(saudi_one(g["minSalary"]))) if g["minSalary"] else "—"
+            frn = "غير مسموح · Not allowed" if g["rate"] >= 100 else "مسموح ضمن النسبة · Allowed within the ratio"
+            rows.append(("r", '<tr><td>%d</td><td class="n">%s</td><td>%s</td><td>%s%%</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>' % (
+                k, esc(o["name"]), esc(o["code"]), g["rate"], g["minWorkers"], n(g["minSalary"]) if g["minSalary"] else "—", cost, frn)))
+    head = ('<tr><th>#</th><th>المهنة · Profession</th><th>الرمز · Code</th><th>نسبة السعودة · Saudi share</th><th>يسري من (عاملين) · From (workers)</th>'
+            '<th>أقل أجر للسعودي · Saudi minimum salary</th><th>تكلفة السعودي الشهرية عند الحد الأدنى · Saudi monthly cost at the minimum</th><th>العامل الأجنبي · Foreign worker</th></tr>')
+    PER = 27
+    pages, cur, used = [], [], 0
+    for kind, h in rows:
+        w = 1.5 if kind == "g" else 1
+        if used + w > PER and cur:
+            pages.append(cur); cur, used = [], 0
+        cur.append(h); used += w
+    if cur: pages.append(cur)
+    sheets = []
+    for pi, pg in enumerate(pages):
+        inner = (h2("P%d" % (pi + 1), "All professions with a localisation decision: Saudis and foreigners", "كل المهن التي عليها قرار توطين: السعوديون والأجانب") if pi == 0 else "") + '<table class="pfx">%s%s</table>' % (head, "".join(pg))
+        def f(i, n_, inner=inner):
+            return '<section class="sheet land" lang="ar"><div dir="rtl">%s<div class="bp">%s</div></div>%s</section>' % (hd2("Professions and localisation decisions", "المهن وقرارات التوطين"), inner, footer(i, n_))
+        sheets.append(f)
+    note = ('<div class="nt"><div dir="ltr">Source: the Ministry of Human Resources localisation decisions as compiled in the Business Partner compliance tool. Any profession not listed has no localisation decision. Confirm with the Ministry before relying on a rate.</div>'
+            '<div class="ar" dir="rtl">المصدر: قرارات التوطين الصادرة عن وزارة الموارد البشرية كما جُمعت في أداة الامتثال في Business Partner. وأي مهنة غير مدرجة لا قرار توطين عليها. وتُؤكَّد النسبة مع الوزارة قبل الاعتماد عليها.</div></div>')
+    last = pages[-1]
+    return sar_mark(doc("Professions and localisation decisions", css, sheets))
+
 if __name__ == "__main__":
     out = sys.argv[1]
     os.makedirs(out, exist_ok=True)
@@ -574,6 +623,7 @@ if __name__ == "__main__":
     h, _ = build_contract(); open(os.path.join(out, "02-Agreement.html"), "w", encoding="utf-8").write(h)
     h, _ = build_nda(); open(os.path.join(out, "03-NDA.html"), "w", encoding="utf-8").write(h)
     open(os.path.join(out, "07-Authorization-Letter.html"), "w", encoding="utf-8").write(build_authz())
+    open(os.path.join(out, "05-Professions-Localisation.html"), "w", encoding="utf-8").write(build_professions())
     from info_docs import INFO
     for fname, spec in INFO.items():
         open(os.path.join(out, fname + ".html"), "w", encoding="utf-8").write(build_info(*spec))
