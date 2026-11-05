@@ -70,6 +70,16 @@
   "ref": "REV-LAUNCH"
  },
  {
+  "key": "vistria",
+  "folder_ar": "فيستريا للاستشارات · تطوير الأعمال",
+  "folder_en": "Vistria Consulting · Business Development",
+  "name_ar": "فيستريا للاستشارات",
+  "name_en": "Vistria Consulting",
+  "pkg": "LAUNCH",
+  "commission": true,
+  "ref": "REV-LAUNCH"
+ },
+ {
   "key": "tplbd",
   "folder_ar": "نموذج",
   "folder_en": "Template",
