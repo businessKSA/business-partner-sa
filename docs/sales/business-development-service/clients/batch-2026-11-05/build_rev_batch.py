@@ -98,9 +98,9 @@ def cmp_sheet(hd, ft, tag):
             '<div class="rw "><div class="col" dir="ltr"><p>Option A is the fixed package with its success fee, as in this quotation. Option B is a commission-only alternative for comparison; its rates are agreed in writing and entered in the blank fields before signing.</p></div>'
             '<div class="col" dir="rtl"><p>الخيار أ هو الباقة بمقابلها الثابت ونسبة نجاحها كما في هذا العرض. والخيار ب بديل بالعمولة وحدها للمقارنة، وتُتفق نسبه كتابةً وتُدوَّن في الخانات الفارغة قبل التوقيع.‏</p></div></div>'
             '<table class="pt"><colgroup><col style="width:27%"><col style="width:23%"><col style="width:23%"><col style="width:27%"></colgroup>'
-            '<tr><th class="en">Item</th><th class="c">Option A · الخيار أ<br><span class="num">REV-LAUNCH</span> Launch · الانطلاق</th><th class="c">Option B · الخيار ب<br>Commission only · بالعمولة وحدها</th><th class="ar">البند</th></tr>%s</table>'
+            '<tr><th class="en">Item</th><th class="c">Option A · الخيار أ<br><span class="num">REV-LAUNCH</span> Launch · الانطلاق</th><th class="c">Option B · الخيار ب<br>Commission only · بالعمولة وحدها</th><th class="ar">البند</th></tr>@@ROWS@@</table>'
             '<div class="rw "><div class="col" dir="ltr"><p class="note">Prices and rates are before tax; 15% VAT is added. Government fees, if any, are separate. The success fee remains due after the contract ends on delivered leads.</p></div>'
-            '<div class="col" dir="rtl"><p class="note">الأسعار والنسب قبل الضريبة وتُضاف ضريبة القيمة المضافة 15%. الرسوم الحكومية، إن وجدت، منفصلة. وتبقى نسبة النجاح مستحقة بعد انتهاء العقد عن الفرص المسلَّمة.‏</p></div></div></div>') % rows
+            '<div class="col" dir="rtl"><p class="note">الأسعار والنسب قبل الضريبة وتُضاف ضريبة القيمة المضافة 15%. الرسوم الحكومية، إن وجدت، منفصلة. وتبقى نسبة النجاح مستحقة بعد انتهاء العقد عن الفرص المسلَّمة.‏</p></div></div></div>').replace('@@ROWS@@', rows)
     return '<section class="sheet land" lang="ar"><div dir="rtl">%s%s</div>%s</section>' % (hd, body, ft)
 
 
@@ -176,7 +176,7 @@ def build_bases():
     sys.path.insert(0, SRC)
     import rev_build as rb
     base = os.path.join(OUT, '_base'); os.makedirs(base, exist_ok=True)
-    rb.OUT = base
+    rb.OUT = base; os.environ['REV_OUTDIR'] = base
     for kind in ('contract', 'nda', 'authz'):
         rb.build(kind)
     sys.path.pop(0)
