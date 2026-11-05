@@ -19,7 +19,9 @@ M1 = S + GOSI + FEE                  # قبل الضريبة (النموذج 1: 
 M2 = M1 + EOSB + LEAVE
 f = lambda n: '{:,}'.format(int(n))
 N = q.num
-CFG = dict(client_en='Maake Beauty', client_ar=q.BLANK, date_en='5 November 2026', date_ar='5 نوفمبر 2026')
+TEMPLATE = os.environ.get('TEMPLATE') == '1'      # نموذج فارغ بلا اسم عميل ولا تاريخ
+CLIENT = '' if TEMPLATE else 'Maake Beauty'
+CFG = dict(client_en=(q.BLANK if TEMPLATE else 'Maake Beauty'), client_ar=q.BLANK, date_en=(q.BLANK if TEMPLATE else '5 November 2026'), date_ar=(q.BLANK if TEMPLATE else '5 نوفمبر 2026'))
 RLM = q.RLM
 c3 = lambda e, a, cls='': (e, a, cls)
 
@@ -32,7 +34,7 @@ def cover():
     c = c.replace('نأتيك بفرص بيع وإحالات، ونساعدك في التسجيل كمورد لدى الشركات.', 'نوظّف فريقك السعودي على عقدنا، ونتولى الرواتب والتأمينات وشؤون الموظفين، وهم يعملون معكم.')
     c = re.sub(r'<div class="pk" dir="ltr">.*?</div>', '<div class="pk" dir="ltr">Transparent cost</div>', c)
     c = re.sub(r'<div class="pk" dir="rtl"[^>]*>.*?</div>', '<div class="pk" dir="rtl" style="margin-top:6px;letter-spacing:0;font-family:inherit">التكلفة بشفافية</div>', c)
-    return q.cover(CFG, rp.PHONE) if False else c.replace('<span>To / إلى السادة</span><span class="num">[●]</span>', '<span>To / إلى السادة</span>Maake Beauty').replace('<span>Date / التاريخ</span><span class="num">[●]</span>', '<span>Date / التاريخ</span>5 November 2026<br><span dir="rtl">5 نوفمبر 2026</span>').replace('[●]<br>business@', rp.PHONE + '<br>business@')
+    return q.cover(CFG, rp.PHONE) if False else c.replace('<span>To / إلى السادة</span><span class="num">[●]</span>', '<span>To / إلى السادة</span>' + ('<span class="num">[●]</span>' if TEMPLATE else 'Maake Beauty')).replace('<span>Date / التاريخ</span><span class="num">[●]</span>', '<span>Date / التاريخ</span>' + ('<span class="num">[●]</span>' if TEMPLATE else '5 November 2026<br><span dir="rtl">5 نوفمبر 2026</span>')).replace('[●]<br>business@', rp.PHONE + '<br>business@')
 
 
 def price_models(detailed):
@@ -114,12 +116,12 @@ def LAND(inner, n_title):
 def build(detailed):
     pages = []
     if detailed:
-        pages.append(LAND([q.meta('Maake Beauty', q.BLANK, CFG['date_en'], CFG['date_ar'])] + price_models(True), ''))
+        pages.append(LAND([q.meta(CFG['client_en'], q.BLANK, CFG['date_en'], CFG['date_ar'])] + price_models(True), ''))
         pages.append(LAND(included() + how_it_works(), ''))
         pages.append(LAND(reqs_excl(), ''))
         pages.append(LAND(terms(5) + [q.h2(6, 'Signatures', 'التوقيعان'), q.sig_boxes(CFG)], ''))
     else:
-        pages.append(LAND([q.meta('Maake Beauty', q.BLANK, CFG['date_en'], CFG['date_ar'])] + price_models(False), ''))
+        pages.append(LAND([q.meta(CFG['client_en'], q.BLANK, CFG['date_en'], CFG['date_ar'])] + price_models(False), ''))
         pages.append(LAND(included() + reqs_excl()[:2], ''))
         pages.append(LAND(terms(4, True) + [q.h2(5, 'Signatures', 'التوقيعان'), q.sig_boxes(CFG)], ''))
     n = len(pages) + 2

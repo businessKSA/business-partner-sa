@@ -11,6 +11,7 @@ A4 طولي ثنائي اللغة (عربي يمين / إنجليزي يسار) 
 أرقام المثال تحسب بمعادلة المالك نفسها في build_quote.py (وعاء الاشتراك 85% من الراتب)."""
 import os, re, shutil, sys, types, importlib.util
 
+TEMPLATE = os.environ.get('TEMPLATE') == '1'  # نموذج فارغ بلا اسم عميل
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, '..', '..', 'business-development-service', 'src')
 sys.path.insert(0, SRC)
@@ -206,11 +207,11 @@ def parties_html():
         ('Represented by', 'Baher Bakr Ali Magnas · باهر بكر علي مقنص', 'يمثلها'),
         ('Title', 'المدير التنفيذي (Chief Executive Officer)', 'الصفة')])
     p2 = tbl('Second Party (the Client)', 'الطرف الثاني (العميل)', [
-        ('Name', 'Maake Beauty', 'الاسم'),
+        ('Name', ('<span class="num">[●]</span>' if TEMPLATE else 'Maake Beauty'), 'الاسم'),
         ('Unified / CR No.', '<span class="num">[●]</span>', 'الرقم الموحد / السجل التجاري'),
         ('VAT No.', '<span class="num">[●]</span>', 'الرقم الضريبي'),
         ('National Address', '<span class="num">[●]</span>', 'العنوان الوطني'),
-        ('E-mail', '<span class="num">Jinane@maakebeauty.com</span>', 'البريد الإلكتروني'),
+        ('E-mail', '<span class="num">' + ('[●]' if TEMPLATE else 'Jinane@maakebeauty.com') + '</span>', 'البريد الإلكتروني'),
         ('Represented by', '<span class="num">[●]</span>', 'يمثلها'),
         ('Title', '<span class="num">[●]</span>', 'الصفة')])
     defs = R('', 'In this Agreement “Business Partner” is the First Party and the “Client” is the Second Party; each is a “Party” and together the “Parties”.',
@@ -232,7 +233,7 @@ def patched_shell(path_in, path_out):
         ('<h1>عقد خدمة تطوير الأعمال</h1>', '<h1>اتفاقية التوظيف على بند التعاقد والإسناد</h1>'),
         ('خدمة تزويدك بفرص بيع وإحالات ومساعدتك في التسجيل كمورد لدى الشركات.', 'نوظّف فريقكم السعودي على عقدنا، ويعملون معكم يومياً.'),
         # الغلاف: الأطراف والتاريخ والنموذج
-        ('<div><span>Parties / الأطراف</span>[●]<br><span class="num">[●]</span></div>', '<div><span>Parties / الأطراف</span>Business Partner Solutions<br>Maake Beauty</div>'),
+        ('<div><span>Parties / الأطراف</span>[●]<br><span class="num">[●]</span></div>', '<div><span>Parties / الأطراف</span>Business Partner Solutions<br>' + ('<span class="num">[●]</span>' if TEMPLATE else 'Maake Beauty') + '</div>'),
         ('<div><span>Ref / المرجع</span><span class="num">[●]</span></div>', '<div><span>Model / النموذج</span>Transparent cost · 12 months<br><span dir="rtl">التكلفة بشفافية · 12 شهراً</span></div>'),
         # الورق: العنوان من العقد القائم
         ('National Address: RDAA9214<br>9214 King Khaled Branch Rd, Al Asemah<br>Ad Diriyah 13714, Saudi Arabia', 'Al Arid · Office 25<br>5890 Rihana bint Zaid<br>Riyadh, Saudi Arabia'),

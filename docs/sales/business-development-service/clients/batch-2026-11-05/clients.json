@@ -68,5 +68,15 @@
   "pkg": "LAUNCH",
   "commission": true,
   "ref": "REV-LAUNCH"
+ },
+ {
+  "key": "tplbd",
+  "folder_ar": "نموذج",
+  "folder_en": "Template",
+  "name_ar": "",
+  "name_en": "",
+  "pkg": "LAUNCH",
+  "commission": true,
+  "ref": "REV-LAUNCH"
  }
 ]

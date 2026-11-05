@@ -162,9 +162,10 @@ def build_quote(c, detailed):
     h = h.replace('<b>To:</b> <span class="num">[●]</span>', '<b>To:</b> %s' % en)
     h = h.replace('<b>إلى السادة:</b> <span class="num">[●]</span>', '<b>إلى السادة:</b> %s' % ar)
     h = h.replace('<span>To / إلى السادة</span><span class="num">[●]</span>', '<span>To / إلى السادة</span>%s' % ('%s<br><span dir="rtl">%s</span>' % (en, ar) if kn else '<span class="num">[●]</span>'))
-    h = h.replace('<b>Date:</b> <span class="num">[●]</span>', '<b>Date:</b> %s' % DATE_EN)
-    h = h.replace('<b>التاريخ:</b> <span class="num">[●]</span>', '<b>التاريخ:</b> %s' % DATE_AR)
-    h = h.replace('<span>Date / التاريخ</span><span class="num">[●]</span>', '<span>Date / التاريخ</span>%s<br><span dir="rtl">%s</span>' % (DATE_EN, DATE_AR))
+    if os.environ.get('BP_TEMPLATE') != '1':  # النموذج الفارغ يُبقي التاريخ حقلاً
+        h = h.replace('<b>Date:</b> <span class="num">[●]</span>', '<b>Date:</b> %s' % DATE_EN)
+        h = h.replace('<b>التاريخ:</b> <span class="num">[●]</span>', '<b>التاريخ:</b> %s' % DATE_AR)
+        h = h.replace('<span>Date / التاريخ</span><span class="num">[●]</span>', '<span>Date / التاريخ</span>%s<br><span dir="rtl">%s</span>' % (DATE_EN, DATE_AR))
     h = re.sub(r'<div class="c">\[●\]<br\s*/?>', '<div class="c">%s<br>' % PHONE, h)
     h = h.replace('url(assets/business-partner-logo-clean.png)', 'url(data:image/png;base64,%s)' % LOGO64).replace('Mobile / الجوال: <span class="num">[●]</span>', 'Mobile / الجوال: <span class="num">%s</span>' % PHONE)
     # التوقيع: اسمنا (بدر) وصفته وتاريخ الإرسال؛ والعميل حقول
@@ -208,7 +209,8 @@ def portrait(c, kind, base_path):
     ref = c['ref']
     h = h.replace('<span>Parties / الأطراف</span>Business Partner Solutions<br><span class="num">[●]</span>',
                   '<span>Parties / الأطراف</span>Business Partner Solutions<br>%s' % ('<span class="num">%s</span><br><span dir="rtl">%s</span>' % (en, ar) if kn else '<span class="num">[●]</span>'))
-    h = h.replace('<span>Date / التاريخ</span><span class="num">[●]</span>', '<span>Date / التاريخ</span>%s<br><span dir="rtl">%s</span>' % (DATE_EN, DATE_AR))
+    if os.environ.get('BP_TEMPLATE') != '1':
+        h = h.replace('<span>Date / التاريخ</span><span class="num">[●]</span>', '<span>Date / التاريخ</span>%s<br><span dir="rtl">%s</span>' % (DATE_EN, DATE_AR))
     h = h.replace('<span>Ref / المرجع</span><span class="num">[●]</span>', '<span>Ref / المرجع</span><span class="num">%s</span>' % ref)
     if kn:
         h = h.replace('<tr><td>Name</td><td class="v"><span class="num">[●]</span></td><td>الاسم</td></tr>',
