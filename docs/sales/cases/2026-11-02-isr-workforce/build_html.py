@@ -366,6 +366,7 @@ def build_quote():
     _fee_m = n(round(_fxv) + round(_vat_m))
     _g1 = n(2000 + _q)
     m2t = (h2("M2T", "Model 2 — Payment timeline (example: quarterly, starting in month 1)", "النموذج الثاني — الجدول الزمني للدفعات (مثال: ربع سنوي من الشهر 1)") +
+           note_("The payment on signing is credited against the last monthly invoices of the contract.", "الدفعة عند التوقيع تُخصم من آخر الفواتير الشهرية في العقد.") +
            bi_table([("When", "متى", False), ("Government payments", "المدفوعات الحكومية", True), ("Monthly invoice (with VAT)", "الفاتورة الشهرية (مع الضريبة)", True), ("of which our fees and administrative costs (with VAT)", "منها رسومنا والإدارية (مع الضريبة)", True)],
                     [_tl("On signing: 2 months of salary + the monthly fees", "عند التوقيع: راتب شهرين + الرسوم الشهرية", "", n(_sg), _fee_m),
                      _tl("Month 1: arrival (entry 2,000 + first quarterly instalment)", "الشهر 1: الوصول (الدخول 2,000 + أول دفعة ربع سنوية)", _g1, n(_inv_m), _fee_m),
