@@ -104,6 +104,7 @@
     {"source":"/ar/inbox","destination":"/monitor","permanent":false}
   ],
   "rewrites": [
+    {"source":"/workforce-costing","destination":"/workforce-costing.htm"},
     {"source":"/quotes","destination":"https://bp-quotes-three.vercel.app/quotes"},
     {"source":"/quotes/:path*","destination":"https://bp-quotes-three.vercel.app/quotes/:path*"},
     {"source":"/api/live-catalog","destination":"https://bp-quotes-three.vercel.app/quotes/api/catalog"},
@@ -131,6 +132,7 @@
     {"source":"/indeed.xml","destination":"/api/candidates?feed=jobs"}
   ],
   "headers": [
+    {"source":"/workforce-costing","headers":[{"key":"X-Robots-Tag","value":"noindex, nofollow, noarchive"},{"key":"Cache-Control","value":"public, max-age=0, must-revalidate"},{"key":"Content-Type","value":"text/html; charset=utf-8"}]},
     {"source":"/.well-known/apple-developer-merchantid-domain-association","headers":[{"key":"content-type","value":"text/plain; charset=utf-8"},{"key":"cache-control","value":"public, max-age=0, must-revalidate"}]},
     {"source":"/assets/(.*)","headers":[{"key":"Cache-Control","value":"public, max-age=31536000, immutable"}]}
   ],
