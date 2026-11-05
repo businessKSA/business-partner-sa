@@ -18,7 +18,7 @@ IBAN, BANK = os.environ.get('BP_IBAN'), os.environ.get('BP_BANK')
 OWNER_EN, OWNER_AR = 'Baher Bakr Ali Magnas', 'باهر بكر علي مقنص'
 SIGNER_EN, SIGNER_AR = 'Badr · بدر', None
 TITLE_EN, TITLE_AR = 'Sales &amp; Business Development Manager', 'مدير المبيعات وتطوير الأعمال'
-FLD_CSS = '.fld{display:inline-block;min-width:92px;height:14px;border-bottom:1px solid #8A93B5;vertical-align:-2px}.cv .fld{border-bottom-color:#9DB4FF}.fld.w{min-width:150px}.fld.s{min-width:46px}.pt.cmp td,.pt.cmp th{padding:7px 8px;font-size:12px;line-height:1.5}.pt.cmp th{font-size:12px}.pt.cmp .num{font-size:12.6px}.pt.cmp .note{font-size:11.2px}.pt.cmp .ln{min-width:70px!important;height:16px!important}'
+FLD_CSS = '.fld{display:inline-block;min-width:92px;height:14px;border-bottom:1px solid #8A93B5;vertical-align:-2px}.cv .fld{border-bottom-color:#9DB4FF}.fld.w{min-width:150px}.fld.s{min-width:46px}.pt.cmp td,.pt.cmp th{padding:7px 8px;font-size:12px;line-height:1.5}.pt.cmp th{font-size:12px}.pt.cmp .num{font-size:12.6px}.pt.cmp .note{font-size:11.2px}.pt.cmp .ln{min-width:70px!important;height:16px!important}.pt.cmp td.rec{background:#EEF3FF;font-weight:700}.pt.cmp th.rec .note{color:#fff!important;font-weight:600}.pt.cmp th.rec{background:#2F4BE0!important;color:#fff!important}'
 NODE_ENV = dict(os.environ, NODE_PATH=subprocess.run(['npm', 'root', '-g'], capture_output=True, text=True).stdout.strip())
 
 sys.path.insert(0, HERE)
@@ -82,28 +82,31 @@ def known_names(c):
 
 # ---------------------------------------------------------------- عرض السعر
 def cmp_sheet(hd, ft, tag):
-    f = '<span class="fld s"></span>'
-    # جدول معكوس بدقة: الإنجليزي يسار (البند · أ · ب) والعربي يمين (البند · أ · ب بترتيب يمين لشمال)، والفاصل في الوسط
-    ln = '<span class="ln" style="display:inline-block;min-width:46px;height:14px;border-bottom:1px solid #8A93B5;vertical-align:-2px"></span>'
-    def row(en, ar, a_en, a_ar, b_en, b_ar):
-        return ('<tr><td class="en">%s</td><td class="c">%s</td><td class="c">%s</td><td class="gp"></td>'
-                '<td class="c">%s</td><td class="c">%s</td><td class="ar">%s</td></tr>') % (en, a_en, b_en, b_ar, a_ar, ar)
+    # صفحة الباقات كلها بخيار واحد: REV-LAUNCH مقترحنا (قرار المالك 2026-11-05) — الإنجليزي يسار والعربي يمين بمرآة دقيقة
     N = lambda x: '<span class="num">%s</span>' % x
+    def row(en, ar, v_en, v_ar=None):
+        v_ar = v_ar or v_en
+        cells_en = ''.join('<td class="c%s">%s</td>' % (' rec' if i == 0 else '', x) for i, x in enumerate(v_en))
+        cells_ar = ''.join('<td class="c%s">%s</td>' % (' rec' if i == 0 else '', x) for i, x in enumerate(v_ar))
+        return '<tr><td class="en">%s</td>%s<td class="gp"></td>%s<td class="ar">%s</td></tr>' % (en, cells_en, cells_ar[::1] if False else ''.join(reversed(re.findall(r'<td class="c[^>]*>.*?</td>', cells_ar))), ar)
     rows = ''.join([
-        row('Fee model', 'نموذج المقابل', 'Fixed monthly fee<br>+ success fee on closed deals', 'رسم شهري ثابت<br>+ نسبة نجاح على الصفقات المغلقة', 'Commission on closed deals', 'عمولة على الصفقات المغلقة'),
-        row('Monthly fee (SAR, excl. VAT)', 'الرسم الشهري (ريال، قبل الضريبة)', N('2,500'), N('2,500'), '[●]', ln),
-        row('Deal value up to 1,000,000 (SAR)', 'قيمة الصفقة حتى 1,000,000 (ريال)', N('10%') + ' · ' + N('12.5%') + '<br><span class="note">with our participation in closing</span>', N('10%') + ' · ' + N('12.5%') + '<br><span class="note">بمشاركتنا في الإغلاق</span>', '[●] %', ln + ' %'),
-        row('Above 1,000,000 up to 5,000,000 (SAR)', 'أكثر من 1,000,000 حتى 5,000,000 (ريال)', N('5%') + ' · ' + N('7.5%'), N('5%') + ' · ' + N('7.5%'), '[●] %', ln + ' %'),
-        row('Above 5,000,000 (SAR)', 'أكثر من 5,000,000 (ريال)', N('2.5%') + ' · ' + N('5%'), N('2.5%') + ' · ' + N('5%'), '[●] %', ln + ' %'),
-        row('Committed monthly minimum: qualified leads, vendor registrations, meetings', 'الحد الأدنى الشهري الملتزم به: فرص مؤهلة وتسجيلات مورد واجتماعات', N('4') + ' · ' + N('4') + ' · ' + N('4'), N('4') + ' · ' + N('4') + ' · ' + N('4'), '[●]', ln),
-        row('Fee due date', 'موعد استحقاق النسبة', 'Within 14 days of the first payment received under the deal', 'خلال 14 يوماً من أول دفعة تُستلم عن الصفقة', '[●]', ln),
+        row('Monthly fee (SAR, excl. VAT)', 'الرسم الشهري (ريال، قبل الضريبة)', [N('2,500'), N('5,000'), N('9,500')]),
+        row('Advance: 3 months (SAR, excl. VAT)', 'الدفعة المقدمة: 3 أشهر (ريال، قبل الضريبة)', [N('7,500'), N('15,000'), N('28,500')]),
+        row('Target project size (SAR)', 'حجم المشاريع المستهدفة (ريال)', ['Up to 500,000', '1,000,000 to 5,000,000', '5,000,000 to 10,000,000'], ['حتى 500,000', 'من 1,000,000 إلى 5,000,000', 'من 5,000,000 إلى 10,000,000']),
+        row('Qualified leads / month (committed minimum)', 'فرص مؤهلة شهرياً (حد أدنى ملتزم به)', [N('4'), N('8'), N('16')]),
+        row('Vendor registrations / month (committed minimum)', 'تسجيلات مورد شهرياً (حد أدنى ملتزم به)', [N('4'), N('8'), N('16')]),
+        row('Meetings / month', 'اجتماعات شهرياً', [N('4'), N('8'), N('16')]),
+        row('Success fee on closed deals', 'نسبة النجاح على الصفقات المغلقة', ['As on page 1', 'As on page 1', 'As on page 1'], ['كما في الصفحة الأولى'] * 3),
     ])
-    body = ('<div class="bp"><div class="rw "><div class="col" dir="ltr"><h2><span class="n">2</span>Fixed fee vs. commission: comparison</h2></div><div class="col" dir="rtl"><h2><span class="n">2</span>المقابل الثابت مقابل العمولة: مقارنة</h2></div></div>'
-            '<div class="rw "><div class="col" dir="ltr"><p>Option A is the fixed package with its success fee, as in this quotation. Option B is a commission-only alternative for comparison; its rates are agreed in writing and entered in the blank fields before signing.</p></div>'
-            '<div class="col" dir="rtl"><p>الخيار أ هو الباقة بمقابلها الثابت ونسبة نجاحها كما في هذا العرض. والخيار ب بديل بالعمولة وحدها للمقارنة، وتُتفق نسبه كتابةً وتُدوَّن في الخانات الفارغة قبل التوقيع.\u200f</p></div></div>'
-            '<table class="pt cmp"><colgroup><col style="width:21%"><col style="width:14%"><col style="width:14%"><col style="width:2%"><col style="width:14%"><col style="width:14%"><col style="width:21%"></colgroup>'
-            '<tr><th class="en">Item</th><th class="c">Option A<br><span class="num">REV-LAUNCH</span> Launch</th><th class="c">Option B<br>Commission only</th><th class="gp"></th>'
-            '<th class="c">الخيار ب<br>بالعمولة وحدها</th><th class="c">الخيار أ<br><span class="num">REV-LAUNCH</span> الانطلاق</th><th class="ar">البند</th></tr>@@ROWS@@</table>'
+    pk = lambda a, b: '<th class="c%s">%s<br><span class="num">%s</span></th>'
+    th_en = ''.join('<th class="c%s"><span class="num">%s</span><br>%s%s</th>' % (' rec' if i == 0 else '', n, e, '<br><span class="note">Our proposal</span>' if i == 0 else '') for i, (n, e, a) in enumerate([('REV-LAUNCH', 'Launch', ''), ('REV-GROWTH', 'Growth', ''), ('REV-PRO', 'Pro', '')]))
+    th_ar = ''.join('<th class="c%s"><span class="num">%s</span><br>%s%s</th>' % (' rec' if i == 0 else '', n, a, '<br><span class="note">مقترحنا</span>' if i == 0 else '') for i, (n, e, a) in enumerate([('REV-LAUNCH', 'Launch', 'الانطلاق'), ('REV-GROWTH', 'Growth', 'النمو'), ('REV-PRO', 'Pro', 'الاحترافية')]))
+    th_ar = ''.join(reversed(re.findall(r'<th class="c[^>]*>.*?</th>', th_ar)))
+    body = ('<div class="bp"><div class="rw "><div class="col" dir="ltr"><h2><span class="n">2</span>Our packages: one option, proposed for you</h2></div><div class="col" dir="rtl"><h2><span class="n">2</span>باقاتنا: خيار واحد نقترحه عليكم</h2></div></div>'
+            '<div class="rw "><div class="col" dir="ltr"><p>For your information, these are all our business development packages. Our proposal for you is <b>REV-LAUNCH Launch at SAR 2,500 per month</b>, the quotation on the previous page; you may move to a higher package at any time.</p></div>'
+            '<div class="col" dir="rtl"><p>للاطلاع، هذه كل باقات تطوير الأعمال لدينا. ومقترحنا لكم <b>باقة REV-LAUNCH الانطلاق بمبلغ 2,500 ريال شهرياً</b>، وهي المبيّنة في الصفحة السابقة، ويمكنكم الانتقال إلى باقة أعلى في أي وقت.\u200f</p></div></div>'
+            '<table class="pt cmp"><colgroup><col style="width:19%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:2%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:19%"></colgroup>'
+            '<tr><th class="en">Item</th>' + th_en + '<th class="gp"></th>' + th_ar + '<th class="ar">البند</th></tr>@@ROWS@@</table>'
             '<div class="rw "><div class="col" dir="ltr"><p class="note">Prices and rates are before tax; 15% VAT is added. Government fees, if any, are separate. The success fee remains due after the contract ends on delivered leads.</p></div>'
             '<div class="col" dir="rtl"><p class="note">الأسعار والنسب قبل الضريبة وتُضاف ضريبة القيمة المضافة 15%. الرسوم الحكومية، إن وجدت، منفصلة. وتبقى نسبة النجاح مستحقة بعد انتهاء العقد عن الفرص المسلَّمة.\u200f</p></div></div></div>').replace('@@ROWS@@', rows)
     return '<section class="sheet land" lang="ar"><div dir="rtl">%s%s</div>%s</section>' % (hd, body, ft)
