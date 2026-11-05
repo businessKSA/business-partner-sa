@@ -372,24 +372,21 @@ def build_quote():
         return _tl("%s (month %d)%s" % (e, i + 1, extra_en), "%s (الشهر %d)%s" % (a_, i + 1, extra_ar), g, n(_inv_m), _fee_m)
     _MS = ["Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     _MSA = ["ديس", "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"]
-    def _timeline(ev, color):
+    def _timeline(ev, color, tags=None):
+        tags = tags or {}
         cols = []
         for k in range(13):
             amt = ev.get(k, "")
             yr = "2026" if k == 0 else "2027"
             dot = ('<div style="width:14px;height:14px;border-radius:50%%;background:%s;margin:0 auto"></div>' % color) if amt else '<div style="width:8px;height:8px;border-radius:50%;background:#C9CEE3;margin:3px auto"></div>'
-            cols.append('<div style="flex:1;text-align:center;min-width:0"><div style="height:34px;font-weight:700;font-size:11px;color:%s;direction:ltr;display:flex;align-items:flex-end;justify-content:center">%s</div>%s<div style="font-size:10px;margin-top:4px;color:#0B1B5A;direction:ltr">%s<br><span style="font-size:9px">%s</span></div><div style="font-size:9px;direction:rtl;color:#5B6385">%s</div></div>' % (color, amt, dot, _MS[k], yr, _MSA[k]))
-        return '<div style="position:relative;margin:6px 0 10px"><div style="position:absolute;left:3%%;right:3%%;top:42px;height:2px;background:#C9CEE3"></div><div style="display:flex;position:relative">%s</div></div>' % "".join(cols)
+            cols.append('<div style="flex:1;text-align:center;min-width:0"><div style="height:46px;font-weight:700;font-size:11px;color:%s;direction:ltr;display:flex;flex-direction:column;align-items:center;justify-content:flex-end"><span style="font-size:8.5px;font-weight:400;color:#5B6385;white-space:nowrap">%s</span>%s</div>%s<div style="font-size:10px;margin-top:4px;color:#0B1B5A;direction:ltr">%s<br><span style="font-size:9px">%s</span></div><div style="font-size:9px;direction:rtl;color:#5B6385">%s</div></div>' % (color, tags.get(k, ''), amt, dot, _MS[k], yr, _MSA[k]))
+        return '<div style="position:relative;margin:6px 0 10px"><div style="position:absolute;left:3%%;right:3%%;top:54px;height:2px;background:#C9CEE3"></div><div style="display:flex;position:relative">%s</div></div>' % "".join(cols)
     _gev = {0: "2,500", 1: n(_q + _ann), 4: n(_q), 7: n(_q), 10: n(_q), 12: n(int(_end_year))}
     _fev = {0: n(_sg)}
     for k in range(1, 13): _fev[k] = n(_inv_m)
-    m2t = (h2("M2T", "Model 2 — Timeline of the government costs (quarterly)", "النموذج الثاني — الجدول الزمني للتكاليف الحكومية (ربع سنوي)") + _timeline(_gev, "#0B1B5A") +
-           bi_table([("When", "متى", False), ("What is paid", "ماذا يُدفع", False)], [
-               [("Dec 2026 · Stage 1", "ديسمبر 2026 · المرحلة 1", "t"), ("Visa 2,000 + contracts, attestations and authorisations 500 = 2,500, with the recruitment and embassy costs on a separate invoice", "التأشيرة 2,000 + العقود والتصديقات والتفاويض 500 = 2,500، وتكاليف الاستقدام والسفارات بفاتورة منفصلة", "t")],
-               [("Jan 2027 · Stage 2", "يناير 2027 · المرحلة 2", "t"), ("The worker arrives one month after Stage 1 at the earliest: first quarter %s (permit and levy, residence) + medical insurance with VAT and Ajeer %s" % (n(_q), n(_ann)), "يصل العامل بعد المرحلة 1 بشهر على الأقل: الربع الأول %s (الرخصة والمقابل والإقامة) + التأمين الطبي مع ضريبته وأجير %s" % (n(_q), n(_ann)), "t")],
-               [("Apr, Jul, Oct 2027", "أبريل ويوليو وأكتوبر 2027", "t"), ("The next three quarterly instalments: %s each" % n(_q), "الدفعات ربع السنوية الثلاث التالية: %s لكل دفعة" % n(_q), "t")],
-               [("Dec 2027 · Stage 4", "ديسمبر 2027 · المرحلة 4", "t"), ("End of service, leave, exit and re-entry, return ticket: %s" % n(int(_end_year)), "نهاية الخدمة والإجازة والخروج والعودة وتذكرة العودة: %s" % n(int(_end_year)), "t")]], [18, 50]) +
-           h2("M2T", "Model 2 — Timeline of the monthly fees", "النموذج الثاني — الجدول الزمني للرسوم الشهرية") + _timeline(_fev, "#1F6F4A") +
+    m2t = (h2("M2T", "Model 2 — Timeline of the government costs (quarterly)", "النموذج الثاني — الجدول الزمني للتكاليف الحكومية (ربع سنوي)") + _timeline(_gev, "#0B1B5A", {0: "Stage 1 · م1", 1: "Stage 2 · م2", 4: "Q2 · ر2", 7: "Q3 · ر3", 10: "Q4 · ر4", 12: "Stage 4 · م4"}) +
+           note_("Stage 1 = visa 2,000 + contracts, attestations and authorisations 500. Recruitment and embassy costs are on a separate invoice. The worker arrives one month after Stage 1 at the earliest.", "المرحلة 1 = التأشيرة 2,000 + العقود والتصديقات والتفاويض 500. وتكاليف الاستقدام والسفارات بفاتورة منفصلة. ويصل العامل بعد المرحلة 1 بشهر على الأقل.") +
+           h2("M2T", "Model 2 — Timeline of the monthly fees", "النموذج الثاني — الجدول الزمني للرسوم الشهرية") + _timeline(_fev, "#1F6F4A", {0: "Signing · التوقيع", 1: "Stage 3 · م3"}) +
            note_("The monthly invoice starts with the first month after the worker arrives: %s a month (salary, social insurance, localisation, administrative costs and our fees %s, with VAT); the payment on signing (%s) is credited against the last invoices." % (n(_inv_m), n(round(_fxv) + round(_vat_m)), n(_sg)), "تبدأ الفاتورة الشهرية من أول شهر بعد نزول العامل: %s شهرياً (الراتب والتأمينات والتوطين والتكاليف الإدارية ورسومنا %s، مع الضريبة)؛ والدفعة عند التوقيع (%s) تُخصم من آخر الفواتير." % (n(_inv_m), n(round(_fxv) + round(_vat_m)), n(_sg))))
     _st2 = [("Work permit and levy", "رخصة العمل والمقابل المالي", 9700, "Quarterly: 4 × %s" % n(-(-9700 // 4)), "ربع سنوي: 4 × %s" % n(-(-9700 // 4))),
             ("Residence permit", "الإقامة", 650, "Quarterly: 4 × %s" % n(-(-650 // 4)), "ربع سنوي: 4 × %s" % n(-(-650 // 4))),
@@ -413,17 +410,17 @@ def build_quote():
            bi_table([("Per worker (example: skilled worker, salary SAR %s)" % n(_sal), "للعامل (مثال: عامل ماهر راتبه %s ريال)" % n(_sal), False), ("Amount (SAR)", "المبلغ (ريال)", True), ("VAT", "الضريبة", True)],
                     _m2rows + [{"cls": "tot", "cells": [("Monthly cost (before VAT)", "التكلفة الشهرية (قبل الضريبة)", ""), (num(n(int(_p))), num(n(int(_p))), "c"), ("", "", "c")]},
                                [("VAT 15% on administrative and operating costs, our fees and medical insurance only", "ضريبة 15% على التكاليف الإدارية والتشغيلية ورسومنا والتأمين الطبي فقط", "t"), (num(n(round(_vat1))), num(n(round(_vat1))), "c"), ("", "", "c")]], [34, 12, 8]) + same_note)
+    _sk, _hp = LEVELS["skilled"][2], LEVELS["helper"][2]
     m3 = (h2("M3", "Model 3 — National and Non-National Shared Talent services", "النموذج الثالث — خدمات الكوادر الوطنية وغير الوطنية المشتركة") +
-          exp_table([("How it works", "كيف تعمل", "Saudi and non-Saudi employees employed by Business Partner work with you, part-time or flexibly, so Saudis count in your Saudization without you hiring them full-time.", "موظفون سعوديون وغير سعوديين يوظّفهم Business Partner يعملون لديك بدوام جزئي أو مرن، فيُحتسب السعوديون في توطينك دون أن توظّفهم بدوام كامل."),
-                     ("Cost", "التكلفة", "The cost of each Saudi is shared with you.", "تُقسَّم تكلفة كل سعودي معك."),
-                     ("Price", "السعر", "The price per worker under this item is shown in the price table. It works with Model 1 or Model 2.", "سعر العامل على هذا البند في جدول الأسعار. وتعمل مع النموذج الأول أو الثاني.")]) +
-          bi_table([("Number of national employees", "عدد موظفي الكوادر الوطنية", False), ("Monthly management fee (SAR, before VAT)", "رسوم إدارة الكوادر الوطنية الشهرية (ريال، قبل الضريبة)", True)], [
+          exp_table([("How it works", "كيف تعمل", "Saudi and non-Saudi employees employed by Business Partner work with you, part-time or flexibly, so Saudis count in your Saudization without you hiring them full-time. It works with Model 1 or Model 2.", "موظفون سعوديون وغير سعوديين يوظّفهم Business Partner يعملون لديك بدوام جزئي أو مرن، فيُحتسب السعوديون في توطينك دون أن توظّفهم بدوام كامل. وتعمل مع النموذج الأول أو الثاني.")]) +
+          bi_table([("1 · Monthly price per worker (SAR, before VAT)", "1 · السعر الشهري للعامل (ريال، قبل الضريبة)", False), ("Salary", "الراتب", True), ("Models 1 and 2", "النموذجان 1 و2", True), ("Shared Talent", "الكوادر المشتركة", True)], [
+              [("Skilled worker", "عامل ماهر", "t"), (num(n(_sk)), num(n(_sk)), "c"), (num(n(PRICE12["skilled"])), num(n(PRICE12["skilled"])), "c"), (num(n(PRICE12_F["skilled"])), num(n(PRICE12_F["skilled"])), "c")],
+              [("Helper", "عامل مساعد", "t"), (num(n(_hp)), num(n(_hp)), "c"), (num(n(PRICE12["helper"])), num(n(PRICE12["helper"])), "c"), (num(n(PRICE12_F["helper"])), num(n(PRICE12_F["helper"])), "c")]], [26, 10, 14, 14]) +
+          bi_table([("2 · Monthly management fee for the national cadres (SAR, before VAT)", "2 · رسوم إدارة الكوادر الوطنية الشهرية (ريال، قبل الضريبة)", False), ("Per month", "شهرياً", True)], [
               [("5 – 49 employees", "من 5 إلى 49 موظفاً", "t"), (num("5,000"), num("5,000"), "c")],
               [("50 – 200 employees", "من 50 إلى 200 موظف", "t"), (num("10,000"), num("10,000"), "c")],
               [("201 – 500 employees", "من 201 إلى 500 موظف", "t"), (num("20,000"), num("20,000"), "c")],
-              [("More than 500 employees", "أكثر من 500 موظف", "t"), ("20,000 + 250 per additional employee per month", "20,000 + 250 لكل موظف إضافي شهرياً", "c")]], [30, 26]) +
-          nst +
-          kv([("Monthly price under this item", "السعر الشهري على هذا البند", _pf)]))
+              [("More than 500 employees", "أكثر من 500 موظف", "t"), ("20,000 + 250 per additional employee", "20,000 + 250 لكل موظف إضافي", "c")]], [30, 26]))
     _cmp = [
         (("Monthly amount", "المبلغ الشهري"), ("Fixed: %s" % n(_p), "ثابت: %s" % n(_p)), ("Same: %s" % n(_p), "نفسه: %s" % n(_p)), ("Shared Talent price: %s" % n(_pf), "سعر الكوادر المشتركة: %s" % n(_pf))),
         (("On signing", "عند التوقيع"), ("2 months of the price", "شهران من السعر"), ("2 months of basic salary + the monthly fees", "راتب شهرين + الرسوم الشهرية"), ("As Model 1 or 2", "كالنموذج الأول أو الثاني")),
