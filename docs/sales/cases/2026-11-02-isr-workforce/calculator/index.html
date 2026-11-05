@@ -40,7 +40,7 @@ function calc(){var a=+$("sal").value||0,m=+$("mon").value,fac=+$("fac").value,l
  $("lrow").style.display=lv==="900"?"none":"flex";$("lrow").style.display=lv==="900"?"none":"grid";
  if(lv!=="900"){var ratio=.3,q=+$("q").value||1,sm=+$("sm").value||0;if(lv==="eng"&&this&&0){}var need=Math.ceil(Math.round(ratio/(1-ratio)*q*1e6)/1e6),one=saudi(sm).t;loc=need*one/q}
  var mc=$("med").value,medA=mc==="C"?600:(+$("medp").value||0);$("medrow").style.display=mc==="C"?"none":"block";var r=price(a,loc,fac,m,medA);$("price").textContent=f(r.p)+" ريال";
- var fp=r.p-800;$("alt").textContent=fac?"":"على بند الكوادر الوطنية وغير الوطنية المشتركة: "+f(fp)+" ريال";
+ var fp=r.p-500;$("alt").textContent=fac?"":"على بند الكوادر الوطنية وغير الوطنية المشتركة: "+f(fp)+" ريال";
  var h=row("الراتب",f(a))+row("التكاليف الحكومية (رخصة العمل والإقامة وأجير والتأمينات والخروج والعودة والتأشيرة أو النقل)",f(r.gov_all))+row("التأمين الطبي ونهاية الخدمة والإجازة وتذكرة العودة",f(r.med+r.prov))+row("التكاليف الإدارية والتشغيلية ورسومنا","شامل")+row("رسوم التوطين",f(loc));
  $("det").innerHTML=h;
  var fixed=r.fixed,rec=r.p-fixed;$("mod").innerHTML=row("التكلفة الكاملة: مبلغ شهري ثابت",f(r.p)+" ريال")+row("التكلفة بشفافية: فاتورة شهرية",f(rec)+" ريال")+row("+ بنود حكومية بالفعلي عند الاستحقاق (سنوياً)",f(fixed*12)+" ريال")}

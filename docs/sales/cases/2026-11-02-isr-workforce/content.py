@@ -45,6 +45,7 @@ LEVELS = {  # key: (label_en, label_ar, min_salary, localisation_fee)
 }
 TEAM_LEVEL = ["skilled"] * 7   # الفنية تُعدّ هندسية (قرار توطين): تُسعَّر في بند خاص، ولا تدخل جدول الأسعار العادي
 PRICE_LEVELS = ("skilled", "helper")   # بحسب ترتيب TEAMS
+FACTORY_DISCOUNT = 500    # خصم بند الكوادر المشتركة (قرار المالك 5/11): 500 بدل 800؛ معلومة داخلية لا تُكتب في أي مستند
 OVERHEAD = 250      # التكاليف الإدارية والتشغيلية للموظف شهرياً (كانت 500)
 FEE_MIN = 250       # الحد الأدنى لرسومنا (كان 500)
 def worker_price(a, loc, factory=False, months=24):
@@ -75,9 +76,8 @@ TECH_NEED, TECH_ONE, TECH_FEE = loc_by_decision(LOC_TECH["ratio"], LOC_TECH["m"]
 ENG_NEED, ENG_ONE, ENG_FEE = loc_by_decision(LOC_ENG["ratio"], LOC_ENG["m"], LOC_ENG["q"])
 ENG_SALARY = 2500      # افتراض: راتب المهندس الأجنبي كالفني 2,500 (يُؤكَّد)
 PRICE = {k: worker_price(v[2], v[3]) for k, v in LEVELS.items()}
-PRICE_TECHDEC = worker_price(LEVELS['tech'][2], TECH_FEE, months=12); PRICE_TECHDEC24 = worker_price(LEVELS['tech'][2], TECH_FEE); PRICE_TECHDEC_F = PRICE_TECHDEC - 800   # فني عليه قرار توطين (تكلفة أعلى)
-PRICE_ENG = worker_price(ENG_SALARY, ENG_FEE, months=12); PRICE_ENG24 = worker_price(ENG_SALARY, ENG_FEE); PRICE_ENG_F = PRICE_ENG - 800
-FACTORY_DISCOUNT = 800    # إعفاء المقابل المالي لرخصة العمل في المصنع: 9,600 ÷ 12 (قرار المالك 4/11)
+PRICE_TECHDEC = worker_price(LEVELS['tech'][2], TECH_FEE, months=12); PRICE_TECHDEC24 = worker_price(LEVELS['tech'][2], TECH_FEE); PRICE_TECHDEC_F = PRICE_TECHDEC - FACTORY_DISCOUNT   # فني عليه قرار توطين (تكلفة أعلى)
+PRICE_ENG = worker_price(ENG_SALARY, ENG_FEE, months=12); PRICE_ENG24 = worker_price(ENG_SALARY, ENG_FEE); PRICE_ENG_F = PRICE_ENG - FACTORY_DISCOUNT
 PRICE_F = {k: PRICE[k] - FACTORY_DISCOUNT for k in LEVELS}
 STD_MIN = PER_TEAM - SKILLED_MIN               # 7 عمال مساعدين
 def team_monthly(prices): return sum(SKILLED_MIN * prices[lv] + STD_MIN * prices["helper"] for lv in TEAM_LEVEL)
@@ -415,7 +415,7 @@ STAGES2 = [  # (when_en, when_ar, what_en, what_ar, how_en, how_ar)
      "Provisioned inside the monthly price. No separate invoice. The exit and re-entry visa is optional.", "مخصَّصة داخل السعر الشهري، فلا فاتورة منفصلة. وتأشيرة الخروج والعودة اختيارية."),
 ]
 GOV_FEES = [  # (fee_en, fee_ar, amount_en, amount_ar, in_offer_en, in_offer_ar)
-    ("Work permit and expatriate levy", "رخصة العمل والمقابل المالي", "SAR 9,700 per year (levy 9,600 + permit 100). Under the National and Non-National Shared Talent item: SAR 100 only, the levy being exempt", "9,700 ريال سنوياً (المقابل 9,600 + الرخصة 100). وعلى بند الكوادر الوطنية وغير الوطنية المشتركة: 100 ريال فقط لإعفائه من المقابل المالي", "Included in the monthly price", "مشمول في السعر الشهري"),
+    ("Work permit and expatriate levy", "رخصة العمل والمقابل المالي", "SAR 9,700 per year (levy 9,600 + permit 100). The National and Non-National Shared Talent item has its own price (see the price table)", "9,700 ريال سنوياً (المقابل 9,600 + الرخصة 100). ولبند الكوادر الوطنية وغير الوطنية المشتركة سعر خاص (انظر جدول الأسعار)", "Included in the monthly price", "مشمول في السعر الشهري"),
     ("Residency (Iqama), Passports", "الإقامة (الجوازات)", "SAR 650 per year", "650 ريالاً سنوياً", "Included in the monthly price", "مشمولة في السعر الشهري"),
     ("Ajeer platform", "منصة أجير", "SAR 276 per year (23 per month)", "276 ريالاً سنوياً (23 شهرياً)", "Included in the monthly price", "مشمولة في السعر الشهري"),
     ("Sponsorship transfer (workers inside the Kingdom)", "نقل الكفالة (عمال من داخل المملكة)", "SAR 2,000 first time, 4,000 second, 6,000 from the third", "2,000 ريال للمرة الأولى، و4,000 للثانية، و6,000 من الثالثة", "Included, spread over the term (SAR 2,000 assumed)", "مشمول موزّعاً على مدة العقد (على أساس 2,000 ريال)"),
@@ -482,7 +482,7 @@ LOCCALC = [  # (item_en, item_ar, tech_en, tech_ar, eng_en, eng_ar)
     ("Cost of one Saudi per month (salary, employer and employee insurance, end of service, leave)", "تكلفة السعودي الواحد شهرياً (الراتب والتأمينات على صاحب العمل والموظف ونهاية الخدمة والإجازة)", "SAR %s" % nt(TECH_ONE), "%s ريال" % nt(TECH_ONE), "SAR %s" % nt(ENG_ONE), "%s ريال" % nt(ENG_ONE)),
     ("Localisation fees per worker per month at 30%", "رسوم التوطين على العامل الواحد شهرياً بنسبة 30%", "SAR %s" % nt(TECH_FEE), "%s ريال" % nt(TECH_FEE), "SAR %s" % nt(ENG_FEE), "%s ريال" % nt(ENG_FEE)),
     ("Monthly price per worker, standard (salary SAR 2,500)", "السعر الشهري للعامل، العادي (الراتب 2,500)", "SAR %s" % nt(PRICE_TECHDEC), "%s ريال" % nt(PRICE_TECHDEC), "SAR %s" % nt(PRICE_ENG), "%s ريال" % nt(PRICE_ENG)),
-    ("Monthly price per worker, under the National and Non-National Shared Talent item (less SAR 800)", "السعر الشهري للعامل، على بند الكوادر الوطنية وغير الوطنية المشتركة (ناقص 800)", "SAR %s" % nt(PRICE_TECHDEC_F), "%s ريال" % nt(PRICE_TECHDEC_F), "SAR %s" % nt(PRICE_ENG_F), "%s ريال" % nt(PRICE_ENG_F)),
+    ("Monthly price per worker, under the National and Non-National Shared Talent item", "السعر الشهري للعامل، على بند الكوادر الوطنية وغير الوطنية المشتركة", "SAR %s" % nt(PRICE_TECHDEC_F), "%s ريال" % nt(PRICE_TECHDEC_F), "SAR %s" % nt(PRICE_ENG_F), "%s ريال" % nt(PRICE_ENG_F)),
 ]
 LOCCALC_NOTE = ("Fees per worker = Saudis required × cost of one Saudi ÷ foreign workers; they replace the SAR 900 counted for other professions. The engineer column is an example (salary assumed SAR 2,500), recalculated on your actual numbers.",
                 "رسوم التوطين للعامل = السعوديون المطلوبون × تكلفة السعودي الواحد ÷ العمال الأجانب، وتحل محل الـ900 ريال المحتسبة للمهن الأخرى. وعمود المهندس مثال (الراتب مفترض 2,500 ريال) ويُعاد حسابه على أعدادك الفعلية.")
