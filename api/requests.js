@@ -28,7 +28,7 @@ import { LEADS_DB as BD_LEADS_DB, matchQuery as bdMatchQuery, mapCompany as bdMa
 import { handleAgencies } from "./_agencies.js";
 import { handleJobhunt } from "./_jobhunt.js";
 import { handleEor, isBillingAction, authFromSession } from "./_eor.js";
-import { handleAiws, activateAiws, aiwsPlanOf } from "./_aiws.js";
+import { handleAiws, activateAiws, aiwsPlanOf, handleAiwsMy, sendAiwsSetup, handleAiwsReady, handleAiwsOps } from "./_aiws.js";
 import { stageChannels, announce, waSend } from "./_stage.js";
 import { moyasarPing, mpfCheck } from "./_moyasar.js";
 import { nafathPing, ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
@@ -896,12 +896,58 @@ async function handleAiwsRoute(req, res) {
   if (req.method === "GET" && String(qq.action || "") === "plans") {
     res.setHeader("Cache-Control", "public, max-age=300");
     body = { action: "plans", lang: qq.lang };
+  } else if (req.method === "GET" && String(qq.action || "") === "my") {
+    body = { action: "my", lang: qq.lang };
   } else if (req.method === "POST") {
     res.setHeader("Cache-Control", "no-store");
     body = await readBody(req);
     if (!body || typeof body !== "object" || Array.isArray(body)) { res.statusCode = 400; return res.end(JSON.stringify({ ok: false, error: "invalid_body" })); }
   } else {
     res.statusCode = 405; return res.end(JSON.stringify({ ok: false, error: "method_not_allowed" }));
+  }
+  const action = String(body.action || "");
+  // قسم Business Partner AI في /my: بجلسة العميل ومنشأتها وحدها.
+  if (action === "my" || action === "setup") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    let sess = null;
+    try { sess = await getSession(req); } catch { res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "db_failed" })); }
+    try {
+      const r = await handleAiwsMy(action, body, {
+        sess, sb, storagePut, storageSign, lang: body.lang,
+        activate: (p) => sendAiwsSetup(p, { dev: DEV, outbox }),
+      });
+      if (r.status === 200 && action === "setup") await audit({ organization_id: sess.organization && sess.organization.id, actor_user_id: sess.user && sess.user.id, action: "aiws.setup", entity_type: "organization", entity_id: sess.organization && sess.organization.id }).catch(() => {});
+      res.statusCode = r.status; return res.end(JSON.stringify(r.body));
+    } catch (e) {
+      console.error("aiws my:", String((e && e.message) || e).slice(0, 160));
+      res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "failed" }));
+    }
+  }
+  // لوحة المالك /ops: المشتركون وحالة مساحاتهم وأرقامهم — بباب /ops نفسه (opsGate).
+  if (action === "ops" || action === "ops-ready") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    if (!(await opsGate(req, { key: body.key, ticket: body.ticket }))) { res.statusCode = 401; return res.end(JSON.stringify({ ok: false, error: "unauthorized" })); }
+    try {
+      const r = await handleAiwsOps(action, body, { sb, notify });
+      res.statusCode = r.status; return res.end(JSON.stringify(r.body));
+    } catch (e) {
+      console.error("aiws ops:", String((e && e.message) || e).slice(0, 160));
+      res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "failed" }));
+    }
+  }
+  // فريق نايف يُبلغ أن المساحة جهزت (خادم ← خادم، بمفتاح «مفعّل الخدمات»).
+  if (action === "ready") {
+    res.setHeader("Cache-Control", "no-store");
+    if (!DB_ON) { res.statusCode = 503; return res.end(JSON.stringify({ ok: false, error: "db_not_configured" })); }
+    const key = String((req.headers && req.headers["x-bp-activator-key"]) || "");
+    try {
+      const r = await handleAiwsReady(body, { key, sb, notify, dev: DEV });
+      res.statusCode = r.status; return res.end(JSON.stringify(r.body));
+    } catch {
+      res.statusCode = 502; return res.end(JSON.stringify({ ok: false, error: "failed" }));
+    }
   }
   const ip = String((req.headers && (req.headers["x-forwarded-for"] || req.headers["x-real-ip"])) || "").split(",")[0].trim().slice(0, 64);
   const r = await handleAiws(body, { ip, dev: DEV, outbox });
