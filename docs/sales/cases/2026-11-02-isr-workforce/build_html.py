@@ -491,14 +491,17 @@ def build_quote():
     simple_pages = pack([m_prices, m_models, m_opts_s, m_incl_s, m_sign, m_bank], page, "q", tail=2)
     A = REC_ANNEX
     def divider(k, en, ar, sub_en, sub_ar):
-        return ('<!--div--><div style="text-align:center;padding:96px 40px 0"><div style="display:inline-block;width:92px;height:92px;line-height:92px;border-radius:50%%;background:#0B1B5A;color:#fff;font-size:44px;font-weight:700">%s</div>'
+        return ('<!--div--><div style="text-align:center;padding:96px 40px 0"><div style="display:inline-block;width:92px;height:92px;line-height:92px;border-radius:50%%;background:#0B1B5A;color:#fff;font-size:%spx;font-weight:700">%s</div>'
                 '<div style="margin-top:26px;font-family:\'Playfair Display\',serif;font-size:32px;color:#0B1B5A;direction:ltr">%s</div>'
                 '<div style="margin-top:8px;font-size:32px;font-weight:700;color:#0B1B5A;direction:rtl">%s</div>'
                 '<div style="margin:22px auto 0;width:120px;height:3px;background:#9DB4FF"></div>'
-                '<div style="margin-top:16px;font-size:14px;color:#5B6385;direction:ltr">%s</div><div style="margin-top:4px;font-size:14px;color:#5B6385;direction:rtl">%s</div></div>') % (k, en, ar, sub_en, sub_ar)
+                '<div style="margin-top:16px;font-size:14px;color:#5B6385;direction:ltr">%s</div><div style="margin-top:4px;font-size:14px;color:#5B6385;direction:rtl">%s</div></div>') % (44 if len(str(k)) == 1 else 34, k, en, ar, sub_en, sub_ar)
     detail_pages = pack(
         [divider(1, "Prices", "الأسعار", "The monthly price per worker, the models, what is included", "السعر الشهري للعامل، النماذج، وما يشمله"), m_prices, m_models, m_incl,
-         divider(2, "Contracting models", "نماذج التعاقد", "Full cost, transparent cost, shared national cadres", "التكلفة الكاملة، التكلفة بشفافية، الكوادر الوطنية المشتركة"), m1, m2, m2t, m3, m4,
+         divider(2, "Contracting models", "نماذج التعاقد", "Full cost, transparent cost, shared national cadres", "التكلفة الكاملة، التكلفة بشفافية، الكوادر الوطنية المشتركة"), divider("M1", "Model 1 — Full cost", "النموذج الأول — التكلفة الكاملة", "One fixed monthly amount", "مبلغ شهري ثابت واحد"), m1,
+         divider("M2", "Model 2 — Transparent cost", "النموذج الثاني — التكلفة بشفافية", "Each cost at its actual amount, by stages", "كل تكلفة بمبلغها الفعلي وعلى مراحل"), m2, m2t,
+         divider("M3", "Model 3 — Shared national cadres", "النموذج الثالث — الكوادر الوطنية المشتركة", "Saudi and non-Saudi staff shared with you", "موظفون سعوديون وغير سعوديين مشتركون معك"), m3,
+         divider("M4", "Differences between the models", "الفروقات بين النماذج", "The three models side by side", "النماذج الثلاثة جنباً إلى جنب"), m4,
          divider(3, "Calculators and examples", "الحاسبات والأمثلة", "Cost by salary and the Saudi employee", "التكلفة بحسب الراتب والموظف السعودي"), calc_page, saudi_page,
          divider(4, "Government fees and localisation", "الرسوم الحكومية والتوطين", "Government fees, localisation, recruitment from abroad", "الرسوم الحكومية، التوطين، الاستقدام من الخارج"), find(A, "Government fees explained"), find(A, "Localisation fee"),
          divider(5, "Terms and signature", "الشروط والتوقيع", "Terms, your options, signature and payment details", "الشروط وخياراتك والتوقيع وبيانات الدفع"), find(A, "Terms and conditions"), m_opts, m_sign, m_bank], pageA, "qa", tail=2)
