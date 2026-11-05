@@ -30,7 +30,7 @@ label{display:block;font-size:14px;color:var(--mut);margin:8px 0 3px}input,selec
 
 <section id="p2"><div class="card"><div class="row"><div><label>الوظيفة</label><select id="role"><option value="0">مبيعات / وظيفة غير مهنية (راتب بحسب اتفاقك)</option><option value="5500m">تسويق (حد أدنى 5,500)</option><option value="5500">فني (حد أدنى 5,500)</option><option value="8000">مهندس (حد أدنى 8,000)</option></select></div>
 <div><label>الراتب الشهري (ريال)</label><input id="ssal" type="number" min="1000" step="100" value="5500"></div></div></div>
-<div class="card"><div class="n">التكلفة الشهرية للسعودي الواحد</div><div class="big" id="sprice">—</div><table id="sdet"></table></div></section>
+<div class="card"><div class="n">التكلفة الشهرية للسعودي الواحد</div><div class="big" id="sprice">—</div><table id="sdet"></table></div><div class="card"><div class="n">رسوم إدارة الكوادر الوطنية (خدمات الكوادر الوطنية وغير الوطنية المشتركة)</div><label>عدد الموظفين</label><input id="mg_n" type="number" min="5" value="100"><div class="big" id="mg_r">—</div><p class="n">شهرياً قبل الضريبة: من 5 إلى 49 = 5,000؛ من 50 إلى 200 = 10,000؛ من 201 إلى 500 = 20,000؛ وما زاد على 500: 20,000 + 250 لكل موظف إضافي شهرياً.</p></div></section>
 
 <section id="p3"><div class="card"><div class="row"><div><label>آخر أجر شهري (ريال)</label><input id="eos_w" type="number" min="0" step="100" value="1800"></div><div><label>مدة الخدمة (سنوات)</label><input id="eos_y" type="number" min="0" step="0.5" value="1"></div></div>
 <label>سبب إنهاء العلاقة</label><select id="eos_t"><option value="emp">إنهاء من صاحب العمل أو انتهاء العقد</option><option value="res">استقالة العامل</option></select></div>
@@ -88,6 +88,9 @@ function lc(){var g=G[+$("lc_g").value],q=+$("lc_q").value||1,s=+$("lc_s").value
 var T=["1","2","3","4","5","6"];function tab(n){T.forEach(function(k){$("p"+k).className=k==n?"on":"";$("t"+k).className=k==n?"on":""})}
 T.forEach(function(k){$("t"+k).onclick=function(){tab(k)}});
 eos();lv();lc();
+function mg(){var n=+$("mg_n").value||0,v=n<5?0:n<=49?5000:n<=200?10000:n<=500?20000:20000+250*(n-500);$("mg_r").textContent=n<5?"أقل من 5 موظفين: بحسب الاتفاق":f(v)+" ريال شهرياً"}
+$("mg_n").addEventListener("input",mg);mg();
+
 $("in_c").addEventListener("change",function(){if(+$("in_c").value)$("in_p").value=$("in_c").value;ins()});
 function ins(){var p=+$("in_p").value||0,n=+$("in_n").value||0,s=+$("in_s").value||0,k=$("in_k").value,g=k==="f"?s*.85*.02:saudi(s).ins;
  $("in_r").textContent=f(p/12+g)+" ريال شهرياً للفرد";$("in_t").innerHTML=row("التأمين الطبي للفرد شهرياً",f(p/12))+row("التأمين الطبي سنوياً لكل العمال",f(p*n))+row("التأمينات الاجتماعية شهرياً للفرد",f(g))+row("التأمينات الاجتماعية شهرياً لكل العمال",f(g*n))+row("إجمالي التأمين شهرياً لكل العمال",f((p/12+g)*n))}

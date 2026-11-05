@@ -417,6 +417,11 @@ def build_quote():
           exp_table([("How it works", "كيف تعمل", "Saudi and non-Saudi employees employed by Business Partner work with you, part-time or flexibly, so Saudis count in your Saudization without you hiring them full-time.", "موظفون سعوديون وغير سعوديين يوظّفهم Business Partner يعملون لديك بدوام جزئي أو مرن، فيُحتسب السعوديون في توطينك دون أن توظّفهم بدوام كامل."),
                      ("Cost", "التكلفة", "The cost of each Saudi is shared with you.", "تُقسَّم تكلفة كل سعودي معك."),
                      ("Price", "السعر", "The price per worker under this item is shown in the price table. It works with Model 1 or Model 2.", "سعر العامل على هذا البند في جدول الأسعار. وتعمل مع النموذج الأول أو الثاني.")]) +
+          bi_table([("Number of national employees", "عدد موظفي الكوادر الوطنية", False), ("Monthly management fee (SAR, before VAT)", "رسوم إدارة الكوادر الوطنية الشهرية (ريال، قبل الضريبة)", True)], [
+              [("5 – 49 employees", "من 5 إلى 49 موظفاً", "t"), (num("5,000"), num("5,000"), "c")],
+              [("50 – 200 employees", "من 50 إلى 200 موظف", "t"), (num("10,000"), num("10,000"), "c")],
+              [("201 – 500 employees", "من 201 إلى 500 موظف", "t"), (num("20,000"), num("20,000"), "c")],
+              [("More than 500 employees", "أكثر من 500 موظف", "t"), ("20,000 + 250 per additional employee per month", "20,000 + 250 لكل موظف إضافي شهرياً", "c")]], [30, 26]) +
           nst +
           kv([("Monthly price under this item", "السعر الشهري على هذا البند", _pf)]))
     _cmp = [
