@@ -236,17 +236,17 @@ def build_quote():
     tr_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(te), "<b>%s</b>" % esc(ta), "t"), (num(n(fee)), num(n(fee)), "c"), (pe, pa, "c")] for i, (te, ta, fee, pe, pa) in enumerate(TRANSFER, 1)]
     trf = bi_table([("#", "#", True), ("Government fee", "الرسوم الحكومية", False), ("SAR per worker", "ريال للعامل", True), ("In the monthly price", "في السعر الشهري", True)], tr_rows, [3, 22, 9, 16])
     trfnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(TRANSFER_NOTE[0]), esc(ar(TRANSFER_NOTE[1])))
-    sheetsA.append(pageA(h2("A3", "Government fees explained", "توضيح الرسوم الحكومية") + gov + govnote + h2("A4", "Sponsorship transfer costs (workers inside the Kingdom)", "تكاليف نقل الكفالة (عمال من داخل المملكة)") + trf + trfnote))
+    sheetsA.append(pageA(h2("A3", "Government fees explained", "توضيح الرسوم الحكومية") + gov + h2("A4", "Sponsorship transfer costs (workers inside the Kingdom)", "تكاليف نقل الكفالة (عمال من داخل المملكة)") + trf))
     rec_rows = [[("<b>%s</b>" % esc(ne), "<b>%s</b>" % esc(na), "t"), (num(n(r)), num(n(r)), "c"), (num(n(k3)), num(n(k3)), "c"), (num(n(r + k3)), num(n(r + k3)), "c"), (de, da, "c")]
                 for ne, na, r, t, k3, de, da in REC_COUNTRY]
     rec = bi_table([("Nationality", "الجنسية", False), ("Recruitment from the country and embassy requirements", "الاستقدام من الدولة ومتطلبات السفارات", True), ("Arrival ticket", "تذكرة القدوم", True), ("Total per worker, at cost", "الإجمالي للعامل بالتكلفة", True), ("Typical duration", "المدة المعتادة", True)], rec_rows, [12, 14, 10, 12, 10])
     recnote = ('<div class="nt"><div dir="ltr">Recruitment from abroad is at actual cost, with no mark-up, on a separate invoice, and applies only to workers recruited from abroad. For a worker transferred from inside the Kingdom there are no recruitment-from-abroad costs. The amounts are the same for every trade. Contracts, attestations and authorisations (SAR 500) are paid in Stage 1 with the visa.</div>'
                '<div class="ar" dir="rtl">الاستقدام من الخارج بالتكلفة الفعلية دون هامش، بفاتورة منفصلة، ويخص العمال المستقدَمين من الخارج فقط. أما العامل المنقول من داخل المملكة فلا توجد عليه تكاليف استقدام من الخارج. والمبالغ نفسها لكل المهن. والعقود والتصديقات والتفاويض (500 ريال) تُدفع في المرحلة 1 مع التأشيرة.</div></div>')
-    sheetsA.append(pageA(h2("A5", "Localisation fee", "رسوم التوطين") + loc + locnote + h2("A6", "Recruitment from the country, by nationality", "الاستقدام من الدولة بحسب الجنسية") + rec + recnote))
+    sheetsA.append(pageA(h2("A5", "Localisation fee", "رسوم التوطين") + loc + h2("A6", "Recruitment from the country, by nationality", "الاستقدام من الدولة بحسب الجنسية") + rec))
     lc_rows = [[("<b>%s</b>" % esc(ie), "<b>%s</b>" % esc(ia), "t"), (te_, ta_, "c"), (ee_, ea_, "c")] for ie, ia, te_, ta_, ee_, ea_ in LOCCALC]
     lcalc = bi_table([("Item", "البند", False), ("Technical engineering (e.g. steel-structure fitter)", "فنية هندسية (مثل فني هياكل معدنية)", True), ("Engineering (engineer)", "هندسية (مهندس)", True)], lc_rows, [26, 14, 14])
     lcnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(LOCCALC_NOTE[0]), esc(ar(LOCCALC_NOTE[1])))
-    sheetsA.append(pageA(h2("A7", "Technical and engineering workers: how the localisation fees and the worker price are calculated", "العمالة الفنية والهندسية: كيف تُحسب رسوم التوطين وسعر العامل") + lcalc + lcnote))
+    sheetsA.append(pageA(h2("A7", "Technical and engineering workers: how the localisation fees and the worker price are calculated", "العمالة الفنية والهندسية: كيف تُحسب رسوم التوطين وسعر العامل") + lcalc))
     nst_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(te), "<b>%s</b>" % esc(ta), "t"), (we, wa, "t")] for i, (te, ta, we, wa) in enumerate(NST, 1)]
     nst = bi_table([("#", "#", True), ("Topic", "البند", False), ("What it means", "ماذا يعني", False)], nst_rows, [3, 14, 38])
     nstnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(NST_NOTE[0]), esc(ar(NST_NOTE[1])))
@@ -271,7 +271,7 @@ def build_quote():
     _ref = bi_table([("Topic", "الموضوع", False), ("What to check", "ما يُراجَع", False), ("Official reference", "المرجع الرسمي", False)], [
         [("<b>Professions and localisation</b>", "<b>المهن والتوطين</b>", "t"), ("Localisation decision of the profession and the procedural guide of the Ministry of Human Resources.", "قرار توطين المهنة والدليل الإجرائي لوزارة الموارد البشرية.", "t"), (num("hrsd.gov.sa") + "<br>" + num("businesspartner.sa/compliance-solutions"), num("hrsd.gov.sa") + "<br>" + num("businesspartner.sa/compliance-solutions"), "t")],
         [("<b>Social insurance</b>", "<b>التأمينات الاجتماعية</b>", "t"), ("Contribution rates and the yearly rise in July.", "نسب الاشتراك وزيادتها السنوية في يوليو.", "t"), (num("www.gosi.gov.sa"), num("www.gosi.gov.sa"), "t")]], [13, 24, 31])
-    saudi_page = h2("A4", "Cost of a Saudi employee, by role and salary", "تكلفة الموظف السعودي بحسب الوظيفة والراتب") + roles_t + saudi_table() + gosi_note + _ref
+    saudi_page = h2("A4", "Cost of a Saudi employee, by role and salary", "تكلفة الموظف السعودي بحسب الوظيفة والراتب") + roles_t + saudi_table() + _ref
     def model_table():
         ks = [(k_, v_) for k_, v_ in LEVELS.items() if k_ in PRICE_LEVELS]
         def split(a, loc):
@@ -460,7 +460,7 @@ def build_quote():
         assert r, sub
         return r[0]
     def pack(blocks, mk, title, tail=0):
-        SOLO = ('<span class="n">M1</span>', '<span class="n">M2</span>', '<span class="n">M2T</span>')
+        SOLO = ('<!--div-->', '<span class="n">M1</span>', '<span class="n">M2</span>', '<span class="n">M2T</span>')
         import subprocess, tempfile
         tmp = tempfile.NamedTemporaryFile("w", suffix=".html", delete=False, encoding="utf-8")
         tmp.write(doc(title, css, [mk('<div data-m="b%d">%s</div>' % (k, x)) for k, x in enumerate(blocks)])); tmp.close()
@@ -490,9 +490,18 @@ def build_quote():
     m_incl_s = m_incl.replace('<span class="n">4</span>', '<span class="n">5</span>'); m_opts_s = m_opts.replace('<span class="n">5</span>', '<span class="n">4</span>')
     simple_pages = pack([m_prices, m_models, m_opts_s, m_incl_s, m_sign, m_bank], page, "q", tail=2)
     A = REC_ANNEX
-    annex_blocks = [m1, m1s, m2, m2i, m2t, m2b, m3, m4, sheets_model_page, scope_page, calc_page, find(A, "Government fees explained"), find(A, 'h2("A5"') if False else find(A, "Localisation fee"),
-                    find(A, "Technical and engineering workers: how"), saudi_page, find(A, "What you pay and when"), find(A, "Terms and conditions")]
-    detail_pages = pack([m_prices, m_models, m_incl] + annex_blocks + [m_opts, m_sign, m_bank], pageA, "qa", tail=2)
+    def divider(k, en, ar, sub_en, sub_ar):
+        return ('<!--div--><div style="text-align:center;padding:96px 40px 0"><div style="display:inline-block;width:92px;height:92px;line-height:92px;border-radius:50%%;background:#0B1B5A;color:#fff;font-size:44px;font-weight:700">%s</div>'
+                '<div style="margin-top:26px;font-family:\'Playfair Display\',serif;font-size:32px;color:#0B1B5A;direction:ltr">%s</div>'
+                '<div style="margin-top:8px;font-size:32px;font-weight:700;color:#0B1B5A;direction:rtl">%s</div>'
+                '<div style="margin:22px auto 0;width:120px;height:3px;background:#9DB4FF"></div>'
+                '<div style="margin-top:16px;font-size:14px;color:#5B6385;direction:ltr">%s</div><div style="margin-top:4px;font-size:14px;color:#5B6385;direction:rtl">%s</div></div>') % (k, en, ar, sub_en, sub_ar)
+    detail_pages = pack(
+        [divider(1, "Prices", "الأسعار", "The monthly price per worker, the models, what is included", "السعر الشهري للعامل، النماذج، وما يشمله"), m_prices, m_models, m_incl,
+         divider(2, "Contracting models", "نماذج التعاقد", "Full cost, transparent cost, shared national cadres", "التكلفة الكاملة، التكلفة بشفافية، الكوادر الوطنية المشتركة"), m1, m2, m2t, m3, m4,
+         divider(3, "Calculators and examples", "الحاسبات والأمثلة", "Cost by salary and the Saudi employee", "التكلفة بحسب الراتب والموظف السعودي"), calc_page, saudi_page,
+         divider(4, "Government fees and localisation", "الرسوم الحكومية والتوطين", "Government fees, localisation, recruitment from abroad", "الرسوم الحكومية، التوطين، الاستقدام من الخارج"), find(A, "Government fees explained"), find(A, "Localisation fee"),
+         divider(5, "Terms and signature", "الشروط والتوقيع", "Terms, your options, signature and payment details", "الشروط وخياراتك والتوقيع وبيانات الدفع"), find(A, "Terms and conditions"), m_opts, m_sign, m_bank], pageA, "qa", tail=2)
     return sar_mark(doc("Quotation (simple) — Workforce Supply", css, [sheets[0]] + simple_pages + [])), sar_mark(doc("Quotation (detailed) — ISR Trading (Workforce)", css, [sheets[0]] + detail_pages + [closing]))
 
 # ------------------------------------------------------------------ العقد وNDA (A4 عمودي)
