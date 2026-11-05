@@ -25,4 +25,4 @@
 
 ## رابط الحاسبة المخفي للعميل (قرار المالك 5 نوفمبر)
 
-الحاسبة تُعرض للعميل على **نطاقنا** وليس على claude.ai: المسار `https://www.businesspartner.sa/c/isr-cost-9k4f2m` — صفحة واحدة مستقلة (الملف `calculator/index.html` جاهز ذاتي الاكتفاء بلا مكتبات خارجية)، **بلا رابط من أي صفحة في الموقع**، وبـ`noindex` و`Disallow` في `robots.txt` وخارج `sitemap`، فلا يراه إلا من يصله الرابط. يتولى النشر وكيل `public-site` أو `catalog-content` عبر الجلسة الرئيسية؛ جلسة المبيعات لا تنشر على فيرسل (قرار المالك).
+الحاسبة تُعرض للعميل على **نطاقنا** وليس على claude.ai: المسار `https://www.businesspartner.sa/workforce-costing` — صفحة واحدة مستقلة (الملف `calculator/index.html` جاهز ذاتي الاكتفاء بلا مكتبات خارجية)، **بلا رابط من أي صفحة في الموقع**، وبـ`noindex` و`Disallow: /workforce-costing` في `robots.txt` وخارج `sitemap`. **جاهزة على الفرع `claude/isr-calculator-page-2026-11-05` (كوميت `8ec0b063a6`): ملفان فقط `site/workforce-costing.html` و`site/robots.txt`؛ تُدمج وتُنشر من الجلسة الرئيسية وحدها**، فلا يراه إلا من يصله الرابط. يتولى النشر وكيل `public-site` أو `catalog-content` عبر الجلسة الرئيسية؛ جلسة المبيعات لا تنشر على فيرسل (قرار المالك).
