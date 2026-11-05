@@ -186,7 +186,7 @@ def build_quote():
     def model_how():
         rows_ = [
           [("<b>How it works</b>", "<b>كيف يعمل</b>", "t"), ("One fixed monthly amount that includes every government cost, spread over the contract.", "مبلغ شهري ثابت يشمل كل التكاليف الحكومية موزَّعة على العقد.", "t"), ("A lower monthly invoice; government costs are invoiced at their actual amount, no mark-up, when due.", "فاتورة شهرية أقل؛ والتكاليف الحكومية بمبلغها الفعلي دون هامش عند استحقاقها.", "t"), ("The contract is under the National and Non-National Shared Talent item, with its own price per worker (see the price table).", "التعاقد على بند الكوادر الوطنية وغير الوطنية المشتركة بسعر خاص للعامل (انظر جدول الأسعار).", "t")],
-          [("<b>You pay</b>", "<b>تدفع</b>", "t"), ("Two months in advance, then the same amount monthly.", "شهرين مقدماً ثم المبلغ نفسه شهرياً.", "t"), ("Signing, entry, arrival (paid quarterly), monthly invoice, end. 15% VAT only on administrative costs and our fees.", "التوقيع، الدخول، الوصول (ربع سنوي)، الفاتورة الشهرية، النهاية. ضريبة 15% على الإدارية ورسومنا فقط.", "t"), ("As in Model 1 or Model 2, at the Shared Talent price.", "كما في النموذج الأول أو الثاني، بسعر الكوادر المشتركة.", "t")],
+          [("<b>You pay</b>", "<b>تدفع</b>", "t"), ("Two months in advance, then the same amount monthly.", "شهرين مقدماً ثم المبلغ نفسه شهرياً.", "t"), ("Signing, entry, arrival (permit and residence quarterly), monthly invoice, end. 15% VAT on administrative costs, our fees and insurance.", "التوقيع، الدخول، الوصول (الرخصة والإقامة ربع سنوي)، الفاتورة الشهرية، النهاية. ضريبة 15% على الإدارية ورسومنا والتأمين.", "t"), ("As in Model 1 or Model 2, at the Shared Talent price.", "كما في النموذج الأول أو الثاني، بسعر الكوادر المشتركة.", "t")],
           [("<b>Total over the contract</b>", "<b>الإجمالي على العقد</b>", "t"), ("The same as Model 2.", "هو نفسه في النموذج الثاني.", "t"), ("The same as Model 1.", "هو نفسه في النموذج الأول.", "t"), ("At the Shared Talent price in the price table.", "بسعر الكوادر المشتركة في جدول الأسعار.", "t")]]
         return bi_table([("", "", False), ("Model 1 — Full cost", "النموذج الأول — التكلفة الكاملة", False), ("Model 2 — Transparent cost", "النموذج الثاني — التكلفة بشفافية", False), ("Model 3 — Shared Talent services", "النموذج الثالث — خدمات الكوادر الوطنية وغير الوطنية المشتركة", False)], rows_, [10, 18, 20, 18])
     model_tick = ('<div class="nt"><div dir="ltr">Choose the model: &nbsp; &#9744; Model 1 — Full cost &nbsp; &#9744; Model 2 — Transparent cost &nbsp; &#9744; Model 3</div>'
@@ -324,79 +324,84 @@ def build_quote():
     _fx = OVERHEAD + _bd["fee"] + 900                      # التكاليف الإدارية + رسومنا + التوطين (عليها الضريبة وحدها)
     _fxv = OVERHEAD + _bd["fee"]                           # الإدارية والتشغيلية + رسومنا: أساس الضريبة (التوطين بلا ضريبة)
     _vat_m = _fxv * 0.15
-    _vrows = [[(e, a_, "t"), (num(n(round(v))), num(n(round(v))), "c"), (("15%", "15%") if k in (11, 12) else ("No", "لا")) + ("c",)] for k, (e, a_, v) in enumerate(_full_rows)]
+    _vat1 = (_fxv + 50) * 0.15                              # النموذج الأول: الضريبة على الإدارية ورسومنا والتأمين الطبي (50 شهرياً)
+    _vrows = [[(e, a_, "t"), (num(n(round(v))), num(n(round(v))), "c"), (("15%", "15%") if k in (7, 11, 12) else ("No", "لا")) + ("c",)] for k, (e, a_, v) in enumerate(_full_rows)]
     _full_tbl = bi_table([("Fixed monthly price, per worker (example: skilled worker, salary SAR %s)" % n(_sal), "السعر الشهري الثابت للعامل (مثال: عامل ماهر راتبه %s ريال)" % n(_sal), False), ("Amount (SAR)", "المبلغ (ريال)", True), ("VAT", "الضريبة", True)],
                          _vrows + [{"cls": "tot", "cells": [("Fixed monthly price (before VAT)", "السعر الشهري الثابت (قبل الضريبة)", ""), (num(n(int(_p))), num(n(int(_p))), "c"), ("", "", "")]},
-                                   [("VAT 15% on administrative and operating costs and our fees only", "ضريبة 15% على التكاليف الإدارية والتشغيلية ورسومنا فقط", "t"), (num(n(round(_vat_m))), num(n(round(_vat_m))), "c"), ("", "", "")],
-                                   {"cls": "tot", "cells": [("Monthly invoice (with VAT)", "الفاتورة الشهرية (مع الضريبة)", ""), (num(n(round(_p + _vat_m))), num(n(round(_p + _vat_m))), "c"), ("", "", "")]}], [30, 12, 8])
+                                   [("VAT 15% on administrative and operating costs, our fees and medical insurance only", "ضريبة 15% على التكاليف الإدارية والتشغيلية ورسومنا والتأمين الطبي فقط", "t"), (num(n(round(_vat1))), num(n(round(_vat1))), "c"), ("", "", "")],
+                                   {"cls": "tot", "cells": [("Monthly invoice (with VAT)", "الفاتورة الشهرية (مع الضريبة)", ""), (num(n(round(_p + _vat1))), num(n(round(_p + _vat1))), "c"), ("", "", "")]}], [30, 12, 8])
     m1 = (h2("M1", "Model 1 — Full cost", "النموذج الأول — التكلفة الكاملة") +
           exp_table([("How it works", "كيف يعمل", "One fixed monthly amount per worker that already includes every government cost (work permit and levy, residence, medical insurance, exit and re-entry, visa or transfer of services, return ticket), spread over the contract.", "مبلغ شهري ثابت واحد للعامل يشمل مسبقاً كل التكاليف الحكومية (رخصة العمل والمقابل، الإقامة، التأمين الطبي، الخروج والعودة، التأشيرة أو نقل الخدمات، تذكرة العودة) موزَّعة على العقد."),
                      ("Other invoices", "فواتير أخرى", "None: no separate government invoice.", "لا شيء: لا فاتورة حكومية منفصلة.")]) +
           _full_tbl)
-    m1s = (stages([sr_(1, "On signing", "عند التوقيع", "Advance of two months of the monthly price, with 15% VAT on administrative and operating costs and our fees only.", "دفعة مقدمة شهران من السعر الشهري، مع ضريبة 15% على التكاليف الإدارية والتشغيلية ورسومنا فقط.", int((_p + _vat_m) * 2)),
-                  sr_(2, "Every month", "كل شهر", "The fixed monthly price with 15% VAT on administrative and operating costs and our fees only, invoiced for the workers on duty. Payable within 7 days.", "السعر الشهري الثابت مع ضريبة 15% على التكاليف الإدارية والتشغيلية ورسومنا فقط، للعمال على رأس العمل. يُسدَّد خلال 7 أيام.", int(_p + _vat_m)),
+    m1s = (stages([sr_(1, "On signing", "عند التوقيع", "Advance of two months of the monthly price, with 15% VAT on administrative and operating costs, our fees and medical insurance only.", "دفعة مقدمة شهران من السعر الشهري، مع ضريبة 15% على التكاليف الإدارية والتشغيلية ورسومنا والتأمين الطبي فقط.", int((_p + _vat1) * 2)),
+                  sr_(2, "Every month", "كل شهر", "The fixed monthly price with 15% VAT on administrative and operating costs, our fees and medical insurance only, invoiced for the workers on duty. Payable within 7 days.", "السعر الشهري الثابت مع ضريبة 15% على التكاليف الإدارية والتشغيلية ورسومنا والتأمين الطبي فقط، للعمال على رأس العمل. يُسدَّد خلال 7 أيام.", int(_p + _vat1)),
                   sr_(3, "Government costs", "التكاليف الحكومية", "Inside the monthly price. Nothing more to pay.", "داخل السعر الشهري. لا شيء إضافي.", 0)]) +
           same_note)
     _m3 = _sal + _sal * 0.85 * 0.02                         # الراتب + اشتراك التأمينات (بلا ضريبة)
-    _stage2_year = 9700 + 650 + 600 + 276 + 200            # رخصة العمل + الإقامة + الطبي (فئة C) + أجير + الخروج والعودة
-    _end_year = _sal / 24.0 * 12 + _sal / 30.0 * 21 + 1500  # نهاية الخدمة + الإجازة + تذكرة العودة (12 شهراً)
-    _opts = [("3 months", "3 أشهر", 3), ("6 months", "6 أشهر", 6), ("9 months", "9 أشهر", 9), ("12 months", "12 شهراً", 12)]
-    _inst_tbl = bi_table([("Pay the arrival and preparation costs over", "سداد تكاليف الوصول والتجهيز على", False), ("Per month (SAR)", "شهرياً (ريال)", True)],
-                         [[(e, a_, "t"), (num(n(-(-_stage2_year // k))), num(n(-(-_stage2_year // k))), "c")] for e, a_, k in _opts] + [[("Four quarterly instalments, from the month you choose", "أربع دفعات ربع سنوية، من الشهر الذي تختاره", "t"), (num(n(-(-_stage2_year // 4))), num(n(-(-_stage2_year // 4))), "c")]], [30, 12])
+    _q = int(-(-(9700 + 650) // 4))                         # ربع سنوي: رخصة العمل والمقابل + الإقامة
+    _ann = 600 + 90 + 276                                   # سنوي مقدماً: التأمين الطبي + ضريبته + أجير
+    _stage2_year = 9700 + 650 + _ann
+    _end_year = _sal / 24.0 * 12 + _sal / 30.0 * 21 + 1500 + 200   # نهاية الخدمة + الإجازة + تذكرة العودة + الخروج والعودة
     def bl(*items): return "<br>".join("&bull; " + x for x in items)
     _ins = _sal * 0.85 * 0.02
-    _q = int(-(-_stage2_year // 4))
     _sg = int(_sal * 2 + (_fx + _vat_m))
+    _MON = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    _MAR = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"]
     m2 = (h2("M2", "Model 2 — Transparent cost", "النموذج الثاني — التكلفة بشفافية") +
-          exp_table([("How it works", "كيف يعمل", "Each cost is paid at its actual amount, without mark-up, in the stage where it falls due. The total over the contract is the same as Model 1.", "تُدفع كل تكلفة بمبلغها الفعلي دون هامش في المرحلة التي تستحق فيها. والإجمالي على العقد هو نفسه في النموذج الأول.")]) +
+          exp_table([("How it works", "كيف يعمل", "Each cost is paid at its actual amount, without mark-up, in the stage where it falls due. The total over the contract is the same as Model 1. The calculation starts in January 2027.", "تُدفع كل تكلفة بمبلغها الفعلي دون هامش في المرحلة التي تستحق فيها. والإجمالي على العقد هو نفسه في النموذج الأول. وتبدأ الحسبة من يناير 2027.")]) +
           stages([sr_(0, "On signing", "عند التوقيع", bl("Two months of basic salary: 2 × %s = %s (no VAT)" % (n(_sal), n(_sal * 2)), "Monthly fees: localisation %s (no VAT) + administrative and operating and our fees %s, plus 15%% VAT %s" % (n(900), n(round(_fxv)), n(round(_vat_m)))),
                                                     bl("راتب أساسي لشهرين: 2 × %s = %s (بلا ضريبة)" % (n(_sal), n(_sal * 2)), "الرسوم الشهرية: التوطين %s (بلا ضريبة) + التكاليف الإدارية والتشغيلية ورسومنا %s، وعليها ضريبة 15%% %s" % (n(900), n(round(_fxv)), n(round(_vat_m)))), _sg),
                   sr_(1, "Stage 1: entry", "المرحلة 1: الدخول", bl("Visa or transfer of services (sponsorship transfer), once: 2,000", "Recruited from abroad: recruitment from the country, contract attestation and arrival ticket, by nationality, at actual cost, separate"),
                                                     bl("التأشيرة أو نقل الخدمات (نقل الكفالة) مرة واحدة: 2,000", "للمستقدَم من الخارج: الاستقدام من الدولة وتصديق العقود وتذكرة الوصول، بحسب الجنسية، بالتكلفة الفعلية، منفصلة"), 2000),
-                  sr_(2, "Stage 2: arrival and preparation", "المرحلة 2: الوصول والتجهيز", bl("Work permit and levy: 9,700", "Residence: 650", "Medical insurance, category C: 600", "Ajeer: 276", "Exit and re-entry: 200", "Paid quarterly: 4 × %s, from the month you choose" % n(_q)),
-                                                    bl("رخصة العمل والمقابل المالي: 9,700", "الإقامة: 650", "التأمين الطبي فئة C: 600", "أجير: 276", "الخروج والعودة: 200", "تُسدَّد ربع سنوياً: 4 × %s، من الشهر الذي تختاره" % n(_q)), int(_stage2_year)),
+                  sr_(2, "Stage 2: arrival and preparation", "المرحلة 2: الوصول والتجهيز", bl("Work permit and levy 9,700 and residence 650: paid quarterly, 4 × %s, from the month you choose" % n(_q), "Medical insurance, category C: 600 + 15%% VAT 90 = 690, paid annually", "Ajeer: 276, paid annually"),
+                                                    bl("رخصة العمل والمقابل المالي 9,700 والإقامة 650: تُسدَّد ربع سنوياً، 4 × %s، من الشهر الذي تختاره" % n(_q), "التأمين الطبي فئة C: 600 + ضريبة 15%% وقدرها 90 = 690، يُسدَّد سنوياً", "أجير: 276، يُسدَّد سنوياً"), int(_stage2_year)),
                   sr_(3, "Stage 3: monthly invoice", "المرحلة 3: الفاتورة الشهرية", bl("Salary: %s (no VAT)" % n(_sal), "Social insurance: %s (no VAT)" % n(round(_ins)), "Localisation fees: %s (no VAT)" % n(900), "Administrative and operating %s + our fees %s = %s, plus 15%% VAT %s" % (n(OVERHEAD), n(round(_bd["fee"])), n(round(_fxv)), n(round(_vat_m))), "Payable within 7 days"),
                                                     bl("الراتب: %s (بلا ضريبة)" % n(_sal), "التأمينات الاجتماعية: %s (بلا ضريبة)" % n(round(_ins)), "رسوم التوطين: %s (بلا ضريبة)" % n(900), "الإدارية والتشغيلية %s + رسومنا %s = %s، وعليها ضريبة 15%% %s" % (n(OVERHEAD), n(round(_bd["fee"])), n(round(_fxv)), n(round(_vat_m))), "يُسدَّد خلال 7 أيام"), int(_m3 + (_fx + _vat_m))),
-                  sr_(4, "Stage 4: end of the contract", "المرحلة 4: نهاية العقد", bl("End of service: %s" % n(round(_sal / 24.0 * 12)), "Leave pay: %s" % n(round(_sal / 30.0 * 21)), "Return ticket: 1,500 (actual cost)"),
-                                                    bl("نهاية الخدمة: %s" % n(round(_sal / 24.0 * 12)), "بدل الإجازة: %s" % n(round(_sal / 30.0 * 21)), "تذكرة العودة: 1,500 (بالتكلفة الفعلية)"), int(_end_year))]))
+                  sr_(4, "Stage 4: end of the contract", "المرحلة 4: نهاية العقد", bl("End of service: %s" % n(round(_sal / 24.0 * 12)), "Leave pay: %s" % n(round(_sal / 30.0 * 21)), "Exit and re-entry: 200, at the end of the year", "Return ticket: 1,500 (actual cost)"),
+                                                    bl("نهاية الخدمة: %s" % n(round(_sal / 24.0 * 12)), "بدل الإجازة: %s" % n(round(_sal / 30.0 * 21)), "الخروج والعودة: 200، في نهاية السنة", "تذكرة العودة: 1,500 (بالتكلفة الفعلية)"), int(_end_year))]))
     _inv_m = int(_m3 + (_fx + _vat_m))
     def _tl(en, ar, g, inv, fee, cls=None):
         cells = [(en, ar, "t"), (num(g) if g else "-", num(g) if g else "-", "c"), (num(inv) if inv else "-", num(inv) if inv else "-", "c"), (num(fee) if fee else "-", num(fee) if fee else "-", "c")]
         return {"cls": cls, "cells": cells} if cls else cells
     _fee_m = n(round(_fxv) + round(_vat_m))
-    _g1 = n(2000 + _q)
-    m2t = (h2("M2T", "Model 2 — Payment timeline (example: quarterly, starting in month 1)", "النموذج الثاني — الجدول الزمني للدفعات (مثال: ربع سنوي من الشهر 1)") +
+    _g1 = n(2000 + _q + _ann)
+    def _mo(i): return "%s 2027" % _MON[i], "%s 2027" % _MAR[i]
+    def _row(i, extra_en, extra_ar, g):
+        e, a_ = _mo(i)
+        return _tl("%s (month %d)%s" % (e, i + 1, extra_en), "%s (الشهر %d)%s" % (a_, i + 1, extra_ar), g, n(_inv_m), _fee_m)
+    m2t = (h2("M2T", "Model 2 — Payment timeline, quarterly, starting January 2027", "النموذج الثاني — الجدول الزمني للدفعات ربع السنوية، من يناير 2027") +
            note_("The payment on signing is credited against the last monthly invoices of the contract.", "الدفعة عند التوقيع تُخصم من آخر الفواتير الشهرية في العقد.") +
            bi_table([("When", "متى", False), ("Government payments", "المدفوعات الحكومية", True), ("Monthly invoice (with VAT)", "الفاتورة الشهرية (مع الضريبة)", True), ("of which our fees and administrative costs (with VAT)", "منها رسومنا والإدارية (مع الضريبة)", True)],
                     [_tl("On signing: 2 months of salary + the monthly fees", "عند التوقيع: راتب شهرين + الرسوم الشهرية", "", n(_sg), _fee_m),
-                     _tl("Month 1: arrival (entry 2,000 + first quarterly instalment)", "الشهر 1: الوصول (الدخول 2,000 + أول دفعة ربع سنوية)", _g1, n(_inv_m), _fee_m),
-                     _tl("Months 2 and 3", "الشهران 2-3", "", n(_inv_m), _fee_m),
-                     _tl("Month 4: second quarterly instalment", "الشهر 4: الدفعة الربع سنوية الثانية", n(_q), n(_inv_m), _fee_m),
-                     _tl("Months 5 and 6", "الشهران 5-6", "", n(_inv_m), _fee_m),
-                     _tl("Month 7: third quarterly instalment", "الشهر 7: الدفعة الربع سنوية الثالثة", n(_q), n(_inv_m), _fee_m),
-                     _tl("Months 8 and 9", "الشهران 8-9", "", n(_inv_m), _fee_m),
-                     _tl("Month 10: fourth quarterly instalment", "الشهر 10: الدفعة الربع سنوية الرابعة", n(_q), n(_inv_m), _fee_m),
-                     _tl("Month 11", "الشهر 11", "", n(_inv_m), _fee_m),
-                     _tl("Month 12, Stage 4: end of service, leave, return ticket", "الشهر 12، المرحلة 4: نهاية الخدمة والإجازة وتذكرة العودة", n(int(_end_year)), n(_inv_m), _fee_m)], [34, 11, 12, 12]))
-    _st2 = [("Work permit and levy", "رخصة العمل والمقابل المالي", 9700), ("Residence permit", "الإقامة", 650), ("Medical insurance, category C", "التأمين الطبي فئة C", 600), ("Ajeer platform", "منصة أجير", 276), ("Exit and re-entry", "الخروج والعودة", 200)]
-    m2i = (h2("M2", "Model 2 — Stage 2: arrival and preparation, paid quarterly", "النموذج الثاني — المرحلة 2: الوصول والتجهيز، تُسدَّد ربع سنوياً") +
-           bi_table([("Item", "البند", False), ("For the year (SAR)", "للسنة (ريال)", True), ("Per quarter (SAR)", "للربع (ريال)", True)],
-                    [[(e_, a_, "t"), (num(n(v)), num(n(v)), "c"), (num(n(-(-v // 4))), num(n(-(-v // 4))), "c")] for e_, a_, v in _st2] +
-                    [{"cls": "tot", "cells": [("Stage 2 total", "إجمالي المرحلة 2", ""), (num(n(int(_stage2_year))), num(n(int(_stage2_year))), "c"), (num(n(-(-_stage2_year // 4))), num(n(-(-_stage2_year // 4))), "c")]}], [30, 12, 12]) +
-           _inst_tbl)
+                     _row(0, ": entry 2,000 + 1st quarter %s + medical insurance and Ajeer %s" % (n(_q), n(_ann)), ": الدخول 2,000 + الربع الأول %s + التأمين الطبي وأجير %s" % (n(_q), n(_ann)), _g1),
+                     _row(1, "", "", ""), _row(2, "", "", ""),
+                     _row(3, ": 2nd quarter", ": الربع الثاني", n(_q)), _row(4, "", "", ""), _row(5, "", "", ""),
+                     _row(6, ": 3rd quarter", ": الربع الثالث", n(_q)), _row(7, "", "", ""), _row(8, "", "", ""),
+                     _row(9, ": 4th quarter", ": الربع الرابع", n(_q)), _row(10, "", "", ""),
+                     _row(11, ", Stage 4: end of service, leave, exit and re-entry, return ticket", "، المرحلة 4: نهاية الخدمة والإجازة والخروج والعودة وتذكرة العودة", n(int(_end_year)))], [38, 12, 12, 12]))
+    _st2 = [("Work permit and levy", "رخصة العمل والمقابل المالي", 9700, "Quarterly: 4 × %s" % n(-(-9700 // 4)), "ربع سنوي: 4 × %s" % n(-(-9700 // 4))),
+            ("Residence permit", "الإقامة", 650, "Quarterly: 4 × %s" % n(-(-650 // 4)), "ربع سنوي: 4 × %s" % n(-(-650 // 4))),
+            ("Medical insurance, category C (600 + 15% VAT 90)", "التأمين الطبي فئة C (600 + ضريبة 15% وقدرها 90)", 690, "Annually, in month 1", "سنوي، في الشهر 1"),
+            ("Ajeer platform", "منصة أجير", 276, "Annually, in month 1", "سنوي، في الشهر 1"),
+            ("Exit and re-entry", "الخروج والعودة", 200, "End of the year (Stage 4)", "نهاية السنة (المرحلة 4)")]
+    m2i = (h2("M2", "Model 2 — Stage 2: arrival and preparation, how each cost is paid", "النموذج الثاني — المرحلة 2: الوصول والتجهيز، كيف تُدفع كل تكلفة") +
+           bi_table([("Item", "البند", False), ("For the year (SAR)", "للسنة (ريال)", True), ("How it is paid", "طريقة الدفع", False)],
+                    [[(e_, a_, "t"), (num(n(v)), num(n(v)), "c"), (pe, pa, "t")] for e_, a_, v, pe, pa in _st2], [34, 12, 22]) +
+           note_("The quarterly instalments start in the month you choose; the example starts in January 2027.", "تبدأ الدفعات ربع السنوية من الشهر الذي تختاره؛ والمثال يبدأ من يناير 2027."))
     def _grp(en, ar): return {"cls": "tot", "cells": [(en, ar, ""), ("", "", "c"), ("", "", "c")]}
-    _sidx = {"S1": [9], "S2": [1, 5, 6, 7, 8], "S3": [0, 2, 13, 11, 12], "S4": [3, 4, 10]}
+    _sidx = {"S1": [9], "S2": [5, 6, 7, 1], "S3": [0, 2, 13, 11, 12], "S4": [3, 4, 8, 10]}
     _gt = [("S1", "Stage 1: entry", "المرحلة 1: الدخول"), ("S2", "Stage 2: arrival and preparation", "المرحلة 2: الوصول والتجهيز"), ("S3", "Stage 3: monthly invoice", "المرحلة 3: الفاتورة الشهرية"), ("S4", "Stage 4: end of the contract", "المرحلة 4: نهاية العقد")]
     _m2rows = []
     for key, en_, ar_ in _gt:
         _m2rows.append(_grp(en_, ar_))
         for k in _sidx[key]:
             e_, a_, v = _full_rows[k]
-            _m2rows.append([(e_, a_, "t"), (num(n(round(v))), num(n(round(v))), "c"), (("15%", "15%") if k in (11, 12) else ("No", "لا")) + ("c",)])
+            _m2rows.append([(e_, a_, "t"), (num(n(round(v))), num(n(round(v))), "c"), (("15%", "15%") if k in (7, 11, 12) else ("No", "لا")) + ("c",)])
     m2b = (h2("M2", "Model 2 — The monthly cost by stage (the same as Model 1)", "النموذج الثاني — التكلفة الشهرية حسب المراحل (هي نفسها في النموذج الأول)") +
            bi_table([("Per worker (example: skilled worker, salary SAR %s)" % n(_sal), "للعامل (مثال: عامل ماهر راتبه %s ريال)" % n(_sal), False), ("Amount (SAR)", "المبلغ (ريال)", True), ("VAT", "الضريبة", True)],
                     _m2rows + [{"cls": "tot", "cells": [("Monthly cost (before VAT)", "التكلفة الشهرية (قبل الضريبة)", ""), (num(n(int(_p))), num(n(int(_p))), "c"), ("", "", "c")]},
-                               [("VAT 15% on administrative and operating costs and our fees only", "ضريبة 15% على التكاليف الإدارية والتشغيلية ورسومنا فقط", "t"), (num(n(round(_vat_m))), num(n(round(_vat_m))), "c"), ("", "", "c")]], [34, 12, 8]) + same_note)
+                               [("VAT 15% on administrative and operating costs, our fees and medical insurance only", "ضريبة 15% على التكاليف الإدارية والتشغيلية ورسومنا والتأمين الطبي فقط", "t"), (num(n(round(_vat1))), num(n(round(_vat1))), "c"), ("", "", "c")]], [34, 12, 8]) + same_note)
     m3 = (h2("M3", "Model 3 — National and Non-National Shared Talent services", "النموذج الثالث — خدمات الكوادر الوطنية وغير الوطنية المشتركة") +
           exp_table([("How it works", "كيف تعمل", "Saudi and non-Saudi employees employed by Business Partner work with you, part-time or flexibly, so Saudis count in your Saudization without you hiring them full-time.", "موظفون سعوديون وغير سعوديين يوظّفهم Business Partner يعملون لديك بدوام جزئي أو مرن، فيُحتسب السعوديون في توطينك دون أن توظّفهم بدوام كامل."),
                      ("Cost", "التكلفة", "The cost of each Saudi is shared with you.", "تُقسَّم تكلفة كل سعودي معك."),
@@ -413,7 +418,7 @@ def build_quote():
           bi_table([("", "", False), ("Model 1 — Full cost", "النموذج الأول — التكلفة الكاملة", False), ("Model 2 — Transparent cost", "النموذج الثاني — التكلفة بشفافية", False), ("Model 3 — Shared Talent services", "النموذج الثالث — خدمات الكوادر الوطنية وغير الوطنية المشتركة", False)],
                    [[("<b>%s</b>" % esc(r[0][0]), "<b>%s</b>" % esc(r[0][1]), "t")] + [(esc(c[0]), esc(c[1]), "t") for c in r[1:]] for r in _cmp], [12, 18, 18, 18]) +
           note_("Example: a skilled worker, salary SAR %s, 12-month contract, before VAT. Prices follow the salary you choose; the calculator recomputes them." % n(_sal), "المثال: عامل ماهر راتبه %s ريال، عقد 12 شهراً، قبل الضريبة. وتتبع الأسعار الراتب الذي تختاره؛ والآلة الحاسبة تعيد حسابها." % n(_sal)))
-    _model_pages = [pageA(_pg) for _pg in (m1, m1s, m2, m2t, m2i, m2b, m3, m4)]
+    _model_pages = [pageA(_pg) for _pg in (m1, m1s, m2, m2i, m2t, m2b, m3, m4)]
 
     sheetsA.append(pageA(saudi_page))
     sheetsA.insert(1, pageA(sheets_model_page))
@@ -469,7 +474,7 @@ def build_quote():
     m_incl_s = m_incl.replace('<span class="n">4</span>', '<span class="n">5</span>'); m_opts_s = m_opts.replace('<span class="n">5</span>', '<span class="n">4</span>')
     simple_pages = pack([m_prices, m_models, m_opts_s, m_incl_s, m_sign, m_bank], page, "q", tail=2)
     A = REC_ANNEX
-    annex_blocks = [m1, m1s, m2, m2t, m2i, m2b, m3, m4, sheets_model_page, scope_page, calc_page, find(A, "Government fees explained"), find(A, 'h2("A5"') if False else find(A, "Localisation fee"),
+    annex_blocks = [m1, m1s, m2, m2i, m2t, m2b, m3, m4, sheets_model_page, scope_page, calc_page, find(A, "Government fees explained"), find(A, 'h2("A5"') if False else find(A, "Localisation fee"),
                     find(A, "Technical and engineering workers: how"), saudi_page, find(A, "What you pay and when"), find(A, "Terms and conditions")]
     detail_pages = pack([m_prices, m_models, m_incl] + annex_blocks + [m_opts, m_sign, m_bank], pageA, "qa", tail=2)
     return sar_mark(doc("Quotation (simple) — Workforce Supply", css, [sheets[0]] + simple_pages + [])), sar_mark(doc("Quotation (detailed) — ISR Trading (Workforce)", css, [sheets[0]] + detail_pages + [closing]))

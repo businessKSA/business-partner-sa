@@ -12,7 +12,7 @@ label{display:block;font-size:14px;color:var(--mut);margin:8px 0 3px}input,selec
 .n{font-size:13px;color:var(--mut)}section{display:none}section.on{display:block}
 </style></head><body><main>
 <h1>الآلة الحاسبة للتكاليف بناءً على الرواتب</h1><p class="s">التكلفة الشهرية للشخص الواحد، قبل ضريبة القيمة المضافة 15%.</p>
-<div class="tabs"><button id="t1" class="on">عامل متعاقد</button><button id="t2">موظف سعودي</button><button id="t3">نهاية الخدمة</button><button id="t4">الإجازة</button><button id="t5">التوطين</button></div>
+<div class="tabs"><button id="t1" class="on">عامل متعاقد</button><button id="t2">موظف سعودي</button><button id="t3">نهاية الخدمة</button><button id="t4">الإجازة</button><button id="t5">التوطين</button><button id="t6">التأمين</button></div>
 
 <section id="p1" class="on"><div class="card">
 <div class="row"><div><label>الراتب الشهري (ريال)</label><input id="sal" type="number" min="1000" step="50" value="1800"></div>
@@ -41,6 +41,11 @@ label{display:block;font-size:14px;color:var(--mut);margin:8px 0 3px}input,selec
 <section id="p5"><div class="card"><label>قرار التوطين (النشاط أو المهنة)</label><select id="lc_g"></select>
 <div class="row"><div><label>عدد العمال الأجانب</label><input id="lc_q" type="number" min="1" value="16"></div><div><label>راتب السعودي (ريال)</label><input id="lc_s" type="number" min="0" value="5500"></div></div></div>
 <div class="card"><div class="n">عدد السعوديين المطلوب</div><div class="big" id="lc_r">—</div><table id="lc_t"></table><p class="n">بحسب قرار الوزارة الموضح. للتأكد من مهنتك راجع وثيقة المهن والتوطين.</p></div></section>
+
+<section id="p6"><div class="card"><div class="n">التأمين الطبي</div><div class="row"><div><label>فئة التأمين</label><select id="in_c"><option value="600">فئة C (المعتمدة في التسعير)</option><option value="0">Basic</option><option value="0">فئة B</option><option value="0">فئة A</option><option value="0">VIP</option></select></div><div><label>القسط السنوي للفرد (ريال) — بحسب عرض شركة التأمين</label><input id="in_p" type="number" min="0" step="50" value="600"></div></div>
+<label>عدد العمال</label><input id="in_n" type="number" min="1" value="10"></div>
+<div class="card"><div class="n">التأمين الاجتماعي (التأمينات الاجتماعية)</div><div class="row"><div><label>الراتب الشهري (ريال)</label><input id="in_s" type="number" min="0" step="100" value="1800"></div><div><label>الجنسية</label><select id="in_k"><option value="f">غير سعودي (2% على 85% من الراتب، أخطار مهنية)</option><option value="s">سعودي (حصة صاحب العمل والموظف)</option></select></div></div></div>
+<div class="card"><div class="n">الإجمالي</div><div class="big" id="in_r">—</div><table id="in_t"></table><p class="n">أقساط الفئات غير C تُدخَل يدوياً من عرض شركة التأمين. التأمينات الاجتماعية للسعودي تتبع قرار المؤسسة ونسبها ترتفع كل يوليو.</p></div></section>
 </main><script>
 var $=function(i){return document.getElementById(i)},f=function(x){return Math.round(x).toLocaleString("en-US")};
 function price(a,loc,fac,m,med){med=(med==null?600:med);var permit=(fac?100:9700)/12,gov=permit+650/12+23+a*.85*.02+200/12+2000/m,prov=a/24+a/30*21/12+125,direct=a+gov+med/12+prov,fee=Math.max(.1*(direct+250),250),p=Math.round(direct+250+fee+loc);return{p:p,fixed:(fac?100:9700)/12+650/12+200/12+2000/m+med/12+125,med:med/12,direct:direct,a:a,prov:prov,gov_all:gov}}
@@ -53,14 +58,15 @@ function calc(){var a=+$("sal").value||0,m=+$("mon").value,fac=+$("fac").value,l
  var fp=r.p-500;$("alt").textContent=fac?"":"على بند الكوادر الوطنية وغير الوطنية المشتركة: "+f(fp)+" ريال";
  var h=row("الراتب",f(a))+row("التكاليف الحكومية (رخصة العمل والإقامة وأجير والتأمينات والخروج والعودة والتأشيرة أو النقل)",f(r.gov_all))+row("التأمين الطبي ونهاية الخدمة والإجازة وتذكرة العودة",f(r.med+r.prov))+row("التكاليف الإدارية والتشغيلية ورسومنا","شامل")+row("رسوم التوطين",f(loc));
  $("det").innerHTML=h;
- var fee=Math.max(.1*(r.direct+250),250),fxv=250+fee,vat=fxv*.15,ins=a*.85*.02,pm=fac?100:9700,st2=pm+650+r.med*12+276+200,eosv=a/24*m,lvv=a/30*21*m/12,
- s0=2*a+loc+fxv+vat,s3=a+ins+loc+fxv+vat,s4=eosv+lvv+1500*m/12;
- $("mod").innerHTML=row("النموذج الأول — التكلفة الكاملة: مبلغ شهري ثابت قبل الضريبة",f(r.p)+" ريال")+row("+ ضريبة 15% على الإدارية ورسومنا فقط (شهرياً)",f(vat)+" ريال")
+ var fee=Math.max(.1*(r.direct+250),250),fxv=250+fee,vat=fxv*.15,vat1=(fxv+r.med)*.15,ins=a*.85*.02,pm=fac?100:9700,qt=(pm+650)/4,ann=r.med*12*1.15+276,eosv=a/24*m,lvv=a/30*21*m/12,
+ s0=2*a+loc+fxv+vat,s3=a+ins+loc+fxv+vat,s4=eosv+lvv+1500*m/12+200;
+ $("mod").innerHTML=row("النموذج الأول — التكلفة الكاملة: مبلغ شهري ثابت قبل الضريبة",f(r.p)+" ريال")+row("+ ضريبة 15% على الإدارية ورسومنا والتأمين الطبي فقط (شهرياً)",f(vat1)+" ريال")
  +row("النموذج الثاني — عند التوقيع: راتب شهرين + الرسوم الشهرية مع الضريبة",f(s0)+" ريال")
  +row("المرحلة 1: الدخول (التأشيرة أو نقل الخدمات)",f(2000)+" ريال")
- +row("المرحلة 2: الوصول والتجهيز (للسنة)، ربع سنوي: 4 × "+f(st2/4),f(st2)+" ريال")
+ +row("المرحلة 2: الوصول والتجهيز — الرخصة والإقامة ربع سنوي: 4 × "+f(qt)+"؛ التأمين الطبي مع ضريبته وأجير سنوياً: "+f(ann),f(pm+650+ann)+" ريال")
  +row("المرحلة 3: الفاتورة الشهرية (الراتب والتأمينات + التوطين والإدارية ورسومنا والضريبة)",f(s3)+" ريال")
- +row("المرحلة 4: نهاية العقد (نهاية الخدمة والإجازة وتذكرة العودة)",f(s4)+" ريال")}
+ +row("المرحلة 4: نهاية العقد (نهاية الخدمة والإجازة والخروج والعودة وتذكرة العودة)",f(s4)+" ريال")
+ +row("تبدأ الحسبة من يناير 2027","")}
 function sc(){var m=+$("ssal").value||0,s=saudi(m);$("sprice").textContent=f(s.t)+" ريال";$("sdet").innerHTML=row("الراتب",f(m))+row("التأمينات على صاحب العمل والموظف",f(s.ins))+row("نهاية الخدمة",f(s.eos))+row("الإجازة",f(s.lv))}
 ["sal","mon","fac","loc","q","sm","med","medp"].forEach(function(i){$(i).addEventListener("input",calc);$(i).addEventListener("change",calc)});
 $("role").addEventListener("change",function(){var v=parseInt($("role").value);if(v)$("ssal").value=v;sc()});$("ssal").addEventListener("input",sc);
@@ -79,7 +85,12 @@ function lc(){var g=G[+$("lc_g").value],q=+$("lc_q").value||1,s=+$("lc_s").value
 ["eos_w","eos_y","eos_t"].forEach(function(i){$(i).addEventListener("input",eos);$(i).addEventListener("change",eos)});
 ["lv_w","lv_y","lv_d"].forEach(function(i){$(i).addEventListener("input",lv)});
 ["lc_g","lc_q","lc_s"].forEach(function(i){$(i).addEventListener("input",lc);$(i).addEventListener("change",lc)});
-var T=["1","2","3","4","5"];function tab(n){T.forEach(function(k){$("p"+k).className=k==n?"on":"";$("t"+k).className=k==n?"on":""})}
+var T=["1","2","3","4","5","6"];function tab(n){T.forEach(function(k){$("p"+k).className=k==n?"on":"";$("t"+k).className=k==n?"on":""})}
 T.forEach(function(k){$("t"+k).onclick=function(){tab(k)}});
 eos();lv();lc();
+$("in_c").addEventListener("change",function(){if(+$("in_c").value)$("in_p").value=$("in_c").value;ins()});
+function ins(){var p=+$("in_p").value||0,n=+$("in_n").value||0,s=+$("in_s").value||0,k=$("in_k").value,g=k==="f"?s*.85*.02:saudi(s).ins;
+ $("in_r").textContent=f(p/12+g)+" ريال شهرياً للفرد";$("in_t").innerHTML=row("التأمين الطبي للفرد شهرياً",f(p/12))+row("التأمين الطبي سنوياً لكل العمال",f(p*n))+row("التأمينات الاجتماعية شهرياً للفرد",f(g))+row("التأمينات الاجتماعية شهرياً لكل العمال",f(g*n))+row("إجمالي التأمين شهرياً لكل العمال",f((p/12+g)*n))}
+["in_p","in_n","in_s","in_k"].forEach(function(i){$(i).addEventListener("input",ins);$(i).addEventListener("change",ins)});ins();
+
 </script></body></html>
