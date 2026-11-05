@@ -45,6 +45,7 @@ def template_sections():
 
 CSS, FONTS, T_COVER, T_OTHERS, T_CLOSE = template_sections()
 EXTRA = """
+.pt.cmp td,.pt.cmp th{padding:7px 8px;font-size:12px;line-height:1.5}.pt.cmp .num{font-size:12.6px}.pt.cmp .note{font-size:11.2px}.pt.cmp td.rec{background:#EEF3FF;font-weight:700}.pt.cmp th.rec{background:#2F4BE0!important;color:#fff!important}.pt.cmp th.rec .note{color:#fff!important;font-weight:600}
 .pt .nm{width:4%}.pt td.t{vertical-align:top}.pt td b{color:#0B1B5A}
 .pt td.nx{text-align:center;font-family:'IBM Plex Mono',monospace;color:#1E3A9E;font-weight:700}.pt th.nx{text-align:center}
 .pt .tot td{font-weight:700;background:#EEF1FB}
@@ -253,6 +254,37 @@ def closing(phone, iban, bank):
     return c
 
 
+def packages_page():
+    """صفحة كل الباقات بخيار واحد: REV-LAUNCH مقترحنا (قرار المالك 2026-11-05) — مرآة عربي/إنجليزي."""
+    N = lambda x: '<span class="num">%s</span>' % x
+    def row(en, ar, v_en, v_ar=None):
+        v_ar = v_ar or v_en
+        ce = ''.join('<td class="c%s">%s</td>' % (' rec' if i == 0 else '', x) for i, x in enumerate(v_en))
+        ca = ''.join('<td class="c%s">%s</td>' % (' rec' if i == 0 else '', x) for i, x in enumerate(reversed(v_ar)))
+        ca = ca.replace(' rec', '', 2) if False else ca
+        return '<tr><td class="en">%s</td>%s<td class="gp"></td>%s<td class="ar">%s</td></tr>' % (en, ce, ''.join('<td class="c%s">%s</td>' % (' rec' if i == 2 else '', x) for i, x in enumerate(reversed(v_ar))), ar)
+    rows = ''.join([
+        row('Monthly fee (SAR, excl. VAT)', 'الرسم الشهري (ريال، قبل الضريبة)', [N('2,500'), N('5,000'), N('9,500')]),
+        row('Advance: 3 months (SAR, excl. VAT)', 'الدفعة المقدمة: 3 أشهر (ريال، قبل الضريبة)', [N('7,500'), N('15,000'), N('28,500')]),
+        row('Target project size (SAR)', 'حجم المشاريع المستهدفة (ريال)', ['Up to 500,000', '1,000,000 to 5,000,000', '5,000,000 to 10,000,000'], ['حتى 500,000', 'من 1,000,000 إلى 5,000,000', 'من 5,000,000 إلى 10,000,000']),
+        row('Qualified leads / month (committed minimum)', 'فرص مؤهلة شهرياً (حد أدنى ملتزم به)', [N('4'), N('8'), N('16')]),
+        row('Vendor registrations / month (committed minimum)', 'تسجيلات مورد شهرياً (حد أدنى ملتزم به)', [N('4'), N('8'), N('16')]),
+        row('Meetings / month', 'اجتماعات شهرياً', [N('4'), N('8'), N('16')]),
+        row('Success fee on closed deals', 'نسبة النجاح على الصفقات المغلقة', ['As on page 1'] * 3, ['كما في الصفحة الأولى'] * 3),
+    ])
+    pk = [('REV-LAUNCH', 'Launch', 'الانطلاق'), ('REV-GROWTH', 'Growth', 'النمو'), ('REV-PRO', 'Pro', 'الاحترافية')]
+    th_en = ''.join('<th class="c%s"><span class="num">%s</span><br>%s%s</th>' % (' rec' if i == 0 else '', n, e, '<br><span class="note">Our proposal</span>' if i == 0 else '') for i, (n, e, a) in enumerate(pk))
+    th_ar = ''.join('<th class="c%s"><span class="num">%s</span><br>%s%s</th>' % (' rec' if i == 0 else '', n, a, '<br><span class="note">مقترحنا</span>' if i == 0 else '') for i, (n, e, a) in enumerate(pk))
+    th_ar = ''.join(reversed(re.findall(r'<th class="c[^>]*>.*?</th>', th_ar)))
+    tbl = ('<table class="pt cmp"><colgroup><col style="width:19%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:2%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:19%"></colgroup>'
+           '<tr><th class="en">Item</th>' + th_en + '<th class="gp"></th>' + th_ar + '<th class="ar">البند</th></tr>' + rows + '</table>')
+    return [h2(2, "Our packages: one option, proposed for you", "باقاتنا: خيار واحد نقترحه عليكم"),
+            p("For your information, these are all our business development packages. Our proposal for you is <b>REV-LAUNCH Launch at SAR 2,500 per month</b>, the quotation on the previous page; you may move to a higher package at any time.",
+              "للاطلاع، هذه كل باقات تطوير الأعمال لدينا. ومقترحنا لكم <b>باقة REV-LAUNCH الانطلاق بمبلغ 2,500 ريال شهرياً</b>، وهي المبيّنة في الصفحة السابقة، ويمكنكم الانتقال إلى باقة أعلى في أي وقت."),
+            tbl,
+            p("Prices and rates are before tax; 15% VAT is added. Government fees, if any, are separate.", "الأسعار والنسب قبل الضريبة وتُضاف ضريبة القيمة المضافة 15%. الرسوم الحكومية، إن وجدت، منفصلة.")]
+
+
 def land(inner, n_title):
     return lambda i, n, phone: ('<section class="sheet land" lang="ar"><div dir="rtl">%s<div class="bp">%s</div></div>%s</section>' % (
         hd2("Quotation: Business Development as a Service", "عرض سعر: تطوير الأعمال كخدمة"), "".join(inner), footer(i, n, phone)))
@@ -264,12 +296,14 @@ def build(cfg, short, phone, iban, bank):
     pages = []
     if short:
         pages.append(land([m] + price_block(cfg), "")) # 2
+        if cfg.get("packages_page"): pages.append(land(packages_page(), ""))
         pages.append(land(scope_block(True) + [h2(3, "Client Requirements", "المتطلبات من العميل"), numbered(REQS[:4], "Client Requirements", "المتطلبات من العميل"),
                           h2(4, "Exclusions", "ما لا يشمله العرض"), numbered(EXCL[:4], "Exclusions", "ما لا يشمله العرض")], ""))  # 3
         pages.append(land(term_pay_block(5) + [h2(7, "Signatures", "التوقيعان"), sig_boxes(cfg)], ""))   # 4
     else:
         pages.append(None)  # الخدمات الأخرى
         pages.append(land([m] + price_block(cfg), ""))
+        if cfg.get("packages_page"): pages.append(land(packages_page(), ""))
         pages.append(land(scope_block(False) + [h2(3, "How it works", "كيف تعمل الخدمة"), numbered(STEPS, "Step", "الخطوة")], ""))
         pages.append(land([h2(4, "Client Requirements", "المتطلبات من العميل"), numbered(REQS, "Client Requirements", "المتطلبات من العميل"),
                            h2(5, "Exclusions", "ما لا يشمله العرض"), numbered(EXCL, "Exclusions", "ما لا يشمله العرض")], ""))
@@ -292,6 +326,9 @@ def build(cfg, short, phone, iban, bank):
         else:
             out.append(pg(i, N, phone))
     out.append(re.sub(r"\d+ / \d+", "%d / %d" % (N, N), closing(phone, iban, bank)))
+    if cfg.get("packages_page"):  # ترقيم العناوين بعد صفحة الباقات
+        k = next(i for i, x in enumerate(out) if "Our packages: one option" in x)
+        out[k + 1:] = [re.sub(r'(<h2><span class="n">)(\d+)(</span>)', lambda m: m.group(1) + str(int(m.group(2)) + 1) + m.group(3), x) for x in out[k + 1:]]
     body = "".join(out).replace("[●]<br>business@", esc(phone) + "<br>business@")
     title = "عرض سعر تطوير الأعمال" + (" المبسط" if short else " المفصل")
     return ('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
