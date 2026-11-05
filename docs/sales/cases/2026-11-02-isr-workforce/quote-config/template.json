@@ -1,0 +1,30 @@
+{
+  "template": true,
+  "client_ar": "[●]",
+  "client_en": "[●]",
+  "date_en": "5 November 2026",
+  "date_ar": "5 نوفمبر 2026",
+  "nationalities": [
+    "Filipino",
+    "Indian",
+    "Nepali"
+  ],
+  "hours": 8,
+  "days": 26,
+  "trades": [
+    {
+      "en": "Skilled worker — trade: [●]",
+      "ar": "عامل ماهر — المهنة: [●]",
+      "level": "skilled",
+      "count": 1
+    },
+    {
+      "en": "Helper — trade: [●]",
+      "ar": "عامل مساعد — المهنة: [●]",
+      "level": "helper",
+      "count": 1
+    }
+  ],
+  "calc_url": "www.businesspartner.sa/tools-and-calculators",
+  "calc_saudi_url": "www.businesspartner.sa/tools-and-calculators"
+}

@@ -141,7 +141,7 @@ def build_quote():
         return f
 
     B = "[●]"
-    nat_all = ("Filipino · Indian · Nepali", "فلبينية · هندية · نيبالية")
+    nat_all = (NAT_EN, NAT_AR)
     def pc(v): return (num(n(v)), num(n(v)), "c")
     def rate_table(prices, price_hdr=("Monthly price per worker (SAR)", "السعر الشهري للعامل (ريال)"), prices2=None, hdr2=None):
         rr = []
@@ -471,7 +471,7 @@ def build_quote():
     annex_blocks = [m1, m1s, m2, m2t, m2i, m2b, m3, m4, sheets_model_page, scope_page, calc_page, find(A, "Government fees explained"), find(A, 'h2("A5"') if False else find(A, "Localisation fee"),
                     find(A, "Technical and engineering workers: how"), saudi_page, find(A, "What you pay and when"), find(A, "Terms and conditions")]
     detail_pages = pack([m_prices, m_models, m_incl] + annex_blocks + [m_opts, m_sign, m_bank], pageA, "qa", tail=2)
-    return sar_mark(doc("Quotation (simple) — ISR Trading (Workforce)", css, [sheets[0]] + simple_pages + [])), sar_mark(doc("Quotation (detailed) — ISR Trading (Workforce)", css, [sheets[0]] + detail_pages + [closing]))
+    return sar_mark(doc("Quotation (simple) — Workforce Supply", css, [sheets[0]] + simple_pages + [])), sar_mark(doc("Quotation (detailed) — ISR Trading (Workforce)", css, [sheets[0]] + detail_pages + [closing]))
 
 # ------------------------------------------------------------------ العقد وNDA (A4 عمودي)
 def hd_port(en, a, sub_en):
@@ -609,8 +609,8 @@ def paginate_port(rows, title_en, title_ar, kind_en, kind_ar, cover_args, with_s
 def build_contract():
     rows = contract_clauses()
     cover = ("WORKFORCE SUPPLY AGREEMENT", "عقد توفير العمالة", C_TITLE_EN, C_TITLE_AR,
-             "Supplying seven trade teams of fifteen workers each, Filipino, Indian and Nepali nationals only.",
-             "توفير سبعة فرق مهنية، في كل فريق خمسة عشر عاملاً، من الجنسيات الفلبينية والهندية والنيبالية فقط.")
+             ("Supplying %d workers in the trades listed in the quotation, %s nationals only." % (TOTAL_WORKERS, NATL_EN) if TEMPLATE else "Supplying seven trade teams of fifteen workers each, %s nationals only." % NATL_EN),
+             ("توفير %d عاملاً في المهن المبيّنة في العرض، من الجنسيات %s فقط." % (TOTAL_WORKERS, NATL_AR) if TEMPLATE else "توفير سبعة فرق مهنية، في كل فريق خمسة عشر عاملاً، من الجنسيات %s فقط." % NATL_AR))
     h, _ = paginate_port(rows, C_TITLE_EN, C_TITLE_AR, None, None, cover)
     return h, rows
 

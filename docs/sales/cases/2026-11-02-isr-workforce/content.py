@@ -111,9 +111,22 @@ TRADES = _CFG["trades"]                                   # كل مهنة: ال�
 NATS = [x for x in NATS if x[0] in _CFG["nationalities"]]
 REC_COUNTRY = [x for x in REC_COUNTRY if x[0] in _CFG["nationalities"]]
 NAT_EN = " · ".join(x[0] for x in NATS); NAT_AR = " · ".join(x[1] for x in NATS)
+def _lst(xs, andw): return xs[0] if len(xs) == 1 else ", ".join(xs[:-1]) + " " + andw + " " + xs[-1]
+def _lar(xs):
+    xs = ["ال" + x for x in xs]
+    return xs[0] if len(xs) == 1 else xs[0] + "".join(" و" + x for x in xs[1:]).replace(" و", " و")
+    # الصيغة الأصلية: «الفلبينية والهندية والنيبالية»
+NATL_EN = _lst([x[0] for x in NATS], "and"); NATL_AR = _lar([x[1] for x in NATS])
+NATP_EN = _lst([x[0] + " " + d for x, d in zip(NATS, [r[5] for r in REC_COUNTRY])], "and"); NATP_AR = _lar([x[1] + " " + r[6] for x, r in zip(NATS, REC_COUNTRY)]) if False else "، ".join({"فلبينية": "الفلبيني", "هندية": "الهندي", "نيبالية": "النيبالي"}.get(x[1], "ال" + x[1]) + " " + r[6] for x, r in zip(NATS, REC_COUNTRY)).replace("، ال", "، وال")
+TEMPLATE = bool(_CFG.get("template"))
 TOTAL_WORKERS = sum(t["count"] for t in TRADES)
 REF = "Workforce Supply"
 REF_AR = "توفير العمالة"
+
+def _team_rows():
+    if TEMPLATE:
+        return [["%s<br>%s" % (t["en"], t["ar"]), str(t["count"]), "-"] for t in TRADES] + [["Total · الإجمالي", str(TOTAL_WORKERS), "-"]]
+    return [[ "%s<br>%s" % (e2, a2), str(PER_TEAM), "≥ %d" % SKILLED_MIN] for e2, a2 in TEAMS] + [["Total · الإجمالي", str(WORKERS), "≥ %d" % SKILLED_TOTAL]]
 
 def ar(s):
     return re.sub(r"\.(?=\s|$)", "." + RLM, s)
@@ -128,11 +141,11 @@ Q_COVER_AR = "توفير %d عاملاً من الجنسيات: %s فقط، يو
 
 SCOPE = [
     ("Workforce supply", "توفير العمالة",
-     "Supplying %d workers in %d trade teams of %d each, at least %d of every team being skilled professionals, under the terms of the Workforce Supply Agreement." % (WORKERS, NTEAMS, PER_TEAM, SKILLED_MIN),
-     "توفير %d عاملاً في %d فرق مهنية، في كل فريق %d عاملاً، %d منهم على الأقل محترفون مهرة، وفق شروط عقد توفير العمالة." % (WORKERS, NTEAMS, PER_TEAM, SKILLED_MIN)),
+     ("Supplying %d workers in the trades listed in the price table, under the terms of the Workforce Supply Agreement." % TOTAL_WORKERS if TEMPLATE else "Supplying %d workers in %d trade teams of %d each, at least %d of every team being skilled professionals, under the terms of the Workforce Supply Agreement." % (WORKERS, NTEAMS, PER_TEAM, SKILLED_MIN)),
+     ("توفير %d عاملاً في المهن المبيّنة في جدول الأسعار، وفق شروط عقد توفير العمالة." % TOTAL_WORKERS if TEMPLATE else "توفير %d عاملاً في %d فرق مهنية، في كل فريق %d عاملاً، %d منهم على الأقل محترفون مهرة، وفق شروط عقد توفير العمالة." % (WORKERS, NTEAMS, PER_TEAM, SKILLED_MIN))),
     ("Nationalities", "الجنسيات",
-     "Filipino, Indian and Nepali nationals only. No other nationality is proposed, accepted or substituted.",
-     "الجنسيات الفلبينية والهندية والنيبالية فقط. ولا تُقترح جنسية أخرى ولا تُقبل ولا تُستبدل."),
+     "" + NATL_EN + " nationals only. No other nationality is proposed, accepted or substituted.",
+     "الجنسيات " + NATL_AR + " فقط. ولا تُقترح جنسية أخرى ولا تُقبل ولا تُستبدل."),
     ("Recruitment and visas", "الاستقدام والتأشيرات",
      "Recruitment through licensed recruitment parties, work-visa issuance, and following up the applications until the workers arrive.",
      "الاستقدام عبر جهات استقدام مرخصة، واستخراج تأشيرات العمل، ومتابعة الطلبات حتى وصول العمال."),
@@ -172,8 +185,8 @@ EXCLUSIONS = [
     ("Tools, equipment, materials and personal protective equipment for the work, unless agreed otherwise in writing.",
      "الأدوات والمعدات والمواد ومعدات الحماية الشخصية للعمل، ما لم يُتفق على غير ذلك كتابةً."),
     ("Overtime, invoiced per hour at 1.5 times the hourly rate of the monthly fees, under the Labour Law. The hourly rate is the monthly fees divided by 30 days and 8 hours.", "العمل الإضافي، ويُفوتر بالساعة بمعدل ساعة ونصف عن كل ساعة من الرسوم الشهرية وفق نظام العمل. وسعر الساعة هو الرسوم الشهرية مقسومة على 30 يوماً و8 ساعات."),
-    ("Any nationality other than Filipino, Indian and Nepali, and any trade not listed in the table, are outside this quotation and need a written change request priced separately.",
-     "أي جنسية غير الفلبينية والهندية والنيبالية، وأي مهنة غير واردة في الجدول، خارج هذا العرض وتحتاج طلب تغيير كتابياً يُسعَّر على حدة."),
+    ("Any nationality other than " + NATL_EN + ", and any trade not listed in the table, are outside this quotation and need a written change request priced separately.",
+     "أي جنسية غير " + NATL_AR + "، وأي مهنة غير واردة في الجدول، خارج هذا العرض وتحتاج طلب تغيير كتابياً يُسعَّر على حدة."),
 ]
 
 STAGES = [  # (stage_en, stage_ar, what_en, what_ar, duration)
@@ -193,8 +206,8 @@ TERMS = [
     ("This quotation is valid for 14 days from its date.", "هذا العرض سارٍ لمدة 14 يوماً من تاريخه."),
     ("Prices are in Saudi riyals, before 15% VAT, which is added according to the regulations.",
      "الأسعار بالريال السعودي قبل ضريبة القيمة المضافة 15% وتُضاف وفق النظام."),
-    ("Only Filipino, Indian and Nepali nationals are supplied. If the Client’s requirement cannot be met within these nationalities, we tell the Client in writing and supply no other nationality.",
-     "لا يُوفَّر إلا عمال من الجنسيات الفلبينية والهندية والنيبالية. وإن تعذّر تلبية الطلب ضمن هذه الجنسيات أبلغنا العميل كتابةً ولم نوفّر أي جنسية أخرى."),
+    ("Only " + NATL_EN + " nationals are supplied. If the Client’s requirement cannot be met within these nationalities, we tell the Client in writing and supply no other nationality.",
+     "لا يُوفَّر إلا عمال من الجنسيات " + NATL_AR + ". وإن تعذّر تلبية الطلب ضمن هذه الجنسيات أبلغنا العميل كتابةً ولم نوفّر أي جنسية أخرى."),
     ("«Skilled» means a worker who has passed the trade verification described in the Agreement. Not less than %d of every %d workers in each team are skilled." % (SKILLED_MIN, PER_TEAM),
      "«ماهر» هو العامل الذي اجتاز الفحص المهني الوارد في العقد. وفي كل فريق لا يقل عدد المهرة عن %d من كل %d عاملاً." % (SKILLED_MIN, PER_TEAM)),
     ("The stage durations depend on the licensed recruitment parties, the embassies and the competent authorities; we state them in writing before dispatch and do not guarantee a visa approval or an arrival date.",
@@ -283,12 +296,12 @@ def contract_clauses():
         e, a = _pts(no, items); add(t_en, t_ar, e + extra_en, a + extra_ar)
 
     pts("Subject and definitions", "موضوع العقد والتعريفات", 2, [
-        ("The First Party supplies to the Second Party %d workers in %d trade teams of %d workers each, as listed in the accepted quotation, which forms an integral part of this Agreement." % (WORKERS, NTEAMS, PER_TEAM),
-         "يوفّر الطرف الأول للطرف الثاني %d عاملاً في %d فرق مهنية، في كل فريق %d عاملاً، وفق ما هو مبيّن في عرض السعر المقبول الذي يُعدّ جزءاً لا يتجزأ من هذا العقد." % (WORKERS, NTEAMS, PER_TEAM)),
+        (("The First Party supplies to the Second Party %d workers in the trades listed in the accepted quotation, which forms an integral part of this Agreement." % TOTAL_WORKERS if TEMPLATE else "The First Party supplies to the Second Party %d workers in %d trade teams of %d workers each, as listed in the accepted quotation, which forms an integral part of this Agreement." % (WORKERS, NTEAMS, PER_TEAM)),
+         ("يوفّر الطرف الأول للطرف الثاني %d عاملاً في المهن المبيّنة في عرض السعر المقبول الذي يُعدّ جزءاً لا يتجزأ من هذا العقد." % TOTAL_WORKERS if TEMPLATE else "يوفّر الطرف الأول للطرف الثاني %d عاملاً في %d فرق مهنية، في كل فريق %d عاملاً، وفق ما هو مبيّن في عرض السعر المقبول الذي يُعدّ جزءاً لا يتجزأ من هذا العقد." % (WORKERS, NTEAMS, PER_TEAM))),
         ("Not less than %d workers of every team are skilled. «Skilled» means a worker who has passed the trade verification in clause 5." % SKILLED_MIN,
          "لا يقل عدد المهرة في كل فريق عن %d عمال. و«الماهر» هو من اجتاز الفحص المهني الوارد في البند 5." % SKILLED_MIN),
-        ("The nationalities are Filipino, Indian and Nepali only. The First Party supplies no other nationality and substitutes none.",
-         "الجنسيات الفلبينية والهندية والنيبالية فقط. ولا يوفّر الطرف الأول جنسية أخرى ولا يستبدلها."),
+        ("The nationalities are " + NATL_EN + " only. The First Party supplies no other nationality and substitutes none.",
+         "الجنسيات " + NATL_AR + " فقط. ولا يوفّر الطرف الأول جنسية أخرى ولا يستبدلها."),
         ("This is a separate written contract for workforce supply. It is not a recruitment-only service, and it does not make the workers employees of the Second Party.",
          "هذا عقد كتابي مستقل لتوفير العمالة، وليس خدمة استقدام فقط، ولا يجعل العمال موظفين لدى الطرف الثاني."),
         ("The workers remain employed by the First Party, or by a licensed partner where the regulations so require. The First Party remains responsible to the Second Party for performance.",
@@ -317,8 +330,8 @@ def contract_clauses():
          "مراحل الاستقدام: القبول والدفعة المقدمة، والاختيار والفحص المهني، والتأشيرة والمستندات، والسفر والوصول، والإقامة والمباشرة. ويذكر الطرف الأول مدة كل مرحلة كتابةً قبل الإرسال."),
         ("The durations depend on the licensed recruitment parties, the embassies and the competent authorities. The First Party does not guarantee a visa approval or an arrival date.",
          "تعتمد المدد على جهات الاستقدام المرخصة والسفارات والجهات المختصة، ولا يضمن الطرف الأول قبول تأشيرة ولا موعد وصول.")],
-        "<br>" + _mini_table(["Team · الفريق", "Workers · العمال", "Skilled · المهرة"], [[ "%s<br>%s" % (e2, a2), str(PER_TEAM), "≥ %d" % SKILLED_MIN] for e2, a2 in TEAMS] + [["Total · الإجمالي", str(WORKERS), "≥ %d" % SKILLED_TOTAL]], [70, 15, 15]),
-        "<br>" + _mini_table(["Team · الفريق", "Workers · العمال", "Skilled · المهرة"], [[ "%s<br>%s" % (e2, a2), str(PER_TEAM), "≥ %d" % SKILLED_MIN] for e2, a2 in TEAMS] + [["Total · الإجمالي", str(WORKERS), "≥ %d" % SKILLED_TOTAL]], [70, 15, 15]))
+        "<br>" + _mini_table(["Team · الفريق", "Workers · العمال", "Skilled · المهرة"], _team_rows(), [70, 15, 15]),
+        "<br>" + _mini_table(["Team · الفريق", "Workers · العمال", "Skilled · المهرة"], _team_rows(), [70, 15, 15]))
 
     pts("Trade verification and selection", "الفحص المهني والاختيار", 5, [
         ("Before dispatch the First Party verifies each worker’s trade by [●] and gives the Second Party the result.",
@@ -403,8 +416,8 @@ STAGES2 = [  # (when_en, when_ar, what_en, what_ar, how_en, how_ar)
     ("Workers recruited from abroad", "العمال المستقدَمون من الخارج",
      "Recruitment from the country by nationality, contract attestation and the arrival ticket, at actual cost (section A6).",
      "الاستقدام من الدولة بحسب الجنسية، وتصديق العقود، وتذكرة القدوم، بالتكلفة الفعلية (البند أ6).",
-     "A separate invoice, outside the monthly price. Typical duration: Filipino 60–90 days, Indian 21 days, Nepali 30 days. Not applicable to workers transferred from inside the Kingdom.",
-     "بفاتورة منفصلة خارج السعر الشهري. المدة المعتادة: الفلبيني 60–90 يوماً، والهندي 21 يوماً، والنيبالي 30 يوماً. ولا تنطبق على العمال المنقولة كفالتهم من داخل المملكة."),
+     "A separate invoice, outside the monthly price. Typical duration: " + NATP_EN + ". Not applicable to workers transferred from inside the Kingdom.",
+     "بفاتورة منفصلة خارج السعر الشهري. المدة المعتادة: " + NATP_AR + ". ولا تنطبق على العمال المنقولة كفالتهم من داخل المملكة."),
     ("Every month", "كل شهر",
      "The <b>monthly price</b> for the workers on duty: salary, work permit, residency, health and social insurance, and the management fee.",
      "<b>السعر الشهري</b> للعمال على رأس العمل: الراتب والرخصة والإقامة والتأمين الصحي والتأمينات ورسوم الإدارة.",
@@ -477,7 +490,7 @@ def _r(en, ar_, v1, v2): return (en, ar_, "SAR %s" % nt(v1), "%s ريال" % nt(
 LOCCALC = [  # (item_en, item_ar, tech_en, tech_ar, eng_en, eng_ar)
     ("Localisation decision", "قرار التوطين", "30% Saudis, from 5 workers in the profession", "30% سعوديين، من 5 عاملين في المهنة", "30% Saudis, from 5 workers (Saudi Council of Engineers)", "30% سعوديين، من 5 عاملين (الهيئة السعودية للمهندسين)"),
     ("Minimum Saudi salary counted", "أقل راتب محتسب للسعودي", "SAR 5,500", "5,500 ريال", "SAR 8,000", "8,000 ريال"),
-    ("Foreign workers in the calculation", "العمال الأجانب في الحسبة", "%d (the steel-hangar and HVAC teams)" % LOC_TECH["q"], "%d (فريقا الهياكل المعدنية والتكييف)" % LOC_TECH["q"], "%d (example, none requested yet)" % LOC_ENG["q"], "%d (مثال، لا يوجد مطلوب حالياً)" % LOC_ENG["q"]),
+    ("Foreign workers in the calculation", "العمال الأجانب في الحسبة", ("%d (the workers of the profession)" if TEMPLATE else "%d (the steel-hangar and HVAC teams)") % LOC_TECH["q"], ("%d (عمال المهنة)" if TEMPLATE else "%d (فريقا الهياكل المعدنية والتكييف)") % LOC_TECH["q"], "%d (example, none requested yet)" % LOC_ENG["q"], "%d (مثال، لا يوجد مطلوب حالياً)" % LOC_ENG["q"]),
     ("Saudis required = 30% ÷ 70% × workers, rounded up", "السعوديون المطلوبون = 30% ÷ 70% × العمال، مقرَّبة لأعلى", str(TECH_NEED), str(TECH_NEED), str(ENG_NEED), str(ENG_NEED)),
     ("Cost of one Saudi per month (salary, employer and employee insurance, end of service, leave)", "تكلفة السعودي الواحد شهرياً (الراتب والتأمينات على صاحب العمل والموظف ونهاية الخدمة والإجازة)", "SAR %s" % nt(TECH_ONE), "%s ريال" % nt(TECH_ONE), "SAR %s" % nt(ENG_ONE), "%s ريال" % nt(ENG_ONE)),
     ("Localisation fees per worker per month at 30%", "رسوم التوطين على العامل الواحد شهرياً بنسبة 30%", "SAR %s" % nt(TECH_FEE), "%s ريال" % nt(TECH_FEE), "SAR %s" % nt(ENG_FEE), "%s ريال" % nt(ENG_FEE)),
