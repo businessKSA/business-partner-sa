@@ -25,9 +25,9 @@ def _catalog_price(code="BP-FI-05"):
     assert hit, "SKU %s not in catalog" % code
     return hit[0]
 
-# قرار المالك 2026-11-05: خياران لهذا العميل (نفس عرض أبو محمد اليمني بسعر مختلف)
-FEE_A = 20000                       # أ: بدون الرسوم الحكومية
-FEE_B = 25000                       # ب: مع الرسوم الحكومية
+# قرار المالك 2026-11-05 (تعديل): أ 25,000 بدون رسوم حكومية · ب 30,000 يشمل رسوم رخصة الاستثمار وعقد التأسيس فقط
+FEE_A = 25000                       # أ: تأسيس كامل بدون الرسوم الحكومية (العميل يدفعها كلها)
+FEE_B = 30000                       # ب: يشمل رسوم رخصة الاستثمار ورسوم عقد التأسيس فقط
 def _v(x): return x * 15 // 100
 FEE = FEE_A; VAT = _v(FEE_A); TOTAL = FEE_A + VAT          # الخيار أ (الافتراضي في الجداول المفردة)
 VAT_B = _v(FEE_B); TOTAL_B = FEE_B + VAT_B
@@ -109,8 +109,8 @@ REQUIREMENTS = [
 ]
 
 EXCLUSIONS = [
-    ("Government fees and the entities’ charges (investment registration, commercial registration and publication, chamber membership): under Option A they are not included and are paid by the Client directly to the entities; under Option B they are included in the price. Any other fee is always paid by the Client.",
-     "الرسوم الحكومية ورسوم الجهات (التسجيل الاستثماري، والسجل التجاري والنشر، وعضوية الغرفة): في الخيار أ غير شاملة ويسدّدها العميل مباشرة للجهات، وفي الخيار ب شاملة في السعر. وأي رسم آخر يسدّده العميل."),
+    ("Government fees and the entities’ charges (investment registration, commercial registration and publication, chamber membership): under Option A none is included and the Client pays all government fees directly to the entities; under Option B only the investment-licence fee and the incorporation-contract fee are included in the price, and every other government fee is paid by the Client. See the Government Payments Schedule.",
+     "الرسوم الحكومية ورسوم الجهات (التسجيل الاستثماري، والسجل التجاري والنشر، وعضوية الغرفة): في الخيار أ غير شاملة ويسدّد العميل كل الرسوم الحكومية مباشرة للجهات، وفي الخيار ب يشمل السعر رسوم رخصة الاستثمار ورسوم عقد التأسيس فقط ويسدّد العميل كل رسم حكومي آخر. انظر مرفق المدفوعات الحكومية."),
     ("Attestation of foreign documents, certified translation, fees of the support entity or incubator, and sectoral licence fees for regulated activities.",
      "تصديق المستندات الأجنبية والترجمة المعتمدة، ورسوم جهة الدعم أو الحاضنة، ورسوم الجهات القطاعية للأنشطة الخاضعة."),
     ("Powers of attorney are not part of this package; where the Client is resident in the Kingdom, the power of attorney is issued directly from within the Kingdom.",
@@ -216,10 +216,10 @@ def contract_clauses():
     t_en, t_ar, b_en, b_ar = _clause(core, "3.")
     b_en = b_en.replace(
         "The fees are those stated in the accepted quotation, before 15% VAT, which is added. Payment terms: [●].",
-        "The Client selects ONE of two options (mark the selected one: [ ] A  [ ] B). Option A: SAR %s (twenty thousand Saudi riyals) before 15%% VAT, government fees NOT included and paid by the Client directly to the entities. Option B: SAR %s (twenty-five thousand Saudi riyals) before 15%% VAT, government fees (investment registration, commercial registration and publication, chamber membership) INCLUDED. Payment terms for either option: the full fee, plus VAT, is paid in advance on signing this contract and before work starts." % (n(FEE_A), n(FEE_B)))
+        "The Client selects ONE of two options (mark the selected one: [ ] A  [ ] B). Option A: SAR %s (twenty-five thousand Saudi riyals) before 15%% VAT, complete company formation; government fees are NOT included and the Client pays all of them directly to the entities. Option B: SAR %s (thirty thousand Saudi riyals) before 15%% VAT, which INCLUDES only the investment-licence fee and the incorporation-contract fee; every other government fee is paid by the Client (Government Payments Schedule). Payment terms for either option: the full fee, plus VAT, is paid in advance on signing this contract and before work starts." % (n(FEE_A), n(FEE_B)))
     b_ar = b_ar.replace(
         "الرسوم هي المذكورة في عرض السعر المقبول، قبل ضريبة القيمة المضافة 15% التي تُضاف عليها. شروط السداد: [●].",
-        "يختار العميل أحد خيارين فقط (يُعلَّم المختار: [ ] أ  [ ] ب). الخيار أ: %s ريال سعودي (عشرون ألف ريال) قبل ضريبة القيمة المضافة 15%% والرسوم الحكومية غير شاملة ويسدّدها العميل مباشرة للجهات. الخيار ب: %s ريال سعودي (خمسة وعشرون ألف ريال) قبل ضريبة القيمة المضافة 15%% والرسوم الحكومية (التسجيل الاستثماري، والسجل التجاري والنشر، وعضوية الغرفة) شاملة. شروط السداد للخيارين: تُسدَّد كامل الأتعاب مع الضريبة مقدماً عند توقيع هذا العقد وقبل بدء العمل." % (n(FEE_A), n(FEE_B)))
+        "يختار العميل أحد خيارين فقط (يُعلَّم المختار: [ ] أ  [ ] ب). الخيار أ: %s ريال سعودي (خمسة وعشرون ألف ريال) قبل ضريبة القيمة المضافة 15%% لتأسيس كامل، والرسوم الحكومية غير شاملة ويسدّد العميل كلها مباشرة للجهات. الخيار ب: %s ريال سعودي (ثلاثون ألف ريال) قبل ضريبة القيمة المضافة 15%% ويشمل رسوم رخصة الاستثمار ورسوم عقد التأسيس فقط، ويسدّد العميل كل رسم حكومي آخر (مرفق المدفوعات الحكومية). شروط السداد للخيارين: تُسدَّد كامل الأتعاب مع الضريبة مقدماً عند توقيع هذا العقد وقبل بدء العمل." % (n(FEE_A), n(FEE_B)))
     assert "[●]. Payment" not in b_en
     b_en = b_en.replace("IBAN [●]", "IBAN [IBAN]")
     b_ar = b_ar.replace("آيبان [●]", "آيبان [IBAN]")

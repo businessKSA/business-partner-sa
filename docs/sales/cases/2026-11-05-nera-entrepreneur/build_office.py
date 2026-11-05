@@ -355,7 +355,7 @@ def build_pptx(out):
     txt(sl, 0.8, 2.3, 4.0, 1.0, "A: %s · B: %s" % (n(FEE_A), n(FEE_B)), 30, True, "FFFFFF", font=F_H)
     txt(sl, 0.8, 3.35, 4.0, 0.6, "أ: %s · ب: %s ريال" % (n(FEE_A), n(FEE_B)), 22, True, "FFFFFF", rtl=True)
     txt(sl, 0.8, 4.2, 4.0, 1.2, ["Before 15%% VAT (SAR %s) · total SAR %s" % (n(VAT), n(TOTAL)), ar("قبل ضريبة 15%% (%s ريال) · الإجمالي %s ريال" % (n(VAT), n(TOTAL)))], 11, False, "EEF1FB", line=1.3)
-    txt(sl, 0.8, 5.5, 4.0, 0.9, ["Government fees: A **not included** · B **included**", "الرسوم الحكومية: أ **غير شاملة** · ب **شاملة**"], 12, False, ACCD, line=1.3)
+    txt(sl, 0.8, 5.5, 4.0, 0.9, ["Government fees: A **all paid by you** · B **licence + incorporation contract included**", "الرسوم الحكومية: أ **عليك كلها** · ب **تشمل الرخصة وعقد التأسيس**"], 12, False, ACCD, line=1.3)
     # ما يشمله
     box(sl, 5.3, 1.7, 7.43, 2.45, BG, LINE)
     txt(sl, 5.45, 1.78, 3.5, 0.3, "On us · علينا", 12, True, NAVY)

@@ -152,10 +152,10 @@ def build_quote():
 
     # 3 السعر
     price_rows = [
-        [("<b>Option A</b> · BP-FI-05 Entrepreneurship-Licence Company Formation — service fee, <b>government fees NOT included</b>", "<b>الخيار أ</b> · BP-FI-05 تأسيس شركة برخصة ريادة الأعمال — أتعاب الخدمة، <b>بدون الرسوم الحكومية</b>", ""), (num(n(FEE_A)), num(n(FEE_A)), "c")],
+        [("<b>Option A</b> · BP-FI-05 Entrepreneurship-Licence Company Formation, complete — <b>government fees NOT included</b> (the Client pays all of them)", "<b>الخيار أ</b> · BP-FI-05 تأسيس كامل لشركة برخصة ريادة الأعمال — <b>بدون الرسوم الحكومية</b> (يسدّدها العميل كلها)", ""), (num(n(FEE_A)), num(n(FEE_A)), "c")],
         [("VAT 15% (added)", "ضريبة القيمة المضافة 15% (تُضاف)", ""), (num(n(VAT)), num(n(VAT)), "c")],
         {"cls": "tot", "cells": [("Option A total including VAT", "إجمالي الخيار أ شامل الضريبة", ""), (num(n(TOTAL)), num(n(TOTAL)), "c")]},
-        [("<b>Option B</b> · same service — <b>government fees INCLUDED</b> (investment registration, commercial registration and publication, chamber membership)", "<b>الخيار ب</b> · الخدمة نفسها — <b>شاملة الرسوم الحكومية</b> (التسجيل الاستثماري، والسجل التجاري والنشر، وعضوية الغرفة)", ""), (num(n(FEE_B)), num(n(FEE_B)), "c")],
+        [("<b>Option B</b> · same service — <b>includes only the investment-licence fee and the incorporation-contract fee</b>; all other government fees are paid by the Client", "<b>الخيار ب</b> · الخدمة نفسها — <b>يشمل رسوم رخصة الاستثمار ورسوم عقد التأسيس فقط</b>؛ ويسدّد العميل كل رسم حكومي آخر", ""), (num(n(FEE_B)), num(n(FEE_B)), "c")],
         [("VAT 15% (added)", "ضريبة القيمة المضافة 15% (تُضاف)", ""), (num(n(VAT_B)), num(n(VAT_B)), "c")],
         {"cls": "tot", "cells": [("Option B total including VAT", "إجمالي الخيار ب شامل الضريبة", ""), (num(n(TOTAL_B)), num(n(TOTAL_B)), "c")]},
     ]
@@ -164,9 +164,9 @@ def build_quote():
     for fe, fa, ee, ea, he, ha in GOV_FEES:
         gov_rows.append([(fe, fa, ""), (ee, ea, ""), (he, ar(ha), "")])
     gov = bi_table([("Fee", "الرسم", False), ("Entity", "الجهة", False), ("Amount and payment", "المبلغ وطريقة السداد", False)], gov_rows, [18, 12, 18])
-    note = ('<div class="nt"><div dir="ltr"><b>Not included, always:</b> attestation of foreign documents and certified translation, the support entity’s or incubator’s fees, and sectoral licence fees for regulated activities. Under Option A government fees are paid by the Client directly when due; under Option B they are included.</div>'
-            '<div class="ar" dir="rtl"><b>خارج السعر دائماً:</b> %s</div></div>') % esc(ar("تصديق المستندات الأجنبية والترجمة المعتمدة، ورسوم جهة الدعم أو الحاضنة، ورسوم الجهات القطاعية للأنشطة الخاضعة. وفي الخيار أ يسدّد العميل الرسوم الحكومية مباشرة عند استحقاقها، وفي الخيار ب هي شاملة."))
-    inner = meta_row() + h2(1, "Price", "السعر") + price + h2("", "Government fees — paid by the Client under Option A only", "الرسوم الحكومية — يسدّدها العميل في الخيار أ فقط") + gov + note
+    note = ('<div class="nt"><div dir="ltr"><b>Not included, always:</b> attestation of foreign documents and certified translation, the support entity’s or incubator’s fees, and sectoral licence fees for regulated activities. Under Option A the Client pays all government fees directly when due; under Option B only the investment-licence and incorporation-contract fees are included.</div>'
+            '<div class="ar" dir="rtl"><b>خارج السعر دائماً:</b> %s</div></div>') % esc(ar("تصديق المستندات الأجنبية والترجمة المعتمدة، ورسوم جهة الدعم أو الحاضنة، ورسوم الجهات القطاعية للأنشطة الخاضعة. وفي الخيار أ يسدّد العميل كل الرسوم الحكومية مباشرة عند استحقاقها، وفي الخيار ب تشمل الأتعاب رسوم رخصة الاستثمار وعقد التأسيس فقط."))
+    inner = meta_row() + h2(1, "Price", "السعر") + price + h2("", "Government fees — who pays what (see the Government Payments Schedule)", "الرسوم الحكومية — من يدفع ماذا (انظر مرفق المدفوعات الحكومية)") + gov + note
     sheets.append(page(inner))
 
     # 4 النطاق والمخرجات

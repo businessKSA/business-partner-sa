@@ -80,23 +80,48 @@ GUIDE += [
      "Investment registration: the announced official period is 10 working days from the date the file is complete. Before it: document preparation, the support letter and attestation, which are on you and determine the overall duration. After it: incorporation and opening the company’s files. The detailed schedule is set at contract signing.",
      "التسجيل الاستثماري: المدة الرسمية المعلنة 10 أيام عمل من اكتمال الملف. قبله: تجهيز المستندات وخطاب الدعم والتصديق، وهي عليك وتحدد المدة الكلية. وبعده: تأسيس الشركة وفتح ملفاتها. وتُحدَّد الجدولة التفصيلية عند توقيع العقد."),
     ("What it costs", "كم تكلف",
-     "Our service fee is SAR %s (Option A, government fees not included) or SAR %s (Option B, government fees included), before 15%% VAT, paid in full in advance on signing the contract, before work starts." % (n(FEE_A), n(FEE_B)),
-     "أتعابنا %s ريال (الخيار أ، والرسوم الحكومية غير شاملة وتسدّدها أنت مباشرة للجهات) أو %s ريال (الخيار ب، والرسوم الحكومية شاملة)، قبل ضريبة القيمة المضافة 15%%، وتُسدَّد كاملةً مقدماً عند التعاقد وقبل بدء العمل." % (n(FEE_A), n(FEE_B))),
+     "Our service fee is SAR %s (Option A, complete formation, you pay all government fees) or SAR %s (Option B, which includes only the investment-licence and incorporation-contract fees), before 15%% VAT, paid in full in advance on signing the contract, before work starts." % (n(FEE_A), n(FEE_B)),
+     "أتعابنا %s ريال (الخيار أ، تأسيس كامل وتسدّد أنت كل الرسوم الحكومية للجهات) أو %s ريال (الخيار ب، ويشمل رسوم رخصة الاستثمار ورسوم عقد التأسيس فقط)، قبل ضريبة القيمة المضافة 15%%، وتُسدَّد كاملةً مقدماً عند التعاقد وقبل بدء العمل." % (n(FEE_A), n(FEE_B))),
     ("What you receive", "ما الذي تتسلمه",
      "The investment registration certificate, the commercial registration and contract of incorporation, chamber membership, the tax number and ZATCA certificate, the GOSI and Ministry of Human Resources files, the national address and the complete company document pack.",
      "شهادة التسجيل الاستثماري، والسجل التجاري وعقد التأسيس، وعضوية الغرفة، والرقم الضريبي وشهادة الزكاة والضريبة والجمارك، وملفات التأمينات ووزارة الموارد البشرية، والعنوان الوطني، وحزمة مستندات الشركة كاملة."),
     ("What is not included", "ما لا تشمله الخدمة",
-     "Government and entity fees under Option A (included under Option B), attestation and certified translation, support-entity fees, powers of attorney (issued directly from within the Kingdom if you are resident), opening a bank account, and post-incorporation obligations such as renewals, zakat and tax filing and social insurance.",
-     "الرسوم الحكومية ورسوم الجهات في الخيار أ (شاملة في الخيار ب)، والتصديق والترجمة المعتمدة، ورسوم جهة الدعم، والوكالات (تصدر من داخل السعودية مباشرة إن كنت مقيماً)، وفتح الحساب البنكي، والالتزامات اللاحقة للتأسيس كالتجديد والزكاة والضريبة والتأمينات."),
+     "Government and entity fees (under Option B only the investment-licence and incorporation-contract fees are included), attestation and certified translation, support-entity fees, powers of attorney (issued directly from within the Kingdom if you are resident), opening a bank account, and post-incorporation obligations such as renewals, zakat and tax filing and social insurance.",
+     "الرسوم الحكومية ورسوم الجهات (في الخيار ب تُشمل رسوم رخصة الاستثمار وعقد التأسيس فقط)، والتصديق والترجمة المعتمدة، ورسوم جهة الدعم، والوكالات (تصدر من داخل السعودية مباشرة إن كنت مقيماً)، وفتح الحساب البنكي، والالتزامات اللاحقة للتأسيس كالتجديد والزكاة والضريبة والتأمينات."),
     ("What we need from you", "ما نحتاجه منك",
      "Complete the client data form and send the documents in the checklist. Complete and timely documents are what keep the timeline short.",
      "عبّئ نموذج بيانات العميل وأرسل المستندات الواردة في القائمة. والمستندات الكاملة في وقتها هي ما يُبقي المدة قصيرة."),
+]
+
+
+GOVPAY = [
+    ("Investment-licence fee (Ministry of Investment)", "رسوم رخصة الاستثمار (وزارة الاستثمار)",
+     "Option A: paid by the Client directly to the Ministry. Option B: INCLUDED in our fee. Amount: set by the Ministry on approval and stated in its payment notice; payable within the period in the notice, otherwise the registration lapses.",
+     "الخيار أ: يسدّدها العميل مباشرة للوزارة. الخيار ب: شاملة في أتعابنا. المبلغ: تحدّده الوزارة عند الموافقة ويُذكر في إشعار السداد، ويُسدَّد خلال المدة المذكورة فيه وإلا بطل التسجيل."),
+    ("Incorporation-contract fee (Ministry of Commerce)", "رسوم عقد التأسيس (وزارة التجارة)",
+     "Option A: paid by the Client. Option B: INCLUDED in our fee. Amount: by entity type and capital; confirmed on execution day.",
+     "الخيار أ: يسدّدها العميل. الخيار ب: شاملة في أتعابنا. المبلغ: حسب نوع الكيان ورأس المال؛ يُؤكَّد يوم التنفيذ."),
+    ("Commercial registration and publication (Ministry of Commerce)", "السجل التجاري والنشر (وزارة التجارة)",
+     "Both options: paid by the Client directly to the entity. Amount: by entity type; confirmed on execution day.",
+     "في الخيارين: يسدّدها العميل مباشرة للجهة. المبلغ: حسب نوع الكيان؛ يُؤكَّد يوم التنفيذ."),
+    ("Chamber of Commerce membership", "عضوية الغرفة التجارية",
+     "Both options: paid by the Client directly to the Chamber. Amount: by capital and activity; confirmed on execution day.",
+     "في الخيارين: يسدّدها العميل مباشرة للغرفة. المبلغ: حسب رأس المال والنشاط؛ يُؤكَّد يوم التنفيذ."),
+    ("Any other government or entity fee", "أي رسم حكومي أو رسم جهة آخر",
+     "Both options: paid by the Client directly when due (for example sectoral licence fees for regulated activities, attestation and certified translation, support-entity fees). We tell you the amount and due date before it falls due.",
+     "في الخيارين: يسدّدها العميل مباشرة عند استحقاقها (مثل رسوم الجهات القطاعية للأنشطة الخاضعة، والتصديق والترجمة المعتمدة، ورسوم جهة الدعم). ونبلغك بالمبلغ والاستحقاق قبل موعده."),
+    ("How and when you pay", "كيف ومتى تدفع",
+     "Each fee is paid through the official platform of the entity, in the Client’s or the company’s name, and the receipt is sent to us for the file. No amount here is a Business Partner fee, and none is marked up. Official amounts are confirmed from the entity on execution day; this schedule states who pays, not a fixed figure.",
+     "تُسدَّد كل رسم عبر المنصة الرسمية للجهة باسم العميل أو الشركة، ويُرسَل لنا الإيصال لحفظه في الملف. لا شيء هنا من أتعاب Business Partner ولا يُضاف عليه هامش. تُؤكَّد المبالغ الرسمية من الجهة يوم التنفيذ؛ وهذا المرفق يبيّن من يدفع لا رقماً ثابتاً."),
 ]
 
 def spec(rows, t_en, t_ar, k_en, k_ar, s_en, s_ar, numbered=True):
     return (rows, t_en, t_ar, k_en, k_ar, s_en, s_ar, numbered)
 
 INFO = {
+    "09-Government-Payments": spec(GOVPAY, "Government Payments Schedule", "مرفق المدفوعات الحكومية", "SCHEDULE", "مرفق",
+        "Who pays each government fee under Option A and Option B, and how it is paid.",
+        "من يدفع كل رسم حكومي في الخيار أ والخيار ب، وكيف يُسدَّد.", False),
     "04-Client-Documents-Checklist": spec(CHECKLIST, "Required Documents Checklist", "قائمة المستندات المطلوبة", "CHECKLIST", "قائمة",
         "The documents we need from you to start the entrepreneurship-licence company formation.",
         "المستندات التي نحتاجها منك لبدء تأسيس شركتك برخصة ريادة الأعمال."),
