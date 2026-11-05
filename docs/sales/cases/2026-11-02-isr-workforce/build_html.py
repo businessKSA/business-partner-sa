@@ -242,7 +242,8 @@ def build_quote():
     rec = bi_table([("Nationality", "الجنسية", False), ("Recruitment from the country and embassy requirements", "الاستقدام من الدولة ومتطلبات السفارات", True), ("Arrival ticket", "تذكرة القدوم", True), ("Total per worker, at cost", "الإجمالي للعامل بالتكلفة", True), ("Typical duration", "المدة المعتادة", True)], rec_rows, [12, 14, 10, 12, 10])
     recnote = ('<div class="nt"><div dir="ltr">Recruitment from abroad is at actual cost, with no mark-up, on a separate invoice, and applies only to workers recruited from abroad. For a worker transferred from inside the Kingdom there are no recruitment-from-abroad costs. The amounts are the same for every trade. Contracts, attestations and authorisations (SAR 500) are paid in Stage 1 with the visa.</div>'
                '<div class="ar" dir="rtl">الاستقدام من الخارج بالتكلفة الفعلية دون هامش، بفاتورة منفصلة، ويخص العمال المستقدَمين من الخارج فقط. أما العامل المنقول من داخل المملكة فلا توجد عليه تكاليف استقدام من الخارج. والمبالغ نفسها لكل المهن. والعقود والتصديقات والتفاويض (500 ريال) تُدفع في المرحلة 1 مع التأشيرة.</div></div>')
-    sheetsA.append(pageA(h2("A5", "Localisation fee", "رسوم التوطين") + loc + h2("A6", "Recruitment from the country, by nationality", "الاستقدام من الدولة بحسب الجنسية") + rec))
+    sheetsA.append(pageA(h2("A5", "Localisation fee", "رسوم التوطين") + loc))
+    sheetsA.append(pageA(h2("A6", "Recruitment costs, by nationality (separate invoice)", "تكاليف الاستقدام بحسب الجنسية (بفاتورة منفصلة)") + rec + recnote))
     lc_rows = [[("<b>%s</b>" % esc(ie), "<b>%s</b>" % esc(ia), "t"), (te_, ta_, "c"), (ee_, ea_, "c")] for ie, ia, te_, ta_, ee_, ea_ in LOCCALC]
     lcalc = bi_table([("Item", "البند", False), ("Technical engineering (e.g. steel-structure fitter)", "فنية هندسية (مثل فني هياكل معدنية)", True), ("Engineering (engineer)", "هندسية (مهندس)", True)], lc_rows, [26, 14, 14])
     lcnote = '<div class="nt"><div dir="ltr">%s</div><div class="ar" dir="rtl">%s</div></div>' % (esc(LOCCALC_NOTE[0]), esc(ar(LOCCALC_NOTE[1])))
@@ -500,7 +501,7 @@ def build_quote():
          divider("M3", "Model 3 — Shared national cadres", "النموذج الثالث — الكوادر الوطنية المشتركة", "Saudi and non-Saudi staff shared with you", "موظفون سعوديون وغير سعوديين مشتركون معك"), m3,
          divider("M4", "Differences between the models", "الفروقات بين النماذج", "The three models side by side", "النماذج الثلاثة جنباً إلى جنب"), m4,
          divider(3, "Calculators and examples", "الحاسبات والأمثلة", "Cost by salary and the Saudi employee", "التكلفة بحسب الراتب والموظف السعودي"), calc_page, saudi_page,
-         divider(4, "Government fees and localisation", "الرسوم الحكومية والتوطين", "Government fees, localisation, recruitment from abroad", "الرسوم الحكومية، التوطين، الاستقدام من الخارج"), find(A, "Government fees explained"), find(A, "Localisation fee"),
+         divider(4, "Government fees and localisation", "الرسوم الحكومية والتوطين", "Government fees, localisation, recruitment from abroad", "الرسوم الحكومية، التوطين، الاستقدام من الخارج"), find(A, "Government fees explained"), find(A, "Localisation fee"), find(A, "Recruitment costs, by nationality"),
          divider(5, "Terms and signature", "الشروط والتوقيع", "Terms, your options, signature and payment details", "الشروط وخياراتك والتوقيع وبيانات الدفع"), find(A, "Terms and conditions"), m_opts, m_sign, m_bank], pageA, "qa", tail=2)
     return sar_mark(doc("Quotation (simple) — Workforce Supply", css, [sheets[0]] + simple_pages + [])), sar_mark(doc("Quotation (detailed) — ISR Trading (Workforce)", css, [sheets[0]] + detail_pages + [closing]))
 
