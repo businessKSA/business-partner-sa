@@ -178,6 +178,7 @@ def build_bases():
     sys.path.insert(0, SRC)
     import rev_build as rb
     base = os.path.join(OUT, '_base'); os.makedirs(base, exist_ok=True)
+    rb.TMP = os.path.join(OUT, '_tmp'); os.makedirs(rb.TMP, exist_ok=True)
     rb.OUT = base; os.environ['REV_OUTDIR'] = base
     for kind in ('contract', 'nda', 'authz'):
         rb.build(kind)
