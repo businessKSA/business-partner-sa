@@ -200,7 +200,7 @@ def sign_table(d):
         for i, (le, la) in enumerate((("Name", "الاسم"), ("Title", "الصفة"), ("Date", "التاريخ")), 1):
             cs = inner.rows[i].cells
             para(cs[0], le, 9, False, TXT2, first=True, space_after=0)
-            para(cs[1], first_vals.get(le, "[●]") if side == 0 else "[●]", 9.5, False, TXT, align=WD_ALIGN_PARAGRAPH.CENTER, first=True, space_after=0)
+            para(cs[1], first_vals.get(le, "") if side == 0 else "", 9.5, False, TXT, align=WD_ALIGN_PARAGRAPH.CENTER, first=True, space_after=0)
             para(cs[2], la, 9, False, TXT2, rtl=True, first=True, space_after=0)
             for x in cs: borders(x, LINE, 4, ("bottom",)); cell_margins(x)
         sg = inner.rows[4].cells; mm = sg[0].merge(sg[2])
@@ -235,10 +235,10 @@ def build_docx(kind, rows, t_en, t_ar, cover, out, numbered=True):
         ("National Address", "RDAA9214", "العنوان الوطني"),
         ("Represented by", "%s · %s" % (REP_EN, REP_AR), "يمثلها"), ("Title", "%s · %s" % (REP_TITLE_EN, REP_TITLE_AR), "الصفة")])
     kv_table(d, "Second Party (Client)", "الطرف الثاني (العميل)", [
-        ("Name", "%s · %s — full name as in ID: [●]" % (CLIENT_EN, CLIENT_AR), "الاسم"),
-        ("ID / Iqama / Passport No.", "[●]", "رقم الهوية / الإقامة / الجواز"),
-        ("Nationality", "[●]", "الجنسية"),
-        ("National / residence address", "[●]", "العنوان الوطني / السكن"),
+        ("Name", "%s · %s" % (CLIENT_EN, CLIENT_AR), "الاسم"),
+        ("ID / Iqama / Passport No.", "", "رقم الهوية / الإقامة / الجواز"),
+        ("Nationality", "", "الجنسية"),
+        ("National / residence address", "", "العنوان الوطني / السكن"),
         ("Capacity", "Founder of the company to be established · مؤسس الشركة المراد تأسيسها", "الصفة")])
     clauses_table(d, rows, numbered=numbered)
     sign_table(d)

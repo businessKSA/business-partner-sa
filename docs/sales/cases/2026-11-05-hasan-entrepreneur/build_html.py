@@ -97,11 +97,11 @@ def sig_boxes(left_title=("Business Partner Solutions", "بزنس بارتنر �
                 '<div class="f2"><span>Title</span><span class="v">%s</span><span dir="rtl">الصفة</span></div>'
                 '<div class="f2"><span>Date</span><span class="v">%s</span><span dir="rtl">التاريخ</span></div>'
                 '<div class="bx2"><div style="text-align:center">Signature &amp; Stamp · التوقيع والختم</div></div></div>') % (
-            esc(t[0]), esc(t[1]), co, nm or num("[●]"), tt or num("[●]"), num("[●]"))
+            esc(t[0]), esc(t[1]), co, nm or "", tt or "", "")
     return '<div class="sg" style="direction:ltr">%s%s</div>' % (
         box(left_title, esc(left_co), esc(REP_EN) + ' · <span dir="rtl">' + esc(REP_AR) + '</span>',
             esc(REP_TITLE_EN) + ' · <span dir="rtl">' + esc(REP_TITLE_AR) + '</span>'),
-        box(right_title, right_co or num("[●]")))
+        box(right_title, right_co or ""))
 
 # ------------------------------------------------------------------ عرض السعر
 def build_quote():
@@ -235,7 +235,7 @@ def parties_html():
           '<tr><td>Nationality</td><td class="v">%s</td><td>الجنسية</td></tr>'
           '<tr><td>National / residence address</td><td class="v">%s</td><td>العنوان الوطني / السكن</td></tr>'
           '<tr><td>Capacity</td><td class="v">Founder of the company to be established<br><span dir="rtl">مؤسس الشركة المراد تأسيسها</span></td><td>الصفة</td></tr></table>') % (
-        esc(CLIENT_EN), esc(CLIENT_AR), "full name as in ID: " + num("[●]"), num("[●]"), num("[●]"), num("[●]"))
+        esc(CLIENT_EN), esc(CLIENT_AR), "", "", "", "")
     return me + cl
 
 NUMBERED = True
@@ -255,7 +255,7 @@ def sig_port():
             '<div><h3><span>Second Party</span><span dir="rtl">الطرف الثاني</span></h3>'
             '<div class="f2"><span>Name</span><span class="v">%s</span><span dir="rtl">الاسم</span></div><div class="f2"><span>Title</span><span class="v">%s</span><span dir="rtl">الصفة</span></div>'
             '<div class="f2"><span>Date</span><span class="v">%s</span><span dir="rtl">التاريخ</span></div><div class="bx2"><div style="text-align:center">Signature &amp; Stamp · التوقيع والختم</div></div></div></div>') % (
-        ("%s · %s" % (esc(REP_EN), esc(REP_AR)), "%s · %s" % (esc(REP_TITLE_EN), esc(REP_TITLE_AR)), "[●]", "[●]", "[●]", "[●]"))
+        ("%s · %s" % (esc(REP_EN), esc(REP_AR)), "%s · %s" % (esc(REP_TITLE_EN), esc(REP_TITLE_AR)), "", "", "", ""))
 
 def cover_port(kind_en, kind_ar, t_en, t_ar, s_en, s_ar, ref_label=True):
     def f(i, n):
