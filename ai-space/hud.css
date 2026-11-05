@@ -1,0 +1,11 @@
+/* Agents Command skin: additive layer over app.css + jarvis.css. Remove the two <link>/<script> lines in index.html to revert. */
+.panel{position:relative}
+.panel::before,.panel::after{content:"";position:absolute;width:12px;height:12px;border:2px solid var(--cyan);pointer-events:none;z-index:5}
+.panel::before{top:-1px;inset-inline-start:-1px;border-right:0;border-bottom:0}
+.panel::after{bottom:-1px;inset-inline-end:-1px;border-left:0;border-top:0}
+.panel-head h2{letter-spacing:.04em}
+#hudSphere{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+.core{background:radial-gradient(circle at 50% 50%,rgba(170,225,255,.55),rgba(30,110,200,.35) 45%,rgba(3,12,28,.92) 76%);
+  box-shadow:0 0 60px rgba(47,208,255,.5),inset 0 0 40px rgba(47,208,255,.28)}
+.ring{border-color:rgba(79,180,255,.22)}
+.tb-brand small{letter-spacing:.32em}
