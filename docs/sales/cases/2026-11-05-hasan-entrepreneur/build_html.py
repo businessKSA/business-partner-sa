@@ -189,8 +189,7 @@ def build_quote():
     dur = bi_table([("#", "#", True), ("Stage", "المرحلة", False)], dur_rows, [4, 46])
     pay_rows = [[(p[0], p[0], "nx"), (p[1], p[2], ""), (p[3], p[3], "c"), (num(n(p[4])), num(n(p[4])), "c"), (num(n(p[5])), num(n(p[5])), "c"), (num(n(p[6])), num(n(p[6])), "c"), (p[7], p[8], "")]
                 for p in PAYMENT]
-    pay_rows.append({"cls": "tot", "cells": [("", "", ""), ("Total — Option A / Option B", "الإجمالي — الخيار أ / الخيار ب", ""), ("100%", "100%", "c"), (num(n(FEE_A))+" / "+num(n(FEE_B)), num(n(FEE_A))+" / "+num(n(FEE_B)), "c"), (num(n(VAT))+" / "+num(n(VAT_B)), num(n(VAT))+" / "+num(n(VAT_B)), "c"), (num(n(TOTAL))+" / "+num(n(TOTAL_B)), num(n(TOTAL))+" / "+num(n(TOTAL_B)), "c"), ("", "", "")]})
-    pay = bi_table([("#", "#", True), ("Instalment", "الدفعة", False), ("%", "النسبة", True), ("SAR excl. VAT", "ريال قبل الضريبة", True),
+    pay = bi_table([("#", "#", True), ("Payment", "الدفعة", False), ("%", "النسبة", True), ("SAR excl. VAT", "ريال قبل الضريبة", True),
                     ("VAT 15%", "الضريبة 15%", True), ("SAR incl. VAT", "ريال شامل الضريبة", True), ("Due", "الاستحقاق", False)],
                    pay_rows, [4, 9, 5, 7, 6, 7, 13])
     terms = numbered([(esc(e), esc(a)) for e, a in TERMS], "Term", "الشرط")

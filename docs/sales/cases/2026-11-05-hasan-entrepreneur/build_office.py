@@ -386,11 +386,11 @@ def build_pptx(out):
         txt(sl, x + 0.15, 3.25, 3.6, 0.35, ta, 12.5, True, NAVY, rtl=True)
         txt(sl, x + 0.15, 3.58, 3.6, 0.3, ar(da), 9.5, False, TXT, rtl=True, line=1.1)
     txt(sl, 0.6, 4.15, 6, 0.4, "Payment · الدفع", 14, True, NAVY)
-    for k, (pe, pa, de, da) in enumerate((("50%", "50%", "On signing the contract", "عند التعاقد"), ("50%", "50%", "After the company is established and the work is delivered", "بعد تأسيس الشركة وتسليم العمل"))):
+    for k, (pe, pa, de, da) in enumerate((("100%", "100%", "In advance, on signing the contract and before work starts", "مقدماً عند التعاقد وقبل بدء العمل"),)):
         x = 0.6 + k * 6.15
         box(sl, x, 4.65, 5.98, 1.95, NAVY)
         txt(sl, x + 0.2, 4.75, 1.8, 0.8, pe, 34, True, "FFFFFF", font=F_H)
-        txt(sl, x + 0.2, 5.55, 5.6, 0.3, "A: %s · B: %s — before VAT · قبل الضريبة" % (n(HALF), n(HALF_B)), 11, False, ACCD)
+        txt(sl, x + 0.2, 5.55, 5.6, 0.3, "A: %s · B: %s — before VAT · قبل الضريبة" % (n(FEE_A), n(FEE_B)), 11, False, ACCD)
         txt(sl, x + 0.2, 5.9, 5.6, 0.3, de, 11, False, "FFFFFF")
         txt(sl, x + 0.2, 6.22, 5.6, 0.3, da, 12, False, "FFFFFF", rtl=True)
     footer_strip(sl, 4, N)

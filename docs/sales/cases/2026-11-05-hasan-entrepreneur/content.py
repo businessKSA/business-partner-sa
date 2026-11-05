@@ -133,23 +133,19 @@ DURATION = [
      "تأسيس الشركة وفتح ملفاتها لدى الجهات. وتُحدَّد الجدولة التفصيلية عند توقيع العقد."),
 ]
 
-PAYMENT = [  # (no, label_en, label_ar, pct, net, vat, total, due_en, due_ar)
-    ("A1", "Option A — first instalment", "الخيار أ — الدفعة الأولى", "50%", HALF, HALF_VAT, HALF_TOTAL,
-     "On signing the contract", "عند التعاقد"),
-    ("A2", "Option A — second instalment", "الخيار أ — الدفعة الثانية", "50%", HALF, HALF_VAT, HALF_TOTAL,
-     "After the company is established and the work is delivered", "بعد تأسيس الشركة وتسليم العمل"),
-    ("B1", "Option B — first instalment", "الخيار ب — الدفعة الأولى", "50%", HALF_B, HALF_B_VAT, HALF_B_TOTAL,
-     "On signing the contract", "عند التعاقد"),
-    ("B2", "Option B — second instalment", "الخيار ب — الدفعة الثانية", "50%", HALF_B, HALF_B_VAT, HALF_B_TOTAL,
-     "After the company is established and the work is delivered", "بعد تأسيس الشركة وتسليم العمل"),
+PAYMENT = [  # (no, label_en, label_ar, pct, net, vat, total, due_en, due_ar) — قرار المالك 2026-11-05: 100% مقدماً
+    ("A", "Option A — full payment in advance", "الخيار أ — دفعة كاملة مقدماً", "100%", FEE_A, VAT, TOTAL,
+     "In advance, on signing the contract and before work starts", "مقدماً عند التعاقد وقبل بدء العمل"),
+    ("B", "Option B — full payment in advance", "الخيار ب — دفعة كاملة مقدماً", "100%", FEE_B, VAT_B, TOTAL_B,
+     "In advance, on signing the contract and before work starts", "مقدماً عند التعاقد وقبل بدء العمل"),
 ]
 
 TERMS = [
     ("This quotation is valid for 14 days from its date.", "هذا العرض سارٍ لمدة 14 يوماً من تاريخه."),
     ("Prices are in Saudi riyals, before 15% VAT, which is added according to the regulations.",
      "الأسعار بالريال السعودي قبل ضريبة القيمة المضافة 15% وتُضاف وفق النظام."),
-    ("Acceptance is by signing the quotation and the contract and paying the first instalment; work starts after both.",
-     "القبول بتوقيع العرض والعقد وسداد الدفعة الأولى، ويبدأ العمل بعد الأمرين."),
+    ("Acceptance is by signing the quotation and the contract and paying the full fee in advance; work starts after both.",
+     "القبول بتوقيع العرض والعقد وسداد كامل الأتعاب مقدماً، ويبدأ العمل بعد الأمرين."),
     ("The timeline starts when the complete documents and the payment due are received, and depends on the response times of the entities.",
      "تبدأ المدة من استلام المستندات كاملة والمستحق، وتخضع لمدد استجابة الجهات."),
     ("The category and the activity are determined by the competent entity; we do not guarantee an outcome that depends on its decision. Our assessment is advisory.",
@@ -220,10 +216,10 @@ def contract_clauses():
     t_en, t_ar, b_en, b_ar = _clause(core, "3.")
     b_en = b_en.replace(
         "The fees are those stated in the accepted quotation, before 15% VAT, which is added. Payment terms: [●].",
-        "The Client selects ONE of two options (mark the selected one: [ ] A  [ ] B). Option A: SAR %s (twenty thousand Saudi riyals) before 15%% VAT, government fees NOT included and paid by the Client directly to the entities. Option B: SAR %s (twenty-five thousand Saudi riyals) before 15%% VAT, government fees (investment registration, commercial registration and publication, chamber membership) INCLUDED. Payment terms for either option: two equal instalments before VAT — 50%% on signing this contract and 50%% after the company is established and the work is delivered." % (n(FEE_A), n(FEE_B)))
+        "The Client selects ONE of two options (mark the selected one: [ ] A  [ ] B). Option A: SAR %s (twenty thousand Saudi riyals) before 15%% VAT, government fees NOT included and paid by the Client directly to the entities. Option B: SAR %s (twenty-five thousand Saudi riyals) before 15%% VAT, government fees (investment registration, commercial registration and publication, chamber membership) INCLUDED. Payment terms for either option: the full fee, plus VAT, is paid in advance on signing this contract and before work starts." % (n(FEE_A), n(FEE_B)))
     b_ar = b_ar.replace(
         "الرسوم هي المذكورة في عرض السعر المقبول، قبل ضريبة القيمة المضافة 15% التي تُضاف عليها. شروط السداد: [●].",
-        "يختار العميل أحد خيارين فقط (يُعلَّم المختار: [ ] أ  [ ] ب). الخيار أ: %s ريال سعودي (عشرون ألف ريال) قبل ضريبة القيمة المضافة 15%% والرسوم الحكومية غير شاملة ويسدّدها العميل مباشرة للجهات. الخيار ب: %s ريال سعودي (خمسة وعشرون ألف ريال) قبل ضريبة القيمة المضافة 15%% والرسوم الحكومية (التسجيل الاستثماري، والسجل التجاري والنشر، وعضوية الغرفة) شاملة. شروط السداد للخيارين: دفعتان متساويتان قبل الضريبة — 50%% عند توقيع هذا العقد و50%% بعد تأسيس الشركة وتسليم العمل." % (n(FEE_A), n(FEE_B)))
+        "يختار العميل أحد خيارين فقط (يُعلَّم المختار: [ ] أ  [ ] ب). الخيار أ: %s ريال سعودي (عشرون ألف ريال) قبل ضريبة القيمة المضافة 15%% والرسوم الحكومية غير شاملة ويسدّدها العميل مباشرة للجهات. الخيار ب: %s ريال سعودي (خمسة وعشرون ألف ريال) قبل ضريبة القيمة المضافة 15%% والرسوم الحكومية (التسجيل الاستثماري، والسجل التجاري والنشر، وعضوية الغرفة) شاملة. شروط السداد للخيارين: تُسدَّد كامل الأتعاب مع الضريبة مقدماً عند توقيع هذا العقد وقبل بدء العمل." % (n(FEE_A), n(FEE_B)))
     assert "[●]. Payment" not in b_en
     b_en = b_en.replace("IBAN [●]", "IBAN [IBAN]")
     b_ar = b_ar.replace("آيبان [●]", "آيبان [IBAN]")
