@@ -1,7 +1,52 @@
 [
- {"key":"marn","folder_ar":"مرن · مكتب هلا علي لتطوير الأعمال","folder_en":"Marn · Hala Ali Business Development Office","name_ar":"مرن / مكتب هلا علي لتطوير الأعمال","name_en":"Marn / Hala Ali Business Development Office","pkg":"LAUNCH","commission":true,"ref":"REV-LAUNCH"},
- {"key":"fce7e2","folder_ar":"طلب BP-R-FCE7E2 · تطوير الأعمال (الانطلاق)","folder_en":"Request BP-R-FCE7E2 · Business Development (Launch)","pkg":"LAUNCH","ref":"BP-R-FCE7E2"},
- {"key":"bdde64","folder_ar":"طلب BP-R-BDDE64 · تطوير الأعمال (النمو)","folder_en":"Request BP-R-BDDE64 · Business Development (Growth)","pkg":"GROWTH","ref":"BP-R-BDDE64"},
- {"key":"cf57ac","folder_ar":"طلب BP-R-CF57AC · استشارة تطوير الأعمال","folder_en":"Request BP-R-CF57AC · Business Development Consultation","pkg":null,"ref":"BP-R-CF57AC"},
- {"key":"dalseen","folder_ar":"دال سين · تطوير الأعمال","folder_en":"Dal Seen · Business Development","name_ar":"دال سين","name_en":"Dal Seen","pkg":null,"ref":"REV"}
+ {
+  "key": "marn",
+  "folder_ar": "مرن · مكتب هلا علي لتطوير الأعمال",
+  "folder_en": "Marn · Hala Ali Business Development Office",
+  "name_ar": "مرن / مكتب هلا علي لتطوير الأعمال",
+  "name_en": "Marn / Hala Ali Business Development Office",
+  "pkg": "LAUNCH",
+  "commission": true,
+  "ref": "REV-LAUNCH"
+ },
+ {
+  "key": "fce7e2",
+  "folder_ar": "طلب BP-R-FCE7E2 · تطوير الأعمال (الانطلاق)",
+  "folder_en": "Request BP-R-FCE7E2 · Business Development (Launch)",
+  "pkg": "LAUNCH",
+  "ref": "BP-R-FCE7E2"
+ },
+ {
+  "key": "bdde64",
+  "folder_ar": "طلب BP-R-BDDE64 · تطوير الأعمال (النمو)",
+  "folder_en": "Request BP-R-BDDE64 · Business Development (Growth)",
+  "pkg": "GROWTH",
+  "ref": "BP-R-BDDE64"
+ },
+ {
+  "key": "cf57ac",
+  "folder_ar": "طلب BP-R-CF57AC · استشارة تطوير الأعمال",
+  "folder_en": "Request BP-R-CF57AC · Business Development Consultation",
+  "pkg": null,
+  "ref": "BP-R-CF57AC"
+ },
+ {
+  "key": "dalseen",
+  "folder_ar": "دال سين · تطوير الأعمال",
+  "folder_en": "Dal Seen · Business Development",
+  "name_ar": "دال سين",
+  "name_en": "Dal Seen",
+  "pkg": null,
+  "ref": "REV"
+ },
+ {
+  "key": "canvash",
+  "folder_ar": "كانفاش · CANVASH Art Studio",
+  "folder_en": "CANVASH Art Studio",
+  "name_ar": "كانفاش أرت ستوديو",
+  "name_en": "CANVASH Art Studio",
+  "pkg": "LAUNCH",
+  "commission": true,
+  "ref": "REV-LAUNCH"
+ }
 ]
