@@ -26,8 +26,8 @@ c3 = lambda e, a, cls='': (e, a, cls)
 
 def cover():
     c = q.T_COVER
-    c = c.replace('Business Partner Solutions' if False else 'Business Development as a Service', 'Employer of Record (EOR): Saudi Employees')
-    c = c.replace('تطوير الأعمال كخدمة', 'التوظيف بالنيابة (EOR): موظفون سعوديون')
+    c = c.replace('Business Partner Solutions' if False else 'Business Development as a Service', 'Employment under Contracting and Outsourcing: Saudi Employees')
+    c = c.replace('تطوير الأعمال كخدمة', 'التوظيف على بند التعاقد والإسناد: موظفون سعوديون')
     c = c.replace('We bring you sales leads and referrals and help you register as a vendor with companies.', 'We employ your Saudi team on our contract and run payroll, social insurance and HR, while they work with you.')
     c = c.replace('نأتيك بفرص بيع وإحالات، ونساعدك في التسجيل كمورد لدى الشركات.', 'نوظّف فريقك السعودي على عقدنا، ونتولى الرواتب والتأمينات وشؤون الموظفين، وهم يعملون معكم.')
     c = re.sub(r'<div class="pk" dir="ltr">.*?</div>', '<div class="pk" dir="ltr">Transparent cost</div>', c)
@@ -41,9 +41,9 @@ def price_models(detailed):
     rows = [
         R('Salary (example, before the employee insurance deduction)', 'الراتب (مثال، قبل خصم حصة الموظف من التأمينات)', f(S)),
         R('Social insurance, employer share (approx. 13%)', 'التأمينات الاجتماعية، حصة صاحب العمل (نحو 13%)', f(GOSI)),
-        R('Business Partner fixed fee', 'رسم Business Partner الثابت', f(FEE)),
+        R('Business Partner fixed fees', 'رسوم Business Partner الثابتة', f(FEE)),
         {'cls': 'tot', 'cells': R('Monthly total before VAT', 'الإجمالي الشهري قبل الضريبة', f(M1))},
-        R('VAT 15% (on our fee only)', 'ضريبة القيمة المضافة 15% (على رسمنا فقط)', f(VAT)),
+        R('VAT 15% (on Business Partner fees only)', 'ضريبة القيمة المضافة 15% (على رسوم Business Partner فقط)', f(VAT)),
         {'cls': 'tot', 'cells': R('Monthly invoice incl. VAT', 'الفاتورة الشهرية شاملة الضريبة', f(M1 + VAT))},
     ]
     t = q.bi_table(head, rows, [44, 16])
@@ -52,8 +52,8 @@ def price_models(detailed):
              R('Annual leave (21 days)', 'الإجازة السنوية (21 يوماً)', f(round(S / 30.0 * 21)))]
     t2 = q.bi_table(head2, rows2, [44, 16])
     return [q.h2(1, 'Price per Saudi employee: transparent cost', 'السعر للموظف السعودي: التكلفة بشفافية'),
-            q.p('Each cost is shown as it is. You pay the salary, insurance and our fixed fee monthly. The end-of-service reward and leave are billed at actual when the contract ends.',
-                'كل تكلفة تُعرض كما هي. تدفعون الراتب والتأمينات ورسمنا الثابت شهرياً، وتُفوتَر مكافأة نهاية الخدمة والإجازة بالفعلي عند انتهاء العقد.'),
+            q.p('Each cost is shown as it is. You pay the salary, insurance and the fixed fees of Business Partner monthly. The end-of-service reward and leave are billed at actual when the contract ends.',
+                'كل تكلفة تُعرض كما هي. تدفعون الراتب والتأمينات ورسوم Business Partner الثابتة شهرياً، وتُفوتَر مكافأة نهاية الخدمة والإجازة بالفعلي عند انتهاء العقد.'),
             t, t2,
             q.p('Salary is an example (SAR %s). Employee insurance share (approx. 10%%, SAR %s) is deducted from the salary, or you may pay it on top (+SAR %s per month) so the employee receives the full salary.' % (f(S), f(GOSI_EMP), f(GOSI_EMP)),
                 'الراتب مثال (%s ريال). حصة الموظف من التأمينات (نحو 10%%، أي %s ريال) تُخصم من الراتب، أو تتحملونها فوق الراتب (+%s ريالاً شهرياً) ليستلم الموظف راتبه كاملاً.' % (f(S), f(GOSI_EMP), f(GOSI_EMP)))]
@@ -90,23 +90,25 @@ def how_it_works():
 
 
 def terms(first, short=False):
-    t = [('Contract term: 12 months.', 'مدة العقد: 12 شهراً.'),
+    t = [('Advance payment: two months of the employee\'s salary (SAR %s at the example salary), paid before the employee starts.' % f(2 * S), 'دفعة مقدمة: راتب شهرين للموظف (%s ريالاً على الراتب المثال)، تُسدَّد قبل مباشرة الموظف.' % f(2 * S)),
+         ('Contract term: 12 months.', 'مدة العقد: 12 شهراً.'),
          ('Quote validity: 14 days from the date above.', 'صلاحية العرض: 14 يوماً من التاريخ أعلاه.'),
-         ('Our fee of SAR 1,000 per employee per month is fixed for the contract term.', 'رسمنا 1,000 ريال للموظف شهرياً ثابت طوال مدة العقد.'),
-         ('Invoices are payable within 7 days. VAT 15% applies to our fee only.', 'الفواتير تُسدَّد خلال 7 أيام. وتُطبَّق ضريبة 15% على رسمنا فقط.'),
+         ('Business Partner fees of SAR 1,000 per employee per month are fixed for the contract term.', 'رسوم Business Partner 1,000 ريال للموظف شهرياً ثابتة طوال مدة العقد.'),
+         ('Invoices are payable within 7 days. VAT 15% applies to Business Partner fees only.', 'الفواتير تُسدَّد خلال 7 أيام. وتُطبَّق ضريبة 15% على رسوم Business Partner فقط.'),
          ('Either party may end the contract with the notice period stated in the agreement.', 'لأي طرف إنهاء العقد بمهلة الإشعار المحددة في الاتفاقية.')]
+    t = [x for x in t if not x[0].startswith('Quote validity')]
     if short:
-        t = [x for x in t if not x[0].startswith('Quote validity')]
+        t = [x for x in t if not x[0].startswith('Either party')]
         t.insert(0, ('Not included: government fees (at actual), medical insurance (quoted separately), bonuses and allowances beyond the salary.', 'غير مشمول: الرسوم الحكومية (بالفعلي)، والتأمين الطبي (يُسعَّر منفصلاً)، والمكافآت والبدلات خارج الراتب.'))
     return [q.h2(first, 'Terms', 'الشروط'), q.numbered(t, 'Terms', 'الشروط')]
 
 
-BIG = '.pt td,.pt th{font-size:12.4px;padding:5px 9px;line-height:1.45}.pt .num{font-size:13px}.rw p{font-size:12.4px;line-height:1.55;margin:5px 0}.rw h2{font-size:15.5px;margin:10px 0 5px}.rw .note{font-size:11.4px}.meta1{font-size:12.4px}'
+BIG = '.pt td,.pt th{font-size:12px;padding:3.5px 9px;line-height:1.4}.pt .num{font-size:13px}.rw p{font-size:12px;line-height:1.45;margin:4px 0}.rw h2{font-size:15px;margin:7px 0 4px}.rw .note{font-size:11.4px}.meta1{font-size:12.4px}'
 
 
 def LAND(inner, n_title):
     return lambda i, n, phone: ('<section class="sheet land" lang="ar"><div dir="rtl">%s<div class="bp">%s</div></div>%s</section>' % (
-        q.hd2("Quotation: EOR, Saudi employees", "عرض سعر: EOR للموظفين السعوديين"), "".join(inner), q.footer(i, n, phone)))
+        q.hd2("Quotation: Contracting and Outsourcing", "عرض سعر: التعاقد والإسناد"), "".join(inner), q.footer(i, n, phone)))
 
 
 def build(detailed):
@@ -125,7 +127,7 @@ def build(detailed):
     for k, pg in enumerate(pages):
         out.append(pg(k + 2, n, rp.PHONE))
     out.append(re.sub(r'\d+ / \d+', '%d / %d' % (n, n), q.closing(rp.PHONE, rp.IBAN, rp.BANK)))
-    title = 'عرض سعر EOR للموظفين السعوديين' + (' — المفصل' if detailed else ' — المبسط')
+    title = 'عرض سعر التوظيف على بند التعاقد والإسناد للموظفين السعوديين' + (' — المفصل' if detailed else ' — المبسط')
     return ('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             '<title>%s</title>%s<style>%s%s</style></head><body>%s</body></html>') % (title, q.FONTS, q.CSS, q.EXTRA + BIG, ''.join(out).replace('[●]<br>business@', rp.PHONE + '<br>business@'))
 
