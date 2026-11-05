@@ -18,7 +18,7 @@ IBAN, BANK = os.environ.get('BP_IBAN'), os.environ.get('BP_BANK')
 OWNER_EN, OWNER_AR = 'Baher Bakr Ali Magnas', 'باهر بكر علي مقنص'
 SIGNER_EN, SIGNER_AR = 'Badr · بدر', None
 TITLE_EN, TITLE_AR = 'Sales &amp; Business Development Manager', 'مدير المبيعات وتطوير الأعمال'
-FLD_CSS = '.fld{display:inline-block;min-width:92px;height:14px;border-bottom:1px solid #8A93B5;vertical-align:-2px}.cv .fld{border-bottom-color:#9DB4FF}.fld.w{min-width:150px}.fld.s{min-width:46px}'
+FLD_CSS = '.fld{display:inline-block;min-width:92px;height:14px;border-bottom:1px solid #8A93B5;vertical-align:-2px}.cv .fld{border-bottom-color:#9DB4FF}.fld.w{min-width:150px}.fld.s{min-width:46px}.pt.cmp td,.pt.cmp th{padding:7px 8px;font-size:12px;line-height:1.5}.pt.cmp th{font-size:12px}.pt.cmp .num{font-size:12.6px}.pt.cmp .note{font-size:11.2px}.pt.cmp .ln{min-width:70px!important;height:16px!important}'
 NODE_ENV = dict(os.environ, NODE_PATH=subprocess.run(['npm', 'root', '-g'], capture_output=True, text=True).stdout.strip())
 
 sys.path.insert(0, HERE)
@@ -83,25 +83,29 @@ def known_names(c):
 # ---------------------------------------------------------------- عرض السعر
 def cmp_sheet(hd, ft, tag):
     f = '<span class="fld s"></span>'
-    def row(en, ar, a, b, ca='c', cb='c'):
-        return '<tr><td class="en">%s</td><td class="%s">%s</td><td class="%s">%s</td><td class="ar">%s</td></tr>' % (en, ca, a, cb, b, ar)
+    # جدول معكوس بدقة: الإنجليزي يسار (البند · أ · ب) والعربي يمين (البند · أ · ب بترتيب يمين لشمال)، والفاصل في الوسط
+    ln = '<span class="ln" style="display:inline-block;min-width:46px;height:14px;border-bottom:1px solid #8A93B5;vertical-align:-2px"></span>'
+    def row(en, ar, a_en, a_ar, b_en, b_ar):
+        return ('<tr><td class="en">%s</td><td class="c">%s</td><td class="c">%s</td><td class="gp"></td>'
+                '<td class="c">%s</td><td class="c">%s</td><td class="ar">%s</td></tr>') % (en, a_en, b_en, b_ar, a_ar, ar)
     N = lambda x: '<span class="num">%s</span>' % x
     rows = ''.join([
-        row('Fee model', 'نموذج المقابل', 'Fixed monthly fee<br>+ success fee on closed deals<br><span dir="rtl">رسم شهري ثابت + نسبة نجاح</span>', 'Commission on closed deals<br><span dir="rtl">عمولة على الصفقات المغلقة</span>'),
-        row('Monthly fee (SAR, excl. VAT)', 'الرسم الشهري (ريال، قبل الضريبة)', N('2,500'), '[●]'),
-        row('Deal value up to 1,000,000 (SAR)', 'قيمة الصفقة حتى 1,000,000 (ريال)', N('10%') + ' · ' + N('12.5%') + '<br><span class="note">with our participation in closing · بمشاركتنا في الإغلاق</span>', '[●] %'),
-        row('Above 1,000,000 up to 5,000,000 (SAR)', 'أكثر من 1,000,000 حتى 5,000,000 (ريال)', N('5%') + ' · ' + N('7.5%'), '[●] %'),
-        row('Above 5,000,000 (SAR)', 'أكثر من 5,000,000 (ريال)', N('2.5%') + ' · ' + N('5%'), '[●] %'),
-        row('Committed monthly minimum: qualified leads, vendor registrations, meetings', 'الحد الأدنى الشهري الملتزم به: فرص مؤهلة وتسجيلات مورد واجتماعات', N('4') + ' · ' + N('4') + ' · ' + N('4'), '[●]'),
-        row('Fee due date', 'موعد استحقاق النسبة', 'Within 14 days of the first payment received under the deal<br><span dir="rtl">خلال 14 يوماً من أول دفعة تُستلم عن الصفقة</span>', '[●]'),
+        row('Fee model', 'نموذج المقابل', 'Fixed monthly fee<br>+ success fee on closed deals', 'رسم شهري ثابت<br>+ نسبة نجاح على الصفقات المغلقة', 'Commission on closed deals', 'عمولة على الصفقات المغلقة'),
+        row('Monthly fee (SAR, excl. VAT)', 'الرسم الشهري (ريال، قبل الضريبة)', N('2,500'), N('2,500'), '[●]', ln),
+        row('Deal value up to 1,000,000 (SAR)', 'قيمة الصفقة حتى 1,000,000 (ريال)', N('10%') + ' · ' + N('12.5%') + '<br><span class="note">with our participation in closing</span>', N('10%') + ' · ' + N('12.5%') + '<br><span class="note">بمشاركتنا في الإغلاق</span>', '[●] %', ln + ' %'),
+        row('Above 1,000,000 up to 5,000,000 (SAR)', 'أكثر من 1,000,000 حتى 5,000,000 (ريال)', N('5%') + ' · ' + N('7.5%'), N('5%') + ' · ' + N('7.5%'), '[●] %', ln + ' %'),
+        row('Above 5,000,000 (SAR)', 'أكثر من 5,000,000 (ريال)', N('2.5%') + ' · ' + N('5%'), N('2.5%') + ' · ' + N('5%'), '[●] %', ln + ' %'),
+        row('Committed monthly minimum: qualified leads, vendor registrations, meetings', 'الحد الأدنى الشهري الملتزم به: فرص مؤهلة وتسجيلات مورد واجتماعات', N('4') + ' · ' + N('4') + ' · ' + N('4'), N('4') + ' · ' + N('4') + ' · ' + N('4'), '[●]', ln),
+        row('Fee due date', 'موعد استحقاق النسبة', 'Within 14 days of the first payment received under the deal', 'خلال 14 يوماً من أول دفعة تُستلم عن الصفقة', '[●]', ln),
     ])
     body = ('<div class="bp"><div class="rw "><div class="col" dir="ltr"><h2><span class="n">2</span>Fixed fee vs. commission: comparison</h2></div><div class="col" dir="rtl"><h2><span class="n">2</span>المقابل الثابت مقابل العمولة: مقارنة</h2></div></div>'
             '<div class="rw "><div class="col" dir="ltr"><p>Option A is the fixed package with its success fee, as in this quotation. Option B is a commission-only alternative for comparison; its rates are agreed in writing and entered in the blank fields before signing.</p></div>'
-            '<div class="col" dir="rtl"><p>الخيار أ هو الباقة بمقابلها الثابت ونسبة نجاحها كما في هذا العرض. والخيار ب بديل بالعمولة وحدها للمقارنة، وتُتفق نسبه كتابةً وتُدوَّن في الخانات الفارغة قبل التوقيع.‏</p></div></div>'
-            '<table class="pt"><colgroup><col style="width:27%"><col style="width:23%"><col style="width:23%"><col style="width:27%"></colgroup>'
-            '<tr><th class="en">Item</th><th class="c">Option A · الخيار أ<br><span class="num">REV-LAUNCH</span> Launch · الانطلاق</th><th class="c">Option B · الخيار ب<br>Commission only · بالعمولة وحدها</th><th class="ar">البند</th></tr>@@ROWS@@</table>'
+            '<div class="col" dir="rtl"><p>الخيار أ هو الباقة بمقابلها الثابت ونسبة نجاحها كما في هذا العرض. والخيار ب بديل بالعمولة وحدها للمقارنة، وتُتفق نسبه كتابةً وتُدوَّن في الخانات الفارغة قبل التوقيع.\u200f</p></div></div>'
+            '<table class="pt cmp"><colgroup><col style="width:21%"><col style="width:14%"><col style="width:14%"><col style="width:2%"><col style="width:14%"><col style="width:14%"><col style="width:21%"></colgroup>'
+            '<tr><th class="en">Item</th><th class="c">Option A<br><span class="num">REV-LAUNCH</span> Launch</th><th class="c">Option B<br>Commission only</th><th class="gp"></th>'
+            '<th class="c">الخيار ب<br>بالعمولة وحدها</th><th class="c">الخيار أ<br><span class="num">REV-LAUNCH</span> الانطلاق</th><th class="ar">البند</th></tr>@@ROWS@@</table>'
             '<div class="rw "><div class="col" dir="ltr"><p class="note">Prices and rates are before tax; 15% VAT is added. Government fees, if any, are separate. The success fee remains due after the contract ends on delivered leads.</p></div>'
-            '<div class="col" dir="rtl"><p class="note">الأسعار والنسب قبل الضريبة وتُضاف ضريبة القيمة المضافة 15%. الرسوم الحكومية، إن وجدت، منفصلة. وتبقى نسبة النجاح مستحقة بعد انتهاء العقد عن الفرص المسلَّمة.‏</p></div></div></div>').replace('@@ROWS@@', rows)
+            '<div class="col" dir="rtl"><p class="note">الأسعار والنسب قبل الضريبة وتُضاف ضريبة القيمة المضافة 15%. الرسوم الحكومية، إن وجدت، منفصلة. وتبقى نسبة النجاح مستحقة بعد انتهاء العقد عن الفرص المسلَّمة.\u200f</p></div></div></div>').replace('@@ROWS@@', rows)
     return '<section class="sheet land" lang="ar"><div dir="rtl">%s%s</div>%s</section>' % (hd, body, ft)
 
 
