@@ -115,7 +115,7 @@ def sig_boxes(cfg):
     ours = box(("Business Partner Solutions", "بزنس بارتنر سلوشنز"), "Business Partner Solutions · بزنس بارتنر سلوشنز",
                'Badr · <span dir="rtl">بدر</span>',
                'Sales &amp; Business Development Manager · <span dir="rtl">مدير المبيعات وتطوير الأعمال</span>',
-               esc(cfg["date_en"]) + " · " + esc(cfg["date_ar"]))
+               esc(cfg["date_en"]) + ' · <span dir="rtl">' + esc(cfg["date_ar"]) + "</span>")
     cl_co = (esc(cfg["client_en"]) + ' · <span dir="rtl">' + esc(cfg["client_ar"]) + "</span>") if cfg.get("client_en") else num(BLANK)
     theirs = box(("Client", "العميل"), cl_co, num(BLANK), num(BLANK), num(BLANK))
     return '<div class="sg" style="direction:ltr">%s%s</div>' % (ours, theirs)
@@ -215,8 +215,8 @@ TERMS = [
 ]
 
 
-def term_pay_block(short):
-    term = [h2(4 if short else 5, "Term", "المدة"),
+def term_pay_block(n0):
+    term = [h2(n0, "Term", "المدة"),
             p("The contract term is 12 months. The client may cancel after a minimum of 3 months by written notice of 30 days. It renews by mutual consent.",
               "مدة العقد 12 شهراً، ويحق للعميل الإلغاء بعد 3 أشهر كحد أدنى بإشعار خطي مدته 30 يوماً، ويتجدد بموافقة الطرفين.")]
     pay = [("Monthly fee", "الرسم الشهري", "Paid in advance for a minimum of 3 months, excl. VAT, with 15% VAT added", "يُسدد مقدماً لمدة 3 أشهر كحد أدنى، قبل الضريبة، وتُضاف إليها ضريبة القيمة المضافة 15%"),
@@ -225,8 +225,7 @@ def term_pay_block(short):
            ("Payment method", "وسيلة السداد", "Bank transfer to the account shown on the last page", "تحويل بنكي على الحساب المبيّن في الصفحة الأخيرة")]
     head = [("Item", "البند", False), ("Method", "الطريقة", False)]
     rows = [[(a, b, "t"), (c, d + RLM, "t")] for (a, b, c, d) in pay]
-    n = 5 if short else 6
-    return term + [h2(n, "Payment", "طريقة الدفع"), bi_table(head, rows, [22, 28])]
+    return term + [h2(n0 + 1, "Payment", "طريقة الدفع"), bi_table(head, rows, [22, 28])]
 
 
 # ---------------------------------------------------------------- التجميع
@@ -238,9 +237,9 @@ def cover(cfg, phone):
                   '<div class="pk" dir="rtl" style="margin-top:6px;letter-spacing:0;font-family:inherit">REV-LAUNCH · الانطلاق</div>')
     to_en = esc(cfg["client_en"]) if cfg.get("client_en") else num(BLANK)
     to_ar = esc(cfg["client_ar"]) if cfg.get("client_ar") else ""
-    to = to_en + (" · " + to_ar if cfg.get("client_en") and to_ar else "")
+    to = to_en + (' · <span dir="rtl">' + to_ar + "</span>" if cfg.get("client_en") and to_ar else "")
     c = c.replace('<span>To / إلى السادة</span><span class="num">[●]</span>', '<span>To / إلى السادة</span>' + to)
-    c = c.replace('<span>Date / التاريخ</span><span class="num">[●]</span>', '<span>Date / التاريخ</span>%s<br>%s' % (esc(cfg["date_en"]), esc(cfg["date_ar"])))
+    c = c.replace('<span>Date / التاريخ</span><span class="num">[●]</span>', '<span>Date / التاريخ</span>%s<br><span dir="rtl">%s</span>' % (esc(cfg["date_en"]), esc(cfg["date_ar"])))
     return c
 
 
@@ -265,17 +264,18 @@ def build(cfg, short, phone, iban, bank):
     pages = []
     if short:
         pages.append(land([m] + price_block(cfg), "")) # 2
-        pages.append(land(scope_block(True) + [h2(3, "Client Requirements", "المتطلبات من العميل"), numbered(REQS[:4], "Client Requirements", "المتطلبات من العميل")], ""))  # 3
-        pages.append(land(term_pay_block(True) + [h2(6, "Signatures", "التوقيعان"), sig_boxes(cfg)], ""))   # 4
+        pages.append(land(scope_block(True) + [h2(3, "Client Requirements", "المتطلبات من العميل"), numbered(REQS[:4], "Client Requirements", "المتطلبات من العميل"),
+                          h2(4, "Exclusions", "ما لا يشمله العرض"), numbered(EXCL[:4], "Exclusions", "ما لا يشمله العرض")], ""))  # 3
+        pages.append(land(term_pay_block(5) + [h2(7, "Signatures", "التوقيعان"), sig_boxes(cfg)], ""))   # 4
     else:
         pages.append(None)  # الخدمات الأخرى
         pages.append(land([m] + price_block(cfg), ""))
         pages.append(land(scope_block(False) + [h2(3, "How it works", "كيف تعمل الخدمة"), numbered(STEPS, "Step", "الخطوة")], ""))
         pages.append(land([h2(4, "Client Requirements", "المتطلبات من العميل"), numbered(REQS, "Client Requirements", "المتطلبات من العميل"),
                            h2(5, "Exclusions", "ما لا يشمله العرض"), numbered(EXCL, "Exclusions", "ما لا يشمله العرض")], ""))
-        tp = term_pay_block(False)
-        pages.append(land(tp + [h2(7, "Terms &amp; Conditions", "الشروط والأحكام"), numbered(TERMS, "Terms &amp; Conditions", "الشروط والأحكام")], ""))
-        pages.append(land([h2(8, "Signatures", "التوقيعان"),
+        tp = term_pay_block(6)
+        pages.append(land(tp + [h2(8, "Terms & Conditions", "الشروط والأحكام"), numbered(TERMS, "Terms &amp; Conditions", "الشروط والأحكام")], ""))
+        pages.append(land([h2(9, "Signatures", "التوقيعان"),
                            p("By signing below, both parties accept this quotation and its terms and conditions.", "بالتوقيع أدناه يوافق الطرفان على هذا العرض وشروطه وأحكامه."),
                            sig_boxes(cfg)], ""))
     if short:

@@ -21,6 +21,8 @@ TITLE_EN, TITLE_AR = 'Sales &amp; Business Development Manager', 'مدير ال�
 FLD_CSS = '.fld{display:inline-block;min-width:92px;height:14px;border-bottom:1px solid #8A93B5;vertical-align:-2px}.cv .fld{border-bottom-color:#9DB4FF}.fld.w{min-width:150px}.fld.s{min-width:46px}'
 NODE_ENV = dict(os.environ, NODE_PATH=subprocess.run(['npm', 'root', '-g'], capture_output=True, text=True).stdout.strip())
 
+sys.path.insert(0, HERE)
+import lib_fields
 CLIENTS = json.load(open(os.path.join(HERE, 'clients.json'), encoding='utf-8'))
 
 
@@ -49,11 +51,8 @@ def strip_brackets(h):
 
 
 def fields(h, tag):
-    k = [0]
-    def rep(m):
-        k[0] += 1; return '<span class="fld" data-f="%s_f%d"></span>' % (tag, k[0])
-    h2 = re.sub(r'\[●\]', rep, h)
-    return h2.replace('</style>', FLD_CSS + '</style>', 1), k[0]
+    h2, n = lib_fields.fieldify(h, tag)
+    return h2.replace('</style>', FLD_CSS + '</style>', 1), n
 
 
 def renumber_h2(h):
@@ -181,19 +180,18 @@ def build_bases():
         rb.build(kind)
     sys.path.pop(0)
     return {'contract': os.path.join(base, 'REV-contract-bilingual.html'), 'nda': os.path.join(base, 'REV-nda-mutual-bilingual.html'),
-            'authz': os.path.join(base, 'REV-authorization-letter.html')}
+            'authz': os.path.join(base, 'REV-authorization.html')}
 
 
 def portrait(c, kind, base_path):
     h = open(base_path, encoding='utf-8').read()
     h = h.replace('Dr. Baher Magnas · د. باهر مقنص', '%s · %s' % (OWNER_EN, OWNER_AR))
     if kind == 'authz':
-        cm = load(os.path.join(SRC, 'REV-authz-content.py')); cv = cm.COVER
-        h = h.replace('SERVICE AGREEMENT', cv['eb_en'], 1).replace('عقد خدمة</div>', cv['eb_ar'] + '</div>', 1)
-        h = h.replace('Business Development Service Agreement', cv['t_en'])
-        h = h.replace('عقد خدمة تطوير الأعمال', cv['t_ar'])
-        h = h.replace('Sales leads and referrals and help registering as a vendor with companies.', cv['s_en'])
-        h = h.replace('خدمة تزويدك بفرص بيع وإحالات ومساعدتك في التسجيل كمورد لدى الشركات.', cv['s_ar'])
+        for a, b in (('SERVICE AGREEMENT', 'AUTHORIZATION'), ('Business Development Service Agreement', 'Authorization Letter'),
+                     ('Sales leads and referrals and help registering as a vendor with companies.', 'The Second Party chooses what it authorizes the First Party to do.'),
+                     ('>عقد خدمة<', '>تفويض<'), ('عقد خدمة تطوير الأعمال', 'خطاب تفويض'),
+                     ('خدمة تزويدك بفرص بيع وإحالات ومساعدتك في التسجيل كمورد لدى الشركات.', 'يختار الطرف الثاني ما يفوّض به الطرف الأول.')):
+            h = h.replace(a, b)
     kn = known_names(c)
     en, ar = (kn if kn else ('[●]', '[●]'))
     ref = c['ref']
@@ -209,7 +207,7 @@ def portrait(c, kind, base_path):
         idx = {'LAUNCH': 0, 'GROWTH': 1, 'PRO': 2}[c['pkg']]
         m = re.search(r'(<td class="c">)☐(</td>)(<td class="c">)☐(</td>)(<td class="c">)☐(</td>)', h)
         if m:
-            cells = ['☐', '☐', '☐']; cells[idx] = '☑'
+            cells = ['—', '—', '—']; cells[idx] = '☑'
             h = h[:m.start()] + ''.join('<td class="c">%s</td>' % x for x in cells) + h[m.end():]
     # التوقيع: تاريخ الطرف الأول
     i = h.find('<div class="sg"')
@@ -223,12 +221,9 @@ def portrait(c, kind, base_path):
 
 # ---------------------------------------------------------------- الإخراج
 def render(html_path, pdf_path):
-    subprocess.run(['node', os.path.join(ISR, 'render_fld.cjs'), html_path, pdf_path], check=True, env=NODE_ENV)
-    sys.path.insert(0, os.path.join(SALES, 'cases', '2026-10-28-paint-factory-gr', 'v2'))
-    import fillable
-    n = fillable.add_fields(pdf_path)
-    sys.path.pop(0)
-    return n
+    os.environ['NODE_PATH'] = NODE_ENV['NODE_PATH']
+    lib_fields.render(html_path, pdf_path)
+    return 1
 
 
 def write(path, h, tag, keep_dots):

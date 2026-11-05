@@ -38,9 +38,9 @@ def sh(*a, **k):
 def portrait_post(s, kind, cfg):
     d_en, d_ar = cfg["date_en"], cfg["date_ar"]
     s = s.replace(REP_OLD, REP_NEW)
-    s = s.replace('<span>Date / التاريخ</span><span class="num">[●]</span>', '<span>Date / التاريخ</span><span class="num">%s<br>%s</span>' % (d_en, d_ar))
+    s = s.replace('<span>Date / التاريخ</span><span class="num">[●]</span>', '<span>Date / التاريخ</span><span class="num">%s<br><span dir="rtl">%s</span></span>' % (d_en, d_ar))
     s = s.replace('<span>Ref / المرجع</span><span class="num">[●]</span>', '<span>Ref / المرجع</span><span class="num">REV-LAUNCH</span>')
-    s = s.replace('<span>Date</span><span class="v">[●]</span>', '<span>Date</span><span class="v">%s · %s</span>' % (d_en, d_ar), 1)
+    s = s.replace('<span>Date</span><span class="v">[●]</span>', '<span>Date</span><span class="v">%s · <span dir="rtl">%s</span></span>' % (d_en, d_ar), 1)
     if kind == "contract":
         s = s.replace('<td class="c">☐</td><td class="c">☐</td><td class="c">☐</td>', '<td class="c">☑</td><td class="c">☐</td><td class="c">☐</td>', 1)
         s = s.replace("account at [●], IBAN [IBAN]", "account at %s, IBAN %s" % (BANK, IBAN)).replace("لدى [●]، آيبان [IBAN]", "لدى %s، آيبان %s" % (BANK, IBAN))
