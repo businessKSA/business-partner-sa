@@ -620,7 +620,7 @@ if __name__ == "__main__":
     qm, qa = build_quote()
     open(os.path.join(out, "01-Quotation-Simple.html"), "w", encoding="utf-8").write(qm)
     open(os.path.join(out, "01B-Quotation-Detailed.html"), "w", encoding="utf-8").write(qa)
-    h, _ = build_contract(); open(os.path.join(out, "02-Agreement.html"), "w", encoding="utf-8").write(h)
+    h, _ = build_contract(); h = h.replace("[IBAN]", IBAN) if FINAL else h; open(os.path.join(out, "02-Agreement.html"), "w", encoding="utf-8").write(h)
     h, _ = build_nda(); open(os.path.join(out, "03-NDA.html"), "w", encoding="utf-8").write(h)
     open(os.path.join(out, "07-Authorization-Letter.html"), "w", encoding="utf-8").write(build_authz())
     open(os.path.join(out, "05-Professions-Localisation.html"), "w", encoding="utf-8").write(build_professions())
