@@ -268,7 +268,10 @@ def build_quote():
     roles_t = bi_table([("Role", "الوظيفة", False), ("Salary used", "الراتب المعتمد", True)], [[(re_, ra_, "t"), (se_, sa_, "c")] for re_, ra_, se_, sa_ in SAUDI_ROLES], [30, 16])
     saudi_box = '' if not CALC_SAUDI_URL else ('<div class="nt"><div dir="ltr"><b>Saudi employee cost calculator</b> (professional and non-professional roles): <b>%s</b></div>'
                  '<div class="ar" dir="rtl"><b>الآلة الحاسبة لتكلفة الموظف السعودي</b> (المهني وغير المهني):<br><b dir="ltr">%s</b></div></div>') % (CALC_SAUDI_URL, CALC_SAUDI_URL)
-    saudi_page = h2("A4", "Cost of a Saudi employee, by role and salary", "تكلفة الموظف السعودي بحسب الوظيفة والراتب") + roles_t + saudi_table() + gosi_note + saudi_box
+    _ref = bi_table([("Topic", "الموضوع", False), ("What to check", "ما يُراجَع", False), ("Official reference", "المرجع الرسمي", False)], [
+        [("<b>Professions and localisation</b>", "<b>المهن والتوطين</b>", "t"), ("Localisation decision of the profession and the procedural guide of the Ministry of Human Resources.", "قرار توطين المهنة والدليل الإجرائي لوزارة الموارد البشرية.", "t"), (num("hrsd.gov.sa") + "<br>" + num("businesspartner.sa/compliance-solutions"), num("hrsd.gov.sa") + "<br>" + num("businesspartner.sa/compliance-solutions"), "t")],
+        [("<b>Social insurance</b>", "<b>التأمينات الاجتماعية</b>", "t"), ("Contribution rates and the yearly rise in July.", "نسب الاشتراك وزيادتها السنوية في يوليو.", "t"), (num("www.gosi.gov.sa"), num("www.gosi.gov.sa"), "t")]], [13, 24, 31])
+    saudi_page = h2("A4", "Cost of a Saudi employee, by role and salary", "تكلفة الموظف السعودي بحسب الوظيفة والراتب") + roles_t + saudi_table() + gosi_note + _ref
     def model_table():
         ks = [(k_, v_) for k_, v_ in LEVELS.items() if k_ in PRICE_LEVELS]
         def split(a, loc):
