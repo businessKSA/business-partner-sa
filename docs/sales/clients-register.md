@@ -50,3 +50,6 @@
 | Singleclic (خالد) — تكامل أنظمة وأتمتة وذكاء اصطناعي، دبي/الرياض/القاهرة | تطوير الأعمال كخدمة | REV-LAUNCH مقترحنا + كل الباقات | 2,500/شهر قبل الضريبة + نسبة نجاح | حزمة كاملة ومسودة إيميل بلا مستلم (بريد خالد غير معروف؛ بريد الشركة sales@singleclic.com من ملفهم) بانتظار «أرسلي» | `clients/batch-2026-11-05/` (مفتاح singleclic) · مجلد العميل: `1k0pNBTsw5DvRKxbpwbrOaUKH5yCPP6zI` · المفتوحة: `1fbNgwuB3I1_oxox0AAH3W8_6SK02ik1q` |
 > 2026-11-05: Singleclic — خالد = Khalid Khan `khalid.khan@singleclic.com`؛ قبل دعوة «Business Consultation» يوم 4 نوفمبر 15:56Z (Gmail thread `1a1a7472bbf2bf8b`، وصف Notion في Business Correspondence Tracker). أُضيف بريده إلى المسودة، بانتظار «أرسلي».
 > 2026-11-05: **أُرسل إيميل Singleclic** (Khalid Khan، `khalid.khan@singleclic.com`) بإفادة المالك — REV-LAUNCH مقترحنا؛ بانتظار الرد.
+
+| المهندس حسن — تأسيس شركة استثمار أجنبي برخصة ريادة الأعمال | BP-FI-05 | خياران: أ 20,000 بدون رسوم حكومية · ب 25,000 مع الرسوم الحكومية (قبل الضريبة) | حزمة كاملة ومسودة بلا مستلم؛ لم يُرسل |
+> 2026-11-05: ملف حسن: `docs/sales/cases/2026-11-05-hasan-entrepreneur/`؛ Drive عميل `1eHX5A5XlpRlEHYUg4-kwK-ECBD5pwdDZ` · مفتوح `17ibylpuaTAu9RuMUuj5aD1I0i2R2hRL2`؛ مسودة `r-6706555446811573958`. بانتظار بريده وتأكيد معنى «مع الرسوم الحكومية».
