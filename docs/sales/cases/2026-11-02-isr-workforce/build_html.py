@@ -211,12 +211,13 @@ def build_quote():
     inc_ex = [
         (("Salary", "الراتب"), ("&#9744; Accommodation (SAR 300, optional)", "&#9744; السكن (300 ريال، اختياري)")),
         (("Residence permit and work permit", "الإقامة ورخصة العمل"), ("&#9744; Transport (SAR 300, optional)", "&#9744; المواصلات (300 ريال، اختياري)")),
-        (("Health insurance (category C) and social insurance", "التأمين الصحي (فئة C) والتأمينات الاجتماعية"), ("&#9744; Food (SAR 300, optional)", "&#9744; الإعاشة (300 ريال، اختياري)")),
-        (("End-of-service and leave provision", "مخصص نهاية الخدمة والإجازة"), ("Recruitment from abroad (by nationality)", "الاستقدام من الخارج (بحسب الجنسية)")),
-        (("Return ticket", "تذكرة العودة"), ("Embassy and attestation charges, tickets of recruited workers", "رسوم السفارات والتصديق وتذاكر المستقدَمين")),
-        (("Visa or transfer of services (sponsorship transfer), first time: SAR 2,000", "التأشيرة أو نقل الخدمات (نقل الكفالة) لأول مرة: 2,000 ريال"), ("A second transfer (4,000) or third (6,000): the increase", "النقل الثاني (4,000) أو الثالث (6,000): الزيادة")),
-        (("Administrative and operating costs, and our fees", "التكاليف الإدارية والتشغيلية ورسومنا"), ("Overtime (1.5 times the hourly rate)", "العمل الإضافي (بساعة ونصف)")),
-        (("", ""), ("Tools and protective equipment; medical insurance above category C", "الأدوات ومعدات الحماية؛ التأمين الطبي لفئة أعلى من C"))]
+        (("Health insurance (category C)", "التأمين الصحي (فئة C)"), ("&#9744; Food (SAR 300, optional)", "&#9744; الإعاشة (300 ريال، اختياري)")),
+        (("Social insurance", "التأمينات الاجتماعية"), ("Recruitment from abroad (by nationality)", "الاستقدام من الخارج (بحسب الجنسية)")),
+        (("End-of-service and leave provision", "مخصص نهاية الخدمة والإجازة"), ("Embassy and attestation charges, tickets of recruited workers", "رسوم السفارات والتصديق وتذاكر المستقدَمين")),
+        (("Return ticket", "تذكرة العودة"), ("A second transfer (4,000) or third (6,000): the increase", "النقل الثاني (4,000) أو الثالث (6,000): الزيادة")),
+        (("Visa or transfer of services (sponsorship transfer), first time: SAR 2,000", "التأشيرة أو نقل الخدمات (نقل الكفالة) لأول مرة: 2,000 ريال"), ("Overtime (1.5 times the hourly rate)", "العمل الإضافي (بساعة ونصف)")),
+        (("Administrative and operating costs, and our fees", "التكاليف الإدارية والتشغيلية ورسومنا"), ("Tools and protective equipment; medical insurance above category C", "الأدوات ومعدات الحماية؛ التأمين الطبي لفئة أعلى من C")),
+        (("Localisation fees", "رسوم التوطين"), ("Localisation fees of professions (technical and engineering under a decision)", "رسوم توطين المهن (الفنية والهندسية التي عليها قرار توطين)"))]
     ok_ = lambda t: ('<b style="color:#1a7f37">&#10003;</b> %s' % esc(t)) if t else ""
     no_ = lambda t: ('<b style="color:#c62828">&#10007;</b> %s' % t) if t else ""
     inc_rows = [[(ok_(i[0]), ok_(i[1]), "t"), (no_(x[0]), no_(x[1]), "t")] for i, x in inc_ex]
