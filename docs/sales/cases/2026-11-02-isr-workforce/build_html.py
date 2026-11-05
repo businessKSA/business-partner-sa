@@ -111,7 +111,7 @@ def sar_mark(h):
     h = re.sub(r"ريال(?:اً)?(?![\u0600-\u06FF])", SAR_SVG, h)
     return h
 def build_quote():
-    css = css_of("REV-quote-template-bilingual.html") + ".sar{height:.95em;width:.85em;vertical-align:-.12em;fill:currentColor}.sheet.land .sg .bx2>div{height:46px}"
+    css = css_of("REV-quote-template-bilingual.html") + ".sar{height:.95em;width:.85em;vertical-align:-.12em;fill:currentColor}.sheet.land .sg .bx2>div{height:46px}.pt{font-size:10.4px}.nt{font-size:10.8px}h2{font-size:15px}"
     sheets = []
     def cover(i, n):
         return ('<section class="sheet land cover" lang="ar"><div dir="rtl"><div class="cv lt"><div class="lgband"><span class="logo big" role="img" aria-label="Business Partner"></span></div>'
@@ -186,8 +186,7 @@ def build_quote():
     def model_how():
         rows_ = [
           [("<b>How it works</b>", "<b>كيف يعمل</b>", "t"), ("One fixed monthly amount that includes every government cost, spread over the contract.", "مبلغ شهري ثابت يشمل كل التكاليف الحكومية موزَّعة على العقد.", "t"), ("A lower monthly invoice; government costs are invoiced at their actual amount, no mark-up, when due.", "فاتورة شهرية أقل؛ والتكاليف الحكومية بمبلغها الفعلي دون هامش عند استحقاقها.", "t"), ("The contract is under the National and Non-National Shared Talent item, with its own price per worker (see the price table).", "التعاقد على بند الكوادر الوطنية وغير الوطنية المشتركة بسعر خاص للعامل (انظر جدول الأسعار).", "t")],
-          [("<b>You pay</b>", "<b>تدفع</b>", "t"), ("Two months in advance, then the same amount monthly.", "شهرين مقدماً ثم المبلغ نفسه شهرياً.", "t"), ("Signing, entry, arrival (permit and residence quarterly), monthly invoice, end. 15% VAT on administrative costs, our fees and insurance.", "التوقيع، الدخول، الوصول (الرخصة والإقامة ربع سنوي)، الفاتورة الشهرية، النهاية. ضريبة 15% على الإدارية ورسومنا والتأمين.", "t"), ("As in Model 1 or Model 2, at the Shared Talent price.", "كما في النموذج الأول أو الثاني، بسعر الكوادر المشتركة.", "t")],
-          [("<b>Total · Monthly fee</b>", "<b>الإجمالي · الرسوم الشهرية</b>", "t"), ("The total is the same as Model 2.", "الإجمالي هو نفسه في النموذج الثاني.", "t"), ("The total is the same as Model 1.", "الإجمالي هو نفسه في النموذج الأول.", "t"), ("Plus a monthly fee for managing the national cadres, before VAT: 5–49 employees 5,000 · 50–200 10,000 · 201–500 20,000 · over 500: 20,000 + 250 per extra employee.", "يضاف رسم شهري لإدارة الكوادر الوطنية، قبل الضريبة: من 5 إلى 49 موظفاً 5,000 · من 50 إلى 200 10,000 · من 201 إلى 500 20,000 · وما زاد على 500: 20,000 + 250 لكل موظف إضافي.", "t")]]
+          [("<b>Total · Monthly fee</b>", "<b>الإجمالي · الرسوم الشهرية</b>", "t"), ("The total is the same as Model 2.", "الإجمالي هو نفسه في النموذج الثاني.", "t"), ("The total is the same as Model 1.", "الإجمالي هو نفسه في النموذج الأول.", "t"), ("Plus a monthly management fee, before VAT: 5–49 staff 5,000 · 50–200 10,000 · 201–500 20,000 · over 500 +250 each.", "يضاف رسم شهري لإدارة الكوادر، قبل الضريبة: 5–49 موظفاً 5,000 · 50–200 10,000 · 201–500 20,000 · وما زاد على 500 +250 للموظف.", "t")]]
         return bi_table([("", "", False), ("Model 1 — Full cost", "النموذج الأول — التكلفة الكاملة", False), ("Model 2 — Transparent cost", "النموذج الثاني — التكلفة بشفافية", False), ("Model 3 — Shared Talent services", "النموذج الثالث — خدمات الكوادر الوطنية وغير الوطنية المشتركة", False)], rows_, [10, 18, 20, 18])
     model_tick = ('<div class="nt"><div dir="ltr">Choose the model: &nbsp; &#9744; Model 1 — Full cost &nbsp; &#9744; Model 2 — Transparent cost &nbsp; &#9744; Model 3</div>'
                   '<div class="ar" dir="rtl">اختر النموذج: &nbsp; &#9744; النموذج الأول — التكلفة الكاملة &nbsp; &#9744; النموذج الثاني — التكلفة بشفافية &nbsp; &#9744; النموذج الثالث</div></div>')
@@ -380,8 +379,8 @@ def build_quote():
             amt = ev.get(k, "")
             yr = "2026" if k == 0 else "2027"
             dot = ('<div style="width:14px;height:14px;border-radius:50%%;background:%s;margin:0 auto"></div>' % color) if amt else '<div style="width:8px;height:8px;border-radius:50%;background:#C9CEE3;margin:3px auto"></div>'
-            cols.append('<div style="flex:1;text-align:center;min-width:0"><div style="height:46px;font-weight:700;font-size:11px;color:%s;direction:ltr;display:flex;flex-direction:column;align-items:center;justify-content:flex-end"><span style="font-size:8.5px;font-weight:400;color:#5B6385;white-space:nowrap">%s</span>%s</div>%s<div style="font-size:10px;margin-top:4px;color:#0B1B5A;direction:ltr">%s<br><span style="font-size:9px">%s</span></div><div style="font-size:9px;direction:rtl;color:#5B6385">%s</div></div>' % (color, tags.get(k, ''), amt, dot, _MS[k], yr, _MSA[k]))
-        return '<div style="position:relative;margin:6px 0 10px"><div style="position:absolute;left:3%%;right:3%%;top:54px;height:2px;background:#C9CEE3"></div><div style="display:flex;position:relative">%s</div></div>' % "".join(cols)
+            cols.append('<div style="flex:1;text-align:center;min-width:0"><div style="height:52px;font-weight:700;font-size:13px;color:%s;direction:ltr;display:flex;flex-direction:column;align-items:center;justify-content:flex-end"><span style="font-size:10px;font-weight:400;color:#5B6385;white-space:nowrap">%s</span>%s</div>%s<div style="font-size:11.5px;margin-top:4px;color:#0B1B5A;direction:ltr">%s<br><span style="font-size:10.5px">%s</span></div><div style="font-size:10.5px;direction:rtl;color:#5B6385">%s</div></div>' % (color, tags.get(k, ''), amt, dot, _MS[k], yr, _MSA[k]))
+        return '<div style="position:relative;margin:6px 0 10px"><div style="position:absolute;left:3%%;right:3%%;top:60px;height:2px;background:#C9CEE3"></div><div style="display:flex;position:relative">%s</div></div>' % "".join(cols)
     _gev = {0: "2,500", 1: n(_q + _ann), 4: n(_q), 7: n(_q), 10: n(_q), 12: n(int(_end_year))}
     _fev = {0: n(_sg)}
     for k in range(1, 13): _fev[k] = n(_inv_m)
@@ -464,7 +463,7 @@ def build_quote():
         tmp.write(doc(title, css, [mk('<div data-m="b%d">%s</div>' % (k, x)) for k, x in enumerate(blocks)])); tmp.close()
         out = subprocess.run(["node", os.path.join(os.path.dirname(os.path.abspath(__file__)), "render.cjs"), "measure", tmp.name], capture_output=True, text=True, check=True).stdout
         os.unlink(tmp.name)
-        hs = json.loads(out.strip().splitlines()[-1]); CAP = int(os.environ.get("PACK_CAP", "553"))
+        hs = json.loads(out.strip().splitlines()[-1]); CAP = int(os.environ.get("PACK_CAP", "560"))
         if os.environ.get("PACK_DEBUG"): print("heights", title, {k: round(v) for k, v in hs.items()}, file=sys.stderr)
         pages_, rest = [], list(range(len(blocks)))
         while rest:
