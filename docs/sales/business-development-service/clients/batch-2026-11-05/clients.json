@@ -58,5 +58,15 @@
   "name_en": "Maake Beauty",
   "pkg": "LAUNCH",
   "ref": "EOR"
+ },
+ {
+  "key": "singleclic",
+  "folder_ar": "سينجل كليك · Singleclic",
+  "folder_en": "Singleclic",
+  "name_ar": "",
+  "name_en": "Singleclic",
+  "pkg": "LAUNCH",
+  "commission": true,
+  "ref": "REV-LAUNCH"
  }
 ]

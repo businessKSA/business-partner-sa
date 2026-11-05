@@ -46,3 +46,5 @@
 > - أكنان السعودية: عميل `1sDUg1VMsmOwKB-QhGE7BV_4XKwRcX5Tn` · مفتوح `1sakE08XDGyiw8TyC64sV3RaBW10wl-Pe`
 > - د. أسامة الملا (موهبتك): عميل `1y9Lz06gvla2dEThZl3d0IlO3evpMvl50` · مفتوح `1Men1V35g_CNeTxzPDeGmpzY2u4YXSA0W` (المجلد القديم `1MXtp4bJZCuRLmzMpX2azcl7toBeyK7Vs` فيه سجل النسخ وعرض V2 HTML)
 > - الألماس الأزرق: عميل `112PETYzPsXsZ23t_eHa_Jj3xcpE1gMsz` · مفتوح `1FYrZ6-0NrOUcMZSOzKQ_43g5G5BAVOt8` (المجلد القديم الفارغ `17OA8PfGzjShBSDErb8R_TCLbt-oFiDz1`)
+> 2026-11-05: ملف كانفاش التعريفي للجهات والشركات (51 صفحة؛ عملاؤهم: أرامكو، القدية، موسم الرياض، المجوهرات السعودي، مجموعة العشرين) محفوظ في مجلد كانفاش الداخلي (`1vd-skWw9EkWi7gMFDmyazqmidvLkZqVP`) لتحديد المشترين والشركاء.
+| Singleclic (خالد) — تكامل أنظمة وأتمتة وذكاء اصطناعي، دبي/الرياض/القاهرة | تطوير الأعمال كخدمة | REV-LAUNCH مقترحنا + كل الباقات | 2,500/شهر قبل الضريبة + نسبة نجاح | حزمة كاملة ومسودة إيميل بلا مستلم (بريد خالد غير معروف؛ بريد الشركة sales@singleclic.com من ملفهم) بانتظار «أرسلي» | `clients/batch-2026-11-05/` (مفتاح singleclic) · مجلد العميل: `1k0pNBTsw5DvRKxbpwbrOaUKH5yCPP6zI` · المفتوحة: `1fbNgwuB3I1_oxox0AAH3W8_6SK02ik1q` |
