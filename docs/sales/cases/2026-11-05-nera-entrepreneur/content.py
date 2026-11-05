@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""محتوى حزمة نيرا — مصدر واحد للـHTML والـDOCX والـPPTX.
+"""محتوى حزمة نيرا كوليكتيف (Nyra Collective) — مصدر واحد للـHTML والـDOCX والـPPTX.
 تأسيس شركة برخصة ريادة الأعمال (BP-FI-05). لا بيانات شخصية هنا؛ [●] لكل مجهول.
 السعر قرار المالك 2026-11-05 (يتجاوز الكتالوج 30,000): الخيار أ = 20,000 بدون رسوم حكومية، الخيار ب = 25,000 مع الرسوم الحكومية؛ كلاهما قبل ضريبة 15٪. SKU: BP-FI-05.
 """
@@ -35,8 +35,8 @@ HALF = FEE_A // 2; HALF_VAT = _v(HALF); HALF_TOTAL = HALF + HALF_VAT
 HALF_B = FEE_B // 2; HALF_B_VAT = _v(HALF_B); HALF_B_TOTAL = HALF_B + HALF_B_VAT
 def n(x): return "{:,}".format(x)
 
-CLIENT_AR = "نيرا"
-CLIENT_EN = "Nera"
+CLIENT_AR = "نيرا كوليكتيف"
+CLIENT_EN = "Nyra Collective"
 DATE_EN = "5 November 2026"
 DATE_AR = "5 نوفمبر 2026"
 
