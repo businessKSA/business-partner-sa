@@ -191,7 +191,7 @@ EXCLUSIONS = [
 
 STAGES = [  # (stage_en, stage_ar, what_en, what_ar, duration)
     ("Acceptance and advance", "القبول والدفعة المقدمة",
-     "Signing the quotation, the agreement and the authorisation, and paying the advance.", "توقيع العرض والعقد والتفويض وسداد الدفعة المقدمة.", "[●]"),
+     "Signing the quotation and the agreement, and paying the advance.", "توقيع العرض والعقد وسداد الدفعة المقدمة.", "[●]"),
     ("Selection and trade verification", "الاختيار والفحص المهني",
      "Candidate CVs, the Client’s interview and selection, and trade verification.", "سير المرشحين، ومقابلة العميل واختياره، والفحص المهني.", "[●]"),
     ("Visa and documents", "التأشيرة والمستندات",
@@ -215,8 +215,8 @@ TERMS = [
     ("Replacement and guarantee period: as set in the Agreement.", "الاستبدال وفترة الضمان: وفق ما يحدده العقد."),
     ("No fee is charged to any worker in any form, and no worker’s passport is withheld.",
      "لا يُتقاضى أي مقابل من أي عامل بأي صورة، ولا يُحجز جواز أي عامل."),
-    ("The legal terms are in the Workforce Supply Agreement, the non-disclosure agreement and the authorisation letter signed with this quotation.",
-     "الأحكام القانونية في عقد توفير العمالة واتفاقية عدم الإفصاح وخطاب التفويض الموقّعة مع هذا العرض."),
+    ("The legal terms are in the Workforce Supply Agreement, and the non-disclosure agreement signed with this quotation.",
+     "الأحكام القانونية في عقد توفير العمالة واتفاقية عدم الإفصاح المبرمَين مع هذا العرض."),
 ]
 
 # ---------------------------------------------------------------- العقد
@@ -378,8 +378,8 @@ def contract_clauses():
          "الغرض: تُستعمل البيانات الشخصية للعمال ولجهات اتصال الطرف الثاني لتنفيذ هذا العقد والإجراءات الحكومية المرتبطة به فقط."),
         ("Storage: the data is kept securely for the Agreement term and the period the regulations require.",
          "التخزين: تُحفظ البيانات بأمان طوال مدة العقد والمدة التي تقتضيها الأنظمة."),
-        ("Sharing: the data is shared only with the competent authorities, the licensed recruitment parties and the service providers needed for performance, under the same obligations. Any transfer outside the Kingdom follows the choice made in the authorisation letter.",
-         "المشاركة: لا تُشارك البيانات إلا مع الجهات المختصة وجهات الاستقدام المرخصة ومزودي الخدمات اللازمين للتنفيذ، بالالتزامات نفسها. وأي نقل خارج المملكة يتبع الخيار المحدد في خطاب التفويض."),
+        ("Sharing: the data is shared only with the competent authorities, the licensed recruitment parties and the service providers needed for performance, under the same obligations. Any transfer outside the Kingdom needs the Second Party’s prior written consent.",
+         "المشاركة: لا تُشارك البيانات إلا مع الجهات المختصة وجهات الاستقدام المرخصة ومزودي الخدمات اللازمين للتنفيذ، بالالتزامات نفسها. وأي نقل خارج المملكة يستلزم موافقة الطرف الثاني الكتابية المسبقة."),
         ("Rights: each person may request access to, correction of or deletion of their data, as the regulations allow.",
          "الحقوق: لكل شخص طلب الاطلاع على بياناته أو تصحيحها أو إتلافها بحسب ما تجيزه الأنظمة."),
         ("Destruction: the data is destroyed or returned at the end of the Agreement, except what the regulations require to be kept.",
