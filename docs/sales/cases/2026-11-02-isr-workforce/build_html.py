@@ -143,16 +143,16 @@ def build_quote():
     B = "[●]"
     nat_all = ("Filipino · Indian · Nepali", "فلبينية · هندية · نيبالية")
     def pc(v): return (num(n(v)), num(n(v)), "c")
-    def rate_table(prices, price_hdr=("Monthly price per worker (SAR)", "السعر الشهري للعامل (ريال)")):
+    def rate_table(prices, price_hdr=("Monthly price per worker (SAR)", "السعر الشهري للعامل (ريال)"), prices2=None, hdr2=None):
         rr = []
         for k, t in enumerate(TRADES, 1):
             le, la, sal, loc_fee = LEVELS[t["level"]]
             rr.append([(str(k), str(k), "nx"), ("<b>%s</b>" % esc(t["en"]), "<b>%s</b>" % esc(t["ar"]), "t"), (le, la, "c"), pc(sal), (str(t["count"]), str(t["count"]), "c"),
-                       (NAT_EN, NAT_AR, "c"), pc(prices[t["level"]])])
+                       (NAT_EN, NAT_AR, "c"), pc(prices[t["level"]])] + ([pc(prices2[t["level"]])] if prices2 else []))
         return bi_table([("#", "#", True), ("Trade", "المهنة", False), ("Level", "المستوى", True), ("Salary", "الراتب", True), ("Workers", "العدد", True),
-                         ("Nationalities", "الجنسيات", True), (price_hdr[0], price_hdr[1], True)],
-                        rr, [3, 20, 9, 8, 7, 18, 12])
-    rates12 = rate_table(PRICE12)
+                         ("Nationalities", "الجنسيات", True), (price_hdr[0], price_hdr[1], True)] + ([(hdr2[0], hdr2[1], True)] if hdr2 else []),
+                        rr, [3, 20, 9, 8, 7, 18, 12] + ([14] if hdr2 else []))
+    rates12 = rate_table(PRICE12, prices2=PRICE12_F, hdr2=("Price under the Shared Talent item (SAR)", "السعر على بند الكوادر المشتركة (ريال)"))
     hours = ('<div class="nt"><div dir="ltr"><b>Working hours:</b> %d hours a day &nbsp;·&nbsp; <b>Working days:</b> %d days a month</div>'
              '<div class="ar" dir="rtl"><b>ساعات العمل:</b> %d ساعات يومياً &nbsp;·&nbsp; <b>أيام العمل:</b> %d يوماً في الشهر</div></div>') % (WORK_HOURS, WORK_DAYS, WORK_HOURS, WORK_DAYS)
     note = ('<div class="nt"><div dir="ltr"><b>Salary:</b> skilled 1,800 · helper 1,200 (you may raise or lower it). Prices are per worker per month, before 15% VAT.</div>'
@@ -193,7 +193,7 @@ def build_quote():
         return bi_table([("", "", False), ("Model 1 — Full cost", "النموذج الأول — التكلفة الكاملة", False), ("Model 2 — Transparent cost", "النموذج الثاني — التكلفة بشفافية", False), ("Model 3 — Shared Talent services", "النموذج الثالث — خدمات الكوادر الوطنية وغير الوطنية المشتركة", False)], rows_, [10, 18, 20, 18])
     model_tick = ('<div class="nt"><div dir="ltr">Choose the model: &nbsp; &#9744; Model 1 — Full cost &nbsp; &#9744; Model 2 — Transparent cost &nbsp; &#9744; Model 3</div>'
                   '<div class="ar" dir="rtl">اختر النموذج: &nbsp; &#9744; النموذج الأول — التكلفة الكاملة &nbsp; &#9744; النموذج الثاني — التكلفة بشفافية &nbsp; &#9744; النموذج الثالث</div></div>')
-    sheets.append(page(h2(3, "Three models", "ثلاثة نماذج") + model_how()))
+    sheets.append(page(h2(2, "Three models", "ثلاثة نماذج") + model_how()))
     model_short = ('<div class="nt"><div dir="ltr"><b>Two models, same total:</b> full cost (one fixed monthly amount) or transparent cost (a monthly invoice, with government costs at actual when due). Choose: &nbsp; \u2610 Full cost &nbsp; \u2610 Transparent cost. Details in the detailed quotation.</div>'
                    '<div class="ar" dir="rtl"><b>نموذجان بإجمالي واحد:</b> التكلفة الكاملة (مبلغ شهري ثابت) أو التكلفة بشفافية (فاتورة شهرية والتكاليف الحكومية بالفعلي عند استحقاقها). اختر: &nbsp; \u2610 التكلفة الكاملة &nbsp; \u2610 التكلفة بشفافية. والتفصيل في العرض المفصل.</div></div>')
     def calc_table():
@@ -393,11 +393,11 @@ def build_quote():
     page(m_bank)
     m_prices = find(REC_MAIN, "Trades, salaries and price"); m_nst = find(REC_MAIN, "Calculation under the Shared Talent"); m_models = find(REC_MAIN, "Three models"); m_incl = find(REC_MAIN, "What the price includes")
     m_opts = find(REC_MAIN, "Your options"); m_sign = find(REC_MAIN, "Signatures")
-    simple_pages = pack([m_prices, m_nst, m_bank, m_models, m_incl, m_opts, m_sign], page, "q")
+    simple_pages = pack([m_prices, m_bank, m_models, m_incl, m_opts, m_sign], page, "q")
     A = REC_ANNEX
     annex_blocks = [m1, m2, m3, m4, sheets_model_page, scope_page, calc_page, find(A, "Government fees explained"), find(A, 'h2("A5"') if False else find(A, "Localisation fee"),
                     find(A, "Technical and engineering workers: how"), saudi_page, find(A, "What you pay and when"), find(A, "Terms and conditions")]
-    detail_pages = pack([m_prices, m_nst, m_bank, m_models, m_incl] + annex_blocks + [m_opts, m_sign], pageA, "qa")
+    detail_pages = pack([m_prices, m_bank, m_models, m_incl] + annex_blocks + [m_opts, m_sign], pageA, "qa")
     return sar_mark(doc("Quotation (simple) — ISR Trading (Workforce)", css, [sheets[0]] + simple_pages + [])), sar_mark(doc("Quotation (detailed) — ISR Trading (Workforce)", css, [sheets[0]] + detail_pages + [closing]))
 
 # ------------------------------------------------------------------ العقد وNDA (A4 عمودي)
