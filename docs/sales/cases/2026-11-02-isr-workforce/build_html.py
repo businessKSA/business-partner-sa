@@ -384,13 +384,20 @@ def build_quote():
                     cur.append(k); h += hs["b%d" % k]; rest.remove(k)
             pages_.append([blocks[k] for k in sorted(cur)])
         return [mk("".join(p)) for p in pages_]
+    m_bank = (h2(7, "Payment details and national address", "بيانات الدفع والعنوان الوطني") +
+              bi_table([("Item", "البند", False), ("Details", "البيانات", False)], [
+                  [("<b>Beneficiary</b>", "<b>المستفيد</b>", "t"), ("Business Partner Solutions", "بزنس بارتنر سلوشنز", "t")],
+                  [("<b>Bank</b>", "<b>البنك</b>", "t"), (esc(BANK), esc(BANK), "t")],
+                  [("<b>IBAN</b>", "<b>الآيبان</b>", "t"), (num(IBAN), num(IBAN), "t")],
+                  [("<b>National address</b>", "<b>العنوان الوطني</b>", "t"), ("RDAA9214 · 9214 King Khaled Branch Rd, Al Asemah, Ad Diriyah 13714", "RDAA9214 · 9214 طريق الملك خالد الفرعي، حي العاصمة، الدرعية 13714", "t")]], [14, 44]))
+    page(m_bank)
     m_prices = find(REC_MAIN, "Trades, salaries and price"); m_nst = find(REC_MAIN, "Calculation under the Shared Talent"); m_models = find(REC_MAIN, "Three models"); m_incl = find(REC_MAIN, "What the price includes")
     m_opts = find(REC_MAIN, "Your options"); m_sign = find(REC_MAIN, "Signatures")
-    simple_pages = pack([m_prices, m_nst, m_models, m_incl, m_opts, m_sign], page, "q")
+    simple_pages = pack([m_prices, m_nst, m_bank, m_models, m_incl, m_opts, m_sign], page, "q")
     A = REC_ANNEX
     annex_blocks = [m1, m2, m3, m4, sheets_model_page, scope_page, calc_page, find(A, "Government fees explained"), find(A, 'h2("A5"') if False else find(A, "Localisation fee"),
                     find(A, "Technical and engineering workers: how"), saudi_page, find(A, "What you pay and when"), find(A, "Terms and conditions")]
-    detail_pages = pack([m_prices, m_nst, m_models, m_incl] + annex_blocks + [m_opts, m_sign], pageA, "qa")
+    detail_pages = pack([m_prices, m_nst, m_bank, m_models, m_incl] + annex_blocks + [m_opts, m_sign], pageA, "qa")
     return sar_mark(doc("Quotation (simple) — ISR Trading (Workforce)", css, [sheets[0]] + simple_pages + [])), sar_mark(doc("Quotation (detailed) — ISR Trading (Workforce)", css, [sheets[0]] + detail_pages + [closing]))
 
 # ------------------------------------------------------------------ العقد وNDA (A4 عمودي)
@@ -421,10 +428,25 @@ PARTIES = True
 START = 2
 
 def clause_tr(no, r):
+    """كل بند: صف عنوان ثم صف لكل نقطة، الإنجليزي يساراً والعربي يميناً في الصف نفسه (شبكة CSS) ليتحاذيا سطراً بسطر."""
     t_en, t_ar, b_en, b_ar = r
     pre = "%d. " % no if NUMBERED else ""
-    return '<tr data-m="r%d"><td class="en"><b>%s%s</b><br>%s</td><td class="ar"><b>%s%s</b><br>%s</td></tr>' % (
-        no, pre, esc(t_en), b_en if "&amp;" in b_en or b_en.startswith("<") else b_en.replace("&", "&amp;"), pre, esc(t_ar), ar(b_ar))
+    be = b_en if "&amp;" in b_en or b_en.startswith("<") else b_en.replace("&", "&amp;")
+    ba = ar(b_ar)
+    def _split(s):
+        k = s.find("<table")
+        head, tail = (s, "") if k < 0 else (s[:k], s[k:])
+        parts = [x for x in head.split("<br>") if x.strip()]
+        return parts, tail
+    pe, te = _split(be); pa, ta = _split(ba)
+    if len(pe) != len(pa):
+        pe, pa, te, ta = [be], [ba], "", ""
+    elif te or ta:
+        pe = pe + [te]; pa = pa + [ta]
+    cells = '<div class="en"><b>%s%s</b></div><div class="ar"><b>%s%s</b></div>' % (pre, esc(t_en), pre, esc(t_ar))
+    for x, y in zip(pe, pa):
+        cells += '<div class="en">%s</div><div class="ar">%s</div>' % (x, y)
+    return '<tr data-m="r%d"><td colspan="2" style="padding:0"><div class="cg">%s</div></td></tr>' % (no, cells)
 
 def sig_port():
     return ('<div class="sg" data-m="sig" style="direction:ltr"><div><h3><span>First Party</span><span dir="rtl">الطرف الأول</span></h3>'
@@ -470,8 +492,9 @@ def measure(rows_html, extra_blocks, css, path):
                                   env=dict(os.environ, NODE_PATH=subprocess.check_output(["npm", "root", "-g"]).decode().strip()))
     return json.loads(out)
 
+CG_CSS = ".cg{display:grid;grid-template-columns:1fr 1fr;direction:ltr}.cg>div{padding:3px 8px;border-bottom:1px solid #E3E7F2}.cg .en{direction:ltr;text-align:left}.cg .ar{direction:rtl;text-align:right;border-inline-start:1px solid #E3E7F2}.cl{width:100%}"
 def paginate_port(rows, title_en, title_ar, kind_en, kind_ar, cover_args, with_sig=True, tmp="/tmp"):
-    css = css_of("REV-contract-bilingual.html")
+    css = css_of("REV-contract-bilingual.html") + CG_CSS
     nums = list(range(START, START + len(rows)))
     trs = [clause_tr(no, r) for no, r in zip(nums, rows)]
     pa = '<div data-m="parties"><div class="pre"><b>1. الأطراف / Parties</b></div>%s</div>' % parties_html()
