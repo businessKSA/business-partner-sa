@@ -36,8 +36,9 @@
   "folder_en": "Dal Seen · Business Development",
   "name_ar": "دال سين",
   "name_en": "Dal Seen",
-  "pkg": null,
-  "ref": "REV"
+  "pkg": "LAUNCH",
+  "ref": "REV-LAUNCH",
+  "commission": true
  },
  {
   "key": "canvash",
