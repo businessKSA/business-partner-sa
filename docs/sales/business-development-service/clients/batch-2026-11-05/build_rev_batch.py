@@ -23,6 +23,8 @@ NODE_ENV = dict(os.environ, NODE_PATH=subprocess.run(['npm', 'root', '-g'], capt
 
 sys.path.insert(0, HERE)
 import lib_fields
+import base64
+LOGO64 = base64.b64encode(open(os.path.join(TPL, 'assets', 'business-partner-logo-clean.png'), 'rb').read()).decode()
 CLIENTS = json.load(open(os.path.join(HERE, 'clients.json'), encoding='utf-8'))
 
 
@@ -58,7 +60,7 @@ def fields(h, tag):
 def renumber_h2(h):
     c = [0]
     def rep(m):
-        c[0] += 1; return '<h2><span class="n">%d</span>' % c[0]
+        c[0] += 1; return '<h2><span class="n">%d</span>' % ((c[0] + 1) // 2)
     return re.sub(r'<h2><span class="n">\d+</span>', rep, h)
 
 
@@ -150,20 +152,21 @@ def build_quote(c, detailed):
     # الأسماء والتواريخ
     kn = known_names(c)
     en, ar = (kn if kn else ('[●]', '[●]'))
-    h = h.replace('<b>To:</b> <span class="num">[●]</span>', '<b>To:</b> <span class="num">%s</span>' % en)
-    h = h.replace('<b>إلى السادة:</b> <span class="num">[●]</span>', '<b>إلى السادة:</b> <span class="num">%s</span>' % ar)
-    h = h.replace('<span>To / إلى السادة</span><span class="num">[●]</span>', '<span>To / إلى السادة</span>%s' % ('<span class="num">%s</span><br><span dir="rtl">%s</span>' % (en, ar) if kn else '<span class="num">[●]</span>'))
-    h = h.replace('<b>Date:</b> <span class="num">[●]</span>', '<b>Date:</b> <span class="num">%s</span>' % DATE_EN)
-    h = h.replace('<b>التاريخ:</b> <span class="num">[●]</span>', '<b>التاريخ:</b> <span class="num">%s</span>' % DATE_AR)
+    h = h.replace('<b>To:</b> <span class="num">[●]</span>', '<b>To:</b> %s' % en)
+    h = h.replace('<b>إلى السادة:</b> <span class="num">[●]</span>', '<b>إلى السادة:</b> %s' % ar)
+    h = h.replace('<span>To / إلى السادة</span><span class="num">[●]</span>', '<span>To / إلى السادة</span>%s' % ('%s<br><span dir="rtl">%s</span>' % (en, ar) if kn else '<span class="num">[●]</span>'))
+    h = h.replace('<b>Date:</b> <span class="num">[●]</span>', '<b>Date:</b> %s' % DATE_EN)
+    h = h.replace('<b>التاريخ:</b> <span class="num">[●]</span>', '<b>التاريخ:</b> %s' % DATE_AR)
     h = h.replace('<span>Date / التاريخ</span><span class="num">[●]</span>', '<span>Date / التاريخ</span>%s<br><span dir="rtl">%s</span>' % (DATE_EN, DATE_AR))
-    h = h.replace('<div class="c">[●]<br>', '<div class="c">%s<br>' % PHONE).replace('Mobile / الجوال: <span class="num">[●]</span>', 'Mobile / الجوال: <span class="num">%s</span>' % PHONE)
+    h = re.sub(r'<div class="c">\[●\]<br\s*/?>', '<div class="c">%s<br>' % PHONE, h)
+    h = h.replace('url(assets/business-partner-logo-clean.png)', 'url(data:image/png;base64,%s)' % LOGO64).replace('Mobile / الجوال: <span class="num">[●]</span>', 'Mobile / الجوال: <span class="num">%s</span>' % PHONE)
     # التوقيع: اسمنا (بدر) وصفته وتاريخ الإرسال؛ والعميل حقول
     i = h.find('<div class="sg"')
     sg = h[i:]
     for val in (SIGNER_EN, TITLE_EN + ' · ' + TITLE_AR, DATE_EN + ' · ' + DATE_AR):
-        sg = sg.replace('<span class="num">[●]</span>', '<span class="num">%s</span>' % val, 1)
+        sg = sg.replace('<span class="num">[●]</span>', '<span>%s</span>' % val, 1)
     if kn:
-        sg = sg.replace('<span class="v cn"><span class="num">[●]</span>', '<span class="v cn"><span class="num">%s · %s</span>' % (en, ar), 1) if False else sg
+        sg = sg.replace('<span class="v cn"><span class="num">[●]</span></span>', '<span class="v cn">%s · %s</span>' % (en, ar), 1)
     h = h[:i] + sg
     h = bank_sub(h)
     h = renumber_h2(page_numbers(h))

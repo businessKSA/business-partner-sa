@@ -45,9 +45,9 @@ def portrait_post(s, kind, cfg):
         s = s.replace('<td class="c">☐</td><td class="c">☐</td><td class="c">☐</td>', '<td class="c">☑</td><td class="c">☐</td><td class="c">☐</td>', 1)
         s = s.replace("account at [●], IBAN [IBAN]", "account at %s, IBAN %s" % (BANK, IBAN)).replace("لدى [●]، آيبان [IBAN]", "لدى %s، آيبان %s" % (BANK, IBAN))
     if kind == "authz":
-        for a, b in (("SERVICE AGREEMENT", "AUTHORIZATION"), ("Business Development Service Agreement", "Authorization Letter"),
+        for a, b in (("SERVICE AGREEMENT", "AUTHORIZATION"), ('<h1 class="pf">Business Development Service Agreement</h1>', '<h1 class="pf">Authorization Letter</h1>'),
                      ("Sales leads and referrals and help registering as a vendor with companies.", "The Second Party chooses what it authorizes the First Party to do."),
-                     (">عقد خدمة<", ">تفويض<"), ("عقد خدمة تطوير الأعمال", "خطاب تفويض"),
+                     (">عقد خدمة<", ">تفويض<"), ('<h1>عقد خدمة تطوير الأعمال</h1>', '<h1>خطاب تفويض</h1>'),
                      ("خدمة تزويدك بفرص بيع وإحالات ومساعدتك في التسجيل كمورد لدى الشركات.", "يختار الطرف الثاني ما يفوّض به الطرف الأول.")):
             s = s.replace(a, b)
     return s
