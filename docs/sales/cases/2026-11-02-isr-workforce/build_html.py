@@ -97,7 +97,7 @@ def sig_boxes(left_title=("Business Partner Solutions", "بزنس بارتنر �
                 '<div class="f2"><span>Title</span><span class="v">%s</span><span dir="rtl">الصفة</span></div>'
                 '<div class="f2"><span>Date</span><span class="v">%s</span><span dir="rtl">التاريخ</span></div>'
                 '<div class="bx2"><div style="text-align:center">Signature &amp; Stamp · التوقيع والختم</div></div></div>') % (
-            esc(t[0]), esc(t[1]), co, nm or num("[●]"), tt or num("[●]"), num("[●]"))
+            esc(t[0]), esc(t[1]), co, nm or num("[●]"), tt or num("[●]"), num(DATE_EN + " · " + DATE_AR))
     return '<div class="sg" style="direction:ltr">%s%s</div>' % (
         box(left_title, esc(left_co), esc(REP_EN) + ' · <span dir="rtl">' + esc(REP_AR) + '</span>',
             esc(REP_TITLE_EN) + ' · <span dir="rtl">' + esc(REP_TITLE_AR) + '</span>'),
@@ -205,8 +205,8 @@ def build_quote():
         [("1", "1", "nx"), ("<b>Salary</b>", "<b>الراتب</b>", "t"), ("Raise or lower any worker's salary; the price is recalculated.", "زد راتب أي عامل أو انقصه، ويُعاد حساب السعر.", "t"), (_bx + "As offered<br>" + _bx + "My salary", _bx + "كما في العرض<br>" + _bx + "راتب أحدده", "t")],
         [("2", "2", "nx"), ("<b>Recruitment from abroad</b>", "<b>الاستقدام من الخارج</b>", "t"), ("By Business Partner at cost, or by you directly.", "من طرفنا بالتكلفة أو من طرفك مباشرة.", "t"), (_bx + "Business Partner<br>" + _bx + "The Client", _bx + "من طرفكم<br>" + _bx + "من طرف العميل", "t")],
         [("3", "3", "nx"), ("<b>Professions</b>", "<b>المهن</b>", "t"), ("Register the professions (residence permits, Qiwa contracts) as skilled, not technical, to avoid localisation costs.", "تسجيل المهن في الإقامات والعقود في قوى على المهن الماهرة، لا الفنية، لتجنب تكاليف التوطين.", "t"), (_bx + "Yes<br>" + _bx + "No", _bx + "نعم<br>" + _bx + "لا", "t")],
-        [("5", "5", "nx"), ("<b>Contract model</b>", "<b>نموذج التعاقد</b>", "t"), ("Model 1 full cost, Model 2 transparent cost, or Model 3 Shared Talent services.", "النموذج الأول التكلفة الكاملة، أو الثاني التكلفة بشفافية، أو الثالث خدمات الكوادر الوطنية وغير الوطنية المشتركة.", "t"), (_bx + "Model 1<br>" + _bx + "Model 2<br>" + _bx + "Model 3", _bx + "الأول<br>" + _bx + "الثاني<br>" + _bx + "الثالث", "t")],
-        [("4", "4", "nx"), ("<b>Direct payment</b>", "<b>الدفع المباشر</b>", "t"), ("Any item that would cost you more (accommodation, transport, food, medical upgrade, government fees, tickets): pay it directly; it is taken off our invoice.", "أي بند يكلفك أكثر (السكن، المواصلات، الإعاشة، رفع التأمين الطبي، الرسوم الحكومية، التذاكر): ادفعه مباشرة ويُحذف من فاتورتنا.", "t"), (_bx + "None<br>" + _bx + "These items: ________", _bx + "لا شيء<br>" + _bx + "بنود: ____", "t")]],
+        [("4", "4", "nx"), ("<b>Contract model</b>", "<b>نموذج التعاقد</b>", "t"), ("Model 1 full cost, Model 2 transparent cost, or Model 3 Shared Talent services.", "النموذج الأول التكلفة الكاملة، أو الثاني التكلفة بشفافية، أو الثالث خدمات الكوادر الوطنية وغير الوطنية المشتركة.", "t"), (_bx + "Model 1<br>" + _bx + "Model 2<br>" + _bx + "Model 3", _bx + "الأول<br>" + _bx + "الثاني<br>" + _bx + "الثالث", "t")],
+        [("5", "5", "nx"), ("<b>Direct payment</b>", "<b>الدفع المباشر</b>", "t"), ("Any item that would cost you more (accommodation, transport, food, medical upgrade, government fees, tickets): pay it directly; it is taken off our invoice.", "أي بند يكلفك أكثر (السكن، المواصلات، الإعاشة، رفع التأمين الطبي، الرسوم الحكومية، التذاكر): ادفعه مباشرة ويُحذف من فاتورتنا.", "t"), (_bx + "None<br>" + _bx + "These items: ________", _bx + "لا شيء<br>" + _bx + "بنود: ____", "t")]],
         [3, 14, 34, 16])
     inc_ex = [
         (("Salary", "الراتب"), ("&#9744; Accommodation (SAR 300, optional)", "&#9744; السكن (300 ريال، اختياري)")),
@@ -393,18 +393,19 @@ def build_quote():
         r = [x for x in lst if sub in x]
         assert r, sub
         return r[0]
-    def pack(blocks, mk, title):
+    def pack(blocks, mk, title, tail=0):
         import subprocess, tempfile
         tmp = tempfile.NamedTemporaryFile("w", suffix=".html", delete=False, encoding="utf-8")
         tmp.write(doc(title, css, [mk('<div data-m="b%d">%s</div>' % (k, x)) for k, x in enumerate(blocks)])); tmp.close()
         out = subprocess.run(["node", os.path.join(os.path.dirname(os.path.abspath(__file__)), "render.cjs"), "measure", tmp.name], capture_output=True, text=True, check=True).stdout
         os.unlink(tmp.name)
-        hs = json.loads(out.strip().splitlines()[-1]); CAP = 548
+        hs = json.loads(out.strip().splitlines()[-1]); CAP = int(os.environ.get("PACK_CAP", "553"))
         if os.environ.get("PACK_DEBUG"): print("heights", title, {k: round(v) for k, v in hs.items()}, file=sys.stderr)
         pages_, rest = [], list(range(len(blocks)))
         while rest:
             cur = [rest.pop(0)]; h = hs["b%d" % cur[0]]
             for k in list(rest[:3]):
+                if tail and cur[0] < len(blocks) - tail and k >= len(blocks) - tail: continue
                 if h + hs["b%d" % k] <= CAP:
                     cur.append(k); h += hs["b%d" % k]; rest.remove(k)
             pages_.append([blocks[k] for k in sorted(cur)])
@@ -418,11 +419,12 @@ def build_quote():
     page(m_bank)
     m_prices = find(REC_MAIN, "Trades, salaries and price"); m_nst = find(REC_MAIN, "Calculation under the Shared Talent"); m_models = find(REC_MAIN, "Three models"); m_incl = find(REC_MAIN, "What the price includes")
     m_opts = find(REC_MAIN, "Your options"); m_sign = find(REC_MAIN, "Signatures")
-    simple_pages = pack([m_prices, m_bank, m_models, m_incl, m_opts, m_sign], page, "q")
+    m_incl_s = m_incl.replace('<span class="n">4</span>', '<span class="n">5</span>'); m_opts_s = m_opts.replace('<span class="n">5</span>', '<span class="n">4</span>')
+    simple_pages = pack([m_prices, m_models, m_opts_s, m_incl_s, m_sign, m_bank], page, "q", tail=2)
     A = REC_ANNEX
     annex_blocks = [m1, m1s, m2, m2b, m3, m4, sheets_model_page, scope_page, calc_page, find(A, "Government fees explained"), find(A, 'h2("A5"') if False else find(A, "Localisation fee"),
                     find(A, "Technical and engineering workers: how"), saudi_page, find(A, "What you pay and when"), find(A, "Terms and conditions")]
-    detail_pages = pack([m_prices, m_bank, m_models, m_incl] + annex_blocks + [m_opts, m_sign], pageA, "qa")
+    detail_pages = pack([m_prices, m_models, m_incl] + annex_blocks + [m_opts, m_sign, m_bank], pageA, "qa", tail=2)
     return sar_mark(doc("Quotation (simple) — ISR Trading (Workforce)", css, [sheets[0]] + simple_pages + [])), sar_mark(doc("Quotation (detailed) — ISR Trading (Workforce)", css, [sheets[0]] + detail_pages + [closing]))
 
 # ------------------------------------------------------------------ العقد وNDA (A4 عمودي)
@@ -480,7 +482,7 @@ def sig_port():
             '<div><h3><span>Second Party</span><span dir="rtl">الطرف الثاني</span></h3>'
             '<div class="f2"><span>Name</span><span class="v">%s</span><span dir="rtl">الاسم</span></div><div class="f2"><span>Title</span><span class="v">%s</span><span dir="rtl">الصفة</span></div>'
             '<div class="f2"><span>Date</span><span class="v">%s</span><span dir="rtl">التاريخ</span></div><div class="bx2"><div style="text-align:center">Signature &amp; Stamp · التوقيع والختم</div></div></div></div>') % (
-        ("%s · %s" % (esc(REP_EN), esc(REP_AR)), "%s · %s" % (esc(REP_TITLE_EN), esc(REP_TITLE_AR)), "[●]", "[●]", "[●]", "[●]"))
+        ("%s · %s" % (esc(REP_EN), esc(REP_AR)), "%s · %s" % (esc(REP_TITLE_EN), esc(REP_TITLE_AR)), num(DATE_EN + " · " + DATE_AR), "[●]", "[●]", num(DATE_EN + " · " + DATE_AR)))
 
 def cover_port(kind_en, kind_ar, t_en, t_ar, s_en, s_ar, ref_label=True):
     def f(i, n):
@@ -638,7 +640,7 @@ if __name__ == "__main__":
     qm, qa = build_quote()
     open(os.path.join(out, "01-Quotation-Simple.html"), "w", encoding="utf-8").write(qm)
     open(os.path.join(out, "01B-Quotation-Detailed.html"), "w", encoding="utf-8").write(qa)
-    h, _ = build_contract(); h = h.replace("[IBAN]", IBAN) if FINAL else h; open(os.path.join(out, "02-Agreement.html"), "w", encoding="utf-8").write(h)
+    h, _ = build_contract(); h = h.replace("[IBAN]", IBAN).replace("Bank [●]", "Bank " + BANK).replace("البنك [●]", "البنك " + BANK) if (FINAL and BANK != "[●]") else (h.replace("[IBAN]", IBAN) if FINAL else h); open(os.path.join(out, "02-Agreement.html"), "w", encoding="utf-8").write(h)
     h, _ = build_nda(); open(os.path.join(out, "03-NDA.html"), "w", encoding="utf-8").write(h)
     open(os.path.join(out, "07-Authorization-Letter.html"), "w", encoding="utf-8").write(build_authz())
     open(os.path.join(out, "05-Professions-Localisation.html"), "w", encoding="utf-8").write(build_professions())
