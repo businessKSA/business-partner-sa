@@ -44,6 +44,9 @@ def portrait_post(s, kind, cfg):
     if kind == "contract":
         s = s.replace('<td class="c">☐</td><td class="c">☐</td><td class="c">☐</td>', '<td class="c">☑</td><td class="c">☐</td><td class="c">☐</td>', 1)
         s = s.replace("account at [●], IBAN [IBAN]", "account at %s, IBAN %s" % (BANK, IBAN)).replace("لدى [●]، آيبان [IBAN]", "لدى %s، آيبان %s" % (BANK, IBAN))
+    if kind in ("docs", "form"):
+        s = s.replace("Selected package (REV-LAUNCH / REV-GROWTH / REV-PRO)", "Selected package (REV-LAUNCH)").replace("(REV-LAUNCH / REV-GROWTH / REV-PRO)", "(REV-LAUNCH)")
+        s = s.replace("1 / 1", "1 / 2" if kind == "docs" else "2 / 2")
     if kind == "authz":
         for a, b in (("SERVICE AGREEMENT", "AUTHORIZATION"), ('<h1 class="pf">Business Development Service Agreement</h1>', '<h1 class="pf">Authorization Letter</h1>'),
                      ("Sales leads and referrals and help registering as a vendor with companies.", "The Second Party chooses what it authorizes the First Party to do."),
