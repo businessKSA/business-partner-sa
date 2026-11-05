@@ -49,5 +49,14 @@
   "pkg": "LAUNCH",
   "commission": true,
   "ref": "REV-LAUNCH"
+ },
+ {
+  "key": "maake",
+  "folder_ar": "ميك بيوتي · Maake Beauty",
+  "folder_en": "Maake Beauty",
+  "name_ar": "",
+  "name_en": "Maake Beauty",
+  "pkg": "LAUNCH",
+  "ref": "EOR"
  }
 ]
