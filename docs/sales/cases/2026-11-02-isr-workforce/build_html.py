@@ -143,14 +143,14 @@ def build_quote():
     B = "[●]"
     nat_all = ("Filipino · Indian · Nepali", "فلبينية · هندية · نيبالية")
     def pc(v): return (num(n(v)), num(n(v)), "c")
-    def rate_table(prices):
+    def rate_table(prices, price_hdr=("Monthly price per worker (SAR)", "السعر الشهري للعامل (ريال)")):
         rr = []
         for k, t in enumerate(TRADES, 1):
             le, la, sal, loc_fee = LEVELS[t["level"]]
             rr.append([(str(k), str(k), "nx"), ("<b>%s</b>" % esc(t["en"]), "<b>%s</b>" % esc(t["ar"]), "t"), (le, la, "c"), pc(sal), (str(t["count"]), str(t["count"]), "c"),
                        (NAT_EN, NAT_AR, "c"), pc(prices[t["level"]])])
         return bi_table([("#", "#", True), ("Trade", "المهنة", False), ("Level", "المستوى", True), ("Salary", "الراتب", True), ("Workers", "العدد", True),
-                         ("Nationalities", "الجنسيات", True), ("Monthly price per worker (SAR)", "السعر الشهري للعامل (ريال)", True)],
+                         ("Nationalities", "الجنسيات", True), (price_hdr[0], price_hdr[1], True)],
                         rr, [3, 20, 9, 8, 7, 18, 12])
     rates12 = rate_table(PRICE12)
     hours = ('<div class="nt"><div dir="ltr"><b>Working hours:</b> %d hours a day &nbsp;·&nbsp; <b>Working days:</b> %d days a month</div>'
@@ -163,7 +163,7 @@ def build_quote():
     def fac_table(pp, ppf):
         fr = [[(le, la, "t"), pc(sal), pc(pp[k2]), pc(ppf[k2]), pc(pp[k2] - ppf[k2])] for k2, (le, la, sal, lf) in LEVELS.items() if k2 in PRICE_LEVELS]
         return bi_table([("If the contract is under the Shared Talent item", "إذا كان التعاقد على بند الكوادر المشتركة", False), ("Salary", "الراتب", True), ("Standard price", "السعر العادي", True), ("Shared Talent price", "سعر الكوادر المشتركة", True), ("Saving", "الفرق", True)], fr, [18, 8, 8, 8, 8])
-    fac12 = fac_table(PRICE12, PRICE12_F)
+    fac12 = rate_table(PRICE12_F, ("Monthly price per worker under the Shared Talent item (SAR)", "السعر الشهري للعامل على بند الكوادر المشتركة (ريال)"))
     facnote = ('<div class="nt"><div dir="ltr">Under the Shared Talent item the work-permit levy (SAR 9,600 a year) is exempt: the price is the standard price less SAR 800 a month.</div>'
                '<div class="ar" dir="rtl">على بند الكوادر المشتركة يُعفى المقابل المالي لرخصة العمل (9,600 ريال سنوياً): السعر هو السعر العادي ناقص 800 ريال شهرياً.</div></div>')
     def diff_table():
@@ -173,7 +173,8 @@ def build_quote():
         return bi_table([("Monthly price per worker (SAR)", "السعر الشهري للعامل (ريال)", False), ("Salary", "الراتب", True), ("12-month contract (our offer)", "عقد 12 شهراً (عرضنا)", True), ("24-month contract", "عقد 24 شهراً", True), ("Difference per month", "الفرق شهرياً", True)], dr, [18, 8, 9, 9, 8])
     diffnote = ('<div class="nt"><div dir="ltr">In a 24-month contract the visa or transfer of services (sponsorship transfer) fee (SAR 2,000) is spread over 24 months, so the price falls by about SAR 90 per worker per month.</div>'
                 '<div class="ar" dir="rtl">في عقد 24 شهراً تُوزَّع رسوم التأشيرة أو نقل الخدمات (نقل الكفالة) (2,000 ريال) على 24 شهراً، فينخفض السعر نحو 90 ريالاً للعامل شهرياً.</div></div>')
-    sheets.append(page(h2(1, "Trades, salaries and price: 12-month contract (SAR, before VAT)", "المهن والرواتب والسعر الشهري: عقد 12 شهراً (ريال، قبل الضريبة)") + hours + rates12 + h2(2, "Calculation under the Shared Talent item (12-month contract)", "الحسبة على بند الكوادر المشتركة (عقد 12 شهراً)") + fac12 + facnote + note))
+    sheets.append(page(h2(1, "Trades, salaries and price: 12-month contract (SAR, before VAT)", "المهن والرواتب والسعر الشهري: عقد 12 شهراً (ريال، قبل الضريبة)") + hours + rates12))
+    sheets.append(page(h2(2, "Calculation under the Shared Talent item (12-month contract)", "الحسبة على بند الكوادر المشتركة (عقد 12 شهراً)") + fac12))
 
 
     # 4 النطاق والمستثنيات
@@ -224,7 +225,7 @@ def build_quote():
     incexc = bi_table([("Included in the monthly price", "يشمله السعر الشهري", False), ("Not included (on the Client)", "لا يشمله السعر (على العميل)", False)], inc_rows, [26, 26])
     inc_notes = ('<div class="nt"><div dir="ltr">Items not included are invoiced at actual cost or paid by you directly. The optional SAR 300 per item applies to salaries below SAR 3,000. Overtime = monthly fees ÷ 30 days ÷ 8 hours × 1.5.</div>'
                  '<div class="ar" dir="rtl">البنود غير المشمولة تُفوتَر بالتكلفة الفعلية أو تدفعها مباشرة. والـ300 ريال الاختيارية لمن راتبه أقل من 3,000 ريال. والعمل الإضافي = الرسوم الشهرية ÷ 30 ÷ 8 × 1.5.</div></div>')
-    sheets.append(page(h2(4, "What the price includes and does not include", "ما يشمله السعر وما لا يشمله") + incexc + inc_notes + calc_box))
+    sheets.append(page(h2(4, "What the price includes and does not include", "ما يشمله السعر وما لا يشمله") + incexc + calc_box))
     gov_rows = [[(str(i), str(i), "nx"), ("<b>%s</b>" % esc(fe), "<b>%s</b>" % esc(fa), "t"), (ae, aa, "t"), (ie, ia, "t")]
                 for i, (fe, fa, ae, aa, ie, ia) in enumerate(GOV_FEES, 1)]
     gov = bi_table([("#", "#", True), ("Government fee", "الرسوم الحكومية", False), ("Official amount", "المبلغ الرسمي", False), ("In this offer", "في هذا العرض", False)], gov_rows, [3, 14, 18, 18])
@@ -361,13 +362,13 @@ def build_quote():
                     cur.append(k); h += hs["b%d" % k]; rest.remove(k)
             pages_.append([blocks[k] for k in sorted(cur)])
         return [mk("".join(p)) for p in pages_]
-    m_prices = find(REC_MAIN, "Trades, salaries and price"); m_models = find(REC_MAIN, "Three models"); m_incl = find(REC_MAIN, "What the price includes")
+    m_prices = find(REC_MAIN, "Trades, salaries and price"); m_nst = find(REC_MAIN, "Calculation under the Shared Talent"); m_models = find(REC_MAIN, "Three models"); m_incl = find(REC_MAIN, "What the price includes")
     m_opts = find(REC_MAIN, "Your options"); m_sign = find(REC_MAIN, "Signatures")
-    simple_pages = pack([m_prices, m_models, m_incl, m_opts, m_sign], page, "q")
+    simple_pages = pack([m_prices, m_nst, m_models, m_incl, m_opts, m_sign], page, "q")
     A = REC_ANNEX
     annex_blocks = [m1, m2, m3, m4, sheets_model_page, scope_page, calc_page, find(A, "Government fees explained"), find(A, 'h2("A5"') if False else find(A, "Localisation fee"),
                     find(A, "Technical and engineering workers: how"), saudi_page, find(A, "What you pay and when"), find(A, "Terms and conditions")]
-    detail_pages = pack([m_prices, m_models, m_incl] + annex_blocks + [m_opts, m_sign], pageA, "qa")
+    detail_pages = pack([m_prices, m_nst, m_models, m_incl] + annex_blocks + [m_opts, m_sign], pageA, "qa")
     return sar_mark(doc("Quotation (simple) — ISR Trading (Workforce)", css, [sheets[0]] + simple_pages + [])), sar_mark(doc("Quotation (detailed) — ISR Trading (Workforce)", css, [sheets[0]] + detail_pages + [closing]))
 
 # ------------------------------------------------------------------ العقد وNDA (A4 عمودي)
