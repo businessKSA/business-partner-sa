@@ -27,7 +27,8 @@ def e(s): return html.escape(s)
 def row(en, ar, sec=False):
     return f'<tr class="{"sec" if sec else ""}"><td class="en">{en}</td><td class="ar">{ar}</td></tr>'
 def page(title_en, title_ar, rows, note=None):
-    n = f'<div class="note">{note}</div>' if note else ""
+    CL = os.environ.get('CLIENT')
+    n = '<div class="note">الخانات [●] وخطوط الإكمال تُعبَّأ من راية قبل التوقيع والتصديق. / Fields marked [●] and blank lines are completed by Raya before signature and attestation.</div>' if CL else (f'<div class="note">{note}</div>' if note else "")
     return f'<!doctype html><html lang="ar"><head><meta charset="utf-8"><title>{e(title_en)}</title><style>{CSS}</style></head><body><h1>{title_ar} — {title_en}</h1><div class="sub">{OLD_AR} ← {NEW_EN}</div>{n}<table>{"".join(rows)}</table></body></html>'
 
 # ---------- 01 قرار المالك ----------
@@ -50,8 +51,8 @@ res = [
  row("4) To approve the amended Articles of Association (consolidated text) and to authorise its signature and authentication before the Ministry of Commerce and any competent authority.",
      "4) اعتماد نظام الشركة الأساس المعدَّل (النص المحدَّث) والتفويض بالتوقيع عليه وتوثيقه أمام وزارة التجارة وأي جهة مختصة."),
  row("Third: Implementation", "ثالثاً: التنفيذ", True),
- row("5) To authorise Mr. Baher Bakr Magnas (the “Agent”), under the special power of attorney issued by the Owner for this purpose, to reserve the new name, amend the Commercial Register and the Articles of Association, sign the sole-shareholder decisions and the amended Articles on behalf of the Owner and the Company, and update the Company’s name with all government entities and platforms, and to pay the related fees.",
-     "5) تفويض الأستاذ/ باهر بكر مقنص («الوكيل») بموجب الوكالة الخاصة الصادرة عن المالكة لهذا الغرض بحجز الاسم الجديد وتعديل السجل التجاري ونظام الشركة الأساس وتوقيع قرارات الشريك الوحيد والنظام المعدَّل باسم المالكة والشركة، وتحديث اسم الشركة لدى جميع الجهات والمنصات الحكومية، وسداد الرسوم المتعلقة بذلك."),
+ row("5) To authorise Mr. Baher Bakr Ali Magnas, Saudi national, National ID No. 1095794861 (the “Agent”), under the special power of attorney issued by the Owner for this purpose, to reserve the new name, amend the Commercial Register and the Articles of Association, sign the sole-shareholder decisions and the amended Articles on behalf of the Owner and the Company, and update the Company’s name with all government entities and platforms, and to pay the related fees.",
+     "5) تفويض الأستاذ/ باهر بن بكر بن علي مقنص، سعودي الجنسية، الهوية الوطنية رقم 1095794861 («الوكيل») بموجب الوكالة الخاصة الصادرة عن المالكة لهذا الغرض بحجز الاسم الجديد وتعديل السجل التجاري ونظام الشركة الأساس وتوقيع قرارات الشريك الوحيد والنظام المعدَّل باسم المالكة والشركة، وتحديث اسم الشركة لدى جميع الجهات والمنصات الحكومية، وسداد الرسوم المتعلقة بذلك."),
  row("6) Under Article 6 of the Articles, the owner’s decisions are issued in writing and recorded in the Company’s special register; this resolution shall be so recorded. Resolution No.: [●].","6) وفق المادة السادسة من نظام الشركة الأساس تصدر قرارات المالك كتابةً وتُدوَّن في سجل خاص لدى الشركة، ويُدوَّن هذا القرار فيه. رقم القرار: [●]."),
  row("7) This resolution takes effect from the date of its attestation and is drawn up in Arabic and English; in case of discrepancy the Arabic text prevails.",
      "7) يسري هذا القرار من تاريخ تصديقه، وحُرر بالعربية والإنجليزية، وعند الاختلاف يُعتدّ بالنص العربي."),
@@ -67,8 +68,8 @@ poa = [
  row("On [●] corresponding to [●], I, the undersigned:", "إنه في يوم [●] الموافق [●]، أنا الموقِّعة أدناه:"),
  row(f"{RAYA_EN}, an Egyptian company, Commercial Register No. {RAYA_CR}, head office [●], represented by [●] in the capacity of [●] pursuant to [●] (the “Principal”), the sole owner of {OLD_EN}, a one-person limited liability company, Unified National Number {UNN}, Ministry of Investment licence No. {MISA} (the “Company”), under whatever name it holds now or after the change,",
      f"{RAYA_AR}، شركة مصرية بسجل تجاري رقم {RAYA_CR}، ومقرها [●]، ويمثلها [●] بصفته [●] بموجب [●] («الموكِّلة»)، وهي المالكة الوحيدة لـ«{OLD_AR}»، شركة ذات مسؤولية محدودة (شخص واحد) بالرقم الوطني الموحد {UNN}، وترخيص وزارة الاستثمار رقم {MISA} («الشركة»)، أياً كان اسمها الآن أو بعد التغيير،"),
- row("have appointed Mr. Baher Bakr Magnas, nationality [●], holder of [ID/passport] No. [●] (the “Agent”), as special attorney, acting alone, in the following matters only:",
-     "وكّلت الأستاذ/ باهر بكر مقنص، الجنسية [●]، يحمل [الهوية/جواز السفر] رقم [●] («الوكيل»)، وكالة خاصة، يباشرها منفرداً، في الأمور الآتية دون غيرها:"),
+ row("have appointed Mr. Baher Bakr Ali Magnas, Saudi national, holder of National ID No. 1095794861 (the “Agent”), as special attorney, acting alone, in the following matters only:",
+     "وكّلت الأستاذ/ باهر بن بكر بن علي مقنص، سعودي الجنسية، يحمل الهوية الوطنية رقم 1095794861 («الوكيل»)، وكالة خاصة، يباشرها منفرداً، في الأمور الآتية دون غيرها:"),
  row("First: Trade name", "أولاً: الاسم التجاري", True),
  row(f"1) To change the Company’s trade name from “{OLD_EN}” to “{NEW_EN}” (or any Arabic/transliterated form the Ministry of Commerce approves for it): checking availability, reserving the name, extending or renewing the reservation, choosing an alternative name if the first is not accepted, and registering the name in the Commercial Register.",
      f"1) تغيير الاسم التجاري للشركة من «{OLD_AR}» إلى «{NEW_EN}» (أو أي صيغة عربية أو معرَّبة تعتمدها وزارة التجارة له): فحص توافر الاسم وحجزه وتمديد الحجز أو تجديده، واختيار اسم بديل إن لم يُقبل الأول، وقيد الاسم في السجل التجاري."),
