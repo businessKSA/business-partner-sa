@@ -2731,7 +2731,7 @@ var BP = window.BP = window.BP || {};
     }
 
     function load(c, onFail) {
-      fetch("/api/suppliers?action=orders&email=" + encodeURIComponent(c.email) + "&pw=" + encodeURIComponent(c.pw || ""), { cache: "no-store" })
+      fetch("/api/suppliers?action=orders&email=" + encodeURIComponent(c.email), { cache: "no-store", headers: { "x-bp-pw": c.pw || "" } })
         .then(function (r) { return r.json().then(function (d) { return { s: r.status, d: d }; }); })
         .then(function (res) {
           if (res.d && res.d.ok) { state.supplier = res.d.supplier; state.orders = res.d.orders || []; render(); return; }
@@ -2773,7 +2773,7 @@ var BP = window.BP = window.BP || {};
     var walletLoaded = false;
     function loadWallet() {
       var c = creds(); if (!c || !c.email) return;
-      fetch("/api/suppliers?action=wallet&email=" + encodeURIComponent(c.email) + "&pw=" + encodeURIComponent(c.pw || ""), { cache: "no-store" })
+      fetch("/api/suppliers?action=wallet&email=" + encodeURIComponent(c.email), { cache: "no-store", headers: { "x-bp-pw": c.pw || "" } })
         .then(function (r) { return r.json(); })
         .then(function (d) {
           if (!d || !d.ok) return;

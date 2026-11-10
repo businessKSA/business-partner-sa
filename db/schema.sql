@@ -920,3 +920,16 @@ create or replace view analytics_top_refs as
 alter table requests drop constraint if exists requests_type_check;
 alter table requests add constraint requests_type_check
   check (type in ('CONSULTATION','GOVERNMENT_SERVICE','COMPANY_FORMATION','BUSINESS_DEVELOPMENT'));
+
+-- 2026-11-10: brute-force throttle for the supplier portal (api/_auththrottle.js).
+-- Keys are SHA-256 hashes (kind|e|<email hash> and kind|i|<ip hash>), never raw
+-- addresses. RUN THIS BEFORE DEPLOYING the code that reads it: the code refuses
+-- logins (fail-closed) when this table cannot be read.
+create table if not exists supplier_auth_attempts (
+  key text primary key,
+  fails integer not null default 0,
+  window_start timestamptz not null default now(),
+  locked_until timestamptz
+);
+create index if not exists supplier_auth_attempts_locked_idx on supplier_auth_attempts(locked_until);
+alter table supplier_auth_attempts enable row level security;

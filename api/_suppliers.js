@@ -36,6 +36,7 @@ import { daftraConfigured, daftraFindOrCreateSupplier, daftraCreatePurchaseOrder
 import { docusignConfigured, docusignSendContract, docusignStatus, docusignPing, contractHtml } from "./_docusign.js";
 import { announce, contactForRef, stageChannels, waSend } from "./_stage.js";
 import { DB_ON, sb, notify, storagePut, storageSign } from "./_db.js";
+import { authBlocked, authRecord } from "./_auththrottle.js";
 import { ownerTicketOk, panelRequiresNafath } from "./_nafath.js";
 
 const envFrom = (names) => { for (const n of names) { if (process.env[n] && String(process.env[n]).trim()) return String(process.env[n]).trim(); } return ""; };
@@ -718,6 +719,21 @@ export async function handleSuppliers(req, res) {
   const q = Object.fromEntries(url.searchParams);
   const ok = (o) => { res.statusCode = 200; return res.end(JSON.stringify({ ok: true, ...o })); };
   const bad = (error, status = 400, extra) => { res.statusCode = status; return res.end(JSON.stringify({ ok: false, error, ...(extra || {}) })); };
+  // Brute-force guard (api/_auththrottle.js): 5 failures / 15 min per e-mail, 30 per IP.
+  const ip = clientIp(req);
+  const guarded = async (kind, email, password) => {
+    const g = await authBlocked(kind, email, ip);
+    if (g.blocked) return { gate: g };
+    const s = await authSupplier(email, password);
+    await authRecord(kind, email, ip, !!s);
+    return { s };
+  };
+  const gated = (g) => {
+    res.setHeader("retry-after", String(g.retryAfter || 60));
+    return bad(g.unavailable ? "try_later" : "too_many_attempts", g.unavailable ? 503 : 429, { retryAfter: g.retryAfter });
+  };
+  // The password travels in a header; ?pw= is still read for pages cached before this change.
+  const qpw = () => String(req.headers["x-bp-pw"] || q.pw || "");
 
   if (!NOTION_TOKEN) return bad("not_configured", 503);
 
@@ -725,7 +741,9 @@ export async function handleSuppliers(req, res) {
   if (req.method === "GET") {
     // Supplier: my work orders
     if (q.action === "orders") {
-      const s = await authSupplier(q.email, q.pw);
+      const _g = await guarded("login", q.email, qpw());
+      if (_g.gate) return gated(_g.gate);
+      const s = _g.s;
       if (!s) return bad("unauthorized", 401);
       if (!s.verified) return bad("email_unverified", 403);
       const orders = await ordersForSupplier(s.id);
@@ -814,7 +832,9 @@ export async function handleSuppliers(req, res) {
     // Supplier: my wallet — escrows clients are holding for me, the balance
     // already released to me, and my movements. Same login the orders use.
     if (q.action === "wallet") {
-      const s = await authSupplier(q.email, q.pw);
+      const _g = await guarded("login", q.email, qpw());
+      if (_g.gate) return gated(_g.gate);
+      const s = _g.s;
       if (!s) return bad("unauthorized", 401);
       if (!s.verified) return bad("email_unverified", 403);
       if (!DB_ON) return ok({ enabled: false, held: [], balance: 0, transactions: [] });
@@ -920,7 +940,11 @@ export async function handleSuppliers(req, res) {
   if (b.type === "verify-email") {
     const email = str(b.email, 160).toLowerCase();
     const code = str(b.code, 10);
-    if (!checkSealed(email, code, b.token, b.exp)) return bad("invalid_code", 400);
+    const _vg = await authBlocked("verify", email, ip);
+    if (_vg.blocked) return gated(_vg);
+    const _vok = checkSealed(email, code, b.token, b.exp);
+    await authRecord("verify", email, ip, _vok);
+    if (!_vok) return bad("invalid_code", 400);
     const s = await findSupplierByEmail(email);
     if (!s) return bad("invalid_code", 400);
     const props = { "البريد موثّق": { checkbox: true } };
@@ -948,6 +972,9 @@ export async function handleSuppliers(req, res) {
   if (b.type === "resend-code") {
     const email = str(b.email, 160).toLowerCase();
     if (!isEmail(email) || !OTP_SECRET) return bad("invalid_fields");
+    const _rg = await authBlocked("resend", email, ip);
+    if (_rg.blocked) return gated(_rg);
+    await authRecord("resend", email, ip, false);   // every request counts
     const s = await findSupplierByEmail(email);
     const code = String(randomInt(100000, 1000000));
     const exp = Date.now() + CODE_TTL_MS;
@@ -1000,7 +1027,9 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- sign in with e-mail + password ----------------
   if (b.type === "login") {
-    const s = await authSupplier(b.email, b.password);
+    const _g = await guarded("login", b.email, b.password);
+    if (_g.gate) return gated(_g.gate);
+    const s = _g.s;
     if (!s) return bad("bad_credentials", 401);
     if (!s.verified) return bad("email_unverified", 403);
     const orders = await ordersForSupplier(s.id);
@@ -1012,7 +1041,9 @@ export async function handleSuppliers(req, res) {
   // approve — the money moves only when BOTH halves exist, like the freelance
   // marketplaces. Every step is stamped so each side's record protects them.
   if (b.type === "escrow-deliver") {
-    const s = await authSupplier(b.email, b.password || b.pw);
+    const _g = await guarded("login", b.email, b.password || b.pw);
+    if (_g.gate) return gated(_g.gate);
+    const s = _g.s;
     if (!s) return bad("unauthorized", 401);
     if (!s.verified) return bad("email_unverified", 403);
     if (!DB_ON) return bad("db_not_configured", 503);
@@ -1040,7 +1071,9 @@ export async function handleSuppliers(req, res) {
   // (or cancels an undelivered job) — that consent is what moves the money
   // back; the client's request alone never does.
   if (b.type === "escrow-agree-refund") {
-    const s = await authSupplier(b.email, b.password || b.pw);
+    const _g = await guarded("login", b.email, b.password || b.pw);
+    if (_g.gate) return gated(_g.gate);
+    const s = _g.s;
     if (!s) return bad("unauthorized", 401);
     if (!s.verified) return bad("email_unverified", 403);
     if (!DB_ON) return bad("db_not_configured", 503);
@@ -1070,7 +1103,9 @@ export async function handleSuppliers(req, res) {
   // The request goes to the owner, who transfers by bank and then records the
   // debit from the panel — the ledger mirrors money that actually moved.
   if (b.type === "withdraw") {
-    const s = await authSupplier(b.email, b.password || b.pw);
+    const _g = await guarded("login", b.email, b.password || b.pw);
+    if (_g.gate) return gated(_g.gate);
+    const s = _g.s;
     if (!s) return bad("unauthorized", 401);
     if (!s.verified) return bad("email_unverified", 403);
     const em = String(b.email || "").trim().toLowerCase();
@@ -1093,7 +1128,9 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- supplier updates a work order ----------------
   if (b.type === "order-update") {
-    const s = await authSupplier(b.email, b.password);
+    const _g = await guarded("login", b.email, b.password);
+    if (_g.gate) return gated(_g.gate);
+    const s = _g.s;
     if (!s) return bad("unauthorized", 401);
     if (!s.verified) return bad("email_unverified", 403);
     const orderId = str(b.orderId, 60);
@@ -1595,7 +1632,9 @@ export async function handleSuppliers(req, res) {
 
   // ---------------- partner/owner: the link to send the client ----------------
   if (b.type === "quote-link") {
-    const s = await authSupplier(b.email, b.pw || b.password);
+    const _g = await guarded("login", b.email, b.pw || b.password);
+    if (_g.gate) return gated(_g.gate);
+    const s = _g.s;
     const owner = ownerOk(b);
     if (!s && !owner) return bad("unauthorized", 401);
     const id = str(b.orderId, 60);
@@ -1614,7 +1653,9 @@ export async function handleSuppliers(req, res) {
   // the owner to approve. Publishing to the public catalogue is a separate
   // request (propose-service below) precisely because that IS the owner's call.
   if (b.type === "my-services") {
-    const s = await authSupplier(b.email, b.pw);
+    const _g = await guarded("login", b.email, b.pw);
+    if (_g.gate) return gated(_g.gate);
+    const s = _g.s;
     if (!s) return bad("unauthorized", 401);
     if (!s.verified) return bad("email_unverified", 403);
     const clean = (Array.isArray(b.services) ? b.services : []).slice(0, 40).map((it) => ({
@@ -1639,7 +1680,9 @@ export async function handleSuppliers(req, res) {
   // on the public site would be one nobody approved. This carries the proposal
   // to the team and tells the partner exactly that.
   if (b.type === "propose-service") {
-    const s = await authSupplier(b.email, b.pw);
+    const _g = await guarded("login", b.email, b.pw);
+    if (_g.gate) return gated(_g.gate);
+    const s = _g.s;
     if (!s) return bad("unauthorized", 401);
     if (!s.verified) return bad("email_unverified", 403);
     const name = str(b.name, 140);
