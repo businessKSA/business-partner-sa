@@ -1,0 +1,304 @@
+---
+// القصر موتورز — الصفحة الرئيسية للسوق (نموذج أولي ببيانات توضيحية)
+import MotorsLayout from '../../layouts/MotorsLayout.astro';
+
+const IMG = (id: string, w: number) => `https://unsplash.com/photos/${id}/download?w=${w}`;
+const WHATSAPP = 'https://wa.me/966503793356';
+
+// سيارات توضيحية (صور حقيقية موثقة من Unsplash)
+const CARS = [
+  {
+    name: 'تويوتا لاندكروزر GXR', year: 2022, km: '48,000', city: 'الرياض',
+    price: 265000, monthly: 3450, img: 'YPzKIbxlFPY', origin: 'خليجي',
+    badges: ['مفحوصة ✓', 'توأم رقمي'],
+  },
+  {
+    name: 'مرسيدس G-Class AMG', year: 2023, km: '21,000', city: 'جدة',
+    price: 780000, monthly: 9900, img: 'RqJmoo9M-gs', origin: 'أوروبي',
+    badges: ['مفحوصة ✓', 'وكالة'],
+  },
+  {
+    name: 'فورد موستنج GT', year: 2021, km: '62,000', city: 'الدمام',
+    price: 145000, monthly: 1950, img: '_PesI-zk0DI', origin: 'أمريكي',
+    badges: ['مفحوصة ✓', 'جرّبها 3 أيام'],
+  },
+  {
+    name: 'تويوتا لاندكروزر VXR', year: 2024, km: '9,500', city: 'الرياض',
+    price: 355000, monthly: 4600, img: 'r3cA8C6a-UA', origin: 'خليجي',
+    badges: ['شبه جديدة', 'توأم رقمي'],
+  },
+  {
+    name: 'فورد موستنج — إصدار خاص', year: 2020, km: '75,000', city: 'مكة',
+    price: 118000, monthly: 1580, img: 'NbnKZ17UmOw', origin: 'أمريكي',
+    badges: ['مفحوصة ✓'],
+  },
+  {
+    name: 'فيراري SF90 ستردالي', year: 2023, km: '4,200', city: 'الرياض',
+    price: 2800000, monthly: 35400, img: 'h5gJSIV6I-U', origin: 'أوروبي',
+    badges: ['جناح الفخامة 👑'],
+  },
+];
+
+const CATEGORIES = [
+  { ic: '🐪', t: 'خليجي', d: 'لاندكروزر، باترول، تاهو — مواصفات خليجية موثقة' },
+  { ic: '🦅', t: 'أمريكي', d: 'موستنج، كورفيت، دودج — استيراد موثق وممشى مفحوص' },
+  { ic: '🏰', t: 'أوروبي', d: 'مرسيدس، BMW، بورش — سجل صيانة كامل' },
+  { ic: '🇸🇦', t: 'سعودي الصنع', d: 'لوسيد وسير المجمعة في المملكة — قريبًا' },
+];
+---
+
+<MotorsLayout title="القصر موتورز | وسيطك الذكي لكل ما يخص السيارات" active="home">
+  <!-- الواجهة -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-inner">
+        <div class="chip green">● منصة وساطة — لا نملك السيارات، نملك ثقتك</div>
+        <h1>كل ما يخص السيارات<br /><span>في قصر واحد</span></h1>
+        <p>
+          سوق مستعمل موثق بتوأم رقمي، مزادات حية، لوحات مميزة، تمويل وأقساط ومنتهي بالتمليك وإيجار —
+          والبائع عندنا ذكاء اصطناعي يشتغل 24 ساعة.
+        </p>
+        <form class="smart-search" id="smartSearch">
+          <input type="text" id="q" placeholder="اكتب وش تبغى… مثال: جيب عائلي حدود ٣٠٠٠ ريال شهري" />
+          <button type="submit" class="btn-gold">🔮 ابحث بالذكاء</button>
+        </form>
+        <div class="ai-hint" id="aiHint" hidden>
+          <b>🤖 فهمت طلبك:</b> <span id="aiHintText"></span>
+        </div>
+        <div class="trust">
+          <span>🛡️ فحص +200 نقطة</span>
+          <span>📱 تأهيل تمويلي مسبق</span>
+          <span>🔄 نقل ملكية رسمي</span>
+          <span>🔐 خصوصية تامة</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- الفئات -->
+  <section class="section wrap">
+    <div class="section-head">
+      <div class="kicker">أجنحة القصر</div>
+      <h2>من كل أسواق العالم</h2>
+    </div>
+    <div class="steps">
+      {CATEGORIES.map((c) => (
+        <div class="step">
+          <div class="ic">{c.ic}</div>
+          <h4>{c.t}</h4>
+          <p>{c.d}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- السيارات المميزة -->
+  <section class="section wrap" id="market">
+    <div class="section-head">
+      <div class="kicker">سوق المستعمل الموثق</div>
+      <h2>سيارات معروضة الآن</h2>
+      <p>كل سيارة لها «قصرها» الخاص: صور استوديو، تقرير فحص، توأم رقمي، وقسط محسوب مسبقًا.</p>
+    </div>
+    <div class="cards">
+      {CARS.map((c) => (
+        <a class="car-card" href="/motors/car" style="text-decoration:none">
+          <div class="ph">
+            <img src={IMG(c.img, 800)} alt={c.name} loading="lazy" onerror="this.style.display='none'" />
+            <div class="badges">
+              {c.badges.map((b) => <span class="chip">{b}</span>)}
+            </div>
+          </div>
+          <div class="body">
+            <h3>{c.name}</h3>
+            <div class="meta">
+              <span>📅 {c.year}</span>
+              <span>🛣️ {c.km} كم</span>
+              <span>📍 {c.city}</span>
+              <span class="chip blue" style="font-size:0.65rem;padding:0.1rem 0.5rem">{c.origin}</span>
+            </div>
+            <div class="price-line">
+              <div>
+                <div class="price">{c.price.toLocaleString('en-US')} ريال</div>
+                <div class="installment">أو قسط من {c.monthly.toLocaleString('en-US')} ريال/شهر*</div>
+              </div>
+              <span class="btn-ghost btn-sm">شاهد قصرها</span>
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- كيف نعمل -->
+  <section class="section wrap">
+    <div class="section-head">
+      <div class="kicker">وسيط بدون مخزون</div>
+      <h2>كيف تبيع وتشتري عندنا؟</h2>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="num">١</span><div class="ic">📸</div><h4>اعرض</h4><p>ترفع صور سيارتك، والذكاء الاصطناعي يبني لها صالة عرض فخمة ويقترح سعرها العادل.</p></div>
+      <div class="step"><span class="num">٢</span><div class="ic">🛡️</div><h4>نوثّق</h4><p>فحص معتمد +200 نقطة وتوأم رقمي يرافق السيارة — الثقة تبيع أسرع وأغلى.</p></div>
+      <div class="step"><span class="num">٣</span><div class="ic">💳</div><h4>نموّل</h4><p>المشتري يتأهل تمويليًا مسبقًا ويقارن الأقساط والمنتهي بالتمليك من جهات مرخصة.</p></div>
+      <div class="step"><span class="num">٤</span><div class="ic">🤝</div><h4>ننقل</h4><p>مزايدة الجادّين إن تعدد المهتمون، ثم نقل ملكية رسمي — وعمولتنا فقط عند إتمام البيع.</p></div>
+    </div>
+  </section>
+
+  <!-- حاسبة التمويل -->
+  <section class="section wrap" id="financing">
+    <div class="section-head">
+      <div class="kicker">التمويل والأقساط</div>
+      <h2>احسب قسطك بثلاث طرق</h2>
+      <p>أقساط مرابحة، إيجار منتهي بالتمليك، أو إيجار شهري مرن — قارن بنفسك قبل ما تكلم أي أحد.</p>
+    </div>
+    <div class="fin-box">
+      <div class="fin-controls">
+        <div>
+          <label>سعر السيارة <span class="val" id="vPrice">265,000 ريال</span></label>
+          <input type="range" id="rPrice" min="30000" max="1000000" step="5000" value="265000" />
+        </div>
+        <div>
+          <label>الدفعة الأولى <span class="val" id="vDown">20%</span></label>
+          <input type="range" id="rDown" min="0" max="50" step="5" value="20" />
+        </div>
+        <div>
+          <label>مدة التمويل <span class="val" id="vYears">5 سنوات</span></label>
+          <input type="range" id="rYears" min="1" max="7" step="1" value="5" />
+        </div>
+        <div class="fin-note">
+          * أرقام توضيحية للنموذج الأولي. العروض الفعلية تصدر من بنوك وشركات تمويل مرخصة من البنك المركزي
+          السعودي بصيَغ متوافقة مع الشريعة، وتختلف حسب ملفك الائتماني.
+        </div>
+      </div>
+      <div class="fin-offers">
+        <div class="offer">
+          <div class="name">💠 أقساط مرابحة<small>تملك فوري — أقساط ثابتة</small></div>
+          <div class="monthly"><span id="mMurabaha">—</span> <small>ريال/شهر</small></div>
+        </div>
+        <div class="offer">
+          <div class="name">🔑 إيجار منتهي بالتمليك<small>قسط أخف + دفعة تملك أخيرة 30%</small></div>
+          <div class="monthly"><span id="mLease">—</span> <small>ريال/شهر</small></div>
+        </div>
+        <div class="offer">
+          <div class="name">🚗 إيجار مرن<small>بدون تملك — بدّل سيارتك كل سنة</small></div>
+          <div class="monthly"><span id="mRent">—</span> <small>ريال/شهر</small></div>
+        </div>
+        <a class="btn-gold" href="/motors/car#financing" style="text-align:center">🔮 قيّم فرصتي التمويلية</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- المزادات واللوحات -->
+  <section class="section wrap">
+    <div class="section-head">
+      <div class="kicker">قاعة المزادات</div>
+      <h2><span class="live-dot"></span>مباشر الآن</h2>
+    </div>
+    <div class="steps" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))">
+      <a href="/motors/auctions" class="step" style="text-decoration:none">
+        <div class="ic">🔨</div>
+        <h4>مزادات السيارات</h4>
+        <p>سيارات نادرة ومميزة تُباع لأعلى سعر خلال 48 ساعة — مزايدة حية للمشترين المؤهلين فقط.</p>
+        <span class="chip red" style="margin-top:0.6rem"><span class="live-dot"></span> 4 مزادات نشطة</span>
+      </a>
+      <a href="/motors/plates" class="step" style="text-decoration:none">
+        <div class="ic">🔢</div>
+        <h4>اللوحات المميزة</h4>
+        <p>أرقام وحروف نادرة تليق بسيارتك — مزايدة شفافة ونقل رسمي للوحة باسمك.</p>
+        <span class="chip red" style="margin-top:0.6rem"><span class="live-dot"></span> 6 لوحات بالمزاد</span>
+      </a>
+      <a href="/motors/sell" class="step" style="text-decoration:none">
+        <div class="ic">✨</div>
+        <h4>اعرض سيارتك خلال دقيقتين</h4>
+        <p>صورها بجوالك، والذكاء الاصطناعي يبني قصرها ويقترح سعرها ويستقبل المهتمين عنك.</p>
+        <span class="chip green" style="margin-top:0.6rem">بدون رسوم مقدمة</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- بوابة المعارض -->
+  <section class="section wrap">
+    <div class="fin-box" style="grid-template-columns: 1fr; text-align:center">
+      <div style="padding: 2.2rem 1.5rem">
+        <div class="kicker" style="color:var(--gold);font-size:0.82rem;font-weight:700;letter-spacing:0.16em">للمعارض والتجار</div>
+        <h2 style="color:var(--gold-2);font-size:clamp(1.4rem,3vw,2rem);margin:0.4rem 0 0.6rem">اعرض مخزونك واستقبل عملاء جاهزين للشراء</h2>
+        <p style="color:var(--muted);max-width:560px;margin:0 auto 1.2rem;line-height:1.9;font-size:0.95rem">
+          عملاؤنا يصلونك مؤهلين تمويليًا ومطّلعين على تقرير الفحص — جِدّية أعلى، وقت أقل، وصفقات أسرع.
+        </p>
+        <a class="btn-gold" href={WHATSAPP + '?text=' + encodeURIComponent('أرغب بالانضمام كمعرض شريك في القصر موتورز')} target="_blank" rel="noopener">انضم كمعرض شريك</a>
+      </div>
+    </div>
+  </section>
+
+  <style is:global>
+    .hero {
+      position: relative; overflow: hidden;
+      background:
+        radial-gradient(900px 460px at 50% -10%, rgba(212, 175, 55, 0.15), transparent 60%),
+        linear-gradient(180deg, #0c0f16 0%, #07080c 100%);
+      border-bottom: 1px solid var(--line);
+      padding: 4rem 0 2.6rem;
+      text-align: center;
+    }
+    .hero-inner { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.1rem; align-items: center; }
+    .hero h1 { font-size: clamp(2rem, 6vw, 3.4rem); color: var(--text); line-height: 1.25; }
+    .hero h1 span { color: var(--gold-2); text-shadow: 0 0 40px rgba(212, 175, 55, 0.35); }
+    .hero p { color: var(--muted); line-height: 2; max-width: 620px; }
+    .smart-search {
+      display: flex; gap: 0.5rem; width: 100%; max-width: 640px;
+      background: rgba(10, 12, 18, 0.8); border: 1px solid var(--gold-dim);
+      border-radius: 999px; padding: 0.4rem; box-shadow: 0 0 40px rgba(212, 175, 55, 0.12);
+    }
+    .smart-search input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: var(--text); font-family: inherit; font-size: 0.95rem; padding: 0.5rem 1rem;
+    }
+    .smart-search input::placeholder { color: var(--muted); }
+    .ai-hint {
+      background: rgba(74, 168, 216, 0.08); border: 1px solid rgba(74, 168, 216, 0.35);
+      border-radius: 14px; padding: 0.7rem 1.1rem; font-size: 0.88rem; color: #cfe8f5;
+      max-width: 640px; text-align: right; line-height: 1.8;
+    }
+    .trust { display: flex; gap: 1.1rem; flex-wrap: wrap; justify-content: center; color: var(--muted); font-size: 0.8rem; font-weight: 600; }
+  </style>
+
+  <script>
+    // حاسبة التمويل (أرقام توضيحية)
+    const $ = (id) => document.getElementById(id);
+    const fmt = new Intl.NumberFormat('en-US');
+    function calc() {
+      const price = Number($('rPrice').value);
+      const downPct = Number($('rDown').value);
+      const years = Number($('rYears').value);
+      const financed = price * (1 - downPct / 100);
+      const months = years * 12;
+      const murabaha = (financed * (1 + 0.06 * years)) / months;              // ربح سنوي ثابت ~6%
+      const lease = (financed * (1 + 0.055 * years) - price * 0.3) / months;  // قيمة تملك أخيرة 30%
+      const rent = price * 0.012;                                             // إيجار شهري مرن
+      $('vPrice').textContent = fmt.format(price) + ' ريال';
+      $('vDown').textContent = downPct + '%';
+      $('vYears').textContent = years + (years <= 2 ? ' سنة' : ' سنوات');
+      $('mMurabaha').textContent = fmt.format(Math.round(murabaha));
+      $('mLease').textContent = fmt.format(Math.max(0, Math.round(lease)));
+      $('mRent').textContent = fmt.format(Math.round(rent));
+    }
+    ['rPrice', 'rDown', 'rYears'].forEach((id) => $(id).addEventListener('input', calc));
+    calc();
+
+    // البحث الذكي (محاكاة فهم النية للنموذج الأولي)
+    $('smartSearch').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const q = $('q').value.trim();
+      if (!q) return;
+      const budget = q.match(/(\d[\d,٠-٩]*)/);
+      let hint = 'تبحث عن سيارة';
+      if (/جيب|دفع رباعي|عائلي/.test(q)) hint = 'جيب عائلي دفع رباعي';
+      else if (/رياضي|سبورت|سريع/.test(q)) hint = 'سيارة رياضية';
+      else if (/اقتصادي|رخيص/.test(q)) hint = 'سيارة اقتصادية';
+      if (budget) hint += ` بميزانية حوالي ${budget[1]} ريال شهريًا`;
+      hint += ' — رشّحت لك اللاندكروزر GXR (قسطها 3,450 ريال) وأرسلت ملفها لخالد ليجهز لك التفاصيل. 👇';
+      $('aiHintText').textContent = hint;
+      $('aiHint').hidden = false;
+      document.getElementById('market').scrollIntoView({ behavior: 'smooth' });
+    });
+  </script>
+</MotorsLayout>

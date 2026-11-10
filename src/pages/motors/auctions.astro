@@ -1,0 +1,102 @@
+---
+// القصر موتورز — مزادات السيارات الحية (محاكاة توضيحية للنموذج الأولي)
+import MotorsLayout from '../../layouts/MotorsLayout.astro';
+---
+
+<MotorsLayout title="مزادات السيارات الحية | القصر موتورز" active="auctions">
+  <section class="section wrap">
+    <div class="section-head">
+      <div class="kicker">قاعة المزادات</div>
+      <h2><span class="live-dot"></span> مزادات حية الآن</h2>
+      <p>
+        للمشترين المؤهلين تمويليًا فقط — كل مزايدة موثقة، والبائع يستلم أعلى سعر حقيقي للسوق.
+        عمولة المنصة تُحتسب فقط عند إتمام البيع.
+      </p>
+    </div>
+    <div class="cards" id="auctions"></div>
+  </section>
+
+  <section class="section wrap">
+    <div class="section-head">
+      <div class="kicker">كيف يعمل مزاد الجادّين؟</div>
+      <h2>شفاف، سريع، وعادل</h2>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="num">١</span><div class="ic">🛡️</div><h4>تأهيل مسبق</h4><p>ما يدخل المزاد إلا مشترٍ متأهل تمويليًا أو مودعًا عربونًا مستردًا — مزايدات جادة فقط.</p></div>
+      <div class="step"><span class="num">٢</span><div class="ic">⏱️</div><h4>نافذة 48 ساعة</h4><p>كل مزاد له عداد معلن. أي مزايدة في آخر 5 دقائق تمدد المزاد تلقائيًا 5 دقائق.</p></div>
+      <div class="step"><span class="num">٣</span><div class="ic">🔨</div><h4>الترسية والنقل</h4><p>الفائز يكمل الدفع خلال 24 ساعة ونقل الملكية يتم رسميًا — أو ينتقل الحق للمزايد التالي.</p></div>
+    </div>
+  </section>
+
+  <script>
+    const IMG = (id, w) => `https://unsplash.com/photos/${id}/download?w=${w}`;
+    const fmt = new Intl.NumberFormat('en-US');
+
+    // بيانات توضيحية — العدادات تُحسب من وقت فتح الصفحة
+    const now = Date.now();
+    const AUCTIONS = [
+      { name: 'بوقاتي شيرون — طلاء خاص', img: 'ojlPGWG5Q5M', bid: 11800000, bids: 27, step: 50000, ends: now + 3.2 * 3600e3, tag: 'مزاد النخبة 👑' },
+      { name: 'فيراري SF90 — ممشى 4 آلاف', img: 'k7dxIXWg61A', bid: 2450000, bids: 41, step: 20000, ends: now + 7.6 * 3600e3, tag: 'مزاد النخبة 👑' },
+      { name: 'مرسيدس G-Class الليلية', img: 'wEPQUXHbv7U', bid: 615000, bids: 33, step: 5000, ends: now + 26 * 3600e3, tag: 'الأكثر منافسة 🔥' },
+      { name: 'موستنج شيلبي — إصدار محدود', img: 'De-0moAnBNI', bid: 198000, bids: 19, step: 2000, ends: now + 44 * 3600e3, tag: 'فرصة' },
+    ];
+
+    const wrap = document.getElementById('auctions');
+    AUCTIONS.forEach((a, i) => {
+      const el = document.createElement('div');
+      el.className = 'car-card auction-card';
+      el.innerHTML = `
+        <div class="ph">
+          <img src="${IMG(a.img, 800)}" alt="${a.name}" loading="lazy" onerror="this.style.display='none'" />
+          <div class="badges"><span class="chip red"><span class="live-dot"></span>${a.tag}</span></div>
+        </div>
+        <div class="body">
+          <h3>${a.name}</h3>
+          <div class="timer" id="t${i}"></div>
+          <div class="bid-row">
+            <div>
+              <div class="bid-now" id="b${i}">${fmt.format(a.bid)} ريال</div>
+              <div class="bid-count" id="c${i}">${a.bids} مزايدة · موثقة</div>
+            </div>
+            <button class="btn-gold btn-sm" id="btn${i}">🔨 زايد +${fmt.format(a.step)}</button>
+          </div>
+        </div>`;
+      wrap.appendChild(el);
+
+      document.getElementById('btn' + i).addEventListener('click', () => {
+        a.bid += a.step; a.bids += 1;
+        render(i, true);
+      });
+    });
+
+    function render(i, mine = false) {
+      const a = AUCTIONS[i];
+      document.getElementById('b' + i).textContent = fmt.format(a.bid) + ' ريال';
+      document.getElementById('c' + i).textContent = a.bids + ' مزايدة · موثقة' + (mine ? ' · أنت الأعلى الآن ✅' : '');
+    }
+
+    // عدادات تنازلية
+    function tick() {
+      const t = Date.now();
+      AUCTIONS.forEach((a, i) => {
+        let s = Math.max(0, Math.floor((a.ends - t) / 1000));
+        const h = Math.floor(s / 3600); s %= 3600;
+        const m = Math.floor(s / 60); s %= 60;
+        document.getElementById('t' + i).innerHTML =
+          `<div class="t"><b>${String(h).padStart(2, '0')}</b><small>ساعة</small></div>` +
+          `<div class="t"><b>${String(m).padStart(2, '0')}</b><small>دقيقة</small></div>` +
+          `<div class="t"><b>${String(s).padStart(2, '0')}</b><small>ثانية</small></div>`;
+      });
+    }
+    tick();
+    setInterval(tick, 1000);
+
+    // محاكاة مزايدات منافسين
+    setInterval(() => {
+      const i = Math.floor(Math.random() * AUCTIONS.length);
+      const a = AUCTIONS[i];
+      a.bid += a.step; a.bids += 1;
+      render(i);
+    }, 6000);
+  </script>
+</MotorsLayout>

@@ -1,0 +1,118 @@
+---
+// القصر موتورز — «اعرض سيارتك»: معالج من 3 خطوات مع تسعير ذكي (محاكاة توضيحية)
+import MotorsLayout from '../../layouts/MotorsLayout.astro';
+const WHATSAPP = 'https://wa.me/966503793356';
+---
+
+<MotorsLayout title="اعرض سيارتك | القصر موتورز" active="sell">
+  <section class="section wrap">
+    <div class="section-head">
+      <div class="kicker">بدون رسوم مقدمة — عمولتنا فقط عند البيع</div>
+      <h2>اعرض سيارتك خلال دقيقتين</h2>
+      <p>صوّرها بجوالك، والذكاء الاصطناعي يبني لها «قصرًا» فخمًا، يقترح سعرها العادل، ويستقبل المهتمين المؤهلين عنك.</p>
+    </div>
+
+    <div class="wizard">
+      <div class="progress" id="prog">
+        <span class="on"></span><span></span><span></span>
+      </div>
+
+      <!-- الخطوة 1: الصور -->
+      <div class="card" id="step1">
+        <h3 style="color:var(--gold-2);margin-bottom:1rem">📸 الخطوة 1: صوّر سيارتك</h3>
+        <div class="upload-zone" id="uz">
+          <div style="font-size:2rem">🚗📱</div>
+          <b>اسحب 8 صور هنا أو اضغط للتصوير</b>
+          <div style="font-size:0.8rem;margin-top:0.4rem">الذكاء الاصطناعي يعزل السيارة ويركبها في استوديو القصر تلقائيًا (محاكاة بالنموذج الأولي)</div>
+        </div>
+        <div id="uzDone" hidden style="margin-top:0.9rem" class="ai-price">
+          <div class="range">✨ تم! جهزنا 8 لقطات استوديو لسيارتك</div>
+          <div style="color:var(--muted);font-size:0.8rem;margin-top:0.3rem">إضاءة مسرحية · خلفية القصر · لقطة 360°</div>
+        </div>
+        <button class="btn-gold" style="margin-top:1.1rem;width:100%" id="next1">التالي ←</button>
+      </div>
+
+      <!-- الخطوة 2: البيانات -->
+      <div class="card" id="step2" hidden>
+        <h3 style="color:var(--gold-2);margin-bottom:1rem">📋 الخطوة 2: بيانات السيارة</h3>
+        <div class="grid-2f">
+          <div class="field"><label>الماركة والموديل</label>
+            <select id="fModel">
+              <option value="landcruiser">تويوتا لاندكروزر</option>
+              <option value="patrol">نيسان باترول</option>
+              <option value="mustang">فورد موستنج</option>
+              <option value="gclass">مرسيدس G-Class</option>
+              <option value="camry">تويوتا كامري</option>
+            </select>
+          </div>
+          <div class="field"><label>سنة الصنع</label>
+            <select id="fYear">
+              <option>2024</option><option>2023</option><option selected>2022</option>
+              <option>2021</option><option>2020</option><option>2019</option>
+            </select>
+          </div>
+          <div class="field"><label>الممشى (كم)</label><input id="fKm" type="number" value="48000" min="0" step="1000" /></div>
+          <div class="field"><label>المدينة</label>
+            <select id="fCity"><option>الرياض</option><option>جدة</option><option>الدمام</option><option>مكة</option><option>المدينة</option></select>
+          </div>
+        </div>
+        <button class="btn-gold" style="margin-top:0.6rem;width:100%" id="next2">🔮 سعّرها بالذكاء ←</button>
+      </div>
+
+      <!-- الخطوة 3: التسعير الذكي -->
+      <div class="card" id="step3" hidden>
+        <h3 style="color:var(--gold-2);margin-bottom:1rem">💎 الخطوة 3: السعر العادل</h3>
+        <div class="ai-price">
+          <div style="font-size:0.82rem;color:var(--muted);margin-bottom:0.4rem">🤖 حللنا صفقات مشابهة في سوقك (محاكاة توضيحية)</div>
+          <div class="range" id="aiRange">—</div>
+          <div style="color:var(--muted);font-size:0.8rem;margin-top:0.4rem" id="aiDetail"></div>
+        </div>
+        <div class="field" style="margin-top:1rem">
+          <label>سعرك المطلوب (ريال)</label>
+          <input id="fPrice" type="number" step="1000" />
+        </div>
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-top:0.4rem">
+          <span class="chip green">✓ فحص مجاني عند أول مهتم جاد</span>
+          <span class="chip">✓ توأم رقمي</span>
+          <span class="chip">✓ مزايدة الجادّين إن تعدد المهتمون</span>
+        </div>
+        <a class="btn-gold" style="margin-top:1.1rem;width:100%;text-align:center;display:block" id="publish"
+           href={WHATSAPP + '?text=' + encodeURIComponent('أرغب بعرض سيارتي في القصر موتورز')} target="_blank" rel="noopener">
+          👑 انشر سيارتك في القصر
+        </a>
+        <div class="fin-note" style="margin-top:0.7rem;text-align:center">بالنشر توافق على اتفاقية الوساطة — عمولة تُحتسب فقط عند إتمام البيع.</div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const fmt = new Intl.NumberFormat('en-US');
+
+    // أسعار أساس توضيحية لكل موديل (2022)
+    const BASE = { landcruiser: 265000, patrol: 235000, mustang: 145000, gclass: 780000, camry: 98000 };
+
+    $('uz').addEventListener('click', () => { $('uzDone').hidden = false; });
+    $('next1').addEventListener('click', () => {
+      $('step1').hidden = true; $('step2').hidden = false;
+      $('prog').children[1].classList.add('on');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    $('next2').addEventListener('click', () => {
+      $('step2').hidden = true; $('step3').hidden = false;
+      $('prog').children[2].classList.add('on');
+      const model = $('fModel').value;
+      const year = Number($('fYear').value);
+      const km = Number($('fKm').value) || 0;
+      let price = BASE[model] || 120000;
+      price *= 1 + (year - 2022) * 0.07;          // أثر سنة الصنع
+      price *= Math.max(0.6, 1 - (km / 300000));  // أثر الممشى
+      const lo = Math.round(price * 0.97 / 1000) * 1000;
+      const hi = Math.round(price * 1.05 / 1000) * 1000;
+      $('aiRange').textContent = `${fmt.format(lo)} – ${fmt.format(hi)} ريال`;
+      $('aiDetail').textContent = 'السعر الموصى به للبيع خلال 14 يوم: ' + fmt.format(Math.round(price / 1000) * 1000) + ' ريال';
+      $('fPrice').value = Math.round(price / 1000) * 1000;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  </script>
+</MotorsLayout>

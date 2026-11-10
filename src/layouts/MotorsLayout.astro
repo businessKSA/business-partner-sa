@@ -1,0 +1,72 @@
+---
+// هيكل صفحات «القصر موتورز» — منصة وساطة السيارات (نموذج أولي)
+// مستقل عن BaseLayout حتى لا يؤثر على بقية الموقع.
+import '../styles/motors.css';
+
+interface Props {
+  title: string;
+  active?: string;
+}
+const { title, active = '' } = Astro.props;
+
+const NAV = [
+  { href: '/motors', key: 'home', label: '🏠 الرئيسية' },
+  { href: '/motors/auctions', key: 'auctions', label: '🔨 المزادات' },
+  { href: '/motors/plates', key: 'plates', label: '🔢 اللوحات المميزة' },
+  { href: '/showroom', key: 'showroom', label: '👑 جناح الفخامة' },
+  { href: '/voice', key: 'voice', label: '🎙️ تحدث مع خالد' },
+];
+---
+
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>{title}</title>
+    <meta name="description" content="القصر موتورز — منصة وساطة سيارات مبتكرة: سوق مستعمل موثق، مزادات حية، لوحات مميزة، تمويل وإيجار منتهي بالتمليك." />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://unsplash.com" />
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="top">
+      <div class="bar">
+        <a class="brand" href="/motors">
+          <div class="mark">👑</div>
+          <div>
+            <b>القصر موتورز</b>
+            <span>AL-QASR MOTORS — كل ما يخص السيارات</span>
+          </div>
+        </a>
+        <nav class="main" aria-label="التنقل الرئيسي">
+          {NAV.map((n) => (
+            <a href={n.href} class={active === n.key ? 'active' : ''}>{n.label}</a>
+          ))}
+          <a href="/motors/sell" class={'cta' + (active === 'sell' ? ' active' : '')}>+ اعرض سيارتك</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="bottom">
+      <span class="serif">القصر موتورز</span>
+      وسيطك الذكي لكل ما يخص السيارات · الرياض، المملكة العربية السعودية
+      <span class="note">
+        نموذج أولي تجريبي — جميع السيارات والأسعار والمزادات وعروض التمويل المعروضة توضيحية لغرض العرض فقط.
+        التمويل يُقدَّم حصريًا عبر بنوك وشركات تمويل مرخصة من البنك المركزي السعودي، والمنصة وسيط عرض وربط ولا تقدم تمويلًا بنفسها.
+        نقل الملكية يتم عبر القنوات الرسمية المعتمدة. التصوير الفوتوغرافي عبر Unsplash.
+      </span>
+    </footer>
+  </body>
+</html>
