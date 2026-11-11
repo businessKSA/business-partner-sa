@@ -84,7 +84,7 @@ export async function createEvent({ summary, description, startIso, endIso, atte
       start: { dateTime: startIso, timeZone: "Asia/Riyadh" },
       end: { dateTime: endIso, timeZone: "Asia/Riyadh" },
       attendees: attendees.filter(Boolean).map((email) => ({ email })),
-      reminders: { useDefault: false, overrides: [{ method: "email", minutes: 1440 }, { method: "popup", minutes: 30 }] },
+      reminders: { useDefault: false, overrides: [{ method: "popup", minutes: 15 }, { method: "popup", minutes: 5 }] },   // تنبيهان قبل الموعد: 15 و5 دقائق
       conferenceData: { createRequest: { requestId: `bp-${Date.now()}`, conferenceSolutionKey: { type: "hangoutsMeet" } } },
     }),
   });
