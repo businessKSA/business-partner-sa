@@ -8239,7 +8239,7 @@ function buildSuppliers() {
       <a class="btn btn-white btn-lg" href="${joinHref}">${L("Create your partner account", "أنشئ حسابك كشريك")}</a>
     </div>
   </div></section>`;
-  return page({ title: Lraw("Partner registration — Business Partner", "تسجيل الشركاء — بيزنس بارتنر"), desc: Lraw("Register as a Business Partner partner and receive matching client requests.", "سجّل كشريك لدى بيزنس بارتنر وتصلك طلبات العملاء المناسبة لنشاطك."), active: "/suppliers", path: "/suppliers", body });
+  return sv1Page({ title: Lraw("Partner registration — Business Partner", "تسجيل الشركاء — بيزنس بارتنر"), desc: Lraw("Register as a Business Partner partner and receive matching client requests.", "سجّل كشريك لدى بيزنس بارتنر وتصلك طلبات العملاء المناسبة لنشاطك."), active: "/suppliers", path: "/suppliers", body });
 }
 
 // Partner dashboard — the operational side of the partners portal, wired to the
